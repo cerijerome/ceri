@@ -38,6 +38,7 @@ public class LibFtdiBaud {
 	}
 
 	private LibFtdiBaud(ftdi_chip_type type, int index, int rate) throws LibUsbException {
+		System.out.printf("%s:%d:%d%n", type, index, rate);
 		this.type = type;
 		this.index = index;
 		convert(rate);
@@ -68,6 +69,9 @@ public class LibFtdiBaud {
 	}
 
 	private void toClockBits(int rate, int clk, int clkDiv) {
+		System.out.println(clk / clkDiv);
+		System.out.println(clk / (clkDiv + (clkDiv >>> 1)));
+		System.out.println(clk / (clkDiv << 1));
 		if (rate >= clk / clkDiv) {
 			encodedDivisor = 0;
 			actualRate = clk / clkDiv;

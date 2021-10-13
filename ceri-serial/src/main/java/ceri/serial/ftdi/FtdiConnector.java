@@ -123,7 +123,7 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 	static class Null implements FtdiConnector {
 		private final Listenable<StateChange> listenable = Listenable.ofNull();
 
-		private Null() {}
+		Null() {}
 
 		@Override
 		public Listenable<StateChange> listeners() {

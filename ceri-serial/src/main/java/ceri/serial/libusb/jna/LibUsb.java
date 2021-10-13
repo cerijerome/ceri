@@ -2294,10 +2294,9 @@ public class LibUsb {
 			"libusb_handle_events_timeout", ctx, tv);
 	}
 
-	public static int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv)
-		throws LibUsbException {
+	public static int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv,
+		IntByReference completed) throws LibUsbException {
 		require(ctx);
-		IntByReference completed = new IntByReference();
 		caller.verify(
 			() -> lib().libusb_handle_events_timeout_completed(ctx, tv.getPointer(), completed),
 			"libusb_handle_events_timeout_completed", ctx, tv, completed);

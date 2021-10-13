@@ -3,9 +3,14 @@ package ceri.serial.clib.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFile;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
+import static ceri.serial.clib.jna.CLib.POLLHUP;
+import static ceri.serial.clib.jna.CLib.POLLIN;
+import static ceri.serial.clib.jna.CLib.POLLOUT;
+import static ceri.serial.clib.jna.CLib.POLLWRBAND;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,12 +21,15 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.test.FileTestHelper;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.OsUtil;
 import ceri.serial.clib.OpenFlag;
 import ceri.serial.clib.Seek;
+import ceri.serial.clib.jna.CLib.pollfd;
 import ceri.serial.clib.jna.CLibNative.sighandler_t;
 import ceri.serial.clib.test.TestCLibNative;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.Struct;
 import ceri.serial.jna.test.JnaTestUtil;
 
 public class CLibTest {
@@ -35,6 +43,11 @@ public class CLibTest {
 	@AfterClass
 	public static void deleteFiles() {
 		helper.close();
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(CLib.class);
 	}
 
 	@Test
@@ -163,6 +176,31 @@ public class CLibTest {
 			lib.signal.assertAuto(List.of(15, cb));
 			CLib.raise(15);
 			lib.raise.assertAuto(15);
+		});
+	}
+
+	@Test
+	public void testPoll() throws CException {
+		TestCLibNative.exec(lib -> {
+			var fds = pollfd.array(3);
+			fds[0].fd = 1;
+			fds[0].events = POLLIN | POLLOUT;
+			fds[1].fd = 2;
+			fds[1].events = POLLHUP;
+			fds[2].fd = 3;
+			fds[2].events = (short) POLLWRBAND;
+			assertEquals(CLib.poll(pollfd.array(0), 0), 0);
+			assertThrown(() -> CLib.poll(new pollfd[] { fds[0], fds[2] }, 100));
+			assertEquals(CLib.poll(fds, 100), 0);
+			lib.poll.autoResponse(list -> {
+				var fd = BasicUtil.<List<pollfd>>uncheckedCast(list.get(0)).get(0);
+				fd.revents = POLLIN;
+				Struct.write(fd);
+				return 1;
+			});
+			assertEquals(CLib.poll(fds, 100), 1);
+			assertEquals(fds[0].revents, (short) POLLIN);
+			lib.poll.assertAuto(List.of(List.of(fds), 100));
 		});
 	}
 

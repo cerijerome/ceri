@@ -6,6 +6,7 @@
 
 #define SYM(x) print_symbol(#x,STR(x))
 #define SYMI(x) print_symbol_i(#x,x)
+#define SIZE(x) print_symbol_i("sizeof("#x")",sizeof(x))
 
 #define FMT_PRINT 0
 #define FMT_JAVA_HEX 1
@@ -42,6 +43,7 @@ int main(int argc, char *argv[]) {
 	SYMI(HELLO3);
 	SYMI(O_CREAT);
 
+	SIZE(long int);
 	return 0;
 }
 

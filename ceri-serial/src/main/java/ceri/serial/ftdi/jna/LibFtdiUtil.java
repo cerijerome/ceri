@@ -19,6 +19,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbUtil;
+import ceri.serial.libusb.jna.LibUsb.libusb_error;
 
 public class LibFtdiUtil {
 	private static final Pattern FIND_BY_DEVICE_NODE = compile("d:(\\d+)/(\\d+)");
@@ -101,4 +102,10 @@ public class LibFtdiUtil {
 		};
 	}
 
+	/**
+	 * Determine if exception is a LibUsbException with given error.
+	 */
+	public static boolean isError(Exception e, libusb_error error) {
+		return e instanceof LibUsbException le && le.error == error;
+	}
 }

@@ -22,6 +22,8 @@ import static ceri.serial.libusb.jna.LibUsbTestData.lastError;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -58,6 +60,7 @@ import ceri.serial.libusb.jna.LibUsbTestData.DeviceHandle;
 import ceri.serial.libusb.jna.LibUsbTestData.Transfer;
 
 public class TestLibUsbNative implements LibUsbNative {
+	private static final Logger logger = LogManager.getFormatterLogger();
 	public final LibUsbTestData data = new LibUsbTestData();
 	// List<?> = (int reqType, int req, int value, int index, int length)
 	public final CallSync.Apply<List<?>, ByteProvider> controlTransferIn =
@@ -557,17 +560,17 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_try_lock_events(libusb_context ctx) {
-		throw new UnsupportedOperationException();
+		return data.context(PointerUtil.pointer(ctx)).eventLock.tryLock() ? 0 : 1;
 	}
 
 	@Override
 	public void libusb_lock_events(libusb_context ctx) {
-		throw new UnsupportedOperationException();
+		data.context(PointerUtil.pointer(ctx)).eventLock.lock();
 	}
 
 	@Override
 	public void libusb_unlock_events(libusb_context ctx) {
-		throw new UnsupportedOperationException();
+		data.context(PointerUtil.pointer(ctx)).eventLock.unlock();
 	}
 
 	@Override
@@ -612,11 +615,14 @@ public class TestLibUsbNative implements LibUsbNative {
 			var context = data.context(PointerUtil.pointer(ctx));
 			var timeoutMs = timeoutMs(tv);
 			if (completed == null) completed = new IntByReference();
-			for (var transfer : data.transfers())
+			if (completed.getValue() == 0) for (var transfer : data.transfers())
 				handleEvent(context, transfer, timeoutMs, completed);
 			return 0;
 		} catch (LastErrorException e) {
 			return e.getErrorCode();
+		} catch (AssertionError e) {
+			logger.catching(e); // to provide more detail
+			throw e;
 		}
 	}
 
@@ -747,8 +753,8 @@ public class TestLibUsbNative implements LibUsbNative {
 		if (deviceHandle.device.deviceList.context != context) return;
 		if (t.status == 0) {
 			ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
-			var status = handleEvent
-				.apply(new TransferEvent(t.endpoint, t.type(), buffer, timeoutMs, completed));
+			var status = handleEvent.apply(
+				new TransferEvent(ubyte(t.endpoint), t.type(), buffer, timeoutMs, completed));
 			if (status == null) return; // no event
 			t.status = status.value;
 			t.actual_length = buffer.position();

@@ -21,6 +21,7 @@ import ceri.serial.javax.TestSerialPort;
 
 public class SelfHealingSerialConnectorBehavior {
 	private TestSerialPort serial;
+	private LogModifier logMod;
 	private SelfHealingSerialConnector con;
 
 	@Before
@@ -29,6 +30,7 @@ public class SelfHealingSerialConnectorBehavior {
 		var config = SelfHealingSerialConfig.builder("com0")
 			.brokenPredicate(IOException.class::isInstance).factory((p, n, t) -> serial.openPort(p))
 			.fixRetryDelayMs(1).recoveryDelayMs(1).build();
+		logMod = LogModifier.of(Level.OFF, SelfHealingSerialConnector.class);
 		con = SelfHealingSerialConnector.of(config);
 		assertFind(con.toString(), "\\bcom0\\b");
 	}
@@ -36,6 +38,7 @@ public class SelfHealingSerialConnectorBehavior {
 	@After
 	public void after() {
 		con.close();
+		logMod.close();
 		serial.close();
 	}
 
@@ -64,56 +67,48 @@ public class SelfHealingSerialConnectorBehavior {
 	@Test
 	public void shouldBreakIfErrorMatch() throws IOException {
 		con.connect();
-		LogModifier.run(() -> {
-			serial.open.assertAuto("com0");
-			serial.in.read.error.setFrom(RTX);
-			serial.in.to.writeBytes(0, 0, 0);
-			assertThrown(RuntimeException.class, con.in()::read); // doesn't match
-			serial.in.read.error.setFrom(IOX);
-			assertThrown(IOException.class, con.in()::read); // match - broken
-			assertThrown(IOException.class, con.in()::read); // match - already broken
-		}, Level.OFF, SelfHealingSerialConnector.class);
+		serial.open.assertAuto("com0");
+		serial.in.read.error.setFrom(RTX);
+		serial.in.to.writeBytes(0, 0, 0);
+		assertThrown(RuntimeException.class, con.in()::read); // doesn't match
+		serial.in.read.error.setFrom(IOX);
+		assertThrown(IOException.class, con.in()::read); // match - broken
+		assertThrown(IOException.class, con.in()::read); // match - already broken
 	}
 
 	@Test
 	public void shouldRetryConnectingOnFailure() {
-		LogModifier.run(() -> {
-			serial.open.error.setFrom(IOX);
-			assertThrown(con::connect);
-			serial.open.assertAuto("com0");
-			serial.open.assertAuto("com0"); // retry
-			serial.open.assertAuto("com0"); // retry
-		}, Level.OFF, SelfHealingSerialConnector.class);
+		serial.open.error.setFrom(IOX);
+		assertThrown(con::connect);
+		serial.open.assertAuto("com0");
+		serial.open.assertAuto("com0"); // retry
+		serial.open.assertAuto("com0"); // retry
 	}
 
 	@Test
 	public void shouldNotifyWhenFixed() throws IOException {
 		con.connect();
 		serial.open.error.setFrom(IOX);
-		LogModifier.run(() -> {
-			con.broken();
-			CallSync.Accept<StateChange> sync = CallSync.consumer(null, false);
-			try (var enc = con.listeners().enclose(sync::accept)) {
-				serial.open.error.clear();
-				sync.assertCall(StateChange.fixed);
-			}
-		}, Level.OFF, SelfHealingSerialConnector.class);
+		con.broken();
+		CallSync.Accept<StateChange> sync = CallSync.consumer(null, false);
+		try (var enc = con.listeners().enclose(sync::accept)) {
+			serial.open.error.clear();
+			sync.assertCall(StateChange.fixed);
+		}
 	}
 
 	@Test
 	public void shouldHandleListenerErrors() {
 		serial.open.error.setFrom(IOX);
 		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
-		LogModifier.run(() -> {
-			try (var enc = con.listeners().enclose(sync::accept)) {
-				sync.error.setFrom(RTX);
-				con.broken(); // logs error
-				sync.assertAuto(StateChange.broken);
-				sync.error.setFrom(RIX);
-				assertThrown(RuntimeInterruptedException.class, con::broken);
-				sync.assertCall(StateChange.broken);
-			}
-		}, Level.OFF, SelfHealingSerialConnector.class);
+		try (var enc = con.listeners().enclose(sync::accept)) {
+			sync.error.setFrom(RTX);
+			con.broken(); // logs error
+			sync.assertAuto(StateChange.broken);
+			sync.error.setFrom(RIX);
+			assertThrown(RuntimeInterruptedException.class, con::broken);
+			sync.assertCall(StateChange.broken);
+		}
 	}
 
 }

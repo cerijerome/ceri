@@ -2,6 +2,7 @@ package ceri.serial.ftdi;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
+import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
@@ -225,9 +226,16 @@ public class Ftdi implements Closeable {
 
 	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers)
 		throws LibUsbException {
+		readStream(callback, packetsPerTransfer, numTransfers, PROGRESS_INTERVAL_SEC);
+	}
+
+	void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+		double progressIntervalSec)
+		throws LibUsbException {
 		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
 			user_data) -> streamCallback(buffer, length, progress, callback);
-		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers);
+		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers,
+			progressIntervalSec);
 	}
 
 	public void readChunkSize(int chunkSize) throws LibUsbException {

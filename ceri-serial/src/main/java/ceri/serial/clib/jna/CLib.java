@@ -170,6 +170,54 @@ public class CLib {
 		caller.verify(() -> lib().raise(sig), "raise", sig);
 	}
 
+	/* poll.h */
+
+	public static final int POLLIN = 0x0001;
+	public static final int POLLPRI = 0x0002;
+	public static final int POLLOUT = 0x0004;
+	public static final int POLLERR = 0x0008;
+	public static final int POLLHUP = 0x0010;
+	public static final int POLLNVAL = 0x0020;
+	public static final int POLLRDNORM = 0x0040;
+	public static final int POLLRDBAND = 0x0080;
+	public static final int POLLWRNORM;
+	public static final int POLLWRBAND;
+
+	/**
+	 * Data structure for a polling request.
+	 */
+	@Fields({ "fd", "events", "revents" })
+	public static class pollfd extends Struct {
+		public int fd; /* File descriptor to poll. */
+		public short events; /* Types of events poller cares about. */
+		public short revents; /* Types of events that actually occurred. */
+
+		public static pollfd[] array(int size) {
+			return Struct.arrayByVal(() -> new pollfd(), pollfd[]::new, size);
+		}
+
+		public pollfd() {}
+
+		public pollfd(Pointer p) {
+			super(p);
+		}
+	}
+
+	/**
+	 * Examines a set of file descriptors to see if some of them are ready for I/O or if certain
+	 * events have occurred on them. A timeoutMs of -1 blocks until an event occurs. Returns the
+	 * number of descriptors with returned events.
+	 */
+	public static int poll(pollfd[] fds, int timeout) throws CException {
+		if (fds.length > 0 && !Struct.isByVal(fds))
+			throw CException.full("Array is not contiguous", CError.EINVAL);
+		Pointer p = Struct.pointer(fds);
+		int n = caller.verifyInt(() -> lib().poll(p, fds.length, timeout), "poll", p, fds.length,
+			timeout);
+		if (n > 0) Struct.read(fds, "revents");
+		return n;
+	}
+
 	/* fcntl.h */
 
 	public static final int O_RDONLY = 0x0;
@@ -430,6 +478,9 @@ public class CLib {
 			SIGBUS = 10;
 			SIGUSR1 = 30;
 			SIGUSR2 = 31;
+			/* poll.h */
+			POLLWRNORM = 0x4;
+			POLLWRBAND = 0x100;
 			/* fcntl.h */
 			O_CREAT = 0x200;
 			O_EXCL = 0x800;
@@ -455,6 +506,9 @@ public class CLib {
 			SIGBUS = 7;
 			SIGUSR1 = 10;
 			SIGUSR2 = 12;
+			/* poll.h */
+			POLLWRNORM = 0x100;
+			POLLWRBAND = 0x200;
 			/* fcntl.h */
 			O_CREAT = 0x40;
 			O_EXCL = 0x80;

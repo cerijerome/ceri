@@ -289,6 +289,19 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
+	 * Returns true if the array is contiguous.
+	 */
+	public static <T extends Structure> boolean isByVal(T[] array) {
+		if (array == null) return false;
+		if (array.length == 1) return true;
+		Pointer p0 = pointer(array);
+		int size = array[0].size();
+		for (int i = 1; i < array.length; i++)
+			if (!array[i].getPointer().equals(p0.share(i * size))) return false;
+		return true;
+	}
+
+	/**
 	 * Constructor for a new struct without initialization.
 	 */
 	protected Struct() {

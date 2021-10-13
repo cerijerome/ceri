@@ -11,6 +11,7 @@ import static ceri.serial.jna.JnaTestData.assertStruct;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import java.util.function.Function;
 import org.junit.Test;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
 import ceri.common.collection.ArrayUtil;
@@ -213,13 +214,25 @@ public class StructBehavior {
 	}
 
 	@Test
-	public void testIsByVal() {
-		assertEquals(Struct.isByVal(null), false);
+	public void testClassIsByVal() {
+		assertEquals(Struct.isByVal((Class<?>) null), false);
 		assertEquals(Struct.isByVal(TestStruct.class), false);
 		assertEquals(Struct.isByVal(TestStruct.ByRef.class), false);
 		assertEquals(Struct.isByVal(TestStruct.ByVal.class), true);
 	}
 
+	@Test
+	public void testArrayIsByVal() {
+		var m = JnaUtil.calloc(TestStruct.SIZE * 3);
+		var t0 = new TestStruct(m);
+		var t1 = new TestStruct(m.share(TestStruct.SIZE));
+		var t2 = new TestStruct(m.share(TestStruct.SIZE * 2));
+		assertEquals(Struct.isByVal((TestStruct[]) null), false);
+		assertEquals(Struct.isByVal(new TestStruct[] { t0 }), true);
+		assertEquals(Struct.isByVal(new TestStruct[] { t0, t1, t2 }), true);
+		assertEquals(Struct.isByVal(new TestStruct[] { t0, t2 }), false);
+	}
+	
 	@Test
 	public void shouldCreateEmptyArray() {
 		var t = new TestStruct(100, null, 1, 2, 3);

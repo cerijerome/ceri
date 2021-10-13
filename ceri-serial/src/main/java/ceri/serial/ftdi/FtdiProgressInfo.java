@@ -1,6 +1,7 @@
 package ceri.serial.ftdi;
 
 import static ceri.common.time.DateUtil.microsExact;
+import java.time.Duration;
 import java.time.Instant;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 
@@ -57,12 +58,13 @@ public class FtdiProgressInfo {
 
 	@Override
 	public String toString() {
+		long previousMicros = microsExact(Duration.between(firstTime(), previousTime()));
+		long currentMicros = microsExact(Duration.between(firstTime(), currentTime()));
 		return String.format(
-			"progress=(total[%.3fs@%.0fkB/s], " +
-				"current[%dB/%dus@%.0fkB/s], previous[%dB/%dus], first[%dB/%dus])",
-			totalTimeSec(), totalRate() / 1000, currentTotalBytes(), microsExact(currentTime()),
-			currentRate() / 1000, previousTotalBytes(), microsExact(previousTime()),
-			firstTotalBytes(), microsExact(firstTime()));
+			"progress=(total[%.3fs@%.0fkB/s], current[%dB/%dus@%.0fkB/s], " +
+				"previous[%dB/%dus], first[%dB])",
+			totalTimeSec(), totalRate() / 1000, currentTotalBytes(), currentMicros,
+			currentRate() / 1000, previousTotalBytes(), previousMicros, firstTotalBytes());
 	}
 
 }

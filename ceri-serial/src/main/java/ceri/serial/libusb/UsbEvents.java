@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.Enclosed;
@@ -53,6 +54,28 @@ public class UsbEvents implements Closeable {
 		void invoke(int fd, T userData) throws IOException;
 	}
 
+	public static class Completed {
+		private final IntByReference completed = new IntByReference();
+		
+		public static Completed of() {
+			return new Completed();
+		}
+		
+		private Completed() {}
+		
+		public void complete(int value) {
+			completed.setValue(value);
+		}
+		
+		public int value() {
+			return completed.getValue();
+		}
+		
+		public boolean completed() {
+			return value() != 0;
+		}
+	}
+	
 	public static class PollFd {
 		private libusb_pollfd pollFd;
 
@@ -130,8 +153,9 @@ public class UsbEvents implements Closeable {
 		libusb_handle_events_timeout(context(), Struct.write(timeval.from(d)));
 	}
 
-	public int handleTimeoutCompleted(Duration d) throws LibUsbException {
-		return libusb_handle_events_timeout_completed(context(), Struct.write(timeval.from(d)));
+	public int handleTimeoutCompleted(Duration d, Completed completed) throws LibUsbException {
+		return libusb_handle_events_timeout_completed(context(), Struct.write(timeval.from(d)),
+			completed.completed);
 	}
 
 	public void await(Duration d) throws LibUsbException {

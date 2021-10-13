@@ -18,8 +18,10 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.Enclosed;
 import ceri.serial.clib.jna.CError;
 import ceri.serial.clib.jna.CLib;
+import ceri.serial.clib.jna.CLib.pollfd;
 import ceri.serial.clib.jna.CLibNative;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.Struct;
 
 /**
  * Test implementation for CLib.
@@ -40,6 +42,8 @@ public class TestCLibNative implements CLibNative {
 	// List<?> = int signal, sighandler_t handler
 	public final CallSync.Apply<List<?>, sighandler_t> signal = CallSync.function(null, i -> {});
 	public final CallSync.Apply<Integer, Integer> raise = CallSync.function(null, 0);
+	// List<?> = List<pollfd> fds, int timeoutMs
+	public final CallSync.Apply<List<?>, Integer> poll = CallSync.function(null, 0);
 	// List<?> = Fd f, int request, Object... objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
 	// List<?> = Fd f, Pointer termios
@@ -144,6 +148,15 @@ public class TestCLibNative implements CLibNative {
 	@Override
 	public int raise(int sig) {
 		return raise.apply(sig);
+	}
+
+	@Override
+	public int poll(Pointer fds, int nfds, int timeout) throws LastErrorException {
+		var array = Struct.arrayByVal(fds,
+			pollfd::new,
+			pollfd[]::new,
+			nfds);
+		return poll.apply(List.of(List.of(array), timeout));
 	}
 
 	@Override

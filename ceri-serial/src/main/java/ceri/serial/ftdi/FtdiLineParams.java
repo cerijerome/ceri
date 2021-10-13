@@ -79,5 +79,4 @@ public class FtdiLineParams {
 	public String toString() {
 		return ToString.forClass(this, dataBits, stopBits, parity, breakType);
 	}
-
 }

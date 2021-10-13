@@ -1,5 +1,6 @@
 package ceri.serial.ftdi;
 
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class FtdiBitMode {
 		}
 
 		public Builder mask(int mask) {
-			this.mask = mask;
+			this.mask = ubyte(mask);
 			return this;
 		}
 
@@ -46,7 +47,7 @@ public class FtdiBitMode {
 			for (int bit : bits)
 				if (bit < Byte.SIZE) mask |= 1L << bit;
 			if (dir == LineDirection.out) this.mask |= mask;
-			else this.mask &= ~mask;
+			else this.mask &= ubyte(~mask);
 			return this;
 		}
 

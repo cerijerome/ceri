@@ -2,6 +2,7 @@ package ceri.serial.ftdi.jna;
 
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_set_bitmode;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_purge_buffers;
+import static ceri.serial.ftdi.jna.LibFtdiUtil.isError;
 import static ceri.serial.ftdi.jna.LibFtdiUtil.requireDev;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 import ceri.common.time.DateUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
@@ -31,7 +33,8 @@ import ceri.serial.libusb.jna.LibUsbUtil;
 public class LibFtdiStream {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int READ_STATUS_BYTES = 2;
-	private static final double PROGRESS_INTERVAL_SEC = 1.0;
+	private static final int COMPLETED = 1;
+	public static final double PROGRESS_INTERVAL_SEC = 1.0;
 
 	public static class FTDIProgressInfo {
 		public final size_and_time first = new size_and_time();
@@ -66,22 +69,21 @@ public class LibFtdiStream {
 
 	private static class FTDIStreamState<T> {
 		private final FTDIProgressInfo progress = new FTDIProgressInfo();
-		private final double progressIntervalSec; // seconds between progress callbacks
 		private final FTDIStreamCallback<T> callback;
-		private final libusb_transfer[] transfers;
 		private final T userdata;
 		private final int packetsize;
-		private int activeTransfers = 0;
-		private CancelState cancel = CancelState.none;
-		private Exception error = null;
+		private final libusb_transfer[] transfers;
+		private final IntByReference completed = new IntByReference();
+		private volatile int activeTransfers = 0;
+		private volatile CancelState cancel = CancelState.none;
+		private volatile Exception error = null;
 
 		private FTDIStreamState(FTDIStreamCallback<T> callback, T userdata, int numTransfers,
-			int packetSize, double progressIntervalSec) {
+			int packetSize) {
 			this.transfers = new libusb_transfer[numTransfers];
 			this.callback = callback;
 			this.userdata = userdata;
 			this.packetsize = packetSize;
-			this.progressIntervalSec = progressIntervalSec;
 		}
 	}
 
@@ -95,19 +97,18 @@ public class LibFtdiStream {
 	 */
 	public static <T> void ftdi_readstream(ftdi_context ftdi, FTDIStreamCallback<T> callback,
 		T userData, int packetsPerTransfer, int numTransfers) throws LibUsbException {
-		readStream(ftdi, callback, userData, packetsPerTransfer, numTransfers,
+		ftdi_readstream(ftdi, callback, userData, packetsPerTransfer, numTransfers,
 			PROGRESS_INTERVAL_SEC);
 	}
 
-	static <T> void readStream(ftdi_context ftdi, FTDIStreamCallback<T> callback, T userData,
-		int packetsPerTransfer, int numTransfers, double progressIntervalSec)
+	public static <T> void ftdi_readstream(ftdi_context ftdi, FTDIStreamCallback<T> callback,
+		T userData, int packetsPerTransfer, int numTransfers, double progressIntervalSec)
 		throws LibUsbException {
 		requireDev(ftdi);
 		requireFifo(ftdi);
-		var state = new FTDIStreamState<>(callback, userData, numTransfers, ftdi.max_packet_size,
-			progressIntervalSec);
+		var state = new FTDIStreamState<>(callback, userData, numTransfers, ftdi.max_packet_size);
 		submitTransfers(ftdi, state, packetsPerTransfer);
-		completeTransfers(ftdi, state);
+		completeTransfers(ftdi, state, progressIntervalSec);
 		if (state.error != null) throw LibUsbException.ADAPTER.apply(state.error);
 	}
 
@@ -143,29 +144,30 @@ public class LibFtdiStream {
 		}
 	}
 
-	private static <T> void completeTransfers(ftdi_context ftdi, FTDIStreamState<T> state) {
+	private static <T> void completeTransfers(ftdi_context ftdi, FTDIStreamState<T> state,
+		double progressIntervalSec) {
 		state.progress.first.time = Instant.now();
 		timeval timeout = timeout(ftdi);
-		while (state.activeTransfers > 0) {
+		checkCompleted(state);
+		int completed = state.completed.getValue();
+		while (completed == 0) {
 			try {
 				if (state.cancel == CancelState.requested) cancelTransfers(state);
-				LibUsb.libusb_handle_events_timeout(ftdi.usb_ctx, timeout); // blocks
-				if (state.error == null) updateProgress(state);
-			} catch (RuntimeException e) {
-				error(state, e);
-				return;
-			} catch (LibUsbException e) {
-				if (e.error == LIBUSB_ERROR_INTERRUPTED) continue;
+				completed = LibUsb.libusb_handle_events_timeout_completed(ftdi.usb_ctx, timeout,
+					state.completed); // blocks
+				if (state.error == null) updateProgress(state, progressIntervalSec);
+			} catch (LibUsbException | RuntimeException e) {
+				if (isError(e, LIBUSB_ERROR_INTERRUPTED)) continue;
 				error(state, e);
 				return;
 			}
 		}
 	}
 
-	private static <T> void updateProgress(FTDIStreamState<T> state) {
+	private static <T> void updateProgress(FTDIStreamState<T> state, double progressIntervalSec) {
 		try {
 			Instant now = Instant.now();
-			if (secDiff(state.progress.current.time, now) < state.progressIntervalSec) return;
+			if (secDiff(state.progress.current.time, now) < progressIntervalSec) return;
 			state.progress.update(now);
 			if (!state.callback.invoke(null, 0, state.progress, state.userdata))
 				requestCancel(state);
@@ -242,8 +244,13 @@ public class LibFtdiStream {
 		LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(state.transfers[i]));
 		state.transfers[i] = null;
 		state.activeTransfers--;
+		checkCompleted(state);
 	}
 
+	private static void checkCompleted(FTDIStreamState<?> state) {
+		if (state.activeTransfers <= 0) state.completed.setValue(COMPLETED);
+	}
+	
 	private static void requireFifo(ftdi_context ftdi) throws LibUsbException {
 		if (ftdi_chip_type.isSyncFifoType(ftdi.type)) return;
 		throw LibUsbException.of(LIBUSB_ERROR_NOT_SUPPORTED,

@@ -77,7 +77,7 @@ public class LibFtdiStreamTest {
 		CallSync.Apply<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> progress(sync, prog);
 		try (
-			var exec = threadRun(() -> LibFtdiStream.readStream(ftdi, callback, null, 2, 3, 0.0))) {
+			var exec = threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
 			sync.await(prog -> assertTotalBytes(prog, 18, 0, 0, true));
 			sync.await(prog -> assertTotalBytes(prog, 36, 18, 0, true));
 			sync.await(prog -> assertTotalBytes(prog, 54, 36, 0, false)); // cancel
@@ -112,7 +112,7 @@ public class LibFtdiStreamTest {
 	@Test
 	public void shouldFailOnCallbackError() {
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> prog == null ? true : throwIt();
-		assertThrown(() -> LibFtdiStream.readStream(ftdi, callback, null, 2, 3, 0.0));
+		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
 	}
 
 	public static libusb_transfer_status handleEvent(TransferEvent event) {

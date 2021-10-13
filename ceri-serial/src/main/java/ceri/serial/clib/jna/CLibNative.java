@@ -57,11 +57,16 @@ public interface CLibNative extends Library {
 	}
 
 	// sighandler_t signal(int signum, sighandler_t handler)
-	sighandler_t signal(int signum, sighandler_t handler);
+	sighandler_t signal(int signum, sighandler_t handler) throws LastErrorException;
 
 	// int raise(int sig)
-	int raise(int sig);
+	int raise(int sig) throws LastErrorException;
 
+	/* poll.h */
+	
+	// extern int poll(struct pollfd *__fds, nfds_t __nfds, int __timeout);
+	int poll(Pointer fds, int nfds, int timeout) throws LastErrorException;
+	
 	/* fcntl.h */
 
 	// int open(const char *pathname, int flags)

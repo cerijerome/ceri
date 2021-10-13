@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -71,6 +73,7 @@ public class LibUsbTestData {
 		public int debugLevel = 0;
 		public boolean usbDk = false;
 		public boolean weakAuth = false;
+		public Lock eventLock = new ReentrantLock();
 
 		private Context(Pointer p) {
 			super(p);
