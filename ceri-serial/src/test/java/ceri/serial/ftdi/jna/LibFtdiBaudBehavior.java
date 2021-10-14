@@ -1,15 +1,14 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
-import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.*;
-import org.junit.AfterClass;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_230X;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_AM;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_BM;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_R;
 import org.junit.Test;
-import ceri.common.test.CallSync;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiBaudBehavior {
@@ -17,11 +16,20 @@ public class LibFtdiBaudBehavior {
 	@Test
 	public void shouldCalculateBaud() throws LibUsbException {
 		assertThrown(() -> LibFtdiBaud.of(TYPE_2232C, 0, 0));
-		assertBaud(LibFtdiBaud.of(TYPE_2232C, 1, 19200), 19200, 32924, 0);
-		assertBaud(LibFtdiBaud.of(TYPE_4232H, 1, 19200), 19200, 625, 0x201);
-		assertBaud(LibFtdiBaud.of(TYPE_2232H, 1, 450), 450, 23050, 0x101);
-		assertBaud(LibFtdiBaud.of(TYPE_AM, 0, 1000000), 1000000, 3, 0);
-		assertBaud(LibFtdiBaud.of(TYPE_AM, 2, 250000), 250000, 12, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_2232H, 1, 720), 720, 20550, 0x101);
+		assertBaud(LibFtdiBaud.of(TYPE_AM, 0, 9600), 9600, 16696, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_AM, 0, 11200), 11194, 268, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_AM, 0, 1501000), 1500000, 2, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_AM, 0, 3000000), 3000000, 0, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_BM, 0, 3000000), 3000000, 0, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_BM, 0, 2000000), 2000000, 1, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_BM, 0, 1500000), 1500000, 2, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_230X, 0, 1000000), 1000000, 3, 0);
+		assertBaud(LibFtdiBaud.of(TYPE_2232C, 0, 180), 183, 0xffff, 1);
+		assertBaud(LibFtdiBaud.of(TYPE_R, 0, 70000), 69971, 49194, 1);
+		assertThrown(() -> LibFtdiBaud.of(TYPE_230X, 0, 6400000));
+		assertThrown(() -> LibFtdiBaud.of(TYPE_AM, 0, 631000));
+		assertThrown(() -> LibFtdiBaud.of(TYPE_AM, 0, 634000));
 	}
 
 	private static void assertBaud(LibFtdiBaud baud, int actual, int value, int index) {

@@ -37,6 +37,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.ftdi.jna.LibFtdiBaudBehavior.class, //
 	ceri.serial.ftdi.jna.LibFtdiStreamTest.class, //
 	ceri.serial.ftdi.jna.LibFtdiTest.class, //
+	ceri.serial.ftdi.jna.LibFtdiUtilTest.class, //
 	// ftdi.test
 	ceri.serial.ftdi.test.FtdiConnectorTesterBehavior.class, //
 	ceri.serial.ftdi.test.TestFtdiConnectorBehavior.class, //

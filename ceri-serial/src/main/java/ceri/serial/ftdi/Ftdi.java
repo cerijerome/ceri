@@ -64,7 +64,8 @@ public class Ftdi implements Closeable {
 	public static Ftdi open(LibUsbFinder finder, ftdi_interface iface) throws LibUsbException {
 		ftdi_context ftdi = LibFtdi.ftdi_new();
 		try {
-			LibFtdi.ftdi_set_interface(ftdi, iface);
+			if (iface != ftdi_interface.INTERFACE_ANY)
+				LibFtdi.ftdi_set_interface(ftdi, iface);
 			LibFtdi.ftdi_usb_open_find(ftdi, finder);
 			return new Ftdi(ftdi);
 		} catch (LibUsbException | RuntimeException e) {

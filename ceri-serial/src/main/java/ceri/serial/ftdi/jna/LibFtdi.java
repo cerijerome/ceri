@@ -344,14 +344,6 @@ public class LibFtdi {
 		public ftdi_module_detach_mode module_detach_mode;
 	}
 
-	public static class ftdi_version_inf {
-		public int major;
-		public int minor;
-		public int micro;
-		public String version_str;
-		public String snapshot_str;
-	}
-
 	public static class ftdi_eeprom {
 		public int vendor_id;
 		public int product_id;
@@ -434,10 +426,9 @@ public class LibFtdi {
 	}
 
 	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
-		if (ftdi == null) return;
 		LogUtil.execute(logger, () -> LibUsb.libusb_close(ftdi.usb_dev));
 		ftdi.usb_dev = null;
-		ftdi.eeprom.initialized_for_connected_device = 0;
+		if (ftdi.eeprom != null) ftdi.eeprom.initialized_for_connected_device = 0;
 	}
 
 	/**
@@ -606,7 +597,9 @@ public class LibFtdi {
 		if (!finder.findWithCallback(ftdi.usb_ctx, dev -> {
 			ftdi_usb_open_dev(ftdi, dev);
 			return true;
-		})) throw LibUsbNotFoundException.of("Device not found, " + finder);
+		})) {
+			throw LibUsbNotFoundException.of("Device not found, " + finder);
+		}
 	}
 
 	/**
@@ -615,7 +608,7 @@ public class LibFtdi {
 	 */
 	public static void ftdi_usb_open(ftdi_context ftdi, int vendor, int product)
 		throws LibUsbException {
-		ftdi_usb_open_desc(ftdi, vendor, product, null, null);
+		ftdi_usb_open_desc(ftdi, vendor, product, "", "");
 	}
 
 	/**

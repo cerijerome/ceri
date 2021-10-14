@@ -25,6 +25,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
+import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -63,7 +65,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldSetFtdiConfiguration() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = Ftdi.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
 		lib.controlTransferOut.reset(); // clear original open()
 		ftdi.usbReset();
 		ftdi.bitBang(false);

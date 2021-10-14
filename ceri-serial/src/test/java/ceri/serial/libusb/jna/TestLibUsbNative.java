@@ -33,7 +33,6 @@ import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.time.DateUtil;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.CCaller;
 import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.PointerUtil;
@@ -62,6 +61,7 @@ import ceri.serial.libusb.jna.LibUsbTestData.Transfer;
 public class TestLibUsbNative implements LibUsbNative {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	public final LibUsbTestData data = new LibUsbTestData();
+	public final CallSync.Get<Integer> init = CallSync.supplier(0);
 	// List<?> = (int reqType, int req, int value, int index, int length)
 	public final CallSync.Apply<List<?>, ByteProvider> controlTransferIn =
 		CallSync.function(null, ByteProvider.empty());
@@ -116,10 +116,11 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_init(PointerByReference ctxRef) {
-		return CCaller.capture(() -> {
-			var context = ctxRef == null ? data.createContextDef() : data.createContext();
-			if (ctxRef != null) ctxRef.setValue(context.p);
-		});
+		int result = init.get();
+		if (result != 0) return result;
+		var context = ctxRef == null ? data.createContextDef() : data.createContext();
+		if (ctxRef != null) ctxRef.setValue(context.p);
+		return 0;
 	}
 
 	@Override

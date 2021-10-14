@@ -16,10 +16,10 @@ import ceri.common.text.RegexUtil;
 import ceri.common.util.PrimitiveUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbUtil;
-import ceri.serial.libusb.jna.LibUsb.libusb_error;
 
 public class LibFtdiUtil {
 	private static final Pattern FIND_BY_DEVICE_NODE = compile("d:(\\d+)/(\\d+)");

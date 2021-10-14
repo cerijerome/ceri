@@ -22,7 +22,7 @@ public class LibFtdiBaud {
 	private static final int DIVISOR_MAX = 0x1ffff;
 	private static final int DIVISOR_10X = 0x20000;
 	private static final int DIVISOR_AM_MAX = 0x1fff8;
-	private static final int DIVISOR_AM_SPECIAL = 0x4001; // Meaning?
+	// private static final int DIVISOR_AM_SPECIAL = 0x4001; // Meaning?
 	private final ftdi_chip_type type;
 	private final int index;
 	private int actualRate;
@@ -38,7 +38,7 @@ public class LibFtdiBaud {
 	}
 
 	private LibFtdiBaud(ftdi_chip_type type, int index, int rate) throws LibUsbException {
-		System.out.printf("%s:%d:%d%n", type, index, rate);
+		// System.out.println();
 		this.type = type;
 		this.index = index;
 		convert(rate);
@@ -69,9 +69,6 @@ public class LibFtdiBaud {
 	}
 
 	private void toClockBits(int rate, int clk, int clkDiv) {
-		System.out.println(clk / clkDiv);
-		System.out.println(clk / (clkDiv + (clkDiv >>> 1)));
-		System.out.println(clk / (clkDiv << 1));
 		if (rate >= clk / clkDiv) {
 			encodedDivisor = 0;
 			actualRate = clk / clkDiv;
@@ -116,8 +113,8 @@ public class LibFtdiBaud {
 	private void encodeDivisorAm(int divisor) {
 		encodedDivisor = (divisor >> 3) | (fracCode(divisor) << 14);
 		if (encodedDivisor == 1) encodedDivisor = 0; // 3000000 baud
-		else if (encodedDivisor == DIVISOR_AM_SPECIAL) // never happens?
-			encodedDivisor = 1; // 2000000 baud (BM only)
+		// 2000000 baud (BM only) - never happens?
+		// else if (encodedDivisor == DIVISOR_AM_SPECIAL) encodedDivisor = 1;
 	}
 
 	private int initDivisorAm(int rate) {
