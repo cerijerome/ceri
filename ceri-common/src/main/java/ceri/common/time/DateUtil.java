@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtil {
 	private static final long MICRO_NANOS = 1000;
+	private static final long MILLI_NANOS = 1000000;
+	private static final long SEC_MILLIS = 1000;
 	private static final long SEC_MICROS = 1000000;
 	private static final long SEC_NANOS = 1000000000;
 	public static final LocalDateTime UTC_EPOCH = utcDateTime(0);
@@ -79,6 +81,22 @@ public class DateUtil {
 	 */
 	public static long microsExact(Duration duration) {
 		return microsExact(duration.getSeconds(), duration.getNano());
+	}
+
+	/**
+	 * Returns the number of milliseconds, including rounded nanoseconds. Throws exception if long
+	 * value overflows.
+	 */
+	public static long millisExact(Instant instant) {
+		return millisExact(instant.getEpochSecond(), instant.getNano());
+	}
+
+	/**
+	 * Returns the number of milliseconds, including rounded nanoseconds. Throws exception if long
+	 * value overflows.
+	 */
+	public static long millisExact(Duration duration) {
+		return millisExact(duration.getSeconds(), duration.getNano());
 	}
 
 	/**
@@ -186,4 +204,7 @@ public class DateUtil {
 		return Math.addExact(Math.multiplyExact(seconds, SEC_MICROS), nanos / MICRO_NANOS);
 	}
 
+	private static long millisExact(long seconds, int nanos) {
+		return Math.addExact(Math.multiplyExact(seconds, SEC_MILLIS), nanos / MILLI_NANOS);
+	}
 }

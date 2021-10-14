@@ -60,6 +60,24 @@ public class DateUtilTest {
 	}
 
 	@Test
+	public void testMillisExactFromInstant() {
+		assertEquals(DateUtil.millisExact(Instant.ofEpochSecond(1000)), 1000000L);
+		assertEquals(DateUtil.millisExact(Instant.ofEpochSecond(12345, 123456789)), 12345123L);
+		assertThrown(() -> DateUtil.millisExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
+		assertThrown(
+			() -> DateUtil.millisExact(Instant.ofEpochSecond(Long.MAX_VALUE / 1000L, 999000000)));
+	}
+
+	@Test
+	public void testMillisExactFromDuration() {
+		assertEquals(DateUtil.millisExact(Duration.ofSeconds(1000)), 1000000L);
+		assertEquals(DateUtil.millisExact(Duration.ofSeconds(12345, 123456789)), 12345123L);
+		assertThrown(() -> DateUtil.millisExact(Duration.ofSeconds(Long.MAX_VALUE)));
+		assertThrown(
+			() -> DateUtil.millisExact(Duration.ofSeconds(Long.MAX_VALUE / 1000L, 999000000)));
+	}
+
+	@Test
 	public void testEpochMilli() {
 		long t0 = DateUtil.epochMilli(LocalDateTime.now());
 		long t1 = System.currentTimeMillis();
