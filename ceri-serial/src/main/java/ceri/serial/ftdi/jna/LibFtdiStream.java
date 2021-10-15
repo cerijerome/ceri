@@ -33,7 +33,6 @@ import ceri.serial.libusb.jna.LibUsbUtil;
 public class LibFtdiStream {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int READ_STATUS_BYTES = 2;
-	private static final int COMPLETED = 1;
 	public static final double PROGRESS_INTERVAL_SEC = 1.0;
 
 	public static class FTDIProgressInfo {
@@ -248,7 +247,7 @@ public class LibFtdiStream {
 	}
 
 	private static void checkCompleted(FTDIStreamState<?> state) {
-		if (state.activeTransfers <= 0) state.completed.setValue(COMPLETED);
+		if (state.activeTransfers <= 0) state.completed.setValue(1);
 	}
 	
 	private static void requireFifo(ftdi_context ftdi) throws LibUsbException {

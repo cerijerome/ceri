@@ -27,5 +27,4 @@ public class FtdiTransferControl {
 	public void dataCancel(Duration d) throws LibUsbException {
 		LibFtdi.ftdi_transfer_data_cancel(control, Struct.write(timeval.from(d)));
 	}
-
 }

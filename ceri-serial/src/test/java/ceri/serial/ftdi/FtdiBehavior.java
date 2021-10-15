@@ -9,12 +9,16 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type.STOP_BIT_2;
 import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
+import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +26,13 @@ import com.sun.jna.Memory;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
+import ceri.common.data.ByteWriter;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
+import ceri.log.test.LogModifier;
+import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.jna.JnaUtil;
@@ -32,6 +40,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.TestLibUsbNative;
+import ceri.serial.libusb.jna.TestLibUsbNative.TransferEvent;
 
 public class FtdiBehavior {
 	private TestLibUsbNative lib;
@@ -65,8 +74,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldSetFtdiConfiguration() throws LibUsbException {
-		ftdi = Ftdi.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
-		lib.controlTransferOut.reset(); // clear original open()
+		ftdi = open();
 		ftdi.usbReset();
 		ftdi.bitBang(false);
 		ftdi.bitBang(true);
@@ -88,7 +96,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldGetFtdiConfiguration() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = Ftdi.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
 		lib.controlTransferIn.autoResponses(ByteProvider.of(99));
 		assertEquals(ftdi.latencyTimer(), 99);
 		lib.controlTransferIn.autoResponses(ByteProvider.of(0x12, 0x34));
@@ -100,7 +108,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldAccessDescriptors() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = open();
 		assertEquals(ftdi.manufacturer(), "FTDI");
 		assertEquals(ftdi.description(), "FT245R USB FIFO");
 		assertEquals(ftdi.serial(), "A7047D8V");
@@ -108,30 +116,41 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldControlDtrRts() throws LibUsbException {
-		ftdi = Ftdi.open();
-		lib.controlTransferOut.reset(); // clear original open()
+		ftdi = open();
 		ftdi.rts(true);
+		ftdi.rts(false);
 		ftdi.dtr(true);
+		ftdi.dtr(false);
+		ftdi.dtrRts(true, true);
+		ftdi.dtrRts(true, false);
+		ftdi.dtrRts(false, true);
 		ftdi.dtrRts(false, false);
 		lib.controlTransferOut.assertValues( //
 			List.of(0x40, 0x01, 0x202, 1, ByteProvider.empty()),
+			List.of(0x40, 0x01, 0x200, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x101, 1, ByteProvider.empty()),
+			List.of(0x40, 0x01, 0x100, 1, ByteProvider.empty()),
+			List.of(0x40, 0x01, 0x303, 1, ByteProvider.empty()),
+			List.of(0x40, 0x01, 0x301, 1, ByteProvider.empty()),
+			List.of(0x40, 0x01, 0x302, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x300, 1, ByteProvider.empty()));
 	}
 
 	@Test
 	public void shouldWriteData() throws LibUsbException {
-		ftdi = Ftdi.open();
-		ftdi.write(1, 2, 3);
-		ftdi.write(ByteBuffer.wrap(ArrayUtil.bytes(4, 5, 6)));
+		ftdi = open();
+		assertEquals(ftdi.write(1, 2, 3), 3);
+		assertEquals(ftdi.write(ByteBuffer.wrap(ArrayUtil.bytes(4, 5, 6))), 3);
 		lib.bulkTransferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5, 6)));
+		//lib.bulkTransferOut.autoResponses(0);
+		//assertEquals(ftdi.write(1, 2, 3), 0);
 	}
 
 	@Test
 	public void shouldReadData() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = open();
 		lib.bulkTransferIn.autoResponses( //
 			provider(0, 0, 0xab), // read() => 2B status + 1B data
 			provider(0, 0), // read() => 2B status + 0B data
@@ -155,36 +174,60 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldWriteAsync() throws LibUsbException {
-		ftdi = Ftdi.open();
-		lib.handleEvent.autoResponse(te -> {
-			assertEquals(te.endpoint(), 0x02);
-			assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
-			assertArray(ByteUtil.bytes(te.buffer()), 1, 2, 3, 4, 5);
-			return LIBUSB_TRANSFER_COMPLETED;
-		});
+		ftdi = open();
+		ftdi.writeChunkSize(2);
+		var enc = ByteArray.Encoder.of();
+		lib.handleEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
 		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
 		assertEquals(control.dataDone(), 5);
+		assertArray(enc.bytes(), 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void shouldWriteAsyncUntilFailure() throws LibUsbException {
+		ftdi = open();
+		ftdi.writeChunkSize(2);
+		var enc = ByteArray.Encoder.of();
+		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_SUCCESS, LIBUSB_ERROR_IO);
+		lib.handleEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
+		LogModifier.run(() -> {
+			var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
+			assertEquals(control.dataDone(), 4);
+			assertArray(enc.bytes(), 1, 2, 3, 4); // 2 chunks successful
+		}, Level.OFF, LibFtdi.class);
 	}
 
 	@Test
 	public void shouldReadAsync() throws LibUsbException {
-		ftdi = Ftdi.open();
-		ftdi.readChunkSize(8);
+		ftdi = open();
+		ftdi.ftdi().max_packet_size = 7;
+		ftdi.readChunkSize(4);
+		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
+		lib.handleEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
 		Memory m = JnaUtil.calloc(5);
-		lib.handleEvent.autoResponse(te -> {
-			assertEquals(te.endpoint(), 0x81);
-			assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
-			te.buffer().put(ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7));
-			return LIBUSB_TRANSFER_COMPLETED;
-		});
 		var control = ftdi.readSubmit(m, 5);
 		assertEquals(control.dataDone(), 5);
-		assertMemory(m, 0, 3, 4, 5, 6, 7);
+		assertMemory(m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
+	}
+
+	@Test
+	public void shouldReadAsyncUntilFailure() throws LibUsbException {
+		ftdi = open();
+		ftdi.readChunkSize(4);
+		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
+		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_SUCCESS, LIBUSB_ERROR_IO);
+		lib.handleEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
+		LogModifier.run(() -> {
+			Memory m = JnaUtil.calloc(5);
+			var control = ftdi.readSubmit(m, 5);
+			assertEquals(control.dataDone(), 4);
+			assertPointer(m, 0, 3, 4, 7, 8); // 2 chunks successful
+		}, Level.OFF, LibFtdi.class);
 	}
 
 	@Test
 	public void shouldCancelAsync() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = open();
 		ftdi.readChunkSize(8);
 		Memory m = JnaUtil.calloc(5);
 		lib.handleEvent.autoResponse(te -> {
@@ -198,7 +241,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldFailToReadStreamForInvalidFtdiChip() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = open();
 		assertThrown(() -> ftdi.readStream((prog, buffer) -> true, 1, 1));
 	}
 
@@ -230,9 +273,31 @@ public class FtdiBehavior {
 
 	private Ftdi openFtdiForStreaming(int device, int packetSize) throws LibUsbException {
 		lib.data.deviceConfigs.get(0).desc.bcdDevice = (short) device;
-		ftdi = Ftdi.open();
+		ftdi = open();
 		ftdi.ftdi().max_packet_size = packetSize;
 		return ftdi;
+	}
+
+	private Ftdi open() throws LibUsbException {
+		var ftdi = Ftdi.open();
+		lib.controlTransferOut.reset(); // clear original open()
+		return ftdi;
+	}
+
+	private libusb_transfer_status assertBulkWrite(TransferEvent te, int endpoint,
+		ByteWriter<?> writer) {
+		assertEquals(te.endpoint(), endpoint);
+		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
+		writer.writeFrom(ByteUtil.bytes(te.buffer()));
+		return LIBUSB_TRANSFER_COMPLETED;
+	}
+
+	private libusb_transfer_status assertBulkRead(TransferEvent te, int endpoint,
+		ByteReader reader) {
+		assertEquals(te.endpoint(), endpoint);
+		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
+		te.buffer().put(reader.readBytes(te.buffer().remaining()));
+		return LIBUSB_TRANSFER_COMPLETED;
 	}
 
 	private static boolean collect(ByteArray.Encoder encoder, ByteBuffer buffer, int max) {

@@ -239,6 +239,10 @@ public class Ftdi implements Closeable {
 			progressIntervalSec);
 	}
 
+	public void writeChunkSize(int chunkSize) throws LibUsbException {
+		ftdi().writebuffer_chunksize = chunkSize;
+	}
+
 	public void readChunkSize(int chunkSize) throws LibUsbException {
 		LibFtdi.ftdi_read_data_set_chunk_size(ftdi(), chunkSize);
 	}

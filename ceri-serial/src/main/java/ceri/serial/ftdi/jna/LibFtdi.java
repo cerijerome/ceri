@@ -3,9 +3,6 @@ package ceri.serial.ftdi.jna;
 import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
-//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
-//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
-//import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_GET_LATENCY_TIMER_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_POLL_MODEM_STATUS_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_READ_PINS_REQUEST;
@@ -43,9 +40,7 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.TypeTranscoder;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
-import ceri.serial.jna.JnaUtil;
 import ceri.serial.jna.Struct;
-//import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -56,7 +51,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_interface;
 import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbNotFoundException;
@@ -305,14 +299,6 @@ public class LibFtdi {
 		public int offset;
 		public ftdi_context ftdi; // ftdi_context*
 		public libusb_transfer transfer; // libusb_transfer*
-
-		public libusb_transfer_status completed() {
-			return libusb_transfer_status.xcoder.decode(completed.getValue());
-		}
-
-		public byte[] buf() {
-			return JnaUtil.bytes(buf, offset, size);
-		}
 	}
 
 	public static class ftdi_context {
@@ -697,11 +683,6 @@ public class LibFtdi {
 	}
 
 	public static void ftdi_set_line_property(ftdi_context ftdi, ftdi_data_bits_type bits,
-		ftdi_stop_bits_type sbit, ftdi_parity_type parity) throws LibUsbException {
-		ftdi_set_line_property(ftdi, bits, sbit, parity, ftdi_break_type.BREAK_OFF);
-	}
-
-	public static void ftdi_set_line_property(ftdi_context ftdi, ftdi_data_bits_type bits,
 		ftdi_stop_bits_type stopBits, ftdi_parity_type parity, ftdi_break_type breakType)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -949,8 +930,7 @@ public class LibFtdi {
 		libusb_transfer transfer = libusb_transfer_cb_fn.read(tc.transfer);
 		tc.offset += transfer.actual_length;
 		if (tc.offset >= tc.size) tc.completed.setValue(1);
-		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
-			tc.completed.setValue(LIBUSB_TRANSFER_CANCELLED.value);
+		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value) tc.completed.setValue(1);
 		else writeMoreData(transfer, tc);
 	}
 
@@ -975,8 +955,7 @@ public class LibFtdi {
 		libusb_transfer transfer = libusb_transfer_cb_fn.read(tc.transfer);
 		readData(transfer, tc);
 		if (tc.offset >= tc.size) tc.completed.setValue(1);
-		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value)
-			tc.completed.setValue(LIBUSB_TRANSFER_CANCELLED.value);
+		else if (transfer.status == LIBUSB_TRANSFER_CANCELLED.value) tc.completed.setValue(1);
 		else readMoreData(transfer, tc);
 	}
 
@@ -1016,7 +995,7 @@ public class LibFtdi {
 	 * Free libusb_transfer reference without writing fields to memory.
 	 */
 	private static void freeTransfer(ftdi_transfer_control tc) throws LibUsbException {
-		if (tc == null || tc.transfer == null) return;
+		if (tc.transfer == null) return;
 		LibUsb.libusb_free_transfer(tc.transfer);
 		tc.transfer = null;
 	}
@@ -1045,15 +1024,15 @@ public class LibFtdi {
 
 	private static void waitForCompletion(ftdi_transfer_control tc, timeval to)
 		throws LibUsbException {
-		if (tc == null || tc.ftdi == null || tc.ftdi.usb_ctx == null) return;
+		requireCtx(tc.ftdi);
 		int completed = tc.completed.getValue();
 		while (completed == 0)
 			completed =
 				LibUsb.libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to, tc.completed);
 	}
 
-	private static void controlTransferOut(ftdi_context ftdi, ftdi_request_type request,
-		int value, int index) throws LibUsbException {
+	private static void controlTransferOut(ftdi_context ftdi, ftdi_request_type request, int value,
+		int index) throws LibUsbException {
 		LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_OUT_REQTYPE, request.value, value,
 			index, ftdi.usb_write_timeout);
 	}

@@ -41,10 +41,6 @@ public class LibUsbTestData {
 	public int capabilities;
 	public String locale;
 
-	public static LastErrorException lastError(LibUsb.libusb_error error) {
-		return new LastErrorException(error.value);
-	}
-
 	private static Pointer pointer() {
 		return new Memory(Pointer.SIZE);
 	}

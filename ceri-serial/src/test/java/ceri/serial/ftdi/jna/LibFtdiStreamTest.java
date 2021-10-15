@@ -12,7 +12,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_OVERFLOW;
-import static ceri.serial.libusb.jna.LibUsbTestData.lastError;
+import static ceri.serial.libusb.jna.TestLibUsbNative.lastError;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Level;
@@ -76,8 +76,8 @@ public class LibFtdiStreamTest {
 		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Apply<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> progress(sync, prog);
-		try (
-			var exec = threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
+		try (var exec =
+			threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
 			sync.await(prog -> assertTotalBytes(prog, 18, 0, 0, true));
 			sync.await(prog -> assertTotalBytes(prog, 36, 18, 0, true));
 			sync.await(prog -> assertTotalBytes(prog, 54, 36, 0, false)); // cancel

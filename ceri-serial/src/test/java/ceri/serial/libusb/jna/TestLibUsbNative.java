@@ -18,7 +18,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_USE_USBD
 import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_WEAK_AUTHORITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
-import static ceri.serial.libusb.jna.LibUsbTestData.lastError;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -78,8 +77,14 @@ public class TestLibUsbNative implements LibUsbNative {
 		CallSync.<TransferEvent, libusb_transfer_status>function(null)
 			.autoResponse(TestLibUsbNative::handleEvent);
 
+	public static record BulkTransfer(int endpoint, ByteBuffer data, long timeoutMs) {}
+
 	public static record TransferEvent(int endpoint, libusb_transfer_type type, ByteBuffer buffer,
 		long timeoutMs, IntByReference completed) {}
+
+	public static LastErrorException lastError(LibUsb.libusb_error error) {
+		return new LastErrorException(error.value);
+	}
 
 	public static Enclosed<RuntimeException, TestLibUsbNative> register() {
 		return register(of());
@@ -736,6 +741,19 @@ public class TestLibUsbNative implements LibUsbNative {
 		int result = bulkTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(length);
 		return result;
+	}
+
+	public int bulkTransfer(libusb_device_handle dev_handle, byte endpoint, ByteBuffer data,
+		int length, IntByReference actual_length, int timeout) {
+		this.data.deviceHandle(PointerUtil.pointer(dev_handle));
+		if ((endpoint & libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value) != 0)
+			return bulkTransferIn(ubyte(endpoint), data, length, actual_length);
+		return bulkTransferOut(ubyte(endpoint), data, length, actual_length);
+
+	}
+	
+	private int bulkTransferOut(BulkTransfer bt) {
+		return 0;
 	}
 
 	private DeviceHandle deviceHandle(Transfer transfer) {
