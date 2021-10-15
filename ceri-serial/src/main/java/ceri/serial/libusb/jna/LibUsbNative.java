@@ -343,22 +343,21 @@ interface LibUsbNative extends Library {
 	//
 
 	// int LIBUSB_CALL libusb_handle_events_timeout(libusb_context *ctx, struct timeval *tv);
-	int libusb_handle_events_timeout(libusb_context ctx, Pointer tv) throws LastErrorException;
+	int libusb_handle_events_timeout(libusb_context ctx, Pointer tv);
 
 	// int LIBUSB_CALL libusb_handle_events_timeout_completed(libusb_context *ctx, struct timeval
 	// *tv, int *completed);
 	int libusb_handle_events_timeout_completed(libusb_context ctx, Pointer tv,
-		IntByReference completed) throws LastErrorException;
+		IntByReference completed);
 
 	// int LIBUSB_CALL libusb_handle_events(libusb_context *ctx);
-	int libusb_handle_events(libusb_context ctx) throws LastErrorException;
+	int libusb_handle_events(libusb_context ctx);
 
 	// int LIBUSB_CALL libusb_handle_events_completed(libusb_context *ctx, int *completed);
-	int libusb_handle_events_completed(libusb_context ctx, IntByReference completed)
-		throws LastErrorException;
+	int libusb_handle_events_completed(libusb_context ctx, IntByReference completed);
 
 	// int LIBUSB_CALL libusb_handle_events_locked(libusb_context *ctx, struct timeval *tv);
-	int libusb_handle_events_locked(libusb_context ctx, Pointer tv) throws LastErrorException;
+	int libusb_handle_events_locked(libusb_context ctx, Pointer tv);
 
 	// int LIBUSB_CALL libusb_pollfds_handle_timeouts(libusb_context *ctx);
 	int libusb_pollfds_handle_timeouts(libusb_context ctx) throws LastErrorException;

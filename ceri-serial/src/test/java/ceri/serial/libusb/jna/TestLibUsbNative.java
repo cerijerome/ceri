@@ -137,7 +137,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public int libusb_set_option(libusb_context ctx, int option, Object... args) {
 		var context = data.context(PointerUtil.pointer(ctx));
 		var opt = libusb_option.xcoder.decode(option);
-		int value = (int) args[0];
+		int value = (Integer) args[0];
 		if (opt == LIBUSB_OPTION_LOG_LEVEL) context.debugLevel = value;
 		else if (opt == LIBUSB_OPTION_USE_USBDK) context.usbDk = value != 0;
 		else if (opt == LIBUSB_OPTION_WEAK_AUTHORITY) context.weakAuth = value != 0;
@@ -738,22 +738,9 @@ public class TestLibUsbNative implements LibUsbNative {
 		IntByReference actualLength) {
 		byte[] bytes = new byte[length];
 		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
-		int result = bulkTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
-		if (actualLength != null) actualLength.setValue(length);
-		return result;
-	}
-
-	public int bulkTransfer(libusb_device_handle dev_handle, byte endpoint, ByteBuffer data,
-		int length, IntByReference actual_length, int timeout) {
-		this.data.deviceHandle(PointerUtil.pointer(dev_handle));
-		if ((endpoint & libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value) != 0)
-			return bulkTransferIn(ubyte(endpoint), data, length, actual_length);
-		return bulkTransferOut(ubyte(endpoint), data, length, actual_length);
-
-	}
-	
-	private int bulkTransferOut(BulkTransfer bt) {
-		return 0;
+		Integer result = bulkTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
+		if (actualLength != null) actualLength.setValue(result == null ? 0 : length);
+		return result == null ? 0 : result;
 	}
 
 	private DeviceHandle deviceHandle(Transfer transfer) {

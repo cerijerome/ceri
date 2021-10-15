@@ -11,7 +11,6 @@ import static ceri.serial.jna.JnaTestData.assertStruct;
 import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import java.util.function.Function;
 import org.junit.Test;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
 import ceri.common.collection.ArrayUtil;
@@ -232,7 +231,7 @@ public class StructBehavior {
 		assertEquals(Struct.isByVal(new TestStruct[] { t0, t1, t2 }), true);
 		assertEquals(Struct.isByVal(new TestStruct[] { t0, t2 }), false);
 	}
-	
+
 	@Test
 	public void shouldCreateEmptyArray() {
 		var t = new TestStruct(100, null, 1, 2, 3);

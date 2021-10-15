@@ -1650,7 +1650,7 @@ public class LibUsb {
 	 * context, which can be used for other calls requiring context.
 	 */
 	public static libusb_context libusb_init_default() throws LibUsbException {
-		caller.verify(() -> lib().libusb_init(null), "libusb_init");
+		caller.verify(() -> lib().libusb_init(null), "libusb_init_default");
 		return null;
 	}
 
@@ -1661,14 +1661,12 @@ public class LibUsb {
 
 	public static void libusb_set_option(libusb_context ctx, libusb_option option, Object... args)
 		throws LibUsbException {
-		require(ctx);
 		caller.verify(() -> lib().libusb_set_option(ctx, option.value, args), "libusb_set_option",
 			option, args);
 	}
 
 	public void libusb_set_log_cb(libusb_context ctx, libusb_log_cb cb, libusb_log_cb_mode mode)
 		throws LibUsbException {
-		require(ctx);
 		caller.call(() -> lib().libusb_set_log_cb(ctx, cb, mode.value), "libusb_set_log_cb", ctx,
 			cb, mode);
 	}

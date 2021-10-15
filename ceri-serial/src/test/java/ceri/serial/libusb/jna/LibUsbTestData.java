@@ -186,7 +186,7 @@ public class LibUsbTestData {
 	}
 
 	public Context createContextDef() {
-		Context def = find(contexts, null);
+		Context def = find(contexts, t -> t.p == null, null);
 		if (def == null) {
 			def = new Context(null);
 			contexts.add(def);

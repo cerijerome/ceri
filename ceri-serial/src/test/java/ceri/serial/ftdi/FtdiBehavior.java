@@ -144,8 +144,8 @@ public class FtdiBehavior {
 		lib.bulkTransferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5, 6)));
-		//lib.bulkTransferOut.autoResponses(0);
-		//assertEquals(ftdi.write(1, 2, 3), 0);
+		lib.bulkTransferOut.autoResponses((Integer) null); // set transferred to 0
+		assertEquals(ftdi.write(1, 2, 3), 0);
 	}
 
 	@Test
