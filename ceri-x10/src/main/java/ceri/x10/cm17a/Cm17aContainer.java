@@ -2,9 +2,9 @@ package ceri.x10.cm17a;
 
 import static ceri.common.function.FunctionUtil.execSilently;
 import static ceri.common.util.BasicUtil.defaultValue;
-import java.io.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.javax.SerialConnector;
@@ -19,7 +19,7 @@ import ceri.x10.cm17a.device.Cm17aEmulator;
 /**
  * Container for a cm17a controller.
  */
-public class Cm17aContainer implements Closeable {
+public class Cm17aContainer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	public final int id;
 	public final Cm17aType type;

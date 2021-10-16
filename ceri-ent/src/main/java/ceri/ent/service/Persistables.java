@@ -1,6 +1,5 @@
 package ceri.ent.service;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,8 +7,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.function.RuntimeCloseable;
 
-public class Persistables implements Closeable, Persistable {
+public class Persistables implements RuntimeCloseable, Persistable {
 	private static final Logger logger = LogManager.getLogger();
 	private final List<? extends Persistable> persistables;
 

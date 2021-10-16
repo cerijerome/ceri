@@ -1,7 +1,6 @@
 package ceri.common.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,7 +9,7 @@ import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.time.Timeout;
 
-public class TestProcess extends Process implements Closeable {
+public class TestProcess extends Process implements AutoCloseable {
 	public final TestInputStream in = TestInputStream.of();
 	public final TestInputStream err = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
@@ -87,7 +86,7 @@ public class TestProcess extends Process implements Closeable {
 	public boolean isAlive() {
 		return alive.get();
 	}
-	
+
 	@Override
 	public int exitValue() {
 		return exitValue.get();

@@ -2,18 +2,17 @@ package ceri.log.rpc.service;
 
 import static ceri.log.rpc.service.RpcServiceUtil.respond;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
-import java.io.Closeable;
-import java.io.IOException;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UInt32Value;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.rpc.TestGrpc;
 import io.grpc.stub.StreamObserver;
 
-public class TestRpcService extends TestGrpc.TestImplBase implements Closeable {
+public class TestRpcService extends TestGrpc.TestImplBase implements RuntimeCloseable {
 	private final Listeners<Integer> listeners = Listeners.of();
 	private final RpcServiceNotifier<Integer, UInt32Value> notifier;
 	public ExceptionRunnable<?> run = null;
@@ -64,7 +63,7 @@ public class TestRpcService extends TestGrpc.TestImplBase implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		notifier.close();
 	}
 }

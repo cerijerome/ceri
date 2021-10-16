@@ -3,7 +3,6 @@ package ceri.serial.libusb;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.util.BasicUtil.defaultValue;
 import ceri.common.text.StringUtil;
-import ceri.common.util.BasicUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
 public class UsbLibVersion {

@@ -1,6 +1,5 @@
 package ceri.ci.common;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -12,12 +11,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.reflect.ReflectUtil;
 
 /**
  * Convenience class to run tasks, wait for completion, and log any problems.
  */
-public class LoggingExecutor implements Closeable {
+public class LoggingExecutor implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final long SHUTDOWN_TIMEOUT_MS_DEF = 3000;
 	private final String name;

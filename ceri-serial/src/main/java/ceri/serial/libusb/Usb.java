@@ -1,14 +1,15 @@
 package ceri.serial.libusb;
 
 import static ceri.common.collection.ImmutableUtil.convertAsList;
-import java.io.Closeable;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
+import ceri.serial.libusb.UsbHotPlug.Callback;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
@@ -19,12 +20,11 @@ import ceri.serial.libusb.jna.LibUsbFinder;
 /**
  * Entry point for access to libusb functionality. Wraps libusb_context.
  */
-public class Usb implements Closeable {
+public class Usb implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Map<Level, libusb_log_level> levelMap = levelMap();
 	private final UsbEvents events;
-	private final UsbHotplug hotplug;
-	private final boolean isDefault;
+	private boolean closed = false;
 	private libusb_context context;
 
 	public static UsbLibVersion version() throws LibUsbException {
@@ -51,9 +51,7 @@ public class Usb implements Closeable {
 
 	private Usb(libusb_context context) {
 		this.context = context;
-		isDefault = context == null;
 		events = new UsbEvents(this);
-		hotplug = new UsbHotplug(this);
 	}
 
 	public UsbDeviceHandle open(LibUsbFinder finder) throws LibUsbException {
@@ -85,18 +83,21 @@ public class Usb implements Closeable {
 		return events;
 	}
 
-	public UsbHotplug hotplug() {
-		return hotplug;
+	/**
+	 * Start configuring a hot plug event callback.
+	 */
+	public UsbHotPlug.Builder hotPlug(Callback callback) {
+		return new UsbHotPlug.Builder(this, callback);
 	}
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, hotplug, events, () -> LibUsb.libusb_exit(context));
-		context = null;
+		LogUtil.close(logger, events, () -> LibUsb.libusb_exit(context));
+		closed = true;
 	}
 
 	libusb_context context() {
-		if (isDefault || context != null) return context;
+		if (!closed) return context;
 		throw new IllegalStateException("Context has been closed");
 	}
 

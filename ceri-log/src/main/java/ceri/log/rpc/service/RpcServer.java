@@ -1,18 +1,18 @@
 package ceri.log.rpc.service;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.text.ToString;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
-public class RpcServer implements Closeable {
+public class RpcServer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final RpcServerConfig config;
 	private final Server server;

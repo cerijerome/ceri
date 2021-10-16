@@ -13,13 +13,13 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_container_id_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_endpoint_companion_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_ss_usb_device_capability_descriptor;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_usb_2_0_extension_descriptor;
-import java.io.Closeable;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -126,7 +126,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Config implements Closeable {
+	public static class Config implements RuntimeCloseable {
 		private final UsbDevice device;
 		private libusb_config_descriptor descriptor;
 		private List<Interface> interfaces = null;
@@ -317,7 +317,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsEndPointCompanion implements Closeable {
+	public static class SsEndPointCompanion implements RuntimeCloseable {
 		private libusb_ss_endpoint_companion_descriptor descriptor;
 
 		SsEndPointCompanion(libusb_ss_endpoint_companion_descriptor descriptor) {
@@ -356,7 +356,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Bos implements Closeable {
+	public static class Bos implements RuntimeCloseable {
 		private final UsbDeviceHandle handle;
 		private libusb_bos_descriptor descriptor;
 		private List<BosDevCapability> capabilities = null;
@@ -427,7 +427,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Usb20Extension implements Closeable {
+	public static class Usb20Extension implements RuntimeCloseable {
 		private libusb_usb_2_0_extension_descriptor descriptor;
 
 		Usb20Extension(libusb_usb_2_0_extension_descriptor descriptor) {
@@ -450,7 +450,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsUsbDeviceCapability implements Closeable {
+	public static class SsUsbDeviceCapability implements RuntimeCloseable {
 		private libusb_ss_usb_device_capability_descriptor descriptor;
 
 		SsUsbDeviceCapability(libusb_ss_usb_device_capability_descriptor descriptor) {
@@ -490,7 +490,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class ContainerId implements Closeable {
+	public static class ContainerId implements RuntimeCloseable {
 		private libusb_container_id_descriptor descriptor;
 
 		ContainerId(libusb_container_id_descriptor descriptor) {

@@ -1,17 +1,17 @@
 package ceri.log.concurrent;
 
-import java.io.Closeable;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
 /**
  * Listens on a given port to signal a shutdown.
  */
-public class ShutdownListener implements Closeable {
+public class ShutdownListener implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	public static final int PORT_DEF = 9999;
 	private final BooleanCondition stop = BooleanCondition.of();

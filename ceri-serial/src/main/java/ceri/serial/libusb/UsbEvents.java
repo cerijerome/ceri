@@ -13,7 +13,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_interrupt_event_handler;
 import static ceri.serial.libusb.jna.LibUsb.libusb_pollfds_handle_timeouts;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_pollfd_notifiers;
 import static ceri.serial.libusb.jna.LibUsb.libusb_wait_for_event;
-import java.io.Closeable;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -41,7 +40,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 /**
  * Encapsulation of context-based event handling.
  */
-public class UsbEvents implements Closeable {
+public class UsbEvents implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private final Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
@@ -56,26 +55,26 @@ public class UsbEvents implements Closeable {
 
 	public static class Completed {
 		private final IntByReference completed = new IntByReference();
-		
+
 		public static Completed of() {
 			return new Completed();
 		}
-		
+
 		private Completed() {}
-		
+
 		public void complete(int value) {
 			completed.setValue(value);
 		}
-		
+
 		public int value() {
 			return completed.getValue();
 		}
-		
+
 		public boolean completed() {
 			return value() != 0;
 		}
 	}
-	
+
 	public static class PollFd {
 		private libusb_pollfd pollFd;
 
@@ -183,7 +182,7 @@ public class UsbEvents implements Closeable {
 	}
 
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		LogUtil.close(logger, pollfdCallbackRefs::clear);
 	}
 

@@ -1,7 +1,6 @@
 package ceri.common.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,7 +15,7 @@ import ceri.common.text.ToString;
  * (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for feed data to be
  * read.
  */
-public class TestConnector implements Closeable, Listenable.Indirect<StateChange> {
+public class TestConnector implements AutoCloseable, Listenable.Indirect<StateChange> {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
 	public final CallSync.Accept<Boolean> connect = CallSync.consumer(false, true);
 	public final CallSync.Accept<Boolean> broken = CallSync.consumer(false, true);

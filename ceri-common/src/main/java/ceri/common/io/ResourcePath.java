@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -24,7 +23,7 @@ import ceri.common.text.RegexUtil;
  * Supports regular files, jrt modules, and jar/zip containers. For jar/zip containers, an open
  * FileSystem is held, and must be closed by closing the ResourcePath after use.
  */
-public class ResourcePath implements Closeable {
+public class ResourcePath implements AutoCloseable {
 	private static final String FILE_PROTOCOL = "file";
 	private static final String JRT_PROTOCOL = "jrt";
 	private static final Pattern ZIP_REGEX = Pattern.compile("([^!]+)!(.*)");
@@ -58,8 +57,8 @@ public class ResourcePath implements Closeable {
 		URL url = IoUtil.classUrl(cls);
 		if (url == null) return null;
 		return switch (url.getProtocol()) {
-		case FILE_PROTOCOL, JRT_PROTOCOL -> ofFile(url, pathAdjuster);
-		default -> ofZip(url, pathAdjuster); // zip, jar
+			case FILE_PROTOCOL, JRT_PROTOCOL -> ofFile(url, pathAdjuster);
+			default -> ofZip(url, pathAdjuster); // zip, jar
 		};
 	}
 

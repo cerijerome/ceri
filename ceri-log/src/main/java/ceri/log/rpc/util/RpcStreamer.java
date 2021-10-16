@@ -1,15 +1,15 @@
 package ceri.log.rpc.util;
 
-import java.io.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.rpc.client.RpcClientUtil;
 import io.grpc.stub.StreamObserver;
 
 /**
  * Wraps a stream observer as a closeable resource. Not thread-safe.
  */
-public class RpcStreamer<T> implements Closeable {
+public class RpcStreamer<T> implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final StreamObserver<T> observer;
 	private boolean closed = false;

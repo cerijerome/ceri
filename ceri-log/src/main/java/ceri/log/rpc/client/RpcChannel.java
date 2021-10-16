@@ -1,11 +1,11 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.net.NetUtil.LOCALHOST;
-import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -13,7 +13,7 @@ import io.grpc.ManagedChannelBuilder;
 /**
  * Wraps a ManagedChannel as a Closeable resource.
  */
-public class RpcChannel implements Closeable {
+public class RpcChannel implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int SHUTDOWN_TIMEOUT_MS_DEF = 5000;
 	private final int shutdownTimeoutMs;

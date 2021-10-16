@@ -1,6 +1,5 @@
 package ceri.ci.email;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import ceri.ci.build.BuildEvent;
 import ceri.ci.build.BuildEventProcessor;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.RuntimeCloseable;
 
 /**
  * Polls the email server for emails. Uses the last received email's sent date for the minimum sent
@@ -30,7 +30,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
  * optimize email filtering, and to convert emails to build events. A buffer is used to store emails
  * from the previous run to check for late-arrivals.
  */
-public class EmailService implements Closeable {
+public class EmailService implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final EmailRetriever retriever;
 	private final BuildEventProcessor processor;

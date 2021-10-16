@@ -2,7 +2,6 @@ package ceri.log.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static java.lang.Boolean.TRUE;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -18,6 +17,7 @@ import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.StringUtil;
@@ -25,7 +25,7 @@ import ceri.common.text.StringUtil;
 /**
  * Used to capture logging output to a file, and check the contents.
  */
-public class TestLog implements Closeable {
+public class TestLog implements RuntimeCloseable {
 	private static final String loggerName = LogUtil.loggerName(TestLog.class);
 	private static final String TEST_LOG = TestLog.class.getSimpleName() + ".log";
 	private static final String PATTERN = "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}:%L - %m%n";

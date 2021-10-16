@@ -1,13 +1,12 @@
 package ceri.log.rpc;
 
-import java.io.Closeable;
 import java.io.IOException;
 import ceri.log.rpc.client.TestRpcClient;
 import ceri.log.rpc.service.RpcServer;
 import ceri.log.rpc.service.RpcServerConfig;
 import ceri.log.rpc.service.TestRpcService;
 
-public class TestRpcContainer implements Closeable {
+public class TestRpcContainer implements AutoCloseable {
 	private final RpcServer server;
 	public final TestRpcService service;
 	public final TestRpcClient client0;

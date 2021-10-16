@@ -1,11 +1,11 @@
 package ceri.serial.javax;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import ceri.common.function.RuntimeCloseable;
 
-public abstract class CommPort implements Closeable {
+public abstract class CommPort implements RuntimeCloseable {
 	private final purejavacomm.CommPort commPort;
 
 	CommPort(purejavacomm.CommPort commPort) {

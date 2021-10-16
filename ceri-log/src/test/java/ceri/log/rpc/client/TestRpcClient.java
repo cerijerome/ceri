@@ -4,10 +4,10 @@ import static ceri.log.rpc.client.RpcClientUtil.wrap;
 import static ceri.log.rpc.client.RpcClientUtil.wrapReturn;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import static ceri.log.rpc.util.RpcUtil.uint32;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Consumer;
 import com.google.protobuf.UInt32Value;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.rpc.TestGrpc;
 import ceri.log.rpc.TestGrpc.TestStub;
@@ -15,7 +15,7 @@ import ceri.log.rpc.TestGrpc.TestStub;
 /**
  * Client for the Test service.
  */
-public class TestRpcClient implements Closeable {
+public class TestRpcClient implements RuntimeCloseable {
 	private final RpcChannel channel;
 	private final TestGrpc.TestBlockingStub stub;
 	private final RpcClientNotifier<Integer, UInt32Value> notifier;

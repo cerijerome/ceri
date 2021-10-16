@@ -1,6 +1,5 @@
 package ceri.log.concurrent;
 
-import java.io.Closeable;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -12,12 +11,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
 /**
  * Encapsulates a standard executor service as a Closeable resource.
  */
-public class CloseableExecutor implements Closeable {
+public class CloseableExecutor implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	public final ExecutorService executor;
 

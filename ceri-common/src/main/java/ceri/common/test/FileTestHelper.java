@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,13 +11,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 
 /**
  * Creates files and dirs under a temp directory, and deletes them on close. Use this to test
  * file-based actions.
  */
-public class FileTestHelper implements Closeable {
+public class FileTestHelper implements RuntimeCloseable {
 	public final Path root;
 
 	public static class Builder {

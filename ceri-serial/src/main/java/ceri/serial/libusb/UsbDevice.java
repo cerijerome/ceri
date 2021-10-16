@@ -16,7 +16,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_get_port_numbers;
 import static ceri.serial.libusb.jna.LibUsb.libusb_open;
 import static ceri.serial.libusb.jna.LibUsb.libusb_ref_device;
 import static ceri.serial.libusb.jna.LibUsb.libusb_unref_device;
-import java.io.Closeable;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +23,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.jna.ArrayPointer;
@@ -34,13 +34,13 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class UsbDevice implements Closeable {
+public class UsbDevice implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private libusb_device device;
 	private int refs;
 
-	public static class Devices implements Closeable {
+	public static class Devices implements RuntimeCloseable {
 		private static final Logger logger = LogManager.getLogger();
 		private ArrayPointer<libusb_device> list;
 		private final List<UsbDevice> devices;

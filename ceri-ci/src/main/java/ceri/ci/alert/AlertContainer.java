@@ -1,6 +1,5 @@
 package ceri.ci.alert;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +11,7 @@ import ceri.ci.common.Alerter;
 import ceri.ci.email.EmailContainer;
 import ceri.ci.email.EmailEventParser;
 import ceri.ci.email.EmailService;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.PropertyUtil;
 
@@ -19,7 +19,7 @@ import ceri.common.property.PropertyUtil;
  * Creates the alert system that fetches emails, parses them to events, and sends alerts to the
  * alert components.
  */
-public class AlertContainer implements Closeable {
+public class AlertContainer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String PROPERTY_FILE_DEF = "alert.properties";
 	private final EmailContainer email;

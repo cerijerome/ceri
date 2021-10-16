@@ -1,18 +1,18 @@
 package ceri.ci.alert;
 
-import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.ci.common.Alerter;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
 
 /**
  * Creates the alert service.
  */
-public class AlertServiceContainer implements Closeable {
+public class AlertServiceContainer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String GROUP = "alert";
 	private final AlerterGroup alerters;

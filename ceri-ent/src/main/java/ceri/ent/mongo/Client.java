@@ -1,7 +1,6 @@
 package ceri.ent.mongo;
 
 import static ceri.ent.mongo.MongoUtil.document;
-import java.io.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -9,10 +8,11 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.net.HostPort;
 import ceri.log.util.LogUtil;
 
-public class Client implements Closeable {
+public class Client implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String TEST_DB = "test";
 	private static final String ADMIN_DB = "admin";

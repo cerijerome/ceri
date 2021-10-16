@@ -1,16 +1,16 @@
 package ceri.ci.email;
 
-import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Collection;
 import ceri.ci.build.BuildEventProcessor;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.property.BaseProperties;
 
 /**
  * Creates the service to fetch emails and parse them into build events.
  */
-public class EmailContainer implements Closeable {
+public class EmailContainer implements RuntimeCloseable {
 	public static final String GROUP = "email";
 	public final EmailService service;
 

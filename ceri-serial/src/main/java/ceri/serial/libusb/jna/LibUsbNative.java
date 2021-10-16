@@ -388,7 +388,7 @@ interface LibUsbNative extends Library {
 	// libusb_hotplug_callback_handle *handle);
 	int libusb_hotplug_register_callback(libusb_context ctx, int events, int flags, int vendor_id,
 		int product_id, int dev_class, libusb_hotplug_callback_fn cb_fn, Pointer user_data,
-		IntByReference handle) throws LastErrorException;
+		IntByReference handle);
 
 	// void LIBUSB_CALL libusb_hotplug_deregister_callback(libusb_context *ctx,
 	// libusb_hotplug_callback_handle handle);

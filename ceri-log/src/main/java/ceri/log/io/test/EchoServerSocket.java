@@ -1,6 +1,5 @@
 package ceri.log.io.test;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,12 +10,13 @@ import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
 /**
  * A server socket that echoes input as output for each connection.
  */
-public class EchoServerSocket implements Closeable {
+public class EchoServerSocket implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int BUFFER_SIZE_DEF = 1024;
 	private final int bufferSize;

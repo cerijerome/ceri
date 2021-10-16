@@ -1,9 +1,9 @@
 package ceri.ci.x10;
 
-import java.io.Closeable;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.property.BaseProperties;
 import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.Cm11aContainer;
@@ -14,7 +14,7 @@ import ceri.x10.util.X10ControllerType;
 /**
  * Creates the x10 alerter and its required components.
  */
-public class X10Container implements Closeable {
+public class X10Container implements RuntimeCloseable {
 	private final Logger logger = LogManager.getLogger();
 	private static final String GROUP = "x10";
 	private final AutoCloseable container;

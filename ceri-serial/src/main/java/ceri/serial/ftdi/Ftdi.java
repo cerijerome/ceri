@@ -6,7 +6,6 @@ import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
-import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Set;
@@ -14,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -33,7 +33,7 @@ import ceri.serial.libusb.jna.LibUsbFinder;
 /**
  * Encapsulates ftdi_context and LibFtdi calls. Allow one usb device open at any time.
  */
-public class Ftdi implements Closeable {
+public class Ftdi implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Set<libusb_error> FATAL_USB_ERRORS =
 		Set.of(LIBUSB_ERROR_NO_DEVICE, LIBUSB_ERROR_NOT_FOUND, LIBUSB_ERROR_NO_MEM);
@@ -64,8 +64,7 @@ public class Ftdi implements Closeable {
 	public static Ftdi open(LibUsbFinder finder, ftdi_interface iface) throws LibUsbException {
 		ftdi_context ftdi = LibFtdi.ftdi_new();
 		try {
-			if (iface != ftdi_interface.INTERFACE_ANY)
-				LibFtdi.ftdi_set_interface(ftdi, iface);
+			if (iface != ftdi_interface.INTERFACE_ANY) LibFtdi.ftdi_set_interface(ftdi, iface);
 			LibFtdi.ftdi_usb_open_find(ftdi, finder);
 			return new Ftdi(ftdi);
 		} catch (LibUsbException | RuntimeException e) {
@@ -231,8 +230,7 @@ public class Ftdi implements Closeable {
 	}
 
 	void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
-		double progressIntervalSec)
-		throws LibUsbException {
+		double progressIntervalSec) throws LibUsbException {
 		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
 			user_data) -> streamCallback(buffer, length, progress, callback);
 		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers,

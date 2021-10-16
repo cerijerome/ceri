@@ -1,6 +1,5 @@
 package ceri.ent.selenium;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -16,13 +15,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import com.google.common.base.Function;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 
 /**
  * A container and support methods for selenium web drivers. Supports lifecycle management with
  * create, reset, and close.
  */
-public class WebDriverContainer implements Closeable {
+public class WebDriverContainer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";

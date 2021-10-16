@@ -1,16 +1,16 @@
 package ceri.ent.mongo.server;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.process.Parameters;
 import ceri.common.process.ProcessUtil;
 import ceri.log.util.LogUtil;
 
-public class ProcessRunner implements Closeable {
+public class ProcessRunner implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int STARTUP_TIME_MS_DEF = 1000;
 	private final Process process;

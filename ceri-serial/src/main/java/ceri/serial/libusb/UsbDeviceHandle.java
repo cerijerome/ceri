@@ -22,12 +22,12 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_set_auto_detach_kernel_driver
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_configuration;
 import static ceri.serial.libusb.jna.LibUsb.libusb_set_interface_alt_setting;
 import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER;
-import java.io.Closeable;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -35,7 +35,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class UsbDeviceHandle implements Closeable {
+public class UsbDeviceHandle implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private UsbDevice device = null;

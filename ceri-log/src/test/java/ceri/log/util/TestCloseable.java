@@ -1,11 +1,10 @@
 package ceri.log.util;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.text.ToString;
 
-public class TestCloseable implements Closeable {
+public class TestCloseable implements AutoCloseable {
 	public final int value;
 
 	public static TestCloseable of(String value) {

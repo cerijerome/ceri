@@ -14,11 +14,11 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_set_iso_packet_lengths;
 import static ceri.serial.libusb.jna.LibUsb.libusb_submit_transfer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_get_stream_id;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_set_stream_id;
-import java.io.Closeable;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
+import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_control_setup;
@@ -27,7 +27,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class UsbTransfer implements Closeable {
+public class UsbTransfer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_device_handle> handleSupplier;
 	private libusb_transfer transfer;

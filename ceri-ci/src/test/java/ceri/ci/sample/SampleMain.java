@@ -1,6 +1,5 @@
 package ceri.ci.sample;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Properties;
 import ceri.ci.alert.AlertContainer;
@@ -12,6 +11,7 @@ import ceri.ci.phone.PhoneContainer;
 import ceri.ci.x10.X10Container;
 import ceri.ci.zwave.ZWaveContainer;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.property.PropertyUtil;
 
 /**
@@ -54,7 +54,7 @@ import ceri.common.property.PropertyUtil;
  * <li>ceri-zwave</li>
  * </ul>
  */
-public class SampleMain implements Closeable {
+public class SampleMain implements RuntimeCloseable {
 	private final AudioContainer audio;
 	private final AlertContainer master;
 	private final X10Container x10;

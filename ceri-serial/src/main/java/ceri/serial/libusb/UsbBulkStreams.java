@@ -1,11 +1,11 @@
 package ceri.serial.libusb;
 
-import java.io.Closeable;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
@@ -15,7 +15,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 /**
  * Encapsulates allocation and freeing of bulk streams for device end-points.
  */
-public class UsbBulkStreams implements Closeable {
+public class UsbBulkStreams implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private final Supplier<libusb_device_handle> handleSupplier;
 	private final byte[] endPointBytes;

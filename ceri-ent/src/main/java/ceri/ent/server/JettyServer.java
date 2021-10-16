@@ -1,6 +1,5 @@
 package ceri.ent.server;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -21,7 +20,7 @@ import ceri.log.util.LogUtil;
 /**
  * Base wrapper class for managing a jetty server.
  */
-public class JettyServer implements Closeable {
+public class JettyServer implements AutoCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern PROTOCOL_NAME_REGEX = Pattern.compile("^(\\w+)");
 	private static final String LOCALHOST = "localhost";

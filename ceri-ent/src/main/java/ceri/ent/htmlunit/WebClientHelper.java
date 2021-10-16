@@ -1,6 +1,5 @@
 package ceri.ent.htmlunit;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -13,9 +12,10 @@ import com.gargoylesoftware.htmlunit.TopLevelWindow;
 import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import ceri.common.function.RuntimeCloseable;
 import ceri.ent.web.SampleHeader;
 
-public class WebClientHelper implements Closeable {
+public class WebClientHelper implements RuntimeCloseable {
 	private static final int DEFAULT_TIMEOUT_MS = 60_000;
 	private static final int DEFAULT_JS_TIMEOUT_MS = 10_000;
 	protected final WebClient webClient;

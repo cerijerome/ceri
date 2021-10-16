@@ -1,10 +1,10 @@
 package ceri.log.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Properties;
 import org.junit.Test;
+import ceri.common.function.RuntimeCloseable;
 
 public class ContainerTestHelperBehavior {
 
@@ -20,7 +20,7 @@ public class ContainerTestHelperBehavior {
 		}
 	}
 
-	private static class TestContainer implements Closeable {
+	private static class TestContainer implements RuntimeCloseable {
 		public static int instances = 0;
 		public final String value;
 

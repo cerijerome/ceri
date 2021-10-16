@@ -1,7 +1,6 @@
 package ceri.log.rpc.service;
 
 import static ceri.log.util.LogUtil.hashId;
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,6 +14,7 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listenable;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.rpc.util.RpcUtil;
 import ceri.log.util.LogUtil;
@@ -34,7 +34,7 @@ import io.grpc.stub.StreamObserver;
  * This class receives local notifications, transforms to the rpc notify-type and uses the rpc
  * stream observers to notify remote clients.
  */
-public class RpcServiceNotifier<T, V> implements Closeable {
+public class RpcServiceNotifier<T, V> implements RuntimeCloseable {
 	static final Logger logger = LogManager.getLogger();
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	/** Used to notify whenever a listener is added or removed */

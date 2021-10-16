@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executors;
@@ -9,8 +8,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.RuntimeCloseable;
 
-public class KeyChecker implements Closeable {
+public class KeyChecker implements RuntimeCloseable {
 	private final int shutdownTimeoutMs;
 	private final Runnable action;
 	private final Predicate<String> checkFunction;
