@@ -62,7 +62,7 @@ public class LibFtdiStreamTest {
 	@Test
 	public void shouldReadPacketData() throws LibUsbException {
 		AtomicInteger n = new AtomicInteger();
-		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> collect(encoder, buf, len, 24);
 		LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3);
@@ -73,7 +73,7 @@ public class LibFtdiStreamTest {
 	@Test
 	public void shouldUpdateProgress() {
 		AtomicInteger n = new AtomicInteger();
-		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Apply<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> progress(sync, prog);
 		try (var exec =
@@ -94,17 +94,17 @@ public class LibFtdiStreamTest {
 
 	@Test
 	public void shouldFailOnEventHandlingError() {
-		lib.handleEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
+		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_NO_DEVICE));
 		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
-		lib.handleEvent.error.setFrom(RTX);
+		lib.handleTransferEvent.error.setFrom(RTX);
 		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 	}
 
 	@Test
 	public void shouldFailOnBadTransferStatus() {
 		LogModifier.run(() -> {
-			lib.handleEvent.autoResponses(LIBUSB_TRANSFER_OVERFLOW);
+			lib.handleTransferEvent.autoResponses(LIBUSB_TRANSFER_OVERFLOW);
 			assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 		}, Level.OFF, LibFtdiStream.class);
 	}
@@ -116,7 +116,7 @@ public class LibFtdiStreamTest {
 	}
 
 	public static libusb_transfer_status handleEvent(TransferEvent event) {
-		TestLibUsbNative.handleEvent(event);
+		TestLibUsbNative.handleTransferEvent(event);
 		return LIBUSB_TRANSFER_COMPLETED;
 	}
 

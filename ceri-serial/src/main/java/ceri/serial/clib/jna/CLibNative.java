@@ -57,7 +57,10 @@ public interface CLibNative extends Library {
 	}
 
 	// sighandler_t signal(int signum, sighandler_t handler)
-	sighandler_t signal(int signum, sighandler_t handler) throws LastErrorException;
+	Pointer signal(int signum, sighandler_t handler) throws LastErrorException;
+
+	// sighandler_t signal(int signum, sighandler_t handler)
+	Pointer signal(int signum, Pointer handler) throws LastErrorException;
 
 	// int raise(int sig)
 	int raise(int sig) throws LastErrorException;

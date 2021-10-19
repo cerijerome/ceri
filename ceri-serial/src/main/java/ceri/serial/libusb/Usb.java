@@ -24,7 +24,6 @@ public class Usb implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Map<Level, libusb_log_level> levelMap = levelMap();
 	private final UsbEvents events;
-	private boolean closed = false;
 	private libusb_context context;
 
 	public static UsbLibVersion version() throws LibUsbException {
@@ -40,13 +39,6 @@ public class Usb implements RuntimeCloseable {
 	 */
 	public static Usb of() throws LibUsbException {
 		return new Usb(LibUsb.libusb_init());
-	}
-
-	/**
-	 * Creates an instance with the default context.
-	 */
-	public static Usb ofDefault() throws LibUsbException {
-		return new Usb(LibUsb.libusb_init_default());
 	}
 
 	private Usb(libusb_context context) {
@@ -93,11 +85,11 @@ public class Usb implements RuntimeCloseable {
 	@Override
 	public void close() {
 		LogUtil.close(logger, events, () -> LibUsb.libusb_exit(context));
-		closed = true;
+		context = null;
 	}
 
 	libusb_context context() {
-		if (!closed) return context;
+		if (context != null) return context;
 		throw new IllegalStateException("Context has been closed");
 	}
 

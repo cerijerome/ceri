@@ -2,9 +2,11 @@ package ceri.serial.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.serial.clib.OpenFlag.O_CREAT;
 import static ceri.serial.clib.OpenFlag.O_RDWR;
 import static ceri.serial.clib.jna.CLib.POLLHUP;
@@ -169,11 +171,17 @@ public class CLibTest {
 
 	@Test
 	public void testSignal() throws CException {
+		sighandler_t cb = i -> {};
 		TestCLibNative.exec(lib -> {
-			sighandler_t cb = i -> {};
-			var old = CLib.signal(15, cb);
-			old.invoke(15); // ignored
-			lib.signal.assertAuto(List.of(15, cb));
+			assertTrue(CLib.signal(15, cb));
+			assertTrue(CLib.signal(15, 1));
+			assertThrown(() -> CLib.signal(15, -1));
+			assertThrown(() -> CLib.signal(15, 2));
+			lib.signal.autoResponses(new Pointer(-1));
+			assertFalse(CLib.signal(14, cb));
+			assertFalse(CLib.signal(14, 0));
+			lib.signal.assertValues(List.of(15, cb), List.of(15, new Pointer(1)), List.of(14, cb),
+				List.of(14, new Pointer(0)));
 			CLib.raise(15);
 			lib.raise.assertAuto(15);
 		});

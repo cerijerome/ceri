@@ -111,7 +111,8 @@ public class LibFtdiTest {
 		assertThrown(() -> LibFtdi.ftdi_read_data_submit(ftdi, m, 5));
 		lib.submitTransfer.error.clear();
 		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m, 5);
-		lib.handleEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED), lastError(LIBUSB_ERROR_IO));
+		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
+			lastError(LIBUSB_ERROR_IO));
 		assertEquals(LibFtdi.ftdi_transfer_data_done(null), 0);
 		assertThrown(() -> LibFtdi.ftdi_transfer_data_done(tc));
 	}

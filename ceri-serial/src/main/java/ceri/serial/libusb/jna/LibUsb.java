@@ -2298,7 +2298,7 @@ public class LibUsb {
 		caller.verify(
 			() -> lib().libusb_handle_events_timeout_completed(ctx, tv.getPointer(), completed),
 			"libusb_handle_events_timeout_completed", ctx, tv, completed);
-		return completed.getValue();
+		return completed == null ? 0 : completed.getValue();
 	}
 
 	public static void libusb_handle_events(libusb_context ctx) throws LibUsbException {
@@ -2306,12 +2306,12 @@ public class LibUsb {
 		caller.verify(() -> lib().libusb_handle_events(ctx), "libusb_handle_events", ctx);
 	}
 
-	public static int libusb_handle_events_completed(libusb_context ctx) throws LibUsbException {
+	public static int libusb_handle_events_completed(libusb_context ctx,
+		IntByReference completed) throws LibUsbException {
 		require(ctx);
-		IntByReference completed = new IntByReference();
 		caller.verify(() -> lib().libusb_handle_events_completed(ctx, completed),
 			"libusb_handle_events_completed", ctx, completed);
-		return completed.getValue();
+		return completed == null ? 0 : completed.getValue();
 	}
 
 	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)

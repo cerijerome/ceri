@@ -1,18 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.jna.LibUsb.libusb_event_handler_active;
-import static ceri.serial.libusb.jna.LibUsb.libusb_event_handling_ok;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_next_timeout;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_pollfds;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_completed;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_locked;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout;
-import static ceri.serial.libusb.jna.LibUsb.libusb_handle_events_timeout_completed;
-import static ceri.serial.libusb.jna.LibUsb.libusb_interrupt_event_handler;
-import static ceri.serial.libusb.jna.LibUsb.libusb_pollfds_handle_timeouts;
-import static ceri.serial.libusb.jna.LibUsb.libusb_set_pollfd_notifiers;
-import static ceri.serial.libusb.jna.LibUsb.libusb_wait_for_event;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -121,54 +108,55 @@ public class UsbEvents implements RuntimeCloseable {
 	}
 
 	public boolean handlerActive() throws LibUsbException {
-		return libusb_event_handler_active(context());
+		return LibUsb.libusb_event_handler_active(context());
 	}
 
 	public boolean handlingOk() throws LibUsbException {
-		return libusb_event_handling_ok(context());
+		return LibUsb.libusb_event_handling_ok(context());
 	}
 
 	public void interruptHandler() throws LibUsbException {
-		libusb_interrupt_event_handler(context());
+		LibUsb.libusb_interrupt_event_handler(context());
 	}
 
 	public Duration nextTimeout() throws LibUsbException {
-		return libusb_get_next_timeout(context()).duration();
+		return LibUsb.libusb_get_next_timeout(context()).duration();
 	}
 
 	public void handle() throws LibUsbException {
-		libusb_handle_events(context());
+		LibUsb.libusb_handle_events(context());
 	}
 
-	public int handleCompleted() throws LibUsbException {
-		return libusb_handle_events_completed(context());
+	public int handleCompleted(Completed completed) throws LibUsbException {
+		return LibUsb.libusb_handle_events_completed(context(),
+			completed == null ? null : completed.completed);
 	}
 
 	public void handleLocked(Duration d) throws LibUsbException {
-		libusb_handle_events_locked(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_handle_events_locked(context(), Struct.write(timeval.from(d)));
 	}
 
 	public void handleTimeout(Duration d) throws LibUsbException {
-		libusb_handle_events_timeout(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_handle_events_timeout(context(), Struct.write(timeval.from(d)));
 	}
 
 	public int handleTimeoutCompleted(Duration d, Completed completed) throws LibUsbException {
-		return libusb_handle_events_timeout_completed(context(), Struct.write(timeval.from(d)),
-			completed.completed);
+		return LibUsb.libusb_handle_events_timeout_completed(context(),
+			Struct.write(timeval.from(d)), completed == null ? null : completed.completed);
 	}
 
 	public void await(Duration d) throws LibUsbException {
-		libusb_wait_for_event(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_wait_for_event(context(), Struct.write(timeval.from(d)));
 	}
 
 	public Enclosed<RuntimeException, List<PollFd>> pollFds() throws LibUsbException {
-		var ref = libusb_get_pollfds(context());
+		var ref = LibUsb.libusb_get_pollfds(context());
 		var list = pollFds(ref);
 		return Enclosed.of(list, t -> freePollFds(ref));
 	}
 
 	public boolean pollsHandleTimeouts() throws LibUsbException {
-		return libusb_pollfds_handle_timeouts(context());
+		return LibUsb.libusb_pollfds_handle_timeouts(context());
 	}
 
 	public <T> void pollNotifiers(PollAddListener<T> addedCallback,
@@ -177,7 +165,7 @@ public class UsbEvents implements RuntimeCloseable {
 			(fd, events, user_data) -> pollfdAdded(fd, events, addedCallback, userData);
 		libusb_pollfd_removed_cb jnaRemovedCallback = removedCallback == null ? null :
 			(fd, user_data) -> pollfdRemoved(fd, removedCallback, userData);
-		libusb_set_pollfd_notifiers(context(), jnaAddedCallback, jnaRemovedCallback, null);
+		LibUsb.libusb_set_pollfd_notifiers(context(), jnaAddedCallback, jnaRemovedCallback, null);
 		updatePollCallbacks(jnaAddedCallback, jnaRemovedCallback);
 	}
 

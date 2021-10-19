@@ -177,7 +177,7 @@ public class FtdiBehavior {
 		ftdi = open();
 		ftdi.writeChunkSize(2);
 		var enc = ByteArray.Encoder.of();
-		lib.handleEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
+		lib.handleTransferEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
 		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
 		assertEquals(control.dataDone(), 5);
 		assertArray(enc.bytes(), 1, 2, 3, 4, 5);
@@ -189,7 +189,7 @@ public class FtdiBehavior {
 		ftdi.writeChunkSize(2);
 		var enc = ByteArray.Encoder.of();
 		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_SUCCESS, LIBUSB_ERROR_IO);
-		lib.handleEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
+		lib.handleTransferEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
 		LogModifier.run(() -> {
 			var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
 			assertEquals(control.dataDone(), 4);
@@ -203,7 +203,7 @@ public class FtdiBehavior {
 		ftdi.ftdi().max_packet_size = 7;
 		ftdi.readChunkSize(4);
 		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
-		lib.handleEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
+		lib.handleTransferEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
 		Memory m = JnaUtil.calloc(5);
 		var control = ftdi.readSubmit(m, 5);
 		assertEquals(control.dataDone(), 5);
@@ -216,7 +216,7 @@ public class FtdiBehavior {
 		ftdi.readChunkSize(4);
 		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
 		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_SUCCESS, LIBUSB_ERROR_IO);
-		lib.handleEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
+		lib.handleTransferEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
 		LogModifier.run(() -> {
 			Memory m = JnaUtil.calloc(5);
 			var control = ftdi.readSubmit(m, 5);
@@ -230,7 +230,7 @@ public class FtdiBehavior {
 		ftdi = open();
 		ftdi.readChunkSize(8);
 		Memory m = JnaUtil.calloc(5);
-		lib.handleEvent.autoResponse(te -> {
+		lib.handleTransferEvent.autoResponse(te -> {
 			te.buffer().put(ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7));
 			return LIBUSB_TRANSFER_COMPLETED;
 		});
@@ -249,7 +249,7 @@ public class FtdiBehavior {
 	public void shouldReadStreamData() throws LibUsbException {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
-		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
 		Ftdi.StreamCallback callback = (prog, buffer) -> collect(encoder, buffer, 24);
 		ftdi.readStream(callback, 2, 3);
@@ -261,7 +261,7 @@ public class FtdiBehavior {
 	public void shouldUpdateStreamProgress() throws LibUsbException {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
-		lib.handleEvent.autoResponse(event -> fill(event.buffer(), n));
+		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Apply<FtdiProgressInfo, Boolean> sync = CallSync.function(null, true, true, false);
 		Ftdi.StreamCallback callback = (prog, buffer) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);

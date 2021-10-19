@@ -40,7 +40,7 @@ public class TestCLibNative implements CLibNative {
 	// List<?> = Fd f, int offset, int whence
 	public final CallSync.Apply<List<?>, Integer> lseek = CallSync.function(null, 0);
 	// List<?> = int signal, sighandler_t handler
-	public final CallSync.Apply<List<?>, sighandler_t> signal = CallSync.function(null, i -> {});
+	public final CallSync.Apply<List<?>, Pointer> signal = CallSync.function(null, Pointer.NULL);
 	public final CallSync.Apply<Integer, Integer> raise = CallSync.function(null, 0);
 	// List<?> = List<pollfd> fds, int timeoutMs
 	public final CallSync.Apply<List<?>, Integer> poll = CallSync.function(null, 0);
@@ -141,7 +141,12 @@ public class TestCLibNative implements CLibNative {
 	}
 
 	@Override
-	public sighandler_t signal(int signum, sighandler_t handler) {
+	public Pointer signal(int signum, sighandler_t handler) {
+		return signal.apply(List.of(signum, handler));
+	}
+
+	@Override
+	public Pointer signal(int signum, Pointer handler) {
 		return signal.apply(List.of(signum, handler));
 	}
 

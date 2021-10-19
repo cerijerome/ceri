@@ -2,6 +2,7 @@ package ceri.serial.libusb.jna;
 
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_UNKNOWN;
+import static ceri.serial.libusb.jna.TestLibUsbNative.lastError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,16 +15,15 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.Fluent;
 import ceri.common.text.ToString;
 import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
@@ -36,6 +36,7 @@ public class LibUsbTestData {
 	private final List<Device> devices = new ArrayList<>();
 	private final List<DeviceHandle> deviceHandles = new ArrayList<>();
 	private final List<Transfer> transfers = new ArrayList<>();
+	private final List<HotPlug> hotPlugs = new ArrayList<>();
 	public final List<DeviceConfig> deviceConfigs = new ArrayList<>();
 	public libusb_version version = version("http://libusb.info", "", 1, 0, 24, 11584);
 	public int capabilities;
@@ -160,6 +161,22 @@ public class LibUsbTestData {
 		}
 	}
 
+	public static class HotPlug extends Data {
+		public Context context;
+		public final int handle;
+		public int events;
+		public int flags;
+		public int vendorId;
+		public int productId;
+		public int devClass;
+		public libusb_hotplug_callback_fn callback;
+		public Pointer userData;
+
+		private HotPlug() {
+			handle = id;
+		}
+	}
+
 	public LibUsbTestData() {
 		reset();
 	}
@@ -205,10 +222,13 @@ public class LibUsbTestData {
 	}
 
 	public void removeContext(Pointer p) {
-		var context = find(contexts, p);
+		var context = get(contexts, p);
+		if (context == null) return;
 		deviceLists.removeIf(t -> t.context == context);
 		devices.removeIf(t -> t.deviceList.context == context);
 		deviceHandles.removeIf(t -> t.device.deviceList.context == context);
+		hotPlugs.removeIf(t -> t.context == context);
+		if (p != null) contexts.remove(context);
 	}
 
 	public DeviceList createDeviceList(Context context) {
@@ -310,11 +330,30 @@ public class LibUsbTestData {
 	}
 
 	public List<Transfer> transfers() {
-		return ImmutableUtil.copyAsList(transfers);
+		return List.copyOf(transfers);
 	}
 
 	public void removeTransfer(Transfer transfer) {
 		transfers.remove(transfer);
+	}
+
+	public HotPlug createHotPlug(Context context) {
+		var hotPlug = new HotPlug();
+		hotPlug.context = context;
+		hotPlugs.add(hotPlug);
+		return hotPlug;
+	}
+
+	public HotPlug hotPlug(int handle) {
+		return find(hotPlugs, t -> t.handle == handle, null);
+	}
+
+	public List<HotPlug> hotPlugs() {
+		return List.copyOf(hotPlugs);
+	}
+
+	public void removeHotPlug(int handle) {
+		hotPlugs.removeIf(t -> t.handle == handle);
 	}
 
 	private static <T extends Data> void forEach(List<T> list, Predicate<? super T> filter,
@@ -322,9 +361,12 @@ public class LibUsbTestData {
 		list.stream().filter(filter).forEach(action);
 	}
 
+	private static <T extends Data> T get(List<T> list, Pointer p) {
+		return find(list, t -> Objects.equals(t.p, p), null);
+	}
+
 	private static <T extends Data> T find(List<T> list, Pointer p) {
-		return find(list, t -> Objects.equals(t.p, p),
-			() -> new LastErrorException(LIBUSB_ERROR_NOT_FOUND.value));
+		return find(list, t -> Objects.equals(t.p, p), () -> lastError(LIBUSB_ERROR_NOT_FOUND));
 	}
 
 	private static <E extends Exception, T extends Data> T find(List<T> list,

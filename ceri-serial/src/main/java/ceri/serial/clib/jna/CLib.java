@@ -14,6 +14,7 @@ import ceri.serial.clib.jna.CLibNative.sighandler_t;
 import ceri.serial.clib.jna.CLibNative.size_t;
 import ceri.serial.jna.JnaLibrary;
 import ceri.serial.jna.JnaUtil;
+import ceri.serial.jna.PointerUtil;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.Struct.Fields;
 
@@ -162,8 +163,27 @@ public class CLib {
 	public static final int SIGALRM = 14;
 	public static final int SIGTERM = 15;
 
-	public static sighandler_t signal(int signum, sighandler_t handler) throws CException {
-		return caller.callType(() -> lib().signal(signum, handler), "signal", signum, handler);
+	public static final int SIG_DFL = 0;
+	public static final int SIG_IGN = 1;
+	public static final int SIG_ERR = -1;
+
+	/**
+	 * Sets a signal handler. Returns true if the result is not SIG_ERR.
+	 */
+	public static boolean signal(int signum, sighandler_t handler) throws CException {
+		Pointer p = caller.callType(() -> lib().signal(signum, handler), "signal", signum, handler);
+		return PointerUtil.peer(p) != SIG_ERR;
+	}
+
+	/**
+	 * Sets a standard signal handler SIG_DFL or SIG_IGN. Returns true if the result is not SIG_ERR.
+	 */
+	public static boolean signal(int signum, int handler) throws CException {
+		if (handler < SIG_DFL || handler > SIG_IGN)
+			throw CException.of(CError.EINVAL, "Only SIG_DFL or SIG_IGN allowed: %d", handler);
+		Pointer p = caller.callType(() -> lib().signal(signum, new Pointer(handler)), "signal",
+			signum, handler);
+		return PointerUtil.peer(p) != SIG_ERR;
 	}
 
 	public static void raise(int sig) throws CException {

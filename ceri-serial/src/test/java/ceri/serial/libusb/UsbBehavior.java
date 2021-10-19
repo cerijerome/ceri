@@ -1,19 +1,16 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.*;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.Locale;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
-import ceri.serial.ftdi.Ftdi;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.TestLibUsbNative;
@@ -26,7 +23,6 @@ public class UsbBehavior {
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.subject;
-		// LibUsbSampleData.populate(lib.data);
 	}
 
 	@After
@@ -49,22 +45,16 @@ public class UsbBehavior {
 	}
 
 	@Test
-	public void shouldCreateDefault() throws IOException {
-		try (var usb = Usb.ofDefault()) {
+	public void shouldCreateInstance() throws IOException {
+		try (var usb = Usb.of()) {
 			usb.debug(Level.WARN);
+			usb.useUsbDk(true);
 			usb.useUsbDk(false);
 			usb.weakAuthority(true);
+			usb.weakAuthority(false);
+			usb.close();
+			assertThrown(() -> usb.useUsbDk(true)); // already closed
 		}
-	}
-
-	@Test
-	public void shouldCreateInstance() throws IOException {
-		@SuppressWarnings("resource")
-		var usb = Usb.of();
-		usb.useUsbDk(true);
-		usb.weakAuthority(false);
-		usb.close();
-		assertThrown(() -> usb.useUsbDk(true)); // already closed
 	}
 
 	@SuppressWarnings("resource")

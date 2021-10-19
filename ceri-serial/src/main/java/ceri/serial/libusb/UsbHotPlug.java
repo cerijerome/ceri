@@ -4,7 +4,6 @@ import static ceri.serial.libusb.jna.LibUsb.LIBUSB_HOTPLUG_MATCH_ANY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import java.io.IOException;
 import java.lang.ref.Reference;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,7 +21,9 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 /**
  * Holds a registered callback, and deregisters on close. Keeps track of JNA callback reference to
- * avoid early removal by GC.
+ * avoid early removal by GC.<p/>
+ * WARNING: If a device is plugged in then removed, calling <code>device.open()</code>
+ * on the arrive event can generate SIGABRT cause the application to abort.  
  */
 public class UsbHotPlug implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getFormatterLogger();
@@ -53,8 +54,8 @@ public class UsbHotPlug implements RuntimeCloseable {
 		private final Callback callback;
 		private final Collection<libusb_hotplug_event> events = new LinkedHashSet<>();
 		private final Collection<libusb_hotplug_flag> flags = new LinkedHashSet<>();
-		int vendor = LIBUSB_HOTPLUG_MATCH_ANY;
-		int product = LIBUSB_HOTPLUG_MATCH_ANY;
+		int vendor = 0;
+		int product = 0;
 		libusb_class_code deviceClass = null;
 
 		Builder(Usb usb, Callback callback) {
@@ -63,39 +64,26 @@ public class UsbHotPlug implements RuntimeCloseable {
 		}
 
 		/**
-		 * Set events to match.
+		 * Register for arrive events.
 		 */
-		public Builder events(libusb_hotplug_event... events) {
-			return events(Arrays.asList(events));
-		}
-
-		/**
-		 * Set events to match.
-		 */
-		public Builder events(Collection<libusb_hotplug_event> events) {
-			this.events.addAll(events);
+		public Builder arrived() {
+			events.add(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED);
 			return this;
 		}
 
 		/**
-		 * Set all events to match.
+		 * Register for leave events.
 		 */
-		public Builder allEvents() {
-			return events(libusb_hotplug_event.xcoder.all());
+		public Builder left() {
+			events.add(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
+			return this;
 		}
 
 		/**
-		 * Set option flags.
+		 * Enable enumerate option.
 		 */
-		public Builder flags(libusb_hotplug_flag... flags) {
-			return flags(Arrays.asList(flags));
-		}
-
-		/**
-		 * Set option flags.
-		 */
-		public Builder flags(Collection<libusb_hotplug_flag> flags) {
-			this.flags.addAll(flags);
+		public Builder enumerate() {
+			flags.add(libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE);
 			return this;
 		}
 

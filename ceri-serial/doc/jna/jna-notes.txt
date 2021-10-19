@@ -6,6 +6,7 @@ C code analysis
 
 Exported functions:
 nm -D --defined-only libxxx.so
+nm -gU libxxx.dylib
 
 Lib dependencies:
 readelf -d libxxx.so | grep NEEDED
@@ -38,6 +39,7 @@ General:
 - Don't expect new Memory() to be zeroed
 - Dereferencing objects to pointers may cause gc on object (be careful in tests)
 - Callbacks should have hard references to prevent gc
+- Reference.reachabilityFence(obj) to keep hard ref until called
 
 Arrays:
 - PointerUtil.arrayByVal to create contiguous pointer(-type) arrays (void*)
