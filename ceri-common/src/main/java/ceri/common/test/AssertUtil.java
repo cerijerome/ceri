@@ -86,6 +86,10 @@ public class AssertUtil {
 		throw new AssertionError("Failed");
 	}
 
+	public static void fail(Throwable t) {
+		throw new AssertionError("Failed", t);
+	}
+
 	public static void fail(String format, Object... args) {
 		throw failure(format, args);
 	}
