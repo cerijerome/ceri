@@ -284,7 +284,7 @@ public class LibUsbTestData {
 		devices.removeIf(d -> d.refs <= 0);
 	}
 
-	public void removeDevice(Device device) {
+	private void removeDevice(Device device) {
 		devices.remove(device);
 	}
 

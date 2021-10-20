@@ -27,7 +27,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 /**
  * Encapsulation of context-based event handling.
  */
-public class UsbEvents implements RuntimeCloseable {
+public class UsbEvents {
 	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private final Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
@@ -78,7 +78,12 @@ public class UsbEvents implements RuntimeCloseable {
 		}
 	}
 
-	UsbEvents(Usb usb) {
+	static Enclosed<RuntimeException, UsbEvents> events(Usb usb) {
+		var events = new UsbEvents(usb);
+		return Enclosed.of(events, UsbEvents::clearRefs);
+	}
+	
+	private UsbEvents(Usb usb) {
 		this.usb = usb;
 	}
 
@@ -169,8 +174,7 @@ public class UsbEvents implements RuntimeCloseable {
 		updatePollCallbacks(jnaAddedCallback, jnaRemovedCallback);
 	}
 
-	@Override
-	public void close() {
+	private void clearRefs() {
 		LogUtil.close(logger, pollfdCallbackRefs::clear);
 	}
 

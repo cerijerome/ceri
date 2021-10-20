@@ -167,9 +167,9 @@ public class UsbPrinter {
 
 	private void endPoint(String pre, UsbDescriptors.EndPoint ep) throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(ep), pre);
-		out.printf("%s: endPointAddress()=0x%02x%n", pre, ep.endPointAddress());
-		out.printf("%s:   endPointNumber()=%d%n", pre, ep.endPointNumber());
-		out.printf("%s:   endPointDirection()=%s%n", pre, ep.endPointDirection());
+		out.printf("%s: endPointAddress()=0x%02x%n", pre, ep.address());
+		out.printf("%s:   endPointNumber()=%d%n", pre, ep.number());
+		out.printf("%s:   endPointDirection()=%s%n", pre, ep.direction());
 		out.printf("%s: attributes()=0x%02x%n", pre, ep.attributes());
 		out.printf("%s:   transferType()=%s%n", pre, ep.transferType());
 		out.printf("%s:   isoSyncType()=%s%n", pre, ep.isoSyncType());

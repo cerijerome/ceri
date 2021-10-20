@@ -86,6 +86,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.jna.test.JnaTestUtilTest.class, //
 	// libusb
 	ceri.serial.libusb.UsbBehavior.class, //
+	ceri.serial.libusb.UsbDescriptorsBehavior.class, //
 	ceri.serial.libusb.UsbHotPlugBehavior.class, //
 	// libusb.jna
 	ceri.serial.libusb.jna.LibUsbFinderBehavior.class, //

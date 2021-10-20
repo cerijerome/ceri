@@ -36,7 +36,7 @@ public class UsbDevice implements RuntimeCloseable {
 		}
 
 		public List<UsbDevice> devices() {
-			return list == null ? List.of() : devices;
+			return devices;
 		}
 
 		@Override

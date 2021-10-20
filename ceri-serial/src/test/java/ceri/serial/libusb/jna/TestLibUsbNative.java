@@ -221,7 +221,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_get_active_config_descriptor(libusb_device dev, PointerByReference config) {
-		throw new UnsupportedOperationException();
+		return libusb_get_config_descriptor(dev, (byte) 0, config);
 	}
 
 	@Override
