@@ -25,6 +25,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
+import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
@@ -70,7 +72,11 @@ public class LibUsbTestData {
 		public int debugLevel = 0;
 		public boolean usbDk = false;
 		public boolean weakAuth = false;
-		public Lock eventLock = new ReentrantLock();
+		public boolean eventHandling = true;
+		public ReentrantLock eventLock = new ReentrantLock();
+		public Lock eventWaiterLock = new ReentrantLock();
+		public libusb_pollfd_added_cb pollFdAddedCb = null;
+		public libusb_pollfd_removed_cb pollFdRemovedCb = null;
 
 		private Context(Pointer p) {
 			super(p);

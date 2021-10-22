@@ -1564,7 +1564,7 @@ public class LibUsb {
 			TypeTranscoder.of(t -> t.value, libusb_poll_event.class);
 		public final int value;
 
-		libusb_poll_event(int value) {
+		private libusb_poll_event(int value) {
 			this.value = value;
 		}
 	}
@@ -1576,6 +1576,10 @@ public class LibUsb {
 	public static class libusb_pollfd extends Struct {
 		public int fd;
 		public short events;
+
+		public libusb_pollfd(Pointer p) {
+			super(p);
+		}
 
 		public Set<libusb_poll_event> events() {
 			return libusb_poll_event.xcoder.decodeAll(ushort(events));
@@ -2306,8 +2310,8 @@ public class LibUsb {
 		caller.verify(() -> lib().libusb_handle_events(ctx), "libusb_handle_events", ctx);
 	}
 
-	public static int libusb_handle_events_completed(libusb_context ctx,
-		IntByReference completed) throws LibUsbException {
+	public static int libusb_handle_events_completed(libusb_context ctx, IntByReference completed)
+		throws LibUsbException {
 		require(ctx);
 		caller.verify(() -> lib().libusb_handle_events_completed(ctx, completed),
 			"libusb_handle_events_completed", ctx, completed);
@@ -2339,9 +2343,8 @@ public class LibUsb {
 	public static ArrayPointer<libusb_pollfd> libusb_get_pollfds(libusb_context ctx)
 		throws LibUsbException {
 		require(ctx);
-		Pointer p = caller.verifyType(() -> lib().libusb_get_pollfds(ctx),
-			libusb_error.LIBUSB_ERROR_NO_MEM.value, "libusb_get_pollfds", ctx);
-		return ArrayPointer.byRef(p, null, null);
+		Pointer p = caller.callType(() -> lib().libusb_get_pollfds(ctx), "libusb_get_pollfds", ctx);
+		return ArrayPointer.byRef(p, libusb_pollfd::new, libusb_pollfd[]::new);
 	}
 
 	public static void libusb_free_pollfds(ArrayPointer<libusb_pollfd> pollFds)

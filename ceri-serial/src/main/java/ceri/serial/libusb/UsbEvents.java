@@ -1,20 +1,21 @@
 package ceri.serial.libusb;
 
+import static ceri.common.math.MathUtil.ushort;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.util.LogUtil;
 import ceri.serial.clib.jna.CTime.timeval;
-import ceri.serial.jna.ArrayPointer;
 import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -30,15 +31,8 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class UsbEvents {
 	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
-	private final Set<Object> pollfdCallbackRefs = ConcurrentHashMap.newKeySet();
-
-	public interface PollAddListener<T> {
-		void invoke(int fd, Set<libusb_poll_event> events, T userData) throws IOException;
-	}
-
-	public interface PollRemoveListener<T> {
-		void invoke(int fd, T userData) throws IOException;
-	}
+	private libusb_pollfd_added_cb addedCallback; // ref to prevent gc
+	private libusb_pollfd_removed_cb removedCallback; // ref to prevent gc
 
 	public static class Completed {
 		private final IntByReference completed = new IntByReference();
@@ -62,28 +56,13 @@ public class UsbEvents {
 		}
 	}
 
-	public static class PollFd {
-		private libusb_pollfd pollFd;
-
-		PollFd(libusb_pollfd pollFd) {
-			this.pollFd = pollFd;
-		}
-
-		public int fd() {
-			return pollFd.fd;
-		}
-
-		public Set<libusb_poll_event> events() {
-			return pollFd.events();
+	public static record PollFd(int fd, int events) {
+		public Set<libusb_poll_event> pollEvents() {
+			return libusb_poll_event.xcoder.decodeAll(events);
 		}
 	}
 
-	static Enclosed<RuntimeException, UsbEvents> events(Usb usb) {
-		var events = new UsbEvents(usb);
-		return Enclosed.of(events, UsbEvents::clearRefs);
-	}
-	
-	private UsbEvents(Usb usb) {
+	UsbEvents(Usb usb) {
 		this.usb = usb;
 	}
 
@@ -108,7 +87,7 @@ public class UsbEvents {
 	 * Acquires the event waiters lock. Returns a closable type that unlocks on close.
 	 */
 	public RuntimeCloseable lockWaiters() throws LibUsbException {
-		LibUsb.libusb_lock_events(context());
+		LibUsb.libusb_lock_event_waiters(context());
 		return () -> unlockEventWaiters();
 	}
 
@@ -154,44 +133,38 @@ public class UsbEvents {
 		LibUsb.libusb_wait_for_event(context(), Struct.write(timeval.from(d)));
 	}
 
-	public Enclosed<RuntimeException, List<PollFd>> pollFds() throws LibUsbException {
+	public List<PollFd> pollFds() throws LibUsbException {
 		var ref = LibUsb.libusb_get_pollfds(context());
-		var list = pollFds(ref);
-		return Enclosed.of(list, t -> freePollFds(ref));
+		try {
+			libusb_pollfd[] array = Struct.read(ref.get());
+			return ImmutableUtil.collectAsList(
+				Stream.of(array).map(pollFd -> new PollFd(pollFd.fd, ushort(pollFd.events))));
+		} finally {
+			LogUtil.execute(logger, () -> LibUsb.libusb_free_pollfds(ref));
+		}
 	}
 
-	public boolean pollsHandleTimeouts() throws LibUsbException {
+	public boolean pollHandleTimeouts() throws LibUsbException {
 		return LibUsb.libusb_pollfds_handle_timeouts(context());
 	}
 
-	public <T> void pollNotifiers(PollAddListener<T> addedCallback,
-		PollRemoveListener<T> removedCallback, T userData) throws LibUsbException {
-		libusb_pollfd_added_cb jnaAddedCallback = addedCallback == null ? null :
-			(fd, events, user_data) -> pollfdAdded(fd, events, addedCallback, userData);
-		libusb_pollfd_removed_cb jnaRemovedCallback = removedCallback == null ? null :
-			(fd, user_data) -> pollfdRemoved(fd, removedCallback, userData);
-		LibUsb.libusb_set_pollfd_notifiers(context(), jnaAddedCallback, jnaRemovedCallback, null);
-		updatePollCallbacks(jnaAddedCallback, jnaRemovedCallback);
+	public void pollNotifiers(ExceptionConsumer<IOException, PollFd> addedCallback,
+		ExceptionIntConsumer<IOException> removedCallback) throws LibUsbException {
+		this.addedCallback = addedCallback(addedCallback);
+		this.removedCallback = removedCallback(removedCallback);
+		LibUsb.libusb_set_pollfd_notifiers(context(), this.addedCallback, this.removedCallback,
+			null);
 	}
 
-	private void clearRefs() {
-		LogUtil.close(logger, pollfdCallbackRefs::clear);
+	private libusb_pollfd_added_cb addedCallback(ExceptionConsumer<IOException, PollFd> callback) {
+		if (callback == null) return null;
+		return (fd, events, user_data) -> LogUtil.execute(logger,
+			() -> callback.accept(new PollFd(fd, ushort(events))));
 	}
 
-	private void updatePollCallbacks(libusb_pollfd_added_cb addedCallback,
-		libusb_pollfd_removed_cb removedCallback) {
-		pollfdCallbackRefs.clear();
-		if (addedCallback != null) pollfdCallbackRefs.add(addedCallback);
-		if (removedCallback != null) pollfdCallbackRefs.add(removedCallback);
-	}
-
-	private <T> void pollfdAdded(int fd, short events, PollAddListener<T> callback, T userData) {
-		LogUtil.execute(logger,
-			() -> callback.invoke(fd, libusb_poll_event.xcoder.decodeAll(events), userData));
-	}
-
-	private <T> void pollfdRemoved(int fd, PollRemoveListener<T> callback, T userData) {
-		LogUtil.execute(logger, () -> callback.invoke(fd, userData));
+	private libusb_pollfd_removed_cb removedCallback(ExceptionIntConsumer<IOException> callback) {
+		if (callback == null) return null;
+		return (fd, user_data) -> LogUtil.execute(logger, () -> callback.accept(fd));
 	}
 
 	private void unlockEvents() {
@@ -200,16 +173,6 @@ public class UsbEvents {
 
 	private void unlockEventWaiters() {
 		LogUtil.execute(logger, () -> LibUsb.libusb_unlock_event_waiters(context()));
-	}
-
-	private static void freePollFds(ArrayPointer<libusb_pollfd> ref) {
-		LogUtil.execute(logger, () -> LibUsb.libusb_free_pollfds(ref));
-	}
-
-	private static List<PollFd> pollFds(ArrayPointer<libusb_pollfd> ref) {
-		if (ref == null) return List.of();
-		libusb_pollfd[] array = Struct.read(ref.get());
-		return ImmutableUtil.collectAsList(Stream.of(array).map(PollFd::new));
 	}
 
 	private libusb_context context() {

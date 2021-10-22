@@ -106,14 +106,14 @@ public class CCaller<E extends Exception> {
 	}
 
 	/**
-	 * Call library function and return int result. Throws an exception on LastErrorException.
+	 * Call library function and return type result. Throws an exception on LastErrorException.
 	 */
 	public <R> R callType(ExceptionSupplier<E, R> fn, String name, Object... args) throws E {
 		return callType(fn, messageFn(name, args));
 	}
 
 	/**
-	 * Call library function and return int result. Throws an exception on LastErrorException.
+	 * Call library function and return type result. Throws an exception on LastErrorException.
 	 */
 	public <R> R callType(ExceptionSupplier<E, R> fn, Supplier<String> msgFn) throws E {
 		try {

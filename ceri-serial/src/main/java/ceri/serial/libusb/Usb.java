@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
-import ceri.common.util.Enclosed;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
 import ceri.serial.libusb.UsbHotPlug.Callback;
@@ -24,7 +23,7 @@ import ceri.serial.libusb.jna.LibUsbFinder;
 public class Usb implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Map<Level, libusb_log_level> levelMap = levelMap();
-	private final Enclosed<RuntimeException, UsbEvents> events;
+	private final UsbEvents events;
 	private libusb_context context;
 
 	public static UsbLibVersion version() throws LibUsbException {
@@ -44,7 +43,7 @@ public class Usb implements RuntimeCloseable {
 
 	private Usb(libusb_context context) {
 		this.context = context;
-		events = UsbEvents.events(this);
+		events = new UsbEvents(this);
 	}
 
 	public UsbDeviceHandle open(LibUsbFinder finder) throws LibUsbException {
@@ -73,7 +72,7 @@ public class Usb implements RuntimeCloseable {
 	}
 
 	public UsbEvents events() {
-		return events.subject;
+		return events;
 	}
 
 	/**
@@ -85,7 +84,7 @@ public class Usb implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, events, () -> LibUsb.libusb_exit(context));
+		LogUtil.close(logger, () -> LibUsb.libusb_exit(context));
 		context = null;
 	}
 

@@ -45,7 +45,7 @@ public class LibFtdiTest {
 
 	@Test
 	public void testInitFailure() {
-		lib.init.autoResponses(LIBUSB_ERROR_NO_MEM.value);
+		lib.generalSync.autoResponses(LIBUSB_ERROR_NO_MEM.value);
 		assertThrown(() -> LibFtdi.ftdi_new());
 	}
 
