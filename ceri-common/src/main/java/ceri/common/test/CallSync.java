@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -78,7 +79,7 @@ public class CallSync<T, R> {
 	/**
 	 * Sub-class for a function call.
 	 */
-	public static class Apply<T, R> extends CallSync<T, R> {
+	public static class Apply<T, R> extends CallSync<T, R> implements Function<T, R> {
 		protected Apply(T valueDef) {
 			super(valueDef);
 		}
@@ -134,6 +135,7 @@ public class CallSync<T, R> {
 		 * Signals that a call has been made, and waits for the completion response. Throws a
 		 * RuntimeException if the generator is configured.
 		 */
+		@Override
 		public R apply(T t) {
 			return apply(t, RUNTIME);
 		}
@@ -224,7 +226,7 @@ public class CallSync<T, R> {
 	/**
 	 * Sub-class for a consumer call.
 	 */
-	public static class Accept<T> extends CallSync<T, Object> {
+	public static class Accept<T> extends CallSync<T, Object> implements Consumer<T> {
 		protected Accept(T valueDef) {
 			super(valueDef);
 		}
@@ -271,6 +273,7 @@ public class CallSync<T, R> {
 		 * Signals that a call has been made, and waits for completion. Throws a RuntimeException if
 		 * the generator is configured.
 		 */
+		@Override
 		public void accept(T t) {
 			accept(t, RUNTIME);
 		}
@@ -364,7 +367,7 @@ public class CallSync<T, R> {
 	/**
 	 * Sub-class for a supplier call.
 	 */
-	public static class Get<R> extends CallSync<Object, R> {
+	public static class Get<R> extends CallSync<Object, R> implements Supplier<R> {
 		protected Get() {
 			super(null);
 		}
@@ -392,6 +395,7 @@ public class CallSync<T, R> {
 		 * Signals that a call has been made, and waits for the completion response. Throws a
 		 * RuntimeException if the generator is configured.
 		 */
+		@Override
 		public R get() {
 			return get(RUNTIME);
 		}
@@ -456,7 +460,7 @@ public class CallSync<T, R> {
 	/**
 	 * Sub-class for a runnable call.
 	 */
-	public static class Run extends CallSync<Object, Object> {
+	public static class Run extends CallSync<Object, Object> implements Runnable {
 		protected Run() {
 			super(null);
 		}
@@ -473,6 +477,7 @@ public class CallSync<T, R> {
 		 * Signals that a call has been made, and waits for completion. Throws a RuntimeException if
 		 * the generator is configured.
 		 */
+		@Override
 		public void run() {
 			run(RUNTIME);
 		}
