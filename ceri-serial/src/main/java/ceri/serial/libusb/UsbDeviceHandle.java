@@ -1,12 +1,13 @@
 package ceri.serial.libusb;
 
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
+import ceri.serial.libusb.UsbTransfer.BulkStreams;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -19,12 +20,6 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 	private final Usb usb;
 	private UsbDevice device = null;
 	private libusb_device_handle handle;
-
-	// TODO: move elsewhere
-	public static void fillControlSetup(Pointer buffer, int bmRequestType, int bRequest, int wValue,
-		int wIndex, int wLength) {
-		LibUsb.libusb_fill_control_setup(buffer, bmRequestType, bRequest, wValue, wIndex, wLength);
-	}
 
 	public static boolean canDetachKernelDriver() throws LibUsbException {
 		return LibUsb
@@ -57,7 +52,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		LibUsb.libusb_attach_kernel_driver(handle(), interfaceNumber);
 	}
 
-	public void setAutoDetachKernelDriver(boolean enable) throws LibUsbException {
+	public void autoDetachKernelDriver(boolean enable) throws LibUsbException {
 		LibUsb.libusb_set_auto_detach_kernel_driver(handle(), enable);
 	}
 
@@ -65,7 +60,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		return LibUsb.libusb_get_configuration(handle());
 	}
 
-	public void setConfiguration(int configuration) throws LibUsbException {
+	public void configuration(int configuration) throws LibUsbException {
 		LibUsb.libusb_set_configuration(handle(), configuration);
 	}
 
@@ -90,8 +85,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		LibUsb.libusb_release_interface(handle(), interfaceNumber);
 	}
 
-	public void setInterfaceAltSetting(int interfaceNumber, int alternateSetting)
-		throws LibUsbException {
+	public void altSetting(int interfaceNumber, int alternateSetting) throws LibUsbException {
 		LibUsb.libusb_set_interface_alt_setting(handle(), interfaceNumber, alternateSetting);
 	}
 
@@ -103,30 +97,63 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		LibUsb.libusb_reset_device(handle());
 	}
 
-	public UsbTransfer allocTransfer(int isoPackets) throws LibUsbException {
-		return new UsbTransfer(this::handle, LibUsb.libusb_alloc_transfer(isoPackets));
+	/**
+	 * Holder for allocated streams used for bulk transfers.
+	 */
+	public UsbTransfer.BulkStreams bulkStreams(int count, int... endPoints) throws LibUsbException {
+		byte[] eps = ArrayUtil.bytes(endPoints);
+		int n = LibUsb.libusb_alloc_streams(handle(), count, eps);
+		return new BulkStreams(this, n, eps);
 	}
 
-	public UsbBulkStreams allocateBulkStreams(int count, int... endPoints) throws LibUsbException {
-		return UsbBulkStreams.allocate(this::handle, count, ArrayUtil.bytes(endPoints));
+	/**
+	 * Allocates an async control transfer.
+	 */
+	public UsbTransfer.Control controlTransfer(Consumer<? super UsbTransfer.Control> callback)
+		throws LibUsbException {
+		return UsbTransfer.Control.alloc(this, callback);
+	}
+
+	/**
+	 * Allocates an async bulk transfer.
+	 */
+	public UsbTransfer.Bulk bulkTransfer(Consumer<? super UsbTransfer.Bulk> callback)
+		throws LibUsbException {
+		return UsbTransfer.Bulk.alloc(this, callback);
+	}
+
+	/**
+	 * Allocates an async interrupt transfer.
+	 */
+	public UsbTransfer.Interrupt interruptTransfer(Consumer<? super UsbTransfer.Interrupt> callback)
+		throws LibUsbException {
+		return UsbTransfer.Interrupt.alloc(this, callback);
+	}
+
+	/**
+	 * Allocates an async isochronous transfer.
+	 */
+	public UsbTransfer.Iso isoTransfer(int packets, Consumer<? super UsbTransfer.Iso> callback)
+		throws LibUsbException {
+		return UsbTransfer.Iso.alloc(this, packets, callback);
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, int timeout)
 		throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
-			(short) index, null, (short) 0, timeout);
+		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
+			(short) value, (short) index, null, (short) 0, timeout);
 	}
 
 	public int controlTransfer(int requestType, int request, int value, int index, byte[] data,
 		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
-			(short) index, data, timeout);
+		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
+			(short) value, (short) index, data, timeout);
 	}
 
 	public byte[] controlTransfer(int requestType, int request, int value, int index, int length,
 		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
-			(short) index, (short) length, timeout);
+		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
+			(short) value, (short) index, (short) length, timeout);
 	}
 
 	public int controlTransfer(int requestType, int bRequest, int wValue, int wIndex,
@@ -137,8 +164,8 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 
 	public int controlTransfer(int requestType, int request, int value, int index,
 		ByteBuffer buffer, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request, (short) value,
-			(short) index, buffer, (short) length, timeout);
+		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
+			(short) value, (short) index, buffer, (short) length, timeout);
 	}
 
 	public byte[] bulkTransfer(int endpoint, int length, int timeout) throws LibUsbException {
@@ -184,19 +211,18 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		return desc == null ? null : new UsbDescriptors.Bos(this, desc);
 	}
 
-	public libusb_device_handle handle() {
-		if (handle != null) return handle;
-		throw new IllegalStateException("Handle has been closed");
-	}
-
 	@Override
 	public void close() {
 		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
 		handle = null;
 	}
 
+	libusb_device_handle handle() {
+		if (handle != null) return handle;
+		throw new IllegalStateException("Handle has been closed");
+	}
+
 	libusb_context context() {
 		return usb.context();
 	}
-
 }

@@ -286,7 +286,7 @@ public class FtdiBehavior {
 
 	private libusb_transfer_status assertBulkWrite(TransferEvent te, int endpoint,
 		ByteWriter<?> writer) {
-		assertEquals(te.endpoint(), endpoint);
+		assertEquals(te.endPoint(), endpoint);
 		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
 		writer.writeFrom(ByteUtil.bytes(te.buffer()));
 		return LIBUSB_TRANSFER_COMPLETED;
@@ -294,7 +294,7 @@ public class FtdiBehavior {
 
 	private libusb_transfer_status assertBulkRead(TransferEvent te, int endpoint,
 		ByteReader reader) {
-		assertEquals(te.endpoint(), endpoint);
+		assertEquals(te.endPoint(), endpoint);
 		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
 		te.buffer().put(reader.readBytes(te.buffer().remaining()));
 		return LIBUSB_TRANSFER_COMPLETED;

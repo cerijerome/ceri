@@ -63,8 +63,6 @@ public class LibUsb {
 	// Field masks
 	public static final int LIBUSB_ENDPOINT_ADDRESS_MASK = 0x0f;
 	public static final int LIBUSB_ENDPOINT_DIR_MASK = 0x80;
-	public static final int LIBUSB_REQUEST_TYPE_MASK = 0x60;
-	public static final int LIBUSB_REQUEST_RECIPIENT_MASK = 0x1f;
 	public static final int LIBUSB_TRANSFER_TYPE_MASK = 0x03;
 	public static final int LIBUSB_BULK_MAX_STREAMS_MASK = 0x1f;
 	public static final int LIBUSB_ISO_MULT_MASK = 0x03;
@@ -1110,30 +1108,12 @@ public class LibUsb {
 		// if libusb_request_type.LIBUSB_REQUEST_TYPE_STANDARD,
 		// libusb_standard_request, otherwise app-specific
 		public byte bRequest;
-		public short wValue;
-		public short wIndex;
-		public short wLength;
+		public short wValue; // always little-endian, use libusb_cpu_to_le16/libusb_le16_to_cpu
+		public short wIndex; // always little-endian, use libusb_cpu_to_le16/libusb_le16_to_cpu
+		public short wLength; // always little-endian, use libusb_cpu_to_le16/libusb_le16_to_cpu
 
 		public libusb_control_setup(Pointer p) {
 			super(p, Platform.isWindows() ? Align.none : Align.platform);
-		}
-
-		public libusb_request_recipient bmRequestRecipient() {
-			return libusb_request_recipient.xcoder
-				.decode(bmRequestType & LIBUSB_REQUEST_RECIPIENT_MASK);
-		}
-
-		public libusb_request_type bmRequestType() {
-			return libusb_request_type.xcoder.decode(bmRequestType & LIBUSB_REQUEST_TYPE_MASK);
-		}
-
-		public libusb_endpoint_direction bmRequestDirection() {
-			return libusb_endpoint_direction.xcoder
-				.decode(bmRequestType & LIBUSB_ENDPOINT_DIR_MASK);
-		}
-
-		public libusb_standard_request bRequestStandard() {
-			return libusb_standard_request.xcoder.decode(ubyte(bRequest));
 		}
 	}
 
@@ -1300,17 +1280,18 @@ public class LibUsb {
 	}
 
 	/**
-	 * Populates the setup structure for a control transfer. Call Struct.write() to write this to
-	 * the buffer.
+	 * Populates and returns the setup structure for a control transfer.
 	 */
-	public static void libusb_fill_control_setup(Pointer buffer, int bmRequestType, int bRequest,
-		int wValue, int wIndex, int wLength) {
+	public static libusb_control_setup libusb_fill_control_setup(Pointer buffer, int bmRequestType,
+		int bRequest, int wValue, int wIndex, int wLength) {
 		libusb_control_setup setup = new libusb_control_setup(buffer);
 		setup.bmRequestType = (byte) bmRequestType;
 		setup.bRequest = (byte) bRequest;
 		setup.wValue = libusb_cpu_to_le16((short) wValue);
 		setup.wIndex = libusb_cpu_to_le16((short) wIndex);
 		setup.wLength = libusb_cpu_to_le16((short) wLength);
+		Struct.write(setup);
+		return setup;
 	}
 
 	/**
@@ -1339,20 +1320,21 @@ public class LibUsb {
 	 * @param user_data user data to pass to callback function
 	 * @param timeout timeout for the transfer in milliseconds
 	 */
+	// public static void libusb_fill_control_transfer(libusb_transfer transfer,
+	// libusb_device_handle dev_handle, Pointer buffer, libusb_transfer_cb_fn callback,
+	// Pointer user_data, int timeoutMs) {
 	public static void libusb_fill_control_transfer(libusb_transfer transfer,
-		libusb_device_handle dev_handle, Pointer buffer, libusb_transfer_cb_fn callback,
+		libusb_device_handle dev_handle, libusb_control_setup setup, libusb_transfer_cb_fn callback,
 		Pointer user_data, int timeoutMs) {
 		transfer.dev_handle = dev_handle;
 		transfer.endpoint = 0;
 		transfer.type = (byte) libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL.value;
 		transfer.timeout = timeoutMs;
-		transfer.buffer = buffer;
+		transfer.buffer = setup == null ? null : setup.getPointer();
+		transfer.length =
+			setup == null ? 0 : LIBUSB_CONTROL_SETUP_SIZE + libusb_le16_to_cpu(setup.wLength);
 		transfer.user_data = user_data;
 		transfer.callback = callback;
-		if (buffer == null) return;
-		// TODO: pass in length?
-		libusb_control_setup setup = Struct.read(new libusb_control_setup(buffer), "wLength");
-		transfer.length = LIBUSB_CONTROL_SETUP_SIZE + libusb_le16_to_cpu(setup.wLength);
 	}
 
 	/**
@@ -1481,10 +1463,9 @@ public class LibUsb {
 	 *         packet does not exist. See libusb_get_iso_packet_buffer_simple()
 	 */
 	public static Pointer libusb_get_iso_packet_buffer(libusb_transfer transfer, int packet) {
-		// TODO: change if called after read()
-		int offset = 0;
 		if (packet > Short.MAX_VALUE) return null;
 		if (packet >= transfer.num_iso_packets) return null;
+		int offset = 0;
 		for (int i = 0; i < packet; i++)
 			offset += transfer.iso_packet_desc[i].length;
 		return transfer.buffer.share(offset);
@@ -1511,10 +1492,9 @@ public class LibUsb {
 	 */
 	public static Pointer libusb_get_iso_packet_buffer_simple(libusb_transfer transfer,
 		int packet) {
-		// TODO: change if called after read()
 		if (packet > Short.MAX_VALUE) return null;
 		if (packet >= transfer.num_iso_packets) return null;
-		return transfer.buffer.share(transfer.iso_packet_desc.length * packet);
+		return transfer.buffer.share(transfer.iso_packet_desc[0].length * packet);
 	}
 
 	/* sync I/O */
@@ -2081,6 +2061,8 @@ public class LibUsb {
 		var xfer = new libusb_transfer(p);
 		xfer.num_iso_packets = iso_packets;
 		xfer.iso_packet_desc = new libusb_iso_packet_descriptor[iso_packets];
+		for (int i = 0; i < xfer.iso_packet_desc.length; i++)
+			xfer.iso_packet_desc[i] = new libusb_iso_packet_descriptor(null);
 		return xfer;
 	}
 
@@ -2383,19 +2365,18 @@ public class LibUsb {
 				"libusb_hotplug_deregister_callback", ctx, handle.value);
 	}
 
+	public static short libusb_cpu_to_le16(short x) {
+		return ByteUtil.BIG_ENDIAN ? Short.reverseBytes(x) : x;
+	}
+
+	public static short libusb_le16_to_cpu(short x) {
+		return libusb_cpu_to_le16(x);
+	}
+
 	private static int updatePosition(ByteBuffer buffer, int inc) {
 		if (buffer != null && inc != 0)
 			buffer.position(Math.min(buffer.position() + inc, buffer.limit()));
 		return inc;
-	}
-
-	private static short libusb_cpu_to_le16(short x) {
-		if (!ByteUtil.BIG_ENDIAN) return x;
-		return Short.reverseBytes(x);
-	}
-
-	private static short libusb_le16_to_cpu(short x) {
-		return libusb_cpu_to_le16(x);
 	}
 
 	private static LibUsbNative lib() {

@@ -33,7 +33,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.TestLibUsbNative;
-import ceri.serial.libusb.jna.TestLibUsbNative.TransferEvent;
 
 public class LibFtdiStreamTest {
 	private static final FTDIStreamCallback<?> trueCallback = (buf, len, prog, u) -> true;
@@ -113,11 +112,6 @@ public class LibFtdiStreamTest {
 	public void shouldFailOnCallbackError() {
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> prog == null ? true : throwIt();
 		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
-	}
-
-	public static libusb_transfer_status handleEvent(TransferEvent event) {
-		TestLibUsbNative.handleTransferEvent(event);
-		return LIBUSB_TRANSFER_COMPLETED;
 	}
 
 	private static boolean assertTotalBytes(FTDIProgressInfo prog, long curr, long prev, long first,

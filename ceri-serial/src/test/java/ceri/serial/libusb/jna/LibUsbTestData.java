@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
 import ceri.common.text.ToString;
 import ceri.serial.jna.Struct;
@@ -109,6 +110,8 @@ public class LibUsbTestData {
 		public int configuration;
 		public int claimedInterface;
 		public int altSetting;
+		public int streamIds = 0;
+		public ByteProvider endPoints = ByteProvider.empty(); // mapped to stream ids
 
 		public void reset() {
 			configuration = device.config.configuration;
@@ -157,6 +160,7 @@ public class LibUsbTestData {
 
 	public static class Transfer extends Data {
 		public boolean submitted = false;
+		public int streamId;
 
 		private Transfer(Pointer p) {
 			super(p);

@@ -1,7 +1,9 @@
 package ceri.serial.jna;
 
 import static ceri.common.collection.ArrayUtil.validateSlice;
+import static ceri.common.exception.ExceptionUtil.exceptionf;
 import java.lang.ref.Reference;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.function.Function;
@@ -464,10 +466,27 @@ public class JnaUtil {
 	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
 		if (buffer == null) throw new IllegalArgumentException("Buffer is null");
-		if (position == 0 && length == buffer.limit()) return buffer.array();
+		if (position == 0 && length == buffer.limit() && buffer.hasArray()) return buffer.array();
 		byte[] bytes = new byte[length];
-		buffer.position(position).get(bytes);
+		buffer.get(position, bytes);
 		return bytes;
+	}
+
+	/**
+	 * Throws an exception if the given buffer is not direct.
+	 */
+	public static <T extends Buffer> T validateDirect(T buffer) {
+		if (buffer.isDirect()) return buffer;
+		throw exceptionf("Buffer must be direct: " + buffer);
+	}
+	
+	/**
+	 * Convenience method to get a pointer for a direct buffer.
+	 */
+	public static Pointer pointer(Buffer buffer) {
+		if (buffer == null) return null;
+		validateDirect(buffer);
+		return Native.getDirectBufferPointer(buffer);
 	}
 
 	/**

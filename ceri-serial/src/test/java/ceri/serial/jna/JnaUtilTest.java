@@ -246,6 +246,15 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testBufferPointer() {
+		assertEquals(JnaUtil.pointer(null), null);
+		assertThrown(() -> JnaUtil.pointer(ByteBuffer.allocate(3)));
+		var buffer = ByteBuffer.allocateDirect(3);
+		buffer.put(ArrayUtil.bytes(1, 2, 3));
+		assertArray(JnaUtil.bytes(JnaUtil.pointer(buffer), 0, 3), 1, 2, 3);
+	}
+
+	@Test
 	public void testBuffer() {
 		assertBuffer(JnaUtil.buffer(null, 0, 0));
 		assertThrown(() -> JnaUtil.buffer(null, 0, 1));

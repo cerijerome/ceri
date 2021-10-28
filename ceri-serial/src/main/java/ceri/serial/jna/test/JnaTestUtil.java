@@ -2,6 +2,7 @@ package ceri.serial.jna.test;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 import com.sun.jna.Memory;
@@ -116,6 +117,16 @@ public class JnaTestUtil {
 		return deref(p, 0);
 	}
 
+	/**
+	 * Allocate a direct buffer containing given bytes.
+	 */
+	public static ByteBuffer buffer(int... bytes) {
+		var buffer = ByteBuffer.allocateDirect(bytes.length);
+		for (var b : bytes)
+			buffer.put((byte) b);
+		return buffer.position(0);
+	}
+	
 	/**
 	 * Allocate a randomized memory array and try to force gc.
 	 */

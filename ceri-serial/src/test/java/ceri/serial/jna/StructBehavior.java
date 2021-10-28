@@ -151,6 +151,14 @@ public class StructBehavior {
 	}
 
 	@Test
+	public void testCopy() {
+		var p = JnaUtil.calloc(TestStruct.SIZE);
+		assertStruct(Struct.copy(null, p, TestStruct::new), 0, null, 0, 0, 0);
+		var t = Struct.copy(Struct.write(new TestStruct(100, p, 1)), p, TestStruct::new);
+		assertStruct(t, 100, p, 1, 0, 0);
+	}
+
+	@Test
 	public void testMallocArray() {
 		assertArray(Struct.mallocArray(TestStruct::new, TestStruct[]::new, 0));
 		TestStruct[] array = Struct.mallocArray(TestStruct::new, TestStruct[]::new, 3);

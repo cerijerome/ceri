@@ -89,6 +89,7 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.UsbDescriptorsBehavior.class, //
 	ceri.serial.libusb.UsbEventsBehavior.class, //
 	ceri.serial.libusb.UsbHotPlugBehavior.class, //
+	ceri.serial.libusb.UsbTransferBehavior.class, //
 	// libusb.jna
 	ceri.serial.libusb.jna.LibUsbFinderBehavior.class, //
 	// spi

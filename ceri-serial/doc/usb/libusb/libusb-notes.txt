@@ -61,6 +61,7 @@ Hotplug Notification
 - libusb_hotplug_event for arrived/left events
 - on arrival, device calls such as open are available
 - on leaving, device descriptor is available, close and open handles
+- if device unplugged on arrival event, open call can cause assert termination (SIGABRT) 
 
 Device I/O
 ---------------
@@ -97,6 +98,7 @@ Device I/O
 - Asynchronous I/O
   - All transfer types supported: control/bulk/interrupt/isochronous
   - Multiple calls can be started, with a non-blocking callback passed in each call
+  - Allocate, fill, submit, callback, de-allocate / resubmit
   - Requires calls to libusb_handle_events from main loop
 
 

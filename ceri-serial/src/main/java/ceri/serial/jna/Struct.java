@@ -208,6 +208,17 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
+	 * Copies a structure to another memory location and calls autoRead(). The given structure must
+	 * be synchronized with memory before calling this method.
+	 */
+	public static <T extends Structure> T copy(T from, Pointer to,
+		Function<Pointer, T> constructor) {
+		var t = constructor.apply(to);
+		if (from != null) JnaUtil.memmove(t.getPointer(), 0, from.getPointer(), 0, from.size());
+		return readAuto(t);
+	}
+
+	/**
 	 * Creates a typed contiguous array. If count is 0, an empty array is returned. Creates a type
 	 * instance from a null pointer first, to determine size. For {@code struct*} array types.
 	 */
