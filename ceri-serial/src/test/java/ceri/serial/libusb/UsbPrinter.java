@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.IntProvider;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbSampleData;
@@ -120,13 +121,13 @@ public class UsbPrinter {
 		out.printf("%s: configuration()=%d%n", pre, currentConfig);
 		for (byte i = 0; i < configs; i++) {
 			try (var config = device.config(i)) {
-				config(pre + "." + i, handle, config, currentConfig);
+				config(pre + "." + i, device, handle, config, currentConfig);
 			}
 		}
 	}
 
-	private void config(String pre, UsbDeviceHandle handle, UsbDescriptors.Config config,
-		int current) throws Exception {
+	private void config(String pre, UsbDevice device, UsbDeviceHandle handle,
+		UsbDescriptors.Config config, int current) throws Exception {
 		boolean active = config.value() == current;
 		out.printf("%s: [%s%s #%s]%n", pre, active ? "*" : "", name(config), pre);
 		out.printf("%s: value()=%d%n", pre, config.value());
@@ -137,20 +138,20 @@ public class UsbPrinter {
 		out.printf("%s: interfaceCount()=%s%n", pre, config.interfaceCount());
 		var interfaces = config.interfaces();
 		for (int i = 0; i < interfaces.size(); i++)
-			iface(pre + "." + i, handle, interfaces.get(i));
+			iface(pre + "." + i, device, handle, interfaces.get(i));
 	}
 
-	private void iface(String pre, UsbDeviceHandle handle, UsbDescriptors.Interface iface)
-		throws Exception {
+	private void iface(String pre, UsbDevice device, UsbDeviceHandle handle,
+		UsbDescriptors.Interface iface) throws Exception {
 		var altSettings = iface.altSettings();
 		out.printf("%s: [%s #%s]%n", pre, name(iface), pre);
 		out.printf("%s: altSettingCount()=%d%n", pre, iface.altSettingCount());
 		for (int i = 0; i < altSettings.size(); i++)
-			altsetting(pre + "." + i, handle, altSettings.get(i));
+			altsetting(pre + "." + i, device, handle, altSettings.get(i));
 	}
 
-	private void altsetting(String pre, UsbDeviceHandle handle, UsbDescriptors.AltSetting alt)
-		throws Exception {
+	private void altsetting(String pre, UsbDevice device, UsbDeviceHandle handle,
+		UsbDescriptors.AltSetting alt) throws Exception {
 		out.printf("%s: [%s #%s]%n", pre, name(alt), pre);
 		out.printf("%s: number()=%d%n", pre, alt.number());
 		out.printf("%s: altSetting()=%d%n", pre, alt.altSetting());
@@ -162,10 +163,11 @@ public class UsbPrinter {
 		out.printf("%s: endpointCount()=%d%n", pre, alt.endPointCount());
 		var endPoints = alt.endPoints();
 		for (int i = 0; i < endPoints.size(); i++)
-			endPoint(pre + "." + i, endPoints.get(i));
+			endPoint(pre + "." + i, device, endPoints.get(i));
 	}
 
-	private void endPoint(String pre, UsbDescriptors.EndPoint ep) throws LibUsbException {
+	private void endPoint(String pre, UsbDevice device, UsbDescriptors.EndPoint ep)
+		throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(ep), pre);
 		out.printf("%s: endPointAddress()=0x%02x%n", pre, ep.address());
 		out.printf("%s:   endPointNumber()=%d%n", pre, ep.number());
@@ -179,6 +181,10 @@ public class UsbPrinter {
 		out.printf("%s: audioRefreshRate()=0x%02x%n", pre, ep.audioRefreshRate());
 		out.printf("%s: audioSyncAddress()=0x%02x%n", pre, ep.audioSyncAddress());
 		out.printf("%s: extra()=%s%n", pre, hex(ep.extra()));
+		out.printf("%s: maxPacketSize(0x%02x)=%s%n", pre, ep.address(),
+			get(() -> device.maxPacketSize(ep.address())));
+		out.printf("%s: maxIsoPacketSize(0x%02x)=%s%n", pre, ep.address(),
+			get(() -> device.maxIsoPacketSize(ep.address())));
 		try (var ss = ep.ssEndPointCompanion()) {
 			ssEndPoint(pre, ss);
 		}
@@ -258,5 +264,13 @@ public class UsbPrinter {
 
 	private static String hex(IntProvider ints) {
 		return IntProvider.toHex(ints);
+	}
+
+	private static <T> T get(ExceptionSupplier<LibUsbException, T> supplier) {
+		try {
+			return supplier.get();
+		} catch (LibUsbException e) {
+			return null;
+		}
 	}
 }

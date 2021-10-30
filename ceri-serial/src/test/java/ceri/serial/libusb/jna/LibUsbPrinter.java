@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -146,14 +147,14 @@ public class LibUsbPrinter {
 		for (byte i = 0; i < configs; i++) {
 			libusb_config_descriptor config = LibUsb.libusb_get_config_descriptor(device, i);
 			try {
-				config(pre + "." + i, ctx, handle, config);
+				config(pre + "." + i, ctx, device, handle, config);
 			} finally {
 				LibUsb.libusb_free_config_descriptor(config);
 			}
 		}
 	}
 
-	private void config(String pre, libusb_context ctx, libusb_device_handle handle,
+	private void config(String pre, libusb_context ctx, libusb_device device, libusb_device_handle handle,
 		libusb_config_descriptor config) throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(config), pre);
 		out.printf("%s: bLength=%d%n", pre, config.bLength);
@@ -170,19 +171,19 @@ public class LibUsbPrinter {
 		libusb_interface[] interfaces = config.interfaces();
 		out.printf("%s: #interfaces=%d%n", pre, interfaces.length);
 		for (int i = 0; i < interfaces.length; i++)
-			iface(pre + "." + i, ctx, handle, interfaces[i]);
+			iface(pre + "." + i, ctx, device, handle, interfaces[i]);
 	}
 
-	private void iface(String pre, libusb_context ctx, libusb_device_handle handle,
+	private void iface(String pre, libusb_context ctx, libusb_device device, libusb_device_handle handle,
 		libusb_interface iface) throws LibUsbException {
 		libusb_interface_descriptor[] altsettings = iface.altsettings();
 		out.printf("%s: [%s #%s]%n", pre, name(iface), pre);
 		out.printf("%s: #altsettings=%d%n", pre, altsettings.length);
 		for (int i = 0; i < altsettings.length; i++)
-			altsetting(pre + "." + i, ctx, handle, altsettings[i]);
+			altsetting(pre + "." + i, ctx, device, handle, altsettings[i]);
 	}
 
-	private void altsetting(String pre, libusb_context ctx, libusb_device_handle handle,
+	private void altsetting(String pre, libusb_context ctx, libusb_device device, libusb_device_handle handle,
 		libusb_interface_descriptor alt) throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(alt), pre);
 		out.printf("%s: bLength=%d%n", pre, alt.bLength);
@@ -201,10 +202,10 @@ public class LibUsbPrinter {
 		libusb_endpoint_descriptor[] endpoints = alt.endpoints();
 		out.printf("%s: #endpoints=%d%n", pre, endpoints.length);
 		for (int i = 0; i < endpoints.length; i++)
-			endpoint(pre + "." + i, ctx, endpoints[i]);
+			endpoint(pre + "." + i, ctx, device, endpoints[i]);
 	}
 
-	private void endpoint(String pre, libusb_context ctx, libusb_endpoint_descriptor ep)
+	private void endpoint(String pre, libusb_context ctx, libusb_device device, libusb_endpoint_descriptor ep)
 		throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(ep), pre);
 		out.printf("%s: bLength=%d%n", pre, ep.bLength);
@@ -222,6 +223,10 @@ public class LibUsbPrinter {
 		out.printf("%s: bRefresh=%d%n", pre, ep.bRefresh);
 		out.printf("%s: bSynchAddress=%d%n", pre, ep.bSynchAddress);
 		out.printf("%s: extra=%s%n", pre, hex(ep.extra()));
+		out.printf("%s: libusb_get_max_packet_size(0x%02x)=%s%n", pre, ep.bEndpointAddress,
+			get(() -> LibUsb.libusb_get_max_packet_size(device, ep.bEndpointAddress)));
+		out.printf("%s: libusb_get_max_iso_packet_size(0x%02x)=%s%n", pre, ep.bEndpointAddress,
+			get(() -> LibUsb.libusb_get_max_iso_packet_size(device, ep.bEndpointAddress)));
 		var ss = LibUsb.libusb_get_ss_endpoint_companion_descriptor(ctx, ep);
 		try {
 			ssEndPoint(pre, ss);
@@ -340,5 +345,13 @@ public class LibUsbPrinter {
 
 	private static String hex(byte[] bytes) {
 		return ArrayUtil.toHex(bytes);
+	}
+	
+	private static <T> T get(ExceptionSupplier<LibUsbException, T> supplier) {
+		try {
+			return supplier.get();
+		} catch (LibUsbException e) {
+			return null;
+		}
 	}
 }

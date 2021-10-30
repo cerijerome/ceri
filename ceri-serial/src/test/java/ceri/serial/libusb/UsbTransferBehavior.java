@@ -1,9 +1,11 @@
 package ceri.serial.libusb;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.serial.jna.test.JnaTestUtil.buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
@@ -11,38 +13,29 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_request_type.LIBUSB_REQUEST_T
 import static ceri.serial.libusb.jna.LibUsb.libusb_standard_request.LIBUSB_REQUEST_GET_STATUS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_flags.LIBUSB_TRANSFER_SHORT_NOT_OK;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
-import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.*;
-import static ceri.serial.libusb.jna.TestLibUsbNative.assertTransferEvent;
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.Mockito.*;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK_STREAM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_CONTROL;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_INTERRUPT;
+import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
 import java.nio.ByteBuffer;
-import java.util.function.Function;
+import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
+import ceri.log.test.LogModifier;
 import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.test.JnaTestUtil;
-import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
-import ceri.serial.libusb.jna.TestLibUsbNative.TransferEvent;
 import ceri.serial.libusb.UsbTransfer.Bulk;
 import ceri.serial.libusb.UsbTransfer.BulkStream;
 import ceri.serial.libusb.UsbTransfer.Control;
 import ceri.serial.libusb.UsbTransfer.Interrupt;
 import ceri.serial.libusb.UsbTransfer.Iso;
-import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
-import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
-import ceri.serial.libusb.jna.LibUsb.libusb_standard_request;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer_flags;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
-import ceri.serial.libusb.jna.LibUsb.libusb_transfer_type;
+import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbFinder;
+import ceri.serial.libusb.jna.LibUsbSampleData;
+import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class UsbTransferBehavior {
 	private TestLibUsbNative lib;
@@ -66,6 +59,7 @@ public class UsbTransferBehavior {
 		enc.close();
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncControlTransfer() throws LibUsbException {
 		CallSync.Accept<Control> callback = CallSync.consumer(null, true);
@@ -92,6 +86,7 @@ public class UsbTransferBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldAccessControlTransferFields() throws LibUsbException {
 		try (var transfer = handle.controlTransfer(null)) {
@@ -107,6 +102,7 @@ public class UsbTransferBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncBulkStreamTransfer() throws LibUsbException {
 		CallSync.Accept<BulkStream> callback = CallSync.consumer(null, true);
@@ -126,6 +122,17 @@ public class UsbTransferBehavior {
 	}
 
 	@Test
+	public void shouldFailToAllocateTransferIfHandleIsClosed() throws LibUsbException {
+		LogModifier.run(() -> {
+			try (var streams = handle.bulkStreams(2, 0x81, 0x02)) {
+				handle.close();
+				assertThrown(() -> streams.bulkTransfer(0x81, 1, b -> {}));
+			}
+		}, Level.OFF, UsbTransfer.class);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void shouldExecuteAsyncBulkTransfer() throws LibUsbException {
 		CallSync.Accept<Bulk> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.bulkTransfer(callback)) {
@@ -138,6 +145,7 @@ public class UsbTransferBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncInterruptTransfer() throws LibUsbException {
 		CallSync.Accept<Interrupt> callback = CallSync.consumer(null, true);
@@ -151,10 +159,12 @@ public class UsbTransferBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncIsoTransfer() throws LibUsbException {
 		CallSync.Accept<Iso> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.isoTransfer(4, callback)) {
+			assertEquals(transfer.packetBuffer(0), null);
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5, 6, 7, 8, 9)).packets(3)
 				.packetLengths(3).packetLength(2, 1).submit();
 			usb.events().handle();
@@ -167,11 +177,18 @@ public class UsbTransferBehavior {
 		}
 	}
 
-	private Function<TransferEvent, libusb_transfer_status> transferResponse(int... bytes) {
-		return event -> {
-			event.buffer().position(0).put(bytes(7, 8, 9));
-			return LIBUSB_TRANSFER_COMPLETED;
-		};
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldCancelTransfer() throws LibUsbException {
+		LogModifier.run(() -> {
+			try (var transfer = handle.bulkTransfer(null)) {
+				assertTrue(transfer.handle().usb() == usb);
+				transfer.submit();
+				transfer.cancel();
+				transfer.close();
+				assertThrown(() -> transfer.submit());
+			}
+		}, Level.OFF, UsbTransfer.class);
 	}
 
 }

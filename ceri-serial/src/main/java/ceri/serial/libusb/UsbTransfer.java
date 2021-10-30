@@ -352,12 +352,12 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 		public ByteBuffer packetBuffer(int packet) {
 			validateIndex(packets(), packet);
-			return buffer(LibUsb.libusb_get_iso_packet_buffer(transfer(), packet), packet);
+			return packetBuffer(packet, offset(packet));
 		}
 
 		public ByteBuffer packetBufferSimple(int packet) {
 			validateIndex(packets(), packet);
-			return buffer(LibUsb.libusb_get_iso_packet_buffer_simple(transfer(), packet), packet);
+			return packetBuffer(packet, packet * transfer().iso_packet_desc[0].length);
 		}
 
 		private int offset(int packet) {
@@ -367,9 +367,11 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 				offset += transfer.iso_packet_desc[i].length;
 			return offset;
 		}
-
-		private ByteBuffer buffer(Pointer p, int packet) {
-			return p == null ? null : p.getByteBuffer(0, transfer().iso_packet_desc[packet].length);
+		
+		private ByteBuffer packetBuffer(int packet, int offset) {
+			var buffer = buffer();
+			if (buffer == null) return null;
+			return buffer.slice(offset, transfer().iso_packet_desc[packet].length);
 		}
 	}
 

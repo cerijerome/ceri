@@ -198,7 +198,7 @@ public class LibUsbFinder {
 		if (!findWithCallback(ctx, dev -> {
 			handles[0] = libusb_open(dev);
 			return true;
-		})) LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Device not found: " + this);
+		})) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Device not found: " + this);
 		return handles[0];
 	}
 

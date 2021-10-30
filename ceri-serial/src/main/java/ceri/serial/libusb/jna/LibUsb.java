@@ -1502,8 +1502,6 @@ public class LibUsb {
 	/**
 	 * Retrieve a descriptor from the default control pipe. This is a convenience function which
 	 * formulates the appropriate control message to retrieve the descriptor.
-	 *
-	 * @return number of bytes returned in data
 	 */
 	public static byte[] libusb_get_descriptor(libusb_device_handle dev,
 		libusb_descriptor_type desc_type, int desc_index) throws LibUsbException {

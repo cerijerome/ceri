@@ -111,6 +111,7 @@ public class LibUsbTestData {
 		public int claimedInterface;
 		public int altSetting;
 		public int streamIds = 0;
+		public int kernelDriverInterfaceBits = 0;
 		public ByteProvider endPoints = ByteProvider.empty(); // mapped to stream ids
 
 		public void reset() {

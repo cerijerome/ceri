@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteProvider;
 import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbTransfer.BulkStreams;
@@ -64,9 +65,9 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		LibUsb.libusb_set_configuration(handle(), configuration);
 	}
 
-	public byte[] descriptor(libusb_descriptor_type descType, int descIndex)
+	public ByteProvider descriptor(libusb_descriptor_type descType, int descIndex)
 		throws LibUsbException {
-		return LibUsb.libusb_get_descriptor(handle(), descType, descIndex);
+		return ByteProvider.of(LibUsb.libusb_get_descriptor(handle(), descType, descIndex));
 	}
 
 	public String stringDescriptor(int descIndex, int langid) throws LibUsbException {
@@ -138,69 +139,78 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 		return UsbTransfer.Iso.alloc(this, packets, callback);
 	}
 
-	public int controlTransfer(int requestType, int request, int value, int index, int timeout)
+	/**
+	 * Executes a synchronous control transfer without data.
+	 */
+	public void controlTransfer(int requestType, int request, int value, int index, int timeoutMs)
 		throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
-			(short) value, (short) index, null, (short) 0, timeout);
+		controlTransfer(requestType, request, value, index, 0, timeoutMs);
 	}
 
+	/**
+	 * Executes a synchronous control transfer sending data. Returns the number of bytes
+	 * transferred.
+	 */
 	public int controlTransfer(int requestType, int request, int value, int index, byte[] data,
-		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
-			(short) value, (short) index, data, timeout);
+		int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_control_transfer(handle(), requestType, request, value, index, data,
+			timeoutMs);
 	}
 
+	/**
+	 * Executes a synchronous control transfer receiving data.
+	 */
 	public byte[] controlTransfer(int requestType, int request, int value, int index, int length,
-		int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
-			(short) value, (short) index, (short) length, timeout);
+		int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_control_transfer(handle(), requestType, request, value, index, length,
+			timeoutMs);
 	}
 
-	public int controlTransfer(int requestType, int bRequest, int wValue, int wIndex,
-		ByteBuffer data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), requestType, bRequest, wValue, wIndex, data,
-			timeout);
+	/**
+	 * Executes a synchronous control transfer sending and/or receiving data. Returns the number of
+	 * bytes transferred.
+	 */
+	public int controlTransfer(int requestType, int request, int value, int index, ByteBuffer data,
+		int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_control_transfer(handle(), requestType, request, value, index, data,
+			timeoutMs);
 	}
 
-	public int controlTransfer(int requestType, int request, int value, int index,
-		ByteBuffer buffer, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_control_transfer(handle(), (byte) requestType, (byte) request,
-			(short) value, (short) index, buffer, (short) length, timeout);
+	/**
+	 * Executes a synchronous bulk transfer sending data.
+	 * Returns the number of bytes transferred.
+	 */
+	public int bulkTransfer(int endpoint, byte[] data, int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_bulk_transfer(handle(), (byte) endpoint, data, timeoutMs);
 	}
 
-	public byte[] bulkTransfer(int endpoint, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle(), endpoint, length, timeout);
+	/**
+	 * Executes a synchronous bulk transfer receiving data.
+	 */
+	public byte[] bulkTransfer(int endpoint, int length, int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_bulk_transfer(handle(), endpoint, length, timeoutMs);
 	}
 
-	public int bulkTransfer(int endpoint, byte[] data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle(), (byte) endpoint, data, timeout);
+	/**
+	 * Executes a synchronous bulk transfer sending and/or receiving data.
+	 * Returns the number of bytes transferred.
+	 */
+	public int bulkTransfer(int endpoint, ByteBuffer data, int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_bulk_transfer(handle(), endpoint, data, timeoutMs);
 	}
 
-	public int bulkTransfer(int endpoint, ByteBuffer data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle(), endpoint, data, timeout);
+	public int interruptTransfer(int endpoint, byte[] data, int timeoutMs) throws LibUsbException {
+		return LibUsb.libusb_interrupt_transfer(handle(), (byte) endpoint, data, timeoutMs);
 	}
 
-	public int bulkTransfer(int endpoint, ByteBuffer data, int length, int timeout)
+	public byte[] interruptTransfer(int endpoint, int length, int timeoutMs)
 		throws LibUsbException {
-		return LibUsb.libusb_bulk_transfer(handle(), (byte) endpoint, data, length, timeout);
+		return LibUsb.libusb_interrupt_transfer(handle(), (byte) endpoint, length, timeoutMs);
 	}
 
-	public int interruptTransfer(int endpoint, byte[] data, int timeout) throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle(), (byte) endpoint, data, timeout);
-	}
-
-	public byte[] interruptTransfer(int endpoint, int length, int timeout) throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle(), (byte) endpoint, length, timeout);
-	}
-
-	public int interruptTransfer(int endpoint, ByteBuffer data, int timeout)
+	public int interruptTransfer(int endpoint, ByteBuffer data, int timeoutMs)
 		throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle(), endpoint, data, timeout);
-	}
-
-	public int interruptTransfer(int endpoint, ByteBuffer data, int length, int timeout)
-		throws LibUsbException {
-		return LibUsb.libusb_interrupt_transfer(handle(), (byte) endpoint, data, length, timeout);
+		return LibUsb.libusb_interrupt_transfer(handle(), endpoint, data, timeoutMs);
 	}
 
 	/**
@@ -213,7 +223,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.execute(logger, () -> LibUsb.libusb_close(handle));
+		LogUtil.close(logger, device, () -> LibUsb.libusb_close(handle));
 		handle = null;
 	}
 

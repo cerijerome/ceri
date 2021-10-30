@@ -136,7 +136,7 @@ public class LibFtdiTest {
 		LibFtdi.ftdi_set_event_char(ftdi, 'x', false);
 		LibFtdi.ftdi_set_error_char(ftdi, 'x', true);
 		LibFtdi.ftdi_set_error_char(ftdi, 'x', false);
-		lib.controlTransferOut.assertValues( //
+		lib.syncTransferOut.assertValues( //
 			List.of(0x40, 0x06, 0x0178, 1, ByteProvider.empty()),
 			List.of(0x40, 0x06, 0x0078, 1, ByteProvider.empty()),
 			List.of(0x40, 0x07, 0x0178, 1, ByteProvider.empty()),
@@ -147,7 +147,7 @@ public class LibFtdiTest {
 	private ftdi_context openFtdi() throws LibUsbException {
 		var ftdi = LibFtdi.ftdi_new();
 		LibFtdi.ftdi_usb_open_find(ftdi, LibFtdiUtil.FINDER);
-		lib.controlTransferOut.reset(); // clear original open()
+		lib.syncTransferOut.reset(); // clear original open()
 		return ftdi;
 	}
 

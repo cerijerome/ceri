@@ -69,7 +69,7 @@ public class UsbFtdiTester {
 		logger.info("Writing: {}", b.get(i));
 		b.position(i);
 		logger.info("Position before = {}", b.position());
-		int n = handle.bulkTransfer(0x02, b, 1, 500);
+		int n = handle.bulkTransfer(0x02, b, 500);
 		logger.info("Position after = {}", b.position());
 		logger.info("Sent: {} bytes", n);
 	}

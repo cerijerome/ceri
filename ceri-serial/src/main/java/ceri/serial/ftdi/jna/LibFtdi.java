@@ -1034,7 +1034,7 @@ public class LibFtdi {
 	private static void controlTransferOut(ftdi_context ftdi, ftdi_request_type request, int value,
 		int index) throws LibUsbException {
 		LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_OUT_REQTYPE, request.value, value,
-			index, ftdi.usb_write_timeout);
+			index, 0, ftdi.usb_write_timeout);
 	}
 
 	private static byte[] controlTransferIn(ftdi_context ftdi, ftdi_request_type request, int value,

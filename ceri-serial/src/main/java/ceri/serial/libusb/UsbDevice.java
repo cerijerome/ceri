@@ -4,14 +4,13 @@ import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Pointer;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
-import ceri.common.function.FunctionUtil;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.jna.ArrayPointer;
+import ceri.serial.jna.PointerUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -47,13 +46,8 @@ public class UsbDevice implements RuntimeCloseable {
 	}
 
 	UsbDevice(Usb usb, libusb_device device) {
-		this(usb, device, 0);
-	}
-
-	UsbDevice(Usb usb, libusb_device device, int refs) {
 		this.usb = usb;
 		this.device = device;
-		this.refs = refs;
 	}
 
 	public Usb usb() {
@@ -159,13 +153,11 @@ public class UsbDevice implements RuntimeCloseable {
 
 	@Override
 	public String toString() {
-		Pointer devicePtr = FunctionUtil.safeApply(device, libusb_device::getPointer);
-		return ToString.forClass(this, devicePtr, refs);
+		return ToString.forClass(this, PointerUtil.pointer(device), refs);
 	}
 
 	libusb_device device() {
 		if (device != null) return device;
 		throw new IllegalStateException("Device has been closed");
 	}
-
 }

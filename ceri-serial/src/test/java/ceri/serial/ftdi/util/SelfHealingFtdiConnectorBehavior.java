@@ -30,8 +30,8 @@ import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
-import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class SelfHealingFtdiConnectorBehavior {
@@ -58,59 +58,59 @@ public class SelfHealingFtdiConnectorBehavior {
 	@Test
 	public void shouldConnectToFtdi() throws LibUsbException {
 		con.connect();
-		assertIterable(lib.controlTransferOut.values(),
+		assertIterable(lib.syncTransferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty()), // open:ftdi_set_baudrate()
 			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()), // bitMode()
 			List.of(0x40, 0x03, 0xc04e, 0, ByteProvider.empty()), // baudRate()
 			List.of(0x40, 0x04, 0x0008, 1, ByteProvider.empty())); // lineParams()
-		lib.controlTransferIn.assertNoCall();
+		lib.syncTransferIn.assertNoCall();
 	}
 
 	@Test
 	public void shouldConfigureFtdi() throws LibUsbException {
 		connect();
 		con.bitmode(FtdiBitMode.OFF);
-		lib.controlTransferOut.assertAuto(List.of(0x40, 0x0b, 0x0000, 1, ByteProvider.empty()));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x0000, 1, ByteProvider.empty()));
 		con.bitmode(FtdiBitMode.of(ftdi_mpsse_mode.BITMODE_CBUS));
-		lib.controlTransferOut.assertAuto(List.of(0x40, 0x0b, 0x20ff, 1, ByteProvider.empty()));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x20ff, 1, ByteProvider.empty()));
 		con.flowControl(FtdiFlowControl.xonXoff);
-		lib.controlTransferOut.assertAuto(List.of(0x40, 0x02, 0, 0x0401, ByteProvider.empty()));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x02, 0, 0x0401, ByteProvider.empty()));
 	}
 
 	@Test
 	public void shouldSetDtrRts() throws LibUsbException {
 		connect();
 		con.rts(true);
-		lib.controlTransferOut.assertAuto(List.of(0x40, 0x01, 0x0202, 1, ByteProvider.empty()));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x01, 0x0202, 1, ByteProvider.empty()));
 		con.dtr(true);
-		lib.controlTransferOut.assertAuto(List.of(0x40, 0x01, 0x0101, 1, ByteProvider.empty()));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x01, 0x0101, 1, ByteProvider.empty()));
 	}
 
 	@Test
 	public void shouldReadPins() throws LibUsbException {
 		connect();
-		lib.controlTransferIn.autoResponses(provider(0xa5));
+		lib.syncTransferIn.autoResponses(provider(0xa5));
 		assertEquals(con.readPins(), 0xa5);
-		lib.controlTransferIn.assertAuto(List.of(0xc0, 0x0c, 0x0000, 1, 1));
+		lib.syncTransferIn.assertAuto(List.of(0xc0, 0x0c, 0x0000, 1, 1));
 	}
 
 	@Test
 	public void shouldReadBytes() throws IOException {
 		connect();
-		lib.bulkTransferIn.autoResponses(provider(1, 2, 3, 4, 5));
+		lib.syncTransferIn.autoResponses(provider(1, 2, 3, 4, 5));
 		assertArray(con.read(3), 3, 4, 5); // 2B status + 3B data
-		lib.bulkTransferIn.assertAuto(List.of(0x81, 5));
-		lib.bulkTransferIn.autoResponses(provider(6, 7, 8));
+		lib.syncTransferIn.assertAuto(List.of(0x81, 5));
+		lib.syncTransferIn.autoResponses(provider(6, 7, 8));
 		assertEquals(con.read(), 8); // 2B status + 1B data
-		lib.bulkTransferIn.assertAuto(List.of(0x81, 3));
+		lib.syncTransferIn.assertAuto(List.of(0x81, 3));
 	}
 
 	@Test
 	public void shouldWriteBytes() throws IOException {
 		connect();
 		con.write(1, 2, 3);
-		lib.bulkTransferOut.assertAuto(List.of(0x02, provider(1, 2, 3)));
+		lib.syncTransferOut.assertAuto(List.of(0x02, provider(1, 2, 3)));
 	}
 
 	@Test
@@ -118,13 +118,13 @@ public class SelfHealingFtdiConnectorBehavior {
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var enc = con.listeners().enclose(sync::signal)) {
-				lib.controlTransferOut.error.setFrom(s -> new LastErrorException(s));
+				lib.syncTransferOut.error.setFrom(s -> new LastErrorException(s));
 				assertThrown(con::connect);
 				sync.await(StateChange.broken);
-				lib.controlTransferOut.awaitAuto();
-				lib.controlTransferOut.awaitAuto();
-				lib.controlTransferOut.awaitAuto();
-				lib.controlTransferOut.error.clear();
+				lib.syncTransferOut.awaitAuto();
+				lib.syncTransferOut.awaitAuto();
+				lib.syncTransferOut.awaitAuto();
+				lib.syncTransferOut.error.clear();
 				sync.await(StateChange.fixed);
 			}
 		}, Level.OFF, SelfHealingFtdiConnector.class);
@@ -170,6 +170,6 @@ public class SelfHealingFtdiConnectorBehavior {
 	 */
 	private void connect() throws LibUsbException {
 		con.connect();
-		lib.controlTransferOut.reset();
+		lib.syncTransferOut.reset();
 	}
 }
