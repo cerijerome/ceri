@@ -684,7 +684,7 @@ public class LibUsbAudio {
 		"bmControls", "iExtension" })
 	public static class audio_ext_unit_descriptor extends Struct {
 		public static final int BASE_LENGTH = 13;
-		public byte bLength; // 13+p+n+x
+		public byte bLength; // 13+p+n
 		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
 		public byte bDescriptorSubtype =
 			(byte) audio_control_interface_desc_subtype.PROCESSING_UNIT.value;
