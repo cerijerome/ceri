@@ -2,6 +2,7 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static java.lang.Math.max;
+import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
 import ceri.serial.jna.Struct;
 import ceri.serial.jna.Struct.Fields;
@@ -374,6 +375,10 @@ public class LibUsbAudio {
 		public byte bStatusType;
 		public byte bOriginator;
 
+		public audio_interrupt_data(Pointer p) {
+			super(p);
+		}
+
 		public boolean interruptPending() {
 			return (bStatusType & INTERRUPT_PENDING_MASK) != 0;
 		}
@@ -421,7 +426,7 @@ public class LibUsbAudio {
 	 */
 	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bcdADC", "wTotalLength",
 		"bInCollection", "baInterfaceNr" })
-	public static class audio_control_header_descriptor extends Struct {
+	public static class audio_control_header_descriptor extends VarStruct {
 		public static final int BASE_LENGTH = 8;
 		public byte bLength; // 8+n
 		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
@@ -429,15 +434,19 @@ public class LibUsbAudio {
 		public short bcdADC; //
 		public short wTotalLength;
 		public byte bInCollection;
-		public byte[] baInterfaceNr;
+		public byte[] baInterfaceNr = new byte[0];
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("baInterfaceNr")) baInterfaceNr = new byte[n()];
-			return super.readField(structField);
+		public audio_control_header_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int n() {
+		@Override
+		protected void setVarArray(int count) {
+			baInterfaceNr = new byte[count];
+		}
+
+		@Override
+		protected int varCount() {
 			return ubyte(bInCollection);
 		}
 	}
@@ -460,6 +469,10 @@ public class LibUsbAudio {
 		public short wChannelConfig; // audio_spatial_location
 		public byte iChannelNames;
 		public byte iTerminal;
+
+		public audio_input_term_descriptor(Pointer p) {
+			super(p);
+		}
 	}
 
 	/**
@@ -478,13 +491,17 @@ public class LibUsbAudio {
 		public byte bAssocTerminal;
 		public byte bSourceID;
 		public byte iTerminal;
+
+		public audio_output_term_descriptor(Pointer p) {
+			super(p);
+		}
 	}
 
 	/**
 	 * Section 4.3.2.3.
 	 */
 	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "bNrInPins",
-		"baSourceID", "brChannels", "wChannelConfig", "iChannelNames", "bmControls", "iMixer" })
+		"baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames", "bmControls", "iMixer" })
 	public static class audio_mixer_unit_descriptor extends Struct {
 		public static final int BASE_LENGTH = 10;
 		public byte bLength; // 10+p+n
@@ -500,18 +517,17 @@ public class LibUsbAudio {
 		public byte[] bmControls; // [n]
 		public byte iMixer;
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("baSourceID")) baSourceID = new byte[p()];
-			else if (structField.name.equals("bmControls")) bmControls = new byte[n()];
-			return super.readField(structField);
+		// TODO: cannot map this to a struct, access dynamically instead
+		
+		public audio_mixer_unit_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int p() {
+		public int p() {
 			return ubyte(bNrInPins);
 		}
 
-		private int n() {
+		public int n() {
 			return max(ubyte(bLength) - BASE_LENGTH - p(), 0);
 		}
 	}
@@ -532,13 +548,13 @@ public class LibUsbAudio {
 		public byte[] baSourceID; // [p]
 		public byte iSelector;
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("baSourceID")) baSourceID = new byte[p()];
-			return super.readField(structField);
+		// TODO: cannot map this to a struct, access dynamically instead
+		
+		public audio_selector_unit_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int p() {
+		public int p() {
 			return ubyte(bNrInPins);
 		}
 	}
@@ -560,23 +576,19 @@ public class LibUsbAudio {
 		public byte[] bmaControls; // [(ch+1)*n]
 		public byte iFeature;
 
+		// TODO: cannot map this to a struct, access dynamically instead
+		
+		public audio_feat_unit_descriptor(Pointer p) {
+			super(p);
+		}
+
 		public int channels() { // ch
 			int n = n();
-			return n == 0 ? 0 : ((ubyte(bLength) - BASE_LENGTH) / n) - 1;
+			return n == 0 ? 0 : Math.max(0, ((ubyte(bLength) - BASE_LENGTH) / n) - 1);
 		}
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("bmaControls")) bmaControls = new byte[x()];
-			return super.readField(structField);
-		}
-
-		private int n() {
+		public int n() {
 			return ubyte(bControlSize);
-		}
-
-		private int x() {
-			return max(ubyte(bLength) - BASE_LENGTH, n());
 		}
 	}
 
@@ -587,7 +599,7 @@ public class LibUsbAudio {
 	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bUnitID", "wProcessType",
 		"bNrInPins", "baSourceID", "bNrChannels", "wChannelConfig", "iChannelNames", "bControlSize",
 		"bmControls", "iProcessing", "extra" })
-	public static class audio_proc_unit_descriptor extends VarStruct {
+	public static class audio_proc_unit_descriptor extends Struct {
 		public static final int BASE_LENGTH = 13;
 		public byte bLength; // 13+p+n+x
 		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
@@ -605,28 +617,21 @@ public class LibUsbAudio {
 		public byte iProcessing;
 		public byte[] extra; // [x] >= 0
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("baSourceID")) baSourceID = new byte[p()];
-			else if (structField.name.equals("bmControls")) bmControls = new byte[n()];
-			return super.readField(structField);
+		// TODO: cannot map this to a struct, access dynamically instead
+		
+		public audio_proc_unit_descriptor(Pointer p) {
+			super(p);
 		}
 
-		protected int p() {
+		public int p() {
 			return ubyte(bNrInPins);
 		}
 
-		protected int n() {
+		public int n() {
 			return ubyte(bControlSize);
 		}
 
-		@Override
-		protected void setVarArray(int count) {
-			extra = new byte[count];
-		}
-
-		@Override
-		protected int varCount() {
+		public int x() {
 			return ubyte(bLength) - BASE_LENGTH - p() - n();
 		}
 	}
@@ -645,7 +650,7 @@ public class LibUsbAudio {
 			(byte) audio_control_interface_desc_subtype.PROCESSING_UNIT.value;
 		public byte bUnitID;
 		public short wProcessType; // UPDOWNMIX_PROCESS/DOLBY_PROLOGIC_PROCESS
-		public byte bNrInPins = 1; // p
+		public byte bNrInPins = 1; // p = 1
 		public byte bSourceID; // [p]
 		public byte bNrChannels;
 		public short wChannelConfig; // audio_spatial_location
@@ -656,18 +661,17 @@ public class LibUsbAudio {
 		public byte bNrModes; // m
 		public short[] waModes; // [m]
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("bmControls")) bmControls = new byte[n()];
-			else if (structField.name.equals("waModes")) waModes = new short[m()];
-			return super.readField(structField);
+		// TODO: cannot map this to a struct, access dynamically instead
+
+		public audio_mode_proc_unit_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int n() {
+		public int n() {
 			return ubyte(bControlSize);
 		}
 
-		private int m() {
+		public int m() {
 			return ubyte(bNrModes);
 		}
 	}
@@ -695,18 +699,17 @@ public class LibUsbAudio {
 		public byte[] bmControls; // [n]
 		public byte iExtension;
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("baSourceID")) baSourceID = new byte[p()];
-			else if (structField.name.equals("bmControls")) bmControls = new byte[n()];
-			return super.readField(structField);
+		// TODO: cannot map this to a struct, access dynamically instead
+
+		public audio_ext_unit_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int p() {
+		public int p() {
 			return ubyte(bNrInPins);
 		}
 
-		private int n() {
+		public int n() {
 			return ubyte(bControlSize);
 		}
 	}
@@ -715,23 +718,27 @@ public class LibUsbAudio {
 	 * Section 4.3.2.8.
 	 */
 	@Fields({ "bLength", "bDescriptorType", "bDescriptorSubtype", "bInterfaceNr", "extra" })
-	public static class audio_assoc_interface_descriptor extends Struct {
+	public static class audio_assoc_interface_descriptor extends VarStruct {
 		public static final int BASE_LENGTH = 4;
-		public byte bLength; // 13+p+n+x
+		public byte bLength; // 4+x
 		public byte bDescriptorType = (byte) audio_descriptor_type.CS_INTERFACE.value;
 		public byte bDescriptorSubtype =
 			(byte) audio_control_interface_desc_subtype.ASSOC_INTERFACE.value;
 		public byte bInterfaceNr;
-		public byte[] extra; // association-specific number
+		public byte[] extra = new byte[0]; // association-specific number
 
-		@Override
-		protected Object readField(StructField structField) {
-			if (structField.name.equals("extra")) extra = new byte[x()];
-			return super.readField(structField);
+		public audio_assoc_interface_descriptor(Pointer p) {
+			super(p);
 		}
 
-		private int x() {
-			return max(ubyte(bLength) - BASE_LENGTH, 0);
+		@Override
+		protected void setVarArray(int count) {
+			extra = new byte[count];
+		}
+		
+		@Override
+		protected int varCount() {
+			return ubyte(bLength) - BASE_LENGTH;
 		}
 	}
 
@@ -749,6 +756,10 @@ public class LibUsbAudio {
 		public byte bTerminalLink;
 		public byte bDelay;
 		public short wFormatTag;
+
+		public audio_streaming_interface_descriptor(Pointer p) {
+			super(p);
+		}
 	}
 
 	/**
@@ -764,5 +775,9 @@ public class LibUsbAudio {
 		public byte bmAttributes;
 		public byte bLockDelayUnits;
 		public short wLockDelay;
+
+		public audio_streaming_iso_endpoint_descriptor(Pointer p) {
+			super(p);
+		}
 	}
 }

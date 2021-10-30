@@ -39,18 +39,22 @@ public abstract class VarStruct extends Struct {
 
 	@Override
 	protected void writeField(StructField structField) {
-		if (structField.name.equals(lastName()) && safeVarCount() == 0) return;
+		if (structField.name.equals(varFieldName()) && safeVarCount() == 0) return;
 		super.writeField(structField);
 	}
 
 	@Override
 	protected Object readField(StructField structField) {
-		if (structField.name.equals(lastName())) {
+		if (structField.name.equals(varFieldName())) {
 			int count = safeVarCount();
 			setVarArray(count);
 			if (count == 0) return null;
 		}
 		return super.readField(structField);
+	}
+	
+	protected String varFieldName() {
+		return lastName();
 	}
 	
 	private int safeVarCount() {
