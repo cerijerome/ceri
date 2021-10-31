@@ -157,7 +157,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public void libusb_set_log_cb(libusb_context ctx, libusb_log_cb cb, int mode) {
-		throw new UnsupportedOperationException();
+		context(ctx); // only check context
 	}
 
 	@Override
@@ -173,7 +173,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public String libusb_error_name(int errcode) {
 		libusb_error error = libusb_error.xcoder.decode(errcode);
-		return error != null ? error.name() : "error-" + errcode;
+		return error != null ? error.name() : "UNKNOWN";
 	}
 
 	@Override
@@ -255,6 +255,8 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx, Pointer endpoint,
 		PointerByReference ep_comp) {
+		var result = generalSync.get();
+		if (result != 0) return result;
 		var desc = data.ssEpCompDesc(endpoint);
 		if (desc == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		ep_comp.setValue(desc.getPointer());
@@ -268,6 +270,8 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_get_bos_descriptor(libusb_device_handle handle, PointerByReference bos) {
+		var result = generalSync.get();
+		if (result != 0) return result;
 		var desc = handle(handle).device.config.bos;
 		if (desc == null) return LIBUSB_ERROR_PIPE.value;
 		bos.setValue(desc.getPointer()); // don't copy descriptor
@@ -517,6 +521,8 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_cancel_transfer(Pointer p) {
+		var result = generalSync.get();
+		if (result != 0) return result;
 		var transfer = data.transfer(p);
 		if (!transfer.submitted) return LIBUSB_ERROR_NOT_FOUND.value;
 		var t = transfer.transfer();

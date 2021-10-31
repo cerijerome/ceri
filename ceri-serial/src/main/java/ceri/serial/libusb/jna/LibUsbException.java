@@ -37,8 +37,7 @@ public class LibUsbException extends CException {
 	}
 
 	private static LibUsbException full(String message, int code, libusb_error error) {
-		return new LibUsbException(String.format("%s: %s", message, error == null ? code : error),
-			code, error);
+		return new LibUsbException(format(message, code, error), code, error);
 	}
 
 	protected LibUsbException(String message, int code, libusb_error error) {
@@ -54,6 +53,11 @@ public class LibUsbException extends CException {
 		return error != null ? error.value : libusb_error.LIBUSB_ERROR_OTHER.value;
 	}
 
+	private static String format(String message, int code, libusb_error error) {
+		if (error == null) return String.format("%s: %s", message, code);
+		return String.format("%s: %s(%d)", message, error, code);
+	}
+	
 	private static LibUsbException adapt(Throwable e) {
 		var error = libusb_error.LIBUSB_ERROR_OTHER;
 		String message = e.getMessage();

@@ -10,7 +10,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_TIMEOUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import java.nio.ByteBuffer;
-import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -28,10 +27,9 @@ public class LibUsbUtil {
 	 * Get error code from transfer status.
 	 */
 	public static libusb_error statusError(libusb_transfer_status status) {
-		if (status == null) return LIBUSB_ERROR_IO; 
-		return switch(status) {
+		if (status == null) return LIBUSB_ERROR_IO;
+		return switch (status) {
 			case LIBUSB_TRANSFER_COMPLETED -> LIBUSB_SUCCESS;
-			case LIBUSB_TRANSFER_ERROR -> LIBUSB_ERROR_IO;
 			case LIBUSB_TRANSFER_TIMED_OUT -> LIBUSB_ERROR_TIMEOUT;
 			case LIBUSB_TRANSFER_CANCELLED -> LIBUSB_ERROR_INTERRUPTED;
 			case LIBUSB_TRANSFER_STALL -> LIBUSB_ERROR_BUSY;
@@ -40,7 +38,7 @@ public class LibUsbUtil {
 			default -> LIBUSB_ERROR_IO;
 		};
 	}
-	
+
 	public static int requestTypeValue(libusb_request_recipient recipient, libusb_request_type type,
 		libusb_endpoint_direction endpoint_direction) {
 		return ubyte(recipient.value | type.value | endpoint_direction.value);
@@ -51,17 +49,14 @@ public class LibUsbUtil {
 	}
 
 	public static void require(ByteBuffer buffer, int remaining) throws LibUsbException {
-		if (buffer == null || buffer.remaining() >= remaining) return;
-		throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Buffer too small: %d / %d",
-			buffer.remaining(), remaining);
+		if (remaining == 0) return;
+		require(buffer, "Buffer");
+		if (buffer.remaining() < remaining) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM,
+			"Buffer too small: %d / %d", buffer.remaining(), remaining);
 	}
 
 	public static void require(libusb_device dev) throws LibUsbException {
 		require(dev, "Device");
-	}
-
-	public static void require(libusb_context ctx) throws LibUsbException {
-		require(ctx, "Context");
 	}
 
 	public static void require(libusb_device_handle dev) throws LibUsbException {

@@ -55,10 +55,10 @@ public class LibUsbFtdiTester {
 		logger.info("Claiming interface: {}", interfaceNumber);
 		libusb_claim_interface(handle, interfaceNumber);
 		logger.info("setting 9600 baud");
-		libusb_control_transfer(handle, 0x40, 0x03, 0x4138, 0, 500);
+		libusb_control_transfer(handle, 0x40, 0x03, 0x4138, 0, 0, 500);
 		logger.info("Bit-bang on");
 		// libusb_control_transfer(handle, 0x40, 0x0b, 0x01ff, 1, 500);
-		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 500);
+		libusb_control_transfer(handle, 0x40, 0x0b, 0x010f, 1, 0, 500);
 		read(handle);
 		ConcurrentUtil.delay(delayMs);
 		ByteBuffer b =
@@ -70,7 +70,7 @@ public class LibUsbFtdiTester {
 			ConcurrentUtil.delay(delayMs);
 		}
 		logger.info("Bit-bang off");
-		libusb_control_transfer(handle, 0x40, 0x0b, 0, 0x0001, 500);
+		libusb_control_transfer(handle, 0x40, 0x0b, 0, 0x0001, 0, 500);
 		logger.info("Releasing interface: {}", interfaceNumber);
 		libusb_release_interface(handle, interfaceNumber);
 		if (kernelDriverActive) {

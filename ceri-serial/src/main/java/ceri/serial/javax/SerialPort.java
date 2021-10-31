@@ -62,12 +62,6 @@ public class SerialPort extends CommPort {
 		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);
 	}
 
-	public static boolean messageMatches(Pattern pattern, Exception e) {
-		String message = e.getMessage();
-		if (message == null) return false;
-		return pattern.matcher(message).find();
-	}
-
 	SerialPort(purejavacomm.SerialPort serialPort) {
 		super(serialPort);
 		this.serialPort = serialPort;

@@ -166,7 +166,6 @@ public class LibUsbFinder {
 	 */
 	public boolean findWithCallback(libusb_context ctx,
 		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
-		require(ctx, "Context");
 		require(callback, "Callback");
 		var devs = libusb_get_device_list(ctx);
 		try {
@@ -305,7 +304,7 @@ public class LibUsbFinder {
 	}
 
 	private boolean needsDescriptor() {
-		return vendor > 0 || product > 0;
+		return vendor > 0 || product > 0 || needsOpen();
 	}
 
 	private boolean needsOpen() {
@@ -318,7 +317,7 @@ public class LibUsbFinder {
 
 	private static boolean matches(libusb_device_handle usb_dev, String expected, int desc_index)
 		throws LibUsbException {
-		if (expected == null || expected.isEmpty()) return true;
+		if (StringUtil.empty(expected)) return true;
 		String descriptor = libusb_get_string_descriptor_ascii(usb_dev, desc_index);
 		return expected.equals(descriptor);
 	}

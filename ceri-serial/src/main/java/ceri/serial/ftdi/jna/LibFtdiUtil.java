@@ -42,7 +42,7 @@ public class LibFtdiUtil {
 	 */
 	public static void requireCtx(ftdi_context ftdi) throws LibUsbException {
 		require(ftdi);
-		LibUsbUtil.require(ftdi.usb_ctx);
+		LibUsbUtil.require(ftdi.usb_ctx, "LibUsb context");
 	}
 
 	/**

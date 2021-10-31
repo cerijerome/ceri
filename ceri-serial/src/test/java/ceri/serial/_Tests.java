@@ -59,6 +59,8 @@ import ceri.common.test.TestUtil;
 	// i2c.util
 	ceri.serial.i2c.util.I2cEmulatorBehavior.class, //
 	ceri.serial.i2c.util.I2cUtilTest.class, //
+	// javax
+	ceri.serial.javax.SerialPortBehavior.class, //
 	// javax.test
 	ceri.serial.javax.test.SerialConnectorTesterBehavior.class, //
 	ceri.serial.javax.test.TestSerialConnectorBehavior.class, //
@@ -94,8 +96,11 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.UsbTransferBehavior.class, //
 	// libusb.jna
 	ceri.serial.libusb.jna.LibUsbAudioTest.class, //
+	ceri.serial.libusb.jna.LibUsbExceptionBehavior.class, //
 	ceri.serial.libusb.jna.LibUsbFinderBehavior.class, //
 	ceri.serial.libusb.jna.LibUsbTerminalTypeTest.class, //
+	ceri.serial.libusb.jna.LibUsbTest.class, //
+	ceri.serial.libusb.jna.LibUsbUtilTest.class, //
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //
