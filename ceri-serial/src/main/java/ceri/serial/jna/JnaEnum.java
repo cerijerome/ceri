@@ -32,7 +32,7 @@ public class JnaEnum {
 		default int value() {
 			var cls = getClass();
 			if (!cls.isEnum()) return 0;
-			initFromAnnotations(BasicUtil.uncheckedCast(cls));
+			if (!initialized(cls)) initFromAnnotations(BasicUtil.uncheckedCast(cls));
 			return JnaEnum.enumValue((Enum<?>) this);
 		}
 	}
@@ -70,16 +70,20 @@ public class JnaEnum {
 
 	/* private */
 
+	private static boolean initialized(Class<?> cls) {
+		return valueToEnumMap.containsKey(cls);
+	}
+
 	private static int enumValue(Enum<?> en) {
 		var value = enumToValueMap.get(en.getClass()).get(en);
 		return value != null ? value : en.ordinal();
 	}
 
 	private static <T extends Enum<T> & Valued> void init(Class<T> cls) {
-		if (valueToEnumMap.containsKey(cls)) return;
+		if (initialized(cls)) return;
 		var en = fromOrdinal(cls, 0);
 		if (en != null) en.value(); // may call initFromAnnotations()
-		if (valueToEnumMap.containsKey(cls)) return; // check again
+		if (initialized(cls)) return; // check again
 		initFromValues(cls); // fallback to value lookup - assume override
 	}
 
