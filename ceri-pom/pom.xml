@@ -27,7 +27,7 @@
 		<exec.maven.version>3.0.0</exec.maven.version>
 		<junit.version>4.13.2</junit.version>
 		<mockito.version>3.12.4</mockito.version>
-		<log4j.version>2.14.1</log4j.version>
+		<log4j.version>2.15.0</log4j.version>
 		<httpcomponents.version>4.5.13</httpcomponents.version>
 		<jetty.version>11.0.6</jetty.version>
 		<jetty.jstl.version>11.0.0</jetty.jstl.version>
