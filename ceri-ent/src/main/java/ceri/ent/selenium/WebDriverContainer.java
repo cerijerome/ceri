@@ -1,8 +1,10 @@
 package ceri.ent.selenium;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +15,6 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import com.google.common.base.Function;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
@@ -130,7 +131,7 @@ public class WebDriverContainer implements RuntimeCloseable {
 	}
 
 	public <T> T waitFor(Function<? super WebDriver, T> isTrue, int timeoutSec) {
-		return (new WebDriverWait(driver, timeoutSec)).until(isTrue);
+		return new WebDriverWait(driver, Duration.ofSeconds(timeoutSec)).until(isTrue);
 	}
 
 	public WebElement findElement(By by) {
