@@ -161,6 +161,13 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testPathVariable() {
+		assertEquals(IoUtil.pathVariable(), "");
+		assertEquals(IoUtil.pathVariable("a/b"), "a/b");
+		assertEquals(IoUtil.pathVariable("a/b", "c/d"), "a/b" + File.pathSeparator + "c/d");
+	}
+
+	@Test
 	public void testExtend() throws IOException {
 		try (ResourcePath rp = ResourcePath.of(String.class)) {
 			assertNull(IoUtil.extend(null, "test"));

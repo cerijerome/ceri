@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -126,6 +127,14 @@ public class IoUtil {
 	public static Path environmentPath(String name, String... paths) {
 		String property = SystemVars.env(name);
 		return property == null ? null : Path.of(property, paths);
+	}
+
+	/**
+	 * Join paths using the system path separator.
+	 */
+	public static String pathVariable(String... paths) {
+		return Stream.of(paths).map(String::trim).filter(StringUtil::nonEmpty)
+			.collect(Collectors.joining(File.pathSeparator));
 	}
 
 	/**
@@ -626,8 +635,8 @@ public class IoUtil {
 	 * The pattern is applied against the file name path, not the full path.
 	 */
 	public static List<String> listNames(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
-			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null
+			: PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return listNames(dir, filter);
 	}
 
@@ -654,8 +663,8 @@ public class IoUtil {
 	 * pattern is applied against the file name path, not the full path.
 	 */
 	public static List<Path> list(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
-			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null
+			: PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return list(dir, filter);
 	}
 
