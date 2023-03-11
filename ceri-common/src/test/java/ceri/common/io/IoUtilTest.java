@@ -168,6 +168,17 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testVariablePaths() {
+		assertCollection(IoUtil.variablePaths(null));
+		assertCollection(IoUtil.variablePaths(""));
+		assertCollection(IoUtil.variablePaths(File.pathSeparator));
+		assertCollection(IoUtil.variablePaths(" " + File.pathSeparator + " a"), "a");
+		assertCollection(IoUtil.variablePaths("a/b" + File.pathSeparator + "a/b"), "a/b");
+		assertCollection(IoUtil.variablePaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
+			"a/b /c");
+	}
+
+	@Test
 	public void testExtend() throws IOException {
 		try (ResourcePath rp = ResourcePath.of(String.class)) {
 			assertNull(IoUtil.extend(null, "test"));
