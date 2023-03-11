@@ -321,14 +321,14 @@ public class AnsiEscape {
 			}
 
 			/**
-			 * Set 8-bit color approximation, each component 0-5.
+			 * Set 8-bit color approximation, converting each component from 0-255 to 0-5.
 			 */
 			public Sgr bgColor8(Color color) {
 				return bgColor8(color.getRGB());
 			}
 
 			/**
-			 * Set 8-bit color approximation, each component 0-5.
+			 * Set 8-bit color approximation, converting each component from 0-255 to 0-5.
 			 */
 			public Sgr bgColor8(int rgb) {
 				return bgColor8(to8Bit(r(rgb)), to8Bit(g(rgb)), to8Bit(b(rgb)));
