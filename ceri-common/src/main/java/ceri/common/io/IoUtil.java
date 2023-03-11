@@ -23,8 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.collection.StreamUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteArray;
@@ -48,6 +51,8 @@ public class IoUtil {
 	private static final String CLASS_SUFFIX = ".class";
 	private static final int READ_POLL_MS = 50;
 	private static final int MIN_ABSOLUTE_DIRS = 3;
+	private static final Pattern PATH_SEPARATOR_REGEX =
+		Pattern.compile("\\Q" + File.pathSeparator + "\\E");
 	private static final FileVisitor<Path> DELETING_VISITOR =
 		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
 	public static final ExceptionAdapter<IOException> IO_ADAPTER =
@@ -135,6 +140,15 @@ public class IoUtil {
 	public static String pathVariable(String... paths) {
 		return Stream.of(paths).map(String::trim).filter(StringUtil::nonEmpty)
 			.collect(Collectors.joining(File.pathSeparator));
+	}
+
+	/**
+	 * Extract unique paths in order, using the system path separator.
+	 */
+	public static Set<String> variablePaths(String variable) {
+		if (variable == null) return Set.of();
+		return StreamUtil.toSet(PATH_SEPARATOR_REGEX.splitAsStream(variable).map(String::trim)
+			.filter(StringUtil::nonEmpty));
 	}
 
 	/**
