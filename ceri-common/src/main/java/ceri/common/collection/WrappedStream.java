@@ -114,10 +114,11 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 		return w.unwrapSupplier(() -> stream.collect(collector));
 	}
 
+	@SuppressWarnings("unused")
 	public <R> WrappedStream<E, R>
 		apply(ExceptionFunction<E, ? super Stream<T>, ? extends Stream<R>> fn) throws E {
 		Stream<R> s = fn.apply(stream);
-		return new WrappedStream<>(w, s);
+		return new WrappedStream<E, R>(w, s);
 	}
 
 	@SuppressWarnings("resource")
