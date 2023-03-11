@@ -4,5 +4,6 @@
 .classpath
 .DS_Store
 .old/
+.settings/
 eclipse/lib/
 *.md.html
