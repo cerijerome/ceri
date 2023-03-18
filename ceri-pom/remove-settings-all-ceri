@@ -15,7 +15,4 @@ rm -rf ../ceri-ent/.settings
 rm -rf ../ceri-process/.settings
 rm -rf ../ceri-serial/.settings
 rm -rf ../ceri-x10/.settings
-rm -rf ../ceri-zwave/.settings
-rm -rf ../ceri-misc/.settings
-rm -rf ../ceri-ci/.settings
 

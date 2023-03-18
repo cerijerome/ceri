@@ -21,11 +21,5 @@ cd ../ceri-serial
 mvn clean install
 cd ../ceri-x10
 mvn clean install
-cd ../ceri-zwave
-mvn clean install
-cd ../ceri-misc
-mvn clean install
-cd ../ceri-ci
-##mvn clean install -DskipTests
 
 popd
