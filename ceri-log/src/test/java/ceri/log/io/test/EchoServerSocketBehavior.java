@@ -11,7 +11,7 @@ public class EchoServerSocketBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void should() throws IOException {
+	public void shouldEcho() throws IOException {
 		try (var ss = EchoServerSocket.of()) {
 			int port = ss.port();
 			try (Socket s = new Socket(NetUtil.LOCALHOST, port)) {

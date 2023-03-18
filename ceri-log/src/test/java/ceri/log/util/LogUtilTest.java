@@ -109,10 +109,11 @@ public class LogUtilTest {
 
 	@Test
 	public void testSubmit() throws InterruptedException, ExecutionException {
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		LogUtil.submit(logger, exec, () -> {}).get();
-		LogUtil.submit(logger, exec, () -> throwIt(new IOException("iox"))).get();
-		testLog.assertFind("(?is)ERROR .* catching.*IOException.*iox");
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			LogUtil.submit(logger, exec, () -> {}).get();
+			LogUtil.submit(logger, exec, () -> throwIt(new IOException("iox"))).get();
+			testLog.assertFind("(?is)ERROR .* catching.*IOException.*iox");
+		}
 	}
 
 	@SuppressWarnings("resource")
@@ -171,40 +172,42 @@ public class LogUtilTest {
 	public void testCloseExecutorService() throws InterruptedException {
 		assertFalse(LogUtil.close(logger, (ExecutorService) null));
 		BooleanCondition sync = BooleanCondition.of();
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		exec.execute(() -> signalAndSleep(sync, 60000));
-		sync.await();
-		assertTrue(LogUtil.close(logger, exec));
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			exec.execute(() -> signalAndSleep(sync, 60000));
+			sync.await();
+			assertTrue(LogUtil.close(logger, exec));
+		}
 	}
 
 	@Test
 	public void testCloseExecutorServiceWithInterrupt() {
-		TestExecutorService exec = TestExecutorService.of();
-		exec.awaitTermination.error.setFrom(INX);
-		assertFalse(LogUtil.close(null, exec));
-		assertFalse(LogUtil.close(logger, exec));
-		testLog.assertFind("(?is)INFO .*InterruptedException");
+		try (TestExecutorService exec = TestExecutorService.of()) {
+			exec.awaitTermination.error.setFrom(INX);
+			assertFalse(LogUtil.close(null, exec));
+			assertFalse(LogUtil.close(logger, exec));
+			testLog.assertFind("(?is)INFO .*InterruptedException");
+		}
 	}
 
 	@Test
 	public void testCloseFuture() throws InterruptedException, ExecutionException {
 		assertFalse(LogUtil.close(logger, (Future<?>) null));
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		Future<?> future = exec.submit(() -> {});
-		future.get();
-		assertTrue(LogUtil.close(logger, future));
-		LogUtil.close(logger, exec);
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			Future<?> future = exec.submit(() -> {});
+			future.get();
+			assertTrue(LogUtil.close(logger, future));
+		}
 	}
 
 	@Test
 	public void testCloseFutureWithCancellation() throws InterruptedException {
 		assertFalse(LogUtil.close(logger, (Future<?>) null));
 		BooleanCondition sync = BooleanCondition.of();
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		Future<?> future = exec.submit(() -> signalAndSleep(sync, 60000));
-		sync.await();
-		assertTrue(LogUtil.close(logger, future));
-		LogUtil.close(logger, exec);
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			Future<?> future = exec.submit(() -> signalAndSleep(sync, 60000));
+			sync.await();
+			assertTrue(LogUtil.close(logger, future));
+		}
 	}
 
 	@Test

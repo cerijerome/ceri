@@ -33,7 +33,8 @@ public class CloseableExecutorBehavior {
 
 	@Test
 	public void shouldInvokeAllTasks() throws InterruptedException, ExecutionException {
-		try (CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
+		try (@SuppressWarnings("resource")
+		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAll(List.of(() -> "test1", () -> "test2"));
 			assertEquals(result.get(0).get(), "test1");
 			assertEquals(result.get(1).get(), "test2");
@@ -42,7 +43,8 @@ public class CloseableExecutorBehavior {
 
 	@Test
 	public void shouldInvokeAllTasksWithTimeout() throws InterruptedException, ExecutionException {
-		try (CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
+		try (@SuppressWarnings("resource")
+		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAll(List.of(() -> "test1", () -> "test2"), 1, TimeUnit.SECONDS);
 			assertEquals(result.get(0).get(), "test1");
 			assertEquals(result.get(1).get(), "test2");
@@ -51,7 +53,8 @@ public class CloseableExecutorBehavior {
 
 	@Test
 	public void shouldInvokeAnyTasks() throws InterruptedException, ExecutionException {
-		try (CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
+		try (@SuppressWarnings("resource")
+		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result =
 				exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")));
 			assertEquals(result, "test2");
@@ -61,7 +64,8 @@ public class CloseableExecutorBehavior {
 	@Test
 	public void shouldInvokeAnyTasksWithTimeout()
 		throws InterruptedException, ExecutionException, TimeoutException {
-		try (CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
+		try (@SuppressWarnings("resource")
+		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")),
 				1, TimeUnit.SECONDS);
 			assertEquals(result, "test2");

@@ -15,12 +15,14 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
 /**
- * Encapsulates a standard executor service as a Closeable resource.
+ * Originally used to encapsulate an executor service as a Closeable resource. Now ExecutorService
+ * is AutoCloseable, this implementation offers a shorter close timeout of 1 second vs 1 day.
  */
 public class CloseableExecutor implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	public final ExecutorService executor;
 
+	@SuppressWarnings("resource")
 	public static CloseableExecutor single() {
 		return of(Executors.newSingleThreadExecutor());
 	}

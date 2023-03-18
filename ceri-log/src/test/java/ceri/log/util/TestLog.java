@@ -122,8 +122,9 @@ public class TestLog implements RuntimeCloseable {
 		config.addAppender(appender);
 		AppenderRef ref = AppenderRef.createAppenderRef(appender.getName(), null, null);
 		AppenderRef[] refs = new AppenderRef[] { ref };
-		LoggerConfig loggerConfig = LoggerConfig.createLogger(false, Level.ALL, loggerName,
-			TRUE.toString(), refs, null, config, null);
+		LoggerConfig loggerConfig = LoggerConfig.newBuilder().withAdditivity(false)
+			.withLevel(Level.ALL).withLoggerName(loggerName).withIncludeLocation(TRUE.toString())
+			.withRefs(refs).withConfig(config).build();
 		loggerConfig.addAppender(appender, null, null);
 		config.addLogger(loggerName, loggerConfig);
 	}

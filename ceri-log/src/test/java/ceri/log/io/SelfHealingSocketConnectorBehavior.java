@@ -1,5 +1,6 @@
 package ceri.log.io;
 
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -43,6 +44,11 @@ public class SelfHealingSocketConnectorBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		assertFind(con.toString(), "\\btest:123\\b");
+	}
+
+	@Test
+	public void shouldProvideHostAndPort() {
+		assertEquals(con.hostPort(), HostPort.of("test", 123));
 	}
 
 	@SuppressWarnings("resource")

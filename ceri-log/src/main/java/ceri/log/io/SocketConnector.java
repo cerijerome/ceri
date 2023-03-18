@@ -7,17 +7,20 @@ import java.io.OutputStream;
 import ceri.common.event.Listenable;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.StateChange;
+import ceri.common.net.HostPort;
 
 public interface SocketConnector extends Closeable, Listenable.Indirect<StateChange> {
 
 	/**
-	 * For condition-aware serial connectors, notify that it is broken. Useful if the connector
+	 * For condition-aware connectors, notify that it is broken. Useful if the connector
 	 * itself cannot determine it is broken.
 	 */
 	default void broken() {
 		throw new UnsupportedOperationException();
 	}
 
+	HostPort hostPort();
+	
 	void connect() throws IOException;
 
 	InputStream in();
@@ -46,6 +49,11 @@ public interface SocketConnector extends Closeable, Listenable.Indirect<StateCha
 		@Override
 		public void broken() {}
 
+		@Override
+		public HostPort hostPort() {
+			return HostPort.NULL;
+		}
+		
 		@Override
 		public void connect() {}
 

@@ -1,11 +1,13 @@
 package ceri.log.io.test;
 
 import static ceri.common.test.AssertUtil.assertAscii;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.data.ByteStream;
+import ceri.common.net.HostPort;
 
 public class TestSocketConnectorBehavior {
 
@@ -25,6 +27,7 @@ public class TestSocketConnectorBehavior {
 	@Test
 	public void shouldProvideConnector() throws IOException {
 		try (var s = TestSocketConnector.of()) {
+			assertEquals(s.hostPort(), HostPort.NULL);
 			s.in.read.error.setFrom(IOX);
 			s.in.to.writeBytes(0);
 			assertThrown(IOException.class, s.in()::read);

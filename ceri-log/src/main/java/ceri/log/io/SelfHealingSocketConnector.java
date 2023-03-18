@@ -15,6 +15,7 @@ import ceri.common.exception.ExceptionTracker;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
+import ceri.common.net.HostPort;
 import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -51,6 +52,11 @@ public class SelfHealingSocketConnector extends LoopingExecutor implements Socke
 		setBroken();
 	}
 
+	@Override
+	public HostPort hostPort() {
+		return config.hostPort;
+	}
+	
 	@Override
 	public void connect() throws IOException {
 		try {

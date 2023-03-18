@@ -2,6 +2,7 @@ package ceri.log.io.test;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import ceri.common.net.HostPort;
 import ceri.common.test.TestConnector;
 import ceri.log.io.SocketConnector;
 
@@ -18,6 +19,7 @@ public class TestSocketConnector extends TestConnector implements SocketConnecto
 			@Override
 			protected void write(OutputStream out, byte[] b, int offset, int length)
 				throws IOException {
+				super.write(out, b, offset, length);
 				TestConnector.echo(this, b, offset, length);
 			}
 		};
@@ -29,4 +31,8 @@ public class TestSocketConnector extends TestConnector implements SocketConnecto
 
 	protected TestSocketConnector() {}
 
+	@Override
+	public HostPort hostPort() {
+		return HostPort.NULL;
+	}
 }

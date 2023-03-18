@@ -40,12 +40,6 @@ public class SocketConnectorTester extends LoopingExecutor {
 	private final Enclosed<RuntimeException, ?> listener;
 	private boolean showHelp = true;
 
-	public static void main(String[] args) throws IOException {
-		try (EchoServerSocket ss = EchoServerSocket.of()) {
-			test("localhost", ss.port());
-		}
-	}
-
 	public static void test(String host, int port) throws IOException {
 		SelfHealingSocketConfig config = SelfHealingSocketConfig.of(host, port);
 		try (SelfHealingSocketConnector con = SelfHealingSocketConnector.of(config)) {
