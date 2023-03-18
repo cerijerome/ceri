@@ -122,16 +122,4 @@ public class Cm11aContainer implements RuntimeCloseable {
 	private Cm11aDevice createDevice(SerialConnector connector, Cm11aDeviceConfig config) {
 		return Cm11aDevice.of(config, Cm11aConnector.serial(connector));
 	}
-
-	// private SerialConnector createConnector(SelfHealingSerialConfig config) {
-	// config = SelfHealingSerialConfig.replace(config, Cm11aConnector.Serial.PARAMS);
-	// SelfHealingSerialConnector connector = SelfHealingSerialConnector.of(config);
-	// execSilently(connector::connect);
-	// return connector;
-	// }
-	//
-	// private Cm11aDevice createDevice(SerialConnector connector, Cm11aDeviceConfig config) {
-	// return Cm11aDevice.of(config, Cm11aConnector.serial(connector));
-	// }
-
 }

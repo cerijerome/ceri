@@ -121,5 +121,4 @@ public class Cm17aContainer implements RuntimeCloseable {
 	private Cm17aDevice createDevice(SerialConnector connector, Cm17aDeviceConfig config) {
 		return Cm17aDevice.of(config, Cm17aConnector.serial(connector));
 	}
-
 }
