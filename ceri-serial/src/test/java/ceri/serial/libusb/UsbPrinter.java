@@ -24,6 +24,7 @@ public class UsbPrinter {
 	private final Level logLevel;
 
 	public static void main(String[] args) {
+		System.setProperty("jna.debug_load.jna", "true");
 		var printer = new UsbPrinter(System.out, null);
 		run(printer);
 		runTest(printer);

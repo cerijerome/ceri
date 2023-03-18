@@ -389,6 +389,23 @@ public class CLib {
 		CLib.ioctl("TIOCCBRK", fd, TIOCCBRK);
 	}
 
+	/* stdlib.h */
+
+	/**
+	 * Change or add an environment variable.
+	 */
+	public static void setenv(String name, String value, boolean overwrite) throws CException {
+		int overwriteValue = overwrite ? 1 : 0;
+		caller.verify(() -> lib().setenv(name, value, overwriteValue), name, value, overwriteValue);
+	}
+
+	/**
+	 * Get an environment variable.
+	 */
+	public static String getenv(String name) throws CException {
+		return caller.callType(() -> lib().getenv(name), "getenv", name);
+	}
+
 	/* os-specific types and calls */
 
 	/**

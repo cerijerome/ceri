@@ -121,4 +121,12 @@ public interface CLibNative extends Library {
 	// int cfsetspeed(struct termios *termios_p, speed_t speed)
 	int cfsetspeed(Pointer termios, NativeLong speed) throws LastErrorException;
 
+	/* stdlib.h */
+	
+	//int setenv(const char *name, const char *value, int overwrite)
+	int setenv(String name, String value, int overwrite) throws LastErrorException;
+	
+	//char *getenv(const char *name)
+	String getenv(String name);
+	
 }

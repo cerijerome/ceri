@@ -227,6 +227,16 @@ public class TestCLibNative implements CLibNative {
 		return 0;
 	}
 
+	@Override
+	public int setenv(String name, String value, int overwrite) throws LastErrorException {
+		return 0;
+	}
+	
+	@Override
+	public String getenv(String name) {
+		return null;
+	}
+	
 	public Fd fd(int fd) {
 		return fd(fd, CError.EBADF);
 	}

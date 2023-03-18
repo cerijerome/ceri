@@ -10,9 +10,13 @@ nm -gU libxxx.dylib
 
 Lib dependencies:
 readelf -d libxxx.so | grep NEEDED
+otool -L libxxx.dylib
 
 Header path:
 gcc -v -E -
+
+Include/lib c paths:
+pkg-config --cflags --libs libxxx.so/dylib
 
 Search
 sudo find <include-path> -type f | grep '\.'h$ | xargs grep xxx

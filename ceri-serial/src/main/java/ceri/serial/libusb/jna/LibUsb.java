@@ -33,7 +33,7 @@ import ceri.serial.jna.VarStruct;
  * Provides types and static function calls. Updated to libusb 1.0.24.
  */
 public class LibUsb {
-	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0.0", LibUsbNative.class);
+	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0", LibUsbNative.class);
 	public static final CCaller<LibUsbException> caller = CCaller.of(LibUsbException::full);
 	private static final int DEFAULT_TIMEOUT = 1000;
 	private static final int MAX_DESCRIPTOR_SIZE = 255;
