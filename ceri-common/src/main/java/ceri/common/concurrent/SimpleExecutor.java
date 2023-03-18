@@ -58,6 +58,7 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 		return call(callable, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
+	@SuppressWarnings("resource") // shouldn't be required
 	public static <E extends Exception, T> SimpleExecutor<E, T> call(Callable<T> callable,
 		Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		ExecutorService exec = Executors.newSingleThreadExecutor();

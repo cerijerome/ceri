@@ -16,30 +16,30 @@ public class LocaleUtilTest {
 
 	@Test
 	public void testFromString() {
-		Locale locale = new Locale("en", "US", "Test");
+		Locale locale = Locale.of("en", "US", "Test");
 		assumeThat("en_US_Test", is(locale.toString()));
 		Locale localeFromString = LocaleUtil.fromString("en_US_Test");
 		assertEquals(locale, localeFromString);
-		assertEquals(LocaleUtil.fromString(""), new Locale(""));
-		assertEquals(LocaleUtil.fromString("a"), new Locale("a"));
-		assertEquals(LocaleUtil.fromString("a_"), new Locale("a"));
-		assertEquals(LocaleUtil.fromString("a_b"), new Locale("a", "b"));
-		assertEquals(LocaleUtil.fromString("a_b_"), new Locale("a", "b"));
-		assertEquals(LocaleUtil.fromString("a_b_c"), new Locale("a", "b", "c"));
-		assertEquals(LocaleUtil.fromString("a_b_c_"), new Locale("a", "b", "c_"));
+		assertEquals(LocaleUtil.fromString(""), Locale.ROOT);
+		assertEquals(LocaleUtil.fromString("a"), Locale.of("a"));
+		assertEquals(LocaleUtil.fromString("a_"), Locale.of("a"));
+		assertEquals(LocaleUtil.fromString("a_b"), Locale.of("a", "b"));
+		assertEquals(LocaleUtil.fromString("a_b_"), Locale.of("a", "b"));
+		assertEquals(LocaleUtil.fromString("a_b_c"), Locale.of("a", "b", "c"));
+		assertEquals(LocaleUtil.fromString("a_b_c_"), Locale.of("a", "b", "c_"));
 	}
 
 	@Test
 	public void testParentOf() {
-		Locale locale = new Locale("en", "US", "Test");
+		Locale locale = Locale.of("en", "US", "Test");
 		locale = LocaleUtil.parentOf(locale);
-		assertEquals(locale, new Locale("en", "US"));
+		assertEquals(locale, Locale.of("en", "US"));
 		locale = LocaleUtil.parentOf(locale);
-		assertEquals(locale, new Locale("en"));
+		assertEquals(locale, Locale.of("en"));
 		locale = LocaleUtil.parentOf(locale);
-		assertEquals(locale, new Locale(""));
+		assertEquals(locale, Locale.ROOT);
 		locale = LocaleUtil.parentOf(locale);
-		assertEquals(locale, new Locale(""));
+		assertEquals(locale, Locale.ROOT);
 	}
 
 }

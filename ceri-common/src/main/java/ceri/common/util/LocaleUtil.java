@@ -11,12 +11,12 @@ public class LocaleUtil {
 	 * Creates a locale object from a lang_COUNTRY_VARIANT string.
 	 */
 	public static Locale fromString(String localeStr) {
-		if (StringUtil.blank(localeStr)) return new Locale("");
+		if (StringUtil.blank(localeStr)) return Locale.ROOT;
 		String[] split = localeStr.split("_", 3);
 		String lang = split[0];
 		String country = split.length > 1 ? split[1] : "";
 		String variant = split.length > 2 ? split[2] : "";
-		return new Locale(lang, country, variant);
+		return Locale.of(lang, country, variant);
 	}
 
 	/**
@@ -27,8 +27,8 @@ public class LocaleUtil {
 		String lang = locale.getLanguage();
 		String country = locale.getCountry();
 		String variant = locale.getVariant();
-		if (!StringUtil.blank(variant)) return new Locale(lang, country);
-		if (!StringUtil.blank(country)) return new Locale(lang);
+		if (!StringUtil.blank(variant)) return Locale.of(lang, country);
+		if (!StringUtil.blank(country)) return Locale.of(lang);
 		return Locale.ROOT;
 	}
 

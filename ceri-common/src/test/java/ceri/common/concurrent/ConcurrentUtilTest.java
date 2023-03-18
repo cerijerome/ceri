@@ -93,17 +93,19 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testCloseExecutor() {
-		ExecutorService exec = Executors.newSingleThreadExecutor();
-		exec.submit(() -> ConcurrentUtil.delay(60000));
-		assertTrue(ConcurrentUtil.close(exec, 1000));
+		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+			exec.submit(() -> ConcurrentUtil.delay(60000));
+			assertTrue(ConcurrentUtil.close(exec, 1000));
+		}
 	}
 
 	@Test
 	public void testCloseExecutorWithException() {
 		assertFalse(ConcurrentUtil.close(null, 0));
-		TestExecutorService exec = TestExecutorService.of();
-		exec.awaitTermination.error.setFrom(INX);
-		assertFalse(ConcurrentUtil.close(exec, 0));
+		try (TestExecutorService exec = TestExecutorService.of()) {
+			exec.awaitTermination.error.setFrom(INX);
+			assertFalse(ConcurrentUtil.close(exec, 0));
+		}
 	}
 
 	@Test

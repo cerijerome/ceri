@@ -15,8 +15,7 @@ import ceri.common.time.Timer;
 public class Processor {
 	public static final Processor DEFAULT = builder().build();
 	public static final Processor LONG_RUNNING = builder().noTimeout().captureStdOut(false).build();
-	public static final Processor IGNORE_EXIT_VALUE =
-		Processor.builder().verifyExitValue(false).build();
+	public static final Processor IGNORE_EXIT_VALUE = builder().verifyExitValue(false).build();
 	private final Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter;
 	private final int pollMs;
 	private final int timeoutMs;
