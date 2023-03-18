@@ -42,10 +42,10 @@ Old:
 
 Set up a repo
 -------------
-Set up repo on github.com (origin = repo alias)
+Set up repo on github.com (origin = repo alias); tokens for device vs command line
 $ git init
 (old?)$ git remote add origin <https|ssh-repolink>
-(old) $ git remote add origin https://username@github.com/username/repo.git
+$ git remote add origin https://username@github.com/username/repo.git
 $ git remote set-url origin https://<githubtoken>@github.com/<username>/<repositoryname>.git
 $ git pull origin master => pull from remote
 $ git push origin master => push to remote
