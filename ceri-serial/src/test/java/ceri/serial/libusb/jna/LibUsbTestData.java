@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
@@ -46,7 +47,7 @@ public class LibUsbTestData {
 	public String locale;
 
 	private static Pointer pointer() {
-		return new Memory(Pointer.SIZE);
+		return new Memory(Native.POINTER_SIZE);
 	}
 
 	public static class Data {
@@ -89,13 +90,13 @@ public class LibUsbTestData {
 		public Context context;
 
 		private DeviceList(int size) {
-			super(new Memory(Pointer.SIZE * (size + 1)));
+			super(new Memory(Native.POINTER_SIZE * (size + 1)));
 			this.size = size;
 		}
 
 		private Pointer p(int i) {
 			if (i < 0 || i >= size) return null;
-			return p.share(i * Pointer.SIZE);
+			return p.share(i * Native.POINTER_SIZE);
 		}
 	}
 

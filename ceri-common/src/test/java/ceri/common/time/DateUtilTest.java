@@ -1,6 +1,7 @@
 package ceri.common.time;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -93,8 +94,10 @@ public class DateUtilTest {
 
 	@Test
 	public void testDateTimePattern() {
-		assertEquals(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
-			"EEEE, MMMM d, y 'at' h:mm:ss a zzzz");
+		// EEEE, MMMM d, y 'at' h:mm:ss a zzzz (eclipse)
+		// EEEE, MMMM d, y, h:mm:ss\u202fa zzzz (jdk)
+		assertMatch(DateUtil.dateTimePattern(FormatStyle.FULL, FormatStyle.FULL, Locale.US),
+			"EEEE, MMMM d, y(,| 'at') h:mm:ss\\p{Zs}a zzzz");
 	}
 
 	@Test

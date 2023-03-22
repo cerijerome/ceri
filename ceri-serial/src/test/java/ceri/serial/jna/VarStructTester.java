@@ -3,6 +3,7 @@ package ceri.serial.jna;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.function.Function;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.serial.jna.Struct.Fields;
@@ -168,7 +169,7 @@ public class VarStructTester {
 		public LenRefVar(int dummy1, int dummy2, Sub.ByRef... array) {
 			this.dummy1 = (byte) dummy1;
 			this.dummy2 = (short) dummy2;
-			this.length = lastOffset + (array.length * Pointer.SIZE);
+			this.length = lastOffset + (array.length * Native.POINTER_SIZE);
 			this.array = array;
 		}
 
@@ -183,7 +184,7 @@ public class VarStructTester {
 
 		@Override
 		protected int varCount() {
-			return (length - lastOffset) / Pointer.SIZE;
+			return (length - lastOffset) / Native.POINTER_SIZE;
 		}
 	}
 

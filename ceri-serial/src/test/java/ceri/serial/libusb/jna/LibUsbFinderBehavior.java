@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertToString;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
 import org.junit.Test;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import ceri.common.util.Enclosed;
 import ceri.serial.jna.JnaUtil;
@@ -44,8 +45,8 @@ public class LibUsbFinderBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertToString(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, " +
-			"bus=any, address=any, description=any, serial=\"xyz\", index=0}");
+		assertToString(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, "
+			+ "bus=any, address=any, description=any, serial=\"xyz\", index=0}");
 	}
 
 	@Test
@@ -84,7 +85,8 @@ public class LibUsbFinderBehavior {
 		var finder = LibUsbFinder.builder().build();
 		assertThrown(() -> finder.findAndOpen(null)); // device not found
 		assertThrown(() -> finder.findAndRef(null)); // device not found
-		libusb_context ctx = PointerUtil.set(new libusb_context(), JnaUtil.malloc(Pointer.SIZE));
+		libusb_context ctx =
+			PointerUtil.set(new libusb_context(), JnaUtil.malloc(Native.POINTER_SIZE));
 		assertThrown(() -> finder.findAndRef(ctx, 1)); // device not found
 	}
 

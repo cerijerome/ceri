@@ -70,7 +70,7 @@ public class WrappedStreamBehavior {
 	}
 
 	@Test
-	public void shouldStreamCollections() throws IOException {
+	public void shouldStreamCollections() throws Exception {
 		assertStream(WrappedStream.stream(List.of(4, 3, 2)), 4, 3, 2);
 		assertStream(WrappedStream.stream(List.of(4, 3, 2), FunctionTestUtil.function()), 4, 3, 2);
 	}

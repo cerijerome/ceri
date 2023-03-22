@@ -10,6 +10,7 @@ import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import static ceri.serial.jna.test.JnaTestUtil.deref;
 import org.junit.Test;
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
@@ -23,7 +24,7 @@ public class PointerUtilTest {
 	public void shouldHavePointerSizeStorageForInt() {
 		var i = new PointerUtil.Int(777);
 		var cls = i.toNative().getClass();
-		switch (Pointer.SIZE) {
+		switch (Native.POINTER_SIZE) {
 			case 4 -> assertEquals(cls, Integer.class);
 			case 8 -> assertEquals(cls, Long.class);
 			default -> fail("Unsupported pointer size");
@@ -100,8 +101,8 @@ public class PointerUtilTest {
 	@Test
 	public void testMallocPointerTypeArray() {
 		TestPointer[] array = PointerUtil.mallocArray(TestPointer::new, TestPointer[]::new, 3);
-		assertEquals(array[1].getPointer(), array[0].getPointer().share(Pointer.SIZE));
-		assertEquals(array[2].getPointer(), array[1].getPointer().share(Pointer.SIZE));
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(Native.POINTER_SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(Native.POINTER_SIZE));
 		assertEquals(array.length, 3);
 	}
 
@@ -118,8 +119,8 @@ public class PointerUtilTest {
 	@Test
 	public void testCallocPointerTypeArray() {
 		TestPointer[] array = PointerUtil.callocArray(TestPointer::new, TestPointer[]::new, 3);
-		assertEquals(array[1].getPointer(), array[0].getPointer().share(Pointer.SIZE));
-		assertEquals(array[2].getPointer(), array[1].getPointer().share(Pointer.SIZE));
+		assertEquals(array[1].getPointer(), array[0].getPointer().share(Native.POINTER_SIZE));
+		assertEquals(array[2].getPointer(), array[1].getPointer().share(Native.POINTER_SIZE));
 		assertEquals(array.length, 3);
 		assertNull(array[0].getPointer().getPointer(0));
 		assertNull(array[1].getPointer().getPointer(0));
@@ -185,23 +186,23 @@ public class PointerUtilTest {
 	@Test
 	public void testByVal() {
 		assertEquals(PointerUtil.byVal(null, 1), null);
-		Memory m = new Memory(Pointer.SIZE * 3);
+		Memory m = new Memory(Native.POINTER_SIZE * 3);
 		assertEquals(PointerUtil.byVal(m, 0), deref(m));
 		assertEquals(PointerUtil.byVal(m, 1),
-			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE));
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Native.POINTER_SIZE));
 		assertEquals(PointerUtil.byVal(m, 2),
-			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE * 2));
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Native.POINTER_SIZE * 2));
 	}
 
 	@Test
 	public void testByValForPointerType() {
 		assertEquals(PointerUtil.byVal(null, 1, TestPointer::new), null);
-		Memory m = new Memory(Pointer.SIZE * 3);
+		Memory m = new Memory(Native.POINTER_SIZE * 3);
 		assertPointer(PointerUtil.byVal(m, 0, TestPointer::new), deref(m));
 		assertPointer(PointerUtil.byVal(m, 1, TestPointer::new),
-			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE));
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Native.POINTER_SIZE));
 		assertPointer(PointerUtil.byVal(m, 2, TestPointer::new),
-			ceri.serial.jna.test.JnaTestUtil.deref(m, Pointer.SIZE * 2));
+			ceri.serial.jna.test.JnaTestUtil.deref(m, Native.POINTER_SIZE * 2));
 	}
 
 	@Test
@@ -224,10 +225,10 @@ public class PointerUtilTest {
 	 * Allocates a contiguous pointer array with given pointer values. Returns indirected pointers.
 	 */
 	private static Pointer[] indirect(Pointer... ps) {
-		Memory m = JnaUtil.calloc(ps.length * Pointer.SIZE);
+		Memory m = JnaUtil.calloc(ps.length * Native.POINTER_SIZE);
 		Pointer[] array = new Pointer[ps.length];
 		for (int i = 0; i < array.length; i++) {
-			array[i] = m.share(i * Pointer.SIZE, Pointer.SIZE);
+			array[i] = m.share(i * Native.POINTER_SIZE, Native.POINTER_SIZE);
 			array[i].setPointer(0, ps[i]);
 		}
 		return array;
