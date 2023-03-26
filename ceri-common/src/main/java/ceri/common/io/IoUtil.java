@@ -228,7 +228,7 @@ public class IoUtil {
 	/**
 	 * Creates a new path using the FileSystem of the given path.
 	 */
-	@SuppressWarnings("resource") // bullshit
+	@SuppressWarnings("resource")
 	public static Path newPath(Path ref, String first, String... more) {
 		return ref.getFileSystem().getPath(first, more);
 	}
@@ -539,7 +539,7 @@ public class IoUtil {
 	 * Streams filtered paths recursively under a given directory. A null filter matches all paths.
 	 * Must be used in context of try-with-resources.
 	 */
-	@SuppressWarnings("resource") // no
+	@SuppressWarnings("resource")
 	public static WrappedStream<IOException, Path> walk(Path dir,
 		ExceptionPredicate<IOException, Path> filter) throws IOException {
 		return WrappedStream.<IOException, Path>of(Files.walk(dir))
@@ -686,7 +686,7 @@ public class IoUtil {
 	 * Collects mapped paths from a directory stream, then closes the stream. The mapping function
 	 * excludes entries by returning null.
 	 */
-	@SuppressWarnings("resource") // bullshit
+	@SuppressWarnings("resource")
 	public static <T> List<T> listCollect(DirectoryStream<Path> stream,
 		ExceptionFunction<IOException, Path, T> mapper) throws IOException {
 		Objects.requireNonNull(stream);

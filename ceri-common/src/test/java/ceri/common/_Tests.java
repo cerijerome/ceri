@@ -314,6 +314,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
+	ceri.common.util.SafeBehavior.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	ceri.common.util.ValueCacheBehavior.class, //

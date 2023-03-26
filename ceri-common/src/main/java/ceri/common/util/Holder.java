@@ -18,14 +18,14 @@ public abstract class Holder<T> {
 	}
 
 	/**
-	 * Creates an immutable empty holder.
+	 * Returns an immutable empty holder.
 	 */
 	public static <T> Holder<T> of() {
 		return BasicUtil.uncheckedCast(EMPTY);
 	}
 
 	/**
-	 * Creates a mutable value holder that is non-empty with given value.
+	 * Creates a mutable value holder that is non-empty with given value, which may be null.
 	 */
 	public static <T> Mutable<T> mutable(T value) {
 		return Holder.<T>mutable().set(value);
