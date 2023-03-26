@@ -1,0 +1,79 @@
+JNA Notes
+=========
+
+C code analysis
+---------------
+
+Exported functions:
+nm -D --defined-only libxxx.so
+nm -gU libxxx.dylib
+
+Lib dependencies:
+readelf -d libxxx.so | grep NEEDED
+otool -L libxxx.dylib
+
+Header path:
+gcc -v -E -
+
+Include/lib c paths:
+pkg-config --cflags --libs libxxx.so/dylib
+
+Search
+sudo find <include-path> -type f | grep '\.'h$ | xargs grep xxx
+sudo find <include-path> -type f | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
+sudo find <include-path> -type f | grep '\.'h$ > h-files
+cat h-files | xargs grep -e "\sread\s*(" | grep extern
+
+Notes
+- #define may have spaces, such as # define
+- To check defined values, compile and run src/test/c/symbols.c
+
+Man page numbers:
+  1  User Commands
+  2  System Calls
+  3  C Library Functions
+  4  Devices and Special Files
+  5  File Formats and Conventions
+  6  Games et. al.
+  7  Miscellanea
+  8  System Administration tools and Daemons
+
+
+JNA coding
+----------
+General:
+- Don't expect new Memory() to be zeroed
+- Dereferencing objects to pointers may cause gc on object (be careful in tests)
+- Callbacks should have hard references to prevent gc
+- Reference.reachabilityFence(obj) to keep hard ref until called
+
+Arrays:
+- PointerUtil.arrayByVal to create contiguous pointer(-type) arrays (void*)
+- PointerUtil.arrayByRef to create indirected pointer(-type) arrays (void**)
+- JnaUtil.arrayByVal to create contiguous type arrays with given type size (type*)
+- JnaUtil.arrayByRef to create indirected type arrays with given type size (type**)
+- Struct.arrayByVal to create contiguous struct arrays (struct*)
+- Struct.arrayByRef to create indirected struct arrays (struct**)
+
+Structures:
+- struct within struct is contiguous unless explicitly ByReference
+- often better to use pointers to prevent auto read/write
+- constructor T(null) is the same as T()
+- structs created with null pointer only have placeholder memory
+  - struct fields have their own independent placeholder memory 
+- struct write() allocates memory
+  - struct fields now have correct memory offsets
+- for c struct arg (T** ref) use T.ByRef[] ref = { new T.ByRef(null) };   
+- creating array from struct calls autoRead() on new array items (not index 0)
+
+
+Projects
+--------
+- (purejavacomm)
+- clib
+- libusb
+- libftdi
+- spidev
+- i2cdev
+
+

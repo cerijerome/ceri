@@ -1,0 +1,113 @@
+Header path:
+gcc -v -E -
+
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/include
+ /Library/Developer/CommandLineTools/usr/lib/clang/<version>/include
+ /Library/Developer/CommandLineTools/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include
+ /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks
+
+Notes:
+- _POSIX_C_SOURCE is not defined
+- _DARWIN_C_SOURCE is not defined
+- <sdk>=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+- <knl>=<sdk>/System/Library/Frameworks/Kernel.framework/Versions/A/Headers
+- <iok>=<sdk>/System/Library/Frameworks/IOKit.framework/Versions/A/Headers
+- header files under <sdk>/usr/include/
+  - ./unistd.h => read(), write()
+  - ./sys/ioctl.h => ioctl()
+  - ./sys/fcntl.h => open, flags O_RDONLY, ...
+  - ./stdio.h => fopen(), printf(), perror(), ...	
+- header files under <iok>
+  - ./serial/ioss.h
+
+
+Search:
+sudo find <sdk> -type f 2>/dev/null | grep '\.'h$ | xargs grep xxx
+sudo find <sdk> -type f 2>/dev/null | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
+
+    
+Examples:
+
+O_NOFOLLOW in <sdk>/usr/include/sys/fcntl.h: 0x0100
+<sdk>/usr/include/fcntl.h
+  <sdk>/usr/include/sys/fcntl.h: O_NOFOLLOW = 0x0100
+
+TIOCSBRK in <sdk>/usr/include/sys/ttycom.h: _IO('t', 123) = 0x2000747b
+<sdk>/usr/include/sys/ioctl.h
+  <sdk>/usr/include/sys/ttycom.h: _IO('t', 123) = 0x2000747b
+<sdk>/usr/include/termios.h
+  <sdk>/usr/include/sys/termios.h
+    <sdk>/usr/include/sys/ttycom.h: _IO('t', 123) = 0x2000747b
+
+IOCPARM_MASK in <sdk>/usr/include/sys/ioccom.h: 0x1fff 
+<sdk>/usr/include/sys/ioctl.h
+  <sdk>/usr/include/sys/ioccom.h: IOCPARM_MASK = 0x1fff
+
+IOSSIOSPEED in <iok>/serial/ioss.h:
+
+OSX sizes:
+ 1 = sizeof(char)
+ 1 = sizeof(unsigned char)
+ 2 = sizeof(short)
+ 2 = sizeof(unsigned short)
+ 4 = sizeof(int)
+ 4 = sizeof(unsigned int)
+ 8 = sizeof(long)
+ 8 = sizeof(unsigned long)
+ 4 = sizeof(float)
+ 8 = sizeof(double)
+16 = sizeof(long double)
+ 8 = sizeof(size_t)
+ 8 = sizeof(ptrdiff_t)
+ 8 = sizeof(time_t)
+ 8 = sizeof(long long)
+ 8 = sizeof(unsigned long long)
+ 8 = sizeof(uintmax_t)
+ 1 = sizeof(int8_t)
+ 2 = sizeof(int16_t)
+ 4 = sizeof(int32_t)
+ 8 = sizeof(int64_t)
+ 1 = sizeof(int_least8_t)
+ 2 = sizeof(int_least16_t)
+ 4 = sizeof(int_least32_t)
+ 8 = sizeof(int_least64_t)
+ 1 = sizeof(int_fast8_t)
+ 2 = sizeof(int_fast16_t)
+ 4 = sizeof(int_fast32_t)
+ 8 = sizeof(int_fast64_t)
+ 8 = sizeof(uintptr_t)
+ 8 = sizeof(void *)
+ 8 = sizeof(char *)
+ 8 = sizeof(short *)
+ 8 = sizeof(int *)
+ 8 = sizeof(long *)
+ 8 = sizeof(float *)
+ 8 = sizeof(double *)
+ 8 = sizeof(int (*)(void))
+ 8 = sizeof(double (*)(void))
+ 8 = sizeof(char *(*)(void))
+ 1 = sizeof(struct { char a; })
+ 2 = sizeof(struct { short a; })
+ 4 = sizeof(struct { int a; })
+ 8 = sizeof(struct { long a; })
+ 4 = sizeof(struct { float a; })
+ 8 = sizeof(struct { double a; })
+16 = sizeof(struct { char a; double b; })
+16 = sizeof(struct { short a; double b; })
+16 = sizeof(struct { long a; double b; })
+ 4 = sizeof(struct { char a; char b; short c; })
+16 = sizeof(struct { char a; char b; long c; })
+ 4 = sizeof(struct { short a; short b; })
+ 6 = sizeof(struct { char a[3]; char b[3]; })
+ 8 = sizeof(struct { char a[3]; char b[3]; short c; })
+16 = sizeof(struct { long double a; })
+32 = sizeof(struct { char a; long double b; })
+16 = sizeof(struct { char a; long long b; })
+16 = sizeof(struct { char a; uintmax_t b; })
+
+From https://stackoverflow.com/questions/2383520/
+  on-mac-os-x-in-c-on-a-64-bit-cpu-is-there-a-type-that-is-64-bits
+
