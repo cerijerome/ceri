@@ -1,0 +1,90 @@
+Purejavacomm
+============
+
+Open
+- open(port, O_RDWR | O_NOCTTY | O_NONBLOCK) why nonblock if clearing next?
+- clear nonblock file flag:
+  - flags = fcntl(fd, F_GETFL, 0)
+  - flags &= ~O_NONBLOCK
+  - fcntl(fd, F_SETFL, flags)
+- set attributes
+  - tcgetattr(fd, termios)
+  - cfmakeraw(fd, termios)
+    - c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON)
+    - c_oflag &= ~OPOST;
+    - c_cflag = (c_cflag & ~(CSIZE | PARENB)) | CS8;
+    - c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN)
+  - manually set flags
+    - c_cflag |= CLOCAL | CREAD
+    - c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG) // not required?
+    - c_oflag &= ~OPOST // not required?
+    - c_cc[VSTART] = (byte) DC1
+    - c_cc[VSTOP] = (byte) DC3
+    - c_cc[VMIN] = 0;
+    - c_cc[VTIME] = 0;
+  - tcgstattr(fd, TCSANOW, termios)
+- set serial port params (default 9800/8/N/N/1)
+  - set speed
+    - linux:
+      - if standard BNNN
+        - clear custom flag
+          - ioctl(fd, TIOCGSERIAL, serial)
+          - serial.flags &= ~ASYNC_SPD_MASK
+          - ioctl(fd, TIOCSSERIAL, serial)
+        - cfsetispeed(termios, b)
+        - cfsetospeed(termios, b)
+        - tcsetattr(fd, TCSANOW, termios)
+      - if non-standard
+        - set custom alias for B38400
+          - ioctl(fd, TIOCGSERIAL, serial)
+          - serial.flags = (serial.flags & ~ASYNC_SPD_MASK) | ASYNC_SPD_CUST
+          - serial.custom_divisor = round(serial.baud_base / speed)
+          - ioctl(fd, TIOCSSERIAL, serial)
+        - cfsetispeed(termios, B38400)
+        - cfsetospeed(termios, B38400)
+        - tcsetattr(fd, TCSANOW, termios)
+    - mac:
+      - cfsetispeed(termios, speed)
+      - cfsetospeed(termios, speed)
+      - if tcsetattr(fd, TCSANOW, termios) fails:
+        - cfsetispeed(termios, 9600)
+        - cfsetospeed(termios, 9600)
+        - tcsetattr(fd, TCSANOW, termios)
+        - ioctl(fd, IOSSIOSPEED, speed)
+  - data bits: db = CS5, CS6, CS7, CS8
+  - stop bits: sb = 1, 2, 2 (1, 1.5, 2)
+  - fi = c_iflag & ~(INPCK | ISTRIP)
+  - parity:
+    - fc = c_cflag & ~(PARENB | CMSPAR | PARODD)
+    - even: fc |= PARENB
+    - odd: fc |= PARENB | PARODD
+    - mark: fc |= PARENB | CMSPAR | PARODD
+    - space: fc |= PARENB | CMSPAR
+  - fc = (fc & ~CSIZE) | db
+  - sb == 2 ? fc |= CSTOPB : fc &=~CSTOPB
+  - c_cflag = fc, c_iflag = fi
+  - tcsetattr(fd, TCSANOW, termios)
+  - save settings to member fields
+  - reset old termios on exception
+- set flow control (none)
+  - c_iflag &= ~IXANY
+  - rts in/out: c_cflag |= CRTSCTS else c_cflag &= ~CRTSCTS
+  - xonoff in: c_iflag |= IXOFF else c_iflag &= ~IXOFF
+  - xonoff out: c_iflag |= IXON else c_iflag &= ~IXON
+  - tcsetattr(fd, TCSANOW, termios)
+- get control line states
+  - ioctl(fd, TIOCMGET, ioctl) // int ioctl[0]
+- create pipe
+  - pipe(new int[2]) // read fd, write fd
+  - set O_NONBLOCK on read fd
+    - fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK)
+- start daemon thread
+  - poll or select
+  - notify read, write, control line change
+
+
+
+
+
+
+

@@ -2,6 +2,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <termios.h>
+#include <IOKit/serial/ioss.h>
 
 /*
  * Example code to print symbols and type sizes.
@@ -20,6 +22,7 @@
 #define SYM(x) print_symbol(#x,STR(x))
 #define SYMI(x) print_symbol_i(#x,x)
 #define SIZE(x) print_symbol_i("sizeof("#x")",sizeof(x))
+#define VERIFY(x) verify_int((x),STR(x))
 
 #define FMT_PRINT 0
 #define FMT_JAVA_HEX 1
@@ -35,9 +38,16 @@ void print_symbol(const char *name, const char *symbol) {
 }
 
 void print_symbol_i(const char *name, int symbol) {
-	if (format == FMT_PRINT) printf("%s = 0x%x %d\n", name, symbol, symbol);
+	if (format == FMT_PRINT) printf("%s = 0x%x 0%o %d\n", name, symbol, symbol, symbol);
 	if (format == FMT_JAVA_HEX) printf("public static final int %s = 0x%x;\n", name, symbol);
 	if (format == FMT_JAVA_DEC) printf("public static final int %s = %d;\n", name, symbol);
+}
+
+int verify_int(int r, const char *s) {
+    printf("%s => 0x%x 0%o %d", s, r, r, r);
+    if (r < 0) printf(" [ERROR]\n");
+    else printf("\n");
+    return r;
 }
 
 #define EMPTY
@@ -54,13 +64,11 @@ int main(int argc, char *argv[]) {
 	SYM(O_CREAT);
 	SYMI(O_CREAT);
 
-	SIZE(int);
 	SIZE(long);
-	SIZE(long int);
-	SIZE(long long);
-	SIZE(void);
 	SIZE(void*);
 	SIZE(mode_t);
+	SIZE(size_t);
+	SIZE(speed_t);
 
 	return 0;
 }

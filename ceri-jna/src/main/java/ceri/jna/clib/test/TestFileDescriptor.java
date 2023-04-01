@@ -19,6 +19,8 @@ public class TestFileDescriptor implements FileDescriptor {
 	public final CallSync.Accept<ByteProvider> write = CallSync.consumer(null, true);
 	// List<?> = int offset, Seek whence
 	public final CallSync.Apply<List<?>, Integer> seek = CallSync.function(null, 0);
+	// List<?> = int cmd, Object... objs
+	public final CallSync.Apply<List<?>, Integer> fcntl = CallSync.function(null, 0);
 	// List<?> = int request, Object... objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
 	public final CallSync.Run close = CallSync.runnable(true);
@@ -58,15 +60,26 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
+	public int fcntl(String name, int cmd, Object... objs) throws IOException {
+		return control(fcntl, cmd, objs);
+	}
+
+	@Override
 	public int ioctl(String name, int request, Object... objs) throws IOException {
-		List<Object> list = new ArrayList<>();
-		Collections.addAll(list, request);
-		Collections.addAll(list, objs);
-		return ioctl.apply(list, IO_ADAPTER);
+		return control(ioctl, request, objs);
 	}
 
 	@Override
 	public void close() throws IOException {
 		close.run(IO_ADAPTER);
 	}
+
+	private int control(CallSync.Apply<List<?>, Integer> control, int value, Object... objs)
+		throws IOException {
+		List<Object> list = new ArrayList<>();
+		Collections.addAll(list, value);
+		Collections.addAll(list, objs);
+		return control.apply(list, IO_ADAPTER);
+	}
+
 }

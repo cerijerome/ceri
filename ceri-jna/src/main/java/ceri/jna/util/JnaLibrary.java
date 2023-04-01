@@ -7,7 +7,6 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
 import ceri.common.util.OsUtil;
 import ceri.common.util.SystemVars;
@@ -93,7 +92,7 @@ public class JnaLibrary<T extends Library> {
 
 	private void loadNative() {
 		logger.debug("Loading {} [{}]", name, ReflectUtil.name(cls));
-		loaded = BasicUtil.uncheckedCast(Native.load(name, cls));
+		loaded = Native.load(name, cls);
 		logger.info("Loaded {} [{}]", name, ReflectUtil.name(cls));
 	}
 

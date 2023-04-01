@@ -121,6 +121,11 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
+	public int fcntl(String name, int cmd, Object... objs) throws IOException {
+		return CLib.fcntl(name, fd(), cmd, objs);
+	}
+
+	@Override
 	public int ioctl(String name, int request, Object... objs) throws IOException {
 		return CLib.ioctl(name, fd(), request, objs);
 	}

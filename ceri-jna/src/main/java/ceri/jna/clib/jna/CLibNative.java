@@ -72,9 +72,12 @@ public interface CLibNative extends Library {
 
 	/* fcntl.h */
 
-	// int open(const char *pathname, int flags)
+	// int open(const char *pathname, int flags, ...)
 	int open(String path, int flags, Object... args) throws LastErrorException;
 
+	// int fcntl(int fd, int cmd, ...);
+	int fcntl(int fd, int cmd, Object... args) throws LastErrorException;
+	
 	/* ioctl.h */
 
 	// int ioctl(int d, int request, ...)

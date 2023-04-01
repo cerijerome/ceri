@@ -23,6 +23,8 @@ Search:
 sudo find /usr/include -type f | grep '\.'h$ | xargs grep xxx
 sudo find /usr/include -type f | grep '\.'h$ | xargs grep include | grep xxx/xxx'\.'h
 
+Search source online:
+https://github.com/raspberrypi/linux
 
 Examples:
 

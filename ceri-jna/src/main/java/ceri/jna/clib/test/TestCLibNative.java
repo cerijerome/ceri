@@ -46,6 +46,8 @@ public class TestCLibNative implements CLibNative {
 	public final CallSync.Apply<List<?>, Integer> poll = CallSync.function(null, 0);
 	// List<?> = Fd f, int request, Object... objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
+	// List<?> = Fd f, int cmd, Object... objs
+	public final CallSync.Apply<List<?>, Integer> fcntl = CallSync.function(null, 0);
 	// List<?> = Fd f, Pointer termios
 	public final CallSync.Apply<List<?>, Integer> tcgetattr = CallSync.function(null, 0);
 	// List<?> = Fd f, int optional_actions, Pointer termios
@@ -159,7 +161,12 @@ public class TestCLibNative implements CLibNative {
 
 	@Override
 	public int ioctl(int fd, int request, Object... objs) throws LastErrorException {
-		return ioctl(fd(fd), request, objs);
+		return control(ioctl, fd(fd), request, objs);
+	}
+
+	@Override
+	public int fcntl(int fd, int request, Object... objs) throws LastErrorException {
+		return control(fcntl, fd(fd), request, objs);
 	}
 
 	@Override
@@ -244,11 +251,11 @@ public class TestCLibNative implements CLibNative {
 		throw new LastErrorException(errorCode);
 	}
 
-	protected int ioctl(Fd f, int request, Object... objs) throws LastErrorException {
+	protected int control(CallSync.Apply<List<?>, Integer> control, Fd f,
+		int value, Object... objs) throws LastErrorException {
 		List<Object> list = new ArrayList<>();
-		Collections.addAll(list, f, request);
+		Collections.addAll(list, f, value);
 		Collections.addAll(list, objs);
-		return ioctl.apply(list);
+		return control.apply(list);
 	}
-
 }

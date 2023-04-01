@@ -101,9 +101,11 @@ public class SelfHealingFd extends LoopingExecutor
 		return execReturn(fd -> fd.seek(offset, whence));
 	}
 
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
+	@Override
+	public int fcntl(String name, int cmd, Object... objs) throws IOException {
+		return execReturn(fd -> fd.fcntl(name, cmd, objs));
+	}
+
 	@Override
 	public int ioctl(String name, int request, Object... objs) throws IOException {
 		return execReturn(fd -> fd.ioctl(name, request, objs));

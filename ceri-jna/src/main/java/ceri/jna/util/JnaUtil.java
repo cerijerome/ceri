@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
+import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -177,6 +178,22 @@ public class JnaUtil {
 	 */
 	public static int size(Memory m) {
 		return m == null ? 0 : Math.toIntExact(m.size());
+	}
+
+	/**
+	 * Perform a bitwise-and on an integer type value.
+	 */
+	public static <T extends IntegerType> T and(T t, long value) {
+		t.setValue(t.longValue() & value);
+		return t;
+	}
+
+	/**
+	 * Perform a bitwise-or on an integer type value.
+	 */
+	public static <T extends IntegerType> T or(T t, long value) {
+		t.setValue(t.longValue() | value);
+		return t;
 	}
 
 	/**

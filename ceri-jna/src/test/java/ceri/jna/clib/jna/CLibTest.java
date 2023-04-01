@@ -254,59 +254,35 @@ public class CLibTest {
 	}
 
 	@Test
+	public void testTcsetattr() throws CException {
+		TestCLibNative.exec(lib -> {
+			int fd = CLib.open("test", 0);
+			var termios = new CLib.Mac.termios();
+			CLib.tcsetattr(fd, 1, termios);
+			lib.tcsetattr.assertAuto(List.of(lib.fd(fd), 1, termios.getPointer()));
+		});
+	}
+
+	@Test
+	public void testTcgetattr() throws CException {
+		TestCLibNative.exec(lib -> {
+			int fd = CLib.open("test", 0);
+			lib.tcgetattr.autoResponse(list -> {
+				Pointer p = (Pointer) list.get(1);
+				p.setNativeLong(0, JnaUtil.unlong(0x1234));
+				return 0;
+			});
+			var t = CLib.tcgetattr(fd, new CLib.Linux.termios());
+			assertEquals(t.c_iflag, JnaUtil.unlong(0x1234));
+		});
+	}
+
+	@Test
 	public void testMacIossiospeed() throws CException {
 		TestCLibNative.exec(lib -> {
 			int fd = CLib.open("test", 0);
 			CLib.Mac.iossiospeed(fd, 250000);
 			lib.ioctl.assertAuto(List.of(lib.fd(fd), CLib.Mac.IOSSIOSPEED, 250000));
-		});
-	}
-
-	@Test
-	public void testMacTcsetattr() throws CException {
-		TestCLibNative.exec(lib -> {
-			int fd = CLib.open("test", 0);
-			var termios = new CLib.Mac.termios();
-			CLib.Mac.tcsetattr(fd, 1, termios);
-			lib.tcsetattr.assertAuto(List.of(lib.fd(fd), 1, termios.getPointer()));
-		});
-	}
-
-	@Test
-	public void testMacTcgetattr() throws CException {
-		TestCLibNative.exec(lib -> {
-			int fd = CLib.open("test", 0);
-			lib.tcgetattr.autoResponse(list -> {
-				Pointer p = (Pointer) list.get(1);
-				p.setNativeLong(0, JnaUtil.unlong(0x1234));
-				return 0;
-			});
-			var t = CLib.Mac.tcgetattr(fd);
-			assertEquals(t.c_iflag, JnaUtil.unlong(0x1234));
-		});
-	}
-
-	@Test
-	public void testLinuxTcsetattr() throws CException {
-		TestCLibNative.exec(lib -> {
-			int fd = CLib.open("test", 0);
-			var termios = new CLib.Linux.termios();
-			CLib.Linux.tcsetattr(fd, 1, termios);
-			lib.tcsetattr.assertAuto(List.of(lib.fd(fd), 1, termios.getPointer()));
-		});
-	}
-
-	@Test
-	public void testLinuxTcgetattr() throws CException {
-		TestCLibNative.exec(lib -> {
-			int fd = CLib.open("test", 0);
-			lib.tcgetattr.autoResponse(list -> {
-				Pointer p = (Pointer) list.get(1);
-				p.setNativeLong(0, JnaUtil.unlong(0x1234));
-				return 0;
-			});
-			var t = CLib.Linux.tcgetattr(fd);
-			assertEquals(t.c_iflag, JnaUtil.unlong(0x1234));
 		});
 	}
 

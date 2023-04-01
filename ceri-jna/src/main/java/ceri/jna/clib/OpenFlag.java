@@ -8,7 +8,7 @@ import ceri.common.text.StringUtil;
 import ceri.jna.clib.jna.CLib;
 
 /**
- * Flags for CLib open() call, usually defined in fcntl.h.
+ * Flags for CLib open() and specific fcntl() calls, usually defined in fcntl.h.
  * <p/>
  * Warning: numbers vary by specific OS, and are verified only for Mac, Raspberry Pi.
  */

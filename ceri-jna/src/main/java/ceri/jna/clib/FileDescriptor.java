@@ -108,6 +108,18 @@ public interface FileDescriptor extends Closeable {
 	}
 
 	/**
+	 * Performs a fcntl command. Arguments and return value depend on the function.
+	 */
+	default int fcntl(int cmd, Object... objs) throws IOException {
+		return fcntl((String) null, cmd, objs);
+	}
+
+	/**
+	 * Performs a fcntl command. Arguments and return value depend on the function.
+	 */
+	int fcntl(String name, int cmd, Object... objs) throws IOException;
+	
+	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	default int ioctl(int request, Object... objs) throws IOException {
@@ -172,6 +184,11 @@ public interface FileDescriptor extends Closeable {
 			return 0;
 		}
 
+		@Override
+		public int fcntl(String name, int cmd, Object... objs) throws IOException {
+			return 0;
+		}
+		
 		@Override
 		public int ioctl(String name, int request, Object... objs) throws IOException {
 			return 0;
