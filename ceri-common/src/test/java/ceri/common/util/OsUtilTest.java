@@ -1,11 +1,9 @@
 package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.common.test.CallSync;
 
 public class OsUtilTest {
 
@@ -65,9 +63,9 @@ public class OsUtilTest {
 
 	@Test
 	public void testUnsupportedOs() {
-		assertThrown(() -> { 
+		assertThrown(() -> {
 			throw OsUtil.unsupportedOs();
 		});
 	}
-	
+
 }
