@@ -36,8 +36,8 @@ public class FractionBehavior {
 
 	@Test
 	public void shouldMultiplyFractions() {
-		assertFraction(Fraction.of(0, 1).multiply(Fraction.of(0, 1)), 0, 1);
-		assertFraction(Fraction.of(0, 1).multiply(Fraction.of(1, 1)), 0, 1);
+		assertFraction(Fraction.of(0).multiply(Fraction.of(0, 1)), 0, 1);
+		assertFraction(Fraction.of(0, 1).multiply(Fraction.of(1)), 0, 1);
 		assertFraction(Fraction.of(1, 1).multiply(Fraction.of(0, 1)), 0, 1);
 		assertFraction(Fraction.of(1, 1).multiply(Fraction.of(1, 1)), 1, 1);
 		assertFraction(Fraction.of(7, 3).multiply(Fraction.of(2, 5)), 14, 15);

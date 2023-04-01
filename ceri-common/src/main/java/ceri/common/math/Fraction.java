@@ -21,6 +21,10 @@ public class Fraction {
 	public final long denominator; // always > 0
 	public final double value;
 
+	public static Fraction of(long numerator) {
+		return of(numerator, 1);
+	}
+	
 	public static Fraction of(long numerator, long denominator) {
 		if (denominator == 0) throw new IllegalArgumentException("Zero denominator");
 		if (numerator == 0) return ZERO;

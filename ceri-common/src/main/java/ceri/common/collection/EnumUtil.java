@@ -29,7 +29,7 @@ public class EnumUtil {
 	}
 
 	/**
-	 * Finds the first enum matching the filter.
+	 * Finds the first enum matching the filter; returns null if no match.
 	 */
 	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
 		return find(cls, filter, null);

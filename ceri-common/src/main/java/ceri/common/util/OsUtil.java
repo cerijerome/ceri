@@ -47,6 +47,10 @@ public class OsUtil {
 		return BasicUtil.conditionalInt(IS_LINUX, linux, other);
 	}
 
+	public static UnsupportedOperationException unsupportedOs() {
+		return new UnsupportedOperationException("Not supported: " + FULL_DESCRIPTOR);
+	}
+	
 	private static boolean matches(String s, String regex) {
 		Pattern pattern = Pattern.compile(regex);
 		return pattern.matcher(s).find();
