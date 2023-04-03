@@ -253,6 +253,13 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Convenience constructor for unsigned native long from uint.
+	 */
+	public static NativeLong unlong(int value) {
+		return unlong(MathUtil.uint(value));
+	}
+
+	/**
 	 * Get unsigned value from pointer.
 	 */
 	public static long unlong(Pointer p, int offset) {
@@ -316,6 +323,13 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Creates a reference containing the unsigned value.
+	 */
+	public static NativeLongByReference unlongRef(int value) {
+		return nlongRef(MathUtil.uint(value));
+	}
+
+	/**
 	 * Creates a reference containing the value.
 	 */
 	public static LongByReference longRef(long value) {
@@ -362,6 +376,13 @@ public class JnaUtil {
 	 */
 	public static Pointer unlongRefPtr(long value) {
 		return unlongRef(value).getPointer();
+	}
+
+	/**
+	 * Creates a reference pointer containing the value.
+	 */
+	public static Pointer unlongRefPtr(int value) {
+		return unlongRefPtr(MathUtil.uint(value));
 	}
 
 	/**

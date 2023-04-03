@@ -160,13 +160,13 @@ public class TestCLibNative implements CLibNative {
 	}
 
 	@Override
-	public int ioctl(int fd, int request, Object... objs) throws LastErrorException {
-		return control(ioctl, fd(fd), request, objs);
+	public int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException {
+		return control(ioctl, fd(fd), request.intValue(), objs);
 	}
 
 	@Override
-	public int fcntl(int fd, int request, Object... objs) throws LastErrorException {
-		return control(fcntl, fd(fd), request, objs);
+	public int fcntl(int fd, int cmd, Object... objs) throws LastErrorException {
+		return control(fcntl, fd(fd), cmd, objs);
 	}
 
 	@Override

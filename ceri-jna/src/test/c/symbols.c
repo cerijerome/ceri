@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 	SYM(_POSIX_C_SOURCE);
 	SYM(_DARWIN_C_SOURCE);
 	SYM(O_CREAT);
-	SYMI(O_CREAT);
+	SYMI(IOSSIOSPEED);
 
 	SIZE(long);
 	SIZE(void*);

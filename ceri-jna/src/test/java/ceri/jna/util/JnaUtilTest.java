@@ -228,7 +228,7 @@ public class JnaUtilTest {
 		assertEquals(JnaUtil.shortRef(0x8000).getValue(), (short) 0x8000);
 		assertEquals(JnaUtil.intRef(0x80000000).getValue(), 0x80000000);
 		assertEquals(JnaUtil.nlongRef(0x80000000).getValue(), new NativeLong(0x80000000));
-		assertEquals(JnaUtil.unlongRef(0x80000000).getValue(), new NativeLong(0x80000000, true));
+		assertEquals(JnaUtil.unlongRef(0x80000000).getValue(), new NativeLong(0x80000000L, true));
 		assertEquals(JnaUtil.longRef(0x8000000000000000L).getValue(), 0x8000000000000000L);
 	}
 
@@ -239,7 +239,7 @@ public class JnaUtilTest {
 		assertEquals(JnaUtil.intRefPtr(0x80000000).getInt(0), 0x80000000);
 		assertEquals(JnaUtil.nlongRefPtr(0x80000000).getNativeLong(0), new NativeLong(0x80000000));
 		assertEquals(JnaUtil.unlongRefPtr(0x80000000).getNativeLong(0),
-			new NativeLong(0x80000000, true));
+			new NativeLong(0x80000000L, true));
 		assertEquals(JnaUtil.longRefPtr(0x8000000000000000L).getLong(0), 0x8000000000000000L);
 	}
 

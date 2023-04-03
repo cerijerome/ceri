@@ -36,6 +36,10 @@ import static ceri.jna.clib.jna.CLib.CLOCAL;
 import static ceri.jna.clib.jna.CLib.CMSPAR;
 import static ceri.jna.clib.jna.CLib.CREAD;
 import static ceri.jna.clib.jna.CLib.CRTSCTS;
+import static ceri.jna.clib.jna.CLib.CS5;
+import static ceri.jna.clib.jna.CLib.CS6;
+import static ceri.jna.clib.jna.CLib.CS7;
+import static ceri.jna.clib.jna.CLib.CS8;
 import static ceri.jna.clib.jna.CLib.CSIZE;
 import static ceri.jna.clib.jna.CLib.CSTOPB;
 import static ceri.jna.clib.jna.CLib.F_GETFL;
@@ -57,10 +61,7 @@ import static ceri.jna.clib.jna.CLib.Linux.ASYNC_SPD_CUST;
 import static ceri.jna.clib.jna.CLib.Linux.ASYNC_SPD_MASK;
 import com.sun.jna.NativeLong;
 import ceri.common.collection.BiMap;
-import ceri.common.data.ByteUtil;
-import ceri.common.test.BinaryPrinter;
 import ceri.common.util.OsUtil;
-import ceri.jna.clib.OpenFlag;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.util.Struct;
@@ -121,33 +122,26 @@ public class CSerial {
 	}
 
 	private static void initTermios(NativeLong iflag, NativeLong cflag, byte[] cc) {
-		long cf = cflag.longValue() | CLOCAL | CREAD;
-		cf = configureParamCflag(cf, DATABITS_8, STOPBITS_1, PARITY_NONE);
-		cf = configureFlowControlCflag(cf, FLOWCONTROL_NONE);
-		cflag.setValue(cf);
-		iflag.setValue(configureFlowControlIflag(iflag.longValue(), FLOWCONTROL_NONE));
+		iflag.setValue(iflag.longValue() & ~(IXANY | IXOFF | IXON));
+		cflag.setValue((cflag.longValue() & ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD | CRTSCTS))
+			| CLOCAL | CREAD | CS8);
 		cc[VSTART] = DC1;
 		cc[VSTOP] = DC3;
 		cc[VMIN] = 0;
 		cc[VTIME] = 0;
 	}
 
-	private static void setParamCflag(NativeLong cflag, int dataBits, int stopBits, int parity) {
-		cflag.setValue(configureParamCflag(cflag.longValue(), dataBits, stopBits, parity));
-	}
-
-	private static long configureParamCflag(long cflag, int dataBits, int stopBits, int parity) {
-		cflag &= ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD);
-		cflag |= dataBitFlag(dataBits) | stopBitFlag(stopBits) | parityFlags(parity);
-		return cflag;
+	private static void setParams(NativeLong cflag, int dataBits, int stopBits, int parity) {
+		cflag.setValue((cflag.longValue() & ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD))
+			| dataBitFlag(dataBits) | stopBitFlag(stopBits) | parityFlags(parity));
 	}
 
 	private static long dataBitFlag(int dataBits) {
 		return switch (dataBits) {
-		case DATABITS_5 -> CLib.CS5;
-		case DATABITS_6 -> CLib.CS6;
-		case DATABITS_7 -> CLib.CS7;
-		case DATABITS_8 -> CLib.CS8;
+		case DATABITS_5 -> CS5;
+		case DATABITS_6 -> CS6;
+		case DATABITS_7 -> CS7;
+		case DATABITS_8 -> CS8;
 		default -> throw new IllegalArgumentException("Unsupported data bits: " + dataBits);
 		};
 	}
@@ -171,30 +165,25 @@ public class CSerial {
 		throw exceptionf("Unsupported parity: 0x%02x", parity);
 	}
 
-	private static long configureFlowControlCflag(long cflag, int mode) {
-		cflag &= ~CRTSCTS;
-		if ((mode & (FLOWCONTROL_RTSCTS_IN | FLOWCONTROL_RTSCTS_OUT)) != 0) cflag |= CRTSCTS;
-		return cflag;
+	private static void setFlowControl(NativeLong iflag, NativeLong cflag, int mode) {
+		iflag.setValue((iflag.longValue() & ~(IXANY | IXOFF | IXON)) | flowControlXonXoff(mode));
+		cflag.setValue((cflag.longValue() & ~CRTSCTS) | flowControlRtsCts(mode));
 	}
 
-	private static long configureFlowControlIflag(long iflag, int mode) {
-		iflag &= ~(IXANY | IXOFF | IXON);
-		if ((mode & FLOWCONTROL_XONXOFF_IN) != 0) iflag |= IXOFF;
-		if ((mode & FLOWCONTROL_XONXOFF_OUT) != 0) iflag |= IXON;
-		return iflag;
+	private static long flowControlRtsCts(int mode) {
+		return (mode & (FLOWCONTROL_RTSCTS_IN | FLOWCONTROL_RTSCTS_OUT)) == 0 ? 0 : CRTSCTS;
 	}
 
-	private static <T extends CLib.termios> void configureBaudCode(T tty, int baudCode)
+	private static long flowControlXonXoff(int mode) {
+		return ((mode & FLOWCONTROL_XONXOFF_IN) == 0 ? 0 : IXOFF)
+			| ((mode & FLOWCONTROL_XONXOFF_OUT) == 0 ? 0 : IXON);
+	}
+
+	private static <T extends CLib.termios> void setBaudCode(T tty, int baudCode)
 		throws CException {
 		Struct.write(tty);
 		CLib.cfsetispeed(tty, baudCode);
 		CLib.cfsetospeed(tty, baudCode);
-	}
-
-	private static int printFlags(int flags) {
-		BinaryPrinter.STD.print(ByteUtil.toMsb(flags));
-		System.out.println(OpenFlag.decode(flags));
-		return flags;
 	}
 
 	private static int baudCode(int baud) {
@@ -220,25 +209,24 @@ public class CSerial {
 		private static void initPort(int fd) throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
 			CLib.cfmakeraw(tty);
-			initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
-			configureBaudCode(tty, B9600);
+			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
+			CSerial.setBaudCode(tty, B9600);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 			throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
-			setParamCflag(tty.c_cflag, dataBits, stopBits, parity);
-			int baudCode = baudCode(baud);
-			configureBaudCode(tty, baudCode == BAUD_UNSUPPORTED ? B9600 : baudCode);
+			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
+			int baudCode = CSerial.baudCode(baud);
+			CSerial.setBaudCode(tty, baudCode == BAUD_UNSUPPORTED ? B9600 : baudCode);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 			if (baudCode == BAUD_UNSUPPORTED) CLib.Mac.iossiospeed(fd, baud);
 		}
 
 		private static void setFlowControl(int fd, int mode) throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
-			tty.c_iflag.setValue(configureFlowControlIflag(tty.c_iflag.longValue(), mode));
-			tty.c_cflag.setValue(configureFlowControlCflag(tty.c_cflag.longValue(), mode));
+			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 		}
 	}
@@ -249,36 +237,35 @@ public class CSerial {
 		private static void initPort(int fd) throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
 			CLib.cfmakeraw(tty);
-			initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
-			configureBaudCode(tty, B9600);
+			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
+			CSerial.setBaudCode(tty, B9600);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 			throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
-			setParamCflag(tty.c_cflag, dataBits, stopBits, parity);
-			configureBaud(fd, tty, baud);
+			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
+			setBaud(fd, tty, baud);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setFlowControl(int fd, int mode) throws CException {
 			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
-			tty.c_iflag.setValue(configureFlowControlIflag(tty.c_iflag.longValue(), mode));
-			tty.c_cflag.setValue(configureFlowControlCflag(tty.c_cflag.longValue(), mode));
+			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
 			CLib.tcsetattr(fd, TCSANOW, tty);
 		}
-		
-		private static void configureBaud(int fd, CLib.Linux.termios tty, int baud)
+
+		private static void setBaud(int fd, CLib.Linux.termios tty, int baud)
 			throws CException {
 			int baudCode = CSerial.baudCode(baud);
 			if (baudCode == BAUD_UNSUPPORTED) {
 				enableCustomBaud(fd, baud);
 				verifyCustomBaud(fd, baud);
-				configureBaudCode(tty, B38400);
+				CSerial.setBaudCode(tty, B38400);
 			} else {
 				disableCustomBaud(fd);
-				configureBaudCode(tty, baudCode);
+				CSerial.setBaudCode(tty, baudCode);
 			}
 		}
 

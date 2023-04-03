@@ -321,7 +321,7 @@ public class CLib {
 		return caller.verifyInt(() -> lib().fcntl(fd, request, objs), errorMsg);
 	}
 
-	/* ioctl.h */
+	/* sys/ioctl.h */
 
 	public static final int _IOC_SIZEBITS;
 	private static final int _IOC_SIZEMASK;
@@ -373,8 +373,8 @@ public class CLib {
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
-		return caller.verifyInt(() -> lib().ioctl(fd, request, objs), "ioctl:" + name, fd, request,
-			objs);
+		var n = JnaUtil.unlong(request);
+		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
 	}
 
 	/**
@@ -382,7 +382,8 @@ public class CLib {
 	 */
 	public static int ioctl(Supplier<String> errorMsg, int fd, int request, Object... objs)
 		throws CException {
-		return caller.verifyInt(() -> lib().ioctl(fd, request, objs), errorMsg);
+		var n = JnaUtil.unlong(request);
+		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), errorMsg);
 	}
 
 	/* sys/ioctl.h */
@@ -578,7 +579,7 @@ public class CLib {
 			public NativeLong c_ospeed; // output speed
 		}
 
-		/* ioss.h */
+		/* IOKit/serial/ioss.h */
 
 		static final int IOSSIOSPEED = CLib._IOW('T', 2, NativeLong.SIZE); // 0x80085402
 
@@ -586,8 +587,8 @@ public class CLib {
 		 * Sets input and output speeds to a non-traditional baud rate. Value is not represented in
 		 * struct termios.
 		 */
-		public static void iossiospeed(int fd, int baud) throws CException {
-			var p = JnaUtil.unlongRefPtr(baud);
+		public static void iossiospeed(int fd, int speed) throws CException {
+			var p = JnaUtil.unlongRefPtr(speed);
 			CLib.ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, p);
 		}
 	}
@@ -775,7 +776,7 @@ public class CLib {
 			O_DIRECTORY = 0x4000;
 			O_NOFOLLOW = 0x8000;
 			O_CLOEXEC = 0x80000;
-			/* ioctl.h */
+			/* sys/ioctl.h */
 			_IOC_SIZEBITS = 14;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
 			IOC_VOID = 0;

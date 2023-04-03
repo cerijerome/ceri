@@ -282,7 +282,10 @@ public class CLibTest {
 		TestCLibNative.exec(lib -> {
 			int fd = CLib.open("test", 0);
 			CLib.Mac.iossiospeed(fd, 250000);
-			lib.ioctl.assertAuto(List.of(lib.fd(fd), CLib.Mac.IOSSIOSPEED, 250000));
+			var list = lib.ioctl.awaitAuto();
+			assertEquals(list.get(0), lib.fd(fd));
+			assertEquals(list.get(1), CLib.Mac.IOSSIOSPEED);
+			assertEquals(JnaUtil.unlong((Pointer) list.get(2), 0), 250000L);
 		});
 	}
 

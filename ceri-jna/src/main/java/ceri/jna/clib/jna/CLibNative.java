@@ -78,10 +78,10 @@ public interface CLibNative extends Library {
 	// int fcntl(int fd, int cmd, ...);
 	int fcntl(int fd, int cmd, Object... args) throws LastErrorException;
 	
-	/* ioctl.h */
+	/* sys/ioctl.h */
 
-	// int ioctl(int d, int request, ...)
-	int ioctl(int fd, int request, Object... objs) throws LastErrorException;
+	// int ioctl(int d, unsigned long request, ...)
+	int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException;
 
 	/* termios.h */
 
