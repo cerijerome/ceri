@@ -99,4 +99,16 @@ public class SystemVarsTest {
 		assertEquals(SystemVars.sys(name), System.getProperty(name));
 	}
 
+	@Test
+	public void testRemovable() {
+		assertEquals(SystemVars.env("!@#$%"), null);
+		assertEquals(SystemVars.sys("!@#$%"), null);
+		try (var x = SystemVars.removable("!@#$%", "test")) {
+			assertEquals(SystemVars.env("!@#$%"), "test");
+			assertEquals(SystemVars.sys("!@#$%"), "test");
+		}
+		assertEquals(SystemVars.env("!@#$%"), null);
+		assertEquals(SystemVars.sys("!@#$%"), null);
+	}
+
 }

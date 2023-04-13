@@ -227,6 +227,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.reflect.AnnotationUtilTest.class, //
 	ceri.common.reflect.CallerBehavior.class, //
 	ceri.common.reflect.CreateExceptionBehavior.class, //
+	ceri.common.reflect.FileClassLoaderBehavior.class, //
 	ceri.common.reflect.ReflectUtilTest.class, //
 	// score
 	ceri.common.score.CollectionScorersTest.class, //

@@ -9,6 +9,9 @@ import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
+/**
+ * Types and functions from {@code <sys/time.h>}
+ */
 public class CTime {
 	private static final long MSEC_USEC = 1000L;
 	private static final long USEC_NSEC = 1000L;
@@ -16,8 +19,6 @@ public class CTime {
 	private static final long SEC_USEC = 1000000L;
 
 	private CTime() {}
-
-	/* struct_timeval.h */
 
 	/**
 	 * A time value that is accurate to the nearest microsecond but also has a range of years.
@@ -76,8 +77,6 @@ public class CTime {
 			return Duration.ofSeconds(tv_sec.longValue(), tv_usec * USEC_NSEC);
 		}
 	}
-
-	/* time.h */
 
 	public static timeval gettimeofday() {
 		return timeval.from(Instant.now());

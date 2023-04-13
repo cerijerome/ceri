@@ -8,7 +8,7 @@ import java.net.Socket;
 import ceri.common.net.HostPort;
 
 /**
- * A test socket that delegates to a test streams for i/o.
+ * A test socket that delegates to test streams for i/o.
  */
 public class TestSocket extends Socket {
 	public final CallSync.Accept<HostPort> remote = CallSync.consumer(HostPort.NULL, true);

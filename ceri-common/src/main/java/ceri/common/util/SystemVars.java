@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.reflect.ReflectUtil;
 
 /**
@@ -89,6 +90,14 @@ public class SystemVars {
 	 */
 	public static void clear() {
 		vars.clear();
+	}
+
+	/**
+	 * Returns a closeable instance that sets an override, then removes it on close.
+	 */
+	public static RuntimeCloseable removable(String name, String value) {
+		set(name, value);
+		return () -> remove(name);
 	}
 
 	private static Map<String, String> addVars(Map<String, String> map) {

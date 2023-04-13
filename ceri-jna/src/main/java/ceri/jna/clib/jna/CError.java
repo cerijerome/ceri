@@ -5,11 +5,9 @@ import ceri.common.data.TypeTranscoder;
 import ceri.common.util.OsUtil;
 
 /**
- * Error types and codes.
+ * Error types and codes from {@code <errno.h>}.
  */
 public enum CError {
-
-	/* errno-base.h */
 
 	/** Operation not permitted */
 	EPERM(1),
@@ -79,8 +77,6 @@ public enum CError {
 	EDOM(33),
 	/** Math result not representable */
 	ERANGE(34),
-
-	/* errno.h */
 
 	/** Resource deadlock would occur */
 	EDEADLK(Os.EDEADLK), // (EDEADLOCK)
