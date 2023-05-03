@@ -5,10 +5,14 @@ package ceri.common.reflect;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
 import static ceri.common.text.StringUtil.NULL_STRING;
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.FunctionUtil;
@@ -181,6 +185,16 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Loads a class from its class file.
+	 */
+	public static byte[] loadClassFile(String name) throws IOException {
+		String fileName = name.replace('.', File.separatorChar) + ".class";
+		try (var in = ReflectUtil.class.getClassLoader().getResourceAsStream(fileName)) {
+			return in.readAllBytes();
+		}
+	}
+	
+	/**
 	 * Wraps class getConstructor with unchecked exception.
 	 */
 	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)
@@ -287,4 +301,12 @@ public class ReflectUtil {
 		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
 	}
+	
+	/**
+	 * Return the current list of JVM arguments.
+	 */
+	public static List<String> jvmArgs() {
+		return ManagementFactory.getRuntimeMXBean().getInputArguments();
+	}
+	
 }

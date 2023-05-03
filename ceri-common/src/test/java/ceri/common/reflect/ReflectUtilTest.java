@@ -12,6 +12,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.Fluent;
 
@@ -206,6 +207,13 @@ public class ReflectUtilTest {
 	public void testCreateObjectDefault() throws CreateException {
 		assertEquals(ReflectUtil.create(String.class), "");
 		ReflectUtil.create(Boolean.class);
+	}
+
+	@Test
+	public void testJvmArgs() {
+		Pattern p = Pattern.compile("-.+");
+		for (var arg : ReflectUtil.jvmArgs())
+			assertMatch(arg, p);
 	}
 
 	@Test
