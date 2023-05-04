@@ -1,7 +1,10 @@
 package ceri.jna.clib.jna;
 
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.collection.StreamUtil;
 import ceri.common.util.OsUtil;
 
 /**
@@ -299,13 +302,17 @@ public enum CError {
 	/** RPC version wrong */
 	ERPCMISMATCH(Os.ERPCMISMATCH);
 
-	private static final TypeTranscoder<CError> xcoder = TypeTranscoder.of(t -> t.code,
-		Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).toList());
+	private static final Map<Integer, CError> map =
+		Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).collect(Collectors
+			.toUnmodifiableMap(t -> t.code, Function.identity(), StreamUtil.mergeFirst()));
+	// private static final Map<Integer, CError> map = Collections.unmodifiableMap(
+	// Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).collect(Collectors
+	// .toMap(t -> t.code, Function.identity())));
 	public static final int UNDEFINED = Os.UNDEFINED;
 	public final int code;
 
 	public static CError from(int code) {
-		return xcoder.decode(code);
+		return map.get(code);
 	}
 
 	private CError(int code) {
@@ -316,7 +323,7 @@ public enum CError {
 		return code == UNDEFINED;
 	}
 
-	private static class Os {
+	static class Os {
 		private static final int UNDEFINED = -1;
 		private static final int EAGAIN;
 		private static final int EDEADLK;
@@ -432,7 +439,7 @@ public enum CError {
 		private Os() {}
 
 		static {
-			if (OsUtil.IS_MAC) {
+			if (OsUtil.os().mac) {
 				EAGAIN = 35;
 				EDEADLK = 11;
 				ENAMETOOLONG = 63;

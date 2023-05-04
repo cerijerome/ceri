@@ -12,6 +12,7 @@ import org.junit.Test;
 import ceri.common.util.BasicUtil;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.Struct;
 
 public class CPollTest {
@@ -44,6 +45,11 @@ public class CPollTest {
 			assertEquals(fds[0].revents, (short) POLLIN);
 			lib.poll.assertAuto(List.of(List.of(fds), 100));
 		});
+	}
+
+	@Test
+	public void testFields() {
+		JnaTestUtil.testForEachOs(CPoll.class);
 	}
 
 }

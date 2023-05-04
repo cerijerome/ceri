@@ -1,18 +1,18 @@
 package ceri.jna.clib;
 
 import ceri.common.data.TypeTranscoder;
-import ceri.jna.clib.jna.CLib;
+import ceri.jna.clib.jna.CUnistd;
 
 /**
  * Flags for lseek() call.
  */
 public enum Seek {
 	/** From start of file. */
-	SEEK_SET(CLib.SEEK_SET),
+	SEEK_SET(CUnistd.SEEK_SET),
 	/** From current position. */
-	SEEK_CUR(CLib.SEEK_CUR),
+	SEEK_CUR(CUnistd.SEEK_CUR),
 	/** From end of file. */
-	SEEK_END(CLib.SEEK_END);
+	SEEK_END(CUnistd.SEEK_END);
 
 	private static final TypeTranscoder<Seek> xcoder = TypeTranscoder.of(t -> t.value, Seek.class);
 	public final int value;

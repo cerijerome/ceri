@@ -67,7 +67,7 @@ public class CSignal {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.IS_MAC) {
+		if (OsUtil.os().mac) {
 			SIGBUS = 10;
 			SIGUSR1 = 30;
 			SIGUSR2 = 31;

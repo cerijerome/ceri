@@ -1,4 +1,4 @@
-package ceri.jna.clib.jna;
+package ceri.jna.util;
 
 import static ceri.common.time.TimeSupplier.micros;
 import java.util.concurrent.ThreadLocalRandom;

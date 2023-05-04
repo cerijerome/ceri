@@ -224,7 +224,7 @@ public class CTermios {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.IS_MAC) {
+		if (OsUtil.os().mac) {
 			IXON = 0x0200;
 			IXOFF = 0x0400;
 			IXANY = 0x0800;

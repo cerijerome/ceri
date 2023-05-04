@@ -1,13 +1,15 @@
 package ceri.jna.clib.test;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -18,15 +20,17 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CLib;
-import ceri.jna.clib.jna.CLib.pollfd;
-import ceri.jna.clib.jna.CLibNative;
+import ceri.jna.clib.jna.CPoll.pollfd;
+import ceri.jna.clib.jna.CSignal.sighandler_t;
+import ceri.jna.clib.jna.CUnistd.size_t;
+import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
 /**
- * Test implementation for CLib.
+ * Test implementation for CLib native interface.
  */
-public class TestCLibNative implements CLibNative {
+public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
 	public final Map<Integer, Fd> fds = new ConcurrentHashMap<>();
 	// List<?> = String path, int flags, int mode
@@ -44,9 +48,9 @@ public class TestCLibNative implements CLibNative {
 	public final CallSync.Apply<Integer, Integer> raise = CallSync.function(null, 0);
 	// List<?> = List<pollfd> fds, int timeoutMs
 	public final CallSync.Apply<List<?>, Integer> poll = CallSync.function(null, 0);
-	// List<?> = Fd f, int request, Object... objs
+	// List<?> = Fd f, int request, Object[] objs
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
-	// List<?> = Fd f, int cmd, Object... objs
+	// List<?> = Fd f, int cmd, Object[] objs
 	public final CallSync.Apply<List<?>, Integer> fcntl = CallSync.function(null, 0);
 	// List<?> = Fd f, Pointer termios
 	public final CallSync.Apply<List<?>, Integer> tcgetattr = CallSync.function(null, 0);
@@ -95,6 +99,57 @@ public class TestCLibNative implements CLibNative {
 		reset();
 	}
 
+	/**
+	 * Set ioctl auto response to 0, and pass ioctl varargs to given consumer to process.
+	 */
+	public void ioctlAutoResponse(ToIntFunction<Object[]> fn) {
+		ioctl.autoResponse(list -> fn.applyAsInt((Object[]) list.get(2)));
+	}
+
+	/**
+	 * Assert ioctl request was called with fd, request and optional args.
+	 */
+	public void assertIoctl(int fd, int request, Object... args) {
+		assertIoctlArgs(fd, request, objs -> assertArray(objs, args));
+	}
+
+	/**
+	 * Assert ioctl request was called with fd, and use consumer to verify vararg fields.
+	 */
+	public void assertIoctlArgs(int fd, int request, Consumer<Object[]> consumer) {
+		var list = ioctl.awaitAuto();
+		assertEquals(list.get(0), fd(fd));
+		assertEquals(list.get(1), request);
+		if (consumer != null) consumer.accept((Object[]) list.get(2));
+	}
+
+	/**
+	 * Set fcntl auto response to 0, and pass fcntl varargs to given consumer to process.
+	 */
+	public void fcntlAutoResponse(ToIntFunction<Object[]> fn) {
+		fcntl.autoResponse(list -> fn.applyAsInt((Object[]) list.get(2)));
+	}
+
+	/**
+	 * Assert fcntl request was called with fd, command and optional args.
+	 */
+	public void assertFcntl(int fd, int request, Object... args) {
+		assertFcntlArgs(fd, request, objs -> assertArray(objs, args));
+	}
+
+	/**
+	 * Assert fcntl command was called with fd, and use consumer to verify vararg fields.
+	 */
+	public void assertFcntlArgs(int fd, int command, Consumer<Object[]> consumer) {
+		var list = fcntl.awaitAuto();
+		assertEquals(list.get(0), fd(fd));
+		assertEquals(list.get(1), command);
+		if (consumer != null) consumer.accept((Object[]) list.get(2));
+	}
+
+	/**
+	 * Clear fds.
+	 */
 	public void reset() {
 		nextFd.set(1000);
 		fds.clear();
@@ -161,12 +216,12 @@ public class TestCLibNative implements CLibNative {
 
 	@Override
 	public int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException {
-		return control(ioctl, fd(fd), request.intValue(), objs);
+		return ioctl.apply(List.of(fd(fd), request.intValue(), objs));
 	}
 
 	@Override
 	public int fcntl(int fd, int cmd, Object... objs) throws LastErrorException {
-		return control(fcntl, fd(fd), cmd, objs);
+		return fcntl.apply(List.of(fd(fd), cmd, objs));
 	}
 
 	@Override
@@ -249,13 +304,5 @@ public class TestCLibNative implements CLibNative {
 		Fd fdObj = fds.get(fd);
 		if (fdObj != null) return fdObj;
 		throw new LastErrorException(errorCode);
-	}
-
-	protected int control(CallSync.Apply<List<?>, Integer> control, Fd f,
-		int value, Object... objs) throws LastErrorException {
-		List<Object> list = new ArrayList<>();
-		Collections.addAll(list, f, value);
-		Collections.addAll(list, objs);
-		return control.apply(list);
 	}
 }

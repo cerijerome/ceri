@@ -12,7 +12,9 @@ import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.RegexUtil;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
-import ceri.jna.clib.jna.CLib;
+import ceri.jna.clib.jna.CFcntl;
+import ceri.jna.clib.jna.CIoctl;
+import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.PointerUtil;
 
 /**
@@ -77,8 +79,8 @@ public class CFileDescriptor implements FileDescriptor {
 	 */
 	public static CFileDescriptor open(String path, Mode mode, Collection<OpenFlag> flags)
 		throws IOException {
-		return new CFileDescriptor(mode == null ? CLib.open(path, OpenFlag.encode(flags))
-			: CLib.open(path, OpenFlag.encode(flags), mode.value()));
+		return new CFileDescriptor(mode == null ? CFcntl.open(path, OpenFlag.encode(flags))
+			: CFcntl.open(path, OpenFlag.encode(flags), mode.value()));
 	}
 
 	/**
@@ -102,14 +104,14 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public int read(Pointer p, int offset, int length) throws IOException {
 		if (length == 0) return 0;
-		return CLib.read(fd(), PointerUtil.offset(p, offset), length);
+		return CUnistd.read(fd(), PointerUtil.offset(p, offset), length);
 	}
 
 	@Override
 	public void write(Pointer p, int offset, int length) throws IOException {
 		// Loop until all bytes are written, as recommended in gnu-c docs.
 		for (int count = 0; count < length;) {
-			int n = CLib.write(fd(), PointerUtil.offset(p, offset + count), length - count);
+			int n = CUnistd.write(fd(), PointerUtil.offset(p, offset + count), length - count);
 			if (n == 0) throw CException.general("Incomplete write: %d/%d bytes", count, length);
 			count += n;
 		}
@@ -117,17 +119,17 @@ public class CFileDescriptor implements FileDescriptor {
 
 	@Override
 	public int seek(int offset, Seek whence) throws IOException {
-		return CLib.lseek(fd(), offset, whence.value);
+		return CUnistd.lseek(fd(), offset, whence.value);
 	}
 
 	@Override
 	public int fcntl(String name, int cmd, Object... objs) throws IOException {
-		return CLib.fcntl(name, fd(), cmd, objs);
+		return CFcntl.fcntl(name, fd(), cmd, objs);
 	}
 
 	@Override
 	public int ioctl(String name, int request, Object... objs) throws IOException {
-		return CLib.ioctl(name, fd(), request, objs);
+		return CIoctl.ioctl(name, fd(), request, objs);
 	}
 
 	@Override
@@ -155,7 +157,7 @@ public class CFileDescriptor implements FileDescriptor {
 
 	private static boolean close(int fd) {
 		try {
-			CLib.close(fd);
+			CUnistd.close(fd);
 			return true;
 		} catch (CException e) {
 			return false;

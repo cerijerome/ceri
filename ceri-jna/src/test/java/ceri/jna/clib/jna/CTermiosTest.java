@@ -3,12 +3,19 @@ package ceri.jna.clib.jna;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.List;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaUtil;
 
 public class CTermiosTest {
+
+	@BeforeClass
+	public static void beforeClass() {
+		// ceri.jna.test.JnaTestUtil.testAsLinux();
+	}
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -39,4 +46,8 @@ public class CTermiosTest {
 		});
 	}
 
+	@Test
+	public void testOsCoverage() {
+		JnaTestUtil.testForEachOs(CTermios.class);
+	}
 }

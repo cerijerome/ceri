@@ -25,11 +25,11 @@ public class CFcntl {
 	public static final int O_DIRECTORY;
 	public static final int O_NOFOLLOW;
 	public static final int O_CLOEXEC;
-	public static final int F_DUPFD = 0;
-	public static final int F_GETFD = 1;
-	public static final int F_SETFD = 2;
-	public static final int F_GETFL = 3;
-	public static final int F_SETFL = 4;
+	static final int F_DUPFD = 0;
+	static final int F_GETFD = 1;
+	static final int F_SETFD = 2;
+	static final int F_GETFL = 3;
+	static final int F_SETFL = 4;
 
 	private CFcntl() {}
 
@@ -67,30 +67,65 @@ public class CFcntl {
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(int fd, int request, Object... objs) throws CException {
-		return fcntl("", fd, request, objs);
+	public static int fcntl(int fd, int command, Object... objs) throws CException {
+		return fcntl("", fd, command, objs);
 	}
 
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(String name, int fd, int request, Object... objs) throws CException {
-		return caller.verifyInt(() -> lib().fcntl(fd, request, objs), "fcntl:" + name, fd, request,
+	public static int fcntl(String name, int fd, int command, Object... objs) throws CException {
+		return caller.verifyInt(() -> lib().fcntl(fd, command, objs), "fcntl:" + name, fd, command,
 			objs);
 	}
 
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(Supplier<String> errorMsg, int fd, int request, Object... objs)
+	public static int fcntl(Supplier<String> errorMsg, int fd, int command, Object... objs)
 		throws CException {
-		return caller.verifyInt(() -> lib().fcntl(fd, request, objs), errorMsg);
+		return caller.verifyInt(() -> lib().fcntl(fd, command, objs), errorMsg);
+	}
+
+	/**
+	 * Duplicate the file descriptor using the lowest-numbered available >= min.
+	 */
+	public static int dupFd(int fd, int min) throws CException {
+		return fcntl("F_DUPFD", fd, F_DUPFD, min);
+	}
+
+	/**
+	 * Get the file descriptor flags.
+	 */
+	public static int getFd(int fd) throws CException {
+		return fcntl("F_GETFD", fd, F_GETFD);
+	}
+
+	/**
+	 * Set the file descriptor flags.
+	 */
+	public static void setFd(int fd, int flags) throws CException {
+		fcntl("F_SETFD", fd, F_SETFD, flags);
+	}
+
+	/**
+	 * Get the file access mode and file status flags.
+	 */
+	public static int getFl(int fd) throws CException {
+		return fcntl("F_GETFL", fd, F_GETFL);
+	}
+
+	/**
+	 * Set the file status flags.
+	 */
+	public static void setFl(int fd, int flags) throws CException {
+		fcntl("F_SETFL", fd, F_SETFL, flags);
 	}
 
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.IS_MAC) {
+		if (OsUtil.os().mac) {
 			O_CREAT = 0x200;
 			O_EXCL = 0x800;
 			O_NOCTTY = 0x20000;

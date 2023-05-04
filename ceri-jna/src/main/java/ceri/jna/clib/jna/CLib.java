@@ -123,7 +123,9 @@ public class CLib {
 	 * Throws an exception if this C-lib implementation does not support the current OS.
 	 */
 	public static void validateOs() {
-		if (!OsUtil.IS_MAC && !OsUtil.IS_LINUX) throw OsUtil.unsupportedOs();
+		var os = OsUtil.os();
+		if (!os.mac && !os.linux)
+			throw new UnsupportedOperationException("Not supported: " + os.descriptor());
 	}
 
 	static CLib.Native lib() {

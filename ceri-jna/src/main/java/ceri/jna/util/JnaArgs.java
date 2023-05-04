@@ -50,11 +50,17 @@ public class JnaArgs {
 	}
 
 	/**
+	 * Struct compact string.
+	 */
+	public static String string(Struct t) {
+		return t.compactString();
+	}
+
+	/**
 	 * Structure to compact string.
 	 */
 	public static String string(Structure t) {
-		return String.format("%s@%x+%x", ReflectUtil.name(t.getClass()),
-			Pointer.nativeValue(t.getPointer()), t.size());
+		return Struct.compactString(t);
 	}
 
 	/**
@@ -94,6 +100,7 @@ public class JnaArgs {
 		public Builder addDefault() {
 			return add(String.class, StringUtil::escape) //
 				.add(matchInt(), n -> stringInt(n, -HEX_LIMIT, HEX_LIMIT)) //
+				.add(Struct.class, JnaArgs::string) //
 				.add(Structure.class, JnaArgs::string) //
 				.add(Pointer.class, JnaArgs::string) //
 				.add(Callback.class, JnaArgs::string);

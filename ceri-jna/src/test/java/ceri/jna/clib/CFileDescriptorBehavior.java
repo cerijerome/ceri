@@ -119,7 +119,7 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void shouldCallIoctl() throws IOException {
 		fd.ioctl(100, "a", 1);
-		lib.ioctl.assertAuto(List.of(fd(), 100, "a", 1));
+		lib.assertIoctl(fd().fd(), 100, "a", 1);
 	}
 
 	private Fd fd() {

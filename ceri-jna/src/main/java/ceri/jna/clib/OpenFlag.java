@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Set;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
-import ceri.jna.clib.jna.CLib;
+import ceri.jna.clib.jna.CFcntl;
 
 /**
  * Flags for CLib open() and specific fcntl() calls, usually defined in fcntl.h.
@@ -13,20 +13,20 @@ import ceri.jna.clib.jna.CLib;
  * Warning: numbers vary by specific OS, and are verified only for Mac, Raspberry Pi.
  */
 public enum OpenFlag {
-	O_RDONLY(CLib.O_RDONLY),
-	O_WRONLY(CLib.O_WRONLY),
-	O_RDWR(CLib.O_RDWR),
-	O_ACCMODE(CLib.O_ACCMODE),
-	O_CREAT(CLib.O_CREAT),
-	O_EXCL(CLib.O_EXCL),
-	O_NOCTTY(CLib.O_NOCTTY),
-	O_TRUNC(CLib.O_TRUNC),
-	O_APPEND(CLib.O_APPEND),
-	O_NONBLOCK(CLib.O_NONBLOCK),
-	O_DSYNC(CLib.O_DSYNC),
-	O_DIRECTORY(CLib.O_DIRECTORY),
-	O_NOFOLLOW(CLib.O_NOFOLLOW),
-	O_CLOEXEC(CLib.O_CLOEXEC);
+	O_RDONLY(CFcntl.O_RDONLY),
+	O_WRONLY(CFcntl.O_WRONLY),
+	O_RDWR(CFcntl.O_RDWR),
+	O_ACCMODE(CFcntl.O_ACCMODE),
+	O_CREAT(CFcntl.O_CREAT),
+	O_EXCL(CFcntl.O_EXCL),
+	O_NOCTTY(CFcntl.O_NOCTTY),
+	O_TRUNC(CFcntl.O_TRUNC),
+	O_APPEND(CFcntl.O_APPEND),
+	O_NONBLOCK(CFcntl.O_NONBLOCK),
+	O_DSYNC(CFcntl.O_DSYNC),
+	O_DIRECTORY(CFcntl.O_DIRECTORY),
+	O_NOFOLLOW(CFcntl.O_NOFOLLOW),
+	O_CLOEXEC(CFcntl.O_CLOEXEC);
 
 	private static final int NO_RDONLY_MASK = O_WRONLY.value | O_RDWR.value;
 	private static final TypeTranscoder<OpenFlag> xcoder =

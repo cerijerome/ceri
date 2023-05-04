@@ -201,24 +201,24 @@ public class CIoctl {
 
 		/* <sys/ioctl.h> */
 
-		static final int TIOCGSERIAL = _IO('T', 0x1e); // 0x541E;
-		static final int TIOCSSERIAL = _IO('T', 0x1f); // 0x541F;
+		static final int TIOCGSERIAL = _IO('T', 0x1e); // 0x541e;
+		static final int TIOCSSERIAL = _IO('T', 0x1f); // 0x541f;
 
 		public static serial_struct tiocgserial(int fd) throws CException {
 			var serial = new serial_struct();
-			ioctl(fd, TIOCGSERIAL, serial); // Struct.read(serial) ?
+			ioctl(fd, TIOCGSERIAL, serial); // needs Struct.read(serial) ?
 			return serial;
 		}
 
 		public static void tiocsserial(int fd, serial_struct serial) throws CException {
-			ioctl(fd, TIOCSSERIAL, serial); // Struct.write(serial) ?
+			ioctl(fd, TIOCSSERIAL, serial); // needs Struct.write(serial) ?
 		}
 	}
 
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.IS_MAC) {
+		if (OsUtil.os().mac) {
 			_IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
 			IOC_VOID = 0x20000000;

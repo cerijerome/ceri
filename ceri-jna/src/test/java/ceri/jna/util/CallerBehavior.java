@@ -1,4 +1,4 @@
-package ceri.jna.clib.jna;
+package ceri.jna.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -7,14 +7,15 @@ import java.util.function.IntPredicate;
 import java.util.function.ToIntFunction;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
+import ceri.jna.clib.jna.CException;
 
-public class CCallerBehavior {
-	private static final CCaller<CException> caller = CCaller.of();
+public class CallerBehavior {
+	private static final Caller<CException> caller = Caller.of(CException::full);
 
 	@Test
 	public void shouldCaptureErrorCode() {
-		assertEquals(CCaller.capture(() -> {}), 0);
-		assertEquals(CCaller.capture(() -> throwIt(new LastErrorException(33))), 33);
+		assertEquals(Caller.capture(() -> {}), 0);
+		assertEquals(Caller.capture(() -> throwIt(new LastErrorException(33))), 33);
 	}
 
 	@Test

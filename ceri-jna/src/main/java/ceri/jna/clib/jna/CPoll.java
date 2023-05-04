@@ -62,7 +62,7 @@ public class CPoll {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.IS_MAC) {
+		if (OsUtil.os().mac) {
 			POLLWRNORM = 0x4;
 			POLLWRBAND = 0x100;
 		} else {

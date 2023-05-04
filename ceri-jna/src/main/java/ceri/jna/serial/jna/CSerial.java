@@ -1,75 +1,77 @@
 package ceri.jna.serial.jna;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
-import static ceri.jna.clib.jna.CLib.B0;
-import static ceri.jna.clib.jna.CLib.B1000000;
-import static ceri.jna.clib.jna.CLib.B110;
-import static ceri.jna.clib.jna.CLib.B115200;
-import static ceri.jna.clib.jna.CLib.B1152000;
-import static ceri.jna.clib.jna.CLib.B1200;
-import static ceri.jna.clib.jna.CLib.B134;
-import static ceri.jna.clib.jna.CLib.B150;
-import static ceri.jna.clib.jna.CLib.B1500000;
-import static ceri.jna.clib.jna.CLib.B1800;
-import static ceri.jna.clib.jna.CLib.B19200;
-import static ceri.jna.clib.jna.CLib.B200;
-import static ceri.jna.clib.jna.CLib.B2000000;
-import static ceri.jna.clib.jna.CLib.B230400;
-import static ceri.jna.clib.jna.CLib.B2400;
-import static ceri.jna.clib.jna.CLib.B2500000;
-import static ceri.jna.clib.jna.CLib.B300;
-import static ceri.jna.clib.jna.CLib.B3000000;
-import static ceri.jna.clib.jna.CLib.B3500000;
-import static ceri.jna.clib.jna.CLib.B38400;
-import static ceri.jna.clib.jna.CLib.B4000000;
-import static ceri.jna.clib.jna.CLib.B460800;
-import static ceri.jna.clib.jna.CLib.B4800;
-import static ceri.jna.clib.jna.CLib.B50;
-import static ceri.jna.clib.jna.CLib.B500000;
-import static ceri.jna.clib.jna.CLib.B57600;
-import static ceri.jna.clib.jna.CLib.B576000;
-import static ceri.jna.clib.jna.CLib.B600;
-import static ceri.jna.clib.jna.CLib.B75;
-import static ceri.jna.clib.jna.CLib.B921600;
-import static ceri.jna.clib.jna.CLib.B9600;
-import static ceri.jna.clib.jna.CLib.CLOCAL;
-import static ceri.jna.clib.jna.CLib.CMSPAR;
-import static ceri.jna.clib.jna.CLib.CREAD;
-import static ceri.jna.clib.jna.CLib.CRTSCTS;
-import static ceri.jna.clib.jna.CLib.CS5;
-import static ceri.jna.clib.jna.CLib.CS6;
-import static ceri.jna.clib.jna.CLib.CS7;
-import static ceri.jna.clib.jna.CLib.CS8;
-import static ceri.jna.clib.jna.CLib.CSIZE;
-import static ceri.jna.clib.jna.CLib.CSTOPB;
-import static ceri.jna.clib.jna.CLib.F_GETFL;
-import static ceri.jna.clib.jna.CLib.F_SETFL;
-import static ceri.jna.clib.jna.CLib.IXANY;
-import static ceri.jna.clib.jna.CLib.IXOFF;
-import static ceri.jna.clib.jna.CLib.IXON;
-import static ceri.jna.clib.jna.CLib.O_NOCTTY;
-import static ceri.jna.clib.jna.CLib.O_NONBLOCK;
-import static ceri.jna.clib.jna.CLib.O_RDWR;
-import static ceri.jna.clib.jna.CLib.PARENB;
-import static ceri.jna.clib.jna.CLib.PARODD;
-import static ceri.jna.clib.jna.CLib.TCSANOW;
-import static ceri.jna.clib.jna.CLib.VMIN;
-import static ceri.jna.clib.jna.CLib.VSTART;
-import static ceri.jna.clib.jna.CLib.VSTOP;
-import static ceri.jna.clib.jna.CLib.VTIME;
-import static ceri.jna.clib.jna.CLib.Linux.ASYNC_SPD_CUST;
-import static ceri.jna.clib.jna.CLib.Linux.ASYNC_SPD_MASK;
+import static ceri.jna.clib.jna.CFcntl.O_NOCTTY;
+import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
+import static ceri.jna.clib.jna.CFcntl.O_RDWR;
+import static ceri.jna.clib.jna.CIoctl.Linux.ASYNC_SPD_CUST;
+import static ceri.jna.clib.jna.CIoctl.Linux.ASYNC_SPD_MASK;
+import static ceri.jna.clib.jna.CTermios.B0;
+import static ceri.jna.clib.jna.CTermios.B1000000;
+import static ceri.jna.clib.jna.CTermios.B110;
+import static ceri.jna.clib.jna.CTermios.B115200;
+import static ceri.jna.clib.jna.CTermios.B1152000;
+import static ceri.jna.clib.jna.CTermios.B1200;
+import static ceri.jna.clib.jna.CTermios.B134;
+import static ceri.jna.clib.jna.CTermios.B150;
+import static ceri.jna.clib.jna.CTermios.B1500000;
+import static ceri.jna.clib.jna.CTermios.B1800;
+import static ceri.jna.clib.jna.CTermios.B19200;
+import static ceri.jna.clib.jna.CTermios.B200;
+import static ceri.jna.clib.jna.CTermios.B2000000;
+import static ceri.jna.clib.jna.CTermios.B230400;
+import static ceri.jna.clib.jna.CTermios.B2400;
+import static ceri.jna.clib.jna.CTermios.B2500000;
+import static ceri.jna.clib.jna.CTermios.B300;
+import static ceri.jna.clib.jna.CTermios.B3000000;
+import static ceri.jna.clib.jna.CTermios.B3500000;
+import static ceri.jna.clib.jna.CTermios.B38400;
+import static ceri.jna.clib.jna.CTermios.B4000000;
+import static ceri.jna.clib.jna.CTermios.B460800;
+import static ceri.jna.clib.jna.CTermios.B4800;
+import static ceri.jna.clib.jna.CTermios.B50;
+import static ceri.jna.clib.jna.CTermios.B500000;
+import static ceri.jna.clib.jna.CTermios.B57600;
+import static ceri.jna.clib.jna.CTermios.B576000;
+import static ceri.jna.clib.jna.CTermios.B600;
+import static ceri.jna.clib.jna.CTermios.B75;
+import static ceri.jna.clib.jna.CTermios.B921600;
+import static ceri.jna.clib.jna.CTermios.B9600;
+import static ceri.jna.clib.jna.CTermios.CLOCAL;
+import static ceri.jna.clib.jna.CTermios.CMSPAR;
+import static ceri.jna.clib.jna.CTermios.CREAD;
+import static ceri.jna.clib.jna.CTermios.CRTSCTS;
+import static ceri.jna.clib.jna.CTermios.CS5;
+import static ceri.jna.clib.jna.CTermios.CS6;
+import static ceri.jna.clib.jna.CTermios.CS7;
+import static ceri.jna.clib.jna.CTermios.CS8;
+import static ceri.jna.clib.jna.CTermios.CSIZE;
+import static ceri.jna.clib.jna.CTermios.CSTOPB;
+import static ceri.jna.clib.jna.CTermios.IXANY;
+import static ceri.jna.clib.jna.CTermios.IXOFF;
+import static ceri.jna.clib.jna.CTermios.IXON;
+import static ceri.jna.clib.jna.CTermios.PARENB;
+import static ceri.jna.clib.jna.CTermios.PARODD;
+import static ceri.jna.clib.jna.CTermios.TCSANOW;
+import static ceri.jna.clib.jna.CTermios.VMIN;
+import static ceri.jna.clib.jna.CTermios.VSTART;
+import static ceri.jna.clib.jna.CTermios.VSTOP;
+import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.NativeLong;
 import ceri.common.collection.BiMap;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.jna.CFcntl;
+import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CLib;
+import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.Struct;
 
 public class CSerial {
 	private static final int BAUD_UNSUPPORTED = -1;
-	private static final int DC1 = 0x11;
-	private static final int DC3 = 0x13;
+	private static final int DC1 = 0x11; // ^Q device control 1
+	private static final int DC3 = 0x13; // ^S device control 3
 	private static final BiMap<Integer, Integer> baudMap = baudMap();
 	public static final int DATABITS_5 = 5;
 	public static final int DATABITS_6 = 6;
@@ -91,14 +93,14 @@ public class CSerial {
 
 	public static int open(String port) throws CException {
 		CLib.validateOs();
-		int fd = CLib.open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
+		int fd = CFcntl.open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		try {
 			clearNonBlock(fd);
-			if (OsUtil.IS_MAC) Mac.initPort(fd);
+			if (OsUtil.os().mac) Mac.initPort(fd);
 			else Linux.initPort(fd);
 			return fd;
 		} catch (CException | RuntimeException e) {
-			CLib.close(fd);
+			CUnistd.close(fd);
 			throw e;
 		}
 	}
@@ -106,19 +108,19 @@ public class CSerial {
 	public static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 		throws CException {
 		CLib.validateOs();
-		if (OsUtil.IS_MAC) Mac.setParams(fd, baud, dataBits, stopBits, parity);
+		if (OsUtil.os().mac) Mac.setParams(fd, baud, dataBits, stopBits, parity);
 		else Linux.setParams(fd, baud, dataBits, stopBits, parity);
 	}
 
 	public static void setFlowControl(int fd, int mode) throws CException {
 		CLib.validateOs();
-		if (OsUtil.IS_MAC) Mac.setFlowControl(fd, mode);
+		if (OsUtil.os().mac) Mac.setFlowControl(fd, mode);
 		else Linux.setFlowControl(fd, mode);
 	}
 
 	private static void clearNonBlock(int fd) throws CException {
-		int flags = CLib.fcntl(fd, F_GETFL) & ~O_NONBLOCK;
-		CLib.fcntl(fd, F_SETFL, flags);
+		int flags = CFcntl.getFl(fd);
+		CFcntl.setFl(fd, flags & ~O_NONBLOCK);
 	}
 
 	private static void initTermios(NativeLong iflag, NativeLong cflag, byte[] cc) {
@@ -166,24 +168,30 @@ public class CSerial {
 	}
 
 	private static void setFlowControl(NativeLong iflag, NativeLong cflag, int mode) {
-		iflag.setValue((iflag.longValue() & ~(IXANY | IXOFF | IXON)) | flowControlXonXoff(mode));
-		cflag.setValue((cflag.longValue() & ~CRTSCTS) | flowControlRtsCts(mode));
+		iflag.setValue((iflag.longValue() & ~(IXANY | IXOFF | IXON)) | flowControlSw(mode));
+		cflag.setValue((cflag.longValue() & ~CRTSCTS) | flowControlHw(mode));
 	}
 
-	private static long flowControlRtsCts(int mode) {
+	/**
+	 * Hardware flow control flags (RTS, CTS)
+	 */
+	private static long flowControlHw(int mode) {
 		return (mode & (FLOWCONTROL_RTSCTS_IN | FLOWCONTROL_RTSCTS_OUT)) == 0 ? 0 : CRTSCTS;
 	}
 
-	private static long flowControlXonXoff(int mode) {
+	/**
+	 * Software flow control flags (XON, XOFF)
+	 */
+	private static long flowControlSw(int mode) {
 		return ((mode & FLOWCONTROL_XONXOFF_IN) == 0 ? 0 : IXOFF)
 			| ((mode & FLOWCONTROL_XONXOFF_OUT) == 0 ? 0 : IXON);
 	}
 
-	private static <T extends CLib.termios> void setBaudCode(T tty, int baudCode)
+	private static <T extends CTermios.termios> void setBaudCode(T tty, int baudCode)
 		throws CException {
 		Struct.write(tty);
-		CLib.cfsetispeed(tty, baudCode);
-		CLib.cfsetospeed(tty, baudCode);
+		CTermios.cfsetispeed(tty, baudCode);
+		CTermios.cfsetospeed(tty, baudCode);
 	}
 
 	private static int baudCode(int baud) {
@@ -207,27 +215,27 @@ public class CSerial {
 		private Mac() {}
 
 		private static void initPort(int fd) throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
-			CLib.cfmakeraw(tty);
+			var tty = CTermios.Mac.tcgetattr(fd);
+			CTermios.cfmakeraw(tty);
 			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
 			CSerial.setBaudCode(tty, B9600);
-			CLib.tcsetattr(fd, TCSANOW, tty);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 			throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
+			var tty = CTermios.Mac.tcgetattr(fd);
 			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
 			int baudCode = CSerial.baudCode(baud);
 			CSerial.setBaudCode(tty, baudCode == BAUD_UNSUPPORTED ? B9600 : baudCode);
-			CLib.tcsetattr(fd, TCSANOW, tty);
-			if (baudCode == BAUD_UNSUPPORTED) CLib.Mac.iossiospeed(fd, baud);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
+			if (baudCode == BAUD_UNSUPPORTED) CIoctl.Mac.iossiospeed(fd, baud);
 		}
 
 		private static void setFlowControl(int fd, int mode) throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Mac.termios());
+			var tty = CTermios.Mac.tcgetattr(fd);
 			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
-			CLib.tcsetattr(fd, TCSANOW, tty);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 	}
 
@@ -235,28 +243,28 @@ public class CSerial {
 		private Linux() {}
 
 		private static void initPort(int fd) throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
-			CLib.cfmakeraw(tty);
+			var tty = CTermios.Linux.tcgetattr(fd);
+			CTermios.cfmakeraw(tty);
 			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
 			CSerial.setBaudCode(tty, B9600);
-			CLib.tcsetattr(fd, TCSANOW, tty);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 			throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
+			var tty = CTermios.Linux.tcgetattr(fd);
 			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
 			setBaud(fd, tty, baud);
-			CLib.tcsetattr(fd, TCSANOW, tty);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void setFlowControl(int fd, int mode) throws CException {
-			var tty = CLib.tcgetattr(fd, new CLib.Linux.termios());
+			var tty = CTermios.Linux.tcgetattr(fd);
 			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
-			CLib.tcsetattr(fd, TCSANOW, tty);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
-		private static void setBaud(int fd, CLib.Linux.termios tty, int baud)
+		private static void setBaud(int fd, CTermios.Linux.termios tty, int baud)
 			throws CException {
 			int baudCode = CSerial.baudCode(baud);
 			if (baudCode == BAUD_UNSUPPORTED) {
@@ -270,20 +278,20 @@ public class CSerial {
 		}
 
 		private static void disableCustomBaud(int fd) throws CException {
-			var serial = CLib.Linux.tiocgserial(fd);
+			var serial = CIoctl.Linux.tiocgserial(fd);
 			serial.flags &= ~ASYNC_SPD_MASK;
-			CLib.Linux.tiocsserial(fd, serial);
+			CIoctl.Linux.tiocsserial(fd, serial);
 		}
 
 		private static void enableCustomBaud(int fd, int baud) throws CException {
-			var serial = CLib.Linux.tiocgserial(fd);
+			var serial = CIoctl.Linux.tiocgserial(fd);
 			serial.flags = (serial.flags & ~ASYNC_SPD_MASK) | ASYNC_SPD_CUST;
 			serial.custom_divisor = Math.min((serial.baud_base + (baud / 2)) / baud, 1);
-			CLib.Linux.tiocsserial(fd, serial);
+			CIoctl.Linux.tiocsserial(fd, serial);
 		}
 
 		private static void verifyCustomBaud(int fd, int baud) throws CException {
-			var serial = CLib.Linux.tiocgserial(fd);
+			var serial = CIoctl.Linux.tiocgserial(fd);
 			if (serial.custom_divisor * baud == serial.baud_base) return;
 			throw CException.general("Failed to set custom baud: %d / %d != %d", serial.baud_base,
 				serial.custom_divisor, baud);

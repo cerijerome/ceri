@@ -10,8 +10,11 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
+import ceri.common.reflect.ClassReloader;
+import ceri.common.util.OsUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
@@ -20,6 +23,8 @@ import ceri.jna.util.Struct;
  * Supports tests for JNA-based code.
  */
 public class JnaTestUtil {
+	public static final String MAC_OS = "Mac";
+	public static final String LINUX_OS = "Linux";
 
 	private JnaTestUtil() {}
 
@@ -144,4 +149,40 @@ public class JnaTestUtil {
 		System.gc();
 		return m;
 	}
+
+	/**
+	 * Runs the test, overriding the current OS.
+	 */
+	public static <E extends Exception> void testAsOs(String osName, ExceptionRunnable<E> tester)
+		throws E {
+		try (var x = OsUtil.os(osName, null, null)) {
+			tester.run();
+		}
+	}
+
+	/**
+	 * Runs the test for each supported OS, overriding the current OS.
+	 */
+	public static <E extends Exception> void testForEachOs(ExceptionRunnable<E> tester) throws E {
+		testAsOs(MAC_OS, tester);
+		testAsOs(LINUX_OS, tester);
+	}
+
+	/**
+	 * Reloads and instantiates the test class, overriding the current OS. Support classes are
+	 * reloaded if accessed.
+	 */
+	public static void testAsOs(String osName, Class<?> testCls, Class<?>... supportClasses) {
+		testAsOs(osName, () -> ClassReloader.reload(testCls, supportClasses));
+	}
+
+	/**
+	 * Reloads and instantiates the test class for each supported OS, overriding the current OS.
+	 * Support classes are reloaded if accessed.
+	 */
+	public static void testForEachOs(Class<?> testCls, Class<?>... supportClasses) {
+		testAsOs(MAC_OS, testCls, supportClasses);
+		testAsOs(LINUX_OS, testCls, supportClasses);
+	}
+
 }

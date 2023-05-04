@@ -1,10 +1,9 @@
-package ceri.jna.clib.jna;
+package ceri.jna.util;
 
 import java.util.function.IntFunction;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
 public class StructArraySpeedTester {
@@ -48,7 +47,7 @@ public class StructArraySpeedTester {
 		public static class ByReference extends Small implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return arrayByVal(ByReference::new, ByReference[]::new, count);
+			return Struct.<ByReference>arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 	}
 
@@ -63,7 +62,7 @@ public class StructArraySpeedTester {
 		public static class ByReference extends Medium implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return arrayByVal(ByReference::new, ByReference[]::new, count);
+			return Struct.<ByReference>arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 	}
 
@@ -78,7 +77,7 @@ public class StructArraySpeedTester {
 		public static class ByReference extends Large implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return arrayByVal(ByReference::new, ByReference[]::new, count);
+			return Struct.<ByReference>arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 	}
 

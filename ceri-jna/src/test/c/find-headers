@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #------------------------------------------------------------------------------
-# Find all header files; h-files* are ignored by git
+# Find all header files; output saved as h-files* ignored by git
 #------------------------------------------------------------------------------
 set -e
 

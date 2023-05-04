@@ -1,6 +1,7 @@
 package ceri.jna.clib;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
+import static ceri.jna.clib.jna.CFcntl.INVALID_FD;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +9,6 @@ import java.io.OutputStream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.io.IoStreamUtil;
-import ceri.jna.clib.jna.CLib;
 import ceri.jna.util.JnaUtil;
 
 /**
@@ -103,6 +103,7 @@ public interface FileDescriptor extends Closeable {
 	default OutputStream out(int bufferSize) {
 		validateMin(bufferSize, 1, "Buffer size");
 		var buffer = JnaUtil.gcMalloc(bufferSize).m;
+		// @TODO: add flush
 		return IoStreamUtil
 			.out((array, offset, length) -> write(this, buffer, array, offset, length));
 	}
@@ -118,7 +119,7 @@ public interface FileDescriptor extends Closeable {
 	 * Performs a fcntl command. Arguments and return value depend on the function.
 	 */
 	int fcntl(String name, int cmd, Object... objs) throws IOException;
-	
+
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
@@ -168,7 +169,7 @@ public interface FileDescriptor extends Closeable {
 
 		@Override
 		public int fd() throws IOException {
-			return CLib.INVALID_FD;
+			return INVALID_FD;
 		}
 
 		@Override
@@ -188,7 +189,7 @@ public interface FileDescriptor extends Closeable {
 		public int fcntl(String name, int cmd, Object... objs) throws IOException {
 			return 0;
 		}
-		
+
 		@Override
 		public int ioctl(String name, int request, Object... objs) throws IOException {
 			return 0;

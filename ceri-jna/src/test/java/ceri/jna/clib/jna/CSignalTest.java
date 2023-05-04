@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.test.JnaTestUtil;
 
 public class CSignalTest {
 
@@ -35,4 +36,8 @@ public class CSignalTest {
 		});
 	}
 
+	@Test
+	public void testFields() {
+		JnaTestUtil.testForEachOs(CSignal.class);
+	}
 }

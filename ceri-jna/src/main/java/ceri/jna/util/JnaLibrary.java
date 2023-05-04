@@ -105,6 +105,6 @@ public class JnaLibrary<T extends Library> {
 	/* os-specific settings */
 
 	static {
-		if (OsUtil.IS_MAC) addLibPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
+		if (OsUtil.os().mac) addLibPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
 	}
 }

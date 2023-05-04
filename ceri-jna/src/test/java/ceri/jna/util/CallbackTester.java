@@ -3,15 +3,15 @@ package ceri.jna.util;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.time.TimeSupplier;
 import ceri.jna.clib.jna.CException;
-import ceri.jna.clib.jna.CLib;
-import ceri.jna.clib.jna.CLibNative.sighandler_t;
+import ceri.jna.clib.jna.CSignal;
+import ceri.jna.clib.jna.CSignal.sighandler_t;
 
 public class CallbackTester {
 	private static volatile long lastCallbackMs = 0;
 
 	public static void main(String[] args) throws CException {
-		runWithoutGc(CLib.SIGINT, 10, 1000, 3000);
-		runWithGc(CLib.SIGINT, 10, 1000, 3000);
+		runWithoutGc(CSignal.SIGINT, 10, 1000, 3000);
+		runWithGc(CSignal.SIGINT, 10, 1000, 3000);
 	}
 
 	public static void runWithoutGc(int signal, int n, int delayMs, int timeoutMs)
@@ -31,7 +31,7 @@ public class CallbackTester {
 	private static void exec(int signal, int n, int delayMs, int timeoutMs) throws CException {
 		for (int i = 0; i < n; i++) {
 			if (timeout(timeoutMs)) System.out.println("timeout");
-			CLib.raise(signal);
+			CSignal.raise(signal);
 			TimeSupplier.millis.delay(delayMs);
 			System.gc();
 		}
@@ -44,7 +44,7 @@ public class CallbackTester {
 
 	private static sighandler_t set(int signal) throws CException {
 		sighandler_t cb = callback();
-		CLib.signal(signal, cb);
+		CSignal.signal(signal, cb);
 		lastCallbackMs = System.currentTimeMillis();
 		System.out.println("callback=" + ReflectUtil.hashId(cb));
 		return cb;

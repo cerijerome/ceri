@@ -1,9 +1,8 @@
-package ceri.jna.clib.jna;
+package ceri.jna.util;
 
 import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteUtil;
-import ceri.jna.util.JnaUtil;
 
 /**
  * Tests the speed of copying chunks back by a number of bytes within a block of allocated memory.

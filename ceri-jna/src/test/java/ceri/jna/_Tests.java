@@ -16,11 +16,17 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.OpenFlagBehavior.class, //
 	ceri.jna.clib.SeekBehavior.class, //
 	// clib.jna
-	ceri.jna.clib.jna.CCallerBehavior.class, //
 	ceri.jna.clib.jna.CErrorBehavior.class, //
 	ceri.jna.clib.jna.CExceptionBehavior.class, //
+	ceri.jna.clib.jna.CFcntlTest.class, //
+	ceri.jna.clib.jna.CIoctlTest.class, //
 	ceri.jna.clib.jna.CLibTest.class, //
+	ceri.jna.clib.jna.CPollTest.class, //
+	ceri.jna.clib.jna.CSignalTest.class, //
+	ceri.jna.clib.jna.CStdlibTest.class, //
+	ceri.jna.clib.jna.CTermiosTest.class, //
 	ceri.jna.clib.jna.CTimeTest.class, //
+	ceri.jna.clib.jna.CUnistdTest.class, //
 	// clib.test
 	ceri.jna.clib.test.TestCLibNativeBehavior.class, //
 	ceri.jna.clib.test.TestFileDescriptorBehavior.class, //
@@ -31,6 +37,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// util
 	ceri.jna.util.ArrayPointerBehavior.class, //
+	ceri.jna.util.CallerBehavior.class, //
 	ceri.jna.util.JnaArgsBehavior.class, //
 	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //

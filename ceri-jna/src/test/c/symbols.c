@@ -2,7 +2,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <poll.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 #include <IOKit/serial/ioss.h>
 
 /*
@@ -20,8 +22,8 @@
 
 #define STR(x) #x
 #define SYM(x) print_symbol(#x,STR(x))
-#define SYMI(x) print_symbol_i(#x,x)
-#define SIZE(x) print_symbol_i("sizeof("#x")",sizeof(x))
+#define SYMI(x) print_symbol_i(#x,STR(x),x)
+#define SIZE(x) print_symbol_i("sizeof("#x")","",sizeof(x))
 #define VERIFY(x) verify_int((x),STR(x))
 
 #define FMT_PRINT 0
@@ -37,10 +39,14 @@ void print_symbol(const char *name, const char *symbol) {
 	else printf("%s = %s\n", name, symbol);
 }
 
-void print_symbol_i(const char *name, int symbol) {
-	if (format == FMT_PRINT) printf("%s = 0x%x 0%o %d\n", name, symbol, symbol, symbol);
-	if (format == FMT_JAVA_HEX) printf("public static final int %s = 0x%x;\n", name, symbol);
-	if (format == FMT_JAVA_DEC) printf("public static final int %s = %d;\n", name, symbol);
+void print_symbol_i(const char *name, const char *symbol, int isymbol) {
+	if (format == FMT_PRINT) {
+		printf("%s = 0x%x 0%o %d", name, isymbol, isymbol, isymbol);
+		if (strlen(symbol) > 0)	printf(" = %s", symbol);
+		printf("\n");
+	}
+	if (format == FMT_JAVA_HEX) printf("public static final int %s = 0x%x;\n", name, isymbol);
+	if (format == FMT_JAVA_DEC) printf("public static final int %s = %d;\n", name, isymbol);
 }
 
 int verify_int(int r, const char *s) {
@@ -56,19 +62,16 @@ int verify_int(int r, const char *s) {
 int main(int argc, char *argv[]) {
 	format = argc < 2 ? FMT_PRINT : *argv[1] - '0';
 
-	SYM(UNDEFINED);
-	SYM(EMPTY);
-	SYM(STRING);
-	SYM(_POSIX_C_SOURCE);
-	SYM(_DARWIN_C_SOURCE);
-	SYM(O_CREAT);
-	SYMI(IOSSIOSPEED);
-
-	SIZE(long);
-	SIZE(void*);
+	//SYM(UNDEFINED);
+	//SYM(EMPTY);
+	//SYM(STRING);
+	//SYM(_POSIX_C_SOURCE);
+	//SYM(_DARWIN_C_SOURCE);
+	//SIZE(long);
+	//SIZE(void*);
 	SIZE(mode_t);
-	SIZE(size_t);
-	SIZE(speed_t);
+
+	SYMI(TIOCEXCL);
 
 	return 0;
 }

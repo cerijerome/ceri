@@ -7,10 +7,10 @@
 #include <IOKit/serial/ioss.h>
 
 /*
- * Code to test serial port access.
+ * Code to test Mac serial port access.
  *
  * Build:
- * gcc serial.c -o serial; chmod a+x ./serial
+ * gcc serial-mac.c -o serial-mac; chmod a+x ./serial-mac
  *
  * Run:
  * ./serial
