@@ -105,6 +105,7 @@ public class AssertUtilTest {
 		assertAssertion(() -> fail());
 		assertAssertion(() -> fail("Test"));
 		assertAssertion(() -> fail(new IOException()));
+		assertAssertion(() -> fail(new IOException(), "Test"));
 	}
 
 	@Test

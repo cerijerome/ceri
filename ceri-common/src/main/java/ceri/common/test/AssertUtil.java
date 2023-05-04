@@ -94,8 +94,16 @@ public class AssertUtil {
 		throw failure(format, args);
 	}
 
+	public static void fail(Throwable t, String format, Object... args) {
+		throw failure(t, format, args);
+	}
+
 	public static AssertionError failure(String format, Object... args) {
-		return new AssertionError(StringUtil.format(format, args));
+		return failure(null, format, args);
+	}
+
+	public static AssertionError failure(Throwable t, String format, Object... args) {
+		return new AssertionError(StringUtil.format(format, args), t);
 	}
 
 	public static void assertFalse(boolean condition) {

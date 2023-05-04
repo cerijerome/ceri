@@ -1,8 +1,10 @@
 package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
 public class OsUtilTest {
@@ -13,59 +15,88 @@ public class OsUtilTest {
 	}
 
 	@Test
-	public void testMac() {
-		assertEquals(OsUtil.mac("mac", "other"), OsUtil.IS_MAC ? "mac" : "other");
-	}
-
-	@Test
-	public void testLinux() {
-		assertEquals(OsUtil.linux("linux", "other"), OsUtil.IS_LINUX ? "linux" : "other");
-	}
-
-	@Test
-	public void testMacInt() {
-		assertEquals(OsUtil.macInt(0, 1), OsUtil.IS_MAC ? 0 : 1);
-	}
-
-	@Test
-	public void testLinuxInt() {
-		assertEquals(OsUtil.linuxInt(0, 1), OsUtil.IS_LINUX ? 0 : 1);
-	}
-
-	@Test
-	public void testOsArch() {
-		String arch = SystemVars.sys("os.arch");
-		boolean isX86 = arch.startsWith("x86");
-		boolean is64Bit = arch.endsWith("64");
-		assertEquals(OsUtil.IS_X86, isX86);
-		assertEquals(OsUtil.IS_64BIT, is64Bit);
-	}
-
-	@Test
-	public void testOsName() {
-		String name = SystemVars.sys("os.name");
-		boolean isMac = name.startsWith("Mac");
-		assertEquals(OsUtil.IS_MAC, isMac);
+	public void testDescriptor() {
+		assertMatch(OsUtil.os().descriptor(), ".+;.+;.+");
 	}
 
 	@Test
 	public void testAws() {
-		String name = SystemVars.sys("AWS_PATH");
-		boolean isAws = name != null && !name.isEmpty();
-		assertEquals(OsUtil.IS_AWS, isAws);
+		try (var x = SystemVars.removable("AWS_PATH", "x")) {
+			assertTrue(OsUtil.aws());
+		}
+		try (var x = SystemVars.removable("AWS_PATH", "")) {
+			assertFalse(OsUtil.aws());
+		}
+		try (var x = SystemVars.removable("AWS_PATH", null)) {
+			assertFalse(OsUtil.aws());
+		}
 	}
 
 	@Test
-	public void testPropertyIsSet() {
-		OsUtil.propertyIsSet("\0\0\0\0");
-		OsUtil.propertyIsSet("os.name");
+	public void testNameOverride() {
+		var orig = OsUtil.os();
+		try (var x = OsUtil.os("Mac", null, null)) {
+			assertOs(OsUtil.os(), "Mac", orig.arch, orig.version);
+			assertTrue(OsUtil.os().mac);
+			assertFalse(OsUtil.os().linux);
+		}
+		try (var x = OsUtil.os("Darwin", null, null)) {
+			assertOs(OsUtil.os(), "Darwin", orig.arch, orig.version);
+			assertTrue(OsUtil.os().mac);
+			assertFalse(OsUtil.os().linux);
+		}
+		try (var x = OsUtil.os("Linux", null, null)) {
+			assertOs(OsUtil.os(), "Linux", orig.arch, orig.version);
+			assertFalse(OsUtil.os().mac);
+			assertTrue(OsUtil.os().linux);
+		}
+		try (var x = OsUtil.os("Other", null, null)) {
+			assertOs(OsUtil.os(), "Other", orig.arch, orig.version);
+			assertFalse(OsUtil.os().mac);
+			assertFalse(OsUtil.os().linux);
+		}
 	}
 
 	@Test
-	public void testUnsupportedOs() {
-		assertThrown(() -> {
-			throw OsUtil.unsupportedOs();
-		});
+	public void testArchOverride() {
+		var orig = OsUtil.os();
+		try (var x = OsUtil.os(null, "x86", null)) {
+			assertOs(OsUtil.os(), orig.name, "x86", orig.version);
+			assertTrue(OsUtil.os().x86);
+			assertFalse(OsUtil.os().arm);
+			assertFalse(OsUtil.os().bit64);
+		}
+		try (var x = OsUtil.os(null, "aarch", null)) {
+			assertOs(OsUtil.os(), orig.name, "aarch", orig.version);
+			assertFalse(OsUtil.os().x86);
+			assertTrue(OsUtil.os().arm);
+			assertFalse(OsUtil.os().bit64);
+		}
+		try (var x = OsUtil.os(null, "aarch64", null)) {
+			assertOs(OsUtil.os(), orig.name, "aarch64", orig.version);
+			assertFalse(OsUtil.os().x86);
+			assertTrue(OsUtil.os().arm);
+			assertTrue(OsUtil.os().bit64);
+		}
+		try (var x = OsUtil.os(null, "xxx", null)) {
+			assertOs(OsUtil.os(), orig.name, "xxx", orig.version);
+			assertFalse(OsUtil.os().x86);
+			assertFalse(OsUtil.os().arm);
+			assertFalse(OsUtil.os().bit64);
+		}
 	}
 
+	@Test
+	public void testVersionOverride() {
+		var orig = OsUtil.os();
+		try (var x = OsUtil.os(null, null, "-999")) {
+			assertOs(OsUtil.os(), orig.name, orig.arch, "-999");
+		}
+	}
+
+	private static void assertOs(OsUtil.Os os, String name, String arch, String version) {
+		assertEquals(os.name, name, "name");
+		assertEquals(os.arch, arch, "name");
+		assertEquals(os.version, version, "name");
+	}
 }

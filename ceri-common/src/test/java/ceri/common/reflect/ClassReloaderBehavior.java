@@ -27,8 +27,8 @@ public class ClassReloaderBehavior {
 
 	@Test
 	public void shouldReloadClass() {
-		var c1 = ClassReloader.of(Nested.class).load(Nested.class);
-		var c2 = ClassReloader.of(Nested.class).load(Nested.class);
+		var c1 = ClassReloader.reload(Nested.class);
+		var c2 = ClassReloader.reload(Nested.class);
 		assertNotSame(c1, c2);
 	}
 

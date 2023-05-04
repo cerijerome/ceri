@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
@@ -14,6 +15,14 @@ import ceri.common.util.BasicUtil;
  */
 public class ClassReloader extends ClassLoader {
 	private final Map<String, ProtectionDomain> classes;
+
+	/**
+	 * Reloads and initializes the given class; support classes are reloaded if accessed.
+	 */
+	public static <T> Class<T> reload(Class<T> cls, Class<?>... supportClasses) {
+		return ExceptionUtil.shouldNotThrow(() -> BasicUtil.uncheckedCast(
+			Class.forName(cls.getName(), true, of(ArrayUtil.asList(cls, supportClasses)))));
+	}
 
 	/**
 	 * Constructor specifying classes to reload.
@@ -60,12 +69,13 @@ public class ClassReloader extends ClassLoader {
 	}
 
 	/**
-	 * Loads the class. For a constructor-specified class, it is loaded once only from its class
-	 * file resource. For other classes, standard delegating ClassLoader logic is applied.
+	 * Loads the class with optional initialization. For a constructor-specified class, it is loaded
+	 * once only from its class file resource. For other classes, standard delegating ClassLoader
+	 * logic is applied.
 	 */
 	public <T> Class<T> load(Class<T> cls) {
-		return BasicUtil
-			.uncheckedCast(ExceptionUtil.shouldNotThrow(() -> loadClass(cls.getName())));
+		return ExceptionUtil
+			.shouldNotThrow(() -> BasicUtil.uncheckedCast(loadClass(cls.getName())));
 	}
 
 }
