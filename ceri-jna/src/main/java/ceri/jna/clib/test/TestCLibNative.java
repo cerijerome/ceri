@@ -33,6 +33,7 @@ import ceri.jna.util.Struct;
 public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
 	public final Map<Integer, Fd> fds = new ConcurrentHashMap<>();
+	public final Map<String, String> env = new ConcurrentHashMap<>();
 	// List<?> = String path, int flags, int mode
 	public final CallSync.Accept<List<?>> open = CallSync.consumer(null, true);
 	public final CallSync.Apply<Fd, Integer> close = CallSync.function(null, 0);
@@ -56,6 +57,20 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Apply<List<?>, Integer> tcgetattr = CallSync.function(null, 0);
 	// List<?> = Fd f, int optional_actions, Pointer termios
 	public final CallSync.Apply<List<?>, Integer> tcsetattr = CallSync.function(null, 0);
+	// List<?> = Fd f, int duration
+	public final CallSync.Apply<List<?>, Integer> tcsendbreak = CallSync.function(null, 0);
+	public final CallSync.Apply<Fd, Integer> tcdrain = CallSync.function(null, 0);
+	// List<?> = Fd f, int queue_selector
+	public final CallSync.Apply<List<?>, Integer> tcflush = CallSync.function(null, 0);
+	// List<?> = Fd f, int action
+	public final CallSync.Apply<List<?>, Integer> tcflow = CallSync.function(null, 0);
+	public final CallSync.Accept<Pointer> cfmakeraw = CallSync.consumer(null, true);
+	public final CallSync.Apply<Pointer, Integer> cfgetispeed = CallSync.function(null, 0);
+	// List<?> = Pointer termios, int speed
+	public final CallSync.Apply<List<?>, Integer> cfsetispeed = CallSync.function(null, 0);
+	public final CallSync.Apply<Pointer, Integer> cfgetospeed = CallSync.function(null, 0);
+	// List<?> = Pointer termios, int speed
+	public final CallSync.Apply<List<?>, Integer> cfsetospeed = CallSync.function(null, 0);
 
 	public static record Fd(int fd, String path, int flags, int mode) {}
 
@@ -133,8 +148,8 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Assert fcntl request was called with fd, command and optional args.
 	 */
-	public void assertFcntl(int fd, int request, Object... args) {
-		assertFcntlArgs(fd, request, objs -> assertArray(objs, args));
+	public void assertFcntl(int fd, int command, Object... args) {
+		assertFcntlArgs(fd, command, objs -> assertArray(objs, args));
 	}
 
 	/**
@@ -236,60 +251,59 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int tcsendbreak(int fd, int duration) throws LastErrorException {
-		return 0;
+		return tcsendbreak.apply(List.of(fd(fd), duration));
 	}
 
 	@Override
 	public int tcdrain(int fd) throws LastErrorException {
-		return 0;
+		return tcdrain.apply(fd(fd));
 	}
 
 	@Override
 	public int tcflush(int fd, int queue_selector) throws LastErrorException {
-		return 0;
+		return tcflush.apply(List.of(fd(fd), queue_selector));
 	}
 
 	@Override
 	public int tcflow(int fd, int action) throws LastErrorException {
-		return 0;
+		return tcflow.apply(List.of(fd(fd), action));
 	}
 
 	@Override
-	public void cfmakeraw(Pointer termios) throws LastErrorException {}
+	public void cfmakeraw(Pointer termios) throws LastErrorException {
+		cfmakeraw.accept(termios);
+	}
 
 	@Override
 	public NativeLong cfgetispeed(Pointer termios) throws LastErrorException {
-		return new NativeLong(0);
+		return JnaUtil.unlong(cfgetispeed.apply(termios));
 	}
 
 	@Override
 	public NativeLong cfgetospeed(Pointer termios) throws LastErrorException {
-		return new NativeLong(0);
+		return JnaUtil.unlong(cfgetospeed.apply(termios));
 	}
 
 	@Override
 	public int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return 0;
+		return cfsetispeed.apply(List.of(termios, speed.intValue()));
 	}
 
 	@Override
 	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return 0;
-	}
-
-	@Override
-	public int cfsetspeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return 0;
+		return cfsetospeed.apply(List.of(termios, speed.intValue()));
 	}
 
 	@Override
 	public int setenv(String name, String value, int overwrite) throws LastErrorException {
+		if (overwrite != 0) env.put(name, value);
+		else env.putIfAbsent(name, value);
 		return 0;
 	}
 
 	@Override
 	public String getenv(String name) {
-		return null;
+		return env.get(name);
 	}
 
 	public Fd fd(int fd) {

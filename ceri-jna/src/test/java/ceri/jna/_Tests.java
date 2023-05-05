@@ -38,6 +38,7 @@ import ceri.common.test.TestUtil;
 	// util
 	ceri.jna.util.ArrayPointerBehavior.class, //
 	ceri.jna.util.CallerBehavior.class, //
+	ceri.jna.util.GcMemoryBehavior.class, //
 	ceri.jna.util.JnaArgsBehavior.class, //
 	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //

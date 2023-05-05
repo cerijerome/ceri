@@ -5,7 +5,6 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
@@ -27,7 +26,7 @@ public class PointerUtil {
 		}
 
 		public Int(long value) {
-			super(Native.POINTER_SIZE, value);
+			super(JnaSize.POINTER.size, value);
 		}
 	}
 
@@ -74,7 +73,7 @@ public class PointerUtil {
 		long offset = 0;
 		for (int i = 0;; i++) {
 			if (p.getPointer(offset) == null) return i;
-			offset += Native.POINTER_SIZE;
+			offset += JnaSize.POINTER.size;
 		}
 	}
 
@@ -98,7 +97,7 @@ public class PointerUtil {
 	 * Creates a fixed-length contiguous pointer array. For {@code void*} array types.
 	 */
 	public static Pointer[] mallocArray(int count) {
-		return mallocArray(count, Native.POINTER_SIZE);
+		return mallocArray(count, JnaSize.POINTER.size);
 	}
 
 	/**
@@ -114,7 +113,7 @@ public class PointerUtil {
 	 */
 	public static <T extends PointerType> T[] mallocArray(Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(JnaUtil.gcMalloc(count * Native.POINTER_SIZE).m, constructor, arrayFn,
+		return arrayByVal(JnaUtil.gcMalloc(count * JnaSize.POINTER.size).m, constructor, arrayFn,
 			count);
 	}
 
@@ -122,7 +121,7 @@ public class PointerUtil {
 	 * Creates a zeroed fixed-length contiguous pointer array. For {@code void*} array types.
 	 */
 	public static Pointer[] callocArray(int count) {
-		return callocArray(count, Native.POINTER_SIZE);
+		return callocArray(count, JnaSize.POINTER.size);
 	}
 
 	/**
@@ -138,7 +137,7 @@ public class PointerUtil {
 	 */
 	public static <T extends PointerType> T[] callocArray(Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(JnaUtil.gcMalloc(count * Native.POINTER_SIZE).clear().m, constructor,
+		return arrayByVal(JnaUtil.gcMalloc(count * JnaSize.POINTER.size).clear().m, constructor,
 			arrayFn, count);
 	}
 
@@ -182,7 +181,7 @@ public class PointerUtil {
 	 * pointers if the pointer is null. For {@code void*} array types.
 	 */
 	public static Pointer[] arrayByVal(Pointer p, int count) {
-		return arrayByVal(p, count, Native.POINTER_SIZE);
+		return arrayByVal(p, count, JnaSize.POINTER.size);
 	}
 
 	/**
@@ -218,14 +217,14 @@ public class PointerUtil {
 	 * {@code struct**} array types.
 	 */
 	public static Pointer byRef(Pointer p, int i) {
-		return p == null ? null : p.getPointer(i * Native.POINTER_SIZE);
+		return p == null ? null : p.getPointer(i * JnaSize.POINTER.size);
 	}
 
 	/**
 	 * Get the pointer to index i of a contiguous pointer array. For {@code void*} array types.
 	 */
 	public static Pointer byVal(Pointer p, int i) {
-		return byVal(p, i, Native.POINTER_SIZE);
+		return byVal(p, i, JnaSize.POINTER.size);
 	}
 
 	/**

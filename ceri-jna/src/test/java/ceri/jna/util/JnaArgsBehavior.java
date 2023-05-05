@@ -7,14 +7,22 @@ import java.util.Set;
 import org.junit.Test;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import ceri.jna.util.Struct.Fields;
 
 public class JnaArgsBehavior {
 
 	static interface TestCallback extends Callback {
 		boolean invoke(String s, int i);
 	}
-
+	
+	@Fields({ "bb", "nl" })
+	public static class TestStruct extends Struct {
+		public byte[] bb = new byte[3];
+		public NativeLong nl = JnaUtil.unlong(123);
+	}
+	
 	@Test
 	public void shouldExpandArrays() {
 		assertEquals(
@@ -35,6 +43,13 @@ public class JnaArgsBehavior {
 			Pointer p = PointerUtil.pointer(peer + 1);
 			assertEquals(JnaArgs.DEFAULT.args(m, p), String.format("@%x+3, @%x", peer, peer + 1));
 		}
+	}
+
+	@Test
+	public void shouldPrintStructure() {
+		var s = new TestStruct();
+		assertMatch(JnaArgs.DEFAULT.arg(s), "TestStruct\\(@[0-9a-fA-F]+\\+[[0-9a-fA-F]]+\\)");
+		
 	}
 
 	@Test

@@ -122,6 +122,12 @@ public class CFileDescriptorBehavior {
 		lib.assertIoctl(fd().fd(), 100, "a", 1);
 	}
 
+	@Test
+	public void shouldCallFcntl() throws IOException {
+		fd.fcntl(100, "a", 1);
+		lib.assertFcntl(fd().fd(), 100, "a", 1);
+	}
+
 	private Fd fd() {
 		return lib.fd(fd.fd());
 	}

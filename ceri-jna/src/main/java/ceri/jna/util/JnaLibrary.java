@@ -42,8 +42,8 @@ public class JnaLibrary<T extends Library> {
 	/**
 	 * Add entries to JNA library path system variable.
 	 */
-	public static void addLibPaths(String... paths) {
-		addPaths(LIB_PATH, paths);
+	public static void addPaths(String... paths) {
+		addPropertyPaths(LIB_PATH, paths);
 	}
 
 	/**
@@ -96,15 +96,14 @@ public class JnaLibrary<T extends Library> {
 		logger.info("Loaded {} [{}]", name, ReflectUtil.name(cls));
 	}
 
-	private static void addPaths(String property, String... paths) {
+	private static void addPropertyPaths(String property, String... paths) {
 		String path = IoUtil.pathVariable(SystemVars.sys(property, ""), IoUtil.pathVariable(paths));
-		if (path.isEmpty()) System.clearProperty(property);
-		else System.setProperty(property, path);
+		SystemVars.setProperty(property, path.isEmpty() ? null : path);
 	}
 
 	/* os-specific settings */
 
 	static {
-		if (OsUtil.os().mac) addLibPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
+		if (OsUtil.os().mac) addPaths(MAC_LOCAL_LIB, MAC_HOMEBREW_LIB);
 	}
 }

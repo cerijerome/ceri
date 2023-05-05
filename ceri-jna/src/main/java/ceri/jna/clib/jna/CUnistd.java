@@ -2,11 +2,11 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
-import static com.sun.jna.Native.SIZE_T_SIZE;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.jna.util.JnaSize;
 import ceri.jna.util.JnaUtil;
 
 /**
@@ -28,7 +28,7 @@ public class CUnistd {
 		}
 
 		public size_t(long value) {
-			super(SIZE_T_SIZE, value, true);
+			super(JnaSize.SIZE_T.size, value, true);
 		}
 	}
 
@@ -39,7 +39,7 @@ public class CUnistd {
 		}
 
 		public ssize_t(long value) {
-			super(SIZE_T_SIZE, value);
+			super(JnaSize.SIZE_T.size, value);
 		}
 	}
 

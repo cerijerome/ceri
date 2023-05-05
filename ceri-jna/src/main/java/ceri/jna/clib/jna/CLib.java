@@ -107,9 +107,6 @@ public class CLib {
 		// int cfsetospeed(struct termios *termios_p, speed_t speed)
 		int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException;
 
-		// int cfsetspeed(struct termios *termios_p, speed_t speed)
-		int cfsetspeed(Pointer termios, NativeLong speed) throws LastErrorException;
-
 		/* <stdlib.h> */
 
 		// int setenv(const char *name, const char *value, int overwrite)
@@ -125,7 +122,7 @@ public class CLib {
 	public static void validateOs() {
 		var os = OsUtil.os();
 		if (!os.mac && !os.linux)
-			throw new UnsupportedOperationException("Not supported: " + os.descriptor());
+			throw new UnsupportedOperationException("Not supported: " + os);
 	}
 
 	static CLib.Native lib() {

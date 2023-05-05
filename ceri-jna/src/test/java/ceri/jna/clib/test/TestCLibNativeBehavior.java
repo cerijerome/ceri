@@ -4,11 +4,9 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
-import static ceri.jna.clib.jna.CFcntl.open;
 import static ceri.jna.clib.jna.CUnistd.close;
 import static ceri.jna.clib.jna.CUnistd.read;
 import static ceri.jna.clib.jna.CUnistd.write;
-import static ceri.jna.util.JnaUtil.nlong;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
@@ -18,25 +16,34 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.test.TestCLibNative.Fd;
 import ceri.jna.util.JnaUtil;
 
 public class TestCLibNativeBehavior {
-	private Enclosed<RuntimeException, TestCLibNative> enclosed;
-	private TestCLibNative clib;
+	private TestCLibNative lib;
+	private Enclosed<RuntimeException, ?> enc;
 	private int fd;
 
 	@Before
-	public void before() throws CException {
-		enclosed = TestCLibNative.register();
-		clib = enclosed.subject;
-		fd = open("test", O_RDWR, 0666);
+	public void before() {
+		lib = TestCLibNative.of();
+		enc = TestCLibNative.register(lib);
+		fd = lib.open("test", O_RDWR, 0666);
 	}
 
 	@After
-	public void after() throws CException {
-		close(fd);
-		enclosed.close();
+	public void after() {
+		lib.close(fd);
+		enc.close();
+	}
+
+	@Test
+	public void shouldProvideAutoErrorLogic() throws CException {
+		TestCLibNative.autoError(lib.fcntl, 333, list -> ((int) list.get(1)) < 0, "Test");
+		assertEquals(CFcntl.fcntl(fd, -1), 333);
+		assertThrown(() -> CFcntl.fcntl(fd, 1));
+		lib.fcntl.error.clear();
 	}
 
 	@Test
@@ -50,38 +57,23 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldReadIntoMemory() throws IOException {
-		clib.read.autoResponses(ByteProvider.of(1, 2, 3), null, ByteProvider.empty());
+		lib.read.autoResponses(ByteProvider.of(1, 2, 3), null, ByteProvider.empty());
 		assertArray(read(fd, 5), 1, 2, 3);
-		clib.read.assertAuto(List.of(fd(), 5));
+		lib.read.assertAuto(List.of(fd(), 5));
 		assertArray(read(fd, 3));
-		clib.read.assertAuto(List.of(fd(), 3));
+		lib.read.assertAuto(List.of(fd(), 3));
 		assertArray(read(fd, 2));
-		clib.read.assertAuto(List.of(fd(), 2));
+		lib.read.assertAuto(List.of(fd(), 2));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
-		clib.write.autoResponses(2, 1);
+		lib.write.autoResponses(2, 1);
 		assertEquals(write(fd, JnaUtil.mallocBytes(1, 2, 3), 3), 2);
-		clib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3)));
+		lib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3)));
 		assertEquals(write(fd, (Pointer) null, 2), 1);
-		clib.write.assertAuto(List.of(fd(), ByteProvider.of(0, 0)));
-	}
-
-	@Test
-	public void shouldCallTermios() {
-		// currently stubbed
-		assertEquals(clib.tcsendbreak(33, 1000), 0);
-		assertEquals(clib.tcdrain(33), 0);
-		assertEquals(clib.tcflush(33, 1000), 0);
-		assertEquals(clib.tcflow(33, 1000), 0);
-		clib.cfmakeraw(null);
-		assertEquals(clib.cfgetispeed(null), nlong(0));
-		assertEquals(clib.cfgetospeed(null), nlong(0));
-		assertEquals(clib.cfsetispeed(null, nlong(0)), 0);
-		assertEquals(clib.cfsetospeed(null, nlong(0)), 0);
-		assertEquals(clib.cfsetspeed(null, nlong(0)), 0);
+		lib.write.assertAuto(List.of(fd(), ByteProvider.of(0, 0)));
 	}
 
 	@Test
@@ -90,6 +82,6 @@ public class TestCLibNativeBehavior {
 	}
 
 	private Fd fd() {
-		return clib.fd(fd);
+		return lib.fd(fd);
 	}
 }

@@ -1,6 +1,7 @@
 package ceri.jna.test;
 
 import static ceri.common.test.AssertUtil.assertAssertion;
+import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
@@ -55,6 +56,15 @@ public class JnaTestUtilTest {
 		assertPointer((Structure) null, null);
 		assertAssertion(() -> assertPointer(t, null));
 		assertAssertion(() -> assertPointer(t, new Memory(1)));
+	}
+
+	@Test
+	public void testBuffer() {
+		var b = JnaTestUtil.buffer(-1, 0x7f, 0, 0x80);
+		assertByte(b.get(), -1);
+		assertByte(b.get(), 0x7f);
+		assertByte(b.get(), 0);
+		assertByte(b.get(), 0x80);
 	}
 
 	@Test

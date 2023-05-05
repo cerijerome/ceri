@@ -113,6 +113,7 @@ public class FileDescriptorBehavior {
 		FileDescriptor.NULL.write(null, 1, 5);
 		assertEquals(FileDescriptor.NULL.seek(5, null), 0);
 		assertEquals(FileDescriptor.NULL.ioctl(0), 0);
+		assertEquals(FileDescriptor.NULL.fcntl(0), 0);
 		FileDescriptor.NULL.close();
 	}
 

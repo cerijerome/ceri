@@ -71,7 +71,10 @@ int main(int argc, char *argv[]) {
 	//SIZE(void*);
 	SIZE(mode_t);
 
-	SYMI(TIOCEXCL);
+	SYMI(TCOOFF);
+	SYMI(TCOON);
+	SYMI(TCIOFF);
+	SYMI(TCION);
 
 	return 0;
 }

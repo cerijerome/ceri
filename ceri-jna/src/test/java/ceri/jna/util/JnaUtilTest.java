@@ -9,7 +9,9 @@ import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import org.junit.Test;
+import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -20,10 +22,19 @@ import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
+import ceri.common.reflect.ClassReloader;
+import ceri.common.util.SystemVars;
 import ceri.jna.util.JnaTestData.TestStruct;
 
 public class JnaUtilTest {
 	private final JnaTestData data = JnaTestData.of();
+
+	@SuppressWarnings("serial")
+	public static class Uint32 extends IntegerType {
+		public Uint32(long value) {
+			super(Integer.BYTES, value, true);
+		}
+	}
 
 	@Test
 	public void testSetProtected() {
@@ -195,6 +206,20 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testAnd() {
+		var uint32 = new Uint32(0xeff00000);
+		JnaUtil.and(uint32, 0xbf000000);
+		assertEquals(uint32.longValue(), 0xaf000000L);
+	}
+
+	@Test
+	public void testOr() {
+		var uint32 = new Uint32(0x8ff00000);
+		JnaUtil.or(uint32, 0x5f000000);
+		assertEquals(uint32.longValue(), 0xdff00000L);
+	}
+
+	@Test
 	public void testUbyte() {
 		ByteByReference ref = new ByteByReference((byte) 0x80);
 		assertEquals(JnaUtil.ubyte(ref), (short) 0x80);
@@ -220,6 +245,9 @@ public class JnaUtilTest {
 		NativeLongByReference ref = new NativeLongByReference(new NativeLong(0x80000000L));
 		assertEquals(JnaUtil.unlong(ref), 0x80000000L);
 		assertEquals(JnaUtil.unlong(ref.getPointer(), 0), 0x80000000L);
+		try (var x = JnaSize.LONG.removable(4)) {
+			assertEquals(JnaUtil.unlong(new NativeLong(-1L)), 0xffffffffL);
+		}
 	}
 
 	@Test
@@ -250,6 +278,13 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testBytesFromMemory() {
+		@SuppressWarnings("resource")
+		var m = JnaUtil.mallocBytes(-1, 0, 0x80, 1);
+		assertArray(JnaUtil.bytes(m), -1, 0, 0x80, 1);
+	}
+
+	@Test
 	public void testBytesFromBuffer() {
 		assertArray(JnaUtil.bytes((ByteBuffer) null, 0, 0));
 		assertThrown(() -> JnaUtil.bytes((ByteBuffer) null, 0, 1));
@@ -270,6 +305,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testBuffer() {
+		assertBuffer(JnaUtil.buffer(null, 0));
 		assertBuffer(JnaUtil.buffer(null, 0, 0));
 		assertThrown(() -> JnaUtil.buffer(null, 0, 1));
 		try (Memory m = JnaUtil.mallocBytes(0x80, 0, 0xff)) {
@@ -320,6 +356,27 @@ public class JnaUtilTest {
 		try (Memory m = JnaUtil.calloc(5)) {
 			assertEquals(JnaUtil.write(m, 1, 0x80, 0, 0xff), 4);
 			assertMemory(m, 0, 0, 0x80, 0, 0xff, 0);
+		}
+	}
+
+	@Test
+	public void testFill() {
+		@SuppressWarnings("resource")
+		var m = JnaUtil.mallocBytes(-1, 0, 0x80, 1);
+		JnaUtil.fill(m, 0x9f);
+		assertArray(JnaUtil.bytes(m), 0x9f, 0x9f, 0x9f, 0x9f);
+	}
+
+	@Test
+	public void testDefaultCharset() {
+		try (var x = SystemVars.removableProperty("jna.encoding", "test")) {
+			ClassReloader.reload(CharsetTester.class, JnaUtil.class);
+		}
+	}
+
+	public static class CharsetTester {
+		static {
+			assertEquals(JnaUtil.DEFAULT_CHARSET, Charset.defaultCharset());
 		}
 	}
 

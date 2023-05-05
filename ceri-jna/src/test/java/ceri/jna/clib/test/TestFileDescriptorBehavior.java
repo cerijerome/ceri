@@ -74,4 +74,13 @@ public class TestFileDescriptorBehavior {
 		}
 	}
 
+	@Test
+	public void shouldCallFcntl() throws IOException {
+		try (var fd = TestFileDescriptor.of(33)) {
+			fd.fcntl.autoResponses(7);
+			assertEquals(fd.fcntl(11, "test", -1), 7);
+			fd.fcntl.assertAuto(List.of(11, "test", -1));
+		}
+	}
+
 }

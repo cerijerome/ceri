@@ -15,6 +15,8 @@ public class JnaSize {
 	public static final Size LONG_DOUBLE = new Size(Native.LONG_DOUBLE_SIZE);
 	public static final Size SIZE_T = new Size(Native.SIZE_T_SIZE);
 
+	private JnaSize() {}
+	
 	public static class Size {
 		public final int size;
 		private volatile int sizeOverride = 0;

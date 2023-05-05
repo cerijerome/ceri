@@ -102,6 +102,14 @@ public class SelfHealingFdBehavior {
 	}
 
 	@Test
+	public void shouldCallFcntl() throws IOException {
+		shf.open();
+		fd.fcntl.autoResponses(3);
+		assertEquals(shf.fcntl(1, "test", -1), 3);
+		fd.fcntl.assertAuto(List.of(1, "test", -1));
+	}
+
+	@Test
 	public void shouldFailIfNotOpen() {
 		assertThrown(() -> shf.fd());
 		assertThrown(() -> shf.read(new Memory(3)));

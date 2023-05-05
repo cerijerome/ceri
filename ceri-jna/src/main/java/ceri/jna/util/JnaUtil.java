@@ -28,7 +28,6 @@ import ceri.common.util.ValueCache;
 public class JnaUtil {
 	private static final int MEMCPY_OPTIMAL_MIN_SIZE = 8 * 1024; // determined from test results
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
-	public static final boolean NLONG_LONG = NativeLong.SIZE == Long.BYTES;
 
 	private JnaUtil() {}
 
@@ -277,7 +276,8 @@ public class JnaUtil {
 	 * Converts value to unsigned.
 	 */
 	public static long unlong(NativeLong value) {
-		return NLONG_LONG ? value.longValue() : MathUtil.uint(value.intValue());
+		if (JnaSize.LONG.size() >= Long.BYTES) return value.longValue();
+		return MathUtil.uint(value.intValue());
 	}
 
 	/**
@@ -783,7 +783,7 @@ public class JnaUtil {
 
 	private static Charset defaultCharset() {
 		String encoding = Native.getDefaultStringEncoding();
-		if (encoding == null || !Charset.isSupported(encoding)) return Charset.defaultCharset();
+		if (!Charset.isSupported(encoding)) return Charset.defaultCharset();
 		return Charset.forName(encoding);
 	}
 

@@ -316,7 +316,7 @@ public abstract class Struct extends Structure {
 	 * Provides a compact string suitable for error messages.
 	 */
 	public static <T extends Structure> String compactString(T t) {
-		return String.format("%s@%x+%x", ReflectUtil.name(t.getClass()),
+		return String.format("%s(@%x+%x)", ReflectUtil.nestedName(t.getClass()),
 			Pointer.nativeValue(t.getPointer()), t.size());
 	}
 
@@ -489,13 +489,6 @@ public abstract class Struct extends Structure {
 	@Override
 	protected List<String> getFieldOrder() {
 		return fields.computeIfAbsent(getClass(), Struct::annotatedFields);
-	}
-
-	/**
-	 * A compact string representation suitable for error messages. 
-	 */
-	public String compactString() {
-		return compactString(this);
 	}
 
 	@Override

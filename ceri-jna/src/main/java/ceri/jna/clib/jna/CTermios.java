@@ -41,6 +41,13 @@ public class CTermios {
 	public static final int TCSANOW = 0;
 	public static final int TCSADRAIN = 1;
 	public static final int TCSAFLUSH = 2;
+	public static final int TCIFLUSH;
+	public static final int TCOFLUSH;
+	public static final int TCIOFLUSH;
+	public static final int TCOOFF;
+	public static final int TCOON;
+	public static final int TCIOFF;
+	public static final int TCION;
 	public static final int B0;
 	public static final int B50;
 	public static final int B75;
@@ -110,6 +117,22 @@ public class CTermios {
 	}
 
 	/**
+	 * Discards data written but not transmitted, or data received but not read, depending on the
+	 * queue selector: TCIFLUSH, TCOFLUSH, TCIOFLUSH.
+	 */
+	public static void tcflush(int fd, int queueSelector) throws CException {
+		caller.verify(() -> lib().tcflush(fd, queueSelector), "tcflush", fd);
+	}
+
+	/**
+	 * Suspends transmission or reception of data, depending on the action: TCOOFF, TCOON, TCIOFF,
+	 * TCION
+	 */
+	public static void tcflow(int fd, int action) throws CException {
+		caller.verify(() -> lib().tcflow(fd, action), "tcflow", fd);
+	}
+
+	/**
 	 * Configures raw mode; input is available char by char. Call <code>Struct.write(termios)</code>
 	 * first if memory is out of date.
 	 */
@@ -143,9 +166,9 @@ public class CTermios {
 	 * Returns the output baud rate stored in the termios structure. Call
 	 * <code>Struct.write(termios)</code> first if memory is out of date.
 	 */
-	public static long cfgetospeed(termios termios) throws CException {
+	public static int cfgetospeed(termios termios) throws CException {
 		Pointer p = termios.getPointer();
-		return caller.callType(() -> lib().cfgetospeed(p), "cfgetospeed", p).longValue();
+		return caller.callType(() -> lib().cfgetospeed(p), "cfgetospeed", p).intValue();
 	}
 
 	/**
@@ -181,7 +204,7 @@ public class CTermios {
 			public NativeLong c_ispeed; // input speed
 			public NativeLong c_ospeed; // output speed
 		}
-		
+
 		/**
 		 * Populates mac termios attributes.
 		 */
@@ -212,7 +235,7 @@ public class CTermios {
 			public NativeLong c_ispeed; // input speed
 			public NativeLong c_ospeed; // output speed
 		}
-		
+
 		/**
 		 * Populates linux termios attributes..
 		 */
@@ -247,6 +270,13 @@ public class CTermios {
 			VSTOP = 13;
 			VMIN = 16;
 			VTIME = 17;
+			TCIFLUSH = 1;
+			TCOFLUSH = 2;
+			TCIOFLUSH = 3;
+			TCOOFF = 1;
+			TCOON = 2;
+			TCIOFF = 3;
+			TCION = 4;
 			B0 = 0;
 			B50 = 50;
 			B75 = 75;
@@ -301,6 +331,13 @@ public class CTermios {
 			VMIN = 6;
 			VSTART = 8;
 			VSTOP = 9;
+			TCIFLUSH = 0;
+			TCOFLUSH = 1;
+			TCIOFLUSH = 2;
+			TCOOFF = 0;
+			TCOON = 1;
+			TCIOFF = 2;
+			TCION = 3;
 			B0 = 0x0000;
 			B50 = 0x0001;
 			B75 = 0x0002;

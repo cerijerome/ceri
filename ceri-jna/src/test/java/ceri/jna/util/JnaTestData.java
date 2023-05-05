@@ -4,7 +4,6 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
@@ -118,7 +117,7 @@ public class JnaTestData {
 	}
 
 	public Pointer structArrayByRefPointer(int i) {
-		return JnaTestUtil.deref(pointerArrayByVal[0].share(i * Native.POINTER_SIZE));
+		return JnaTestUtil.deref(pointerArrayByVal[0].share(i * JnaSize.POINTER.size));
 	}
 
 	public Pointer pointerArrayByValPointer(int i) {
@@ -170,9 +169,9 @@ public class JnaTestData {
 	@SuppressWarnings("resource")
 	private Pointer[] pointerArrayByVal(TestStruct[] ts) {
 		Pointer[] array = new Pointer[ts.length];
-		Memory m = mc.calloc((array.length + 1) * Native.POINTER_SIZE); // null-terminated
+		Memory m = mc.calloc((array.length + 1) * JnaSize.POINTER.size); // null-terminated
 		for (int i = 0; i < array.length; i++) {
-			array[i] = m.share(i * Native.POINTER_SIZE);
+			array[i] = m.share(i * JnaSize.POINTER.size);
 			array[i].setPointer(0, ts[i].getPointer());
 		}
 		return array;
