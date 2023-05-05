@@ -69,9 +69,8 @@ public class ClassReloader extends ClassLoader {
 	}
 
 	/**
-	 * Loads the class with optional initialization. For a constructor-specified class, it is loaded
-	 * once only from its class file resource. For other classes, standard delegating ClassLoader
-	 * logic is applied.
+	 * Loads the class. For a constructor-specified class, it is loaded once only from its class
+	 * file resource. For other classes, standard delegating ClassLoader logic is applied.
 	 */
 	public <T> Class<T> load(Class<T> cls) {
 		return ExceptionUtil

@@ -32,6 +32,21 @@ public class SystemVarsTest {
 	}
 
 	@Test
+	public void testSetNullProperty() {
+		assertNull(SystemVars.setProperty(null, "test"));
+		assertNull(SystemVars.setProperty(" ", "test"));
+	}
+
+	@Test
+	public void testRemovableProperty() {
+		String key = getClass().getName();
+		try (var x = SystemVars.removableProperty(key, "test")) {
+			assertEquals(System.getProperty(key), "test");
+		}
+		assertEquals(System.getProperty(key), null);
+	}
+
+	@Test
 	public void testRemove() {
 		assertNull(SystemVars.remove(null));
 		assertNull(SystemVars.remove("!@#$%"));

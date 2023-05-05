@@ -52,7 +52,8 @@ public class OsUtil {
 			bit64 = BIT64_REGEX.matcher(arch).find();
 		}
 		
-		public String descriptor() {
+		@Override
+		public String toString() {
 			return String.format("%s; %s; %s", name, arch, version);
 		}
 	}

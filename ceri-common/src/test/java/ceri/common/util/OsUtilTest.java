@@ -16,7 +16,7 @@ public class OsUtilTest {
 
 	@Test
 	public void testDescriptor() {
-		assertMatch(OsUtil.os().descriptor(), ".+;.+;.+");
+		assertMatch(OsUtil.os().toString(), ".+;.+;.+");
 	}
 
 	@Test

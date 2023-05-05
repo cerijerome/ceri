@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.function.RuntimeCloseable;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.StringUtil;
 
 /**
  * A wrapper for environment variables and system properties, that allows overriding of values.
@@ -59,12 +59,27 @@ public class SystemVars {
 	 */
 	public static Map<String, String> sys() {
 		Map<String, String> sys = new HashMap<>();
-		System.getProperties().forEach((k, v) -> {
-			String key = ReflectUtil.castOrNull(String.class, k);
-			String value = ReflectUtil.castOrNull(String.class, v);
-			if (key != null && value != null) sys.put(key, value);
-		});
+		System.getProperties().forEach((k, v) -> sys.put((String) k, (String) v));
 		return addVars(sys);
+	}
+
+	/**
+	 * Sets a system property and returns the previous value, or null if not set. A null value
+	 * passed in will clear the property.
+	 */
+	public static String setProperty(String name, String value) {
+		if (StringUtil.blank(name)) return null;
+		return value != null ? System.setProperty(name, value) : System.clearProperty(name);
+	}
+
+	/**
+	 * Returns a closeable instance that sets a system property, then reverts it on close.
+	 */
+	public static RuntimeCloseable removableProperty(String name, String value) {
+		String orig = setProperty(name, value); // null if property not set
+		return ()
+			->
+		setProperty(name, orig);
 	}
 
 	/**
