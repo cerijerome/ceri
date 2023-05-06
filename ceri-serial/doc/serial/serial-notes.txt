@@ -1,0 +1,155 @@
+Serial Programming Notes
+========================
+
+
+General:
+- mark = on, space = off
+- RS232: mark -V, space +V, up to 25 pins, 8m max
+  - Unix support: GND, TXD, RXD, DCD, DTR, CTS, RTS
+- RS422: lower + differential voltage, 300m max
+- async transmission:
+  - mark (1) until data is transmitted
+  - start bit (0), char bits, [parity], stop bits (1)
+  - data sent/received any time
+- parity:
+  - parity bit per char
+  - even = 0 if even # of bits
+  - odd = 0 if odd # of bits
+  - space = always 0
+  - mark = always 1
+  - none = no bit
+- stop bits: 1, 1.5, 2; always value 1
+  - 1.5 extends stop bit timing
+- full duplex = in and out are separate channels
+- half duplex = in and out shared channel
+- flow control:
+  - software: start (XON/DC1), stop (XOFF/DC3) for text
+  - hardware: CTS, RTS signals (faster, not always supported)
+    - receiver: CTS to 0 when ready
+    - sender: RTS to 0 when ready
+- break: .25s of space (0), can be used to reset line
+- sync transmission: 25% faster
+  - constant stream, common clock
+  - SDLC, HDLC common protocols
+
+
+Basics:
+- open: fd = open(device, O_RDWR | O_NOCTTY | O_NONBLOCK)
+  - may need to change access permissions
+  - O_NOCTTY: prevent signal issues
+  - O_NONBLOCK: ignore DCD line in state
+  - fcntl(fd, F_SETFL, 0); // for blocking reads
+- check if tty: isatty(fd)
+- write: n = write(fd, <data>, count);
+  - returns n bytes sent
+  - EIO error if DCD line drops
+- read: n = read(fd, buf, count)
+  - blocks if O_NONBLOCK removed with fcntl(fd, F_SETFL, 0)
+- close: close(fd);
+  - usually sets DTR low
+- termios modes:
+  - canonical: real terminal, line by line (default)
+  - non-canonical: no processing, char by char
+  - (BSD) cooked: lines and special chars (default)
+  - (BSD) raw: no lines, no special chars
+  - (BSD) cbreak: no lines, some special chars
+  - use non-canonical, raw, or cbreak modes for serial
+
+
+Configuration:
+- get: tcgetattr(fd, &tty);
+- set: tcsetattr(fd, TCSANOW, &tty);
+- struct termios:
+    tcflag_t c_iflag;    // input flags
+    tcflag_t c_oflag;    // output flags
+    tcflag_t c_cflag;    // control flags
+    tcflag_t c_lflag;    // local flags
+    cc_t     c_cc[NCCS]; // special chars
+    speed_t c_ispeed; // input baud
+    speed_t c_ospeed; // output baud
+  - actual impls add more fields
+- c_iflag: input parity, s/w flow control
+- c_oflag: processed output or raw mode
+- c_cflag: data bits, parity, stop bits, h/w flow control
+  - CLOCAL and CREAD should always be set
+- c_lflag: configure for canonical or raw input
+  - canonical: c_lflag |= (ICANON | ECHO | ECHOE)
+  - raw: c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG)
+- cfmakeraw(&tty): set common raw mode options
+  - c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+  - c_oflag &= ~OPOST;
+  - c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+  - c_cflag &= ~(CSIZE | PARENB);
+  - c_cflag |= CS8;
+- c_cc: control character array (codes ASCII 0-0x1f)
+  - elements: VSTART, VSTOP, VMIN, VTIME, ...
+  - VMIN, VTIME ignored for canonical input mode, and O_NONBLOCK fd
+  - VMIN = min chars to read (blocking)
+  - VTIME = timeout in .1s, 0 for indefinite
+    - timeout for each char if VMIN = 0
+    - timeout for 1st char if VMIN > 0
+- set standard baud BNNN constants
+  - cfsetispeed(&tty, <baud>);
+  - cfsetispeed(&tty, <baud>);
+  - differeny in/out speeds not usually supported
+
+
+Advanced:
+- ioctl(fd, TIOCEXCL) = exclusive mode, cannot be opened
+- ioctl(fd, FIONREAD, &int) = get # bytes in input buffer
+- tcdrain(fd) = wait for output buffer to clear
+- tcflow(fd, TCOOFF|TCOON|TCIOFF|TCION) = suspend/restart xoff/xon
+- tcflush(fd, TCIFLUSH|TCOFLUSH|TCIOFLUSH) = discard in/out buffer data
+- tcsendbreak(fd, 0|N) = send 0s for 0.25+s
+- line status:
+  - ioctl(fd, TIOCMGET, &int) = get line status
+  - ioctl(fd, TIOCMSET, &int) = set line status
+  - bits:
+    - TIOCM_DTR = data terminal ready
+    - TIOCM_RTS = request to send
+    - TIOCM_CTS = clear to send
+    - TIOCM_CD = data carrier detect
+    - TIOCM_RI = ring
+    - TIOCM_DSR = data set ready
+- poll() to check events on fds
+  - POLLIN = data available to read
+  - POLLOUT = write will no longer block
+  - POLLERR, POLLHUP, POLLNVAL (revents only)
+
+
+Setting custom baud:
+- Mac:
+  #include <termios.h>
+  #include <IOKit/serial/ioss.h>
+  // #define IOSSIOSPEED _IOW('T', 2, speed_t) // 0x80085402
+  cfsetispeed(&tty, B9600);
+  cfsetispeed(&tty, B9600);
+  ioctl(fd, IOSSIOSPEED, <custom-baud>);
+- Linux (1): alias B38400
+  - other aliases (linux/tty_flags.h):
+    - ASYNCB_SPD_HI => B56000
+    - ASYNCB_SPD_VHI => B115200
+    - ASYNCB_SPD_SHI => B230400
+  #include <linux/serial.h>
+  #include <sys/ioctl.h>
+  #include <termios.h>
+  struct serial_struct ss;
+  ioctl(port, TIOCGSERIAL, &ss);
+  ss.flags = (ss.flags & ~ASYNC_SPD_MASK) | ASYNC_SPD_CUST;
+  ss.custom_divisor = (ss.baud_base + (speed / 2)) / speed;
+  closestSpeed = ss.baud_base / ss.custom_divisor; // check if acceptable
+  ioctl(port, TIOCSSERIAL, &ss);
+  cfsetispeed(&tty, B38400);
+  cfsetospeed(&tty, B38400);  
+- Linux (2): use termios2
+  #include <sys/ioctl.h>
+  #include <termios.h>
+  struct termios2 options;
+  ioctl(fd, TCGETS2, &options);
+  options.c_cflag &= ~CBAUD; // remove current baud rate
+  options.c_cflag |= BOTHER; // allow custom baud rate
+  options.c_ispeed = <custom-baud>;
+  options.c_ospeed = <custom-baud>;
+  ioctl(fd, TCSETS2, &options);
+	
+  
