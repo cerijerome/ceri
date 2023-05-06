@@ -12,11 +12,11 @@ import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
-import ceri.serial.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_ioctl_data;
-import ceri.serial.jna.JnaUtil;
 
 public class TestI2cCLibNative extends TestCLibNative {
 	// List<?> = int request, int value
@@ -44,7 +44,8 @@ public class TestI2cCLibNative extends TestCLibNative {
 	private TestI2cCLibNative() {}
 
 	@Override
-	protected int ioctl(Fd f, int request, Object... objs) throws LastErrorException {
+	public int ioctl(int fd, NativeLong req, Object... objs) throws LastErrorException {
+		int request = req.intValue();
 		switch (request) {
 			case 0x0701: // I2C_RETRIES
 			case 0x0702: // I2C_TIMEOUT
@@ -60,7 +61,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 			case 0x0720: // I2C_SMBUS, pointer to struct i2c_smbus_ioctl_data
 				return ioctlSmBus((i2c_smbus_ioctl_data) objs[0]);
 			default:
-				return super.ioctl(f, request, objs);
+				return super.ioctl(fd, req, objs);
 		}
 	}
 

@@ -2,6 +2,7 @@ Purejavacomm
 ============
 
 Open
+----
 - open(port, O_RDWR | O_NOCTTY | O_NONBLOCK) why nonblock if clearing next?
 - clear nonblock file flag:
   - flags = fcntl(fd, F_GETFL, 0)
@@ -74,7 +75,7 @@ Open
   - tcsetattr(fd, TCSANOW, termios)
 - get control line states
   - ioctl(fd, TIOCMGET, ioctl) // int ioctl[0]
-- create pipe
+- create nudge pipe
   - pipe(new int[2]) // read fd, write fd
   - set O_NONBLOCK on read fd
     - fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK)
@@ -82,6 +83,35 @@ Open
   - poll or select
   - notify read, write, control line change
 
+
+InputStream
+-----------
+- init:
+  - buffer [2048]
+  - poll block [serial fd, nudge read fd]
+- available: ioctl(fd, FIONREAD, int ref)
+- read:
+  - raw mode:
+    - check for VTIME, VMIN changes
+      - update termios, tcsetattr TCSANOW
+    - read into buffer
+  - regular mode:
+    - copy VTIME, VMIN, poll mode settings
+    - loop:
+      - 
+
+
+OutputStream
+------------
+- write:
+  - offset 0: write from given buffer
+  - offset > 0: copy to buffer and write
+- flush: tcdrain
+
+
+Close
+-----
+- 
 
 
 

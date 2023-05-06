@@ -4,12 +4,12 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.provider;
+import static ceri.jna.test.JnaTestUtil.assertMemory;
+import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type.BREAK_ON;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type.STOP_BIT_2;
-import static ceri.serial.jna.test.JnaTestUtil.assertMemory;
-import static ceri.serial.jna.test.JnaTestUtil.assertPointer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import com.sun.jna.Memory;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -31,11 +30,11 @@ import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
+import ceri.jna.util.GcMemory;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
-import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbSampleData;
@@ -204,10 +203,10 @@ public class FtdiBehavior {
 		ftdi.readChunkSize(4);
 		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
 		lib.handleTransferEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
-		Memory m = JnaUtil.calloc(5);
-		var control = ftdi.readSubmit(m, 5);
+		var m = GcMemory.malloc(5).clear();
+		var control = ftdi.readSubmit(m.m, 5);
 		assertEquals(control.dataDone(), 5);
-		assertMemory(m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
+		assertMemory(m.m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
 	}
 
 	@Test
@@ -218,10 +217,10 @@ public class FtdiBehavior {
 		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_SUCCESS, LIBUSB_ERROR_IO);
 		lib.handleTransferEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
 		LogModifier.run(() -> {
-			Memory m = JnaUtil.calloc(5);
-			var control = ftdi.readSubmit(m, 5);
+			var m = GcMemory.malloc(5).clear();
+			var control = ftdi.readSubmit(m.m, 5);
 			assertEquals(control.dataDone(), 4);
-			assertPointer(m, 0, 3, 4, 7, 8); // 2 chunks successful
+			assertPointer(m.m, 0, 3, 4, 7, 8); // 2 chunks successful
 		}, Level.OFF, LibFtdi.class);
 	}
 
@@ -229,12 +228,12 @@ public class FtdiBehavior {
 	public void shouldCancelAsync() throws LibUsbException {
 		ftdi = open();
 		ftdi.readChunkSize(8);
-		Memory m = JnaUtil.calloc(5);
+		var m = GcMemory.malloc(5).clear();
 		lib.handleTransferEvent.autoResponse(te -> {
 			te.buffer().put(ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7));
 			return LIBUSB_TRANSFER_COMPLETED;
 		});
-		var control = ftdi.readSubmit(m, 5);
+		var control = ftdi.readSubmit(m.m, 5);
 		control.dataCancel(Duration.ofMillis(1000));
 		assertEquals(control.dataDone(), 0);
 	}

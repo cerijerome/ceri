@@ -25,10 +25,11 @@ import ceri.common.data.FieldTranscoder;
 import ceri.common.data.IntField;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
-import ceri.serial.clib.jna.CException;
-import ceri.serial.clib.jna.CLib;
-import ceri.serial.jna.Struct;
-import ceri.serial.jna.Struct.Fields;
+import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.jna.CFcntl;
+import ceri.jna.clib.jna.CIoctl;
+import ceri.jna.util.Struct;
+import ceri.jna.util.Struct.Fields;
 
 /**
  * I2C device communication, through ioctl commands. Linux-only?
@@ -294,7 +295,7 @@ public class I2cDev {
 	 */
 	public static int i2c_open(int bus, int flags) throws CException {
 		String path = i2c_path(bus);
-		return CLib.open(path, flags);
+		return CFcntl.open(path, flags);
 	}
 
 	/**
@@ -337,7 +338,7 @@ public class I2cDev {
 	 */
 	public static int i2c_funcs(int fd) throws CException {
 		NativeLongByReference valueRef = new NativeLongByReference();
-		CLib.ioctl("I2C_FUNCS", fd, I2C_FUNCS, valueRef);
+		CIoctl.ioctl("I2C_FUNCS", fd, I2C_FUNCS, valueRef);
 		return valueRef.getValue().intValue();
 	}
 
@@ -350,7 +351,7 @@ public class I2cDev {
 		i2c_rdwr_ioctl_data data = new i2c_rdwr_ioctl_data();
 		data.msgs = msgs[0];
 		data.nmsgs = msgs.length;
-		CLib.ioctl("I2C_RDWR", fd, I2C_RDWR, data);
+		CIoctl.ioctl("I2C_RDWR", fd, I2C_RDWR, data);
 	}
 
 	/**
@@ -532,7 +533,7 @@ public class I2cDev {
 	}
 
 	private static void ioctl(String name, int fd, int request, long value) throws CException {
-		CLib.ioctl(name, fd, request, new NativeLong(value, true));
+		CIoctl.ioctl(name, fd, request, new NativeLong(value, true));
 	}
 
 	private static int smbusIoctl(int fd, int readWrite, int command,
@@ -542,7 +543,7 @@ public class I2cDev {
 		smbus.command = MathUtil.ubyteExact(command);
 		smbus.size = type.size;
 		smbus.data = data;
-		return CLib.ioctl("I2C_SMBUS", fd, I2C_SMBUS, smbus); // smbus.read() if reading?
+		return CIoctl.ioctl("I2C_SMBUS", fd, I2C_SMBUS, smbus); // smbus.read() if reading?
 	}
 
 }

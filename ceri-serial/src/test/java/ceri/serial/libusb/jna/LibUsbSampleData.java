@@ -34,11 +34,10 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_LOW;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_SUPER;
 import java.util.List;
 import java.util.function.Consumer;
-import com.sun.jna.Memory;
 import com.sun.jna.Structure;
 import ceri.common.data.ByteArray.Immutable;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.Struct;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
@@ -500,14 +499,12 @@ public class LibUsbSampleData {
 	}
 
 	private static void extra(libusb_interface_descriptor desc, int... bytes) {
-		Memory m = JnaUtil.mallocBytes(bytes);
-		desc.extra = m;
+		desc.extra = GcMemory.mallocBytes(bytes).m;
 		desc.extra_length = bytes.length;
 	}
 
 	private static void extra(libusb_endpoint_descriptor desc, int... bytes) {
-		Memory m = JnaUtil.mallocBytes(bytes);
-		desc.extra = m;
+		desc.extra = GcMemory.mallocBytes(bytes).m;
 		desc.extra_length = bytes.length;
 	}
 
@@ -515,8 +512,9 @@ public class LibUsbSampleData {
 	private static void configDescriptors(DeviceConfig dc,
 		Consumer<libusb_config_descriptor>... populators) {
 		if (populators.length == 0) return;
-		var descs = Struct.arrayByVal(() -> new libusb_config_descriptor(null),
-			libusb_config_descriptor[]::new, populators.length);
+		var descs = Struct.<libusb_config_descriptor>arrayByVal( //
+			() -> new libusb_config_descriptor(null), libusb_config_descriptor[]::new,
+			populators.length);
 		for (int i = 0; i < populators.length; i++) {
 			descs[i].bLength = LIBUSB_DT_CONFIG_SIZE;
 			descs[i].bDescriptorType = (byte) LIBUSB_DT_CONFIG.value;
@@ -532,7 +530,7 @@ public class LibUsbSampleData {
 	private static void interfaces(libusb_config_descriptor cd,
 		Consumer<libusb_interface.ByRef>... populators) {
 		if (populators.length == 0) return;
-		var interfaces = Struct.arrayByVal(libusb_interface.ByRef::new,
+		var interfaces = Struct.<libusb_interface.ByRef>arrayByVal(libusb_interface.ByRef::new,
 			libusb_interface.ByRef[]::new, populators.length);
 		for (int i = 0; i < populators.length; i++) {
 			populators[i].accept(interfaces[i]);
@@ -546,8 +544,9 @@ public class LibUsbSampleData {
 	private static void interfaceDescriptors(libusb_config_descriptor cd, libusb_interface it,
 		Consumer<libusb_interface_descriptor.ByRef>... populators) {
 		if (populators.length == 0) return;
-		var descs = Struct.arrayByVal(libusb_interface_descriptor.ByRef::new,
-			libusb_interface_descriptor.ByRef[]::new, populators.length);
+		var descs = Struct.<libusb_interface_descriptor.ByRef>arrayByVal(
+			libusb_interface_descriptor.ByRef::new, libusb_interface_descriptor.ByRef[]::new,
+			populators.length);
 		for (int i = 0; i < populators.length; i++) {
 			descs[i].bLength = LIBUSB_DT_INTERFACE_SIZE;
 			descs[i].bDescriptorType = (byte) LIBUSB_DT_INTERFACE.value;
@@ -564,8 +563,9 @@ public class LibUsbSampleData {
 	private static void endPointDescriptors(libusb_interface_descriptor id,
 		Consumer<libusb_endpoint_descriptor.ByRef>... populators) {
 		if (populators.length == 0) return;
-		var descs = Struct.arrayByVal(libusb_endpoint_descriptor.ByRef::new,
-			libusb_endpoint_descriptor.ByRef[]::new, populators.length);
+		var descs = Struct.<libusb_endpoint_descriptor.ByRef>arrayByVal(
+			libusb_endpoint_descriptor.ByRef::new, libusb_endpoint_descriptor.ByRef[]::new,
+			populators.length);
 		for (int i = 0; i < populators.length; i++) {
 			descs[i].bLength = LIBUSB_DT_ENDPOINT_SIZE;
 			descs[i].bDescriptorType = (byte) LIBUSB_DT_ENDPOINT.value;

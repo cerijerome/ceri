@@ -53,7 +53,7 @@ public class MacUsbLocator {
 	 * Looks up the serial port name based on location id. Used by SelfHealingSerialConnector.
 	 */
 	public CommPortSupplier deviceByLocationId(int locationId) {
-		if (!OsUtil.IS_MAC) throw new UnsupportedOperationException("Only Mac is supported");
+		if (!OsUtil.os().mac) throw new UnsupportedOperationException("Only Mac is supported");
 		return CommPortSupplier.named(() -> device(locationId),
 			String.format("locationId:0x%x", locationId));
 	}

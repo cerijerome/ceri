@@ -13,17 +13,17 @@ import java.time.Duration;
 import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.time.DateUtil;
+import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.Struct;
 import ceri.log.util.LogUtil;
-import ceri.serial.clib.jna.CTime.timeval;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.size_and_time;
-import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_cb_fn;
@@ -132,8 +132,8 @@ public class LibFtdiStream {
 		int bufferSize) throws LibUsbException {
 		var transfer = LibUsb.libusb_alloc_transfer(0);
 		try {
-			Memory m = new Memory(bufferSize);
-			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, m, bufferSize,
+			var m = GcMemory.malloc(bufferSize);
+			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, m.m, bufferSize,
 				callback, null, 0);
 			LibUsb.libusb_submit_transfer(Struct.write(transfer));
 			return transfer;
@@ -249,7 +249,7 @@ public class LibFtdiStream {
 	private static void checkCompleted(FTDIStreamState<?> state) {
 		if (state.activeTransfers <= 0) state.completed.setValue(1);
 	}
-	
+
 	private static void requireFifo(ftdi_context ftdi) throws LibUsbException {
 		if (ftdi_chip_type.isSyncFifoType(ftdi.type)) return;
 		throw LibUsbException.of(LIBUSB_ERROR_NOT_SUPPORTED,

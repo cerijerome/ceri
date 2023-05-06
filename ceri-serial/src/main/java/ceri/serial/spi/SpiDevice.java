@@ -2,15 +2,15 @@ package ceri.serial.spi;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.serial.clib.OpenFlag.O_RDONLY;
-import static ceri.serial.clib.OpenFlag.O_RDWR;
-import static ceri.serial.clib.OpenFlag.O_WRONLY;
+import static ceri.jna.clib.OpenFlag.O_RDONLY;
+import static ceri.jna.clib.OpenFlag.O_RDWR;
+import static ceri.jna.clib.OpenFlag.O_WRONLY;
 import static ceri.serial.spi.Spi.Direction.in;
 import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
-import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.FileDescriptor;
-import ceri.serial.clib.OpenFlag;
+import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.FileDescriptor;
+import ceri.jna.clib.OpenFlag;
 import ceri.serial.spi.jna.SpiDev;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 

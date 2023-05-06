@@ -22,7 +22,7 @@ import java.util.Objects;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
-import ceri.serial.jna.ArrayPointer;
+import ceri.jna.util.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;

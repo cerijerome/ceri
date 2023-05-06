@@ -5,10 +5,10 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_TEN;
 import java.util.concurrent.TimeUnit;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg_flag;
-import ceri.serial.jna.JnaUtil;
 
 public class I2cUtil {
 	public static final int SCAN_7BIT_MIN = 0x03;
@@ -49,7 +49,7 @@ public class I2cUtil {
 
 	public static i2c_msg.ByReference populate(i2c_msg.ByReference msg, I2cAddress address,
 		Memory m, i2c_msg_flag... flags) {
-		return populate(msg, address, m == null ? 0 : JnaUtil.size(m), m, flags);
+		return populate(msg, address, m == null ? 0 : JnaUtil.intSize(m), m, flags);
 	}
 
 	public static i2c_msg.ByReference populate(i2c_msg.ByReference msg, I2cAddress address,

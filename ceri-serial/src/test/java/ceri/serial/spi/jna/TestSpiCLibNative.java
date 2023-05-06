@@ -16,13 +16,14 @@ import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
 import java.util.List;
 import java.util.Set;
 import com.sun.jna.LastErrorException;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
-import ceri.serial.clib.test.TestCLibNative;
-import ceri.serial.jna.JnaUtil;
+import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaUtil;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class TestSpiCLibNative extends TestCLibNative {
@@ -46,13 +47,14 @@ public class TestSpiCLibNative extends TestCLibNative {
 	private TestSpiCLibNative() {}
 
 	@Override
-	protected int ioctl(Fd f, int request, Object... objs) throws LastErrorException {
+	public int ioctl(int fd, NativeLong req, Object... objs) throws LastErrorException {
+		int request = req.intValue();
 		if (request == SPI_IOC_MESSAGE(1)) return ioctlSpiMsg(request, (spi_ioc_transfer) objs[0]);
 		if (GET_BYTE.contains(request)) return ioctlSpiGetByte(request, (ByteByReference) objs[0]);
 		if (SET_BYTE.contains(request)) return ioctlSpiSetByte(request, (ByteByReference) objs[0]);
 		if (GET_INT.contains(request)) return ioctlSpiGetInt(request, (IntByReference) objs[0]);
 		if (SET_INT.contains(request)) return ioctlSpiSetInt(request, (IntByReference) objs[0]);
-		return super.ioctl(f, request, objs);
+		return super.ioctl(fd, req, objs);
 	}
 
 	private int ioctlSpiMsg(int request, spi_ioc_transfer xfer) {

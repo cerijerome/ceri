@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.RuntimeCloseable;
+import ceri.jna.util.GcMemory;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -23,7 +24,6 @@ import ceri.serial.ftdi.jna.LibFtdiStream;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
-import ceri.serial.jna.JnaUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -163,8 +163,8 @@ public class Ftdi implements RuntimeCloseable {
 	public FtdiTransferControl writeSubmit(byte[] data, int offset, int len)
 		throws LibUsbException {
 		ArrayUtil.validateSlice(data.length, offset, len);
-		Pointer p = JnaUtil.mallocBytes(data, offset, len);
-		return writeSubmit(p, len);
+		var m = GcMemory.mallocBytes(data, offset, len);
+		return writeSubmit(m.m, len);
 	}
 
 	public FtdiTransferControl writeSubmit(Pointer buf, int size) throws LibUsbException {

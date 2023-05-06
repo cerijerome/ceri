@@ -9,7 +9,7 @@ import static ceri.common.test.TestUtil.exerciseEnum;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.serial.jna.Struct;
+import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsbAudio.audio_assoc_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsbAudio.audio_chorus_proc_unit_control_selector;
 import ceri.serial.libusb.jna.LibUsbAudio.audio_control_header_descriptor;

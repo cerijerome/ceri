@@ -9,7 +9,9 @@ import ceri.common.io.StreamNotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.OsUtil;
-import ceri.serial.clib.jna.CLib;
+import ceri.jna.clib.jna.CFcntl;
+import ceri.jna.clib.jna.CIoctl;
+import ceri.jna.clib.jna.CTermios;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.PureJavaSerialPort;
 
@@ -122,16 +124,16 @@ public class SerialPort extends CommPort {
 	 * Starts a break (low signal). Make sure writing is complete or output will be overwritten.
 	 */
 	public void setBreakBit() throws IOException {
-		CLib.validateFd(fd);
-		CLib.tiocsbrk(fd);
+		CFcntl.validateFd(fd);
+		CIoctl.tiocsbrk(fd);
 	}
 
 	/**
 	 * Stops a break and returns to a high signal (mark/idle).
 	 */
 	public void clearBreakBit() throws IOException {
-		CLib.validateFd(fd);
-		CLib.tioccbrk(fd);
+		CFcntl.validateFd(fd);
+		CIoctl.tioccbrk(fd);
 	}
 
 	public int fd() {
@@ -139,24 +141,24 @@ public class SerialPort extends CommPort {
 	}
 
 	private boolean isIncorrectBaudRate(int baud) throws IOException {
-		if (!CLib.validFd(fd)) return false;
+		if (!CFcntl.validFd(fd)) return false;
 		return baud(fd) != baud;
 	}
 
 	private boolean setBaudAlt(int b) throws IOException {
 		if (!Platform.isMac()) return false;
-		CLib.Mac.iossiospeed(fd, b);
+		CIoctl.Mac.iossiospeed(fd, b);
 		return false;
 	}
 
 	private static int baud(int fd) throws IOException {
-		if (OsUtil.IS_MAC) return CLib.Mac.tcgetattr(fd).c_ospeed.intValue();
-		return CLib.Linux.tcgetattr(fd).c_ospeed.intValue();
+		if (OsUtil.os().mac) return CTermios.Mac.tcgetattr(fd).c_ospeed.intValue();
+		return CTermios.Linux.tcgetattr(fd).c_ospeed.intValue();
 	}
 
 	private static int fd(purejavacomm.SerialPort port) {
 		PureJavaSerialPort pure = ReflectUtil.castOrNull(PureJavaSerialPort.class, port);
-		if (pure == null) return CLib.INVALID_FD;
+		if (pure == null) return CFcntl.INVALID_FD;
 		return pure.getNativeFileDescriptor();
 	}
 

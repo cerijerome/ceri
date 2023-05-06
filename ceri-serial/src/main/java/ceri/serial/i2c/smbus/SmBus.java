@@ -2,7 +2,7 @@ package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
 import ceri.common.collection.ArrayUtil;
-import ceri.serial.clib.jna.CException;
+import ceri.jna.clib.jna.CException;
 
 public interface SmBus {
 	static final SmBus NULL = new Null();

@@ -4,9 +4,9 @@ import static ceri.common.math.MathUtil.ubyte;
 import static java.lang.Math.max;
 import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
-import ceri.serial.jna.Struct;
-import ceri.serial.jna.Struct.Fields;
-import ceri.serial.jna.VarStruct;
+import ceri.jna.util.Struct;
+import ceri.jna.util.VarStruct;
+import ceri.jna.util.Struct.Fields;
 
 /**
  * Support for USB audio classes. From document "USB Device Class Definition for Audio Devices

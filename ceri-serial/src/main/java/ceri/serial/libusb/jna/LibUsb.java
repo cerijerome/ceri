@@ -19,22 +19,22 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
-import ceri.serial.clib.jna.CCaller;
-import ceri.serial.clib.jna.CTime.timeval;
-import ceri.serial.jna.ArrayPointer;
-import ceri.serial.jna.JnaLibrary;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.PointerUtil;
-import ceri.serial.jna.Struct;
-import ceri.serial.jna.Struct.Fields;
-import ceri.serial.jna.VarStruct;
+import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.util.ArrayPointer;
+import ceri.jna.util.Caller;
+import ceri.jna.util.JnaLibrary;
+import ceri.jna.util.JnaUtil;
+import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Struct;
+import ceri.jna.util.VarStruct;
+import ceri.jna.util.Struct.Fields;
 
 /**
  * Provides types and static function calls. Updated to libusb 1.0.24.
  */
 public class LibUsb {
 	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0", LibUsbNative.class);
-	public static final CCaller<LibUsbException> caller = CCaller.of(LibUsbException::full);
+	public static final Caller<LibUsbException> caller = Caller.of(LibUsbException::full);
 	private static final int DEFAULT_TIMEOUT = 1000;
 	private static final int MAX_DESCRIPTOR_SIZE = 255;
 	private static final int MAX_PORT_NUMBERS = 7;
@@ -59,8 +59,8 @@ public class LibUsb {
 	public static final int LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE = 10;
 	public static final int LIBUSB_BT_CONTAINER_ID_SIZE = 20;
 	public static final int LIBUSB_DT_BOS_MAX_SIZE =
-		LIBUSB_DT_BOS_SIZE + LIBUSB_BT_USB_2_0_EXTENSION_SIZE +
-			LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE + LIBUSB_BT_CONTAINER_ID_SIZE;
+		LIBUSB_DT_BOS_SIZE + LIBUSB_BT_USB_2_0_EXTENSION_SIZE
+			+ LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE + LIBUSB_BT_CONTAINER_ID_SIZE;
 	// Field masks
 	public static final int LIBUSB_ENDPOINT_ADDRESS_MASK = 0x0f;
 	public static final int LIBUSB_ENDPOINT_DIR_MASK = 0x80;
@@ -1149,14 +1149,20 @@ public class LibUsb {
 	 * attempt to populate the length field. Remember that you must then populate the buffer and
 	 * length fields later.
 	 *
-	 * @param transfer the transfer to populate
-	 * @param dev_handle handle of the device that will handle the transfer
-	 * @param buffer data buffer. If provided, this function will interpret the first 8 bytes as a
-	 *        setup packet and infer the transfer length from that. This pointer must be aligned to
-	 *        at least 2 bytes boundary.
-	 * @param callback callback function to be invoked on transfer completion
-	 * @param user_data user data to pass to callback function
-	 * @param timeout timeout for the transfer in milliseconds
+	 * @param transfer
+	 *            the transfer to populate
+	 * @param dev_handle
+	 *            handle of the device that will handle the transfer
+	 * @param buffer
+	 *            data buffer. If provided, this function will interpret the first 8 bytes as a
+	 *            setup packet and infer the transfer length from that. This pointer must be aligned
+	 *            to at least 2 bytes boundary.
+	 * @param callback
+	 *            callback function to be invoked on transfer completion
+	 * @param user_data
+	 *            user data to pass to callback function
+	 * @param timeout
+	 *            timeout for the transfer in milliseconds
 	 */
 	// public static void libusb_fill_control_transfer(libusb_transfer transfer,
 	// libusb_device_handle dev_handle, Pointer buffer, libusb_transfer_cb_fn callback,
@@ -1178,14 +1184,22 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer.
 	 *
-	 * @param transfer the transfer to populate
-	 * @param dev_handle handle of the device that will handle the transfer
-	 * @param endpoint address of the endpoint where this transfer will be sent
-	 * @param buffer data buffer
-	 * @param length length of data buffer
-	 * @param callback callback function to be invoked on transfer completion
-	 * @param user_data user data to pass to callback function
-	 * @param timeout timeout for the transfer in milliseconds
+	 * @param transfer
+	 *            the transfer to populate
+	 * @param dev_handle
+	 *            handle of the device that will handle the transfer
+	 * @param endpoint
+	 *            address of the endpoint where this transfer will be sent
+	 * @param buffer
+	 *            data buffer
+	 * @param length
+	 *            length of data buffer
+	 * @param callback
+	 *            callback function to be invoked on transfer completion
+	 * @param user_data
+	 *            user data to pass to callback function
+	 * @param timeout
+	 *            timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_bulk_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1204,15 +1218,24 @@ public class LibUsb {
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer using
 	 * bulk streams. Since version 1.0.19, LIBUSB_API_VERSION >= 0x01000103
 	 *
-	 * @param transfer the transfer to populate
-	 * @param dev_handle handle of the device that will handle the transfer
-	 * @param endpoint address of the endpoint where this transfer will be sent
-	 * @param stream_id bulk stream id for this transfer
-	 * @param buffer data buffer
-	 * @param length length of data buffer
-	 * @param callback callback function to be invoked on transfer completion
-	 * @param user_data user data to pass to callback function
-	 * @param timeout timeout for the transfer in milliseconds
+	 * @param transfer
+	 *            the transfer to populate
+	 * @param dev_handle
+	 *            handle of the device that will handle the transfer
+	 * @param endpoint
+	 *            address of the endpoint where this transfer will be sent
+	 * @param stream_id
+	 *            bulk stream id for this transfer
+	 * @param buffer
+	 *            data buffer
+	 * @param length
+	 *            length of data buffer
+	 * @param callback
+	 *            callback function to be invoked on transfer completion
+	 * @param user_data
+	 *            user data to pass to callback function
+	 * @param timeout
+	 *            timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_bulk_stream_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, int stream_id, Pointer buffer, int length,
@@ -1226,14 +1249,22 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an interrupt transfer.
 	 *
-	 * @param transfer the transfer to populate
-	 * @param dev_handle handle of the device that will handle the transfer
-	 * @param endpoint address of the endpoint where this transfer will be sent
-	 * @param buffer data buffer
-	 * @param length length of data buffer
-	 * @param callback callback function to be invoked on transfer completion
-	 * @param user_data user data to pass to callback function
-	 * @param timeout timeout for the transfer in milliseconds
+	 * @param transfer
+	 *            the transfer to populate
+	 * @param dev_handle
+	 *            handle of the device that will handle the transfer
+	 * @param endpoint
+	 *            address of the endpoint where this transfer will be sent
+	 * @param buffer
+	 *            data buffer
+	 * @param length
+	 *            length of data buffer
+	 * @param callback
+	 *            callback function to be invoked on transfer completion
+	 * @param user_data
+	 *            user data to pass to callback function
+	 * @param timeout
+	 *            timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_interrupt_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1251,15 +1282,24 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an isochronous transfer.
 	 *
-	 * @param transfer the transfer to populate
-	 * @param dev_handle handle of the device that will handle the transfer
-	 * @param endpoint address of the endpoint where this transfer will be sent
-	 * @param buffer data buffer
-	 * @param length length of data buffer
-	 * @param num_iso_packets the number of isochronous packets
-	 * @param callback callback function to be invoked on transfer completion
-	 * @param user_data user data to pass to callback function
-	 * @param timeout timeout for the transfer in milliseconds
+	 * @param transfer
+	 *            the transfer to populate
+	 * @param dev_handle
+	 *            handle of the device that will handle the transfer
+	 * @param endpoint
+	 *            address of the endpoint where this transfer will be sent
+	 * @param buffer
+	 *            data buffer
+	 * @param length
+	 *            length of data buffer
+	 * @param num_iso_packets
+	 *            the number of isochronous packets
+	 * @param callback
+	 *            callback function to be invoked on transfer completion
+	 * @param user_data
+	 *            user data to pass to callback function
+	 * @param timeout
+	 *            timeout for the transfer in milliseconds
 	 */
 	public static void libusb_fill_iso_transfer(libusb_transfer transfer,
 		libusb_device_handle dev_handle, int endpoint, Pointer buffer, int length,
@@ -1279,9 +1319,11 @@ public class LibUsb {
 	 * Convenience function to set the length of all packets in an isochronous transfer, based on
 	 * the num_iso_packets field in the transfer structure.
 	 *
-	 * @param transfer a transfer
-	 * @param length the length to set in each isochronous packet descriptor
-	 *        libusb_get_max_packet_size()
+	 * @param transfer
+	 *            a transfer
+	 * @param length
+	 *            the length to set in each isochronous packet descriptor
+	 *            libusb_get_max_packet_size()
 	 */
 	public static void libusb_set_iso_packet_lengths(libusb_transfer transfer, int length) {
 		for (libusb_iso_packet_descriptor iso_packet_desc : transfer.iso_packet_desc)
@@ -1295,8 +1337,10 @@ public class LibUsb {
 	 * assign equal lengths to each packet in the transfer, and hence the above method is
 	 * sub-optimal. You may wish to use libusb_get_iso_packet_buffer_simple() instead.
 	 *
-	 * @param transfer a transfer
-	 * @param packet the packet to return the address of
+	 * @param transfer
+	 *            a transfer
+	 * @param packet
+	 *            the packet to return the address of
 	 * @return the base address of the packet buffer inside the transfer buffer, or NULL if the
 	 *         packet does not exist. See libusb_get_iso_packet_buffer_simple()
 	 */
@@ -1323,8 +1367,10 @@ public class LibUsb {
 	 * Do not use this function on transfers other than those that have identical packet lengths for
 	 * each packet.
 	 *
-	 * @param transfer a transfer
-	 * @param packet the packet to return the address of
+	 * @param transfer
+	 *            a transfer
+	 * @param packet
+	 *            the packet to return the address of
 	 * @return the base address of the packet buffer inside the transfer buffer, or NULL if the
 	 *         packet does not exist. See libusb_get_iso_packet_buffer()
 	 */
@@ -1619,8 +1665,8 @@ public class LibUsb {
 			() -> lib().libusb_get_ss_endpoint_companion_descriptor(ctx, p, ep_comp),
 			r -> r >= 0 || r == libusb_error.LIBUSB_ERROR_NOT_FOUND.value,
 			"libusb_get_ss_endpoint_companion_descriptor", ctx, p, ep_comp);
-		return result < 0 ? null :
-			Struct.read(new libusb_ss_endpoint_companion_descriptor(ep_comp.getValue()));
+		return result < 0 ? null
+			: Struct.read(new libusb_ss_endpoint_companion_descriptor(ep_comp.getValue()));
 	}
 
 	public static void libusb_free_ss_endpoint_companion_descriptor(
@@ -1635,8 +1681,8 @@ public class LibUsb {
 		require(handle);
 		PointerByReference bos = new PointerByReference();
 		int result = caller.verifyInt(() -> lib().libusb_get_bos_descriptor(handle, bos),
-			r -> r >= 0 || r == libusb_error.LIBUSB_ERROR_NOT_FOUND.value ||
-				r == libusb_error.LIBUSB_ERROR_PIPE.value,
+			r -> r >= 0 || r == libusb_error.LIBUSB_ERROR_NOT_FOUND.value
+				|| r == libusb_error.LIBUSB_ERROR_PIPE.value,
 			"libusb_get_bos_descriptor", handle, bos);
 		return result < 0 ? null : Struct.read(new libusb_bos_descriptor(bos.getValue()));
 	}
@@ -1705,8 +1751,8 @@ public class LibUsb {
 
 	public static int libusb_get_bus_number(libusb_device dev) throws LibUsbException {
 		require(dev);
-		return caller.callInt(() -> lib().libusb_get_bus_number(dev), "libusb_get_bus_number",
-			dev) & 0xff;
+		return caller.callInt(() -> lib().libusb_get_bus_number(dev), "libusb_get_bus_number", dev)
+			& 0xff;
 	}
 
 	public static int libusb_get_port_number(libusb_device dev) throws LibUsbException {
@@ -1717,11 +1763,11 @@ public class LibUsb {
 
 	public static byte[] libusb_get_port_numbers(libusb_device dev) throws LibUsbException {
 		require(dev);
-		Memory memory = new Memory(MAX_PORT_NUMBERS);
-		int size =
-			caller.verifyInt(() -> lib().libusb_get_port_numbers(dev, memory, (int) memory.size()),
-				"libusb_get_port_numbers", dev, memory, memory.size());
-		return memory.getByteArray(0, size);
+		try (Memory m = new Memory(MAX_PORT_NUMBERS)) {
+			int size = caller.verifyInt(() -> lib().libusb_get_port_numbers(dev, m, (int) m.size()),
+				"libusb_get_port_numbers", dev, m, m.size());
+			return m.getByteArray(0, size);
+		}
 	}
 
 	public static libusb_device libusb_get_parent(libusb_device dev) throws LibUsbException {
@@ -1832,10 +1878,11 @@ public class LibUsb {
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		byte[] endpoints) throws LibUsbException {
 		require(dev);
-		Memory m = JnaUtil.mallocBytes(endpoints);
-		return caller.verifyInt(
-			() -> lib().libusb_alloc_streams(dev, num_streams, m, endpoints.length),
-			"libusb_alloc_streams", dev, num_streams, m, endpoints.length);
+		try (Memory m = JnaUtil.mallocBytes(endpoints)) {
+			return caller.verifyInt(
+				() -> lib().libusb_alloc_streams(dev, num_streams, m, endpoints.length),
+				"libusb_alloc_streams", dev, num_streams, m, endpoints.length);
+		}
 	}
 
 	public static void libusb_free_streams(libusb_device_handle dev, int... endpoints)
@@ -1846,9 +1893,10 @@ public class LibUsb {
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)
 		throws LibUsbException {
 		if (dev == null || endpoints.length == 0) return;
-		Memory m = JnaUtil.mallocBytes(endpoints);
-		caller.verify(() -> lib().libusb_free_streams(dev, m, endpoints.length),
-			"libusb_free_streams", dev, m, endpoints.length);
+		try (Memory m = JnaUtil.mallocBytes(endpoints)) {
+			caller.verify(() -> lib().libusb_free_streams(dev, m, endpoints.length),
+				"libusb_free_streams", dev, m, endpoints.length);
+		}
 	}
 
 	public static boolean libusb_kernel_driver_active(libusb_device_handle dev,

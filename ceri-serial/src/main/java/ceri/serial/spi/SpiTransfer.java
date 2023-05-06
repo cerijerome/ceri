@@ -4,13 +4,13 @@ import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.serial.jna.JnaUtil.buffer;
+import static ceri.jna.util.JnaUtil.buffer;
 import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.function.ExceptionConsumer;
-import ceri.serial.jna.JnaUtil;
+import ceri.jna.util.GcMemory;
 import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -27,9 +27,9 @@ public class SpiTransfer {
 
 	public static SpiTransfer of(ExceptionConsumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
-		Memory outMem = direction == Direction.in ? null : new Memory(size);
-		Memory inMem = direction == Direction.out ? null : JnaUtil.calloc(size);
-		return new SpiTransfer(executor, outMem, inMem, direction, size);
+		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
+		var inMem = direction == Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
+		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);
 	}
 
 	private SpiTransfer(ExceptionConsumer<IOException, spi_ioc_transfer> executor, Memory outMem,

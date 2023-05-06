@@ -6,8 +6,8 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
  * Specific exception for when a usb device is not found. The separate exception allows for
  * detection apart from I/O errors.
  */
+@SuppressWarnings("serial")
 public class LibUsbNotFoundException extends LibUsbException {
-	private static final long serialVersionUID = -1L;
 
 	/**
 	 * Create exception without adding the error code to the message.

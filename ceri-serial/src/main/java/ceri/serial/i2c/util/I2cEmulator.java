@@ -6,11 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.FunctionUtil;
+import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.smbus.SmBus;
 import ceri.serial.i2c.smbus.SmBusEmulator;
-import ceri.serial.jna.JnaUtil;
 
 /**
  * I2C emulator, where slave device emulators can register and respond to messages.

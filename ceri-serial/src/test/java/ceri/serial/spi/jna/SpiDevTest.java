@@ -7,8 +7,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.test.TestCLibNative;
+import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.test.TestCLibNative;
 import ceri.serial.spi.SpiDeviceConfig;
 
 public class SpiDevTest {

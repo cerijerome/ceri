@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.test.BinaryPrinter;
-import ceri.serial.jna.JnaUtil;
+import ceri.jna.util.JnaUtil;
 
 public class ByteBufferTester {
 	private static final int PACKET_HEADER_SIZE = 2;

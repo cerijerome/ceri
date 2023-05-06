@@ -3,14 +3,14 @@ package ceri.serial.libusb.jna;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.text.StringUtil;
-import ceri.serial.clib.jna.CException;
+import ceri.jna.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 
 /**
  * Exception for libusb errors. Holds libusb_error (may be null) and code.
  */
+@SuppressWarnings("serial")
 public class LibUsbException extends CException {
-	private static final long serialVersionUID = -1L;
 	public static final ExceptionAdapter<LibUsbException> ADAPTER =
 		ExceptionAdapter.of(LibUsbException.class, LibUsbException::adapt);
 	public final libusb_error error;

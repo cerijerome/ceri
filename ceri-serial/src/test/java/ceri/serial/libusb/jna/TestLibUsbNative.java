@@ -36,11 +36,11 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.CCaller;
-import ceri.serial.clib.jna.CTime.timeval;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.PointerUtil;
-import ceri.serial.jna.Struct;
+import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.util.Caller;
+import ceri.jna.util.JnaUtil;
+import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Struct;
 import ceri.serial.libusb.UsbEvents.PollFd;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_type;
@@ -685,7 +685,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_get_next_timeout(libusb_context ctx, Pointer tv) {
-		return CCaller
+		return Caller
 			.capture(() -> Struct.write(new timeval(tv).set(Duration.ofMillis(generalSync.get()))));
 	}
 
@@ -722,7 +722,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public int libusb_hotplug_register_callback(libusb_context ctx, int events, int flags,
 		int vendor_id, int product_id, int dev_class, libusb_hotplug_callback_fn cb_fn,
 		Pointer user_data, IntByReference handle) {
-		return CCaller.capture(() -> {
+		return Caller.capture(() -> {
 			var hotPlug = data.createHotPlug(context(ctx));
 			hotPlug.events = events;
 			hotPlug.flags = flags;

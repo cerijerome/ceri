@@ -11,15 +11,14 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import com.sun.jna.Memory;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.jna.CTime.timeval;
+import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.Struct;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbSampleData;
 import ceri.serial.libusb.jna.TestLibUsbNative;
@@ -105,12 +104,12 @@ public class LibFtdiTest {
 	@Test
 	public void testFailedAsyncTransfers() throws LibUsbException {
 		ftdi = openFtdi();
-		Memory m = JnaUtil.malloc(5);
+		var m = GcMemory.malloc(5);
 		lib.submitTransfer.error.set(lastError(LIBUSB_ERROR_NO_MEM));
-		assertThrown(() -> LibFtdi.ftdi_write_data_submit(ftdi, m, 5));
-		assertThrown(() -> LibFtdi.ftdi_read_data_submit(ftdi, m, 5));
+		assertThrown(() -> LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5));
+		assertThrown(() -> LibFtdi.ftdi_read_data_submit(ftdi, m.m, 5));
 		lib.submitTransfer.error.clear();
-		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m, 5);
+		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5);
 		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_IO));
 		assertEquals(LibFtdi.ftdi_transfer_data_done(null), 0);
@@ -120,8 +119,8 @@ public class LibFtdiTest {
 	@Test
 	public void testAsyncCancel() throws LibUsbException {
 		ftdi = openFtdi();
-		Memory m = JnaUtil.malloc(5);
-		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m, 5);
+		var m = GcMemory.malloc(5);
+		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5);
 		LibFtdi.ftdi_transfer_data_cancel(null, new timeval());
 		LibFtdi.ftdi_transfer_data_cancel(tc, new timeval());
 		LibFtdi.ftdi_transfer_data_cancel(tc, new timeval());

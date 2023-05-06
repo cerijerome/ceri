@@ -3,22 +3,22 @@ package ceri.serial.spi.jna;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.jna.util.GcMemory;
 import ceri.serial.spi.Spi.Direction;
 
 public class SpiDevUtilTest {
 
 	@Test
 	public void testDirectionFromTransfer() {
-		var m = new Memory(1);
+		var m = GcMemory.malloc(1);
 		var xfer = new SpiDev.spi_ioc_transfer();
 		assertEquals(SpiDevUtil.direction(xfer), Direction.out);
 		xfer.len = 1;
 		assertThrown(() -> SpiDevUtil.direction(xfer));
-		xfer.rx_buf = Pointer.nativeValue(m);
+		xfer.rx_buf = Pointer.nativeValue(m.m);
 		assertEquals(SpiDevUtil.direction(xfer), Direction.in);
-		xfer.tx_buf = Pointer.nativeValue(m);
+		xfer.tx_buf = Pointer.nativeValue(m.m);
 		assertEquals(SpiDevUtil.direction(xfer), Direction.duplex);
 	}
 

@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
-import ceri.serial.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTestUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;

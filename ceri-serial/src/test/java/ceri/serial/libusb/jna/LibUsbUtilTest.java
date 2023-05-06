@@ -3,7 +3,7 @@ package ceri.serial.libusb.jna;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.serial.jna.test.JnaTestUtil;
+import ceri.jna.test.JnaTestUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 

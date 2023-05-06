@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.nio.ByteBuffer;
 import org.junit.Test;
-import ceri.serial.jna.JnaUtil;
+import ceri.jna.util.JnaUtil;
 
 public class PulseBufferBehavior {
 

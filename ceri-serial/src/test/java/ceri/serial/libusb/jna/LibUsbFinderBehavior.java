@@ -9,11 +9,10 @@ import static ceri.common.test.AssertUtil.assertToString;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
 import org.junit.Test;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import ceri.common.util.Enclosed;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.PointerUtil;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.JnaSize;
+import ceri.jna.util.PointerUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 
 public class LibUsbFinderBehavior {
@@ -86,7 +85,7 @@ public class LibUsbFinderBehavior {
 		assertThrown(() -> finder.findAndOpen(null)); // device not found
 		assertThrown(() -> finder.findAndRef(null)); // device not found
 		libusb_context ctx =
-			PointerUtil.set(new libusb_context(), JnaUtil.malloc(Native.POINTER_SIZE));
+			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.size).m);
 		assertThrown(() -> finder.findAndRef(ctx, 1)); // device not found
 	}
 

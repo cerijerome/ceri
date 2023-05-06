@@ -20,7 +20,7 @@ public class MacUsbLocatorBehavior {
 
 	@Test
 	public void shouldSupplyCommPort() throws IOException {
-		if (!OsUtil.IS_MAC) return;
+		if (!OsUtil.os().mac) return;
 		var locator = MacUsbLocator.of(Ioreg.of(TestProcess.processor(IOREG_XML)));
 		assertEquals(locator.deviceByLocationId(0x14200000).get(), "/dev/tty.usbserial-00000000");
 		assertThrown(locator.deviceByLocationId(0x14100000)::get);

@@ -9,7 +9,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.clib.test.TestCLibNative.autoError;
+import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.serial.i2c.jna.I2cDev.i2c_func.I2C_FUNC_SMBUS_EMUL;
 import java.io.IOException;
 import java.util.List;
@@ -18,14 +18,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
-import com.sun.jna.Memory;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.test.TestCLibNative;
+import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.GcMemory;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.TestI2cCLibNative;
-import ceri.serial.jna.JnaUtil;
-import ceri.serial.jna.test.JnaTestUtil;
 
 public class I2cDeviceBehavior {
 	private TestI2cCLibNative lib;
@@ -108,11 +107,11 @@ public class I2cDeviceBehavior {
 
 	@Test
 	public void shouldWriteAndReadFromMemory() throws IOException {
-		Memory out = JnaUtil.mallocBytes(1, 2, 3);
-		Memory in = new Memory(3);
+		var out = GcMemory.mallocBytes(1, 2, 3);
+		var in = GcMemory.malloc(3);
 		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
-		i2c.writeRead(I2cAddress.of(0x1ab), out, in);
-		JnaTestUtil.assertMemory(in, 0, 4, 5, 6);
+		i2c.writeRead(I2cAddress.of(0x1ab), out.m, in.m);
+		JnaTestUtil.assertMemory(in.m, 0, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(List.of(0x1ab, 0x10, provider(1, 2, 3), 0x1ab, 0x11, 3));
 	}
 

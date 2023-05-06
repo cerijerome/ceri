@@ -9,24 +9,6 @@ import ceri.common.test.TestUtil;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	// clib
-	ceri.serial.clib.CFileDescriptorBehavior.class, //
-	ceri.serial.clib.FileDescriptorBehavior.class, //
-	ceri.serial.clib.ModeBehavior.class, //
-	ceri.serial.clib.OpenFlagBehavior.class, //
-	ceri.serial.clib.SeekBehavior.class, //
-	// clib.jna
-	ceri.serial.clib.jna.CCallerBehavior.class, //
-	ceri.serial.clib.jna.CErrorBehavior.class, //
-	ceri.serial.clib.jna.CExceptionBehavior.class, //
-	ceri.serial.clib.jna.CLibTest.class, //
-	ceri.serial.clib.jna.CTimeTest.class, //
-	// clib.test
-	ceri.serial.clib.test.TestCLibNativeBehavior.class, //
-	ceri.serial.clib.test.TestFileDescriptorBehavior.class, //
-	// clib.util
-	ceri.serial.clib.util.SelfHealingFdBehavior.class, //
-	ceri.serial.clib.util.SelfHealingFdConfigBehavior.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	ceri.serial.ftdi.FtdiBitModeBehavior.class, //
@@ -72,20 +54,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.javax.util.ReplaceableSerialConnectorBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
 	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
-	// jna
-	ceri.serial.jna.ArrayPointerBehavior.class, //
-	ceri.serial.jna.JnaArgsBehavior.class, //
-	ceri.serial.jna.JnaEnumTest.class, //
-	ceri.serial.jna.JnaLibraryBehavior.class, //
-	ceri.serial.jna.JnaMemoryBehavior.class, //
-	ceri.serial.jna.JnaUtilTest.class, //
-	ceri.serial.jna.PointerUtilTest.class, //
-	ceri.serial.jna.StructBehavior.class, //
-	ceri.serial.jna.StructFieldTest.class, //
-	ceri.serial.jna.UnionFieldTest.class, //
-	ceri.serial.jna.VarStructBehavior.class, //
-	// jna.test
-	ceri.serial.jna.test.JnaTestUtilTest.class, //
 	// libusb
 	ceri.serial.libusb.UsbBehavior.class, //
 	ceri.serial.libusb.UsbDescriptorsBehavior.class, //

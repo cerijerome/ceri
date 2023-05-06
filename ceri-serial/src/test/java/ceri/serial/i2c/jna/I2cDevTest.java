@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
-import ceri.serial.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_data;

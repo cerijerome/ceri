@@ -1,10 +1,10 @@
 package ceri.serial.ftdi;
 
 import java.time.Duration;
-import ceri.serial.clib.jna.CTime.timeval;
+import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.util.Struct;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_control;
-import ceri.serial.jna.Struct;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class FtdiTransferControl {

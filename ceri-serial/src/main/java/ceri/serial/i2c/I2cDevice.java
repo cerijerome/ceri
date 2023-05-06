@@ -1,16 +1,16 @@
 package ceri.serial.i2c;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.serial.clib.OpenFlag.O_RDWR;
+import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import java.io.IOException;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
-import ceri.serial.clib.CFileDescriptor;
-import ceri.serial.clib.FileDescriptor;
-import ceri.serial.clib.jna.CException;
+import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.FileDescriptor;
+import ceri.jna.clib.jna.CException;
 import ceri.serial.i2c.jna.I2cDev;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;

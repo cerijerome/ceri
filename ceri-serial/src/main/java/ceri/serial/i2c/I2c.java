@@ -4,7 +4,6 @@ import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MAX;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MIN;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
-import static ceri.serial.jna.JnaUtil.size;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -14,9 +13,10 @@ import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.ByteUtil;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.smbus.SmBus;
-import ceri.serial.jna.JnaUtil;
 
 /**
  * Encapsulation of I2C bus.
@@ -131,10 +131,10 @@ public interface I2c {
 	 */
 	default void readData(I2cAddress address, byte[] command, byte[] receive, int offset,
 		int length) throws IOException {
-		Memory write = JnaUtil.mallocBytes(command);
-		Memory read = JnaUtil.calloc(length);
-		writeRead(address, write, size(write), read, size(read));
-		read.read(0, receive, offset, length);
+		var write = GcMemory.mallocBytes(command);
+		var read = GcMemory.malloc(length).clear();
+		writeRead(address, write.m, write.intSize(), read.m, read.intSize());
+		read.m.read(0, receive, offset, length);
 	}
 
 	/**
@@ -148,14 +148,14 @@ public interface I2c {
 	 * Send byte array data to address, using ioctl.
 	 */
 	default void writeData(I2cAddress address, byte[] data) throws IOException {
-		write(address, JnaUtil.mallocBytes(data));
+		write(address, GcMemory.mallocBytes(data).m);
 	}
 
 	/**
 	 * Write using supplied memory buffer for ioctl.
 	 */
 	default void write(I2cAddress address, Memory writeBuf) throws IOException {
-		write(address, size(writeBuf), writeBuf);
+		write(address, JnaUtil.intSize(writeBuf), writeBuf);
 	}
 
 	/**
@@ -167,7 +167,7 @@ public interface I2c {
 	 * I2C write and read using supplied memory buffers for ioctl.
 	 */
 	default void writeRead(I2cAddress address, Memory writeBuf, Memory readBuf) throws IOException {
-		writeRead(address, writeBuf, size(writeBuf), readBuf, size(readBuf));
+		writeRead(address, writeBuf, JnaUtil.intSize(writeBuf), readBuf, JnaUtil.intSize(readBuf));
 	}
 
 	/**

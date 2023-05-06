@@ -16,12 +16,13 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
 import ceri.common.text.ToString;
-import ceri.serial.jna.Struct;
+import ceri.jna.util.GcMemory;
+import ceri.jna.util.JnaSize;
+import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
@@ -47,7 +48,7 @@ public class LibUsbTestData {
 	public String locale;
 
 	private static Pointer pointer() {
-		return new Memory(Native.POINTER_SIZE);
+		return new Memory(JnaSize.POINTER.size);
 	}
 
 	public static class Data {
@@ -90,13 +91,13 @@ public class LibUsbTestData {
 		public Context context;
 
 		private DeviceList(int size) {
-			super(new Memory(Native.POINTER_SIZE * (size + 1)));
+			super(GcMemory.malloc(JnaSize.POINTER.size * (size + 1)).m);
 			this.size = size;
 		}
 
 		private Pointer p(int i) {
 			if (i < 0 || i >= size) return null;
-			return p.share(i * Native.POINTER_SIZE);
+			return p.share(i * JnaSize.POINTER.size);
 		}
 	}
 
