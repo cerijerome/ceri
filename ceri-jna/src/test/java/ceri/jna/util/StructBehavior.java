@@ -49,8 +49,7 @@ public class StructBehavior {
 
 	@Test
 	public void testSetUnionTypeByName() {
-		@SuppressWarnings("resource")
-		var t0 = new TestUnion(123, JnaUtil.mallocBytes(5, 6, 7), -1, -2, -3, -4);
+		var t0 = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
 		var p = Struct.write(Struct.type(t0, "i")).getPointer();
 		var t = Struct.read(new TestUnion(p));
 		assertEquals(t.i, 123);
@@ -58,8 +57,7 @@ public class StructBehavior {
 
 	@Test
 	public void testSetUnionTypeByClass() {
-		@SuppressWarnings("resource")
-		var t0 = new TestUnion(123, JnaUtil.mallocBytes(5, 6, 7), -1, -2, -3, -4);
+		var t0 = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
 		var p = Struct.write(Struct.type(t0, Pointer.class)).getPointer();
 		var t = Struct.read(new TestUnion(p));
 		assertPointer(t.p, 0, 5, 6, 7);
@@ -68,8 +66,7 @@ public class StructBehavior {
 	@Test
 	public void testSetUnionTypedValue() {
 		var t0 = new TestUnion(0, null);
-		@SuppressWarnings("resource")
-		var p = Struct.write(Struct.typedValue(t0, JnaUtil.mallocBytes(5, 6, 7))).getPointer();
+		var p = Struct.write(Struct.typedValue(t0, GcMemory.mallocBytes(5, 6, 7).m)).getPointer();
 		var t = Struct.read(new TestUnion(p));
 		assertPointer(t.p, 0, 5, 6, 7);
 	}

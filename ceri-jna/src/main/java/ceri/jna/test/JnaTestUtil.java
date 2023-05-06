@@ -2,6 +2,8 @@ package ceri.jna.test;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertNotNull;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +17,7 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.util.OsUtil;
+import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
@@ -32,18 +35,16 @@ public class JnaTestUtil {
 	 * Provides cached memory allocation to prevent gc in tests.
 	 */
 	public static class MemCache implements RuntimeCloseable {
-		private final Set<Memory> cache = new HashSet<>();
+		private final Set<GcMemory> cache = new HashSet<>();
 
 		private MemCache() {}
 
-		@SuppressWarnings("resource")
-		public Memory mallocBytes(int... bytes) {
-			return cache(JnaUtil.mallocBytes(bytes));
+		public GcMemory mallocBytes(int... bytes) {
+			return cache(GcMemory.mallocBytes(bytes));
 		}
 
-		@SuppressWarnings("resource")
-		public Memory calloc(int size) {
-			return cache(JnaUtil.calloc(size));
+		public GcMemory calloc(int size) {
+			return cache(GcMemory.malloc(size).clear());
 		}
 
 		@Override
@@ -53,7 +54,7 @@ public class JnaTestUtil {
 			cache.clear();
 		}
 
-		private Memory cache(Memory m) {
+		private GcMemory cache(GcMemory m) {
 			cache.add(m);
 			return m;
 		}
@@ -92,6 +93,7 @@ public class JnaTestUtil {
 	 * Checks memory at pointer offset, matches bytes.
 	 */
 	public static void assertPointer(Pointer p, int offset, byte[] bytes) {
+		assertValid(p);
 		try {
 			byte[] actual = JnaUtil.bytes(p, offset, bytes.length);
 			assertArray(actual, bytes);
@@ -112,6 +114,21 @@ public class JnaTestUtil {
 	 */
 	public static void assertPointer(Structure t, Pointer p) {
 		assertEquals(Struct.pointer(t), p);
+	}
+
+	/**
+	 * Make sure pointer is not null or zero.
+	 */
+	public static void assertValid(Pointer p) {
+		assertNotNull(p);
+		assertNotEquals(Pointer.nativeValue(p), 0L);
+	}
+
+	/**
+	 * Make sure pointer is not null or zero.
+	 */
+	public static void assertNotValid(Pointer p) {
+		assertEquals(Pointer.nativeValue(p), 0L, "Peer");
 	}
 
 	/**

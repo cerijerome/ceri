@@ -18,7 +18,7 @@ import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.test.TestCLibNative.Fd;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.util.GcMemory;
 
 public class TestCLibNativeBehavior {
 	private TestCLibNative lib;
@@ -66,11 +66,10 @@ public class TestCLibNativeBehavior {
 		lib.read.assertAuto(List.of(fd(), 2));
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
 		lib.write.autoResponses(2, 1);
-		assertEquals(write(fd, JnaUtil.mallocBytes(1, 2, 3), 3), 2);
+		assertEquals(write(fd, GcMemory.mallocBytes(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3)));
 		assertEquals(write(fd, (Pointer) null, 2), 1);
 		lib.write.assertAuto(List.of(fd(), ByteProvider.of(0, 0)));

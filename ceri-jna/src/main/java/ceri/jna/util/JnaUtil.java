@@ -6,6 +6,7 @@ import java.lang.ref.Reference;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
@@ -46,14 +47,6 @@ public class JnaUtil {
 	 */
 	public static RuntimeCloseable closeable(Object callback) {
 		return () -> Reference.reachabilityFence(callback);
-	}
-
-	/**
-	 * Allocates long-term new memory, or returns null if size is 0.
-	 */
-	@SuppressWarnings("resource")
-	public static GcMemory gcMalloc(int size) {
-		return GcMemory.of(malloc(size));
 	}
 
 	/**
@@ -105,8 +98,8 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Copies byte array from pointer offset to pointer offset. Faster than memmove only for large
-	 * sizes (>8k depending on system).
+	 * Copies bytes from pointer offset to pointer offset. Calls memmove for smaller sizes (<8k), or
+	 * if regions overlap. Returns the number of bytes copied.
 	 */
 	public static int memcpy(Pointer p, long toOffset, long fromOffset, int size) {
 		if (toOffset == fromOffset) return size;
@@ -151,32 +144,33 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Gets the memory offset by the given number of bytes.
+	 * Provide typed sub-view of given memory, or null.
 	 */
-	public static Memory offset(Memory m, long offset) {
-		return m == null ? null : offset(m, offset, m.size() - offset);
+	public static Memory share(Memory m, long offset) {
+		return share(m, offset, size(m) - offset);
 	}
 
 	/**
-	 * Gets the memory offset by the given number of bytes.
-	 */
-	public static Memory offset(Memory m, long offset, long length) {
-		if (m == null || (offset == 0 && length == m.size())) return m;
-		return (Memory) m.share(offset, length);
-	}
-
-	/**
-	 * Provide typed share method for memory.
+	 * Provide typed sub-view of given memory, or null.
 	 */
 	public static Memory share(Memory m, long offset, long size) {
-		return m == null ? null : (Memory) m.share(offset, size);
+		if (m == null) validateNullSlice(offset, size);
+		if (m == null || (offset == 0 && size == m.size())) return m;
+		return (Memory) m.share(offset, size);
 	}
 
 	/**
-	 * Gets the memory size. Throws ArithmeticException if outside signed int range.
+	 * Returns the memory size, 0 for null memory.
 	 */
-	public static int size(Memory m) {
-		return m == null ? 0 : Math.toIntExact(m.size());
+	public static long size(Memory m) {
+		return m == null ? 0 : m.size();
+	}
+
+	/**
+	 * Returns the memory size, 0 for null memory. Fails if size if larger than int.
+	 */
+	public static int intSize(Memory m) {
+		return Math.toIntExact(size(m));
 	}
 
 	/**
@@ -395,18 +389,20 @@ public class JnaUtil {
 	/**
 	 * Creates a fixed-length contiguous array of given type size. For {@code type*} array types.
 	 */
+	@SuppressWarnings("resource")
 	public static <T> T[] mallocArray(Function<Pointer, T> constructor, IntFunction<T[]> arrayFn,
 		int count, int size) {
-		return arrayByVal(gcMalloc(size * count).m, constructor, arrayFn, count, size);
+		return arrayByVal(malloc(size * count), constructor, arrayFn, count, size);
 	}
 
 	/**
 	 * Creates a zeroed fixed-length contiguous array of given type size. For {@code type*} array
 	 * types.
 	 */
+	@SuppressWarnings("resource")
 	public static <T> T[] callocArray(Function<Pointer, T> constructor, IntFunction<T[]> arrayFn,
 		int count, int size) {
-		return arrayByVal(gcMalloc(size * count).clear().m, constructor, arrayFn, count, size);
+		return arrayByVal(calloc(size * count), constructor, arrayFn, count, size);
 	}
 
 	/**
@@ -480,16 +476,16 @@ public class JnaUtil {
 	 * Creates an array of bytes from the given memory pointer.
 	 */
 	private static byte[] bytes(Memory m, long offset) {
-		return bytes(m, offset, Math.toIntExact(m.size() - offset));
+		return bytes(m, offset, Math.toIntExact(size(m) - offset));
 	}
 
 	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
 	public static byte[] bytes(Pointer p, long offset, long length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
-		if (p == null) throw new IllegalArgumentException("Pointer is null");
-		return p.getByteArray(offset, Math.toIntExact(length));
+		if (p != null) return p.getByteArray(offset, Math.toIntExact(length));
+		validateNullSlice(offset, length);
+		return ArrayUtil.EMPTY_BYTE;
 	}
 
 	/**
@@ -503,6 +499,7 @@ public class JnaUtil {
 	 * Extracts bytes from buffer.
 	 */
 	public static byte[] bytes(ByteBuffer buffer, int position) {
+		Objects.requireNonNull(buffer);
 		return bytes(buffer, position, buffer.limit() - position);
 	}
 
@@ -510,8 +507,8 @@ public class JnaUtil {
 	 * Extracts bytes from buffer.
 	 */
 	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
+		Objects.requireNonNull(buffer);
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
-		if (buffer == null) throw new IllegalArgumentException("Buffer is null");
 		if (position == 0 && length == buffer.limit() && buffer.hasArray()) return buffer.array();
 		byte[] bytes = new byte[length];
 		buffer.get(position, bytes);
@@ -546,17 +543,16 @@ public class JnaUtil {
 	 * Convenience method to get a byte buffer for the memory.
 	 */
 	public static ByteBuffer buffer(Memory m, long offset) {
-		if (m == null) return ByteBuffer.allocate(0);
-		return buffer(m, offset, m.size() - offset);
+		return buffer(m, offset, size(m) - offset);
 	}
 
 	/**
 	 * Convenience method to get a byte buffer for the pointer.
 	 */
 	public static ByteBuffer buffer(Pointer p, long offset, long length) {
-		if (length == 0) return ByteBuffer.allocate(0);
-		if (p == null) throw new IllegalArgumentException("Pointer is null");
-		return p.getByteBuffer(offset, length);
+		if (p != null) return p.getByteBuffer(offset, length);
+		validateNullSlice(offset, length);
+		return ByteBuffer.allocate(0);
 	}
 
 	/**
@@ -660,122 +656,123 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
 	public static int read(Pointer p, byte[] buffer) {
 		return read(p, buffer, 0);
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
-	public static int read(Pointer p, byte[] buffer, int offset) {
-		return read(p, buffer, offset, buffer.length - offset);
+	public static int read(Pointer p, byte[] buffer, int index) {
+		return read(p, buffer, index, buffer.length - index);
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
-	public static int read(Pointer p, byte[] buffer, int offset, int length) {
-		return read(p, 0, buffer, offset, length);
+	public static int read(Pointer p, byte[] buffer, int index, int length) {
+		return read(p, 0, buffer, index, length);
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
-	public static int read(Pointer p, long index, byte[] buffer) {
-		return read(p, index, buffer, 0);
+	public static int read(Pointer p, long offset, byte[] buffer) {
+		return read(p, offset, buffer, 0);
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
-	public static int read(Pointer p, long index, byte[] buffer, int offset) {
-		return read(p, index, buffer, offset, buffer.length - offset);
+	public static int read(Pointer p, long offset, byte[] buffer, int index) {
+		return read(p, offset, buffer, index, buffer.length - index);
 	}
 
 	/**
-	 * Copies bytes from the pointer to the byte array. Returns the array offset after reading.
+	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
-	public static int read(Pointer p, long index, byte[] buffer, int offset, int length) {
-		validateSlice(buffer.length, offset, length);
-		p.read(index, buffer, offset, length);
-		return offset + length;
+	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
+		validateSlice(buffer.length, index, length);
+		if (p == null) validateNullSlice(offset, length);
+		else p.read(offset, buffer, index, length);
+		return index + length;
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, byte[] buffer) {
+	public static long write(Pointer p, byte[] buffer) {
 		return write(p, buffer, 0);
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, byte[] buffer, int offset) {
-		return write(p, buffer, offset, buffer.length - offset);
+	public static long write(Pointer p, byte[] buffer, int index) {
+		return write(p, buffer, index, buffer.length - index);
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, byte[] buffer, int offset, int length) {
-		return write(p, 0, buffer, offset, length);
+	public static long write(Pointer p, byte[] buffer, int index, int length) {
+		return write(p, 0, buffer, index, length);
 	}
 
 	/**
 	 * Copies bytes to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, int index, int... buffer) {
-		return write(p, index, ArrayUtil.bytes(buffer));
+	public static long write(Pointer p, long offset, int... buffer) {
+		return write(p, offset, ArrayUtil.bytes(buffer));
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, int index, byte[] buffer) {
-		return write(p, index, buffer, 0);
+	public static long write(Pointer p, long offset, byte[] buffer) {
+		return write(p, offset, buffer, 0);
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, int index, byte[] buffer, int offset) {
-		return write(p, index, buffer, offset, buffer.length - offset);
+	public static long write(Pointer p, long offset, byte[] buffer, int index) {
+		return write(p, offset, buffer, index, buffer.length - index);
 	}
 
 	/**
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
-	public static int write(Pointer p, int index, byte[] buffer, int offset, int length) {
-		validateSlice(buffer.length, offset, length);
-		p.write(index, buffer, offset, length);
-		return index + length;
+	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
+		validateSlice(buffer.length, index, length);
+		if (p == null) validateNullSlice(offset, length);
+		else p.write(offset, buffer, index, length);
+		return offset + length;
 	}
 
 	/**
 	 * Writes byte value to memory. Returns the pointer offset after writing.
 	 */
-	public static int fill(Memory m, int value) {
+	public static long fill(Memory m, int value) {
 		return fill(m, 0, value);
 	}
 
 	/**
 	 * Writes byte value to memory, starting at offset. Returns the pointer offset after writing.
 	 */
-	public static int fill(Memory m, int offset, int value) {
-		int size = size(m);
-		validateSlice(size, offset, 0);
-		return fill(m, offset, size - offset, value);
+	public static long fill(Memory m, long offset, int value) {
+		return fill(m, offset, size(m) - offset, value);
 	}
 
 	/**
 	 * Writes byte value to the pointer, starting at offset for given length. Returns the pointer
 	 * offset after writing.
 	 */
-	public static int fill(Pointer p, int offset, int length, int value) {
-		p.setMemory(offset, length, (byte) value);
+	public static long fill(Pointer p, long offset, long length, int value) {
+		if (p == null) validateNullSlice(offset, length);
+		else p.setMemory(offset, length, (byte) value);
 		return offset + length;
 	}
 
@@ -785,6 +782,11 @@ public class JnaUtil {
 		String encoding = Native.getDefaultStringEncoding();
 		if (!Charset.isSupported(encoding)) return Charset.defaultCharset();
 		return Charset.forName(encoding);
+	}
+
+	private static void validateNullSlice(long offset, long length) {
+		if (offset != 0 || length != 0) throw new IndexOutOfBoundsException(
+			"Offset and length must be 0: " + offset + " + " + length);
 	}
 
 }

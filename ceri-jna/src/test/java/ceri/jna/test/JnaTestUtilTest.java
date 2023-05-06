@@ -18,12 +18,11 @@ public class JnaTestUtilTest {
 		assertPrivateConstructor(JnaTestUtil.class);
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testMemCache() {
 		try (var m = JnaTestUtil.memCache()) {
-			JnaTestUtil.assertMemory(m.calloc(3), 0, 0, 0, 0);
-			JnaTestUtil.assertMemory(m.mallocBytes(1, 2, 3), 0, 1, 2, 3);
+			JnaTestUtil.assertMemory(m.calloc(3).m, 0, 0, 0, 0);
+			JnaTestUtil.assertMemory(m.mallocBytes(1, 2, 3).m, 0, 1, 2, 3);
 		}
 	}
 

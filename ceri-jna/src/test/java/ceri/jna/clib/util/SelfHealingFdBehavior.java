@@ -25,6 +25,7 @@ import ceri.jna.clib.Seek;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestFileDescriptor;
+import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
 
@@ -77,11 +78,10 @@ public class SelfHealingFdBehavior {
 		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void shouldWrite() throws IOException {
 		shf.open();
-		shf.write(JnaUtil.mallocBytes(1, 2, 3));
+		shf.write(GcMemory.mallocBytes(1, 2, 3).m);
 		fd.write.assertAuto(ByteProvider.of(1, 2, 3));
 	}
 

@@ -9,14 +9,15 @@ import java.io.OutputStream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.io.IoStreamUtil;
+import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
  */
 public interface FileDescriptor extends Closeable {
-	static final FileDescriptor NULL = new Null();
-	static final int BUFFER_SIZE = 1024;
+	FileDescriptor NULL = new Null();
+	int BUFFER_SIZE = 1024;
 
 	/**
 	 * Provide access to the underlying descriptor.
@@ -36,7 +37,7 @@ public interface FileDescriptor extends Closeable {
 	 * than the given length. Returns the number of bytes read, or -1 for EOF.
 	 */
 	default int read(Memory m, int offset) throws IOException {
-		return read(m, offset, JnaUtil.size(m) - offset);
+		return read(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 	}
 
 	/**
@@ -58,7 +59,7 @@ public interface FileDescriptor extends Closeable {
 	 * to complete.
 	 */
 	default void write(Memory m, int offset) throws IOException {
-		write(m, offset, JnaUtil.size(m) - offset);
+		write(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 	}
 
 	/**
@@ -85,9 +86,8 @@ public interface FileDescriptor extends Closeable {
 	 */
 	default InputStream in(int bufferSize) {
 		validateMin(bufferSize, 1, "Buffer size");
-		var buffer = JnaUtil.gcMalloc(bufferSize).m;
-		return IoStreamUtil
-			.in((array, offset, length) -> read(this, buffer, array, offset, length));
+		var m = GcMemory.malloc(bufferSize);
+		return IoStreamUtil.in((array, offset, length) -> read(this, m.m, array, offset, length));
 	}
 
 	/**
@@ -102,10 +102,9 @@ public interface FileDescriptor extends Closeable {
 	 */
 	default OutputStream out(int bufferSize) {
 		validateMin(bufferSize, 1, "Buffer size");
-		var buffer = JnaUtil.gcMalloc(bufferSize).m;
+		var m = GcMemory.malloc(bufferSize);
 		// @TODO: add flush
-		return IoStreamUtil
-			.out((array, offset, length) -> write(this, buffer, array, offset, length));
+		return IoStreamUtil.out((array, offset, length) -> write(this, m.m, array, offset, length));
 	}
 
 	/**
@@ -137,9 +136,9 @@ public interface FileDescriptor extends Closeable {
 	 */
 	static int read(FileDescriptor fd, Memory buffer, byte[] array, int offset, int length)
 		throws IOException {
-		int bufSize = JnaUtil.size(buffer);
+		long bufSize = JnaUtil.size(buffer);
 		for (int count = 0; count < length;) {
-			int size = Math.min(bufSize, length - count);
+			int size = Math.toIntExact(Math.min(bufSize, length - count));
 			int n = fd.read(buffer, 0, size); // read into buffer
 			if (n <= 0) return count == 0 ? n : count; // return if 0 or EOF
 			buffer.read(0, array, offset + count, n); // copy buffer to array
@@ -154,9 +153,9 @@ public interface FileDescriptor extends Closeable {
 	 */
 	static int write(FileDescriptor fd, Memory buffer, byte[] array, int offset, int length)
 		throws IOException {
-		int bufSize = JnaUtil.size(buffer);
+		long bufSize = JnaUtil.size(buffer);
 		for (int count = 0; count < length;) {
-			int n = Math.min(bufSize, length - count);
+			int n = Math.toIntExact(Math.min(bufSize, length - count));
 			buffer.write(0, array, offset + count, n);
 			fd.write(buffer, 0, n); // throws exception for under-write
 			count += n;

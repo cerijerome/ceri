@@ -14,24 +14,24 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 
 /**
- * Byte accessor wrapper for memory.
+ * Byte accessor wrapper for memory. Wrapped length must be within int range.
  */
 public class JnaMemory implements ByteAccessor {
 	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final JnaMemory EMPTY = JnaMemory.of(null, 0, 0);
 	private final Pointer p;
-	private final int offset;
+	private final long offset;
 	private final int length;
 
 	public static JnaMemory of(Memory m) {
 		return of(m, 0);
 	}
 
-	public static JnaMemory of(Memory m, int offset) {
-		return of(m, offset, JnaUtil.size(m) - offset);
+	public static JnaMemory of(Memory m, long offset) {
+		return of(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 	}
 
-	public static JnaMemory of(Pointer p, int offset, int length) {
+	public static JnaMemory of(Pointer p, long offset, int length) {
 		return new JnaMemory(p, offset, length);
 	}
 
@@ -98,8 +98,8 @@ public class JnaMemory implements ByteAccessor {
 		/**
 		 * Reads bytes into the memory pointer. Returns the destination offset after reading.
 		 */
-		public int readInto(Memory m, int offset) {
-			return readInto(m, offset, JnaUtil.size(m) - offset);
+		public int readInto(Memory m, long offset) {
+			return readInto(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 		}
 
 		/**
@@ -107,7 +107,7 @@ public class JnaMemory implements ByteAccessor {
 		 * Default implementation reads one byte at a time; efficiency may be improved by
 		 * overriding.
 		 */
-		public int readInto(Pointer p, int offset, int length) {
+		public int readInto(Pointer p, long offset, int length) {
 			return m.copyTo(inc(length), p, offset, length);
 		}
 
@@ -171,15 +171,15 @@ public class JnaMemory implements ByteAccessor {
 		/**
 		 * Writes bytes from the memory pointer.
 		 */
-		public Writer writeFrom(Memory m, int offset) {
-			return writeFrom(m, offset, JnaUtil.size(m) - offset);
+		public Writer writeFrom(Memory m, long offset) {
+			return writeFrom(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 		}
 
 		/**
 		 * Writes bytes from the memory pointer. Default implementation writes one byte at a time;
 		 * efficiency may be improved by overriding.
 		 */
-		public Writer writeFrom(Pointer p, int offset, int length) {
+		public Writer writeFrom(Pointer p, long offset, int length) {
 			return position(m.copyFrom(position(), p, offset, length));
 		}
 
@@ -195,7 +195,7 @@ public class JnaMemory implements ByteAccessor {
 		}
 	}
 
-	private JnaMemory(Pointer p, int offset, int length) {
+	private JnaMemory(Pointer p, long offset, int length) {
 		this.p = p;
 		this.offset = offset;
 		this.length = length;
@@ -278,15 +278,16 @@ public class JnaMemory implements ByteAccessor {
 
 	/**
 	 * Copies bytes from memory at index to the memory pointer. Returns the index after copying.
+	 * Fails if the memory size to copy from is larger than int.
 	 */
-	public int copyTo(int index, Memory m, int offset) {
-		return copyTo(index, m, offset, JnaUtil.size(m) - offset);
+	public int copyTo(int index, Memory m, long offset) {
+		return copyTo(index, m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 	}
 
 	/**
 	 * Copies bytes from memory at index to the memory pointer. Returns the index after copying.
 	 */
-	public int copyTo(int index, Pointer p, int offset, int length) {
+	public int copyTo(int index, Pointer p, long offset, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
 		JnaUtil.memcpy(p, offset, this.p, offset(index), length);
 		return index + length;
@@ -371,17 +372,17 @@ public class JnaMemory implements ByteAccessor {
 
 	/**
 	 * Copies bytes from the memory pointer to memory at index. Returns the index after the written
-	 * bytes.
+	 * bytes. Fails if the memory size to copy from is larger than int.
 	 */
-	public int copyFrom(int index, Memory m, int offset) {
-		return copyFrom(index, m, offset, JnaUtil.size(m) - offset);
+	public int copyFrom(int index, Memory m, long offset) {
+		return copyFrom(index, m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
 	}
 
 	/**
 	 * Copies bytes from the memory pointer to memory at index. Returns the index after the written
 	 * bytes.
 	 */
-	public int copyFrom(int index, Pointer p, int offset, int length) {
+	public int copyFrom(int index, Pointer p, long offset, int length) {
 		ArrayUtil.validateSlice(length(), index, length);
 		JnaUtil.memcpy(this.p, offset(index), p, offset, length);
 		return index + length;
@@ -428,8 +429,8 @@ public class JnaMemory implements ByteAccessor {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof JnaMemory other) || (peer() != other.peer()) || (length != other.length)) return false;
-		return true;
+		return (obj instanceof JnaMemory other) && (peer() == other.peer())
+			&& (length == other.length);
 	}
 
 	@Override
@@ -452,7 +453,7 @@ public class JnaMemory implements ByteAccessor {
 		return PointerUtil.peer(p) + offset;
 	}
 
-	private int offset(int index) {
+	private long offset(int index) {
 		return this.offset + index;
 	}
 }

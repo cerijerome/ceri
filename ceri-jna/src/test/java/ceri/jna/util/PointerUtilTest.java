@@ -53,8 +53,7 @@ public class PointerUtilTest {
 	@Test
 	public void testPointerOffset() {
 		assertNull(PointerUtil.offset(null, 0));
-		@SuppressWarnings("resource")
-		Pointer p = deref(JnaUtil.mallocBytes(1, 2, 3));
+		Pointer p = deref(GcMemory.mallocBytes(1, 2, 3).m);
 		assertPointer(PointerUtil.offset(p, 0), 0, 1, 2, 3);
 		assertPointer(PointerUtil.offset(p, 1), 0, 2, 3);
 	}
@@ -71,15 +70,14 @@ public class PointerUtilTest {
 		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testCount() {
 		Pointer[] array = PointerUtil.callocArray(3);
 		assertEquals(PointerUtil.count(null), 0);
 		assertEquals(PointerUtil.count(array[0]), 0);
-		array[0].setPointer(0, new Memory(1));
+		array[0].setPointer(0, GcMemory.malloc(1).m);
 		assertEquals(PointerUtil.count(array[0]), 1);
-		array[1].setPointer(0, new Memory(1));
+		array[1].setPointer(0, GcMemory.malloc(1).m);
 		assertEquals(PointerUtil.count(array[0]), 2);
 	}
 
@@ -131,8 +129,7 @@ public class PointerUtilTest {
 	@Test
 	public void testNullTermArrayByRefForPointerTypes() {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
-		@SuppressWarnings("resource")
-		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3), null };
+		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m, null };
 		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new);
 		assertPointer(array[0], pointers[0]);
@@ -145,8 +142,7 @@ public class PointerUtilTest {
 	public void testArrayByRefForPointerTypes() {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new, 1),
 			new TestPointer[1]);
-		@SuppressWarnings("resource")
-		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3) };
+		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m };
 		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new, 2);
 		assertPointer(array[0], pointers[0]);
@@ -177,8 +173,7 @@ public class PointerUtilTest {
 
 	@Test
 	public void testByRef() {
-		@SuppressWarnings("resource")
-		Pointer[] pointers = { new Memory(1), new Memory(2), new Memory(3) };
+		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m };
 		Pointer[] array0 = indirect(pointers);
 		Pointer p = array0[0];
 		assertEquals(PointerUtil.byRef(null), null);
@@ -232,12 +227,11 @@ public class PointerUtilTest {
 	/**
 	 * Allocates a contiguous pointer array with given pointer values. Returns indirected pointers.
 	 */
-	@SuppressWarnings("resource")
 	private static Pointer[] indirect(Pointer... ps) {
-		Memory m = JnaUtil.calloc(ps.length * JnaSize.POINTER.size);
+		var m = GcMemory.malloc(ps.length * JnaSize.POINTER.size).clear();
 		Pointer[] array = new Pointer[ps.length];
 		for (int i = 0; i < array.length; i++) {
-			array[i] = m.share(i * JnaSize.POINTER.size, JnaSize.POINTER.size);
+			array[i] = m.share(i * JnaSize.POINTER.size, JnaSize.POINTER.size).m;
 			array[i].setPointer(0, ps[i]);
 		}
 		return array;

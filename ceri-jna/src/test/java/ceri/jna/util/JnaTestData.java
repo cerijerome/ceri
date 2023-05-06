@@ -135,26 +135,24 @@ public class JnaTestData {
 	/**
 	 * Create contiguous memory array.
 	 */
-	@SuppressWarnings("resource")
 	private Memory[] memoryArrayByVal() {
-		Memory m = mc.calloc(ARRAY_SIZE * TestStruct.BYTES);
+		var m = mc.calloc(ARRAY_SIZE * TestStruct.BYTES);
 		for (int i = 0; i < m.size(); i++)
-			m.setByte(i, (byte) -(i + 1));
+			m.m.setByte(i, (byte) -(i + 1));
 		Memory[] array = new Memory[ARRAY_SIZE];
 		for (int i = 0; i < array.length; i++)
-			array[i] = JnaUtil.share(m, i * TestStruct.BYTES, TestStruct.BYTES);
+			array[i] = m.share(i * TestStruct.BYTES, TestStruct.BYTES).m;
 		return array;
 	}
 
 	/**
 	 * Create contiguous struct array.
 	 */
-	@SuppressWarnings("resource")
 	private TestStruct[] structArrayByVal(Memory[] ps) {
 		TestStruct[] array = new TestStruct[ARRAY_SIZE];
-		Memory m = mc.calloc((array.length + 1) * TestStruct.SIZE);
+		var m = mc.calloc((array.length + 1) * TestStruct.SIZE);
 		for (int i = 0; i < array.length; i++) {
-			Pointer p = m.share(i * TestStruct.SIZE);
+			Pointer p = m.share(i * TestStruct.SIZE).m;
 			array[i] = new TestStruct(p);
 			array[i].populate((i + 1) * I_MULTIPLIER, ps[i],
 				JnaUtil.bytes(ps[i], 0, TestStruct.BYTES));
@@ -166,12 +164,11 @@ public class JnaTestData {
 	/**
 	 * Create null-terminated contiguous pointer array referencing structs.
 	 */
-	@SuppressWarnings("resource")
 	private Pointer[] pointerArrayByVal(TestStruct[] ts) {
 		Pointer[] array = new Pointer[ts.length];
-		Memory m = mc.calloc((array.length + 1) * JnaSize.POINTER.size); // null-terminated
+		var m = mc.calloc((array.length + 1) * JnaSize.POINTER.size); // null-terminated
 		for (int i = 0; i < array.length; i++) {
-			array[i] = m.share(i * JnaSize.POINTER.size);
+			array[i] = m.share(i * JnaSize.POINTER.size).m;
 			array[i].setPointer(0, ts[i].getPointer());
 		}
 		return array;

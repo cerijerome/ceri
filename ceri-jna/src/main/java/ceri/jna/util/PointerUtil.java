@@ -105,7 +105,7 @@ public class PointerUtil {
 	 * {@code type*} array types.
 	 */
 	public static Pointer[] mallocArray(int count, int size) {
-		return arrayByVal(JnaUtil.gcMalloc(count * size).m, count, size);
+		return arrayByVal(GcMemory.malloc(count * size).m, count, size);
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class PointerUtil {
 	 */
 	public static <T extends PointerType> T[] mallocArray(Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(JnaUtil.gcMalloc(count * JnaSize.POINTER.size).m, constructor, arrayFn,
+		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.size).m, constructor, arrayFn,
 			count);
 	}
 
@@ -129,7 +129,7 @@ public class PointerUtil {
 	 * For {@code type*} array types.
 	 */
 	public static Pointer[] callocArray(int count, int size) {
-		return arrayByVal(JnaUtil.gcMalloc(count * size).clear().m, count, size);
+		return arrayByVal(GcMemory.malloc(count * size).clear().m, count, size);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class PointerUtil {
 	 */
 	public static <T extends PointerType> T[] callocArray(Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
-		return arrayByVal(JnaUtil.gcMalloc(count * JnaSize.POINTER.size).clear().m, constructor,
+		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.size).clear().m, constructor,
 			arrayFn, count);
 	}
 
