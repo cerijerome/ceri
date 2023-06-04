@@ -16,19 +16,19 @@ public class BiMap<K, V> {
 	}
 
 	public static <K, V> BiMap<K, V> of(K k0, V v0) {
-		return BiMap.<K, V>builder().put(k0, v0).build();
+		return BiMap.builder(k0, v0).build();
 	}
 
 	public static <K, V> BiMap<K, V> of(K k0, V v0, K k1, V v1) {
-		return BiMap.<K, V>builder().put(k0, v0).put(k1, v1).build();
+		return BiMap.builder(k0, v0).put(k1, v1).build();
 	}
 
 	public static <K, V> BiMap<K, V> of(K k0, V v0, K k1, V v1, K k2, V v2) {
-		return BiMap.<K, V>builder().put(k0, v0).put(k1, v1).put(k2, v2).build();
+		return BiMap.builder(k0, v0).put(k1, v1).put(k2, v2).build();
 	}
 
 	public static <K, V> BiMap<K, V> of(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3) {
-		return BiMap.<K, V>builder().put(k0, v0).put(k1, v1).put(k2, v2).put(k3, v3).build();
+		return BiMap.builder(k0, v0).put(k1, v1).put(k2, v2).put(k3, v3).build();
 	}
 
 	public static class Builder<K, V> {
@@ -56,6 +56,10 @@ public class BiMap<K, V> {
 
 	public static <K, V> Builder<K, V> builder() {
 		return new Builder<>();
+	}
+
+	public static <K, V> Builder<K, V> builder(K k, V v) {
+		return BiMap.<K, V>builder().put(k,  v);
 	}
 
 	BiMap(Builder<K, V> builder) {

@@ -409,16 +409,16 @@ public class AnsiEscape {
 		private final int blankCode; // if added code is this value, leave blank
 		private boolean empty = true;
 
-		public static String escape(char prefix) {
+		private static String escape(char prefix) {
 			return StringUtil.toString(ESC, prefix);
 		}
 
-		public static String escape(char prefix, char suffix, char separator, int blankCode,
+		private static String escape(char prefix, char suffix, char separator, int blankCode,
 			int... codes) {
 			return new Escaper(prefix, suffix, separator, blankCode).add(codes).toString();
 		}
 
-		public Escaper(char prefix, char suffix, Character separator, int blankCode) {
+		private Escaper(char prefix, char suffix, Character separator, int blankCode) {
 			b = new StringBuilder().append(ESC).append(prefix);
 			this.suffix = suffix;
 			this.separator = separator;

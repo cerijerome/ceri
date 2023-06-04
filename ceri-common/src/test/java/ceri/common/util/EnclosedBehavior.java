@@ -12,7 +12,7 @@ public class EnclosedBehavior {
 	public void shouldWrapCloseMethod() {
 		var sync = CallSync.runnable(true);
 		try (var x = Enclosed.of(sync::run)) {
-			sync.assertNoCall();
+			sync.assertCalls(0);
 		}
 		sync.awaitAuto();
 	}

@@ -53,6 +53,15 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testLocker() {
+		var lock = new ReentrantLock();
+		try (var x = ConcurrentUtil.locker(lock)) {
+			assertTrue(lock.isLocked());
+		}
+		assertFalse(lock.isLocked());
+	}
+
+	@Test
 	public void testDelay() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
 		try (var exec = SimpleExecutor.run(() -> {

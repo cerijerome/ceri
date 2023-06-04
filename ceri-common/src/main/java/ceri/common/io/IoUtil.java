@@ -89,7 +89,7 @@ public class IoUtil {
 	 * Returns a print stream that swallows all output.
 	 */
 	public static PrintStream nullPrintStream() {
-		return new PrintStream(IoStreamUtil.nullOut());
+		return new PrintStream(IoStreamUtil.nullOut);
 	}
 
 	/**
@@ -352,7 +352,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Poll until string data is available from input stream.
+	 * Poll until data is available from input stream.
 	 */
 	public static byte[] pollBytes(InputStream in) throws IOException {
 		return in.readNBytes(pollForData(in, 1));

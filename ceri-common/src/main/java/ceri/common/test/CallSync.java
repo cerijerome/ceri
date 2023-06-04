@@ -11,7 +11,6 @@ import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -36,7 +35,7 @@ import ceri.common.util.Holder;
  * for the response condition to be signaled; either by awaitCall or assertCall. This ensures no
  * calls are missed by the test class.
  */
-public class CallSync<T, R> {
+public abstract class CallSync<T, R> {
 	private final Lock lock = new ReentrantLock();
 	public final ErrorGen error = ErrorGen.of();
 	private final ValueCondition<Holder<T>> callSync = ValueCondition.of(lock);
@@ -44,6 +43,7 @@ public class CallSync<T, R> {
 	private final List<T> values = new ArrayList<>();
 	private Function<T, R> autoResponseFn = null;
 	private T valueDef;
+	private int calls = 0;
 	private boolean saveValues = true;
 
 	/**
@@ -442,13 +442,6 @@ public class CallSync<T, R> {
 		}
 
 		/**
-		 * Returns the number of calls made since creation or reset.
-		 */
-		public int calls() {
-			return super.getValueCount();
-		}
-
-		/**
 		 * Awaits the call, evaluates the response action, and signals completion. Use when
 		 * autoResponse is disabled.
 		 */
@@ -529,13 +522,6 @@ public class CallSync<T, R> {
 			super.awaitCallWithResponse(t -> exec(actionFn));
 		}
 
-		/**
-		 * Returns the number of calls made since creation or reset.
-		 */
-		public int calls() {
-			return super.getValueCount();
-		}
-
 		private <E extends Exception> Object exec(ExceptionRunnable<E> responseFn) throws E {
 			responseFn.run();
 			return null;
@@ -552,6 +538,7 @@ public class CallSync<T, R> {
 	 */
 	public void reset() {
 		execute(lock, () -> {
+			calls = 0;
 			values.clear();
 			error.clear();
 			callSync.clear();
@@ -560,17 +547,24 @@ public class CallSync<T, R> {
 	}
 
 	/**
-	 * Asserts that no call was made.
+	 * Thread-safe; get call count since creation or reset.
 	 */
-	public void assertNoCall() {
-		assertNull(callSync.value());
+	public int calls() {
+		return executeGet(lock, () -> calls);
+	}
+
+	/**
+	 * Asserts the number of calls made.
+	 */
+	public void assertCalls(int calls) {
+		assertEquals(calls(), calls);
 	}
 
 	/**
 	 * Enables/disables saving of values. Clears previous values if disabled. Enabled by default.
 	 */
 	public void saveValues(boolean enabled) {
-		ConcurrentUtil.execute(lock, () -> {
+		execute(lock, () -> {
 			saveValues = enabled;
 			if (!enabled && values.size() > 1) setValue(getValue());
 		});
@@ -641,13 +635,6 @@ public class CallSync<T, R> {
 	}
 
 	/**
-	 * Thread-safe; returns number of values set.
-	 */
-	private int getValueCount() {
-		return executeGet(lock, () -> values.size());
-	}
-
-	/**
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
 	private void autoResponseFn(Function<T, R> autoResponseFn) {
@@ -660,6 +647,7 @@ public class CallSync<T, R> {
 	private <E extends Exception> R apply(T value, ExceptionAdapter<E> adapter) throws E {
 		lock.lock();
 		try {
+			calls++;
 			R response = sync(value);
 			error.call(adapter);
 			setValue(value);
@@ -676,6 +664,7 @@ public class CallSync<T, R> {
 		throws InterruptedException, E {
 		lock.lock();
 		try {
+			calls++;
 			R response = sync(value);
 			error.callWithInterrupt(adapter);
 			setValue(value);

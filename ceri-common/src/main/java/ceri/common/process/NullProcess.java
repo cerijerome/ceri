@@ -22,17 +22,17 @@ public class NullProcess extends Process {
 
 	@Override
 	public InputStream getErrorStream() {
-		return IoStreamUtil.nullIn();
+		return IoStreamUtil.nullIn;
 	}
 
 	@Override
 	public InputStream getInputStream() {
-		return IoStreamUtil.nullIn();
+		return IoStreamUtil.nullIn;
 	}
 
 	@Override
 	public OutputStream getOutputStream() {
-		return IoStreamUtil.nullOut();
+		return IoStreamUtil.nullOut;
 	}
 
 	@Override

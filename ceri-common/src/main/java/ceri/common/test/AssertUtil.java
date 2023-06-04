@@ -64,7 +64,7 @@ public class AssertUtil {
 	/**
 	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
 	 */
-	public static <T> T throwIt() {
+	public static <T> T throwRuntime() {
 		throw new RuntimeException("throwIt");
 	}
 

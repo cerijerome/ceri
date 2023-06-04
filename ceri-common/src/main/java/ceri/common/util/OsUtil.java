@@ -67,7 +67,7 @@ public class OsUtil {
 	}
 
 	/**
-	 * Overrides OS. Use null for actual values. 
+	 * Overrides OS. Use null for actual values. Removes override on close.
 	 */
 	public static RuntimeCloseable os(String name, String arch, String version) {
 		if (name == null) name = os.name;

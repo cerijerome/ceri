@@ -24,7 +24,6 @@ import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.io.IoStreamUtil.Write;
 
 public class IoStreamUtilTest {
-	private final InputStream nullIn = IoStreamUtil.nullIn(); // keeps closed state
 	private final ByteArrayInputStream bin0 = new ByteArrayInputStream(bytes(1, 2, 3));
 	private final ByteArrayInputStream bin1 = new ByteArrayInputStream(bytes(4, 5, 6));
 	private final ByteArrayOutputStream bout0 = new ByteArrayOutputStream();
@@ -45,23 +44,26 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testNullInputStream() throws IOException {
-		assertEquals(nullIn.available(), 0);
-		assertEquals(nullIn.read(), 0);
-		assertArray(nullIn.readAllBytes());
-		assertArray(nullIn.readNBytes(3), 0, 0, 0);
-		assertReadNBytes(nullIn, 0, 0, 0);
+		IoStreamUtil.nullIn.close();
+		assertEquals(IoStreamUtil.nullIn.available(), 0);
+		assertEquals(IoStreamUtil.nullIn.read(), 0);
+		assertEquals(IoStreamUtil.nullIn.read(new byte[2]), 2);
+		assertArray(IoStreamUtil.nullIn.readAllBytes());
+		assertArray(IoStreamUtil.nullIn.readNBytes(3), 0, 0, 0);
+		assertReadNBytes(IoStreamUtil.nullIn, 0, 0, 0);
+		IoStreamUtil.nullIn.close();
 	}
 
-	@Test
-	public void testNullInputStreamAfterClose() throws IOException {
-		try (var nullIn = IoStreamUtil.nullIn()) {
-			nullIn.close();
-			assertThrown(() -> nullIn.available());
-			assertThrown(() -> nullIn.read());
-			assertThrown(() -> nullIn.readAllBytes());
-			assertThrown(() -> nullIn.readNBytes(3));
-			assertThrown(() -> nullIn.readNBytes(new byte[3], 0, 3));
-		}
+	//@Test
+	public void testNullOutputStream() throws IOException {
+		IoStreamUtil.nullIn.close();
+		assertEquals(IoStreamUtil.nullIn.available(), 0);
+		assertEquals(IoStreamUtil.nullIn.read(), 0);
+		assertArray(IoStreamUtil.nullIn.readAllBytes());
+		assertArray(IoStreamUtil.nullIn.readNBytes(3), 0, 0, 0);
+		assertThrown(() -> IoStreamUtil.nullIn.read(new byte[3], 2, 2));
+		assertReadNBytes(IoStreamUtil.nullIn, 0, 0, 0);
+		IoStreamUtil.nullIn.close();
 	}
 
 	/* InputStream tests */
@@ -152,7 +154,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterInWithByteReadError() throws IOException {
-		try (var in = IoStreamUtil.filterIn(nullIn, is -> readOrError(bin0))) {
+		try (var in = IoStreamUtil.filterIn(IoStreamUtil.nullIn, is -> readOrError(bin0))) {
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
 			assertThrown(in::read);

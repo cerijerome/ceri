@@ -2,6 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.function.FunctionUtil.safeApply;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -20,56 +21,69 @@ import ceri.common.math.MathUtil;
  */
 public class IoStreamUtil {
 	private static final int MAX_SKIP_BUFFER_SIZE = 2048; // from InputStream
+	/** No-op, stateless, input stream. */
+	public static final NullIn nullIn = new NullIn();
+	/** No-op, stateless, output stream. */
+	public static final NullOut nullOut = new NullOut();
 
 	private IoStreamUtil() {}
 
 	/**
-	 * An input stream that returns no data. Unlike InputStream.nullInputStream, this returns 0 from
-	 * read(), rather than appear as if end of stream is reached.
+	 * An no-op, stateless input stream. Unlike InputStream.nullInputStream, this returns 0 for
+	 * read(), and the requested length for other read(...) calls. It does not keep track of closed
+	 * state.
 	 */
 	public static class NullIn extends InputStream {
-		private volatile boolean closed = false;
-
-		protected NullIn() {}
+		private NullIn() {}
 
 		@Override
-		public int available() throws IOException {
-			ensureOpen();
+		public int available() {
 			return 0;
 		}
 
 		@Override
-		public int read() throws IOException {
-			ensureOpen();
+		public int read() {
 			return 0;
 		}
 
 		@Override
-		public int read(byte[] b, int off, int len) throws IOException {
-			ensureOpen();
+		public int read(byte[] b, int off, int len) {
+			validateSlice(b.length, off, len);
 			return len;
 		}
 
 		@Override
-		public byte[] readAllBytes() throws IOException {
-			ensureOpen();
-			return EMPTY_BYTE;
+		public byte[] readAllBytes() {
+			return EMPTY_BYTE; // 1-byte instead?
 		}
 
 		@Override
-		public int readNBytes(byte[] b, int off, int len) throws IOException {
-			ensureOpen();
+		public int readNBytes(byte[] b, int off, int len) {
+			validateSlice(b.length, off, len);
 			return len;
 		}
 
 		@Override
-		public void close() throws IOException {
-			closed = true;
+		public void close() {}
+	}
+
+	/**
+	 * An no-op, stateless output stream. Unlike OutputStream.nullOutputStream, this does not keep
+	 * track of closed state.
+	 */
+	public static class NullOut extends OutputStream {
+		private NullOut() {}
+
+		@Override
+		public void write(int b) {}
+
+		@Override
+		public void write(byte[] b, int off, int len) {
+			validateSlice(b.length, off, len);
 		}
 
-		protected void ensureOpen() throws IOException {
-			if (closed) throw new IOException("Stream closed");
-		}
+		@Override
+		public void close() {}
 	}
 
 	/**
@@ -112,22 +126,6 @@ public class IoStreamUtil {
 		 * wrapped stream.
 		 */
 		boolean write(OutputStream out, byte[] b, int offset, int length) throws IOException;
-	}
-
-	/**
-	 * Provides a stream that absorbs calls until the stream is closed. Unlike
-	 * InputStream.nullInputStream, this returns 0 from read(), rather than appear as if end of
-	 * stream is reached.
-	 */
-	public static InputStream nullIn() {
-		return new NullIn();
-	}
-
-	/**
-	 * Provides a stream that absorbs calls until the stream is closed.
-	 */
-	public static OutputStream nullOut() {
-		return OutputStream.nullOutputStream();
 	}
 
 	/**

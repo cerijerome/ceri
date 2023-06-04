@@ -26,7 +26,8 @@ public class SystemVars {
 	 * Gets an override value or environment variable if not set.
 	 */
 	public static String env(String name, String def) {
-		if (vars.containsKey(name)) return vars.get(name).orElse(def);
+		var optional = vars.get(name);
+		if (optional != null) return optional.orElse(def);
 		String value = System.getenv(name);
 		return value == null ? def : value;
 	}
@@ -49,7 +50,8 @@ public class SystemVars {
 	 * Gets an override value or system property if not set.
 	 */
 	public static String sys(String name, String def) {
-		if (vars.containsKey(name)) return vars.get(name).orElse(def);
+		var optional = vars.get(name);
+		if (optional != null) return optional.orElse(def);
 		String value = System.getProperty(name);
 		return value == null ? def : value;
 	}
@@ -77,9 +79,7 @@ public class SystemVars {
 	 */
 	public static RuntimeCloseable removableProperty(String name, String value) {
 		String orig = setProperty(name, value); // null if property not set
-		return ()
-			->
-		setProperty(name, orig);
+		return () -> setProperty(name, orig);
 	}
 
 	/**

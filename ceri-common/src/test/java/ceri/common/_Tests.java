@@ -50,6 +50,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.comparator.ComparatorsTest.class, //
 	ceri.common.comparator.EnumComparatorsTest.class, //
 	// concurrent
+	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
 	ceri.common.concurrent.BooleanConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
 	ceri.common.concurrent.LockerBehavior.class, //

@@ -20,6 +20,7 @@ import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.Holder;
 
@@ -57,6 +58,14 @@ public class ConcurrentUtil {
 			new LockInfo(rlock.getHoldCount(), rlock.getQueueLength());
 	}
 
+	/**
+	 * Returns the lock for try-with-resource.
+	 */
+	public static RuntimeCloseable locker(Lock lock) {
+		lock.lock();
+		return () -> lock.unlock();
+	}
+	
 	/**
 	 * Sleeps approximately for given milliseconds, or not if 0. Throws RuntimeInterruptedException
 	 * if interrupted. Checks for interrupted thread even if 0 delay.

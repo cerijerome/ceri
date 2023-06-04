@@ -151,7 +151,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Return a SystemIo instance with System.err output nullified.
+	 * Return a SystemIo instance with System.out and System.err output nullified.
 	 */
 	@SuppressWarnings("resource")
 	public static SystemIo nullOutErr() {

@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
@@ -280,7 +280,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldReturnEmptyArrayForZeroSizeEncodable() {
-		assertArray(encodable(() -> 0, enc -> throwIt()).encode());
+		assertArray(encodable(() -> 0, enc -> throwRuntime()).encode());
 	}
 
 	@Test

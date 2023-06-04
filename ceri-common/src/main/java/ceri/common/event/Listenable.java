@@ -11,7 +11,7 @@ public interface Listenable<T> {
 
 	/**
 	 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call to
-	 * listen returns false, close() will do nothing.
+	 * listen returns false, the listener is already registered, and close() will do nothing.
 	 */
 	default <U extends Consumer<? super T>> Enclosed<RuntimeException, U> enclose(U listener) {
 		boolean added = listen(listener);
@@ -51,6 +51,9 @@ public interface Listenable<T> {
 		}
 	}
 
+	/**
+	 * Returns a typed, stateless, no-op listenable.
+	 */
 	static <T> Null<T> ofNull() {
 		return BasicUtil.uncheckedCast(Null.INSTANCE);
 	}

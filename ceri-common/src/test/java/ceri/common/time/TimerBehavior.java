@@ -98,7 +98,7 @@ public class TimerBehavior {
 		CallSync.Accept<Long> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemaining(consumer::accept);
 		Timer.of(0, millis).applyRemaining(consumer::accept);
-		consumer.assertNoCall();
+		consumer.assertCalls(0);
 		Timer.of(Long.MAX_VALUE, millis).applyRemaining(consumer::accept);
 		assertTrue(consumer.awaitAuto() > 0);
 	}
@@ -108,7 +108,7 @@ public class TimerBehavior {
 		CallSync.Accept<Integer> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemainingInt(consumer::accept);
 		Timer.of(0, millis).applyRemainingInt(consumer::accept);
-		consumer.assertNoCall();
+		consumer.assertCalls(0);
 		Timer.of(Long.MAX_VALUE, millis).applyRemainingInt(consumer::accept);
 		assertTrue(consumer.awaitAuto() > 0);
 	}

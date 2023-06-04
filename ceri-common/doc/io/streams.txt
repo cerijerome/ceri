@@ -12,7 +12,7 @@ InputStream
   - loop read(...) to fill up to 8K-size byte[] block, or EOF
   - loop block reads, adding byte[] block to list until len read or EOF
   - copy blocks to single byte[] and return it 
-- readNBytes(byte): blocking read of len bytes into array
+- readNBytes(byte[]): blocking read of len bytes into array
   - loop read(...) until len read, or EOF
 - readAllBytes: call readNBytes(max-int)
   - loops until max-int read, or EOF

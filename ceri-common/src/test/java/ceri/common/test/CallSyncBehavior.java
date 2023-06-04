@@ -34,7 +34,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyWithAutoResponse() {
 		Apply<String, Integer> call = CallSync.function(null, 3);
-		call.assertNoCall();
+		call.assertCalls(0);
 		assertEquals(call.apply("test0"), 3);
 		call.assertAuto("test0");
 		assertEquals(call.apply("test1"), 3);
@@ -55,7 +55,7 @@ public class CallSyncBehavior {
 	public void shouldApplyValueWithoutSignal() {
 		Apply<String, Integer> call = CallSync.function(null, 3);
 		call.value("test");
-		call.assertNoCall();
+		call.assertCalls(0);
 		assertEquals(call.value(), "test");
 	}
 
@@ -118,7 +118,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptWithAutoResponse() {
 		Accept<String> call = CallSync.consumer(null, true);
-		call.assertNoCall();
+		call.assertCalls(0);
 		call.accept("test0");
 		call.assertAuto("test0");
 		call.accept("test1");
@@ -139,7 +139,7 @@ public class CallSyncBehavior {
 	public void shouldAcceptValueWithoutSignal() {
 		Accept<String> call = CallSync.consumer(null, true);
 		call.value("test");
-		call.assertNoCall();
+		call.assertCalls(0);
 		assertEquals(call.value(), "test");
 	}
 
@@ -186,7 +186,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldGetWithAutoResponse() {
 		Get<String> call = CallSync.supplier("test");
-		call.assertNoCall();
+		call.assertCalls(0);
 		assertEquals(call.get(), "test");
 		call.awaitAuto();
 	}
@@ -222,7 +222,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldRunWithAutoResponse() {
 		Run call = CallSync.runnable(true);
-		call.assertNoCall();
+		call.assertCalls(0);
 		call.run();
 		call.awaitAuto();
 	}
