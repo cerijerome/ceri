@@ -13,6 +13,7 @@ import ceri.jna.util.Struct.Fields;
  * Types and functions from {@code <termios.h>}
  */
 public class CTermios {
+	private static final int NCCS; // termios number of control chars
 	public static final int IXON;
 	public static final int IXOFF;
 	public static final int IXANY;
@@ -82,7 +83,18 @@ public class CTermios {
 
 	private CTermios() {}
 
-	public static abstract class termios extends Struct {}
+	/**
+	 * Common base for os-specific termios struct.
+	 */
+	public static abstract class termios extends Struct {
+		public NativeLong c_iflag; // input flags
+		public NativeLong c_oflag; // output flags
+		public NativeLong c_cflag; // control flags
+		public NativeLong c_lflag; // local flags
+		public byte[] c_cc = new byte[NCCS]; // control chars
+		public NativeLong c_ispeed; // input speed
+		public NativeLong c_ospeed; // output speed
+	}
 
 	/**
 	 * Populates termios attributes; the general terminal interface to control asynchronous
@@ -92,6 +104,13 @@ public class CTermios {
 		Pointer p = termios.getPointer();
 		caller.verify(() -> lib().tcgetattr(fd, p), "tcgetattr", fd, p);
 		return Struct.read(termios);
+	}
+
+	/**
+	 * Convenience method to get populated os-specific termios attributes.
+	 */
+	public static termios tcgetattr(int fd) throws CException {
+		return CLib.validateOs().mac ? Mac.tcgetattr(fd) : Linux.tcgetattr(fd);
 	}
 
 	/**
@@ -194,16 +213,7 @@ public class CTermios {
 		 * General terminal interface to control asynchronous communications ports.
 		 */
 		@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_cc", "c_ispeed", "c_ospeed" })
-		public static class termios extends CTermios.termios {
-			private static final int NCCS = 20;
-			public NativeLong c_iflag; // input flags
-			public NativeLong c_oflag; // output flags
-			public NativeLong c_cflag; // control flags
-			public NativeLong c_lflag; // local flags
-			public byte[] c_cc = new byte[NCCS]; // control chars
-			public NativeLong c_ispeed; // input speed
-			public NativeLong c_ospeed; // output speed
-		}
+		public static class termios extends CTermios.termios {}
 
 		/**
 		 * Populates mac termios attributes.
@@ -225,19 +235,11 @@ public class CTermios {
 		@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed",
 			"c_ospeed" })
 		public static class termios extends CTermios.termios {
-			private static final int NCCS = 32;
-			public NativeLong c_iflag; // input mode flags
-			public NativeLong c_oflag; // output mode flags
-			public NativeLong c_cflag; // control mode flags
-			public NativeLong c_lflag; // local mode flags
 			public NativeLong c_line; // line discipline
-			public byte[] c_cc = new byte[NCCS]; // control characters
-			public NativeLong c_ispeed; // input speed
-			public NativeLong c_ospeed; // output speed
 		}
 
 		/**
-		 * Populates linux termios attributes..
+		 * Populates linux termios attributes.
 		 */
 		public static termios tcgetattr(int fd) throws CException {
 			return CTermios.tcgetattr(fd, new termios());
@@ -248,6 +250,7 @@ public class CTermios {
 
 	static {
 		if (OsUtil.os().mac) {
+			NCCS = 20;
 			IXON = 0x0200;
 			IXOFF = 0x0400;
 			IXANY = 0x0800;
@@ -309,6 +312,7 @@ public class CTermios {
 			B3500000 = 3500000;
 			B4000000 = 4000000;
 		} else {
+			NCCS = 32;
 			IXON = 0x0400;
 			IXOFF = 0x1000;
 			IXANY = 0x0800;

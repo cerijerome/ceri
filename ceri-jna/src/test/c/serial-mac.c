@@ -111,7 +111,7 @@ void set_params(int fd, int baudcode, speed_t speed, int databits, int stopbits,
 }
 
 int main(int argc, char *argv[]) {
-	int fd = VERIFY(open("/dev/tty.usbserial-110", O_RDWR | O_NOCTTY | O_NONBLOCK));
+	int fd = VERIFY(open(argv[1], O_RDWR | O_NOCTTY | O_NONBLOCK));
 	clear_nonblock(fd);
 	init_port(fd);
 

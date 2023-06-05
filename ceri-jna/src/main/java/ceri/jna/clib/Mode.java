@@ -41,7 +41,7 @@ public class Mode {
 
 		private static final TypeTranscoder<Mask> xcoder =
 			TypeTranscoder.of(t -> t.value, EnumUtil.enumsReversed(Mask.class));
-		private final int value;
+		public final int value;
 
 		public static int encode(Mask... masks) {
 			return encode(Arrays.asList(masks));

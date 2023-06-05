@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <termios.h>
+#include <signal.h>
 #include <sys/ioctl.h>
 #include <IOKit/serial/ioss.h>
 
@@ -70,12 +71,11 @@ int main(int argc, char *argv[]) {
 	//SIZE(long);
 	//SIZE(void*);
 	SIZE(mode_t);
+	SIZE(nfds_t);
 
-	SYMI(TCOOFF);
-	SYMI(TCOON);
-	SYMI(TCIOFF);
-	SYMI(TCION);
-
+	//SYMI(TIOCINQ);
+	SYMI(TIOCOUTQ);
+ 
 	return 0;
 }
 

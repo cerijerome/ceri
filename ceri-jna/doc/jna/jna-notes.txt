@@ -69,7 +69,6 @@ Structures:
 
 Projects
 --------
-- (purejavacomm)
 - clib
 - libusb
 - libftdi

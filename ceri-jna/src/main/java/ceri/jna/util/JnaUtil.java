@@ -160,6 +160,13 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Frees the memory if not null.
+	 */
+	public static void close(Memory m) {
+		if (m != null) m.close();
+	}
+
+	/**
 	 * Returns the memory size, 0 for null memory.
 	 */
 	public static long size(Memory m) {
@@ -167,7 +174,7 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Returns the memory size, 0 for null memory. Fails if size if larger than int.
+	 * Returns the memory size, 0 for null memory. Fails if size is larger than int.
 	 */
 	public static int intSize(Memory m) {
 		return Math.toIntExact(size(m));
@@ -696,7 +703,7 @@ public class JnaUtil {
 	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
 		validateSlice(buffer.length, index, length);
 		if (p == null) validateNullSlice(offset, length);
-		else p.read(offset, buffer, index, length);
+		else if (length > 0) p.read(offset, buffer, index, length);
 		return index + length;
 	}
 
@@ -748,7 +755,7 @@ public class JnaUtil {
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
 		validateSlice(buffer.length, index, length);
 		if (p == null) validateNullSlice(offset, length);
-		else p.write(offset, buffer, index, length);
+		else if (length > 0) p.write(offset, buffer, index, length);
 		return offset + length;
 	}
 

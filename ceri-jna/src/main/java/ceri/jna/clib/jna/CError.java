@@ -1,9 +1,11 @@
 package ceri.jna.clib.jna;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.sun.jna.LastErrorException;
 import ceri.common.collection.StreamUtil;
 import ceri.common.util.OsUtil;
 
@@ -33,7 +35,9 @@ public enum CError {
 	/** No child processes */
 	ECHILD(10),
 	/** Try again */
-	EAGAIN(Os.EAGAIN), // (EWOULDBLOCK)
+	EAGAIN(Os.EAGAIN),
+	/** Operation would block */
+	EWOULDBLOCK(Os.EWOULDBLOCK),
 	/** Out of memory */
 	ENOMEM(12),
 	/** Permission denied */
@@ -303,13 +307,18 @@ public enum CError {
 	ERPCMISMATCH(Os.ERPCMISMATCH);
 
 	private static final Map<Integer, CError> map =
-		Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).collect(Collectors
+		Stream.of(CError.values()).filter(CError::defined).collect(Collectors
 			.toUnmodifiableMap(t -> t.code, Function.identity(), StreamUtil.mergeFirst()));
-	// private static final Map<Integer, CError> map = Collections.unmodifiableMap(
-	// Stream.of(CError.values()).filter(t -> t.code != Os.UNDEFINED).collect(Collectors
-	// .toMap(t -> t.code, Function.identity())));
 	public static final int UNDEFINED = Os.UNDEFINED;
 	public final int code;
+
+	/**
+	 * Returns an immutable set of error codes, ignoring undefined codes.
+	 */
+	public static Set<Integer> codes(CError... errors) {
+		return Stream.of(errors).filter(CError::defined).map(e -> e.code)
+			.collect(Collectors.toUnmodifiableSet());
+	}
 
 	public static CError from(int code) {
 		return map.get(code);
@@ -319,13 +328,18 @@ public enum CError {
 		this.code = code;
 	}
 
-	public boolean undefined() {
-		return code == UNDEFINED;
+	public LastErrorException error(String message) {
+		return new LastErrorException("[" + code + "] " + message);
+	}
+	
+	public boolean defined() {
+		return code != Os.UNDEFINED;
 	}
 
 	static class Os {
 		private static final int UNDEFINED = -1;
 		private static final int EAGAIN;
+		private static final int EWOULDBLOCK;
 		private static final int EDEADLK;
 		private static final int ENAMETOOLONG;
 		private static final int ENOLCK;
@@ -441,6 +455,7 @@ public enum CError {
 		static {
 			if (OsUtil.os().mac) {
 				EAGAIN = 35;
+				EWOULDBLOCK = 35;
 				EDEADLK = 11;
 				ENAMETOOLONG = 63;
 				ENOLCK = 77;
@@ -551,6 +566,7 @@ public enum CError {
 				ERPCMISMATCH = 73;
 			} else {
 				EAGAIN = 11;
+				EWOULDBLOCK = 11;
 				EDEADLK = 35;
 				ENAMETOOLONG = 36;
 				ENOLCK = 37;

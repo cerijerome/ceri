@@ -2,8 +2,9 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
+import java.util.stream.IntStream;
 import com.sun.jna.Pointer;
-import ceri.common.util.OsUtil;
+import ceri.common.collection.StreamUtil;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
@@ -11,16 +12,18 @@ import ceri.jna.util.Struct.Fields;
  * Types and functions from {@code <poll.h>}
  */
 public class CPoll {
+	/** There is data to read. */
 	public static final int POLLIN = 0x0001;
+	/** There is some exceptional condition on the file descriptor. */
 	public static final int POLLPRI = 0x0002;
+	/** Writing is now possible. */
 	public static final int POLLOUT = 0x0004;
-	public static final int POLLERR = 0x0008; // revents only
-	public static final int POLLHUP = 0x0010; // revents only
-	public static final int POLLNVAL = 0x0020; // revents only
-	public static final int POLLRDNORM = 0x0040;
-	public static final int POLLRDBAND = 0x0080;
-	public static final int POLLWRNORM;
-	public static final int POLLWRBAND;
+	/** Error condition; revents only. */
+	public static final int POLLERR = 0x0008;
+	/** Hang up, peer closed channel; revents only. */
+	public static final int POLLHUP = 0x0010;
+	/** Invalid request, fd not open; revents only. */
+	public static final int POLLNVAL = 0x0020;
 
 	private CPoll() {}
 
@@ -42,6 +45,42 @@ public class CPoll {
 		public pollfd(Pointer p) {
 			super(p);
 		}
+
+		/**
+		 * Initialize the struct with fd and events.
+		 */
+		public pollfd init(int fd, int... events) {
+			this.fd = fd;
+			this.events = (short) StreamUtil.bitwiseOr(IntStream.of(events));
+			this.revents = 0;
+			return this;
+		}
+
+		/**
+		 * Returns true if revents has the given event.
+		 */
+		public boolean hasEvent(int event) {
+			return (revents & event) != 0;
+		}
+
+		/**
+		 * Throws an exception if any error conditions occurred on revents.
+		 */
+		public pollfd verify() throws CException {
+			if (hasEvent(POLLERR)) throw CException.general("POLLERR on fd %d", fd);
+			if (hasEvent(POLLHUP)) throw CException.general("POLLHUP on fd %d", fd);
+			if (hasEvent(POLLNVAL)) throw CException.general("POLLNVAL on fd %d", fd);
+			return this;
+		}
+	}
+
+	/**
+	 * Examines a file descriptor to see if it is ready for I/O, or if certain events have occurred.
+	 * Timeout is in milliseconds; a timeout of -1 blocks until an event occurs. Returns the true if
+	 * the descriptor has a returned event.
+	 */
+	public static boolean poll(pollfd fd, int timeoutMs) throws CException {
+		return poll(new pollfd[] { fd }, timeoutMs) == 1;
 	}
 
 	/**
@@ -49,25 +88,14 @@ public class CPoll {
 	 * events have occurred on them. Timeout is in milliseconds; a timeout of -1 blocks until an
 	 * event occurs. Returns the number of descriptors with returned events.
 	 */
-	public static int poll(pollfd[] fds, int timeout) throws CException {
+	public static int poll(pollfd[] fds, int timeoutMs) throws CException {
 		if (fds.length > 0 && !Struct.isByVal(fds))
 			throw CException.full("Array is not contiguous", CError.EINVAL);
+		Struct.write(fds);
 		var p = Struct.pointer(fds);
 		int nfds = fds.length;
-		int n = caller.verifyInt(() -> lib().poll(p, nfds, timeout), "poll", p, nfds, timeout);
+		int n = caller.verifyInt(() -> lib().poll(p, nfds, timeoutMs), "poll", p, nfds, timeoutMs);
 		if (n > 0) Struct.read(fds, "revents");
 		return n;
-	}
-
-	/* os-specific initialization */
-
-	static {
-		if (OsUtil.os().mac) {
-			POLLWRNORM = 0x4;
-			POLLWRBAND = 0x100;
-		} else {
-			POLLWRNORM = 0x100;
-			POLLWRBAND = 0x200;
-		}
 	}
 }

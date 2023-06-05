@@ -49,7 +49,7 @@ public class COutputStreamBehavior {
 	public void shouldWriteSingleByte() throws IOException {
 		lib.write.autoResponses(1);
 		out.write(0xabcd);
-		lib.write.assertAuto(List.of(lib.fd(fd), ByteProvider.of(0xcd)));
+		lib.write.assertAuto(List.of(fd(), ByteProvider.of(0xcd)));
 		assertEquals(lib.write.calls(), 1);
 	}
 
@@ -59,10 +59,10 @@ public class COutputStreamBehavior {
 		lib.write.autoResponses(1, 2, 1);
 		out.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
 		lib.write.assertValues( //
-			List.of(lib.fd(fd), ByteProvider.of(1, 2, 3)), // 1 byte written
-			List.of(lib.fd(fd), ByteProvider.of(2, 3)), // 2 bytes written
-			List.of(lib.fd(fd), ByteProvider.of(4, 5)), // 1 byte written
-			List.of(lib.fd(fd), ByteProvider.of(5))); // 1 byte written
+			List.of(fd(), ByteProvider.of(1, 2, 3)), // 1 byte written
+			List.of(fd(), ByteProvider.of(2, 3)), // 2 bytes written
+			List.of(fd(), ByteProvider.of(4, 5)), // 1 byte written
+			List.of(fd(), ByteProvider.of(5))); // 1 byte written
 	}
 
 	@Test
@@ -87,4 +87,7 @@ public class COutputStreamBehavior {
 		assertThrown(() -> out.flush());
 	}
 
+	private static TestCLibNative.Fd fd() {
+		return lib.fd(fd);
+	}
 }

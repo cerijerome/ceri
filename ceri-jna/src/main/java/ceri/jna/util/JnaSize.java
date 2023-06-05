@@ -50,4 +50,15 @@ public class JnaSize {
 		}
 	}
 
+	/**
+	 * Clear all overrides.
+	 */
+	public static void clear() {
+		POINTER.size(0);
+		BOOL.size(0);
+		WCHAR.size(0);
+		LONG.size(0);
+		LONG_DOUBLE.size(0);
+		SIZE_T.size(0);
+	}
 }

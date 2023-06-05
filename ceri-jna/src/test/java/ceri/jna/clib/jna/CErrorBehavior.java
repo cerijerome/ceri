@@ -8,9 +8,9 @@ import ceri.jna.test.JnaTestUtil;
 public class CErrorBehavior {
 
 	@Test
-	public void shouldDetermineIfUndefined() {
+	public void shouldDetermineIfDefined() {
 		for (CError error : CError.values()) {
-			assertEquals(error.undefined(), error.code <= 0, error.name());
+			assertEquals(error.defined(), error.code >= 0, error.name());
 		}
 	}
 

@@ -11,6 +11,8 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// clib
 	ceri.jna.clib.CFileDescriptorBehavior.class, //
+	ceri.jna.clib.CInputStreamBehavior.class, //
+	ceri.jna.clib.COutputStreamBehavior.class, //
 	ceri.jna.clib.FileDescriptorBehavior.class, //
 	ceri.jna.clib.ModeBehavior.class, //
 	ceri.jna.clib.OpenFlagBehavior.class, //
@@ -33,6 +35,7 @@ import ceri.common.test.TestUtil;
 	// clib.util
 	ceri.jna.clib.util.SelfHealingFdBehavior.class, //
 	ceri.jna.clib.util.SelfHealingFdConfigBehavior.class, //
+	ceri.jna.clib.util.SyncPipeBehavior.class, //
 	// test
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// util
@@ -43,10 +46,12 @@ import ceri.common.test.TestUtil;
 	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //
 	ceri.jna.util.JnaMemoryBehavior.class, //
+	ceri.jna.util.JnaSizeTest.class, //
 	ceri.jna.util.JnaUtilTest.class, //
 	ceri.jna.util.PointerUtilTest.class, //
 	ceri.jna.util.StructBehavior.class, //
 	ceri.jna.util.StructFieldTest.class, //
+	ceri.jna.util.ThreadBuffersBehavior.class, //
 	ceri.jna.util.UnionFieldTest.class, //
 	ceri.jna.util.VarStructBehavior.class, //
 })

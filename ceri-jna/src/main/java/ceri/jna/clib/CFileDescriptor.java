@@ -7,24 +7,28 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import com.sun.jna.Pointer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.RegexUtil;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
-import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.jna.util.PointerUtil;
+import ceri.log.util.LogUtil;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
  */
 public class CFileDescriptor implements FileDescriptor {
+	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
-	private static final Set<Integer> BROKEN_ERROR_CODES =
-		Set.of(CError.ENOENT.code, CError.EREMOTEIO.code);
+	private static final Set<Integer> BROKEN_ERRORS = CError.codes(CError.ENOENT, CError.EREMOTEIO);
 	private final int fd;
+	private final CInputStream in;
+	private final COutputStream out;
 	private volatile boolean closed = false;
 
 	/**
@@ -33,7 +37,7 @@ public class CFileDescriptor implements FileDescriptor {
 	 */
 	public static boolean isBroken(Exception e) {
 		if (!(e instanceof CException ce)) return false;
-		if (ce.code != CError.UNDEFINED && BROKEN_ERROR_CODES.contains(ce.code)) return true;
+		if (BROKEN_ERRORS.contains(ce.code)) return true;
 		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);
 	}
 
@@ -93,48 +97,44 @@ public class CFileDescriptor implements FileDescriptor {
 	private CFileDescriptor(int fd) {
 		if (fd < 0) throw new IllegalArgumentException("Invalid file descriptor: " + fd);
 		this.fd = fd;
+		in = CInputStream.of(fd);
+		out = COutputStream.of(fd);
 	}
 
-	@Override
 	public int fd() {
 		if (closed) throw new IllegalStateException("File descriptor is closed: " + fd);
 		return fd;
 	}
 
 	@Override
-	public int read(Pointer p, int offset, int length) throws IOException {
-		if (length == 0) return 0;
-		return CUnistd.read(fd(), PointerUtil.offset(p, offset), length);
+	public CInputStream in() {
+		return in;
 	}
 
 	@Override
-	public void write(Pointer p, int offset, int length) throws IOException {
-		// Loop until all bytes are written, as recommended in gnu-c docs.
-		for (int count = 0; count < length;) {
-			int n = CUnistd.write(fd(), PointerUtil.offset(p, offset + count), length - count);
-			if (n == 0) throw CException.general("Incomplete write: %d/%d bytes", count, length);
-			count += n;
-		}
+	public COutputStream out() {
+		return out;
 	}
 
 	@Override
-	public int seek(int offset, Seek whence) throws IOException {
-		return CUnistd.lseek(fd(), offset, whence.value);
+	public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {
+		consumer.accept(fd());
 	}
 
 	@Override
-	public int fcntl(String name, int cmd, Object... objs) throws IOException {
-		return CFcntl.fcntl(name, fd(), cmd, objs);
+	public <E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator) throws E {
+		return operator.applyAsInt(fd());
 	}
 
 	@Override
-	public int ioctl(String name, int request, Object... objs) throws IOException {
-		return CIoctl.ioctl(name, fd(), request, objs);
+	public void close() {
+		closed = true;
+		LogUtil.close(logger, in, out, () -> CUnistd.close(fd));
 	}
 
-	@Override
-	public void close() throws IOException {
-		if (!closed) closed = close(fd);
+	public boolean closeSilently() {
+		closed = true;
+		return CUnistd.closeSilently(fd);
 	}
 
 	@Override
@@ -153,14 +153,5 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public String toString() {
 		return String.format("fd=%d/0x%x", fd, fd);
-	}
-
-	private static boolean close(int fd) {
-		try {
-			CUnistd.close(fd);
-			return true;
-		} catch (CException e) {
-			return false;
-		}
 	}
 }

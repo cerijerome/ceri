@@ -2,6 +2,7 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
+import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.OpenFlag;
@@ -22,9 +23,11 @@ public class CFcntl {
 	public static final int O_APPEND;
 	public static final int O_NONBLOCK;
 	public static final int O_DSYNC;
+	public static final int O_ASYNC;
 	public static final int O_DIRECTORY;
 	public static final int O_NOFOLLOW;
 	public static final int O_CLOEXEC;
+	public static final int O_SYNC;
 	static final int F_DUPFD = 0;
 	static final int F_GETFD = 1;
 	static final int F_SETFD = 2;
@@ -53,7 +56,7 @@ public class CFcntl {
 	 * Checks a file descriptor validity
 	 */
 	public static boolean validFd(int fd) {
-		return fd != INVALID_FD;
+		return fd >= 0;
 	}
 
 	/**
@@ -122,6 +125,15 @@ public class CFcntl {
 		fcntl("F_SETFL", fd, F_SETFL, flags);
 	}
 
+	/**
+	 * Update file status flags using an int function. Returns the new flags value.
+	 */
+	public static int setFl(int fd, IntUnaryOperator flagFn) throws CException {
+		int flags = flagFn.applyAsInt(getFl(fd));
+		setFl(fd, flags);
+		return flags;
+	}
+
 	/* os-specific initialization */
 
 	static {
@@ -133,9 +145,11 @@ public class CFcntl {
 			O_APPEND = 0x8;
 			O_NONBLOCK = 0x4;
 			O_DSYNC = 0x400000;
+			O_ASYNC = 0x40;
 			O_DIRECTORY = 0x100000;
 			O_NOFOLLOW = 0x100;
 			O_CLOEXEC = 0x1000000;
+			O_SYNC = 0x80;
 		} else {
 			O_CREAT = 0x40;
 			O_EXCL = 0x80;
@@ -144,9 +158,11 @@ public class CFcntl {
 			O_APPEND = 0x400;
 			O_NONBLOCK = 0x800;
 			O_DSYNC = 0x1000;
+			O_ASYNC = 0x2000;
 			O_DIRECTORY = 0x4000;
 			O_NOFOLLOW = 0x8000;
 			O_CLOEXEC = 0x80000;
+			O_SYNC = 0x100000 | O_DSYNC;
 		}
 	}
 

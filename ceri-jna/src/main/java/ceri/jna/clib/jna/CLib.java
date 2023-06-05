@@ -34,6 +34,9 @@ public class CLib {
 		// int close(int fd)
 		int close(int fd) throws LastErrorException;
 
+		// int pipe(int pipefd[2]);
+		int pipe(int[] pipefd) throws LastErrorException;
+
 		// ssize_t read(int fd, void *buf, size_t count)
 		ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException;
 
@@ -119,10 +122,10 @@ public class CLib {
 	/**
 	 * Throws an exception if this C-lib implementation does not support the current OS.
 	 */
-	public static void validateOs() {
+	public static OsUtil.Os validateOs() {
 		var os = OsUtil.os();
-		if (!os.mac && !os.linux)
-			throw new UnsupportedOperationException("Not supported: " + os);
+		if (os.mac || os.linux) return os;
+		throw new UnsupportedOperationException("Not supported: " + os);
 	}
 
 	static CLib.Native lib() {

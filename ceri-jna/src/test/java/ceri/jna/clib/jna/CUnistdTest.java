@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.test.FileTestHelper;
 import ceri.jna.clib.OpenFlag;
 import ceri.jna.clib.Seek;
@@ -41,30 +42,97 @@ public class CUnistdTest {
 	}
 
 	@Test
-	public void testReadFromFileDescriptor() throws CException {
-		int fd = CFcntl.open(helper.path("file1").toString(), 0);
-		try (Memory m = new Memory(4)) {
-			assertEquals(CUnistd.read(fd, null, 0), 0);
-			assertEquals(CUnistd.read(fd, m, 1), 1);
-			JnaTestUtil.assertPointer(m, 0, 't');
-			assertEquals(CUnistd.read(fd, m, 4), 3);
-			JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
-			assertEquals(CUnistd.read(fd, m, 1), -1);
-		} finally {
-			CUnistd.close(fd);
-		}
+	public void testPipe() throws CException {
+		int[] pipefd = CUnistd.pipe();
+		CUnistd.writeAll(pipefd[1], new byte[] { 1, 2, 3 }, 0, 3);
+		assertArray(CUnistd.readBytes(pipefd[0], 8), 1, 2, 3); // only reads 3
+		CUnistd.close(pipefd[0]);
+		CUnistd.close(pipefd[1]);
 	}
 
 	@Test
-	public void testReadBytesFromFileDescriptor() throws CException {
-		int fd = CFcntl.open(helper.path("file1").toString(), 0);
-		try {
-			assertArray(CUnistd.read(fd, 0));
-			assertArray(CUnistd.read(fd, 2), 't', 'e');
-			assertArray(CUnistd.readAll(fd), 's', 't');
-		} finally {
-			CUnistd.close(fd);
-		}
+	public void testReadFromFileDescriptor() throws CException {
+		execRead("file1", fd -> {
+			try (Memory m = new Memory(4)) {
+				assertEquals(CUnistd.read(fd, Pointer.NULL, 0), 0);
+				assertEquals(CUnistd.read(fd, m, 1), 1);
+				JnaTestUtil.assertPointer(m, 0, 't');
+				assertEquals(CUnistd.read(fd, m, 4), 3);
+				JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
+				assertEquals(CUnistd.read(fd, m, 1), 0);
+			}
+		});
+	}
+
+	@Test
+	public void testReadAllFromFileDescriptor() throws CException {
+		execRead("file1", fd -> {
+			byte[] b = new byte[3];
+			assertEquals(CUnistd.readAll(fd, b), 3);
+			assertArray(b, 't', 'e', 's');
+			assertEquals(CUnistd.readAll(fd, b), 1);
+			assertArray(b, 't', 'e', 's');
+			assertEquals(CUnistd.readAll(fd, b), 0);
+		});
+	}
+
+	@Test
+	public void testReadAllWithBuffer() throws CException {
+		execRead("file1", fd -> {
+			try (var m = new Memory(3)) {
+				byte[] b = new byte[5];
+				assertEquals(CUnistd.readAll(fd, m, b), 4);
+				assertArray(b, 't', 'e', 's', 't', 0);
+			}
+		});
+	}
+
+	@Test
+	public void testReadAllWithPointer() throws CException {
+		execRead("file1", fd -> {
+			try (var m = new Memory(4)) {
+				byte[] b = new byte[5];
+				assertEquals(CUnistd.readAll(fd, m, 3, b), 4);
+				assertArray(b, 't', 'e', 's', 't', 0);
+			}
+		});
+	}
+
+	@Test
+	public void testReadAllBytesFromFileDescriptor() throws CException {
+		execRead("file1", fd -> {
+			assertArray(CUnistd.readAllBytes(fd, 0));
+			assertArray(CUnistd.readAllBytes(fd, 2), 't', 'e');
+			assertArray(CUnistd.readAllBytes(fd, 3), 's', 't');
+		});
+	}
+
+	@Test
+	public void testReadNothingOnNonBlockError() throws IOException {
+		TestCLibNative.exec(lib -> {
+			int fd = CFcntl.open("test", 0);
+			lib.read.error.setFrom(CError.EAGAIN::error);
+			assertEquals(CUnistd.read(fd, new byte[3]), 0);
+		});
+	}
+
+	@Test
+	public void testReadWithBuffer() throws IOException {
+		execRead("file1", fd -> {
+			try (Memory m = new Memory(4)) {
+				byte[] b = new byte[3];
+				assertEquals(CUnistd.read(fd, m, b), 3);
+			}
+		});
+	}
+
+	@Test
+	public void testReadWithUndersizedBuffer() throws CException {
+		execRead("file1", fd -> {
+			try (Memory m = new Memory(3)) {
+				assertThrown(() -> CUnistd.read(fd, m, new byte[4])); // buffer too small
+			}
+		});
 	}
 
 	@Test
@@ -76,34 +144,13 @@ public class CUnistdTest {
 
 	@Test
 	public void testWriteToFileDescriptor() throws IOException {
-		Path path = helper.path("file2");
-		int fd = CFcntl.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
-		try {
+		execWrite("file2", fd -> {
 			try (Memory m = JnaUtil.mallocBytes("test".getBytes())) {
 				assertEquals(CUnistd.write(fd, Pointer.NULL, 0), 0);
 				assertEquals(CUnistd.write(fd, m, 4), 4);
+				assertFile(helper.path("file2"), "test".getBytes());
 			}
-			assertFile(path, "test".getBytes());
-		} finally {
-			CUnistd.close(fd);
-			Files.deleteIfExists(path);
-		}
-	}
-
-	@Test
-	public void testWriteToFileDescriptor0() throws IOException {
-		Path path = helper.path("file2");
-		int fd = CFcntl.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
-		try {
-			try (Memory m = JnaUtil.mallocBytes("test".getBytes())) {
-				assertEquals(CUnistd.write(fd, Pointer.NULL, 0), 0);
-				assertEquals(CUnistd.write(fd, m, 4), 4);
-				assertFile(path, "test".getBytes());
-			}
-		} finally {
-			CUnistd.close(fd);
-			Files.deleteIfExists(path);
-		}
+		});
 	}
 
 	@Test
@@ -115,39 +162,75 @@ public class CUnistdTest {
 
 	@Test
 	public void testWriteBytesToFileDescriptor() throws IOException {
-		Path path = helper.path("file2");
-		int fd = CFcntl.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
-		try {
-			CUnistd.write(fd, 't', 'e', 's', 't');
-			assertFile(path, "test".getBytes());
-		} finally {
-			CUnistd.close(fd);
-			Files.deleteIfExists(path);
-		}
+		execWrite("file2", fd -> {
+			assertEquals(CUnistd.write(fd, 't', 'e', 's', 't'), 4);
+			assertFile(helper.path("file2"), "test".getBytes());
+		});
+	}
+
+	@Test
+	public void testWriteBytesWithBufferToFileDescriptor() throws IOException {
+		execWrite("file2", fd -> {
+			try (Memory m = new Memory(5)) {
+				assertEquals(CUnistd.write(fd, m, "test".getBytes()), 4);
+				assertFile(helper.path("file2"), "test".getBytes());
+			}
+		});
+	}
+
+	@Test
+	public void testWriteNothingOnNonBlockError() throws IOException {
+		TestCLibNative.exec(lib -> {
+			int fd = CFcntl.open("test", 0);
+			lib.write.error.setFrom(CError.EAGAIN::error);
+			assertEquals(CUnistd.write(fd, new byte[3]), 0);
+		});
+	}
+
+	@Test
+	public void testWriteAllBytesToFileDescriptor() throws IOException {
+		execWrite("file2", fd -> {
+			assertEquals(CUnistd.writeAll(fd, 't', 'e', 's', 't'), 4);
+			assertFile(helper.path("file2"), "test".getBytes());
+		});
+	}
+
+	@Test
+	public void testWriteAllWithBuffer() throws IOException {
+		execWrite("file2", fd -> {
+			try (Memory m = new Memory(3)) {
+				assertEquals(CUnistd.writeAll(fd, m, "test".getBytes()), 4);
+				assertFile(helper.path("file2"), "test".getBytes());
+			}
+		});
+	}
+
+	@Test
+	public void testWriteAllWithPointer() throws IOException {
+		execWrite("file2", fd -> {
+			try (Memory m = new Memory(3)) {
+				assertEquals(CUnistd.writeAll(fd, m, 2, "test".getBytes()), 4);
+				assertFile(helper.path("file2"), "test".getBytes());
+			}
+		});
 	}
 
 	@Test
 	public void testSeekFile() throws CException {
-		int fd = CFcntl.open(helper.path("file1").toString(), 0);
-		try {
+		execRead("file1", fd -> {
 			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_CUR.value), 0);
 			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_END.value), 4);
 			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_CUR.value), 4);
 			assertThrown(() -> CUnistd.lseek(fd, -1, Seek.SEEK_SET.value));
-		} finally {
-			CUnistd.close(fd);
-		}
+		});
 	}
 
 	@Test
 	public void testSetFilePosition() throws CException {
-		int fd = CFcntl.open(helper.path("file1").toString(), 0);
-		try {
+		execRead("file1", fd -> {
 			CUnistd.position(fd, 1);
-			assertArray(CUnistd.readAll(fd), 'e', 's', 't');
-		} finally {
-			CUnistd.close(fd);
-		}
+			assertArray(CUnistd.readAllBytes(fd, CUnistd.size(fd)), 'e', 's', 't');
+		});
 	}
 
 	@Test
@@ -157,6 +240,34 @@ public class CUnistdTest {
 			lib.lseek.autoResponses(3);
 			assertThrown(() -> CUnistd.position(fd, 2));
 		});
+	}
+
+	@Test
+	public void testCloseInvalidFd() throws CException {
+		CUnistd.close(-1);
+		CUnistd.closeSilently(-1);
+	}
+
+	private static <E extends Exception> void execRead(String file, ExceptionIntConsumer<E> tester)
+		throws CException, E {
+		int fd = CFcntl.open(helper.path(file).toString(), 0);
+		try {
+			tester.accept(fd);
+		} finally {
+			CUnistd.closeSilently(fd);
+		}
+	}
+
+	private static <E extends Exception> void execWrite(String file, ExceptionIntConsumer<E> tester)
+		throws IOException, E {
+		Path path = helper.path(file);
+		int fd = CFcntl.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
+		try {
+			tester.accept(fd);
+		} finally {
+			CUnistd.closeSilently(fd);
+			Files.deleteIfExists(path);
+		}
 	}
 
 }

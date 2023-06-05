@@ -8,8 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
+import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -17,8 +19,10 @@ import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.CallSync;
 import ceri.common.text.StringUtil;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CError;
+import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
@@ -37,6 +41,7 @@ public class TestCLibNative implements CLib.Native {
 	// List<?> = String path, int flags, int mode
 	public final CallSync.Accept<List<?>> open = CallSync.consumer(null, true);
 	public final CallSync.Apply<Fd, Integer> close = CallSync.function(null, 0);
+	public final CallSync.Apply<Fd[], Integer> pipe = CallSync.function(null, 0);
 	// List<?> = Fd f, int len
 	public final CallSync.Apply<List<?>, ByteProvider> read =
 		CallSync.function(null, ByteProvider.empty());
@@ -53,24 +58,10 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
 	// List<?> = Fd f, int cmd, Object[] objs
 	public final CallSync.Apply<List<?>, Integer> fcntl = CallSync.function(null, 0);
-	// List<?> = Fd f, Pointer termios
-	public final CallSync.Apply<List<?>, Integer> tcgetattr = CallSync.function(null, 0);
-	// List<?> = Fd f, int optional_actions, Pointer termios
-	public final CallSync.Apply<List<?>, Integer> tcsetattr = CallSync.function(null, 0);
-	// List<?> = Fd f, int duration
-	public final CallSync.Apply<List<?>, Integer> tcsendbreak = CallSync.function(null, 0);
-	public final CallSync.Apply<Fd, Integer> tcdrain = CallSync.function(null, 0);
-	// List<?> = Fd f, int queue_selector
-	public final CallSync.Apply<List<?>, Integer> tcflush = CallSync.function(null, 0);
-	// List<?> = Fd f, int action
-	public final CallSync.Apply<List<?>, Integer> tcflow = CallSync.function(null, 0);
-	public final CallSync.Accept<Pointer> cfmakeraw = CallSync.consumer(null, true);
-	public final CallSync.Apply<Pointer, Integer> cfgetispeed = CallSync.function(null, 0);
-	// List<?> = Pointer termios, int speed
-	public final CallSync.Apply<List<?>, Integer> cfsetispeed = CallSync.function(null, 0);
-	public final CallSync.Apply<Pointer, Integer> cfgetospeed = CallSync.function(null, 0);
-	// List<?> = Pointer termios, int speed
-	public final CallSync.Apply<List<?>, Integer> cfsetospeed = CallSync.function(null, 0);
+	// List<?> = String callName, Fd f, ...
+	public final CallSync.Apply<List<?>, Integer> tc = CallSync.function(null, 0);
+	// List<?> = String callName, ...
+	public final CallSync.Apply<List<?>, Integer> cf = CallSync.function(null, 0);
 
 	public static record Fd(int fd, String path, int flags, int mode) {}
 
@@ -87,10 +78,6 @@ public class TestCLibNative implements CLib.Native {
 
 	public static <T extends TestCLibNative> Enclosed<RuntimeException, T> register(T lib) {
 		return CLib.library.enclosed(lib);
-	}
-
-	public static LastErrorException lastError(CError error) {
-		return new LastErrorException(error.code);
 	}
 
 	public static <T, R> void autoError(CallSync.Apply<T, R> sync, R response,
@@ -115,10 +102,33 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
-	 * Set ioctl auto response to 0, and pass ioctl varargs to given consumer to process.
+	 * Pass pollfd array and timeout to given consumer to process, and set auto response to the
+	 * number of pollfds with non-zero revents.
+	 */
+	public void pollAutoResponse(ObjIntConsumer<pollfd[]> consumer) {
+		poll.autoResponse(list -> {
+			var pollfds = BasicUtil.<List<pollfd>>uncheckedCast(list.get(0)).toArray(pollfd[]::new);
+			consumer.accept(pollfds, (Integer) list.get(1));
+			Struct.write(pollfds);
+			return (int) Stream.of(pollfds).filter(pollfd -> pollfd.revents != 0).count();
+		});
+	}
+
+	/**
+	 * Pass ioctl varargs to given consumer to process, and set auto response.
 	 */
 	public void ioctlAutoResponse(ToIntFunction<Object[]> fn) {
 		ioctl.autoResponse(list -> fn.applyAsInt((Object[]) list.get(2)));
+	}
+
+	/**
+	 * Set ioctl auto response to 0, and pass ioctl varargs to given consumer to process.
+	 */
+	public void ioctlAutoResponseOk(Consumer<Object[]> fn) {
+		ioctlAutoResponse(objs -> {
+			fn.accept(objs);
+			return 0;
+		});
 	}
 
 	/**
@@ -163,20 +173,30 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
-	 * Clear fds.
+	 * Clear fds and call-sync states.
 	 */
 	public void reset() {
 		nextFd.set(1000);
 		fds.clear();
+		env.clear();
+		open.autoResponse(true).reset();
+		reset(ByteProvider.empty(), read);
+		reset(Pointer.NULL, signal);
+		reset(0, close, pipe, write, lseek, raise, poll, ioctl, fcntl, tc, cf);
+	}
+
+	@SafeVarargs
+	private <T> void reset(T autoResponse, CallSync.Apply<?, T>... callSyncs) {
+		for (var callSync : callSyncs)
+			callSync.autoResponses(autoResponse).reset();
 	}
 
 	@Override
 	public int open(String path, int flags, Object... args) throws LastErrorException {
 		int mode = args.length == 0 ? 0 : (int) args[0];
-		Fd f = new Fd(nextFd.getAndIncrement(), path, flags, mode);
-		fds.put(f.fd, f);
+		var fd = createFd(path, flags, mode);
 		open.accept(List.of(path, flags, mode));
-		return f.fd;
+		return fd.fd;
 	}
 
 	@Override
@@ -188,11 +208,22 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
+	public int pipe(int[] pipefd) throws LastErrorException {
+		var fr = createFd("pipe:r", CFcntl.O_RDONLY, 0);
+		var fw = createFd("pipe:w", CFcntl.O_WRONLY, 0);
+		int result = pipe.apply(new Fd[] { fr, fw });
+		pipefd[0] = fr.fd;
+		pipefd[1] = fw.fd;
+		return result;
+	}
+
+	@Override
 	public ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException {
 		ByteProvider data = read.apply(List.of(fd(fd), len.intValue()));
 		if (data == null || data.length() == 0) return new ssize_t(0);
-		JnaUtil.write(buffer, data.copy(0));
-		return new ssize_t(data.length());
+		int n = Math.min(data.length(), len.intValue());
+		JnaUtil.write(buffer, data.copy(0), 0, n);
+		return new ssize_t(n);
 	}
 
 	@Override
@@ -241,57 +272,57 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int tcgetattr(int fd, Pointer termios) throws LastErrorException {
-		return tcgetattr.apply(List.of(fd(fd), termios));
+		return tc.apply(List.of("tcgetattr", fd(fd), termios));
 	}
 
 	@Override
 	public int tcsetattr(int fd, int optional_actions, Pointer termios) throws LastErrorException {
-		return tcsetattr.apply(List.of(fd(fd), optional_actions, termios));
+		return tc.apply(List.of("tcsetattr", fd(fd), optional_actions, termios));
 	}
 
 	@Override
 	public int tcsendbreak(int fd, int duration) throws LastErrorException {
-		return tcsendbreak.apply(List.of(fd(fd), duration));
+		return tc.apply(List.of("tcsendbreak", fd(fd), duration));
 	}
 
 	@Override
 	public int tcdrain(int fd) throws LastErrorException {
-		return tcdrain.apply(fd(fd));
+		return tc.apply(List.of("tcdrain", fd(fd)));
 	}
 
 	@Override
 	public int tcflush(int fd, int queue_selector) throws LastErrorException {
-		return tcflush.apply(List.of(fd(fd), queue_selector));
+		return tc.apply(List.of("tcflush", fd(fd), queue_selector));
 	}
 
 	@Override
 	public int tcflow(int fd, int action) throws LastErrorException {
-		return tcflow.apply(List.of(fd(fd), action));
+		return tc.apply(List.of("tcflow", fd(fd), action));
 	}
 
 	@Override
 	public void cfmakeraw(Pointer termios) throws LastErrorException {
-		cfmakeraw.accept(termios);
+		cf.apply(List.of("cfmakeraw", termios));
 	}
 
 	@Override
 	public NativeLong cfgetispeed(Pointer termios) throws LastErrorException {
-		return JnaUtil.unlong(cfgetispeed.apply(termios));
+		return JnaUtil.unlong(cf.apply(List.of("cfgetispeed", termios)));
 	}
 
 	@Override
 	public NativeLong cfgetospeed(Pointer termios) throws LastErrorException {
-		return JnaUtil.unlong(cfgetospeed.apply(termios));
+		return JnaUtil.unlong(cf.apply(List.of("cfgetospeed", termios)));
 	}
 
 	@Override
 	public int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return cfsetispeed.apply(List.of(termios, speed.intValue()));
+		return cf.apply(List.of("cfsetispeed", termios, speed.intValue()));
 	}
 
 	@Override
 	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return cfsetospeed.apply(List.of(termios, speed.intValue()));
+		return cf.apply(List.of("cfsetospeed", termios, speed.intValue()));
 	}
 
 	@Override
@@ -318,5 +349,11 @@ public class TestCLibNative implements CLib.Native {
 		Fd fdObj = fds.get(fd);
 		if (fdObj != null) return fdObj;
 		throw new LastErrorException(errorCode);
+	}
+
+	private Fd createFd(String path, int flags, int mode) {
+		Fd f = new Fd(nextFd.getAndIncrement(), path, flags, mode);
+		fds.put(f.fd, f);
+		return f;
 	}
 }

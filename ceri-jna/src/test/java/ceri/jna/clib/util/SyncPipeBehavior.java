@@ -1,7 +1,9 @@
 package ceri.jna.clib.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
@@ -49,13 +51,63 @@ public class SyncPipeBehavior {
 	@Test
 	public void shouldSignalAfterFailure() throws IOException {
 		TestCLibNative.exec(lib -> {
-			lib.write.autoResponses(0, 1);
+			lib.write.error.setFrom(IOX, null);
+			lib.write.autoResponses(1, 0, 1);
 			try (var pipe = SyncPipe.of()) {
 				assertThrown(pipe::signal);
 				lib.write.assertCalls(1);
-				pipe.signal();
+				assertFalse(pipe.signal());
+				lib.write.assertCalls(2);
+				assertTrue(pipe.signal());
 				lib.write.assertCalls(2);
 			}
 		});
 	}
+
+	@Test
+	public void shouldVerify() throws IOException {
+		TestCLibNative.exec(lib -> {
+			try (var pipe = SyncPipe.of()) {
+				pollfd pollfd = new pollfd();
+				assertThrown(() -> pipe.verify(pollfd)); // fd doesn't match
+				pipe.init(pollfd);
+				assertFalse(pipe.verify(pollfd));
+				pollfd.revents = CPoll.POLLOUT;
+				assertFalse(pipe.verify(pollfd));
+				pollfd.revents |= CPoll.POLLIN;
+				assertTrue(pipe.verify(pollfd));
+			}
+		});
+	}
+
+	@Test
+	public void shouldClearOnlyIfSignalled() throws IOException {
+		TestCLibNative.exec(lib -> {
+			try (var pipe = SyncPipe.of()) {
+				pollfd pollfd = new pollfd();
+				assertThrown(() -> pipe.clear(pollfd)); // fd doesn't match
+				pipe.init(pollfd);
+				pipe.clear(pollfd);
+				lib.read.assertCalls(0);
+				pollfd.revents = CPoll.POLLIN;
+				pipe.clear(pollfd);
+				lib.read.assertCalls(1);
+			}
+		});
+	}
+
+	@Test
+	public void shouldDoNothingAfterClosure() throws IOException {
+		TestCLibNative.exec(lib -> {
+			try (var pipe = SyncPipe.of()) {
+				pipe.close();
+				lib.write.assertCalls(1);
+				assertFalse(pipe.signal());
+				pipe.clear();
+			}
+			lib.write.assertCalls(1); // no change
+			lib.read.assertCalls(0);
+		});
+	}
+
 }

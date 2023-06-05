@@ -1,200 +1,65 @@
 package ceri.jna.clib;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.jna.clib.jna.CFcntl.INVALID_FD;
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
+import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.io.IoStreamUtil;
-import ceri.jna.util.GcMemory;
-import ceri.jna.util.JnaUtil;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
  */
 public interface FileDescriptor extends Closeable {
-	FileDescriptor NULL = new Null();
-	int BUFFER_SIZE = 1024;
-
 	/**
 	 * Provide access to the underlying descriptor.
 	 */
-	int fd() throws IOException;
+	// int fd() throws IOException;
 
 	/**
-	 * Reads from the file descriptor into a memory pointer. The number of bytes read may be less
-	 * than the given length. Returns the number of bytes read, or -1 for EOF.
+	 * Returns an InputStream for the file descriptor.
 	 */
-	default int read(Memory m) throws IOException {
-		return read(m, 0);
-	}
+	InputStream in();
 
 	/**
-	 * Reads from the file descriptor into a memory pointer. The number of bytes read may be less
-	 * than the given length. Returns the number of bytes read, or -1 for EOF.
+	 * Returns an OutputStream for the file descriptor.
 	 */
-	default int read(Memory m, int offset) throws IOException {
-		return read(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
-	}
+	OutputStream out();
 
 	/**
-	 * Reads from the file descriptor into a memory pointer. The number of bytes read may be less
-	 * than the given length. Returns the number of bytes read, or -1 for EOF.
+	 * Apply the file descriptor.
 	 */
-	int read(Pointer p, int offset, int length) throws IOException;
+	<E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E;
 
 	/**
-	 * Writes to the file descriptor from a memory pointer. Throws CException if write is not able
-	 * to complete.
+	 * Apply the file descriptor.
 	 */
-	default void write(Memory m) throws IOException {
-		write(m, 0);
-	}
+	<E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator) throws E;
 
 	/**
-	 * Writes to the file descriptor from a memory pointer. Throws CException if write is not able
-	 * to complete.
+	 * A stateless, no-op instance.
 	 */
-	default void write(Memory m, int offset) throws IOException {
-		write(m, offset, Math.toIntExact(JnaUtil.size(m) - offset));
-	}
-
-	/**
-	 * Writes to the file descriptor from a memory pointer. Throws CException if write is not able
-	 * to complete.
-	 */
-	void write(Pointer p, int offset, int length) throws IOException;
-
-	/**
-	 * Move position of file by offset in bytes from seek position type. Returns the position after
-	 * the move. May not be supported by file type.
-	 */
-	int seek(int offset, Seek whence) throws IOException;
-
-	/**
-	 * Creates an InputStream using a buffer of default size.
-	 */
-	default InputStream in() {
-		return in(BUFFER_SIZE);
-	}
-
-	/**
-	 * Creates an InputStream using a buffer of given size.
-	 */
-	default InputStream in(int bufferSize) {
-		validateMin(bufferSize, 1, "Buffer size");
-		var m = GcMemory.malloc(bufferSize);
-		return IoStreamUtil.in((array, offset, length) -> read(this, m.m, array, offset, length));
-	}
-
-	/**
-	 * Creates an OutputStream using a buffer of default size.
-	 */
-	default OutputStream out() {
-		return out(BUFFER_SIZE);
-	}
-
-	/**
-	 * Creates an OutputStream using a buffer of given size.
-	 */
-	default OutputStream out(int bufferSize) {
-		validateMin(bufferSize, 1, "Buffer size");
-		var m = GcMemory.malloc(bufferSize);
-		// @TODO: add flush
-		return IoStreamUtil.out((array, offset, length) -> write(this, m.m, array, offset, length));
-	}
-
-	/**
-	 * Performs a fcntl command. Arguments and return value depend on the function.
-	 */
-	default int fcntl(int cmd, Object... objs) throws IOException {
-		return fcntl((String) null, cmd, objs);
-	}
-
-	/**
-	 * Performs a fcntl command. Arguments and return value depend on the function.
-	 */
-	int fcntl(String name, int cmd, Object... objs) throws IOException;
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
-	default int ioctl(int request, Object... objs) throws IOException {
-		return ioctl((String) null, request, objs);
-	}
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
-	int ioctl(String name, int request, Object... objs) throws IOException;
-
-	/**
-	 * Read bytes into array using memory buffer.
-	 */
-	static int read(FileDescriptor fd, Memory buffer, byte[] array, int offset, int length)
-		throws IOException {
-		long bufSize = JnaUtil.size(buffer);
-		for (int count = 0; count < length;) {
-			int size = Math.toIntExact(Math.min(bufSize, length - count));
-			int n = fd.read(buffer, 0, size); // read into buffer
-			if (n <= 0) return count == 0 ? n : count; // return if 0 or EOF
-			buffer.read(0, array, offset + count, n); // copy buffer to array
-			count += n;
-			if (n < size) return count; // read is finished, no need to get more
-		}
-		return length;
-	}
-
-	/**
-	 * Write bytes from array using memory buffer.
-	 */
-	static int write(FileDescriptor fd, Memory buffer, byte[] array, int offset, int length)
-		throws IOException {
-		long bufSize = JnaUtil.size(buffer);
-		for (int count = 0; count < length;) {
-			int n = Math.toIntExact(Math.min(bufSize, length - count));
-			buffer.write(0, array, offset + count, n);
-			fd.write(buffer, 0, n); // throws exception for under-write
-			count += n;
-		}
-		return length;
-	}
-
-	static class Null implements FileDescriptor {
-		protected Null() {}
-
+	FileDescriptor NULL = new FileDescriptor() {
 		@Override
-		public int fd() throws IOException {
-			return INVALID_FD;
+		public InputStream in() {
+			return IoStreamUtil.nullIn;
 		}
 
 		@Override
-		public int read(Pointer p, int offset, int length) throws IOException {
-			return length;
+		public OutputStream out() {
+			return IoStreamUtil.nullOut;
 		}
 
 		@Override
-		public void write(Pointer p, int offset, int length) throws IOException {}
+		public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {}
 
 		@Override
-		public int seek(int offset, Seek whence) throws IOException {
+		public <E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator)
+			throws E {
 			return 0;
 		}
 
 		@Override
-		public int fcntl(String name, int cmd, Object... objs) throws IOException {
-			return 0;
-		}
-
-		@Override
-		public int ioctl(String name, int request, Object... objs) throws IOException {
-			return 0;
-		}
-
-		@Override
-		public void close() throws IOException {}
-	}
+		public void close() {}
+	};
 }

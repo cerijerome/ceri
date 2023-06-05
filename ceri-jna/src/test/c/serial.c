@@ -102,7 +102,7 @@ void close_fd(int fd) {
 
 int main(int argc, char *argv[]) {
 	SYM(O_RDWR | O_NOCTTY | O_NONBLOCK);
-	int fd = open_serial("/dev/tty.usbserial-1110", O_RDWR | O_NOCTTY | O_NONBLOCK);
+	int fd = open_serial(argv[1], O_RDWR | O_NOCTTY | O_NONBLOCK);
 	set_flags(fd);
 	set_attrs(fd);
 	close_fd(fd);

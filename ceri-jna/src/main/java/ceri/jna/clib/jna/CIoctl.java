@@ -25,7 +25,10 @@ public class CIoctl {
 	static final int TIOCCBRK;
 	static final int FIONREAD;
 	static final int TIOCEXCL;
+	static final int TIOCOUTQ;
 	static final int TIOCMGET;
+	static final int TIOCMBIC;
+	static final int TIOCMBIS;
 	static final int TIOCMSET;
 	public static final int TIOCM_LE = 0x0001; // line enable
 	public static final int TIOCM_DTR = 0x0002; // data terminal ready
@@ -118,6 +121,15 @@ public class CIoctl {
 	}
 
 	/**
+	 * Get the number of bytes in the output buffer.
+	 */
+	public static int tiocoutq(int fd) throws CException {
+		var ref = JnaUtil.intRef(0);
+		ioctl("TIOCOUTQ", fd, TIOCOUTQ, ref);
+		return ref.getValue();
+	}
+
+	/**
 	 * Put the terminal into exclusive mode; no further open() is permitted.
 	 */
 	public static void tiocexcl(int fd) throws CException {
@@ -134,11 +146,43 @@ public class CIoctl {
 	}
 
 	/**
+	 * Set the modem status bit.
+	 */
+	public static int tiocmbis(int fd, int bit) throws CException {
+		var ref = JnaUtil.intRef(bit);
+		ioctl("TIOCMBIS", fd, TIOCMBIS, ref);
+		return ref.getValue();
+	}
+
+	/**
+	 * Clear the modem status bit.
+	 */
+	public static int tiocmbic(int fd, int bit) throws CException {
+		var ref = JnaUtil.intRef(bit);
+		ioctl("TIOCMBIC", fd, TIOCMBIC, ref);
+		return ref.getValue();
+	}
+
+	/**
 	 * Set the status of modem bits TIOCM_*.
 	 */
 	public static void tiocmset(int fd, int bits) throws CException {
 		var ref = JnaUtil.intRef(bits);
 		ioctl("TIOCMSET", fd, TIOCMSET, ref);
+	}
+
+	/**
+	 * Set or clear the modem status bit. Not an ioctl type.
+	 */
+	public static int tiocmbit(int fd, int bit, boolean enable) throws CException {
+		return enable ? tiocmbis(fd, bit) : tiocmbic(fd, bit);
+	}
+
+	/**
+	 * return modem status bit enabled state. Not an ioctl type.
+	 */
+	public static boolean tiocmbit(int fd, int bit) throws CException {
+		return (tiocmget(fd) & bit) != 0;
 	}
 
 	/**
@@ -228,7 +272,10 @@ public class CIoctl {
 			TIOCCBRK = _IO('t', 122); // 0x2000747a
 			FIONREAD = _IOR('f', 127, Integer.BYTES); // 0x4004667f
 			TIOCEXCL = _IO('t', 13); // 0x2000740d
+			TIOCOUTQ = _IOR('t', 115, Integer.BYTES); // 0x40047473
 			TIOCMGET = _IOR('t', 106, Integer.BYTES); // 0x4004746a
+			TIOCMBIS = _IOW('t', 108, Integer.BYTES); // 0x8004746c
+			TIOCMBIC = _IOW('t', 107, Integer.BYTES); // 0x8004746b
 			TIOCMSET = _IOW('t', 109, Integer.BYTES); // 0x8004746d
 		} else {
 			_IOC_SIZEBITS = 14;
@@ -240,7 +287,10 @@ public class CIoctl {
 			TIOCCBRK = 0x5428;
 			FIONREAD = 0x541b;
 			TIOCEXCL = 0x540c;
+			TIOCOUTQ = 0x5411;
 			TIOCMGET = 0x5415;
+			TIOCMBIS = 0x5416;
+			TIOCMBIC = 0x5417;
 			TIOCMSET = 0x5418;
 		}
 	}

@@ -6,7 +6,6 @@ import static ceri.jna.test.JnaTestUtil.LINUX_OS;
 import static ceri.jna.test.JnaTestUtil.MAC_OS;
 import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.function.ToIntFunction;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -45,6 +44,8 @@ public class CIoctlTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(CIoctl.class);
+		assertPrivateConstructor(CIoctl.Mac.class);
+		assertPrivateConstructor(CIoctl.Linux.class);
 	}
 
 	@Test
@@ -66,9 +67,16 @@ public class CIoctlTest {
 
 	@Test
 	public void testFionread() throws CException {
-		lib.ioctlAutoResponse(setIntRef(31));
+		lib.ioctlAutoResponseOk(setIntRef(31));
 		assertEquals(CIoctl.fionread(fd), 31);
 		lib.assertIoctlArgs(fd, CIoctl.FIONREAD, null);
+	}
+
+	@Test
+	public void testTiocoutq() throws CException {
+		lib.ioctlAutoResponseOk(setIntRef(37));
+		assertEquals(CIoctl.tiocoutq(fd), 37);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCOUTQ, null);
 	}
 
 	@Test
@@ -79,15 +87,46 @@ public class CIoctlTest {
 
 	@Test
 	public void testTiocmget() throws CException {
-		lib.ioctlAutoResponse(setIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI));
+		lib.ioctlAutoResponseOk(setIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI));
 		assertEquals(CIoctl.tiocmget(fd), CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+	}
+
+	@Test
+	public void testTiocmbis() throws CException {
+		CIoctl.tiocmbis(fd, CIoctl.TIOCM_LE);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIS, assertIntRef(CIoctl.TIOCM_LE));
+	}
+
+	@Test
+	public void testTiocmbic() throws CException {
+		CIoctl.tiocmbic(fd, CIoctl.TIOCM_LE);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIC, assertIntRef(CIoctl.TIOCM_LE));
 	}
 
 	@Test
 	public void testTiocmset() throws CException {
 		CIoctl.tiocmset(fd, CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS);
 		lib.assertIoctlArgs(fd, CIoctl.TIOCMSET, assertIntRef(CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS));
+	}
+
+	@Test
+	public void testTiocmbitSet() throws CException {
+		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, true);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIS, assertIntRef(CIoctl.TIOCM_RI));
+		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, false);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIC, assertIntRef(CIoctl.TIOCM_RI));
+	}
+
+	@Test
+	public void testTiocmbitGet() throws CException {
+		lib.ioctlAutoResponseOk(setIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD));
+		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS), true);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD), true);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI), false);
+		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
 	}
 
 	@Test
@@ -99,11 +138,10 @@ public class CIoctlTest {
 
 	@Test
 	public void testLinuxTiocgserial() throws CException {
-		lib.ioctlAutoResponse(objs -> {
+		lib.ioctlAutoResponseOk(objs -> {
 			serial_struct ss = (serial_struct) objs[0];
 			ss.type = 0x33;
 			ss.baud_base = 0x123;
-			return 0;
 		});
 		var ss = CIoctl.Linux.tiocgserial(fd);
 		assertEquals(ss.type, 0x33);
@@ -136,7 +174,10 @@ public class CIoctlTest {
 			assertEquals(CIoctl.TIOCCBRK, 0x2000747a, "TIOCCBRK");
 			assertEquals(CIoctl.FIONREAD, 0x4004667f, "FIONREAD");
 			assertEquals(CIoctl.TIOCEXCL, 0x2000740d, "TIOCEXCL");
+			assertEquals(CIoctl.TIOCOUTQ, 0x40047473, "TIOCOUTQ");
 			assertEquals(CIoctl.TIOCMGET, 0x4004746a, "TIOCMGET");
+			assertEquals(CIoctl.TIOCMBIS, 0x8004746c, "TIOCMBIS");
+			assertEquals(CIoctl.TIOCMBIC, 0x8004746b, "TIOCMBIC");
 			assertEquals(CIoctl.TIOCMSET, 0x8004746d, "TIOCMSET");
 			assertEquals(CIoctl.Mac.IOSSIOSPEED, 0x80085402, "IOSSIOSPEED");
 		}
@@ -162,11 +203,8 @@ public class CIoctlTest {
 		return objs -> assertEquals(((IntByReference) objs[0]).getValue(), value);
 	}
 
-	private static ToIntFunction<Object[]> setIntRef(int value) {
-		return objs -> {
-			((IntByReference) objs[0]).setValue(value);
-			return 0;
-		};
+	private static Consumer<Object[]> setIntRef(int value) {
+		return objs -> ((IntByReference) objs[0]).setValue(value);
 	}
 
 }

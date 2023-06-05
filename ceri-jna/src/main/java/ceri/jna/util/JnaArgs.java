@@ -17,7 +17,7 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 
 /**
- * Utility to create strings from methods arguments. Arrays and Iterable types are expanded.
+ * Utility to create strings from method arguments. Arrays and Iterable types are expanded.
  */
 public class JnaArgs {
 	public static JnaArgs DEFAULT = builder().addDefault().build();

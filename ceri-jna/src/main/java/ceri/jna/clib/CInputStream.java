@@ -1,5 +1,6 @@
 package ceri.jna.clib;
 
+import java.io.IOException;
 import java.io.InputStream;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
@@ -20,7 +21,7 @@ public class CInputStream extends InputStream {
 		return new CInputStream(fd);
 	}
 
-	private CInputStream(int fd) {
+	protected CInputStream(int fd) {
 		this.fd = fd;
 	}
 
@@ -33,14 +34,14 @@ public class CInputStream extends InputStream {
 	}
 
 	@Override
-	public int available() throws CException {
+	public int available() throws IOException {
 		verifyOpen();
 		return CIoctl.fionread(fd);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
-	public int read() throws CException {
+	public int read() throws IOException {
 		verifyOpen();
 		var buffer = buffers.get();
 		int n = CUnistd.read(fd, buffer, 1);
@@ -49,16 +50,17 @@ public class CInputStream extends InputStream {
 
 	@SuppressWarnings("resource")
 	@Override
-	public int read(byte[] b, int off, int len) throws CException {
+	public int read(byte[] b, int off, int len) throws IOException {
 		verifyOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();
-		int n = CUnistd.read(fd,  buffer, b, off, (int) Math.min(buffer.size(), len));
+		len = (int) Math.min(buffer.size(), len);
+		int n = CUnistd.read(fd,  buffer, b, off, len);
 		return n > 0 ? n : -1;
 	}
 
 	@Override
-	public void close() throws CException {
+	public void close() {
 		closed = true;
 		buffers.close();
 	}

@@ -1,5 +1,6 @@
 package ceri.jna.clib;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
@@ -19,7 +20,7 @@ public class COutputStream extends OutputStream {
 		return new COutputStream(fd);
 	}
 
-	private COutputStream(int fd) {
+	protected COutputStream(int fd) {
 		this.fd = fd;
 	}
 
@@ -32,17 +33,17 @@ public class COutputStream extends OutputStream {
 	}
 
 	@Override
-	public void write(int b) throws CException {
-		verifyOpen();
+	public void write(int b) throws IOException {
+		ensureOpen();
 		@SuppressWarnings("resource")
 		var buffer = buffers.get();
 		buffer.setByte(0, (byte) b);
-		verifyWrite(CUnistd.write(b, buffer, 1), 1);
+		verifyWrite(CUnistd.write(fd, buffer, 1), 1);
 	}
 
 	@Override
-	public void write(byte[] b, int off, int len) throws CException {
-		verifyOpen();
+	public void write(byte[] b, int off, int len) throws IOException {
+		ensureOpen();
 		@SuppressWarnings("resource")
 		var buffer = buffers.get();
 		int n = CUnistd.writeAll(fd, buffer, JnaUtil.intSize(buffer), b, off, len);
@@ -50,12 +51,12 @@ public class COutputStream extends OutputStream {
 	}
 
 	@Override
-	public void flush() throws CException {
-		verifyOpen();
+	public void flush() throws IOException {
+		ensureOpen();
 	}
 
 	@Override
-	public void close() throws CException {
+	public void close() {
 		closed = true;
 		buffers.close();
 	}
@@ -65,7 +66,7 @@ public class COutputStream extends OutputStream {
 		throw CException.general("Incomplete write: %d/%d bytes", actual, expected);
 	}
 
-	private void verifyOpen() throws CException {
+	private void ensureOpen() throws CException {
 		if (closed) throw CException.of(CError.EBADF, "Closed");
 	}
 }

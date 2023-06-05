@@ -1,6 +1,7 @@
 package ceri.jna.clib;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -8,35 +9,46 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.IOException;
 import java.util.List;
+import org.apache.logging.log4j.Level;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import com.sun.jna.Memory;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor.Opener;
+import ceri.jna.clib.Mode.Mask;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.jna.clib.test.TestCLibNative.Fd;
-import ceri.jna.util.JnaUtil;
+import ceri.log.test.LogModifier;
 
 public class CFileDescriptorBehavior {
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc;
+	private static TestCLibNative lib;
+	private static Enclosed<RuntimeException, ?> enc;
 	private CFileDescriptor fd;
+
+	@BeforeClass
+	public static void beforeClass() {
+		lib = TestCLibNative.of();
+		enc = TestCLibNative.register(lib);
+	}
+
+	@AfterClass
+	public static void afterClass() {
+		enc.close();
+	}
 
 	@Before
 	public void before() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+		lib.reset();
 		fd = CFileDescriptor.open("test");
 	}
 
 	@After
-	public void after() throws IOException {
-		fd.close();
-		enc.close();
+	public void after() {
+		fd.closeSilently();
 	}
 
 	@Test
@@ -48,6 +60,13 @@ public class CFileDescriptorBehavior {
 		assertTrue(CFileDescriptor.isBroken(CException.of(CError.ENOENT.code, "test")));
 		assertTrue(CFileDescriptor.isBroken(CException.of(1, "remote i/o")));
 		assertTrue(CFileDescriptor.isBroken(CException.of(-1, "remote i/o")));
+	}
+
+	@Test
+	public void shouldOpenWithMode() throws IOException {
+		try (var fd = CFileDescriptor.open("test", Mode.of(Mask.rwxo), OpenFlag.O_APPEND)) {
+			lib.open.assertCall(List.of("test", OpenFlag.O_APPEND.value, Mask.rwxo.value));
+		}
 	}
 
 	@SuppressWarnings("resource")
@@ -86,49 +105,46 @@ public class CFileDescriptorBehavior {
 	}
 
 	@Test
-	public void shouldFailToProvideDescriptorIfClosed() throws IOException {
+	public void shouldFailToProvideDescriptorIfClosed() {
 		fd.fd();
 		fd.close();
 		assertThrown(() -> fd.fd());
 	}
 
+	@SuppressWarnings("resource")
 	@Test
-	public void shouldNotThrowExceptionOnClose() throws IOException {
-		lib.close.error.set(TestCLibNative.lastError(CError.EIO));
-		fd.close();
+	public void shouldProvideInputStream() throws IOException {
+		lib.read.autoResponses(ByteProvider.of(33));
+		fd.in().bufferSize(3);
+		assertEquals(fd.in().read(), 33);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldProvideOutputStream() throws IOException {
+		lib.write.autoResponses(3);
+		fd.out().bufferSize(3);
+		fd.out().write(new byte[] { 1, 2, 3 });
 	}
 
 	@Test
-	public void shouldFailOnIncompleteWrite() {
-		try (var m = JnaUtil.mallocBytes(1, 2, 3, 4, 5)) {
-			assertThrown(() -> fd.write(m)); // incomplete write (returns 0)
-			lib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3, 4, 5)));
-		}
+	public void shouldAcceptConsumer() {
+		fd.accept(f -> assertEquals(f, fd.fd()));
 	}
 
 	@Test
-	public void shouldWriteUntilComplete() throws IOException {
-		try (Memory m = JnaUtil.mallocBytes(1, 2, 3, 4, 5)) {
-			lib.write.autoResponses(2, 3);
-			fd.write(m);
-			lib.write.assertValues(List.of(fd(), ByteProvider.of(1, 2, 3, 4, 5)),
-				List.of(fd(), ByteProvider.of(3, 4, 5)));
-		}
+	public void shouldApply() {
+		assertEquals(fd.applyAsInt(f -> {
+			assertEquals(f, fd.fd());
+			return 33;
+		}), 33);
 	}
 
 	@Test
-	public void shouldCallIoctl() throws IOException {
-		fd.ioctl(100, "a", 1);
-		lib.assertIoctl(fd().fd(), 100, "a", 1);
+	public void shouldNotThrowExceptionOnClose() {
+		lib.close.error.setFrom(CError.EIO::error);
+		LogModifier.run(fd::close, Level.OFF, CFileDescriptor.class);
+		lib.close.error.clear();
 	}
 
-	@Test
-	public void shouldCallFcntl() throws IOException {
-		fd.fcntl(100, "a", 1);
-		lib.assertFcntl(fd().fd(), 100, "a", 1);
-	}
-
-	private Fd fd() {
-		return lib.fd(fd.fd());
-	}
 }

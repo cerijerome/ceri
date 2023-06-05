@@ -95,6 +95,13 @@ public class CFcntlTest {
 	}
 
 	@Test
+	public void testSetFlWithOperator() throws CException {
+		lib.fcntl.autoResponses(CFcntl.O_NONBLOCK, 0);
+		assertEquals(CFcntl.setFl(fd, flags -> flags | CFcntl.O_RDWR | CFcntl.O_EXCL),
+			CFcntl.O_NONBLOCK | CFcntl.O_RDWR | CFcntl.O_EXCL);
+	}
+
+	@Test
 	public void testFields() {
 		JnaTestUtil.testForEachOs(CFcntl.class);
 	}

@@ -1,5 +1,6 @@
 package ceri.jna.util;
 
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Library;
@@ -71,7 +72,9 @@ public class JnaLibrary<T extends Library> {
 	 */
 	public T get() {
 		if (override != null) return override;
-		if (loaded == null) loadNative();
+		if (loaded == null) synchronized (this) {
+			loaded = Objects.requireNonNullElseGet(loaded, this::loadNative);
+		}
 		return loaded;
 	}
 
@@ -90,10 +93,11 @@ public class JnaLibrary<T extends Library> {
 		this.override = override;
 	}
 
-	private void loadNative() {
+	private T loadNative() {
 		logger.debug("Loading {} [{}]", name, ReflectUtil.name(cls));
-		loaded = Native.load(name, cls);
+		var loaded = Native.load(name, cls);
 		logger.info("Loaded {} [{}]", name, ReflectUtil.name(cls));
+		return loaded;
 	}
 
 	private static void addPropertyPaths(String property, String... paths) {

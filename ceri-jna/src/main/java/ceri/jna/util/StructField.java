@@ -9,18 +9,20 @@ import com.sun.jna.Structure;
 import ceri.common.function.ObjIntFunction;
 
 /**
- * Provides access to struct field pointers as a typed arrays. Can be set as
+ * Provides access to struct field pointers as typed arrays. Can be set as
  * {@code public static final} fields on the struct:
  *
  * <pre>
  * class MyStruct extends Struct {
- * 	public static final Field.Type<MyStruct, MyType> BY_VAL = byVal(t -> t.byVal, MyType::new);
- * 	public static final Field.Type<MyStruct, MyType> BY_REF = byRef(t -> t.byRef, MyType::new);
- * 	public static final Field.Array<MyStruct, MyType> ARRAY_BY_VAL =
+ * 	public static final StructField.Type<MyStruct, MyType> BY_VAL =
+ * 		byVal(t -> t.byVal, MyType::new);
+ * 	public static final StructField.Type<MyStruct, MyType> BY_REF =
+ * 		byRef(t -> t.byRef, MyType::new);
+ * 	public static final StructField.Array<MyStruct, MyType> ARRAY_BY_VAL =
  * 		arrayByVal(t -> t.byVal, t -> t.n, MyType::new, MyType[]::new);
- * 	public static final Field.Array<MyStruct, MyType> ARRAY_BY_REF =
+ * 	public static final StructField.Array<MyStruct, MyType> ARRAY_BY_REF =
  * 		arrayByRef(t -> t.byRef, t -> t.n, MyType::new, MyType[]::new);
- * 	public static final Field.Array<MyStruct, MyType> ARRAY_BY_NULL_TERM_REF =
+ * 	public static final StructField.Array<MyStruct, MyType> ARRAY_BY_NULL_TERM_REF =
  * 		arrayByRef(t -> t.byRef, MyType::new, MyType[]::new);
  *
  * 	public Pointer val; // MyType*

@@ -4,9 +4,6 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
-import static ceri.jna.clib.jna.CUnistd.close;
-import static ceri.jna.clib.jna.CUnistd.read;
-import static ceri.jna.clib.jna.CUnistd.write;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
@@ -17,6 +14,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
+import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.test.TestCLibNative.Fd;
 import ceri.jna.util.GcMemory;
 
@@ -56,28 +54,34 @@ public class TestCLibNativeBehavior {
 	}
 
 	@Test
+	public void shouldOpenPipe() throws CException {
+		var pipefd = CUnistd.pipe();
+		lib.pipe.assertValues(new Fd[] { lib.fd(pipefd[0]), lib.fd(pipefd[1]) });
+	}
+
+	@Test
 	public void shouldReadIntoMemory() throws IOException {
 		lib.read.autoResponses(ByteProvider.of(1, 2, 3), null, ByteProvider.empty());
-		assertArray(read(fd, 5), 1, 2, 3);
+		assertArray(CUnistd.readBytes(fd, 5), 1, 2, 3);
 		lib.read.assertAuto(List.of(fd(), 5));
-		assertArray(read(fd, 3));
+		assertArray(CUnistd.readBytes(fd, 3));
 		lib.read.assertAuto(List.of(fd(), 3));
-		assertArray(read(fd, 2));
+		assertArray(CUnistd.readBytes(fd, 2));
 		lib.read.assertAuto(List.of(fd(), 2));
 	}
 
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
 		lib.write.autoResponses(2, 1);
-		assertEquals(write(fd, GcMemory.mallocBytes(1, 2, 3).m, 3), 2);
+		assertEquals(CUnistd.write(fd, GcMemory.mallocBytes(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(List.of(fd(), ByteProvider.of(1, 2, 3)));
-		assertEquals(write(fd, (Pointer) null, 2), 1);
+		assertEquals(CUnistd.write(fd, (Pointer) null, 2), 1);
 		lib.write.assertAuto(List.of(fd(), ByteProvider.of(0, 0)));
 	}
 
 	@Test
 	public void shouldFailForInvalidFd() {
-		assertThrown(() -> close(-1));
+		assertThrown(() -> CUnistd.write(-1, 1, 2, 3));
 	}
 
 	private Fd fd() {
