@@ -30,6 +30,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
+import ceri.common.math.MathUtil;
 import ceri.common.property.BaseProperties;
 import ceri.common.property.PropertyUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -287,6 +288,16 @@ public class TestUtil {
 		int inc = (int) Math.signum(to - from);
 		for (int i = 0, n = from; i < bytes.length; i++, n += inc)
 			bytes[i] = (byte) n;
+		return bytes;
+	}
+
+	/**
+	 * Returns a random byte array of given size.
+	 */
+	public static byte[] randomBytes(int size) {
+		byte[] bytes = new byte[size];
+		for (int i = 0; i < bytes.length; i++)
+			bytes[i] = (byte) MathUtil.random(0, MathUtil.MAX_UBYTE);
 		return bytes;
 	}
 

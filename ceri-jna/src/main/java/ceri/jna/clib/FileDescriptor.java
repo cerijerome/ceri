@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntUnaryOperator;
+import ceri.common.function.ExceptionIntFunction;
 import ceri.common.io.IoStreamUtil;
 
 /**
@@ -34,7 +34,7 @@ public interface FileDescriptor extends Closeable {
 	/**
 	 * Apply the file descriptor.
 	 */
-	<E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator) throws E;
+	<T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E;
 
 	/**
 	 * A stateless, no-op instance.
@@ -54,9 +54,8 @@ public interface FileDescriptor extends Closeable {
 		public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {}
 
 		@Override
-		public <E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator)
-			throws E {
-			return 0;
+		public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
+			return null;
 		}
 
 		@Override

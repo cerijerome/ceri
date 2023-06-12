@@ -33,7 +33,7 @@ public class SocketConnectorTesterBehavior {
 		sys.in(in);
 		sys.out(new PrintStream(out));
 		con = TestSocketConnector.echo();
-		con.connect();
+		con.open();
 	}
 
 	@After

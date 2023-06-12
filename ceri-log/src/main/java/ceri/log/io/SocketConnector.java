@@ -9,41 +9,23 @@ import ceri.common.io.IoStreamUtil;
 import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
 
-public interface SocketConnector extends Closeable, Listenable.Indirect<StateChange> {
-
-	/**
-	 * For condition-aware connectors, notify that it is broken. Useful if the connector
-	 * itself cannot determine it is broken.
-	 */
-	default void broken() {
-		throw new UnsupportedOperationException();
-	}
+public interface SocketConnector extends Closeable, StateChange.Fixable {
 
 	HostPort hostPort();
-	
-	void connect() throws IOException;
+
+	void open() throws IOException;
 
 	InputStream in();
 
 	OutputStream out();
 
 	/**
-	 * Creates a no-op instance.
+	 * A stateless, no-op instance.
 	 */
-	static SocketConnector ofNull() {
-		return new Null();
-	}
-
-	static class Null implements SocketConnector {
-		private final Listenable<StateChange> listenable = Listenable.ofNull();
-		private final InputStream in = IoStreamUtil.nullIn();
-		private final OutputStream out = IoStreamUtil.nullOut();
-
-		private Null() {}
-
+	SocketConnector NULL = new SocketConnector() {
 		@Override
 		public Listenable<StateChange> listeners() {
-			return listenable;
+			return Listenable.ofNull();
 		}
 
 		@Override
@@ -53,21 +35,21 @@ public interface SocketConnector extends Closeable, Listenable.Indirect<StateCha
 		public HostPort hostPort() {
 			return HostPort.NULL;
 		}
-		
+
 		@Override
-		public void connect() {}
+		public void open() {}
 
 		@Override
 		public InputStream in() {
-			return in;
+			return IoStreamUtil.nullIn;
 		}
 
 		@Override
 		public OutputStream out() {
-			return out;
+			return IoStreamUtil.nullOut;
 		}
-		
+
 		@Override
 		public void close() {}
-	}
+	};
 }

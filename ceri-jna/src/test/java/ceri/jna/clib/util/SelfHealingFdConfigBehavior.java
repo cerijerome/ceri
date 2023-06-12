@@ -36,7 +36,7 @@ public class SelfHealingFdConfigBehavior {
 	@Test
 	public void shouldCreateFromOpenFunction() throws IOException {
 		TestFileDescriptor fd = TestFileDescriptor.of(33);
-		CallSync.Get<FileDescriptor> sync = CallSync.supplier(fd);
+		CallSync.Supplier<FileDescriptor> sync = CallSync.supplier(fd);
 		var config = SelfHealingFdConfig.of(() -> sync.get(IO_ADAPTER));
 		assertEquals(config.open(), fd);
 		sync.awaitAuto();

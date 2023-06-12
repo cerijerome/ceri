@@ -22,8 +22,8 @@ import java.util.concurrent.Executor;
 import ceri.common.test.CallSync;
 
 public class TestConnection implements Connection {
-	public final CallSync.Get<DatabaseMetaData> getMetaData = CallSync.supplier();
-	public final CallSync.Apply<String, PreparedStatement> prepareStatement =
+	public final CallSync.Supplier<DatabaseMetaData> getMetaData = CallSync.supplier();
+	public final CallSync.Function<String, PreparedStatement> prepareStatement =
 		CallSync.function(null);
 
 	public static TestConnection of() {

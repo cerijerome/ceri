@@ -12,8 +12,8 @@ import ceri.common.test.CallSync;
 
 public class TestProperties extends Properties {
 	private static final long serialVersionUID = 1L;
-	public final CallSync.Accept<Object> load = CallSync.consumer(null, true);
-	public final CallSync.Accept<List<?>> store = CallSync.consumer(null, true);
+	public final CallSync.Consumer<Object> load = CallSync.consumer(null, true);
+	public final CallSync.Consumer<List<?>> store = CallSync.consumer(null, true);
 
 	public static TestProperties of() {
 		return new TestProperties();

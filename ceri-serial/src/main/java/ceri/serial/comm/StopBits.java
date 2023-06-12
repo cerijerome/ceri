@@ -1,0 +1,34 @@
+package ceri.serial.comm;
+
+import static ceri.common.math.MathUtil.approxEqual;
+import ceri.common.collection.EnumUtil;
+import ceri.common.data.TypeTranscoder;
+
+public enum StopBits {
+	_1(1, 1.0),
+	_2(2, 2.0),
+	_1_5(3, 1.5);
+
+	private static final TypeTranscoder<StopBits> xcoder =
+		TypeTranscoder.of(t -> t.value, StopBits.class);
+	private static final double PRECISION = 0.1;
+	public final int value;
+	public final double bits;
+
+	public static StopBits from(int value) {
+		return xcoder.decode(value);
+	}
+
+	public static StopBits fromBits(double bits) {
+		return EnumUtil.find(StopBits.class, t -> approxEqual(t.bits, bits, PRECISION));
+	}
+
+	private StopBits(int value, double bits) {
+		this.value = value;
+		this.bits = bits;
+	}
+
+	public int minBits() {
+		return this == _1 ? 1 : 2;
+	}
+}

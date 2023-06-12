@@ -43,7 +43,7 @@ public class SocketConnectorTester extends LoopingExecutor {
 	public static void test(String host, int port) throws IOException {
 		SelfHealingSocketConfig config = SelfHealingSocketConfig.of(host, port);
 		try (SelfHealingSocketConnector con = SelfHealingSocketConnector.of(config)) {
-			con.connect();
+			con.open();
 			test(con, null);
 		}
 	}

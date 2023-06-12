@@ -39,29 +39,29 @@ public class TestCLibNative implements CLib.Native {
 	public final Map<Integer, Fd> fds = new ConcurrentHashMap<>();
 	public final Map<String, String> env = new ConcurrentHashMap<>();
 	// List<?> = String path, int flags, int mode
-	public final CallSync.Accept<List<?>> open = CallSync.consumer(null, true);
-	public final CallSync.Apply<Fd, Integer> close = CallSync.function(null, 0);
-	public final CallSync.Apply<Fd[], Integer> pipe = CallSync.function(null, 0);
+	public final CallSync.Consumer<List<?>> open = CallSync.consumer(null, true);
+	public final CallSync.Function<Fd, Integer> close = CallSync.function(null, 0);
+	public final CallSync.Function<Fd[], Integer> pipe = CallSync.function(null, 0);
 	// List<?> = Fd f, int len
-	public final CallSync.Apply<List<?>, ByteProvider> read =
+	public final CallSync.Function<List<?>, ByteProvider> read =
 		CallSync.function(null, ByteProvider.empty());
 	// List<?> = Fd f, ByteProvider data
-	public final CallSync.Apply<List<?>, Integer> write = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> write = CallSync.function(null, 0);
 	// List<?> = Fd f, int offset, int whence
-	public final CallSync.Apply<List<?>, Integer> lseek = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> lseek = CallSync.function(null, 0);
 	// List<?> = int signal, sighandler_t handler
-	public final CallSync.Apply<List<?>, Pointer> signal = CallSync.function(null, Pointer.NULL);
-	public final CallSync.Apply<Integer, Integer> raise = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Pointer> signal = CallSync.function(null, Pointer.NULL);
+	public final CallSync.Function<Integer, Integer> raise = CallSync.function(null, 0);
 	// List<?> = List<pollfd> fds, int timeoutMs
-	public final CallSync.Apply<List<?>, Integer> poll = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> poll = CallSync.function(null, 0);
 	// List<?> = Fd f, int request, Object[] objs
-	public final CallSync.Apply<List<?>, Integer> ioctl = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> ioctl = CallSync.function(null, 0);
 	// List<?> = Fd f, int cmd, Object[] objs
-	public final CallSync.Apply<List<?>, Integer> fcntl = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> fcntl = CallSync.function(null, 0);
 	// List<?> = String callName, Fd f, ...
-	public final CallSync.Apply<List<?>, Integer> tc = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> tc = CallSync.function(null, 0);
 	// List<?> = String callName, ...
-	public final CallSync.Apply<List<?>, Integer> cf = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> cf = CallSync.function(null, 0);
 
 	public static record Fd(int fd, String path, int flags, int mode) {}
 
@@ -80,12 +80,12 @@ public class TestCLibNative implements CLib.Native {
 		return CLib.library.enclosed(lib);
 	}
 
-	public static <T, R> void autoError(CallSync.Apply<T, R> sync, R response,
+	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
 		Predicate<T> predicate, String errorMessage, Object... args) {
 		autoError(sync, response, predicate, t -> StringUtil.format(errorMessage, args));
 	}
 
-	public static <T, R> void autoError(CallSync.Apply<T, R> sync, R response,
+	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
 		Predicate<T> predicate, Function<T, String> errorMessageFn) {
 		sync.autoResponse(t -> {
 			if (predicate.test(t)) return response;
@@ -179,16 +179,8 @@ public class TestCLibNative implements CLib.Native {
 		nextFd.set(1000);
 		fds.clear();
 		env.clear();
-		open.autoResponse(true).reset();
-		reset(ByteProvider.empty(), read);
-		reset(Pointer.NULL, signal);
-		reset(0, close, pipe, write, lseek, raise, poll, ioctl, fcntl, tc, cf);
-	}
-
-	@SafeVarargs
-	private <T> void reset(T autoResponse, CallSync.Apply<?, T>... callSyncs) {
-		for (var callSync : callSyncs)
-			callSync.autoResponses(autoResponse).reset();
+		CallSync.resetAll(open, read, signal, close, pipe, write, lseek, raise, poll, ioctl, fcntl,
+			tc, cf);
 	}
 
 	@Override

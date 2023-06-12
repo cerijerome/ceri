@@ -98,14 +98,14 @@ public class CIoctl {
 	}
 
 	/**
-	 * Set break bit.
+	 * Turn break on; start sending zero bits.
 	 */
 	public static void tiocsbrk(int fd) throws CException {
 		ioctl("TIOCSBRK", fd, TIOCSBRK);
 	}
 
 	/**
-	 * Clear break bit.
+	 * Turn break off; stop sending zero bits.
 	 */
 	public static void tioccbrk(int fd) throws CException {
 		ioctl("TIOCCBRK", fd, TIOCCBRK);

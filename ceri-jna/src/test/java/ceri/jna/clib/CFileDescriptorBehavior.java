@@ -134,7 +134,7 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldApply() {
-		assertEquals(fd.applyAsInt(f -> {
+		assertEquals(fd.apply(f -> {
 			assertEquals(f, fd.fd());
 			return 33;
 		}), 33);

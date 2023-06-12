@@ -65,7 +65,7 @@ public class DispatcherBehavior {
 
 	@Test
 	public void shouldCloseOnListenerInterrupt() throws InterruptedException {
-		CallSync.Accept<String> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<String> sync = CallSync.consumer(null, true);
 		sync.error.setFrom(RIX);
 		try (var disp = Dispatcher.<String>direct(0)) {
 			try (var enc = disp.listen(sync::accept)) {

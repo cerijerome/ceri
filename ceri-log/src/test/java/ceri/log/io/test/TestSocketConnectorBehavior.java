@@ -15,7 +15,7 @@ public class TestSocketConnectorBehavior {
 	@Test
 	public void shouldEcho() throws IOException {
 		try (var s = TestSocketConnector.echo()) {
-			s.connect();
+			s.open();
 			var in = ByteStream.reader(s.in());
 			var out = ByteStream.writer(s.out());
 			out.writeAscii("test");

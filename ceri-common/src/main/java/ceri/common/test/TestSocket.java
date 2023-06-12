@@ -11,8 +11,8 @@ import ceri.common.net.HostPort;
  * A test socket that delegates to test streams for i/o.
  */
 public class TestSocket extends Socket {
-	public final CallSync.Accept<HostPort> remote = CallSync.consumer(HostPort.NULL, true);
-	public final CallSync.Get<Integer> localPort = CallSync.supplier(0);
+	public final CallSync.Consumer<HostPort> remote = CallSync.consumer(HostPort.NULL, true);
+	public final CallSync.Supplier<Integer> localPort = CallSync.supplier(0);
 	public final TestInputStream in;
 	public final TestOutputStream out;
 

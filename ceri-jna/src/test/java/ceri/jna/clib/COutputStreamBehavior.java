@@ -9,6 +9,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
@@ -35,7 +36,7 @@ public class COutputStreamBehavior {
 
 	@Before
 	public void before() {
-		lib.write.autoResponses(0).reset();
+		lib.write.reset();
 		out = COutputStream.of(fd);
 		out.bufferSize(3);
 	}
@@ -71,6 +72,12 @@ public class COutputStreamBehavior {
 		assertThrown(() -> out.write(0xff));
 		lib.write.autoResponses(2, 0);
 		assertThrown(() -> out.write(new byte[3]));
+	}
+
+	@Test
+	public void shouldProvideQueueSize() throws IOException {
+		lib.ioctlAutoResponseOk(objs -> ((IntByReference) objs[0]).setValue(33));
+		assertEquals(out.queued(), 33);
 	}
 
 	@Test

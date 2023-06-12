@@ -24,7 +24,7 @@ import ceri.jna.clib.test.TestFileDescriptor;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingFdBehavior {
-	private CallSync.Get<FileDescriptor> open;
+	private CallSync.Supplier<FileDescriptor> open;
 	private TestFileDescriptor fd;
 	private SelfHealingFd shf;
 
@@ -63,7 +63,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldListenForStateChanges() {
-		CallSync.Accept<StateChange> listener = CallSync.consumer(null, false);
+		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		shf.listeners().listen(listener::accept);
 		try (var x = TestUtil.threadRun(shf::broken)) {
 			listener.assertCall(StateChange.broken);
@@ -73,7 +73,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldHandleBadListeners() {
-		CallSync.Accept<StateChange> listener = CallSync.consumer(null, false);
+		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		listener.error.setFrom(RTX, RIX);
 		shf.listeners().listen(listener::accept);
 		LogModifier.run(() -> {
@@ -90,14 +90,14 @@ public class SelfHealingFdBehavior {
 		assertThrown(() -> shf.in().read());
 		assertThrown(() -> shf.out().write(0xff));
 		assertThrown(() -> shf.accept(fd -> {}));
-		assertThrown(() -> shf.applyAsInt(fd -> 0));
+		assertThrown(() -> shf.apply(fd -> 0));
 	}
 
 	@Test
 	public void shouldDelegateToFileDescriptor() throws IOException {
 		shf.open();
 		shf.accept(fd -> assertEquals(fd, this.fd.fd()));
-		assertEquals(shf.applyAsInt(fd -> {
+		assertEquals(shf.apply(fd -> {
 			assertEquals(fd, this.fd.fd());
 			return 77;
 		}), 77);

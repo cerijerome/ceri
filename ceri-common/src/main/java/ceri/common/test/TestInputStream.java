@@ -22,12 +22,12 @@ import ceri.common.text.ToString;
 public class TestInputStream extends InputStream implements Fluent<TestInputStream> {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;
-	public final CallSync.Apply<Bytes, Integer> read = CallSync.function(null, (Integer) null);
-	public final CallSync.Get<Integer> available = CallSync.supplier((Integer) null);
-	public final CallSync.Accept<Integer> mark = CallSync.consumer(null, true);
-	public final CallSync.Run reset = CallSync.runnable(true);
-	public final CallSync.Run close = CallSync.runnable(true);
-	public final CallSync.Get<Boolean> markSupported = CallSync.supplier((Boolean) null);
+	public final CallSync.Function<Bytes, Integer> read = CallSync.function(null, (Integer) null);
+	public final CallSync.Supplier<Integer> available = CallSync.supplier((Integer) null);
+	public final CallSync.Consumer<Integer> mark = CallSync.consumer(null, true);
+	public final CallSync.Runnable reset = CallSync.runnable(true);
+	public final CallSync.Runnable close = CallSync.runnable(true);
+	public final CallSync.Supplier<Boolean> markSupported = CallSync.supplier((Boolean) null);
 	public final ByteStream.Writer to; // write to input
 
 	@SuppressWarnings("resource")
@@ -55,11 +55,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	}
 
 	public void resetState() {
-		read.reset();
-		available.reset();
-		mark.reset();
-		reset.reset();
-		close.reset();
+		CallSync.resetAll(read, available, mark, reset, close);
 		execSilently(piped::clear);
 	}
 

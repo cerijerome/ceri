@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit;
 import ceri.common.time.Timeout;
 
 public class TestExecutorService extends AbstractExecutorService {
-	public final CallSync.Accept<Runnable> execute = CallSync.consumer(null, true);
-	public final CallSync.Apply<Boolean, List<Runnable>> shutdown =
+	public final CallSync.Consumer<Runnable> execute = CallSync.consumer(null, true);
+	public final CallSync.Function<Boolean, List<Runnable>> shutdown =
 		CallSync.function(false, List.of());
-	public final CallSync.Apply<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
+	public final CallSync.Function<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
 
 	public static TestExecutorService of() {
 		return new TestExecutorService();

@@ -56,9 +56,9 @@ public class SelfHealingSocketConnector extends LoopingExecutor implements Socke
 	public HostPort hostPort() {
 		return config.hostPort;
 	}
-	
+
 	@Override
-	public void connect() throws IOException {
+	public void open() throws IOException {
 		try {
 			initSocket();
 		} catch (RuntimeException | IOException e) {

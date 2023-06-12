@@ -1,21 +1,72 @@
 package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.threadCall;
 import static ceri.common.test.TestUtil.threadRun;
 import org.junit.Test;
-import ceri.common.test.CallSync.Accept;
-import ceri.common.test.CallSync.Apply;
-import ceri.common.test.CallSync.Get;
-import ceri.common.test.CallSync.Run;
+import ceri.common.test.CallSync.Consumer;
+import ceri.common.test.CallSync.Function;
+import ceri.common.test.CallSync.Supplier;
+import ceri.common.test.CallSync.Runnable;
 
 public class CallSyncBehavior {
 
 	@Test
+	public void shouldResetFunctionToOriginalState() {
+		var call = CallSync.function("", 1, 2, 3);
+		assertEquals(call.value(), "");
+		assertEquals(call.apply("1"), 1);
+		assertEquals(call.apply("2"), 2);
+		assertEquals(call.value(), "2");
+		call.reset();
+		assertEquals(call.value(), "");
+		assertEquals(call.apply("1"), 1);
+	}
+	
+	@Test
+	public void shouldResetConsumerToOriginalState() {
+		var call = CallSync.consumer("", true);
+		assertEquals(call.value(), "");
+		assertTrue(call.autoResponseEnabled());
+		call.accept("1");
+		call.autoResponse(false);
+		assertEquals(call.value(), "1");
+		assertFalse(call.autoResponseEnabled());
+		call.reset();
+		assertEquals(call.value(), "");
+		assertTrue(call.autoResponseEnabled());
+	}
+	
+	@Test
+	public void shouldResetSupplierToOriginalState() {
+		var call = CallSync.supplier(1, 2, 3);
+		assertTrue(call.autoResponseEnabled());
+		assertEquals(call.get(), 1);
+		assertEquals(call.get(), 2);
+		call.autoResponse(null);
+		assertFalse(call.autoResponseEnabled());
+		call.reset();
+		assertEquals(call.get(), 1);
+		assertTrue(call.autoResponseEnabled());
+	}
+	
+	@Test
+	public void shouldResetRunnableToOriginalState() {
+		var call = CallSync.runnable(true);
+		assertTrue(call.autoResponseEnabled());
+		call.run();
+		call.autoResponse(false);
+		assertFalse(call.autoResponseEnabled());
+		call.reset();
+		assertTrue(call.autoResponseEnabled());
+	}
+	
+	@Test
 	public void shouldApplyAndRespond() {
-		Apply<String, Integer> call = CallSync.function(null);
+		Function<String, Integer> call = CallSync.function(null);
 		try (var exec = threadCall(() -> call.apply("test"))) {
 			assertEquals(call.await(3), "test");
 			assertEquals(exec.get(), 3);
@@ -24,7 +75,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndRespondWithInterrupt() {
-		Apply<String, Integer> call = CallSync.function(null);
+		Function<String, Integer> call = CallSync.function(null);
 		try (var exec = threadCall(() -> call.applyWithInterrupt("test"))) {
 			call.assertCall("test", 3);
 			assertEquals(exec.get(), 3);
@@ -33,7 +84,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithAutoResponse() {
-		Apply<String, Integer> call = CallSync.function(null, 3);
+		Function<String, Integer> call = CallSync.function(null, 3);
 		call.assertCalls(0);
 		assertEquals(call.apply("test0"), 3);
 		call.assertAuto("test0");
@@ -43,7 +94,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithDefaultValue() {
-		Apply<String, Integer> call = CallSync.function("test", 3);
+		Function<String, Integer> call = CallSync.function("test", 3);
 		assertEquals(call.value(), "test");
 		call.valueDef("test0");
 		assertEquals(call.value(), "test0");
@@ -53,7 +104,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyValueWithoutSignal() {
-		Apply<String, Integer> call = CallSync.function(null, 3);
+		Function<String, Integer> call = CallSync.function(null, 3);
 		call.value("test");
 		call.assertCalls(0);
 		assertEquals(call.value(), "test");
@@ -61,7 +112,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndGetValues() {
-		Apply<String, Integer> call = CallSync.function(null, 3);
+		Function<String, Integer> call = CallSync.function(null, 3);
 		assertIterable(call.values());
 		call.value("test0");
 		call.value(null);
@@ -72,7 +123,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndAssertValues() {
-		Apply<String, Integer> call = CallSync.function(null, 3);
+		Function<String, Integer> call = CallSync.function(null, 3);
 		assertIterable(call.values());
 		call.apply("test0");
 		call.apply(null);
@@ -83,7 +134,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithoutSavingValues() {
-		Apply<String, Integer> call = CallSync.function(null, 3);
+		Function<String, Integer> call = CallSync.function(null, 3);
 		call.saveValues(false);
 		assertIterable(call.values());
 		call.saveValues(true);
@@ -99,7 +150,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndRespond() {
-		Accept<String> call = CallSync.consumer(null, false);
+		Consumer<String> call = CallSync.consumer(null, false);
 		try (var exec = threadRun(() -> call.accept("test"))) {
 			assertEquals(call.await(), "test");
 			exec.get();
@@ -108,7 +159,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndRespondWithInterrupt() {
-		Accept<String> call = CallSync.consumer(null, false);
+		Consumer<String> call = CallSync.consumer(null, false);
 		try (var exec = threadRun(() -> call.acceptWithInterrupt("test"))) {
 			call.assertCall("test");
 			exec.get();
@@ -117,7 +168,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptWithAutoResponse() {
-		Accept<String> call = CallSync.consumer(null, true);
+		Consumer<String> call = CallSync.consumer(null, true);
 		call.assertCalls(0);
 		call.accept("test0");
 		call.assertAuto("test0");
@@ -127,7 +178,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptWithDefaultValue() {
-		Accept<String> call = CallSync.consumer("test", true);
+		Consumer<String> call = CallSync.consumer("test", true);
 		assertEquals(call.value(), "test");
 		call.valueDef("test0");
 		assertEquals(call.value(), "test0");
@@ -137,7 +188,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptValueWithoutSignal() {
-		Accept<String> call = CallSync.consumer(null, true);
+		Consumer<String> call = CallSync.consumer(null, true);
 		call.value("test");
 		call.assertCalls(0);
 		assertEquals(call.value(), "test");
@@ -145,7 +196,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndGetValues() {
-		Accept<String> call = CallSync.consumer(null, true);
+		Consumer<String> call = CallSync.consumer(null, true);
 		assertIterable(call.values());
 		call.value("test0");
 		call.value(null);
@@ -156,7 +207,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndAssertValues() {
-		Accept<String> call = CallSync.consumer(null, true);
+		Consumer<String> call = CallSync.consumer(null, true);
 		assertIterable(call.values());
 		call.accept("test0");
 		call.accept(null);
@@ -167,7 +218,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetAndRespond() {
-		Get<String> call = CallSync.supplier();
+		Supplier<String> call = CallSync.supplier();
 		try (var exec = threadCall(() -> call.get())) {
 			call.await("test");
 			assertEquals(exec.get(), "test");
@@ -176,7 +227,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetAndRespondWithInterrupt() {
-		Get<String> call = CallSync.supplier();
+		Supplier<String> call = CallSync.supplier();
 		try (var exec = threadCall(() -> call.getWithInterrupt())) {
 			call.await("test");
 			assertEquals(exec.get(), "test");
@@ -185,7 +236,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetWithAutoResponse() {
-		Get<String> call = CallSync.supplier("test");
+		Supplier<String> call = CallSync.supplier("test");
 		call.assertCalls(0);
 		assertEquals(call.get(), "test");
 		call.awaitAuto();
@@ -193,7 +244,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetWithCallCount() {
-		Get<String> call = CallSync.supplier("test");
+		Supplier<String> call = CallSync.supplier("test");
 		assertEquals(call.calls(), 0);
 		call.get();
 		call.get();
@@ -203,7 +254,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunAndRespond() {
-		Run call = CallSync.runnable(false);
+		Runnable call = CallSync.runnable(false);
 		try (var exec = threadRun(() -> call.run())) {
 			call.await();
 			exec.get();
@@ -212,7 +263,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunAndRespondWithInterrupt() {
-		Run call = CallSync.runnable(false);
+		Runnable call = CallSync.runnable(false);
 		try (var exec = threadRun(() -> call.runWithInterrupt())) {
 			call.await();
 			exec.get();
@@ -221,7 +272,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunWithAutoResponse() {
-		Run call = CallSync.runnable(true);
+		Runnable call = CallSync.runnable(true);
 		call.assertCalls(0);
 		call.run();
 		call.awaitAuto();
@@ -229,7 +280,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunWithCallCount() {
-		Run call = CallSync.runnable(true);
+		Runnable call = CallSync.runnable(true);
 		assertEquals(call.calls(), 0);
 		call.run();
 		call.run();
@@ -245,7 +296,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentationEvenIfLocked() {
-		CallSync.Get<String> tos = CallSync.supplier();
+		CallSync.Supplier<String> tos = CallSync.supplier();
 		try (var exec0 = threadRun(() -> tos.await(() -> {
 			try (var exec1 = threadCall(() -> tos.toString())) { // locked
 				return exec1.get();

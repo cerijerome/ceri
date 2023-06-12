@@ -25,9 +25,9 @@ import java.util.Map;
 import ceri.common.test.CallSync;
 
 public class TestResultSet implements ResultSet {
-	public final CallSync.Get<ResultSetMetaData> getMetaData = CallSync.supplier();
-	public final CallSync.Get<Boolean> next = CallSync.supplier();
-	public final CallSync.Apply<Object, String> getString = CallSync.function(null);
+	public final CallSync.Supplier<ResultSetMetaData> getMetaData = CallSync.supplier();
+	public final CallSync.Supplier<Boolean> next = CallSync.supplier();
+	public final CallSync.Function<Object, String> getString = CallSync.function(null);
 
 	public static TestResultSet of() {
 		return new TestResultSet();

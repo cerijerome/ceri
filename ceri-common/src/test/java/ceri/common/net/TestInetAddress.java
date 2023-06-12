@@ -19,12 +19,12 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
 public class TestInetAddress {
-	public final CallSync.Get<byte[]> address = CallSync.supplier((byte[]) null);
-	public final CallSync.Get<String> hostAddress = CallSync.supplier((String) null);
-	public final CallSync.Get<String> hostName = CallSync.supplier((String) null);
-	public final CallSync.Get<String> canonicalHostName = CallSync.supplier((String) null);
-	public final CallSync.Get<Set<AddressType>> type = CallSync.supplier(Set.of());
-	public final CallSync.Apply<List<?>, Boolean> reachable = CallSync.function(null, true);
+	public final CallSync.Supplier<byte[]> address = CallSync.supplier((byte[]) null);
+	public final CallSync.Supplier<String> hostAddress = CallSync.supplier((String) null);
+	public final CallSync.Supplier<String> hostName = CallSync.supplier((String) null);
+	public final CallSync.Supplier<String> canonicalHostName = CallSync.supplier((String) null);
+	public final CallSync.Supplier<Set<AddressType>> type = CallSync.supplier(Set.of());
+	public final CallSync.Function<List<?>, Boolean> reachable = CallSync.function(null, true);
 	private InetAddress mock = null;
 
 	public void reset() {

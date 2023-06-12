@@ -13,21 +13,20 @@ public class TestProcess extends Process implements AutoCloseable {
 	public final TestInputStream in = TestInputStream.of();
 	public final TestInputStream err = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
-	public final CallSync.Get<Integer> exitValue = CallSync.supplier(0);
-	public final CallSync.Get<Boolean> alive = CallSync.supplier(false);
-	public final CallSync.Apply<Timeout, Boolean> waitFor = CallSync.function(null, true);
+	public final CallSync.Supplier<Integer> exitValue = CallSync.supplier(0);
+	public final CallSync.Supplier<Boolean> alive = CallSync.supplier(false);
+	public final CallSync.Function<Timeout, Boolean> waitFor = CallSync.function(null, true);
 
 	public static TestProcessor processor(String... autoResponses) {
-		var p = new TestProcessor();
-		p.exec.autoResponses(autoResponses);
-		return p;
+		return new TestProcessor(autoResponses);
 	}
 
 	public static class TestProcessor extends Processor {
-		public final CallSync.Apply<Parameters, String> exec = CallSync.function(null, "");
+		public final CallSync.Function<Parameters, String> exec;
 
-		private TestProcessor() {
+		private TestProcessor(String... autoResponses) {
 			super(Processor.builder());
+			exec = CallSync.function(null, autoResponses);
 		}
 
 		public void reset() {

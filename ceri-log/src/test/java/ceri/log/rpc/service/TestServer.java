@@ -8,10 +8,10 @@ import ceri.common.time.Timeout;
 import io.grpc.Server;
 
 public class TestServer extends Server {
-	public final CallSync.Run start = CallSync.runnable(true);
-	public final CallSync.Accept<Runnable> execute = CallSync.consumer(null, true);
-	public final CallSync.Accept<Boolean> shutdown = CallSync.consumer(false, true);
-	public final CallSync.Apply<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
+	public final CallSync.Runnable start = CallSync.runnable(true);
+	public final CallSync.Consumer<Runnable> execute = CallSync.consumer(null, true);
+	public final CallSync.Consumer<Boolean> shutdown = CallSync.consumer(false, true);
+	public final CallSync.Function<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
 
 	public static TestServer of() {
 		return new TestServer();

@@ -36,7 +36,7 @@ public class CInputStreamBehavior {
 
 	@Before
 	public void before() {
-		lib.read.autoResponses(ByteProvider.empty()).reset();
+		lib.read.reset();
 		in = CInputStream.of(fd);
 		in.bufferSize(3);
 	}

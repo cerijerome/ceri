@@ -37,7 +37,7 @@ public class TestUtilTest {
 	}
 
 	static record Rec(int i, String s) {}
-	
+
 	enum BadEnum {
 		bad;
 
@@ -50,13 +50,13 @@ public class TestUtilTest {
 	public void testGc() {
 		TestUtil.gc();
 	}
-	
+
 	@Test
 	public void testExerciseRecord() {
 		TestUtil.exerciseRecord(null);
 		TestUtil.exerciseRecord(new Rec(-1, "test"));
 	}
-	
+
 	@Test
 	public void testExerciseEnum() {
 		TestUtil.exerciseEnum(Align.H.class);
@@ -243,6 +243,12 @@ public class TestUtilTest {
 		assertArray(TestUtil.byteRange(2, 2), 2);
 		assertArray(TestUtil.byteRange(0, 3), 0, 1, 2, 3);
 		assertArray(TestUtil.byteRange(-3, -6), -3, -4, -5, -6);
+	}
+
+	@Test
+	public void testRandomBytes() {
+		assertEquals(TestUtil.randomBytes(0).length, 0);
+		assertEquals(TestUtil.randomBytes(100).length, 100);
 	}
 
 	@Test

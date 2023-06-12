@@ -7,9 +7,9 @@ import io.grpc.stub.StreamObserver;
  * Observer that signals conditions when methods are called.
  */
 public class TestStreamObserver<T> implements StreamObserver<T> {
-	public final CallSync.Accept<T> next = CallSync.consumer(null, true);
-	public final CallSync.Run completed = CallSync.runnable(true);
-	public final CallSync.Accept<Throwable> error = CallSync.consumer(null, true);
+	public final CallSync.Consumer<T> next = CallSync.consumer(null, true);
+	public final CallSync.Runnable completed = CallSync.runnable(true);
+	public final CallSync.Consumer<Throwable> error = CallSync.consumer(null, true);
 
 	public static <T> TestStreamObserver<T> of() {
 		return new TestStreamObserver<>();
@@ -18,9 +18,7 @@ public class TestStreamObserver<T> implements StreamObserver<T> {
 	private TestStreamObserver() {}
 
 	public void reset() {
-		next.reset();
-		completed.reset();
-		error.reset();
+		CallSync.resetAll(next, completed, error);
 	}
 
 	@Override

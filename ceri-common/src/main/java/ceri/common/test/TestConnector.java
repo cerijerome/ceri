@@ -15,11 +15,11 @@ import ceri.common.text.ToString;
  * (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for feed data to be
  * read.
  */
-public class TestConnector implements AutoCloseable, Listenable.Indirect<StateChange> {
+public class TestConnector implements AutoCloseable, StateChange.Fixable {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
-	public final CallSync.Accept<Boolean> connect = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> broken = CallSync.consumer(false, true);
-	public final CallSync.Run close = CallSync.runnable(true);
+	public final CallSync.Consumer<Boolean> open = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> broken = CallSync.consumer(false, true);
+	public final CallSync.Runnable close = CallSync.runnable(true);
 	public final TestInputStream in;
 	public final TestOutputStream out;
 	private final InputStream wrappedIn;
@@ -50,8 +50,7 @@ public class TestConnector implements AutoCloseable, Listenable.Indirect<StateCh
 	 */
 	public void reset() {
 		listeners.clear();
-		broken.reset();
-		connect.reset();
+		CallSync.resetAll(broken, open);
 		in.resetState();
 		out.resetState();
 	}
@@ -61,20 +60,21 @@ public class TestConnector implements AutoCloseable, Listenable.Indirect<StateCh
 		return listeners;
 	}
 
+	@Override
 	public void broken() {
 		if (!broken.value()) listeners.accept(StateChange.broken);
 		broken.accept(true);
-		connect.value(false);
+		open.value(false);
 	}
 
 	public void fixed() {
-		connect.value(true); // don't signal call
+		open.value(true); // don't signal call
 		if (broken.value()) listeners.accept(StateChange.fixed);
 		broken.accept(false);
 	}
 
-	public void connect() throws IOException {
-		connect.accept(true, IO_ADAPTER);
+	public void open() throws IOException {
+		open.accept(true, IO_ADAPTER);
 		verifyUnbroken();
 	}
 
@@ -94,7 +94,7 @@ public class TestConnector implements AutoCloseable, Listenable.Indirect<StateCh
 
 	@Override
 	public void close() throws IOException {
-		connect.value(false);
+		open.value(false);
 		in.close();
 		out.close();
 		close.run(IO_ADAPTER);
@@ -106,7 +106,7 @@ public class TestConnector implements AutoCloseable, Listenable.Indirect<StateCh
 	@Override
 	public String toString() {
 		return ToString.ofClass(this, listeners.size())
-			.children("broken=" + broken, "connect=" + connect, "in=" + in, "out=" + out)
+			.children("broken=" + broken, "open=" + open, "in=" + in, "out=" + out)
 			.toString();
 	}
 
@@ -138,7 +138,7 @@ public class TestConnector implements AutoCloseable, Listenable.Indirect<StateCh
 
 	protected void verifyConnected() throws IOException {
 		verifyUnbroken();
-		if (!connect.value()) throw new IOException("Not connected");
+		if (!open.value()) throw new IOException("Not connected");
 	}
 
 	protected void verifyUnbroken() throws IOException {

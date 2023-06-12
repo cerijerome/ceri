@@ -349,6 +349,7 @@ public class IoUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testExecOrClose() throws IOException {
+		assertEquals(IoUtil.execOrClose(null, InputStream::close), null);
 		TestInputStream in = TestInputStream.of();
 		assertEquals(IoUtil.execOrClose(in, InputStream::close), in);
 		in.close.error.setFrom(IOX);
@@ -370,6 +371,16 @@ public class IoUtilTest {
 			throw new IOException();
 		};
 		assertFalse(IoUtil.close(closeable));
+	}
+
+	@Test
+	public void testCloseWithInterrupt() {
+		@SuppressWarnings("resource")
+		AutoCloseable closeable = () -> {
+			throw new InterruptedException();
+		};
+		assertFalse(IoUtil.close(closeable));
+		assertTrue(Thread.interrupted());
 	}
 
 	@Test

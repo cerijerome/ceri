@@ -18,8 +18,8 @@ import io.grpc.stub.StreamObserver;
 public class RpcClientNotifierBehavior {
 	private final RpcClientNotifierConfig config = RpcClientNotifierConfig.of(1);
 	private TestStreamObserver<Empty> serverControl;
-	private CallSync.Apply<StreamObserver<String>, StreamObserver<Empty>> serverCall;
-	private CallSync.Apply<String, Integer> transform;
+	private CallSync.Function<StreamObserver<String>, StreamObserver<Empty>> serverCall;
+	private CallSync.Function<String, Integer> transform;
 	private RpcClientNotifier<Integer, String> notifier;
 
 	@Before
@@ -38,7 +38,7 @@ public class RpcClientNotifierBehavior {
 	@Test
 	public void shouldReconnectOnServerCompletion() {
 		StreamObserver<String> clientControl = null;
-		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
 		try (var enc = notifier.enclose(sync::accept)) {
 			// starts listening
 			clientControl = serverCall.awaitAuto(); // start streaming
@@ -54,7 +54,7 @@ public class RpcClientNotifierBehavior {
 
 	@Test
 	public void shouldReconnectOnServerError() {
-		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
 		LogModifier.run(() -> {
 			try (var enc = notifier.enclose(sync::accept)) {
 				// starts listening
@@ -71,7 +71,7 @@ public class RpcClientNotifierBehavior {
 	@Test
 	public void shouldClearListeners() {
 		notifier.clear(); // does nothing
-		CallSync.Accept<Integer> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
 		try (var enc = notifier.enclose(sync::accept)) {
 			notifier.clear();
 		}
@@ -79,8 +79,8 @@ public class RpcClientNotifierBehavior {
 
 	@Test
 	public void shouldListenAndUnlisten() {
-		CallSync.Accept<Integer> sync0 = CallSync.consumer(null, true);
-		CallSync.Accept<Integer> sync1 = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> sync0 = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> sync1 = CallSync.consumer(null, true);
 		Consumer<Integer> listener0 = sync0::accept;
 		Consumer<Integer> listener1 = sync1::accept;
 		assertTrue(notifier.listen(listener0));

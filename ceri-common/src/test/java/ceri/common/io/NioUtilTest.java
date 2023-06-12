@@ -31,7 +31,7 @@ public class NioUtilTest {
 	public void testSelectKeys() throws IOException, InterruptedException {
 		TestKeySet keys = new TestKeySet(key0, key1, key2);
 		selector.selectedKeys.autoResponses(keys);
-		CallSync.Accept<SelectionKey> consumer = CallSync.consumer(null, true);
+		CallSync.Consumer<SelectionKey> consumer = CallSync.consumer(null, true);
 		NioUtil.selectKeys(selector, k -> consumer.accept(k, IO_ADAPTER));
 		consumer.assertValues(key0, key1, key2);
 		assertEquals(keys.isEmpty(), true);
@@ -61,7 +61,7 @@ public class NioUtilTest {
 	public static class TestKey extends SelectionKey {
 		private final Selector selector;
 		private final SelectableChannel channel;
-		public final CallSync.Get<Integer> readyOps = CallSync.supplier(0);
+		public final CallSync.Supplier<Integer> readyOps = CallSync.supplier(0);
 		private int interestOps = 0;
 
 		public TestKey(Selector selector, SelectableChannel channel) {
@@ -107,10 +107,10 @@ public class NioUtilTest {
 	public static class TestSelector extends Selector {
 		private final SelectorProvider provider;
 		private final Set<SelectionKey> keys;
-		public final CallSync.Run wakeUp = CallSync.runnable(true);
-		public final CallSync.Apply<Long, Integer> select = CallSync.function(0L, 0);
-		public final CallSync.Get<Integer> selectNow = CallSync.supplier(0);
-		public final CallSync.Get<Set<SelectionKey>> selectedKeys = CallSync.supplier(Set.of());
+		public final CallSync.Runnable wakeUp = CallSync.runnable(true);
+		public final CallSync.Function<Long, Integer> select = CallSync.function(0L, 0);
+		public final CallSync.Supplier<Integer> selectNow = CallSync.supplier(0);
+		public final CallSync.Supplier<Set<SelectionKey>> selectedKeys = CallSync.supplier(Set.of());
 		public boolean open = true;
 
 		public TestSelector(SelectorProvider provider, Set<SelectionKey> keys) {

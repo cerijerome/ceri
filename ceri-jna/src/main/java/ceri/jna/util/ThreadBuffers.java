@@ -12,13 +12,13 @@ import ceri.common.function.RuntimeCloseable;
  * A class that provides resizable thread-local buffers.
  */
 public class ThreadBuffers implements RuntimeCloseable {
-	private static final int BUFFER_SIZE = 1024;
+	public static final int SIZE_DEF = 1024;
 	private final WeakHashMap<Thread, Memory> buffers = new WeakHashMap<>();
 	private final Lock lock;
-	private volatile long size = BUFFER_SIZE;
+	private volatile long size = SIZE_DEF;
 
 	public static ThreadBuffers of() {
-		return of(BUFFER_SIZE);
+		return of(SIZE_DEF);
 	}
 
 	public static ThreadBuffers of(long size) {

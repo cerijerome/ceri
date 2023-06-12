@@ -34,9 +34,9 @@ public class TestObserverBehavior {
 		observer.onCompleted();
 		observer.onError(new IOException());
 		observer.reset();
-		observer.next.assertNoCall();
-		observer.completed.assertNoCall();
-		observer.error.assertNoCall();
+		observer.next.assertCalls(0);
+		observer.completed.assertCalls(0);
+		observer.error.assertCalls(0);
 	}
 
 	// @Test

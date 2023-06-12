@@ -95,7 +95,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldApplyRemainingTime() throws Exception {
-		CallSync.Accept<Long> consumer = CallSync.consumer(null, true);
+		CallSync.Consumer<Long> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemaining(consumer::accept);
 		Timer.of(0, millis).applyRemaining(consumer::accept);
 		consumer.assertCalls(0);
@@ -105,7 +105,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldApplyRemainingIntTime() throws Exception {
-		CallSync.Accept<Integer> consumer = CallSync.consumer(null, true);
+		CallSync.Consumer<Integer> consumer = CallSync.consumer(null, true);
 		Timer.INFINITE.applyRemainingInt(consumer::accept);
 		Timer.of(0, millis).applyRemainingInt(consumer::accept);
 		consumer.assertCalls(0);

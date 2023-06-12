@@ -12,7 +12,7 @@ import java.nio.file.WatchService;
 import ceri.common.test.CallSync;
 
 public class TestPath implements Path {
-	public final CallSync.Get<Path> normalize = CallSync.supplier(this);
+	public final CallSync.Supplier<Path> normalize = CallSync.supplier(this);
 
 	public static TestPath of() {
 		return new TestPath();

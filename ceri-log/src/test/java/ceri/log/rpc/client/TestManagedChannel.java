@@ -9,9 +9,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.MethodDescriptor;
 
 public class TestManagedChannel extends ManagedChannel {
-	public final CallSync.Get<String> authority = CallSync.supplier("");
-	public final CallSync.Accept<Boolean> shutdown = CallSync.consumer(false, true);
-	public final CallSync.Apply<Timeout, Boolean> awaitTermination =
+	public final CallSync.Supplier<String> authority = CallSync.supplier("");
+	public final CallSync.Consumer<Boolean> shutdown = CallSync.consumer(false, true);
+	public final CallSync.Function<Timeout, Boolean> awaitTermination =
 		CallSync.function(null, true);
 
 	public static TestManagedChannel of() {

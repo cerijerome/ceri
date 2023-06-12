@@ -28,8 +28,8 @@ import java.util.List;
 import ceri.common.test.CallSync;
 
 public class TestPreparedStatement implements PreparedStatement {
-	public final CallSync.Run close = CallSync.runnable(true);
-	public final CallSync.Accept<List<?>> setObject = CallSync.consumer(null, true);
+	public final CallSync.Runnable close = CallSync.runnable(true);
+	public final CallSync.Consumer<List<?>> setObject = CallSync.consumer(null, true);
 
 	public static TestPreparedStatement of() {
 		return new TestPreparedStatement();

@@ -36,7 +36,7 @@ public class TypedPipeBehavior {
 
 	@Test
 	public void shouldAwaitRead() {
-		CallSync.Get<Integer> available = CallSync.supplier();
+		CallSync.Supplier<Integer> available = CallSync.supplier();
 		var in = new TypedPipe.In<String>(null) {
 			@Override
 			public int available() {

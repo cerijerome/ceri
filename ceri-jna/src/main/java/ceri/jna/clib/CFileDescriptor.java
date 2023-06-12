@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntUnaryOperator;
+import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.RegexUtil;
 import ceri.jna.clib.jna.CError;
@@ -83,8 +83,8 @@ public class CFileDescriptor implements FileDescriptor {
 	 */
 	public static CFileDescriptor open(String path, Mode mode, Collection<OpenFlag> flags)
 		throws IOException {
-		return new CFileDescriptor(mode == null ? CFcntl.open(path, OpenFlag.encode(flags))
-			: CFcntl.open(path, OpenFlag.encode(flags), mode.value()));
+		return new CFileDescriptor(mode == null ? CFcntl.open(path, OpenFlag.encode(flags)) :
+			CFcntl.open(path, OpenFlag.encode(flags), mode.value()));
 	}
 
 	/**
@@ -122,8 +122,8 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public <E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator) throws E {
-		return operator.applyAsInt(fd());
+	public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
+		return function.apply(fd());
 	}
 
 	@Override

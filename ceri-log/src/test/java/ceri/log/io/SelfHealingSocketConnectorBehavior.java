@@ -54,7 +54,7 @@ public class SelfHealingSocketConnectorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteData() throws IOException {
-		con.connect();
+		con.open();
 		con.out().write(ArrayUtil.bytes(1, 2, 3));
 		assertRead(socket.out.from, 1, 2, 3);
 	}
@@ -62,7 +62,7 @@ public class SelfHealingSocketConnectorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldReadData() throws IOException {
-		con.connect();
+		con.open();
 		socket.in.to.writeBytes(1, 2, 3);
 		assertRead(con.in(), 1, 2, 3);
 	}
@@ -71,7 +71,7 @@ public class SelfHealingSocketConnectorBehavior {
 	public void shouldRetryOnConnectError() {
 		LogModifier.run(() -> {
 			socket.remote.error.setFrom(IOX);
-			assertThrown(con::connect);
+			assertThrown(con::open);
 			socket.remote.assertAuto(HostPort.of("test", 123));
 			socket.remote.assertAuto(HostPort.of("test", 123));
 			socket.remote.assertAuto(HostPort.of("test", 123));
@@ -90,7 +90,7 @@ public class SelfHealingSocketConnectorBehavior {
 	@Test
 	public void shouldLogOnNotifyError() {
 		LogModifier.run(() -> {
-			CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 			sync.error.setFrom(RTX);
 			try (var enc = con.listeners().enclose(sync::accept)) {
 				con.broken(); // error logged
@@ -101,7 +101,7 @@ public class SelfHealingSocketConnectorBehavior {
 
 	@Test
 	public void shouldStopOnNotifyInterrupt() {
-		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		sync.error.setFrom(RIX);
 		try (var enc = con.listeners().enclose(sync::accept)) {
 			assertThrown(RuntimeInterruptedException.class, con::broken);
@@ -113,7 +113,7 @@ public class SelfHealingSocketConnectorBehavior {
 	@Test
 	public void shouldBreakOnIoError() throws InterruptedException, IOException {
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		con.connect();
+		con.open();
 		socket.in.to.writeBytes(0, 0, 0);
 		LogModifier.run(() -> {
 			try (var enc = con.listeners().enclose(sync::signal)) {

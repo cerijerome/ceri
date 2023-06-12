@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import ceri.common.test.CallSync;
 
 public class TestResultSetMetaData implements ResultSetMetaData {
-	public final CallSync.Apply<Integer, Integer> getColumnType = CallSync.function(null);
+	public final CallSync.Function<Integer, Integer> getColumnType = CallSync.function(null);
 
 	public static TestResultSetMetaData of() {
 		return new TestResultSetMetaData();

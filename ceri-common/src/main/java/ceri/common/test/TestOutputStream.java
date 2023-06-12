@@ -19,9 +19,9 @@ import ceri.common.text.ToString;
 public class TestOutputStream extends OutputStream {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;
-	public final CallSync.Accept<Bytes> write = CallSync.consumer(null, true);
-	public final CallSync.Run flush = CallSync.runnable(true);
-	public final CallSync.Run close = CallSync.runnable(true);
+	public final CallSync.Consumer<Bytes> write = CallSync.consumer(null, true);
+	public final CallSync.Runnable flush = CallSync.runnable(true);
+	public final CallSync.Runnable close = CallSync.runnable(true);
 	public final ByteStream.Reader from; // read from output
 
 	public static TestOutputStream of() {
@@ -39,9 +39,7 @@ public class TestOutputStream extends OutputStream {
 	}
 
 	public void resetState() {
-		write.reset();
-		flush.reset();
-		close.reset();
+		CallSync.resetAll(write, flush, close);
 		execSilently(piped::clear);
 	}
 

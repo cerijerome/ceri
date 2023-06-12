@@ -27,7 +27,7 @@ public class TestFileDescriptorBehavior {
 
 	@Test
 	public void shouldApplyFdFunction() {
-		assertEquals(fd.applyAsInt(f -> {
+		assertEquals(fd.apply(f -> {
 			assertEquals(f, 33);
 			return 77;
 		}), 77);
@@ -38,7 +38,7 @@ public class TestFileDescriptorBehavior {
 		fd.fd.error.setFrom(IOException::new);
 		assertThrown(() -> fd.fd());
 		assertThrown(() -> fd.accept(f -> {}));
-		assertThrown(() -> fd.applyAsInt(f -> 0));
+		assertThrown(() -> fd.apply(f -> 0));
 	}
 
 }

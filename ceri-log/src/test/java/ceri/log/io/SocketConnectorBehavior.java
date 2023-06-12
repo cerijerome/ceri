@@ -1,7 +1,6 @@
 package ceri.log.io;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,18 +14,18 @@ public class SocketConnectorBehavior {
 	@Test
 	public void shouldProvideDefaultBroken() throws IOException {
 		try (var con = new ExampleConnector()) {
-			assertThrown(con::broken);
+			con.broken(); // do nothing
 		}
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideNullImplementation() throws IOException {
-		try (var con = SocketConnector.ofNull()) {
+		try (var con = SocketConnector.NULL) {
 			assertEquals(con.hostPort(), HostPort.NULL);
 			con.listeners().listen(x -> {});
 			con.broken();
-			con.connect();
+			con.open();
 			con.in().read();
 			con.out().write(0);
 		}
@@ -40,7 +39,7 @@ public class SocketConnectorBehavior {
 		}
 
 		@Override
-		public void connect() throws IOException {}
+		public void open() throws IOException {}
 
 		@Override
 		public HostPort hostPort() {

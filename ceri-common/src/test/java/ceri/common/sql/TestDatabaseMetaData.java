@@ -11,7 +11,7 @@ import java.util.List;
 import ceri.common.test.CallSync;
 
 public class TestDatabaseMetaData implements DatabaseMetaData {
-	public final CallSync.Apply<List<?>, ResultSet> getTables = CallSync.function(null);
+	public final CallSync.Function<List<?>, ResultSet> getTables = CallSync.function(null);
 
 	public static TestDatabaseMetaData of() {
 		return new TestDatabaseMetaData();

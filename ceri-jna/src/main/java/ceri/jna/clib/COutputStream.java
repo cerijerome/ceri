@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
@@ -32,6 +33,13 @@ public class COutputStream extends OutputStream {
 		buffers.size(size);
 	}
 
+	/**
+	 * Returns the number of bytes in the output queue.
+	 */
+	public int queued() throws IOException {
+		return CIoctl.tiocoutq(fd);
+	}
+	
 	@Override
 	public void write(int b) throws IOException {
 		ensureOpen();

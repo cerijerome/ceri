@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.exception.ExceptionAdapter;
@@ -26,7 +23,6 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.ToString;
-import ceri.common.util.Counter;
 import ceri.common.util.Holder;
 
 /**
@@ -36,58 +32,72 @@ import ceri.common.util.Holder;
  * calls are missed by the test class.
  */
 public abstract class CallSync<T, R> {
+	private static final boolean SAVE_VALUES_DEF = true;
 	private final Lock lock = new ReentrantLock();
 	public final ErrorGen error = ErrorGen.of();
 	private final ValueCondition<Holder<T>> callSync = ValueCondition.of(lock);
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
 	private final List<T> values = new ArrayList<>();
-	private Function<T, R> autoResponseFn = null;
+	private final T originalValueDef;
+	private final java.util.function.Supplier //
+	<java.util.function.Function<T, R>> originalAutoResponseSupplier;
 	private T valueDef;
+	private java.util.function.Function<T, R> autoResponseFn = null; // can be stateful
 	private int calls = 0;
-	private boolean saveValues = true;
+	private boolean saveValues = SAVE_VALUES_DEF;
+
+	/**
+	 * Resets all the given instances.
+	 */
+	public static void resetAll(CallSync<?, ?>... callSyncs) {
+		for (var callSync : callSyncs)
+			callSync.reset();
+	}
 
 	/**
 	 * Creates a synchronizing function.
 	 */
 	@SafeVarargs
-	public static <T, R> Apply<T, R> function(T valueDef, R... autoResponses) {
-		return new Apply<T, R>(valueDef).autoResponses(autoResponses);
+	public static <T, R> Function<T, R> function(T valueDef, R... autoResponses) {
+		return new Function<>(valueDef, autoResponses);
 	}
 
 	/**
 	 * Creates a synchronizing consumer.
 	 */
-	public static <T> Accept<T> consumer(T valueDef, boolean autoResponse) {
-		return new Accept<>(valueDef).autoResponse(autoResponse);
+	public static <T> Consumer<T> consumer(T valueDef, boolean autoResponse) {
+		return new Consumer<>(valueDef, autoResponse);
 	}
 
 	/**
 	 * Creates a synchronizing supplier.
 	 */
 	@SafeVarargs
-	public static <R> Get<R> supplier(R... autoResponses) {
-		return new Get<R>().autoResponses(autoResponses);
+	public static <R> Supplier<R> supplier(R... autoResponses) {
+		return new Supplier<>(autoResponses);
 	}
 
 	/**
 	 * Creates a synchronizing runnable.
 	 */
-	public static Run runnable(boolean autoResponse) {
-		return new Run().autoResponse(autoResponse);
+	public static Runnable runnable(boolean autoResponse) {
+		return new Runnable(autoResponse);
 	}
 
 	/**
 	 * Sub-class for a function call.
 	 */
-	public static class Apply<T, R> extends CallSync<T, R> implements Function<T, R> {
-		protected Apply(T valueDef) {
-			super(valueDef);
+	public static class Function<T, R> extends CallSync<T, R>
+		implements java.util.function.Function<T, R> {
+
+		private Function(T valueDef, R[] autoResponses) {
+			super(valueDef, () -> toAutoResponseFn(autoResponses));
 		}
 
 		/**
 		 * Set the default value.
 		 */
-		public Apply<T, R> valueDef(T value) {
+		public Function<T, R> valueDef(T value) {
 			super.valueDef(value);
 			return this;
 		}
@@ -102,7 +112,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Sets the call value without signaling.
 		 */
-		public Apply<T, R> value(T value) {
+		public Function<T, R> value(T value) {
 			super.setValue(value);
 			return this;
 		}
@@ -118,15 +128,14 @@ public abstract class CallSync<T, R> {
 		 * Sets auto response values. The last value repeats.
 		 */
 		@SafeVarargs
-		public final Apply<T, R> autoResponses(R... responses) {
-			Supplier<R> supplier = sequentialSupplier(responses);
-			return autoResponse(supplier != null ? x -> supplier.get() : null);
+		public final Function<T, R> autoResponses(R... responses) {
+			return autoResponse(toAutoResponseFn(responses));
 		}
 
 		/**
 		 * Sets the auto response function. Use null to disable.
 		 */
-		public Apply<T, R> autoResponse(Function<T, R> autoResponseFn) {
+		public Function<T, R> autoResponse(java.util.function.Function<T, R> autoResponseFn) {
 			super.autoResponseFn(autoResponseFn);
 			return this;
 		}
@@ -226,15 +235,17 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a consumer call.
 	 */
-	public static class Accept<T> extends CallSync<T, Object> implements Consumer<T> {
-		protected Accept(T valueDef) {
-			super(valueDef);
+	public static class Consumer<T> extends CallSync<T, Object>
+		implements java.util.function.Consumer<T> {
+
+		private Consumer(T valueDef, boolean autoResponse) {
+			super(valueDef, () -> toAutoResponseFn(autoResponse));
 		}
 
 		/**
 		 * Set the default value.
 		 */
-		public Accept<T> valueDef(T value) {
+		public Consumer<T> valueDef(T value) {
 			super.valueDef(value);
 			return this;
 		}
@@ -249,7 +260,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Sets the call value without signaling.
 		 */
-		public Accept<T> value(T value) {
+		public Consumer<T> value(T value) {
 			super.setValue(value);
 			return this;
 		}
@@ -264,8 +275,8 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Enables auto response.
 		 */
-		public Accept<T> autoResponse(boolean enabled) {
-			super.autoResponseFn(enabled ? t -> null : null);
+		public Consumer<T> autoResponse(boolean enabled) {
+			super.autoResponseFn(toAutoResponseFn(enabled));
 			return this;
 		}
 
@@ -367,26 +378,26 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a supplier call.
 	 */
-	public static class Get<R> extends CallSync<Object, R> implements Supplier<R> {
-		protected Get() {
-			super(null);
+	public static class Supplier<R> extends CallSync<Object, R>
+		implements java.util.function.Supplier<R> {
+
+		private Supplier(R[] autoResponses) {
+			super(null, () -> toAutoResponseFn(autoResponses));
 		}
 
 		/**
 		 * Sets auto response values. The last value repeats.
 		 */
 		@SafeVarargs
-		public final Get<R> autoResponses(R... responses) {
-			if (responses.length == 0) return autoResponse(null);
-			if (responses.length == 1) return autoResponse(() -> responses[0]);
-			Counter counter = Counter.of();
-			return autoResponse(() -> responses[Math.min(counter.intInc(), responses.length) - 1]);
+		public final Supplier<R> autoResponses(R... responses) {
+			super.autoResponseFn(toAutoResponseFn(responses));
+			return this;
 		}
 
 		/**
 		 * Sets the auto response supplier. Use null to disable.
 		 */
-		public Get<R> autoResponse(Supplier<R> autoResponseFn) {
+		public Supplier<R> autoResponse(java.util.function.Supplier<R> autoResponseFn) {
 			super.autoResponseFn(autoResponseFn != null ? t -> autoResponseFn.get() : null);
 			return this;
 		}
@@ -453,16 +464,17 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a runnable call.
 	 */
-	public static class Run extends CallSync<Object, Object> implements Runnable {
-		protected Run() {
-			super(null);
+	public static class Runnable extends CallSync<Object, Object> implements java.lang.Runnable {
+
+		private Runnable(boolean autoResponse) {
+			super(null, () -> toAutoResponseFn(autoResponse));
 		}
 
 		/**
 		 * Enables/disables auto response.
 		 */
-		public Run autoResponse(boolean enabled) {
-			super.autoResponseFn(enabled ? t -> null : null);
+		public Runnable autoResponse(boolean enabled) {
+			super.autoResponseFn(toAutoResponseFn(enabled));
 			return this;
 		}
 
@@ -528,22 +540,35 @@ public abstract class CallSync<T, R> {
 		}
 	}
 
-	protected CallSync(T valueDef) {
-		valueDef(valueDef);
-		reset();
+	protected CallSync(T valueDef,
+		java.util.function.Supplier<java.util.function.Function<T, R>> autoResponseSupplier) {
+		originalValueDef = valueDef;
+		this.valueDef = valueDef;
+		originalAutoResponseSupplier = autoResponseSupplier;
+		this.autoResponseFn = autoResponseSupplier.get();
 	}
 
 	/**
-	 * Reset state. Does not change auto response or default value.
+	 * Reset state, which includes setting the original default value and auto-response.
 	 */
 	public void reset() {
 		execute(lock, () -> {
-			calls = 0;
-			values.clear();
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
+			values.clear();
+			valueDef = originalValueDef;
+			autoResponseFn = originalAutoResponseSupplier.get();
+			calls = 0;
+			saveValues = SAVE_VALUES_DEF;
 		});
+	}
+
+	/**
+	 * Returns true if auto-response is enabled.
+	 */
+	public boolean autoResponseEnabled() {
+		return executeGet(lock, () -> autoResponseFn) != null;
 	}
 
 	/**
@@ -637,7 +662,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
-	private void autoResponseFn(Function<T, R> autoResponseFn) {
+	private void autoResponseFn(java.util.function.Function<T, R> autoResponseFn) {
 		execute(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
@@ -723,4 +748,12 @@ public abstract class CallSync<T, R> {
 		return executeGetInterruptible(responseSync::await).value();
 	}
 
+	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(boolean enabled) {
+		return enabled ? t -> null : null;
+	}
+
+	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(R[] responses) {
+		var supplier = sequentialSupplier(responses);
+		return supplier != null ? x -> supplier.get() : null;
+	}
 }

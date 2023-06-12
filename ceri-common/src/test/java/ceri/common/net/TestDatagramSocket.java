@@ -9,9 +9,9 @@ import java.net.SocketException;
 import ceri.common.test.CallSync;
 
 public class TestDatagramSocket extends DatagramSocket {
-	public final CallSync.Get<InetAddress> getInetAddress = CallSync.supplier();
-	public final CallSync.Get<Integer> getPort = CallSync.supplier(0);
-	public final CallSync.Accept<DatagramPacket> receive = CallSync.consumer(null, true);
+	public final CallSync.Supplier<InetAddress> getInetAddress = CallSync.supplier();
+	public final CallSync.Supplier<Integer> getPort = CallSync.supplier(0);
+	public final CallSync.Consumer<DatagramPacket> receive = CallSync.consumer(null, true);
 
 	public static TestDatagramSocket of() throws SocketException {
 		return new TestDatagramSocket();

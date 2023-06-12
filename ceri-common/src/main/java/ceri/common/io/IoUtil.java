@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
@@ -332,6 +333,9 @@ public class IoUtil {
 		try {
 			closeable.close();
 			return true;
+		} catch (RuntimeInterruptedException | InterruptedException e) {
+			Thread.currentThread().interrupt(); // reset interrupt since we ignore the exception
+			return false;
 		} catch (Exception e) {
 			return false;
 		}

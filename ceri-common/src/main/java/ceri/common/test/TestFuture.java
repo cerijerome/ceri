@@ -8,7 +8,7 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.time.Timeout;
 
 public class TestFuture<T> extends FutureTask<T> {
-	public final CallSync.Apply<Timeout, T> get = CallSync.function(null);
+	public final CallSync.Function<Timeout, T> get = CallSync.function(null);
 
 	@SafeVarargs
 	public static <T> TestFuture<T> of(T... results) {

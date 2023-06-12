@@ -11,9 +11,9 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntUnaryOperator;
-import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.ExceptionIntFunction;
 import ceri.common.io.ReplaceableInputStream;
 import ceri.common.io.ReplaceableOutputStream;
 import ceri.common.io.StateChange;
@@ -26,8 +26,7 @@ import ceri.log.util.LogUtil;
  * A self-healing file descriptor. It will automatically be reopened if the resource becomes
  * inaccessible, then accessible again.
  */
-public class SelfHealingFd extends LoopingExecutor
-	implements FileDescriptor, Listenable.Indirect<StateChange> {
+public class SelfHealingFd extends LoopingExecutor implements FileDescriptor, StateChange.Fixable {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingFdConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
@@ -47,10 +46,7 @@ public class SelfHealingFd extends LoopingExecutor
 		start();
 	}
 
-	/**
-	 * Manually notify the file descriptor it is broken. Useful when unable to determine if broken
-	 * from IOExceptions alone.
-	 */
+	@Override
 	public void broken() {
 		setBroken();
 	}
@@ -92,15 +88,15 @@ public class SelfHealingFd extends LoopingExecutor
 
 	@Override
 	public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {
-		execInt(fd -> {
+		exec(fd -> {
 			fd.accept(consumer);
-			return 0;
+			return null;
 		});
 	}
 
 	@Override
-	public <E extends Exception> int applyAsInt(ExceptionIntUnaryOperator<E> operator) throws E {
-		return execInt(fd -> fd.applyAsInt(operator));
+	public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
+		return exec(fd -> fd.apply(function));
 	}
 
 	@Override
@@ -110,10 +106,9 @@ public class SelfHealingFd extends LoopingExecutor
 	}
 
 	@SuppressWarnings("resource")
-	private <E extends Exception> int execInt(ExceptionToIntFunction<E, FileDescriptor> fn)
-		throws E {
+	private <E extends Exception, T> T exec(ExceptionFunction<E, FileDescriptor, T> fn) throws E {
 		try {
-			return fn.applyAsInt(fileDescriptor());
+			return fn.apply(fileDescriptor());
 		} catch (RuntimeException e) {
 			checkIfBroken(e);
 			throw e;
@@ -164,11 +159,7 @@ public class SelfHealingFd extends LoopingExecutor
 	}
 
 	private void checkIfBroken(Exception e) {
-		if (
-			!config.brokenPredicate.test(e)
-			||
-			sync.isSet())
-			return;
+		if (!config.brokenPredicate.test(e) || sync.isSet()) return;
 		setBroken();
 	}
 

@@ -30,7 +30,7 @@ public class TestConnectorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldEchoToInput() throws IOException {
-		con.connect();
+		con.open();
 		TestConnector.echo(con, bytes(1, 2, 3, 4, 5), 1, 3);
 		assertEquals(con.in().available(), 3);
 		assertRead(con.in(), 2, 3, 4);
@@ -105,7 +105,7 @@ public class TestConnectorBehavior {
 		con.in.read.error.setFrom(IOX);
 		con.out.write.error.setFrom(IOX);
 		con.reset();
-		con.connect();
+		con.open();
 		con.in.to.writeBytes(0);
 		con.in().available();
 		con.in().read();
