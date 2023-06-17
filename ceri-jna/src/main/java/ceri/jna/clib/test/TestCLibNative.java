@@ -41,6 +41,7 @@ public class TestCLibNative implements CLib.Native {
 	// List<?> = String path, int flags, int mode
 	public final CallSync.Consumer<List<?>> open = CallSync.consumer(null, true);
 	public final CallSync.Function<Fd, Integer> close = CallSync.function(null, 0);
+	public final CallSync.Function<Fd, Integer> isatty = CallSync.function(null, 0);
 	public final CallSync.Function<Fd[], Integer> pipe = CallSync.function(null, 0);
 	// List<?> = Fd f, int len
 	public final CallSync.Function<List<?>, ByteProvider> read =
@@ -179,8 +180,8 @@ public class TestCLibNative implements CLib.Native {
 		nextFd.set(1000);
 		fds.clear();
 		env.clear();
-		CallSync.resetAll(open, read, signal, close, pipe, write, lseek, raise, poll, ioctl, fcntl,
-			tc, cf);
+		CallSync.resetAll(open, read, signal, close, isatty, pipe, write, lseek, raise, poll, ioctl,
+			fcntl, tc, cf);
 	}
 
 	@Override
@@ -197,6 +198,11 @@ public class TestCLibNative implements CLib.Native {
 		int result = close.apply(f);
 		fds.remove(f.fd);
 		return result;
+	}
+
+	@Override
+	public int isatty(int fd) {
+		return isatty.apply(fd(fd));
 	}
 
 	@Override

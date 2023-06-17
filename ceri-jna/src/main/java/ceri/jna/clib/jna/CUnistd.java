@@ -17,6 +17,9 @@ import ceri.jna.util.JnaUtil;
 public class CUnistd {
 	private static final Set<Integer> NONBLOCK_ERRORS =
 		CError.codes(CError.EAGAIN, CError.EWOULDBLOCK, CError.EINTR);
+	public static final int STDIN_FILENO = 0;
+	public static final int STDOUT_FILENO = 1;
+	public static final int STDERR_FILENO = 2;
 	/* Constants from <stdio.h> */
 	public static final int SEEK_SET = 0;
 	public static final int SEEK_CUR = 1;
@@ -66,6 +69,13 @@ public class CUnistd {
 				closed = false;
 			}
 		return closed;
+	}
+
+	/**
+	 * Tests whether a file descriptor refers to a terminal
+	 */
+	public static boolean isatty(int fd) throws CException {
+		return caller.verifyInt(() -> lib().isatty(fd), "isatty", fd) == 1;
 	}
 
 	/**

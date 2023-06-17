@@ -1,54 +1,43 @@
 package ceri.jna.clib;
 
-import java.io.Closeable;
-import java.io.InputStream;
-import java.io.OutputStream;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
-import ceri.common.io.IoStreamUtil;
+import ceri.common.io.Connector;
 
 /**
  * Encapsulates a file descriptor as a closable resource.
  */
-public interface FileDescriptor extends Closeable {
+public interface FileDescriptor extends Connector {
+
 	/**
-	 * Provide access to the underlying descriptor.
+	 * Provide access to the underlying descriptor value.
 	 */
 	// int fd() throws IOException;
 
 	/**
-	 * Returns an InputStream for the file descriptor.
-	 */
-	InputStream in();
-
-	/**
-	 * Returns an OutputStream for the file descriptor.
-	 */
-	OutputStream out();
-
-	/**
-	 * Apply the file descriptor.
+	 * Use the file descriptor value.
 	 */
 	<E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E;
 
 	/**
-	 * Apply the file descriptor.
+	 * Use the file descriptor value.
 	 */
 	<T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E;
 
 	/**
-	 * A stateless, no-op instance.
+	 * A file descriptor that is state-aware, with state change notifications.
 	 */
-	FileDescriptor NULL = new FileDescriptor() {
-		@Override
-		public InputStream in() {
-			return IoStreamUtil.nullIn;
-		}
+	interface Fixable extends FileDescriptor, Connector.Fixable {}
 
-		@Override
-		public OutputStream out() {
-			return IoStreamUtil.nullOut;
-		}
+	/**
+	 * A no-op file descriptor instance.
+	 */
+	FileDescriptor.Fixable NULL = new Null();
+
+	/**
+	 * A no-op file descriptor implementation.
+	 */
+	class Null extends Connector.Null implements FileDescriptor.Fixable {
 
 		@Override
 		public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {}
@@ -57,8 +46,5 @@ public interface FileDescriptor extends Closeable {
 		public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
 			return null;
 		}
-
-		@Override
-		public void close() {}
-	};
+	}
 }

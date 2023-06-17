@@ -2,9 +2,11 @@ package ceri.jna.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.jna.clib.OpenFlag.O_CREAT;
 import static ceri.jna.clib.OpenFlag.O_RDWR;
 import java.io.IOException;
@@ -39,6 +41,16 @@ public class CUnistdTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(CUnistd.class);
+	}
+
+	@Test
+	public void testIsatty() throws CException {
+		TestCLibNative.exec(lib -> {
+			int fd = CFcntl.open("test", 0);
+			assertFalse(CUnistd.isatty(fd));
+			lib.isatty.autoResponses(1);
+			assertTrue(CUnistd.isatty(fd));
+		});
 	}
 
 	@Test

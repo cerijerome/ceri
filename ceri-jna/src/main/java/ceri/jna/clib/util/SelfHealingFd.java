@@ -26,7 +26,7 @@ import ceri.log.util.LogUtil;
  * A self-healing file descriptor. It will automatically be reopened if the resource becomes
  * inaccessible, then accessible again.
  */
-public class SelfHealingFd extends LoopingExecutor implements FileDescriptor, StateChange.Fixable {
+public class SelfHealingFd extends LoopingExecutor implements FileDescriptor.Fixable {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingFdConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
@@ -54,6 +54,7 @@ public class SelfHealingFd extends LoopingExecutor implements FileDescriptor, St
 	/**
 	 * Attempts to open the file. On failure, self-healing will kick in.
 	 */
+	@Override
 	public void open() throws IOException {
 		try {
 			initFd();

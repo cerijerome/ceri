@@ -34,6 +34,9 @@ public class CLib {
 		// int close(int fd)
 		int close(int fd) throws LastErrorException;
 
+		// int isatty(int fd)
+		int isatty(int fd); // no LastErrorException; errno is set for 0 case
+		
 		// int pipe(int pipefd[2]);
 		int pipe(int[] pipefd) throws LastErrorException;
 
