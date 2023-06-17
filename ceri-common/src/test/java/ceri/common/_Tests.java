@@ -170,6 +170,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
 	// io
 	ceri.common.io.BufferedOutputStreamBehavior.class, //
+	ceri.common.io.ConnectorBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
@@ -307,16 +308,15 @@ import ceri.common.test.TestUtil;
 	// util
 	ceri.common.util.AlignBehavior.class, //
 	ceri.common.util.BasicUtilTest.class, //
+	ceri.common.util.CloseableUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnclosedBehavior.class, //
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
-	ceri.common.util.KeyValueBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
-	ceri.common.util.SafeBehavior.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	ceri.common.util.ValueCacheBehavior.class, //

@@ -1,11 +1,13 @@
 package ceri.common.util;
 
+import java.util.Arrays;
+import java.util.List;
 import ceri.common.function.ExceptionCloseable;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 
 /**
- * Provides an AutoCloseable type for an object and a given close method on that object.
+ * Provides an AutoCloseable type encapsulating an object and a close method.
  */
 public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	private static final Enclosed<RuntimeException, ?> EMPTY = of(null, null);
@@ -26,6 +28,9 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		return of(subject, null);
 	}
 
+	/**
+	 * Create an instance with a subject, and a close method.
+	 */
 	public static <E extends Exception, T> Enclosed<E, T> of(T subject,
 		ExceptionConsumer<E, T> closer) {
 		return new Enclosed<>(subject, closer);
@@ -36,6 +41,23 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 */
 	public static <E extends Exception> Enclosed<E, ?> of(ExceptionRunnable<E> closer) {
 		return new Enclosed<>(Boolean.TRUE, x -> closer.run());
+	}
+
+	/**
+	 * Create an instance with a collection of AutoCloseables.
+	 */
+	@SafeVarargs
+	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
+		ofAll(T... closeables) {
+		return ofAll(Arrays.asList(closeables));
+	}
+
+	/**
+	 * Create an instance with a collection of AutoCloseables.
+	 */
+	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
+		ofAll(List<T> closeables) {
+		return new Enclosed<>(closeables, CloseableUtil::closeAll);
 	}
 
 	private Enclosed(T subject, ExceptionConsumer<E, T> closer) {

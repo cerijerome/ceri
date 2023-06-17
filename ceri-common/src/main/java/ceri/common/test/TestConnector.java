@@ -4,7 +4,11 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 import ceri.common.event.Listenable;
+import ceri.common.io.Connector;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
@@ -15,7 +19,7 @@ import ceri.common.text.ToString;
  * (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for feed data to be
  * read.
  */
-public class TestConnector implements AutoCloseable, StateChange.Fixable {
+public class TestConnector implements Connector.Fixable {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
 	public final CallSync.Consumer<Boolean> open = CallSync.consumer(false, true);
 	public final CallSync.Consumer<Boolean> broken = CallSync.consumer(false, true);
@@ -26,12 +30,48 @@ public class TestConnector implements AutoCloseable, StateChange.Fixable {
 	private final OutputStream wrappedOut;
 
 	/**
+	 * Manually test a list of connectors.
+	 */
+	public static void manual(Connector... connectors) {
+		manual(Arrays.asList(connectors), null);
+	}
+
+	/**
+	 * Manually test a list of connectors.
+	 */
+	public static void manual(List<? extends Connector> connectors,
+		Consumer<ManualTester.Builder> commandBuilder) {
+		var b = ManualTester.builder(connectors, Connector::name);
+		b.preProcessor(Connector.class, (con, t) -> t.readBytes(con.in()));
+		b.command(Connector.class, "o(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
+			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
+		b.command(Connector.Fixable.class, "z", (m, s, t) -> s.broken(),
+			"z = mark connector as broken");
+		b.command(TestConnector.class, "Z", (m, s, t) -> s.fixed(), "Z = fix the connector");
+		if (commandBuilder != null) commandBuilder.accept(b);
+		var tester = b.build();
+		for (var connector : connectors)
+			if (connector instanceof Connector.Fixable fixable)
+				fixable.listeners().listen(e -> tester.out(fixable.name() + " => " + e));
+		tester.run();
+	}
+
+	/**
 	 * Echo write data to input, consistent with connect/broken states.
 	 */
 	protected static void echo(TestConnector con, byte[] b, int offset, int length)
 		throws IOException {
 		con.verifyConnected();
 		con.in.to.write(b, offset, length);
+	}
+
+	/**
+	 * Write data to another input, consistent with connect/broken states.
+	 */
+	protected static void pair(TestConnector con, TestConnector other, byte[] b, int offset,
+		int length) throws IOException {
+		con.verifyConnected();
+		other.in.to.write(b, offset, length);
 	}
 
 	public static TestConnector of() {
@@ -67,27 +107,27 @@ public class TestConnector implements AutoCloseable, StateChange.Fixable {
 		open.value(false);
 	}
 
+	/**
+	 * Manually mark the connector as fixed.
+	 */
 	public void fixed() {
 		open.value(true); // don't signal call
 		if (broken.value()) listeners.accept(StateChange.fixed);
 		broken.accept(false);
 	}
 
+	@Override
 	public void open() throws IOException {
 		open.accept(true, IO_ADAPTER);
 		verifyUnbroken();
 	}
 
-	/**
-	 * The hardware input stream used by the device controller.
-	 */
+	@Override
 	public InputStream in() {
 		return wrappedIn;
 	}
 
-	/**
-	 * The hardware output stream used by the device controller.
-	 */
+	@Override
 	public OutputStream out() {
 		return wrappedOut;
 	}
@@ -106,8 +146,7 @@ public class TestConnector implements AutoCloseable, StateChange.Fixable {
 	@Override
 	public String toString() {
 		return ToString.ofClass(this, listeners.size())
-			.children("broken=" + broken, "open=" + open, "in=" + in, "out=" + out)
-			.toString();
+			.children("broken=" + broken, "open=" + open, "in=" + in, "out=" + out).toString();
 	}
 
 	/**

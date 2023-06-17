@@ -3,20 +3,8 @@ package ceri.common.io;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import org.junit.Test;
-import ceri.common.event.Listenable;
 
 public class StateChangeBehavior {
-
-	@Test
-	public void testFixable() {
-		var fixable = new StateChange.Fixable() {
-			@Override
-			public Listenable<StateChange> listeners() {
-				return Listenable.ofNull();
-			}
-		};
-		fixable.broken(); // does nothing
-	}
 
 	@Test
 	public void shouldConvertBooleanToStateChange() {

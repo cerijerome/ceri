@@ -17,13 +17,11 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
 import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -344,43 +342,6 @@ public class IoUtilTest {
 		assertFalse(IoUtil.isEmptyDir(helper.path("a")));
 		assertFalse(IoUtil.isEmptyDir(helper.path("a/a/a.txt")));
 		assertTrue(IoUtil.isEmptyDir(helper.path("d")));
-	}
-
-	@SuppressWarnings("resource")
-	@Test
-	public void testExecOrClose() throws IOException {
-		assertEquals(IoUtil.execOrClose(null, InputStream::close), null);
-		TestInputStream in = TestInputStream.of();
-		assertEquals(IoUtil.execOrClose(in, InputStream::close), in);
-		in.close.error.setFrom(IOX);
-		assertThrown(() -> IoUtil.execOrClose(in, InputStream::close));
-	}
-
-	@Test
-	public void testClose() {
-		final StringReader in = new StringReader("0123456789");
-		assertFalse(IoUtil.close(null));
-		assertTrue(IoUtil.close(in));
-		assertThrown(IOException.class, in::read);
-	}
-
-	@Test
-	public void testCloseException() {
-		@SuppressWarnings("resource")
-		Closeable closeable = () -> {
-			throw new IOException();
-		};
-		assertFalse(IoUtil.close(closeable));
-	}
-
-	@Test
-	public void testCloseWithInterrupt() {
-		@SuppressWarnings("resource")
-		AutoCloseable closeable = () -> {
-			throw new InterruptedException();
-		};
-		assertFalse(IoUtil.close(closeable));
-		assertTrue(Thread.interrupted());
 	}
 
 	@Test

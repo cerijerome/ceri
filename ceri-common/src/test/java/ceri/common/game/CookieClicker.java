@@ -7,8 +7,8 @@ import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.InputEvent;
-import ceri.common.util.BasicUtil;
 
 /**
  * Cheating app for Cookie Clicker http://orteil.dashnet.org/cookieclicker/ Clicks the mouse when
@@ -23,13 +23,16 @@ public class CookieClicker {
 	private final int delayMs;
 	private final Dimension screenSize;
 
+	public static void main(String[] args) throws Exception {
+		builder().build().start();
+	}
+
 	public static class Builder {
-		// Rectangle clickArea = new Rectangle(80, 310, 270, 270);
 		Rectangle clickArea = new Rectangle(110, 340, 200, 200);
 		int gcReminderMs = 130000;
-		Rectangle resetArea = new Rectangle(0, 0, 20, 20);
-		Rectangle disableArea = new Rectangle(0, -20, 20, 20);
-		Rectangle exitArea = new Rectangle(-20, -20, 20, 20);
+		Rectangle resetArea = new Rectangle(1420, 880, 20, 20);
+		Rectangle disableArea = new Rectangle(0, 880, 20, 20);
+		Rectangle exitArea = new Rectangle(1420, 0, 20, 20);
 		int delayMs = 50;
 
 		Builder() {}
@@ -107,13 +110,13 @@ public class CookieClicker {
 			} else if (disableArea.contains(p)) {
 				enabled = changeState(enabled, false);
 			} else if (exitArea.contains(p)) {
-				BasicUtil.beep();
+				beep();
 				break;
 			}
 			long t = System.currentTimeMillis();
 			if (enabled && t > gc + gcReminderMs) {
 				gc = t;
-				// BasicUtil.beep();
+				beep();
 			}
 		}
 	}
@@ -125,7 +128,7 @@ public class CookieClicker {
 	}
 
 	private boolean changeState(boolean from, boolean to) {
-		if (from != to) BasicUtil.beep();
+		if (from != to) beep();
 		return to;
 	}
 
@@ -134,8 +137,7 @@ public class CookieClicker {
 			.getSize();
 	}
 
-	public static void main(String[] args) throws Exception {
-		builder().build().start();
+	private static void beep() {
+		Toolkit.getDefaultToolkit().beep();
 	}
-
 }

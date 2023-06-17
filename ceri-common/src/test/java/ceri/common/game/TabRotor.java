@@ -7,9 +7,9 @@ import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import ceri.common.io.IoUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Tab rotator for Chrome and other apps. Uses Robot for opt+cmd+right to advance tabs.
@@ -117,7 +117,7 @@ public class TabRotor {
 			} else if (disableArea.contains(p)) {
 				enabled = changeState(enabled, false);
 			} else if (exitArea.contains(p)) {
-				BasicUtil.beep();
+				beep();
 				break;
 			}
 		}
@@ -156,7 +156,7 @@ public class TabRotor {
 
 	private boolean changeState(boolean from, boolean to) {
 		if (from != to) {
-			BasicUtil.beep();
+			beep();
 			System.out.println(to ? "Enabled" : "Disabled");
 		}
 		return to;
@@ -171,4 +171,7 @@ public class TabRotor {
 		builder().build().start();
 	}
 
+	private static void beep() {
+		Toolkit.getDefaultToolkit().beep();
+	}
 }

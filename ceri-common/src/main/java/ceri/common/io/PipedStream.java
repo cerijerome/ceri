@@ -8,6 +8,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.util.CloseableUtil;
 
 /**
  * Creates a paired PipedInputStream and PipedOutputStream.
@@ -118,7 +119,6 @@ public class PipedStream implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		IoUtil.close(in);
-		IoUtil.close(out);
+		CloseableUtil.closeAll(in, out);
 	}
 }

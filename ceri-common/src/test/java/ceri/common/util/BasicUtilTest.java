@@ -1,6 +1,5 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -15,29 +14,6 @@ public class BasicUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(BasicUtil.class);
-	}
-
-	@Test
-	public void testTryWithResources() {
-		int[] array = { 0, 0, 0 };
-		BasicUtil.tryWithResources(array, t -> t[1] = 1, t -> t[2] = 2);
-		assertArray(array, 0, 1, 2);
-		BasicUtil.tryWithResources((int[]) null, t -> t[1] = 1, t -> t[2] = 2);
-	}
-
-	@Test
-	public void testTryWithResourcesError() {
-		int[] array = { 0, 0, 0 };
-		assertThrown(() -> BasicUtil.tryWithResources(array, t -> {
-			throw new IOException();
-		}, t -> t[2] = 1));
-		assertArray(array, 0, 0, 1);
-	}
-
-	@Test
-	public void testBeep() {
-		// Make sure no error thrown
-		BasicUtil.beep();
 	}
 
 	@Test

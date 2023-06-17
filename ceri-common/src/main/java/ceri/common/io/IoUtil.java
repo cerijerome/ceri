@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
@@ -307,37 +306,6 @@ public class IoUtil {
 		if (dir == null || !Files.isDirectory(dir)) return false;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
 			return !stream.iterator().hasNext();
-		}
-	}
-
-	/**
-	 * Executes an action on the given closable instance; closes the instance if an exception is
-	 * thrown.
-	 */
-	public static <T extends AutoCloseable> T execOrClose(T t,
-		ExceptionConsumer<IOException, T> execFn) throws IOException {
-		try {
-			if (t != null) execFn.accept(t);
-			return t;
-		} catch (RuntimeException | IOException e) {
-			close(t);
-			throw e;
-		}
-	}
-
-	/**
-	 * Closes a closeable stream. Returns false if this resulted in an error.
-	 */
-	public static boolean close(AutoCloseable closeable) {
-		if (closeable == null) return false;
-		try {
-			closeable.close();
-			return true;
-		} catch (RuntimeInterruptedException | InterruptedException e) {
-			Thread.currentThread().interrupt(); // reset interrupt since we ignore the exception
-			return false;
-		} catch (Exception e) {
-			return false;
 		}
 	}
 
@@ -653,8 +621,8 @@ public class IoUtil {
 	 * The pattern is applied against the file name path, not the full path.
 	 */
 	public static List<String> listNames(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null
-			: PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return listNames(dir, filter);
 	}
 
@@ -681,8 +649,8 @@ public class IoUtil {
 	 * pattern is applied against the file name path, not the full path.
 	 */
 	public static List<Path> list(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null
-			: PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
+		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return list(dir, filter);
 	}
 

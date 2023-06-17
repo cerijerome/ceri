@@ -4,7 +4,6 @@
 package ceri.common.util;
 
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 
@@ -29,18 +28,6 @@ public class BasicUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> T uncheckedCast(Object o) {
 		return (T) o;
-	}
-
-	/**
-	 * Executes a try-with-resources from type, action function, and close function.
-	 */
-	public static <E extends Exception, T> void tryWithResources(T t,
-		ExceptionConsumer<E, T> actionFn, ExceptionConsumer<E, T> closeFn) throws E {
-		try {
-			if (t != null) actionFn.accept(t);
-		} finally {
-			if (t != null) closeFn.accept(t);
-		}
 	}
 
 	/**
@@ -77,14 +64,6 @@ public class BasicUtil {
 	 */
 	public static long conditionalLong(boolean condition, long trueValue, long falseValue) {
 		return condition ? trueValue : falseValue;
-	}
-
-	/**
-	 * Make a system beep sound
-	 */
-	public static void beep() {
-		// Disabled to avoid annoying unit test sound...
-		// Toolkit.getDefaultToolkit().beep();
 	}
 
 	/**
