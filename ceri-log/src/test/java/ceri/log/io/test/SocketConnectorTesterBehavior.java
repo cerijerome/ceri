@@ -14,7 +14,7 @@ import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
 import ceri.common.test.TestUtil;
 import ceri.log.concurrent.LoopingExecutor;
-import ceri.log.io.SelfHealingSocketConnector;
+import ceri.log.io.SelfHealingSocket;
 import ceri.log.test.LogModifier;
 
 public class SocketConnectorTesterBehavior {
@@ -49,7 +49,7 @@ public class SocketConnectorTesterBehavior {
 	public void shouldFailWithBadHost() {
 		LogModifier.run(() -> {
 			assertThrown(() -> SocketConnectorTester.test("", 0));
-		}, Level.OFF, SelfHealingSocketConnector.class);
+		}, Level.OFF, SelfHealingSocket.class);
 	}
 
 	@SuppressWarnings("resource")

@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
-import ceri.common.io.IoUtil;
 import ceri.common.text.ToString;
+import ceri.common.util.CloseableUtil;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -23,7 +23,7 @@ public class RpcServer implements RuntimeCloseable {
 	@SuppressWarnings("resource")
 	public static RpcServer start(BindableService service, RpcServerConfig config)
 		throws IOException {
-		return IoUtil.execOrClose(of(service, config), RpcServer::start);
+		return CloseableUtil.execOrClose(of(service, config), RpcServer::start);
 	}
 
 	public static RpcServer of(BindableService service, RpcServerConfig config) {

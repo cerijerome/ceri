@@ -16,7 +16,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.Enclosed;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.io.SelfHealingSocketConfig;
-import ceri.log.io.SelfHealingSocketConnector;
+import ceri.log.io.SelfHealingSocket;
 import ceri.log.io.SocketConnector;
 import ceri.log.util.LogUtil;
 
@@ -42,7 +42,7 @@ public class SocketConnectorTester extends LoopingExecutor {
 
 	public static void test(String host, int port) throws IOException {
 		SelfHealingSocketConfig config = SelfHealingSocketConfig.of(host, port);
-		try (SelfHealingSocketConnector con = SelfHealingSocketConnector.of(config)) {
+		try (SelfHealingSocket con = SelfHealingSocket.of(config)) {
 			con.open();
 			test(con, null);
 		}

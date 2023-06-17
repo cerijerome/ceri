@@ -23,7 +23,7 @@ import ceri.log.util.LogUtil;
 /**
  * A self-healing TCP socket connector. It will automatically reconnect if the connection is broken.
  */
-public class SelfHealingSocketConnector extends LoopingExecutor implements SocketConnector {
+public class SelfHealingSocket extends LoopingExecutor implements SocketConnector {
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingSocketConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
@@ -32,11 +32,11 @@ public class SelfHealingSocketConnector extends LoopingExecutor implements Socke
 	private final BooleanCondition sync = BooleanCondition.of();
 	private volatile Socket socket;
 
-	public static SelfHealingSocketConnector of(SelfHealingSocketConfig config) {
-		return new SelfHealingSocketConnector(config);
+	public static SelfHealingSocket of(SelfHealingSocketConfig config) {
+		return new SelfHealingSocket(config);
 	}
 
-	private SelfHealingSocketConnector(SelfHealingSocketConfig config) {
+	private SelfHealingSocket(SelfHealingSocketConfig config) {
 		this.config = config;
 		in.listeners().listen(this::checkIfBroken);
 		out.listeners().listen(this::checkIfBroken);

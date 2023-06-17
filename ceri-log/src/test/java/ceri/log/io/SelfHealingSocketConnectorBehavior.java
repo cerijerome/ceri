@@ -24,7 +24,7 @@ import ceri.log.test.LogModifier;
 public class SelfHealingSocketConnectorBehavior {
 	private SelfHealingSocketConfig config;
 	private TestSocket socket;
-	private SelfHealingSocketConnector con;
+	private SelfHealingSocket con;
 
 	@Before
 	public void before() {
@@ -33,7 +33,7 @@ public class SelfHealingSocketConnectorBehavior {
 		config = SelfHealingSocketConfig.builder("test", 123)
 			.brokenPredicate(IOException.class::isInstance).fixRetryDelayMs(1).recoveryDelayMs(1)
 			.factory(socket::connect).build();
-		con = SelfHealingSocketConnector.of(config);
+		con = SelfHealingSocket.of(config);
 	}
 
 	@After
@@ -75,7 +75,7 @@ public class SelfHealingSocketConnectorBehavior {
 			socket.remote.assertAuto(HostPort.of("test", 123));
 			socket.remote.assertAuto(HostPort.of("test", 123));
 			socket.remote.assertAuto(HostPort.of("test", 123));
-		}, Level.OFF, SelfHealingSocketConnector.class);
+		}, Level.OFF, SelfHealingSocket.class);
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class SelfHealingSocketConnectorBehavior {
 				con.broken(); // error logged
 				sync.assertAuto(StateChange.broken);
 			}
-		}, Level.OFF, SelfHealingSocketConnector.class);
+		}, Level.OFF, SelfHealingSocket.class);
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class SelfHealingSocketConnectorBehavior {
 				assertThrown(con.in()::read);
 			}
 			con.close(); // prevent logging error
-		}, Level.OFF, SelfHealingSocketConnector.class);
+		}, Level.OFF, SelfHealingSocket.class);
 	}
 
 }
