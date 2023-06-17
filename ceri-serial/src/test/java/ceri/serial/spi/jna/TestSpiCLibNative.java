@@ -34,10 +34,10 @@ public class TestSpiCLibNative extends TestCLibNative {
 	private static final Set<Integer> GET_INT = Set.of(SPI_IOC_RD_MAX_SPEED_HZ, SPI_IOC_RD_MODE32);
 	private static final Set<Integer> SET_INT = Set.of(SPI_IOC_WR_MAX_SPEED_HZ, SPI_IOC_WR_MODE32);
 	// List<?> = int request, [int value]
-	public final CallSync.Apply<List<?>, Integer> ioctlSpiInt = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> ioctlSpiInt = CallSync.function(null, 0);
 	// List<?> = int request, ByteProvider txBytes, int len, int speed_hz, int delay_usecs,
 	// int bits_per_word, int cs_change, int tx_nbits, int rx_nbits
-	public final CallSync.Apply<List<?>, ByteProvider> ioctlSpiMsg =
+	public final CallSync.Function<List<?>, ByteProvider> ioctlSpiMsg =
 		CallSync.function(null, ByteProvider.empty());
 
 	public static TestSpiCLibNative of() {

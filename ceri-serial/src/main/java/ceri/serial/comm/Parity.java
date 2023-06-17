@@ -14,6 +14,17 @@ public enum Parity {
 		TypeTranscoder.of(t -> t.value, Parity.class);
 	public final int value;
 
+	public static Parity from(char c) {
+		return switch(c) {
+			case 'n', 'N' -> none;
+			case 'o', 'O' -> odd;
+			case 'e', 'E' -> even;
+			case 'm', 'M' -> mark;
+			case 's', 'S' -> space;
+			default -> null;
+		};
+	}
+
 	public static Parity from(int value) {
 		return xcoder.decode(value);
 	}

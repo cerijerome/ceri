@@ -1,7 +1,6 @@
 Serial Programming Notes
 ========================
 
-
 General:
 - mark = on, space = off
 - RS232: mark -V, space +V, up to 25 pins, 8m max
@@ -23,7 +22,7 @@ General:
 - full duplex = in and out are separate channels
 - half duplex = in and out shared channel
 - flow control:
-  - software: start (XON/DC1), stop (XOFF/DC3) for text
+  - software: start (XON/DC1=0x11), stop (XOFF/DC3=0x13) for text
   - hardware: CTS, RTS signals (faster, not always supported)
     - receiver: CTS to 0 when ready
     - sender: RTS to 0 when ready
@@ -31,7 +30,6 @@ General:
 - sync transmission: 25% faster
   - constant stream, common clock
   - SDLC, HDLC common protocols
-
 
 Basics:
 - open: fd = open(device, O_RDWR | O_NOCTTY | O_NONBLOCK)
@@ -54,7 +52,7 @@ Basics:
   - (BSD) raw: no lines, no special chars
   - (BSD) cbreak: no lines, some special chars
   - use non-canonical, raw, or cbreak modes for serial
-
+- sys calls are thread-safe
 
 Configuration:
 - get: tcgetattr(fd, &tty);
@@ -82,17 +80,26 @@ Configuration:
   - c_cflag &= ~(CSIZE | PARENB);
   - c_cflag |= CS8;
 - c_cc: control character array (codes ASCII 0-0x1f)
-  - elements: VSTART, VSTOP, VMIN, VTIME, ...
-  - VMIN, VTIME ignored for canonical input mode, and O_NONBLOCK fd
-  - VMIN = min chars to read (blocking)
-  - VTIME = timeout in .1s, 0 for indefinite
-    - timeout for each char if VMIN = 0
-    - timeout for 1st char if VMIN > 0
+  - canonical: VEOF, VEOL, VERASE, VINTR, VKILL, VQUIT, VSTART, VSTOP, VSUSP
+  - non-canonical: VINTR, VMIN, VQUIT, VSTART, VSTOP, VSUSP, VTIME
+  - each specifies a char, except VMIN and VTIME:
+    - ignored for canonical, and O_NONBLOCK fd
+    - VMIN = min chars to read (blocking)
+    - VTIME = timeout in .1s
+  - Reads:
+    - VMIN = 0, VTIME = 0 (polling read): returns immediately
+    - VMIN > 0, VTIME = 0 (blocking read): blocks until VMIN bytes available
+    - VMIN = 0, VTIME > 0 (read timeout): blocks until 1+ bytes or timeout
+    - VMIN > 0, VTIME > 0 (byte timeout): blocks until VMIN bytes, timeout per byte 1+
+  - poll() POLLIN event only after VMIN bytes available
+  - FIONREAD returns 0 if < VMIN bytes available
 - set standard baud BNNN constants
   - cfsetispeed(&tty, <baud>);
   - cfsetispeed(&tty, <baud>);
-  - differeny in/out speeds not usually supported
-
+  - different in/out speeds not usually supported
+- Mac termios for non-standard baud:
+  - need to reset baud then ioctl IOSSIOSPEED
+  - this will mangle buffer data
 
 Advanced:
 - ioctl(fd, TIOCEXCL) = exclusive mode, cannot be opened
@@ -104,6 +111,9 @@ Advanced:
 - line status:
   - ioctl(fd, TIOCMGET, &int) = get line status
   - ioctl(fd, TIOCMSET, &int) = set line status
+  - ioctl(fd, TIOCMBIS, &int) = set line status bits
+  - ioctl(fd, TIOCMBIC, &int) = clear line status bits
+  - ioctl(fd, TIOCMBIC, &int) = clear line status bits
   - bits:
     - TIOCM_DTR = data terminal ready
     - TIOCM_RTS = request to send
@@ -111,11 +121,12 @@ Advanced:
     - TIOCM_CD = data carrier detect
     - TIOCM_RI = ring
     - TIOCM_DSR = data set ready
+  - TIOCMIWAIT/TIOCGICOUNT to wait/count CD, RI, DSR, CTS (linux only, not all drivers)
+    - must poll for status changes if not supported
 - poll() to check events on fds
   - POLLIN = data available to read
   - POLLOUT = write will no longer block
   - POLLERR, POLLHUP, POLLNVAL (revents only)
-
 
 Setting custom baud:
 - Mac:
@@ -151,5 +162,79 @@ Setting custom baud:
   options.c_ispeed = <custom-baud>;
   options.c_ospeed = <custom-baud>;
   ioctl(fd, TCSETS2, &options);
-	
-  
+
+Java Comm API:
+- Find port:
+  - CommPortIdentifier.getPortIdentifier(name)
+  - CommPortIdentifier.getPortIdentifiers()
+- Open port:
+  - identifier.open(label, timeout)
+  - cast to SerialPort or ParallelPort
+- CommPort configuration: (if supported by driver)
+  - receive framing:  byte to mark end of read
+  - receive threshold: read returns immediately when n bytes in buffer
+  - receive timeout: read returns immediately when ms elapsed
+  - input buffer size
+  - output buffer size
+- SerialPort configuration:
+  - serial port params: baud, data-bits, stop-bits, parity
+  - flow control
+- SerialPort control:
+  - send break (ms)
+  - set DTR, RTS
+  - check for state: CD, DSR, DTR, RI, RTS
+- SerialPort events:
+  - One listener; TooManyListenersException if adding more
+  - Events (11): BI, CD, CTS, DSR, FE, OE, PE, RI, data-available, output-buffer-empty
+  - notifyOn...(enable) to turn on/off specific event notifications
+- Receive config: threshold, timeout, buffer size n
+  - threshold=- timeout=- => block until any data is available
+  - threshold=m timeout=- => block until min(m,n) bytes are available
+  - threshold=- timeout=x => block for x ms or until any data is available
+  - threshold=m timeout=x => block for x ms or until min(m,n) bytes are available
+  - if either is 0, underlying driver polls for data vs being event-driven
+    - threshold=0 timeout=0 => poll until any data is available?
+    - threshold=0 timeout=- => poll until any data is available
+    - threshold=- timeout=0 => poll until any data is available
+    - threshold=m timeout=0 => poll until min(m,n) bytes are available
+    - threshold=0 timeout=x => poll until x ms or any data is available
+  - framing errors may cause early completion of read without an exception thrown
+  - does not match with VMIN, VTIME:
+    - VMIN=0 VTIME=0 => return immediately with available bytes read
+    - VMIN=m VTIME=0 => block until m bytes are available
+    - VMIN=0 VTIME=x => block until 100x ms or any data is available
+    - VMIN=m VTIME=x => block until 100x ms or m bytes are available (timeout per byte)
+  - approximate matches:
+    - threshold=- timeout=- => VMIN=1 VTIME=0
+    - threshold=m timeout=- => VMIN=min(m,n,255) VTIME=0
+    - threshold=- timeout=x => VMIN=0 VTIME=min(x/100,255)
+    - threshold=m timeout=x => VMIN=min(m,n,255) VTIME=min(x/100,255)
+    - threshold=0 timeout=0 => VMIN=0 VTIME=0; available+sleep until any data is available
+    - threshold=0 timeout=- => VMIN=0 VTIME=0; available+sleep until any data is available
+    - threshold=- timeout=0 => VMIN=0 VTIME=0; available+sleep until any data is available
+    - threshold=m timeout=0 => VMIN=0 VTIME=0; available+sleep until min(m,n) bytes are available
+    - threshold=0 timeout=x => VMIN=0 VTIME=0; available+sleep until x ms or any data is available
+  - read with VMIN/VTIME>0 will block without a way to cancel
+    - use poll() with pipe to cancel
+
+Implementation:
+- Types of read:
+  - event: [VMIN,0], poll(fd+pipe) until fd, read
+  - polling: [0,0], fionread + sleep until min, read
+  - raw: [VMIN,VTIME], read (no way to interrupt)
+  - snapshot: [0,0], read (special case of raw)
+  - event2: [1,0], poll(fd+pipe) + read until min [too much overhead]
+- Events (notifyOn...):
+  - no triggers for RI, etc, so polling is required
+  - complex interaction with read and data available event
+    - daemon thread with poll()
+- Decision:
+  - serial-port users needs to get specific data and will poll anyway
+    - not practical to keep changing threshold
+    => just do snapshot read
+  - no requirement for events
+    - polling can be done at higher level if needed
+    => no support for events
+  => basic i/o only
+
+

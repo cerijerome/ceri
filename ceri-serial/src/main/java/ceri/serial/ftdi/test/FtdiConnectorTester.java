@@ -51,7 +51,7 @@ public class FtdiConnectorTester extends LoopingExecutor {
 	public static void test(String finder) throws IOException {
 		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.of(finder);
 		try (SelfHealingFtdiConnector con = SelfHealingFtdiConnector.of(config)) {
-			con.connect();
+			con.open();
 			test(con, null);
 		}
 	}

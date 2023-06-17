@@ -68,7 +68,7 @@ public class FtdiBehavior {
 		lib.syncTransferOut.assertValues( // open() leftovers:
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // ftdi_usb_reset
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // ftdi_set_baudrate 9600
-		lib.syncTransferIn.assertNoCall();
+		lib.syncTransferIn.assertCalls(0);
 	}
 
 	@Test
@@ -261,7 +261,7 @@ public class FtdiBehavior {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
-		CallSync.Apply<FtdiProgressInfo, Boolean> sync = CallSync.function(null, true, true, false);
+		CallSync.Function<FtdiProgressInfo, Boolean> sync = CallSync.function(null, true, true, false);
 		Ftdi.StreamCallback callback = (prog, buffer) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();

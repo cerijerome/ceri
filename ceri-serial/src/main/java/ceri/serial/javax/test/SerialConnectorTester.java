@@ -49,7 +49,7 @@ public class SerialConnectorTester extends LoopingExecutor {
 	public static void test(String commPort) throws IOException {
 		SelfHealingSerialConfig config = SelfHealingSerialConfig.of(commPort);
 		try (SelfHealingSerialConnector con = SelfHealingSerialConnector.of(config)) {
-			con.connect();
+			con.open();
 			test(con, null);
 		}
 	}

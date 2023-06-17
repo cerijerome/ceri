@@ -9,7 +9,7 @@ public class FtdiConnectorBehavior {
 
 	@Test
 	public void shouldProvideNullConnector() throws IOException {
-		try (var con = FtdiConnector.ofNull()) {
+		try (var con = FtdiConnector.NULL) {
 			assertThrown(() -> con.broken());
 			con.listeners().listen(t -> {});
 			con.connect();

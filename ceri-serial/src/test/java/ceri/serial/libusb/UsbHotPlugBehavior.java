@@ -22,7 +22,7 @@ public class UsbHotPlugBehavior {
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private Usb usb;
-	private CallSync.Apply<CallbackArgs, Boolean> callback;
+	private CallSync.Function<CallbackArgs, Boolean> callback;
 	private UsbHotPlug.Builder builder;
 
 	private static record CallbackArgs(UsbDevice device, libusb_hotplug_event event) {}
@@ -67,7 +67,7 @@ public class UsbHotPlugBehavior {
 			assertCallback(callback.awaitAuto(), 0x14, 0x08,
 				libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
 			usb.events().handle(); // none
-			callback.assertNoCall();
+			callback.assertCalls(0);
 		}
 	}
 

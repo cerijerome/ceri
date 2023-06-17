@@ -17,7 +17,7 @@ import ceri.serial.comm.SerialParams;
 /**
  * A connector for testing logic against serial connectors.
  */
-public class TestSerialConnector extends TestConnector implements Serial.Fixable {
+public class TestSerial extends TestConnector implements Serial.Fixable {
 	public static final int DTR = CIoctl.TIOCM_DTR;
 	public static final int RTS = CIoctl.TIOCM_RTS;
 	public static final int CTS = CIoctl.TIOCM_CTS;
@@ -39,22 +39,51 @@ public class TestSerialConnector extends TestConnector implements Serial.Fixable
 	/**
 	 * Provide a test connector that echoes output to input.
 	 */
-	public static TestSerialConnector echo() {
-		return new TestSerialConnector() {
+	public static TestSerial echo() {
+		return new TestSerial() {
+			@Override
+			public String name() {
+				return TestSerial.class.getSimpleName() + ":echo";
+			}
+
 			@Override
 			protected void write(OutputStream out, byte[] b, int offset, int length)
 				throws IOException {
-				super.write(out, b, offset, length);
 				TestConnector.echo(this, b, offset, length);
 			}
 		};
 	}
 
-	public static TestSerialConnector of() {
-		return new TestSerialConnector();
+	/**
+	 * Provide a pair of test serial ports that write to each other.
+	 */
+	public static TestSerial[] pair() {
+		TestSerial[] pair = new TestSerial[2];
+		pair[0] = pair(pair, 1);
+		pair[1] = pair(pair, 0);
+		return pair;
 	}
 
-	protected TestSerialConnector() {}
+	private static TestSerial pair(TestSerial[] pair, int i) {
+		return new TestSerial() {
+			@Override
+			public String name() {
+				return TestSerial.class.getSimpleName() + ":pair" + (1 - i);
+			}
+
+			@Override
+			protected void write(OutputStream out, byte[] b, int offset, int length)
+				throws IOException {
+				TestConnector.pair(this, pair[i], b, offset, length);
+			}
+		};
+	}
+
+	public static TestSerial of() {
+		return new TestSerial();
+	}
+
+	protected TestSerial() {}
 
 	@Override
 	public void reset() {

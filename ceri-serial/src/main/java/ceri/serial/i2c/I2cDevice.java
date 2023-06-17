@@ -68,24 +68,24 @@ public class I2cDevice implements I2c {
 
 	@Override
 	public I2cDevice retries(int count) throws IOException {
-		I2cDev.i2c_retries(fd.fd(), count);
+		fd.accept(fd -> I2cDev.i2c_retries(fd, count));
 		return this;
 	}
 
 	@Override
 	public I2cDevice timeout(int timeoutMs) throws IOException {
-		I2cDev.i2c_timeout(fd.fd(), timeoutMs);
+		fd.accept(fd -> I2cDev.i2c_timeout(fd, timeoutMs));
 		return this;
 	}
 
 	@Override
 	public Set<i2c_func> functions() throws IOException {
-		return i2c_func.xcoder.decodeAll(I2cDev.i2c_funcs(fd.fd()));
+		return i2c_func.xcoder.decodeAll(fd.apply(I2cDev::i2c_funcs));
 	}
 
 	@Override
 	public void smBusPec(boolean on) throws IOException {
-		I2cDev.i2c_smbus_pec(fd.fd(), on);
+		fd.accept(fd -> I2cDev.i2c_smbus_pec(fd, on));
 		state.pec = on;
 	}
 
@@ -96,7 +96,7 @@ public class I2cDevice implements I2c {
 	@Override
 	public SmBus smBus(I2cAddress address) throws IOException {
 		I2cUtil.validate7Bit(address);
-		return SmBusDevice.of(fd::fd, this::selectDevice, address);
+		return SmBusDevice.of(fd, this::selectDevice, address);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class I2cDevice implements I2c {
 	}
 
 	private void transfer(i2c_msg.ByReference... msgs) throws IOException {
-		I2cDev.i2c_rdwr(fd.fd(), msgs);
+		fd.accept(fd -> I2cDev.i2c_rdwr(fd, msgs));
 	}
 
 	/* Shared with direct SMBus */
@@ -152,18 +152,18 @@ public class I2cDevice implements I2c {
 
 	private void setSlaveAddress(int address) throws IOException {
 		if (state.address != null && state.address == address) return;
-		I2cDev.i2c_slave(fd.fd(), address);
+		fd.accept(fd -> I2cDev.i2c_slave(fd, address));
 		state.address = address;
 	}
 
 	private void forceSlaveAddress(int address) throws IOException {
-		I2cDev.i2c_slave_force(fd.fd(), address);
+		fd.accept(fd -> I2cDev.i2c_slave_force(fd, address));
 		state.address = address;
 	}
 
 	private void setAddressBits(boolean tenBit) throws IOException {
 		if (state.tenBit != null && state.tenBit == tenBit) return;
-		I2cDev.i2c_tenbit(fd.fd(), tenBit);
+		fd.accept(fd -> I2cDev.i2c_tenbit(fd, tenBit));
 		state.address = null;
 		state.tenBit = tenBit;
 	}

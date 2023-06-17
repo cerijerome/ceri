@@ -72,24 +72,24 @@ public class TestLibUsbNative implements LibUsbNative {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	public final LibUsbTestData data = new LibUsbTestData();
 	// For general int values
-	public final CallSync.Get<Integer> generalSync = CallSync.supplier(0);
+	public final CallSync.Supplier<Integer> generalSync = CallSync.supplier(0);
 	// List<?> = (int reqType, int req, int value, int index, int length) [control]
 	// List<?> = (int endpoint, int length) [bulk]
-	public final CallSync.Apply<List<?>, ByteProvider> syncTransferIn =
+	public final CallSync.Function<List<?>, ByteProvider> syncTransferIn =
 		CallSync.function(null, ByteProvider.empty());
 	// List<?> = (int reqType, int req, int value, int index, ByteProvider data) [control]
 	// List<?> = (int endpoint, ByteProvider data) [bulk]
-	public final CallSync.Apply<List<?>, Integer> syncTransferOut = CallSync.function(null, 0);
-	public final CallSync.Apply<Transfer, libusb_error> submitTransfer =
+	public final CallSync.Function<List<?>, Integer> syncTransferOut = CallSync.function(null, 0);
+	public final CallSync.Function<Transfer, libusb_error> submitTransfer =
 		CallSync.function(null, LIBUSB_SUCCESS);
-	public final CallSync.Apply<TransferEvent, libusb_transfer_status> handleTransferEvent =
+	public final CallSync.Function<TransferEvent, libusb_transfer_status> handleTransferEvent =
 		CallSync.<TransferEvent, libusb_transfer_status>function(null)
 			.autoResponse(t -> handleTransferFull(t));
-	public final CallSync.Apply<HotPlug, HotPlugEvent> handleHotPlugEvent =
+	public final CallSync.Function<HotPlug, HotPlugEvent> handleHotPlugEvent =
 		CallSync.function(null, new HotPlugEvent(null, null));
-	public final CallSync.Get<PollFdEvent> handlePollFdEvent =
+	public final CallSync.Supplier<PollFdEvent> handlePollFdEvent =
 		CallSync.supplier((PollFdEvent) null);
-	public final CallSync.Get<List<PollFd>> pollFds = CallSync.supplier((List<PollFd>) null);
+	public final CallSync.Supplier<List<PollFd>> pollFds = CallSync.supplier((List<PollFd>) null);
 
 	public static record TransferEvent(int endPoint, libusb_transfer_type type,
 		ByteBuffer buffer) {}

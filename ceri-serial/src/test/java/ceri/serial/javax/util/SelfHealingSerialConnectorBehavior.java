@@ -90,7 +90,7 @@ public class SelfHealingSerialConnectorBehavior {
 		con.connect();
 		serial.open.error.setFrom(IOX);
 		con.broken();
-		CallSync.Accept<StateChange> sync = CallSync.consumer(null, false);
+		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, false);
 		try (var enc = con.listeners().enclose(sync::accept)) {
 			serial.open.error.clear();
 			sync.assertCall(StateChange.fixed);
@@ -100,7 +100,7 @@ public class SelfHealingSerialConnectorBehavior {
 	@Test
 	public void shouldHandleListenerErrors() {
 		serial.open.error.setFrom(IOX);
-		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		try (var enc = con.listeners().enclose(sync::accept)) {
 			sync.error.setFrom(RTX);
 			con.broken(); // logs error

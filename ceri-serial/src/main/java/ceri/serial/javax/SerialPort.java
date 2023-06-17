@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import com.sun.jna.Platform;
-import ceri.common.io.IoUtil;
 import ceri.common.io.StreamNotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
+import ceri.common.util.CloseableUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -49,7 +49,7 @@ public class SerialPort extends CommPort {
 			commPort = cpi.open(owner, timeoutMs);
 			return (SerialPort) commPort;
 		} catch (PortInUseException | RuntimeException e) {
-			IoUtil.close(commPort);
+			CloseableUtil.close(commPort);
 			throw e;
 		}
 	}

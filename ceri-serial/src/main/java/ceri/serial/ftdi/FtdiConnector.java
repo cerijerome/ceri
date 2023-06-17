@@ -12,7 +12,6 @@ import ceri.common.io.StateChange;
  * Sub-set of FTDI operations for device controllers.
  */
 public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChange> {
-
 	/**
 	 * For condition-aware serial connectors, notify that it is broken. Useful if the connector
 	 * itself cannot determine it is broken.
@@ -24,7 +23,7 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 	/**
 	 * Attempts to open the ftdi device. If it fails, self-healing will kick in.
 	 */
-	void connect() throws IOException;
+	void open() throws IOException;
 
 	/**
 	 * Set FTDI bit mode.
@@ -114,24 +113,20 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 	int write(byte[] data, int offset, int length) throws IOException;
 
 	/**
-	 * Creates a no-op instance.
+	 * A stateless, no-op instance.
 	 */
-	static FtdiConnector ofNull() {
-		return new Null();
-	}
-
+	Null NULL = new Null();
+	
 	static class Null implements FtdiConnector {
-		private final Listenable<StateChange> listenable = Listenable.ofNull();
-
 		Null() {}
 
 		@Override
 		public Listenable<StateChange> listeners() {
-			return listenable;
+			return Listenable.ofNull();
 		}
 
 		@Override
-		public void connect() {}
+		public void open() {}
 
 		@Override
 		public void bitmode(FtdiBitMode bitmode) {}
@@ -151,7 +146,7 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 		}
 
 		@Override
-		public int read(byte[] buffer, int offset, int length) throws IOException {
+		public int read(byte[] buffer, int offset, int length) {
 			return length;
 		}
 

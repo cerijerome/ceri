@@ -2,7 +2,7 @@ package ceri.serial.comm;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import ceri.common.text.ToString;
+import ceri.common.text.StringUtil;
 
 public class SerialParams {
 	public static final SerialParams DEFAULT = builder().build();
@@ -80,7 +80,7 @@ public class SerialParams {
 	public int bitsPerFrame() {
 		return START_BITS + dataBits.bits + stopBits.minBits() + parity.bits();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(baud, dataBits, stopBits, parity);
@@ -99,6 +99,7 @@ public class SerialParams {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, baud, dataBits, stopBits, parity);
+		return String.format("%d,%d,%s,%s", baud, dataBits.bits, StringUtil.compact(stopBits.bits),
+			parity);
 	}
 }

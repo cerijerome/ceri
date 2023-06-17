@@ -12,11 +12,11 @@ import ceri.serial.javax.SerialConnector;
  * A connector for testing logic against serial connectors.
  */
 public class TestSerialConnector extends TestConnector implements SerialConnector {
-	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
-	public final CallSync.Accept<FlowControl> flowControl =
+	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Consumer<FlowControl> flowControl =
 		CallSync.consumer(FlowControl.none, true);
-	public final CallSync.Accept<Boolean> breakBit = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> breakBit = CallSync.consumer(false, true);
 
 	/**
 	 * Provide a test connector that echoes output to input.
@@ -41,10 +41,7 @@ public class TestSerialConnector extends TestConnector implements SerialConnecto
 	@Override
 	public void reset() {
 		super.reset();
-		dtr.reset();
-		rts.reset();
-		flowControl.reset();
-		breakBit.reset();
+		CallSync.resetAll(dtr, rts, flowControl, breakBit);
 	}
 
 	@Override

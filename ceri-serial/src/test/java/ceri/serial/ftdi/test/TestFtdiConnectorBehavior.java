@@ -23,9 +23,9 @@ public class TestFtdiConnectorBehavior {
 	public void shouldReset() throws IOException {
 		try (var con = TestFtdiConnector.of()) {
 			con.connect();
-			con.connect.assertValues(true);
+			con.open.assertValues(true);
 			con.reset();
-			con.connect.assertValues();
+			con.open.assertValues();
 		}
 	}
 

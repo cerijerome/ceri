@@ -80,38 +80,123 @@ Open
   - set O_NONBLOCK on read fd
     - fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0) | O_NONBLOCK)
 - start daemon thread
-  - poll or select
+  - poll or select fd (IN|OUT) and nudge-read fd (IN)
   - notify read, write, control line change
+
+
+Nudge Pipe
+----------
+- created in port constructor
+- nonblocking reads
+- nudge writes {0} to pipe on:
+  - port close, after closing streams
+  - when callers register for notifications
+    CTS, CD, DSR, RI, data available, output empty
+- input stream: poll/select for nudge-read fd
+  - read and discard nudge data if available [not for select = bug?]
+- daemon thread: poll/select for nudge-read fd
+  - read and discard nudge data if available [not for select = bug?]
+- closed on port close
+
+
+Daemon Thread
+-------------
+- loops until fd closed
+- sleep timeout (10ms) unless any of:
+  - read notifications enabled, and not notified yet
+  - write notifications enabled, and not notified yet
+  - nudge enabled, and no line notifications enabled (otherwise poll)
+- otherwise
+  - poll of fd (IN|OUT) and nudge-read fd (IN) or
+  - select of fd (read|write) and nudge-read fd (read)
+  - determine if any read or write events occurred
+- send read/write/line events
 
 
 InputStream
 -----------
+- read logic (from java comm specification):
+  - threshold is approximately VMIN
+  - timeout is VTIME
+  - poll if threshold or time is enabled and 0 (not both?)
+  - receive framing not supported
+  - input buffer size not supported
+  - java comm api:
+  ---------------------------------------------------
+  |thr |time|behavior (buffer size n)               |
+  |----|----|---------------------------------------|   
+  | -  | -  | block until any data                  |
+  | 0  | 0  | block until any data?                 |
+  | 0  | -  | poll until any data                   |
+  | -  | 0  | poll until any data                   |
+  | m  | -  | block until min(m,n) available        |
+  | m  | 0  | poll until min(m,n) available         |
+  | -  | x  | block until xms or any data           |
+  | 0  | x  | poll until xms or any data            |
+  | m  | x  | block until xms or min(m,n) available |
+  ---------------------------------------------------
 - init:
-  - buffer [2048]
-  - poll block [serial fd, nudge read fd]
-- available: ioctl(fd, FIONREAD, int ref)
-- read:
-  - raw mode:
-    - check for VTIME, VMIN changes
-      - update termios, tcsetattr TCSANOW
+  - init buffer [2048]
+  - init poll array [fd, nudge-read fd]
+  - init select fdset
+- available
+  - ioctl(fd, FIONREAD, &int)
+- read: raw read mode (no looping, just use VMIN)
+  - only allows threshold <=255
+  - check for receive timeout/threshold changes (synchronized)
+    - set VTIME, VMIN (default VTIME=0, VMIN=1)
+    - update termios tcsetattr
+  - read into buffer
+  - clear data-available-notified flag (data no longer available)
+    - race condition? more data could be available?
+- read: polling + blocking mode
+  - check for receive timeout/threshold changes (synchronized)
+    - copy receive settings to local
+    - timeout, threshold, polling mode
+  - polling mode: (no looping, just read what is available)
+    - threshold or timeout enabled and =0
+    - VMIN=0, VTIME=0, 0 bytes required
+    - update termios if changed (synchronized)
     - read into buffer
-  - regular mode:
-    - copy VTIME, VMIN, poll mode settings
-    - loop:
-      - 
+  - blocking mode:
+    - threshold and timeout disabled or non-zero
+    - loop until break
+    - min bytes required =min(threshold|1,bytes-left)
+    - VMIN=min(255,bytes-required), VTIME=timeout|0
+    - update termios if changed (synchronized)
+    - poll or select fd (IN) and nudge-read fd (IN)
+      - timeout = VTIME or int max if disabled
+    - break if timed-out (select only?)
+    - data available: (from fd IN event)
+      - read into buffer
+      - break if 0 bytes read
+    - update bytes-left
+    - repeat loop
+  - clear data-available-notified flag (data no longer available)
+    - race condition? more data could be available?
 
 
 OutputStream
 ------------
+- output buffer size not supported
 - write:
   - offset 0: write from given buffer
   - offset > 0: copy to buffer and write
+    - was issue with jna bytebuffer?
 - flush: tcdrain
 
 
 Close
 -----
-- 
+- close streams
+- nudge pipe
+- set fd to nonblock
+- interrupt daemon thread
+- close nudge pipe
+- wait for daemon thread to stop
+
+
+
 
 
 

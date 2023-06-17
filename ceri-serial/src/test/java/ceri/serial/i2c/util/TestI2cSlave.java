@@ -10,11 +10,11 @@ import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
 
 public class TestI2cSlave extends I2cSlaveDeviceEmulator {
-	public final CallSync.Accept<ByteProvider> write = CallSync.consumer(null, true);
-	public final CallSync.Apply<List<?>, ByteProvider> read =
+	public final CallSync.Consumer<ByteProvider> write = CallSync.consumer(null, true);
+	public final CallSync.Function<List<?>, ByteProvider> read =
 		CallSync.function(null, ByteProvider.empty());
-	public final CallSync.Run softwareReset = CallSync.runnable(true);
-	public final CallSync.Get<DeviceId> deviceId = CallSync.supplier(DeviceId.NONE);
+	public final CallSync.Runnable softwareReset = CallSync.runnable(true);
+	public final CallSync.Supplier<DeviceId> deviceId = CallSync.supplier(DeviceId.NONE);
 
 	public static TestI2cSlave of(I2cAddress address) {
 		return new TestI2cSlave(address);

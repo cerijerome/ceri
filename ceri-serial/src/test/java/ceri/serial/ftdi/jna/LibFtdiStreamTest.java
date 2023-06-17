@@ -3,7 +3,7 @@ package ceri.serial.ftdi.jna;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.threadRun;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
@@ -73,7 +73,7 @@ public class LibFtdiStreamTest {
 	public void shouldUpdateProgress() {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
-		CallSync.Apply<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
+		CallSync.Function<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
 		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> progress(sync, prog);
 		try (var exec =
 			threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
@@ -110,7 +110,7 @@ public class LibFtdiStreamTest {
 
 	@Test
 	public void shouldFailOnCallbackError() {
-		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> prog == null ? true : throwIt();
+		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> prog == null ? true : throwRuntime();
 		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
 	}
 
@@ -122,7 +122,7 @@ public class LibFtdiStreamTest {
 		return response;
 	}
 
-	private static boolean progress(CallSync.Apply<FTDIProgressInfo, Boolean> sync,
+	private static boolean progress(CallSync.Function<FTDIProgressInfo, Boolean> sync,
 		FTDIProgressInfo prog) {
 		if (prog == null) return true;
 		return sync.apply(prog);

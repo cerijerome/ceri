@@ -20,14 +20,14 @@ import ceri.serial.i2c.jna.I2cDev.i2c_smbus_ioctl_data;
 
 public class TestI2cCLibNative extends TestCLibNative {
 	// List<?> = int request, int value
-	public final CallSync.Apply<List<?>, Integer> ioctlI2cInt = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> ioctlI2cInt = CallSync.function(null, 0);
 	// List<?> = int address, int flags, [ByteProvider command | int length], ...
-	public final CallSync.Apply<List<?>, ByteProvider> ioctlI2cBytes =
+	public final CallSync.Function<List<?>, ByteProvider> ioctlI2cBytes =
 		CallSync.function(null, ByteProvider.empty());
 	// List<?> = int read_write, int command, int type, int byte_, int word, ByteProvider block
-	public final CallSync.Apply<List<?>, Integer> ioctlSmBusInt = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> ioctlSmBusInt = CallSync.function(null, 0);
 	// List<?> = int read_write, int command, int type, int byte_, int word, ByteProvider block
-	public final CallSync.Apply<List<?>, ByteProvider> ioctlSmBusBytes =
+	public final CallSync.Function<List<?>, ByteProvider> ioctlSmBusBytes =
 		CallSync.function(null, ByteProvider.empty());
 
 	public static TestI2cCLibNative of() {

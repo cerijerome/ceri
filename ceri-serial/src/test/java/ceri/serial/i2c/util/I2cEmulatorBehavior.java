@@ -44,8 +44,8 @@ public class I2cEmulatorBehavior {
 		i2c.softwareReset();
 		dev.softwareReset.awaitAuto();
 		dev2.softwareReset.awaitAuto();
-		dev.write.assertNoCall();
-		dev2.write.assertNoCall();
+		dev.write.assertCalls(0);
+		dev2.write.assertCalls(0);
 	}
 
 	@Test

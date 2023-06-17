@@ -19,7 +19,7 @@ import ceri.serial.spi.util.SpiEmulator.Responder;
 public class SpiPulseTransmitterBehavior {
 	private static final SpiPulseConfig config =
 		SpiPulseConfig.builder(5).delayMicros(1).resetDelayMs(1).build();
-	private CallSync.Accept<ByteProvider> sync;
+	private CallSync.Consumer<ByteProvider> sync;
 	private SpiEmulator spi;
 	private SpiPulseTransmitter xmit;
 
@@ -84,7 +84,7 @@ public class SpiPulseTransmitterBehavior {
 		}, Level.OFF, SpiPulseTransmitter.class);
 	}
 
-	private Responder responder(CallSync.Accept<ByteProvider> sync) {
+	private Responder responder(CallSync.Consumer<ByteProvider> sync) {
 		return new Responder() {
 			@Override
 			public void out(byte[] data) throws IOException {

@@ -57,7 +57,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	}
 
 	@Override
-	public void connect() throws IOException {
+	public void open() throws IOException {
 		try {
 			initSerialPort();
 		} catch (IOException e) {
@@ -132,7 +132,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	@Override
 	protected void loop() throws InterruptedException {
 		sync.awaitPeek();
-		logger.info("Connection is broken - attempting to fix");
+		logger.info("Connection is broken, attempting to fix");
 		fixSerialPort();
 		logger.info("Connection is now fixed");
 		// wait for streams to recover before clearing

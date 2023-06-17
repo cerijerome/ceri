@@ -62,7 +62,7 @@ public class UsbTransferBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncControlTransfer() throws LibUsbException {
-		CallSync.Accept<Control> callback = CallSync.consumer(null, true);
+		CallSync.Consumer<Control> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.controlTransfer(callback)) {
 			transfer.buffer(ByteBuffer.allocateDirect(12)).length(12).data().put(bytes(1, 2, 3, 4));
 			transfer.setup().recipient(LIBUSB_RECIPIENT_DEVICE).type(LIBUSB_REQUEST_TYPE_STANDARD)
@@ -105,7 +105,7 @@ public class UsbTransferBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncBulkStreamTransfer() throws LibUsbException {
-		CallSync.Accept<BulkStream> callback = CallSync.consumer(null, true);
+		CallSync.Consumer<BulkStream> callback = CallSync.consumer(null, true);
 		try (var streams = handle.bulkStreams(2, 0x81, 0x02);
 			var transfer = streams.bulkTransfer(0x81, 2, callback)) {
 			assertThrown(() -> streams.bulkTransfer(0x01, 1, b -> {}));
@@ -134,7 +134,7 @@ public class UsbTransferBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncBulkTransfer() throws LibUsbException {
-		CallSync.Accept<Bulk> callback = CallSync.consumer(null, true);
+		CallSync.Consumer<Bulk> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.bulkTransfer(callback)) {
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
@@ -148,7 +148,7 @@ public class UsbTransferBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncInterruptTransfer() throws LibUsbException {
-		CallSync.Accept<Interrupt> callback = CallSync.consumer(null, true);
+		CallSync.Consumer<Interrupt> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.interruptTransfer(callback)) {
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
@@ -162,7 +162,7 @@ public class UsbTransferBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteAsyncIsoTransfer() throws LibUsbException {
-		CallSync.Accept<Iso> callback = CallSync.consumer(null, true);
+		CallSync.Consumer<Iso> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.isoTransfer(4, callback)) {
 			assertEquals(transfer.packetBuffer(0), null);
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5, 6, 7, 8, 9)).packets(3)

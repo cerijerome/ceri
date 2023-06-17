@@ -9,14 +9,14 @@ import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
 
 public class TestSerialPort extends SerialPort {
-	public final CallSync.Accept<String> open = CallSync.consumer(null, true);
-	public final CallSync.Accept<SerialPortParams> params = CallSync.consumer(null, true);
-	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
-	public final CallSync.Accept<FlowControl> flowControl =
+	public final CallSync.Consumer<String> open = CallSync.consumer(null, true);
+	public final CallSync.Consumer<SerialPortParams> params = CallSync.consumer(null, true);
+	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Consumer<FlowControl> flowControl =
 		CallSync.consumer(FlowControl.none, true);
-	public final CallSync.Accept<Boolean> breakBit = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> closed = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> breakBit = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> closed = CallSync.consumer(false, true);
 	public final TestInputStream in = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
 	

@@ -56,7 +56,7 @@ public class SelfHealingFtdiConnector extends LoopingExecutor implements FtdiCon
 	 * Attempts to open the ftdi device. If it fails, self-healing will kick in.
 	 */
 	@Override
-	public void connect() throws LibUsbException {
+	public void open() throws LibUsbException {
 		try {
 			initFtdi();
 		} catch (LibUsbException e) {

@@ -22,6 +22,10 @@ public class SelfHealingSerialConfig {
 		SerialPort open(String port) throws IOException;
 	}
 
+	public static SelfHealingSerialConfig of(String port) {
+		return builder(port).build();
+	}
+	
 	public static class Builder {
 		final PortSupplier portSupplier;
 		SerialFactory factory = SerialPort::open;

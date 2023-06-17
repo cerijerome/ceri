@@ -68,8 +68,8 @@ public class ReplaceableSerialConnector implements SerialConnector {
 	}
 
 	@Override
-	public void connect() throws IOException {
-		exec(() -> con().connect());
+	public void open() throws IOException {
+		exec(() -> con().open());
 	}
 
 	@Override

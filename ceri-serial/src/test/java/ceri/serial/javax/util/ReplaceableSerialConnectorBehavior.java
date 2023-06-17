@@ -36,11 +36,11 @@ public class ReplaceableSerialConnectorBehavior {
 			assertThrown(con::connect);
 			con.setConnector(serial);
 			con.connect();
-			serial.connect.assertAuto(true);
+			serial.open.assertAuto(true);
 			con.setConnector(serial1);
 			con.connect();
-			serial.close.assertNoCall();
-			serial1.connect.assertAuto(true);
+			serial.close.assertCalls(0);
+			serial1.open.assertAuto(true);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class ReplaceableSerialConnectorBehavior {
 
 	@Test
 	public void shouldListenForStateChange() {
-		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		try (var enc = con.listeners().enclose(sync::accept)) {
 			con.setConnector(serial);
 			con.broken();
@@ -73,7 +73,7 @@ public class ReplaceableSerialConnectorBehavior {
 
 	@Test
 	public void shouldListenForConnectorErrors() {
-		CallSync.Accept<Exception> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<Exception> sync = CallSync.consumer(null, true);
 		try (var enc = con.errorListeners().enclose(sync::accept)) {
 			con.broken();
 			assertThrowable(sync.awaitAuto(), IOException.class);

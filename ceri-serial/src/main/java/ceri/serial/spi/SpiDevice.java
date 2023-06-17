@@ -42,46 +42,48 @@ public class SpiDevice implements Spi {
 
 	@Override
 	public SpiDevice mode(SpiMode mode) throws IOException {
-		if (mode.is32Bit()) SpiDev.setMode32(fd.fd(), mode.value);
-		else SpiDev.setMode(fd.fd(), mode.value);
+		fd.accept(fd -> {
+			if (mode.is32Bit()) SpiDev.setMode32(fd, mode.value);
+			else SpiDev.setMode(fd, mode.value);
+		});
 		return this;
 	}
 
 	@Override
 	public SpiMode mode() throws IOException {
-		return SpiMode.of(SpiDev.getMode32(fd.fd()));
+		return SpiMode.of(fd.apply(SpiDev::getMode32));
 	}
 
 	@Override
 	public boolean lsbFirst() throws IOException {
-		return SpiDev.isLsbFirst(fd.fd());
+		return fd.apply(SpiDev::isLsbFirst);
 	}
 
 	@Override
 	public SpiDevice lsbFirst(boolean enabled) throws IOException {
-		SpiDev.setLsbFirst(fd.fd(), enabled);
+		fd.accept(fd -> SpiDev.setLsbFirst(fd, enabled));
 		return this;
 	}
 
 	@Override
 	public int bitsPerWord() throws IOException {
-		return SpiDev.getBitsPerWord(fd.fd());
+		return fd.apply(SpiDev::getBitsPerWord);
 	}
 
 	@Override
 	public SpiDevice bitsPerWord(int bitsPerWord) throws IOException {
-		SpiDev.setBitsPerWord(fd.fd(), bitsPerWord);
+		fd.accept(fd -> SpiDev.setBitsPerWord(fd, bitsPerWord));
 		return this;
 	}
 
 	@Override
 	public int maxSpeedHz() throws IOException {
-		return SpiDev.getMaxSpeedHz(fd.fd());
+		return fd.apply(SpiDev::getMaxSpeedHz);
 	}
 
 	@Override
 	public SpiDevice maxSpeedHz(int maxSpeedHz) throws IOException {
-		SpiDev.setMaxSpeedHz(fd.fd(), maxSpeedHz);
+		fd.accept(fd -> SpiDev.setMaxSpeedHz(fd, maxSpeedHz));
 		return this;
 	}
 
@@ -93,7 +95,7 @@ public class SpiDevice implements Spi {
 	}
 
 	private void execute(spi_ioc_transfer transfer) throws IOException {
-		SpiDev.message(fd.fd(), transfer);
+		fd.accept(fd -> SpiDev.message(fd, transfer));
 	}
 
 	private static OpenFlag openFlag(Direction direction) {

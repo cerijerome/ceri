@@ -20,9 +20,9 @@ import ceri.common.xml.XmlUtil;
 import ceri.process.ioreg.Ioreg;
 
 /**
- * Finds USB device location ids and device paths for OSX. When a device is replugged, its path may
- * change; this class allows a USB path to be found by a USB location id. The location id of a USB
- * device can be found in System Report. The Mac typically takes the first 3 hex digits; the
+ * Finds USB device location ids and device paths for MacOS. When a device is replugged, its path
+ * may change; this class allows a USB path to be found by a USB location id. The location id of a
+ * USB device can be found in System Report. The Mac typically takes the first 3 hex digits; the
  * remaining five are 0 or assigned to hub ports.
  * <p/>
  * Updated for OSX Mojave, optimized for minimal ioreg output.
@@ -31,8 +31,8 @@ public class MacUsbLocator {
 	private static final XPathExpression USB_XPATH =
 		compile("/plist/array/dict//dict/dict/dict/key[text()='IODialinDevice']");
 	private static final XPathExpression LOCATION_ID_XPATH =
-		compile("parent::dict/parent::dict/parent::dict/" +
-			"key[text()='locationID']/following-sibling::integer");
+		compile("parent::dict/parent::dict/parent::dict/"
+			+ "key[text()='locationID']/following-sibling::integer");
 	private static final XPathExpression DEVICE_XPATH = compile("following-sibling::string");
 	private static final Parameters IOREG_ARGS = Parameters.of("-arltx", "-c", "IOSerialBSDClient");
 	private final Ioreg ioreg;
@@ -75,8 +75,8 @@ public class MacUsbLocator {
 	}
 
 	/**
-	 * Returns a map of USB device location IDs and device paths for Mac OSX. To find the name for
-	 * new devices, first capture the output from system_profile. Search for the device name that
+	 * Returns a map of USB device location IDs and device paths for MacOS. To find the name for new
+	 * devices, first capture the output from system_profile. Search for the device name that
 	 * implements IOUSBInterface. For a location id, the Mac takes the first 3 digits, the remaining
 	 * five are 0, or assigned to hub ports.
 	 */

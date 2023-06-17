@@ -1,5 +1,6 @@
-package ceri.serial.comm;
+package ceri.serial.comm.util;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -7,7 +8,13 @@ import java.util.Objects;
 import java.util.Set;
 import ceri.common.text.ToString;
 import ceri.jna.util.ThreadBuffers;
+import ceri.serial.comm.FlowControl;
+import ceri.serial.comm.Serial;
+import ceri.serial.comm.SerialParams;
 
+/**
+ * Encapsulates the dynamic properties of a SerialPort.
+ */
 public class SerialConfig {
 	public static final SerialConfig DEFAULT = new Builder().build();
 	public final SerialParams params;
@@ -76,6 +83,13 @@ public class SerialConfig {
 		outBufferSize = builder.outBufferSize;
 	}
 
+	public void apply(Serial serial) throws IOException {
+		serial.inBufferSize(inBufferSize);
+		serial.outBufferSize(outBufferSize);
+		serial.flowControl(flowControl);
+		serial.params(params);
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(params, flowControl, inBufferSize, outBufferSize);

@@ -14,7 +14,6 @@ import ceri.common.io.StateChange;
  * covers SerialPort features currently in use; other methods may be added later.
  */
 public interface SerialConnector extends Closeable, Listenable.Indirect<StateChange> {
-
 	/**
 	 * For condition-aware serial connectors, notify that it is broken. Useful if the connector
 	 * itself cannot determine it is broken.
@@ -23,7 +22,7 @@ public interface SerialConnector extends Closeable, Listenable.Indirect<StateCha
 		throw new UnsupportedOperationException();
 	}
 
-	void connect() throws IOException;
+	void open() throws IOException;
 
 	InputStream in();
 
@@ -38,41 +37,31 @@ public interface SerialConnector extends Closeable, Listenable.Indirect<StateCha
 	void breakBit(boolean on) throws IOException;
 
 	/**
-	 * Creates a no-op instance.
+	 * A stateless, no-op instance.
 	 */
-	static SerialConnector ofNull() {
-		return new Null();
-	}
-
-	static class Null implements SerialConnector {
-		private final Listenable<StateChange> listenable = Listenable.ofNull();
-		private final InputStream in = IoStreamUtil.nullIn();
-		private final OutputStream out = IoStreamUtil.nullOut();
-
-		private Null() {}
-
+	SerialConnector NULL = new SerialConnector() {
 		@Override
 		public Listenable<StateChange> listeners() {
-			return listenable;
+			return Listenable.ofNull();
 		}
 
 		@Override
 		public void broken() {}
 
 		@Override
-		public void connect() {}
+		public void open() {}
 
 		@Override
 		public void close() {}
 
 		@Override
 		public InputStream in() {
-			return in;
+			return IoStreamUtil.nullIn;
 		}
 
 		@Override
 		public OutputStream out() {
-			return out;
+			return IoStreamUtil.nullOut;
 		}
 
 		@Override
@@ -86,5 +75,5 @@ public interface SerialConnector extends Closeable, Listenable.Indirect<StateCha
 
 		@Override
 		public void rts(boolean on) {}
-	}
+	};
 }

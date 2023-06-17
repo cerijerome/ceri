@@ -12,12 +12,12 @@ import ceri.serial.ftdi.FtdiConnector;
  * A connector for testing logic against serial connectors.
  */
 public class TestFtdiConnector extends TestConnector implements FtdiConnector {
-	public final CallSync.Accept<FtdiBitMode> bitmode = CallSync.consumer(FtdiBitMode.OFF, true);
-	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
-	public final CallSync.Accept<FtdiFlowControl> flowControl =
+	public final CallSync.Consumer<FtdiBitMode> bitmode = CallSync.consumer(FtdiBitMode.OFF, true);
+	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Consumer<FtdiFlowControl> flowControl =
 		CallSync.consumer(FtdiFlowControl.disabled, true);
-	public final CallSync.Get<Integer> pins = CallSync.supplier(0);
+	public final CallSync.Supplier<Integer> pins = CallSync.supplier(0);
 
 	/**
 	 * Provide a test connector that echoes output to input, and writes the last byte to pins.
@@ -55,11 +55,7 @@ public class TestFtdiConnector extends TestConnector implements FtdiConnector {
 	@Override
 	public void reset() {
 		super.reset();
-		bitmode.reset();
-		dtr.reset();
-		rts.reset();
-		flowControl.reset();
-		pins.reset();
+		CallSync.resetAll(bitmode, dtr, rts, flowControl, pins);
 	}
 
 	@Override

@@ -2,7 +2,10 @@ package ceri.serial.comm;
 
 import ceri.common.data.TypeTranscoder;
 
-public enum SerialPortEvent {
+/**
+ * Serial events from JavaComm API; currently unused.
+ */
+public enum SerialEvent {
 	dataAvailable(1),
 	outputBufferEmpty(2),
 	clearToSend(3), // CTS
@@ -14,15 +17,15 @@ public enum SerialPortEvent {
 	framingError(9), // FE
 	breakInterrupt(10); // BI
 
-	private static final TypeTranscoder<SerialPortEvent> xcoder =
-		TypeTranscoder.of(t -> t.value, SerialPortEvent.class);
+	private static final TypeTranscoder<SerialEvent> xcoder =
+		TypeTranscoder.of(t -> t.value, SerialEvent.class);
 	public final int value;
 
-	public static SerialPortEvent from(int value) {
+	public static SerialEvent from(int value) {
 		return xcoder.decode(value);
 	}
 
-	private SerialPortEvent(int value) {
+	private SerialEvent(int value) {
 		this.value = value;
 	}
 }

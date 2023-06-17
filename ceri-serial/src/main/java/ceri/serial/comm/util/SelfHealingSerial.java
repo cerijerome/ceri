@@ -33,7 +33,6 @@ import ceri.serial.comm.SerialPort;
  * reconnecting. The PortSupplier interface can be used to provide handling logic in this case.
  */
 public class SelfHealingSerial extends LoopingExecutor implements Serial.Fixable {
-	private static final String PORT_INVALID = "<invalid>";
 	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingSerialConfig config;
 	private final Listeners<StateChange> listeners = Listeners.of();
@@ -55,10 +54,6 @@ public class SelfHealingSerial extends LoopingExecutor implements Serial.Fixable
 		start();
 	}
 
-	/**
-	 * Manually notify the connector it is broken. Useful if the connector cannot determine it is
-	 * broken from IOExceptions alone.
-	 */
 	@Override
 	public void broken() {
 		setBroken();
@@ -81,8 +76,7 @@ public class SelfHealingSerial extends LoopingExecutor implements Serial.Fixable
 
 	@Override
 	public String port() {
-		var serialPort = this.serialPort;
-		return serialPort != null ? serialPort.port() : PORT_INVALID;
+		return Serial.port(serialPort);
 	}
 	
 	@Override
@@ -287,7 +281,7 @@ public class SelfHealingSerial extends LoopingExecutor implements Serial.Fixable
 
 	private SerialPort serialPort() throws IOException {
 		SerialPort serialPort = this.serialPort;
-		if (serialPort == null) throw new IOException("Serial port not connected");
+		if (serialPort == null) throw new IOException("Serial port unavailable");
 		return serialPort;
 	}
 

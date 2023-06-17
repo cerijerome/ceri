@@ -1,24 +1,34 @@
 package ceri.serial.comm;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.io.IoStreamUtil;
+import ceri.common.event.Listenable;
+import ceri.common.io.Connector;
+import ceri.common.io.StateChange;
+import ceri.common.text.StringUtil;
 
 /**
  * Interface for serial connector functional layers on top of SerialPort. For example
  * SelfHealingSerialConnector, which detects serial port errors and attempts to reconnect. Only
  * covers SerialPort features currently in use; other methods may be added later.
  */
-public interface Serial extends Closeable {
+public interface Serial extends Connector {
+	String PORT_INVALID = "<invalid>";
+	/** No-op serial connector instance */
+	Null NULL = new Null();
 
-	InputStream in();
+	static String port(Serial serial) {
+		return serial != null ? serial.port() : PORT_INVALID;
+	}
 
-	OutputStream out();
+	@Override
+	default java.lang.String name() {
+		return Connector.super.name() + ":" + port();
+	}
+
+	String port();
 
 	void inBufferSize(int size);
 
@@ -59,21 +69,13 @@ public interface Serial extends Closeable {
 	boolean ri() throws IOException;
 
 	/**
-	 * A stateless, no-op instance.
+	 * A stateless, no-op implementation.
 	 */
-	Serial NULL = new Serial() {
+	static class Null extends Connector.Null implements Serial {
 
 		@Override
-		public void close() {}
-
-		@Override
-		public InputStream in() {
-			return IoStreamUtil.nullIn;
-		}
-
-		@Override
-		public OutputStream out() {
-			return IoStreamUtil.nullOut;
+		public String port() {
+			return StringUtil.NULL_STRING;
 		}
 
 		@Override
@@ -105,7 +107,7 @@ public interface Serial extends Closeable {
 
 		@Override
 		public Set<FlowControl> flowControl() {
-			return Set.of();
+			return FlowControl.NONE;
 		}
 
 		@Override
@@ -146,5 +148,24 @@ public interface Serial extends Closeable {
 		public boolean ri() throws IOException {
 			return false;
 		}
-	};
+	}
+
+	/**
+	 * An extension of Serial that is aware of state.
+	 */
+	interface Fixable extends Serial, Connector.Fixable {
+		/** No-op, fixable, serial connector instance */
+		Null NULL = new Null();
+
+		static class Null extends Serial.Null implements Serial.Fixable {
+			@Override
+			public Listenable<StateChange> listeners() {
+				return Listenable.ofNull();
+			}
+
+			@Override
+			public void open() throws IOException {}
+		}
+	}
+
 }

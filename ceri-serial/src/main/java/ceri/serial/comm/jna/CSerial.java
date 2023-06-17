@@ -1,42 +1,12 @@
-package ceri.jna.serial.jna;
+package ceri.serial.comm.jna;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.clib.jna.CFcntl.O_NOCTTY;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import static ceri.jna.clib.jna.CIoctl.Linux.ASYNC_SPD_CUST;
 import static ceri.jna.clib.jna.CIoctl.Linux.ASYNC_SPD_MASK;
-import static ceri.jna.clib.jna.CTermios.B0;
-import static ceri.jna.clib.jna.CTermios.B1000000;
-import static ceri.jna.clib.jna.CTermios.B110;
-import static ceri.jna.clib.jna.CTermios.B115200;
-import static ceri.jna.clib.jna.CTermios.B1152000;
-import static ceri.jna.clib.jna.CTermios.B1200;
-import static ceri.jna.clib.jna.CTermios.B134;
-import static ceri.jna.clib.jna.CTermios.B150;
-import static ceri.jna.clib.jna.CTermios.B1500000;
-import static ceri.jna.clib.jna.CTermios.B1800;
-import static ceri.jna.clib.jna.CTermios.B19200;
-import static ceri.jna.clib.jna.CTermios.B200;
-import static ceri.jna.clib.jna.CTermios.B2000000;
-import static ceri.jna.clib.jna.CTermios.B230400;
-import static ceri.jna.clib.jna.CTermios.B2400;
-import static ceri.jna.clib.jna.CTermios.B2500000;
-import static ceri.jna.clib.jna.CTermios.B300;
-import static ceri.jna.clib.jna.CTermios.B3000000;
-import static ceri.jna.clib.jna.CTermios.B3500000;
-import static ceri.jna.clib.jna.CTermios.B38400;
-import static ceri.jna.clib.jna.CTermios.B4000000;
-import static ceri.jna.clib.jna.CTermios.B460800;
-import static ceri.jna.clib.jna.CTermios.B4800;
-import static ceri.jna.clib.jna.CTermios.B50;
-import static ceri.jna.clib.jna.CTermios.B500000;
-import static ceri.jna.clib.jna.CTermios.B57600;
-import static ceri.jna.clib.jna.CTermios.B576000;
-import static ceri.jna.clib.jna.CTermios.B600;
-import static ceri.jna.clib.jna.CTermios.B75;
-import static ceri.jna.clib.jna.CTermios.B921600;
-import static ceri.jna.clib.jna.CTermios.B9600;
 import static ceri.jna.clib.jna.CTermios.CLOCAL;
 import static ceri.jna.clib.jna.CTermios.CMSPAR;
 import static ceri.jna.clib.jna.CTermios.CREAD;
@@ -63,15 +33,21 @@ import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
-import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.Struct;
 
+/**
+ * Provides logic for opening and configuring serial ttys. For Macos and non-standard baud, changes
+ * to attributes will mangle the input buffer, as the attributes must be saved with a temporary
+ * standard baud. IOSSIOSPEED ioctl is then used to set the desired baud. This baud is present in
+ * the termios struct in subsequent calls to get attributes.
+ */
 public class CSerial {
 	private static final int BAUD_UNSUPPORTED = -1;
-	private static final int DC1 = 0x11; // ^Q device control 1
-	private static final int DC3 = 0x13; // ^S device control 3
+	private static final int DC1 = 0x11; // ASCII device control 1 (^Q)
+	private static final int DC3 = 0x13; // ASCII device control 3 (^S)
 	private static final BiMap<Integer, Integer> baudMap = baudMap();
 	public static final int DATABITS_5 = 5;
 	public static final int DATABITS_6 = 6;
@@ -92,35 +68,99 @@ public class CSerial {
 	public static final int STOPBITS_2 = 2;
 
 	public static int open(String port) throws CException {
-		CLib.validateOs();
 		int fd = CFcntl.open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		try {
-			clearNonBlock(fd);
-			if (OsUtil.os().mac) Mac.initPort(fd);
-			else Linux.initPort(fd);
+			CFcntl.setFl(fd, flags -> flags & ~O_NONBLOCK);
+			initPort(fd, CTermios.tcgetattr(fd));
 			return fd;
 		} catch (CException | RuntimeException e) {
-			CUnistd.close(fd);
+			CUnistd.closeSilently(fd);
 			throw e;
 		}
 	}
 
+	/**
+	 * Sets baud, data bits, stop bits, and parity.
+	 */
 	public static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
 		throws CException {
-		CLib.validateOs();
-		if (OsUtil.os().mac) Mac.setParams(fd, baud, dataBits, stopBits, parity);
-		else Linux.setParams(fd, baud, dataBits, stopBits, parity);
+		var tty = CTermios.tcgetattr(fd);
+		setParamFlags(tty.c_cflag, dataBits, stopBits, parity);
+		if (OsUtil.os().mac) Mac.setBaud(fd, tty, baud);
+		else Linux.setBaud(fd, tty, baud);
 	}
 
+	/**
+	 * Sets flow control.
+	 */
 	public static void setFlowControl(int fd, int mode) throws CException {
-		CLib.validateOs();
-		if (OsUtil.os().mac) Mac.setFlowControl(fd, mode);
-		else Linux.setFlowControl(fd, mode);
+		var tty = CTermios.tcgetattr(fd);
+		setFlowControlFlags(tty.c_iflag, tty.c_cflag, mode);
+		setAttr(fd, tty);
 	}
 
-	private static void clearNonBlock(int fd) throws CException {
-		int flags = CFcntl.getFl(fd);
-		CFcntl.setFl(fd, flags & ~O_NONBLOCK);
+	/**
+	 * Sets termios VMIN and VTIME control chars. VMIN is the minimum number of bytes required on a
+	 * read; VTIME is the read timeout in .1 seconds.
+	 * 
+	 * <pre>
+	 * VMIN = 0, VTIME = 0 (polling read) returns immediately
+	 * VMIN > 0, VTIME = 0 (blocking read) blocks until VMIN bytes available
+	 * VMIN = 0, VTIME > 0 (read timeout) blocks until 1+ bytes or timeout
+	 * VMIN > 0, VTIME > 0 (byte timeout) blocks until VMIN bytes, timeout per byte 1+
+	 * </pre>
+	 */
+	public static void setReadParams(int fd, int vmin, int vtime) throws CException {
+		validateRange(vmin, 0, 0xff);
+		validateRange(vtime, 0, 0xff);
+		var tty = CTermios.tcgetattr(fd);
+		tty.c_cc[VMIN] = (byte) vmin;
+		tty.c_cc[VTIME] = (byte) vtime;
+		setAttr(fd, tty);
+	}
+
+	public static void brk(int fd, boolean enable) throws CException {
+		if (enable) CIoctl.tiocsbrk(fd);
+		else CIoctl.tioccbrk(fd);
+	}
+	
+	public static boolean cd(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD);
+	}
+
+	public static boolean cts(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_CTS);
+	}
+
+	public static boolean dsr(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_DSR);
+	}
+
+	public static boolean dtr(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_DTR);
+	}
+
+	public static void dtr(int fd, boolean enable) throws CException {
+		CIoctl.tiocmbit(fd, CIoctl.TIOCM_DTR, enable);
+	}
+
+	public static boolean ri(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI);
+	}
+
+	public static boolean rts(int fd) throws CException {
+		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS);
+	}
+
+	public static void rts(int fd, boolean enable) throws CException {
+		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS, enable);
+	}
+
+	private static void initPort(int fd, termios tty) throws CException {
+		CTermios.cfmakeraw(tty);
+		initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
+		setBaudCode(tty, CTermios.B9600);
+		CTermios.tcsetattr(fd, TCSANOW, tty);
 	}
 
 	private static void initTermios(NativeLong iflag, NativeLong cflag, byte[] cc) {
@@ -129,31 +169,31 @@ public class CSerial {
 			| CLOCAL | CREAD | CS8);
 		cc[VSTART] = DC1;
 		cc[VSTOP] = DC3;
-		cc[VMIN] = 0;
-		cc[VTIME] = 0;
+		cc[VMIN] = 0; // no min bytes for read
+		cc[VTIME] = 0; // no timeout for read
 	}
 
-	private static void setParams(NativeLong cflag, int dataBits, int stopBits, int parity) {
+	private static void setParamFlags(NativeLong cflag, int dataBits, int stopBits, int parity) {
 		cflag.setValue((cflag.longValue() & ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD))
 			| dataBitFlag(dataBits) | stopBitFlag(stopBits) | parityFlags(parity));
 	}
 
 	private static long dataBitFlag(int dataBits) {
 		return switch (dataBits) {
-		case DATABITS_5 -> CS5;
-		case DATABITS_6 -> CS6;
-		case DATABITS_7 -> CS7;
-		case DATABITS_8 -> CS8;
-		default -> throw new IllegalArgumentException("Unsupported data bits: " + dataBits);
+			case DATABITS_5 -> CS5;
+			case DATABITS_6 -> CS6;
+			case DATABITS_7 -> CS7;
+			case DATABITS_8 -> CS8;
+			default -> throw new IllegalArgumentException("Unsupported data bits: " + dataBits);
 		};
 	}
 
 	private static long stopBitFlag(int stopBits) {
 		return switch (stopBits) {
-		case STOPBITS_1 -> 0;
-		case STOPBITS_1_5 -> CSTOPB;
-		case STOPBITS_2 -> CSTOPB;
-		default -> throw new IllegalArgumentException("Unsupported stop bits: " + stopBits);
+			case STOPBITS_1 -> 0;
+			case STOPBITS_1_5 -> CSTOPB;
+			case STOPBITS_2 -> CSTOPB;
+			default -> throw new IllegalArgumentException("Unsupported stop bits: " + stopBits);
 		};
 	}
 
@@ -167,7 +207,7 @@ public class CSerial {
 		throw exceptionf("Unsupported parity: 0x%02x", parity);
 	}
 
-	private static void setFlowControl(NativeLong iflag, NativeLong cflag, int mode) {
+	private static void setFlowControlFlags(NativeLong iflag, NativeLong cflag, int mode) {
 		iflag.setValue((iflag.longValue() & ~(IXANY | IXOFF | IXON)) | flowControlSw(mode));
 		cflag.setValue((cflag.longValue() & ~CRTSCTS) | flowControlHw(mode));
 	}
@@ -187,8 +227,7 @@ public class CSerial {
 			| ((mode & FLOWCONTROL_XONXOFF_OUT) == 0 ? 0 : IXON);
 	}
 
-	private static <T extends CTermios.termios> void setBaudCode(T tty, int baudCode)
-		throws CException {
+	private static void setBaudCode(termios tty, int baudCode) throws CException {
 		Struct.write(tty);
 		CTermios.cfsetispeed(tty, baudCode);
 		CTermios.cfsetospeed(tty, baudCode);
@@ -199,14 +238,24 @@ public class CSerial {
 	}
 
 	private static BiMap<Integer, Integer> baudMap() {
-		return BiMap.<Integer, Integer>builder().put(B0, 0).put(B50, 50).put(B75, 75).put(B110, 110)
-			.put(B134, 134).put(B150, 150).put(B200, 200).put(B300, 300).put(B600, 600)
-			.put(B1200, 1200).put(B1800, 1800).put(B2400, 2400).put(B4800, 4800).put(B9600, 9600)
-			.put(B19200, 19200).put(B38400, 38400).put(B57600, 57600).put(B115200, 115200)
-			.put(B230400, 230400).put(B460800, 460800).put(B500000, 500000).put(B576000, 576000)
-			.put(B921600, 921600).put(B1000000, 1000000).put(B1152000, 1152000)
-			.put(B1500000, 1500000).put(B2000000, 2000000).put(B2500000, 2500000)
-			.put(B3000000, 3000000).put(B3500000, 3500000).put(B4000000, 4000000).build();
+		return BiMap.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
+			.put(CTermios.B110, 110).put(CTermios.B134, 134).put(CTermios.B150, 150)
+			.put(CTermios.B200, 200).put(CTermios.B300, 300).put(CTermios.B600, 600)
+			.put(CTermios.B1200, 1200).put(CTermios.B1800, 1800).put(CTermios.B2400, 2400)
+			.put(CTermios.B4800, 4800).put(CTermios.B9600, 9600).put(CTermios.B19200, 19200)
+			.put(CTermios.B38400, 38400).put(CTermios.B57600, 57600).put(CTermios.B115200, 115200)
+			.put(CTermios.B230400, 230400).put(CTermios.B460800, 460800)
+			.put(CTermios.B500000, 500000).put(CTermios.B576000, 576000)
+			.put(CTermios.B921600, 921600).put(CTermios.B1000000, 1000000)
+			.put(CTermios.B1152000, 1152000).put(CTermios.B1500000, 1500000)
+			.put(CTermios.B2000000, 2000000).put(CTermios.B2500000, 2500000)
+			.put(CTermios.B3000000, 3000000).put(CTermios.B3500000, 3500000)
+			.put(CTermios.B4000000, 4000000).build();
+	}
+
+	private static void setAttr(int fd, termios tty) throws CException {
+		if (OsUtil.os().mac) Mac.setAttr(fd, tty); // handle non-standard baud
+		else CTermios.tcsetattr(fd, TCSANOW, tty);
 	}
 
 	/* os-specific types and calls */
@@ -214,67 +263,40 @@ public class CSerial {
 	public static final class Mac {
 		private Mac() {}
 
-		private static void initPort(int fd) throws CException {
-			var tty = CTermios.Mac.tcgetattr(fd);
-			CTermios.cfmakeraw(tty);
-			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
-			CSerial.setBaudCode(tty, B9600);
-			CTermios.tcsetattr(fd, TCSANOW, tty);
-		}
-
-		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
-			throws CException {
-			var tty = CTermios.Mac.tcgetattr(fd);
-			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
+		private static void setBaud(int fd, termios tty, int baud) throws CException {
 			int baudCode = CSerial.baudCode(baud);
-			CSerial.setBaudCode(tty, baudCode == BAUD_UNSUPPORTED ? B9600 : baudCode);
-			CTermios.tcsetattr(fd, TCSANOW, tty);
-			if (baudCode == BAUD_UNSUPPORTED) CIoctl.Mac.iossiospeed(fd, baud);
+			if (baudCode == BAUD_UNSUPPORTED) enableCustomBaud(fd, tty, baud);
+			else {
+				CSerial.setBaudCode(tty, baudCode);
+				CTermios.tcsetattr(fd, TCSANOW, tty);
+			}
 		}
 
-		private static void setFlowControl(int fd, int mode) throws CException {
-			var tty = CTermios.Mac.tcgetattr(fd);
-			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
+		private static void setAttr(int fd, termios tty) throws CException {
+			int baud = tty.c_ospeed.intValue(); // must re-apply if non-standard
+			if (CSerial.baudCode(baud) == BAUD_UNSUPPORTED) enableCustomBaud(fd, tty, baud);
+			else CTermios.tcsetattr(fd, TCSANOW, tty);
+		}
+
+		private static void enableCustomBaud(int fd, termios tty, int baud) throws CException {
+			CSerial.setBaudCode(tty, CTermios.B9600);
 			CTermios.tcsetattr(fd, TCSANOW, tty);
+			CIoctl.Mac.iossiospeed(fd, baud);
 		}
 	}
 
 	public static final class Linux {
 		private Linux() {}
 
-		private static void initPort(int fd) throws CException {
-			var tty = CTermios.Linux.tcgetattr(fd);
-			CTermios.cfmakeraw(tty);
-			CSerial.initTermios(tty.c_iflag, tty.c_cflag, tty.c_cc);
-			CSerial.setBaudCode(tty, B9600);
-			CTermios.tcsetattr(fd, TCSANOW, tty);
-		}
-
-		private static void setParams(int fd, int baud, int dataBits, int stopBits, int parity)
-			throws CException {
-			var tty = CTermios.Linux.tcgetattr(fd);
-			CSerial.setParams(tty.c_cflag, dataBits, stopBits, parity);
-			setBaud(fd, tty, baud);
-			CTermios.tcsetattr(fd, TCSANOW, tty);
-		}
-
-		private static void setFlowControl(int fd, int mode) throws CException {
-			var tty = CTermios.Linux.tcgetattr(fd);
-			CSerial.setFlowControl(tty.c_iflag, tty.c_cflag, mode);
-			CTermios.tcsetattr(fd, TCSANOW, tty);
-		}
-
-		private static void setBaud(int fd, CTermios.Linux.termios tty, int baud)
-			throws CException {
+		private static void setBaud(int fd, termios tty, int baud) throws CException {
 			int baudCode = CSerial.baudCode(baud);
 			if (baudCode == BAUD_UNSUPPORTED) {
 				enableCustomBaud(fd, baud);
 				verifyCustomBaud(fd, baud);
-				CSerial.setBaudCode(tty, B38400);
-			} else {
-				disableCustomBaud(fd);
-				CSerial.setBaudCode(tty, baudCode);
-			}
+				baudCode = CTermios.B38400;
+			} else disableCustomBaud(fd);
+			CSerial.setBaudCode(tty, baudCode);
+			CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void disableCustomBaud(int fd) throws CException {

@@ -64,7 +64,7 @@ public class SelfHealingFtdiConnectorBehavior {
 			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()), // bitMode()
 			List.of(0x40, 0x03, 0xc04e, 0, ByteProvider.empty()), // baudRate()
 			List.of(0x40, 0x04, 0x0008, 1, ByteProvider.empty())); // lineParams()
-		lib.syncTransferIn.assertNoCall();
+		lib.syncTransferIn.assertCalls(0);
 	}
 
 	@Test
@@ -155,7 +155,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	public void shouldHandleListenerErrors() throws IOException {
 		LogModifier.run(() -> {
 			connect();
-			CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 			try (var enc = con.listeners().enclose(sync::accept)) {
 				sync.error.setFrom(RTX);
 				con.broken(); // logged

@@ -9,33 +9,53 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.jna.clib.CInputStream;
 import ceri.jna.clib.COutputStream;
+import ceri.jna.clib.jna.CError;
+import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.jna.CSerial;
 
 /**
- * A simple serial port as a wrapper for CSerial functionality.
+ * A simple serial port as a wrapper for CSerial functionality. Does not support event
+ * notifications, receive threshold, or receive timeout from JavaComm api.
  */
 public class SerialPort implements Serial {
 	private static final Logger logger = LogManager.getFormatterLogger();
+	private static final Set<Integer> BROKEN_ERROR_CODES =
+		CError.codes(CError.ENOENT, CError.ENXIO, CError.EBADF, CError.EACCES, CError.ENODEV);
 	private final int fd;
+	private final String port;
 	private final CInputStream in;
 	private final COutputStream out;
 	private volatile SerialParams params = SerialParams.DEFAULT;
 	private volatile int flowControlMode = CSerial.FLOWCONTROL_NONE;
 
-	public static SerialPort open(String port) throws IOException {
-		int fd = CSerial.open(port);
-		return new SerialPort(fd);
+	/**
+	 * Determine if the serial port is unrecoverable, based on a thrown exception.
+	 */
+	public static boolean isBroken(Exception e) {
+		if (!(e instanceof CException ce)) return false;
+		return BROKEN_ERROR_CODES.contains(ce.code);
 	}
 
-	private SerialPort(int fd) {
+	public static SerialPort open(String port) throws IOException {
+		int fd = CSerial.open(port);
+		return new SerialPort(fd, port);
+	}
+
+	private SerialPort(int fd, String port) {
 		this.fd = fd;
+		this.port = port;
 		in = CInputStream.of(fd);
 		out = createOut(fd);
 	}
 
+	@Override
+	public String port() {
+		return port;
+	}
+	
 	@Override
 	public void params(SerialParams params) throws IOException {
 		CSerial.setParams(fd, params.baud, params.dataBits.bits, params.stopBits.value,
