@@ -8,16 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import ceri.common.event.Listenable;
+import ceri.common.function.FunctionUtil;
 import ceri.common.io.Connector;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.io.IoStreamUtil.Write;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
 
 /**
- * Blocking streams for testing hardware device controllers by simulating hardware interaction.
- * Allows for generation of errors when making i/o calls. Writing to the controller will not block
- * (unless PipedInputStream buffer is full); to block, call awaitFeed() to wait for feed data to be
- * read.
+ * A connector implementation for tests, using piped streams.
  */
 public class TestConnector implements Connector.Fixable {
 	public final TestListeners<StateChange> listeners = TestListeners.of();
@@ -26,13 +25,15 @@ public class TestConnector implements Connector.Fixable {
 	public final CallSync.Runnable close = CallSync.runnable(true);
 	public final TestInputStream in;
 	public final TestOutputStream out;
+	private final String name;
 	private final InputStream wrappedIn;
 	private final OutputStream wrappedOut;
+	private volatile Write writeOverride = null;
 
 	/**
 	 * Manually test a list of connectors.
 	 */
-	public static void manual(Connector... connectors) {
+	public static void manual(Connector... connectors) throws IOException {
 		manual(Arrays.asList(connectors), null);
 	}
 
@@ -40,8 +41,8 @@ public class TestConnector implements Connector.Fixable {
 	 * Manually test a list of connectors.
 	 */
 	public static void manual(List<? extends Connector> connectors,
-		Consumer<ManualTester.Builder> commandBuilder) {
-		var b = ManualTester.builder(connectors, Connector::name);
+		Consumer<ManualTester.Builder> commandBuilder) throws IOException {
+		var b = ManualTester.builderList(connectors, Connector::name);
 		b.preProcessor(Connector.class, (con, t) -> t.readBytes(con.in()));
 		b.command(Connector.class, "o(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
 			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
@@ -50,35 +51,36 @@ public class TestConnector implements Connector.Fixable {
 		b.command(TestConnector.class, "Z", (m, s, t) -> s.fixed(), "Z = fix the connector");
 		if (commandBuilder != null) commandBuilder.accept(b);
 		var tester = b.build();
-		for (var connector : connectors)
-			if (connector instanceof Connector.Fixable fixable)
+		for (var connector : connectors) {
+			if (connector instanceof Connector.Fixable fixable) {
 				fixable.listeners().listen(e -> tester.out(fixable.name() + " => " + e));
+				fixable.open();
+			}
+		}
 		tester.run();
 	}
 
-	/**
-	 * Echo write data to input, consistent with connect/broken states.
-	 */
-	protected static void echo(TestConnector con, byte[] b, int offset, int length)
-		throws IOException {
-		con.verifyConnected();
-		con.in.to.write(b, offset, length);
+	public static <T extends TestConnector> T echo(T connector) {
+		connector.echoOn();
+		return connector;
 	}
 
-	/**
-	 * Write data to another input, consistent with connect/broken states.
-	 */
-	protected static void pair(TestConnector con, TestConnector other, byte[] b, int offset,
-		int length) throws IOException {
-		con.verifyConnected();
-		other.in.to.write(b, offset, length);
+	@SafeVarargs
+	public static <T extends TestConnector> T[] chain(T... connectors) {
+		for (int i = 0; i < connectors.length; i++)
+			connectors[i].pairWith(connectors[(i + 1) % connectors.length]);
+		return connectors;
 	}
 
 	public static TestConnector of() {
-		return new TestConnector();
+		return new TestConnector(null);
 	}
 
-	protected TestConnector() {
+	/**
+	 * Constructor with optional name override. Use null for the default name.
+	 */
+	protected TestConnector(String name) {
+		this.name = name;
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
 		wrappedIn = IoStreamUtil.filterIn(in, this::read, this::available);
@@ -93,6 +95,25 @@ public class TestConnector implements Connector.Fixable {
 		CallSync.resetAll(broken, open);
 		in.resetState();
 		out.resetState();
+	}
+
+	/**
+	 * Enable echo; input data is written to output.
+	 */
+	public void echoOn() {
+		pairWith(this);
+	}
+
+	/**
+	 * Enable pairing; input data is written to another connector.
+	 */
+	public void pairWith(TestConnector other) {
+		writeOverride = (b, off, len) -> other.in.to.write(b, off, len);
+	}
+
+	@Override
+	public String name() {
+		return name == null ? Connector.Fixable.super.name() : name;
 	}
 
 	@Override
@@ -152,7 +173,7 @@ public class TestConnector implements Connector.Fixable {
 	/**
 	 * Calls available before error generation logic.
 	 */
-	protected int available(InputStream in) throws IOException {
+	private int available(InputStream in) throws IOException {
 		int n = in.available();
 		verifyConnected();
 		return n;
@@ -161,7 +182,7 @@ public class TestConnector implements Connector.Fixable {
 	/**
 	 * Calls read before error generation logic. EOF overrides read response.
 	 */
-	protected int read(InputStream in, byte[] b, int offset, int length) throws IOException {
+	private int read(InputStream in, byte[] b, int offset, int length) throws IOException {
 		int n = in.read(b, offset, length);
 		verifyConnected();
 		return n;
@@ -170,9 +191,10 @@ public class TestConnector implements Connector.Fixable {
 	/**
 	 * Calls write before error generation logic.
 	 */
-	protected void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
-		out.write(b, offset, length);
+	private void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
 		verifyConnected();
+		if (!FunctionUtil.safeAccept(writeOverride, w -> w.write(b, offset, length)))
+			out.write(b, offset, length);
 	}
 
 	protected void verifyConnected() throws IOException {

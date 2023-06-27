@@ -47,7 +47,7 @@ public interface Connector extends Closeable {
 	}
 	
 	/**
-	 * A no-op connector implementation.
+	 * A no-op, stateless, connector implementation.
 	 */
 	class Null implements Connector.Fixable {
 		
@@ -72,4 +72,13 @@ public interface Connector extends Closeable {
 		@Override
 		public void close() {}
 	}
+	
+	/**
+	 * Transfer bytes from input to output stream in current thread, until EOF.
+	 */
+	@SuppressWarnings("resource")
+	static void echo(Connector connector) throws IOException {
+		IoUtil.pipe(connector.in(), connector.out());
+	}
+	
 }

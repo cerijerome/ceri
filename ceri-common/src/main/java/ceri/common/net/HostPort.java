@@ -22,6 +22,10 @@ public class HostPort {
 		return of(m.group(1), RegexUtil.intGroup(m, 2));
 	}
 
+	public static HostPort from(InetSocketAddress address) {
+		return of(address.getHostString(), address.getPort());
+	}
+
 	public static HostPort localhost(int port) {
 		return of(NetUtil.LOCALHOST, port);
 	}

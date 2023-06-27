@@ -16,8 +16,8 @@ import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
 /**
- * A test InputStream that wraps a PipedStream. Method calls can be overridden or delegated to the
- * piped stream. Errors can be also be generated.
+ * An InputStream that wraps a PipedStream for testing. Read calls read from the pipe. CallSync
+ * fields can be used to override behavior and generate errors.
  */
 public class TestInputStream extends InputStream implements Fluent<TestInputStream> {
 	private static final int DEFAULT_SIZE = 1024;

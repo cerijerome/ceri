@@ -28,7 +28,7 @@ import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 /**
- * A tool for parsing keyboard input, and running commands against a list of subjects. Allows
+ * A tool for parsing keyboard input, and running commands against 1 or more subjects. Allows
  * pre-processing actions before waiting for input, and is able to notify a listener when the
  * subject index changes.
  */
@@ -76,17 +76,23 @@ public class ManualTester {
 		protected Builder(List<?> subjects) {
 			if (subjects.isEmpty()) throw new IllegalArgumentException("No subjects");
 			this.subjects = subjects;
-			command("(?i)(?:\\?|help)", (m, t) -> t.showHelp(), "?|help = show commands");
-			command("(?i)(?:\\!|exit)", (m, t) -> t.exit = true, "!|exit = exit");
+			command("\\?", (m, t) -> t.showHelp(), "? = show commands");
+			command("\\!", (m, t) -> t.exit = true, "! = exit");
+			command(Object.class, ":", (m, s, t) -> t.out(info(s)), ": = subject type");
 			addIndexCommands(subjects.size());
+		}
+
+		private String info(Object subject) {
+			return String.format("%s %s", ReflectUtil.className(subject),
+				ReflectUtil.hashId(subject));
 		}
 
 		private void addIndexCommands(int n) {
 			if (n <= 1) return;
 			command("(\\*)", (m, t) -> t.listSubjects(), "* = list all subjects");
-			command("@(\\d+)", (m, t) -> t.index(mInt(m)),
-				"@i = set subject index (0.." + (n - 1) + ")");
 			command("(\\-+|\\++)", (m, t) -> t.indexDiff(mDiff(m)), "-|+ = previous/next subject");
+			command("@(\\d+)", (m, t) -> t.index(mInt(m)),
+				"@[N] = set subject index (0.." + (n - 1) + ")");
 		}
 
 		public Builder in(InputStream in) {
@@ -163,17 +169,25 @@ public class ManualTester {
 		}
 	}
 
-	@SafeVarargs
-	public static <T> Builder builderFromArray(T... subjects) {
-		return builder(Arrays.asList(subjects));
+	public static <T> Builder builder(T subject) {
+		return builderList(Arrays.asList(subject));
 	}
 
-	public static Builder builder(List<? extends Object> subjects) {
+	public static <T> Builder builder(T subject, Function<T, String> stringFn) {
+		return builderList(Arrays.asList(subject), stringFn);
+	}
+
+	@SafeVarargs
+	public static <T> Builder builderArray(T... subjects) {
+		return builderList(Arrays.asList(subjects));
+	}
+
+	public static Builder builderList(List<? extends Object> subjects) {
 		return new Builder(subjects);
 	}
 
-	public static <T> Builder builder(List<T> subjects, Function<T, String> stringFn) {
-		return builder(subjects).stringFn(s -> stringFn.apply(BasicUtil.<T>uncheckedCast(s)));
+	public static <T> Builder builderList(List<T> subjects, Function<T, String> stringFn) {
+		return builderList(subjects).stringFn(s -> stringFn.apply(BasicUtil.<T>uncheckedCast(s)));
 	}
 
 	protected ManualTester(Builder builder) {
@@ -317,7 +331,7 @@ public class ManualTester {
 
 	private String string(Object subject, int index) {
 		if (subjects.size() <= 1) return stringFn.apply(subject);
-		return String.format("%d:%s", index, stringFn.apply(subject));
+		return String.format("%d)%s", index, stringFn.apply(subject));
 	}
 
 	private void indexDiff(int diff) {

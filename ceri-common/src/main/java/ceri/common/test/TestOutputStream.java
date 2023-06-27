@@ -16,6 +16,10 @@ import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
 
+/**
+ * An OutputStream that wraps a PipedStream for testing. Write calls write to the pipe. CallSync
+ * fields can be used to override behavior and generate errors.
+ */
 public class TestOutputStream extends OutputStream {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;

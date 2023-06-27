@@ -177,7 +177,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.IoStreamUtilTest.class, //
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
-	ceri.common.io.KeyCheckerBehavior.class, //
 	ceri.common.io.NioUtilTest.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //

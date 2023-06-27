@@ -10,15 +10,15 @@ import ceri.common.function.ExceptionRunnable;
  * Provides an AutoCloseable type encapsulating an object and a close method.
  */
 public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
-	private static final Enclosed<RuntimeException, ?> EMPTY = of(null, null);
+	private static final Enclosed<?, ?> EMPTY = new Enclosed<>(null, null);
 	public final T subject;
-	private final ExceptionConsumer<E, T> closer;
+	private final ExceptionRunnable<E> closer;
 
 	/**
 	 * Return an empty instance.
 	 */
 	public static <T> Enclosed<RuntimeException, T> empty() {
-		return BasicUtil.uncheckedCast(EMPTY);
+		return of(null, null);
 	}
 
 	/**
@@ -29,18 +29,21 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
-	 * Create an instance with a subject, and a close method.
+	 * Create an instance with a subject, and a close method. If the subject is null, the close
+	 * method is not executed.
 	 */
 	public static <E extends Exception, T> Enclosed<E, T> of(T subject,
 		ExceptionConsumer<E, T> closer) {
-		return new Enclosed<>(subject, closer);
+		if (subject == null) return BasicUtil.uncheckedCast(EMPTY);
+		if (closer == null) return new Enclosed<>(subject, null);
+		return new Enclosed<>(subject, () -> closer.accept(subject));
 	}
 
 	/**
 	 * Create an instance with no subject, just a close method.
 	 */
-	public static <E extends Exception> Enclosed<E, ?> of(ExceptionRunnable<E> closer) {
-		return new Enclosed<>(Boolean.TRUE, x -> closer.run());
+	public static <E extends Exception, T> Enclosed<E, T> of(ExceptionRunnable<E> closer) {
+		return new Enclosed<>((T) null, closer);
 	}
 
 	/**
@@ -60,7 +63,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		return new Enclosed<>(closeables, CloseableUtil::closeAll);
 	}
 
-	private Enclosed(T subject, ExceptionConsumer<E, T> closer) {
+	private Enclosed(T subject, ExceptionRunnable<E> closer) {
 		this.subject = subject;
 		this.closer = closer;
 	}
@@ -76,13 +79,12 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 * Returns true if this instance has no close action.
 	 */
 	public boolean isNoOp() {
-		return closer == null || isEmpty();
+		return closer == null;
 	}
 
 	@Override
 	public void close() throws E {
-		if (subject == null || closer == null) return;
-		closer.accept(subject);
+		if (closer != null) closer.run();
 	}
 
 }

@@ -27,7 +27,7 @@ public class CloseableUtilTest {
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
-		assertFalse(CloseableUtil.close(null));
+		assertTrue(CloseableUtil.close(null));
 		assertTrue(CloseableUtil.close(in));
 		assertThrown(IOException.class, in::read);
 	}

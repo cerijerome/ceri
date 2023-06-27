@@ -49,7 +49,8 @@ public class IoUtil {
 	private static final String USER_HOME_PROPERTY = "user.home";
 	private static final String USER_DIR_PROPERTY = "user.dir";
 	private static final String CLASS_SUFFIX = ".class";
-	private static final int READ_POLL_MS = 50;
+	private static final int READ_POLL_MS = 20;
+	private static final int BUFFER_SIZE_DEF = 1024;
 	private static final int MIN_ABSOLUTE_DIRS = 3;
 	private static final Pattern PATH_SEPARATOR_REGEX =
 		Pattern.compile("\\Q" + File.pathSeparator + "\\E");
@@ -331,7 +332,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Get a char from stdin, return 0 if no key pressed
+	 * Get a char from stdin, return 0 if no chars available.
 	 */
 	public static char availableChar() {
 		return availableChar(System.in);
@@ -439,6 +440,33 @@ public class IoUtil {
 				"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
 			ConcurrentUtil.delay(pollMs);
 		}
+	}
+
+	/**
+	 * Transfer bytes from input to output stream in current thread, until EOF. A polling delay is
+	 * used in each iteration if the InputStream in non-blocking. Returns the total number of bytes
+	 * transferred.
+	 */
+	public static long pipe(InputStream in, OutputStream out) throws IOException {
+		return pipe(in, out, new byte[BUFFER_SIZE_DEF], READ_POLL_MS);
+	}
+
+	/**
+	 * Transfer bytes from input to output stream in current thread, until EOF. Returns the total
+	 * number of bytes transferred.
+	 */
+	public static long pipe(InputStream in, OutputStream out, byte[] buffer, int delayMs)
+		throws IOException {
+		long total = 0;
+		while (true) {
+			ConcurrentUtil.checkRuntimeInterrupted();
+			int n = in.read(buffer);
+			if (n < 0) break;
+			if (n > 0) out.write(buffer, 0, n);
+			else ConcurrentUtil.delay(delayMs);
+			total += n;
+		}
+		return total;
 	}
 
 	/**

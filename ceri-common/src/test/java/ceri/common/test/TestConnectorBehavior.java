@@ -31,7 +31,8 @@ public class TestConnectorBehavior {
 	@Test
 	public void shouldEchoToInput() throws IOException {
 		con.open();
-		TestConnector.echo(con, bytes(1, 2, 3, 4, 5), 1, 3);
+		con.echoOn();
+		con.out().write(bytes(1, 2, 3, 4, 5), 1, 3);
 		assertEquals(con.in().available(), 3);
 		assertRead(con.in(), 2, 3, 4);
 	}

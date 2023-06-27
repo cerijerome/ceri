@@ -8,11 +8,13 @@ import ceri.common.util.BasicUtil;
  */
 public interface Fluent<T> {
 
+	static <E extends Exception, T> T apply(T t, ExceptionConsumer<E, ? super T> consumer) throws E {
+		if (t != null && consumer != null) consumer.accept(t);
+		return t;
+	}
+	
 	default <E extends Exception> T apply(ExceptionConsumer<E, ? super T> consumer) throws E {
-		T typedThis = BasicUtil.uncheckedCast(this);
-		if (consumer != null) // or throw?
-			consumer.accept(typedThis);
-		return typedThis;
+		return apply(BasicUtil.<T>uncheckedCast(this), consumer);
 	}
 
 	default <E extends Exception, U> U map(ExceptionFunction<E, ? super T, U> fn) throws E {
