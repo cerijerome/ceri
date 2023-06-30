@@ -339,9 +339,9 @@ public class BinaryPrinter {
 	}
 
 	private void resetBuffers(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
-		binB.setLength(0);
-		hexB.setLength(0);
-		charB.setLength(0);
+		StringUtil.clear(binB);
+		StringUtil.clear(hexB);
+		StringUtil.clear(charB);
 	}
 
 	private void appendMissingItemSpace(StringBuilder binB, StringBuilder hexB,

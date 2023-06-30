@@ -10,16 +10,20 @@ import java.util.regex.Pattern;
 import ceri.common.text.RegexUtil;
 
 public class HostPort {
-	public static HostPort NULL = new HostPort(null, null);
-	public static HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, null);
+	public static final int INVALID_PORT = -1;
+	public static final HostPort NULL = new HostPort(null, INVALID_PORT);
+	public static final HostPort LOCALHOST = new HostPort(NetUtil.LOCALHOST, INVALID_PORT);
 	private static final Pattern HOST_REGEX = Pattern.compile("([^:]+)(?::(\\d+))?");
 	public final String host;
-	public final Integer port;
+	public final int port;
 
 	public static HostPort parse(String value) {
 		Matcher m = RegexUtil.matched(HOST_REGEX, value);
 		if (m == null) return null;
-		return of(m.group(1), RegexUtil.intGroup(m, 2));
+		String host = m.group(1);
+		String portGroup = m.group(2);
+		int port = portGroup != null ? Integer.parseInt(portGroup) : INVALID_PORT;
+		return of(host, port);
 	}
 
 	public static HostPort from(InetSocketAddress address) {
@@ -31,15 +35,15 @@ public class HostPort {
 	}
 
 	public static HostPort of(String host) {
-		return of(host, null);
+		return of(host, INVALID_PORT);
 	}
 
-	public static HostPort of(String host, Integer port) {
+	public static HostPort of(String host, int port) {
 		validateNotNull(host);
 		return new HostPort(host, port);
 	}
 
-	private HostPort(String host, Integer port) {
+	private HostPort(String host, int port) {
 		this.host = host;
 		this.port = port;
 	}
@@ -53,7 +57,7 @@ public class HostPort {
 	}
 
 	public int port(int def) {
-		return port != null ? port : def;
+		return port != INVALID_PORT ? port : def;
 	}
 
 	public boolean isNull() {
@@ -61,7 +65,7 @@ public class HostPort {
 	}
 
 	public boolean hasPort() {
-		return port != null;
+		return port != INVALID_PORT;
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class HostPort {
 
 	@Override
 	public String toString() {
-		return port == null ? host : host + ":" + port;
+		return port == INVALID_PORT ? host : host + ":" + port;
 	}
 
 }

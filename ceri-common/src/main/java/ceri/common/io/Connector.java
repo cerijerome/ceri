@@ -13,10 +13,10 @@ import ceri.common.reflect.ReflectUtil;
 public interface Connector extends Closeable {
 
 	/**
-	 * Provides the connector name. By default this is the simple class name.
+	 * Provides the connector name. By default this is the simple class name and system hash.
 	 */
 	default String name() {
-		return ReflectUtil.name(getClass());
+		return ReflectUtil.className(this) + ReflectUtil.hashId(this);
 	}
 
 	/**

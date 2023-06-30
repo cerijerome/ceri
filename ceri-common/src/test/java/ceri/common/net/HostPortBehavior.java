@@ -73,18 +73,17 @@ public class HostPortBehavior {
 		assertEquals(addr.getHostString(), "0.0.0.0");
 	}
 
-	private static void assertHostPort(HostPort hostPort, String host) {
-		assertHostPort(hostPort, host, null);
+	static void assertHostPort(HostPort hostPort, String host) {
+		assertHostPort(hostPort, host, HostPort.INVALID_PORT);
 	}
-
-	static void assertHostPort(HostPort hostPort, String host, Integer port) {
+	
+	static void assertHostPort(HostPort hostPort, String host, int port) {
 		if (host == null) {
 			assertNull(hostPort);
 			return;
 		}
 		assertNotNull(hostPort);
 		assertEquals(hostPort.host, host);
-		if (port == null) assertNull(hostPort.port);
-		else assertEquals(hostPort.port, port);
+		assertEquals(hostPort.port, port);
 	}
 }

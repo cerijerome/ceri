@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Objects;
 import ceri.common.io.Connector;
 import ceri.common.util.BasicUtil;
@@ -42,6 +43,20 @@ public interface TcpSocket extends Connector {
 	<T> T option(TcpSocketOption<T> option) throws IOException;
 
 	/**
+	 * Set socket options.
+	 */
+	default void options(TcpSocketOptions options) throws IOException {
+		options.applyAll(this);
+	}
+
+	/**
+	 * Get socket options.
+	 */
+	default TcpSocketOptions options() throws IOException {
+		return TcpSocketOptions.from(this);
+	}
+
+	/**
 	 * An extension of SocketConnector that is aware of state.
 	 */
 	interface Fixable extends TcpSocket, Connector.Fixable {}
@@ -55,6 +70,10 @@ public interface TcpSocket extends Connector {
 			socket.close();
 			throw e;
 		}
+	}
+
+	static boolean isBroken(Exception e) {
+		return e instanceof SocketException; // check broken pipe?
 	}
 
 	/**
@@ -118,7 +137,7 @@ public interface TcpSocket extends Connector {
 			socket.close();
 		}
 	}
-	
+
 	/**
 	 * A no-op, stateless, socket implementation.
 	 */

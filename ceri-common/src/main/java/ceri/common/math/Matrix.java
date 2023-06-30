@@ -10,6 +10,7 @@ import static ceri.common.validation.ValidationUtil.validatef;
 import static java.lang.Math.floorMod;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
+import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
 
@@ -431,7 +432,7 @@ public class Matrix {
 		int nc = columns > max ? max - 1 : columns;
 		StringBuilder b = new StringBuilder();
 		for (int r = 0; r < nr; r++) {
-			b.setLength(0);
+			StringUtil.clear(b);
 			appendRow(b, r, nc);
 			s.children(b.toString());
 		}

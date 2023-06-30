@@ -7,6 +7,13 @@ import org.junit.Test;
 public class BooleanConditionBehavior {
 
 	@Test
+	public void shouldReturnSignalState() {
+		BooleanCondition flag = BooleanCondition.of();
+		assertTrue(flag.signal());
+		assertFalse(flag.signal());
+	}
+
+	@Test
 	public void shouldPeekWithoutResettingValue() throws InterruptedException {
 		BooleanCondition flag = BooleanCondition.of();
 		assertFalse(flag.awaitPeek(0));

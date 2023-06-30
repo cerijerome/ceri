@@ -4,7 +4,7 @@ import java.util.concurrent.Semaphore;
 import ceri.common.function.RuntimeCloseable;
 
 /**
- * A closable, binary semaphore. Can be used to protect a long-running code block. Acquisition is
+ * A closable binary semaphore. Can be used to protect a long-running code block. Acquisition is
  * interruptible; may perform better than Lock.lockInterruptibly.
  */
 public class BinarySemaphore implements AutoCloseable {

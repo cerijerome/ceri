@@ -118,9 +118,6 @@ public class DsvCodec {
 	}
 
 	private static String flush(StringBuilder b) {
-		String s = b.toString().trim();
-		b.setLength(0);
-		return s;
+		return StringUtil.flush(b).trim();
 	}
-
 }

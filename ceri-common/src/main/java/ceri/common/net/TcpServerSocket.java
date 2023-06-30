@@ -33,6 +33,22 @@ public class TcpServerSocket implements Closeable {
 		this.port = serverSocket.getLocalPort();
 	}
 
+	/**
+	 * Listens for connections and passes the new socket to the listener. The socket is closed on
+	 * returning from the listener callback. The returned future can be used to interrupt listening.
+	 */
+	public Future<?> listenAndClose(ExceptionConsumer<IOException, TcpSocket> listener) {
+		return listen(socket -> {
+			listener.accept(socket);
+			socket.close();
+		});
+	}
+
+	/**
+	 * Listens for connections and passes the new socket to the listener. The listener is expected
+	 * to close the socket if no exception is thrown. The returned future can be used to interrupt
+	 * listening.
+	 */
 	public Future<?> listen(ExceptionConsumer<IOException, TcpSocket> listener) {
 		return ConcurrentUtil.submit(exec, () -> listenAndNotify(listener));
 	}

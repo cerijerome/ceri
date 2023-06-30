@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
+import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -72,6 +73,15 @@ public class CollectionUtil {
 	 */
 	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
 		return () -> iterator;
+	}
+
+	/**
+	 * Iterates over map entries; allows checked exceptions.
+	 */
+	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
+		ExceptionBiConsumer<E, K, V> consumer) throws E {
+		for (var entry : map.entrySet())
+			consumer.accept(entry.getKey(), entry.getValue());
 	}
 
 	@SafeVarargs
@@ -472,7 +482,7 @@ public class CollectionUtil {
 	 * Finds the first key with matching value.
 	 */
 	public static <K, V> K key(Map<K, V> map, V value) {
-		for (Map.Entry<K, V> entry : map.entrySet()) {
+		for (var entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
 			if (entry.getValue() == value || entry.getValue().equals(value)) return entry.getKey();
 		}
@@ -484,7 +494,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V> Collection<K> keys(Map<K, V> map, V value) {
 		Set<K> keys = CollectionUtil.<K>setSupplier().get();
-		for (Map.Entry<K, V> entry : map.entrySet()) {
+		for (var entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
 			if (entry.getValue() == value || entry.getValue().equals(value))
 				keys.add(entry.getKey());

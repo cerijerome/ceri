@@ -25,7 +25,7 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	 */
 	@SuppressWarnings("resource")
 	public static TestTcpSocket ofEcho() {
-		return TestConnector.echo(new TestTcpSocket(NAME + ":echo"));
+		return TestConnector.echoOn(new TestTcpSocket(NAME + ":echo"));
 	}
 
 	/**

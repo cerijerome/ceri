@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import org.junit.Test;
+import ceri.common.test.Captor;
 
 public class CollectionUtilTest {
 
@@ -59,6 +60,15 @@ public class CollectionUtilTest {
 		assertEquals(CollectionUtil.nonEmpty(Map.of()), false);
 		assertEquals(CollectionUtil.nonEmpty(ImmutableUtil.asMap(null, null)), true);
 		assertEquals(CollectionUtil.nonEmpty(Map.of("a", 1)), true);
+	}
+
+	@Test
+	public void testForEachMapEntry() {
+		var map = Map.of("1", 1, "2", 2, "3", 3);
+		var captor = Captor.ofBi();
+		CollectionUtil.forEach(map, (k, v) -> captor.accept(k, v));
+		captor.first.verify("1", "2", "3");
+		captor.second.verify(1, 2, 3);
 	}
 
 	@Test

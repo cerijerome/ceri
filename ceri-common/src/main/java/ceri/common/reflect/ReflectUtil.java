@@ -93,7 +93,7 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Returns "@<hex-hashcode> for logging/identification purposes.
+	 * Returns "{@code @<hex-hashcode>}" for logging/identification purposes.
 	 */
 	public static String hashId(Object obj) {
 		if (obj == null) return null;

@@ -4,9 +4,6 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Consumer;
 import ceri.common.event.Listenable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.Connector;
@@ -31,40 +28,16 @@ public class TestConnector implements Connector.Fixable {
 	private volatile Write writeOverride = null;
 
 	/**
-	 * Manually test a list of connectors.
+	 * Convenience method to enable echo from input to output streams.
 	 */
-	public static void manual(Connector... connectors) throws IOException {
-		manual(Arrays.asList(connectors), null);
-	}
-
-	/**
-	 * Manually test a list of connectors.
-	 */
-	public static void manual(List<? extends Connector> connectors,
-		Consumer<ManualTester.Builder> commandBuilder) throws IOException {
-		var b = ManualTester.builderList(connectors, Connector::name);
-		b.preProcessor(Connector.class, (con, t) -> t.readBytes(con.in()));
-		b.command(Connector.class, "o(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
-			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
-		b.command(Connector.Fixable.class, "z", (m, s, t) -> s.broken(),
-			"z = mark connector as broken");
-		b.command(TestConnector.class, "Z", (m, s, t) -> s.fixed(), "Z = fix the connector");
-		if (commandBuilder != null) commandBuilder.accept(b);
-		var tester = b.build();
-		for (var connector : connectors) {
-			if (connector instanceof Connector.Fixable fixable) {
-				fixable.listeners().listen(e -> tester.out(fixable.name() + " => " + e));
-				fixable.open();
-			}
-		}
-		tester.run();
-	}
-
-	public static <T extends TestConnector> T echo(T connector) {
+	public static <T extends TestConnector> T echoOn(T connector) {
 		connector.echoOn();
 		return connector;
 	}
 
+	/**
+	 * Connects outputs to inputs for consecutive connectors.
+	 */
 	@SafeVarargs
 	public static <T extends TestConnector> T[] chain(T... connectors) {
 		for (int i = 0; i < connectors.length; i++)
@@ -72,6 +45,9 @@ public class TestConnector implements Connector.Fixable {
 		return connectors;
 	}
 
+	/**
+	 * Create a new instance with default name.
+	 */
 	public static TestConnector of() {
 		return new TestConnector(null);
 	}

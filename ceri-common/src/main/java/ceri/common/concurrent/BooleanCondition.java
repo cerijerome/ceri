@@ -30,10 +30,10 @@ public class BooleanCondition {
 	}
 
 	/**
-	 * Signals waiting threads.
+	 * Signals waiting threads. Returns true if the signal state changed.
 	 */
-	public void signal() {
-		condition.signal(value);
+	public boolean signal() {
+		return !isSet(condition.signal(value));
 	}
 
 	/**

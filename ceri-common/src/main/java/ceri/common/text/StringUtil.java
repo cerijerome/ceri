@@ -100,6 +100,7 @@ public class StringUtil {
 	 * Appends formatted text to string builder.
 	 */
 	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {
+		if (objs.length == 0) return sb.append(format);
 		try (Formatter f = new Formatter(sb)) {
 			f.format(format, objs);
 			return sb;
@@ -890,6 +891,23 @@ public class StringUtil {
 		return sections;
 	}
 
+	/**
+	 * Clears the StringBuilder.
+	 */
+	public static StringBuilder clear(StringBuilder b) {
+		b.setLength(0);
+		return b;
+	}
+	
+	/**
+	 * Gets the current string then clears the StringBuilder.
+	 */
+	public static String flush(StringBuilder b) {
+		String s = b.toString();
+		clear(b);
+		return s;
+	}
+	
 	/**
 	 * Checks if the given string is null or empty. Can be used as a predicate.
 	 */

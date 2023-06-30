@@ -4,8 +4,7 @@ import java.io.IOException;
 import ceri.common.io.ReplaceableConnector;
 
 /**
- * A socket pass-through that allows the underlying socket to be replaced. The caller to set() is
- * responsible for close/connect when changing sockets.
+ * A socket pass-through that allows the underlying socket to be replaced.
  */
 public class ReplaceableTcpSocket extends ReplaceableConnector<TcpSocket> implements TcpSocket {
 
@@ -15,28 +14,24 @@ public class ReplaceableTcpSocket extends ReplaceableConnector<TcpSocket> implem
 
 	private ReplaceableTcpSocket() {}
 
-	@SuppressWarnings("resource")
 	@Override
 	public HostPort hostPort() {
-		return runtimeConnector().hostPort();
+		return applyConnector(TcpSocket::hostPort, HostPort.NULL);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public int localPort() {
-		return runtimeConnector().localPort();
+		return applyConnector(TcpSocket::localPort, HostPort.INVALID_PORT);
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
-		connector().option(option, value);
+		acceptValidConnector(socket -> socket.option(option, value));
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		return connector().option(option);
+		return applyValidConnector(socket -> socket.option(option));
 	}
 
 }

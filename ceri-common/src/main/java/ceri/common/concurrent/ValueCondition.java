@@ -48,23 +48,25 @@ public class ValueCondition<T> {
 	}
 
 	/**
-	 * Set value without signaling waiting threads.
+	 * Set value without signaling waiting threads. Returns the previous value.
 	 */
 	public T set(T value) {
 		return ConcurrentUtil.executeGet(lock, () -> {
-			T returnValue = this.value;
+			T old = this.value;
 			this.value = value;
-			return returnValue;
+			return old;
 		});
 	}
 
 	/**
-	 * Set/merge current value and signal waiting threads.
+	 * Set/merge current value and signal waiting threads. Returns the previous value.
 	 */
-	public void signal(T value) {
-		ConcurrentUtil.execute(lock, () -> {
-			this.value = merger.apply(value, this.value);
+	public T signal(T value) {
+		return ConcurrentUtil.executeGet(lock, () -> {
+			T old = this.value;
+			this.value = merger.apply(value, old);
 			condition.signalAll();
+			return old;
 		});
 	}
 

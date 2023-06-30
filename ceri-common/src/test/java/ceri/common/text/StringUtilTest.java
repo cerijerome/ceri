@@ -49,7 +49,8 @@ public class StringUtilTest {
 	public void testFormat() {
 		StringBuilder b = new StringBuilder("abc");
 		StringUtil.format(b, "%.2f", 3.3333);
-		assertEquals(b.toString(), "abc3.33");
+		StringUtil.format(b, " %.2f"); // no args, string not processed
+		assertEquals(b.toString(), "abc3.33 %.2f");
 	}
 
 	@Test

@@ -226,7 +226,7 @@ public class TypeTranscoder<T> {
 	public Remainder<T> decodeWithRemainder(int value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
-		for (Map.Entry<Integer, T> entry : lookup.entrySet()) {
+		for (var entry : lookup.entrySet()) {
 			int i = entry.getKey();
 			T t = entry.getValue();
 			if ((i & value) != i) continue;

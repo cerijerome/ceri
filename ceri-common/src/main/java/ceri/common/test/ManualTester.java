@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,11 +37,13 @@ import ceri.common.util.BasicUtil;
  * subject index changes.
  */
 public class ManualTester {
+	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
 	private final Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
 	private final Map<Class<?>, List<Command<?>>> commands;
 	private final SubjectConsumer<Object> listener;
-	public final BinaryPrinter bin;
+	private final StringBuilder binText = new StringBuilder();
+	private final BinaryPrinter bin;
 	public final InputStream in;
 	public final PrintStream out;
 	public final PrintStream err;
@@ -61,6 +67,54 @@ public class ManualTester {
 
 	private static record Command<T>(Action<T> action, String help) {}
 
+	/**
+	 * A pre-processor for capturing and processing events.
+	 */
+	public static class EventCatcher implements Consumer<ManualTester> {
+		private final BiConsumer<Object, ManualTester> processor;
+		private final Queue<Object> events = new ConcurrentLinkedQueue<>();
+
+		private EventCatcher(BiConsumer<Object, ManualTester> processor) {
+			this.processor = processor;
+		}
+
+		public void add(Object event) {
+			events.add(event);
+		}
+
+		@Override
+		public void accept(ManualTester tester) {
+			while (true) {
+				var event = events.poll();
+				if (event == null) break;
+				processor.accept(event, tester);
+			}
+		}
+
+		public void execute(ExceptionRunnable<Exception> runnable) {
+			try {
+				runnable.run();
+			} catch (Exception e) {
+				add(e);
+			}
+		}
+	}
+
+	public static EventCatcher eventCatcher() {
+		return eventCatcher(false);
+	}
+
+	public static EventCatcher eventCatcher(boolean stackTrace) {
+		return eventCatcher((s, tester) -> {
+			if (s instanceof Throwable t) tester.err(t, stackTrace);
+			else tester.out(s);
+		});
+	}
+
+	public static EventCatcher eventCatcher(BiConsumer<Object, ManualTester> processor) {
+		return new EventCatcher(processor);
+	}
+
 	public static class Builder {
 		final List<?> subjects;
 		Function<Object, String> stringFn = String::valueOf;
@@ -78,13 +132,12 @@ public class ManualTester {
 			this.subjects = subjects;
 			command("\\?", (m, t) -> t.showHelp(), "? = show commands");
 			command("\\!", (m, t) -> t.exit = true, "! = exit");
-			command(Object.class, ":", (m, s, t) -> t.out(info(s)), ": = subject type");
+			command(Object.class, ":",
+				(m, s, t) -> t.out(ReflectUtil.className(s) + ReflectUtil.hashId(s)),
+				": = subject type");
 			addIndexCommands(subjects.size());
-		}
-
-		private String info(Object subject) {
-			return String.format("%s %s", ReflectUtil.className(subject),
-				ReflectUtil.hashId(subject));
+			command("~(\\d+)", (m, t) -> ConcurrentUtil.delay(Integer.parseInt(m.group(1))),
+				"~[N] = sleep for N ms");
 		}
 
 		private void addIndexCommands(int n) {
@@ -136,6 +189,10 @@ public class ManualTester {
 
 		public <T> Builder preProcessor(Class<T> cls, SubjectConsumer<T> preProcessor) {
 			return preProcessor(typed(cls, preProcessor));
+		}
+
+		public Builder preProcessor(Consumer<ManualTester> preProcessor) {
+			return preProcessor((s, t) -> preProcessor.accept(t));
 		}
 
 		public Builder preProcessor(SubjectConsumer<Object> preProcessor) {
@@ -199,7 +256,7 @@ public class ManualTester {
 		stringFn = builder.stringFn;
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
 		commands = ImmutableUtil.copyAsMapOfLists(builder.commands);
-		bin = BinaryPrinter.builder(BinaryPrinter.STD).out(builder.out).build();
+		bin = binaryPrinter();
 		listener = builder.listener;
 		subjects = List.copyOf(builder.subjects);
 	}
@@ -211,7 +268,7 @@ public class ManualTester {
 			ConcurrentUtil.delay(delayMs); // try to avoid err/out print conflict
 			preProcess();
 			out.print(prompt());
-			execute(() -> execute(readInput(), subject()), true);
+			execute(() -> executeInput(readInput(), subject()), true);
 		}
 	}
 
@@ -222,6 +279,12 @@ public class ManualTester {
 
 	public void err(Object text) {
 		err.println(indent + text);
+		err.flush();
+	}
+
+	public void err(Throwable t, boolean stackTrace) {
+		if (stackTrace) t.printStackTrace(err);
+		else err.println(indent + t);
 		err.flush();
 	}
 
@@ -243,7 +306,7 @@ public class ManualTester {
 		var bytes = IoUtil.availableBytes(in);
 		if (bytes.isEmpty()) return;
 		out("IN <<< ");
-		bin.print(bytes);
+		print(bytes);
 	}
 
 	public void writeAscii(OutputStream out, String text) throws IOException {
@@ -253,7 +316,7 @@ public class ManualTester {
 	public void writeBytes(OutputStream out, ByteProvider bytes) throws IOException {
 		if (bytes.isEmpty()) return;
 		out("OUT >>>");
-		bin.print(bytes);
+		print(bytes);
 		bytes.writeTo(0, out);
 		out.flush();
 	}
@@ -263,7 +326,7 @@ public class ManualTester {
 	}
 
 	private void showHelp() {
-		out.println("Commands:");
+		out.println("Commands: (separate multiple commands with ;)");
 		var cls = ReflectUtil.getClass(subject());
 		if (cls != null) commands.forEach((type, actions) -> {
 			if (type.isAssignableFrom(cls)) for (var action : actions)
@@ -303,12 +366,17 @@ public class ManualTester {
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		} catch (Exception e) {
-			if (stackTrace) e.printStackTrace(err);
-			else err.println(e);
+			err(e, stackTrace);
 		}
 	}
 
-	private void execute(String input, Object subject) throws Exception {
+	private void executeInput(String input, Object subject) throws Exception {
+		String[] commands = COMMAND_SPLIT_REGEX.split(input);
+		for (var command : commands)
+			executeCommand(command, subject);
+	}
+
+	private void executeCommand(String input, Object subject) throws Exception {
 		if (StringUtil.blank(input)) return;
 		var cls = subject.getClass();
 		for (var entry : commands.entrySet()) {
@@ -359,5 +427,18 @@ public class ManualTester {
 
 	private static int mDiff(Matcher m) {
 		return m.group(1).chars().map(i -> i == '+' ? 1 : i == '-' ? -1 : 0).sum();
+	}
+	
+	public void print(ByteProvider data) {
+		bin.print(data).flush();
+		for (var line : StringUtil.lines(binText))
+			out(line);
+		StringUtil.clear(binText);
+	}
+	
+	@SuppressWarnings("resource")
+	private BinaryPrinter binaryPrinter() {
+		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))
+			.build();
 	}
 }

@@ -3,6 +3,7 @@ package ceri.common.test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import ceri.common.io.Connector;
 import ceri.common.net.ReplaceableTcpSocket;
@@ -17,11 +18,16 @@ public class TcpSocketTester {
 
 	private TcpSocketTester() {}
 
+	public static void main(String[] args) throws IOException {
+		testEcho();
+	}
+
 	public static void testEcho() throws IOException {
+		var events = ManualTester.eventCatcher(true);
 		try (var ss = TcpServerSocket.of()) {
-			ss.listen(Connector::echo);
+			listenAndEcho(ss, events);
 			try (var s = TcpSocket.connect(ss.hostPort())) {
-				test(s);
+				manual(s).preProcessor(events).build().run();
 			}
 		}
 	}
@@ -31,10 +37,30 @@ public class TcpSocketTester {
 			try (var ss = TcpServerSocket.of()) {
 				ss.listen(pair1::replace);
 				try (var pair0 = TcpSocket.connect(ss.hostPort())) {
-					test(pair0, pair1);
+					manual(pair0, pair1).build().run();
 				}
 			}
 		}
+	}
+
+	/**
+	 * Start the server socket listener, and echo input to output for each new socket. Any exception
+	 * will stop the socket listener, and will be available on the returned future.
+	 */
+	public static Future<?> listenAndEcho(TcpServerSocket ss) {
+		return ss.listenAndClose(Connector::echo);
+	}
+
+	/**
+	 * Start the server socket listener, and echo input to output for each new socket. Events are
+	 * captured for open, close and exceptions, for use with ManualTester.
+	 */
+	public static void listenAndEcho(TcpServerSocket ss, ManualTester.EventCatcher events) {
+		ss.listenAndClose(socket -> {
+			events.add(socket.name() + " open");
+			events.execute(() -> Connector.echo(socket));
+			events.add(socket.name() + " closed");
+		});
 	}
 
 	public static void test(TcpSocket... sockets) throws IOException {
@@ -42,43 +68,66 @@ public class TcpSocketTester {
 	}
 
 	public static void test(List<? extends TcpSocket> sockets) throws IOException {
-		TestConnector.manual(sockets, TcpSocketTester::buildCommands);
+		manual(sockets).build().run();
+	}
+
+	/**
+	 * Initialize a ManualTester builder for a list of connectors.
+	 */
+	public static ManualTester.Builder manual(TcpSocket... sockets) throws IOException {
+		return manual(Arrays.asList(sockets));
+	}
+
+	/**
+	 * Initialize a ManualTester builder for a list of connectors.
+	 */
+	public static ManualTester.Builder manual(List<? extends TcpSocket> sockets)
+		throws IOException {
+		var b = ConnectorTester.manual(sockets);
+		buildCommands(b);
+		return b;
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(TcpSocket.class, "Oti(\\d*)",
+		b.command(TcpSocket.class, "O", (m, s, t) -> options(s, t), "O = show all options");
+		b.command(TcpSocket.class, "Ot(\\d*)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soTimeout, i(m)),
-			"Oti[N] = SO_TIMEOUT: timeout in milliseconds");
-		b.command(TcpSocket.class, "Oli(\\-1|\\d*)",
+			"Ot[N] = SO_TIMEOUT: timeout in milliseconds");
+		b.command(TcpSocket.class, "Ol(\\-1|\\d*)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soLinger, i(m)),
-			"Oli[N] = SO_LINGER: linger-on-close in seconds, -1 to disable");
-		b.command(TcpSocket.class, "Otc(\\d*)",
+			"Ol[N] = SO_LINGER: linger-on-close in seconds; -1 to disable");
+		b.command(TcpSocket.class, "Oc(\\d*)",
 			(m, s, t) -> option(s, t, TcpSocketOption.ipTos, i(m)),
-			"Otc[N] = IP_TOS: traffic class");
-		b.command(TcpSocket.class, "Osb(\\d*)",
+			"Oc[N] = IP_TOS: traffic class");
+		b.command(TcpSocket.class, "Os(\\d*)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soSndBuf, i(m)),
-			"Osb[N] = SO_SNDBUF: send buffer size");
-		b.command(TcpSocket.class, "Orb(\\d*)",
+			"Os[N] = SO_SNDBUF: send buffer size");
+		b.command(TcpSocket.class, "Or(\\d*)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soRcvBuf, i(m)),
-			"Orb[N] = SO_RCVBUF: receive buffer size");
-		b.command(TcpSocket.class, "Oka(0|1|)",
+			"Or[N] = SO_RCVBUF: receive buffer size");
+		b.command(TcpSocket.class, "Ok(0|1|)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soKeepAlive, b(m)),
-			"Oka[0|1] = SO_KEEPALIVE: keep-alive off/on");
-		b.command(TcpSocket.class, "Ora(0|1|)",
+			"Ok[0|1] = SO_KEEPALIVE: keep-alive off/on");
+		b.command(TcpSocket.class, "Oa(0|1|)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soReuseAddr, b(m)),
-			"Ora[0|1] = SO_REUSEADDR: re-use address off/on");
-		b.command(TcpSocket.class, "Ooi(0|1|)",
+			"Oa[0|1] = SO_REUSEADDR: re-use address off/on");
+		b.command(TcpSocket.class, "Ou(0|1|)",
 			(m, s, t) -> option(s, t, TcpSocketOption.soOobInline, b(m)),
-			"Ooi[0|1] = SO_OOBINLINE: inline urgent data inline off/on");
-		b.command(TcpSocket.class, "Ond(0|1|)",
+			"Ou[0|1] = SO_OOBINLINE: inline urgent data off/on");
+		b.command(TcpSocket.class, "Od(0|1|)",
 			(m, s, t) -> option(s, t, TcpSocketOption.tcpNoDelay, b(m)),
-			"Ond[0|1] = TCP_NODELAY: no-delay off/on");
+			"Od[0|1] = TCP_NODELAY: no-delay off/on");
 	}
 
 	private static <T> void option(TcpSocket socket, ManualTester tester, TcpSocketOption<T> option,
 		T value) throws IOException {
 		if (value != null) socket.option(option, value);
 		tester.out(option + " = " + socket.option(option));
+	}
+
+	private static void options(TcpSocket socket, ManualTester tester) throws IOException {
+		for (var option : TcpSocketOption.all)
+			tester.out(option + " = " + socket.option(option));
 	}
 
 	private static Boolean b(Matcher m) {

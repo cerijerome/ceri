@@ -3,15 +3,17 @@ package ceri.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.function.Consumer;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.FunctionUtil;
 
 /**
  * A connector pass-through that allows the underlying connector to be replaced. Calling replace()
- * closes the current connector, whereas set() relies on the caller to manage connector lifecycle.
+ * closes the current connector, whereas set() requires the caller to manage connector lifecycles.
  */
 public class ReplaceableConnector<T extends Connector> implements Connector {
 	private final Listeners<Exception> errorListeners = Listeners.of();
@@ -36,15 +38,14 @@ public class ReplaceableConnector<T extends Connector> implements Connector {
 			connector.listeners().listen(listener);
 		}
 
-		@SuppressWarnings("resource")
 		@Override
 		public void broken() {
-			runtimeConnector().broken();
+			acceptConnector(Connector.Fixable::broken);
 		}
 
 		@Override
 		public void open() throws IOException {
-			exec(Connector.Fixable::open);
+			acceptValidConnector(Connector.Fixable::open);
 		}
 
 		@Override
@@ -84,6 +85,7 @@ public class ReplaceableConnector<T extends Connector> implements Connector {
 	 */
 	@SuppressWarnings("resource")
 	public void set(T connector) {
+		Objects.requireNonNull(connector);
 		this.connector = connector;
 		in.setInputStream(connector.in());
 		out.setOutputStream(connector.out());
@@ -104,32 +106,65 @@ public class ReplaceableConnector<T extends Connector> implements Connector {
 		close(connector);
 	}
 
-	protected void exec(ExceptionConsumer<IOException, T> consumer) throws IOException {
-		execGet(socket -> {
+	/**
+	 * Invokes the consumer with the current connector. Does nothing if the connector is not valid.
+	 */
+	protected <E extends Exception> void acceptConnector(ExceptionConsumer<E, T> consumer)
+		throws E {
+		FunctionUtil.safeAccept(connector, consumer);
+	}
+
+	/**
+	 * Invokes the function with the current connector. Returns null if the connector is not valid.
+	 */
+	protected <E extends Exception, R> R applyConnector(ExceptionFunction<E, T, R> function)
+		throws E {
+		return applyConnector(function, null);
+	}
+
+	/**
+	 * Invokes the function with the current connector. Returns the given default value if the
+	 * connector is not valid.
+	 */
+	protected <E extends Exception, R> R applyConnector(ExceptionFunction<E, T, R> function, R def)
+		throws E {
+		return FunctionUtil.safeApply(connector, function, def);
+	}
+
+	/**
+	 * Invokes the consumer with the current connector. If the connector is not valid, an
+	 * IOException is thrown. Error listeners are notified of any exception thrown by the consumer.
+	 */
+	protected <E extends Exception> void acceptValidConnector(ExceptionConsumer<E, T> consumer)
+		throws IOException, E {
+		applyValidConnector(socket -> {
 			consumer.accept(socket);
 			return null;
 		});
 	}
 
+	/**
+	 * Invokes the function with the current connector. If the connector is not valid, an
+	 * IOException is thrown. Error listeners are notified of any exception thrown by the function.
+	 */
 	@SuppressWarnings("resource")
-	protected <U> U execGet(ExceptionFunction<IOException, T, U> function) throws IOException {
+	protected <E extends Exception, R> R applyValidConnector(ExceptionFunction<E, T, R> function)
+		throws IOException, E {
+		var connector = validConnector();
 		try {
-			return function.apply(connector());
+			return function.apply(connector);
 		} catch (Exception e) {
 			errorListeners.accept(e);
 			throw e;
 		}
 	}
 
-	protected T connector() throws IOException {
+	/**
+	 * Access the connector. Throws IOException if not connected.
+	 */
+	private T validConnector() throws IOException {
 		var connector = this.connector;
 		if (connector == null) throw new IOException("Connector unavailable");
-		return connector;
-	}
-
-	protected T runtimeConnector() {
-		var connector = this.connector;
-		if (connector == null) throw new IllegalStateException("Connector unavailable");
 		return connector;
 	}
 

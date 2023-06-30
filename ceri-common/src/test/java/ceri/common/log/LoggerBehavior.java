@@ -38,8 +38,8 @@ public class LoggerBehavior {
 
 	@Before
 	public void before() {
-		out.setLength(0);
-		err.setLength(0);
+		StringUtil.clear(out);
+		StringUtil.clear(err);
 	}
 
 	@After
@@ -159,8 +159,6 @@ public class LoggerBehavior {
 	}
 
 	private void assertAndReset(StringBuilder b, Predicate<String> test) {
-		assertValue(b.toString(), test::test);
-		b.setLength(0);
+		assertValue(StringUtil.flush(b), test::test);
 	}
-
 }
