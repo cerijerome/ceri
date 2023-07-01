@@ -1,7 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.text.AnsiEscape.csi;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.color.ColorUtil;
 
 /**
  * Simple tester for ANSI escape codes.
@@ -9,14 +9,18 @@ import ceri.common.concurrent.ConcurrentUtil;
 public class AnsiTester {
 
 	public static void main(String[] args) {
-		System.out.printf("%s Hello %s%n", csi.sgr().bgColor8(2, 0, 1).fgColor8(3, 4, 5),
+		System.out.printf("%s 8-bit color %s ", csi.sgr().bgColor8(2, 0, 1).fgColor8(3, 4, 5),
 			csi.sgr().reset());
-		for (int i = 1000; i >= 0; i--) {
-			System.out.printf("%s %d %s %n", csi.sgr().reverse(true), i, csi.sgr().reverse(false));
-			ConcurrentUtil.delay(10);
-			if (i > 0) System.out.print(csi.cursorPrevLine(1));
-		}
-		System.out.print(csi.sgr().reset());
+		System.out.printf("%s 24-bit color %s ",
+			csi.sgr().bgColor24(ColorUtil.random()).fgColor24(ColorUtil.random()),
+			csi.sgr().reset());
+		System.out.printf("%s frame %s ", csi.sgr().frame(1), csi.sgr().frame(0));
+		System.out.printf("%sunderline1%s %sunderline2%s ", csi.sgr().underline(1),
+			csi.sgr().underline(0), csi.sgr().underline(2), csi.sgr().underline(0));
+		System.out.println();
+		for (int i = 20; i >= 0; i--)
+			System.out.printf("%s %02d %s ", csi.sgr().reverse(true), i, csi.sgr().reverse(false));
+		System.out.println();
 	}
 
 }

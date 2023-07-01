@@ -64,7 +64,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testForEachMapEntry() {
-		var map = Map.of("1", 1, "2", 2, "3", 3);
+		var map = ImmutableUtil.asMap("1", 1, "2", 2, "3", 3);
 		var captor = Captor.ofBi();
 		CollectionUtil.forEach(map, (k, v) -> captor.accept(k, v));
 		captor.first.verify("1", "2", "3");

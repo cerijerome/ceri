@@ -115,14 +115,6 @@ public class ReplaceableConnector<T extends Connector> implements Connector {
 	}
 
 	/**
-	 * Invokes the function with the current connector. Returns null if the connector is not valid.
-	 */
-	protected <E extends Exception, R> R applyConnector(ExceptionFunction<E, T, R> function)
-		throws E {
-		return applyConnector(function, null);
-	}
-
-	/**
 	 * Invokes the function with the current connector. Returns the given default value if the
 	 * connector is not valid.
 	 */

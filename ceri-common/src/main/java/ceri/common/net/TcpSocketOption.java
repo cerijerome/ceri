@@ -47,21 +47,30 @@ public class TcpSocketOption<T> {
 		this.disableValue = disableValue;
 	}
 
+	/**
+	 * Determines if the option can be disabled.
+	 */
 	public boolean canDisable() {
 		return disableValue != null;
 	}
 
 	/**
-	 * Disables the option. Does nothing if the option cannot be disabled.
+	 * Disables the option. Does nothing if the option cannot be disabled, such as SO_RCVBUF.
 	 */
 	public void disable(Socket socket) throws IOException {
 		if (canDisable()) set(socket, disableValue);
 	}
 
+	/**
+	 * Sets the option on the given socket.
+	 */
 	public void set(Socket socket, T value) throws IOException {
 		setFn.accept(socket, value);
 	}
 
+	/**
+	 * Gets the option from the given socket.
+	 */
 	public T get(Socket socket) throws IOException {
 		return getFn.apply(socket);
 	}

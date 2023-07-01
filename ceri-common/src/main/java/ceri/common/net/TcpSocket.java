@@ -19,7 +19,7 @@ public interface TcpSocket extends Connector {
 
 	@Override
 	default String name() {
-		return String.format("localhost:%d->%s", localPort(), hostPort());
+		return String.format("%d->%s", localPort(), hostPort());
 	}
 
 	/**
@@ -61,7 +61,17 @@ public interface TcpSocket extends Connector {
 	 */
 	interface Fixable extends TcpSocket, Connector.Fixable {}
 
-	static TcpSocket connect(HostPort hostPort) throws IOException {
+	/**
+	 * Determines if the exception indicates a socket is fatally broken.
+	 */
+	static boolean isBroken(Exception e) {
+		return e instanceof SocketException; // check broken pipe?
+	}
+
+	/**
+	 * Connect the socket and wrap as a TcpSocket.
+	 */
+	static Wrapper connect(HostPort hostPort) throws IOException {
 		@SuppressWarnings("resource")
 		Socket socket = new Socket(hostPort.host, hostPort.port);
 		try {
@@ -72,28 +82,24 @@ public interface TcpSocket extends Connector {
 		}
 	}
 
-	static boolean isBroken(Exception e) {
-		return e instanceof SocketException; // check broken pipe?
-	}
-
 	/**
 	 * Wrapper for a jdk socket. The socket must already be connected.
 	 */
-	static TcpSocket wrap(Socket socket) throws IOException {
+	static Wrapper wrap(Socket socket) throws IOException {
 		return new Wrapper(socket);
 	}
 
 	/**
 	 * Wrapper for a jdk socket. The socket must already be connected.
 	 */
-	static class Wrapper implements TcpSocket {
+	class Wrapper implements TcpSocket {
 		private final Socket socket;
 		private final HostPort hostPort;
 		private final int localPort;
 		private final InputStream in;
 		private final OutputStream out;
 
-		protected Wrapper(Socket socket) throws IOException {
+		private Wrapper(Socket socket) throws IOException {
 			if (!socket.isConnected()) throw new IOException("Socket is not connected");
 			this.socket = socket;
 			hostPort = HostPort.from((InetSocketAddress) socket.getRemoteSocketAddress());

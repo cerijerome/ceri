@@ -1,11 +1,6 @@
-package ceri.log.net;
+package ceri.common.net;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import ceri.common.net.HostPort;
-import ceri.common.net.TcpSocketOption;
 import ceri.common.property.BaseProperties;
-import ceri.common.util.BasicUtil;
 
 public class TcpSocketProperties extends BaseProperties {
 	private static final String HOST_PORT_KEY = "host.port";
@@ -28,22 +23,18 @@ public class TcpSocketProperties extends BaseProperties {
 		return HostPort.parse(value(HOST_PORT_KEY));
 	}
 
-	public Map<TcpSocketOption<?>, Object> options() {
-		var map = new LinkedHashMap<TcpSocketOption<?>, Object>();
-		add(map, TcpSocketOption.soTimeout, optionSoTimeout());
-		add(map, TcpSocketOption.soLinger, optionSoLinger());
-		add(map, TcpSocketOption.soKeepAlive, optionSoKeepAlive());
-		add(map, TcpSocketOption.soReuseAddr, optionSoReuseAddr());
-		add(map, TcpSocketOption.soOobInline, optionSoOobInline());
-		add(map, TcpSocketOption.tcpNoDelay, optionTcpNoDelay());
-		add(map, TcpSocketOption.ipTos, optionIpTos());
-		add(map, TcpSocketOption.soSndBuf, optionSoSndBuf());
-		add(map, TcpSocketOption.soRcvBuf, optionSoRcvBuf());
-		return map;
-	}
-
-	private <T> void add(Map<TcpSocketOption<?>, Object> map, TcpSocketOption<T> option, T value) {
-		if (value != null) map.put(BasicUtil.uncheckedCast(option), value);
+	public TcpSocketOptions options() {
+		var options = TcpSocketOptions.of();
+		options.set(TcpSocketOption.soTimeout, optionSoTimeout());
+		options.set(TcpSocketOption.soLinger, optionSoLinger());
+		options.set(TcpSocketOption.soKeepAlive, optionSoKeepAlive());
+		options.set(TcpSocketOption.soReuseAddr, optionSoReuseAddr());
+		options.set(TcpSocketOption.soOobInline, optionSoOobInline());
+		options.set(TcpSocketOption.tcpNoDelay, optionTcpNoDelay());
+		options.set(TcpSocketOption.ipTos, optionIpTos());
+		options.set(TcpSocketOption.soSndBuf, optionSoSndBuf());
+		options.set(TcpSocketOption.soRcvBuf, optionSoRcvBuf());
+		return options.immutable();
 	}
 
 	private Integer optionSoTimeout() {

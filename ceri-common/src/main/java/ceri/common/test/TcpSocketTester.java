@@ -18,10 +18,9 @@ public class TcpSocketTester {
 
 	private TcpSocketTester() {}
 
-	public static void main(String[] args) throws IOException {
-		testEcho();
-	}
-
+	/**
+	 * Test a socket whose peer echoes back all output.
+	 */
 	public static void testEcho() throws IOException {
 		var events = ManualTester.eventCatcher(true);
 		try (var ss = TcpServerSocket.of()) {
@@ -32,12 +31,15 @@ public class TcpSocketTester {
 		}
 	}
 
+	/**
+	 * Test a socket and its current peer.
+	 */
 	public static void testPair() throws IOException {
 		try (var pair1 = ReplaceableTcpSocket.of()) {
 			try (var ss = TcpServerSocket.of()) {
 				ss.listen(pair1::replace);
 				try (var pair0 = TcpSocket.connect(ss.hostPort())) {
-					manual(pair0, pair1).build().run();
+					test(pair0, pair1);
 				}
 			}
 		}
@@ -63,23 +65,29 @@ public class TcpSocketTester {
 		});
 	}
 
+	/**
+	 * Manually test a list of sockets.
+	 */
 	public static void test(TcpSocket... sockets) throws IOException {
 		test(Arrays.asList(sockets));
 	}
 
+	/**
+	 * Manually test a list of sockets.
+	 */
 	public static void test(List<? extends TcpSocket> sockets) throws IOException {
 		manual(sockets).build().run();
 	}
 
 	/**
-	 * Initialize a ManualTester builder for a list of connectors.
+	 * Initialize a ManualTester builder for a list of sockets.
 	 */
 	public static ManualTester.Builder manual(TcpSocket... sockets) throws IOException {
 		return manual(Arrays.asList(sockets));
 	}
 
 	/**
-	 * Initialize a ManualTester builder for a list of connectors.
+	 * Initialize a ManualTester builder for a list of sockets.
 	 */
 	public static ManualTester.Builder manual(List<? extends TcpSocket> sockets)
 		throws IOException {

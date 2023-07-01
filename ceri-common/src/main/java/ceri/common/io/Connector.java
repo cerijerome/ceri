@@ -4,20 +4,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.event.Listenable;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.util.Named;
 
 /**
  * A general hardware connector that provides input and output data streams.
  */
-public interface Connector extends Closeable {
-
-	/**
-	 * Provides the connector name. By default this is the simple class name and system hash.
-	 */
-	default String name() {
-		return ReflectUtil.className(this) + ReflectUtil.hashId(this);
-	}
+public interface Connector extends Closeable, Named {
 
 	/**
 	 * The hardware input stream.
@@ -32,32 +24,12 @@ public interface Connector extends Closeable {
 	/**
 	 * A connector that is state-aware, with state change notifications.
 	 */
-	interface Fixable extends Connector, Listenable.Indirect<StateChange> {
-		
-		/**
-		 * Notify the device that it is broken. For when the device itself cannot determine it is
-		 * broken. Does nothing by default.
-		 */
-		default void broken() {}
+	interface Fixable extends Connector, ceri.common.io.Fixable {}
 
-		/**
-		 * Open the connector.
-		 */
-		void open() throws IOException;		
-	}
-	
 	/**
 	 * A no-op, stateless, connector implementation.
 	 */
-	class Null implements Connector.Fixable {
-		
-		@Override
-		public Listenable<StateChange> listeners() {
-			return Listenable.ofNull();
-		}
-		
-		@Override
-		public void open() throws IOException {}
+	class Null extends ceri.common.io.Fixable.Null implements Connector.Fixable {
 
 		@Override
 		public InputStream in() {
@@ -68,11 +40,8 @@ public interface Connector extends Closeable {
 		public OutputStream out() {
 			return IoStreamUtil.nullOut;
 		}
-
-		@Override
-		public void close() {}
 	}
-	
+
 	/**
 	 * Transfer bytes from input to output stream in current thread, until EOF.
 	 */
@@ -80,5 +49,5 @@ public interface Connector extends Closeable {
 	static void echo(Connector connector) throws IOException {
 		IoUtil.pipe(connector.in(), connector.out());
 	}
-	
+
 }

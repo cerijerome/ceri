@@ -34,8 +34,8 @@ public class ConnectorTester {
 	}
 
 	/**
-	 * Initialize a ManualTester builder for a list of connectors. Fixable connectors will
-	 * be opened, and listeners
+	 * Initialize a ManualTester builder for a list of connectors. Fixable connectors will be
+	 * opened, and listeners
 	 */
 	public static ManualTester.Builder manual(List<? extends Connector> connectors)
 		throws IOException {
@@ -46,6 +46,8 @@ public class ConnectorTester {
 		b.preProcessor(events);
 		b.command(Connector.class, "o(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
 			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
+		b.command(Connector.class, "C", (m, s, t) -> s.close(),
+			"C = close the connector");
 		b.command(Connector.Fixable.class, "z", (m, s, t) -> s.broken(),
 			"z = mark connector as broken");
 		b.command(TestConnector.class, "Z", (m, s, t) -> s.fixed(), "Z = fix the connector");
