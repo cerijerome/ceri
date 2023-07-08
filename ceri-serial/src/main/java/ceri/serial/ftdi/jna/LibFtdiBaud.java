@@ -9,7 +9,8 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
 
 /**
- * Utility to convert desired baud rate into supported rate by chip type.
+ * Utility to convert desired baud rate into supported rate by chip type. See FTDI application note
+ * AN_120.
  */
 public class LibFtdiBaud {
 	private static final ByteProvider fracCode = Immutable.wrap(0, 3, 2, 4, 1, 5, 6, 7);
@@ -58,6 +59,9 @@ public class LibFtdiBaud {
 		return ushort(encodedDivisor >> 16);
 	}
 
+	/**
+	 * Returns the nearest supported baud rate to that requested.
+	 */
 	private void convert(int rate) {
 		if (rate <= 0) return;
 		if (ftdi_chip_type.isHType(type) && (rate * 10 > H_CLK / 0x3fff)) {
@@ -68,6 +72,24 @@ public class LibFtdiBaud {
 		} else toClockBits(rate, C_CLK, 16);
 	}
 
+	/**
+	 * Convert a requested baud rate for a given system clock and pre-divisor to encoded divisor and
+	 * the achievable baud rate.
+	 * <p/>
+	 * clk/1->0, clk/1.5->1, clk/2->2. From /2, 0.125 steps may be taken. The fractional part has
+	 * fracCode encoding.
+	 * <p/>
+	 * value[13:0] of value is the divisor index[9] mean 12MHz base (120MHz/10) rate versus 3MHz
+	 * (48MHz/16).
+	 * <p/>
+	 * H Type have all features above with index[8], value[15:14] is the encoded subdivisor.
+	 * <p/>
+	 * FT232R, FT2232 and FT232BM have no option for 12MHz and with index[0], value[15:14] is the
+	 * encoded subdivisor.
+	 * <p/>
+	 * AM Type chips have only four fractional subdivisors at value[15:14] for subdivisors 0, 0.5,
+	 * 0.25, 0.125
+	 */
 	private void toClockBits(int rate, int clk, int clkDiv) {
 		if (rate >= clk / clkDiv) {
 			encodedDivisor = 0;
@@ -92,6 +114,13 @@ public class LibFtdiBaud {
 		return divisor;
 	}
 
+	/**
+	 * For the AM device, convert a requested baud rate to encoded divisor and the achievable baud
+	 * rate.
+	 * <p/>
+	 * clk/1->0, clk/1.5->1, clk/2->2. From /2, 0.125/ 0.25 and 0.5 steps may be taken. The
+	 * fractional part has fracCode encoding.
+	 */
 	private void toClockBitsAm(int rate) {
 		int divisor = initDivisorAm(rate);
 		int bestDivisor = 0;

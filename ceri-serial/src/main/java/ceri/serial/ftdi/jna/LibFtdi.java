@@ -87,6 +87,9 @@ public class LibFtdi {
 
 	private LibFtdi() {}
 
+	/**
+	 * Known FTDI chip types.
+	 */
 	public static enum ftdi_chip_type {
 		TYPE_AM(0),
 		TYPE_BM(1),
@@ -122,7 +125,7 @@ public class LibFtdi {
 	}
 
 	/**
-	 * MPSSE bitbang modes
+	 * Multi-Protocol Synchronous Serial Engine (MPSSE) bitbang modes.
 	 */
 	public static enum ftdi_mpsse_mode {
 		/** switch off bitbang mode, back to regular serial/FIFO */
@@ -135,7 +138,6 @@ public class LibFtdi {
 		BITMODE_SYNCBB(0x04),
 		/** MCU Host Bus Emulation mode, available on 2232x chips */
 		BITMODE_MCU(0x08),
-
 		// CPU-style fifo mode gets set via EEPROM
 		/** Fast Opto-Isolated Serial Interface Mode, available on 2232x chips */
 		BITMODE_OPTO(0x10),
@@ -155,6 +157,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Port interface for chips with multiple interfaces.
+	 */
 	public static enum ftdi_interface {
 		INTERFACE_ANY(0, 0, 2, 1), // 0, 0, 0x02, 0x81
 		INTERFACE_A(1, 0, 2, 1), // 1, 0, 0x02, 0x81
@@ -177,6 +182,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Automatic loading/unloading of kernel modules.
+	 */
 	public static enum ftdi_module_detach_mode {
 		AUTO_DETACH_SIO_MODULE(0),
 		DONT_DETACH_SIO_MODULE(1),
@@ -191,6 +199,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * New enum to hold control-transfer request types.
+	 */
 	static enum ftdi_request_type {
 		SIO_RESET_REQUEST(0x00),
 		SIO_SET_MODEM_CTRL_REQUEST(0x01),
@@ -217,7 +228,9 @@ public class LibFtdi {
 		}
 	}
 
-	/** Number of bits for ftdi_set_line_property() */
+	/**
+	 * Number of bits for ftdi_set_line_property()
+	 */
 	public static enum ftdi_data_bits_type {
 		BITS_7(7),
 		BITS_8(8);
@@ -231,7 +244,9 @@ public class LibFtdi {
 		}
 	}
 
-	/** Number of stop bits for ftdi_set_line_property() */
+	/**
+	 * Number of stop bits for ftdi_set_line_property()
+	 */
 	public static enum ftdi_stop_bits_type {
 		STOP_BIT_1(0),
 		STOP_BIT_15(1),
@@ -246,7 +261,9 @@ public class LibFtdi {
 		}
 	}
 
-	/** Parity mode for ftdi_set_line_property() */
+	/**
+	 * Parity mode for ftdi_set_line_property()
+	 */
 	public static enum ftdi_parity_type {
 		NONE(0),
 		ODD(1),
@@ -263,7 +280,9 @@ public class LibFtdi {
 		}
 	}
 
-	/** Break type for ftdi_set_line_property() */
+	/**
+	 * Break type for ftdi_set_line_property().
+	 */
 	public static enum ftdi_break_type {
 		BREAK_OFF(0),
 		BREAK_ON(1);
@@ -277,6 +296,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * New enum to hold flow control constants.
+	 */
 	public static enum ftdi_flow_control {
 		SIO_DISABLE_FLOW_CTRL(0x0000),
 		SIO_RTS_CTS_HS(0x0100),
@@ -292,6 +314,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * State used for control transfers.
+	 */
 	public static class ftdi_transfer_control {
 		public final IntByReference completed = new IntByReference();
 		public Pointer buf; // unsigned char*
@@ -301,6 +326,9 @@ public class LibFtdi {
 		public libusb_transfer transfer; // libusb_transfer*
 	}
 
+	/**
+	 * Context for all calls.
+	 */
 	public static class ftdi_context {
 		/* USB specific */
 		public libusb_context usb_ctx;
@@ -330,6 +358,9 @@ public class LibFtdi {
 		public ftdi_module_detach_mode module_detach_mode;
 	}
 
+	/**
+	 * EEPROM fields (unsupported).
+	 */
 	public static class ftdi_eeprom {
 		public int vendor_id;
 		public int product_id;
@@ -389,6 +420,9 @@ public class LibFtdi {
 		public int release_number;
 	}
 
+	/**
+	 * Progress info for streaming reads.
+	 */
 	public static class size_and_time {
 		public long totalBytes;
 		public Instant time = Instant.EPOCH;
@@ -399,6 +433,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Device strings.
+	 */
 	public static class ftdi_string_descriptors {
 		public final String manufacturer;
 		public final String description;
@@ -411,6 +448,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Internal function to close usb device pointer.
+	 */
 	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
 		LogUtil.execute(logger, () -> LibUsb.libusb_close(ftdi.usb_dev));
 		ftdi.usb_dev = null;
@@ -471,6 +511,9 @@ public class LibFtdi {
 		ftdi.in_ep = LibUsbUtil.endpointAddress(iface.in_ep, LIBUSB_ENDPOINT_OUT);
 	}
 
+	/**
+	 * De-initializes an ftdi_context.
+	 */
 	private static void ftdi_deinit(ftdi_context ftdi) {
 		if (ftdi == null) return;
 		ftdi_usb_close_internal(ftdi);
@@ -547,6 +590,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Internal function to determine the maximum packet size.
+	 */
 	private static int _ftdi_determine_max_packet_size(ftdi_context ftdi,
 		libusb_config_descriptor config, libusb_device_descriptor desc) {
 		int packet_size = ftdi_chip_type.isHType(ftdi.type) ? 512 : 64;
@@ -558,6 +604,9 @@ public class LibFtdi {
 		return descriptor.endpoints()[0].wMaxPacketSize;
 	}
 
+	/**
+	 * Opens an ftdi device given by a usb_device.
+	 */
 	public static void ftdi_usb_open_dev(ftdi_context ftdi, libusb_device dev)
 		throws LibUsbException {
 		require(ftdi);
@@ -645,6 +694,9 @@ public class LibFtdi {
 		ftdi_usb_open_find(ftdi, finder);
 	}
 
+	/**
+	 * Resets the ftdi device.
+	 */
 	public static void ftdi_usb_reset(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_RESET_REQUEST, SIO_RESET_SIO, ftdi.index);
@@ -652,6 +704,9 @@ public class LibFtdi {
 		ftdi.readbuffer_remaining = 0;
 	}
 
+	/**
+	 * Clears the read buffer on the chip and the internal read buffer.
+	 */
 	public static void ftdi_usb_purge_rx_buffer(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_RESET_REQUEST, SIO_RESET_PURGE_RX, ftdi.index);
@@ -659,22 +714,34 @@ public class LibFtdi {
 		ftdi.readbuffer_remaining = 0;
 	}
 
+	/**
+	 * Clears the write buffer on the chip.
+	 */
 	public static void ftdi_usb_purge_tx_buffer(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_RESET_REQUEST, SIO_RESET_PURGE_TX, ftdi.index);
 	}
 
+	/**
+	 * Clears the buffers on the chip and the internal read buffer.
+	 */
 	public static void ftdi_usb_purge_buffers(ftdi_context ftdi) throws LibUsbException {
 		ftdi_usb_purge_rx_buffer(ftdi);
 		ftdi_usb_purge_tx_buffer(ftdi);
 	}
 
+	/**
+	 * Closes the ftdi device. Call ftdi_free() if cleaning up.
+	 */
 	public static void ftdi_usb_close(ftdi_context ftdi) throws LibUsbException {
 		require(ftdi);
 		if (ftdi.usb_dev != null) LibUsb.libusb_release_interface(ftdi.usb_dev, ftdi.iface);
 		ftdi_usb_close_internal(ftdi);
 	}
 
+	/**
+	 * Sets the chip's baud rate.
+	 */
 	public static void ftdi_set_baudrate(ftdi_context ftdi, int baudrate) throws LibUsbException {
 		requireDev(ftdi);
 		var baud = LibFtdiBaud.from(ftdi, baudrate);
@@ -682,6 +749,9 @@ public class LibFtdi {
 		ftdi.baudrate = baud.actualRate();
 	}
 
+	/**
+	 * Set (RS232) line characteristics.
+	 */
 	public static void ftdi_set_line_property(ftdi_context ftdi, ftdi_data_bits_type bits,
 		ftdi_stop_bits_type stopBits, ftdi_parity_type parity, ftdi_break_type breakType)
 		throws LibUsbException {
@@ -690,6 +760,9 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_DATA_REQUEST, value, ftdi.index);
 	}
 
+	/**
+	 * Writes data in chunks to the chip. See ftdi_write_data_set_chunksize().
+	 */
 	public static int ftdi_write_data(ftdi_context ftdi, ByteBuffer buffer, int len)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -705,6 +778,24 @@ public class LibFtdi {
 		return len - remaining;
 	}
 
+	/**
+	 * Configure write buffer chunk size. Default is 4096.
+	 */
+	public static void ftdi_write_data_set_chunk_size(ftdi_context ftdi, int chunkSize) {
+		ftdi.writebuffer_chunksize = chunkSize;
+	}
+
+	/**
+	 * Get write buffer chunk size.
+	 */
+	public static int ftdi_write_data_get_chunksize(ftdi_context ftdi) {
+		return ftdi.writebuffer_chunksize;
+	}
+
+	/**
+	 * Reads data in chunks from the chip. See ftdi_read_data_set_chunksize(). Automatically strips
+	 * the two modem status bytes transfered during every read.
+	 */
 	public static int ftdi_read_data(ftdi_context ftdi, ByteBuffer buffer, int size)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -728,6 +819,25 @@ public class LibFtdi {
 		return size - remaining;
 	}
 
+	/**
+	 * Configure read buffer chunk size. Default is 4096. Automatically reallocates the buffer.
+	 */
+	public static void ftdi_read_data_set_chunk_size(ftdi_context ftdi, int chunkSize) {
+		ftdi.readbuffer = new Memory(chunkSize);
+		ftdi.readbuffer_chunksize = chunkSize;
+	}
+
+	/**
+	 * Get read buffer chunk size.
+	 */
+	public static int ftdi_read_data_get_chunksize(ftdi_context ftdi) {
+		return ftdi.readbuffer_chunksize;
+	}
+
+	/**
+	 * Writes data to the chip. Does not wait for completion of the transfer nor does it make sure
+	 * that the transfer was successful. Uses libusb 1.0 asynchronous API.
+	 */
 	public static ftdi_transfer_control ftdi_write_data_submit(ftdi_context ftdi, Pointer buf,
 		int size) throws LibUsbException {
 		requireDev(ftdi);
@@ -746,6 +856,10 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Reads data from the chip. Does not wait for completion of the transfer nor does it make sure
+	 * that the transfer was successful. Uses libusb 1.0 asynchronous API.
+	 */
 	public static ftdi_transfer_control ftdi_read_data_submit(ftdi_context ftdi, Pointer buf,
 		int size) throws LibUsbException {
 		requireDev(ftdi);
@@ -764,6 +878,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Waits for completion of the transfer. Uses libusb 1.0 asynchronous API.
+	 */
 	public static int ftdi_transfer_data_done(ftdi_transfer_control tc) throws LibUsbException {
 		if (tc == null) return 0;
 		timeval to = new timeval();
@@ -785,6 +902,9 @@ public class LibFtdi {
 		}
 	}
 
+	/**
+	 * Cancels transfer and waits for completion. Uses libusb 1.0 asynchronous API.
+	 */
 	public static void ftdi_transfer_data_cancel(ftdi_transfer_control tc, timeval to)
 		throws LibUsbException {
 		if (tc == null) return;
@@ -795,11 +915,6 @@ public class LibFtdi {
 		} finally {
 			freeTransfer(tc);
 		}
-	}
-
-	public static void ftdi_read_data_set_chunk_size(ftdi_context ftdi, int chunkSize) {
-		ftdi.readbuffer = new Memory(chunkSize);
-		ftdi.readbuffer_chunksize = chunkSize;
 	}
 
 	/**
@@ -814,20 +929,33 @@ public class LibFtdi {
 		ftdi.bitbang_enabled = mode != ftdi_mpsse_mode.BITMODE_RESET;
 	}
 
+	/**
+	 * Enable bitbang mode.
+	 */
 	public static void ftdi_enable_bitbang(ftdi_context ftdi) throws LibUsbException {
 		ftdi_set_bitmode(ftdi, 0xff, ftdi_mpsse_mode.BITMODE_BITBANG);
 	}
 
+	/**
+	 * Disable bitbang mode.
+	 */
 	public static void ftdi_disable_bitbang(ftdi_context ftdi) throws LibUsbException {
 		ftdi_set_bitmode(ftdi, 0x00, ftdi_mpsse_mode.BITMODE_RESET);
 	}
 
+	/**
+	 * Directly read pin state, circumventing the read buffer. Useful for bitbang mode.
+	 */
 	public static int ftdi_read_pins(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_READ_PINS_REQUEST, 0, ftdi.index, 1);
 		return ubyte(data[0]);
 	}
 
+	/**
+	 * Set latency timer. The FTDI chip keeps data in the internal buffer for a specific amount of
+	 * time if the buffer is not full yet to decrease load on the usb bus.
+	 */
 	public static void ftdi_set_latency_timer(ftdi_context ftdi, int latency)
 		throws LibUsbException {
 		validateRange(latency, 1, 255, "latency");
@@ -835,36 +963,76 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_LATENCY_TIMER_REQUEST, latency, ftdi.index);
 	}
 
+	/**
+	 * Get latency timer.
+	 */
 	public static int ftdi_get_latency_timer(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_GET_LATENCY_TIMER_REQUEST, 0, ftdi.index, 1);
 		return ubyte(data[0]);
 	}
 
+	/**
+	 * Poll modem status information. This function retrieves the two status bytes of the device.
+	 * The device sends these bytes also as a header for each read access where they are discarded
+	 * by ftdi_read_data(). The chip generates the two stripped status bytes in the absence of data
+	 * every 40 ms.
+	 * 
+	 * <pre>
+	 * Layout of the first byte:
+	 * - B0..B3 = 0
+	 * - B4 = Clear to send (CTS); 0 = inactive, 1 = active
+	 * - B5 = Data set ready (DTS); 0 = inactive, 1 = active
+	 * - B6 = Ring indicator (RI); 0 = inactive, 1 = active
+	 * - B7 = Receive line signal detect (RLSD); 0 = inactive, 1 = active
+	 *
+	 * Layout of the second byte:
+	 * - B0 = Data ready (DR)
+	 * - B1 = Overrun error (OE)
+	 * - B2 = Parity error (PE)
+	 * - B3 = Framing error (FE)
+	 * - B4 = Break interrupt (BI)
+	 * - B5 = Transmitter holding register (THRE)
+	 * - B6 = Transmitter empty (TEMT)
+	 * - B7 = Error in RCVR FIFO
+	 * </pre>
+	 */
 	public static int ftdi_poll_modem_status(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_POLL_MODEM_STATUS_REQUEST, 0, ftdi.index, 2);
 		return data[1] << 8 | data[0];
 	}
 
+	/**
+	 * Set flow control for the ftdi chip.
+	 */
 	public static void ftdi_set_flow_ctrl(ftdi_context ftdi, ftdi_flow_control flowCtrl)
 		throws LibUsbException {
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_SET_FLOW_CTRL_REQUEST, 0, flowCtrl.value | ftdi.index);
 	}
 
+	/**
+	 * Set the dtr line.
+	 */
 	public static void ftdi_set_dtr(ftdi_context ftdi, boolean state) throws LibUsbException {
 		requireDev(ftdi);
 		int val = (state ? SIO_SET_DTR_HIGH : SIO_SET_DTR_LOW);
 		controlTransferOut(ftdi, SIO_SET_MODEM_CTRL_REQUEST, val, ftdi.index);
 	}
 
+	/**
+	 * Set the rts line.
+	 */
 	public static void ftdi_set_rts(ftdi_context ftdi, boolean state) throws LibUsbException {
 		requireDev(ftdi);
 		int val = (state ? SIO_SET_RTS_HIGH : SIO_SET_RTS_LOW);
 		controlTransferOut(ftdi, SIO_SET_MODEM_CTRL_REQUEST, val, ftdi.index);
 	}
 
+	/**
+	 * Set dtr and rts line in one pass.
+	 */
 	public static void ftdi_set_dtr_rts(ftdi_context ftdi, boolean dtr, boolean rts)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -873,6 +1041,9 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_MODEM_CTRL_REQUEST, val, ftdi.index);
 	}
 
+	/**
+	 * Set the special event character.
+	 */
 	public static void ftdi_set_event_char(ftdi_context ftdi, char eventch, boolean enable)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -881,6 +1052,9 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_EVENT_CHAR_REQUEST, val, ftdi.index);
 	}
 
+	/**
+	 * Set error character.
+	 */
 	public static void ftdi_set_error_char(ftdi_context ftdi, char errorch, boolean enable)
 		throws LibUsbException {
 		requireDev(ftdi);
@@ -889,6 +1063,9 @@ public class LibFtdi {
 		controlTransferOut(ftdi, SIO_SET_ERROR_CHAR_REQUEST, val, ftdi.index);
 	}
 
+	/**
+	 * Configures ftdi context on open.
+	 */
 	private static void configureFtdi(ftdi_context ftdi, libusb_device dev) throws LibUsbException {
 		libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(dev);
 		ftdi.type = guessChipType(desc.bcdDevice, desc.iSerialNumber);
@@ -900,11 +1077,17 @@ public class LibFtdi {
 		setConfig(desc, ftdi.usb_dev, cfg0);
 	}
 
+	/**
+	 * Attempts to detach the kernel driver if in auto-detach mode.
+	 */
 	private static void autoDetach(ftdi_context ftdi) {
 		if (ftdi.module_detach_mode != ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE) return;
 		LogUtil.execute(logger, () -> LibUsb.libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
 	}
 
+	/**
+	 * Sets the libusb configuration.
+	 */
 	private static void setConfig(libusb_device_descriptor desc, libusb_device_handle dev, int cfg)
 		throws LibUsbException {
 		int current = LibUsb.libusb_get_configuration(dev);
@@ -912,6 +1095,9 @@ public class LibFtdi {
 			LibUsb.libusb_set_configuration(dev, cfg);
 	}
 
+	/**
+	 * Initializes control transfer state for ftdi_read_data_submit() and ftdi_write_data_submit().
+	 */
 	private static ftdi_transfer_control transferControl(ftdi_context ftdi, Pointer buf, int size,
 		libusb_transfer transfer) {
 		ftdi_transfer_control tc = new ftdi_transfer_control();
@@ -934,6 +1120,9 @@ public class LibFtdi {
 		else writeMoreData(transfer, tc);
 	}
 
+	/**
+	 * Continue writing data for ftdi_write_data_submit callback.
+	 */
 	private static void writeMoreData(libusb_transfer transfer, ftdi_transfer_control tc) {
 		ftdi_context ftdi = tc.ftdi;
 		try {
@@ -959,6 +1148,9 @@ public class LibFtdi {
 		else readMoreData(transfer, tc);
 	}
 
+	/**
+	 * Read data for ftdi_read_data_submit callback.
+	 */
 	private static void readData(libusb_transfer transfer, ftdi_transfer_control tc) {
 		ftdi_context ftdi = tc.ftdi;
 		int dataLen = Math.min(dataLen(ftdi, transfer.actual_length), tc.size - tc.offset);
@@ -1018,10 +1210,13 @@ public class LibFtdi {
 	private static int dataLen(ftdi_context ftdi, int readSize) {
 		int packets = readSize / ftdi.max_packet_size;
 		int rem = readSize % ftdi.max_packet_size;
-		return (packets * (ftdi.max_packet_size - READ_STATUS_BYTES)) +
-			Math.max(0, rem - READ_STATUS_BYTES);
+		return (packets * (ftdi.max_packet_size - READ_STATUS_BYTES))
+			+ Math.max(0, rem - READ_STATUS_BYTES);
 	}
 
+	/**
+	 * Wait for async transfer to complete.
+	 */
 	private static void waitForCompletion(ftdi_transfer_control tc, timeval to)
 		throws LibUsbException {
 		requireCtx(tc.ftdi);
@@ -1031,12 +1226,18 @@ public class LibFtdi {
 				LibUsb.libusb_handle_events_timeout_completed(tc.ftdi.usb_ctx, to, tc.completed);
 	}
 
+	/**
+	 * Calls libusb control transfer for writing.
+	 */
 	private static void controlTransferOut(ftdi_context ftdi, ftdi_request_type request, int value,
 		int index) throws LibUsbException {
 		LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_OUT_REQTYPE, request.value, value,
 			index, 0, ftdi.usb_write_timeout);
 	}
 
+	/**
+	 * Calls libusb control transfer for reading.
+	 */
 	private static byte[] controlTransferIn(ftdi_context ftdi, ftdi_request_type request, int value,
 		int index, int length) throws LibUsbException {
 		return LibUsb.libusb_control_transfer(ftdi.usb_dev, FTDI_DEVICE_IN_REQTYPE, request.value,
