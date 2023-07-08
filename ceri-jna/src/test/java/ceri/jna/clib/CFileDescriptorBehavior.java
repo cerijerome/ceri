@@ -128,12 +128,12 @@ public class CFileDescriptorBehavior {
 	}
 
 	@Test
-	public void shouldAcceptConsumer() {
+	public void shouldAcceptConsumer() throws IOException {
 		fd.accept(f -> assertEquals(f, fd.fd()));
 	}
 
 	@Test
-	public void shouldApply() {
+	public void shouldApply() throws IOException {
 		assertEquals(fd.apply(f -> {
 			assertEquals(f, fd.fd());
 			return 33;

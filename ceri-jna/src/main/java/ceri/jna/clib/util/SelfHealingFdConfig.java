@@ -14,40 +14,39 @@ import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
 import ceri.jna.clib.OpenFlag;
-import ceri.log.io.SelfHealingConnectorConfig;
+import ceri.log.io.SelfHealingConfig;
 
-public class SelfHealingFileDescriptorConfig {
+public class SelfHealingFdConfig {
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
 	public final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
-	public final SelfHealingConnectorConfig selfHealing;
+	public final SelfHealingConfig selfHealing;
 
-	public static SelfHealingFileDescriptorConfig
-		of(ExceptionSupplier<IOException, FileDescriptor> openFn) {
+	public static SelfHealingFdConfig of(ExceptionSupplier<IOException, FileDescriptor> openFn) {
 		return builder(openFn).build();
 	}
 
 	public static class Builder {
 		final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
-		SelfHealingConnectorConfig.Builder selfHealing =
-			SelfHealingConnectorConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
+		SelfHealingConfig.Builder selfHealing =
+			SelfHealingConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 		Builder(ExceptionSupplier<IOException, ? extends FileDescriptor> openFn) {
 			this.openFn = openFn;
 		}
 
-		public Builder selfHealing(SelfHealingConnectorConfig selfHealing) {
+		public Builder selfHealing(SelfHealingConfig selfHealing) {
 			this.selfHealing.apply(selfHealing);
 			return this;
 		}
 
-		public Builder selfHealing(Consumer<SelfHealingConnectorConfig.Builder> consumer) {
+		public Builder selfHealing(Consumer<SelfHealingConfig.Builder> consumer) {
 			consumer.accept(selfHealing);
 			return this;
 		}
 
-		public SelfHealingFileDescriptorConfig build() {
-			return new SelfHealingFileDescriptorConfig(this);
+		public SelfHealingFdConfig build() {
+			return new SelfHealingFdConfig(this);
 		}
 	}
 
@@ -66,7 +65,7 @@ public class SelfHealingFileDescriptorConfig {
 		return new Builder(openFn);
 	}
 
-	SelfHealingFileDescriptorConfig(Builder builder) {
+	SelfHealingFdConfig(Builder builder) {
 		openFn = builder.openFn;
 		selfHealing = builder.selfHealing.build();
 	}

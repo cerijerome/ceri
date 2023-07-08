@@ -1,5 +1,6 @@
 package ceri.jna.io;
 
+import static ceri.common.collection.ArrayUtil.validateRange;
 import java.io.IOException;
 import java.io.InputStream;
 import com.sun.jna.Memory;
@@ -13,8 +14,6 @@ public abstract class JnaInputStream extends InputStream {
 	private final ThreadBuffers buffers = ThreadBuffers.of();
 	private volatile boolean closed = false;
 
-	protected JnaInputStream() {}
-
 	public int bufferSize() {
 		return Math.toIntExact(buffers.size());
 	}
@@ -25,14 +24,14 @@ public abstract class JnaInputStream extends InputStream {
 
 	@Override
 	public int available() throws IOException {
-		verifyOpen();
+		ensureOpen();
 		return availableBytes();
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public int read() throws IOException {
-		verifyOpen();
+		ensureOpen();
 		var buffer = buffers.get();
 		int n = read(buffer, 1);
 		return n > 0 ? JnaUtil.ubyte(buffer, 0) : -1;
@@ -41,7 +40,8 @@ public abstract class JnaInputStream extends InputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		verifyOpen();
+		validateRange(b.length, off, len);
+		ensureOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();
 		int n = read(buffer, Math.min(len, JnaUtil.intSize(buffer)));
@@ -61,11 +61,11 @@ public abstract class JnaInputStream extends InputStream {
 	
 	protected abstract int read(Memory buffer, int len) throws IOException;
 
-	protected boolean closed() {
-		return closed;
-	}
-
-	protected void verifyOpen() throws IOException {
+	protected void ensureOpen() throws IOException {
 		if (closed()) throw new IOException("Closed");
+	}
+	
+	protected final boolean closed() {
+		return closed;
 	}
 }

@@ -1,20 +1,20 @@
 package ceri.jna.clib.util;
 
 import ceri.common.property.BaseProperties;
-import ceri.log.io.SelfHealingConnectorProperties;
+import ceri.log.io.SelfHealingProperties;
 
-public class SelfHealingFileDescriptorProperties extends BaseProperties {
+public class SelfHealingFdProperties extends BaseProperties {
 	private final FileDescriptorProperties fd;
-	private final SelfHealingConnectorProperties selfHealing;
+	private final SelfHealingProperties selfHealing;
 
-	public SelfHealingFileDescriptorProperties(BaseProperties properties, String... groups) {
+	public SelfHealingFdProperties(BaseProperties properties, String... groups) {
 		super(properties, groups);
 		fd = new FileDescriptorProperties(this);
-		selfHealing = new SelfHealingConnectorProperties(this);
+		selfHealing = new SelfHealingProperties(this);
 	}
 
-	public SelfHealingFileDescriptorConfig config() {
-		return SelfHealingFileDescriptorConfig.builder(fd.opener())
+	public SelfHealingFdConfig config() {
+		return SelfHealingFdConfig.builder(fd.opener())
 			.selfHealing(selfHealing.config()).build();
 	}
 }

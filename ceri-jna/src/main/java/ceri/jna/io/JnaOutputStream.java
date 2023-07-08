@@ -4,12 +4,12 @@ import static ceri.common.collection.ArrayUtil.validateRange;
 import java.io.IOException;
 import java.io.OutputStream;
 import com.sun.jna.Memory;
-import ceri.common.io.IncompleteTransferException;
+import ceri.common.io.IncompleteIoException;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
 
 /**
- * OutputStream for a file descriptor.
+ * Base OutputStream using thread buffers.
  */
 public abstract class JnaOutputStream extends OutputStream {
 	private final ThreadBuffers buffers = ThreadBuffers.of();
@@ -81,6 +81,6 @@ public abstract class JnaOutputStream extends OutputStream {
 	}
 
 	private void verifyWrite(int actual, int expected) throws IOException {
-		IncompleteTransferException.verify(actual, expected);
+		IncompleteIoException.verify(actual, expected);
 	}
 }

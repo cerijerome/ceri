@@ -117,12 +117,12 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {
+	public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {
 		consumer.accept(fd());
 	}
 
 	@Override
-	public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
+	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
 	}
 

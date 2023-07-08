@@ -6,23 +6,27 @@ import ceri.common.function.ExceptionIntFunction;
 import ceri.jna.clib.FileDescriptor;
 import ceri.log.io.SelfHealingConnector;
 
-public class SelfHealingFileDescriptor extends SelfHealingConnector<FileDescriptor>
+public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	implements FileDescriptor {
-	private final SelfHealingFileDescriptorConfig config;
+	private final SelfHealingFdConfig config;
 
-	private SelfHealingFileDescriptor(SelfHealingFileDescriptorConfig config) {
+	public static SelfHealingFd of(SelfHealingFdConfig config) {
+		return new SelfHealingFd(config);
+	}
+	
+	private SelfHealingFd(SelfHealingFdConfig config) {
 		super(config.selfHealing);
 		this.config = config;
 	}
 
 	@Override
 	public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {
-		acceptValidConnector(fd -> fd.accept(consumer));
+		acceptValid(fd -> fd.accept(consumer));
 	}
 
 	@Override
 	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
-		return applyValidConnector(fd -> fd.apply(function));
+		return applyValid(fd -> fd.apply(function));
 	}
 
 	@Override

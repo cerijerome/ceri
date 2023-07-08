@@ -1,5 +1,6 @@
 package ceri.jna.clib;
 
+import java.io.IOException;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.io.Connector;
@@ -17,12 +18,12 @@ public interface FileDescriptor extends Connector {
 	/**
 	 * Use the file descriptor value.
 	 */
-	<E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E;
+	void accept(ExceptionIntConsumer<IOException> consumer) throws IOException;
 
 	/**
 	 * Use the file descriptor value.
 	 */
-	<T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E;
+	<T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException;
 
 	/**
 	 * A file descriptor that is state-aware, with state change notifications.
@@ -40,10 +41,10 @@ public interface FileDescriptor extends Connector {
 	class Null extends Connector.Null implements FileDescriptor.Fixable {
 
 		@Override
-		public <E extends Exception> void accept(ExceptionIntConsumer<E> consumer) throws E {}
+		public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {}
 
 		@Override
-		public <T, E extends Exception> T apply(ExceptionIntFunction<E, T> function) throws E {
+		public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
 			return null;
 		}
 	}
