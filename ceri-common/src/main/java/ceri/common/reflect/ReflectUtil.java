@@ -11,8 +11,11 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.FunctionUtil;
@@ -57,7 +60,7 @@ public class ReflectUtil {
 	public static String className(Object obj) {
 		return name(getClass(obj));
 	}
-	
+
 	/**
 	 * Returns the class name without package. Undefined for class names containing '$'.
 	 */
@@ -193,7 +196,7 @@ public class ReflectUtil {
 			return in.readAllBytes();
 		}
 	}
-	
+
 	/**
 	 * Wraps class getConstructor with unchecked exception.
 	 */
@@ -301,12 +304,38 @@ public class ReflectUtil {
 		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
 	}
-	
+
 	/**
 	 * Return the current list of JVM arguments.
 	 */
 	public static List<String> jvmArgs() {
 		return ManagementFactory.getRuntimeMXBean().getInputArguments();
 	}
-	
+
+	/**
+	 * Returns a proxy that calls the consumer before delegating each method call. iface type must
+	 * be a non-sealed, non-hidden interface.
+	 */
+	public static <T> T interceptor(Class<T> iface, T delegate,
+		BiConsumer<Method, Object[]> consumer) {
+		return methodInterceptor(delegate, consumer, iface);
+	}
+
+	/**
+	 * Returns a proxy that calls the consumer before delegating each method call. T must be a
+	 * non-sealed, non-hidden interface.
+	 */
+	public static <T> T interceptor(T delegate, BiConsumer<Method, Object[]> consumer) {
+		return methodInterceptor(delegate, consumer, delegate.getClass().getInterfaces());
+	}
+
+	private static <T> T methodInterceptor(T delegate, BiConsumer<Method, Object[]> consumer,
+		Class<?>... ifaces) {
+		var cls = delegate.getClass();
+		return BasicUtil.uncheckedCast(
+			Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (obj, method, args) -> {
+				consumer.accept(method, args);
+				return method.invoke(delegate, args);
+			}));
+	}
 }

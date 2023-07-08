@@ -5,54 +5,49 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.function.FunctionUtil;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
 import ceri.jna.clib.OpenFlag;
+import ceri.log.io.SelfHealingConnectorConfig;
 
-public class SelfHealingFdConfig {
+public class SelfHealingFileDescriptorConfig {
 	static final Predicate<Exception> DEFAULT_PREDICATE =
 		named(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
 	public final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
-	public final int recoveryDelayMs;
-	public final int fixRetryDelayMs;
-	public final Predicate<Exception> brokenPredicate;
+	public final SelfHealingConnectorConfig selfHealing;
 
-	public static SelfHealingFdConfig of(ExceptionSupplier<IOException, FileDescriptor> openFn) {
+	public static SelfHealingFileDescriptorConfig
+		of(ExceptionSupplier<IOException, FileDescriptor> openFn) {
 		return builder(openFn).build();
 	}
 
 	public static class Builder {
 		final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
-		int fixRetryDelayMs = 2000;
-		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
+		SelfHealingConnectorConfig.Builder selfHealing =
+			SelfHealingConnectorConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 		Builder(ExceptionSupplier<IOException, ? extends FileDescriptor> openFn) {
 			this.openFn = openFn;
 		}
 
-		public Builder recoveryDelayMs(int recoveryDelayMs) {
-			this.recoveryDelayMs = recoveryDelayMs;
+		public Builder selfHealing(SelfHealingConnectorConfig selfHealing) {
+			this.selfHealing.apply(selfHealing);
 			return this;
 		}
 
-		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
-			this.fixRetryDelayMs = fixRetryDelayMs;
+		public Builder selfHealing(Consumer<SelfHealingConnectorConfig.Builder> consumer) {
+			consumer.accept(selfHealing);
 			return this;
 		}
 
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
-			this.brokenPredicate = brokenPredicate;
-			return this;
-		}
-
-		public SelfHealingFdConfig build() {
-			return new SelfHealingFdConfig(this);
+		public SelfHealingFileDescriptorConfig build() {
+			return new SelfHealingFileDescriptorConfig(this);
 		}
 	}
 
@@ -71,11 +66,9 @@ public class SelfHealingFdConfig {
 		return new Builder(openFn);
 	}
 
-	SelfHealingFdConfig(Builder builder) {
+	SelfHealingFileDescriptorConfig(Builder builder) {
 		openFn = builder.openFn;
-		recoveryDelayMs = builder.recoveryDelayMs;
-		fixRetryDelayMs = builder.fixRetryDelayMs;
-		brokenPredicate = builder.brokenPredicate;
+		selfHealing = builder.selfHealing.build();
 	}
 
 	public FileDescriptor open() throws IOException {
@@ -84,8 +77,6 @@ public class SelfHealingFdConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, ReflectUtil.toStringOrHash(openFn), recoveryDelayMs,
-			fixRetryDelayMs, ReflectUtil.toStringOrHash(brokenPredicate));
+		return ToString.forClass(this, FunctionUtil.lambdaName(openFn), selfHealing);
 	}
-
 }

@@ -73,7 +73,7 @@ public class ReplaceableOutputStream extends OutputStream
 	}
 
 	private void checkState() throws IOException {
-		if (out == null) throw new StreamNotSetException("out");
+		if (out == null) throw new NotSetException("out");
 	}
 
 }

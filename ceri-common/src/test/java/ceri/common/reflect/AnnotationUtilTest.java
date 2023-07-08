@@ -1,6 +1,7 @@
 package ceri.common.reflect;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -36,26 +37,26 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testClassAnnotation() {
-		assertEquals(AnnotationUtil.annotation((Class<?>) null, A.class), null);
-		assertEquals(AnnotationUtil.annotation(getClass(), A.class), null);
+		assertNull(AnnotationUtil.annotation((Class<?>) null, A.class));
+		assertNull(AnnotationUtil.annotation(getClass(), A.class));
 		assertA(AnnotationUtil.annotation(E.class, A.class), "s", 123);
 	}
 
 	@Test
 	public void testEnumAnnotation() {
-		assertEquals(AnnotationUtil.annotation((Enum<?>) null, A.class), null);
-		assertEquals(AnnotationUtil.annotation(Align.H.left, A.class), null);
-		assertEquals(AnnotationUtil.annotation(E.a, A.class), null);
+		assertNull(AnnotationUtil.annotation((Enum<?>) null, A.class));
+		assertNull(AnnotationUtil.annotation(Align.H.left, A.class));
+		assertNull(AnnotationUtil.annotation(E.a, A.class));
 		assertA(AnnotationUtil.annotation(E.b, A.class), "b", -1);
 	}
 
 	@Test
 	public void testAnnotationFromClass() {
-		assertEquals(AnnotationUtil.annotationFromClass(null, A.class), null);
-		assertEquals(AnnotationUtil.annotationFromClass(() -> {
+		assertNull(AnnotationUtil.annotationFromClass(null, A.class));
+		assertNull(AnnotationUtil.annotationFromClass(() -> {
 			class C0 {}
 			return C0.class;
-		}, A.class), null);
+		}, A.class));
 		assertA(AnnotationUtil.annotationFromClass(() -> {
 			@A(s = "C")
 			class C0 {}
@@ -65,13 +66,13 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testAnnotationFromEnum() {
-		assertEquals(AnnotationUtil.annotationFromEnum(null, A.class), null);
-		assertEquals(AnnotationUtil.annotationFromEnum(() -> {
+		assertNull(AnnotationUtil.annotationFromEnum(null, A.class));
+		assertNull(AnnotationUtil.annotationFromEnum(() -> {
 			enum E0 {
 				a
 			}
 			return E0.a;
-		}, A.class), null);
+		}, A.class));
 		assertA(AnnotationUtil.annotationFromEnum(() -> {
 			enum E0 {
 				@A(s = "a")

@@ -114,7 +114,7 @@ public class ReplaceableInputStream extends InputStream implements Listenable.In
 	}
 
 	private void checkState() throws IOException {
-		if (in == null) throw new StreamNotSetException("in");
+		if (in == null) throw new NotSetException("in");
 	}
 
 }

@@ -12,26 +12,28 @@ public class ReplaceableTcpSocket extends ReplaceableConnector<TcpSocket> implem
 		return new ReplaceableTcpSocket();
 	}
 
-	private ReplaceableTcpSocket() {}
+	private ReplaceableTcpSocket() {
+		super("socket");
+	}
 
 	@Override
 	public HostPort hostPort() {
-		return applyConnector(TcpSocket::hostPort, HostPort.NULL);
+		return applyIfSet(TcpSocket::hostPort, HostPort.NULL);
 	}
 
 	@Override
 	public int localPort() {
-		return applyConnector(TcpSocket::localPort, HostPort.INVALID_PORT);
+		return applyIfSet(TcpSocket::localPort, HostPort.INVALID_PORT);
 	}
 
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
-		acceptValidConnector(socket -> socket.option(option, value));
+		acceptValid(socket -> socket.option(option, value));
 	}
 
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		return applyValidConnector(socket -> socket.option(option));
+		return applyValid(socket -> socket.option(option));
 	}
 
 }
