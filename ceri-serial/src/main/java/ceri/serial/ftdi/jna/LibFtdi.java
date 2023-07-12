@@ -480,7 +480,7 @@ public class LibFtdi {
 			ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
 			ftdi.bitbang_mode = ftdi_mpsse_mode.BITMODE_BITBANG;
 			ftdi.eeprom = new ftdi_eeprom();
-			ftdi_read_data_set_chunk_size(ftdi, CHUNKSIZE_DEF);
+			ftdi_read_data_set_chunksize(ftdi, CHUNKSIZE_DEF);
 		} catch (LibUsbException | RuntimeException e) {
 			ftdi_free(ftdi);
 			throw e;
@@ -781,7 +781,7 @@ public class LibFtdi {
 	/**
 	 * Configure write buffer chunk size. Default is 4096.
 	 */
-	public static void ftdi_write_data_set_chunk_size(ftdi_context ftdi, int chunkSize) {
+	public static void ftdi_write_data_set_chunksize(ftdi_context ftdi, int chunkSize) {
 		ftdi.writebuffer_chunksize = chunkSize;
 	}
 
@@ -822,7 +822,7 @@ public class LibFtdi {
 	/**
 	 * Configure read buffer chunk size. Default is 4096. Automatically reallocates the buffer.
 	 */
-	public static void ftdi_read_data_set_chunk_size(ftdi_context ftdi, int chunkSize) {
+	public static void ftdi_read_data_set_chunksize(ftdi_context ftdi, int chunkSize) {
 		ftdi.readbuffer = new Memory(chunkSize);
 		ftdi.readbuffer_chunksize = chunkSize;
 	}

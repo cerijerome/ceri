@@ -100,6 +100,12 @@ public class LibFtdiStream {
 			PROGRESS_INTERVAL_SEC);
 	}
 
+	/**
+	 * Streaming read of data from the device. Uses asynchronous transfers in libusb-1.0 for
+	 * high-performance streaming of data from a device interface. This function continuously
+	 * transfers data until an error occurs, or the callback returns false. For every contiguous
+	 * block of received data, the callback will be invoked.
+	 */
 	public static <T> void ftdi_readstream(ftdi_context ftdi, FTDIStreamCallback<T> callback,
 		T userData, int packetsPerTransfer, int numTransfers, double progressIntervalSec)
 		throws LibUsbException {

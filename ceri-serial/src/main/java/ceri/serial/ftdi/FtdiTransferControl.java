@@ -7,24 +7,47 @@ import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_control;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class FtdiTransferControl {
-	private final ftdi_transfer_control control;
-
-	FtdiTransferControl(ftdi_transfer_control control) {
-		this.control = control;
-	}
+public interface FtdiTransferControl {
+	/** A no-op, stateless instance */
+	Null NULL = new Null();
 
 	/**
 	 * Waits for transfer to complete. Returns the number of bytes transferred.
 	 */
-	public int dataDone() throws LibUsbException {
-		return LibFtdi.ftdi_transfer_data_done(control);
-	}
+	int dataDone() throws LibUsbException;
 
 	/**
 	 * Cancels the transfer.
 	 */
-	public void dataCancel(Duration d) throws LibUsbException {
-		LibFtdi.ftdi_transfer_data_cancel(control, Struct.write(timeval.from(d)));
+	void dataCancel(Duration d) throws LibUsbException;
+
+	/**
+	 * An implementation that wraps ftdi_transfer_control.
+	 */
+	static FtdiTransferControl from(ftdi_transfer_control control) {
+		return new FtdiTransferControl() {
+			@Override
+			public int dataDone() throws LibUsbException {
+				return LibFtdi.ftdi_transfer_data_done(control);
+			}
+
+			@Override
+			public void dataCancel(Duration d) throws LibUsbException {
+				LibFtdi.ftdi_transfer_data_cancel(control, Struct.write(timeval.from(d)));
+			}
+		};
+	}
+
+	/**
+	 * A no-op, stateless implementation.
+	 */
+	static class Null implements FtdiTransferControl {
+		@Override
+		public int dataDone() throws LibUsbException {
+			return 0;
+		}
+
+		@Override
+		public void dataCancel(Duration d) throws LibUsbException {}
 	}
 }

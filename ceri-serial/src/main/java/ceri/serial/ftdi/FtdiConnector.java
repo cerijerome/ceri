@@ -1,34 +1,55 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.math.MathUtil.ubyte;
-import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.event.Listenable;
-import ceri.common.io.StateChange;
+import java.nio.ByteBuffer;
+import ceri.common.io.Connector;
+import ceri.serial.libusb.jna.LibUsbException;
 
 /**
  * Sub-set of FTDI operations for device controllers.
  */
-public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChange> {
+public interface FtdiConnector extends Connector {
+	/** A stateless, no-op instance. */
+	Null NULL = new Null();
+
+	@Override
+	FtdiInputStream in();
+
+	@Override
+	FtdiOutputStream out();
+
 	/**
-	 * For condition-aware serial connectors, notify that it is broken. Useful if the connector
-	 * itself cannot determine it is broken.
+	 * Get device descriptor strings: manufacturer, description and serial code.
 	 */
-	default void broken() {
-		throw new UnsupportedOperationException();
+	FtdiDescriptor descriptor() throws LibUsbException;
+
+	/**
+	 * Send reset request to device.
+	 */
+	void usbReset() throws LibUsbException;
+
+	/**
+	 * Set pin bit mode.
+	 */
+	void bitMode(FtdiBitMode bitMode) throws LibUsbException;
+
+	/**
+	 * Convenience method to turn bitbang mode on or off.
+	 */
+	default void bitBang(boolean on) throws LibUsbException {
+		if (on) bitMode(FtdiBitMode.BITBANG);
+		else bitMode(FtdiBitMode.OFF);
 	}
 
 	/**
-	 * Attempts to open the ftdi device. If it fails, self-healing will kick in.
+	 * Set serial baud rate.
 	 */
-	void open() throws IOException;
+	void baudRate(int baudRate) throws LibUsbException;
 
 	/**
-	 * Set FTDI bit mode.
+	 * Sets data bits, stop bits, parity, and break.
 	 */
-	void bitmode(FtdiBitMode bitmode) throws IOException;
+	void lineParams(FtdiLineParams properties) throws LibUsbException;
 
 	/**
 	 * Set flow control handshaking.
@@ -46,116 +67,104 @@ public interface FtdiConnector extends Closeable, Listenable.Indirect<StateChang
 	void rts(boolean state) throws IOException;
 
 	/**
-	 * Read FTDI pins (b-bit).
+	 * Reads 8-bit pin status.
 	 */
 	int readPins() throws IOException;
 
 	/**
-	 * Read one byte. -1 if not available.
+	 * Get the 16-bit modem status.
 	 */
-	default int read() throws IOException {
-		byte[] data = read(1);
-		return data.length == 0 ? -1 : ubyte(data[0]);
+	int pollModemStatus() throws LibUsbException;
+
+	/**
+	 * Set chip internal buffer latency.
+	 */
+	void latencyTimer(int latency) throws LibUsbException;
+
+	/**
+	 * Get chip internal buffer latency.
+	 */
+	int latencyTimer() throws LibUsbException;
+
+	/**
+	 * Purge read and writes buffers on the chip.
+	 */
+	@SuppressWarnings("resource")
+	default void purgeBuffers() throws LibUsbException {
+		in().purgeBuffer();
+		out().purgeBuffer();
 	}
 
 	/**
-	 * Read byte array of given size.
+	 * A state-aware extension.
 	 */
-	default byte[] read(int size) throws IOException {
-		byte[] bytes = new byte[size];
-		int n = read(bytes);
-		return n == size ? bytes : Arrays.copyOf(bytes, n);
+	interface Fixable extends FtdiConnector, Connector.Fixable {}
+
+	/**
+	 * Callback to register for streaming events.
+	 */
+	public static interface StreamCallback {
+		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);
 	}
 
 	/**
-	 * Read into byte array.
+	 * A stateless, no-op implementation.
 	 */
-	default int read(byte[] buffer) throws IOException {
-		return read(buffer, 0);
-	}
-
-	/**
-	 * Read into byte array.
-	 */
-	default int read(byte[] buffer, int offset) throws IOException {
-		return read(buffer, offset, buffer.length - offset);
-	}
-
-	/**
-	 * Read into byte array.
-	 */
-	int read(byte[] buffer, int offset, int length) throws IOException;
-
-	/**
-	 * Write bytes.
-	 */
-	default int write(int... data) throws IOException {
-		return write(ArrayUtil.bytes(data));
-	}
-
-	/**
-	 * Write bytes.
-	 */
-	default int write(byte[] data) throws IOException {
-		return write(data, 0);
-	}
-
-	/**
-	 * Write bytes.
-	 */
-	default int write(byte[] data, int offset) throws IOException {
-		return write(data, offset, data.length - offset);
-	}
-
-	/**
-	 * Write bytes.
-	 */
-	int write(byte[] data, int offset, int length) throws IOException;
-
-	/**
-	 * A stateless, no-op instance.
-	 */
-	Null NULL = new Null();
-	
-	static class Null implements FtdiConnector {
+	static class Null extends Connector.Null implements FtdiConnector.Fixable {
 		Null() {}
 
 		@Override
-		public Listenable<StateChange> listeners() {
-			return Listenable.ofNull();
+		public FtdiInputStream in() {
+			return FtdiInputStream.NULL;
 		}
 
 		@Override
-		public void open() {}
+		public FtdiOutputStream out() {
+			return FtdiOutputStream.NULL;
+		}
 
 		@Override
-		public void bitmode(FtdiBitMode bitmode) {}
+		public FtdiDescriptor descriptor() throws LibUsbException {
+			return FtdiDescriptor.NULL;
+		}
 
 		@Override
-		public void flowControl(FtdiFlowControl flowControl) {}
+		public void usbReset() throws LibUsbException {}
 
 		@Override
-		public void dtr(boolean state) {}
+		public void bitMode(FtdiBitMode bitmode) throws LibUsbException {}
 
 		@Override
-		public void rts(boolean state) {}
+		public void baudRate(int baudRate) throws LibUsbException {}
 
 		@Override
-		public int readPins() {
+		public void lineParams(FtdiLineParams properties) throws LibUsbException {}
+
+		@Override
+		public void flowControl(FtdiFlowControl flowControl) throws LibUsbException {}
+
+		@Override
+		public void dtr(boolean state) throws LibUsbException {}
+
+		@Override
+		public void rts(boolean state) throws LibUsbException {}
+
+		@Override
+		public int readPins() throws LibUsbException {
 			return 0;
 		}
 
 		@Override
-		public int read(byte[] buffer, int offset, int length) {
-			return length;
+		public int pollModemStatus() throws LibUsbException {
+			return 0;
 		}
 
 		@Override
-		public int write(byte[] data, int offset, int length) {
-			return length;
-		}
+		public void latencyTimer(int latency) throws LibUsbException {}
 
 		@Override
-		public void close() {}
+		public int latencyTimer() throws LibUsbException {
+			return 0;
+		}
 	}
 }
