@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import ceri.common.text.StringUtil;
 
 public class SerialParams {
+	public static final SerialParams NULL = builder().baud(0).build();
 	public static final SerialParams DEFAULT = builder().build();
 	private static final int START_BITS = 1;
 	private static final long MICROS_PER_SECOND = TimeUnit.SECONDS.toMicros(1);

@@ -4,7 +4,7 @@ import java.io.IOException;
 import ceri.serial.ftdi.test.FtdiConnectorTester;
 import ceri.serial.ftdi.test.TestFtdiConnector;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
-import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
+import ceri.serial.ftdi.util.SelfHealingFtdi;
 
 public class FtdiTester {
 
@@ -22,7 +22,7 @@ public class FtdiTester {
 
 	public static void run(String finder) throws IOException {
 		var config = SelfHealingFtdiConfig.of(finder);
-		try (var connector = SelfHealingFtdiConnector.of(config)) {
+		try (var connector = SelfHealingFtdi.of(config)) {
 			connector.connect();
 			FtdiConnectorTester.test(connector, null);
 		}

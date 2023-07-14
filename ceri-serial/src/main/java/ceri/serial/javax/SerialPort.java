@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 import com.sun.jna.Platform;
-import ceri.common.io.StreamNotSetException;
+import ceri.common.io.NotSetException;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.util.CloseableUtil;
@@ -21,7 +21,7 @@ public class SerialPort extends CommPort {
 	private static final String UNKNOWN_OWNER = "Unknown";
 	// These exceptions types/messages signify the serial port is broken
 	private static final List<Class<? extends Exception>> BROKEN_EXCEPTIONS = List.of( //
-		StreamNotSetException.class, NoSuchPortException.class,
+		NotSetException.class, NoSuchPortException.class,
 		PureJavaIllegalStateException.class);
 	private static final Pattern BROKEN_MESSAGE_REGEX =
 		Pattern.compile("(?i)(?:device not configured|\\bioctl\\b)");

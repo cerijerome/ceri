@@ -5,6 +5,7 @@ import static ceri.common.function.FunctionUtil.named;
 import java.io.IOException;
 import java.util.function.Predicate;
 import ceri.common.text.ToString;
+import ceri.log.io.SelfHealingConfig;
 import ceri.serial.comm.SerialPort;
 
 public class SelfHealingSerialConfig {
@@ -14,9 +15,7 @@ public class SelfHealingSerialConfig {
 	public final PortSupplier portSupplier;
 	public final SerialFactory factory;
 	public final SerialConfig serial;
-	public final int fixRetryDelayMs;
-	public final int recoveryDelayMs;
-	public final Predicate<Exception> brokenPredicate;
+	public final SelfHealingConfig selfHealing;
 
 	public static interface SerialFactory {
 		SerialPort open(String port) throws IOException;
@@ -25,14 +24,13 @@ public class SelfHealingSerialConfig {
 	public static SelfHealingSerialConfig of(String port) {
 		return builder(port).build();
 	}
-	
+
 	public static class Builder {
 		final PortSupplier portSupplier;
 		SerialFactory factory = SerialPort::open;
 		SerialConfig serial = SerialConfig.DEFAULT;
-		int fixRetryDelayMs = 2000;
-		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = DEFAULT_PREDICATE;
+		SelfHealingConfig.Builder selfHealing =
+			SelfHealingConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 		Builder(PortSupplier portSupplier) {
 			this.portSupplier = portSupplier;
@@ -48,18 +46,8 @@ public class SelfHealingSerialConfig {
 			return this;
 		}
 
-		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
-			this.fixRetryDelayMs = fixRetryDelayMs;
-			return this;
-		}
-
-		public Builder recoveryDelayMs(int recoveryDelayMs) {
-			this.recoveryDelayMs = recoveryDelayMs;
-			return this;
-		}
-
-		public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
-			this.brokenPredicate = brokenPredicate;
+		public Builder selfHealing(SelfHealingConfig selfHealing) {
+			this.selfHealing.apply(selfHealing);
 			return this;
 		}
 
@@ -77,18 +65,15 @@ public class SelfHealingSerialConfig {
 	}
 
 	public static Builder builder(SelfHealingSerialConfig config) {
-		return new Builder(config.portSupplier).serial(config.serial)
-			.fixRetryDelayMs(config.fixRetryDelayMs).recoveryDelayMs(config.recoveryDelayMs)
-			.brokenPredicate(config.brokenPredicate);
+		return new Builder(config.portSupplier).factory(config.factory).serial(config.serial)
+			.selfHealing(config.selfHealing);
 	}
 
 	SelfHealingSerialConfig(Builder builder) {
 		portSupplier = builder.portSupplier;
 		factory = builder.factory;
 		serial = builder.serial;
-		fixRetryDelayMs = builder.fixRetryDelayMs;
-		recoveryDelayMs = builder.recoveryDelayMs;
-		brokenPredicate = builder.brokenPredicate;
+		selfHealing = builder.selfHealing.build();
 	}
 
 	public boolean enabled() {
@@ -98,7 +83,7 @@ public class SelfHealingSerialConfig {
 	@Override
 	public String toString() {
 		return ToString.forClass(this, lambdaName(portSupplier), lambdaName(factory), serial,
-			fixRetryDelayMs, recoveryDelayMs, lambdaName(brokenPredicate));
+			selfHealing);
 	}
 
 }

@@ -9,12 +9,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.concurrent.VolatileField;
+import ceri.common.concurrent.VolatileRef;
+import ceri.jna.io.JnaInputStream;
+import ceri.jna.io.JnaOutputStream;
 import ceri.jna.util.JnaUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 import ceri.serial.ftdi.jna.LibFtdiStream;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
@@ -33,14 +36,14 @@ public class Ftdi implements FtdiConnector {
 	private static final Set<libusb_error> FATAL_USB_ERRORS =
 		Set.of(LIBUSB_ERROR_NO_DEVICE, LIBUSB_ERROR_NOT_FOUND, LIBUSB_ERROR_NO_MEM);
 	private final ftdi_context ftdi;
-	private final FtdiInputStream in;
-	private final FtdiOutputStream out;
-	private VolatileField<FtdiDescriptor> descriptor = VolatileField.of();
+	private final JnaInputStream in;
+	private final JnaOutputStream out;
+	private VolatileRef<ftdi_usb_strings> descriptor = VolatileRef.of();
 	private boolean closed = false;
 
-	public static boolean isFatal(LibUsbException e) {
-		if (e == null) return false;
-		return FATAL_USB_ERRORS.contains(e.error);
+	public static boolean isFatal(Exception e) {
+		if (!(e instanceof LibUsbException le)) return false;
+		return FATAL_USB_ERRORS.contains(le.error);
 	}
 
 	public static Ftdi open() throws LibUsbException {
@@ -70,21 +73,10 @@ public class Ftdi implements FtdiConnector {
 	}
 
 	@Override
-	public FtdiInputStream in() {
-		return in;
-	}
-
-	@Override
-	public FtdiOutputStream out() {
-		return out;
-	}
-
-	@Override
-	public FtdiDescriptor descriptor() throws LibUsbException {
+	public ftdi_usb_strings descriptor() throws LibUsbException {
 		return descriptor.computeIfAbsent(() -> {
 			libusb_device dev = LibUsb.libusb_get_device(ftdi().usb_dev);
-			var strings = LibFtdi.ftdi_usb_get_strings(ftdi(), dev);
-			return FtdiDescriptor.from(strings);
+			return LibFtdi.ftdi_usb_get_strings(ftdi(), dev);
 		});
 	}
 
@@ -99,8 +91,8 @@ public class Ftdi implements FtdiConnector {
 	}
 
 	@Override
-	public void baudRate(int baudRate) throws LibUsbException {
-		LibFtdi.ftdi_set_baudrate(ftdi(), baudRate);
+	public void baud(int baud) throws LibUsbException {
+		LibFtdi.ftdi_set_baudrate(ftdi(), baud);
 	}
 
 	@Override
@@ -145,6 +137,67 @@ public class Ftdi implements FtdiConnector {
 	}
 
 	@Override
+	public void readChunkSize(int size) throws LibUsbException {
+		LibFtdi.ftdi_read_data_set_chunksize(ftdi(), size);
+	}
+
+	@Override
+	public int readChunkSize() throws LibUsbException {
+		return LibFtdi.ftdi_read_data_get_chunksize(ftdi());
+	}
+
+	@Override
+	public void writeChunkSize(int size) throws LibUsbException {
+		LibFtdi.ftdi_write_data_set_chunksize(ftdi(), size);
+	}
+
+	@Override
+	public int writeChunkSize() throws LibUsbException {
+		return LibFtdi.ftdi_write_data_get_chunksize(ftdi());
+	}
+
+	@Override
+	public void purgeReadBuffer() throws LibUsbException {
+		LibFtdi.ftdi_usb_purge_rx_buffer(ftdi());
+	}
+
+	@Override
+	public void purgeWriteBuffer() throws LibUsbException {
+		LibFtdi.ftdi_usb_purge_tx_buffer(ftdi());
+	}
+
+	@Override
+	public JnaInputStream in() {
+		return in;
+	}
+
+	@Override
+	public JnaOutputStream out() {
+		return out;
+	}
+
+	@Override
+	public FtdiTransferControl readSubmit(Pointer buf, int size) throws LibUsbException {
+		var control = LibFtdi.ftdi_read_data_submit(ftdi(), buf, size);
+		return FtdiTransferControl.from(control);
+	}
+
+	@Override
+	public FtdiTransferControl writeSubmit(Pointer buf, int size) throws LibUsbException {
+		var control = LibFtdi.ftdi_write_data_submit(ftdi(), buf, size);
+		return FtdiTransferControl.from(control);
+	}
+
+	@Override
+	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+		double progressIntervalSec) throws LibUsbException {
+		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
+			user_data) -> streamCallback(buffer, length, progress, callback);
+		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers,
+			progressIntervalSec);
+	}
+
+	@Override
 	public void close() {
 		if (closed) return;
 		closed = true;
@@ -163,72 +216,22 @@ public class Ftdi implements FtdiConnector {
 			buffer == null ? null : buffer.getByteBuffer(0, length));
 	}
 
-	private FtdiInputStream createIn() {
-		return new FtdiInputStream() {
-			@Override
-			public void chunkSize(int size) throws LibUsbException {
-				LibFtdi.ftdi_read_data_set_chunksize(ftdi(), size);
-			}
-
-			@Override
-			public int chunkSize() throws LibUsbException {
-				return LibFtdi.ftdi_read_data_get_chunksize(ftdi());
-			}
-
-			@Override
-			public void purgeBuffer() throws LibUsbException {
-				LibFtdi.ftdi_usb_purge_rx_buffer(ftdi());
-			}
-
+	private JnaInputStream createIn() {
+		return new JnaInputStream() {
 			@Override
 			protected int read(Memory buffer, int len) throws IOException {
 				return LibFtdi.ftdi_read_data(ftdi(), JnaUtil.buffer(buffer), len);
 			}
-
-			@Override
-			protected FtdiTransferControl submit(Pointer buf, int size) throws LibUsbException {
-				var control = LibFtdi.ftdi_read_data_submit(ftdi(), buf, size);
-				return FtdiTransferControl.from(control);
-			}
-
-			@Override
-			protected void stream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
-				double progressIntervalSec) throws LibUsbException {
-				FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
-					user_data) -> streamCallback(buffer, length, progress, callback);
-				LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer,
-					numTransfers, progressIntervalSec);
-			}
 		};
 	}
 
-	private FtdiOutputStream createOut() {
-		return new FtdiOutputStream() {
-			@Override
-			public void chunkSize(int size) throws LibUsbException {
-				LibFtdi.ftdi_write_data_set_chunksize(ftdi(), size);
-			}
-
-			@Override
-			public int chunkSize() throws LibUsbException {
-				return LibFtdi.ftdi_write_data_get_chunksize(ftdi());
-			}
-
-			@Override
-			public void purgeBuffer() throws LibUsbException {
-				LibFtdi.ftdi_usb_purge_tx_buffer(ftdi());
-			}
-
+	private JnaOutputStream createOut() {
+		return new JnaOutputStream() {
 			@Override
 			protected int write(Memory buffer, int len) throws IOException {
 				return LibFtdi.ftdi_write_data(ftdi(), JnaUtil.buffer(buffer), len);
 			}
-
-			@Override
-			protected FtdiTransferControl submit(Pointer buf, int size) throws LibUsbException {
-				var control = LibFtdi.ftdi_write_data_submit(ftdi(), buf, size);
-				return FtdiTransferControl.from(control);
-			}
 		};
 	}
+
 }

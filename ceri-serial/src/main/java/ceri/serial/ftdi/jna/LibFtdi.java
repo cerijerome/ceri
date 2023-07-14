@@ -296,23 +296,11 @@ public class LibFtdi {
 		}
 	}
 
-	/**
-	 * New enum to hold flow control constants.
-	 */
-	public static enum ftdi_flow_control {
-		SIO_DISABLE_FLOW_CTRL(0x0000),
-		SIO_RTS_CTS_HS(0x0100),
-		SIO_DTR_DSR_HS(0x0200),
-		SIO_XON_XOFF_HS(0x0400);
-
-		public static final TypeTranscoder<ftdi_flow_control> xcoder =
-			TypeTranscoder.of(t -> t.value, ftdi_flow_control.class);
-		public final int value;
-
-		ftdi_flow_control(int value) {
-			this.value = value;
-		}
-	}
+	// Flow control values
+	public static final int SIO_DISABLE_FLOW_CTRL = 0x0000;
+	public static final int SIO_RTS_CTS_HS = 0x0100;
+	public static final int SIO_DTR_DSR_HS = 0x0200;
+	public static final int SIO_XON_XOFF_HS = 0x0400;
 
 	/**
 	 * State used for control transfers.
@@ -436,16 +424,8 @@ public class LibFtdi {
 	/**
 	 * Device strings.
 	 */
-	public static class ftdi_string_descriptors {
-		public final String manufacturer;
-		public final String description;
-		public final String serial;
-
-		ftdi_string_descriptors(String manufacturer, String description, String serial) {
-			this.manufacturer = manufacturer;
-			this.description = description;
-			this.serial = serial;
-		}
+	public static record ftdi_usb_strings(String manufacturer, String description, String serial) {
+		public static final ftdi_usb_strings NULL = new ftdi_usb_strings("", "", "");
 	}
 
 	/**
@@ -570,7 +550,7 @@ public class LibFtdi {
 	 * Return device ID strings from the usb device. This method opens and closes the device if not
 	 * already open.
 	 */
-	public static ftdi_string_descriptors ftdi_usb_get_strings(ftdi_context ftdi, libusb_device dev)
+	public static ftdi_usb_strings ftdi_usb_get_strings(ftdi_context ftdi, libusb_device dev)
 		throws LibUsbException {
 		require(ftdi);
 		LibUsbUtil.require(dev);
@@ -584,7 +564,7 @@ public class LibFtdi {
 				LibUsb.libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iProduct);
 			String serial =
 				LibUsb.libusb_get_string_descriptor_ascii(ftdi.usb_dev, desc.iSerialNumber);
-			return new ftdi_string_descriptors(mfr, description, serial);
+			return new ftdi_usb_strings(mfr, description, serial);
 		} finally {
 			if (need_open) ftdi_usb_close_internal(ftdi);
 		}
@@ -1006,10 +986,9 @@ public class LibFtdi {
 	/**
 	 * Set flow control for the ftdi chip.
 	 */
-	public static void ftdi_set_flow_ctrl(ftdi_context ftdi, ftdi_flow_control flowCtrl)
-		throws LibUsbException {
+	public static void ftdi_set_flow_ctrl(ftdi_context ftdi, int flowCtrl) throws LibUsbException {
 		requireDev(ftdi);
-		controlTransferOut(ftdi, SIO_SET_FLOW_CTRL_REQUEST, 0, flowCtrl.value | ftdi.index);
+		controlTransferOut(ftdi, SIO_SET_FLOW_CTRL_REQUEST, 0, flowCtrl | ftdi.index);
 	}
 
 	/**

@@ -43,9 +43,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.i2c.util.I2cUtilTest.class, //
 	// javax
 	ceri.serial.javax.SerialPortBehavior.class, //
-	// javax.test
-	ceri.serial.javax.test.SerialConnectorTesterBehavior.class, //
-	ceri.serial.javax.test.TestSerialConnectorBehavior.class, //
 	// javax.util
 	ceri.serial.javax.util.CommPortPropertiesBehavior.class, //
 	ceri.serial.javax.util.CommPortSupplierBehavior.class, //

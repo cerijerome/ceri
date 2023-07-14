@@ -8,10 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
-import ceri.common.test.TestConnector;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
+import ceri.common.util.PrimitiveUtil;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
@@ -26,33 +27,44 @@ import ceri.serial.comm.util.SerialPortLocator;
  * Utilities to manually test serial ports.
  */
 public class SerialTester {
-	
+
 	private SerialTester() {}
 
-	public static void main(String[] args) throws IOException {
-		testUsbPorts();
-	}
-
+	/**
+	 * Create and manually test a simulated serial port that echoes output to input.
+	 */
 	public static void testEcho() throws IOException {
-		try (TestSerial serial = TestSerial.echo()) {
+		try (TestSerial serial = TestSerial.ofEcho()) {
 			test(serial);
 		}
 	}
 
+	/**
+	 * Create and manually test two simulated serial ports that connect to each other.
+	 */
 	public static void testPair() throws IOException {
-		try (var serials = Enclosed.ofAll(TestSerial.pair())) {
+		try (var serials = Enclosed.ofAll(TestSerial.pairOf())) {
 			test(serials.subject);
 		}
 	}
 
+	/**
+	 * Create and manually test available USB serial ports.
+	 */
 	public static void testUsbPorts() throws IOException {
 		testPorts(SerialPortLocator.of().usbPorts());
 	}
 
+	/**
+	 * Create and manually test a list of serial ports.
+	 */
 	public static void testPorts(String... ports) throws IOException {
 		testPorts(Arrays.asList(ports));
 	}
 
+	/**
+	 * Create and manually test a list of serial ports.
+	 */
 	public static void testPorts(Collection<String> ports) throws IOException {
 		try (var serials = CloseableUtil
 			.create(port -> SelfHealingSerial.of(SelfHealingSerialConfig.of(port)), ports)) {
@@ -60,14 +72,34 @@ public class SerialTester {
 		}
 	}
 
+	/**
+	 * Manually test a list of serial ports.
+	 */
 	public static void test(Serial... serials) throws IOException {
 		test(Arrays.asList(serials));
 	}
 
+	/**
+	 * Manually test a list of serial ports.
+	 */
 	public static void test(List<? extends Serial> serials) throws IOException {
-		for (var serial : serials)
-			if (serial instanceof Serial.Fixable fixable) fixable.open();
-		TestConnector.manual(serials, SerialTester::buildCommands);
+		manual(serials).build().run();
+	}
+
+	/**
+	 * Initialize a ManualTester builder for a list of serial ports.
+	 */
+	public static ManualTester.Builder manual(Serial... serials) throws IOException {
+		return manual(Arrays.asList(serials));
+	}
+
+	/**
+	 * Initialize a ManualTester builder for a list of serial ports.
+	 */
+	public static ManualTester.Builder manual(List<? extends Serial> serials) throws IOException {
+		var b = ConnectorTester.manual(serials);
+		buildCommands(b);
+		return b;
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
@@ -78,11 +110,23 @@ public class SerialTester {
 			"pN,N,N,[n|o|e|m|s] = set params baud, data bits, stop bits, parity");
 		b.command(Serial.class, "f([rRxX]*|[nN])", (m, s, t) -> setFlowControl(m.group(1), s, t),
 			"f[rRxX|n] = set flow control RTS/CTS in/out, XON/XOFF in/out, none");
+		b.command(Serial.class, "B(i|o)(\\d*)", (m, s, t) -> setBufferSize(m, s, t),
+			"B[i|o]N = set in/out buffer size");
 		b.command(Serial.class, "b(0|1)", (m, s, t) -> s.brk(bool(m)), "b[0|1] = break off/on");
 		b.command(Serial.class, "r(0|1)", (m, s, t) -> s.rts(bool(m)), "r[0|1] = RTS off/on");
 		b.command(Serial.class, "d(0|1)", (m, s, t) -> s.dtr(bool(m)), "d[0|1] = DTR off/on");
 		b.command(Serial.class, "l", (m, s, t) -> t.out(lineState(s)),
 			"l = line state [RTS, DTR, CD, CTS, DSR, RI]");
+	}
+
+	private static void setBufferSize(Matcher m, Serial serial, ManualTester tester) {
+		boolean in = m.group(1).charAt(0) == 'i';
+		Integer size = PrimitiveUtil.intValue(m.group(2));
+		if (size != null) {
+			if (in) serial.inBufferSize(size);
+			else serial.outBufferSize(size);
+		}
+		tester.out(in ? serial.inBufferSize() : serial.outBufferSize());
 	}
 
 	private static void setParams(Matcher m, Serial serial, ManualTester tester)

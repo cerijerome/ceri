@@ -4,28 +4,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.event.Listenable;
 import ceri.common.io.Connector;
-import ceri.common.io.StateChange;
 import ceri.common.text.StringUtil;
 
 /**
- * Interface for serial connector functional layers on top of SerialPort. For example
- * SelfHealingSerialConnector, which detects serial port errors and attempts to reconnect. Only
- * covers SerialPort features currently in use; other methods may be added later.
+ * Interface for serial connector functionality.
  */
 public interface Serial extends Connector {
-	String PORT_INVALID = "<invalid>";
-	/** No-op serial connector instance */
+	/** No-op, stateless, serial instance. */
 	Null NULL = new Null();
-
-	static String port(Serial serial) {
-		return serial != null ? serial.port() : PORT_INVALID;
-	}
 
 	@Override
 	default java.lang.String name() {
-		return Connector.super.name() + ":" + port();
+		return port();
 	}
 
 	String port();
@@ -69,9 +60,14 @@ public interface Serial extends Connector {
 	boolean ri() throws IOException;
 
 	/**
-	 * A stateless, no-op implementation.
+	 * An extension of Serial that is aware of state.
 	 */
-	static class Null extends Connector.Null implements Serial {
+	interface Fixable extends Serial, Connector.Fixable {}
+
+	/**
+	 * A no-op, stateless, serial implementation.
+	 */
+	static class Null extends Connector.Null implements Serial.Fixable {
 
 		@Override
 		public String port() {
@@ -147,24 +143,6 @@ public interface Serial extends Connector {
 		@Override
 		public boolean ri() throws IOException {
 			return false;
-		}
-	}
-
-	/**
-	 * An extension of Serial that is aware of state.
-	 */
-	interface Fixable extends Serial, Connector.Fixable {
-		/** No-op, fixable, serial connector instance */
-		Null NULL = new Null();
-
-		static class Null extends Serial.Null implements Serial.Fixable {
-			@Override
-			public Listenable<StateChange> listeners() {
-				return Listenable.ofNull();
-			}
-
-			@Override
-			public void open() throws IOException {}
 		}
 	}
 

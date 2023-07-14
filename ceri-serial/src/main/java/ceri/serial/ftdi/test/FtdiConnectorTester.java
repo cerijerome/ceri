@@ -21,7 +21,7 @@ import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiConnector;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
-import ceri.serial.ftdi.util.SelfHealingFtdiConnector;
+import ceri.serial.ftdi.util.SelfHealingFtdi;
 
 /**
  * Class to test ftdi devices. Takes commands via System.in and calls methods on the ftdi connector.
@@ -50,7 +50,7 @@ public class FtdiConnectorTester extends LoopingExecutor {
 
 	public static void test(String finder) throws IOException {
 		SelfHealingFtdiConfig config = SelfHealingFtdiConfig.of(finder);
-		try (SelfHealingFtdiConnector con = SelfHealingFtdiConnector.of(config)) {
+		try (SelfHealingFtdi con = SelfHealingFtdi.of(config)) {
 			con.open();
 			test(con, null);
 		}

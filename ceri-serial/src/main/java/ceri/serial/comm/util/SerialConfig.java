@@ -3,9 +3,9 @@ package ceri.serial.comm.util;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.text.ToString;
 import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
@@ -31,10 +31,11 @@ public class SerialConfig {
 	}
 
 	public static class Builder {
-		SerialParams params = SerialParams.DEFAULT;
-		final Set<FlowControl> flowControl = new HashSet<>();
-		int inBufferSize = ThreadBuffers.SIZE_DEF;
-		int outBufferSize = ThreadBuffers.SIZE_DEF;
+		// need to keep state in multi-threaded context
+		volatile SerialParams params = SerialParams.DEFAULT;
+		final Set<FlowControl> flowControl = ConcurrentHashMap.newKeySet();
+		volatile int inBufferSize = ThreadBuffers.SIZE_DEF;
+		volatile int outBufferSize = ThreadBuffers.SIZE_DEF;
 
 		Builder() {}
 

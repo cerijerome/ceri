@@ -18,7 +18,7 @@ import ceri.serial.comm.jna.CSerial;
 
 /**
  * A simple serial port as a wrapper for CSerial functionality. Does not support event
- * notifications, receive threshold, or receive timeout from JavaComm api.
+ * notifications, receive threshold, or receive timeout from JavaComm api. I/O is non-blocking.
  */
 public class SerialPort implements Serial {
 	private static final Logger logger = LogManager.getFormatterLogger();
@@ -163,8 +163,7 @@ public class SerialPort implements Serial {
 	private COutputStream createOut(int fd) {
 		return new COutputStream(fd) {
 			@Override
-			public void flush() throws IOException {
-				super.flush();
+			protected void flushBytes() throws IOException {
 				CTermios.tcdrain(fd);
 			}
 		};

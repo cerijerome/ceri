@@ -39,14 +39,14 @@ public class SelfHealingFtdiConnectorBehavior {
 		SelfHealingFtdiConfig.builder().recoveryDelayMs(1).fixRetryDelayMs(1).build();
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
-	private SelfHealingFtdiConnector con;
+	private SelfHealingFtdi con;
 
 	@Before
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.subject;
 		LibUsbSampleData.populate(lib.data);
-		con = SelfHealingFtdiConnector.of(config);
+		con = SelfHealingFtdi.of(config);
 	}
 
 	@After
@@ -127,7 +127,7 @@ public class SelfHealingFtdiConnectorBehavior {
 				lib.syncTransferOut.error.clear();
 				sync.await(StateChange.fixed);
 			}
-		}, Level.OFF, SelfHealingFtdiConnector.class);
+		}, Level.OFF, SelfHealingFtdi.class);
 	}
 
 	@Test
@@ -139,16 +139,16 @@ public class SelfHealingFtdiConnectorBehavior {
 
 	@Test
 	public void shouldDetermineIfBroken() {
-		assertFalse(SelfHealingFtdiConnector.isBroken(null));
-		assertFalse(SelfHealingFtdiConnector.isBroken(new IOException("test")));
+		assertFalse(SelfHealingFtdi.isBroken(null));
+		assertFalse(SelfHealingFtdi.isBroken(new IOException("test")));
 		assertFalse(
-			SelfHealingFtdiConnector.isBroken(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
+			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
 		assertTrue(
-			SelfHealingFtdiConnector.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
+			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
 		assertTrue(
-			SelfHealingFtdiConnector.isBroken(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
+			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
 		assertTrue(
-			SelfHealingFtdiConnector.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
+			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class SelfHealingFtdiConnectorBehavior {
 				sync.error.setFrom(RIX);
 				assertThrown(con::broken);
 			}
-		}, Level.OFF, SelfHealingFtdiConnector.class);
+		}, Level.OFF, SelfHealingFtdi.class);
 	}
 
 	/**

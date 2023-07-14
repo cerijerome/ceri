@@ -1,9 +1,12 @@
-package ceri.serial.comm;
+package ceri.serial.comm.util;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.io.ReplaceableConnector;
+import ceri.serial.comm.FlowControl;
+import ceri.serial.comm.Serial;
+import ceri.serial.comm.SerialParams;
 
 /**
  * A serial port pass-through that allows the underlying serial port to be replaced.
@@ -14,95 +17,97 @@ public class ReplaceableSerial extends ReplaceableConnector<Serial> implements S
 		return new ReplaceableSerial();
 	}
 
-	private ReplaceableSerial() {}
+	private ReplaceableSerial() {
+		super("serial");
+	}
 
 	@Override
 	public String port() {
-		return applyConnector(Serial::port);
+		return applyIfSet(Serial::port, null);
 	}
 
 	@Override
 	public void inBufferSize(int size) {
-		acceptConnector(serial -> serial.inBufferSize(size));
+		acceptIfSet(serial -> serial.inBufferSize(size));
 	}
 
 	@Override
 	public int inBufferSize() {
-		return applyConnector(Serial::inBufferSize, 0);
+		return applyIfSet(Serial::inBufferSize, 0);
 	}
 
 	@Override
 	public void outBufferSize(int size) {
-		acceptConnector(serial -> serial.outBufferSize(size));
+		acceptIfSet(serial -> serial.outBufferSize(size));
 	}
 
 	@Override
 	public int outBufferSize() {
-		return applyConnector(Serial::outBufferSize, 0);
+		return applyIfSet(Serial::outBufferSize, 0);
 	}
 
 	@Override
 	public void params(SerialParams params) throws IOException {
-		acceptValidConnector(serial -> serial.params(params));
+		acceptValid(serial -> serial.params(params));
 	}
 
 	@Override
 	public SerialParams params() {
-		return applyConnector(Serial::params, SerialParams.NULL);
+		return applyIfSet(Serial::params, SerialParams.NULL);
 	}
 
 	@Override
 	public void flowControl(Collection<FlowControl> flowControl) throws IOException {
-		acceptValidConnector(serial -> serial.flowControl(flowControl));
+		acceptValid(serial -> serial.flowControl(flowControl));
 	}
 
 	@Override
 	public Set<FlowControl> flowControl() {
-		return applyConnector(Serial::flowControl);
+		return applyIfSet(Serial::flowControl, Set.of());
 	}
 
 	@Override
 	public void brk(boolean on) throws IOException {
-		acceptValidConnector(serial -> serial.brk(on));
+		acceptValid(serial -> serial.brk(on));
 	}
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		acceptValidConnector(serial -> serial.rts(on));
+		acceptValid(serial -> serial.rts(on));
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		acceptValidConnector(serial -> serial.dtr(on));
+		acceptValid(serial -> serial.dtr(on));
 	}
 
 	@Override
 	public boolean rts() throws IOException {
-		return applyValidConnector(Serial::rts);
+		return applyValid(Serial::rts);
 	}
 
 	@Override
 	public boolean dtr() throws IOException {
-		return applyValidConnector(Serial::dtr);
+		return applyValid(Serial::dtr);
 	}
 
 	@Override
 	public boolean cd() throws IOException {
-		return applyValidConnector(Serial::cd);
+		return applyValid(Serial::cd);
 	}
 
 	@Override
 	public boolean cts() throws IOException {
-		return applyValidConnector(Serial::cts);
+		return applyValid(Serial::cts);
 	}
 
 	@Override
 	public boolean dsr() throws IOException {
-		return applyValidConnector(Serial::dsr);
+		return applyValid(Serial::dsr);
 	}
 
 	@Override
 	public boolean ri() throws IOException {
-		return applyValidConnector(Serial::ri);
+		return applyValid(Serial::ri);
 	}
 }

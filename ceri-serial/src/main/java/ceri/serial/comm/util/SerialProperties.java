@@ -92,11 +92,11 @@ public class SerialProperties extends BaseProperties {
 		return Set.copyOf(enumValues(FlowControl.class, List.of(), FLOW_CONTROL_KEY));
 	}
 
-	public Integer inBufferSize() {
+	private Integer inBufferSize() {
 		return intValue(IN_BUFFER_SIZE_KEY);
 	}
 
-	public Integer outBufferSize() {
+	private Integer outBufferSize() {
 		return intValue(OUT_BUFFER_SIZE_KEY);
 	}
 

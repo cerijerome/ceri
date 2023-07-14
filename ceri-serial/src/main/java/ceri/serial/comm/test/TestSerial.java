@@ -2,10 +2,10 @@ package ceri.serial.comm.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
 import ceri.jna.clib.jna.CIoctl;
@@ -18,6 +18,7 @@ import ceri.serial.comm.SerialParams;
  * A connector for testing logic against serial connectors.
  */
 public class TestSerial extends TestConnector implements Serial.Fixable {
+	private static final String NAME = ReflectUtil.name(TestSerial.class);
 	public static final int DTR = CIoctl.TIOCM_DTR;
 	public static final int RTS = CIoctl.TIOCM_RTS;
 	public static final int CTS = CIoctl.TIOCM_CTS;
@@ -37,53 +38,29 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	public final CallSync.Function<Integer, Boolean> flagIn = CallSync.function(0, false);
 
 	/**
-	 * Provide a test connector that echoes output to input.
+	 * Provide a test serial port that echoes output to input.
 	 */
-	public static TestSerial echo() {
-		return new TestSerial() {
-			@Override
-			public String name() {
-				return TestSerial.class.getSimpleName() + ":echo";
-			}
-
-			@Override
-			protected void write(OutputStream out, byte[] b, int offset, int length)
-				throws IOException {
-				TestConnector.echo(this, b, offset, length);
-			}
-		};
+	@SuppressWarnings("resource")
+	public static TestSerial ofEcho() {
+		return TestConnector.echoOn(new TestSerial(NAME + ":echo"));
 	}
 
 	/**
 	 * Provide a pair of test serial ports that write to each other.
 	 */
-	public static TestSerial[] pair() {
-		TestSerial[] pair = new TestSerial[2];
-		pair[0] = pair(pair, 1);
-		pair[1] = pair(pair, 0);
-		return pair;
-	}
-
-	private static TestSerial pair(TestSerial[] pair, int i) {
-		return new TestSerial() {
-			@Override
-			public String name() {
-				return TestSerial.class.getSimpleName() + ":pair" + (1 - i);
-			}
-
-			@Override
-			protected void write(OutputStream out, byte[] b, int offset, int length)
-				throws IOException {
-				TestConnector.pair(this, pair[i], b, offset, length);
-			}
-		};
+	@SuppressWarnings("resource")
+	public static TestSerial[] pairOf() {
+		return TestConnector.chain(new TestSerial(NAME + "[0->1]"),
+			new TestSerial(NAME + "[1->0]"));
 	}
 
 	public static TestSerial of() {
-		return new TestSerial();
+		return new TestSerial(null);
 	}
 
-	protected TestSerial() {}
+	private TestSerial(String name) {
+		super(name);
+	}
 
 	@Override
 	public void reset() {
