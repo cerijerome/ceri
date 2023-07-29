@@ -2,39 +2,78 @@ package ceri.common.io;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Objects;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.function.FunctionUtil;
 
 /**
  * A delegate pass-through that allows the underlying delegate to be replaced. Calling replace()
  * closes the current delegate, whereas set() requires the caller to manage delegate lifecycle.
  */
-public class Replaceable<T extends Closeable> implements Closeable {
+public abstract class Replaceable<T extends Closeable> implements Closeable {
 	private static final String NAME = "delegate";
 	protected final Listeners<Exception> errorListeners = Listeners.of();
 	private final String delegateName;
 	private volatile T delegate = null;
 
-	public Replaceable() {
-		this(NAME);
+	public static <T extends Closeable> Field<T> field() {
+		return field(NAME);
 	}
-	
+
+	public static <T extends Closeable> Field<T> field(String name) {
+		return new Field<>(name);
+	}
+
+	/**
+	 * An implementation to be used as a member field, with exposed methods. Useful for classes that
+	 * cannot extend Replaceable.
+	 */
+	public static class Field<T extends Closeable> extends Replaceable<T> {
+		protected Field(String delegateName) {
+			super(delegateName);
+		}
+
+		@Override
+		public <E extends Exception> void acceptIfSet(ExceptionConsumer<E, T> consumer) throws E {
+			super.acceptIfSet(consumer);
+		}
+
+		@Override
+		public <E extends Exception, R> R applyIfSet(ExceptionFunction<E, T, R> function, R def)
+			throws E {
+			return super.applyIfSet(function, def);
+		}
+
+		@Override
+		public <E extends Exception> void acceptValid(ExceptionConsumer<E, T> consumer)
+			throws IOException, E {
+			super.acceptValid(consumer);
+		}
+
+		@Override
+		public <E extends Exception, R> R applyValid(ExceptionFunction<E, T, R> function)
+			throws IOException, E {
+			return super.applyValid(function);
+		}
+	}
+
 	protected Replaceable(String delegateName) {
 		this.delegateName = delegateName;
 	}
-	
-	public Listenable<Exception> errorListeners() {
+
+	/**
+	 * Listen for errors on invoked calls.
+	 */
+	public Listenable<Exception> errors() {
 		return errorListeners;
 	}
 
 	/**
-	 * Close the current delegate, and set the new delegate.
+	 * Close the current delegate, and set the new delegate. Does nothing if no change in delegate.
 	 */
 	public void replace(T delegate) throws IOException {
+		if (this.delegate == delegate) return;
 		close();
 		set(delegate);
 	}
@@ -42,9 +81,7 @@ public class Replaceable<T extends Closeable> implements Closeable {
 	/**
 	 * Sets the delegate. Does not close the current delegate.
 	 */
-	@SuppressWarnings("resource")
 	public void set(T delegate) {
-		Objects.requireNonNull(delegate);
 		this.delegate = delegate;
 	}
 
@@ -57,7 +94,10 @@ public class Replaceable<T extends Closeable> implements Closeable {
 	 * Invokes the consumer with the current delegate. Does nothing if the delegate is not set.
 	 */
 	protected <E extends Exception> void acceptIfSet(ExceptionConsumer<E, T> consumer) throws E {
-		FunctionUtil.safeAccept(delegate, consumer);
+		applyIfSet(delegate -> {
+			consumer.accept(delegate);
+			return null;
+		}, null);
 	}
 
 	/**
@@ -66,7 +106,14 @@ public class Replaceable<T extends Closeable> implements Closeable {
 	 */
 	protected <E extends Exception, R> R applyIfSet(ExceptionFunction<E, T, R> function, R def)
 		throws E {
-		return FunctionUtil.safeApply(delegate, function, def);
+		var delegate = this.delegate;
+		if (delegate == null) return def;
+		try {
+			return function.apply(delegate);
+		} catch (Exception e) {
+			errorListeners.accept(e);
+			throw e;
+		}
 	}
 
 	/**

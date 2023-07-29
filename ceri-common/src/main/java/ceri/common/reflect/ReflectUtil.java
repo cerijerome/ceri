@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.FunctionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -248,7 +247,11 @@ public class ReflectUtil {
 	 */
 	public static Field publicField(Class<?> cls, String name) {
 		if (cls == null || name == null) return null;
-		return FunctionUtil.getQuietly(() -> cls.getField(name));
+		try {
+			return cls.getField(name);
+		} catch (NoSuchFieldException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -256,7 +259,11 @@ public class ReflectUtil {
 	 */
 	public static Object publicFieldValue(Object obj, Field field) {
 		if (obj == null || field == null) return null;
-		return FunctionUtil.getQuietly(() -> field.get(obj));
+		try {
+			return field.get(obj);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return null;
+		}
 	}
 
 	/**

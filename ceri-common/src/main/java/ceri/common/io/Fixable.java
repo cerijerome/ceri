@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.event.Listenable;
+import ceri.common.function.FunctionUtil;
 import ceri.common.util.Named;
 
 /**
@@ -22,15 +23,10 @@ public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChan
 	void open() throws IOException;
 
 	/**
-	 * Open without throwing a checked exception. Returns false if open failed.
+	 * Open without throwing an exception. Returns false if open failed.
 	 */
-	default boolean openQuietly() {
-		try {
-			open();
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+	default boolean openSilently() {
+		return FunctionUtil.runSilently(this::open);
 	}
 
 	/**

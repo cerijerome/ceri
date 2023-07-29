@@ -19,8 +19,8 @@ public class ReplaceableOutputStreamBehavior {
 		TestOutputStream out = TestOutputStream.of();
 		out.write.error.setFrom(ErrorGen.IOX);
 		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
-			rout.setOutputStream(out);
-			rout.listeners().listen(sync::signal);
+			rout.set(out);
+			rout.errors().listen(sync::signal);
 			assertThrown(() -> rout.write(0));
 			assertThrowable(sync.await(), IOException.class);
 			assertThrown(() -> rout.write(0xff));
@@ -44,10 +44,10 @@ public class ReplaceableOutputStreamBehavior {
 		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
 			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 				try (ByteArrayOutputStream out2 = new ByteArrayOutputStream()) {
-					rout.setOutputStream(out);
+					rout.set(out);
 					byte[] buffer = "test".getBytes();
 					rout.write(buffer);
-					rout.setOutputStream(out2);
+					rout.set(out2);
 					rout.write(buffer, 1, 3);
 					assertArray(out.toByteArray(), "test".getBytes());
 					assertArray(out2.toByteArray(), "est".getBytes());
@@ -60,7 +60,7 @@ public class ReplaceableOutputStreamBehavior {
 	public void shouldWriteToOutputStream() throws IOException {
 		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
 			try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-				rout.setOutputStream(out);
+				rout.set(out);
 				byte[] buffer = "test".getBytes();
 				rout.write(buffer);
 				rout.write('t');

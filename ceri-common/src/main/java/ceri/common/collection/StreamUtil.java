@@ -191,8 +191,15 @@ public class StreamUtil {
 	/**
 	 * Make a stream compatible with a for-each loop.
 	 */
-	public static <T> Iterable<T> forEach(Stream<T> stream) {
-		return CollectionUtil.forEach(stream.iterator());
+	public static <T> Iterable<T> iterable(Stream<T> stream) {
+		return CollectionUtil.iterable(stream.iterator());
+	}
+
+	/**
+	 * Make a stream compatible with a for-each loop.
+	 */
+	public static Iterable<Integer> iterable(IntStream stream) {
+		return CollectionUtil.iterable(stream.iterator());
 	}
 
 	/**
@@ -439,7 +446,7 @@ public class StreamUtil {
 		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
 		return StreamSupport.stream(spliterator, false);
 	}
-	
+
 	/**
 	 * Returns a stream for an Enumeration.
 	 */

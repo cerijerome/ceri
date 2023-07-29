@@ -1,6 +1,5 @@
 package ceri.common.sql;
 
-import static ceri.common.function.FunctionUtil.castAccept;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -143,7 +142,8 @@ public class SqlStatement implements AutoCloseable {
 	@SuppressWarnings("resource")
 	public SqlStatement set(Object... xs) throws SQLException {
 		for (Object x : xs)
-			if (!castAccept(SqlNull.class, x, this::setNull)) setWithoutType(x);
+			if (x instanceof SqlNull n) setNull(n);
+			else setWithoutType(x);
 		return this;
 	}
 

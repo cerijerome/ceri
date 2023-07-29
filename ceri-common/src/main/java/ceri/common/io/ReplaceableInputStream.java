@@ -3,118 +3,77 @@ package ceri.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.event.Listenable;
-import ceri.common.event.Listeners;
 
 /**
  * A filter input stream that can be reset with a new input stream. Useful for mending broken
  * streams.
  */
-public class ReplaceableInputStream extends InputStream implements Listenable.Indirect<Exception> {
-	private final Listeners<Exception> listeners = Listeners.of();
-	private volatile InputStream in = null;
+public class ReplaceableInputStream extends InputStream {
+	private final Replaceable.Field<InputStream> in = Replaceable.field("in");
 
-	@Override
-	public Listenable<Exception> listeners() {
-		return listeners;
+	/**
+	 * Listen for errors on invoked calls.
+	 */
+	public Listenable<Exception> errors() {
+		return in.errors();
 	}
 
-	public void setInputStream(InputStream in) {
-		this.in = in;
+	/**
+	 * Close the current delegate, and set the new delegate. Does nothing if no change in delegate.
+	 */
+	public void replace(InputStream in) throws IOException {
+		this.in.replace(in);
 	}
 
-	@Override
-	public int read() throws IOException {
-		try {
-			checkState();
-			return in.read();
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
-	}
-
-	@Override
-	public int read(byte[] b) throws IOException {
-		try {
-			checkState();
-			return in.read(b);
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		try {
-			checkState();
-			return in.read(b, off, len);
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
-	}
-
-	@Override
-	public long skip(long n) throws IOException {
-		try {
-			checkState();
-			return in.skip(n);
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
+	/**
+	 * Set the delegate. Does not close the current delegate.
+	 */
+	public void set(InputStream in) {
+		this.in.set(in);
 	}
 
 	@Override
 	public int available() throws IOException {
-		try {
-			checkState();
-			return in.available();
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
+		return in.applyValid(InputStream::available);
+	}
+
+	@Override
+	public int read() throws IOException {
+		return in.applyValid(InputStream::read);
+	}
+
+	@Override
+	public int read(byte[] b) throws IOException {
+		return in.applyValid(i -> i.read(b));
+	}
+
+	@Override
+	public int read(byte[] b, int off, int len) throws IOException {
+		return in.applyValid(i -> i.read(b, off, len));
+	}
+
+	@Override
+	public long skip(long n) throws IOException {
+		return in.applyValid(i -> i.skip(n));
 	}
 
 	@Override
 	public void close() throws IOException {
-		if (in != null) in.close();
+		in.close();
 	}
 
 	@Override
 	public void mark(int readlimit) {
-		try {
-			if (in != null) in.mark(readlimit);
-		} catch (RuntimeException e) {
-			listeners.accept(e);
-			throw e;
-		}
+		in.acceptIfSet(i -> i.mark(readlimit));
 	}
 
 	@Override
 	public void reset() throws IOException {
-		try {
-			checkState();
-			in.reset();
-		} catch (RuntimeException | IOException e) {
-			listeners.accept(e);
-			throw e;
-		}
+		in.acceptValid(InputStream::reset);
 	}
 
 	@Override
 	public boolean markSupported() {
-		try {
-			return (in != null) && in.markSupported();
-		} catch (RuntimeException e) {
-			listeners.accept(e);
-			throw e;
-		}
+		return in.applyIfSet(i -> i.markSupported(), false);
 	}
-
-	private void checkState() throws IOException {
-		if (in == null) throw new NotSetException("in");
-	}
-
 }

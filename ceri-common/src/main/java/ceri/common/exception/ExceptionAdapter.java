@@ -2,6 +2,7 @@ package ceri.common.exception;
 
 import java.lang.reflect.Constructor;
 import java.util.function.Function;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionBooleanSupplier;
 import ceri.common.function.ExceptionDoubleSupplier;
 import ceri.common.function.ExceptionIntSupplier;
@@ -49,6 +50,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
@@ -59,6 +61,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
@@ -69,6 +72,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
@@ -79,6 +83,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
@@ -89,6 +94,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
@@ -99,8 +105,12 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
+			adaptInterrupted(e);
 			throw apply(e);
 		}
 	}
 
+	private void adaptInterrupted(Exception e) {
+		if (e instanceof InterruptedException ie) throw new RuntimeInterruptedException(ie);
+	}
 }

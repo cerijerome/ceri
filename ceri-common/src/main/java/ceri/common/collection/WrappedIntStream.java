@@ -31,7 +31,7 @@ public class WrappedIntStream<E extends Exception> implements AutoCloseable {
 	}
 
 	public static <E extends Exception> WrappedIntStream<E> of(IntStream stream) {
-		return new WrappedIntStream<>(FunctionWrapper.create(), stream);
+		return new WrappedIntStream<>(FunctionWrapper.of(), stream);
 	}
 
 	WrappedIntStream(FunctionWrapper<E> w, IntStream stream) {

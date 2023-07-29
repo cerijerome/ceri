@@ -17,17 +17,18 @@ public class CloseableUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testExecOrClose() throws IOException {
-		assertEquals(CloseableUtil.execOrClose(null, InputStream::close), null);
+		assertEquals(CloseableUtil.acceptOrClose(null, InputStream::close), null);
 		TestInputStream in = TestInputStream.of();
-		assertEquals(CloseableUtil.execOrClose(in, InputStream::close), in);
+		assertEquals(CloseableUtil.acceptOrClose(in, InputStream::close), in);
 		in.close.error.setFrom(IOX);
-		assertThrown(() -> CloseableUtil.execOrClose(in, InputStream::close));
+		assertThrown(() -> CloseableUtil.acceptOrClose(in, InputStream::close));
 	}
 
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
-		assertTrue(CloseableUtil.close(null));
+		assertTrue(CloseableUtil.close());
+		assertTrue(CloseableUtil.close(new AutoCloseable[] { null }));
 		assertTrue(CloseableUtil.close(in));
 		assertThrown(IOException.class, in::read);
 	}

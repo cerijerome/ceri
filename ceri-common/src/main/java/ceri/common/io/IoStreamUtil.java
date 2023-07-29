@@ -2,7 +2,6 @@ package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.function.FunctionUtil.safeApply;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -37,19 +36,8 @@ public class IoStreamUtil {
 		private NullIn() {}
 
 		@Override
-		public int available() {
-			return 0;
-		}
-
-		@Override
 		public int read() {
 			return 0;
-		}
-
-		@Override
-		public int read(byte[] b, int off, int len) {
-			validateSlice(b.length, off, len);
-			return len;
 		}
 
 		@Override
@@ -58,13 +46,9 @@ public class IoStreamUtil {
 		}
 
 		@Override
-		public int readNBytes(byte[] b, int off, int len) {
-			validateSlice(b.length, off, len);
-			return len;
+		public long transferTo(OutputStream out) throws IOException {
+			return 0;
 		}
-
-		@Override
-		public void close() {}
 	}
 
 	/**
@@ -76,14 +60,6 @@ public class IoStreamUtil {
 
 		@Override
 		public void write(int b) {}
-
-		@Override
-		public void write(byte[] b, int off, int len) {
-			validateSlice(b.length, off, len);
-		}
-
-		@Override
-		public void close() {}
 	}
 
 	/**

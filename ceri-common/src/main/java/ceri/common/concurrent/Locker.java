@@ -3,13 +3,13 @@ package ceri.common.concurrent;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.util.Enclosed;
+import ceri.common.function.RuntimeCloseable;
 
 /**
  * Encapsulate a lock, handling locking as a closeable resource.
  */
 public class Locker {
-	private final Enclosed<RuntimeException, Lock> unlocker;
+	private final RuntimeCloseable unlocker;
 	public final Lock lock;
 
 	public static Locker of(Lock lock) {
@@ -22,13 +22,13 @@ public class Locker {
 
 	private Locker(Lock lock) {
 		this.lock = lock;
-		unlocker = Enclosed.of(lock, Lock::unlock);
+		unlocker = () -> lock.unlock();
 	}
 
 	/**
 	 * Lock, and return a resource that executes unlock on close.
 	 */
-	public Enclosed<RuntimeException, Lock> lock() {
+	public RuntimeCloseable lock() {
 		lock.lock();
 		return unlocker;
 	}
@@ -39,5 +39,5 @@ public class Locker {
 	public Condition condition() {
 		return lock.newCondition();
 	}
-	
+
 }

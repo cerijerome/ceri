@@ -232,14 +232,14 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testCheckInterrupted() throws InterruptedException {
 		ConcurrentUtil.checkInterrupted();
-		Thread.currentThread().interrupt();
+		ConcurrentUtil.interrupt();
 		assertThrown(InterruptedException.class, ConcurrentUtil::checkInterrupted);
 	}
 
 	@Test
 	public void testCheckRuntimeInterrupted() {
 		ConcurrentUtil.checkRuntimeInterrupted();
-		Thread.currentThread().interrupt();
+		ConcurrentUtil.interrupt();
 		assertThrown(RuntimeInterruptedException.class, ConcurrentUtil::checkRuntimeInterrupted);
 	}
 

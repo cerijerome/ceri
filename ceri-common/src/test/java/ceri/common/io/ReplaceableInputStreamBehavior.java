@@ -30,8 +30,8 @@ public class ReplaceableInputStreamBehavior {
 	public void shouldNotifyListenerOfMarkException() throws IOException, InterruptedException {
 		in.mark.error.setFrom(RTX);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listeners().listen(sync::signal);
-			rin.setInputStream(in);
+			rin.errors().listen(sync::signal);
+			rin.set(in);
 			assertThrown(() -> rin.mark(0));
 			assertThrowable(sync.await(), RuntimeException.class);
 		}
@@ -42,9 +42,9 @@ public class ReplaceableInputStreamBehavior {
 		throws IOException, InterruptedException {
 		in.markSupported.error.setFrom(RTX);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.listeners().listen(sync::signal);
+			rin.errors().listen(sync::signal);
 			assertFalse(rin.markSupported());
-			rin.setInputStream(in);
+			rin.set(in);
 			assertThrown(rin::markSupported);
 			assertThrowable(sync.await(), RuntimeException.class);
 		}
@@ -56,8 +56,8 @@ public class ReplaceableInputStreamBehavior {
 		in.read.error.setFrom(ErrorGen.IOX);
 		in.to.writeBytes(0, 0);
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
-			rin.setInputStream(in);
-			rin.listeners().listen(sync::signal);
+			rin.set(in);
+			rin.errors().listen(sync::signal);
 			assertThrown(rin::read);
 			assertThrowable(sync.await(), IOException.class);
 			assertThrown(rin::read);
@@ -84,7 +84,7 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
 				assertFalse(rin.markSupported());
-				rin.setInputStream(in);
+				rin.set(in);
 				assertTrue(rin.markSupported());
 				assertEquals(rin.available(), 4);
 				byte[] buffer = new byte[6];
@@ -104,10 +104,10 @@ public class ReplaceableInputStreamBehavior {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
 				try (InputStream in2 = new ByteArrayInputStream("again".getBytes())) {
-					rin.setInputStream(in);
+					rin.set(in);
 					byte[] buffer = new byte[9];
 					rin.read(buffer);
-					rin.setInputStream(in2);
+					rin.set(in2);
 					rin.read(buffer, 4, 5);
 					assertArray(buffer, "testagain".getBytes());
 				}
@@ -119,7 +119,7 @@ public class ReplaceableInputStreamBehavior {
 	public void shouldReadFromInputStream() throws IOException {
 		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
 			try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
-				rin.setInputStream(in);
+				rin.set(in);
 				byte[] buffer = new byte[2];
 				assertEquals(rin.read(), (int) 't');
 				rin.read(buffer);

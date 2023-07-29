@@ -13,8 +13,8 @@ import ceri.common.util.BasicUtil;
  */
 public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	private static final String NAME = ReflectUtil.name(TestTcpSocket.class);
-	public final CallSync.Supplier<HostPort> hostPort = CallSync.supplier(HostPort.NULL);
-	public final CallSync.Supplier<Integer> localPort = CallSync.supplier(0);
+	public final CallSync.Supplier<HostPort> hostPort;
+	public final CallSync.Supplier<Integer> localPort;
 	// List<?> = TcpSocketOption<T>, T
 	public final CallSync.Consumer<List<?>> optionSet = CallSync.consumer(List.of(), true);
 	public final CallSync.Function<TcpSocketOption<Object>, Object> optionGet =
@@ -25,7 +25,7 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	 */
 	@SuppressWarnings("resource")
 	public static TestTcpSocket ofEcho() {
-		return TestConnector.echoOn(new TestTcpSocket(NAME + ":echo"));
+		return TestConnector.echoOn(new TestTcpSocket(NAME + ":echo", HostPort.NULL, 0));
 	}
 
 	/**
@@ -33,16 +33,22 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	 */
 	@SuppressWarnings("resource")
 	public static TestTcpSocket[] pairOf() {
-		return TestConnector.chain(new TestTcpSocket(NAME + "[0->1]"),
-			new TestTcpSocket(NAME + "[1->0]"));
+		return TestConnector.chain(new TestTcpSocket(NAME + "[0->1]", HostPort.NULL, 0),
+			new TestTcpSocket(NAME + "[1->0]", HostPort.NULL, 1));
 	}
 
 	public static TestTcpSocket of() {
-		return new TestTcpSocket(null);
+		return of(HostPort.NULL, 0);
 	}
 
-	private TestTcpSocket(String name) {
+	public static TestTcpSocket of(HostPort hostPort, int localPort) {
+		return new TestTcpSocket(null, hostPort, localPort);
+	}
+
+	private TestTcpSocket(String name, HostPort hostPort, int localPort) {
 		super(name);
+		this.hostPort = CallSync.supplier(hostPort);
+		this.localPort = CallSync.supplier(localPort);
 	}
 
 	@Override

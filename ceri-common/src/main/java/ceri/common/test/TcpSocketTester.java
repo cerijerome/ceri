@@ -1,10 +1,11 @@
 package ceri.common.test;
 
+import static ceri.common.test.ManualTester.Parse.b;
+import static ceri.common.test.ManualTester.Parse.i;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
 import ceri.common.io.Connector;
 import ceri.common.net.ReplaceableTcpSocket;
 import ceri.common.net.TcpServerSocket;
@@ -137,17 +138,4 @@ public class TcpSocketTester {
 		for (var option : TcpSocketOption.all)
 			tester.out(option + " = " + socket.option(option));
 	}
-
-	private static Boolean b(Matcher m) {
-		String s = m.group(1);
-		if (s.isEmpty()) return null;
-		return s.charAt(0) == '1';
-	}
-
-	private static Integer i(Matcher m) {
-		String s = m.group(1);
-		if (s.isEmpty()) return null;
-		return Integer.parseInt(s);
-	}
-
 }

@@ -49,14 +49,6 @@ public class StartupValues {
 	}
 
 	/**
-	 * Creates an instance that prints value assignments to the given notifier.
-	 */
-	public StartupValues notifier(Consumer<String> notifier) {
-		this.notifier = notifier;
-		return this;
-	}
-
-	/**
 	 * A wrapper to perform value assignment, and provide typed access.
 	 */
 	public static class Value {
@@ -256,6 +248,14 @@ public class StartupValues {
 
 	private StartupValues(String[] args) {
 		this.args = args;
+	}
+
+	/**
+	 * Set a notifier Creates an instance that prints value assignments to the given notifier.
+	 */
+	public StartupValues notifier(Consumer<String> notifier) {
+		this.notifier = notifier;
+		return this;
 	}
 
 	public StartupValues prefix(Class<?> pkgPrefix) {

@@ -44,7 +44,7 @@ public class ConnectorTester {
 		var b = ManualTester.builderList(connectors, Connector::name);
 		b.preProcessor(Connector.class, (con, t) -> t.readBytes(con.in()));
 		b.preProcessor(events);
-		b.command(Connector.class, "o(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
+		b.command(Connector.class, "o(?s)(.*)", (m, s, t) -> t.writeAscii(s.out(), m.group(1)),
 			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
 		b.command(Connector.class, "C", (m, s, t) -> s.close(),
 			"C = close the connector");

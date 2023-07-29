@@ -33,7 +33,7 @@ public class ByteUtilTest {
 	public void testBitIteratorHigh() {
 		Captor<Boolean> captor = Captor.of();
 		for (boolean b : CollectionUtil
-			.forEach(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+			.iterable(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -44,7 +44,7 @@ public class ByteUtilTest {
 	public void testBitIteratorLow() {
 		Captor<Boolean> captor = Captor.of();
 		for (boolean b : CollectionUtil
-			.forEach(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
+			.iterable(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //
 			false, false, false, false, false, false, false, false, //

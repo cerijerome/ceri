@@ -60,7 +60,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 */
 	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
 		ofAll(List<T> closeables) {
-		return new Enclosed<>(closeables, CloseableUtil::closeAll);
+		return new Enclosed<>(closeables, CloseableUtil::close);
 	}
 
 	private Enclosed(T subject, ExceptionRunnable<E> closer) {

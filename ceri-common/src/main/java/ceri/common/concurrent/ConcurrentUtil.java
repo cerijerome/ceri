@@ -65,7 +65,7 @@ public class ConcurrentUtil {
 		lock.lock();
 		return () -> lock.unlock();
 	}
-	
+
 	/**
 	 * Sleeps approximately for given milliseconds, or not if 0. Throws RuntimeInterruptedException
 	 * if interrupted. Checks for interrupted thread even if 0 delay.
@@ -282,6 +282,30 @@ public class ConcurrentUtil {
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	/**
+	 * Interrupt the current thread.
+	 */
+	public static void interrupt() {
+		Thread.currentThread().interrupt();
+	}
+
+	/**
+	 * Interrupt the current thread if the exception is from an interrupt. Returns true if the
+	 * thread was interrupted.
+	 */
+	public static boolean interrupt(Exception e) {
+		if (!interrupted(e)) return false;
+		interrupt();
+		return true;
+	}
+
+	/**
+	 * Returns true if the exception is from an interrupt.
+	 */
+	public static boolean interrupted(Exception e) {
+		return (e instanceof RuntimeInterruptedException) || (e instanceof InterruptedException);
 	}
 
 	/**

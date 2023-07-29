@@ -46,46 +46,41 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testGetQuietly() {
-		assertEquals(FunctionUtil.getQuietly(() -> "test"), "test");
-		assertNull(FunctionUtil.getQuietly(() -> {
+	public void testGetSilently() {
+		assertEquals(FunctionUtil.getSilently(() -> "test"), "test");
+		assertEquals(FunctionUtil.getSilently(() -> "test", "x"), "test");
+		assertEquals(FunctionUtil.getSilently(() -> {
 			throw new IOException();
-		}));
-		assertThrown(() -> FunctionUtil.getQuietly(() -> {
+		}, "test"), "test");
+		assertNull(FunctionUtil.getSilently(() -> {
 			throw new RuntimeException();
 		}));
+		assertFalse(Thread.interrupted());
+		assertNull(FunctionUtil.getSilently(() -> {
+			throw new InterruptedException();
+		}));
+		assertTrue(Thread.interrupted());
 	}
 
 	@Test
-	public void testExecQuietly() {
-		assertTrue(FunctionUtil.execQuietly(() -> {}));
-		assertFalse(FunctionUtil.execQuietly(() -> {
+	public void testRunSilently() {
+		assertTrue(FunctionUtil.runSilently(() -> {}));
+		assertFalse(FunctionUtil.runSilently(() -> {
 			throw new IOException();
 		}));
-		assertThrown(() -> FunctionUtil.execQuietly(() -> {
+		assertFalse(FunctionUtil.runSilently(() -> {
 			throw new RuntimeException();
 		}));
-	}
-
-	@Test
-	public void testExecSilently() {
-		assertTrue(FunctionUtil.execSilently(() -> {}));
-		assertFalse(FunctionUtil.execSilently(() -> {
-			throw new IOException();
+		assertFalse(Thread.interrupted());
+		assertFalse(FunctionUtil.runSilently(() -> {
+			throw new InterruptedException();
 		}));
-	}
-
-	@Test
-	public void testCallSilently() {
-		assertEquals(FunctionUtil.callSilently(() -> "test"), "test");
-		assertNull(FunctionUtil.callSilently(() -> {
-			throw new IOException();
-		}));
+		assertTrue(Thread.interrupted());
 	}
 
 	@Test
 	public void testSequentialSupplier() {
-		assertNull(FunctionUtil.sequentialSupplier());
+		assertThrown(FunctionUtil::sequentialSupplier);
 		var supplier0 = FunctionUtil.sequentialSupplier(1);
 		assertEquals(supplier0.get(), 1);
 		assertEquals(supplier0.get(), 1);
@@ -94,50 +89,6 @@ public class FunctionUtilTest {
 		assertEquals(supplier1.get(), 2);
 		assertEquals(supplier1.get(), 3);
 		assertEquals(supplier1.get(), 3);
-	}
-
-	@Test
-	public void testFirst() {
-		assertEquals(FunctionUtil.first(null, () -> null, () -> "a", () -> "b"), "a");
-		assertEquals(FunctionUtil.first("test", () -> null, () -> "a", () -> "b"), "test");
-	}
-
-	@Test
-	public void testCastApply() throws Exception {
-		Object obj = new int[] { -1 };
-		assertEquals(FunctionUtil.castApply(int[].class, obj, x -> x[0] = 1), 1);
-		assertArray((int[]) obj, 1);
-		assertNull(FunctionUtil.castApply((Class<int[]>) null, obj, x -> x[0] = 2));
-		assertArray((int[]) obj, 1);
-		assertNull(FunctionUtil.castApply(int[].class, null, x -> x[0] = 2));
-		assertArray((int[]) obj, 1);
-		assertNull(FunctionUtil.castApply(int[].class, obj, null));
-		assertArray((int[]) obj, 1);
-		assertNull(FunctionUtil.castApply(long[].class, obj, x -> x[0] = 2));
-		assertArray((int[]) obj, 1);
-	}
-
-	@Test
-	public void testCastAccept() {
-		Object obj = new int[] { -1 };
-		FunctionUtil.castAccept(int[].class, obj, x -> x[0] = 1);
-		assertArray((int[]) obj, 1);
-		// noinspection RedundantCast
-		FunctionUtil.castAccept((Class<int[]>) null, obj, x -> x[0] = 2);
-		assertArray((int[]) obj, 1);
-		FunctionUtil.castAccept(int[].class, null, x -> x[0] = 2);
-		assertArray((int[]) obj, 1);
-		FunctionUtil.castAccept(int[].class, obj, null);
-		assertArray((int[]) obj, 1);
-		FunctionUtil.castAccept(long[].class, obj, x -> x[0] = 2);
-		assertArray((int[]) obj, 1);
-	}
-
-	@Test
-	public void testSafe() throws IOException {
-		ExceptionFunction<IOException, String, String> fn = FunctionUtil.safe(String::trim);
-		assertEquals(fn.apply(" "), "");
-		assertNull(fn.apply(null));
 	}
 
 	@Test

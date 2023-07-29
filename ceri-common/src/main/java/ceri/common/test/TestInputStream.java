@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.function.FunctionUtil.callSilently;
-import static ceri.common.function.FunctionUtil.execSilently;
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.util.BasicUtil.defaultValue;
 import static ceri.common.validation.ValidationUtil.validateEqual;
@@ -11,6 +9,7 @@ import ceri.common.collection.SubArray;
 import ceri.common.collection.SubArray.Bytes;
 import ceri.common.data.ByteStream;
 import ceri.common.function.Fluent;
+import ceri.common.function.FunctionUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
@@ -56,7 +55,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 
 	public void resetState() {
 		CallSync.resetAll(read, available, mark, reset, close);
-		execSilently(piped::clear);
+		FunctionUtil.runSilently(piped::clear);
 	}
 
 	/**
@@ -127,8 +126,9 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, callSilently(piped.in()::available)).children( //
-			"read=" + read, "available=" + available, "mark=" + mark, "reset=" + reset,
-			"close=" + close).toString();
+		return ToString
+			.ofClass(this, FunctionUtil.getSilently(piped.in()::available)).children("read=" + read,
+				"available=" + available, "mark=" + mark, "reset=" + reset, "close=" + close)
+			.toString();
 	}
 }

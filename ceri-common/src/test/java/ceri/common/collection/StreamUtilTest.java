@@ -139,10 +139,10 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testForEach() {
+	public void testIterable() {
 		String[] array = { "a", "b", "c" };
 		int i = 0;
-		for (String s : StreamUtil.forEach(Stream.of(array)))
+		for (String s : StreamUtil.iterable(Stream.of(array)))
 			assertEquals(s, array[i++]);
 	}
 

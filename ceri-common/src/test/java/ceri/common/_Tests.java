@@ -318,7 +318,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.PrimitiveUtilTest.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
-	ceri.common.util.ValueCacheBehavior.class, //
 	// validation
 	ceri.common.validation.DisplayDoubleBehavior.class, //
 	ceri.common.validation.DisplayLongBehavior.class, //

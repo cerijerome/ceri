@@ -26,10 +26,10 @@ public class ErrorGen {
 	private ErrorGen() {}
 
 	/**
-	 * Generate errors in given order.
+	 * Generate errors in given order. Use no-args to generate no errors.
 	 */
 	public void set(Exception... errors) {
-		setErrorFn(sequentialSupplier(errors));
+		setErrorFn(errors.length == 0 ? null : sequentialSupplier(errors));
 	}
 
 	/**
@@ -38,8 +38,11 @@ public class ErrorGen {
 	 */
 	@SafeVarargs
 	public final void setFrom(Function<String, Exception>... errorFns) {
-		var sequential = sequentialSupplier(errorFns);
-		setErrorFn(() -> safeApply(safeApply(sequential, Supplier::get), s -> s.apply(MESSAGE)));
+		if (errorFns.length == 0) setErrorFn(null);
+		else {
+			var sequential = sequentialSupplier(errorFns);
+			setErrorFn(() -> safeApply(sequential.get(), s -> s.apply(MESSAGE)));
+		}
 	}
 
 	/**
@@ -107,6 +110,9 @@ public class ErrorGen {
 		return errorFn == null ? "[none]" : "[" + errorFn.get() + "]";
 	}
 
+	/**
+	 * Sets the error function; use null for no error generation.
+	 */
 	private ErrorGen setErrorFn(Supplier<Exception> errorFn) {
 		this.errorFn = errorFn;
 		return this;

@@ -79,9 +79,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldCreateAdapterFunctionFromClass() {
-		assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class)); // no
-																				// matching
-		// con.
+		assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class));
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class);
 		Throwable t = new FileNotFoundException("test");
 		assertEquals(ad.apply(t), t);

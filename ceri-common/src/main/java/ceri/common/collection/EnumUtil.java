@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import static ceri.common.collection.ArrayUtil.validateIndex;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +65,15 @@ public class EnumUtil {
 	public static <T extends Enum<T>> T fromOrdinal(Class<T> cls, int ordinal) {
 		T[] enums = cls.getEnumConstants();
 		if (ordinal < 0 || ordinal >= enums.length) return null;
+		return enums[ordinal];
+	}
+
+	/**
+	 * Look up enum from ordinal value. Throws exception if out of ordinal range.
+	 */
+	public static <T extends Enum<T>> T fromOrdinalValid(Class<T> cls, int ordinal) {
+		T[] enums = cls.getEnumConstants();
+		validateIndex(enums.length, ordinal);
 		return enums[ordinal];
 	}
 }

@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import static java.lang.Math.min;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -11,9 +11,14 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
+/**
+ * Function utilities.
+ */
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
 	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
@@ -23,124 +28,59 @@ public class FunctionUtil {
 
 	private FunctionUtil() {}
 
+	/**
+	 * Provides a no-op consumer.
+	 */
 	public static <T> Consumer<T> nullConsumer() {
 		return BasicUtil.uncheckedCast(NULL_CONSUMER);
 	}
 
+	/**
+	 * Provides a predicate that is always true.
+	 */
 	public static <T> Predicate<T> truePredicate() {
 		return BasicUtil.uncheckedCast(TRUE_PREDICATE);
 	}
 
 	/**
-	 * Run and ignore declared checked exception. Returns value if no exception occurred, null if
-	 * checked exception occurs. Will not block runtime exceptions.
+	 * Invokes the supplier and returns the supplied value, which may be null. If an exception
+	 * occurs, it is suppressed, and null is returned. Interrupted exceptions will re-interrupt the
+	 * current thread.
 	 */
-	public static <E extends Exception, T> T getQuietly(ExceptionSupplier<E, T> supplier) {
-		try {
-			return supplier.get();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			return null;
-		}
+	public static <T> T getSilently(ExceptionSupplier<?, T> supplier) {
+		return getSilently(supplier, null);
 	}
 
 	/**
-	 * Run and ignore declared checked exception. Returns true if no exception occurred, false if
-	 * checked exception occurs. Will not block runtime exceptions.
+	 * Invokes the supplier and returns the supplied value, which may be null. If an exception
+	 * occurs, it is suppressed, and the error value is returned. Interrupted exceptions will
+	 * re-interrupt the current thread.
 	 */
-	public static <E extends Exception> boolean execQuietly(ExceptionRunnable<E> runnable) {
-		try {
-			runnable.run();
-			return true;
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			// ignore
-			return false;
-		}
+	public static <T> T getSilently(ExceptionSupplier<?, T> supplier, T errorVal) {
+		return getIt(supplier::get, errorVal);
 	}
 
 	/**
-	 * Run and ignore any exceptions. Returns true if no exception occurred. Use judiciously, such
-	 * as when closing an object, to squash noisy exceptions.
+	 * Invokes the runnable and returns true. If an exception is thrown, it is suppressed, and false
+	 * is returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	public static <E extends Exception> boolean execSilently(ExceptionRunnable<E> runnable) {
-		try {
-			runnable.run();
-			return true;
-		} catch (Exception e) {
-			// ignore
-			return false;
-		}
+	public static boolean runSilently(ExceptionRunnable<?> runnable) {
+		return runIt(runnable::run);
 	}
 
 	/**
-	 * Call and ignore any exceptions. Returns value if no exception occurred. Use judiciously, such
-	 * as when closing an object, to squash noisy exceptions.
-	 */
-	public static <T> T callSilently(ExceptionSupplier<?, T> supplier) {
-		return callSilently(supplier, null);
-	}
-
-	/**
-	 * Call and ignore any exceptions. Returns value if no exception occurred. Use judiciously, such
-	 * as when closing an object, to squash noisy exceptions.
-	 */
-	public static <T> T callSilently(ExceptionSupplier<?, T> supplier, T def) {
-		try {
-			return supplier.get();
-		} catch (Exception e) {
-			return def;
-		}
-	}
-
-	/**
-	 * Provide sequential access to an array.
+	 * Provide sequential access to the given values, repeating the last entry. At least one value
+	 * must be supplied.
 	 */
 	@SafeVarargs
 	public static <T> Supplier<T> sequentialSupplier(T... ts) {
-		if (ts.length == 0) return null;
-		if (ts.length == 1) return () -> ts[0];
+		validateMin(ts.length, 1);
 		Counter counter = Counter.of();
-		return () -> ts[min(counter.intInc(), ts.length) - 1];
-	}
-
-	/**
-	 * If value is null, return first non-null supplied value.
-	 */
-	@SafeVarargs
-	public static <T> T first(T t, Supplier<T>... suppliers) {
-		if (t != null) return t;
-		return Stream.of(suppliers).map(Supplier::get).filter(Objects::nonNull).findFirst()
-			.orElse(null);
-	}
-
-	/**
-	 * Casts object to given type and applies function if compatible. Otherwise returns null.
-	 */
-	public static <E extends Exception, T, R> R castApply(Class<T> cls, Object obj,
-		ExceptionFunction<E, T, R> fn) throws E {
-		if (cls == null || fn == null || !cls.isInstance(obj)) return null;
-		return fn.apply(cls.cast(obj));
-	}
-
-	/**
-	 * Casts object to given type and applies consumer if compatible. Returns true if consumed.
-	 */
-	public static <E extends Exception, T> boolean castAccept(Class<T> cls, Object obj,
-		ExceptionConsumer<E, T> consumer) throws E {
-		if (cls == null || consumer == null || !cls.isInstance(obj)) return false;
-		consumer.accept(cls.cast(obj));
-		return true;
-	}
-
-	/**
-	 * Wraps a function, passing null values back to caller.
-	 */
-	public static <E extends Exception, T, R> ExceptionFunction<E, T, R>
-		safe(ExceptionFunction<E, T, R> function) {
-		return t -> safeApply(t, function);
+		return () -> {
+			int n = counter.intCount();
+			if (n < ts.length - 1) counter.inc();
+			return ts[n];
+		};
 	}
 
 	/**
@@ -162,9 +102,25 @@ public class FunctionUtil {
 	/**
 	 * Passes only non-null values to function.
 	 */
+	public static <E extends Exception, T> int safeApplyAsInt(T t,
+		ExceptionToIntFunction<E, T> function, int def) throws E {
+		return t == null ? def : function.applyAsInt(t);
+	}
+
+	/**
+	 * Passes only non-null values to function.
+	 */
 	public static <E extends Exception, T, R> R safeApplyGet(T t,
 		ExceptionFunction<E, T, R> function, ExceptionSupplier<E, R> supplier) throws E {
 		return t == null ? supplier.get() : function.apply(t);
+	}
+
+	/**
+	 * Passes only non-null values to function.
+	 */
+	public static <E extends Exception, T> int safeApplyGetAsInt(T t,
+		ExceptionToIntFunction<E, T> function, ExceptionIntSupplier<E> supplier) throws E {
+		return t == null ? supplier.getAsInt() : function.applyAsInt(t);
 	}
 
 	/**
@@ -195,12 +151,11 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Execute the function until no change, or the maximum number of recursions is met.
+	 * Execute the function recursively until no change, or the max number of recursions is met.
 	 */
 	public static <T> T recurse(T t, Function<T, T> fn, int max) {
-		T last;
 		while (max-- > 0) {
-			last = t;
+			T last = t;
 			t = fn.apply(t);
 			if (Objects.equals(t, last)) break;
 		}
@@ -208,12 +163,12 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
+	 * Executes for-each, allowing an exception of given type to be thrown.
 	 */
 	public static <E extends Exception, T> void forEach(Iterable<T> iter,
 		ExceptionConsumer<E, ? super T> consumer) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.unwrap(() -> iter.forEach(w.wrap(consumer)));
+		for (var t : iter)
+			consumer.accept(t);
 	}
 
 	/**
@@ -221,8 +176,8 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception, T> void forEach(Stream<T> stream,
 		ExceptionConsumer<E, ? super T> consumer) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.unwrap(() -> stream.forEach(w.wrap(consumer)));
+		for (var i = stream.iterator(); i.hasNext();)
+			consumer.accept(i.next());
 	}
 
 	/**
@@ -230,8 +185,8 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception> void forEach(IntStream stream,
 		ExceptionIntConsumer<E> consumer) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.unwrap(() -> stream.forEach(w.wrap(consumer)));
+		for (var i = stream.iterator(); i.hasNext();)
+			consumer.accept(i.nextInt());
 	}
 
 	/**
@@ -239,28 +194,43 @@ public class FunctionUtil {
 	 */
 	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
 		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.create();
-		w.unwrap(() -> map.forEach(w.wrap(consumer)));
+		for (var entry : map.entrySet())
+			consumer.accept(entry.getKey(), entry.getValue());
 	}
 
+	/**
+	 * Combines nullable predicates with logical AND.
+	 */
 	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {
 		return lhs == null ? rhs : rhs == null ? lhs : lhs.and(rhs);
 	}
 
+	/**
+	 * Combines nullable predicates with logical OR.
+	 */
 	public static <T> Predicate<T> or(Predicate<T> lhs, Predicate<T> rhs) {
 		return lhs == null ? rhs : rhs == null ? lhs : lhs.or(rhs);
 	}
 
+	/**
+	 * Provides a predicate from a field accessor and predicate for the field type.
+	 */
 	public static <T, U> Predicate<T> testing(Function<? super T, ? extends U> extractor,
 		Predicate<? super U> predicate) {
 		return t -> predicate.test(extractor.apply(t));
 	}
 
+	/**
+	 * Provides an predicate from an int field accessor and int predicate.
+	 */
 	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> extractor,
 		IntPredicate predicate) {
 		return t -> predicate.test(extractor.applyAsInt(t));
 	}
 
+	/**
+	 * Checks if the given object is an anonymous lamdba function.
+	 */
 	public static boolean isAnonymousLambda(Object obj) {
 		if (obj == null) return false;
 		String s = obj.toString();
@@ -268,20 +238,23 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Returns "[lambda]" if anonymous lambda, otherwise toString.
+	 * Returns "[lambda]" if the given object is an anonymous lambda, otherwise toString.
 	 */
 	public static String lambdaName(Object obj) {
 		return lambdaName(obj, LAMBDA_NAME_DEF);
 	}
 
 	/**
-	 * Returns given name if anonymous lambda, otherwise toString.
+	 * Returns given name if the given object is an anonymous lambda, otherwise toString.
 	 */
 	public static String lambdaName(Object obj, String anonNameDef) {
 		String s = String.valueOf(obj);
 		return s.contains(ANON_LAMBDA_LABEL) ? anonNameDef : s;
 	}
 
+	/**
+	 * Overrides predicate toString() with given name.
+	 */
 	public static <T> Predicate<T> named(Predicate<T> predicate, String name) {
 		return new Predicate<>() {
 			@Override
@@ -296,6 +269,9 @@ public class FunctionUtil {
 		};
 	}
 
+	/**
+	 * Overrides predicate toString() with given name.
+	 */
 	public static IntPredicate namedInt(IntPredicate predicate, String name) {
 		return new IntPredicate() {
 			@Override
@@ -311,7 +287,7 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Converts a runnable to a function that returns true.
+	 * Converts a runnable to a function that ignores input and returns true.
 	 */
 	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
 		asFunction(ExceptionRunnable<E> runnable) {
@@ -337,6 +313,9 @@ public class FunctionUtil {
 		return t -> supplier.getAsInt();
 	}
 
+	/**
+	 * Converts a consumer to a function that returns true.
+	 */
 	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
 		asFunction(ExceptionConsumer<E, T> consumer) {
 		return t -> {
@@ -345,6 +324,9 @@ public class FunctionUtil {
 		};
 	}
 
+	/**
+	 * Converts a consumer to a function that returns true.
+	 */
 	public static <E extends Exception> ExceptionIntFunction<E, Boolean>
 		asIntFunction(ExceptionIntConsumer<E> consumer) {
 		return i -> {
@@ -353,6 +335,9 @@ public class FunctionUtil {
 		};
 	}
 
+	/**
+	 * Converts a bi-consumer to a bi-function that returns true.
+	 */
 	public static <E extends Exception, T, U> ExceptionBiFunction<E, T, U, Boolean>
 		asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
 		return (t, u) -> {
@@ -383,4 +368,30 @@ public class FunctionUtil {
 		};
 	}
 
+	/**
+	 * Invokes the runnable and returns true. If an exception is thrown, it will be suppressed, and
+	 * false is returned. Interrupted exceptions will re-interrupt the thread.
+	 */
+	private static boolean runIt(ExceptionRunnable<Exception> runnable) {
+		return getIt(() -> {
+			runnable.run();
+			return true;
+		}, false);
+	}
+
+	/**
+	 * Invokes the supplier and returns the result. If an exception is thrown, it will be
+	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
+	 * thread.
+	 */
+	private static <T> T getIt(ExceptionSupplier<Exception, T> supplier, T errorVal) {
+		try {
+			return supplier.get();
+		} catch (RuntimeInterruptedException | InterruptedException e) {
+			ConcurrentUtil.interrupt(); // reset interrupt since we ignore the exception
+		} catch (Exception e) {
+			// ignored
+		}
+		return errorVal;
+	}
 }

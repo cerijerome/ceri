@@ -84,14 +84,21 @@ public class TestConnector implements Connector.Fixable {
 	 * Enable pairing; input data is written to another connector.
 	 */
 	public void pairWith(TestConnector other) {
-		writeOverride = (b, off, len) -> other.in.to.write(b, off, len);
+		writeOverride((b, off, len) -> other.in.to.write(b, off, len));
 	}
 
 	/**
 	 * Enable pairing; input data is written to another connector.
 	 */
 	public void pairWith(Connector other) {
-		writeOverride = (b, off, len) -> other.out().write(b, off, len);
+		writeOverride((b, off, len) -> other.out().write(b, off, len));
+	}
+
+	/**
+	 * Override writing, instead of writing to the test output stream.
+	 */
+	public void writeOverride(Write writeOverride) {
+		this.writeOverride = writeOverride;
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public class TcpServerSocket implements Closeable {
 
 	@Override
 	public void close() {
-		CloseableUtil.closeAll(exec, serverSocket);
+		CloseableUtil.close(exec, serverSocket);
 	}
 
 	@SuppressWarnings("resource")

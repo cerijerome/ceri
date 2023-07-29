@@ -38,7 +38,7 @@ public class TreeUtil {
 
 	public static <T extends Parent<T>> Iterable<T> iterable(T node) {
 		if (node == null) throw new NullPointerException("Node cannot be null");
-		return CollectionUtil.forEach(new TreeIterator<>(node));
+		return CollectionUtil.iterable(new TreeIterator<>(node));
 	}
 
 	public static <T extends Parent<T>> String toString(T node) {

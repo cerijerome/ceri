@@ -60,7 +60,7 @@ public class IoUtil {
 		ExceptionAdapter.of(IOException.class, IOException::new);
 	public static final ExceptionAdapter<RuntimeIoException> RUNTIME_IO_ADAPTER =
 		ExceptionAdapter.of(RuntimeIoException.class, RuntimeIoException::new);
-	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.create();
+	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.of();
 	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = path -> true;
 
 	private IoUtil() {}

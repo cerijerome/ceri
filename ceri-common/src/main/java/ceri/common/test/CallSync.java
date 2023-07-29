@@ -753,7 +753,8 @@ public abstract class CallSync<T, R> {
 	}
 
 	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(R[] responses) {
+		if (responses.length == 0) return null;
 		var supplier = sequentialSupplier(responses);
-		return supplier != null ? x -> supplier.get() : null;
+		return x -> supplier.get();
 	}
 }

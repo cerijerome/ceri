@@ -38,7 +38,7 @@ public class ImmutableUtil {
 	 * Creates an immutable iterable wrapper that returns an immutable iterator.
 	 */
 	public static <T> Iterable<T> iterable(final Iterable<T> iterable) {
-		return () -> ImmutableUtil.iterator(iterable.iterator());
+		return () -> iterator(iterable.iterator());
 	}
 
 	/**
@@ -317,7 +317,7 @@ public class ImmutableUtil {
 	public static <K, V> Map<K, V> wrapMap(Map<K, V> map) {
 		return map.isEmpty() ? Map.of() : Collections.unmodifiableMap(map);
 	}
-	
+
 	/**
 	 * Wraps an array as an unmodifiable list.
 	 */

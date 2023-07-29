@@ -5,6 +5,7 @@ import static ceri.common.function.FunctionUtil.asFunction;
 import static ceri.common.function.FunctionUtil.asIntFunction;
 import static ceri.common.function.FunctionUtil.asToIntFunction;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
@@ -20,15 +21,20 @@ import ceri.common.util.BasicUtil;
 /**
  * "Exception Wormhole" or "Exception Re-Gifting" (anti-)pattern.
  * <p/>
- * This helper adapts function types that throw checked exceptions, so that they can be used in code
- * that requires standard function types. Wrap adapts the function so that checked exceptions are
- * wrapped as runtime exceptions. Unwrap should be used to surround the executed code, as it
- * captures the wrapped exception and throw the original typed checked exception. The same wrapper
- * instance must be used to wrap then unwrap.
+ * Adapts function types that throw checked exceptions, so that they can be used in code that
+ * requires standard function types. Calls to wrap() adapt the function to throw wrapped runtime
+ * exceptions. Calls to unwrap() should surround the executed code; exceptions are unwrapped to
+ * throw the original typed checked exception. The same wrapper instance must be used to wrap then
+ * unwrap.
+ * <pre>
+ * Example:
+ * var w = FunctionWrapper.<IOException>of();
+ * w.unwrap(() -> map.computeIfPresent(key, w.wrap(ioBiFunction)));
+ * </pre>
  */
 public class FunctionWrapper<E extends Exception> {
 
-	public static <E extends Exception> FunctionWrapper<E> create() {
+	public static <E extends Exception> FunctionWrapper<E> of() {
 		return new FunctionWrapper<>();
 	}
 
@@ -62,6 +68,10 @@ public class FunctionWrapper<E extends Exception> {
 
 	public <T, R> Function<T, R> wrap(ExceptionFunction<E, T, R> function) {
 		return t -> wrap(function, t);
+	}
+
+	public <T, U, R> BiFunction<T, U, R> wrap(ExceptionBiFunction<E, T, U, R> function) {
+		return (t, u) -> wrap(function, t, u);
 	}
 
 	public <R> IntFunction<R> wrap(ExceptionIntFunction<E, R> function) {

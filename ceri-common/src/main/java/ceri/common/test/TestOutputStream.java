@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.function.FunctionUtil.callSilently;
-import static ceri.common.function.FunctionUtil.execSilently;
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
@@ -12,6 +10,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.SubArray;
 import ceri.common.collection.SubArray.Bytes;
 import ceri.common.data.ByteStream;
+import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
@@ -44,7 +43,7 @@ public class TestOutputStream extends OutputStream {
 
 	public void resetState() {
 		CallSync.resetAll(write, flush, close);
-		execSilently(piped::clear);
+		FunctionUtil.runSilently(piped::clear);
 	}
 
 	public void assertAvailable(int n) throws IOException {
@@ -82,8 +81,8 @@ public class TestOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, callSilently(piped.in()::available)).children( //
-			"write=" + write, "flush=" + flush, "close=" + close).toString();
+		return ToString.ofClass(this, FunctionUtil.getSilently(piped.in()::available))
+			.children("write=" + write, "flush=" + flush, "close=" + close).toString();
 	}
 
 	/**

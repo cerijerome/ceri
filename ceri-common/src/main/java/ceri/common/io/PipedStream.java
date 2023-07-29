@@ -119,6 +119,6 @@ public class PipedStream implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		CloseableUtil.closeAll(in, out);
+		CloseableUtil.close(in, out);
 	}
 }

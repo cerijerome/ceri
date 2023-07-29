@@ -20,17 +20,17 @@ import java.util.List;
 import org.junit.Test;
 
 public class FunctionWrapperBehavior {
-	private final FunctionWrapper<IOException> w = FunctionWrapper.create();
+	private final FunctionWrapper<IOException> w = FunctionWrapper.of();
 
 	@Test
 	public void shouldAllowMixedWrappersIfNoExceptionIsThrown() throws IOException {
-		FunctionWrapper<IOException> w0 = FunctionWrapper.create();
+		FunctionWrapper<IOException> w0 = FunctionWrapper.of();
 		w0.unwrap(w.wrap(runnable(2))::run);
 	}
 
 	@Test
 	public void shouldFailWhenMixingWrappersIfExceptionIsThrown() {
-		FunctionWrapper<IOException> w0 = FunctionWrapper.create();
+		FunctionWrapper<IOException> w0 = FunctionWrapper.of();
 		assertThrown(RuntimeException.class, () -> w0.unwrap(w.wrap(runnable(1))::run));
 	}
 

@@ -44,7 +44,7 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	 */
 	public static <E extends Exception, T> WrappedStream<E, T>
 		stream(ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
-		FunctionWrapper<E> wrapper = FunctionWrapper.create();
+		FunctionWrapper<E> wrapper = FunctionWrapper.of();
 		Predicate<Consumer<? super T>> wrappedFn = wrapper.wrap(tryAdvanceFn);
 		Spliterator<T> spliterator = spliterator(wrappedFn, Long.MAX_VALUE, Spliterator.ORDERED);
 		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, false));
@@ -71,7 +71,7 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	}
 
 	public static <E extends Exception, T> WrappedStream<E, T> of(Stream<T> stream) {
-		return of(FunctionWrapper.create(), stream);
+		return of(FunctionWrapper.of(), stream);
 	}
 
 	private static <E extends Exception, T> WrappedStream<E, T> of(FunctionWrapper<E> w,

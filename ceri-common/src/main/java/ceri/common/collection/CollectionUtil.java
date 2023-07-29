@@ -26,6 +26,9 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.ExceptionBiConsumer;
+import ceri.common.function.ExceptionBiFunction;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.function.FunctionWrapper;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -71,7 +74,7 @@ public class CollectionUtil {
 	/**
 	 * Makes an iterator compatible with a for-each loop.
 	 */
-	public static <T> Iterable<T> forEach(final Iterator<T> iterator) {
+	public static <T> Iterable<T> iterable(final Iterator<T> iterator) {
 		return () -> iterator;
 	}
 
@@ -82,6 +85,51 @@ public class CollectionUtil {
 		ExceptionBiConsumer<E, K, V> consumer) throws E {
 		for (var entry : map.entrySet())
 			consumer.accept(entry.getKey(), entry.getValue());
+	}
+
+	/**
+	 * Computes and (re-)maps the value if for the key.
+	 */
+	public static <E extends Exception, K, V> V compute(Map<K, V> map, K key,
+		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> remappingFunction) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.of();
+		return w.unwrapSupplier(() -> map.compute(key, w.wrap(remappingFunction)));
+	}
+
+	/**
+	 * Computes and adds the value if the key is not mapped.
+	 */
+	public static <E extends Exception, K, V> V computeIfAbsent(Map<K, V> map, K key,
+		ExceptionFunction<E, ? super K, ? extends V> mappingFunction) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.of();
+		return w.unwrapSupplier(() -> map.computeIfAbsent(key, w.wrap(mappingFunction)));
+	}
+
+	/**
+	 * Computes and re-maps the value if the key is not present.
+	 */
+	public static <E extends Exception, K, V> V computeIfPresent(Map<K, V> map, K key,
+		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> remappingFunction) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.of();
+		return w.unwrapSupplier(() -> map.computeIfPresent(key, w.wrap(remappingFunction)));
+	}
+
+	/**
+	 * Applies the function to each map entry.
+	 */
+	public static <E extends Exception, K, V> void reaplaceAll(Map<K, V> map,
+		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> function) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.of();
+		w.unwrap(() -> map.replaceAll(w.wrap(function)));
+	}
+
+	/**
+	 * Map the value, or merge the currently mapped value.
+	 */
+	public static <E extends Exception, K, V> V merge(Map<K, V> map, K key, V value,
+		ExceptionBiFunction<E, ? super V, ? super V, ? extends V> remappingFunction) throws E {
+		FunctionWrapper<E> w = FunctionWrapper.of();
+		return w.unwrapSupplier(() -> map.merge(key, value, w.wrap(remappingFunction)));
 	}
 
 	@SafeVarargs

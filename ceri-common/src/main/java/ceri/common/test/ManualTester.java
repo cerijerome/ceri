@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -27,6 +28,8 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.AnsiEscape;
+import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -49,9 +52,83 @@ public class ManualTester {
 	public final PrintStream err;
 	public final List<Object> subjects;
 	private final String indent;
+	private final BasicColor promptColor;
 	private final int delayMs;
 	private int index = 0;
 	private boolean exit = false;
+
+	/**
+	 * Utilities for parsing commands.
+	 */
+	public static class Parse {
+		private static final Set<Character> TRUE = Set.of('1', 'T', 't', 'Y', 'y');
+
+		private Parse() {}
+
+		/**
+		 * Parses first char of group 1 as a boolean.
+		 */
+		public static Boolean b(Matcher m) {
+			return b(m, 1);
+		}
+
+		/**
+		 * Parses first char of group as a boolean.
+		 */
+		public static Boolean b(Matcher m, int group) {
+			String s = m.group(group);
+			if (s.isEmpty()) return null;
+			return TRUE.contains(s.charAt(0));
+		}
+
+		/**
+		 * Returns first char of group 1.
+		 */
+		public static Character c(Matcher m) {
+			return c(m, 1);
+		}
+
+		/**
+		 * Returns first char of group.
+		 */
+		public static Character c(Matcher m, int group) {
+			String s = m.group(group);
+			if (s.isEmpty()) return null;
+			return s.charAt(0);
+		}
+
+		/**
+		 * Parses group 1 as an integer.
+		 */
+		public static Integer i(Matcher m) {
+			return i(m, 1);
+		}
+
+		/**
+		 * Parses group as an integer.
+		 */
+		public static Integer i(Matcher m, int group) {
+			String s = m.group(group);
+			if (s.isEmpty()) return null;
+			return Integer.parseInt(s);
+		}
+
+		/**
+		 * Parses group 1 as a double.
+		 */
+		public static Double d(Matcher m) {
+			return d(m, 1);
+		}
+
+		/**
+		 * Parses group as a double.
+		 */
+		public static Double d(Matcher m, int group) {
+			String s = m.group(group);
+			if (s.isEmpty()) return null;
+			return Double.parseDouble(s);
+		}
+	}
 
 	public static interface SubjectConsumer<T> {
 		void accept(T subject, ManualTester tester) throws Exception;
@@ -125,6 +202,7 @@ public class ManualTester {
 		InputStream in = System.in;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
+		BasicColor promptColor = BasicColor.blue;
 		int delayMs = 100;
 
 		protected Builder(List<?> subjects) {
@@ -136,15 +214,14 @@ public class ManualTester {
 				(m, s, t) -> t.out(ReflectUtil.className(s) + ReflectUtil.hashId(s)),
 				": = subject type");
 			addIndexCommands(subjects.size());
-			command("~(\\d+)", (m, t) -> ConcurrentUtil.delay(Integer.parseInt(m.group(1))),
-				"~[N] = sleep for N ms");
+			command("~(\\d+)", (m, t) -> ConcurrentUtil.delay(Parse.i(m)), "~[N] = sleep for N ms");
 		}
 
 		private void addIndexCommands(int n) {
 			if (n <= 1) return;
 			command("(\\*)", (m, t) -> t.listSubjects(), "* = list all subjects");
 			command("(\\-+|\\++)", (m, t) -> t.indexDiff(mDiff(m)), "-|+ = previous/next subject");
-			command("@(\\d+)", (m, t) -> t.index(mInt(m)),
+			command("@(\\d+)", (m, t) -> t.index(Parse.i(m)),
 				"@[N] = set subject index (0.." + (n - 1) + ")");
 		}
 
@@ -170,6 +247,11 @@ public class ManualTester {
 
 		public Builder stringFn(Function<Object, String> stringFn) {
 			this.stringFn = stringFn;
+			return this;
+		}
+
+		public Builder promptColor(BasicColor color) {
+			this.promptColor = color;
 			return this;
 		}
 
@@ -252,6 +334,7 @@ public class ManualTester {
 		out = builder.out;
 		err = builder.err;
 		indent = builder.indent;
+		promptColor = builder.promptColor;
 		delayMs = builder.delayMs;
 		stringFn = builder.stringFn;
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
@@ -267,8 +350,12 @@ public class ManualTester {
 		while (!exit) {
 			ConcurrentUtil.delay(delayMs); // try to avoid err/out print conflict
 			preProcess();
-			out.print(prompt());
-			execute(() -> executeInput(readInput(), subject()), true);
+			print(promptColor() + prompt());
+			execute(() -> {
+				String input = readInput();
+				print(promptNoColor());
+				executeInput(input, subject());
+			}, true);
 		}
 	}
 
@@ -344,9 +431,19 @@ public class ManualTester {
 		return string(subject(), index()) + "> ";
 	}
 
+	private String promptColor() {
+		return promptColor == null ? "" :
+			AnsiEscape.csi.sgr().fgColor(promptColor, false).toString();
+	}
+
+	private String promptNoColor() {
+		return promptColor == null ? "" : AnsiEscape.csi.sgr().reset().toString();
+	}
+
 	private String readInput() {
 		try {
-			return StringUtil.unEscape(IoUtil.pollString(in).trim());
+			//return StringUtil.unEscape(IoUtil.pollString(in).trim());
+			return IoUtil.pollString(in).trim();
 		} catch (IOException e) {
 			err(e);
 			exit = true; // Assume unable to recover
@@ -371,9 +468,10 @@ public class ManualTester {
 	}
 
 	private void executeInput(String input, Object subject) throws Exception {
+		
 		String[] commands = COMMAND_SPLIT_REGEX.split(input);
 		for (var command : commands)
-			executeCommand(command, subject);
+			executeCommand(StringUtil.unEscape(command), subject);
 	}
 
 	private void executeCommand(String input, Object subject) throws Exception {
@@ -421,21 +519,23 @@ public class ManualTester {
 		return true;
 	}
 
-	private static int mInt(Matcher m) {
-		return Integer.parseInt(m.group(1));
-	}
-
 	private static int mDiff(Matcher m) {
 		return m.group(1).chars().map(i -> i == '+' ? 1 : i == '-' ? -1 : 0).sum();
 	}
-	
-	public void print(ByteProvider data) {
+
+	private void print(String s) {
+		if (s.isEmpty()) return;
+		out.print(s);
+		out.flush();
+	}
+
+	private void print(ByteProvider data) {
 		bin.print(data).flush();
 		for (var line : StringUtil.lines(binText))
 			out(line);
 		StringUtil.clear(binText);
 	}
-	
+
 	@SuppressWarnings("resource")
 	private BinaryPrinter binaryPrinter() {
 		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))

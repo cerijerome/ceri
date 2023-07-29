@@ -89,7 +89,7 @@ public class RegexUtil {
 	 * Allows for-each loop over match results.
 	 */
 	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {
-		return CollectionUtil.forEach(pattern.matcher(s).results().iterator());
+		return CollectionUtil.iterable(pattern.matcher(s).results().iterator());
 	}
 
 	/**

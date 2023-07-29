@@ -70,10 +70,18 @@ public class ReplaceableConnector<T extends Connector> extends Replaceable<T> im
 
 	protected ReplaceableConnector(String delegateName) {
 		super(delegateName);
-		in.listeners().listen(errorListeners);
-		out.listeners().listen(errorListeners);
+		in.errors().listen(errorListeners);
+		out.errors().listen(errorListeners);
 	}
 
+	@SuppressWarnings("resource")
+	@Override
+	public void set(T delegate) {
+		super.set(delegate);
+		in.set(delegate.in());
+		out.set(delegate.out());
+	}
+	
 	@Override
 	public InputStream in() {
 		return in;

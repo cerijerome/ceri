@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
-import ceri.common.util.ValueCache;
+import ceri.common.concurrent.Constant;
 
 /**
  * Similar to {@link java.util.regex.Matcher}, but finds sequences that do not match a pattern.
@@ -139,7 +139,7 @@ public class NonMatcher implements NonMatchResult {
 	}
 
 	public Stream<NonMatchResult> results() {
-		var textAsString = ValueCache.of(() -> text.toString());
+		var textAsString = Constant.unsafe(() -> text.toString());
 		return StreamUtil.stream(this::find, () -> toResult(textAsString.get()));
 	}
 

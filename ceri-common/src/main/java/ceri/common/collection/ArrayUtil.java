@@ -24,7 +24,6 @@ import ceri.common.util.Hasher;
 
 /**
  * Utility methods to test and manipulate arrays.
- *
  * @see ceri.common.collection.CollectionUtil
  * @see ceri.common.util.PrimitiveUtil
  */
@@ -159,6 +158,21 @@ public class ArrayUtil {
 		else componentSuperCls = componentCls.getSuperclass();
 		if (componentSuperCls == null) return Object.class;
 		return empty(componentSuperCls).getClass();
+	}
+
+	@SafeVarargs
+	public static <T> boolean allEqual(T value, T... args) {
+		if (value == null) return allNull(args);
+		for (T arg : args)
+			if (!value.equals(arg)) return false;
+		return true;
+	}
+
+	@SafeVarargs
+	public static <T> boolean allNull(T... args) {
+		for (T arg : args)
+			if (arg != null) return false;
+		return true;
 	}
 
 	/**
