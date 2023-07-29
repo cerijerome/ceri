@@ -4,8 +4,6 @@ import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import ceri.common.function.RuntimeCloseable;
 import ceri.jna.clib.jna.CException;
@@ -19,7 +17,6 @@ import ceri.log.util.LogUtil;
  * A pipe used to interrupt a blocking C poll().
  */
 public class SyncPipe implements RuntimeCloseable {
-	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final int BUFFER_SIZE = 3;
 	private final AtomicBoolean sync = new AtomicBoolean();
 	private final Memory buffer = new Memory(BUFFER_SIZE);
@@ -93,7 +90,7 @@ public class SyncPipe implements RuntimeCloseable {
 	public void close() {
 		if (closed) return;
 		closed = true;
-		LogUtil.close(logger, this::write, () -> CUnistd.closeSilently(readFd, writeFd));
+		LogUtil.close(this::write, () -> CUnistd.closeSilently(readFd, writeFd));
 	}
 
 	private boolean write() throws IOException {

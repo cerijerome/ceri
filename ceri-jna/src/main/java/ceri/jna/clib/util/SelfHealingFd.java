@@ -21,12 +21,12 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 
 	@Override
 	public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {
-		acceptValid(fd -> fd.accept(consumer));
+		device.acceptValid(fd -> fd.accept(consumer));
 	}
 
 	@Override
 	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
-		return applyValid(fd -> fd.apply(function));
+		return device.applyValid(fd -> fd.apply(function));
 	}
 
 	@Override

@@ -21,12 +21,12 @@ public class TestFileDescriptorBehavior {
 	}
 
 	@Test
-	public void shouldAcceptFdConsumer() {
+	public void shouldAcceptFdConsumer() throws IOException {
 		fd.accept(f -> assertEquals(f, 33));
 	}
 
 	@Test
-	public void shouldApplyFdFunction() {
+	public void shouldApplyFdFunction() throws IOException {
 		assertEquals(fd.apply(f -> {
 			assertEquals(f, 33);
 			return 77;

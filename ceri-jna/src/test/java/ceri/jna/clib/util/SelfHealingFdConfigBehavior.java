@@ -26,8 +26,8 @@ public class SelfHealingFdConfigBehavior {
 				new SelfHealingFdProperties(baseProperties("self-healing-fd"), "fd").config();
 			try (var fd = config.open()) {
 				lib.open.assertAuto(List.of("test", O_RDWR + O_APPEND, 0666));
-				assertEquals(config.fixRetryDelayMs, 123);
-				assertEquals(config.recoveryDelayMs, 456);
+				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
+				assertEquals(config.selfHealing.recoveryDelayMs, 456);
 			}
 		}
 	}
@@ -45,15 +45,15 @@ public class SelfHealingFdConfigBehavior {
 	@Test
 	public void shouldSpecifyBrokenPredicate() {
 		var config = SelfHealingFdConfig.builder("test", Mode.NONE)
-			.brokenPredicate(Objects::nonNull).build();
-		assertEquals(config.brokenPredicate.test(null), false);
-		assertEquals(config.brokenPredicate.test(new IOException()), true);
+			.selfHealing(b -> b.brokenPredicate(Objects::nonNull)).build();
+		assertEquals(config.selfHealing.brokenPredicate.test(null), false);
+		assertEquals(config.selfHealing.brokenPredicate.test(new IOException()), true);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var config = SelfHealingFdConfig.of(() -> TestFileDescriptor.of(33));
-		assertFind(config, "\\(@\\w+,1000,2000,%s\\)", config.brokenPredicate);
+		assertFind(config, "\\(2000,1000,%s\\)", config.selfHealing.brokenPredicate);
 	}
 
 }

@@ -16,7 +16,7 @@ Header path:
 gcc -v -E -
 
 Include/lib c paths:
-pkg-config --cflags --libs libxxx.so/dylib
+pkg-config --cflags --libs libxxx
 
 Search
 sudo find <include-path> -type f | grep '\.'h$ | xargs grep xxx

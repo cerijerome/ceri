@@ -4,7 +4,6 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
@@ -21,6 +20,7 @@ import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestFileDescriptor;
+import ceri.log.io.SelfHealingDevice;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingFdBehavior {
@@ -32,8 +32,8 @@ public class SelfHealingFdBehavior {
 	public void before() {
 		fd = TestFileDescriptor.of(33);
 		open = CallSync.supplier(fd);
-		var config = SelfHealingFdConfig.builder(() -> open.get(IO_ADAPTER)).recoveryDelayMs(1)
-			.fixRetryDelayMs(1).build();
+		var config = SelfHealingFdConfig.builder(() -> open.get(IO_ADAPTER))
+			.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
 		shf = SelfHealingFd.of(config);
 	}
 
@@ -48,17 +48,16 @@ public class SelfHealingFdBehavior {
 		LogModifier.run(() -> {
 			assertThrown(() -> shf.open());
 			shf.close();
-		}, Level.OFF, SelfHealingFd.class);
+		}, Level.OFF, SelfHealingDevice.class);
 	}
 
 	@Test
-	public void shouldOpenQuietly() {
-		assertTrue(shf.openQuietly());
+	public void shouldOpenSilently() {
 		open.error.setFrom(IOX);
 		LogModifier.run(() -> {
-			assertFalse(shf.openQuietly());
+			assertFalse(shf.openSilently());
 			shf.close();
-		}, Level.OFF, SelfHealingFd.class);
+		}, Level.OFF, SelfHealingDevice.class);
 	}
 
 	@Test
@@ -82,7 +81,7 @@ public class SelfHealingFdBehavior {
 				listener.assertCall(StateChange.fixed);
 				shf.close();
 			}
-		}, Level.OFF, SelfHealingFd.class);
+		}, Level.OFF, SelfHealingDevice.class);
 	}
 
 	@Test
@@ -124,7 +123,7 @@ public class SelfHealingFdBehavior {
 			open.await(fd); // throws IOException
 			open.await(fd); // success
 			shf.close();
-		}, Level.OFF, SelfHealingFd.class);
+		}, Level.OFF, SelfHealingDevice.class);
 	}
 
 	private void throwCException(CError error) throws CException {

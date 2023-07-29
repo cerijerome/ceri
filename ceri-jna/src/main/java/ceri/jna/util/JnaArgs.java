@@ -2,6 +2,7 @@ package ceri.jna.util;
 
 import static ceri.common.text.StringUtil.NULL_STRING;
 import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.function.Predicate;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
@@ -72,11 +74,24 @@ public class JnaArgs {
 	}
 
 	/**
+	 * Memory to compact string.
+	 */
+	public static String string(PointerType p) {
+		return String.format("%s(%s)", ReflectUtil.nestedName(p.getClass()),
+			string(p.getPointer()));
+	}
+
+	/**
 	 * Callback to compact string.
 	 */
 	public static String string(Callback cb) {
 		String s = String.valueOf(cb);
 		return s.substring(s.lastIndexOf(".") + 1);
+	}
+
+	public static String string(ByteBuffer b) {
+		return String.format("%s(p=%d,l=%d,c=%d)", ReflectUtil.nestedName(b.getClass()),
+			b.position(), b.limit(), b.capacity());
 	}
 
 	/**
@@ -95,7 +110,9 @@ public class JnaArgs {
 				.add(matchInt(), n -> stringInt(n, -HEX_LIMIT, HEX_LIMIT)) //
 				.add(Structure.class, JnaArgs::string) //
 				.add(Pointer.class, JnaArgs::string) //
-				.add(Callback.class, JnaArgs::string);
+				.add(PointerType.class, JnaArgs::string) //
+				.add(Callback.class, JnaArgs::string) //
+				.add(ByteBuffer.class, JnaArgs::string);
 		}
 
 		/**

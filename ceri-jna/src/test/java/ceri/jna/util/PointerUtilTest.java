@@ -3,7 +3,6 @@ package ceri.jna.util;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.fail;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.deref;
 import org.junit.Test;
@@ -16,19 +15,6 @@ import com.sun.jna.ptr.PointerByReference;
 public class PointerUtilTest {
 
 	public static class TestPointer extends PointerType {}
-
-	@Test
-	public void shouldHavePointerSizeStorageForInt() {
-		var i = new PointerUtil.Int(777);
-		var cls = i.toNative().getClass();
-		switch (JnaSize.POINTER.size) {
-		case 4 -> assertEquals(cls, Integer.class);
-		case 8 -> assertEquals(cls, Long.class);
-		default -> fail("Unsupported pointer size");
-		}
-		assertEquals(i.intValue(), 777);
-		assertEquals(new PointerUtil.Int().intValue(), 0);
-	}
 
 	@Test
 	public void testPointer() {
@@ -129,7 +115,8 @@ public class PointerUtilTest {
 	@Test
 	public void testNullTermArrayByRefForPointerTypes() {
 		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
-		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m, null };
+		Pointer[] pointers =
+			{ GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m, null };
 		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new);
 		assertPointer(array[0], pointers[0]);

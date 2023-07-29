@@ -23,7 +23,8 @@ public class CInputStream extends JnaInputStream {
 	}
 
 	@Override
-	protected int availableBytes() throws IOException {
+	public int available() throws IOException {
+		ensureOpen();
 		return CIoctl.fionread(fd);
 	}
 	

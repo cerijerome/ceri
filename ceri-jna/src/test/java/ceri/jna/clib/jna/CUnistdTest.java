@@ -228,6 +228,22 @@ public class CUnistdTest {
 	}
 
 	@Test
+	public void testWriteAllUnderWrite() throws IOException {
+		TestCLibNative.exec(lib -> {
+			int fd = CFcntl.open("test", 0);
+			try (Memory m = new Memory(3)) {
+				lib.write.autoResponses(0);
+				assertEquals(CUnistd.writeAll(fd, m, 2), 0);
+				assertEquals(CUnistd.writeAll(fd, m, new byte[4]), 0);
+			}
+		});
+		
+		
+		execWrite("file2", fd -> {
+		});
+	}
+
+	@Test
 	public void testSeekFile() throws CException {
 		execRead("file1", fd -> {
 			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_CUR.value), 0);

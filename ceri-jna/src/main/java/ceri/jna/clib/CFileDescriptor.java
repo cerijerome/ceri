@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
@@ -23,7 +21,6 @@ import ceri.log.util.LogUtil;
  * Encapsulates a file descriptor as a closable resource.
  */
 public class CFileDescriptor implements FileDescriptor {
-	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
 	private static final Set<Integer> BROKEN_ERRORS = CError.codes(CError.ENOENT, CError.EREMOTEIO);
 	private final int fd;
@@ -129,7 +126,7 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public void close() {
 		closed = true;
-		LogUtil.close(logger, in, out, () -> CUnistd.close(fd));
+		LogUtil.close(in, out, () -> CUnistd.close(fd));
 	}
 
 	public boolean closeSilently() {

@@ -67,17 +67,27 @@ public abstract class JnaOutputStream extends OutputStream {
 	}
 
 	private int writeAll(Memory buffer, byte[] b, int off, int len) throws IOException {
-		int size = JnaUtil.intSize(buffer);
 		int rem = len;
 		while (rem > 0) {
-			int n = Math.min(rem, size);
+			int n = Math.min(rem, JnaUtil.intSize(buffer));
 			JnaUtil.write(buffer, b, off, n);
-			int m = write(buffer, n);
+			int m = writeBlock(buffer, n);
 			off += m;
 			rem -= m;
 			if (m < n) break;
 		}
 		return len - rem;
+	}
+
+	private int writeBlock(Memory buffer, int len) throws IOException {
+		int off = 0;
+		while (off < len) {
+			@SuppressWarnings("resource")
+			int m = write(JnaUtil.share(buffer, off), len - off);
+			if (m <= 0) break;
+			off += m;
+		}
+		return Math.min(off, len);
 	}
 
 	private void verifyWrite(int actual, int expected) throws IOException {

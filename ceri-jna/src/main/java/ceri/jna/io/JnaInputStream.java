@@ -14,18 +14,24 @@ public abstract class JnaInputStream extends InputStream {
 	private final ThreadBuffers buffers = ThreadBuffers.of();
 	private volatile boolean closed = false;
 
-	public int bufferSize() {
-		return Math.toIntExact(buffers.size());
-	}
-
+	/**
+	 * Set the transfer buffer size.
+	 */
 	public void bufferSize(int size) {
 		buffers.size(size);
+	}
+
+	/**
+	 * Get the transfer buffer size.
+	 */
+	public int bufferSize() {
+		return Math.toIntExact(buffers.size());
 	}
 
 	@Override
 	public int available() throws IOException {
 		ensureOpen();
-		return availableBytes();
+		return super.available();
 	}
 
 	@SuppressWarnings("resource")
@@ -55,16 +61,21 @@ public abstract class JnaInputStream extends InputStream {
 		buffers.close();
 	}
 
-	protected int availableBytes() throws IOException {
-		return super.available();
-	}
-	
+	/**
+	 * Executes a read into the given buffer. Returns the actual number of bytes read.
+	 */
 	protected abstract int read(Memory buffer, int len) throws IOException;
 
+	/**
+	 * Ensures the stream is currently open.
+	 */
 	protected void ensureOpen() throws IOException {
 		if (closed()) throw new IOException("Closed");
 	}
 	
+	/**
+	 * Returns true if the stream has been closed.
+	 */
 	protected final boolean closed() {
 		return closed;
 	}
