@@ -24,17 +24,17 @@ public class FtdiConnectorTesterBehavior {
 	private SystemIo sys;
 	private TestOutputStream out;
 	private TestInputStream in;
-	private TestFtdiConnector con;
+	private TestFtdi con;
 
 	@Before
 	public void before() throws IOException {
-		logMod = LogModifier.of(Level.OFF, FtdiConnectorTester.class, LoopingExecutor.class);
+		logMod = LogModifier.of(Level.OFF, FtdiTester.class, LoopingExecutor.class);
 		sys = SystemIo.of();
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
 		sys.in(in);
 		sys.out(new PrintStream(out));
-		con = TestFtdiConnector.of();
+		con = TestFtdi.of();
 		con.connect();
 	}
 
@@ -52,7 +52,7 @@ public class FtdiConnectorTesterBehavior {
 	public void shouldFindDevice() throws IOException {
 		try (var enc = TestLibUsbNative.register()) {
 			enc.subject.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
-			try (var run = TestUtil.threadRun(() -> FtdiConnectorTester.test("0x0403:0x6001"))) {
+			try (var run = TestUtil.threadRun(() -> FtdiTester.test("0x0403:0x6001"))) {
 				awaitHelp();
 				in.to.writeString("x\n");
 				run.get();
@@ -62,7 +62,7 @@ public class FtdiConnectorTesterBehavior {
 
 	@Test
 	public void shouldInterrupt() throws IOException {
-		try (var run = TestUtil.threadRun(() -> FtdiConnectorTester.test(con, null))) {
+		try (var run = TestUtil.threadRun(() -> FtdiTester.test(con, null))) {
 			awaitHelp();
 			run.cancel();
 			assertThrown(run::get);
@@ -72,7 +72,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteToFtdi() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("o\n");
 			awaitPrompt();
@@ -84,7 +84,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldReadFromFtdi() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			con.in.to.writeString("test\0");
 			in.to.writeString("i0\n");
@@ -97,7 +97,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldReadPins() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			con.pins.autoResponses(0xff96a55a);
 			in.to.writeString("p\n");
@@ -108,7 +108,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldBreakAndFix() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, con::fixed, 0)) {
+		try (var tester = FtdiTester.of(con, con::fixed, 0)) {
 			awaitHelp();
 			in.to.writeString("z\n");
 			awaitPrompt();
@@ -123,7 +123,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAcceptCommands() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("r1\n");
 			con.rts.assertAuto(true);
@@ -149,7 +149,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAcceptInvalidCommands() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("f\n");
 			awaitPrompt();
@@ -169,7 +169,7 @@ public class FtdiConnectorTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldshowHelp() throws IOException {
-		try (var tester = FtdiConnectorTester.of(con, null, 0)) {
+		try (var tester = FtdiTester.of(con, null, 0)) {
 			awaitHelp();
 			in.to.writeString("?\n");
 			awaitHelp();

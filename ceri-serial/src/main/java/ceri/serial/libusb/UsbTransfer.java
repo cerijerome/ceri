@@ -11,8 +11,6 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionFunction;
@@ -38,7 +36,6 @@ import ceri.serial.libusb.jna.LibUsbException;
  * Encapsulates async transfers and associated types.
  */
 public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
-	private static final Logger logger = LogManager.getLogger();
 	private static final int DIRECTION_MASK = LibUsb.LIBUSB_ENDPOINT_DIR_MASK;
 	private static final int RECIPIENT_MASK = 0x1f;
 	private static final int TYPE_MASK = 0x60;
@@ -191,7 +188,6 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	 * Encapsulates allocation and freeing of bulk streams for device end-points.
 	 */
 	public static class BulkStreams implements RuntimeCloseable {
-		private static final Logger logger = LogManager.getLogger();
 		private final UsbDeviceHandle handle;
 		private final byte[] endPointBytes;
 		public final ByteProvider endPoints;
@@ -216,7 +212,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 		@Override
 		public void close() {
-			LogUtil.close(logger, () -> LibUsb.libusb_free_streams(handle.handle(), endPointBytes));
+			LogUtil.close(() -> LibUsb.libusb_free_streams(handle.handle(), endPointBytes));
 		}
 
 		private void validateEndPoint(int endPoint) {
@@ -367,7 +363,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 				offset += transfer.iso_packet_desc[i].length;
 			return offset;
 		}
-		
+
 		private ByteBuffer packetBuffer(int packet, int offset) {
 			var buffer = buffer();
 			if (buffer == null) return null;
@@ -452,7 +448,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(transfer));
+		LogUtil.close(() -> LibUsb.libusb_free_transfer(transfer));
 		transfer = null;
 	}
 
@@ -487,7 +483,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	private libusb_transfer_cb_fn adaptCallback(Consumer<? super T> callback) {
 		return callback == null ? null : p -> {
 			libusb_transfer_cb_fn.read(transfer());
-			LogUtil.execute(logger, () -> callback.accept(typedThis()));
+			LogUtil.runSilently(() -> callback.accept(typedThis()));
 		};
 	}
 
@@ -497,7 +493,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 		try {
 			return function.apply(transfer);
 		} catch (LibUsbException | RuntimeException e) {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(transfer));
+			LogUtil.close(() -> LibUsb.libusb_free_transfer(transfer));
 			throw e;
 		}
 	}

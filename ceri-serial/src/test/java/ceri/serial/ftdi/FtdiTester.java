@@ -1,8 +1,8 @@
 package ceri.serial.ftdi;
 
 import java.io.IOException;
-import ceri.serial.ftdi.test.FtdiConnectorTester;
-import ceri.serial.ftdi.test.TestFtdiConnector;
+import ceri.serial.ftdi.test.FtdiTester;
+import ceri.serial.ftdi.test.TestFtdi;
 import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.ftdi.util.SelfHealingFtdi;
 
@@ -14,9 +14,9 @@ public class FtdiTester {
 	}
 
 	public static void runEchoTest() throws IOException {
-		try (TestFtdiConnector connector = TestFtdiConnector.echoPins()) {
+		try (TestFtdi connector = TestFtdi.echoPins()) {
 			connector.connect();
-			FtdiConnectorTester.test(connector, connector::fixed);
+			FtdiTester.test(connector, connector::fixed);
 		}
 	}
 
@@ -24,7 +24,7 @@ public class FtdiTester {
 		var config = SelfHealingFtdiConfig.of(finder);
 		try (var connector = SelfHealingFtdi.of(config)) {
 			connector.connect();
-			FtdiConnectorTester.test(connector, null);
+			FtdiTester.test(connector, null);
 		}
 	}
 

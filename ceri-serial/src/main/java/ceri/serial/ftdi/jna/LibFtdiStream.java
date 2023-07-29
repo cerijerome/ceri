@@ -235,7 +235,7 @@ public class LibFtdiStream {
 	}
 
 	private static void cancelTransfers(FTDIStreamState<?> state) {
-		LogUtil.execute(logger, () -> {
+		LogUtil.runSilently(() -> {
 			for (int i = 0; i < state.transfers.length; i++)
 				LibUsb.libusb_cancel_transfer(state.transfers[i]);
 		});
@@ -246,7 +246,7 @@ public class LibFtdiStream {
 	 * Free transfer and decrement the active transfer count.
 	 */
 	private static void freeTransfer(FTDIStreamState<?> state, int i) {
-		LogUtil.execute(logger, () -> LibUsb.libusb_free_transfer(state.transfers[i]));
+		LogUtil.close(() -> LibUsb.libusb_free_transfer(state.transfers[i]));
 		state.transfers[i] = null;
 		state.activeTransfers--;
 		checkCompleted(state);

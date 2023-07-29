@@ -42,8 +42,8 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	private SelfHealingSerialConnector(SelfHealingSerialConfig config) {
 		this.config = config;
-		in.listeners().listen(this::checkIfBroken);
-		out.listeners().listen(this::checkIfBroken);
+		in.errors().listen(this::checkIfBroken);
+		out.errors().listen(this::checkIfBroken);
 		start();
 	}
 
@@ -121,7 +121,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 	@Override
 	public void close() {
 		super.close();
-		LogUtil.close(logger, serialPort);
+		LogUtil.close(serialPort);
 	}
 
 	@Override
@@ -177,12 +177,12 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 
 	@SuppressWarnings("resource")
 	private void initSerialPort() throws IOException {
-		LogUtil.close(logger, serialPort);
+		LogUtil.close(serialPort);
 		String commPort = config.commPortSupplier.get();
 		serialPort = openSerialPort(commPort, config.connectionTimeoutMs);
 		logger.debug("Connected to {}", commPort);
-		in.setInputStream(serialPort.getInputStream());
-		out.setOutputStream(serialPort.getOutputStream());
+		in.set(serialPort.getInputStream());
+		out.set(serialPort.getOutputStream());
 	}
 
 	private SerialPort openSerialPort(String commPort, int connectionTimeoutMs) throws IOException {
@@ -192,7 +192,7 @@ public class SelfHealingSerialConnector extends LoopingExecutor implements Seria
 			sp.setParams(config.params);
 			return sp;
 		} catch (RuntimeException | IOException e) {
-			LogUtil.close(logger, sp);
+			LogUtil.close(sp);
 			throw e;
 		}
 	}

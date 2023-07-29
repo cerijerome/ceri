@@ -2,8 +2,6 @@ package ceri.serial.libusb;
 
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.function.RuntimeCloseable;
@@ -19,13 +17,11 @@ import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDevice implements RuntimeCloseable {
-	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private libusb_device device;
 	private int refs;
 
 	public static class Devices implements RuntimeCloseable {
-		private static final Logger logger = LogManager.getLogger();
 		private ArrayPointer<libusb_device> list;
 		private final List<UsbDevice> devices;
 
@@ -40,7 +36,7 @@ public class UsbDevice implements RuntimeCloseable {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_device_list(list));
+			LogUtil.close(() -> LibUsb.libusb_free_device_list(list));
 			list = null;
 		}
 	}
@@ -144,7 +140,7 @@ public class UsbDevice implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.execute(logger, () -> {
+		LogUtil.close(() -> {
 			while (refs > 0)
 				unref();
 		});

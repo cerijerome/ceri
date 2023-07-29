@@ -21,9 +21,10 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 /**
  * Holds a registered callback, and deregisters on close. Keeps track of JNA callback reference to
- * avoid early removal by GC.<p/>
- * WARNING: If a device is plugged in then removed, calling <code>device.open()</code>
- * on the arrive event can generate SIGABRT cause the application to abort.  
+ * avoid early removal by GC.
+ * <p/>
+ * WARNING: If a device is plugged in then removed, calling <code>device.open()</code> on the arrive
+ * event can generate SIGABRT cause the application to abort.
  */
 public class UsbHotPlug implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getFormatterLogger();
@@ -153,8 +154,7 @@ public class UsbHotPlug implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.execute(logger,
-			() -> LibUsb.libusb_hotplug_deregister_callback(usb.context(), handle));
+		LogUtil.close(() -> LibUsb.libusb_hotplug_deregister_callback(usb.context(), handle));
 		Reference.reachabilityFence(jnaCallback);
 	}
 

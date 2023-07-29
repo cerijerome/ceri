@@ -6,8 +6,6 @@ import static ceri.common.math.MathUtil.ushort;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
@@ -59,7 +57,6 @@ import ceri.serial.libusb.jna.LibUsbException;
  * </pre>
  */
 public class UsbDescriptors {
-	private static final Logger logger = LogManager.getLogger();
 
 	private UsbDescriptors() {}
 
@@ -161,7 +158,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_config_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_config_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -339,8 +336,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_ss_endpoint_companion_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_ss_endpoint_companion_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -372,7 +368,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_bos_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_bos_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -435,8 +431,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_usb_2_0_extension_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_usb_2_0_extension_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -475,8 +470,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger,
-				() -> LibUsb.libusb_free_ss_usb_device_capability_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_ss_usb_device_capability_descriptor(descriptor));
 			descriptor = null;
 		}
 
@@ -499,7 +493,7 @@ public class UsbDescriptors {
 
 		@Override
 		public void close() {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_container_id_descriptor(descriptor));
+			LogUtil.close(() -> LibUsb.libusb_free_container_id_descriptor(descriptor));
 			descriptor = null;
 		}
 

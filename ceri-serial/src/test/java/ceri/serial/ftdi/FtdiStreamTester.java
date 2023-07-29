@@ -12,13 +12,13 @@ public class FtdiStreamTester {
 		BinaryPrinter.builder().columns(4).showBinary(false).build();
 
 	public static void main(String[] args) throws LibUsbException {
-		try (Ftdi ftdi = Ftdi.open()) {
+		try (FtdiDevice ftdi = FtdiDevice.open()) {
 			ftdi.bitBang(true);
 			process(ftdi);
 		}
 	}
 
-	private static void process(Ftdi ftdi) throws LibUsbException {
+	private static void process(FtdiDevice ftdi) throws LibUsbException {
 		ftdi.readStream(FtdiStreamTester::stream, 1, 3);
 	}
 

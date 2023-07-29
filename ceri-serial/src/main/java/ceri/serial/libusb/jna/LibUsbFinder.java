@@ -22,6 +22,7 @@ import java.util.Objects;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
+import ceri.common.util.Counter;
 import ceri.jna.util.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
@@ -128,6 +129,12 @@ public class LibUsbFinder {
 		return new Builder();
 	}
 
+	public static Builder builder(LibUsbFinder finder) {
+		return builder().vendor(finder.vendor).product(finder.product).bus(finder.bus)
+			.address(finder.address).description(finder.description).serial(finder.serial)
+			.index(finder.index);
+	}
+
 	LibUsbFinder(Builder builder) {
 		vendor = builder.vendor;
 		product = builder.product;
@@ -136,6 +143,53 @@ public class LibUsbFinder {
 		description = builder.description;
 		serial = builder.serial;
 		index = builder.index;
+	}
+
+	/**
+	 * Returns true if the finder matches a device, initializing a new context. Does not open or
+	 * reference any matching device.
+	 */
+	public boolean matches() throws LibUsbException {
+		var ctx = LibUsb.libusb_init();
+		try {
+			return matches(ctx);
+		} finally {
+			LibUsb.libusb_exit(ctx);
+		}
+	}
+
+	/**
+	 * Returns true if the finder matches a device, using the given context. Does not open or
+	 * reference any matching device.
+	 */
+	public boolean matches(libusb_context ctx) throws LibUsbException {
+		return findWithCallback(ctx, dev -> true);
+	}
+
+	/**
+	 * Returns the number of matching device, initializing a new context. Does not open or reference
+	 * any matching device.
+	 */
+	public int matchCount() throws LibUsbException {
+		var ctx = LibUsb.libusb_init();
+		try {
+			return matchCount(ctx);
+		} finally {
+			LibUsb.libusb_exit(ctx);
+		}
+	}
+
+	/**
+	 * Returns the number of matching devices, using the given context. Does not open or reference
+	 * any matching device.
+	 */
+	public int matchCount(libusb_context ctx) throws LibUsbException {
+		var counter = Counter.of();
+		findWithCallback(ctx, dev -> {
+			counter.inc();
+			return false;
+		});
+		return counter.intCount();
 	}
 
 	/**

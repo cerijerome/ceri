@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Consumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.ExceptionRunnable;
@@ -21,7 +19,6 @@ import ceri.serial.javax.SerialConnector;
  * to setConnector is responsible for close/connect when changing connectors.
  */
 public class ReplaceableSerialConnector implements SerialConnector {
-	private static final Logger logger = LogManager.getLogger();
 	private final Listeners<Exception> errorListeners = Listeners.of();
 	private final Listeners<StateChange> listeners = Listeners.of();
 	private final Consumer<StateChange> listener = this::listen;
@@ -49,8 +46,8 @@ public class ReplaceableSerialConnector implements SerialConnector {
 	public void setConnector(SerialConnector con) {
 		unlisten(this.con);
 		this.con = con;
-		in.setInputStream(con.in());
-		out.setOutputStream(con.out());
+		in.set(con.in());
+		out.set(con.out());
 		con.listeners().listen(listener);
 	}
 
@@ -116,7 +113,7 @@ public class ReplaceableSerialConnector implements SerialConnector {
 
 	private void unlisten(SerialConnector con) {
 		if (con == null) return;
-		LogUtil.execute(logger, () -> con.listeners().unlisten(listener));
+		LogUtil.runSilently(() -> con.listeners().unlisten(listener));
 	}
 
 	private void exec(ExceptionRunnable<IOException> runnable) throws IOException {

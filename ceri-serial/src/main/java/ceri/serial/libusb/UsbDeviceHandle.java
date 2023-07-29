@@ -2,8 +2,6 @@ package ceri.serial.libusb;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.RuntimeCloseable;
@@ -17,7 +15,6 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDeviceHandle implements RuntimeCloseable {
-	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private UsbDevice device = null;
 	private libusb_device_handle handle;
@@ -177,8 +174,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 	}
 
 	/**
-	 * Executes a synchronous bulk transfer sending data.
-	 * Returns the number of bytes transferred.
+	 * Executes a synchronous bulk transfer sending data. Returns the number of bytes transferred.
 	 */
 	public int bulkTransfer(int endpoint, byte[] data, int timeoutMs) throws LibUsbException {
 		return LibUsb.libusb_bulk_transfer(handle(), (byte) endpoint, data, timeoutMs);
@@ -192,8 +188,8 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 	}
 
 	/**
-	 * Executes a synchronous bulk transfer sending and/or receiving data.
-	 * Returns the number of bytes transferred.
+	 * Executes a synchronous bulk transfer sending and/or receiving data. Returns the number of
+	 * bytes transferred.
 	 */
 	public int bulkTransfer(int endpoint, ByteBuffer data, int timeoutMs) throws LibUsbException {
 		return LibUsb.libusb_bulk_transfer(handle(), endpoint, data, timeoutMs);
@@ -223,7 +219,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, device, () -> LibUsb.libusb_close(handle));
+		LogUtil.close(device, () -> LibUsb.libusb_close(handle));
 		handle = null;
 	}
 

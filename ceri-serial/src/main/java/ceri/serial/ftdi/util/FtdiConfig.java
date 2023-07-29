@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Objects;
 import ceri.common.text.ToString;
 import ceri.serial.ftdi.FtdiBitMode;
-import ceri.serial.ftdi.FtdiConnector;
+import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 
@@ -94,10 +94,10 @@ public class FtdiConfig {
 		writeChunkSize = builder.writeChunkSize;
 	}
 
-	public void apply(FtdiConnector ftdi) throws IOException {
+	public void apply(Ftdi ftdi) throws IOException {
 		if (bitMode != null) ftdi.bitMode(bitMode);
 		if (baud != null) ftdi.baud(baud);
-		if (params != null) ftdi.lineParams(params);
+		if (params != null) ftdi.line(params);
 		if (flowControl != null) ftdi.flowControl(flowControl);
 		if (latencyTimer != null) ftdi.latencyTimer(latencyTimer);
 		if (readChunkSize != null) ftdi.readChunkSize(readChunkSize);

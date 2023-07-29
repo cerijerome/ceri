@@ -26,8 +26,8 @@ import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
-import ceri.jna.util.VarStruct;
 import ceri.jna.util.Struct.Fields;
+import ceri.jna.util.VarStruct;
 
 /**
  * Provides types and static function calls. Updated to libusb 1.0.24.
@@ -1148,7 +1148,6 @@ public class LibUsb {
 	 * It is also legal to pass a NULL buffer to this function, in which case this function will not
 	 * attempt to populate the length field. Remember that you must then populate the buffer and
 	 * length fields later.
-	 *
 	 * @param transfer
 	 *            the transfer to populate
 	 * @param dev_handle
@@ -1183,7 +1182,6 @@ public class LibUsb {
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer.
-	 *
 	 * @param transfer
 	 *            the transfer to populate
 	 * @param dev_handle
@@ -1217,7 +1215,6 @@ public class LibUsb {
 	/**
 	 * Helper function to populate the required libusb_transfer fields for a bulk transfer using
 	 * bulk streams. Since version 1.0.19, LIBUSB_API_VERSION >= 0x01000103
-	 *
 	 * @param transfer
 	 *            the transfer to populate
 	 * @param dev_handle
@@ -1248,7 +1245,6 @@ public class LibUsb {
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an interrupt transfer.
-	 *
 	 * @param transfer
 	 *            the transfer to populate
 	 * @param dev_handle
@@ -1281,7 +1277,6 @@ public class LibUsb {
 
 	/**
 	 * Helper function to populate the required libusb_transfer fields for an isochronous transfer.
-	 *
 	 * @param transfer
 	 *            the transfer to populate
 	 * @param dev_handle
@@ -1318,7 +1313,6 @@ public class LibUsb {
 	/**
 	 * Convenience function to set the length of all packets in an isochronous transfer, based on
 	 * the num_iso_packets field in the transfer structure.
-	 *
 	 * @param transfer
 	 *            a transfer
 	 * @param length
@@ -1336,7 +1330,6 @@ public class LibUsb {
 	 * accumulating their lengths to find the position of the specified packet. Typically you will
 	 * assign equal lengths to each packet in the transfer, and hence the above method is
 	 * sub-optimal. You may wish to use libusb_get_iso_packet_buffer_simple() instead.
-	 *
 	 * @param transfer
 	 *            a transfer
 	 * @param packet
@@ -1366,7 +1359,6 @@ public class LibUsb {
 	 *
 	 * Do not use this function on transfers other than those that have identical packet lengths for
 	 * each packet.
-	 *
 	 * @param transfer
 	 *            a transfer
 	 * @param packet
@@ -1414,7 +1406,7 @@ public class LibUsb {
 	/* polling and timeouts */
 
 	/**
-	 * Subset of poll_event from <poll.h>. POLLIN indicates that you should monitor this file
+	 * Subset of poll_event from &lt;poll.h&gt;. POLLIN indicates that you should monitor this file
 	 * descriptor for becoming ready to read from, and POLLOUT indicates that you should monitor
 	 * this file descriptor for nonblocking write readiness.
 	 */
@@ -1450,9 +1442,7 @@ public class LibUsb {
 
 	/**
 	 * Callback function, invoked when a new file descriptor should be added to the set of file
-	 * descriptors monitored for events. @param fd the new file descriptor @param events events to
-	 * monitor for, see libusb_pollfd for a description @param user_data User data pointer specified
-	 * in libusb_set_pollfd_notifiers() call see libusb_set_pollfd_notifiers()
+	 * descriptors monitored for events.
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_added_cb)(int fd, short events, void *user_data);
 	public interface libusb_pollfd_added_cb extends Callback {
@@ -1462,9 +1452,7 @@ public class LibUsb {
 	/**
 	 * Callback function, invoked when a file descriptor should be removed from the set of file
 	 * descriptors being monitored for events. After returning from this callback, do not use that
-	 * file descriptor again. @param fd the file descriptor to stop monitoring @param user_data User
-	 * data pointer specified in libusb_set_pollfd_notifiers() call see
-	 * libusb_set_pollfd_notifiers()
+	 * file descriptor again.
 	 */
 	// typedef void (LIBUSB_CALL *libusb_pollfd_removed_cb)(int fd, void *user_data);
 	public interface libusb_pollfd_removed_cb extends Callback {
@@ -1494,6 +1482,13 @@ public class LibUsb {
 	 * device. See hotplug for more information. It is safe to call either
 	 * libusb_hotplug_register_callback() or libusb_hotplug_deregister_callback() from within a
 	 * callback function. Since version 1.0.16, LIBUSB_API_VERSION >= 0x01000102
+	 * <p/>
+	 * Notes:
+	 * <ul>
+	 * <li>libusb_get_device_descriptor() is ok for any event within the callback</li>
+	 * <li>calls such as libusb_get_string_descriptor_ascii will fail inside the callback</li>
+	 * <li>for LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, calls after the callback will cause SIGSEGV</li>
+	 * </ul>
 	 */
 	// typedef int (LIBUSB_CALL *libusb_hotplug_callback_fn)(libusb_context *ctx,
 	// libusb_device *device, libusb_hotplug_event event, void *user_data);
@@ -1665,8 +1660,8 @@ public class LibUsb {
 			() -> lib().libusb_get_ss_endpoint_companion_descriptor(ctx, p, ep_comp),
 			r -> r >= 0 || r == libusb_error.LIBUSB_ERROR_NOT_FOUND.value,
 			"libusb_get_ss_endpoint_companion_descriptor", ctx, p, ep_comp);
-		return result < 0 ? null
-			: Struct.read(new libusb_ss_endpoint_companion_descriptor(ep_comp.getValue()));
+		return result < 0 ? null :
+			Struct.read(new libusb_ss_endpoint_companion_descriptor(ep_comp.getValue()));
 	}
 
 	public static void libusb_free_ss_endpoint_companion_descriptor(

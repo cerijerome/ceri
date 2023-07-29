@@ -9,7 +9,7 @@ public class TestFtdiConnectorBehavior {
 
 	@Test
 	public void shouldEchoOutputToInputAndPins() throws IOException {
-		try (var con = TestFtdiConnector.echoPins()) {
+		try (var con = TestFtdi.echoPins()) {
 			con.connect();
 			assertEquals(con.write(), 0);
 			assertArray(con.read(4));
@@ -21,7 +21,7 @@ public class TestFtdiConnectorBehavior {
 
 	@Test
 	public void shouldReset() throws IOException {
-		try (var con = TestFtdiConnector.of()) {
+		try (var con = TestFtdi.of()) {
 			con.connect();
 			con.open.assertValues(true);
 			con.reset();

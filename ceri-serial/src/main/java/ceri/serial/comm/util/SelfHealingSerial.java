@@ -3,8 +3,6 @@ package ceri.serial.comm.util;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.io.IoUtil;
 import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
@@ -19,7 +17,6 @@ import ceri.serial.comm.SerialPort;
  * reconnecting. The PortSupplier interface can be used to provide handling logic in this case.
  */
 public class SelfHealingSerial extends SelfHealingConnector<Serial> implements Serial.Fixable {
-	private static final Logger logger = LogManager.getLogger();
 	private final SelfHealingSerialConfig config;
 	private final SerialConfig.Builder serialConfig;
 
@@ -138,7 +135,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 			serialConfig.build().apply(serial);
 			return serial;
 		} catch (RuntimeException | IOException e) {
-			LogUtil.close(logger, serial);
+			LogUtil.close(serial);
 			throw e;
 		}
 	}

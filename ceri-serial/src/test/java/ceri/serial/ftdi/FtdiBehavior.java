@@ -44,7 +44,7 @@ import ceri.serial.libusb.jna.TestLibUsbNative.TransferEvent;
 public class FtdiBehavior {
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
-	private Ftdi ftdi;
+	private FtdiDevice ftdi;
 
 	@Before
 	public void before() {
@@ -62,7 +62,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldFailIfClosed() throws LibUsbException {
-		ftdi = Ftdi.open();
+		ftdi = FtdiDevice.open();
 		ftdi.close();
 		assertThrown(() -> ftdi.read());
 		lib.syncTransferOut.assertValues( // open() leftovers:
@@ -78,7 +78,7 @@ public class FtdiBehavior {
 		ftdi.bitBang(false);
 		ftdi.bitBang(true);
 		ftdi.baudRate(250000);
-		ftdi.lineParams(FtdiLineParams.builder().dataBits(BITS_7).stopBits(STOP_BIT_2).parity(ODD)
+		ftdi.line(FtdiLineParams.builder().dataBits(BITS_7).stopBits(STOP_BIT_2).parity(ODD)
 			.breakType(BREAK_ON).build());
 		ftdi.latencyTimer(100);
 		ftdi.purgeBuffers();
@@ -95,7 +95,7 @@ public class FtdiBehavior {
 
 	@Test
 	public void shouldGetFtdiConfiguration() throws LibUsbException {
-		ftdi = Ftdi.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
+		ftdi = FtdiDevice.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
 		lib.syncTransferIn.autoResponses(ByteProvider.of(99));
 		assertEquals(ftdi.latencyTimer(), 99);
 		lib.syncTransferIn.autoResponses(ByteProvider.of(0x12, 0x34));
@@ -250,7 +250,7 @@ public class FtdiBehavior {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
-		Ftdi.StreamCallback callback = (prog, buffer) -> collect(encoder, buffer, 24);
+		FtdiDevice.StreamCallback callback = (prog, buffer) -> collect(encoder, buffer, 24);
 		ftdi.readStream(callback, 2, 3);
 		assertArray(encoder.bytes(), 3, 4, 5, 8, 9, 10, 13, 14, 15, 18, 19, 20, 23, 24, 25, 28, 29,
 			30, 33, 34, 35, 38, 39, 40, 43, 44, 45, 53, 54, 55); // 48, 49, 50 dropped
@@ -262,7 +262,7 @@ public class FtdiBehavior {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Function<FtdiProgressInfo, Boolean> sync = CallSync.function(null, true, true, false);
-		Ftdi.StreamCallback callback = (prog, buffer) -> prog == null ? true : sync.apply(prog);
+		FtdiDevice.StreamCallback callback = (prog, buffer) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
 		assertEquals(prog.currentTotalBytes(), 54L);
@@ -270,15 +270,15 @@ public class FtdiBehavior {
 		assertEquals(prog.firstTotalBytes(), 0L);
 	}
 
-	private Ftdi openFtdiForStreaming(int device, int packetSize) throws LibUsbException {
+	private FtdiDevice openFtdiForStreaming(int device, int packetSize) throws LibUsbException {
 		lib.data.deviceConfigs.get(0).desc.bcdDevice = (short) device;
 		ftdi = open();
 		ftdi.ftdi().max_packet_size = packetSize;
 		return ftdi;
 	}
 
-	private Ftdi open() throws LibUsbException {
-		var ftdi = Ftdi.open();
+	private FtdiDevice open() throws LibUsbException {
+		var ftdi = FtdiDevice.open();
 		lib.syncTransferOut.reset(); // clear original open()
 		return ftdi;
 	}

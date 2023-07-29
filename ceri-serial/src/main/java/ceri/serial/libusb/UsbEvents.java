@@ -6,8 +6,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -29,7 +27,6 @@ import ceri.serial.libusb.jna.LibUsbException;
  * Encapsulation of context-based event handling.
  */
 public class UsbEvents {
-	private static final Logger logger = LogManager.getLogger();
 	private final Usb usb;
 	private libusb_pollfd_added_cb addedCallback; // ref to prevent gc
 	private libusb_pollfd_removed_cb removedCallback; // ref to prevent gc
@@ -140,7 +137,7 @@ public class UsbEvents {
 			return ImmutableUtil.collectAsList(
 				Stream.of(array).map(pollFd -> new PollFd(pollFd.fd, ushort(pollFd.events))));
 		} finally {
-			LogUtil.execute(logger, () -> LibUsb.libusb_free_pollfds(ref));
+			LogUtil.close(() -> LibUsb.libusb_free_pollfds(ref));
 		}
 	}
 
@@ -158,21 +155,21 @@ public class UsbEvents {
 
 	private libusb_pollfd_added_cb addedCallback(ExceptionConsumer<IOException, PollFd> callback) {
 		if (callback == null) return null;
-		return (fd, events, user_data) -> LogUtil.execute(logger,
-			() -> callback.accept(new PollFd(fd, ushort(events))));
+		return (fd, events, user_data) -> LogUtil
+			.runSilently(() -> callback.accept(new PollFd(fd, ushort(events))));
 	}
 
 	private libusb_pollfd_removed_cb removedCallback(ExceptionIntConsumer<IOException> callback) {
 		if (callback == null) return null;
-		return (fd, user_data) -> LogUtil.execute(logger, () -> callback.accept(fd));
+		return (fd, user_data) -> LogUtil.runSilently(() -> callback.accept(fd));
 	}
 
 	private void unlockEvents() {
-		LogUtil.execute(logger, () -> LibUsb.libusb_unlock_events(context()));
+		LogUtil.runSilently(() -> LibUsb.libusb_unlock_events(context()));
 	}
 
 	private void unlockEventWaiters() {
-		LogUtil.execute(logger, () -> LibUsb.libusb_unlock_event_waiters(context()));
+		LogUtil.runSilently(() -> LibUsb.libusb_unlock_event_waiters(context()));
 	}
 
 	private libusb_context context() {

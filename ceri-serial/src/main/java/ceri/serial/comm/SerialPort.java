@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.jna.clib.CInputStream;
 import ceri.jna.clib.COutputStream;
 import ceri.jna.clib.jna.CError;
@@ -21,7 +19,6 @@ import ceri.serial.comm.jna.CSerial;
  * notifications, receive threshold, or receive timeout from JavaComm api. I/O is non-blocking.
  */
 public class SerialPort implements Serial {
-	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final Set<Integer> BROKEN_ERROR_CODES =
 		CError.codes(CError.ENOENT, CError.ENXIO, CError.EBADF, CError.EACCES, CError.ENODEV);
 	private final int fd;
@@ -55,7 +52,7 @@ public class SerialPort implements Serial {
 	public String port() {
 		return port;
 	}
-	
+
 	@Override
 	public void params(SerialParams params) throws IOException {
 		CSerial.setParams(fd, params.baud, params.dataBits.bits, params.stopBits.value,
@@ -157,7 +154,7 @@ public class SerialPort implements Serial {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, in, out, () -> CUnistd.close(fd));
+		LogUtil.close(in, out, () -> CUnistd.close(fd));
 	}
 
 	private COutputStream createOut(int fd) {

@@ -1,237 +1,279 @@
 package ceri.serial.ftdi;
 
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
+import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import java.io.IOException;
-import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import com.sun.jna.Memory;
+import java.nio.ByteBuffer;
 import com.sun.jna.Pointer;
-import ceri.common.concurrent.VolatileRef;
-import ceri.jna.io.JnaInputStream;
-import ceri.jna.io.JnaOutputStream;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.io.Connector;
 import ceri.jna.util.JnaUtil;
-import ceri.log.util.LogUtil;
-import ceri.serial.ftdi.jna.LibFtdi;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
-import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
-import ceri.serial.ftdi.jna.LibFtdiStream;
-import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
-import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
-import ceri.serial.ftdi.jna.LibFtdiUtil;
-import ceri.serial.libusb.jna.LibUsb;
-import ceri.serial.libusb.jna.LibUsb.libusb_device;
-import ceri.serial.libusb.jna.LibUsb.libusb_error;
-import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbFinder;
 
 /**
- * Encapsulates ftdi_context and LibFtdi calls. Allow one usb device open at any time.
+ * Sub-set of FTDI operations for device controllers.
  */
-public class Ftdi implements FtdiConnector {
-	private static final Logger logger = LogManager.getLogger();
-	private static final Set<libusb_error> FATAL_USB_ERRORS =
-		Set.of(LIBUSB_ERROR_NO_DEVICE, LIBUSB_ERROR_NOT_FOUND, LIBUSB_ERROR_NO_MEM);
-	private final ftdi_context ftdi;
-	private final JnaInputStream in;
-	private final JnaOutputStream out;
-	private VolatileRef<ftdi_usb_strings> descriptor = VolatileRef.of();
-	private boolean closed = false;
+public interface Ftdi extends Connector {
+	/** A stateless, no-op instance. */
+	Null NULL = new Null();
 
-	public static boolean isFatal(Exception e) {
-		if (!(e instanceof LibUsbException le)) return false;
-		return FATAL_USB_ERRORS.contains(le.error);
+	/**
+	 * Get device descriptor strings: manufacturer, description and serial code.
+	 */
+	ftdi_usb_strings descriptor() throws IOException;
+
+	/**
+	 * Send reset request to device.
+	 */
+	void usbReset() throws IOException;
+
+	/**
+	 * Set pin bit mode.
+	 */
+	void bitMode(FtdiBitMode bitMode) throws IOException;
+
+	/**
+	 * Convenience method to turn bitbang mode on or off.
+	 */
+	default void bitBang(boolean on) throws IOException {
+		if (on) bitMode(FtdiBitMode.BITBANG);
+		else bitMode(FtdiBitMode.OFF);
 	}
 
-	public static Ftdi open() throws LibUsbException {
-		return open(LibFtdiUtil.FINDER);
+	/**
+	 * Set serial baud rate.
+	 */
+	void baud(int baud) throws IOException;
+
+	/**
+	 * Sets data bits, stop bits, parity, and break.
+	 */
+	void line(FtdiLineParams line) throws IOException;
+
+	/**
+	 * Set flow control handshaking.
+	 */
+	void flowControl(FtdiFlowControl flowControl) throws IOException;
+
+	/**
+	 * Enable/disable DTR.
+	 */
+	void dtr(boolean state) throws IOException;
+
+	/**
+	 * Enable/disable RTS.
+	 */
+	void rts(boolean state) throws IOException;
+
+	/**
+	 * Reads 8-bit pin status.
+	 */
+	int readPins() throws IOException;
+
+	/**
+	 * Get the 16-bit modem status.
+	 */
+	int pollModemStatus() throws IOException;
+
+	/**
+	 * Set chip internal buffer latency.
+	 */
+	void latencyTimer(int latency) throws IOException;
+
+	/**
+	 * Get chip internal buffer latency.
+	 */
+	int latencyTimer() throws IOException;
+
+	/**
+	 * Configures the read buffer chunk size.
+	 */
+	void readChunkSize(int size) throws IOException;
+
+	/**
+	 * Returns the read buffer chunk size.
+	 */
+	int readChunkSize() throws IOException;
+
+	/**
+	 * Configures the write buffer chunk size.
+	 */
+	void writeChunkSize(int size) throws IOException;
+
+	/**
+	 * Returns the write buffer chunk size.
+	 */
+	int writeChunkSize() throws IOException;
+
+	/**
+	 * Purge read and writes buffers on the chip.
+	 */
+	default void purgeBuffers() throws IOException {
+		purgeReadBuffer();
+		purgeWriteBuffer();
 	}
 
-	public static Ftdi open(LibUsbFinder finder) throws LibUsbException {
-		return open(finder, ftdi_interface.INTERFACE_ANY);
+	/**
+	 * Purges the read buffer on the chip.
+	 */
+	void purgeReadBuffer() throws IOException;
+
+	/**
+	 * Purges the write buffer on the chip.
+	 */
+	void purgeWriteBuffer() throws IOException;
+
+	/**
+	 * Reads data from the chip in asynchronous mode.
+	 */
+	FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException;
+
+	/**
+	 * Writes data to the chip in asynchronous mode.
+	 */
+	default FtdiTransferControl writeSubmit(int... bytes) throws IOException {
+		return writeSubmit(bytes(bytes));
 	}
 
-	public static Ftdi open(LibUsbFinder finder, ftdi_interface iface) throws LibUsbException {
-		ftdi_context ftdi = LibFtdi.ftdi_new();
-		try {
-			if (iface != ftdi_interface.INTERFACE_ANY) LibFtdi.ftdi_set_interface(ftdi, iface);
-			LibFtdi.ftdi_usb_open_find(ftdi, finder);
-			return new Ftdi(ftdi);
-		} catch (LibUsbException | RuntimeException e) {
-			LogUtil.close(logger, ftdi, LibFtdi::ftdi_free);
-			throw e;
+	/**
+	 * Writes data to the chip in asynchronous mode.
+	 */
+	default FtdiTransferControl writeSubmit(byte[] data) throws IOException {
+		return writeSubmit(data, 0);
+	}
+
+	/**
+	 * Writes data to the chip in asynchronous mode.
+	 */
+	default FtdiTransferControl writeSubmit(byte[] data, int offset) throws IOException {
+		return writeSubmit(data, offset, data.length - offset);
+	}
+
+	/**
+	 * Writes data to the chip in asynchronous mode.
+	 */
+	@SuppressWarnings("resource")
+	default FtdiTransferControl writeSubmit(byte[] data, int offset, int len) throws IOException {
+		ArrayUtil.validateSlice(data.length, offset, len);
+		var m = JnaUtil.mallocBytes(data, offset, len);
+		return writeSubmit(m, len);
+	}
+
+	/**
+	 * Writes data to the chip in asynchronous mode.
+	 */
+	FtdiTransferControl writeSubmit(Pointer buffer, int len) throws IOException;
+
+	/**
+	 * Reads data from the chip in asynchronous streaming mode.
+	 */
+	default void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers)
+		throws IOException {
+		readStream(callback, packetsPerTransfer, numTransfers, PROGRESS_INTERVAL_SEC);
+	}
+
+	/**
+	 * Reads data from the chip in asynchronous streaming mode.
+	 */
+	void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+		double progressIntervalSec) throws IOException;
+
+	/**
+	 * A state-aware extension.
+	 */
+	interface Fixable extends Ftdi, Connector.Fixable {}
+
+	/**
+	 * Callback to register for streaming events.
+	 */
+	interface StreamCallback {
+		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);
+	}
+
+	/**
+	 * A stateless, no-op implementation.
+	 */
+	static class Null extends Connector.Null implements Ftdi.Fixable {
+		Null() {}
+
+		@Override
+		public ftdi_usb_strings descriptor() throws IOException {
+			return ftdi_usb_strings.NULL;
 		}
-	}
 
-	Ftdi(ftdi_context ftdi) {
-		this.ftdi = ftdi;
-		in = createIn();
-		out = createOut();
-	}
+		@Override
+		public void usbReset() throws IOException {}
 
-	@Override
-	public ftdi_usb_strings descriptor() throws LibUsbException {
-		return descriptor.computeIfAbsent(() -> {
-			libusb_device dev = LibUsb.libusb_get_device(ftdi().usb_dev);
-			return LibFtdi.ftdi_usb_get_strings(ftdi(), dev);
-		});
-	}
+		@Override
+		public void bitMode(FtdiBitMode bitmode) throws IOException {}
 
-	@Override
-	public void usbReset() throws LibUsbException {
-		LibFtdi.ftdi_usb_reset(ftdi());
-	}
+		@Override
+		public void baud(int baud) throws IOException {}
 
-	@Override
-	public void bitMode(FtdiBitMode bitMode) throws LibUsbException {
-		LibFtdi.ftdi_set_bitmode(ftdi(), bitMode.mask, bitMode.mode);
-	}
+		@Override
+		public void line(FtdiLineParams properties) throws IOException {}
 
-	@Override
-	public void baud(int baud) throws LibUsbException {
-		LibFtdi.ftdi_set_baudrate(ftdi(), baud);
-	}
+		@Override
+		public void flowControl(FtdiFlowControl flowControl) throws IOException {}
 
-	@Override
-	public void lineParams(FtdiLineParams properties) throws LibUsbException {
-		LibFtdi.ftdi_set_line_property(ftdi(), properties.dataBits, properties.stopBits,
-			properties.parity, properties.breakType);
-	}
+		@Override
+		public void dtr(boolean state) throws IOException {}
 
-	@Override
-	public void flowControl(FtdiFlowControl flowControl) throws LibUsbException {
-		LibFtdi.ftdi_set_flow_ctrl(ftdi(), flowControl.value);
-	}
+		@Override
+		public void rts(boolean state) throws IOException {}
 
-	@Override
-	public void dtr(boolean state) throws LibUsbException {
-		LibFtdi.ftdi_set_dtr(ftdi(), state);
-	}
+		@Override
+		public int readPins() throws IOException {
+			return 0;
+		}
 
-	@Override
-	public void rts(boolean state) throws LibUsbException {
-		LibFtdi.ftdi_set_rts(ftdi(), state);
-	}
+		@Override
+		public int pollModemStatus() throws IOException {
+			return 0;
+		}
 
-	@Override
-	public int readPins() throws LibUsbException {
-		return LibFtdi.ftdi_read_pins(ftdi());
-	}
+		@Override
+		public void latencyTimer(int latency) throws IOException {}
 
-	@Override
-	public int pollModemStatus() throws LibUsbException {
-		return LibFtdi.ftdi_poll_modem_status(ftdi());
-	}
+		@Override
+		public int latencyTimer() throws IOException {
+			return 0;
+		}
 
-	@Override
-	public void latencyTimer(int latency) throws LibUsbException {
-		LibFtdi.ftdi_set_latency_timer(ftdi(), latency);
-	}
+		@Override
+		public void readChunkSize(int size) throws IOException {}
 
-	@Override
-	public int latencyTimer() throws LibUsbException {
-		return LibFtdi.ftdi_get_latency_timer(ftdi());
-	}
+		@Override
+		public int readChunkSize() throws IOException {
+			return 0;
+		}
 
-	@Override
-	public void readChunkSize(int size) throws LibUsbException {
-		LibFtdi.ftdi_read_data_set_chunksize(ftdi(), size);
-	}
+		@Override
+		public void writeChunkSize(int size) throws IOException {}
 
-	@Override
-	public int readChunkSize() throws LibUsbException {
-		return LibFtdi.ftdi_read_data_get_chunksize(ftdi());
-	}
+		@Override
+		public int writeChunkSize() throws IOException {
+			return 0;
+		}
 
-	@Override
-	public void writeChunkSize(int size) throws LibUsbException {
-		LibFtdi.ftdi_write_data_set_chunksize(ftdi(), size);
-	}
+		@Override
+		public void purgeReadBuffer() throws IOException {}
 
-	@Override
-	public int writeChunkSize() throws LibUsbException {
-		return LibFtdi.ftdi_write_data_get_chunksize(ftdi());
-	}
+		@Override
+		public void purgeWriteBuffer() throws IOException {}
 
-	@Override
-	public void purgeReadBuffer() throws LibUsbException {
-		LibFtdi.ftdi_usb_purge_rx_buffer(ftdi());
-	}
+		@Override
+		public FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException {
+			return FtdiTransferControl.NULL;
+		}
 
-	@Override
-	public void purgeWriteBuffer() throws LibUsbException {
-		LibFtdi.ftdi_usb_purge_tx_buffer(ftdi());
-	}
+		@Override
+		public FtdiTransferControl writeSubmit(Pointer buf, int size) throws IOException {
+			return FtdiTransferControl.NULL;
+		}
 
-	@Override
-	public JnaInputStream in() {
-		return in;
+		@Override
+		public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+			double progressIntervalSec) throws IOException {}
 	}
-
-	@Override
-	public JnaOutputStream out() {
-		return out;
-	}
-
-	@Override
-	public FtdiTransferControl readSubmit(Pointer buf, int size) throws LibUsbException {
-		var control = LibFtdi.ftdi_read_data_submit(ftdi(), buf, size);
-		return FtdiTransferControl.from(control);
-	}
-
-	@Override
-	public FtdiTransferControl writeSubmit(Pointer buf, int size) throws LibUsbException {
-		var control = LibFtdi.ftdi_write_data_submit(ftdi(), buf, size);
-		return FtdiTransferControl.from(control);
-	}
-
-	@Override
-	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
-		double progressIntervalSec) throws LibUsbException {
-		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
-			user_data) -> streamCallback(buffer, length, progress, callback);
-		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers,
-			progressIntervalSec);
-	}
-
-	@Override
-	public void close() {
-		if (closed) return;
-		closed = true;
-		LogUtil.close(logger, ftdi, LibFtdi::ftdi_free);
-		LogUtil.close(logger, in, out);
-	}
-
-	ftdi_context ftdi() throws LibUsbException {
-		if (!closed) return ftdi;
-		throw LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "Device is closed");
-	}
-
-	private boolean streamCallback(Pointer buffer, int length, FTDIProgressInfo progress,
-		StreamCallback callback) {
-		return callback.invoke(FtdiProgressInfo.of(progress),
-			buffer == null ? null : buffer.getByteBuffer(0, length));
-	}
-
-	private JnaInputStream createIn() {
-		return new JnaInputStream() {
-			@Override
-			protected int read(Memory buffer, int len) throws IOException {
-				return LibFtdi.ftdi_read_data(ftdi(), JnaUtil.buffer(buffer), len);
-			}
-		};
-	}
-
-	private JnaOutputStream createOut() {
-		return new JnaOutputStream() {
-			@Override
-			protected int write(Memory buffer, int len) throws IOException {
-				return LibFtdi.ftdi_write_data(ftdi(), JnaUtil.buffer(buffer), len);
-			}
-		};
-	}
-
 }

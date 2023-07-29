@@ -9,7 +9,7 @@ public class FtdiConnectorBehavior {
 
 	@Test
 	public void shouldProvideNullConnector() throws IOException {
-		try (var con = FtdiConnector.NULL) {
+		try (var con = Ftdi.NULL) {
 			assertThrown(() -> con.broken());
 			con.listeners().listen(t -> {});
 			con.connect();
@@ -26,7 +26,7 @@ public class FtdiConnectorBehavior {
 
 	@Test
 	public void shouldReturnEofIfUnableToRead() throws IOException {
-		try (var con = new FtdiConnector.Null() {
+		try (var con = new Ftdi.Null() {
 			@Override
 			public int read(byte[] buffer, int offset, int length) {
 				return 0;

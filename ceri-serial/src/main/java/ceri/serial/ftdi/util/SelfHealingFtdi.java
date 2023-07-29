@@ -1,14 +1,12 @@
 package ceri.serial.ftdi.util;
 
 import java.io.IOException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiBitMode;
-import ceri.serial.ftdi.FtdiConnector;
+import ceri.serial.ftdi.FtdiDevice;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 import ceri.serial.ftdi.FtdiTransferControl;
@@ -19,12 +17,10 @@ import ceri.serial.libusb.jna.LibUsbException;
  * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
  * reinserted.
  */
-public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
-	implements FtdiConnector.Fixable {
-	private static final Logger logger = LogManager.getLogger();
+public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.Fixable {
 	private final SelfHealingFtdiConfig config;
 	private final FtdiConfig.Builder ftdiConfig;
-	
+
 	public static SelfHealingFtdi of(SelfHealingFtdiConfig config) {
 		return new SelfHealingFtdi(config);
 	}
@@ -38,12 +34,12 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 
 	@Override
 	public ftdi_usb_strings descriptor() throws IOException {
-		return device.applyIfSet(FtdiConnector::descriptor, ftdi_usb_strings.NULL);
+		return device.applyIfSet(Ftdi::descriptor, ftdi_usb_strings.NULL);
 	}
 
 	@Override
 	public void usbReset() throws IOException {
-		device.acceptValid(FtdiConnector::usbReset);
+		device.acceptValid(Ftdi::usbReset);
 	}
 
 	@Override
@@ -59,9 +55,9 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 	}
 
 	@Override
-	public void lineParams(FtdiLineParams params) throws IOException {
+	public void line(FtdiLineParams params) throws IOException {
 		ftdiConfig.params(params);
-		device.acceptValid(f -> f.lineParams(params));
+		device.acceptValid(f -> f.line(params));
 	}
 
 	@Override
@@ -82,12 +78,12 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 
 	@Override
 	public int readPins() throws IOException {
-		return device.applyValid(FtdiConnector::readPins);
+		return device.applyValid(Ftdi::readPins);
 	}
 
 	@Override
 	public int pollModemStatus() throws IOException {
-		return device.applyValid(FtdiConnector::pollModemStatus);
+		return device.applyValid(Ftdi::pollModemStatus);
 	}
 
 	@Override
@@ -98,7 +94,7 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 
 	@Override
 	public int latencyTimer() throws IOException {
-		return device.applyValid(FtdiConnector::latencyTimer);
+		return device.applyValid(Ftdi::latencyTimer);
 	}
 
 	@Override
@@ -109,7 +105,7 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 
 	@Override
 	public int readChunkSize() throws IOException {
-		return device.applyValid(FtdiConnector::readChunkSize);
+		return device.applyValid(Ftdi::readChunkSize);
 	}
 
 	@Override
@@ -120,17 +116,17 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 
 	@Override
 	public int writeChunkSize() throws IOException {
-		return device.applyValid(FtdiConnector::writeChunkSize);
+		return device.applyValid(Ftdi::writeChunkSize);
 	}
 
 	@Override
 	public void purgeReadBuffer() throws IOException {
-		device.acceptValid(FtdiConnector::purgeReadBuffer);
+		device.acceptValid(Ftdi::purgeReadBuffer);
 	}
 
 	@Override
 	public void purgeWriteBuffer() throws IOException {
-		device.acceptValid(FtdiConnector::purgeWriteBuffer);
+		device.acceptValid(Ftdi::purgeWriteBuffer);
 	}
 
 	@Override
@@ -151,14 +147,14 @@ public class SelfHealingFtdi extends SelfHealingConnector<FtdiConnector>
 	}
 
 	@Override
-	protected FtdiConnector openConnector() throws IOException {
-		Ftdi ftdi = null;
+	protected Ftdi openConnector() throws IOException {
+		FtdiDevice ftdi = null;
 		try {
-			ftdi = Ftdi.open(config.finder, config.iface);
+			ftdi = FtdiDevice.open(config.finder, config.iface);
 			ftdiConfig.build().apply(ftdi);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
-			LogUtil.close(logger, ftdi);
+			LogUtil.close(ftdi);
 			throw e;
 		}
 	}

@@ -3,6 +3,8 @@ package ceri.serial.ftdi.jna;
 import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.DONT_DETACH_SIO_MODULE;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_GET_LATENCY_TIMER_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_POLL_MODEM_STATUS_REQUEST;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_READ_PINS_REQUEST;
@@ -38,6 +40,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
 import ceri.log.util.LogUtil;
@@ -255,9 +258,11 @@ public class LibFtdi {
 		public static final TypeTranscoder<ftdi_stop_bits_type> xcoder =
 			TypeTranscoder.of(t -> t.value, ftdi_stop_bits_type.class);
 		public final int value;
+		public final double bits;
 
 		ftdi_stop_bits_type(int value) {
 			this.value = value;
+			bits = (value / 2.0) + 1.0;
 		}
 	}
 
@@ -432,7 +437,7 @@ public class LibFtdi {
 	 * Internal function to close usb device pointer.
 	 */
 	private static void ftdi_usb_close_internal(ftdi_context ftdi) {
-		LogUtil.execute(logger, () -> LibUsb.libusb_close(ftdi.usb_dev));
+		LogUtil.close(() -> LibUsb.libusb_close(ftdi.usb_dev));
 		ftdi.usb_dev = null;
 		if (ftdi.eeprom != null) ftdi.eeprom.initialized_for_connected_device = 0;
 	}
@@ -443,7 +448,7 @@ public class LibFtdi {
 	 */
 	private static void ftdi_init(ftdi_context ftdi) throws LibUsbException {
 		try {
-			ftdi.usb_ctx = null;
+			ftdi.usb_ctx = LibUsb.libusb_init();
 			ftdi.usb_dev = null;
 			ftdi.usb_read_timeout = TIMEOUT_MS_DEF;
 			ftdi.usb_write_timeout = TIMEOUT_MS_DEF;
@@ -455,8 +460,8 @@ public class LibFtdi {
 			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
 			ftdi.max_packet_size = 0;
 			ftdi.error_str = null;
-			ftdi.module_detach_mode = ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
-			ftdi.usb_ctx = LibUsb.libusb_init();
+			ftdi.module_detach_mode =
+				OsUtil.os().linux ? AUTO_DETACH_SIO_MODULE : DONT_DETACH_SIO_MODULE;
 			ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
 			ftdi.bitbang_mode = ftdi_mpsse_mode.BITMODE_BITBANG;
 			ftdi.eeprom = new ftdi_eeprom();
@@ -499,7 +504,7 @@ public class LibFtdi {
 		ftdi_usb_close_internal(ftdi);
 		ftdi.readbuffer = null;
 		ftdi.eeprom = null;
-		LogUtil.execute(logger, () -> LibUsb.libusb_exit(ftdi.usb_ctx));
+		LogUtil.close(() -> LibUsb.libusb_exit(ftdi.usb_ctx));
 		ftdi.usb_ctx = null;
 	}
 
@@ -1057,11 +1062,11 @@ public class LibFtdi {
 	}
 
 	/**
-	 * Attempts to detach the kernel driver if in auto-detach mode.
+	 * Attempts to detach the kernel driver if in auto-detach mode (Linux only).
 	 */
 	private static void autoDetach(ftdi_context ftdi) {
 		if (ftdi.module_detach_mode != ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE) return;
-		LogUtil.execute(logger, () -> LibUsb.libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
+		LogUtil.runSilently(() -> LibUsb.libusb_detach_kernel_driver(ftdi.usb_dev, ftdi.iface));
 	}
 
 	/**

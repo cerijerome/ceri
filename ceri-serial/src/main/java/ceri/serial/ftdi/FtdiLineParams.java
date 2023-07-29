@@ -1,7 +1,6 @@
 package ceri.serial.ftdi;
 
 import java.util.Objects;
-import ceri.common.text.ToString;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
@@ -77,6 +76,6 @@ public class FtdiLineParams {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, dataBits, stopBits, parity, breakType);
+		return String.format("%s,%s,%s,%s", dataBits, stopBits, parity, breakType);
 	}
 }

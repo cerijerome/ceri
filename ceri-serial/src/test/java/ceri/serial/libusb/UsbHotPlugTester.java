@@ -1,5 +1,6 @@
 package ceri.serial.libusb;
 
+import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.test.TestUtil;
+import ceri.common.text.StringUtil;
 import ceri.jna.clib.jna.CSignal;
 import ceri.log.test.LogModifier;
 import ceri.log.util.LogUtil;
@@ -25,31 +27,37 @@ public class UsbHotPlugTester {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final int POLL_MS = 200;
 
-	private static record Event(UsbDevice device, libusb_hotplug_event event, String message) {}
+	private static record Event(UsbDevice device, libusb_hotplug_event event, String message,
+		Map<String, Object> fields) {}
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException {
 		LogModifier.of(Level.INFO, UsbHotPlugTester.class);
 		init();
 		try (Usb usb = Usb.of()) {
-			List<UsbHotPlug> hotPlugs = new ArrayList<>();
-			try {
-				Deque<Event> events = new ArrayDeque<>();
-				registerHotPlugs(usb, events, hotPlugs);
-				logger.info("Processing events...");
-				while (IoUtil.availableChar() == 0) {
-					showEvents(events);
-					usb.events().handleTimeoutCompleted(Duration.ZERO, null);
-					ConcurrentUtil.delay(POLL_MS);
-					showEvents(events);
-					TestUtil.gc();
-				}
-				logger.info("Done");
-			} finally {
-				LogUtil.close(logger, hotPlugs);
-			}
+			//usb.debug(Level.INFO);
+			testHotPlugs(usb);
 		} catch (Exception e) {
 			logger.catching(e);
+		}
+	}
+
+	private static void testHotPlugs(Usb usb) throws LibUsbException {
+		List<UsbHotPlug> hotPlugs = new ArrayList<>();
+		Deque<Event> events = new ArrayDeque<>();
+		try {
+			registerHotPlugs(usb, events, hotPlugs);
+			logger.info("Processing events...");
+			while (IoUtil.availableChar() == 0) {
+				showEvents(events);
+				usb.events().handleTimeoutCompleted(Duration.ZERO, null);
+				ConcurrentUtil.delay(POLL_MS);
+				showEvents(events);
+				TestUtil.gc();
+			}
+			logger.info("Done");
+		} finally {
+			LogUtil.close(hotPlugs);
 		}
 	}
 
@@ -66,8 +74,7 @@ public class UsbHotPlugTester {
 	private static void registerHotPlugs(Usb usb, Deque<Event> events, List<UsbHotPlug> hotPlugs)
 		throws LibUsbException {
 		logger.info("Registering callbacks");
-		hotPlugs.add(
-			usb.hotPlug(callback(events, "ARRIVE+enumerate")).arrived().enumerate().register());
+		hotPlugs.add(usb.hotPlug(callback(events, "ARR+")).arrived().enumerate().register());
 		hotPlugs.add(usb.hotPlug(callback(events, "LEFT")).left().register());
 		hotPlugs.add(usb.hotPlug(callback(events, "ALL")).left().arrived().register());
 		TestUtil.gc();
@@ -76,36 +83,44 @@ public class UsbHotPlugTester {
 	private static void showEvents(Deque<Event> events) {
 		while (!events.isEmpty()) {
 			var event = events.poll();
-			var fields = fields(event);
-			logger.info("%s: %s %s", event.message, event.event, fields);
+			logger.info("%-4s %d %s", event.message, event.event.value, event.fields);
+			welcome(event);
 		}
 	}
 
-	private static Map<String, Object> fields(Event event) {
-		Map<String, Object> fields = new LinkedHashMap<>();
-		var device = event.device;
+	private static void welcome(Event event) {
+		if (event.event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) return;
 		try {
 			var desc = event.device.descriptor();
-			fields.put("vendorId", String.format("0x%04x", desc.vendorId()));
-			fields.put("productId", String.format("0x%04x", desc.productId()));
-			fields.put("busNumber", String.format("0x%02x", device.busNumber()));
-			fields.put("address", String.format("0x%02x", device.address()));
-			if (event.event == libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED) {
-				try (UsbDeviceHandle handle = device.open()) {
-					fields.put("manufacturer", desc.manufacturer(handle));
-					fields.put("product", desc.product(handle));
-				}
+			try (UsbDeviceHandle handle = event.device.open()) {
+				logger.info(" => %s : %s", StringUtil.trim(desc.manufacturer(handle)),
+					StringUtil.trim(desc.product(handle)));
 			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+
+	private static Callback callback(Deque<Event> events, String message) {
+		return (device, event) -> {
+			events.offer(new Event(device, event, message, fields(device)));
+			if (event == LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT) device.close();
+			return false;
+		};
+	}
+
+	private static Map<String, Object> fields(UsbDevice device) {
+		Map<String, Object> fields = new LinkedHashMap<>();
+		try {
+			var desc = device.descriptor();
+			fields.put("vendor", String.format("0x%04x", desc.vendorId()));
+			fields.put("product", String.format("0x%04x", desc.productId()));
+			fields.put("bus", String.format("0x%02x", device.busNumber()));
+			fields.put("addr", String.format("0x%02x", device.address()));
 		} catch (LibUsbException e) {
 			logger.error(e.getMessage());
 		}
 		return fields;
 	}
 
-	private static Callback callback(Deque<Event> events, String message) {
-		return (device, event) -> {
-			events.offer(new Event(device, event, message));
-			return false;
-		};
-	}
 }
