@@ -23,7 +23,7 @@ public class RpcServer implements RuntimeCloseable {
 	@SuppressWarnings("resource")
 	public static RpcServer start(BindableService service, RpcServerConfig config)
 		throws IOException {
-		return CloseableUtil.execOrClose(of(service, config), RpcServer::start);
+		return CloseableUtil.acceptOrClose(of(service, config), RpcServer::start);
 	}
 
 	public static RpcServer of(BindableService service, RpcServerConfig config) {

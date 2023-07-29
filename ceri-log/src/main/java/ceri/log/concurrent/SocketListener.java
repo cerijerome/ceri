@@ -57,7 +57,7 @@ public class SocketListener extends LoopingExecutor {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, serverSocket);
+		LogUtil.close(serverSocket);
 		super.close();
 	}
 

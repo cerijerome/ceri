@@ -75,7 +75,7 @@ public class RpcServiceNotifier<T, V> implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, listener);
+		LogUtil.close(listener);
 		logger.debug("Stopped");
 	}
 

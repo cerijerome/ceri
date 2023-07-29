@@ -9,8 +9,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
@@ -19,7 +17,6 @@ import ceri.log.util.LogUtil;
  * is AutoCloseable, this implementation offers a shorter close timeout of 1 second vs 1 day.
  */
 public class CloseableExecutor implements RuntimeCloseable {
-	private static final Logger logger = LogManager.getLogger();
 	public final ExecutorService executor;
 
 	@SuppressWarnings("resource")
@@ -73,6 +70,6 @@ public class CloseableExecutor implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, executor);
+		LogUtil.close(executor);
 	}
 }

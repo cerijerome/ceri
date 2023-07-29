@@ -1,5 +1,8 @@
-package ceri.common.net;
+package ceri.log.net;
 
+import ceri.common.net.HostPort;
+import ceri.common.net.TcpSocketOption;
+import ceri.common.net.TcpSocketOptions;
 import ceri.common.property.BaseProperties;
 
 public class TcpSocketProperties extends BaseProperties {

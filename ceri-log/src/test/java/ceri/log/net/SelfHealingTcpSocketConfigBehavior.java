@@ -1,4 +1,4 @@
-package ceri.log.io;
+package ceri.log.net;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -7,32 +7,32 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.net.HostPort;
 
-public class SelfHealingSocketConfigBehavior {
-
+public class SelfHealingTcpSocketConfigBehavior {
+	private static final HostPort hostPort = HostPort.of("test", 123);
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertFalse(SelfHealingSocketConfig.NULL.enabled());
-		assertTrue(SelfHealingSocketConfig.of("test", 123).enabled());
+		assertFalse(SelfHealingTcpSocketConfig.NULL.enabled());
+		assertTrue(SelfHealingTcpSocketConfig.of(hostPort).enabled());
 	}
 
 	@Test
 	public void shouldCopySettings() {
-		var config0 = SelfHealingSocketConfig.builder("test", 123).build();
-		var config = SelfHealingSocketConfig.builder(config0).build();
-		assertEquals(config.hostPort, HostPort.of("test", 123));
+		var config0 = SelfHealingTcpSocketConfig.builder(hostPort).build();
+		var config = SelfHealingTcpSocketConfig.builder(config0).build();
+		assertEquals(config.hostPort, hostPort);
 	}
 
 	@Test
 	public void shouldDetermineIfBroken() {
-		var config = SelfHealingSocketConfig.builder("test", 123).build();
-		assertFalse(config.broken(null));
-		assertFalse(config.broken(new RuntimeException()));
-		assertFalse(config.broken(new IOException()));
-		config = SelfHealingSocketConfig.builder("test", 123)
-			.brokenPredicate(IOException.class::isInstance).build();
-		assertFalse(config.broken(null));
-		assertFalse(config.broken(new RuntimeException()));
-		assertTrue(config.broken(new IOException()));
+		var config = SelfHealingTcpSocketConfig.builder(hostPort).build();
+		assertFalse(config.selfHealing.broken(null));
+		assertFalse(config.selfHealing.broken(new RuntimeException()));
+		assertFalse(config.selfHealing.broken(new IOException()));
+		config = SelfHealingTcpSocketConfig.builder(hostPort).selfHealing(b -> b
+			.brokenPredicate(IOException.class::isInstance)).build();
+		assertFalse(config.selfHealing.broken(null));
+		assertFalse(config.selfHealing.broken(new RuntimeException()));
+		assertTrue(config.selfHealing.broken(new IOException()));
 	}
 
 }

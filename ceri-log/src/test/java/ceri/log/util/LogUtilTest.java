@@ -8,7 +8,6 @@ import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.INX;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.io.IOException;
@@ -18,14 +17,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
@@ -41,7 +38,7 @@ public class LogUtilTest {
 
 	@BeforeClass
 	public static void beforeClass() {
-		testLog = TestLog.of();
+		testLog = TestLog.of(LogUtil.class);
 		logger = testLog.logger();
 	}
 
@@ -66,11 +63,6 @@ public class LogUtilTest {
 		StartupValues values = LogUtil.startupValues("abc", "123");
 		assertEquals(values.next().get(), "abc");
 		assertEquals(values.next().asInt(), 123);
-		values = LogUtil.startupValues(logger, "abc", "123");
-		assertEquals(values.next("val1").get(), "abc");
-		testLog.assertFind("val1 = abc \\(from args\\[0\\]\\)");
-		assertEquals(values.next("val2").asInt(), 123);
-		testLog.assertFind("val2 = 123 \\(from args\\[1\\]\\)");
 	}
 
 	@Test
@@ -84,77 +76,33 @@ public class LogUtilTest {
 		}
 	}
 
-	@Test
-	public void testExecute() {
-		assertTrue(LogUtil.execute(null, () -> {}));
-		assertTrue(LogUtil.execute(logger, () -> {}));
-		assertFalse(LogUtil.execute(logger, null));
-		testLog.assertEmpty();
-	}
-
-	@Test
-	public void testExecuteWithException() {
-		assertThrown(RuntimeInterruptedException.class,
-			() -> LogUtil.execute(null, () -> throwIt(new InterruptedException())));
-		assertThrown(RuntimeInterruptedException.class,
-			() -> LogUtil.execute(logger, () -> throwIt(new InterruptedException())));
-		assertThrown(RuntimeInterruptedException.class,
-			() -> LogUtil.execute(null, () -> throwIt(new RuntimeInterruptedException("test"))));
-		assertThrown(RuntimeInterruptedException.class,
-			() -> LogUtil.execute(logger, () -> throwIt(new RuntimeInterruptedException("test"))));
-		assertFalse(LogUtil.execute(null, () -> throwIt(new RuntimeException("rtx"))));
-		assertFalse(LogUtil.execute(logger, () -> throwIt(new RuntimeException("rtx"))));
-		testLog.assertFind("(?is)ERROR .* catching.*RuntimeException.*rtx");
-	}
-
-	@Test
-	public void testSubmit() throws InterruptedException, ExecutionException {
-		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
-			LogUtil.submit(logger, exec, () -> {}).get();
-			LogUtil.submit(logger, exec, () -> throwIt(new IOException("iox"))).get();
-			testLog.assertFind("(?is)ERROR .* catching.*IOException.*iox");
-		}
-	}
-
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreate() {
-		assertIterable(LogUtil.create(logger, TestCloseable::of, "1", "-1"), new TestCloseable(1),
+		assertIterable(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
 			new TestCloseable(-1));
-		assertThrown(() -> LogUtil.create(logger, TestCloseable::of, "1", "-1", "x"));
+		assertThrown(() -> LogUtil.create(TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateArray() {
-		assertArray(LogUtil.createArray(logger, TestCloseable[]::new, TestCloseable::of, "1", "-1"),
+		assertArray(LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1"),
 			new TestCloseable(1), new TestCloseable(-1));
-		assertThrown(() -> LogUtil.createArray(logger, TestCloseable[]::new, TestCloseable::of, "1",
-			"-1", "x"));
-		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
-	}
-
-	@Test
-	public void testCloseable() throws Exception {
-		@SuppressWarnings("resource")
-		TestCloseable tc1 = new TestCloseable(1);
-		@SuppressWarnings("resource")
-		TestCloseable tc2 = new TestCloseable(-1);
-		try (AutoCloseable closeable = LogUtil.closeable(logger, tc1, tc2)) {}
-		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
-		try (AutoCloseable closeable = LogUtil.closeable(logger, List.of(tc1, tc2))) {}
+		assertThrown(
+			() -> LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
 	@Test
 	public void testCloseProcess() throws IOException {
-		assertFalse(LogUtil.close(logger, (Process) null));
+		assertTrue(LogUtil.close((Process) null));
 		try (TestProcess process = TestProcess.of()) {
 			process.waitFor.autoResponses(true);
-			assertTrue(LogUtil.close(logger, process));
+			assertTrue(LogUtil.close(process));
 			process.waitFor.autoResponses(false);
-			assertFalse(LogUtil.close(logger, process));
+			assertFalse(LogUtil.close(process));
 		}
 	}
 
@@ -162,20 +110,19 @@ public class LogUtilTest {
 	public void testCloseProcessWithInterrupt() throws IOException {
 		try (TestProcess process = TestProcess.of()) {
 			process.waitFor.error.setFrom(INX);
-			assertFalse(LogUtil.close(null, process));
-			assertFalse(LogUtil.close(logger, process));
+			assertFalse(LogUtil.close(process));
 			testLog.assertFind("(?is)INFO .*InterruptedException");
 		}
 	}
 
 	@Test
 	public void testCloseExecutorService() throws InterruptedException {
-		assertFalse(LogUtil.close(logger, (ExecutorService) null));
+		assertTrue(LogUtil.close((ExecutorService) null));
 		BooleanCondition sync = BooleanCondition.of();
 		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
 			exec.execute(() -> signalAndSleep(sync, 60000));
 			sync.await();
-			assertTrue(LogUtil.close(logger, exec));
+			assertTrue(LogUtil.close(exec));
 		}
 	}
 
@@ -183,30 +130,29 @@ public class LogUtilTest {
 	public void testCloseExecutorServiceWithInterrupt() {
 		try (TestExecutorService exec = TestExecutorService.of()) {
 			exec.awaitTermination.error.setFrom(INX);
-			assertFalse(LogUtil.close(null, exec));
-			assertFalse(LogUtil.close(logger, exec));
+			assertFalse(LogUtil.close(exec));
 			testLog.assertFind("(?is)INFO .*InterruptedException");
 		}
 	}
 
 	@Test
 	public void testCloseFuture() throws InterruptedException, ExecutionException {
-		assertFalse(LogUtil.close(logger, (Future<?>) null));
+		assertTrue(LogUtil.close((Future<?>) null));
 		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
 			Future<?> future = exec.submit(() -> {});
 			future.get();
-			assertTrue(LogUtil.close(logger, future));
+			assertTrue(LogUtil.close(future));
 		}
 	}
 
 	@Test
 	public void testCloseFutureWithCancellation() throws InterruptedException {
-		assertFalse(LogUtil.close(logger, (Future<?>) null));
+		assertTrue(LogUtil.close((Future<?>) null));
 		BooleanCondition sync = BooleanCondition.of();
 		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
 			Future<?> future = exec.submit(() -> signalAndSleep(sync, 60000));
 			sync.await();
-			assertTrue(LogUtil.close(logger, future));
+			assertTrue(LogUtil.close(future));
 		}
 	}
 
@@ -214,8 +160,7 @@ public class LogUtilTest {
 	public void testCloseFutureWithInterrupt() {
 		TestFuture<?> future = TestFuture.of("test");
 		future.get.error.setFrom(INX);
-		assertFalse(LogUtil.close(null, future));
-		assertFalse(LogUtil.close(logger, future));
+		assertFalse(LogUtil.close(future));
 		testLog.assertFind("(?is)INFO .*InterruptedException");
 	}
 
@@ -223,56 +168,13 @@ public class LogUtilTest {
 	public void testCloseFutureWithException() {
 		TestFuture<?> future = TestFuture.of("test");
 		future.get.error.setFrom(s -> new TimeoutException(s));
-		assertFalse(LogUtil.close(null, future));
-		assertFalse(LogUtil.close(logger, future));
+		assertFalse(LogUtil.close(future));
 		testLog.assertFind("(?is)WARN .*TimeoutException");
 	}
 
 	@Test
 	public void testCloseCloseables() {
-		assertFalse(LogUtil.close(logger, (List<TestCloseable>) null));
-	}
-
-	@Test
-	public void testFatalf() {
-		LogUtil.fatalf(logger, "%d", 123);
-		testLog.assertFind("FATAL .* 123");
-	}
-
-	@Test
-	public void testErrorf() {
-		LogUtil.errorf(logger, "%d", 123);
-		testLog.assertFind("ERROR .* 123");
-	}
-
-	@Test
-	public void testWarnf() {
-		LogUtil.warnf(logger, "%d", 123);
-		testLog.assertFind("WARN .* 123");
-	}
-
-	@Test
-	public void testInfof() {
-		LogUtil.infof(logger, "%d", 123);
-		testLog.assertFind("INFO .* 123");
-	}
-
-	@Test
-	public void testDebug() {
-		LogUtil.debugf(logger, "%d", 123);
-		testLog.assertFind("DEBUG .* 123");
-	}
-
-	@Test
-	public void testTracef() {
-		LogUtil.tracef(logger, "%d", 123);
-		testLog.assertFind("TRACE .* 123");
-	}
-
-	@Test
-	public void testLogf() {
-		LogUtil.logf(logger, Level.WARN, "%d", 123);
-		testLog.assertFind("WARN .* 123");
+		assertTrue(LogUtil.close((List<TestCloseable>) null));
 	}
 
 	@Test

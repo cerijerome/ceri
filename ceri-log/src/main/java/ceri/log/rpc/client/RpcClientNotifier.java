@@ -99,7 +99,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, caller);
+		LogUtil.close(caller);
 		super.close();
 	}
 
@@ -136,7 +136,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	private void stopReceiving() {
 		logger.debug("Stopping notifications");
-		LogUtil.close(logger, caller);
+		LogUtil.close(caller);
 	}
 
 	private void onNotify(V v) {

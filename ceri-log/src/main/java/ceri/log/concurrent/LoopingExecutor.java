@@ -43,7 +43,7 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, executor, exitTimeoutMs);
+		LogUtil.close(executor, exitTimeoutMs);
 	}
 
 	public void waitUntilStopped() throws InterruptedException {

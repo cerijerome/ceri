@@ -53,7 +53,7 @@ public class ShutdownListener implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, socket);
+		LogUtil.close(socket);
 	}
 
 }

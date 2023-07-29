@@ -1,16 +1,16 @@
 package ceri.log.test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.property.PropertyUtil;
 import ceri.common.util.BasicUtil;
-import ceri.log.util.LogCloseableTracker;
 import ceri.log.util.LogUtil;
 
 /**
@@ -21,8 +21,7 @@ public class ContainerTestHelper implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	protected final Properties properties;
 	protected final String name;
-	private final Map<Object, Object> cache = new HashMap<>();
-	private final LogCloseableTracker tracker = LogCloseableTracker.of();
+	private final Map<Object, AutoCloseable> cache = new ConcurrentHashMap<>();
 
 	public ContainerTestHelper(String name) throws IOException {
 		this.name = name;
@@ -36,17 +35,15 @@ public class ContainerTestHelper implements RuntimeCloseable {
 	@SuppressWarnings("resource")
 	protected <T extends AutoCloseable> T get(Object id, ExceptionSupplier<IOException, T> supplier)
 		throws IOException {
-		T t = BasicUtil.uncheckedCast(cache.get(id));
-		if (t != null) return t;
-		logger.info("Creating container: {}", id);
-		t = supplier.get();
-		cache.put(id, t);
-		return tracker.add(t);
+		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, id, x -> {
+			logger.info("Creating container: {}", id);
+			return supplier.get();
+		}));
 	}
 
 	@Override
 	public void close() {
-		LogUtil.execute(logger, tracker::close);
+		LogUtil.close(cache.values());
 	}
 
 }

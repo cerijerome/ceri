@@ -4,8 +4,9 @@ import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.text.ToString;
 
-public class SelfHealingConnectorConfig {
-	public static final SelfHealingConnectorConfig DEFAULT = new Builder().build();
+public class SelfHealingConfig {
+	public static final SelfHealingConfig DEFAULT = new Builder().build();
+	public static final Predicate<Exception> NULL_PREDICATE = e -> false; 
 	public final int fixRetryDelayMs;
 	public final int recoveryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
@@ -13,13 +14,13 @@ public class SelfHealingConnectorConfig {
 	public static class Builder {
 		int fixRetryDelayMs = 2000;
 		int recoveryDelayMs = fixRetryDelayMs / 2;
-		Predicate<Exception> brokenPredicate = e -> false;
+		Predicate<Exception> brokenPredicate = NULL_PREDICATE;
 
 		Builder() {}
 
-		public Builder apply(SelfHealingConnectorConfig config) {
-			return fixRetryDelayMs(config.fixRetryDelayMs).recoveryDelayMs(config.recoveryDelayMs)
-				.brokenPredicate(config.brokenPredicate);
+		public Builder apply(SelfHealingConfig config) {
+			if (config.hasBrokenPredicate()) brokenPredicate(config.brokenPredicate);
+			return fixRetryDelayMs(config.fixRetryDelayMs).recoveryDelayMs(config.recoveryDelayMs);
 		}
 
 		public Builder fixRetryDelayMs(int fixRetryDelayMs) {
@@ -37,8 +38,8 @@ public class SelfHealingConnectorConfig {
 			return this;
 		}
 
-		public SelfHealingConnectorConfig build() {
-			return new SelfHealingConnectorConfig(this);
+		public SelfHealingConfig build() {
+			return new SelfHealingConfig(this);
 		}
 	}
 
@@ -46,7 +47,7 @@ public class SelfHealingConnectorConfig {
 		return new Builder();
 	}
 	
-	SelfHealingConnectorConfig(Builder builder) {
+	SelfHealingConfig(Builder builder) {
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
 		brokenPredicate = builder.brokenPredicate;
@@ -56,6 +57,10 @@ public class SelfHealingConnectorConfig {
 		return brokenPredicate.test(e);
 	}
 
+	public boolean hasBrokenPredicate() {
+		return brokenPredicate != NULL_PREDICATE;
+	}
+	
 	@Override
 	public String toString() {
 		return ToString.forClass(this, fixRetryDelayMs, recoveryDelayMs,

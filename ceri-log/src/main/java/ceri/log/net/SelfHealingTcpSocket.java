@@ -1,17 +1,13 @@
-package ceri.log.io;
+package ceri.log.net;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.collection.CollectionUtil;
-import ceri.common.function.FunctionUtil;
-import ceri.common.io.Connector;
 import ceri.common.net.HostPort;
-import ceri.common.net.TcpServerSocket;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
-import ceri.common.test.TcpSocketTester;
+import ceri.common.net.TcpSocketOptions;
 import ceri.common.text.ToString;
+import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
 
 /**
@@ -20,18 +16,8 @@ import ceri.log.util.LogUtil;
 public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 	implements TcpSocket.Fixable {
 	private final SelfHealingTcpSocketConfig config;
-	private final Map<TcpSocketOption<Object>, Object> options = new ConcurrentHashMap<>();
+	private final TcpSocketOptions.Mutable options = TcpSocketOptions.of(ConcurrentHashMap::new);
 
-	public static void main(String[] args) throws IOException {
-		try (var ss = TcpServerSocket.of()) {
-			ss.listen(Connector::echo);
-			var config = SelfHealingTcpSocketConfig.of("localhost", ss.port());
-			try (var s = SelfHealingTcpSocket.of(config)) {
-				TcpSocketTester.test(s);
-			}
-		}
-	}
-	
 	public static SelfHealingTcpSocket of(SelfHealingTcpSocketConfig config) {
 		return new SelfHealingTcpSocket(config);
 	}
@@ -39,7 +25,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 	private SelfHealingTcpSocket(SelfHealingTcpSocketConfig config) {
 		super(config.selfHealing);
 		this.config = config;
-		options.putAll(config.options);
+		options.set(config.options);
 	}
 
 	@Override
@@ -47,20 +33,26 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 		return config.hostPort;
 	}
 
-	@SuppressWarnings("resource")
 	@Override
 	public int localPort() {
-		return FunctionUtil.safeApply(connector(), TcpSocket::localPort, -1);
+		return device.applyIfSet(TcpSocket::localPort, HostPort.INVALID_PORT);
+	}
+
+	@Override
+	public void options(TcpSocketOptions options) throws IOException {
+		this.options.set(options);
+		TcpSocket.Fixable.super.options(options);
 	}
 
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
-		acceptConnector(socket -> socket.option(option, value));
+		options.set(option, value);
+		device.acceptIfSet(socket -> socket.option(option, value));
 	}
 
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		return applyConnector(socket -> socket.option(option));
+		return device.applyIfSet(socket -> socket.option(option), null);
 	}
 
 	@Override
@@ -73,12 +65,11 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 		TcpSocket socket = null;
 		try {
 			socket = config.openSocket();
-			CollectionUtil.forEach(options, socket::option);
+			options.applyAll(socket);
 			return socket;
 		} catch (RuntimeException | IOException e) {
-			LogUtil.close(logger, socket);
+			LogUtil.close(socket);
 			throw e;
 		}
 	}
-
 }

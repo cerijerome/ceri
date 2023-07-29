@@ -1,33 +1,37 @@
-package ceri.log.io;
+package ceri.log.net;
 
+import static ceri.common.function.FunctionUtil.named;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.function.Consumer;
-import ceri.common.collection.ImmutableUtil;
+import java.util.function.Predicate;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.FunctionUtil;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
+import ceri.common.net.TcpSocketOptions;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
+import ceri.log.io.SelfHealingConfig;
 
 public class SelfHealingTcpSocketConfig {
 	public static final SelfHealingTcpSocketConfig NULL = new Builder(HostPort.NULL).build();
-	public final ExceptionFunction<IOException, HostPort, TcpSocket> factory;
+	public static final Predicate<Exception> DEFAULT_PREDICATE =
+		named(TcpSocket::isBroken, "TcpSocket::isBroken");
 	public final HostPort hostPort;
-	public final Map<TcpSocketOption<Object>, Object> options;
-	public final SelfHealingConnectorConfig selfHealing;
+	public final ExceptionFunction<IOException, HostPort, TcpSocket> factory;
+	public final TcpSocketOptions options;
+	public final SelfHealingConfig selfHealing;
 
-	public static SelfHealingTcpSocketConfig of(String host, int port) {
-		return builder(host, port).build();
+	public static SelfHealingTcpSocketConfig of(HostPort hostPort) {
+		return builder(hostPort).build();
 	}
 
 	public static class Builder {
 		final HostPort hostPort;
 		ExceptionFunction<IOException, HostPort, TcpSocket> factory = TcpSocket::connect;
-		Map<TcpSocketOption<Object>, Object> options = new LinkedHashMap<>();
-		SelfHealingConnectorConfig.Builder selfHealing = SelfHealingConnectorConfig.builder();
+		TcpSocketOptions.Mutable options = TcpSocketOptions.of();
+		final SelfHealingConfig.Builder selfHealing =
+			SelfHealingConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 		Builder(HostPort hostPort) {
 			this.hostPort = hostPort;
@@ -39,16 +43,21 @@ public class SelfHealingTcpSocketConfig {
 		}
 
 		public <T> Builder option(TcpSocketOption<T> option, T value) {
-			options.put(BasicUtil.uncheckedCast(option), value);
+			options.set(option, value);
 			return this;
 		}
 
-		private Builder options(Map<TcpSocketOption<Object>, Object> options) {
-			this.options.putAll(options);
+		public Builder options(TcpSocketOptions options) {
+			this.options.set(options);
 			return this;
 		}
 
-		public Builder selfHealing(Consumer<SelfHealingConnectorConfig.Builder> consumer) {
+		public Builder selfHealing(SelfHealingConfig selfHealing) {
+			this.selfHealing.apply(selfHealing);
+			return this;
+		}
+
+		public Builder selfHealing(Consumer<SelfHealingConfig.Builder> consumer) {
 			consumer.accept(selfHealing);
 			return this;
 		}
@@ -58,19 +67,18 @@ public class SelfHealingTcpSocketConfig {
 		}
 	}
 
-	public static Builder builder(String host, int port) {
-		return new Builder(HostPort.of(host, port));
+	public static Builder builder(HostPort hostPort) {
+		return new Builder(hostPort);
 	}
 
 	public static Builder builder(SelfHealingTcpSocketConfig config) {
-		return new Builder(config.hostPort).options(config.options)
-			.selfHealing(b -> b.apply(config.selfHealing));
+		return new Builder(config.hostPort).options(config.options).selfHealing(config.selfHealing);
 	}
 
 	SelfHealingTcpSocketConfig(Builder builder) {
-		factory = builder.factory;
 		hostPort = builder.hostPort;
-		options = ImmutableUtil.copyAsMap(builder.options);
+		factory = builder.factory;
+		options = builder.options.immutable();
 		selfHealing = builder.selfHealing.build();
 	}
 
@@ -84,7 +92,7 @@ public class SelfHealingTcpSocketConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, hostPort, options, selfHealing);
+		return ToString.forClass(this, hostPort, FunctionUtil.lambdaName(factory), options,
+			selfHealing);
 	}
-
 }
