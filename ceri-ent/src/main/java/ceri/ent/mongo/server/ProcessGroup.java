@@ -50,7 +50,7 @@ public abstract class ProcessGroup implements RuntimeCloseable {
 	@Override
 	public void close() {
 		stop();
-		LogUtil.close(logger, runners);
+		LogUtil.close(runners);
 		logger.info("Process group stopped");
 	}
 

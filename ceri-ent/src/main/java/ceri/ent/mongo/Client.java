@@ -80,6 +80,6 @@ public class Client implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, mongo, MongoClient::close);
+		LogUtil.close(mongo, MongoClient::close);
 	}
 }

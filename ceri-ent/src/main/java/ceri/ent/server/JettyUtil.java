@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -18,7 +16,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.log.util.LogUtil;
 
 public class JettyUtil {
-	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern PACKAGE_SEPARATOR_REGEX = Pattern.compile("\\.");
 	private static final String TAGLIBS_JAR_PATTERN = ".*/.*taglibs.*\\.jar$";
 	private static final String TMP_DIR = "tmp";
@@ -67,7 +64,7 @@ public class JettyUtil {
 
 	private static ResourceCollection resourceCollection(Collection<Class<?>> classes) {
 		return new ResourceCollection(
-			LogUtil.createArray(logger, Resource[]::new, JettyUtil::resource, classes));
+			LogUtil.createArray(Resource[]::new, JettyUtil::resource, classes));
 	}
 
 	private static Resource resource(Class<?> cls) {

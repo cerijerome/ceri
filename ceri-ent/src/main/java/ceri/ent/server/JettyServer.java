@@ -5,8 +5,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -21,7 +19,6 @@ import ceri.log.util.LogUtil;
  * Base wrapper class for managing a jetty server.
  */
 public class JettyServer implements AutoCloseable {
-	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern PROTOCOL_NAME_REGEX = Pattern.compile("^(\\w+)");
 	private static final String LOCALHOST = "localhost";
 	private final Server server;
@@ -47,7 +44,7 @@ public class JettyServer implements AutoCloseable {
 	@Override
 	public void close() throws IOException {
 		stop();
-		LogUtil.execute(logger, this::waitForServer);
+		LogUtil.close(this::waitForServer);
 	}
 
 	public String url(String path) {

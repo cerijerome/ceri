@@ -69,7 +69,7 @@ public class ProcessRunner implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, process);
+		LogUtil.close(process);
 		logger.info("Process stopped");
 	}
 
