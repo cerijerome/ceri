@@ -10,7 +10,6 @@ import ceri.common.util.Named;
  * A general hardware connector that provides input and output data streams.
  */
 public interface Connector extends Closeable, Named {
-
 	/**
 	 * The hardware input stream.
 	 */
@@ -29,15 +28,14 @@ public interface Connector extends Closeable, Named {
 	/**
 	 * A no-op, stateless, connector implementation.
 	 */
-	class Null extends ceri.common.io.Fixable.Null implements Connector.Fixable {
-
+	interface Null extends ceri.common.io.Fixable.Null, Connector.Fixable {
 		@Override
-		public InputStream in() {
+		default InputStream in() {
 			return IoStreamUtil.nullIn;
 		}
 
 		@Override
-		public OutputStream out() {
+		default OutputStream out() {
 			return IoStreamUtil.nullOut;
 		}
 	}
@@ -49,5 +47,4 @@ public interface Connector extends Closeable, Named {
 	static void echo(Connector connector) throws IOException {
 		IoUtil.pipe(connector.in(), connector.out());
 	}
-
 }

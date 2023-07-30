@@ -55,23 +55,21 @@ public interface IntListenable {
 		return BasicUtil.uncheckedCast(Null.INSTANCE);
 	}
 
-	static class Null implements IntListenable, IntListenable.Indirect {
-		private static final Null INSTANCE = new Null();
-
-		private Null() {}
+	interface Null extends IntListenable, IntListenable.Indirect {
+		Null INSTANCE = new Null() {};
 
 		@Override
-		public IntListenable listeners() {
+		default IntListenable listeners() {
 			return this;
 		}
 
 		@Override
-		public boolean listen(IntConsumer listener) {
+		default boolean listen(IntConsumer listener) {
 			return false;
 		}
 
 		@Override
-		public boolean unlisten(IntConsumer listener) {
+		default boolean unlisten(IntConsumer listener) {
 			return false;
 		}
 

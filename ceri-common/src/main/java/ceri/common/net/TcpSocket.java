@@ -15,7 +15,7 @@ import ceri.common.util.BasicUtil;
  */
 public interface TcpSocket extends Connector {
 	/** A no-op, stateless, socket instance. */
-	Null NULL = new Null();
+	TcpSocket NULL = new Null() {};
 
 	@Override
 	default String name() {
@@ -147,24 +147,23 @@ public interface TcpSocket extends Connector {
 	/**
 	 * A no-op, stateless, socket implementation.
 	 */
-	class Null extends Connector.Null implements TcpSocket.Fixable {
+	interface Null extends Connector.Null, TcpSocket.Fixable {
 		@Override
-		public HostPort hostPort() {
+		default HostPort hostPort() {
 			return HostPort.NULL;
 		}
 
 		@Override
-		public int localPort() {
+		default int localPort() {
 			return 0;
 		}
 
 		@Override
-		public <T> void option(TcpSocketOption<T> option, T value) throws IOException {}
+		default <T> void option(TcpSocketOption<T> option, T value) throws IOException {}
 
 		@Override
-		public <T> T option(TcpSocketOption<T> option) throws IOException {
+		default <T> T option(TcpSocketOption<T> option) throws IOException {
 			return Objects.requireNonNullElse(option.disableValue, BasicUtil.uncheckedCast(0));
 		}
 	}
-
 }

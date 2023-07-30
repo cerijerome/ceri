@@ -156,8 +156,8 @@ public class TestConnector implements Connector.Fixable {
 	 */
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, listeners.size())
-			.children("broken=" + broken, "open=" + open, "in=" + in, "out=" + out).toString();
+		return ToString.ofClass(this, listeners.size(), "broken=" + broken, "open=" + open)
+			.children("in=" + in, "out=" + out).toString();
 	}
 
 	/**

@@ -8,7 +8,7 @@ public class ConnectorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideNoOpImplementation() throws IOException {
-		try (var con = new Connector.Null()) {
+		try (var con = new Connector.Null() {}) {
 			con.listeners().listen(x -> {});
 			con.broken();
 			con.open();

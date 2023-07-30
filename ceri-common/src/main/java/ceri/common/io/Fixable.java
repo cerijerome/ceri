@@ -30,19 +30,18 @@ public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChan
 	}
 
 	/**
-	 * A no-op, stateless  implementation.
+	 * A stateless, no-op implementation.
 	 */
-	class Null implements Fixable {
-
+	interface Null extends Fixable {
 		@Override
-		public Listenable<StateChange> listeners() {
+		default Listenable<StateChange> listeners() {
 			return Listenable.ofNull();
 		}
 
 		@Override
-		public void open() throws IOException {}
+		default void open() throws IOException {}
 
 		@Override
-		public void close() {}
+		default void close() throws IOException {}
 	}
 }

@@ -12,11 +12,10 @@ import java.awt.event.InputEvent;
 
 /**
  * Cheating app for Cookie Clicker http://orteil.dashnet.org/cookieclicker/ Clicks the mouse when
- * within a given rectangle. Makes reminder sound to look for lucky cookie.
+ * within a given rectangle.
  */
 public class CookieClicker {
 	private final Rectangle clickArea;
-	private final int gcReminderMs;
 	private final Rectangle resetArea;
 	private final Rectangle disableArea;
 	private final Rectangle exitArea;
@@ -29,21 +28,15 @@ public class CookieClicker {
 
 	public static class Builder {
 		Rectangle clickArea = new Rectangle(110, 340, 200, 200);
-		int gcReminderMs = 130000;
 		Rectangle resetArea = new Rectangle(1420, 880, 20, 20);
 		Rectangle disableArea = new Rectangle(0, 880, 20, 20);
 		Rectangle exitArea = new Rectangle(1420, 0, 20, 20);
-		int delayMs = 50;
+		int delayMs = 40;
 
 		Builder() {}
 
 		public Builder clickArea(int x, int y, int w, int h) {
 			clickArea = new Rectangle(x, y, w, h);
-			return this;
-		}
-
-		public Builder gcReminderMs(int gcReminderMs) {
-			this.gcReminderMs = gcReminderMs;
 			return this;
 		}
 
@@ -75,7 +68,6 @@ public class CookieClicker {
 	CookieClicker(Builder builder) {
 		screenSize = screenSize();
 		clickArea = rectangle(builder.clickArea);
-		gcReminderMs = builder.gcReminderMs;
 		resetArea = rectangle(builder.resetArea);
 		disableArea = rectangle(builder.disableArea);
 		exitArea = rectangle(builder.exitArea);
@@ -95,7 +87,6 @@ public class CookieClicker {
 	public void start() throws AWTException {
 		Robot r = new Robot();
 		// r.setAutoWaitForIdle(true);
-		long gc = 0;
 		boolean enabled = true;
 		while (true) {
 			r.delay(delayMs);
@@ -105,18 +96,12 @@ public class CookieClicker {
 				r.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 				r.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 			} else if (resetArea.contains(p)) {
-				gc = System.currentTimeMillis();
 				enabled = changeState(enabled, true);
 			} else if (disableArea.contains(p)) {
 				enabled = changeState(enabled, false);
 			} else if (exitArea.contains(p)) {
 				beep();
 				break;
-			}
-			long t = System.currentTimeMillis();
-			if (enabled && t > gc + gcReminderMs) {
-				gc = t;
-				beep();
 			}
 		}
 	}
