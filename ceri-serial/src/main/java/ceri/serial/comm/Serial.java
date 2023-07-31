@@ -11,8 +11,8 @@ import ceri.common.text.StringUtil;
  * Interface for serial connector functionality.
  */
 public interface Serial extends Connector {
-	/** No-op, stateless, serial instance. */
-	Null NULL = new Null();
+	/** A stateless, no-op instance. */
+	Serial NULL = new Null() {};
 
 	@Override
 	default java.lang.String name() {
@@ -65,85 +65,84 @@ public interface Serial extends Connector {
 	interface Fixable extends Serial, Connector.Fixable {}
 
 	/**
-	 * A no-op, stateless, serial implementation.
+	 * A stateless, no-op implementation.
 	 */
-	static class Null extends Connector.Null implements Serial.Fixable {
+	interface Null extends Connector.Null, Serial.Fixable {
 
 		@Override
-		public String port() {
+		default String port() {
 			return StringUtil.NULL_STRING;
 		}
 
 		@Override
-		public void inBufferSize(int size) {}
+		default void inBufferSize(int size) {}
 
 		@Override
-		public int inBufferSize() {
+		default int inBufferSize() {
 			return 0;
 		}
 
 		@Override
-		public void outBufferSize(int size) {}
+		default void outBufferSize(int size) {}
 
 		@Override
-		public int outBufferSize() {
+		default int outBufferSize() {
 			return 0;
 		}
 
 		@Override
-		public void params(SerialParams params) throws IOException {}
+		default void params(SerialParams params) throws IOException {}
 
 		@Override
-		public SerialParams params() {
+		default SerialParams params() {
 			return SerialParams.DEFAULT;
 		}
 
 		@Override
-		public void flowControl(Collection<FlowControl> flowControl) throws IOException {}
+		default void flowControl(Collection<FlowControl> flowControl) throws IOException {}
 
 		@Override
-		public Set<FlowControl> flowControl() {
+		default Set<FlowControl> flowControl() {
 			return FlowControl.NONE;
 		}
 
 		@Override
-		public void brk(boolean on) throws IOException {}
+		default void brk(boolean on) throws IOException {}
 
 		@Override
-		public void rts(boolean on) throws IOException {}
+		default void rts(boolean on) throws IOException {}
 
 		@Override
-		public void dtr(boolean on) throws IOException {}
+		default void dtr(boolean on) throws IOException {}
 
 		@Override
-		public boolean rts() throws IOException {
+		default boolean rts() throws IOException {
 			return false;
 		}
 
 		@Override
-		public boolean dtr() throws IOException {
+		default boolean dtr() throws IOException {
 			return false;
 		}
 
 		@Override
-		public boolean cd() throws IOException {
+		default boolean cd() throws IOException {
 			return false;
 		}
 
 		@Override
-		public boolean cts() throws IOException {
+		default boolean cts() throws IOException {
 			return false;
 		}
 
 		@Override
-		public boolean dsr() throws IOException {
+		default boolean dsr() throws IOException {
 			return false;
 		}
 
 		@Override
-		public boolean ri() throws IOException {
+		default boolean ri() throws IOException {
 			return false;
 		}
 	}
-
 }

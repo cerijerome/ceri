@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.function.Predicate;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealingConfig;
+import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.SerialPort;
 
 public class SelfHealingSerialConfig {
@@ -80,6 +81,14 @@ public class SelfHealingSerialConfig {
 		return portSupplier != null;
 	}
 
+	/**
+	 * Override serial params.
+	 */
+	public SelfHealingSerialConfig replace(SerialParams params) {
+		if (params == null || this.serial.params.equals(params)) return this;
+		return builder(this).serial(serial.replace(params)).build();
+	}
+	
 	@Override
 	public String toString() {
 		return ToString.forClass(this, lambdaName(portSupplier), lambdaName(factory), serial,

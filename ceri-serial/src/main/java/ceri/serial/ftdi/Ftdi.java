@@ -15,7 +15,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
  */
 public interface Ftdi extends Connector {
 	/** A stateless, no-op instance. */
-	Null NULL = new Null();
+	Null NULL = new Null() {};
 
 	/**
 	 * Get device descriptor strings: manufacturer, description and serial code.
@@ -193,87 +193,85 @@ public interface Ftdi extends Connector {
 	/**
 	 * A stateless, no-op implementation.
 	 */
-	static class Null extends Connector.Null implements Ftdi.Fixable {
-		Null() {}
-
+	interface Null extends Connector.Null, Ftdi.Fixable {
 		@Override
-		public ftdi_usb_strings descriptor() throws IOException {
+		default ftdi_usb_strings descriptor() throws IOException {
 			return ftdi_usb_strings.NULL;
 		}
 
 		@Override
-		public void usbReset() throws IOException {}
+		default void usbReset() throws IOException {}
 
 		@Override
-		public void bitMode(FtdiBitMode bitmode) throws IOException {}
+		default void bitMode(FtdiBitMode bitmode) throws IOException {}
 
 		@Override
-		public void baud(int baud) throws IOException {}
+		default void baud(int baud) throws IOException {}
 
 		@Override
-		public void line(FtdiLineParams properties) throws IOException {}
+		default void line(FtdiLineParams properties) throws IOException {}
 
 		@Override
-		public void flowControl(FtdiFlowControl flowControl) throws IOException {}
+		default void flowControl(FtdiFlowControl flowControl) throws IOException {}
 
 		@Override
-		public void dtr(boolean state) throws IOException {}
+		default void dtr(boolean state) throws IOException {}
 
 		@Override
-		public void rts(boolean state) throws IOException {}
+		default void rts(boolean state) throws IOException {}
 
 		@Override
-		public int readPins() throws IOException {
+		default int readPins() throws IOException {
 			return 0;
 		}
 
 		@Override
-		public int pollModemStatus() throws IOException {
+		default int pollModemStatus() throws IOException {
 			return 0;
 		}
 
 		@Override
-		public void latencyTimer(int latency) throws IOException {}
+		default void latencyTimer(int latency) throws IOException {}
 
 		@Override
-		public int latencyTimer() throws IOException {
+		default int latencyTimer() throws IOException {
 			return 0;
 		}
 
 		@Override
-		public void readChunkSize(int size) throws IOException {}
+		default void readChunkSize(int size) throws IOException {}
 
 		@Override
-		public int readChunkSize() throws IOException {
+		default int readChunkSize() throws IOException {
 			return 0;
 		}
 
 		@Override
-		public void writeChunkSize(int size) throws IOException {}
+		default void writeChunkSize(int size) throws IOException {}
 
 		@Override
-		public int writeChunkSize() throws IOException {
+		default int writeChunkSize() throws IOException {
 			return 0;
 		}
 
 		@Override
-		public void purgeReadBuffer() throws IOException {}
+		default void purgeReadBuffer() throws IOException {}
 
 		@Override
-		public void purgeWriteBuffer() throws IOException {}
+		default void purgeWriteBuffer() throws IOException {}
 
 		@Override
-		public FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException {
+		default FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException {
 			return FtdiTransferControl.NULL;
 		}
 
 		@Override
-		public FtdiTransferControl writeSubmit(Pointer buf, int size) throws IOException {
+		default FtdiTransferControl writeSubmit(Pointer buf, int size) throws IOException {
 			return FtdiTransferControl.NULL;
 		}
 
 		@Override
-		public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+		default void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
 			double progressIntervalSec) throws IOException {}
 	}
 }

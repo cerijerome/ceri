@@ -22,7 +22,8 @@ import ceri.serial.i2c.smbus.SmBus;
  * Encapsulation of I2C bus.
  */
 public interface I2c {
-	static final I2c NULL = new Null();
+	/** A stateless, no-op instance. */
+	I2c NULL = new Null() {};
 
 	/**
 	 * Specify the number of times a device address should be polled when not acknowledging.
@@ -177,39 +178,37 @@ public interface I2c {
 		throws IOException;
 
 	/**
-	 * A no-op implementation of I2c interface.
+	 * A stateless, no-op implementation.
 	 */
-	static class Null implements I2c {
-		protected Null() {}
-
+	interface Null extends I2c {
 		@Override
-		public I2c retries(int count) throws IOException {
+		default I2c retries(int count) throws IOException {
 			return this;
 		}
 
 		@Override
-		public I2c timeout(int timeoutMs) throws IOException {
+		default I2c timeout(int timeoutMs) throws IOException {
 			return this;
 		}
 
 		@Override
-		public Collection<i2c_func> functions() throws IOException {
+		default Collection<i2c_func> functions() throws IOException {
 			return i2c_func.xcoder.all();
 		}
 
 		@Override
-		public void smBusPec(boolean on) throws IOException {}
+		default void smBusPec(boolean on) throws IOException {}
 
 		@Override
-		public SmBus smBus(I2cAddress address) {
+		default SmBus smBus(I2cAddress address) {
 			return SmBus.NULL;
 		}
 
 		@Override
-		public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {}
+		default void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {}
 
 		@Override
-		public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
+		default void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 			int readLen) throws IOException {}
 	}
 }

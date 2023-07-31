@@ -14,6 +14,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
@@ -64,7 +65,7 @@ public class FtdiBehavior {
 	public void shouldFailIfClosed() throws LibUsbException {
 		ftdi = FtdiDevice.open();
 		ftdi.close();
-		assertThrown(() -> ftdi.read());
+		assertThrown(() -> ftdi.in().read());
 		lib.syncTransferOut.assertValues( // open() leftovers:
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // ftdi_usb_reset
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // ftdi_set_baudrate 9600
@@ -72,12 +73,12 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldSetFtdiConfiguration() throws LibUsbException {
+	public void shouldSetFtdiConfiguration() throws IOException {
 		ftdi = open();
 		ftdi.usbReset();
 		ftdi.bitBang(false);
 		ftdi.bitBang(true);
-		ftdi.baudRate(250000);
+		ftdi.baud(250000);
 		ftdi.line(FtdiLineParams.builder().dataBits(BITS_7).stopBits(STOP_BIT_2).parity(ODD)
 			.breakType(BREAK_ON).build());
 		ftdi.latencyTimer(100);
@@ -106,49 +107,41 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldAccessDescriptors() throws LibUsbException {
+	public void shouldAccessDescriptors() throws IOException {
 		ftdi = open();
-		assertEquals(ftdi.manufacturer(), "FTDI");
-		assertEquals(ftdi.description(), "FT245R USB FIFO");
-		assertEquals(ftdi.serial(), "A7047D8V");
+		assertEquals(ftdi.descriptor().manufacturer(), "FTDI");
+		assertEquals(ftdi.descriptor().description(), "FT245R USB FIFO");
+		assertEquals(ftdi.descriptor().serial(), "A7047D8V");
 	}
 
 	@Test
-	public void shouldControlDtrRts() throws LibUsbException {
+	public void shouldControlDtrRts() throws IOException {
 		ftdi = open();
 		ftdi.rts(true);
 		ftdi.rts(false);
 		ftdi.dtr(true);
 		ftdi.dtr(false);
-		ftdi.dtrRts(true, true);
-		ftdi.dtrRts(true, false);
-		ftdi.dtrRts(false, true);
-		ftdi.dtrRts(false, false);
 		lib.syncTransferOut.assertValues( //
 			List.of(0x40, 0x01, 0x202, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x200, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x101, 1, ByteProvider.empty()),
-			List.of(0x40, 0x01, 0x100, 1, ByteProvider.empty()),
-			List.of(0x40, 0x01, 0x303, 1, ByteProvider.empty()),
-			List.of(0x40, 0x01, 0x301, 1, ByteProvider.empty()),
-			List.of(0x40, 0x01, 0x302, 1, ByteProvider.empty()),
-			List.of(0x40, 0x01, 0x300, 1, ByteProvider.empty()));
+			List.of(0x40, 0x01, 0x100, 1, ByteProvider.empty()));
 	}
 
 	@Test
-	public void shouldWriteData() throws LibUsbException {
+	public void shouldWriteData() throws IOException {
 		ftdi = open();
-		assertEquals(ftdi.write(1, 2, 3), 3);
-		assertEquals(ftdi.write(ByteBuffer.wrap(ArrayUtil.bytes(4, 5, 6))), 3);
+		assertEquals(ftdi.out().write(1, 2, 3), 3);
+		assertEquals(ftdi.out().write(ByteBuffer.wrap(ArrayUtil.bytes(4, 5, 6))), 3);
 		lib.syncTransferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5, 6)));
 		lib.syncTransferOut.autoResponses((Integer) null); // set transferred to 0
-		assertEquals(ftdi.write(1, 2, 3), 0);
+		assertEquals(ftdi.out().write(1, 2, 3), 0);
 	}
 
 	@Test
-	public void shouldReadData() throws LibUsbException {
+	public void shouldReadData() throws IOException {
 		ftdi = open();
 		lib.syncTransferIn.autoResponses( //
 			provider(0, 0, 0xab), // read() => 2B status + 1B data
@@ -156,12 +149,12 @@ public class FtdiBehavior {
 			provider(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
 			provider(0, 0, 4, 5), provider(), // read(3) => 2B status + 2B data
 			provider(0, 0, 6, 7), provider()); // read(buffer[3]) => 2B status + 2B data
-		assertEquals(ftdi.read(), 0xab);
-		assertEquals(ftdi.read(), -1);
-		assertArray(ftdi.read(3), 1, 2, 3);
-		assertArray(ftdi.read(3), 4, 5);
+		assertEquals(ftdi.in().read(), 0xab);
+		assertEquals(ftdi.in().read(), -1);
+		assertArray(ftdi.in().read(3), 1, 2, 3);
+		assertArray(ftdi.in().read(3), 4, 5);
 		ByteBuffer bb = ByteBuffer.allocate(3);
-		assertEquals(ftdi.read(bb), 2);
+		assertEquals(ftdi.in().read(bb), 2);
 		assertArray(bb.array(), 6, 7, 0);
 		lib.syncTransferIn.assertValues( //
 			List.of(0x81, 3), //
@@ -172,7 +165,7 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldWriteAsync() throws LibUsbException {
+	public void shouldWriteAsync() throws IOException {
 		ftdi = open();
 		ftdi.writeChunkSize(2);
 		var enc = ByteArray.Encoder.of();
@@ -183,7 +176,7 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldWriteAsyncUntilFailure() throws LibUsbException {
+	public void shouldWriteAsyncUntilFailure() throws IOException {
 		ftdi = open();
 		ftdi.writeChunkSize(2);
 		var enc = ByteArray.Encoder.of();
@@ -197,7 +190,7 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldReadAsync() throws LibUsbException {
+	public void shouldReadAsync() throws IOException {
 		ftdi = open();
 		ftdi.ftdi().max_packet_size = 7;
 		ftdi.readChunkSize(4);
@@ -210,7 +203,7 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldReadAsyncUntilFailure() throws LibUsbException {
+	public void shouldReadAsyncUntilFailure() throws IOException {
 		ftdi = open();
 		ftdi.readChunkSize(4);
 		var reader = ByteProvider.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).reader(0);
@@ -225,7 +218,7 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldCancelAsync() throws LibUsbException {
+	public void shouldCancelAsync() throws IOException {
 		ftdi = open();
 		ftdi.readChunkSize(8);
 		var m = GcMemory.malloc(5).clear();
@@ -239,13 +232,13 @@ public class FtdiBehavior {
 	}
 
 	@Test
-	public void shouldFailToReadStreamForInvalidFtdiChip() throws LibUsbException {
+	public void shouldFailToReadStreamForInvalidFtdiChip() throws IOException {
 		ftdi = open();
 		assertThrown(() -> ftdi.readStream((prog, buffer) -> true, 1, 1));
 	}
 
 	@Test
-	public void shouldReadStreamData() throws LibUsbException {
+	public void shouldReadStreamData() throws IOException {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));

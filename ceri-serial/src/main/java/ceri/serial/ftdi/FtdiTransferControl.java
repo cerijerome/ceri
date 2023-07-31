@@ -9,7 +9,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 
 public interface FtdiTransferControl {
 	/** A no-op, stateless instance */
-	Null NULL = new Null();
+	FtdiTransferControl NULL = new Null() {};
 
 	/**
 	 * Waits for transfer to complete. Returns the number of bytes transferred.
@@ -41,13 +41,13 @@ public interface FtdiTransferControl {
 	/**
 	 * A no-op, stateless implementation.
 	 */
-	static class Null implements FtdiTransferControl {
+	interface Null extends FtdiTransferControl {
 		@Override
-		public int dataDone() throws LibUsbException {
+		default int dataDone() throws LibUsbException {
 			return 0;
 		}
 
 		@Override
-		public void dataCancel(Duration d) throws LibUsbException {}
+		default void dataCancel(Duration d) throws LibUsbException {}
 	}
 }

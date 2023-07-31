@@ -132,7 +132,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 			String port = config.portSupplier.get();
 			serial = SerialPort.open(port);
 			IoUtil.clear(serial.in());
-			serialConfig.build().apply(serial);
+			serialConfig.build().applyTo(serial);
 			return serial;
 		} catch (RuntimeException | IOException e) {
 			LogUtil.close(serial);

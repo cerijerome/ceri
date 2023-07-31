@@ -3,7 +3,8 @@ package ceri.serial.spi;
 import java.io.IOException;
 
 public interface Spi {
-	static final Spi NULL = new Null();
+	/** A stateless, no-op instance. */
+	Spi NULL = new Null() {};
 
 	enum Direction {
 		in,
@@ -42,51 +43,52 @@ public interface Spi {
 		return bitsPerWord;
 	}
 
-	static class Null implements Spi {
-		protected Null() {}
-
+	/**
+	 * A stateless, no-op implementation.
+	 */
+	interface Null extends Spi {
 		@Override
-		public SpiMode mode() {
+		default SpiMode mode() {
 			return SpiMode.MODE_0;
 		}
 
 		@Override
-		public Spi mode(SpiMode mode) {
+		default Spi mode(SpiMode mode) {
 			return this;
 		}
 
 		@Override
-		public boolean lsbFirst() {
+		default boolean lsbFirst() {
 			return false;
 		}
 
 		@Override
-		public Spi lsbFirst(boolean enabled) {
+		default Spi lsbFirst(boolean enabled) {
 			return this;
 		}
 
 		@Override
-		public int bitsPerWord() {
+		default int bitsPerWord() {
 			return 0;
 		}
 
 		@Override
-		public Spi bitsPerWord(int bitsPerWord) {
+		default Spi bitsPerWord(int bitsPerWord) {
 			return this;
 		}
 
 		@Override
-		public int maxSpeedHz() {
+		default int maxSpeedHz() {
 			return 0;
 		}
 
 		@Override
-		public Spi maxSpeedHz(int maxSpeedHz) {
+		default Spi maxSpeedHz(int maxSpeedHz) {
 			return this;
 		}
 
 		@Override
-		public SpiTransfer transfer(Direction direction, int size) {
+		default SpiTransfer transfer(Direction direction, int size) {
 			return SpiTransfer.of(t -> {}, direction, size);
 		}
 	}

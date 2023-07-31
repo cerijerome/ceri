@@ -15,7 +15,7 @@ public class FtdiTester {
 
 	public static void runEchoTest() throws IOException {
 		try (TestFtdi connector = TestFtdi.echoPins()) {
-			connector.connect();
+			connector.open();
 			FtdiTester.test(connector, connector::fixed);
 		}
 	}
@@ -23,7 +23,7 @@ public class FtdiTester {
 	public static void run(String finder) throws IOException {
 		var config = SelfHealingFtdiConfig.of(finder);
 		try (var connector = SelfHealingFtdi.of(config)) {
-			connector.connect();
+			connector.open();
 			FtdiTester.test(connector, null);
 		}
 	}

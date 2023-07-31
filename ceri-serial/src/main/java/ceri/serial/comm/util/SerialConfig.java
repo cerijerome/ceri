@@ -84,7 +84,15 @@ public class SerialConfig {
 		outBufferSize = builder.outBufferSize;
 	}
 
-	public void apply(Serial serial) throws IOException {
+	/**
+	 * Override serial params.
+	 */
+	public SerialConfig replace(SerialParams params) {
+		if (params == null || this.params.equals(params)) return this;
+		return builder(this).params(params).build();
+	}
+	
+	public void applyTo(Serial serial) throws IOException {
 		serial.inBufferSize(inBufferSize);
 		serial.outBufferSize(outBufferSize);
 		serial.flowControl(flowControl);

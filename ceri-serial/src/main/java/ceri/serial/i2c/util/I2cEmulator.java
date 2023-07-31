@@ -15,7 +15,7 @@ import ceri.serial.i2c.smbus.SmBusEmulator;
 /**
  * I2C emulator, where slave device emulators can register and respond to messages.
  */
-public class I2cEmulator extends I2c.Null {
+public class I2cEmulator implements I2c.Null {
 	public static final int ANY_READ_LEN = -1;
 	private final int hz;
 	public final Map<I2cAddress, SlaveDevice> slaves = new ConcurrentHashMap<>();
