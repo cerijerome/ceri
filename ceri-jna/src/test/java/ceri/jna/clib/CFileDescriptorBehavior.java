@@ -142,7 +142,7 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldNotThrowExceptionOnClose() {
-		lib.close.error.setFrom(CError.EIO::error);
+		lib.close.error.setFrom(() -> CError.EIO.error());
 		LogModifier.run(fd::close, Level.OFF, CFileDescriptor.class);
 		lib.close.error.clear();
 	}

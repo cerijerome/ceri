@@ -9,7 +9,7 @@ import ceri.x10.command.CommandListener;
  * Interface for X10 controllers.
  */
 public interface X10Controller {
-	static X10Controller NULL = new X10Controller() {};
+	X10Controller NULL = new X10Controller() {};
 
 	/**
 	 * Determines if the controller supports the command.

@@ -38,17 +38,41 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Returns a value based on condition of null, true, false.
+	 * Returns default value if main value is null.
 	 */
-	public static <T> T conditional(Boolean condition, T trueValue, T falseValue) {
-		return conditional(condition, trueValue, falseValue, null);
+	public static <E extends Exception, T> T defaultValue(T value,
+		ExceptionSupplier<E, T> defSupplier) throws E {
+		return value != null ? value : defSupplier.get();
 	}
 
 	/**
-	 * Returns a value based on condition of null, true, false.
+	 * Supplies a value based on condition.
 	 */
-	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
-		if (condition == null) return nullValue;
+	public static <E extends Exception, T> T conditionalGet(boolean condition,
+		ExceptionSupplier<E, T> trueSupplier) throws E {
+		return conditionalGet(condition, trueSupplier, (T) null);
+	}
+
+	/**
+	 * Supplies a value based on condition.
+	 */
+	public static <E extends Exception, T> T conditionalGet(boolean condition,
+		ExceptionSupplier<E, T> trueSupplier, T falseValue) throws E {
+		return condition ? trueSupplier.get() : falseValue;
+	}
+
+	/**
+	 * Supplies a value based on condition.
+	 */
+	public static <E extends Exception, T> T conditionalGet(boolean condition,
+		ExceptionSupplier<E, T> trueSupplier, ExceptionSupplier<E, T> falseSupplier) throws E {
+		return condition ? trueSupplier.get() : falseSupplier.get();
+	}
+
+	/**
+	 * Returns a value based on condition.
+	 */
+	public static <T> T conditional(boolean condition, T trueValue, T falseValue) {
 		return condition ? trueValue : falseValue;
 	}
 

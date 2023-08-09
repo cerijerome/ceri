@@ -358,6 +358,20 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Applies a single bit mask inclusively or exclusively.
+	 */
+	public static long applyBit(long value, int bit, boolean on) {
+		return applyMask(value, maskOfBit(true, bit), on);
+	}
+
+	/**
+	 * Applies a single bit mask inclusively or exclusively.
+	 */
+	public static int applyBitInt(int value, int bit, boolean on) {
+		return applyMaskInt(value, maskOfBitInt(true, bit), on);
+	}
+
+	/**
 	 * Applies a mask inclusively or exclusively.
 	 */
 	public static long applyMask(long value, long mask, boolean on) {

@@ -10,7 +10,7 @@ public class RpcServerBehavior {
 	@Test
 	public void shouldStartServer() throws IOException {
 		try (var service = TestRpcService.of()) {
-			try (RpcServer server = RpcServer.start(service, RpcServerConfig.of())) {
+			try (RpcServer server = RpcServer.start(service, RpcServerConfig.DEFAULT)) {
 				assertTrue(server.port() > 0);
 				assertTrue(server.toString().contains("(" + server.port() + ")"));
 			}
@@ -21,7 +21,7 @@ public class RpcServerBehavior {
 	public void shouldNotThrowExceptionOnClose() {
 		TestServer server = TestServer.of();
 		server.awaitTermination.error.setFrom(INX);
-		try (RpcServer rpcServer = new RpcServer(server, RpcServerConfig.of())) {}
+		try (RpcServer rpcServer = new RpcServer(server, RpcServerConfig.DEFAULT)) {}
 	}
 
 }

@@ -2,7 +2,9 @@ package ceri.x10.cm11a;
 
 import ceri.common.io.DeviceMode;
 import ceri.common.text.ToString;
-import ceri.serial.javax.util.SelfHealingSerialConfig;
+import ceri.serial.comm.Serial;
+import ceri.serial.comm.util.SelfHealingSerialConfig;
+import ceri.x10.cm11a.device.Cm11a;
 import ceri.x10.cm11a.device.Cm11aDeviceConfig;
 
 /**
@@ -12,21 +14,32 @@ public class Cm11aConfig {
 	public final int id;
 	public final DeviceMode mode;
 	public final Cm11aDeviceConfig device;
-	public final SelfHealingSerialConfig deviceSerial;
+	public final SelfHealingSerialConfig serial;
+
+	/**
+	 * Container type.
+	 */
+	public static enum Type {
+		cm11aRef,
+		serialRef,
+		serial,
+		test,
+		noOp;
+	}
 
 	/**
 	 * Convenience constructor for simple case.
 	 */
 	public static Cm11aConfig of(String commPort) {
 		// Container overrides serial port params
-		return builder().deviceSerial(SelfHealingSerialConfig.of(commPort)).build();
+		return builder().serial(SelfHealingSerialConfig.of(commPort)).build();
 	}
 
 	public static class Builder {
 		int id = 1;
 		DeviceMode mode = DeviceMode.enabled;
 		Cm11aDeviceConfig device = Cm11aDeviceConfig.DEFAULT;
-		SelfHealingSerialConfig deviceSerial = SelfHealingSerialConfig.NULL;
+		SelfHealingSerialConfig serial = SelfHealingSerialConfig.NULL;
 
 		Builder() {}
 
@@ -40,8 +53,8 @@ public class Cm11aConfig {
 			return this;
 		}
 
-		public Builder deviceSerial(SelfHealingSerialConfig deviceSerial) {
-			this.deviceSerial = deviceSerial;
+		public Builder serial(SelfHealingSerialConfig deviceSerial) {
+			this.serial = deviceSerial;
 			return this;
 		}
 
@@ -62,8 +75,16 @@ public class Cm11aConfig {
 	Cm11aConfig(Builder builder) {
 		id = builder.id;
 		mode = builder.mode;
-		deviceSerial = builder.deviceSerial;
+		serial = builder.serial;
 		device = builder.device;
+	}
+
+	public Type type(Cm11a cm11aRef, Serial.Fixable serialRef) {
+		if (cm11aRef != null) return Type.cm11aRef;
+		if (serialRef != null) return Type.serialRef;
+		if (mode == DeviceMode.enabled && serial.enabled()) return Type.serial;
+		if (mode == DeviceMode.test) return Type.test;
+		return Type.noOp;
 	}
 
 	public boolean isTest() {
@@ -71,12 +92,11 @@ public class Cm11aConfig {
 	}
 
 	public boolean isDevice() {
-		return mode == DeviceMode.enabled && deviceSerial.enabled();
+		return mode == DeviceMode.enabled && serial.enabled();
 	}
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, id, mode, device, deviceSerial);
+		return ToString.forClass(this, id, mode, device, serial);
 	}
-
 }

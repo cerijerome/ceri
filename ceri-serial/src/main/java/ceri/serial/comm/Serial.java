@@ -12,7 +12,7 @@ import ceri.common.text.StringUtil;
  */
 public interface Serial extends Connector {
 	/** A stateless, no-op instance. */
-	Serial NULL = new Null() {};
+	Serial.Fixable NULL = new Null() {};
 
 	@Override
 	default java.lang.String name() {
@@ -31,7 +31,7 @@ public interface Serial extends Connector {
 
 	void params(SerialParams params) throws IOException;
 
-	SerialParams params();
+	SerialParams params() throws IOException;
 
 	default void flowControl(FlowControl... flowControl) throws IOException {
 		flowControl(Arrays.asList(flowControl));
@@ -39,7 +39,7 @@ public interface Serial extends Connector {
 
 	void flowControl(Collection<FlowControl> flowControl) throws IOException;
 
-	Set<FlowControl> flowControl();
+	Set<FlowControl> flowControl() throws IOException;
 
 	void brk(boolean on) throws IOException;
 
@@ -94,7 +94,7 @@ public interface Serial extends Connector {
 		default void params(SerialParams params) throws IOException {}
 
 		@Override
-		default SerialParams params() {
+		default SerialParams params() throws IOException {
 			return SerialParams.DEFAULT;
 		}
 
@@ -102,7 +102,7 @@ public interface Serial extends Connector {
 		default void flowControl(Collection<FlowControl> flowControl) throws IOException {}
 
 		@Override
-		default Set<FlowControl> flowControl() {
+		default Set<FlowControl> flowControl() throws IOException {
 			return FlowControl.NONE;
 		}
 

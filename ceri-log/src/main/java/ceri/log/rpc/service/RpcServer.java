@@ -1,5 +1,6 @@
 package ceri.log.rpc.service;
 
+import static ceri.log.rpc.service.RpcServiceUtil.NULL_SERVER;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
@@ -7,26 +8,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
-import ceri.common.util.CloseableUtil;
+import ceri.log.util.LogUtil;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
 public class RpcServer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
+	public static final RpcServer NULL = new RpcServer(NULL_SERVER, RpcServerConfig.NULL);
 	private final RpcServerConfig config;
 	private final Server server;
 
-	/**
-	 * Convenience method to create and start a server, tidying up if an exception is thrown.
-	 */
 	@SuppressWarnings("resource")
 	public static RpcServer start(BindableService service, RpcServerConfig config)
 		throws IOException {
-		return CloseableUtil.acceptOrClose(of(service, config), RpcServer::start);
+		return LogUtil.acceptOrClose(of(service, config), RpcServer::start);
 	}
 
 	public static RpcServer of(BindableService service, RpcServerConfig config) {
+		if (!config.enabled()) return NULL;
 		Server server = ServerBuilder.forPort(config.port).addService(service).build();
 		return new RpcServer(server, config);
 	}
@@ -41,12 +41,18 @@ public class RpcServer implements RuntimeCloseable {
 	}
 
 	public void start() throws IOException {
+		if (!enabled()) return;
 		server.start();
 		logger.info("Listening on port {}", server.getPort());
 	}
 
+	public boolean enabled() {
+		return config.enabled();
+	}
+
 	@Override
 	public void close() {
+		if (!enabled()) return;
 		server.shutdownNow();
 		try {
 			server.awaitTermination(config.shutdownTimeoutMs, TimeUnit.MILLISECONDS);
@@ -60,5 +66,4 @@ public class RpcServer implements RuntimeCloseable {
 	public String toString() {
 		return ToString.forClass(this, server.getPort());
 	}
-
 }

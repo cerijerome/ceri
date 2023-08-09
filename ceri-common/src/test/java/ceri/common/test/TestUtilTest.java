@@ -219,10 +219,8 @@ public class TestUtilTest {
 	public void testRandomString() {
 		String r = TestUtil.randomString(100);
 		assertEquals(r.length(), 100);
-		for (int i = 0; i < r.length(); i++) {
-			char c = r.charAt(i);
-			assertRange(c, ' ', '~');
-		}
+		for (int i = 0; i < r.length(); i++)
+			assertRange(r.charAt(i), ' ', '~');
 	}
 
 	@Test

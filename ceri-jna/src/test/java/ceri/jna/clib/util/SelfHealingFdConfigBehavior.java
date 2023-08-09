@@ -21,7 +21,7 @@ public class SelfHealingFdConfigBehavior {
 	@Test
 	public void shouldCreateFromProperties() throws IOException {
 		try (var enc = TestCLibNative.register()) {
-			var lib = enc.subject;
+			var lib = enc.ref;
 			var config =
 				new SelfHealingFdProperties(baseProperties("self-healing-fd"), "fd").config();
 			try (var fd = config.open()) {

@@ -10,7 +10,6 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -18,7 +17,6 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -80,7 +78,7 @@ public class FunctionUtilTest {
 
 	@Test
 	public void testSequentialSupplier() {
-		assertThrown(FunctionUtil::sequentialSupplier);
+		assertNull(FunctionUtil.sequentialSupplier().get());
 		var supplier0 = FunctionUtil.sequentialSupplier(1);
 		assertEquals(supplier0.get(), 1);
 		assertEquals(supplier0.get(), 1);
@@ -180,37 +178,6 @@ public class FunctionUtilTest {
 	}
 
 	@Test
-	public void testNamedPredicate() {
-		Predicate<String> p = FunctionUtil.named(s -> !s.isEmpty(), "test");
-		assertFalse(p.test(""));
-		assertTrue(p.test("abc"));
-		assertEquals(p.toString(), "test");
-	}
-
-	@Test
-	public void testNamedIntPredicate() {
-		IntPredicate p = FunctionUtil.namedInt(i -> i > 0, "test");
-		assertFalse(p.test(0));
-		assertTrue(p.test(1));
-		assertEquals(p.toString(), "test");
-	}
-
-	@Test
-	public void testAnonymousLambda() {
-		assertFalse(FunctionUtil.isAnonymousLambda(null));
-		assertFalse(FunctionUtil.isAnonymousLambda(new Object() {
-			@Override
-			public String toString() {
-				return null;
-			}
-		}));
-		assertFalse(FunctionUtil.isAnonymousLambda(new Object()));
-		IntPredicate p = i -> true;
-		assertFalse(FunctionUtil.isAnonymousLambda(FunctionUtil.namedInt(p, "test")));
-		assertTrue(FunctionUtil.isAnonymousLambda(p));
-	}
-
-	@Test
 	public void testPredicateAnd() {
 		Predicate<Integer> n = null;
 		Predicate<Integer> p0 = i -> i > -1;
@@ -255,12 +222,4 @@ public class FunctionUtilTest {
 		assertFalse(p.test(""));
 		assertTrue(p.test("x"));
 	}
-
-	@Test
-	public void testLambdaName() {
-		Function<?, ?> fn = i -> i;
-		assertEquals(FunctionUtil.lambdaName(fn), "[lambda]");
-		assertNotEquals(FunctionUtil.lambdaName(this), "[lambda]");
-	}
-
 }

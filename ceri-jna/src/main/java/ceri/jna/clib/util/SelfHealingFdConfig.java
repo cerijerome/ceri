@@ -1,6 +1,6 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.function.FunctionUtil.named;
+import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Namer;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
@@ -17,8 +17,8 @@ import ceri.jna.clib.OpenFlag;
 import ceri.log.io.SelfHealingConfig;
 
 public class SelfHealingFdConfig {
-	static final Predicate<Exception> DEFAULT_PREDICATE =
-		named(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
+	private static final Predicate<Exception> DEFAULT_PREDICATE =
+		Namer.predicate(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
 	public final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
 	public final SelfHealingConfig selfHealing;
 
@@ -76,6 +76,6 @@ public class SelfHealingFdConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, FunctionUtil.lambdaName(openFn), selfHealing);
+		return ToString.forClass(this, lambda(openFn), selfHealing);
 	}
 }

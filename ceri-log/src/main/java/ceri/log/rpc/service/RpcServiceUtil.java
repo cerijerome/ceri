@@ -1,18 +1,28 @@
 package ceri.log.rpc.service;
 
 import static ceri.common.text.RegexUtil.finder;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.google.protobuf.Empty;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
+import ceri.log.rpc.util.RpcUtil;
+import io.grpc.Server;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 public class RpcServiceUtil {
 	private static final Logger logger = LogManager.getLogger();
+	public static final Server NULL_SERVER = nullServer();
+	public static final ServerServiceDefinition NULL_SERVICE_DEFINITION =
+		ServerServiceDefinition.builder("Null").build();
 	private static final int MAX_MESSAGE_LEN = 128;
 	private static final Pattern CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX =
 		Pattern.compile("(?i)cancelled before receiving half close");
@@ -53,9 +63,18 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
+			ConcurrentUtil.interrupt(e);
 			logger.catching(e);
 			observer.onError(statusException(e));
 		}
+	}
+
+	/**
+	 * Executes runnable then responds with Empty to the client.
+	 */
+	public static <E extends Exception> void accept(StreamObserver<Empty> observer,
+		ExceptionRunnable<E> runnable) {
+		respond(observer, RpcUtil.EMPTY, runnable);
 	}
 
 	/**
@@ -68,9 +87,47 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
+			ConcurrentUtil.interrupt(e);
 			logger.catching(e);
 			observer.onError(statusException(e));
 		}
 	}
 
+	private static Server nullServer() {
+		return new Server() {
+			@Override
+			public void awaitTermination() throws InterruptedException {}
+
+			@Override
+			public boolean awaitTermination(long timeout, TimeUnit unit)
+				throws InterruptedException {
+				return true;
+			}
+
+			@Override
+			public boolean isShutdown() {
+				return false;
+			}
+
+			@Override
+			public boolean isTerminated() {
+				return false;
+			}
+
+			@Override
+			public Server shutdown() {
+				return this;
+			}
+
+			@Override
+			public Server shutdownNow() {
+				return shutdown();
+			}
+
+			@Override
+			public Server start() throws IOException {
+				return this;
+			}
+		};
+	}
 }

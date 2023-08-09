@@ -30,7 +30,8 @@ public class Uptime {
 	 */
 	public static long systemUptimeMs() {
 		try {
-			if (OsUtil.IS_LINUX || OsUtil.IS_MAC) return of().uptimeMs().parse();
+			var os = OsUtil.os();
+			if (os.linux || os.mac) return of().uptimeMs().parse();
 			long startTime = Net.of().stats.server().parse().since.toInstant().toEpochMilli();
 			return System.currentTimeMillis() - startTime;
 		} catch (IOException | RuntimeException e) {

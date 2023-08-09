@@ -3,6 +3,7 @@ package ceri.serial.comm.util;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
@@ -32,7 +33,9 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 
 	@Override
 	public String port() {
-		return device.applyIfSet(Serial::port, null);
+		String port = device.applyIfSet(Serial::port, null);
+		if (port == null) port = FunctionUtil.getSilently(config.portSupplier::get, null);
+		return port;
 	}
 
 	@Override

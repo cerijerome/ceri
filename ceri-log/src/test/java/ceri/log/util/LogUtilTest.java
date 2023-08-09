@@ -167,7 +167,7 @@ public class LogUtilTest {
 	@Test
 	public void testCloseFutureWithException() {
 		TestFuture<?> future = TestFuture.of("test");
-		future.get.error.setFrom(s -> new TimeoutException(s));
+		future.get.error.setFrom(TimeoutException::new);
 		assertFalse(LogUtil.close(future));
 		testLog.assertFind("(?is)WARN .*TimeoutException");
 	}

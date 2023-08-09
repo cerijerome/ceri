@@ -67,14 +67,14 @@ public class SerialPort implements Serial {
 
 	@Override
 	public void flowControl(Collection<FlowControl> flowControl) throws IOException {
-		int flowControlMode = FlowControl.encode(flowControl);
+		int flowControlMode = FlowControl.xcoder.encode(flowControl);
 		CSerial.setFlowControl(fd, flowControlMode);
 		this.flowControlMode = flowControlMode;
 	}
 
 	@Override
 	public Set<FlowControl> flowControl() {
-		return FlowControl.allFrom(flowControlMode);
+		return FlowControl.xcoder.decodeAll(flowControlMode);
 	}
 
 	@Override

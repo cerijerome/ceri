@@ -15,7 +15,14 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
  */
 public interface Ftdi extends Connector {
 	/** A stateless, no-op instance. */
-	Null NULL = new Null() {};
+	Ftdi NULL = new Null() {};
+
+	/**
+	 * Callback to register for streaming events.
+	 */
+	interface StreamCallback {
+		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);
+	}
 
 	/**
 	 * Get device descriptor strings: manufacturer, description and serial code.
@@ -182,13 +189,6 @@ public interface Ftdi extends Connector {
 	 * A state-aware extension.
 	 */
 	interface Fixable extends Ftdi, Connector.Fixable {}
-
-	/**
-	 * Callback to register for streaming events.
-	 */
-	interface StreamCallback {
-		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);
-	}
 
 	/**
 	 * A stateless, no-op implementation.

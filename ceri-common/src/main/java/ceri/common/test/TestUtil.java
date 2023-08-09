@@ -19,6 +19,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
@@ -345,14 +346,26 @@ public class TestUtil {
 	}
 
 	/**
+	 * Returns a random boolean.
+	 */
+	public static boolean randomBool() {
+		return ThreadLocalRandom.current().nextBoolean();
+	}
+
+	/**
 	 * Create a random string of given size.
 	 */
 	public static String randomString(long size) {
+		return randomString(size, ' ', '~');
+	}
+
+	/**
+	 * Create a random string of given size between char min and max (inclusive).
+	 */
+	public static String randomString(long size, int min, int max) {
 		StringBuilder b = new StringBuilder();
-		while (size-- > 0) {
-			char ch = (char) (RND.nextInt(64) + ' ');
-			b.append(ch);
-		}
+		while (size-- > 0)
+			b.append((char) (RND.nextInt(1 + max - min) + min));
 		return b.toString();
 	}
 

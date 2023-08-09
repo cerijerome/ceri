@@ -53,7 +53,7 @@ public class FtdiTester {
 	 */
 	public static void testPair() throws IOException {
 		try (var ftdis = Enclosed.ofAll(TestFtdi.pairOf())) {
-			test(ftdis.subject);
+			test(ftdis.ref);
 		}
 	}
 

@@ -7,6 +7,7 @@ import com.google.protobuf.BytesValue;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Int32Value;
 import com.google.protobuf.Int64Value;
+import com.google.protobuf.StringValue;
 import com.google.protobuf.UInt32Value;
 import com.google.protobuf.UInt64Value;
 import ceri.common.function.ExceptionFunction;
@@ -19,6 +20,13 @@ public class RpcUtil {
 	private static final StreamObserver<Object> NULL_OBSERVER = observer(null, null, null);
 
 	private RpcUtil() {}
+
+	/**
+	 * Value construction convenience method.
+	 */
+	public static BoolValue bool(boolean value) {
+		return BoolValue.of(value);
+	}
 
 	/**
 	 * Value construction convenience method.
@@ -45,42 +53,42 @@ public class RpcUtil {
 	 * Value construction convenience method.
 	 */
 	public static BytesValue bytes(ByteString value) {
-		return BytesValue.newBuilder().setValue(value).build();
+		return BytesValue.of(value);
 	}
 
 	/**
 	 * Value construction convenience method.
 	 */
 	public static Int32Value int32(int value) {
-		return Int32Value.newBuilder().setValue(value).build();
+		return Int32Value.of(value);
 	}
 
 	/**
 	 * Value construction convenience method.
 	 */
 	public static UInt32Value uint32(int value) {
-		return UInt32Value.newBuilder().setValue(value).build();
+		return UInt32Value.of(value);
 	}
 
 	/**
 	 * Value construction convenience method.
 	 */
 	public static Int64Value int64(long value) {
-		return Int64Value.newBuilder().setValue(value).build();
+		return Int64Value.of(value);
 	}
 
 	/**
 	 * Value construction convenience method.
 	 */
 	public static UInt64Value uint64(long value) {
-		return UInt64Value.newBuilder().setValue(value).build();
+		return UInt64Value.of(value);
 	}
 
 	/**
 	 * Value construction convenience method.
 	 */
-	public static BoolValue bool(boolean value) {
-		return BoolValue.newBuilder().setValue(value).build();
+	public static StringValue string(String value) {
+		return value == null ? null : StringValue.of(value);
 	}
 
 	/**

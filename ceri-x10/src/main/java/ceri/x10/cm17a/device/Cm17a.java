@@ -9,7 +9,10 @@ import ceri.x10.command.CommandListener;
 import ceri.x10.util.X10Controller;
 
 public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, Closeable {
-	static Cm17a NULL = new Cm17a() {
+	/**
+	 * A stateless, no-op instance.
+	 */
+	Cm17a NULL = new Cm17a() {
 		@Override
 		public Listenable<StateChange> listeners() {
 			return Listenable.ofNull();

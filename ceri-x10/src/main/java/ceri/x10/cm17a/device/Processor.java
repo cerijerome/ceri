@@ -109,14 +109,14 @@ public class Processor extends LoopingExecutor {
 	private void sendByte(int b) throws IOException {
 		for (int i = Byte.SIZE - 1; i >= 0; i--) {
 			if (ByteUtil.bit(b, i)) {
-				connector.setDtr(false);
+				connector.dtr(false);
 				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
-				connector.setDtr(true);
+				connector.dtr(true);
 				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 			} else {
-				connector.setRts(false);
+				connector.rts(false);
 				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
-				connector.setRts(true);
+				connector.rts(true);
 				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
 			}
 		}
@@ -127,11 +127,11 @@ public class Processor extends LoopingExecutor {
 	 */
 	private void sendReset() throws IOException {
 		logger.debug("Sending reset");
-		connector.setDtr(false);
-		connector.setRts(false);
+		connector.dtr(false);
+		connector.rts(false);
 		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
-		connector.setDtr(true);
-		connector.setRts(true);
+		connector.dtr(true);
+		connector.rts(true);
 		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
 	}
 

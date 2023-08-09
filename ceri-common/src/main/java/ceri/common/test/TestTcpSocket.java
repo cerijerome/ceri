@@ -1,12 +1,13 @@
 package ceri.common.test;
 
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
+import ceri.common.net.TcpSocketOptions;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * A connector for testing logic against serial connectors.
@@ -15,10 +16,8 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	private static final String NAME = ReflectUtil.name(TestTcpSocket.class);
 	public final CallSync.Supplier<HostPort> hostPort;
 	public final CallSync.Supplier<Integer> localPort;
-	// List<?> = TcpSocketOption<T>, T
-	public final CallSync.Consumer<List<?>> optionSet = CallSync.consumer(List.of(), true);
-	public final CallSync.Function<TcpSocketOption<Object>, Object> optionGet =
-		CallSync.function(null, (Object) null);
+	public final CallSync.Runnable optionError = CallSync.runnable(true);
+	public final TcpSocketOptions.Mutable options = TcpSocketOptions.of(ConcurrentHashMap::new);
 
 	/**
 	 * Provide a test socket that echoes output to input.
@@ -54,7 +53,7 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(hostPort);
+		CallSync.resetAll(hostPort, localPort, optionError);
 	}
 
 	@Override
@@ -69,11 +68,13 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
-		optionSet.accept(List.of(option, value));
+		options.set(option, value);
+		optionError.run(IO_ADAPTER);
 	}
 
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		return BasicUtil.uncheckedCast(optionGet.apply(BasicUtil.uncheckedCast(option)));
+		optionError.run(IO_ADAPTER);
+		return options.get(option);
 	}
 }

@@ -27,7 +27,7 @@ public class UsbEventsBehavior {
 	@Before
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		usb = Usb.of();
 		events = usb.events();
 	}
@@ -109,7 +109,7 @@ public class UsbEventsBehavior {
 
 	private boolean tryLock() throws LibUsbException {
 		try (var x = events.tryLock()) {
-			return x.subject;
+			return x.ref;
 		}
 	}
 }

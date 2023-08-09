@@ -1,28 +1,20 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.event.Listenable;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.Connector;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.IoStreamUtil.Write;
-import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
 
 /**
  * A connector implementation for tests, using piped streams.
  */
-public class TestConnector implements Connector.Fixable {
-	public final TestListeners<StateChange> listeners = TestListeners.of();
-	public final CallSync.Consumer<Boolean> open = CallSync.consumer(false, true);
-	public final CallSync.Consumer<Boolean> broken = CallSync.consumer(false, true);
-	public final CallSync.Runnable close = CallSync.runnable(true);
+public class TestConnector extends TestFixable implements Connector.Fixable {
 	public final TestInputStream in;
 	public final TestOutputStream out;
-	private final String name;
 	private final InputStream wrappedIn;
 	private final OutputStream wrappedOut;
 	private volatile Write writeOverride = null;
@@ -56,7 +48,7 @@ public class TestConnector implements Connector.Fixable {
 	 * Constructor with optional name override. Use null for the default name.
 	 */
 	protected TestConnector(String name) {
-		this.name = name;
+		super(name);
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
 		wrappedIn = IoStreamUtil.filterIn(in, this::read, this::available);
@@ -66,9 +58,9 @@ public class TestConnector implements Connector.Fixable {
 	/**
 	 * Clear state.
 	 */
+	@Override
 	public void reset() {
-		listeners.clear();
-		CallSync.resetAll(broken, open);
+		super.reset();
 		in.resetState();
 		out.resetState();
 	}
@@ -102,38 +94,6 @@ public class TestConnector implements Connector.Fixable {
 	}
 
 	@Override
-	public String name() {
-		return name == null ? Connector.Fixable.super.name() : name;
-	}
-
-	@Override
-	public Listenable<StateChange> listeners() {
-		return listeners;
-	}
-
-	@Override
-	public void broken() {
-		if (!broken.value()) listeners.accept(StateChange.broken);
-		broken.accept(true);
-		open.value(false);
-	}
-
-	/**
-	 * Manually mark the connector as fixed.
-	 */
-	public void fixed() {
-		open.value(true); // don't signal call
-		if (broken.value()) listeners.accept(StateChange.fixed);
-		broken.accept(false);
-	}
-
-	@Override
-	public void open() throws IOException {
-		open.accept(true, IO_ADAPTER);
-		verifyUnbroken();
-	}
-
-	@Override
 	public InputStream in() {
 		return wrappedIn;
 	}
@@ -145,19 +105,14 @@ public class TestConnector implements Connector.Fixable {
 
 	@Override
 	public void close() throws IOException {
-		open.value(false);
 		in.close();
 		out.close();
-		close.run(IO_ADAPTER);
+		super.close();
 	}
 
-	/**
-	 * Prints state; useful for debugging tests.
-	 */
 	@Override
-	public String toString() {
-		return ToString.ofClass(this, listeners.size(), "broken=" + broken, "open=" + open)
-			.children("in=" + in, "out=" + out).toString();
+	protected ToString asString() {
+		return super.asString().children(in, out);
 	}
 
 	/**
@@ -185,15 +140,6 @@ public class TestConnector implements Connector.Fixable {
 		verifyConnected();
 		if (!FunctionUtil.safeAccept(writeOverride, w -> w.write(b, offset, length)))
 			out.write(b, offset, length);
-	}
-
-	protected void verifyConnected() throws IOException {
-		verifyUnbroken();
-		if (!open.value()) throw new IOException("Not connected");
-	}
-
-	protected void verifyUnbroken() throws IOException {
-		if (broken.value()) throw new IOException("Connector is broken");
 	}
 
 	private boolean writeWithReturn(OutputStream out, byte[] b, int offset, int length)

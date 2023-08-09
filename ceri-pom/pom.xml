@@ -206,7 +206,7 @@
 							<include>**/*Test.java</include>
 							<include>**/*Behavior.java</include>
 						</includes>
-						<skipTests>false</skipTests>
+						<!-- skipTests>false</skipTests // overrides -DskipTests -->
 					</configuration>
 				</plugin>
 				<plugin>

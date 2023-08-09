@@ -6,11 +6,11 @@ import static ceri.common.concurrent.ConcurrentUtil.executeGet;
 import static ceri.common.concurrent.ConcurrentUtil.executeGetInterruptible;
 import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
-import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -90,7 +90,7 @@ public abstract class CallSync<T, R> {
 	public static class Function<T, R> extends CallSync<T, R>
 		implements java.util.function.Function<T, R> {
 
-		private Function(T valueDef, R[] autoResponses) {
+		protected Function(T valueDef, R[] autoResponses) {
 			super(valueDef, () -> toAutoResponseFn(autoResponses));
 		}
 
@@ -103,7 +103,36 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
-		 * Returns the last call value, or default if not set.
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public T lastValue() {
+			return lastValue(RUNTIME);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public <E extends Exception> T lastValue(ExceptionAdapter<E> adapter) throws E {
+			return super.lastValue(adapter);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public T lastValueWithInterrupt() throws InterruptedException {
+			return lastValueWithInterrupt(RUNTIME);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public <E extends Exception> T lastValueWithInterrupt(ExceptionAdapter<E> adapter)
+			throws InterruptedException, E {
+			return super.lastValueWithInterrupt(adapter);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Does not check for exceptions.
 		 */
 		public T value() {
 			return super.getValue();
@@ -238,7 +267,7 @@ public abstract class CallSync<T, R> {
 	public static class Consumer<T> extends CallSync<T, Object>
 		implements java.util.function.Consumer<T> {
 
-		private Consumer(T valueDef, boolean autoResponse) {
+		protected Consumer(T valueDef, boolean autoResponse) {
 			super(valueDef, () -> toAutoResponseFn(autoResponse));
 		}
 
@@ -251,14 +280,43 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
-		 * Returns the last call value, or default if not set.
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public T lastValue() {
+			return lastValue(RUNTIME);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public <E extends Exception> T lastValue(ExceptionAdapter<E> adapter) throws E {
+			return super.lastValue(adapter);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public T lastValueWithInterrupt() throws InterruptedException {
+			return lastValueWithInterrupt(RUNTIME);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Checks for exceptions.
+		 */
+		public <E extends Exception> T lastValueWithInterrupt(ExceptionAdapter<E> adapter)
+			throws InterruptedException, E {
+			return super.lastValueWithInterrupt(adapter);
+		}
+
+		/**
+		 * Returns the last call value, or default if not set. Does not check for exceptions.
 		 */
 		public T value() {
 			return super.getValue();
 		}
 
 		/**
-		 * Sets the call value without signaling.
+		 * Sets the call value without signaling. Does not check for exceptions.
 		 */
 		public Consumer<T> value(T value) {
 			super.setValue(value);
@@ -266,7 +324,7 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
-		 * Returns the call values set since creation or reset.
+		 * Returns the call values set since creation or reset. Does not check for exceptions.
 		 */
 		public List<T> values() {
 			return super.getValues();
@@ -381,7 +439,7 @@ public abstract class CallSync<T, R> {
 	public static class Supplier<R> extends CallSync<Object, R>
 		implements java.util.function.Supplier<R> {
 
-		private Supplier(R[] autoResponses) {
+		protected Supplier(R[] autoResponses) {
 			super(null, () -> toAutoResponseFn(autoResponses));
 		}
 
@@ -466,7 +524,7 @@ public abstract class CallSync<T, R> {
 	 */
 	public static class Runnable extends CallSync<Object, Object> implements java.lang.Runnable {
 
-		private Runnable(boolean autoResponse) {
+		protected Runnable(boolean autoResponse) {
 			super(null, () -> toAutoResponseFn(autoResponse));
 		}
 
@@ -579,10 +637,17 @@ public abstract class CallSync<T, R> {
 	}
 
 	/**
-	 * Asserts the number of calls made.
+	 * Asserts the number of calls made since construction/reset.
 	 */
 	public void assertCalls(int calls) {
 		assertEquals(calls(), calls);
+	}
+
+	/**
+	 * Asserts that no call was made.
+	 */
+	public void assertNoCall() {
+		assertNull(callSync.value());
 	}
 
 	/**
@@ -602,17 +667,33 @@ public abstract class CallSync<T, R> {
 	public String toString() {
 		var callLock = lockInfo(callSync.lock);
 		var responseLock = lockInfo(responseSync.lock);
-		ToString s = ToString.ofClass(this);
-		if (!ConcurrentUtil.tryExecute(lock, () -> s.children( //
-			String.format("call=%s;%s", callSync.tryValue(), callLock),
-			String.format("response=%s;%s;%s", responseSync.tryValue(), responseLock,
-				lambdaName(autoResponseFn)),
-			String.format("error=%s", error), String.format("values=%s;%s", values, valueDef)))) {
-			// Unable to get lock
+		ToString s = ToString.ofClass(this).field("error", error);
+		if (!ConcurrentUtil.tryExecute(lock,
+			() -> s.children(String.format("call=%s;%s;%d", callSync.tryValue(), callLock, calls),
+				String.format("response=%s;%s;%s", responseSync.tryValue(), responseLock,
+					responseString()),
+				String.format("values=%s;%s", values, valueDef)))) {
+			// Lock failed; unable to safely read fields
 			s.children("call=[locked];" + callLock, "response=[locked];" + responseLock,
-				"error=[locked]", "values=[locked]");
+				"values=[locked]");
 		}
 		return s.toString();
+	}
+
+	/**
+	 * Prints compact internal state.
+	 */
+	public String compactString() {
+		ToString s = ToString.ofClass(this).field("error", error);
+		if (!ConcurrentUtil.tryExecute(lock,
+			() -> s.fields("calls", calls, "response", responseString(), "values",
+				values + ";" + valueDef)))
+			s.fields("calls", "[locked]", "response", "[locked]", "values", "[locked]");
+		return s.field("error", error).toString();
+	}
+
+	private String responseString() {
+		return autoResponseFn == null ? "manual" : "auto";
 	}
 
 	/**
@@ -633,14 +714,31 @@ public abstract class CallSync<T, R> {
 	}
 
 	/**
-	 * Thread-safe; get current value or default.
+	 * Thread-safe; get current value or default. Checks for exceptions.
+	 */
+	private <E extends Exception> T lastValue(ExceptionAdapter<E> adapter) throws E {
+		error.call(adapter);
+		return getValue();
+	}
+
+	/**
+	 * Thread-safe; get current value or default. Checks for exceptions.
+	 */
+	private <E extends Exception> T lastValueWithInterrupt(ExceptionAdapter<E> adapter)
+		throws InterruptedException, E {
+		error.callWithInterrupt(adapter);
+		return getValue();
+	}
+
+	/**
+	 * Thread-safe; get current value or default. Does not check for exceptions.
 	 */
 	private T getValue() {
 		return executeGet(lock, () -> getOrDefault(values, values.size() - 1, valueDef));
 	}
 
 	/**
-	 * Thread-safe; get all values.
+	 * Thread-safe; get all values. Does not check for exceptions.
 	 */
 	private List<T> getValues() {
 		return executeGet(lock, () -> new ArrayList<>(values));

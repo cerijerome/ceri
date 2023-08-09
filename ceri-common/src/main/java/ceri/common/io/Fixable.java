@@ -30,6 +30,14 @@ public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChan
 	}
 
 	/**
+	 * Convenience method to open a fixable type without throwing an exception, and return the type.
+	 */
+	static <T extends Fixable> T openSilently(T t) {
+		t.openSilently();
+		return t;
+	}
+
+	/**
 	 * A stateless, no-op implementation.
 	 */
 	interface Null extends Fixable {
@@ -43,5 +51,41 @@ public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChan
 
 		@Override
 		default void close() throws IOException {}
+	}
+
+	/**
+	 * A delegate wrapper.
+	 */
+	static class Wrapper<T extends Fixable> implements Fixable {
+		protected final T delegate;
+
+		protected Wrapper(T delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public Listenable<StateChange> listeners() {
+			return delegate.listeners();
+		}
+
+		@Override
+		public String name() {
+			return delegate.name();
+		}
+
+		@Override
+		public void broken() {
+			delegate.broken();
+		}
+
+		@Override
+		public void open() throws IOException {
+			delegate.open();
+		}
+
+		@Override
+		public void close() throws IOException {
+			delegate.close();
+		}
 	}
 }

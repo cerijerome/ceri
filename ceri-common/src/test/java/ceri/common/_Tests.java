@@ -138,7 +138,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
 	ceri.common.function.FunctionWrapperBehavior.class, //
-	ceri.common.function.NamedPredicateBuilderBehavior.class, //
+	ceri.common.function.NamerTest.class, //
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
 	ceri.common.function.ObjByteConsumerBehavior.class, //
 	ceri.common.function.ObjIntPredicateBehavior.class, //

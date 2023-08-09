@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import ceri.common.collection.ArrayUtil;
 
 /**
@@ -52,6 +53,7 @@ public class ToString {
 	 * Creates an instance with given name and values. "Name(Value1,Value2,...)"
 	 */
 	public static ToString ofName(String name, Object... values) {
+		Objects.requireNonNull(name);
 		return new ToString(name).values(values);
 	}
 
@@ -59,6 +61,7 @@ public class ToString {
 	 * Creates an instance with simple class name and values. "Name(Value1,Value2,...)"
 	 */
 	public static ToString ofClass(Object obj, Object... values) {
+		Objects.requireNonNull(obj);
 		return ofName(obj.getClass().getSimpleName(), values);
 	}
 

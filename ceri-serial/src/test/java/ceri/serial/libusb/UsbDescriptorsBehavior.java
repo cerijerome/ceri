@@ -29,7 +29,7 @@ public class UsbDescriptorsBehavior {
 	@Before
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		usb = Usb.of();
 	}
 

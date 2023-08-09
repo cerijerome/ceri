@@ -22,7 +22,7 @@ public class UsbBehavior {
 	@Before
 	public void before() {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 	}
 
 	@After

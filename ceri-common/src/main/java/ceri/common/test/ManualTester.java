@@ -497,7 +497,7 @@ public class ManualTester {
 
 	private String string(Object subject, int index) {
 		if (subjects.size() <= 1) return stringFn.apply(subject);
-		return String.format("%d)%s", index, stringFn.apply(subject));
+		return String.format("%d) %s", index, stringFn.apply(subject));
 	}
 
 	private void indexDiff(int diff) {

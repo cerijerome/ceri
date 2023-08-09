@@ -2,24 +2,22 @@ package ceri.x10.cm17a.device;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertRead;
-import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
-import ceri.common.test.TestListeners;
+import ceri.common.test.TestFixable;
 import ceri.common.test.TestOutputStream;
 
 /**
  * Recreates bytes from connector calls.
  */
-public class Cm17aTestConnector implements Cm17aConnector, Closeable {
-	public final TestListeners<StateChange> listeners = TestListeners.of();
+public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 	private final TestOutputStream out;
-	public final CallSync.Accept<Boolean> rts = CallSync.consumer(false, true);
-	public final CallSync.Accept<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
 	private boolean reset = true;
 	private int value = 0;
 	private int bit = 0;
@@ -29,32 +27,18 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	}
 
 	private Cm17aTestConnector() {
+		super(null);
 		out = TestOutputStream.of();
 	}
 
-	/**
-	 * Resets the state. A full reset sets the rts/dtr reset state to power-off state. Processor
-	 * only sets rts/dtr to standby on start/error; outside of these cases, the first bit would be
-	 * lost with a full reset.
-	 */
-	public void reset(boolean full) {
-		listeners.clear();
+	@Override
+	public void reset() {
 		out.resetState();
 		dtr.reset();
 		rts.reset();
-		if (full) reset = true; // Will lose first bit if Processor does not send a reset.
+		reset = true; // Will lose first bit if Processor does not send a reset.
 		value = 0;
 		bit = 0;
-	}
-
-	public void send(String s) throws IOException {
-		for (int i = 0; i < s.length(); i++) {
-			char ch = s.charAt(i);
-			if (ch == 'd') setDtr(false);
-			if (ch == 'D') setDtr(true);
-			if (ch == 'r') setRts(false);
-			if (ch == 'R') setRts(true);
-		}
 	}
 
 	public void assertCodes(int... codes) throws IOException {
@@ -70,7 +54,7 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	}
 
 	@Override
-	public void setDtr(boolean on) throws IOException {
+	public void dtr(boolean on) throws IOException {
 		boolean rts = this.rts.value();
 		boolean dtr = this.dtr.value();
 		if (!reset && rts && !dtr && on) bit(true);
@@ -80,7 +64,7 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	}
 
 	@Override
-	public void setRts(boolean on) throws IOException {
+	public void rts(boolean on) throws IOException {
 		boolean rts = this.rts.value();
 		boolean dtr = this.dtr.value();
 		if (!reset && dtr && !rts && on) bit(false);
@@ -92,6 +76,7 @@ public class Cm17aTestConnector implements Cm17aConnector, Closeable {
 	@Override
 	public void close() throws IOException {
 		out.close();
+		super.close();
 	}
 
 	private void standby() {

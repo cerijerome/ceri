@@ -136,6 +136,20 @@ public class Timer {
 	}
 
 	/**
+	 * Creates a timer with millisecond granularity.
+	 */
+	public static Timer millis(long period) {
+		return of(period, TimeUnit.MILLISECONDS);
+	}
+
+	/**
+	 * Creates a timer with microsecond granularity.
+	 */
+	public static Timer micros(long period) {
+		return of(period, TimeUnit.MICROSECONDS);
+	}
+
+	/**
 	 * Creates a timer with granularity of the given time unit.
 	 */
 	public static Timer of(long period, TimeUnit unit) {

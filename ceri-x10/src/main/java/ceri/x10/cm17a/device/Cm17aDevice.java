@@ -57,7 +57,7 @@ public class Cm17aDevice implements Cm17a {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, processor, dispatcher);
+		LogUtil.close(processor, dispatcher);
 	}
 
 	static boolean supportsCommand(Command command) {

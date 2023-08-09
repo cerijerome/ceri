@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.function.FunctionUtil.lambdaName;
 import static ceri.common.reflect.ReflectUtil.hashId;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Namer;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
@@ -740,7 +739,7 @@ public class AssertUtil {
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
 		if (messageTest == null) return;
 		if (!messageTest.test(t.getMessage()))
-			throw failure("Unmatched message %s: %s", lambdaName(messageTest), t.getMessage());
+			throw failure("Unmatched message %s: %s", Namer.lambda(messageTest), t.getMessage());
 	}
 
 	/**
@@ -1019,7 +1018,7 @@ public class AssertUtil {
 	}
 
 	private static Predicate<String> equalsPredicate(String s) {
-		return FunctionUtil.named(Predicate.isEqual(s), "\"" + s + "\"");
+		return Namer.predicate(Predicate.isEqual(s), "\"" + s + "\"");
 	}
 
 	/**

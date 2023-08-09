@@ -47,4 +47,25 @@ public interface Connector extends Closeable, Named {
 	static void echo(Connector connector) throws IOException {
 		IoUtil.pipe(connector.in(), connector.out());
 	}
+
+	/**
+	 * A wrapper base class.
+	 */
+	static class Wrapper<T extends Connector.Fixable> extends ceri.common.io.Fixable.Wrapper<T>
+		implements Connector.Fixable {
+
+		protected Wrapper(T delegate) {
+			super(delegate);
+		}
+
+		@Override
+		public InputStream in() {
+			return delegate.in();
+		}
+
+		@Override
+		public OutputStream out() {
+			return delegate.out();
+		}
+	}
 }

@@ -193,7 +193,7 @@ public class LibUsbTest {
 
 	private void initLib() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		LibUsb.libusb_init_default();
 	}
 }

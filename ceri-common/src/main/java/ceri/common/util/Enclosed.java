@@ -7,11 +7,11 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 
 /**
- * Provides an AutoCloseable type encapsulating an object and a close method.
+ * Provides an AutoCloseable type encapsulating an object reference and a close method.
  */
 public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	private static final Enclosed<?, ?> EMPTY = new Enclosed<>(null, null);
-	public final T subject;
+	public final T ref;
 	private final ExceptionRunnable<E> closer;
 
 	/**
@@ -60,11 +60,11 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 */
 	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
 		ofAll(List<T> closeables) {
-		return new Enclosed<>(closeables, CloseableUtil::close);
+		return new Enclosed<>(closeables, () -> CloseableUtil.close(closeables));
 	}
 
 	private Enclosed(T subject, ExceptionRunnable<E> closer) {
-		this.subject = subject;
+		this.ref = subject;
 		this.closer = closer;
 	}
 
@@ -72,7 +72,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 * Returns true if this instance has no subject.
 	 */
 	public boolean isEmpty() {
-		return subject == null;
+		return ref == null;
 	}
 
 	/**

@@ -2,10 +2,10 @@ package ceri.common.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorGen.MESSAGE;
+import static ceri.common.test.AssertUtil.assertToString;
+import static ceri.common.test.ErrorGen.*;
 import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -72,17 +72,21 @@ public class ErrorGenBehavior {
 	public void shouldSetExceptionFunctionFromMessage() {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
-		assertThrown(IOException.class, MESSAGE, () -> err.callWithInterrupt(IO_ADAPTER));
+		assertThrown(IOException.class, () -> err.callWithInterrupt(IO_ADAPTER));
 		Throwable t = thrown(() -> err.callWithInterrupt(IO_ADAPTER));
-		assertThrowable(t.getCause(), SQLException.class, MESSAGE);
+		assertThrowable(t.getCause(), SQLException.class);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var err = ErrorGen.of();
-		assertFind(err.toString(), "none");
+		assertToString(err, "none");
 		err.set(iox);
-		assertFind(err.toString(), "IOException");
+		assertToString(err, "[IO]");
+		err.set(iox, sqx, iox, null, rix);
+		assertToString(err, "[IO,SQL,IO,null,RuntimeInterrupted]");
+		err.setFrom(IOX, RIX, RTX, INX, null, SQLException::new);
+		assertToString(err, "[IOX,RIX,RTX,INX,null,\u03bb]");
 	}
 
 }

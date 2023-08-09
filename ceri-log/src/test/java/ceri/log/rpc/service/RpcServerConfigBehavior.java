@@ -17,7 +17,7 @@ public class RpcServerConfigBehavior {
 		RpcServerConfig eq0 = RpcServerConfig.builder().port(12345).build();
 		RpcServerConfig ne0 = RpcServerConfig.of(12344);
 		RpcServerConfig ne1 = RpcServerConfig.builder().port(12345).shutdownTimeoutMs(0).build();
-		RpcServerConfig ne2 = RpcServerConfig.of();
+		RpcServerConfig ne2 = RpcServerConfig.DEFAULT;
 		exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
@@ -33,7 +33,7 @@ public class RpcServerConfigBehavior {
 	@Test
 	public void shouldDetermineIfEnabled() {
 		assertFalse(RpcServerConfig.NULL.enabled());
-		assertTrue(RpcServerConfig.of().enabled());
+		assertTrue(RpcServerConfig.DEFAULT.enabled());
 	}
 
 	@Test

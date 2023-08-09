@@ -1,12 +1,12 @@
 package ceri.log.io;
 
+import static ceri.common.function.Namer.lambda;
 import java.util.function.Predicate;
-import ceri.common.function.FunctionUtil;
 import ceri.common.text.ToString;
 
 public class SelfHealingConfig {
 	public static final SelfHealingConfig DEFAULT = new Builder().build();
-	public static final Predicate<Exception> NULL_PREDICATE = e -> false; 
+	public static final Predicate<Exception> NULL_PREDICATE = e -> false;
 	public final int fixRetryDelayMs;
 	public final int recoveryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
@@ -46,7 +46,7 @@ public class SelfHealingConfig {
 	public static Builder builder() {
 		return new Builder();
 	}
-	
+
 	SelfHealingConfig(Builder builder) {
 		fixRetryDelayMs = builder.fixRetryDelayMs;
 		recoveryDelayMs = builder.recoveryDelayMs;
@@ -60,10 +60,9 @@ public class SelfHealingConfig {
 	public boolean hasBrokenPredicate() {
 		return brokenPredicate != NULL_PREDICATE;
 	}
-	
+
 	@Override
 	public String toString() {
-		return ToString.forClass(this, fixRetryDelayMs, recoveryDelayMs,
-			FunctionUtil.lambdaName(brokenPredicate));
+		return ToString.forClass(this, fixRetryDelayMs, recoveryDelayMs, lambda(brokenPredicate));
 	}
 }

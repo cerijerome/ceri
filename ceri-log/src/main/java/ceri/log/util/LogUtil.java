@@ -305,6 +305,24 @@ public class LogUtil {
 	}
 
 	/**
+	 * Constructs an immutable list of closeable instances by calling the constructor the given
+	 * number of times. If any exception occurs the already created instances will be closed.
+	 */
+	@SuppressWarnings("resource")
+	public static <E extends Exception, T extends AutoCloseable> List<T>
+		create(ExceptionSupplier<E, T> constructor, int count) throws E {
+		List<T> results = new ArrayList<>(count);
+		try {
+			for (int i = 0; i < count; i++)
+				results.add(constructor.get());
+			return Collections.unmodifiableList(results);
+		} catch (Exception e) {
+			close(results);
+			throw e;
+		}
+	}
+
+	/**
 	 * Constructs an array of closeable instances from each input object and the constructor. If any
 	 * exception occurs the already created instances will be closed.
 	 */
@@ -326,6 +344,23 @@ public class LogUtil {
 		try {
 			for (T input : inputs)
 				results[i++] = constructor.apply(input);
+			return results;
+		} catch (Exception e) {
+			close(results);
+			throw e;
+		}
+	}
+
+	/**
+	 * Constructs an array of closeable instances by calling the constructor the given
+	 * number of times. If any exception occurs the already created instances will be closed.
+	 */
+	public static <E extends Exception, T extends AutoCloseable> T[] createArray(
+		IntFunction<T[]> arrayFn, ExceptionSupplier<E, T> constructor, int count) throws E {
+		T[] results = arrayFn.apply(count);
+		try {
+			for (int i = 0; i < count; i++)
+				results[i] = constructor.get();
 			return results;
 		} catch (Exception e) {
 			close(results);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
+import ceri.common.io.Connector;
 import ceri.common.io.StateChange;
 import ceri.common.util.Enclosed;
 import ceri.log.concurrent.Dispatcher;
@@ -15,15 +16,15 @@ import ceri.x10.command.CommandListener;
 
 public class Cm11aDevice implements Cm11a {
 	private static final Logger logger = LogManager.getLogger();
-	private final Cm11aConnector connector;
+	private final Connector.Fixable connector;
 	private final Processor processor;
 	private final Dispatcher<CommandListener, Command> dispatcher;
 
-	public static Cm11aDevice of(Cm11aDeviceConfig config, Cm11aConnector connector) {
+	public static Cm11aDevice of(Cm11aDeviceConfig config, Connector.Fixable connector) {
 		return new Cm11aDevice(config, connector);
 	}
 
-	private Cm11aDevice(Cm11aDeviceConfig config, Cm11aConnector connector) {
+	private Cm11aDevice(Cm11aDeviceConfig config, Connector.Fixable connector) {
 		this.connector = connector;
 		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, CommandListener::dispatcher);
 		processor = new Processor(config, connector, dispatcher::dispatch);
@@ -53,7 +54,7 @@ public class Cm11aDevice implements Cm11a {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, processor, dispatcher);
+		LogUtil.close(processor, dispatcher);
 	}
 
 }

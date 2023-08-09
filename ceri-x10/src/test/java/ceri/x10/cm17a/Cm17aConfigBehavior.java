@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
-import ceri.serial.javax.util.SelfHealingSerialConfig;
+import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 
 public class Cm17aConfigBehavior {
@@ -21,13 +21,13 @@ public class Cm17aConfigBehavior {
 		assertTrue(Cm17aConfig.of("com").isDevice());
 		assertFalse(Cm17aConfig.builder().device(Cm17aDeviceConfig.DEFAULT).build().isDevice());
 		assertFalse(Cm17aConfig.builder().mode(DeviceMode.test)
-			.deviceSerial(SelfHealingSerialConfig.of("com")).build().isDevice());
+			.serial(SelfHealingSerialConfig.of("com")).build().isDevice());
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertMatch(Cm17aConfig.builder().id(777).deviceSerial(SelfHealingSerialConfig.of("com"))
-			.build().toString(), ".*\\b777\\b.*\\bcom\\b.*");
+		assertMatch(Cm17aConfig.builder().id(777).serial(SelfHealingSerialConfig.of("com")).build()
+			.toString(), ".*\\b777\\b.*\\bcom\\b.*");
 	}
 
 }

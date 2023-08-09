@@ -44,7 +44,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	@Before
 	public void before() {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		LibUsbSampleData.populate(lib.data);
 		con = SelfHealingFtdi.of(config);
 	}

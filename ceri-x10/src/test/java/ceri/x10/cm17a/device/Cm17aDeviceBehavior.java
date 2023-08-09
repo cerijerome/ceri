@@ -36,7 +36,7 @@ public class Cm17aDeviceBehavior {
 	private Cm17aDevice cm17a;
 
 	@Before
-	public void beforeClass() {
+	public void before() {
 		con = Cm17aTestConnector.of();
 		cm17a = Cm17aDevice.of(config, con);
 	}
@@ -87,7 +87,7 @@ public class Cm17aDeviceBehavior {
 
 	@Test
 	public void shouldListenForConnectorStateChange() {
-		CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		try (var listener = cm17a.listeners().enclose(sync::accept)) {
 			con.listeners.accept(StateChange.broken);
 			sync.assertCall(StateChange.broken);

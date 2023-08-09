@@ -13,7 +13,6 @@ import ceri.common.test.TestUtil;
 	ceri.x10.cm11a.Cm11aConfigBehavior.class, //
 	// cm11a.device
 	ceri.x10.cm11a.device.Cm11aBehavior.class, //
-	ceri.x10.cm11a.device.Cm11aConnectorBehavior.class, //
 	ceri.x10.cm11a.device.Cm11aDeviceBehavior.class, //
 	ceri.x10.cm11a.device.Cm11aDeviceConfigBehavior.class, //
 	ceri.x10.cm11a.device.Cm11aEmulatorBehavior.class, //

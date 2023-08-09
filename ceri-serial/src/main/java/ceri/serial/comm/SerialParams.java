@@ -2,9 +2,12 @@ package ceri.serial.comm;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 import ceri.common.text.StringUtil;
 
 public class SerialParams {
+	public static final Pattern PARSE_REGEX = Pattern.compile("(\\d+)\\,\\s*([5678])\\,\\s*"
+		+ "(1|1\\.0|1\\.5|2|2\\.0)\\,\\s*(?i)([noems]|none|odd|even|mark|space)");
 	public static final SerialParams NULL = builder().baud(0).build();
 	public static final SerialParams DEFAULT = builder().build();
 	private static final int START_BITS = 1;
@@ -13,6 +16,22 @@ public class SerialParams {
 	public final DataBits dataBits;
 	public final StopBits stopBits;
 	public final Parity parity;
+
+	public static void main(String[] args) {
+		System.out.println("p" + PARSE_REGEX.pattern());
+	}
+
+	public static SerialParams from(String s) {
+		var m = PARSE_REGEX.matcher(s);
+		if (!m.matches()) throw new IllegalArgumentException("Invalid format: " + s);
+		int i = 1;
+		var b = builder();
+		b.baud(Integer.parseInt(m.group(i++)));
+		b.dataBits(DataBits.from(Integer.parseInt(m.group(i++))));
+		b.stopBits(StopBits.fromBits(Double.parseDouble(m.group(i++))));
+		b.parity(Parity.from(m.group(i).charAt(0)));
+		return b.build();
+	}
 
 	public static SerialParams of(int baud) {
 		return builder().baud(baud).build();

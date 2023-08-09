@@ -2,7 +2,7 @@ package ceri.x10.cm17a;
 
 import ceri.common.io.DeviceMode;
 import ceri.common.text.ToString;
-import ceri.serial.javax.util.SelfHealingSerialConfig;
+import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 
 /**
@@ -12,21 +12,21 @@ public class Cm17aConfig {
 	public final int id;
 	public final DeviceMode mode;
 	public final Cm17aDeviceConfig device;
-	public final SelfHealingSerialConfig deviceSerial;
+	public final SelfHealingSerialConfig serial;
 
 	/**
 	 * Convenience constructor for simple case.
 	 */
 	public static Cm17aConfig of(String commPort) {
 		// Container overrides serial port params
-		return builder().deviceSerial(SelfHealingSerialConfig.of(commPort)).build();
+		return builder().serial(SelfHealingSerialConfig.of(commPort)).build();
 	}
 
 	public static class Builder {
 		int id = 1;
 		DeviceMode mode = DeviceMode.enabled;
 		Cm17aDeviceConfig device = Cm17aDeviceConfig.DEFAULT;
-		SelfHealingSerialConfig deviceSerial = SelfHealingSerialConfig.NULL;
+		SelfHealingSerialConfig serial = SelfHealingSerialConfig.NULL;
 
 		Builder() {}
 
@@ -40,8 +40,8 @@ public class Cm17aConfig {
 			return this;
 		}
 
-		public Builder deviceSerial(SelfHealingSerialConfig deviceSerial) {
-			this.deviceSerial = deviceSerial;
+		public Builder serial(SelfHealingSerialConfig serial) {
+			this.serial = serial;
 			return this;
 		}
 
@@ -62,7 +62,7 @@ public class Cm17aConfig {
 	Cm17aConfig(Builder builder) {
 		id = builder.id;
 		mode = builder.mode;
-		deviceSerial = builder.deviceSerial;
+		serial = builder.serial;
 		device = builder.device;
 	}
 
@@ -71,12 +71,12 @@ public class Cm17aConfig {
 	}
 
 	public boolean isDevice() {
-		return mode == DeviceMode.enabled && deviceSerial.enabled();
+		return mode == DeviceMode.enabled && serial.enabled();
 	}
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, id, mode, device, deviceSerial);
+		return ToString.forClass(this, id, mode, device, serial);
 	}
 
 }

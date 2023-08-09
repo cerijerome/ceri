@@ -3,22 +3,61 @@ package ceri.common.test;
 import static ceri.common.function.FunctionUtil.safeApply;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.FunctionUtil;
+import ceri.common.function.Namer;
+import ceri.common.reflect.ReflectUtil;
 
 /**
  * Utility for generating errors during tests.
  */
 public class ErrorGen {
+	private static final String EXCEPTION = "Exception";
+	private static final Collector<CharSequence, ?, String> JOINER =
+		Collectors.joining(",", "[", "]");
 	public static final String MESSAGE = "generated";
-	public static final Function<String, Exception> RTX = RuntimeException::new;
-	public static final Function<String, Exception> RIX = RuntimeInterruptedException::new;
-	public static final Function<String, Exception> INX = InterruptedException::new;
-	public static final Function<String, Exception> IOX = IOException::new;
+	public static final Supplier<Exception> RTX = errorFn(RuntimeException::new, "RTX");
+	public static final Supplier<Exception> RIX = errorFn(RuntimeInterruptedException::new, "RIX");
+	public static final Supplier<Exception> INX = errorFn(InterruptedException::new, "INX");
+	public static final Supplier<Exception> IOX = errorFn(IOException::new, "IOX");
 	private volatile Supplier<Exception> errorFn = null;
 
+	public static void main(String[] args) {
+		var err = of();
+		System.out.println(err);
+		err.set(new RuntimeException(), new IOException(), new InterruptedException(), null);
+		System.out.println(err);
+		err.setFrom(RTX, IOX, null, INX, errorFn(SQLException::new), errorFn(SQLException::new, "SQX"));
+		System.out.println(err);
+		err.setFrom(IOException::new, SQLException::new, RTX, null);
+		System.out.println(err);
+	}
+
+	/**
+	 * Convert an exception constructor to accept the standard message.
+	 */
+	public static Supplier<Exception> errorFn(Function<String, Exception> errorFn) {
+		return () -> errorFn.apply(MESSAGE);
+	}
+
+	/**
+	 * Convert an exception constructor to accept the standard message, and apply a name for debug
+	 * purposes.
+	 */
+	public static Supplier<Exception> errorFn(Function<String, Exception> errorFn, String name) {
+		return Namer.supplier(errorFn(errorFn), name);
+	}
+
+	/**
+	 * Create an error generator instance.
+	 */
 	public static ErrorGen of() {
 		return new ErrorGen();
 	}
@@ -26,10 +65,15 @@ public class ErrorGen {
 	private ErrorGen() {}
 
 	/**
-	 * Generate errors in given order. Use no-args to generate no errors.
+	 * Generate errors in given order. Use no-args to disable errors.
 	 */
 	public void set(Exception... errors) {
-		setErrorFn(errors.length == 0 ? null : sequentialSupplier(errors));
+		if (errors.length == 0) clear();
+		else {
+			var sequential = sequentialSupplier(errors);
+			var name = Stream.of(errors).map(e -> name(e)).collect(JOINER);
+			setErrorFn(sequential, name);
+		}
 	}
 
 	/**
@@ -37,11 +81,12 @@ public class ErrorGen {
 	 * may be used: RTX, RIX, INX, IOX. The generated errors will have a fixed message.
 	 */
 	@SafeVarargs
-	public final void setFrom(Function<String, Exception>... errorFns) {
-		if (errorFns.length == 0) setErrorFn(null);
+	public final void setFrom(Supplier<Exception>... errorFns) {
+		if (errorFns.length == 0) clear();
 		else {
 			var sequential = sequentialSupplier(errorFns);
-			setErrorFn(() -> safeApply(sequential.get(), s -> s.apply(MESSAGE)));
+			var name = Stream.of(errorFns).map(Namer::lambdaSymbol).collect(JOINER);
+			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Supplier::get), name);
 		}
 	}
 
@@ -102,20 +147,24 @@ public class ErrorGen {
 	}
 
 	/**
-	 * String for debugging purposes. This calls errorFn.get(), which may have side effects,
-	 * depending on the function.
+	 * String for debugging purposes.
 	 */
 	@Override
 	public String toString() {
-		return errorFn == null ? "[none]" : "[" + errorFn.get() + "]";
+		return errorFn == null ? "none" : Namer.lambda(errorFn);
 	}
 
-	/**
-	 * Sets the error function; use null for no error generation.
-	 */
+	private ErrorGen setErrorFn(Supplier<Exception> errorFn, String name) {
+		return setErrorFn(Namer.supplier(errorFn, name));
+	}
+
 	private ErrorGen setErrorFn(Supplier<Exception> errorFn) {
 		this.errorFn = errorFn;
 		return this;
 	}
 
+	private static String name(Exception e) {
+		String s = ReflectUtil.className(e);
+		return !s.endsWith(EXCEPTION) ? s : s.substring(0, s.length() - EXCEPTION.length());
+	}
 }

@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.Counter;
+import ceri.common.util.Holder;
 
 /**
  * Function utilities.
@@ -23,8 +23,6 @@ public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
 	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
 	private static final Consumer<Object> NULL_CONSUMER = t -> {};
-	private static final String ANON_LAMBDA_LABEL = "$$Lambda$";
-	private static final String LAMBDA_NAME_DEF = "[lambda]";
 
 	private FunctionUtil() {}
 
@@ -69,17 +67,24 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Provide sequential access to the given values, repeating the last entry. At least one value
-	 * must be supplied.
+	 * Provide sequential access to the given values, repeating the last entry. If no values are
+	 * given, the supplier will always return null.
 	 */
 	@SafeVarargs
 	public static <T> Supplier<T> sequentialSupplier(T... ts) {
-		validateMin(ts.length, 1);
-		Counter counter = Counter.of();
+		return sequentialSupplier(Arrays.asList(ts));
+	}
+
+	/**
+	 * Provide sequential access to the given values, repeating the last entry. If no values are
+	 * given, the supplier will always return null.
+	 */
+	public static <T> Supplier<T> sequentialSupplier(Iterable<T> ts) {
+		var i = ts.iterator();
+		var holder = Holder.<T>mutable();
 		return () -> {
-			int n = counter.intCount();
-			if (n < ts.length - 1) counter.inc();
-			return ts[n];
+			if (i.hasNext()) holder.set(i.next());
+			return holder.value();
 		};
 	}
 
@@ -226,64 +231,6 @@ public class FunctionUtil {
 	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> extractor,
 		IntPredicate predicate) {
 		return t -> predicate.test(extractor.applyAsInt(t));
-	}
-
-	/**
-	 * Checks if the given object is an anonymous lamdba function.
-	 */
-	public static boolean isAnonymousLambda(Object obj) {
-		if (obj == null) return false;
-		String s = obj.toString();
-		return s != null && s.contains(ANON_LAMBDA_LABEL);
-	}
-
-	/**
-	 * Returns "[lambda]" if the given object is an anonymous lambda, otherwise toString.
-	 */
-	public static String lambdaName(Object obj) {
-		return lambdaName(obj, LAMBDA_NAME_DEF);
-	}
-
-	/**
-	 * Returns given name if the given object is an anonymous lambda, otherwise toString.
-	 */
-	public static String lambdaName(Object obj, String anonNameDef) {
-		String s = String.valueOf(obj);
-		return s.contains(ANON_LAMBDA_LABEL) ? anonNameDef : s;
-	}
-
-	/**
-	 * Overrides predicate toString() with given name.
-	 */
-	public static <T> Predicate<T> named(Predicate<T> predicate, String name) {
-		return new Predicate<>() {
-			@Override
-			public boolean test(T t) {
-				return predicate.test(t);
-			}
-
-			@Override
-			public String toString() {
-				return name;
-			}
-		};
-	}
-
-	/**
-	 * Overrides predicate toString() with given name.
-	 */
-	public static IntPredicate namedInt(IntPredicate predicate, String name) {
-		return new IntPredicate() {
-			@Override
-			public boolean test(int value) {
-				return predicate.test(value);
-			}
-
-			@Override
-			public String toString() {
-				return name;
-			}
-		};
 	}
 
 	/**

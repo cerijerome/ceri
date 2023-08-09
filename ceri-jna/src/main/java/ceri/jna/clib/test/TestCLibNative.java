@@ -73,7 +73,7 @@ public class TestCLibNative implements CLib.Native {
 	public static <E extends Exception> void exec(ExceptionConsumer<E, TestCLibNative> consumer)
 		throws E {
 		try (var enc = TestCLibNative.register(TestCLibNative.of())) {
-			consumer.accept(enc.subject);
+			consumer.accept(enc.ref);
 		}
 	}
 

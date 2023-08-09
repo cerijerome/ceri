@@ -1,11 +1,11 @@
 package ceri.log.net;
 
-import static ceri.common.function.FunctionUtil.named;
+import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Namer;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
@@ -15,8 +15,8 @@ import ceri.log.io.SelfHealingConfig;
 
 public class SelfHealingTcpSocketConfig {
 	public static final SelfHealingTcpSocketConfig NULL = new Builder(HostPort.NULL).build();
-	public static final Predicate<Exception> DEFAULT_PREDICATE =
-		named(TcpSocket::isBroken, "TcpSocket::isBroken");
+	private static final Predicate<Exception> DEFAULT_PREDICATE =
+		Namer.predicate(TcpSocket::isBroken, "TcpSocket::isBroken");
 	public final HostPort hostPort;
 	public final ExceptionFunction<IOException, HostPort, TcpSocket> factory;
 	public final TcpSocketOptions options;
@@ -92,7 +92,6 @@ public class SelfHealingTcpSocketConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, hostPort, FunctionUtil.lambdaName(factory), options,
-			selfHealing);
+		return ToString.forClass(this, hostPort, lambda(factory), options, selfHealing);
 	}
 }

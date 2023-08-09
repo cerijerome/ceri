@@ -1,9 +1,9 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.function.FunctionUtil.lambdaName;
-import static ceri.common.function.FunctionUtil.named;
+import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.function.Predicate;
+import ceri.common.function.Namer;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealingConfig;
 import ceri.serial.comm.SerialParams;
@@ -11,8 +11,8 @@ import ceri.serial.comm.SerialPort;
 
 public class SelfHealingSerialConfig {
 	public static final SelfHealingSerialConfig NULL = builder((PortSupplier) null).build();
-	public static final Predicate<Exception> DEFAULT_PREDICATE =
-		named(SerialPort::isBroken, "SerialPort::isBroken");
+	private static final Predicate<Exception> DEFAULT_PREDICATE =
+		Namer.predicate(SerialPort::isBroken, "SerialPort::isBroken");
 	public final PortSupplier portSupplier;
 	public final SerialFactory factory;
 	public final SerialConfig serial;
@@ -88,11 +88,10 @@ public class SelfHealingSerialConfig {
 		if (params == null || this.serial.params.equals(params)) return this;
 		return builder(this).serial(serial.replace(params)).build();
 	}
-	
+
 	@Override
 	public String toString() {
-		return ToString.forClass(this, lambdaName(portSupplier), lambdaName(factory), serial,
-			selfHealing);
+		return ToString.forClass(this, lambda(portSupplier), lambda(factory), serial, selfHealing);
 	}
 
 }

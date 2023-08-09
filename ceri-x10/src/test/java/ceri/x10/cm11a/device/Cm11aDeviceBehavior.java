@@ -31,6 +31,7 @@ import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
+import ceri.common.test.TestConnector;
 import ceri.log.test.LogModifier;
 import ceri.x10.cm11a.protocol.Clock;
 import ceri.x10.cm11a.protocol.Status;
@@ -41,13 +42,13 @@ import ceri.x10.command.UnsupportedCommand;
 public class Cm11aDeviceBehavior {
 	private static final Cm11aDeviceConfig config = Cm11aDeviceConfig.builder().maxSendAttempts(3)
 		.queuePollTimeoutMs(0).readPollMs(0).readTimeoutMs(10000).build();
-	private Cm11aTestConnector con;
+	private TestConnector con;
 	private Cm11aDevice cm11a;
 
 	@Before
 	public void before() throws IOException {
-		con = Cm11aTestConnector.of();
-		con.connect();
+		con = TestConnector.of();
+		con.open();
 		cm11a = Cm11aDevice.of(config, con);
 	}
 
@@ -200,8 +201,8 @@ public class Cm11aDeviceBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldCloseOnInterrupt() throws IOException {
-		try (Cm11aTestConnector con = Cm11aTestConnector.of()) {
-			con.connect();
+		try (TestConnector con = TestConnector.of()) {
+			con.open();
 			try (Cm11aDevice cm11a = Cm11aDevice.of(config, con)) {
 				con.in.read.error.setFrom(RIX);
 				con.in.to.writeByte(0).flush();

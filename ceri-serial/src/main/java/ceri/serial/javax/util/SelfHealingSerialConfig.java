@@ -1,17 +1,17 @@
 package ceri.serial.javax.util;
 
-import static ceri.common.function.FunctionUtil.lambdaName;
-import static ceri.common.function.FunctionUtil.named;
+import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.function.Predicate;
+import ceri.common.function.Namer;
 import ceri.common.text.ToString;
 import ceri.serial.javax.SerialPort;
 import ceri.serial.javax.SerialPortParams;
 
 public class SelfHealingSerialConfig {
 	public static final SelfHealingSerialConfig NULL = of((CommPortSupplier) null);
-	public static final Predicate<Exception> DEFAULT_PREDICATE =
-		named(SerialPort::isBroken, "SerialPort::isBroken");
+	private static final Predicate<Exception> DEFAULT_PREDICATE =
+		Namer.predicate(SerialPort::isBroken, "SerialPort::isBroken");
 	public final CommPortSupplier commPortSupplier;
 	public final SerialFactory factory;
 	public final SerialPortParams params;
@@ -124,7 +124,7 @@ public class SelfHealingSerialConfig {
 	public SerialPort open(String comPort, String name, int timeoutMs) throws IOException {
 		return factory.open(comPort, name, timeoutMs);
 	}
-	
+
 	public boolean enabled() {
 		return commPortSupplier != null;
 	}
@@ -139,8 +139,8 @@ public class SelfHealingSerialConfig {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, lambdaName(commPortSupplier), lambdaName(factory), params,
-			connectionTimeoutMs, fixRetryDelayMs, recoveryDelayMs, lambdaName(brokenPredicate));
+		return ToString.forClass(this, lambda(commPortSupplier), lambda(factory), params,
+			connectionTimeoutMs, fixRetryDelayMs, recoveryDelayMs, lambda(brokenPredicate));
 	}
 
 }

@@ -3,12 +3,10 @@ package ceri.serial.comm.test;
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
-import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
@@ -19,12 +17,6 @@ import ceri.serial.comm.SerialParams;
  */
 public class TestSerial extends TestConnector implements Serial.Fixable {
 	private static final String NAME = ReflectUtil.name(TestSerial.class);
-	public static final int DTR = CIoctl.TIOCM_DTR;
-	public static final int RTS = CIoctl.TIOCM_RTS;
-	public static final int CTS = CIoctl.TIOCM_CTS;
-	public static final int CD = CIoctl.TIOCM_CD;
-	public static final int RI = CIoctl.TIOCM_RI;
-	public static final int DSR = CIoctl.TIOCM_DSR;
 	public final CallSync.Supplier<String> port = CallSync.supplier("test");
 	public final CallSync.Consumer<Integer> bufferSize =
 		CallSync.consumer(ThreadBuffers.SIZE_DEF, true); // shared for in and out
@@ -33,9 +25,12 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	public final CallSync.Consumer<Set<FlowControl>> flowControl =
 		CallSync.consumer(FlowControl.NONE, true);
 	public final CallSync.Consumer<Boolean> brk = CallSync.consumer(false, true);
-	// List<?> = int flag, boolean on
-	public final CallSync.Consumer<List<?>> flagOut = CallSync.consumer(List.of(), true);
-	public final CallSync.Function<Integer, Boolean> flagIn = CallSync.function(0, false);
+	public final CallSync.Consumer<Boolean> rts = CallSync.consumer(false, true);
+	public final CallSync.Consumer<Boolean> dtr = CallSync.consumer(false, true);
+	public final CallSync.Supplier<Boolean> cd = CallSync.supplier(false);
+	public final CallSync.Supplier<Boolean> cts = CallSync.supplier(false);
+	public final CallSync.Supplier<Boolean> dsr = CallSync.supplier(false);
+	public final CallSync.Supplier<Boolean> ri = CallSync.supplier(false);
 
 	/**
 	 * Provide a test serial port that echoes output to input.
@@ -65,7 +60,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(port, bufferSize, params, flowControl, brk, flagIn, flagOut);
+		CallSync.resetAll(port, bufferSize, params, flowControl, brk, rts, dtr, cd, cts, dsr, ri);
 	}
 
 	@Override
@@ -123,53 +118,49 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		flagOut(RTS, on);
+		rts.accept(on, IO_ADAPTER);
+		verifyConnected();
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		flagOut(DTR, on);
+		dtr.accept(on, IO_ADAPTER);
+		verifyConnected();
 	}
 
 	@Override
 	public boolean rts() throws IOException {
-		return flagIn(RTS);
+		verifyConnected();
+		return rts.lastValue(IO_ADAPTER);
 	}
 
 	@Override
 	public boolean dtr() throws IOException {
-		return flagIn(DTR);
+		verifyConnected();
+		return dtr.lastValue(IO_ADAPTER);
 	}
 
 	@Override
 	public boolean cd() throws IOException {
-		return flagIn(CD);
+		verifyConnected();
+		return cd.get(IO_ADAPTER);
 	}
 
 	@Override
 	public boolean cts() throws IOException {
-		return flagIn(CTS);
+		verifyConnected();
+		return cts.get(IO_ADAPTER);
 	}
 
 	@Override
 	public boolean dsr() throws IOException {
-		return flagIn(DSR);
+		verifyConnected();
+		return dsr.get(IO_ADAPTER);
 	}
 
 	@Override
 	public boolean ri() throws IOException {
-		return flagIn(RI);
-	}
-
-	private void flagOut(int flag, boolean on) throws IOException {
-		flagOut.accept(List.of(flag, on), IO_ADAPTER);
 		verifyConnected();
+		return ri.get(IO_ADAPTER);
 	}
-
-	private boolean flagIn(int flag) throws IOException {
-		boolean on = flagIn.apply(flag);
-		verifyConnected();
-		return on;
-	}
-
 }

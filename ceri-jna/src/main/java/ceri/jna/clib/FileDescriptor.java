@@ -9,6 +9,8 @@ import ceri.common.io.Connector;
  * Encapsulates a file descriptor as a closable resource.
  */
 public interface FileDescriptor extends Connector {
+	/** A stateless, no-op instance. */
+	FileDescriptor.Fixable NULL = new Null() {};
 
 	/**
 	 * Provide access to the underlying descriptor value.
@@ -31,20 +33,14 @@ public interface FileDescriptor extends Connector {
 	interface Fixable extends FileDescriptor, Connector.Fixable {}
 
 	/**
-	 * A no-op file descriptor instance.
+	 * A stateless, no-op implementation.
 	 */
-	FileDescriptor.Fixable NULL = new Null();
-
-	/**
-	 * A no-op file descriptor implementation.
-	 */
-	class Null extends Connector.Null implements FileDescriptor.Fixable {
+	interface Null extends Connector.Null, FileDescriptor.Fixable {
+		@Override
+		default void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {}
 
 		@Override
-		public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {}
-
-		@Override
-		public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
+		default <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
 			return null;
 		}
 	}

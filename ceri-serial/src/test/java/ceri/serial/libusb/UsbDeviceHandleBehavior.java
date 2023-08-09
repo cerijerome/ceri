@@ -28,7 +28,7 @@ public class UsbDeviceHandleBehavior {
 	@Before
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		lib.data.deviceConfigs.add(LibUsbSampleData.audioConfig());
 		usb = Usb.of();
 		handle = usb.open(LibUsbFinder.of(0x0d8c, 0));

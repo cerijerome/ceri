@@ -24,8 +24,8 @@ public class GrayChar {
 		return new GrayChar(grayscale);
 	}
 
-	private GrayChar(String ascii) {
-		this.grayscale = ascii;
+	private GrayChar(String grayscale) {
+		this.grayscale = grayscale;
 	}
 
 	/**

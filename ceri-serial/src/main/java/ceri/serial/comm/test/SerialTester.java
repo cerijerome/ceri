@@ -2,7 +2,6 @@ package ceri.serial.comm.test;
 
 import static ceri.common.test.ManualTester.Parse.b;
 import static ceri.common.test.ManualTester.Parse.c;
-import static ceri.common.test.ManualTester.Parse.d;
 import static ceri.common.test.ManualTester.Parse.i;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,12 +15,9 @@ import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
-import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
-import ceri.serial.comm.Parity;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
-import ceri.serial.comm.StopBits;
 import ceri.serial.comm.util.SelfHealingSerial;
 import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.serial.comm.util.SerialPortLocator;
@@ -51,7 +47,7 @@ public class SerialTester {
 	 */
 	public static void testPair() throws IOException {
 		try (var serials = Enclosed.ofAll(TestSerial.pairOf())) {
-			test(serials.subject);
+			test(serials.ref);
 		}
 	}
 
@@ -106,9 +102,8 @@ public class SerialTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(Serial.class,
-			"p(?i)(?:(\\d+)\\,\\s*([5678])\\,\\s*(1|1\\.5|2)\\,\\s*"
-				+ "([noems]|none|odd|even|mark|space))?",
+		b.command(Serial.class, "P", (m, s, t) -> t.out(s.port()), "P = get port");
+		b.command(Serial.class, "p(" + SerialParams.PARSE_REGEX.pattern() + ")?",
 			SerialTester::setParams,
 			"pN,N,N,[n|o|e|m|s] = set params baud, data bits, stop bits, parity");
 		b.command(Serial.class, "f([rRxX]*|[nN])", (m, s, t) -> setFlowControl(m, s, t),
@@ -134,18 +129,9 @@ public class SerialTester {
 
 	private static void setParams(Matcher m, Serial serial, ManualTester tester)
 		throws IOException {
-		if (m.group(1) != null) serial.params(parseParams(m));
+		String s = m.group(1);
+		if (s != null) serial.params(SerialParams.from(s));
 		tester.out(serial.params());
-	}
-
-	private static SerialParams parseParams(Matcher m) {
-		int i = 1;
-		int baud = i(m, i++);
-		DataBits dataBits = DataBits.from(i(m, i++));
-		StopBits stopBits = StopBits.fromBits(d(m, i++));
-		Parity parity = Parity.from(c(m, i++));
-		return SerialParams.builder().baud(baud).dataBits(dataBits).stopBits(stopBits)
-			.parity(parity).build();
 	}
 
 	private static void setFlowControl(Matcher m, Serial serial, ManualTester tester)

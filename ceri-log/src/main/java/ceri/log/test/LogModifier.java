@@ -17,6 +17,14 @@ public class LogModifier implements AutoCloseable {
 	private final Map<String, Level> saved;
 
 	/**
+	 * Sets logger level, without reverting. Useful for standalone tests.
+	 */
+	@SuppressWarnings("resource")
+	public static void set(Level level, Class<?>... loggers) {
+		of(level, loggers);
+	}
+	
+	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
 	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,

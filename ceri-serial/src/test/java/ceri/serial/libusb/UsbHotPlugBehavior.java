@@ -30,7 +30,7 @@ public class UsbHotPlugBehavior {
 	@Before
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		usb = Usb.of();
 		callback = CallSync.function(null, false);
 		builder = usb.hotPlug((device, event) -> callback.apply(new CallbackArgs(device, event)));

@@ -14,6 +14,7 @@ import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.cm11a.protocol.Clock;
@@ -41,7 +42,7 @@ public class Processor extends LoopingExecutor {
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	@SuppressWarnings("resource")
-	Processor(Cm11aDeviceConfig config, Cm11aConnector connector, Consumer<Command> dispatcher) {
+	Processor(Cm11aDeviceConfig config, Connector connector, Consumer<Command> dispatcher) {
 		try {
 			this.config = config;
 			taskQueue = TaskQueue.of(config.queueSize);

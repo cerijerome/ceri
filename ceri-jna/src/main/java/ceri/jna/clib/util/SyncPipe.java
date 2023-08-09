@@ -1,10 +1,13 @@
 package ceri.jna.clib.util;
 
+import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.sun.jna.Memory;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.RuntimeCloseable;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -23,6 +26,87 @@ public class SyncPipe implements RuntimeCloseable {
 	private final int readFd;
 	private final int writeFd;
 	private volatile boolean closed;
+
+	/**
+	 * Encapsulation for polling with a sync pipe and 0+ file descriptors.
+	 */
+	public static class Poll implements RuntimeCloseable {
+		private final SyncPipe pipe;
+		private final CPoll.pollfd[] pollFds; // [0] used for pipe
+		public final List<CPoll.pollfd> list;
+
+		private Poll(int count) throws IOException {
+			pollFds = CPoll.pollfd.array(count + 1);
+			pipe = SyncPipe.of();
+			pipe.init(pollFds[0]);
+			list = ImmutableUtil.wrapAsList(pollFds, 1, pollFds.length);
+		}
+
+		/**
+		 * Returns the number of fds.
+		 */
+		public int count() {
+			return pollFds.length - 1;
+		}
+
+		/**
+		 * Returns the poll data for fd at given index.
+		 */
+		public CPoll.pollfd get(int index) {
+			validateIndex(count(), index);
+			return pollFds[index + 1];
+		}
+
+		/**
+		 * Poll fds for events, including sync pipe. Returns the number of fds with events,
+		 * excluding the sync pipe.
+		 */
+		public int poll(int timeoutMs) throws IOException {
+			return poll(timeoutMs, true);
+		}
+
+		/**
+		 * Poll fds for events, including sync pipe. Returns the number of fds with events,
+		 * excluding the sync pipe. Does not clear the sync pipe.
+		 */
+		public int pollPeek(int timeoutMs) throws IOException {
+			return poll(timeoutMs, false);
+		}
+
+		/**
+		 * Signal the sync pipe by writing a token.
+		 */
+		public void signal() throws IOException {
+			pipe.signal();
+		}
+
+		/**
+		 * Clear any sync pipe tokens.
+		 */
+		public void clear() throws IOException {
+			pipe.clear();
+		}
+
+		@Override
+		public void close() {
+			pipe.close();
+		}
+		
+		private int poll(int timeoutMs, boolean clear) throws IOException {
+			if (pipe.closed) return 0; // do not poll if pipe is closed
+			int n = CPoll.poll(pollFds, timeoutMs);
+			if (n <= 0 || !pollFds[0].hasEvent()) return n;
+			if (clear) pipe.clear(pollFds[0]);
+			return n - 1;
+		}
+	}
+
+	/**
+	 * Create a polling array, with hidden entry for sync pipe.
+	 */
+	public static Poll poll(int count) throws IOException {
+		return new Poll(count);
+	}
 
 	public static SyncPipe of() throws IOException {
 		int[] fds = CUnistd.pipe();

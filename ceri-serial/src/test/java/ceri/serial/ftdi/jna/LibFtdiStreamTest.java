@@ -43,7 +43,7 @@ public class LibFtdiStreamTest {
 	@Before
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
-		lib = enc.subject;
+		lib = enc.ref;
 		lib.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
 		lib.data.deviceConfigs.get(0).desc.bcdDevice = 0x700;
 		ftdi = LibFtdi.ftdi_new();

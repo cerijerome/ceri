@@ -328,6 +328,10 @@ public enum CError {
 		this.code = code;
 	}
 
+	public LastErrorException error() {
+		return new LastErrorException("[" + code + "]");
+	}
+	
 	public LastErrorException error(String message) {
 		return new LastErrorException("[" + code + "] " + message);
 	}

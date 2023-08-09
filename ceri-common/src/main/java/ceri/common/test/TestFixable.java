@@ -36,7 +36,7 @@ public class TestFixable implements Fixable {
 	 */
 	public void reset() {
 		listeners.clear();
-		CallSync.resetAll(broken, open);
+		CallSync.resetAll(broken, open, close);
 	}
 
 	@Override
@@ -82,8 +82,12 @@ public class TestFixable implements Fixable {
 	 */
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, listeners.size(), "broken=" + broken, "open=" + open)
-			.toString();
+		return asString().toString();
+	}
+
+	protected ToString asString() {
+		return ToString.ofName(name(), listeners.size(),
+			broken.value() ? "broken" : "fixed", open.value() ? "open" : "closed");
 	}
 
 	protected void verifyConnected() throws IOException {

@@ -64,6 +64,13 @@ public class CPoll {
 		}
 
 		/**
+		 * Returns true if revents has the given event.
+		 */
+		public boolean hasEvent() {
+			return revents != 0;
+		}
+
+		/**
 		 * Throws an exception if any error conditions occurred on revents.
 		 */
 		public pollfd verify() throws CException {

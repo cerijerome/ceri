@@ -319,6 +319,13 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Wraps a sub-array from start (inclusive) to end (exclusive) as an unmodifiable list.
+	 */
+	public static <T> List<T> wrapAsList(T[] array, int start, int end) {
+		return Collections.unmodifiableList(ArrayUtil.asFixedList(array, start, end));
+	}
+
+	/**
 	 * Wraps an array as an unmodifiable list.
 	 */
 	@SafeVarargs

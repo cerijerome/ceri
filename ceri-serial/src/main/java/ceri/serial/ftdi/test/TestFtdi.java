@@ -17,7 +17,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 /**
  * A connector for testing logic against serial connectors.
  */
-public class TestFtdi extends TestConnector implements Ftdi {
+public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	private static final String NAME = ReflectUtil.name(TestFtdi.class);
 	public final CallSync.Supplier<ftdi_usb_strings> descriptor =
 		CallSync.supplier(new ftdi_usb_strings("test", "test", "test"));

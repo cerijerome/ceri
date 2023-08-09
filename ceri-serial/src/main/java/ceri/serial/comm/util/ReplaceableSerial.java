@@ -52,7 +52,7 @@ public class ReplaceableSerial extends ReplaceableConnector<Serial> implements S
 	}
 
 	@Override
-	public SerialParams params() {
+	public SerialParams params() throws IOException {
 		return applyIfSet(Serial::params, SerialParams.NULL);
 	}
 
@@ -62,7 +62,7 @@ public class ReplaceableSerial extends ReplaceableConnector<Serial> implements S
 	}
 
 	@Override
-	public Set<FlowControl> flowControl() {
+	public Set<FlowControl> flowControl() throws IOException {
 		return applyIfSet(Serial::flowControl, Set.of());
 	}
 

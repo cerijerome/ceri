@@ -2,8 +2,6 @@ package ceri.x10.cm17a.device;
 
 import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.IOException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.io.StateChange;
@@ -14,7 +12,6 @@ import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 
 public class Cm17aEmulator implements Cm17a {
-	private static final Logger logger = LogManager.getLogger();
 	public final Listeners<StateChange> listeners = Listeners.of();
 	private final Dispatcher<CommandListener, Command> dispatcher;
 
@@ -49,6 +46,6 @@ public class Cm17aEmulator implements Cm17a {
 
 	@Override
 	public void close() {
-		LogUtil.close(logger, dispatcher);
+		LogUtil.close(dispatcher);
 	}
 }

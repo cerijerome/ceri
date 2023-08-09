@@ -8,18 +8,25 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 pushd "$DIR"
 
+# Compile tests, but don't run
+#SKIP_TESTS="-DskipTests"
+# Don't compile or run tests
+SKIP_TESTS="-Dmaven.test.skip=true"
+
 mvn clean install
 cd ../ceri-common
-mvn clean install -DskipTests
+mvn clean install $SKIP_TESTS
 cd ../ceri-log
-mvn clean install
+mvn clean install $SKIP_TESTS
 cd ../ceri-ent
-mvn clean install
+mvn clean install $SKIP_TESTS
 cd ../ceri-process
-mvn clean install
+mvn clean install $SKIP_TESTS
+cd ../ceri-jna
+mvn clean install $SKIP_TESTS
 cd ../ceri-serial
-mvn clean install
+mvn clean install $SKIP_TESTS
 cd ../ceri-x10
-mvn clean install
+mvn clean install $SKIP_TESTS
 
 popd

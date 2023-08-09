@@ -51,7 +51,7 @@ public class FtdiConnectorTesterBehavior {
 	@Test
 	public void shouldFindDevice() throws IOException {
 		try (var enc = TestLibUsbNative.register()) {
-			enc.subject.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
+			enc.ref.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
 			try (var run = TestUtil.threadRun(() -> FtdiTester.test("0x0403:0x6001"))) {
 				awaitHelp();
 				in.to.writeString("x\n");

@@ -17,8 +17,8 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testDefaultValue() {
-		assertNull(BasicUtil.defaultValue(null, null));
+	public void testDefaultValue() throws Exception {
+		assertNull(BasicUtil.<String>defaultValue(null, null));
 		assertEquals(BasicUtil.defaultValue(null, 1), 1);
 		assertEquals(BasicUtil.defaultValue(1, null), 1);
 		assertEquals(BasicUtil.defaultValue(1, 2), 1);
@@ -26,10 +26,8 @@ public class BasicUtilTest {
 
 	@Test
 	public void testConditional() {
-		assertNull(BasicUtil.conditional(null, "a", "b"));
-		assertEquals(BasicUtil.conditional(null, "a", "b", "c"), "c");
-		assertEquals(BasicUtil.conditional(Boolean.TRUE, "a", "b", "c"), "a");
-		assertEquals(BasicUtil.conditional(Boolean.FALSE, "a", "b", "c"), "b");
+		assertEquals(BasicUtil.conditional(true, "a", "b"), "a");
+		assertEquals(BasicUtil.conditional(false, "a", "b"), "b");
 		assertEquals(BasicUtil.conditionalInt(true, 1, -1), 1);
 		assertEquals(BasicUtil.conditionalInt(false, 1, -1), -1);
 		assertEquals(BasicUtil.conditionalLong(true, 1, -1), 1L);

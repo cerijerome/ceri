@@ -1,7 +1,7 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.function.FunctionUtil.named;
 import java.util.function.Predicate;
+import ceri.common.function.Namer;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealingConfig;
 import ceri.serial.ftdi.FtdiDevice;
@@ -14,11 +14,12 @@ import ceri.serial.libusb.jna.LibUsbFinder;
  */
 public class SelfHealingFtdiConfig {
 	public static final SelfHealingFtdiConfig DEFAULT = builder().build();
-	static final Predicate<Exception> DEFAULT_PREDICATE = named(FtdiDevice::isFatal, "Ftdi::isFatal");
-	final LibUsbFinder finder;
-	final ftdi_interface iface;
-	final FtdiConfig ftdi;
-	final SelfHealingConfig selfHealing;
+	private static final Predicate<Exception> DEFAULT_PREDICATE =
+		Namer.predicate(FtdiDevice::isFatal, "Ftdi::isFatal");
+	public final LibUsbFinder finder;
+	public final ftdi_interface iface;
+	public final FtdiConfig ftdi;
+	public final SelfHealingConfig selfHealing;
 
 	public static SelfHealingFtdiConfig of(String finder) {
 		return of(LibUsbFinder.from(finder));

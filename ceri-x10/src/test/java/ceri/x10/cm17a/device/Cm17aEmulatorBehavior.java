@@ -23,7 +23,7 @@ public class Cm17aEmulatorBehavior {
 	@Test
 	public void shouldNotifyOfStateChange() {
 		try (var emu = Cm17aEmulator.of(0)) {
-			CallSync.Accept<StateChange> sync = CallSync.consumer(null, true);
+			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 			try (var listener = emu.listeners().enclose(sync::accept)) {
 				emu.listeners.accept(StateChange.broken);
 				sync.assertCall(StateChange.broken);

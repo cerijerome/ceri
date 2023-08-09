@@ -6,18 +6,12 @@ import ceri.log.rpc.client.RpcChannelConfig;
 
 public class RpcServerConfig {
 	public static final RpcServerConfig NULL = builder().build();
+	public static final RpcServerConfig DEFAULT = builder().port(0).build();
 	public final Integer port;
 	public final int shutdownTimeoutMs;
 
 	/**
-	 * Default settings with server-chosen port.
-	 */
-	public static RpcServerConfig of() {
-		return of(0);
-	}
-
-	/**
-	 * Default settings with given port.
+	 * Default settings with given port; use 0 for server-chosen port.
 	 */
 	public static RpcServerConfig of(int port) {
 		return builder().port(port).build();
@@ -58,11 +52,19 @@ public class RpcServerConfig {
 	}
 
 	/**
-	 * Checks if the channel will connect to this server based on configuration.
+	 * Checks if the channel will connect to this server, based on configuration.
 	 */
 	public boolean isLoop(RpcChannelConfig channel) {
 		if (!enabled() || channel == null || !channel.isLocalhost()) return false;
 		return Objects.equals(channel.port, port);
+	}
+
+	/**
+	 * Throws an exception if the channel will connect to this server, based on configuration.
+	 */
+	public RpcServerConfig requireNoLoop(RpcChannelConfig channel) {
+		if (!isLoop(channel)) return this;
+		throw new IllegalArgumentException("Rpc service and client loop on port " + port);
 	}
 
 	@Override
