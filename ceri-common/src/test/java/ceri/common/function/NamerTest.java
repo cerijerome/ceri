@@ -4,10 +4,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import org.junit.Test;
+import ceri.common.test.Captor;
 
 public class NamerTest {
 
@@ -33,6 +35,22 @@ public class NamerTest {
 		assertNotEquals(Namer.lambda(this), "[lambda]");
 	}
 	
+	@Test
+	public void testFunction() {
+		Function<String, Integer> f = Namer.function(s -> s.length(), "test");
+		assertEquals(f.apply("abc"), 3);
+		assertEquals(f.toString(), "test");
+	}
+
+	@Test
+	public void testConsumer() {
+		var captor = Captor.<String>of();
+		Consumer<String> c = Namer.consumer(captor, "test");
+		c.accept("abc");
+		captor.verify("abc");
+		assertEquals(c.toString(), "test");
+	}
+
 	@Test
 	public void testPredicate() {
 		Predicate<String> p = Namer.predicate(s -> !s.isEmpty(), "test");

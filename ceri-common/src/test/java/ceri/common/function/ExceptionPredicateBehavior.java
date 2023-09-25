@@ -44,6 +44,8 @@ public class ExceptionPredicateBehavior {
 		ExceptionPredicate<IOException, Integer> p = p0.negate();
 		assertTrue(p0.test(2));
 		assertFalse(p.test(2));
+		assertFalse(p0.test(-1));
+		assertTrue(p.test(-1));
 		assertThrown(IOException.class, () -> p.test(1));
 		assertThrown(RuntimeException.class, () -> p.test(0));
 	}

@@ -5,9 +5,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.util.BasicUtil;
 
 /**
- * Lazily-instantiated constant, that only computes the value once.
+ * Utility to provide lazily-instantiated constants. A lazy constant may be instantiated with a lock
+ * to ensure computation occurs once only, or as an unsafe instance, which may instantiate more than
+ * once if called concurrently. Can be created with a supplier, or with a supplier passed in on
+ * access.
  */
 public class Constant<T> {
 	private final Lock lock;
@@ -86,8 +90,8 @@ public class Constant<T> {
 	}
 
 	private <E extends Exception> T get(ExceptionSupplier<E, T> supplier) throws E {
-		if (value == null) try (var x = locker()) {
-			if (value == null) value = supplier.get();
+		if (value == null) try (var x = locker()) { // double-checked locking
+			value = BasicUtil.defaultValue(value, supplier);
 		}
 		return value;
 	}

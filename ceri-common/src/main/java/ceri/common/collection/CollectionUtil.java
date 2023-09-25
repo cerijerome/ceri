@@ -88,7 +88,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Computes and (re-)maps the value if for the key.
+	 * Computes and (re-)maps the value for the key.
 	 */
 	public static <E extends Exception, K, V> V compute(Map<K, V> map, K key,
 		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> remappingFunction) throws E {
@@ -117,7 +117,7 @@ public class CollectionUtil {
 	/**
 	 * Applies the function to each map entry.
 	 */
-	public static <E extends Exception, K, V> void reaplaceAll(Map<K, V> map,
+	public static <E extends Exception, K, V> void replaceAll(Map<K, V> map,
 		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> function) throws E {
 		FunctionWrapper<E> w = FunctionWrapper.of();
 		w.unwrap(() -> map.replaceAll(w.wrap(function)));

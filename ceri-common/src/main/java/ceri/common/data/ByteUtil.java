@@ -358,14 +358,14 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Applies a single bit mask inclusively or exclusively.
+	 * Applies a single bit mask inclusively or exclusively. The bit does not wrap.
 	 */
 	public static long applyBit(long value, int bit, boolean on) {
 		return applyMask(value, maskOfBit(true, bit), on);
 	}
 
 	/**
-	 * Applies a single bit mask inclusively or exclusively.
+	 * Applies a single bit mask inclusively or exclusively.  The bit does not wrap.
 	 */
 	public static int applyBitInt(int value, int bit, boolean on) {
 		return applyMaskInt(value, maskOfBitInt(true, bit), on);
@@ -395,9 +395,10 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Creates a 32-bit mask with given number of bits from start bit.
+	 * Creates a 32-bit mask with given number of bits from start bit. Bits do not wrap.
 	 */
 	public static int maskInt(int startBit, int bitCount) {
+		if (startBit >= Integer.SIZE) return 0;
 		return maskInt(bitCount) << startBit;
 	}
 
@@ -405,20 +406,21 @@ public class ByteUtil {
 	 * Creates a 64-bit mask with given number of bits.
 	 */
 	public static long mask(int bitCount) {
-		if (bitCount == 0) return 0;
+		if (bitCount == 0) return 0L;
 		if (bitCount >= Long.SIZE) return -1L;
-		return (1L << bitCount) - 1;
+		return (1L << bitCount) - 1L;
 	}
 
 	/**
-	 * Creates a mask with given number of bits from start bit.
+	 * Creates a mask with given number of bits from start bit. Bits do not wrap.
 	 */
 	public static long mask(int startBit, int bitCount) {
+		if (startBit >= Long.SIZE) return 0L;
 		return mask(bitCount) << startBit;
 	}
 
 	/**
-	 * Creates a 64-bit mask from given true bits.
+	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
 	 */
 	public static long maskOfBits(Collection<Integer> bits) {
 		if (bits == null) return 0;
@@ -426,21 +428,22 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Creates a 64-bit mask from given true bits.
+	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
 	 */
 	public static long maskOfBits(int... bits) {
-		if (bits == null) return 0;
-		long value = 0;
+		if (bits == null) return 0L;
+		long value = 0L;
 		for (int bit : bits)
 			if (bit < Long.SIZE) value |= 1L << bit;
 		return value;
 	}
 
 	/**
-	 * Creates a value with given bit on or off. Used to construct a mask from bits.
+	 * Creates a value with given bit on or off. Used to construct a mask from bits. The bit does
+	 * not wrap.
 	 */
 	public static long maskOfBit(boolean flag, int bit) {
-		if (!flag) return 0;
+		if (!flag || bit >= Long.SIZE) return 0L;
 		return 1L << bit;
 	}
 
@@ -469,7 +472,8 @@ public class ByteUtil {
 	 * Returns true if the given bit is set in the value.
 	 */
 	public static boolean bit(long value, int bit) {
-		return (value & (1L << bit)) != 0;
+		maskOfBit(true, bit);
+		return (value & maskOfBit(true, bit)) != 0;
 	}
 
 	/**

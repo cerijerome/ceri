@@ -230,6 +230,17 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testInterruptFromException() {
+		assertFalse(Thread.interrupted());
+		assertFalse(ConcurrentUtil.interrupt(new RuntimeException()));
+		assertFalse(Thread.interrupted());
+		assertTrue(ConcurrentUtil.interrupt(new RuntimeInterruptedException("test")));
+		assertTrue(Thread.interrupted());
+		assertTrue(ConcurrentUtil.interrupt(new InterruptedException("test")));
+		assertTrue(Thread.interrupted());
+	}
+
+	@Test
 	public void testCheckInterrupted() throws InterruptedException {
 		ConcurrentUtil.checkInterrupted();
 		ConcurrentUtil.interrupt();

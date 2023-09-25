@@ -5,10 +5,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.time.TimeSupplier.micros;
 import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.time.TimeSupplier.nanos;
-import static ceri.common.time.TimeSupplier.seconds;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import org.junit.Test;
@@ -78,13 +76,13 @@ public class TimerBehavior {
 	public void shouldDetermineRemainingTime() {
 		Timer t = Timer.of(Integer.MAX_VALUE + 10000L, millis);
 		assertEquals(t.snapshot().remainingInt(), Integer.MAX_VALUE);
-		assertEquals(Timer.of(-1, millis).snapshot().remainingInt(), 0);
+		assertEquals(Timer.millis(-1).snapshot().remainingInt(), 0);
 		assertEquals(Timer.of(0, millis).snapshot().remainingInt(), 0);
 	}
 
 	@Test
 	public void shouldDetermineRemainingIntTime() {
-		Timer t = Timer.of(1000, nanos);
+		Timer t = Timer.nanos(1000);
 		Timer.Snapshot s0 = new Timer.Snapshot(t, State.started, 0, 0, Long.MIN_VALUE);
 		Timer.Snapshot s1 = new Timer.Snapshot(t, State.started, 0, 0, Long.MAX_VALUE);
 		Timer.Snapshot s2 = new Timer.Snapshot(t, State.started, 0, 0, 1000L);
@@ -115,7 +113,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldPauseIfRunning() {
-		Timer t = Timer.of(10000, seconds);
+		Timer t = Timer.secs(10000);
 		assertFalse(t.pause()); // false - not started
 		t.start();
 		assertTrue(t.pause()); // true - was running
@@ -125,7 +123,7 @@ public class TimerBehavior {
 
 	@Test
 	public void shouldResumeIfPaused() {
-		Timer t = Timer.of(10000, micros);
+		Timer t = Timer.micros(10000);
 		assertFalse(t.resume()); // false - not started
 		t.start();
 		assertFalse(t.resume()); // false - running

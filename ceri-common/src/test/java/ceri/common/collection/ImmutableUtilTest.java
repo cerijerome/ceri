@@ -186,6 +186,20 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testWrapAsSubList() {
+		var array = new Integer[] { 1, 2, 3, 4, 5 };
+		assertThrown(() -> ImmutableUtil.wrapAsList(array, 3, 6));
+		assertThrown(() -> ImmutableUtil.wrapAsList(array, 6, 6));
+		assertIterable(ImmutableUtil.wrapAsList(array, 0, 0));
+		assertIterable(ImmutableUtil.wrapAsList(array, 5, 5));
+		final List<Integer> list = ImmutableUtil.wrapAsList(array, 1, 4);
+		assertEquals(list, Arrays.asList(2, 3, 4));
+		assertImmutableList(list);
+		array[2] = 0;
+		assertEquals(list, Arrays.asList(2, 0, 4));
+	}
+
+	@Test
 	public void testWrapAsList() {
 		var array = new Integer[] { 1, 2, 3, 4, 5 };
 		final List<Integer> list = ImmutableUtil.wrapAsList(array);

@@ -2,6 +2,7 @@ package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.biConsumer;
 import static ceri.common.function.FunctionTestUtil.consumer;
+import static ceri.common.function.FunctionTestUtil.biFunction;
 import static ceri.common.function.FunctionTestUtil.function;
 import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.function.FunctionTestUtil.intFunction;
@@ -153,6 +154,18 @@ public class FunctionWrapperBehavior {
 			() -> w.unwrapIntUnaryOperator(w.wrap(intUnaryOperator())::applyAsInt, 1));
 		assertThrown(RuntimeException.class,
 			() -> w.unwrapIntUnaryOperator(w.wrap(intUnaryOperator())::applyAsInt, 0));
+	}
+
+	@Test
+	public void shouldHandleBiFunctions() throws IOException {
+		assertEquals(w.unwrapBiFunction(biFunction(), 2, 3), 5);
+		assertThrown(IOException.class, () -> w.unwrapBiFunction(biFunction(), 1, 2));
+		assertThrown(RuntimeException.class, () -> w.unwrapBiFunction(biFunction(), 2, 0));
+		assertEquals(w.unwrapBiFunction(w.wrap(biFunction())::apply, 2, 3), 5);
+		assertThrown(IOException.class,
+			() -> w.unwrapBiFunction(w.wrap(biFunction())::apply, 2, 1));
+		assertThrown(RuntimeException.class,
+			() -> w.unwrapBiFunction(w.wrap(biFunction())::apply, 0, 2));
 	}
 
 	@Test

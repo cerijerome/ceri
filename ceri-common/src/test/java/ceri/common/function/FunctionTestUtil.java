@@ -24,6 +24,7 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 /**
  * Utilities to help test functions.
@@ -141,6 +142,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionToIntFunction<IOException, Integer> toIntFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
+	public static ExceptionToLongFunction<IOException, Integer> toLongFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -334,6 +343,13 @@ public class FunctionTestUtil {
 		}
 
 		public static ToIntFunction<Integer> toIntFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
+		public static ToLongFunction<Integer> toLongFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i;

@@ -53,6 +53,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
 	ceri.common.concurrent.BooleanConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
+	ceri.common.concurrent.ConstantBehavior.class, //
 	ceri.common.concurrent.LockerBehavior.class, //
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
 	ceri.common.concurrent.SafeReadWriteBehavior.class, //
@@ -135,6 +136,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionRunnableBehavior.class, //
 	ceri.common.function.ExceptionSupplierBehavior.class, //
 	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
+	ceri.common.function.ExceptionToLongFunctionBehavior.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
 	ceri.common.function.FunctionWrapperBehavior.class, //
@@ -147,6 +149,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
 	ceri.common.function.ToByteFunctionBehavior.class, //
 	ceri.common.function.ToShortFunctionBehavior.class, //
+	ceri.common.function.VarArgsConsumerBehavior.class, //
+	ceri.common.function.VarArgsIntConsumerBehavior.class, //
 	// geom
 	ceri.common.geom.Circle2dBehavior.class, //
 	ceri.common.geom.ConcaveSpheroidBehavior.class, //

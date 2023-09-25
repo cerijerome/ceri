@@ -556,6 +556,15 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testAllEqual() {
+		assertTrue(ArrayUtil.allEqual(null, null, null));
+		assertFalse(ArrayUtil.allEqual(null, null, 0));
+		assertTrue(ArrayUtil.allEqual("", ""));
+		assertTrue(ArrayUtil.allEqual("", ""));
+		assertFalse(ArrayUtil.allEqual("", "", null));
+	}
+
+	@Test
 	public void testAddAll() {
 		Number[] array = { 0, 1 };
 		assertArray(ArrayUtil.addAll(array, 2, 3), new Number[] { 0, 1, 2, 3 });
@@ -822,6 +831,15 @@ public class ArrayUtilTest {
 		assertArray(ArrayUtil.longs(collection), 1, 16, 256, 4096, 65536);
 		assertArray(ArrayUtil.floats(collection), 1, 16, 256, 4096, 65536);
 		assertArray(ArrayUtil.doubles(collection), 1, 16, 256, 4096, 65536);
+	}
+
+	@Test
+	public void testAsFixedList() {
+		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 0, 3), 1, 2, 3);
+		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3, 4), 1, 3), 2, 3);
+		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 3, 3));
+		assertThrown(() -> ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 0, 4));
+		assertThrown(() -> ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 4, 0));
 	}
 
 	@Test

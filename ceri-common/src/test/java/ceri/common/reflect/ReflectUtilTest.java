@@ -11,10 +11,13 @@ import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.Fluent;
+import ceri.common.test.Captor;
 
 public class ReflectUtilTest {
 
@@ -76,6 +79,8 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testPublicFieldValue() {
+		assertNull(
+			ReflectUtil.publicFieldValue(new Object(), ReflectUtil.publicField(Fields.class, "s")));
 		assertNull(ReflectUtil.publicFieldValue(new Fields().apply(f -> f.l = 100),
 			ReflectUtil.publicField(Fields.class, "l")));
 		assertNull(ReflectUtil.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
@@ -291,6 +296,18 @@ public class ReflectUtilTest {
 
 	private void callPreviousMethodName2() {
 		assertEquals(ReflectUtil.previousMethodName(2), "testPreviousMethodName");
+	}
+
+	@Test
+	public void testInterceptor() throws ReflectiveOperationException {
+		var delegate = Captor.ofInt();
+		var captor = Captor.<Method, Object[]>ofBi();
+		var method = IntConsumer.class.getMethod("accept", int.class);
+		ReflectUtil.<IntConsumer>interceptor(delegate, captor).accept(3);
+		ReflectUtil.interceptor(IntConsumer.class, delegate, captor).accept(-1);
+		delegate.verify(3, -1);
+		captor.first.verify(method, method);
+		captor.second.verify(new Object[] { 3 }, new Object[] { -1 });
 	}
 
 }

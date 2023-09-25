@@ -147,6 +147,14 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testIntIterable() {
+		int[] array = { 1, -1, 0 };
+		int i = 0;
+		for (int n : StreamUtil.iterable(IntStream.of(array)))
+			assertEquals(n, array[i++]);
+	}
+
+	@Test
 	public void testCollect() {
 		assertIterable(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
 	}

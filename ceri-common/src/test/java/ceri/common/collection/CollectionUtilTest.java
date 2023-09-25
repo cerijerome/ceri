@@ -72,6 +72,58 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testComputeMapping() {
+		Map<String, Integer> map = new LinkedHashMap<>();
+		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> k.length()), 3);
+		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> k.length() + v), 6);
+		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> null), null);
+		assertEquals(map.size(), 0);
+	}
+
+	@Test
+	public void testComputeMappingIfAbsent() {
+		Map<String, Integer> map = new LinkedHashMap<>();
+		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> k.length()), 3);
+		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> k.length() - 1), 3);
+		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> null), 3);
+		assertEquals(map.size(), 1);
+	}
+
+	@Test
+	public void testComputeMappingIfPresent() {
+		Map<String, Integer> map = new LinkedHashMap<>();
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> k.length()), null);
+		assertEquals(map.put("abc", 0), null);
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> k.length()), 3);
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> null), null);
+		assertEquals(map.size(), 0);
+	}
+
+	@Test
+	public void testReplaceAllMappings() {
+		Map<String, Integer> map = new LinkedHashMap<>();
+		CollectionUtil.replaceAll(map, (k, v) -> k.length());
+		assertEquals(map.put("a", 0), null);
+		assertEquals(map.put("abc", 0), null);
+		CollectionUtil.replaceAll(map, (k, v) -> k.length());
+		assertEquals(map.get("a"), 1);
+		assertEquals(map.get("abc"), 3);
+		CollectionUtil.replaceAll(map, (k, v) -> null);
+		assertEquals(map.get("a"), null);
+		assertEquals(map.get("abc"), null);
+		assertEquals(map.size(), 2);
+	}
+
+	@Test
+	public void testMergedMappedValue() {
+		Map<String, Integer> map = new LinkedHashMap<>();
+		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> 3), 1);
+		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> 3), 3);
+		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> v1 + v2), 4);
+		assertEquals(map.size(), 1);
+	}
+
+	@Test
 	public void testContainsAll() {
 		assertFalse(CollectionUtil.containsAll(null));
 		assertTrue(CollectionUtil.containsAll(List.of()));

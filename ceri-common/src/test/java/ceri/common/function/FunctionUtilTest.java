@@ -116,6 +116,14 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testSafeApplyAsInt() {
+		assertEquals(FunctionUtil.safeApplyAsInt(null, String::length, 3), 3);
+		assertEquals(FunctionUtil.safeApplyAsInt("test", String::length, 3), 4);
+		assertEquals(FunctionUtil.safeApplyGetAsInt(null, String::length, () -> 2), 2);
+		assertEquals(FunctionUtil.safeApplyGetAsInt("test", String::length, () -> 2), 4);
+	}
+
+	@Test
 	public void testRecurse() {
 		assertEquals(FunctionUtil.recurse("test", s -> s.replaceFirst("[a-z]", "X")), "XXXX");
 		assertEquals(FunctionUtil.recurse("hello", s -> s.substring(1), 3), "lo");

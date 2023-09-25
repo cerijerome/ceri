@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import org.junit.Test;
 import ceri.common.util.Align;
@@ -55,6 +56,15 @@ public class EnumUtilTest {
 		assertEquals(EnumUtil.fromOrdinal(Enum.class, 2), Enum.c);
 		assertNull(EnumUtil.fromOrdinal(Enum.class, -1));
 		assertNull(EnumUtil.fromOrdinal(Enum.class, 3));
+	}
+
+	@Test
+	public void testFromOrdinalValid() {
+		assertEquals(EnumUtil.fromOrdinalValid(Enum.class, 0), Enum.a);
+		assertEquals(EnumUtil.fromOrdinalValid(Enum.class, 1), Enum.b);
+		assertEquals(EnumUtil.fromOrdinalValid(Enum.class, 2), Enum.c);
+		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, -1));
+		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, 3));
 	}
 
 }

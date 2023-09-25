@@ -208,9 +208,16 @@ public class StringUtilTest {
 
 	@Test
 	public void testStartsWith() {
+		assertFalse(StringUtil.startsWith(new StringBuilder("x"), null));
 		assertFalse(StringUtil.startsWith(new StringBuilder("x"), 0, null));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), ""));
 		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), 1, ""));
 		assertFalse(StringUtil.startsWith(new StringBuilder("abc"), 4, ""));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), "a"));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), "ab"));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), "abc"));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), 1, "b"));
+		assertTrue(StringUtil.startsWith(new StringBuilder("abc"), 1, "bc"));
 	}
 
 	@Test

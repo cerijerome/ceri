@@ -136,6 +136,13 @@ public class Timer {
 	}
 
 	/**
+	 * Creates a timer with second granularity.
+	 */
+	public static Timer secs(long period) {
+		return of(period, TimeUnit.SECONDS);
+	}
+
+	/**
 	 * Creates a timer with millisecond granularity.
 	 */
 	public static Timer millis(long period) {
@@ -147,6 +154,13 @@ public class Timer {
 	 */
 	public static Timer micros(long period) {
 		return of(period, TimeUnit.MICROSECONDS);
+	}
+
+	/**
+	 * Creates a timer with nanosecond granularity.
+	 */
+	public static Timer nanos(long period) {
+		return of(period, TimeUnit.NANOSECONDS);
 	}
 
 	/**

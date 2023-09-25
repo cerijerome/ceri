@@ -179,7 +179,39 @@ public class ByteUtilTest {
 	}
 
 	@Test
-	public void testApply() {
+	public void testApplyBit() {
+		assertEquals(ByteUtil.applyBit(0, 0, false), 0L);
+		assertEquals(ByteUtil.applyBit(0, 0, true), 1L);
+		assertEquals(ByteUtil.applyBit(0, 63, false), 0L);
+		assertEquals(ByteUtil.applyBit(0, 63, true), 0x8000000000000000L);
+		assertEquals(ByteUtil.applyBit(0, 64, false), 0L);
+		assertEquals(ByteUtil.applyBit(0, 65, true), 0L);
+		assertEquals(ByteUtil.applyBit(-1L, 0, false), 0xfffffffffffffffeL);
+		assertEquals(ByteUtil.applyBit(-1L, 0, true), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBit(-1L, 63, false), 0x7fffffffffffffffL);
+		assertEquals(ByteUtil.applyBit(-1L, 63, true), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBit(-1L, 64, false), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBit(-1L, 65, true), 0xffffffffffffffffL);
+	}
+	
+	@Test
+	public void testApplyBitInt() {
+		assertEquals(ByteUtil.applyBitInt(0, 0, false), 0);
+		assertEquals(ByteUtil.applyBitInt(0, 0, true), 1);
+		assertEquals(ByteUtil.applyBitInt(0, 31, false), 0);
+		assertEquals(ByteUtil.applyBitInt(0, 31, true), 0x80000000);
+		assertEquals(ByteUtil.applyBitInt(0, 32, false), 0);
+		assertEquals(ByteUtil.applyBitInt(0, 33, true), 0);
+		assertEquals(ByteUtil.applyBitInt(-1, 0, false), 0xfffffffe);
+		assertEquals(ByteUtil.applyBitInt(-1, 0, true), 0xffffffff);
+		assertEquals(ByteUtil.applyBitInt(-1, 31, false), 0x7fffffff);
+		assertEquals(ByteUtil.applyBitInt(-1, 31, true), 0xffffffff);
+		assertEquals(ByteUtil.applyBitInt(-1, 32, false), 0xffffffff);
+		assertEquals(ByteUtil.applyBitInt(-1, 33, true), 0xffffffff);
+	}
+	
+	@Test
+	public void testApplyMask() {
 		assertEquals(ByteUtil.applyMask(0xffff0000_ffff0000L, 0xffff00_00ffff00L, false),
 			0xff000000_ff000000L);
 		assertEquals(ByteUtil.applyMask(0xffff0000_ffff0000L, 0xffff00_00ffff00L, true),
@@ -187,7 +219,7 @@ public class ByteUtilTest {
 	}
 
 	@Test
-	public void testApplyInt() {
+	public void testApplyMaskInt() {
 		assertEquals(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, false), 0xff000000);
 		assertEquals(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, true), 0xffffff00);
 	}
@@ -198,6 +230,8 @@ public class ByteUtilTest {
 		assertEquals(ByteUtil.maskInt(32), 0xffffffff);
 		assertEquals(ByteUtil.maskInt(11), 0x7ff);
 		assertEquals(ByteUtil.maskInt(5, 11), 0xffe0);
+		assertEquals(ByteUtil.maskInt(5, 32), 0xffffffe0);
+		assertEquals(ByteUtil.maskInt(32, 5), 0);
 	}
 
 	@Test
@@ -209,6 +243,7 @@ public class ByteUtilTest {
 		assertEquals(ByteUtil.mask(10, 0), 0L);
 		assertEquals(ByteUtil.mask(10, 7), 0x1fc00L);
 		assertEquals(ByteUtil.mask(10, 64), 0xffffffff_fffffc00L);
+		assertEquals(ByteUtil.mask(64, 10), 0L);
 	}
 
 	@Test
