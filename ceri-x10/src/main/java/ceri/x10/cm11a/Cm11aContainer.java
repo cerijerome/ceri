@@ -64,7 +64,7 @@ public class Cm11aContainer implements RuntimeCloseable {
 			this.serial = defaultValue(createdSerial, serial);
 			createdCm11a = createCm11a(serial, config.device);
 			this.cm11a = defaultValue(createdCm11a, cm11a);
-			logger.info("Started: %d:%s", id, type);
+			logger.info("[%d:%s] started", id, type);
 		} catch (RuntimeException e) {
 			close();
 			throw e;
@@ -78,7 +78,7 @@ public class Cm11aContainer implements RuntimeCloseable {
 	@Override
 	public void close() {
 		LogUtil.close(createdCm11a, createdSerial);
-		logger.info("Stopped: %d:%s", id, type);
+		logger.info("[%d:%s] stopped", id, type);
 	}
 
 	@Override
@@ -99,5 +99,4 @@ public class Cm11aContainer implements RuntimeCloseable {
 			default -> Cm11a.NULL;
 		};
 	}
-
 }

@@ -2,17 +2,30 @@ package ceri.x10.cm17a;
 
 import ceri.common.io.DeviceMode;
 import ceri.common.text.ToString;
+import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerialConfig;
+import ceri.x10.cm17a.device.Cm17a;
 import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 
 /**
- * Configuration for a CM17a container.
+ * Configuration for a Cm17a container.
  */
 public class Cm17aConfig {
 	public final int id;
 	public final DeviceMode mode;
 	public final Cm17aDeviceConfig device;
 	public final SelfHealingSerialConfig serial;
+
+	/**
+	 * The container type, determined by references and config.
+	 */
+	public static enum Type {
+		cm17aRef,
+		serialRef,
+		serial,
+		test,
+		noOp;
+	}
 
 	/**
 	 * Convenience constructor for simple case.
@@ -40,13 +53,13 @@ public class Cm17aConfig {
 			return this;
 		}
 
-		public Builder serial(SelfHealingSerialConfig serial) {
-			this.serial = serial;
+		public Builder device(Cm17aDeviceConfig device) {
+			this.device = device;
 			return this;
 		}
 
-		public Builder device(Cm17aDeviceConfig device) {
-			this.device = device;
+		public Builder serial(SelfHealingSerialConfig serial) {
+			this.serial = serial;
 			return this;
 		}
 
@@ -62,21 +75,20 @@ public class Cm17aConfig {
 	Cm17aConfig(Builder builder) {
 		id = builder.id;
 		mode = builder.mode;
-		serial = builder.serial;
 		device = builder.device;
+		serial = builder.serial;
 	}
 
-	public boolean isTest() {
-		return mode == DeviceMode.test;
-	}
-
-	public boolean isDevice() {
-		return mode == DeviceMode.enabled && serial.enabled();
+	public Type type(Cm17a cm17aRef, Serial.Fixable serialRef) {
+		if (cm17aRef != null) return Type.cm17aRef;
+		if (serialRef != null) return Type.serialRef;
+		if (mode == DeviceMode.enabled && serial.enabled()) return Type.serial;
+		if (mode == DeviceMode.test) return Type.test;
+		return Type.noOp;
 	}
 
 	@Override
 	public String toString() {
 		return ToString.forClass(this, id, mode, device, serial);
 	}
-
 }

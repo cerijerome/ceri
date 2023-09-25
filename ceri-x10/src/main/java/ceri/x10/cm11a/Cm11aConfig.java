@@ -8,7 +8,7 @@ import ceri.x10.cm11a.device.Cm11a;
 import ceri.x10.cm11a.device.Cm11aDeviceConfig;
 
 /**
- * Configuration for an CM11a container.
+ * Configuration for a Cm11a container.
  */
 public class Cm11aConfig {
 	public final int id;
@@ -17,7 +17,7 @@ public class Cm11aConfig {
 	public final SelfHealingSerialConfig serial;
 
 	/**
-	 * Container type.
+	 * The container type, determined by references and config.
 	 */
 	public static enum Type {
 		cm11aRef,
@@ -53,13 +53,13 @@ public class Cm11aConfig {
 			return this;
 		}
 
-		public Builder serial(SelfHealingSerialConfig deviceSerial) {
-			this.serial = deviceSerial;
+		public Builder device(Cm11aDeviceConfig device) {
+			this.device = device;
 			return this;
 		}
 
-		public Builder device(Cm11aDeviceConfig device) {
-			this.device = device;
+		public Builder serial(SelfHealingSerialConfig deviceSerial) {
+			this.serial = deviceSerial;
 			return this;
 		}
 
@@ -75,8 +75,8 @@ public class Cm11aConfig {
 	Cm11aConfig(Builder builder) {
 		id = builder.id;
 		mode = builder.mode;
-		serial = builder.serial;
 		device = builder.device;
+		serial = builder.serial;
 	}
 
 	public Type type(Cm11a cm11aRef, Serial.Fixable serialRef) {
@@ -85,14 +85,6 @@ public class Cm11aConfig {
 		if (mode == DeviceMode.enabled && serial.enabled()) return Type.serial;
 		if (mode == DeviceMode.test) return Type.test;
 		return Type.noOp;
-	}
-
-	public boolean isTest() {
-		return mode == DeviceMode.test;
-	}
-
-	public boolean isDevice() {
-		return mode == DeviceMode.enabled && serial.enabled();
 	}
 
 	@Override
