@@ -12,6 +12,9 @@ import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 
+/**
+ * Encapsulates the dynamic properties of an ftdi connector.
+ */
 public class FtdiConfig {
 	public static final FtdiConfig NULL = builder().build();
 	private final FtdiBitMode bitMode;

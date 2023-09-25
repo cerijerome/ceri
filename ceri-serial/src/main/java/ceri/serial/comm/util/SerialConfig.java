@@ -13,7 +13,7 @@ import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
 
 /**
- * Encapsulates the dynamic properties of a SerialPort.
+ * Encapsulates the dynamic properties of a serial connector.
  */
 public class SerialConfig {
 	public static final SerialConfig DEFAULT = new Builder().build();
