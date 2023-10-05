@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
@@ -218,6 +219,12 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testFirstOf() {
+		Stream<Number> stream = Stream.of((byte) 1, 2.1, 3L, (short) 4, 5);
+		assertEquals(StreamUtil.firstOf(stream, Short.class), (short) 4);
+	}
+
+	@Test
 	public void testFirst() {
 		Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5).filter(i -> i % 2 == 0);
 		assertEquals(StreamUtil.first(stream), 2);
@@ -261,7 +268,7 @@ public class StreamUtilTest {
 	public void testStreamIterator() {
 		assertStream(StreamUtil.stream(List.of(1, 2, 3).iterator()), 1, 2, 3);
 	}
-	
+
 	@Test
 	public void testStreamArray() {
 		assertStream(StreamUtil.stream(new Integer[] { 1, 2, 3 }, 1), 2, 3);
@@ -270,6 +277,15 @@ public class StreamUtilTest {
 	@Test
 	public void testStreamEnums() {
 		assertIterable(StreamUtil.toList(StreamUtil.stream(Abc.class)), Abc.A, Abc.B, Abc.C);
+	}
+
+	@Test
+	public void testStreamEnumeration() {
+		Properties props = new Properties();
+		props.put("A", 1);
+		props.put("B", 2);
+		props.put("C", 3);
+		assertCollection(StreamUtil.stream(props.elements()).toList(), 1, 2, 3);
 	}
 
 	@Test

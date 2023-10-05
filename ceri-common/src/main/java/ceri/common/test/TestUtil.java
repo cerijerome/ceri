@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import org.junit.Assert;
 import org.junit.runner.JUnitCore;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -42,6 +43,7 @@ public class TestUtil {
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
+	public static final boolean isTest = ReflectUtil.stackHasPackage(Assert.class);
 
 	private TestUtil() {}
 

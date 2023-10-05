@@ -14,6 +14,18 @@ public class ReplaceableOutputStreamBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
+	public void shouldReplaceStream() throws IOException {
+		try (ReplaceableOutputStream rout = new ReplaceableOutputStream()) {
+			var out = TestOutputStream.of();
+			rout.replace(out);
+			rout.replace(out); // does nothing
+			rout.replace(TestOutputStream.of());
+			out.close.assertCalls(1);
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void shouldNotifyListenersOfErrors() throws IOException, InterruptedException {
 		ValueCondition<Exception> sync = ValueCondition.of();
 		TestOutputStream out = TestOutputStream.of();

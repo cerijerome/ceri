@@ -12,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.io.Connector;
 import ceri.common.io.StateChange;
 
 public class TestConnectorBehavior {
@@ -35,6 +36,17 @@ public class TestConnectorBehavior {
 		con.out().write(bytes(1, 2, 3, 4, 5), 1, 3);
 		assertEquals(con.in().available(), 3);
 		assertRead(con.in(), 2, 3, 4);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldPairConnectors() throws IOException {
+		TestConnector con2 = TestConnector.of();
+		con.pairWith((Connector) con2);
+		con.open();
+		con2.open();
+		con.out().write(bytes(1, 2, 3));
+		assertRead(con2.out.from, 1, 2, 3);
 	}
 
 	@SuppressWarnings("resource")

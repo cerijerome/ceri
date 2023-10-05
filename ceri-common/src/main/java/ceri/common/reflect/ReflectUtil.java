@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -296,6 +297,23 @@ public class ReflectUtil {
 		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(m -> "$1.");
 	}
 
+	/**
+	 * Returns true if the current stack trace contains the given class package.
+	 */
+	public static boolean stackHasPackage(Class<?> cls) {
+		if (cls == null) return false;
+		return stackHasPackage(cls.getPackageName());
+	}
+	
+	/**
+	 * Returns true if the current stack trace contains the given package.
+	 */
+	public static boolean stackHasPackage(String pkg) {
+		if (pkg == null) return false;
+		return Stream.of(Thread.currentThread().getStackTrace())
+			.map(StackTraceElement::getClassName).anyMatch(s -> s.startsWith(pkg));
+	}
+	
 	/**
 	 * Get enum value as a field.
 	 */

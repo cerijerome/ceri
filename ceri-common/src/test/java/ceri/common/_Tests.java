@@ -178,14 +178,19 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
+	ceri.common.io.FixableBehavior.class, //
+	ceri.common.io.IncompleteIoExceptionBehavior.class, //
 	ceri.common.io.IoStreamUtilTest.class, //
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.NioUtilTest.class, //
+	ceri.common.io.NotSetExceptionBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //
+	ceri.common.io.ReplaceableBehavior.class, //
+	ceri.common.io.ReplaceableConnectorBehavior.class, //
 	ceri.common.io.ReplaceableInputStreamBehavior.class, //
 	ceri.common.io.ReplaceableOutputStreamBehavior.class, //
 	ceri.common.io.ResourcePathBehavior.class, //
@@ -213,6 +218,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.net.EmailUtilTest.class, //
 	ceri.common.net.HostPortBehavior.class, //
 	ceri.common.net.NetUtilTest.class, //
+	ceri.common.net.ReplaceableTcpSocketBehavior.class, //
+	ceri.common.net.TcpServerSocketBehavior.class, //
+	ceri.common.net.TcpSocketBehavior.class, //
+	ceri.common.net.TcpSocketOptionBehavior.class, //
+	ceri.common.net.TcpSocketOptionsBehavior.class, //
 	ceri.common.net.UdpUtilTest.class, //
 	// process
 	ceri.common.process.ColumnsBehavior.class, //
@@ -260,12 +270,16 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.BranchCaptorBehavior.class, //
 	ceri.common.test.CallSyncBehavior.class, //
 	ceri.common.test.CaptorBehavior.class, //
+	ceri.common.test.ConnectorTesterBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
 	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //
+	ceri.common.test.ManualTesterBehavior.class, //
 	ceri.common.test.PulsePrinterBehavior.class, //
+	ceri.common.test.TcpSocketTesterBehavior.class, //
 	ceri.common.test.TestConnectorBehavior.class, //
 	ceri.common.test.TestExecutorServiceBehavior.class, //
+	ceri.common.test.TestFixableBehavior.class, //
 	ceri.common.test.TestFutureBehavior.class, //
 	ceri.common.test.TestInputStreamBehavior.class, //
 	ceri.common.test.TestListenersBehavior.class, //
@@ -275,6 +289,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.TestRunAdapterBehavior.class, //
 	ceri.common.test.TestSocketBehavior.class, //
 	ceri.common.test.TestStyleBehavior.class, //
+	ceri.common.test.TestTcpSocketBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestUtilTest.class, //
 	// text

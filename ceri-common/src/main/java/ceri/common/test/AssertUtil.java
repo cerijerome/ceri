@@ -183,8 +183,8 @@ public class AssertUtil {
 			actual);
 	}
 
-	public static <T> void assertNotEquals(T actual, T expected) {
-		assertNotEquals(actual, expected, null);
+	public static <T> void assertNotEquals(T actual, T unexpected) {
+		assertNotEquals(actual, unexpected, null);
 	}
 
 	public static <T> void assertNotEquals(T actual, T unexpected, String format, Object... args) {

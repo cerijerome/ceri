@@ -1,7 +1,9 @@
 package ceri.common.test;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -44,10 +46,9 @@ public class ManualTester {
 	private final Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
 	private final Map<Class<?>, List<Command<?>>> commands;
-	private final SubjectConsumer<Object> listener;
 	private final StringBuilder binText = new StringBuilder();
 	private final BinaryPrinter bin;
-	public final InputStream in;
+	public final BufferedReader in;
 	public final PrintStream out;
 	public final PrintStream err;
 	public final List<Object> subjects;
@@ -198,21 +199,18 @@ public class ManualTester {
 		final List<SubjectConsumer<Object>> preProcessors = new ArrayList<>();
 		final Map<Class<?>, List<Command<?>>> commands = new LinkedHashMap<>();
 		String indent = "    ";
-		SubjectConsumer<Object> listener = (s, t) -> {};
 		InputStream in = System.in;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
 		BasicColor promptColor = BasicColor.blue;
-		int delayMs = 100;
+		int delayMs = BasicUtil.conditionalInt(TestUtil.isTest, 0, 100);
 
 		protected Builder(List<?> subjects) {
 			if (subjects.isEmpty()) throw new IllegalArgumentException("No subjects");
 			this.subjects = subjects;
 			command("\\?", (m, t) -> t.showHelp(), "? = show commands");
 			command("\\!", (m, t) -> t.exit = true, "! = exit");
-			command(Object.class, ":",
-				(m, s, t) -> t.out(ReflectUtil.className(s) + ReflectUtil.hashId(s)),
-				": = subject type");
+			command(Object.class, ":", (m, s, t) -> t.out(type(s)), ": = subject type");
 			addIndexCommands(subjects.size());
 			command("~(\\d+)", (m, t) -> ConcurrentUtil.delay(Parse.i(m)), "~[N] = sleep for N ms");
 		}
@@ -257,15 +255,6 @@ public class ManualTester {
 
 		public Builder delayMs(int delayMs) {
 			this.delayMs = delayMs;
-			return this;
-		}
-
-		public <T> Builder listener(Class<T> cls, SubjectConsumer<T> preProcessor) {
-			return listener(typed(cls, preProcessor));
-		}
-
-		public Builder listener(SubjectConsumer<Object> listener) {
-			this.listener = listener;
 			return this;
 		}
 
@@ -326,11 +315,15 @@ public class ManualTester {
 	}
 
 	public static <T> Builder builderList(List<T> subjects, Function<T, String> stringFn) {
-		return builderList(subjects).stringFn(s -> stringFn.apply(BasicUtil.<T>uncheckedCast(s)));
+		return builderList(subjects).stringFn(
+			s -> { 
+				return stringFn.apply(BasicUtil.<T>uncheckedCast(s));
+			}
+		);
 	}
 
 	protected ManualTester(Builder builder) {
-		in = builder.in;
+		in = new BufferedReader(new InputStreamReader(builder.in));
 		out = builder.out;
 		err = builder.err;
 		indent = builder.indent;
@@ -340,13 +333,12 @@ public class ManualTester {
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
 		commands = ImmutableUtil.copyAsMapOfLists(builder.commands);
 		bin = binaryPrinter();
-		listener = builder.listener;
-		subjects = List.copyOf(builder.subjects);
+		subjects = ImmutableUtil.copyAsList(builder.subjects);
 	}
 
 	public void run() {
+		exit = false;
 		showHelp();
-		notifyListener();
 		while (!exit) {
 			ConcurrentUtil.delay(delayMs); // try to avoid err/out print conflict
 			preProcess();
@@ -354,7 +346,7 @@ public class ManualTester {
 			execute(() -> {
 				String input = readInput();
 				print(promptNoColor());
-				executeInput(input, subject());
+				executeInput(input);
 			}, true);
 		}
 	}
@@ -376,9 +368,7 @@ public class ManualTester {
 	}
 
 	public void index(int i) {
-		int orig = index;
 		index = MathUtil.limit(i, 0, subjects.size() - 1);
-		if (index != orig) notifyListener();
 	}
 
 	public int index() {
@@ -408,16 +398,12 @@ public class ManualTester {
 		out.flush();
 	}
 
-	private void notifyListener() {
-		execute(() -> listener.accept(subject(), this), false);
-	}
-
 	private void showHelp() {
 		out.println("Commands: (separate multiple commands with ;)");
-		var cls = ReflectUtil.getClass(subject());
-		if (cls != null) commands.forEach((type, actions) -> {
+		var cls = cls(subject());
+		commands.forEach((type, actions) -> {
 			if (type.isAssignableFrom(cls)) for (var action : actions)
-				out(action.help);
+				out(action.help());
 		});
 	}
 
@@ -442,8 +428,7 @@ public class ManualTester {
 
 	private String readInput() {
 		try {
-			//return StringUtil.unEscape(IoUtil.pollString(in).trim());
-			return IoUtil.pollString(in).trim();
+			return in.readLine();
 		} catch (IOException e) {
 			err(e);
 			exit = true; // Assume unable to recover
@@ -456,7 +441,6 @@ public class ManualTester {
 	 */
 	private void execute(ExceptionRunnable<Exception> runnable, boolean stackTrace) {
 		try {
-			if (exit) return;
 			runnable.run();
 		} catch (RuntimeInterruptedException e) {
 			throw e;
@@ -467,16 +451,15 @@ public class ManualTester {
 		}
 	}
 
-	private void executeInput(String input, Object subject) throws Exception {
-		
+	private void executeInput(String input) throws Exception {
 		String[] commands = COMMAND_SPLIT_REGEX.split(input);
 		for (var command : commands)
-			executeCommand(StringUtil.unEscape(command), subject);
+			executeCommand(StringUtil.unEscape(command), subject());
 	}
 
 	private void executeCommand(String input, Object subject) throws Exception {
 		if (StringUtil.blank(input)) return;
-		var cls = subject.getClass();
+		var cls = cls(subject);
 		for (var entry : commands.entrySet()) {
 			if (!entry.getKey().isAssignableFrom(cls)) continue;
 			for (var command : entry.getValue())
@@ -487,7 +470,7 @@ public class ManualTester {
 
 	private boolean execute(String input, Object subject, Command<Object> command)
 		throws Exception {
-		return command.action.execute(input, subject, this);
+		return command.action().execute(input, subject, this);
 	}
 
 	private void listSubjects() {
@@ -520,7 +503,7 @@ public class ManualTester {
 	}
 
 	private static int mDiff(Matcher m) {
-		return m.group(1).chars().map(i -> i == '+' ? 1 : i == '-' ? -1 : 0).sum();
+		return m.group(1).chars().map(i -> i == '+' ? 1 : -1).sum();
 	}
 
 	private void print(String s) {
@@ -540,5 +523,15 @@ public class ManualTester {
 	private BinaryPrinter binaryPrinter() {
 		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))
 			.build();
+	}
+
+	private static String type(Object subject) {
+		if (subject == null) return StringUtil.NULL_STRING;
+		return ReflectUtil.className(subject) + ReflectUtil.hashId(subject);
+	}
+
+	private static Class<?> cls(Object subject) {
+		if (subject == null) return Object.class;
+		return subject.getClass();
 	}
 }

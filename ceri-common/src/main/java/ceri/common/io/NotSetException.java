@@ -5,8 +5,8 @@ import java.io.IOException;
 /**
  * An exception thrown when a delegate has not been set. 
  */
+@SuppressWarnings("serial")
 public class NotSetException extends IOException {
-	private static final long serialVersionUID = 4222882577886865396L;
 
 	public NotSetException() {
 		this("delegate");

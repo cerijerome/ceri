@@ -3,7 +3,6 @@ package ceri.common.test;
 import static ceri.common.function.FunctionUtil.safeApply;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
@@ -28,17 +27,6 @@ public class ErrorGen {
 	public static final Supplier<Exception> INX = errorFn(InterruptedException::new, "INX");
 	public static final Supplier<Exception> IOX = errorFn(IOException::new, "IOX");
 	private volatile Supplier<Exception> errorFn = null;
-
-	public static void main(String[] args) {
-		var err = of();
-		System.out.println(err);
-		err.set(new RuntimeException(), new IOException(), new InterruptedException(), null);
-		System.out.println(err);
-		err.setFrom(RTX, IOX, null, INX, errorFn(SQLException::new), errorFn(SQLException::new, "SQX"));
-		System.out.println(err);
-		err.setFrom(IOException::new, SQLException::new, RTX, null);
-		System.out.println(err);
-	}
 
 	/**
 	 * Convert an exception constructor to accept the standard message.

@@ -1,7 +1,10 @@
 package ceri.common.io;
 
+import static ceri.common.test.AssertUtil.assertRead;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.test.TestConnector;
 
 public class ConnectorBehavior {
 
@@ -15,6 +18,19 @@ public class ConnectorBehavior {
 			con.name();
 			con.in().read();
 			con.out().write(0);
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldWrap() throws IOException {
+		try (var con = TestConnector.of()) {
+			con.in.to.writeBytes(1, 2, 3);
+			var w = new Connector.Wrapper<>(con);
+			w.open();
+			assertRead(w.in(), 1, 2, 3);
+			w.out().write(ArrayUtil.bytes(4, 5, 6));
+			assertRead(con.out.from, 4, 5, 6);
 		}
 	}
 

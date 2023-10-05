@@ -21,8 +21,10 @@ public class TcpSocketOptions {
 	 */
 	public static TcpSocketOptions from(TcpSocket socket) throws IOException {
 		var options = of();
-		for (var option : TcpSocketOption.all)
-			options.set(option, BasicUtil.uncheckedCast(socket.option(option)));
+		for (var option : TcpSocketOption.all) {
+			Object value = socket.option(option);
+			if (value != null) options.set(option, BasicUtil.uncheckedCast(value));
+		}
 		return options.immutable();
 	}
 
@@ -50,7 +52,7 @@ public class TcpSocketOptions {
 		/**
 		 * Copy option values.
 		 */
-		public TcpSocketOptions set(TcpSocketOptions options) {
+		public Mutable set(TcpSocketOptions options) {
 			map.putAll(options.map);
 			return this;
 		}
@@ -58,7 +60,7 @@ public class TcpSocketOptions {
 		/**
 		 * Set the option value.
 		 */
-		public <T> TcpSocketOptions set(TcpSocketOption<T> option, T value) {
+		public <T> Mutable set(TcpSocketOption<T> option, T value) {
 			Objects.requireNonNull(option);
 			Objects.requireNonNull(value);
 			map.put(option, value);
@@ -122,5 +124,22 @@ public class TcpSocketOptions {
 		if (value == null) return false;
 		consumer.accept(option, value);
 		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(map);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (!(obj instanceof TcpSocketOptions other)) return false;
+		return map.equals(other.map);
+	}
+	
+	@Override
+	public String toString() {
+		return map.toString();
 	}
 }

@@ -9,10 +9,30 @@ import static ceri.common.test.TestUtil.threadRun;
 import org.junit.Test;
 import ceri.common.test.CallSync.Consumer;
 import ceri.common.test.CallSync.Function;
-import ceri.common.test.CallSync.Supplier;
 import ceri.common.test.CallSync.Runnable;
+import ceri.common.test.CallSync.Supplier;
 
 public class CallSyncBehavior {
+
+	@Test
+	public void shouldProvideFunctionLastValue() throws InterruptedException {
+		var call = CallSync.function("test", 1, 2, 3);
+		assertEquals(call.lastValue(), "test");
+		assertEquals(call.lastValueWithInterrupt(), "test");
+		call.apply("abc");
+		assertEquals(call.lastValue(), "abc");
+		assertEquals(call.lastValueWithInterrupt(), "abc");
+	}
+
+	@Test
+	public void shouldProvideConsumerLastValue() throws InterruptedException {
+		var call = CallSync.consumer("test", true);
+		assertEquals(call.lastValue(), "test");
+		assertEquals(call.lastValueWithInterrupt(), "test");
+		call.accept("abc");
+		assertEquals(call.lastValue(), "abc");
+		assertEquals(call.lastValueWithInterrupt(), "abc");
+	}
 
 	@Test
 	public void shouldResetFunctionToOriginalState() {
@@ -25,7 +45,7 @@ public class CallSyncBehavior {
 		assertEquals(call.value(), "");
 		assertEquals(call.apply("1"), 1);
 	}
-	
+
 	@Test
 	public void shouldResetConsumerToOriginalState() {
 		var call = CallSync.consumer("", true);
@@ -39,7 +59,7 @@ public class CallSyncBehavior {
 		assertEquals(call.value(), "");
 		assertTrue(call.autoResponseEnabled());
 	}
-	
+
 	@Test
 	public void shouldResetSupplierToOriginalState() {
 		var call = CallSync.supplier(1, 2, 3);
@@ -52,7 +72,7 @@ public class CallSyncBehavior {
 		assertEquals(call.get(), 1);
 		assertTrue(call.autoResponseEnabled());
 	}
-	
+
 	@Test
 	public void shouldResetRunnableToOriginalState() {
 		var call = CallSync.runnable(true);
@@ -63,7 +83,7 @@ public class CallSyncBehavior {
 		call.reset();
 		assertTrue(call.autoResponseEnabled());
 	}
-	
+
 	@Test
 	public void shouldApplyAndRespond() {
 		Function<String, Integer> call = CallSync.function(null);
@@ -85,7 +105,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyWithAutoResponse() {
 		Function<String, Integer> call = CallSync.function(null, 3);
-		call.assertCalls(0);
+		call.assertNoCall();
 		assertEquals(call.apply("test0"), 3);
 		call.assertAuto("test0");
 		assertEquals(call.apply("test1"), 3);
@@ -169,7 +189,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptWithAutoResponse() {
 		Consumer<String> call = CallSync.consumer(null, true);
-		call.assertCalls(0);
+		call.assertNoCall();
 		call.accept("test0");
 		call.assertAuto("test0");
 		call.accept("test1");
@@ -299,6 +319,25 @@ public class CallSyncBehavior {
 		CallSync.Supplier<String> tos = CallSync.supplier();
 		try (var exec0 = threadRun(() -> tos.await(() -> {
 			try (var exec1 = threadCall(() -> tos.toString())) { // locked
+				return exec1.get();
+			}
+		}))) {
+			assertTrue(tos.get().contains("locked"));
+			exec0.get();
+		}
+	}
+
+	@Test
+	public void shouldProvideCompactStringRepresentation() {
+		assertTrue(CallSync.consumer("test", false).compactString().length() > 0);
+		assertTrue(CallSync.runnable(true).compactString().length() > 0);
+	}
+
+	@Test
+	public void shouldProvideCompactStringRepresentationEvenIfLocked() {
+		CallSync.Supplier<String> tos = CallSync.supplier();
+		try (var exec0 = threadRun(() -> tos.await(() -> {
+			try (var exec1 = threadCall(() -> tos.compactString())) { // locked
 				return exec1.get();
 			}
 		}))) {

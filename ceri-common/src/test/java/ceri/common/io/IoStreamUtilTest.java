@@ -51,10 +51,11 @@ public class IoStreamUtilTest {
 		assertArray(IoStreamUtil.nullIn.readAllBytes());
 		assertArray(IoStreamUtil.nullIn.readNBytes(3), 0, 0, 0);
 		assertReadNBytes(IoStreamUtil.nullIn, 0, 0, 0);
+		assertEquals(IoStreamUtil.nullIn.transferTo(new ByteArrayOutputStream()), 0L);
 		IoStreamUtil.nullIn.close();
 	}
 
-	//@Test
+	// @Test
 	public void testNullOutputStream() throws IOException {
 		IoStreamUtil.nullIn.close();
 		assertEquals(IoStreamUtil.nullIn.available(), 0);

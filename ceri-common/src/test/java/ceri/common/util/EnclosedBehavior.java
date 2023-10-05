@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.test.CallSync;
+import ceri.common.test.Captor;
 
 public class EnclosedBehavior {
 
@@ -16,7 +17,7 @@ public class EnclosedBehavior {
 		}
 		sync.awaitAuto();
 	}
-	
+
 	@Test
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };
@@ -36,6 +37,13 @@ public class EnclosedBehavior {
 	public void shouldAllowNullCloser() throws Exception {
 		String[] ss = null;
 		try (var c = Enclosed.of(ss, null)) {}
+	}
+
+	@Test
+	public void shouldCloseCloseablesInReverseOrder() {
+		var captor = Captor.ofInt();
+		try (var enc = Enclosed.ofAll(() -> captor.accept(1), () -> captor.accept(2))) {}
+		captor.verify(2, 1);
 	}
 
 	@SuppressWarnings("resource")

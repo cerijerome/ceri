@@ -29,13 +29,6 @@ public class ConnectorTester {
 	}
 
 	/**
-	 * Initialize a ManualTester builder for a list of connectors.
-	 */
-	public static ManualTester.Builder manual(Connector... connectors) throws IOException {
-		return manual(Arrays.asList(connectors));
-	}
-
-	/**
 	 * Initialize a ManualTester builder for a list of connectors. Fixable connectors will be
 	 * opened, and listeners
 	 */
@@ -57,7 +50,7 @@ public class ConnectorTester {
 	}
 
 	private static void open(Matcher m, Fixable fixable) throws IOException {
-		if (m.group(1) == null) fixable.open();
+		if (m.group(1) == "") fixable.open();
 		else fixable.openSilently();
 	}
 

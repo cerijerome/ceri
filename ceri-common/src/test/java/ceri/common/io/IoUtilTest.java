@@ -17,6 +17,7 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +36,7 @@ import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
+import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestUtil;
@@ -438,6 +440,24 @@ public class IoUtilTest {
 			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
 			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
+		}
+	}
+
+	@Test
+	public void testPipe() throws IOException {
+		var in = TestUtil.inputStream(1, 2, 3, 4, 5);
+		var out = new ByteArrayOutputStream();
+		IoUtil.pipe(in, out);
+		assertArray(out.toByteArray(), 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void testPipeWithDelay() throws IOException {
+		var read = CallSync.supplier(1, 0, 3, -1);
+		try (var in = IoStreamUtil.in((b, off, len) -> read.get())) {
+			var out = new ByteArrayOutputStream();
+			IoUtil.pipe(in, out, new byte[3], 0);
+			assertArray(out.toByteArray(), 0, 0, 0, 0);
 		}
 	}
 

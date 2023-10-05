@@ -20,6 +20,24 @@ public class ErrorGenBehavior {
 	private final Exception sqx = new SQLException("test");
 
 	@Test
+	public void shouldClearErrors() {
+		var err = ErrorGen.of();
+		err.set(new IOException());
+		assertThrown(err::call);
+		err.set();
+		err.call();
+	}
+	
+	@Test
+	public void shouldClearFromErrors() {
+		var err = ErrorGen.of();
+		err.setFrom(IOX);
+		assertThrown(err::call);
+		err.setFrom();
+		err.call();
+	}
+	
+	@Test
 	public void shouldConvertToRuntimeException() {
 		var err = ErrorGen.of();
 		err.call();

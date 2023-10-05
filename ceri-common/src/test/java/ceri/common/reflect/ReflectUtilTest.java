@@ -120,6 +120,13 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testStackHasPackage() {
+		assertFalse(ReflectUtil.stackHasPackage((Class<?>) null));
+		assertFalse(ReflectUtil.stackHasPackage((String) null));
+		assertTrue(ReflectUtil.stackHasPackage(getClass()));
+	}
+
+	@Test
 	public void testForName() {
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
 		assertThrown(() -> ReflectUtil.forName("___"));

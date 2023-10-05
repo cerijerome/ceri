@@ -76,6 +76,13 @@ public class NetUtil {
 	}
 
 	/**
+	 * Returns true if any local address exists for the network interface.
+	 */
+	public static boolean hasLocalAddress(NetworkInterface n) {
+		return Objects.nonNull(localAddressFor(n));
+	}
+
+	/**
 	 * Finds the first local address for the interface.
 	 */
 	public static Inet4Address localIp4AddressFor(NetworkInterface n) {
@@ -87,8 +94,7 @@ public class NetUtil {
 	 * Iterates network interfaces to find the first with a local address.
 	 */
 	public static NetworkInterface localInterface() throws SocketException {
-		return first(stream(NetworkInterface.getNetworkInterfaces()) //
-			.filter(n -> localAddressFor(n) != null));
+		return first(NetworkInterface.networkInterfaces().filter(NetUtil::hasLocalAddress));
 	}
 
 	/**

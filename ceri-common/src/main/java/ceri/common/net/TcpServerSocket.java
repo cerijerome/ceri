@@ -18,6 +18,7 @@ public class TcpServerSocket implements Closeable {
 	private final ExecutorService exec;
 	private final ServerSocket serverSocket;
 	private final int port;
+	private volatile boolean closed = false;
 
 	public static TcpServerSocket of() throws IOException {
 		return of(0);
@@ -38,10 +39,7 @@ public class TcpServerSocket implements Closeable {
 	 * returning from the listener callback. The returned future can be used to interrupt listening.
 	 */
 	public Future<?> listenAndClose(ExceptionConsumer<IOException, TcpSocket> listener) {
-		return listen(socket -> {
-			listener.accept(socket);
-			socket.close();
-		});
+		return listen(socket -> CloseableUtil.acceptOrClose(socket, listener));
 	}
 
 	/**
@@ -63,21 +61,23 @@ public class TcpServerSocket implements Closeable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(exec, serverSocket);
+		closed = true;
+		CloseableUtil.close(serverSocket, exec); // must shut down socket first
 	}
 
 	@SuppressWarnings("resource")
 	private void listenAndNotify(ExceptionConsumer<IOException, TcpSocket> listener)
 		throws IOException {
-		while (true) {
-			Socket socket = serverSocket.accept();
-			try {
+		Socket socket = null;
+		try {
+			while (true) {
+				ConcurrentUtil.checkRuntimeInterrupted();
+				socket = serverSocket.accept();
 				listener.accept(TcpSocket.wrap(socket));
-			} catch (RuntimeException | IOException e) {
-				CloseableUtil.close(socket);
-				throw e;
 			}
+		} catch (RuntimeException | IOException e) {
+			CloseableUtil.close(socket);
+			if (!closed) throw e;
 		}
 	}
-
 }

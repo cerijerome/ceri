@@ -26,6 +26,17 @@ public class ReplaceableInputStreamBehavior {
 		in = TestInputStream.of();
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldReplaceStream() throws IOException {
+		try (ReplaceableInputStream rin = new ReplaceableInputStream()) {
+			rin.replace(in);
+			rin.replace(in); // does nothing
+			rin.replace(TestInputStream.of());
+			in.close.assertCalls(1);
+		}
+	}
+
 	@Test
 	public void shouldNotifyListenerOfMarkException() throws IOException, InterruptedException {
 		in.mark.error.setFrom(RTX);

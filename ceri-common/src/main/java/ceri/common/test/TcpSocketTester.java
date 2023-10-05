@@ -5,7 +5,6 @@ import static ceri.common.test.ManualTester.Parse.i;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
 import ceri.common.io.Connector;
 import ceri.common.net.ReplaceableTcpSocket;
 import ceri.common.net.TcpServerSocket;
@@ -44,14 +43,6 @@ public class TcpSocketTester {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Start the server socket listener, and echo input to output for each new socket. Any exception
-	 * will stop the socket listener, and will be available on the returned future.
-	 */
-	public static Future<?> listenAndEcho(TcpServerSocket ss) {
-		return ss.listenAndClose(Connector::echo);
 	}
 
 	/**

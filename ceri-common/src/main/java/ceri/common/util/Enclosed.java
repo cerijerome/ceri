@@ -47,7 +47,8 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
-	 * Create an instance with a collection of AutoCloseables.
+	 * Create an instance with a collection of AutoCloseables. The collection is closed in reverse
+	 * order.
 	 */
 	@SafeVarargs
 	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
@@ -56,11 +57,12 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
-	 * Create an instance with a collection of AutoCloseables.
+	 * Create an instance with a collection of AutoCloseables. The collection is closed in reverse
+	 * order.
 	 */
 	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
 		ofAll(List<T> closeables) {
-		return new Enclosed<>(closeables, () -> CloseableUtil.close(closeables));
+		return new Enclosed<>(closeables, () -> CloseableUtil.closeReversed(closeables));
 	}
 
 	private Enclosed(T subject, ExceptionRunnable<E> closer) {

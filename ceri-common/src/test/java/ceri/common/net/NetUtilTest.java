@@ -1,5 +1,7 @@
 package ceri.common.net;
 
+import static ceri.common.collection.StreamUtil.first;
+import static ceri.common.collection.StreamUtil.stream;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -44,6 +46,18 @@ public class NetUtilTest {
 		NetUtil.localAddress();
 		NetUtil.localAddresses();
 		NetUtil.findLocalAddress(Objects::nonNull);
+	}
+
+	@Test
+	public void testHasLocalAddress() throws SocketException {
+		NetworkInterface.networkInterfaces().iterator().forEachRemaining(NetUtil::hasLocalAddress);
+	}
+
+	@Test
+	public void testLocalInterfaceAddresses() throws SocketException {
+		NetUtil.localInterface();
+		var iface = first(stream(NetworkInterface.getNetworkInterfaces()));
+		NetUtil.localIp4AddressFor(iface);
 	}
 
 	@Test

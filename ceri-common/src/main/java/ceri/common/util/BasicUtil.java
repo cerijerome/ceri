@@ -50,15 +50,7 @@ public class BasicUtil {
 	 */
 	public static <E extends Exception, T> T conditionalGet(boolean condition,
 		ExceptionSupplier<E, T> trueSupplier) throws E {
-		return conditionalGet(condition, trueSupplier, (T) null);
-	}
-
-	/**
-	 * Supplies a value based on condition.
-	 */
-	public static <E extends Exception, T> T conditionalGet(boolean condition,
-		ExceptionSupplier<E, T> trueSupplier, T falseValue) throws E {
-		return condition ? trueSupplier.get() : falseValue;
+		return conditionalGet(condition, trueSupplier, () -> null);
 	}
 
 	/**

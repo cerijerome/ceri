@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.util.Objects;
 import ceri.common.io.Connector;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.CloseableUtil;
 
 /**
  * A TCP socket connector interface.
@@ -71,15 +72,10 @@ public interface TcpSocket extends Connector {
 	/**
 	 * Connect the socket and wrap as a TcpSocket.
 	 */
+	@SuppressWarnings("resource")
 	static Wrapper connect(HostPort hostPort) throws IOException {
-		@SuppressWarnings("resource")
-		Socket socket = new Socket(hostPort.host, hostPort.port);
-		try {
-			return wrap(socket);
-		} catch (RuntimeException | IOException e) {
-			socket.close();
-			throw e;
-		}
+		return CloseableUtil.applyOrClose(new Socket(hostPort.host, hostPort.port),
+			TcpSocket::wrap);
 	}
 
 	/**
