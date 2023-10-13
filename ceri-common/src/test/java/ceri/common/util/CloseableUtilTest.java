@@ -6,7 +6,10 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwInterrupted;
+import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,7 +36,7 @@ public class CloseableUtilTest {
 		private int i = 0;
 
 		private static Closer of(int i, boolean closed) {
-			if (i < 1 || i > 3) throwIt(new RuntimeException()); // only allow i = 1..3
+			if (i < 1 || i > 3) throwRuntime(); // only allow i = 1..3
 			var c = new Closer();
 			c.i = i;
 			c.closed = closed;
@@ -102,14 +105,14 @@ public class CloseableUtilTest {
 	@Test
 	public void testCloseException() {
 		@SuppressWarnings("resource")
-		Closeable closeable = () -> throwIt(new IOException());
+		Closeable closeable = () -> throwIo();
 		assertFalse(CloseableUtil.close(closeable));
 	}
 
 	@Test
 	public void testCloseWithInterrupt() {
 		@SuppressWarnings("resource")
-		AutoCloseable closeable = () -> throwIt(new InterruptedException());
+		AutoCloseable closeable = () -> throwInterrupted();
 		assertFalse(CloseableUtil.close(closeable));
 		assertTrue(Thread.interrupted());
 	}
@@ -162,8 +165,7 @@ public class CloseableUtilTest {
 	@Test
 	public void testReverseCloseWithFailure() {
 		assertTrue(CloseableUtil.closeReversed(() -> {}, () -> {}, () -> {}));
-		assertFalse(
-			CloseableUtil.closeReversed(() -> {}, () -> {}, () -> throwIt(new IOException())));
+		assertFalse(CloseableUtil.closeReversed(() -> {}, () -> {}, () -> throwIo()));
 	}
 
 	@SuppressWarnings("resource")

@@ -64,7 +64,7 @@ public class AssertUtil {
 	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
 	 */
 	public static <T> T throwRuntime() {
-		throw new RuntimeException("throwIt");
+		throw new RuntimeException("throwRuntime");
 	}
 
 	/**
@@ -72,6 +72,13 @@ public class AssertUtil {
 	 */
 	public static <T> T throwIo() throws IOException {
 		throw new IOException("throwIo");
+	}
+
+	/**
+	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwInterrupted() throws InterruptedException {
+		throw new InterruptedException("throwInterrupted");
 	}
 
 	/**

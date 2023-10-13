@@ -419,6 +419,8 @@ public class AssertUtilTest {
 	@Test
 	public void testThrowIt() {
 		assertThrown(() -> AssertUtil.throwRuntime());
+		assertThrown(() -> AssertUtil.throwIo());
+		assertThrown(() -> AssertUtil.throwInterrupted());
 		assertThrown(IOException.class, () -> AssertUtil.throwIt(new IOException("test")));
 	}
 

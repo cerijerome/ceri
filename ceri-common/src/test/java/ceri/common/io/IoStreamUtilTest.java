@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwIo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -286,7 +286,7 @@ public class IoStreamUtilTest {
 	}
 
 	private static Integer readOrError(InputStream in) throws IOException {
-		return in.available() == 0 ? throwIt(new IOException("test")) : in.read();
+		return in.available() == 0 ? throwIo() : in.read();
 	}
 
 	private static Integer availableOrNull(InputStream in) throws IOException {

@@ -4,7 +4,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwIo;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.TestUtil.runRepeat;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -46,7 +47,7 @@ public class TaskQueueBehavior {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
 		try (var exec = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
-			assertThrown(() -> queue.execute(() -> throwIt(new IOException("test"))));
+			assertThrown(() -> queue.execute(() -> throwIo()));
 		}
 	}
 
@@ -55,7 +56,7 @@ public class TaskQueueBehavior {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
 		try (var exec = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
-			assertThrown(() -> queue.executeGet(() -> throwIt(new RuntimeException("test"))));
+			assertThrown(() -> queue.executeGet(() -> throwRuntime()));
 		}
 	}
 

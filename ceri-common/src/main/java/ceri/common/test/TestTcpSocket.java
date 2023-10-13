@@ -16,7 +16,7 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	private static final String NAME = ReflectUtil.name(TestTcpSocket.class);
 	public final CallSync.Supplier<HostPort> hostPort;
 	public final CallSync.Supplier<Integer> localPort;
-	public final CallSync.Runnable optionError = CallSync.runnable(true);
+	public final CallSync.Runnable optionSync = CallSync.runnable(true);
 	public final TcpSocketOptions.Mutable options = TcpSocketOptions.of(ConcurrentHashMap::new);
 
 	/**
@@ -53,7 +53,7 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(hostPort, localPort, optionError);
+		CallSync.resetAll(hostPort, localPort, optionSync);
 	}
 
 	@Override
@@ -69,12 +69,12 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
 		options.set(option, value);
-		optionError.run(IO_ADAPTER);
+		optionSync.run(IO_ADAPTER);
 	}
 
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		optionError.run(IO_ADAPTER);
+		optionSync.run(IO_ADAPTER);
 		return options.get(option);
 	}
 }
