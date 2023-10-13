@@ -1,6 +1,7 @@
 package ceri.log.io;
 
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.threadRun;
@@ -92,7 +93,7 @@ public class SelfHealingDeviceBehavior {
 		// 1) exception -> not broken
 		// 2) exception -> broken, set signal
 		// 3) exception -> broken, signal already set
-		assertThrown(() -> device.device.acceptValid(f -> throwIt(new IOException("test"))));
+		assertThrown(() -> device.device.acceptValid(f -> throwIo()));
 		assertThrown(() -> device.device.acceptValid(f -> throwIt(BROKEN_EXCEPTION)));
 		assertThrown(() -> device.device.acceptValid(f -> throwIt(BROKEN_EXCEPTION)));
 		fixable.open.await();
