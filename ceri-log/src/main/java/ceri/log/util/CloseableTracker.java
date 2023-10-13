@@ -1,6 +1,5 @@
 package ceri.log.util;
 
-import static ceri.common.collection.CollectionUtil.reverse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,11 +23,11 @@ public class CloseableTracker {
 	}
 
 	public List<AutoCloseable> list() {
-		return Collections.unmodifiableList(reverse(new ArrayList<>(tracked)));
+		return Collections.unmodifiableList(tracked);
 	}
 
 	public void close() {
-		LogUtil.close(list());
+		LogUtil.closeReversed(tracked);
 	}
 
 }

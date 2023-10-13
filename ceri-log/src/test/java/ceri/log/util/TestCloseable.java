@@ -6,6 +6,7 @@ import ceri.common.text.ToString;
 
 public class TestCloseable implements AutoCloseable {
 	public final int value;
+	private volatile boolean closed = false;
 
 	public static TestCloseable of(String value) {
 		return new TestCloseable(Integer.parseInt(value));
@@ -15,8 +16,13 @@ public class TestCloseable implements AutoCloseable {
 		this.value = value;
 	}
 
+	public boolean closed() {
+		return closed;
+	}
+
 	@Override
 	public void close() throws IOException {
+		closed = true;
 		if (value == -1) throw new IOException("" + value);
 		if (value == -2) throw new RuntimeException("" + value);
 	}

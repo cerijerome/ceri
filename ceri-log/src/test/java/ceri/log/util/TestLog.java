@@ -23,7 +23,7 @@ import ceri.common.util.CloseableUtil;
 
 /**
  * Used to capture logging output to a file, and check the contents. Can override an existing class
- * logger, and revert
+ * logger, and revert when closed.
  */
 public class TestLog implements AutoCloseable {
 	private static final String PATTERN = "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36}:%L - %m%n";

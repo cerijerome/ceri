@@ -2,8 +2,10 @@ package ceri.log.net;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
+import ceri.common.net.TcpSocketOption;
+import ceri.common.net.TcpSocketOptions;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestTcpSocket;
 import ceri.log.io.SelfHealingDevice;
@@ -102,25 +106,24 @@ public class SelfHealingTcpSocketBehavior {
 		}
 	}
 
-	// @SuppressWarnings("resource")
-	// @Test
-	// public void shouldBreakOnIoError() throws InterruptedException, IOException {
-	// ValueCondition<StateChange> sync = ValueCondition.of();
-	// con.open();
-	// socket.in.to.writeBytes(0, 0, 0);
-	// LogModifier.run(() -> {
-	// try (var enc = con.listeners().enclose(sync::signal)) {
-	// socket.in.read.error.setFrom(RTX);
-	// assertThrown(con.in()::read);
-	// socket.remote.error.setFrom(IOX);
-	// socket.in.read.error.setFrom(IOX);
-	// assertThrown(con.in()::read);
-	// sync.await(StateChange.broken);
-	// assertThrown(con.in()::read);
-	// }
-	// con.close(); // prevent logging error
-	// }, Level.OFF, SelfHealingSocket.class);
-	// }
+	@Test
+	public void shouldFailToOpenIfOptionFails() throws IOException {
+		shs.options(TcpSocketOptions.of().set(TcpSocketOption.soKeepAlive, true));
+		socket.optionSync.error.setFrom(IOX, null);
+		assertThrown(shs::open);
+		socket.open.await();
+	}
+
+	@Test
+	public void shouldProvideOptionIfOpen() throws IOException {
+		assertNull(shs.option(TcpSocketOption.soLinger));
+		shs.option(TcpSocketOption.soLinger, 123);
+		assertNull(shs.option(TcpSocketOption.soLinger));
+		shs.open();
+		assertEquals(shs.option(TcpSocketOption.soLinger), 123);
+		shs.option(TcpSocketOption.soLinger, 456);
+		assertEquals(shs.option(TcpSocketOption.soLinger), 456);
+	}
 
 	private static TestTcpSocket open(TestTcpSocket socket) throws IOException {
 		socket.open();

@@ -3,6 +3,7 @@ package ceri.log.rpc.service;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.baseProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
@@ -42,6 +43,13 @@ public class RpcServerConfigBehavior {
 		assertFalse(RpcServerConfig.of(12345).isLoop(null));
 		assertFalse(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.of("xxx", 12345)));
 		assertTrue(RpcServerConfig.of(12345).isLoop(RpcChannelConfig.localhost(12345)));
+	}
+
+	@Test
+	public void shouldFailIfNoLoopRequired() {
+		RpcServerConfig.of(12345).requireNoLoop(RpcChannelConfig.localhost(12346));
+		assertThrown(
+			() -> RpcServerConfig.of(12345).requireNoLoop(RpcChannelConfig.localhost(12345)));
 	}
 
 }

@@ -17,6 +17,8 @@ import ceri.common.test.TestUtil;
 	ceri.log.concurrent.SocketListenerBehavior.class, //
 	// io
 	ceri.log.io.LogPrintStreamBehavior.class, //
+	ceri.log.io.SelfHealingConfigBehavior.class, //
+	ceri.log.io.SelfHealingDeviceBehavior.class, //
 	// io.test
 	ceri.log.io.test.TestTcpSocketBehavior.class, //
 	// net
@@ -33,6 +35,7 @@ import ceri.common.test.TestUtil;
 	// rpc.service
 	ceri.log.rpc.service.RpcServerBehavior.class, //
 	ceri.log.rpc.service.RpcServerConfigBehavior.class, //
+	ceri.log.rpc.service.RpcServiceBehavior.class, //
 	ceri.log.rpc.service.RpcServiceNotifierBehavior.class, //
 	ceri.log.rpc.service.RpcServiceUtilTest.class, //
 	// rpc.test
@@ -44,6 +47,7 @@ import ceri.common.test.TestUtil;
 	ceri.log.test.ContainerTestHelperBehavior.class, //
 	ceri.log.test.LogModifierBehavior.class, //
 	// util
+	ceri.log.util.CloseableTrackerBehavior.class, //
 	ceri.log.util.LogUtilTest.class, //
 })
 public class _Tests {

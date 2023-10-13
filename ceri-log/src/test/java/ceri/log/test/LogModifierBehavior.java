@@ -18,6 +18,15 @@ public class LogModifierBehavior {
 	}
 
 	@Test
+	public void shouldChangeClassLogLevel() {
+		log(logger);
+		var level = logger.getLevel();
+		LogModifier.set(Level.DEBUG, getClass());
+		LogModifier.set(level, getClass());
+		log(logger);
+	}
+
+	@Test
 	public void shouldTemporarilyChangeNamedLogLevel() {
 		log(logger);
 		LogModifier.run(() -> {

@@ -8,6 +8,8 @@ import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwInterrupted;
+import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.ErrorGen.INX;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.test.BinaryPrinter;
+import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.test.TestProcess;
@@ -76,6 +79,63 @@ public class LogUtilTest {
 		}
 	}
 
+	@Test
+	public void testGetSilently() {
+		assertThrown(() -> LogUtil.getSilently(null));
+		assertEquals(LogUtil.getSilently(() -> null), null);
+		assertEquals(LogUtil.getSilently(() -> null, 123), null);
+		assertEquals(LogUtil.getSilently(() -> 123), 123);
+		assertEquals(LogUtil.getSilently(() -> 123, 456), 123);
+		assertEquals(LogUtil.getSilently(() -> throwIo()), null);
+		assertEquals(LogUtil.getSilently(() -> throwIo(), 123), 123);
+		assertFalse(Thread.interrupted());
+		LogUtil.getSilently(() -> throwInterrupted());
+		assertTrue(Thread.interrupted());
+	}
+
+	@Test
+	public void testRunSilently() {
+		assertThrown(() -> LogUtil.runSilently(null));
+		LogUtil.runSilently(() -> throwIo());
+		assertFalse(Thread.interrupted());
+		LogUtil.runSilently(() -> throwInterrupted());
+		assertTrue(Thread.interrupted());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testAcceptOrClose() {
+		var c = TestCloseable.of("1");
+		assertEquals(LogUtil.acceptOrClose(null, t -> {}), null);
+		assertEquals(LogUtil.acceptOrClose(c, t -> {}), c);
+		assertFalse(c.closed());
+		assertThrown(() -> LogUtil.acceptOrClose(c, t -> throwIo()));
+		assertTrue(c.closed());
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testApplyOrClose() {
+		var c = TestCloseable.of("1");
+		assertEquals(LogUtil.applyOrClose(null, t -> "x" + t), null);
+		assertEquals(LogUtil.applyOrClose(null, t -> "x" + t, "test"), "test");
+		assertEquals(LogUtil.applyOrClose(c, t -> t.value + 1), 2);
+		assertEquals(LogUtil.applyOrClose(c, t -> null), null);
+		assertEquals(LogUtil.applyOrClose(c, t -> null, "test"), "test");
+		assertFalse(c.closed());
+		assertThrown(() -> LogUtil.applyOrClose(c, t -> throwIo()));
+		assertTrue(c.closed());
+	}
+
+	@Test
+	public void testCloseReversed() {
+		var captor = Captor.ofInt();
+		assertTrue(LogUtil.closeReversed(() -> captor.accept(0), () -> captor.accept(1),
+			() -> captor.accept(2)));
+		captor.verifyInt(2, 1, 0);
+		assertFalse(LogUtil.closeReversed(() -> captor.accept(0), () -> throwIo()));
+	}
+
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreate() {
@@ -87,12 +147,29 @@ public class LogUtilTest {
 
 	@SuppressWarnings("resource")
 	@Test
+	public void testCreateWithCount() {
+		assertIterable(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
+			new TestCloseable(0), new TestCloseable(0));
+		assertThrown(() -> LogUtil.create(() -> TestCloseable.of("x"), 3));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void testCreateArray() {
 		assertArray(LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1"),
 			new TestCloseable(1), new TestCloseable(-1));
 		assertThrown(
 			() -> LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testCreateArrayWithCount() {
+		assertArray(LogUtil.createArray(TestCloseable[]::new, () -> new TestCloseable(0), 3),
+			new TestCloseable(0), new TestCloseable(0), new TestCloseable(0));
+		assertThrown(
+			() -> LogUtil.createArray(TestCloseable[]::new, () -> TestCloseable.of("x"), 3));
 	}
 
 	@Test
@@ -196,6 +273,11 @@ public class LogUtilTest {
 	@Test
 	public void testToHex() {
 		assertEquals(LogUtil.toHex(1023).toString(), "3ff");
+	}
+
+	@Test
+	public void testToFormat() {
+		assertEquals(LogUtil.toFormat("test%d", 123).toString(), "test123");
 	}
 
 	@Test

@@ -51,6 +51,13 @@ public class RpcUtilTest {
 	}
 
 	@Test
+	public void testStringValue() {
+		assertEquals(RpcUtil.string(null), null);
+		assertEquals(RpcUtil.string("").getValue(), "");
+		assertEquals(RpcUtil.string("test").getValue(), "test");
+	}
+
+	@Test
 	public void testBool() {
 		assertTrue(RpcUtil.bool(true).getValue());
 		assertFalse(RpcUtil.bool(false).getValue());

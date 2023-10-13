@@ -54,6 +54,14 @@ public class RpcServiceUtil {
 	}
 
 	/**
+	 * Executes runnable then responds with Empty to the client.
+	 */
+	public static <E extends Exception> void accept(StreamObserver<Empty> observer,
+		ExceptionRunnable<E> runnable) {
+		respond(observer, RpcUtil.EMPTY, runnable);
+	}
+
+	/**
 	 * Responds to client with result of supplier call.
 	 */
 	public static <E extends Exception, T> void respond(StreamObserver<T> observer,
@@ -67,14 +75,6 @@ public class RpcServiceUtil {
 			logger.catching(e);
 			observer.onError(statusException(e));
 		}
-	}
-
-	/**
-	 * Executes runnable then responds with Empty to the client.
-	 */
-	public static <E extends Exception> void accept(StreamObserver<Empty> observer,
-		ExceptionRunnable<E> runnable) {
-		respond(observer, RpcUtil.EMPTY, runnable);
 	}
 
 	/**

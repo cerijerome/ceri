@@ -9,7 +9,7 @@ import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
 
 /**
- * Extends a BindableService to be AutoCloseable, and to have a name. 
+ * Extends a BindableService to be AutoCloseable, and to have a name.
  */
 public interface RpcService extends BindableService, Named, AutoCloseable {
 	/** A stateless, no-op instance. */
@@ -51,7 +51,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 		public int port() {
 			return server.port();
 		}
-		
+
 		public boolean enabled() {
 			return server.enabled();
 		}

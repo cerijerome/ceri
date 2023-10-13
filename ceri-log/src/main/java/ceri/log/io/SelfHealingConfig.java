@@ -2,11 +2,12 @@ package ceri.log.io;
 
 import static ceri.common.function.Namer.lambda;
 import java.util.function.Predicate;
+import ceri.common.function.Predicates;
 import ceri.common.text.ToString;
 
 public class SelfHealingConfig {
+	public static final Predicate<Exception> NULL_PREDICATE = Predicates.no();
 	public static final SelfHealingConfig DEFAULT = new Builder().build();
-	public static final Predicate<Exception> NULL_PREDICATE = e -> false;
 	public final int fixRetryDelayMs;
 	public final int recoveryDelayMs;
 	public final Predicate<Exception> brokenPredicate;

@@ -6,9 +6,12 @@ import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwIt;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
+import com.google.protobuf.Empty;
 import ceri.log.rpc.test.TestStreamObserver;
+import ceri.log.rpc.util.RpcUtil;
 import ceri.log.test.LogModifier;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -37,6 +40,14 @@ public class RpcServiceUtilTest {
 		assertFalse(e.getMessage().contains(iox.getMessage()));
 		assertTrue(e.getMessage().contains(iox.getMessage().substring(128)));
 		assertTrue(e.getMessage().contains(iox.getClass().getName()));
+	}
+
+	@Test
+	public void testAcceptRunnable() {
+		TestStreamObserver<Empty> observer = TestStreamObserver.of();
+		RpcServiceUtil.accept(observer, () -> {});
+		observer.next.assertAuto(RpcUtil.EMPTY);
+		observer.completed.awaitAuto();
 	}
 
 	@Test
@@ -73,6 +84,17 @@ public class RpcServiceUtilTest {
 			RpcServiceUtil.respond(observer, "test", () -> throwIt(e));
 			assertThrowable(observer.error.awaitAuto(), StatusRuntimeException.class);
 		}, Level.OFF, RpcServiceUtil.class);
+	}
+
+	@Test
+	public void testNullServer() throws InterruptedException, IOException {
+		RpcServiceUtil.NULL_SERVER.awaitTermination();
+		assertTrue(RpcServiceUtil.NULL_SERVER.awaitTermination(1, TimeUnit.MILLISECONDS));
+		assertFalse(RpcServiceUtil.NULL_SERVER.isShutdown());
+		assertFalse(RpcServiceUtil.NULL_SERVER.isTerminated());
+		assertEquals(RpcServiceUtil.NULL_SERVER.shutdown(), RpcServiceUtil.NULL_SERVER);
+		assertEquals(RpcServiceUtil.NULL_SERVER.shutdownNow(), RpcServiceUtil.NULL_SERVER);
+		assertEquals(RpcServiceUtil.NULL_SERVER.start(), RpcServiceUtil.NULL_SERVER);
 	}
 
 }
