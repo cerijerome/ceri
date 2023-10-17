@@ -52,16 +52,28 @@ public abstract class JnaOutputStream extends OutputStream {
 		buffers.close();
 	}
 
+	/**
+	 * Executes a write from the given buffer. Returns the actual number of bytes written.
+	 */
 	protected abstract int write(Memory buffer, int len) throws IOException;
 
+	/**
+	 * Flushes the stream. Called only after verifying the stream is open.
+	 */
 	protected void flushBytes() throws IOException {
 		super.flush();	
 	}
 	
+	/**
+	 * Ensures the stream is currently open.
+	 */
 	protected void ensureOpen() throws IOException {
 		if (closed()) throw new IOException("Closed");
 	}
 
+	/**
+	 * Returns true if the stream has been closed.
+	 */
 	protected final boolean closed() {
 		return closed;
 	}

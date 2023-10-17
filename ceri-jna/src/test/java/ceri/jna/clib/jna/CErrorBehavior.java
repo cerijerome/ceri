@@ -2,7 +2,9 @@ package ceri.jna.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertString;
 import org.junit.Test;
+import com.sun.jna.LastErrorException;
 import ceri.jna.test.JnaTestUtil;
 
 public class CErrorBehavior {
@@ -18,6 +20,12 @@ public class CErrorBehavior {
 	public void shouldLookupByCode() {
 		assertNull(CError.from(-1));
 		assertEquals(CError.from(CError.EAGAIN.code), CError.EAGAIN);
+	}
+
+	@Test
+	public void shouldProvideErrorMessage() {
+		assertString(CError.EIO.error("test"), "%s: [%d] test", LastErrorException.class.getName(),
+			CError.EIO.code);
 	}
 
 	@Test

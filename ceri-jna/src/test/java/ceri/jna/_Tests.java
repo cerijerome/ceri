@@ -36,6 +36,9 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.util.SelfHealingFdBehavior.class, //
 	ceri.jna.clib.util.SelfHealingFdConfigBehavior.class, //
 	ceri.jna.clib.util.SyncPipeBehavior.class, //
+	// io
+	ceri.jna.io.JnaInputStreamBehavior.class, //
+	ceri.jna.io.JnaOutputStreamBehavior.class, //
 	// test
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// util

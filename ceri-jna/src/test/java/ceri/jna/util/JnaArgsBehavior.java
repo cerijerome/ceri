@@ -2,6 +2,8 @@ package ceri.jna.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertString;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
@@ -9,6 +11,7 @@ import com.sun.jna.Callback;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import ceri.jna.util.Struct.Fields;
 
 public class JnaArgsBehavior {
@@ -16,13 +19,15 @@ public class JnaArgsBehavior {
 	static interface TestCallback extends Callback {
 		boolean invoke(String s, int i);
 	}
-	
+
 	@Fields({ "bb", "nl" })
 	public static class TestStruct extends Struct {
 		public byte[] bb = new byte[3];
 		public NativeLong nl = JnaUtil.unlong(123);
 	}
-	
+
+	public static class TestPointerType extends PointerType {}
+
 	@Test
 	public void shouldExpandArrays() {
 		assertEquals(
@@ -41,7 +46,16 @@ public class JnaArgsBehavior {
 		try (Memory m = new Memory(3)) {
 			long peer = PointerUtil.peer(m);
 			Pointer p = PointerUtil.pointer(peer + 1);
-			assertEquals(JnaArgs.DEFAULT.args(m, p), String.format("@%x+3, @%x", peer, peer + 1));
+			assertString(JnaArgs.DEFAULT.args(m, p), "@%x+3, @%x", peer, peer + 1);
+		}
+	}
+
+	@Test
+	public void shouldPrintPointerType() {
+		try (Memory m = new Memory(3)) {
+			var pt = new TestPointerType();
+			pt.setPointer(m);
+			assertString(JnaArgs.string(pt), "TestPointerType(@%x+3)", PointerUtil.peer(m));
 		}
 	}
 
@@ -49,13 +63,19 @@ public class JnaArgsBehavior {
 	public void shouldPrintStructure() {
 		var s = new TestStruct();
 		assertMatch(JnaArgs.DEFAULT.arg(s), "TestStruct\\(@[0-9a-fA-F]+\\+[[0-9a-fA-F]]+\\)");
-		
+
 	}
 
 	@Test
 	public void shouldPrintCallback() {
 		TestCallback callback = (s, i) -> s.length() == i;
 		assertMatch(JnaArgs.string(callback), "%s\\$\\$Lambda.*@\\w+", getClass().getSimpleName());
+	}
+
+	@Test
+	public void shouldPrintByteBuffer() {
+		var b = ByteBuffer.allocate(3).put((byte) 0xab).limit(2);
+		assertString(JnaArgs.string(b), "%s(p=1,l=2,c=3)", b.getClass().getSimpleName());
 	}
 
 	@Test

@@ -828,6 +828,13 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Checks string representation is equal to given formatted string.
+	 */
+	public static void assertString(Object actual, String pattern, Object... objs) {
+		assertEquals(String.valueOf(actual), StringUtil.format(pattern, objs));
+	}
+
+	/**
 	 * Checks regex find against the string.
 	 */
 	public static void assertFind(Object actual, String pattern, Object... objs) {

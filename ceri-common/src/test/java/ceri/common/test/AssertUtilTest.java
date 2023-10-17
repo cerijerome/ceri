@@ -39,6 +39,7 @@ import static ceri.common.test.AssertUtil.assertRange;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertShort;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertToString;
@@ -424,6 +425,12 @@ public class AssertUtilTest {
 		assertThrown(IOException.class, () -> AssertUtil.throwIt(new IOException("test")));
 	}
 
+	@Test
+	public void testAssertString() {
+		assertString("x123.1", "%s%d%.1f", "x", 12, 3.1);
+		assertAssertion(() -> assertString("x123.1", "%s%d%f", "x", 12, 3.1));
+	}
+	
 	@Test
 	public void testAssertFind() {
 		Pattern p = Pattern.compile("[a-z]+");

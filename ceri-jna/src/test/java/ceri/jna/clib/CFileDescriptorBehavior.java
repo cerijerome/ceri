@@ -23,6 +23,7 @@ import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.log.test.LogModifier;
+import ceri.log.util.LogUtil;
 
 public class CFileDescriptorBehavior {
 	private static TestCLibNative lib;
@@ -143,7 +144,7 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void shouldNotThrowExceptionOnClose() {
 		lib.close.error.setFrom(() -> CError.EIO.error());
-		LogModifier.run(fd::close, Level.OFF, CFileDescriptor.class);
+		LogModifier.run(fd::close, Level.OFF, LogUtil.class);
 		lib.close.error.clear();
 	}
 

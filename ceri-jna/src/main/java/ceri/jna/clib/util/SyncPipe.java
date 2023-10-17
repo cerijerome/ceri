@@ -84,7 +84,7 @@ public class SyncPipe implements RuntimeCloseable {
 		 * Clear any sync pipe tokens.
 		 */
 		public void clear() throws IOException {
-			pipe.clear();
+			pipe.clear(pollFds[0]);
 		}
 
 		@Override
@@ -96,7 +96,7 @@ public class SyncPipe implements RuntimeCloseable {
 			if (pipe.closed) return 0; // do not poll if pipe is closed
 			int n = CPoll.poll(pollFds, timeoutMs);
 			if (n <= 0 || !pollFds[0].hasEvent()) return n;
-			if (clear) pipe.clear(pollFds[0]);
+			if (clear) clear();
 			return n - 1;
 		}
 	}

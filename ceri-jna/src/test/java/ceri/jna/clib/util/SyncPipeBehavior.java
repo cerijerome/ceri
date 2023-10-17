@@ -7,12 +7,48 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
+import com.sun.jna.Memory;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.jna.CPoll;
 import ceri.jna.clib.jna.CPoll.pollfd;
+import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.test.TestCLibNative;
 
 public class SyncPipeBehavior {
+
+	@Test
+	public void shouldEncapsulatePollingWithFileDescriptors() throws IOException {
+		int[] fds = CUnistd.pipe();
+		try (var poll = SyncPipe.poll(2); var pipe = SyncPipe.of(); var m = new Memory(1)) {
+			poll.get(0).init(fds[0], CPoll.POLLIN); // read fd
+			assertEquals(poll.pollPeek(0), 0);
+			CUnistd.write(fds[1], m, 1); // write fd
+			assertEquals(poll.poll(0), 1);
+		} finally {
+			CUnistd.closeSilently(fds);
+		}
+	}
+
+	@Test
+	public void shouldEncapsulatePollingForAnEmptyFileDescriptorArray() throws IOException {
+		try (var poll = SyncPipe.poll(0)) {
+			assertEquals(poll.list.size(), 0);
+			assertEquals(poll.count(), 0);
+			assertThrown(() -> poll.get(0));
+			assertEquals(poll.pollPeek(0), 0);
+			poll.signal();
+			assertEquals(poll.pollPeek(0), 0);
+			assertEquals(poll.poll(0), 0);
+		}
+	}
+
+	@Test
+	public void shouldNotWaitForPollWhenClosed() throws IOException {
+		try (var poll = SyncPipe.poll(0)) {
+			poll.close();
+			assertEquals(poll.poll(0), 0);
+		}
+	}
 
 	@Test
 	public void shouldInterruptPoll() throws IOException {
