@@ -3,7 +3,7 @@ package ceri.common.function;
 import java.util.Objects;
 
 /**
- * Function that accepts varargs. 
+ * Function that accepts varargs. Care should be taken to avoid heap pollution.
  */
 public interface VarArgsConsumer<T> {
 

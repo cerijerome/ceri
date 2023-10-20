@@ -176,6 +176,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.BufferedOutputStreamBehavior.class, //
 	ceri.common.io.ConnectorBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
+	ceri.common.io.DirectionBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
 	ceri.common.io.FixableBehavior.class, //

@@ -286,6 +286,7 @@ public class TestPreparedStatement implements PreparedStatement {
 	@Override
 	public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {}
 
+	@Deprecated
 	@Override
 	public void setUnicodeStream(int parameterIndex, InputStream x, int length)
 		throws SQLException {}
