@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteUtil;
+import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -48,7 +49,7 @@ public class SpiEmulator implements Spi {
 	public static SpiEmulator pulsePrinter(PrintStream out) {
 		return pulsePrinter(out, null);
 	}
-	
+
 	/**
 	 * Prints output data as pulses with byte separator according to cycle.
 	 */
@@ -148,7 +149,7 @@ public class SpiEmulator implements Spi {
 		if (peer == 0L) return ByteBuffer.allocate(0);
 		return JnaUtil.buffer(PointerUtil.pointer(peer), 0, len);
 	}
-	
+
 	private byte[] read(ByteBuffer in) {
 		return ByteUtil.readFrom(in, 0, in.capacity());
 	}

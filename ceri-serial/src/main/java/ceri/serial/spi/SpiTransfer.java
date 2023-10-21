@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.io.Direction;
 import ceri.jna.util.GcMemory;
-import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 /**

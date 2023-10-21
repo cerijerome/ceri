@@ -15,8 +15,8 @@ import ceri.common.util.Enclosed;
 import ceri.serial.libusb.UsbEvents.Completed;
 import ceri.serial.libusb.UsbEvents.PollFd;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
+import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class UsbEventsBehavior {
 	private TestLibUsbNative lib;
@@ -41,7 +41,7 @@ public class UsbEventsBehavior {
 	@Test
 	public void shouldManageLocks() throws LibUsbException {
 		assertEquals(events.handlingOk(), true);
-		lib.data.context(usb.context().getPointer()).eventHandling = false;
+		lib.data.context(usb.context()).eventHandling = false;
 		assertEquals(events.handlingOk(), false);
 		assertEquals(events.handlerActive(), false);
 		try (var waiterLock = events.lockWaiters(); var lock = events.lock()) {

@@ -1,6 +1,7 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
@@ -12,6 +13,11 @@ import org.junit.Test;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiBaudBehavior {
+
+	@Test
+	public void shouldProvideStringRepresentation() throws LibUsbException {
+		assertFind(LibFtdiBaud.of(TYPE_2232H, 1, 720), "TYPE_2232H.*0x15046.*720");
+	}
 
 	@Test
 	public void shouldCalculateBaud() throws LibUsbException {

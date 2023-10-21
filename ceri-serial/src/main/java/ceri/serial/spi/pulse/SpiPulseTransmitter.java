@@ -11,9 +11,9 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.io.Direction;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
-import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.SpiTransfer;
 
 /**

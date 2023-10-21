@@ -27,6 +27,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_log_cb_mode;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibUsbTest {
 	private TestLibUsbNative lib;
@@ -171,6 +173,14 @@ public class LibUsbTest {
 		LibUsb.libusb_cancel_transfer(transfer);
 		lib.generalSync.autoResponses(libusb_error.LIBUSB_ERROR_BUSY.value);
 		assertThrown(() -> LibUsb.libusb_cancel_transfer(transfer));
+	}
+
+	@Test
+	public void testBulkZeroTransfer() throws LibUsbException {
+		initLib();
+		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0x5ac, 0x8406);
+		assertEquals(LibUsb.libusb_bulk_transfer(handle, 0x02, null, 0, 0), 0);
 	}
 
 	@Test

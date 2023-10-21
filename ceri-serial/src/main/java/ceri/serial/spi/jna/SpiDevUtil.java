@@ -2,7 +2,7 @@ package ceri.serial.spi.jna;
 
 import static ceri.common.math.MathUtil.ushort;
 import java.util.concurrent.TimeUnit;
-import ceri.serial.spi.Spi.Direction;
+import ceri.common.io.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
 public class SpiDevUtil {

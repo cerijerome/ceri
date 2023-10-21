@@ -13,10 +13,10 @@ import ceri.common.util.Enclosed;
 import ceri.log.test.LogModifier;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
+import ceri.serial.libusb.test.TestLibUsbNative.HotPlugEvent;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
-import ceri.serial.libusb.jna.TestLibUsbNative.HotPlugEvent;
 
 public class UsbHotPlugBehavior {
 	private TestLibUsbNative lib;
@@ -66,6 +66,7 @@ public class UsbHotPlugBehavior {
 			usb.events().handle(); // left + deregister
 			assertCallback(callback.awaitAuto(), 0x14, 0x08,
 				libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
+			callback.reset();
 			usb.events().handle(); // none
 			callback.assertCalls(0);
 		}

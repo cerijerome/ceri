@@ -1,8 +1,9 @@
-package ceri.serial.libusb.jna;
+package ceri.serial.libusb.test;
 
+import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_UNKNOWN;
-import static ceri.serial.libusb.jna.TestLibUsbNative.lastError;
+import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,15 +18,20 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
 import ceri.common.text.ToString;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaSize;
+import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
 import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
@@ -35,6 +41,10 @@ import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
+/**
+ * Test data storage for TestLibUsbNative. Keeps track of sample device configurations, and
+ * user-initiated state.
+ */
 public class LibUsbTestData {
 	private final List<Context> contexts = new ArrayList<>();
 	private final List<DeviceList> deviceLists = new ArrayList<>();
@@ -96,7 +106,7 @@ public class LibUsbTestData {
 		}
 
 		private Pointer p(int i) {
-			if (i < 0 || i >= size) return null;
+			validateIndex(size, i);
 			return p.share(i * JnaSize.POINTER.size);
 		}
 	}
@@ -150,8 +160,7 @@ public class LibUsbTestData {
 		}
 
 		public libusb_config_descriptor configDescriptor(int i) {
-			if (i < 0 || i >= configDescriptors.length) return null;
-			return configDescriptors[i];
+			return ArrayUtil.at(configDescriptors, i);
 		}
 
 		public libusb_config_descriptor configDescriptorByValue(int value) {
@@ -190,19 +199,9 @@ public class LibUsbTestData {
 		}
 	}
 
-	public LibUsbTestData() {
-		reset();
-	}
-
-	public void reset() {
-		contexts.clear();
-		deviceLists.clear();
-		devices.clear();
-		deviceHandles.clear();
-		capabilities = 0;
-		locale = "en-US";
-	}
-
+	/**
+	 * Set the libusb version desciptors.
+	 */
 	public static libusb_version version(String desc, String rc, int... nums) {
 		libusb_version version = new libusb_version();
 		version.describe = desc;
@@ -213,6 +212,22 @@ public class LibUsbTestData {
 		version.micro = (short) (nums.length >= ++i ? nums[i] : 0);
 		version.nano = (short) (nums.length >= ++i ? nums[i] : 0);
 		return version;
+	}
+
+	public LibUsbTestData() {
+		reset();
+	}
+
+	/**
+	 * Clears state, but does not clear device configurations (sample data).
+	 */
+	public void reset() {
+		contexts.clear();
+		deviceLists.clear();
+		devices.clear();
+		deviceHandles.clear();
+		capabilities = 0;
+		locale = "en-US";
 	}
 
 	public Context createContextDef() {
@@ -230,11 +245,12 @@ public class LibUsbTestData {
 		return context;
 	}
 
-	public Context context(Pointer p) {
-		return find(contexts, p);
+	public Context context(libusb_context ctx) {
+		return find(contexts, PointerUtil.pointer(ctx));
 	}
 
-	public void removeContext(Pointer p) {
+	public void removeContext(libusb_context ctx) {
+		var p = PointerUtil.pointer(ctx);
 		var context = get(contexts, p);
 		if (context == null) return;
 		deviceLists.removeIf(t -> t.context == context);
@@ -274,8 +290,8 @@ public class LibUsbTestData {
 		return device;
 	}
 
-	public Device device(Pointer p) {
-		return find(devices, p);
+	public Device device(libusb_device dev) {
+		return find(devices, PointerUtil.pointer(dev));
 	}
 
 	public Device device(Predicate<? super Device> filter) {
@@ -310,8 +326,8 @@ public class LibUsbTestData {
 		return handle;
 	}
 
-	public DeviceHandle deviceHandle(Pointer p) {
-		return find(deviceHandles, p);
+	public DeviceHandle deviceHandle(libusb_device_handle handle) {
+		return find(deviceHandles, PointerUtil.pointer(handle));
 	}
 
 	public void removeDeviceHandle(DeviceHandle handle) {

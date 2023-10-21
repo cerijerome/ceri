@@ -17,13 +17,13 @@ import ceri.serial.ftdi.FtdiLineParams;
  */
 public class FtdiConfig {
 	public static final FtdiConfig NULL = builder().build();
-	private final FtdiBitMode bitMode;
-	private final Integer baud;
-	private final FtdiLineParams params;
-	private final FtdiFlowControl flowControl;
-	private final Integer latencyTimer;
-	private final Integer readChunkSize;
-	private final Integer writeChunkSize;
+	public final FtdiBitMode bitMode;
+	public final Integer baud;
+	public final FtdiLineParams params;
+	public final FtdiFlowControl flowControl;
+	public final Integer latencyTimer;
+	public final Integer readChunkSize;
+	public final Integer writeChunkSize;
 
 	public static class Builder {
 		// need to keep state in multi-threaded context

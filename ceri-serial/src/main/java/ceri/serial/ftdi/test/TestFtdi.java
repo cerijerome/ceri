@@ -4,6 +4,7 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.List;
 import com.sun.jna.Pointer;
+import ceri.common.io.Direction;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
@@ -24,7 +25,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	public final CallSync.Runnable usbReset = CallSync.runnable(true);
 	public final CallSync.Consumer<FtdiBitMode> bitMode = CallSync.consumer(FtdiBitMode.OFF, true);
 	public final CallSync.Consumer<Integer> baud = CallSync.consumer(0, true);
-	public final CallSync.Consumer<FtdiLineParams> line =
+	public final CallSync.Consumer<FtdiLineParams> params =
 		CallSync.consumer(FtdiLineParams.DEFAULT, true);
 	public final CallSync.Consumer<FtdiFlowControl> flowControl =
 		CallSync.consumer(FtdiFlowControl.disabled, true);
@@ -33,9 +34,10 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	public final CallSync.Supplier<Integer> pins = CallSync.supplier(0);
 	public final CallSync.Supplier<Integer> modem = CallSync.supplier(0);
 	public final CallSync.Consumer<Integer> latency = CallSync.consumer(0, true); // in + out
-	public final CallSync.Consumer<Integer> chunk = CallSync.consumer(0, true); // in + out
+	public final CallSync.Consumer<Integer> readChunk = CallSync.consumer(0, true); // in + out
+	public final CallSync.Consumer<Integer> writeChunk = CallSync.consumer(0, true); // in + out
 	public final CallSync.Runnable purgeBuffer = CallSync.runnable(true);
-	// List<?> = buffer, len
+	// List<?> = direction, buffer, len
 	public final CallSync.Function<List<?>, FtdiTransferControl> submit =
 		CallSync.function(List.of(), FtdiTransferControl.NULL);
 	// List<?> = callback, packetsPerTransfer, numTransfers, progressIntervalSec
@@ -76,8 +78,8 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(descriptor, usbReset, bitMode, baud, line, flowControl, dtr, rts, pins,
-			modem, latency, chunk, purgeBuffer);
+		CallSync.resetAll(descriptor, usbReset, bitMode, baud, params, flowControl, dtr, rts, pins,
+			modem, latency, readChunk, writeChunk, purgeBuffer);
 	}
 
 	@Override
@@ -103,7 +105,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public void line(FtdiLineParams line) throws IOException {
-		this.line.accept(line, IO_ADAPTER);
+		this.params.accept(line, IO_ADAPTER);
 	}
 
 	@Override
@@ -150,22 +152,22 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public void readChunkSize(int size) throws IOException {
-		chunk.accept(size, IO_ADAPTER);
+		readChunk.accept(size, IO_ADAPTER);
 	}
 
 	@Override
 	public int readChunkSize() throws IOException {
-		return chunk.value();
+		return readChunk.value();
 	}
 
 	@Override
 	public void writeChunkSize(int size) throws IOException {
-		chunk.accept(size, IO_ADAPTER);
+		writeChunk.accept(size, IO_ADAPTER);
 	}
 
 	@Override
 	public int writeChunkSize() throws IOException {
-		return chunk.value();
+		return writeChunk.value();
 	}
 
 	@Override
@@ -180,12 +182,18 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public FtdiTransferControl readSubmit(Pointer buffer, int len) throws IOException {
-		return submit.apply(List.of(buffer, len), IO_ADAPTER);
+		return submit(Direction.in, buffer, len);
 	}
 
 	@Override
 	public FtdiTransferControl writeSubmit(Pointer buffer, int len) throws IOException {
-		return submit.apply(List.of(buffer, len), IO_ADAPTER);
+		return submit(Direction.out, buffer, len);
+	}
+
+	private FtdiTransferControl submit(Direction direction, Pointer buffer, int len) throws IOException {
+		var xfer = submit.apply(List.of(direction, buffer, len), IO_ADAPTER);
+		verifyConnected();
+		return xfer;
 	}
 
 	@Override
@@ -193,5 +201,6 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 		double progressIntervalSec) throws IOException {
 		stream.accept(List.of(callback, packetsPerTransfer, numTransfers, progressIntervalSec),
 			IO_ADAPTER);
-	}
+		verifyConnected();
+	}	
 }

@@ -1,9 +1,9 @@
 package ceri.serial.spi.util;
 
-import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
 import java.util.function.Supplier;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.io.Direction;
 import ceri.common.math.MathUtil;
 import ceri.common.util.StartupValues;
 import ceri.log.util.LogUtil;
@@ -36,7 +36,7 @@ public class SpiPulseTester {
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
 			.cycle(PulseCycles.cycle(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
-		try (var fd = SpiDeviceConfig.of(bus, chip, out).open()) {
+		try (var fd = SpiDeviceConfig.of(bus, chip, Direction.out).open()) {
 			Spi spi = SpiDevice.of(fd);
 			spi.mode(mode).maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {

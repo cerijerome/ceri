@@ -39,7 +39,6 @@ public class LibFtdiBaud {
 	}
 
 	private LibFtdiBaud(ftdi_chip_type type, int index, int rate) throws LibUsbException {
-		// System.out.println();
 		this.type = type;
 		this.index = index;
 		convert(rate);
@@ -57,6 +56,12 @@ public class LibFtdiBaud {
 	public int index() {
 		if (ftdi_chip_type.isHType(type)) return (int) (((encodedDivisor >> 8) & 0xff00) | index);
 		return ushort(encodedDivisor >> 16);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("baud(type=%s,index=%d,divisor=%d/0x%x,actual=%d)", type, index,
+			encodedDivisor, encodedDivisor, actualRate);
 	}
 
 	/**

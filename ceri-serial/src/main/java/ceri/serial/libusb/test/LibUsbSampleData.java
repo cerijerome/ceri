@@ -1,4 +1,4 @@
-package ceri.serial.libusb.jna;
+package ceri.serial.libusb.test;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.validation.ValidationUtil.validateNull;
@@ -32,7 +32,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_FULL;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_HIGH;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_LOW;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_SUPER;
-import java.util.List;
 import java.util.function.Consumer;
 import com.sun.jna.Structure;
 import ceri.common.data.ByteArray.Immutable;
@@ -48,20 +47,28 @@ import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_usb_device_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_descriptor;
-import ceri.serial.libusb.jna.LibUsbTestData.DeviceConfig;
+import ceri.serial.libusb.test.LibUsbTestData.DeviceConfig;
 
+/**
+ * Sample device data for TestLibUsbNative.
+ */
 public class LibUsbSampleData {
 
 	private LibUsbSampleData() {}
 
+	/**
+	 * Creates and adds all device configurations to the test data storage.
+	 */
 	public static void populate(LibUsbTestData data) {
 		data.deviceConfigs.clear();
-		configs().forEach(data.deviceConfigs::add);
-	}
-
-	public static List<DeviceConfig> configs() {
-		return List.of(sdReaderConfig(), audioConfig(), ftdiConfig(), externalUsb3HubConfig(),
-			externalUsb2HubConfig(), mouseConfig(), internalHubConfig(), kbConfig());
+		data.deviceConfigs.add(sdReaderConfig());
+		data.deviceConfigs.add(audioConfig());
+		data.deviceConfigs.add(ftdiConfig());
+		data.deviceConfigs.add(externalUsb3HubConfig());
+		data.deviceConfigs.add(externalUsb2HubConfig());
+		data.deviceConfigs.add(mouseConfig());
+		data.deviceConfigs.add(internalHubConfig());
+		data.deviceConfigs.add(kbConfig());
 	}
 
 	/**
@@ -478,13 +485,6 @@ public class LibUsbSampleData {
 		});
 	}
 
-	/**
-	 * Sampe dummy data.
-	 */
-	public static DeviceConfig dummyConfig() {
-		return null;
-	}
-
 	private static DeviceConfig device(Consumer<DeviceConfig> populator) {
 		var device = new DeviceConfig();
 		device.desc.bLength = LIBUSB_DT_DEVICE_SIZE;
@@ -511,7 +511,6 @@ public class LibUsbSampleData {
 	@SafeVarargs
 	private static void configDescriptors(DeviceConfig dc,
 		Consumer<libusb_config_descriptor>... populators) {
-		if (populators.length == 0) return;
 		var descs = Struct.<libusb_config_descriptor>arrayByVal( //
 			() -> new libusb_config_descriptor(null), libusb_config_descriptor[]::new,
 			populators.length);
@@ -529,7 +528,6 @@ public class LibUsbSampleData {
 	@SafeVarargs
 	private static void interfaces(libusb_config_descriptor cd,
 		Consumer<libusb_interface.ByRef>... populators) {
-		if (populators.length == 0) return;
 		var interfaces = Struct.<libusb_interface.ByRef>arrayByVal(libusb_interface.ByRef::new,
 			libusb_interface.ByRef[]::new, populators.length);
 		for (int i = 0; i < populators.length; i++) {
@@ -543,7 +541,6 @@ public class LibUsbSampleData {
 	@SafeVarargs
 	private static void interfaceDescriptors(libusb_config_descriptor cd, libusb_interface it,
 		Consumer<libusb_interface_descriptor.ByRef>... populators) {
-		if (populators.length == 0) return;
 		var descs = Struct.<libusb_interface_descriptor.ByRef>arrayByVal(
 			libusb_interface_descriptor.ByRef::new, libusb_interface_descriptor.ByRef[]::new,
 			populators.length);
@@ -562,7 +559,6 @@ public class LibUsbSampleData {
 	@SafeVarargs
 	private static void endPointDescriptors(libusb_interface_descriptor id,
 		Consumer<libusb_endpoint_descriptor.ByRef>... populators) {
-		if (populators.length == 0) return;
 		var descs = Struct.<libusb_endpoint_descriptor.ByRef>arrayByVal(
 			libusb_endpoint_descriptor.ByRef::new, libusb_endpoint_descriptor.ByRef[]::new,
 			populators.length);

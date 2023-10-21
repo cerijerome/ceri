@@ -6,22 +6,24 @@ import static ceri.serial.ftdi.jna.LibFtdi.FTDI_VENDOR_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
-import static ceri.serial.libusb.jna.TestLibUsbNative.lastError;
+import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
+import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.Struct;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibFtdiTest {
 	private TestLibUsbNative lib;
@@ -140,6 +142,37 @@ public class LibFtdiTest {
 			List.of(0x40, 0x06, 0x0078, 1, ByteProvider.empty()),
 			List.of(0x40, 0x07, 0x0178, 1, ByteProvider.empty()),
 			List.of(0x40, 0x07, 0x0078, 1, ByteProvider.empty()));
+
+	}
+
+	@Test
+	public void testBitBang() throws LibUsbException {
+		ftdi = openFtdi();
+		LibFtdi.ftdi_enable_bitbang(ftdi);
+		lib.syncTransferOut.assertValues(List.of(0x40, 0x0b, 0x1ff, 1, ByteProvider.empty()));
+		LibFtdi.ftdi_disable_bitbang(ftdi);
+		lib.syncTransferOut.assertValues(List.of(0x40, 0x0b, 0, 1, ByteProvider.empty()));
+	}
+
+	@Test
+	public void testSetDtrRts() throws LibUsbException {
+		ftdi = openFtdi();
+		LibFtdi.ftdi_set_dtr_rts(ftdi, true, true);
+		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x303, 1, ByteProvider.empty()));
+		LibFtdi.ftdi_set_dtr_rts(ftdi, false, true);
+		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x302, 1, ByteProvider.empty()));
+		LibFtdi.ftdi_set_dtr_rts(ftdi, true, false);
+		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x301, 1, ByteProvider.empty()));
+	}
+
+	@Test
+	public void testAutoDetach() throws LibUsbException {
+		JnaTestUtil.testForEachOs(() -> {
+			ftdi = openFtdi();
+			int expected = OsUtil.os().linux ? 1 : 0;
+			assertEquals(lib.data.deviceHandle(ftdi.usb_dev).kernelDriverInterfaceBits, expected);
+			LibFtdi.ftdi_free(ftdi);
+		});
 
 	}
 

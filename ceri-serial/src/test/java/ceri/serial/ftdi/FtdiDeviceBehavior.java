@@ -1,8 +1,11 @@
 package ceri.serial.ftdi;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
@@ -11,6 +14,10 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type.BITS_7;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.ODD;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type.STOP_BIT_2;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
+import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_PIPE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_type.LIBUSB_TRANSFER_TYPE_BULK;
@@ -38,11 +45,11 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
-import ceri.serial.libusb.jna.TestLibUsbNative.TransferEvent;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
+import ceri.serial.libusb.test.TestLibUsbNative.TransferEvent;
 
-public class FtdiBehavior {
+public class FtdiDeviceBehavior {
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private FtdiDevice ftdi;
@@ -62,9 +69,20 @@ public class FtdiBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfFatalError() {
+		assertFalse(FtdiDevice.isFatal(null));
+		assertFalse(FtdiDevice.isFatal(new IOException("test")));
+		assertFalse(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
+		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
+		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
+		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
+	}
+
+	@Test
 	public void shouldFailIfClosed() throws LibUsbException {
 		ftdi = FtdiDevice.open();
 		ftdi.close();
+		assertThrown(() -> ftdi.usbReset());
 		assertThrown(() -> ftdi.in().read());
 		lib.syncTransferOut.assertValues( // open() leftovers:
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // ftdi_usb_reset
@@ -128,18 +146,20 @@ public class FtdiBehavior {
 			List.of(0x40, 0x01, 0x100, 1, ByteProvider.empty()));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteData() throws IOException {
 		ftdi = open();
-		assertEquals(ftdi.out().write(1, 2, 3), 3);
-		assertEquals(ftdi.out().write(ByteBuffer.wrap(ArrayUtil.bytes(4, 5, 6))), 3);
+		ftdi.out().write(bytes(1, 2, 3));
+		ftdi.out().write(bytes(4, 5));
 		lib.syncTransferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
-			List.of(0x02, provider(4, 5, 6)));
+			List.of(0x02, provider(4, 5)));
 		lib.syncTransferOut.autoResponses((Integer) null); // set transferred to 0
-		assertEquals(ftdi.out().write(1, 2, 3), 0);
+		assertThrown(() -> ftdi.out().write(bytes(1, 2, 3))); // incomplete i/o exception
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldReadData() throws IOException {
 		ftdi = open();
@@ -147,21 +167,18 @@ public class FtdiBehavior {
 			provider(0, 0, 0xab), // read() => 2B status + 1B data
 			provider(0, 0), // read() => 2B status + 0B data
 			provider(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
-			provider(0, 0, 4, 5), provider(), // read(3) => 2B status + 2B data
-			provider(0, 0, 6, 7), provider()); // read(buffer[3]) => 2B status + 2B data
-		assertEquals(ftdi.in().read(), 0xab);
-		assertEquals(ftdi.in().read(), -1);
-		assertArray(ftdi.in().read(3), 1, 2, 3);
-		assertArray(ftdi.in().read(3), 4, 5);
-		ByteBuffer bb = ByteBuffer.allocate(3);
-		assertEquals(ftdi.in().read(bb), 2);
-		assertArray(bb.array(), 6, 7, 0);
+			provider(0, 0, 4, 5), provider()); // read(3) => 2B status + 2B data
+		assertEquals(ftdi.in().read(), 0xab); // R1
+		assertEquals(ftdi.in().read(), -1); // R2
+		assertArray(ftdi.in().readNBytes(3), 1, 2, 3); // R3
+		assertArray(ftdi.in().readNBytes(3), 4, 5); // R4
 		lib.syncTransferIn.assertValues( //
-			List.of(0x81, 3), //
-			List.of(0x81, 3), //
-			List.of(0x81, 5), //
-			List.of(0x81, 5), List.of(0x81, 3), //
-			List.of(0x81, 5), List.of(0x81, 3));
+			List.of(0x81, 3), // R1
+			List.of(0x81, 3), // R2
+			List.of(0x81, 5), // R3
+			List.of(0x81, 5), // R4: readNBytes[1] -> ftdi_read_data[1] -> 4
+			List.of(0x81, 3), // R4: readNBytes[1] -> ftdi_read_data[2] -> 0
+			List.of(0x81, 3)); // R4: : readNBytes[2] -> ftdi_read_data[1] -> 0
 	}
 
 	@Test
@@ -254,8 +271,10 @@ public class FtdiBehavior {
 		ftdi = openFtdiForStreaming(0x700, 5);
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
-		CallSync.Function<FtdiProgressInfo, Boolean> sync = CallSync.function(null, true, true, false);
-		FtdiDevice.StreamCallback callback = (prog, buffer) -> prog == null ? true : sync.apply(prog);
+		CallSync.Function<FtdiProgressInfo, Boolean> sync =
+			CallSync.function(null, true, true, false);
+		FtdiDevice.StreamCallback callback =
+			(prog, buffer) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
 		assertEquals(prog.currentTotalBytes(), 54L);

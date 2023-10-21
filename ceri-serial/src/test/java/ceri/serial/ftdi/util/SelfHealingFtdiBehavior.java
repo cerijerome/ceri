@@ -1,42 +1,44 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.function.FunctionUtil.execSilently;
+import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.function.FunctionUtil.runSilently;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.ErrorGen.RIX;
-import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_PIPE;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
+import com.sun.jna.Memory;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.StateChange;
-import ceri.common.test.CallSync;
+import ceri.common.test.Captor;
 import ceri.common.util.Enclosed;
+import ceri.log.io.SelfHealingConfig;
+import ceri.log.io.SelfHealingDevice;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
+import ceri.serial.ftdi.FtdiLineParams;
+import ceri.serial.ftdi.FtdiProgressInfo;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
-import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
-public class SelfHealingFtdiConnectorBehavior {
+public class SelfHealingFtdiBehavior {
 	private static final SelfHealingFtdiConfig config =
-		SelfHealingFtdiConfig.builder().recoveryDelayMs(1).fixRetryDelayMs(1).build();
+		SelfHealingFtdiConfig.builder().selfHealing(SelfHealingConfig.NULL).build();
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private SelfHealingFtdi con;
@@ -45,7 +47,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		LibUsbSampleData.populate(lib.data);
+		lib.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
 		con = SelfHealingFtdi.of(config);
 	}
 
@@ -56,30 +58,51 @@ public class SelfHealingFtdiConnectorBehavior {
 	}
 
 	@Test
-	public void shouldConnectToFtdi() throws LibUsbException {
-		con.connect();
+	public void shouldOpenFtdiDevice() throws IOException {
+		con.open();
 		assertIterable(lib.syncTransferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
-			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty()), // open:ftdi_set_baudrate()
-			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()), // bitMode()
-			List.of(0x40, 0x03, 0xc04e, 0, ByteProvider.empty()), // baudRate()
-			List.of(0x40, 0x04, 0x0008, 1, ByteProvider.empty())); // lineParams()
+			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // open:ftdi_set_baudrate()
 		lib.syncTransferIn.assertCalls(0);
 	}
 
 	@Test
-	public void shouldConfigureFtdi() throws LibUsbException {
+	public void shouldProvideDescriptors() throws IOException {
 		connect();
-		con.bitmode(FtdiBitMode.OFF);
-		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x0000, 1, ByteProvider.empty()));
-		con.bitmode(FtdiBitMode.of(ftdi_mpsse_mode.BITMODE_CBUS));
-		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x20ff, 1, ByteProvider.empty()));
-		con.flowControl(FtdiFlowControl.xonXoff);
-		lib.syncTransferOut.assertAuto(List.of(0x40, 0x02, 0, 0x0401, ByteProvider.empty()));
+		var desc = con.descriptor();
+		assertEquals(desc.manufacturer(), "FTDI");
+		assertEquals(desc.description(), "FT245R USB FIFO");
+		assertEquals(desc.serial(), "A7047D8V");
 	}
 
 	@Test
-	public void shouldSetDtrRts() throws LibUsbException {
+	public void shouldResetUsb() throws IOException {
+		connect();
+		con.usbReset();
+		assertIterable(lib.syncTransferOut.values(),
+			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()));
+	}
+
+	@Test
+	public void shouldConfigureFtdi() throws IOException {
+		connect();
+		con.bitMode(FtdiBitMode.OFF);
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x0000, 1, ByteProvider.empty()));
+		con.baud(19200);
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x03, 0x809c, 0, ByteProvider.empty()));
+		con.bitMode(FtdiBitMode.of(ftdi_mpsse_mode.BITMODE_CBUS));
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x0b, 0x20ff, 1, ByteProvider.empty()));
+		con.baud(19200);
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x03, 0xc027, 0, ByteProvider.empty()));
+		con.flowControl(FtdiFlowControl.xonXoff);
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x02, 0, 0x0401, ByteProvider.empty()));
+		con.line(FtdiLineParams.builder().dataBits(ftdi_data_bits_type.BITS_7)
+			.breakType(ftdi_break_type.BREAK_ON).build());
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x04, 0x4007, 1, ByteProvider.empty()));
+	}
+
+	@Test
+	public void shouldSetDtrRts() throws IOException {
 		connect();
 		con.rts(true);
 		lib.syncTransferOut.assertAuto(List.of(0x40, 0x01, 0x0202, 1, ByteProvider.empty()));
@@ -88,7 +111,7 @@ public class SelfHealingFtdiConnectorBehavior {
 	}
 
 	@Test
-	public void shouldReadPins() throws LibUsbException {
+	public void shouldReadPins() throws IOException {
 		connect();
 		lib.syncTransferIn.autoResponses(provider(0xa5));
 		assertEquals(con.readPins(), 0xa5);
@@ -96,21 +119,90 @@ public class SelfHealingFtdiConnectorBehavior {
 	}
 
 	@Test
-	public void shouldReadBytes() throws IOException {
+	public void shouldPollModemStatus() throws IOException {
 		connect();
-		lib.syncTransferIn.autoResponses(provider(1, 2, 3, 4, 5));
-		assertArray(con.read(3), 3, 4, 5); // 2B status + 3B data
-		lib.syncTransferIn.assertAuto(List.of(0x81, 5));
-		lib.syncTransferIn.autoResponses(provider(6, 7, 8));
-		assertEquals(con.read(), 8); // 2B status + 1B data
-		lib.syncTransferIn.assertAuto(List.of(0x81, 3));
+		lib.syncTransferIn.autoResponses(provider(0xe0, 0x8f));
+		assertEquals(con.pollModemStatus(), 0x8fe0);
 	}
 
 	@Test
+	public void shouldProvideLatencyTimer() throws IOException {
+		connect();
+		con.latencyTimer(123);
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0x09, 123, 1, ByteProvider.empty()));
+		lib.syncTransferIn.autoResponses(provider(123));
+		assertEquals(con.latencyTimer(), 123);
+	}
+
+	@Test
+	public void shouldProvideChunkSizes() throws IOException {
+		connect();
+		con.readChunkSize(123);
+		assertEquals(con.readChunkSize(), 123);
+		con.writeChunkSize(456);
+		assertEquals(con.writeChunkSize(), 456);
+	}
+
+	@Test
+	public void shouldPurgeBuffers() throws IOException {
+		connect();
+		con.purgeReadBuffer();
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0, 1, 1, ByteProvider.empty()));
+		con.purgeWriteBuffer();
+		lib.syncTransferOut.assertAuto(List.of(0x40, 0, 2, 1, ByteProvider.empty()));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldReadBytes() throws IOException {
+		connect();
+		lib.syncTransferIn.autoResponses(provider(1, 2, 3, 4, 5));
+		assertArray(con.in().readNBytes(3), 3, 4, 5); // 2B status + 3B data
+		lib.syncTransferIn.assertAuto(List.of(0x81, 5));
+		lib.syncTransferIn.autoResponses(provider(6, 7, 8));
+		assertEquals(con.in().read(), 8); // 2B status + 1B data
+		lib.syncTransferIn.assertAuto(List.of(0x81, 3));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
 	public void shouldWriteBytes() throws IOException {
 		connect();
-		con.write(1, 2, 3);
+		con.out().write(bytes(1, 2, 3));
 		lib.syncTransferOut.assertAuto(List.of(0x02, provider(1, 2, 3)));
+	}
+
+	@Test
+	public void shouldReadAsynchronously() throws IOException {
+		connect();
+		try (var m = new Memory(3)) {
+			var xfer = con.readSubmit(m, 3); // full async test under Ftdi tests
+			assertEquals(xfer.dataDone(), 3);
+		}
+	}
+
+	@Test
+	public void shouldWriteAsynchronously() throws IOException {
+		connect();
+		try (var m = new Memory(3)) {
+			var xfer = con.writeSubmit(m, 3); // full async test under Ftdi tests
+			assertEquals(xfer.dataDone(), 3);
+		}
+	}
+
+	@Test
+	public void shouldReadStream() throws IOException {
+		lib.data.deviceConfigs.get(0).desc.bcdDevice = 0x700; // fifo-enabled device
+		connect();
+		Captor.Bi<FtdiProgressInfo, ByteBuffer> captor = Captor.ofBi();
+		con.readStream((i, b) -> {
+			captor.accept(i, b);
+			return false;
+		}, 1, 1);
+		assertNull(captor.first.values.get(0));
+		assertNotNull(captor.second.values.get(0));
+		assertNotNull(captor.first.values.get(1));
+		assertNull(captor.second.values.get(1));
 	}
 
 	@Test
@@ -118,8 +210,8 @@ public class SelfHealingFtdiConnectorBehavior {
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var enc = con.listeners().enclose(sync::signal)) {
-				lib.syncTransferOut.error.setFrom(s -> new LastErrorException(s));
-				assertThrown(con::connect);
+				lib.syncTransferOut.error.setFrom(() -> new LastErrorException("test"));
+				assertThrown(con::open);
 				sync.await(StateChange.broken);
 				lib.syncTransferOut.awaitAuto();
 				lib.syncTransferOut.awaitAuto();
@@ -127,49 +219,21 @@ public class SelfHealingFtdiConnectorBehavior {
 				lib.syncTransferOut.error.clear();
 				sync.await(StateChange.fixed);
 			}
-		}, Level.OFF, SelfHealingFtdi.class);
+		}, Level.OFF, SelfHealingDevice.class);
 	}
 
 	@Test
 	public void shouldFailIfNotConnected() {
-		assertThrown(() -> con.read()); // not connected, set broken, then fix
-		execSilently(() -> con.read()); // may have been fixed
-		execSilently(() -> con.readPins()); // may have been fixed
-	}
-
-	@Test
-	public void shouldDetermineIfBroken() {
-		assertFalse(SelfHealingFtdi.isBroken(null));
-		assertFalse(SelfHealingFtdi.isBroken(new IOException("test")));
-		assertFalse(
-			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
-		assertTrue(
-			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
-		assertTrue(
-			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
-		assertTrue(
-			SelfHealingFtdi.isBroken(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
-	}
-
-	@Test
-	public void shouldHandleListenerErrors() throws IOException {
-		LogModifier.run(() -> {
-			connect();
-			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-			try (var enc = con.listeners().enclose(sync::accept)) {
-				sync.error.setFrom(RTX);
-				con.broken(); // logged
-				sync.error.setFrom(RIX);
-				assertThrown(con::broken);
-			}
-		}, Level.OFF, SelfHealingFtdi.class);
+		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
+		runSilently(() -> con.in().read()); // may have been fixed
+		runSilently(() -> con.readPins()); // may have been fixed
 	}
 
 	/**
 	 * Connect and reset state.
 	 */
-	private void connect() throws LibUsbException {
-		con.connect();
+	private void connect() throws IOException {
+		con.open();
 		lib.syncTransferOut.reset();
 	}
 }

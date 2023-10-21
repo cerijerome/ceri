@@ -3,7 +3,7 @@ package ceri.serial.spi;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.serial.spi.Spi.Direction;
+import ceri.common.io.Direction;
 
 public class SpiBehavior {
 

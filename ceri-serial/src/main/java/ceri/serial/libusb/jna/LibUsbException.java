@@ -54,8 +54,7 @@ public class LibUsbException extends CException {
 	}
 
 	private static String format(String message, int code, libusb_error error) {
-		if (error == null) return String.format("%s: %s", message, code);
-		return String.format("%s: %s(%d)", message, error, code);
+		return String.format("%s: %s", message, error == null ? code : error);
 	}
 	
 	private static LibUsbException adapt(Throwable e) {

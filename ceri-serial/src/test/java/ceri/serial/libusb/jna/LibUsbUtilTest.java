@@ -1,6 +1,7 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import ceri.jna.test.JnaTestUtil;
@@ -8,6 +9,14 @@ import ceri.serial.libusb.jna.LibUsb.libusb_error;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 
 public class LibUsbUtilTest {
+
+	@Test
+	public void testErrorMessage() {
+		assertNull(LibUsbUtil.errorMessage(null));
+		assertEquals(LibUsbUtil.errorMessage(libusb_error.LIBUSB_SUCCESS), "success");
+		assertEquals(LibUsbUtil.errorMessage(libusb_error.LIBUSB_ERROR_INVALID_PARAM),
+			"invalid param");
+	}
 
 	@Test
 	public void testStatusError() {

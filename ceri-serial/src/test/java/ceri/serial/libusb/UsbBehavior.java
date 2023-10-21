@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
 import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbBehavior {
 	private TestLibUsbNative lib;

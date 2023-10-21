@@ -9,13 +9,9 @@ public enum FtdiFlowControl {
 	dtrDsr(LibFtdi.SIO_DTR_DSR_HS),
 	xonXoff(LibFtdi.SIO_XON_XOFF_HS);
 
-	private static final TypeTranscoder<FtdiFlowControl> xcoder =
+	public static final TypeTranscoder<FtdiFlowControl> xcoder =
 		TypeTranscoder.of(t -> t.value, FtdiFlowControl.class);
 	public final int value;
-
-	public static FtdiFlowControl from(int value) {
-		return xcoder.decode(value);
-	}
 
 	private FtdiFlowControl(int value) {
 		this.value = value;

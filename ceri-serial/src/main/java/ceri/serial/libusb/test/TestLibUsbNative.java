@@ -1,4 +1,4 @@
-package ceri.serial.libusb.jna;
+package ceri.serial.libusb.test;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
@@ -26,8 +26,6 @@ import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -42,6 +40,7 @@ import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
 import ceri.serial.libusb.UsbEvents.PollFd;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -57,19 +56,21 @@ import ceri.serial.libusb.jna.LibUsb.libusb_option;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_recipient;
-import ceri.serial.libusb.jna.LibUsb.libusb_request_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
-import ceri.serial.libusb.jna.LibUsbTestData.Context;
-import ceri.serial.libusb.jna.LibUsbTestData.Device;
-import ceri.serial.libusb.jna.LibUsbTestData.DeviceHandle;
-import ceri.serial.libusb.jna.LibUsbTestData.HotPlug;
-import ceri.serial.libusb.jna.LibUsbTestData.Transfer;
+import ceri.serial.libusb.jna.LibUsbNative;
+import ceri.serial.libusb.jna.LibUsbUtil;
+import ceri.serial.libusb.test.LibUsbTestData.Context;
+import ceri.serial.libusb.test.LibUsbTestData.Device;
+import ceri.serial.libusb.test.LibUsbTestData.DeviceHandle;
+import ceri.serial.libusb.test.LibUsbTestData.HotPlug;
+import ceri.serial.libusb.test.LibUsbTestData.Transfer;
 
+/**
+ * A test implementation of the libusb native interface.
+ */
 public class TestLibUsbNative implements LibUsbNative {
-	private static final Logger logger = LogManager.getFormatterLogger();
 	public final LibUsbTestData data = new LibUsbTestData();
 	// For general int values
 	public final CallSync.Supplier<Integer> generalSync = CallSync.supplier(0);
@@ -106,7 +107,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	public static LastErrorException lastError(LibUsb.libusb_error error) {
-		return new LastErrorException(error.value);
+		return new LastErrorException("[" + error.value + "] " + LibUsbUtil.errorMessage(error));
 	}
 
 	public static Enclosed<RuntimeException, TestLibUsbNative> register() {
@@ -121,12 +122,12 @@ public class TestLibUsbNative implements LibUsbNative {
 		return new TestLibUsbNative();
 	}
 
-	protected TestLibUsbNative() {
-		reset();
-	}
+	private TestLibUsbNative() {}
 
 	public void reset() {
 		data.reset();
+		CallSync.resetAll(generalSync, syncTransferIn, syncTransferOut, submitTransfer,
+			handleTransferEvent, handleHotPlugEvent, handlePollFdEvent, pollFds);
 	}
 
 	@Override
@@ -140,17 +141,16 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public void libusb_exit(libusb_context ctx) {
-		data.removeContext(PointerUtil.pointer(ctx));
+		data.removeContext(ctx);
 	}
 
 	@Override
 	public int libusb_set_option(libusb_context ctx, int option, Object... args) {
 		var context = context(ctx);
 		var opt = libusb_option.xcoder.decode(option);
-		int value = (Integer) args[0];
-		if (opt == LIBUSB_OPTION_LOG_LEVEL) context.debugLevel = value;
-		else if (opt == LIBUSB_OPTION_USE_USBDK) context.usbDk = value != 0;
-		else if (opt == LIBUSB_OPTION_WEAK_AUTHORITY) context.weakAuth = value != 0;
+		if (opt == LIBUSB_OPTION_LOG_LEVEL) context.debugLevel = (Integer) args[0];
+		else if (opt == LIBUSB_OPTION_USE_USBDK) context.usbDk = (Integer) args[0] != 0;
+		else if (opt == LIBUSB_OPTION_WEAK_AUTHORITY) context.weakAuth = (Integer) args[0] != 0;
 		else return LIBUSB_ERROR_NOT_SUPPORTED.value;
 		return 0;
 	}
@@ -414,8 +414,8 @@ public class TestLibUsbNative implements LibUsbNative {
 		short product_id) {
 		var deviceList = data.createDeviceList(context(ctx));
 		try {
-			var device = data.device(d -> d.config.desc.idVendor == vendor_id //
-				&& d.config.desc.idProduct == product_id);
+			var device = data.device(
+				d -> d.config.desc.idVendor == vendor_id && d.config.desc.idProduct == product_id);
 			if (device == null) return null;
 			var handle = data.createDeviceHandle(device);
 			return PointerUtil.set(new libusb_device_handle(), handle.p);
@@ -465,30 +465,28 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public Pointer libusb_dev_mem_alloc(libusb_device_handle dev, int length) {
-		handle(dev);
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int libusb_dev_mem_free(libusb_device_handle dev, Pointer buffer, int length) {
-		handle(dev);
-		return 0;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public int libusb_kernel_driver_active(libusb_device_handle dev, int interface_number) {
-		return ByteUtil.bit(handle(dev).kernelDriverInterfaceBits, interface_number) ? 1 : 0;
+		return ByteUtil.bit(handle(dev).kernelDriverInterfaceBits, interface_number) ? 0 : 1;
 	}
 
 	@Override
 	public int libusb_detach_kernel_driver(libusb_device_handle dev, int interface_number) {
-		handle(dev).kernelDriverInterfaceBits &= ~(1 << interface_number);
+		handle(dev).kernelDriverInterfaceBits |= (1 << interface_number);
 		return 0;
 	}
 
 	@Override
 	public int libusb_attach_kernel_driver(libusb_device_handle dev, int interface_number) {
-		handle(dev).kernelDriverInterfaceBits |= (1 << interface_number);
+		handle(dev).kernelDriverInterfaceBits &= ~(1 << interface_number);
 		return 0;
 	}
 
@@ -549,11 +547,6 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_transfer_get_stream_id(Pointer p) {
 		return data.transfer(p).streamId;
-	}
-
-	public static int libusb_request_type_value(libusb_request_recipient recipient,
-		libusb_request_type type, libusb_endpoint_direction endpoint_direction) {
-		return (recipient.value | type.value | endpoint_direction.value) & 0xff;
 	}
 
 	@Override
@@ -655,9 +648,6 @@ public class TestLibUsbNative implements LibUsbNative {
 			return 0;
 		} catch (LastErrorException e) {
 			return e.getErrorCode();
-		} catch (AssertionError e) {
-			logger.catching(e); // to provide more detail
-			throw e;
 		}
 	}
 
@@ -768,14 +758,14 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	private Context context(libusb_context ctx) {
-		return data.context(PointerUtil.pointer(ctx));
+		return data.context(ctx);
 	}
 
 	private int bosDevCap(Pointer dev_cap, libusb_bos_type type, PointerByReference ref) {
 		if (dev_cap == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		var desc = Struct.read(new libusb_bos_dev_capability_descriptor(dev_cap));
-		if (ubyte(desc.bDescriptorType) != LIBUSB_DT_DEVICE_CAPABILITY.value ||
-			ubyte(desc.bDevCapabilityType) != type.value) return LIBUSB_ERROR_NOT_FOUND.value;
+		if (ubyte(desc.bDescriptorType) != LIBUSB_DT_DEVICE_CAPABILITY.value
+			|| ubyte(desc.bDevCapabilityType) != type.value) return LIBUSB_ERROR_NOT_FOUND.value;
 		ref.setValue(dev_cap);
 		return 0;
 	}
@@ -855,11 +845,11 @@ public class TestLibUsbNative implements LibUsbNative {
 	}
 
 	private DeviceHandle handle(libusb_device_handle handle) {
-		return data.deviceHandle(PointerUtil.pointer(handle));
+		return data.deviceHandle(handle);
 	}
 
 	private Device device(libusb_device dev) {
-		return data.device(PointerUtil.pointer(dev));
+		return data.device(dev);
 	}
 
 	private libusb_endpoint_descriptor endPointDesc(Device device, byte endpoint) {

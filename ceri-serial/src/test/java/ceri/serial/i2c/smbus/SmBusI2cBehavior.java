@@ -33,7 +33,7 @@ public class SmBusI2cBehavior {
 	}
 
 	@After
-	public void after() throws IOException {
+	public void after() {
 		fd.close();
 		enc.close();
 	}

@@ -41,7 +41,7 @@ public class I2cDeviceBehavior {
 	}
 
 	@After
-	public void after() throws IOException {
+	public void after() {
 		fd.close();
 		enc.close();
 	}
@@ -59,7 +59,7 @@ public class I2cDeviceBehavior {
 	public void shouldDetermineIfAddressExists() {
 		assertTrue(i2c.exists(I2cAddress.of(0x3b)));
 		assertThrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
-		lib.ioctlSmBusInt.error.setFrom(s -> new LastErrorException(s));
+		lib.ioctlSmBusInt.error.setFrom(() -> new LastErrorException("test"));
 		assertFalse(i2c.exists(I2cAddress.of(0x3b)));
 	}
 

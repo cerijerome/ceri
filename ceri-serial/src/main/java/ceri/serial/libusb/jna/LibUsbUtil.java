@@ -20,9 +20,17 @@ import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 
 public class LibUsbUtil {
-
+	private static final String SUCCESS_MESSAGE = "success";
+	private static final int ERROR_MSG_INDEX = "LIBUSB_ERROR_".length();
+	
 	private LibUsbUtil() {}
 
+	public static String errorMessage(libusb_error error) {
+		if (error == null) return null;
+		if (error == LIBUSB_SUCCESS) return SUCCESS_MESSAGE;
+		return error.name().substring(ERROR_MSG_INDEX).toLowerCase().replace('_', ' ');
+	}
+	
 	/**
 	 * Get error code from transfer status.
 	 */

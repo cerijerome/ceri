@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class UsbDeviceBehavior {
 	private TestLibUsbNative lib;

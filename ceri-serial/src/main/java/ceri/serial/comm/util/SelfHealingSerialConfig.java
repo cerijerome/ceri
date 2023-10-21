@@ -12,7 +12,7 @@ import ceri.serial.comm.SerialPort;
 public class SelfHealingSerialConfig {
 	public static final SelfHealingSerialConfig NULL = builder((PortSupplier) null).build();
 	private static final Predicate<Exception> DEFAULT_PREDICATE =
-		Namer.predicate(SerialPort::isBroken, "SerialPort::isBroken");
+		Namer.predicate(SerialPort::isFatal, "SerialPort::isFatal");
 	public final PortSupplier portSupplier;
 	public final SerialFactory factory;
 	public final SerialConfig serial;

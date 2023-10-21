@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.io.Direction;
 import ceri.jna.util.GcMemory;
-import ceri.serial.spi.Spi.Direction;
 
 public class SpiDevUtilTest {
 

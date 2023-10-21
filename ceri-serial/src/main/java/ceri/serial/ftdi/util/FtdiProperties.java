@@ -3,6 +3,7 @@ package ceri.serial.ftdi.util;
 import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.math.MathUtil.approxEqual;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.FunctionUtil;
 import ceri.common.property.BaseProperties;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -48,9 +49,15 @@ public class FtdiProperties extends BaseProperties {
 	}
 
 	public FtdiConfig config() {
-		return FtdiConfig.builder().bitMode(bitMode()).baud(baud()).params(params())
-			.flowControl(flowControl()).latencyTimer(latencyTimerMs())
-			.readChunkSize(readChunkSize()).writeChunkSize(writeChunkSize()).build();
+		var b = FtdiConfig.builder();
+		FunctionUtil.safeAccept(bitMode(), b::bitMode);
+		FunctionUtil.safeAccept(baud(), b::baud);
+		FunctionUtil.safeAccept(params(), b::params);
+		FunctionUtil.safeAccept(flowControl(), b::flowControl);
+		FunctionUtil.safeAccept(latencyTimerMs(), b::latencyTimer);
+		FunctionUtil.safeAccept(readChunkSize(), b::readChunkSize);
+		FunctionUtil.safeAccept(writeChunkSize(), b::writeChunkSize);
+		return b.build();
 	}
 
 	private FtdiBitMode bitMode() {

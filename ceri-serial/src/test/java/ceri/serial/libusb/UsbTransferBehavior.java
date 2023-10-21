@@ -27,6 +27,7 @@ import ceri.common.test.CallSync;
 import ceri.common.util.Enclosed;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
+import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbTransfer.Bulk;
 import ceri.serial.libusb.UsbTransfer.BulkStream;
 import ceri.serial.libusb.UsbTransfer.Control;
@@ -34,8 +35,8 @@ import ceri.serial.libusb.UsbTransfer.Interrupt;
 import ceri.serial.libusb.UsbTransfer.Iso;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbTransferBehavior {
 	private TestLibUsbNative lib;
@@ -128,7 +129,7 @@ public class UsbTransferBehavior {
 				handle.close();
 				assertThrown(() -> streams.bulkTransfer(0x81, 1, b -> {}));
 			}
-		}, Level.OFF, UsbTransfer.class);
+		}, Level.OFF, LogUtil.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -188,7 +189,7 @@ public class UsbTransferBehavior {
 				transfer.close();
 				assertThrown(() -> transfer.submit());
 			}
-		}, Level.OFF, UsbTransfer.class);
+		}, Level.OFF, LogUtil.class);
 	}
 
 }

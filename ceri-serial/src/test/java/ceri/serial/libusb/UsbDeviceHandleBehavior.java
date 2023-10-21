@@ -14,10 +14,10 @@ import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.test.JnaTestUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.jna.LibUsbFinder;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class UsbDeviceHandleBehavior {
 	private TestLibUsbNative lib;

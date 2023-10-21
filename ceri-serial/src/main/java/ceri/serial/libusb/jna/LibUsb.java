@@ -19,6 +19,7 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.util.BasicUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.ArrayPointer;
 import ceri.jna.util.Caller;
@@ -33,7 +34,8 @@ import ceri.jna.util.VarStruct;
  * Provides types and static function calls. Updated to libusb 1.0.24.
  */
 public class LibUsb {
-	static final JnaLibrary<LibUsbNative> library = JnaLibrary.of("usb-1.0", LibUsbNative.class);
+	public static final JnaLibrary<LibUsbNative> library =
+		JnaLibrary.of("usb-1.0", LibUsbNative.class);
 	public static final Caller<LibUsbException> caller = Caller.of(LibUsbException::full);
 	private static final int DEFAULT_TIMEOUT = 1000;
 	private static final int MAX_DESCRIPTOR_SIZE = 255;
@@ -2208,7 +2210,7 @@ public class LibUsb {
 	}
 
 	public static short libusb_cpu_to_le16(short x) {
-		return ByteUtil.BIG_ENDIAN ? Short.reverseBytes(x) : x;
+		return (short) BasicUtil.conditionalInt(ByteUtil.BIG_ENDIAN, Short.reverseBytes(x), x);
 	}
 
 	public static short libusb_le16_to_cpu(short x) {

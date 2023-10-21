@@ -31,7 +31,7 @@ public class SerialPort implements Serial {
 	/**
 	 * Determine if the serial port is unrecoverable, based on a thrown exception.
 	 */
-	public static boolean isBroken(Exception e) {
+	public static boolean isFatal(Exception e) {
 		if (!(e instanceof CException ce)) return false;
 		return BROKEN_ERROR_CODES.contains(ce.code);
 	}

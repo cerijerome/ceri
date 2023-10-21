@@ -1,16 +1,11 @@
 package ceri.serial.spi;
 
 import java.io.IOException;
+import ceri.common.io.Direction;
 
 public interface Spi {
 	/** A stateless, no-op instance. */
 	Spi NULL = new Null() {};
-
-	enum Direction {
-		in,
-		out,
-		duplex;
-	}
 
 	SpiMode mode() throws IOException;
 

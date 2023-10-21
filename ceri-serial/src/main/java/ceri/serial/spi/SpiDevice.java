@@ -5,9 +5,8 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.jna.clib.OpenFlag.O_RDONLY;
 import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.jna.clib.OpenFlag.O_WRONLY;
-import static ceri.serial.spi.Spi.Direction.in;
-import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
+import ceri.common.io.Direction;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.OpenFlag;
@@ -99,8 +98,8 @@ public class SpiDevice implements Spi {
 	}
 
 	private static OpenFlag openFlag(Direction direction) {
-		if (direction == out) return O_WRONLY;
-		if (direction == in) return O_RDONLY;
+		if (direction == Direction.out) return O_WRONLY;
+		if (direction == Direction.in) return O_RDONLY;
 		return O_RDWR;
 	}
 }

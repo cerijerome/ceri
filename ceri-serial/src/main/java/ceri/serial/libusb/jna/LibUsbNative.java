@@ -18,7 +18,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_version;
 /**
  * Updated to libusb 1.0.24.
  */
-interface LibUsbNative extends Library {
+public interface LibUsbNative extends Library {
 
 	// int LIBUSB_CALL libusb_init(libusb_context **ctx);
 	int libusb_init(PointerByReference ctx);

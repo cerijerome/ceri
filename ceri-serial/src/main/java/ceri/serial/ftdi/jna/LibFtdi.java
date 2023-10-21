@@ -39,7 +39,9 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
@@ -460,8 +462,8 @@ public class LibFtdi {
 			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
 			ftdi.max_packet_size = 0;
 			ftdi.error_str = null;
-			ftdi.module_detach_mode =
-				OsUtil.os().linux ? AUTO_DETACH_SIO_MODULE : DONT_DETACH_SIO_MODULE;
+			ftdi.module_detach_mode = BasicUtil.conditional(OsUtil.os().linux,
+				AUTO_DETACH_SIO_MODULE, DONT_DETACH_SIO_MODULE);
 			ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
 			ftdi.bitbang_mode = ftdi_mpsse_mode.BITMODE_BITBANG;
 			ftdi.eeprom = new ftdi_eeprom();
@@ -985,7 +987,8 @@ public class LibFtdi {
 	public static int ftdi_poll_modem_status(ftdi_context ftdi) throws LibUsbException {
 		requireDev(ftdi);
 		byte[] data = controlTransferIn(ftdi, SIO_POLL_MODEM_STATUS_REQUEST, 0, ftdi.index, 2);
-		return data[1] << 8 | data[0];
+		return (int) ByteUtil.fromLsb(data);
+		// return data[1] << 8 | data[0];
 	}
 
 	/**

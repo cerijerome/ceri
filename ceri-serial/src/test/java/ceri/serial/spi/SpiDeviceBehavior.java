@@ -22,10 +22,10 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.io.Direction;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.jna.TestSpiCLibNative;
 
 public class SpiDeviceBehavior {
@@ -43,7 +43,7 @@ public class SpiDeviceBehavior {
 	}
 
 	@After
-	public void after() throws IOException {
+	public void after() {
 		fd.close();
 		enc.close();
 	}

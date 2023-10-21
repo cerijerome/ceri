@@ -12,7 +12,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_SUCCESS;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_OVERFLOW;
-import static ceri.serial.libusb.jna.TestLibUsbNative.lastError;
+import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Level;
@@ -30,9 +30,9 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class LibFtdiStreamTest {
 	private static final FTDIStreamCallback<?> trueCallback = (buf, len, prog, u) -> true;

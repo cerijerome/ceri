@@ -1,13 +1,12 @@
 package ceri.serial.spi.util;
 
 import static ceri.log.util.LogUtil.startupValues;
-import static ceri.serial.spi.Spi.Direction.out;
 import java.io.IOException;
 import java.util.Arrays;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.io.Direction;
 import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
-import ceri.serial.spi.Spi.Direction;
 import ceri.serial.spi.SpiDevice;
 import ceri.serial.spi.SpiDeviceConfig;
 import ceri.serial.spi.SpiMode;
@@ -29,13 +28,13 @@ public class SpiTester {
 		int repeatDelayMs = v.next("repeatDelayMs").asInt(0);
 
 		try (var fd = SpiDeviceConfig.of(bus, chip, direction).open()) {
-			//Spi spi = SpiEmulator.echo();
+			// Spi spi = SpiEmulator.echo();
 			Spi spi = SpiDevice.of(fd);
 			spi.mode(SpiMode.of(mode));
 			spi.maxSpeedHz(speedHz);
 			print(spi);
 
-			SpiTransfer xfer = spi.transfer(out, size).delayMicros(delay);
+			SpiTransfer xfer = spi.transfer(Direction.out, size).delayMicros(delay);
 
 			System.out.printf("Fill: 0x%02x x %d%n", fill, xfer.size());
 			xfer.write(fill(xfer.size(), fill));

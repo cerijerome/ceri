@@ -4,9 +4,9 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.io.IOException;
 import java.util.Objects;
+import ceri.common.io.Direction;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
-import ceri.serial.spi.Spi.Direction;
 
 /**
  * Configuration to open SPI file descriptor.

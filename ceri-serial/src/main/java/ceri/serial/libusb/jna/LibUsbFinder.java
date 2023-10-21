@@ -19,6 +19,7 @@ import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
@@ -30,7 +31,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 
 public class LibUsbFinder {
-	private static final int FIELDS = 7;
+	private static final List<Predicate<LibUsbFinder>> fieldPredicates = fieldPredicates();
+	public static final LibUsbFinder FIRST = builder().build();
 	public final int vendor;
 	public final int product;
 	public final int bus;
@@ -317,13 +319,8 @@ public class LibUsbFinder {
 	}
 
 	private int lastIndex() {
-		int i = FIELDS;
-		if (i-- >= 0 && index != 0) return i;
-		if (i-- >= 0 && !serial.isBlank()) return i;
-		if (i-- >= 0 && !description.isBlank()) return i;
-		if (i-- >= 0 && address != 0) return i;
-		if (i-- >= 0 && bus != 0) return i;
-		if (i-- >= 0 && product != 0) return i;
+		for (int i = fieldPredicates.size(); i > 0; i--)
+			if (fieldPredicates.get(i - 1).test(this)) return i;
 		return 0;
 	}
 
@@ -388,4 +385,9 @@ public class LibUsbFinder {
 		return value.length() == 0 ? "any" : "\"" + value + "\"";
 	}
 
+	private static List<Predicate<LibUsbFinder>> fieldPredicates() {
+		return List.of(finder -> finder.product != 0, finder -> finder.bus != 0,
+			finder -> finder.address != 0, finder -> !finder.description.isBlank(),
+			finder -> !finder.serial.isBlank(), finder -> finder.index != 0);
+	}
 }

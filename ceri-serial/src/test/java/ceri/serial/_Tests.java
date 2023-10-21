@@ -12,7 +12,7 @@ import ceri.common.test.TestUtil;
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	ceri.serial.ftdi.FtdiBitModeBehavior.class, //
-	ceri.serial.ftdi.FtdiConnectorBehavior.class, //
+	ceri.serial.ftdi.FtdiDeviceBehavior.class, //
 	ceri.serial.ftdi.FtdiLineParamsBehavior.class, //
 	ceri.serial.ftdi.FtdiProgressInfoBehavior.class, //
 	// ftdi.jna
@@ -21,11 +21,12 @@ import ceri.common.test.TestUtil;
 	ceri.serial.ftdi.jna.LibFtdiTest.class, //
 	ceri.serial.ftdi.jna.LibFtdiUtilTest.class, //
 	// ftdi.test
-	ceri.serial.ftdi.test.FtdiConnectorTesterBehavior.class, //
-	ceri.serial.ftdi.test.TestFtdiConnectorBehavior.class, //
+	ceri.serial.ftdi.test.TestFtdiBehavior.class, //
 	// ftdi.util
+	ceri.serial.ftdi.util.FtdiConfigBehavior.class, //
+	ceri.serial.ftdi.util.FtdiPropertiesBehavior.class, //
+	ceri.serial.ftdi.util.SelfHealingFtdiBehavior.class, //
 	ceri.serial.ftdi.util.SelfHealingFtdiConfigBehavior.class, //
-	ceri.serial.ftdi.util.SelfHealingFtdiConnectorBehavior.class, //
 	// i2c
 	ceri.serial.i2c.DeviceIdBehavior.class, //
 	ceri.serial.i2c.I2cAddressBehavior.class, //
@@ -41,16 +42,6 @@ import ceri.common.test.TestUtil;
 	// i2c.util
 	ceri.serial.i2c.util.I2cEmulatorBehavior.class, //
 	ceri.serial.i2c.util.I2cUtilTest.class, //
-	// javax
-	ceri.serial.javax.SerialPortBehavior.class, //
-	// javax.util
-	ceri.serial.javax.util.CommPortPropertiesBehavior.class, //
-	ceri.serial.javax.util.CommPortSupplierBehavior.class, //
-	ceri.serial.javax.util.ConnectorNotSetExceptionBehavior.class, //
-	ceri.serial.javax.util.MacUsbLocatorBehavior.class, //
-	ceri.serial.javax.util.ReplaceableSerialConnectorBehavior.class, //
-	ceri.serial.javax.util.SelfHealingSerialConfigBehavior.class, //
-	ceri.serial.javax.util.SelfHealingSerialConnectorBehavior.class, //
 	// libusb
 	ceri.serial.libusb.UsbBehavior.class, //
 	ceri.serial.libusb.UsbDescriptorsBehavior.class, //
@@ -66,6 +57,8 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.jna.LibUsbTerminalTypeTest.class, //
 	ceri.serial.libusb.jna.LibUsbTest.class, //
 	ceri.serial.libusb.jna.LibUsbUtilTest.class, //
+	// libusb.test
+	ceri.serial.libusb.test.TestLibUsbNativeBehavior.class, //
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //

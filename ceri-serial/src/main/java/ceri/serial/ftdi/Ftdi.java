@@ -18,7 +18,7 @@ public interface Ftdi extends Connector {
 	Ftdi NULL = new Null() {};
 
 	/**
-	 * Callback to register for streaming events.
+	 * Callback to register for streaming events. Returns false to stop streaming.
 	 */
 	interface StreamCallback {
 		boolean invoke(FtdiProgressInfo progress, ByteBuffer buffer);

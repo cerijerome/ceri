@@ -30,6 +30,8 @@ import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_usb_device_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 /**
  * Iterates over usb devices and prints configuration info.

@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertToString;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaSize;
 import ceri.jna.util.PointerUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibUsbFinderBehavior {
 	private final libusb_context nullCtx = null;
@@ -49,6 +52,20 @@ public class LibUsbFinderBehavior {
 	}
 
 	@Test
+	public void shouldCopyFromFinder() {
+		var b0 = LibUsbFinder.builder().vendor(0x123).product(7).bus(2).address(3)
+			.description("desc").serial("serial").build();
+		var b = LibUsbFinder.builder(b0).index(1).build();
+		assertEquals(b.vendor, 0x123);
+		assertEquals(b.product, 7);
+		assertEquals(b.bus, 2);
+		assertEquals(b.address, 3);
+		assertEquals(b.description, "desc");
+		assertEquals(b.serial, "serial");
+		assertEquals(b.index, 1);
+	}
+
+	@Test
 	public void shouldCreateFromDescriptor() {
 		var b = LibUsbFinder.builder();
 		assertEquals(LibUsbFinder.from("0"), b.build());
@@ -79,14 +96,35 @@ public class LibUsbFinderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineMatchingDevice() throws LibUsbException {
+		initLib();
+		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
+		assertFalse(finder.matches());
+		assertEquals(finder.matchCount(), 0);
+		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		assertTrue(finder.matches());
+		assertEquals(finder.matchCount(), 1);
+		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		assertTrue(finder.matches());
+		assertEquals(finder.matchCount(), 2);
+	}
+
+	@Test
+	public void shouldFailIfVendorDoesNotMatch() throws LibUsbException {
+		initLib();
+		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		var finder = LibUsbFinder.builder().vendor(0xffff).build();
+		assertThrown(() -> finder.findAndRef(null));
+	}
+
+	@Test
 	public void shouldFailIfNotFound() throws LibUsbException {
 		initLib();
-		var finder = LibUsbFinder.builder().build();
-		assertThrown(() -> finder.findAndOpen(null)); // device not found
-		assertThrown(() -> finder.findAndRef(null)); // device not found
+		assertThrown(() -> LibUsbFinder.FIRST.findAndOpen(null)); // device not found
+		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(null)); // device not found
 		libusb_context ctx =
 			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.size).m);
-		assertThrown(() -> finder.findAndRef(ctx, 1)); // device not found
+		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(ctx, 1)); // device not found
 	}
 
 	@Test

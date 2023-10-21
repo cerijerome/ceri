@@ -26,7 +26,7 @@ public class SpiDevTest {
 	}
 
 	@After
-	public void after() throws IOException {
+	public void after() {
 		f.close();
 		enc.close();
 	}

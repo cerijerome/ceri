@@ -17,9 +17,9 @@ import ceri.serial.libusb.jna.LibUsb.libusb_iso_usage_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_supported_speed;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_attributes;
+import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
-import ceri.serial.libusb.jna.LibUsbSampleData;
-import ceri.serial.libusb.jna.TestLibUsbNative;
 
 public class UsbDescriptorsBehavior {
 	private TestLibUsbNative lib;
