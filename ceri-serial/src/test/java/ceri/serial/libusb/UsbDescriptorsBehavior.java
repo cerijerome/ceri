@@ -41,7 +41,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideDeviceDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb2HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb2HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open()) {
 			var desc = device.descriptor();
@@ -61,7 +61,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideConfigDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var config = device.activeConfig()) {
 			assertEquals(config.value(), 1);
@@ -77,7 +77,7 @@ public class UsbDescriptorsBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideInterfaceDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.kbConfig());
+		lib.data.addConfig(LibUsbSampleData.kbConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var config = device.activeConfig()) {
 			assertEquals(handle.bosDescriptor(), null);
@@ -100,7 +100,7 @@ public class UsbDescriptorsBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideEndPointDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.audioConfig());
+		lib.data.addConfig(LibUsbSampleData.audioConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var config = device.activeConfig()) {
 			var alt = config.interfaces().get(2).altSettings().get(1);
@@ -125,7 +125,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideSsEndPointDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var config = device.activeConfig(); var ss = config.interfaces().get(0).altSettings()
 				.get(0).endPoints().get(0).ssEndPointCompanion()) {
@@ -142,7 +142,7 @@ public class UsbDescriptorsBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideBosDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor()) {
 			assertEquals(bos.capabilityCount(), 3);
@@ -158,7 +158,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideBosUsb2ExtDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor();
 			var usb2Ext = bos.capabilities().get(0).usb20Extension()) {
@@ -173,7 +173,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideBosSsDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor();
 			var ssUsb = bos.capabilities().get(1).ssUsbDeviceCapability()) {
@@ -192,7 +192,7 @@ public class UsbDescriptorsBehavior {
 
 	@Test
 	public void shouldProvideBosContainerDescriptor() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
+		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor();
 			var containerId = bos.capabilities().get(2).containerId()) {

@@ -44,8 +44,9 @@ public class LibFtdiStreamTest {
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		lib.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
-		lib.data.deviceConfigs.get(0).desc.bcdDevice = 0x700;
+		var config = LibUsbSampleData.ftdiConfig();
+		config.desc.bcdDevice = 0x700;
+		lib.data.addConfig(config);
 		ftdi = LibFtdi.ftdi_new();
 		LibFtdi.ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
 		LibFtdi.ftdi_usb_open_find(ftdi, LibFtdiUtil.FINDER);

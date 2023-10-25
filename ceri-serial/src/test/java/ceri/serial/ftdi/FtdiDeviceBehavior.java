@@ -46,6 +46,7 @@ import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.LibUsbTestData.DeviceConfig;
 import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.test.TestLibUsbNative.TransferEvent;
 
@@ -53,16 +54,19 @@ public class FtdiDeviceBehavior {
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private FtdiDevice ftdi;
+	private DeviceConfig config;
 
 	@Before
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		lib.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
+		config = LibUsbSampleData.ftdiConfig();
+		lib.data.addConfig(config);
 	}
 
 	@After
 	public void after() {
+		config = null;
 		if (ftdi != null) ftdi.close();
 		ftdi = null;
 		enc.close();
@@ -84,10 +88,10 @@ public class FtdiDeviceBehavior {
 		ftdi.close();
 		assertThrown(() -> ftdi.usbReset());
 		assertThrown(() -> ftdi.in().read());
-		lib.syncTransferOut.assertValues( // open() leftovers:
+		lib.transferOut.assertValues( // open() leftovers:
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // ftdi_usb_reset
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // ftdi_set_baudrate 9600
-		lib.syncTransferIn.assertCalls(0);
+		lib.transferIn.assertCalls(0);
 	}
 
 	@Test
@@ -101,7 +105,7 @@ public class FtdiDeviceBehavior {
 			.breakType(BREAK_ON).build());
 		ftdi.latencyTimer(100);
 		ftdi.purgeBuffers();
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // usbReset
 			List.of(0x40, 0x0b, 0, 1, ByteProvider.empty()), // bitBang
 			List.of(0x40, 0x0b, 0x01ff, 1, ByteProvider.empty()), // bitBang
@@ -115,11 +119,11 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldGetFtdiConfiguration() throws LibUsbException {
 		ftdi = FtdiDevice.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
-		lib.syncTransferIn.autoResponses(ByteProvider.of(99));
+		lib.transferIn.autoResponses(ByteProvider.of(99));
 		assertEquals(ftdi.latencyTimer(), 99);
-		lib.syncTransferIn.autoResponses(ByteProvider.of(0x12, 0x34));
+		lib.transferIn.autoResponses(ByteProvider.of(0x12, 0x34));
 		assertEquals(ftdi.pollModemStatus(), 0x3412);
-		lib.syncTransferIn.assertValues( //
+		lib.transferIn.assertValues( //
 			List.of(0xc0, 0x0a, 0, 1, 1), // latencyTimer
 			List.of(0xc0, 0x05, 0, 1, 2)); // pollModemStatus
 	}
@@ -139,7 +143,7 @@ public class FtdiDeviceBehavior {
 		ftdi.rts(false);
 		ftdi.dtr(true);
 		ftdi.dtr(false);
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x40, 0x01, 0x202, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x200, 1, ByteProvider.empty()),
 			List.of(0x40, 0x01, 0x101, 1, ByteProvider.empty()),
@@ -152,10 +156,10 @@ public class FtdiDeviceBehavior {
 		ftdi = open();
 		ftdi.out().write(bytes(1, 2, 3));
 		ftdi.out().write(bytes(4, 5));
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5)));
-		lib.syncTransferOut.autoResponses((Integer) null); // set transferred to 0
+		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
 		assertThrown(() -> ftdi.out().write(bytes(1, 2, 3))); // incomplete i/o exception
 	}
 
@@ -163,7 +167,7 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldReadData() throws IOException {
 		ftdi = open();
-		lib.syncTransferIn.autoResponses( //
+		lib.transferIn.autoResponses( //
 			provider(0, 0, 0xab), // read() => 2B status + 1B data
 			provider(0, 0), // read() => 2B status + 0B data
 			provider(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
@@ -172,7 +176,7 @@ public class FtdiDeviceBehavior {
 		assertEquals(ftdi.in().read(), -1); // R2
 		assertArray(ftdi.in().readNBytes(3), 1, 2, 3); // R3
 		assertArray(ftdi.in().readNBytes(3), 4, 5); // R4
-		lib.syncTransferIn.assertValues( //
+		lib.transferIn.assertValues( //
 			List.of(0x81, 3), // R1
 			List.of(0x81, 3), // R2
 			List.of(0x81, 5), // R3
@@ -283,7 +287,7 @@ public class FtdiDeviceBehavior {
 	}
 
 	private FtdiDevice openFtdiForStreaming(int device, int packetSize) throws LibUsbException {
-		lib.data.deviceConfigs.get(0).desc.bcdDevice = (short) device;
+		config.desc.bcdDevice = (short) device;
 		ftdi = open();
 		ftdi.ftdi().max_packet_size = packetSize;
 		return ftdi;
@@ -291,7 +295,7 @@ public class FtdiDeviceBehavior {
 
 	private FtdiDevice open() throws LibUsbException {
 		var ftdi = FtdiDevice.open();
-		lib.syncTransferOut.reset(); // clear original open()
+		lib.transferOut.reset(); // clear original open()
 		return ftdi;
 	}
 

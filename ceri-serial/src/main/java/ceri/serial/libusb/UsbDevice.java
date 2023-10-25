@@ -63,7 +63,7 @@ public class UsbDevice implements RuntimeCloseable {
 
 	public UsbDevice parent() throws LibUsbException {
 		libusb_device parent = LibUsb.libusb_get_parent(device());
-		return new UsbDevice(usb, parent);
+		return parent == null ? null : new UsbDevice(usb, parent);
 	}
 
 	public UsbDeviceHandle open() throws LibUsbException {

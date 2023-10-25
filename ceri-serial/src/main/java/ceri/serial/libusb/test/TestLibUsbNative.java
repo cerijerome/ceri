@@ -76,11 +76,11 @@ public class TestLibUsbNative implements LibUsbNative {
 	public final CallSync.Supplier<Integer> generalSync = CallSync.supplier(0);
 	// List<?> = (int reqType, int req, int value, int index, int length) [control]
 	// List<?> = (int endpoint, int length) [bulk]
-	public final CallSync.Function<List<?>, ByteProvider> syncTransferIn =
+	public final CallSync.Function<List<?>, ByteProvider> transferIn =
 		CallSync.function(null, ByteProvider.empty());
 	// List<?> = (int reqType, int req, int value, int index, ByteProvider data) [control]
 	// List<?> = (int endpoint, ByteProvider data) [bulk]
-	public final CallSync.Function<List<?>, Integer> syncTransferOut = CallSync.function(null, 0);
+	public final CallSync.Function<List<?>, Integer> transferOut = CallSync.function(null, 0);
 	public final CallSync.Function<Transfer, libusb_error> submitTransfer =
 		CallSync.function(null, LIBUSB_SUCCESS);
 	public final CallSync.Function<TransferEvent, libusb_transfer_status> handleTransferEvent =
@@ -126,8 +126,8 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	public void reset() {
 		data.reset();
-		CallSync.resetAll(generalSync, syncTransferIn, syncTransferOut, submitTransfer,
-			handleTransferEvent, handleHotPlugEvent, handlePollFdEvent, pollFds);
+		CallSync.resetAll(generalSync, transferIn, transferOut, submitTransfer, handleTransferEvent,
+			handleHotPlugEvent, handlePollFdEvent, pollFds);
 	}
 
 	@Override
@@ -162,12 +162,12 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public libusb_version libusb_get_version() {
-		return data.version;
+		return data.version();
 	}
 
 	@Override
 	public int libusb_has_capability(int capability) {
-		return data.capabilities & capability;
+		return data.capabilities() & capability;
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_setlocale(String locale) {
-		data.locale = locale;
+		data.locale(locale);
 		return 0;
 	}
 
@@ -734,7 +734,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	public Pointer libusb_hotplug_get_user_data(libusb_context ctx, int callback_handle)
 		throws LastErrorException {
 		var hotPlug = data.hotPlug(callback_handle);
-		if (hotPlug.context == context(ctx)) return hotPlug.userData;
+		if (hotPlug != null && hotPlug.context == context(ctx)) return hotPlug.userData;
 		throw lastError(LIBUSB_ERROR_NOT_FOUND);
 	}
 
@@ -772,7 +772,7 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	private int controlTransferIn(int reqType, int req, int value, int index, ByteBuffer buffer,
 		int length) {
-		ByteProvider bytes = syncTransferIn.apply(List.of(reqType, req, value, index, length));
+		ByteProvider bytes = transferIn.apply(List.of(reqType, req, value, index, length));
 		if (bytes == null || bytes.length() == 0) return 0;
 		ByteUtil.writeTo(buffer, 0, bytes.copy(0));
 		return bytes.length();
@@ -782,12 +782,12 @@ public class TestLibUsbNative implements LibUsbNative {
 		int length) {
 		byte[] bytes = new byte[length];
 		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
-		return syncTransferOut.apply(List.of(reqType, req, value, index, ByteProvider.of(bytes)));
+		return transferOut.apply(List.of(reqType, req, value, index, ByteProvider.of(bytes)));
 	}
 
 	private int syncTransferIn(int endpoint, ByteBuffer buffer, int length,
 		IntByReference actualLength) {
-		ByteProvider bytes = syncTransferIn.apply(List.of(endpoint, length));
+		ByteProvider bytes = transferIn.apply(List.of(endpoint, length));
 		if (bytes != null) {
 			ByteUtil.writeTo(buffer, 0, bytes.copy(0));
 			if (actualLength != null) actualLength.setValue(bytes.length());
@@ -799,7 +799,7 @@ public class TestLibUsbNative implements LibUsbNative {
 		IntByReference actualLength) {
 		byte[] bytes = new byte[length];
 		if (buffer != null) ByteUtil.readFrom(buffer, 0, bytes);
-		Integer result = syncTransferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
+		Integer result = transferOut.apply(List.of(endpoint, ByteProvider.of(bytes)));
 		if (actualLength != null) actualLength.setValue(result == null ? 0 : length);
 		return result == null ? 0 : result;
 	}
@@ -820,21 +820,24 @@ public class TestLibUsbNative implements LibUsbNative {
 			if (event.device == null) continue;
 			var ctx = PointerUtil.set(new libusb_context(), context.p);
 			int result =
-				hotPlug.callback.invoke(ctx, event.device, event.event.value, hotPlug.userData);
+				hotPlug.callback.invoke(ctx, event.device(), event.event().value, hotPlug.userData);
 			if (result != 0) data.removeHotPlug(hotPlug.handle);
 		}
 	}
 
 	private void handleTransferEvents(Context context) {
 		for (var transfer : data.transfers()) {
-			if (!transfer.submitted) continue;
+			if (!transfer.submitted)
+				continue;
 			var t = transfer.transfer();
-			if (handle(t.dev_handle).device.deviceList.context != context) continue;
+			if (handle(t.dev_handle).device.deviceList.context != context)
+				continue;
 			if (t.status == 0) {
 				ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
 				var status = handleTransferEvent
 					.apply(new TransferEvent(ubyte(t.endpoint), t.type(), buffer));
-				if (status == null) continue; // no event
+				if (status == null)
+					continue; // no event
 				t.status = status.value;
 				t.actual_length = buffer.position();
 				Struct.write(t);

@@ -29,7 +29,7 @@ public class UsbDeviceHandleBehavior {
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		lib.data.deviceConfigs.add(LibUsbSampleData.audioConfig());
+		lib.data.addConfig(LibUsbSampleData.audioConfig());
 		usb = Usb.of();
 		handle = usb.open(LibUsbFinder.of(0x0d8c, 0));
 	}
@@ -51,7 +51,7 @@ public class UsbDeviceHandleBehavior {
 	@Test
 	public void shouldConfigureKernelDriver() throws LibUsbException {
 		assertEquals(UsbDeviceHandle.canDetachKernelDriver(), false);
-		lib.data.capabilities |= libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER.value;
+		lib.data.capabilities(libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER.value);
 		assertEquals(UsbDeviceHandle.canDetachKernelDriver(), true);
 		handle.attachKernelDriver(1);
 		assertEquals(handle.kernelDriverActive(1), true);
@@ -65,7 +65,7 @@ public class UsbDeviceHandleBehavior {
 	public void shouldConfigureDevice() throws LibUsbException {
 		handle.configuration(2);
 		assertEquals(handle.configuration(), 2);
-		lib.syncTransferIn.autoResponses(ByteProvider.of(0, 'a', 0, 'b', 0, 'c'));
+		lib.transferIn.autoResponses(ByteProvider.of(0, 'a', 0, 'b', 0, 'c'));
 		assertArray(handle.descriptor(LIBUSB_DT_STRING, 1), 0, 'a', 0, 'b', 0, 'c');
 		assertEquals(handle.stringDescriptor(1, 1), "abc");
 		handle.claimInterface(2);
@@ -79,16 +79,16 @@ public class UsbDeviceHandleBehavior {
 	public void shouldExecuteSyncControlTransfer() throws LibUsbException {
 		handle.controlTransfer(0x01, 0x11, 0x22, 3, bytes(1, 2, 3), 100);
 		handle.controlTransfer(0x01, 0x11, 0x22, 3, JnaTestUtil.buffer(1, 2, 3), 100);
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)),
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)));
 		handle.controlTransfer(0x81, 0x11, 0x22, 3, 100);
-		lib.syncTransferIn.autoResponses(ByteProvider.of(5, 6));
+		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		assertArray(handle.controlTransfer(0x81, 0x11, 0x22, 3, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
 		assertEquals(handle.controlTransfer(0x81, 0x11, 0x22, 3, buffer, 100), 2);
 		assertBuffer(buffer.flip(), 5, 6, 0);
-		lib.syncTransferIn.assertValues( //
+		lib.transferIn.assertValues( //
 			List.of(0x81, 0x11, 0x22, 3, 0), //
 			List.of(0x81, 0x11, 0x22, 3, 3), //
 			List.of(0x81, 0x11, 0x22, 3, 3));
@@ -98,15 +98,15 @@ public class UsbDeviceHandleBehavior {
 	public void shouldExecuteSyncBulkTransfer() throws LibUsbException {
 		handle.bulkTransfer(0x01, bytes(1, 2, 3), 100);
 		handle.bulkTransfer(0x01, JnaTestUtil.buffer(1, 2, 3), 100);
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
-		lib.syncTransferIn.autoResponses(ByteProvider.of(5, 6));
+		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		assertArray(handle.bulkTransfer(0x81, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
 		assertEquals(handle.bulkTransfer(0x81, buffer, 100), 2);
 		assertBuffer(buffer.flip(), 5, 6, 0);
-		lib.syncTransferIn.assertValues( //
+		lib.transferIn.assertValues( //
 			List.of(0x81, 3), //
 			List.of(0x81, 3));
 	}
@@ -115,15 +115,15 @@ public class UsbDeviceHandleBehavior {
 	public void shouldExecuteSyncInterruptTransfer() throws LibUsbException {
 		handle.interruptTransfer(0x01, bytes(1, 2, 3), 100);
 		handle.interruptTransfer(0x01, JnaTestUtil.buffer(1, 2, 3), 100);
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
-		lib.syncTransferIn.autoResponses(ByteProvider.of(5, 6));
+		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
 		assertArray(handle.interruptTransfer(0x81, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
 		assertEquals(handle.interruptTransfer(0x81, buffer, 100), 2);
 		assertBuffer(buffer.flip(), 5, 6, 0);
-		lib.syncTransferIn.assertValues( //
+		lib.transferIn.assertValues( //
 			List.of(0x81, 3), //
 			List.of(0x81, 3));
 	}

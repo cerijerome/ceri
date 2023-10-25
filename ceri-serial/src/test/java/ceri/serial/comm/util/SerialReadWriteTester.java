@@ -15,7 +15,7 @@ import ceri.serial.comm.SerialParams;
 /**
  * Continually reads and writes between 2 serial ports, with a baud change halfway.
  */
-public class SerialIoTester {
+public class SerialReadWriteTester {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final int TOTAL_TIME_MS = 5000;
 	private static final int CYCLE_DELAY_MS = 50;
@@ -28,7 +28,7 @@ public class SerialIoTester {
 	private static final int BAUD2 = 250000;
 
 	static {
-		LogModifier.set(Level.INFO, SerialIoTester.class);
+		LogModifier.set(Level.INFO, SerialReadWriteTester.class);
 	}
 
 	public static void main(String[] args) throws Exception {

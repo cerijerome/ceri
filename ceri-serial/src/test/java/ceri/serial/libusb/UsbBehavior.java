@@ -41,7 +41,7 @@ public class UsbBehavior {
 	@Test
 	public void shouldSetLocale() throws IOException {
 		Usb.setLocale(Locale.US);
-		assertEquals(lib.data.locale, "en_US");
+		assertEquals(lib.data.locale(), "en_US");
 	}
 
 	@Test
@@ -60,8 +60,8 @@ public class UsbBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldOpenDeviceFromList() throws IOException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.kbConfig());
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.kbConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		try (var usb = Usb.of()) {
 			UsbDeviceHandle deviceHandle = null;
 			try (var list = usb.deviceList()) {
@@ -76,8 +76,8 @@ public class UsbBehavior {
 
 	@Test
 	public void shouldOpenFromFinder() throws IOException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.kbConfig());
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.kbConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		try (var usb = Usb.of()) {
 			try (var deviceHandle = usb.open(LibUsbFinder.of(0, 0x8406))) {
 				assertNotNull(deviceHandle);

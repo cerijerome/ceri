@@ -1,10 +1,31 @@
 package ceri.serial.libusb.test;
 
 import static ceri.common.collection.ArrayUtil.validateIndex;
+import static ceri.common.validation.ValidationUtil.validateNull;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_CONTAINER_ID_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_USB_2_0_EXTENSION_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_BOS_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_CONFIG_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_DEVICE_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_ENDPOINT_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_INTERFACE_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
+import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
+import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_BOS;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_CONFIG;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_DEVICE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_DEVICE_CAPABILITY;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_ENDPOINT;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_INTERFACE;
+import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_SS_ENDPOINT_COMPANION;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_speed.LIBUSB_SPEED_UNKNOWN;
 import static ceri.serial.libusb.test.TestLibUsbNative.lastError;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,27 +39,35 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
-import ceri.common.text.ToString;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaSize;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_container_id_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
+import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
+import ceri.serial.libusb.jna.LibUsb.libusb_interface;
+import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_iso_packet_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
+import ceri.serial.libusb.jna.LibUsb.libusb_ss_usb_device_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer;
+import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
 /**
@@ -52,10 +81,167 @@ public class LibUsbTestData {
 	private final List<DeviceHandle> deviceHandles = new ArrayList<>();
 	private final List<Transfer> transfers = new ArrayList<>();
 	private final List<HotPlug> hotPlugs = new ArrayList<>();
-	public final List<DeviceConfig> deviceConfigs = new ArrayList<>();
-	public libusb_version version = version("http://libusb.info", "", 1, 0, 24, 11584);
-	public int capabilities;
-	public String locale;
+	private final List<DeviceConfig> deviceConfigs = new ArrayList<>();
+	private libusb_version version;
+	private int capabilities;
+	private String locale;
+
+	/**
+	 * Utilities for building sample data.
+	 */
+	public static class Util {
+
+		private Util() {}
+
+		public static DeviceConfig device(Consumer<DeviceConfig> populator) {
+			var device = new DeviceConfig();
+			device.desc.bLength = LIBUSB_DT_DEVICE_SIZE;
+			device.desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE.value;
+			populator.accept(device);
+			return device;
+		}
+
+		public static byte string(DeviceConfig dc, int i, String s) {
+			validateNull(dc.descriptorStrings.put(i, s));
+			return (byte) i;
+		}
+
+		public static void extra(libusb_interface_descriptor desc, int... bytes) {
+			desc.extra = GcMemory.mallocBytes(bytes).m;
+			desc.extra_length = bytes.length;
+		}
+
+		public static void extra(libusb_endpoint_descriptor desc, int... bytes) {
+			desc.extra = GcMemory.mallocBytes(bytes).m;
+			desc.extra_length = bytes.length;
+		}
+
+		@SafeVarargs
+		public static void configDescriptors(DeviceConfig dc,
+			Consumer<libusb_config_descriptor>... populators) {
+			var descs = Struct.<libusb_config_descriptor>arrayByVal( //
+				() -> new libusb_config_descriptor(null), libusb_config_descriptor[]::new,
+				populators.length);
+			for (int i = 0; i < populators.length; i++) {
+				descs[i].bLength = LIBUSB_DT_CONFIG_SIZE;
+				descs[i].bDescriptorType = (byte) LIBUSB_DT_CONFIG.value;
+				descs[i].bConfigurationValue = 1;
+				populators[i].accept(descs[i]);
+				descs[i].write();
+				dc.desc.bNumConfigurations++;
+			}
+			dc.configDescriptors = descs;
+		}
+
+		@SafeVarargs
+		public static void interfaces(libusb_config_descriptor cd,
+			Consumer<libusb_interface.ByRef>... populators) {
+			var interfaces = Struct.<libusb_interface.ByRef>arrayByVal(libusb_interface.ByRef::new,
+				libusb_interface.ByRef[]::new, populators.length);
+			for (int i = 0; i < populators.length; i++) {
+				populators[i].accept(interfaces[i]);
+				interfaces[i].write();
+				cd.bNumInterfaces++;
+			}
+			cd.interfaces = ArrayUtil.at(interfaces, 0);
+		}
+
+		@SafeVarargs
+		public static void interfaceDescriptors(libusb_config_descriptor cd, libusb_interface it,
+			Consumer<libusb_interface_descriptor.ByRef>... populators) {
+			var descs = Struct.<libusb_interface_descriptor.ByRef>arrayByVal(
+				libusb_interface_descriptor.ByRef::new, libusb_interface_descriptor.ByRef[]::new,
+				populators.length);
+			for (int i = 0; i < populators.length; i++) {
+				descs[i].bLength = LIBUSB_DT_INTERFACE_SIZE;
+				descs[i].bDescriptorType = (byte) LIBUSB_DT_INTERFACE.value;
+				descs[i].bInterfaceNumber = cd.bNumInterfaces;
+				descs[i].bAlternateSetting = (byte) i;
+				populators[i].accept(descs[i]);
+				descs[i].write();
+				it.num_altsetting++;
+			}
+			it.altsetting = ArrayUtil.at(descs, 0);
+		}
+
+		@SafeVarargs
+		public static void endPointDescriptors(libusb_interface_descriptor id,
+			Consumer<libusb_endpoint_descriptor.ByRef>... populators) {
+			var descs = Struct.<libusb_endpoint_descriptor.ByRef>arrayByVal(
+				libusb_endpoint_descriptor.ByRef::new, libusb_endpoint_descriptor.ByRef[]::new,
+				populators.length);
+			for (int i = 0; i < populators.length; i++) {
+				descs[i].bLength = LIBUSB_DT_ENDPOINT_SIZE;
+				descs[i].bDescriptorType = (byte) LIBUSB_DT_ENDPOINT.value;
+				populators[i].accept(descs[i]);
+				descs[i].write();
+				id.bNumEndpoints++;
+			}
+			id.endpoint = ArrayUtil.at(descs, 0);
+		}
+
+		public static void ssEndPointCompanionDesc(DeviceConfig dc, libusb_endpoint_descriptor ep,
+			Consumer<libusb_ss_endpoint_companion_descriptor> populator) {
+			var desc = new libusb_ss_endpoint_companion_descriptor(null);
+			desc.bLength = LIBUSB_DT_SS_ENDPOINT_COMPANION_SIZE;
+			desc.bDescriptorType = (byte) LIBUSB_DT_SS_ENDPOINT_COMPANION.value;
+			populator.accept(desc);
+			dc.ssEpCompDescs.put(ep.getPointer(), Struct.write(desc));
+		}
+
+		@SafeVarargs
+		public static void bosDescriptor(DeviceConfig dc, Consumer<libusb_bos_descriptor> populator,
+			libusb_bos_dev_capability_descriptor.ByRef... capabilities) {
+			dc.bos = new libusb_bos_descriptor(null);
+			dc.bos.bLength = LIBUSB_DT_BOS_SIZE;
+			dc.bos.bDescriptorType = (byte) LIBUSB_DT_BOS.value;
+			populator.accept(dc.bos);
+			dc.bos.bNumDeviceCaps = (byte) capabilities.length;
+			dc.bos.dev_capability = capabilities;
+			Struct.write(dc.bos);
+		}
+
+		public static libusb_bos_dev_capability_descriptor.ByRef
+			bosUsb20Ext(Consumer<libusb_usb_2_0_extension_descriptor> populator) {
+			libusb_usb_2_0_extension_descriptor desc =
+				new libusb_usb_2_0_extension_descriptor(null);
+			desc.bLength = LIBUSB_BT_USB_2_0_EXTENSION_SIZE;
+			desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
+			desc.bDevCapabilityType = (byte) LIBUSB_BT_USB_2_0_EXTENSION.value;
+			populator.accept(desc);
+			return toBdc(desc);
+		}
+
+		public static libusb_bos_dev_capability_descriptor.ByRef
+			bosSsUsbDevCap(Consumer<libusb_ss_usb_device_capability_descriptor> populator) {
+			libusb_ss_usb_device_capability_descriptor desc =
+				new libusb_ss_usb_device_capability_descriptor(null);
+			desc.bLength = LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE;
+			desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
+			desc.bDevCapabilityType = (byte) LIBUSB_BT_SS_USB_DEVICE_CAPABILITY.value;
+			populator.accept(desc);
+			return toBdc(desc);
+		}
+
+		public static libusb_bos_dev_capability_descriptor.ByRef
+			bosContainerId(Consumer<libusb_container_id_descriptor> populator) {
+			libusb_container_id_descriptor desc = new libusb_container_id_descriptor(null);
+			desc.bLength = LIBUSB_BT_CONTAINER_ID_SIZE;
+			desc.bDescriptorType = (byte) LIBUSB_DT_DEVICE_CAPABILITY.value;
+			desc.bDevCapabilityType = (byte) LIBUSB_BT_CONTAINER_ID.value;
+			populator.accept(desc);
+			return toBdc(desc);
+		}
+
+		public static void containerId(libusb_container_id_descriptor bdc, int... bytes) {
+			Immutable.wrap(bytes).copyTo(0, bdc.ContainerID);
+		}
+
+		public static libusb_bos_dev_capability_descriptor.ByRef toBdc(Structure desc) {
+			return Struct.adapt(Struct.write(desc),
+				libusb_bos_dev_capability_descriptor.ByRef::new);
+		}
+	}
 
 	private static Pointer pointer() {
 		return new Memory(JnaSize.POINTER.size);
@@ -73,11 +259,6 @@ public class LibUsbTestData {
 		private Data(Pointer p) {
 			id = ids.addAndGet(1);
 			this.p = p;
-		}
-
-		@Override
-		public String toString() {
-			return ToString.forClass(this, id, p);
 		}
 	}
 
@@ -199,21 +380,6 @@ public class LibUsbTestData {
 		}
 	}
 
-	/**
-	 * Set the libusb version desciptors.
-	 */
-	public static libusb_version version(String desc, String rc, int... nums) {
-		libusb_version version = new libusb_version();
-		version.describe = desc;
-		version.rc = rc;
-		int i = 0;
-		version.major = (short) (nums.length >= i ? nums[i] : 0);
-		version.minor = (short) (nums.length >= ++i ? nums[i] : 0);
-		version.micro = (short) (nums.length >= ++i ? nums[i] : 0);
-		version.nano = (short) (nums.length >= ++i ? nums[i] : 0);
-		return version;
-	}
-
 	public LibUsbTestData() {
 		reset();
 	}
@@ -226,8 +392,54 @@ public class LibUsbTestData {
 		deviceLists.clear();
 		devices.clear();
 		deviceHandles.clear();
-		capabilities = 0;
-		locale = "en-US";
+		version("http://libusb.info", "", 1, 0, 24, 11584);
+		capabilities(0);
+		locale("en-US");
+	}
+
+	/**
+	 * Clears device configuration (sample data).
+	 */
+	public void clearConfig() {
+		deviceConfigs.clear();
+	}
+
+	public void addConfig(DeviceConfig... configs) {
+		Collections.addAll(deviceConfigs, configs);
+	}
+
+	/**
+	 * Sets the libusb version desciptor.
+	 */
+	public void version(String desc, String rc, int... nums) {
+		version = new libusb_version();
+		version.describe = desc;
+		version.rc = rc;
+		int i = 0;
+		version.major = (short) (nums.length > i ? nums[i] : 0);
+		version.minor = (short) (nums.length > ++i ? nums[i] : 0);
+		version.micro = (short) (nums.length > ++i ? nums[i] : 0);
+		version.nano = (short) (nums.length > ++i ? nums[i] : 0);
+	}
+
+	public libusb_version version() {
+		return version;
+	}
+
+	public void capabilities(int capabilities) {
+		this.capabilities = capabilities;
+	}
+
+	public int capabilities() {
+		return capabilities;
+	}
+
+	public void locale(String locale) {
+		this.locale = locale;
+	}
+
+	public String locale() {
+		return locale;
 	}
 
 	public Context createContextDef() {
@@ -306,7 +518,7 @@ public class LibUsbTestData {
 
 	public void refDevice(Device device, int refs) {
 		device.refs += refs;
-		if (device.refs < 0) removeDevice(device);
+		if (device.refs <= 0) removeDevice(device);
 	}
 
 	private void purgeDevices() {
@@ -374,7 +586,9 @@ public class LibUsbTestData {
 	}
 
 	public HotPlug hotPlug(int handle) {
-		return find(hotPlugs, t -> t.handle == handle, null);
+		return find(hotPlugs, t -> 
+			t.handle == handle
+		, null);
 	}
 
 	public List<HotPlug> hotPlugs() {
@@ -382,7 +596,9 @@ public class LibUsbTestData {
 	}
 
 	public void removeHotPlug(int handle) {
-		hotPlugs.removeIf(t -> t.handle == handle);
+		hotPlugs.removeIf(t -> 
+			t.handle == handle
+		);
 	}
 
 	private static <T extends Data> void forEach(List<T> list, Predicate<? super T> filter,

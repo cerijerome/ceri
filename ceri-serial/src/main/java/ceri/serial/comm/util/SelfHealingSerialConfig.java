@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import ceri.common.function.Namer;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealingConfig;
+import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.SerialPort;
 
@@ -19,7 +20,7 @@ public class SelfHealingSerialConfig {
 	public final SelfHealingConfig selfHealing;
 
 	public static interface SerialFactory {
-		SerialPort open(String port) throws IOException;
+		Serial open(String port) throws IOException;
 	}
 
 	public static SelfHealingSerialConfig of(String port) {

@@ -101,10 +101,10 @@ public class LibUsbFinderBehavior {
 		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
 		assertFalse(finder.matches());
 		assertEquals(finder.matchCount(), 0);
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		assertTrue(finder.matches());
 		assertEquals(finder.matchCount(), 1);
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		assertTrue(finder.matches());
 		assertEquals(finder.matchCount(), 2);
 	}
@@ -112,7 +112,7 @@ public class LibUsbFinderBehavior {
 	@Test
 	public void shouldFailIfVendorDoesNotMatch() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		var finder = LibUsbFinder.builder().vendor(0xffff).build();
 		assertThrown(() -> finder.findAndRef(null));
 	}
@@ -130,8 +130,8 @@ public class LibUsbFinderBehavior {
 	@Test
 	public void shouldFindAndRefDevice() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
 		assertEquals(finder.findAndRef(null, 2).size(), 2);
 		assertNotNull(finder.findAndRef(null));
@@ -140,7 +140,7 @@ public class LibUsbFinderBehavior {
 	@Test
 	public void shouldFindWithCallback() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		assertFalse(LibUsbFinder.builder().bus(1).build().findWithCallback(nullCtx, d -> true));
 		assertFalse(LibUsbFinder.builder().address(1).build().findWithCallback(nullCtx, d -> true));
 		assertFalse(LibUsbFinder.builder().index(1).build().findWithCallback(nullCtx, d -> true));

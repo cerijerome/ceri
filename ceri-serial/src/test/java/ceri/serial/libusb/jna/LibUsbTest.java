@@ -131,7 +131,7 @@ public class LibUsbTest {
 	@Test
 	public void testBosDescriptors() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.internalHubConfig());
+		lib.data.addConfig(LibUsbSampleData.internalHubConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0xa5c, 0x4500);
 		assertEquals(LibUsb.libusb_get_bos_descriptor(handle), null);
 		lib.generalSync.autoResponses(libusb_error.LIBUSB_ERROR_ACCESS.value,
@@ -155,7 +155,7 @@ public class LibUsbTest {
 	@Test
 	public void testStreams() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.internalHubConfig());
+		lib.data.addConfig(LibUsbSampleData.internalHubConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0xa5c, 0x4500);
 		assertEquals(LibUsb.libusb_alloc_streams(handle, 3, 0x81), 3);
 		var transfer = LibUsb.libusb_alloc_transfer(0);
@@ -178,7 +178,7 @@ public class LibUsbTest {
 	@Test
 	public void testBulkZeroTransfer() throws LibUsbException {
 		initLib();
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0x5ac, 0x8406);
 		assertEquals(LibUsb.libusb_bulk_transfer(handle, 0x02, null, 0, 0), 0);
 	}

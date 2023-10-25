@@ -49,6 +49,7 @@ public class SerialConfig {
 		}
 
 		public Builder flowControl(Collection<FlowControl> flowControl) {
+			this.flowControl.clear();
 			this.flowControl.addAll(flowControl);
 			return this;
 		}
@@ -109,7 +110,8 @@ public class SerialConfig {
 		if (this == obj) return true;
 		if (!(obj instanceof SerialConfig other)) return false;
 		return Objects.equals(params, other.params)
-			&& Objects.equals(flowControl, other.flowControl) && inBufferSize == other.inBufferSize
+			&& Objects.equals(flowControl, other.flowControl)
+			&& inBufferSize == other.inBufferSize
 			&& outBufferSize == other.outBufferSize;
 	}
 

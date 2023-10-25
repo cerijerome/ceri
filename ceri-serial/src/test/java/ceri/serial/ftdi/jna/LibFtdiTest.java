@@ -23,23 +23,27 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
+import ceri.serial.libusb.test.LibUsbTestData.DeviceConfig;
 import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibFtdiTest {
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private ftdi_context ftdi;
+	private DeviceConfig config;
 
 	@Before
 	public void before() {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		lib.data.deviceConfigs.add(LibUsbSampleData.ftdiConfig());
+		config = LibUsbSampleData.ftdiConfig();
+		lib.data.addConfig(config);
 	}
 
 	@After
 	public void after() {
 		LibFtdi.ftdi_free(ftdi);
+		config = null;
 		ftdi = null;
 		enc.close();
 	}
@@ -84,7 +88,6 @@ public class LibFtdiTest {
 
 	@Test
 	public void testInitialization() throws LibUsbException {
-		var config = lib.data.deviceConfigs.get(0);
 		config.configDescriptors[0].interfaces()[0].altsettings()[0].bNumEndpoints = 0;
 		Struct.write(config.configDescriptors[0].interfaces()[0].altsettings()[0], "bNumEndpoints");
 		config.configuration = 0;
@@ -137,7 +140,7 @@ public class LibFtdiTest {
 		LibFtdi.ftdi_set_event_char(ftdi, 'x', false);
 		LibFtdi.ftdi_set_error_char(ftdi, 'x', true);
 		LibFtdi.ftdi_set_error_char(ftdi, 'x', false);
-		lib.syncTransferOut.assertValues( //
+		lib.transferOut.assertValues( //
 			List.of(0x40, 0x06, 0x0178, 1, ByteProvider.empty()),
 			List.of(0x40, 0x06, 0x0078, 1, ByteProvider.empty()),
 			List.of(0x40, 0x07, 0x0178, 1, ByteProvider.empty()),
@@ -149,20 +152,20 @@ public class LibFtdiTest {
 	public void testBitBang() throws LibUsbException {
 		ftdi = openFtdi();
 		LibFtdi.ftdi_enable_bitbang(ftdi);
-		lib.syncTransferOut.assertValues(List.of(0x40, 0x0b, 0x1ff, 1, ByteProvider.empty()));
+		lib.transferOut.assertValues(List.of(0x40, 0x0b, 0x1ff, 1, ByteProvider.empty()));
 		LibFtdi.ftdi_disable_bitbang(ftdi);
-		lib.syncTransferOut.assertValues(List.of(0x40, 0x0b, 0, 1, ByteProvider.empty()));
+		lib.transferOut.assertValues(List.of(0x40, 0x0b, 0, 1, ByteProvider.empty()));
 	}
 
 	@Test
 	public void testSetDtrRts() throws LibUsbException {
 		ftdi = openFtdi();
 		LibFtdi.ftdi_set_dtr_rts(ftdi, true, true);
-		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x303, 1, ByteProvider.empty()));
+		lib.transferOut.assertValues(List.of(0x40, 1, 0x303, 1, ByteProvider.empty()));
 		LibFtdi.ftdi_set_dtr_rts(ftdi, false, true);
-		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x302, 1, ByteProvider.empty()));
+		lib.transferOut.assertValues(List.of(0x40, 1, 0x302, 1, ByteProvider.empty()));
 		LibFtdi.ftdi_set_dtr_rts(ftdi, true, false);
-		lib.syncTransferOut.assertValues(List.of(0x40, 1, 0x301, 1, ByteProvider.empty()));
+		lib.transferOut.assertValues(List.of(0x40, 1, 0x301, 1, ByteProvider.empty()));
 	}
 
 	@Test
@@ -179,7 +182,7 @@ public class LibFtdiTest {
 	private ftdi_context openFtdi() throws LibUsbException {
 		var ftdi = LibFtdi.ftdi_new();
 		LibFtdi.ftdi_usb_open_find(ftdi, LibFtdiUtil.FINDER);
-		lib.syncTransferOut.reset(); // clear original open()
+		lib.transferOut.reset(); // clear original open()
 		return ftdi;
 	}
 

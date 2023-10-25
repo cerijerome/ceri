@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
+import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
-import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDeviceBehavior {
 	private TestLibUsbNative lib;
@@ -35,11 +35,13 @@ public class UsbDeviceBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideConfiguration() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.externalUsb3HubConfig());
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
-		lib.data.deviceConfigs.get(1).parent = lib.data.deviceConfigs.get(0);
+		var hubConfig = LibUsbSampleData.externalUsb3HubConfig();
+		var mouseConfig = LibUsbSampleData.mouseConfig();
+		mouseConfig.parent = hubConfig;
+		lib.data.addConfig(hubConfig, mouseConfig);
 		try (var list = usb.deviceList(); var dev = list.devices().get(1)) {
 			assertEquals(dev.parent().device(), list.devices().get(0).device());
+			assertEquals(dev.parent().parent(), null);
 			assertEquals(dev.portNumber(), 1);
 			assertArray(dev.portNumbers(), 1);
 			assertEquals(dev.speed(), libusb_speed.LIBUSB_SPEED_LOW);
@@ -54,7 +56,7 @@ public class UsbDeviceBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		try (var list = usb.deviceList(); var dev = list.devices().get(0)) {
 			assertMatch(dev.toString(), "%s\\(native@.*\\,0\\)", dev.getClass().getSimpleName());
 			dev.unref();

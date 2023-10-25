@@ -11,6 +11,7 @@ import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.util.SelfHealingSerialConfig.SerialFactory;
 
 /**
  * A connector for testing logic against serial connectors.
@@ -18,8 +19,10 @@ import ceri.serial.comm.SerialParams;
 public class TestSerial extends TestConnector implements Serial.Fixable {
 	private static final String NAME = ReflectUtil.name(TestSerial.class);
 	public final CallSync.Supplier<String> port = CallSync.supplier("test");
-	public final CallSync.Consumer<Integer> bufferSize =
-		CallSync.consumer(ThreadBuffers.SIZE_DEF, true); // shared for in and out
+	public final CallSync.Consumer<Integer> inBufferSize =
+		CallSync.consumer(ThreadBuffers.SIZE_DEF, true);
+	public final CallSync.Consumer<Integer> outBufferSize =
+		CallSync.consumer(ThreadBuffers.SIZE_DEF, true);
 	public final CallSync.Consumer<SerialParams> params =
 		CallSync.consumer(SerialParams.DEFAULT, true);
 	public final CallSync.Consumer<Set<FlowControl>> flowControl =
@@ -57,10 +60,20 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 		super(name);
 	}
 
+	/**
+	 * Returns a factory that opens and returns this instance.
+	 */
+	public SerialFactory factory() {
+		return port -> {
+			open();
+			return this;
+		};
+	}
+	
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(port, bufferSize, params, flowControl, brk, rts, dtr, cd, cts, dsr, ri);
+		CallSync.resetAll(port, inBufferSize, outBufferSize, params, flowControl, brk, rts, dtr, cd, cts, dsr, ri);
 	}
 
 	@Override
@@ -70,22 +83,22 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 
 	@Override
 	public void inBufferSize(int size) {
-		bufferSize.accept(size);
+		inBufferSize.accept(size);
 	}
 
 	@Override
 	public int inBufferSize() {
-		return bufferSize.value();
+		return inBufferSize.value();
 	}
 
 	@Override
 	public void outBufferSize(int size) {
-		bufferSize.accept(size);
+		outBufferSize.accept(size);
 	}
 
 	@Override
 	public int outBufferSize() {
-		return bufferSize.value();
+		return outBufferSize.value();
 	}
 
 	@Override

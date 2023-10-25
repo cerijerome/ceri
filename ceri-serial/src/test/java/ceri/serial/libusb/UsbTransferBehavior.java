@@ -48,7 +48,7 @@ public class UsbTransferBehavior {
 	public void before() throws LibUsbException {
 		enc = TestLibUsbNative.register();
 		lib = enc.ref;
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		usb = Usb.of();
 		handle = usb.open(LibUsbFinder.of(0x05ac, 0));
 	}

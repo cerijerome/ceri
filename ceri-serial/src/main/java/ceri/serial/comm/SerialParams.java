@@ -17,10 +17,6 @@ public class SerialParams {
 	public final StopBits stopBits;
 	public final Parity parity;
 
-	public static void main(String[] args) {
-		System.out.println("p" + PARSE_REGEX.pattern());
-	}
-
 	public static SerialParams from(String s) {
 		var m = PARSE_REGEX.matcher(s);
 		if (!m.matches()) throw new IllegalArgumentException("Invalid format: " + s);

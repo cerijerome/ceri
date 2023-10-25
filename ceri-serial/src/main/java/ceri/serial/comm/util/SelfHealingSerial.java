@@ -10,7 +10,6 @@ import ceri.log.util.LogUtil;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
-import ceri.serial.comm.SerialPort;
 
 /**
  * A self-healing serial port. It will automatically reconnect on fatal errors, such as if the cable
@@ -63,7 +62,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	@Override
 	public void params(SerialParams params) throws IOException {
 		serialConfig.params(params);
-		device.acceptValid(serial -> serial.params(params));
+		device.acceptIfSet(serial -> serial.params(params));
 	}
 
 	@Override
@@ -74,7 +73,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	@Override
 	public void flowControl(Collection<FlowControl> flowControl) throws IOException {
 		serialConfig.flowControl(flowControl);
-		device.acceptValid(serial -> serial.flowControl(flowControl));
+		device.acceptIfSet(serial -> serial.flowControl(flowControl));
 	}
 
 	@Override
@@ -129,11 +128,11 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 
 	@SuppressWarnings("resource")
 	@Override
-	protected SerialPort openConnector() throws IOException {
-		SerialPort serial = null;
+	protected Serial openConnector() throws IOException {
+		Serial serial = null;
 		try {
 			String port = config.portSupplier.get();
-			serial = SerialPort.open(port);
+			serial = config.factory.open(port);
 			IoUtil.clear(serial.in());
 			serialConfig.build().applyTo(serial);
 			return serial;

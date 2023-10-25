@@ -45,13 +45,13 @@ public class UsbHotPlugBehavior {
 	@Test
 	public void shouldDetermineHotPlugCapability() throws LibUsbException {
 		assertEquals(UsbHotPlug.hasCapability(), false);
-		lib.data.capabilities |= libusb_capability.LIBUSB_CAP_HAS_HOTPLUG.value;
+		lib.data.capabilities(libusb_capability.LIBUSB_CAP_HAS_HOTPLUG.value);
 		assertEquals(UsbHotPlug.hasCapability(), true);
 	}
 
 	@Test
 	public void shouldReceiveEventCallback() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.mouseConfig());
+		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		try (var hotPlug = builder.arrived().left().vendor(123).product(0).enumerate()
 			.deviceClass(LIBUSB_CLASS_HID).register(); var mouse = device(hotPlug, 0)) {
 			lib.handleHotPlugEvent.autoResponses(
@@ -74,7 +74,7 @@ public class UsbHotPlugBehavior {
 
 	@Test
 	public void shouldContinueOnCallbackError() throws LibUsbException {
-		lib.data.deviceConfigs.add(LibUsbSampleData.sdReaderConfig());
+		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		LogModifier.run(() -> {
 			try (var hotPlug = builder.arrived().register(); var device = device(hotPlug, 0)) {
 				lib.handleHotPlugEvent.autoResponses(new HotPlugEvent(device.device(),

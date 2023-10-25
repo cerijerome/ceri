@@ -1769,8 +1769,7 @@ public class LibUsb {
 
 	public static libusb_device libusb_get_parent(libusb_device dev) throws LibUsbException {
 		require(dev);
-		return caller.verifyType(() -> lib().libusb_get_parent(dev),
-			libusb_error.LIBUSB_ERROR_NOT_FOUND.value, "libusb_get_parent", dev);
+		return caller.callType(() -> lib().libusb_get_parent(dev), "libusb_get_parent", dev);
 	}
 
 	public static byte libusb_get_device_address(libusb_device dev) throws LibUsbException {

@@ -1,6 +1,7 @@
 package ceri.serial.comm.util;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -14,6 +15,7 @@ import ceri.serial.comm.StopBits;
 public class SerialProperties extends BaseProperties {
 	private static final String PORT_KEY = "port";
 	private static final String LOCATOR_KEY = "locator";
+	private static final String PATH_KEY = "path";
 	private static final String PATTERN_KEY = "pattern";
 	private static final String INDEX_KEY = "index";
 	private static final String ID_KEY = "id";
@@ -52,10 +54,14 @@ public class SerialProperties extends BaseProperties {
 	private PortSupplier portPatternSupplier() {
 		String pattern = portLocatorPattern();
 		Integer index = portLocatorIndex();
-		if (pattern != null)
-			return SerialPortLocator.of().portSupplier(pattern, index == null ? 0 : index);
-		if (index != null) return SerialPortLocator.of().usbPortSupplier(index);
+		if (pattern != null) return portLocator().portSupplier(pattern, index == null ? 0 : index);
+		if (index != null) return portLocator().usbPortSupplier(index);
 		return null;
+	}
+
+	private SerialPortLocator portLocator() {
+		String path = portLocatorPath();
+		return path == null ? SerialPortLocator.of() : SerialPortLocator.of(Path.of(path));
 	}
 
 	private PortSupplier portLocationIdSupplier() {
@@ -65,6 +71,10 @@ public class SerialProperties extends BaseProperties {
 
 	private String port() {
 		return value(PORT_KEY);
+	}
+
+	private String portLocatorPath() {
+		return value(PORT_KEY, LOCATOR_KEY, PATH_KEY);
 	}
 
 	private String portLocatorPattern() {

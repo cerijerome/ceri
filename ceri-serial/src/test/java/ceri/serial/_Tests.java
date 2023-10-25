@@ -9,6 +9,15 @@ import ceri.common.test.TestUtil;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// comm.util
+	ceri.serial.comm.util.MacUsbLocatorBehavior.class, //
+	ceri.serial.comm.util.PortSupplierBehavior.class, //
+	ceri.serial.comm.util.ReplaceableSerialBehavior.class, //
+	ceri.serial.comm.util.SelfHealingSerialBehavior.class, //
+	ceri.serial.comm.util.SelfHealingSerialConfigBehavior.class, //
+	ceri.serial.comm.util.SerialConfigBehavior.class, //
+	ceri.serial.comm.util.SerialPortLocatorBehavior.class, //
+	ceri.serial.comm.util.SerialPropertiesBehavior.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	ceri.serial.ftdi.FtdiBitModeBehavior.class, //
@@ -58,6 +67,8 @@ import ceri.common.test.TestUtil;
 	ceri.serial.libusb.jna.LibUsbTest.class, //
 	ceri.serial.libusb.jna.LibUsbUtilTest.class, //
 	// libusb.test
+	ceri.serial.libusb.test.LibUsbSampleDataTest.class, //
+	ceri.serial.libusb.test.LibUsbTestDataBehavior.class, //
 	ceri.serial.libusb.test.TestLibUsbNativeBehavior.class, //
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //

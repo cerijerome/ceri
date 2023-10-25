@@ -33,7 +33,7 @@ public interface Serial extends Connector {
 
 	SerialParams params() throws IOException;
 
-	default void flowControl(FlowControl... flowControl) throws IOException {
+	default void flowControls(FlowControl... flowControl) throws IOException {
 		flowControl(Arrays.asList(flowControl));
 	}
 

@@ -53,9 +53,9 @@ public class MacUsbLocator {
 	 * Looks up the serial port name based on location id. Used by SelfHealingSerialConnector.
 	 */
 	public PortSupplier portSupplier(int locationId) {
-		if (!OsUtil.os().mac) throw new UnsupportedOperationException("Only Mac is supported");
-		return PortSupplier.named(() -> port(locationId),
+		if (OsUtil.os().mac) return PortSupplier.named(() -> port(locationId),
 			String.format("locationId:0x%x", locationId));
+		throw new UnsupportedOperationException("Only Mac is supported");
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class MacUsbLocator {
 		return IoUtil.IO_ADAPTER.get(() -> {
 			for (Node usb : usbNodes()) {
 				int id = locationId(usb);
-				if (id != locationId) continue;
+				if (id == 0 || id != locationId) continue;
 				String port = device(usb);
 				if (port != null) return port;
 				break;
