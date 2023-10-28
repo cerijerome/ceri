@@ -3,11 +3,12 @@ package ceri.serial.comm;
 import static ceri.common.math.MathUtil.approxEqual;
 import ceri.common.collection.EnumUtil;
 import ceri.common.data.TypeTranscoder;
+import ceri.serial.comm.jna.CSerial;
 
 public enum StopBits {
-	_1(1, 1.0),
-	_2(2, 2.0),
-	_1_5(3, 1.5);
+	_1(CSerial.STOPBITS_1, 1.0),
+	_2(CSerial.STOPBITS_2, 2.0),
+	_1_5(CSerial.STOPBITS_1_5, 1.5);
 
 	private static final TypeTranscoder<StopBits> xcoder =
 		TypeTranscoder.of(t -> t.value, StopBits.class);

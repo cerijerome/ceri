@@ -67,6 +67,8 @@ public class CSerial {
 	public static final int STOPBITS_1_5 = 3;
 	public static final int STOPBITS_2 = 2;
 
+	private CSerial() {}
+	
 	public static int open(String port) throws CException {
 		int fd = CFcntl.open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		try {

@@ -9,6 +9,15 @@ import ceri.common.test.TestUtil;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// comm
+	ceri.serial.comm.ParityBehavior.class, //
+	ceri.serial.comm.SerialBehavior.class, //
+	ceri.serial.comm.SerialEventBehavior.class, //
+	ceri.serial.comm.SerialParamsBehavior.class, //
+	ceri.serial.comm.SerialPortBehavior.class, //
+	ceri.serial.comm.StopBitsBehavior.class, //
+	// comm.jna
+	ceri.serial.comm.jna.CSerialTest.class, //
 	// comm.util
 	ceri.serial.comm.util.MacUsbLocatorBehavior.class, //
 	ceri.serial.comm.util.PortSupplierBehavior.class, //

@@ -95,7 +95,7 @@ public interface Serial extends Connector {
 
 		@Override
 		default SerialParams params() throws IOException {
-			return SerialParams.DEFAULT;
+			return SerialParams.NULL;
 		}
 
 		@Override
