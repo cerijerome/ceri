@@ -4,7 +4,6 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,6 +13,7 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 
 public class CInputStreamBehavior {
 	private static TestCLibNative lib;
@@ -48,7 +48,7 @@ public class CInputStreamBehavior {
 
 	@Test
 	public void shouldProvideAvailableBytes() throws IOException {
-		lib.ioctlAutoResponseOk(objs -> ((IntByReference) objs[0]).setValue(33));
+		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(33), 0);
 		assertEquals(in.available(), 33);
 	}
 
@@ -56,7 +56,7 @@ public class CInputStreamBehavior {
 	public void shouldReadSingleByte() throws IOException {
 		lib.read.autoResponses(ByteProvider.of(33));
 		assertEquals(in.read(), 33);
-		lib.read.assertAuto(List.of(fd(), 1));
+		lib.read.assertAuto(new ReadArgs(fd, 1));
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class CInputStreamBehavior {
 		var b = new byte[5];
 		assertEquals(in.read(b), 3);
 		assertArray(b, 1, 2, 3, 0, 0);
-		lib.read.assertAuto(List.of(fd(), 3));
+		lib.read.assertAuto(new ReadArgs(fd, 3));
 	}
 
 	@Test
@@ -90,9 +90,5 @@ public class CInputStreamBehavior {
 		assertThrown(() -> in.read());
 		assertThrown(() -> in.read(new byte[3]));
 		assertThrown(() -> in.available());
-	}
-
-	private static TestCLibNative.Fd fd() {
-		return lib.fd(fd);
 	}
 }

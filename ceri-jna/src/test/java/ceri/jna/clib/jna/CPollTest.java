@@ -8,10 +8,10 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.jna.clib.jna.CPoll.POLLIN;
 import static ceri.jna.clib.jna.CPoll.POLLOUT;
 import static ceri.jna.clib.jna.CPoll.POLLPRI;
-import java.util.List;
 import org.junit.Test;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.PollArgs;
 
 public class CPollTest {
 
@@ -37,14 +37,14 @@ public class CPollTest {
 	public void testSinglePoll() throws CException {
 		TestCLibNative.exec(lib -> {
 			var pollfd = new pollfd().init(1, POLLIN | POLLOUT);
-			lib.pollAutoResponse((pollfds, t) -> pollfds[0].revents = POLLIN);
+			lib.pollAuto(args -> args.pollfd(0).revents = POLLIN);
 			assertTrue(CPoll.poll(pollfd, 100));
 			assertTrue(pollfd.hasEvent(POLLIN));
-			lib.pollAutoResponse((pollfds, t) -> {});
+			lib.pollAuto(args -> {});
 			pollfd.init(1, POLLOUT);
 			assertFalse(CPoll.poll(pollfd, 99));
 			assertFalse(pollfd.hasEvent(POLLIN));
-			lib.poll.assertValues(List.of(List.of(pollfd), 100), List.of(List.of(pollfd), 99));
+			lib.poll.assertValues(PollArgs.of(100, pollfd), PollArgs.of(99, pollfd));
 		});
 	}
 
@@ -61,10 +61,10 @@ public class CPollTest {
 			assertEquals(CPoll.poll(pollfd.array(0), 0), 0);
 			assertThrown(() -> CPoll.poll(new pollfd[] { fds[0], fds[2] }, 100));
 			assertEquals(CPoll.poll(fds, 100), 0);
-			lib.pollAutoResponse((pollfds, t) -> pollfds[0].revents = POLLIN);
+			lib.pollAuto(args -> args.pollfd(0).revents = POLLIN);
 			assertEquals(CPoll.poll(fds, 100), 1);
 			assertEquals(fds[0].revents, (short) POLLIN);
-			lib.poll.assertAuto(List.of(List.of(fds), 100));
+			lib.poll.assertAuto(PollArgs.of(100, fds));
 		});
 	}
 
@@ -82,5 +82,4 @@ public class CPollTest {
 			CUnistd.closeSilently(fds);
 		}
 	}
-
 }

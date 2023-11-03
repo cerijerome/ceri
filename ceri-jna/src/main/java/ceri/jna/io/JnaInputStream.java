@@ -1,6 +1,6 @@
 package ceri.jna.io;
 
-import static ceri.common.collection.ArrayUtil.validateRange;
+import static ceri.common.collection.ArrayUtil.validateSlice;
 import java.io.IOException;
 import java.io.InputStream;
 import com.sun.jna.Memory;
@@ -46,7 +46,7 @@ public abstract class JnaInputStream extends InputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		validateRange(b.length, off, len);
+		validateSlice(b.length, off, len);
 		ensureOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();
@@ -72,7 +72,7 @@ public abstract class JnaInputStream extends InputStream {
 	protected void ensureOpen() throws IOException {
 		if (closed()) throw new IOException("Closed");
 	}
-	
+
 	/**
 	 * Returns true if the stream has been closed.
 	 */

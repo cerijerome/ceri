@@ -2,16 +2,16 @@ package ceri.jna.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.sun.jna.Pointer;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.CfArgs;
+import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaUtil;
 
@@ -53,15 +53,12 @@ public class CTermiosTest {
 	public void testTcsetattr() throws CException {
 		var termios = new CTermios.Mac.termios();
 		CTermios.tcsetattr(fd, 123, termios);
-		lib.tc.assertAuto(List.of("tcsetattr", lib.fd(fd), 123, termios.getPointer()));
+		lib.tc.assertAuto(TcArgs.of("tcsetattr", lib.fd(fd), 123, termios.getPointer()));
 	}
 
 	@Test
 	public void testMacTcgetattr() throws CException {
-		lib.tc.autoResponse(list -> {
-			((Pointer) list.get(2)).setNativeLong(0, JnaUtil.unlong(0x3456));
-			return 0;
-		});
+		lib.tc.autoResponse(args -> JnaUtil.unlong(args.arg(0), 0, 0x3456), 0);
 		JnaTestUtil.testForEachOs(() -> {
 			var t = CTermios.tcgetattr(fd);
 			assertEquals(t.c_iflag, JnaUtil.unlong(0x3456));
@@ -70,10 +67,7 @@ public class CTermiosTest {
 
 	@Test
 	public void testLinuxTcgetattr() throws CException {
-		lib.tc.autoResponse(list -> {
-			((Pointer) list.get(2)).setNativeLong(0, JnaUtil.unlong(0x1234));
-			return 0;
-		});
+		lib.tc.autoResponse(args -> JnaUtil.unlong(args.arg(0), 0, 0x1234), 0);
 		var t = CTermios.Linux.tcgetattr(fd);
 		assertEquals(t.c_iflag, JnaUtil.unlong(0x1234));
 	}
@@ -81,32 +75,32 @@ public class CTermiosTest {
 	@Test
 	public void testTcsendbreak() throws CException {
 		CTermios.tcsendbreak(fd, 123);
-		lib.tc.assertAuto(List.of("tcsendbreak", lib.fd(fd), 123));
+		lib.tc.assertAuto(TcArgs.of("tcsendbreak", lib.fd(fd), 123));
 	}
 
 	@Test
 	public void testTcdrain() throws CException {
 		CTermios.tcdrain(fd);
-		lib.tc.assertAuto(List.of("tcdrain", lib.fd(fd)));
+		lib.tc.assertAuto(TcArgs.of("tcdrain", lib.fd(fd)));
 	}
 
 	@Test
 	public void testTcflush() throws CException {
 		CTermios.tcflush(fd, CTermios.TCIOFLUSH);
-		lib.tc.assertAuto(List.of("tcflush", lib.fd(fd), CTermios.TCIOFLUSH));
+		lib.tc.assertAuto(TcArgs.of("tcflush", lib.fd(fd), CTermios.TCIOFLUSH));
 	}
 
 	@Test
 	public void testTcflow() throws CException {
 		CTermios.tcflow(fd, CTermios.TCION);
-		lib.tc.assertAuto(List.of("tcflow", lib.fd(fd), CTermios.TCION));
+		lib.tc.assertAuto(TcArgs.of("tcflow", lib.fd(fd), CTermios.TCION));
 	}
 
 	@Test
 	public void testCfmakeraw() throws CException {
 		termios termios = new CTermios.Linux.termios();
 		CTermios.cfmakeraw(termios);
-		lib.cf.assertAuto(List.of("cfmakeraw", termios.getPointer()));
+		lib.cf.assertAuto(CfArgs.of("cfmakeraw", termios.getPointer()));
 	}
 
 	@Test
@@ -114,14 +108,14 @@ public class CTermiosTest {
 		termios termios = new CTermios.Mac.termios();
 		lib.cf.autoResponses(12345);
 		assertEquals(CTermios.cfgetispeed(termios), 12345);
-		lib.cf.assertAuto(List.of("cfgetispeed", termios.getPointer()));
+		lib.cf.assertAuto(CfArgs.of("cfgetispeed", termios.getPointer()));
 	}
 
 	@Test
 	public void testCfsetispeed() throws CException {
 		termios termios = new CTermios.Mac.termios();
 		CTermios.cfsetispeed(termios, 12345);
-		lib.cf.assertAuto(List.of("cfsetispeed", termios.getPointer(), 12345));
+		lib.cf.assertAuto(CfArgs.of("cfsetispeed", termios.getPointer(), 12345));
 	}
 
 	@Test
@@ -129,14 +123,14 @@ public class CTermiosTest {
 		termios termios = new CTermios.Linux.termios();
 		lib.cf.autoResponses(12345);
 		assertEquals(CTermios.cfgetospeed(termios), 12345);
-		lib.cf.assertAuto(List.of("cfgetospeed", termios.getPointer()));
+		lib.cf.assertAuto(CfArgs.of("cfgetospeed", termios.getPointer()));
 	}
 
 	@Test
 	public void testCfsetospeed() throws CException {
 		termios termios = new CTermios.Linux.termios();
 		CTermios.cfsetospeed(termios, 12345);
-		lib.cf.assertAuto(List.of("cfsetospeed", termios.getPointer(), 12345));
+		lib.cf.assertAuto(CfArgs.of("cfsetospeed", termios.getPointer(), 12345));
 	}
 
 	@Test

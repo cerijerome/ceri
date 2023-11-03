@@ -11,6 +11,7 @@ import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.function.Function;
 import org.junit.Test;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
 import ceri.common.collection.ArrayUtil;
@@ -151,7 +152,7 @@ public class StructBehavior {
 	}
 
 	@Test
-	public void testCopy() {
+	public void testCopyNew() {
 		try (var p = JnaUtil.calloc(TestStruct.SIZE)) {
 			assertStruct(Struct.copy(null, p, TestStruct::new), 0, null, 0, 0, 0);
 			var t = Struct.copy(Struct.write(new TestStruct(100, p, 1)), p, TestStruct::new);
@@ -159,6 +160,29 @@ public class StructBehavior {
 		}
 	}
 
+	@Test
+	public void testCopy() {
+		try (var p = new Memory(3)) {
+			var from = new TestStruct(111, p, 4, 5, 6);
+			var to = new TestStruct(222, p.share(1), 7, 8, 9);
+			Struct.copy(from, to);
+			assertEquals(to.i, 111);
+			assertEquals(to.p, p);
+			assertArray(to.b, 4, 5, 6);
+		}
+	}
+	
+	@Test
+	public void testCopyNullStruct() {
+		try (var p = new Memory(3)) {
+			var t = Struct.write(new TestStruct(111, p, 4, 5, 6));
+			assertEquals(Struct.copy(t, t), t);
+			assertEquals(Struct.copy(t, null), null);
+			assertEquals(Struct.copy(null, t), t);
+			assertEquals(Struct.copy(null, null), null);
+		}
+	}
+	
 	@Test
 	public void testMallocArray() {
 		assertArray(Struct.mallocArray(TestStruct::new, TestStruct[]::new, 0));

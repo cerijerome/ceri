@@ -17,19 +17,19 @@ import ceri.jna.util.Struct.Fields;
  */
 public class CIoctl {
 	public static final int _IOC_SIZEBITS;
-	private static final int _IOC_SIZEMASK;
-	private static final int IOC_VOID;
-	private static final int IOC_OUT;
-	private static final int IOC_IN;
-	static final int TIOCSBRK;
-	static final int TIOCCBRK;
-	static final int FIONREAD;
-	static final int TIOCEXCL;
-	static final int TIOCOUTQ;
-	static final int TIOCMGET;
-	static final int TIOCMBIC;
-	static final int TIOCMBIS;
-	static final int TIOCMSET;
+	public static final int _IOC_SIZEMASK;
+	public static final int IOC_VOID;
+	public static final int IOC_OUT;
+	public static final int IOC_IN;
+	public static final int TIOCSBRK;
+	public static final int TIOCCBRK;
+	public static final int FIONREAD;
+	public static final int TIOCEXCL;
+	public static final int TIOCOUTQ;
+	public static final int TIOCMGET;
+	public static final int TIOCMBIC;
+	public static final int TIOCMBIS;
+	public static final int TIOCMSET;
 	public static final int TIOCM_LE = 0x0001; // line enable
 	public static final int TIOCM_DTR = 0x0002; // data terminal ready
 	public static final int TIOCM_RTS = 0x0004; // request to send
@@ -193,7 +193,7 @@ public class CIoctl {
 
 		/* <IOKit/serial/ioss.h> */
 
-		static final int IOSSIOSPEED = _IOW('T', 2, NativeLong.SIZE); // 0x80085402
+		public static final int IOSSIOSPEED = _IOW('T', 2, NativeLong.SIZE); // 0x80085402
 
 		/**
 		 * Sets input and output speeds to a non-traditional baud rate. Value is not represented in
@@ -245,17 +245,17 @@ public class CIoctl {
 
 		/* <sys/ioctl.h> */
 
-		static final int TIOCGSERIAL = _IO('T', 0x1e); // 0x541e;
-		static final int TIOCSSERIAL = _IO('T', 0x1f); // 0x541f;
+		public static final int TIOCGSERIAL = _IO('T', 0x1e); // 0x541e;
+		public static final int TIOCSSERIAL = _IO('T', 0x1f); // 0x541f;
 
 		public static serial_struct tiocgserial(int fd) throws CException {
 			var serial = new serial_struct();
-			ioctl(fd, TIOCGSERIAL, serial); // needs Struct.read(serial) ?
+			ioctl(fd, TIOCGSERIAL, serial); // serial: auto-write before, auto-read after
 			return serial;
 		}
 
 		public static void tiocsserial(int fd, serial_struct serial) throws CException {
-			ioctl(fd, TIOCSSERIAL, serial); // needs Struct.write(serial) ?
+			ioctl(fd, TIOCSSERIAL, serial); // serial: auto-write before, auto-read after
 		}
 	}
 

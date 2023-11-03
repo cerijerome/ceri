@@ -11,6 +11,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
+import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
@@ -129,6 +130,27 @@ public class JnaTestUtil {
 	 */
 	public static void assertNotValid(Pointer p) {
 		assertEquals(Pointer.nativeValue(p), 0L, "Peer");
+	}
+
+	/**
+	 * Make sure int reference stores the given value.
+	 */
+	public static void assertRef(IntByReference ref, int value) {
+		assertEquals(ref.getValue(), value);
+	}
+
+	/**
+	 * Make sure unsigned native long reference pointer stores the given value.
+	 */
+	public static void assertNlong(Pointer p, long value) {
+		assertEquals(JnaUtil.nlong(p, 0), value);
+	}
+
+	/**
+	 * Make sure unsigned native long reference pointer stores the given value.
+	 */
+	public static void assertUnlong(Pointer p, long value) {
+		assertEquals(JnaUtil.unlong(p, 0), value);
 	}
 
 	/**

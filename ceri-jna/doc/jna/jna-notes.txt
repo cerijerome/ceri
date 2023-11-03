@@ -58,6 +58,8 @@ Arrays:
 Structures:
 - struct within struct is contiguous unless explicitly ByReference
 - often better to use pointers to prevent auto read/write
+  - Structure function param is auto-written before function call, and auto-read after call 
+  - Structure has autoRead and autoWrite true by default
 - constructor T(null) is the same as T()
 - structs created with null pointer only have placeholder memory
   - struct fields have their own independent placeholder memory 

@@ -28,7 +28,7 @@ public class SelfHealingFdConfig {
 
 	public static class Builder {
 		final ExceptionSupplier<IOException, ? extends FileDescriptor> openFn;
-		SelfHealingConfig.Builder selfHealing =
+		final SelfHealingConfig.Builder selfHealing = 
 			SelfHealingConfig.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 		Builder(ExceptionSupplier<IOException, ? extends FileDescriptor> openFn) {

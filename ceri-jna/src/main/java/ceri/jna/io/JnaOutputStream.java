@@ -1,6 +1,6 @@
 package ceri.jna.io;
 
-import static ceri.common.collection.ArrayUtil.validateRange;
+import static ceri.common.collection.ArrayUtil.validateSlice;
 import java.io.IOException;
 import java.io.OutputStream;
 import com.sun.jna.Memory;
@@ -35,7 +35,7 @@ public abstract class JnaOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		validateRange(b.length, off, len);
+		validateSlice(b.length, off, len);
 		ensureOpen();
 		verifyWrite(writeAll(buffers.get(), b, off, len), len);
 	}
@@ -61,9 +61,9 @@ public abstract class JnaOutputStream extends OutputStream {
 	 * Flushes the stream. Called only after verifying the stream is open.
 	 */
 	protected void flushBytes() throws IOException {
-		super.flush();	
+		super.flush();
 	}
-	
+
 	/**
 	 * Ensures the stream is currently open.
 	 */

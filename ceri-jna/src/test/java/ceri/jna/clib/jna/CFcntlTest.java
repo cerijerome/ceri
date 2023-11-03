@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.sun.jna.LastErrorException;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
 
 public class CFcntlTest {
@@ -56,42 +57,42 @@ public class CFcntlTest {
 	public void testFcntl() throws CException {
 		lib.fcntl.autoResponses(3);
 		assertEquals(CFcntl.fcntl(fd, 0x111, -1, -2, -3), 3);
-		lib.assertFcntl(fd, 0x111, -1, -2, -3);
+		assertFcntlAuto(fd, 0x111, -1, -2, -3);
 		assertEquals(CFcntl.fcntl(() -> "test", fd, 0x111, "x"), 3);
-		lib.assertFcntlArgs(fd, 0x111, null); // don't check optional args
+		assertFcntlAuto(fd, 0x111, "x");
 	}
 
 	@Test
 	public void testDupFd() throws CException {
-		lib.fcntlAutoResponse(objs -> ((Integer) objs[0]).intValue() + 1);
+		lib.fcntl.autoResponse(args -> args.<Integer>arg(0) + 1);
 		assertEquals(CFcntl.dupFd(fd, 777), 778);
-		lib.assertFcntl(fd, CFcntl.F_DUPFD, 777);
+		assertFcntlAuto(fd, CFcntl.F_DUPFD, 777);
 	}
 
 	@Test
 	public void testGetFd() throws CException {
 		lib.fcntl.autoResponses(CFcntl.O_CLOEXEC);
 		assertEquals(CFcntl.getFd(fd), CFcntl.O_CLOEXEC);
-		lib.assertFcntl(fd, CFcntl.F_GETFD);
+		assertFcntlAuto(fd, CFcntl.F_GETFD);
 	}
 
 	@Test
 	public void testSetFd() throws CException {
 		CFcntl.setFd(fd, CFcntl.O_CLOEXEC);
-		lib.assertFcntl(fd, CFcntl.F_SETFD, CFcntl.O_CLOEXEC);
+		assertFcntlAuto(fd, CFcntl.F_SETFD, CFcntl.O_CLOEXEC);
 	}
 
 	@Test
 	public void testGetFl() throws CException {
 		lib.fcntl.autoResponses(CFcntl.O_RDWR | CFcntl.O_NONBLOCK);
 		assertEquals(CFcntl.getFl(fd), CFcntl.O_RDWR | CFcntl.O_NONBLOCK);
-		lib.assertFcntl(fd, CFcntl.F_GETFL);
+		assertFcntlAuto(fd, CFcntl.F_GETFL);
 	}
 
 	@Test
 	public void testSetFl() throws CException {
 		CFcntl.setFl(fd, CFcntl.O_RDWR | CFcntl.O_EXCL);
-		lib.assertFcntl(fd, CFcntl.F_SETFL, CFcntl.O_RDWR | CFcntl.O_EXCL);
+		assertFcntlAuto(fd, CFcntl.F_SETFL, CFcntl.O_RDWR | CFcntl.O_EXCL);
 	}
 
 	@Test
@@ -104,5 +105,9 @@ public class CFcntlTest {
 	@Test
 	public void testFields() {
 		JnaTestUtil.testForEachOs(CFcntl.class);
+	}
+	
+	private void assertFcntlAuto(int fd, int request, Object...args) {
+		assertEquals(lib.fcntl.awaitAuto(), CtlArgs.of(lib.fd(fd), request, args));
 	}
 }

@@ -3,7 +3,6 @@ package ceri.jna.clib;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,9 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.WriteArgs;
 
 public class COutputStreamBehavior {
 	private static TestCLibNative lib;
@@ -50,7 +49,7 @@ public class COutputStreamBehavior {
 	public void shouldWriteSingleByte() throws IOException {
 		lib.write.autoResponses(1);
 		out.write(0xabcd);
-		lib.write.assertAuto(List.of(fd(), ByteProvider.of(0xcd)));
+		lib.write.assertAuto(WriteArgs.of(fd, 0xcd));
 		assertEquals(lib.write.calls(), 1);
 	}
 
@@ -60,10 +59,10 @@ public class COutputStreamBehavior {
 		lib.write.autoResponses(1, 2, 1);
 		out.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
 		lib.write.assertValues( //
-			List.of(fd(), ByteProvider.of(1, 2, 3)), // 1 byte written
-			List.of(fd(), ByteProvider.of(2, 3)), // 2 bytes written
-			List.of(fd(), ByteProvider.of(4, 5)), // 1 byte written
-			List.of(fd(), ByteProvider.of(5))); // 1 byte written
+			WriteArgs.of(fd, 1, 2, 3), // 1 byte written
+			WriteArgs.of(fd, 2, 3), // 2 bytes written
+			WriteArgs.of(fd, 4, 5), // 1 byte written
+			WriteArgs.of(fd, 5)); // 1 byte written
 	}
 
 	@Test
@@ -76,7 +75,7 @@ public class COutputStreamBehavior {
 
 	@Test
 	public void shouldProvideQueueSize() throws IOException {
-		lib.ioctlAutoResponseOk(objs -> ((IntByReference) objs[0]).setValue(33));
+		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(33), 0);
 		assertEquals(out.queued(), 33);
 	}
 
@@ -92,9 +91,5 @@ public class COutputStreamBehavior {
 		assertThrown(() -> out.write(0));
 		assertThrown(() -> out.write(new byte[3]));
 		assertThrown(() -> out.flush());
-	}
-
-	private static TestCLibNative.Fd fd() {
-		return lib.fd(fd);
 	}
 }

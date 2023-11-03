@@ -22,6 +22,7 @@ import ceri.jna.clib.Mode.Mask;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.log.test.LogModifier;
 import ceri.log.util.LogUtil;
 
@@ -66,7 +67,7 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void shouldOpenWithMode() throws IOException {
 		try (var fd = CFileDescriptor.open("test", Mode.of(Mask.rwxo), OpenFlag.O_APPEND)) {
-			lib.open.assertCall(List.of("test", OpenFlag.O_APPEND.value, Mask.rwxo.value));
+			lib.open.assertCall(new OpenArgs("test", OpenFlag.O_APPEND.value, Mask.rwxo.value));
 		}
 	}
 
@@ -74,9 +75,9 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void shouldOpenWithOpener() throws IOException {
 		new Opener("test", Mode.of(0567), OpenFlag.O_CREAT).get();
-		lib.open.assertCall(List.of("test", OpenFlag.O_CREAT.value, 0567));
+		lib.open.assertCall(new OpenArgs("test", OpenFlag.O_CREAT.value, 0567));
 		new Opener("test", Mode.of(0756), List.of(OpenFlag.O_APPEND)).get();
-		lib.open.assertCall(List.of("test", OpenFlag.O_APPEND.value, 0756));
+		lib.open.assertCall(new OpenArgs("test", OpenFlag.O_APPEND.value, 0756));
 	}
 
 	@Test

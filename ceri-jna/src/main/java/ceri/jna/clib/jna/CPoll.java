@@ -64,7 +64,7 @@ public class CPoll {
 		}
 
 		/**
-		 * Returns true if revents has the given event.
+		 * Returns true if revents has any event.
 		 */
 		public boolean hasEvent() {
 			return revents != 0;

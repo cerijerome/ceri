@@ -58,6 +58,7 @@ public class CallbackTester {
 				lastCallbackMs = System.currentTimeMillis();
 			}
 
+			@Deprecated
 			@Override
 			protected void finalize() throws Throwable {
 				System.out.printf("gc! (callback=%s)%n", ReflectUtil.hashId(this));

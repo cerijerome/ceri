@@ -4,19 +4,19 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.LINUX_OS;
 import static ceri.jna.test.JnaTestUtil.MAC_OS;
+import static ceri.jna.test.JnaTestUtil.assertRef;
+import static ceri.jna.test.JnaTestUtil.assertUnlong;
 import java.io.IOException;
-import java.util.function.Consumer;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CIoctl.Linux.serial_struct;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
-import ceri.jna.util.JnaUtil;
 
 public class CIoctlTest {
 	private static TestCLibNative lib;
@@ -52,101 +52,103 @@ public class CIoctlTest {
 	public void testIoctl() throws CException {
 		lib.ioctl.autoResponses(3);
 		assertEquals(CIoctl.ioctl(fd, 0x111, -1, -2, -3), 3);
-		lib.assertIoctl(fd, 0x111, -1, -2, -3);
+		assertIoctlAuto(fd, 0x111, -1, -2, -3);
 		assertEquals(CIoctl.ioctl(() -> "test", fd, 0x111, -1, -2, -3), 3);
-		lib.assertIoctl(fd, 0x111, -1, -2, -3);
+		assertIoctlAuto(fd, 0x111, -1, -2, -3);
 	}
 
 	@Test
 	public void testBreak() throws CException {
 		CIoctl.tiocsbrk(fd);
-		lib.assertIoctl(fd, CIoctl.TIOCSBRK);
+		assertIoctlAuto(fd, CIoctl.TIOCSBRK);
 		CIoctl.tioccbrk(fd);
-		lib.assertIoctl(fd, CIoctl.TIOCCBRK);
+		assertIoctlAuto(fd, CIoctl.TIOCCBRK);
 	}
 
 	@Test
 	public void testFionread() throws CException {
-		lib.ioctlAutoResponseOk(setIntRef(31));
+		ioctlAutoIntRef(31);
 		assertEquals(CIoctl.fionread(fd), 31);
-		lib.assertIoctlArgs(fd, CIoctl.FIONREAD, null);
+		assertIoctlIntRef(fd, CIoctl.FIONREAD, 31);
 	}
 
 	@Test
 	public void testTiocoutq() throws CException {
-		lib.ioctlAutoResponseOk(setIntRef(37));
+		ioctlAutoIntRef(37);
 		assertEquals(CIoctl.tiocoutq(fd), 37);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCOUTQ, null);
+		assertIoctlIntRef(fd, CIoctl.TIOCOUTQ, 37);
 	}
 
 	@Test
 	public void testTioexcl() throws CException {
 		CIoctl.tiocexcl(fd);
-		lib.assertIoctl(fd, CIoctl.TIOCEXCL);
+		assertIoctlAuto(fd, CIoctl.TIOCEXCL);
 	}
 
 	@Test
 	public void testTiocmget() throws CException {
-		lib.ioctlAutoResponseOk(setIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI));
+		ioctlAutoIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 		assertEquals(CIoctl.tiocmget(fd), CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 	}
 
 	@Test
 	public void testTiocmbis() throws CException {
 		CIoctl.tiocmbis(fd, CIoctl.TIOCM_LE);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIS, assertIntRef(CIoctl.TIOCM_LE));
+		assertIoctlIntRef(fd, CIoctl.TIOCMBIS, CIoctl.TIOCM_LE);
 	}
 
 	@Test
 	public void testTiocmbic() throws CException {
 		CIoctl.tiocmbic(fd, CIoctl.TIOCM_LE);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIC, assertIntRef(CIoctl.TIOCM_LE));
+		assertIoctlIntRef(fd, CIoctl.TIOCMBIC, CIoctl.TIOCM_LE);
 	}
 
 	@Test
 	public void testTiocmset() throws CException {
 		CIoctl.tiocmset(fd, CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMSET, assertIntRef(CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS));
+		assertIoctlIntRef(fd, CIoctl.TIOCMSET, CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS);
 	}
 
 	@Test
 	public void testTiocmbitSet() throws CException {
 		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, true);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIS, assertIntRef(CIoctl.TIOCM_RI));
+		assertIoctlIntRef(fd, CIoctl.TIOCMBIS, CIoctl.TIOCM_RI);
 		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, false);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMBIC, assertIntRef(CIoctl.TIOCM_RI));
+		assertIoctlIntRef(fd, CIoctl.TIOCMBIC, CIoctl.TIOCM_RI);
 	}
 
 	@Test
 	public void testTiocmbitGet() throws CException {
-		lib.ioctlAutoResponseOk(setIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD));
+		ioctlAutoIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS), true);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD), true);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI), false);
-		lib.assertIoctlArgs(fd, CIoctl.TIOCMGET, null);
+		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 	}
 
 	@Test
 	public void testMacIossiospeed() throws CException {
 		CIoctl.Mac.iossiospeed(fd, 250000);
-		lib.assertIoctlArgs(fd, CIoctl.Mac.IOSSIOSPEED,
-			objs -> assertEquals(JnaUtil.unlong((Pointer) objs[0], 0), 250000L));
+		var args = lib.ioctl.awaitAuto();
+		assertEquals(args.fd(), fd);
+		assertEquals(args.request(), CIoctl.Mac.IOSSIOSPEED);
+		assertUnlong(args.arg(0), 250000L);
 	}
 
 	@Test
 	public void testLinuxTiocgserial() throws CException {
-		lib.ioctlAutoResponseOk(objs -> {
-			serial_struct ss = (serial_struct) objs[0];
+		lib.ioctl.autoResponse(args -> {
+			serial_struct ss = args.arg(0);
 			ss.type = 0x33;
 			ss.baud_base = 0x123;
-		});
+		}, 0);
 		var ss = CIoctl.Linux.tiocgserial(fd);
 		assertEquals(ss.type, 0x33);
 		assertEquals(ss.baud_base, 0x123);
-		lib.assertIoctl(fd, CIoctl.Linux.TIOCGSERIAL, ss);
+		assertIoctlAuto(fd, CIoctl.Linux.TIOCGSERIAL, ss);
 	}
 
 	@Test
@@ -155,7 +157,7 @@ public class CIoctlTest {
 		ss.type = 0x33;
 		ss.baud_base = 0x123;
 		CIoctl.Linux.tiocsserial(fd, ss);
-		lib.assertIoctl(fd, CIoctl.Linux.TIOCSSERIAL, ss);
+		assertIoctlAuto(fd, CIoctl.Linux.TIOCSSERIAL, ss);
 	}
 
 	@Test
@@ -199,12 +201,18 @@ public class CIoctlTest {
 		}
 	}
 
-	private static Consumer<Object[]> assertIntRef(int value) {
-		return objs -> assertEquals(((IntByReference) objs[0]).getValue(), value);
+	private void ioctlAutoIntRef(int value) {
+		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(value), 0);
 	}
 
-	private static Consumer<Object[]> setIntRef(int value) {
-		return objs -> ((IntByReference) objs[0]).setValue(value);
+	private void assertIoctlIntRef(int fd, int request, int value) {
+		var args = lib.ioctl.awaitAuto();
+		assertEquals(args.fd(), fd);
+		assertEquals(args.request(), request);
+		assertRef(args.arg(0), value);
 	}
-
+	
+	private void assertIoctlAuto(int fd, int request, Object...args) {
+		lib.ioctl.assertAuto(CtlArgs.of(lib.fd(fd), request, args));
+	}
 }

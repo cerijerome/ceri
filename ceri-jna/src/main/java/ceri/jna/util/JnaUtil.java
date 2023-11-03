@@ -239,7 +239,7 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Convenience constructor for native long.
+	 * Convenience constructor for signed native long.
 	 */
 	public static NativeLong nlong(long value) {
 		return new NativeLong(value);
@@ -260,10 +260,31 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Get signed value from pointer.
+	 */
+	public static long nlong(Pointer p, long offset) {
+		return p.getNativeLong(offset).longValue();
+	}
+
+	/**
 	 * Get unsigned value from pointer.
 	 */
-	public static long unlong(Pointer p, int offset) {
+	public static long unlong(Pointer p, long offset) {
 		return unlong(p.getNativeLong(offset));
+	}
+
+	/**
+	 * Set signed value at pointer.
+	 */
+	public static void nlong(Pointer p, long offset, long value) {
+		p.setNativeLong(offset, nlong(value));
+	}
+
+	/**
+	 * Set unsigned value at pointer.
+	 */
+	public static void unlong(Pointer p, long offset, long value) {
+		p.setNativeLong(offset, unlong(value));
 	}
 
 	/**

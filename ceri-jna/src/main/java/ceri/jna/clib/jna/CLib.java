@@ -131,7 +131,7 @@ public class CLib {
 		throw new UnsupportedOperationException("Not supported: " + os);
 	}
 
-	static CLib.Native lib() {
+	protected static CLib.Native lib() {
 		return library.get();
 	}
 }

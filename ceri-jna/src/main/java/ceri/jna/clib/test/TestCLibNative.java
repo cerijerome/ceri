@@ -1,17 +1,13 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
-import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
@@ -26,6 +22,7 @@ import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
+import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.util.JnaUtil;
@@ -36,35 +33,146 @@ import ceri.jna.util.Struct;
  */
 public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
-	public final Map<Integer, Fd> fds = new ConcurrentHashMap<>();
+	public final Map<Integer, OpenArgs> fds = new ConcurrentHashMap<>();
 	public final Map<String, String> env = new ConcurrentHashMap<>();
-	// List<?> = String path, int flags, int mode
-	public final CallSync.Consumer<List<?>> open = CallSync.consumer(null, true);
-	public final CallSync.Function<Fd, Integer> close = CallSync.function(null, 0);
-	public final CallSync.Function<Fd, Integer> isatty = CallSync.function(null, 0);
-	public final CallSync.Function<Fd[], Integer> pipe = CallSync.function(null, 0);
-	// List<?> = Fd f, int len
-	public final CallSync.Function<List<?>, ByteProvider> read =
+	public final CallSync.Consumer<OpenArgs> open = CallSync.consumer(null, true);
+	public final CallSync.Function<Integer, Integer> close = CallSync.function(null, 0);
+	public final CallSync.Function<Integer, Integer> isatty = CallSync.function(null, 0);
+	public final CallSync.Function<int[], Integer> pipe = CallSync.function(null, 0);
+	public final CallSync.Function<ReadArgs, ByteProvider> read =
 		CallSync.function(null, ByteProvider.empty());
-	// List<?> = Fd f, ByteProvider data
-	public final CallSync.Function<List<?>, Integer> write = CallSync.function(null, 0);
-	// List<?> = Fd f, int offset, int whence
-	public final CallSync.Function<List<?>, Integer> lseek = CallSync.function(null, 0);
-	// List<?> = int signal, sighandler_t handler
-	public final CallSync.Function<List<?>, Pointer> signal = CallSync.function(null, Pointer.NULL);
+	public final CallSync.Function<WriteArgs, Integer> write = CallSync.function(null, 0);
+	public final CallSync.Function<LseekArgs, Integer> lseek = CallSync.function(null, 0);
+	public final CallSync.Function<SignalArgs, Pointer> signal =
+		CallSync.function(null, Pointer.NULL);
 	public final CallSync.Function<Integer, Integer> raise = CallSync.function(null, 0);
-	// List<?> = List<pollfd> fds, int timeoutMs
-	public final CallSync.Function<List<?>, Integer> poll = CallSync.function(null, 0);
-	// List<?> = Fd f, int request, Object[] objs
-	public final CallSync.Function<List<?>, Integer> ioctl = CallSync.function(null, 0);
-	// List<?> = Fd f, int cmd, Object[] objs
-	public final CallSync.Function<List<?>, Integer> fcntl = CallSync.function(null, 0);
-	// List<?> = String callName, Fd f, ...
-	public final CallSync.Function<List<?>, Integer> tc = CallSync.function(null, 0);
-	// List<?> = String callName, ...
-	public final CallSync.Function<List<?>, Integer> cf = CallSync.function(null, 0);
+	public final CallSync.Function<PollArgs, Integer> poll = CallSync.function(null, 0);
+	public final CallSync.Function<CtlArgs, Integer> ioctl = CallSync.function(null, 0);
+	public final CallSync.Function<CtlArgs, Integer> fcntl = CallSync.function(null, 0);
+	public final CallSync.Function<TcArgs, Integer> tc = CallSync.function(null, 0);
+	public final CallSync.Function<CfArgs, Integer> cf = CallSync.function(null, 0);
+	private volatile int lastFd = -1;
 
-	public static record Fd(int fd, String path, int flags, int mode) {}
+	/**
+	 * Arguments for open calls.
+	 */
+	public static record OpenArgs(String path, int flags, int mode) {}
+
+	/**
+	 * Arguments for read calls.
+	 */
+	public static record ReadArgs(int fd, int len) {}
+
+	/**
+	 * Arguments for write calls.
+	 */
+	public static record WriteArgs(int fd, ByteProvider data) {
+		public static WriteArgs of(int fd, int... data) {
+			return new WriteArgs(fd, ByteProvider.of(data));
+		}
+	}
+
+	/**
+	 * Arguments for lseek calls.
+	 */
+	public static record LseekArgs(int fd, int offset, int whence) {}
+
+	/**
+	 * Arguments for signal calls. Handler type must be sighandler_t or Pointer.
+	 */
+	public static record SignalArgs(int signal, Object handler) {
+		public SignalArgs {
+			assertTrue(handler instanceof sighandler_t || handler instanceof Pointer);
+		}
+	}
+
+	/**
+	 * Arguments for poll calls.
+	 */
+	public static record PollArgs(List<pollfd> pollfds, int timeoutMs) {
+		public static PollArgs of(int timeoutMs, pollfd... pollfds) {
+			return new PollArgs(List.of(pollfds), timeoutMs);
+		}
+
+		/**
+		 * Provides the pollfd at index.
+		 */
+		public pollfd pollfd(int i) {
+			return pollfds().get(i);
+		}
+
+		/**
+		 * Writes pollfds to memory, and returns the count of pollfds with any revents.
+		 */
+		public int write() {
+			int count = 0;
+			for (var pollfd : pollfds())
+				if (Struct.write(pollfd).hasEvent()) count++;
+			return count;
+		}
+	}
+
+	/**
+	 * Arguments for ioctl and fcntl calls.
+	 */
+	public static record CtlArgs(int fd, int request, List<Object> args) {
+		public static CtlArgs of(int fd, int request, Object... args) {
+			return new CtlArgs(fd, request, List.of(args));
+		}
+
+		/**
+		 * Provide vararg argument as a typed object.
+		 */
+		public <T> T arg(int i) {
+			return BasicUtil.uncheckedCast(args().get(i));
+		}
+	}
+
+	/**
+	 * Arguments for tc calls.
+	 */
+	public static record TcArgs(String name, int fd, List<Object> args) {
+		public static TcArgs of(String name, int fd, Object... args) {
+			return new TcArgs(name, fd, List.of(args));
+		}
+
+		/**
+		 * Provide vararg argument as a typed object.
+		 */
+		public <T> T arg(int i) {
+			return BasicUtil.uncheckedCast(args().get(i));
+		}
+	}
+
+	/**
+	 * Arguments for cf calls.
+	 */
+	public static record CfArgs(String name, Pointer termios, List<Object> args) {
+		public static CfArgs of(String name, Pointer termios, Object... args) {
+			return new CfArgs(name, termios, List.of(args));
+		}
+
+		/**
+		 * Returns a copy of the Linux termios struct.
+		 */
+		public CTermios.Linux.termios termiosLinux() {
+			return Struct.copyFrom(termios, new CTermios.Linux.termios());
+		}
+		
+		/**
+		 * Returns a copy of the Mac termios struct.
+		 */
+		public CTermios.Mac.termios termiosMac() {
+			return Struct.copyFrom(termios, new CTermios.Mac.termios());
+		}
+		
+		/**
+		 * Provide vararg argument as a typed object.
+		 */
+		public <T> T arg(int i) {
+			return BasicUtil.uncheckedCast(args().get(i));
+		}
+	}
 
 	public static Enclosed<RuntimeException, TestCLibNative> register() {
 		return register(of());
@@ -103,74 +211,14 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
-	 * Pass pollfd array and timeout to given consumer to process, and set auto response to the
+	 * Pass poll arguments to a consumer, write structs to memory, and set auto response to the
 	 * number of pollfds with non-zero revents.
 	 */
-	public void pollAutoResponse(ObjIntConsumer<pollfd[]> consumer) {
-		poll.autoResponse(list -> {
-			var pollfds = BasicUtil.<List<pollfd>>uncheckedCast(list.get(0)).toArray(pollfd[]::new);
-			consumer.accept(pollfds, (Integer) list.get(1));
-			Struct.write(pollfds);
-			return (int) Stream.of(pollfds).filter(pollfd -> pollfd.revents != 0).count();
+	public void pollAuto(Consumer<PollArgs> consumer) {
+		poll.autoResponse(args -> {
+			consumer.accept(args);
+			return args.write();
 		});
-	}
-
-	/**
-	 * Pass ioctl varargs to given consumer to process, and set auto response.
-	 */
-	public void ioctlAutoResponse(ToIntFunction<Object[]> fn) {
-		ioctl.autoResponse(list -> fn.applyAsInt((Object[]) list.get(2)));
-	}
-
-	/**
-	 * Set ioctl auto response to 0, and pass ioctl varargs to given consumer to process.
-	 */
-	public void ioctlAutoResponseOk(Consumer<Object[]> fn) {
-		ioctlAutoResponse(objs -> {
-			fn.accept(objs);
-			return 0;
-		});
-	}
-
-	/**
-	 * Assert ioctl request was called with fd, request and optional args.
-	 */
-	public void assertIoctl(int fd, int request, Object... args) {
-		assertIoctlArgs(fd, request, objs -> assertArray(objs, args));
-	}
-
-	/**
-	 * Assert ioctl request was called with fd, and use consumer to verify vararg fields.
-	 */
-	public void assertIoctlArgs(int fd, int request, Consumer<Object[]> consumer) {
-		var list = ioctl.awaitAuto();
-		assertEquals(list.get(0), fd(fd));
-		assertEquals(list.get(1), request);
-		if (consumer != null) consumer.accept((Object[]) list.get(2));
-	}
-
-	/**
-	 * Set fcntl auto response to 0, and pass fcntl varargs to given consumer to process.
-	 */
-	public void fcntlAutoResponse(ToIntFunction<Object[]> fn) {
-		fcntl.autoResponse(list -> fn.applyAsInt((Object[]) list.get(2)));
-	}
-
-	/**
-	 * Assert fcntl request was called with fd, command and optional args.
-	 */
-	public void assertFcntl(int fd, int command, Object... args) {
-		assertFcntlArgs(fd, command, objs -> assertArray(objs, args));
-	}
-
-	/**
-	 * Assert fcntl command was called with fd, and use consumer to verify vararg fields.
-	 */
-	public void assertFcntlArgs(int fd, int command, Consumer<Object[]> consumer) {
-		var list = fcntl.awaitAuto();
-		assertEquals(list.get(0), fd(fd));
-		assertEquals(list.get(1), command);
-		if (consumer != null) consumer.accept((Object[]) list.get(2));
 	}
 
 	/**
@@ -186,17 +234,16 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int open(String path, int flags, Object... args) throws LastErrorException {
-		int mode = args.length == 0 ? 0 : (int) args[0];
-		var fd = createFd(path, flags, mode);
-		open.accept(List.of(path, flags, mode));
-		return fd.fd;
+		var openArgs = new OpenArgs(path, flags, args.length == 0 ? 0 : (int) args[0]);
+		var fd = createFd(openArgs);
+		open.accept(openArgs);
+		return fd;
 	}
 
 	@Override
 	public int close(int fd) throws LastErrorException {
-		Fd f = fd(fd);
-		int result = close.apply(f);
-		fds.remove(f.fd);
+		int result = close.apply(fd(fd));
+		fds.remove(fd);
 		return result;
 	}
 
@@ -207,17 +254,17 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int pipe(int[] pipefd) throws LastErrorException {
-		var fr = createFd("pipe:r", CFcntl.O_RDONLY, 0);
-		var fw = createFd("pipe:w", CFcntl.O_WRONLY, 0);
-		int result = pipe.apply(new Fd[] { fr, fw });
-		pipefd[0] = fr.fd;
-		pipefd[1] = fw.fd;
+		var fr = createFd(new OpenArgs("pipe:r", CFcntl.O_RDONLY, 0));
+		var fw = createFd(new OpenArgs("pipe:w", CFcntl.O_WRONLY, 0));
+		int result = pipe.apply(new int[] { fr, fw });
+		pipefd[0] = fr;
+		pipefd[1] = fw;
 		return result;
 	}
 
 	@Override
 	public ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException {
-		ByteProvider data = read.apply(List.of(fd(fd), len.intValue()));
+		ByteProvider data = read.apply(new ReadArgs(fd(fd), len.intValue()));
 		if (data == null || data.length() == 0) return new ssize_t(0);
 		int n = Math.min(data.length(), len.intValue());
 		JnaUtil.write(buffer, data.copy(0), 0, n);
@@ -228,23 +275,23 @@ public class TestCLibNative implements CLib.Native {
 	public ssize_t write(int fd, Pointer buffer, size_t len) throws LastErrorException {
 		byte[] bytes = new byte[len.intValue()];
 		if (buffer != null) JnaUtil.read(buffer, bytes);
-		int n = write.apply(List.of(fd(fd), ByteProvider.of(bytes)));
+		int n = write.apply(new WriteArgs(fd(fd), ByteProvider.of(bytes)));
 		return new ssize_t(n);
 	}
 
 	@Override
 	public int lseek(int fd, int offset, int whence) throws LastErrorException {
-		return lseek.apply(List.of(fd(fd), offset, whence));
+		return lseek.apply(new LseekArgs(fd(fd), offset, whence));
 	}
 
 	@Override
 	public Pointer signal(int signum, sighandler_t handler) {
-		return signal.apply(List.of(signum, handler));
+		return signal.apply(new SignalArgs(signum, handler));
 	}
 
 	@Override
 	public Pointer signal(int signum, Pointer handler) {
-		return signal.apply(List.of(signum, handler));
+		return signal.apply(new SignalArgs(signum, handler));
 	}
 
 	@Override
@@ -255,72 +302,72 @@ public class TestCLibNative implements CLib.Native {
 	@Override
 	public int poll(Pointer fds, int nfds, int timeout) throws LastErrorException {
 		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
-		return poll.apply(List.of(List.of(array), timeout));
+		return poll.apply(PollArgs.of(timeout, array));
 	}
 
 	@Override
 	public int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException {
-		return ioctl.apply(List.of(fd(fd), request.intValue(), objs));
+		return ioctl.apply(CtlArgs.of(fd(fd), request.intValue(), objs));
 	}
 
 	@Override
 	public int fcntl(int fd, int cmd, Object... objs) throws LastErrorException {
-		return fcntl.apply(List.of(fd(fd), cmd, objs));
+		return fcntl.apply(CtlArgs.of(fd(fd), cmd, objs));
 	}
 
 	@Override
 	public int tcgetattr(int fd, Pointer termios) throws LastErrorException {
-		return tc.apply(List.of("tcgetattr", fd(fd), termios));
+		return tc.apply(TcArgs.of("tcgetattr", fd(fd), termios));
 	}
 
 	@Override
 	public int tcsetattr(int fd, int optional_actions, Pointer termios) throws LastErrorException {
-		return tc.apply(List.of("tcsetattr", fd(fd), optional_actions, termios));
+		return tc.apply(TcArgs.of("tcsetattr", fd(fd), optional_actions, termios));
 	}
 
 	@Override
 	public int tcsendbreak(int fd, int duration) throws LastErrorException {
-		return tc.apply(List.of("tcsendbreak", fd(fd), duration));
+		return tc.apply(TcArgs.of("tcsendbreak", fd(fd), duration));
 	}
 
 	@Override
 	public int tcdrain(int fd) throws LastErrorException {
-		return tc.apply(List.of("tcdrain", fd(fd)));
+		return tc.apply(TcArgs.of("tcdrain", fd(fd)));
 	}
 
 	@Override
 	public int tcflush(int fd, int queue_selector) throws LastErrorException {
-		return tc.apply(List.of("tcflush", fd(fd), queue_selector));
+		return tc.apply(TcArgs.of("tcflush", fd(fd), queue_selector));
 	}
 
 	@Override
 	public int tcflow(int fd, int action) throws LastErrorException {
-		return tc.apply(List.of("tcflow", fd(fd), action));
+		return tc.apply(TcArgs.of("tcflow", fd(fd), action));
 	}
 
 	@Override
 	public void cfmakeraw(Pointer termios) throws LastErrorException {
-		cf.apply(List.of("cfmakeraw", termios));
+		cf.apply(CfArgs.of("cfmakeraw", termios));
 	}
 
 	@Override
 	public NativeLong cfgetispeed(Pointer termios) throws LastErrorException {
-		return JnaUtil.unlong(cf.apply(List.of("cfgetispeed", termios)));
+		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetispeed", termios)));
 	}
 
 	@Override
 	public NativeLong cfgetospeed(Pointer termios) throws LastErrorException {
-		return JnaUtil.unlong(cf.apply(List.of("cfgetospeed", termios)));
+		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetospeed", termios)));
 	}
 
 	@Override
 	public int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return cf.apply(List.of("cfsetispeed", termios, speed.intValue()));
+		return cf.apply(CfArgs.of("cfsetispeed", termios, speed.intValue()));
 	}
 
 	@Override
 	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
-		return cf.apply(List.of("cfsetospeed", termios, speed.intValue()));
+		return cf.apply(CfArgs.of("cfsetospeed", termios, speed.intValue()));
 	}
 
 	@Override
@@ -335,23 +382,27 @@ public class TestCLibNative implements CLib.Native {
 		return env.get(name);
 	}
 
-	public Fd fd(int fd) {
+	public int lastFd() {
+		return lastFd;
+	}
+
+	public int fd(int fd) {
 		return fd(fd, CError.EBADF);
 	}
 
-	protected Fd fd(int fd, CError error) {
+	protected int fd(int fd, CError error) {
 		return fd(fd, error.code);
 	}
 
-	protected Fd fd(int fd, int errorCode) {
-		Fd fdObj = fds.get(fd);
-		if (fdObj != null) return fdObj;
+	protected int fd(int fd, int errorCode) {
+		if (fds.containsKey(fd)) return fd;
 		throw new LastErrorException(errorCode);
 	}
 
-	private Fd createFd(String path, int flags, int mode) {
-		Fd f = new Fd(nextFd.getAndIncrement(), path, flags, mode);
-		fds.put(f.fd, f);
-		return f;
+	private int createFd(OpenArgs open) {
+		int fd = nextFd.getAndIncrement();
+		fds.put(fd, open);
+		lastFd = fd;
+		return fd;
 	}
 }

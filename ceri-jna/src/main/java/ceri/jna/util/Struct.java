@@ -208,14 +208,43 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Copies a structure to another memory location and calls autoRead(). The given structure must
-	 * be synchronized with memory before calling this method.
+	 * Copies a structure to another memory location with auto-read. The given structure must
+	 * be synchronized with memory before calling this method. 
 	 */
 	public static <T extends Structure> T copy(T from, Pointer to,
 		Function<Pointer, T> constructor) {
 		var t = constructor.apply(to);
 		if (from != null) JnaUtil.memmove(t.getPointer(), 0, from.getPointer(), 0, from.size());
 		return readAuto(t);
+	}
+
+	/**
+	 * Copies the contents of one structure to another. From and to structures are both synchronized
+	 * with memory. Returns the receiving structure.
+	 */
+	public static <T extends Structure> T copy(T from, T to) {
+		if (from == to || from == null || to == null) return to;
+		writeAuto(from);
+		return copyFrom(from.getPointer(), to);
+	}
+
+	/**
+	 * Copies the data from the pointer to the structure. The structure is synchronized with memory.
+	 */
+	public static <T extends Structure> T copyFrom(Pointer from, T to) {
+		if (from == null || to == null || to.getPointer().equals(from)) return to;
+		JnaUtil.memmove(to.getPointer(), 0, from, 0, to.size());
+		return readAuto(to);
+	}
+
+	/**
+	 * Copies the data from the structure to the pointer. The structure is synchronized with memory.
+	 */
+	public static <T extends Structure> T copyTo(T from, Pointer to) {
+		if (from == null || to == null || from.getPointer().equals(to)) return from;
+		writeAuto(from);
+		JnaUtil.memmove(to, 0, from.getPointer(), 0, from.size());
+		return from;
 	}
 
 	/**
