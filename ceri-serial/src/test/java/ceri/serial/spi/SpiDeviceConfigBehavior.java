@@ -4,13 +4,13 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.io.Direction;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.serial.spi.jna.TestSpiCLibNative;
 
 public class SpiDeviceConfigBehavior {
@@ -47,9 +47,9 @@ public class SpiDeviceConfigBehavior {
 		try (var fd = SpiDeviceConfig.of(1, 1, Direction.out).open()) {}
 		try (var fd = SpiDeviceConfig.of(1, 0).open()) {}
 		lib.open.assertValues( //
-			List.of("/dev/spidev0.1", 0, 0), //
-			List.of("/dev/spidev1.1", 1, 0), //
-			List.of("/dev/spidev1.0", 2, 0));
+			new OpenArgs("/dev/spidev0.1", 0, 0), //
+			new OpenArgs("/dev/spidev1.1", 1, 0), //
+			new OpenArgs("/dev/spidev1.0", 2, 0));
 	}
 
 }

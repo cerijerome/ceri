@@ -21,6 +21,7 @@ import com.sun.jna.LastErrorException;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.GcMemory;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
@@ -49,7 +50,7 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldOpenDevice() throws IOException {
 		assertThrown(() -> I2cDevice.open(-1));
-		lib.open.assertAuto(List.of("/dev/i2c-1", 2, 0)); // open fd
+		lib.open.assertAuto(new OpenArgs("/dev/i2c-1", 2, 0)); // open fd
 		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encode(I2C_FUNC_SMBUS_EMUL));
 		assertCollection(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
 		lib.ioctlI2cInt.assertAuto(List.of(0x0705, 0)); // I2C_FUNCS, dummy 0

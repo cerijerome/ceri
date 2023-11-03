@@ -29,6 +29,7 @@ import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.NativeLong;
 import ceri.common.collection.BiMap;
+import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -49,6 +50,7 @@ public class CSerial {
 	private static final int DC1 = 0x11; // ASCII device control 1 (^Q)
 	private static final int DC3 = 0x13; // ASCII device control 3 (^S)
 	private static final BiMap<Integer, Integer> baudMap = baudMap();
+	private static final double BAUD_MATCH = 0.05;
 	public static final int DATABITS_5 = 5;
 	public static final int DATABITS_6 = 6;
 	public static final int DATABITS_7 = 7;
@@ -68,7 +70,7 @@ public class CSerial {
 	public static final int STOPBITS_2 = 2;
 
 	private CSerial() {}
-	
+
 	public static int open(String port) throws CException {
 		int fd = CFcntl.open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 		try {
@@ -125,7 +127,7 @@ public class CSerial {
 		if (enable) CIoctl.tiocsbrk(fd);
 		else CIoctl.tioccbrk(fd);
 	}
-	
+
 	public static boolean cd(int fd) throws CException {
 		return CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD);
 	}
@@ -276,8 +278,10 @@ public class CSerial {
 
 		private static void setAttr(int fd, termios tty) throws CException {
 			int baud = tty.c_ospeed.intValue(); // must re-apply if non-standard
-			if (CSerial.baudCode(baud) == BAUD_UNSUPPORTED) enableCustomBaud(fd, tty, baud);
-			else CTermios.tcsetattr(fd, TCSANOW, tty);
+			if (CSerial.baudCode(baud) == BAUD_UNSUPPORTED)
+				enableCustomBaud(fd, tty, baud);
+			else 
+				CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void enableCustomBaud(int fd, termios tty, int baud) throws CException {
@@ -294,7 +298,7 @@ public class CSerial {
 			int baudCode = CSerial.baudCode(baud);
 			if (baudCode == BAUD_UNSUPPORTED) {
 				enableCustomBaud(fd, baud);
-				verifyCustomBaud(fd, baud);
+				verifyCustomBaud(fd, baud, BAUD_MATCH);
 				baudCode = CTermios.B38400;
 			} else disableCustomBaud(fd);
 			CSerial.setBaudCode(tty, baudCode);
@@ -310,15 +314,17 @@ public class CSerial {
 		private static void enableCustomBaud(int fd, int baud) throws CException {
 			var serial = CIoctl.Linux.tiocgserial(fd);
 			serial.flags = (serial.flags & ~ASYNC_SPD_MASK) | ASYNC_SPD_CUST;
-			serial.custom_divisor = Math.min((serial.baud_base + (baud / 2)) / baud, 1);
+			serial.custom_divisor = Math.max((serial.baud_base + (baud / 2)) / baud, 1);
 			CIoctl.Linux.tiocsserial(fd, serial);
 		}
 
-		private static void verifyCustomBaud(int fd, int baud) throws CException {
+		private static void verifyCustomBaud(int fd, int baud, double maxDiff) throws CException {
 			var serial = CIoctl.Linux.tiocgserial(fd);
-			if (serial.custom_divisor * baud == serial.baud_base) return;
-			throw CException.general("Failed to set custom baud: %d / %d != %d", serial.baud_base,
-				serial.custom_divisor, baud);
+			int actual = serial.baud_base / serial.custom_divisor;
+			double diff = Math.abs(((double) (actual - baud)) / baud);
+			if (diff > maxDiff) throw CException.general(
+				"Failed to set custom baud: %d (closest %d, error %.01f%%)", baud, actual,
+				MathUtil.toPercent(diff));
 		}
 	}
 }
