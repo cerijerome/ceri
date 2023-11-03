@@ -5,5 +5,6 @@ package ceri.common.io;
  */
 public enum Direction {
 	in,
-	out;
+	out,
+	duplex;
 }

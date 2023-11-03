@@ -48,6 +48,40 @@ public class ColorTubes {
 		}
 	}
 
+	public static int[] level877() {
+		return new int[] { //
+			tube(pink, blue, yellow, gray), //
+			tube(orange, purple, cyan, orange), //
+			tube(cyan, green, green, pink), //
+			tube(red, purple, olive, gray), //
+			tube(red, aqua, aqua, olive), //
+			tube(brown, cyan, yellow, red), //
+			tube(olive, cyan, orange, yellow), //
+			tube(olive, green, brown, brown), //
+			tube(purple, blue, blue, yellow), //
+			tube(pink, red, gray, pink), //
+			tube(purple, blue, aqua, brown), //
+			tube(aqua, green, orange, gray), //
+			0, 0 };
+	}
+	
+	public static int[] level843() {
+		return new int[] { //
+			tube(olive, cyan, green, gray), //
+			tube(purple, green, pink, red), //
+			tube(blue, gray, brown, aqua), //
+			tube(brown, cyan, olive, cyan), //
+			tube(orange, orange, orange, gray), //
+			tube(brown, brown, olive, red), //
+			tube(aqua, red, yellow, blue), //
+			tube(gray, orange, yellow, red), //
+			tube(green, aqua, yellow, purple), //
+			tube(blue, yellow, cyan, purple), //
+			tube(pink, aqua, blue, olive), //
+			tube(purple, green, pink, pink), //
+			0, 0 };
+	}
+
 	public static int[] level833() {
 		return new int[] { //
 			tube(yellow, purple, olive, green), //
@@ -97,13 +131,13 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		int[] tubes = level833();
+		int[] tubes = level877();
 		printTubes(tubes);
 		validateTubes(tubes);
 		var path = new int[100];
 		long t0 = TimeSupplier.micros.time();
-		int n = solveRecursively(path, 0, tubes);
-		//int n = solveIteratively(path, tubes);
+		// int n = solveRecursively(path, 0, tubes);
+		int n = solveIteratively(path, tubes);
 		long t1 = TimeSupplier.micros.time();
 		showSolution(path, n, tubes);
 		System.out.printf("count=%d t=%dus\n", count, t1 - t0);
@@ -126,7 +160,7 @@ public class ColorTubes {
 		int[] moves = new int[tubes.length * 2];
 		int n = setMoves(moves, 0, tubes);
 		for (int i = n - 1; i >= 0; i--) { // to match iterative order
-		//for (int i = 0; i < n; i++) {
+			// for (int i = 0; i < n; i++) {
 			int move = moves[i];
 			path[pathIndex] = move;
 			if (move == 0) return -1;
@@ -181,7 +215,7 @@ public class ColorTubes {
 			if (n > 0 && n < SIZE) System.err.printf("Too few %s: %d\n", Color.values[i], n);
 		}
 	}
-	
+
 	/**
 	 * Determine moves and set in given array. Terminate array with 0 value.
 	 */

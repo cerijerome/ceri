@@ -170,6 +170,13 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
+		 * Enables auto response with value consumer and fixed response.
+		 */
+		public Function<T, R> autoResponse(java.util.function.Consumer<T> consumer, R response) {
+			return autoResponse(toAutoResponseFn(consumer, response));
+		}
+
+		/**
 		 * Signals that a call has been made, and waits for the completion response. Throws a
 		 * RuntimeException if the generator is configured.
 		 */
@@ -331,10 +338,18 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
-		 * Enables auto response.
+		 * Enables/disables auto response.
 		 */
 		public Consumer<T> autoResponse(boolean enabled) {
 			super.autoResponseFn(toAutoResponseFn(enabled));
+			return this;
+		}
+
+		/**
+		 * Enables auto response with value consumer when called.
+		 */
+		public Consumer<T> autoResponse(java.util.function.Consumer<T> consumer) {
+			super.autoResponseFn(toAutoResponseFn(consumer, null));
 			return this;
 		}
 
@@ -461,6 +476,14 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
+		 * Enables auto response with runnable and fixed response. 
+		 */
+		public Supplier<R> autoResponse(java.lang.Runnable runnable, R response) {
+			super.autoResponseFn(toAutoResponseFn(runnable, response));
+			return this;
+		}
+
+		/**
 		 * Signals that a call has been made, and waits for the completion response. Throws a
 		 * RuntimeException if the generator is configured.
 		 */
@@ -536,6 +559,14 @@ public abstract class CallSync<T, R> {
 			return this;
 		}
 
+		/**
+		 * Enables auto response with runnable to execute when called.
+		 */
+		public Runnable autoResponse(java.lang.Runnable runnable) {
+			super.autoResponseFn(toAutoResponseFn(runnable, null));
+			return this;
+		}
+		
 		/**
 		 * Signals that a call has been made, and waits for completion. Throws a RuntimeException if
 		 * the generator is configured.
@@ -844,6 +875,22 @@ public abstract class CallSync<T, R> {
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
 		return executeGetInterruptible(responseSync::await).value();
+	}
+
+	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(
+		java.util.function.Consumer<T> consumer, R response) {
+		return t -> {
+			if (consumer != null) consumer.accept(t);
+			return response;
+		};
+	}
+
+	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(
+		java.lang.Runnable runnable, R response) {
+		return t -> {
+			if (runnable != null) runnable.run();
+			return response;
+		};
 	}
 
 	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(boolean enabled) {

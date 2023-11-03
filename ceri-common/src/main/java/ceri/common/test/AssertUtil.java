@@ -324,6 +324,20 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Convenience methods to check presence of a mask.
+	 */
+	public static void assertMask(int value, int mask) {
+		assertEquals(value & mask, mask, "Mask not present 0x%x", mask);
+	}
+	
+	/**
+	 * Convenience methods to check presence of a mask.
+	 */
+	public static void assertMask(long value, long mask) {
+		assertEquals(value & mask, mask, "Mask not present 0x%x", mask);
+	}
+	
+	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long minInclusive, long maxInclusive) {
