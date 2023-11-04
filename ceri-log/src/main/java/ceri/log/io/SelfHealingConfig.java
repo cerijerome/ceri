@@ -8,9 +8,16 @@ import ceri.common.text.ToString;
 public class SelfHealingConfig {
 	public static final Predicate<Exception> NULL_PREDICATE = Predicates.no();
 	public static final SelfHealingConfig DEFAULT = new Builder().build();
+	public static final SelfHealingConfig NULL = of(0, 0, NULL_PREDICATE);
 	public final int fixRetryDelayMs;
 	public final int recoveryDelayMs;
 	public final Predicate<Exception> brokenPredicate;
+
+	public static SelfHealingConfig of(int fixRetryDelayMs, int recoveryDelayMs,
+		Predicate<Exception> brokenPredicate) {
+		return builder().fixRetryDelayMs(fixRetryDelayMs).recoveryDelayMs(recoveryDelayMs)
+			.brokenPredicate(brokenPredicate).build();
+	}
 
 	public static class Builder {
 		int fixRetryDelayMs = 2000;

@@ -15,8 +15,8 @@ import ceri.log.test.LogModifier;
 
 public class SelfHealingDeviceBehavior {
 	private static final IOException BROKEN_EXCEPTION = new IOException("broken");
-	private static final SelfHealingConfig CONF = SelfHealingConfig.builder().fixRetryDelayMs(0)
-		.recoveryDelayMs(0).brokenPredicate(e -> e == BROKEN_EXCEPTION).build();
+	private static final SelfHealingConfig CONF =
+		SelfHealingConfig.of(0, 0, e -> e == BROKEN_EXCEPTION);
 	private TestFixable fixable;
 	private TestSelfHealingDevice device;
 
