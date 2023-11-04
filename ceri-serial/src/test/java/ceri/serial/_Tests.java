@@ -18,6 +18,9 @@ import ceri.common.test.TestUtil;
 	ceri.serial.comm.StopBitsBehavior.class, //
 	// comm.jna
 	ceri.serial.comm.jna.CSerialTest.class, //
+	// comm.test
+	ceri.serial.comm.test.SerialTesterBehavior.class, //
+	ceri.serial.comm.test.TestSerialBehavior.class, //
 	// comm.util
 	ceri.serial.comm.util.MacUsbLocatorBehavior.class, //
 	ceri.serial.comm.util.PortSupplierBehavior.class, //

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import ceri.common.io.IoUtil;
+import ceri.common.util.BasicUtil;
 
 /**
  * Logic for finding serial ports.
@@ -15,10 +16,11 @@ public class SerialPortLocator {
 	private final Path dir;
 
 	public static SerialPortLocator of() {
-		return of(Path.of(DEV_PATH));
+		return of(null);
 	}
 
 	public static SerialPortLocator of(Path dir) {
+		dir = BasicUtil.defaultValue(dir, () -> Path.of(DEV_PATH));
 		return new SerialPortLocator(dir);
 	}
 

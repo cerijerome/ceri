@@ -69,11 +69,12 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 			return this;
 		};
 	}
-	
+
 	@Override
 	public void reset() {
 		super.reset();
-		CallSync.resetAll(port, inBufferSize, outBufferSize, params, flowControl, brk, rts, dtr, cd, cts, dsr, ri);
+		CallSync.resetAll(port, inBufferSize, outBufferSize, params, flowControl, brk, rts, dtr, cd,
+			cts, dsr, ri);
 	}
 
 	@Override

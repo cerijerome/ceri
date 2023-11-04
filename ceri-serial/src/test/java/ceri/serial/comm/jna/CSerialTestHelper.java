@@ -12,9 +12,10 @@ import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
 /**
- * Provides support for serial testing. Simulates some interactions of serial calls using test CLib.
+ * Provides support for low-level serial testing. Simulates some interactions of serial calls using
+ * test CLib.
  */
-public abstract class SerialTestHelper {
+public abstract class CSerialTestHelper {
 	private final TestCLibNative lib;
 
 	public static Mac mac(TestCLibNative lib) {
@@ -25,7 +26,7 @@ public abstract class SerialTestHelper {
 		return new Linux(lib);
 	}
 
-	public static class Mac extends SerialTestHelper {
+	public static class Mac extends CSerialTestHelper {
 		public final CTermios.Mac.termios termios = new CTermios.Mac.termios();
 		private long speed;
 
@@ -60,7 +61,7 @@ public abstract class SerialTestHelper {
 		}
 	}
 
-	public static class Linux extends SerialTestHelper {
+	public static class Linux extends CSerialTestHelper {
 		public final CIoctl.Linux.serial_struct serial = new CIoctl.Linux.serial_struct();
 		public final CTermios.Linux.termios termios = new CTermios.Linux.termios();
 
@@ -93,7 +94,7 @@ public abstract class SerialTestHelper {
 		}
 	}
 
-	private SerialTestHelper(TestCLibNative lib) {
+	private CSerialTestHelper(TestCLibNative lib) {
 		this.lib = lib;
 	}
 

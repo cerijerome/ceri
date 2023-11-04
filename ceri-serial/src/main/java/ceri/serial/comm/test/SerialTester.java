@@ -4,6 +4,7 @@ import static ceri.common.test.ManualTester.Parse.b;
 import static ceri.common.test.ManualTester.Parse.c;
 import static ceri.common.test.ManualTester.Parse.i;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,10 +30,6 @@ public class SerialTester {
 
 	private SerialTester() {}
 
-	public static void main(String[] args) throws IOException {
-		testEcho();
-	}
-
 	/**
 	 * Create and manually test a simulated serial port that echoes output to input.
 	 */
@@ -52,10 +49,10 @@ public class SerialTester {
 	}
 
 	/**
-	 * Create and manually test available USB serial ports.
+	 * Create and manually test available USB serial ports. Use null for default path.
 	 */
-	public static void testUsbPorts() throws IOException {
-		testPorts(SerialPortLocator.of().usbPorts());
+	public static void testUsbPorts(Path path) throws IOException {
+		testPorts(SerialPortLocator.of(path).usbPorts());
 	}
 
 	/**
@@ -149,8 +146,7 @@ public class SerialTester {
 				case 'R' -> flowControl.add(FlowControl.rtsCtsOut);
 				case 'x' -> flowControl.add(FlowControl.xonXoffIn);
 				case 'X' -> flowControl.add(FlowControl.xonXoffOut);
-				case 'n', 'N' -> flowControl.clear();
-				default -> {}
+				default -> flowControl.clear();
 			}
 		}
 		return flowControl;
