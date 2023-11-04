@@ -26,6 +26,7 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertMask;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNaN;
 import static ceri.common.test.AssertUtil.assertNoMatch;
@@ -335,6 +336,22 @@ public class AssertUtilTest {
 	}
 
 	@Test
+	public void testAssertMask() {
+		assertMask(0x4321, 0x4100);
+		assertMask(-1, -1);
+		assertMask(0, 0);
+		assertMask(1, 0);
+		assertMask(0x432100000000L, 0x410000000000L);
+		assertMask(-1L, -1L);
+		assertMask(0L, 0L);
+		assertMask(1L, 0L);
+		assertAssertion(() -> assertMask(0, -1));
+		assertAssertion(() -> assertMask(0x80000000, 0x90000000));
+		assertAssertion(() -> assertMask(0L, -1L));
+		assertAssertion(() -> assertMask(0x8000000000000000L, 0x9000000000000000L));
+	}
+
+	@Test
 	public void testAssertRange() {
 		assertAssertion(() -> assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1));
 		assertAssertion(() -> assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1));
@@ -430,7 +447,7 @@ public class AssertUtilTest {
 		assertString("x123.1", "%s%d%.1f", "x", 12, 3.1);
 		assertAssertion(() -> assertString("x123.1", "%s%d%f", "x", 12, 3.1));
 	}
-	
+
 	@Test
 	public void testAssertFind() {
 		Pattern p = Pattern.compile("[a-z]+");

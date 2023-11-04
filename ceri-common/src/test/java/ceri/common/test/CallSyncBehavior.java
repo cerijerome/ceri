@@ -113,6 +113,14 @@ public class CallSyncBehavior {
 	}
 
 	@Test
+	public void shouldApplyWithAutoResponseFunction() {
+		Function<String, Integer> call = CallSync.function(null);
+		call.autoResponse(s -> {}, 3);
+		assertEquals(call.apply("test0"), 3);
+		call.assertAuto("test0");
+	}
+
+	@Test
 	public void shouldApplyWithDefaultValue() {
 		Function<String, Integer> call = CallSync.function("test", 3);
 		assertEquals(call.value(), "test");
@@ -197,6 +205,14 @@ public class CallSyncBehavior {
 	}
 
 	@Test
+	public void shouldAcceptWithAutoResponseFunction() {
+		Consumer<String> call = CallSync.consumer(null, false);
+		call.autoResponse(s -> {});
+		call.accept("test");
+		call.assertAuto("test");
+	}
+
+	@Test
 	public void shouldAcceptWithDefaultValue() {
 		Consumer<String> call = CallSync.consumer("test", true);
 		assertEquals(call.value(), "test");
@@ -263,6 +279,14 @@ public class CallSyncBehavior {
 	}
 
 	@Test
+	public void shouldGetWithAutoResponseFunction() {
+		Supplier<String> call = CallSync.supplier("");
+		call.autoResponse(() -> {}, "test");
+		assertEquals(call.get(), "test");
+		call.awaitAuto();
+	}
+
+	@Test
 	public void shouldGetWithCallCount() {
 		Supplier<String> call = CallSync.supplier("test");
 		assertEquals(call.calls(), 0);
@@ -294,6 +318,14 @@ public class CallSyncBehavior {
 	public void shouldRunWithAutoResponse() {
 		Runnable call = CallSync.runnable(true);
 		call.assertCalls(0);
+		call.run();
+		call.awaitAuto();
+	}
+
+	@Test
+	public void shouldRunWithAutoResponseFunction() {
+		Runnable call = CallSync.runnable(false);
+		call.autoResponse(() -> {});
 		call.run();
 		call.awaitAuto();
 	}
