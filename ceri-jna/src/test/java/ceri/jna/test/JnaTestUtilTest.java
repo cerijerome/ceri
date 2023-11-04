@@ -7,6 +7,7 @@ import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.JnaUtil;
@@ -23,6 +24,16 @@ public class JnaTestUtilTest {
 		try (var m = JnaTestUtil.memCache()) {
 			JnaTestUtil.assertMemory(m.calloc(3).m, 0, 0, 0, 0);
 			JnaTestUtil.assertMemory(m.mallocBytes(1, 2, 3).m, 0, 1, 2, 3);
+		}
+	}
+
+	@Test
+	public void testAssertNlong() {
+		try (var m = new Memory(NativeLong.SIZE)) {
+			JnaUtil.nlong(m, 0, Long.MIN_VALUE);
+			JnaTestUtil.assertNlong(m, Long.MIN_VALUE);
+			JnaUtil.nlong(m, 0, Long.MAX_VALUE);
+			JnaTestUtil.assertNlong(m, Long.MAX_VALUE);
 		}
 	}
 

@@ -158,14 +158,14 @@ public class TestCLibNative implements CLib.Native {
 		public CTermios.Linux.termios termiosLinux() {
 			return Struct.copyFrom(termios, new CTermios.Linux.termios());
 		}
-		
+
 		/**
 		 * Returns a copy of the Mac termios struct.
 		 */
 		public CTermios.Mac.termios termiosMac() {
 			return Struct.copyFrom(termios, new CTermios.Mac.termios());
 		}
-		
+
 		/**
 		 * Provide vararg argument as a typed object.
 		 */

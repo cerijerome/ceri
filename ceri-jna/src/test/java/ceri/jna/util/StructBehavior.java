@@ -171,7 +171,37 @@ public class StructBehavior {
 			assertArray(to.b, 4, 5, 6);
 		}
 	}
-	
+
+	@Test
+	public void testCopyTo() {
+		try (var p = new Memory(3)) {
+			var from = new TestStruct(111, p, 4, 5, 6);
+			var to = new TestStruct(222, p.share(1), 7, 8, 9);
+			Struct.copyTo(from, to.getPointer());
+			Struct.read(to);
+			assertEquals(to.i, 111);
+			assertEquals(to.p, p);
+			assertArray(to.b, 4, 5, 6);
+			assertEquals(Struct.copyTo(null, null), null);
+			assertEquals(Struct.copyTo(from, null), from);
+		}
+	}
+
+	@Test
+	public void testCopyFrom() {
+		try (var p = new Memory(3)) {
+			var from = new TestStruct(111, p, 4, 5, 6);
+			var to = new TestStruct(222, p.share(1), 7, 8, 9);
+			Struct.write(from);
+			Struct.copyFrom(from.getPointer(), to);
+			assertEquals(to.i, 111);
+			assertEquals(to.p, p);
+			assertArray(to.b, 4, 5, 6);
+			assertEquals(Struct.copyFrom(null, null), null);
+			assertEquals(Struct.copyFrom(null, to), to);
+		}
+	}
+
 	@Test
 	public void testCopyNullStruct() {
 		try (var p = new Memory(3)) {
@@ -182,7 +212,7 @@ public class StructBehavior {
 			assertEquals(Struct.copy(null, null), null);
 		}
 	}
-	
+
 	@Test
 	public void testMallocArray() {
 		assertArray(Struct.mallocArray(TestStruct::new, TestStruct[]::new, 0));
