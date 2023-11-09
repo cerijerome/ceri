@@ -42,7 +42,6 @@
 		<selenium.java.version>4.8.1</selenium.java.version>
 		<jackson.version>2.14.2</jackson.version>
 		<gson.version>2.10.1</gson.version>
-		<purejavacomm.version>1.0.2.RELEASE</purejavacomm.version>
 		<mongo.driver.version>4.9.0</mongo.driver.version>
 	</properties>
 
@@ -157,11 +156,6 @@
 				<version>${gson.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.github.purejavacomm</groupId>
-				<artifactId>purejavacomm</artifactId>
-				<version>${purejavacomm.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongodb-driver-sync</artifactId>
 				<version>${mongo.driver.version}</version>
@@ -195,6 +189,8 @@
 					<version>${maven.compiler.version}</version>
 					<configuration>
 						<release>${jdk.release}</release>
+						<!-- Command-line -Dceri.compiler.argument=-X... -->
+				        <compilerArgument>${ceri.compiler.argument}</compilerArgument>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -233,6 +229,7 @@
 					<version>${maven.dependency.version}</version>
 					<executions>
 						<execution>
+							<?m2e ignore?>
 							<id>copy-dependencies</id>
 							<phase>package</phase>
 							<goals>
