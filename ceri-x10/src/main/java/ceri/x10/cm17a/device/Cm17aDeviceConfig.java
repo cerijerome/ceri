@@ -8,6 +8,8 @@ import ceri.common.text.ToString;
  * notifications to the output queue.
  */
 public class Cm17aDeviceConfig {
+	public static final Cm17aDeviceConfig NULL = builder().commandIntervalMicros(0)
+		.resetIntervalMicros(0).waitIntervalMicros(0).queuePollTimeoutMs(0).errorDelayMs(0).build();
 	public static final Cm17aDeviceConfig DEFAULT = builder().build();
 	public final int queuePollTimeoutMs;
 	public final int waitIntervalMicros;

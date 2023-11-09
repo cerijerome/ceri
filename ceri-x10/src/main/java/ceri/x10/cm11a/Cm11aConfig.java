@@ -1,8 +1,8 @@
 package ceri.x10.cm11a;
 
+import ceri.common.io.Connector;
 import ceri.common.io.DeviceMode;
 import ceri.common.text.ToString;
-import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.x10.cm11a.device.Cm11a;
 import ceri.x10.cm11a.device.Cm11aDeviceConfig;
@@ -21,8 +21,8 @@ public class Cm11aConfig {
 	 */
 	public static enum Type {
 		cm11aRef,
-		serialRef,
-		serial,
+		connectorRef,
+		connector,
 		test,
 		noOp;
 	}
@@ -79,10 +79,10 @@ public class Cm11aConfig {
 		serial = builder.serial;
 	}
 
-	public Type type(Cm11a cm11aRef, Serial.Fixable serialRef) {
+	public Type type(Cm11a cm11aRef, Connector.Fixable connectorRef) {
 		if (cm11aRef != null) return Type.cm11aRef;
-		if (serialRef != null) return Type.serialRef;
-		if (mode == DeviceMode.enabled && serial.enabled()) return Type.serial;
+		if (connectorRef != null) return Type.connectorRef;
+		if (mode == DeviceMode.enabled && serial.enabled()) return Type.connector;
 		if (mode == DeviceMode.test) return Type.test;
 		return Type.noOp;
 	}

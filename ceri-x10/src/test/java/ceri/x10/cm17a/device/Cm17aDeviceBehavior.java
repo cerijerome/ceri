@@ -29,16 +29,13 @@ import ceri.x10.command.Command;
 import ceri.x10.command.TestCommandListener;
 
 public class Cm17aDeviceBehavior {
-	private static final Cm17aDeviceConfig config =
-		Cm17aDeviceConfig.builder().commandIntervalMicros(1).resetIntervalMicros(1)
-			.waitIntervalMicros(1).queuePollTimeoutMs(1).errorDelayMs(1).build();
 	private Cm17aTestConnector con;
 	private Cm17aDevice cm17a;
 
 	@Before
 	public void before() {
 		con = Cm17aTestConnector.of();
-		cm17a = Cm17aDevice.of(config, con);
+		cm17a = Cm17aDevice.of(Cm17aDeviceConfig.NULL, con);
 	}
 
 	@After

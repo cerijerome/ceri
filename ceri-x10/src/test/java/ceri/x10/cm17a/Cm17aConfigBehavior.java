@@ -12,6 +12,7 @@ import ceri.common.io.DeviceMode;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.x10.cm17a.device.Cm17a;
+import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 
 public class Cm17aConfigBehavior {
 
@@ -29,6 +30,13 @@ public class Cm17aConfigBehavior {
 	public void shouldProvideStringRepresentation() {
 		assertMatch(Cm17aConfig.builder().id(777).serial(SelfHealingSerialConfig.of("com")).build()
 			.toString(), ".*\\b777\\b.*\\bcom\\b.*");
+	}
+
+	@Test
+	public void shouldSetDeviceConfig() {
+		var config = Cm17aConfig.builder()
+			.device(Cm17aDeviceConfig.builder().errorDelayMs(111).build()).build();
+		assertEquals(config.device.errorDelayMs, 111);
 	}
 
 }

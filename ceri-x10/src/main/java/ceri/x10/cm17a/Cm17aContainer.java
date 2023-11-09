@@ -4,6 +4,7 @@ import static ceri.common.util.BasicUtil.defaultValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.Serial;
@@ -63,7 +64,7 @@ public class Cm17aContainer implements RuntimeCloseable {
 			type = config.type(cm17a, serial);
 			createdSerial = createSerial(config.serial);
 			this.serial = defaultValue(createdSerial, serial);
-			createdCm17a = createCm17a(serial, config.device);
+			createdCm17a = createCm17a(this.serial, config.device);
 			this.cm17a = defaultValue(createdCm17a, cm17a);
 			logger.info("[%d:%s] started", id, type);
 		} catch (RuntimeException e) {
@@ -83,8 +84,9 @@ public class Cm17aContainer implements RuntimeCloseable {
 		return ToString.forClass(this, id, type, serial);
 	}
 
+	@SuppressWarnings("resource")
 	private Serial.Fixable createSerial(SelfHealingSerialConfig config) {
-		return type == Type.serial ? SelfHealingSerial.of(config) : null;
+		return type == Type.serial ? Fixable.openSilently(SelfHealingSerial.of(config)) : null;
 	}
 
 	@SuppressWarnings("resource")

@@ -11,6 +11,7 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// cm11a
 	ceri.x10.cm11a.Cm11aConfigBehavior.class, //
+	ceri.x10.cm11a.Cm11aContainerBehavior.class, //
 	// cm11a.device
 	ceri.x10.cm11a.device.Cm11aBehavior.class, //
 	ceri.x10.cm11a.device.Cm11aDeviceBehavior.class, //
@@ -27,6 +28,7 @@ import ceri.common.test.TestUtil;
 	ceri.x10.cm11a.protocol.TransmitTest.class, //
 	// cm17a
 	ceri.x10.cm17a.Cm17aConfigBehavior.class, //
+	ceri.x10.cm17a.Cm17aContainerBehavior.class, //
 	// cm17a.device
 	ceri.x10.cm17a.device.Cm17aBehavior.class, //
 	ceri.x10.cm17a.device.Cm17aConnectorBehavior.class, //
