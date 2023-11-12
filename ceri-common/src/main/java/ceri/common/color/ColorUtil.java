@@ -1,11 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.math.Bound.Type.inclusive;
-import static ceri.common.math.MathUtil.intRoundExact;
-import static ceri.common.math.MathUtil.roundDiv;
-import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.text.StringUtil.HEX_RADIX;
-import static java.lang.Math.round;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
 import java.util.List;
@@ -16,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.BiMap;
+import ceri.common.math.Bound;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -36,21 +32,11 @@ public class ColorUtil {
 	private static final double HALF = 0.5;
 	public static final double MAX_RATIO = 1.0;
 	public static final int MAX_VALUE = 0xff;
+	private static final int RND_MAX = MAX_VALUE + 1;
 
 	private ColorUtil() {}
 
 	/* argb int methods */
-
-	/**
-	 * Applies alpha component to create a scaled opaque argb int.
-	 */
-	public static int applyAlphaArgb(int argb) {
-		int a = a(argb);
-		if (a == 0) return Component.a.intMask;
-		if (a == MAX_VALUE) return argb;
-		return argb(roundDiv(r(argb) * a, MAX_VALUE), roundDiv(g(argb) * a, MAX_VALUE),
-			roundDiv(b(argb) * a, MAX_VALUE));
-	}
 
 	/**
 	 * Removes alpha component from argb int.
@@ -63,7 +49,14 @@ public class ColorUtil {
 	 * Extracts rgb int without alpha component.
 	 */
 	public static int rgb(Color color) {
-		return rgb(color.getRGB());
+		return rgb(argb(color));
+	}
+
+	/**
+	 * Extracts argb int (convenience method to avoid confusion).
+	 */
+	public static int argb(Color color) {
+		return color.getRGB();
 	}
 
 	/**
@@ -77,16 +70,16 @@ public class ColorUtil {
 	 * Constructs an argb int from components.
 	 */
 	public static int argb(int a, int r, int g, int b) {
-		return Component.a.intValue(a) | Component.r.intValue(r) | Component.g.intValue(g) |
-			Component.b.intValue(b);
+		return Component.a.intValue(a) | Component.r.intValue(r) | Component.g.intValue(g)
+			| Component.b.intValue(b);
 	}
 
 	/**
 	 * Constructs an opaque argb int from components.
 	 */
 	public static int argb(int r, int g, int b) {
-		return Component.a.intMask | Component.r.intValue(r) | Component.g.intValue(g) |
-			Component.b.intValue(b);
+		return Component.a.intMask | Component.r.intValue(r) | Component.g.intValue(g)
+			| Component.b.intValue(b);
 	}
 
 	/**
@@ -135,10 +128,36 @@ public class ColorUtil {
 	/**
 	 * Creates an opaque argb int with random color components.
 	 */
+	public static int randomRgb() {
+		Random rnd = ThreadLocalRandom.current();
+		return argb(MAX_VALUE, rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX));
+	}
+
+	/**
+	 * Creates an argb int with random alpha and color components.
+	 */
 	public static int randomArgb() {
 		Random rnd = ThreadLocalRandom.current();
-		int max = MAX_VALUE + 1;
-		return argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
+		return argb(rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX),
+			rnd.nextInt(RND_MAX));
+	}
+
+	/**
+	 * Flattens the color by applying alpha channel on opaque black.
+	 */
+	public static int flattenArgb(int argb) {
+		return blendArgbs(argb, Colors.black.argb);
+	}
+
+	/**
+	 * Create a composite from argbs, with lower indexes on top.  
+	 */
+	public static int blendArgbs(int... argbs) {
+		if (argbs.length == 0) return 0;
+		int argb = argbs[0];
+		for (int i = 1; i < argbs.length; i++)
+			argb = blendArgb(argb, argbs[i]);
+		return argb;
 	}
 
 	/**
@@ -172,16 +191,6 @@ public class ColorUtil {
 	}
 
 	/* Color methods */
-
-	/**
-	 * Applies alpha component to create a scaled opaque color.
-	 */
-	public static Color applyAlpha(Color color) {
-		int a = color.getAlpha();
-		if (a == 0) return Color.black;
-		if (a == MAX_VALUE) return color;
-		return new Color(applyAlphaArgb(color.getRGB()));
-	}
 
 	/**
 	 * Creates a color from argb int.
@@ -226,14 +235,28 @@ public class ColorUtil {
 	 * Creates a color with maximum color components in the same ratio.
 	 */
 	public static Color max(Color color) {
-		return color(maxArgb(color.getRGB()));
+		return color(maxArgb(argb(color)));
 	}
 
 	/**
 	 * Provides an opaque Color with random components.
 	 */
 	public static Color random() {
-		return color(randomArgb());
+		return color(randomRgb());
+	}
+
+	/**
+	 * Applies alpha component to create a scaled opaque color on black.
+	 */
+	public static Color flatten(Color color) {
+		return blend(color, Color.black);
+	}
+
+	/**
+	 * Create a composite from colors, with lower indexes on top.  
+	 */
+	public static Color blend(Color... colors) {
+		return color(blendArgbs(argbs(colors)));
 	}
 
 	/**
@@ -241,7 +264,7 @@ public class ColorUtil {
 	 */
 	public static Color dim(Color color, double scale) {
 		if (scale == MAX_RATIO || rgb(color) == 0) return color;
-		return color(dimArgb(color.getRGB(), scale));
+		return color(dimArgb(argb(color), scale));
 	}
 
 	/**
@@ -250,7 +273,7 @@ public class ColorUtil {
 	public static Color scale(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return color(scaleArgb(min.getRGB(), max.getRGB(), ratio));
+		return color(scaleArgb(argb(min), argb(max), ratio));
 	}
 
 	/**
@@ -285,10 +308,24 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Set the argb int component value.
+	 */
+	public static int a(int argb, int a) {
+		return Component.a.set(argb, a);
+	}
+
+	/**
 	 * Extract component from argb int.
 	 */
 	public static int r(int argb) {
 		return Component.r.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int r(int argb, int r) {
+		return Component.r.set(argb, r);
 	}
 
 	/**
@@ -299,10 +336,24 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Set the argb int component value.
+	 */
+	public static int g(int argb, int g) {
+		return Component.g.set(argb, g);
+	}
+
+	/**
 	 * Extract component from argb int.
 	 */
 	public static int b(int argb) {
 		return Component.b.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int b(int argb, int b) {
+		return Component.b.set(argb, b);
 	}
 
 	/**
@@ -313,10 +364,24 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color a(Color color, int a) {
+		return a(color) == a ? color : color(a(argb(color), a));
+	}
+
+	/**
 	 * Extract component from color.
 	 */
 	public static int r(Color color) {
 		return color.getRed();
+	}
+
+	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color r(Color color, int r) {
+		return r(color) == r ? color : color(r(argb(color), r));
 	}
 
 	/**
@@ -327,6 +392,13 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color g(Color color, int g) {
+		return g(color) == g ? color : color(g(argb(color), g));
+	}
+
+	/**
 	 * Extract component from color.
 	 */
 	public static int b(Color color) {
@@ -334,17 +406,24 @@ public class ColorUtil {
 	}
 
 	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color b(Color color, int b) {
+		return b(color) == b ? color : color(b(argb(color), b));
+	}
+
+	/**
 	 * Converts a component value to a 0-1 (inclusive) ratio.
 	 */
 	public static double ratio(int component) {
-		return (double) ubyte(component) / MAX_VALUE;
+		return (double) MathUtil.ubyte(component) / MAX_VALUE;
 	}
 
 	/**
 	 * Converts a 0-1 (inclusive) ratio to a component value.
 	 */
 	public static int value(double ratio) {
-		return MathUtil.limit((int) round(ratio * MAX_VALUE), 0, MAX_VALUE);
+		return MathUtil.limit((int) Math.round(ratio * MAX_VALUE), 0, MAX_VALUE);
 	}
 
 	/**
@@ -358,7 +437,7 @@ public class ColorUtil {
 	 * Adjust hue to the range 0-1 (inclusive).
 	 */
 	public static double limitHue(double h) {
-		return MathUtil.periodicLimit(h, MAX_RATIO, inclusive);
+		return MathUtil.periodicLimit(h, MAX_RATIO, Bound.Type.inclusive);
 	}
 
 	/**
@@ -378,7 +457,7 @@ public class ColorUtil {
 	public static int scaleValue(int min, int max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return min + intRoundExact(ratio * (max - min));
+		return min + MathUtil.intRoundExact(ratio * (max - min));
 	}
 
 	/**
@@ -396,7 +475,7 @@ public class ColorUtil {
 	 * Returns the hex string, with name if rgb matches an awt or x11 color.
 	 */
 	public static String toString(Color color) {
-		return toString(color.getRGB());
+		return toString(argb(color));
 	}
 
 	/**
@@ -412,7 +491,7 @@ public class ColorUtil {
 	 * Looks up the awt or x11 color name for given color, ignoring alpha. Returns null if no match.
 	 */
 	public static String name(Color color) {
-		return name(color.getRGB());
+		return name(argb(color));
 	}
 
 	/**
@@ -428,7 +507,7 @@ public class ColorUtil {
 	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
 	 */
 	public static String hex(Color color) {
-		return hex(color.getRGB());
+		return hex(argb(color));
 	}
 
 	/**
@@ -495,7 +574,7 @@ public class ColorUtil {
 	 * Create a stream of argb ints from colors.
 	 */
 	public static IntStream stream(Color... colors) {
-		return Stream.of(colors).mapToInt(Color::getRGB);
+		return Stream.of(colors).mapToInt(ColorUtil::argb);
 	}
 
 	/**
@@ -510,7 +589,7 @@ public class ColorUtil {
 	 * Create a stream of argb ints by fading in steps.
 	 */
 	public static IntStream fadeStream(Color min, Color max, int steps, Bias bias) {
-		return fadeStream(min.getRGB(), max.getRGB(), steps, bias);
+		return fadeStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
@@ -525,7 +604,7 @@ public class ColorUtil {
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
 	public static IntStream fadeHsbStream(Color min, Color max, int steps, Bias bias) {
-		return fadeHsbStream(min.getRGB(), max.getRGB(), steps, bias);
+		return fadeHsbStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
@@ -548,7 +627,7 @@ public class ColorUtil {
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
 	public static IntStream rotateHueStream(Color color, int steps, Bias bias) {
-		return rotateHueStream(color.getRGB(), steps, bias);
+		return rotateHueStream(argb(color), steps, bias);
 	}
 
 	/**
@@ -567,6 +646,36 @@ public class ColorUtil {
 	}
 
 	/* support methods */
+
+	/**
+	 * Blends argb0 on top of argb1 using alpha values.
+	 */
+	private static int blendArgb(int argb0, int argb1) {
+		int a0 = a(argb0);
+		if (a0 == MAX_VALUE) return argb0;
+		if (a0 == 0) return argb1;
+		int a1 = a(argb1);
+		if (a1 == 0) return argb0;
+		int a = blendAlpha(a0, a1);
+		int argb = Component.a.set(0, a);
+		for (var component : Component.RGB) {
+			int c = blendComponent(a, a0, a1, component.get(argb0), component.get(argb1));
+			argb = component.set(argb, c);
+		}
+		return argb;
+	}
+
+	private static int blendAlpha(int a0, int a1) {
+		return a0 + a1 - roundDiv(a0 * a1, MAX_VALUE);
+	}
+
+	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
+		return roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
+	}
+
+	private static int roundDiv(int x, int y) {
+		return (x + (y >> 1)) / y;
+	}
 
 	/**
 	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
@@ -610,6 +719,6 @@ public class ColorUtil {
 	}
 
 	private static BiMap<Integer, String> colors() {
-		return BiMap.<Integer, String>builder().put(clear.getRGB(), "clear").build();
+		return BiMap.<Integer, String>builder().put(argb(clear), "clear").build();
 	}
 }

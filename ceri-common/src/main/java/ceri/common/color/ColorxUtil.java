@@ -8,7 +8,6 @@ import static ceri.common.color.Component.X_MASK;
 import static ceri.common.math.MathUtil.intRoundExact;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
-import static ceri.common.math.MathUtil.roundDiv;
 import static ceri.common.math.MathUtil.uint;
 import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.util.stream.Collectors.toList;
@@ -42,21 +41,6 @@ public class ColorxUtil {
 	 */
 	public static boolean hasX(long xargb) {
 		return (xargb & X_MASK) != 0L;
-	}
-
-	/**
-	 * Applies alpha component to create a scaled opaque xargb int.
-	 */
-	public static long applyAlphaXargb(long xargb) {
-		int a = a(xargb);
-		if (a == 0) return Component.a.mask;
-		if (a == MAX_VALUE) return xargb;
-		int argb = ColorUtil.argb(roundDiv(r(xargb) * a, MAX_VALUE),
-			roundDiv(g(xargb) * a, MAX_VALUE), roundDiv(b(xargb) * a, MAX_VALUE));
-		int[] xs = xs(xargb);
-		for (int i = 0; i < xs.length; i++)
-			xs[i] = roundDiv(xs[i] * a, MAX_VALUE);
-		return xargb(argb, xs);
 	}
 
 	/**
@@ -154,6 +138,24 @@ public class ColorxUtil {
 	}
 
 	/**
+	 * Flattens the color by applying alpha channel on opaque black.
+	 */
+	public static long flattenXargb(long xargb) {
+		return blendXargbs(xargb, Colorx.black.xargb);
+	}
+
+	/**
+	 * Create a composite from xargbs, with lower indexes on top.  
+	 */
+	public static long blendXargbs(long... xargbs) {
+		if (xargbs.length == 0) return 0L;
+		long xargb = xargbs[0];
+		for (int i = 1; i < xargbs.length; i++)
+			xargb = blendXargb(xargb, xargbs[i]);
+		return xargb;
+	}
+
+	/**
 	 * Provides a component-scaled xargb long from given xargb long. Alpha value is maintained.
 	 */
 	public static long dimXargb(long xargb, double scale) {
@@ -178,16 +180,6 @@ public class ColorxUtil {
 	}
 
 	/* Colorx methods */
-
-	/**
-	 * Applies alpha component to create a scaled opaque colorx.
-	 */
-	public static Colorx applyAlpha(Colorx colorx) {
-		int a = colorx.a();
-		if (a == 0) return Colorx.black;
-		if (a == MAX_VALUE) return colorx;
-		return Colorx.of(applyAlphaXargb(colorx.xargb));
-	}
 
 	/**
 	 * Returns the colorx by name or hex representation. Returns null if no match.
@@ -229,6 +221,13 @@ public class ColorxUtil {
 	}
 
 	/**
+	 * Create a composite from colors, with lower indexes on top.  
+	 */
+	public static Colorx blend(Colorx... colorxs) {
+		return Colorx.of(blendXargbs(xargbs(colorxs)));
+	}
+
+	/**
 	 * Provides a component-scaled colorx from given colorx. Alpha value is maintained.
 	 */
 	public static Colorx dim(Colorx colorx, double scale) {
@@ -255,10 +254,24 @@ public class ColorxUtil {
 	}
 
 	/**
+	 * Set the xargb long component value.
+	 */
+	public static long a(long xargb, int a) {
+		return Component.a.set(xargb, a);
+	}
+
+	/**
 	 * Extract component from xargb long.
 	 */
 	public static int r(long xargb) {
 		return ColorUtil.r((int) xargb);
+	}
+
+	/**
+	 * Set the xargb long component value.
+	 */
+	public static long r(long xargb, int r) {
+		return Component.r.set(xargb, r);
 	}
 
 	/**
@@ -269,6 +282,13 @@ public class ColorxUtil {
 	}
 
 	/**
+	 * Set the xargb long component value.
+	 */
+	public static long g(long xargb, int g) {
+		return Component.g.set(xargb, g);
+	}
+
+	/**
 	 * Extract component from xargb long.
 	 */
 	public static int b(long xargb) {
@@ -276,10 +296,24 @@ public class ColorxUtil {
 	}
 
 	/**
+	 * Set the xargb long component value.
+	 */
+	public static long b(long xargb, int b) {
+		return Component.b.set(xargb, b);
+	}
+
+	/**
 	 * Extract x[i] component from xargb long.
 	 */
 	public static int x(long xargb, int i) {
 		return Component.x(i).get(xargb);
+	}
+
+	/**
+	 * Set the xargb long x[i] component value.
+	 */
+	public static long x(long xargb, int i, int x) {
+		return Component.x(i).set(xargb, x);
 	}
 
 	/**
@@ -549,6 +583,36 @@ public class ColorxUtil {
 	}
 
 	/* support methods */
+
+	/**
+	 * Blends xargb0 on top of xargb1 using alpha values.
+	 */
+	private static long blendXargb(long xargb0, long xargb1) {
+		int a0 = a(xargb0);
+		if (a0 == MAX_VALUE) return xargb0;
+		if (a0 == 0) return xargb1;
+		int a1 = a(xargb1);
+		if (a1 == 0) return xargb0;
+		int a = blendAlpha(a0, a1);
+		long xargb = Component.a.set(0L, a);
+		for (var component : Component.XRGB) {
+			int c = blendComponent(a, a0, a1, component.get(xargb0), component.get(xargb1));
+			xargb = component.set(xargb, c);
+		}
+		return xargb;
+	}
+
+	private static int blendAlpha(int a0, int a1) {
+		return a0 + a1 - roundDiv(a0 * a1, MAX_VALUE);
+	}
+
+	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
+		return roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
+	}
+
+	private static int roundDiv(int x, int y) {
+		return (x + (y >> 1)) / y;
+	}
 
 	private static String toStringX(long xargb) {
 		String name = nameX(xargb);

@@ -48,6 +48,23 @@ public class ColorTubes {
 		}
 	}
 
+	public static int[] level973() {
+		return new int[] { //
+			tube(blue, olive, cyan, green), //
+			tube(gray, red, yellow, yellow), //
+			tube(pink, aqua, blue, brown), //
+			tube(olive, olive, green, brown), //
+			tube(yellow, cyan, cyan, gray), //
+			tube(cyan, aqua, pink, purple), //
+			tube(brown, yellow, blue, purple), //
+			tube(brown, aqua, purple, olive), //
+			tube(purple, blue, pink, green), //
+			tube(red, gray, pink, red), //
+			tube(orange, green, aqua, orange), //
+			tube(gray, orange, red, orange), //
+			0, 0 };
+	}
+	
 	public static int[] level877() {
 		return new int[] { //
 			tube(pink, blue, yellow, gray), //
@@ -131,7 +148,7 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		int[] tubes = level877();
+		int[] tubes = level973();
 		printTubes(tubes);
 		validateTubes(tubes);
 		var path = new int[100];

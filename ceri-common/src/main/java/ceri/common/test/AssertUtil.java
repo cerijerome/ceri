@@ -329,32 +329,63 @@ public class AssertUtil {
 	public static void assertMask(int value, int mask) {
 		assertEquals(value & mask, mask, "Mask not present 0x%x", mask);
 	}
-	
+
 	/**
 	 * Convenience methods to check presence of a mask.
 	 */
 	public static void assertMask(long value, long mask) {
 		assertEquals(value & mask, mask, "Mask not present 0x%x", mask);
 	}
-	
+
+	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(int value, int minInclusive, int maxInclusive) {
+		assertRange(value, minInclusive, maxInclusive, null);
+	}
+
+	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(int value, int minInclusive, int maxInclusive, String format,
+		Object... args) {
+		if (value < minInclusive || value > maxInclusive)
+			throw failure("%sExpected: %s <= value <= %s\n  actual:    %s", nl(format, args),
+				str(minInclusive), str(maxInclusive), str(value));
+	}
+
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(long value, long minInclusive, long maxInclusive) {
-		if (value < minInclusive)
-			throw failure("Expected: >= %s\n  actual:    %s", str(minInclusive), str(value));
-		if (value > maxInclusive)
-			throw failure("Expected: <= %s\n  actual:    %s", str(maxInclusive), str(value));
+		assertRange(value, minInclusive, maxInclusive, null);
+	}
+
+	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(long value, long minInclusive, long maxInclusive, String format,
+		Object... args) {
+		if (value < minInclusive || value > maxInclusive)
+			throw failure("%sExpected: %s <= value <= %s\n  actual:    %s", nl(format, args),
+				str(minInclusive), str(maxInclusive), str(value));
 	}
 
 	/**
 	 * Checks a value is within given range, with detailed failure information if not.
 	 */
 	public static void assertRange(double value, double minInclusive, double maxExclusive) {
-		if (value < minInclusive)
-			throw failure("Expected: >= %s\n  actual:    %s", minInclusive, value);
-		if (value >= maxExclusive)
-			throw failure("Expected: < %s\n  actual:   %s", maxExclusive, value);
+		assertRange(value, minInclusive, maxExclusive, null);
+	}
+
+	/**
+	 * Checks a value is within given range, with detailed failure information if not.
+	 */
+	public static void assertRange(double value, double minInclusive, double maxExclusive,
+		String format, Object... args) {
+		if (value < minInclusive || value >= maxExclusive)
+			throw failure("%sExpected: %s <= value < %s\n  actual:    %s", nl(format, args),
+				str(minInclusive), str(maxExclusive), str(value));
 	}
 
 	/**

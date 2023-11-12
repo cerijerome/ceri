@@ -22,13 +22,6 @@ public class ColorxUtilTest {
 	}
 
 	@Test
-	public void testApplyAlphaXargb() {
-		assertEquals(ColorxUtil.applyAlphaXargb(0x804000804020L), 0x0000ff000000L);
-		assertEquals(ColorxUtil.applyAlphaXargb(0x804080804020L), 0x4020ff402010L);
-		assertEquals(ColorxUtil.applyAlphaXargb(0x8040ff804020L), 0x8040ff804020L);
-	}
-
-	@Test
 	public void testArgb() {
 		assertEquals(ColorxUtil.argb(0x0L), 0);
 		assertEquals(ColorxUtil.argb(-1L), -1);
@@ -103,10 +96,43 @@ public class ColorxUtilTest {
 	}
 
 	@Test
-	public void testApplyAlpha() {
-		assertColorx(ColorxUtil.applyAlpha(Colorx.of(0x804000804020L)), 0x0000ff000000L);
-		assertColorx(ColorxUtil.applyAlpha(Colorx.of(0x804080804020L)), 0x4020ff402010L);
-		assertColorx(ColorxUtil.applyAlpha(Colorx.of(0x8040ff804020L)), 0x8040ff804020L);
+	public void testBlendAssociativity() {
+		var c0 = Colorx.of(0x332211807fffd4L);
+		var c1 = Colorx.of(0x330077408a2be2L);
+		var c2 = Colorx.of(0xaa22220020ff7f50L);
+		var c21 = ColorxUtil.blend(c2, c1);
+		var c10 = ColorxUtil.blend(c1, c0);
+		var c21_0 = ColorxUtil.blend(c21, c0);
+		var c2_10 = ColorxUtil.blend(c2, c10);
+		ColorTestUtil.assertXargbDiff(c21_0.xargb, c2_10.xargb, 1);
+	}
+
+	@Test
+	public void testBlendXargbAssociativity() {
+		var c0 = 0xaa22220020ff7f50L;
+		var c1 = 0x332211807fffd4L;
+		var c2 = 0x330077408a2be2L;
+		var c21 = ColorxUtil.blendXargbs(c2, c1);
+		var c10 = ColorxUtil.blendXargbs(c1, c0);
+		var c21_0 = ColorxUtil.blendXargbs(c21, c0);
+		var c2_10 = ColorxUtil.blendXargbs(c2, c10);
+		ColorTestUtil.assertXargbDiff(c21_0, c2_10, 1);
+	}
+
+	@Test
+	public void testBlendXargbs() {
+		assertEquals(ColorxUtil.blendXargbs(), 0L);
+		assertEquals(ColorxUtil.blendXargbs(0xaa22220020ff7f50L), 0xaa22220020ff7f50L);
+		assertEquals(ColorxUtil.blendXargbs(0x332211ff7fffd4L, 0xaa22220020ff7f50L),
+			0x332211ff7fffd4L);
+		assertEquals(ColorxUtil.blendXargbs(0x332211007fffd4L, 0xaa22220020ff7f50L),
+			0xaa22220020ff7f50L);
+		assertEquals(ColorxUtil.blendXargbs(0x332211807fffd4L, 0xaa22220000ff7f50L),
+			0x332211807fffd4L);
+		assertEquals(ColorxUtil.blendXargbs(0x332211807fffd4L, 0xaa22220020ff7f50L),
+			0x1331220f908df1c5L);
+		assertEquals(ColorxUtil.blendXargbs(0xaa22220020ff7f50L, 0x332211807fffd4L),
+			0x262f220d909be2b7L);
 	}
 
 	@Test

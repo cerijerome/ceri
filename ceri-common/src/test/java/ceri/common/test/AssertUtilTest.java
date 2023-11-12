@@ -352,9 +352,29 @@ public class AssertUtilTest {
 	}
 
 	@Test
-	public void testAssertRange() {
+	public void testAssertIntRange() {
+		assertRange(Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		assertRange(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		assertRange(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		assertRange(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+		assertAssertion(
+			() -> assertRange(Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE - 1));
+		assertAssertion(
+			() -> assertRange(Integer.MIN_VALUE, Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1));
+	}
+
+	@Test
+	public void testAssertLongRange() {
+		assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+		assertRange(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE);
+		assertRange(Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+		assertRange(Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);
 		assertAssertion(() -> assertRange(Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE - 1));
 		assertAssertion(() -> assertRange(Long.MIN_VALUE, Long.MIN_VALUE + 1, Long.MAX_VALUE - 1));
+	}
+
+	@Test
+	public void testAssertDoubleRange() {
 		assertRange(0.0, 0.0, 1.0);
 		assertRange(0.999, 0.0, 1.0);
 		assertAssertion(() -> assertRange(1.0, 0.0, 1.0));

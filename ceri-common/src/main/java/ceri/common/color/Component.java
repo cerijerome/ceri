@@ -22,6 +22,10 @@ public enum Component {
 	/**
 	 * The list of x components in order.
 	 */
+	public static final List<Component> RGB = List.of(r, g, b);
+	public static final List<Component> ARGB = List.of(a, r, g, b);
+	public static final List<Component> XRGB = List.of(x3, x2, x1, x0, r, g, b);
+	public static final List<Component> XARGB = List.of(x3, x2, x1, x0, a, r, g, b);
 	public static final List<Component> XS = List.of(x0, x1, x2, x3);
 	public static final long X_MASK = 0xffffffff00000000L;
 	public static final int X_COUNT = 4;

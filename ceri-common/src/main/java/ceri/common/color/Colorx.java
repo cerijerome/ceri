@@ -17,7 +17,8 @@ import java.util.Objects;
 public class Colorx {
 	public static final Colorx clear = of(0L);
 	public static final Colorx black = of(0xff000000L);
-	public static final Colorx fullX0 = of(0xffffffffffL); // ma rgb, x0
+	public static final Colorx white = of(0xffffffffL);
+	public static final Colorx fullX0 = of(0xffffffffffL); // max rgb, x0
 	public static final Colorx fullX01 = of(0xffffffffffffL); // max rgb, x0, x1
 	public static final Colorx fullX012 = of(0xffffffffffffffL); // max rgb, x0, x1, x2
 	public static final Colorx full = of(-1L); // max rgb, all x
@@ -73,35 +74,70 @@ public class Colorx {
 	 * Extract component.
 	 */
 	public int a() {
-		return Component.a.get(xargb);
+		return ColorxUtil.a(xargb);
+	}
+
+	/**
+	 * Return colorx with component value set.
+	 */
+	public Colorx a(int a) {
+		return a() == a ? this : of(ColorxUtil.a(xargb, a));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int r() {
-		return Component.r.get(xargb);
+		return ColorxUtil.r(xargb);
+	}
+
+	/**
+	 * Return colorx with component value set.
+	 */
+	public Colorx r(int r) {
+		return r() == r ? this : of(ColorxUtil.r(xargb, r));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int g() {
-		return Component.g.get(xargb);
+		return ColorxUtil.g(xargb);
+	}
+
+	/**
+	 * Return colorx with component value set.
+	 */
+	public Colorx g(int g) {
+		return g() == g ? this : of(ColorxUtil.g(xargb, g));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int b() {
-		return Component.b.get(xargb);
+		return ColorxUtil.b(xargb);
+	}
+
+	/**
+	 * Return colorx with component value set.
+	 */
+	public Colorx b(int b) {
+		return b() == b ? this : of(ColorxUtil.b(xargb, b));
 	}
 
 	/**
 	 * Extract x[i] component.
 	 */
 	public int x(int i) {
-		return Component.x(i).get(xargb);
+		return ColorxUtil.x(xargb, i);
+	}
+
+	/**
+	 * Return colorx with component value set.
+	 */
+	public Colorx x(int i, int x) {
+		return x(i) == x ? this : of(ColorxUtil.x(xargb, i, x));
 	}
 
 	/**
@@ -148,6 +184,14 @@ public class Colorx {
 		return ColorxUtil.normalizeArgb(xargb, xrgbs);
 	}
 
+	/**
+	 * Flattens the color by applying alpha channel on opaque black.
+	 */
+	public Colorx flatten() {
+		long xargb = ColorxUtil.flattenXargb(this.xargb);
+		return this.xargb == xargb ? this : of(xargb);
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(xargb);

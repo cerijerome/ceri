@@ -7,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.util.stream.IntStream;
@@ -15,16 +16,21 @@ import org.junit.Test;
 public class ColorUtilTest {
 
 	@Test
-	public void testApplyAlphaArgb() {
-		assertEquals(ColorUtil.applyAlphaArgb(0x00802040), 0xff000000);
-		assertEquals(ColorUtil.applyAlphaArgb(0x80802040), 0xff401020);
-		assertEquals(ColorUtil.applyAlphaArgb(0xff802040), 0xff802040);
+	public void testFlattenArgb() {
+		assertEquals(ColorUtil.flattenArgb(0x00802040), 0xff000000);
+		assertEquals(ColorUtil.flattenArgb(0x80802040), 0xff401020);
+		assertEquals(ColorUtil.flattenArgb(0xff802040), 0xff802040);
 	}
 
 	@Test
 	public void testRgb() {
 		assertEquals(ColorUtil.rgb(0x98765432), 0x765432);
 		assertEquals(ColorUtil.rgb(color(0x98765432)), 0x765432);
+	}
+
+	@Test
+	public void testArgb() {
+		assertEquals(ColorUtil.argb(0x11, 0x22, 0x33), 0xff112233);
 	}
 
 	@Test
@@ -60,8 +66,24 @@ public class ColorUtilTest {
 	}
 
 	@Test
+	public void testRandomRgb() {
+		assertEquals(ColorUtil.randomRgb() & 0xff000000, 0xff000000);
+	}
+
+	@Test
 	public void testRandomArgb() {
-		assertEquals(ColorUtil.randomArgb() & 0xff000000, 0xff000000);
+		ColorUtil.randomArgb();
+	}
+
+	@Test
+	public void testBlendArgbs() {
+		assertEquals(ColorUtil.blendArgbs(), 0);
+		assertEquals(ColorUtil.blendArgbs(0x80aabbcc), 0x80aabbcc);
+		assertEquals(ColorUtil.blendArgbs(0xffaabbcc, 0x40112233), 0xffaabbcc);
+		assertEquals(ColorUtil.blendArgbs(0x80aabbcc, 0x112233), 0x80aabbcc);
+		assertEquals(ColorUtil.blendArgbs(0xaabbcc, 0x40112233), 0x40112233);
+		assertEquals(ColorUtil.blendArgbs(0x80aabbcc, 0x40112233), 0xa08b9cad);
+		assertEquals(ColorUtil.blendArgbs(0x40112233, 0x80aabbcc), 0xa06d7e8f);
 	}
 
 	@Test
@@ -91,10 +113,10 @@ public class ColorUtilTest {
 	}
 
 	@Test
-	public void testApplyAlpha() {
-		assertColor(ColorUtil.applyAlpha(color(0x00802040)), 0xff000000);
-		assertColor(ColorUtil.applyAlpha(color(0x80802040)), 0xff401020);
-		assertColor(ColorUtil.applyAlpha(color(0xff802040)), 0xff802040);
+	public void testFlatten() {
+		assertColor(ColorUtil.flatten(color(0x00802040)), 0xff000000);
+		assertColor(ColorUtil.flatten(color(0x80802040)), 0xff401020);
+		assertColor(ColorUtil.flatten(color(0xff802040)), 0xff802040);
 	}
 
 	@Test
@@ -110,6 +132,27 @@ public class ColorUtilTest {
 		assertColor(color("#fed"), 0xffffeedd);
 		assertColor(color("0xfed"), 0xff000fed);
 		assertColor(color("#fedcba98"), 0xfedcba98);
+	}
+
+	@Test
+	public void testSetArgbComponent() {
+		assertEquals(ColorUtil.a(0x88776655, 0xaa), 0xaa776655);
+		assertEquals(ColorUtil.r(0x88776655, 0xaa), 0x88aa6655);
+		assertEquals(ColorUtil.g(0x88776655, 0xaa), 0x8877aa55);
+		assertEquals(ColorUtil.b(0x88776655, 0xaa), 0x887766aa);
+	}
+
+	@Test
+	public void testSetComponent() {
+		var c = color(0x88776655);
+		assertColor(ColorUtil.a(c, 0xaa), 0xaa776655);
+		assertColor(ColorUtil.r(c, 0xaa), 0x88aa6655);
+		assertColor(ColorUtil.g(c, 0xaa), 0x8877aa55);
+		assertColor(ColorUtil.b(c, 0xaa), 0x887766aa);
+		assertSame(ColorUtil.a(c, 0x88), c);
+		assertSame(ColorUtil.r(c, 0x77), c);
+		assertSame(ColorUtil.g(c, 0x66), c);
+		assertSame(ColorUtil.b(c, 0x55), c);
 	}
 
 	@Test
@@ -199,6 +242,18 @@ public class ColorUtilTest {
 		assertApprox(ColorUtil.scaleRatio(0.9, 0.3, 0.0), 0.9);
 		assertApprox(ColorUtil.scaleRatio(0.9, 0.3, 0.5), 0.6);
 		assertApprox(ColorUtil.scaleRatio(0.9, 0.3, 1.0), 0.3);
+	}
+
+	@Test
+	public void testBlendAssociativity() {
+		var c0 = ColorUtil.a(Colors.aquamarine.argb, 0x80);
+		var c1 = ColorUtil.a(Colors.blueViolet.argb, 0x40);
+		var c2 = ColorUtil.a(Colors.coral.argb, 0x20);
+		var c21 = ColorUtil.blendArgbs(c2, c1);
+		var c10 = ColorUtil.blendArgbs(c1, c0);
+		var c21_0 = ColorUtil.blendArgbs(c21, c0);
+		var c2_10 = ColorUtil.blendArgbs(c2, c10);
+		ColorTestUtil.assertArgbDiff(c21_0, c2_10, 1);
 	}
 
 	@Test
