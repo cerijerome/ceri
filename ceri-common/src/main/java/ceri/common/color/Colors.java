@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.collection.EnumUtil;
 
 /**
@@ -432,8 +431,7 @@ public enum Colors {
 	 * Provide a random entry.
 	 */
 	public static Colors random() {
-		Colors[] values = Colors.values();
-		return values[ThreadLocalRandom.current().nextInt(values.length)];
+		return EnumUtil.random(Colors.class);
 	}
 
 	Colors(int rgb) {

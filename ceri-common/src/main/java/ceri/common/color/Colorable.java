@@ -9,9 +9,9 @@ import java.util.Collection;
  */
 public interface Colorable {
 	/**
-	 * No-op implementation.
+	 * A no-op, stateless instance.
 	 */
-	static Colorable NULL = ofNull();
+	static Colorable NULL = new Null() {};
 
 	/**
 	 * Set the color with an argb int.
@@ -52,6 +52,19 @@ public interface Colorable {
 	}
 
 	/**
+	 * A no-op, stateless implementation. 
+	 */
+	interface Null extends Colorable {
+		@Override
+		default void argb(int argb) {}
+
+		@Override
+		default int argb() {
+			return 0;
+		}
+	}
+	
+	/**
 	 * Adapt a type that gets/sets colorx, by denormalizing color with given x colors.
 	 */
 	static Colorable from(Colorxable colorxable, Color... xs) {
@@ -86,6 +99,7 @@ public interface Colorable {
 	 * Provide a wrapper for multiple Colorable types.
 	 */
 	static Colorable multi(Collection<Colorable> colorables) {
+		var first = colorables.stream().findFirst().orElse(NULL);
 		return new Colorable() {
 			@Override
 			public void argb(int argb) {
@@ -94,19 +108,7 @@ public interface Colorable {
 
 			@Override
 			public int argb() {
-				return colorables.stream().mapToInt(Colorable::argb).findFirst().orElse(0);
-			}
-		};
-	}
-
-	private static Colorable ofNull() {
-		return new Colorable() {
-			@Override
-			public void argb(int argb) {}
-
-			@Override
-			public int argb() {
-				return ColorUtil.clear.getRGB();
+				return first.argb();
 			}
 		};
 	}

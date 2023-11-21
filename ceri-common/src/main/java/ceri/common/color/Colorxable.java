@@ -9,9 +9,9 @@ import java.util.Collection;
  */
 public interface Colorxable {
 	/**
-	 * No-op implementation.
+	 * A no-op, stateless instance.
 	 */
-	static Colorxable NULL = ofNull();
+	static Colorxable NULL = new Null() {};
 
 	/**
 	 * Set the colorx with an xargb long.
@@ -35,6 +35,19 @@ public interface Colorxable {
 	 */
 	default Colorx colorx() {
 		return Colorx.of(xargb());
+	}
+
+	/**
+	 * A no-op, stateless implementation.
+	 */
+	interface Null extends Colorxable {
+		@Override
+		default void xargb(long xargb) {}
+
+		@Override
+		default long xargb() {
+			return 0;
+		}
 	}
 
 	/**
@@ -72,7 +85,7 @@ public interface Colorxable {
 	 * Provide a wrapper for multiple Colorxable types.
 	 */
 	static Colorxable multi(Collection<Colorxable> colorxables) {
-		Colorxable first = colorxables.isEmpty() ? NULL : colorxables.iterator().next();
+		var first = colorxables.stream().findFirst().orElse(NULL);
 		return new Colorxable() {
 			@Override
 			public void xargb(long xargb) {
@@ -82,18 +95,6 @@ public interface Colorxable {
 			@Override
 			public long xargb() {
 				return first.xargb();
-			}
-		};
-	}
-
-	private static Colorxable ofNull() {
-		return new Colorxable() {
-			@Override
-			public void xargb(long xargb) {}
-
-			@Override
-			public long xargb() {
-				return Colorx.clear.xargb;
 			}
 		};
 	}

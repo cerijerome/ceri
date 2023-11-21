@@ -550,6 +550,20 @@ public class CollectionUtil {
 		return keys;
 	}
 
+	/**
+	 * Returns a map with a maximum number of keys, for caching. When full, a new added entry will
+	 * cause the oldest entry to be removed.
+	 */
+	@SuppressWarnings("serial")
+	public static <K, V> LinkedHashMap<K, V> fixedSizeCache(int max) {
+		return new LinkedHashMap<>() {
+			@Override
+			protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+				return size() > max;
+			}
+		};
+	}
+
 	public static <K, V> Supplier<Map<K, V>> mapSupplier() {
 		return BasicUtil.uncheckedCast(mapSupplier);
 	}

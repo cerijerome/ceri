@@ -1,7 +1,9 @@
 package ceri.common.collection;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.function.IntUnaryOperator;
+import java.util.function.ToIntFunction;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.text.ToString;
@@ -20,6 +22,20 @@ public class Indexer {
 	public final int length;
 
 	/**
+	 * Interface for processing the index, offset, and length for a given value.
+	 */
+	public static interface Consumer {
+		void accept(int index, int offset, int length);
+	}
+
+	/**
+	 * Interface for processing the index, offset, and length for a given value.
+	 */
+	public static interface Function<T> {
+		T apply(int index, int offset, int length);
+	}
+
+	/**
 	 * Creates from section lengths.
 	 */
 	public static Indexer from(int... lengths) {
@@ -29,6 +45,21 @@ public class Indexer {
 			enc.writeInt(n);
 		}
 		return new Indexer(enc.ints());
+	}
+
+	/**
+	 * Creates from types and a length function.
+	 */
+	@SafeVarargs
+	public static <T> Indexer from(ToIntFunction<T> lengthFn, T... ts) {
+		return from(lengthFn, Arrays.asList(ts));
+	}
+
+	/**
+	 * Creates from types and a length function.
+	 */
+	public static <T> Indexer from(ToIntFunction<T> lengthFn, Collection<T> ts) {
+		return from(ts.stream().mapToInt(lengthFn).toArray());
 	}
 
 	/**
@@ -46,16 +77,30 @@ public class Indexer {
 		length = indexes.length == 0 ? 0 : indexes[indexes.length - 1];
 	}
 
+	/**
+	 * Provides the sequence of increasing lengths, ending in total length.
+	 */
 	public IntProvider indexes() {
 		return indexProvider;
 	}
 
 	/**
-	 * Returns the length of given index section, or 0 if outside the range.
+	 * Calls the consumer with the corresponding index, offset, and length for the value, if within
+	 * the range.
 	 */
-	public int length(int index) {
-		if (index < 0 || index >= indexes.length) return 0;
-		return index == 0 ? indexes[index] : indexes[index] - indexes[index - 1];
+	public void accept(int value, Consumer consumer) {
+		int index = index(value);
+		if (index != INVALID_INDEX) consumer.accept(index, value - start(index), length(index));
+	}
+
+	/**
+	 * Calls the function with the corresponding index, offset, and length for the value, if within
+	 * the range and returns the result. Returns null if out of range.
+	 */
+	public <T> T apply(int value, Function<T> function) {
+		int index = index(value);
+		return index == INVALID_INDEX ? null :
+			function.apply(index, value - start(index), length(index));
 	}
 
 	/**
@@ -66,6 +111,22 @@ public class Indexer {
 		return indexFn.applyAsInt(value);
 	}
 
+	/**
+	 * Returns the start of given index section, or 0 if outside the range.
+	 */
+	public int start(int index) {
+		if (index < 0 || index >= indexes.length) return 0;
+		return index == 0 ? 0 : indexes[index - 1];
+	}
+
+	/**
+	 * Returns the length of given index section, or 0 if outside the range.
+	 */
+	public int length(int index) {
+		if (index < 0 || index >= indexes.length) return 0;
+		return index == 0 ? indexes[index] : indexes[index] - indexes[index - 1];
+	}
+
 	@Override
 	public int hashCode() {
 		return Arrays.hashCode(indexes);
@@ -74,10 +135,8 @@ public class Indexer {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Indexer)) return false;
-		Indexer other = (Indexer) obj;
-		if (!Arrays.equals(indexes, other.indexes)) return false;
-		return true;
+		if (!(obj instanceof Indexer other)) return false;
+		return Arrays.equals(indexes, other.indexes);
 	}
 
 	@Override

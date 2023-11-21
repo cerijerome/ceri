@@ -372,4 +372,23 @@ public class CollectionUtilTest {
 		assertCollection(CollectionUtil.keys(map, null), -1, -2);
 	}
 
+	@Test
+	public void shouldNotExceedMaxSizeOfCache() {
+		var cache = CollectionUtil.putAll(CollectionUtil.fixedSizeCache(3),
+			Map.of(1, "one", 2, "two", 3, "three"));
+		cache.put(4, "four");
+		assertEquals(cache.size(), 3);
+		cache.put(5, "five");
+		assertEquals(cache.size(), 3);
+		cache.put(6, "six");
+		assertEquals(cache.size(), 3);
+	}
+
+	@Test
+	public void shouldRemoveOldestItemFromCache() {
+		var cache = CollectionUtil.putAll(CollectionUtil.fixedSizeCache(3), Map.of(1, "one"));
+		CollectionUtil.putAll(cache, Map.of(2, "two", 3, "three"));
+		cache.put(4, "four");
+		assertFalse(cache.containsKey(1));
+	}
 }

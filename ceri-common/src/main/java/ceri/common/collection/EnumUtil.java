@@ -1,12 +1,15 @@
 package ceri.common.collection;
 
 import static ceri.common.collection.ArrayUtil.validateIndex;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import ceri.common.util.BasicUtil;
 
 public class EnumUtil {
+	private static final Map<Class<?>, List<?>> cache = new ConcurrentHashMap<>();
 
 	private EnumUtil() {}
 
@@ -44,19 +47,18 @@ public class EnumUtil {
 	}
 
 	/**
-	 * Convenience method that returns all enum constants as a list.
+	 * Returns enum constants as an immutable list, using a lookup cache.
 	 */
 	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
-		return Arrays.asList(cls.getEnumConstants());
+		return BasicUtil.uncheckedCast(
+			cache.computeIfAbsent(cls, c -> ImmutableUtil.wrapAsList(c.getEnumConstants())));
 	}
 
 	/**
 	 * Convenience method that returns all enum constants as a list in reverse order.
 	 */
 	public static <T extends Enum<T>> List<T> enumsReversed(Class<T> cls) {
-		List<T> list = enums(cls);
-		Collections.reverse(list);
-		return list;
+		return ImmutableUtil.wrapAsList(ArrayUtil.reverse(cls.getEnumConstants()));
 	}
 
 	/**
@@ -75,5 +77,13 @@ public class EnumUtil {
 		T[] enums = cls.getEnumConstants();
 		validateIndex(enums.length, ordinal);
 		return enums[ordinal];
+	}
+
+	/**
+	 * Return a random enum value.
+	 */
+	public static <T extends Enum<T>> T random(Class<T> cls) {
+		var enums = enums(cls);
+		return enums.get(ThreadLocalRandom.current().nextInt(enums.size()));
 	}
 }

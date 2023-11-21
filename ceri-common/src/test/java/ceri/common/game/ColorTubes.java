@@ -48,6 +48,23 @@ public class ColorTubes {
 		}
 	}
 
+	public static int[] level1051() {
+		return new int[] { //
+			tube(orange, gray, yellow, purple), //
+			tube(aqua, gray, cyan, brown), //
+			tube(gray, red, orange, cyan), //
+			tube(brown, blue, purple, brown), //
+			tube(purple, yellow, cyan, orange), //
+			tube(pink, aqua, green , blue), //
+			tube(red, pink, green, cyan), //
+			tube(blue, yellow, orange, olive), //
+			tube(aqua, gray, brown, olive), //
+			tube(olive, aqua, yellow, green), //
+			tube(red, blue, pink, red), //
+			tube(pink, green, olive, purple), //
+			0, 0 };
+	}
+	
 	public static int[] level973() {
 		return new int[] { //
 			tube(blue, olive, cyan, green), //
@@ -148,12 +165,12 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		int[] tubes = level973();
+		int[] tubes = level1051();
 		printTubes(tubes);
 		validateTubes(tubes);
-		var path = new int[100];
+		var path = new int[500];
 		long t0 = TimeSupplier.micros.time();
-		// int n = solveRecursively(path, 0, tubes);
+		//int n = solveRecursively(path, 0, tubes);
 		int n = solveIteratively(path, tubes);
 		long t1 = TimeSupplier.micros.time();
 		showSolution(path, n, tubes);
@@ -196,7 +213,7 @@ public class ColorTubes {
 	public static int solveIteratively(int[] path, int[] tubes) {
 		// moves: xxxxx0xxx0xxxx0xx each layer separated by 0
 		// work back from the end of each layer
-		int[] moves = new int[(tubes.length + 1) * (tubes.length + 1)]; // max estimate
+		int[] moves = new int[(tubes.length + 1) * (tubes.length + 1) * 2]; // max estimate
 		int pathIndex = 0;
 		int complete = -1;
 		int i = setMoves(moves, 0, tubes) - 1;

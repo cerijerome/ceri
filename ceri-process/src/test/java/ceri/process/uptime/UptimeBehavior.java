@@ -1,6 +1,7 @@
 package ceri.process.uptime;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestProcess;
@@ -19,6 +20,11 @@ public class UptimeBehavior {
 			28);
 	}
 
+	@Test
+	public void shouldFailForInvalidOutput() {
+		assertThrown(() -> uptime("").uptimeMs().parse());
+	}
+	
 	private static void assertUptime(String output, int days, int hours, int minutes)
 		throws IOException {
 		assertEquals(uptime(output).uptimeMs().parse(), ms(days, hours, minutes));

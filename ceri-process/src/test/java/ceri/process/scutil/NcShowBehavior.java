@@ -5,7 +5,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.collection.Node;
-import ceri.common.collection.NodeBuilder;
 
 public class NcShowBehavior {
 
@@ -13,8 +12,8 @@ public class NcShowBehavior {
 	public void shouldNotBreachEqualsContract() {
 		NcListItem item0 = NcListItem.from("* (Connecting) X P --> D \"N\" [P:T]");
 		NcListItem item1 = NcListItem.from("  (Connecting) X P --> D \"N\" [P:T]");
-		Node<Void> node0 = NodeBuilder.<Void>of().startGroup("grp", null).value("val", 7).build();
-		Node<Void> node1 = NodeBuilder.<Void>of().startGroup("grp", null).value("val", 8).build();
+		Node<Void> node0 = Node.<Void>tree().startGroup("grp", null).value("val", 7).build();
+		Node<Void> node1 = Node.<Void>tree().startGroup("grp", null).value("val", 8).build();
 		NcShow t = NcShow.of(item0, node0);
 		NcShow eq0 = NcShow.of(item0, node0);
 		NcShow ne0 = NcShow.of(item1, node0);

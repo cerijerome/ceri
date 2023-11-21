@@ -29,10 +29,19 @@ public class Uptime {
 	 * for Windows. If process call fails, JVM uptime is used.
 	 */
 	public static long systemUptimeMs() {
+		return systemUptimeMs(Processor.DEFAULT);
+	}
+
+	/**
+	 * Determine system uptime in milliseconds. Calls 'uptime' for Linux/OSX, and 'net stats srv'
+	 * for Windows. If process call fails, JVM uptime is used.
+	 */
+	public static long systemUptimeMs(Processor processor) {
 		try {
 			var os = OsUtil.os();
-			if (os.linux || os.mac) return of().uptimeMs().parse();
-			long startTime = Net.of().stats.server().parse().since.toInstant().toEpochMilli();
+			if (os.linux || os.mac) return of(processor).uptimeMs().parse();
+			long startTime =
+				Net.of(processor).stats.server().parse().since.toInstant().toEpochMilli();
 			return System.currentTimeMillis() - startTime;
 		} catch (IOException | RuntimeException e) {
 			// Uptime not available

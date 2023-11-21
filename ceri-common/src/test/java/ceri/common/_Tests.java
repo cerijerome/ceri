@@ -14,7 +14,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumUtilTest.class, //
-	ceri.common.collection.FixedSizeCacheBehavior.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexedBehavior.class, //
 	ceri.common.collection.IndexerBehavior.class, //
@@ -334,6 +333,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
+	ceri.common.util.NamedBehavior.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
 	ceri.common.util.StartupValuesBehavior.class, //

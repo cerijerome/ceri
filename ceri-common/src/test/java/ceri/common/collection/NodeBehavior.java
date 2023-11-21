@@ -33,7 +33,7 @@ public class NodeBehavior {
 	 * }
 	 * </pre>
 	 */
-	private static final Node<?> NODE = NodeBuilder.<String>of().startGroup("a0", "A00")
+	private static final Node<?> NODE = Node.<String>tree().startGroup("a0", "A00")
 		.value("b0", "B00").startGroup("b1", "B01").value("c0", "C00").value(null, "C01")
 		.closeGroup().value("b2", null).startGroup(null, "B03").value(null, null).value("c3", null)
 		.value(null, "C04").closeGroup().startGroup("b4", null).value("", "").build().child(0);

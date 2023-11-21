@@ -5,7 +5,9 @@ import static ceri.common.collection.ImmutableUtil.convertAsMap;
 import static ceri.common.util.BasicUtil.defaultValue;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,8 +23,8 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.PrimitiveUtil;
 
 /**
- * Encapsulates a tree node. Can have a name, and child nodes. Nodes are immutable if value type is
- * immutable.
+ * Encapsulates a tree node with name, value, and child nodes. Node structure and value references
+ * are immutable.
  */
 public class Node<T> {
 	public static final Node<?> NULL = builder(null).build();
@@ -30,6 +32,47 @@ public class Node<T> {
 	public final T value;
 	public final List<Node<?>> children;
 	private final Map<String, Node<?>> lookup;
+
+	/**
+	 * Start building a tree.
+	 */
+	public static <T> Tree<T> tree() {
+		return new Tree<>();
+	}
+
+	/**
+	 * Used for building an immutable node tree.
+	 */
+	public static class Tree<T> {
+		private final Node.Builder<T> root;
+		private final Deque<Node.Builder<?>> stack = new LinkedList<>();
+
+		private Tree() {
+			root = Node.builder(null);
+			stack.add(root);
+		}
+
+		public Node<T> build() {
+			return root.build();
+		}
+
+		public <U> Tree<T> startGroup(String name, U value) {
+			Node.Builder<U> builder = Node.builder(value).name(name);
+			stack.getLast().add(builder);
+			stack.add(builder);
+			return this;
+		}
+
+		public <U> Tree<T> value(String name, U value) {
+			stack.getLast().add(Node.builder(value).name(name));
+			return this;
+		}
+
+		public Tree<T> closeGroup() {
+			stack.removeLast();
+			return this;
+		}
+	}
 
 	/**
 	 * Returns an empty node.

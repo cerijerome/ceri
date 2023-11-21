@@ -15,18 +15,10 @@ public class TimeQueue<T> {
 	private final Set<T> set = new HashSet<>();
 	private final PriorityQueue<Item<T>> queue = new PriorityQueue<>();
 
-	private static class Item<T> implements Comparable<Item<T>> {
-		private final T t;
-		private final long time;
-
-		private Item(T t, long time) {
-			this.t = t;
-			this.time = time;
-		}
-
+	private static record Item<T>(T t, long time) implements Comparable<Item<T>> {
 		@Override
 		public int compareTo(Item<T> o) {
-			return Long.compare(time, o.time);
+			return Long.compare(time(), o.time());
 		}
 	}
 
@@ -101,7 +93,7 @@ public class TimeQueue<T> {
 	 */
 	public boolean remove(T t) {
 		if (!set.contains(t)) return false;
-		queue.removeIf(e -> Objects.equals(e.t, t));
+		queue.removeIf(e -> Objects.equals(e.t(), t));
 		set.remove(t);
 		return true;
 	}
@@ -112,8 +104,8 @@ public class TimeQueue<T> {
 	public T remove() {
 		Item<T> item = queue.poll();
 		if (item == null) return null;
-		set.remove(item.t);
-		return item.t;
+		set.remove(item.t());
+		return item.t();
 	}
 
 	/**
@@ -150,7 +142,7 @@ public class TimeQueue<T> {
 	 */
 	public long nextTime() {
 		Item<T> head = queue.peek();
-		return head == null ? 0 : head.time;
+		return head == null ? 0 : head.time();
 	}
 
 	/**
@@ -167,7 +159,7 @@ public class TimeQueue<T> {
 	 */
 	public long nextDelay(long time) {
 		Item<T> head = queue.peek();
-		return head == null ? 0 : Math.max(0L, head.time - time);
+		return head == null ? 0 : Math.max(0L, head.time() - time);
 	}
 
 	/**
@@ -184,10 +176,10 @@ public class TimeQueue<T> {
 	 */
 	public T next(long time) {
 		Item<T> head = queue.peek();
-		if (head == null || head.time > time) return null;
+		if (head == null || head.time() > time) return null;
 		queue.remove();
-		set.remove(head.t);
-		return head.t;
+		set.remove(head.t());
+		return head.t();
 	}
 
 	/**

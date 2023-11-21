@@ -5,14 +5,13 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.collection.Node;
-import ceri.common.collection.NodeBuilder;
 
 public class NcStatusBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Node<Void> node0 = NodeBuilder.<Void>of().startGroup("grp", null).value("val", 7).build();
-		Node<Void> node1 = NodeBuilder.<Void>of().startGroup("grp", null).value("val", 8).build();
+		Node<Void> node0 = Node.<Void>tree().startGroup("grp", null).value("val", 7).build();
+		Node<Void> node1 = Node.<Void>tree().startGroup("grp", null).value("val", 8).build();
 		NcStatus t = NcStatus.of(NcServiceState.connecting, node0);
 		NcStatus eq0 = NcStatus.of(NcServiceState.connecting, node0);
 		NcStatus ne0 = NcStatus.of(NcServiceState.unknown, node0);
