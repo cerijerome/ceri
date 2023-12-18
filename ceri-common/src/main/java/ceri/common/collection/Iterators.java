@@ -11,13 +11,15 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
- * An array iterator primarily for primitive types.
+ * Utilities to create and modify iterators.
  */
 public class Iterators {
 
@@ -126,6 +128,35 @@ public class Iterators {
 		return spliterator(action -> {
 			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
 			if (nextFn != null) action.accept(nextFn.get());
+			return true;
+		}, estimatedSize, characteristics);
+	}
+
+	/**
+	 * Construct a spliterator from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true. Pass
+	 * Long.MAX_VALUE for estimated size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static Spliterator.OfInt intSpliterator(Predicate<IntConsumer> tryAdvanceFn,
+		long estimatedSize, int characteristics) {
+		return new Spliterators.AbstractIntSpliterator(estimatedSize, characteristics) {
+			@Override
+			public boolean tryAdvance(IntConsumer action) {
+				if (tryAdvanceFn == null) return false;
+				return tryAdvanceFn.test(action);
+			}
+		};
+	}
+
+	/**
+	 * Construct a spliterator from hasNext and next functions. Pass Long.MAX_VALUE for estimated
+	 * size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static Spliterator.OfInt intSpliterator(BooleanSupplier hasNextFn, IntSupplier nextFn,
+		long estimatedSize, int characteristics) {
+		return intSpliterator(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.getAsInt());
 			return true;
 		}, estimatedSize, characteristics);
 	}

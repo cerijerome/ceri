@@ -380,6 +380,13 @@ public class MathUtil {
 	}
 
 	/**
+	 * Generates a pseudo-random number from 0 to max inclusive.
+	 */
+	public static int random(int max) {
+		return random(0, max);
+	}
+	
+	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
 	public static int random(int min, int max) {
@@ -389,6 +396,13 @@ public class MathUtil {
 		return ThreadLocalRandom.current().nextInt(min, max + 1);
 	}
 
+	/**
+	 * Generates a pseudo-random number from 0 to max inclusive.
+	 */
+	public static long random(long max) {
+		return random(0L, max);
+	}
+	
 	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
@@ -404,6 +418,13 @@ public class MathUtil {
 	 */
 	public static double random() {
 		return ThreadLocalRandom.current().nextDouble();
+	}
+
+	/**
+	 * Generates a pseudo-random number from 0 (inclusive) to max (exclusive).
+	 */
+	public static double random(double maxExclusive) {
+		return random(0.0, maxExclusive);
 	}
 
 	/**
@@ -746,6 +767,20 @@ public class MathUtil {
 		return length % 2 == 1 ? array[i] : mean(array[i - 1], array[i]);
 	}
 
+	/**
+	 * Returns true if the value is within the inclusive min and max.
+	 */
+	public static boolean within(int value, int min, int max) {
+		return value >= min && value <= max;
+	}
+	
+	/**
+	 * Returns true if the value is within the inclusive min and max.
+	 */
+	public static boolean within(long value, long min, long max) {
+		return value >= min && value <= max;
+	}
+	
 	/**
 	 * Limits the value to be within the min and max inclusive.
 	 */

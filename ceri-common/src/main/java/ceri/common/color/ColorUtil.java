@@ -645,6 +645,13 @@ public class ColorUtil {
 			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(HsbColor::argb);
 	}
 
+	/**
+	 * A rounding division. Preferred to MathUtil as integers only are involved.
+	 */
+	public static int roundDiv(int x, int y) {
+		return (x + (y >> 1)) / y;
+	}
+
 	/* support methods */
 
 	/**
@@ -671,10 +678,6 @@ public class ColorUtil {
 
 	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
 		return roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
-	}
-
-	private static int roundDiv(int x, int y) {
-		return (x + (y >> 1)) / y;
 	}
 
 	/**

@@ -51,7 +51,7 @@ public class ValueCondition<T> {
 	 * Set value without signaling waiting threads. Returns the previous value.
 	 */
 	public T set(T value) {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			T old = this.value;
 			this.value = value;
 			return old;
@@ -62,7 +62,7 @@ public class ValueCondition<T> {
 	 * Set/merge current value and signal waiting threads. Returns the previous value.
 	 */
 	public T signal(T value) {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			T old = this.value;
 			this.value = merger.apply(value, old);
 			condition.signalAll();
@@ -113,7 +113,7 @@ public class ValueCondition<T> {
 	}
 
 	private T await(Timer timer, Predicate<T> predicate) throws InterruptedException {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			T returnValue = awaitValue(timer, predicate);
 			value = null;
 			return returnValue;
@@ -170,14 +170,14 @@ public class ValueCondition<T> {
 	}
 
 	private T awaitPeek(Timer timer, Predicate<T> predicate) throws InterruptedException {
-		return ConcurrentUtil.executeGet(lock, () -> awaitValue(timer, predicate));
+		return ConcurrentUtil.lockedGet(lock, () -> awaitValue(timer, predicate));
 	}
 
 	/**
 	 * Returns the current value.
 	 */
 	public T value() {
-		return ConcurrentUtil.executeGet(lock, () -> value);
+		return ConcurrentUtil.lockedGet(lock, () -> value);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class ValueCondition<T> {
 	 * unavailable.
 	 */
 	public Holder<T> tryValue() {
-		return ConcurrentUtil.tryExecuteGet(lock, () -> value);
+		return ConcurrentUtil.tryLockedGet(lock, () -> value);
 	}
 
 	/**

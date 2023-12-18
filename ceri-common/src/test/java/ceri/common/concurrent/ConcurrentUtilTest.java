@@ -45,7 +45,7 @@ public class ConcurrentUtilTest {
 		assertEquals(ConcurrentUtil.lockInfo(new ReentrantReadWriteLock().readLock()),
 			LockInfo.NULL);
 		Lock lock = new ReentrantLock();
-		ConcurrentUtil.execute(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			LockInfo info = ConcurrentUtil.lockInfo(lock);
 			assertEquals(info.holdCount, 1);
 			assertEquals(info.queueLength, 0);
@@ -168,7 +168,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteRunnable() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		final boolean[] exec = { false };
-		ConcurrentUtil.execute(lock, () -> exec[0] = true);
+		ConcurrentUtil.lockedRun(lock, () -> exec[0] = true);
 		assertTrue(exec[0]);
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
 	}
@@ -176,7 +176,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
-		assertThrown(() -> ConcurrentUtil.execute(lock, () -> {
+		assertThrown(() -> ConcurrentUtil.lockedRun(lock, () -> {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
@@ -186,11 +186,11 @@ public class ConcurrentUtilTest {
 	public void testTryExecuteRunnable() {
 		Lock lock = new ReentrantLock();
 		var holder = Holder.mutable();
-		assertTrue(ConcurrentUtil.tryExecute(lock, () -> {
+		assertTrue(ConcurrentUtil.tryLockedRun(lock, () -> {
 			holder.set("test0");
 			// Cannot get lock in new thread => return false
 			try (var exec =
-				threadCall(() -> ConcurrentUtil.tryExecute(lock, () -> holder.set("test1")))) {
+				threadCall(() -> ConcurrentUtil.tryLockedRun(lock, () -> holder.set("test1")))) {
 				assertFalse(exec.get());
 			}
 		}));
@@ -200,8 +200,8 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testTryExecuteGet() {
 		Lock lock = new ReentrantLock();
-		var holder0 = ConcurrentUtil.tryExecuteGet(lock, () -> {
-			try (var exec = threadCall(() -> ConcurrentUtil.tryExecuteGet(lock, () -> "test1"))) {
+		var holder0 = ConcurrentUtil.tryLockedGet(lock, () -> {
+			try (var exec = threadCall(() -> ConcurrentUtil.tryLockedGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
 				assertTrue(holder1.isEmpty());
 			}
@@ -213,7 +213,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteSupplier() throws InterruptedException {
 		Lock lock = new ReentrantLock();
-		String result = ConcurrentUtil.executeGet(lock, () -> "test");
+		String result = ConcurrentUtil.lockedGet(lock, () -> "test");
 		assertEquals(result, "test");
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
 	}
@@ -222,7 +222,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		boolean throwEx = true;
-		assertThrown(() -> ConcurrentUtil.executeGet(lock, () -> {
+		assertThrown(() -> ConcurrentUtil.lockedGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));

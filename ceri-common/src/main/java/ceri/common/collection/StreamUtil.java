@@ -1,15 +1,14 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.Iterators.spliterator;
+import static ceri.common.collection.CollectionUtil.listSupplier;
+import static ceri.common.collection.CollectionUtil.mapSupplier;
+import static ceri.common.collection.CollectionUtil.setSupplier;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,7 +22,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntBinaryOperator;
+import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
+import java.util.function.IntSupplier;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -277,7 +278,7 @@ public class StreamUtil {
 	 * Join streams of collections.
 	 */
 	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream) {
-		return joinToSet(stream, LinkedHashSet::new);
+		return joinToSet(stream, setSupplier());
 	}
 
 	/**
@@ -292,7 +293,7 @@ public class StreamUtil {
 	 * Join streams of collections.
 	 */
 	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream) {
-		return joinToList(stream, ArrayList::new);
+		return joinToList(stream, listSupplier());
 	}
 
 	/**
@@ -307,7 +308,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashSet.
 	 */
 	public static <T> Set<T> toSet(Stream<T> stream) {
-		return toSet(stream, LinkedHashSet::new);
+		return toSet(stream, setSupplier());
 	}
 
 	/**
@@ -328,7 +329,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
 	 */
 	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn) {
-		return toMap(stream, keyFn, (Supplier<Map<K, V>>) LinkedHashMap::new);
+		return toMap(stream, keyFn, mapSupplier());
 	}
 
 	/**
@@ -336,7 +337,7 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMap(stream, keyFn, valueFn, LinkedHashMap::new);
+		return toMap(stream, keyFn, valueFn, mapSupplier());
 	}
 
 	/**
@@ -358,10 +359,87 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Convert a stream to a map of collections.
+	 */
+	public static <K, T, C extends Collection<T>> Map<K, C> toMapOfCollections(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Supplier<C> collectionSupplier) {
+		return toMapOfCollections(stream, keyFn, t -> t, collectionSupplier);
+	}
+
+	/**
+	 * Convert a stream to a map of collections.
+	 */
+	public static <K, V, T, C extends Collection<V>> Map<K, C> toMapOfCollections(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
+		Supplier<C> collectionSupplier) {
+		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier(), collectionSupplier);
+	}
+
+	/**
+	 * Convert a stream to a map of collections.
+	 */
+	public static <K, V, T, C extends Collection<V>> Map<K, C> toMapOfCollections(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
+		Supplier<Map<K, C>> mapSupplier, Supplier<C> collectionSupplier) {
+		return stream.collect(Collectors.groupingBy(keyFn, mapSupplier,
+			Collectors.mapping(valueFn, Collectors.toCollection(collectionSupplier))));
+	}
+
+	/**
+	 * Convert a stream to a map of sets.
+	 */
+	public static <K, T> Map<K, Set<T>> toMapOfSets(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn) {
+		return toMapOfSets(stream, keyFn, t -> t);
+	}
+
+	/**
+	 * Convert a stream to a map of sets.
+	 */
+	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
+		return toMapOfSets(stream, keyFn, valueFn, mapSupplier());
+	}
+
+	/**
+	 * Convert a stream to a map of sets.
+	 */
+	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
+		Supplier<Map<K, Set<V>>> mapSupplier) {
+		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, setSupplier());
+	}
+
+	/**
+	 * Convert a stream to a map of lists.
+	 */
+	public static <K, T> Map<K, List<T>> toMapOfLists(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn) {
+		return toMapOfLists(stream, keyFn, t -> t);
+	}
+
+	/**
+	 * Convert a stream to a map of lists.
+	 */
+	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
+		return toMapOfLists(stream, keyFn, valueFn, mapSupplier());
+	}
+
+	/**
+	 * Convert a stream to a map of lists.
+	 */
+	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
+		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
+		Supplier<Map<K, List<V>>> mapSupplier) {
+		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, listSupplier());
+	}
+
+	/**
 	 * Convert a map entry stream back to a map.
 	 */
 	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream) {
-		return toEntryMap(stream, LinkedHashMap::new);
+		return toEntryMap(stream, mapSupplier());
 	}
 
 	/**
@@ -376,7 +454,7 @@ public class StreamUtil {
 	 * Collector for map entry back to map.
 	 */
 	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entryCollector() {
-		return entryCollector(mergeError(), LinkedHashMap::new);
+		return entryCollector(mergeError(), mapSupplier());
 	}
 
 	/**
@@ -435,8 +513,30 @@ public class StreamUtil {
 	 * values, otherwise it passes the next value to the action, and returns true.
 	 */
 	public static <T> Stream<T> stream(Predicate<Consumer<? super T>> tryAdvanceFn) {
-		Spliterator<T> spliterator = spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		Spliterator<T> spliterator =
+			Iterators.spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
 		return StreamSupport.stream(spliterator, false);
+	}
+
+	/**
+	 * Construct an ordered stream from hasNext and next functions.
+	 */
+	public static IntStream intStream(BooleanSupplier hasNextFn, IntSupplier nextFn) {
+		return intStream(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.getAsInt());
+			return true;
+		});
+	}
+
+	/**
+	 * Construct an ordered stream from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true.
+	 */
+	public static IntStream intStream(Predicate<IntConsumer> tryAdvanceFn) {
+		Spliterator.OfInt spliterator =
+			Iterators.intSpliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		return StreamSupport.intStream(spliterator, false);
 	}
 
 	/**

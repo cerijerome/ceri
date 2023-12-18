@@ -8,7 +8,7 @@ import ceri.common.io.Connector;
 import ceri.common.io.Fixable;
 
 /**
- * A connector implementation for tests, using piped streams.
+ * Provides manual commands to test connectors.
  */
 public class ConnectorTester {
 

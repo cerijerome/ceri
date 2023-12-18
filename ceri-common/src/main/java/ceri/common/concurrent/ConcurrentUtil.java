@@ -5,7 +5,10 @@ import static ceri.common.math.MathUtil.multiplyLimit;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +21,9 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.function.ExceptionCloseable;
+import ceri.common.function.ExceptionIntSupplier;
+import ceri.common.function.ExceptionLongSupplier;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
@@ -26,6 +32,8 @@ import ceri.common.util.Holder;
 
 public class ConcurrentUtil {
 	private static final int MICROS_IN_NANOS = 1000;
+	public static final Condition NULL_CONDITION = nullCondition();
+	public static final Lock NULL_LOCK = nullLock();
 
 	private ConcurrentUtil() {}
 
@@ -56,14 +64,6 @@ public class ConcurrentUtil {
 		ReentrantLock rlock = ReflectUtil.castOrNull(ReentrantLock.class, lock);
 		return rlock == null ? LockInfo.NULL :
 			new LockInfo(rlock.getHoldCount(), rlock.getQueueLength());
-	}
-
-	/**
-	 * Returns the lock for try-with-resource.
-	 */
-	public static RuntimeCloseable locker(Lock lock) {
-		lock.lock();
-		return () -> lock.unlock();
 	}
 
 	/**
@@ -231,9 +231,39 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Provides a locked try-with-resources that unlocks on close.
+	 */
+	public static RuntimeCloseable locker(Lock lock) {
+		lock.lock();
+		return () -> lock.unlock();
+	}
+
+	/**
+	 * Provides a locked try-with-resources that unlocks on close. Executes given post-lock and
+	 * pre-unlock logic, making sure the lock is unlocked if an exception occurs.
+	 */
+	public static <E extends Exception> ExceptionCloseable<E> locker(Lock lock,
+		ExceptionRunnable<E> postLock, ExceptionRunnable<E> preUnlock) throws E {
+		lock.lock();
+		try {
+			postLock.run();
+			return () -> {
+				try {
+					preUnlock.run();
+				} finally {
+					lock.unlock();
+				}
+			};
+		} catch (Exception e) {
+			lock.unlock();
+			throw e;
+		}
+	}
+
+	/**
 	 * Executes the operation within the lock and returns the result.
 	 */
-	public static <E extends Exception, T> T executeGet(Lock lock, ExceptionSupplier<E, T> supplier)
+	public static <E extends Exception, T> T lockedGet(Lock lock, ExceptionSupplier<E, T> supplier)
 		throws E {
 		lock.lock();
 		try {
@@ -244,9 +274,35 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Executes the operation within the lock and returns the result.
+	 */
+	public static <E extends Exception> int lockedGetAsInt(Lock lock,
+		ExceptionIntSupplier<E> supplier) throws E {
+		lock.lock();
+		try {
+			return supplier.getAsInt();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
+	 * Executes the operation within the lock and returns the result.
+	 */
+	public static <E extends Exception> long lockedGetAsLong(Lock lock,
+		ExceptionLongSupplier<E> supplier) throws E {
+		lock.lock();
+		try {
+			return supplier.getAsLong();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
 	 * Executes the operation within the lock.
 	 */
-	public static <E extends Exception> void execute(Lock lock, ExceptionRunnable<E> runnable)
+	public static <E extends Exception> void lockedRun(Lock lock, ExceptionRunnable<E> runnable)
 		throws E {
 		lock.lock();
 		try {
@@ -260,7 +316,7 @@ public class ConcurrentUtil {
 	 * Tries to execute the operation within the lock and return the result as a value holder. The
 	 * holder is empty if the lock is not available.
 	 */
-	public static <E extends Exception, T> Holder<T> tryExecuteGet(Lock lock,
+	public static <E extends Exception, T> Holder<T> tryLockedGet(Lock lock,
 		ExceptionSupplier<E, T> supplier) throws E {
 		if (!lock.tryLock()) return Holder.of();
 		try {
@@ -271,10 +327,38 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Tries to execute the operation within the lock and return the result as a value holder. The
+	 * holder is empty if the lock is not available.
+	 */
+	public static <E extends Exception> OptionalInt tryLockedGetAsInt(Lock lock,
+		ExceptionIntSupplier<E> supplier) throws E {
+		if (!lock.tryLock()) return OptionalInt.empty();
+		try {
+			return OptionalInt.of(supplier.getAsInt());
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
+	 * Tries to execute the operation within the lock and return the result as a value holder. The
+	 * holder is empty if the lock is not available.
+	 */
+	public static <E extends Exception> OptionalLong tryLockedGetAsLong(Lock lock,
+		ExceptionLongSupplier<E> supplier) throws E {
+		if (!lock.tryLock()) return OptionalLong.empty();
+		try {
+			return OptionalLong.of(supplier.getAsLong());
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
 	 * Tries to execute the operation within the lock. Returns false if the lock is not available.
 	 */
-	public static <E extends Exception> boolean tryExecute(Lock lock, ExceptionRunnable<E> runnable)
-		throws E {
+	public static <E extends Exception> boolean tryLockedRun(Lock lock,
+		ExceptionRunnable<E> runnable) throws E {
 		if (!lock.tryLock()) return false;
 		try {
 			runnable.run();
@@ -372,4 +456,62 @@ public class ConcurrentUtil {
 			get(future, exceptionConstructor);
 	}
 
+	private static Lock nullLock() {
+		return new Lock() {
+			@Override
+			public Condition newCondition() {
+				return NULL_CONDITION;
+			}
+
+			@Override
+			public void lockInterruptibly() throws InterruptedException {}
+
+			@Override
+			public void lock() {}
+
+			@Override
+			public boolean tryLock() {
+				return true;
+			}
+
+			@Override
+			public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+				return true;
+			}
+
+			@Override
+			public void unlock() {}
+		};
+	}
+
+	private static Condition nullCondition() {
+		return new Condition() {
+			@Override
+			public void signalAll() {}
+
+			@Override
+			public void signal() {}
+
+			@Override
+			public boolean awaitUntil(Date deadline) throws InterruptedException {
+				return false;
+			}
+
+			@Override
+			public void awaitUninterruptibly() {}
+
+			@Override
+			public long awaitNanos(long nanosTimeout) throws InterruptedException {
+				return 0;
+			}
+
+			@Override
+			public boolean await(long time, TimeUnit unit) throws InterruptedException {
+				return false;
+			}
+
+			@Override
+			public void await() throws InterruptedException {}
+		};
+	}
 }

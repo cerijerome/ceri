@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -29,6 +30,7 @@ import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionBiFunction;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionWrapper;
+import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -252,6 +254,42 @@ public class CollectionUtil {
 		Function<? super T, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
 		Collection<T> collection) {
 		return StreamUtil.toMap(collection.stream(), keyMapper, valueMapper, mapSupplier);
+	}
+
+	/**
+	 * Converts a collection to a map by index.
+	 */
+	public static <T> Map<Integer, T> toIndexMap(Collection<T> collection) {
+		return toIndexMap(mapSupplier(), collection);
+	}
+
+	/**
+	 * Converts a collection to a map by index.
+	 */
+	public static <T> Map<Integer, T> toIndexMap(Supplier<Map<Integer, T>> mapSupplier,
+		Collection<T> collection) {
+		return toIndexMap((t, i) -> t, mapSupplier, collection);
+	}
+
+	/**
+	 * Converts a collection to a map by index.
+	 */
+	public static <V, T> Map<Integer, V>
+		toIndexMap(ObjIntFunction<? super T, ? extends V> valueMapper, Collection<T> collection) {
+		return toIndexMap(valueMapper, mapSupplier(), collection);
+	}
+
+	/**
+	 * Converts a collection to a map by index.
+	 */
+	public static <V, T> Map<Integer, V> toIndexMap(
+		ObjIntFunction<? super T, ? extends V> valueMapper, Supplier<Map<Integer, V>> mapSupplier,
+		Collection<T> collection) {
+		var map = mapSupplier.get();
+		var iter = collection.iterator();
+		for (int i = 0; iter.hasNext(); i++)
+			map.put(i, valueMapper.apply(iter.next(), i));
+		return map;
 	}
 
 	/**
@@ -548,6 +586,22 @@ public class CollectionUtil {
 				keys.add(entry.getKey());
 		}
 		return keys;
+	}
+
+	/**
+	 * Creates an identity hash set backed by a map.
+	 */
+	public static <T> Set<T> identityHashSet() {
+		return Collections.newSetFromMap(new IdentityHashMap<>());
+	}
+
+	/**
+	 * Creates an identity hash set, backed by a map, and copying from the given set.
+	 */
+	public static <T> Set<T> identityHashSet(Set<? extends T> set) {
+		var copy = CollectionUtil.<T>identityHashSet();
+		copy.addAll(set);
+		return copy;
 	}
 
 	/**

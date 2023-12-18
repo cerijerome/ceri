@@ -3,15 +3,21 @@ package ceri.common.color;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
+import ceri.common.math.MathUtil;
 
 /**
  * Interface to set and get colorx.
  */
-public interface Colorxable {
+public interface Colorxable extends Colorable {
 	/**
 	 * A no-op, stateless instance.
 	 */
 	static Colorxable NULL = new Null() {};
+
+	/**
+	 * Get the colorx as an xargb long.
+	 */
+	long xargb();
 
 	/**
 	 * Set the colorx with an xargb long.
@@ -19,9 +25,25 @@ public interface Colorxable {
 	void xargb(long xargb);
 
 	/**
-	 * Get the colorx as an xargb long.
+	 * Get the opaque xrgb color.
 	 */
-	long xargb();
+	default long xrgb() {
+		return xargb() | Component.a.mask;
+	}
+	
+	/**
+	 * Set the opaque xrgb color.
+	 */
+	default void xrgb(long xargb) {
+		xargb(xargb | Component.a.mask);
+	}
+
+	/**
+	 * Get the colorx.
+	 */
+	default Colorx colorx() {
+		return Colorx.of(xargb());
+	}
 
 	/**
 	 * Set the colorx.
@@ -31,10 +53,19 @@ public interface Colorxable {
 	}
 
 	/**
-	 * Get the colorx.
+	 * Get the argb color, dropping any x-component.
 	 */
-	default Colorx colorx() {
-		return Colorx.of(xargb());
+	@Override
+	default int argb() {
+		return (int) xargb();
+	}
+
+	/**
+	 * Set the argb color, clearing any x-component.
+	 */
+	@Override
+	default void argb(int argb) {
+		xargb(MathUtil.uint(argb));
 	}
 
 	/**

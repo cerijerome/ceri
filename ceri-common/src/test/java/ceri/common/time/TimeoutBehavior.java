@@ -46,7 +46,7 @@ public class TimeoutBehavior {
 	public void shouldApply() throws InterruptedException {
 		Timeout t = Timeout.millis(1);
 		Lock lock = new ReentrantLock();
-		ConcurrentUtil.execute(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			Condition c = lock.newCondition();
 			assertFalse(t.applyTo(c::await));
 			assertNull(Timeout.NULL.applyTo(c::await));

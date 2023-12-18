@@ -196,7 +196,7 @@ public interface ByteProvider extends Iterable<Integer> {
 			skip(length);
 			return position;
 		}
-		
+
 		/**
 		 * Returns the index of position 0 in the underlying provider.
 		 */
@@ -467,8 +467,8 @@ public interface ByteProvider extends Iterable<Integer> {
 
 	/**
 	 * Creates a byte provider sub-view. A negative length will right-justify the view. Returns the
-	 * current provider for zero index and same length. Default implementation makes a copy of
-	 * bytes; efficiency may be improved by overriding this method.
+	 * current provider for zero index and same length. Default implementation only supports empty
+	 * and full slices.
 	 */
 	default ByteProvider slice(int index, int length) {
 		if (length == 0) return empty();

@@ -87,6 +87,15 @@ public enum Component {
 		return values;
 	}
 
+	/**
+	 * Limits the value within 0 to MAX_VALUE. 
+	 */
+	public static int limit(int value) {
+		if (value < 0) return 0;
+		if (value > MAX_VALUE) return MAX_VALUE;
+		return value;
+	}
+	
 	private Component(int i) {
 		index = i;
 		shift = Byte.SIZE * i;

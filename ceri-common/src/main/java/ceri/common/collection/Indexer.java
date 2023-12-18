@@ -2,15 +2,21 @@ package ceri.common.collection;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.IntUnaryOperator;
+import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
+import ceri.common.exception.ExceptionUtil;
+import ceri.common.function.ObjIntFunction;
 import ceri.common.text.ToString;
+import ceri.common.util.BasicUtil;
 
 /**
- * Combines ranges into a single length. Looks up range index by value. Uses linear or binary search
- * depending on the number of indexes.
+ * Combines ranges into a single length. Looks up range index by position. Uses linear or binary
+ * search depending on the number of indexes.
  */
 public class Indexer {
 	public static final int INVALID_INDEX = -1;
@@ -22,17 +28,108 @@ public class Indexer {
 	public final int length;
 
 	/**
-	 * Interface for processing the index, offset, and length for a given value.
+	 * Interface for processing the index, offset, and length for a given position.
 	 */
 	public static interface Consumer {
 		void accept(int index, int offset, int length);
 	}
 
 	/**
-	 * Interface for processing the index, offset, and length for a given value.
+	 * Interface for processing the index, offset, and length for a given position.
 	 */
 	public static interface Function<T> {
 		T apply(int index, int offset, int length);
+	}
+
+	/**
+	 * Creates an indexed list of types using a length function.
+	 */
+	@SafeVarargs
+	public static <T> Indexer.Typed<T> typed(ToIntFunction<? super T> lengthFn, T... ts) {
+		return typed(lengthFn, Arrays.asList(ts));
+	}
+
+	/**
+	 * Creates an indexed list of types using a length function.
+	 */
+	public static <T> Indexer.Typed<T> typed(ToIntFunction<? super T> lengthFn, Collection<T> ts) {
+		return new Typed<>(ImmutableUtil.copyAsList(ts), from(lengthFn, ts));
+	}
+
+	/**
+	 * Holds a list of types with intrinsic lengths, and an indexer.
+	 */
+	public static class Typed<T> {
+		private static final Typed<?> NULL = new Typed<>(List.of(), Indexer.NULL);
+		public final List<T> list;
+		public final Indexer indexer;
+
+		public static <T> Typed<T> ofNull() {
+			return BasicUtil.uncheckedCast(NULL);
+		}
+		
+		private Typed(List<T> list, Indexer indexer) {
+			this.list = list;
+			this.indexer = indexer;
+		}
+
+		/**
+		 * Returns the total length.
+		 */
+		public int length() {
+			return indexer.length;
+		}
+
+		/**
+		 * Returns the index in which the position appears, or -1 if outside the range.
+		 */
+		public int index(int position) {
+			return indexer.index(position);
+		}
+
+		/**
+		 * Returns the item at the index of the given position, or null if outside range.
+		 */
+		public T at(int position) {
+			return CollectionUtil.getOrDefault(list, index(position), null);
+		}
+
+		/**
+		 * Calls the consumer with the corresponding type and offset for the position, if within the
+		 * range.
+		 */
+		public void accept(int position, ObjIntConsumer<? super T> consumer) {
+			int index = index(position);
+			if (index != INVALID_INDEX)
+				consumer.accept(list.get(index), position - indexer.start(index));
+		}
+
+		/**
+		 * Calls the function with the corresponding type and offset for the position, if within the
+		 * range, and returns the result. Returns null if out of range.
+		 */
+		public <R> R apply(int position, ObjIntFunction<? super T, R> function) {
+			int index = index(position);
+			return index == INVALID_INDEX ? null :
+				function.apply(list.get(index), position - indexer.start(index));
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(indexer, list);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Indexer.Typed<?> other)) return false;
+			return Objects.equals(indexer, other.indexer) && Objects.equals(list, other.list);
+		}
+
+		@Override
+		public String toString() {
+			return ToString.ofClass(this, indexer.indexes()).childrens(list).toString();
+		}
 	}
 
 	/**
@@ -51,22 +148,25 @@ public class Indexer {
 	 * Creates from types and a length function.
 	 */
 	@SafeVarargs
-	public static <T> Indexer from(ToIntFunction<T> lengthFn, T... ts) {
+	public static <T> Indexer from(ToIntFunction<? super T> lengthFn, T... ts) {
 		return from(lengthFn, Arrays.asList(ts));
 	}
 
 	/**
 	 * Creates from types and a length function.
 	 */
-	public static <T> Indexer from(ToIntFunction<T> lengthFn, Collection<T> ts) {
+	public static <T> Indexer from(ToIntFunction<? super T> lengthFn, Collection<T> ts) {
 		return from(ts.stream().mapToInt(lengthFn).toArray());
 	}
 
 	/**
-	 * Creates from section indexes. The indexes must be increasing, or behavior is undefined. The
-	 * last index is the total length.
+	 * Creates from section indexes, which must be a non-decreasing sequence. The last index is the
+	 * total length.
 	 */
 	public static Indexer of(int... indexes) {
+		for (int i = 1; i < indexes.length; i++)
+			if (indexes[i - 1] > indexes[i]) throw ExceptionUtil
+				.exceptionf("Index cannot decrease: %d > %d [%d]", indexes[i - 1], indexes[i], i);
 		return new Indexer(indexes);
 	}
 
@@ -85,30 +185,30 @@ public class Indexer {
 	}
 
 	/**
-	 * Calls the consumer with the corresponding index, offset, and length for the value, if within
-	 * the range.
+	 * Calls the consumer with the corresponding index, offset, and length for the position, if
+	 * within the range.
 	 */
-	public void accept(int value, Consumer consumer) {
-		int index = index(value);
-		if (index != INVALID_INDEX) consumer.accept(index, value - start(index), length(index));
+	public void accept(int position, Consumer consumer) {
+		int index = index(position);
+		if (index != INVALID_INDEX) consumer.accept(index, position - start(index), length(index));
 	}
 
 	/**
-	 * Calls the function with the corresponding index, offset, and length for the value, if within
-	 * the range and returns the result. Returns null if out of range.
+	 * Calls the function with the corresponding index, offset, and length for the position, if
+	 * within the range, and returns the result. Returns null if out of range.
 	 */
-	public <T> T apply(int value, Function<T> function) {
-		int index = index(value);
+	public <T> T apply(int position, Function<T> function) {
+		int index = index(position);
 		return index == INVALID_INDEX ? null :
-			function.apply(index, value - start(index), length(index));
+			function.apply(index, position - start(index), length(index));
 	}
 
 	/**
-	 * Returns the index in which the value appears, or -1 if outside the range.
+	 * Returns the index in which the position appears, or -1 if outside the range.
 	 */
-	public int index(int value) {
-		if (value < 0 || value >= length) return INVALID_INDEX;
-		return indexFn.applyAsInt(value);
+	public int index(int position) {
+		if (position < 0 || position >= length) return INVALID_INDEX;
+		return indexFn.applyAsInt(position);
 	}
 
 	/**
@@ -154,5 +254,4 @@ public class Indexer {
 			if (value < indexes[i]) return i;
 		return indexes.length - 1;
 	}
-
 }

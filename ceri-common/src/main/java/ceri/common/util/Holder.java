@@ -4,7 +4,8 @@ import java.util.Objects;
 
 /**
  * Holder for a value, and flag to indicate if the value is empty. Provides mutable and immutable
- * holders. Immutable holder is similar to Optional, but allows null values.
+ * holders. Immutable holder is similar to Optional, but allows null values. Use OptionalInt,
+ * OptionalLong, and OptionalDouble for equivalent functionality with primitives.
  */
 public abstract class Holder<T> {
 	private static final Holder<Object> EMPTY = new Immutable<>(null, true);

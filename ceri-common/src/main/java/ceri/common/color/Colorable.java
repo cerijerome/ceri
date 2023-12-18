@@ -41,7 +41,7 @@ public interface Colorable {
 	 * Set the color.
 	 */
 	default void color(Color color) {
-		argb(color.getRGB());
+		argb(ColorUtil.argb(color));
 	}
 
 	/**

@@ -191,7 +191,7 @@ public class Colorx {
 		long xargb = ColorxUtil.flattenXargb(this.xargb);
 		return this.xargb == xargb ? this : of(xargb);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(xargb);
@@ -208,7 +208,7 @@ public class Colorx {
 
 	@Override
 	public String toString() {
-		return String.format("%s(a=%d,r=%d,g=%d,b=%d,x=%s)", getClass().getSimpleName(), a(), r(),
-			g(), b(), Arrays.toString(xs()));
+		return String.format("%s(#%x: a=%d,r=%d,g=%d,b=%d,x=%s)", getClass().getSimpleName(), xargb,
+			a(), r(), g(), b(), Arrays.toString(xs()));
 	}
 }

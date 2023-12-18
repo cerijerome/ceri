@@ -1,8 +1,8 @@
 package ceri.common.test;
 
 import static ceri.common.collection.CollectionUtil.getOrDefault;
-import static ceri.common.concurrent.ConcurrentUtil.execute;
-import static ceri.common.concurrent.ConcurrentUtil.executeGet;
+import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
+import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
 import static ceri.common.concurrent.ConcurrentUtil.executeGetInterruptible;
 import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
@@ -641,7 +641,7 @@ public abstract class CallSync<T, R> {
 	 * Reset state, which includes setting the original default value and auto-response.
 	 */
 	public void reset() {
-		execute(lock, () -> {
+		lockedRun(lock, () -> {
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
@@ -657,14 +657,14 @@ public abstract class CallSync<T, R> {
 	 * Returns true if auto-response is enabled.
 	 */
 	public boolean autoResponseEnabled() {
-		return executeGet(lock, () -> autoResponseFn) != null;
+		return lockedGet(lock, () -> autoResponseFn) != null;
 	}
 
 	/**
 	 * Thread-safe; get call count since creation or reset.
 	 */
 	public int calls() {
-		return executeGet(lock, () -> calls);
+		return lockedGet(lock, () -> calls);
 	}
 
 	/**
@@ -685,7 +685,7 @@ public abstract class CallSync<T, R> {
 	 * Enables/disables saving of values. Clears previous values if disabled. Enabled by default.
 	 */
 	public void saveValues(boolean enabled) {
-		execute(lock, () -> {
+		lockedRun(lock, () -> {
 			saveValues = enabled;
 			if (!enabled && values.size() > 1) setValue(getValue());
 		});
@@ -699,7 +699,7 @@ public abstract class CallSync<T, R> {
 		var callLock = lockInfo(callSync.lock);
 		var responseLock = lockInfo(responseSync.lock);
 		ToString s = ToString.ofClass(this).field("error", error);
-		if (!ConcurrentUtil.tryExecute(lock,
+		if (!ConcurrentUtil.tryLockedRun(lock,
 			() -> s.children(String.format("call=%s;%s;%d", callSync.tryValue(), callLock, calls),
 				String.format("response=%s;%s;%s", responseSync.tryValue(), responseLock,
 					responseString()),
@@ -716,7 +716,7 @@ public abstract class CallSync<T, R> {
 	 */
 	public String compactString() {
 		ToString s = ToString.ofClass(this).field("error", error);
-		if (!ConcurrentUtil.tryExecute(lock,
+		if (!ConcurrentUtil.tryLockedRun(lock,
 			() -> s.fields("calls", calls, "response", responseString(), "values",
 				values + ";" + valueDef)))
 			s.fields("calls", "[locked]", "response", "[locked]", "values", "[locked]");
@@ -731,14 +731,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets default value.
 	 */
 	private void valueDef(T value) {
-		execute(lock, () -> valueDef = value);
+		lockedRun(lock, () -> valueDef = value);
 	}
 
 	/**
 	 * Thread-safe; set current value.
 	 */
 	private void setValue(T value) {
-		execute(lock, () -> {
+		lockedRun(lock, () -> {
 			if (!saveValues) values.clear();
 			values.add(value);
 		});
@@ -765,14 +765,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; get current value or default. Does not check for exceptions.
 	 */
 	private T getValue() {
-		return executeGet(lock, () -> getOrDefault(values, values.size() - 1, valueDef));
+		return lockedGet(lock, () -> getOrDefault(values, values.size() - 1, valueDef));
 	}
 
 	/**
 	 * Thread-safe; get all values. Does not check for exceptions.
 	 */
 	private List<T> getValues() {
-		return executeGet(lock, () -> new ArrayList<>(values));
+		return lockedGet(lock, () -> new ArrayList<>(values));
 	}
 
 	/**
@@ -780,7 +780,7 @@ public abstract class CallSync<T, R> {
 	 */
 	@SafeVarargs
 	private void assertAndClearValues(T... expecteds) {
-		List<T> values = executeGet(lock, () -> {
+		List<T> values = lockedGet(lock, () -> {
 			List<T> list = new ArrayList<>(this.values);
 			this.values.clear();
 			return list;
@@ -792,7 +792,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
 	private void autoResponseFn(java.util.function.Function<T, R> autoResponseFn) {
-		execute(lock, () -> this.autoResponseFn = autoResponseFn);
+		lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
 	/**
@@ -832,7 +832,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; checks auto-response is set, and awaits call.
 	 */
 	private T awaitCallWithAutoResponse() {
-		return executeGet(lock, () -> {
+		return lockedGet(lock, () -> {
 			assertNotNull(autoResponseFn);
 			return awaitCall();
 		});
@@ -843,7 +843,7 @@ public abstract class CallSync<T, R> {
 	 */
 	private <E extends Exception> T awaitCallWithResponse(ExceptionFunction<E, T, R> responseFn)
 		throws E {
-		return executeGet(lock, () -> {
+		return lockedGet(lock, () -> {
 			var autoResponseFn = this.autoResponseFn;
 			try {
 				// Temporarily removes auto response

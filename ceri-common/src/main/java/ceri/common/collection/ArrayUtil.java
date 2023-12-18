@@ -62,6 +62,15 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Performs a validation on parameters to slice an array. Returns true if the slice is the full
+	 * slice.
+	 */
+	public static boolean validateFullSlice(int arrayLength, int offset, int length) {
+		validateSlice(arrayLength, offset, length);
+		return fullSlice(arrayLength, offset, length);
+	}
+
+	/**
 	 * Performs a validation on parameters to slice an array by range.
 	 */
 	public static void validateRange(int arrayLength, int start, int end) {
@@ -96,6 +105,13 @@ public class ArrayUtil {
 		return true;
 	}
 
+	/**
+	 * Returns true if the slice is the same as the whole. 
+	 */
+	public static boolean fullSlice(int arrayLength, int offset, int length) {
+		return  offset == 0 && length == arrayLength;
+	}
+	
 	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */

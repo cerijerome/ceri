@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.ImmutableUtil;
@@ -27,6 +28,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ObjIntFunction;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -128,6 +130,45 @@ public class ManualTester {
 			String s = m.group(group);
 			if (s.isEmpty()) return null;
 			return Double.parseDouble(s);
+		}
+
+		/**
+		 * Consumes and returns the first non-null group. Returns null if no match.
+		 */
+		public static String consumeFirst(Matcher m, ObjIntConsumer<String> consumer) {
+			return consumeFirst(m, 1, consumer);
+		}
+
+		/**
+		 * Consumes and returns the first non-null group starting at the given group index. Returns
+		 * null if no match.
+		 */
+		public static String consumeFirst(Matcher m, int start, ObjIntConsumer<String> consumer) {
+			return applyFirst(m, start, (s, i) -> {
+				consumer.accept(s, i);
+				return s;
+			});
+		}
+
+		/**
+		 * Applies the function to the first non-null group, and returns the result. Returns null if
+		 * no match.
+		 */
+		public static <T> T applyFirst(Matcher m, ObjIntFunction<String, T> function) {
+			return applyFirst(m, 1, function);
+		}
+
+		/**
+		 * Applies the function to the first non-null group, starting at the given index, and
+		 * returns the result. Returns null if no match.
+		 */
+		public static <T> T applyFirst(Matcher m, int start, ObjIntFunction<String, T> function) {
+			for (int i = start; i <= m.groupCount(); i++) {
+				var s = m.group(i);
+				if (s == null) continue;
+				return function.apply(s, i + 1 - start);
+			}
+			return null;
 		}
 	}
 
@@ -315,11 +356,9 @@ public class ManualTester {
 	}
 
 	public static <T> Builder builderList(List<T> subjects, Function<T, String> stringFn) {
-		return builderList(subjects).stringFn(
-			s -> { 
-				return stringFn.apply(BasicUtil.<T>uncheckedCast(s));
-			}
-		);
+		return builderList(subjects).stringFn(s -> {
+			return stringFn.apply(BasicUtil.<T>uncheckedCast(s));
+		});
 	}
 
 	protected ManualTester(Builder builder) {

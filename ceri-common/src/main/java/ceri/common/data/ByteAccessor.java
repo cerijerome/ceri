@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import static ceri.common.collection.ArrayUtil.validateFullSlice;
 import ceri.common.collection.ArrayUtil;
 
 /**
@@ -67,10 +68,8 @@ public interface ByteAccessor extends ByteProvider, ByteReceiver {
 
 		@Override
 		public ByteAccessor slice(int index, int length) {
-			ArrayUtil.validateSlice(length(), index, length);
-			if (length == 0) return EMPTY;
-			if (length == length()) return this;
-			return new Null(length);
+			if (validateFullSlice(length(), index, length)) return this;
+			return ofNull(length);
 		}
 	}
 }

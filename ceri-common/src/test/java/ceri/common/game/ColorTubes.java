@@ -12,6 +12,10 @@ import static ceri.common.game.ColorTubes.Color.pink;
 import static ceri.common.game.ColorTubes.Color.purple;
 import static ceri.common.game.ColorTubes.Color.red;
 import static ceri.common.game.ColorTubes.Color.yellow;
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import ceri.common.text.AnsiEscape;
 import ceri.common.time.TimeSupplier;
 
@@ -26,26 +30,42 @@ public class ColorTubes {
 	private static int count = 0;
 
 	enum Color {
-		none(0xffffff), // 0
-		red(0xf00000), // 1
-		pink(0xf07080), // 2
-		orange(0xf0a000), // 3
-		brown(0x905020), // 4
-		yellow(0xf0f000), // 5
-		green(0x308050), // 6
-		olive(0xa0b000), // 7
-		aqua(0x70f0b0), // 8
-		cyan(0x00d0e0), // 9
-		blue(0x0000f0), // 10
-		purple(0x8060e0), // 11
-		gray(0x909090); // 12
+		none(0xffffff, ' '), // 0
+		red(0xf00000, 'r'), // 1
+		pink(0xf07080, 'p'), // 2
+		orange(0xf0a000, 'o'), // 3
+		brown(0x905020, 'B'), // 4
+		yellow(0xf0f000, 'y'), // 5
+		green(0x308050, 'g'), // 6
+		olive(0xa0b000, 'O'), // 7
+		aqua(0x70f0b0, 'a'), // 8
+		cyan(0x00d0e0, 'c'), // 9
+		blue(0x0000f0, 'b'), // 10
+		purple(0x8060e0, 'P'), // 11
+		gray(0x909090, 'G'); // 12
 
 		public static final Color[] values = Color.values();
+		public static final Map<Character, Color> map = Collections
+			.unmodifiableMap(Stream.of(values).collect(Collectors.toMap(c -> c.ch, c -> c)));
 		public final int rgb;
+		public final char ch;
 
-		private Color(int rgb) {
+		private Color(int rgb, char ch) {
 			this.rgb = rgb;
+			this.ch = ch;
 		}
+	}
+
+	public static int[] template() {
+		return tubes( //
+			"", "", "", "", "", "", "", //
+			"", "", "", "", "", "", "");
+	}
+
+	public static int[] level1209() {
+		return tubes( //
+			"Pgor", "aGyO", "rpyb", "Gggp", "bOcB", "OPcG", "BboB", //
+			"cPro", "oOap", "yPgc", "Grya", "Bpba", "", "");
 	}
 
 	public static int[] level1051() {
@@ -55,7 +75,7 @@ public class ColorTubes {
 			tube(gray, red, orange, cyan), //
 			tube(brown, blue, purple, brown), //
 			tube(purple, yellow, cyan, orange), //
-			tube(pink, aqua, green , blue), //
+			tube(pink, aqua, green, blue), //
 			tube(red, pink, green, cyan), //
 			tube(blue, yellow, orange, olive), //
 			tube(aqua, gray, brown, olive), //
@@ -64,7 +84,7 @@ public class ColorTubes {
 			tube(pink, green, olive, purple), //
 			0, 0 };
 	}
-	
+
 	public static int[] level973() {
 		return new int[] { //
 			tube(blue, olive, cyan, green), //
@@ -81,7 +101,7 @@ public class ColorTubes {
 			tube(gray, orange, red, orange), //
 			0, 0 };
 	}
-	
+
 	public static int[] level877() {
 		return new int[] { //
 			tube(pink, blue, yellow, gray), //
@@ -98,7 +118,7 @@ public class ColorTubes {
 			tube(aqua, green, orange, gray), //
 			0, 0 };
 	}
-	
+
 	public static int[] level843() {
 		return new int[] { //
 			tube(olive, cyan, green, gray), //
@@ -165,12 +185,12 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		int[] tubes = level1051();
+		int[] tubes = level1209();
 		printTubes(tubes);
 		validateTubes(tubes);
 		var path = new int[500];
 		long t0 = TimeSupplier.micros.time();
-		//int n = solveRecursively(path, 0, tubes);
+		// int n = solveRecursively(path, 0, tubes);
 		int n = solveIteratively(path, tubes);
 		long t1 = TimeSupplier.micros.time();
 		showSolution(path, n, tubes);
@@ -412,6 +432,20 @@ public class ColorTubes {
 		for (int i = 0; i < colors.length; i++)
 			tube |= shift(colors[i].ordinal(), i);
 		return tube;
+	}
+
+	/**
+	 * Create a tube value with given color chars starting at the bottom.
+	 */
+	private static int tube(String colors) {
+		return tube(colors.chars().mapToObj(c -> Color.map.get((char) c)).toArray(Color[]::new));
+	}
+
+	/**
+	 * Create tube values with given color chars starting at the bottom.
+	 */
+	private static int[] tubes(String... tubes) {
+		return Stream.of(tubes).mapToInt(s -> tube(s)).toArray();
 	}
 
 	private static int shift(int val, int i) {
