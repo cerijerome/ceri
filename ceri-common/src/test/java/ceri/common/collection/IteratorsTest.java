@@ -31,6 +31,24 @@ public class IteratorsTest {
 	}
 
 	@Test
+	public void testIntIndexed() {
+		var iter = Iterators.intIndexed(3, i -> -i);
+		assertEquals(iter.next(), 0);
+		assertEquals(iter.next(), -1);
+		assertEquals(iter.next(), -2);
+		assertThrown(() -> iter.next());
+	}
+
+	@Test
+	public void testLongIndexed() {
+		var iter = Iterators.longIndexed(3, l -> -l);
+		assertEquals(iter.next(), 0L);
+		assertEquals(iter.next(), -1L);
+		assertEquals(iter.next(), -2L);
+		assertThrown(() -> iter.next());
+	}
+
+	@Test
 	public void testReverseList() {
 		List<String> list = add(new ArrayList<>(), "1", "2", "3");
 		Iterator<String> iter = Iterators.reverseList(list);
@@ -98,6 +116,46 @@ public class IteratorsTest {
 		captor.verify();
 		Iterators.spliterator(() -> true, () -> "test", 1, 0).tryAdvance(captor);
 		captor.verify("test");
+	}
+
+	@Test
+	public void testIntSpliteratorTryAdvance() {
+		var captor = Captor.of();
+		Iterators.intSpliterator(null, 1, 0).tryAdvance(captor);
+		captor.verify();
+	}
+
+	@Test
+	public void testIntSpliteratorNext() {
+		var captor = Captor.of();
+		Iterators.intSpliterator(null, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.intSpliterator(() -> false, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.intSpliterator(() -> true, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.intSpliterator(() -> true, () -> 333, 1, 0).tryAdvance(captor);
+		captor.verify(333);
+	}
+
+	@Test
+	public void testLongSpliteratorTryAdvance() {
+		var captor = Captor.of();
+		Iterators.longSpliterator(null, 1, 0).tryAdvance(captor);
+		captor.verify();
+	}
+
+	@Test
+	public void testLongSpliteratorNext() {
+		var captor = Captor.<Long>of();
+		Iterators.longSpliterator(null, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.longSpliterator(() -> false, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.longSpliterator(() -> true, null, 1, 0).tryAdvance(captor);
+		captor.verify();
+		Iterators.longSpliterator(() -> true, () -> 333L, 1, 0).tryAdvance(captor);
+		captor.verify(333L);
 	}
 
 	/**

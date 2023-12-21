@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PrimitiveIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -34,7 +33,6 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionTestUtil;
-import ceri.common.test.CallSync;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -268,11 +266,19 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testIntStream() {
-		//PrimitiveIterator.OfInt
-		//StreamUtil.intStream();
+	public void testIntStreamFromIteratorFunctions() {
+		var list = ArrayUtil.asList(5, 2, 4, 1);
+		var stream = StreamUtil.intStream(() -> !list.isEmpty(), () -> list.remove(0));
+		assertStream(stream, 5, 2, 4, 1);
 	}
-	
+
+	@Test
+	public void testLongStreamFromIteratorFunctions() {
+		var list = ArrayUtil.asList(5L, 2L, 4L, 1L);
+		var stream = StreamUtil.longStream(() -> !list.isEmpty(), () -> list.remove(0));
+		assertStream(stream, 5, 2, 4, 1);
+	}
+
 	@Test
 	public void testStreamIterator() {
 		assertStream(StreamUtil.stream(List.of(1, 2, 3).iterator()), 1, 2, 3);
