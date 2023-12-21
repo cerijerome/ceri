@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import java.util.Iterator;
+import java.util.PrimitiveIterator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -143,8 +143,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * Iterates over longs.
 	 */
 	@Override
-	default Iterator<Long> iterator() {
-		return Iterators.indexed(length(), this::getLong);
+	default PrimitiveIterator.OfLong iterator() {
+		return Iterators.longIndexed(length(), this::getLong);
 	}
 
 	/**

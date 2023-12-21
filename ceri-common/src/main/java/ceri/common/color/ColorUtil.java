@@ -1,5 +1,6 @@
 package ceri.common.color;
 
+import static ceri.common.math.MathUtil.roundDiv;
 import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
@@ -643,13 +644,6 @@ public class ColorUtil {
 	public static IntStream rotateHueStream(HsbColor hsb, int steps, Bias bias) {
 		return IntStream.rangeClosed(1, steps)
 			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(HsbColor::argb);
-	}
-
-	/**
-	 * A rounding division. Preferred to MathUtil as integers only are involved.
-	 */
-	public static int roundDiv(int x, int y) {
-		return (x + (y >> 1)) / y;
 	}
 
 	/* support methods */

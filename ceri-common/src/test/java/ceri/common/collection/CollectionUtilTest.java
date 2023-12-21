@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -242,6 +243,14 @@ public class CollectionUtilTest {
 	}
 
 	@Test
+	public void testToIndexMap() {
+		var map = CollectionUtil.toIndexMap(List.of("A", "B", "C"));
+		assertMap(map, 0, "A", 1, "B", 2, "C");
+		map = CollectionUtil.toIndexMap((s, i) -> s + i, List.of("A", "B", "C"));
+		assertMap(map, 0, "A0", 1, "B1", 2, "C2");
+	}
+
+	@Test
 	public void testToList() {
 		Map<Integer, String> map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()) //
 			.put(1, "1").put(0, null).put(4, "4").put(2, "2").put(-2, "-2").map;
@@ -391,4 +400,13 @@ public class CollectionUtilTest {
 		cache.put(4, "four");
 		assertFalse(cache.containsKey(1));
 	}
+
+	@Test
+	public void testIdentityHashSet() {
+		var set = CollectionUtil.identityHashSet(Set.of("test"));
+		set.add(new String("test"));
+		set.add(new String("test"));
+		assertEquals(set.size(), 3);
+	}
+
 }

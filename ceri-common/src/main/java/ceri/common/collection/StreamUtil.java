@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.PrimitiveIterator;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -25,6 +26,8 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -32,6 +35,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
@@ -540,11 +544,40 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Construct an ordered stream from hasNext and next functions.
+	 */
+	public static LongStream longStream(BooleanSupplier hasNextFn, LongSupplier nextFn) {
+		return longStream(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.getAsLong());
+			return true;
+		});
+	}
+
+	/**
+	 * Construct an ordered stream from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true.
+	 */
+	public static LongStream longStream(Predicate<LongConsumer> tryAdvanceFn) {
+		Spliterator.OfLong spliterator =
+			Iterators.longSpliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
+		return StreamSupport.longStream(spliterator, false);
+	}
+
+	/**
 	 * Returns a stream for an iterator.
 	 */
 	public static <T> Stream<T> stream(Iterator<T> i) {
 		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
 		return StreamSupport.stream(spliterator, false);
+	}
+
+	/**
+	 * Returns a stream for an int iterator.
+	 */
+	public static IntStream intStream(PrimitiveIterator.OfInt i) {
+		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
+		return StreamSupport.intStream(spliterator, false);
 	}
 
 	/**

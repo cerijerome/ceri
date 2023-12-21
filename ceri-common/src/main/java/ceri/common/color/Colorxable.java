@@ -30,7 +30,7 @@ public interface Colorxable extends Colorable {
 	default long xrgb() {
 		return xargb() | Component.a.mask;
 	}
-	
+
 	/**
 	 * Set the opaque xrgb color.
 	 */

@@ -23,6 +23,24 @@ public class ColorxableTest {
 	}
 
 	@Test
+	public void testOpaqueXargbAccess() {
+		var cx = new TestColorxable();
+		cx.xrgb(0x123456789abcdef0L);
+		assertEquals(cx.xargb, 0x12345678ffbcdef0L);
+		cx.xargb(0x123456789abcdef0L);
+		assertEquals(cx.xrgb(), 0x12345678ffbcdef0L);
+	}
+
+	@Test
+	public void testArgbAccess() {
+		var cx = new TestColorxable();
+		cx.argb(0x12345678);
+		assertEquals(cx.xargb, 0x12345678L);
+		cx.xargb(0x123456789abcdef0L);
+		assertEquals(cx.argb(), 0x9abcdef0);
+	}
+
+	@Test
 	public void testMultiSetColorxForEmptyCollection() {
 		Colorxable cx = Colorxable.multi();
 		cx.colorx(Colorx.full);

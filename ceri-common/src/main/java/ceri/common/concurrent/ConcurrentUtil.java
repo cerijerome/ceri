@@ -471,12 +471,12 @@ public class ConcurrentUtil {
 
 			@Override
 			public boolean tryLock() {
-				return true;
+				return false;
 			}
 
 			@Override
 			public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-				return true;
+				return false;
 			}
 
 			@Override
@@ -493,17 +493,7 @@ public class ConcurrentUtil {
 			public void signal() {}
 
 			@Override
-			public boolean awaitUntil(Date deadline) throws InterruptedException {
-				return false;
-			}
-
-			@Override
-			public void awaitUninterruptibly() {}
-
-			@Override
-			public long awaitNanos(long nanosTimeout) throws InterruptedException {
-				return 0;
-			}
+			public void await() throws InterruptedException {}
 
 			@Override
 			public boolean await(long time, TimeUnit unit) throws InterruptedException {
@@ -511,7 +501,18 @@ public class ConcurrentUtil {
 			}
 
 			@Override
-			public void await() throws InterruptedException {}
+			public long awaitNanos(long nanosTimeout) throws InterruptedException {
+				return 0;
+			}
+
+			@Override
+			public boolean awaitUntil(Date deadline) throws InterruptedException {
+				return false;
+			}
+
+			@Override
+			public void awaitUninterruptibly() {}
+
 		};
 	}
 }

@@ -1,43 +1,50 @@
 package ceri.common.collection;
 
-import static ceri.common.validation.ValidationUtil.validateMax;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
+import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.math.MathUtil;
 
 /**
  * Tracks ranges of indexes. Allows adding and removing ranges. Uses linear or binary search
  * depending on the number of index ranges.
  */
-public class IndexRange {
+public class IndexRanges {
 	private static final int SIZE_DEF = 32;
 	private static final int LINEAR_MAX = 256; // roughly when binary search is more efficient
-	private int[] starts;
-	private int[] ends;
+	private final int linearMax;
+	private int[] starts; // sorted range starts
+	private int[] ends; // sorted range ends
 	private int n = 0;
 
 	/**
 	 * Create an instance with default initial index storage array size.
 	 */
-	public static IndexRange of() {
-		return of(SIZE_DEF);
+	public static IndexRanges of() {
+		return of(LINEAR_MAX, SIZE_DEF);
 	}
 
 	/**
-	 * Create an instance with initial index storage array size.
+	 * Create an instance with linear algorithm threshold, and initial index storage array size.
 	 */
-	public static IndexRange of(int size) {
-		return new IndexRange(size);
+	public static IndexRanges of(int linearMax, int size) {
+		validateMin(linearMax, 0);
+		validateMin(size, 1);
+		return new IndexRanges(linearMax, size);
 	}
 
-	private IndexRange(int size) {
+	private IndexRanges(int linearMax, int size) {
+		this.linearMax = linearMax;
 		starts = new int[size];
 		ends = new int[size];
 	}
 
 	/**
-	 * Calculates the total numbers of indexes in the ranges.
+	 * Calculates the total number of indexes in the ranges. Returns Integer.MIN_VALUE if all
+	 * indexes 0 to Integer.MAX_VALUE are present.
 	 */
 	public int count() {
 		int total = 0;
@@ -47,16 +54,37 @@ public class IndexRange {
 	}
 
 	/**
+	 * Returns the number of distinct ranges.
+	 */
+	public int ranges() {
+		return n;
+	}
+
+	/**
+	 * Returns the first index, or -1 if none.
+	 */
+	public int first() {
+		return n > 0 ? starts[0] : -1;
+	}
+
+	/**
+	 * Returns the last index, or -1 if none.
+	 */
+	public int last() {
+		return n > 0 ? ends[n - 1] : -1;
+	}
+
+	/**
 	 * Add a new range. Merges with existing ranges.
 	 */
-	public IndexRange add(int start, int end) {
-		validateMax(start, end);
+	public IndexRanges add(int start, int end) {
+		validateMin(start, 0);
+		validateMin(end, start);
 		if (n == 0) return insert(0, start, end);
 		int iS = startIndex(start); // -1..n-1
 		if (iS >= 0 && start > ends[iS] + 1) iS++; // -1..n
 		int iE = endIndex(end); // 0..n
 		if (iE < n && end < starts[iE] - 1) iE--; // -1..n
-		System.out.printf("%s +(%d,%d) iS=%d iE=%d%n", this, start, end, iS, iE);
 		if (iS > iE || iS == n || iE == -1) return insert(Math.max(0, iS), start, end);
 		return reduce(Math.max(0, iS), Math.min(n - 1, iE), start, end);
 	}
@@ -64,23 +92,31 @@ public class IndexRange {
 	/**
 	 * Removes a new range. Splits and crops existing ranges.
 	 */
-	public IndexRange remove(int start, int end) {
-		validateMax(start, end);
+	public IndexRanges remove(int start, int end) {
+		validateMin(start, 0);
+		validateMin(end, start);
 		if (n == 0) return this;
 		int iS = startIndex(start); // -1..n-1
 		if (iS >= 0 && start == starts[iS]) iS--; // -1..n-1
 		int iE = endIndex(end); // 0..n
 		if (iE < n && end == ends[iE]) iE++; // 0..n
-		System.out.printf("%s -(%d,%d) iS=%d iE=%d%n", this, start, end, iS, iE);
 		if (iS == iE) return split(iS, start, end);
 		return crop(iS, iE, start, end);
+	}
+
+	/**
+	 * Move all indexes by the given amount, dropping any outside the positive int range.
+	 */
+	public IndexRanges shift(int count) {
+		if (count == 0) return this;
+		return count < 0 ? shiftLeft(-count) : shiftRight(count);
 	}
 
 	/**
 	 * Consumes each index within the ranges.
 	 */
 	public <E extends Exception> void forEach(ExceptionIntConsumer<E> consumer) throws E {
-		var iterator = new IntIterator();
+		var iterator = iterator();
 		while (iterator.hasNext())
 			consumer.accept(iterator.next());
 	}
@@ -90,8 +126,15 @@ public class IndexRange {
 	 * active.
 	 */
 	public IntStream stream() {
-		var iterator = new IntIterator();
-		return StreamUtil.intStream(iterator::hasNext, iterator::next);
+		return StreamUtil.intStream(iterator());
+	}
+
+	/**
+	 * Returns a primitive iterator for the ranges. The indexes must not be modified while the
+	 * iterator is active.
+	 */
+	public PrimitiveIterator.OfInt iterator() {
+		return new IntIterator();
 	}
 
 	@Override
@@ -107,11 +150,12 @@ public class IndexRange {
 		return b.append(']').toString();
 	}
 
-	private class IntIterator {
+	private class IntIterator implements PrimitiveIterator.OfInt {
 		int index = 0;
 		int i = -1;
 
-		public int next() {
+		@Override
+		public int nextInt() {
 			if (index >= n) throw new IllegalStateException();
 			if (i == -1) i = starts[index];
 			else if (i < starts[index] || i > ends[index]) throw new IllegalStateException();
@@ -121,54 +165,89 @@ public class IndexRange {
 			return i;
 		}
 
+		@Override
 		public boolean hasNext() {
 			if (index >= n) return false;
 			return index < n - 1 || i < ends[index];
 		}
 	}
 
-	private IndexRange split(int i, int start, int end) {
+	private IndexRanges split(int i, int start, int end) {
 		move(i, i + 1);
 		ends[i] = start - 1;
 		starts[i + 1] = end + 1;
 		return this;
 	}
 
-	private IndexRange crop(int iS, int iE, int start, int end) {
+	private IndexRanges crop(int iS, int iE, int start, int end) {
 		if (iS >= 0) ends[iS] = Math.min(ends[iS], start - 1);
 		if (iE < n) starts[iE] = Math.max(starts[iE], end + 1);
-		move(iE, iS + 1);
-		return this;
+		return move(iE, iS + 1);
 	}
 
-	private IndexRange insert(int i, int start, int end) {
+	private IndexRanges insert(int i, int start, int end) {
 		move(i, i + 1);
 		starts[i] = start;
 		ends[i] = end;
 		return this;
 	}
 
-	private IndexRange reduce(int iS, int iE, int start, int end) {
+	private IndexRanges reduce(int iS, int iE, int start, int end) {
 		starts[iS] = Math.min(starts[iS], start);
 		ends[iS] = Math.max(ends[iE], end);
-		move(iE + 1, iS + 1);
+		return move(iE + 1, iS + 1);
+	}
+
+	private IndexRanges shiftLeft(int count) {
+		if (count > last()) return clear();
+		if (count <= first()) return shiftValues(-count);
+		int iS = startIndex(count); // 0..n-1
+		if (count > ends[iS]) iS++; // 0..n-1
+		starts[iS] = Math.max(starts[iS], count);
+		move(iS, 0);
+		return shiftValues(-count);
+	}
+
+	private IndexRanges shiftRight(int count) {
+		int max = Integer.MAX_VALUE - count;
+		if (max < first()) return clear();
+		if (max >= last()) return shiftValues(count);
+		int iE = endIndex(max); // 0..n-1
+		if (max < starts[iE]) iE--; // 0..n-1
+		ends[iE] = Math.min(ends[iE], max);
+		n = iE + 1;
+		return shiftValues(count);
+	}
+
+	private IndexRanges shiftValues(int count) {
+		for (int i = 0; i < n; i++) {
+			starts[i] += count;
+			ends[i] += count;
+		}
 		return this;
 	}
 
-	private void move(int from, int to) {
+	private IndexRanges move(int from, int to) {
+		if (from == to) return this;
 		int diff = to - from;
 		ensureSize(n + diff);
 		ArrayUtil.copy(starts, from, starts, to, n - from);
 		ArrayUtil.copy(ends, from, ends, to, n - from);
 		n += diff;
+		return this;
+	}
+
+	private IndexRanges clear() {
+		n = 0;
+		return this;
 	}
 
 	private int startIndex(int start) {
-		return n <= LINEAR_MAX ? linearStartIndex(start) : searchStartIndex(start); // -1..n-1
+		return n <= linearMax ? linearStartIndex(start) : searchStartIndex(start); // -1..n-1
 	}
 
 	private int endIndex(int end) {
-		return n <= LINEAR_MAX ? linearEndIndex(end) : searchEndIndex(end); // 0..n
+		return n <= linearMax ? linearEndIndex(end) : searchEndIndex(end); // 0..n
 	}
 
 	private int searchStartIndex(int start) {
@@ -195,8 +274,8 @@ public class IndexRange {
 
 	private void ensureSize(int size) {
 		if (starts.length >= size) return;
-		int n = (starts.length >= Integer.MAX_VALUE >> 1) ? Integer.MAX_VALUE : starts.length << 1;
-		starts = Arrays.copyOf(starts, n);
-		ends = Arrays.copyOf(starts, n);
+		int newSize = MathUtil.multiplyLimit(size, 2);
+		starts = Arrays.copyOf(starts, newSize);
+		ends = Arrays.copyOf(starts, newSize);
 	}
 }

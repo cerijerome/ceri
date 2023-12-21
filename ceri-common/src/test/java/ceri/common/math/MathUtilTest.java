@@ -15,6 +15,27 @@ import java.util.Set;
 import org.junit.Test;
 
 public class MathUtilTest {
+	private static final byte BMAX = Byte.MAX_VALUE;
+	private static final byte BMIN = Byte.MIN_VALUE;
+	private static final short SMAX = Short.MAX_VALUE;
+	private static final short SMIN = Short.MIN_VALUE;
+	private static final int IMAX = Integer.MAX_VALUE;
+	private static final int IMIN = Integer.MIN_VALUE;
+	private static final long LMAX = Long.MAX_VALUE;
+	private static final long LMIN = Long.MIN_VALUE;
+	private static final float FMAX = Float.MAX_VALUE;
+	private static final float FMIN = Float.MIN_VALUE;
+	private static final double DMAX = Double.MAX_VALUE;
+	private static final double DMIN = Double.MIN_VALUE;
+	private static final float FNINF = Float.NEGATIVE_INFINITY;
+	private static final float FPINF = Float.POSITIVE_INFINITY;
+	private static final double DNINF = Double.NEGATIVE_INFINITY;
+	private static final double DPINF = Double.POSITIVE_INFINITY;
+
+	private static final int IHMAX = IMAX >> 1; // IHMAX << 1 = IMAX - 1
+	private static final int IHMIN = IMIN >> 1; // IHMIN << 1 = IMIN
+	private static final long LHMAX = LMAX >> 1; // LHMAX << 1 = LMAX - 1
+	private static final long LHMIN = LMIN >> 1; // LHMIN << 1 = LMIN
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -48,7 +69,7 @@ public class MathUtilTest {
 		assertEquals(MathUtil.ulog2(0x00050000), 18);
 		assertEquals(MathUtil.ulog2(0x00600000), 22);
 		assertEquals(MathUtil.ulog2(0x07000000), 26);
-		assertEquals(MathUtil.ulog2(Integer.MAX_VALUE), 30);
+		assertEquals(MathUtil.ulog2(IMAX), 30);
 		assertEquals(MathUtil.ulog2(0x80000000), 31);
 		assertEquals(MathUtil.ulog2(0xffffffff), 31);
 	}
@@ -62,168 +83,163 @@ public class MathUtilTest {
 	@Test
 	public void testAbsLimitInt() {
 		assertEquals(MathUtil.absLimit(-1), 1);
-		assertEquals(MathUtil.absLimit(Integer.MIN_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.absLimit(Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.absLimit(IMIN), IMAX);
+		assertEquals(MathUtil.absLimit(IMAX), IMAX);
 	}
 
 	@Test
 	public void testAbsLimitLong() {
 		assertEquals(MathUtil.absLimit(-1L), 1L);
-		assertEquals(MathUtil.absLimit(Long.MIN_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.absLimit(Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.absLimit(LMIN), LMAX);
+		assertEquals(MathUtil.absLimit(LMAX), LMAX);
 	}
 
 	@Test
 	public void testAddLimitInt() {
-		assertEquals(MathUtil.addLimit(Integer.MAX_VALUE, Integer.MIN_VALUE), -1);
-		assertEquals(MathUtil.addLimit(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.addLimit(Integer.MIN_VALUE, Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(MathUtil.addLimit(IMAX, IMIN), -1);
+		assertEquals(MathUtil.addLimit(IMAX, IMAX), IMAX);
+		assertEquals(MathUtil.addLimit(IMIN, IMIN), IMIN);
 	}
 
 	@Test
 	public void testAddLimitLong() {
-		assertEquals(MathUtil.addLimit(Long.MAX_VALUE, Long.MIN_VALUE), -1L);
-		assertEquals(MathUtil.addLimit(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.addLimit(Long.MIN_VALUE, Long.MIN_VALUE), Long.MIN_VALUE);
+		assertEquals(MathUtil.addLimit(LMAX, LMIN), -1L);
+		assertEquals(MathUtil.addLimit(LMAX, LMAX), LMAX);
+		assertEquals(MathUtil.addLimit(LMIN, LMIN), LMIN);
 	}
 
 	@Test
 	public void testSubtractLimitInt() {
-		assertEquals(MathUtil.subtractLimit(Integer.MIN_VALUE, Integer.MIN_VALUE), 0);
-		assertEquals(MathUtil.subtractLimit(Integer.MAX_VALUE, Integer.MIN_VALUE),
-			Integer.MAX_VALUE);
-		assertEquals(MathUtil.subtractLimit(Integer.MIN_VALUE, Integer.MAX_VALUE),
-			Integer.MIN_VALUE);
+		assertEquals(MathUtil.subtractLimit(IMIN, IMIN), 0);
+		assertEquals(MathUtil.subtractLimit(IMAX, IMIN), IMAX);
+		assertEquals(MathUtil.subtractLimit(IMIN, IMAX), IMIN);
 	}
 
 	@Test
 	public void testSubtractLimitLong() {
-		assertEquals(MathUtil.subtractLimit(Long.MIN_VALUE, Long.MIN_VALUE), 0L);
-		assertEquals(MathUtil.subtractLimit(Long.MAX_VALUE, Long.MIN_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.subtractLimit(Long.MIN_VALUE, Long.MAX_VALUE), Long.MIN_VALUE);
+		assertEquals(MathUtil.subtractLimit(LMIN, LMIN), 0L);
+		assertEquals(MathUtil.subtractLimit(LMAX, LMIN), LMAX);
+		assertEquals(MathUtil.subtractLimit(LMIN, LMAX), LMIN);
 	}
 
 	@Test
 	public void testMultiplyLimitInt() {
-		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, Integer.MIN_VALUE),
-			Integer.MAX_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, Integer.MAX_VALUE),
-			Integer.MIN_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Integer.MAX_VALUE, Integer.MAX_VALUE),
-			Integer.MAX_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, 0), 0);
-		assertEquals(MathUtil.multiplyLimit(Integer.MIN_VALUE, -1), Integer.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(IMIN, IMIN), IMAX);
+		assertEquals(MathUtil.multiplyLimit(IMIN, IMAX), IMIN);
+		assertEquals(MathUtil.multiplyLimit(IMAX, IMAX), IMAX);
+		assertEquals(MathUtil.multiplyLimit(IMIN, 0), 0);
+		assertEquals(MathUtil.multiplyLimit(IMIN, -1), IMAX);
 	}
 
 	@Test
 	public void testMultiplyLimitLong() {
-		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, Long.MIN_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, Long.MAX_VALUE), Long.MIN_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, 0), 0L);
-		assertEquals(MathUtil.multiplyLimit(Long.MIN_VALUE, -1), Long.MAX_VALUE);
+		assertEquals(MathUtil.multiplyLimit(LMIN, LMIN), LMAX);
+		assertEquals(MathUtil.multiplyLimit(LMIN, LMAX), LMIN);
+		assertEquals(MathUtil.multiplyLimit(LMAX, LMAX), LMAX);
+		assertEquals(MathUtil.multiplyLimit(LMIN, 0), 0L);
+		assertEquals(MathUtil.multiplyLimit(LMIN, -1), LMAX);
 		assertEquals(MathUtil.multiplyLimit(0x100000000L, 1), 0x100000000L);
 	}
 
 	@Test
 	public void testDecrementLimitInt() {
-		assertEquals(MathUtil.decrementLimit(Integer.MAX_VALUE), Integer.MAX_VALUE - 1);
-		assertEquals(MathUtil.decrementLimit(Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(MathUtil.decrementLimit(IMAX), IMAX - 1);
+		assertEquals(MathUtil.decrementLimit(IMIN), IMIN);
 	}
 
 	@Test
 	public void testDecrementLimitLong() {
-		assertEquals(MathUtil.decrementLimit(Long.MAX_VALUE), Long.MAX_VALUE - 1);
-		assertEquals(MathUtil.decrementLimit(Long.MIN_VALUE), Long.MIN_VALUE);
+		assertEquals(MathUtil.decrementLimit(LMAX), LMAX - 1);
+		assertEquals(MathUtil.decrementLimit(LMIN), LMIN);
 	}
 
 	@Test
 	public void testIncrementLimitInt() {
-		assertEquals(MathUtil.incrementLimit(Integer.MIN_VALUE), Integer.MIN_VALUE + 1);
-		assertEquals(MathUtil.incrementLimit(Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.incrementLimit(IMIN), IMIN + 1);
+		assertEquals(MathUtil.incrementLimit(IMAX), IMAX);
 	}
 
 	@Test
 	public void testIncrementLimitLong() {
-		assertEquals(MathUtil.incrementLimit(Long.MIN_VALUE), Long.MIN_VALUE + 1);
-		assertEquals(MathUtil.incrementLimit(Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.incrementLimit(LMIN), LMIN + 1);
+		assertEquals(MathUtil.incrementLimit(LMAX), LMAX);
 	}
 
 	@Test
 	public void testNegateInt() {
-		assertEquals(MathUtil.negateLimit(Integer.MAX_VALUE), Integer.MIN_VALUE + 1);
-		assertEquals(MathUtil.negateLimit(Integer.MIN_VALUE), Integer.MAX_VALUE);
+		assertEquals(MathUtil.negateLimit(IMAX), IMIN + 1);
+		assertEquals(MathUtil.negateLimit(IMIN), IMAX);
 	}
 
 	@Test
 	public void testNegateLong() {
-		assertEquals(MathUtil.negateLimit(Long.MAX_VALUE), Long.MIN_VALUE + 1);
-		assertEquals(MathUtil.negateLimit(Long.MIN_VALUE), Long.MAX_VALUE);
+		assertEquals(MathUtil.negateLimit(LMAX), LMIN + 1);
+		assertEquals(MathUtil.negateLimit(LMIN), LMAX);
 	}
 
 	@Test
 	public void testToIntLimit() {
-		assertEquals(MathUtil.toIntLimit(Integer.MIN_VALUE), Integer.MIN_VALUE);
-		assertEquals(MathUtil.toIntLimit(Long.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.toIntLimit(Long.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(MathUtil.toIntLimit(IMIN), IMIN);
+		assertEquals(MathUtil.toIntLimit(LMAX), IMAX);
+		assertEquals(MathUtil.toIntLimit(LMIN), IMIN);
 	}
 
 	@Test
 	public void testToIntLimitDouble() {
-		assertEquals(MathUtil.toIntLimit((double) Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.toIntLimit(Double.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.toIntLimit(-Double.MAX_VALUE), Integer.MIN_VALUE);
+		assertEquals(MathUtil.toIntLimit((double) IMAX), IMAX);
+		assertEquals(MathUtil.toIntLimit(DMAX), IMAX);
+		assertEquals(MathUtil.toIntLimit(-DMAX), IMIN);
 	}
 
 	@Test
 	public void testToLongLimitDouble() {
-		assertEquals(MathUtil.toLongLimit(Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.toLongLimit(Double.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.toLongLimit(-Double.MAX_VALUE), Long.MIN_VALUE);
+		assertEquals(MathUtil.toLongLimit(LMAX), LMAX);
+		assertEquals(MathUtil.toLongLimit(DMAX), LMAX);
+		assertEquals(MathUtil.toLongLimit(-DMAX), LMIN);
 	}
 
 	@Test
 	public void testSafeToInt() {
-		double d0 = Integer.MIN_VALUE;
-		double d1 = Integer.MAX_VALUE;
-		assertEquals(MathUtil.safeToInt(d0), Integer.MIN_VALUE);
-		assertEquals(MathUtil.safeToInt(d1), Integer.MAX_VALUE);
+		double d0 = IMIN;
+		double d1 = IMAX;
+		assertEquals(MathUtil.safeToInt(d0), IMIN);
+		assertEquals(MathUtil.safeToInt(d1), IMAX);
 		assertThrown(() -> MathUtil.safeToInt(Double.NaN));
-		assertThrown(() -> MathUtil.safeToInt(Double.POSITIVE_INFINITY));
-		assertThrown(() -> MathUtil.safeToInt(Double.NEGATIVE_INFINITY));
-		assertThrown(() -> MathUtil.safeToInt(Double.MAX_VALUE));
+		assertThrown(() -> MathUtil.safeToInt(DPINF));
+		assertThrown(() -> MathUtil.safeToInt(DNINF));
+		assertThrown(() -> MathUtil.safeToInt(DMAX));
 	}
 
 	@Test
 	public void testSafeToLong() {
-		double d0 = Long.MIN_VALUE;
-		double d1 = Long.MAX_VALUE;
-		assertEquals(MathUtil.safeToLong(d0), Long.MIN_VALUE);
-		assertEquals(MathUtil.safeToLong(d1), Long.MAX_VALUE);
+		double d0 = LMIN;
+		double d1 = LMAX;
+		assertEquals(MathUtil.safeToLong(d0), LMIN);
+		assertEquals(MathUtil.safeToLong(d1), LMAX);
 		assertThrown(() -> MathUtil.safeToLong(Double.NaN));
-		assertThrown(() -> MathUtil.safeToLong(Double.POSITIVE_INFINITY));
-		assertThrown(() -> MathUtil.safeToLong(Double.NEGATIVE_INFINITY));
-		assertThrown(() -> MathUtil.safeToLong(Double.MAX_VALUE));
+		assertThrown(() -> MathUtil.safeToLong(DPINF));
+		assertThrown(() -> MathUtil.safeToLong(DNINF));
+		assertThrown(() -> MathUtil.safeToLong(DMAX));
 	}
 
 	@Test
 	public void testByteExact() {
-		long l0 = Byte.MIN_VALUE;
-		long l1 = Byte.MAX_VALUE;
-		assertEquals(MathUtil.byteExact(l0), Byte.MIN_VALUE);
-		assertEquals(MathUtil.byteExact(l1), Byte.MAX_VALUE);
-		assertThrown(() -> MathUtil.byteExact(Byte.MIN_VALUE - 1));
-		assertThrown(() -> MathUtil.byteExact(Byte.MAX_VALUE + 1));
+		long l0 = BMIN;
+		long l1 = BMAX;
+		assertEquals(MathUtil.byteExact(l0), BMIN);
+		assertEquals(MathUtil.byteExact(l1), BMAX);
+		assertThrown(() -> MathUtil.byteExact(BMIN - 1));
+		assertThrown(() -> MathUtil.byteExact(BMAX + 1));
 	}
 
 	@Test
 	public void testShortExact() {
-		long l0 = Short.MIN_VALUE;
-		long l1 = Short.MAX_VALUE;
-		assertEquals(MathUtil.shortExact(l0), Short.MIN_VALUE);
-		assertEquals(MathUtil.shortExact(l1), Short.MAX_VALUE);
-		assertThrown(() -> MathUtil.shortExact(Short.MIN_VALUE - 1));
-		assertThrown(() -> MathUtil.shortExact(Short.MAX_VALUE + 1));
+		long l0 = SMIN;
+		long l1 = SMAX;
+		assertEquals(MathUtil.shortExact(l0), SMIN);
+		assertEquals(MathUtil.shortExact(l1), SMAX);
+		assertThrown(() -> MathUtil.shortExact(SMIN - 1));
+		assertThrown(() -> MathUtil.shortExact(SMAX + 1));
 	}
 
 	@Test
@@ -264,10 +280,10 @@ public class MathUtilTest {
 
 	@Test
 	public void testIntRoundExact() {
-		double d0 = Integer.MIN_VALUE;
-		double d1 = Integer.MAX_VALUE;
-		assertEquals(MathUtil.intRoundExact(d0), Integer.MIN_VALUE);
-		assertEquals(MathUtil.intRoundExact(d1), Integer.MAX_VALUE);
+		double d0 = IMIN;
+		double d1 = IMAX;
+		assertEquals(MathUtil.intRoundExact(d0), IMIN);
+		assertEquals(MathUtil.intRoundExact(d1), IMAX);
 		assertThrown(() -> MathUtil.intRoundExact(d0 - 1));
 		assertThrown(() -> MathUtil.intRoundExact(d1 + 1));
 	}
@@ -282,10 +298,10 @@ public class MathUtilTest {
 		assertEquals(MathUtil.ceilDiv(-10, 3), -3);
 		assertEquals(MathUtil.ceilDiv(-10, -4), 3);
 		assertEquals(MathUtil.ceilDiv(-10, -3), 4);
-		assertEquals(MathUtil.ceilDiv(Integer.MAX_VALUE, Integer.MAX_VALUE), 1);
-		assertEquals(MathUtil.ceilDiv(Integer.MAX_VALUE, Integer.MIN_VALUE), 0);
-		assertEquals(MathUtil.ceilDiv(Integer.MIN_VALUE, Integer.MAX_VALUE), -1);
-		assertEquals(MathUtil.ceilDiv(Integer.MIN_VALUE, Integer.MIN_VALUE), 1);
+		assertEquals(MathUtil.ceilDiv(IMAX, IMAX), 1);
+		assertEquals(MathUtil.ceilDiv(IMAX, IMIN), 0);
+		assertEquals(MathUtil.ceilDiv(IMIN, IMAX), -1);
+		assertEquals(MathUtil.ceilDiv(IMIN, IMIN), 1);
 		assertThrown(() -> MathUtil.ceilDiv(1, 0));
 	}
 
@@ -299,44 +315,170 @@ public class MathUtilTest {
 		assertEquals(MathUtil.ceilDiv(-10L, 3L), -3L);
 		assertEquals(MathUtil.ceilDiv(-10L, -4L), 3L);
 		assertEquals(MathUtil.ceilDiv(-10L, -3L), 4L);
-		assertEquals(MathUtil.ceilDiv(Long.MAX_VALUE, Long.MAX_VALUE), 1L);
-		assertEquals(MathUtil.ceilDiv(Long.MAX_VALUE, Long.MIN_VALUE), 0L);
-		assertEquals(MathUtil.ceilDiv(Long.MIN_VALUE, Long.MAX_VALUE), -1L);
-		assertEquals(MathUtil.ceilDiv(Long.MIN_VALUE, Long.MIN_VALUE), 1L);
+		assertEquals(MathUtil.ceilDiv(LMAX, LMAX), 1L);
+		assertEquals(MathUtil.ceilDiv(LMAX, LMIN), 0L);
+		assertEquals(MathUtil.ceilDiv(LMIN, LMAX), -1L);
+		assertEquals(MathUtil.ceilDiv(LMIN, LMIN), 1L);
 		assertThrown(() -> MathUtil.ceilDiv(1L, 0L));
 	}
 
 	@Test
 	public void testRoundDivInt() {
-		assertEquals(MathUtil.roundDiv(10, 4), 3);
-		assertEquals(MathUtil.roundDiv(10, 3), 3);
-		assertEquals(MathUtil.roundDiv(10, -4), -2);
-		assertEquals(MathUtil.roundDiv(10, -3), -3);
-		assertEquals(MathUtil.roundDiv(-10, 4), -2);
-		assertEquals(MathUtil.roundDiv(-10, 3), -3);
-		assertEquals(MathUtil.roundDiv(-10, -4), 3);
-		assertEquals(MathUtil.roundDiv(-10, -3), 3);
-		assertEquals(MathUtil.roundDiv(Integer.MAX_VALUE, Integer.MAX_VALUE), 1);
-		assertEquals(MathUtil.roundDiv(Integer.MAX_VALUE, Integer.MIN_VALUE), -1);
-		assertEquals(MathUtil.roundDiv(Integer.MIN_VALUE, Integer.MAX_VALUE), -1);
-		assertEquals(MathUtil.roundDiv(Integer.MIN_VALUE, Integer.MIN_VALUE), 1);
+		assertRoundDiv(1, 1, 1, -1, -1, 1);
+		assertRoundDiv(1, 2, 1, 0, 0, 1);
+		assertRoundDiv(1, 3, 0, 0, 0, 0);
+		assertRoundDiv(2, 3, 1, -1, -1, 1);
+		assertRoundDiv(1, 4, 0, 0, 0, 0);
+		assertRoundDiv(2, 4, 1, 0, 0, 1);
+		assertRoundDiv(3, 4, 1, -1, -1, 1);
+		assertRoundDiv(2, 5, 0, 0, 0, 0);
+		assertRoundDiv(3, 5, 1, -1, -1, 1);
+		assertRoundDiv(2, 6, 0, 0, 0, 0);
+		assertRoundDiv(3, 6, 1, 0, 0, 1);
+		assertRoundDiv(4, 6, 1, -1, -1, 1);
+		//
+		assertRoundDiv(2, 1, 2, -2, -2, 2);
+		assertRoundDiv(3, 2, 2, -1, -1, 2);
+		assertRoundDiv(4, 3, 1, -1, -1, 1);
+		assertRoundDiv(5, 3, 2, -2, -2, 2);
+		assertRoundDiv(5, 4, 1, -1, -1, 1);
+		assertRoundDiv(6, 4, 2, -1, -1, 2);
+		assertRoundDiv(7, 4, 2, -2, -2, 2);
+		assertRoundDiv(7, 5, 1, -1, -1, 1);
+		assertRoundDiv(8, 5, 2, -2, -2, 2);
+		assertRoundDiv(8, 6, 1, -1, -1, 1);
+		assertRoundDiv(9, 6, 2, -1, -1, 2);
+		assertRoundDiv(10, 6, 2, -2, -2, 2);
+		//
+		assertRoundDiv(5, 2, 3, -2, -2, 3);
+		assertRoundDiv(7, 3, 2, -2, -2, 2);
+		assertRoundDiv(8, 3, 3, -3, -3, 3);
+		assertRoundDiv(9, 4, 2, -2, -2, 2);
+		assertRoundDiv(10, 4, 3, -2, -2, 3);
+		assertRoundDiv(11, 4, 3, -3, -3, 3);
+		assertRoundDiv(12, 5, 2, -2, -2, 2);
+		assertRoundDiv(13, 5, 3, -3, -3, 3);
+		assertRoundDiv(14, 6, 2, -2, -2, 2);
+		assertRoundDiv(15, 6, 3, -2, -2, 3);
+		assertRoundDiv(16, 6, 3, -3, -3, 3);
+	}
+
+	@Test
+	public void testRoundDivIntExtremes() {
+		assertRoundDiv(IHMAX, 1, IHMAX, -IHMAX, -IHMAX, IHMAX);
+		assertRoundDiv(IHMIN, 1, IHMIN, -IHMIN, -IHMIN, IHMIN);
+		assertRoundDiv(IHMAX, IHMAX, 1, -1, -1, 1);
+		assertRoundDiv(IHMAX, IHMIN, -1, 1, 1, -1);
+		assertRoundDiv(IHMIN, IHMAX, -1, 1, 1, -1);
+		assertRoundDiv(IHMIN, IHMIN, 1, -1, -1, 1);
+		//
+		assertRoundDiv(IHMAX, IMAX, 0, 0, 0, 0);
+		assertRoundDiv(IHMAX + 1, IMAX, 1, -1, -1, 1);
+		assertRoundDiv(IHMIN, IMAX, -1, 1, 1, -1);
+		assertRoundDiv(IHMIN + 1, IMAX, 0, 0, 0, 0);
+		assertEquals(MathUtil.roundDiv(IHMAX + 1, IMIN), 0);
+		assertEquals(MathUtil.roundDiv(IHMAX + 2, IMIN), -1);
+		assertEquals(MathUtil.roundDiv(-IHMAX, IMIN), 0);
+		assertEquals(MathUtil.roundDiv(-IHMAX - 1, IMIN), 1);
+		assertEquals(MathUtil.roundDiv(IHMIN + 1, IMIN), 0);
+		assertEquals(MathUtil.roundDiv(IHMIN, IMIN), 1);
+		assertEquals(MathUtil.roundDiv(-IHMIN, IMIN), 0);
+		assertEquals(MathUtil.roundDiv(-IHMIN + 1, IMIN), -1);
+		//
+		assertRoundDiv(IMAX, IHMAX + 1, 2, -2, -2, 2);
+		assertEquals(MathUtil.roundDiv(IMIN, IHMAX + 1), -2);
+		assertEquals(MathUtil.roundDiv(IMIN, -IHMAX - 1), 2);
+		assertRoundDiv(IMAX, IHMIN - 1, -2, 2, 2, -2);
+		assertEquals(MathUtil.roundDiv(IMIN, IHMIN - 1), 2);
+		assertEquals(MathUtil.roundDiv(IMIN, -IHMIN + 1), -2);
+		//
+		assertRoundDiv(IMAX, 1, IMAX, -IMAX, -IMAX, IMAX);
+		assertEquals(MathUtil.roundDiv(IMIN, 1), IMIN);
+		assertEquals(MathUtil.roundDiv(IMIN, -1), IMIN); // overflow?
+		assertRoundDiv(IMAX, IMAX, 1, -1, -1, 1);
+		assertEquals(MathUtil.roundDiv(IMAX, IMIN), -1);
+		assertEquals(MathUtil.roundDiv(IMIN, IMAX), -1);
+		assertEquals(MathUtil.roundDiv(IMIN, IMIN), 1);
 		assertThrown(() -> MathUtil.roundDiv(1, 0));
 	}
 
 	@Test
 	public void testRoundDivLong() {
-		assertEquals(MathUtil.roundDiv(10L, 4L), 3L);
-		assertEquals(MathUtil.roundDiv(10L, 3L), 3L);
-		assertEquals(MathUtil.roundDiv(10L, -4L), -2L);
-		assertEquals(MathUtil.roundDiv(10L, -3L), -3L);
-		assertEquals(MathUtil.roundDiv(-10L, 4L), -2L);
-		assertEquals(MathUtil.roundDiv(-10L, 3L), -3L);
-		assertEquals(MathUtil.roundDiv(-10L, -4L), 3L);
-		assertEquals(MathUtil.roundDiv(-10L, -3L), 3L);
-		assertEquals(MathUtil.roundDiv(Long.MAX_VALUE, Long.MAX_VALUE), 1L);
-		assertEquals(MathUtil.roundDiv(Long.MAX_VALUE, Long.MIN_VALUE), -1L);
-		assertEquals(MathUtil.roundDiv(Long.MIN_VALUE, Long.MAX_VALUE), -1L);
-		assertEquals(MathUtil.roundDiv(Long.MIN_VALUE, Long.MIN_VALUE), 1L);
+		assertRoundDiv(1L, 1L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(1L, 2L, 1L, 0L, 0L, 1L);
+		assertRoundDiv(1L, 3L, 0L, 0L, 0L, 0L);
+		assertRoundDiv(2L, 3L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(1L, 4L, 0L, 0L, 0L, 0L);
+		assertRoundDiv(2L, 4L, 1L, 0L, 0L, 1L);
+		assertRoundDiv(3L, 4L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(2L, 5L, 0L, 0L, 0L, 0L);
+		assertRoundDiv(3L, 5L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(2L, 6L, 0L, 0L, 0L, 0L);
+		assertRoundDiv(3L, 6L, 1L, 0L, 0L, 1L);
+		assertRoundDiv(4L, 6L, 1L, -1L, -1L, 1L);
+		//
+		assertRoundDiv(2L, 1L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(3L, 2L, 2L, -1L, -1L, 2L);
+		assertRoundDiv(4L, 3L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(5L, 3L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(5L, 4L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(6L, 4L, 2L, -1L, -1L, 2L);
+		assertRoundDiv(7L, 4L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(7L, 5L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(8L, 5L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(8L, 6L, 1L, -1L, -1L, 1L);
+		assertRoundDiv(9L, 6L, 2L, -1L, -1L, 2L);
+		assertRoundDiv(10L, 6L, 2L, -2L, -2L, 2L);
+		//
+		assertRoundDiv(5L, 2L, 3L, -2L, -2L, 3L);
+		assertRoundDiv(7L, 3L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(8L, 3L, 3L, -3L, -3L, 3L);
+		assertRoundDiv(9L, 4L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(10L, 4L, 3L, -2L, -2L, 3L);
+		assertRoundDiv(11L, 4L, 3L, -3L, -3L, 3L);
+		assertRoundDiv(12L, 5L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(13L, 5L, 3L, -3L, -3L, 3L);
+		assertRoundDiv(14L, 6L, 2L, -2L, -2L, 2L);
+		assertRoundDiv(15L, 6L, 3L, -2L, -2L, 3L);
+		assertRoundDiv(16L, 6L, 3L, -3L, -3L, 3L);
+	}
+
+	@Test
+	public void testRoundDivLongExtremes() {
+		assertRoundDiv(LHMAX, 1, LHMAX, -LHMAX, -LHMAX, LHMAX);
+		assertRoundDiv(LHMIN, 1, LHMIN, -LHMIN, -LHMIN, LHMIN);
+		assertRoundDiv(LHMAX, LHMAX, 1, -1, -1, 1);
+		assertRoundDiv(LHMAX, LHMIN, -1, 1, 1, -1);
+		assertRoundDiv(LHMIN, LHMAX, -1, 1, 1, -1);
+		assertRoundDiv(LHMIN, LHMIN, 1, -1, -1, 1);
+		//
+		assertRoundDiv(LHMAX, LMAX, 0, 0, 0, 0);
+		assertRoundDiv(LHMAX + 1, LMAX, 1, -1, -1, 1);
+		assertRoundDiv(LHMIN, LMAX, -1, 1, 1, -1);
+		assertRoundDiv(LHMIN + 1, LMAX, 0, 0, 0, 0);
+		assertEquals(MathUtil.roundDiv(LHMAX + 1, LMIN), 0L);
+		assertEquals(MathUtil.roundDiv(LHMAX + 2, LMIN), -1L);
+		assertEquals(MathUtil.roundDiv(-LHMAX, LMIN), 0L);
+		assertEquals(MathUtil.roundDiv(-LHMAX - 1, LMIN), 1L);
+		assertEquals(MathUtil.roundDiv(LHMIN + 1, LMIN), 0L);
+		assertEquals(MathUtil.roundDiv(LHMIN, LMIN), 1L);
+		assertEquals(MathUtil.roundDiv(-LHMIN, LMIN), 0L);
+		assertEquals(MathUtil.roundDiv(-LHMIN + 1, LMIN), -1L);
+		//
+		assertRoundDiv(LMAX, LHMAX + 1, 2, -2, -2, 2);
+		assertEquals(MathUtil.roundDiv(LMIN, LHMAX + 1), -2L);
+		assertEquals(MathUtil.roundDiv(LMIN, -LHMAX - 1), 2L);
+		assertRoundDiv(LMAX, LHMIN - 1, -2, 2, 2, -2);
+		assertEquals(MathUtil.roundDiv(LMIN, LHMIN - 1), 2L);
+		assertEquals(MathUtil.roundDiv(LMIN, -LHMIN + 1), -2L);
+		//
+		assertRoundDiv(LMAX, 1, LMAX, -LMAX, -LMAX, LMAX);
+		assertEquals(MathUtil.roundDiv(LMIN, 1), LMIN);
+		assertEquals(MathUtil.roundDiv(LMIN, -1), LMIN); // overflow?
+		assertRoundDiv(LMAX, LMAX, 1, -1, -1, 1);
+		assertEquals(MathUtil.roundDiv(LMAX, LMIN), -1L);
+		assertEquals(MathUtil.roundDiv(LMIN, LMAX), -1L);
+		assertEquals(MathUtil.roundDiv(LMIN, LMIN), 1L);
 		assertThrown(() -> MathUtil.roundDiv(1L, 0L));
 	}
 
@@ -344,8 +486,8 @@ public class MathUtilTest {
 	public void testRound() {
 		assertEquals(MathUtil.round(1, 1000000000.15), 1000000000.2);
 		assertEquals(MathUtil.round(1, -1000000000.15), -1000000000.2);
-		assertEquals(MathUtil.round(1, Double.POSITIVE_INFINITY), Double.POSITIVE_INFINITY);
-		assertEquals(MathUtil.round(1, Double.NEGATIVE_INFINITY), Double.NEGATIVE_INFINITY);
+		assertEquals(MathUtil.round(1, DPINF), DPINF);
+		assertEquals(MathUtil.round(1, DNINF), DNINF);
 		assertEquals(MathUtil.round(1, Double.NaN), Double.NaN);
 		assertThrown(() -> MathUtil.round(-1, 777.7777));
 	}
@@ -367,13 +509,13 @@ public class MathUtilTest {
 		// Original values returned if out of range
 		assertEquals(MathUtil.simpleRound(1, 1000000000.15), 1000000000.15);
 		assertEquals(MathUtil.simpleRound(1, -1000000000.15), -1000000000.15);
-		assertEquals(MathUtil.simpleRound(1, Double.POSITIVE_INFINITY), Double.POSITIVE_INFINITY);
-		assertEquals(MathUtil.simpleRound(1, Double.NEGATIVE_INFINITY), Double.NEGATIVE_INFINITY);
+		assertEquals(MathUtil.simpleRound(1, DPINF), DPINF);
+		assertEquals(MathUtil.simpleRound(1, DNINF), DNINF);
 	}
 
 	@Test
 	public void testApproxEqual() {
-		assertTrue(MathUtil.approxEqual(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+		assertTrue(MathUtil.approxEqual(DMIN, DMIN, DMIN));
 		assertTrue(MathUtil.approxEqual(0.001, 0.0001, 0.1));
 		assertFalse(MathUtil.approxEqual(0.001, 0.0001, 0.0001));
 		assertTrue(MathUtil.approxEqual(0.0011, 0.0012, 0.0001));
@@ -382,34 +524,26 @@ public class MathUtilTest {
 
 	@Test
 	public void testOverflowInt() {
-		assertOverflow(Integer.MAX_VALUE, 0, false);
-		assertOverflow(Integer.MAX_VALUE, 1, true);
-		assertOverflow(Integer.MAX_VALUE, Integer.MIN_VALUE, false);
-		assertOverflow(Integer.MAX_VALUE, Integer.MAX_VALUE, true);
-		assertOverflow(Integer.MIN_VALUE, 0, false);
-		assertOverflow(Integer.MIN_VALUE, -1, true);
-		assertOverflow(Integer.MIN_VALUE, Integer.MAX_VALUE, false);
-		assertOverflow(Integer.MIN_VALUE, Integer.MIN_VALUE, true);
+		assertOverflow(IMAX, 0, false);
+		assertOverflow(IMAX, 1, true);
+		assertOverflow(IMAX, IMIN, false);
+		assertOverflow(IMAX, IMAX, true);
+		assertOverflow(IMIN, 0, false);
+		assertOverflow(IMIN, -1, true);
+		assertOverflow(IMIN, IMAX, false);
+		assertOverflow(IMIN, IMIN, true);
 	}
 
 	@Test
 	public void testOverflowLong() {
-		assertOverflow(Long.MAX_VALUE, 0L, false);
-		assertOverflow(Long.MAX_VALUE, 1L, true);
-		assertOverflow(Long.MAX_VALUE, Long.MIN_VALUE, false);
-		assertOverflow(Long.MAX_VALUE, Long.MAX_VALUE, true);
-		assertOverflow(Long.MIN_VALUE, 0L, false);
-		assertOverflow(Long.MIN_VALUE, -1L, true);
-		assertOverflow(Long.MIN_VALUE, Long.MAX_VALUE, false);
-		assertOverflow(Long.MIN_VALUE, Long.MIN_VALUE, true);
-	}
-
-	private static void assertOverflow(int l, int r, boolean overflow) {
-		assertEquals(MathUtil.overflow(l + r, l, r), overflow);
-	}
-
-	private static void assertOverflow(long l, long r, boolean overflow) {
-		assertEquals(MathUtil.overflow(l + r, l, r), overflow);
+		assertOverflow(LMAX, 0L, false);
+		assertOverflow(LMAX, 1L, true);
+		assertOverflow(LMAX, LMIN, false);
+		assertOverflow(LMAX, LMAX, true);
+		assertOverflow(LMIN, 0L, false);
+		assertOverflow(LMIN, -1L, true);
+		assertOverflow(LMIN, LMAX, false);
+		assertOverflow(LMIN, LMIN, true);
 	}
 
 	@Test
@@ -422,12 +556,14 @@ public class MathUtilTest {
 
 	@Test
 	public void testRandomInt() {
-		assertRange(MathUtil.random(Integer.MIN_VALUE, Integer.MAX_VALUE), Integer.MIN_VALUE,
-			Integer.MAX_VALUE);
-		assertRange(MathUtil.random(0, Integer.MAX_VALUE), 0, Integer.MAX_VALUE);
-		assertRange(MathUtil.random(Integer.MIN_VALUE, 0), Integer.MIN_VALUE, 0);
-		assertEquals(MathUtil.random(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.random(Integer.MIN_VALUE, Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertRange(MathUtil.random(0), 0, 0);
+		assertRange(MathUtil.random(1), 0, 1);
+		assertRange(MathUtil.random(IMAX), 0, IMAX);
+		assertRange(MathUtil.random(IMIN, IMAX), IMIN, IMAX);
+		assertRange(MathUtil.random(0, IMAX), 0, IMAX);
+		assertRange(MathUtil.random(IMIN, 0), IMIN, 0);
+		assertEquals(MathUtil.random(IMAX, IMAX), IMAX);
+		assertEquals(MathUtil.random(IMIN, IMIN), IMIN);
 	}
 
 	@Test
@@ -440,21 +576,21 @@ public class MathUtilTest {
 
 	@Test
 	public void testRandomLong() {
-		assertRange(MathUtil.random(Long.MIN_VALUE, Long.MAX_VALUE), Long.MIN_VALUE,
-			Long.MAX_VALUE);
-		assertRange(MathUtil.random(0L, Long.MAX_VALUE), 0L, Long.MAX_VALUE);
-		assertRange(MathUtil.random(Long.MIN_VALUE, 0L), Long.MIN_VALUE, 0L);
-		assertEquals(MathUtil.random(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.random(Long.MIN_VALUE, Long.MIN_VALUE), Long.MIN_VALUE);
+		assertRange(MathUtil.random(0L), 0, 0);
+		assertRange(MathUtil.random(1L), 0, 1);
+		assertRange(MathUtil.random(LMAX), 0, LMAX);
+		assertRange(MathUtil.random(LMIN, LMAX), LMIN, LMAX);
+		assertRange(MathUtil.random(0L, LMAX), 0L, LMAX);
+		assertRange(MathUtil.random(LMIN, 0L), LMIN, 0L);
+		assertEquals(MathUtil.random(LMAX, LMAX), LMAX);
+		assertEquals(MathUtil.random(LMIN, LMIN), LMIN);
 	}
 
 	@Test
 	public void testRandomDouble() {
 		assertRange(MathUtil.random(), 0.0, 1.0);
-	}
-
-	@Test
-	public void testRandomDoubleRange() {
+		assertRange(MathUtil.random(0.1), 0.0, 0.1);
+		assertRange(MathUtil.random(Double.MAX_VALUE), 0.0, Double.MAX_VALUE);
 		assertRange(MathUtil.random(-1.0, 2.0), -1.0, 2.0);
 		assertRange(MathUtil.random(-1.0, 0.0), -1.0, 0.0);
 	}
@@ -480,16 +616,16 @@ public class MathUtilTest {
 	public void testToPercent() {
 		assertEquals(MathUtil.toPercent(0.9), 90.0);
 		assertEquals(MathUtil.toPercent(90, 90), 100.0);
-		assertEquals(MathUtil.toPercent(Double.MAX_VALUE, Double.MAX_VALUE), 100.0);
-		assertTrue(Double.isNaN(MathUtil.toPercent(Long.MAX_VALUE, 0)));
+		assertEquals(MathUtil.toPercent(DMAX, DMAX), 100.0);
+		assertTrue(Double.isNaN(MathUtil.toPercent(LMAX, 0)));
 	}
 
 	@Test
 	public void testFromPercent() {
 		assertEquals(MathUtil.fromPercent(50), 0.5);
 		assertEquals(MathUtil.fromPercent(50, 90), 45.0);
-		assertEquals(MathUtil.fromPercent(100, Double.MAX_VALUE), Double.MAX_VALUE);
-		assertEquals(MathUtil.fromPercent(Double.MAX_VALUE, 100), Double.MAX_VALUE);
+		assertEquals(MathUtil.fromPercent(100, DMAX), DMAX);
+		assertEquals(MathUtil.fromPercent(DMAX, 100), DMAX);
 	}
 
 	@Test
@@ -512,24 +648,24 @@ public class MathUtilTest {
 		assertEquals(MathUtil.gcd(-99999, 22222), 11111);
 		assertEquals(MathUtil.gcd(99999, -22222), 11111);
 		assertEquals(MathUtil.gcd(-99999, -22222), 11111);
-		assertThrown(() -> MathUtil.gcd(Integer.MIN_VALUE, 0));
-		assertEquals(MathUtil.gcd(Integer.MIN_VALUE, 1), 1);
-		assertEquals(MathUtil.gcd(Integer.MAX_VALUE, 0), Integer.MAX_VALUE);
-		assertEquals(MathUtil.gcd(Integer.MAX_VALUE, 1), 1);
-		assertThrown(() -> MathUtil.gcd(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertEquals(MathUtil.gcd(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.gcd(Integer.MIN_VALUE, Integer.MAX_VALUE), 1);
+		assertThrown(() -> MathUtil.gcd(IMIN, 0));
+		assertEquals(MathUtil.gcd(IMIN, 1), 1);
+		assertEquals(MathUtil.gcd(IMAX, 0), IMAX);
+		assertEquals(MathUtil.gcd(IMAX, 1), 1);
+		assertThrown(() -> MathUtil.gcd(IMIN, IMIN));
+		assertEquals(MathUtil.gcd(IMAX, IMAX), IMAX);
+		assertEquals(MathUtil.gcd(IMIN, IMAX), 1);
 	}
 
 	@Test
 	public void testGcdForLongs() {
-		assertThrown(() -> MathUtil.gcd(Long.MIN_VALUE, 0));
-		assertEquals(MathUtil.gcd(Long.MIN_VALUE, 1), 1L);
-		assertEquals(MathUtil.gcd(Long.MAX_VALUE, 0), Long.MAX_VALUE);
-		assertEquals(MathUtil.gcd(Long.MAX_VALUE, 1), 1L);
-		assertThrown(() -> MathUtil.gcd(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertEquals(MathUtil.gcd(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.gcd(Long.MIN_VALUE, Long.MAX_VALUE), 1L);
+		assertThrown(() -> MathUtil.gcd(LMIN, 0));
+		assertEquals(MathUtil.gcd(LMIN, 1), 1L);
+		assertEquals(MathUtil.gcd(LMAX, 0), LMAX);
+		assertEquals(MathUtil.gcd(LMAX, 1), 1L);
+		assertThrown(() -> MathUtil.gcd(LMIN, LMIN));
+		assertEquals(MathUtil.gcd(LMAX, LMAX), LMAX);
+		assertEquals(MathUtil.gcd(LMIN, LMAX), 1L);
 	}
 
 	@Test
@@ -551,24 +687,24 @@ public class MathUtilTest {
 		assertEquals(MathUtil.lcm(-99999, 22222), 199998);
 		assertEquals(MathUtil.lcm(99999, -22222), 199998);
 		assertEquals(MathUtil.lcm(-99999, -22222), 199998);
-		assertEquals(MathUtil.lcm(Integer.MIN_VALUE, 0), 0);
-		assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, 1));
-		assertEquals(MathUtil.lcm(Integer.MAX_VALUE, 0), 0);
-		assertEquals(MathUtil.lcm(Integer.MAX_VALUE, 1), Integer.MAX_VALUE);
-		assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertEquals(MathUtil.lcm(Integer.MAX_VALUE, Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertThrown(() -> MathUtil.lcm(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		assertEquals(MathUtil.lcm(IMIN, 0), 0);
+		assertThrown(() -> MathUtil.lcm(IMIN, 1));
+		assertEquals(MathUtil.lcm(IMAX, 0), 0);
+		assertEquals(MathUtil.lcm(IMAX, 1), IMAX);
+		assertThrown(() -> MathUtil.lcm(IMIN, IMIN));
+		assertEquals(MathUtil.lcm(IMAX, IMAX), IMAX);
+		assertThrown(() -> MathUtil.lcm(IMIN, IMAX));
 	}
 
 	@Test
 	public void testLcmForLongs() {
-		assertEquals(MathUtil.lcm(Long.MIN_VALUE, 0), 0L);
-		assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, 1L));
-		assertEquals(MathUtil.lcm(Long.MAX_VALUE, 0), 0L);
-		assertEquals(MathUtil.lcm(Long.MAX_VALUE, 1), Long.MAX_VALUE);
-		assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertEquals(MathUtil.lcm(Long.MAX_VALUE, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertThrown(() -> MathUtil.lcm(Long.MIN_VALUE, Long.MAX_VALUE));
+		assertEquals(MathUtil.lcm(LMIN, 0), 0L);
+		assertThrown(() -> MathUtil.lcm(LMIN, 1L));
+		assertEquals(MathUtil.lcm(LMAX, 0), 0L);
+		assertEquals(MathUtil.lcm(LMAX, 1), LMAX);
+		assertThrown(() -> MathUtil.lcm(LMIN, LMIN));
+		assertEquals(MathUtil.lcm(LMAX, LMAX), LMAX);
+		assertThrown(() -> MathUtil.lcm(LMIN, LMAX));
 	}
 
 	@Test
@@ -576,11 +712,9 @@ public class MathUtilTest {
 		assertEquals(MathUtil.mean(-1), -1.0);
 		assertEquals(MathUtil.mean(1, -1), 0.0);
 		assertEquals(MathUtil.mean(1, -1, 3), 1.0);
-		assertEquals(MathUtil.mean(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
-			(double) Integer.MAX_VALUE);
-		assertEquals(MathUtil.mean(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE),
-			(double) Integer.MIN_VALUE);
-		assertEquals(MathUtil.mean(Integer.MAX_VALUE, Integer.MIN_VALUE), -0.5);
+		assertEquals(MathUtil.mean(IMAX, IMAX, IMAX), (double) IMAX);
+		assertEquals(MathUtil.mean(IMIN, IMIN, IMIN), (double) IMIN);
+		assertEquals(MathUtil.mean(IMAX, IMIN), -0.5);
 		assertThrown(() -> MathUtil.mean(new int[0]));
 		assertThrown(() -> MathUtil.mean(new int[] { 1, -1, 0 }, 2, 2));
 		assertThrown(() -> MathUtil.mean((int[]) null, 0, 1));
@@ -591,11 +725,9 @@ public class MathUtilTest {
 		assertEquals(MathUtil.mean(-1L), -1.0);
 		assertEquals(MathUtil.mean(1L, -1L), 0.0);
 		assertEquals(MathUtil.mean(1L, -1L, 3L), 1.0);
-		assertEquals(MathUtil.mean(Long.MAX_VALUE, Long.MAX_VALUE, Long.MAX_VALUE),
-			(double) Long.MAX_VALUE);
-		assertEquals(MathUtil.mean(Long.MIN_VALUE, Long.MIN_VALUE, Long.MIN_VALUE),
-			(double) Long.MIN_VALUE);
-		assertEquals(MathUtil.mean(Long.MAX_VALUE, Long.MIN_VALUE), -0.5);
+		assertEquals(MathUtil.mean(LMAX, LMAX, LMAX), (double) LMAX);
+		assertEquals(MathUtil.mean(LMIN, LMIN, LMIN), (double) LMIN);
+		assertEquals(MathUtil.mean(LMAX, LMIN), -0.5);
 		assertThrown(() -> MathUtil.mean(new long[0]));
 		assertThrown(() -> MathUtil.mean(new long[] { 1, -1, 0 }, 2, 2));
 		assertThrown(() -> MathUtil.mean((long[]) null, 0, 1));
@@ -606,10 +738,9 @@ public class MathUtilTest {
 		assertEquals(MathUtil.mean(-1.0f), -1.0f);
 		assertEquals(MathUtil.mean(1.0f, -1.0f), 0.0f);
 		assertEquals(MathUtil.mean(1.0f, -1.0f, 3.0f), 1.0f);
-		assertEquals(MathUtil.mean(Float.MAX_VALUE, -Float.MAX_VALUE), 0.0f);
-		assertEquals(MathUtil.mean(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-			Float.POSITIVE_INFINITY);
-		assertEquals(MathUtil.mean(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY), Float.NaN);
+		assertEquals(MathUtil.mean(FMAX, -FMAX), 0.0f);
+		assertEquals(MathUtil.mean(FPINF, FPINF), FPINF);
+		assertEquals(MathUtil.mean(FNINF, FPINF), Float.NaN);
 		assertThrown(() -> MathUtil.mean(new float[0]));
 		assertThrown(() -> MathUtil.mean(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
 		assertThrown(() -> MathUtil.mean((float[]) null, 0, 1));
@@ -620,10 +751,9 @@ public class MathUtilTest {
 		assertEquals(MathUtil.mean(-1.0), -1.0);
 		assertEquals(MathUtil.mean(1.0, -1.0), 0.0);
 		assertEquals(MathUtil.mean(1.0, -1.0, 3.0), 1.0);
-		assertEquals(MathUtil.mean(Double.MAX_VALUE, -Double.MAX_VALUE), 0.0);
-		assertEquals(MathUtil.mean(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
-			Double.POSITIVE_INFINITY);
-		assertEquals(MathUtil.mean(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY), Double.NaN);
+		assertEquals(MathUtil.mean(DMAX, -DMAX), 0.0);
+		assertEquals(MathUtil.mean(DPINF, DPINF), DPINF);
+		assertEquals(MathUtil.mean(DNINF, DPINF), Double.NaN);
 		assertThrown(() -> MathUtil.mean(new double[0]));
 		assertThrown(() -> MathUtil.mean(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
 		assertThrown(() -> MathUtil.mean((double[]) null, 0, 1));
@@ -634,15 +764,11 @@ public class MathUtilTest {
 		assertEquals(MathUtil.median(-1), -1.0);
 		assertEquals(MathUtil.median(1, -1), 0.0);
 		assertEquals(MathUtil.median(1, -1, 3), 1.0);
-		assertEquals(MathUtil.median(Integer.MAX_VALUE, Integer.MIN_VALUE), -0.5);
-		assertEquals(MathUtil.median(Integer.MAX_VALUE, Integer.MAX_VALUE),
-			(double) Integer.MAX_VALUE);
-		assertEquals(MathUtil.median(Integer.MIN_VALUE, Integer.MIN_VALUE),
-			(double) Integer.MIN_VALUE);
-		assertEquals(MathUtil.median(Integer.MAX_VALUE - 1, Integer.MAX_VALUE),
-			Integer.MAX_VALUE - 0.5);
-		assertEquals(MathUtil.median(Integer.MIN_VALUE + 1, Integer.MIN_VALUE),
-			Integer.MIN_VALUE + 0.5);
+		assertEquals(MathUtil.median(IMAX, IMIN), -0.5);
+		assertEquals(MathUtil.median(IMAX, IMAX), (double) IMAX);
+		assertEquals(MathUtil.median(IMIN, IMIN), (double) IMIN);
+		assertEquals(MathUtil.median(IMAX - 1, IMAX), IMAX - 0.5);
+		assertEquals(MathUtil.median(IMIN + 1, IMIN), IMIN + 0.5);
 		assertThrown(() -> MathUtil.median(new int[0]));
 		assertThrown(() -> MathUtil.median(new int[] { 1, -1, 0 }, 2, 2));
 		assertThrown(() -> MathUtil.median((int[]) null, 0, 1));
@@ -653,11 +779,11 @@ public class MathUtilTest {
 		assertEquals(MathUtil.median(-1L), -1.0);
 		assertEquals(MathUtil.median(1L, -1L), 0.0);
 		assertEquals(MathUtil.median(1L, -1L, 3L), 1.0);
-		assertEquals(MathUtil.median(Long.MAX_VALUE, Long.MIN_VALUE), -0.5);
-		assertEquals(MathUtil.median(Long.MAX_VALUE, Long.MAX_VALUE), (double) Long.MAX_VALUE);
-		assertEquals(MathUtil.median(Long.MIN_VALUE, Long.MIN_VALUE), (double) Long.MIN_VALUE);
-		assertEquals(MathUtil.median(Long.MAX_VALUE - 1, Long.MAX_VALUE), Long.MAX_VALUE - 0.5);
-		assertEquals(MathUtil.median(Long.MIN_VALUE + 1, Long.MIN_VALUE), Long.MIN_VALUE + 0.5);
+		assertEquals(MathUtil.median(LMAX, LMIN), -0.5);
+		assertEquals(MathUtil.median(LMAX, LMAX), (double) LMAX);
+		assertEquals(MathUtil.median(LMIN, LMIN), (double) LMIN);
+		assertEquals(MathUtil.median(LMAX - 1, LMAX), LMAX - 0.5);
+		assertEquals(MathUtil.median(LMIN + 1, LMIN), LMIN + 0.5);
 		assertThrown(() -> MathUtil.median(new long[0]));
 		assertThrown(() -> MathUtil.median(new long[] { 1, -1, 0 }, 2, 2));
 		assertThrown(() -> MathUtil.median((long[]) null, 0, 1));
@@ -668,10 +794,9 @@ public class MathUtilTest {
 		assertEquals(MathUtil.median(-1.0f), -1.0f);
 		assertEquals(MathUtil.median(1.0f, -1.0f), 0.0f);
 		assertEquals(MathUtil.median(1.0f, -1.0f, 3.0f), 1.0f);
-		assertEquals(MathUtil.median(Float.MAX_VALUE, -Float.MAX_VALUE), 0.0f);
-		assertEquals(MathUtil.median(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY),
-			Float.POSITIVE_INFINITY);
-		assertEquals(MathUtil.median(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY), Float.NaN);
+		assertEquals(MathUtil.median(FMAX, -FMAX), 0.0f);
+		assertEquals(MathUtil.median(FPINF, FPINF), FPINF);
+		assertEquals(MathUtil.median(FNINF, FPINF), Float.NaN);
 		assertThrown(() -> MathUtil.median(new float[0]));
 		assertThrown(() -> MathUtil.median(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
 		assertThrown(() -> MathUtil.median((float[]) null, 0, 1));
@@ -682,14 +807,44 @@ public class MathUtilTest {
 		assertEquals(MathUtil.median(-1.0), -1.0);
 		assertEquals(MathUtil.median(1.0, -1.0), 0.0);
 		assertEquals(MathUtil.median(1.0, -1.0, 3.0), 1.0);
-		assertEquals(MathUtil.median(Double.MAX_VALUE, -Double.MAX_VALUE), 0.0);
-		assertEquals(MathUtil.median(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY),
-			Double.POSITIVE_INFINITY);
-		assertEquals(MathUtil.median(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY),
-			Double.NaN);
+		assertEquals(MathUtil.median(DMAX, -DMAX), 0.0);
+		assertEquals(MathUtil.median(DPINF, DPINF), DPINF);
+		assertEquals(MathUtil.median(DNINF, DPINF), Double.NaN);
 		assertThrown(() -> MathUtil.median(new double[0]));
 		assertThrown(() -> MathUtil.median(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
 		assertThrown(() -> MathUtil.median((double[]) null, 0, 1));
+	}
+
+	@Test
+	public void testWithinInt() {
+		assertEquals(MathUtil.within(0, 0, 0), true);
+		assertEquals(MathUtil.within(0, -1, 1), true);
+		assertEquals(MathUtil.within(0, 0, 1), true);
+		assertEquals(MathUtil.within(0, -1, 0), true);
+		assertEquals(MathUtil.within(1, -1, 0), false);
+		assertEquals(MathUtil.within(-1, 0, 1), false);
+		assertEquals(MathUtil.within(IMAX, IMIN, IMAX), true);
+		assertEquals(MathUtil.within(IMAX, IMAX, IMAX), true);
+		assertEquals(MathUtil.within(IMAX, IMIN, IMAX - 1), false);
+		assertEquals(MathUtil.within(IMIN, IMIN, IMAX), true);
+		assertEquals(MathUtil.within(IMIN, IMIN, IMIN), true);
+		assertEquals(MathUtil.within(IMIN, IMIN + 1, IMAX), false);
+	}
+
+	@Test
+	public void testWithinLong() {
+		assertEquals(MathUtil.within(0L, 0, 0), true);
+		assertEquals(MathUtil.within(0L, -1, 1), true);
+		assertEquals(MathUtil.within(0L, 0, 1), true);
+		assertEquals(MathUtil.within(0L, -1, 0), true);
+		assertEquals(MathUtil.within(1L, -1, 0), false);
+		assertEquals(MathUtil.within(-1L, 0, 1), false);
+		assertEquals(MathUtil.within(LMAX, LMIN, LMAX), true);
+		assertEquals(MathUtil.within(LMAX, LMAX, LMAX), true);
+		assertEquals(MathUtil.within(LMAX, LMIN, LMAX - 1), false);
+		assertEquals(MathUtil.within(LMIN, LMIN, LMAX), true);
+		assertEquals(MathUtil.within(LMIN, LMIN, LMIN), true);
+		assertEquals(MathUtil.within(LMIN, LMIN + 1, LMAX), false);
 	}
 
 	@Test
@@ -697,8 +852,8 @@ public class MathUtilTest {
 		assertEquals(MathUtil.limit(2, -1, 1), 1);
 		assertEquals(MathUtil.limit(-2, -1, 1), -1);
 		assertEquals(MathUtil.limit(0, -1, 1), 0);
-		assertEquals(MathUtil.limit(Integer.MAX_VALUE, 0, Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(MathUtil.limit(Integer.MIN_VALUE, 0, Integer.MAX_VALUE), 0);
+		assertEquals(MathUtil.limit(IMAX, 0, IMAX), IMAX);
+		assertEquals(MathUtil.limit(IMIN, 0, IMAX), 0);
 		assertThrown(() -> MathUtil.limit(0, 1, 0));
 	}
 
@@ -707,8 +862,8 @@ public class MathUtilTest {
 		assertEquals(MathUtil.limit(2L, -1L, 1L), 1L);
 		assertEquals(MathUtil.limit(-2L, -1L, 1L), -1L);
 		assertEquals(MathUtil.limit(0L, -1L, 1L), 0L);
-		assertEquals(MathUtil.limit(Long.MAX_VALUE, 0L, Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(MathUtil.limit(Long.MIN_VALUE, 0L, Long.MAX_VALUE), 0L);
+		assertEquals(MathUtil.limit(LMAX, 0L, LMAX), LMAX);
+		assertEquals(MathUtil.limit(LMIN, 0L, LMAX), 0L);
 		assertThrown(() -> MathUtil.limit(0L, 1L, 0L));
 	}
 
@@ -718,11 +873,10 @@ public class MathUtilTest {
 		assertEquals(MathUtil.limit(1.0f, -0.5f, 0.5f), 0.5f);
 		assertEquals(MathUtil.limit(-1.0f, -0.5f, 0.5f), -0.5f);
 		assertEquals(MathUtil.limit(0.0f, -0.5f, 0.5f), 0.0f);
-		assertEquals(MathUtil.limit(Float.MAX_VALUE, 0.0f, Float.MAX_VALUE), Float.MAX_VALUE);
-		assertEquals(MathUtil.limit(-Float.MAX_VALUE, 0.0f, Float.MAX_VALUE), 0.0f);
-		assertEquals(MathUtil.limit(Float.POSITIVE_INFINITY, 0.0f, Float.MAX_VALUE),
-			Float.MAX_VALUE);
-		assertEquals(MathUtil.limit(Float.NEGATIVE_INFINITY, 0.0f, Float.MAX_VALUE), 0.0f);
+		assertEquals(MathUtil.limit(FMAX, 0.0f, FMAX), FMAX);
+		assertEquals(MathUtil.limit(-FMAX, 0.0f, FMAX), 0.0f);
+		assertEquals(MathUtil.limit(FPINF, 0.0f, FMAX), FMAX);
+		assertEquals(MathUtil.limit(FNINF, 0.0f, FMAX), 0.0f);
 		assertThrown(() -> MathUtil.limit(0.0f, 1.0f, 0.0f));
 	}
 
@@ -732,11 +886,10 @@ public class MathUtilTest {
 		assertEquals(MathUtil.limit(1.0, -0.5, 0.5), 0.5);
 		assertEquals(MathUtil.limit(-1.0, -0.5, 0.5), -0.5);
 		assertEquals(MathUtil.limit(0.0, -0.5, 0.5), 0.0);
-		assertEquals(MathUtil.limit(Double.MAX_VALUE, 0.0, Double.MAX_VALUE), Double.MAX_VALUE);
-		assertEquals(MathUtil.limit(-Double.MAX_VALUE, 0.0, Double.MAX_VALUE), 0.0);
-		assertEquals(MathUtil.limit(Double.POSITIVE_INFINITY, 0.0, Double.MAX_VALUE),
-			Double.MAX_VALUE);
-		assertEquals(MathUtil.limit(Double.NEGATIVE_INFINITY, 0.0, Double.MAX_VALUE), 0.0);
+		assertEquals(MathUtil.limit(DMAX, 0.0, DMAX), DMAX);
+		assertEquals(MathUtil.limit(-DMAX, 0.0, DMAX), 0.0);
+		assertEquals(MathUtil.limit(DPINF, 0.0, DMAX), DMAX);
+		assertEquals(MathUtil.limit(DNINF, 0.0, DMAX), 0.0);
 		assertThrown(() -> MathUtil.limit(0.0, 1.0, 0.0));
 	}
 
@@ -748,15 +901,12 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(-100, 10, exclusive), 0);
 		assertEquals(MathUtil.periodicLimit(7, 10, inclusive), 7);
 		assertEquals(MathUtil.periodicLimit(-7, 10, inclusive), 3);
-		assertEquals(MathUtil.periodicLimit(0, Integer.MAX_VALUE, inclusive), 0);
-		assertEquals(MathUtil.periodicLimit(0, Integer.MAX_VALUE, exclusive), 0);
-		assertEquals(MathUtil.periodicLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, inclusive),
-			Integer.MAX_VALUE);
-		assertEquals(MathUtil.periodicLimit(Integer.MAX_VALUE, Integer.MAX_VALUE, exclusive), 0);
-		assertEquals(MathUtil.periodicLimit(Integer.MIN_VALUE, Integer.MAX_VALUE, inclusive),
-			Integer.MAX_VALUE - 1);
-		assertEquals(MathUtil.periodicLimit(Integer.MIN_VALUE, Integer.MAX_VALUE, exclusive),
-			Integer.MAX_VALUE - 1);
+		assertEquals(MathUtil.periodicLimit(0, IMAX, inclusive), 0);
+		assertEquals(MathUtil.periodicLimit(0, IMAX, exclusive), 0);
+		assertEquals(MathUtil.periodicLimit(IMAX, IMAX, inclusive), IMAX);
+		assertEquals(MathUtil.periodicLimit(IMAX, IMAX, exclusive), 0);
+		assertEquals(MathUtil.periodicLimit(IMIN, IMAX, inclusive), IMAX - 1);
+		assertEquals(MathUtil.periodicLimit(IMIN, IMAX, exclusive), IMAX - 1);
 		assertThrown(() -> MathUtil.periodicLimit(100, 10, null));
 		assertThrown(() -> MathUtil.periodicLimit(100, 0, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100, -10, inclusive));
@@ -770,15 +920,12 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(-100L, 10L, exclusive), 0L);
 		assertEquals(MathUtil.periodicLimit(7L, 10L, inclusive), 7L);
 		assertEquals(MathUtil.periodicLimit(-7L, 10L, inclusive), 3L);
-		assertEquals(MathUtil.periodicLimit(0L, Long.MAX_VALUE, inclusive), 0L);
-		assertEquals(MathUtil.periodicLimit(0L, Long.MAX_VALUE, exclusive), 0L);
-		assertEquals(MathUtil.periodicLimit(Long.MAX_VALUE, Long.MAX_VALUE, inclusive),
-			Long.MAX_VALUE);
-		assertEquals(MathUtil.periodicLimit(Long.MAX_VALUE, Long.MAX_VALUE, exclusive), 0L);
-		assertEquals(MathUtil.periodicLimit(Long.MIN_VALUE, Long.MAX_VALUE, inclusive),
-			Long.MAX_VALUE - 1);
-		assertEquals(MathUtil.periodicLimit(Long.MIN_VALUE, Long.MAX_VALUE, exclusive),
-			Long.MAX_VALUE - 1);
+		assertEquals(MathUtil.periodicLimit(0L, LMAX, inclusive), 0L);
+		assertEquals(MathUtil.periodicLimit(0L, LMAX, exclusive), 0L);
+		assertEquals(MathUtil.periodicLimit(LMAX, LMAX, inclusive), LMAX);
+		assertEquals(MathUtil.periodicLimit(LMAX, LMAX, exclusive), 0L);
+		assertEquals(MathUtil.periodicLimit(LMIN, LMAX, inclusive), LMAX - 1);
+		assertEquals(MathUtil.periodicLimit(LMIN, LMAX, exclusive), LMAX - 1);
 		assertThrown(() -> MathUtil.periodicLimit(100L, 10L, null));
 		assertThrown(() -> MathUtil.periodicLimit(100L, 0L, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100L, -10L, inclusive));
@@ -792,17 +939,11 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(-100.0f, 10.0f, exclusive), 0.0f);
 		assertEquals(MathUtil.periodicLimit(7.0f, 10.0f, inclusive), 7.0f);
 		assertEquals(MathUtil.periodicLimit(-7.0f, 10.0f, inclusive), 3.0f);
-		assertEquals(MathUtil.periodicLimit(0.0f, Float.POSITIVE_INFINITY, inclusive), 0.0f);
-		assertEquals(MathUtil.periodicLimit(0.0f, Float.POSITIVE_INFINITY, exclusive), 0.0f);
-		assertEquals(
-			MathUtil.periodicLimit(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, inclusive),
-			Float.POSITIVE_INFINITY);
-		assertEquals(
-			MathUtil.periodicLimit(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, exclusive),
-			Float.NaN);
-		assertEquals(
-			MathUtil.periodicLimit(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, inclusive),
-			Float.NaN);
+		assertEquals(MathUtil.periodicLimit(0.0f, FPINF, inclusive), 0.0f);
+		assertEquals(MathUtil.periodicLimit(0.0f, FPINF, exclusive), 0.0f);
+		assertEquals(MathUtil.periodicLimit(FPINF, FPINF, inclusive), FPINF);
+		assertEquals(MathUtil.periodicLimit(FPINF, FPINF, exclusive), Float.NaN);
+		assertEquals(MathUtil.periodicLimit(FNINF, FPINF, inclusive), Float.NaN);
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, 10.0f, null));
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, 0.0f, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, -10.0f, inclusive));
@@ -816,15 +957,13 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(-100.0, 10.0, exclusive), 0.0);
 		assertEquals(MathUtil.periodicLimit(7.0, 10.0, inclusive), 7.0);
 		assertEquals(MathUtil.periodicLimit(-7.0, 10.0, inclusive), 3.0);
-		assertEquals(MathUtil.periodicLimit(0.0, Double.POSITIVE_INFINITY, inclusive), 0.0);
-		assertEquals(MathUtil.periodicLimit(0.0, Double.POSITIVE_INFINITY, exclusive), 0.0);
+		assertEquals(MathUtil.periodicLimit(0.0, DPINF, inclusive), 0.0);
+		assertEquals(MathUtil.periodicLimit(0.0, DPINF, exclusive), 0.0);
 		assertEquals(MathUtil.periodicLimit( //
-			Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, inclusive),
-			Double.POSITIVE_INFINITY);
+			DPINF, DPINF, inclusive), DPINF);
 		assertNaN(MathUtil.periodicLimit( //
-			Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, exclusive));
-		assertNaN(
-			MathUtil.periodicLimit(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, inclusive));
+			DPINF, DPINF, exclusive));
+		assertNaN(MathUtil.periodicLimit(DNINF, DPINF, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, 10.0, null));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, 0.0, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, -10.0, inclusive));
@@ -832,9 +971,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinByte() {
-		byte[] array = { Byte.MIN_VALUE, -Byte.MAX_VALUE, -1, 0, 1, Byte.MAX_VALUE };
-		assertEquals(MathUtil.min(array), Byte.MIN_VALUE);
-		assertEquals(MathUtil.min(array, 1, 5), (byte) -Byte.MAX_VALUE);
+		byte[] array = { BMIN, -BMAX, -1, 0, 1, BMAX };
+		assertEquals(MathUtil.min(array), BMIN);
+		assertEquals(MathUtil.min(array, 1, 5), (byte) -BMAX);
 		assertEquals(MathUtil.min(array, 2, 3), (byte) -1);
 		assertThrown(() -> MathUtil.min(new byte[0]));
 		assertThrown(() -> MathUtil.min(new byte[2], 1, 0));
@@ -844,9 +983,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinShort() {
-		short[] array = { Short.MIN_VALUE, -Short.MAX_VALUE, -1, 0, 1, Short.MAX_VALUE };
-		assertEquals(MathUtil.min(array), Short.MIN_VALUE);
-		assertEquals(MathUtil.min(array, 1, 5), (short) -Short.MAX_VALUE);
+		short[] array = { SMIN, -SMAX, -1, 0, 1, SMAX };
+		assertEquals(MathUtil.min(array), SMIN);
+		assertEquals(MathUtil.min(array, 1, 5), (short) -SMAX);
 		assertEquals(MathUtil.min(array, 2, 3), (short) -1);
 		assertThrown(() -> MathUtil.min(new short[0]));
 		assertThrown(() -> MathUtil.min(new short[2], 1, 0));
@@ -856,9 +995,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinInt() {
-		int[] array = { Integer.MIN_VALUE, -Integer.MAX_VALUE, -1, 0, 1, Integer.MAX_VALUE };
-		assertEquals(MathUtil.min(array), Integer.MIN_VALUE);
-		assertEquals(MathUtil.min(array, 1, 5), -Integer.MAX_VALUE);
+		int[] array = { IMIN, -IMAX, -1, 0, 1, IMAX };
+		assertEquals(MathUtil.min(array), IMIN);
+		assertEquals(MathUtil.min(array, 1, 5), -IMAX);
 		assertEquals(MathUtil.min(array, 2, 3), -1);
 		assertThrown(() -> MathUtil.min(new int[0]));
 		assertThrown(() -> MathUtil.min(new int[2], 1, 0));
@@ -868,9 +1007,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinLong() {
-		long[] array = { Long.MIN_VALUE, -Long.MAX_VALUE, -1, 0, 1, Long.MAX_VALUE };
-		assertEquals(MathUtil.min(array), Long.MIN_VALUE);
-		assertEquals(MathUtil.min(array, 1, 5), -Long.MAX_VALUE);
+		long[] array = { LMIN, -LMAX, -1, 0, 1, LMAX };
+		assertEquals(MathUtil.min(array), LMIN);
+		assertEquals(MathUtil.min(array, 1, 5), -LMAX);
 		assertEquals(MathUtil.min(array, 2, 3), -1L);
 		assertThrown(() -> MathUtil.min(new long[0]));
 		assertThrown(() -> MathUtil.min(new long[2], 1, 0));
@@ -880,11 +1019,10 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinFloat() {
-		float[] d = { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, Float.MAX_VALUE, -1, 0, 1,
-			Float.MIN_VALUE, Float.POSITIVE_INFINITY, Float.NaN };
+		float[] d = { FNINF, -FMAX, FMAX, -1, 0, 1, FMIN, FPINF, Float.NaN };
 		assertEquals(MathUtil.min(d), Float.NaN);
-		assertEquals(MathUtil.min(d, 0, 8), Float.NEGATIVE_INFINITY);
-		assertEquals(MathUtil.min(d, 1, 7), -Float.MAX_VALUE);
+		assertEquals(MathUtil.min(d, 0, 8), FNINF);
+		assertEquals(MathUtil.min(d, 1, 7), -FMAX);
 		assertEquals(MathUtil.min(d, 3, 3), -1.0f);
 		assertThrown(() -> MathUtil.min(new float[0]));
 		assertThrown(() -> MathUtil.min(new float[2], 1, 0));
@@ -894,11 +1032,10 @@ public class MathUtilTest {
 
 	@Test
 	public void testMinDouble() {
-		double[] d = { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, Double.MAX_VALUE, -1, 0, 1,
-			Double.MIN_VALUE, Double.POSITIVE_INFINITY, Double.NaN };
+		double[] d = { DNINF, -DMAX, DMAX, -1, 0, 1, DMIN, DPINF, Double.NaN };
 		assertEquals(MathUtil.min(d), Double.NaN);
-		assertEquals(MathUtil.min(d, 0, 8), Double.NEGATIVE_INFINITY);
-		assertEquals(MathUtil.min(d, 1, 7), -Double.MAX_VALUE);
+		assertEquals(MathUtil.min(d, 0, 8), DNINF);
+		assertEquals(MathUtil.min(d, 1, 7), -DMAX);
 		assertEquals(MathUtil.min(d, 3, 3), -1.0);
 		assertThrown(() -> MathUtil.min(new double[0]));
 		assertThrown(() -> MathUtil.min(new double[2], 1, 0));
@@ -908,9 +1045,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxByte() {
-		byte[] array = { Byte.MIN_VALUE, -Byte.MAX_VALUE, -1, 0, 1, Byte.MAX_VALUE };
-		assertEquals(MathUtil.max(array), Byte.MAX_VALUE);
-		assertEquals(MathUtil.max(array, 0, 2), (byte) -Byte.MAX_VALUE);
+		byte[] array = { BMIN, -BMAX, -1, 0, 1, BMAX };
+		assertEquals(MathUtil.max(array), BMAX);
+		assertEquals(MathUtil.max(array, 0, 2), (byte) -BMAX);
 		assertEquals(MathUtil.max(array, 0, 5), (byte) 1);
 		assertThrown(() -> MathUtil.max(new byte[0]));
 		assertThrown(() -> MathUtil.max(new byte[2], 1, 0));
@@ -920,9 +1057,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxShort() {
-		short[] array = { Short.MIN_VALUE, -Short.MAX_VALUE, -1, 0, 1, Short.MAX_VALUE };
-		assertEquals(MathUtil.max(array), Short.MAX_VALUE);
-		assertEquals(MathUtil.max(array, 0, 2), (short) -Short.MAX_VALUE);
+		short[] array = { SMIN, -SMAX, -1, 0, 1, SMAX };
+		assertEquals(MathUtil.max(array), SMAX);
+		assertEquals(MathUtil.max(array, 0, 2), (short) -SMAX);
 		assertEquals(MathUtil.max(array, 0, 5), (short) 1);
 		assertThrown(() -> MathUtil.max(new short[0]));
 		assertThrown(() -> MathUtil.max(new short[2], 1, 0));
@@ -932,9 +1069,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxInt() {
-		int[] array = { Integer.MIN_VALUE, -Integer.MAX_VALUE, -1, 0, 1, Integer.MAX_VALUE };
-		assertEquals(MathUtil.max(array), Integer.MAX_VALUE);
-		assertEquals(MathUtil.max(array, 0, 2), -Integer.MAX_VALUE);
+		int[] array = { IMIN, -IMAX, -1, 0, 1, IMAX };
+		assertEquals(MathUtil.max(array), IMAX);
+		assertEquals(MathUtil.max(array, 0, 2), -IMAX);
 		assertEquals(MathUtil.max(array, 0, 5), 1);
 		assertThrown(() -> MathUtil.max(new int[0]));
 		assertThrown(() -> MathUtil.max(new int[2], 1, 0));
@@ -944,9 +1081,9 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxLong() {
-		long[] array = { Long.MIN_VALUE, -Long.MAX_VALUE, -1, 0, 1, Long.MAX_VALUE };
-		assertEquals(MathUtil.max(array), Long.MAX_VALUE);
-		assertEquals(MathUtil.max(array, 0, 2), -Long.MAX_VALUE);
+		long[] array = { LMIN, -LMAX, -1, 0, 1, LMAX };
+		assertEquals(MathUtil.max(array), LMAX);
+		assertEquals(MathUtil.max(array, 0, 2), -LMAX);
 		assertEquals(MathUtil.max(array, 0, 5), 1L);
 		assertThrown(() -> MathUtil.max(new long[0]));
 		assertThrown(() -> MathUtil.max(new long[2], 1, 0));
@@ -956,11 +1093,10 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxFloat() {
-		float[] array = { Float.NEGATIVE_INFINITY, -Float.MAX_VALUE, Float.MAX_VALUE, -1, 0, 1,
-			Float.MIN_VALUE, Float.POSITIVE_INFINITY, Float.NaN };
+		float[] array = { FNINF, -FMAX, FMAX, -1, 0, 1, FMIN, FPINF, Float.NaN };
 		assertEquals(MathUtil.max(array), Float.NaN);
-		assertEquals(MathUtil.max(array, 0, 8), Float.POSITIVE_INFINITY);
-		assertEquals(MathUtil.max(array, 0, 7), Float.MAX_VALUE);
+		assertEquals(MathUtil.max(array, 0, 8), FPINF);
+		assertEquals(MathUtil.max(array, 0, 7), FMAX);
 		assertEquals(MathUtil.max(array, 3, 3), 1.0f);
 		assertThrown(() -> MathUtil.max(new float[0]));
 		assertThrown(() -> MathUtil.max(new float[2], 1, 0));
@@ -970,16 +1106,43 @@ public class MathUtilTest {
 
 	@Test
 	public void testMaxDouble() {
-		double[] array = { Double.NEGATIVE_INFINITY, -Double.MAX_VALUE, Double.MAX_VALUE, -1, 0, 1,
-			Double.MIN_VALUE, Double.POSITIVE_INFINITY, Double.NaN };
+		double[] array = { DNINF, -DMAX, DMAX, -1, 0, 1, DMIN, DPINF, Double.NaN };
 		assertEquals(MathUtil.max(array), Double.NaN);
-		assertEquals(MathUtil.max(array, 0, 8), Double.POSITIVE_INFINITY);
-		assertEquals(MathUtil.max(array, 0, 7), Double.MAX_VALUE);
+		assertEquals(MathUtil.max(array, 0, 8), DPINF);
+		assertEquals(MathUtil.max(array, 0, 7), DMAX);
 		assertEquals(MathUtil.max(array, 3, 3), 1.0);
 		assertThrown(() -> MathUtil.max(new double[0]));
 		assertThrown(() -> MathUtil.max(new double[2], 1, 0));
 		assertThrown(() -> MathUtil.max((double[]) null));
 		assertThrown(() -> MathUtil.max(new double[3], 1, 3));
+	}
+
+	/**
+	 * Tests positive and negative combinations of numerator and denominator.
+	 */
+	private void assertRoundDiv(int x, int y, int pp, int np, int pn, int nn) {
+		assertEquals(MathUtil.roundDiv(x, y), pp);
+		assertEquals(MathUtil.roundDiv(-x, y), np);
+		assertEquals(MathUtil.roundDiv(x, -y), pn);
+		assertEquals(MathUtil.roundDiv(-x, -y), nn);
+	}
+
+	/**
+	 * Tests positive and negative combinations of numerator and denominator.
+	 */
+	private void assertRoundDiv(long x, long y, long pp, long np, long pn, long nn) {
+		assertEquals(MathUtil.roundDiv(x, y), pp);
+		assertEquals(MathUtil.roundDiv(-x, y), np);
+		assertEquals(MathUtil.roundDiv(x, -y), pn);
+		assertEquals(MathUtil.roundDiv(-x, -y), nn);
+	}
+
+	private static void assertOverflow(int l, int r, boolean overflow) {
+		assertEquals(MathUtil.overflow(l + r, l, r), overflow);
+	}
+
+	private static void assertOverflow(long l, long r, boolean overflow) {
+		assertEquals(MathUtil.overflow(l + r, l, r), overflow);
 	}
 
 }

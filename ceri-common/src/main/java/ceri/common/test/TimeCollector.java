@@ -76,13 +76,14 @@ public class TimeCollector {
 	public TimeCollector delayRemaining() {
 		return delayRemaining(0);
 	}
-	
+
 	/**
 	 * Delay for the remaining time in the period with an offset.
 	 */
 	public TimeCollector delayRemaining(int diff) {
+		if (start[i] == 0) return delayPeriod(); // start() not called
 		long d = start[i] + period + diff - supplier.time();
-		if (d >= 0) supplier.delay(d);
+		supplier.delay(Math.max(0, d));
 		return this;
 	}
 

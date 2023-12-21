@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
-import java.util.Iterator;
+import java.util.PrimitiveIterator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -166,8 +166,8 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Iterates over integers.
 	 */
 	@Override
-	default Iterator<Integer> iterator() {
-		return Iterators.indexed(length(), this::getInt);
+	default PrimitiveIterator.OfInt iterator() {
+		return Iterators.intIndexed(length(), this::getInt);
 	}
 
 	/**

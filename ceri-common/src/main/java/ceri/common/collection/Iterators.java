@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NavigableSet;
 import java.util.NoSuchElementException;
+import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.BooleanSupplier;
@@ -15,6 +16,10 @@ import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 import java.util.function.IntSupplier;
+import java.util.function.IntToLongFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -48,6 +53,62 @@ public class Iterators {
 			public T next() {
 				if (!hasNext()) throw new NoSuchElementException("Index " + i);
 				return nextFn.apply(i++);
+			}
+		};
+	}
+
+	/**
+	 * Returns an int iterator from next function based on index with given size.
+	 */
+	public static PrimitiveIterator.OfLong longIndexed(int size, IntToLongFunction nextFn) {
+		return longIndexed(i -> i < size, nextFn);
+	}
+
+	/**
+	 * Returns an int iterator from hasNext and next functions based on index.
+	 */
+	public static PrimitiveIterator.OfLong longIndexed(IntPredicate hasNextFn,
+		IntToLongFunction nextFn) {
+		return new PrimitiveIterator.OfLong() {
+			int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return hasNextFn.test(i);
+			}
+
+			@Override
+			public long nextLong() {
+				if (!hasNext()) throw new NoSuchElementException("Index " + i);
+				return nextFn.applyAsLong(i++);
+			}
+		};
+	}
+
+	/**
+	 * Returns an int iterator from next function based on index with given size.
+	 */
+	public static PrimitiveIterator.OfInt intIndexed(int size, IntUnaryOperator nextFn) {
+		return intIndexed(i -> i < size, nextFn);
+	}
+
+	/**
+	 * Returns an int iterator from hasNext and next functions based on index.
+	 */
+	public static PrimitiveIterator.OfInt intIndexed(IntPredicate hasNextFn,
+		IntUnaryOperator nextFn) {
+		return new PrimitiveIterator.OfInt() {
+			int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return hasNextFn.test(i);
+			}
+
+			@Override
+			public int nextInt() {
+				if (!hasNext()) throw new NoSuchElementException("Index " + i);
+				return nextFn.applyAsInt(i++);
 			}
 		};
 	}
@@ -157,6 +218,35 @@ public class Iterators {
 		return intSpliterator(action -> {
 			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
 			if (nextFn != null) action.accept(nextFn.getAsInt());
+			return true;
+		}, estimatedSize, characteristics);
+	}
+
+	/**
+	 * Construct a spliterator from a try-advance method. The method returns false if no more
+	 * values, otherwise it passes the next value to the action, and returns true. Pass
+	 * Long.MAX_VALUE for estimated size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static Spliterator.OfLong longSpliterator(Predicate<LongConsumer> tryAdvanceFn,
+		long estimatedSize, int characteristics) {
+		return new Spliterators.AbstractLongSpliterator(estimatedSize, characteristics) {
+			@Override
+			public boolean tryAdvance(LongConsumer action) {
+				if (tryAdvanceFn == null) return false;
+				return tryAdvanceFn.test(action);
+			}
+		};
+	}
+
+	/**
+	 * Construct a spliterator from hasNext and next functions. Pass Long.MAX_VALUE for estimated
+	 * size if unknown. Pass 0 for characteristics if none apply.
+	 */
+	public static Spliterator.OfLong longSpliterator(BooleanSupplier hasNextFn, LongSupplier nextFn,
+		long estimatedSize, int characteristics) {
+		return longSpliterator(action -> {
+			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (nextFn != null) action.accept(nextFn.getAsLong());
 			return true;
 		}, estimatedSize, characteristics);
 	}

@@ -3,9 +3,11 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNotFound;
+import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.ErrorGen.IOX;
@@ -54,6 +56,22 @@ public class ManualTesterBehavior {
 		assertThrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x1.23x")));
 		assertEquals(ManualTester.Parse.d(matcher("x(.*)", "x1.23")), 1.23);
 		assertEquals(ManualTester.Parse.d(matcher("x(.)(.*)", "x1.23"), 2), .23);
+	}
+
+	@Test
+	public void shouldConsumeMatches() {
+		ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "b"), (x, i) -> {
+			assertEquals(x, "b");
+			assertEquals(i, 2);
+		});
+		assertNull(
+			ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "a"), 2, (x, i) -> fail()));
+	}
+
+	@Test
+	public void shouldApplyMatches() {
+		assertEquals(
+			ManualTester.Parse.applyFirst(matcher("(?:(a)|(b)|(c))", "b"), (x, i) -> x + i), "b2");
 	}
 
 	@Test

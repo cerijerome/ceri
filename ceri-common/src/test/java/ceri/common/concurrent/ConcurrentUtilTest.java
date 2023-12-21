@@ -6,10 +6,13 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.threadCall;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -41,6 +44,23 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testNullLock() throws InterruptedException {
+		ConcurrentUtil.NULL_LOCK.lock();
+		ConcurrentUtil.NULL_LOCK.lockInterruptibly();
+		ConcurrentUtil.NULL_LOCK.tryLock();
+		ConcurrentUtil.NULL_LOCK.tryLock(1, TimeUnit.MICROSECONDS);
+		ConcurrentUtil.NULL_LOCK.unlock();
+		var condition = ConcurrentUtil.NULL_LOCK.newCondition();
+		condition.signal();
+		condition.signalAll();
+		condition.await();
+		condition.await(1, TimeUnit.MICROSECONDS);
+		condition.awaitNanos(1);
+		condition.awaitUntil(new Date());
+		condition.awaitUninterruptibly();
+	}
+
+	@Test
 	public void testLockInfo() {
 		assertEquals(ConcurrentUtil.lockInfo(new ReentrantReadWriteLock().readLock()),
 			LockInfo.NULL);
@@ -59,6 +79,16 @@ public class ConcurrentUtilTest {
 			assertTrue(lock.isLocked());
 		}
 		assertFalse(lock.isLocked());
+	}
+
+	@Test
+	public void testLockerWithException() {
+		var lock = new ReentrantLock();
+		try (var x = ConcurrentUtil.locker(lock, () -> throwIo(), () -> {})) {
+			fail();
+		} catch (IOException e) {
+			assertFalse(lock.isLocked());
+		}
 	}
 
 	@Test

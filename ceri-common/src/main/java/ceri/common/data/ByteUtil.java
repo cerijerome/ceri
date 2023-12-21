@@ -365,7 +365,7 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Applies a single bit mask inclusively or exclusively.  The bit does not wrap.
+	 * Applies a single bit mask inclusively or exclusively. The bit does not wrap.
 	 */
 	public static int applyBitInt(int value, int bit, boolean on) {
 		return applyMaskInt(value, maskOfBitInt(true, bit), on);

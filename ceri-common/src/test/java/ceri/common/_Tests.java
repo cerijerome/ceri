@@ -15,6 +15,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumUtilTest.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
+	ceri.common.collection.IndexRangesBehavior.class, //
 	ceri.common.collection.IndexedBehavior.class, //
 	ceri.common.collection.IndexerBehavior.class, //
 	ceri.common.collection.IteratorsTest.class, //
@@ -292,6 +293,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.TestTcpSocketBehavior.class, //
 	ceri.common.test.TestTimerBehavior.class, //
 	ceri.common.test.TestUtilTest.class, //
+	ceri.common.test.TimeCollectorBehavior.class, //
 	// text
 	ceri.common.text.AnsiEscapeBehavior.class, //
 	ceri.common.text.DsvCodecBehavior.class, //
@@ -331,6 +333,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.EnclosedBehavior.class, //
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
+	ceri.common.util.IdBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.NamedBehavior.class, //

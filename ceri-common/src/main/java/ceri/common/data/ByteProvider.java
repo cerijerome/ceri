@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import java.util.PrimitiveIterator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
@@ -209,8 +209,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Iterates over unsigned bytes.
 	 */
 	@Override
-	default Iterator<Integer> iterator() {
-		return Iterators.indexed(length(), i -> (int) getUbyte(i));
+	default PrimitiveIterator.OfInt iterator() {
+		return Iterators.intIndexed(length(), i -> (int) getUbyte(i));
 	}
 
 	/**

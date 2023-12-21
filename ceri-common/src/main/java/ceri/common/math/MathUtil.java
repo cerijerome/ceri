@@ -3,6 +3,7 @@ package ceri.common.math;
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateMinFp;
+import static ceri.common.validation.ValidationUtil.validateRange;
 import static java.lang.Math.absExact;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -319,7 +320,23 @@ public class MathUtil {
 	 */
 	public static int roundDiv(int x, int y) {
 		if (y == 0) throw new ArithmeticException("/ by zero");
-		return (int) Math.round((double) x / y);
+		int div = x / y;
+		int r = x % y;
+		if (r == 0) return div;
+		if (y > 0) {
+			if (x > 0) {
+				if (r > ((y - 1) >> 1)) div++;
+			} else {
+				if (r < -(y >> 1)) div--;
+			}
+		} else {
+			if (x > 0) {
+				if (r > -((y + 1) >> 1)) div--;
+			} else {
+				if (r < ((y >> 1) + 1)) div++;
+			}
+		}
+		return div;
 	}
 
 	/**
@@ -327,7 +344,23 @@ public class MathUtil {
 	 */
 	public static long roundDiv(long x, long y) {
 		if (y == 0) throw new ArithmeticException("/ by zero");
-		return Math.round((double) x / y);
+		long div = x / y;
+		long r = x % y;
+		if (r == 0) return div;
+		if (y > 0) {
+			if (x > 0) {
+				if (r > ((y - 1) >> 1)) div++;
+			} else {
+				if (r < -(y >> 1)) div--;
+			}
+		} else {
+			if (x > 0) {
+				if (r > -((y + 1) >> 1)) div--;
+			} else {
+				if (r < ((y >> 1) + 1)) div++;
+			}
+		}
+		return div;
 	}
 
 	/**
@@ -335,8 +368,8 @@ public class MathUtil {
 	 * without change.
 	 */
 	public static double round(int places, double value) {
-		if (places < 0) throw new IllegalArgumentException("Places must be >= 0: " + places);
 		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
+		validateMin(places, 0, "places");
 		// BigDecimal double constructor is unpredictable (see javadoc)
 		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
 			.doubleValue();
@@ -344,13 +377,11 @@ public class MathUtil {
 
 	/**
 	 * Rounds a value to the given number of decimal places. Supports up to 10 places, and does not
-	 * round very large or small values. However, this method is more efficient than round(double,
-	 * int).
+	 * round very large or small values. However, this method is more efficient than round().
 	 */
 	public static double simpleRound(int places, double value) {
 		if (Double.isNaN(value)) return Double.NaN;
-		if (places < 0 || places > MAX_ROUND_PLACES) throw new IllegalArgumentException(
-			"places must be 0.." + MAX_ROUND_PLACES + "): " + places);
+		validateRange(places, 0, MAX_ROUND_PLACES);
 		if (value > MAX_ROUND || value < -MAX_ROUND) return value;
 		long factor = (long) Math.pow(10, places);
 		value = value * factor;
@@ -385,7 +416,7 @@ public class MathUtil {
 	public static int random(int max) {
 		return random(0, max);
 	}
-	
+
 	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
@@ -402,7 +433,7 @@ public class MathUtil {
 	public static long random(long max) {
 		return random(0L, max);
 	}
-	
+
 	/**
 	 * Generates a pseudo-random number from min to max inclusive.
 	 */
@@ -773,14 +804,14 @@ public class MathUtil {
 	public static boolean within(int value, int min, int max) {
 		return value >= min && value <= max;
 	}
-	
+
 	/**
 	 * Returns true if the value is within the inclusive min and max.
 	 */
 	public static boolean within(long value, long min, long max) {
 		return value >= min && value <= max;
 	}
-	
+
 	/**
 	 * Limits the value to be within the min and max inclusive.
 	 */

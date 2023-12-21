@@ -17,8 +17,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PrimitiveIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -32,6 +34,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionTestUtil;
+import ceri.common.test.CallSync;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -255,7 +258,7 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testStream() {
+	public void testStreamMap() {
 		Map<String, Integer> map0 = MapPopulator.of("abc", 1, "DE", 1, "f", 0).map;
 		assertArray(StreamUtil.stream(map0, String::charAt).toArray(), 'b', 'E', 'f');
 		Map<Integer, String> map1 = MapPopulator.of(1, "1", 3, "3", 2, "2").map;
@@ -264,6 +267,12 @@ public class StreamUtilTest {
 		assertArray(array, 1.1, 3.9, 2.4);
 	}
 
+	@Test
+	public void testIntStream() {
+		//PrimitiveIterator.OfInt
+		//StreamUtil.intStream();
+	}
+	
 	@Test
 	public void testStreamIterator() {
 		assertStream(StreamUtil.stream(List.of(1, 2, 3).iterator()), 1, 2, 3);
@@ -347,6 +356,28 @@ public class StreamUtilTest {
 		assertEquals(map.get(2), "2");
 		assertEquals(map.get(3), "3");
 		assertEquals(map.get(4), "4");
+	}
+
+	@Test
+	public void testToMapOfCollections() {
+		Stream<String> stream = Stream.of("1", "22", "333", "44", "5");
+		Map<Integer, Set<String>> map =
+			StreamUtil.toMapOfCollections(stream, t -> t.length(), LinkedHashSet::new);
+		assertMap(map, 1, Set.of("1", "5"), 2, Set.of("22", "44"), 3, Set.of("333"));
+	}
+
+	@Test
+	public void testToMapOfSets() {
+		Stream<String> stream = Stream.of("1", "22", "333", "44", "5");
+		var map = StreamUtil.toMapOfSets(stream, t -> t.length());
+		assertMap(map, 1, Set.of("1", "5"), 2, Set.of("22", "44"), 3, Set.of("333"));
+	}
+
+	@Test
+	public void testToMapOfLists() {
+		Stream<String> stream = Stream.of("1", "22", "333", "44", "5");
+		var map = StreamUtil.toMapOfLists(stream, t -> t.length());
+		assertMap(map, 1, List.of("1", "5"), 2, List.of("22", "44"), 3, List.of("333"));
 	}
 
 }
