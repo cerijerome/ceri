@@ -1,7 +1,6 @@
 package ceri.common.math;
 
 import static ceri.common.math.MathUtil.PI_BY_2;
-import static ceri.common.math.MathUtil.PIx2;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNaN;
@@ -9,6 +8,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Math.PI;
+import static java.lang.Math.TAU;
 import org.junit.Test;
 
 public class TrigUtilTest {
@@ -48,8 +48,8 @@ public class TrigUtilTest {
 	@Test
 	public void testSegmentArea() {
 		assertThrown(() -> TrigUtil.segmentArea(1, -1));
-		assertThrown(() -> TrigUtil.segmentArea(1, PIx2 + 0.00001));
-		assertApprox(TrigUtil.segmentArea(2, PIx2), 2 * 2 * PI);
+		assertThrown(() -> TrigUtil.segmentArea(1, TAU + 0.00001));
+		assertApprox(TrigUtil.segmentArea(2, TAU), 2 * 2 * PI);
 		assertApprox(TrigUtil.segmentArea(2, PI), 2 * PI);
 		assertApprox(TrigUtil.segmentArea(2, PI_BY_2), PI - 2);
 	}
@@ -60,8 +60,8 @@ public class TrigUtilTest {
 		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, -PI_BY_6 - 0.1), 0);
 		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, -PI_BY_6), 0);
 		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, 0), PI);
-		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, PI_BY_6), PIx2);
-		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, PI_BY_6 + 0.1), PIx2);
+		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, PI_BY_6), TAU);
+		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, PI_BY_6 + 0.1), TAU);
 		double angle = Math.asin(1 / (2 * ROOT2));
 		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, -angle), PI_BY_2);
 		assertApprox(TrigUtil.intersectionSegmentAngle(1, 2, angle), 3 * PI_BY_2);

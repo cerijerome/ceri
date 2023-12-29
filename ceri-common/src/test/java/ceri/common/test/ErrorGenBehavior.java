@@ -2,10 +2,13 @@ package ceri.common.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertToString;
-import static ceri.common.test.ErrorGen.*;
+import static ceri.common.test.ErrorGen.INX;
+import static ceri.common.test.ErrorGen.IOX;
+import static ceri.common.test.ErrorGen.RIX;
+import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -27,7 +30,7 @@ public class ErrorGenBehavior {
 		err.set();
 		err.call();
 	}
-	
+
 	@Test
 	public void shouldClearFromErrors() {
 		var err = ErrorGen.of();
@@ -36,7 +39,7 @@ public class ErrorGenBehavior {
 		err.setFrom();
 		err.call();
 	}
-	
+
 	@Test
 	public void shouldConvertToRuntimeException() {
 		var err = ErrorGen.of();
@@ -98,13 +101,13 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var err = ErrorGen.of();
-		assertToString(err, "none");
+		assertString(err, "none");
 		err.set(iox);
-		assertToString(err, "[IO]");
+		assertString(err, "[IO]");
 		err.set(iox, sqx, iox, null, rix);
-		assertToString(err, "[IO,SQL,IO,null,RuntimeInterrupted]");
+		assertString(err, "[IO,SQL,IO,null,RuntimeInterrupted]");
 		err.setFrom(IOX, RIX, RTX, INX, null, SQLException::new);
-		assertToString(err, "[IOX,RIX,RTX,INX,null,\u03bb]");
+		assertString(err, "[IOX,RIX,RTX,INX,null,\u03bb]");
 	}
 
 }

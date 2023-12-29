@@ -21,7 +21,9 @@ import ceri.common.text.StringUtil;
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
 public class ColorUtil {
-	private static final Pattern HEX_REGEX = Pattern.compile("(0x|#)([0-9a-fA-F]{1,8})");
+	private static final Pattern HEX_REGEX = Pattern.compile("(0x|0X|#)([0-9a-fA-F]{1,8})");
+	public static final Pattern COLOR_REGEX =
+		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
 	private static final BiMap<Integer, String> colors = colors(); // any alpha
 	private static final int HEX_RGB_MAX_LEN = 6;
@@ -151,7 +153,7 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Create a composite from argbs, with lower indexes on top.  
+	 * Create a composite from argbs, with lower indexes on top.
 	 */
 	public static int blendArgbs(int... argbs) {
 		if (argbs.length == 0) return 0;
@@ -254,7 +256,7 @@ public class ColorUtil {
 	}
 
 	/**
-	 * Create a composite from colors, with lower indexes on top.  
+	 * Create a composite from colors, with lower indexes on top.
 	 */
 	public static Color blend(Color... colors) {
 		return color(blendArgbs(argbs(colors)));

@@ -16,7 +16,6 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
 
 public class MathUtil {
-	public static final double PIx2 = Math.PI * 2; // common calculation
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
 	public static final double PI_3_BY_2 = Math.PI * 3 / 2; // common calculation
 	private static final int MAX_ROUND_PLACES = 10;
@@ -26,6 +25,24 @@ public class MathUtil {
 	public static final long MAX_UINT = 0xffffffffL;
 
 	private MathUtil() {}
+
+	/**
+	 * Returns the approximate sine value of x degrees multiplied by the given max.
+	 */
+	public static int intSin(int degrees, int max) {
+		degrees %= 360;
+		if (degrees < 0) degrees += 360;
+		if (degrees >= 180) return -intSin(degrees - 180, max);
+		return roundDiv(max * (degrees << 2) * (180 - degrees),
+			40500 - (degrees * (180 - degrees)));
+	}
+
+	/**
+	 * Returns the approximate cosine value of x degrees multiplied by the given max.
+	 */
+	public static int intCos(int degrees, int max) {
+		return intSin(degrees + 90, max);
+	}
 
 	/**
 	 * Calculates the polynomial sum for coefficients of powers of x in ascending order from 0.

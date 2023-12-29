@@ -7,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.thrown;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.math.Interval;
 
@@ -381,6 +382,12 @@ public class ValidationUtilTest {
 		assertThrown(() -> ValidationUtil.validateUrange(0, Long.MAX_VALUE, Long.MIN_VALUE));
 		assertThrown(() -> ValidationUtil.validateUrange(0, Long.MIN_VALUE, 0, "test"));
 		assertThrown(() -> ValidationUtil.validateUrange(-1, 0, -2, "test"));
+	}
+
+	@Test
+	public void testValidateFind() {
+		ValidationUtil.validateFind("123abc456", Pattern.compile("\\w+"));
+		assertThrown(() -> ValidationUtil.validateFind("abc", Pattern.compile("\\d+")));
 	}
 
 }

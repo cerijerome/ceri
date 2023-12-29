@@ -199,10 +199,6 @@ public class AssertUtil {
 		throw failure("%sUnexpected: %s", nl(format, args), str(actual));
 	}
 
-	public static <T> void assertToString(T obj, String expected) {
-		assertEquals(String.valueOf(obj), expected, null);
-	}
-
 	/**
 	 * Calls private constructor. Useful for code coverage of utility classes.
 	 */

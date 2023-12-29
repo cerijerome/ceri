@@ -43,6 +43,24 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testIntSin() {
+		for (int i = -720; i <= 720; i += 5) {
+			var x0 = (int) Math.round(Math.sin(Math.toRadians(i)) * 1000);
+			var x = MathUtil.intSin(i, 1000);
+			assertRange(x, x0 - 1, x0 + 1); // within +/-1
+		}
+	}
+
+	@Test
+	public void testIntCos() {
+		for (int i = -720; i <= 720; i += 5) {
+			var x0 = (int) Math.round(Math.cos(Math.toRadians(i)) * 1000);
+			var x = MathUtil.intCos(i, 1000);
+			assertRange(x, x0 - 1, x0 + 1); // within +/-1
+		}
+	}
+
+	@Test
 	public void testDoublePolynomial() {
 		assertEquals(MathUtil.polynomial(2.0), 0.0);
 		assertEquals(MathUtil.polynomial(0.5, 3.0, 0.5, 0.1, 0.2), 3.3);

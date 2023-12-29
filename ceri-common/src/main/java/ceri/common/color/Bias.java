@@ -16,27 +16,72 @@ public interface Bias {
 	double MAX_RATIO = 1.0;
 	/** No bias. */
 	Bias NONE = r -> r;
-	/** Moves any value except min to max. */
-	Bias UP = r -> r > 0 ? MAX_RATIO : 0;
-	/** Moves any value except max to min. */
-	Bias DOWN = r -> r < MAX_RATIO ? 0 : MAX_RATIO;
-	/** Sine curve from 0 to +PI/2. */
-	Bias Q1_SINE = r -> Math.sin(r * PI_BY_2);
-	/** Transposed sine curve from -PI/2 to 0. */
-	Bias Q4_SINE = inverse(Q1_SINE);
-	/** Transposed sine curve from -PI/2 to +PI/2. */
-	Bias HALF_SINE = r -> (1.0 + Math.sin((r * PI) - PI_BY_2)) / 2.0;
-	/** Transposed circle arc for x > 0, y < 0. */
-	Bias Q2_CIRCLE = r -> MAX_RATIO - Math.sqrt(MAX_RATIO - (r * r));
-	/** Transposed circle arc for x < 0, y > 0. */
-	Bias Q4_CIRCLE = inverse(Q2_CIRCLE);
-	/** Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0. */
-	Bias CIRCLE_INFLECTION = sequence(Q2_CIRCLE, Q4_CIRCLE);
+
+	enum Std implements Bias {
+		none(NONE),
+		/** Moves any value except min to max. */
+		up(r -> r > 0 ? MAX_RATIO : 0),
+		/** Moves any value except max to min. */
+		down(r -> r < MAX_RATIO ? 0 : MAX_RATIO),
+		/** Sine curve from 0 to +PI/2. */
+		q1Sine(r -> Math.sin(r * PI_BY_2)),
+		/** Transposed sine curve from -PI/2 to 0. */
+		q4Sine(Bias.inverse(q1Sine)),
+		/** Transposed sine curve from -PI/2 to +PI/2. */
+		halfSine(r -> (1.0 + Math.sin((r * PI) - PI_BY_2)) / 2.0),
+		/** Transposed circle arc for x > 0, y < 0. */
+		q2Circle(r -> MAX_RATIO - Math.sqrt(MAX_RATIO - (r * r))),
+		/** Transposed circle arc for x < 0, y > 0. */
+		q4Circle(Bias.inverse(q2Circle)),
+		/** Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0. */
+		q2q4Circle(Bias.sequence(q2Circle, q4Circle));
+
+		private final Bias bias;
+
+		private Std(Bias bias) {
+			this.bias = bias;
+		}
+
+		@Override
+		public double bias(double ratio) {
+			return bias.bias(ratio);
+		}
+	}
 
 	/**
 	 * Provides a biased value of the given ratio.
 	 */
 	double bias(double ratio);
+
+	/**
+	 * Limits bias between 0 and 1.
+	 */
+	default Bias limit() {
+		return limiter(this);
+	}
+
+	/**
+	 * Scales to a partial bias starting at 0. If this bias is not increasing, the result may be
+	 * clipped.
+	 */
+	default Bias partial(double len) {
+		return partial(this, len);
+	}
+
+	/**
+	 * Shifts the bias by an offset. Smoother if start and end gradients of the given bias are
+	 * equal.
+	 */
+	default Bias offset(double offset) {
+		return offset(this, offset);
+	}
+
+	/**
+	 * Inverts the bias by flipping both axes.
+	 */
+	default Bias invert() {
+		return inverse(this);
+	}
 
 	/**
 	 * Makes sure biased ratios within bounds.
@@ -58,9 +103,9 @@ public interface Bias {
 	 */
 	static Bias partial(Bias bias, double len) {
 		validateRangeFp(len, 0, MAX_RATIO);
-		if (len == 0) return DOWN;
+		if (len == 0) return Std.down;
 		double max = bias.bias(len);
-		if (max == 0) return UP;
+		if (max == 0) return Std.up;
 		return limiter(r -> r = bias.bias(r * len) / max);
 	}
 
@@ -73,7 +118,7 @@ public interface Bias {
 	}
 
 	/**
-	 * Inverts the bias.
+	 * Inverts the bias by flipping both axes.
 	 */
 	static Bias inverse(Bias bias) {
 		return r -> MAX_RATIO - bias.bias(MAX_RATIO - r);

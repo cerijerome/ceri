@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNotFound;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.fail;
@@ -14,6 +15,7 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.TestUtil.inputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,7 +23,9 @@ import org.junit.Test;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
+import ceri.common.test.ManualTester.Action;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
+import ceri.common.util.Counter;
 
 public class ManualTesterBehavior {
 
@@ -97,8 +101,34 @@ public class ManualTesterBehavior {
 			sys.out(IoUtil.nullPrintStream());
 			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).delayMs(0)
 				.err(System.err).indent("  ").promptColor(BasicColor.cyan)
-				.preProcessor(String.class, (s, m) -> m.out(s)).preProcessor(m -> m.out("test"))
-				.command(String.class, (s, i, m) -> true, "test").build().run();
+				.preProcessor(String.class, (m, s) -> m.out(s)).preProcessor(m -> m.out("test"))
+				.build().run();
+		}
+	}
+
+	@Test
+	public void shouldProvideCommandSeparators() {
+		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+			var m = ManualTester.builder("test").separator("--test--")
+				.command(".*", (t, r, s) -> {}, "end-test").build();
+			sys.in.print("x\n!\n");
+			m.run();
+			assertFind(sys.out, "(?s)--test--.*end-test");
+		}
+	}
+
+	@Test
+	public void shouldProvideInputConsumerCommands() {
+		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+			var m = ManualTester.builderArray(1).command(Integer.class, (t, s, i) -> {
+				if (!String.valueOf(i).equals(s)) return false;
+				t.out("found:" + i);
+				return true;
+			}, "test-help").build();
+			sys.in.print("0;1;!\n");
+			m.run();
+			assertFind(sys.out, "found:1");
+			assertFind(sys.err, "(?i)invalid command: 0");
 		}
 	}
 
@@ -142,7 +172,7 @@ public class ManualTesterBehavior {
 	public void shouldShowHelpForMatchingCommandsOnly() {
 		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
 			var m = ManualTester.builderArray("test", 1)
-				.command(Integer.class, "i", null, "int-cmd").build();
+				.command(Integer.class, "i", (t, x, s) -> {}, "int-cmd").build();
 			sys.in.print("!\n"); // shows help for first subject
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -156,7 +186,7 @@ public class ManualTesterBehavior {
 	public void shouldExecuteCommandOnlyIfMatchingType() {
 		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
 			var m = ManualTester.builderArray("test", 1)
-				.command(Integer.class, "i", (x, i, t) -> t.out("int-cmd"), "i").build();
+				.command(Integer.class, "i", (t, x, i) -> t.out("int-cmd"), "i").build();
 			sys.in.print("i\n!\n"); // invalid command
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -171,13 +201,36 @@ public class ManualTesterBehavior {
 	public void shouldPreProcessOnlyIfMatchingType() {
 		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
 			var m = ManualTester.builderArray(null, 1)
-				.preProcessor(Integer.class, (i, t) -> t.out("int-cmd")).build();
+				.preProcessor(Integer.class, (t, i) -> t.out("int-cmd")).build();
 			sys.in.print(":;!\n");
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
 			sys.in.print("+\n!\n"); // move to next subject first
 			m.run();
 			assertFind(sys.out, "int-cmd");
+		}
+	}
+
+	@Test
+	public void shouldRepeatCommands() {
+		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+			var m = ManualTester.builderArray("test", 1, 1.0)
+				.command("x", exitAfterCount(3, sys.in), "x help").build();
+			sys.in.print("^3;:;+;x\n");
+			m.run();
+			assertFind(sys.out, "(?s)String.*Integer.*Double");
+			assertString(sys.err, "");
+		}
+	}
+
+	@Test
+	public void shouldRepeatCommandsUntilInputAvailable() {
+		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+			var m = ManualTester.builderArray("test", 1, 1.0)
+				.command("x", exitAfterCount(3, sys.in), "x help").build();
+			sys.in.print("^100;:;+;x\n");
+			m.run();
+			assertString(sys.err, "");
 		}
 	}
 
@@ -212,7 +265,7 @@ public class ManualTesterBehavior {
 	public void shouldHandleCommandErrors() {
 		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
 			ErrorGen error = ErrorGen.of();
-			var m = ManualTester.builder(1).command(Integer.class, "x", (x, i, t) -> {
+			var m = ManualTester.builder(1).command(Integer.class, "x", (t, x, i) -> {
 				error.callWithInterrupt();
 			}, "x").build();
 			error.setFrom(IOX, INX, RIX); // IO, Interrupted, then RuntimeInterrupted exceptions
@@ -223,9 +276,17 @@ public class ManualTesterBehavior {
 		}
 	}
 
-	private Matcher matcher(String pattern, String input) {
+	private static Matcher matcher(String pattern, String input) {
 		var m = Pattern.compile(pattern).matcher(input);
 		assertTrue(m.matches(), "Pattern \"%s\" does not match \"%s\"", pattern, input);
 		return m;
 	}
+	
+	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {
+		Counter counter = Counter.of();
+		return (t, m, s) -> {
+			if (counter.intInc() >= count) in.print("!\n");
+		};
+	}
+
 }

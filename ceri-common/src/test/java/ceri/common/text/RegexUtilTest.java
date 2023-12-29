@@ -18,6 +18,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.test.Captor;
 
 public class RegexUtilTest {
 	private static final Pattern LSTRING_PATTERN = Pattern.compile("([a-z]+)");
@@ -186,6 +187,23 @@ public class RegexUtilTest {
 		assertIterable(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
 		assertIterable(RegexUtil.groups(MULTI_PATTERN, ""));
 		assertIterable(RegexUtil.groups(Pattern.compile("abc"), "abc"));
+	}
+
+	@Test
+	public void testAcceptGroup() {
+		var p = Pattern.compile("(\\w+?)(\\d+)?(\\w+?)");
+		var captor = Captor.<String>of();
+		RegexUtil.acceptGroup(RegexUtil.matched(p, "a123b"), 2, captor::accept);
+		RegexUtil.acceptGroup(RegexUtil.matched(p, "ab"), 2, captor::accept);
+		captor.verify("123");
+	}
+
+	@Test
+	public void testApplyGroup() {
+		var p = Pattern.compile("(\\w+?)(\\d+)?(\\w+?)");
+		assertEquals(RegexUtil.applyGroup(RegexUtil.matched(p, "a123b"), 2, Integer::parseInt),
+			123);
+		assertEquals(RegexUtil.applyGroup(RegexUtil.matched(p, "ab"), 2, Integer::parseInt), null);
 	}
 
 	@Test

@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.PrimitiveUtil;
 
@@ -24,6 +26,42 @@ import ceri.common.util.PrimitiveUtil;
 public class RegexUtil {
 	public static final Pattern ALL = Pattern.compile(".*");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
+
+	/**
+	 * Common patterns.
+	 */
+	public static class Common {
+		/** Unsigned octal integer with 0 prefix. */
+		public static final String OCT_UINT = "0[0-7]+";
+		/** Signed Octal integer with 0 prefix. */
+		public static final String OCT_INT = "[+-]?0[0-7]+";
+		/** Unsigned decimal integer. */
+		public static final String DEC_UINT = "(?:0|[1-9]\\d*)";
+		/** Signed decimal integer. */
+		public static final String DEC_INT = "[+-]?" + DEC_UINT;
+		/** Single hexadecimal digit. */
+		public static final String HEX_DIGIT = "[a-fA-F0-9]";
+		/** Unsigned hexadecimal integer with prefix. */
+		public static final String HEX_UINT = "(?:0x|0X|#)[a-fA-F0-9]+";
+		/** Signed hexadecimal integer with prefix. */
+		public static final String HEX_INT = "[+-]?" + HEX_UINT;
+		/** Unsigned octal, decimal, or hexadecimal integer. */
+		public static final String UINT_NUMBER = "(?:0|0[0-7]+|[1-9]\\d*|(?:0x|0X|#)[a-fA-F0-9]+)";
+		/** Signed octal, decimal, or hexadecimal integer. */
+		public static final String INT_NUMBER = "[+-]?" + UINT_NUMBER;
+		/** Unsigned decimal number; integer or floating point. */
+		public static final String UDEC_NUMBER = "(?:0|[1-9]\\d*|\\d*\\.\\d+)";
+		/** Signed decimal number; integer or floating point. */
+		public static final String DEC_NUMBER = "[+-]?" + UDEC_NUMBER;
+		/** Single ASCII letter. */
+		public static final String ALPHABET = "[a-zA-Z]";
+		/** Single ASCII letter or number. */
+		public static final String ALPHANUM = "[a-zA-Z0-9]";
+		/** Java identifier name. */
+		public static final String JAVA_NAME = "[\\p{L}$_][\\p{L}0-9$_]*";
+
+		private Common() {}
+	}
 
 	private RegexUtil() {}
 
@@ -200,7 +238,7 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Splits a string by splitting before each instance of the pattern.
+	 * Splits a string by splitting after each instance of the pattern.
 	 */
 	public static List<String> splitAfter(Pattern pattern, String s) {
 		Matcher m = pattern.matcher(s);
@@ -321,6 +359,25 @@ public class RegexUtil {
 		if (m == null) return null;
 		if (m.groupCount() < group) return null;
 		return m.group(group);
+	}
+
+	/**
+	 * Calls the consumer with the group only if non-null. Matcher match should have been attempted.
+	 */
+	public static <E extends Exception> void acceptGroup(Matcher m, int group,
+		ExceptionConsumer<E, String> consumer) throws E {
+		var s = group(m, group);
+		if (s != null) consumer.accept(s);
+	}
+
+	/**
+	 * Calls the function with the group only if non-null. Returns null is the group is null.
+	 * Matcher match should have been attempted.
+	 */
+	public static <E extends Exception, T> T applyGroup(Matcher m, int group,
+		ExceptionFunction<E, String, T> function) throws E {
+		var s = group(m, group);
+		return s == null ? null : function.apply(s);
 	}
 
 	/**

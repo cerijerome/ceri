@@ -1,24 +1,46 @@
 package ceri.common.collection;
 
+import static ceri.common.validation.ValidationUtil.validateMatch;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.math.MathUtil;
+import ceri.common.text.RegexUtil;
 
 /**
  * Tracks ranges of indexes. Allows adding and removing ranges. Uses linear or binary search
  * depending on the number of index ranges.
  */
-public class IndexRanges {
+public class IndexRanges implements Iterable<Integer> {
+	private static final Pattern EXTRACT_REGEX = Pattern.compile("(\\d+)(?:\\-(\\d+))?");
+	private static final Pattern VALIDATE_REGEX =
+		RegexUtil.compile("\\[\\s*(?:%1$s(?:\\s*,\\s*%1$s)*\\s*)?\\]", "\\d+(?:\\-\\d+)?");
 	private static final int SIZE_DEF = 32;
 	private static final int LINEAR_MAX = 256; // roughly when binary search is more efficient
 	private final int linearMax;
 	private int[] starts; // sorted range starts
 	private int[] ends; // sorted range ends
 	private int n = 0;
+
+	/**
+	 * Parse string to extract ranges.
+	 */
+	public static IndexRanges from(String s) {
+		validateMatch(s, VALIDATE_REGEX);
+		var ranges = of();
+		var m = EXTRACT_REGEX.matcher(s);
+		while (m.find()) {
+			int start = Integer.parseInt(m.group(1));
+			String endStr = m.group(2);
+			int end = endStr == null ? start : Integer.parseInt(endStr);
+			ranges.add(start, end);
+		}
+		return ranges;
+	}
 
 	/**
 	 * Create an instance with default initial index storage array size.
@@ -54,6 +76,13 @@ public class IndexRanges {
 	}
 
 	/**
+	 * Returns true if no indexes are present.
+	 */
+	public boolean isEmpty() {
+		return n == 0;
+	}
+	
+	/**
 	 * Returns the number of distinct ranges.
 	 */
 	public int ranges() {
@@ -75,7 +104,22 @@ public class IndexRanges {
 	}
 
 	/**
-	 * Add a new range. Merges with existing ranges.
+	 * Adds all indexes. Merges with existing ranges.
+	 */
+	public IndexRanges add(IndexRanges indexes) {
+		indexes.forEachInt(this::add);
+		return this;
+	}
+	
+	/**
+	 * Adds a new index. Merges with existing ranges.
+	 */
+	public IndexRanges add(int index) {
+		return add(index, index);
+	}
+	
+	/**
+	 * Adds a new range. Merges with existing ranges.
 	 */
 	public IndexRanges add(int start, int end) {
 		validateMin(start, 0);
@@ -89,6 +133,21 @@ public class IndexRanges {
 		return reduce(Math.max(0, iS), Math.min(n - 1, iE), start, end);
 	}
 
+	/**
+	 * Removes all indexes. Merges with existing ranges.
+	 */
+	public IndexRanges remove(IndexRanges indexes) {
+		indexes.forEachInt(this::remove);
+		return this;
+	}
+	
+	/**
+	 * Removes a new index. Splits and crops existing ranges.
+	 */
+	public IndexRanges remove(int index) {
+		return remove(index, index);
+	}
+	
 	/**
 	 * Removes a new range. Splits and crops existing ranges.
 	 */
@@ -105,6 +164,14 @@ public class IndexRanges {
 	}
 
 	/**
+	 * Remove all indexes.
+	 */
+	public IndexRanges clear() {
+		n = 0;
+		return this;
+	}
+
+	/**
 	 * Move all indexes by the given amount, dropping any outside the positive int range.
 	 */
 	public IndexRanges shift(int count) {
@@ -115,7 +182,7 @@ public class IndexRanges {
 	/**
 	 * Consumes each index within the ranges.
 	 */
-	public <E extends Exception> void forEach(ExceptionIntConsumer<E> consumer) throws E {
+	public <E extends Exception> void forEachInt(ExceptionIntConsumer<E> consumer) throws E {
 		var iterator = iterator();
 		while (iterator.hasNext())
 			consumer.accept(iterator.next());
@@ -133,6 +200,7 @@ public class IndexRanges {
 	 * Returns a primitive iterator for the ranges. The indexes must not be modified while the
 	 * iterator is active.
 	 */
+	@Override
 	public PrimitiveIterator.OfInt iterator() {
 		return new IntIterator();
 	}
@@ -150,6 +218,18 @@ public class IndexRanges {
 		return b.append(']').toString();
 	}
 
+	/**
+	 * Makes a copy. Array size is the number of ranges, or the minimum default size.
+	 */
+	public IndexRanges copy() {
+		int size = Math.max(SIZE_DEF, n);
+		var indexes = new IndexRanges(linearMax, size);
+		ArrayUtil.copy(starts, 0, indexes.starts, 0, n);
+		ArrayUtil.copy(ends, 0, indexes.ends, 0, n);
+		indexes.n = n;
+		return indexes;
+	}
+	
 	private class IntIterator implements PrimitiveIterator.OfInt {
 		int index = 0;
 		int i = -1;
@@ -237,11 +317,6 @@ public class IndexRanges {
 		return this;
 	}
 
-	private IndexRanges clear() {
-		n = 0;
-		return this;
-	}
-
 	private int startIndex(int start) {
 		return n <= linearMax ? linearStartIndex(start) : searchStartIndex(start); // -1..n-1
 	}
@@ -276,6 +351,6 @@ public class IndexRanges {
 		if (starts.length >= size) return;
 		int newSize = MathUtil.multiplyLimit(size, 2);
 		starts = Arrays.copyOf(starts, newSize);
-		ends = Arrays.copyOf(starts, newSize);
+		ends = Arrays.copyOf(ends, newSize);
 	}
 }

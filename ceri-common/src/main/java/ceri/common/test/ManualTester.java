@@ -8,9 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,6 +18,7 @@ import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -47,7 +46,7 @@ public class ManualTester {
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
 	private final Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
-	private final Map<Class<?>, List<Command<?>>> commands;
+	private final List<Command<?>> commands;
 	private final StringBuilder binText = new StringBuilder();
 	private final BinaryPrinter bin;
 	public final BufferedReader in;
@@ -173,18 +172,33 @@ public class ManualTester {
 	}
 
 	public static interface SubjectConsumer<T> {
-		void accept(T subject, ManualTester tester) throws Exception;
+		void accept(ManualTester tester, T subject) throws Exception;
+	}
+
+	private static record Command<T>(Class<T> cls, Action<T> action, String help) {
+		public boolean assignable(Object subject) {
+			Class<?> cls = subject == null ? Object.class : subject.getClass();
+			return cls().isAssignableFrom(cls);
+		}
 	}
 
 	public static interface Action<T> {
-		boolean execute(String input, T subject, ManualTester tester) throws Exception;
-	}
+		boolean execute(Context<T> context) throws Exception;
 
-	public static interface MatcherAction<T> {
-		void execute(Matcher m, T subject, ManualTester tester) throws Exception;
-	}
+		record Context<T>(ManualTester tester, List<String> inputs, int index, T subject) {
+			public String input() {
+				return inputs().get(index());
+			}
+		}
 
-	private static record Command<T>(Action<T> action, String help) {}
+		interface Input<T> {
+			boolean execute(ManualTester tester, String input, T subject) throws Exception;
+		}
+
+		interface Match<T> {
+			void execute(ManualTester tester, Matcher m, T subject) throws Exception;
+		}
+	}
 
 	/**
 	 * A pre-processor for capturing and processing events.
@@ -238,7 +252,7 @@ public class ManualTester {
 		final List<?> subjects;
 		Function<Object, String> stringFn = String::valueOf;
 		final List<SubjectConsumer<Object>> preProcessors = new ArrayList<>();
-		final Map<Class<?>, List<Command<?>>> commands = new LinkedHashMap<>();
+		final List<Command<?>> commands = new ArrayList<>();
 		String indent = "    ";
 		InputStream in = System.in;
 		PrintStream out = System.out;
@@ -249,19 +263,23 @@ public class ManualTester {
 		protected Builder(List<?> subjects) {
 			if (subjects.isEmpty()) throw new IllegalArgumentException("No subjects");
 			this.subjects = subjects;
-			command("\\?", (m, t) -> t.showHelp(), "? = show commands");
-			command("\\!", (m, t) -> t.exit = true, "! = exit");
-			command(Object.class, ":", (m, s, t) -> t.out(type(s)), ": = subject type");
+			command("\\?", (t, m, s) -> t.showHelp(), "? = show commands");
+			command("\\!", (t, m, s) -> t.exit = true, "! = exit");
+			command(":", (t, m, s) -> t.out(type(s)), ": = subject type");
+			command("~(\\d+)", (t, m, s) -> ConcurrentUtil.delay(Parse.i(m)),
+				"~N = sleep for N ms");
+			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
+				"^N;... = repeat subsequent commands N times");
 			addIndexCommands(subjects.size());
-			command("~(\\d+)", (m, t) -> ConcurrentUtil.delay(Parse.i(m)), "~[N] = sleep for N ms");
 		}
 
 		private void addIndexCommands(int n) {
 			if (n <= 1) return;
-			command("(\\*)", (m, t) -> t.listSubjects(), "* = list all subjects");
-			command("(\\-+|\\++)", (m, t) -> t.indexDiff(mDiff(m)), "-|+ = previous/next subject");
-			command("@(\\d+)", (m, t) -> t.index(Parse.i(m)),
-				"@[N] = set subject index (0.." + (n - 1) + ")");
+			command("(\\*)", (t, m, s) -> t.listSubjects(), "* = list all subjects");
+			command("(\\-+|\\++)", (t, m, s) -> t.indexDiff(mDiff(m)),
+				"-|+ = previous/next subject");
+			command("@(\\d+)", (t, m, s) -> t.index(Parse.i(m)),
+				"@N = set subject index to N (0.." + (n - 1) + ")");
 		}
 
 		public Builder in(InputStream in) {
@@ -304,7 +322,7 @@ public class ManualTester {
 		}
 
 		public Builder preProcessor(Consumer<ManualTester> preProcessor) {
-			return preProcessor((s, t) -> preProcessor.accept(t));
+			return preProcessor((t, s) -> preProcessor.accept(t));
 		}
 
 		public Builder preProcessor(SubjectConsumer<Object> preProcessor) {
@@ -312,24 +330,45 @@ public class ManualTester {
 			return this;
 		}
 
-		public Builder command(String pattern,
-			ExceptionBiConsumer<Exception, Matcher, ManualTester> action, String help) {
-			return command(Object.class, pattern, (m, s, t) -> action.accept(m, t), help);
+		public Builder command(String pattern, Action.Match<Object> action, String help) {
+			return command(Object.class, pattern, action, help);
 		}
 
-		public <T> Builder command(Class<T> cls, String pattern, MatcherAction<T> action,
+		public <T> Builder command(Class<T> cls, String pattern, Action.Match<T> action,
 			String help) {
-			Pattern p = Pattern.compile(pattern);
-			return command(cls, new Command<>(
-				(i, s, t) -> executeWithMatcher(i, p, m -> action.execute(m, s, t)), help));
+			var p = Pattern.compile(pattern);
+			return command(cls, c -> ManualTester.matches(p, c.input(),
+				m -> action.execute(c.tester(), m, c.subject())), help);
+		}
+
+		public <T> Builder command(Class<T> cls, String pattern,
+			ExceptionBiConsumer<?, Action.Context<T>, Matcher> action, String help) {
+			var p = Pattern.compile(pattern);
+			return command(cls, c -> ManualTester.matches(p, c.input(), m -> action.accept(c, m)),
+				help);
+		}
+
+		public <T> Builder command(Class<T> cls, Action.Input<T> action, String help) {
+			return command(cls,
+				c
+				-> 
+			action.execute(
+				c.tester(), c.input(), c.subject()
+				),
+			help);
 		}
 
 		public <T> Builder command(Class<T> cls, Action<T> action, String help) {
-			return command(cls, new Command<>(action, help));
+			commands.add(new Command<>(cls, action, help));
+			return this;
 		}
 
-		private <T> Builder command(Class<T> cls, Command<T> command) {
-			commands.computeIfAbsent(cls, c -> new ArrayList<>()).add(command);
+		public Builder separator(String separator) {
+			return separator(Object.class, separator);
+		}
+
+		public <T> Builder separator(Class<T> cls, String separator) {
+			command(cls, c -> false, separator);
 			return this;
 		}
 
@@ -370,7 +409,7 @@ public class ManualTester {
 		delayMs = builder.delayMs;
 		stringFn = builder.stringFn;
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
-		commands = ImmutableUtil.copyAsMapOfLists(builder.commands);
+		commands = ImmutableUtil.copyAsList(builder.commands);
 		bin = binaryPrinter();
 		subjects = ImmutableUtil.copyAsList(builder.subjects);
 	}
@@ -440,16 +479,14 @@ public class ManualTester {
 	private void showHelp() {
 		out.println("Commands: (separate multiple commands with ;)");
 		var cls = cls(subject());
-		commands.forEach((type, actions) -> {
-			if (type.isAssignableFrom(cls)) for (var action : actions)
-				out(action.help());
-		});
+		for (var command : commands)
+			if (command.cls().isAssignableFrom(cls)) out(command.help());
 	}
 
 	private void preProcess() {
 		var subject = subject();
 		for (var preProcessor : preProcessors)
-			execute(() -> preProcessor.accept(subject, this), false);
+			execute(() -> preProcessor.accept(this, subject), false);
 	}
 
 	private String prompt() {
@@ -490,26 +527,39 @@ public class ManualTester {
 		}
 	}
 
-	private void executeInput(String input) throws Exception {
-		String[] commands = COMMAND_SPLIT_REGEX.split(input);
-		for (var command : commands)
-			executeCommand(StringUtil.unEscape(command), subject());
-	}
-
-	private void executeCommand(String input, Object subject) throws Exception {
-		if (StringUtil.blank(input)) return;
-		var cls = cls(subject);
-		for (var entry : commands.entrySet()) {
-			if (!entry.getKey().isAssignableFrom(cls)) continue;
-			for (var command : entry.getValue())
-				if (execute(input, subject, BasicUtil.uncheckedCast(command))) return;
+	private void executeInput(String line) throws Exception {
+		var inputs = Stream.<String>of(COMMAND_SPLIT_REGEX.split(line))
+			.map(s -> StringUtil.unEscape(s)).toList();
+		for (int i = 0; i < inputs.size(); i++) {
+			executeInput(inputs, i);
 		}
-		err("Invalid command: " + input);
 	}
 
-	private boolean execute(String input, Object subject, Command<Object> command)
-		throws Exception {
-		return command.action().execute(input, subject, this);
+	private void executeInput(List<String> inputs, int i) throws Exception {
+		var context = new Action.Context<>(this, inputs, i, subject());
+		if (StringUtil.blank(context.input())) return;
+		for (var command : commands) {
+			if (!command.assignable(context.subject())) continue;
+			if (command.action().execute(BasicUtil.uncheckedCast(context))) return;
+		}
+		err("Invalid command: " + context.input());
+	}
+
+	private void repeat(Action.Context<?> context, int n) throws Exception {
+		for (; n > 0; n--) {
+			for (int i = context.index() + 1; i < context.inputs().size(); i++) {
+				if (in.ready()) return; // stop if any input available
+				executeInput(context.inputs(), i);
+			}
+		}
+	}
+
+	private static <E extends Exception> boolean matches(Pattern pattern, String input,
+		ExceptionConsumer<E, Matcher> consumer) throws Exception {
+		var m = RegexUtil.matched(pattern, input);
+		if (m == null) return false;
+		consumer.accept(m);
+		return true;
 	}
 
 	private void listSubjects() {
@@ -528,17 +578,9 @@ public class ManualTester {
 	}
 
 	private static <T> SubjectConsumer<Object> typed(Class<T> cls, SubjectConsumer<T> consumer) {
-		return (s, t) -> {
-			if (cls.isInstance(s)) consumer.accept(BasicUtil.<T>uncheckedCast(s), t);
+		return (t, s) -> {
+			if (cls.isInstance(s)) consumer.accept(t, BasicUtil.<T>uncheckedCast(s));
 		};
-	}
-
-	private static boolean executeWithMatcher(String input, Pattern pattern,
-		ExceptionConsumer<Exception, Matcher> action) throws Exception {
-		Matcher matcher = RegexUtil.matched(pattern, input);
-		if (matcher == null) return false;
-		action.accept(matcher);
-		return true;
 	}
 
 	private static int mDiff(Matcher m) {

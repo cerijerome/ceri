@@ -29,7 +29,9 @@ import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 public class ColorxUtil {
-	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|#)([0-9a-fA-F]{1,16})");
+	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|0X|#)([0-9a-fA-F]{1,16})");
+	public static final Pattern COLORX_REGEX = Pattern.compile(
+		"(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,16})");
 	private static final BiMap<Long, String> colorxs = colorxs(); // full alpha
 
 	private ColorxUtil() {}

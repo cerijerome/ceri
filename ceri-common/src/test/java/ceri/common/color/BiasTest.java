@@ -8,32 +8,32 @@ public class BiasTest {
 
 	@Test
 	public void testSine() {
-		assertApprox(Bias.Q1_SINE.bias(0), 0);
-		assertApprox(Bias.Q1_SINE.bias(0.5), 0.707);
-		assertApprox(Bias.Q1_SINE.bias(1), 1);
-		assertApprox(Bias.Q4_SINE.bias(0), 0);
-		assertApprox(Bias.Q4_SINE.bias(0.5), 0.293);
-		assertApprox(Bias.Q4_SINE.bias(1), 1);
-		assertApprox(Bias.HALF_SINE.bias(0), 0);
-		assertApprox(Bias.HALF_SINE.bias(0.25), 0.146);
-		assertApprox(Bias.HALF_SINE.bias(0.5), 0.5);
-		assertApprox(Bias.HALF_SINE.bias(0.75), 0.854);
-		assertApprox(Bias.HALF_SINE.bias(1), 1);
+		assertApprox(Bias.Std.q1Sine.bias(0), 0);
+		assertApprox(Bias.Std.q1Sine.bias(0.5), 0.707);
+		assertApprox(Bias.Std.q1Sine.bias(1), 1);
+		assertApprox(Bias.Std.q4Sine.bias(0), 0);
+		assertApprox(Bias.Std.q4Sine.bias(0.5), 0.293);
+		assertApprox(Bias.Std.q4Sine.bias(1), 1);
+		assertApprox(Bias.Std.halfSine.bias(0), 0);
+		assertApprox(Bias.Std.halfSine.bias(0.25), 0.146);
+		assertApprox(Bias.Std.halfSine.bias(0.5), 0.5);
+		assertApprox(Bias.Std.halfSine.bias(0.75), 0.854);
+		assertApprox(Bias.Std.halfSine.bias(1), 1);
 	}
 
 	@Test
 	public void testCircle() {
-		assertApprox(Bias.Q2_CIRCLE.bias(0), 0);
-		assertApprox(Bias.Q2_CIRCLE.bias(0.5), 0.134);
-		assertApprox(Bias.Q2_CIRCLE.bias(1), 1);
-		assertApprox(Bias.Q4_CIRCLE.bias(0), 0);
-		assertApprox(Bias.Q4_CIRCLE.bias(0.5), 0.866);
-		assertApprox(Bias.Q4_CIRCLE.bias(1), 1);
-		assertApprox(Bias.CIRCLE_INFLECTION.bias(0), 0);
-		assertApprox(Bias.CIRCLE_INFLECTION.bias(0.25), 0.067);
-		assertApprox(Bias.CIRCLE_INFLECTION.bias(0.5), 0.5);
-		assertApprox(Bias.CIRCLE_INFLECTION.bias(0.75), 0.933);
-		assertApprox(Bias.CIRCLE_INFLECTION.bias(1), 1);
+		assertApprox(Bias.Std.q2Circle.bias(0), 0);
+		assertApprox(Bias.Std.q2Circle.bias(0.5), 0.134);
+		assertApprox(Bias.Std.q2Circle.bias(1), 1);
+		assertApprox(Bias.Std.q4Circle.bias(0), 0);
+		assertApprox(Bias.Std.q4Circle.bias(0.5), 0.866);
+		assertApprox(Bias.Std.q4Circle.bias(1), 1);
+		assertApprox(Bias.Std.q2q4Circle.bias(0), 0);
+		assertApprox(Bias.Std.q2q4Circle.bias(0.25), 0.067);
+		assertApprox(Bias.Std.q2q4Circle.bias(0.5), 0.5);
+		assertApprox(Bias.Std.q2q4Circle.bias(0.75), 0.933);
+		assertApprox(Bias.Std.q2q4Circle.bias(1), 1);
 	}
 
 	@Test
@@ -62,22 +62,18 @@ public class BiasTest {
 		assertApprox(third.bias(0.5), 1);
 		assertApprox(third.bias(0.75), 1);
 		assertApprox(third.bias(1), 1);
+		assertApprox(third.invert().bias(0), 0);
 		assertApprox(Bias.inverse(third).bias(0), 0);
 		assertApprox(Bias.inverse(third).bias(0.25), 0);
 		assertApprox(Bias.inverse(third).bias(0.5), 0);
 		assertApprox(Bias.inverse(third).bias(0.75), 1);
 		assertApprox(Bias.inverse(third).bias(1), 1);
-		// assertApprox(Bias.inverse(Bias.bad).bias(-0.1), 0);
+		assertApprox(third.invert().bias(1), 1);
 	}
 
 	@Test
 	public void testOffset() {
-		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0), 0);
-		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0.25), 0.25);
-		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0.5), 0.5);
-		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0.75), 0.75);
-		Bias.offset(Bias.NONE, 0.5).bias(1);
-		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(1), 1);
+		assertApprox(Bias.NONE.offset(0.5).bias(0), 0);
 		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0), 0);
 		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0.25), 0.25);
 		assertApprox(Bias.offset(Bias.NONE, 0.5).bias(0.5), 0.5);
@@ -88,6 +84,7 @@ public class BiasTest {
 	@Test
 	public void testLimiter() {
 		Bias bad = r -> ((r - 0.5) * 2) + 0.5; // -0.5..1.5
+		assertApprox(bad.limit().bias(-0.1), 0);
 		assertApprox(Bias.limiter(bad).bias(-0.1), 0);
 		assertApprox(Bias.limiter(bad).bias(0), 0);
 		assertApprox(Bias.limiter(bad).bias(0.2), 0);
@@ -101,13 +98,14 @@ public class BiasTest {
 
 	@Test
 	public void testPartial() {
+		assertApprox(square.partial(0.5).bias(0), 0);
 		assertApprox(Bias.partial(square, 0.5).bias(0), 0);
 		assertApprox(Bias.partial(square, 0.5).bias(0.5), 0);
 		assertApprox(Bias.partial(square, 0.5).bias(1), 1);
 		assertApprox(Bias.partial(square, 0.4).bias(1), 1);
 		assertApprox(Bias.partial(Bias.offset(square, 0.5), 0.4).bias(0), 0);
-		assertApprox(Bias.partial(Bias.CIRCLE_INFLECTION, 0).bias(0), 0);
-		assertApprox(Bias.partial(Bias.CIRCLE_INFLECTION, 0).bias(1), 1);
+		assertApprox(Bias.partial(Bias.Std.q2q4Circle, 0).bias(0), 0);
+		assertApprox(Bias.partial(Bias.Std.q2q4Circle, 0).bias(1), 1);
 	}
 
 }

@@ -16,6 +16,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
@@ -698,6 +700,26 @@ public class ValidationUtil {
 		return validateRange(value, 0, INT_MASK, name(name), def(flags, hex));
 	}
 
+	/* Text validations */
+	
+	/**
+	 * Validate the string matches the pattern.
+	 */
+	public static Matcher validateMatch(String value, Pattern pattern) {
+		var m = pattern.matcher(value);
+		if (m.matches()) return m;
+		throw exceptionf("Regex did not match \"%s\": %s", pattern.pattern(), value);
+	}
+	
+	/**
+	 * Validate the string contains the pattern.
+	 */
+	public static Matcher validateFind(String value, Pattern pattern) {
+		var m = pattern.matcher(value);
+		if (m.find()) return m;
+		throw exceptionf("Regex not found \"%s\": %s", pattern.pattern(), value);
+	}
+	
 	/* Support methods */
 
 	private static IllegalArgumentException exceptionf(String format, Object... args) {

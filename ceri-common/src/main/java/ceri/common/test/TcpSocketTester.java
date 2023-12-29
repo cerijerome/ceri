@@ -89,33 +89,33 @@ public class TcpSocketTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(TcpSocket.class, "O", (m, s, t) -> options(s, t), "O = show all options");
+		b.command(TcpSocket.class, "O", (t, m, s) -> options(s, t), "O = show all options");
 		b.command(TcpSocket.class, "Ot(\\d*)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soTimeout, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soTimeout, i(m)),
 			"Ot[N] = SO_TIMEOUT: timeout in milliseconds");
 		b.command(TcpSocket.class, "Ol(\\-1|\\d*)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soLinger, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soLinger, i(m)),
 			"Ol[N] = SO_LINGER: linger-on-close in seconds; -1 to disable");
 		b.command(TcpSocket.class, "Oc(\\d*)",
-			(m, s, t) -> option(s, t, TcpSocketOption.ipTos, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.ipTos, i(m)),
 			"Oc[N] = IP_TOS: traffic class");
 		b.command(TcpSocket.class, "Os(\\d*)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soSndBuf, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soSndBuf, i(m)),
 			"Os[N] = SO_SNDBUF: send buffer size");
 		b.command(TcpSocket.class, "Or(\\d*)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soRcvBuf, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soRcvBuf, i(m)),
 			"Or[N] = SO_RCVBUF: receive buffer size");
 		b.command(TcpSocket.class, "Ok(0|1|)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soKeepAlive, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soKeepAlive, b(m)),
 			"Ok[0|1] = SO_KEEPALIVE: keep-alive off/on");
 		b.command(TcpSocket.class, "Oa(0|1|)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soReuseAddr, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soReuseAddr, b(m)),
 			"Oa[0|1] = SO_REUSEADDR: re-use address off/on");
 		b.command(TcpSocket.class, "Ou(0|1|)",
-			(m, s, t) -> option(s, t, TcpSocketOption.soOobInline, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soOobInline, b(m)),
 			"Ou[0|1] = SO_OOBINLINE: inline urgent data off/on");
 		b.command(TcpSocket.class, "Od(0|1|)",
-			(m, s, t) -> option(s, t, TcpSocketOption.tcpNoDelay, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.tcpNoDelay, b(m)),
 			"Od[0|1] = TCP_NODELAY: no-delay off/on");
 	}
 
