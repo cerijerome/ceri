@@ -29,6 +29,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
 	ceri.common.color.BiasTest.class, //
+	ceri.common.color.BlendTypeBehavior.class, //
 	ceri.common.color.ColorComparatorsTest.class, //
 	ceri.common.color.ColorSpacesTest.class, //
 	ceri.common.color.ColorUtilTest.class, //
@@ -146,6 +147,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ObjIntPredicateBehavior.class, //
 	ceri.common.function.ObjShortConsumerBehavior.class, //
 	ceri.common.function.PredicatesTest.class, //
+	ceri.common.function.RuntimeCloseableBehavior.class, //
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
 	ceri.common.function.ToByteFunctionBehavior.class, //
 	ceri.common.function.ToShortFunctionBehavior.class, //
@@ -272,6 +274,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.CallSyncBehavior.class, //
 	ceri.common.test.CaptorBehavior.class, //
 	ceri.common.test.ConnectorTesterBehavior.class, //
+	ceri.common.test.CycleRunnerBehavior.class, //
 	ceri.common.test.DebuggerBehavior.class, //
 	ceri.common.test.ErrorGenBehavior.class, //
 	ceri.common.test.FileTestHelperBehavior.class, //

@@ -200,6 +200,25 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testDistinctBy() {
+		assertStream(
+			StreamUtil.distinctByIdentity(Stream.of(new String("abc"), new String("def"),
+				new String("ghi"), new String("abc"), new String("def"))),
+			"abc", "def", "ghi", "abc", "def");
+	}
+
+	@Test
+	public void testDistinctByIdentity() {
+		String abc = "abc";
+		assertStream(StreamUtil.distinctByIdentity(Stream.of(abc, "def", "ghi", abc, "def")), "abc",
+			"def", "ghi");
+		assertStream(
+			StreamUtil.distinctByIdentity(Stream.of(new String("abc"), new String("def"),
+				new String("ghi"), new String("abc"), new String("def"))),
+			"abc", "def", "ghi", "abc", "def");
+	}
+
+	@Test
 	public void testFindFirstNonNull() {
 		Stream<String> stream = Stream.of(null, null, "abc", "de", "f");
 		assertEquals(StreamUtil.findFirstNonNull(stream, s -> s.length() < 3), "de");

@@ -22,6 +22,7 @@ import ceri.common.util.Holder;
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
 	private static final Predicate<Object> TRUE_PREDICATE = t -> true;
+	public static final Runnable NULL_RUNNABLE = () -> {};
 	private static final Consumer<Object> NULL_CONSUMER = t -> {};
 
 	private FunctionUtil() {}

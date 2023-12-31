@@ -51,10 +51,10 @@ public class BooleanCondition {
 	}
 
 	/**
-	 * Waits indefinitely for a signal, and returns true if signaled. Does not clear the signal.
+	 * Waits indefinitely for a signal. Does not clear the signal.
 	 */
-	public boolean awaitPeek() throws InterruptedException {
-		return isSet(condition.awaitPeek());
+	public void awaitPeek() throws InterruptedException {
+		condition.awaitPeek();
 	}
 
 	/**

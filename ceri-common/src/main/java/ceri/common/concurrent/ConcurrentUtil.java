@@ -246,10 +246,10 @@ public class ConcurrentUtil {
 		ExceptionRunnable<E> postLock, ExceptionRunnable<E> preUnlock) throws E {
 		lock.lock();
 		try {
-			postLock.run();
+			if (postLock != null) postLock.run();
 			return () -> {
 				try {
-					preUnlock.run();
+					if (preUnlock != null) preUnlock.run();
 				} finally {
 					lock.unlock();
 				}

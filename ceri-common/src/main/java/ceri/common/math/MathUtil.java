@@ -23,25 +23,29 @@ public class MathUtil {
 	public static final int MAX_UBYTE = 0xff;
 	public static final int MAX_USHORT = 0xffff;
 	public static final long MAX_UINT = 0xffffffffL;
+	private static final int TURN_DEGREES = 360;
+	private static final int HALF_TURN_DEGREES = 180;
+	private static final int QUARTER_TURN_DEGREES = 90;
+	private static final int INT_SIN_MAGIC = 40500;
 
 	private MathUtil() {}
 
 	/**
-	 * Returns the approximate sine value of x degrees multiplied by the given max.
+	 * Returns the approximate sine value of x degrees, multiplied by the given max.
 	 */
 	public static int intSin(int degrees, int max) {
-		degrees %= 360;
-		if (degrees < 0) degrees += 360;
-		if (degrees >= 180) return -intSin(degrees - 180, max);
-		return roundDiv(max * (degrees << 2) * (180 - degrees),
-			40500 - (degrees * (180 - degrees)));
+		degrees %= TURN_DEGREES;
+		if (degrees < 0) degrees += TURN_DEGREES;
+		if (degrees >= HALF_TURN_DEGREES) return -intSin(degrees - HALF_TURN_DEGREES, max);
+		return roundDiv(max * (degrees << 2) * (HALF_TURN_DEGREES - degrees),
+			INT_SIN_MAGIC - (degrees * (HALF_TURN_DEGREES - degrees)));
 	}
 
 	/**
-	 * Returns the approximate cosine value of x degrees multiplied by the given max.
+	 * Returns the approximate cosine value of x degrees, multiplied by the given max.
 	 */
 	public static int intCos(int degrees, int max) {
-		return intSin(degrees + 90, max);
+		return intSin(degrees + QUARTER_TURN_DEGREES, max);
 	}
 
 	/**
@@ -308,28 +312,17 @@ public class MathUtil {
 	}
 
 	/**
+	 * Rounds a double value to an int.
+	 */
+	public static int intRound(double value) {
+		return (int) limit(Math.round(value), Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+
+	/**
 	 * Rounds a double value to an int. Throws an ArithmeticException if the value overflows.
 	 */
 	public static int intRoundExact(double value) {
 		return Math.toIntExact(Math.round(value));
-	}
-
-	/**
-	 * Rounds up the division of two values.
-	 */
-	public static int ceilDiv(int x, int y) {
-		int r = x / y;
-		if ((x ^ y) >= 0 && (r * y != x)) r++; // round up if same signs and modulo not zero
-		return r;
-	}
-
-	/**
-	 * Rounds up the division of two values.
-	 */
-	public static long ceilDiv(long x, long y) {
-		long r = x / y;
-		if ((x ^ y) >= 0 && (r * y != x)) r++; // round up if same signs and modulo not zero
-		return r;
 	}
 
 	/**
@@ -407,7 +400,7 @@ public class MathUtil {
 	}
 
 	/**
-	 * Determines are equal within given precision.
+	 * Determines values are equal within given precision.
 	 */
 	public static boolean approxEqual(double lhs, double rhs, double precision) {
 		return lhs == rhs || Math.abs(lhs - rhs) <= precision;

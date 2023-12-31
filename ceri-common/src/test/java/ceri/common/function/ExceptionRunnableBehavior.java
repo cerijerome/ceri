@@ -9,6 +9,7 @@ public class ExceptionRunnableBehavior {
 
 	@Test
 	public void shouldConvertToRunnable() {
+		ExceptionRunnable.NULL.asRunnable().run();
 		runnable(2).asRunnable().run();
 		assertThrown(RuntimeException.class, () -> runnable(1).asRunnable().run());
 		assertThrown(RuntimeException.class, () -> runnable(0).asRunnable().run());

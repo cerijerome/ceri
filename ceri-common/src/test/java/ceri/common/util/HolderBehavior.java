@@ -53,6 +53,15 @@ public class HolderBehavior {
 	}
 
 	@Test
+	public void shouldProvideVolatileHolder() {
+		var holder = Holder.ofVolatile(null);
+		assertFalse(holder.isEmpty());
+		assertEquals(holder.set(123).value(), 123);
+		assertFalse(holder.isEmpty());
+		assertEquals(holder.set(null).value(), null);
+	}
+
+	@Test
 	public void shouldProvideDefaultValue() {
 		assertEquals(Holder.of().value(null), null);
 		assertEquals(Holder.of().value("test"), "test");

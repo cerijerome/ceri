@@ -24,6 +24,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
 import ceri.common.test.ManualTester.Action;
+import ceri.common.test.ManualTester.Parse;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.util.Counter;
 
@@ -86,7 +87,7 @@ public class ManualTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldExecuteCommandsFromStdIn() {
-		try (SystemIo stdIo = SystemIo.of()) {
+		try (var stdIo = SystemIo.of()) {
 			stdIo.in(inputStream("?;*;-;+;@0;:;~0;!\n"));
 			stdIo.out(IoUtil.nullPrintStream());
 			ManualTester.builderArray("test", 1).promptColor(null).build().run();
@@ -96,7 +97,7 @@ public class ManualTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldBuildAnInstance() {
-		try (SystemIo sys = SystemIo.of()) {
+		try (var sys = SystemIo.of()) {
 			sys.in(inputStream("!\n"));
 			sys.out(IoUtil.nullPrintStream());
 			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).delayMs(0)
@@ -108,9 +109,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldProvideCommandSeparators() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builder("test").separator("--test--")
-				.command(".*", (t, r, s) -> {}, "end-test").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test")
+			.separator("--test--").command(".*", (t, r, s) -> {}, "end-test").build()) {
 			sys.in.print("x\n!\n");
 			m.run();
 			assertFind(sys.out, "(?s)--test--.*end-test");
@@ -119,12 +119,12 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldProvideInputConsumerCommands() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+		try (var sys = SystemIoCaptor.of();
 			var m = ManualTester.builderArray(1).command(Integer.class, (t, s, i) -> {
 				if (!String.valueOf(i).equals(s)) return false;
 				t.out("found:" + i);
 				return true;
-			}, "test-help").build();
+			}, "test-help").build()) {
 			sys.in.print("0;1;!\n");
 			m.run();
 			assertFind(sys.out, "found:1");
@@ -134,8 +134,7 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldPrintErrors() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builder("test").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test").build()) {
 			m.err("err-test");
 			m.err(new IOException(), true);
 			assertFind(sys.err, "err-test");
@@ -145,8 +144,7 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldPrintBytesReadFromInputStream() throws IOException {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builder("test").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test").build()) {
 			m.readBytes(inputStream());
 			assertTrue(sys.out.isEmpty());
 			m.readBytes(inputStream(1, -1, 0));
@@ -157,8 +155,8 @@ public class ManualTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldPrintBytesWrittenToOutputStream() throws IOException {
-		try (var sys = SystemIoCaptor.of(); var pipe = PipedStream.of()) {
-			var m = ManualTester.builder("test").build();
+		try (var sys = SystemIoCaptor.of(); var pipe = PipedStream.of();
+			var m = ManualTester.builder("test").build()) {
 			m.writeAscii(pipe.out(), "");
 			assertTrue(sys.out.isEmpty());
 			assertEquals(pipe.in().available(), 0);
@@ -170,9 +168,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldShowHelpForMatchingCommandsOnly() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builderArray("test", 1)
-				.command(Integer.class, "i", (t, x, s) -> {}, "int-cmd").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1)
+			.command(Integer.class, "i", (t, x, s) -> {}, "int-cmd").build()) {
 			sys.in.print("!\n"); // shows help for first subject
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -184,9 +181,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldExecuteCommandOnlyIfMatchingType() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builderArray("test", 1)
-				.command(Integer.class, "i", (t, x, i) -> t.out("int-cmd"), "i").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1)
+			.command(Integer.class, "i", (t, x, i) -> t.out("int-cmd"), "i").build()) {
 			sys.in.print("i\n!\n"); // invalid command
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -199,9 +195,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldPreProcessOnlyIfMatchingType() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builderArray(null, 1)
-				.preProcessor(Integer.class, (t, i) -> t.out("int-cmd")).build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray(null, 1)
+			.preProcessor(Integer.class, (t, i) -> t.out("int-cmd")).build()) {
 			sys.in.print(":;!\n");
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -213,9 +208,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldRepeatCommands() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builderArray("test", 1, 1.0)
-				.command("x", exitAfterCount(3, sys.in), "x help").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
+			.command("x", exitAfterCount(3, sys.in), "x help").build()) {
 			sys.in.print("^3;:;+;x\n");
 			m.run();
 			assertFind(sys.out, "(?s)String.*Integer.*Double");
@@ -225,9 +219,8 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldRepeatCommandsUntilInputAvailable() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var m = ManualTester.builderArray("test", 1, 1.0)
-				.command("x", exitAfterCount(3, sys.in), "x help").build();
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
+			.command("x", exitAfterCount(3, sys.in), "x help").build()) {
 			sys.in.print("^100;:;+;x\n");
 			m.run();
 			assertString(sys.err, "");
@@ -236,13 +229,15 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldCaptureEvents() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+		try (var sys = SystemIoCaptor.of()) {
 			var events = ManualTester.eventCatcher();
 			events.add("event ok");
 			events.execute(() -> {});
 			events.execute(() -> throwIt(new Exception("event error")));
 			sys.in.print("!\n");
-			ManualTester.builder("test").preProcessor(events).build().run();
+			try (var m = ManualTester.builder("test").preProcessor(events).build()) {
+				m.run();
+			}
 			assertFind(sys.out, "event ok");
 			assertFind(sys.err, "event error");
 		}
@@ -250,29 +245,43 @@ public class ManualTesterBehavior {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void shouldHandleInputIoErrors() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
-			var in = TestInputStream.of();
+	public void shouldHandleInputIoErrors() throws IOException {
+		try (var sys = SystemIoCaptor.of(); var in = TestInputStream.of()) {
 			in.to.writeAscii("\n");
 			in.read.error.setFrom(IOX);
-			var m = ManualTester.builder("test").in(in).build();
-			m.run(); // exits on error
+			try (var m = ManualTester.builder("test").in(in).build()) {
+				m.run(); // exits on error
+			}
 			assertFind(sys.err, "IOException");
 		}
 	}
 
 	@Test
 	public void shouldHandleCommandErrors() {
-		try (SystemIoCaptor sys = SystemIoCaptor.of()) {
+		try (var sys = SystemIoCaptor.of()) {
 			ErrorGen error = ErrorGen.of();
-			var m = ManualTester.builder(1).command(Integer.class, "x", (t, x, i) -> {
-				error.callWithInterrupt();
-			}, "x").build();
-			error.setFrom(IOX, INX, RIX); // IO, Interrupted, then RuntimeInterrupted exceptions
-			sys.in.print("x\nx\nx\n");
-			assertThrown(m::run); // exits on InterruptedException
-			assertFind(sys.err, "IOException");
-			assertThrown(m::run); // exits on RuntimeInterruptedException
+			try (var m = ManualTester.builder(1)
+				.command(Integer.class, "x", (t, x, i) -> error.callWithInterrupt(), "x").build()) {
+				error.setFrom(IOX, INX, RIX); // IO, Interrupted, then RuntimeInterrupted exceptions
+				sys.in.print("x\nx\nx\n");
+				assertThrown(m::run); // exits on InterruptedException
+				assertFind(sys.err, "IOException");
+				assertThrown(m::run); // exits on RuntimeInterruptedException
+			}
+		}
+	}
+
+	@Test
+	public void shouldRunCycle() {
+		try (var sys = SystemIoCaptor.of();
+			var m = ManualTester.builder("test")
+				.command("c(\\-?\\d+)", (t, r, s) -> t.startCycle(cycle(Parse.i(r))), "help")
+				.command("C", (t, r, s) -> t.stopCycle(), "help").build()) {
+			sys.in.print("C\nc100\nc200\nC\n!\n");
+			m.run();
+			assertFind(sys.out,
+				"(?s)started.*test-cycle:100.*stopped.*started.*test-cycle:200.*stopped");
+			assertString(sys.err, "");
 		}
 	}
 
@@ -281,7 +290,7 @@ public class ManualTesterBehavior {
 		assertTrue(m.matches(), "Pattern \"%s\" does not match \"%s\"", pattern, input);
 		return m;
 	}
-	
+
 	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {
 		Counter counter = Counter.of();
 		return (t, m, s) -> {
@@ -289,4 +298,22 @@ public class ManualTesterBehavior {
 		};
 	}
 
+	private static CycleRunner.Cycle cycle(int delayMs) {
+		return new CycleRunner.Cycle() {
+			@Override
+			public int cycle(int sequence) {
+				return delayMs;
+			}
+
+			@Override
+			public String name() {
+				return "test-cycle";
+			}
+
+			@Override
+			public String toString() {
+				return name() + ":" + delayMs;
+			}
+		};
+	}
 }

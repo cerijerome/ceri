@@ -5,7 +5,7 @@ import static ceri.common.color.ColorUtil.MAX_VALUE;
 import static ceri.common.color.ColorUtil.scaleValue;
 import static ceri.common.color.Component.X_COUNT;
 import static ceri.common.color.Component.X_MASK;
-import static ceri.common.math.MathUtil.intRoundExact;
+import static ceri.common.math.MathUtil.intRound;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
 import static ceri.common.math.MathUtil.uint;
@@ -30,8 +30,8 @@ import ceri.common.text.StringUtil;
 
 public class ColorxUtil {
 	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|0X|#)([0-9a-fA-F]{1,16})");
-	public static final Pattern COLORX_REGEX = Pattern.compile(
-		"(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,16})");
+	public static final Pattern COLORX_REGEX =
+		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,16})");
 	private static final BiMap<Long, String> colorxs = colorxs(); // full alpha
 
 	private ColorxUtil() {}
@@ -147,7 +147,7 @@ public class ColorxUtil {
 	}
 
 	/**
-	 * Create a composite from xargbs, with lower indexes on top.  
+	 * Create a composite from xargbs, with lower indexes on top.
 	 */
 	public static long blendXargbs(long... xargbs) {
 		if (xargbs.length == 0) return 0L;
@@ -223,7 +223,7 @@ public class ColorxUtil {
 	}
 
 	/**
-	 * Create a composite from colors, with lower indexes on top.  
+	 * Create a composite from colors, with lower indexes on top.
 	 */
 	public static Colorx blend(Colorx... colorxs) {
 		return Colorx.of(blendXargbs(xargbs(colorxs)));
@@ -644,9 +644,9 @@ public class ColorxUtil {
 	private static int denormalize(int[] rgb, int r, int g, int b) {
 		double x = limit(min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
 		if (x == 0) return 0;
-		rgb[0] -= intRoundExact(x * r);
-		rgb[1] -= intRoundExact(x * g);
-		rgb[2] -= intRoundExact(x * b);
+		rgb[0] -= intRound(x * r);
+		rgb[1] -= intRound(x * g);
+		rgb[2] -= intRound(x * b);
 		return ColorUtil.value(x);
 	}
 

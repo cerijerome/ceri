@@ -307,40 +307,6 @@ public class MathUtilTest {
 	}
 
 	@Test
-	public void testCeilDivInt() {
-		assertEquals(MathUtil.ceilDiv(10, 4), 3);
-		assertEquals(MathUtil.ceilDiv(10, 3), 4);
-		assertEquals(MathUtil.ceilDiv(10, -4), -2);
-		assertEquals(MathUtil.ceilDiv(10, -3), -3);
-		assertEquals(MathUtil.ceilDiv(-10, 4), -2);
-		assertEquals(MathUtil.ceilDiv(-10, 3), -3);
-		assertEquals(MathUtil.ceilDiv(-10, -4), 3);
-		assertEquals(MathUtil.ceilDiv(-10, -3), 4);
-		assertEquals(MathUtil.ceilDiv(IMAX, IMAX), 1);
-		assertEquals(MathUtil.ceilDiv(IMAX, IMIN), 0);
-		assertEquals(MathUtil.ceilDiv(IMIN, IMAX), -1);
-		assertEquals(MathUtil.ceilDiv(IMIN, IMIN), 1);
-		assertThrown(() -> MathUtil.ceilDiv(1, 0));
-	}
-
-	@Test
-	public void testCeilDivLong() {
-		assertEquals(MathUtil.ceilDiv(10L, 4L), 3L);
-		assertEquals(MathUtil.ceilDiv(10L, 3L), 4L);
-		assertEquals(MathUtil.ceilDiv(10L, -4L), -2L);
-		assertEquals(MathUtil.ceilDiv(10L, -3L), -3L);
-		assertEquals(MathUtil.ceilDiv(-10L, 4L), -2L);
-		assertEquals(MathUtil.ceilDiv(-10L, 3L), -3L);
-		assertEquals(MathUtil.ceilDiv(-10L, -4L), 3L);
-		assertEquals(MathUtil.ceilDiv(-10L, -3L), 4L);
-		assertEquals(MathUtil.ceilDiv(LMAX, LMAX), 1L);
-		assertEquals(MathUtil.ceilDiv(LMAX, LMIN), 0L);
-		assertEquals(MathUtil.ceilDiv(LMIN, LMAX), -1L);
-		assertEquals(MathUtil.ceilDiv(LMIN, LMIN), 1L);
-		assertThrown(() -> MathUtil.ceilDiv(1L, 0L));
-	}
-
-	@Test
 	public void testRoundDivInt() {
 		assertRoundDiv(1, 1, 1, -1, -1, 1);
 		assertRoundDiv(1, 2, 1, 0, 0, 1);

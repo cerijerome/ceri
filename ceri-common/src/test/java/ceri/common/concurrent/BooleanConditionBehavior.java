@@ -19,7 +19,7 @@ public class BooleanConditionBehavior {
 		assertFalse(flag.awaitPeek(0));
 		assertFalse(flag.awaitPeek(1));
 		flag.signal();
-		assertTrue(flag.awaitPeek());
+		flag.awaitPeek();
 		assertTrue(flag.awaitPeek(0));
 		assertTrue(flag.awaitPeek(1));
 	}

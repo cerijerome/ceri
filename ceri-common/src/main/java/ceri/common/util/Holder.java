@@ -5,7 +5,8 @@ import java.util.Objects;
 /**
  * Holder for a value, and flag to indicate if the value is empty. Provides mutable and immutable
  * holders. Immutable holder is similar to Optional, but allows null values. Use OptionalInt,
- * OptionalLong, and OptionalDouble for equivalent functionality with primitives.
+ * OptionalLong, and OptionalDouble for equivalent functionality with primitives. A Volatile holder
+ * is not considered empty, and always has a volatile (nullable) value.
  */
 public abstract class Holder<T> {
 	private static final Holder<Object> EMPTY = new Immutable<>(null, true);
@@ -37,6 +38,13 @@ public abstract class Holder<T> {
 	 */
 	public static <T> Mutable<T> mutable() {
 		return new Mutable<>();
+	}
+
+	/**
+	 * Creates a mutable volatile value holder.
+	 */
+	public static <T> Volatile<T> ofVolatile(T value) {
+		return new Volatile<>(value);
 	}
 
 	public static boolean equals(Holder<?> lhs, Holder<?> rhs) {
@@ -92,6 +100,29 @@ public abstract class Holder<T> {
 		public Mutable<T> clear() {
 			value = null;
 			empty = true;
+			return this;
+		}
+	}
+
+	public static class Volatile<T> extends Holder<T> {
+		private volatile T value;
+
+		private Volatile(T value) {
+			this.value = value;
+		}
+
+		@Override
+		public T value() {
+			return value;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return false;
+		}
+
+		public Volatile<T> set(T value) {
+			this.value = value;
 			return this;
 		}
 	}

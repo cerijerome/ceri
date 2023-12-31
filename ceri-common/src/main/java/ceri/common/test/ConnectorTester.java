@@ -25,7 +25,9 @@ public class ConnectorTester {
 	 * Run ManualTester for a list of connectors.
 	 */
 	public static void test(List<? extends Connector> connectors) throws IOException {
-		manual(connectors).build().run();
+		try (var m = manual(connectors).build()) {
+			m.run();
+		}
 	}
 
 	/**

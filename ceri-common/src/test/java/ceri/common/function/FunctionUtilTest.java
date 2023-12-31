@@ -32,6 +32,11 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testNullRunnable() {
+		FunctionUtil.NULL_RUNNABLE.run();
+	}
+
+	@Test
 	public void testNullConsumer() {
 		FunctionUtil.nullConsumer().accept(null);
 		FunctionUtil.nullConsumer().accept("test");

@@ -25,8 +25,9 @@ public class TcpSocketTester {
 		var events = ManualTester.eventCatcher(true);
 		try (var ss = TcpServerSocket.of()) {
 			listenAndEcho(ss, events);
-			try (var s = TcpSocket.connect(ss.hostPort())) {
-				manual(s).preProcessor(events).build().run();
+			try (var s = TcpSocket.connect(ss.hostPort());
+				var m = manual(s).preProcessor(events).build()) {
+				m.run();
 			}
 		}
 	}
@@ -68,7 +69,9 @@ public class TcpSocketTester {
 	 * Manually test a list of sockets.
 	 */
 	public static void test(List<? extends TcpSocket> sockets) throws IOException {
-		manual(sockets).build().run();
+		try (var m = manual(sockets).build()) {
+			m.run();
+		}
 	}
 
 	/**

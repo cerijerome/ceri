@@ -60,6 +60,27 @@ public class StreamUtil {
 
 	private StreamUtil() {}
 
+	private static class Distinction<T> {
+		public final Object key;
+		public final T value;
+
+		private Distinction(Object key, T value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(key);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			// Only ever compared to other instances
+			return Objects.equals(key, ((Distinction<?>) obj).key);
+		}
+	}
+
 	/**
 	 * Use when a combiner is required for a Stream method, but should not be invoked.
 	 */
@@ -213,6 +234,21 @@ public class StreamUtil {
 	public static <T, R> R collect(Stream<T> stream, Supplier<R> supplier,
 		BiConsumer<R, ? super T> accumulator) {
 		return stream.sequential().collect(supplier, accumulator, badCombiner());
+	}
+
+	/**
+	 * Applies distinct functionality to keys extracted from entries.
+	 */
+	public static <T, U> Stream<T> distinctBy(Stream<T> stream, Function<T, U> accessor) {
+		return stream.map(t -> new Distinction<>(accessor.apply(t), t)).distinct()
+			.map(e -> e.value);
+	}
+
+	/**
+	 * Applies distinct functionality to identity hash codes.
+	 */
+	public static <T> Stream<T> distinctByIdentity(Stream<T> stream) {
+		return distinctBy(stream, System::identityHashCode);
 	}
 
 	/**

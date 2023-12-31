@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -28,6 +29,7 @@ import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ObjIntFunction;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -36,13 +38,14 @@ import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.CloseableUtil;
 
 /**
  * A tool for parsing keyboard input, and running commands against 1 or more subjects. Allows
  * pre-processing actions before waiting for input, and is able to notify a listener when the
  * subject index changes.
  */
-public class ManualTester {
+public class ManualTester implements RuntimeCloseable {
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
 	private final Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
@@ -56,6 +59,8 @@ public class ManualTester {
 	private final String indent;
 	private final BasicColor promptColor;
 	private final int delayMs;
+	private final Locker locker = Locker.of();
+	private CycleRunner cycleRunner = null;
 	private int index = 0;
 	private boolean exit = false;
 
@@ -349,13 +354,7 @@ public class ManualTester {
 		}
 
 		public <T> Builder command(Class<T> cls, Action.Input<T> action, String help) {
-			return command(cls,
-				c
-				-> 
-			action.execute(
-				c.tester(), c.input(), c.subject()
-				),
-			help);
+			return command(cls, c -> action.execute(c.tester(), c.input(), c.subject()), help);
 		}
 
 		public <T> Builder command(Class<T> cls, Action<T> action, String help) {
@@ -414,6 +413,9 @@ public class ManualTester {
 		subjects = ImmutableUtil.copyAsList(builder.subjects);
 	}
 
+	/**
+	 * Process user input commands, until exit.
+	 */
 	public void run() {
 		exit = false;
 		showHelp();
@@ -429,34 +431,89 @@ public class ManualTester {
 		}
 	}
 
+	/**
+	 * A locker in case synchronization is required, such as with cycles.
+	 */
+	public Locker locker() {
+		return locker;
+	}
+
+	/**
+	 * Start a cycle in a separate thread. Starts the thread on first call.
+	 */
+	public void startCycle(CycleRunner.Cycle cycle) {
+		stopCycle();
+		if (cycleRunner == null) cycleRunner = CycleRunner.of(locker());
+		cycleRunner.start(cycle);
+		out(cycle.name() + " cycle started: " + cycle);
+	}
+
+	/**
+	 * Stop the current cycle if running.
+	 */
+	public void stopCycle() {
+		if (cycleRunner == null) return;
+		var cycle = cycleRunner.cycle();
+		if (cycle != null) out(cycle.name() + " cycle stopped");
+		cycleRunner.stop();
+	}
+
+	/**
+	 * Return the active cycle, or null if not running.
+	 */
+	public CycleRunner.Cycle activeCycle() {
+		return CycleRunner.activeCycle(cycleRunner);
+	}
+
+	/**
+	 * Print to out.
+	 */
 	public void out(Object text) {
 		out.println(indent + text);
 		out.flush();
 	}
 
+	/**
+	 * Print to err.
+	 */
 	public void err(Object text) {
 		err.println(indent + text);
 		err.flush();
 	}
 
+	/**
+	 * Print exception to err with optional stack trace.
+	 */
 	public void err(Throwable t, boolean stackTrace) {
 		if (stackTrace) t.printStackTrace(err);
 		else err.println(indent + t);
 		err.flush();
 	}
 
+	/**
+	 * Set the current subject index.
+	 */
 	public void index(int i) {
 		index = MathUtil.limit(i, 0, subjects.size() - 1);
 	}
 
+	/**
+	 * Return the current subject index.
+	 */
 	public int index() {
 		return index;
 	}
 
+	/**
+	 * Return the current subject.
+	 */
 	public Object subject() {
 		return subjects.get(index());
 	}
 
+	/**
+	 * Read and print available bytes from the stream.
+	 */
 	public void readBytes(InputStream in) throws IOException {
 		var bytes = IoUtil.availableBytes(in);
 		if (bytes.isEmpty()) return;
@@ -464,16 +521,27 @@ public class ManualTester {
 		print(bytes);
 	}
 
+	/**
+	 * Write ascii bytes to the output stream and mirror to out.
+	 */
 	public void writeAscii(OutputStream out, String text) throws IOException {
 		writeBytes(out, ByteUtil.toAscii(text));
 	}
 
+	/**
+	 * Write bytes to the output stream and mirror to out.
+	 */
 	public void writeBytes(OutputStream out, ByteProvider bytes) throws IOException {
 		if (bytes.isEmpty()) return;
 		out("OUT >>>");
 		print(bytes);
 		bytes.writeTo(0, out);
 		out.flush();
+	}
+
+	@Override
+	public void close() {
+		CloseableUtil.close(cycleRunner);
 	}
 
 	private void showHelp() {
@@ -568,8 +636,12 @@ public class ManualTester {
 	}
 
 	private String string(Object subject, int index) {
-		if (subjects.size() <= 1) return stringFn.apply(subject);
-		return String.format("%d) %s", index, stringFn.apply(subject));
+		StringBuilder b = new StringBuilder();
+		if (subjects.size() <= 1) b.append(stringFn.apply(subject));
+		else StringUtil.format(b, "%d) %s", index, stringFn.apply(subject));
+		var cycle = activeCycle();
+		if (cycle != null) b.append('[').append(cycle.name()).append(']');
+		return b.toString();
 	}
 
 	private void indexDiff(int diff) {

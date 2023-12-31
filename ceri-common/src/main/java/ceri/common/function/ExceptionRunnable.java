@@ -7,6 +7,8 @@ import java.util.Objects;
  * Runnable that can throw exceptions.
  */
 public interface ExceptionRunnable<E extends Exception> {
+	static ExceptionRunnable<RuntimeException> NULL = () -> {};
+	
 	void run() throws E;
 
 	default Runnable asRunnable() {
