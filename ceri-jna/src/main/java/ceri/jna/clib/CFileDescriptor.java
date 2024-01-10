@@ -142,9 +142,7 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof CFileDescriptor other)) return false;
-		if (fd != other.fd) return false;
-		return true;
+		return (obj instanceof CFileDescriptor other) && fd == other.fd;
 	}
 
 	@Override

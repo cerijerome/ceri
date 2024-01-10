@@ -7,7 +7,7 @@ import ceri.jna.clib.FileDescriptor;
 import ceri.log.io.SelfHealingConnector;
 
 public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
-	implements FileDescriptor {
+	implements FileDescriptor.Fixable {
 	private final SelfHealingFdConfig config;
 
 	public static SelfHealingFd of(SelfHealingFdConfig config) {

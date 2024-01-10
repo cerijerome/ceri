@@ -54,7 +54,7 @@ public class ThreadBuffers implements RuntimeCloseable {
 	 */
 	public Memory get() {
 		var size = this.size;
-		return ConcurrentUtil.executeGet(lock, () -> buffers.compute(Thread.currentThread(),
+		return ConcurrentUtil.lockedGet(lock, () -> buffers.compute(Thread.currentThread(),
 			(t, m) -> (m != null && m.size() == size && m.valid()) ? m : new Memory(size)));
 	}
 
@@ -63,7 +63,7 @@ public class ThreadBuffers implements RuntimeCloseable {
 	 */
 	public void remove() {
 		@SuppressWarnings("resource")
-		var m = ConcurrentUtil.executeGet(lock, () -> buffers.remove(Thread.currentThread()));
+		var m = ConcurrentUtil.lockedGet(lock, () -> buffers.remove(Thread.currentThread()));
 		JnaUtil.close(m);
 	}
 
@@ -72,6 +72,6 @@ public class ThreadBuffers implements RuntimeCloseable {
 	 */
 	@Override
 	public void close() {
-		ConcurrentUtil.execute(lock, buffers::clear);
+		ConcurrentUtil.lockedRun(lock, buffers::clear);
 	}
 }
