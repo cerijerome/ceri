@@ -93,7 +93,6 @@ import ceri.common.test.TestUtil;
 	// spi.pulse
 	ceri.serial.spi.pulse.PulseBufferBehavior.class, //
 	ceri.serial.spi.pulse.PulseCycleBehavior.class, //
-	ceri.serial.spi.pulse.PulseStatsBehavior.class, //
 	ceri.serial.spi.pulse.SpiPulseConfigBehavior.class, //
 	ceri.serial.spi.pulse.SpiPulseTransmitterBehavior.class, //
 	// spi.util

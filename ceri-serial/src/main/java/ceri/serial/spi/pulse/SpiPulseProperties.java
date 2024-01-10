@@ -44,15 +44,15 @@ public class SpiPulseProperties extends BaseProperties {
 	}
 
 	private PulseCycle cycle() {
-		PulseCycles.Std std = cycleStd();
+		PulseCycle.Std std = cycleStd();
 		if (std != null) return std.cycle;
 		PulseCycle.Type type = cycleType();
 		if (type == null) return null;
-		return PulseCycles.cycle(type, cycleBits(), cycleOffset(), cycleT0Bits(), cycleT1Bits());
+		return PulseCycle.of(type, cycleBits(), cycleOffset(), cycleT0Bits(), cycleT1Bits());
 	}
 
-	private PulseCycles.Std cycleStd() {
-		return enumValue(PulseCycles.Std.class, CYCLE_KEY, STD_KEY);
+	private PulseCycle.Std cycleStd() {
+		return enumValue(PulseCycle.Std.class, CYCLE_KEY, STD_KEY);
 	}
 
 	private PulseCycle.Type cycleType() {

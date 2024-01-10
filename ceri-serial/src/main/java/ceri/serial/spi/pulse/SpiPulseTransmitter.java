@@ -17,7 +17,7 @@ import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiTransfer;
 
 /**
- * Provides a ByteReceiver interface for writing pulse data to an Spi device.
+ * Provides a ByteReceiver interface for writing pulse data to an SPI device.
  */
 public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();

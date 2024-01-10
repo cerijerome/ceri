@@ -14,6 +14,9 @@ import static ceri.serial.spi.jna.SpiDev.SPI_TX_DUAL;
 import static ceri.serial.spi.jna.SpiDev.SPI_TX_QUAD;
 import java.util.Objects;
 
+/**
+ * Encapsulates 8-bit and 32-bit modes.
+ */
 public class SpiMode {
 	public static final SpiMode MODE_0 = of(0);
 	public static final SpiMode MODE_1 = builder().clockPhaseHigh().build();

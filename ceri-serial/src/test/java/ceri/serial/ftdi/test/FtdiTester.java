@@ -97,7 +97,9 @@ public class FtdiTester {
 	 * Manually test a list of FTDI devices.
 	 */
 	public static void test(List<? extends Ftdi> ftdis) throws IOException {
-		manual(ftdis).build().run();
+		try (var m = manual(ftdis).build()) {
+			m.run();
+		}
 	}
 
 	/**
@@ -110,26 +112,26 @@ public class FtdiTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(Ftdi.class, "D", (m, s, t) -> showDescriptor(s, t), "D = show device descriptor");
-		b.command(Ftdi.class, "R", (m, s, t) -> s.usbReset(), "R = USB reset");
-		b.command(Ftdi.class, "b([01])", (m, s, t) -> s.bitBang(b(m)),
+		b.command(Ftdi.class, "D", (t, m, s) -> showDescriptor(t, s), "D = show device descriptor");
+		b.command(Ftdi.class, "R", (t, m, s) -> s.usbReset(), "R = USB reset");
+		b.command(Ftdi.class, "b([01])", (t, m, s) -> s.bitBang(b(m)),
 			"b[0|1] = set bitbang on/off");
-		b.command(Ftdi.class, "B(\\d+)", (m, s, t) -> s.baud(i(m)), "BN = set baud");
+		b.command(Ftdi.class, "B(\\d+)", (t, m, s) -> s.baud(i(m)), "BN = set baud");
 		b.command(Ftdi.class,
 			"L(?i)(?:(7|8)\\,\\s*(1|1\\.5|2)\\,\\s*([noems]|none|odd|even|mark|space)\\,\\s*(0|1))",
 			FtdiTester::setLine,
 			"LN,N,[n|o|e|m|s],[0|1] = set line params data bits, stop bits, parity, break off/on");
-		b.command(Ftdi.class, "f([nrdx])", (m, s, t) -> setFlowControl(m, s),
+		b.command(Ftdi.class, "f([nrdx])", (t, m, s) -> setFlowControl(m, s),
 			"F[n|r|d|x] = set flow control: none, RTS/CTS, DTR/DSR, XON/XOFF");
-		b.command(Ftdi.class, "d(0|1)", (m, s, t) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
-		b.command(Ftdi.class, "r(0|1)", (m, s, t) -> s.rts(b(m)), "r[0|1] = RTS off/on");
-		b.command(Ftdi.class, "p", (m, s, t) -> showBits(s.readPins(), Byte.SIZE, t),
+		b.command(Ftdi.class, "d(0|1)", (t, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
+		b.command(Ftdi.class, "r(0|1)", (t, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
+		b.command(Ftdi.class, "p", (t, m, s) -> showBits(t, s.readPins(), Byte.SIZE),
 			"p = read pins");
-		b.command(Ftdi.class, "m", (m, s, t) -> showBits(s.pollModemStatus(), Short.SIZE, t),
+		b.command(Ftdi.class, "m", (t, m, s) -> showBits(t, s.pollModemStatus(), Short.SIZE),
 			"m = modem status");
 	}
 
-	private static void showBits(int value, int bits, ManualTester tester) {
+	private static void showBits(ManualTester tester, int value, int bits) {
 		StringBuilder b = new StringBuilder("H ");
 		for (int i = bits - 1; i >= 0; i--) {
 			b.append(ByteUtil.bit(value, i) ? '1' : '0');
@@ -138,13 +140,13 @@ public class FtdiTester {
 		tester.out(b.append(" L").toString());
 	}
 
-	private static void showDescriptor(Ftdi ftdi, ManualTester tester) throws IOException {
+	private static void showDescriptor(ManualTester tester, Ftdi ftdi) throws IOException {
 		var descriptor = ftdi.descriptor();
 		tester.out(descriptor.manufacturer() + " : " + descriptor.description() + " : "
 			+ descriptor.serial());
 	}
 
-	private static void setLine(Matcher m, Ftdi ftdi, ManualTester tester) throws IOException {
+	private static void setLine(ManualTester tester, Matcher m, Ftdi ftdi) throws IOException {
 		var b = FtdiLineParams.builder();
 		int i = 1;
 		b.dataBits(ftdi_data_bits_type.xcoder.decodeValid(i(m, i++)));

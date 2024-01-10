@@ -17,7 +17,7 @@ public class SpiPulseConfig {
 
 	public static class Builder {
 		final int size;
-		PulseCycle cycle = PulseCycles.Std._4_9.cycle;
+		PulseCycle cycle = PulseCycle.Std._4_9.cycle;
 		int delayMicros = 50;
 		int resetDelayMs = 3000;
 

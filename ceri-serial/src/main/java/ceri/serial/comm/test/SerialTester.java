@@ -86,7 +86,9 @@ public class SerialTester {
 	 * Manually test a list of serial ports.
 	 */
 	public static void test(List<? extends Serial> serials) throws IOException {
-		manual(serials).build().run();
+		try (var m = manual(serials).build()) {
+			m.run();
+		}
 	}
 
 	/**
@@ -99,22 +101,22 @@ public class SerialTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(Serial.class, "P", (m, s, t) -> t.out(s.port()), "P = get port");
+		b.command(Serial.class, "P", (t, m, s) -> t.out(s.port()), "P = get port");
 		b.command(Serial.class, "p(" + SerialParams.PARSE_REGEX.pattern() + ")?",
 			SerialTester::setParams,
 			"pN,N,N,[n|o|e|m|s] = set params baud, data bits, stop bits, parity");
-		b.command(Serial.class, "f([rRxX]*|[nN])", (m, s, t) -> setFlowControl(m, s, t),
+		b.command(Serial.class, "f([rRxX]*|[nN])", SerialTester::setFlowControl,
 			"f[rRxX|n] = set flow control RTS/CTS in/out, XON/XOFF in/out, none");
-		b.command(Serial.class, "B(i|o)(\\d*)", (m, s, t) -> setBufferSize(m, s, t),
+		b.command(Serial.class, "B(i|o)(\\d*)", SerialTester::setBufferSize,
 			"B[i|o]N = set in/out buffer size");
-		b.command(Serial.class, "b(0|1)", (m, s, t) -> s.brk(b(m)), "b[0|1] = break off/on");
-		b.command(Serial.class, "r(0|1)", (m, s, t) -> s.rts(b(m)), "r[0|1] = RTS off/on");
-		b.command(Serial.class, "d(0|1)", (m, s, t) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
-		b.command(Serial.class, "l", (m, s, t) -> t.out(lineState(s)),
+		b.command(Serial.class, "b(0|1)", (t, m, s) -> s.brk(b(m)), "b[0|1] = break off/on");
+		b.command(Serial.class, "r(0|1)", (t, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
+		b.command(Serial.class, "d(0|1)", (t, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
+		b.command(Serial.class, "l", (t, m, s) -> t.out(lineState(s)),
 			"l = line state [RTS, DTR, CD, CTS, DSR, RI]");
 	}
 
-	private static void setBufferSize(Matcher m, Serial serial, ManualTester tester) {
+	private static void setBufferSize(ManualTester tester, Matcher m, Serial serial) {
 		boolean in = c(m, 1) == 'i';
 		Integer size = i(m, 2);
 		if (size != null) {
@@ -124,14 +126,14 @@ public class SerialTester {
 		tester.out(in ? serial.inBufferSize() : serial.outBufferSize());
 	}
 
-	private static void setParams(Matcher m, Serial serial, ManualTester tester)
+	private static void setParams(ManualTester tester, Matcher m, Serial serial)
 		throws IOException {
 		String s = m.group(1);
 		if (s != null) serial.params(SerialParams.from(s));
 		tester.out(serial.params());
 	}
 
-	private static void setFlowControl(Matcher m, Serial serial, ManualTester tester)
+	private static void setFlowControl(ManualTester tester, Matcher m, Serial serial)
 		throws IOException {
 		String s = m.group(1);
 		if (!s.isEmpty()) serial.flowControl(parseFlowControl(s));

@@ -9,19 +9,19 @@ public interface Spi {
 
 	SpiMode mode() throws IOException;
 
-	Spi mode(SpiMode mode) throws IOException;
+	void mode(SpiMode mode) throws IOException;
 
 	boolean lsbFirst() throws IOException;
 
-	Spi lsbFirst(boolean enabled) throws IOException;
+	void lsbFirst(boolean enabled) throws IOException;
 
 	int bitsPerWord() throws IOException;
 
-	Spi bitsPerWord(int bitsPerWord) throws IOException;
+	void bitsPerWord(int bitsPerWord) throws IOException;
 
 	int maxSpeedHz() throws IOException;
 
-	Spi maxSpeedHz(int maxSpeedHz) throws IOException;
+	void maxSpeedHz(int maxSpeedHz) throws IOException;
 
 	SpiTransfer transfer(Direction direction, int size);
 
@@ -48,9 +48,7 @@ public interface Spi {
 		}
 
 		@Override
-		default Spi mode(SpiMode mode) {
-			return this;
-		}
+		default void mode(SpiMode mode) {}
 
 		@Override
 		default boolean lsbFirst() {
@@ -58,9 +56,7 @@ public interface Spi {
 		}
 
 		@Override
-		default Spi lsbFirst(boolean enabled) {
-			return this;
-		}
+		default void lsbFirst(boolean enabled) {}
 
 		@Override
 		default int bitsPerWord() {
@@ -68,9 +64,7 @@ public interface Spi {
 		}
 
 		@Override
-		default Spi bitsPerWord(int bitsPerWord) {
-			return this;
-		}
+		default void bitsPerWord(int bitsPerWord) {}
 
 		@Override
 		default int maxSpeedHz() {
@@ -78,9 +72,7 @@ public interface Spi {
 		}
 
 		@Override
-		default Spi maxSpeedHz(int maxSpeedHz) {
-			return this;
-		}
+		default void maxSpeedHz(int maxSpeedHz) {}
 
 		@Override
 		default SpiTransfer transfer(Direction direction, int size) {

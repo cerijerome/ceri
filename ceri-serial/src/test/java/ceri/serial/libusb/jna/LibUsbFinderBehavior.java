@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertToString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
@@ -47,7 +47,7 @@ public class LibUsbFinderBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertToString(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, "
+		assertString(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, "
 			+ "bus=any, address=any, description=any, serial=\"xyz\", index=0}");
 	}
 

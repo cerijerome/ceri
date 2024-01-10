@@ -4,10 +4,10 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.baseProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
+import static ceri.serial.spi.pulse.PulseCycle.Std._4_27;
+import static ceri.serial.spi.pulse.PulseCycle.Std._5;
+import static ceri.serial.spi.pulse.PulseCycle.Std._7_27;
 import static ceri.serial.spi.pulse.PulseCycle.Type.nbit27;
-import static ceri.serial.spi.pulse.PulseCycles.Std._4_27;
-import static ceri.serial.spi.pulse.PulseCycles.Std._5;
-import static ceri.serial.spi.pulse.PulseCycles.Std._7_27;
 import org.junit.Test;
 
 public class SpiPulseConfigBehavior {
@@ -34,7 +34,7 @@ public class SpiPulseConfigBehavior {
 		assertEquals(conf0,
 			SpiPulseConfig.builder(5).cycle(_7_27.cycle).delayMicros(50).resetDelayMs(100).build());
 		assertEquals(conf1,
-			SpiPulseConfig.builder(4).cycle(PulseCycles.cycle(nbit27, 5, 2, 1, 3)).build());
+			SpiPulseConfig.builder(4).cycle(PulseCycle.of(nbit27, 5, 2, 1, 3)).build());
 		assertEquals(conf2, SpiPulseConfig.of(3));
 	}
 

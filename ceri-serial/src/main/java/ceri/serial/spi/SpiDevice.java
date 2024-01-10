@@ -40,12 +40,11 @@ public class SpiDevice implements Spi {
 	}
 
 	@Override
-	public SpiDevice mode(SpiMode mode) throws IOException {
+	public void mode(SpiMode mode) throws IOException {
 		fd.accept(fd -> {
 			if (mode.is32Bit()) SpiDev.setMode32(fd, mode.value);
 			else SpiDev.setMode(fd, mode.value);
 		});
-		return this;
 	}
 
 	@Override
@@ -59,9 +58,8 @@ public class SpiDevice implements Spi {
 	}
 
 	@Override
-	public SpiDevice lsbFirst(boolean enabled) throws IOException {
+	public void lsbFirst(boolean enabled) throws IOException {
 		fd.accept(fd -> SpiDev.setLsbFirst(fd, enabled));
-		return this;
 	}
 
 	@Override
@@ -70,9 +68,8 @@ public class SpiDevice implements Spi {
 	}
 
 	@Override
-	public SpiDevice bitsPerWord(int bitsPerWord) throws IOException {
+	public void bitsPerWord(int bitsPerWord) throws IOException {
 		fd.accept(fd -> SpiDev.setBitsPerWord(fd, bitsPerWord));
-		return this;
 	}
 
 	@Override
@@ -81,9 +78,8 @@ public class SpiDevice implements Spi {
 	}
 
 	@Override
-	public SpiDevice maxSpeedHz(int maxSpeedHz) throws IOException {
+	public void maxSpeedHz(int maxSpeedHz) throws IOException {
 		fd.accept(fd -> SpiDev.setMaxSpeedHz(fd, maxSpeedHz));
-		return this;
 	}
 
 	@Override

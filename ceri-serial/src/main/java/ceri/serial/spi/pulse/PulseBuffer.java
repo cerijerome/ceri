@@ -7,7 +7,7 @@ import ceri.common.data.ByteReceiver;
 import ceri.common.data.ByteUtil;
 
 /**
- * Buffer mapping data bits to pulses shaped with storage bits.
+ * A buffer that maps data bits to pulses shaped with storage bits.
  */
 public class PulseBuffer implements ByteReceiver {
 	public final PulseCycle cycle;
@@ -22,7 +22,7 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	/**
-	 * Returns the data length.
+	 * Returns the data length in bytes.
 	 */
 	@Override
 	public int length() {
@@ -30,7 +30,7 @@ public class PulseBuffer implements ByteReceiver {
 	}
 
 	/**
-	 * Returns the storage size to hold the data converted to pulses.
+	 * Returns the storage size in bytes that holds the data converted to pulses.
 	 */
 	public int storageSize() {
 		return buffer.length;
@@ -89,5 +89,4 @@ public class PulseBuffer implements ByteReceiver {
 		if (on) buffer[offset] |= mask;
 		else buffer[offset] &= ~mask;
 	}
-
 }

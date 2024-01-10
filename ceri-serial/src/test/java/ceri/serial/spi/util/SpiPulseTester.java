@@ -12,7 +12,6 @@ import ceri.serial.spi.SpiDevice;
 import ceri.serial.spi.SpiDeviceConfig;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.pulse.PulseCycle;
-import ceri.serial.spi.pulse.PulseCycles;
 import ceri.serial.spi.pulse.SpiPulseConfig;
 import ceri.serial.spi.pulse.SpiPulseTransmitter;
 
@@ -34,11 +33,12 @@ public class SpiPulseTester {
 		int pulseT1 = v.next("pulseT1").asInt(2);
 
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
-			.cycle(PulseCycles.cycle(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
+			.cycle(PulseCycle.of(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))
 			.delayMicros(delayMicros).build();
 		try (var fd = SpiDeviceConfig.of(bus, chip, Direction.out).open()) {
 			Spi spi = SpiDevice.of(fd);
-			spi.mode(mode).maxSpeedHz(speed);
+			spi.mode(mode);
+			spi.maxSpeedHz(speed);
 			try (SpiPulseTransmitter processor = SpiPulseTransmitter.of(1, spi, config)) {
 				ConcurrentUtil.delay(1000);
 				runCycles(processor);

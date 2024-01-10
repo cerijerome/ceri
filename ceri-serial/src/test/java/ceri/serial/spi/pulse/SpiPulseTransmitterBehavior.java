@@ -38,7 +38,7 @@ public class SpiPulseTransmitterBehavior {
 	@Test
 	public void shouldExposeParameters() {
 		assertEquals(xmit.id(), 1);
-		assertEquals(xmit.cycle(), PulseCycles.Std._4_9.cycle);
+		assertEquals(xmit.cycle(), PulseCycle.Std._4_9.cycle);
 		assertEquals(xmit.length(), 5); // 4 pulse bits per data bit = 20 spi bytes
 	}
 
