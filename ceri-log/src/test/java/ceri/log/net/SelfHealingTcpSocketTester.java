@@ -18,8 +18,9 @@ public class SelfHealingTcpSocketTester {
 		try (var ss = TcpServerSocket.of()) {
 			TcpSocketTester.listenAndEcho(ss, events);
 			var config = SelfHealingTcpSocketConfig.of(HostPort.localhost(ss.port()));
-			try (var s = SelfHealingTcpSocket.of(config)) {
-				TcpSocketTester.manual(s).preProcessor(events).build().run();
+			try (var s = SelfHealingTcpSocket.of(config);
+				var m = TcpSocketTester.manual(s).preProcessor(events).build()) {
+				m.run();
 			}
 		}
 	}

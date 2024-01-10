@@ -72,7 +72,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	public void clear() {
-		ConcurrentUtil.execute(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			if (listeners.isEmpty()) return;
 			listeners.clear();
 			sync.signal(); // signal to stop listening
@@ -81,7 +81,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public boolean listen(Consumer<? super T> listener) {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			boolean result = listeners.add(listener);
 			if (result && listeners.size() == 1) sync.signal(); // signal to start listening
 			return result;
@@ -90,7 +90,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public boolean unlisten(Consumer<? super T> listener) {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			boolean result = listeners.remove(listener);
 			if (result && listeners.isEmpty()) sync.signal(); // signal to stop listening
 			return result;
@@ -113,7 +113,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private Action waitForAction() throws InterruptedException {
-		return ConcurrentUtil.executeGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			sync.await();
 			Action action = action(this.reset);
 			this.reset = false;
@@ -143,7 +143,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		logger.trace("Notification: {}", compact(v));
 		T t = transform.apply(v);
 		Set<Consumer<? super T>> listeners =
-			ConcurrentUtil.executeGet(lock, () -> new LinkedHashSet<>(this.listeners));
+			ConcurrentUtil.lockedGet(lock, () -> new LinkedHashSet<>(this.listeners));
 		notifyListeners(listeners, t);
 	}
 
@@ -162,7 +162,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void signalReset() {
-		ConcurrentUtil.execute(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			reset = true;
 			sync.signal();
 		});
