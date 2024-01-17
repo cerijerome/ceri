@@ -26,6 +26,7 @@ public class Indexer {
 	private final IntProvider indexProvider;
 	private final IntUnaryOperator indexFn;
 	public final int length;
+	public final int count;
 
 	/**
 	 * Interface for processing the index, offset, and length for a given position.
@@ -175,6 +176,7 @@ public class Indexer {
 		indexProvider = IntArray.Immutable.wrap(indexes);
 		indexFn = indexes.length <= LINEAR_MAX ? this::linearIndex : this::searchIndex;
 		length = indexes.length == 0 ? 0 : indexes[indexes.length - 1];
+		count = indexes.length;
 	}
 
 	/**

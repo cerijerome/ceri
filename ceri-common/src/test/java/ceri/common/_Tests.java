@@ -42,6 +42,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.color.ComponentBehavior.class, //
 	ceri.common.color.GrayCharBehavior.class, //
 	ceri.common.color.HsbColorBehavior.class, //
+	ceri.common.color.IntBiasBehavior.class, //
 	ceri.common.color.LuvColorBehavior.class, //
 	ceri.common.color.RgbColorBehavior.class, //
 	ceri.common.color.XybColorBehavior.class, //

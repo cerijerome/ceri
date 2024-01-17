@@ -44,19 +44,37 @@ public class MathUtilTest {
 
 	@Test
 	public void testIntSin() {
-		for (int i = -720; i <= 720; i += 5) {
+		for (int i = -720; i <= 720; i += 1) {
 			var x0 = (int) Math.round(Math.sin(Math.toRadians(i)) * 1000);
 			var x = MathUtil.intSin(i, 1000);
-			assertRange(x, x0 - 1, x0 + 1); // within +/-1
+			assertRange(x, x0 - 2, x0 + 2, "%d degrees", i); // within +/-.2%
 		}
 	}
 
 	@Test
 	public void testIntCos() {
-		for (int i = -720; i <= 720; i += 5) {
+		for (int i = -720; i <= 720; i += 1) {
 			var x0 = (int) Math.round(Math.cos(Math.toRadians(i)) * 1000);
 			var x = MathUtil.intCos(i, 1000);
-			assertRange(x, x0 - 1, x0 + 1); // within +/-1
+			assertRange(x, x0 - 2, x0 + 2); // within +/-.2%
+		}
+	}
+
+	@Test
+	public void testIntSinFromRatio() {
+		for (int i = -4000; i <= 4000; i += 5) {
+			var x0 = MathUtil.intRoundExact(Math.sin(Math.toRadians(i * 180 / 1000.0)) * 1000);
+			var x = MathUtil.intSinFromRatio(i, 1000, 1000);
+			assertRange(x, x0 - 2, x0 + 2, "%d/%d", i, 1000); // within +/-.2%
+		}
+	}
+
+	@Test
+	public void testIntCosFromRatio() {
+		for (int i = -4000; i <= 4000; i += 5) {
+			var x0 = MathUtil.intRoundExact(Math.cos(Math.toRadians(i * 180 / 1000.0)) * 1000);
+			var x = MathUtil.intCosFromRatio(i, 1000, 1000);
+			assertRange(x, x0 - 2, x0 + 2, "%d/%d", i, 1000); // within +/-.2%
 		}
 	}
 
@@ -928,6 +946,7 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(FPINF, FPINF, inclusive), FPINF);
 		assertEquals(MathUtil.periodicLimit(FPINF, FPINF, exclusive), Float.NaN);
 		assertEquals(MathUtil.periodicLimit(FNINF, FPINF, inclusive), Float.NaN);
+		assertEquals(MathUtil.periodicLimit(FNINF, FPINF, exclusive), Float.NaN);
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, 10.0f, null));
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, 0.0f, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0f, -10.0f, inclusive));
@@ -943,11 +962,10 @@ public class MathUtilTest {
 		assertEquals(MathUtil.periodicLimit(-7.0, 10.0, inclusive), 3.0);
 		assertEquals(MathUtil.periodicLimit(0.0, DPINF, inclusive), 0.0);
 		assertEquals(MathUtil.periodicLimit(0.0, DPINF, exclusive), 0.0);
-		assertEquals(MathUtil.periodicLimit( //
-			DPINF, DPINF, inclusive), DPINF);
-		assertNaN(MathUtil.periodicLimit( //
-			DPINF, DPINF, exclusive));
+		assertEquals(MathUtil.periodicLimit(DPINF, DPINF, inclusive), DPINF);
+		assertNaN(MathUtil.periodicLimit(DPINF, DPINF, exclusive));
 		assertNaN(MathUtil.periodicLimit(DNINF, DPINF, inclusive));
+		assertNaN(MathUtil.periodicLimit(DNINF, DPINF, exclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, 10.0, null));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, 0.0, inclusive));
 		assertThrown(() -> MathUtil.periodicLimit(100.0, -10.0, inclusive));

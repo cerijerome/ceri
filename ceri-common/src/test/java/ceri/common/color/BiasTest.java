@@ -14,11 +14,16 @@ public class BiasTest {
 		assertApprox(Bias.Std.q4Sine.bias(0), 0);
 		assertApprox(Bias.Std.q4Sine.bias(0.5), 0.293);
 		assertApprox(Bias.Std.q4Sine.bias(1), 1);
-		assertApprox(Bias.Std.halfSine.bias(0), 0);
-		assertApprox(Bias.Std.halfSine.bias(0.25), 0.146);
-		assertApprox(Bias.Std.halfSine.bias(0.5), 0.5);
-		assertApprox(Bias.Std.halfSine.bias(0.75), 0.854);
-		assertApprox(Bias.Std.halfSine.bias(1), 1);
+		assertApprox(Bias.Std.q4q1Sine.bias(0), 0);
+		assertApprox(Bias.Std.q4q1Sine.bias(0.25), 0.146);
+		assertApprox(Bias.Std.q4q1Sine.bias(0.5), 0.5);
+		assertApprox(Bias.Std.q4q1Sine.bias(0.75), 0.854);
+		assertApprox(Bias.Std.q4q1Sine.bias(1), 1);
+		assertApprox(Bias.Std.q1q4Sine.bias(0), 0);
+		assertApprox(Bias.Std.q1q4Sine.bias(0.25), 0.354);
+		assertApprox(Bias.Std.q1q4Sine.bias(0.5), 0.5);
+		assertApprox(Bias.Std.q1q4Sine.bias(0.75), 0.646);
+		assertApprox(Bias.Std.q1q4Sine.bias(1), 1);
 	}
 
 	@Test

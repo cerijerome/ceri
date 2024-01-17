@@ -9,7 +9,7 @@ import java.util.List;
 import ceri.common.math.Bound.Type;
 
 /**
- * Used to adjust fades between two colors. Should return a biased ratio value 0.0 to 1.0 from a
+ * Used to adjust fades between two values. Should return a biased ratio value 0.0 to 1.0 from a
  * given ratio value 0.0 to 1.0.
  */
 public interface Bias {
@@ -27,14 +27,18 @@ public interface Bias {
 		q1Sine(r -> Math.sin(r * PI_BY_2)),
 		/** Transposed sine curve from -PI/2 to 0. */
 		q4Sine(Bias.inverse(q1Sine)),
+		/** Transposed sine curve from 0 to PI/2 followed by -PI/2 to 0. */
+		q1q4Sine(Bias.sequence(q1Sine, q4Sine)),
 		/** Transposed sine curve from -PI/2 to +PI/2. */
-		halfSine(r -> (1.0 + Math.sin((r * PI) - PI_BY_2)) / 2.0),
+		q4q1Sine(r -> (1.0 + Math.sin((r * PI) - PI_BY_2)) / 2.0),
 		/** Transposed circle arc for x > 0, y < 0. */
 		q2Circle(r -> MAX_RATIO - Math.sqrt(MAX_RATIO - (r * r))),
 		/** Transposed circle arc for x < 0, y > 0. */
 		q4Circle(Bias.inverse(q2Circle)),
 		/** Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0. */
-		q2q4Circle(Bias.sequence(q2Circle, q4Circle));
+		q2q4Circle(Bias.sequence(q2Circle, q4Circle)),
+		/** Transposed circle arcs for x < 0, y > 0, followed by x > 0, y < 0. */
+		q4q2Circle(Bias.sequence(q4Circle, q2Circle));
 
 		private final Bias bias;
 

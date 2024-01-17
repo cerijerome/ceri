@@ -1,6 +1,7 @@
 package ceri.common.math;
 
 import static ceri.common.math.Bound.Type.exclusive;
+import static ceri.common.math.Bound.Type.inclusive;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import static ceri.common.validation.ValidationUtil.validateRange;
@@ -23,29 +24,57 @@ public class MathUtil {
 	public static final int MAX_UBYTE = 0xff;
 	public static final int MAX_USHORT = 0xffff;
 	public static final long MAX_UINT = 0xffffffffL;
-	private static final int TURN_DEGREES = 360;
-	private static final int HALF_TURN_DEGREES = 180;
-	private static final int QUARTER_TURN_DEGREES = 90;
-	private static final int INT_SIN_MAGIC = 40500;
+	public static final int TURN_DEG = 360;
+	public static final int HALF_TURN_DEG = 180;
+	public static final int QUARTER_TURN_DEG = 90;
+	private static final long LONG_SIN_MULTIPLIER = 100;
+	private static final long LONG_SIN_FULL = TURN_DEG * LONG_SIN_MULTIPLIER;
+	private static final long LONG_SIN_HALF = LONG_SIN_FULL >> 1;
+	private static final long LONG_SIN_QUARTER = LONG_SIN_HALF >> 1;
+	private static final long LONG_SIN_MAGIC = 40500L * LONG_SIN_MULTIPLIER * LONG_SIN_MULTIPLIER;
 
 	private MathUtil() {}
+
+	/**
+	 * Returns the approximate sine value of pi * n/d radians multiplied by the given max.
+	 */
+	public static int intSinFromRatio(int n, int d, int max) {
+		validateMin(d, 1);
+		return (int) longSin(roundDiv(n * LONG_SIN_HALF, d), max);
+	}
+
+	/**
+	 * Returns the approximate cosine value of pi * n/d radians multiplied by the given max.
+	 */
+	public static int intCosFromRatio(int n, int d, int max) {
+		validateMin(d, 1);
+		return (int) longSin(roundDiv(n * LONG_SIN_HALF, d) + LONG_SIN_QUARTER, max);
+	}
 
 	/**
 	 * Returns the approximate sine value of x degrees, multiplied by the given max.
 	 */
 	public static int intSin(int degrees, int max) {
-		degrees %= TURN_DEGREES;
-		if (degrees < 0) degrees += TURN_DEGREES;
-		if (degrees >= HALF_TURN_DEGREES) return -intSin(degrees - HALF_TURN_DEGREES, max);
-		return roundDiv(max * (degrees << 2) * (HALF_TURN_DEGREES - degrees),
-			INT_SIN_MAGIC - (degrees * (HALF_TURN_DEGREES - degrees)));
+		return (int) longSin(degrees * LONG_SIN_MULTIPLIER, max);
+	}
+
+	/**
+	 * Returns the approximate sine value of d in partial degrees, multiplied by the given max.
+	 * Based on sine approximation formula, which has a relative error of 1.8%.
+	 */
+	private static long longSin(long d, int max) {
+		d %= LONG_SIN_FULL;
+		if (d < 0) d += LONG_SIN_FULL;
+		if (d >= LONG_SIN_HALF) return -longSin(d - LONG_SIN_HALF, max);
+		return roundDiv(max * (d << 2) * (LONG_SIN_HALF - d),
+			LONG_SIN_MAGIC - (d * (LONG_SIN_HALF - d)));
 	}
 
 	/**
 	 * Returns the approximate cosine value of x degrees, multiplied by the given max.
 	 */
 	public static int intCos(int degrees, int max) {
-		return intSin(degrees + QUARTER_TURN_DEGREES, max);
+		return intSin(degrees + QUARTER_TURN_DEG, max);
 	}
 
 	/**
@@ -868,12 +897,10 @@ public class MathUtil {
 	public static int periodicLimit(int value, int period, Bound.Type type) {
 		Objects.requireNonNull(type);
 		validateMin(period, 1);
-		while (value > period)
-			value -= period;
-		if (type == exclusive && value == period) value -= period;
-		while (value < 0)
-			value += period;
-		return value;
+		int rem = value % period;
+		if (rem < 0) return rem + period;
+		if (type == Bound.Type.inclusive && rem == 0 && value >= period) return period;
+		return rem;
 	}
 
 	/**
@@ -882,12 +909,10 @@ public class MathUtil {
 	public static long periodicLimit(long value, long period, Bound.Type type) {
 		Objects.requireNonNull(type);
 		validateMin(period, 1);
-		while (value > period)
-			value -= period;
-		if (type == exclusive && value == period) value -= period;
-		while (value < 0)
-			value += period;
-		return value;
+		long rem = value % period;
+		if (rem < 0) return rem + period;
+		if (type == Bound.Type.inclusive && rem == 0 && value >= period) return period;
+		return rem;
 	}
 
 	/**
@@ -896,27 +921,24 @@ public class MathUtil {
 	public static float periodicLimit(float value, float period, Bound.Type type) {
 		Objects.requireNonNull(type);
 		validateMinFp(period, 0.0, exclusive);
-		while (value > period)
-			value -= period;
-		if (type == exclusive && value == period) value -= period;
-		while (value < 0)
-			value += period;
-		return value;
+		if (value == period && type == inclusive) return period;
+		float rem = value % period;
+		if (rem < 0.0f) return rem + period;
+		if (type == Bound.Type.inclusive && rem == 0.0 && value >= period) return period;
+		return rem + 0.0f;
 	}
 
 	/**
-	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive). Period must be >
-	 * 0.
+	 * Adjust a periodic value to be within 0 and period (inclusive or exclusive).
 	 */
 	public static double periodicLimit(double value, double period, Bound.Type type) {
 		Objects.requireNonNull(type);
 		validateMinFp(period, 0.0, exclusive);
-		while (value > period)
-			value -= period;
-		if (type == exclusive && value == period) value -= period;
-		while (value < 0)
-			value += period;
-		return value;
+		if (value == period && type == inclusive) return period;
+		double rem = value % period;
+		if (rem < 0.0) return rem + period;
+		if (type == Bound.Type.inclusive && rem == 0.0 && value >= period) return period;
+		return rem + 0.0;
 	}
 
 	/**
