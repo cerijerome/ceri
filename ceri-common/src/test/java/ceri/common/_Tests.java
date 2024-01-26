@@ -100,6 +100,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.TypeTranscoderBehavior.class, //
 	ceri.common.data.XorBehavior.class, //
 	// event
+	ceri.common.event.EventThreadBehavior.class, //
 	ceri.common.event.EventTrackerBehavior.class, //
 	ceri.common.event.IntListenableBehavior.class, //
 	ceri.common.event.IntListenersBehavior.class, //
