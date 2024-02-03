@@ -239,6 +239,12 @@ public class ByteProviderBehavior {
 		assertThrown(() -> bp.reader(11, 0));
 	}
 
+	@Test
+	public void shouldCreateBuffer() {
+		ByteProvider bp = provider(1, 2, 3, 4, 5);
+		assertArray(bp.toBuffer(1, 3).array(), 2, 3, 4);
+	}
+
 	/* ByteProvider.Reader<?> tests */
 
 	@Test

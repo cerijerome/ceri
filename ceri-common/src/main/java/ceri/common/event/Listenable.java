@@ -41,6 +41,9 @@ public interface Listenable<T> {
 	 * Listeners instance.
 	 */
 	static interface Indirect<T> {
+		/**
+		 * Provides access to listen and unlisten to events.
+		 */
 		Listenable<T> listeners();
 
 		/**

@@ -2,7 +2,9 @@ package ceri.common.event;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 import org.junit.Test;
 
@@ -64,6 +66,15 @@ public class ListenersBehavior {
 		assertTrue(ls.unlisten(l1));
 		assertTrue(ls.unlisten(l1));
 		assertFalse(ls.unlisten(l1));
+	}
+
+	@Test
+	public void shouldSendMultipleEvents() {
+		var events = new ArrayList<String>();
+		var listeners = Listeners.<String>of();
+		listeners.listen(events::add);
+		listeners.acceptAll("abc", "de", "f");
+		assertIterable(events, "abc", "de", "f");
 	}
 
 }

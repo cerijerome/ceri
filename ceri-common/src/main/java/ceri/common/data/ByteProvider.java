@@ -3,6 +3,7 @@ package ceri.common.data;
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
@@ -475,6 +476,21 @@ public interface ByteProvider extends Iterable<Integer> {
 		if (index == 0 && length == length()) return this;
 		throw new UnsupportedOperationException(
 			String.format("slice(%d, %d) is not supported", index, length));
+	}
+
+	/**
+	 * Returns a byte buffer from the index. Default implementation wraps a copy of the bytes.
+	 */
+	default ByteBuffer toBuffer(int index) {
+		return toBuffer(index, length() - index);
+	}
+
+	/**
+	 * Returns a byte buffer from the index for given length. Default implementation wraps a copy of
+	 * the bytes.
+	 */
+	default ByteBuffer toBuffer(int index, int length) {
+		return ByteBuffer.wrap(copy(index, length));
 	}
 
 	/**

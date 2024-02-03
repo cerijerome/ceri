@@ -7,6 +7,7 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -161,6 +162,11 @@ public abstract class ByteArray implements ByteProvider {
 			return Mutable.wrap(array, offset(index), length);
 		}
 
+		@Override
+		public ByteBuffer toBuffer(int index, int length) {
+			return ByteBuffer.wrap(array, offset(index), length);
+		}
+		
 		/* ByteReceiver overrides */
 
 		@Override
@@ -526,6 +532,11 @@ public abstract class ByteArray implements ByteProvider {
 		return index + length;
 	}
 
+	@Override
+	public ByteBuffer toBuffer(int index, int length) {
+		return ByteBuffer.wrap(array, offset(index), length).asReadOnlyBuffer();
+	}
+	
 	@Override
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;

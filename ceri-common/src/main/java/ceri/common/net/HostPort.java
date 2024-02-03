@@ -76,11 +76,8 @@ public class HostPort {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof HostPort)) return false;
-		HostPort other = (HostPort) obj;
-		if (!Objects.equals(host, other.host)) return false;
-		if (!Objects.equals(port, other.port)) return false;
-		return true;
+		return (obj instanceof HostPort other) && Objects.equals(host, other.host)
+			&& Objects.equals(port, other.port);
 	}
 
 	@Override

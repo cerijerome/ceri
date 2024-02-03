@@ -228,6 +228,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.net.TcpSocketBehavior.class, //
 	ceri.common.net.TcpSocketOptionBehavior.class, //
 	ceri.common.net.TcpSocketOptionsBehavior.class, //
+	ceri.common.net.UdpChannelBehavior.class, //
 	ceri.common.net.UdpUtilTest.class, //
 	// process
 	ceri.common.process.ColumnsBehavior.class, //

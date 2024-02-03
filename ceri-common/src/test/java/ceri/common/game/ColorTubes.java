@@ -1,17 +1,5 @@
 package ceri.common.game;
 
-import static ceri.common.game.ColorTubes.Color.aqua;
-import static ceri.common.game.ColorTubes.Color.blue;
-import static ceri.common.game.ColorTubes.Color.brown;
-import static ceri.common.game.ColorTubes.Color.cyan;
-import static ceri.common.game.ColorTubes.Color.gray;
-import static ceri.common.game.ColorTubes.Color.green;
-import static ceri.common.game.ColorTubes.Color.olive;
-import static ceri.common.game.ColorTubes.Color.orange;
-import static ceri.common.game.ColorTubes.Color.pink;
-import static ceri.common.game.ColorTubes.Color.purple;
-import static ceri.common.game.ColorTubes.Color.red;
-import static ceri.common.game.ColorTubes.Color.yellow;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,10 +44,16 @@ public class ColorTubes {
 		}
 	}
 
-	public static int[] template() {
+	public static int[] levelN() {
 		return tubes( //
 			"", "", "", "", "", "", "", //
 			"", "", "", "", "", "", "");
+	}
+
+	public static int[] level1815() {
+		return tubes( //
+			"oyry", "gaco", "gBrg", "cbya", "GoBb", "rbPp", "PBpa", //
+			"pgcO", "GBOP", "pbGG", "rOPc", "aoOy", "", "");
 	}
 
 	public static int[] level1209() {
@@ -69,123 +63,49 @@ public class ColorTubes {
 	}
 
 	public static int[] level1051() {
-		return new int[] { //
-			tube(orange, gray, yellow, purple), //
-			tube(aqua, gray, cyan, brown), //
-			tube(gray, red, orange, cyan), //
-			tube(brown, blue, purple, brown), //
-			tube(purple, yellow, cyan, orange), //
-			tube(pink, aqua, green, blue), //
-			tube(red, pink, green, cyan), //
-			tube(blue, yellow, orange, olive), //
-			tube(aqua, gray, brown, olive), //
-			tube(olive, aqua, yellow, green), //
-			tube(red, blue, pink, red), //
-			tube(pink, green, olive, purple), //
-			0, 0 };
+		return tubes( //
+			"oGyP", "aGcB", "Groc", "BbPB", "Pyco", "pagb", "rpgc", //
+			"byoO", "aGBO", "Oayg", "rbpr", "pgOP", "", "");
 	}
 
 	public static int[] level973() {
-		return new int[] { //
-			tube(blue, olive, cyan, green), //
-			tube(gray, red, yellow, yellow), //
-			tube(pink, aqua, blue, brown), //
-			tube(olive, olive, green, brown), //
-			tube(yellow, cyan, cyan, gray), //
-			tube(cyan, aqua, pink, purple), //
-			tube(brown, yellow, blue, purple), //
-			tube(brown, aqua, purple, olive), //
-			tube(purple, blue, pink, green), //
-			tube(red, gray, pink, red), //
-			tube(orange, green, aqua, orange), //
-			tube(gray, orange, red, orange), //
-			0, 0 };
+		return tubes( //
+			"bOcg", "Gryy", "pabB", "OOgB", "yccG", "capP", "BybP", //
+			"BaPO", "Pbpg", "rGpr", "ogao", "Goro", "", "");
 	}
 
 	public static int[] level877() {
-		return new int[] { //
-			tube(pink, blue, yellow, gray), //
-			tube(orange, purple, cyan, orange), //
-			tube(cyan, green, green, pink), //
-			tube(red, purple, olive, gray), //
-			tube(red, aqua, aqua, olive), //
-			tube(brown, cyan, yellow, red), //
-			tube(olive, cyan, orange, yellow), //
-			tube(olive, green, brown, brown), //
-			tube(purple, blue, blue, yellow), //
-			tube(pink, red, gray, pink), //
-			tube(purple, blue, aqua, brown), //
-			tube(aqua, green, orange, gray), //
-			0, 0 };
+		return tubes( //
+			"pbyG", "oPco", "cggp", "rPOG", "raaO", "Bcyr", "Ocoy", //
+			"OgBB", "Pbby", "prGp", "PbaB", "agoG", "", "");
 	}
 
 	public static int[] level843() {
-		return new int[] { //
-			tube(olive, cyan, green, gray), //
-			tube(purple, green, pink, red), //
-			tube(blue, gray, brown, aqua), //
-			tube(brown, cyan, olive, cyan), //
-			tube(orange, orange, orange, gray), //
-			tube(brown, brown, olive, red), //
-			tube(aqua, red, yellow, blue), //
-			tube(gray, orange, yellow, red), //
-			tube(green, aqua, yellow, purple), //
-			tube(blue, yellow, cyan, purple), //
-			tube(pink, aqua, blue, olive), //
-			tube(purple, green, pink, pink), //
-			0, 0 };
+		return tubes( //
+			"OcgG", "Pgpr", "bGBa", "BcOc", "oooG", "BBOr", "aryb", //
+			"Goyr", "gayP", "bycP", "pabO", "Pgpp", "", "");
 	}
 
 	public static int[] level833() {
-		return new int[] { //
-			tube(yellow, purple, olive, green), //
-			tube(orange, gray, brown, green), //
-			tube(cyan, olive, red, orange), //
-			tube(green, olive, yellow, aqua), //
-			tube(blue, brown, yellow, green), //
-			tube(purple, purple, cyan, blue), //
-			tube(red, gray, pink, aqua), //
-			tube(aqua, gray, blue, pink), //
-			tube(cyan, red, pink, cyan), //
-			tube(brown, orange, red, orange), //
-			tube(brown, gray, purple, olive), //
-			tube(aqua, yellow, pink, blue), //
-			0, 0 };
+		return tubes( //
+			"yPOg", "oGBg", "cOro", "gOya", "bByg", "PPcb", "rGpa", //
+			"aGbp", "crpc", "Boro", "BGPO", "aypb", "", "");
 	}
 
 	public static int[] level824() {
-		return new int[] { //
-			tube(red, gray, orange, pink), //
-			tube(blue, pink, gray, pink), //
-			tube(aqua, cyan, blue, olive), //
-			tube(orange, red, cyan, olive), //
-			tube(gray, blue, aqua, purple), //
-			tube(purple, pink, olive, orange), //
-			tube(cyan, cyan, aqua, purple), //
-			tube(olive, purple, aqua, red), //
-			tube(gray, red, orange, blue), //
-			0, 0 };
+		return tubes( //
+			"rGop", "bpGp", "acbO", "orcO", "GbaP", "PpOo", //
+			"ccaP", "OPar", "Grob", "", "");
 	}
 
 	public static int[] level823() {
-		return new int[] { //
-			tube(brown, purple, orange, cyan), //
-			tube(gray, cyan, orange, green), //
-			tube(purple, olive, aqua, red), //
-			tube(brown, green, red, cyan), //
-			tube(red, purple, purple, aqua), //
-			tube(blue, blue, green, yellow), //
-			tube(orange, pink, cyan, olive), //
-			tube(olive, aqua, gray, aqua), //
-			tube(gray, blue, pink, brown), //
-			tube(gray, yellow, green, yellow), //
-			tube(pink, brown, red, olive), //
-			tube(blue, orange, pink, yellow), //
-			0, 0 };
+		return tubes( //
+			"BPoc", "Gcog", "POar", "Bgrc", "rPPa", "bbgy", "opcO", //
+			"OaGa", "GbpB", "Gygy", "pBrO", "bopy", "", "");
 	}
 
 	public static void main(String[] args) {
-		int[] tubes = level1209();
+		int[] tubes = level1815();
 		printTubes(tubes);
 		validateTubes(tubes);
 		var path = new int[500];
