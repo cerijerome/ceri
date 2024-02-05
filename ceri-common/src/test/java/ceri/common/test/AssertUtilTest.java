@@ -23,6 +23,7 @@ import static ceri.common.test.AssertUtil.assertExists;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
@@ -101,6 +102,15 @@ public class AssertUtilTest {
 		assertAssertion(() -> assertSame(i0, i1));
 	}
 
+	@Test
+	public void testAssertInstance() {
+		assertInstance(1, Object.class);
+		assertInstance(1, Number.class);
+		assertInstance(1, Integer.class);
+		assertAssertion(() -> assertInstance(1, String.class));
+		assertAssertion(() -> assertInstance(1, Long.class));
+	}
+	
 	@Test
 	public void testFail() {
 		assertAssertion(() -> fail());

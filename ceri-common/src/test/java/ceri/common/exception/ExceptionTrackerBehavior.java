@@ -1,12 +1,12 @@
 package ceri.common.exception;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
+import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import org.junit.Test;
 import ceri.common.exception.ExceptionTracker.Key;
 import ceri.common.io.RuntimeIoException;
@@ -15,13 +15,7 @@ public class ExceptionTrackerBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Key k0 = new Key(IOException.class, "test");
-		Key k1 = new Key(IOException.class, "test");
-		Key k2 = new Key(FileNotFoundException.class, "test");
-		Key k3 = new Key(IOException.class, null);
-		Key k4 = new Key(null, "test");
-		exerciseEquals(k0, k1);
-		assertAllNotEqual(k0, k2, k3, k4);
+		exerciseRecord(new Key(IOException.class, "test"), Method::invoke);
 	}
 
 	@Test
@@ -61,6 +55,16 @@ public class ExceptionTrackerBehavior {
 		assertTrue(tracker.isEmpty());
 		assertTrue(tracker.add(new IOException("test")));
 		assertFalse(tracker.isEmpty());
+	}
+
+	@Test
+	public void shouldDropExcessiveExceptions() {
+		var tracker = ExceptionTracker.of(2);
+		assertEquals(tracker.add(null), false);
+		assertEquals(tracker.add(new Exception("1")), true);
+		assertEquals(tracker.add(new Exception("2")), true);
+		assertEquals(tracker.add(new Exception("3")), false);
+		assertEquals(tracker.add(new Exception("2")), false);
 	}
 
 }

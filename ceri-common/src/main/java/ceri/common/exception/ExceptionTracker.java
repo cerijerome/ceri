@@ -2,7 +2,6 @@ package ceri.common.exception;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Tracks thrown exceptions to determine if they are repeated based on type and message. Useful for
@@ -13,30 +12,7 @@ public class ExceptionTracker {
 	public final int max;
 	private final Map<Key, Throwable> map = new HashMap<>();
 
-	static class Key {
-		final String message;
-		final Class<?> cls;
-
-		Key(Class<?> cls, String message) {
-			this.cls = cls;
-			this.message = message;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(cls, message);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Key)) return false;
-			Key other = (Key) obj;
-			if (!Objects.equals(cls, other.cls)) return false;
-			if (!Objects.equals(message, other.message)) return false;
-			return true;
-		}
-	}
+	static record Key(Class<?> cls, String message) {}
 
 	public static ExceptionTracker of() {
 		return of(MAX_DEF);
@@ -81,5 +57,4 @@ public class ExceptionTracker {
 	public int size() {
 		return map.size();
 	}
-
 }

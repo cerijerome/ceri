@@ -36,6 +36,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.Namer;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
@@ -130,6 +131,12 @@ public class AssertUtil {
 		if (condition) return;
 		String message = StringUtil.format(format, args);
 		throw failure(message.isEmpty() ? "Expected true" : message);
+	}
+
+	public static <T> void assertInstance(T actual, Class<?> expected) {
+		if (expected.isInstance(actual)) return;
+		throw failure("Expected instance: %s\n           actual: %s",
+			ReflectUtil.name(expected), ReflectUtil.className(actual));
 	}
 
 	public static <T> void assertSame(T actual, T expected) {

@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
@@ -202,8 +204,17 @@ public class TestUtil {
 	 * Call this for code coverage of record hidden bytecode.
 	 */
 	public static void exerciseRecord(Record t) {
+		exerciseRecord(t, Method::invoke);
+	}
+
+	/**
+	 * Call this with Method::invoke for code coverage of record hidden bytecode when the record is
+	 * not public.
+	 */
+	public static <T extends Record> void exerciseRecord(T t,
+		ExceptionBiConsumer<ReflectiveOperationException, Method, T> invoker) {
 		if (t != null) for (Field field : t.getClass().getDeclaredFields())
-			RUNTIME.run(() -> t.getClass().getMethod(field.getName()).invoke(t));
+			RUNTIME.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
 	}
 
 	/**
