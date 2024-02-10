@@ -39,6 +39,7 @@ import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.util.BasicUtil;
 
 public class AssertUtil {
 	public static final int APPROX_PRECISION_DEF = 3;
@@ -133,8 +134,8 @@ public class AssertUtil {
 		throw failure(message.isEmpty() ? "Expected true" : message);
 	}
 
-	public static <T> void assertInstance(T actual, Class<?> expected) {
-		if (expected.isInstance(actual)) return;
+	public static <T> T assertInstance(Object actual, Class<T> expected) {
+		if (expected.isInstance(actual)) return BasicUtil.uncheckedCast(actual);
 		throw failure("Expected instance: %s\n           actual: %s",
 			ReflectUtil.name(expected), ReflectUtil.className(actual));
 	}

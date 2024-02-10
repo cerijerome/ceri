@@ -3,10 +3,15 @@ package ceri.common.net;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.channels.MembershipKey;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.HashMap;
+import java.util.Map;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.CloseableUtil;
@@ -19,6 +24,8 @@ public class UdpChannel implements AutoCloseable {
 	public final InetAddress localHost;
 	public final int port;
 	public final InetAddress broadcastHost;
+	public final NetworkInterface networkIface; // for multicast
+	private final Map<InetAddress, MembershipKey> joined = new HashMap<>();
 
 	public static record Received(InetSocketAddress address, ByteProvider bytes) {}
 
@@ -28,12 +35,15 @@ public class UdpChannel implements AutoCloseable {
 
 	@SuppressWarnings("resource")
 	private UdpChannel(int port) throws IOException {
+		networkIface = NetUtil.localInterface();
 		channel = DatagramChannel.open();
-		channel.bind(new InetSocketAddress(port)).socket().setBroadcast(true);
+		channel.setOption(StandardSocketOptions.SO_REUSEADDR, true)
+			.setOption(StandardSocketOptions.IP_MULTICAST_IF, networkIface)
+			.bind(new InetSocketAddress(port)).socket().setBroadcast(true);
 		channel.configureBlocking(false);
 		localHost = NetUtil.localIp4Address();
-		this.port = channel.socket().getLocalPort();
 		broadcastHost = NetUtil.localBroadcast();
+		this.port = channel.socket().getLocalPort();
 	}
 
 	@SuppressWarnings("resource")
@@ -49,11 +59,11 @@ public class UdpChannel implements AutoCloseable {
 		send(new InetSocketAddress(port), bytes);
 	}
 
-	public void unicast(String host, int port, ByteProvider bytes) throws IOException {
+	public void send(String host, int port, ByteProvider bytes) throws IOException {
 		send(new InetSocketAddress(host, port), bytes);
 	}
 
-	public void unicast(InetAddress address, int port, ByteProvider bytes) throws IOException {
+	public void send(InetAddress address, int port, ByteProvider bytes) throws IOException {
 		send(new InetSocketAddress(address, port), bytes);
 	}
 
@@ -95,6 +105,28 @@ public class UdpChannel implements AutoCloseable {
 		return address;
 	}
 
+	/**
+	 * Attempts to join a multicast group. Returns false if already a member.
+	 */
+	public boolean join(InetAddress group) throws IOException {
+		var key = joined.get(group);
+		if (key != null) return false;
+		key = channel.join(group, networkIface);
+		joined.put(group, key);
+		return true;
+	}
+
+	/**
+	 * Drops a multicast group. Returns false if not a member.
+	 */
+	public boolean drop(InetAddress group) {
+		var key = joined.get(group);
+		if (key == null) return false;
+		key.drop();
+		joined.remove(group);
+		return true;
+	}
+
 	@Override
 	public void close() {
 		CloseableUtil.close(channel);
@@ -103,9 +135,9 @@ public class UdpChannel implements AutoCloseable {
 	private void send(InetSocketAddress address, ByteProvider bytes) throws IOException {
 		channel.send(bytes.toBuffer(0), address);
 	}
-	
+
 	private static Received received(InetSocketAddress address, ByteBuffer buffer) {
 		return new Received(address, address == null ? ByteProvider.empty() :
-		ByteArray.Immutable.wrap(buffer.array(), 0, buffer.limit()));
-	}	
+			ByteArray.Immutable.wrap(buffer.array(), 0, buffer.limit()));
+	}
 }
