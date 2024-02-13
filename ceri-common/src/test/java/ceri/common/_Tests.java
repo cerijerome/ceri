@@ -135,6 +135,9 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionObjIntConsumerBehavior.class, //
 	ceri.common.function.ExceptionObjIntFunctionBehavior.class, //
 	ceri.common.function.ExceptionObjIntPredicateBehavior.class, //
+	ceri.common.function.ExceptionObjLongConsumerBehavior.class, //
+	ceri.common.function.ExceptionObjLongFunctionBehavior.class, //
+	ceri.common.function.ExceptionObjLongPredicateBehavior.class, //
 	ceri.common.function.ExceptionPredicateBehavior.class, //
 	ceri.common.function.ExceptionRunnableBehavior.class, //
 	ceri.common.function.ExceptionSupplierBehavior.class, //
@@ -147,6 +150,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
 	ceri.common.function.ObjByteConsumerBehavior.class, //
 	ceri.common.function.ObjIntPredicateBehavior.class, //
+	ceri.common.function.ObjLongConsumerBehavior.class, //
+	ceri.common.function.ObjLongPredicateBehavior.class, //
 	ceri.common.function.ObjShortConsumerBehavior.class, //
 	ceri.common.function.PredicatesTest.class, //
 	ceri.common.function.RuntimeCloseableBehavior.class, //

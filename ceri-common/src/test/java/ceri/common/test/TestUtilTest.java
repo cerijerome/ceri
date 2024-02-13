@@ -70,10 +70,18 @@ public class TestUtilTest {
 
 	@Test
 	public void testRunRepeat() throws InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		var sync = BooleanCondition.of();
 		try (var exec = TestUtil.runRepeat(sync::signal)) {
 			sync.await();
 			sync.await();
+		}
+	}
+
+	@Test
+	public void testRunRepeatWithIndex() throws InterruptedException {
+		var sync = ValueCondition.<Integer>of();
+		try (var exec = TestUtil.runRepeat(i -> sync.signal(i))) {
+			sync.await(i -> i > 1);
 		}
 	}
 

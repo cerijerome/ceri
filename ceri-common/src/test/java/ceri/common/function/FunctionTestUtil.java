@@ -117,6 +117,13 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionObjLongConsumer<IOException, Integer> objLongConsumer() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+		};
+	}
+
 	public static ExceptionFunction<IOException, Integer, Integer> function() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -181,6 +188,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionObjLongFunction<IOException, Integer, Long> objLongFunction() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+			return i + j;
+		};
+	}
+
 	public static ExceptionBiFunction<IOException, Integer, Integer, Integer> biFunction() {
 		return (i, j) -> {
 			if (i == 1 || j == 1) throw new IOException("1");
@@ -230,6 +245,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionObjIntPredicate<IOException, Integer> objIntPredicate() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+			return i > 0;
+		};
+	}
+
+	public static ExceptionObjLongPredicate<IOException, Integer> objLongPredicate() {
 		return (i, j) -> {
 			if (i == 1 || j == 1) throw new IOException("1");
 			if (i == 0 || j == 0) throw new RuntimeException("0");
@@ -321,6 +344,12 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ObjLongConsumer<Integer> objLongConsumer() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+			};
+		}
+
 		public static Function<Integer, Integer> function() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -377,6 +406,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ObjLongFunction<Integer, Long> objLongFunction() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i + j;
+			};
+		}
+
 		public static BiFunction<Integer, Integer, Integer> biFunction() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
@@ -420,6 +456,13 @@ public class FunctionTestUtil {
 		}
 
 		public static ObjIntPredicate<Integer> objIntPredicate() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i > 0;
+			};
+		}
+
+		public static ObjLongPredicate<Integer> objLongPredicate() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 				return i > 0;

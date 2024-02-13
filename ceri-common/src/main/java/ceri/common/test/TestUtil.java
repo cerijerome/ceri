@@ -31,6 +31,7 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
@@ -76,14 +77,42 @@ public class TestUtil {
 	}
 
 	/**
-	 * Repeat action with a 1us delay until executor is closed. Useful to avoid intermittent thread
-	 * timing issues when waiting on an event by repeatedly triggering that event.
+	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
+	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
 	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable) {
+		return runRepeat(runnable, DELAY_MICROS);
+	}
+
+	/**
+	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
+	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
+	 */
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable,
+		int delayUs) {
+		return runRepeat(i -> runnable.run(), delayUs);
+	}
+
+	/**
+	 * Repeat action with run count and a microsecond delay until executor is closed. Useful to
+	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
+	 * that event.
+	 */
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionIntConsumer<?> action) {
+		return runRepeat(action, DELAY_MICROS);
+	}
+
+	/**
+	 * Repeat action with run count and a microsecond delay until executor is closed. Useful to
+	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
+	 * that event.
+	 */
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionIntConsumer<?> action,
+		int delayUs) {
 		return SimpleExecutor.run(() -> {
-			while (true) {
-				runnable.run();
-				ConcurrentUtil.delayMicros(DELAY_MICROS);
+			for (int i = 0;; i++) {
+				action.accept(i);
+				ConcurrentUtil.delayMicros(delayUs);
 			}
 		});
 	}
