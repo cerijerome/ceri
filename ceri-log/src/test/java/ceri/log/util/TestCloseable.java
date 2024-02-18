@@ -1,5 +1,6 @@
 package ceri.log.util;
 
+import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.text.ToString;
@@ -20,6 +21,10 @@ public class TestCloseable implements AutoCloseable {
 		return closed;
 	}
 
+	public void assertClosed(boolean closed) {
+		assertEquals(closed(), closed);
+	}
+	
 	@Override
 	public void close() throws IOException {
 		closed = true;

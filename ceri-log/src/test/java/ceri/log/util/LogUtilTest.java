@@ -105,26 +105,89 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testAcceptOrClose() {
-		var c = TestCloseable.of("1");
-		assertEquals(LogUtil.acceptOrClose(null, t -> {}), null);
-		assertEquals(LogUtil.acceptOrClose(c, t -> {}), c);
-		assertFalse(c.closed());
-		assertThrown(() -> LogUtil.acceptOrClose(c, t -> throwIo()));
-		assertTrue(c.closed());
+		assertEquals(LogUtil.acceptOrClose(null, c -> {}), null);
+		var closer = TestCloseable.of("1");
+		assertEquals(LogUtil.acceptOrClose(closer, c -> {}), closer);
+		closer.assertClosed(false);
+		assertThrown(() -> LogUtil.acceptOrClose(closer, c -> throwIo()));
+		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
-	public void testApplyOrClose() {
-		var c = TestCloseable.of("1");
-		assertEquals(LogUtil.applyOrClose(null, t -> "x" + t), null);
-		assertEquals(LogUtil.applyOrClose(null, t -> "x" + t, "test"), "test");
-		assertEquals(LogUtil.applyOrClose(c, t -> t.value + 1), 2);
-		assertEquals(LogUtil.applyOrClose(c, t -> null), null);
-		assertEquals(LogUtil.applyOrClose(c, t -> null, "test"), "test");
-		assertFalse(c.closed());
-		assertThrown(() -> LogUtil.applyOrClose(c, t -> throwIo()));
-		assertTrue(c.closed());
+	public void testApplyOrClose() throws Exception {
+		assertEquals(LogUtil.applyOrClose(null, null), null);
+		assertEquals(LogUtil.applyOrClose(null, null, "x"), "x");
+		var closer = TestCloseable.of("1");
+		assertEquals(LogUtil.applyOrClose(closer, x -> null, 1), 1);
+		assertEquals(LogUtil.applyOrClose(closer, x -> 0), 0);
+		closer.assertClosed(false);
+		assertThrown(() -> LogUtil.applyOrClose(closer, x -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testRunOrClose() {
+		assertEquals(LogUtil.runOrClose(null, () -> {}), null);
+		var closer = TestCloseable.of("1");
+		assertEquals(LogUtil.runOrClose(closer, () -> {}), closer);
+		closer.assertClosed(false);
+		assertThrown(() -> LogUtil.runOrClose(closer, () -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testGetOrClose() throws Exception {
+		assertEquals(LogUtil.getOrClose(null, () -> null), null);
+		assertEquals(LogUtil.getOrClose(null, () -> null, "x"), "x");
+		var closer = TestCloseable.of("1");
+		assertEquals(LogUtil.getOrClose(closer, () -> null, 1), 1);
+		assertEquals(LogUtil.getOrClose(closer, () -> 0), 0);
+		closer.assertClosed(false);
+		assertThrown(() -> LogUtil.getOrClose(closer, () -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testAcceptOrCloseAll() {
+		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
+		assertEquals(LogUtil.acceptOrCloseAll(closers, cs -> {}), closers);
+		assertThrown(() -> LogUtil.acceptOrCloseAll(closers, cs -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testApplyOrCloseAll() {
+		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
+		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> null), null);
+		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> null, 3), 3);
+		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> 1, 3), 1);
+		assertThrown(() -> LogUtil.applyOrCloseAll(closers, cs -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testRunOrCloseAll() {
+		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
+		assertEquals(LogUtil.runOrCloseAll(closers, () -> {}), closers);
+		assertThrown(() -> LogUtil.runOrCloseAll(closers, () -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testGetOrCloseAll() {
+		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
+		assertEquals(LogUtil.getOrCloseAll(closers, () -> null), null);
+		assertEquals(LogUtil.getOrCloseAll(closers, () -> null, 3), 3);
+		assertEquals(LogUtil.getOrCloseAll(closers, () -> 1, 3), 1);
+		assertThrown(() -> LogUtil.getOrCloseAll(closers, () -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
 	}
 
 	@Test
@@ -188,7 +251,7 @@ public class LogUtilTest {
 		try (TestProcess process = TestProcess.of()) {
 			process.waitFor.error.setFrom(INX);
 			assertFalse(LogUtil.close(process));
-			testLog.assertFind("(?is)INFO .*InterruptedException");
+			testLog.assertFind("(?is)DEBUG .*InterruptedException");
 		}
 	}
 
@@ -208,7 +271,7 @@ public class LogUtilTest {
 		try (TestExecutorService exec = TestExecutorService.of()) {
 			exec.awaitTermination.error.setFrom(INX);
 			assertFalse(LogUtil.close(exec));
-			testLog.assertFind("(?is)INFO .*InterruptedException");
+			testLog.assertFind("(?is)DEBUG .*InterruptedException");
 		}
 	}
 
@@ -238,7 +301,7 @@ public class LogUtilTest {
 		TestFuture<?> future = TestFuture.of("test");
 		future.get.error.setFrom(INX);
 		assertFalse(LogUtil.close(future));
-		testLog.assertFind("(?is)INFO .*InterruptedException");
+		testLog.assertFind("(?is)DEBUG .*InterruptedException");
 	}
 
 	@Test
@@ -311,5 +374,4 @@ public class LogUtilTest {
 			// Stop
 		}
 	}
-
 }
