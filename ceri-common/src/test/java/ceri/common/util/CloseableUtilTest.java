@@ -8,25 +8,27 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwInterrupted;
 import static ceri.common.test.AssertUtil.throwIo;
-import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.junit.Test;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.ExceptionCloseable;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.io.IoUtil;
+import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
-import ceri.common.test.TestInputStream;
 import ceri.common.test.TestProcess;
 
 public class CloseableUtilTest {
@@ -69,27 +71,92 @@ public class CloseableUtilTest {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Test
-	public void testApplyOrClose() throws Exception {
-		try (var c = new Closer()) {
-			assertEquals(CloseableUtil.applyOrClose(null, null), null);
-			assertEquals(CloseableUtil.applyOrClose(null, null, "x"), "x");
-			assertEquals(CloseableUtil.applyOrClose(c, x -> null, 1), 1);
-			assertEquals(CloseableUtil.applyOrClose(c, x -> 0), 0);
-			assertFalse(c.closed);
-			assertThrown(() -> CloseableUtil.applyOrClose(c, x -> throwIt(new Exception())));
-			assertTrue(c.closed);
-		}
+	public void testAcceptOrClose() {
+		assertEquals(CloseableUtil.acceptOrClose(null, c -> {}), null);
+		var closer = SyncCloser.io(true);
+		assertEquals(CloseableUtil.acceptOrClose(closer, c -> {}), closer);
+		closer.assertClosed(false);
+		assertThrown(() -> CloseableUtil.acceptOrClose(closer, c -> throwIo()));
+		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
-	public void testAcceptOrClose() throws IOException {
-		assertEquals(CloseableUtil.acceptOrClose(null, InputStream::close), null);
-		TestInputStream in = TestInputStream.of();
-		assertEquals(CloseableUtil.acceptOrClose(in, InputStream::close), in);
-		in.close.error.setFrom(IOX);
-		assertThrown(() -> CloseableUtil.acceptOrClose(in, InputStream::close));
+	public void testApplyOrClose() throws Exception {
+		assertEquals(CloseableUtil.applyOrClose(null, null), null);
+		assertEquals(CloseableUtil.applyOrClose(null, null, "x"), "x");
+		var closer = SyncCloser.io(true);
+		assertEquals(CloseableUtil.applyOrClose(closer, x -> null, 1), 1);
+		assertEquals(CloseableUtil.applyOrClose(closer, x -> 0), 0);
+		closer.assertClosed(false);
+		assertThrown(() -> CloseableUtil.applyOrClose(closer, x -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testRunOrClose() {
+		assertEquals(CloseableUtil.runOrClose(null, () -> {}), null);
+		var closer = SyncCloser.io(true);
+		assertEquals(CloseableUtil.runOrClose(closer, () -> {}), closer);
+		closer.assertClosed(false);
+		assertThrown(() -> CloseableUtil.runOrClose(closer, () -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testGetOrClose() throws Exception {
+		assertEquals(CloseableUtil.getOrClose(null, () -> null), null);
+		assertEquals(CloseableUtil.getOrClose(null, () -> null, "x"), "x");
+		var closer = SyncCloser.io(true);
+		assertEquals(CloseableUtil.getOrClose(closer, () -> null, 1), 1);
+		assertEquals(CloseableUtil.getOrClose(closer, () -> 0), 0);
+		closer.assertClosed(false);
+		assertThrown(() -> CloseableUtil.getOrClose(closer, () -> throwIo()));
+		closer.assertClosed(true);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testAcceptOrCloseAll() {
+		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
+		assertEquals(CloseableUtil.acceptOrCloseAll(closers, cs -> {}), closers);
+		assertThrown(() -> CloseableUtil.acceptOrCloseAll(closers, cs -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testApplyOrCloseAll() {
+		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> null), null);
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> null, 3), 3);
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> 1, 3), 1);
+		assertThrown(() -> CloseableUtil.applyOrCloseAll(closers, cs -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testRunOrCloseAll() {
+		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
+		assertEquals(CloseableUtil.runOrCloseAll(closers, () -> {}), closers);
+		assertThrown(() -> CloseableUtil.runOrCloseAll(closers, () -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testGetOrCloseAll() {
+		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
+		assertEquals(CloseableUtil.getOrCloseAll(closers, () -> null), null);
+		assertEquals(CloseableUtil.getOrCloseAll(closers, () -> null, 3), 3);
+		assertEquals(CloseableUtil.getOrCloseAll(closers, () -> 1, 3), 1);
+		assertThrown(() -> CloseableUtil.getOrCloseAll(closers, () -> throwIo()));
+		closers.forEach(c -> c.assertClosed(true));
 	}
 
 	@Test
@@ -230,6 +297,37 @@ public class CloseableUtilTest {
 		var captor = Captor.of();
 		assertThrown(() -> CloseableUtil.createArray(Closer[]::new, supplier(captor), 4));
 		captor.verify(Closer.of(1, true), Closer.of(2, true), Closer.of(3, true));
+	}
+
+	/**
+	 * Simple closer.
+	 */
+	public static class SyncCloser<E extends Exception> extends CallSync.Runnable
+		implements ExceptionCloseable<E> {
+		private final ExceptionAdapter<E> adapter;
+
+		public static SyncCloser<RuntimeException> runtime(boolean autoResponse) {
+			return new SyncCloser<>(ExceptionAdapter.RUNTIME, autoResponse);
+		}
+
+		public static SyncCloser<IOException> io(boolean autoResponse) {
+			return new SyncCloser<>(IoUtil.IO_ADAPTER, autoResponse);
+		}
+
+		public SyncCloser(ExceptionAdapter<E> adapter, boolean autoResponse) {
+			super(autoResponse);
+			this.adapter = adapter;
+		}
+
+		public void assertClosed(boolean closed) {
+			if (!closed) assertNoCall();
+			else assertCalls(1);
+		}
+
+		@Override
+		public void close() throws E {
+			run(adapter);
+		}
 	}
 
 	private static ExceptionFunction<RuntimeException, Integer, Closer>

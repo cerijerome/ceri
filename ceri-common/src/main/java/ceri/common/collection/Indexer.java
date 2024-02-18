@@ -68,7 +68,7 @@ public class Indexer {
 		public static <T> Typed<T> ofNull() {
 			return BasicUtil.uncheckedCast(NULL);
 		}
-		
+
 		private Typed(List<T> list, Indexer indexer) {
 			this.list = list;
 			this.indexer = indexer;

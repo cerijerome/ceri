@@ -18,6 +18,10 @@ public interface LongReceiver {
 		return LongArray.Mutable.EMPTY;
 	}
 
+	static LongReceiver of(long... longs) {
+		return LongArray.Mutable.wrap(longs);
+	}
+
 	/**
 	 * {@link Navigator} and {@link LongWriter} wrapper for a {@link LongReceiver}. This provides
 	 * sequential writing of longs, and relative/absolute positioning for the next write. The type T

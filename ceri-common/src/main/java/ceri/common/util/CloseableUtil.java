@@ -50,11 +50,20 @@ public class CloseableUtil {
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T acceptOrClose(T t,
 		ExceptionConsumer<E, T> consumer) throws E {
+		return acceptOrClose(t, consumer, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the consumer on the given resource if non-null. If an exception occurs, the resource
+	 * is closed, and the exception re-thrown. Returns the passed-in resource.
+	 */
+	public static <E extends Exception, T> T acceptOrClose(T t, ExceptionConsumer<E, T> consumer,
+		ExceptionConsumer<E, T> closeFn) throws E {
 		try {
 			if (t != null) consumer.accept(t);
 			return t;
 		} catch (Exception e) {
-			close(t);
+			closeFn.accept(t);
 			throw e;
 		}
 	}
@@ -76,14 +85,139 @@ public class CloseableUtil {
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrClose(T t,
 		ExceptionFunction<E, T, R> function, R def) throws E {
+		return applyOrClose(t, function, def, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the function on the given closable resource, if non-null. If an exception occurs, the
+	 * resource is closed, and the exception re-thrown. Returns the function result, or the given
+	 * default value if the resource or function result is null.
+	 */
+	public static <E extends Exception, T, R> R applyOrClose(T t,
+		ExceptionFunction<E, T, R> function, R def, ExceptionConsumer<E, T> closeFn) throws E {
 		try {
 			if (t == null) return def;
 			var result = function.apply(t);
 			return result == null ? def : result;
 		} catch (Exception e) {
-			close(t);
+			closeFn.accept(t);
 			throw e;
 		}
+	}
+
+	/**
+	 * Invokes the runnable. If an exception occurs, the resource is closed, and the exception
+	 * re-thrown. Returns the passed-in resource.
+	 */
+	public static <E extends Exception, T extends AutoCloseable> T runOrClose(T t,
+		ExceptionRunnable<E> runnable) throws E {
+		return runOrClose(t, runnable, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the runnable. If an exception occurs, the resource is closed, and the exception
+	 * re-thrown. Returns the passed-in resource.
+	 */
+	public static <E extends Exception, T> T runOrClose(T t, ExceptionRunnable<E> runnable,
+		ExceptionConsumer<E, T> closeFn) throws E {
+		try {
+			runnable.run();
+			return t;
+		} catch (Exception e) {
+			closeFn.accept(t);
+			throw e;
+		}
+	}
+
+	/**
+	 * Invokes the supplier. If an exception occurs, the resource is closed, and the exception
+	 * re-thrown. Returns the function result.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
+		ExceptionSupplier<E, R> supplier) throws E {
+		return getOrClose(t, supplier, null);
+	}
+
+	/**
+	 * Invokes the supplier. If an exception occurs, the resource is closed, and the exception
+	 * re-thrown. Returns the function result, or the given default value if the function result is
+	 * null.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
+		ExceptionSupplier<E, R> supplier, R def) throws E {
+		return getOrClose(t, supplier, def, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the supplier. If an exception occurs, the resource is closed, and the exception
+	 * re-thrown. Returns the function result, or the given default value if the function result is
+	 * null.
+	 */
+	public static <E extends Exception, T, R> R getOrClose(T t, ExceptionSupplier<E, R> supplier,
+		R def, ExceptionConsumer<E, T> closeFn) throws E {
+		try {
+			var result = supplier.get();
+			return result == null ? def : result;
+		} catch (Exception e) {
+			closeFn.accept(t);
+			throw e;
+		}
+	}
+
+	/**
+	 * Invokes the consumer on the given resources. If an exception occurs, the resource is closed,
+	 * and the exception re-thrown. Returns the passed-in resources.
+	 */
+	public static <E extends Exception, T extends AutoCloseable> Collection<T>
+		acceptOrCloseAll(Collection<T> ts, ExceptionConsumer<E, Collection<T>> consumer) throws E {
+		return acceptOrClose(ts, consumer, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the function on the given resources. If an exception occurs, the resources are
+	 * closed, and the exception re-thrown. Returns the function result.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R applyOrCloseAll(
+		Collection<T> ts, ExceptionFunction<E, Collection<T>, R> function) throws E {
+		return applyOrCloseAll(ts, function, null);
+	}
+
+	/**
+	 * Invokes the function on the given resources. If an exception occurs, the resources are
+	 * closed, and the exception re-thrown. Returns the function result, or the given default value
+	 * if the resources or function result are null.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R applyOrCloseAll(
+		Collection<T> ts, ExceptionFunction<E, Collection<T>, R> function, R def) throws E {
+		return applyOrClose(ts, function, def, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the runnable. If an exception occurs, the resources are closed, and the exception
+	 * re-thrown. Returns the passed-in resources.
+	 */
+	public static <E extends Exception, T extends AutoCloseable> Collection<T>
+		runOrCloseAll(Collection<T> ts, ExceptionRunnable<E> runnable) throws E {
+		return runOrClose(ts, runnable, CloseableUtil::close);
+	}
+
+	/**
+	 * Invokes the supplier. If an exception occurs, the resources are closed, and the exception
+	 * re-thrown. Returns the function result.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R
+		getOrCloseAll(Collection<T> ts, ExceptionSupplier<E, R> supplier) throws E {
+		return getOrCloseAll(ts, supplier, null);
+	}
+
+	/**
+	 * Invokes the supplier. If an exception occurs, the resources are closed, and the exception
+	 * re-thrown. Returns the function result, or the given default value if the function result is
+	 * null.
+	 */
+	public static <E extends Exception, T extends AutoCloseable, R> R
+		getOrCloseAll(Collection<T> ts, ExceptionSupplier<E, R> supplier, R def) throws E {
+		return getOrClose(ts, supplier, def, CloseableUtil::close);
 	}
 
 	/**

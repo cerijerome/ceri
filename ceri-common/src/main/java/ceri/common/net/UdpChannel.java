@@ -20,7 +20,7 @@ import ceri.common.util.CloseableUtil;
  * Utility to send and receive datagrams.
  */
 public class UdpChannel implements AutoCloseable {
-	private final DatagramChannel channel;
+	public final DatagramChannel channel;
 	public final InetAddress localHost;
 	public final int port;
 	public final InetAddress broadcastHost;
