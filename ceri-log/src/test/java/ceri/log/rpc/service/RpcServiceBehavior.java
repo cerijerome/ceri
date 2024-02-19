@@ -12,7 +12,7 @@ public class RpcServiceBehavior {
 
 	@Test
 	public void shouldProvideDisabledContainer() throws IOException {
-		try (var container = RpcService.start(null, RpcServerConfig.NULL)) {
+		try (var container = RpcService.start(null, RpcServer.Config.NULL)) {
 			assertEquals(container.port(), RpcServer.NULL.port());
 			assertFalse(container.enabled());
 		}
@@ -20,7 +20,7 @@ public class RpcServiceBehavior {
 
 	@Test
 	public void shouldStartService() throws IOException {
-		try (var container = RpcService.start(() -> RpcService.NULL, RpcServerConfig.DEFAULT)) {
+		try (var container = RpcService.start(() -> RpcService.NULL, RpcServer.Config.DEFAULT)) {
 			assertTrue(container.enabled());
 		}
 	}
@@ -28,7 +28,7 @@ public class RpcServiceBehavior {
 	@Test
 	public void shouldCloseServiceIfUnableToStart() {
 		assertThrown(() -> RpcService.start(() -> (RpcService.Null) throwRuntime(),
-			RpcServerConfig.DEFAULT));
+			RpcServer.Config.DEFAULT));
 	}
 
 }

@@ -11,8 +11,8 @@ public class SelfHealingProperties extends BaseProperties {
 		super(properties, groups);
 	}
 
-	public SelfHealingConfig config() {
-		SelfHealingConfig.Builder b = SelfHealingConfig.builder();
+	public SelfHealing.Config config() {
+		var b = SelfHealing.Config.builder();
 		FunctionUtil.safeAccept(fixRetryDelayMs(), b::fixRetryDelayMs);
 		FunctionUtil.safeAccept(recoveryDelayMs(), b::recoveryDelayMs);
 		return b.build();

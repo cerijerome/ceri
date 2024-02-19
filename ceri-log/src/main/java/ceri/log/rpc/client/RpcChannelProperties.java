@@ -11,8 +11,8 @@ public class RpcChannelProperties extends BaseProperties {
 		super(properties, groups);
 	}
 
-	public RpcChannelConfig config() {
-		RpcChannelConfig.Builder b = RpcChannelConfig.builder();
+	public RpcChannel.Config config() {
+		var b = RpcChannel.Config.builder();
 		safeAccept(host(), b::host);
 		safeAccept(port(), b::port);
 		return b.build();

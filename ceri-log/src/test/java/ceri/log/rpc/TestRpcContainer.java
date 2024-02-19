@@ -3,7 +3,6 @@ package ceri.log.rpc;
 import java.io.IOException;
 import ceri.log.rpc.client.TestRpcClient;
 import ceri.log.rpc.service.RpcServer;
-import ceri.log.rpc.service.RpcServerConfig;
 import ceri.log.rpc.service.TestRpcService;
 
 public class TestRpcContainer implements AutoCloseable {
@@ -39,8 +38,8 @@ public class TestRpcContainer implements AutoCloseable {
 
 	private static RpcServer server(TestRpcService service, int port, int shutdownTimeoutMs)
 		throws IOException {
-		RpcServerConfig config =
-			RpcServerConfig.builder().port(port).shutdownTimeoutMs(shutdownTimeoutMs).build();
+		var config =
+			RpcServer.Config.builder().port(port).shutdownTimeoutMs(shutdownTimeoutMs).build();
 		return RpcServer.start(service, config);
 	}
 

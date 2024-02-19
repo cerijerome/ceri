@@ -1,7 +1,11 @@
 package ceri.log.rpc.client;
 
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -16,7 +20,7 @@ import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
 
 public class RpcClientNotifierBehavior {
-	private final RpcClientNotifierConfig config = RpcClientNotifierConfig.of(1);
+	private final RpcClientNotifier.Config config = RpcClientNotifier.Config.of(1);
 	private TestStreamObserver<Empty> serverControl;
 	private CallSync.Function<StreamObserver<String>, StreamObserver<Empty>> serverCall;
 	private CallSync.Function<String, Integer> transform;
@@ -33,6 +37,25 @@ public class RpcClientNotifierBehavior {
 	@After
 	public void after() {
 		notifier.close();
+	}
+
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		var t = RpcClientNotifier.Config.of(999);
+		var eq0 = RpcClientNotifier.Config.of(999);
+		var eq1 = RpcClientNotifier.Config.builder().resetDelayMs(999).build();
+		var ne0 = RpcClientNotifier.Config.of(998);
+		var ne1 = RpcClientNotifier.Config.of();
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1);
+	}
+
+	@Test
+	public void shouldBuildFromProperties() {
+		var config =
+			new RpcClientNotifierProperties(baseProperties("rpc-client"), "rpc-client.notifier")
+				.config();
+		assertEquals(config.resetDelayMs, 1000);
 	}
 
 	@Test

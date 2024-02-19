@@ -1,11 +1,13 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.net.NetUtil.LOCALHOST;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.net.NetUtil;
 import ceri.common.text.ToString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -19,7 +21,79 @@ public class RpcChannel implements RuntimeCloseable {
 	private final int shutdownTimeoutMs;
 	public final ManagedChannel channel;
 
-	public static RpcChannel of(RpcChannelConfig config) {
+	public static class Config {
+		public static final Config NULL = builder().build();
+		public final String host;
+		public final Integer port;
+
+		public static Config localhost(int port) {
+			return builder().host(LOCALHOST).port(port).build();
+		}
+
+		public static Config of(String host, int port) {
+			return builder().host(host).port(port).build();
+		}
+
+		public static class Builder {
+			String host = null;
+			Integer port = null;
+
+			Builder() {}
+
+			public Builder host(String host) {
+				this.host = host;
+				return this;
+			}
+
+			public Builder port(int port) {
+				this.port = port;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(Builder builder) {
+			host = builder.host;
+			port = builder.port;
+		}
+
+		public boolean enabled() {
+			return host != null && port != null;
+		}
+
+		public boolean isLocalhost() {
+			return NetUtil.isLocalhost(host);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(host, port);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Config)) return false;
+			Config other = (Config) obj;
+			if (!Objects.equals(host, other.host)) return false;
+			if (!Objects.equals(port, other.port)) return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, host, port);
+		}
+	}
+
+	public static RpcChannel of(Config config) {
 		return plaintext(config.host, config.port);
 	}
 

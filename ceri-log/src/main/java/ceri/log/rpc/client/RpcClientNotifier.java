@@ -4,6 +4,7 @@ import static ceri.log.rpc.client.RpcClientUtil.ignorable;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import static ceri.log.util.LogUtil.compact;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -15,6 +16,7 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
+import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.rpc.util.RpcUtil;
@@ -45,9 +47,64 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	private final Lock lock = new ReentrantLock();
 	private final BooleanCondition sync = BooleanCondition.of(lock);
 	private final Set<Consumer<? super T>> listeners = new LinkedHashSet<>();
-	private final RpcClientNotifierConfig config;
+	private final Config config;
 	private boolean reset = false;
 	private RpcStreamer<Empty> caller = null; //
+
+	public static class Config {
+		public static final Config DEFAULT = builder().build();
+		public final int resetDelayMs;
+
+		public static Config of() {
+			return builder().build();
+		}
+
+		public static Config of(int resetDelayMs) {
+			return builder().resetDelayMs(resetDelayMs).build();
+		}
+
+		public static class Builder {
+			int resetDelayMs = 3000;
+
+			Builder() {}
+
+			public Builder resetDelayMs(int resetDelayMs) {
+				this.resetDelayMs = resetDelayMs;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(Builder builder) {
+			resetDelayMs = builder.resetDelayMs;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(resetDelayMs);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Config)) return false;
+			Config other = (Config) obj;
+			if (resetDelayMs != other.resetDelayMs) return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, resetDelayMs);
+		}
+	}
 
 	private static enum Action {
 		none,
@@ -58,12 +115,12 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	public static <T, V> RpcClientNotifier<T, V> of(
 		Function<StreamObserver<V>, StreamObserver<Empty>> call, Function<V, T> transform,
-		RpcClientNotifierConfig config) {
+		Config config) {
 		return new RpcClientNotifier<>(call, transform, config);
 	}
 
 	RpcClientNotifier(Function<StreamObserver<V>, StreamObserver<Empty>> call,
-		Function<V, T> transform, RpcClientNotifierConfig config) {
+		Function<V, T> transform, Config config) {
 		this.call = call;
 		this.transform = transform;
 		this.config = config;
@@ -128,7 +185,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void startReceiving() {
-		//if (caller != null && !caller.closed()) return; // already receiving (not possible?)
+		// if (caller != null && !caller.closed()) return; // already receiving (not possible?)
 		logger.debug("Waiting for notifications");
 		caller = RpcStreamer.of(call.apply(callback)); // wrap observer as new closable instance
 		caller.next(EMPTY); // start receiving; close() to stop

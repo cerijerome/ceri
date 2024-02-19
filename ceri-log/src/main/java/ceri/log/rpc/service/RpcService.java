@@ -16,13 +16,13 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 	static RpcService NULL = new Null() {};
 
 	@SuppressWarnings("resource")
-	static Container start(Supplier<? extends RpcService> serviceSupplier, RpcServerConfig config)
+	static Container start(Supplier<? extends RpcService> serviceSupplier, RpcServer.Config config)
 		throws IOException {
 		return LogUtil.acceptOrClose(container(serviceSupplier, config), Container::start);
 	}
 
 	static Container container(Supplier<? extends RpcService> serviceSupplier,
-		RpcServerConfig config) {
+		RpcServer.Config config) {
 		return new Container(serviceSupplier, config);
 	}
 
@@ -34,7 +34,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 		private final RpcServer server;
 
 		@SuppressWarnings("resource")
-		private Container(Supplier<? extends RpcService> serviceSupplier, RpcServerConfig config) {
+		private Container(Supplier<? extends RpcService> serviceSupplier, RpcServer.Config config) {
 			try {
 				this.service = config.enabled() ? serviceSupplier.get() : RpcService.NULL;
 				this.server = RpcServer.of(service, config);

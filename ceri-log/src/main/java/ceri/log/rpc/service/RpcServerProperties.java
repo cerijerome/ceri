@@ -11,8 +11,8 @@ public class RpcServerProperties extends BaseProperties {
 		super(properties, groups);
 	}
 
-	public RpcServerConfig config() {
-		RpcServerConfig.Builder b = RpcServerConfig.builder();
+	public RpcServer.Config config() {
+		var b = RpcServer.Config.builder();
 		safeAccept(port(), b::port);
 		safeAccept(shutdownTimeoutMs(), b::shutdownTimeoutMs);
 		return b.build();

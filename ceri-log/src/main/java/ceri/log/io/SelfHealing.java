@@ -1,8 +1,10 @@
 package ceri.log.io;
 
+import static ceri.common.function.Namer.lambda;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
@@ -11,9 +13,11 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.function.Predicates;
 import ceri.common.io.Fixable;
 import ceri.common.io.Replaceable;
 import ceri.common.io.StateChange;
+import ceri.common.text.ToString;
 import ceri.common.util.Named;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
@@ -22,16 +26,88 @@ import ceri.log.util.LogUtil;
  * The base logic for self-healing devices. It will automatically reconnect if the device is fatally
  * broken, as determined by the config broken predicate.
  */
-public abstract class SelfHealingDevice<T extends Named & Closeable> extends LoopingExecutor
+public abstract class SelfHealing<T extends Named & Closeable> extends LoopingExecutor
 	implements Fixable {
 	protected static final Logger logger = LogManager.getFormatterLogger();
-	private final SelfHealingConfig config;
+	private final Config config;
 	private final Listeners<StateChange> listeners = Listeners.of();
 	private final BooleanCondition sync = BooleanCondition.of();
 	private final AtomicBoolean open = new AtomicBoolean(false);
 	protected final Replaceable.Field<T> device = Replaceable.field("device");
 
-	protected SelfHealingDevice(SelfHealingConfig config) {
+	public static class Config {
+		public static final Predicate<Exception> NULL_PREDICATE = Predicates.no();
+		public static final Config DEFAULT = new Builder().build();
+		public static final Config NULL = of(0, 0, NULL_PREDICATE);
+		public final int fixRetryDelayMs;
+		public final int recoveryDelayMs;
+		public final Predicate<Exception> brokenPredicate;
+
+		public static Config of(int fixRetryDelayMs, int recoveryDelayMs,
+			Predicate<Exception> brokenPredicate) {
+			return builder().fixRetryDelayMs(fixRetryDelayMs).recoveryDelayMs(recoveryDelayMs)
+				.brokenPredicate(brokenPredicate).build();
+		}
+
+		public static class Builder {
+			int fixRetryDelayMs = 2000;
+			int recoveryDelayMs = fixRetryDelayMs / 2;
+			Predicate<Exception> brokenPredicate = NULL_PREDICATE;
+
+			Builder() {}
+
+			public Builder apply(Config config) {
+				if (config.hasBrokenPredicate()) brokenPredicate(config.brokenPredicate);
+				return fixRetryDelayMs(config.fixRetryDelayMs)
+					.recoveryDelayMs(config.recoveryDelayMs);
+			}
+
+			public Builder fixRetryDelayMs(int fixRetryDelayMs) {
+				this.fixRetryDelayMs = fixRetryDelayMs;
+				return this;
+			}
+
+			public Builder recoveryDelayMs(int recoveryDelayMs) {
+				this.recoveryDelayMs = recoveryDelayMs;
+				return this;
+			}
+
+			public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
+				this.brokenPredicate = brokenPredicate;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(Builder builder) {
+			fixRetryDelayMs = builder.fixRetryDelayMs;
+			recoveryDelayMs = builder.recoveryDelayMs;
+			brokenPredicate = builder.brokenPredicate;
+		}
+
+		public boolean broken(Exception e) {
+			return brokenPredicate.test(e);
+		}
+
+		public boolean hasBrokenPredicate() {
+			return brokenPredicate != NULL_PREDICATE;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, fixRetryDelayMs, recoveryDelayMs,
+				lambda(brokenPredicate));
+		}
+	}
+
+	protected SelfHealing(Config config) {
 		this.config = config;
 		device.errors().listen(this::checkIfBroken);
 		start();

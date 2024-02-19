@@ -17,7 +17,7 @@ public class SelfHealingTcpSocketTester {
 		var events = ManualTester.eventCatcher(true);
 		try (var ss = TcpServerSocket.of()) {
 			TcpSocketTester.listenAndEcho(ss, events);
-			var config = SelfHealingTcpSocketConfig.of(HostPort.localhost(ss.port()));
+			var config = SelfHealingTcpSocket.Config.of(HostPort.localhost(ss.port()));
 			try (var s = SelfHealingTcpSocket.of(config);
 				var m = TcpSocketTester.manual(s).preProcessor(events).build()) {
 				m.run();
@@ -29,7 +29,7 @@ public class SelfHealingTcpSocketTester {
 		try (var pair1 = ReplaceableTcpSocket.of()) {
 			try (var ss = TcpServerSocket.of()) {
 				ss.listen(pair1::replace);
-				var config = SelfHealingTcpSocketConfig.of(HostPort.localhost(ss.port()));
+				var config = SelfHealingTcpSocket.Config.of(HostPort.localhost(ss.port()));
 				try (var pair0 = SelfHealingTcpSocket.of(config)) {
 					TcpSocketTester.test(pair0, pair1);
 				}

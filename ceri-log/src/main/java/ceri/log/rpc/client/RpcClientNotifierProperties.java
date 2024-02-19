@@ -10,8 +10,8 @@ public class RpcClientNotifierProperties extends BaseProperties {
 		super(properties, groups);
 	}
 
-	public RpcClientNotifierConfig config() {
-		RpcClientNotifierConfig.Builder b = RpcClientNotifierConfig.builder();
+	public RpcClientNotifier.Config config() {
+		var b = RpcClientNotifier.Config.builder();
 		safeAccept(resetDelayMs(), b::resetDelayMs);
 		return b.build();
 	}

@@ -51,7 +51,7 @@ public class TestRpcClient implements RuntimeCloseable {
 	private RpcClientNotifier<Integer, UInt32Value> createNotifier(RpcChannel channel,
 		int notifierResetDelayMs) {
 		TestStub stub = TestGrpc.newStub(channel.channel);
-		RpcClientNotifierConfig config = RpcClientNotifierConfig.of(notifierResetDelayMs);
+		var config = RpcClientNotifier.Config.of(notifierResetDelayMs);
 		return RpcClientNotifier.of(stub::notify, UInt32Value::getValue, config);
 	}
 

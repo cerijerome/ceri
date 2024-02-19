@@ -11,12 +11,12 @@ import ceri.common.io.ReplaceableOutputStream;
  * The base logic for self-healing connectors. It will automatically reconnect if the connector is
  * fatally broken, as determined by the config broken predicate.
  */
-public abstract class SelfHealingConnector<T extends Connector> extends SelfHealingDevice<T>
+public abstract class SelfHealingConnector<T extends Connector> extends SelfHealing<T>
 	implements Connector.Fixable {
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 
-	protected SelfHealingConnector(SelfHealingConfig config) {
+	protected SelfHealingConnector(Config config) {
 		super(config);
 		in.errors().listen(this::checkIfBroken);
 		out.errors().listen(this::checkIfBroken);

@@ -13,8 +13,8 @@ public class SelfHealingTcpSocketProperties extends BaseProperties {
 		selfHealing = new SelfHealingProperties(this);
 	}
 
-	public SelfHealingTcpSocketConfig config() {
-		return SelfHealingTcpSocketConfig.builder(socket.hostPort()).options(socket.options())
+	public SelfHealingTcpSocket.Config config() {
+		return SelfHealingTcpSocket.Config.builder(socket.hostPort()).options(socket.options())
 			.selfHealing(selfHealing.config()).build();
 	}
 }
