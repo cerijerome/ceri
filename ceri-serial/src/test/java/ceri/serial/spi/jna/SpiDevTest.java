@@ -9,7 +9,7 @@ import org.junit.Test;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.serial.spi.SpiDeviceConfig;
+import ceri.serial.spi.SpiDevice;
 
 public class SpiDevTest {
 	private TestSpiCLibNative lib;
@@ -21,7 +21,7 @@ public class SpiDevTest {
 	public void before() throws IOException {
 		lib = TestSpiCLibNative.of();
 		enc = TestCLibNative.register(lib);
-		f = SpiDeviceConfig.of(0, 0).open();
+		f = SpiDevice.Config.of(0, 0).open();
 		fd = f.fd();
 	}
 

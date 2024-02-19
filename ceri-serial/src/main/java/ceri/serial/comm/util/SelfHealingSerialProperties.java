@@ -13,8 +13,8 @@ public class SelfHealingSerialProperties extends BaseProperties {
 		selfHealing = new SelfHealingProperties(this);
 	}
 
-	public SelfHealingSerialConfig config() {
-		return SelfHealingSerialConfig.builder(serial.portSupplier()).serial(serial.config())
+	public SelfHealingSerial.Config config() {
+		return SelfHealingSerial.Config.builder(serial.portSupplier()).serial(serial.config())
 			.selfHealing(selfHealing.config()).build();
 	}
 }

@@ -25,7 +25,7 @@ public class SerialTestUtil {
 	public static String usbPort() throws IOException {
 		return usbPorts(1)[0];
 	}
-	
+
 	public static String[] usbPorts(int min) throws IOException {
 		var paths = SerialPortLocator.of().usbPorts();
 		if (paths.size() >= min) return paths.toArray(String[]::new);
@@ -42,7 +42,7 @@ public class SerialTestUtil {
 
 	public static void applySelfHealing(String path, Integer baud,
 		ExceptionConsumer<IOException, SelfHealingSerial> consumer) throws IOException {
-		try (var serial = SelfHealingSerial.of(SelfHealingSerialConfig.of(path))) {
+		try (var serial = SelfHealingSerial.of(SelfHealingSerial.Config.of(path))) {
 			serial.open();
 			if (baud != null) serial.params(SerialParams.of(baud));
 			consumer.accept(serial);

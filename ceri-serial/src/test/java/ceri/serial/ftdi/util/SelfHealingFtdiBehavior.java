@@ -4,17 +4,25 @@ import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.function.FunctionUtil.runSilently;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.TestUtil.baseProperties;
 import static ceri.common.test.TestUtil.provider;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_ANY;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_D;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type.MARK;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.function.Predicate;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
@@ -22,9 +30,9 @@ import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.StateChange;
 import ceri.common.test.Captor;
+import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
-import ceri.log.io.SelfHealingConfig;
-import ceri.log.io.SelfHealingDevice;
+import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -33,36 +41,82 @@ import ceri.serial.ftdi.FtdiProgressInfo;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
+import ceri.serial.ftdi.jna.LibFtdiUtil;
+import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.LibUsbTestData.DeviceConfig;
 import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class SelfHealingFtdiBehavior {
-	private static final SelfHealingFtdiConfig config =
-		SelfHealingFtdiConfig.builder().selfHealing(SelfHealingConfig.NULL).build();
+	private static final SelfHealingFtdi.Config config =
+		SelfHealingFtdi.Config.builder().selfHealing(SelfHealing.Config.NULL).build();
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private DeviceConfig sampleConfig;
 	private SelfHealingFtdi con;
 
-	@Before
-	public void before() {
-		enc = TestLibUsbNative.register();
-		lib = enc.ref;
-		sampleConfig = LibUsbSampleData.ftdiConfig();
-		lib.data.addConfig(sampleConfig);
-		con = SelfHealingFtdi.of(config);
-	}
-
 	@After
 	public void after() {
-		con.close();
+		CloseableUtil.close(con, enc);
+		con = null;
+		enc = null;
 		sampleConfig = null;
-		enc.close();
+	}
+
+	@Test
+	public void shouldSetFields() {
+		var params = FtdiLineParams.builder().parity(MARK).build();
+		var bitMode = FtdiBitMode.of(BITMODE_FT1284);
+		var ftdi = FtdiConfig.builder().params(params).bitMode(bitMode).build();
+		Predicate<Exception> predicate = e -> "test".equals(e.getMessage());
+		var selfHealing = SelfHealing.Config.builder().brokenPredicate(predicate).build();
+		var config = SelfHealingFtdi.Config.builder().ftdi(ftdi).selfHealing(selfHealing).build();
+		assertEquals(config.ftdi.params, params);
+		assertEquals(config.ftdi.bitMode, FtdiBitMode.of(BITMODE_FT1284));
+		assertEquals(config.selfHealing.brokenPredicate, predicate);
+		assertTrue(config.selfHealing.brokenPredicate.test(new IOException("test")));
+		assertFalse(config.selfHealing.brokenPredicate.test(new IOException()));
+		assertFind(config.toString(), "\\bMARK\\b");
+	}
+
+	@Test
+	public void shouldCreateFromDescriptor() {
+		assertEquals(SelfHealingFtdi.Config.of("").finder, LibUsbFinder.of(0, 0));
+		assertEquals(SelfHealingFtdi.Config.of("0x401:0x66").finder, LibUsbFinder.of(0x401, 0x66));
+	}
+
+	@Test
+	public void shouldCopyFromConfig() {
+		var c0 = SelfHealingFtdi.Config.of("0x401:0x66");
+		var config =
+			SelfHealingFtdi.Config.builder(SelfHealingFtdi.Config.of("0x401:0x66")).build();
+		assertEquals(config.finder, c0.finder);
+	}
+
+	@Test
+	public void shouldCreateFromProperties() {
+		var properties = baseProperties("ftdi");
+		var config1 = new SelfHealingFtdiProperties(properties, "ftdi.1").config();
+		var config2 = new SelfHealingFtdiProperties(properties, "ftdi.2").config();
+		assertEquals(config1.finder, LibUsbFinder.builder().vendor(0x401).build());
+		assertEquals(config1.iface, INTERFACE_D);
+		assertEquals(config1.ftdi.baud, 19200);
+		assertEquals(config1.ftdi.bitMode, FtdiBitMode.builder(BITMODE_FT1284).mask(0x3f).build());
+		assertEquals(config1.ftdi.params.dataBits, ftdi_data_bits_type.BITS_7);
+		assertEquals(config1.ftdi.params.breakType, ftdi_break_type.BREAK_ON);
+		assertEquals(config1.selfHealing.fixRetryDelayMs, 33);
+		assertEquals(config1.selfHealing.recoveryDelayMs, 777);
+		assertEquals(config2.finder, LibFtdiUtil.FINDER);
+		assertEquals(config2.iface, INTERFACE_ANY);
+		assertEquals(config2.ftdi.baud, 38400);
+		assertEquals(config2.ftdi.bitMode, null);
+		assertEquals(config2.selfHealing.fixRetryDelayMs, 444);
+		assertEquals(config2.selfHealing.recoveryDelayMs, 88);
 	}
 
 	@Test
 	public void shouldOpenFtdiDevice() throws IOException {
+		init();
 		con.open();
 		assertIterable(lib.transferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
@@ -196,8 +250,10 @@ public class SelfHealingFtdiBehavior {
 
 	@Test
 	public void shouldReadStream() throws IOException {
+		init();
 		sampleConfig.desc.bcdDevice = 0x700; // fifo-enabled device
-		connect();
+		con.open();
+		//lib.transferOut.reset();
 		Captor.Bi<FtdiProgressInfo, ByteBuffer> captor = Captor.ofBi();
 		con.readStream((i, b) -> {
 			captor.accept(i, b);
@@ -211,6 +267,7 @@ public class SelfHealingFtdiBehavior {
 
 	@Test
 	public void shouldRetryOnFailure() throws InterruptedException {
+		init();
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var enc = con.listeners().enclose(sync::signal)) {
@@ -223,11 +280,12 @@ public class SelfHealingFtdiBehavior {
 				lib.transferOut.error.clear();
 				sync.await(StateChange.fixed);
 			}
-		}, Level.OFF, SelfHealingDevice.class);
+		}, Level.OFF, SelfHealing.class);
 	}
 
 	@Test
 	public void shouldFailIfNotConnected() {
+		init();
 		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
 		runSilently(() -> con.in().read()); // may have been fixed
 		runSilently(() -> con.readPins()); // may have been fixed
@@ -237,7 +295,16 @@ public class SelfHealingFtdiBehavior {
 	 * Connect and reset state.
 	 */
 	private void connect() throws IOException {
+		init();
 		con.open();
 		lib.transferOut.reset();
+	}
+
+	private void init() {
+		enc = TestLibUsbNative.register();
+		lib = enc.ref;
+		sampleConfig = LibUsbSampleData.ftdiConfig();
+		lib.data.addConfig(sampleConfig);
+		con = SelfHealingFtdi.of(config);
 	}
 }

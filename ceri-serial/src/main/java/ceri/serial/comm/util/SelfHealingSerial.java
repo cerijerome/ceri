@@ -1,15 +1,21 @@
 package ceri.serial.comm.util;
 
+import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.Namer;
 import ceri.common.io.IoUtil;
+import ceri.common.text.ToString;
+import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.SerialPort;
 
 /**
  * A self-healing serial port. It will automatically reconnect on fatal errors, such as if the cable
@@ -17,14 +23,101 @@ import ceri.serial.comm.SerialParams;
  * reconnecting. The PortSupplier interface can be used to provide handling logic in this case.
  */
 public class SelfHealingSerial extends SelfHealingConnector<Serial> implements Serial.Fixable {
-	private final SelfHealingSerialConfig config;
+	private final Config config;
 	private final SerialConfig.Builder serialConfig;
 
-	public static SelfHealingSerial of(SelfHealingSerialConfig config) {
+	public static class Config {
+		public static final Config NULL = builder((PortSupplier) null).build();
+		private static final Predicate<Exception> DEFAULT_PREDICATE =
+			Namer.predicate(SerialPort::isFatal, "SerialPort::isFatal");
+		public final PortSupplier portSupplier;
+		public final SerialFactory factory;
+		public final SerialConfig serial;
+		public final SelfHealing.Config selfHealing;
+
+		public static interface SerialFactory {
+			Serial open(String port) throws IOException;
+		}
+
+		public static Config of(String port) {
+			return builder(port).build();
+		}
+
+		public static class Builder {
+			final PortSupplier portSupplier;
+			SerialFactory factory = SerialPort::open;
+			SerialConfig serial = SerialConfig.DEFAULT;
+			SelfHealing.Config.Builder selfHealing =
+				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
+
+			Builder(PortSupplier portSupplier) {
+				this.portSupplier = portSupplier;
+			}
+
+			public Builder factory(SerialFactory factory) {
+				this.factory = factory;
+				return this;
+			}
+
+			public Builder serial(SerialConfig serial) {
+				this.serial = serial;
+				return this;
+			}
+
+			public Builder selfHealing(SelfHealing.Config selfHealing) {
+				this.selfHealing.apply(selfHealing);
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder(String port) {
+			return builder(PortSupplier.fixed(port));
+		}
+
+		public static Builder builder(PortSupplier portSupplier) {
+			return new Builder(portSupplier);
+		}
+
+		public static Builder builder(Config config) {
+			return new Builder(config.portSupplier).factory(config.factory).serial(config.serial)
+				.selfHealing(config.selfHealing);
+		}
+
+		Config(Builder builder) {
+			portSupplier = builder.portSupplier;
+			factory = builder.factory;
+			serial = builder.serial;
+			selfHealing = builder.selfHealing.build();
+		}
+
+		public boolean enabled() {
+			return portSupplier != null;
+		}
+
+		/**
+		 * Override serial params.
+		 */
+		public Config replace(SerialParams params) {
+			if (params == null || this.serial.params.equals(params)) return this;
+			return builder(this).serial(serial.replace(params)).build();
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, lambda(portSupplier), lambda(factory), serial,
+				selfHealing);
+		}
+	}
+
+	public static SelfHealingSerial of(Config config) {
 		return new SelfHealingSerial(config);
 	}
 
-	private SelfHealingSerial(SelfHealingSerialConfig config) {
+	private SelfHealingSerial(Config config) {
 		super(config.selfHealing);
 		this.config = config;
 		serialConfig = SerialConfig.builder(config.serial);
@@ -124,6 +217,11 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	@Override
 	public boolean ri() throws IOException {
 		return device.applyValid(Serial::ri);
+	}
+
+	@Override
+	public String toString() {
+		return ToString.forClass(this, config);
 	}
 
 	@SuppressWarnings("resource")

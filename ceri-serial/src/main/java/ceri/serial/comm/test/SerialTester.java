@@ -20,7 +20,6 @@ import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.util.SelfHealingSerial;
-import ceri.serial.comm.util.SelfHealingSerialConfig;
 import ceri.serial.comm.util.SerialPortLocator;
 
 /**
@@ -67,7 +66,7 @@ public class SerialTester {
 	 */
 	public static void testPorts(Collection<String> ports) throws IOException {
 		var serials = CloseableUtil
-			.create(port -> SelfHealingSerial.of(SelfHealingSerialConfig.of(port)), ports);
+			.create(port -> SelfHealingSerial.of(SelfHealingSerial.Config.of(port)), ports);
 		try {
 			test(serials);
 		} finally {

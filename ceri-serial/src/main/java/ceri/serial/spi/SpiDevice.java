@@ -6,7 +6,9 @@ import static ceri.jna.clib.OpenFlag.O_RDONLY;
 import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.jna.clib.OpenFlag.O_WRONLY;
 import java.io.IOException;
+import java.util.Objects;
 import ceri.common.io.Direction;
+import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.OpenFlag;
@@ -18,6 +20,92 @@ import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
  */
 public class SpiDevice implements Spi {
 	private final FileDescriptor fd;
+
+	/**
+	 * Configuration to open SPI file descriptor.
+	 */
+	public static class Config {
+		public static final Config DEFAULT = of(0, 0);
+		private final int bus;
+		private final int chip;
+		private final Direction direction;
+
+		public static Config of(int bus, int chip) {
+			return builder().bus(bus).chip(chip).build();
+		}
+
+		public static Config of(int bus, int chip, Direction direction) {
+			return builder().bus(bus).chip(chip).direction(direction).build();
+		}
+
+		public static class Builder {
+			int bus = 0;
+			int chip = 0;
+			Direction direction = Direction.duplex;
+
+			Builder() {}
+
+			public Builder bus(int bus) {
+				validateMin(bus, 0);
+				this.bus = bus;
+				return this;
+			}
+
+			public Builder chip(int chip) {
+				validateMin(chip, 0);
+				this.chip = chip;
+				return this;
+			}
+
+			public Builder direction(Direction direction) {
+				validateNotNull(direction);
+				this.direction = direction;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(bus, chip, direction);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(int bus, int chip, Direction direction) {
+			this.bus = bus;
+			this.chip = chip;
+			this.direction = direction;
+		}
+
+		/**
+		 * Opens the SPI file descriptor. Can be used as the open function for a SelfHealingFd.
+		 */
+		public CFileDescriptor open() throws IOException {
+			return SpiDevice.open(bus, chip, direction);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(bus, chip, direction);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Config)) return false;
+			Config other = (Config) obj;
+			if (bus != other.bus) return false;
+			if (chip != other.chip) return false;
+			if (!Objects.equals(direction, other.direction)) return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, bus, chip, direction);
+		}
+	}
 
 	/**
 	 * Opens the SPI file descriptor. Can be used as the open function for a SelfHealingFd.

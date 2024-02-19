@@ -11,7 +11,7 @@ import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
-import ceri.serial.comm.util.SelfHealingSerialConfig.SerialFactory;
+import ceri.serial.comm.util.SelfHealingSerial.Config.SerialFactory;
 
 /**
  * A connector for testing logic against serial connectors.

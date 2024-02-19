@@ -26,7 +26,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.comm.util.PortSupplierBehavior.class, //
 	ceri.serial.comm.util.ReplaceableSerialBehavior.class, //
 	ceri.serial.comm.util.SelfHealingSerialBehavior.class, //
-	ceri.serial.comm.util.SelfHealingSerialConfigBehavior.class, //
 	ceri.serial.comm.util.SerialConfigBehavior.class, //
 	ceri.serial.comm.util.SerialPortLocatorBehavior.class, //
 	ceri.serial.comm.util.SerialPropertiesBehavior.class, //
@@ -47,7 +46,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.ftdi.util.FtdiConfigBehavior.class, //
 	ceri.serial.ftdi.util.FtdiPropertiesBehavior.class, //
 	ceri.serial.ftdi.util.SelfHealingFtdiBehavior.class, //
-	ceri.serial.ftdi.util.SelfHealingFtdiConfigBehavior.class, //
 	// i2c
 	ceri.serial.i2c.DeviceIdBehavior.class, //
 	ceri.serial.i2c.I2cAddressBehavior.class, //
@@ -85,7 +83,6 @@ import ceri.common.test.TestUtil;
 	// spi
 	ceri.serial.spi.SpiBehavior.class, //
 	ceri.serial.spi.SpiDeviceBehavior.class, //
-	ceri.serial.spi.SpiDeviceConfigBehavior.class, //
 	ceri.serial.spi.SpiModeBehavior.class, //
 	// spi.jna
 	ceri.serial.spi.jna.SpiDevTest.class, //

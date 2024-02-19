@@ -24,7 +24,6 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.ftdi.util.SelfHealingFtdi;
-import ceri.serial.ftdi.util.SelfHealingFtdiConfig;
 import ceri.serial.libusb.jna.LibUsbFinder;
 
 /**
@@ -58,7 +57,7 @@ public class FtdiTester {
 	}
 
 	public static void test() throws IOException {
-		try (var ftdi = SelfHealingFtdi.of(SelfHealingFtdiConfig.DEFAULT)) {
+		try (var ftdi = SelfHealingFtdi.of(SelfHealingFtdi.Config.DEFAULT)) {
 			test(ftdi);
 		}
 	}
@@ -82,7 +81,7 @@ public class FtdiTester {
 		var count = LibFtdiUtil.FINDER.matchCount();
 		var configs = IntStream.range(0, count)
 			.mapToObj(i -> LibUsbFinder.builder().vendor(LibFtdi.FTDI_VENDOR_ID).index(i).build())
-			.map(SelfHealingFtdiConfig::of).toList();
+			.map(SelfHealingFtdi.Config::of).toList();
 		return CloseableUtil.create(SelfHealingFtdi::of, configs);
 	}
 

@@ -2,8 +2,11 @@ package ceri.serial.spi;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.collection.ImmutableUtil.asList;
+import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.spi.SpiMode.MODE_2;
 import static ceri.serial.spi.SpiMode.MODE_3;
@@ -20,12 +23,13 @@ import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import ceri.common.io.Direction;
+import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.serial.spi.jna.TestSpiCLibNative;
 
 public class SpiDeviceBehavior {
@@ -34,22 +38,44 @@ public class SpiDeviceBehavior {
 	private CFileDescriptor fd;
 	private SpiDevice spi;
 
-	@Before
-	public void before() throws IOException {
-		lib = TestSpiCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		fd = SpiDeviceConfig.of(0, 0).open();
-		spi = SpiDevice.of(fd);
-	}
-
 	@After
 	public void after() {
-		fd.close();
-		enc.close();
+		CloseableUtil.close(fd, enc);
+		fd = null;
+		enc = null;
+		spi = null;
+		lib = null;
+	}
+
+	@Test
+	public void shouldNotBreachEqualsContract() {
+		var t = SpiDevice.Config.of(1, 1);
+		var eq0 = SpiDevice.Config.of(1, 1);
+		var eq1 = SpiDevice.Config.builder().bus(1).chip(1).build();
+		var ne0 = SpiDevice.Config.of(0, 1);
+		var ne1 = SpiDevice.Config.of(1, 0);
+		var ne2 = SpiDevice.Config.of(1, 1, Direction.in);
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1, ne2);
+	}
+
+	@Test
+	public void shouldOpenDevice() throws IOException {
+		lib = TestSpiCLibNative.of();
+		enc = TestCLibNative.register(lib);
+		assertThrown(() -> SpiDevice.Config.of(0, 0, null));
+		try (var fd = SpiDevice.Config.of(0, 1, Direction.in).open()) {}
+		try (var fd = SpiDevice.Config.of(1, 1, Direction.out).open()) {}
+		try (var fd = SpiDevice.Config.of(1, 0).open()) {}
+		lib.open.assertValues( //
+			new OpenArgs("/dev/spidev0.1", 0, 0), //
+			new OpenArgs("/dev/spidev1.1", 1, 0), //
+			new OpenArgs("/dev/spidev1.0", 2, 0));
 	}
 
 	@Test
 	public void shouldSetParameters() throws IOException {
+		init();
 		spi.mode(MODE_2);
 		spi.mode(SpiMode.of(0x123)); // 32-bit
 		spi.lsbFirst(true);
@@ -67,6 +93,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldGetParameters() throws IOException {
+		init();
 		lib.ioctlSpiInt.autoResponses(MODE_3.value, 1, 0, 3, 200);
 		assertEquals(spi.mode(), MODE_3);
 		assertEquals(spi.lsbFirst(), true);
@@ -83,6 +110,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldTransferOut() throws IOException {
+		init();
 		var xfer = spi.transfer(Direction.out, 5);
 		xfer.write(bytes(1, 2, 3, 4, 5));
 		xfer.execute();
@@ -93,6 +121,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldTransferIn() throws IOException {
+		init();
 		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.in, 5);
 		xfer.write(bytes(1, 2, 3)); // ignored
@@ -103,6 +132,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldTransferDuplex() throws IOException {
+		init();
 		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.duplex, 5);
 		xfer.write(bytes(5, 6, 7, 8, 9));
@@ -113,7 +143,8 @@ public class SpiDeviceBehavior {
 	}
 
 	@Test
-	public void shouldConfigureTransfer() {
+	public void shouldConfigureTransfer() throws IOException {
+		init();
 		var xfer = spi.transfer(Direction.duplex, 5).limit(4).speedHz(200).delayMicros(10)
 			.bitsPerWord(3).csChange(true).txNbits(1).rxNbits(2);
 		assertEquals(xfer.size(), 4);
@@ -131,6 +162,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldDetermineSpeed() throws IOException {
+		init();
 		lib.ioctlSpiInt.autoResponses(0, 200);
 		var xfer = spi.transfer(Direction.out, 3);
 		assertEquals(spi.speedHz(xfer), 0); // 0 from spi, 0 from xfer
@@ -141,6 +173,7 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldDetermineBitsPerWord() throws IOException {
+		init();
 		lib.ioctlSpiInt.autoResponses(0, 7);
 		var xfer = spi.transfer(Direction.out, 3);
 		assertEquals(spi.bitsPerWord(xfer), 8); // 0 from spi, 0 from xfer
@@ -149,4 +182,10 @@ public class SpiDeviceBehavior {
 
 	}
 
+	private void init() throws IOException {
+		lib = TestSpiCLibNative.of();
+		enc = TestCLibNative.register(lib);
+		fd = SpiDevice.Config.of(0, 0).open();
+		spi = SpiDevice.of(fd);
+	}
 }

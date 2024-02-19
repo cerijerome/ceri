@@ -14,8 +14,8 @@ public class SelfHealingFtdiProperties extends BaseProperties {
 		selfHealing = new SelfHealingProperties(this);
 	}
 
-	public SelfHealingFtdiConfig config() {
-		var b = SelfHealingFtdiConfig.builder();
+	public SelfHealingFtdi.Config config() {
+		var b = SelfHealingFtdi.Config.builder();
 		FunctionUtil.safeAccept(ftdi.finder(), b::finder);
 		FunctionUtil.safeAccept(ftdi.iface(), b::iface);
 		return b.ftdi(ftdi.config()).selfHealing(selfHealing.config()).build();

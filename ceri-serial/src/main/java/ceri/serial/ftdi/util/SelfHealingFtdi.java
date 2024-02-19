@@ -1,7 +1,11 @@
 package ceri.serial.ftdi.util;
 
 import java.io.IOException;
+import java.util.function.Predicate;
 import com.sun.jna.Pointer;
+import ceri.common.function.Namer;
+import ceri.common.text.ToString;
+import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.Ftdi;
@@ -10,22 +14,102 @@ import ceri.serial.ftdi.FtdiDevice;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 import ceri.serial.ftdi.FtdiTransferControl;
+import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
+import ceri.serial.ftdi.jna.LibFtdiUtil;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.jna.LibUsbFinder;
 
 /**
  * A self-healing ftdi device. It will automatically reconnect if the cable is removed and
  * reinserted.
  */
 public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.Fixable {
-	private final SelfHealingFtdiConfig config;
+	private final Config config;
 	private final FtdiConfig.Builder ftdiConfig;
 
-	public static SelfHealingFtdi of(SelfHealingFtdiConfig config) {
+	public static class Config {
+		public static final Config DEFAULT = builder().build();
+		private static final Predicate<Exception> DEFAULT_PREDICATE =
+			Namer.predicate(FtdiDevice::isFatal, "Ftdi::isFatal");
+		public final LibUsbFinder finder;
+		public final ftdi_interface iface;
+		public final FtdiConfig ftdi;
+		public final SelfHealing.Config selfHealing;
+
+		public static Config of(String finder) {
+			return of(LibUsbFinder.from(finder));
+		}
+
+		public static Config of(LibUsbFinder finder) {
+			return builder().finder(finder).build();
+		}
+
+		public static class Builder {
+			LibUsbFinder finder = LibFtdiUtil.FINDER;
+			ftdi_interface iface = ftdi_interface.INTERFACE_ANY;
+			FtdiConfig ftdi = FtdiConfig.NULL;
+			SelfHealing.Config.Builder selfHealing =
+				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
+
+			Builder() {}
+
+			public Builder finder(String descriptor) {
+				return finder(LibUsbFinder.from(descriptor));
+			}
+
+			public Builder finder(LibUsbFinder finder) {
+				this.finder = finder;
+				return this;
+			}
+
+			public Builder iface(ftdi_interface iface) {
+				this.iface = iface;
+				return this;
+			}
+
+			public Builder ftdi(FtdiConfig ftdi) {
+				this.ftdi = ftdi;
+				return this;
+			}
+
+			public Builder selfHealing(SelfHealing.Config selfHealing) {
+				this.selfHealing.apply(selfHealing);
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		public static Builder builder(Config config) {
+			return builder().finder(config.finder).iface(config.iface).ftdi(config.ftdi)
+				.selfHealing(config.selfHealing);
+		}
+
+		Config(Builder builder) {
+			finder = builder.finder;
+			iface = builder.iface;
+			ftdi = builder.ftdi;
+			selfHealing = builder.selfHealing.build();
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, finder, iface, ftdi, selfHealing);
+		}
+	}
+
+	public static SelfHealingFtdi of(Config config) {
 		return new SelfHealingFtdi(config);
 	}
 
-	private SelfHealingFtdi(SelfHealingFtdiConfig config) {
+	private SelfHealingFtdi(Config config) {
 		super(config.selfHealing);
 		this.config = config;
 		ftdiConfig = FtdiConfig.builder(config.ftdi);

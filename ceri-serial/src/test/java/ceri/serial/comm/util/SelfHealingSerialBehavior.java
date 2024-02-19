@@ -1,23 +1,30 @@
 package ceri.serial.comm.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.log.io.SelfHealingConfig;
+import ceri.log.io.SelfHealing;
 import ceri.log.util.LogUtil;
+import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
+import ceri.serial.comm.Parity;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.StopBits;
 import ceri.serial.comm.test.TestSerial;
 
 public class SelfHealingSerialBehavior {
-	private static final SelfHealingSerialConfig config =
-		SelfHealingSerialConfig.builder("test").selfHealing(SelfHealingConfig.NULL).build();
+	private static final SelfHealingSerial.Config config =
+		SelfHealingSerial.Config.builder("test").selfHealing(SelfHealing.Config.NULL).build();
 	private Enclosed<RuntimeException, TestCLibNative> enc;
 	private SelfHealingSerial serial;
 	private TestSerial testSerial;
@@ -27,6 +34,46 @@ public class SelfHealingSerialBehavior {
 		LogUtil.close(serial, enc);
 		serial = null;
 		testSerial = null;
+	}
+
+	@Test
+	public void shouldDetermineIfEnabled() {
+		assertTrue(SelfHealingSerial.Config.of("test").enabled());
+		assertFalse(SelfHealingSerial.Config.builder((PortSupplier) null).build().enabled());
+	}
+
+	@Test
+	public void shouldReplaceSerialParams() {
+		assertEquals(SelfHealingSerial.Config.NULL.replace(null).serial.params,
+			SerialParams.DEFAULT);
+		assertEquals(SelfHealingSerial.Config.NULL.replace(SerialParams.DEFAULT).serial.params,
+			SerialParams.DEFAULT);
+		assertEquals(SelfHealingSerial.Config.NULL.replace(SerialParams.NULL).serial.params,
+			SerialParams.NULL);
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertFind(SelfHealingSerial.Config.of("port"), "port.*lambda");
+		try (var serial = SelfHealingSerial.of(config)) {
+			assertFind(serial, "test");
+		}
+	}
+
+	@Test
+	public void shouldCreateFromProperties() throws IOException {
+		var p = TestUtil.baseProperties("serial");
+		var conf = new SelfHealingSerialProperties(p, "serial").config();
+		assertEquals(conf.portSupplier.get(), "port0");
+		assertEquals(conf.serial.params.baud, 250000);
+		assertEquals(conf.serial.params.dataBits, DataBits._6);
+		assertEquals(conf.serial.params.stopBits, StopBits._2);
+		assertEquals(conf.serial.params.parity, Parity.mark);
+		assertEquals(conf.serial.flowControl, Set.of(FlowControl.rtsCtsIn, FlowControl.xonXoffOut));
+		assertEquals(conf.serial.inBufferSize, 111);
+		assertEquals(conf.serial.outBufferSize, 222);
+		assertEquals(conf.selfHealing.fixRetryDelayMs, 333);
+		assertEquals(conf.selfHealing.recoveryDelayMs, 444);
 	}
 
 	@Test
@@ -65,7 +112,7 @@ public class SelfHealingSerialBehavior {
 	public void shouldSetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
 		serial = SelfHealingSerial
-			.of(SelfHealingSerialConfig.builder(config).factory(testSerial.factory()).build());
+			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
 		serial.open();
 		serial.brk(true);
 		serial.rts(false);
@@ -79,7 +126,7 @@ public class SelfHealingSerialBehavior {
 	public void shouldGetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
 		serial = SelfHealingSerial
-			.of(SelfHealingSerialConfig.builder(config).factory(testSerial.factory()).build());
+			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
 		serial.open();
 		testSerial.rts.value(false);
 		testSerial.dtr.value(true);
@@ -100,7 +147,7 @@ public class SelfHealingSerialBehavior {
 		testSerial = TestSerial.of();
 		testSerial.open.error.setFrom(IOX, null);
 		serial = SelfHealingSerial
-			.of(SelfHealingSerialConfig.builder(config).factory(testSerial.factory()).build());
+			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
 		assertThrown(serial::open);
 	}
 
