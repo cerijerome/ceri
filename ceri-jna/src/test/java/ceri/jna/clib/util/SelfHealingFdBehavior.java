@@ -3,24 +3,32 @@ package ceri.jna.clib.util;
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
+import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.jna.clib.jna.CFcntl.O_APPEND;
+import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
+import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
+import ceri.jna.clib.Mode;
 import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.clib.test.TestFileDescriptor;
-import ceri.log.io.SelfHealingDevice;
+import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingFdBehavior {
@@ -28,40 +36,75 @@ public class SelfHealingFdBehavior {
 	private TestFileDescriptor fd;
 	private SelfHealingFd shf;
 
-	@Before
-	public void before() {
-		fd = TestFileDescriptor.of(33);
-		open = CallSync.supplier(fd);
-		var config = SelfHealingFdConfig.builder(() -> open.get(IO_ADAPTER))
-			.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
-		shf = SelfHealingFd.of(config);
-	}
-
 	@After
 	public void after() {
-		shf.close();
+		CloseableUtil.close(shf, fd);
+		shf = null;
+		fd = null;
+		open = null;
+	}
+
+	@Test
+	public void shouldCreateFromProperties() throws IOException {
+		try (var enc = TestCLibNative.register()) {
+			var lib = enc.ref;
+			var config =
+				new SelfHealingFdProperties(baseProperties("self-healing-fd"), "fd").config();
+			try (var fd = config.open()) {
+				lib.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
+				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
+				assertEquals(config.selfHealing.recoveryDelayMs, 456);
+			}
+		}
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldCreateFromOpenFunction() throws IOException {
+		TestFileDescriptor fd = TestFileDescriptor.of(33);
+		CallSync.Supplier<FileDescriptor> sync = CallSync.supplier(fd);
+		var config = SelfHealingFd.Config.of(() -> sync.get(IO_ADAPTER));
+		assertEquals(config.open(), fd);
+		sync.awaitAuto();
+	}
+
+	@Test
+	public void shouldSpecifyBrokenPredicate() {
+		var config = SelfHealingFd.Config.builder("test", Mode.NONE)
+			.selfHealing(b -> b.brokenPredicate(Objects::nonNull)).build();
+		assertEquals(config.selfHealing.brokenPredicate.test(null), false);
+		assertEquals(config.selfHealing.brokenPredicate.test(new IOException()), true);
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		var config = SelfHealingFd.Config.of(() -> TestFileDescriptor.of(33));
+		assertFind(config, "\\(2000,1000,%s\\)", config.selfHealing.brokenPredicate);
 	}
 
 	@Test
 	public void shouldFailToOpenWithError() {
+		init();
 		open.error.setFrom(IOX);
 		LogModifier.run(() -> {
 			assertThrown(() -> shf.open());
 			shf.close();
-		}, Level.OFF, SelfHealingDevice.class);
+		}, Level.OFF, SelfHealing.class);
 	}
 
 	@Test
 	public void shouldOpenSilently() {
+		init();
 		open.error.setFrom(IOX);
 		LogModifier.run(() -> {
 			assertFalse(shf.openSilently());
 			shf.close();
-		}, Level.OFF, SelfHealingDevice.class);
+		}, Level.OFF, SelfHealing.class);
 	}
 
 	@Test
 	public void shouldListenForStateChanges() {
+		init();
 		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		shf.listeners().listen(listener::accept);
 		try (var x = TestUtil.threadRun(shf::broken)) {
@@ -72,6 +115,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldHandleBadListeners() {
+		init();
 		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		listener.error.setFrom(RTX, RIX);
 		shf.listeners().listen(listener::accept);
@@ -81,11 +125,12 @@ public class SelfHealingFdBehavior {
 				listener.assertCall(StateChange.fixed);
 				shf.close();
 			}
-		}, Level.OFF, SelfHealingDevice.class);
+		}, Level.OFF, SelfHealing.class);
 	}
 
 	@Test
 	public void shouldFailIfNotOpen() {
+		init();
 		assertThrown(() -> shf.in().read());
 		assertThrown(() -> shf.out().write(0xff));
 		assertThrown(() -> shf.accept(fd -> {}));
@@ -94,6 +139,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldDelegateToFileDescriptor() throws IOException {
+		init();
 		shf.open();
 		shf.accept(fd -> assertEquals(fd, this.fd.fd()));
 		assertEquals(shf.apply(fd -> {
@@ -104,6 +150,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldCheckCallIfBroken() throws IOException {
+		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
 		assertThrown(() -> shf.accept(fd -> throwCException(CError.ENOENT))); // now broken
@@ -114,6 +161,7 @@ public class SelfHealingFdBehavior {
 
 	@Test
 	public void shouldFixIfBroken() throws IOException {
+		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
 		open.error.setFrom(IOX, IOX, null);
@@ -123,11 +171,18 @@ public class SelfHealingFdBehavior {
 			open.await(fd); // throws IOException
 			open.await(fd); // success
 			shf.close();
-		}, Level.OFF, SelfHealingDevice.class);
+		}, Level.OFF, SelfHealing.class);
 	}
 
 	private void throwCException(CError error) throws CException {
 		throw CException.full("test", error);
 	}
 
+	private void init() {
+		fd = TestFileDescriptor.of(33);
+		open = CallSync.supplier(fd);
+		var config = SelfHealingFd.Config.builder(() -> open.get(IO_ADAPTER))
+			.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
+		shf = SelfHealingFd.of(config);
+	}
 }

@@ -13,8 +13,7 @@ public class SelfHealingFdProperties extends BaseProperties {
 		selfHealing = new SelfHealingProperties(this);
 	}
 
-	public SelfHealingFdConfig config() {
-		return SelfHealingFdConfig.builder(fd.opener())
-			.selfHealing(selfHealing.config()).build();
+	public SelfHealingFd.Config config() {
+		return SelfHealingFd.Config.builder(fd.opener()).selfHealing(selfHealing.config()).build();
 	}
 }
