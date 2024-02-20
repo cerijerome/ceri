@@ -4,17 +4,15 @@ import static ceri.common.util.BasicUtil.defaultValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerial;
-import ceri.serial.comm.util.SelfHealingSerialConfig;
-import ceri.x10.cm17a.Cm17aConfig.Type;
 import ceri.x10.cm17a.device.Cm17a;
 import ceri.x10.cm17a.device.Cm17aConnector;
 import ceri.x10.cm17a.device.Cm17aDevice;
-import ceri.x10.cm17a.device.Cm17aDeviceConfig;
 import ceri.x10.cm17a.device.Cm17aEmulator;
 
 /**
@@ -30,9 +28,92 @@ public class Cm17aContainer implements RuntimeCloseable {
 	public final Cm17a cm17a;
 
 	/**
+	 * The container type, determined by references and config.
+	 */
+	public static enum Type {
+		cm17aRef,
+		serialRef,
+		serial,
+		test,
+		noOp;
+	}
+
+	public static class Config {
+		public final int id;
+		public final DeviceMode mode;
+		public final Cm17aDevice.Config device;
+		public final SelfHealingSerial.Config serial;
+
+		/**
+		 * Convenience constructor for simple case.
+		 */
+		public static Config of(String commPort) {
+			// Container overrides serial port params
+			return builder().serial(SelfHealingSerial.Config.of(commPort)).build();
+		}
+
+		public static class Builder {
+			int id = 1;
+			DeviceMode mode = DeviceMode.enabled;
+			Cm17aDevice.Config device = Cm17aDevice.Config.DEFAULT;
+			SelfHealingSerial.Config serial = SelfHealingSerial.Config.NULL;
+
+			Builder() {}
+
+			public Builder id(int id) {
+				this.id = id;
+				return this;
+			}
+
+			public Builder mode(DeviceMode mode) {
+				this.mode = mode;
+				return this;
+			}
+
+			public Builder device(Cm17aDevice.Config device) {
+				this.device = device;
+				return this;
+			}
+
+			public Builder serial(SelfHealingSerial.Config serial) {
+				this.serial = serial;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(Builder builder) {
+			id = builder.id;
+			mode = builder.mode;
+			device = builder.device;
+			serial = builder.serial;
+		}
+
+		public Type type(Cm17a cm17aRef, Serial.Fixable serialRef) {
+			if (cm17aRef != null) return Type.cm17aRef;
+			if (serialRef != null) return Type.serialRef;
+			if (mode == DeviceMode.enabled && serial.enabled()) return Type.serial;
+			if (mode == DeviceMode.test) return Type.test;
+			return Type.noOp;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, id, mode, device, serial);
+		}
+	}
+
+	/**
 	 * Constructs the controller and connector.
 	 */
-	public static Cm17aContainer of(Cm17aConfig config) {
+	public static Cm17aContainer of(Config config) {
 		return new Cm17aContainer(config, null, null);
 	}
 
@@ -40,25 +121,24 @@ public class Cm17aContainer implements RuntimeCloseable {
 	 * Container with id for the given controller.
 	 */
 	public static Cm17aContainer of(int id, Cm17a cm17a) {
-		return new Cm17aContainer(Cm17aConfig.builder().id(id).build(), cm17a, null);
+		return new Cm17aContainer(Config.builder().id(id).build(), cm17a, null);
 	}
 
 	/**
 	 * Constructs a controller for the given serial connector.
 	 */
 	public static Cm17aContainer of(int id, Serial.Fixable serial) {
-		return new Cm17aContainer(Cm17aConfig.builder().id(id).build(), null, serial);
+		return new Cm17aContainer(Config.builder().id(id).build(), null, serial);
 	}
 
 	/**
 	 * Constructs a controller for the given serial connector.
 	 */
-	public static Cm17aContainer of(int id, Serial.Fixable serial, Cm17aDeviceConfig device) {
-		return new Cm17aContainer(Cm17aConfig.builder().id(id).device(device).build(), null,
-			serial);
+	public static Cm17aContainer of(int id, Serial.Fixable serial, Cm17aDevice.Config device) {
+		return new Cm17aContainer(Config.builder().id(id).device(device).build(), null, serial);
 	}
 
-	private Cm17aContainer(Cm17aConfig config, Cm17a cm17a, Serial.Fixable serial) {
+	private Cm17aContainer(Config config, Cm17a cm17a, Serial.Fixable serial) {
 		try {
 			id = config.id;
 			type = config.type(cm17a, serial);
@@ -85,12 +165,12 @@ public class Cm17aContainer implements RuntimeCloseable {
 	}
 
 	@SuppressWarnings("resource")
-	private Serial.Fixable createSerial(SelfHealingSerialConfig config) {
+	private Serial.Fixable createSerial(SelfHealingSerial.Config config) {
 		return type == Type.serial ? Fixable.openSilently(SelfHealingSerial.of(config)) : null;
 	}
 
 	@SuppressWarnings("resource")
-	private Cm17a createCm17a(Serial.Fixable serial, Cm17aDeviceConfig config) {
+	private Cm17a createCm17a(Serial.Fixable serial, Cm17aDevice.Config config) {
 		return switch (type) {
 			case cm17aRef -> null;
 			case serialRef, serial -> Cm17aDevice.of(config, Cm17aConnector.of(serial));

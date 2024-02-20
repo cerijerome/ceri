@@ -18,7 +18,7 @@ public class X10ControllerBehavior {
 	}
 
 	@Test
-	public void should() throws IOException {
+	public void shouldFailForUnsupportedCommand() throws IOException {
 		X10Controller x10 = new X10Controller() {
 			@Override
 			public boolean supports(Command command) {

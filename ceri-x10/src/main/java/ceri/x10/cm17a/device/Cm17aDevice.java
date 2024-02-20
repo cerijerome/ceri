@@ -3,10 +3,12 @@ package ceri.x10.cm17a.device;
 import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
+import ceri.common.text.ToString;
 import ceri.common.util.Enclosed;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
@@ -22,11 +24,106 @@ public class Cm17aDevice implements Cm17a {
 	private final Processor processor;
 	private final Dispatcher<CommandListener, Command> dispatcher;
 
-	public static Cm17aDevice of(Cm17aDeviceConfig config, Cm17aConnector connector) {
+	public static class Config {
+		public static final Config NULL = builder().commandIntervalMicros(0).resetIntervalMicros(0)
+			.waitIntervalMicros(0).queuePollTimeoutMs(0).errorDelayMs(0).build();
+		public static final Config DEFAULT = builder().build();
+		public final int queuePollTimeoutMs;
+		public final int waitIntervalMicros;
+		public final int resetIntervalMicros;
+		public final int commandIntervalMicros;
+		public final int errorDelayMs;
+		public final int queueSize;
+
+		public static class Builder {
+			int queuePollTimeoutMs = 10000;
+			int waitIntervalMicros = 800;
+			int resetIntervalMicros = 10000;
+			int commandIntervalMicros = 1000;
+			int errorDelayMs = 1000;
+			int queueSize = 100;
+
+			Builder() {}
+
+			public Builder queuePollTimeoutMs(int queuePollTimeoutMs) {
+				this.queuePollTimeoutMs = queuePollTimeoutMs;
+				return this;
+			}
+
+			public Builder waitIntervalMicros(int waitIntervalMicros) {
+				this.waitIntervalMicros = waitIntervalMicros;
+				return this;
+			}
+
+			public Builder resetIntervalMicros(int resetIntervalMicros) {
+				this.resetIntervalMicros = resetIntervalMicros;
+				return this;
+			}
+
+			public Builder commandIntervalMicros(int commandIntervalMicros) {
+				this.commandIntervalMicros = commandIntervalMicros;
+				return this;
+			}
+
+			public Builder errorDelayMs(int errorDelayMs) {
+				this.errorDelayMs = errorDelayMs;
+				return this;
+			}
+
+			public Builder queueSize(int queueSize) {
+				this.queueSize = queueSize;
+				return this;
+			}
+
+			public Config build() {
+				return new Config(this);
+			}
+		}
+
+		public static Builder builder() {
+			return new Builder();
+		}
+
+		Config(Builder builder) {
+			queuePollTimeoutMs = builder.queuePollTimeoutMs;
+			waitIntervalMicros = builder.waitIntervalMicros;
+			resetIntervalMicros = builder.resetIntervalMicros;
+			commandIntervalMicros = builder.commandIntervalMicros;
+			errorDelayMs = builder.errorDelayMs;
+			queueSize = builder.queueSize;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(queuePollTimeoutMs, waitIntervalMicros, resetIntervalMicros,
+				commandIntervalMicros, errorDelayMs, queueSize);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (!(obj instanceof Config other)) return false;
+			if (queuePollTimeoutMs != other.queuePollTimeoutMs) return false;
+			if (waitIntervalMicros != other.waitIntervalMicros) return false;
+			if (resetIntervalMicros != other.resetIntervalMicros) return false;
+			if (commandIntervalMicros != other.commandIntervalMicros) return false;
+			if (errorDelayMs != other.errorDelayMs) return false;
+			if (queueSize != other.queueSize) return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return ToString.forClass(this, queuePollTimeoutMs, waitIntervalMicros,
+				resetIntervalMicros, commandIntervalMicros, errorDelayMs, queueSize);
+		}
+	}
+
+	public static Cm17aDevice of(Config config, Cm17aConnector connector) {
 		return new Cm17aDevice(config, connector);
 	}
 
-	private Cm17aDevice(Cm17aDeviceConfig config, Cm17aConnector connector) {
+	private Cm17aDevice(Config config, Cm17aConnector connector) {
 		this.connector = connector;
 		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, CommandListener::dispatcher);
 		processor = new Processor(config, connector);

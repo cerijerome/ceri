@@ -33,7 +33,7 @@ import ceri.x10.command.Command;
  */
 public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
-	private final Cm11aDeviceConfig config;
+	private final Cm11aDevice.Config config;
 	private final TaskQueue<IOException> taskQueue;
 	private final Consumer<Command> dispatcher;
 	private final ByteStream.Reader in;
@@ -42,7 +42,7 @@ public class Processor extends LoopingExecutor {
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	@SuppressWarnings("resource")
-	Processor(Cm11aDeviceConfig config, Connector connector, Consumer<Command> dispatcher) {
+	Processor(Cm11aDevice.Config config, Connector connector, Consumer<Command> dispatcher) {
 		try {
 			this.config = config;
 			taskQueue = TaskQueue.of(config.queueSize);
@@ -136,7 +136,6 @@ public class Processor extends LoopingExecutor {
 
 	/**
 	 * Sends status response to the device.
-	 *
 	 * @throws IOException
 	 */
 	@SuppressWarnings("resource")

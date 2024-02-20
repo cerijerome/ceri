@@ -22,13 +22,13 @@ import ceri.x10.command.FunctionType;
  */
 public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
-	private final Cm17aDeviceConfig config;
+	private final Cm17aDevice.Config config;
 	private final TaskQueue<IOException> taskQueue;
 	private final Cm17aConnector connector;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private Address lastOn = null;
 
-	Processor(Cm17aDeviceConfig config, Cm17aConnector connector) {
+	Processor(Cm17aDevice.Config config, Cm17aConnector connector) {
 		this.config = config;
 		this.connector = connector;
 		taskQueue = TaskQueue.of(config.queueSize);
