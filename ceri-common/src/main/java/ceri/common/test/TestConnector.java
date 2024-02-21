@@ -13,6 +13,7 @@ import ceri.common.text.ToString;
  * A connector implementation for tests, using piped streams.
  */
 public class TestConnector extends TestFixable implements Connector.Fixable {
+	public final ErrorGen error = ErrorGen.of(); // for generating general errors
 	public final TestInputStream in;
 	public final TestOutputStream out;
 	private final InputStream wrappedIn;
@@ -95,11 +96,13 @@ public class TestConnector extends TestFixable implements Connector.Fixable {
 
 	@Override
 	public InputStream in() {
+		error.call();
 		return wrappedIn;
 	}
 
 	@Override
 	public OutputStream out() {
+		error.call();
 		return wrappedOut;
 	}
 

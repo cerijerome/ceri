@@ -47,8 +47,9 @@ public class ArrayUtil {
 	 * Performs a validation on index to an array.
 	 */
 	public static void validateIndex(int arrayLength, int index) {
+		if (arrayLength == 0) throw new IndexOutOfBoundsException("Array is empty");
 		if (index >= 0 && index < arrayLength) return;
-		throw new IndexOutOfBoundsException("Index must be 0-" + (arrayLength - 1) + ": " + index);
+		throw new IndexOutOfBoundsException("Index must be 0.." + (arrayLength - 1) + ": " + index);
 	}
 
 	/**
@@ -56,9 +57,9 @@ public class ArrayUtil {
 	 */
 	public static void validateSlice(int arrayLength, int offset, int length) {
 		if (offset < 0 || offset > arrayLength)
-			throw new IndexOutOfBoundsException("Offset must be 0-" + arrayLength + ": " + offset);
+			throw new IndexOutOfBoundsException("Offset must be 0.." + arrayLength + ": " + offset);
 		if (length < 0 || offset + length > arrayLength) throw new IndexOutOfBoundsException(
-			"Length must be 0-" + (arrayLength - offset) + ": " + length);
+			"Length must be 0.." + (arrayLength - offset) + ": " + length);
 	}
 
 	/**
@@ -75,9 +76,9 @@ public class ArrayUtil {
 	 */
 	public static void validateRange(int arrayLength, int start, int end) {
 		if (start < 0 || start > arrayLength)
-			throw new IndexOutOfBoundsException("Start must be 0-" + arrayLength + ": " + start);
+			throw new IndexOutOfBoundsException("Start must be 0.." + arrayLength + ": " + start);
 		if (end < start || end > arrayLength) throw new IndexOutOfBoundsException(
-			"End must be " + start + "-" + arrayLength + ": " + end);
+			"End must be " + start + ".." + arrayLength + ": " + end);
 	}
 
 	/**
@@ -106,12 +107,12 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the slice is the same as the whole. 
+	 * Returns true if the slice is the same as the whole.
 	 */
 	public static boolean fullSlice(int arrayLength, int offset, int length) {
-		return  offset == 0 && length == arrayLength;
+		return offset == 0 && length == arrayLength;
 	}
-	
+
 	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
