@@ -111,8 +111,7 @@ public class SelfHealingSerialBehavior {
 	@Test
 	public void shouldSetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
-		serial = SelfHealingSerial
-			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
 		serial.open();
 		serial.brk(true);
 		serial.rts(false);
@@ -125,8 +124,7 @@ public class SelfHealingSerialBehavior {
 	@Test
 	public void shouldGetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
-		serial = SelfHealingSerial
-			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
 		serial.open();
 		testSerial.rts.value(false);
 		testSerial.dtr.value(true);
@@ -146,8 +144,7 @@ public class SelfHealingSerialBehavior {
 	public void shouldHandleOpenFailure() {
 		testSerial = TestSerial.of();
 		testSerial.open.error.setFrom(IOX, null);
-		serial = SelfHealingSerial
-			.of(SelfHealingSerial.Config.builder(config).factory(testSerial.factory()).build());
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
 		assertThrown(serial::open);
 	}
 

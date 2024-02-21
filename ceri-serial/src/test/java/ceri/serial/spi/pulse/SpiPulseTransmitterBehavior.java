@@ -2,16 +2,17 @@ package ceri.serial.spi.pulse;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.test.TestUtil.provider;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
+import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.serial.spi.util.SpiEmulator;
 import ceri.serial.spi.util.SpiEmulator.Responder;
@@ -21,34 +22,44 @@ public class SpiPulseTransmitterBehavior {
 		SpiPulseConfig.builder(5).delayMicros(1).resetDelayMs(1).build();
 	private CallSync.Consumer<ByteProvider> sync;
 	private SpiEmulator spi;
-	private SpiPulseTransmitter xmit;
-
-	@Before
-	public void before() {
-		sync = CallSync.consumer(null, false);
-		spi = SpiEmulator.of(responder(sync));
-		xmit = SpiPulseTransmitter.of(1, spi, config);
-	}
+	private SpiPulseTransmitter spix;
 
 	@After
 	public void after() {
-		xmit.close();
+		CloseableUtil.close(spix);
+		spix = null;
 	}
 
 	@Test
 	public void shouldExposeParameters() {
-		assertEquals(xmit.id(), 1);
-		assertEquals(xmit.cycle(), PulseCycle.Std._4_9.cycle);
-		assertEquals(xmit.length(), 5); // 4 pulse bits per data bit = 20 spi bytes
+		init();
+		assertEquals(spix.id(), 1);
+		assertEquals(spix.cycle(), PulseCycle.Std._4_9.cycle);
+		assertEquals(spix.length(), 5); // 4 pulse bits per data bit = 20 spi bytes
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		init();
+		assertFind(spix, "4nbit9");
+	}
+
+	@Test
+	public void shouldIgnoreEmptyWrites() {
+		init();
+		spix.copyFrom(0, new byte[0]);
+		spix.copyFrom(0, provider());
+		spix.fill(0, 0, 0);
 	}
 
 	@Test
 	public void shouldWriteDataAsPulses() {
+		init();
 		// Setting data to [0x01, 0xff, 0x00, 0x80, 0x7f]
-		xmit.fill(0, 3, 0xff);
-		xmit.setByte(0, 0x01);
-		xmit.setBytes(2, 0x00, 0x80, 0x7f);
-		xmit.send();
+		spix.fill(0, 3, 0xff);
+		spix.setByte(0, 0x01);
+		spix.setBytes(2, 0x00, 0x80, 0x7f);
+		spix.send();
 		sync.assertCall(provider(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
 			0xcc, 0xcc, 0xcc, 0xcc, // 8 wide
 			0x88, 0x88, 0x88, 0x88, // 8 narrow
@@ -59,10 +70,11 @@ public class SpiPulseTransmitterBehavior {
 
 	@Test
 	public void shouldCopyDataAsPulses() throws IOException {
+		init();
 		// Setting data to [0x01, 0xff, 0x00, 0x80, 0x7f]
-		xmit.copyFrom(0, provider(0x01, 0xff));
-		xmit.readFrom(3, inputStream(0x80, 0x7f));
-		xmit.send();
+		spix.copyFrom(0, provider(0x01, 0xff));
+		spix.readFrom(3, inputStream(0x80, 0x7f));
+		spix.send();
 		sync.assertCall(provider(0x88, 0x88, 0x88, 0x8c, // 7 wide, 1 narrow
 			0xcc, 0xcc, 0xcc, 0xcc, // 8 wide
 			0x88, 0x88, 0x88, 0x88, // 8 narrow
@@ -72,14 +84,15 @@ public class SpiPulseTransmitterBehavior {
 
 	@Test
 	public void shouldHandleSpiFailures() {
+		init();
 		LogModifier.run(() -> {
 			sync.error.setFrom(IOX);
-			xmit.send();
+			spix.send();
 			sync.await(); // error
-			xmit.send();
+			spix.send();
 			sync.await(); // error
 			sync.error.clear();
-			xmit.send();
+			spix.send();
 			sync.await(); // no error
 		}, Level.OFF, SpiPulseTransmitter.class);
 	}
@@ -91,5 +104,11 @@ public class SpiPulseTransmitterBehavior {
 				sync.accept(ByteProvider.of(data), IO_ADAPTER);
 			}
 		};
+	}
+
+	private void init() {
+		sync = CallSync.consumer(null, false);
+		spi = SpiEmulator.of(responder(sync));
+		spix = SpiPulseTransmitter.of(1, spi, config);
 	}
 }

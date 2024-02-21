@@ -11,6 +11,7 @@ import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.util.SelfHealingSerial;
 import ceri.serial.comm.util.SelfHealingSerial.Config.SerialFactory;
 
 /**
@@ -70,6 +71,10 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 		};
 	}
 
+	public SelfHealingSerial.Config selfHealingConfig(String port) {
+		return SelfHealingSerial.Config.builder(port).factory(factory()).build();
+	}
+	
 	@Override
 	public void reset() {
 		super.reset();

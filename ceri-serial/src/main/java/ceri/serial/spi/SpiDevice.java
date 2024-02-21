@@ -7,6 +7,7 @@ import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.jna.clib.OpenFlag.O_WRONLY;
 import java.io.IOException;
 import java.util.Objects;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.io.Direction;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
@@ -26,6 +27,7 @@ public class SpiDevice implements Spi {
 	 */
 	public static class Config {
 		public static final Config DEFAULT = of(0, 0);
+		private final ExceptionFunction<IOException, Config, FileDescriptor> openFn;
 		private final int bus;
 		private final int chip;
 		private final Direction direction;
@@ -39,11 +41,17 @@ public class SpiDevice implements Spi {
 		}
 
 		public static class Builder {
+			ExceptionFunction<IOException, Config, FileDescriptor> openFn = SpiDevice::open;
 			int bus = 0;
 			int chip = 0;
 			Direction direction = Direction.duplex;
 
 			Builder() {}
+
+			public Builder openFn(ExceptionFunction<IOException, Config, FileDescriptor> openFn) {
+				this.openFn = openFn;
+				return this;
+			}
 
 			public Builder bus(int bus) {
 				validateMin(bus, 0);
@@ -64,7 +72,7 @@ public class SpiDevice implements Spi {
 			}
 
 			public Config build() {
-				return new Config(bus, chip, direction);
+				return new Config(this);
 			}
 		}
 
@@ -72,17 +80,18 @@ public class SpiDevice implements Spi {
 			return new Builder();
 		}
 
-		Config(int bus, int chip, Direction direction) {
-			this.bus = bus;
-			this.chip = chip;
-			this.direction = direction;
+		Config(Builder builder) {
+			openFn = builder.openFn;
+			bus = builder.bus;
+			chip = builder.chip;
+			direction = builder.direction;
 		}
 
 		/**
 		 * Opens the SPI file descriptor. Can be used as the open function for a SelfHealingFd.
 		 */
-		public CFileDescriptor open() throws IOException {
-			return SpiDevice.open(bus, chip, direction);
+		public FileDescriptor open() throws IOException {
+			return openFn.apply(this);
 		}
 
 		@Override
@@ -108,7 +117,14 @@ public class SpiDevice implements Spi {
 	}
 
 	/**
-	 * Opens the SPI file descriptor. Can be used as the open function for a SelfHealingFd.
+	 * Opens the SPI file descriptor.
+	 */
+	public static CFileDescriptor open(Config config) throws IOException {
+		return open(config.bus, config.chip, config.direction);
+	}
+
+	/**
+	 * Opens the SPI file descriptor.
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
 		validateMin(bus, 0, "Bus number");

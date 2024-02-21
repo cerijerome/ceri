@@ -12,6 +12,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.exception.ExceptionTracker;
 import ceri.common.io.Direction;
+import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiTransfer;
@@ -98,6 +99,11 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		sync.signal();
 	}
 
+	@Override
+	public String toString() {
+		return ToString.forClass(this, id, config);
+	}
+	
 	@Override
 	protected void loop() throws InterruptedException {
 		try {

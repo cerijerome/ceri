@@ -27,7 +27,7 @@ import org.junit.Test;
 import ceri.common.io.Direction;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
-import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.serial.spi.jna.TestSpiCLibNative;
@@ -35,7 +35,7 @@ import ceri.serial.spi.jna.TestSpiCLibNative;
 public class SpiDeviceBehavior {
 	private TestSpiCLibNative lib;
 	private Enclosed<RuntimeException, ?> enc;
-	private CFileDescriptor fd;
+	private FileDescriptor fd;
 	private SpiDevice spi;
 
 	@After
@@ -71,6 +71,12 @@ public class SpiDeviceBehavior {
 			new OpenArgs("/dev/spidev0.1", 0, 0), //
 			new OpenArgs("/dev/spidev1.1", 1, 0), //
 			new OpenArgs("/dev/spidev1.0", 2, 0));
+	}
+
+	@Test
+	public void shouldOverrideFdCreation() throws IOException {
+		var config = SpiDevice.Config.builder().openFn(c -> FileDescriptor.NULL).build();
+		try (var fd = config.open()) {}
 	}
 
 	@Test
