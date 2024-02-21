@@ -43,36 +43,36 @@ public interface Spi {
 	 */
 	interface Null extends Spi {
 		@Override
-		default SpiMode mode() {
+		default SpiMode mode() throws IOException {
 			return SpiMode.MODE_0;
 		}
 
 		@Override
-		default void mode(SpiMode mode) {}
+		default void mode(SpiMode mode) throws IOException {}
 
 		@Override
-		default boolean lsbFirst() {
+		default boolean lsbFirst() throws IOException {
 			return false;
 		}
 
 		@Override
-		default void lsbFirst(boolean enabled) {}
+		default void lsbFirst(boolean enabled) throws IOException {}
 
 		@Override
-		default int bitsPerWord() {
+		default int bitsPerWord() throws IOException {
 			return 0;
 		}
 
 		@Override
-		default void bitsPerWord(int bitsPerWord) {}
+		default void bitsPerWord(int bitsPerWord) throws IOException {}
 
 		@Override
-		default int maxSpeedHz() {
+		default int maxSpeedHz() throws IOException {
 			return 0;
 		}
 
 		@Override
-		default void maxSpeedHz(int maxSpeedHz) {}
+		default void maxSpeedHz(int maxSpeedHz) throws IOException {}
 
 		@Override
 		default SpiTransfer transfer(Direction direction, int size) {

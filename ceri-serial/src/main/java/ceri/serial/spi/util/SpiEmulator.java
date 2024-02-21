@@ -24,7 +24,7 @@ public class SpiEmulator implements Spi {
 	private SpiMode mode = SpiMode.MODE_0;
 	private boolean lsbFirst = false;
 	private int bitsPerWord = 0; // 0 => 8 bits
-	private int maxSpeedHz = 250_000_000 / 2; // Raspberry Pi default?
+	private int maxSpeedHz = 250_000_000 / 2; // Raspberry Pi 4 default?
 
 	public static interface Responder {
 		Responder ECHO = new Responder() {};
@@ -79,47 +79,47 @@ public class SpiEmulator implements Spi {
 		return new SpiEmulator(responder);
 	}
 
-	private SpiEmulator(Responder responder) {
+	protected SpiEmulator(Responder responder) {
 		this.responder = responder;
 	}
 
 	@Override
-	public SpiMode mode() {
+	public SpiMode mode() throws IOException {
 		return mode;
 	}
 
 	@Override
-	public void mode(SpiMode mode) {
+	public void mode(SpiMode mode) throws IOException {
 		this.mode = mode;
 	}
 
 	@Override
-	public boolean lsbFirst() {
+	public boolean lsbFirst() throws IOException {
 		return lsbFirst;
 	}
 
 	@Override
-	public void lsbFirst(boolean enabled) {
+	public void lsbFirst(boolean enabled) throws IOException {
 		lsbFirst = enabled;
 	}
 
 	@Override
-	public int bitsPerWord() {
+	public int bitsPerWord() throws IOException {
 		return bitsPerWord;
 	}
 
 	@Override
-	public void bitsPerWord(int bitsPerWord) {
+	public void bitsPerWord(int bitsPerWord) throws IOException {
 		this.bitsPerWord = bitsPerWord;
 	}
 
 	@Override
-	public int maxSpeedHz() {
+	public int maxSpeedHz() throws IOException {
 		return maxSpeedHz;
 	}
 
 	@Override
-	public void maxSpeedHz(int maxSpeedHz) {
+	public void maxSpeedHz(int maxSpeedHz) throws IOException {
 		this.maxSpeedHz = maxSpeedHz;
 	}
 

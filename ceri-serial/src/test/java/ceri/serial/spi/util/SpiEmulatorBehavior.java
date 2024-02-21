@@ -15,7 +15,7 @@ import ceri.serial.spi.pulse.SpiPulseConfig;
 public class SpiEmulatorBehavior {
 
 	@Test
-	public void shouldConfigureSpi() {
+	public void shouldConfigureSpi() throws IOException {
 		var spi = SpiEmulator.echo();
 		spi.mode(SpiMode.MODE_1);
 		spi.lsbFirst(true);
