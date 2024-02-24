@@ -14,7 +14,7 @@ public class SelfHealingTcpSocketTester {
 	}
 
 	public static void testEcho() throws IOException {
-		var events = ManualTester.eventCatcher(true);
+		var events = ManualTester.EventCatcher.of(true);
 		try (var ss = TcpServerSocket.of()) {
 			TcpSocketTester.listenAndEcho(ss, events);
 			var config = SelfHealingTcpSocket.Config.of(HostPort.localhost(ss.port()));

@@ -66,6 +66,13 @@ public class RpcUtil {
 	/**
 	 * Value construction convenience method.
 	 */
+	public static Int32Value int32(boolean value) {
+		return int32(value ? 1 : 0);
+	}
+
+	/**
+	 * Value construction convenience method.
+	 */
 	public static UInt32Value uint32(int value) {
 		return UInt32Value.of(value);
 	}
