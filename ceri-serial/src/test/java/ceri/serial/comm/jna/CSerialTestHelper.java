@@ -38,7 +38,7 @@ public abstract class CSerialTestHelper {
 		}
 
 		public void assertSpeed(int speed) {
-			assertSpeed(termios, speed);
+			CSerialTestHelper.assertSpeed(termios, speed);
 		}
 
 		public void assertIossiospeed(int fd, int speed) {
@@ -57,7 +57,7 @@ public abstract class CSerialTestHelper {
 				termios.c_ispeed.setValue(speed);
 				termios.c_ospeed.setValue(speed);
 			}
-			handleTc(args, termios);
+			CSerialTestHelper.handleTc(args, termios);
 		}
 	}
 
@@ -85,7 +85,7 @@ public abstract class CSerialTestHelper {
 		}
 
 		public void assertSpeed(int speed) {
-			assertSpeed(termios, speed);
+			CSerialTestHelper.assertSpeed(termios, speed);
 		}
 
 		private void handleTio(CtlArgs args) {
