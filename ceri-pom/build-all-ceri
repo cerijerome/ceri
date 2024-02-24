@@ -9,9 +9,9 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 pushd "$DIR"
 
 # Compile tests, but don't run
-#SKIP_TESTS="-DskipTests"
+SKIP_TESTS="-DskipTests"
 # Don't compile or run tests
-SKIP_TESTS="-Dmaven.test.skip=true"
+#SKIP_TESTS="-Dmaven.test.skip=true"
 
 mvn clean install
 cd ../ceri-common
