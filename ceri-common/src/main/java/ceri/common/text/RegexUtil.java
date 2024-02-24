@@ -31,6 +31,10 @@ public class RegexUtil {
 	 * Common patterns.
 	 */
 	public static class Common {
+		/** Unsigned binary integer with 0b prefix (needs custom parser). */
+		public static final String BIN_UINT = "0[bB][01]+";
+		/** Signed binary integer with 0b prefix (needs custom parser). */
+		public static final String BIN_INT = "[+-]?0[bB][01]+";
 		/** Unsigned octal integer with 0 prefix. */
 		public static final String OCT_UINT = "0[0-7]+";
 		/** Signed Octal integer with 0 prefix. */
@@ -45,9 +49,9 @@ public class RegexUtil {
 		public static final String HEX_UINT = "(?:0x|0X|#)[a-fA-F0-9]+";
 		/** Signed hexadecimal integer with prefix. */
 		public static final String HEX_INT = "[+-]?" + HEX_UINT;
-		/** Unsigned octal, decimal, or hexadecimal integer. */
-		public static final String UINT_NUMBER = "(?:0|0[0-7]+|[1-9]\\d*|(?:0x|0X|#)[a-fA-F0-9]+)";
-		/** Signed octal, decimal, or hexadecimal integer. */
+		/** Unsigned binary, octal, decimal, or hexadecimal integer (use decodes below). */
+		public static final String UINT_NUMBER = or(DEC_UINT, HEX_UINT, OCT_UINT, BIN_UINT);
+		/** Signed binary, octal, decimal, or hexadecimal integer (use decodes below). */
 		public static final String INT_NUMBER = "[+-]?" + UINT_NUMBER;
 		/** Unsigned decimal number; integer or floating point. */
 		public static final String UDEC_NUMBER = "(?:0|[1-9]\\d*|\\d*\\.\\d+)";
@@ -61,6 +65,32 @@ public class RegexUtil {
 		public static final String JAVA_NAME = "[\\p{L}$_][\\p{L}0-9$_]*";
 
 		private Common() {}
+
+		/**
+		 * Combines patterns as an OR non-capturing group.
+		 */
+		public static String or(String... patterns) {
+			return "(?:" + String.join("|", patterns) + ")";
+		}
+
+		/**
+		 * Use to decode UINT_NUMBER and INT_NUMBER.
+		 */
+		public static int decodeInt(String s) {
+			return isBinaryPrefix(s) ? Integer.parseInt(s.substring(2), 2) : Integer.decode(s);
+		}
+
+		/**
+		 * Use to decode UINT_NUMBER and INT_NUMBER.
+		 */
+		public static long decodeLong(String s) {
+			return isBinaryPrefix(s) ? Long.parseLong(s.substring(2), 2) : Long.decode(s);
+		}
+
+		private static boolean isBinaryPrefix(String s) {
+			return s.length() > 2 && s.charAt(0) == '0'
+				&& (s.charAt(1) == 'b' || s.charAt(1) == 'B');
+		}
 	}
 
 	private RegexUtil() {}

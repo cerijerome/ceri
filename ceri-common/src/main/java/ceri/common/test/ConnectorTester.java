@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import ceri.common.io.Connector;
 import ceri.common.io.Fixable;
+import ceri.common.reflect.ReflectUtil;
 
 /**
  * Provides manual commands to test connectors.
@@ -36,11 +37,10 @@ public class ConnectorTester {
 	 */
 	public static ManualTester.Builder manual(List<? extends Connector> connectors)
 		throws IOException {
-		var events = ManualTester.eventCatcher();
-		initConnectors(connectors, events);
+		ReflectUtil.acceptInstances(Fixable.class, Fixable::open, connectors);
 		var b = ManualTester.builderList(connectors, Connector::name);
 		b.preProcessor(Connector.class, (t, con) -> t.readBytes(con.in()));
-		b.preProcessor(events);
+		b.listen(connectors);
 		b.command(Fixable.class, "O(s?)", (t, m, s) -> open(m, s),
 			"O[s] = open the connector (s = silently)");
 		b.command(Connector.class, "o(?s)(.*)", (t, m, s) -> t.writeAscii(s.out(), m.group(1)),
@@ -54,16 +54,6 @@ public class ConnectorTester {
 	private static void open(Matcher m, Fixable fixable) throws IOException {
 		if (m.group(1) == "") fixable.open();
 		else fixable.openSilently();
-	}
-
-	private static void initConnectors(List<? extends Connector> connectors,
-		ManualTester.EventCatcher events) throws IOException {
-		for (var connector : connectors) {
-			if (connector instanceof Fixable fixable) {
-				fixable.listeners().listen(e -> events.add(fixable.name() + " => " + e));
-				fixable.open();
-			}
-		}
 	}
 
 }

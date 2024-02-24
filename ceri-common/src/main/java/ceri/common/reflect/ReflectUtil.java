@@ -19,6 +19,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -103,6 +104,25 @@ public class ReflectUtil {
 		return String.format("@%x", System.identityHashCode(obj));
 	}
 
+	/**
+	 * Returns '&lt;class-name&gt;@&lt;hash&gt;'.
+	 */
+	public static String nameHash(Object obj) {
+		if (obj == null) return NULL_STRING;
+		return className(obj) + hashId(obj);
+	}
+
+	/**
+	 * Applies the consumer only to instances of the given type.
+	 */
+	public static <E extends Exception, T> void acceptInstances(Class<T> cls,
+		ExceptionConsumer<E, ? super T> consumer, Iterable<?> objects) throws E {
+		for (var obj : objects) {
+			var t = castOrNull(cls, obj);
+			if (t != null) consumer.accept(t);
+		}
+	}
+	
 	/**
 	 * Checks if the object is an instance of any of the given classes.
 	 */

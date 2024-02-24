@@ -33,6 +33,30 @@ public class RegexUtilTest {
 	}
 
 	@Test
+	public void testCommonDecodeInt() {
+		assertEquals(RegexUtil.Common.decodeInt("0b001001"), 0b001001);
+		assertEquals(RegexUtil.Common.decodeInt("0B111"), 0B111);
+		assertEquals(RegexUtil.Common.decodeInt("0123"), 0123);
+		assertEquals(RegexUtil.Common.decodeInt("0x0123"), 0x123);
+		assertEquals(RegexUtil.Common.decodeInt("0X0123"), 0x123);
+		assertEquals(RegexUtil.Common.decodeInt("#0123"), 0x123);
+		assertEquals(RegexUtil.Common.decodeInt("123"), 123);
+		assertEquals(RegexUtil.Common.decodeInt("0"), 0);
+	}
+
+	@Test
+	public void testCommonDecodeLong() {
+		assertEquals(RegexUtil.Common.decodeLong("0b001001"), 0b001001L);
+		assertEquals(RegexUtil.Common.decodeLong("0B111"), 0B111L);
+		assertEquals(RegexUtil.Common.decodeLong("0123"), 0123L);
+		assertEquals(RegexUtil.Common.decodeLong("0x0123"), 0x123L);
+		assertEquals(RegexUtil.Common.decodeLong("0X0123"), 0x123L);
+		assertEquals(RegexUtil.Common.decodeLong("#0123"), 0x123L);
+		assertEquals(RegexUtil.Common.decodeLong("123"), 123L);
+		assertEquals(RegexUtil.Common.decodeLong("0"), 0L);
+	}
+
+	@Test
 	public void testHashCode() {
 		Pattern p0 = Pattern.compile("(?m).*");
 		Pattern p1 = Pattern.compile("(?m).+");

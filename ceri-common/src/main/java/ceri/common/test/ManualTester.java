@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -25,6 +26,7 @@ import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
+import ceri.common.event.Listenable;
 import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
@@ -84,7 +86,7 @@ public class ManualTester implements RuntimeCloseable {
 		 */
 		public static Boolean b(Matcher m, int group) {
 			String s = m.group(group);
-			if (s.isEmpty()) return null;
+			if (StringUtil.empty(s)) return null;
 			return TRUE.contains(s.charAt(0));
 		}
 
@@ -100,7 +102,7 @@ public class ManualTester implements RuntimeCloseable {
 		 */
 		public static Character c(Matcher m, int group) {
 			String s = m.group(group);
-			if (s.isEmpty()) return null;
+			if (StringUtil.empty(s)) return null;
 			return s.charAt(0);
 		}
 
@@ -116,8 +118,24 @@ public class ManualTester implements RuntimeCloseable {
 		 */
 		public static Integer i(Matcher m, int group) {
 			String s = m.group(group);
-			if (s.isEmpty()) return null;
-			return Integer.parseInt(s);
+			if (StringUtil.empty(s)) return null;
+			return RegexUtil.Common.decodeInt(s);
+		}
+
+		/**
+		 * Parses group 1 as a long.
+		 */
+		public static Long l(Matcher m) {
+			return l(m, 1);
+		}
+
+		/**
+		 * Parses group as a long.
+		 */
+		public static Long l(Matcher m, int group) {
+			String s = m.group(group);
+			if (StringUtil.empty(s)) return null;
+			return RegexUtil.Common.decodeLong(s);
 		}
 
 		/**
@@ -212,6 +230,21 @@ public class ManualTester implements RuntimeCloseable {
 		private final BiConsumer<Object, ManualTester> processor;
 		private final Queue<Object> events = new ConcurrentLinkedQueue<>();
 
+		public static EventCatcher of() {
+			return of(false);
+		}
+
+		public static EventCatcher of(boolean stackTrace) {
+			return of((s, tester) -> {
+				if (s instanceof Throwable t) tester.err(t, stackTrace);
+				else tester.out(s);
+			});
+		}
+
+		public static EventCatcher of(BiConsumer<Object, ManualTester> processor) {
+			return new EventCatcher(processor);
+		}
+
 		private EventCatcher(BiConsumer<Object, ManualTester> processor) {
 			this.processor = processor;
 		}
@@ -238,21 +271,6 @@ public class ManualTester implements RuntimeCloseable {
 		}
 	}
 
-	public static EventCatcher eventCatcher() {
-		return eventCatcher(false);
-	}
-
-	public static EventCatcher eventCatcher(boolean stackTrace) {
-		return eventCatcher((s, tester) -> {
-			if (s instanceof Throwable t) tester.err(t, stackTrace);
-			else tester.out(s);
-		});
-	}
-
-	public static EventCatcher eventCatcher(BiConsumer<Object, ManualTester> processor) {
-		return new EventCatcher(processor);
-	}
-
 	public static class Builder {
 		final List<?> subjects;
 		Function<Object, String> stringFn = String::valueOf;
@@ -270,7 +288,7 @@ public class ManualTester implements RuntimeCloseable {
 			this.subjects = subjects;
 			command("\\?", (t, m, s) -> t.showHelp(), "? = show commands");
 			command("\\!", (t, m, s) -> t.exit = true, "! = exit");
-			command(":", (t, m, s) -> t.out(type(s)), ": = subject type");
+			command(":", (t, m, s) -> t.out(ReflectUtil.nameHash(s)), ": = subject type");
 			command("~(\\d+)", (t, m, s) -> ConcurrentUtil.delay(Parse.i(m)),
 				"~N = sleep for N ms");
 			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
@@ -320,6 +338,17 @@ public class ManualTester implements RuntimeCloseable {
 		public Builder delayMs(int delayMs) {
 			this.delayMs = delayMs;
 			return this;
+		}
+
+		/**
+		 * Listen for events and output during pre-processor stage. Uses current string function.
+		 */
+		public Builder listen(Collection<?> subjects) {
+			var events = EventCatcher.of();
+			for (var subject : subjects)
+				if (subject instanceof Listenable.Indirect<?> listenable) listenable.listeners()
+					.listen(e -> events.add(stringFn.apply(listenable) + " => " + e));
+			return preProcessor(events);
 		}
 
 		public <T> Builder preProcessor(Class<T> cls, SubjectConsumer<T> preProcessor) {
@@ -445,7 +474,7 @@ public class ManualTester implements RuntimeCloseable {
 		stopCycle();
 		if (cycleRunner == null) cycleRunner = CycleRunner.of(locker());
 		cycleRunner.start(cycle);
-		out(cycle.name() + " cycle started: " + cycle);
+		outf("%s cycle started: %s", cycle.name(), cycle);
 	}
 
 	/**
@@ -454,7 +483,7 @@ public class ManualTester implements RuntimeCloseable {
 	public void stopCycle() {
 		if (cycleRunner == null) return;
 		var cycle = cycleRunner.cycle();
-		if (cycle != null) out(cycle.name() + " cycle stopped");
+		if (cycle != null) outf("%s cycle stopped", cycle.name());
 		cycleRunner.stop();
 	}
 
@@ -468,9 +497,23 @@ public class ManualTester implements RuntimeCloseable {
 	/**
 	 * Print to out.
 	 */
+	public void outf(String format, Object... args) {
+		out(StringUtil.format(format, args));
+	}
+
+	/**
+	 * Print to out.
+	 */
 	public void out(Object text) {
 		out.println(indent + text);
 		out.flush();
+	}
+
+	/**
+	 * Print to err.
+	 */
+	public void errf(String format, Object... args) {
+		err(StringUtil.format(format, args));
 	}
 
 	/**
@@ -676,11 +719,6 @@ public class ManualTester implements RuntimeCloseable {
 	private BinaryPrinter binaryPrinter() {
 		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))
 			.build();
-	}
-
-	private static String type(Object subject) {
-		if (subject == null) return StringUtil.NULL_STRING;
-		return ReflectUtil.className(subject) + ReflectUtil.hashId(subject);
 	}
 
 	private static Class<?> cls(Object subject) {

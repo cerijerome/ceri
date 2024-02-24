@@ -22,7 +22,7 @@ public class TcpSocketTester {
 	 * Test a socket whose peer echoes back all output.
 	 */
 	public static void testEcho() throws IOException {
-		var events = ManualTester.eventCatcher(true);
+		var events = ManualTester.EventCatcher.of(true);
 		try (var ss = TcpServerSocket.of()) {
 			listenAndEcho(ss, events);
 			try (var s = TcpSocket.connect(ss.hostPort());

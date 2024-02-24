@@ -56,6 +56,14 @@ public class ManualTesterBehavior {
 	}
 
 	@Test
+	public void shouldParseMatcherLong() {
+		assertEquals(ManualTester.Parse.l(matcher("x(.*)", "x")), null);
+		assertThrown(() -> ManualTester.Parse.l(matcher("x(.*)", "x123x")));
+		assertEquals(ManualTester.Parse.l(matcher("x(.*)", "x123")), 123L);
+		assertEquals(ManualTester.Parse.l(matcher("x(.)(.*)", "x123"), 2), 23L);
+	}
+
+	@Test
 	public void shouldParseMatcherDouble() {
 		assertEquals(ManualTester.Parse.d(matcher("x(.*)", "x")), null);
 		assertThrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x1.23x")));
@@ -135,7 +143,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldPrintErrors() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test").build()) {
-			m.err("err-test");
+			m.errf("err-%s", "test");
 			m.err(new IOException(), true);
 			assertFind(sys.err, "err-test");
 			assertFind(sys.err, "IOException");
@@ -230,7 +238,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldCaptureEvents() {
 		try (var sys = SystemIoCaptor.of()) {
-			var events = ManualTester.eventCatcher();
+			var events = ManualTester.EventCatcher.of();
 			events.add("event ok");
 			events.execute(() -> {});
 			events.execute(() -> throwIt(new Exception("event error")));

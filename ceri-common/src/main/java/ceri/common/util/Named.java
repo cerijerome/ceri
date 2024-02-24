@@ -16,7 +16,7 @@ public interface Named {
 	 */
 	static String name(Object obj, String name) {
 		if (name != null) return name;
-		return ReflectUtil.className(obj) + ReflectUtil.hashId(obj);
+		return ReflectUtil.nameHash(obj);
 	}
 
 }
