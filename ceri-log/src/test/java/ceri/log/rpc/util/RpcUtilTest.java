@@ -3,11 +3,11 @@ package ceri.log.rpc.util;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.text.RegexUtil.finder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,8 @@ public class RpcUtilTest {
 	public void testInt32Value() {
 		assertEquals(RpcUtil.int32(Integer.MAX_VALUE).getValue(), Integer.MAX_VALUE);
 		assertEquals(RpcUtil.int32(Integer.MIN_VALUE).getValue(), Integer.MIN_VALUE);
+		assertEquals(RpcUtil.int32(true).getValue(), 1);
+		assertEquals(RpcUtil.int32(false).getValue(), 0);
 	}
 
 	@Test
@@ -119,10 +121,10 @@ public class RpcUtilTest {
 		assertThrowable(RpcUtil.cause(statusException("test", null)), StatusRuntimeException.class);
 		assertThrowable(RpcUtil.cause( //
 			statusException("test1", statusException("test2", null))), //
-			StatusRuntimeException.class, finder("test1"));
+			StatusRuntimeException.class, s -> assertFind(s, "test1"));
 		assertThrowable(RpcUtil.cause( //
 			statusException("test1", statusException("test2", new IOException("test3")))),
-			IOException.class, finder("test3"));
+			IOException.class, s -> assertFind(s, "test3"));
 	}
 
 	private static StatusRuntimeException statusException(String message, Throwable cause) {
