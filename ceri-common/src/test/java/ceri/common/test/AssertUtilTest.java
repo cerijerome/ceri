@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -110,7 +110,7 @@ public class AssertUtilTest {
 		assertAssertion(() -> assertInstance(1, String.class));
 		assertAssertion(() -> assertInstance(1, Long.class));
 	}
-	
+
 	@Test
 	public void testFail() {
 		assertAssertion(() -> fail());
@@ -286,16 +286,16 @@ public class AssertUtilTest {
 	public void testAssertThrowable() {
 		IOException e = new FileNotFoundException("test");
 		Class<? extends Throwable> nullCls = null;
-		Predicate<String> nullPredicate = null;
-		assertThrowable(null, nullCls, nullPredicate);
-		assertAssertion(() -> assertThrowable(null, IOException.class, nullPredicate));
-		assertAssertion(() -> assertThrowable(null, nullCls, s -> true));
+		Consumer<String> nullConsumer = null;
+		assertThrowable(null, nullCls, nullConsumer);
+		assertAssertion(() -> assertThrowable(null, IOException.class, nullConsumer));
+		assertAssertion(() -> assertThrowable(null, nullCls, s -> {}));
 		assertThrowable(e, IOException.class);
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
-		assertThrowable(e, m -> m.startsWith("test"));
-		assertAssertion(() -> assertThrowable(e, m -> m.startsWith("Test")));
-		assertThrowable(null, null, (Predicate<String>) null);
+		assertThrowable(e, m -> assertTrue(m.startsWith("test")));
+		assertAssertion(() -> assertThrowable(e, m -> assertTrue(m.startsWith("Test"))));
+		assertThrowable(null, null, nullConsumer);
 
 	}
 

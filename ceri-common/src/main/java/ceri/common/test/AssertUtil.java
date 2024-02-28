@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,7 +33,6 @@ import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.Namer;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -136,8 +135,8 @@ public class AssertUtil {
 
 	public static <T> T assertInstance(Object actual, Class<T> expected) {
 		if (expected.isInstance(actual)) return BasicUtil.uncheckedCast(actual);
-		throw failure("Expected instance: %s\n           actual: %s",
-			ReflectUtil.name(expected), ReflectUtil.className(actual));
+		throw failure("Expected instance: %s\n           actual: %s", ReflectUtil.name(expected),
+			ReflectUtil.className(actual));
 	}
 
 	public static <T> void assertSame(T actual, T expected) {
@@ -758,7 +757,7 @@ public class AssertUtil {
 	 * Verifies throwable super class.
 	 */
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls) {
-		assertThrowable(t, superCls, (Predicate<String>) null);
+		assertThrowable(t, superCls, (Consumer<String>) null);
 	}
 
 	/**
@@ -771,7 +770,7 @@ public class AssertUtil {
 	/**
 	 * Verifies throwable message.
 	 */
-	public static void assertThrowable(Throwable t, Predicate<String> messageTest) {
+	public static void assertThrowable(Throwable t, Consumer<String> messageTest) {
 		assertThrowable(t, null, messageTest);
 	}
 
@@ -780,7 +779,7 @@ public class AssertUtil {
 	 */
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
 		String msg) {
-		assertThrowable(t, superCls, equalsPredicate(msg));
+		assertThrowable(t, superCls, s -> assertEquals(s, msg));
 	}
 
 	/**
@@ -788,14 +787,13 @@ public class AssertUtil {
 	 */
 	@SuppressWarnings("null")
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
-		Predicate<String> messageTest) {
+		Consumer<String> messageTest) {
 		if (t == null && superCls == null && messageTest == null) return;
 		assertNotNull(t);
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
 		if (messageTest == null) return;
-		if (!messageTest.test(t.getMessage()))
-			throw failure("Unmatched message %s: %s", Namer.lambda(messageTest), t.getMessage());
+		messageTest.accept(t.getMessage());
 	}
 
 	/**
@@ -810,20 +808,20 @@ public class AssertUtil {
 	 */
 	public static void assertThrown(Class<? extends Throwable> exceptionCls,
 		ExceptionRunnable<?> runnable) {
-		assertThrown(exceptionCls, (Predicate<String>) null, runnable);
+		assertThrown(exceptionCls, (Consumer<String>) null, runnable);
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertThrown(String message, ExceptionRunnable<Exception> runnable) {
-		assertThrown(Exception.class, message, runnable);
+	public static void assertThrown(String regex, ExceptionRunnable<Exception> runnable) {
+		assertThrown(Exception.class, regex, runnable);
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertThrown(Predicate<String> messageTest,
+	public static void assertThrown(Consumer<String> messageTest,
 		ExceptionRunnable<Exception> runnable) {
 		assertThrown(Exception.class, messageTest, runnable);
 	}
@@ -831,15 +829,15 @@ public class AssertUtil {
 	/**
 	 * Tests if an exception is thrown with given message.
 	 */
-	public static void assertThrown(Class<? extends Throwable> superCls, String message,
+	public static void assertThrown(Class<? extends Throwable> superCls, String regex,
 		ExceptionRunnable<?> runnable) {
-		assertThrown(superCls, equalsPredicate(message), runnable);
+		assertThrown(superCls, s -> assertMatch(s, regex), runnable);
 	}
 
 	/**
 	 * Tests if an exception is thrown with given message.
 	 */
-	public static void assertThrown(Class<? extends Throwable> superCls, Predicate<String> msgTest,
+	public static void assertThrown(Class<? extends Throwable> superCls, Consumer<String> msgTest,
 		ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
@@ -1078,10 +1076,6 @@ public class AssertUtil {
 		String... paths) {
 		List<Path> expected = Stream.of(paths).map(helper::path).collect(Collectors.toList());
 		assertCollection(actual, expected);
-	}
-
-	private static Predicate<String> equalsPredicate(String s) {
-		return Namer.predicate(Predicate.isEqual(s), "\"" + s + "\"");
 	}
 
 	/**

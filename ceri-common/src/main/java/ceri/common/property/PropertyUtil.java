@@ -139,7 +139,7 @@ public class PropertyUtil {
 	}
 
 	private static void load(Properties properties, Locator locator) throws IOException {
-		try (InputStream in = locator.resourceAsStream()) {
+		try (var in = locator.resourceAsStream()) {
 			if (in == null) return;
 			properties.load(in);
 		}

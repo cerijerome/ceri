@@ -44,10 +44,20 @@ public class ColorTubes {
 		}
 	}
 
+	public static void main(String[] args) {
+		run(level2225());
+	}
+
 	public static int[] levelN() {
 		return tubes( //
 			"", "", "", "", "", "", "", //
 			"", "", "", "", "", "", "");
+	}
+
+	public static int[] level2225() {
+		return tubes( //
+			"BbOr", "Pacg", "Boob", "ryOc", "goBy", "pGoB", "rpcO", //
+			"cGGg", "aOGP", "gyPy", "pbab", "Papr", "", "");
 	}
 
 	public static int[] level1815() {
@@ -104,10 +114,9 @@ public class ColorTubes {
 			"OaGa", "GbpB", "Gygy", "pBrO", "bopy", "", "");
 	}
 
-	public static void main(String[] args) {
-		int[] tubes = level1815();
+	public static void run(int[] tubes) {
 		printTubes(tubes);
-		validateTubes(tubes);
+		if (validateTubes(tubes) > 0) return;
 		var path = new int[500];
 		long t0 = TimeSupplier.micros.time();
 		// int n = solveRecursively(path, 0, tubes);
@@ -176,18 +185,26 @@ public class ColorTubes {
 		return complete;
 	}
 
-	public static void validateTubes(int[] tubes) {
+	public static int validateTubes(int[] tubes) {
 		int[] counts = new int[Color.values.length];
 		for (int tube : tubes) {
 			for (int i = 0; i < SIZE; i++) {
 				counts[color(tube, i)]++;
 			}
 		}
+		int errors = 0;
 		for (int i = 1; i < counts.length; i++) {
 			int n = counts[i];
-			if (n > SIZE) System.err.printf("Too many %s: %d\n", Color.values[i], n);
-			if (n > 0 && n < SIZE) System.err.printf("Too few %s: %d\n", Color.values[i], n);
+			if (n > SIZE) { 
+				System.err.printf("Too many %s: %d\n", Color.values[i], n);
+				errors++;
+			}
+			if (n > 0 && n < SIZE) {
+				System.err.printf("Too few %s: %d\n", Color.values[i], n);
+				errors++;
+			}
 		}
+		return errors;
 	}
 
 	/**
