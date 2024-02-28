@@ -57,7 +57,7 @@ public class FtdiTester {
 	}
 
 	public static void test() throws IOException {
-		try (var ftdi = SelfHealingFtdi.of(SelfHealingFtdi.Config.DEFAULT)) {
+		try (var ftdi = SelfHealingFtdi.Config.DEFAULT.ftdi()) {
 			test(ftdi);
 		}
 	}
@@ -77,12 +77,12 @@ public class FtdiTester {
 	/**
 	 * Attempt to open multiple self-healing ftdi devices based on vendor id and increasing index.
 	 */
-	private static List<SelfHealingFtdi> openFtdis() throws IOException {
+	private static List<Ftdi.Fixable> openFtdis() throws IOException {
 		var count = LibFtdiUtil.FINDER.matchCount();
 		var configs = IntStream.range(0, count)
 			.mapToObj(i -> LibUsbFinder.builder().vendor(LibFtdi.FTDI_VENDOR_ID).index(i).build())
 			.map(SelfHealingFtdi.Config::of).toList();
-		return CloseableUtil.create(SelfHealingFtdi::of, configs);
+		return CloseableUtil.create(SelfHealingFtdi.Config::ftdi, configs);
 	}
 
 	/**

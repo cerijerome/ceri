@@ -2,7 +2,6 @@ package ceri.serial.ftdi.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
-import java.util.List;
 import com.sun.jna.Pointer;
 import ceri.common.io.Direction;
 import ceri.common.reflect.ReflectUtil;
@@ -14,6 +13,7 @@ import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 import ceri.serial.ftdi.FtdiTransferControl;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
+import ceri.serial.ftdi.util.SelfHealingFtdi;
 
 /**
  * A connector for testing logic against serial connectors.
@@ -37,11 +37,29 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	public final CallSync.Consumer<Integer> readChunk = CallSync.consumer(0, true); // in + out
 	public final CallSync.Consumer<Integer> writeChunk = CallSync.consumer(0, true); // in + out
 	public final CallSync.Runnable purgeBuffer = CallSync.runnable(true);
-	// List<?> = direction, buffer, len
-	public final CallSync.Function<List<?>, FtdiTransferControl> submit =
-		CallSync.function(List.of(), FtdiTransferControl.NULL);
-	// List<?> = callback, packetsPerTransfer, numTransfers, progressIntervalSec
-	public final CallSync.Consumer<List<?>> stream = CallSync.consumer(List.of(), true);
+	public final CallSync.Function<Submit, FtdiTransferControl> submit =
+		CallSync.function(null, FtdiTransferControl.NULL);
+	public final CallSync.Consumer<Stream> stream = CallSync.consumer(null, true);
+
+	/**
+	 * Transfer control parameters.
+	 */
+	public static record Submit(Direction direction, Pointer buffer, int len) {}
+
+	/**
+	 * Read stream parameters.
+	 */
+	public static record Stream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
+		double progressIntervalSec) {}
+
+	/**
+	 * Returns config that generates an error on ftdi construction.
+	 */
+	public static SelfHealingFtdi.Config errorConfig() {
+		return SelfHealingFtdi.Config.builder().ftdiFn(c -> {
+			throw new RuntimeException("generated");
+		}).build();
+	}
 
 	/**
 	 * Provide a pair of test ftdi devices that write to each other.
@@ -66,6 +84,23 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	protected TestFtdi(String name) {
 		super(name);
+	}
+
+	/**
+	 * Create config for a self-healing wrapper constructor.
+	 */
+	public SelfHealingFtdi.Config selfHealingConfig() {
+		return SelfHealingFtdi.Config.builder().factory((f, i) -> {
+			open();
+			return this;
+		}).build();
+	}
+
+	/**
+	 * Create config for a fixable ftdi constructor.
+	 */
+	public SelfHealingFtdi.Config config() {
+		return SelfHealingFtdi.Config.builder().ftdiFn(c -> this).build();
 	}
 
 	public void echoPins() {
@@ -190,8 +225,9 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 		return submit(Direction.out, buffer, len);
 	}
 
-	private FtdiTransferControl submit(Direction direction, Pointer buffer, int len) throws IOException {
-		var xfer = submit.apply(List.of(direction, buffer, len), IO_ADAPTER);
+	private FtdiTransferControl submit(Direction direction, Pointer buffer, int len)
+		throws IOException {
+		var xfer = submit.apply(new Submit(direction, buffer, len), IO_ADAPTER);
 		verifyConnected();
 		return xfer;
 	}
@@ -199,8 +235,8 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	@Override
 	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
 		double progressIntervalSec) throws IOException {
-		stream.accept(List.of(callback, packetsPerTransfer, numTransfers, progressIntervalSec),
+		stream.accept(new Stream(callback, packetsPerTransfer, numTransfers, progressIntervalSec),
 			IO_ADAPTER);
 		verifyConnected();
-	}	
+	}
 }

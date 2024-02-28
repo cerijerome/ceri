@@ -4,6 +4,7 @@ import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.Namer;
@@ -30,6 +31,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 		public static final Config NULL = builder((PortSupplier) null).build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
 			Namer.predicate(SerialPort::isFatal, "SerialPort::isFatal");
+		private final Function<Config, Serial.Fixable> serialFn;
 		public final PortSupplier portSupplier;
 		public final SerialFactory factory;
 		public final SerialConfig serial;
@@ -45,6 +47,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 
 		public static class Builder {
 			final PortSupplier portSupplier;
+			Function<Config, Serial.Fixable> serialFn = SelfHealingSerial::of;
 			SerialFactory factory = SerialPort::open;
 			SerialConfig serial = SerialConfig.DEFAULT;
 			SelfHealing.Config.Builder selfHealing =
@@ -54,6 +57,17 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 				this.portSupplier = portSupplier;
 			}
 
+			/**
+			 * Useful to override construction of the serial controller.
+			 */
+			public Builder serialFn(Function<Config, Serial.Fixable> serialFn) {
+				this.serialFn = serialFn;
+				return this;
+			}
+
+			/**
+			 * Useful to override construction of the wrapped serial device.
+			 */
 			public Builder factory(SerialFactory factory) {
 				this.factory = factory;
 				return this;
@@ -83,15 +97,23 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 		}
 
 		public static Builder builder(Config config) {
-			return new Builder(config.portSupplier).factory(config.factory).serial(config.serial)
-				.selfHealing(config.selfHealing);
+			return new Builder(config.portSupplier).serialFn(config.serialFn)
+				.factory(config.factory).serial(config.serial).selfHealing(config.selfHealing);
 		}
 
 		Config(Builder builder) {
+			serialFn = builder.serialFn;
 			portSupplier = builder.portSupplier;
 			factory = builder.factory;
 			serial = builder.serial;
 			selfHealing = builder.selfHealing.build();
+		}
+
+		/**
+		 * Useful to override construction of the serial controller.
+		 */
+		public Serial.Fixable serial() {
+			return serialFn.apply(this);
 		}
 
 		public boolean enabled() {
@@ -239,5 +261,4 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 			throw e;
 		}
 	}
-
 }

@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.baseProperties;
@@ -42,6 +43,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
+import ceri.serial.ftdi.test.TestFtdi;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.LibUsbTestData.DeviceConfig;
@@ -253,7 +255,7 @@ public class SelfHealingFtdiBehavior {
 		init();
 		sampleConfig.desc.bcdDevice = 0x700; // fifo-enabled device
 		con.open();
-		//lib.transferOut.reset();
+		// lib.transferOut.reset();
 		Captor.Bi<FtdiProgressInfo, ByteBuffer> captor = Captor.ofBi();
 		con.readStream((i, b) -> {
 			captor.accept(i, b);
@@ -289,6 +291,13 @@ public class SelfHealingFtdiBehavior {
 		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
 		runSilently(() -> con.in().read()); // may have been fixed
 		runSilently(() -> con.readPins()); // may have been fixed
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldOverrideConstruction() {
+		var testFtdi = TestFtdi.of();
+		assertSame(testFtdi.config().ftdi(), testFtdi);
 	}
 
 	/**

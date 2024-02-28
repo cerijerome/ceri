@@ -11,8 +11,8 @@ import ceri.jna.util.ThreadBuffers;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.util.PortSupplier;
 import ceri.serial.comm.util.SelfHealingSerial;
-import ceri.serial.comm.util.SelfHealingSerial.Config.SerialFactory;
 
 /**
  * A connector for testing logic against serial connectors.
@@ -35,6 +35,15 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	public final CallSync.Supplier<Boolean> cts = CallSync.supplier(false);
 	public final CallSync.Supplier<Boolean> dsr = CallSync.supplier(false);
 	public final CallSync.Supplier<Boolean> ri = CallSync.supplier(false);
+
+	/**
+	 * Returns config that generates an error on serial construction.
+	 */
+	public static SelfHealingSerial.Config errorConfig() {
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(c -> {
+			throw new RuntimeException("generated");
+		}).build();
+	}
 
 	/**
 	 * Provide a test serial port that echoes output to input.
@@ -62,19 +71,22 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	}
 
 	/**
-	 * Returns a factory that opens and returns this instance.
+	 * Create config for a self-healing wrapper constructor.
 	 */
-	public SerialFactory factory() {
-		return port -> {
+	public SelfHealingSerial.Config selfHealingConfig() {
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).factory(p -> {
 			open();
 			return this;
-		};
+		}).build();
 	}
 
-	public SelfHealingSerial.Config selfHealingConfig(String port) {
-		return SelfHealingSerial.Config.builder(port).factory(factory()).build();
+	/**
+	 * Create config for a fixable serial constructor.
+	 */
+	public SelfHealingSerial.Config config() {
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(c -> this).build();
 	}
-	
+
 	@Override
 	public void reset() {
 		super.reset();

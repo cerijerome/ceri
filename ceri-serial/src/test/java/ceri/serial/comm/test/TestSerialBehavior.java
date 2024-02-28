@@ -40,4 +40,9 @@ public class TestSerialBehavior {
 		}
 	}
 
+	@Test
+	public void shouldProvideErrorConfig() {
+		assertThrown("generated", TestSerial.errorConfig()::serial);
+	}
+
 }

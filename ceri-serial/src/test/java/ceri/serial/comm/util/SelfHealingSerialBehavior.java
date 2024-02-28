@@ -3,6 +3,7 @@ package ceri.serial.comm.util;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
@@ -111,7 +112,7 @@ public class SelfHealingSerialBehavior {
 	@Test
 	public void shouldSetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
-		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig());
 		serial.open();
 		serial.brk(true);
 		serial.rts(false);
@@ -124,7 +125,7 @@ public class SelfHealingSerialBehavior {
 	@Test
 	public void shouldGetSerialStates() throws IOException {
 		testSerial = TestSerial.of();
-		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig());
 		serial.open();
 		testSerial.rts.value(false);
 		testSerial.dtr.value(true);
@@ -144,8 +145,15 @@ public class SelfHealingSerialBehavior {
 	public void shouldHandleOpenFailure() {
 		testSerial = TestSerial.of();
 		testSerial.open.error.setFrom(IOX, null);
-		serial = SelfHealingSerial.of(testSerial.selfHealingConfig("test"));
+		serial = SelfHealingSerial.of(testSerial.selfHealingConfig());
 		assertThrown(serial::open);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldOverrideConstruction() {
+		testSerial = TestSerial.of();
+		assertSame(testSerial.config().serial(), testSerial);
 	}
 
 	private void initLib() {

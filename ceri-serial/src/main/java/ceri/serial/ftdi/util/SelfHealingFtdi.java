@@ -1,6 +1,7 @@
 package ceri.serial.ftdi.util;
 
 import java.io.IOException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.Pointer;
 import ceri.common.function.Namer;
@@ -32,10 +33,16 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 		public static final Config DEFAULT = builder().build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
 			Namer.predicate(FtdiDevice::isFatal, "Ftdi::isFatal");
+		private final Function<Config, Ftdi.Fixable> ftdiFn;
 		public final LibUsbFinder finder;
 		public final ftdi_interface iface;
+		public final FtdiFactory factory;
 		public final FtdiConfig ftdi;
 		public final SelfHealing.Config selfHealing;
+
+		public static interface FtdiFactory {
+			Ftdi open(LibUsbFinder finder, ftdi_interface iface) throws IOException;
+		}
 
 		public static Config of(String finder) {
 			return of(LibUsbFinder.from(finder));
@@ -46,13 +53,31 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 		}
 
 		public static class Builder {
+			Function<Config, Ftdi.Fixable> ftdiFn = SelfHealingFtdi::of;
 			LibUsbFinder finder = LibFtdiUtil.FINDER;
 			ftdi_interface iface = ftdi_interface.INTERFACE_ANY;
+			FtdiFactory factory = FtdiDevice::open;
 			FtdiConfig ftdi = FtdiConfig.NULL;
 			SelfHealing.Config.Builder selfHealing =
 				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
 
 			Builder() {}
+
+			/**
+			 * Useful to override construction of the ftdi controller.
+			 */
+			public Builder ftdiFn(Function<Config, Ftdi.Fixable> ftdiFn) {
+				this.ftdiFn = ftdiFn;
+				return this;
+			}
+
+			/**
+			 * Useful to override construction of the wrapped ftdi device.
+			 */
+			public Builder factory(FtdiFactory factory) {
+				this.factory = factory;
+				return this;
+			}
 
 			public Builder finder(String descriptor) {
 				return finder(LibUsbFinder.from(descriptor));
@@ -88,15 +113,24 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 		}
 
 		public static Builder builder(Config config) {
-			return builder().finder(config.finder).iface(config.iface).ftdi(config.ftdi)
-				.selfHealing(config.selfHealing);
+			return builder().ftdiFn(config.ftdiFn).finder(config.finder).iface(config.iface)
+				.factory(config.factory).ftdi(config.ftdi).selfHealing(config.selfHealing);
 		}
 
 		Config(Builder builder) {
+			ftdiFn = builder.ftdiFn;
 			finder = builder.finder;
 			iface = builder.iface;
+			factory = builder.factory;
 			ftdi = builder.ftdi;
 			selfHealing = builder.selfHealing.build();
+		}
+
+		/**
+		 * Useful to override construction of the ftdi controller.
+		 */
+		public Ftdi.Fixable ftdi() {
+			return ftdiFn.apply(this);
 		}
 
 		@Override
@@ -232,9 +266,9 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 
 	@Override
 	protected Ftdi openConnector() throws IOException {
-		FtdiDevice ftdi = null;
+		Ftdi ftdi = null;
 		try {
-			ftdi = FtdiDevice.open(config.finder, config.iface);
+			ftdi = config.factory.open(config.finder, config.iface);
 			ftdiConfig.build().apply(ftdi);
 			return ftdi;
 		} catch (RuntimeException | LibUsbException e) {
