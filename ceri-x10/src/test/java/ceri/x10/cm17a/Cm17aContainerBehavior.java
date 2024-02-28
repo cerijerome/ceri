@@ -55,7 +55,7 @@ public class Cm17aContainerBehavior {
 		try (var serial = TestSerial.of();
 			var con =
 				Cm17aContainer.of(Cm17aContainer.Config.builder().device(Cm17aDevice.Config.NULL)
-					.serial(serial.selfHealingConfig("test")).build())) {
+					.serial(serial.selfHealingConfig()).build())) {
 			con.cm17a.command(Command.dim(House.A, 50, Unit._1));
 		}
 	}
@@ -107,7 +107,7 @@ public class Cm17aContainerBehavior {
 	public void shouldFailOnBadConfig() throws IOException {
 		try (var serial = TestSerial.of()) {
 			var config = Cm17aContainer.Config.builder().device(null)
-				.serial(serial.selfHealingConfig("test")).build();
+				.serial(serial.selfHealingConfig()).build();
 			assertThrown(() -> Cm17aContainer.of(config));
 		}
 	}

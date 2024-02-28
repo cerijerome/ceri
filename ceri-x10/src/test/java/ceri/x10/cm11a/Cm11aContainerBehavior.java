@@ -10,9 +10,7 @@ import static ceri.x10.cm11a.Cm11aContainer.Type.connectorRef;
 import static ceri.x10.cm11a.Cm11aContainer.Type.noOp;
 import static ceri.x10.cm11a.Cm11aContainer.Type.test;
 import java.io.IOException;
-import java.io.InputStream;
 import org.junit.Test;
-import ceri.common.io.Connector;
 import ceri.common.io.DeviceMode;
 import ceri.common.test.TestInputStream;
 import ceri.serial.comm.Serial;
@@ -57,7 +55,7 @@ public class Cm11aContainerBehavior {
 	@Test
 	public void shouldCreateFromSerialConfig() throws IOException {
 		try (var serial = TestSerial.of(); var con = Cm11aContainer.of(Cm11aContainer.Config
-			.builder().device(cm11aConfig).serial(serial.selfHealingConfig("test")).build())) {
+			.builder().device(cm11aConfig).serial(serial.selfHealingConfig()).build())) {
 			initInputStream(serial.in, 0x6c, 0x55); // checksum, ready
 			con.cm11a.command(Command.allLightsOff(House.A)); // waits for completion
 		}
@@ -112,12 +110,8 @@ public class Cm11aContainerBehavior {
 
 	@Test
 	public void shouldFailOnConnectorError() {
-		assertThrown(() -> Cm11aContainer.of(1, new Connector.Null() {
-			@Override
-			public InputStream in() {
-				throw new RuntimeException("test");
-			}
-		}));
+		var config = Cm11aContainer.Config.builder().serial(TestSerial.errorConfig()).build();
+		assertThrown(() -> Cm11aContainer.of(config));
 	}
 
 	@SuppressWarnings("resource")

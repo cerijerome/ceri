@@ -166,7 +166,7 @@ public class Cm17aContainer implements RuntimeCloseable {
 
 	@SuppressWarnings("resource")
 	private Serial.Fixable createSerial(SelfHealingSerial.Config config) {
-		return type == Type.serial ? Fixable.openSilently(SelfHealingSerial.of(config)) : null;
+		return type == Type.serial ? Fixable.openSilently(config.serial()) : null;
 	}
 
 	@SuppressWarnings("resource")

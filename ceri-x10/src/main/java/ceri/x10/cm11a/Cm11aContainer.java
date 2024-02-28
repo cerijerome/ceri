@@ -167,7 +167,7 @@ public class Cm11aContainer implements RuntimeCloseable {
 	@SuppressWarnings("resource")
 	private Connector.Fixable createConnector(SelfHealingSerial.Config config) {
 		return type == Type.connector ?
-			Fixable.openSilently(SelfHealingSerial.of(config.replace(Cm11a.SERIAL))) : null;
+			Fixable.openSilently(config.replace(Cm11a.SERIAL).serial()) : null;
 	}
 
 	@SuppressWarnings("resource")
