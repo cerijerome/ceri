@@ -161,7 +161,7 @@ public class Cm11aContainer implements RuntimeCloseable {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, id, type, connector);
+		return ToString.forClass(this, id, type, cm11a, connector);
 	}
 
 	@SuppressWarnings("resource")

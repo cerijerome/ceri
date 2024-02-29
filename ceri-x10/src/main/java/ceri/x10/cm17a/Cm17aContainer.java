@@ -128,7 +128,7 @@ public class Cm17aContainer implements RuntimeCloseable {
 	 * Constructs a controller for the given serial connector.
 	 */
 	public static Cm17aContainer of(int id, Serial.Fixable serial) {
-		return new Cm17aContainer(Config.builder().id(id).build(), null, serial);
+		return of(id, serial, Cm17aDevice.Config.DEFAULT);
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class Cm17aContainer implements RuntimeCloseable {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, id, type, serial);
+		return ToString.forClass(this, id, type, cm17a, serial);
 	}
 
 	@SuppressWarnings("resource")
