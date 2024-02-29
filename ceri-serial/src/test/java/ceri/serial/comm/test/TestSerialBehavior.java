@@ -30,6 +30,12 @@ public class TestSerialBehavior {
 		assertRead(serials[0].in(), 4, 5, 6);
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldOpenOnCreation() throws IOException {
+		TestSerial.ofOpen().open.assertAuto(true);
+	}
+
 	@Test
 	public void shouldResetState() throws IOException {
 		try (var serial = TestSerial.of()) {

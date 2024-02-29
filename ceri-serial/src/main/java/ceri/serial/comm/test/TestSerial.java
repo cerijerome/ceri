@@ -62,8 +62,20 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 			new TestSerial(NAME + "[1->0]"));
 	}
 
+	/**
+	 * Create a new instance with default name.
+	 */
 	public static TestSerial of() {
 		return new TestSerial(null);
+	}
+
+	/**
+	 * Create a new open instance with default name.
+	 */
+	public static TestSerial ofOpen() throws IOException {
+		var fixable = of();
+		fixable.open();
+		return fixable;
 	}
 
 	private TestSerial(String name) {
