@@ -341,6 +341,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.BasicUtilTest.class, //
 	ceri.common.util.CloseableUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
+	ceri.common.util.EnablableBehavior.class, //
 	ceri.common.util.EnclosedBehavior.class, //
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //

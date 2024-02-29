@@ -25,6 +25,15 @@ public class TestFixable implements Fixable {
 	}
 
 	/**
+	 * Create a new open instance with default name.
+	 */
+	public static TestFixable ofOpen() throws IOException {
+		var fixable = of();
+		fixable.open();
+		return fixable;
+	}
+
+	/**
 	 * Constructor with optional name override. Use null for the default name.
 	 */
 	protected TestFixable(String name) {
@@ -86,8 +95,8 @@ public class TestFixable implements Fixable {
 	}
 
 	protected ToString asString() {
-		return ToString.ofName(name(), listeners.size(),
-			broken.value() ? "broken" : "fixed", open.value() ? "open" : "closed");
+		return ToString.ofName(name(), listeners.size(), broken.value() ? "broken" : "fixed",
+			open.value() ? "open" : "closed");
 	}
 
 	protected void verifyConnected() throws IOException {

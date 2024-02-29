@@ -25,4 +25,10 @@ public class TestFixableBehavior {
 		}
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldOpenOnCreation() throws IOException {
+		TestFixable.ofOpen().open.assertAuto(true);
+	}
+	
 }
