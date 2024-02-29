@@ -2,6 +2,7 @@ package ceri.log.rpc.service;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
@@ -15,6 +16,7 @@ public class RpcServiceBehavior {
 		try (var container = RpcService.start(null, RpcServer.Config.NULL)) {
 			assertEquals(container.port(), RpcServer.NULL.port());
 			assertFalse(container.enabled());
+			assertFind(container, "null-service");
 		}
 	}
 

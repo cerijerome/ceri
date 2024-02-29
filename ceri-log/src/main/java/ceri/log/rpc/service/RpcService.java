@@ -3,6 +3,7 @@ package ceri.log.rpc.service;
 import java.io.IOException;
 import java.util.function.Supplier;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.util.Enablable;
 import ceri.common.util.Named;
 import ceri.log.util.LogUtil;
 import io.grpc.BindableService;
@@ -29,7 +30,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 	/**
 	 * A container for an optional service and a server.
 	 */
-	class Container implements RuntimeCloseable {
+	class Container implements RuntimeCloseable, Enablable {
 		private final RpcService service;
 		private final RpcServer server;
 
@@ -52,6 +53,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 			return server.port();
 		}
 
+		@Override
 		public boolean enabled() {
 			return server.enabled();
 		}
@@ -60,12 +62,22 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 		public void close() {
 			LogUtil.close(server, service);
 		}
+
+		@Override
+		public String toString() {
+			return service.name() + ":" + server.port();
+		}
 	}
 
 	/**
 	 * A stateless, no-op implementation.
 	 */
 	interface Null extends RpcService {
+		@Override
+		default String name() {
+			return "null-service";
+		}
+
 		@Override
 		default ServerServiceDefinition bindService() {
 			return RpcServiceUtil.NULL_SERVICE_DEFINITION;

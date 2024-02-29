@@ -9,13 +9,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
+import ceri.common.util.Enablable;
 import ceri.log.rpc.client.RpcChannel;
 import ceri.log.util.LogUtil;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
-public class RpcServer implements RuntimeCloseable {
+public class RpcServer implements RuntimeCloseable, Enablable {
 	private static final Logger logger = LogManager.getLogger();
 	public static final RpcServer NULL = new RpcServer(NULL_SERVER, Config.NULL);
 	private final Config config;
@@ -131,6 +132,7 @@ public class RpcServer implements RuntimeCloseable {
 		logger.info("Listening on port {}", server.getPort());
 	}
 
+	@Override
 	public boolean enabled() {
 		return config.enabled();
 	}

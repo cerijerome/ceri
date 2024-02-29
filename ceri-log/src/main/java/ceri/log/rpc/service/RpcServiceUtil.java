@@ -29,6 +29,9 @@ public class RpcServiceUtil {
 
 	private RpcServiceUtil() {}
 
+	/**
+	 * Check to avoid logging common trivial errors.
+	 */
 	public static boolean isCancelledBeforeHalfClose(Throwable t) {
 		return ExceptionUtil.matches(t, StatusRuntimeException.class,
 			finder(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
