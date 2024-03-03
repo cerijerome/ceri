@@ -30,6 +30,13 @@ public class NetUtil {
 	private NetUtil() {}
 
 	/**
+	 * Creates a URL object from a string, converting any syntax exception to unchecked.
+	 */
+	public static URL url(String url) {
+		return ExceptionAdapter.ILLEGAL_ARGUMENT.get(() -> new URI(url).toURL());
+	}
+
+	/**
 	 * Returns the URI object for a URL, converting any syntax exception to unchecked.
 	 */
 	public static URI uri(URL url) {

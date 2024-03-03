@@ -1,7 +1,6 @@
 package ceri.ent.htmlunit;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
@@ -13,6 +12,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.net.NetUtil;
 import ceri.ent.web.SampleHeader;
 
 public class WebClientHelper implements RuntimeCloseable {
@@ -100,7 +100,7 @@ public class WebClientHelper implements RuntimeCloseable {
 	@SuppressWarnings("serial")
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
-		StringWebResponse response = new StringWebResponse(content, new URL(url));
+		StringWebResponse response = new StringWebResponse(content, NetUtil.url(url));
 		return (HtmlPage) webClient.getPageCreator().createPage(response,
 			new TopLevelWindow("", webClient) {});
 	}

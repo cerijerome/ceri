@@ -2,11 +2,7 @@
 
 ## Java Serial
 
-Provides a bridge for serial libs to Java Comms API.  
-Not fully supported so far, just enough for x10, dmx, audio, and video projects to work.  
-
-`purejavacomm` is now used instead of rxtx. This uses `jna` to call OS libraries directly,
-no need to install a java extension lib.
+Serial control has been rewritten to use CLib directly with JNA, no more purejavacomm or rxtx.
  
 For MacOSX:
 - OSX now comes with USB to serial FTDI driver for PL2303
@@ -27,6 +23,16 @@ Not all features are tested, so beware!
 This is an implementation of `libftdi`, used to communicate with USB devices using FTDI chips. It is built on top of `LibUsb`.
 
 ---
+
+## Java Serial (old)
+
+Provides a bridge for serial libs to Java Comms API.  
+Not fully supported so far, just enough for x10, dmx, audio, and video projects to work.  
+
+`purejavacomm` is now used instead of rxtx. This uses `jna` to call OS libraries directly,
+no need to install a java extension lib.
+ 
+
 ## RXTX (old)
   
 For Ubuntu: (old)

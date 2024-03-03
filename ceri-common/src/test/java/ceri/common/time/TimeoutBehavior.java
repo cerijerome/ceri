@@ -56,8 +56,8 @@ public class TimeoutBehavior {
 	@Test
 	public void shouldAccept() {
 		Timeout t = Timeout.millis(1);
-		try (var exec = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
-			new ArrayBlockingQueue<Runnable>(1))) {
+		try (var exec =
+			new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1))) {
 			t.acceptBy(exec::setKeepAliveTime);
 			Timeout.NULL.acceptBy(exec::setKeepAliveTime);
 		}

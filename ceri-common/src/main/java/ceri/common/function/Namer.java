@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * Utilities to name functional interfaces.
  */
 public class Namer {
-	private static final String ANON_LAMBDA_LABEL = "$$Lambda$";
+	private static final String ANON_LAMBDA_LABEL = "$$Lambda/";
 	public static final String LAMBDA_SYMBOL = "\u03bb";
 	public static final String LAMBDA_NAME_DEF = "[lambda]";
 
