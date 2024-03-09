@@ -23,6 +23,17 @@ public class MaskTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldProvideNullMask() {
+		assertEquals(MaskTranscoder.NULL.encode(Long.MAX_VALUE), Long.MAX_VALUE);
+		assertEquals(MaskTranscoder.NULL.encode(Long.MIN_VALUE), Long.MIN_VALUE);
+		assertEquals(MaskTranscoder.NULL.encode(-1), -1L);
+		assertEquals(MaskTranscoder.NULL.encodeInt(Integer.MAX_VALUE), Integer.MAX_VALUE);
+		assertEquals(MaskTranscoder.NULL.encodeInt(Integer.MIN_VALUE), Integer.MIN_VALUE);
+		assertEquals(MaskTranscoder.NULL.encodeInt(-1), -1);
+		assertEquals(MaskTranscoder.NULL.encodeInt(0xffffffffL), -1);
+	}
+
+	@Test
 	public void shouldEncodeValues() {
 		assertEquals(MaskTranscoder.xbits(8, 4).encode(0xabcd), 0xcd0L);
 		assertEquals(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd), 0xcd0);

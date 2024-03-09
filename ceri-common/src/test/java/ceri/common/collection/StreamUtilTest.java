@@ -26,6 +26,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.function.ExceptionConsumer;
@@ -97,10 +98,23 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testBitwiseOperators() {
+	public void testToLong() {
+		assertArray(StreamUtil.toLong(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(), 1L, 2L, 3L,
+			4L);
+	}
+
+	@Test
+	public void testBitwiseIntOperators() {
 		assertEquals(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), 7);
 		assertEquals(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), 6);
 		assertEquals(StreamUtil.bitwiseXor(IntStream.of(1, 2, 5)), 6);
+	}
+
+	@Test
+	public void testBitwiseLongOperators() {
+		assertEquals(StreamUtil.bitwiseOr(LongStream.of(1, 2, 5)), 7L);
+		assertEquals(StreamUtil.bitwiseAnd(LongStream.of(15, 7, 14)), 6L);
+		assertEquals(StreamUtil.bitwiseXor(LongStream.of(1, 2, 5)), 6L);
 	}
 
 	@Test
@@ -153,6 +167,14 @@ public class StreamUtilTest {
 		int[] array = { 1, -1, 0 };
 		int i = 0;
 		for (int n : StreamUtil.iterable(IntStream.of(array)))
+			assertEquals(n, array[i++]);
+	}
+
+	@Test
+	public void testLongIterable() {
+		long[] array = { 1, -1, 0 };
+		int i = 0;
+		for (long n : StreamUtil.iterable(LongStream.of(array)))
 			assertEquals(n, array[i++]);
 	}
 

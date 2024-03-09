@@ -2,6 +2,7 @@ package ceri.common.function;
 
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import java.util.Objects;
+import java.util.function.ObjLongConsumer;
 
 /**
  * Function that can throw exceptions.

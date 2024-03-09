@@ -8,7 +8,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -98,14 +97,14 @@ public class TaskQueue<E extends Exception> {
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(ExceptionRunnable<E> action) throws E {
-		executeGet(FunctionUtil.asSupplier(action));
+		executeGet(ExceptionRunnable.asSupplier(action, null));
 	}
 
 	/**
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(ExceptionRunnable<E> action, int timeout, TimeUnit unit) throws E {
-		executeGet(FunctionUtil.asSupplier(action), timeout, unit);
+		executeGet(ExceptionRunnable.asSupplier(action, null), timeout, unit);
 	}
 
 	/**

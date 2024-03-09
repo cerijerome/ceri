@@ -3,6 +3,9 @@ package ceri.common.function;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
@@ -87,6 +90,48 @@ public class FunctionUtil {
 			if (i.hasNext()) holder.set(i.next());
 			return holder.value();
 		};
+	}
+
+	/**
+	 * Creates an optional instance with empty() if null (same as Optional.OfNullable).
+	 */
+	public static OptionalInt optional(Integer value) {
+		return value == null ? OptionalInt.empty() : OptionalInt.of(value);
+	}
+
+	/**
+	 * Creates an optional instance with empty() if null (same as Optional.OfNullable).
+	 */
+	public static OptionalLong optional(Long value) {
+		return value == null ? OptionalLong.empty() : OptionalLong.of(value);
+	}
+
+	/**
+	 * Creates an optional instance with empty() if null (same as Optional.OfNullable).
+	 */
+	public static OptionalDouble optional(Double value) {
+		return value == null ? OptionalDouble.empty() : OptionalDouble.of(value);
+	}
+
+	/**
+	 * Returns the value if present, otherwise null.
+	 */
+	public static Integer value(OptionalInt optional) {
+		return optional.isEmpty() ? null : optional.getAsInt();
+	}
+
+	/**
+	 * Returns the value if present, otherwise null.
+	 */
+	public static Long value(OptionalLong optional) {
+		return optional.isEmpty() ? null : optional.getAsLong();
+	}
+
+	/**
+	 * Returns the value if present, otherwise null.
+	 */
+	public static Double value(OptionalDouble optional) {
+		return optional.isEmpty() ? null : optional.getAsDouble();
 	}
 
 	/**
@@ -232,88 +277,6 @@ public class FunctionUtil {
 	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> extractor,
 		IntPredicate predicate) {
 		return t -> predicate.test(extractor.applyAsInt(t));
-	}
-
-	/**
-	 * Converts a runnable to a function that ignores input and returns true.
-	 */
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
-		asFunction(ExceptionRunnable<E> runnable) {
-		return t -> {
-			runnable.run();
-			return Boolean.TRUE;
-		};
-	}
-
-	/**
-	 * Converts a supplier to a function that ignores input.
-	 */
-	public static <E extends Exception, T> ExceptionFunction<E, ?, T>
-		asFunction(ExceptionSupplier<E, T> supplier) {
-		return t -> supplier.get();
-	}
-
-	/**
-	 * Converts a supplier to a function that ignores input.
-	 */
-	public static <E extends Exception, T> ExceptionToIntFunction<E, T>
-		asToIntFunction(ExceptionIntSupplier<E> supplier) {
-		return t -> supplier.getAsInt();
-	}
-
-	/**
-	 * Converts a consumer to a function that returns true.
-	 */
-	public static <E extends Exception, T> ExceptionFunction<E, T, Boolean>
-		asFunction(ExceptionConsumer<E, T> consumer) {
-		return t -> {
-			consumer.accept(t);
-			return Boolean.TRUE;
-		};
-	}
-
-	/**
-	 * Converts a consumer to a function that returns true.
-	 */
-	public static <E extends Exception> ExceptionIntFunction<E, Boolean>
-		asIntFunction(ExceptionIntConsumer<E> consumer) {
-		return i -> {
-			consumer.accept(i);
-			return Boolean.TRUE;
-		};
-	}
-
-	/**
-	 * Converts a bi-consumer to a bi-function that returns true.
-	 */
-	public static <E extends Exception, T, U> ExceptionBiFunction<E, T, U, Boolean>
-		asBiFunction(ExceptionBiConsumer<E, T, U> consumer) {
-		return (t, u) -> {
-			consumer.accept(t, u);
-			return Boolean.TRUE;
-		};
-	}
-
-	/**
-	 * Converts a runnable to a supplier that returns the given value.
-	 */
-	public static <E extends Exception, T> ExceptionSupplier<E, T>
-		asSupplier(ExceptionRunnable<E> runnable, T t) {
-		return () -> {
-			runnable.run();
-			return t;
-		};
-	}
-
-	/**
-	 * Converts a runnable to a supplier that returns null.
-	 */
-	public static <E extends Exception, T> ExceptionSupplier<E, T>
-		asSupplier(ExceptionRunnable<E> runnable) {
-		return () -> {
-			runnable.run();
-			return null;
-		};
 	}
 
 	/**

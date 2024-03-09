@@ -3,9 +3,6 @@ package ceri.common.function;
 import static ceri.common.function.FunctionTestUtil.biConsumer;
 import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.function.FunctionTestUtil.intConsumer;
-import static ceri.common.function.FunctionTestUtil.intSupplier;
-import static ceri.common.function.FunctionTestUtil.runnable;
-import static ceri.common.function.FunctionTestUtil.supplier;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -17,6 +14,9 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -95,6 +95,26 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testOptional() {
+		assertEquals(FunctionUtil.optional((Integer) null), OptionalInt.empty());
+		assertEquals(FunctionUtil.optional((Long) null), OptionalLong.empty());
+		assertEquals(FunctionUtil.optional((Double) null), OptionalDouble.empty());
+		assertEquals(FunctionUtil.optional(123), OptionalInt.of(123));
+		assertEquals(FunctionUtil.optional(123L), OptionalLong.of(123L));
+		assertEquals(FunctionUtil.optional(123.0), OptionalDouble.of(123.0));
+	}
+
+	@Test
+	public void testOptionalValue() {
+		assertEquals(FunctionUtil.value(OptionalInt.empty()), null);
+		assertEquals(FunctionUtil.value(OptionalLong.empty()), null);
+		assertEquals(FunctionUtil.value(OptionalDouble.empty()), null);
+		assertEquals(FunctionUtil.value(OptionalInt.of(123)), 123);
+		assertEquals(FunctionUtil.value(OptionalLong.of(123)), 123L);
+		assertEquals(FunctionUtil.value(OptionalDouble.of(123)), 123.0);
+	}
+
+	@Test
 	public void testSafeAccept() throws IOException {
 		String[] store = { "" };
 		ExceptionConsumer<IOException, String> consumer = s -> store[0] = s;
@@ -133,22 +153,6 @@ public class FunctionUtilTest {
 		assertEquals(FunctionUtil.recurse("test", s -> s.replaceFirst("[a-z]", "X")), "XXXX");
 		assertEquals(FunctionUtil.recurse("hello", s -> s.substring(1), 3), "lo");
 		assertThrown(() -> FunctionUtil.recurse("hello", s -> s.substring(1)));
-	}
-
-	@Test
-	public void testAsFunction() throws IOException {
-		assertEquals(FunctionUtil.asFunction(consumer()).apply(2), Boolean.TRUE);
-		assertEquals(FunctionUtil.asFunction(supplier(2)).apply(null), 2);
-		assertEquals(FunctionUtil.asFunction(runnable(2)).apply(null), Boolean.TRUE);
-		assertEquals(FunctionUtil.asFunction(runnable(2)).apply("x"), Boolean.TRUE);
-		assertEquals(FunctionUtil.asToIntFunction(intSupplier(2)).applyAsInt(null), 2);
-		assertEquals(FunctionUtil.asToIntFunction(intSupplier(2)).applyAsInt("x"), 2);
-		assertEquals(FunctionUtil.asBiFunction(biConsumer()).apply(2, 3), Boolean.TRUE);
-	}
-
-	@Test
-	public void testAsSupplier() throws IOException {
-		assertEquals(FunctionUtil.asSupplier(runnable(2), 5).get(), 5);
 	}
 
 	@Test

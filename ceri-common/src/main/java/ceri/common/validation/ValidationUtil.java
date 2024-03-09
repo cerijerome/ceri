@@ -15,6 +15,7 @@ import static ceri.common.validation.DisplayLong.udec;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,6 +101,22 @@ public class ValidationUtil {
 	 * Validates and returns a value found by lookup function.
 	 */
 	public static <T> T validateIntLookup(IntFunction<T> lookup, int value, String name) {
+		T t = lookup.apply(value);
+		if (t != null) return t;
+		throw exceptionf("%s is invalid: %d (0x%x)", name, value, value);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateLongLookup(LongFunction<T> lookup, long value) {
+		return validateLongLookup(lookup, value, VALUE);
+	}
+
+	/**
+	 * Validates and returns a value found by lookup function.
+	 */
+	public static <T> T validateLongLookup(LongFunction<T> lookup, long value, String name) {
 		T t = lookup.apply(value);
 		if (t != null) return t;
 		throw exceptionf("%s is invalid: %d (0x%x)", name, value, value);

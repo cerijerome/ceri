@@ -10,19 +10,19 @@ import ceri.common.data.TypeTranscoder.Remainder;
  * field that is a plain integer. Typically instantiated from TypeTranscoder.field.
  */
 public class FieldTranscoder<T> {
-	private final IntField field;
+	private final ValueField field;
 	private final TypeTranscoder<T> xcoder;
 
-	public static <T> FieldTranscoder<T> of(IntField field, TypeTranscoder<T> xcoder) {
+	public static <T> FieldTranscoder<T> of(ValueField field, TypeTranscoder<T> xcoder) {
 		return new FieldTranscoder<>(field, xcoder);
 	}
 
-	FieldTranscoder(IntField field, TypeTranscoder<T> xcoder) {
+	FieldTranscoder(ValueField field, TypeTranscoder<T> xcoder) {
 		this.field = field;
 		this.xcoder = xcoder;
 	}
 
-	public IntField field() {
+	public ValueField field() {
 		return field;
 	}
 
@@ -100,19 +100,19 @@ public class FieldTranscoder<T> {
 	}
 
 	public static class Typed<S, T> {
-		private final IntField.Typed<S> field;
+		private final ValueField.Typed<S> field;
 		private final TypeTranscoder<T> xcoder;
 
-		public static <S, T> Typed<S, T> of(IntField.Typed<S> field, TypeTranscoder<T> xcoder) {
+		public static <S, T> Typed<S, T> of(ValueField.Typed<S> field, TypeTranscoder<T> xcoder) {
 			return new Typed<>(field, xcoder);
 		}
 
-		Typed(IntField.Typed<S> field, TypeTranscoder<T> xcoder) {
+		Typed(ValueField.Typed<S> field, TypeTranscoder<T> xcoder) {
 			this.field = field;
 			this.xcoder = xcoder;
 		}
 
-		public IntField.Typed<S> field() {
+		public ValueField.Typed<S> field() {
 			return field;
 		}
 
@@ -189,5 +189,4 @@ public class FieldTranscoder<T> {
 			return xcoder.hasAll(field.get(s), ts);
 		}
 	}
-
 }

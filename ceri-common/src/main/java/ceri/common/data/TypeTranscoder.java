@@ -1,14 +1,13 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateIntLookup;
+import static ceri.common.validation.ValidationUtil.validateLongLookup;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.validation.ValidationUtil;
@@ -19,25 +18,29 @@ import ceri.common.validation.ValidationUtil;
  */
 public class TypeTranscoder<T> {
 	final MaskTranscoder mask;
-	final ToIntFunction<T> valueFn;
-	final Map<Integer, T> lookup;
+	final ToLongFunction<T> valueFn;
+	final Map<Long, T> lookup;
 
 	public static class Remainder<T> {
 		public final Set<T> types;
-		public final int remainder;
+		private final long diff;
 
 		@SafeVarargs
-		public static <T> Remainder<T> of(int remainder, T... types) {
-			return of(remainder, Arrays.asList(types));
+		public static <T> Remainder<T> of(long diff, T... types) {
+			return new Remainder<>(diff, Set.of(types));
 		}
 
-		public static <T> Remainder<T> of(int remainder, Collection<T> types) {
-			return new Remainder<>(remainder, ImmutableUtil.copyAsSet(types));
-		}
-
-		private Remainder(int remainder, Set<T> types) {
+		private Remainder(long diff, Set<T> types) {
 			this.types = types;
-			this.remainder = remainder;
+			this.diff = diff;
+		}
+
+		public int intDiff() {
+			return Math.toIntExact(diff());
+		}
+
+		public long diff() {
+			return diff;
 		}
 
 		public boolean isEmpty() {
@@ -45,63 +48,55 @@ public class TypeTranscoder<T> {
 		}
 
 		public boolean isExact() {
-			return remainder == 0;
+			return diff == 0L;
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(types, remainder);
+			return Objects.hash(types, diff);
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Remainder)) return false;
-			Remainder<?> other = (Remainder<?>) obj;
+			if (!(obj instanceof Remainder<?> other)) return false;
 			if (!Objects.equals(types, other.types)) return false;
-			if (remainder != other.remainder) return false;
+			if (diff != other.diff) return false;
 			return true;
 		}
 
 		@Override
 		public String toString() {
-			return types + "+" + remainder;
+			return types + "+" + diff;
 		}
 	}
 
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToIntFunction<T> valueFn, Class<T> cls) {
-		return of(valueFn, EnumSet.allOf(cls));
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Class<T> cls) {
+		return of(valueFn, MaskTranscoder.NULL, cls);
 	}
 
 	@SafeVarargs
-	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, T... ts) {
-		return of(valueFn, Arrays.asList(ts));
-	}
-
-	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, Collection<T> ts) {
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, T... ts) {
 		return of(valueFn, MaskTranscoder.NULL, ts);
 	}
 
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToIntFunction<T> valueFn,
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		MaskTranscoder mask, Class<T> cls) {
-		return of(valueFn, mask, EnumSet.allOf(cls));
+		return of(valueFn, mask, cls.getEnumConstants());
 	}
 
 	@SafeVarargs
-	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, MaskTranscoder mask, T... ts) {
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask, T... ts) {
 		return of(valueFn, mask, Arrays.asList(ts));
 	}
 
-	public static <T> TypeTranscoder<T> of(ToIntFunction<T> valueFn, MaskTranscoder mask,
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
 		Collection<T> ts) {
-		return new TypeTranscoder<>(valueFn, mask, ts);
+		return new TypeTranscoder<>(valueFn, mask,
+			ImmutableUtil.convertAsMap(valueFn::applyAsLong, ts));
 	}
 
-	private TypeTranscoder(ToIntFunction<T> valueFn, MaskTranscoder mask, Collection<T> ts) {
-		this(valueFn, mask, ImmutableUtil.convertAsMap(valueFn::applyAsInt, ts));
-	}
-
-	private TypeTranscoder(ToIntFunction<T> valueFn, MaskTranscoder mask, Map<Integer, T> lookup) {
+	private TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Map<Long, T> lookup) {
 		this.valueFn = valueFn;
 		this.lookup = lookup;
 		this.mask = mask;
@@ -111,36 +106,49 @@ public class TypeTranscoder<T> {
 		return lookup.values();
 	}
 
-	public FieldTranscoder<T> field(IntField accessor) {
+	public FieldTranscoder<T> field(ValueField accessor) {
 		return FieldTranscoder.of(accessor, this);
 	}
 
-	public <U> FieldTranscoder.Typed<U, T> field(IntField.Typed<U> accessor) {
+	public <U> FieldTranscoder.Typed<U, T> field(ValueField.Typed<U> accessor) {
 		return FieldTranscoder.Typed.of(accessor, this);
 	}
 
 	@SafeVarargs
-	public final int encode(T... ts) {
+	public final long encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
 		if (ts.length == 1) return mask.encodeInt(encodeType(ts[0]));
 		return encode(Arrays.asList(ts));
 	}
 
-	public int encode(Collection<T> ts) {
+	public long encode(Collection<T> ts) {
 		return mask.encodeInt(encodeTypes(ts));
 	}
 
-	public int encode(Remainder<T> rem) {
+	public long encode(Remainder<T> rem) {
 		if (rem == null) return 0;
-		return mask.encodeInt(encodeTypes(rem.types) | rem.remainder);
+		return mask.encodeInt(encodeTypes(rem.types) | rem.diff);
+	}
+
+	@SafeVarargs
+	public final int encodeInt(T... ts) {
+		return (int) encode(ts);
+	}
+
+	public int encodeInt(Collection<T> ts) {
+		return (int) encode(ts);
+	}
+
+	public int encodeInt(Remainder<T> rem) {
+		return (int) encode(rem);
 	}
 
 	/**
 	 * Simple bitwise check if value contains the type. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean has(int value, T t) {
-		int mask = valueFn.applyAsInt(t);
+	public boolean has(long value, T t) {
+		var mask = valueFn.applyAsLong(t);
 		return (value & mask) == mask;
 	}
 
@@ -149,7 +157,7 @@ public class TypeTranscoder<T> {
 	 * overlap.
 	 */
 	@SafeVarargs
-	public final boolean hasAny(int value, T... ts) {
+	public final boolean hasAny(long value, T... ts) {
 		return hasAny(value, Arrays.asList(ts));
 	}
 
@@ -157,8 +165,8 @@ public class TypeTranscoder<T> {
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAny(int value, Collection<T> ts) {
-		return ts.stream().mapToInt(valueFn).filter(v -> (value & v) == v).findAny().isPresent();
+	public boolean hasAny(long value, Collection<T> ts) {
+		return ts.stream().mapToLong(valueFn).filter(v -> (value & v) == v).findAny().isPresent();
 	}
 
 	/**
@@ -166,7 +174,7 @@ public class TypeTranscoder<T> {
 	 * overlap.
 	 */
 	@SafeVarargs
-	public final boolean hasAll(int value, T... ts) {
+	public final boolean hasAll(long value, T... ts) {
 		return hasAll(value, Arrays.asList(ts));
 	}
 
@@ -174,18 +182,18 @@ public class TypeTranscoder<T> {
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAll(int value, Collection<T> ts) {
-		int mask = StreamUtil.bitwiseOr(ts.stream().mapToInt(valueFn));
+	public boolean hasAll(long value, Collection<T> ts) {
+		var mask = StreamUtil.bitwiseOr(ts.stream().mapToLong(valueFn));
 		return (value & mask) == mask;
 	}
 
-	public boolean isValid(int value) {
+	public boolean isValid(long value) {
 		value = mask.decodeInt(value);
 		if (value == 0) return true;
 		if (lookup.containsKey(value)) return true;
-		for (int i : lookup.keySet()) {
-			if ((i & value) != i) continue;
-			value -= i;
+		for (var k : lookup.keySet()) {
+			if ((k & value) != k) continue;
+			value -= k;
 			if (value == 0) break;
 		}
 		return value == 0;
@@ -194,57 +202,57 @@ public class TypeTranscoder<T> {
 	/**
 	 * Decode the value to return a single type. Returns null if not found.
 	 */
-	public T decode(int value) {
-		return lookup.get(mask.decodeInt(value));
+	public T decode(long value) {
+		return lookup.get(mask.decode(value));
 	}
 
 	/**
 	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
 	 */
-	public T decodeValid(int value) {
-		return validateIntLookup(this::decode, value);
+	public T decodeValid(long value) {
+		return validateLongLookup(this::decode, value);
 	}
 
 	/**
 	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
 	 */
-	public T decodeValid(int value, String name) {
-		return ValidationUtil.<T>validateIntLookup(this::decode, value, name);
+	public T decodeValid(long value, String name) {
+		return ValidationUtil.<T>validateLongLookup(this::decode, value, name);
 	}
 
 	/**
 	 * Decode the value into multiple types. Iteration over the types is in lookup entry order. Any
 	 * remainder is discarded.
 	 */
-	public Set<T> decodeAll(int value) {
+	public Set<T> decodeAll(long value) {
 		return decodeWithRemainder(value).types;
 	}
 
 	/**
 	 * Decode the value into multiple types. Iteration over the types is in lookup entry order.
 	 */
-	public Remainder<T> decodeWithRemainder(int value) {
+	public Remainder<T> decodeWithRemainder(long value) {
 		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
 		for (var entry : lookup.entrySet()) {
-			int i = entry.getKey();
+			var k = entry.getKey();
 			T t = entry.getValue();
-			if ((i & value) != i) continue;
-			value -= i;
+			if ((k & value) != k) continue;
+			value -= k;
 			set.add(t);
 			if (value == 0) break;
 		}
 		return new Remainder<>(value, set);
 	}
 
-	private int encodeTypes(Collection<T> ts) {
+	private long encodeTypes(Collection<T> ts) {
 		if (ts == null || ts.isEmpty()) return 0;
-		return StreamUtil.bitwiseOr(ts.stream().mapToInt(this::encodeType));
+		return StreamUtil.bitwiseOr(ts.stream().mapToLong(this::encodeType));
 	}
 
-	private int encodeType(T t) {
-		int value = valueFn.applyAsInt(t);
-		return lookup.containsKey(value) ? value : 0;
+	private long encodeType(T t) {
+		var value = valueFn.applyAsLong(t);
+		return lookup.containsKey(value) ? value : 0L;
 	}
 
 }

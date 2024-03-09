@@ -29,4 +29,12 @@ public interface ExceptionSupplier<E extends Exception, T> {
 		return supplier::call;
 	}
 
+	/**
+	 * Converts a supplier to a function that ignores input.
+	 */
+	static <E extends Exception, T> ExceptionFunction<E, ?, T>
+		asFunction(ExceptionSupplier<E, T> supplier) {
+		return t -> supplier.get();
+	}
+
 }

@@ -9,7 +9,7 @@ import ceri.common.text.ToString;
  * Extracts and calculates masked values within a long value.
  */
 public class MaskTranscoder {
-	public static final MaskTranscoder NULL = mask(-1, 0);
+	public static final MaskTranscoder NULL = mask(-1L, 0);
 	private final long mask; // value mask; before shift for decoding
 	private final int shiftBits;
 
@@ -66,7 +66,7 @@ public class MaskTranscoder {
 	 * Return the masked value combined with current value.
 	 */
 	public int encodeInt(long value, long current) {
-		return (int) setValue(current, mask, shiftBits, value);
+		return (int) encode(value, current);
 	}
 
 	/**
@@ -99,8 +99,7 @@ public class MaskTranscoder {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof MaskTranscoder)) return false;
-		MaskTranscoder other = (MaskTranscoder) obj;
+		if (!(obj instanceof MaskTranscoder other)) return false;
 		if (mask != other.mask) return false;
 		if (shiftBits != other.shiftBits) return false;
 		return true;

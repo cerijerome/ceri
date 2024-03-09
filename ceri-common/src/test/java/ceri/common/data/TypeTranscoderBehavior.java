@@ -31,7 +31,8 @@ public class TypeTranscoderBehavior {
 	}
 
 	static class Holder {
-		static final IntField.Typed<Holder> acc = IntField.typed(h -> h.val, (h, i) -> h.val = i);
+		static final ValueField.Typed<Holder> acc =
+			ValueField.Typed.ofInt(h -> h.val, (h, i) -> h.val = i);
 
 		int val = 0;
 	}
@@ -71,13 +72,13 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeValues() {
-		assertEquals(xcoder.encode(), 0);
-		assertEquals(xcoder.encode((E[]) null), 0);
-		assertEquals(xcoder.encode((List<E>) null), 0);
-		assertEquals(xcoder.encode(List.of()), 0);
-		assertEquals(xcoder.encode((Remainder<E>) null), 0);
-		assertEquals(xcoder.encode(E.b), E.b.value);
-		assertEquals(xcoder.encode(E.b, E.c), E.b.value + E.c.value);
+		assertEquals(xcoder.encodeInt(), 0);
+		assertEquals(xcoder.encodeInt((E[]) null), 0);
+		assertEquals(xcoder.encodeInt((List<E>) null), 0);
+		assertEquals(xcoder.encodeInt(List.of()), 0);
+		assertEquals(xcoder.encodeInt((Remainder<E>) null), 0);
+		assertEquals(xcoder.encodeInt(E.b), E.b.value);
+		assertEquals(xcoder.encodeInt(E.b, E.c), E.b.value + E.c.value);
 	}
 
 	@Test
@@ -136,21 +137,21 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldEncodeSubset() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.a, E.c);
-		assertEquals(xcoder.encode(), 0);
-		assertEquals(xcoder.encode((E[]) null), 0);
-		assertEquals(xcoder.encode((List<E>) null), 0);
-		assertEquals(xcoder.encode(List.of()), 0);
-		assertEquals(xcoder.encode(E.b), 0);
-		assertEquals(xcoder.encode(E.a), E.a.value);
-		assertEquals(xcoder.encode(E.b, E.c), E.c.value);
+		assertEquals(xcoder.encodeInt(), 0);
+		assertEquals(xcoder.encodeInt((E[]) null), 0);
+		assertEquals(xcoder.encodeInt((List<E>) null), 0);
+		assertEquals(xcoder.encodeInt(List.of()), 0);
+		assertEquals(xcoder.encodeInt(E.b), 0);
+		assertEquals(xcoder.encodeInt(E.a), E.a.value);
+		assertEquals(xcoder.encodeInt(E.b, E.c), E.c.value);
 	}
 
 	@Test
 	public void shouldTranscodeMaskValues() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, mask(0x0e, 0), E.class);
-		assertEquals(xcoder.encode(E.a), 0);
-		assertEquals(xcoder.encode(E.c), E.c.value);
-		assertEquals(xcoder.encode(E.a, E.c), E.c.value);
+		assertEquals(xcoder.encodeInt(E.a), 0);
+		assertEquals(xcoder.encodeInt(E.c), E.c.value);
+		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
 		assertEquals(xcoder.decode(0xd), E.c);
 		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
@@ -158,9 +159,9 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldTranscodeOverlappingMaskValues() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), E.b, E.c);
-		assertEquals(xcoder.encode(E.a), 0);
-		assertEquals(xcoder.encode(E.c), E.c.value);
-		assertEquals(xcoder.encode(E.a, E.c), E.c.value);
+		assertEquals(xcoder.encodeInt(E.a), 0);
+		assertEquals(xcoder.encodeInt(E.c), E.c.value);
+		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
 		assertEquals(xcoder.decode(0xd), E.c);
 		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
@@ -168,7 +169,7 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldTranscodeFields() {
 		int[] store = { 0 };
-		IntField accessor = IntField.of(() -> store[0], i -> store[0] = i);
+		ValueField accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
 		FieldTranscoder<E> field = xcoder.field(accessor);
 		field.set(E.b);
 		assertEquals(store[0], E.b.value);
@@ -192,7 +193,7 @@ public class TypeTranscoderBehavior {
 	}
 
 	public static <T> void assertRemainder(Remainder<T> actual, int rem, Collection<T> ts) {
-		assertEquals(actual.remainder, rem);
+		assertEquals(actual.intDiff(), rem);
 		assertCollection(actual.types, ts);
 	}
 

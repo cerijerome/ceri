@@ -7,7 +7,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 
-public enum DisplayDouble {
+public enum DisplayDouble implements DoubleFunction<String> {
 	std(String::valueOf), // standard view
 	round(d -> String.valueOf(Math.round(d))), // rounded to long
 	round1(d -> String.valueOf(MathUtil.round(1, d))), // 1 decimal place
@@ -21,17 +21,17 @@ public enum DisplayDouble {
 	}
 
 	public static String format(double value, Collection<DisplayDouble> flags) {
-		if (flags.isEmpty()) return DisplayDouble.std.format(value);
-		if (flags.size() == 1) return CollectionUtil.first(flags).format(value);
-		return StringUtil.join(", ", "(", ")", flag -> flag.format(value), flags);
+		if (flags.isEmpty()) return DisplayDouble.std.apply(value);
+		if (flags.size() == 1) return CollectionUtil.first(flags).apply(value);
+		return StringUtil.join(", ", "(", ")", flag -> flag.apply(value), flags);
 	}
 
 	private DisplayDouble(DoubleFunction<String> formatter) {
 		this.formatter = formatter;
 	}
 
-	public String format(double value) {
+	@Override
+	public String apply(double value) {
 		return formatter.apply(value);
 	}
-
 }

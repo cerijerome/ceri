@@ -2,6 +2,7 @@ package ceri.common.function;
 
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
+import java.util.function.ObjLongConsumer;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
 import ceri.common.test.Captor;

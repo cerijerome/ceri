@@ -1,17 +1,45 @@
 package ceri.common.collection;
 
 import static ceri.common.collection.ArrayUtil.validateIndex;
+import static ceri.common.exception.ExceptionUtil.exceptionf;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
 public class EnumUtil {
 	private static final Map<Class<?>, List<?>> cache = new ConcurrentHashMap<>();
 
 	private EnumUtil() {}
+
+	/**
+	 * Throws an exception if type is not one of the given allowed types.
+	 */
+	@SafeVarargs
+	public static <T extends Enum<T>> T verifyAllowed(T t, T... allowed) {
+		Objects.requireNonNull(t);
+		for (var allow : allowed)
+			if (t == allow) return t;
+		throw exceptionf("%s must be one of %s: %s", ReflectUtil.className(t),
+			Arrays.toString(allowed), t);
+	}
+
+	/**
+	 * Throws an exception if type is null, or one of the given disallowed types.
+	 */
+	@SafeVarargs
+	public static <T extends Enum<T>> T verifyDisallowed(T t, T... disallowed) {
+		Objects.requireNonNull(t);
+		for (var disallow : disallowed)
+			if (t == disallow) throw exceptionf("%s cannot be one of %s: %s",
+				ReflectUtil.className(t), Arrays.toString(disallowed), t);
+		return t;
+	}
 
 	/**
 	 * Convenience method that calls Enum.valueOf and returns null if no match.

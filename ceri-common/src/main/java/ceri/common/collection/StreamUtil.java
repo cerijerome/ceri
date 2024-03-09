@@ -26,6 +26,7 @@ import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
+import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
 import java.util.function.ObjIntConsumer;
@@ -54,6 +55,9 @@ public class StreamUtil {
 	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
 	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
 	private static final IntBinaryOperator intBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
+	private static final LongBinaryOperator longBitwiseAnd = (lhs, rhs) -> lhs & rhs;
+	private static final LongBinaryOperator longBitwiseOr = (lhs, rhs) -> lhs | rhs;
+	private static final LongBinaryOperator longBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
 	private static final BiConsumer<?, ?> badCombiner = (r1, r2) -> {
 		throw new IllegalStateException();
 	};
@@ -124,6 +128,10 @@ public class StreamUtil {
 		return stream.mapToInt(Number::intValue);
 	}
 
+	public static LongStream toLong(Stream<? extends Number> stream) {
+		return stream.mapToLong(Number::longValue);
+	}
+
 	public static int bitwiseAnd(IntStream stream) {
 		return stream.reduce(intBitwiseAnd).orElse(0);
 	}
@@ -134,6 +142,18 @@ public class StreamUtil {
 
 	public static int bitwiseXor(IntStream stream) {
 		return stream.reduce(0, intBitwiseXor);
+	}
+
+	public static long bitwiseAnd(LongStream stream) {
+		return stream.reduce(longBitwiseAnd).orElse(0L);
+	}
+
+	public static long bitwiseOr(LongStream stream) {
+		return stream.reduce(0L, longBitwiseOr);
+	}
+
+	public static long bitwiseXor(LongStream stream) {
+		return stream.reduce(0L, longBitwiseXor);
 	}
 
 	public static <T> Stream<Indexed<T>> range(int count, IntFunction<T> fn) {
@@ -225,6 +245,13 @@ public class StreamUtil {
 	 * Make a stream compatible with a for-each loop.
 	 */
 	public static Iterable<Integer> iterable(IntStream stream) {
+		return CollectionUtil.iterable(stream.iterator());
+	}
+
+	/**
+	 * Make a stream compatible with a for-each loop.
+	 */
+	public static Iterable<Long> iterable(LongStream stream) {
 		return CollectionUtil.iterable(stream.iterator());
 	}
 

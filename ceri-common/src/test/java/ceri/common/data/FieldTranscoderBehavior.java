@@ -14,7 +14,7 @@ import ceri.common.data.TypeTranscoder.Remainder;
 
 public class FieldTranscoderBehavior {
 	private final int[] store = { 0 };
-	private final IntField accessor = IntField.of(() -> store[0], i -> store[0] = i);
+	private final ValueField accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
 	private static final TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.class);
 	private final FieldTranscoder<E> field = xcoder.field(accessor);
 
@@ -31,7 +31,8 @@ public class FieldTranscoderBehavior {
 	}
 
 	static class Holder {
-		static IntField.Typed<Holder> accessor = IntField.typed(h -> h.val, (h, i) -> h.val = i);
+		static ValueField.Typed<Holder> accessor =
+			ValueField.Typed.ofInt(h -> h.val, (h, i) -> h.val = i);
 		static FieldTranscoder.Typed<Holder, E> field =
 			FieldTranscoder.Typed.of(Holder.accessor, xcoder);
 

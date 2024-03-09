@@ -82,12 +82,9 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.FieldTranscoderBehavior.class, //
 	ceri.common.data.IntAccessorBehavior.class, //
 	ceri.common.data.IntArrayBehavior.class, //
-	ceri.common.data.IntBitSetBehavior.class, //
-	ceri.common.data.IntFieldBehavior.class, //
 	ceri.common.data.IntProviderBehavior.class, //
 	ceri.common.data.IntReaderBehavior.class, //
 	ceri.common.data.IntReceiverBehavior.class, //
-	ceri.common.data.IntTypeValueBehavior.class, //
 	ceri.common.data.IntWriterBehavior.class, //
 	ceri.common.data.LongAccessorBehavior.class, //
 	ceri.common.data.LongArrayBehavior.class, //
@@ -97,7 +94,10 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.LongWriterBehavior.class, //
 	ceri.common.data.MaskTranscoderBehavior.class, //
 	ceri.common.data.NavigatorBehavior.class, //
+	ceri.common.data.SimpleBitSetBehavior.class, //
 	ceri.common.data.TypeTranscoderBehavior.class, //
+	ceri.common.data.TypeValueBehavior.class, //
+	ceri.common.data.ValueFieldBehavior.class, //
 	ceri.common.data.XorBehavior.class, //
 	// event
 	ceri.common.event.EventThreadBehavior.class, //
@@ -148,15 +148,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.FunctionWrapperBehavior.class, //
 	ceri.common.function.NamerTest.class, //
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
-	ceri.common.function.ObjByteConsumerBehavior.class, //
 	ceri.common.function.ObjIntPredicateBehavior.class, //
-	ceri.common.function.ObjLongConsumerBehavior.class, //
 	ceri.common.function.ObjLongPredicateBehavior.class, //
 	ceri.common.function.ObjShortConsumerBehavior.class, //
 	ceri.common.function.PredicatesTest.class, //
 	ceri.common.function.RuntimeCloseableBehavior.class, //
 	ceri.common.function.ToBooleanFunctionBehavior.class, //
-	ceri.common.function.ToByteFunctionBehavior.class, //
 	ceri.common.function.ToShortFunctionBehavior.class, //
 	ceri.common.function.VarArgsConsumerBehavior.class, //
 	ceri.common.function.VarArgsIntConsumerBehavior.class, //

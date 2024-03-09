@@ -26,4 +26,16 @@ public interface ExceptionConsumer<E extends Exception, T> {
 		Objects.requireNonNull(consumer);
 		return consumer::accept;
 	}
+
+	/**
+	 * Converts a consumer to a function that returns true.
+	 */
+	static <E extends Exception, T, R> ExceptionFunction<E, T, R>
+		asFunction(ExceptionConsumer<E, T> consumer, R result) {
+		return t -> {
+			consumer.accept(t);
+			return result;
+		};
+	}
+
 }

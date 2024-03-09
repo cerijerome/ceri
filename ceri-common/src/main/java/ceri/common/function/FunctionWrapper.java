@@ -1,9 +1,5 @@
 package ceri.common.function;
 
-import static ceri.common.function.FunctionUtil.asBiFunction;
-import static ceri.common.function.FunctionUtil.asFunction;
-import static ceri.common.function.FunctionUtil.asIntFunction;
-import static ceri.common.function.FunctionUtil.asToIntFunction;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -26,6 +22,7 @@ import ceri.common.util.BasicUtil;
  * exceptions. Calls to unwrap() should surround the executed code; exceptions are unwrapped to
  * throw the original typed checked exception. The same wrapper instance must be used to wrap then
  * unwrap.
+ * 
  * <pre>
  * Example:
  * var w = FunctionWrapper.<IOException>of();
@@ -43,27 +40,27 @@ public class FunctionWrapper<E extends Exception> {
 	// Methods to adapt runnables/suppliers/consumers/functions to throw wrapped exceptions
 
 	public Runnable wrap(ExceptionRunnable<E> runnable) {
-		return () -> wrap(asFunction(runnable), null);
+		return () -> wrap(ExceptionRunnable.asFunction(runnable, null), null);
 	}
 
 	public <T> Supplier<T> wrap(ExceptionSupplier<E, T> supplier) {
-		return () -> wrap(asFunction(supplier), null);
+		return () -> wrap(ExceptionSupplier.asFunction(supplier), null);
 	}
 
 	public IntSupplier wrap(ExceptionIntSupplier<E> supplier) {
-		return () -> wrap(asToIntFunction(supplier), null);
+		return () -> wrap(ExceptionIntSupplier.asToIntFunction(supplier), null);
 	}
 
 	public <T> Consumer<T> wrap(ExceptionConsumer<E, T> consumer) {
-		return t -> wrap(asFunction(consumer), t);
+		return t -> wrap(ExceptionConsumer.asFunction(consumer, null), t);
 	}
 
 	public IntConsumer wrap(ExceptionIntConsumer<E> consumer) {
-		return i -> wrap(asIntFunction(consumer), i);
+		return i -> wrap(ExceptionIntConsumer.asIntFunction(consumer, null), i);
 	}
 
 	public <T, U> BiConsumer<T, U> wrap(ExceptionBiConsumer<E, T, U> consumer) {
-		return (t, u) -> wrap(asBiFunction(consumer), t, u);
+		return (t, u) -> wrap(ExceptionBiConsumer.asBiFunction(consumer, null), t, u);
 	}
 
 	public <T, R> Function<T, R> wrap(ExceptionFunction<E, T, R> function) {
@@ -127,27 +124,27 @@ public class FunctionWrapper<E extends Exception> {
 	// Methods to execute runnables/suppliers/consumers/functions and throw unwrapped exceptions
 
 	public void unwrap(ExceptionRunnable<E> runnable) throws E {
-		unwrapFunction(asFunction(runnable), null);
+		unwrapFunction(ExceptionRunnable.asFunction(runnable, null), null);
 	}
 
 	public <T> T unwrapSupplier(ExceptionSupplier<E, T> supplier) throws E {
-		return unwrapFunction(asFunction(supplier), null);
+		return unwrapFunction(ExceptionSupplier.asFunction(supplier), null);
 	}
 
 	public int unwrapIntSupplier(ExceptionIntSupplier<E> supplier) throws E {
-		return unwrapToIntFunction(asToIntFunction(supplier), null);
+		return unwrapToIntFunction(ExceptionIntSupplier.asToIntFunction(supplier), null);
 	}
 
 	public <T> void unwrapConsumer(ExceptionConsumer<E, T> consumer, T t) throws E {
-		unwrapFunction(asFunction(consumer), t);
+		unwrapFunction(ExceptionConsumer.asFunction(consumer, null), t);
 	}
 
 	public void unwrapIntConsumer(ExceptionIntConsumer<E> consumer, int i) throws E {
-		unwrapIntFunction(asIntFunction(consumer), i);
+		unwrapIntFunction(ExceptionIntConsumer.asIntFunction(consumer, null), i);
 	}
 
 	public <T, U> void unwrapBiConsumer(ExceptionBiConsumer<E, T, U> consumer, T t, U u) throws E {
-		unwrapBiFunction(asBiFunction(consumer), t, u);
+		unwrapBiFunction(ExceptionBiConsumer.asBiFunction(consumer, null), t, u);
 	}
 
 	public <T, R> R unwrapFunction(ExceptionFunction<E, T, R> function, T t) throws E {

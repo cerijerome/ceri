@@ -27,4 +27,15 @@ public interface ExceptionBiConsumer<E extends Exception, T, U> {
 		Objects.requireNonNull(consumer);
 		return consumer::accept;
 	}
+
+	/**
+	 * Converts a bi-consumer to a bi-function that returns the given result.
+	 */
+	static <E extends Exception, T, U, R> ExceptionBiFunction<E, T, U, R>
+		asBiFunction(ExceptionBiConsumer<E, T, U> consumer, R result) {
+		return (t, u) -> {
+			consumer.accept(t, u);
+			return result;
+		};
+	}
 }

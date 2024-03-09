@@ -20,21 +20,21 @@ public class DisplayLongBehavior {
 
 	@Test
 	public void shouldDisplayformat() {
-		assertEquals(dec.format(-1), "-1");
-		assertEquals(udec.format(-1), "18446744073709551615");
-		assertEquals(bin.format(0xa1), "0b10100001");
-		assertEquals(hex.format(0xf000000000000000L), "0xf000000000000000");
-		assertEquals(hex2.format(-1), "0xff");
-		assertEquals(hex2.format(0xf), "0x0f");
-		assertEquals(hex2.format(0x123), "0x23");
-		assertEquals(hex4.format(-1), "0xffff");
-		assertEquals(hex4.format(0xf), "0x000f");
-		assertEquals(hex4.format(0x12345), "0x2345");
-		assertEquals(hex8.format(-1), "0xffffffff");
-		assertEquals(hex8.format(0xf), "0x0000000f");
-		assertEquals(hex8.format(0x123456789L), "0x23456789");
-		assertEquals(hex16.format(-1), "0xffffffffffffffff");
-		assertEquals(hex16.format(Long.MIN_VALUE), "0x8000000000000000");
+		assertEquals(dec.apply(-1), "-1");
+		assertEquals(udec.apply(-1), "18446744073709551615");
+		assertEquals(bin.apply(0xa1), "0b10100001");
+		assertEquals(hex.apply(0xf000000000000000L), "0xf000000000000000");
+		assertEquals(hex2.apply(-1), "0xff");
+		assertEquals(hex2.apply(0xf), "0x0f");
+		assertEquals(hex2.apply(0x123), "0x23");
+		assertEquals(hex4.apply(-1), "0xffff");
+		assertEquals(hex4.apply(0xf), "0x000f");
+		assertEquals(hex4.apply(0x12345), "0x2345");
+		assertEquals(hex8.apply(-1), "0xffffffff");
+		assertEquals(hex8.apply(0xf), "0x0000000f");
+		assertEquals(hex8.apply(0x123456789L), "0x23456789");
+		assertEquals(hex16.apply(-1), "0xffffffffffffffff");
+		assertEquals(hex16.apply(Long.MIN_VALUE), "0x8000000000000000");
 	}
 
 }

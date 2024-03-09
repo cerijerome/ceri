@@ -7,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
@@ -570,10 +571,10 @@ public class ArrayUtilTest {
 		assertArray(ArrayUtil.addAll(array, 2, 3), new Number[] { 0, 1, 2, 3 });
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testArrayType() {
 		assertSame(ArrayUtil.arrayType(Boolean.class), Boolean[].class);
-		ArrayUtil.arrayType(boolean.class); // Primitive types not allowed
+		assertIllegalArg(() -> ArrayUtil.arrayType(boolean.class)); // Primitive types not allowed
 	}
 
 	@Test

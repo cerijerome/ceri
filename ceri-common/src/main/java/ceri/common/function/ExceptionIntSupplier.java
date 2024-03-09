@@ -18,4 +18,13 @@ public interface ExceptionIntSupplier<E extends Exception> {
 		Objects.requireNonNull(supplier);
 		return supplier::getAsInt;
 	}
+	
+	/**
+	 * Converts a supplier to a function that ignores input.
+	 */
+	static <E extends Exception, T> ExceptionToIntFunction<E, T>
+		asToIntFunction(ExceptionIntSupplier<E> supplier) {
+		return t -> supplier.getAsInt();
+	}
+
 }

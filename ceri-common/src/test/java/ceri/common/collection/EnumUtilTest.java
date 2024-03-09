@@ -1,6 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -9,6 +10,28 @@ import org.junit.Test;
 import ceri.common.util.Align;
 
 public class EnumUtilTest {
+
+	private static enum Enum {
+		a,
+		b,
+		c;
+	}
+
+	@Test
+	public void testVerifyAllowed() {
+		EnumUtil.verifyAllowed(Enum.a, Enum.a, Enum.b, Enum.c);
+		EnumUtil.verifyAllowed(Enum.a, Enum.a);
+		assertIllegalArg(() -> EnumUtil.verifyAllowed(Enum.a, Enum.b, Enum.c));
+		assertIllegalArg(() -> EnumUtil.verifyAllowed(Enum.a));
+	}
+
+	@Test
+	public void testVerifyDisallowed() {
+		EnumUtil.verifyDisallowed(Enum.a, Enum.b, Enum.c);
+		EnumUtil.verifyDisallowed(Enum.a);
+		assertIllegalArg(() -> EnumUtil.verifyDisallowed(Enum.a, Enum.b, Enum.a));
+		assertIllegalArg(() -> EnumUtil.verifyDisallowed(Enum.a, Enum.a));
+	}
 
 	@Test
 	public void testFind() {
@@ -29,12 +52,6 @@ public class EnumUtilTest {
 	public void testEnumsReversed() {
 		assertIterable(EnumUtil.enumsReversed(Align.H.class), Align.H.right, Align.H.center,
 			Align.H.left);
-	}
-
-	private static enum Enum {
-		a,
-		b,
-		c;
 	}
 
 	@Test

@@ -849,6 +849,20 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Assert an UnsupportedOperationException is thrown.
+	 */
+	public static void assertUnsupported(ExceptionRunnable<Exception> runnable) {
+		assertThrown(UnsupportedOperationException.class, runnable);
+	}
+
+	/**
+	 * Assert an IllegalArgumentException is thrown.
+	 */
+	public static void assertIllegalArg(ExceptionRunnable<Exception> runnable) {
+		assertThrown(IllegalArgumentException.class, runnable);
+	}
+
+	/**
 	 * Checks regex not found against the string.
 	 */
 	public static void assertNotFound(Object actual, String pattern, Object... objs) {
