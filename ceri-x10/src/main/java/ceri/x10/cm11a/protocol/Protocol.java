@@ -13,8 +13,7 @@ public enum Protocol {
 	RING_DISABLE(0xdb),
 	RING_ENABLE(0xeb);
 
-	private static final TypeTranscoder<Protocol> xcoder =
-		TypeTranscoder.of(t -> t.value, Protocol.class);
+	private static final TypeTranscoder<Protocol> xcoder = TypeTranscoder.of(t -> t.value, Protocol.class);
 	public final int value;
 
 	public static Protocol from(int value) {
