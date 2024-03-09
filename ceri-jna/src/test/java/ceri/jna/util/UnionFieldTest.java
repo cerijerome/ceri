@@ -6,7 +6,7 @@ import static ceri.jna.util.JnaTestData.assertStruct;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
-import ceri.common.data.IntField;
+import ceri.common.data.ValueField;
 import ceri.common.function.Accessor;
 import ceri.jna.util.JnaTestData.TestStruct;
 
@@ -51,39 +51,33 @@ public class UnionFieldTest {
 	}
 
 	@Test
-	public void testUbyteAccessor() {
-		IntField.Typed<TestUnion> accessor = UnionField.ofUbyte(u -> u.b, (u, b) -> u.b = b);
-		var union = new TestUnion();
-		accessor.set(union, 0x80);
-		var ref = ref(union);
-		assertEquals(accessor.get(ref), 0x80);
-	}
-
-	@Test
-	public void testUshortAccessor() {
-		IntField.Typed<TestUnion> accessor = UnionField.ofUshort(u -> u.s, (u, s) -> u.s = s);
-		var union = new TestUnion();
-		accessor.set(union, 0x8000);
-		var ref = ref(union);
-		assertEquals(accessor.get(ref), 0x8000);
-	}
-
-	@Test
 	public void testIntAccessor() {
-		IntField.Typed<TestUnion> accessor = UnionField.ofInt(u -> u.i, (u, i) -> u.i = i);
+		var accessor =
+			UnionField.<TestUnion>of("i", ValueField.Typed.ofInt(u -> u.i, (u, i) -> u.i = i));
 		var union = new TestUnion();
 		accessor.set(union, 0x80000000);
 		var ref = ref(union);
-		assertEquals(accessor.get(ref), 0x80000000);
+		assertEquals(accessor.getInt(ref), 0x80000000);
 	}
 
 	@Test
 	public void testIntAccessorByName() {
-		IntField.Typed<TestUnion> accessor = UnionField.ofInt("i", u -> u.i, (u, i) -> u.i = i);
+		var accessor =
+			UnionField.<TestUnion>of("i", ValueField.Typed.ofInt(u -> u.i, (u, i) -> u.i = i));
 		var union = new TestUnion();
 		accessor.set(union, 0x80000000);
 		var ref = ref(union);
-		assertEquals(accessor.get(ref), 0x80000000);
+		assertEquals(accessor.getInt(ref), 0x80000000);
+	}
+
+	@Test
+	public void testIntAccessorByClass() {
+		var accessor = UnionField.<TestUnion>of(short.class,
+			ValueField.Typed.ofInt(u -> u.s, (u, l) -> u.s = (short) l));
+		var union = new TestUnion();
+		accessor.set(union, 0x12345678);
+		var ref = ref(union);
+		assertEquals(accessor.getInt(ref), 0x5678);
 	}
 
 	private static TestUnion ref(TestUnion union) {

@@ -1,5 +1,6 @@
 package ceri.jna.util;
 
+import static ceri.jna.util.JnaUtil.DEFAULT_CHARSET;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import ceri.common.collection.ArrayUtil;
@@ -7,10 +8,10 @@ import ceri.common.collection.ArrayUtil;
 /**
  * Utilities for nul-terminated strings.
  */
-public class NulTermUtil {
+public class NulTerm {
 
-	private NulTermUtil() {}
-	
+	private NulTerm() {}
+
 	/**
 	 * Truncates a string up to the first char 0, if present.
 	 */
@@ -42,7 +43,14 @@ public class NulTermUtil {
 	/**
 	 * Decodes the bytes into a string, up to the first 0 or array limit.
 	 */
-	public String readTruncate(Charset charset, byte[] bytes) {
+	public static String readTruncate(byte[] bytes) {
+		return readTruncate(DEFAULT_CHARSET, bytes);
+	}
+
+	/**
+	 * Decodes the bytes into a string, up to the first 0 or array limit.
+	 */
+	public static String readTruncate(Charset charset, byte[] bytes) {
 		int len = truncateLen(bytes, 0, bytes.length);
 		return charset.decode(ByteBuffer.wrap(bytes, 0, len)).toString();
 	}
@@ -50,15 +58,31 @@ public class NulTermUtil {
 	/**
 	 * Decodes the bytes into a string, dropping any trailing 0.
 	 */
-	public String readTrim(Charset charset, byte[] bytes) {
+	public static String readTrim(byte[] bytes) {
+		return readTrim(DEFAULT_CHARSET, bytes);
+	}
+
+	/**
+	 * Decodes the bytes into a string, dropping any trailing 0.
+	 */
+	public static String readTrim(Charset charset, byte[] bytes) {
 		int len = trimLen(bytes, 0, bytes.length);
 		return charset.decode(ByteBuffer.wrap(bytes, 0, len)).toString();
 	}
 
 	/**
-	 * Encodes the string to bytes with a trailing 0, truncating if needed.
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
 	 */
-	public int write(String s, Charset charset, byte[] dest) {
+	public static int write(String s, byte[] dest) {
+		return write(s, DEFAULT_CHARSET, dest);
+	}
+
+	/**
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int write(String s, Charset charset, byte[] dest) {
 		if (dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int len = Math.min(src.length, dest.length - 1);
@@ -68,9 +92,18 @@ public class NulTermUtil {
 	}
 
 	/**
-	 * Encodes the string to bytes, padding with 0, and truncating if needed.
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
 	 */
-	public int writePad(String s, Charset charset, byte[] dest) {
+	public static int writePad(String s, byte[] dest) {
+		return writePad(s, DEFAULT_CHARSET, dest);
+	}
+
+	/**
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int writePad(String s, Charset charset, byte[] dest) {
 		int n = write(s, charset, dest);
 		ArrayUtil.fill(dest, n, 0);
 		return dest.length;
@@ -91,13 +124,13 @@ public class NulTermUtil {
 	private static int trimLen(String chars, int start, int length) {
 		for (int i = length - 1; i >= 0; i--)
 			if (chars.charAt(start + i) != 0) return i + 1;
-		return length;
+		return 0;
 	}
 
 	private static int trimLen(byte[] bytes, int start, int length) {
 		for (int i = length - 1; i >= 0; i--)
 			if (bytes[start + i] != 0) return i + 1;
-		return length;
+		return 0;
 	}
 
 	private static byte[] slice(byte[] bytes, int start, int length) {

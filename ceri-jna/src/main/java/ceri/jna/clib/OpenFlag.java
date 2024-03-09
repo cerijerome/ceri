@@ -29,8 +29,7 @@ public enum OpenFlag {
 	O_CLOEXEC(CFcntl.O_CLOEXEC);
 
 	private static final int NO_RDONLY_MASK = O_WRONLY.value | O_RDWR.value;
-	private static final TypeTranscoder<OpenFlag> xcoder =
-		TypeTranscoder.of(t -> t.value, OpenFlag.class);
+	private static final TypeTranscoder<OpenFlag> xcoder = TypeTranscoder.of(t -> t.value, OpenFlag.class);
 	public final int value;
 
 	public static int encode(OpenFlag... flags) {
@@ -38,7 +37,7 @@ public enum OpenFlag {
 	}
 
 	public static int encode(Collection<OpenFlag> flags) {
-		return xcoder.encode(flags);
+		return xcoder.encodeInt(flags);
 	}
 
 	public static Set<OpenFlag> decode(int flags) {

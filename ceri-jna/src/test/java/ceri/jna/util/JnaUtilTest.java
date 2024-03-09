@@ -1,5 +1,6 @@
 package ceri.jna.util;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -331,8 +332,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testStringFromBytes() {
-		assertEquals(JnaUtil.string("abc".getBytes()), "abc");
-		assertEquals(JnaUtil.string("abc\0def".getBytes()), "abc");
+		assertEquals(JnaUtil.string(bytes('a', 0, 'b', 0)), "a\0b\0"); // no nul-term
 	}
 
 	@Test

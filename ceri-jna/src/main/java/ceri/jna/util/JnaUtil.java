@@ -584,18 +584,17 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Decodes string from zero-terminated bytes using default charset.
+	 * Decodes a string from fixed-length bytes using default charset.
 	 */
 	public static String string(byte[] bytes) {
 		return string(DEFAULT_CHARSET, bytes);
 	}
 
 	/**
-	 * Decodes string from zero-terminated bytes using charset.
+	 * Decodes string from fixed-length bytes using charset.
 	 */
 	public static String string(Charset charset, byte[] bytes) {
-		int i = ArrayUtil.indexOf(bytes, 0, (byte) 0);
-		return new String(bytes, 0, i >= 0 ? i : bytes.length, charset);
+		return new String(bytes, 0, bytes.length, charset);
 	}
 
 	/**

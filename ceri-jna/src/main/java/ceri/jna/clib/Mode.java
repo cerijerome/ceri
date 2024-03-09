@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
@@ -40,7 +40,7 @@ public class Mode {
 		fmt(0170000);
 
 		private static final TypeTranscoder<Mask> xcoder =
-			TypeTranscoder.of(t -> t.value, EnumUtil.enumsReversed(Mask.class));
+			TypeTranscoder.of(t -> t.value, ArrayUtil.reverse(Mask.values()));
 		public final int value;
 
 		public static int encode(Mask... masks) {
@@ -48,7 +48,7 @@ public class Mode {
 		}
 
 		public static int encode(Collection<Mask> masks) {
-			return xcoder.encode(masks);
+			return xcoder.encodeInt(masks);
 		}
 
 		public static Set<Mask> decode(int value) {

@@ -50,6 +50,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.util.JnaMemoryBehavior.class, //
 	ceri.jna.util.JnaSizeTest.class, //
 	ceri.jna.util.JnaUtilTest.class, //
+	ceri.jna.util.NulTermTest.class, //
 	ceri.jna.util.PointerUtilTest.class, //
 	ceri.jna.util.StructBehavior.class, //
 	ceri.jna.util.StructFieldTest.class, //
