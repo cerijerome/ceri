@@ -1,5 +1,4 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -19,7 +18,7 @@
 		<ceri.version>${project.version}</ceri.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.release>21</jdk.release>
-		<maven.compiler.version>3.11.0</maven.compiler.version>
+		<maven.compiler.version>3.12.1</maven.compiler.version>
 		<maven.surefire.version>3.0.0</maven.surefire.version>
 		<maven.source.version>3.2.1</maven.source.version>
 		<maven.jar.version>3.3.0</maven.jar.version>
