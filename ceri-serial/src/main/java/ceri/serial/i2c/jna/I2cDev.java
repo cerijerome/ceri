@@ -22,7 +22,7 @@ import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.FieldTranscoder;
-import ceri.common.data.IntField;
+import ceri.common.data.ValueField;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
 import ceri.jna.clib.jna.CException;
@@ -73,8 +73,8 @@ public class I2cDev {
 	 */
 	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
-		private static final IntField.Typed<i2c_msg> flagsAccessor =
-			IntField.typedUshort(t -> t.flags, (t, b) -> t.flags = b);
+		private static final ValueField.Typed<i2c_msg> flagsAccessor =
+			ValueField.Typed.of(t -> t.flags, (t, l) -> t.flags = (short) l);
 		public short addr;
 		public short flags;
 		public short len;

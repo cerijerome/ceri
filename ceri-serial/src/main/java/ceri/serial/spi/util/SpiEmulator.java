@@ -1,12 +1,12 @@
 package ceri.serial.spi.util;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.serial.spi.jna.SpiDevUtil.direction;
 import static ceri.serial.spi.jna.SpiDevUtil.transferTimeMicros;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import ceri.common.collection.EnumUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.io.Direction;
@@ -125,7 +125,7 @@ public class SpiEmulator implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		validateNotNull(direction, "Direction");
+		EnumUtil.verifyDisallowed(direction, Direction.none);
 		validateMin(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

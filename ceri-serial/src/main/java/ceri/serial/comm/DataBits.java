@@ -9,8 +9,7 @@ public enum DataBits {
 	_7(CSerial.DATABITS_7),
 	_8(CSerial.DATABITS_8);
 
-	private static final TypeTranscoder<DataBits> xcoder =
-		TypeTranscoder.of(t -> t.bits, DataBits.class);
+	private static final TypeTranscoder<DataBits> xcoder = TypeTranscoder.of(t -> t.bits, DataBits.class);
 	public final int bits;
 
 	public static DataBits from(int bits) {

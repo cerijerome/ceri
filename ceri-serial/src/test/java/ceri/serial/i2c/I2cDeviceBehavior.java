@@ -51,7 +51,7 @@ public class I2cDeviceBehavior {
 	public void shouldOpenDevice() throws IOException {
 		assertThrown(() -> I2cDevice.open(-1));
 		lib.open.assertAuto(new OpenArgs("/dev/i2c-1", 2, 0)); // open fd
-		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encode(I2C_FUNC_SMBUS_EMUL));
+		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encodeInt(I2C_FUNC_SMBUS_EMUL));
 		assertCollection(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
 		lib.ioctlI2cInt.assertAuto(List.of(0x0705, 0)); // I2C_FUNCS, dummy 0
 	}

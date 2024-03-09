@@ -7,6 +7,7 @@ import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.jna.clib.OpenFlag.O_WRONLY;
 import java.io.IOException;
 import java.util.Objects;
+import ceri.common.collection.EnumUtil;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.io.Direction;
 import ceri.common.text.ToString;
@@ -66,6 +67,7 @@ public class SpiDevice implements Spi {
 			}
 
 			public Builder direction(Direction direction) {
+				EnumUtil.verifyDisallowed(direction, Direction.none);
 				validateNotNull(direction);
 				this.direction = direction;
 				return this;
@@ -127,6 +129,7 @@ public class SpiDevice implements Spi {
 	 * Opens the SPI file descriptor.
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
+		EnumUtil.verifyDisallowed(direction, Direction.none);
 		validateMin(bus, 0, "Bus number");
 		validateMin(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
@@ -188,7 +191,7 @@ public class SpiDevice implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		validateNotNull(direction, "Direction");
+		EnumUtil.verifyDisallowed(direction, Direction.none);
 		validateMin(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

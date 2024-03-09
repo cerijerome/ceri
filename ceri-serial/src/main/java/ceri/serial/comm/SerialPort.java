@@ -67,7 +67,7 @@ public class SerialPort implements Serial {
 
 	@Override
 	public void flowControl(Collection<FlowControl> flowControl) throws IOException {
-		int flowControlMode = FlowControl.xcoder.encode(flowControl);
+		int flowControlMode = FlowControl.xcoder.encodeInt(flowControl);
 		CSerial.setFlowControl(fd, flowControlMode);
 		this.flowControlMode = flowControlMode;
 	}

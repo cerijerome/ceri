@@ -124,11 +124,11 @@ public class UsbHotPlug implements RuntimeCloseable {
 		}
 
 		private int events() {
-			return libusb_hotplug_event.xcoder.encode(events);
+			return libusb_hotplug_event.xcoder.encodeInt(events);
 		}
 
 		private int flags() {
-			return libusb_hotplug_flag.xcoder.encode(flags);
+			return libusb_hotplug_flag.xcoder.encodeInt(flags);
 		}
 	}
 

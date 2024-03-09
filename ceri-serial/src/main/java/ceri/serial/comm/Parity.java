@@ -10,12 +10,11 @@ public enum Parity {
 	mark(CSerial.PARITY_MARK),
 	space(CSerial.PARITY_SPACE);
 
-	private static final TypeTranscoder<Parity> xcoder =
-		TypeTranscoder.of(t -> t.value, Parity.class);
+	private static final TypeTranscoder<Parity> xcoder = TypeTranscoder.of(t -> t.value, Parity.class);
 	public final int value;
 
 	public static Parity from(char c) {
-		return switch(c) {
+		return switch (c) {
 			case 'n', 'N' -> none;
 			case 'o', 'O' -> odd;
 			case 'e', 'E' -> even;
@@ -32,7 +31,7 @@ public enum Parity {
 	private Parity(int value) {
 		this.value = value;
 	}
-	
+
 	public int bits() {
 		return this == none ? 0 : 1;
 	}
