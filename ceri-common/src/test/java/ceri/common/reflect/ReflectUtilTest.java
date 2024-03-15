@@ -10,6 +10,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -213,6 +214,18 @@ public class ReflectUtilTest {
 		assertFalse(ReflectUtil.instanceOfAny(obj, Float.class));
 		assertFalse(ReflectUtil.instanceOfAny(obj, Float.class, Integer.class));
 		assertTrue(ReflectUtil.instanceOfAny(obj, Float.class, Integer.class, Number.class));
+	}
+
+	@Test
+	public void testAssignableFromAny() {
+		assertFalse(ReflectUtil.assignableFromAny(null));
+		assertFalse(ReflectUtil.assignableFromAny(Object.class));
+		assertTrue(ReflectUtil.assignableFromAny(Long.class, Long.class));
+		assertFalse(ReflectUtil.assignableFromAny(Long.class, Integer.class));
+		assertTrue(ReflectUtil.assignableFromAny(Long.class, Number.class));
+		assertFalse(ReflectUtil.assignableFromAny(Number.class, Long.class));
+		assertTrue(ReflectUtil.assignableFromAny(Number.class, Long.class, Serializable.class));
+		assertFalse(ReflectUtil.assignableFromAny(Serializable.class, Number.class, Long.class));
 	}
 
 	@Test(expected = CreateException.class)

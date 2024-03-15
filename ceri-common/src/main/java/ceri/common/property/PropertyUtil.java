@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 import ceri.common.exception.ExceptionUtil;
+import ceri.common.function.FunctionUtil;
 
 /**
  * Utility methods for property files.
@@ -140,8 +141,7 @@ public class PropertyUtil {
 
 	private static void load(Properties properties, Locator locator) throws IOException {
 		try (var in = locator.resourceAsStream()) {
-			if (in == null) return;
-			properties.load(in);
+			FunctionUtil.safeAccept(in, properties::load);
 		}
 	}
 }

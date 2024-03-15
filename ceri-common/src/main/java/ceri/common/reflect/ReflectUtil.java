@@ -122,7 +122,7 @@ public class ReflectUtil {
 			if (t != null) consumer.accept(t);
 		}
 	}
-	
+
 	/**
 	 * Checks if the object is an instance of any of the given classes.
 	 */
@@ -138,6 +138,24 @@ public class ReflectUtil {
 		if (obj == null) return false;
 		for (Class<?> cls : classes)
 			if (cls.isInstance(obj)) return true;
+		return false;
+	}
+
+	/**
+	 * Checks if the class is the same as, or a sub-type of any of the given classes.
+	 */
+	@SafeVarargs
+	public static boolean assignableFromAny(Class<?> cls, Class<?>... classes) {
+		return assignableFromAny(cls, Arrays.asList(classes));
+	}
+
+	/**
+	 * Checks if the class is the same as, or a sub-type of any of the given classes.
+	 */
+	public static boolean assignableFromAny(Class<?> cls, Iterable<Class<?>> classes) {
+		if (cls == null) return false;
+		for (Class<?> c : classes)
+			if (c.isAssignableFrom(cls)) return true;
 		return false;
 	}
 
@@ -324,7 +342,7 @@ public class ReflectUtil {
 		if (cls == null) return false;
 		return stackHasPackage(cls.getPackageName());
 	}
-	
+
 	/**
 	 * Returns true if the current stack trace contains the given package.
 	 */
@@ -333,7 +351,7 @@ public class ReflectUtil {
 		return Stream.of(Thread.currentThread().getStackTrace())
 			.map(StackTraceElement::getClassName).anyMatch(s -> s.startsWith(pkg));
 	}
-	
+
 	/**
 	 * Get enum value as a field.
 	 */
