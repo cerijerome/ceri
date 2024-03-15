@@ -3,14 +3,19 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Callback;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.OsUtil;
+import ceri.jna.util.JnaArgs;
 import ceri.jna.util.PointerUtil;
 
 /**
  * Types and functions from {@code <signal.h>}
  */
 public class CSignal {
+	private static final int SIGSET_T_SIZE;
+
 	// Signal default actions:
 	// Term = terminate the process
 	// Ign = ignore the signal
@@ -120,10 +125,59 @@ public class CSignal {
 		caller.verify(() -> lib().raise(sig), "raise", sig);
 	}
 
+	/**
+	 * Represents a sigset_t instance; underlying OS may use an integer type or struct.
+	 */
+	public static class sigset_t {
+		private final Memory memory = new Memory(SIGSET_T_SIZE);
+
+		public Pointer pointer() {
+			return memory;
+		}
+
+		@Override
+		public String toString() {
+			return ReflectUtil.nestedName(getClass()) + JnaArgs.string(memory);
+		}
+	}
+
+	/**
+	 * Initialize and empty a signal set
+	 */
+	public static sigset_t sigemptyset(sigset_t set) throws CException {
+		caller.verify(() -> lib().sigemptyset(set.pointer()), "sigemptyset", set);
+		return set;
+	}
+
+	/**
+	 * Add signals to the set.
+	 */
+	public static void sigaddset(sigset_t set, int... signums) throws CException {
+		for (int signum : signums)
+			caller.verify(() -> lib().sigaddset(set.pointer(), signum), "sigaddset", set, signum);
+	}
+
+	/**
+	 * Delete signals from the set.
+	 */
+	public static void sigdelset(sigset_t set, int... signums) throws CException {
+		for (int signum : signums)
+			caller.verify(() -> lib().sigdelset(set.pointer(), signum), "sigdelset", set, signum);
+	}
+
+	/**
+	 * Returns true if the set contains the signal.
+	 */
+	public static boolean sigismember(sigset_t set, int signum) throws CException {
+		return caller.verifyInt(() -> lib().sigismember(set.pointer(), signum), "sigismember", set,
+			signum) == 1;
+	}
+
 	/* os-specific initialization */
 
 	static {
 		if (OsUtil.os().mac) {
+			SIGSET_T_SIZE = 4;
 			SIGBUS = 10;
 			SIGUSR1 = 30;
 			SIGUSR2 = 31;
@@ -136,6 +190,7 @@ public class CSignal {
 			SIGPOLL = SIGIO;
 			SIGSYS = 12;
 		} else {
+			SIGSET_T_SIZE = 128;
 			SIGBUS = 7;
 			SIGUSR1 = 10;
 			SIGUSR2 = 12;

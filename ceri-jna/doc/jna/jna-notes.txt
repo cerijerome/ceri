@@ -24,6 +24,9 @@ sudo find <include-path> -type f | grep '\.'h$ | xargs grep include | grep xxx/x
 sudo find <include-path> -type f | grep '\.'h$ > h-files
 cat h-files | xargs grep -e "\sread\s*(" | grep extern
 
+List default C defines:
+gcc -dM -E - </dev/null
+
 Notes
 - #define may have spaces, such as # define
 - To check defined values, compile and run src/test/c/symbols.c

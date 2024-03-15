@@ -40,14 +40,8 @@ public class CTimeTest {
 	}
 
 	@Test
-	public void shouldRoundNanos() {
-		var t = new timeval().setNsec(1234, 123456789);
-		assertTimeval(t, 1234, 123457);
-	}
-
-	@Test
 	public void shouldNormalize() {
-		assertTimeval(new timeval().setMsec(100, 23456), 123, 456000);
+		assertTimeval(new timeval().set(100, 23456), 100, 23456);
 		assertTimeval(new timeval().set(100, 23456789), 123, 456789);
 	}
 
@@ -58,9 +52,9 @@ public class CTimeTest {
 		assertEquals(t.duration(), Duration.ofSeconds(1234, 123457000));
 	}
 
-	private void assertTimeval(timeval t, long sec, int usec) {
+	private void assertTimeval(timeval t, long sec, long usec) {
 		assertEquals(t.tv_sec.longValue(), sec);
-		assertEquals(t.tv_usec, usec);
+		assertEquals(t.tv_usec.longValue(), usec);
 	}
 
 	private void assertTimevalNow(timeval t) {

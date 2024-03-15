@@ -100,7 +100,7 @@ public class CPoll {
 			throw CException.full("Array is not contiguous", CError.EINVAL);
 		Struct.write(fds);
 		var p = Struct.pointer(fds);
-		int nfds = fds.length;
+		var nfds = fds.length;
 		int n = caller.verifyInt(() -> lib().poll(p, nfds, timeoutMs), "poll", p, nfds, timeoutMs);
 		if (n > 0) Struct.read(fds, "revents");
 		return n;

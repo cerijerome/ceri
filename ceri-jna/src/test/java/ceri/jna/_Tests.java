@@ -39,6 +39,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.io.JnaInputStreamBehavior.class, //
 	ceri.jna.io.JnaOutputStreamBehavior.class, //
 	// test
+	ceri.jna.test.CSymbolGenBehavior.class, //
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// util
 	ceri.jna.util.ArrayPointerBehavior.class, //

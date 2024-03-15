@@ -1,6 +1,7 @@
 package ceri.jna.clib.test;
 
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +24,7 @@ import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.util.JnaUtil;
@@ -45,6 +47,7 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Function<LseekArgs, Integer> lseek = CallSync.function(null, 0);
 	public final CallSync.Function<SignalArgs, Pointer> signal =
 		CallSync.function(null, Pointer.NULL);
+	public final CallSync.Function<SigsetArgs, Integer> sigset = CallSync.function(null, 0);
 	public final CallSync.Function<Integer, Integer> raise = CallSync.function(null, 0);
 	public final CallSync.Function<PollArgs, Integer> poll = CallSync.function(null, 0);
 	public final CallSync.Function<CtlArgs, Integer> ioctl = CallSync.function(null, 0);
@@ -87,11 +90,20 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
+	 * Arguments for sigset calls.
+	 */
+	public static record SigsetArgs(Pointer sigset, Boolean add, Integer signum) {}
+
+	/**
 	 * Arguments for poll calls.
 	 */
-	public static record PollArgs(List<pollfd> pollfds, int timeoutMs) {
+	public static record PollArgs(List<pollfd> pollfds, Duration timeout, Pointer sigset) {
 		public static PollArgs of(int timeoutMs, pollfd... pollfds) {
-			return new PollArgs(List.of(pollfds), timeoutMs);
+			return new PollArgs(List.of(pollfds), Duration.ofMillis(timeoutMs), null);
+		}
+
+		public static PollArgs of(long timeoutNs, Pointer sigset, pollfd... pollfds) {
+			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs), sigset);
 		}
 
 		/**
@@ -300,9 +312,38 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
+	public int sigemptyset(Pointer set) throws LastErrorException {
+		return sigset.apply(new SigsetArgs(set, null, null));
+	}
+
+	@Override
+	public int sigaddset(Pointer set, int signum) throws LastErrorException {
+		return sigset.apply(new SigsetArgs(set, true, signum));
+	}
+
+	@Override
+	public int sigdelset(Pointer set, int signum) throws LastErrorException {
+		return sigset.apply(new SigsetArgs(set, false, signum));
+	}
+
+	@Override
+	public int sigismember(Pointer set, int signum) throws LastErrorException {
+		return sigset.apply(new SigsetArgs(set, null, signum));
+	}
+
+	@Override
 	public int poll(Pointer fds, int nfds, int timeout) throws LastErrorException {
 		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
 		return poll.apply(PollArgs.of(timeout, array));
+	}
+
+	@Override
+	public int ppoll(Pointer fds, int nfds, Pointer tmo_p, Pointer sigmask)
+		throws LastErrorException {
+		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
+		var tmo = Struct.read(new CTime.timespec(tmo_p));
+		var d = Duration.ofSeconds(tmo.tv_sec.longValue(), tmo.tv_sec.longValue());
+		return poll.apply(PollArgs.of(d.toNanos(), sigmask, array));
 	}
 
 	@Override

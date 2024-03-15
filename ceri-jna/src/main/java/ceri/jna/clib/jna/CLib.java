@@ -36,7 +36,7 @@ public class CLib {
 
 		// int isatty(int fd)
 		int isatty(int fd); // no LastErrorException; errno is set for 0 case
-		
+
 		// int pipe(int pipefd[2]);
 		int pipe(int[] pipefd) throws LastErrorException;
 
@@ -60,10 +60,26 @@ public class CLib {
 		// int raise(int sig)
 		int raise(int sig) throws LastErrorException;
 
+		// int sigemptyset(sigset_t *set);
+		int sigemptyset(Pointer set) throws LastErrorException;
+
+		// int sigaddset(sigset_t *set, int signum);
+		int sigaddset(Pointer set, int signum) throws LastErrorException;
+
+		// int sigdelset(sigset_t *set, int signum);
+		int sigdelset(Pointer set, int signum) throws LastErrorException;
+
+		// int sigismember(const sigset_t *set, int signum);
+		int sigismember(Pointer set, int signum) throws LastErrorException;
+
 		/* <poll.h> */
 
-		// extern int poll(struct pollfd *__fds, nfds_t __nfds, int __timeout);
+		// int poll(struct pollfd *__fds, nfds_t __nfds, int __timeout);
 		int poll(Pointer fds, int nfds, int timeout) throws LastErrorException;
+
+		// int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec * tmo_p,
+		// const sigset_t * sigmask);
+		int ppoll(Pointer fds, int nfds, Pointer tmo_p, Pointer sigmask);
 
 		/* <fcntl.h> */
 
