@@ -3,12 +3,15 @@ package ceri.common.data;
 import static ceri.common.validation.ValidationUtil.validateLongLookup;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
-import ceri.common.collection.ImmutableUtil;
+import java.util.stream.Collectors;
+import ceri.common.collection.EnumUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -71,8 +74,24 @@ public class TypeTranscoder<T> {
 		}
 	}
 
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Class<T> cls) {
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
+		Class<T> cls) {
 		return of(valueFn, MaskTranscoder.NULL, cls);
+	}
+
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
+		MaskTranscoder mask, Class<T> cls) {
+		return of(valueFn, mask, EnumUtil.enums(cls));
+	}
+
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDups(ToLongFunction<T> valueFn,
+		Class<T> cls) {
+		return ofDups(valueFn, MaskTranscoder.NULL, cls);
+	}
+
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDups(ToLongFunction<T> valueFn,
+		MaskTranscoder mask, Class<T> cls) {
+		return of(valueFn, mask, EnumUtil.enums(cls), StreamUtil.mergeFirst());
 	}
 
 	@SafeVarargs
@@ -80,20 +99,21 @@ public class TypeTranscoder<T> {
 		return of(valueFn, MaskTranscoder.NULL, ts);
 	}
 
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
-		MaskTranscoder mask, Class<T> cls) {
-		return of(valueFn, mask, cls.getEnumConstants());
-	}
-
 	@SafeVarargs
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask, T... ts) {
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
+		T... ts) {
 		return of(valueFn, mask, Arrays.asList(ts));
 	}
 
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
 		Collection<T> ts) {
-		return new TypeTranscoder<>(valueFn, mask,
-			ImmutableUtil.convertAsMap(valueFn::applyAsLong, ts));
+		return of(valueFn, mask, ts, StreamUtil.mergeError());
+	}
+
+	private static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
+		Collection<T> ts, BinaryOperator<T> mergeFn) {
+		return new TypeTranscoder<>(valueFn, mask, Collections.unmodifiableMap(
+			ts.stream().collect(Collectors.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn))));
 	}
 
 	private TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Map<Long, T> lookup) {

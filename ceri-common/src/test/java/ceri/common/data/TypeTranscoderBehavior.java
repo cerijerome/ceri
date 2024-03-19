@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -26,6 +27,20 @@ public class TypeTranscoderBehavior {
 		public final int value;
 
 		E(int value) {
+			this.value = value;
+		}
+	}
+
+	enum Dup {
+		a(1),
+		b(2),
+		c(2),
+		d(1),
+		e(3);
+
+		public final int value;
+
+		Dup(int value) {
 			this.value = value;
 		}
 	}
@@ -134,6 +149,13 @@ public class TypeTranscoderBehavior {
 		assertFalse(xcoder.isValid(4));
 	}
 
+	@Test
+	public void shouldIgnoreDuplicateValues() {
+		assertIllegalArg(() -> TypeTranscoder.of(t -> t.value, Dup.class));
+		var xcoder = TypeTranscoder.ofDups(t -> t.value, Dup.class);
+		assertEquals(xcoder.decode(Dup.c.value), Dup.b);
+	}
+	
 	@Test
 	public void shouldEncodeSubset() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.a, E.c);

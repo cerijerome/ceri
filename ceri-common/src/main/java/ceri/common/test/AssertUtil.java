@@ -763,8 +763,8 @@ public class AssertUtil {
 	/**
 	 * Verifies throwable message.
 	 */
-	public static void assertThrowable(Throwable t, String message) {
-		assertThrowable(t, null, message);
+	public static void assertThrowable(Throwable t, String format, Object...args) {
+		assertThrowable(t, null, StringUtil.format(format, args));
 	}
 
 	/**

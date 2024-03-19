@@ -84,7 +84,7 @@ public class CollectionUtil {
 	 * Iterates over map entries; allows checked exceptions.
 	 */
 	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
-		ExceptionBiConsumer<E, K, V> consumer) throws E {
+		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
 		for (var entry : map.entrySet())
 			consumer.accept(entry.getKey(), entry.getValue());
 	}
