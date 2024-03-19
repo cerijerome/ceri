@@ -4,6 +4,7 @@ import static ceri.common.validation.ValidationUtil.validateLongLookup;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -11,7 +12,6 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
-import ceri.common.collection.EnumUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -81,17 +81,7 @@ public class TypeTranscoder<T> {
 
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		MaskTranscoder mask, Class<T> cls) {
-		return of(valueFn, mask, EnumUtil.enums(cls));
-	}
-
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDups(ToLongFunction<T> valueFn,
-		Class<T> cls) {
-		return ofDups(valueFn, MaskTranscoder.NULL, cls);
-	}
-
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDups(ToLongFunction<T> valueFn,
-		MaskTranscoder mask, Class<T> cls) {
-		return of(valueFn, mask, EnumUtil.enums(cls), StreamUtil.mergeFirst());
+		return of(valueFn, mask, cls.getEnumConstants());
 	}
 
 	@SafeVarargs
@@ -110,10 +100,12 @@ public class TypeTranscoder<T> {
 		return of(valueFn, mask, ts, StreamUtil.mergeError());
 	}
 
-	private static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
 		Collection<T> ts, BinaryOperator<T> mergeFn) {
-		return new TypeTranscoder<>(valueFn, mask, Collections.unmodifiableMap(
-			ts.stream().collect(Collectors.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn))));
+		return new TypeTranscoder<>(valueFn, mask,
+			Collections
+				.unmodifiableMap(ts.stream().collect(Collectors.toMap(t -> valueFn.applyAsLong(t),
+					t -> t, mergeFn, () -> new LinkedHashMap<>()))));
 	}
 
 	private TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Map<Long, T> lookup) {

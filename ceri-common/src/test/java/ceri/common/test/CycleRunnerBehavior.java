@@ -23,4 +23,15 @@ public class CycleRunnerBehavior {
 		}
 	}
 
+	@Test
+	public void shouldRunMaxLoops() {
+		var sync = CallSync.<Integer, Integer>function(0);
+		try (var cr = CycleRunner.of(Locker.of(), 3)) {
+			cr.start(i -> sync.apply(i));
+			sync.await(0);
+			sync.await(0);
+			sync.await(0);
+		}
+	}
+
 }

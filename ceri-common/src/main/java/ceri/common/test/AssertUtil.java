@@ -863,6 +863,13 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Assert an ArithmeticException is thrown with an overflow message.
+	 */
+	public static void assertOverflow(ExceptionRunnable<Exception> runnable) {
+		assertThrown(ArithmeticException.class, "(?i).*\\boverflow\\b.*", runnable);
+	}
+
+	/**
 	 * Checks regex not found against the string.
 	 */
 	public static void assertNotFound(Object actual, String pattern, Object... objs) {

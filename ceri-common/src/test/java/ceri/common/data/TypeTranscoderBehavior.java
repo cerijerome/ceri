@@ -5,7 +5,6 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -14,6 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder.Remainder;
 
 public class TypeTranscoderBehavior {
@@ -109,6 +110,18 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldDecodeOverlappingValues() {
+		var array = Dup.values();
+		var xcoder = TypeTranscoder.of(t -> t.value, MaskTranscoder.NULL, Arrays.asList(array),
+			StreamUtil.mergeFirst());
+		assertCollection(xcoder.decodeAll(3), Dup.a, Dup.b);
+		ArrayUtil.reverse(array);
+		xcoder = TypeTranscoder.of(t -> t.value, MaskTranscoder.NULL, Arrays.asList(array),
+			StreamUtil.mergeFirst());
+		assertCollection(xcoder.decodeAll(3), Dup.e);
+	}
+
+	@Test
 	public void shouldDecodeValueWithValidation() {
 		assertThrown(() -> xcoder.decodeValid(0));
 		assertThrown(() -> xcoder.decodeValid(0, "E"));
@@ -149,13 +162,6 @@ public class TypeTranscoderBehavior {
 		assertFalse(xcoder.isValid(4));
 	}
 
-	@Test
-	public void shouldIgnoreDuplicateValues() {
-		assertIllegalArg(() -> TypeTranscoder.of(t -> t.value, Dup.class));
-		var xcoder = TypeTranscoder.ofDups(t -> t.value, Dup.class);
-		assertEquals(xcoder.decode(Dup.c.value), Dup.b);
-	}
-	
 	@Test
 	public void shouldEncodeSubset() {
 		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.a, E.c);

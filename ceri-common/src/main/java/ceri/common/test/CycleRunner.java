@@ -38,13 +38,17 @@ public class CycleRunner implements RuntimeCloseable {
 	}
 
 	public static CycleRunner of(Locker locker) {
-		return new CycleRunner(locker);
+		return of(locker, Integer.MAX_VALUE);
 	}
 
-	private CycleRunner(Locker locker) {
+	public static CycleRunner of(Locker locker, int max) {
+		return new CycleRunner(locker, max);
+	}
+
+	private CycleRunner(Locker locker, int max) {
 		this.locker = locker;
 		sync = ValueCondition.of(locker.lock);
-		exec = SimpleExecutor.run(this::loops);
+		exec = SimpleExecutor.run(() -> loops(max));
 	}
 
 	/**
@@ -79,12 +83,12 @@ public class CycleRunner implements RuntimeCloseable {
 		CloseableUtil.close(exec);
 	}
 
-	private void loop() throws InterruptedException {
+	private void loop(int max) throws InterruptedException {
 		try (var locked = locker.lock()) {
 			sync.await(Action.start);
 			var cycle = this.cycle;
 			if (cycle == null) return;
-			for (int i = 0; i < Integer.MAX_VALUE; i++) {
+			for (int i = 0; i < max; i++) {
 				int delayMs = cycle.cycle(i);
 				if (delayMs < 0) break;
 				if (sync.awaitPeek(delayMs) != null) break;
@@ -92,11 +96,11 @@ public class CycleRunner implements RuntimeCloseable {
 		}
 	}
 
-	private void loops() {
+	private void loops(int max) {
 		try {
 			while (true) {
 				ConcurrentUtil.checkInterrupted();
-				loop();
+				loop(max);
 			}
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			// exit
