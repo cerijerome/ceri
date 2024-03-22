@@ -102,27 +102,27 @@ public class TypeTranscoder<T> {
 
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
 		Collection<T> ts, BinaryOperator<T> mergeFn) {
-		return new TypeTranscoder<>(valueFn, mask,
-			Collections
-				.unmodifiableMap(ts.stream().collect(Collectors.toMap(t -> valueFn.applyAsLong(t),
-					t -> t, mergeFn, () -> new LinkedHashMap<>()))));
+		return new TypeTranscoder<>(valueFn, mask, ts, mergeFn);
 	}
 
-	private TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Map<Long, T> lookup) {
+	protected TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Collection<T> ts,
+		BinaryOperator<T> mergeFn) {
 		this.valueFn = valueFn;
-		this.lookup = lookup;
 		this.mask = mask;
+		this.lookup = Collections.unmodifiableMap(ts.stream().collect(Collectors
+			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
 	}
 
 	public Collection<T> all() {
 		return lookup.values();
 	}
 
-	public FieldTranscoder<T> field(ValueField accessor) {
+	public <E extends Exception> FieldTranscoder<E, T> field(ValueField<E> accessor) {
 		return FieldTranscoder.of(accessor, this);
 	}
 
-	public <U> FieldTranscoder.Typed<U, T> field(ValueField.Typed<U> accessor) {
+	public <E extends Exception, U> FieldTranscoder.Typed<E, U, T>
+		field(ValueField.Typed<E, U> accessor) {
 		return FieldTranscoder.Typed.of(accessor, this);
 	}
 

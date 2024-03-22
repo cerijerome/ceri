@@ -1,14 +1,14 @@
 package ceri.common.data;
 
 import static ceri.common.math.MathUtil.uint;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
-import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
-import java.util.function.ObjIntConsumer;
-import java.util.function.ObjLongConsumer;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
+import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.ExceptionIntSupplier;
+import ceri.common.function.ExceptionLongConsumer;
+import ceri.common.function.ExceptionLongSupplier;
+import ceri.common.function.ExceptionObjIntConsumer;
+import ceri.common.function.ExceptionObjLongConsumer;
+import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.ExceptionToLongFunction;
 
 /**
  * Interface to get and set values within an object. The main interface holds a getter and setter
@@ -20,28 +20,28 @@ import java.util.function.ToLongFunction;
  * A mask transcoder can be applied to either accessor type, to mask and shift bits when calling
  * access methods. This allows only a subset of bits to be affected during access.
  */
-public interface ValueField {
+public interface ValueField<E extends Exception> {
 
-	long get();
+	long get() throws E;
 
-	void set(long value);
+	void set(long value) throws E;
 
-	default int getInt() {
+	default int getInt() throws E {
 		return (int) get();
 	}
 
-	default long getUint() {
+	default long getUint() throws E {
 		return uint(get());
 	}
 
-	default void setUint(int value) {
+	default void setUint(int value) throws E {
 		set(uint(value));
 	}
 
 	/**
 	 * Add value with bitwise-or.
 	 */
-	default ValueField add(long value) {
+	default ValueField<E> add(long value) throws E {
 		set(get() | value);
 		return this;
 	}
@@ -49,25 +49,30 @@ public interface ValueField {
 	/**
 	 * Remove value by masking bits.
 	 */
-	default ValueField remove(long value) {
+	default ValueField<E> remove(long value) throws E {
 		set(get() & ~value);
 		return this;
 	}
 
-	default ValueField mask(long mask) {
+	default ValueField<E> mask(long mask) {
 		return mask(MaskTranscoder.mask(mask, 0));
 	}
 
-	default ValueField mask(MaskTranscoder mask) {
-		LongSupplier getFn = () -> mask.decode(get());
-		LongConsumer setFn = i -> set(mask.encode(i, get()));
+	default ValueField<E> mask(MaskTranscoder mask) {
+		ExceptionLongSupplier<E> getFn = () -> mask.decode(get());
+		ExceptionLongConsumer<E> setFn = i -> set(mask.encode(i, get()));
 		return of(getFn, setFn);
 	}
 
+	static <E extends Exception> ValueField<E> ofNull() {
+		return of(() -> 0L, l -> {});
+	}
+	
 	/**
 	 * Create accessor from get and set functions. Either may be null.
 	 */
-	static ValueField ofInt(IntSupplier getFn, IntConsumer setFn) {
+	static <E extends Exception> ValueField<E> ofInt(ExceptionIntSupplier<E> getFn,
+		ExceptionIntConsumer<E> setFn) {
 		return of(getFn == null ? null : getFn::getAsInt,
 			setFn == null ? null : l -> setFn.accept((int) l));
 	}
@@ -75,16 +80,17 @@ public interface ValueField {
 	/**
 	 * Create accessor from get and set functions. Either may be null.
 	 */
-	static ValueField of(LongSupplier getFn, LongConsumer setFn) {
-		return new ValueField() {
+	static <E extends Exception> ValueField<E> of(ExceptionLongSupplier<E> getFn,
+		ExceptionLongConsumer<E> setFn) {
+		return new ValueField<>() {
 			@Override
-			public void set(long value) {
+			public void set(long value) throws E {
 				if (setFn == null) throw new UnsupportedOperationException();
 				setFn.accept(value);
 			}
 
 			@Override
-			public long get() {
+			public long get() throws E {
 				if (getFn == null) throw new UnsupportedOperationException();
 				return getFn.getAsLong();
 			}
@@ -94,41 +100,45 @@ public interface ValueField {
 	/**
 	 * Provides getter and setter access to a long value, for a given typed object.
 	 */
-	static class Typed<T> {
-		public final ToLongFunction<T> getFn;
-		public final ObjLongConsumer<T> setFn;
+	static class Typed<E extends Exception, T> {
+		public final ExceptionToLongFunction<E, T> getFn;
+		public final ExceptionObjLongConsumer<E, T> setFn;
 
-		public static <T> ValueField.Typed<T> ofInt(ToIntFunction<T> getFn,
-			ObjIntConsumer<T> setFn) {
+		public static <E extends Exception, T> ValueField.Typed<E, T> ofNull() {
+			return of(t -> 0L, (t, l) -> {});
+		}
+		
+		public static <E extends Exception, T> ValueField.Typed<E, T>
+			ofInt(ExceptionToIntFunction<E, T> getFn, ExceptionObjIntConsumer<E, T> setFn) {
 			return of(getFn == null ? null : getFn::applyAsInt,
 				setFn == null ? null : (t, l) -> setFn.accept(t, (int) l));
 		}
 
-		public static <T> ValueField.Typed<T> of(ToLongFunction<T> getFn,
-			ObjLongConsumer<T> setFn) {
+		public static <E extends Exception, T> ValueField.Typed<E, T>
+			of(ExceptionToLongFunction<E, T> getFn, ExceptionObjLongConsumer<E, T> setFn) {
 			return new Typed<>(getFn, setFn);
 		}
 
-		private Typed(ToLongFunction<T> getFn, ObjLongConsumer<T> setFn) {
+		private Typed(ExceptionToLongFunction<E, T> getFn, ExceptionObjLongConsumer<E, T> setFn) {
 			this.getFn = getFn;
 			this.setFn = setFn;
 		}
 
-		public ValueField from(T t) {
+		public ValueField<E> from(T t) {
 			return ValueField.of(() -> get(t), i -> set(t, i));
 		}
 
 		/**
 		 * Apply a mask when accessing the value.
 		 */
-		public ValueField.Typed<T> mask(MaskTranscoder mask) {
+		public ValueField.Typed<E, T> mask(MaskTranscoder mask) {
 			return of(t -> mask.decode(get(t)), (t, i) -> set(t, mask.encode(i, get(t))));
 		}
 
 		/**
 		 * Get the value from the typed object.
 		 */
-		public long get(T value) {
+		public long get(T value) throws E {
 			if (getFn == null) throw new UnsupportedOperationException();
 			return getFn.applyAsLong(value);
 		}
@@ -136,14 +146,14 @@ public interface ValueField {
 		/**
 		 * Get the value from the typed object.
 		 */
-		public int getInt(T value) {
+		public int getInt(T value) throws E {
 			return (int) get(value);
 		}
 
 		/**
 		 * Set the value on the typed object.
 		 */
-		public void set(T t, long value) {
+		public void set(T t, long value) throws E {
 			if (setFn == null) throw new UnsupportedOperationException();
 			setFn.accept(t, value);
 		}
@@ -151,7 +161,7 @@ public interface ValueField {
 		/**
 		 * Add value with bitwise-or.
 		 */
-		public long add(T t, long value) {
+		public long add(T t, long value) throws E {
 			var added = get(t) | value;
 			set(t, added);
 			return added;
@@ -160,7 +170,7 @@ public interface ValueField {
 		/**
 		 * Remove value by masking bits.
 		 */
-		public long remove(T t, long value) {
+		public long remove(T t, long value) throws E {
 			var removed = get(t) & ~value;
 			set(t, removed);
 			return removed;

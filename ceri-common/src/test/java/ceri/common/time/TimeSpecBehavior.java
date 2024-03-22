@@ -2,12 +2,20 @@ package ceri.common.time;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertOverflow;
+import static ceri.common.test.AssertUtil.assertRange;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
 
 public class TimeSpecBehavior {
+
+	@Test
+	public void shouldCreateWithCurrentInstant() {
+		var t0 = TimeSpec.from(Instant.now()).totalMillis();
+		var t = TimeSpec.now().totalMillis();
+		assertRange(t, t0, t0+ 1000);
+	}
 
 	@Test
 	public void shouldCreateFromInstant() {

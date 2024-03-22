@@ -17,6 +17,7 @@ public class OsUtilTest {
 	@Test
 	public void testDescriptor() {
 		assertMatch(OsUtil.os().toString(), ".+;.+;.+");
+		assertMatch(OsUtil.os().full(), ".+;.+;.+; mac.*linux.*x86.*arm.*bit64.*");
 	}
 
 	@Test

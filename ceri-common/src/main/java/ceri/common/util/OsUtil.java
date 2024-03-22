@@ -25,8 +25,8 @@ public class OsUtil {
 	private static final Pattern X86_REGEX = Pattern.compile("^x86");
 	private static final Pattern ARM_REGEX = Pattern.compile("^(?:arm|aarch)");
 	private static final Pattern BIT64_REGEX = Pattern.compile("64$");
-	private static final Os os = new Os(SystemVars.sys("os.name"),
-		SystemVars.sys("os.arch"), SystemVars.sys("os.version"));
+	private static final Os os =
+		new Os(SystemVars.sys("os.name"), SystemVars.sys("os.arch"), SystemVars.sys("os.version"));
 	private static volatile Os osOverride = null;
 
 	private OsUtil() {}
@@ -40,7 +40,7 @@ public class OsUtil {
 		public final boolean x86;
 		public final boolean arm;
 		public final boolean bit64;
-		
+
 		private Os(String name, String arch, String version) {
 			this.name = name;
 			this.arch = arch;
@@ -51,13 +51,18 @@ public class OsUtil {
 			arm = x86 ? false : ARM_REGEX.matcher(arch).find();
 			bit64 = BIT64_REGEX.matcher(arch).find();
 		}
-		
+
+		public String full() {
+			return toString() + String.format("; mac=%s, linux=%s, x86=%s, arm=%s, bit64=%s", mac,
+				linux, x86, arm, bit64);
+		}
+
 		@Override
 		public String toString() {
 			return String.format("%s; %s; %s", name, arch, version);
 		}
 	}
-	
+
 	public static Os os() {
 		return BasicUtil.defaultValue(osOverride, os);
 	}
@@ -75,5 +80,5 @@ public class OsUtil {
 		if (version == null) version = os.version;
 		osOverride = new Os(name, arch, version);
 		return () -> osOverride = null;
-	}	
+	}
 }

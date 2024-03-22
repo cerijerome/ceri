@@ -757,20 +757,20 @@ public class AssertUtil {
 	 * Verifies throwable super class.
 	 */
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls) {
-		assertThrowable(t, superCls, (Consumer<String>) null);
+		assertThrowable(t, superCls, (Consumer<Throwable>) null);
 	}
 
 	/**
 	 * Verifies throwable message.
 	 */
-	public static void assertThrowable(Throwable t, String format, Object...args) {
-		assertThrowable(t, null, StringUtil.format(format, args));
+	public static void assertThrowable(Throwable t, String regex, Object... args) {
+		assertThrowable(t, Throwable.class, regex, args);
 	}
 
 	/**
 	 * Verifies throwable message.
 	 */
-	public static void assertThrowable(Throwable t, Consumer<String> messageTest) {
+	public static void assertThrowable(Throwable t, Consumer<Throwable> messageTest) {
 		assertThrowable(t, null, messageTest);
 	}
 
@@ -778,22 +778,21 @@ public class AssertUtil {
 	 * Verifies throwable super class and message.
 	 */
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
-		String msg) {
-		assertThrowable(t, superCls, s -> assertEquals(s, msg));
+		String regex, Object... args) {
+		assertThrowable(t, superCls, e -> assertMatch(e.getMessage(), regex, args));
 	}
 
 	/**
-	 * Verifies throwable super class and message.
+	 * Verifies throwable type.
 	 */
 	@SuppressWarnings("null")
-	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
-		Consumer<String> messageTest) {
-		if (t == null && superCls == null && messageTest == null) return;
+	public static <E extends Throwable> void assertThrowable(Throwable t, Class<E> superCls,
+		Consumer<? super E> test) {
+		if (t == null && superCls == null && test == null) return;
 		assertNotNull(t);
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
-		if (messageTest == null) return;
-		messageTest.accept(t.getMessage());
+		if (test != null) test.accept(BasicUtil.uncheckedCast(t));
 	}
 
 	/**
@@ -808,22 +807,14 @@ public class AssertUtil {
 	 */
 	public static void assertThrown(Class<? extends Throwable> exceptionCls,
 		ExceptionRunnable<?> runnable) {
-		assertThrown(exceptionCls, (Consumer<String>) null, runnable);
+		assertThrown(exceptionCls, (Consumer<Throwable>) null, runnable);
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
 	public static void assertThrown(String regex, ExceptionRunnable<Exception> runnable) {
-		assertThrown(Exception.class, regex, runnable);
-	}
-
-	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
-	 */
-	public static void assertThrown(Consumer<String> messageTest,
-		ExceptionRunnable<Exception> runnable) {
-		assertThrown(Exception.class, messageTest, runnable);
+		assertThrown(Throwable.class, regex, runnable);
 	}
 
 	/**
@@ -831,18 +822,26 @@ public class AssertUtil {
 	 */
 	public static void assertThrown(Class<? extends Throwable> superCls, String regex,
 		ExceptionRunnable<?> runnable) {
-		assertThrown(superCls, s -> assertMatch(s, regex), runnable);
+		assertThrown(superCls, t -> assertMatch(t.getMessage(), regex), runnable);
 	}
 
 	/**
 	 * Tests if an exception is thrown with given message.
 	 */
-	public static void assertThrown(Class<? extends Throwable> superCls, Consumer<String> msgTest,
+	public static void assertThrown(Consumer<? super Throwable> test,
 		ExceptionRunnable<?> runnable) {
+		assertThrown(Throwable.class, test, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given message.
+	 */
+	public static <E extends Throwable> void assertThrown(Class<E> superCls,
+		Consumer<? super E> test, ExceptionRunnable<?> runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable t) {
-			assertThrowable(t, superCls, msgTest);
+			assertThrowable(t, superCls, test);
 			return;
 		}
 		throw failure("Nothing thrown, expected: %s", superCls.getName());
@@ -860,6 +859,13 @@ public class AssertUtil {
 	 */
 	public static void assertIllegalArg(ExceptionRunnable<Exception> runnable) {
 		assertThrown(IllegalArgumentException.class, runnable);
+	}
+
+	/**
+	 * Assert an IndexOutOfBounds exception is thrown with an overflow message.
+	 */
+	public static void assertIndexOob(ExceptionRunnable<Exception> runnable) {
+		assertThrown(IndexOutOfBoundsException.class, runnable);
 	}
 
 	/**

@@ -285,18 +285,16 @@ public class AssertUtilTest {
 	@Test
 	public void testAssertThrowable() {
 		IOException e = new FileNotFoundException("test");
-		Class<? extends Throwable> nullCls = null;
-		Consumer<String> nullConsumer = null;
-		assertThrowable(null, nullCls, nullConsumer);
-		assertAssertion(() -> assertThrowable(null, IOException.class, nullConsumer));
-		assertAssertion(() -> assertThrowable(null, nullCls, s -> {}));
+		// Class<? extends Throwable> nullCls = null;
+		assertAssertion(() -> assertThrowable(null, null, s -> {}));
+		assertAssertion(() -> assertThrowable(null, Exception.class, s -> {}));
 		assertThrowable(e, IOException.class);
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
-		assertThrowable(e, m -> assertTrue(m.startsWith("test")));
-		assertAssertion(() -> assertThrowable(e, m -> assertTrue(m.startsWith("Test"))));
-		assertThrowable(null, null, nullConsumer);
-
+		assertThrowable(e, t -> assertTrue(t.getMessage().startsWith("test")));
+		assertAssertion(
+			() -> assertThrowable(e, t -> assertTrue(t.getMessage().startsWith("Test"))));
+		assertThrowable(null, null, (Consumer<Throwable>) null);
 	}
 
 	@Test
@@ -314,7 +312,7 @@ public class AssertUtilTest {
 		assertThrown("test", () -> {
 			throw new IOException("test");
 		});
-		assertThrown(m -> m.startsWith("test"), () -> {
+		assertThrown(e -> e.getMessage().startsWith("test"), () -> {
 			throw new IOException("test");
 		});
 		assertThrown(IOException.class, "test", () -> {

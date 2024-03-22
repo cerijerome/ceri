@@ -14,9 +14,10 @@ import ceri.common.data.TypeTranscoder.Remainder;
 
 public class FieldTranscoderBehavior {
 	private final int[] store = { 0 };
-	private final ValueField accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
+	private final ValueField<RuntimeException> accessor =
+		ValueField.ofInt(() -> store[0], i -> store[0] = i);
 	private static final TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.class);
-	private final FieldTranscoder<E> field = xcoder.field(accessor);
+	private final FieldTranscoder<RuntimeException, E> field = xcoder.field(accessor);
 
 	enum E {
 		a(1),
@@ -31,9 +32,9 @@ public class FieldTranscoderBehavior {
 	}
 
 	static class Holder {
-		static ValueField.Typed<Holder> accessor =
+		static ValueField.Typed<RuntimeException, Holder> accessor =
 			ValueField.Typed.ofInt(h -> h.val, (h, i) -> h.val = i);
-		static FieldTranscoder.Typed<Holder, E> field =
+		static FieldTranscoder.Typed<RuntimeException, Holder, E> field =
 			FieldTranscoder.Typed.of(Holder.accessor, xcoder);
 
 		int val;
@@ -42,6 +43,16 @@ public class FieldTranscoderBehavior {
 	@Before
 	public void init() {
 		store[0] = 0;
+	}
+
+	@Test
+	public void shouldConvertFromTypedToInstance() {
+		Holder h = new Holder();
+		h.val = E.c.value;
+		var field = Holder.field.from(h);
+		assertEquals(field.get(), E.c);
+		field.set(E.a, E.b);
+		assertEquals(h.val, 3);
 	}
 
 	@Test

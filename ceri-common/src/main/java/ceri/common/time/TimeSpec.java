@@ -7,11 +7,16 @@ import java.time.Instant;
  * A time interval of seconds and nanoseconds. A created instance is not automatically normalized.
  */
 public record TimeSpec(long seconds, long nanos) {
+
 	private static final long USEC_NSEC = 1000L;
 	private static final long MSEC_NSEC = 1000000L;
 	private static final long SEC_MSEC = 1000L;
 	private static final long SEC_USEC = 1000000L;
 	private static final long SEC_NSEC = 1000000000L;
+
+	public static TimeSpec now() {
+		return from(Instant.now());
+	}
 
 	public static TimeSpec from(Instant instant) {
 		return new TimeSpec(instant.getEpochSecond(), instant.getNano());

@@ -47,7 +47,7 @@ public class TypeTranscoderBehavior {
 	}
 
 	static class Holder {
-		static final ValueField.Typed<Holder> acc =
+		static final ValueField.Typed<RuntimeException, Holder> acc =
 			ValueField.Typed.ofInt(h -> h.val, (h, i) -> h.val = i);
 
 		int val = 0;
@@ -197,8 +197,8 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldTranscodeFields() {
 		int[] store = { 0 };
-		ValueField accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
-		FieldTranscoder<E> field = xcoder.field(accessor);
+		var accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
+		var field = xcoder.field(accessor);
 		field.set(E.b);
 		assertEquals(store[0], E.b.value);
 		assertEquals(field.get(), E.b);
@@ -209,7 +209,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldTranscodeTypedFields() {
-		FieldTranscoder.Typed<Holder, E> field = xcoder.field(Holder.acc);
+		FieldTranscoder.Typed<RuntimeException, Holder, E> field = xcoder.field(Holder.acc);
 		Holder h = new Holder();
 		field.set(h, E.a, E.b);
 		assertEquals(h.val, 3);

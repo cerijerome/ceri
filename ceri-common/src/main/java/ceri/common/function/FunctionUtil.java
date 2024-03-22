@@ -250,6 +250,44 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * Returns true if the predicate matches any of the given values.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T> boolean any(ExceptionPredicate<E, ? super T> predicate,
+		T... ts) throws E {
+		return any(predicate, Arrays.asList(ts));
+	}
+
+	/**
+	 * Returns true if the predicate matches any of the given values.
+	 */
+	public static <E extends Exception, T> boolean any(ExceptionPredicate<E, ? super T> predicate,
+		Iterable<T> ts) throws E {
+		for (var t : ts)
+			if (predicate.test(t)) return true;
+		return false;
+	}
+
+	/**
+	 * Returns true if the predicate matches all of the given values.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T> boolean all(ExceptionPredicate<E, ? super T> predicate,
+		T... ts) throws E {
+		return all(predicate, Arrays.asList(ts));
+	}
+
+	/**
+	 * Returns true if the predicate matches all of the given values.
+	 */
+	public static <E extends Exception, T> boolean all(ExceptionPredicate<E, ? super T> predicate,
+		Iterable<T> ts) throws E {
+		for (var t : ts)
+			if (!predicate.test(t)) return false;
+		return true;
+	}
+
+	/**
 	 * Combines nullable predicates with logical AND.
 	 */
 	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {

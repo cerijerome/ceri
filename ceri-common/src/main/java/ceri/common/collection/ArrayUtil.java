@@ -216,6 +216,14 @@ public class ArrayUtil {
 	 * Creates a fixed-size list view of the given sub-array, from start (inclusive) to end
 	 * (exclusive).
 	 */
+	public static <T> List<T> asFixedList(T[] ts, int start) {
+		return asFixedList(ts, start, ts.length);
+	}
+
+	/**
+	 * Creates a fixed-size list view of the given sub-array, from start (inclusive) to end
+	 * (exclusive).
+	 */
 	public static <T> List<T> asFixedList(T[] ts, int start, int end) {
 		return Arrays.asList(ts).subList(start, end);
 	}

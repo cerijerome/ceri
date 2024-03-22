@@ -90,7 +90,6 @@ public class Predicates {
 	 * Combines filters to return true if any filter matches.
 	 */
 	@SafeVarargs
-	// public static <T> Predicate<T> any(final Predicate<? super T>... filters) {
 	public static <T> Predicate<T> any(final Predicate<T>... filters) {
 		return any(Arrays.asList(filters));
 	}
@@ -99,17 +98,14 @@ public class Predicates {
 	 * Combines filters to return true only if all filters match.
 	 */
 	@SafeVarargs
-	// public static <T> Predicate<T> all(final Predicate<? super T>... filters) {
-	public static <T> Predicate<T> all(final Predicate<T>... filters) {
+	public static <T> Predicate<T> all(final Predicate<? super T>... filters) {
 		return all(Arrays.asList(filters));
 	}
 
 	/**
 	 * Combines filters to return true if any filter matches.
 	 */
-	// public static <T> Predicate<T> any(final Collection<? extends Predicate<? super T>> filters)
-	// {
-	public static <T> Predicate<T> any(final Collection<? extends Predicate<T>> filters) {
+	public static <T> Predicate<T> any(final Collection<? extends Predicate<? super T>> filters) {
 		if (CollectionUtil.empty(filters)) return no();
 		return nonNull(t -> {
 			for (Predicate<? super T> filter : filters)
@@ -121,9 +117,7 @@ public class Predicates {
 	/**
 	 * Combines filters to return true only if all filters match.
 	 */
-	// public static <T> Predicate<T> all(final Collection<? extends Predicate<? super T>> filters)
-	// {
-	public static <T> Predicate<T> all(final Collection<? extends Predicate<T>> filters) {
+	public static <T> Predicate<T> all(final Collection<? extends Predicate<? super T>> filters) {
 		if (CollectionUtil.empty(filters)) return yes();
 		return nonNull(t -> {
 			for (Predicate<? super T> filter : filters)

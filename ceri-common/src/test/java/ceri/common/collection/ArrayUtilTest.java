@@ -8,6 +8,7 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
+import static ceri.common.test.AssertUtil.assertIndexOob;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
@@ -540,6 +541,15 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testValidateFullSlice() {
+		int[] array = { 1, 2, 3, 4 };
+		assertTrue(ArrayUtil.validateFullSlice(array.length, 0, 4));
+		assertFalse(ArrayUtil.validateFullSlice(array.length, 0, 3));
+		assertIndexOob(() -> ArrayUtil.validateFullSlice(array.length, 0, 5));
+		assertFalse(ArrayUtil.validateFullSlice(array.length, 1, 3));
+	}
+	
+	@Test
 	public void testValidateRange() {
 		int[] array = { 1, 2, 3, 4 };
 		ArrayUtil.validateRange(array.length, 0, 4);
@@ -836,6 +846,7 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testAsFixedList() {
+		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 1), 2, 3);
 		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 0, 3), 1, 2, 3);
 		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3, 4), 1, 3), 2, 3);
 		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 3, 3));

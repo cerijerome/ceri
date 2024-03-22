@@ -195,6 +195,20 @@ public class FunctionUtilTest {
 	}
 
 	@Test
+	public void testAny() {
+		assertTrue(FunctionUtil.any(String::isBlank, "a", "b", " ", "c"));
+		assertFalse(FunctionUtil.any(String::isBlank, "a", "b", "c"));
+		assertFalse(FunctionUtil.any(String::isBlank));
+	}
+	
+	@Test
+	public void testAll() {
+		assertTrue(FunctionUtil.all(String::isBlank, "", " ", "\t"));
+		assertFalse(FunctionUtil.all(String::isBlank, "a", " ", "\t"));
+		assertTrue(FunctionUtil.all(String::isBlank));
+	}
+	
+	@Test
 	public void testPredicateAnd() {
 		Predicate<Integer> n = null;
 		Predicate<Integer> p0 = i -> i > -1;

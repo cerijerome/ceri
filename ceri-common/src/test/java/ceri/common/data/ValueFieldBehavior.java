@@ -8,23 +8,32 @@ import static ceri.common.math.MathUtil.ushortExact;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertUnsupported;
+import java.io.IOException;
 import org.junit.Test;
 
 public class ValueFieldBehavior {
 
 	static class Holder {
-		static final ValueField.Typed<Holder> longField =
+		static final ValueField.Typed<RuntimeException, Holder> longField =
 			ValueField.Typed.of(h -> h.longVal, (h, l) -> h.longVal = l);
-		static final ValueField.Typed<Holder> intField =
+		static final ValueField.Typed<RuntimeException, Holder> intField =
 			ValueField.Typed.ofInt(h -> h.intVal, (h, i) -> h.intVal = i);
-		static final ValueField.Typed<Holder> ushortField =
+		static final ValueField.Typed<RuntimeException, Holder> ushortField =
 			ValueField.Typed.of(h -> ushort(h.shortVal), (h, s) -> h.shortVal = ushortExact(s));
-		static final ValueField.Typed<Holder> ubyteField =
+		static final ValueField.Typed<RuntimeException, Holder> ubyteField =
 			ValueField.Typed.of(h -> ubyte(h.byteVal), (h, b) -> h.byteVal = ubyteExact(b));
 		long longVal = 0;
 		int intVal = 0;
 		short shortVal = 0;
 		byte byteVal = 0;
+	}
+
+	@Test
+	public void shouldProvideNoOpImplementations() throws IOException {
+		ValueField.<IOException>ofNull().set(1);
+		assertEquals(ValueField.<IOException>ofNull().get(), 0L);
+		ValueField.Typed.<IOException, Integer>ofNull().set(null, 1);
+		assertEquals(ValueField.Typed.<IOException, Integer>ofNull().get(null), 0L);
 	}
 
 	@Test
@@ -45,8 +54,8 @@ public class ValueFieldBehavior {
 
 	@Test
 	public void shouldSetMaskedValues() {
-		Holder h = new Holder();
-		ValueField intField = Holder.intField.from(h);
+		var h = new Holder();
+		var intField = Holder.intField.from(h);
 		intField.set(0x1234);
 		intField.mask(0xff00).set(0xabcd);
 		assertEquals(h.intVal, 0xab34);
@@ -54,8 +63,8 @@ public class ValueFieldBehavior {
 
 	@Test
 	public void shouldSetUnsignedValue() {
-		Holder h = new Holder();
-		ValueField field = Holder.longField.from(h);
+		var h = new Holder();
+		var field = Holder.longField.from(h);
 		field.setUint(-1);
 		assertEquals(field.get(), 0xffffffffL);
 	}
@@ -69,16 +78,16 @@ public class ValueFieldBehavior {
 
 	@Test
 	public void shouldGetMaskedValues() {
-		Holder h = new Holder();
-		ValueField intField = Holder.intField.from(h);
+		var h = new Holder();
+		var intField = Holder.intField.from(h);
 		intField.set(0x123456);
 		assertEquals(intField.mask(0xff00).getInt(), 0x3400);
 	}
 
 	@Test
 	public void shouldAddValues() {
-		Holder h = new Holder();
-		ValueField intField = Holder.intField.from(h);
+		var h = new Holder();
+		var intField = Holder.intField.from(h);
 		intField.set(0x1234);
 		intField.add(0x4321);
 		assertEquals(h.intVal, 0x5335);
@@ -86,8 +95,8 @@ public class ValueFieldBehavior {
 
 	@Test
 	public void shouldRemoveValues() {
-		Holder h = new Holder();
-		ValueField intField = Holder.intField.from(h);
+		var h = new Holder();
+		var intField = Holder.intField.from(h);
 		intField.set(0x1234);
 		intField.remove(0x4321);
 		assertEquals(h.intVal, 0x1014);
@@ -132,17 +141,17 @@ public class ValueFieldBehavior {
 		Holder.intField.set(h, 0xff);
 		assertEquals(h.intVal, 0xff);
 		assertEquals(Holder.intField.getInt(h), 0xff);
-		ValueField.Typed<Holder> iAcc = ValueField.Typed.ofInt(t -> t.intVal, null);
+		var iAcc = ValueField.Typed.<RuntimeException, Holder>ofInt(t -> t.intVal, null);
 		assertEquals(iAcc.getInt(h), 0xff);
 	}
 
 	@Test
 	public void shouldProvideInstanceAccessorFromTypedAccessor() {
 		Holder h = new Holder();
-		ValueField l = Holder.longField.from(h);
-		ValueField i = Holder.intField.from(h);
-		ValueField s = Holder.ushortField.from(h);
-		ValueField b = Holder.ubyteField.from(h);
+		ValueField<RuntimeException> l = Holder.longField.from(h);
+		ValueField<RuntimeException> i = Holder.intField.from(h);
+		ValueField<RuntimeException> s = Holder.ushortField.from(h);
+		ValueField<RuntimeException> b = Holder.ubyteField.from(h);
 		l.set(0xffffffffffffffL);
 		i.set(0xffffff);
 		s.set(0);
