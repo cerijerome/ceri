@@ -10,11 +10,13 @@ import java.net.InetAddress;
 import org.junit.Test;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
+import ceri.common.reflect.ReflectUtil;
 
 public class UdpChannelBehavior {
 
 	@Test
 	public void shouldReturnEmptyIfNoDatagram() throws IOException {
+		if (!isNetworkAvailable()) return;
 		try (var udp = UdpChannel.of(0)) {
 			udp.blocking(false);
 			var received = udp.receive(5);
@@ -25,6 +27,7 @@ public class UdpChannelBehavior {
 
 	@Test
 	public void shouldUnicastDatagram() throws IOException {
+		if (!isNetworkAvailable()) return;
 		try (var udp0 = UdpChannel.of(0); var udp1 = UdpChannel.of(0)) {
 			udp0.unicast(udp1.port, ByteProvider.of(1, 2, 3));
 			assertArray(udp1.select(5).bytes(), 1, 2, 3);
@@ -38,6 +41,7 @@ public class UdpChannelBehavior {
 
 	@Test
 	public void shouldBroadcastDatagram() throws IOException {
+		if (!isNetworkAvailable()) return;
 		try (var udp0 = UdpChannel.of(0); var udp1 = UdpChannel.of(0)) {
 			udp0.broadcast(udp1.port, ByteProvider.of(4, 5, 6));
 			assertArray(udp1.select(5).bytes(), 4, 5, 6);
@@ -46,6 +50,7 @@ public class UdpChannelBehavior {
 
 	@Test
 	public void shouldJoinMulticastGroup() throws IOException {
+		if (!isNetworkAvailable()) return;
 		var multicastAddress = InetAddress.getByAddress(bytes(239, 255, 1, 1));
 		try (var udp0 = UdpChannel.of(0); var udp1 = UdpChannel.of(0)) {
 			assertTrue(udp1.join(multicastAddress));
@@ -57,4 +62,10 @@ public class UdpChannelBehavior {
 		}
 	}
 
+	private static boolean isNetworkAvailable() throws IOException {
+		if (NetUtil.localInterface() != null) return true;
+		var caller = ReflectUtil.previousCaller(1);
+		System.err.printf("Network unavailable for test: %s.%s\n", caller.cls, caller.method);
+		return false;
+	}
 }

@@ -6,6 +6,7 @@ import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Objects;
 import java.util.function.LongFunction;
+import ceri.common.validation.DisplayLong;
 
 /**
  * Used to hold values that may have a type value, such as an enum. If no type maps to the value,
@@ -47,6 +48,20 @@ public class TypeValue<T> {
 		validateNotNull(value, name);
 		validateNotNull(value.type(), name);
 		if (invalid != null) validateNotEqualObj(value.type(), invalid, name);
+	}
+
+	/**
+	 * Create type with optional sub-value and decimal formatter.
+	 */
+	public static <T> TypeValue<T> of(long value, T type, String name) {
+		return of(value, type, name, DisplayLong.dec);
+	}
+
+	/**
+	 * Create type with optional sub-value and decimal formatter.
+	 */
+	public static <T> TypeValue<T> of(long value, T type, String name, long sub) {
+		return of(value, type, name, sub, DisplayLong.dec);
 	}
 
 	/**

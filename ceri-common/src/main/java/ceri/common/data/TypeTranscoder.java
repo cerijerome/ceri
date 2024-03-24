@@ -1,13 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateLongLookup;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
@@ -24,26 +22,14 @@ public class TypeTranscoder<T> {
 	final ToLongFunction<T> valueFn;
 	final Map<Long, T> lookup;
 
-	public static class Remainder<T> {
-		public final Set<T> types;
-		private final long diff;
-
+	public static record Remainder<T>(long diff, Set<T> types) {
 		@SafeVarargs
 		public static <T> Remainder<T> of(long diff, T... types) {
 			return new Remainder<>(diff, Set.of(types));
 		}
 
-		private Remainder(long diff, Set<T> types) {
-			this.types = types;
-			this.diff = diff;
-		}
-
 		public int intDiff() {
 			return Math.toIntExact(diff());
-		}
-
-		public long diff() {
-			return diff;
 		}
 
 		public boolean isEmpty() {
@@ -52,20 +38,6 @@ public class TypeTranscoder<T> {
 
 		public boolean isExact() {
 			return diff == 0L;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(types, diff);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Remainder<?> other)) return false;
-			if (!Objects.equals(types, other.types)) return false;
-			if (diff != other.diff) return false;
-			return true;
 		}
 
 		@Override
@@ -222,7 +194,7 @@ public class TypeTranscoder<T> {
 	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
 	 */
 	public T decodeValid(long value) {
-		return validateLongLookup(this::decode, value);
+		return decodeValid(value, ValidationUtil.VALUE);
 	}
 
 	/**
@@ -266,5 +238,4 @@ public class TypeTranscoder<T> {
 		var value = valueFn.applyAsLong(t);
 		return lookup.containsKey(value) ? value : 0L;
 	}
-
 }

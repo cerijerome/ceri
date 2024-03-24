@@ -222,7 +222,7 @@ public class TypeTranscoderBehavior {
 
 	public static <T> void assertRemainder(Remainder<T> actual, int rem, Collection<T> ts) {
 		assertEquals(actual.intDiff(), rem);
-		assertCollection(actual.types, ts);
+		assertCollection(actual.types(), ts);
 	}
 
 }

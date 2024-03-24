@@ -29,7 +29,7 @@ import ceri.common.text.StringUtil;
  * letter.
  */
 public class ValidationUtil {
-	private static final String VALUE = "Value";
+	public static final String VALUE = "Value";
 	private static final String EXPRESSION = "Expression";
 
 	private ValidationUtil() {}

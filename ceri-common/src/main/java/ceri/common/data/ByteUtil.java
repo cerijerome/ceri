@@ -469,6 +469,26 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Returns an array of the bits that are set.
+	 */
+	public static int[] bits(int value) {
+		int[] bits = new int[Integer.bitCount(value)];
+		for (int i = 0, j = 0; j < bits.length && i < Integer.SIZE; i++)
+			if (bit(value, i)) bits[j++] = i;
+		return bits;
+	}
+	
+	/**
+	 * Returns an array of the bits that are set.
+	 */
+	public static int[] bits(long value) {
+		int[] bits = new int[Long.bitCount(value)];
+		for (int i = 0, j = 0; j < bits.length && i < Long.SIZE; i++)
+			if (bit(value, i)) bits[j++] = i;
+		return bits;
+	}
+	
+	/**
 	 * Returns true if the given bit is set in the value.
 	 */
 	public static boolean bit(long value, int bit) {

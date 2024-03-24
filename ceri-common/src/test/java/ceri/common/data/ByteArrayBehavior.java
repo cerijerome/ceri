@@ -2,6 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -164,6 +165,13 @@ public class ByteArrayBehavior {
 		assertTrue(m.isEqualTo(0, 0, 0, 1, 2, 0));
 	}
 
+	@Test
+	public void shouldCreateMutableBuffer() {
+		var b = Mutable.wrap(1, 2, 3, 4, 5);
+		assertBuffer(b.toBuffer(1, 3), 2, 3, 4);
+		assertBuffer(b.toBuffer(3), 4, 5);
+	}
+
 	/* ByteArray base tests */
 
 	@Test
@@ -201,6 +209,13 @@ public class ByteArrayBehavior {
 		assertEquals(Immutable.wrap(1, 2, 3).writeTo(1, out), 3);
 		assertArray(out.toByteArray(), 2, 3);
 		assertThrown(() -> Immutable.wrap(0, 1, 2).writeTo(0, out, 4));
+	}
+
+	@Test
+	public void shouldCreateBuffer() {
+		var b = Immutable.wrap(1, 2, 3, 4, 5);
+		assertBuffer(b.toBuffer(1, 3), 2, 3, 4);
+		assertBuffer(b.toBuffer(3), 4, 5);
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.PrimitiveUtil;
 
 /**
  * Utility methods for creating immutable objects.
@@ -63,6 +64,48 @@ public class ImmutableUtil {
 		};
 	}
 
+	/**
+	 * Creates an immutable set from primitives.
+	 */
+	public static Set<Integer> intSet(int... array) {
+		return Set.of(PrimitiveUtil.convertInts(array));
+	}
+	
+	/**
+	 * Creates an immutable set from primitives.
+	 */
+	public static Set<Long> longSet(long... array) {
+		return Set.of(PrimitiveUtil.convertLongs(array));
+	}
+	
+	/**
+	 * Creates an immutable set from primitives.
+	 */
+	public static Set<Double> doubleSet(double... array) {
+		return Set.of(PrimitiveUtil.convertDoubles(array));
+	}
+	
+	/**
+	 * Creates an immutable list from primitives.
+	 */
+	public static List<Integer> intList(int... array) {
+		return List.of(PrimitiveUtil.convertInts(array));
+	}
+	
+	/**
+	 * Creates an immutable list from primitives.
+	 */
+	public static List<Long> longList(long... array) {
+		return List.of(PrimitiveUtil.convertLongs(array));
+	}
+	
+	/**
+	 * Creates an immutable list from primitives.
+	 */
+	public static List<Double> doubleList(double... array) {
+		return List.of(PrimitiveUtil.convertDoubles(array));
+	}
+	
 	/**
 	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */

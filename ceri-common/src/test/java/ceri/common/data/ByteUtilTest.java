@@ -270,6 +270,16 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testBits() {
+		assertArray(ByteUtil.bits(0));
+		assertArray(ByteUtil.bits(0x80402010), 4, 13, 22, 31);
+		assertArray(ByteUtil.bits(-1), IntStream.range(0, 32).toArray());
+		assertArray(ByteUtil.bits(0L));
+		assertArray(ByteUtil.bits(0x8000400020001000L), 12, 29, 46, 63);
+		assertArray(ByteUtil.bits(-1L), IntStream.range(0, 64).toArray());
+	}
+
+	@Test
 	public void testBit() {
 		assertFalse(ByteUtil.bit(0, 0));
 		assertFalse(ByteUtil.bit(0, 63));

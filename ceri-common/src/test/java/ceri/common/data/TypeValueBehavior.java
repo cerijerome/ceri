@@ -24,19 +24,22 @@ public class TypeValueBehavior {
 		TypeValue<?> v = TypeValue.of(1, E.one, null, 1, hex4);
 		TypeValue<?> eq0 = TypeValue.of(1, E.one, null, 1, hex4);
 		TypeValue<?> eq1 = TypeValue.of(1, E.one, "two", 1, hex4);
+		TypeValue<?> eq2 = TypeValue.of(1, E.one, "two", 1);
 		TypeValue<?> ne0 = TypeValue.of(0, E.one, null, 1, hex4);
 		TypeValue<?> ne1 = TypeValue.of(1, E.two, null, 1, hex4);
 		TypeValue<?> ne2 = TypeValue.of(1, null, "one", 1, hex4);
 		TypeValue<?> ne3 = TypeValue.of(1, null, null, 1, hex4);
 		TypeValue<?> ne4 = TypeValue.of(1, E.one, null, 0, hex4);
 		TypeValue<?> ne5 = TypeValue.of(1, E.one, null, hex4);
+		TypeValue<?> ne6 = TypeValue.of(1, E.one, null);
 		exerciseEquals(v, eq0, eq1);
-		assertAllNotEqual(v, ne0, ne1, ne2, ne3, ne4, ne5);
+		assertEquals(v, eq2);
+		assertAllNotEqual(v, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 		v = TypeValue.of(1, null, "one", 1, hex4);
 		eq0 = TypeValue.of(1, null, "one", 1, hex4);
 		ne0 = TypeValue.of(1, null, "One", 1, hex4);
 		exerciseEquals(v, eq0);
-		assertAllNotEqual(v, ne0);
+		assertAllNotEqual(v, ne0, ne1);
 	}
 
 	@Test

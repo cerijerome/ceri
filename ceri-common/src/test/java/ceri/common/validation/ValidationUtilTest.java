@@ -61,6 +61,13 @@ public class ValidationUtilTest {
 	}
 
 	@Test
+	public void testValidateLongLookup() {
+		Map<Long, String> map = Map.of(1L, "one", 2L, "two", 3L, "three");
+		assertEquals(ValidationUtil.validateLongLookup(map::get, 2L), "two");
+		assertThrown(() -> ValidationUtil.validateLongLookup(map::get, 0L));
+	}
+
+	@Test
 	public void testValidateLookupEquals() {
 		Map<String, Integer> map = Map.of("one", 1, "two", 2, "three", 3);
 		assertEquals(ValidationUtil.validateLookupEquals(map::get, "two", 2), 2);

@@ -243,6 +243,7 @@ public class ByteProviderBehavior {
 	public void shouldCreateBuffer() {
 		ByteProvider bp = provider(1, 2, 3, 4, 5);
 		assertArray(bp.toBuffer(1, 3).array(), 2, 3, 4);
+		assertArray(bp.toBuffer(3).array(), 4, 5);
 	}
 
 	/* ByteProvider.Reader<?> tests */

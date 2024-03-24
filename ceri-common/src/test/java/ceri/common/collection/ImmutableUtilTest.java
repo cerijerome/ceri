@@ -44,6 +44,60 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testIntSet() {
+		assertCollection(ImmutableUtil.intSet());
+		assertImmutableCollection(ImmutableUtil.intSet());
+		assertCollection(ImmutableUtil.intSet(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
+			Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		assertImmutableCollection(ImmutableUtil.intSet(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void testLongSet() {
+		assertCollection(ImmutableUtil.longSet());
+		assertImmutableCollection(ImmutableUtil.longSet());
+		assertCollection(ImmutableUtil.longSet(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE,
+			0L, Long.MAX_VALUE);
+		assertImmutableCollection(ImmutableUtil.longSet(Long.MIN_VALUE, 0, Long.MAX_VALUE));
+	}
+
+	@Test
+	public void testDoubleSet() {
+		assertCollection(ImmutableUtil.doubleSet());
+		assertImmutableCollection(ImmutableUtil.doubleSet());
+		assertCollection(ImmutableUtil.doubleSet(Double.MIN_VALUE, 0, Double.MAX_VALUE),
+			Double.MIN_VALUE, 0.0, Double.MAX_VALUE);
+		assertImmutableCollection(ImmutableUtil.doubleSet(Double.MIN_VALUE, 0, Double.MAX_VALUE));
+	}
+
+	@Test
+	public void testIntList() {
+		assertIterable(ImmutableUtil.intList());
+		assertImmutableList(ImmutableUtil.intList());
+		assertIterable(ImmutableUtil.intList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
+			Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		assertImmutableList(ImmutableUtil.intList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
+	}
+
+	@Test
+	public void testLongList() {
+		assertIterable(ImmutableUtil.longList());
+		assertImmutableList(ImmutableUtil.longList());
+		assertIterable(ImmutableUtil.longList(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE,
+			0L, Long.MAX_VALUE);
+		assertImmutableList(ImmutableUtil.longList(Long.MIN_VALUE, 0, Long.MAX_VALUE));
+	}
+
+	@Test
+	public void testDoubleList() {
+		assertIterable(ImmutableUtil.doubleList());
+		assertImmutableList(ImmutableUtil.doubleList());
+		assertIterable(ImmutableUtil.doubleList(Double.MIN_VALUE, 0, Double.MAX_VALUE),
+			Double.MIN_VALUE, 0.0, Double.MAX_VALUE);
+		assertImmutableList(ImmutableUtil.doubleList(Double.MIN_VALUE, 0, Double.MAX_VALUE));
+	}
+
+	@Test
 	public void testInvert() {
 		Map<String, Integer> map = ImmutableUtil.invert(Map.of(1, "1", 2, "2"));
 		assertImmutableMap(map);
