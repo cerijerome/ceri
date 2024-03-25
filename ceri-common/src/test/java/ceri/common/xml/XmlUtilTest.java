@@ -17,7 +17,6 @@ public class XmlUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(XmlUtil.class);
-		assertPrivateConstructor(XercesConstants.class);
 	}
 
 	@Test

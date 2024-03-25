@@ -10,6 +10,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class XmlUtil {
+	private static final String XERCES_FEATURE_PREFIX = "http://apache.org/xml/features/";
+	public static final String XERCES_LOAD_DTD_GRAMMAR_FEATURE =
+		XERCES_FEATURE_PREFIX + "nonvalidating/load-dtd-grammar";
+	public static final String XERCES_LOAD_EXTERNAL_DTD_FEATURE =
+		XERCES_FEATURE_PREFIX + "nonvalidating/load-external-dtd";
 
 	private XmlUtil() {}
 
@@ -36,8 +41,8 @@ public class XmlUtil {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setValidating(false);
 			dbf.setNamespaceAware(true);
-			dbf.setFeature(XercesConstants.LOAD_DTD_GRAMMAR_FEATURE, false);
-			dbf.setFeature(XercesConstants.LOAD_EXTERNAL_DTD_FEATURE, false);
+			dbf.setFeature(XERCES_LOAD_DTD_GRAMMAR_FEATURE, false);
+			dbf.setFeature(XERCES_LOAD_EXTERNAL_DTD_FEATURE, false);
 			DocumentBuilder builder = dbf.newDocumentBuilder();
 			return builder.parse(input(s));
 		});
