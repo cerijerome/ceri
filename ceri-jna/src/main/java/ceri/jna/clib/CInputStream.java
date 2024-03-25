@@ -2,7 +2,6 @@ package ceri.jna.clib;
 
 import java.io.IOException;
 import com.sun.jna.Memory;
-import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CUnistd;
@@ -35,6 +34,6 @@ public class CInputStream extends JnaInputStream {
 
 	@Override
 	protected void ensureOpen() throws CException {
-		if (closed()) throw CException.of(CError.EBADF, "Closed");
+		if (closed()) throw ErrNo.EBADF.error("Closed");
 	}
 }

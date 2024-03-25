@@ -13,12 +13,17 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.CFileDescriptorBehavior.class, //
 	ceri.jna.clib.CInputStreamBehavior.class, //
 	ceri.jna.clib.COutputStreamBehavior.class, //
+	ceri.jna.clib.ErrNoBehavior.class, //
 	ceri.jna.clib.FileDescriptorBehavior.class, //
 	ceri.jna.clib.ModeBehavior.class, //
 	ceri.jna.clib.OpenFlagBehavior.class, //
+	ceri.jna.clib.PipeBehavior.class, //
+	ceri.jna.clib.PollBehavior.class, //
 	ceri.jna.clib.SeekBehavior.class, //
+	ceri.jna.clib.SigSetBehavior.class, //
+	ceri.jna.clib.SignalBehavior.class, //
 	// clib.jna
-	ceri.jna.clib.jna.CErrorBehavior.class, //
+	ceri.jna.clib.jna.CErrNoBehavior.class, //
 	ceri.jna.clib.jna.CExceptionBehavior.class, //
 	ceri.jna.clib.jna.CFcntlTest.class, //
 	ceri.jna.clib.jna.CIoctlTest.class, //

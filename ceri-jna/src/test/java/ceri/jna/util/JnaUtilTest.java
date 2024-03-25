@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import org.junit.Test;
 import com.sun.jna.IntegerType;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -45,12 +46,22 @@ public class JnaUtilTest {
 	}
 
 	@Test
-	public void testCloseable() {
+	public void testCallback() {
 		try (var m = JnaUtil.mallocBytes(1, 2, 3)) {
-			try (var x = JnaUtil.closeable(m)) {
+			try (var x = JnaUtil.callback(m)) {
 				//
 			}
 		}
+	}
+
+	@SuppressWarnings("serial")
+	@Test
+	public void testMessage() {
+		assertEquals(JnaUtil.message(null), "");
+		assertEquals(JnaUtil.message(new LastErrorException(0, null) {}), "");
+		assertEquals(JnaUtil.message(new LastErrorException("")), "");
+		assertEquals(JnaUtil.message(new LastErrorException("test")), "test");
+		assertEquals(JnaUtil.message(new LastErrorException("[100]  test")), "test");
 	}
 
 	@SuppressWarnings("resource")

@@ -10,14 +10,15 @@ public class CallbackTester {
 	private static volatile long lastCallbackMs = 0;
 
 	public static void main(String[] args) throws CException {
-		runWithoutGc(CSignal.SIGINT, 10, 1000, 3000);
-		runWithGc(CSignal.SIGINT, 10, 1000, 3000);
+		int sig = CSignal.SIGUSR1;
+		runWithoutGc(sig, 10, 1000, 3000);
+		runWithGc(sig, 10, 1000, 3000);
 	}
 
 	public static void runWithoutGc(int signal, int n, int delayMs, int timeoutMs)
 		throws CException {
 		System.out.println("Running without gc");
-		try (var x = JnaUtil.closeable(set(signal))) {
+		try (var x = JnaUtil.callback(set(signal))) {
 			exec(signal, n, delayMs, timeoutMs);
 		}
 	}

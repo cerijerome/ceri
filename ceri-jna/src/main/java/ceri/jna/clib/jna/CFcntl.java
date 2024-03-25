@@ -1,5 +1,6 @@
 package ceri.jna.clib.jna;
 
+import static ceri.common.util.BasicUtil.conditionalInt;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.IntUnaryOperator;
@@ -12,10 +13,12 @@ import ceri.jna.clib.OpenFlag;
  */
 public class CFcntl {
 	public static final int INVALID_FD = -1;
+	/* Access modes */
 	public static final int O_RDONLY = 0x0;
 	public static final int O_WRONLY = 0x1;
 	public static final int O_RDWR = 0x2;
-	public static final int O_ACCMODE = 0x3;
+	public static final int O_ACCMODE = 0x3; //mask
+	/* Creation flags */
 	public static final int O_CREAT;
 	public static final int O_EXCL;
 	public static final int O_NOCTTY;
@@ -159,8 +162,8 @@ public class CFcntl {
 			O_NONBLOCK = 0x800;
 			O_DSYNC = 0x1000;
 			O_ASYNC = 0x2000;
-			O_DIRECTORY = 0x4000;
-			O_NOFOLLOW = 0x8000;
+			O_DIRECTORY = conditionalInt(OsUtil.os().arm, 0x4000, 0x10000);
+			O_NOFOLLOW = conditionalInt(OsUtil.os().arm, 0x8000, 0x20000);
 			O_CLOEXEC = 0x80000;
 			O_SYNC = 0x100000 | O_DSYNC;
 		}

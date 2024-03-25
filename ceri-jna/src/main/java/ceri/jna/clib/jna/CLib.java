@@ -58,7 +58,7 @@ public class CLib {
 		Pointer signal(int signum, Pointer handler) throws LastErrorException;
 
 		// int raise(int sig)
-		int raise(int sig) throws LastErrorException;
+		int raise(int sig); // ignore LastErrorException
 
 		// int sigemptyset(sigset_t *set);
 		int sigemptyset(Pointer set) throws LastErrorException;

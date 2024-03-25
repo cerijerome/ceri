@@ -2,9 +2,9 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
-import java.util.stream.IntStream;
 import com.sun.jna.Pointer;
-import ceri.common.collection.StreamUtil;
+import ceri.jna.clib.jna.CSignal.sigset_t;
+import ceri.jna.clib.jna.CTime.timespec;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
@@ -45,49 +45,6 @@ public class CPoll {
 		public pollfd(Pointer p) {
 			super(p);
 		}
-
-		/**
-		 * Initialize the struct with fd and events.
-		 */
-		public pollfd init(int fd, int... events) {
-			this.fd = fd;
-			this.events = (short) StreamUtil.bitwiseOr(IntStream.of(events));
-			this.revents = 0;
-			return this;
-		}
-
-		/**
-		 * Returns true if revents has the given event.
-		 */
-		public boolean hasEvent(int event) {
-			return (revents & event) != 0;
-		}
-
-		/**
-		 * Returns true if revents has any event.
-		 */
-		public boolean hasEvent() {
-			return revents != 0;
-		}
-
-		/**
-		 * Throws an exception if any error conditions occurred on revents.
-		 */
-		public pollfd verify() throws CException {
-			if (hasEvent(POLLERR)) throw CException.general("POLLERR on fd %d", fd);
-			if (hasEvent(POLLHUP)) throw CException.general("POLLHUP on fd %d", fd);
-			if (hasEvent(POLLNVAL)) throw CException.general("POLLNVAL on fd %d", fd);
-			return this;
-		}
-	}
-
-	/**
-	 * Examines a file descriptor to see if it is ready for I/O, or if certain events have occurred.
-	 * Timeout is in milliseconds; a timeout of -1 blocks until an event occurs. Returns the true if
-	 * the descriptor has a returned event.
-	 */
-	public static boolean poll(pollfd fd, int timeoutMs) throws CException {
-		return poll(new pollfd[] { fd }, timeoutMs) == 1;
 	}
 
 	/**
@@ -96,13 +53,42 @@ public class CPoll {
 	 * event occurs. Returns the number of descriptors with returned events.
 	 */
 	public static int poll(pollfd[] fds, int timeoutMs) throws CException {
-		if (fds.length > 0 && !Struct.isByVal(fds))
-			throw CException.full("Array is not contiguous", CError.EINVAL);
-		Struct.write(fds);
-		var p = Struct.pointer(fds);
+		var p = initFds(fds);
 		var nfds = fds.length;
 		int n = caller.verifyInt(() -> lib().poll(p, nfds, timeoutMs), "poll", p, nfds, timeoutMs);
 		if (n > 0) Struct.read(fds, "revents");
 		return n;
+	}
+
+	/**
+	 * Types and calls specific to Linux.
+	 */
+	public static final class Linux {
+		private Linux() {}
+
+		/**
+		 * Examines a set of file descriptors to see if some of them are ready for I/O, if certain
+		 * events have occurred on them, or if the signals from the given set are raised. A null
+		 * timeout blocks until an event occurs. Returns the number of descriptors with returned
+		 * events.
+		 */
+		public static int ppoll(pollfd[] fds, timespec tmo, sigset_t sigmask) throws CException {
+			var p = initFds(fds);
+			var nfds = fds.length;
+			Struct.write(tmo);
+			int n = caller.verifyInt(
+				() -> lib().ppoll(p, nfds, Struct.pointer(tmo), Struct.pointer(sigmask)), "poll", p,
+				nfds, tmo, sigmask);
+			if (n > 0) Struct.read(fds, "revents");
+			return n;
+		}
+	}
+
+	private static Pointer initFds(pollfd[] fds) throws CException {
+		if (fds.length != 0 && !Struct.isByVal(fds))
+			throw CException.full(CErrNo.EINVAL, "Array is not contiguous");
+		for (var fd : fds)
+			fd.revents = 0;
+		return Struct.pointer(Struct.write(fds));
 	}
 }

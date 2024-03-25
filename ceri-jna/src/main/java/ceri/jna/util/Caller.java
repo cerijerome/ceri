@@ -8,14 +8,13 @@ import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.ObjIntFunction;
 
 /**
  * Utility to call C functions and check status codes.
  */
 public class Caller<E extends Exception> {
 	public final JnaArgs args;
-	public final ObjIntFunction<String, E> exceptionFn;
+	public final ToException<E> exceptionFn;
 
 	/**
 	 * Capture the error code or 0 if successful.
@@ -29,16 +28,19 @@ public class Caller<E extends Exception> {
 		}
 	}
 
-	public static <E extends Exception> Caller<E> of(ObjIntFunction<String, E> exceptionFn) {
+	public static interface ToException<E extends Exception> {
+		E apply(int code, String message);
+	}
+
+	public static <E extends Exception> Caller<E> of(ToException<E> exceptionFn) {
 		return of(JnaArgs.DEFAULT, exceptionFn);
 	}
 
-	public static <E extends Exception> Caller<E> of(JnaArgs args,
-		ObjIntFunction<String, E> exceptionFn) {
+	public static <E extends Exception> Caller<E> of(JnaArgs args, ToException<E> exceptionFn) {
 		return new Caller<>(args, exceptionFn);
 	}
 
-	private Caller(JnaArgs args, ObjIntFunction<String, E> exceptionFn) {
+	private Caller(JnaArgs args, ToException<E> exceptionFn) {
 		this.args = args;
 		this.exceptionFn = exceptionFn;
 	}
@@ -136,7 +138,7 @@ public class Caller<E extends Exception> {
 	 * Verify and return int result. Throws an exception on failed status code verification.
 	 */
 	public int verifyInt(int result, IntPredicate verifyFn, String name, Object... args) throws E {
-		if (!verifyFn.test(result)) throw exceptionFn.apply(failMessage(name, args), result);
+		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(name, args));
 		return result;
 	}
 
@@ -188,7 +190,7 @@ public class Caller<E extends Exception> {
 	public int verifyInt(ExceptionIntSupplier<E> fn, IntPredicate verifyFn, Supplier<String> msgFn)
 		throws E {
 		int result = callInt(fn, msgFn);
-		if (!verifyFn.test(result)) throw exceptionFn.apply(failMessage(msgFn), result);
+		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(msgFn));
 		return result;
 	}
 
@@ -227,20 +229,21 @@ public class Caller<E extends Exception> {
 		Supplier<String> msgFn) throws E {
 		R result = callType(fn, msgFn);
 		int status = statusFn.applyAsInt(result);
-		if (status != 0) throw exceptionFn.apply(failMessage(msgFn), status);
+		if (status != 0) throw exceptionFn.apply(status, failMessage(msgFn));
 		return result;
 	}
 
 	private E lastError(LastErrorException e, String message) {
-		return ExceptionUtil
-			.initCause(exceptionFn.apply(e.getMessage() + ": " + message, e.getErrorCode()), e);
+		int code = e.getErrorCode();
+		String lastErrorMsg = JnaUtil.message(e);
+		return ExceptionUtil.initCause(exceptionFn.apply(code, lastErrorMsg + ": " + message), e);
 	}
 
 	private Supplier<String> messageFn(String name, Object... args) {
 		return () -> functionString(name, args);
 	}
 
-	private String failMessage(Supplier<String> msgFn) {
+	private static String failMessage(Supplier<String> msgFn) {
 		return msgFn.get() + " failed";
 	}
 }

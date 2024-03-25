@@ -19,8 +19,6 @@ import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor.Opener;
 import ceri.jna.clib.Mode.Mask;
-import ceri.jna.clib.jna.CError;
-import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.log.test.LogModifier;
@@ -57,11 +55,11 @@ public class CFileDescriptorBehavior {
 	public void testIsBroken() {
 		assertFalse(CFileDescriptor.isBroken(null));
 		assertFalse(CFileDescriptor.isBroken(new IOException("remote i/o")));
-		assertFalse(CFileDescriptor.isBroken(CException.of(-1, "test")));
-		assertFalse(CFileDescriptor.isBroken(CException.of(1, "test")));
-		assertTrue(CFileDescriptor.isBroken(CException.of(CError.ENOENT.code, "test")));
-		assertTrue(CFileDescriptor.isBroken(CException.of(1, "remote i/o")));
-		assertTrue(CFileDescriptor.isBroken(CException.of(-1, "remote i/o")));
+		assertFalse(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("test")));
+		assertFalse(CFileDescriptor.isBroken(ErrNo.EPERM.error("test")));
+		assertTrue(CFileDescriptor.isBroken(ErrNo.ENOENT.error("test")));
+		assertTrue(CFileDescriptor.isBroken(ErrNo.EPERM.error("remote i/o")));
+		assertTrue(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("remote i/o")));
 	}
 
 	@Test
@@ -144,7 +142,7 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldNotThrowExceptionOnClose() {
-		lib.close.error.setFrom(() -> CError.EIO.error());
+		lib.close.error.setFrom(() -> ErrNo.EIO.error());
 		LogModifier.run(fd::close, Level.OFF, LogUtil.class);
 		lib.close.error.clear();
 	}

@@ -3,12 +3,11 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Callback;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.OsUtil;
-import ceri.jna.util.JnaArgs;
 import ceri.jna.util.PointerUtil;
+import ceri.jna.util.Struct;
+import ceri.jna.util.Struct.Fields;
 
 /**
  * Types and functions from {@code <signal.h>}
@@ -112,7 +111,7 @@ public class CSignal {
 	 */
 	public static boolean signal(int signum, int handler) throws CException {
 		if (handler != SIG_DFL && handler != SIG_IGN)
-			throw CException.of(CError.EINVAL, "Only SIG_DFL or SIG_IGN allowed: %d", handler);
+			throw CException.of(CErrNo.EINVAL, "Only SIG_DFL or SIG_IGN allowed: %d", handler);
 		Pointer p = caller.callType(() -> lib().signal(signum, new Pointer(handler)), "signal",
 			signum, handler);
 		return PointerUtil.peer(p) != SIG_ERR;
@@ -128,49 +127,39 @@ public class CSignal {
 	/**
 	 * Represents a sigset_t instance; underlying OS may use an integer type or struct.
 	 */
-	public static class sigset_t {
-		private final Memory memory = new Memory(SIGSET_T_SIZE);
-
-		public Pointer pointer() {
-			return memory;
-		}
-
-		@Override
-		public String toString() {
-			return ReflectUtil.nestedName(getClass()) + JnaArgs.string(memory);
-		}
+	@Fields({ "bytes" })
+	public static class sigset_t extends Struct {
+		public byte[] bytes = new byte[SIGSET_T_SIZE];
 	}
 
 	/**
 	 * Initialize and empty a signal set
 	 */
 	public static sigset_t sigemptyset(sigset_t set) throws CException {
-		caller.verify(() -> lib().sigemptyset(set.pointer()), "sigemptyset", set);
+		caller.verify(() -> lib().sigemptyset(set.getPointer()), "sigemptyset", set);
 		return set;
 	}
 
 	/**
-	 * Add signals to the set.
+	 * Add signal to the set.
 	 */
-	public static void sigaddset(sigset_t set, int... signums) throws CException {
-		for (int signum : signums)
-			caller.verify(() -> lib().sigaddset(set.pointer(), signum), "sigaddset", set, signum);
+	public static void sigaddset(sigset_t set, int signum) throws CException {
+		caller.verify(() -> lib().sigaddset(set.getPointer(), signum), "sigaddset", set, signum);
 	}
 
 	/**
-	 * Delete signals from the set.
+	 * Delete signal from the set.
 	 */
-	public static void sigdelset(sigset_t set, int... signums) throws CException {
-		for (int signum : signums)
-			caller.verify(() -> lib().sigdelset(set.pointer(), signum), "sigdelset", set, signum);
+	public static void sigdelset(sigset_t set, int signum) throws CException {
+		caller.verify(() -> lib().sigdelset(set.getPointer(), signum), "sigdelset", set, signum);
 	}
 
 	/**
 	 * Returns true if the set contains the signal.
 	 */
 	public static boolean sigismember(sigset_t set, int signum) throws CException {
-		return caller.verifyInt(() -> lib().sigismember(set.pointer(), signum), "sigismember", set,
-			signum) == 1;
+		return caller.verifyInt(() -> lib().sigismember(set.getPointer(), signum), "sigismember",
+			set, signum) == 1;
 	}
 
 	/* os-specific initialization */
@@ -204,5 +193,4 @@ public class CSignal {
 			SIGSYS = 31;
 		}
 	}
-
 }

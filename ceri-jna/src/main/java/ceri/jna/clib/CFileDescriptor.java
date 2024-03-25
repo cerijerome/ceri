@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import ceri.common.data.FieldTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.text.RegexUtil;
-import ceri.jna.clib.jna.CError;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CUnistd;
@@ -22,10 +22,11 @@ import ceri.log.util.LogUtil;
  */
 public class CFileDescriptor implements FileDescriptor {
 	private static final Pattern BROKEN_MESSAGE_REGEX = Pattern.compile("(?i)(?:remote i/o)");
-	private static final Set<Integer> BROKEN_ERRORS = CError.codes(CError.ENOENT, CError.EREMOTEIO);
+	private static final Set<Integer> BROKEN_ERRORS = ErrNo.codes(ErrNo.ENOENT, ErrNo.EREMOTEIO);
 	private final int fd;
 	private final CInputStream in;
 	private final COutputStream out;
+	private final FieldTranscoder<IOException, OpenFlag> flags;
 	private volatile boolean closed = false;
 
 	/**
@@ -80,8 +81,9 @@ public class CFileDescriptor implements FileDescriptor {
 	 */
 	public static CFileDescriptor open(String path, Mode mode, Collection<OpenFlag> flags)
 		throws IOException {
-		return new CFileDescriptor(mode == null ? CFcntl.open(path, OpenFlag.encode(flags)) :
-			CFcntl.open(path, OpenFlag.encode(flags), mode.value()));
+		int flagsValue = OpenFlag.xcoder.encodeInt(flags);
+		return new CFileDescriptor(mode == null ? CFcntl.open(path, flagsValue) :
+			CFcntl.open(path, flagsValue, mode.value()));
 	}
 
 	/**
@@ -96,6 +98,7 @@ public class CFileDescriptor implements FileDescriptor {
 		this.fd = fd;
 		in = CInputStream.of(fd);
 		out = COutputStream.of(fd);
+		flags = FileDescriptor.flagField(() -> CFcntl.getFl(fd), flags -> CFcntl.setFl(fd, flags));
 	}
 
 	public int fd() {
@@ -121,6 +124,11 @@ public class CFileDescriptor implements FileDescriptor {
 	@Override
 	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
+	}
+
+	@Override
+	public FieldTranscoder<IOException, OpenFlag> flags() {
+		return flags;
 	}
 
 	@Override

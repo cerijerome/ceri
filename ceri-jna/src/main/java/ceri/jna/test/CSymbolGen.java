@@ -23,7 +23,7 @@ import ceri.common.time.DateUtil;
 
 /**
  * Generates c code to compile and run on a target system, in order to print symbol values and
- * definitions. Useful to determine constant values in JNA code.
+ * definitions. Useful to determine constant values for JNA code.
  */
 public class CSymbolGen {
 	private static final String PLACEHOLDER_PRE = "$$CSYMBOLGEN_PRE$$";
@@ -58,7 +58,7 @@ public class CSymbolGen {
 
 		public FieldFilter excludeRegex(String format, Object... args) {
 			var pattern = RegexUtil.compile(format, args);
-			return add(f -> pattern.matcher(f.getName()).matches());
+			return add(f -> !pattern.matcher(f.getName()).matches());
 		}
 
 		public FieldFilter exclude(String... excludedNames) {
@@ -124,6 +124,13 @@ public class CSymbolGen {
 		public Lines size(String... names) {
 			for (var name : names)
 				add("SIZE(%s);", name);
+			return this;
+		}
+
+		public Lines fsize(String type, String... fields) {
+			size(type);
+			for (var field : fields)
+				add("FSIZE(%s,%s);", type, field);
 			return this;
 		}
 

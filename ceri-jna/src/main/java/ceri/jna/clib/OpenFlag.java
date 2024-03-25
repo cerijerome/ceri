@@ -1,22 +1,19 @@
 package ceri.jna.clib;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
+import ceri.common.collection.EnumUtil;
+import ceri.common.collection.StreamUtil;
+import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 import ceri.jna.clib.jna.CFcntl;
 
 /**
- * Flags for CLib open() and specific fcntl() calls, usually defined in fcntl.h.
- * <p/>
- * Warning: numbers vary by specific OS, and are verified only for Mac, Raspberry Pi.
+ * Flags for CLib open() and specific CFcntl() calls.
  */
 public enum OpenFlag {
 	O_RDONLY(CFcntl.O_RDONLY),
 	O_WRONLY(CFcntl.O_WRONLY),
 	O_RDWR(CFcntl.O_RDWR),
-	O_ACCMODE(CFcntl.O_ACCMODE),
 	O_CREAT(CFcntl.O_CREAT),
 	O_EXCL(CFcntl.O_EXCL),
 	O_NOCTTY(CFcntl.O_NOCTTY),
@@ -28,29 +25,22 @@ public enum OpenFlag {
 	O_NOFOLLOW(CFcntl.O_NOFOLLOW),
 	O_CLOEXEC(CFcntl.O_CLOEXEC);
 
-	private static final int NO_RDONLY_MASK = O_WRONLY.value | O_RDWR.value;
-	private static final TypeTranscoder<OpenFlag> xcoder = TypeTranscoder.of(t -> t.value, OpenFlag.class);
+	public static final TypeTranscoder<OpenFlag> xcoder = new TypeTranscoder<>(t -> t.value,
+		MaskTranscoder.NULL, EnumUtil.enums(OpenFlag.class), StreamUtil.mergeError()) {
+		@Override
+		public Remainder<OpenFlag> decodeWithRemainder(long value) {
+			var rem = super.decodeWithRemainder(value);
+			if ((value & CFcntl.O_ACCMODE) != 0) rem.types().remove(O_RDONLY);
+			return rem;
+		}
+	};
 	public final int value;
 
-	public static int encode(OpenFlag... flags) {
-		return encode(Arrays.asList(flags));
-	}
-
-	public static int encode(Collection<OpenFlag> flags) {
-		return xcoder.encodeInt(flags);
-	}
-
-	public static Set<OpenFlag> decode(int flags) {
-		Set<OpenFlag> set = xcoder.decodeAll(flags);
-		if ((flags & NO_RDONLY_MASK) != 0) set.remove(O_RDONLY);
-		return set;
-	}
-
 	public static String string(int value) {
-		return StringUtil.join("|", decode(value));
+		return StringUtil.join("|", xcoder.decodeAll(value));
 	}
 
-	OpenFlag(int value) {
+	private OpenFlag(int value) {
 		this.value = value;
 	}
 }

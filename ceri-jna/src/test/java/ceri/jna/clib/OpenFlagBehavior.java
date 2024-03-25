@@ -13,14 +13,14 @@ public class OpenFlagBehavior {
 
 	@Test
 	public void shouldEncodeFlags() {
-		assertEquals(OpenFlag.encode(O_CREAT, O_TRUNC), O_CREAT.value | O_TRUNC.value);
-		assertEquals(OpenFlag.encode(O_RDONLY), 0);
+		assertEquals(OpenFlag.xcoder.encodeInt(O_CREAT, O_TRUNC), O_CREAT.value | O_TRUNC.value);
+		assertEquals(OpenFlag.xcoder.encodeInt(O_RDONLY), 0);
 	}
 
 	@Test
 	public void shouldDecodeFlags() {
-		assertCollection(OpenFlag.decode(3), O_WRONLY, O_RDWR);
-		assertCollection(OpenFlag.decode(0), O_RDONLY);
+		assertCollection(OpenFlag.xcoder.decodeAll(3), O_WRONLY, O_RDWR);
+		assertCollection(OpenFlag.xcoder.decodeAll(0), O_RDONLY);
 	}
 
 	@Test

@@ -66,8 +66,8 @@ public class UnionField {
 	/**
 	 * Accessor for an int field.
 	 */
-	public static <U extends Union> ValueField.Typed<U> of(String name,
-		ValueField.Typed<U> accessor) {
+	public static <U extends Union> ValueField.Typed<RuntimeException, U> of(String name,
+		ValueField.Typed<RuntimeException, U> accessor) {
 		return ValueField.Typed.of(accessor.getFn, (u, i) -> {
 			u.setType(name); // only needed for setter
 			accessor.set(u, i);
@@ -77,8 +77,8 @@ public class UnionField {
 	/**
 	 * Accessor for an int field.
 	 */
-	public static <U extends Union> ValueField.Typed<U> of(Class<?> cls,
-		ValueField.Typed<U> accessor) {
+	public static <U extends Union> ValueField.Typed<RuntimeException, U> of(Class<?> cls,
+		ValueField.Typed<RuntimeException, U> accessor) {
 		return ValueField.Typed.of(accessor.getFn, (u, i) -> {
 			u.setType(cls); // only needed for setter
 			accessor.set(u, i);

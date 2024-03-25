@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
@@ -21,10 +22,11 @@ import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
+import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
-import ceri.jna.clib.jna.CError;
-import ceri.jna.clib.jna.CException;
+import ceri.jna.clib.OpenFlag;
+import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.clib.test.TestFileDescriptor;
@@ -149,12 +151,39 @@ public class SelfHealingFdBehavior {
 	}
 
 	@Test
+	public void shouldGetDelegateFlags() throws IOException {
+		try (var fd0 = TestFileDescriptor.of(33); var fd1 = TestFileDescriptor.of(33)) {
+			fd0.flags.accept(0x11);
+			fd1.flags.accept(0x22);
+			open = CallSync.supplier(fd0, fd1);
+			var config = SelfHealingFd.Config.builder(() -> open.get(IO_ADAPTER))
+				.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
+			shf = SelfHealingFd.of(config);
+			var flags = shf.flags();
+			shf.open();
+			open.awaitAuto(); // fd0
+			assertEquals(flags.field().getInt(), 0x11);
+			shf.broken();
+			open.awaitAuto(); // fd1
+			assertEquals(flags.field().getInt(), 0x22);
+		}
+	}
+
+	@Test
+	public void shouldSetDelegateFlags() throws IOException {
+		init();
+		shf.open();
+		shf.flags().set(OpenFlag.O_RDWR, OpenFlag.O_APPEND);
+		assertEquals(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
+	}
+
+	@Test
 	public void shouldCheckCallIfBroken() throws IOException {
 		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
-		assertThrown(() -> shf.accept(fd -> throwCException(CError.ENOENT))); // now broken
-		assertThrown(() -> shf.accept(fd -> throwCException(CError.ENOENT))); // still broken
+		assertThrown(() -> shf.accept(fd -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
+		assertThrown(() -> shf.accept(fd -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
 		open.await(fd); // re-open
 		assertThrown(() -> shf.accept(fd -> throwRuntime())); // not broken
 	}
@@ -172,10 +201,6 @@ public class SelfHealingFdBehavior {
 			open.await(fd); // success
 			shf.close();
 		}, Level.OFF, SelfHealing.class);
-	}
-
-	private void throwCException(CError error) throws CException {
-		throw CException.full("test", error);
 	}
 
 	private void init() {

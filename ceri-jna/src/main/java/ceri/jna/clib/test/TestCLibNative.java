@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -12,13 +13,16 @@ import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
+import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.CallSync;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
-import ceri.jna.clib.jna.CError;
+import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
@@ -47,7 +51,7 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Function<LseekArgs, Integer> lseek = CallSync.function(null, 0);
 	public final CallSync.Function<SignalArgs, Pointer> signal =
 		CallSync.function(null, Pointer.NULL);
-	public final CallSync.Function<SigsetArgs, Integer> sigset = CallSync.function(null, 0);
+	public final CallSync.Function<Integer, Integer> sigset = CallSync.function(null, 0);
 	public final CallSync.Function<Integer, Integer> raise = CallSync.function(null, 0);
 	public final CallSync.Function<PollArgs, Integer> poll = CallSync.function(null, 0);
 	public final CallSync.Function<CtlArgs, Integer> ioctl = CallSync.function(null, 0);
@@ -90,20 +94,16 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	/**
-	 * Arguments for sigset calls.
-	 */
-	public static record SigsetArgs(Pointer sigset, Boolean add, Integer signum) {}
-
-	/**
 	 * Arguments for poll calls.
 	 */
-	public static record PollArgs(List<pollfd> pollfds, Duration timeout, Pointer sigset) {
-		public static PollArgs of(int timeoutMs, pollfd... pollfds) {
+	public static record PollArgs(List<pollfd> pollfds, Duration timeout, Set<Integer> signals) {
+		public static PollArgs of(pollfd[] pollfds, int timeoutMs) {
 			return new PollArgs(List.of(pollfds), Duration.ofMillis(timeoutMs), null);
 		}
 
-		public static PollArgs of(long timeoutNs, Pointer sigset, pollfd... pollfds) {
-			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs), sigset);
+		public static PollArgs of(pollfd[] pollfds, long timeoutNs, int... signals) {
+			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs),
+				ImmutableUtil.intSet(signals));
 		}
 
 		/**
@@ -119,7 +119,7 @@ public class TestCLibNative implements CLib.Native {
 		public int write() {
 			int count = 0;
 			for (var pollfd : pollfds())
-				if (Struct.write(pollfd).hasEvent()) count++;
+				if (Struct.write(pollfd).revents != 0) count++;
 			return count;
 		}
 	}
@@ -313,28 +313,31 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int sigemptyset(Pointer set) throws LastErrorException {
-		return sigset.apply(new SigsetArgs(set, null, null));
+		return sigset(set, 0);
 	}
 
 	@Override
 	public int sigaddset(Pointer set, int signum) throws LastErrorException {
-		return sigset.apply(new SigsetArgs(set, true, signum));
+		return sigset(set, ByteUtil.applyBitInt(set.getInt(0), signum, true));
 	}
 
 	@Override
 	public int sigdelset(Pointer set, int signum) throws LastErrorException {
-		return sigset.apply(new SigsetArgs(set, false, signum));
+		return sigset(set, ByteUtil.applyBitInt(set.getInt(0), signum, false));
 	}
 
 	@Override
 	public int sigismember(Pointer set, int signum) throws LastErrorException {
-		return sigset.apply(new SigsetArgs(set, null, signum));
+		int mask = set.getInt(0);
+		int result = sigset.apply(mask);
+		if (result == 0) return ByteUtil.bit(mask, signum) ? 1 : 0;
+		return result;
 	}
 
 	@Override
 	public int poll(Pointer fds, int nfds, int timeout) throws LastErrorException {
 		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
-		return poll.apply(PollArgs.of(timeout, array));
+		return poll.apply(PollArgs.of(array, timeout));
 	}
 
 	@Override
@@ -342,8 +345,13 @@ public class TestCLibNative implements CLib.Native {
 		throws LastErrorException {
 		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
 		var tmo = Struct.read(new CTime.timespec(tmo_p));
-		var d = Duration.ofSeconds(tmo.tv_sec.longValue(), tmo.tv_sec.longValue());
-		return poll.apply(PollArgs.of(d.toNanos(), sigmask, array));
+		var d = Duration.ofSeconds(tmo.tv_sec.longValue(), tmo.tv_nsec.longValue());
+		return poll.apply(PollArgs.of(array, d.toNanos(), signals(sigmask)));
+	}
+
+	private static int[] signals(Pointer sigmask) {
+		if (sigmask == null) return ArrayUtil.EMPTY_INT;
+		return ByteUtil.bits(sigmask.getInt(0));
 	}
 
 	@Override
@@ -428,16 +436,18 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	public int fd(int fd) {
-		return fd(fd, CError.EBADF);
-	}
-
-	protected int fd(int fd, CError error) {
-		return fd(fd, error.code);
+		return fd(fd, CErrNo.EBADF);
 	}
 
 	protected int fd(int fd, int errorCode) {
 		if (fds.containsKey(fd)) return fd;
 		throw new LastErrorException(errorCode);
+	}
+
+	private int sigset(Pointer set, int mask) throws LastErrorException {
+		int result = sigset.apply(mask);
+		if (result == 0) set.setInt(0, mask);
+		return result;
 	}
 
 	private int createFd(OpenArgs open) {

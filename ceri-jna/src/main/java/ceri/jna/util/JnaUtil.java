@@ -9,8 +9,10 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -27,6 +29,7 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 
 public class JnaUtil {
+	private static final Pattern LAST_ERROR_REGEX = Pattern.compile("^\\[\\d+\\]\\s+");
 	private static final int MEMCPY_OPTIMAL_MIN_SIZE = 8 * 1024; // determined from test results
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
 
@@ -45,10 +48,20 @@ public class JnaUtil {
 	/**
 	 * Returns a closeable resource to prevent gc. Use for objects referenced in async callbacks.
 	 */
-	public static RuntimeCloseable closeable(Object callback) {
+	public static RuntimeCloseable callback(Object callback) {
 		return () -> Reference.reachabilityFence(callback);
 	}
 
+	/**
+	 * Extracts the message without error code from the exception.
+	 */
+	public static String message(LastErrorException e) {
+		if (e == null) return "";
+		String message = e.getMessage();
+		if (message == null) return "";
+		return LAST_ERROR_REGEX.matcher(e.getMessage()).replaceFirst("").trim();
+	}
+	
 	/**
 	 * Allocates new memory, or returns null if size is 0.
 	 */

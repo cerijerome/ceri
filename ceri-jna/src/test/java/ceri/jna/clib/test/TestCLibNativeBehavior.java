@@ -10,6 +10,7 @@ import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class TestCLibNativeBehavior {
 		exerciseRecord(new LseekArgs(111, 222, 333));
 		exerciseRecord(new SignalArgs(111, new Pointer(1)));
 		assertAssertion(() -> new SignalArgs(111, null));
-		exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Pointer.NULL));
+		exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
 		exerciseRecord(new TcArgs("test", 0, List.of()));
 		exerciseRecord(new CfArgs("test", null, List.of()));
 	}

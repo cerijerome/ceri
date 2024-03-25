@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import ceri.common.data.FieldTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
@@ -22,6 +23,7 @@ import ceri.log.io.SelfHealingConnector;
 public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	implements FileDescriptor.Fixable {
 	private final Config config;
+	private final FieldTranscoder<IOException, OpenFlag> flags;
 
 	public static class Config {
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
@@ -95,6 +97,7 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	private SelfHealingFd(Config config) {
 		super(config.selfHealing);
 		this.config = config;
+		flags = FileDescriptor.flagField(this::flagValue, this::flagValue);
 	}
 
 	@Override
@@ -108,7 +111,20 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	}
 
 	@Override
+	public FieldTranscoder<IOException, OpenFlag> flags() {
+		return flags;
+	}
+
+	@Override
 	protected FileDescriptor openConnector() throws IOException {
 		return config.open();
+	}
+
+	private int flagValue() throws IOException {
+		return device.applyValid(fd -> fd.flags().field().getInt());
+	}
+
+	private void flagValue(int value) throws IOException {
+		device.acceptValid(fd -> fd.flags().field().set(value));
 	}
 }

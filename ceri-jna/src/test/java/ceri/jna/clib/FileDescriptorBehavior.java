@@ -1,5 +1,6 @@
 package ceri.jna.clib;
 
+import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
@@ -18,6 +19,8 @@ public class FileDescriptorBehavior {
 		}), null);
 		assertEquals(FileDescriptor.NULL.in().read(), 0);
 		FileDescriptor.NULL.out().write(0);
+		FileDescriptor.NULL.flags().set(OpenFlag.O_NONBLOCK);
+		assertCollection(FileDescriptor.NULL.flags().getAll(), OpenFlag.O_RDONLY);
 		FileDescriptor.NULL.close();
 		captor.verifyInt(); // no calls
 	}

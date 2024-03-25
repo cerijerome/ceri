@@ -2,10 +2,10 @@ package ceri.jna.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRange;
-import java.time.Duration;
-import java.time.Instant;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.time.TimeSpec;
+import ceri.jna.clib.jna.CTime.timespec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
 
@@ -13,43 +13,33 @@ public class CTimeTest {
 
 	@Test
 	public void testGetTimeOfDay() {
-		timeval t = CTime.gettimeofday();
-		assertTimevalNow(t);
+		var t0 = TimeSpec.now().totalMillis();
+		var t = CTime.gettimeofday().time().totalMillis();
+		assertRange(t, t0, t0 + 1000);
 	}
 
 	@Test
 	public void testSetTimeOfDay() {
 		CTime.gettimeofday(null);
-		timeval t = new timeval();
-		CTime.gettimeofday(t);
-		assertTimevalNow(t);
+		var t0 = TimeSpec.now().totalMillis();
+		var t = CTime.gettimeofday(new timeval()).time().totalMillis();
+		assertRange(t, t0, t0 + 1000);
 	}
 
 	@Test
-	public void shouldCreateFromPointer() {
-		Pointer p = Struct.write(new timeval().set(1234, 56789)).getPointer();
+	public void shouldCreateTimevalFromPointer() {
+		Pointer p = Struct.write(new timeval().time(TimeSpec.ofMicros(1234, 56789))).getPointer();
 		var t = Struct.read(new timeval(p));
 		assertTimeval(t, 1234, 56789);
+		assertEquals(t.time(), TimeSpec.ofMicros(1234, 56789));
 	}
 
 	@Test
-	public void shouldSetFromTimeval() {
-		var t0 = new timeval().set(100, 23456789);
-		var t = new timeval().set(t0);
-		assertTimeval(t, 123, 456789);
-	}
-
-	@Test
-	public void shouldNormalize() {
-		assertTimeval(new timeval().set(100, 23456), 100, 23456);
-		assertTimeval(new timeval().set(100, 23456789), 123, 456789);
-	}
-
-	@Test
-	public void shouldConvertToDuration() {
-		var t = timeval.from(Duration.ofSeconds(1234, 123456789));
-		assertTimeval(t, 1234, 123457);
-		assertEquals(t.duration(), Duration.ofSeconds(1234, 123457000));
+	public void shouldCreateTimespecFromPointer() {
+		Pointer p = Struct.write(new timespec().time(new TimeSpec(1234, 56789))).getPointer();
+		var t = Struct.read(new timespec(p));
+		assertTimespec(t, 1234, 56789);
+		assertEquals(t.time(), new TimeSpec(1234, 56789));
 	}
 
 	private void assertTimeval(timeval t, long sec, long usec) {
@@ -57,8 +47,8 @@ public class CTimeTest {
 		assertEquals(t.tv_usec.longValue(), usec);
 	}
 
-	private void assertTimevalNow(timeval t) {
-		long s = Duration.between(t.instant(), Instant.now()).getSeconds();
-		assertRange(s, 0, 1);
+	private void assertTimespec(timespec t, long sec, long usec) {
+		assertEquals(t.tv_sec.longValue(), sec);
+		assertEquals(t.tv_nsec.longValue(), usec);
 	}
 }

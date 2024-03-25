@@ -5,14 +5,12 @@ import java.util.function.IntConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 
+@SuppressWarnings("serial")
 public class CException extends IOException {
-	private static final long serialVersionUID = -1L;
 	private static final int GENERAL_ERROR_CODE = -1;
-	public final CError error;
 	public final int code;
 
 	public static class Runtime extends RuntimeException {
-		private static final long serialVersionUID = -1L;
 		public final int code;
 
 		private Runtime(CException e) {
@@ -48,17 +46,10 @@ public class CException extends IOException {
 	}
 
 	/**
-	 * Create exception formatted message.
-	 */
-	public static CException of(CError error, String format, Object... args) {
-		return new CException(StringUtil.format(format, args), code(error), error);
-	}
-
-	/**
-	 * Create exception formatted message.
+	 * Create exception with formatted message.
 	 */
 	public static CException of(int code, String format, Object... args) {
-		return new CException(StringUtil.format(format, args), code, CError.from(code));
+		return new CException(code, StringUtil.format(format, args));
 	}
 
 	/**
@@ -69,27 +60,14 @@ public class CException extends IOException {
 	}
 
 	/**
-	 * Create exception adding the error code to the message.
+	 * Create exception with code prefix and formatted message.
 	 */
-	public static CException full(String message, int code) {
-		return full(message, code, CError.from(code));
+	public static CException full(int code, String format, Object... args) {
+		return new CException(code, "[" + code + "] " + StringUtil.format(format, args));
 	}
 
-	/**
-	 * Create exception adding the error code to the message.
-	 */
-	public static CException full(String message, CError error) {
-		return full(message, code(error), error);
-	}
-
-	private static CException full(String message, int code, CError error) {
-		return new CException(error == null ? String.format("%s: %d", message, code)
-			: String.format("%s: %d (%s)", message, code, error), code, error);
-	}
-
-	protected CException(String message, int code, CError error) {
+	protected CException(int code, String message) {
 		super(message);
-		this.error = error;
 		this.code = code;
 	}
 
@@ -98,9 +76,5 @@ public class CException extends IOException {
 	 */
 	public CException.Runtime runtime() {
 		return new CException.Runtime(this);
-	}
-
-	private static int code(CError error) {
-		return error != null ? error.code : GENERAL_ERROR_CODE;
 	}
 }

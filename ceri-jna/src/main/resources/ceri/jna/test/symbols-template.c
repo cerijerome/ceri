@@ -16,6 +16,7 @@ $$CSYMBOLGEN_PRE$$
 #define SYM(x) print_symbol(#x,STR(x))
 #define SYMI(x) print_symbol_i(#x,STR(x),x)
 #define SIZE(x) print_symbol_i("sizeof("#x")","",sizeof(x))
+#define FSIZE(t,f) print_symbol_i("sizeof("#t"."#f")","",(sizeof(((t*)0)->f)))
 #define VERIFY(x) verify_int((x),STR(x))
 
 #define FMT_DEC		0x001
@@ -34,16 +35,20 @@ void print_symbol(const char *name, const char *symbol) {
 	if (strlen(symbol) == 0) printf("<defined>");
 	else if (strcmp(name, symbol) == 0) printf("<undefined?>");
 	else printf("%s", symbol);
-	printf("\n");
+	printf(";\n");
 }
 
 void format_sizeof(const char *name, int isymbol) {
-	int len = strlen(name) - 8;
-	strncpy(uname, name + 7, len);
-	for (int i = 0; i < len; i++)
-		uname[i] = toupper(uname[i]);
-	uname[len] = 0;
-	printf("%s_SIZE = %d; // %s", uname, isymbol, name);
+    int offset = 7; // sizeof(
+    if (strncmp(name + offset, "struct ", 7) == 0) offset += 7;
+    int len = strlen(name + offset) - 1;
+    strncpy(uname, name + offset, len);
+    for (int i = 0; i < len; i++) {
+        uname[i] = toupper(uname[i]);
+        if (uname[i] == '.') uname[i] = '_';
+    }
+    uname[len] = 0;
+    printf("%s_SIZE = %d; // %s", uname, isymbol, name);
 }
 
 void format_symbol_i(const char *name, const char *symbol, int isymbol) {
@@ -58,7 +63,7 @@ void print_symbol_i(const char *name, const char *symbol, int isymbol) {
 	if (format & FMT_JAVA) printf("public static final int ");
 	if ((format & FMT_JAVA) && strncmp(name, "sizeof(", 7) == 0) format_sizeof(name, isymbol);
 	else format_symbol_i(name, symbol, isymbol);
-	printf("\n");
+	printf(";\n");
 }
 
 int verify_int(int r, const char *s) {

@@ -16,13 +16,16 @@ import ceri.jna.util.JnaUtil;
  */
 public class CUnistd {
 	private static final Set<Integer> NONBLOCK_ERRORS =
-		CError.codes(CError.EAGAIN, CError.EWOULDBLOCK, CError.EINTR);
+		CErrNo.codes(CErrNo.EAGAIN, CErrNo.EWOULDBLOCK, CErrNo.EINTR);
 	public static final int STDIN_FILENO = 0;
 	public static final int STDOUT_FILENO = 1;
 	public static final int STDERR_FILENO = 2;
 	/* Constants from <stdio.h> */
+	/** From start of file. */
 	public static final int SEEK_SET = 0;
+	/** From current position. */
 	public static final int SEEK_CUR = 1;
+	/** From end of file. */
 	public static final int SEEK_END = 2;
 
 	private CUnistd() {}

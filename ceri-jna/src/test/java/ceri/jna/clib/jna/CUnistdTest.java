@@ -19,6 +19,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.test.FileTestHelper;
+import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.OpenFlag;
 import ceri.jna.clib.Seek;
 import ceri.jna.clib.test.TestCLibNative;
@@ -123,7 +124,7 @@ public class CUnistdTest {
 	public void testReadNothingOnNonBlockError() throws IOException {
 		TestCLibNative.exec(lib -> {
 			int fd = CFcntl.open("test", 0);
-			lib.read.error.setFrom(CError.EAGAIN::error);
+			lib.read.error.setFrom(ErrNo.EAGAIN::lastError);
 			assertEquals(CUnistd.read(fd, new byte[3]), 0);
 		});
 	}
@@ -194,7 +195,7 @@ public class CUnistdTest {
 	public void testWriteNothingOnNonBlockError() throws IOException {
 		TestCLibNative.exec(lib -> {
 			int fd = CFcntl.open("test", 0);
-			lib.write.error.setFrom(CError.EAGAIN::error);
+			lib.write.error.setFrom(ErrNo.EAGAIN::lastError);
 			assertEquals(CUnistd.write(fd, new byte[3]), 0);
 		});
 	}
@@ -289,7 +290,7 @@ public class CUnistdTest {
 	private static <E extends Exception> void execWrite(String file, ExceptionIntConsumer<E> tester)
 		throws IOException, E {
 		Path path = helper.path(file);
-		int fd = CFcntl.open(path.toString(), OpenFlag.encode(O_CREAT, O_RDWR), 0666);
+		int fd = CFcntl.open(path.toString(), OpenFlag.xcoder.encodeInt(O_CREAT, O_RDWR), 0666);
 		try {
 			tester.accept(fd);
 		} finally {
