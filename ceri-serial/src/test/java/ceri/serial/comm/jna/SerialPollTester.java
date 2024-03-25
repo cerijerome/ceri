@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.TestUtil;
-import ceri.jna.clib.jna.CPoll;
+import ceri.jna.clib.Poll;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.util.SyncPipe;
 import ceri.log.test.LogModifier;
@@ -27,32 +27,34 @@ public class SerialPollTester {
 	public static void main(String[] args) throws Exception {
 		var port = SerialTestUtil.usbPorts(2);
 		int baud = 250000;
-		try (var poll = SyncPipe.poll(1);
-			var p = SerialTestUtil.execFd(port[0], baud, fd -> runPoll(poll, fd));
-			var w = SerialTestUtil.execFd(port[1], baud, fd -> runWrite(poll, fd))) {
+		Poll poll = Poll.of(2);
+		try (var pipe = SyncPipe.of(poll.fd(0));
+			var p = SerialTestUtil.execFd(port[0], baud, fd -> runPoll(poll, pipe, fd));
+			var w = SerialTestUtil.execFd(port[1], baud, fd -> runWrite(pipe, fd))) {
 			w.get();
 			p.get();
 		}
 		logger.info("done");
 	}
 
-	private static void runPoll(SyncPipe.Poll poll, int fd) throws IOException {
+	private static void runPoll(Poll poll, SyncPipe pipe, int fd) throws IOException {
 		SerialTestUtil.clear(fd);
-		poll.get(0).init(fd, CPoll.POLLIN);
+		poll.fd(1).fd(fd).request(Poll.Event.POLLIN);
 		logger.info("poll: start");
 		for (int i = 0; i < CYCLES; i++) {
 			var n = poll.poll(10000);
-			logger.info("poll: %s revents[0]=0x%x", n, poll.get(0).revents);
+			logger.info("poll: %s revents[0]=0x%x", n, poll.fd(1).revents());
+			pipe.clear();
 			SerialTestUtil.clear(fd);
 		}
 	}
 
-	private static void runWrite(SyncPipe.Poll poll, int fd) throws IOException {
+	private static void runWrite(SyncPipe pipe, int fd) throws IOException {
 		for (int i = 0; i < CYCLES; i++) {
 			ConcurrentUtil.delay(CYCLE_MS);
 			if (TestUtil.randomBool()) {
 				logger.info(">>> signal");
-				poll.signal();
+				pipe.signal();
 			} else {
 				logger.info(">>> write");
 				CUnistd.write(fd, 0);

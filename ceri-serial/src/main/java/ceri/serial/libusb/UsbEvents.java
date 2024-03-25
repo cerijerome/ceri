@@ -11,6 +11,7 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.time.TimeSpec;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
@@ -101,7 +102,7 @@ public class UsbEvents {
 	}
 
 	public Duration nextTimeout() throws LibUsbException {
-		return LibUsb.libusb_get_next_timeout(context()).duration();
+		return LibUsb.libusb_get_next_timeout(context()).time().toDuration();
 	}
 
 	public void handle() throws LibUsbException {
@@ -114,20 +115,20 @@ public class UsbEvents {
 	}
 
 	public void handleLocked(Duration d) throws LibUsbException {
-		LibUsb.libusb_handle_events_locked(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_handle_events_locked(context(), time(d));
 	}
 
 	public void handleTimeout(Duration d) throws LibUsbException {
-		LibUsb.libusb_handle_events_timeout(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_handle_events_timeout(context(), time(d));
 	}
 
 	public int handleTimeoutCompleted(Duration d, Completed completed) throws LibUsbException {
-		return LibUsb.libusb_handle_events_timeout_completed(context(),
-			Struct.write(timeval.from(d)), completed == null ? null : completed.completed);
+		return LibUsb.libusb_handle_events_timeout_completed(context(), time(d),
+			completed == null ? null : completed.completed);
 	}
 
 	public void await(Duration d) throws LibUsbException {
-		LibUsb.libusb_wait_for_event(context(), Struct.write(timeval.from(d)));
+		LibUsb.libusb_wait_for_event(context(), time(d));
 	}
 
 	public List<PollFd> pollFds() throws LibUsbException {
@@ -176,4 +177,7 @@ public class UsbEvents {
 		return usb.context();
 	}
 
+	private static timeval time(Duration d) {
+		return Struct.write(new timeval().time(TimeSpec.from(d)));
+	}
 }

@@ -39,12 +39,14 @@ public class SerialVminTester {
 
 	private static void runPoll(int fd, int vmin, int vtime) throws IOException {
 		SerialTestUtil.clear(fd);
-		var pfd = new CPoll.pollfd().init(fd, CPoll.POLLIN);
+		var pfds = CPoll.pollfd.array(1);
+		pfds[0].fd = fd;
+		pfds[0].events = CPoll.POLLIN;
 		CSerial.setReadParams(fd, vmin, vtime);
 		ConcurrentUtil.delay(100);
 		logger.info("poll: start");
-		var b = CPoll.poll(pfd, 20000);
-		logger.info("poll: %s revents=0x%x", b, pfd.revents);
+		var b = CPoll.poll(pfds, 20000);
+		logger.info("poll: %s revents=0x%x", b, pfds[0].revents);
 	}
 
 	private static void runAvailable(int fd, int vmin, int vtime) throws IOException {

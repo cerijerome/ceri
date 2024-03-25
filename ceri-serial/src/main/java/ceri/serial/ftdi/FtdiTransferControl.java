@@ -1,6 +1,7 @@
 package ceri.serial.ftdi;
 
 import java.time.Duration;
+import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
 import ceri.serial.ftdi.jna.LibFtdi;
@@ -33,7 +34,8 @@ public interface FtdiTransferControl {
 
 			@Override
 			public void dataCancel(Duration d) throws LibUsbException {
-				LibFtdi.ftdi_transfer_data_cancel(control, Struct.write(timeval.from(d)));
+				var timeval = new timeval().time(TimeSpec.from(d));
+				LibFtdi.ftdi_transfer_data_cancel(control, Struct.write(timeval));
 			}
 		};
 	}

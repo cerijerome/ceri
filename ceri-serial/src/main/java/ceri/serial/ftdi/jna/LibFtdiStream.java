@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.time.DateUtil;
+import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.Struct;
@@ -263,7 +264,8 @@ public class LibFtdiStream {
 	}
 
 	private static timeval timeout(ftdi_context ftdi) {
-		return Struct.write(new timeval().set(0, ftdi.usb_read_timeout * 1000));
+		var t = TimeSpec.ofMillis(0, ftdi.usb_read_timeout).normalize();
+		return Struct.write(new timeval().time(t));
 	}
 
 	private static double secDiff(Instant instant1, Instant instant2) {

@@ -19,44 +19,38 @@ public class LibUsbException extends CException {
 	 * Create exception without adding the error code to the message.
 	 */
 	public static LibUsbException of(libusb_error error, String format, Object... args) {
-		return new LibUsbException(StringUtil.format(format, args), code(error), error);
+		return new LibUsbException(error, code(error), StringUtil.format(format, args));
 	}
 
 	/**
 	 * Create exception adding the error code to the message.
 	 */
-	public static LibUsbException full(String message, int code) {
-		return full(message, code, error(code));
+	public static LibUsbException full(int code, String format, Object... args) {
+		var error = LibUsb.libusb_error.xcoder.decode(code);
+		return new LibUsbException(error, code, format(error, code, format, args));
 	}
 
 	/**
 	 * Create exception adding the error code to the message.
 	 */
-	public static LibUsbException full(String message, libusb_error error) {
-		return full(message, code(error), error);
+	public static LibUsbException full(libusb_error error, String format, Object... args) {
+		var code = code(error);
+		return new LibUsbException(error, code, format(error, code, format, args));
 	}
 
-	private static LibUsbException full(String message, int code, libusb_error error) {
-		return new LibUsbException(format(message, code, error), code, error);
-	}
-
-	protected LibUsbException(String message, int code, libusb_error error) {
-		super(message, code, null);
+	protected LibUsbException(libusb_error error, int code, String message) {
+		super(code, message);
 		this.error = error;
-	}
-
-	private static libusb_error error(int code) {
-		return LibUsb.libusb_error.xcoder.decode(code);
 	}
 
 	private static int code(libusb_error error) {
 		return error != null ? error.value : libusb_error.LIBUSB_ERROR_OTHER.value;
 	}
 
-	private static String format(String message, int code, libusb_error error) {
-		return String.format("%s: %s", message, error == null ? code : error);
+	private static String format(libusb_error error, int code, String message, Object... args) {
+		return "[" + (error == null ? code : error) + "] " + StringUtil.format(message, args);
 	}
-	
+
 	private static LibUsbException adapt(Throwable e) {
 		var error = libusb_error.LIBUSB_ERROR_OTHER;
 		String message = e.getMessage();

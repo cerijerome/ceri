@@ -28,10 +28,10 @@ public class LibFtdiUtilTest {
 		assertEquals(LibFtdiUtil.isError(null, LIBUSB_ERROR_IO), false);
 		assertEquals(LibFtdiUtil.isError(new RuntimeException(), LIBUSB_ERROR_IO), false);
 		assertEquals(
-			LibFtdiUtil.isError(LibUsbException.full("test", LIBUSB_ERROR_IO), LIBUSB_ERROR_IO),
+			LibFtdiUtil.isError(LibUsbException.full(LIBUSB_ERROR_IO, "test"), LIBUSB_ERROR_IO),
 			true);
 		assertEquals(
-			LibFtdiUtil.isError(LibUsbException.full("test", LIBUSB_ERROR_BUSY), LIBUSB_ERROR_IO),
+			LibFtdiUtil.isError(LibUsbException.full(LIBUSB_ERROR_BUSY, "test"), LIBUSB_ERROR_IO),
 			false);
 	}
 

@@ -17,7 +17,7 @@ public class LibUsbNotFoundException extends LibUsbException {
 	}
 
 	private LibUsbNotFoundException(String message) {
-		super(message, LIBUSB_ERROR_NOT_FOUND.value, LIBUSB_ERROR_NOT_FOUND);
+		super(LIBUSB_ERROR_NOT_FOUND, LIBUSB_ERROR_NOT_FOUND.value, message);
 	}
 
 }

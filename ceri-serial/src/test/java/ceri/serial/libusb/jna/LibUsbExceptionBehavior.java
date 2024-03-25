@@ -9,8 +9,8 @@ public class LibUsbExceptionBehavior {
 
 	@Test
 	public void shouldAllowNullError() {
-		var e = LibUsbException.full("fail", (libusb_error) null);
-		assertThrowable(e, "fail: -99");
+		var e = LibUsbException.full((libusb_error) null, "fail");
+		assertThrowable(e, "\\Q[-99] fail\\E");
 	}
 
 	@Test

@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Set;
 import ceri.jna.clib.CInputStream;
 import ceri.jna.clib.COutputStream;
-import ceri.jna.clib.jna.CError;
+import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
@@ -20,7 +20,7 @@ import ceri.serial.comm.jna.CSerial;
  */
 public class SerialPort implements Serial {
 	private static final Set<Integer> BROKEN_ERROR_CODES =
-		CError.codes(CError.ENOENT, CError.ENXIO, CError.EBADF, CError.EACCES, CError.ENODEV);
+		ErrNo.codes(ErrNo.ENOENT, ErrNo.ENXIO, ErrNo.EBADF, ErrNo.EACCES, ErrNo.ENODEV);
 	private final int fd;
 	private final String port;
 	private final CInputStream in;

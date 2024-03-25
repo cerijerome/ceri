@@ -24,7 +24,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSF
 import static ceri.serial.libusb.jna.LibUsb.libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.nio.ByteBuffer;
-import java.time.Duration;
 import java.util.List;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Pointer;
@@ -33,6 +32,7 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
+import ceri.common.time.TimeSpec;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Caller;
@@ -675,8 +675,11 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	@Override
 	public int libusb_get_next_timeout(libusb_context ctx, Pointer tv) {
-		return Caller
-			.capture(() -> Struct.write(new timeval(tv).set(Duration.ofMillis(generalSync.get()))));
+		return Caller.capture(() -> {
+			var t = TimeSpec.ofMillis(0, generalSync.get()).normalize();
+			Struct.write(new timeval(tv).time(t));
+		});
+
 	}
 
 	@Override
@@ -827,17 +830,14 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	private void handleTransferEvents(Context context) {
 		for (var transfer : data.transfers()) {
-			if (!transfer.submitted)
-				continue;
+			if (!transfer.submitted) continue;
 			var t = transfer.transfer();
-			if (handle(t.dev_handle).device.deviceList.context != context)
-				continue;
+			if (handle(t.dev_handle).device.deviceList.context != context) continue;
 			if (t.status == 0) {
 				ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
 				var status = handleTransferEvent
 					.apply(new TransferEvent(ubyte(t.endpoint), t.type(), buffer));
-				if (status == null)
-					continue; // no event
+				if (status == null) continue; // no event
 				t.status = status.value;
 				t.actual_length = buffer.position();
 				Struct.write(t);
@@ -863,5 +863,4 @@ public class TestLibUsbNative implements LibUsbNative {
 						if (ep.bEndpointAddress == endpoint) return ep;
 		return null;
 	}
-
 }

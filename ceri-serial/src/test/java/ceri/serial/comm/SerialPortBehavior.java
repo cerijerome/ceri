@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
-import ceri.jna.clib.jna.CError;
+import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.test.TestCLibNative;
@@ -36,11 +36,11 @@ public class SerialPortBehavior {
 		assertFalse(SerialPort.isFatal(null));
 		assertFalse(SerialPort.isFatal(new IOException()));
 		assertFalse(SerialPort.isFatal(CException.general("test")));
-		assertTrue(SerialPort.isFatal(CException.of(CError.ENOENT, "test")));
-		assertTrue(SerialPort.isFatal(CException.of(CError.ENXIO, "test")));
-		assertTrue(SerialPort.isFatal(CException.of(CError.EBADF, "test")));
-		assertTrue(SerialPort.isFatal(CException.of(CError.EACCES, "test")));
-		assertTrue(SerialPort.isFatal(CException.of(CError.ENODEV, "test")));
+		assertTrue(SerialPort.isFatal(ErrNo.ENOENT.error("test")));
+		assertTrue(SerialPort.isFatal(ErrNo.ENXIO.error("test")));
+		assertTrue(SerialPort.isFatal(ErrNo.EBADF.error("test")));
+		assertTrue(SerialPort.isFatal(ErrNo.EACCES.error("test")));
+		assertTrue(SerialPort.isFatal(ErrNo.ENODEV.error("test")));
 	}
 
 	@Test
