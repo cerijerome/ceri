@@ -7,6 +7,7 @@ import java.time.Instant;
  * A time interval of seconds and nanoseconds. A created instance is not automatically normalized.
  */
 public record TimeSpec(long seconds, long nanos) {
+	public static TimeSpec ZERO = new TimeSpec(0, 0);
 	private static final long USEC_NSEC = 1000L;
 	private static final long MSEC_NSEC = 1000000L;
 	private static final long SEC_MSEC = 1000L;

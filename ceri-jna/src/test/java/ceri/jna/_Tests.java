@@ -35,6 +35,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.jna.CTimeTest.class, //
 	ceri.jna.clib.jna.CUnistdTest.class, //
 	// clib.test
+	ceri.jna.clib.test.CLibVerifierBehavior.class, //
 	ceri.jna.clib.test.TestCLibNativeBehavior.class, //
 	ceri.jna.clib.test.TestFileDescriptorBehavior.class, //
 	// clib.util
