@@ -259,7 +259,7 @@ public class CollectionUtil {
 	/**
 	 * Converts a collection to a map by index.
 	 */
-	public static <T> Map<Integer, T> toIndexMap(Collection<T> collection) {
+	public static <T> Map<Integer, T> toIndexMap(Iterable<T> collection) {
 		return toIndexMap(mapSupplier(), collection);
 	}
 
@@ -267,7 +267,7 @@ public class CollectionUtil {
 	 * Converts a collection to a map by index.
 	 */
 	public static <T> Map<Integer, T> toIndexMap(Supplier<Map<Integer, T>> mapSupplier,
-		Collection<T> collection) {
+		Iterable<T> collection) {
 		return toIndexMap((t, i) -> t, mapSupplier, collection);
 	}
 
@@ -275,7 +275,7 @@ public class CollectionUtil {
 	 * Converts a collection to a map by index.
 	 */
 	public static <V, T> Map<Integer, V>
-		toIndexMap(ObjIntFunction<? super T, ? extends V> valueMapper, Collection<T> collection) {
+		toIndexMap(ObjIntFunction<? super T, ? extends V> valueMapper, Iterable<T> collection) {
 		return toIndexMap(valueMapper, mapSupplier(), collection);
 	}
 
@@ -284,7 +284,7 @@ public class CollectionUtil {
 	 */
 	public static <V, T> Map<Integer, V> toIndexMap(
 		ObjIntFunction<? super T, ? extends V> valueMapper, Supplier<Map<Integer, V>> mapSupplier,
-		Collection<T> collection) {
+		Iterable<T> collection) {
 		var map = mapSupplier.get();
 		var iter = collection.iterator();
 		for (int i = 0; iter.hasNext(); i++)
@@ -432,6 +432,26 @@ public class CollectionUtil {
 	public static <T> List<T> reverse(List<T> ts) {
 		Collections.reverse(ts);
 		return ts;
+	}
+
+	/**
+	 * Collects objects using the given collection supplier.
+	 */
+	public static <T, C extends Collection<T>> C collect(Iterable<? extends T> iterable,
+		Supplier<C> supplier) {
+		var collection = supplier.get();
+		iterable.forEach(collection::add);
+		return collection;
+	}
+
+	/**
+	 * Collects objects using the given collection supplier.
+	 */
+	public static <T, C extends Collection<T>> C collect(Stream<? extends T> stream,
+		Supplier<C> supplier) {
+		var collection = supplier.get();
+		stream.forEach(collection::add);
+		return collection;
 	}
 
 	/**

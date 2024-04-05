@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.test.Captor;
 
@@ -272,6 +274,12 @@ public class CollectionUtilTest {
 		assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
 		Number[] numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
 		assertCollection(numbers, 1, 2, 3);
+	}
+
+	@Test
+	public void testCollectStream() {
+		var set = CollectionUtil.collect(Stream.of("3", "1", "2"), TreeSet::new);
+		assertIterable(set, "1", "2", "3");
 	}
 
 	@Test

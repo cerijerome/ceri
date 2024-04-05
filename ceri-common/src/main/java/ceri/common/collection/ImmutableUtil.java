@@ -324,6 +324,34 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Collects a objects into an immutable LinkedHashSet.
+	 */
+	public static <T> Set<T> collectAsSet(Iterable<? extends T> iterable) {
+		return collectAsSet(iterable, setSupplier());
+	}
+
+	/**
+	 * Collects a objects into an immutable set.
+	 */
+	public static <T> Set<T> collectAsSet(Iterable<? extends T> iterable, Supplier<Set<T>> supplier) {
+		return Collections.unmodifiableSet(CollectionUtil.collect(iterable, supplier));
+	}
+
+	/**
+	 * Collects a objects into an immutable ArrayList.
+	 */
+	public static <T> List<T> collectAsList(Iterable<? extends T> iterable) {
+		return collectAsList(iterable, listSupplier());
+	}
+
+	/**
+	 * Collects a objects into an immutable list.
+	 */
+	public static <T> List<T> collectAsList(Iterable<? extends T> iterable, Supplier<List<T>> supplier) {
+		return Collections.unmodifiableList(CollectionUtil.collect(iterable, supplier));
+	}
+
+	/**
 	 * Collects a stream of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {

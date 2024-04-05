@@ -1,4 +1,4 @@
-package ceri.jna.test;
+package ceri.jna.clib.test;
 
 import static java.lang.reflect.AccessFlag.FINAL;
 import static java.lang.reflect.AccessFlag.STATIC;

@@ -110,6 +110,13 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldDecodeValueWithDefault() {
+		assertEquals(xcoder.decode(0, E.c), E.c);
+		assertEquals(xcoder.decode(3, E.b), E.b);
+		assertEquals(xcoder.decode(2, E.a), E.b);
+	}
+
+	@Test
 	public void shouldDecodeOverlappingValues() {
 		var array = Dup.values();
 		var xcoder = TypeTranscoder.of(t -> t.value, MaskTranscoder.NULL, Arrays.asList(array),

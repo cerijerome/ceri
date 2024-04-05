@@ -36,6 +36,14 @@ public interface FileDescriptor extends Connector {
 	FieldTranscoder<IOException, OpenFlag> flags();
 
 	/**
+	 * Set blocking or non-blocking mode.
+	 */
+	default void blocking(boolean enabled) throws IOException {
+		if (enabled) flags().remove(OpenFlag.O_NONBLOCK);
+		else flags().add(OpenFlag.O_NONBLOCK);
+	}
+	
+	/**
 	 * A file descriptor that is state-aware, with state change notifications.
 	 */
 	interface Fixable extends FileDescriptor, Connector.Fixable {}

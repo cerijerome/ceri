@@ -85,8 +85,7 @@ public class CPoll {
 	}
 
 	private static Pointer initFds(pollfd[] fds) throws CException {
-		if (fds.length != 0 && !Struct.isByVal(fds))
-			throw CException.full(CErrNo.EINVAL, "Array is not contiguous");
+		CUtil.requireContiguous(fds);
 		for (var fd : fds)
 			fd.revents = 0;
 		return Struct.pointer(Struct.write(fds));

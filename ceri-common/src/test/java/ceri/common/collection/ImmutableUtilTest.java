@@ -447,21 +447,35 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testCollectAsList() {
+	public void testCollectIterableAsList() {
+		List<String> list = ImmutableUtil.collectAsList(Arrays.asList("1", "2", "3", "4", "5"));
+		assertEquals(list, Arrays.asList("1", "2", "3", "4", "5"));
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testCollectIterableAsSet() {
+		Set<String> set = ImmutableUtil.collectAsSet(Arrays.asList("1", "2", "3", "4", "5"));
+		assertEquals(set, asSet("1", "2", "3", "4", "5"));
+		assertImmutableCollection(set);
+	}
+
+	@Test
+	public void testCollectStreamAsList() {
 		List<String> list = ImmutableUtil.collectAsList(Stream.of("1", "2", "3", "4", "5"));
 		assertEquals(list, Arrays.asList("1", "2", "3", "4", "5"));
 		assertImmutableList(list);
 	}
 
 	@Test
-	public void testCollectAsSet() {
+	public void testCollectStreamAsSet() {
 		Set<String> set = ImmutableUtil.collectAsSet(Stream.of("1", "2", "3", "4", "5"));
 		assertEquals(set, asSet("1", "2", "3", "4", "5"));
 		assertImmutableCollection(set);
 	}
 
 	@Test
-	public void testCollectAsNavigableSet() {
+	public void testCollectStreamAsNavigableSet() {
 		NavigableSet<String> set =
 			ImmutableUtil.collectAsNavigableSet(Stream.of("4", "1", "3", "5", "2"));
 		assertEquals(set, asSet("1", "2", "3", "4", "5"));

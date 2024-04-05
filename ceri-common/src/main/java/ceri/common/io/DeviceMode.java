@@ -1,13 +1,28 @@
 package ceri.common.io;
 
+import ceri.common.data.TypeTranscoder;
+import ceri.common.util.BasicUtil;
+
 /**
  * General mode for device construction or state.
  */
 public enum DeviceMode {
-	/** Create the standard device / device state is enabled. */
-	enabled,
 	/** Use a disabled or no-op device / device state is disabled. */
-	disabled,
+	disabled(0),
+	/** Create the standard device / device state is enabled. */
+	enabled(1),
 	/** Use a test device or emulator / device is in test mode. */
-	test;
+	test(2);
+
+	public static final TypeTranscoder<DeviceMode> xcoder =
+		TypeTranscoder.of(t -> t.value, DeviceMode.class);
+	public final int value;
+
+	public static DeviceMode from(Boolean isEnabled) {
+		return BasicUtil.conditional(isEnabled, enabled, disabled, test);
+	}
+
+	private DeviceMode(int value) {
+		this.value = value;
+	}
 }

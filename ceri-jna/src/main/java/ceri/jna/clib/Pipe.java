@@ -1,6 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.jna.clib.OpenFlag.O_NONBLOCK;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,13 +24,8 @@ public class Pipe implements Connector, RuntimeCloseable {
 	}
 
 	public void blocking(boolean enabled) throws IOException {
-		if (enabled) {
-			read.flags().remove(O_NONBLOCK);
-			write.flags().remove(O_NONBLOCK);
-		} else {
-			read.flags().add(O_NONBLOCK);
-			write.flags().add(O_NONBLOCK);
-		}
+		read.blocking(enabled);
+		write.blocking(enabled);
 	}
 
 	@Override

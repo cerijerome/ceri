@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import ceri.common.data.TypeTranscoder;
+import ceri.common.util.BasicUtil;
 
 /**
  * Event type for a connection/device state change.
@@ -15,8 +16,7 @@ public enum StateChange {
 	public final int value;
 
 	public static StateChange from(Boolean isFixed) {
-		if (isFixed == null) return none;
-		return isFixed ? fixed : broken;
+		return BasicUtil.conditional(isFixed, fixed, broken, none);
 	}
 
 	private StateChange(int value) {

@@ -1,4 +1,4 @@
-package ceri.jna.test;
+package ceri.jna.clib.test;
 
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNotFound;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.Test;
 import ceri.common.test.FileTestHelper;
-import ceri.jna.test.CSymbolGen.Arch;
+import ceri.jna.clib.test.CSymbolGen.Arch;
 
 public class CSymbolGenBehavior {
 

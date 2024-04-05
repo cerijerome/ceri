@@ -11,6 +11,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import ceri.common.collection.StreamUtil;
+import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -188,6 +189,13 @@ public class TypeTranscoder<T> {
 	 */
 	public T decode(long value) {
 		return lookup.get(mask.decode(value));
+	}
+
+	/**
+	 * Decode the value to return a single type. Returns default if not found.
+	 */
+	public T decode(long value, T def) {
+		return BasicUtil.defaultValue(decode(value), def);
 	}
 
 	/**

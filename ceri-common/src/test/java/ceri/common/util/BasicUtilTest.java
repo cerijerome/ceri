@@ -32,6 +32,14 @@ public class BasicUtilTest {
 	}
 
 	@Test
+	public void testConditionalGetWithNull() {
+		assertEquals(BasicUtil.conditionalGet(null, () -> "T", () -> "F", () -> null), null);
+		assertEquals(BasicUtil.conditionalGet(true, () -> "T", () -> "F", () -> null), "T");
+		assertEquals(BasicUtil.conditionalGet(false, () -> "T", () -> "F", () -> null), "F");
+		assertEquals(BasicUtil.conditionalGet(null, () -> "T", () -> "F", null), null);
+	}
+	
+	@Test
 	public void testConditional() {
 		assertEquals(BasicUtil.conditional(true, "a", "b"), "a");
 		assertEquals(BasicUtil.conditional(false, "a", "b"), "b");

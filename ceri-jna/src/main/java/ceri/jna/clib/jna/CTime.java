@@ -25,6 +25,10 @@ public class CTime {
 		public NativeLong tv_sec = JnaUtil.nlong(0); // time_t
 		public NativeLong tv_usec = JnaUtil.nlong(0); // suseconds_t
 
+		public static timeval of(TimeSpec time) {
+			return time == null ? null : new timeval().time(time);
+		}
+		
 		public timeval() {}
 
 		public timeval(Pointer p) {
@@ -62,6 +66,10 @@ public class CTime {
 		public NativeLong tv_sec = JnaUtil.nlong(0); // time_t
 		public NativeLong tv_nsec = JnaUtil.nlong(0); // usually long / long long
 
+		public static timespec of(TimeSpec time) {
+			return time == null ? null : new timespec().time(time);
+		}
+		
 		public timespec() {}
 
 		public timespec(Pointer p) {

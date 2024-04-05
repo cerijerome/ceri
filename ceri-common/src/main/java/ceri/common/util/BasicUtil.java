@@ -50,7 +50,7 @@ public class BasicUtil {
 	 */
 	public static <E extends Exception, T> T conditionalGet(boolean condition,
 		ExceptionSupplier<E, T> trueSupplier) throws E {
-		return conditionalGet(condition, trueSupplier, () -> null);
+		return conditionalGet(condition, trueSupplier, null);
 	}
 
 	/**
@@ -58,7 +58,25 @@ public class BasicUtil {
 	 */
 	public static <E extends Exception, T> T conditionalGet(boolean condition,
 		ExceptionSupplier<E, T> trueSupplier, ExceptionSupplier<E, T> falseSupplier) throws E {
-		return condition ? trueSupplier.get() : falseSupplier.get();
+		var supplier = conditional(condition, trueSupplier, falseSupplier);
+		return supplier == null ? null : supplier.get();
+	}
+
+	/**
+	 * Supplies a value based on condition, which may be null.
+	 */
+	public static <E extends Exception, T> T conditionalGet(Boolean condition,
+		ExceptionSupplier<E, T> trueSupplier, ExceptionSupplier<E, T> falseSupplier,
+		ExceptionSupplier<E, T> nullSupplier) throws E {
+		var supplier = conditional(condition, trueSupplier, falseSupplier, nullSupplier);
+		return supplier == null ? null : supplier.get();
+	}
+
+	/**
+	 * Returns a value based on condition, which may be null.
+	 */
+	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
+		return condition == null ? nullValue : conditional(condition, trueValue, falseValue);
 	}
 
 	/**

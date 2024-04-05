@@ -10,8 +10,7 @@ import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.jna.CStdlib;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.jna.test.CSymbolGen;
-import ceri.jna.test.CSymbolGen.Arch;
+import ceri.jna.clib.test.CSymbolGen.Arch;
 
 /**
  * Generates c code to print CLib constants on target system.
