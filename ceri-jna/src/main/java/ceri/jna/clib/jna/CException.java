@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.function.IntConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
+import ceri.jna.clib.ErrNo;
 
 @SuppressWarnings("serial")
 public class CException extends IOException {
@@ -63,7 +64,10 @@ public class CException extends IOException {
 	 * Create exception with code prefix and formatted message.
 	 */
 	public static CException full(int code, String format, Object... args) {
-		return new CException(code, "[" + code + "] " + StringUtil.format(format, args));
+		var message = StringUtil.format(format, args);
+		var errNo = ErrNo.from(code);
+		return new CException(code,
+			"[" + code + "] " + (errNo.defined() ? errNo + " " : "") + message);
 	}
 
 	protected CException(int code, String message) {

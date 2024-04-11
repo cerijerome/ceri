@@ -236,7 +236,8 @@ public class Caller<E extends Exception> {
 	private E lastError(LastErrorException e, String message) {
 		int code = e.getErrorCode();
 		String lastErrorMsg = JnaUtil.message(e);
-		return ExceptionUtil.initCause(exceptionFn.apply(code, lastErrorMsg + ": " + message), e);
+		if (!lastErrorMsg.isEmpty()) message = lastErrorMsg + ": " + message;
+		return ExceptionUtil.initCause(exceptionFn.apply(code, message), e);
 	}
 
 	private Supplier<String> messageFn(String name, Object... args) {

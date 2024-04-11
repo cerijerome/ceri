@@ -13,6 +13,7 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
@@ -187,6 +188,17 @@ public class JnaTestUtil {
 			m[i] = JnaUtil.calloc(MathUtil.random(min, max));
 		System.gc();
 		return m;
+	}
+
+	/**
+	 * Copies pointer data to the struct, applies the consumer, then copies the struct back to the
+	 * pointer. Useful for testing when a struct doesn't provide a pointer constructor.
+	 */
+	public static <E extends Exception, T extends Structure> void handleStructRef(Pointer p,
+		T struct, ExceptionConsumer<E, T> consumer) throws E {
+		Struct.copyFrom(p, struct);
+		consumer.accept(struct);
+		Struct.copyTo(struct, p);
 	}
 
 	/**

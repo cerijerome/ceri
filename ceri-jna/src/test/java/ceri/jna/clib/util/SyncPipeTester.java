@@ -45,7 +45,7 @@ public class SyncPipeTester {
 		logger.info("[%d] poll complete", i);
 	}
 
-	private static void runClose(SyncPipe pipe) throws IOException {
+	private static void runClose(SyncPipe.Fixed pipe) throws IOException {
 		ConcurrentUtil.delay(DELAY_MS * THREADS / 2);
 		logger.info("signal");
 		pipe.signal();

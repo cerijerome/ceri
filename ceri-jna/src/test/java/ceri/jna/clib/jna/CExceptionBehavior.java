@@ -36,7 +36,8 @@ public class CExceptionBehavior {
 	@Test
 	public void shouldCreateFromError() {
 		assertThrowable(CException.full(-1, "test"), "\\Q[-1] test\\E");
-		assertThrowable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] test\\E", CErrNo.E2BIG);
+		assertThrowable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] E2BIG test\\E",
+			CErrNo.E2BIG);
 	}
 
 	@Test
@@ -44,7 +45,7 @@ public class CExceptionBehavior {
 		try {
 			throw CException.full(CErrNo.EACCES, "test").runtime();
 		} catch (RuntimeException e) {
-			assertThrowable(e, "\\Q[%d] test\\E", CErrNo.EACCES);
+			assertThrowable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
 		}
 	}
 

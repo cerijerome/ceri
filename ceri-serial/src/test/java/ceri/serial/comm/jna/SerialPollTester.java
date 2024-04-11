@@ -37,7 +37,7 @@ public class SerialPollTester {
 		logger.info("done");
 	}
 
-	private static void runPoll(Poll poll, SyncPipe pipe, int fd) throws IOException {
+	private static void runPoll(Poll poll, SyncPipe.Fixed pipe, int fd) throws IOException {
 		SerialTestUtil.clear(fd);
 		poll.fd(1).fd(fd).request(Poll.Event.POLLIN);
 		logger.info("poll: start");
@@ -49,7 +49,7 @@ public class SerialPollTester {
 		}
 	}
 
-	private static void runWrite(SyncPipe pipe, int fd) throws IOException {
+	private static void runWrite(SyncPipe.Fixed pipe, int fd) throws IOException {
 		for (int i = 0; i < CYCLES; i++) {
 			ConcurrentUtil.delay(CYCLE_MS);
 			if (TestUtil.randomBool()) {

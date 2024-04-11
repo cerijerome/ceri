@@ -5,13 +5,19 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.jna.clib.Poll.Error.POLLNVAL;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import static ceri.jna.clib.Poll.Event.POLLOUT;
+import static ceri.jna.test.JnaTestUtil.LINUX_OS;
+import static ceri.jna.test.JnaTestUtil.MAC_OS;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.time.TimeSpec;
+import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.test.JnaTestUtil;
 import ceri.log.util.LogUtil;
 
 public class PollBehavior {
@@ -23,6 +29,15 @@ public class PollBehavior {
 		LogUtil.close(pipe);
 		pipe = null;
 		poll = null;
+	}
+
+	@Test
+	public void shouldCreateForSingleFd() throws IOException {
+		pipe = Pipe.of();
+		var poll = Poll.of(pipe.read, Poll.Event.POLLIN);
+		writeToPipe(0);
+		assertEquals(poll.poll(1000), 1);
+		assertTrue(poll.fd(0).has(POLLIN));
 	}
 
 	@Test
@@ -65,6 +80,27 @@ public class PollBehavior {
 		pipe = null;
 		assertEquals(poll.poll(), 2);
 		assertThrown(IOException.class, ".*POLLNVAL.*", () -> poll.validate());
+	}
+
+	@Test
+	public void shouldNotPollWithSigsetOnMac() throws IOException {
+		initPipe();
+		JnaTestUtil.testAsOs(MAC_OS, () -> {
+			assertUnsupported(() -> poll.poll(SigSet.of(Signal.SIGINT)));
+		});
+	}
+
+	@Test
+	public void shouldPollWithSigsetOnLinux() throws IOException {
+		initPipe();
+		JnaTestUtil.testAsOs(LINUX_OS, () -> {
+			try (var enc = TestCLibNative.register()) {
+				var lib = enc.ref;
+				lib.poll.autoResponses(1, 2);
+				assertEquals(poll.poll(SigSet.of(Signal.SIGINT)), 1);
+				assertEquals(poll.poll(TimeSpec.ZERO, SigSet.of(Signal.SIGINT)), 2);
+			}
+		});
 	}
 
 	@SuppressWarnings("resource")

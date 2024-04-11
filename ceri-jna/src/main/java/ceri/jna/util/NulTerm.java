@@ -83,7 +83,7 @@ public class NulTerm {
 	 * bytes written.
 	 */
 	public static int write(String s, Charset charset, byte[] dest) {
-		if (dest.length == 0) return 0;
+		if (s == null || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int len = Math.min(src.length, dest.length - 1);
 		ArrayUtil.copy(src, 0, dest, 0, len);

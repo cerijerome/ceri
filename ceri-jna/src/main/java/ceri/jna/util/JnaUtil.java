@@ -29,7 +29,8 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 
 public class JnaUtil {
-	private static final Pattern LAST_ERROR_REGEX = Pattern.compile("^\\[\\d+\\]\\s+");
+	private static final Pattern LAST_ERROR_REGEX =
+		Pattern.compile("^(?:\\[\\d+\\]|errno was \\d+)\\s*");
 	private static final int MEMCPY_OPTIMAL_MIN_SIZE = 8 * 1024; // determined from test results
 	public static final Charset DEFAULT_CHARSET = defaultCharset();
 
@@ -53,15 +54,17 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Extracts the message without error code from the exception.
+	 * Extracts the message without error code from the exception. Returns empty string if the
+	 * message is just the number.
 	 */
 	public static String message(LastErrorException e) {
 		if (e == null) return "";
 		String message = e.getMessage();
 		if (message == null) return "";
+		// if (message == null || LAST_ERROR_PLAIN_MSG_REGEX.matcher(message).matches()) return "";
 		return LAST_ERROR_REGEX.matcher(e.getMessage()).replaceFirst("").trim();
 	}
-	
+
 	/**
 	 * Allocates new memory, or returns null if size is 0.
 	 */

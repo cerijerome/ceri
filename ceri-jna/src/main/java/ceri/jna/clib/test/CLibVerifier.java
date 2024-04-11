@@ -190,7 +190,7 @@ public class CLibVerifier {
 
 	private static Path serialPath(String path) throws IOException {
 		if (!StringUtil.blank(path)) return Path.of(path);
-		return IoUtil.list(Path.of("/dev/"), "regex:tty\\.(usb|USB).*").stream().findFirst()
+		return IoUtil.list(Path.of("/dev/"), "regex:tty.*(usb|USB).*").stream().findFirst()
 			.orElse(null);
 	}
 

@@ -2,6 +2,7 @@ package ceri.jna.test;
 
 import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertByte;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
@@ -9,8 +10,10 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
+import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.JnaUtil;
+import ceri.jna.util.Struct;
 
 public class JnaTestUtilTest {
 
@@ -80,6 +83,16 @@ public class JnaTestUtilTest {
 	@Test
 	public void testWorkMemory() {
 		JnaTestUtil.workMemory(3, 8, 16);
+	}
+
+	@Test
+	public void testHandleStructRef() {
+		TestStruct t0 = new TestStruct(0x1111, null, 1, 2, 3);
+		JnaTestUtil.handleStructRef(Struct.write(t0).getPointer(), new TestStruct(), t -> {
+			JnaTestData.assertStruct(t, 0x1111, null, 1, 2, 3);
+			t.i = 0x2222;
+		});
+		assertEquals(Struct.read(t0).i, 0x2222);
 	}
 
 }

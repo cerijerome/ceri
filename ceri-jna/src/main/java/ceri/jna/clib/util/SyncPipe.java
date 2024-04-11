@@ -10,33 +10,76 @@ import ceri.jna.clib.Poll;
 import ceri.log.util.LogUtil;
 
 /**
- * A pipe used to interrupt a blocking C poll().
+ * A pipe used to interrupt a blocking C poll(). Can be applied to multiple poll fds.
  */
 public class SyncPipe implements RuntimeCloseable {
 	private final AtomicBoolean sync = new AtomicBoolean();
 	private final Pipe pipe;
-	private final Poll.Fd pollFd;
 	private volatile boolean closed;
 
+	/**
+	 * Creates a sync pipe that can be used for multiple poll fds.
+	 */
 	@SuppressWarnings("resource")
-	public static SyncPipe of(Poll.Fd pollFd) throws IOException {
+	public static SyncPipe of() throws IOException {
 		return LogUtil.applyOrClose(Pipe.of(), pipe -> {
 			pipe.blocking(false);
-			pollFd.fd(pipe.read).request(POLLIN);
-			return new SyncPipe(pipe, pollFd);
+			return new SyncPipe(pipe);
 		});
 	}
 
-	private SyncPipe(Pipe pipe, Poll.Fd pollFd) {
-		this.pipe = pipe;
-		this.pollFd = pollFd;
+	/**
+	 * Creates a sync pipe fixed to the poll fd.
+	 */
+	@SuppressWarnings("resource")
+	public static SyncPipe.Fixed of(Poll.Fd pollFd) throws IOException {
+		return LogUtil.applyOrClose(of(), sync -> {
+			sync.init(pollFd);
+			return new Fixed(sync, pollFd);
+		});
 	}
 
 	/**
-	 * Throws an exception for any error event on the read fd, returns true on POLLIN.
+	 * A pipe used for a single poll fd.
 	 */
-	public boolean verifyPoll() throws IOException {
-		return pollFd.validate().has(POLLIN);
+	public static class Fixed implements RuntimeCloseable {
+		private final SyncPipe pipe;
+		private final Poll.Fd pollFd;
+
+		private Fixed(SyncPipe pipe, Poll.Fd pollFd) {
+			this.pipe = pipe;
+			this.pollFd = pollFd;
+		}
+
+		/**
+		 * Write a token to the pipe to interrupt any waiting poll.
+		 */
+		public boolean signal() throws IOException {
+			return pipe.signal();
+		}
+
+		/**
+		 * Throws an exception for any error event on the read fd, returns true on POLLIN.
+		 */
+		public boolean verifyPoll() throws IOException {
+			return pollFd.validate().has(POLLIN);
+		}
+
+		/**
+		 * Clear any tokens written to the pipe.
+		 */
+		public void clear() throws IOException {
+			pipe.clear();
+		}
+
+		@Override
+		public void close() {
+			pipe.close();
+		}
+	}
+
+	private SyncPipe(Pipe pipe) {
+		this.pipe = pipe;
 	}
 
 	/**
@@ -51,6 +94,13 @@ public class SyncPipe implements RuntimeCloseable {
 			sync.set(false);
 			throw e;
 		}
+	}
+
+	/**
+	 * Initialize a poll fd with the pip's read fd and POLLIN.
+	 */
+	public void init(Poll.Fd pollFd) throws IOException {
+		pollFd.fd(pipe.read).request(POLLIN);
 	}
 
 	/**
