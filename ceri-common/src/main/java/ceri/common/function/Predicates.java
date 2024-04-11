@@ -90,8 +90,9 @@ public class Predicates {
 	 * Combines filters to return true if any filter matches.
 	 */
 	@SafeVarargs
-	public static <T> Predicate<T> any(final Predicate<T>... filters) {
-		return any(Arrays.asList(filters));
+	public static <T> Predicate<T> any(final Predicate<? super T>... filters) {
+		var list = Arrays.asList(filters);
+		return any(list);
 	}
 
 	/**
@@ -99,7 +100,8 @@ public class Predicates {
 	 */
 	@SafeVarargs
 	public static <T> Predicate<T> all(final Predicate<? super T>... filters) {
-		return all(Arrays.asList(filters));
+		var list = Arrays.asList(filters);
+		return all(list);
 	}
 
 	/**
