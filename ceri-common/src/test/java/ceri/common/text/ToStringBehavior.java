@@ -7,9 +7,19 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 import org.junit.Test;
 
 public class ToStringBehavior {
+
+	private static record Rec(int i, String s, Map<String, Double> map) {}
+
+	@Test
+	public void shouldConvertRecordFormat() {
+		assertEquals(ToString.forRecord(null), "null");
+		var r = new Rec(123, "test = , 1, 2", new TreeMap<>(Map.of("1, 0", 1.0, "2, 0", 2.0)));
+		assertEquals(ToString.forRecord(r), "Rec(123,test = , 1, 2,{1, 0=1.0, 2, 0=2.0})");
+	}
 
 	@Test
 	public void shouldUseClassNameIfSpecified() {

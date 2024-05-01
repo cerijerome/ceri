@@ -6,9 +6,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRange;
 import java.awt.Color;
 import ceri.common.text.AnsiEscape;
+import ceri.common.text.AnsiEscape.Sgr;
 
 public class ColorTestUtil {
-	public static final String sgrReset = AnsiEscape.csi.sgr().reset().toString();
 	public static final int white = Colors.white.argb;
 
 	private ColorTestUtil() {}
@@ -131,7 +131,7 @@ public class ColorTestUtil {
 		var b = new StringBuilder();
 		for (int argb : argbs)
 			b.append(sgr(argb, bg)).append(space);
-		return b.append(sgrReset).toString();
+		return b.append(Sgr.reset).toString();
 	}
 
 	public static String sgr(int argb) {

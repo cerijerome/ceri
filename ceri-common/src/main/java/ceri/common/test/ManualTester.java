@@ -36,6 +36,7 @@ import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.AnsiEscape;
+import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
@@ -610,7 +611,7 @@ public class ManualTester implements RuntimeCloseable {
 	}
 
 	private String promptNoColor() {
-		return promptColor == null ? "" : AnsiEscape.csi.sgr().reset().toString();
+		return promptColor == null ? "" : Sgr.reset;
 	}
 
 	private String readInput() {

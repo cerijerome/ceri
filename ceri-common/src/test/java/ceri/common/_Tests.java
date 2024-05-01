@@ -317,6 +317,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.SplitterBehavior.class, //
 	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringUtilTest.class, //
+	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextUtilTest.class, //
 	ceri.common.text.ToStringBehavior.class, //
 	ceri.common.text.Utf8UtilTest.class, //

@@ -1,10 +1,11 @@
 package ceri.common.game;
 
+import static ceri.common.text.AnsiEscape.csi;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.text.AnsiEscape;
+import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.time.TimeSupplier;
 
 /**
@@ -201,7 +202,7 @@ public class ColorTubes {
 		int errors = 0;
 		for (int i = 1; i < counts.length; i++) {
 			int n = counts[i];
-			if (n > SIZE) { 
+			if (n > SIZE) {
 				System.err.printf("Too many %s: %d\n", Color.values[i], n);
 				errors++;
 			}
@@ -402,16 +403,16 @@ public class ColorTubes {
 	private static void printMove(int number, int move, int[] tubes) {
 		int color = topColor(tubes[moveTo(move)]);
 		int rgb = Color.values[color].rgb;
-		System.out.printf("%d) %s  %s %d => %d\n\n", number, AnsiEscape.csi.sgr().bgColor24(rgb),
-			AnsiEscape.csi.sgr().reset(), moveFrom(move) + 1, moveTo(move) + 1);
+		System.out.printf("%d) %s  %s %d => %d\n\n", number, csi.sgr().bgColor24(rgb), Sgr.reset,
+			moveFrom(move) + 1, moveTo(move) + 1);
 	}
 
 	private static void printTubes(int[] tubes) {
 		for (int i = SIZE - 1; i >= 0; i--) {
 			for (int j = 0; j < tubes.length; j++) {
 				var rgb = Color.values[color(tubes[j], i)].rgb;
-				System.out.printf(" %s%s%s", AnsiEscape.csi.sgr().bgColor24(rgb),
-					i == 0 ? "__" : "  ", AnsiEscape.csi.sgr().reset());
+				System.out.printf(" %s%s%s", csi.sgr().bgColor24(rgb), i == 0 ? "__" : "  ",
+					Sgr.reset);
 			}
 			System.out.println();
 		}

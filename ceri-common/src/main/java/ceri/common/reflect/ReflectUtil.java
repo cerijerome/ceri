@@ -239,21 +239,21 @@ public class ReflectUtil {
 	 * Wraps class getConstructor with unchecked exception.
 	 */
 	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)
-		throws CreateException {
+		throws RuntimeInvocationException {
 		try {
 			return cls.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
 			StringBuilder b = new StringBuilder();
 			b.append("constructor ").append(cls.getSimpleName()).append('(');
 			StringUtil.append(b, ", ", Class::getSimpleName, argTypes).append(") not found");
-			throw new CreateException(b.toString(), e);
+			throw new RuntimeInvocationException(b.toString(), e);
 		}
 	}
 
 	/**
 	 * Creates an object of given type, using default constructor
 	 */
-	public static <T> T create(Class<T> classType) throws CreateException {
+	public static <T> T create(Class<T> classType) throws RuntimeInvocationException {
 		return create(classType, EMPTY_CLASS);
 	}
 
@@ -264,6 +264,9 @@ public class ReflectUtil {
 		return create(constructor(cls, argTypes), args);
 	}
 
+	/**
+	 * Creates an object of given type, using constructor that matches given argument types.
+	 */
 	public static <T> T create(Constructor<T> constructor, Object... args) {
 		Throwable t = null;
 		try {
@@ -273,12 +276,26 @@ public class ReflectUtil {
 		} catch (InvocationTargetException e) {
 			t = BasicUtil.defaultValue(e.getCause(), e);
 		}
-		StringBuilder b = new StringBuilder();
-		b.append("new ").append(constructor.getDeclaringClass().getSimpleName()).append('(');
-		StringUtil.append(b, ", ", Class::getSimpleName, constructor.getParameterTypes());
-		b.append(") failed with args (");
-		StringUtil.append(b, ", ", args).append(')');
-		throw new CreateException(b.toString(), t);
+		throw new RuntimeInvocationException(String.format("new %s(%s) failed with args %s",
+			constructor.getDeclaringClass().getSimpleName(), types(constructor.getParameterTypes()),
+			args(args)), t);
+	}
+
+	/**
+	 * Invokes the method with given arguments.
+	 */
+	public static <T> T invoke(Method method, Object subject, Object... args) {
+		Throwable t = null;
+		try {
+			return BasicUtil.uncheckedCast(method.invoke(subject, args));
+		} catch (InvocationTargetException e) {
+			t = BasicUtil.defaultValue(e.getCause(), e);
+		} catch (ReflectiveOperationException | IllegalArgumentException e) {
+			t = e;
+		}
+		throw new RuntimeInvocationException(String.format("%s.%s(%s) failed with args (%s) on %s",
+			method.getDeclaringClass().getSimpleName(), method.getName(),
+			types(method.getParameterTypes()), args(args), subject), t);
 	}
 
 	/**
@@ -400,5 +417,13 @@ public class ReflectUtil {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);
 			}));
+	}
+
+	private static String args(Object[] args) {
+		return StringUtil.append(new StringBuilder(), ", ", args).toString();
+	}
+
+	private static String types(Class<?>[] types) {
+		return StringUtil.append(new StringBuilder(), ", ", Class::getSimpleName, types).toString();
 	}
 }

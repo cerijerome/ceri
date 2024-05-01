@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.reflect.ReflectUtil;
 
 /**
  * Helps create string representations of objects. Output takes the form:
@@ -36,6 +37,20 @@ public class ToString {
 	}
 
 	/**
+	 * Converts record string format to match.
+	 */
+	public static <T extends Record> String forRecord(T rec) {
+		if (rec == null) return String.valueOf(rec);
+		var s = ofClass(rec);
+		for (var component : rec.getClass().getRecordComponents()) {
+			var method = component.getAccessor();
+			method.setAccessible(true);
+			s.values(ReflectUtil.<Object>invoke(method, rec));
+		}
+		return s.toString();
+	}
+
+	/**
 	 * Generates a string for given name and values. "Name(Value1,Value2,...)"
 	 */
 	public static String forName(String name, Object... values) {
@@ -46,6 +61,7 @@ public class ToString {
 	 * Generates a string for simple class name and values. "Name(Value1,Value2,...)"
 	 */
 	public static String forClass(Object obj, Object... values) {
+		Objects.requireNonNull(obj);
 		return forName(obj.getClass().getSimpleName(), values);
 	}
 

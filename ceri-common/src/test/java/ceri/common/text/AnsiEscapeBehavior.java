@@ -149,7 +149,7 @@ public class AnsiEscapeBehavior {
 	@Test
 	public void shouldProvideSgrEscapes() {
 		assertString(AnsiEscape.csi.sgr(), "\u001b[m");
-		assertString(AnsiEscape.csi.sgr().reset(), "\u001b[m");
+		assertString(AnsiEscape.Sgr.reset, "\u001b[m");
 	}
 
 	@Test

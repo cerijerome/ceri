@@ -213,6 +213,7 @@ public class AnsiEscape {
 	 * Container for SGR sequences.
 	 */
 	public static class Sgr extends Escaper {
+		public static final String reset = csi.sgr().reset().toString();
 
 		/**
 		 * 8-bit colors.

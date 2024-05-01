@@ -32,6 +32,14 @@ public class ReflectUtilTest {
 		public Error() {
 			throw new RuntimeException();
 		}
+
+		@SuppressWarnings("unused")
+		public Error(Object ok) {}
+
+		@SuppressWarnings("unused")
+		public String error(int i) {
+			throw new RuntimeException();
+		}
 	}
 
 	@SuppressWarnings("unused")
@@ -183,8 +191,8 @@ public class ReflectUtilTest {
 		assertMatch(ReflectUtil.hashId(new Object()), "@[0-9a-fA-F]+");
 	}
 
-	@Test(expected = CreateException.class)
-	public void testCreateAbstractObject() throws CreateException {
+	@Test(expected = RuntimeInvocationException.class)
+	public void testCreateAbstractObject() throws RuntimeInvocationException {
 		ReflectUtil.create(Abstract.class);
 	}
 
@@ -194,13 +202,22 @@ public class ReflectUtilTest {
 	}
 
 	@Test
-	public void testCreateObject() throws CreateException {
+	public void testCreateObject() throws RuntimeInvocationException {
 		Class<?>[] argTypes = {};
 		Object[] args = {};
 		assertEquals(ReflectUtil.create(String.class, argTypes, args), "");
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
 		assertEquals(ReflectUtil.create(Date.class, argTypes, args), new Date(0));
+	}
+
+	@Test
+	public void testInvokeMethodError() throws NoSuchMethodException {
+		Method m = Error.class.getMethod("error", int.class);
+		var err = new Error(null);
+		assertThrown(RuntimeInvocationException.class, () -> ReflectUtil.invoke(m, err));
+		assertThrown(RuntimeInvocationException.class, () -> ReflectUtil.invoke(m, err, 0));
+		assertThrown(NullPointerException.class, () -> ReflectUtil.invoke(m, null, 0));
 	}
 
 	@Test
@@ -228,8 +245,8 @@ public class ReflectUtilTest {
 		assertFalse(ReflectUtil.assignableFromAny(Serializable.class, Number.class, Long.class));
 	}
 
-	@Test(expected = CreateException.class)
-	public void testCreateObjectDefault() throws CreateException {
+	@Test(expected = RuntimeInvocationException.class)
+	public void testCreateObjectDefault() throws RuntimeInvocationException {
 		assertEquals(ReflectUtil.create(String.class), "");
 		ReflectUtil.create(Boolean.class);
 	}
