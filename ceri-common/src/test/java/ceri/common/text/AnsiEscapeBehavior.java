@@ -147,6 +147,16 @@ public class AnsiEscapeBehavior {
 	}
 
 	@Test
+	public void shouldCopySgr() {
+		var sgr = AnsiEscape.csi.sgr().bgColor24(0x123456);
+		var copy = sgr.copy();
+		assertString(copy, sgr.toString());
+		sgr.intensity(1);
+		assertString(sgr, "\u001b[48;2;18;52;86;1m");
+		assertString(copy, "\u001b[48;2;18;52;86m");
+	}
+	
+	@Test
 	public void shouldProvideSgrEscapes() {
 		assertString(AnsiEscape.csi.sgr(), "\u001b[m");
 		assertString(AnsiEscape.Sgr.reset, "\u001b[m");

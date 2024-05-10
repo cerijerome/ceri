@@ -240,6 +240,15 @@ public class AnsiEscape {
 		}
 
 		/**
+		 * Make a copy.
+		 */
+		public Sgr copy() {
+			var sgr = new Sgr();
+			sgr.b.append(b.subSequence(sgr.b.length(), b.length()));
+			return sgr;
+		}
+		
+		/**
 		 * Turns off all attributes.
 		 */
 		public Sgr reset() {
@@ -496,7 +505,7 @@ public class AnsiEscape {
 	private static class Escaper {
 		private final char suffix;
 		private final Character separator; // separates multiple codes
-		private final StringBuilder b;
+		protected final StringBuilder b;
 		private final int blankCode; // if added code is this value, leave blank
 		private boolean empty = true;
 
