@@ -379,6 +379,13 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Convert a stream to an identity hash set.
+	 */
+	public static <T> Set<T> toIdentitySet(Stream<T> stream) {
+		return toSet(stream, CollectionUtil::identityHashSet);
+	}
+
+	/**
 	 * Convert a stream to a LinkedHashSet.
 	 */
 	public static <T> Set<T> toSet(Stream<? extends T> stream, Supplier<Set<T>> supplier) {

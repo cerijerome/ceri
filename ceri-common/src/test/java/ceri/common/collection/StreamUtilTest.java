@@ -353,6 +353,15 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testToIdentitySet() {
+		String a0 = new String("a");
+		String a1 = new String("a");
+		String b0 = new String("b");
+		Set<String> set = StreamUtil.toIdentitySet(Stream.of(a0, b0, a1));
+		assertCollection(set, a0, b0, a1);
+	}
+
+	@Test
 	public void testMergeFirst() {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
 		Map<Integer, String> map = stream.collect(
