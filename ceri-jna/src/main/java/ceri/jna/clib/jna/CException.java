@@ -2,13 +2,17 @@ package ceri.jna.clib.jna;
 
 import java.io.IOException;
 import java.util.function.IntConsumer;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.jna.clib.ErrNo;
 
 @SuppressWarnings("serial")
 public class CException extends IOException {
-	private static final int GENERAL_ERROR_CODE = -1;
+	public static final ExceptionAdapter<CException> ADAPTER =
+		ExceptionAdapter.of(CException.class, CException::adapt);
+	public static final int GENERAL_ERROR_CODE = -1;
 	public final int code;
 
 	public static class Runtime extends RuntimeException {
@@ -80,5 +84,11 @@ public class CException extends IOException {
 	 */
 	public CException.Runtime runtime() {
 		return new CException.Runtime(this);
+	}
+
+	private static CException adapt(Throwable e) {
+		String message = e.getMessage();
+		if (message == null) message = "Error";
+		return ExceptionUtil.initCause(general(message), e);
 	}
 }

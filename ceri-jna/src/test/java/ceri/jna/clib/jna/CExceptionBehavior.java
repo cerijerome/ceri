@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwIt;
+import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Captor;
 
@@ -47,6 +48,21 @@ public class CExceptionBehavior {
 		} catch (RuntimeException e) {
 			assertThrowable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
 		}
+	}
+
+	@Test
+	public void shouldAdaptError() {
+		var ioe = new IOException("io");
+		var ce = CException.ADAPTER.apply(ioe);
+		assertEquals(ce.getMessage(), "io");
+		assertEquals(ce.getCause(), ioe);
+		assertEquals(ce.code, CException.GENERAL_ERROR_CODE);
+	}
+
+	@Test
+	public void shouldAdaptErrorWithoutMessage() {
+		var ioe = new IOException();
+		assertEquals(CException.ADAPTER.apply(ioe).getMessage(), "Error");
 	}
 
 }

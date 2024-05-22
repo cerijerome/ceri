@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.Pipe;
 import ceri.jna.clib.Poll;
 import ceri.log.util.LogUtil;
@@ -116,7 +117,8 @@ public class SyncPipe implements RuntimeCloseable {
 	public void close() {
 		if (closed) return;
 		closed = true;
-		LogUtil.close(this::write, pipe);
+		CloseableUtil.close(this::write); // ignore failure
+		LogUtil.close(pipe); // log failure
 	}
 
 	@SuppressWarnings("resource")
