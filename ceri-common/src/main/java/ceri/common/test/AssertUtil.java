@@ -31,6 +31,7 @@ import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
@@ -708,6 +709,24 @@ public class AssertUtil {
 		for (T t : rhs)
 			rhsC.add(t);
 		assertList(lhsC, rhsC);
+	}
+
+	/**
+	 * Checks iterable types against consumers for consecutive values. The consumers are expected to
+	 * be assertions. Fails if the number of consumers does not match the number of items.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T> void assertConsume(Iterable<T> iterable,
+		ExceptionConsumer<E, T>... consumers) throws E {
+		int i = 0;
+		var iter = iterable.iterator();
+		while (iter.hasNext()) {
+			if (i >= consumers.length)
+				throw failure("No consumers from index %d", i);
+			consumers[i++].accept(iter.next());
+		}
+		if (i < consumers.length)
+			throw failure("Expected %d items: %d", consumers.length, i);
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {

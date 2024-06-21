@@ -21,4 +21,13 @@ public enum BinaryState {
 	private BinaryState(int value) {
 		this.value = value;
 	}
+
+	public boolean known() {
+		return this != unknown;
+	}
+
+	public Boolean bool() {
+		if (!known()) return null;
+		return this == off ? Boolean.FALSE : Boolean.TRUE;
+	}
 }

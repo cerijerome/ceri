@@ -11,5 +11,19 @@ public class BinaryStateBehavior {
 		assertEquals(BinaryState.from(true), BinaryState.on);
 		assertEquals(BinaryState.from(false), BinaryState.off);
 	}
-	
+
+	@Test
+	public void shouldGetBoolean() {
+		assertEquals(BinaryState.unknown.bool(), null);
+		assertEquals(BinaryState.on.bool(), true);
+		assertEquals(BinaryState.off.bool(), false);
+	}
+
+	@Test
+	public void shouldDetermineIfKnown() {
+		assertEquals(BinaryState.unknown.known(), false);
+		assertEquals(BinaryState.on.known(), true);
+		assertEquals(BinaryState.off.known(), true);
+	}
+
 }

@@ -46,13 +46,19 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		run(level2405());
+		run(level2565());
 	}
 
 	public static int[] levelN() {
 		return tubes( //
 			"", "", "", "", "", "", "", //
 			"", "", "", "", "", "", "");
+	}
+
+	public static int[] level2565() {
+		return tubes( //
+			"OPoa", "yGyB", "pgag", "bbar", "poGc", "cOGB", "pOBa", //
+			"ccoo", "rpGg", "bPgr", "OyPP", "rbyB", "", "");
 	}
 
 	public static int[] level2405() {

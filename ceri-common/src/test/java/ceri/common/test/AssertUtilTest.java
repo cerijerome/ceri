@@ -17,6 +17,7 @@ import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertCollection;
+import static ceri.common.test.AssertUtil.assertConsume;
 import static ceri.common.test.AssertUtil.assertDir;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
@@ -507,6 +508,27 @@ public class AssertUtilTest {
 		assertIterable(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
 		assertIterable(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void testAssertConsume() {
+		assertConsume(List.of());
+		assertConsume(List.of(0), t -> assertEquals(t, 0));
+		assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
+			t -> assertEquals(t, Integer.MAX_VALUE), t -> assertEquals(t, Integer.MIN_VALUE),
+			t -> assertEquals(t, 0));
+		assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0), t -> {}, t -> {}, t -> {});
+	}
+
+	@Test
+	public void testAssertConsumeFailure() {
+		assertAssertion(() -> assertConsume(List.of(0), t -> assertEquals(t, 1)));
+		assertAssertion(() ->
+			assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
+			t -> {}, t -> {}));
+		assertAssertion(() -> 
+			assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
+			t -> {}, t -> {}, t -> {}, t -> {}));
 	}
 
 }
