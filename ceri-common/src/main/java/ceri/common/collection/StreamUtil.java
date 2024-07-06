@@ -665,7 +665,8 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Returns a stream for all enum values.
+	 * Returns a stream for all enum values. The enum array is created each time; for cached
+	 * enum values use <code>EnumUtil.enums(enumCls).stream()</code>.
 	 */
 	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
 		return Stream.of(enumCls.getEnumConstants());

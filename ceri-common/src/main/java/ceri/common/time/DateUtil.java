@@ -28,11 +28,12 @@ import java.util.concurrent.TimeUnit;
  * Utility methods for dates and times.
  */
 public class DateUtil {
-	private static final long MICRO_NANOS = 1000;
-	private static final long MILLI_NANOS = 1000000;
-	private static final long SEC_MILLIS = 1000;
-	private static final long SEC_MICROS = 1000000;
-	private static final long SEC_NANOS = 1000000000;
+	public static final int MICRO_NANOS = 1000;
+	public static final int MILLI_MICROS = 1000;
+	public static final int MILLI_NANOS = 1000000;
+	public static final int SEC_MILLIS = 1000;
+	public static final int SEC_MICROS = 1000000;
+	public static final int SEC_NANOS = 1000000000;
 	public static final LocalDateTime UTC_EPOCH = utcDateTime(0);
 	private static final Map<TimeUnit, String> TIME_SYMBOLS = Map.of(DAYS, "d", HOURS, "h", MINUTES,
 		"m", SECONDS, "s", MILLISECONDS, "ms", MICROSECONDS, "\u00b5s", NANOSECONDS, "ns");

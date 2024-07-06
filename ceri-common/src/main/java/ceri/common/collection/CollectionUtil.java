@@ -496,7 +496,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the last element.
+	 * Returns the last element, or null if no elements.
 	 */
 	public static <T> T last(Iterable<T> iterable) {
 		if (iterable == null) return null;
@@ -512,7 +512,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the first element.
+	 * Returns the first element, or null if no elements.
 	 */
 	public static <T> T first(Iterable<T> iterable) {
 		if (iterable == null) return null;
@@ -522,7 +522,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the element at index based on the set iterator.
+	 * Returns the element at index based on the set iterator, or null if no element.
 	 */
 	public static <T> T get(int index, Set<T> set) {
 		if (set == null || index < 0 || set.size() <= index) return null;

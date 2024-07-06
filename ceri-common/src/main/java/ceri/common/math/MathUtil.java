@@ -17,6 +17,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
 
 public class MathUtil {
+	// PI approximations: 22/7, 355/113
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
 	public static final double PI_3_BY_2 = Math.PI * 3 / 2; // common calculation
 	private static final int MAX_ROUND_PLACES = 10;

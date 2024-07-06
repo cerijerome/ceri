@@ -14,6 +14,18 @@ public enum BinaryState {
 		TypeTranscoder.of(t -> t.value, BinaryState.class);
 	public final int value;
 
+	public static boolean known(BinaryState state) {
+		return state != null && state.known();
+	}
+
+	public static BinaryState invert(BinaryState state) {
+		return state == null ? null : state.invert();
+	}
+
+	public static Boolean bool(BinaryState state) {
+		return state == null ? null : state.bool();
+	}
+
 	public static BinaryState from(Boolean isOn) {
 		return BasicUtil.conditional(isOn, on, off, unknown);
 	}
@@ -22,6 +34,11 @@ public enum BinaryState {
 		this.value = value;
 	}
 
+	public BinaryState invert() {
+		if (!known()) return this;
+		return this == on ? off : on;
+	}
+	
 	public boolean known() {
 		return this != unknown;
 	}

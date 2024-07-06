@@ -29,6 +29,14 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
+	 * Transforms a closeable function to an enclosed type.
+	 */
+	public static <E extends Exception, T> Enclosed<E, T> from(T subject,
+		ExceptionCloseable<E> closeable) {
+		return of(subject, x -> closeable.close());
+	}
+	
+	/**
 	 * Create an instance with a subject, and a close method. If the subject is null, the close
 	 * method is not executed.
 	 */
