@@ -4,8 +4,9 @@ import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 
-public class TcpSocketProperties extends BaseProperties {
+public class TcpSocketProperties extends Ref<BaseProperties> {
 	private static final String HOST_PORT_KEY = "host.port";
 	private static final String OPTION_KEY = "option";
 	private static final String SO_TIMEOUT_KEY = "so.timeout"; // int
@@ -19,11 +20,11 @@ public class TcpSocketProperties extends BaseProperties {
 	private static final String SO_RCVBUF_KEY = "so.rcvbuf"; // int
 
 	public TcpSocketProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public HostPort hostPort() {
-		return HostPort.parse(value(HOST_PORT_KEY));
+		return HostPort.parse(ref.value(HOST_PORT_KEY));
 	}
 
 	public TcpSocketOptions options() {
@@ -41,38 +42,38 @@ public class TcpSocketProperties extends BaseProperties {
 	}
 
 	private Integer optionSoTimeout() {
-		return intValue(OPTION_KEY, SO_TIMEOUT_KEY);
+		return ref.intValue(OPTION_KEY, SO_TIMEOUT_KEY);
 	}
 
 	private Integer optionSoLinger() {
-		return intValue(OPTION_KEY, SO_LINGER_KEY);
+		return ref.intValue(OPTION_KEY, SO_LINGER_KEY);
 	}
 
 	private Boolean optionSoKeepAlive() {
-		return booleanValue(OPTION_KEY, SO_KEEPALIVE_KEY);
+		return ref.booleanValue(OPTION_KEY, SO_KEEPALIVE_KEY);
 	}
 
 	private Boolean optionSoReuseAddr() {
-		return booleanValue(OPTION_KEY, SO_REUSEADDR_KEY);
+		return ref.booleanValue(OPTION_KEY, SO_REUSEADDR_KEY);
 	}
 
 	private Boolean optionSoOobInline() {
-		return booleanValue(OPTION_KEY, SO_OOBINLINE_KEY);
+		return ref.booleanValue(OPTION_KEY, SO_OOBINLINE_KEY);
 	}
 
 	private Boolean optionTcpNoDelay() {
-		return booleanValue(OPTION_KEY, TCP_NODELAY_KEY);
+		return ref.booleanValue(OPTION_KEY, TCP_NODELAY_KEY);
 	}
 
 	private Integer optionIpTos() {
-		return intValue(OPTION_KEY, IP_TOS_KEY);
+		return ref.intValue(OPTION_KEY, IP_TOS_KEY);
 	}
 
 	private Integer optionSoSndBuf() {
-		return intValue(OPTION_KEY, SO_SNDBUF_KEY);
+		return ref.intValue(OPTION_KEY, SO_SNDBUF_KEY);
 	}
 
 	private Integer optionSoRcvBuf() {
-		return intValue(OPTION_KEY, SO_RCVBUF_KEY);
+		return ref.intValue(OPTION_KEY, SO_RCVBUF_KEY);
 	}
 }

@@ -2,13 +2,14 @@ package ceri.log.rpc.client;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 
-public class RpcChannelProperties extends BaseProperties {
+public class RpcChannelProperties extends Ref<BaseProperties> {
 	private static final String HOST_KEY = "host";
 	private static final String PORT_KEY = "port";
 
 	public RpcChannelProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public RpcChannel.Config config() {
@@ -19,11 +20,10 @@ public class RpcChannelProperties extends BaseProperties {
 	}
 
 	private String host() {
-		return value(HOST_KEY);
+		return ref.value(HOST_KEY);
 	}
 
 	private Integer port() {
-		return intValue(PORT_KEY);
+		return ref.intValue(PORT_KEY);
 	}
-
 }

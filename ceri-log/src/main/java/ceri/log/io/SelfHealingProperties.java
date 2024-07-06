@@ -2,13 +2,14 @@ package ceri.log.io;
 
 import ceri.common.function.FunctionUtil;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 
-public class SelfHealingProperties extends BaseProperties {
+public class SelfHealingProperties extends Ref<BaseProperties> {
 	private static final String FIX_RETRY_DELAY_MS_KEY = "fix.retry.delay.ms";
 	private static final String RECOVERY_DELAY_MS_KEY = "recovery.delay.ms";
 
 	public SelfHealingProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public SelfHealing.Config config() {
@@ -19,10 +20,10 @@ public class SelfHealingProperties extends BaseProperties {
 	}
 
 	private Integer fixRetryDelayMs() {
-		return intValue(FIX_RETRY_DELAY_MS_KEY);
+		return ref.intValue(FIX_RETRY_DELAY_MS_KEY);
 	}
 
 	private Integer recoveryDelayMs() {
-		return intValue(RECOVERY_DELAY_MS_KEY);
+		return ref.intValue(RECOVERY_DELAY_MS_KEY);
 	}
 }
