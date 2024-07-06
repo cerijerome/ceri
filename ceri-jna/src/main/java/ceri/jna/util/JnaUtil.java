@@ -25,8 +25,8 @@ import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.Constant;
 import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
+import ceri.common.util.Enclosed;
 
 public class JnaUtil {
 	private static final Pattern LAST_ERROR_REGEX =
@@ -49,8 +49,8 @@ public class JnaUtil {
 	/**
 	 * Returns a closeable resource to prevent gc. Use for objects referenced in async callbacks.
 	 */
-	public static RuntimeCloseable callback(Object callback) {
-		return () -> Reference.reachabilityFence(callback);
+	public static <T> Enclosed<RuntimeException, T> callback(T callback) {
+		return Enclosed.of(callback, Reference::reachabilityFence);
 	}
 
 	/**
