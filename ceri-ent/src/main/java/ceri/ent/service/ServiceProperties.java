@@ -4,11 +4,12 @@ import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 
 /**
  * Properties to configure service cache settings.
  */
-public class ServiceProperties extends BaseProperties {
+public class ServiceProperties extends Ref<BaseProperties> {
 	private static final String CACHE_KEY = "cache";
 	private static final String DURATION_KEY = "duration";
 	private static final String RANDOMIZE_KEY = "randomize";
@@ -25,11 +26,11 @@ public class ServiceProperties extends BaseProperties {
 	}
 
 	public ServiceProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public Path cacheFile() {
-		String fileName = value(CACHE_KEY, FILE_KEY);
+		String fileName = ref.value(CACHE_KEY, FILE_KEY);
 		if (fileName == null) return null;
 		return Path.of(fileName);
 	}
@@ -51,35 +52,34 @@ public class ServiceProperties extends BaseProperties {
 	}
 
 	private Long cacheDurationDays() {
-		return longValue(CACHE_KEY, DURATION_KEY, DAYS_KEY);
+		return ref.longValue(CACHE_KEY, DURATION_KEY, DAYS_KEY);
 	}
 
 	private Long cacheDurationHours() {
-		return longValue(CACHE_KEY, DURATION_KEY, HOURS_KEY);
+		return ref.longValue(CACHE_KEY, DURATION_KEY, HOURS_KEY);
 	}
 
 	private Long cacheRandomizeDays() {
-		return longValue(CACHE_KEY, RANDOMIZE_KEY, DAYS_KEY);
+		return ref.longValue(CACHE_KEY, RANDOMIZE_KEY, DAYS_KEY);
 	}
 
 	private Long cacheRandomizeHours() {
-		return longValue(CACHE_KEY, RANDOMIZE_KEY, HOURS_KEY);
+		return ref.longValue(CACHE_KEY, RANDOMIZE_KEY, HOURS_KEY);
 	}
 
 	public Integer retries() {
-		return intValue(RETRIES_KEY);
+		return ref.intValue(RETRIES_KEY);
 	}
 
 	public Integer maxEntries() {
-		return intValue(MAX_ENTRIES_KEY);
+		return ref.intValue(MAX_ENTRIES_KEY);
 	}
 
 	public Boolean cacheNulls() {
-		return booleanValue(CACHE_KEY, NULLS_KEY);
+		return ref.booleanValue(CACHE_KEY, NULLS_KEY);
 	}
 
 	public Boolean alwaysSave() {
-		return booleanValue(ALWAYS_SAVE_KEY);
+		return ref.booleanValue(ALWAYS_SAVE_KEY);
 	}
-
 }
