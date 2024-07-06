@@ -2,16 +2,17 @@ package ceri.serial.ftdi.util;
 
 import ceri.common.function.FunctionUtil;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 import ceri.log.io.SelfHealingProperties;
 
-public class SelfHealingFtdiProperties extends BaseProperties {
+public class SelfHealingFtdiProperties extends Ref<BaseProperties> {
 	private final FtdiProperties ftdi;
 	private final SelfHealingProperties selfHealing;
 
 	public SelfHealingFtdiProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
-		ftdi = new FtdiProperties(this);
-		selfHealing = new SelfHealingProperties(this);
+		super(BaseProperties.from(properties, groups));
+		ftdi = new FtdiProperties(ref);
+		selfHealing = new SelfHealingProperties(ref);
 	}
 
 	public SelfHealingFtdi.Config config() {

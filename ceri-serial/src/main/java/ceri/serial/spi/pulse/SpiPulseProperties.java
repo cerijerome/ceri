@@ -2,8 +2,9 @@ package ceri.serial.spi.pulse;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 
-public class SpiPulseProperties extends BaseProperties {
+public class SpiPulseProperties extends Ref<BaseProperties> {
 	private static final String CYCLE_KEY = "cycle";
 	private static final String STD_KEY = "std";
 	private static final String TYPE_KEY = "type";
@@ -20,7 +21,7 @@ public class SpiPulseProperties extends BaseProperties {
 	private static final int CYCLE_T1_BITS_DEF = 2;
 
 	public SpiPulseProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public SpiPulseConfig config() {
@@ -32,15 +33,15 @@ public class SpiPulseProperties extends BaseProperties {
 	}
 
 	private int size() {
-		return intValue(SIZE_KEY);
+		return ref.intValue(SIZE_KEY);
 	}
 
 	private Integer delayMicros() {
-		return intValue(DELAY_MICROS_KEY);
+		return ref.intValue(DELAY_MICROS_KEY);
 	}
 
 	private Integer resetDelayMs() {
-		return intValue(RESET_DELAY_MS_KEY);
+		return ref.intValue(RESET_DELAY_MS_KEY);
 	}
 
 	private PulseCycle cycle() {
@@ -52,27 +53,26 @@ public class SpiPulseProperties extends BaseProperties {
 	}
 
 	private PulseCycle.Std cycleStd() {
-		return enumValue(PulseCycle.Std.class, CYCLE_KEY, STD_KEY);
+		return ref.enumValue(PulseCycle.Std.class, CYCLE_KEY, STD_KEY);
 	}
 
 	private PulseCycle.Type cycleType() {
-		return enumValue(PulseCycle.Type.class, CYCLE_KEY, TYPE_KEY);
+		return ref.enumValue(PulseCycle.Type.class, CYCLE_KEY, TYPE_KEY);
 	}
 
 	private int cycleBits() {
-		return intValue(CYCLE_BITS_DEF, CYCLE_KEY, BITS_KEY);
+		return ref.intValue(CYCLE_BITS_DEF, CYCLE_KEY, BITS_KEY);
 	}
 
 	private int cycleOffset() {
-		return intValue(CYCLE_OFFSET_DEF, CYCLE_KEY, OFFSET_KEY);
+		return ref.intValue(CYCLE_OFFSET_DEF, CYCLE_KEY, OFFSET_KEY);
 	}
 
 	private int cycleT0Bits() {
-		return intValue(CYCLE_T0_BITS_DEF, CYCLE_KEY, T0_KEY, BITS_KEY);
+		return ref.intValue(CYCLE_T0_BITS_DEF, CYCLE_KEY, T0_KEY, BITS_KEY);
 	}
 
 	private int cycleT1Bits() {
-		return intValue(CYCLE_T1_BITS_DEF, CYCLE_KEY, T1_KEY, BITS_KEY);
+		return ref.intValue(CYCLE_T1_BITS_DEF, CYCLE_KEY, T1_KEY, BITS_KEY);
 	}
-
 }

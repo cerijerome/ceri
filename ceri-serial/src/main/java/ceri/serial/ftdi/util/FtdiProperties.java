@@ -5,6 +5,7 @@ import static ceri.common.math.MathUtil.approxEqual;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.FunctionUtil;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -15,7 +16,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
-public class FtdiProperties extends BaseProperties {
+public class FtdiProperties extends Ref<BaseProperties> {
 	private static final String FINDER_KEY = "finder";
 	private static final String INTERFACE_KEY = "interface";
 	private static final String BIT_KEY = "bit";
@@ -35,15 +36,15 @@ public class FtdiProperties extends BaseProperties {
 	private static final double PRECISION = 0.1;
 
 	public FtdiProperties(BaseProperties properties, String... groups) {
-		super(properties, groups);
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public String finder() {
-		return value(FINDER_KEY);
+		return ref.value(FINDER_KEY);
 	}
 
 	public ftdi_interface iface() {
-		String name = value(INTERFACE_KEY);
+		String name = ref.value(INTERFACE_KEY);
 		if (name == null) return null;
 		return ftdi_interface.valueOf(INTERFACE_PREFIX + name.toUpperCase());
 	}
@@ -69,17 +70,17 @@ public class FtdiProperties extends BaseProperties {
 	}
 
 	private ftdi_mpsse_mode bitModeEnum() {
-		String name = value(BIT_KEY, MODE_KEY);
+		String name = ref.value(BIT_KEY, MODE_KEY);
 		if (name == null) return null;
 		return ftdi_mpsse_mode.valueOf(BITMODE_PREFIX + name.toUpperCase());
 	}
 
 	private Integer bitMask() {
-		return intValue(BIT_KEY, MASK_KEY);
+		return ref.intValue(BIT_KEY, MASK_KEY);
 	}
 
 	private Integer baud() {
-		return intValue(BAUD_KEY);
+		return ref.intValue(BAUD_KEY);
 	}
 
 	private FtdiLineParams params() {
@@ -97,11 +98,11 @@ public class FtdiProperties extends BaseProperties {
 	}
 
 	private ftdi_data_bits_type dataBits() {
-		return valueFromInt(ftdi_data_bits_type.xcoder::decodeValid, DATA_BITS_KEY);
+		return ref.valueFromInt(ftdi_data_bits_type.xcoder::decodeValid, DATA_BITS_KEY);
 	}
 
 	private ftdi_stop_bits_type stopBits() {
-		Double d = doubleValue(STOP_BITS_KEY);
+		Double d = ref.doubleValue(STOP_BITS_KEY);
 		if (d == null) return null;
 		if (approxEqual(d, 1.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_1;
 		if (approxEqual(d, 1.5, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_15;
@@ -110,26 +111,26 @@ public class FtdiProperties extends BaseProperties {
 	}
 
 	private ftdi_parity_type parity() {
-		return value(s -> ftdi_parity_type.valueOf(s.toUpperCase()), PARITY_KEY);
+		return ref.value(s -> ftdi_parity_type.valueOf(s.toUpperCase()), PARITY_KEY);
 	}
 
 	private ftdi_break_type breakType() {
-		return valueFromBoolean(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF, BREAK_KEY);
+		return ref.valueFromBoolean(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF, BREAK_KEY);
 	}
 
 	private FtdiFlowControl flowControl() {
-		return enumValue(FtdiFlowControl.class, FLOW_CONTROL_KEY);
+		return ref.enumValue(FtdiFlowControl.class, FLOW_CONTROL_KEY);
 	}
 
 	private Integer latencyTimerMs() {
-		return intValue(LATENCY_TIMER_MS_KEY);
+		return ref.intValue(LATENCY_TIMER_MS_KEY);
 	}
 
 	private Integer readChunkSize() {
-		return intValue(READ_CHUNK_SIZE_KEY);
+		return ref.intValue(READ_CHUNK_SIZE_KEY);
 	}
 
 	private Integer writeChunkSize() {
-		return intValue(WRITE_CHUNK_SIZE_KEY);
+		return ref.intValue(WRITE_CHUNK_SIZE_KEY);
 	}
 }

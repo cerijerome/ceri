@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import ceri.common.property.BaseProperties;
+import ceri.common.util.Ref;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
 import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.StopBits;
 
-public class SerialProperties extends BaseProperties {
+public class SerialProperties extends Ref<BaseProperties> {
 	private static final String PORT_KEY = "port";
 	private static final String LOCATOR_KEY = "locator";
 	private static final String PATH_KEY = "path";
@@ -27,8 +28,8 @@ public class SerialProperties extends BaseProperties {
 	private static final String IN_BUFFER_SIZE_KEY = "in.buffer.size";
 	private static final String OUT_BUFFER_SIZE_KEY = "out.buffer.size";
 
-	public SerialProperties(BaseProperties properties, String... prefix) {
-		super(properties, prefix);
+	public SerialProperties(BaseProperties properties, String... groups) {
+		super(BaseProperties.from(properties, groups));
 	}
 
 	public PortSupplier portSupplier() {
@@ -70,23 +71,23 @@ public class SerialProperties extends BaseProperties {
 	}
 
 	private String port() {
-		return value(PORT_KEY);
+		return ref.value(PORT_KEY);
 	}
 
 	private String portLocatorPath() {
-		return value(PORT_KEY, LOCATOR_KEY, PATH_KEY);
+		return ref.value(PORT_KEY, LOCATOR_KEY, PATH_KEY);
 	}
 
 	private String portLocatorPattern() {
-		return value(PORT_KEY, LOCATOR_KEY, PATTERN_KEY);
+		return ref.value(PORT_KEY, LOCATOR_KEY, PATTERN_KEY);
 	}
 
 	private Integer portLocatorIndex() {
-		return intValue(PORT_KEY, LOCATOR_KEY, INDEX_KEY);
+		return ref.intValue(PORT_KEY, LOCATOR_KEY, INDEX_KEY);
 	}
 
 	private Integer portLocatorId() {
-		return intValue(PORT_KEY, LOCATOR_KEY, ID_KEY);
+		return ref.intValue(PORT_KEY, LOCATOR_KEY, ID_KEY);
 	}
 
 	private SerialParams params() {
@@ -99,30 +100,30 @@ public class SerialProperties extends BaseProperties {
 	}
 
 	private Set<FlowControl> flowControl() {
-		return Set.copyOf(enumValues(FlowControl.class, List.of(), FLOW_CONTROL_KEY));
+		return Set.copyOf(ref.enumValues(FlowControl.class, List.of(), FLOW_CONTROL_KEY));
 	}
 
 	private Integer inBufferSize() {
-		return intValue(IN_BUFFER_SIZE_KEY);
+		return ref.intValue(IN_BUFFER_SIZE_KEY);
 	}
 
 	private Integer outBufferSize() {
-		return intValue(OUT_BUFFER_SIZE_KEY);
+		return ref.intValue(OUT_BUFFER_SIZE_KEY);
 	}
 
 	private Integer baud() {
-		return intValue(BAUD_KEY);
+		return ref.intValue(BAUD_KEY);
 	}
 
 	private DataBits dataBits() {
-		return valueFromInt(DataBits::from, DATA_BITS_KEY);
+		return ref.valueFromInt(DataBits::from, DATA_BITS_KEY);
 	}
 
 	private StopBits stopBits() {
-		return valueFromDouble(StopBits::fromBits, STOP_BITS_KEY);
+		return ref.valueFromDouble(StopBits::fromBits, STOP_BITS_KEY);
 	}
 
 	private Parity parity() {
-		return enumValue(Parity.class, PARITY_KEY);
+		return ref.enumValue(Parity.class, PARITY_KEY);
 	}
 }
