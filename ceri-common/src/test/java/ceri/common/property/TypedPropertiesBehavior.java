@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class BasePropertiesBehavior {
+public class TypedPropertiesBehavior {
 	private static Properties properties = new Properties();
 
 	private enum E {
@@ -63,9 +63,9 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldMerge() throws IOException {
-		BaseProperties bp = BaseProperties.merge( //
-			BaseProperties.from(load(getClass(), "property-test-a-b-c.properties")),
-			BaseProperties.from(load(getClass(), "property-test-d-e-f.properties")));
+		TypedProperties bp = TypedProperties.merge( //
+			TypedProperties.from(load(getClass(), "property-test-a-b-c.properties")),
+			TypedProperties.from(load(getClass(), "property-test-d-e-f.properties")));
 		assertEquals(bp.value("name"), "property-test-d-e-f");
 		assertEquals(bp.value("a.b.c"), "true");
 		assertEquals(bp.value("d.e.f"), "true");
@@ -73,7 +73,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldCreateEmptyPropertiesFromNull() {
-		BaseProperties bp = new BaseProperties((BaseProperties) null, "m.n.0") {};
+		TypedProperties bp = TypedProperties.from((TypedProperties) null, "m.n.0");
 		assertNull(bp.value("a.b.c"));
 		assertNull(bp.value(""));
 	}
@@ -82,30 +82,30 @@ public class BasePropertiesBehavior {
 	public void shouldCreateFromResourceBundle() {
 		ResourceBundle r = ResourceBundle.getBundle( //
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
-		BaseProperties bp = BaseProperties.from(r);
+		TypedProperties bp = TypedProperties.from(r);
 		assertEquals(bp.value("name"), "PropertyAccessor");
 	}
 
 	@Test
 	public void shouldReturnDescendants() {
-		BaseProperties bp = new BaseProperties(properties, "m.n.0") {};
+		TypedProperties bp = TypedProperties.from(properties, "m.n.0");
 		assertCollection(bp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
 		assertCollection(bp.descendants("b"), "c", "c.d", "d");
 	}
 
 	@Test
 	public void shouldReturnChildren() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertCollection(bp.children(), "xyz", "x", "y", "z", "a", "m", "3", "7");
 		assertCollection(bp.children("m.n.0"), "a", "b");
-		bp = new BaseProperties(properties, "m.n.0") {};
+		bp = TypedProperties.from(properties, "m.n.0");
 		assertCollection(bp.children(), "a", "b");
 		assertCollection(bp.children("b"), "c", "d");
 	}
 
 	@Test
 	public void shouldCheckIfChildrenExist() {
-		BaseProperties bp = new BaseProperties(properties, "m.n") {};
+		TypedProperties bp = TypedProperties.from(properties, "m.n");
 		assertTrue(bp.hasChild("0"));
 		assertTrue(bp.hasChild("0.b"));
 		assertFalse(bp.hasChild("0.c"));
@@ -117,20 +117,20 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReturnChildIds() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertCollection(bp.childIds("m.n"), 0, 1, 2);
 		assertCollection(bp.childIds("m"));
 		assertCollection(bp.childIds(""), 3, 7);
 		assertCollection(bp.childIds(), 3, 7);
-		bp = new BaseProperties(properties, "m") {};
+		bp = TypedProperties.from(properties, "m");
 		assertCollection(bp.childIds("n"), 0, 1, 2);
-		bp = new BaseProperties(properties, "m.n") {};
+		bp = TypedProperties.from(properties, "m.n");
 		assertCollection(bp.childIds(""), 0, 1, 2);
 	}
 
 	@Test
 	public void shouldReadCommaSeparatedValues() {
-		BaseProperties bp = BaseProperties.from(properties);
+		TypedProperties bp = TypedProperties.from(properties);
 		assertCollection(bp.values(String::length, "y"), 3, 2, 1);
 		assertCollection(bp.values(Collections.singletonList(999), String::length, "xx"), 999);
 		assertCollection(bp.booleanValues("7.2.b"), true, false);
@@ -145,7 +145,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadEnums() {
-		BaseProperties bp = BaseProperties.from(properties);
+		TypedProperties bp = TypedProperties.from(properties);
 		assertEquals(bp.enumValue(E.class, "a.b"), E.AB);
 		assertEquals(bp.enumValue(E.class, E.A, "a.b"), E.AB);
 		assertEquals(bp.enumValue(E.class, E.A, "xx"), E.A);
@@ -155,7 +155,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadValues() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertNull(bp.value("xyz"));
 		assertEquals(bp.stringValue("", "a"), "A");
 		assertFalse(bp.booleanValue("a"));
@@ -180,7 +180,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadAndConvertValues() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertEquals(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.y"), "Y");
 		assertEquals(bp.valueFromBoolean(b -> b ? "Y" : "N", "a.n"), "N");
 		assertEquals(bp.valueFromBoolean(1, 2, "a.y"), 1);
@@ -195,7 +195,7 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadAndConvertListValues() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertIterable(bp.valuesFromBoolean(Boolean::toString, "z.b"), "true", "false", "true");
 		assertIterable(bp.valuesFromInt(Integer::toHexString, "z.i"), "12345678", "ffffffff", "ff");
 		assertIterable(bp.valuesFromLong(Long::toHexString, "z.l"), "123456789abcdef0",
@@ -208,25 +208,25 @@ public class BasePropertiesBehavior {
 		Properties properties = new Properties();
 		properties.put("a", "A");
 		properties.put("b", "B");
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertMatch(bp.toString(), ".*a=A.*");
 		assertMatch(bp.toString(), ".*b=B.*");
 	}
 
 	@Test
 	public void shouldExtendPrefixWhenCreatingFromBaseProperties() {
-		BaseProperties bp0 = new BaseProperties(properties) {};
-		BaseProperties bp1 = new BaseProperties(bp0) {};
+		TypedProperties bp0 = TypedProperties.from(properties);
+		TypedProperties bp1 = TypedProperties.from(bp0);
 		assertEquals(bp1.value("a"), "A");
-		BaseProperties bp2 = new BaseProperties(bp1, "a") {};
+		TypedProperties bp2 = TypedProperties.from(bp1, "a");
 		assertEquals(bp2.value("b"), "AB");
-		BaseProperties bp3 = new BaseProperties(bp2, "b", "c") {};
+		TypedProperties bp3 = TypedProperties.from(bp2, "b", "c");
 		assertEquals(bp3.value("d"), "4");
 	}
 
 	@Test
 	public void shouldReturnStringValuesFromACommaSeparatedList() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertEquals(bp.stringValues("x"), Arrays.asList("X"));
 		assertEquals(bp.stringValues("y"), Arrays.asList("YyY", "yy", "y"));
 		assertEquals(bp.stringValues("z"), Arrays.asList());
@@ -240,38 +240,38 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldAllowNullPrefix() {
-		BaseProperties bp = new BaseProperties(properties, new String[] { null }) {};
+		TypedProperties bp = TypedProperties.from(properties, new String[] { null });
 		assertEquals(bp.value("a"), "A");
-		bp = new BaseProperties(properties, (String[]) null) {};
+		bp = TypedProperties.from(properties, (String[]) null);
 		assertEquals(bp.value("a"), "A");
-		bp = new BaseProperties(properties, null, null) {};
+		bp = TypedProperties.from(properties, null, null);
 		assertEquals(bp.value("a"), "A");
-		bp = new BaseProperties(properties, "a", null) {};
+		bp = TypedProperties.from(properties, "a", null);
 		assertEquals(bp.value("b"), "AB");
-		bp = new BaseProperties(properties, null, "a") {};
+		bp = TypedProperties.from(properties, null, "a");
 		assertEquals(bp.value("b"), "AB");
 	}
 
 	@Test
 	public void shouldOnlyReadPrefixedProperties() {
-		BaseProperties bp = new BaseProperties(properties, "a") {};
+		TypedProperties bp = TypedProperties.from(properties, "a");
 		assertEquals(bp.key("b.c"), "a.b.c");
 		assertCollection(bp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n", "a.l");
-		bp = new BaseProperties(properties) {};
+		bp = TypedProperties.from(properties);
 		assertEquals(bp.key("a.b"), "a.b");
 		assertCollection(bp.keys(), properties.keySet());
 	}
 
 	@Test
 	public void shouldAccessValuesWithKeySuffixes() {
-		BaseProperties bp = new BaseProperties(properties, "a") {};
+		TypedProperties bp = TypedProperties.from(properties, "a");
 		assertEquals(bp.value("b"), "AB");
 		assertEquals(bp.intValue("b.c"), 3);
 	}
 
 	@Test
 	public void shouldReturnDefaultValuesForMissingProperties() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertTrue(bp.booleanValue(true, "xx"));
 		assertEquals(bp.charValue('x', "xx"), 'x');
 		assertEquals(bp.stringValue("x", "xx"), "x");
@@ -286,51 +286,51 @@ public class BasePropertiesBehavior {
 
 	@Test
 	public void shouldReadBooleanValuesAsFalseForUnparseableStrings() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertFalse(bp.booleanValue("a.b"));
 		assertFalse(bp.booleanValue("a.b.c"));
 	}
 
 	@Test
 	public void shouldReadCharValuesAsFirstCharInString() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		assertEquals(bp.charValue("a.b"), 'A');
 		assertEquals(bp.charValue("a.b.c"), '3');
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableByte() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.byteValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableShort() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.shortValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableInt() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.intValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableLong() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.longValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableFloat() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.floatValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionForUnparseableDouble() {
-		BaseProperties bp = new BaseProperties(properties) {};
+		TypedProperties bp = TypedProperties.from(properties);
 		bp.doubleValue("x");
 	}
 

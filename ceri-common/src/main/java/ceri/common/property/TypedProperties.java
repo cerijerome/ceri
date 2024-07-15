@@ -23,103 +23,89 @@ import ceri.common.function.BooleanFunction;
 import ceri.common.text.StringUtil;
 
 /**
- * Abstract class for accessing properties with a common key prefix. Useful when sharing one
- * properties object across multiple components. Extend the class to expose specific field
- * accessors.
+ * Class for accessing typed properties with a common key prefix. Useful when sharing one properties
+ * source across multiple components.
  */
-public abstract class BaseProperties {
-	public static final BaseProperties NULL = new BaseProperties(PropertyAccessor.NULL) {};
+public class TypedProperties {
+	/** A no-op, stateless instance. */
+	public static final TypedProperties NULL = new TypedProperties(PropertyAccessor.NULL) {};
 	private static final String CHILD_KEY_PATTERN = "\\w+";
 	private static final String DESCENDENT_KEY_PATTERN = "[\\w\\.]+";
 	private static final String CHILD_ID_PATTERN = "\\d+";
-	private final String prefix;
+	public final String prefix;
 	private final PropertyAccessor properties;
 
 	/**
-	 * Creates typed properties with no prefix from given properties.
+	 * Creates typed properties with key prefix from given properties.
 	 */
-	public static BaseProperties from(Properties properties) {
-		return new BaseProperties(properties) {};
+	public static TypedProperties from(Properties properties, String... prefix) {
+		return of(PropertyAccessor.from(properties), prefix);
 	}
 
 	/**
-	 * Creates typed properties with no prefix from given resource bundle.
+	 * Creates typed properties with key prefix from given resource bundle.
 	 */
-	public static BaseProperties from(ResourceBundle bundle) {
-		return new BaseProperties(bundle) {};
+	public static TypedProperties from(ResourceBundle bundle, String... prefix) {
+		return of(PropertyAccessor.from(bundle), prefix);
 	}
 
 	/**
 	 * Creates from typed properties with additional key path.
 	 */
-	public static BaseProperties from(BaseProperties properties, String... prefix) {
-		return prefix.length == 0 ? properties : new BaseProperties(properties, prefix) {};
+	public static TypedProperties from(TypedProperties properties, String... prefix) {
+		return properties == null ? from(prefix) : properties.sub(prefix);
+	}
+
+	/**
+	 * Creates empty typed properties with key path.
+	 */
+	public static TypedProperties from(String... prefix) {
+		return from(new Properties(), prefix);
 	}
 
 	/**
 	 * Merges properties to one with no prefix.
 	 */
-	public static BaseProperties merge(BaseProperties... properties) {
+	public static TypedProperties merge(TypedProperties... properties) {
 		return merge(Arrays.asList(properties));
 	}
 
 	/**
-	 * Merges properties to one with no prefix.
+	 * Merges properties with new absolute key prefix.
 	 */
-	public static BaseProperties merge(Collection<BaseProperties> collection) {
+	public static TypedProperties merge(Collection<TypedProperties> collection, String... prefix) {
 		Properties properties = new Properties();
 		collection.forEach(bp -> bp.properties.forEach(properties::put));
-		return from(properties);
+		return from(properties, prefix);
 	}
 
 	/**
 	 * Constructor for properties with given prefix keys.
 	 */
-	protected BaseProperties(BaseProperties properties, String... prefix) {
-		if (properties == null) properties = from(new Properties());
-		this.prefix = PathFactory.dot.path(properties.prefix, prefix).value;
-		this.properties = properties.properties;
-	}
-
-	/**
-	 * Constructor for properties file with given prefix keys.
-	 */
-	protected BaseProperties(Properties properties, String... prefix) {
-		this(PropertyAccessor.from(properties), prefix);
-	}
-
-	/**
-	 * Constructor for resource bundle with given prefix keys.
-	 */
-	protected BaseProperties(ResourceBundle bundle, String... prefix) {
-		this(PropertyAccessor.from(bundle), prefix);
+	public static TypedProperties of(PropertyAccessor properties, String... prefix) {
+		return new TypedProperties(properties, prefix);
 	}
 
 	/**
 	 * Constructor for properties with given prefix keys.
 	 */
-	protected BaseProperties(PropertyAccessor properties, String... prefix) {
+	protected TypedProperties(PropertyAccessor properties, String... prefix) {
 		this.prefix = PathFactory.dot.path(prefix).value;
 		this.properties = properties;
 	}
 
-	@Override
-	public String toString() {
-		return properties.toString();
-	}
-
 	/**
-	 * Creates a prefixed, dot-separated immutable key from key parts. e.g. ab, cd, ef =>
-	 * <prefix>.ab.cd.ef
+	 * Return typed properties with addition key prefix.
 	 */
-	protected String key(String... keyParts) {
-		return PathFactory.dot.path(prefix, keyParts).value;
+	public TypedProperties sub(String... prefix) {
+		if (prefix.length == 0) return this;
+		return new TypedProperties(properties, PathFactory.dot.path(this.prefix, prefix).value);
 	}
 
 	/**
 	 * Returns the full keys that start with prefix.
 	 */
-	protected List<String> keys() {
+	public List<String> keys() {
 		return toList(properties.keys().stream().filter(this::hasPrefix).distinct());
 	}
 
@@ -154,7 +140,7 @@ public abstract class BaseProperties {
 	 * Retrieves the typed property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T value(T def, Function<String, T> constructor, String... keyParts) {
+	public <T> T value(T def, Function<String, T> constructor, String... keyParts) {
 		return value(null, def, constructor, keyParts);
 	}
 
@@ -162,8 +148,7 @@ public abstract class BaseProperties {
 	 * Retrieves the typed property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T value(Class<T> cls, T def, Function<String, T> constructor,
-		String... keyParts) {
+	public <T> T value(Class<T> cls, T def, Function<String, T> constructor, String... keyParts) {
 		return parseValue(cls, def, value(keyParts), constructor, keyParts);
 	}
 
@@ -171,7 +156,7 @@ public abstract class BaseProperties {
 	 * Converts the boolean property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
+	public <T> T valueFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
 		return valueFromBoolean(null, constructor, keyParts);
 	}
 
@@ -187,7 +172,7 @@ public abstract class BaseProperties {
 	 * Converts the boolean property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromBoolean(T def, BooleanFunction<T> constructor, String... keyParts) {
+	public <T> T valueFromBoolean(T def, BooleanFunction<T> constructor, String... keyParts) {
 		return value(def, s -> constructor.apply(Boolean.parseBoolean(s)), keyParts);
 	}
 
@@ -195,7 +180,7 @@ public abstract class BaseProperties {
 	 * Converts the boolean property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromBoolean(T def, T trueVal, T falseVal, String... keyParts) {
+	public <T> T valueFromBoolean(T def, T trueVal, T falseVal, String... keyParts) {
 		return valueFromBoolean(def, b -> b ? trueVal : falseVal, keyParts);
 	}
 
@@ -211,7 +196,7 @@ public abstract class BaseProperties {
 	 * Converts the integer property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromInt(T def, IntFunction<T> constructor, String... keyParts) {
+	public <T> T valueFromInt(T def, IntFunction<T> constructor, String... keyParts) {
 		return value(def, s -> constructor.apply(Integer.decode(s)), keyParts);
 	}
 
@@ -227,7 +212,7 @@ public abstract class BaseProperties {
 	 * Converts the long property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromLong(T def, LongFunction<T> constructor, String... keyParts) {
+	public <T> T valueFromLong(T def, LongFunction<T> constructor, String... keyParts) {
 		return value(def, s -> constructor.apply(Long.decode(s)), keyParts);
 	}
 
@@ -243,7 +228,7 @@ public abstract class BaseProperties {
 	 * Converts the double property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> T valueFromDouble(T def, DoubleFunction<T> constructor, String... keyParts) {
+	public <T> T valueFromDouble(T def, DoubleFunction<T> constructor, String... keyParts) {
 		return value(def, s -> constructor.apply(Double.parseDouble(s)), keyParts);
 	}
 
@@ -262,7 +247,7 @@ public abstract class BaseProperties {
 	 * default values if no values exist for the key. The constructor converts from each string to
 	 * the desired type.
 	 */
-	protected <T> List<T> values(List<T> def, Function<String, T> constructor, String... keyParts) {
+	public <T> List<T> values(List<T> def, Function<String, T> constructor, String... keyParts) {
 		return parseValues(def, value -> parseValue(null, null, value, constructor, keyParts),
 			keyParts);
 	}
@@ -272,7 +257,7 @@ public abstract class BaseProperties {
 	 * default values if no values exist for the key. The constructor converts from each string to
 	 * the desired type.
 	 */
-	protected <T> List<T> values(Class<T> cls, List<T> def, Function<String, T> constructor,
+	public <T> List<T> values(Class<T> cls, List<T> def, Function<String, T> constructor,
 		String... keyParts) {
 		return parseValues(def, value -> parseValue(cls, null, value, constructor, keyParts),
 			keyParts);
@@ -282,7 +267,7 @@ public abstract class BaseProperties {
 	 * Converts the boolean list property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected <T> List<T> valuesFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
+	public <T> List<T> valuesFromBoolean(BooleanFunction<T> constructor, String... keyParts) {
 		return valuesFromBoolean(null, constructor, keyParts);
 	}
 
@@ -290,7 +275,7 @@ public abstract class BaseProperties {
 	 * Converts the boolean list property from prefixed, dot-separated key. Returns default if no
 	 * value exists for the key.
 	 */
-	protected <T> List<T> valuesFromBoolean(List<T> def, BooleanFunction<T> constructor,
+	public <T> List<T> valuesFromBoolean(List<T> def, BooleanFunction<T> constructor,
 		String... keyParts) {
 		return values(def, s -> constructor.apply(Boolean.parseBoolean(s)), keyParts);
 	}
@@ -299,7 +284,7 @@ public abstract class BaseProperties {
 	 * Converts the integer list property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected <T> List<T> valuesFromInt(IntFunction<T> constructor, String... keyParts) {
+	public <T> List<T> valuesFromInt(IntFunction<T> constructor, String... keyParts) {
 		return valuesFromInt(null, constructor, keyParts);
 	}
 
@@ -307,8 +292,7 @@ public abstract class BaseProperties {
 	 * Converts the integer list property from prefixed, dot-separated key. Returns default if no
 	 * value exists for the key.
 	 */
-	protected <T> List<T> valuesFromInt(List<T> def, IntFunction<T> constructor,
-		String... keyParts) {
+	public <T> List<T> valuesFromInt(List<T> def, IntFunction<T> constructor, String... keyParts) {
 		return values(def, s -> constructor.apply(Integer.decode(s)), keyParts);
 	}
 
@@ -316,7 +300,7 @@ public abstract class BaseProperties {
 	 * Converts the long list property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected <T> List<T> valuesFromLong(LongFunction<T> constructor, String... keyParts) {
+	public <T> List<T> valuesFromLong(LongFunction<T> constructor, String... keyParts) {
 		return valuesFromLong(null, constructor, keyParts);
 	}
 
@@ -324,7 +308,7 @@ public abstract class BaseProperties {
 	 * Converts the long list property from prefixed, dot-separated key. Returns default if no value
 	 * exists for the key.
 	 */
-	protected <T> List<T> valuesFromLong(List<T> def, LongFunction<T> constructor,
+	public <T> List<T> valuesFromLong(List<T> def, LongFunction<T> constructor,
 		String... keyParts) {
 		return values(def, s -> constructor.apply(Long.decode(s)), keyParts);
 	}
@@ -333,7 +317,7 @@ public abstract class BaseProperties {
 	 * Converts the double list property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected <T> List<T> valuesFromDouble(DoubleFunction<T> constructor, String... keyParts) {
+	public <T> List<T> valuesFromDouble(DoubleFunction<T> constructor, String... keyParts) {
 		return valuesFromDouble(null, constructor, keyParts);
 	}
 
@@ -341,7 +325,7 @@ public abstract class BaseProperties {
 	 * Converts the double list property from prefixed, dot-separated key. Returns default if no
 	 * value exists for the key.
 	 */
-	protected <T> List<T> valuesFromDouble(List<T> def, DoubleFunction<T> constructor,
+	public <T> List<T> valuesFromDouble(List<T> def, DoubleFunction<T> constructor,
 		String... keyParts) {
 		return values(def, s -> constructor.apply(Double.parseDouble(s)), keyParts);
 	}
@@ -350,7 +334,7 @@ public abstract class BaseProperties {
 	 * Retrieves the String property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected String stringValue(String def, String... keyParts) {
+	public String stringValue(String def, String... keyParts) {
 		String value = value(keyParts);
 		return value == null ? def : value;
 	}
@@ -367,7 +351,7 @@ public abstract class BaseProperties {
 	 * Retrieves a collection of comma-separated Strings from prefixed, dot-separated key. Returns
 	 * default values if the key doesn not exist.
 	 */
-	protected List<String> stringValues(List<String> def, String... keyParts) {
+	public List<String> stringValues(List<String> def, String... keyParts) {
 		String value = value(keyParts);
 		if (value == null) return def;
 		List<String> values = StringUtil.commaSplit(value);
@@ -427,14 +411,14 @@ public abstract class BaseProperties {
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Boolean> booleanValues(String... keyParts) {
+	public List<Boolean> booleanValues(String... keyParts) {
 		return booleanValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Boolean> booleanValues(List<Boolean> def, String... keyParts) {
+	public List<Boolean> booleanValues(List<Boolean> def, String... keyParts) {
 		return values(def, Boolean::valueOf, keyParts);
 	}
 
@@ -442,7 +426,7 @@ public abstract class BaseProperties {
 	 * Retrieves the Character property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected Character charValue(String... keyParts) {
+	public Character charValue(String... keyParts) {
 		return value(value -> value.charAt(0), keyParts);
 	}
 
@@ -450,21 +434,21 @@ public abstract class BaseProperties {
 	 * Retrieves the char property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected char charValue(char def, String... keyParts) {
+	public char charValue(char def, String... keyParts) {
 		return value(def, value -> value.charAt(0), keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Character> charValues(String... keyParts) {
+	public List<Character> charValues(String... keyParts) {
 		return charValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Character> charValues(List<Character> def, String... keyParts) {
+	public List<Character> charValues(List<Character> def, String... keyParts) {
 		return values(def, value -> value.charAt(0), keyParts);
 	}
 
@@ -472,7 +456,7 @@ public abstract class BaseProperties {
 	 * Retrieves the Byte property from prefixed, dot-separated key. Returns null if no value exists
 	 * for the key.
 	 */
-	protected Byte byteValue(String... keyParts) {
+	public Byte byteValue(String... keyParts) {
 		return value(Byte::decode, keyParts);
 	}
 
@@ -480,21 +464,21 @@ public abstract class BaseProperties {
 	 * Retrieves the byte property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected byte byteValue(byte def, String... keyParts) {
+	public byte byteValue(byte def, String... keyParts) {
 		return value(def, Byte::decode, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Byte> byteValues(String... keyParts) {
+	public List<Byte> byteValues(String... keyParts) {
 		return byteValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Byte> byteValues(List<Byte> def, String... keyParts) {
+	public List<Byte> byteValues(List<Byte> def, String... keyParts) {
 		return values(def, Byte::decode, keyParts);
 	}
 
@@ -502,7 +486,7 @@ public abstract class BaseProperties {
 	 * Retrieves the Short property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected Short shortValue(String... keyParts) {
+	public Short shortValue(String... keyParts) {
 		return value(Short::decode, keyParts);
 	}
 
@@ -510,21 +494,21 @@ public abstract class BaseProperties {
 	 * Retrieves the short property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected short shortValue(short def, String... keyParts) {
+	public short shortValue(short def, String... keyParts) {
 		return value(def, Short::decode, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Short> shortValues(String... keyParts) {
+	public List<Short> shortValues(String... keyParts) {
 		return shortValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Short> shortValues(List<Short> def, String... keyParts) {
+	public List<Short> shortValues(List<Short> def, String... keyParts) {
 		return values(def, Short::decode, keyParts);
 	}
 
@@ -547,14 +531,14 @@ public abstract class BaseProperties {
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Integer> intValues(String... keyParts) {
+	public List<Integer> intValues(String... keyParts) {
 		return intValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Integer> intValues(List<Integer> def, String... keyParts) {
+	public List<Integer> intValues(List<Integer> def, String... keyParts) {
 		return values(def, Integer::decode, keyParts);
 	}
 
@@ -570,21 +554,21 @@ public abstract class BaseProperties {
 	 * Retrieves the long property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected long longValue(long def, String... keyParts) {
+	public long longValue(long def, String... keyParts) {
 		return value(def, Long::decode, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Long> longValues(String... keyParts) {
+	public List<Long> longValues(String... keyParts) {
 		return longValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Long> longValues(List<Long> def, String... keyParts) {
+	public List<Long> longValues(List<Long> def, String... keyParts) {
 		return values(def, Long::decode, keyParts);
 	}
 
@@ -592,7 +576,7 @@ public abstract class BaseProperties {
 	 * Retrieves the Float property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
-	protected Float floatValue(String... keyParts) {
+	public Float floatValue(String... keyParts) {
 		return value(Float::valueOf, keyParts);
 	}
 
@@ -600,21 +584,21 @@ public abstract class BaseProperties {
 	 * Retrieves the float property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected float floatValue(float def, String... keyParts) {
+	public float floatValue(float def, String... keyParts) {
 		return value(def, Float::valueOf, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Float> floatValues(String... keyParts) {
+	public List<Float> floatValues(String... keyParts) {
 		return floatValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Float> floatValues(List<Float> def, String... keyParts) {
+	public List<Float> floatValues(List<Float> def, String... keyParts) {
 		return values(def, Float::valueOf, keyParts);
 	}
 
@@ -637,14 +621,14 @@ public abstract class BaseProperties {
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Double> doubleValues(String... keyParts) {
+	public List<Double> doubleValues(String... keyParts) {
 		return doubleValues(null, keyParts);
 	}
 
 	/**
 	 * Retrieves the list of property from prefixed, dot-separated key.
 	 */
-	protected List<Double> doubleValues(List<Double> def, String... keyParts) {
+	public List<Double> doubleValues(List<Double> def, String... keyParts) {
 		return values(def, Double::valueOf, keyParts);
 	}
 
@@ -660,7 +644,7 @@ public abstract class BaseProperties {
 	 * Retrieves the File property from prefixed, dot-separated key. Returns default value if no
 	 * value exists for the key.
 	 */
-	protected java.nio.file.Path pathValue(java.nio.file.Path def, String... keyParts) {
+	public java.nio.file.Path pathValue(java.nio.file.Path def, String... keyParts) {
 		return value(def, java.nio.file.Path::of, keyParts);
 	}
 
@@ -684,7 +668,7 @@ public abstract class BaseProperties {
 	/**
 	 * Returns true if child key exists.
 	 */
-	protected boolean hasChild(String... keyParts) {
+	public boolean hasChild(String... keyParts) {
 		String key = key(keyParts);
 		if (properties.property(key) != null) return true;
 		String prefix = key + ".";
@@ -697,6 +681,19 @@ public abstract class BaseProperties {
 	public List<String> descendants(String... keyParts) {
 		String key = PathFactory.dot.path(keyParts).value;
 		return toList(childKeyStream(key, DESCENDENT_KEY_PATTERN));
+	}
+
+	@Override
+	public String toString() {
+		return properties.toString();
+	}
+
+	/**
+	 * Creates a prefixed, dot-separated immutable key from key parts. e.g. ab, cd, ef =>
+	 * <prefix>.ab.cd.ef
+	 */
+	protected String key(String... keyParts) {
+		return PathFactory.dot.path(prefix, keyParts).value;
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {
@@ -734,5 +731,4 @@ public abstract class BaseProperties {
 		if (stringValues == null) return def;
 		return toList(stringValues.stream().map(constructor));
 	}
-
 }

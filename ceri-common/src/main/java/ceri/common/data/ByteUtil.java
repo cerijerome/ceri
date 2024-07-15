@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 
@@ -45,6 +46,30 @@ public class ByteUtil {
 			int bit = bitFn.applyAsInt(i % Byte.SIZE);
 			return bit(value, bit);
 		});
+	}
+
+	/**
+	 * Iterate over the set bits of a mask. A true highBit iterates down.
+	 */
+	public static <E extends Exception> void iterateMask(boolean highBit, int mask,
+		ExceptionIntConsumer<E> consumer) throws E {
+		iterateMask(highBit, MathUtil.uint(mask), consumer);
+	}
+
+	/**
+	 * Iterate over the set bits of a mask. A true highBit iterates down.
+	 */
+	public static <E extends Exception> void iterateMask(boolean highBit, long mask,
+		ExceptionIntConsumer<E> consumer) throws E {
+		int min = Long.numberOfTrailingZeros(mask);
+		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
+		if (highBit) {
+			for (int i = min; i <= max; i++)
+				if (bit(mask, i)) consumer.accept(i);
+		} else {
+			for (int i = max; i >= min; i--)
+				if (bit(mask, i)) consumer.accept(i);
+		}
 	}
 
 	/**
@@ -477,7 +502,7 @@ public class ByteUtil {
 			if (bit(value, i)) bits[j++] = i;
 		return bits;
 	}
-	
+
 	/**
 	 * Returns an array of the bits that are set.
 	 */
@@ -487,7 +512,7 @@ public class ByteUtil {
 			if (bit(value, i)) bits[j++] = i;
 		return bits;
 	}
-	
+
 	/**
 	 * Returns true if the given bit is set in the value.
 	 */

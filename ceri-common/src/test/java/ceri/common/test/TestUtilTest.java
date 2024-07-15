@@ -24,7 +24,7 @@ import org.junit.Test;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Align;
 
@@ -50,7 +50,7 @@ public class TestUtilTest {
 	public void testIsTest() {
 		assertTrue(TestUtil.isTest);
 	}
-	
+
 	@Test
 	public void testGc() {
 		TestUtil.gc();
@@ -201,15 +201,9 @@ public class TestUtilTest {
 	}
 
 	@Test
-	public void testBaseProperties() {
-		BaseProperties properties = TestUtil.baseProperties("test");
-		var p = new BaseProperties(properties, "a") {
-			@Override
-			public String toString() {
-				return value("b");
-			}
-		};
-		assertEquals(p.toString(), "123");
+	public void testTypedProperties() {
+		TypedProperties properties = TestUtil.typedProperties("test", "a");
+		assertEquals(properties.value("b"), "123");
 	}
 
 	@Test

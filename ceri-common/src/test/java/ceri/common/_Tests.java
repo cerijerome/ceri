@@ -240,12 +240,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.process.ProcessUtilTest.class, //
 	ceri.common.process.ProcessorBehavior.class, //
 	// property
-	ceri.common.property.BasePropertiesBehavior.class, //
 	ceri.common.property.LocatorBehavior.class, //
 	ceri.common.property.PathBehavior.class, //
 	ceri.common.property.PathFactoryBehavior.class, //
 	ceri.common.property.PropertyAccessorBehavior.class, //
 	ceri.common.property.PropertyUtilTest.class, //
+	ceri.common.property.TypedPropertiesBehavior.class, //
 	// reflect
 	ceri.common.reflect.AnnotationUtilTest.class, //
 	ceri.common.reflect.CallerBehavior.class, //

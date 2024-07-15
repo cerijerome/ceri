@@ -25,18 +25,32 @@ public class ValueCondition<T> {
 	private final BinaryOperator<T> merger;
 	private T value = null;
 
+	/**
+	 * Creates an instance with its own lock. A new signal value overwrites an existing value.
+	 */
 	public static <T> ValueCondition<T> of() {
 		return of(new ReentrantLock());
 	}
 
+	/**
+	 * Creates an instance with the given lock. A new signal value overwrites an existing value.
+	 */
 	public static <T> ValueCondition<T> of(Lock lock) {
 		return of(lock, BasicUtil.uncheckedCast(REPLACER));
 	}
 
+	/**
+	 * Creates an instance with its own lock and a function that merges a new signal value to its
+	 * existing value (either of which may be null).
+	 */
 	public static <T> ValueCondition<T> of(BinaryOperator<T> merger) {
 		return of(new ReentrantLock(), merger);
 	}
 
+	/**
+	 * Creates an instance with the given lock and a function that merges a new signal value to its
+	 * existing value (either of which may be null).
+	 */
 	public static <T> ValueCondition<T> of(Lock lock, BinaryOperator<T> merger) {
 		return new ValueCondition<>(lock, merger);
 	}

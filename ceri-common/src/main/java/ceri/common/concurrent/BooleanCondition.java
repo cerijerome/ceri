@@ -33,7 +33,14 @@ public class BooleanCondition {
 	 * Signals waiting threads. Returns true if the signal state changed to true.
 	 */
 	public boolean signal() {
-		return !isSet(condition.signal(value));
+		return condition.signal(value) == null;
+	}
+
+	/**
+	 * Sets the condition without signaling. Returns true if the state changed to true.
+	 */
+	public boolean set() {
+		return condition.set(value) == null;
 	}
 
 	/**

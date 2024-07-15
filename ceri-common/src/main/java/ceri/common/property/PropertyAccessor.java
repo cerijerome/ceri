@@ -33,6 +33,13 @@ public interface PropertyAccessor {
 	void property(String key, String value);
 
 	/**
+	 * Checks if the properties have been modified, and clears modified state.
+	 */
+	default boolean modified() {
+		return false;
+	}
+	
+	/**
 	 * Iterate over each key and value.
 	 */
 	default void forEach(BiConsumer<String, String> consumer) {
@@ -52,6 +59,8 @@ public interface PropertyAccessor {
 	 */
 	static PropertyAccessor from(Properties properties) {
 		return new PropertyAccessor() {
+			private volatile boolean modified = false;
+			
 			@Override
 			public Set<String> keys() {
 				return properties.stringPropertyNames();
@@ -64,10 +73,20 @@ public interface PropertyAccessor {
 
 			@Override
 			public void property(String key, String value) {
-				if (value == null) properties.remove(key);
-				else properties.put(key, value);
+				if (value == null) {
+					if (properties.remove(key) != null) modified = true;
+				} else {
+					if (!value.equals(properties.put(key, value))) modified = true;
+				}
 			}
 
+			@Override
+			public boolean modified() {
+				var modified = this.modified;
+				this.modified = false;
+				return modified;
+			}
+			
 			@Override
 			public String toString() {
 				return properties.toString();
@@ -99,7 +118,7 @@ public interface PropertyAccessor {
 			public Map<String, String> properties() {
 				return CollectionUtil.toMap(Function.identity(), this::property, keys());
 			}
-
+			
 			@Override
 			public String toString() {
 				return bundle.toString();

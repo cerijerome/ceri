@@ -36,7 +36,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.math.MathUtil;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.property.PropertyUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
@@ -146,16 +146,16 @@ public class TestUtil {
 	/**
 	 * Creates BaseProperties from name.properties file under caller's package.
 	 */
-	public static BaseProperties baseProperties(String name) {
+	public static TypedProperties typedProperties(String name, String... prefix) {
 		Class<?> cls = ReflectUtil.previousCaller(1).cls();
-		return baseProperties(cls, name);
+		return typedProperties(cls, name, prefix);
 	}
 
 	/**
 	 * Creates BaseProperties from name.properties under class package.
 	 */
-	public static BaseProperties baseProperties(Class<?> cls, String name) {
-		return BaseProperties.from(properties(cls, name));
+	public static TypedProperties typedProperties(Class<?> cls, String name, String... prefix) {
+		return TypedProperties.from(properties(cls, name), prefix);
 	}
 
 	/**
