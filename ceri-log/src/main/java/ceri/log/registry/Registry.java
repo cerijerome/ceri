@@ -1,53 +1,65 @@
 package ceri.log.registry;
 
+import java.util.function.Consumer;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.function.RuntimeCloseable;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 
 public interface Registry {
 	/** A no-op, stateless instance. */
-	Registry NULL = () -> Opened.NULL;
+	Registry NULL = new Null();
 
 	/**
-	 * Locks the registry for reads/writes until close() is called on the returned accessor.
+	 * Queue a registry update. The registry determines when to execute queued updates, which may be
+	 * in a separate thread.
 	 */
-	Opened open();
+	default void queue(Consumer<TypedProperties> update) {
+		queue(new Object(), update);
+	}
 
 	/**
-	 * Convenience method. Opens the registry, provides property access to the reader, closes the
-	 * registry, and returns the reader result.
+	 * Replace any currently queued updates from the given source with the given update. The
+	 * registry determines when to execute queued updates, which may be in a separate thread.
 	 */
-	default <E extends Exception, T> T read(ExceptionFunction<E, BaseProperties, T> reader)
+	void queue(Object source, Consumer<TypedProperties> update);
+
+	/**
+	 * Executes the function immediately, passing the registry properties.
+	 */
+	<E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function) throws E;
+
+	/**
+	 * Executes the consumer immediately, passing the registry properties.
+	 */
+	default <E extends Exception> void accept(ExceptionConsumer<E, TypedProperties> consumer)
 		throws E {
-		try (var properties = open()) {
-			return reader.apply(properties);
-		}
+		apply(p -> {
+			consumer.accept(p);
+			return null;
+		});
 	}
 
 	/**
-	 * Convenience method. Opens the registry, provides property access to the writer, and closes
-	 * the registry.
+	 * Return a registry with access relative to a sub-group.
 	 */
-	default <E extends Exception> void write(ExceptionConsumer<E, BaseProperties> writer) throws E {
-		try (var properties = open()) {
-			writer.accept(properties);
-		}
-	}
+	Registry sub(String... subs);
 
 	/**
-	 * The registry accessor
+	 * A no-op, stateless implementation.
 	 */
-	abstract class Opened extends BaseProperties implements RuntimeCloseable {
-		/** A no-op stateless instance. */
-		public static final Opened NULL = new Opened(BaseProperties.NULL) {
-			@Override
-			public void close() {}
-		};
+	class Null implements Registry {
+		@Override
+		public void queue(Object source, Consumer<TypedProperties> update) {}
 
-		protected Opened(BaseProperties properties, String... prefix) {
-			super(properties, prefix);
+		@Override
+		public <E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function)
+			throws E {
+			return function.apply(TypedProperties.NULL);
+		}
+
+		@Override
+		public Registry sub(String... subs) {
+			return this;
 		}
 	}
-
 }

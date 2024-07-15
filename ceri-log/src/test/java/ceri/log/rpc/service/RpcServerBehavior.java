@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class RpcServerBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcServerProperties(baseProperties("rpc-server"), "rpc-server").config();
+		var config = new RpcServerProperties(typedProperties("rpc-server"), "rpc-server").config();
 		assertEquals(config.port, 12345);
 		assertEquals(config.shutdownTimeoutMs, 1000);
 	}

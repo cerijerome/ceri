@@ -1,14 +1,14 @@
 package ceri.log.rpc.client;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
-public class RpcClientNotifierProperties extends Ref<BaseProperties> {
+public class RpcClientNotifierProperties extends Ref<TypedProperties> {
 	private static final String RESET_DELAY_MS_KEY = "reset.delay.ms";
 
-	public RpcClientNotifierProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public RpcClientNotifierProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public RpcClientNotifier.Config config() {

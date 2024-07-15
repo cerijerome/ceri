@@ -3,10 +3,10 @@ package ceri.log.net;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
-public class TcpSocketProperties extends Ref<BaseProperties> {
+public class TcpSocketProperties extends Ref<TypedProperties> {
 	private static final String HOST_PORT_KEY = "host.port";
 	private static final String OPTION_KEY = "option";
 	private static final String SO_TIMEOUT_KEY = "so.timeout"; // int
@@ -19,8 +19,8 @@ public class TcpSocketProperties extends Ref<BaseProperties> {
 	private static final String SO_SNDBUF_KEY = "so.sndbuf"; // int
 	private static final String SO_RCVBUF_KEY = "so.rcvbuf"; // int
 
-	public TcpSocketProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public TcpSocketProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public HostPort hostPort() {

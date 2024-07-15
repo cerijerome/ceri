@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.threadRun;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
@@ -57,7 +57,7 @@ public class SelfHealingBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() {
-		var config = new SelfHealingProperties(baseProperties("self-healing"), "device").config();
+		var config = new SelfHealingProperties(typedProperties("self-healing"), "device").config();
 		assertEquals(config.fixRetryDelayMs, 123);
 		assertEquals(config.recoveryDelayMs, 456);
 	}

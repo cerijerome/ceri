@@ -1,15 +1,15 @@
 package ceri.log.rpc.service;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
-public class RpcServerProperties extends Ref<BaseProperties> {
+public class RpcServerProperties extends Ref<TypedProperties> {
 	private static final String PORT_KEY = "port";
 	private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
 
-	public RpcServerProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public RpcServerProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public RpcServer.Config config() {

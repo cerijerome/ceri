@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class RpcClientNotifierBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		var config =
-			new RpcClientNotifierProperties(baseProperties("rpc-client"), "rpc-client.notifier")
+			new RpcClientNotifierProperties(typedProperties("rpc-client"), "rpc-client.notifier")
 				.config();
 		assertEquals(config.resetDelayMs, 1000);
 	}

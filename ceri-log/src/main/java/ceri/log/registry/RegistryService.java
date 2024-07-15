@@ -8,32 +8,42 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Properties;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.SequencedMap;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
 import ceri.common.function.ExceptionConsumer;
-import ceri.common.property.BaseProperties;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.property.PropertyAccessor;
+import ceri.common.property.TypedProperties;
 import ceri.common.time.DateUtil;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 
+/**
+ * A registry persistence service, allowing direct access and queued updates.
+ */
 public class RegistryService extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private static final int DELAY_MS_DEF = 5000;
 	private static final int ERROR_DELAY_MS_DEF = 5000;
-	private final Lock lock = new ReentrantLock();
-	private final BooleanCondition sync = BooleanCondition.of(lock);
+	private final Locker locker = Locker.of();
+	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
 	private final ExceptionConsumer<IOException, Properties> loadFn;
 	private final ExceptionConsumer<IOException, Properties> saveFn;
 	private final int delayMs;
 	private final int errorDelayMs;
+	private final SequencedMap<Object, Runnable> updates = new LinkedHashMap<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private final Properties properties = new Properties();
+	private final PropertyAccessor accessor = PropertyAccessor.from(properties);
+	public final Registry registry = registry(TypedProperties.of(accessor));
 
 	public static RegistryService of(String name, Path path) throws IOException {
 		return of(name, path, DELAY_MS_DEF, ERROR_DELAY_MS_DEF);
@@ -41,8 +51,7 @@ public class RegistryService extends LoopingExecutor {
 
 	public static RegistryService of(String name, Path path, int delayMs, int errorDelayMs)
 		throws IOException {
-		return of(p -> loadPath(p, path), p -> savePath(p, path, name), delayMs,
-			errorDelayMs);
+		return of(p -> loadPath(p, path), p -> savePath(p, path, name), delayMs, errorDelayMs);
 	}
 
 	public static RegistryService of(ExceptionConsumer<IOException, Properties> loadFn,
@@ -67,41 +76,9 @@ public class RegistryService extends LoopingExecutor {
 		if (saveFn != null) start();
 	}
 
-	private class Opened extends Registry.Opened {
-		private boolean modified = false;
-		public final Registry registry = () -> open();
-
-		private Opened(String... groups) {
-			super(BaseProperties.from(properties), groups);
-		}
-
-		@Override
-		public void setValue(Object value, String... keyParts) {
-			super.setValue(value, keyParts);
-			modified = true;
-		}
-
-		@Override
-		public void close() {
-			if (modified) persist();
-			modified = false;
-			lock.unlock();
-		}
-
-		private Opened open() {
-			lock.lock();
-			modified = false;
-			return this;
-		}
-	}
-
-	@SuppressWarnings("resource")
-	public Registry registry(String... prefix) {
-		return new Opened(prefix).registry;
-	}
-
-	public void persist() {
-		sync.signal();
+	public void persist(boolean urgent) {
+		if (urgent) sync.signal();
+		else sync.set();
 	}
 
 	@Override
@@ -113,16 +90,50 @@ public class RegistryService extends LoopingExecutor {
 	@Override
 	protected void loop() throws InterruptedException {
 		try {
-			if (exceptions.isEmpty()) sync.await();
-			save();
+			if (exceptions.isEmpty()) sync.await(delayMs);
+			if (processUpdates()) save();
 			exceptions.clear();
-			millis.delay(delayMs);
 		} catch (RuntimeInterruptedException e) {
 			throw e;
-		} catch (IOException | RuntimeException e) {
+		} catch (Exception e) {
 			if (exceptions.add(e)) logger.catching(e);
 			millis.delay(errorDelayMs);
 		}
+	}
+
+	private boolean processUpdates() {
+		try (var locked = locker.lock()) {
+			while (true) {
+				var entry = updates.pollFirstEntry();
+				if (entry == null) break;
+				entry.getValue().run();
+			}
+			return accessor.modified();
+		}
+	}
+
+	private Registry registry(TypedProperties properties) {
+		return new Registry() {
+			@Override
+			public void queue(Object source, Consumer<TypedProperties> update) {
+				try (var locked = locker.lock()) {
+					updates.put(source, () -> update.accept(properties));
+				}
+			}
+
+			@Override
+			public <E extends Exception, T> T
+				apply(ExceptionFunction<E, TypedProperties, T> function) throws E {
+				try (var locked = locker.lock()) {
+					return function.apply(properties);
+				}
+			}
+
+			@Override
+			public Registry sub(String... subs) {
+				return registry(TypedProperties.from(properties, subs));
+			}
+		};
 	}
 
 	private void load() throws IOException {

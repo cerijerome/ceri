@@ -10,7 +10,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
@@ -74,7 +74,7 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldCreateFromProperties() {
 		SelfHealingTcpSocket.Config config =
-			new SelfHealingTcpSocketProperties(baseProperties("self-healing-tcp-socket"), "socket")
+			new SelfHealingTcpSocketProperties(typedProperties("self-healing-tcp-socket"), "socket")
 				.config();
 		assertEquals(config.hostPort, HostPort.of("test", 123));
 		assertEquals(config.options.get(TcpSocketOption.soTimeout), 111);

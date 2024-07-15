@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class RpcChannelBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcChannelProperties(baseProperties("rpc-client"), "rpc-client").config();
+		var config = new RpcChannelProperties(typedProperties("rpc-client"), "rpc-client").config();
 		assertEquals(config.host, "127.0.0.1");
 		assertEquals(config.port, 12345);
 	}
