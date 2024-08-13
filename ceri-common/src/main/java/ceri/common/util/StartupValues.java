@@ -251,7 +251,7 @@ public class StartupValues {
 	}
 
 	/**
-	 * Set a notifier Creates an instance that prints value assignments to the given notifier.
+	 * Set a notifier to receive value assignment messages.
 	 */
 	public StartupValues notifier(Consumer<String> notifier) {
 		this.notifier = notifier;

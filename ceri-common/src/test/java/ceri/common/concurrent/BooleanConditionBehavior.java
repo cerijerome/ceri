@@ -25,6 +25,15 @@ public class BooleanConditionBehavior {
 	}
 
 	@Test
+	public void shouldSetWithoutSignal() {
+		BooleanCondition flag = BooleanCondition.of();
+		assertFalse(flag.isSet());
+		assertTrue(flag.set());
+		assertFalse(flag.set());
+		assertTrue(flag.isSet());
+	}
+
+	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
 		BooleanCondition flag = BooleanCondition.of();
 		assertFalse(flag.isSet());

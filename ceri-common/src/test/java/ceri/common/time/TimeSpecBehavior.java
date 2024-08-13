@@ -14,7 +14,21 @@ public class TimeSpecBehavior {
 	public void shouldCreateWithCurrentInstant() {
 		var t0 = TimeSpec.from(Instant.now()).totalMillis();
 		var t = TimeSpec.now().totalMillis();
-		assertRange(t, t0, t0+ 1000);
+		assertRange(t, t0, t0 + 1000);
+	}
+
+	@Test
+	public void shouldCreateFromCurrentMillis() {
+		long t0 = TimeSupplier.millis.time();
+		var t = TimeSpec.nowMillis().totalMillis();
+		assertRange(t, t0, t0 + 1000);
+	}
+
+	@Test
+	public void shouldCreateFromCurrentNanos() {
+		long t0 = TimeSupplier.nanos.time();
+		var t = TimeSpec.nowNanos().totalNanos();
+		assertRange(t, t0, t0 + 1000000000L);
 	}
 
 	@Test
@@ -31,11 +45,6 @@ public class TimeSpecBehavior {
 		var t = TimeSpec.from(duration);
 		assertTimeSpec(t, 124, 234567890);
 		assertEquals(t.toDuration(), duration);
-	}
-
-	@Test
-	public void shouldCreateFromMicros() {
-		assertTimeSpec(TimeSpec.ofMicros(123, 4567890), 123, 4567890000L);
 	}
 
 	@Test

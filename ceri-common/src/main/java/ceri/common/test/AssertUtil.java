@@ -721,12 +721,10 @@ public class AssertUtil {
 		int i = 0;
 		var iter = iterable.iterator();
 		while (iter.hasNext()) {
-			if (i >= consumers.length)
-				throw failure("No consumers from index %d", i);
+			if (i >= consumers.length) throw failure("No consumers from index %d", i);
 			consumers[i++].accept(iter.next());
 		}
-		if (i < consumers.length)
-			throw failure("Expected %d items: %d", consumers.length, i);
+		if (i < consumers.length) throw failure("Expected %d items: %d", consumers.length, i);
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject) {

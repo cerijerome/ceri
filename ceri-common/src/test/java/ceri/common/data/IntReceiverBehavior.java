@@ -67,6 +67,12 @@ public class IntReceiverBehavior {
 	}
 
 	@Test
+	public void shouldSetEachInt() {
+		assertInts(0, br -> assertEquals(br.setEachInt(i -> -i), 0));
+		assertInts(3, br -> assertEquals(br.setEachInt(i -> -i), 3), 0, -1, -2);
+	}
+
+	@Test
 	public void shouldSliceReceivingIntRange() {
 		int[] ints = new int[5];
 		IntReceiver br = receiver(ints, 0, ints.length);
@@ -113,12 +119,6 @@ public class IntReceiverBehavior {
 		assertInts(3, br -> br.writer(0).writeInt(1).writeInt(2), 1, 2, 0);
 		assertThrown(() -> receiver(3).writer(1, 0).writeInt(2));
 	}
-
-	// @Test
-	// public void shouldWriteLong() {
-	// assertInts(5, br -> br.writer(0).writeEndian(0xfedcba, 3, true), 0xfe, 0xdc, 0xba, 0, 0);
-	// assertInts(5, br -> br.writer(2).writeEndian(0xfedcba, 3, false), 0, 0, 0xba, 0xdc, 0xfe);
-	// }
 
 	@Test
 	public void shouldWriteString() {

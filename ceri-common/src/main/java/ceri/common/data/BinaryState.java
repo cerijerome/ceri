@@ -6,13 +6,14 @@ import ceri.common.util.BasicUtil;
  * Encapsulates on/off or unknown states.
  */
 public enum BinaryState {
-	unknown(-1),
-	off(0),
-	on(1);
+	unknown(-1, '?'),
+	off(0, '0'),
+	on(1, '1');
 
 	public static final TypeTranscoder<BinaryState> xcoder =
 		TypeTranscoder.of(t -> t.value, BinaryState.class);
 	public final int value;
+	public final char symbol;
 
 	public static boolean known(BinaryState state) {
 		return state != null && state.known();
@@ -30,15 +31,16 @@ public enum BinaryState {
 		return BasicUtil.conditional(isOn, on, off, unknown);
 	}
 
-	private BinaryState(int value) {
+	private BinaryState(int value, char symbol) {
 		this.value = value;
+		this.symbol = symbol;
 	}
 
 	public BinaryState invert() {
 		if (!known()) return this;
 		return this == on ? off : on;
 	}
-	
+
 	public boolean known() {
 		return this != unknown;
 	}

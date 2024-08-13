@@ -55,6 +55,13 @@ public class ExceptionUtil {
 	}
 
 	/**
+	 * Use to avoid declaring a thrown checked exception.
+	 */
+	public static <E extends Throwable> void throwUnchecked(Throwable e) throws E {
+		throw BasicUtil.<E>uncheckedCast(e);
+	}
+
+	/**
 	 * Gets the root cause of a throwable.
 	 */
 	public static Throwable rootCause(Throwable t) {

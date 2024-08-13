@@ -15,14 +15,14 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	private final ExceptionRunnable<E> closer;
 
 	/**
-	 * Return an empty instance.
+	 * Return an empty instance. Use of(null, null) for typed exception.
 	 */
 	public static <T> Enclosed<RuntimeException, T> empty() {
 		return of(null, null);
 	}
 
 	/**
-	 * Create an instance that has no close operation.
+	 * Create an instance that has no close operation. Use of(T, null) for typed exception.
 	 */
 	public static <T> Enclosed<RuntimeException, T> noOp(T subject) {
 		return of(subject, null);
@@ -35,7 +35,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		ExceptionCloseable<E> closeable) {
 		return of(subject, x -> closeable.close());
 	}
-	
+
 	/**
 	 * Create an instance with a subject, and a close method. If the subject is null, the close
 	 * method is not executed.

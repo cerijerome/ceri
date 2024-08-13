@@ -20,7 +20,23 @@ public enum Direction {
 		return BasicUtil.conditional(isOut, out, in, none);
 	}
 
+	public static boolean in(Direction direction) {
+		return direction != null && direction.in();
+	}
+
+	public static boolean out(Direction direction) {
+		return direction != null && direction.out();
+	}
+
 	private Direction(int value) {
 		this.value = value;
+	}
+
+	public boolean in() {
+		return this == in || this == duplex;
+	}
+
+	public boolean out() {
+		return this == out || this == duplex;
 	}
 }

@@ -6,6 +6,30 @@ import org.junit.Test;
 public class BinaryStateBehavior {
 
 	@Test
+	public void testInvert() {
+		assertEquals(BinaryState.invert(null), null);
+		assertEquals(BinaryState.invert(BinaryState.unknown), BinaryState.unknown);
+		assertEquals(BinaryState.invert(BinaryState.on), BinaryState.off);
+		assertEquals(BinaryState.invert(BinaryState.off), BinaryState.on);
+	}
+
+	@Test
+	public void testKnown() {
+		assertEquals(BinaryState.known(null), false);
+		assertEquals(BinaryState.known(BinaryState.unknown), false);
+		assertEquals(BinaryState.known(BinaryState.on), true);
+		assertEquals(BinaryState.known(BinaryState.off), true);
+	}
+
+	@Test
+	public void testBool() {
+		assertEquals(BinaryState.bool(null), null);
+		assertEquals(BinaryState.bool(BinaryState.unknown), null);
+		assertEquals(BinaryState.bool(BinaryState.on), true);
+		assertEquals(BinaryState.bool(BinaryState.off), false);
+	}
+
+	@Test
 	public void shouldGetFromBoolean() {
 		assertEquals(BinaryState.from(null), BinaryState.unknown);
 		assertEquals(BinaryState.from(true), BinaryState.on);

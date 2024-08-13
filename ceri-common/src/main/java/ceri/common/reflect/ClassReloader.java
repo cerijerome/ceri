@@ -20,8 +20,8 @@ public class ClassReloader extends ClassLoader {
 	 * Reloads and initializes the given class; support classes are reloaded if accessed.
 	 */
 	public static <T> Class<T> reload(Class<T> cls, Class<?>... supportClasses) {
-		return ExceptionUtil.shouldNotThrow(() -> BasicUtil.uncheckedCast(
-			Class.forName(cls.getName(), true, of(ArrayUtil.asList(cls, supportClasses)))));
+		return BasicUtil.uncheckedCast(ExceptionUtil.shouldNotThrow(
+			() -> Class.forName(cls.getName(), true, of(ArrayUtil.asList(cls, supportClasses)))));
 	}
 
 	/**
@@ -73,8 +73,8 @@ public class ClassReloader extends ClassLoader {
 	 * file resource. For other classes, standard delegating ClassLoader logic is applied.
 	 */
 	public <T> Class<T> load(Class<T> cls) {
-		return ExceptionUtil
-			.shouldNotThrow(() -> BasicUtil.uncheckedCast(loadClass(cls.getName())));
+		return BasicUtil
+			.uncheckedCast(ExceptionUtil.shouldNotThrow(() -> loadClass(cls.getName())));
 	}
 
 }

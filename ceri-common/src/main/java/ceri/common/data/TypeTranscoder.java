@@ -99,6 +99,10 @@ public class TypeTranscoder<T> {
 		return FieldTranscoder.Typed.of(accessor, this);
 	}
 
+	public long encodeAll() {
+		return encode(all());
+	}
+	
 	@SafeVarargs
 	public final long encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
@@ -115,6 +119,10 @@ public class TypeTranscoder<T> {
 		return mask.encodeInt(encodeTypes(rem.types) | rem.diff);
 	}
 
+	public int encodeAllInt() {
+		return (int) encodeAll();
+	}
+	
 	@SafeVarargs
 	public final int encodeInt(T... ts) {
 		return (int) encode(ts);

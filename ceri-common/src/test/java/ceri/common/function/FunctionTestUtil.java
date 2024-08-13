@@ -205,6 +205,13 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionIntBinaryConsumer<IOException> intBinaryConsumer() {
+		return (i, j) -> {
+			if (i == 1 || j == 1) throw new IOException("1");
+			if (i == 0 || j == 0) throw new RuntimeException("0");
+		};
+	}
+
 	public static ExceptionIntBinaryOperator<IOException> intBinaryOperator() {
 		return (i, j) -> {
 			if (i == 1 || j == 1) throw new IOException("1");
@@ -418,6 +425,12 @@ public class FunctionTestUtil {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 				return i + j;
+			};
+		}
+
+		public static IntBinaryConsumer intBinaryConsumer() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
 			};
 		}
 

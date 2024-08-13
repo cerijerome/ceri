@@ -2,12 +2,14 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
+import java.util.Collection;
 import java.util.PrimitiveIterator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
+import ceri.common.function.ExceptionIntBinaryConsumer;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 
@@ -32,8 +34,18 @@ public interface IntProvider extends Iterable<Integer> {
 		return IntArray.Immutable.EMPTY;
 	}
 
+	/**
+	 * Create an unmodifiable wrapper for the given values.
+	 */
 	static IntProvider of(int... ints) {
 		return IntArray.Immutable.wrap(ints);
+	}
+
+	/**
+	 * Create an immutable provider for the given values.
+	 */
+	static IntProvider of(Collection<Integer> ints) {
+		return of(ArrayUtil.ints(ints));
 	}
 
 	/**
@@ -168,6 +180,14 @@ public interface IntProvider extends Iterable<Integer> {
 	@Override
 	default PrimitiveIterator.OfInt iterator() {
 		return Iterators.intIndexed(length(), this::getInt);
+	}
+
+	/**
+	 * Iterates over each index and value.
+	 */
+	default <E extends Exception> void getEachInt(ExceptionIntBinaryConsumer<E> consumer) throws E {
+		for (int i = 0; i < length(); i++)
+			consumer.accept(i, getInt(i));
 	}
 
 	/**

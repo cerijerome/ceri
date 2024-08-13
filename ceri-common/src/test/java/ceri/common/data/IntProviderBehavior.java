@@ -6,6 +6,8 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwRuntime;
+import java.util.List;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
@@ -28,8 +30,8 @@ public class IntProviderBehavior {
 
 	@Test
 	public void testToHex() {
-		assertEquals(IntProvider.toHex(ip), "[0x0, 0xffffffff, 0x2, 0xfffffffd, 0x4, " +
-			"0xfffffffb, 0x6, 0xfffffff9, 0x8, 0xfffffff7](10)");
+		assertEquals(IntProvider.toHex(ip), "[0x0, 0xffffffff, 0x2, 0xfffffffd, 0x4, "
+			+ "0xfffffffb, 0x6, 0xfffffff9, 0x8, 0xfffffff7](10)");
 		assertEquals(IntProvider.toHex(ip, 3), "[0x0, 0xffffffff, ...](10)");
 	}
 
@@ -37,6 +39,12 @@ public class IntProviderBehavior {
 	public void testToString() {
 		assertEquals(IntProvider.toString(ip), "[0, -1, 2, -3, 4, -5, 6, -7, 8, -9](10)");
 		assertEquals(IntProvider.toString(ip, 3), "[0, -1, ...](10)");
+	}
+
+	@Test
+	public void shouldCreateFromCollection() {
+		assertArray(IntProvider.of(List.of()));
+		assertArray(IntProvider.of(List.of(-1, 1, 0)), -1, 1, 0);
 	}
 
 	@Test
@@ -127,6 +135,14 @@ public class IntProviderBehavior {
 		assertThrown(() -> ip.copyTo(6, h.receiver));
 		assertThrown(() -> ip.copyTo(-1, h.receiver));
 		assertThrown(() -> ip.copyTo(1, h.receiver, 0, 6));
+	}
+
+	@Test
+	public void shouldGetEachInt() {
+		provider().getEachInt((i, n) -> throwRuntime());
+		int[] array = new int[ip.length()];
+		ip.getEachInt((i, n) -> array[i] = -n);
+		assertArray(array, 0, 1, -2, 3, -4, 5, -6, 7, -8, 9);
 	}
 
 	@Test

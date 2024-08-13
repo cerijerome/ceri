@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
+import ceri.common.collection.StreamUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.math.MathUtil;
@@ -53,7 +54,9 @@ public class ByteUtil {
 	 */
 	public static <E extends Exception> void iterateMask(boolean highBit, int mask,
 		ExceptionIntConsumer<E> consumer) throws E {
-		iterateMask(highBit, MathUtil.uint(mask), consumer);
+		int min = Integer.numberOfTrailingZeros(mask);
+		int max = Integer.SIZE - Integer.numberOfLeadingZeros(mask) - 1;
+		iterateMask(highBit, MathUtil.uint(mask), consumer, min, max);
 	}
 
 	/**
@@ -63,13 +66,7 @@ public class ByteUtil {
 		ExceptionIntConsumer<E> consumer) throws E {
 		int min = Long.numberOfTrailingZeros(mask);
 		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
-		if (highBit) {
-			for (int i = min; i <= max; i++)
-				if (bit(mask, i)) consumer.accept(i);
-		} else {
-			for (int i = max; i >= min; i--)
-				if (bit(mask, i)) consumer.accept(i);
-		}
+		iterateMask(highBit, mask, consumer, min, max);
 	}
 
 	/**
@@ -385,15 +382,15 @@ public class ByteUtil {
 	/**
 	 * Applies a single bit mask inclusively or exclusively. The bit does not wrap.
 	 */
-	public static long applyBit(long value, int bit, boolean on) {
-		return applyMask(value, maskOfBit(true, bit), on);
+	public static long applyBits(long value, boolean on, int... bits) {
+		return applyMask(value, maskOfBits(bits), on);
 	}
 
 	/**
 	 * Applies a single bit mask inclusively or exclusively. The bit does not wrap.
 	 */
-	public static int applyBitInt(int value, int bit, boolean on) {
-		return applyMaskInt(value, maskOfBitInt(true, bit), on);
+	public static int applyBitsInt(int value, boolean on, int... bits) {
+		return applyMaskInt(value, maskOfBitsInt(bits), on);
 	}
 
 	/**
@@ -448,8 +445,20 @@ public class ByteUtil {
 	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
 	 */
 	public static long maskOfBits(Collection<Integer> bits) {
-		if (bits == null) return 0;
-		return maskOfBits(ArrayUtil.ints(bits));
+		if (bits == null) return 0L;
+		long mask = 0L;
+		for (int bit : bits)
+			if (bit >= 0 && bit < Long.SIZE) mask |= 1L << bit;
+		return mask;
+	}
+
+	/**
+	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
+	 */
+	public static long maskOfBits(IntStream bits) {
+		if (bits == null) return 0L;
+		return StreamUtil
+			.bitwiseOr(bits.mapToLong(bit -> (bit >= 0 && bit < Long.SIZE) ? 1L << bit : 0L));
 	}
 
 	/**
@@ -457,10 +466,10 @@ public class ByteUtil {
 	 */
 	public static long maskOfBits(int... bits) {
 		if (bits == null) return 0L;
-		long value = 0L;
+		long mask = 0L;
 		for (int bit : bits)
-			if (bit < Long.SIZE) value |= 1L << bit;
-		return value;
+			if (bit >= 0 && bit < Long.SIZE) mask |= 1L << bit;
+		return mask;
 	}
 
 	/**
@@ -468,7 +477,7 @@ public class ByteUtil {
 	 * not wrap.
 	 */
 	public static long maskOfBit(boolean flag, int bit) {
-		if (!flag || bit >= Long.SIZE) return 0L;
+		if (!flag || bit < 0 || bit >= Long.SIZE) return 0L;
 		return 1L << bit;
 	}
 
@@ -476,6 +485,13 @@ public class ByteUtil {
 	 * Creates a 32-bit mask from given true bits.
 	 */
 	public static int maskOfBitsInt(Collection<Integer> bits) {
+		return (int) maskOfBits(bits);
+	}
+
+	/**
+	 * Creates a 32-bit mask from given true bits.
+	 */
+	public static int maskOfBitsInt(IntStream bits) {
 		return (int) maskOfBits(bits);
 	}
 
@@ -497,18 +513,16 @@ public class ByteUtil {
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(int value) {
-		int[] bits = new int[Integer.bitCount(value)];
-		for (int i = 0, j = 0; j < bits.length && i < Integer.SIZE; i++)
-			if (bit(value, i)) bits[j++] = i;
-		return bits;
+		return bits(MathUtil.uint(value));
 	}
 
 	/**
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(long value) {
+		if (value == 0L) return ArrayUtil.EMPTY_INT;
 		int[] bits = new int[Long.bitCount(value)];
-		for (int i = 0, j = 0; j < bits.length && i < Long.SIZE; i++)
+		for (int i = Long.numberOfTrailingZeros(value), j = 0; j < bits.length; i++)
 			if (bit(value, i)) bits[j++] = i;
 		return bits;
 	}
@@ -517,7 +531,6 @@ public class ByteUtil {
 	 * Returns true if the given bit is set in the value.
 	 */
 	public static boolean bit(long value, int bit) {
-		maskOfBit(true, bit);
 		return (value & maskOfBit(true, bit)) != 0;
 	}
 
@@ -818,4 +831,17 @@ public class ByteUtil {
 		return Long.reverse(value) >>> (Long.SIZE - bits);
 	}
 
+	/**
+	 * Iterate over the set bits of a mask. A true highBit iterates down.
+	 */
+	private static <E extends Exception> void iterateMask(boolean highBit, long mask,
+		ExceptionIntConsumer<E> consumer, int min, int max) throws E {
+		if (highBit) {
+			for (int i = max; i >= min; i--)
+				if (bit(mask, i)) consumer.accept(i);
+		} else {
+			for (int i = min; i <= max; i++)
+				if (bit(mask, i)) consumer.accept(i);
+		}
+	}
 }

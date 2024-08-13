@@ -34,6 +34,11 @@ public class ExceptionUtilTest {
 	}
 
 	@Test
+	public void testThrowUnchecked() {
+		assertThrown(IOException.class, () -> ExceptionUtil.throwUnchecked(new IOException("io")));
+	}
+
+	@Test
 	public void testShouldNotThrow() {
 		Captor.OfInt capturer = Captor.ofInt();
 		ExceptionUtil.shouldNotThrow(() -> capturer.accept(1));

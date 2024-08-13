@@ -55,7 +55,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
 	ceri.common.concurrent.BooleanConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
-	ceri.common.concurrent.ConstantBehavior.class, //
+	ceri.common.concurrent.LazyBehavior.class, //
 	ceri.common.concurrent.LockerBehavior.class, //
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
 	ceri.common.concurrent.SafeReadWriteBehavior.class, //
@@ -121,6 +121,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionConsumerBehavior.class, //
 	ceri.common.function.ExceptionDoubleSupplierBehavior.class, //
 	ceri.common.function.ExceptionFunctionBehavior.class, //
+	ceri.common.function.ExceptionIntBinaryConsumerBehavior.class, //
 	ceri.common.function.ExceptionIntBinaryOperatorBehavior.class, //
 	ceri.common.function.ExceptionIntConsumerBehavior.class, //
 	ceri.common.function.ExceptionIntFunctionBehavior.class, //
@@ -183,6 +184,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.ConnectorBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.DirectionBehavior.class, //
+	ceri.common.io.EdgeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
 	ceri.common.io.FixableBehavior.class, //
@@ -190,6 +192,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.IoStreamUtilTest.class, //
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
+	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.NioUtilTest.class, //
 	ceri.common.io.NotSetExceptionBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //
@@ -350,6 +353,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.NamedBehavior.class, //
 	ceri.common.util.OsUtilTest.class, //
 	ceri.common.util.PrimitiveUtilTest.class, //
+	ceri.common.util.RefBehavior.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	// validation

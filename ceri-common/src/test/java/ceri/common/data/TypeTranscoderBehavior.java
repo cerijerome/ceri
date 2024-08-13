@@ -87,6 +87,12 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldEncodeAllValues() {
+		assertEquals(xcoder.encodeAll(), 15L);
+		assertEquals(xcoder.encodeAllInt(), 15);
+	}
+	
+	@Test
 	public void shouldEncodeValues() {
 		assertEquals(xcoder.encodeInt(), 0);
 		assertEquals(xcoder.encodeInt((E[]) null), 0);

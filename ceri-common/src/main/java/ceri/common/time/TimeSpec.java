@@ -22,6 +22,34 @@ public record TimeSpec(long seconds, long nanos) {
 	}
 
 	/**
+	 * Creates from system time in milliseconds (normalized).
+	 */
+	public static TimeSpec nowMillis() {
+		return fromMillis(System.currentTimeMillis());
+	}
+
+	/**
+	 * Creates from JVM time in nanoseconds (normalized).
+	 */
+	public static TimeSpec nowNanos() {
+		return fromNanos(System.nanoTime());
+	}
+
+	/**
+	 * Creates from milliseconds (normalized).
+	 */
+	public static TimeSpec fromMillis(long millis) {
+		return new TimeSpec(millis / SEC_MSEC, (millis % SEC_MSEC) * MSEC_NSEC);
+	}
+
+	/**
+	 * Creates from nanoseconds (normalized).
+	 */
+	public static TimeSpec fromNanos(long nanos) {
+		return new TimeSpec(nanos / SEC_NSEC, nanos % SEC_NSEC);
+	}
+
+	/**
 	 * Creates from instant epoch seconds and nanosecond offset (normalized).
 	 */
 	public static TimeSpec from(Instant instant) {

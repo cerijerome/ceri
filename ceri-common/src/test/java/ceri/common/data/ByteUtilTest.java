@@ -52,6 +52,26 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testIterateMaskInt() {
+		Captor.OfInt captor = Captor.ofInt();
+		ByteUtil.iterateMask(true, 0x84211248, captor::accept);
+		captor.verifyInt(31, 26, 21, 16, 12, 9, 6, 3);
+		captor.reset();
+		ByteUtil.iterateMask(false, 0x84211248, captor::accept);
+		captor.verifyInt(3, 6, 9, 12, 16, 21, 26, 31);
+	}
+
+	@Test
+	public void testIterateMaskLong() {
+		Captor.OfInt captor = Captor.ofInt();
+		ByteUtil.iterateMask(true, 0x8040201010204080L, captor::accept);
+		captor.verifyInt(63, 54, 45, 36, 28, 21, 14, 7);
+		captor.reset();
+		ByteUtil.iterateMask(false, 0x8040201010204080L, captor::accept);
+		captor.verifyInt(7, 14, 21, 28, 36, 45, 54, 63);
+	}
+
+	@Test
 	public void testToHex() {
 		byte[] b = ArrayUtil.bytes(-1, 0, 127, 128);
 		assertNull(ByteUtil.toHex((byte[]) null, ""));
@@ -180,34 +200,34 @@ public class ByteUtilTest {
 
 	@Test
 	public void testApplyBit() {
-		assertEquals(ByteUtil.applyBit(0, 0, false), 0L);
-		assertEquals(ByteUtil.applyBit(0, 0, true), 1L);
-		assertEquals(ByteUtil.applyBit(0, 63, false), 0L);
-		assertEquals(ByteUtil.applyBit(0, 63, true), 0x8000000000000000L);
-		assertEquals(ByteUtil.applyBit(0, 64, false), 0L);
-		assertEquals(ByteUtil.applyBit(0, 65, true), 0L);
-		assertEquals(ByteUtil.applyBit(-1L, 0, false), 0xfffffffffffffffeL);
-		assertEquals(ByteUtil.applyBit(-1L, 0, true), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBit(-1L, 63, false), 0x7fffffffffffffffL);
-		assertEquals(ByteUtil.applyBit(-1L, 63, true), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBit(-1L, 64, false), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBit(-1L, 65, true), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBits(0, false, 0), 0L);
+		assertEquals(ByteUtil.applyBits(0, true, 0), 1L);
+		assertEquals(ByteUtil.applyBits(0, false, 63), 0L);
+		assertEquals(ByteUtil.applyBits(0, true, 63), 0x8000000000000000L);
+		assertEquals(ByteUtil.applyBits(0, false, 64), 0L);
+		assertEquals(ByteUtil.applyBits(0, true, 65), 0L);
+		assertEquals(ByteUtil.applyBits(-1L, false, 0), 0xfffffffffffffffeL);
+		assertEquals(ByteUtil.applyBits(-1L, true, 0), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBits(-1L, false, 63), 0x7fffffffffffffffL);
+		assertEquals(ByteUtil.applyBits(-1L, true, 63), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBits(-1L, false, 64), 0xffffffffffffffffL);
+		assertEquals(ByteUtil.applyBits(-1L, true, 65), 0xffffffffffffffffL);
 	}
 
 	@Test
 	public void testApplyBitInt() {
-		assertEquals(ByteUtil.applyBitInt(0, 0, false), 0);
-		assertEquals(ByteUtil.applyBitInt(0, 0, true), 1);
-		assertEquals(ByteUtil.applyBitInt(0, 31, false), 0);
-		assertEquals(ByteUtil.applyBitInt(0, 31, true), 0x80000000);
-		assertEquals(ByteUtil.applyBitInt(0, 32, false), 0);
-		assertEquals(ByteUtil.applyBitInt(0, 33, true), 0);
-		assertEquals(ByteUtil.applyBitInt(-1, 0, false), 0xfffffffe);
-		assertEquals(ByteUtil.applyBitInt(-1, 0, true), 0xffffffff);
-		assertEquals(ByteUtil.applyBitInt(-1, 31, false), 0x7fffffff);
-		assertEquals(ByteUtil.applyBitInt(-1, 31, true), 0xffffffff);
-		assertEquals(ByteUtil.applyBitInt(-1, 32, false), 0xffffffff);
-		assertEquals(ByteUtil.applyBitInt(-1, 33, true), 0xffffffff);
+		assertEquals(ByteUtil.applyBitsInt(0, false, 0), 0);
+		assertEquals(ByteUtil.applyBitsInt(0, true, 0), 1);
+		assertEquals(ByteUtil.applyBitsInt(0, false, 31), 0);
+		assertEquals(ByteUtil.applyBitsInt(0, true, 31), 0x80000000);
+		assertEquals(ByteUtil.applyBitsInt(0, false, 32), 0);
+		assertEquals(ByteUtil.applyBitsInt(0, true, 33), 0);
+		assertEquals(ByteUtil.applyBitsInt(-1, false, 0), 0xfffffffe);
+		assertEquals(ByteUtil.applyBitsInt(-1, true, 0), 0xffffffff);
+		assertEquals(ByteUtil.applyBitsInt(-1, false, 31), 0x7fffffff);
+		assertEquals(ByteUtil.applyBitsInt(-1, true, 31), 0xffffffff);
+		assertEquals(ByteUtil.applyBitsInt(-1, false, 32), 0xffffffff);
+		assertEquals(ByteUtil.applyBitsInt(-1, true, 33), 0xffffffff);
 	}
 
 	@Test
@@ -250,23 +270,39 @@ public class ByteUtilTest {
 	public void testMaskOfBits() {
 		assertEquals(ByteUtil.maskOfBits((int[]) null), 0L);
 		assertEquals(ByteUtil.maskOfBits((List<Integer>) null), 0L);
-		assertEquals(ByteUtil.maskOfBits(63, 32, 31, 16, 15, 8, 7, 0), 0x8000_0001_8001_8181L);
-		assertEquals(ByteUtil.maskOfBits(List.of(63, 32, 31, 16, 15, 8, 7, 0)),
+		assertEquals(ByteUtil.maskOfBits((IntStream) null), 0L);
+		assertEquals(ByteUtil.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1),
 			0x8000_0001_8001_8181L);
-		assertEquals(ByteUtil.maskOfBits(64), 0L);
-		assertEquals(ByteUtil.maskOfBit(true, 63), 0x8000_0000_0000_0000L);
-		assertEquals(ByteUtil.maskOfBit(false, 63), 0L);
+		assertEquals(ByteUtil.maskOfBits(List.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
+			0x8000_0001_8001_8181L);
+		assertEquals(ByteUtil.maskOfBits(IntStream.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
+			0x8000_0001_8001_8181L);
 	}
 
 	@Test
 	public void testMaskOfBitsInt() {
 		assertEquals(ByteUtil.maskOfBitsInt((int[]) null), 0);
 		assertEquals(ByteUtil.maskOfBitsInt((List<Integer>) null), 0);
-		assertEquals(ByteUtil.maskOfBitsInt(31, 16, 15, 8, 7, 0), 0x80018181);
-		assertEquals(ByteUtil.maskOfBitsInt(List.of(31, 16, 15, 8, 7, 0)), 0x80018181);
-		assertEquals(ByteUtil.maskOfBitsInt(32), 0);
+		assertEquals(ByteUtil.maskOfBitsInt((IntStream) null), 0);
+		assertEquals(ByteUtil.maskOfBitsInt(32, 31, 16, 15, 8, 7, 0, -1), 0x80018181);
+		assertEquals(ByteUtil.maskOfBitsInt(List.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
+		assertEquals(ByteUtil.maskOfBitsInt(IntStream.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
+	}
+
+	@Test
+	public void testMaskOfBit() {
+		assertEquals(ByteUtil.maskOfBit(true, 63), 0x8000_0000_0000_0000L);
+		assertEquals(ByteUtil.maskOfBit(false, 63), 0L);
+		assertEquals(ByteUtil.maskOfBit(true, 64), 0L);
+		assertEquals(ByteUtil.maskOfBit(true, -1), 0L);
+	}
+
+	@Test
+	public void testMaskOfBitInt() {
 		assertEquals(ByteUtil.maskOfBitInt(true, 31), 0x80000000);
 		assertEquals(ByteUtil.maskOfBitInt(false, 31), 0);
+		assertEquals(ByteUtil.maskOfBitInt(true, 32), 0);
+		assertEquals(ByteUtil.maskOfBitInt(true, -1), 0);
 	}
 
 	@Test

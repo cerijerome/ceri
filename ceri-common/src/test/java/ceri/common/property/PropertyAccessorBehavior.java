@@ -2,7 +2,10 @@ package ceri.common.property;
 
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnsupported;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
@@ -22,6 +25,7 @@ public class PropertyAccessorBehavior {
 		assertNull(accessor.property("test"));
 		assertEquals(accessor.toString(), r.toString());
 		assertCollection(accessor.keys(), "name", "locale");
+		assertUnsupported(() -> accessor.property("test", "value"));
 	}
 
 	@Test
@@ -47,6 +51,19 @@ public class PropertyAccessorBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfPropertyFilesAreModified() {
+		var p = new Properties();
+		var accessor = PropertyAccessor.from(p);
+		assertFalse(accessor.modified());
+		accessor.property("abc", null); // no change
+		assertFalse(accessor.modified());
+		accessor.property("abc", "123");
+		assertTrue(accessor.modified());
+		accessor.property("abc", null); // removes property
+		assertTrue(accessor.modified());
+	}
+
+	@Test
 	public void shouldAccessPropertyFileAsAMap() throws IOException {
 		Properties p = PropertyUtil.load(getClass(), "PropertyAccessor.properties");
 		PropertyAccessor accessor = PropertyAccessor.from(p);
@@ -54,6 +71,14 @@ public class PropertyAccessorBehavior {
 		assertEquals(map.get("name"), "PropertyAccessor");
 		assertEquals(map.get("locale"), "none");
 		assertNull(map.get("test"));
+	}
+
+	@Test
+	public void shouldProvideNullInstance() {
+		assertCollection(PropertyAccessor.NULL.keys());
+		PropertyAccessor.NULL.property("abc", "123");
+		assertEquals(PropertyAccessor.NULL.property("abc"), null);
+		assertEquals(PropertyAccessor.NULL.modified(), false);
 	}
 
 }

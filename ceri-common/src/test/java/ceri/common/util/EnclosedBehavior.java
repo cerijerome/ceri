@@ -3,6 +3,7 @@ package ceri.common.util;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
@@ -16,6 +17,13 @@ public class EnclosedBehavior {
 			sync.assertCalls(0);
 		}
 		sync.awaitAuto();
+	}
+
+	@Test
+	public void shouldTransformCloseable() throws IOException {
+		var sync = CallSync.runnable(true);
+		try (Enclosed<IOException, String> c = Enclosed.from("test", () -> sync.run())) {}
+		sync.assertCalls(1);
 	}
 
 	@Test
