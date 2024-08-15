@@ -10,7 +10,7 @@ import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.jna.clib.jna.CFcntl.O_APPEND;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class SelfHealingFdBehavior {
 		try (var enc = TestCLibNative.register()) {
 			var lib = enc.ref;
 			var config =
-				new SelfHealingFdProperties(baseProperties("self-healing-fd"), "fd").config();
+				new SelfHealingFdProperties(typedProperties("self-healing-fd"), "fd").config();
 			try (var fd = config.open()) {
 				lib.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
 				assertEquals(config.selfHealing.fixRetryDelayMs, 123);

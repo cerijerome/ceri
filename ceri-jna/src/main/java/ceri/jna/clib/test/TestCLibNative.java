@@ -318,12 +318,12 @@ public class TestCLibNative implements CLib.Native {
 
 	@Override
 	public int sigaddset(Pointer set, int signum) throws LastErrorException {
-		return sigset(set, ByteUtil.applyBitInt(set.getInt(0), signum, true));
+		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), true, signum));
 	}
 
 	@Override
 	public int sigdelset(Pointer set, int signum) throws LastErrorException {
-		return sigset(set, ByteUtil.applyBitInt(set.getInt(0), signum, false));
+		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), false, signum));
 	}
 
 	@Override

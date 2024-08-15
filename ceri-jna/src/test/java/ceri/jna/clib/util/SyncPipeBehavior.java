@@ -11,8 +11,10 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
+import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.Poll;
+import ceri.jna.clib.Poll.Event;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.test.TestCLibNative;
 
@@ -82,6 +84,29 @@ public class SyncPipeBehavior {
 		}
 		lib.write.assertCalls(1); // no change
 		lib.read.assertCalls(0);
+	}
+
+	@Test
+	public void shouldSyncSingleFd() throws IOException {
+		initLib(0);
+		try (var fd = CFileDescriptor.open("test"); var sync = SyncPipe.fd(fd, Event.POLLIN)) {
+			assertFalse(sync.poll());
+			lib.pollAuto(args -> args.pollfd(0).revents = (short) Event.POLLIN.value);
+			assertTrue(sync.poll());
+		}
+
+	}
+
+	@Test
+	public void shouldSignalSingleFd() throws IOException {
+		initLib(0);
+		try (var fd = CFileDescriptor.open("test"); var sync = SyncPipe.fd(fd, Event.POLLIN)) {
+			assertTrue(sync.signal());
+			assertFalse(sync.signal());
+			lib.write.assertCalls(1);
+			lib.read.assertCalls(0);
+		}
+
 	}
 
 	private void initLib(int pollFds) {

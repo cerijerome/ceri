@@ -290,7 +290,9 @@ public class StructBehavior {
 			var t1 = new TestStruct(m.share(TestStruct.SIZE));
 			var t2 = new TestStruct(m.share(TestStruct.SIZE * 2));
 			assertEquals(Struct.isByVal((TestStruct[]) null), false);
+			assertEquals(Struct.isByVal(new TestStruct[] { null }), false);
 			assertEquals(Struct.isByVal(new TestStruct[] { t0 }), true);
+			assertEquals(Struct.isByVal(new TestStruct[] { t0, null }), false);
 			assertEquals(Struct.isByVal(new TestStruct[] { t0, t1, t2 }), true);
 			assertEquals(Struct.isByVal(new TestStruct[] { t0, t2 }), false);
 		}

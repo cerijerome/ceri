@@ -144,8 +144,8 @@ public class JnaUtilTest {
 
 	@SuppressWarnings("resource")
 	@Test
-	public void testLazyBuffer() {
-		var lazy = JnaUtil.lazyBuffer(5);
+	public void testLazyMem() {
+		var lazy = JnaUtil.lazyMem(5);
 		assertEquals(lazy.get().size(), 5L);
 	}
 

@@ -30,6 +30,7 @@ public class Poll implements Iterable<Poll.Fd> {
 
 		private static final TypeTranscoder<Event> xcoder =
 			TypeTranscoder.of(t -> t.value, Event.class);
+		public static final int MASK = xcoder.encodeAllInt();
 		public final int value;
 
 		private Event(int value) {
@@ -47,6 +48,7 @@ public class Poll implements Iterable<Poll.Fd> {
 
 		private static final TypeTranscoder<Error> xcoder =
 			TypeTranscoder.of(t -> t.value, Error.class);
+		public static final int MASK = xcoder.encodeAllInt();
 		public final int value;
 
 		private Error(int value) {
@@ -103,10 +105,17 @@ public class Poll implements Iterable<Poll.Fd> {
 		}
 
 		/**
-		 * Returns true if response errors include the error.
+		 * Returns true if response events include the error.
 		 */
 		public boolean has(Error error) {
 			return (revents() & error.value) != 0;
+		}
+
+		/**
+		 * Returns true if response events have any errors.
+		 */
+		public boolean hasErrors() {
+			return (revents() & Error.MASK) != 0;
 		}
 
 		/**

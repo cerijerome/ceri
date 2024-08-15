@@ -23,8 +23,7 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.concurrent.Constant;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.concurrent.Lazy;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Enclosed;
 
@@ -155,8 +154,8 @@ public class JnaUtil {
 	/**
 	 * A lazy buffer, that only allocates memory when needed.
 	 */
-	public static ExceptionSupplier<RuntimeException, Memory> lazyBuffer(long size) {
-		return Constant.unsafe(() -> new Memory(size));
+	public static Lazy.Supplier<RuntimeException, Memory> lazyMem(long size) {
+		return Lazy.unsafe(() -> new Memory(size));
 	}
 
 	/**

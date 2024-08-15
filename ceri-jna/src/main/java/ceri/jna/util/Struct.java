@@ -332,12 +332,14 @@ public abstract class Struct extends Structure {
 	 * Returns true if the array is contiguous.
 	 */
 	public static <T extends Structure> boolean isByVal(T[] array) {
-		if (array == null) return false;
+		if (array == null || (array.length > 0 && array[0] == null)) return false;
 		if (array.length <= 1) return true;
 		Pointer p0 = pointer(array);
 		int size = array[0].size();
-		for (int i = 1; i < array.length; i++)
-			if (!array[i].getPointer().equals(p0.share(i * size))) return false;
+		for (int i = 1; i < array.length; i++) {
+			if (array[i] == null) return false;
+			if (!p0.share(i * size).equals(array[i].getPointer())) return false;
+		}
 		return true;
 	}
 

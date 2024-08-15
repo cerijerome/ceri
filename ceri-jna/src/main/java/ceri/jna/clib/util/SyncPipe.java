@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.util.CloseableUtil;
+import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Pipe;
 import ceri.jna.clib.Poll;
 import ceri.log.util.LogUtil;
@@ -40,6 +41,10 @@ public class SyncPipe implements RuntimeCloseable {
 		});
 	}
 
+	public static SyncPipe.Fd fd(FileDescriptor fd, Poll.Event... events) throws IOException {
+		return new Fd(fd, events);
+	}
+
 	/**
 	 * A pipe used for a single poll fd.
 	 */
@@ -53,7 +58,8 @@ public class SyncPipe implements RuntimeCloseable {
 		}
 
 		/**
-		 * Write a token to the pipe to interrupt any waiting poll.
+		 * Write a token to the pipe to interrupt any waiting poll. Returns false if the pipe has
+		 * already been interrupted.
 		 */
 		public boolean signal() throws IOException {
 			return pipe.signal();
@@ -79,12 +85,58 @@ public class SyncPipe implements RuntimeCloseable {
 		}
 	}
 
+	/**
+	 * A pipe for monitoring a single file descriptor.
+	 */
+	public static class Fd implements RuntimeCloseable {
+		public final FileDescriptor fd;
+		private final SyncPipe.Fixed sync;
+		private final Poll poll;
+
+		private Fd(FileDescriptor fd, Poll.Event... events) throws IOException {
+			this.fd = fd;
+			poll = Poll.of(2);
+			poll.fd(0).fd(fd).request(events);
+			sync = SyncPipe.of(poll.fd(1));
+		}
+
+		/**
+		 * Interrupt polling. Returns false if the polling has already been interrupted.
+		 */
+		public boolean signal() throws IOException {
+			return sync.signal();
+		}
+
+		/**
+		 * Wait for fd events or sync signal. Returns true if the fd has events.
+		 */
+		public boolean poll(Integer timeoutMs) throws IOException {
+			poll.poll(timeoutMs);
+			poll.fd(0).validate();
+			sync.clear();
+			return poll.fd(0).revents() != 0;
+		}
+
+		/**
+		 * Wait for fd events or sync signal. Returns true if the fd has events.
+		 */
+		public boolean poll() throws IOException {
+			return poll(null);
+		}
+
+		@Override
+		public void close() {
+			sync.close();
+		}
+	}
+
 	private SyncPipe(Pipe pipe) {
 		this.pipe = pipe;
 	}
 
 	/**
-	 * Write a token to the pipe to interrupt any waiting poll.
+	 * Write a token to the pipe to interrupt any waiting poll. Returns false if a token is already
+	 * present.
 	 */
 	public boolean signal() throws IOException {
 		if (sync.getAndSet(true)) return false; // signal already active

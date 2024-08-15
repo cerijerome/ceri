@@ -57,7 +57,9 @@ public class PollBehavior {
 	@Test
 	public void shouldProvideAllErrors() throws IOException {
 		initPipe();
+		assertFalse(poll.fd(0).hasErrors());
 		assertFalse(poll.fd(0).has(POLLNVAL));
+		assertFalse(poll.fd(1).hasErrors());
 		assertFalse(poll.fd(1).has(POLLNVAL));
 		writeToPipe(0);
 		pipe.close();
@@ -65,7 +67,9 @@ public class PollBehavior {
 		assertEquals(poll.poll(), 2);
 		assertCollection(poll.responses());
 		assertCollection(poll.errors(), POLLNVAL);
+		assertTrue(poll.fd(0).hasErrors());
 		assertTrue(poll.fd(0).has(POLLNVAL));
+		assertTrue(poll.fd(1).hasErrors());
 		assertTrue(poll.fd(1).has(POLLNVAL));
 		assertCollection(poll.fd(0).errors(), POLLNVAL);
 		assertCollection(poll.fd(1).errors(), POLLNVAL);
