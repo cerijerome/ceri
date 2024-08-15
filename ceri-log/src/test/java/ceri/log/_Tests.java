@@ -22,6 +22,9 @@ import ceri.common.test.TestUtil;
 	ceri.log.io.test.TestTcpSocketBehavior.class, //
 	// net
 	ceri.log.net.SelfHealingTcpSocketBehavior.class, //
+	// registry
+	ceri.log.registry.RegistryBehavior.class, //
+	ceri.log.registry.RegistryServiceBehavior.class, //
 	// rpc
 	ceri.log.rpc.RpcBehavior.class, //
 	// rpc.client

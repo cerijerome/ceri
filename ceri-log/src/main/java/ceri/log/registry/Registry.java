@@ -7,7 +7,7 @@ import ceri.common.property.TypedProperties;
 
 public interface Registry {
 	/** A no-op, stateless instance. */
-	Registry NULL = new Null();
+	Registry NULL = new Null() {};
 
 	/**
 	 * Queue a registry update. The registry determines when to execute queued updates, which may be
@@ -47,18 +47,18 @@ public interface Registry {
 	/**
 	 * A no-op, stateless implementation.
 	 */
-	class Null implements Registry {
+	interface Null extends Registry {
 		@Override
-		public void queue(Object source, Consumer<TypedProperties> update) {}
+		default void queue(Object source, Consumer<TypedProperties> update) {}
 
 		@Override
-		public <E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function)
+		default <E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function)
 			throws E {
 			return function.apply(TypedProperties.NULL);
 		}
 
 		@Override
-		public Registry sub(String... subs) {
+		default Registry sub(String... subs) {
 			return this;
 		}
 	}

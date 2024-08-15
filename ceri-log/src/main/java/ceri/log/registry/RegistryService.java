@@ -84,16 +84,16 @@ public class RegistryService extends LoopingExecutor {
 	@Override
 	public void close() {
 		super.close();
-		if (sync.isSet()) LogUtil.close(this::save);
+		if (processUpdates()) LogUtil.close(this::save);
 	}
 
 	@Override
 	protected void loop() throws InterruptedException {
 		try {
 			if (exceptions.isEmpty()) sync.await(delayMs);
-			if (processUpdates()) save();
+			if (processUpdates() || !exceptions.isEmpty()) save();
 			exceptions.clear();
-		} catch (RuntimeInterruptedException e) {
+		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;
 		} catch (Exception e) {
 			if (exceptions.add(e)) logger.catching(e);
@@ -153,7 +153,7 @@ public class RegistryService extends LoopingExecutor {
 
 	private static void savePath(Properties properties, Path path, String name) throws IOException {
 		if (path == null || properties.isEmpty()) return;
-		var comment = String.format("Written by %s %s", name, DateUtil.nowSec());
+		var comment = String.format("# Written by %s %s", name, DateUtil.nowSec());
 		Files.createDirectories(path.getParent());
 		try (OutputStream out = Files.newOutputStream(path, CREATE, WRITE)) {
 			properties.store(out, comment);
