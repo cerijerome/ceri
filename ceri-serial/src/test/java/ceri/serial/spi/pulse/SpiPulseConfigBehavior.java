@@ -2,7 +2,7 @@ package ceri.serial.spi.pulse;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.serial.spi.pulse.PulseCycle.Std._4_27;
 import static ceri.serial.spi.pulse.PulseCycle.Std._5;
@@ -27,7 +27,7 @@ public class SpiPulseConfigBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() {
-		var props = baseProperties("spi");
+		var props = typedProperties("spi");
 		var conf0 = new SpiPulseProperties(props, "spi.0").config();
 		var conf1 = new SpiPulseProperties(props, "spi.1").config();
 		var conf2 = new SpiPulseProperties(props, "spi.2").config();

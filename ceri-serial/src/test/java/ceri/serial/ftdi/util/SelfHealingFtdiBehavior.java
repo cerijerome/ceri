@@ -12,7 +12,7 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.baseProperties;
+import static ceri.common.test.TestUtil.typedProperties;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_ANY;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_D;
@@ -97,7 +97,7 @@ public class SelfHealingFtdiBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() {
-		var properties = baseProperties("ftdi");
+		var properties = typedProperties("ftdi");
 		var config1 = new SelfHealingFtdiProperties(properties, "ftdi.1").config();
 		var config2 = new SelfHealingFtdiProperties(properties, "ftdi.2").config();
 		assertEquals(config1.finder, LibUsbFinder.builder().vendor(0x401).build());

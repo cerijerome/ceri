@@ -63,7 +63,7 @@ public class SelfHealingSerialBehavior {
 
 	@Test
 	public void shouldCreateFromProperties() throws IOException {
-		var p = TestUtil.baseProperties("serial");
+		var p = TestUtil.typedProperties("serial");
 		var conf = new SelfHealingSerialProperties(p, "serial").config();
 		assertEquals(conf.portSupplier.get(), "port0");
 		assertEquals(conf.serial.params.baud, 250000);

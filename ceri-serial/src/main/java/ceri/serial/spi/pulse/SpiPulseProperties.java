@@ -1,10 +1,10 @@
 package ceri.serial.spi.pulse;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
-public class SpiPulseProperties extends Ref<BaseProperties> {
+public class SpiPulseProperties extends Ref<TypedProperties> {
 	private static final String CYCLE_KEY = "cycle";
 	private static final String STD_KEY = "std";
 	private static final String TYPE_KEY = "type";
@@ -20,8 +20,8 @@ public class SpiPulseProperties extends Ref<BaseProperties> {
 	private static final int CYCLE_T0_BITS_DEF = 1;
 	private static final int CYCLE_T1_BITS_DEF = 2;
 
-	public SpiPulseProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public SpiPulseProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public SpiPulseConfig config() {

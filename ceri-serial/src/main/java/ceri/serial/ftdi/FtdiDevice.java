@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.concurrent.Constant;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.concurrent.Lazy;
 import ceri.jna.io.JnaInputStream;
 import ceri.jna.io.JnaOutputStream;
 import ceri.jna.util.JnaUtil;
@@ -36,8 +35,8 @@ public class FtdiDevice implements Ftdi {
 	private final ftdi_context ftdi;
 	private final JnaInputStream in;
 	private final JnaOutputStream out;
-	private final ExceptionSupplier<LibUsbException, ftdi_usb_strings> descriptor =
-		Constant.unsafe(this::deviceDescriptor);
+	private final Lazy.Supplier<LibUsbException, ftdi_usb_strings> descriptor =
+		Lazy.unsafe(this::deviceDescriptor);
 	private volatile boolean closed = false;
 
 	public static boolean isFatal(Exception e) {

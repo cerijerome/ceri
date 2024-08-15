@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
@@ -13,7 +13,7 @@ import ceri.serial.comm.Parity;
 import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.StopBits;
 
-public class SerialProperties extends Ref<BaseProperties> {
+public class SerialProperties extends Ref<TypedProperties> {
 	private static final String PORT_KEY = "port";
 	private static final String LOCATOR_KEY = "locator";
 	private static final String PATH_KEY = "path";
@@ -28,8 +28,8 @@ public class SerialProperties extends Ref<BaseProperties> {
 	private static final String IN_BUFFER_SIZE_KEY = "in.buffer.size";
 	private static final String OUT_BUFFER_SIZE_KEY = "out.buffer.size";
 
-	public SerialProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public SerialProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public PortSupplier portSupplier() {

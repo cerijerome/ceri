@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.CloseableUtil;
 
@@ -22,7 +22,7 @@ public class SerialPropertiesBehavior {
 	@Test
 	public void shouldReturnNullWithNoPortLocator() throws IOException {
 		var p = new Properties();
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertEquals(port.get(), null);
 	}
 
@@ -30,7 +30,7 @@ public class SerialPropertiesBehavior {
 	public void shouldCreateDefaultPathPatternPortLocator() {
 		var p = new Properties();
 		p.setProperty("device.port.locator.pattern", "regex:.*\\d+");
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertNotNull(port);
 	}
 
@@ -40,7 +40,7 @@ public class SerialPropertiesBehavior {
 		var p = new Properties();
 		p.setProperty("device.port.locator.path", path);
 		p.setProperty("device.port.locator.pattern", "regex:port\\d+");
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertEquals(port.get(), path + "/port0");
 	}
 
@@ -51,7 +51,7 @@ public class SerialPropertiesBehavior {
 		p.setProperty("device.port.locator.path", path);
 		p.setProperty("device.port.locator.pattern", "regex:port\\d+");
 		p.setProperty("device.port.locator.index", "1");
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertEquals(port.get(), path + "/port1");
 	}
 
@@ -61,7 +61,7 @@ public class SerialPropertiesBehavior {
 		var p = new Properties();
 		p.setProperty("device.port.locator.path", path);
 		p.setProperty("device.port.locator.index", "1");
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertEquals(port.get(), path + "/tty.usb1");
 	}
 
@@ -69,7 +69,7 @@ public class SerialPropertiesBehavior {
 	public void shouldCreateLocationIdPortLocator() {
 		var p = new Properties();
 		p.setProperty("device.port.locator.id", "0x1234");
-		var port = new SerialProperties(BaseProperties.from(p), "device").portSupplier();
+		var port = new SerialProperties(TypedProperties.from(p), "device").portSupplier();
 		assertNotNull(port);
 	}
 

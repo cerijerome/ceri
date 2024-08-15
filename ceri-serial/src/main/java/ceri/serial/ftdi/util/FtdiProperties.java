@@ -4,7 +4,7 @@ import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.math.MathUtil.approxEqual;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.FunctionUtil;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -16,7 +16,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
-public class FtdiProperties extends Ref<BaseProperties> {
+public class FtdiProperties extends Ref<TypedProperties> {
 	private static final String FINDER_KEY = "finder";
 	private static final String INTERFACE_KEY = "interface";
 	private static final String BIT_KEY = "bit";
@@ -35,8 +35,8 @@ public class FtdiProperties extends Ref<BaseProperties> {
 	private static final String BITMODE_PREFIX = "BITMODE_";
 	private static final double PRECISION = 0.1;
 
-	public FtdiProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public FtdiProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public String finder() {
