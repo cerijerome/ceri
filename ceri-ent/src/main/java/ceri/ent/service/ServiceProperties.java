@@ -3,13 +3,13 @@ package ceri.ent.service;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import ceri.common.property.BaseProperties;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
 /**
  * Properties to configure service cache settings.
  */
-public class ServiceProperties extends Ref<BaseProperties> {
+public class ServiceProperties extends Ref<TypedProperties> {
 	private static final String CACHE_KEY = "cache";
 	private static final String DURATION_KEY = "duration";
 	private static final String RANDOMIZE_KEY = "randomize";
@@ -22,11 +22,11 @@ public class ServiceProperties extends Ref<BaseProperties> {
 	private static final String FILE_KEY = "file";
 
 	public ServiceProperties(Properties properties, String... groups) {
-		this(BaseProperties.from(properties), groups);
+		this(TypedProperties.from(properties), groups);
 	}
 
-	public ServiceProperties(BaseProperties properties, String... groups) {
-		super(BaseProperties.from(properties, groups));
+	public ServiceProperties(TypedProperties properties, String... groups) {
+		super(TypedProperties.from(properties, groups));
 	}
 
 	public Path cacheFile() {
