@@ -45,6 +45,14 @@ public enum BinaryState {
 		return this != unknown;
 	}
 
+	public boolean on() {
+		return this == on;
+	}
+
+	public boolean off() {
+		return this == off;
+	}
+
 	public Boolean bool() {
 		if (!known()) return null;
 		return this == off ? Boolean.FALSE : Boolean.TRUE;

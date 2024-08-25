@@ -643,6 +643,13 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Returns a stream for an iterable type.
+	 */
+	public static <T> Stream<T> stream(Iterable<T> i) {
+		return StreamSupport.stream(i.spliterator(), false);
+	}
+
+	/**
 	 * Returns a stream for an int iterator.
 	 */
 	public static IntStream intStream(PrimitiveIterator.OfInt i) {
@@ -665,8 +672,8 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Returns a stream for all enum values. The enum array is created each time; for cached
-	 * enum values use <code>EnumUtil.enums(enumCls).stream()</code>.
+	 * Returns a stream for all enum values. The enum array is created each time; for cached enum
+	 * values use <code>EnumUtil.enums(enumCls).stream()</code>.
 	 */
 	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
 		return Stream.of(enumCls.getEnumConstants());

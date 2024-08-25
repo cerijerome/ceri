@@ -3,7 +3,6 @@ package ceri.common.data;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Objects;
 import ceri.common.math.MathUtil;
-import ceri.common.text.ToString;
 
 /**
  * Extracts and calculates masked values within a long value.
@@ -24,14 +23,14 @@ public class MaskTranscoder {
 	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 */
 	public static MaskTranscoder mask(long mask, int shiftBits) {
+		validateMin(shiftBits, 0);
 		return new MaskTranscoder(mask, shiftBits);
 	}
 
 	/**
-	 * Mask bits and shift. Masked value is right-shifted given number of bits. TODO: rename to
-	 * 'bits'
+	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 */
-	public static MaskTranscoder xbits(int bitCount, int shiftBits) {
+	public static MaskTranscoder bits(int bitCount, int shiftBits) {
 		validateMin(bitCount, 1);
 		return mask(ByteUtil.mask(shiftBits, bitCount), shiftBits);
 	}
@@ -107,7 +106,8 @@ public class MaskTranscoder {
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, mask, shiftBits);
+		if (shiftBits == 0) return "0x" + Long.toHexString(mask);
+		return "0x" + Long.toHexString(mask) + ">>" + shiftBits;
 	}
 
 }

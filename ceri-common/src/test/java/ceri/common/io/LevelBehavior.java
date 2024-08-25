@@ -24,6 +24,42 @@ public class LevelBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfKnownLevel() {
+		assertEquals(Level.known(null), false);
+		assertEquals(Level.known(Level.unknown), false);
+		assertEquals(Level.known(Level.low), true);
+		assertEquals(Level.known(Level.high), true);
+	}
+
+	@Test
+	public void shouldInvertLevel() {
+		assertEquals(Level.invert(null), Level.unknown);
+		assertEquals(Level.invert(Level.unknown), Level.unknown);
+		assertEquals(Level.invert(Level.low), Level.high);
+		assertEquals(Level.invert(Level.high), Level.low);
+	}
+
+	@Test
+	public void shouldDetermineStateFromActiveLevel() {
+		assertEquals(Level.activeState(null, null), BinaryState.unknown);
+		assertEquals(Level.activeState(null, Level.unknown), BinaryState.unknown);
+		assertEquals(Level.activeState(null, Level.low), BinaryState.unknown);
+		assertEquals(Level.activeState(null, Level.high), BinaryState.unknown);
+		assertEquals(Level.activeState(Level.unknown, null), BinaryState.unknown);
+		assertEquals(Level.activeState(Level.unknown, Level.unknown), BinaryState.unknown);
+		assertEquals(Level.activeState(Level.unknown, Level.low), BinaryState.unknown);
+		assertEquals(Level.activeState(Level.unknown, Level.high), BinaryState.unknown);
+		assertEquals(Level.activeState(Level.low, null), BinaryState.off);
+		assertEquals(Level.activeState(Level.low, Level.unknown), BinaryState.off);
+		assertEquals(Level.activeState(Level.low, Level.low), BinaryState.on);
+		assertEquals(Level.activeState(Level.low, Level.high), BinaryState.off);
+		assertEquals(Level.activeState(Level.high, null), BinaryState.on);
+		assertEquals(Level.activeState(Level.high, Level.unknown), BinaryState.on);
+		assertEquals(Level.activeState(Level.high, Level.low), BinaryState.off);
+		assertEquals(Level.activeState(Level.high, Level.high), BinaryState.on);
+	}
+
+	@Test
 	public void shouldDetermineStateFromLevel() {
 		assertEquals(Level.state(null), BinaryState.unknown);
 		assertEquals(Level.state(Level.unknown), BinaryState.unknown);

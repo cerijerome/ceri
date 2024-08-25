@@ -69,20 +69,20 @@ public class TypeTranscoder<T> {
 	}
 
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
-		Collection<T> ts) {
+		Iterable<T> ts) {
 		return of(valueFn, mask, ts, StreamUtil.mergeError());
 	}
 
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
-		Collection<T> ts, BinaryOperator<T> mergeFn) {
+		Iterable<T> ts, BinaryOperator<T> mergeFn) {
 		return new TypeTranscoder<>(valueFn, mask, ts, mergeFn);
 	}
 
-	protected TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Collection<T> ts,
+	protected TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Iterable<T> ts,
 		BinaryOperator<T> mergeFn) {
 		this.valueFn = valueFn;
 		this.mask = mask;
-		this.lookup = Collections.unmodifiableMap(ts.stream().collect(Collectors
+		this.lookup = Collections.unmodifiableMap(StreamUtil.stream(ts).collect(Collectors
 			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
 	}
 
@@ -102,7 +102,7 @@ public class TypeTranscoder<T> {
 	public long encodeAll() {
 		return encode(all());
 	}
-	
+
 	@SafeVarargs
 	public final long encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
@@ -110,8 +110,8 @@ public class TypeTranscoder<T> {
 		return encode(Arrays.asList(ts));
 	}
 
-	public long encode(Collection<T> ts) {
-		return mask.encodeInt(encodeTypes(ts));
+	public long encode(Iterable<T> ts) {
+		return mask.encode(encodeTypes(ts));
 	}
 
 	public long encode(Remainder<T> rem) {
@@ -122,13 +122,13 @@ public class TypeTranscoder<T> {
 	public int encodeAllInt() {
 		return (int) encodeAll();
 	}
-	
+
 	@SafeVarargs
 	public final int encodeInt(T... ts) {
 		return (int) encode(ts);
 	}
 
-	public int encodeInt(Collection<T> ts) {
+	public int encodeInt(Iterable<T> ts) {
 		return (int) encode(ts);
 	}
 
@@ -158,8 +158,9 @@ public class TypeTranscoder<T> {
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAny(long value, Collection<T> ts) {
-		return ts.stream().mapToLong(valueFn).filter(v -> (value & v) == v).findAny().isPresent();
+	public boolean hasAny(long value, Iterable<T> ts) {
+		return StreamUtil.stream(ts).mapToLong(valueFn).filter(v -> (value & v) == v).findAny()
+			.isPresent();
 	}
 
 	/**
@@ -175,8 +176,8 @@ public class TypeTranscoder<T> {
 	 * Simple bitwise check if value contains the types. May not match decodeAll if type values
 	 * overlap.
 	 */
-	public boolean hasAll(long value, Collection<T> ts) {
-		var mask = StreamUtil.bitwiseOr(ts.stream().mapToLong(valueFn));
+	public boolean hasAll(long value, Iterable<T> ts) {
+		var mask = StreamUtil.bitwiseOr(StreamUtil.stream(ts).mapToLong(valueFn));
 		return (value & mask) == mask;
 	}
 
@@ -225,29 +226,39 @@ public class TypeTranscoder<T> {
 	 * remainder is discarded.
 	 */
 	public Set<T> decodeAll(long value) {
-		return decodeWithRemainder(value).types;
+		Set<T> set = new LinkedHashSet<>();
+		decodeWithRemainder(set, value);
+		return Collections.unmodifiableSet(set);
 	}
 
 	/**
 	 * Decode the value into multiple types. Iteration over the types is in lookup entry order.
 	 */
 	public Remainder<T> decodeWithRemainder(long value) {
-		value = mask.decodeInt(value);
 		Set<T> set = new LinkedHashSet<>();
+		long remainder = decodeWithRemainder(set, value);
+		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
+	}
+
+	private long decodeWithRemainder(Set<T> receiver, long value) {
+		value = mask.decode(value);
 		for (var entry : lookup.entrySet()) {
 			var k = entry.getKey();
 			T t = entry.getValue();
 			if ((k & value) != k) continue;
 			value -= k;
-			set.add(t);
+			receiver.add(t);
 			if (value == 0) break;
 		}
-		return new Remainder<>(value, set);
+		return value;
 	}
 
-	private long encodeTypes(Collection<T> ts) {
-		if (ts == null || ts.isEmpty()) return 0;
-		return StreamUtil.bitwiseOr(ts.stream().mapToLong(this::encodeType));
+	private long encodeTypes(Iterable<T> ts) {
+		if (ts == null) return 0;
+		long value = 0;
+		for (T t : ts)
+			value |= encodeType(t);
+		return value;
 	}
 
 	private long encodeType(T t) {

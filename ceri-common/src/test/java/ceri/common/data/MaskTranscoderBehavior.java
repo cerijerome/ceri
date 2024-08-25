@@ -2,6 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
@@ -9,17 +10,24 @@ public class MaskTranscoderBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		MaskTranscoder m0 = MaskTranscoder.xbits(16, 13);
-		MaskTranscoder m1 = MaskTranscoder.xbits(16, 13);
+		MaskTranscoder m0 = MaskTranscoder.bits(16, 13);
+		MaskTranscoder m1 = MaskTranscoder.bits(16, 13);
 		MaskTranscoder m2 = MaskTranscoder.mask(0x1fffe000, 13);
 		MaskTranscoder m3 = MaskTranscoder.mask(0x1fffe000L, 13);
-		MaskTranscoder m4 = MaskTranscoder.xbits(16, 12);
-		MaskTranscoder m5 = MaskTranscoder.xbits(17, 13);
-		MaskTranscoder m6 = MaskTranscoder.xbits(16, 0);
+		MaskTranscoder m4 = MaskTranscoder.bits(16, 12);
+		MaskTranscoder m5 = MaskTranscoder.bits(17, 13);
+		MaskTranscoder m6 = MaskTranscoder.bits(16, 0);
 		MaskTranscoder m7 = MaskTranscoder.mask(0x1ffff000, 13);
 		MaskTranscoder m8 = MaskTranscoder.mask(0x1fffe000, 12);
 		exerciseEquals(m0, m1, m2, m3);
 		assertAllNotEqual(m0, m4, m5, m6, m7, m8);
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertString(MaskTranscoder.NULL, "0xffffffffffffffff");
+		assertString(MaskTranscoder.mask(0xabcd, 0), "0xabcd");
+		assertString(MaskTranscoder.mask(0xabcd, 4), "0xabcd>>4");
 	}
 
 	@Test
@@ -35,30 +43,30 @@ public class MaskTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeValues() {
-		assertEquals(MaskTranscoder.xbits(8, 4).encode(0xabcd), 0xcd0L);
-		assertEquals(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd), 0xcd0);
+		assertEquals(MaskTranscoder.bits(8, 4).encode(0xabcd), 0xcd0L);
+		assertEquals(MaskTranscoder.bits(8, 4).encodeInt(0xabcd), 0xcd0);
 	}
 
 	@Test
 	public void shouldEncodeWithCurrentValues() {
-		assertEquals(MaskTranscoder.xbits(8, 4).encode(0xabcd, 0x1234), 0x1cd4L);
-		assertEquals(MaskTranscoder.xbits(8, 4).encodeInt(0xabcd, 0x1234), 0x1cd4);
+		assertEquals(MaskTranscoder.bits(8, 4).encode(0xabcd, 0x1234), 0x1cd4L);
+		assertEquals(MaskTranscoder.bits(8, 4).encodeInt(0xabcd, 0x1234), 0x1cd4);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValues() {
-		assertEquals(MaskTranscoder.xbits(32, 16).decode(0xff_ffffff00L), 0xffffffL);
-		assertEquals(MaskTranscoder.xbits(32, 16).decode(0xff_ff000000L), 0xffff00L);
-		assertEquals(MaskTranscoder.xbits(17, 47).decode(-1L), 0x1ffffL);
-		assertEquals(MaskTranscoder.xbits(17, 15).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.bits(32, 16).decode(0xff_ffffff00L), 0xffffffL);
+		assertEquals(MaskTranscoder.bits(32, 16).decode(0xff_ff000000L), 0xffff00L);
+		assertEquals(MaskTranscoder.bits(17, 47).decode(-1L), 0x1ffffL);
+		assertEquals(MaskTranscoder.bits(17, 15).decode(-1L), 0x1ffffL);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValuesAsInt() {
-		assertEquals(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ffffff00L), 0xffffff);
-		assertEquals(MaskTranscoder.xbits(32, 16).decodeInt(0xff_ff000000L), 0xffff00);
-		assertEquals(MaskTranscoder.xbits(17, 47).decodeInt(-1L), 0x1ffff);
-		assertEquals(MaskTranscoder.xbits(17, 15).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.bits(32, 16).decodeInt(0xff_ffffff00L), 0xffffff);
+		assertEquals(MaskTranscoder.bits(32, 16).decodeInt(0xff_ff000000L), 0xffff00);
+		assertEquals(MaskTranscoder.bits(17, 47).decodeInt(-1L), 0x1ffff);
+		assertEquals(MaskTranscoder.bits(17, 15).decodeInt(-1L), 0x1ffff);
 	}
 
 	@Test
