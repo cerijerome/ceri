@@ -325,7 +325,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.ToStringBehavior.class, //
 	ceri.common.text.Utf8UtilTest.class, //
 	// time
-	ceri.common.time.CalendarFieldBehavior.class, //
 	ceri.common.time.DateUtilTest.class, //
 	ceri.common.time.HolidayBehavior.class, //
 	ceri.common.time.TimeSpecBehavior.class, //

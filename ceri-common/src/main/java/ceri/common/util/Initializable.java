@@ -5,6 +5,9 @@ package ceri.common.util;
  */
 public interface Initializable<E extends Exception> {
 
+	/**
+	 * Initialize the instance.
+	 */
 	void init() throws E;
 
 	interface Runtime extends Initializable<RuntimeException> {}
