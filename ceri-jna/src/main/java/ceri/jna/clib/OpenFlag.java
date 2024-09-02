@@ -1,5 +1,6 @@
 package ceri.jna.clib;
 
+import java.util.Set;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.MaskTranscoder;
@@ -28,9 +29,9 @@ public enum OpenFlag {
 	public static final TypeTranscoder<OpenFlag> xcoder = new TypeTranscoder<>(t -> t.value,
 		MaskTranscoder.NULL, EnumUtil.enums(OpenFlag.class), StreamUtil.mergeError()) {
 		@Override
-		public Remainder<OpenFlag> decodeWithRemainder(long value) {
-			var rem = super.decodeWithRemainder(value);
-			if ((value & CFcntl.O_ACCMODE) != 0) rem.types().remove(O_RDONLY);
+		protected long decodeWithRemainder(Set<OpenFlag> receiver, long value) {
+			var rem = super.decodeWithRemainder(receiver, value);
+			if ((value & CFcntl.O_ACCMODE) != 0) receiver.remove(O_RDONLY);
 			return rem;
 		}
 	};

@@ -5,6 +5,9 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.property.TypedProperties;
 
+/**
+ * Specifies a registry for persistent storage and retrieval of properties.
+ */
 public interface Registry {
 	/** A no-op, stateless instance. */
 	Registry NULL = new Null() {};
