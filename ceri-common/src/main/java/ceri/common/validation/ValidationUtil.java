@@ -12,6 +12,8 @@ import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.DisplayLong.hex8;
 import static ceri.common.validation.DisplayLong.udec;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -717,8 +719,8 @@ public class ValidationUtil {
 		return validateRange(value, 0, INT_MASK, name(name), def(flags, hex));
 	}
 
-	/* Text validations */
-	
+	/* Text validation */
+
 	/**
 	 * Validate the string matches the pattern.
 	 */
@@ -727,7 +729,7 @@ public class ValidationUtil {
 		if (m.matches()) return m;
 		throw exceptionf("Regex did not match \"%s\": %s", pattern.pattern(), value);
 	}
-	
+
 	/**
 	 * Validate the string contains the pattern.
 	 */
@@ -736,7 +738,39 @@ public class ValidationUtil {
 		if (m.find()) return m;
 		throw exceptionf("Regex not found \"%s\": %s", pattern.pattern(), value);
 	}
-	
+
+	/* Collection validation */
+
+	/**
+	 * Validate the collection is not empty.
+	 */
+	public static <T extends Collection<?>> T validateNotEmpty(T collection) {
+		return validateNotEmpty(collection, "Collection");
+	}
+
+	/**
+	 * Validate the collection is not empty.
+	 */
+	public static <T extends Collection<?>> T validateNotEmpty(T collection, String name) {
+		if (!collection.isEmpty()) return collection;
+		throw exceptionf("%s is empty", name);
+	}
+
+	/**
+	 * Validate the map is not empty.
+	 */
+	public static <T extends Map<?, ?>> T validateNotEmpty(T map) {
+		return validateNotEmpty(map, "Map");
+	}
+
+	/**
+	 * Validate the map is not empty.
+	 */
+	public static <T extends Map<?, ?>> T validateNotEmpty(T map, String name) {
+		if (!map.isEmpty()) return map;
+		throw exceptionf("%s is empty", name);
+	}
+
 	/* Support methods */
 
 	private static IllegalArgumentException exceptionf(String format, Object... args) {

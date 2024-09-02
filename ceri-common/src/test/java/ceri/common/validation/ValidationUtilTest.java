@@ -3,10 +3,13 @@ package ceri.common.validation;
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.math.Bound.Type.inclusive;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.thrown;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.math.Interval;
@@ -395,6 +398,21 @@ public class ValidationUtilTest {
 	public void testValidateFind() {
 		ValidationUtil.validateFind("123abc456", Pattern.compile("\\w+"));
 		assertThrown(() -> ValidationUtil.validateFind("abc", Pattern.compile("\\d+")));
+	}
+
+	@Test
+	public void testValidateNotEmptyCollection() {
+		assertThrown(() -> ValidationUtil.validateNotEmpty(Set.of()));
+		assertThrown(() -> ValidationUtil.validateNotEmpty(List.of()));
+		Set<Integer> set = ValidationUtil.validateNotEmpty(Set.of(1, 2, 3));
+		assertNotNull(set);
+	}
+
+	@Test
+	public void testValidateNotEmptyMap() {
+		assertThrown(() -> ValidationUtil.validateNotEmpty(Map.of()));
+		Map<Integer, String> map = ValidationUtil.validateNotEmpty(Map.of(3, "3"));
+		assertNotNull(map);
 	}
 
 }

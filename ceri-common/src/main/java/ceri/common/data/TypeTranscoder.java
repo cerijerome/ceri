@@ -240,7 +240,7 @@ public class TypeTranscoder<T> {
 		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
 	}
 
-	private long decodeWithRemainder(Set<T> receiver, long value) {
+	protected long decodeWithRemainder(Set<T> receiver, long value) {
 		value = mask.decode(value);
 		for (var entry : lookup.entrySet()) {
 			var k = entry.getKey();
