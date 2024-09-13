@@ -72,6 +72,18 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testReduceMaskLong() {
+		assertEquals(ByteUtil.reduceMask(true, 0x8040201010204080L, 0L, (bit, n) -> n + 1), 8L);
+		assertEquals(ByteUtil.reduceMask(false, 0x8040201010204080L, 0L, (bit, n) -> n + 1), 8L);
+	}
+
+	@Test
+	public void testReduceMaskInt() {
+		assertEquals(ByteUtil.reduceMaskInt(true, 0x80402010, 0, (bit, n) -> n + 1), 4);
+		assertEquals(ByteUtil.reduceMaskInt(false, 0x80402010, 0, (bit, n) -> n + 1), 4);
+	}
+
+	@Test
 	public void testToHex() {
 		byte[] b = ArrayUtil.bytes(-1, 0, 127, 128);
 		assertNull(ByteUtil.toHex((byte[]) null, ""));
@@ -303,6 +315,24 @@ public class ByteUtilTest {
 		assertEquals(ByteUtil.maskOfBitInt(false, 31), 0);
 		assertEquals(ByteUtil.maskOfBitInt(true, 32), 0);
 		assertEquals(ByteUtil.maskOfBitInt(true, -1), 0);
+	}
+
+	@Test
+	public void testIndexMask() {
+		assertEquals(ByteUtil.indexMask(List.of()), 0L);
+		assertEquals(ByteUtil.indexMask(List.of(), "a", "b"), 0L);
+		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c", "d")), 0L);
+		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c", "d"), "c", "a", "d"), 0b1101L);
+		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c"), "b", "e", "a"), 0b11L);
+	}
+
+	@Test
+	public void testIndexMaskInt() {
+		assertEquals(ByteUtil.indexMaskInt(List.of()), 0);
+		assertEquals(ByteUtil.indexMaskInt(List.of(), "a", "b"), 0);
+		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c", "d")), 0);
+		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c", "d"), "c", "a", "d"), 0b1101);
+		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c"), "b", "e", "a"), 0b11);
 	}
 
 	@Test

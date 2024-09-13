@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
@@ -26,7 +27,7 @@ public class TypeTranscoder<T> {
 	public static record Remainder<T>(long diff, Set<T> types) {
 		@SafeVarargs
 		public static <T> Remainder<T> of(long diff, T... types) {
-			return new Remainder<>(diff, Set.of(types));
+			return new Remainder<>(diff, ImmutableUtil.asSet(types));
 		}
 
 		public int intDiff() {
@@ -226,9 +227,16 @@ public class TypeTranscoder<T> {
 	 * remainder is discarded.
 	 */
 	public Set<T> decodeAll(long value) {
-		Set<T> set = new LinkedHashSet<>();
-		decodeWithRemainder(set, value);
-		return Collections.unmodifiableSet(set);
+		return Collections.unmodifiableSet(decodeAll(new LinkedHashSet<>(), value));
+	}
+
+	/**
+	 * Decode the value into multiple types, and add to the given collection. Iteration over the
+	 * types is in lookup entry order. Any remainder is discarded.
+	 */
+	public <C extends Collection<T>> C decodeAll(C collection, long value) {
+		decodeWithRemainder(collection, value);
+		return collection;
 	}
 
 	/**
@@ -240,7 +248,7 @@ public class TypeTranscoder<T> {
 		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
 	}
 
-	protected long decodeWithRemainder(Set<T> receiver, long value) {
+	protected long decodeWithRemainder(Collection<T> receiver, long value) {
 		value = mask.decode(value);
 		for (var entry : lookup.entrySet()) {
 			var k = entry.getKey();

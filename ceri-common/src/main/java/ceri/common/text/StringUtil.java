@@ -56,9 +56,9 @@ public class StringUtil {
 	private static final String ESCAPED_HEX = "\\x";
 	private static final String ESCAPED_UTF16 = "\\u";
 	private static final Pattern ESCAPE_REGEX =
-		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|" +
-			"\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|" +
-			"\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
+		Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|"
+			+ "\\\\0[0-3][0-7]{2}|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|"
+			+ "\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 	private static final Charset UTF8 = StandardCharsets.UTF_8;
 	public static final int HEX_RADIX = 16;
 	public static final int DECIMAL_RADIX = 10;
@@ -898,7 +898,7 @@ public class StringUtil {
 		b.setLength(0);
 		return b;
 	}
-	
+
 	/**
 	 * Gets the current string then clears the StringBuilder.
 	 */
@@ -907,7 +907,7 @@ public class StringUtil {
 		clear(b);
 		return s;
 	}
-	
+
 	/**
 	 * Checks if the given string is null or empty. Can be used as a predicate.
 	 */

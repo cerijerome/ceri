@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
@@ -38,6 +39,20 @@ public class ByteUtil {
 	private ByteUtil() {}
 
 	/**
+	 * Functional interface to iterate over mask bits and modify a value.
+	 */
+	public interface BitReducerLong<E extends Exception> {
+		long applyAsLong(int bit, long value) throws E;
+	}
+
+	/**
+	 * Functional interface to iterate over mask bits and modify a value.
+	 */
+	public interface BitReducerInt<E extends Exception> {
+		int applyAsInt(int bit, int value) throws E;
+	}
+
+	/**
 	 * Iterate bits of bytes. A true highBit iterates each byte from bit 7 to 0.
 	 */
 	public static Iterator<Boolean> bitIterator(boolean highBit, ByteProvider bytes) {
@@ -56,7 +71,7 @@ public class ByteUtil {
 		ExceptionIntConsumer<E> consumer) throws E {
 		int min = Integer.numberOfTrailingZeros(mask);
 		int max = Integer.SIZE - Integer.numberOfLeadingZeros(mask) - 1;
-		iterateMask(highBit, MathUtil.uint(mask), consumer, min, max);
+		acceptMask(highBit, MathUtil.uint(mask), consumer, min, max);
 	}
 
 	/**
@@ -66,7 +81,23 @@ public class ByteUtil {
 		ExceptionIntConsumer<E> consumer) throws E {
 		int min = Long.numberOfTrailingZeros(mask);
 		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
-		iterateMask(highBit, mask, consumer, min, max);
+		acceptMask(highBit, mask, consumer, min, max);
+	}
+
+	/**
+	 * Iterate over the set bits of a mask. A true highBit iterates down.
+	 */
+	public static <E extends Exception> long reduceMask(boolean highBit, long mask, long init,
+		BitReducerLong<E> function) throws E {
+		return applyMask(highBit, mask, init, function);
+	}
+
+	/**
+	 * Iterate over the set bits of a mask. A true highBit iterates down.
+	 */
+	public static <E extends Exception> int reduceMaskInt(boolean highBit, int mask, int init,
+		BitReducerInt<E> function) throws E {
+		return applyMask(highBit, mask, init, function);
 	}
 
 	/**
@@ -510,6 +541,37 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Creates an indexed bit mask of other types against a type list.
+	 */
+	@SafeVarargs
+	public static <T> long indexMask(List<T> source, T... others) {
+		return indexMask(source, Arrays.asList(others));
+	}
+
+	/**
+	 * Creates an indexed bit mask of other types against a type list.
+	 */
+	public static <T> long indexMask(List<T> source, Iterable<T> others) {
+		return StreamUtil.bitwiseOr(StreamUtil.stream(others).mapToInt(source::indexOf)
+			.mapToLong(i -> i < 0 ? 0L : 1L << i));
+	}
+
+	/**
+	 * Creates an indexed bit mask of other types against a type list.
+	 */
+	@SafeVarargs
+	public static <T> int indexMaskInt(List<T> source, T... others) {
+		return indexMaskInt(source, Arrays.asList(others));
+	}
+
+	/**
+	 * Creates an indexed bit mask of other types against a type list.
+	 */
+	public static <T> int indexMaskInt(List<T> source, Iterable<T> others) {
+		return (int) indexMask(source, others);
+	}
+
+	/**
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(int value) {
@@ -834,7 +896,7 @@ public class ByteUtil {
 	/**
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
-	private static <E extends Exception> void iterateMask(boolean highBit, long mask,
+	private static <E extends Exception> void acceptMask(boolean highBit, long mask,
 		ExceptionIntConsumer<E> consumer, int min, int max) throws E {
 		if (highBit) {
 			for (int i = max; i >= min; i--)
@@ -844,4 +906,39 @@ public class ByteUtil {
 				if (bit(mask, i)) consumer.accept(i);
 		}
 	}
+
+	/**
+	 * Iterate over the set bits of a mask, processing a value. A true highBit iterates down.
+	 */
+	private static <E extends Exception> long applyMask(boolean highBit, long mask, long value,
+		BitReducerLong<E> function) throws E {
+		int min = Long.numberOfTrailingZeros(mask);
+		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
+		if (highBit) {
+			for (int i = max; i >= min; i--)
+				if (bit(mask, i)) value = function.applyAsLong(i, value);
+		} else {
+			for (int i = min; i <= max; i++)
+				if (bit(mask, i)) value = function.applyAsLong(i, value);
+		}
+		return value;
+	}
+
+	/**
+	 * Iterate over the set bits of a mask, processing a value. A true highBit iterates down.
+	 */
+	private static <E extends Exception> int applyMask(boolean highBit, int mask, int value,
+		BitReducerInt<E> function) throws E {
+		int min = Integer.numberOfTrailingZeros(mask);
+		int max = Integer.SIZE - Long.numberOfLeadingZeros(mask) - 1;
+		if (highBit) {
+			for (int i = max; i >= min; i--)
+				if (bit(mask, i)) value = function.applyAsInt(i, value);
+		} else {
+			for (int i = min; i <= max; i++)
+				if (bit(mask, i)) value = function.applyAsInt(i, value);
+		}
+		return value;
+	}
+
 }

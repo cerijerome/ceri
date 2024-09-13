@@ -7,6 +7,8 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.thrown;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,6 +92,13 @@ public class ValidationUtilTest {
 		ValidationUtil.validateNotNull(OBJ, "test");
 		assertThrown(() -> ValidationUtil.validateNotNull(null));
 		assertThrown(() -> ValidationUtil.validateNotNull(null, "test"));
+	}
+
+	@Test
+	public void testValidateAllNotNull() {
+		ValidationUtil.validateAllNotNull(OBJ, "a", 1);
+		assertThrown(() -> ValidationUtil.validateAllNotNull(OBJ, null));
+		assertThrown(() -> ValidationUtil.validateAllNotNull((Object[]) null));
 	}
 
 	@Test
@@ -401,6 +410,22 @@ public class ValidationUtilTest {
 	}
 
 	@Test
+	public void testValidateEmptyCollection() {
+		ValidationUtil.validateEmpty(List.of());
+		Set<Integer> set = ValidationUtil.validateEmpty(new HashSet<Integer>());
+		assertNotNull(set);
+		assertThrown(() -> ValidationUtil.validateEmpty(Set.of(1)));
+	}
+
+	@Test
+	public void testValidateEmptyMap() {
+		ValidationUtil.validateEmpty(Map.of());
+		Map<Integer, String> map = ValidationUtil.validateEmpty(new HashMap<Integer, String>());
+		assertNotNull(map);
+		assertThrown(() -> ValidationUtil.validateEmpty(Map.of(1, "a")));
+	}
+
+	@Test
 	public void testValidateNotEmptyCollection() {
 		assertThrown(() -> ValidationUtil.validateNotEmpty(Set.of()));
 		assertThrown(() -> ValidationUtil.validateNotEmpty(List.of()));
@@ -413,6 +438,28 @@ public class ValidationUtilTest {
 		assertThrown(() -> ValidationUtil.validateNotEmpty(Map.of()));
 		Map<Integer, String> map = ValidationUtil.validateNotEmpty(Map.of(3, "3"));
 		assertNotNull(map);
+	}
+
+	@Test
+	public void testValidateContains() {
+		ValidationUtil.validateContains(List.of("a", "b", "c"), "b");
+		ValidationUtil.validateContains(Set.of(1), 1);
+		assertThrown(() -> ValidationUtil.validateContains(List.of(), "a"));
+		assertThrown(() -> ValidationUtil.validateContains(Set.of(1), 2));
+	}
+
+	@Test
+	public void testValidateContainsKey() {
+		ValidationUtil.validateContainsKey(Map.of(1, "a", 2, "b"), 2);
+		assertThrown(() -> ValidationUtil.validateContainsKey(Map.of(), 1));
+		assertThrown(() -> ValidationUtil.validateContainsKey(Map.of(1, "a"), 2));
+	}
+
+	@Test
+	public void testValidateContainsValue() {
+		ValidationUtil.validateContainsValue(Map.of(1, "a", 2, "b"), "b");
+		assertThrown(() -> ValidationUtil.validateContainsValue(Map.of(), "a"));
+		assertThrown(() -> ValidationUtil.validateContainsValue(Map.of(1, "a"), "b"));
 	}
 
 }

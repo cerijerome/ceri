@@ -169,8 +169,17 @@ public class ValidationUtil {
 	 * Validates that the object is not null.
 	 */
 	public static <T> T validateNotNull(T value, String name) {
-		if (value == null) throw exceptionf("%s = null", name);
+		if (value == null) throw exceptionf("%s == null", name);
 		return value;
+	}
+
+	/**
+	 * Validates that the objects are not null.
+	 */
+	public static void validateAllNotNull(Object... values) {
+		validateNotNull(values);
+		for (int i = 0; i < values.length; i++)
+			if (values[i] == null) throw exceptionf("Value [%d] == null", i);
 	}
 
 	/**
@@ -742,33 +751,59 @@ public class ValidationUtil {
 	/* Collection validation */
 
 	/**
-	 * Validate the collection is not empty.
+	 * Validate the collection is empty.
 	 */
-	public static <T extends Collection<?>> T validateNotEmpty(T collection) {
-		return validateNotEmpty(collection, "Collection");
+	public static <T extends Collection<?>> T validateEmpty(T collection) {
+		if (collection.isEmpty()) return collection;
+		throw exceptionf("Collection is not empty");
+	}
+
+	/**
+	 * Validate the map is empty.
+	 */
+	public static <T extends Map<?, ?>> T validateEmpty(T map) {
+		if (map.isEmpty()) return map;
+		throw exceptionf("Map is not empty");
 	}
 
 	/**
 	 * Validate the collection is not empty.
 	 */
-	public static <T extends Collection<?>> T validateNotEmpty(T collection, String name) {
+	public static <T extends Collection<?>> T validateNotEmpty(T collection) {
 		if (!collection.isEmpty()) return collection;
-		throw exceptionf("%s is empty", name);
+		throw exceptionf("Collection is empty");
 	}
 
 	/**
 	 * Validate the map is not empty.
 	 */
 	public static <T extends Map<?, ?>> T validateNotEmpty(T map) {
-		return validateNotEmpty(map, "Map");
+		if (!map.isEmpty()) return map;
+		throw exceptionf("Map is empty");
 	}
 
 	/**
-	 * Validate the map is not empty.
+	 * Validate the collection contains the value.
 	 */
-	public static <T extends Map<?, ?>> T validateNotEmpty(T map, String name) {
-		if (!map.isEmpty()) return map;
-		throw exceptionf("%s is empty", name);
+	public static <T, C extends Collection<T>> C validateContains(C collection, T value) {
+		if (collection.contains(value)) return collection;
+		throw exceptionf("Collection does not contain %s", value);
+	}
+
+	/**
+	 * Validate the map contains the key.
+	 */
+	public static <K, M extends Map<K, ?>> M validateContainsKey(M map, K key) {
+		if (map.containsKey(key)) return map;
+		throw exceptionf("Map does not contain key %s", key);
+	}
+
+	/**
+	 * Validate the map contains the key.
+	 */
+	public static <V, M extends Map<?, V>> M validateContainsValue(M map, V value) {
+		if (map.containsValue(value)) return map;
+		throw exceptionf("Map does not contain value %s", value);
 	}
 
 	/* Support methods */
