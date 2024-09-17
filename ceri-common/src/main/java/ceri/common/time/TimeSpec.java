@@ -169,4 +169,9 @@ public record TimeSpec(long seconds, long nanos) {
 		if (sec == 0) return this;
 		return new TimeSpec(Math.addExact(seconds, sec), Math.floorMod(nanos(), SEC_NANOS));
 	}
+
+	@Override
+	public String toString() {
+		return seconds() + "s+" + nanos() + "ns";
+	}
 }

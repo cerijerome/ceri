@@ -1,10 +1,10 @@
 package ceri.common.test;
 
 import static ceri.common.collection.CollectionUtil.getOrDefault;
-import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
-import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
 import static ceri.common.concurrent.ConcurrentUtil.executeGetInterruptible;
 import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
+import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
+import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
 import static ceri.common.exception.ExceptionAdapter.RUNTIME;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -52,6 +52,14 @@ public abstract class CallSync<T, R> {
 	public static void resetAll(CallSync<?, ?>... callSyncs) {
 		for (var callSync : callSyncs)
 			callSync.reset();
+	}
+
+	/**
+	 * Disable/enable saving of values for all the given instances.
+	 */
+	public static void saveValuesAll(boolean enabled, CallSync<?, ?>... callSyncs) {
+		for (var callSync : callSyncs)
+			callSync.saveValues(enabled);
 	}
 
 	/**
@@ -476,7 +484,7 @@ public abstract class CallSync<T, R> {
 		}
 
 		/**
-		 * Enables auto response with runnable and fixed response. 
+		 * Enables auto response with runnable and fixed response.
 		 */
 		public Supplier<R> autoResponse(java.lang.Runnable runnable, R response) {
 			super.autoResponseFn(toAutoResponseFn(runnable, response));
@@ -566,7 +574,7 @@ public abstract class CallSync<T, R> {
 			super.autoResponseFn(toAutoResponseFn(runnable, null));
 			return this;
 		}
-		
+
 		/**
 		 * Signals that a call has been made, and waits for completion. Throws a RuntimeException if
 		 * the generator is configured.
@@ -877,16 +885,16 @@ public abstract class CallSync<T, R> {
 		return executeGetInterruptible(responseSync::await).value();
 	}
 
-	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(
-		java.util.function.Consumer<T> consumer, R response) {
+	private static <T, R> java.util.function.Function<T, R>
+		toAutoResponseFn(java.util.function.Consumer<T> consumer, R response) {
 		return t -> {
 			if (consumer != null) consumer.accept(t);
 			return response;
 		};
 	}
 
-	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(
-		java.lang.Runnable runnable, R response) {
+	private static <T, R> java.util.function.Function<T, R>
+		toAutoResponseFn(java.lang.Runnable runnable, R response) {
 		return t -> {
 			if (runnable != null) runnable.run();
 			return response;

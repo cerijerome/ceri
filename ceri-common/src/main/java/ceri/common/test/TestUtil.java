@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -36,8 +37,8 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.math.MathUtil;
-import ceri.common.property.TypedProperties;
 import ceri.common.property.PropertyUtil;
+import ceri.common.property.TypedProperties;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -242,8 +243,10 @@ public class TestUtil {
 	 */
 	public static <T extends Record> void exerciseRecord(T t,
 		ExceptionBiConsumer<ReflectiveOperationException, Method, T> invoker) {
-		if (t != null) for (Field field : t.getClass().getDeclaredFields())
+		if (t != null) for (Field field : t.getClass().getDeclaredFields()) {
+			if (field.accessFlags().contains(AccessFlag.STATIC)) continue;
 			RUNTIME.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
+		}
 	}
 
 	/**

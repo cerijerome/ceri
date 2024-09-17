@@ -36,7 +36,9 @@ public class TestUtilTest {
 		}
 	}
 
-	static record Rec(int i, String s) {}
+	static record Rec(int i, String s) {
+		static int si = 3;
+	}
 
 	enum BadEnum {
 		bad;

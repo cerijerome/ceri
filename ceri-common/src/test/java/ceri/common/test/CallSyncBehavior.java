@@ -15,6 +15,18 @@ import ceri.common.test.CallSync.Supplier;
 public class CallSyncBehavior {
 
 	@Test
+	public void shouldSetSaveValues() {
+		var call0 = CallSync.function("test", 1, 2, 3);
+		var call1 = CallSync.supplier("test");
+		CallSync.saveValuesAll(true, call0, call1);
+		call0.apply("1");
+		call0.apply("2");
+		assertIterable(call0.values(), "1", "2");
+		CallSync.saveValuesAll(false, call0, call1);
+		assertIterable(call0.values(), "2");
+	}
+
+	@Test
 	public void shouldProvideFunctionLastValue() throws InterruptedException {
 		var call = CallSync.function("test", 1, 2, 3);
 		assertEquals(call.lastValue(), "test");

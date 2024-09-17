@@ -3,6 +3,7 @@ package ceri.common.time;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertOverflow;
 import static ceri.common.test.AssertUtil.assertRange;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.time.Duration;
 import java.time.Instant;
@@ -83,6 +84,11 @@ public class TimeSpecBehavior {
 			9223372027631403770L, 145224192L);
 		var t = new TimeSpec(Long.MAX_VALUE, 1000000000L);
 		assertThrown(() -> t.normalize());
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertString(TimeSpec.ofMillis(33, 123), "33s+123000000ns");
 	}
 
 	private static void assertTimeSpec(TimeSpec t, long secs, long nanos) {
