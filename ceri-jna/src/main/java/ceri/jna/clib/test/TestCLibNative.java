@@ -63,7 +63,9 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for open calls.
 	 */
-	public static record OpenArgs(String path, int flags, int mode) {}
+	public static record OpenArgs(String path, int flags, int mode) {
+		public static final OpenArgs NULL = new OpenArgs("", 0, 0);
+	}
 
 	/**
 	 * Arguments for read calls.

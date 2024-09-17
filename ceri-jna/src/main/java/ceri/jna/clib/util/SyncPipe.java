@@ -83,6 +83,10 @@ public class SyncPipe implements RuntimeCloseable {
 		public void close() {
 			pipe.close();
 		}
+		
+		private boolean closed() {
+			return pipe.closed();
+		}
 	}
 
 	/**
@@ -111,6 +115,7 @@ public class SyncPipe implements RuntimeCloseable {
 		 * Wait for fd events or sync signal. Returns true if the fd has events.
 		 */
 		public boolean poll(Integer timeoutMs) throws IOException {
+			if (sync.closed()) return false;
 			poll.poll(timeoutMs);
 			poll.fd(0).validate();
 			sync.clear();
@@ -173,6 +178,10 @@ public class SyncPipe implements RuntimeCloseable {
 		LogUtil.close(pipe); // log failure
 	}
 
+	private boolean closed() {
+		return closed;
+	}
+	
 	@SuppressWarnings("resource")
 	private boolean write() throws IOException {
 		if (pipe.in().available() > 0) return false;

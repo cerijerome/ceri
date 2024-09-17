@@ -94,7 +94,6 @@ public class SyncPipeBehavior {
 			lib.pollAuto(args -> args.pollfd(0).revents = (short) Event.POLLIN.value);
 			assertTrue(sync.poll());
 		}
-
 	}
 
 	@Test
@@ -106,7 +105,17 @@ public class SyncPipeBehavior {
 			lib.write.assertCalls(1);
 			lib.read.assertCalls(0);
 		}
+	}
 
+	@Test
+	public void shouldNotPollFdAfterClosure() throws IOException {
+		initLib(0);
+		try (var fd = CFileDescriptor.open("test"); var sync = SyncPipe.fd(fd, Event.POLLIN)) {
+			sync.poll();
+			sync.close();
+			sync.poll();
+			lib.poll.assertCalls(1);
+		}
 	}
 
 	private void initLib(int pollFds) {
