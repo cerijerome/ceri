@@ -25,6 +25,7 @@ import ceri.common.test.TestUtil;
 	// registry
 	ceri.log.registry.RegistryBehavior.class, //
 	ceri.log.registry.RegistryServiceBehavior.class, //
+	ceri.log.registry.SimpleRegistryBehavior.class, //
 	// rpc
 	ceri.log.rpc.RpcBehavior.class, //
 	// rpc.client
