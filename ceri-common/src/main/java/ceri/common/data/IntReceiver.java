@@ -1,8 +1,8 @@
 package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionIntUnaryOperator;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface for receiving ints into an array. For bulk efficiency, consider overriding the
@@ -103,7 +103,7 @@ public interface IntReceiver {
 		public Writer slice(int length) {
 			int offset = length < 0 ? offset() + length : offset();
 			length = Math.abs(length);
-			ArrayUtil.validateSlice(length(), offset, length);
+			ValidationUtil.validateSlice(length(), offset, length);
 			return new Writer(receiver, start + offset, length);
 		}
 
@@ -238,7 +238,7 @@ public interface IntReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, int value) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, value);
 		return index;
@@ -264,8 +264,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, int[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, array[offset++]);
 		return index;
@@ -291,8 +291,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, IntProvider provider, int offset, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		ArrayUtil.validateSlice(provider.length(), offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(provider.length(), offset, length);
 		while (length-- > 0)
 			setInt(index++, provider.getInt(offset++));
 		return index;
@@ -309,7 +309,7 @@ public interface IntReceiver {
 	 * Provides sequential int access.
 	 */
 	default Writer writer(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		return new Writer(this, index, length);
 	}
 

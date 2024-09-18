@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that writes bytes sequentially. Type T must be the sub-class type; this allows fluent
@@ -230,7 +231,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(array[offset + i]);
 		return BasicUtil.uncheckedCast(this);
@@ -255,7 +256,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(ByteProvider provider, int offset, int length) {
-		ArrayUtil.validateSlice(provider.length(), offset, length);
+		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(provider.getByte(offset + i));
 		return BasicUtil.uncheckedCast(this);

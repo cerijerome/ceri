@@ -1,12 +1,12 @@
 package ceri.jna.util;
 
-import static ceri.common.collection.ArrayUtil.validateIndex;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.function.ObjIntFunction;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Provides access to struct field pointers as typed arrays. Can be set as
@@ -91,7 +91,7 @@ public class StructField {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			validateIndex(n, i);
+			ValidationUtil.validateIndex(n, i);
 			return JnaUtil.byVal(p, i, createFn, size);
 		}, t -> {
 			Pointer p = ptrFn.apply(t);
@@ -109,7 +109,7 @@ public class StructField {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			validateIndex(n, i);
+			ValidationUtil.validateIndex(n, i);
 			return JnaUtil.byRef(p, i, createFn);
 		}, t -> {
 			Pointer p = ptrFn.apply(t);

@@ -13,6 +13,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that provides positional access to bytes. For bulk efficiency, consider overriding the
@@ -185,7 +186,7 @@ public interface ByteProvider extends Iterable<Integer> {
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
 		public Reader<T> slice(int length) {
-			ArrayUtil.validateSlice(length(), offset(), length);
+			ValidationUtil.validateSlice(length(), offset(), length);
 			return new Reader<>(provider, position(), length);
 		}
 
@@ -505,7 +506,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	default byte[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.EMPTY_BYTE;
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -530,8 +531,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * writes one byte at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getByte(index++);
 		return index;
@@ -557,8 +558,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * method.
 	 */
 	default int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, getByte(index++));
 		return index;
@@ -581,7 +582,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * </pre>
 	 */
 	default int writeTo(int index, OutputStream out, int length) throws IOException {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		while (length-- > 0)
 			out.write(getByte(index++));
 		return index;
@@ -610,7 +611,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides unsigned bytes from index as a stream.
 	 */
 	default IntStream ustream(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		return IntStream.range(index, index + length).map(i -> getUbyte(i));
 	}
 
@@ -796,7 +797,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides sequential byte access.
 	 */
 	default Reader<?> reader(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		return new Reader<>(this, index, length);
 	}
 

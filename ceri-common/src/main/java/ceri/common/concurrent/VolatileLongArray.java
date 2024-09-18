@@ -4,9 +4,9 @@ import static ceri.common.collection.ArrayUtil.EMPTY_LONG;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.LongAccessor;
 import ceri.common.data.LongProvider;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Fixed-size long array with volatile values.
@@ -68,7 +68,7 @@ public class VolatileLongArray implements LongAccessor {
 
 	@Override
 	public VolatileLongArray slice(int offset, int length) {
-		ArrayUtil.validateSlice(length(), offset, length);
+		ValidationUtil.validateSlice(length(), offset, length);
 		return new VolatileLongArray(array, this.offset + offset, length);
 	}
 

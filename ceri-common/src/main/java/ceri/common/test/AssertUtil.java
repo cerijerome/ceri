@@ -921,8 +921,8 @@ public class AssertUtil {
 	/**
 	 * Checks string representation is equal to given formatted string.
 	 */
-	public static void assertString(Object actual, String pattern, Object... objs) {
-		assertEquals(String.valueOf(actual), StringUtil.format(pattern, objs));
+	public static void assertString(Object actual, String format, Object... objs) {
+		assertEquals(String.valueOf(actual), StringUtil.format(format, objs));
 	}
 
 	/**

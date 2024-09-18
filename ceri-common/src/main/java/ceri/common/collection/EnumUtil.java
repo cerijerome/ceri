@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
+import ceri.common.validation.ValidationUtil;
 
 public class EnumUtil {
 	private static final Map<Class<?>, List<?>> cache = new ConcurrentHashMap<>();
@@ -103,7 +103,7 @@ public class EnumUtil {
 	 */
 	public static <T extends Enum<T>> T fromOrdinalValid(Class<T> cls, int ordinal) {
 		T[] enums = cls.getEnumConstants();
-		validateIndex(enums.length, ordinal);
+		ValidationUtil.validateIndex(enums.length, ordinal);
 		return enums[ordinal];
 	}
 

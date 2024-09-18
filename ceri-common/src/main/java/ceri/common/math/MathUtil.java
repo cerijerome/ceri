@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.validation.ValidationUtil;
 
 public class MathUtil {
 	// PI approximations: 22/7, 355/113
@@ -623,7 +623,7 @@ public class MathUtil {
 	 */
 	public static double mean(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		long sum = 0;
@@ -651,7 +651,7 @@ public class MathUtil {
 	 */
 	public static double mean(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		long div = 0;
 		long rem = 0;
@@ -681,7 +681,7 @@ public class MathUtil {
 	 */
 	public static float mean(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		float sum = 0;
@@ -709,7 +709,7 @@ public class MathUtil {
 	 */
 	public static double mean(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		double sum = 0;
@@ -740,7 +740,7 @@ public class MathUtil {
 	 */
 	public static double median(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
@@ -770,7 +770,7 @@ public class MathUtil {
 	 */
 	public static double median(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
@@ -800,7 +800,7 @@ public class MathUtil {
 	 */
 	public static float median(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
@@ -830,7 +830,7 @@ public class MathUtil {
 	 */
 	public static double median(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
@@ -961,7 +961,7 @@ public class MathUtil {
 	 */
 	public static byte min(byte[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		byte min = Byte.MAX_VALUE;
 		for (; length > 0; length--, offset++)
@@ -988,7 +988,7 @@ public class MathUtil {
 	 */
 	public static short min(short[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		short min = Short.MAX_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1015,7 +1015,7 @@ public class MathUtil {
 	 */
 	public static int min(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		int min = Integer.MAX_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1042,7 +1042,7 @@ public class MathUtil {
 	 */
 	public static long min(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		long min = Long.MAX_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1069,7 +1069,7 @@ public class MathUtil {
 	 */
 	public static float min(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		float min = Float.POSITIVE_INFINITY;
 		for (; length > 0; length--, offset++)
@@ -1096,7 +1096,7 @@ public class MathUtil {
 	 */
 	public static double min(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		double min = Double.POSITIVE_INFINITY;
 		for (; length > 0; length--, offset++)
@@ -1123,7 +1123,7 @@ public class MathUtil {
 	 */
 	public static byte max(byte[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		byte max = Byte.MIN_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1150,7 +1150,7 @@ public class MathUtil {
 	 */
 	public static short max(short[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		short max = Short.MIN_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1177,7 +1177,7 @@ public class MathUtil {
 	 */
 	public static int max(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		int max = Integer.MIN_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1204,7 +1204,7 @@ public class MathUtil {
 	 */
 	public static long max(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		long max = Long.MIN_VALUE;
 		for (; length > 0; length--, offset++)
@@ -1231,7 +1231,7 @@ public class MathUtil {
 	 */
 	public static float max(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		float max = Float.NEGATIVE_INFINITY;
 		for (; length > 0; length--, offset++)
@@ -1258,7 +1258,7 @@ public class MathUtil {
 	 */
 	public static double max(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMin(length, 1);
 		double max = Double.NEGATIVE_INFINITY;
 		for (; length > 0; length--, offset++)

@@ -14,6 +14,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.TestUtil;
+import ceri.common.validation.ValidationUtil;
 
 public class ByteWriterBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -180,7 +181,7 @@ public class ByteWriterBehavior {
 
 		@Override
 		public SimpleByteWriter writeByte(int value) {
-			ArrayUtil.validateIndex(length, index);
+			ValidationUtil.validateIndex(length, index);
 			bytes[offset + index++] = (byte) value;
 			return this;
 		}

@@ -1,9 +1,9 @@
 package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that writes ints sequentially. Type T must be the sub-class type; this allows fluent
@@ -115,7 +115,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(int[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(array[offset + i]);
 		return BasicUtil.uncheckedCast(this);
@@ -140,7 +140,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(IntProvider provider, int offset, int length) {
-		ArrayUtil.validateSlice(provider.length(), offset, length);
+		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(provider.getInt(offset + i));
 		return BasicUtil.uncheckedCast(this);

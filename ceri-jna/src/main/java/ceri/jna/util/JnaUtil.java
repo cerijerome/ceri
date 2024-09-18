@@ -1,6 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import java.lang.ref.Reference;
 import java.nio.Buffer;
@@ -26,6 +25,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Enclosed;
+import ceri.common.validation.ValidationUtil;
 
 public class JnaUtil {
 	private static final Pattern LAST_ERROR_REGEX =
@@ -105,7 +105,7 @@ public class JnaUtil {
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory mallocBytes(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		if (length == 0) return null;
 		Memory m = new Memory(length);
 		m.write(0, array, offset, length);
@@ -736,7 +736,7 @@ public class JnaUtil {
 	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
 	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
-		validateSlice(buffer.length, index, length);
+		ValidationUtil.validateSlice(buffer.length, index, length);
 		if (p == null) validateNullSlice(offset, length);
 		else if (length > 0) p.read(offset, buffer, index, length);
 		return index + length;
@@ -788,7 +788,7 @@ public class JnaUtil {
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
-		validateSlice(buffer.length, index, length);
+		ValidationUtil.validateSlice(buffer.length, index, length);
 		if (p == null) validateNullSlice(offset, length);
 		else if (length > 0) p.write(offset, buffer, index, length);
 		return offset + length;

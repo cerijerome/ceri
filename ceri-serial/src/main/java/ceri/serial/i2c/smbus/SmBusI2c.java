@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import com.sun.jna.Memory;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.CrcAlgorithm;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2cAddress;
@@ -102,7 +102,7 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public void writeBlockData(int command, byte[] values, int offset, int length)
 		throws IOException {
-		ArrayUtil.validateSlice(values.length, offset, length);
+		ValidationUtil.validateSlice(values.length, offset, length);
 		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = Encoder.of(1 + 1 + length + 1).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
@@ -112,7 +112,7 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 		throws IOException {
-		ArrayUtil.validateSlice(values.length, offset, length);
+		ValidationUtil.validateSlice(values.length, offset, length);
 		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = Encoder.of(1 + 1 + length).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
@@ -129,7 +129,7 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public void writeI2cBlockData(int command, byte[] values, int offset, int length)
 		throws IOException {
-		ArrayUtil.validateSlice(values.length, offset, length);
+		ValidationUtil.validateSlice(values.length, offset, length);
 		validateMax(length, I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send =
 			Encoder.of(1 + length + 1).writeByte(command).writeFrom(values, offset, length).bytes();

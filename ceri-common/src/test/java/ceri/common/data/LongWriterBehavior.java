@@ -5,9 +5,9 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static java.lang.Long.MAX_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.LongArray.Mutable;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.validation.ValidationUtil;
 
 public class LongWriterBehavior {
 
@@ -112,7 +112,7 @@ public class LongWriterBehavior {
 
 		@Override
 		public SimpleLongWriter writeLong(long value) {
-			ArrayUtil.validateIndex(length, index);
+			ValidationUtil.validateIndex(length, index);
 			longs[offset + index++] = value;
 			return this;
 		}

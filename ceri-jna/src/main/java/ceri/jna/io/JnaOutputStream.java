@@ -1,10 +1,10 @@
 package ceri.jna.io;
 
-import static ceri.common.collection.ArrayUtil.validateSlice;
 import java.io.IOException;
 import java.io.OutputStream;
 import com.sun.jna.Memory;
 import ceri.common.io.IncompleteIoException;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
 
@@ -35,7 +35,7 @@ public abstract class JnaOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		validateSlice(b.length, off, len);
+		ValidationUtil.validateSlice(b.length, off, len);
 		ensureOpen();
 		verifyWrite(writeAll(buffers.get(), b, off, len), len);
 	}

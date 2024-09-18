@@ -1,7 +1,6 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
-import static ceri.common.collection.ArrayUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Base wrapper for a byte array, implementing the ByteProvider interface. The Immutable sub-class
@@ -65,7 +65,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(byte[] array, int offset, int length) {
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -130,7 +130,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(byte[] array, int offset, int length) {
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -192,7 +192,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int copyFrom(int index, byte[] array, int offset, int length) {
 			validateSlice(index, length);
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
@@ -278,7 +278,7 @@ public abstract class ByteArray implements ByteProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(byte[] array, int max) {
-			validateRange(array.length, 0, max);
+			ValidationUtil.validateSubRange(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -344,7 +344,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int transferTo(OutputStream out, int length) throws IOException {
 			int current = offset();
-			ArrayUtil.validateSlice(length(), current, length);
+			ValidationUtil.validateSlice(length(), current, length);
 			offset(mutable.writeTo(current, out, length));
 			return offset() - current;
 		}
@@ -513,7 +513,7 @@ public abstract class ByteArray implements ByteProvider {
 	@Override
 	public int copyTo(int index, byte[] dest, int offset, int length) {
 		validateSlice(index, length);
-		ArrayUtil.validateSlice(dest.length, offset, length);
+		ValidationUtil.validateSlice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
@@ -573,7 +573,7 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	void validateSlice(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 	}
 
 	int offset(int index) {

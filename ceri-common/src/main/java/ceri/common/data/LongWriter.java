@@ -1,8 +1,8 @@
 package ceri.common.data;
 
-import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that writes longs sequentially. Type T must be the sub-class type; this allows fluent
@@ -70,7 +70,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(long[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(array[offset + i]);
 		return BasicUtil.uncheckedCast(this);
@@ -95,7 +95,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(LongProvider provider, int offset, int length) {
-		ArrayUtil.validateSlice(provider.length(), offset, length);
+		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(provider.getLong(offset + i));
 		return BasicUtil.uncheckedCast(this);

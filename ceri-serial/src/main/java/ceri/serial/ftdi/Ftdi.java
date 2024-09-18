@@ -5,8 +5,8 @@ import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.io.Connector;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 
@@ -161,7 +161,7 @@ public interface Ftdi extends Connector {
 	 */
 	@SuppressWarnings("resource")
 	default FtdiTransferControl writeSubmit(byte[] data, int offset, int len) throws IOException {
-		ArrayUtil.validateSlice(data.length, offset, len);
+		ValidationUtil.validateSlice(data.length, offset, len);
 		var m = JnaUtil.mallocBytes(data, offset, len);
 		return writeSubmit(m, len);
 	}

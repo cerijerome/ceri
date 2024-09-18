@@ -4,9 +4,9 @@ import static ceri.common.collection.ArrayUtil.EMPTY_INT;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.IntProvider;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Fixed-size int array with volatile values.
@@ -68,7 +68,7 @@ public class VolatileIntArray implements IntAccessor {
 
 	@Override
 	public VolatileIntArray slice(int offset, int length) {
-		ArrayUtil.validateSlice(length(), offset, length);
+		ValidationUtil.validateSlice(length(), offset, length);
 		return new VolatileIntArray(array, this.offset + offset, length);
 	}
 

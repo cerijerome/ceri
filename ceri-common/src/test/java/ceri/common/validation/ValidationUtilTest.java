@@ -3,9 +3,12 @@ package ceri.common.validation;
 import static ceri.common.math.Bound.Type.exclusive;
 import static ceri.common.math.Bound.Type.inclusive;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIndexOob;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.thrown;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -258,6 +261,54 @@ public class ValidationUtilTest {
 		ValidationUtil.validateWithoutFp(1, Interval.exclusive(0.0, 1.0), DisplayDouble.round);
 		assertThrown(() -> ValidationUtil.validateWithoutFp(1, Interval.inclusive(0.0, 1.0),
 			DisplayDouble.round));
+	}
+
+	@Test
+	public void testValidateIndex() {
+		int[] array = { 1, 2, 3, 4 };
+		ValidationUtil.validateIndex(array.length, 0);
+		ValidationUtil.validateIndex(array.length, 3);
+		assertThrown(() -> ValidationUtil.validateIndex(array.length, -1));
+		assertThrown(() -> ValidationUtil.validateIndex(array.length, 4));
+	}
+
+	@Test
+	public void testValidateSlice() {
+		int[] array = { 1, 2, 3, 4 };
+		ValidationUtil.validateSlice(array.length, 0, 4);
+		ValidationUtil.validateSlice(array.length, 1, 2);
+		assertThrown(() -> ValidationUtil.validateSlice(array.length, -1, 1));
+		assertThrown(() -> ValidationUtil.validateSlice(array.length, 5, 1));
+		assertThrown(() -> ValidationUtil.validateSlice(array.length, 2, 4));
+	}
+
+	@Test
+	public void testValidateFullSlice() {
+		int[] array = { 1, 2, 3, 4 };
+		assertTrue(ValidationUtil.validateFullSlice(array.length, 0, 4));
+		assertFalse(ValidationUtil.validateFullSlice(array.length, 0, 3));
+		assertIndexOob(() -> ValidationUtil.validateFullSlice(array.length, 0, 5));
+		assertFalse(ValidationUtil.validateFullSlice(array.length, 1, 3));
+	}
+
+	@Test
+	public void testValidateSubRange() {
+		int[] array = { 1, 2, 3, 4 };
+		ValidationUtil.validateSubRange(array.length, 0, 4);
+		ValidationUtil.validateSubRange(array.length, 1, 3);
+		assertThrown(() -> ValidationUtil.validateSubRange(array.length, -1, 0));
+		assertThrown(() -> ValidationUtil.validateSubRange(array.length, 5, 6));
+		assertThrown(() -> ValidationUtil.validateSubRange(array.length, 2, 1));
+		assertThrown(() -> ValidationUtil.validateSubRange(array.length, 2, 5));
+	}
+
+	@Test
+	public void testValidateFullSubRange() {
+		int[] array = { 1, 2, 3, 4 };
+		assertTrue(ValidationUtil.validateFullSubRange(array.length, 0, 4));
+		assertFalse(ValidationUtil.validateFullSubRange(array.length, 0, 3));
+		assertIndexOob(() -> ValidationUtil.validateFullSubRange(array.length, 0, 5));
+		assertFalse(ValidationUtil.validateFullSubRange(array.length, 1, 3));
 	}
 
 	@Test

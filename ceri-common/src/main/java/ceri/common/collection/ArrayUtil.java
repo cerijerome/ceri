@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Utility methods to test and manipulate arrays.
@@ -42,44 +43,6 @@ public class ArrayUtil {
 	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 
 	private ArrayUtil() {}
-
-	/**
-	 * Performs a validation on index to an array.
-	 */
-	public static void validateIndex(int arrayLength, int index) {
-		if (arrayLength == 0) throw new IndexOutOfBoundsException("Array is empty");
-		if (index >= 0 && index < arrayLength) return;
-		throw new IndexOutOfBoundsException("Index must be 0.." + (arrayLength - 1) + ": " + index);
-	}
-
-	/**
-	 * Performs a validation on parameters to slice an array.
-	 */
-	public static void validateSlice(int arrayLength, int offset, int length) {
-		if (offset < 0 || offset > arrayLength)
-			throw new IndexOutOfBoundsException("Offset must be 0.." + arrayLength + ": " + offset);
-		if (length < 0 || offset + length > arrayLength) throw new IndexOutOfBoundsException(
-			"Length must be 0.." + (arrayLength - offset) + ": " + length);
-	}
-
-	/**
-	 * Performs a validation on parameters to slice an array. Returns true if the slice is the full
-	 * slice.
-	 */
-	public static boolean validateFullSlice(int arrayLength, int offset, int length) {
-		validateSlice(arrayLength, offset, length);
-		return fullSlice(arrayLength, offset, length);
-	}
-
-	/**
-	 * Performs a validation on parameters to slice an array by range.
-	 */
-	public static void validateRange(int arrayLength, int start, int end) {
-		if (start < 0 || start > arrayLength)
-			throw new IndexOutOfBoundsException("Start must be 0.." + arrayLength + ": " + start);
-		if (end < start || end > arrayLength) throw new IndexOutOfBoundsException(
-			"End must be " + start + ".." + arrayLength + ": " + end);
-	}
 
 	/**
 	 * Returns true if index is within array.
@@ -107,7 +70,7 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the slice is the same as the whole.
+	 * Returns true if the slice/range is the same as the whole.
 	 */
 	public static boolean fullSlice(int arrayLength, int offset, int length) {
 		return offset == 0 && length == arrayLength;
@@ -1832,7 +1795,7 @@ public class ArrayUtil {
 
 	private static <T> int indexOf(T array, int start, int arrayLen, T values, int valuesLen,
 		ArrayEquals<T> equalsFn) {
-		validateSlice(arrayLen, start, 0);
+		ValidationUtil.validateSlice(arrayLen, start, 0);
 		for (int i = start; i <= arrayLen - valuesLen; i++)
 			if (equalsFn.equals(array, i, values, 0, valuesLen)) return i;
 		return -1;
@@ -1840,7 +1803,7 @@ public class ArrayUtil {
 
 	private static <T> int lastIndexOf(T array, int start, int arrayLen, T values, int valuesLen,
 		ArrayEquals<T> equalsFn) {
-		validateSlice(arrayLen, start, 0);
+		ValidationUtil.validateSlice(arrayLen, start, 0);
 		for (int i = arrayLen - valuesLen; i >= start; i--)
 			if (equalsFn.equals(array, i, values, 0, valuesLen)) return i;
 		return -1;

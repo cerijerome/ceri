@@ -1,6 +1,5 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.common.validation.ValidationUtil.validateNull;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_CONTAINER_ID_SIZE;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY_SIZE;
@@ -44,6 +43,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaSize;
 import ceri.jna.util.PointerUtil;
@@ -287,7 +287,7 @@ public class LibUsbTestData {
 		}
 
 		private Pointer p(int i) {
-			validateIndex(size, i);
+			ValidationUtil.validateIndex(size, i);
 			return p.share(i * JnaSize.POINTER.size);
 		}
 	}

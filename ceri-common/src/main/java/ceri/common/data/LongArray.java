@@ -1,13 +1,13 @@
 package ceri.common.data;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_LONG;
-import static ceri.common.collection.ArrayUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Base wrapper for an long array, implementing the LongProvider interface. The Immutable sub-class
@@ -55,7 +55,7 @@ public abstract class LongArray implements LongProvider {
 		}
 
 		public static Immutable wrap(long[] array, int offset, int length) {
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -116,7 +116,7 @@ public abstract class LongArray implements LongProvider {
 		}
 
 		public static Mutable wrap(long[] array, int offset, int length) {
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -171,7 +171,7 @@ public abstract class LongArray implements LongProvider {
 		@Override
 		public int copyFrom(int index, long[] array, int offset, int length) {
 			validateSlice(index, length);
-			ArrayUtil.validateSlice(array.length, offset, length);
+			ValidationUtil.validateSlice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
@@ -250,7 +250,7 @@ public abstract class LongArray implements LongProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(long[] array, int max) {
-			validateRange(array.length, 0, max);
+			ValidationUtil.validateSubRange(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -439,7 +439,7 @@ public abstract class LongArray implements LongProvider {
 	@Override
 	public int copyTo(int index, long[] dest, int offset, int length) {
 		validateSlice(index, length);
-		ArrayUtil.validateSlice(dest.length, offset, length);
+		ValidationUtil.validateSlice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
@@ -487,7 +487,7 @@ public abstract class LongArray implements LongProvider {
 	}
 
 	void validateSlice(int index, int length) {
-		ArrayUtil.validateSlice(this.length, index, length);
+		ValidationUtil.validateSlice(this.length, index, length);
 	}
 
 	int offset(int index) {

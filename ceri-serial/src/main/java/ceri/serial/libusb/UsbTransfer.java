@@ -1,6 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
@@ -16,6 +15,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.util.BasicUtil;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 import ceri.log.util.LogUtil;
@@ -332,7 +332,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 		}
 
 		public Iso packetLength(int packet, int length) {
-			validateIndex(packets(), packet);
+			ValidationUtil.validateIndex(packets(), packet);
 			var transfer = transfer();
 			transfer.length += length - transfer.iso_packet_desc[packet].length;
 			transfer.iso_packet_desc[packet].length = length;
@@ -347,12 +347,12 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 		}
 
 		public ByteBuffer packetBuffer(int packet) {
-			validateIndex(packets(), packet);
+			ValidationUtil.validateIndex(packets(), packet);
 			return packetBuffer(packet, offset(packet));
 		}
 
 		public ByteBuffer packetBufferSimple(int packet) {
-			validateIndex(packets(), packet);
+			ValidationUtil.validateIndex(packets(), packet);
 			return packetBuffer(packet, packet * transfer().iso_packet_desc[0].length);
 		}
 

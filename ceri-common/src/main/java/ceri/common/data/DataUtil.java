@@ -5,6 +5,7 @@ import static ceri.common.text.StringUtil.DECIMAL_RADIX;
 import static ceri.common.text.StringUtil.escape;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.validation.ValidationUtil;
 
 public class DataUtil {
 
@@ -95,8 +96,8 @@ public class DataUtil {
 	 * If the array is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, byte[] bytes, int offset, int length) {
-		ArrayUtil.validateSlice(bytes.length, offset, length);
-		ArrayUtil.validateSlice(bytes.length, offset, length);
+		ValidationUtil.validateSlice(bytes.length, offset, length);
+		ValidationUtil.validateSlice(bytes.length, offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes[offset]) continue;
@@ -125,7 +126,7 @@ public class DataUtil {
 	 * If the byte provider is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, ByteProvider bytes, int offset, int length) {
-		ArrayUtil.validateSlice(bytes.length(), offset, length);
+		ValidationUtil.validateSlice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;
@@ -162,7 +163,7 @@ public class DataUtil {
 	 * length bytes. If the array is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expectAll(ByteReader r, byte[] bytes, int offset, int length) {
-		ArrayUtil.validateSlice(bytes.length, offset, length);
+		ValidationUtil.validateSlice(bytes.length, offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes[offset]) continue;
@@ -195,7 +196,7 @@ public class DataUtil {
 	 * thrown.
 	 */
 	public static void expectAll(ByteReader r, ByteProvider bytes, int offset, int length) {
-		ArrayUtil.validateSlice(bytes.length(), offset, length);
+		ValidationUtil.validateSlice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;

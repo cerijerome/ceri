@@ -1,6 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.collection.ArrayUtil.validateIndex;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -9,6 +8,7 @@ import java.util.function.Supplier;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Holds a pointer to a typed array, and provides access to the array. The array may be
@@ -80,7 +80,7 @@ public abstract class ArrayPointer<T> extends PointerType {
 	}
 
 	private static int valid(int i, int count) {
-		validateIndex(count, i);
+		ValidationUtil.validateIndex(count, i);
 		return i;
 	}
 

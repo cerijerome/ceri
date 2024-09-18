@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.validateSlice;
 import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +24,7 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.validation.ValidationUtil;
 
 public class ByteUtil {
 	public static final int BITS_PER_NYBBLE = 4;
@@ -404,7 +404,7 @@ public class ByteUtil {
 	 * length string is returned.
 	 */
 	public static String fromNullTerm(ByteProvider data, int offset, int maxLen, Charset charset) {
-		validateSlice(data.length(), offset, maxLen);
+		ValidationUtil.validateSlice(data.length(), offset, maxLen);
 		for (int i = 0; i < maxLen; i++)
 			if (data.getByte(offset + i) == 0) return data.getString(offset, i, charset);
 		return data.getString(offset, maxLen, charset);
@@ -674,7 +674,7 @@ public class ByteUtil {
 	 * Writes converted value to byte array, msb first.
 	 */
 	public static int writeMsb(long value, byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+		ValidationUtil.validateSlice(data.length, offset, length);
 		validateMax(length, Long.BYTES);
 		while (--length >= 0)
 			data[offset++] = byteAt(value, length);
@@ -699,7 +699,7 @@ public class ByteUtil {
 	 * Writes converted value to byte array, lsb first.
 	 */
 	public static int writeLsb(long value, byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+		ValidationUtil.validateSlice(data.length, offset, length);
 		validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset++] = byteAt(value, i);
@@ -731,7 +731,7 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromMsb(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
@@ -764,7 +764,7 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromLsb(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)

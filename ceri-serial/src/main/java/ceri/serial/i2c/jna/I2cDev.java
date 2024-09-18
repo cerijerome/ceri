@@ -25,6 +25,7 @@ import ceri.common.data.FieldTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.data.ValueField;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -195,7 +196,7 @@ public class I2cDev {
 		}
 
 		public void setBlock(byte[] data, int offset, int length) {
-			ArrayUtil.validateSlice(data.length, offset, length);
+			ValidationUtil.validateSlice(data.length, offset, length);
 			validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
 			ArrayUtil.copy(data, offset, block, 1, length);
 			setBlockLength(length);

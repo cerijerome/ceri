@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that provides sequential access to bytes. Reads are of known length, or require a given
@@ -272,7 +273,7 @@ public interface ByteReader {
 	 * one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(byte[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readByte();
 		return offset;
@@ -297,7 +298,7 @@ public interface ByteReader {
 	 * implementation reads one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(ByteReceiver receiver, int offset, int length) {
-		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		ValidationUtil.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, readByte());
 		return offset;

@@ -7,9 +7,9 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.validation.ValidationUtil;
 
 public class IntWriterBehavior {
 	private static final boolean msb = ByteUtil.BIG_ENDIAN;
@@ -138,7 +138,7 @@ public class IntWriterBehavior {
 
 		@Override
 		public SimpleIntWriter writeInt(int value) {
-			ArrayUtil.validateIndex(length, index);
+			ValidationUtil.validateIndex(length, index);
 			ints[offset + index++] = value;
 			return this;
 		}

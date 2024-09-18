@@ -7,6 +7,7 @@ import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that provides positional access to longs. For bulk efficiency, consider overriding the
@@ -125,7 +126,7 @@ public interface LongProvider extends Iterable<Long> {
 		 * Creates a new reader for subsequent longs without incrementing the offset.
 		 */
 		public Reader slice(int length) {
-			ArrayUtil.validateSlice(length(), offset(), length);
+			ValidationUtil.validateSlice(length(), offset(), length);
 			return new Reader(provider, start + offset(), length);
 		}
 
@@ -202,7 +203,7 @@ public interface LongProvider extends Iterable<Long> {
 	 */
 	default long[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.EMPTY_LONG;
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		long[] copy = new long[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -227,8 +228,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * writes one long at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, long[] array, int offset, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getLong(index++);
 		return index;
@@ -254,8 +255,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * method.
 	 */
 	default int copyTo(int index, LongReceiver receiver, int offset, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
-		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		ValidationUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setLong(offset++, getLong(index++));
 		return index;
@@ -272,7 +273,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Provides signed longs from index as a stream.
 	 */
 	default LongStream stream(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		return IntStream.range(index, index + length).mapToLong(i -> getLong(i));
 	}
 
@@ -437,7 +438,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Provides sequential long access.
 	 */
 	default Reader reader(int index, int length) {
-		ArrayUtil.validateSlice(length(), index, length);
+		ValidationUtil.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 

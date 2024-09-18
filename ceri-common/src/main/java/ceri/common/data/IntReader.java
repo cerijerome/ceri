@@ -6,6 +6,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Interface that provides sequential access to ints. Reads are of known length, or require a given
@@ -124,7 +125,7 @@ public interface IntReader {
 	 * one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(int[] array, int offset, int length) {
-		ArrayUtil.validateSlice(array.length, offset, length);
+		ValidationUtil.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readInt();
 		return offset;
@@ -149,7 +150,7 @@ public interface IntReader {
 	 * implementation reads one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(IntReceiver receiver, int offset, int length) {
-		ArrayUtil.validateSlice(receiver.length(), offset, length);
+		ValidationUtil.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setInt(offset++, readInt());
 		return offset;

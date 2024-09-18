@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Use to generate a CRC value using a CRC algorithm. TODO: convert to ByteReceiver?
@@ -62,7 +62,7 @@ public class Crc {
 	}
 
 	public Crc add(byte[] data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length, offset, length);
+		ValidationUtil.validateSlice(data.length, offset, length);
 		for (int i = offset; i < offset + length; i++)
 			crc = algorithm.apply(crc, data[i]);
 		return this;
@@ -83,7 +83,7 @@ public class Crc {
 	}
 
 	public Crc add(ByteProvider data, int offset, int length) {
-		ArrayUtil.validateSlice(data.length(), offset, length);
+		ValidationUtil.validateSlice(data.length(), offset, length);
 		for (int i = offset; i < offset + length; i++)
 			crc = algorithm.apply(crc, data.getByte(i));
 		return this;

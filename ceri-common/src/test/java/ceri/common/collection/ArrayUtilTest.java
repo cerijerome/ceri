@@ -8,7 +8,6 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertIndexOob;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
@@ -512,12 +511,8 @@ public class ArrayUtilTest {
 	}
 
 	@Test
-	public void testValidateIndex() {
+	public void testValidIndex() {
 		int[] array = { 1, 2, 3, 4 };
-		ArrayUtil.validateIndex(array.length, 0);
-		ArrayUtil.validateIndex(array.length, 3);
-		assertThrown(() -> ArrayUtil.validateIndex(array.length, -1));
-		assertThrown(() -> ArrayUtil.validateIndex(array.length, 4));
 		assertTrue(ArrayUtil.isValidIndex(array.length, 0));
 		assertTrue(ArrayUtil.isValidIndex(array.length, 3));
 		assertFalse(ArrayUtil.isValidIndex(array.length, -1));
@@ -525,13 +520,8 @@ public class ArrayUtilTest {
 	}
 
 	@Test
-	public void testValidateSlice() {
+	public void testValidSlice() {
 		int[] array = { 1, 2, 3, 4 };
-		ArrayUtil.validateSlice(array.length, 0, 4);
-		ArrayUtil.validateSlice(array.length, 1, 2);
-		assertThrown(() -> ArrayUtil.validateSlice(array.length, -1, 1));
-		assertThrown(() -> ArrayUtil.validateSlice(array.length, 5, 1));
-		assertThrown(() -> ArrayUtil.validateSlice(array.length, 2, 4));
 		assertTrue(ArrayUtil.isValidSlice(array.length, 0, 4));
 		assertTrue(ArrayUtil.isValidSlice(array.length, 1, 2));
 		assertFalse(ArrayUtil.isValidSlice(array.length, -1, 1));
@@ -541,23 +531,8 @@ public class ArrayUtilTest {
 	}
 
 	@Test
-	public void testValidateFullSlice() {
+	public void testValidRange() {
 		int[] array = { 1, 2, 3, 4 };
-		assertTrue(ArrayUtil.validateFullSlice(array.length, 0, 4));
-		assertFalse(ArrayUtil.validateFullSlice(array.length, 0, 3));
-		assertIndexOob(() -> ArrayUtil.validateFullSlice(array.length, 0, 5));
-		assertFalse(ArrayUtil.validateFullSlice(array.length, 1, 3));
-	}
-	
-	@Test
-	public void testValidateRange() {
-		int[] array = { 1, 2, 3, 4 };
-		ArrayUtil.validateRange(array.length, 0, 4);
-		ArrayUtil.validateRange(array.length, 1, 3);
-		assertThrown(() -> ArrayUtil.validateRange(array.length, -1, 0));
-		assertThrown(() -> ArrayUtil.validateRange(array.length, 5, 6));
-		assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 1));
-		assertThrown(() -> ArrayUtil.validateRange(array.length, 2, 5));
 		assertTrue(ArrayUtil.isValidRange(array.length, 0, 4));
 		assertTrue(ArrayUtil.isValidRange(array.length, 1, 3));
 		assertFalse(ArrayUtil.isValidRange(array.length, -1, 0));

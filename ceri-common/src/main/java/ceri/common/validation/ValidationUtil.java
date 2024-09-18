@@ -21,6 +21,7 @@ import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
@@ -466,6 +467,53 @@ public class ValidationUtil {
 	/* Number min/max/range validation */
 
 	/**
+	 * Validates an index against a range of given size.
+	 */
+	public static int validateIndex(int size, int index) {
+		if (size == 0) throw new IndexOutOfBoundsException("Empty");
+		if (index >= 0 && index < size) return index;
+		throw new IndexOutOfBoundsException("Index must be 0.." + (size - 1) + ": " + index);
+	}
+
+	/**
+	 * Validates parameters to slice a range by offset and length.
+	 */
+	public static void validateSlice(int size, int offset, int length) {
+		if (offset < 0 || offset > size)
+			throw new IndexOutOfBoundsException("Offset must be 0.." + size + ": " + offset);
+		if (length < 0 || offset + length > size) throw new IndexOutOfBoundsException(
+			"Length must be 0.." + (size - offset) + ": " + length);
+	}
+
+	/**
+	 * Validates parameters to slice a range by offset and length. Returns true if the slice is the
+	 * full range.
+	 */
+	public static boolean validateFullSlice(int size, int offset, int length) {
+		validateSlice(size, offset, length);
+		return ArrayUtil.fullSlice(size, offset, length);
+	}
+
+	/**
+	 * Validates a sub-range by start and end indexes.
+	 */
+	public static void validateSubRange(int size, int start, int end) {
+		if (start < 0 || start > size)
+			throw new IndexOutOfBoundsException("Start must be 0.." + size + ": " + start);
+		if (end < start || end > size)
+			throw new IndexOutOfBoundsException("End must be " + start + ".." + size + ": " + end);
+	}
+
+	/**
+	 * Validates a sub-range by start and end indexes. Returns true if the sub-range is the full
+	 * range.
+	 */
+	public static boolean validateFullSubRange(int size, int offset, int length) {
+		validateSubRange(size, offset, length);
+		return ArrayUtil.fullSlice(size, offset, length);
+	}
+
+	/**
 	 * Validates that integer value is >= minimum.
 	 */
 	public static long validateMin(long value, long min, DisplayLong... flags) {
@@ -846,5 +894,4 @@ public class ValidationUtil {
 			format(interval.lower.value, flags), format(interval.upper.value, flags),
 			interval.upper.type.right);
 	}
-
 }

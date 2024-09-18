@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.collection.ArrayUtil;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Combines LongProvider and LongReceiver interfaces.
@@ -55,19 +55,19 @@ public interface LongAccessor extends LongProvider, LongReceiver {
 
 		@Override
 		public long getLong(int index) {
-			ArrayUtil.validateIndex(length, index);
+			ValidationUtil.validateIndex(length, index);
 			return 0;
 		}
 
 		@Override
 		public int setLong(int index, long value) {
-			ArrayUtil.validateIndex(length, index);
+			ValidationUtil.validateIndex(length, index);
 			return index + 1;
 		}
 
 		@Override
 		public LongAccessor slice(int index, int length) {
-			ArrayUtil.validateSlice(length(), index, length);
+			ValidationUtil.validateSlice(length(), index, length);
 			if (length == 0) return EMPTY;
 			if (length == length()) return this;
 			return new Null(length);
