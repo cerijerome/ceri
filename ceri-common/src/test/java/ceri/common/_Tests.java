@@ -337,6 +337,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.tree.TreeNodeBehavior.class, //
 	ceri.common.tree.TreeNodeComparatorsTest.class, //
 	ceri.common.tree.TreeUtilTest.class, //
+	// unit
+	ceri.common.unit.TemperatureBehavior.class, //
 	// util
 	ceri.common.util.AlignBehavior.class, //
 	ceri.common.util.BasicUtilTest.class, //
