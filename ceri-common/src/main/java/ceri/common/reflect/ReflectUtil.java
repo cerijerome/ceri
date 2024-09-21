@@ -11,7 +11,9 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
@@ -299,6 +301,13 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Determines if the field/method is static.
+	 */
+	public static boolean isStatic(Member member) {
+		return member != null && Modifier.isStatic(member.getModifiers());
+	}
+	
+	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
 	public static Field publicField(Class<?> cls, String name) {
@@ -313,10 +322,11 @@ public class ReflectUtil {
 	/**
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
-	public static Object publicFieldValue(Object obj, Field field) {
-		if (obj == null || field == null) return null;
+	public static <T> T publicFieldValue(Object obj, Field field) {
+		if (field == null) return null;
+		if (obj == null && !isStatic(field)) return null;
 		try {
-			return field.get(obj);
+			return BasicUtil.uncheckedCast(field.get(obj));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return null;
 		}
@@ -325,7 +335,7 @@ public class ReflectUtil {
 	/**
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
-	public static Object publicValue(Object obj, String name) {
+	public static <T> T publicValue(Object obj, String name) {
 		if (obj == null) return null;
 		return publicFieldValue(obj, publicField(obj.getClass(), name));
 	}

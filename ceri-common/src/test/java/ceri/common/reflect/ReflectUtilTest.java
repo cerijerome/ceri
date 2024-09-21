@@ -78,6 +78,13 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testIsStatic() {
+		assertEquals(ReflectUtil.isStatic(null), false);
+		assertEquals(ReflectUtil.isStatic(ReflectUtil.publicField(Fields.class, "s")), false);
+		assertEquals(ReflectUtil.isStatic(ReflectUtil.publicField(E.class, "a")), true);
+	}
+
+	@Test
 	public void testPublicField() {
 		assertNull(ReflectUtil.publicField(Fields.class, "l"));
 		assertNull(ReflectUtil.publicField(Fields.class, "d"));
