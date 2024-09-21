@@ -188,15 +188,15 @@ public class TestCLibNative implements CLib.Native {
 		}
 	}
 
-	public static Enclosed<RuntimeException, TestCLibNative> register() {
-		return register(of());
-	}
-
 	public static <E extends Exception> void exec(ExceptionConsumer<E, TestCLibNative> consumer)
 		throws E {
 		try (var enc = TestCLibNative.register(TestCLibNative.of())) {
 			consumer.accept(enc.ref);
 		}
+	}
+
+	public static Enclosed<RuntimeException, TestCLibNative> register() {
+		return register(of());
 	}
 
 	public static <T extends TestCLibNative> Enclosed<RuntimeException, T> register(T lib) {
