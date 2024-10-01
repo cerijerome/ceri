@@ -156,6 +156,6 @@ public class ColorTestUtil {
 	}
 
 	private static Long xargb(Colorx colorx) {
-		return colorx == null ? null : colorx.xargb;
+		return colorx == null ? null : colorx.xargb();
 	}
 }

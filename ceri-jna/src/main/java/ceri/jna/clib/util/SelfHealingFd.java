@@ -16,14 +16,13 @@ import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
-import ceri.jna.clib.OpenFlag;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
 
 public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	implements FileDescriptor.Fixable {
 	private final Config config;
-	private final FieldTranscoder<IOException, OpenFlag> flags;
+	private final FieldTranscoder<IOException, Open> flags;
 
 	public static class Config {
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
@@ -59,11 +58,11 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 			}
 		}
 
-		public static Builder builder(String path, Mode mode, OpenFlag... flags) {
+		public static Builder builder(String path, Mode mode, Open... flags) {
 			return builder(path, mode, Arrays.asList(flags));
 		}
 
-		public static Builder builder(String path, Mode mode, Collection<OpenFlag> flags) {
+		public static Builder builder(String path, Mode mode, Collection<Open> flags) {
 			Objects.requireNonNull(path);
 			Objects.requireNonNull(mode);
 			Objects.requireNonNull(flags);
@@ -111,7 +110,7 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	}
 
 	@Override
-	public FieldTranscoder<IOException, OpenFlag> flags() {
+	public FieldTranscoder<IOException, Open> flags() {
 		return flags;
 	}
 

@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.BooleanFunction;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 /**
@@ -28,25 +29,26 @@ import ceri.common.text.StringUtil;
  */
 public class TypedProperties {
 	/** A no-op, stateless instance. */
-	public static final TypedProperties NULL = new TypedProperties(PropertyAccessor.NULL) {};
+	public static final TypedProperties NULL =
+		new TypedProperties(PropertyAccessor.NULL, PathFactory.dot) {};
 	private static final String CHILD_KEY_PATTERN = "\\w+";
-	private static final String DESCENDENT_KEY_PATTERN = "[\\w\\.]+";
 	private static final String CHILD_ID_PATTERN = "\\d+";
 	public final String prefix;
+	private final PathFactory paths;
 	private final PropertyAccessor properties;
 
 	/**
 	 * Creates typed properties with key prefix from given properties.
 	 */
 	public static TypedProperties from(Properties properties, String... prefix) {
-		return of(PropertyAccessor.from(properties), prefix);
+		return of(PropertyAccessor.from(properties), PathFactory.dot, prefix);
 	}
 
 	/**
 	 * Creates typed properties with key prefix from given resource bundle.
 	 */
 	public static TypedProperties from(ResourceBundle bundle, String... prefix) {
-		return of(PropertyAccessor.from(bundle), prefix);
+		return of(PropertyAccessor.from(bundle), PathFactory.dot, prefix);
 	}
 
 	/**
@@ -82,15 +84,17 @@ public class TypedProperties {
 	/**
 	 * Constructor for properties with given prefix keys.
 	 */
-	public static TypedProperties of(PropertyAccessor properties, String... prefix) {
-		return new TypedProperties(properties, prefix);
+	public static TypedProperties of(PropertyAccessor properties, PathFactory paths,
+		String... prefix) {
+		return new TypedProperties(properties, paths, prefix);
 	}
 
 	/**
 	 * Constructor for properties with given prefix keys.
 	 */
-	protected TypedProperties(PropertyAccessor properties, String... prefix) {
-		this.prefix = PathFactory.dot.path(prefix).value;
+	protected TypedProperties(PropertyAccessor properties, PathFactory paths, String... prefix) {
+		this.paths = paths;
+		this.prefix = paths.path(prefix).value;
 		this.properties = properties;
 	}
 
@@ -99,7 +103,7 @@ public class TypedProperties {
 	 */
 	public TypedProperties sub(String... prefix) {
 		if (prefix.length == 0) return this;
-		return new TypedProperties(properties, PathFactory.dot.path(this.prefix, prefix).value);
+		return new TypedProperties(properties, paths, paths.path(this.prefix, prefix).value);
 	}
 
 	/**
@@ -652,7 +656,7 @@ public class TypedProperties {
 	 * Returns all the integer ids that are children of the given key.
 	 */
 	public Set<Integer> childIds(String... keyParts) {
-		String key = PathFactory.dot.path(keyParts).value;
+		String key = paths.path(keyParts).value;
 		return childKeyStream(key, CHILD_ID_PATTERN).map(Integer::parseInt)
 			.collect(Collectors.toCollection(TreeSet::new));
 	}
@@ -661,7 +665,7 @@ public class TypedProperties {
 	 * Returns all the children of the given key.
 	 */
 	public List<String> children(String... keyParts) {
-		String key = PathFactory.dot.path(keyParts).value;
+		String key = paths.path(keyParts).value;
 		return toList(childKeyStream(key, CHILD_KEY_PATTERN));
 	}
 
@@ -671,7 +675,7 @@ public class TypedProperties {
 	public boolean hasChild(String... keyParts) {
 		String key = key(keyParts);
 		if (properties.property(key) != null) return true;
-		String prefix = key + ".";
+		String prefix = key + paths.separator;
 		return properties.keys().stream().anyMatch(k -> k.startsWith(prefix));
 	}
 
@@ -679,8 +683,8 @@ public class TypedProperties {
 	 * Returns all the descendants of the given key.
 	 */
 	public List<String> descendants(String... keyParts) {
-		String key = PathFactory.dot.path(keyParts).value;
-		return toList(childKeyStream(key, DESCENDENT_KEY_PATTERN));
+		String key = paths.path(keyParts).value;
+		return toList(childKeyStream(key, "[\\w" + paths.splitRegex + "]+"));
 	}
 
 	@Override
@@ -690,16 +694,16 @@ public class TypedProperties {
 
 	/**
 	 * Creates a prefixed, dot-separated immutable key from key parts. e.g. ab, cd, ef =>
-	 * <prefix>.ab.cd.ef
+	 * [prefix].ab.cd.ef
 	 */
 	protected String key(String... keyParts) {
-		return PathFactory.dot.path(prefix, keyParts).value;
+		return paths.path(prefix, keyParts).value;
 	}
 
 	private Stream<String> childKeyStream(String key, String capturePattern) {
 		String s = key(key);
-		if (!s.isEmpty()) s += ".";
-		Pattern pattern = Pattern.compile(String.format("^\\Q%s\\E(%s)", s, capturePattern));
+		if (!s.isEmpty()) s += paths.separator;
+		Pattern pattern = RegexUtil.compile("^\\Q%s\\E(%s)", s, capturePattern);
 		return properties.keys().stream().map(k -> keyMatch(k, pattern)).filter(Objects::nonNull)
 			.distinct();
 	}

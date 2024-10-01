@@ -7,14 +7,13 @@ import static ceri.common.color.Component.x2;
 import static ceri.common.color.Component.x3;
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Encapsulates an argb color with additional x (0-3) components. Commonly used with led strips.
  * Single-x includes rgbw (white), rgbww (warm white) and rgba (amber). Multi-x includes rgbcct
  * (white + warm white) and rgbacct (amber + white + warm white).
  */
-public class Colorx {
+public record Colorx(long xargb) {
 	public static final Colorx clear = of(0L);
 	public static final Colorx black = of(0xff000000L);
 	public static final Colorx white = of(0xffffffffL);
@@ -22,7 +21,6 @@ public class Colorx {
 	public static final Colorx fullX01 = of(0xffffffffffffL); // max rgb, x0, x1
 	public static final Colorx fullX012 = of(0xffffffffffffffL); // max rgb, x0, x1, x2
 	public static final Colorx full = of(-1L); // max rgb, all x
-	public final long xargb;
 
 	/**
 	 * Construct by extracting x-color components from argb.
@@ -57,10 +55,6 @@ public class Colorx {
 	 */
 	public static Colorx of(long xargb) {
 		return new Colorx(xargb);
-	}
-
-	private Colorx(long xargb) {
-		this.xargb = xargb;
 	}
 
 	/**
@@ -190,20 +184,6 @@ public class Colorx {
 	public Colorx flatten() {
 		long xargb = ColorxUtil.flattenXargb(this.xargb);
 		return this.xargb == xargb ? this : of(xargb);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(xargb);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Colorx)) return false;
-		Colorx other = (Colorx) obj;
-		if (xargb != other.xargb) return false;
-		return true;
 	}
 
 	@Override

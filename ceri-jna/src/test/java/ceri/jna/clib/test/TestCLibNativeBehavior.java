@@ -12,10 +12,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
+import ceri.common.util.CloseableUtil;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -36,19 +36,15 @@ import ceri.jna.util.Struct;
 public class TestCLibNativeBehavior {
 	private TestCLibNative lib;
 	private Enclosed<RuntimeException, ?> enc;
-	private int fd;
-
-	@Before
-	public void before() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		fd = lib.open("test", O_RDWR, 0666);
-	}
+	private int fd = -1;
 
 	@After
 	public void after() {
-		lib.close(fd);
-		enc.close();
+		if (fd >= 0) lib.close(fd);
+		CloseableUtil.close(enc);
+		enc = null;
+		lib = null;
+		fd = -1;
 	}
 
 	@Test
@@ -66,6 +62,7 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldProvideAutoErrorLogic() throws CException {
+		init(true);
 		TestCLibNative.autoError(lib.fcntl, 333, args -> args.request() < 0, "Test");
 		assertEquals(CFcntl.fcntl(fd, -1), 333);
 		assertThrown(() -> CFcntl.fcntl(fd, 1));
@@ -74,17 +71,33 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldCaptureOpenParams() {
+		init(true);
 		assertEquals(lib.fds.get(fd), new OpenArgs("test", O_RDWR, 0666));
 	}
 
 	@Test
 	public void shouldOpenPipe() throws CException {
+		init(false);
 		var pipefd = CUnistd.pipe();
 		lib.pipe.assertValues(new int[] { lib.fd(pipefd[0]), lib.fd(pipefd[1]) });
 	}
 
 	@Test
+	public void shouldPpollWithNoFds() {
+		init(false);
+		lib.ppoll(null, 0, null, null);
+	}
+
+	@Test
+	public void shouldIgnoreFailedSigSet() {
+		init(false);
+		lib.sigset.autoResponses(1);
+		lib.sigemptyset(null);
+	}
+
+	@Test
 	public void shouldReadIntoMemory() throws IOException {
+		init(true);
 		lib.read.autoResponses(ByteProvider.of(1, 2, 3), null, ByteProvider.empty());
 		assertArray(CUnistd.readBytes(fd, 5), 1, 2, 3);
 		lib.read.assertAuto(new ReadArgs(fd, 5));
@@ -96,6 +109,7 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldWriteFromMemory() throws IOException {
+		init(true);
 		lib.write.autoResponses(2, 1);
 		assertEquals(CUnistd.write(fd, GcMemory.mallocBytes(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(WriteArgs.of(fd, 1, 2, 3));
@@ -110,12 +124,14 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldProvideLastFd() {
+		init(false);
 		int fd = lib.open("test", 0, 0);
 		assertEquals(lib.lastFd(), fd);
 	}
 
 	@Test
 	public void shouldAccessLinuxTermiosFromCfCalls() {
+		init(false);
 		var termios = new CTermios.Linux.termios();
 		termios.c_cc[0] = (byte) 0xff;
 		Struct.write(termios);
@@ -125,6 +141,7 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldAccessMacTermiosFromCfCalls() {
+		init(false);
 		var termios = new CTermios.Mac.termios();
 		termios.c_cc[0] = (byte) 0xff;
 		Struct.write(termios);
@@ -134,8 +151,14 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldAccessCfArgs() {
+		init(false);
 		lib.cfsetispeed(null, JnaUtil.unlong(250000));
 		assertEquals(lib.cf.awaitAuto().arg(0), 250000);
 	}
 
+	private void init(boolean openFd) {
+		lib = TestCLibNative.of();
+		enc = TestCLibNative.register(lib);
+		if (openFd) fd = lib.open("test", O_RDWR, 0666);
+	}
 }

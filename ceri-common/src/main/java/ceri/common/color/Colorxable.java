@@ -49,7 +49,7 @@ public interface Colorxable extends Colorable {
 	 * Set the colorx.
 	 */
 	default void colorx(Colorx colorx) {
-		xargb(colorx.xargb);
+		xargb(colorx.xargb());
 	}
 
 	/**

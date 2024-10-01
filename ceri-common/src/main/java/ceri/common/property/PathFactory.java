@@ -124,10 +124,8 @@ public class PathFactory {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof PathFactory)) return false;
-		PathFactory other = (PathFactory) obj;
-		if (!Objects.equals(separator, other.separator)) return false;
-		return true;
+		if (!(obj instanceof PathFactory other)) return false;
+		return Objects.equals(separator, other.separator);
 	}
 
 	@Override

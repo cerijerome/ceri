@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
+import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
@@ -58,6 +59,7 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Function<CtlArgs, Integer> fcntl = CallSync.function(null, 0);
 	public final CallSync.Function<TcArgs, Integer> tc = CallSync.function(null, 0);
 	public final CallSync.Function<CfArgs, Integer> cf = CallSync.function(null, 0);
+	public final CallSync.Function<MmapArgs, Integer> mmap = CallSync.function(null, 0);
 	private volatile int lastFd = -1;
 
 	/**
@@ -187,6 +189,9 @@ public class TestCLibNative implements CLib.Native {
 			return BasicUtil.uncheckedCast(args().get(i));
 		}
 	}
+
+	public record MmapArgs(Pointer addr, long len, int prot, int flags, int fd, int offset) {}
+	
 
 	public static <E extends Exception> void exec(ExceptionConsumer<E, TestCLibNative> consumer)
 		throws E {
@@ -419,6 +424,18 @@ public class TestCLibNative implements CLib.Native {
 	@Override
 	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
 		return cf.apply(CfArgs.of("cfsetospeed", termios, speed.intValue()));
+	}
+
+	@Override
+	public Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
+		throws LastErrorException {
+		mmap.apply(new MmapArgs(addr, len.longValue(), prot, flags, fd, offset));
+		return addr != null ? addr : new Memory(len.longValue());
+	}
+
+	@Override
+	public int munmap(Pointer addr, size_t len) throws LastErrorException {
+		return mmap.apply(new MmapArgs(addr, len.longValue(), 0, 0, 0, 0));
 	}
 
 	@Override

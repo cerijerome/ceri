@@ -5,8 +5,8 @@ import java.util.List;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 import ceri.jna.clib.CFileDescriptor;
+import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Mode;
-import ceri.jna.clib.OpenFlag;
 
 public class FileDescriptorProperties extends Ref<TypedProperties> {
 	private static final String PATH_KEY = "path";
@@ -29,7 +29,7 @@ public class FileDescriptorProperties extends Ref<TypedProperties> {
 		return safeApply(ref.intValue(MODE_KEY), Mode::of, Mode.NONE);
 	}
 
-	private List<OpenFlag> openFlags() {
-		return ref.enumValues(OpenFlag.class, List.of(), OPEN_FLAGS_KEY);
+	private List<FileDescriptor.Open> openFlags() {
+		return ref.enumValues(FileDescriptor.Open.class, List.of(), OPEN_FLAGS_KEY);
 	}
 }

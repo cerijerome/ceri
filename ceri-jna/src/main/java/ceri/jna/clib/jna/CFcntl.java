@@ -6,7 +6,7 @@ import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import ceri.common.util.OsUtil;
-import ceri.jna.clib.OpenFlag;
+import ceri.jna.clib.FileDescriptor.Open;
 
 /**
  * Types and functions from {@code <fcntl.h>}
@@ -17,7 +17,7 @@ public class CFcntl {
 	public static final int O_RDONLY = 0x0;
 	public static final int O_WRONLY = 0x1;
 	public static final int O_RDWR = 0x2;
-	public static final int O_ACCMODE = 0x3; //mask
+	public static final int O_ACCMODE = 0x3; // mask
 	/* Creation flags */
 	public static final int O_CREAT;
 	public static final int O_EXCL;
@@ -44,7 +44,7 @@ public class CFcntl {
 	 */
 	public static int open(String path, int flags) throws CException {
 		return caller.verifyInt(() -> lib().open(path, flags),
-			() -> caller.failMessage("open", path, OpenFlag.string(flags)));
+			() -> caller.failMessage("open", path, Open.string(flags)));
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class CFcntl {
 	 */
 	public static int open(String path, int flags, int mode) throws CException {
 		return caller.verifyInt(() -> lib().open(path, flags, mode), () -> caller
-			.failMessage("open", path, OpenFlag.string(flags), Integer.toOctalString(mode)));
+			.failMessage("open", path, Open.string(flags), Integer.toOctalString(mode)));
 	}
 
 	/**

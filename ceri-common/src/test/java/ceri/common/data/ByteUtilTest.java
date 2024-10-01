@@ -211,6 +211,42 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testGetValue() {
+		assertEquals(ByteUtil.getValue(0L, 4, 0), 0L);
+		assertEquals(ByteUtil.getValue(-1L, 4, 32), 0xfL);
+		assertEquals(ByteUtil.getValue(-1L, 64, 0), -1L);
+		assertEquals(ByteUtil.getValue(0xfedcba9876543210L, 16, 40), 0xdcbaL);
+		assertEquals(ByteUtil.getValue(0xfedcba9876543210L, 32, 48), 0xfedcL);
+	}
+
+	@Test
+	public void testGetValueInt() {
+		assertEquals(ByteUtil.getValueInt(0, 4, 0), 0);
+		assertEquals(ByteUtil.getValueInt(-1, 4, 16), 0xf);
+		assertEquals(ByteUtil.getValueInt(-1, 32, 0), -1);
+		assertEquals(ByteUtil.getValueInt(0xfedcba98, 16, 8), 0xdcba);
+		assertEquals(ByteUtil.getValueInt(0xfedcba98, 32, 16), 0xfedc);
+	}
+
+	@Test
+	public void testSetValue() {
+		assertEquals(ByteUtil.setValue(0L, 4, 0, 0b10101L), 0x5L);
+		assertEquals(ByteUtil.setValue(-1L, 4, 32, 0b10101L), 0xfffffff5ffffffffL);
+		assertEquals(ByteUtil.setValue(-1L, 0, 32, 0b10101L), -1L);
+		assertEquals(ByteUtil.setValue(-1L, 64, 0, 0b10101L), 0x15L);
+		assertEquals(ByteUtil.setValue(-1L, 0, 0, 0b10101L), -1L);
+	}
+
+	@Test
+	public void testSetValueInt() {
+		assertEquals(ByteUtil.setValueInt(0, 4, 0, 0b10101), 0x5);
+		assertEquals(ByteUtil.setValueInt(-1, 4, 16, 0b10101), 0xfff5ffff);
+		assertEquals(ByteUtil.setValueInt(-1, 0, 16, 0b10101), -1);
+		assertEquals(ByteUtil.setValueInt(-1, 32, 0, 0b10101), 0x15);
+		assertEquals(ByteUtil.setValueInt(-1, 0, 0, 0b10101), -1);
+	}
+
+	@Test
 	public void testApplyBit() {
 		assertEquals(ByteUtil.applyBits(0, false, 0), 0L);
 		assertEquals(ByteUtil.applyBits(0, true, 0), 1L);

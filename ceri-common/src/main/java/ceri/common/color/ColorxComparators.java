@@ -12,25 +12,25 @@ import ceri.common.comparator.Comparators;
 public class ColorxComparators {
 	/** Compare by xargb long. */
 	public static final Comparator<Colorx> XARGB =
-		nonNull(comparing(cx -> cx.xargb, Comparators.ULONG));
+		nonNull(comparing(Colorx::xargb, Comparators.ULONG));
 	/** Compare by xrgb long value without alpha. */
 	public static final Comparator<Colorx> XRGB =
-		nonNull(comparing(cx -> ColorxUtil.xrgb(cx.xargb), Comparators.ULONG));
+		nonNull(comparing(cx -> ColorxUtil.xrgb(cx.xargb()), Comparators.ULONG));
 	/** Compare by argb int value. */
 	public static final Comparator<Colorx> ARGB =
 		nonNull(comparing(Colorx::argb, Comparators.UINT));
 	/** Compare by alpha component. */
 	public static final Comparator<Colorx> ALPHA =
-		nonNull(comparing(cx -> ColorxUtil.a(cx.xargb), Comparators.INT));
+		nonNull(comparing(cx -> ColorxUtil.a(cx.xargb()), Comparators.INT));
 	/** Compare by red component. */
 	public static final Comparator<Colorx> RED =
-		nonNull(comparing(cx -> ColorxUtil.r(cx.xargb), Comparators.INT));
+		nonNull(comparing(cx -> ColorxUtil.r(cx.xargb()), Comparators.INT));
 	/** Compare by green component. */
 	public static final Comparator<Colorx> GREEN =
-		nonNull(comparing(cx -> ColorxUtil.g(cx.xargb), Comparators.INT));
+		nonNull(comparing(cx -> ColorxUtil.g(cx.xargb()), Comparators.INT));
 	/** Compare by blue component. */
 	public static final Comparator<Colorx> BLUE =
-		nonNull(comparing(cx -> ColorxUtil.b(cx.xargb), Comparators.INT));
+		nonNull(comparing(cx -> ColorxUtil.b(cx.xargb()), Comparators.INT));
 
 	private ColorxComparators() {}
 
@@ -45,7 +45,7 @@ public class ColorxComparators {
 	 * Compare by x[i].
 	 */
 	public static Comparator<Colorx> x(int i) {
-		return nonNull(comparing(cx -> ColorxUtil.x(cx.xargb, i), Comparators.INT));
+		return nonNull(comparing(cx -> ColorxUtil.x(cx.xargb(), i), Comparators.INT));
 	}
 
 }

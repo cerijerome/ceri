@@ -195,7 +195,7 @@ public class Caller<E extends Exception> {
 	}
 
 	/**
-	 * Call library function, verify, and return result. Throws an exception on non-null result with
+	 * Call library function, verify, and return result. Throws an exception on null result with
 	 * given error code, and on LastErrorException.
 	 */
 	public <R> R verifyType(ExceptionSupplier<E, R> fn, int errorCode, String name, Object... args)
@@ -204,7 +204,7 @@ public class Caller<E extends Exception> {
 	}
 
 	/**
-	 * Call library function, verify, and return result. Throws an exception on non-null result with
+	 * Call library function, verify, and return result. Throws an exception on null result with
 	 * given error code, and on LastErrorException.
 	 */
 	public <R> R verifyType(ExceptionSupplier<E, R> fn, int errorCode, Supplier<String> msgFn)

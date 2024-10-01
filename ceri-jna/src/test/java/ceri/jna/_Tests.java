@@ -15,8 +15,8 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.COutputStreamBehavior.class, //
 	ceri.jna.clib.ErrNoBehavior.class, //
 	ceri.jna.clib.FileDescriptorBehavior.class, //
+	ceri.jna.clib.MmapBehavior.class, //
 	ceri.jna.clib.ModeBehavior.class, //
-	ceri.jna.clib.OpenFlagBehavior.class, //
 	ceri.jna.clib.PipeBehavior.class, //
 	ceri.jna.clib.PollBehavior.class, //
 	ceri.jna.clib.SeekBehavior.class, //
@@ -28,6 +28,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.jna.CFcntlTest.class, //
 	ceri.jna.clib.jna.CIoctlTest.class, //
 	ceri.jna.clib.jna.CLibTest.class, //
+	ceri.jna.clib.jna.CMmanTest.class, //
 	ceri.jna.clib.jna.CPollTest.class, //
 	ceri.jna.clib.jna.CSignalTest.class, //
 	ceri.jna.clib.jna.CStdlibTest.class, //

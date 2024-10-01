@@ -8,9 +8,9 @@ public class SeekBehavior {
 
 	@Test
 	public void shouldLookupByValue() {
-		assertEquals(Seek.from(0), Seek.SEEK_SET);
-		assertEquals(Seek.from(1), Seek.SEEK_CUR);
-		assertEquals(Seek.from(2), Seek.SEEK_END);
+		assertEquals(Seek.from(0), Seek.SET);
+		assertEquals(Seek.from(1), Seek.CUR);
+		assertEquals(Seek.from(2), Seek.END);
 		assertNull(Seek.from(-1));
 	}
 

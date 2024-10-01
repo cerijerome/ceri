@@ -143,7 +143,7 @@ public class ColorxUtil {
 	 * Flattens the color by applying alpha channel on opaque black.
 	 */
 	public static long flattenXargb(long xargb) {
-		return blendXargbs(xargb, Colorx.black.xargb);
+		return blendXargbs(xargb, Colorx.black.xargb());
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class ColorxUtil {
 	 * Creates a colorx with maximum color components in the same ratio.
 	 */
 	public static Colorx max(Colorx colorx) {
-		return Colorx.of(maxXargb(colorx.xargb));
+		return Colorx.of(maxXargb(colorx.xargb()));
 	}
 
 	/**
@@ -234,7 +234,7 @@ public class ColorxUtil {
 	 */
 	public static Colorx dim(Colorx colorx, double scale) {
 		if (scale == MAX_RATIO) return colorx;
-		return Colorx.of(dimXargb(colorx.xargb, scale));
+		return Colorx.of(dimXargb(colorx.xargb(), scale));
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class ColorxUtil {
 	public static Colorx scale(Colorx min, Colorx max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return Colorx.of(scaleXargb(min.xargb, max.xargb, ratio));
+		return Colorx.of(scaleXargb(min.xargb(), max.xargb(), ratio));
 	}
 
 	/* component functions */
@@ -331,7 +331,7 @@ public class ColorxUtil {
 	 * Returns the hex string, with name if colorx matches a named colorx.
 	 */
 	public static String toString(Colorx color) {
-		return toString(color.xargb);
+		return toString(color.xargb());
 	}
 
 	/**
@@ -345,7 +345,7 @@ public class ColorxUtil {
 	 * Looks up the colorx name. Returns null if no match.
 	 */
 	public static String name(Colorx colorx) {
-		return name(colorx.xargb);
+		return name(colorx.xargb());
 	}
 
 	/**
@@ -359,7 +359,7 @@ public class ColorxUtil {
 	 * Creates a hex string from colorx. Returns color hex if no x component.
 	 */
 	public static String hex(Colorx colorx) {
-		return hex(colorx.xargb);
+		return hex(colorx.xargb());
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class ColorxUtil {
 	 * Create a stream of xargb longs from colorxs.
 	 */
 	public static LongStream stream(Colorx... colorxs) {
-		return Stream.of(colorxs).mapToLong(cx -> cx.xargb);
+		return Stream.of(colorxs).mapToLong(cx -> cx.xargb());
 	}
 
 	/**
@@ -498,7 +498,7 @@ public class ColorxUtil {
 	 * Create a stream of xargb longs by fading in steps.
 	 */
 	public static LongStream fadeStream(Colorx min, Colorx max, int steps, Bias bias) {
-		return fadeStream(min.xargb, max.xargb, steps, bias);
+		return fadeStream(min.xargb(), max.xargb(), steps, bias);
 	}
 
 	/**
@@ -545,7 +545,7 @@ public class ColorxUtil {
 	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static Color normalize(Colorx colorx, Color... xcolors) {
-		return ColorUtil.color(normalizeArgb(colorx.xargb, ColorUtil.argbs(xcolors)));
+		return ColorUtil.color(normalizeArgb(colorx.xargb(), ColorUtil.argbs(xcolors)));
 	}
 
 	/**
@@ -581,7 +581,7 @@ public class ColorxUtil {
 	 */
 	public static Colorx apply(Colorx colorx, UnaryOperator<Color> colorFn) {
 		int argb = colorFn.apply(colorx.color()).getRGB();
-		return Colorx.of(colorx.xargb & X_MASK | uint(argb));
+		return Colorx.of(colorx.xargb() & X_MASK | uint(argb));
 	}
 
 	/* support methods */
@@ -663,11 +663,11 @@ public class ColorxUtil {
 
 	private static BiMap<Long, String> colorxs() {
 		return BiMap.<Long, String>builder() //
-			.put(Colorx.black.xargb, "black") //
-			.put(Colorx.fullX0.xargb, "fullX0") //
-			.put(Colorx.fullX01.xargb, "fullX01") //
-			.put(Colorx.fullX012.xargb, "fullX012") //
-			.put(Colorx.full.xargb, "full") //
+			.put(Colorx.black.xargb(), "black") //
+			.put(Colorx.fullX0.xargb(), "fullX0") //
+			.put(Colorx.fullX01.xargb(), "fullX01") //
+			.put(Colorx.fullX012.xargb(), "fullX012") //
+			.put(Colorx.full.xargb(), "full") //
 			.build();
 	}
 }

@@ -7,9 +7,9 @@ import ceri.jna.clib.jna.CUnistd;
  * Flags for lseek() call.
  */
 public enum Seek {
-	SEEK_SET(CUnistd.SEEK_SET),
-	SEEK_CUR(CUnistd.SEEK_CUR),
-	SEEK_END(CUnistd.SEEK_END);
+	SET(CUnistd.SEEK_SET),
+	CUR(CUnistd.SEEK_CUR),
+	END(CUnistd.SEEK_END);
 
 	private static final TypeTranscoder<Seek> xcoder = TypeTranscoder.of(t -> t.value, Seek.class);
 	public final int value;
@@ -18,7 +18,7 @@ public enum Seek {
 		return xcoder.decode(value);
 	}
 
-	Seek(int value) {
+	private Seek(int value) {
 		this.value = value;
 	}
 }

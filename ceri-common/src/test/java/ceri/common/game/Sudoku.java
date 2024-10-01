@@ -288,6 +288,19 @@ public class Sudoku {
 			row("AACCAAAAA", 15, 19));
 	}
 
+	public static Sudoku killer9x9x() {
+		return Sudoku.of(9).boxes().cages( //
+			row("    ABBBC", 20, 27, 26), //
+			row("    AAABC"), //
+			row("    CCDDC", 24, 28), //
+			row("     CCDC"), //
+			row("ABC   CDC", 17, 18, 30), //
+			row("ABCC     "), //
+			row("ABBCC    "), //
+			row("ACDDD    ", 16, 24), //
+			row("ACCCD    "));
+	}
+	
 	/**
 	 * Encapsulates partial cages and sums for a single killer sudoku row.
 	 */
@@ -329,11 +342,12 @@ public class Sudoku {
 
 	public static void main(String[] args) {
 		List.of( //
-			easy9x9(), medium9x9(), hard9x9(), //
-			expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
-			hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
-			futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
-			killer9x9a(), killer9x9b(), killer9x9c() //
+//			easy9x9(), medium9x9(), hard9x9(), //
+//			expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
+//			hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
+//			futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
+//			killer9x9a(), killer9x9b(), killer9x9c(), //
+			killer9x9x() //
 		).forEach(s -> {
 			s.solve();
 			s.print(System.out, Table.UTF);

@@ -26,7 +26,7 @@ public class CFileDescriptor implements FileDescriptor {
 	private final int fd;
 	private final CInputStream in;
 	private final COutputStream out;
-	private final FieldTranscoder<IOException, OpenFlag> flags;
+	private final FieldTranscoder<IOException, Open> flags;
 	private volatile boolean closed = false;
 
 	/**
@@ -42,9 +42,9 @@ public class CFileDescriptor implements FileDescriptor {
 	/**
 	 * Encapsulates open arguments. Use Mode.NONE if mode is unspecified.
 	 */
-	public static record Opener(String path, Mode mode, Collection<OpenFlag> flags)
+	public static record Opener(String path, Mode mode, Collection<Open> flags)
 		implements ExceptionSupplier<IOException, CFileDescriptor> {
-		public Opener(String path, Mode mode, OpenFlag... flags) {
+		public Opener(String path, Mode mode, Open... flags) {
 			this(path, mode, List.of(flags));
 		}
 
@@ -57,21 +57,21 @@ public class CFileDescriptor implements FileDescriptor {
 	/**
 	 * Opens a file.
 	 */
-	public static CFileDescriptor open(String path, OpenFlag... flags) throws IOException {
+	public static CFileDescriptor open(String path, Open... flags) throws IOException {
 		return open(path, Arrays.asList(flags));
 	}
 
 	/**
 	 * Opens a file.
 	 */
-	public static CFileDescriptor open(String path, Collection<OpenFlag> flags) throws IOException {
+	public static CFileDescriptor open(String path, Collection<Open> flags) throws IOException {
 		return open(path, null, flags);
 	}
 
 	/**
 	 * Opens a file.
 	 */
-	public static CFileDescriptor open(String path, Mode mode, OpenFlag... flags)
+	public static CFileDescriptor open(String path, Mode mode, Open... flags)
 		throws IOException {
 		return open(path, mode, Arrays.asList(flags));
 	}
@@ -79,9 +79,9 @@ public class CFileDescriptor implements FileDescriptor {
 	/**
 	 * Opens a file.
 	 */
-	public static CFileDescriptor open(String path, Mode mode, Collection<OpenFlag> flags)
+	public static CFileDescriptor open(String path, Mode mode, Collection<Open> flags)
 		throws IOException {
-		int flagsValue = OpenFlag.xcoder.encodeInt(flags);
+		int flagsValue = Open.encode(flags);
 		return new CFileDescriptor(mode == null ? CFcntl.open(path, flagsValue) :
 			CFcntl.open(path, flagsValue, mode.value()));
 	}
@@ -127,7 +127,7 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public FieldTranscoder<IOException, OpenFlag> flags() {
+	public FieldTranscoder<IOException, Open> flags() {
 		return flags;
 	}
 

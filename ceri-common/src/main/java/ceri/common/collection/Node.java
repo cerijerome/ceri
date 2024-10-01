@@ -244,8 +244,7 @@ public class Node<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Node)) return false;
-		Node<?> other = (Node<?>) obj;
+		if (!(obj instanceof Node<?> other)) return false;
 		if (!Objects.equals(name, other.name)) return false;
 		if (!Objects.equals(value, other.value)) return false;
 		if (!Objects.equals(children, other.children)) return false;

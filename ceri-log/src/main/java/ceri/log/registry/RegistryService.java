@@ -20,6 +20,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.property.PathFactory;
 import ceri.common.property.PropertyAccessor;
 import ceri.common.property.TypedProperties;
 import ceri.common.time.DateUtil;
@@ -43,7 +44,7 @@ public class RegistryService extends LoopingExecutor {
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private final Properties properties = new Properties();
 	private final PropertyAccessor accessor = PropertyAccessor.from(properties);
-	public final Registry registry = registry(TypedProperties.of(accessor));
+	public final Registry registry = registry(TypedProperties.of(accessor, PathFactory.dot));
 
 	public static RegistryService of(String name, Path path) throws IOException {
 		return of(name, path, DELAY_MS_DEF, ERROR_DELAY_MS_DEF);

@@ -129,6 +129,15 @@ public class CLib {
 		// int cfsetospeed(struct termios *termios_p, speed_t speed)
 		int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException;
 
+		/* <sys/mman.h> */
+
+		// void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset)
+		Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
+			throws LastErrorException;
+
+		// int munmap (void *addr, size_t len)
+		int munmap(Pointer addr, size_t len) throws LastErrorException;
+
 		/* <stdlib.h> */
 
 		// int setenv(const char *name, const char *value, int overwrite)

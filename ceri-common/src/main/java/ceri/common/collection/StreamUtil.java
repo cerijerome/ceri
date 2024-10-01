@@ -174,7 +174,7 @@ public class StreamUtil {
 	}
 
 	public static <T, R> Stream<R> map(Stream<Indexed<T>> indexStream, ObjIntFunction<T, R> mapFn) {
-		return indexStream.map(i -> mapFn.apply(i.val, i.i));
+		return indexStream.map(i -> mapFn.apply(i.val(), i.i()));
 	}
 
 	public static <T, R> Stream<R> indexedMap(List<T> values, ObjIntFunction<T, R> mapFn) {
@@ -182,7 +182,7 @@ public class StreamUtil {
 	}
 
 	public static <T> void indexedForEach(List<T> values, ObjIntConsumer<T> consumer) {
-		indexed(values).forEach(i -> consumer.accept(i.val, i.i));
+		indexed(values).forEach(i -> consumer.accept(i.val(), i.i()));
 	}
 
 	public static <E extends Exception, T> WrappedStream<E, T> wrap(Stream<T> stream) {

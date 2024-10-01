@@ -75,10 +75,8 @@ public class BiMap<K, V> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof BiMap)) return false;
-		BiMap<?, ?> other = (BiMap<?, ?>) obj;
-		if (!Objects.equals(keys, other.keys)) return false;
-		return true;
+		if (!(obj instanceof BiMap<?, ?> other)) return false;
+		return Objects.equals(keys, other.keys);
 	}
 
 	@Override

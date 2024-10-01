@@ -46,8 +46,8 @@ public class ColorxUtilTest {
 	@Test
 	public void testXargbFromText() {
 		assertEquals(ColorxUtil.xargb("test"), null);
-		assertEquals(ColorxUtil.xargb("clear"), Colorx.clear.xargb);
-		assertEquals(ColorxUtil.xargb("full"), Colorx.full.xargb);
+		assertEquals(ColorxUtil.xargb("clear"), Colorx.clear.xargb());
+		assertEquals(ColorxUtil.xargb("full"), Colorx.full.xargb());
 		assertEquals(ColorxUtil.xargb("#fed"), 0xffffeeddL);
 		assertEquals(ColorxUtil.xargb("0xfed"), 0xff000fedL);
 		assertEquals(ColorxUtil.xargb("#abcdfedcba987654"), 0xabcdfedcba987654L);
@@ -56,7 +56,7 @@ public class ColorxUtilTest {
 	@Test
 	public void testValidXargbFromText() {
 		assertThrown(() -> ColorxUtil.validXargb("test"));
-		assertEquals(ColorxUtil.validXargb("full"), Colorx.full.xargb);
+		assertEquals(ColorxUtil.validXargb("full"), Colorx.full.xargb());
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class ColorxUtilTest {
 		var c10 = ColorxUtil.blend(c1, c0);
 		var c21_0 = ColorxUtil.blend(c21, c0);
 		var c2_10 = ColorxUtil.blend(c2, c10);
-		ColorTestUtil.assertXargbDiff(c21_0.xargb, c2_10.xargb, 1);
+		ColorTestUtil.assertXargbDiff(c21_0.xargb(), c2_10.xargb(), 1);
 	}
 
 	@Test
@@ -156,9 +156,9 @@ public class ColorxUtilTest {
 
 	@Test
 	public void testRandom() {
-		assertEquals(ColorxUtil.random().xargb & 0xff000000L, 0xff000000L);
-		assertEquals(ColorxUtil.random(0).xargb & 0xffffffffff000000L, 0xff000000L);
-		assertEquals(ColorxUtil.random(2).xargb & 0xffff0000ff000000L, 0xff000000L);
+		assertEquals(ColorxUtil.random().xargb() & 0xff000000L, 0xff000000L);
+		assertEquals(ColorxUtil.random(0).xargb() & 0xffffffffff000000L, 0xff000000L);
+		assertEquals(ColorxUtil.random(2).xargb() & 0xffff0000ff000000L, 0xff000000L);
 	}
 
 	@Test

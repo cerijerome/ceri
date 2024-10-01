@@ -7,8 +7,8 @@ import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.jna.clib.OpenFlag.O_CREAT;
-import static ceri.jna.clib.OpenFlag.O_RDWR;
+import static ceri.jna.clib.FileDescriptor.Open.CREAT;
+import static ceri.jna.clib.FileDescriptor.Open.RDWR;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +20,7 @@ import com.sun.jna.Pointer;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.test.FileTestHelper;
 import ceri.jna.clib.ErrNo;
-import ceri.jna.clib.OpenFlag;
+import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Seek;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.test.JnaTestUtil;
@@ -238,19 +238,17 @@ public class CUnistdTest {
 				assertEquals(CUnistd.writeAll(fd, m, new byte[4]), 0);
 			}
 		});
-		
-		
-		execWrite("file2", fd -> {
-		});
+
+		execWrite("file2", fd -> {});
 	}
 
 	@Test
 	public void testSeekFile() throws CException {
 		execRead("file1", fd -> {
-			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_CUR.value), 0);
-			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_END.value), 4);
-			assertEquals(CUnistd.lseek(fd, 0, Seek.SEEK_CUR.value), 4);
-			assertThrown(() -> CUnistd.lseek(fd, -1, Seek.SEEK_SET.value));
+			assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 0);
+			assertEquals(CUnistd.lseek(fd, 0, Seek.END.value), 4);
+			assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 4);
+			assertThrown(() -> CUnistd.lseek(fd, -1, Seek.SET.value));
 		});
 	}
 
@@ -290,7 +288,7 @@ public class CUnistdTest {
 	private static <E extends Exception> void execWrite(String file, ExceptionIntConsumer<E> tester)
 		throws IOException, E {
 		Path path = helper.path(file);
-		int fd = CFcntl.open(path.toString(), OpenFlag.xcoder.encodeInt(O_CREAT, O_RDWR), 0666);
+		int fd = CFcntl.open(path.toString(), Open.encode(CREAT, RDWR), 0666);
 		try {
 			tester.accept(fd);
 		} finally {

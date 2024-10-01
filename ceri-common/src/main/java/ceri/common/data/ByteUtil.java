@@ -411,6 +411,35 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Extracts a value at bit offset and bit count in current value.
+	 */
+	public static long getValue(long current, int bits, int bit) {
+		return (current & (mask(bits) << bit)) >>> bit;
+	}
+
+	/**
+	 * Extracts a value at bit offset and bit count in current value.
+	 */
+	public static int getValueInt(long current, int bits, int bit) {
+		return (int) getValue(MathUtil.uint(current), bits, bit);
+	}
+
+	/**
+	 * Applies a value at bit offset and bit count in current value.
+	 */
+	public static long setValue(long current, int bits, int bit, long value) {
+		long mask = mask(bits);
+		return (current & ~(mask << bit)) | ((value & mask) << bit);
+	}
+
+	/**
+	 * Applies a value at bit offset and bit count in current value.
+	 */
+	public static int setValueInt(int current, int bits, int bit, int value) {
+		return (int) setValue(MathUtil.uint(current), bits, bit, MathUtil.uint(value));
+	}
+
+	/**
 	 * Applies a single bit mask inclusively or exclusively. The bit does not wrap.
 	 */
 	public static long applyBits(long value, boolean on, int... bits) {
@@ -459,7 +488,6 @@ public class ByteUtil {
 	 * Creates a 64-bit mask with given number of bits.
 	 */
 	public static long mask(int bitCount) {
-		if (bitCount == 0) return 0L;
 		if (bitCount >= Long.SIZE) return -1L;
 		return (1L << bitCount) - 1L;
 	}

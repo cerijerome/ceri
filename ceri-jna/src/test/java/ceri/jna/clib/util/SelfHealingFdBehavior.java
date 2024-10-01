@@ -24,8 +24,8 @@ import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor;
+import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Mode;
-import ceri.jna.clib.OpenFlag;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
@@ -173,7 +173,7 @@ public class SelfHealingFdBehavior {
 	public void shouldSetDelegateFlags() throws IOException {
 		init();
 		shf.open();
-		shf.flags().set(OpenFlag.O_RDWR, OpenFlag.O_APPEND);
+		shf.flags().set(Open.RDWR, Open.APPEND);
 		assertEquals(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
 	}
 

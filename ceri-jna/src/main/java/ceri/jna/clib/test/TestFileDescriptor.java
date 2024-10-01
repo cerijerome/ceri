@@ -11,7 +11,6 @@ import ceri.common.test.CallSync;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
 import ceri.jna.clib.FileDescriptor;
-import ceri.jna.clib.OpenFlag;
 
 public class TestFileDescriptor implements FileDescriptor {
 	public final CallSync.Supplier<Integer> fd = CallSync.supplier();
@@ -19,7 +18,7 @@ public class TestFileDescriptor implements FileDescriptor {
 	public final TestInputStream in = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
 	public final CallSync.Runnable close = CallSync.runnable(true);
-	private final FieldTranscoder<IOException, OpenFlag> flagField;
+	private final FieldTranscoder<IOException, Open> flagField;
 
 	public static TestFileDescriptor of(int fd) {
 		return new TestFileDescriptor(fd);
@@ -52,7 +51,7 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public FieldTranscoder<IOException, OpenFlag> flags() {
+	public FieldTranscoder<IOException, Open> flags() {
 		return flagField;
 	}
 
