@@ -2,9 +2,6 @@ package ceri.serial.spi;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.jna.clib.OpenFlag.O_RDONLY;
-import static ceri.jna.clib.OpenFlag.O_RDWR;
-import static ceri.jna.clib.OpenFlag.O_WRONLY;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.collection.EnumUtil;
@@ -13,7 +10,7 @@ import ceri.common.io.Direction;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
-import ceri.jna.clib.OpenFlag;
+import ceri.jna.clib.FileDescriptor.Open;
 import ceri.serial.spi.jna.SpiDev;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -200,9 +197,9 @@ public class SpiDevice implements Spi {
 		fd.accept(fd -> SpiDev.message(fd, transfer));
 	}
 
-	private static OpenFlag openFlag(Direction direction) {
-		if (direction == Direction.out) return O_WRONLY;
-		if (direction == Direction.in) return O_RDONLY;
-		return O_RDWR;
+	private static Open openFlag(Direction direction) {
+		if (direction == Direction.out) return Open.WRONLY;
+		if (direction == Direction.in) return Open.RDONLY;
+		return Open.RDWR;
 	}
 }

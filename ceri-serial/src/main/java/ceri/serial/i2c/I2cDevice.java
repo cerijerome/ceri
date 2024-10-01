@@ -1,7 +1,6 @@
 package ceri.serial.i2c;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.jna.clib.OpenFlag.O_RDWR;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import java.io.IOException;
 import java.util.Set;
@@ -10,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
+import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.jna.CException;
 import ceri.serial.i2c.jna.I2cDev;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
@@ -47,7 +47,7 @@ public class I2cDevice implements I2c {
 	 */
 	public static CFileDescriptor open(int bus) throws IOException {
 		validateMin(bus, 0, "Bus number");
-		return CFileDescriptor.of(I2cDev.i2c_open(bus, O_RDWR.value));
+		return CFileDescriptor.of(I2cDev.i2c_open(bus, Open.RDWR.value));
 	}
 
 	public static I2cDevice of(FileDescriptor fd) {
