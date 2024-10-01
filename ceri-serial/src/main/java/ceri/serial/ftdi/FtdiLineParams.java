@@ -1,17 +1,14 @@
 package ceri.serial.ftdi;
 
-import java.util.Objects;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_break_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_data_bits_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
-public class FtdiLineParams {
+public record FtdiLineParams(ftdi_data_bits_type dataBits, ftdi_stop_bits_type stopBits,
+	ftdi_parity_type parity, ftdi_break_type breakType) {
+
 	public static final FtdiLineParams DEFAULT = builder().build();
-	public final ftdi_data_bits_type dataBits;
-	public final ftdi_stop_bits_type stopBits;
-	public final ftdi_parity_type parity;
-	public final ftdi_break_type breakType;
 
 	public static class Builder {
 		ftdi_data_bits_type dataBits = ftdi_data_bits_type.BITS_8;
@@ -42,36 +39,12 @@ public class FtdiLineParams {
 		}
 
 		public FtdiLineParams build() {
-			return new FtdiLineParams(this);
+			return new FtdiLineParams(dataBits, stopBits, parity, breakType);
 		}
 	}
 
 	public static FtdiLineParams.Builder builder() {
 		return new Builder();
-	}
-
-	FtdiLineParams(FtdiLineParams.Builder builder) {
-		dataBits = builder.dataBits;
-		stopBits = builder.stopBits;
-		parity = builder.parity;
-		breakType = builder.breakType;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(dataBits, stopBits, parity, breakType);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof FtdiLineParams)) return false;
-		FtdiLineParams other = (FtdiLineParams) obj;
-		if (!Objects.equals(dataBits, other.dataBits)) return false;
-		if (!Objects.equals(stopBits, other.stopBits)) return false;
-		if (!Objects.equals(parity, other.parity)) return false;
-		if (!Objects.equals(breakType, other.breakType)) return false;
-		return true;
 	}
 
 	@Override

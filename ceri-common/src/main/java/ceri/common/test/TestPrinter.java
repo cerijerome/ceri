@@ -54,9 +54,7 @@ public class TestPrinter extends RunListener {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Test)) return false;
-			Test other = (Test) obj;
-			return toString.equals(other.toString);
+			return (obj instanceof Test other) && toString.equals(other.toString);
 		}
 	}
 

@@ -56,8 +56,7 @@ public class Rectangle2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Rectangle2d)) return false;
-		Rectangle2d other = (Rectangle2d) obj;
+		if (!(obj instanceof Rectangle2d other)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;
 		if (!Objects.equals(w, other.w)) return false;

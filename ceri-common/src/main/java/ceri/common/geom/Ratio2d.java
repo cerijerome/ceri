@@ -34,8 +34,7 @@ public class Ratio2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Ratio2d)) return false;
-		Ratio2d other = (Ratio2d) obj;
+		if (!(obj instanceof Ratio2d other)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;
 		return true;

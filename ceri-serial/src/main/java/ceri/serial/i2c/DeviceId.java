@@ -4,10 +4,10 @@ import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import ceri.common.data.ByteUtil;
 
-public class DeviceId {
+public record DeviceId(int manufacturer, int part, int revision) {
+
 	public static final DeviceId NONE = new DeviceId(0, 0, 0);
 	public static final int BYTES = 3;
 	private static final Map<Integer, Company> companyIds = assignedManufacturerIds();
@@ -16,14 +16,11 @@ public class DeviceId {
 	private static final int PART_MASK = ByteUtil.maskInt(9);
 	private static final int PART_BIT = 3;
 	private static final int REVISION_MASK = ByteUtil.maskInt(3);
-	public final int manufacturer;
-	public final int part;
-	public final int revision;
 
 	/**
 	 * Companies with assigned manufacturer ids.
 	 */
-	public static enum Company {
+	public enum Company {
 		unknown, // fallback
 		NXP_Semiconductor,
 		Ramtron_International,
@@ -52,12 +49,6 @@ public class DeviceId {
 		return new DeviceId(manufacturer, part, revision);
 	}
 
-	private DeviceId(int manufacturer, int part, int revision) {
-		this.manufacturer = manufacturer;
-		this.part = part;
-		this.revision = revision;
-	}
-
 	public int encode() {
 		return (manufacturer << MANUFACTURER_BIT) | (part << PART_BIT) | revision;
 	}
@@ -73,22 +64,6 @@ public class DeviceId {
 
 	public boolean isNone() {
 		return manufacturer == 0 && part == 0 && revision == 0;
-	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(manufacturer, part, revision);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof DeviceId)) return false;
-		DeviceId other = (DeviceId) obj;
-		if (manufacturer != other.manufacturer) return false;
-		if (part != other.part) return false;
-		if (revision != other.revision) return false;
-		return true;
 	}
 
 	@Override
@@ -120,5 +95,4 @@ public class DeviceId {
 		map.put(i++, Company.Atmel); // 13
 		return Collections.unmodifiableMap(map);
 	}
-
 }

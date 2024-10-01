@@ -4,7 +4,6 @@ import static ceri.log.rpc.client.RpcClientUtil.ignorable;
 import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import static ceri.log.util.LogUtil.compact;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,7 +15,6 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
-import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.rpc.util.RpcUtil;
@@ -51,59 +49,8 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	private boolean reset = false;
 	private RpcStreamer<Empty> caller = null; //
 
-	public static class Config {
-		public static final Config DEFAULT = builder().build();
-		public final int resetDelayMs;
-
-		public static Config of() {
-			return builder().build();
-		}
-
-		public static Config of(int resetDelayMs) {
-			return builder().resetDelayMs(resetDelayMs).build();
-		}
-
-		public static class Builder {
-			int resetDelayMs = 3000;
-
-			Builder() {}
-
-			public Builder resetDelayMs(int resetDelayMs) {
-				this.resetDelayMs = resetDelayMs;
-				return this;
-			}
-
-			public Config build() {
-				return new Config(this);
-			}
-		}
-
-		public static Builder builder() {
-			return new Builder();
-		}
-
-		Config(Builder builder) {
-			resetDelayMs = builder.resetDelayMs;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(resetDelayMs);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Config)) return false;
-			Config other = (Config) obj;
-			if (resetDelayMs != other.resetDelayMs) return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return ToString.forClass(this, resetDelayMs);
-		}
+	public record Config(int resetDelayMs) {
+		public static final Config DEFAULT = new Config(3000);
 	}
 
 	private static enum Action {

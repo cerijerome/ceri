@@ -157,8 +157,7 @@ public abstract class Holder<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Holder)) return false;
-		return Holder.equals(this, (Holder<?>) obj);
+		return (obj instanceof Holder<?> other) && Holder.equals(this, other);
 	}
 
 	@Override

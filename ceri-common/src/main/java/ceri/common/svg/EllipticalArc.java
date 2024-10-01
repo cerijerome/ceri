@@ -135,8 +135,7 @@ public class EllipticalArc implements Path<EllipticalArc> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof EllipticalArc)) return false;
-		EllipticalArc other = (EllipticalArc) obj;
+		if (!(obj instanceof EllipticalArc other)) return false;
 		if (!Objects.equals(radii, other.radii)) return false;
 		if (!Objects.equals(rotation, other.rotation)) return false;
 		if (!Objects.equals(size, other.size)) return false;

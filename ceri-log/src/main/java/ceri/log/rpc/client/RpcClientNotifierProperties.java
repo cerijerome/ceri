@@ -1,6 +1,5 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
@@ -12,12 +11,10 @@ public class RpcClientNotifierProperties extends Ref<TypedProperties> {
 	}
 
 	public RpcClientNotifier.Config config() {
-		var b = RpcClientNotifier.Config.builder();
-		safeAccept(resetDelayMs(), b::resetDelayMs);
-		return b.build();
+		return new RpcClientNotifier.Config(resetDelayMs());
 	}
 
-	private Integer resetDelayMs() {
-		return ref.intValue(RESET_DELAY_MS_KEY);
+	private int resetDelayMs() {
+		return ref.intValue(RpcClientNotifier.Config.DEFAULT.resetDelayMs(), RESET_DELAY_MS_KEY);
 	}
 }

@@ -7,18 +7,23 @@ import ceri.common.geom.Ratio2d;
 import ceri.common.text.ToString;
 
 public class Position {
-	public static final Position RELATIVE_ZERO = new Position(PositionType.relative, 0, 0);
-	public static final Position ABSOLUTE_ZERO = new Position(PositionType.absolute, 0, 0);
-	public final PositionType type;
+	public static final Position RELATIVE_ZERO = new Position(Type.relative, 0, 0);
+	public static final Position ABSOLUTE_ZERO = new Position(Type.absolute, 0, 0);
+	public final Type type;
 	public final double x;
 	public final double y;
+
+	public enum Type {
+		absolute,
+		relative;
+	}
 
 	public static Position relative(Point2d position) {
 		return relative(position.x, position.y);
 	}
 
 	public static Position relative(double x, double y) {
-		return of(PositionType.relative, x, y);
+		return of(Type.relative, x, y);
 	}
 
 	public static Position absolute(Point2d position) {
@@ -26,18 +31,18 @@ public class Position {
 	}
 
 	public static Position absolute(double x, double y) {
-		return of(PositionType.absolute, x, y);
+		return of(Type.absolute, x, y);
 	}
 
-	public static Position of(PositionType type, Point2d position) {
+	public static Position of(Type type, Point2d position) {
 		return of(type, position.x, position.y);
 	}
 
-	public static Position of(PositionType type, double x, double y) {
+	public static Position of(Type type, double x, double y) {
 		return new Position(type, x, y);
 	}
 
-	private Position(PositionType type, double x, double y) {
+	private Position(Type type, double x, double y) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -48,7 +53,7 @@ public class Position {
 	}
 
 	public boolean absolute() {
-		return type == PositionType.absolute;
+		return type == Type.absolute;
 	}
 
 	public Position combine(Position position) {
@@ -91,8 +96,7 @@ public class Position {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Position)) return false;
-		Position other = (Position) obj;
+		if (!(obj instanceof Position other)) return false;
 		if (!Objects.equals(type, other.type)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;

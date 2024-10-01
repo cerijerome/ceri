@@ -65,8 +65,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof TreeNode)) return false;
-		TreeNode<?> node = (TreeNode<?>) obj;
+		if (!(obj instanceof TreeNode<?> node)) return false;
 		if (cls != node.cls) return false;
 		if (id != node.id) return false;
 		if (!children.equals(node.children)) return false;

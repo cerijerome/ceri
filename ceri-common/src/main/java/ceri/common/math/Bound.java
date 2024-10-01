@@ -137,8 +137,7 @@ public class Bound<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Bound)) return false;
-		Bound<?> other = (Bound<?>) obj;
+		if (!(obj instanceof Bound<?> other)) return false;
 		if (!Objects.equals(value, other.value)) return false;
 		if (!Objects.equals(type, other.type)) return false;
 		return true;

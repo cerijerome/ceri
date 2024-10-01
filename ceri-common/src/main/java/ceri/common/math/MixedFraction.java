@@ -93,8 +93,7 @@ public class MixedFraction {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof MixedFraction)) return false;
-		MixedFraction other = (MixedFraction) obj;
+		if (!(obj instanceof MixedFraction other)) return false;
 		if (whole != other.whole) return false;
 		if (!Objects.equals(fraction, other.fraction)) return false;
 		return true;

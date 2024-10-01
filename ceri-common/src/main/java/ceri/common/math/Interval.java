@@ -88,8 +88,7 @@ public class Interval<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Interval)) return false;
-		Interval<?> other = (Interval<?>) obj;
+		if (!(obj instanceof Interval<?> other)) return false;
 		if (!Objects.equals(lower, other.lower)) return false;
 		if (!Objects.equals(upper, other.upper)) return false;
 		return true;

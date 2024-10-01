@@ -500,8 +500,7 @@ public class CollectionUtil {
 	 */
 	public static <T> T last(Iterable<T> iterable) {
 		if (iterable == null) return null;
-		if (iterable instanceof List) {
-			List<T> list = BasicUtil.uncheckedCast(iterable);
+		if (iterable instanceof List<T> list) {
 			if (list.isEmpty()) return null;
 			return list.get(list.size() - 1);
 		}

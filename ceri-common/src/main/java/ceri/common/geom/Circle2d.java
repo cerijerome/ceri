@@ -131,10 +131,7 @@ public class Circle2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Circle2d)) return false;
-		Circle2d other = (Circle2d) obj;
-		if (!Objects.equals(r, other.r)) return false;
-		return true;
+		return (obj instanceof Circle2d other) && Objects.equals(r, other.r);
 	}
 
 	@Override

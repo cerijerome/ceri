@@ -94,8 +94,7 @@ public class LineEquation2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof LineEquation2d)) return false;
-		LineEquation2d other = (LineEquation2d) obj;
+		if (!(obj instanceof LineEquation2d other)) return false;
 		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(b, other.b)) return false;
 		if (!Objects.equals(c, other.c)) return false;

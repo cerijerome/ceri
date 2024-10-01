@@ -24,7 +24,7 @@ public class Fraction {
 	public static Fraction of(long numerator) {
 		return of(numerator, 1);
 	}
-	
+
 	public static Fraction of(long numerator, long denominator) {
 		if (denominator == 0) throw new IllegalArgumentException("Zero denominator");
 		if (numerator == 0) return ZERO;
@@ -116,8 +116,7 @@ public class Fraction {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Fraction)) return false;
-		Fraction other = (Fraction) obj;
+		if (!(obj instanceof Fraction other)) return false;
 		if (numerator != other.numerator) return false;
 		if (denominator != other.denominator) return false;
 		return true;

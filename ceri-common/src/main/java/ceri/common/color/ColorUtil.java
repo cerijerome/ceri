@@ -695,10 +695,10 @@ public class ColorUtil {
 	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
 		// if (ratio <= 0.0) return minHsb;
 		if (ratio >= MAX_RATIO) return maxHsb;
-		double a = scaleRatio(minHsb.a, maxHsb.a, ratio);
-		double h = scaleHue(minHsb.h, maxHsb.h, ratio);
-		double s = scaleRatio(minHsb.s, maxHsb.s, ratio);
-		double b = scaleRatio(minHsb.b, maxHsb.b, ratio);
+		double a = scaleRatio(minHsb.a(), maxHsb.a(), ratio);
+		double h = scaleHue(minHsb.h(), maxHsb.h(), ratio);
+		double s = scaleRatio(minHsb.s(), maxHsb.s(), ratio);
+		double b = scaleRatio(minHsb.b(), maxHsb.b(), ratio);
 		return HsbColor.of(a, h, s, b);
 	}
 

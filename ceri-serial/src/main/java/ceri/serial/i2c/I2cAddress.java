@@ -3,7 +3,6 @@ package ceri.serial.i2c;
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import java.util.Objects;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.math.MathUtil;
@@ -13,7 +12,7 @@ import ceri.common.text.StringUtil;
  * Encapsulates an I2C address, allowing for 10-bit addresses, and forcing use of address if
  * currently in use by the driver.
  */
-public class I2cAddress {
+public record I2cAddress(int address, boolean tenBit) {
 	/** General Call used with Wr bit, Start byte with Rd bit */
 	public static final I2cAddress GENERAL_CALL = new I2cAddress(0, false);
 	/** Device ID, used with Wr and Rd bits */
@@ -25,8 +24,6 @@ public class I2cAddress {
 	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
 	private static final int SLAVE_7BIT_MIN = 0x08;
 	private static final int SLAVE_7BIT_MAX = 0x77;
-	public final int address;
-	public final boolean tenBit;
 
 	/**
 	 * Extracts address from frame bytes. 2 bytes for a 10-bit address, 1 byte for 7-bit.
@@ -68,11 +65,6 @@ public class I2cAddress {
 		throw exceptionf("Invalid 10-bit address: 0x%x", address);
 	}
 
-	private I2cAddress(int address, boolean tenBit) {
-		this.address = address;
-		this.tenBit = tenBit;
-	}
-
 	/**
 	 * Is this address for a specific slave device? Otherwise this is a reserved address.
 	 */
@@ -100,23 +92,7 @@ public class I2cAddress {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(address, tenBit);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof I2cAddress)) return false;
-		I2cAddress other = (I2cAddress) obj;
-		if (address != other.address) return false;
-		if (tenBit != other.tenBit) return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
 		return "0x" + StringUtil.toHex(address, tenBit ? HEX_DIGITS_10 : HEX_DIGITS_7);
 	}
-
 }

@@ -29,7 +29,7 @@ public class SpiTester {
 		try (var fd = SpiDevice.Config.of(bus, chip, direction).open()) {
 			// Spi spi = SpiEmulator.echo();
 			Spi spi = SpiDevice.of(fd);
-			spi.mode(SpiMode.of(mode));
+			spi.mode(new SpiMode(mode));
 			spi.maxSpeedHz(speedHz);
 			print(spi);
 

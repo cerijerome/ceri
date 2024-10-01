@@ -298,8 +298,7 @@ public class LibUsbFinder {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof LibUsbFinder)) return false;
-		LibUsbFinder other = (LibUsbFinder) obj;
+		if (!(obj instanceof LibUsbFinder other)) return false;
 		if (vendor != other.vendor) return false;
 		if (product != other.product) return false;
 		if (bus != other.bus) return false;

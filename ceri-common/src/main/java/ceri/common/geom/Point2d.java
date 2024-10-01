@@ -78,8 +78,7 @@ public class Point2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Point2d)) return false;
-		Point2d other = (Point2d) obj;
+		if (!(obj instanceof Point2d other)) return false;
 		if (!Objects.equals(x, other.x)) return false;
 		if (!Objects.equals(y, other.y)) return false;
 		return true;

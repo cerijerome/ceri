@@ -23,7 +23,7 @@ public class SpiPulseTester {
 		int chip = v.next("chip").asInt(0);
 		int speed = v.next("speed").asInt(3200000);
 		int delayMicros = v.next("delay").asInt(50);
-		SpiMode mode = SpiMode.of(v.next("mode").asInt(0));
+		SpiMode mode = new SpiMode(v.next("mode").asInt(0));
 		PulseCycle.Type pulseType =
 			v.next("pulseType").apply(PulseCycle.Type::valueOf, PulseCycle.Type.nbit9);
 		int pulseBits = v.next("pulseBits").asInt(4);

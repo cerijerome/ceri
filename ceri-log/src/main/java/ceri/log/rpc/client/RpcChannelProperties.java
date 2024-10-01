@@ -1,6 +1,5 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
@@ -13,10 +12,7 @@ public class RpcChannelProperties extends Ref<TypedProperties> {
 	}
 
 	public RpcChannel.Config config() {
-		var b = RpcChannel.Config.builder();
-		safeAccept(host(), b::host);
-		safeAccept(port(), b::port);
-		return b.build();
+		return new RpcChannel.Config(host(), port());
 	}
 
 	private String host() {

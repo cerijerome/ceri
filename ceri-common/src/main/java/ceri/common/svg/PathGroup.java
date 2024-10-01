@@ -70,10 +70,7 @@ public class PathGroup implements Path<PathGroup> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof PathGroup)) return false;
-		PathGroup other = (PathGroup) obj;
-		if (!Objects.equals(paths, other.paths)) return false;
-		return true;
+		return (obj instanceof PathGroup other) && Objects.equals(paths, other.paths);
 	}
 
 	@Override

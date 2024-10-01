@@ -51,8 +51,7 @@ public class Caller {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Caller)) return false;
-		Caller other = (Caller) obj;
+		if (!(obj instanceof Caller other)) return false;
 		if (line != other.line) return false;
 		if (!Objects.equals(fullCls, other.fullCls)) return false;
 		if (!Objects.equals(method, other.method)) return false;

@@ -67,8 +67,7 @@ public class GroundedPath<T extends Path<T>> implements Path<GroundedPath<T>> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof GroundedPath)) return false;
-		GroundedPath<?> other = (GroundedPath<?>) obj;
+		if (!(obj instanceof GroundedPath<?> other)) return false;
 		if (!Objects.equals(move, other.move)) return false;
 		if (!Objects.equals(path, other.path)) return false;
 		return true;

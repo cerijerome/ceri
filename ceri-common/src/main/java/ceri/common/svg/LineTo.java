@@ -75,10 +75,7 @@ public class LineTo implements Path<LineTo> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof LineTo)) return false;
-		LineTo other = (LineTo) obj;
-		if (!Objects.equals(position, other.position)) return false;
-		return true;
+		return (obj instanceof LineTo other) && Objects.equals(position, other.position);
 	}
 
 	@Override

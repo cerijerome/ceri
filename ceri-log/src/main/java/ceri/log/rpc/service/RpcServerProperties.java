@@ -1,6 +1,5 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Ref;
 
@@ -13,17 +12,14 @@ public class RpcServerProperties extends Ref<TypedProperties> {
 	}
 
 	public RpcServer.Config config() {
-		var b = RpcServer.Config.builder();
-		safeAccept(port(), b::port);
-		safeAccept(shutdownTimeoutMs(), b::shutdownTimeoutMs);
-		return b.build();
+		return new RpcServer.Config(port(), shutdownTimeoutMs());
 	}
 
 	private Integer port() {
 		return ref.intValue(PORT_KEY);
 	}
 
-	private Integer shutdownTimeoutMs() {
-		return ref.intValue(SHUTDOWN_TIMEOUT_MS_KEY);
+	private int shutdownTimeoutMs() {
+		return ref.intValue(RpcServer.Config.DEFAULT.shutdownTimeoutMs(), SHUTDOWN_TIMEOUT_MS_KEY);
 	}
 }

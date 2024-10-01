@@ -62,10 +62,7 @@ public class InvertedRadial3d<T extends Radial3d> implements Radial3d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof InvertedRadial3d)) return false;
-		InvertedRadial3d<?> other = (InvertedRadial3d<?>) obj;
-		if (!Objects.equals(radial, other.radial)) return false;
-		return true;
+		return (obj instanceof InvertedRadial3d<?> other) && Objects.equals(radial, other.radial);
 	}
 
 	@Override

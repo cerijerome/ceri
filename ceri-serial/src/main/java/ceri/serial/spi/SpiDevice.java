@@ -101,8 +101,7 @@ public class SpiDevice implements Spi {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Config)) return false;
-			Config other = (Config) obj;
+			if (!(obj instanceof Config other)) return false;
 			if (bus != other.bus) return false;
 			if (chip != other.chip) return false;
 			if (!Objects.equals(direction, other.direction)) return false;
@@ -146,14 +145,14 @@ public class SpiDevice implements Spi {
 	@Override
 	public void mode(SpiMode mode) throws IOException {
 		fd.accept(fd -> {
-			if (mode.is32Bit()) SpiDev.setMode32(fd, mode.value);
-			else SpiDev.setMode(fd, mode.value);
+			if (mode.is32Bit()) SpiDev.setMode32(fd, mode.value());
+			else SpiDev.setMode(fd, mode.value());
 		});
 	}
 
 	@Override
 	public SpiMode mode() throws IOException {
-		return SpiMode.of(fd.apply(SpiDev::getMode32));
+		return new SpiMode(fd.apply(SpiDev::getMode32));
 	}
 
 	@Override

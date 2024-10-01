@@ -90,8 +90,7 @@ public abstract class LongArray implements LongProvider {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Immutable)) return false;
-			return isEqual((Immutable) obj);
+			return (obj instanceof Immutable other) && isEqual(other);
 		}
 	}
 
@@ -193,8 +192,7 @@ public abstract class LongArray implements LongProvider {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Mutable)) return false;
-			return isEqual((Mutable) obj);
+			return (obj instanceof Mutable other) && isEqual(other);
 		}
 	}
 

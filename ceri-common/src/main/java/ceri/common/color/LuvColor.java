@@ -1,20 +1,14 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * Represents a CIE LUV color with alpha. Approximate values a and L* 0-1, u* and v* -1 to +1.
  */
-public class LuvColor {
-	public final double a;
-	public final double l; // L*
-	public final double u; // u*
-	public final double v; // v*
+public record LuvColor(double a, double l, double u, double v) {
 
 	/**
 	 * A reference used to convert CIE LUV values.
@@ -58,7 +52,7 @@ public class LuvColor {
 		 */
 		public LuvColor luv(int argb) {
 			double[] luv = ColorSpaces.rgbToLuv(yn, un, vn, argb);
-			return LuvColor.of(ratio(a(argb)), luv[0], luv[1], luv[2]);
+			return LuvColor.of(ratio(ColorUtil.a(argb)), luv[0], luv[1], luv[2]);
 		}
 
 		/**
@@ -72,24 +66,24 @@ public class LuvColor {
 		 * Convert sRGB to CIE LUV, using this reference. Alpha is maintained.
 		 */
 		public LuvColor luv(RgbColor rgb) {
-			double[] luv = ColorSpaces.srgbToLuv(yn, un, vn, rgb.r, rgb.g, rgb.b);
-			return LuvColor.of(rgb.a, luv[0], luv[1], luv[2]);
+			double[] luv = ColorSpaces.srgbToLuv(yn, un, vn, rgb.r(), rgb.g(), rgb.b());
+			return LuvColor.of(rgb.a(), luv[0], luv[1], luv[2]);
 		}
 
 		/**
 		 * Convert CIE XYZ to CIE LUV, using this reference. Alpha is maintained.
 		 */
 		public LuvColor luv(XyzColor xyz) {
-			double[] luv = ColorSpaces.xyzToLuv(yn, un, vn, xyz.x, xyz.y, xyz.z);
-			return LuvColor.of(xyz.a, luv[0], luv[1], luv[2]);
+			double[] luv = ColorSpaces.xyzToLuv(yn, un, vn, xyz.x(), xyz.y(), xyz.z());
+			return LuvColor.of(xyz.a(), luv[0], luv[1], luv[2]);
 		}
 
 		/**
 		 * Convert CIE xyY to CIE LUV, using this reference. Alpha is maintained.
 		 */
 		public LuvColor luv(XybColor xyb) {
-			double[] luv = ColorSpaces.xybToLuv(yn, un, vn, xyb.x, xyb.y, xyb.b);
-			return LuvColor.of(xyb.a, luv[0], luv[1], luv[2]);
+			double[] luv = ColorSpaces.xybToLuv(yn, un, vn, xyb.x(), xyb.y(), xyb.b());
+			return LuvColor.of(xyb.a(), luv[0], luv[1], luv[2]);
 		}
 
 		/**
@@ -146,13 +140,6 @@ public class LuvColor {
 		return new LuvColor(a, l, u, v);
 	}
 
-	private LuvColor(double a, double l, double u, double v) {
-		this.a = a;
-		this.l = l;
-		this.u = u;
-		this.v = v;
-	}
-
 	/**
 	 * Provide L*u*v* values. Alpha is dropped.
 	 */
@@ -165,23 +152,6 @@ public class LuvColor {
 	 */
 	public boolean hasAlpha() {
 		return a < MAX_RATIO;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(a, l, u, v);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof LuvColor)) return false;
-		LuvColor other = (LuvColor) obj;
-		if (!Objects.equals(a, other.a)) return false;
-		if (!Objects.equals(l, other.l)) return false;
-		if (!Objects.equals(u, other.u)) return false;
-		if (!Objects.equals(v, other.v)) return false;
-		return true;
 	}
 
 	@Override

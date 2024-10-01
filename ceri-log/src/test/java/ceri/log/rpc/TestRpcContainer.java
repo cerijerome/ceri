@@ -38,9 +38,7 @@ public class TestRpcContainer implements AutoCloseable {
 
 	private static RpcServer server(TestRpcService service, int port, int shutdownTimeoutMs)
 		throws IOException {
-		var config =
-			RpcServer.Config.builder().port(port).shutdownTimeoutMs(shutdownTimeoutMs).build();
-		return RpcServer.start(service, config);
+		return RpcServer.start(service, new RpcServer.Config(port, shutdownTimeoutMs));
 	}
 
 }

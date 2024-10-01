@@ -59,7 +59,7 @@ public class SpiEmulatorBehavior {
 		try (var out = StringPrintStream.of()) {
 			var config = SpiPulseConfig.of(2);
 			var buffer = config.buffer();
-			var spi = SpiEmulator.pulsePrinter(out, config.cycle);
+			var spi = SpiEmulator.pulsePrinter(out, config.cycle());
 			sendPulses(spi, buffer, 0x85, 0xf3);
 			assertEquals(compactPulse(out.toString()), "10000101 11110011");
 		}

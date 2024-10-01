@@ -3,7 +3,6 @@ package ceri.common.time;
 import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionLongConsumer;
@@ -38,20 +37,7 @@ public class Timer {
 	 * Point-in-time snapshot for a timer. Remaining will be negative if time has progressed past
 	 * the period.
 	 */
-	public static class Snapshot {
-		public final Timer timer;
-		public final State state;
-		public final long started;
-		public final long current;
-		public final long remaining; // negative for time past period
-
-		Snapshot(Timer timer, State state, long started, long current, long remaining) {
-			this.timer = timer;
-			this.state = state;
-			this.started = started;
-			this.current = current;
-			this.remaining = remaining;
-		}
+	public record Snapshot(Timer timer, State state, long started, long current, long remaining) {
 
 		public TimeUnit unit() {
 			return timer.timeSupplier.unit;
@@ -94,24 +80,6 @@ public class Timer {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remainingInt());
 			return this;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(timer, state, started, current, remaining);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Snapshot)) return false;
-			Snapshot other = (Snapshot) obj;
-			if (!Objects.equals(timer, other.timer)) return false;
-			if (!Objects.equals(state, other.state)) return false;
-			if (started != other.started) return false;
-			if (current != other.current) return false;
-			if (remaining != other.remaining) return false;
-			return true;
 		}
 
 		@Override
@@ -246,5 +214,4 @@ public class Timer {
 		long t = timeSupplier.time();
 		elapsed += (t - lastStart);
 	}
-
 }

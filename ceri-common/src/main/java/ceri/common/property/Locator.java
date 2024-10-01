@@ -134,8 +134,7 @@ public class Locator {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Locator)) return false;
-		Locator other = (Locator) obj;
+		if (!(obj instanceof Locator other)) return false;
 		if (!Objects.equals(cls, other.cls)) return false;
 		if (!Objects.equals(name, other.name)) return false;
 		if (!Objects.equals(extension, other.extension)) return false;

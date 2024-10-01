@@ -47,8 +47,7 @@ public class Dimension2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Dimension2d)) return false;
-		Dimension2d other = (Dimension2d) obj;
+		if (!(obj instanceof Dimension2d other)) return false;
 		if (!Objects.equals(w, other.w)) return false;
 		if (!Objects.equals(h, other.h)) return false;
 		return true;

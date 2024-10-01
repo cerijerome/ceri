@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Predicates;
+import ceri.common.score.Scorer.Result;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -34,13 +35,13 @@ public class Scorers {
 	}
 
 	@SafeVarargs
-	public static <T> List<ScoreResult<T>> results(Scorer<? super T> scorer, T... ts) {
+	public static <T> List<Result<T>> results(Scorer<? super T> scorer, T... ts) {
 		return results(scorer, Arrays.asList(ts));
 	}
 
-	public static <T> List<ScoreResult<T>> results(Scorer<? super T> scorer,
+	public static <T> List<Result<T>> results(Scorer<? super T> scorer,
 		Collection<? extends T> ts) {
-		return toList(ts.stream().map(t -> ScoreResult.<T>of(t, scorer.score(t))).sorted());
+		return toList(ts.stream().map((T t) -> new Result<>(t, scorer.score(t))).sorted());
 	}
 
 	public static <T> Predicate<T> filter(Scorer<T> scorer, Predicate<Double> filter) {

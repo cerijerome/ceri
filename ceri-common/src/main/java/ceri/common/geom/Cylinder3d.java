@@ -79,8 +79,7 @@ public class Cylinder3d implements Radial3d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Cylinder3d)) return false;
-		Cylinder3d other = (Cylinder3d) obj;
+		if (!(obj instanceof Cylinder3d other)) return false;
 		if (!Objects.equals(r, other.r)) return false;
 		if (!Objects.equals(h, other.h)) return false;
 		return true;

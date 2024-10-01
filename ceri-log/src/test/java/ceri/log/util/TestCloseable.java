@@ -24,7 +24,7 @@ public class TestCloseable implements AutoCloseable {
 	public void assertClosed(boolean closed) {
 		assertEquals(closed(), closed);
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		closed = true;
@@ -40,9 +40,7 @@ public class TestCloseable implements AutoCloseable {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof TestCloseable)) return false;
-		TestCloseable other = (TestCloseable) obj;
-		return value == other.value;
+		return (obj instanceof TestCloseable other) && value == other.value;
 	}
 
 	@Override

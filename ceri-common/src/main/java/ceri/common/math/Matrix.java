@@ -409,8 +409,7 @@ public class Matrix {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Matrix)) return false;
-		Matrix other = (Matrix) obj;
+		if (!(obj instanceof Matrix other)) return false;
 		if (rows != other.rows) return false;
 		if (columns != other.columns) return false;
 		for (int r = 0; r < rows; r++)

@@ -1,24 +1,19 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
-import java.util.Objects;
 import ceri.common.geom.Point2d;
 import ceri.common.math.MathUtil;
 
 /**
  * Represents CIE xyY color, Y = brightness (b). All values approximately 0-1.
  */
-public class XybColor {
+public record XybColor(double a, double x, double y, double b) {
+
 	public static final Point2d CENTER = XyzColor.CIE_E.xyb().xy();
-	public final double a;
-	public final double x;
-	public final double y;
-	public final double b;
 
 	/**
 	 * Construct from sRGB color. Alpha is maintained.
@@ -40,7 +35,7 @@ public class XybColor {
 	 */
 	public static XybColor from(int argb) {
 		double[] xyb = ColorSpaces.rgbToXyb(argb);
-		return of(ratio(a(argb)), xyb[0], xyb[1], xyb[2]);
+		return of(ratio(ColorUtil.a(argb)), xyb[0], xyb[1], xyb[2]);
 	}
 
 	/**
@@ -61,14 +56,7 @@ public class XybColor {
 	 * Construct from alpha + CIE xyY 0-1 values.
 	 */
 	public static XybColor of(double a, double x, double y, double b) {
-		return new XybColor(x, y, b, a);
-	}
-
-	private XybColor(double x, double y, double b, double a) {
-		this.x = x;
-		this.y = y;
-		this.b = b;
-		this.a = a;
+		return new XybColor(a, x, y, b);
 	}
 
 	/**
@@ -175,23 +163,6 @@ public class XybColor {
 		validate(x, "x");
 		validate(y, "y");
 		validate(b, "brightness");
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(a, x, y, b);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof XybColor)) return false;
-		XybColor other = (XybColor) obj;
-		if (!Objects.equals(a, other.a)) return false;
-		if (!Objects.equals(x, other.x)) return false;
-		if (!Objects.equals(y, other.y)) return false;
-		if (!Objects.equals(b, other.b)) return false;
-		return true;
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class Columns {
 	 */
 	public static Columns fromHeader(String header, Extractor extractor) {
 		return collect(Splitter.of(header).extractToCompletion(extractor).stream().filter(
-			not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex.text, extractor))
+			not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex.text(), extractor))
 				.build();
 	}
 
@@ -53,7 +53,7 @@ public class Columns {
 		}
 
 		public Builder add(Extraction extraction) {
-			return add(extraction.text, extraction.size);
+			return add(extraction.text(), extraction.size());
 		}
 
 		public Builder add(Extractor extractor) {
@@ -84,7 +84,7 @@ public class Columns {
 	 * Extract values from a line.
 	 */
 	public List<String> parse(String line) {
-		return toList(Splitter.of(line).extractAll(extractors).stream().map(ex -> ex.text));
+		return toList(Splitter.of(line).extractAll(extractors).stream().map(ex -> ex.text()));
 	}
 
 	/**

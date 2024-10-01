@@ -23,7 +23,7 @@ public class I2cUtil {
 	 * given frequency.
 	 */
 	public static long micros(int hz, I2cAddress address, int bytes) {
-		int addrBytes = address.tenBit ? 2 : 1;
+		int addrBytes = address.tenBit() ? 2 : 1;
 		return micros(hz, addrBytes + bytes);
 	}
 
@@ -43,7 +43,7 @@ public class I2cUtil {
 	}
 
 	public static void validate7Bit(I2cAddress address) {
-		if (address.tenBit) throw new UnsupportedOperationException(
+		if (address.tenBit()) throw new UnsupportedOperationException(
 			"Only 7-bit addresses are supported: " + address);
 	}
 
@@ -58,7 +58,7 @@ public class I2cUtil {
 		msg.addr = address.value();
 		msg.len = ushortExact(size);
 		msg.buf = p;
-		if (address.tenBit) msg.flags().add(flags).add(I2C_M_TEN);
+		if (address.tenBit()) msg.flags().add(flags).add(I2C_M_TEN);
 		else if (flags.length > 0) msg.flags().add(flags);
 		return msg;
 	}

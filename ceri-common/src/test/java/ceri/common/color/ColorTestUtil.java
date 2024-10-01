@@ -65,10 +65,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertRgb(RgbColor color, double a, double r, double g, double b) {
-		assertApprox(color.a, a, "a");
-		assertApprox(color.r, r, "r");
-		assertApprox(color.g, g, "g");
-		assertApprox(color.b, b, "b");
+		assertApprox(color.a(), a, "a");
+		assertApprox(color.r(), r, "r");
+		assertApprox(color.g(), g, "g");
+		assertApprox(color.b(), b, "b");
 	}
 
 	public static void assertHsb(Color color, double h, double s, double b) {
@@ -84,10 +84,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertHsb(HsbColor color, double a, double h, double s, double b) {
-		assertApprox(color.a, a, "a");
-		assertApprox(color.h, h, "h");
-		assertApprox(color.s, s, "s");
-		assertApprox(color.b, b, "b");
+		assertApprox(color.a(), a, "a");
+		assertApprox(color.h(), h, "h");
+		assertApprox(color.s(), s, "s");
+		assertApprox(color.b(), b, "b");
 	}
 
 	public static void assertXyb(XybColor color, double x, double y, double b) {
@@ -95,10 +95,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertXyb(XybColor color, double a, double x, double y, double b) {
-		assertApprox(color.a, a, "a");
-		assertApprox(color.x, x, "x");
-		assertApprox(color.y, y, "y");
-		assertApprox(color.b, b, "b");
+		assertApprox(color.a(), a, "a");
+		assertApprox(color.x(), x, "x");
+		assertApprox(color.y(), y, "y");
+		assertApprox(color.b(), b, "b");
 	}
 
 	public static void assertXyz(XyzColor color, double x, double y, double z) {
@@ -106,10 +106,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertXyz(XyzColor color, double a, double x, double y, double z) {
-		assertApprox(color.a, a, "a");
-		assertApprox(color.x, x, "x");
-		assertApprox(color.y, y, "y");
-		assertApprox(color.z, z, "z");
+		assertApprox(color.a(), a, "a");
+		assertApprox(color.x(), x, "x");
+		assertApprox(color.y(), y, "y");
+		assertApprox(color.z(), z, "z");
 	}
 
 	public static void assertLuv(LuvColor color, double l, double u, double v) {
@@ -117,10 +117,10 @@ public class ColorTestUtil {
 	}
 
 	public static void assertLuv(LuvColor color, double a, double l, double u, double v) {
-		assertApprox(color.a, a, "a");
-		assertApprox(color.l, l, "l");
-		assertApprox(color.u, u, "u");
-		assertApprox(color.v, v, "v");
+		assertApprox(color.a(), a, "a");
+		assertApprox(color.l(), l, "l");
+		assertApprox(color.u(), u, "u");
+		assertApprox(color.v(), v, "v");
 	}
 
 	public static String sgrs(int... argbs) {

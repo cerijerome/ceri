@@ -4,17 +4,14 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Objects;
 import java.util.function.Predicate;
-import ceri.common.text.ToString;
 
 /**
  * A path filter for glob and regex patterns, using a FileSystem matcher.
  */
-public class PathPattern {
+public record PathPattern(String pattern) {
 	private static final String GLOB_SYNTAX = "glob";
 	private static final String REGEX_SYNTAX = "regex";
-	private final String pattern;
 
 	/**
 	 * Constructor for syntax:pattern, to be parsed by FileSystem.
@@ -35,10 +32,6 @@ public class PathPattern {
 	 */
 	public static PathPattern regex(String pattern) {
 		return of(REGEX_SYNTAX + ":" + pattern);
-	}
-
-	private PathPattern(String pattern) {
-		this.pattern = pattern;
 	}
 
 	/**
@@ -64,24 +57,4 @@ public class PathPattern {
 		PathMatcher matcher = fs.getPathMatcher(pattern);
 		return matcher::matches;
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(pattern);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof PathPattern)) return false;
-		PathPattern other = (PathPattern) obj;
-		if (!Objects.equals(pattern, other.pattern)) return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return ToString.forClass(this, pattern);
-	}
-
 }

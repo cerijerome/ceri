@@ -141,12 +141,12 @@ public class I2cDevice implements I2c {
 	/* Shared with direct SMBus */
 
 	private void selectDevice(I2cAddress address) throws IOException {
-		setAddressBits(address.tenBit);
+		setAddressBits(address.tenBit());
 		try {
-			setSlaveAddress(address.address);
+			setSlaveAddress(address.address());
 		} catch (CException e) {
 			logger.info("Failed to set slave address, trying force: {}", e);
-			forceSlaveAddress(address.address);
+			forceSlaveAddress(address.address());
 		}
 	}
 

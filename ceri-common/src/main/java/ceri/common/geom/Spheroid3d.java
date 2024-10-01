@@ -69,8 +69,7 @@ public class Spheroid3d implements Radial3d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Spheroid3d)) return false;
-		Spheroid3d other = (Spheroid3d) obj;
+		if (!(obj instanceof Spheroid3d other)) return false;
 		if (!Objects.equals(r, other.r)) return false;
 		if (!Objects.equals(c, other.c)) return false;
 		return true;

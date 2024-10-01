@@ -68,7 +68,7 @@ public class TaskQueue<E extends Exception> {
 
 		private T result() throws E {
 			if (ex == null) return result;
-			if (ex instanceof RuntimeException) throw (RuntimeException) ex;
+			if (ex instanceof RuntimeException e) throw e;
 			throw BasicUtil.<E>uncheckedCast(ex);
 		}
 	}

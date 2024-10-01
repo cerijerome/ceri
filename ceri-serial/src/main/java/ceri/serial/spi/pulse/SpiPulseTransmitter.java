@@ -41,7 +41,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 		this.config = config;
 		buffer = config.buffer();
 		xfer = spi.transfer(Direction.out, buffer.storageSize());
-		xfer.delayMicros(config.delayMicros);
+		xfer.delayMicros(config.delayMicros());
 		start();
 	}
 
@@ -114,7 +114,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 			throw e;
 		} catch (Exception e) {
 			if (exceptions.add(e)) logger.catching(e);
-			ConcurrentUtil.delay(config.resetDelayMs);
+			ConcurrentUtil.delay(config.resetDelayMs());
 		}
 	}
 
@@ -128,6 +128,6 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	private static String logName(int id, SpiPulseConfig config) {
 		return String.format("%s(%d:%d:%s)", SpiPulseTransmitter.class.getSimpleName(), id,
-			config.size, config.cycle);
+			config.size(), config.cycle());
 	}
 }

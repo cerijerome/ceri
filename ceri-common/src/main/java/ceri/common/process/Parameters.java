@@ -90,10 +90,7 @@ public class Parameters {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Parameters)) return false;
-		Parameters other = (Parameters) obj;
-		if (!Objects.equals(list, other.list)) return false;
-		return true;
+		return (obj instanceof Parameters other) && Objects.equals(list, other.list);
 	}
 
 	@Override

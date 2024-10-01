@@ -1,15 +1,10 @@
 package ceri.serial.spi.pulse;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import java.util.Objects;
-import ceri.common.text.ToString;
 
-public class SpiPulseConfig {
+public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int resetDelayMs) {
+
 	public static final SpiPulseConfig NULL = of(0);
-	public final PulseCycle cycle;
-	public final int size;
-	public final int delayMicros;
-	public final int resetDelayMs;
 
 	public static SpiPulseConfig of(int size) {
 		return builder(size).build();
@@ -41,20 +36,13 @@ public class SpiPulseConfig {
 		}
 
 		public SpiPulseConfig build() {
-			return new SpiPulseConfig(this);
+			return new SpiPulseConfig(cycle, size, delayMicros, resetDelayMs);
 		}
 	}
 
 	public static Builder builder(int size) {
 		validateMin(size, 0);
 		return new Builder(size);
-	}
-
-	SpiPulseConfig(Builder builder) {
-		cycle = builder.cycle;
-		size = builder.size;
-		delayMicros = builder.delayMicros;
-		resetDelayMs = builder.resetDelayMs;
 	}
 
 	public PulseBuffer buffer() {
@@ -64,27 +52,4 @@ public class SpiPulseConfig {
 	public boolean isNull() {
 		return size == 0;
 	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(cycle, size, delayMicros, resetDelayMs);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof SpiPulseConfig)) return false;
-		SpiPulseConfig other = (SpiPulseConfig) obj;
-		if (!Objects.equals(cycle, other.cycle)) return false;
-		if (size != other.size) return false;
-		if (delayMicros != other.delayMicros) return false;
-		if (resetDelayMs != other.resetDelayMs) return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return ToString.forClass(this, cycle, size, delayMicros, resetDelayMs);
-	}
-
 }

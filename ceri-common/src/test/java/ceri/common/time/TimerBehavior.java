@@ -51,13 +51,13 @@ public class TimerBehavior {
 	@Test
 	public void shouldProvideInfiniteTimerSnapshot() {
 		assertEquals(Timer.INFINITE.snapshot().expired(), false);
-		assertEquals(Timer.INFINITE.snapshot().remaining, 0L);
+		assertEquals(Timer.INFINITE.snapshot().remaining(), 0L);
 	}
 
 	@Test
 	public void shouldCalculateElapsedTime() {
 		Timer.Snapshot s0 = Timer.of(100, nanos).start().snapshot();
-		assertEquals(s0.elapsed(), s0.period() - s0.remaining);
+		assertEquals(s0.elapsed(), s0.period() - s0.remaining());
 	}
 
 	@Test

@@ -115,8 +115,7 @@ public class Ellipse implements Path<Ellipse> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Ellipse)) return false;
-		Ellipse other = (Ellipse) obj;
+		if (!(obj instanceof Ellipse other)) return false;
 		if (!Objects.equals(radii, other.radii)) return false;
 		if (!Objects.equals(rotation, other.rotation)) return false;
 		if (!Objects.equals(center, other.center)) return false;

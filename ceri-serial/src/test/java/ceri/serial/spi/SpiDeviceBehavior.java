@@ -83,13 +83,13 @@ public class SpiDeviceBehavior {
 	public void shouldSetParameters() throws IOException {
 		init();
 		spi.mode(MODE_2);
-		spi.mode(SpiMode.of(0x123)); // 32-bit
+		spi.mode(new SpiMode(0x123)); // 32-bit
 		spi.lsbFirst(true);
 		spi.lsbFirst(false);
 		spi.bitsPerWord(3);
 		spi.maxSpeedHz(200);
 		lib.ioctlSpiInt.assertValues( //
-			List.of(SPI_IOC_WR_MODE, MODE_2.value), //
+			List.of(SPI_IOC_WR_MODE, MODE_2.value()), //
 			List.of(SPI_IOC_WR_MODE32, 0x123), //
 			List.of(SPI_IOC_WR_LSB_FIRST, 1), //
 			List.of(SPI_IOC_WR_LSB_FIRST, 0), //
@@ -100,7 +100,7 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldGetParameters() throws IOException {
 		init();
-		lib.ioctlSpiInt.autoResponses(MODE_3.value, 1, 0, 3, 200);
+		lib.ioctlSpiInt.autoResponses(MODE_3.value(), 1, 0, 3, 200);
 		assertEquals(spi.mode(), MODE_3);
 		assertEquals(spi.lsbFirst(), true);
 		assertEquals(spi.lsbFirst(), false);

@@ -2,6 +2,7 @@ package ceri.serial.spi;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class SpiModeBehavior {
 	public void shouldNotBreachEqualsContract() {
 		SpiMode t = SpiMode.builder().chipSelectHigh().build();
 		SpiMode eq0 = SpiMode.builder().chipSelectHigh().build();
-		SpiMode eq1 = SpiMode.of(0x04);
+		SpiMode eq1 = new SpiMode(0x04);
 		SpiMode ne0 = SpiMode.builder().build();
 		SpiMode ne1 = SpiMode.builder().chipSelectHigh().clockPhaseHigh().build();
 		SpiMode ne2 = SpiMode.builder().chipSelectHigh().clockPolarityHigh().build();
@@ -30,7 +31,7 @@ public class SpiModeBehavior {
 
 	@Test
 	public void shouldAccessFields() {
-		var mode = SpiMode.of(0xa5f);
+		var mode = new SpiMode(0xa5f);
 		assertEquals(mode.clockPhaseHigh(), true);
 		assertEquals(mode.clockPolarityHigh(), true);
 		assertEquals(mode.chipSelectHigh(), true);
@@ -47,8 +48,8 @@ public class SpiModeBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(SpiMode.of(0xa5f).toString(), "0x00000a5f");
-		assertEquals(SpiMode.of(0x5f).toString(), "0x5f");
+		assertString(new SpiMode(0xa5f), "0x00000a5f");
+		assertString(new SpiMode(0x5f), "0x5f");
 	}
 
 }

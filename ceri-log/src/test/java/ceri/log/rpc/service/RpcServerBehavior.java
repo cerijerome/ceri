@@ -1,13 +1,11 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.typedProperties;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.log.rpc.client.RpcChannel;
@@ -15,21 +13,10 @@ import ceri.log.rpc.client.RpcChannel;
 public class RpcServerBehavior {
 
 	@Test
-	public void shouldNotBreachEqualsContract() {
-		var t = RpcServer.Config.of(12345);
-		var eq0 = RpcServer.Config.builder().port(12345).build();
-		var ne0 = RpcServer.Config.of(12344);
-		var ne1 = RpcServer.Config.builder().port(12345).shutdownTimeoutMs(0).build();
-		var ne2 = RpcServer.Config.DEFAULT;
-		exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2);
-	}
-
-	@Test
 	public void shouldBuildFromProperties() {
 		var config = new RpcServerProperties(typedProperties("rpc-server"), "rpc-server").config();
-		assertEquals(config.port, 12345);
-		assertEquals(config.shutdownTimeoutMs, 1000);
+		assertEquals(config.port(), 12345);
+		assertEquals(config.shutdownTimeoutMs(), 1000);
 	}
 
 	@Test
@@ -42,7 +29,7 @@ public class RpcServerBehavior {
 	public void shouldDetermineIfLoop() {
 		assertFalse(RpcServer.Config.NULL.isLoop(RpcChannel.Config.localhost(12345)));
 		assertFalse(RpcServer.Config.of(12345).isLoop(null));
-		assertFalse(RpcServer.Config.of(12345).isLoop(RpcChannel.Config.of("xxx", 12345)));
+		assertFalse(RpcServer.Config.of(12345).isLoop(new RpcChannel.Config("xxx", 12345)));
 		assertTrue(RpcServer.Config.of(12345).isLoop(RpcChannel.Config.localhost(12345)));
 	}
 

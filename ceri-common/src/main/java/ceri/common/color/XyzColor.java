@@ -1,16 +1,15 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * Represents a CIE XYZ color with alpha. All values approximately 0-1.
  */
-public class XyzColor {
+public record XyzColor(double a, double x, double y, double z) {
+
 	public static final XyzColor CIE_A = of(1.09850, 1.0, 0.35585);
 	public static final XyzColor CIE_B = of(0.99072, 1.0, 0.85223);
 	public static final XyzColor CIE_C = of(0.98074, 1.0, 1.18232);
@@ -22,10 +21,6 @@ public class XyzColor {
 	public static final XyzColor CIE_F2 = of(0.99186, 1.0, 0.67393);
 	public static final XyzColor CIE_F7 = of(0.95041, 1.0, 1.08747);
 	public static final XyzColor CIE_F11 = of(1.00962, 1.0, 0.64350);
-	public final double a;
-	public final double x;
-	public final double y;
-	public final double z;
 
 	/**
 	 * Construct from sRGB color. Alpha is maintained.
@@ -47,7 +42,7 @@ public class XyzColor {
 	 */
 	public static XyzColor from(int argb) {
 		double[] xyz = ColorSpaces.rgbToXyz(argb);
-		return of(ratio(a(argb)), xyz[0], xyz[1], xyz[2]);
+		return of(ratio(ColorUtil.a(argb)), xyz[0], xyz[1], xyz[2]);
 	}
 
 	/**
@@ -62,13 +57,6 @@ public class XyzColor {
 	 */
 	public static XyzColor of(double a, double x, double y, double z) {
 		return new XyzColor(a, x, y, z);
-	}
-
-	private XyzColor(double a, double x, double y, double z) {
-		this.a = a;
-		this.x = x;
-		this.y = y;
-		this.z = z;
 	}
 
 	/**
@@ -143,23 +131,6 @@ public class XyzColor {
 		XybColor xyb = xyb();
 		XybColor normalXyb = xyb.normalize();
 		return xyb == normalXyb ? this : normalXyb.xyz();
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(a, x, y, z);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof XyzColor)) return false;
-		XyzColor other = (XyzColor) obj;
-		if (!Objects.equals(a, other.a)) return false;
-		if (!Objects.equals(x, other.x)) return false;
-		if (!Objects.equals(y, other.y)) return false;
-		if (!Objects.equals(z, other.z)) return false;
-		return true;
 	}
 
 	@Override

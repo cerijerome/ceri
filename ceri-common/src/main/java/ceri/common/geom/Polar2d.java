@@ -46,8 +46,7 @@ public class Polar2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Polar2d)) return false;
-		Polar2d other = (Polar2d) obj;
+		if (!(obj instanceof Polar2d other)) return false;
 		if (!Objects.equals(r, other.r)) return false;
 		if (!Objects.equals(phi, other.phi)) return false;
 		return true;

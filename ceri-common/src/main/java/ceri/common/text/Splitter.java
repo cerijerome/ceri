@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -24,10 +23,8 @@ public class Splitter {
 	private final String text;
 	private int pos = 0;
 
-	public static class Extraction {
+	public record Extraction(String text, int size) {
 		public static final Extraction NULL = of("", 0);
-		public final String text;
-		public final int size;
 
 		public static Extraction of(String text, int size) {
 			validateNotNull(text);
@@ -35,35 +32,14 @@ public class Splitter {
 			return new Extraction(text, size);
 		}
 
-		private Extraction(String text, int size) {
-			this.text = text;
-			this.size = size;
-		}
-
 		public boolean isNull() {
 			return size == 0 && text.isEmpty();
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(text, size);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Extraction)) return false;
-			Extraction other = (Extraction) obj;
-			if (!Objects.equals(text, other.text)) return false;
-			if (size != other.size) return false;
-			return true;
 		}
 
 		@Override
 		public String toString() {
 			return text + "[" + size + "]";
 		}
-
 	}
 
 	/**
@@ -231,5 +207,4 @@ public class Splitter {
 			return Extraction.of(s, m.end() - pos);
 		};
 	}
-
 }

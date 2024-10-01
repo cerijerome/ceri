@@ -71,8 +71,7 @@ public class Path {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Path)) return false;
-		Path other = (Path) obj;
+		if (!(obj instanceof Path other)) return false;
 		if (!Objects.equals(factory, other.factory)) return false;
 		if (!Objects.equals(value, other.value)) return false;
 		return true;

@@ -1,23 +1,18 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.a;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
-import java.util.Objects;
 
 /**
  * Encapsulates an HSB color with alpha, all values 0-1 inclusive.
  */
-public class HsbColor {
+public record HsbColor(double a, double h, double s, double b) {
+
 	public static final HsbColor clear = HsbColor.of(0, 0, 0, 0);
 	public static final HsbColor black = HsbColor.of(0, 0, 0);
 	public static final HsbColor white = HsbColor.of(0, 0, MAX_RATIO);
-	public final double a; // alpha
-	public final double h; // hue
-	public final double s; // saturation
-	public final double b; // brightness
 
 	/**
 	 * Construct from color.
@@ -39,7 +34,7 @@ public class HsbColor {
 	 */
 	public static HsbColor from(int argb) {
 		double[] hsb = ColorSpaces.rgbToHsb(argb);
-		return of(ratio(a(argb)), hsb[0], hsb[1], hsb[2]);
+		return of(ratio(ColorUtil.a(argb)), hsb[0], hsb[1], hsb[2]);
 	}
 
 	/**
@@ -61,13 +56,6 @@ public class HsbColor {
 	 */
 	public static HsbColor max(double h) {
 		return of(h, MAX_RATIO, MAX_RATIO);
-	}
-
-	private HsbColor(double a, double h, double s, double b) {
-		this.a = a;
-		this.h = h;
-		this.s = s;
-		this.b = b;
 	}
 
 	/**
@@ -171,23 +159,6 @@ public class HsbColor {
 		validate(h, "hue");
 		validate(s, "saturation");
 		validate(b, "brightness");
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(a, h, s, b);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof HsbColor)) return false;
-		HsbColor other = (HsbColor) obj;
-		if (!Objects.equals(a, other.a)) return false;
-		if (!Objects.equals(h, other.h)) return false;
-		if (!Objects.equals(s, other.s)) return false;
-		if (!Objects.equals(b, other.b)) return false;
-		return true;
 	}
 
 	@Override

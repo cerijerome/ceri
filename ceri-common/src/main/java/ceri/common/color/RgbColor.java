@@ -1,15 +1,10 @@
 package ceri.common.color;
 
 import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.a;
-import static ceri.common.color.ColorUtil.b;
-import static ceri.common.color.ColorUtil.g;
-import static ceri.common.color.ColorUtil.r;
 import static ceri.common.color.ColorUtil.ratio;
 import static ceri.common.color.ColorUtil.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
-import java.util.Objects;
 import ceri.common.math.MathUtil;
 
 /**
@@ -17,14 +12,11 @@ import ceri.common.math.MathUtil;
  * color calculations than an (a)rgb int value. May encapsulate any conceptual rgb values, such as
  * sRGB compressed and sRGB linear values.
  */
-public class RgbColor {
+public record RgbColor(double a, double r, double g, double b) {
+
 	public static final RgbColor clear = RgbColor.of(0, 0, 0, 0);
 	public static final RgbColor black = RgbColor.of(0, 0, 0);
 	public static final RgbColor white = RgbColor.of(MAX_RATIO, MAX_RATIO, MAX_RATIO);
-	public final double a; // alpha
-	public final double r; // red
-	public final double g; // green
-	public final double b; // blue
 
 	/**
 	 * Construct from color.
@@ -37,14 +29,14 @@ public class RgbColor {
 	 * Construct an opaque instance from rgb int value.
 	 */
 	public static RgbColor fromRgb(int rgb) {
-		return from(r(rgb), g(rgb), b(rgb));
+		return from(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
 	}
 
 	/**
 	 * Construct from argb int value.
 	 */
 	public static RgbColor from(int argb) {
-		return from(a(argb), r(argb), g(argb), b(argb));
+		return from(ColorUtil.a(argb), ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb));
 	}
 
 	/**
@@ -73,13 +65,6 @@ public class RgbColor {
 	 */
 	public static RgbColor of(double a, double r, double g, double b) {
 		return new RgbColor(a, r, g, b);
-	}
-
-	private RgbColor(double a, double r, double g, double b) {
-		this.a = a;
-		this.r = r;
-		this.g = g;
-		this.b = b;
 	}
 
 	/**
@@ -202,23 +187,6 @@ public class RgbColor {
 		validate(r, "red");
 		validate(g, "green");
 		validate(b, "blue");
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(a, r, g, b);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof RgbColor)) return false;
-		RgbColor other = (RgbColor) obj;
-		if (!Objects.equals(a, other.a)) return false;
-		if (!Objects.equals(r, other.r)) return false;
-		if (!Objects.equals(g, other.g)) return false;
-		if (!Objects.equals(b, other.b)) return false;
-		return true;
 	}
 
 	@Override

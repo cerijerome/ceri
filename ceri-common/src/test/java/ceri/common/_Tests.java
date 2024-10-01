@@ -258,7 +258,7 @@ import ceri.common.test.TestUtil;
 	// score
 	ceri.common.score.CollectionScorersTest.class, //
 	ceri.common.score.ScoreLookupBehavior.class, //
-	ceri.common.score.ScoreResultBehavior.class, //
+	ceri.common.score.ScorerBehavior.class, //
 	ceri.common.score.ScorersTest.class, //
 	// sql
 	ceri.common.sql.SqlFormatterBehavior.class, //

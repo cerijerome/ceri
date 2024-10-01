@@ -138,8 +138,7 @@ public class Ellipse2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Ellipse2d)) return false;
-		Ellipse2d other = (Ellipse2d) obj;
+		if (!(obj instanceof Ellipse2d other)) return false;
 		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(b, other.b)) return false;
 		return true;

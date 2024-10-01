@@ -100,8 +100,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Immutable)) return false;
-			return isEqual((Immutable) obj);
+			return (obj instanceof Immutable other) && isEqual(other);
 		}
 	}
 
@@ -166,7 +165,7 @@ public abstract class ByteArray implements ByteProvider {
 		public ByteBuffer toBuffer(int index, int length) {
 			return ByteBuffer.wrap(array, offset(index), length);
 		}
-		
+
 		/* ByteReceiver overrides */
 
 		@Override
@@ -221,8 +220,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Mutable)) return false;
-			return isEqual((Mutable) obj);
+			return (obj instanceof Mutable other) && isEqual(other);
 		}
 	}
 
@@ -536,7 +534,7 @@ public abstract class ByteArray implements ByteProvider {
 	public ByteBuffer toBuffer(int index, int length) {
 		return ByteBuffer.wrap(array, offset(index), length).asReadOnlyBuffer();
 	}
-	
+
 	@Override
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;

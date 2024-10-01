@@ -74,10 +74,7 @@ public class ReverseFunction {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof ReverseFunction)) return false;
-		ReverseFunction other = (ReverseFunction) obj;
-		if (!Objects.equals(values, other.values)) return false;
-		return true;
+		return (obj instanceof ReverseFunction other) && Objects.equals(values, other.values);
 	}
 
 	@Override

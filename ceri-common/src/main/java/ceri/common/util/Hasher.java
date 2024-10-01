@@ -53,10 +53,7 @@ public class Hasher {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Hasher)) return false;
-		Hasher other = (Hasher) obj;
-		if (hash != other.hash) return false;
-		return true;
+		return (obj instanceof Hasher other) && hash == other.hash;
 	}
 
 	@Override

@@ -244,8 +244,7 @@ public class CrcAlgorithm {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof CrcAlgorithm)) return false;
-		CrcAlgorithm other = (CrcAlgorithm) obj;
+		if (!(obj instanceof CrcAlgorithm other)) return false;
 		if (width != other.width) return false;
 		if (poly != other.poly) return false;
 		if (init != other.init) return false;

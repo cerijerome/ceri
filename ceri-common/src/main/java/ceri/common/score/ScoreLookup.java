@@ -78,10 +78,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof ScoreLookup)) return false;
-		ScoreLookup<?> other = (ScoreLookup<?>) obj;
-		if (!Objects.equals(map, other.map)) return false;
-		return true;
+		return (obj instanceof ScoreLookup<?> other) && Objects.equals(map, other.map);
 	}
 
 	@Override

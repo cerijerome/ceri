@@ -12,21 +12,15 @@ import static ceri.serial.spi.jna.SpiDev.SPI_RX_DUAL;
 import static ceri.serial.spi.jna.SpiDev.SPI_RX_QUAD;
 import static ceri.serial.spi.jna.SpiDev.SPI_TX_DUAL;
 import static ceri.serial.spi.jna.SpiDev.SPI_TX_QUAD;
-import java.util.Objects;
 
 /**
  * Encapsulates 8-bit and 32-bit modes.
  */
-public class SpiMode {
-	public static final SpiMode MODE_0 = of(0);
+public record SpiMode(int value) {
+	public static final SpiMode MODE_0 = new SpiMode(0);
 	public static final SpiMode MODE_1 = builder().clockPhaseHigh().build();
 	public static final SpiMode MODE_2 = builder().clockPolarityHigh().build();
 	public static final SpiMode MODE_3 = builder().clockPhaseHigh().clockPolarityHigh().build();
-	public final int value;
-
-	public static SpiMode of(int value) {
-		return new SpiMode(value);
-	}
 
 	public static class Builder {
 		int value = 0;
@@ -95,10 +89,6 @@ public class SpiMode {
 		return new Builder();
 	}
 
-	SpiMode(int value) {
-		this.value = value;
-	}
-
 	public boolean is32Bit() {
 		return (value & 0xff) != value;
 	}
@@ -156,22 +146,7 @@ public class SpiMode {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(value);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof SpiMode)) return false;
-		SpiMode other = (SpiMode) obj;
-		if (value != other.value) return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
 		return is32Bit() ? String.format("0x%08x", value) : String.format("0x%02x", value);
 	}
-
 }

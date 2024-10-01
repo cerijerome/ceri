@@ -75,8 +75,7 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof TruncatedRadial3d)) return false;
-		TruncatedRadial3d<?> other = (TruncatedRadial3d<?>) obj;
+		if (!(obj instanceof TruncatedRadial3d<?> other)) return false;
 		if (!Objects.equals(radial, other.radial)) return false;
 		if (!Objects.equals(h0, other.h0)) return false;
 		if (!Objects.equals(h, other.h)) return false;

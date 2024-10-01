@@ -93,8 +93,7 @@ public class Ellipsoid3d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Ellipsoid3d)) return false;
-		Ellipsoid3d other = (Ellipsoid3d) obj;
+		if (!(obj instanceof Ellipsoid3d other)) return false;
 		if (!Objects.equals(a, other.a)) return false;
 		if (!Objects.equals(b, other.b)) return false;
 		if (!Objects.equals(c, other.c)) return false;

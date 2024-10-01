@@ -183,14 +183,13 @@ public class ToString {
 	}
 
 	private String childStringValue(Object obj) {
-		if (!(obj instanceof Map.Entry)) return stringValue(obj);
-		Map.Entry<?, ?> entry = (Map.Entry<?, ?>) obj;
+		if (!(obj instanceof Map.Entry<?, ?> entry)) return stringValue(obj);
 		return stringValue(entry.getKey()) + ": " + stringValue(entry.getValue());
 	}
 
 	private String stringValue(Object obj) {
 		if (obj == null) return String.valueOf(obj);
-		if (obj instanceof Date) return toString((Date) obj);
+		if (obj instanceof Date date) return toString(date);
 		return ArrayUtil.deepToString(obj);
 	}
 

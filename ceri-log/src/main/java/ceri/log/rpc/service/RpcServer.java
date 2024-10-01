@@ -22,49 +22,20 @@ public class RpcServer implements RuntimeCloseable, Enablable {
 	private final Config config;
 	private final Server server;
 
-	public static class Config {
-		public static final Config NULL = builder().build();
-		public static final Config DEFAULT = builder().port(0).build();
-		public final Integer port;
-		public final int shutdownTimeoutMs;
+	public record Config(Integer port, int shutdownTimeoutMs) {
+		public static final Config DEFAULT = new Config(0, 5000);
+		public static final Config NULL = new Config(null, 5000);
 
 		/**
 		 * Default settings with given port; use 0 for server-chosen port.
 		 */
 		public static Config of(int port) {
-			return builder().port(port).build();
+			return new Config(port, DEFAULT.shutdownTimeoutMs());
 		}
 
-		public static class Builder {
-			Integer port = null;
-			int shutdownTimeoutMs = 5000;
-
-			Builder() {}
-
-			public Builder port(int port) {
-				this.port = port;
-				return this;
-			}
-
-			public Builder shutdownTimeoutMs(int shutdownTimeoutMs) {
-				this.shutdownTimeoutMs = shutdownTimeoutMs;
-				return this;
-			}
-
-			public Config build() {
-				return new Config(this);
-			}
-		}
-
-		public static Builder builder() {
-			return new Builder();
-		}
-
-		Config(Builder builder) {
-			port = builder.port;
-			shutdownTimeoutMs = builder.shutdownTimeoutMs;
-		}
-
+		/**
+		 * The config is disabled if the port is null.
+		 */
 		public boolean enabled() {
 			return port != null;
 		}
@@ -74,7 +45,7 @@ public class RpcServer implements RuntimeCloseable, Enablable {
 		 */
 		public boolean isLoop(RpcChannel.Config channel) {
 			if (!enabled() || channel == null || !channel.isLocalhost()) return false;
-			return Objects.equals(channel.port, port);
+			return Objects.equals(channel.port(), port);
 		}
 
 		/**
@@ -83,26 +54,6 @@ public class RpcServer implements RuntimeCloseable, Enablable {
 		public Config requireNoLoop(RpcChannel.Config channel) {
 			if (!isLoop(channel)) return this;
 			throw new IllegalArgumentException("Rpc service and client loop on port " + port);
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hash(port, shutdownTimeoutMs);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) return true;
-			if (!(obj instanceof Config)) return false;
-			Config other = (Config) obj;
-			if (!Objects.equals(port, other.port)) return false;
-			if (shutdownTimeoutMs != other.shutdownTimeoutMs) return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return ToString.forClass(this, port, shutdownTimeoutMs);
 		}
 	}
 

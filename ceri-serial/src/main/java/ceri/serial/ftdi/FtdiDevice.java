@@ -83,7 +83,7 @@ public class FtdiDevice implements Ftdi {
 
 	@Override
 	public void bitMode(FtdiBitMode bitMode) throws LibUsbException {
-		LibFtdi.ftdi_set_bitmode(ftdi(), bitMode.mask, bitMode.mode);
+		LibFtdi.ftdi_set_bitmode(ftdi(), bitMode.mask(), bitMode.mode());
 	}
 
 	@Override
@@ -93,8 +93,8 @@ public class FtdiDevice implements Ftdi {
 
 	@Override
 	public void line(FtdiLineParams properties) throws LibUsbException {
-		LibFtdi.ftdi_set_line_property(ftdi(), properties.dataBits, properties.stopBits,
-			properties.parity, properties.breakType);
+		LibFtdi.ftdi_set_line_property(ftdi(), properties.dataBits(), properties.stopBits(),
+			properties.parity(), properties.breakType());
 	}
 
 	@Override

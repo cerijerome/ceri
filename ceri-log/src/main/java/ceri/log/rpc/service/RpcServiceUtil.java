@@ -50,7 +50,7 @@ public class RpcServiceUtil {
 	 * exception type and its message.
 	 */
 	public static StatusRuntimeException statusException(Exception e) {
-		if (e instanceof StatusRuntimeException) return (StatusRuntimeException) e;
+		if (e instanceof StatusRuntimeException sre) return sre;
 		String message = e.toString();
 		if (message.length() > MAX_MESSAGE_LEN) message = message.substring(0, MAX_MESSAGE_LEN);
 		return new StatusRuntimeException(Status.UNAVAILABLE.withDescription(message));
