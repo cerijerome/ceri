@@ -1,6 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.util.BasicUtil.conditionalInt;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.IntUnaryOperator;
@@ -140,7 +139,8 @@ public class CFcntl {
 	/* os-specific initialization */
 
 	static {
-		if (OsUtil.os().mac) {
+		var os = OsUtil.os();
+		if (os.mac) {
 			O_CREAT = 0x200;
 			O_EXCL = 0x800;
 			O_NOCTTY = 0x20000;
@@ -162,8 +162,8 @@ public class CFcntl {
 			O_NONBLOCK = 0x800;
 			O_DSYNC = 0x1000;
 			O_ASYNC = 0x2000;
-			O_DIRECTORY = conditionalInt(OsUtil.os().arm, 0x4000, 0x10000);
-			O_NOFOLLOW = conditionalInt(OsUtil.os().arm, 0x8000, 0x20000);
+			O_DIRECTORY = os.arm(0x4000, 0x10000);
+			O_NOFOLLOW = os.arm(0x8000, 0x20000);
 			O_CLOEXEC = 0x80000;
 			O_SYNC = 0x100000 | O_DSYNC;
 		}

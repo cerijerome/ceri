@@ -36,8 +36,7 @@ public class CLibVerifier {
 	private CLibVerifier() {}
 
 	public static void main(String[] args) throws IOException {
-		var values = StartupValues.of(args);
-		var serial = values.next("serial", p -> p.get());
+		var serial = StartupValues.of(args).next("serial", p -> p.get());
 		LogModifier.run(() -> verifyAll(System.out, serial), Level.OFF, JnaLibrary.class);
 	}
 

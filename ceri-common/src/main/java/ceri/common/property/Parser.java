@@ -33,12 +33,8 @@ public class Parser {
 		Boolean::parseBoolean;
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Integer> INT =
 		NumberParser::decodeInt;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Integer> UINT =
-		NumberParser::decodeUint;
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Long> LONG =
 		NumberParser::decodeLong;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Long> ULONG =
-		NumberParser::decodeUlong;
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Double> DOUBLE =
 		Double::parseDouble;
 
@@ -373,11 +369,26 @@ public class Parser {
 		}
 
 		/**
+		 * Converts the value to a boolean, matching 'true' in any case, or null if the value is
+		 * null.
+		 */
+		default Boolean toBool() {
+			return asBool().get();
+		}
+
+		/**
 		 * Converts the value to a boolean, matching 'true' in any case, or default if the value is
 		 * null.
 		 */
 		default boolean toBool(boolean def) {
 			return asBool().get(def);
+		}
+
+		/**
+		 * Converts the value to int from -0xffffffff to 0xffffffff, or null if the value is null.
+		 */
+		default Integer toInt() {
+			return asInt().get();
 		}
 
 		/**
@@ -389,10 +400,11 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to int from 0 to 0xffffffff, or default if the value is null.
+		 * Converts the value to long from -0xffffffff_ffffffff to 0xffffffff_ffffffff, or null if
+		 * the value is null.
 		 */
-		default int toUint(int def) {
-			return asUint().get(def);
+		default Long toLong() {
+			return asLong().get();
 		}
 
 		/**
@@ -404,11 +416,10 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to long from 0 to 0xffffffff_ffffffff, or default if the value is
-		 * null.
+		 * Converts the value to double, or null if the value is null.
 		 */
-		default long toUlong(long def) {
-			return asUlong().get(def);
+		default Double toDouble() {
+			return asDouble().get();
 		}
 
 		/**
@@ -419,7 +430,8 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to enum, with default if value is null.
+		 * Converts the value to enum, or default if the value is null. The default enum cannot be
+		 * null.
 		 */
 		default <T extends Enum<T>> T toEnum(T def) {
 			Objects.requireNonNull(def);
@@ -427,7 +439,14 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to path, with default if value is null.
+		 * Converts the value to path, or null if the value is null.
+		 */
+		default Path toPath() {
+			return toPath(null);
+		}
+
+		/**
+		 * Converts the value to path, or default if the value is null.
 		 */
 		default Path toPath(Path def) {
 			return asPath().get(def);
@@ -449,25 +468,11 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the value to int from 0 to 0xffffffff.
-		 */
-		default Type<Integer> asUint() {
-			return as(UINT);
-		}
-
-		/**
 		 * Provide a new typed accessor. Converts the value to long from -0xffffffff_ffffffff to
 		 * 0xffffffff_ffffffff.
 		 */
 		default Type<Long> asLong() {
 			return as(LONG);
-		}
-
-		/**
-		 * Provide a new typed accessor. Converts the value to long from 0 to 0xffffffff_ffffffff.
-		 */
-		default Type<Long> asUlong() {
-			return as(ULONG);
 		}
 
 		/**
@@ -571,24 +576,10 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms the list to an int array, with default array if the value list is null.
-		 */
-		default int[] toUintArray(int... def) {
-			return toIntArray(UINT::apply, def);
-		}
-
-		/**
 		 * Transforms the list to a long array, with default array if the value list is null.
 		 */
 		default long[] toLongArray(long... def) {
 			return toLongArray(LONG::apply, def);
-		}
-
-		/**
-		 * Transforms the list to a long array, with default array if the value list is null.
-		 */
-		default long[] toUlongArray(long... def) {
-			return toLongArray(ULONG::apply, def);
 		}
 
 		/**
@@ -613,25 +604,11 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the values to ints from 0 to 0xffffffff.
-		 */
-		default Types<Integer> asUints() {
-			return asEach(UINT);
-		}
-
-		/**
 		 * Provide a new typed accessor. Converts the values to longs from -0xffffffff_ffffffff to
 		 * 0xffffffff_ffffffff.
 		 */
 		default Types<Long> asLongs() {
 			return asEach(LONG);
-		}
-
-		/**
-		 * Provide a new typed accessor. Converts the values to longs from 0 to 0xffffffff_ffffffff.
-		 */
-		default Types<Long> asUlongs() {
-			return asEach(ULONG);
 		}
 
 		/**

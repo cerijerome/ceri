@@ -3,6 +3,7 @@ package ceri.serial.spi.util;
 import static ceri.log.util.LogUtil.startupValues;
 import java.io.IOException;
 import java.util.Arrays;
+import org.apache.logging.log4j.Level;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.Direction;
 import ceri.common.util.StartupValues;
@@ -14,7 +15,7 @@ import ceri.serial.spi.SpiTransfer;
 public class SpiTester {
 
 	public static void main(String[] args) throws IOException {
-		StartupValues v = startupValues(args);
+		StartupValues v = startupValues(Level.WARN, args);
 		Direction direction = v.next("direction", p -> p.toEnum(Direction.out));
 		int size = v.next("size", p -> p.toInt(8));
 		int speedHz = v.next("speedHz", p -> p.toInt(100000));

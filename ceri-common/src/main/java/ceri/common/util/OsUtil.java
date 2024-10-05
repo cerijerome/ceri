@@ -31,6 +31,9 @@ public class OsUtil {
 
 	private OsUtil() {}
 
+	/**
+	 * Encapsulates OS info.
+	 */
 	public static class Os {
 		public final String name;
 		public final String arch;
@@ -52,6 +55,44 @@ public class OsUtil {
 			bit64 = BIT64_REGEX.matcher(arch).find();
 		}
 
+		/**
+		 * Convenience conditional.
+		 */
+		public <T> T mac(T trueVal, T falseVal) {
+			return BasicUtil.conditional(mac, trueVal, falseVal);
+		}
+
+		/**
+		 * Convenience conditional.
+		 */
+		public <T> T linux(T trueVal, T falseVal) {
+			return BasicUtil.conditional(linux, trueVal, falseVal);
+		}
+
+		/**
+		 * Convenience conditional.
+		 */
+		public <T> T x86(T trueVal, T falseVal) {
+			return BasicUtil.conditional(x86, trueVal, falseVal);
+		}
+
+		/**
+		 * Convenience conditional.
+		 */
+		public <T> T arm(T trueVal, T falseVal) {
+			return BasicUtil.conditional(arm, trueVal, falseVal);
+		}
+
+		/**
+		 * Convenience conditional.
+		 */
+		public <T> T bit64(T trueVal, T falseVal) {
+			return BasicUtil.conditional(bit64, trueVal, falseVal);
+		}
+
+		/**
+		 * Provides a detailed descriptor.
+		 */
 		public String full() {
 			return toString() + String.format("; mac=%s, linux=%s, x86=%s, arm=%s, bit64=%s", mac,
 				linux, x86, arm, bit64);
@@ -63,10 +104,16 @@ public class OsUtil {
 		}
 	}
 
+	/**
+	 * Retrieve the current OS info, or override if set.
+	 */
 	public static Os os() {
 		return BasicUtil.defaultValue(osOverride, os);
 	}
 
+	/**
+	 * Determines if context is AWS, based on path system variable.
+	 */
 	public static boolean aws() {
 		return !StringUtil.blank(SystemVars.sys("AWS_PATH"));
 	}

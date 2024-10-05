@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -65,7 +66,13 @@ public class LogUtilTest {
 	public void testStartupValues() {
 		StartupValues values = LogUtil.startupValues("abc", "123");
 		assertEquals(values.next(p -> p.get()), "abc");
-		assertEquals(values.next(p -> p.asInt().get()), 123);
+		assertEquals(values.next(p -> p.toInt()), 123);
+		assertEquals(values.envVar("test"), "CERI_LOG_UTIL_TEST");
+		values = LogUtil.startupValues(Level.WARN, "abc", "123");
+		assertEquals(values.next(p -> p.get()), "abc");
+		assertEquals(values.next(p -> p.toInt()), 123);
+		assertEquals(values.envVar("test"), "CERI_LOG_UTIL_TEST");
+		testLog.assertFind("WARN.*value = abc");
 	}
 
 	@Test

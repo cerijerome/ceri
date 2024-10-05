@@ -41,7 +41,6 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.util.Struct;
@@ -462,8 +461,8 @@ public class LibFtdi {
 			ftdi.writebuffer_chunksize = CHUNKSIZE_DEF;
 			ftdi.max_packet_size = 0;
 			ftdi.error_str = null;
-			ftdi.module_detach_mode = BasicUtil.conditional(OsUtil.os().linux,
-				AUTO_DETACH_SIO_MODULE, DONT_DETACH_SIO_MODULE);
+			ftdi.module_detach_mode =
+				OsUtil.os().linux(AUTO_DETACH_SIO_MODULE, DONT_DETACH_SIO_MODULE);
 			ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_ANY);
 			ftdi.bitbang_mode = ftdi_mpsse_mode.BITMODE_BITBANG;
 			ftdi.eeprom = new ftdi_eeprom();

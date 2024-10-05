@@ -88,6 +88,24 @@ public class OsUtilTest {
 	}
 
 	@Test
+	public void testConditionals() {
+		try (var x = OsUtil.os("Mac", "aarch64", null)) {
+			assertEquals(OsUtil.os().mac("y", "n"), "y");
+			assertEquals(OsUtil.os().linux("y", "n"), "n");
+			assertEquals(OsUtil.os().x86("y", "n"), "n");
+			assertEquals(OsUtil.os().arm("y", "n"), "y");
+			assertEquals(OsUtil.os().bit64("y", "n"), "y");
+		}
+		try (var x = OsUtil.os("Linux", "x86", null)) {
+			assertEquals(OsUtil.os().mac("y", "n"), "n");
+			assertEquals(OsUtil.os().linux("y", "n"), "y");
+			assertEquals(OsUtil.os().x86("y", "n"), "y");
+			assertEquals(OsUtil.os().arm("y", "n"), "n");
+			assertEquals(OsUtil.os().bit64("y", "n"), "n");
+		}
+	}
+
+	@Test
 	public void testVersionOverride() {
 		var orig = OsUtil.os();
 		try (var x = OsUtil.os(null, null, "-999")) {

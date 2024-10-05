@@ -172,7 +172,7 @@ public class LibFtdiTest {
 	public void testAutoDetach() throws LibUsbException {
 		JnaTestUtil.testForEachOs(() -> {
 			ftdi = openFtdi();
-			int expected = OsUtil.os().linux ? 1 : 0;
+			int expected = OsUtil.os().linux(1, 0);
 			assertEquals(lib.data.deviceHandle(ftdi.usb_dev).kernelDriverInterfaceBits, expected);
 			LibFtdi.ftdi_free(ftdi);
 		});

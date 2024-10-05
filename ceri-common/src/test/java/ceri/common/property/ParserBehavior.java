@@ -125,12 +125,8 @@ public class ParserBehavior {
 		assertArray(strings("true,false").toBoolArray(true), true, false);
 		assertArray(strings(null).toIntArray(2), 2);
 		assertArray(strings("-0xffffffff, 0xffffffff").toIntArray(2), 1, -1);
-		assertArray(strings(null).toUintArray(2), 2);
-		assertArray(strings("0, 0xffffffff").toUintArray(2), 0, -1);
 		assertArray(strings(null).toLongArray(2), 2L);
 		assertArray(strings("-0xffffffffffffffff, 0xffffffffffffffff").toLongArray(2), 1L, -1L);
-		assertArray(strings(null).toUlongArray(2), 2L);
-		assertArray(strings("0, 0xffffffffffffffff").toUlongArray(2), 0L, -1L);
 		assertArray(strings(null).toDoubleArray(2), 2.0);
 		assertArray(strings("-1, 0, 1").toDoubleArray(2), -1.0, 0.0, 1.0);
 	}
@@ -155,9 +151,7 @@ public class ParserBehavior {
 		assertIterable(Parser.Types.of("a", "bb", "").asEach(String::length).get(), 1, 2, 0);
 		assertIterable(strings("true, false").asBools().get(), true, false);
 		assertIterable(strings("-0xffffffff,0xffffffff").asInts().get(), 1, -1);
-		assertIterable(strings("0,0xffffffff").asUints().get(), 0, -1);
 		assertIterable(strings("-0xffffffffffffffff,0xffffffffffffffff").asLongs().get(), 1L, -1L);
-		assertIterable(strings("0,0xffffffffffffffff").asUlongs().get(), 0L, -1L);
 		assertIterable(strings("-1,NaN,1").asDoubles().get(), -1.0, Double.NaN, 1.0);
 		assertIterable(strings("left,right").asEnums(H.class).get(), H.left, H.right);
 		assertIterable(strings("p0,p1").asPaths().get(), Path.of("p0"), Path.of("p1"));
@@ -176,20 +170,22 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldParsePrimitiveStrings() {
+		assertEquals(string(null).toBool(), null);
+		assertEquals(string("true").toBool(), true);
 		assertEquals(string(null).toBool(false), false);
 		assertEquals(string("TRUE").toBool(false), true);
+		assertEquals(string(null).toInt(), null);
+		assertEquals(string("-1").toInt(), -1);
 		assertEquals(string(null).toInt(2), 2);
 		assertEquals(string("-0xffffffff").toInt(2), 1);
 		assertEquals(string("0xffffffff").toInt(2), -1);
-		assertEquals(string(null).toUint(2), 2);
-		assertEquals(string("0").toInt(2), 0);
-		assertEquals(string("0xffffffff").toUint(2), -1);
+		assertEquals(string(null).toLong(), null);
+		assertEquals(string("-1").toLong(), -1L);
 		assertEquals(string(null).toLong(2), 2L);
 		assertEquals(string("-0xffffffffffffffff").toLong(2), 1L);
 		assertEquals(string("0xffffffffffffffff").toLong(2), -1L);
-		assertEquals(string(null).toUlong(2), 2L);
-		assertEquals(string("0").toUlong(2), 0L);
-		assertEquals(string("0xffffffffffffffff").toUlong(2), -1L);
+		assertEquals(string(null).toDouble(), null);
+		assertEquals(string("-1").toDouble(), -1.0);
 		assertEquals(string(null).toDouble(2), 2.0);
 		assertEquals(string("NaN").toDouble(2), Double.NaN);
 		assertEquals(string("1").toDouble(2), 1.0);
@@ -199,6 +195,8 @@ public class ParserBehavior {
 	public void shouldParseStringTypes() {
 		assertEquals(string(null).toEnum(H.left), H.left);
 		assertEquals(string("right").toEnum(H.left), H.right);
+		assertEquals(string(null).toPath(), null);
+		assertEquals(string("test").toPath(), Path.of("test"));
 		assertEquals(string(null).toPath(Path.of("def")), Path.of("def"));
 		assertEquals(string("test").toPath(Path.of("def")), Path.of("test"));
 	}
