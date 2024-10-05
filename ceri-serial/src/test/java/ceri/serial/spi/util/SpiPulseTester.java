@@ -2,6 +2,7 @@ package ceri.serial.spi.util;
 
 import java.io.IOException;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.Level;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.Direction;
 import ceri.common.math.MathUtil;
@@ -17,19 +18,19 @@ import ceri.serial.spi.pulse.SpiPulseTransmitter;
 public class SpiPulseTester {
 
 	public static void main(String[] args) throws IOException {
-		StartupValues v = LogUtil.startupValues(args);
-		int size = v.next("size").asInt(4);
-		int bus = v.next("bus").asInt(0);
-		int chip = v.next("chip").asInt(0);
-		int speed = v.next("speed").asInt(3200000);
-		int delayMicros = v.next("delay").asInt(50);
-		SpiMode mode = new SpiMode(v.next("mode").asInt(0));
-		PulseCycle.Type pulseType =
-			v.next("pulseType").apply(PulseCycle.Type::valueOf, PulseCycle.Type.nbit9);
-		int pulseBits = v.next("pulseBits").asInt(4);
-		int pulseOffset = v.next("pulseOffset").asInt(0);
-		int pulseT0 = v.next("pulseT0").asInt(1);
-		int pulseT1 = v.next("pulseT1").asInt(2);
+		args = new String[] { "5", "1" };
+		StartupValues v = LogUtil.startupValues(Level.WARN, args);
+		int size = v.next("size", p -> p.toInt(4));
+		int bus = v.next("bus", p -> p.toInt(0));
+		int chip = v.next("chip", p -> p.toInt(0));
+		int speed = v.next("speed", p -> p.toInt(3200000));
+		int delayMicros = v.next("delay", p -> p.toInt(50));
+		SpiMode mode = new SpiMode(v.next("mode", p -> p.toInt(0)));
+		PulseCycle.Type pulseType = v.next("pulseType", p -> p.toEnum(PulseCycle.Type.nbit9));
+		int pulseBits = v.next("pulseBits", p -> p.toInt(4));
+		int pulseOffset = v.next("pulseOffset", p -> p.toInt(0));
+		int pulseT0 = v.next("pulseT0", p -> p.toInt(1));
+		int pulseT1 = v.next("pulseT1", p -> p.toInt(2));
 
 		SpiPulseConfig config = SpiPulseConfig.builder(size)
 			.cycle(PulseCycle.of(pulseType, pulseBits, pulseOffset, pulseT0, pulseT1))

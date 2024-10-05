@@ -24,6 +24,7 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.ObjLongConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
@@ -149,6 +150,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionToBooleanFunction<IOException, Integer> toBooleanFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i >= 0;
+		};
+	}
+
 	public static ExceptionToIntFunction<IOException, Integer> toIntFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -158,6 +167,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionToLongFunction<IOException, Integer> toLongFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
+	public static ExceptionToDoubleFunction<IOException, Integer> toDoubleFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -379,6 +396,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ToBooleanFunction<Integer> toBooleanFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i >= 0;
+			};
+		}
+
 		public static ToIntFunction<Integer> toIntFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -387,6 +411,13 @@ public class FunctionTestUtil {
 		}
 
 		public static ToLongFunction<Integer> toLongFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
+		public static ToDoubleFunction<Integer> toDoubleFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i;

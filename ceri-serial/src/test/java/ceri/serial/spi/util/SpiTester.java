@@ -15,16 +15,16 @@ public class SpiTester {
 
 	public static void main(String[] args) throws IOException {
 		StartupValues v = startupValues(args);
-		Direction direction = v.next("direction").apply(Direction::valueOf, Direction.out);
-		int size = v.next("size").asInt(8);
-		int speedHz = v.next("speedHz").asInt(100000);
-		int delay = v.next("delay").asInt(50);
-		int mode = v.next("mode").asInt(0);
-		int bus = v.next("bus").asInt(0);
-		int chip = v.next("chip").asInt(0);
-		int fill = v.next("fill").asInt(0xff);
-		int repeat = v.next("repeat").asInt(1);
-		int repeatDelayMs = v.next("repeatDelayMs").asInt(0);
+		Direction direction = v.next("direction", p -> p.toEnum(Direction.out));
+		int size = v.next("size", p -> p.toInt(8));
+		int speedHz = v.next("speedHz", p -> p.toInt(100000));
+		int delay = v.next("delay", p -> p.toInt(50));
+		int mode = v.next("mode", p -> p.toInt(0));
+		int bus = v.next("bus", p -> p.toInt(0));
+		int chip = v.next("chip", p -> p.toInt(0));
+		int fill = v.next("fill", p -> p.toInt(0xff));
+		int repeat = v.next("repeat", p -> p.toInt(1));
+		int repeatDelayMs = v.next("repeatDelayMs", p -> p.toInt(0));
 
 		try (var fd = SpiDevice.Config.of(bus, chip, direction).open()) {
 			// Spi spi = SpiEmulator.echo();

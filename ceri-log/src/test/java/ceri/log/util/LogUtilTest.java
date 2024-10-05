@@ -64,8 +64,8 @@ public class LogUtilTest {
 	@Test
 	public void testStartupValues() {
 		StartupValues values = LogUtil.startupValues("abc", "123");
-		assertEquals(values.next().get(), "abc");
-		assertEquals(values.next().asInt(), 123);
+		assertEquals(values.next(p -> p.get()), "abc");
+		assertEquals(values.next(p -> p.asInt().get()), 123);
 	}
 
 	@Test

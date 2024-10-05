@@ -1,14 +1,11 @@
 package ceri.common.util;
 
-import java.nio.file.Path;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
+import java.util.function.Function;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.property.Parser;
 import ceri.common.property.PathFactory;
-import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 
 /**
@@ -16,22 +13,25 @@ import ceri.common.text.StringUtil;
  */
 public class StartupValues {
 	private final String[] args;
-	private Class<?> pkgPrefix = null;
+	private String prefix = null;
 	private int index = 0;
 	private Consumer<String> notifier = s -> {};
+	private Function<Object, String> renderer = ArrayUtil::deepToString;
 
 	/**
-	 * Lookup system property or environment variable by name
+	 * Parse system property or environment variable by name
 	 */
-	public static Value lookup(String name) {
-		return of().value(name);
+	public static <E extends Exception, T> T lookup(String name,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return of().value(name, fn);
 	}
 
 	/**
-	 * Lookup system property or environment variable by name
+	 * Parse system property or environment variable by name
 	 */
-	public static Value lookup(String sysProp, String envVar) {
-		return of().value(sysProp, envVar);
+	public static <E extends Exception, T> T lookup(String sysProp, String envVar,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return of().value(sysProp, envVar, fn);
 	}
 
 	/**
@@ -49,200 +49,52 @@ public class StartupValues {
 	}
 
 	/**
-	 * A wrapper to perform value assignment, and provide typed access.
+	 * Identifies where to find the value.
 	 */
-	public static class Value {
-		public final String name;
-		public final Integer argIndex;
-		public final String sysProp;
-		public final String envVar;
-		private String[] args;
-		private Consumer<String> notifier;
+	private record Id(String name, Integer argIndex, String sysProp, String envVar) {
 
-		Value(String name, Integer argIndex, String sysProp, String envVar) {
-			this.name = name;
-			this.argIndex = argIndex;
-			this.sysProp = sysProp;
-			this.envVar = envVar;
-		}
-
-		Value args(String... args) {
-			this.args = args;
-			return this;
-		}
-
-		Value notifier(Consumer<String> notifier) {
-			this.notifier = notifier;
-			return this;
-		}
-
-		public Boolean asBool() {
-			return asBool(null);
-		}
-
-		public Boolean asBool(Boolean def) {
-			return asBoolFrom(() -> def);
-		}
-
-		public <E extends Exception> Boolean asBoolFrom(ExceptionSupplier<E, Boolean> defSupplier)
-			throws E {
-			return applyFrom(Boolean::parseBoolean, defSupplier);
-		}
-
-		public Integer asInt() {
-			return asInt(null);
-		}
-
-		public Integer asInt(Integer def) {
-			return asIntFrom(() -> def);
-		}
-
-		public <E extends Exception> Integer asIntFrom(ExceptionSupplier<E, Integer> defSupplier)
-			throws E {
-			return applyFrom(NumberParser::decodeInt, defSupplier);
-		}
-
-		public Long asLong() {
-			return asLong(null);
-		}
-
-		public Long asLong(Long def) {
-			return asLongFrom(() -> def);
-		}
-
-		public <E extends Exception> Long asLongFrom(ExceptionSupplier<E, Long> defSupplier)
-			throws E {
-			return applyFrom(NumberParser::decodeLong, defSupplier);
-		}
-
-		public Double asDouble() {
-			return asDouble(null);
-		}
-
-		public Double asDouble(Double def) {
-			return asDoubleFrom(() -> def);
-		}
-
-		public <E extends Exception> Double asDoubleFrom(ExceptionSupplier<E, Double> defSupplier)
-			throws E {
-			return applyFrom(Double::parseDouble, defSupplier);
-		}
-
-		public int[] asIntArray() {
-			return asIntArray(ArrayUtil.EMPTY_INT);
-		}
-
-		public int[] asIntArray(int... def) {
-			return asIntArrayFrom(() -> def);
-		}
-
-		public <E extends Exception> int[] asIntArrayFrom(ExceptionSupplier<E, int[]> defSupplier)
-			throws E {
-			return applyFromStream(s -> s.mapToInt(NumberParser::decodeInt).toArray(),
-				defSupplier);
-		}
-
-		public long[] asLongArray() {
-			return asLongArray(ArrayUtil.EMPTY_LONG);
-		}
-
-		public long[] asLongArray(long... def) {
-			return asLongArrayFrom(() -> def);
-		}
-
-		public <E extends Exception> long[]
-			asLongArrayFrom(ExceptionSupplier<E, long[]> defSupplier) throws E {
-			return applyFromStream(s -> s.mapToLong(NumberParser::decodeLong).toArray(),
-				defSupplier);
-		}
-
-		public <T extends Enum<T>> T asEnum(T def) {
-			Objects.requireNonNull(def);
-			Class<T> cls = BasicUtil.uncheckedCast(def.getClass());
-			return applyFrom(s -> Enum.valueOf(cls, s), () -> def);
-		}
-
-		public Path asPath() {
-			return asPath(null);
-		}
-
-		public Path asPath(Path def) {
-			return asPathFrom(() -> def);
-		}
-
-		public <E extends Exception> Path asPathFrom(ExceptionSupplier<E, Path> defSupplier)
-			throws E {
-			return applyFrom(Path::of, defSupplier);
-		}
-
-		public <E extends Exception, T> T apply(ExceptionFunction<E, String, T> fn) throws E {
-			return apply(fn, null);
-		}
-
-		public <E extends Exception, T> T apply(ExceptionFunction<E, String, T> fn, T def)
-			throws E {
-			return applyFrom(fn, () -> def);
-		}
-
-		public <E extends Exception, T> T applyFromStream(
-			ExceptionFunction<E, Stream<String>, T> streamFn, ExceptionSupplier<E, T> defSupplier)
-			throws E {
-			if (streamFn == null) return applyFrom(null, defSupplier);
-			return applyFrom(s -> streamFn.apply(StringUtil.commaSplit(s).stream()), defSupplier);
-		}
-
-		public <E extends Exception, T> T applyFrom(ExceptionFunction<E, String, T> fn,
-			ExceptionSupplier<E, T> defSupplier) throws E {
-			String value = get();
-			if (value != null && fn != null) return fn.apply(value);
-			if (defSupplier == null) return null;
-			T t = defSupplier.get();
-			return notify(t, "%s = %s (default)", name(), ArrayUtil.deepToString(t));
-		}
-
-		public String get() {
-			return get(null);
-		}
-
-		public String get(String def) {
-			String value = arg();
-			if (value == null) value = sysProp();
-			if (value == null) value = envVar();
-			if (value == null) value = defaultValue(def);
-			return value;
-		}
-
-		private String arg() {
-			if (args == null || argIndex == null || argIndex < 0 || argIndex >= args.length)
+		private String arg(String[] args) {
+			if (args == null || argIndex() == null || argIndex() < 0 || argIndex() >= args.length)
 				return null;
-			String s = args[argIndex];
-			return notify(s, "%s = %s (from args[%d])", name(), s, argIndex);
+			return args[argIndex()];
 		}
 
-		private String sysProp() {
-			if (sysProp == null || sysProp.isEmpty()) return null;
-			String s = SystemVars.sys(sysProp);
-			return notify(s, "%s = %s (from system '%s')", name(), s, sysProp);
+		private String sys() {
+			if (StringUtil.empty(sysProp())) return null;
+			return SystemVars.sys(sysProp());
 		}
 
-		private String envVar() {
-			if (envVar == null || envVar.isEmpty()) return null;
-			String s = SystemVars.env(envVar);
-			return notify(s, "%s = %s (from env '%s')", name(), s, envVar);
+		private String env() {
+			if (StringUtil.empty(envVar())) return null;
+			return SystemVars.env(envVar());
+		}
+	}
+
+	/**
+	 * The value source.
+	 */
+	private class Source {
+		public final Id id;
+		public final String value;
+		private final String desc;
+
+		private Source(Id id, String value, String desc) {
+			this.id = id;
+			this.value = value;
+			this.desc = desc;
 		}
 
-		private String defaultValue(String def) {
-			return notify(def, "%s = %s (default)", name, def);
+		public <E extends Exception, T> T parse(ExceptionFunction<E, Parser.String, T> parseFn)
+			throws E {
+			var result = parseFn.apply(Parser.String.of(value));
+			if (notifier != null) notifier.accept(desc(renderer.apply(result)));
+			return result;
 		}
 
-		private <T> T notify(T t, String format, Object... params) {
-			if (t == null || notifier == null) return t;
-			notifier.accept(String.format(format, params));
-			return t;
-		}
-
-		private String name() {
-			return name == null ? "value" : name;
+		private String desc(String value) {
+			var desc = String.format("%s = %s (%s)", BasicUtil.defaultValue(id.name(), "value"),
+				value, this.desc);
+			return id.argIndex == null ? desc : id.argIndex + ") " + desc;
 		}
 	}
 
@@ -258,70 +110,170 @@ public class StartupValues {
 		return this;
 	}
 
-	public StartupValues prefix(Class<?> pkgPrefix) {
-		this.pkgPrefix = pkgPrefix;
+	/**
+	 * Specify the package prefix for system property names.
+	 */
+	public StartupValues prefix(Class<?> pkgClass) {
+		return prefix(pkgClass.getPackageName());
+	}
+
+	/**
+	 * Specify the package prefix for system property names.
+	 */
+	public StartupValues prefix(String prefix) {
+		this.prefix = prefix;
 		return this;
 	}
 
+	/**
+	 * Specify the value renderer.
+	 */
+	public StartupValues renderer(Function<Object, String> renderer) {
+		this.renderer = renderer;
+		return this;
+	}
+
+	/**
+	 * Skip the next argument.
+	 */
 	public StartupValues skip() {
 		nextArg();
 		return this;
 	}
 
-	public Value next() {
-		return next(null);
+	/**
+	 * Parse the next value, using args only.
+	 */
+	public <E extends Exception, T> T next(ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return next(null, fn);
 	}
 
-	public Value next(String name) {
-		String sysProp = sysProp(pkgPrefix, name);
-		String envVar = envVar(sysProp);
-		return next(name, sysProp, envVar);
+	/**
+	 * Parse the next value, from args, or name-based environment variable or system property.
+	 */
+	public <E extends Exception, T> T next(String name, ExceptionFunction<E, Parser.String, T> fn)
+		throws E {
+		String sysProp = sysProp(name);
+		String envVar = envVarFrom(sysProp);
+		return next(name, sysProp, envVar, fn);
 	}
 
-	public Value next(String name, String sysProp, String envVar) {
-		return createValue(name, nextArg(), sysProp, envVar);
+	/**
+	 * Parse the next value, from args, or explicitly named environment variable or system property.
+	 */
+	public <E extends Exception, T> T next(String name, String sysProp, String envVar,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return source(name, nextArg(), sysProp, envVar).parse(fn);
 	}
 
-	public Value value(int index) {
-		return value(null, index);
+	/**
+	 * Parse the value from arg index.
+	 */
+	public <E extends Exception, T> T value(int index, ExceptionFunction<E, Parser.String, T> fn)
+		throws E {
+		return value(null, index, fn);
 	}
 
-	public Value value(String name) {
-		String sysProp = sysProp(pkgPrefix, name);
-		return createValue(name, null, sysProp, envVar(sysProp));
+	/**
+	 * Parse the value from name-based environment variable or system property.
+	 */
+	public <E extends Exception, T> T value(String name, ExceptionFunction<E, Parser.String, T> fn)
+		throws E {
+		String sysProp = sysProp(name);
+		return source(name, null, sysProp, envVarFrom(sysProp)).parse(fn);
 	}
 
-	public Value value(String name, int index) {
-		String sysProp = sysProp(pkgPrefix, name);
-		return createValue(name, index, sysProp, envVar(sysProp));
+	/**
+	 * Parse the value from arg index, or name-based environment variable or system property.
+	 */
+	public <E extends Exception, T> T value(String name, int index,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		String sysProp = sysProp(name);
+		return source(name, index, sysProp, envVarFrom(sysProp)).parse(fn);
 	}
 
-	public Value value(String sysProp, String envVar) {
-		return createValue(null, null, sysProp, envVar);
+	/**
+	 * Parse the value from explicitly named environment variable or system property.
+	 */
+	public <E extends Exception, T> T value(String sysProp, String envVar,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return source(null, null, sysProp, envVar).parse(fn);
 	}
 
-	public Value value(int index, String sysProp, String envVar) {
-		return createValue(null, index, sysProp, envVar);
+	/**
+	 * Parse the value from arg index, or explicitly named environment variable or system property.
+	 */
+	public <E extends Exception, T> T value(int index, String sysProp, String envVar,
+		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		return source(null, index, sysProp, envVar).parse(fn);
 	}
 
-	private Value createValue(String name, Integer argIndex, String sysProp, String envVar) {
-		return new Value(name, argIndex, sysProp, envVar).args(args).notifier(notifier);
+	/**
+	 * Determines the system property name.
+	 */
+	public String sysProp(String name) {
+		return sysProp(prefix, name);
+	}
+	
+	/**
+	 * Determines the environment variable name.
+	 */
+	public String envVar(String name) {
+		return envVarFrom(sysProp(name));
+	}
+	
+	/**
+	 * Provides the named source from arg index, or explicitly named environment variable or system
+	 * property.
+	 */
+	private Source source(String name, Integer argIndex, String sysProp, String envVar) {
+		var id = new Id(name, argIndex, sysProp, envVar);
+		var value = arg(id, args);
+		if (value == null) value = sysProp(id);
+		if (value == null) value = envVar(id);
+		if (value == null) value = defaultValue(id);
+		return value;
 	}
 
-	private String envVar(String sysProp) {
+	private static String envVarFrom(String sysProp) {
 		if (sysProp == null) return null;
 		return sysProp.toUpperCase().replace('.', '_');
 	}
 
-	private String sysProp(Class<?> cls, String suffix) {
+	private static String sysProp(String prefix, String suffix) {
 		suffix = StringUtil.trim(suffix);
-		if (cls == null) return suffix;
 		if (suffix == null || suffix.isEmpty()) return null;
-		return PathFactory.dot.path(cls.getPackageName(), suffix).value;
+		if (prefix == null) return suffix;
+		return PathFactory.dot.path(prefix, suffix).value;
 	}
 
 	private int nextArg() {
 		return index++;
 	}
 
+	private Source source(Id id, String value, String format, Object... args) {
+		return new Source(id, value, StringUtil.format(format, args));
+	}
+
+	private Source arg(Id id, String[] args) {
+		var s = id.arg(args);
+		if (s == null) return null;
+		return source(id, s, "'%s' from args[%d]", s, id.argIndex());
+	}
+
+	private Source sysProp(Id id) {
+		String s = id.sys();
+		if (s == null) return null;
+		return source(id, s, "'%s' from system %s", s, id.sysProp());
+	}
+
+	private Source envVar(Id id) {
+		String s = id.env();
+		if (s == null) return null;
+		return source(id, s, "'%s' from env %s", s, id.envVar());
+	}
+
+	private Source defaultValue(Id id) {
+		return source(id, null, "default");
+	}
 }

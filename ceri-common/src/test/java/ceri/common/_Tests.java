@@ -142,6 +142,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionPredicateBehavior.class, //
 	ceri.common.function.ExceptionRunnableBehavior.class, //
 	ceri.common.function.ExceptionSupplierBehavior.class, //
+	ceri.common.function.ExceptionToBooleanFunctionBehavior.class, //
+	ceri.common.function.ExceptionToDoubleFunctionBehavior.class, //
 	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
 	ceri.common.function.ExceptionToLongFunctionBehavior.class, //
 	ceri.common.function.FluentBehavior.class, //
@@ -244,6 +246,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.process.ProcessorBehavior.class, //
 	// property
 	ceri.common.property.LocatorBehavior.class, //
+	ceri.common.property.ParserBehavior.class, //
 	ceri.common.property.PathBehavior.class, //
 	ceri.common.property.PathFactoryBehavior.class, //
 	ceri.common.property.PropertyAccessorBehavior.class, //

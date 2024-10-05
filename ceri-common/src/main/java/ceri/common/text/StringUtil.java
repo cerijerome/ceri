@@ -80,6 +80,14 @@ public class StringUtil {
 	private StringUtil() {}
 
 	/**
+	 * Returns the char at index, or default if out of range or char sequence is null.
+	 */
+	public static Character charAt(CharSequence s, int index, Character def) {
+		if (s == null || index < 0 || index >= s.length()) return def;
+		return s.charAt(index);
+	}
+	
+	/**
 	 * Reverses a string.
 	 */
 	public static String reverse(String s) {

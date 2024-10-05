@@ -27,6 +27,16 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testCharAt() {
+		assertEquals(StringUtil.charAt(null, 0, 'x'), 'x');
+		assertEquals(StringUtil.charAt("test", 2, 'x'), 's');
+		assertEquals(StringUtil.charAt("test", -1, 'x'), 'x');
+		assertEquals(StringUtil.charAt("test", 4, 'x'), 'x');
+		assertEquals(StringUtil.charAt("test", 0, null), 't');
+		assertEquals(StringUtil.charAt("test", 5, null), null);
+	}
+
+	@Test
 	public void testReverse() {
 		assertNull(StringUtil.reverse(null));
 		assertEquals(StringUtil.reverse(""), "");

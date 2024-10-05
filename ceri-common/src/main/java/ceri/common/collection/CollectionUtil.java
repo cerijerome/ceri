@@ -153,7 +153,7 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Gets element of a list or default value if the index does not exist.
+	 * Gets element of a list or default value if the index is out of range.
 	 */
 	public static <T> T getOrDefault(List<? extends T> list, int index, T def) {
 		if (list.isEmpty() || index < 0 || index >= list.size()) return def;

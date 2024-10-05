@@ -68,7 +68,15 @@ public class LogUtil {
 	 * Provides StartupValues that logs whenever a value is read.
 	 */
 	public static StartupValues startupValues(String... args) {
-		return StartupValues.of(args).notifier(logger::info);
+		return startupValues(Level.INFO, args);
+	}
+
+	/**
+	 * Provides StartupValues that logs whenever a value is read.
+	 */
+	public static StartupValues startupValues(Level level, String... args) {
+		var caller = ReflectUtil.previousCaller(1);
+		return StartupValues.of(args).prefix(caller.pkg()).notifier(s -> logger.log(level, s));
 	}
 
 	/**
