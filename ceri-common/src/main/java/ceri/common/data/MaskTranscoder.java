@@ -1,26 +1,23 @@
 package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import java.util.Objects;
 import ceri.common.math.MathUtil;
 
 /**
- * Extracts and calculates masked values within a long value.
+ * Extracts and calculates masked values within a long value. The specified mask is absolute.
  */
-public class MaskTranscoder {
-	public static final MaskTranscoder NULL = mask(-1L, 0);
-	private final long mask; // value mask; before shift for decoding
-	private final int shiftBits;
+public record MaskTranscoder(long mask, int shiftBits) {
+	public static final MaskTranscoder NULL = new MaskTranscoder(-1L, 0);
 
 	/**
-	 * Mask bits and shift. Masked value is right-shifted given number of bits.
+	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
 	public static MaskTranscoder mask(int mask, int shiftBits) {
 		return mask(MathUtil.uint(mask), shiftBits);
 	}
 
 	/**
-	 * Mask bits and shift. Masked value is right-shifted given number of bits.
+	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
 	public static MaskTranscoder mask(long mask, int shiftBits) {
 		validateMin(shiftBits, 0);
@@ -33,11 +30,6 @@ public class MaskTranscoder {
 	public static MaskTranscoder bits(int bitCount, int shiftBits) {
 		validateMin(bitCount, 1);
 		return mask(ByteUtil.mask(shiftBits, bitCount), shiftBits);
-	}
-
-	private MaskTranscoder(long mask, int shiftBits) {
-		this.mask = mask;
-		this.shiftBits = shiftBits;
 	}
 
 	/**
@@ -91,23 +83,8 @@ public class MaskTranscoder {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(mask, shiftBits);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof MaskTranscoder other)) return false;
-		if (mask != other.mask) return false;
-		if (shiftBits != other.shiftBits) return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
 		if (shiftBits == 0) return "0x" + Long.toHexString(mask);
 		return "0x" + Long.toHexString(mask) + ">>" + shiftBits;
 	}
-
 }

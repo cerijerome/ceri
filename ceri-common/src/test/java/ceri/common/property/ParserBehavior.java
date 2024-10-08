@@ -6,7 +6,6 @@ import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.throwRuntime;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -154,7 +153,6 @@ public class ParserBehavior {
 		assertIterable(strings("-0xffffffffffffffff,0xffffffffffffffff").asLongs().get(), 1L, -1L);
 		assertIterable(strings("-1,NaN,1").asDoubles().get(), -1.0, Double.NaN, 1.0);
 		assertIterable(strings("left,right").asEnums(H.class).get(), H.left, H.right);
-		assertIterable(strings("p0,p1").asPaths().get(), Path.of("p0"), Path.of("p1"));
 	}
 
 	@Test
@@ -192,13 +190,11 @@ public class ParserBehavior {
 	}
 
 	@Test
-	public void shouldParseStringTypes() {
+	public void shouldParseEnums() {
+		assertEquals(string(null).toEnum(H.class), null);
 		assertEquals(string(null).toEnum(H.left), H.left);
 		assertEquals(string("right").toEnum(H.left), H.right);
-		assertEquals(string(null).toPath(), null);
-		assertEquals(string("test").toPath(), Path.of("test"));
-		assertEquals(string(null).toPath(Path.of("def")), Path.of("def"));
-		assertEquals(string("test").toPath(Path.of("def")), Path.of("test"));
+		assertEquals(string("right").toEnum(H.class), H.right);
 	}
 
 	@Test

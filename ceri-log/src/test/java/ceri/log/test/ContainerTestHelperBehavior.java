@@ -2,9 +2,9 @@ package ceri.log.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
-import java.util.Properties;
 import org.junit.Test;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.property.TypedProperties;
 
 public class ContainerTestHelperBehavior {
 
@@ -24,8 +24,8 @@ public class ContainerTestHelperBehavior {
 		public static int instances = 0;
 		public final String value;
 
-		public TestContainer(Properties properties, String id) {
-			value = properties.getProperty(id + ".value" + instances++);
+		public TestContainer(TypedProperties properties) {
+			value = properties.parse("value" + instances++).get();
 		}
 
 		@Override
@@ -38,7 +38,7 @@ public class ContainerTestHelperBehavior {
 		}
 
 		public TestContainer container(int id) throws IOException {
-			return get(idName(id), () -> new TestContainer(properties, idName(id)));
+			return get(id, p -> new TestContainer(p));
 		}
 	}
 

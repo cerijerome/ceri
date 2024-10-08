@@ -118,10 +118,6 @@ public class FieldTranscoder<E extends Exception, T> {
 			return field;
 		}
 
-		public FieldTranscoder<E, T> from(S subject) {
-			return new FieldTranscoder<>(field.from(subject), xcoder);
-		}
-		
 		@SafeVarargs
 		public final Typed<E, S, T> remove(S s, T... ts) throws E {
 			return ts.length == 0 ? this : remove(s, Arrays.asList(ts));

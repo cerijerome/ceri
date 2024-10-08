@@ -1,11 +1,10 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.math.MathUtil.approxEqual;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.FunctionUtil;
+import ceri.common.property.Parser;
 import ceri.common.property.TypedProperties;
-import ceri.common.util.Ref;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -16,7 +15,7 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_parity_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_stop_bits_type;
 
-public class FtdiProperties extends Ref<TypedProperties> {
+public class FtdiProperties extends TypedProperties.Ref {
 	private static final String FINDER_KEY = "finder";
 	private static final String INTERFACE_KEY = "interface";
 	private static final String BIT_KEY = "bit";
@@ -36,58 +35,45 @@ public class FtdiProperties extends Ref<TypedProperties> {
 	private static final double PRECISION = 0.1;
 
 	public FtdiProperties(TypedProperties properties, String... groups) {
-		super(TypedProperties.from(properties, groups));
+		super(properties, groups);
 	}
 
 	public String finder() {
-		return ref.value(FINDER_KEY);
+		return parse(FINDER_KEY).get();
 	}
 
 	public ftdi_interface iface() {
-		String name = ref.value(INTERFACE_KEY);
-		if (name == null) return null;
-		return ftdi_interface.valueOf(INTERFACE_PREFIX + name.toUpperCase());
+		return parse(INTERFACE_KEY).mod(s -> INTERFACE_PREFIX + s.toUpperCase())
+			.toEnum(ftdi_interface.class);
 	}
 
 	public FtdiConfig config() {
 		var b = FtdiConfig.builder();
-		FunctionUtil.safeAccept(bitMode(), b::bitMode);
-		FunctionUtil.safeAccept(baud(), b::baud);
+		bitMode().accept(b::bitMode);
+		parse(BAUD_KEY).asInt().accept(b::baud);
 		FunctionUtil.safeAccept(params(), b::params);
-		FunctionUtil.safeAccept(flowControl(), b::flowControl);
-		FunctionUtil.safeAccept(latencyTimerMs(), b::latencyTimer);
-		FunctionUtil.safeAccept(readChunkSize(), b::readChunkSize);
-		FunctionUtil.safeAccept(writeChunkSize(), b::writeChunkSize);
+		parse(FLOW_CONTROL_KEY).asEnum(FtdiFlowControl.class).accept(b::flowControl);
+		parse(LATENCY_TIMER_MS_KEY).asInt().accept(b::latencyTimer);
+		parse(READ_CHUNK_SIZE_KEY).asInt().accept(b::readChunkSize);
+		parse(WRITE_CHUNK_SIZE_KEY).asInt().accept(b::writeChunkSize);
 		return b.build();
 	}
 
-	private FtdiBitMode bitMode() {
-		ftdi_mpsse_mode mode = bitModeEnum();
-		if (mode == null) return null;
-		FtdiBitMode.Builder b = FtdiBitMode.builder(mode);
-		safeAccept(bitMask(), b::mask);
-		return b.build();
-	}
-
-	private ftdi_mpsse_mode bitModeEnum() {
-		String name = ref.value(BIT_KEY, MODE_KEY);
-		if (name == null) return null;
-		return ftdi_mpsse_mode.valueOf(BITMODE_PREFIX + name.toUpperCase());
-	}
-
-	private Integer bitMask() {
-		return ref.intValue(BIT_KEY, MASK_KEY);
-	}
-
-	private Integer baud() {
-		return ref.intValue(BAUD_KEY);
+	private Parser.Type<FtdiBitMode> bitMode() {
+		return parse(BIT_KEY, MODE_KEY).mod(s -> BITMODE_PREFIX + s.toUpperCase())
+			.asEnum(ftdi_mpsse_mode.class).as(mode -> {
+				FtdiBitMode.Builder b = FtdiBitMode.builder(mode);
+				parse(BIT_KEY, MASK_KEY).asInt().accept(b::mask);
+				return b.build();
+			});
 	}
 
 	private FtdiLineParams params() {
-		var dataBits = dataBits();
+		var dataBits = parse(DATA_BITS_KEY).asInt().to(ftdi_data_bits_type.xcoder::decodeValid);
 		var stopBits = stopBits();
-		var parity = parity();
-		var breakType = breakType();
+		var parity = parse(PARITY_KEY).mod(String::toUpperCase).toEnum(ftdi_parity_type.class);
+		var breakType =
+			parse(BREAK_KEY).toBool(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF);
 		if (ArrayUtil.allNull(dataBits, stopBits, parity, breakType)) return null;
 		var b = FtdiLineParams.builder();
 		if (dataBits != null) b.dataBits(dataBits);
@@ -97,40 +83,12 @@ public class FtdiProperties extends Ref<TypedProperties> {
 		return b.build();
 	}
 
-	private ftdi_data_bits_type dataBits() {
-		return ref.valueFromInt(ftdi_data_bits_type.xcoder::decodeValid, DATA_BITS_KEY);
-	}
-
 	private ftdi_stop_bits_type stopBits() {
-		Double d = ref.doubleValue(STOP_BITS_KEY);
-		if (d == null) return null;
-		if (approxEqual(d, 1.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_1;
-		if (approxEqual(d, 1.5, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_15;
-		if (approxEqual(d, 2.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_2;
-		throw new IllegalArgumentException("Invalid stop bits: " + d);
-	}
-
-	private ftdi_parity_type parity() {
-		return ref.value(s -> ftdi_parity_type.valueOf(s.toUpperCase()), PARITY_KEY);
-	}
-
-	private ftdi_break_type breakType() {
-		return ref.valueFromBoolean(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF, BREAK_KEY);
-	}
-
-	private FtdiFlowControl flowControl() {
-		return ref.enumValue(FtdiFlowControl.class, FLOW_CONTROL_KEY);
-	}
-
-	private Integer latencyTimerMs() {
-		return ref.intValue(LATENCY_TIMER_MS_KEY);
-	}
-
-	private Integer readChunkSize() {
-		return ref.intValue(READ_CHUNK_SIZE_KEY);
-	}
-
-	private Integer writeChunkSize() {
-		return ref.intValue(WRITE_CHUNK_SIZE_KEY);
+		return parse(STOP_BITS_KEY).asDouble().to(d -> {
+			if (approxEqual(d, 1.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_1;
+			if (approxEqual(d, 1.5, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_15;
+			if (approxEqual(d, 2.0, PRECISION)) return ftdi_stop_bits_type.STOP_BIT_2;
+			throw new IllegalArgumentException("Invalid stop bits: " + d);
+		});
 	}
 }

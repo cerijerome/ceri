@@ -37,6 +37,16 @@ public class TypedProperties {
 	private final PathFactory paths;
 	private final PropertyAccessor properties;
 
+	public static class Ref extends ceri.common.util.Ref<TypedProperties> {
+		protected Ref(TypedProperties ref, String... groups) {
+			super(TypedProperties.from(ref, groups));
+		}
+
+		protected Parser.String parse(String... keyParts) {
+			return ref.parse(keyParts);
+		}
+	}
+
 	/**
 	 * Creates typed properties with key prefix from given properties.
 	 */
@@ -119,6 +129,13 @@ public class TypedProperties {
 	 */
 	public void setValue(Object value, String... keyParts) {
 		properties.property(key(keyParts), value == null ? null : value.toString());
+	}
+
+	/**
+	 * Retrieves a parser for the property with prefixed, dot-separated key, which may be null.
+	 */
+	public Parser.String parse(String... keyParts) {
+		return Parser.String.of(value(keyParts));
 	}
 
 	/**
@@ -427,96 +444,6 @@ public class TypedProperties {
 	}
 
 	/**
-	 * Retrieves the Character property from prefixed, dot-separated key. Returns null if no value
-	 * exists for the key.
-	 */
-	public Character charValue(String... keyParts) {
-		return value(value -> value.charAt(0), keyParts);
-	}
-
-	/**
-	 * Retrieves the char property from prefixed, dot-separated key. Returns default value if no
-	 * value exists for the key.
-	 */
-	public char charValue(char def, String... keyParts) {
-		return value(def, value -> value.charAt(0), keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Character> charValues(String... keyParts) {
-		return charValues(null, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Character> charValues(List<Character> def, String... keyParts) {
-		return values(def, value -> value.charAt(0), keyParts);
-	}
-
-	/**
-	 * Retrieves the Byte property from prefixed, dot-separated key. Returns null if no value exists
-	 * for the key.
-	 */
-	public Byte byteValue(String... keyParts) {
-		return value(Byte::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the byte property from prefixed, dot-separated key. Returns default value if no
-	 * value exists for the key.
-	 */
-	public byte byteValue(byte def, String... keyParts) {
-		return value(def, Byte::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Byte> byteValues(String... keyParts) {
-		return byteValues(null, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Byte> byteValues(List<Byte> def, String... keyParts) {
-		return values(def, Byte::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the Short property from prefixed, dot-separated key. Returns null if no value
-	 * exists for the key.
-	 */
-	public Short shortValue(String... keyParts) {
-		return value(Short::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the short property from prefixed, dot-separated key. Returns default value if no
-	 * value exists for the key.
-	 */
-	public short shortValue(short def, String... keyParts) {
-		return value(def, Short::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Short> shortValues(String... keyParts) {
-		return shortValues(null, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Short> shortValues(List<Short> def, String... keyParts) {
-		return values(def, Short::decode, keyParts);
-	}
-
-	/**
 	 * Retrieves the Integer property from prefixed, dot-separated key. Returns null if no value
 	 * exists for the key.
 	 */
@@ -574,36 +501,6 @@ public class TypedProperties {
 	 */
 	public List<Long> longValues(List<Long> def, String... keyParts) {
 		return values(def, Long::decode, keyParts);
-	}
-
-	/**
-	 * Retrieves the Float property from prefixed, dot-separated key. Returns null if no value
-	 * exists for the key.
-	 */
-	public Float floatValue(String... keyParts) {
-		return value(Float::valueOf, keyParts);
-	}
-
-	/**
-	 * Retrieves the float property from prefixed, dot-separated key. Returns default value if no
-	 * value exists for the key.
-	 */
-	public float floatValue(float def, String... keyParts) {
-		return value(def, Float::valueOf, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Float> floatValues(String... keyParts) {
-		return floatValues(null, keyParts);
-	}
-
-	/**
-	 * Retrieves the list of property from prefixed, dot-separated key.
-	 */
-	public List<Float> floatValues(List<Float> def, String... keyParts) {
-		return values(def, Float::valueOf, keyParts);
 	}
 
 	/**

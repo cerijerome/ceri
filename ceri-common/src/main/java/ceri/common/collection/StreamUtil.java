@@ -61,6 +61,11 @@ public class StreamUtil {
 	private static final BiConsumer<?, ?> badCombiner = (r1, r2) -> {
 		throw new IllegalStateException();
 	};
+	private static final BinaryOperator<Object> MERGE_FIRST = (first, second) -> first;
+	private static final BinaryOperator<Object> MERGE_SECOND = (first, second) -> second;
+	private static final BinaryOperator<Object> MERGE_ERROR = (first, second) -> {
+		throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
+	};
 
 	private StreamUtil() {}
 
@@ -543,23 +548,21 @@ public class StreamUtil {
 	 * When merging keys, only keep the original key.
 	 */
 	public static <T> BinaryOperator<T> mergeFirst() {
-		return (first, second) -> first;
+		return BasicUtil.uncheckedCast(MERGE_FIRST);
 	}
 
 	/**
 	 * When merging keys, only keep the new key.
 	 */
 	public static <T> BinaryOperator<T> mergeSecond() {
-		return (first, second) -> second;
+		return BasicUtil.uncheckedCast(MERGE_SECOND);
 	}
 
 	/**
 	 * Throw an IllegalArgumentException for duplicate keys.
 	 */
 	public static <T> BinaryOperator<T> mergeError() {
-		return (first, second) -> {
-			throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
-		};
+		return BasicUtil.uncheckedCast(MERGE_ERROR);
 	}
 
 	/**

@@ -25,7 +25,6 @@
 		<maven.dependency.version>3.5.0</maven.dependency.version>
 		<exec.maven.version>3.1.0</exec.maven.version>
 		<junit.version>4.13.2</junit.version>
-		<mockito.version>5.2.0</mockito.version>
 		<log4j.version>2.20.0</log4j.version>
 		<httpcomponents.version>4.5.14</httpcomponents.version>
 		<jetty.version>11.0.14</jetty.version>
@@ -51,11 +50,6 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 
 	<!-- Dependency configuration optionally included by children -->
@@ -66,11 +60,6 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>${mockito.version}</version>
 			</dependency>
 	        <dependency>
 	            <groupId>org.apache.logging.log4j</groupId>

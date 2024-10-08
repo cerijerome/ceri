@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.util.BasicUtil;
@@ -48,43 +49,51 @@ public class TypeTranscoder<T> {
 		}
 	}
 
+	/**
+	 * Creates an encoder for unique type values.
+	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		Class<T> cls) {
-		return of(valueFn, MaskTranscoder.NULL, cls);
+		return of(valueFn, null, cls);
 	}
 
+	/**
+	 * Creates an encoder for unique type values, with optional mask.
+	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		MaskTranscoder mask, Class<T> cls) {
-		return of(valueFn, mask, cls.getEnumConstants());
+		return of(valueFn, mask, EnumUtil.enums(cls));
 	}
 
-	@SafeVarargs
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, T... ts) {
-		return of(valueFn, MaskTranscoder.NULL, ts);
-	}
-
-	@SafeVarargs
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
-		T... ts) {
-		return of(valueFn, mask, Arrays.asList(ts));
-	}
-
+	/**
+	 * Creates an encoder for unique type values, with optional mask.
+	 */
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
 		Iterable<T> ts) {
-		return of(valueFn, mask, ts, StreamUtil.mergeError());
+		return new TypeTranscoder<>(valueFn, mask, ts, null);
 	}
 
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
-		Iterable<T> ts, BinaryOperator<T> mergeFn) {
-		return new TypeTranscoder<>(valueFn, mask, ts, mergeFn);
+	/**
+	 * Creates an encoder that allows duplicate type values, with optional mask.
+	 */
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
+		MaskTranscoder mask, Class<T> cls) {
+		return ofDup(valueFn, mask, EnumUtil.enums(cls));
+	}
+
+	/**
+	 * Creates an encoder that allows duplicate type values, with optional mask.
+	 */
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
+		MaskTranscoder mask, Iterable<T> ts) {
+		return new TypeTranscoder<>(valueFn, mask, ts, StreamUtil.mergeFirst());
 	}
 
 	protected TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Iterable<T> ts,
 		BinaryOperator<T> mergeFn) {
 		this.valueFn = valueFn;
-		this.mask = mask;
-		this.lookup = Collections.unmodifiableMap(StreamUtil.stream(ts).collect(Collectors
-			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
+		this.mask = BasicUtil.defaultValue(mask, MaskTranscoder.NULL);
+		this.lookup = lookup(valueFn, ts, mergeFn);
 	}
 
 	public Collection<T> all() {
@@ -272,5 +281,12 @@ public class TypeTranscoder<T> {
 	private long encodeType(T t) {
 		var value = valueFn.applyAsLong(t);
 		return lookup.containsKey(value) ? value : 0L;
+	}
+
+	private static <T> Map<Long, T> lookup(ToLongFunction<T> valueFn, Iterable<T> ts,
+		BinaryOperator<T> mergeFn) {
+		mergeFn = BasicUtil.defaultValue(mergeFn, StreamUtil.mergeError());
+		return Collections.unmodifiableMap(StreamUtil.stream(ts).collect(Collectors
+			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
 	}
 }

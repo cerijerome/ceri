@@ -27,7 +27,7 @@ public class SerialTestUtil {
 	}
 
 	public static String[] usbPorts(int min) throws IOException {
-		var paths = SerialPortLocator.of().usbPorts();
+		var paths = SerialPortLocator.of(null).usbPorts();
 		if (paths.size() >= min) return paths.toArray(String[]::new);
 		throw new IOException(min + " serial port(s) required: " + paths);
 	}

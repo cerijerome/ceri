@@ -1,10 +1,9 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
+import ceri.common.function.FunctionUtil;
 import ceri.common.property.TypedProperties;
-import ceri.common.util.Ref;
 
-public class SpiPulseProperties extends Ref<TypedProperties> {
+public class SpiPulseProperties extends TypedProperties.Ref {
 	private static final String CYCLE_KEY = "cycle";
 	private static final String STD_KEY = "std";
 	private static final String TYPE_KEY = "type";
@@ -21,58 +20,27 @@ public class SpiPulseProperties extends Ref<TypedProperties> {
 	private static final int CYCLE_T1_BITS_DEF = 2;
 
 	public SpiPulseProperties(TypedProperties properties, String... groups) {
-		super(TypedProperties.from(properties, groups));
+		super(properties, groups);
 	}
 
 	public SpiPulseConfig config() {
-		SpiPulseConfig.Builder b = SpiPulseConfig.builder(size());
-		safeAccept(cycle(), b::cycle);
-		safeAccept(delayMicros(), b::delayMicros);
-		safeAccept(resetDelayMs(), b::resetDelayMs);
+		int size = parse(SIZE_KEY).asInt().getValid();
+		SpiPulseConfig.Builder b = SpiPulseConfig.builder(size);
+		FunctionUtil.safeAccept(cycle(), b::cycle);
+		parse(DELAY_MICROS_KEY).asInt().accept(b::delayMicros);
+		parse(RESET_DELAY_MS_KEY).asInt().accept(b::resetDelayMs);
 		return b.build();
 	}
 
-	private int size() {
-		return ref.intValue(SIZE_KEY);
-	}
-
-	private Integer delayMicros() {
-		return ref.intValue(DELAY_MICROS_KEY);
-	}
-
-	private Integer resetDelayMs() {
-		return ref.intValue(RESET_DELAY_MS_KEY);
-	}
-
 	private PulseCycle cycle() {
-		PulseCycle.Std std = cycleStd();
+		var std = parse(CYCLE_KEY, STD_KEY).toEnum(PulseCycle.Std.class);
 		if (std != null) return std.cycle;
-		PulseCycle.Type type = cycleType();
+		var type = parse(CYCLE_KEY, TYPE_KEY).toEnum(PulseCycle.Type.class);
 		if (type == null) return null;
-		return PulseCycle.of(type, cycleBits(), cycleOffset(), cycleT0Bits(), cycleT1Bits());
-	}
-
-	private PulseCycle.Std cycleStd() {
-		return ref.enumValue(PulseCycle.Std.class, CYCLE_KEY, STD_KEY);
-	}
-
-	private PulseCycle.Type cycleType() {
-		return ref.enumValue(PulseCycle.Type.class, CYCLE_KEY, TYPE_KEY);
-	}
-
-	private int cycleBits() {
-		return ref.intValue(CYCLE_BITS_DEF, CYCLE_KEY, BITS_KEY);
-	}
-
-	private int cycleOffset() {
-		return ref.intValue(CYCLE_OFFSET_DEF, CYCLE_KEY, OFFSET_KEY);
-	}
-
-	private int cycleT0Bits() {
-		return ref.intValue(CYCLE_T0_BITS_DEF, CYCLE_KEY, T0_KEY, BITS_KEY);
-	}
-
-	private int cycleT1Bits() {
-		return ref.intValue(CYCLE_T1_BITS_DEF, CYCLE_KEY, T1_KEY, BITS_KEY);
+		int bits = parse(CYCLE_KEY, BITS_KEY).toInt(CYCLE_BITS_DEF);
+		int offset = parse(CYCLE_KEY, OFFSET_KEY).toInt(CYCLE_OFFSET_DEF);
+		int t0Bits = parse(CYCLE_KEY, T0_KEY, BITS_KEY).toInt(CYCLE_T0_BITS_DEF);
+		int t1Bits = parse(CYCLE_KEY, T1_KEY, BITS_KEY).toInt(CYCLE_T1_BITS_DEF);
+		return PulseCycle.of(type, bits, offset, t0Bits, t1Bits);
 	}
 }

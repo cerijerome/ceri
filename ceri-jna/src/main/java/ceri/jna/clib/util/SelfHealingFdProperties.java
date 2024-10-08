@@ -1,15 +1,14 @@
 package ceri.jna.clib.util;
 
 import ceri.common.property.TypedProperties;
-import ceri.common.util.Ref;
 import ceri.log.io.SelfHealingProperties;
 
-public class SelfHealingFdProperties extends Ref<TypedProperties> {
+public class SelfHealingFdProperties extends TypedProperties.Ref {
 	private final FileDescriptorProperties fd;
 	private final SelfHealingProperties selfHealing;
 
 	public SelfHealingFdProperties(TypedProperties properties, String... groups) {
-		super(TypedProperties.from(properties, groups));
+		super(properties, groups);
 		fd = new FileDescriptorProperties(ref);
 		selfHealing = new SelfHealingProperties(ref);
 	}

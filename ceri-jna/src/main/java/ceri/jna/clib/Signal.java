@@ -3,9 +3,6 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.function.Consumer;
-import ceri.common.collection.EnumUtil;
-import ceri.common.collection.StreamUtil;
-import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionCloseable;
 import ceri.jna.clib.jna.CSignal;
@@ -43,8 +40,8 @@ public enum Signal {
 	SIGPOLL(CSignal.SIGPOLL),
 	SIGSYS(CSignal.SIGSYS);
 
-	private static final TypeTranscoder<Signal> xcoder = TypeTranscoder.of(t -> t.signal,
-		MaskTranscoder.NULL, EnumUtil.enums(Signal.class), StreamUtil.mergeFirst());
+	private static final TypeTranscoder<Signal> xcoder =
+		TypeTranscoder.ofDup(t -> t.signal, null, Signal.class);
 	public final int signal;
 
 	public static Signal from(int signal) {

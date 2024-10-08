@@ -7,9 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.property.PropertyUtil;
+import ceri.common.property.TypedProperties;
 import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 
@@ -28,17 +29,22 @@ public class ContainerTestHelper implements RuntimeCloseable {
 		properties = PropertyUtil.load(getClass(), name + ".properties");
 	}
 
-	protected String idName(int id) {
+	protected String name(Object id) {
 		return name + "." + id;
 	}
 
 	@SuppressWarnings("resource")
-	protected <T extends AutoCloseable> T get(Object id, ExceptionSupplier<IOException, T> supplier)
-		throws IOException {
-		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, id, x -> {
-			logger.info("Creating container: {}", id);
-			return supplier.get();
+	protected <T extends AutoCloseable> T get(Object id,
+		ExceptionFunction<IOException, TypedProperties, T> supplier) throws IOException {
+		var name = name(id);
+		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, name, x -> {
+			logger.info("Creating container: {}", name);
+			return supplier.apply(properties(name));
 		}));
+	}
+
+	protected TypedProperties properties(String... groups) {
+		return TypedProperties.from(properties, groups);
 	}
 
 	@Override

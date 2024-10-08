@@ -205,7 +205,7 @@ public class TestUtilTest {
 	@Test
 	public void testTypedProperties() {
 		TypedProperties properties = TestUtil.typedProperties("test", "a");
-		assertEquals(properties.value("b"), "123");
+		assertEquals(properties.parse("b").get(), "123");
 	}
 
 	@Test

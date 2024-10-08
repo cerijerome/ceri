@@ -2,7 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
-import java.nio.file.Path;
+import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.exception.ExceptionUtil;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.ExceptionToBooleanFunction;
@@ -77,6 +78,20 @@ public class Parser {
 			return BasicUtil.defaultValue(get(), defSupplier);
 		}
 
+		/**
+		 * Access the value, or throw validation exception if null.
+		 */
+		default T getValid() {
+			return getValid(null);
+		}
+		
+		/**
+		 * Access the value, or throw named validation exception if null.
+		 */
+		default T getValid(java.lang.String name) {
+			return validateNotNull(get(), name);
+		}
+		
 		/**
 		 * Returns an optional instance.
 		 */
@@ -158,6 +173,13 @@ public class Parser {
 		 */
 		default <R> Types<R> splitArray(ExceptionFunction<RuntimeException, T, R[]> splitter) {
 			return split(t -> FunctionUtil.safeApply(splitter.apply(t), Arrays::asList));
+		}
+
+		/**
+		 * Consume the value if not null.
+		 */
+		default <E extends Exception> void accept(ExceptionConsumer<E, T> consumer) throws E {
+			FunctionUtil.safeAccept(get(), consumer);
 		}
 	}
 
@@ -319,6 +341,17 @@ public class Parser {
 			throws E {
 			return of(toEach(constructor, null));
 		}
+
+		/**
+		 * Iterates the value list, calling the consumer, if the value list is not null. Any null
+		 * list items will be passed to the consumer.
+		 */
+		default <E extends Exception> void each(ExceptionConsumer<E, T> consumer) throws E {
+			FunctionUtil.safeAccept(get(), list -> {
+				for (var t : list)
+					consumer.accept(t);
+			});
+		}
 	}
 
 	/**
@@ -343,7 +376,7 @@ public class Parser {
 		@Override
 		default Parser.String
 			def(ExceptionSupplier<RuntimeException, java.lang.String> defSupplier) {
-			return () -> BasicUtil.defaultValue(get(), defSupplier::get);
+			return () -> BasicUtil.defaultValue(get(), defSupplier);
 		}
 
 		/**
@@ -382,6 +415,14 @@ public class Parser {
 		 */
 		default boolean toBool(boolean def) {
 			return asBool().get(def);
+		}
+
+		/**
+		 * Converts the value to a boolean, and returns a corresponding true or false value, or null
+		 * if the original value is null.
+		 */
+		default <U> U toBool(U trueVal, U falseVal) {
+			return BasicUtil.conditional(toBool(), trueVal, falseVal, null);
 		}
 
 		/**
@@ -439,17 +480,18 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to path, or null if the value is null.
+		 * Converts the value to enum, or default if the value is null.
 		 */
-		default Path toPath() {
-			return toPath(null);
+		default <T extends Enum<T>> T toEnum(Class<T> cls) {
+			return asEnum(cls).get();
 		}
 
 		/**
-		 * Converts the value to path, or default if the value is null.
+		 * Modify the value if not null, without changing type.
 		 */
-		default Path toPath(Path def) {
-			return asPath().get(def);
+		default Parser.String
+			mod(ExceptionFunction<RuntimeException, java.lang.String, java.lang.String> modFn) {
+			return () -> to(modFn);
 		}
 
 		/**
@@ -458,6 +500,14 @@ public class Parser {
 		 */
 		default Type<Boolean> asBool() {
 			return as(BOOL);
+		}
+
+		/**
+		 * Provides a new typed accessor. Converts the value to a boolean, and returns a
+		 * corresponding true or false value, or null if the original value is null.
+		 */
+		default <U> Type<U> asBool(U trueVal, U falseVal) {
+			return () -> toBool(trueVal, falseVal);
 		}
 
 		/**
@@ -486,14 +536,8 @@ public class Parser {
 		 * Provide a new typed accessor for the converted value.
 		 */
 		default <T extends Enum<T>> Type<T> asEnum(Class<T> cls) {
+			Objects.requireNonNull(cls);
 			return as(v -> Enum.valueOf(cls, v));
-		}
-
-		/**
-		 * Provide a new typed accessor for the converted value.
-		 */
-		default Type<Path> asPath() {
-			return as(Path::of);
 		}
 	}
 
@@ -590,12 +634,29 @@ public class Parser {
 		}
 
 		/**
+		 * Modify each value if the value list is not null, without changing type. Null list values
+		 * will be passed to the modifier function.
+		 */
+		default Strings
+			modEach(ExceptionFunction<RuntimeException, java.lang.String, java.lang.String> modFn) {
+			return () -> toEach(modFn);
+		}
+
+		/**
 		 * Provide a new typed accessor. Converts the values to booleans.
 		 */
 		default Types<Boolean> asBools() {
 			return asEach(BOOL);
 		}
 
+		/**
+		 * Provides a new typed accessor. Converts the value to a boolean, and returns a
+		 * corresponding true or false value, or null if the original value is null.
+		 */
+		default <U> Types<U> asBools(U trueVal, U falseVal) {
+			return asEach(s -> BasicUtil.conditional(BOOL.apply(s), trueVal, falseVal, null));
+		}
+		
 		/**
 		 * Provide a new typed accessor. Converts the values to ints from -0xffffffff to 0xffffffff.
 		 */
@@ -623,13 +684,6 @@ public class Parser {
 		 */
 		default <T extends Enum<T>> Types<T> asEnums(Class<T> cls) {
 			return asEach(v -> Enum.valueOf(cls, v));
-		}
-
-		/**
-		 * Provide a new typed accessor. Converts the values to paths.
-		 */
-		default Types<Path> asPaths() {
-			return asEach(Path::of);
 		}
 	}
 

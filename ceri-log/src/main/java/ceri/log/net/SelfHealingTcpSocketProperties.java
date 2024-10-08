@@ -1,15 +1,14 @@
 package ceri.log.net;
 
 import ceri.common.property.TypedProperties;
-import ceri.common.util.Ref;
 import ceri.log.io.SelfHealingProperties;
 
-public class SelfHealingTcpSocketProperties extends Ref<TypedProperties> {
+public class SelfHealingTcpSocketProperties extends TypedProperties.Ref {
 	private final TcpSocketProperties socket;
 	private final SelfHealingProperties selfHealing;
 
 	public SelfHealingTcpSocketProperties(TypedProperties properties, String... groups) {
-		super(TypedProperties.from(properties, groups));
+		super(properties, groups);
 		socket = new TcpSocketProperties(ref);
 		selfHealing = new SelfHealingProperties(ref);
 	}

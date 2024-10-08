@@ -62,6 +62,12 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
+	public void shouldProvideRef() {
+		var ref = new TypedProperties.Ref(TypedProperties.from(properties)) {};
+		assertEquals(ref.parse("3.1").toInt(), 31);
+	}
+
+	@Test
 	public void shouldMerge() throws IOException {
 		TypedProperties tp = TypedProperties.merge( //
 			TypedProperties.from(load(getClass(), "property-test-a-b-c.properties")),
@@ -152,12 +158,8 @@ public class TypedPropertiesBehavior {
 		assertCollection(tp.values(String::length, "y"), 3, 2, 1);
 		assertCollection(tp.values(Collections.singletonList(999), String::length, "xx"), 999);
 		assertCollection(tp.booleanValues("7.2.b"), true, false);
-		assertCollection(tp.byteValues("7.2.i"), (byte) 7, (byte) 2);
-		assertCollection(tp.charValues("7.2.i"), '7', '2');
-		assertCollection(tp.shortValues("7.2.i"), (short) 7, (short) 2);
 		assertCollection(tp.intValues("7.2.i"), 7, 2);
 		assertCollection(tp.longValues("7.2.i"), 7L, 2L);
-		assertCollection(tp.floatValues("7.2.f"), 7.2f, 0.1f);
 		assertCollection(tp.doubleValues("7.2.f"), 7.2, 0.1);
 	}
 
@@ -178,18 +180,10 @@ public class TypedPropertiesBehavior {
 		assertEquals(tp.stringValue("", "a"), "A");
 		assertFalse(tp.booleanValue("a"));
 		assertFalse(tp.booleanValue(true, "a"));
-		assertEquals(tp.byteValue("a.b.c"), (byte) 3);
-		assertEquals(tp.byteValue((byte) 0, "a.b.c"), (byte) 3);
-		assertEquals(tp.charValue("a"), 'A');
-		assertEquals(tp.charValue('B', "a"), 'A');
-		assertEquals(tp.shortValue("a.b.c"), (short) 3);
-		assertEquals(tp.shortValue((short) 1, "a.b.c"), (short) 3);
 		assertEquals(tp.intValue("a.b.c"), 3);
 		assertEquals(tp.intValue(1, "a.b.c"), 3);
 		assertEquals(tp.longValue("a.b.c"), 3L);
 		assertEquals(tp.longValue(1L, "a.b.c"), 3L);
-		assertEquals(tp.floatValue("a.b.c"), 3.0f);
-		assertEquals(tp.floatValue(1.0f, "a.b.c"), 3.0f);
 		assertEquals(tp.doubleValue("a.b.c"), 3.0);
 		assertEquals(tp.doubleValue(1.0, "a.b.c"), 3.0);
 		assertPath(tp.pathValue("m.n.0.b.c.d"), "mn0bcd");
@@ -291,13 +285,9 @@ public class TypedPropertiesBehavior {
 	public void shouldReturnDefaultValuesForMissingProperties() {
 		TypedProperties tp = TypedProperties.from(properties);
 		assertTrue(tp.booleanValue(true, "xx"));
-		assertEquals(tp.charValue('x', "xx"), 'x');
 		assertEquals(tp.stringValue("x", "xx"), "x");
-		assertEquals(tp.byteValue(Byte.MIN_VALUE, "xx"), Byte.MIN_VALUE);
-		assertEquals(tp.shortValue(Short.MIN_VALUE, "xx"), Short.MIN_VALUE);
 		assertEquals(tp.intValue(Integer.MIN_VALUE, "xx"), Integer.MIN_VALUE);
 		assertEquals(tp.longValue(Long.MIN_VALUE, "xx"), Long.MIN_VALUE);
-		assertEquals(tp.floatValue(Float.MIN_VALUE, "xx"), Float.MIN_VALUE);
 		assertEquals(tp.doubleValue(Double.MIN_VALUE, "xx"), Double.MIN_VALUE);
 		assertPath(tp.pathValue(java.nio.file.Path.of("a"), "xx"), "a");
 	}
@@ -307,25 +297,6 @@ public class TypedPropertiesBehavior {
 		TypedProperties tp = TypedProperties.from(properties);
 		assertFalse(tp.booleanValue("a.b"));
 		assertFalse(tp.booleanValue("a.b.c"));
-	}
-
-	@Test
-	public void shouldReadCharValuesAsFirstCharInString() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertEquals(tp.charValue("a.b"), 'A');
-		assertEquals(tp.charValue("a.b.c"), '3');
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableByte() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.byteValue("x");
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableShort() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.shortValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)
@@ -338,12 +309,6 @@ public class TypedPropertiesBehavior {
 	public void shouldThrowExceptionForUnparseableLong() {
 		TypedProperties tp = TypedProperties.from(properties);
 		tp.longValue("x");
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableFloat() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.floatValue("x");
 	}
 
 	@Test(expected = NumberFormatException.class)

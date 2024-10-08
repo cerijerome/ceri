@@ -1,25 +1,18 @@
 package ceri.log.rpc.client;
 
 import ceri.common.property.TypedProperties;
-import ceri.common.util.Ref;
 
-public class RpcChannelProperties extends Ref<TypedProperties> {
+public class RpcChannelProperties extends TypedProperties.Ref {
 	private static final String HOST_KEY = "host";
 	private static final String PORT_KEY = "port";
 
 	public RpcChannelProperties(TypedProperties properties, String... groups) {
-		super(TypedProperties.from(properties, groups));
+		super(properties, groups);
 	}
 
 	public RpcChannel.Config config() {
-		return new RpcChannel.Config(host(), port());
-	}
-
-	private String host() {
-		return ref.value(HOST_KEY);
-	}
-
-	private Integer port() {
-		return ref.intValue(PORT_KEY);
+		var host = parse(HOST_KEY).get();
+		var port = parse(PORT_KEY).toInt();
+		return new RpcChannel.Config(host, port);
 	}
 }

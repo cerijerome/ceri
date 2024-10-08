@@ -46,16 +46,6 @@ public class FieldTranscoderBehavior {
 	}
 
 	@Test
-	public void shouldConvertFromTypedToInstance() {
-		Holder h = new Holder();
-		h.val = E.c.value;
-		var field = Holder.field.from(h);
-		assertEquals(field.get(), E.c);
-		field.set(E.a, E.b);
-		assertEquals(h.val, 3);
-	}
-
-	@Test
 	public void shouldAddValues() {
 		field.add(E.a, E.b);
 		assertCollection(field.getAll(), E.a, E.b);

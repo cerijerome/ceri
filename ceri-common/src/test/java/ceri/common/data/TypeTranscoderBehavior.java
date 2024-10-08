@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.data.TypeTranscoder.Remainder;
 
 public class TypeTranscoderBehavior {
@@ -91,7 +90,7 @@ public class TypeTranscoderBehavior {
 		assertEquals(xcoder.encodeAll(), 15L);
 		assertEquals(xcoder.encodeAllInt(), 15);
 	}
-	
+
 	@Test
 	public void shouldEncodeValues() {
 		assertEquals(xcoder.encodeInt(), 0);
@@ -125,12 +124,10 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldDecodeOverlappingValues() {
 		var array = Dup.values();
-		var xcoder = TypeTranscoder.of(t -> t.value, MaskTranscoder.NULL, Arrays.asList(array),
-			StreamUtil.mergeFirst());
+		var xcoder = TypeTranscoder.ofDup(t -> t.value, null, Dup.class);
 		assertCollection(xcoder.decodeAll(3), Dup.a, Dup.b);
 		ArrayUtil.reverse(array);
-		xcoder = TypeTranscoder.of(t -> t.value, MaskTranscoder.NULL, Arrays.asList(array),
-			StreamUtil.mergeFirst());
+		xcoder = TypeTranscoder.ofDup(t -> t.value, null, Arrays.asList(array));
 		assertCollection(xcoder.decodeAll(3), Dup.e);
 	}
 
@@ -177,7 +174,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeSubset() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, E.a, E.c);
+		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, null, List.of(E.a, E.c));
 		assertEquals(xcoder.encodeInt(), 0);
 		assertEquals(xcoder.encodeInt((E[]) null), 0);
 		assertEquals(xcoder.encodeInt((List<E>) null), 0);
@@ -199,7 +196,8 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldTranscodeOverlappingMaskValues() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), E.b, E.c);
+		TypeTranscoder<E> xcoder =
+			TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), List.of(E.b, E.c));
 		assertEquals(xcoder.encodeInt(E.a), 0);
 		assertEquals(xcoder.encodeInt(E.c), E.c.value);
 		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);

@@ -15,10 +15,6 @@ public class SerialPortLocator {
 	private static final String USB_PATTERN = "regex:tty\\.(usb|USB).*";
 	private final Path dir;
 
-	public static SerialPortLocator of() {
-		return of(null);
-	}
-
 	public static SerialPortLocator of(Path dir) {
 		dir = BasicUtil.defaultValue(dir, () -> Path.of(DEV_PATH));
 		return new SerialPortLocator(dir);
