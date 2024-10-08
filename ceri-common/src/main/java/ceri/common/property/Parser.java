@@ -84,14 +84,14 @@ public class Parser {
 		default T getValid() {
 			return getValid(null);
 		}
-		
+
 		/**
 		 * Access the value, or throw named validation exception if null.
 		 */
 		default T getValid(java.lang.String name) {
 			return validateNotNull(get(), name);
 		}
-		
+
 		/**
 		 * Returns an optional instance.
 		 */
@@ -265,46 +265,50 @@ public class Parser {
 
 		/**
 		 * Transforms the list to a boolean array, with default array if the value list is null.
+		 * Null list values are passed to the transform function.
 		 */
 		default <E extends Exception> boolean[]
 			toBoolArray(ExceptionToBooleanFunction<E, T> constructor, boolean... def) throws E {
 			ExceptionFunction<E, T, Boolean> fn = constructor::applyAsBoolean;
 			return toPrimitiveArray(get(), boolean[]::new,
-				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
+				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to an int array, with default array if the value list is null.
+		 * Transforms the list to an int array, with default array if the value list is null. Null
+		 * list values are passed to the transform function.
 		 */
 		default <E extends Exception> int[] toIntArray(ExceptionToIntFunction<E, T> constructor,
 			int... def) throws E {
 			ExceptionFunction<E, T, Integer> fn = constructor::applyAsInt;
 			return toPrimitiveArray(get(), int[]::new,
-				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
+				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to a long array, with default array if the value list is null.
+		 * Transforms the list to a long array, with default array if the value list is null. Null
+		 * list values are passed to the transform function.
 		 */
 		default <E extends Exception> long[] toLongArray(ExceptionToLongFunction<E, T> constructor,
 			long... def) throws E {
 			ExceptionFunction<E, T, Long> fn = constructor::applyAsLong;
 			return toPrimitiveArray(get(), long[]::new,
-				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
+				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to a double array, with default array if the value list is null.
+		 * Transforms the list to a double array, with default array if the value list is null. Null
+		 * list values are passed to the transform function.
 		 */
 		default <E extends Exception> double[]
 			toDoubleArray(ExceptionToDoubleFunction<E, T> constructor, double... def) throws E {
 			ExceptionFunction<E, T, Double> fn = constructor::applyAsDouble;
 			return toPrimitiveArray(get(), double[]::new,
-				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
+				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms each value to a new list, or null if the list is null.
+		 * Transforms each non-null value to a new list, or null if the list is null.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor)
 			throws E {
@@ -312,7 +316,7 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms each value to a new list, or default if the list is null.
+		 * Transforms each non-null value to a new list, or default if the list is null.
 		 */
 		default <E extends Exception, R> List<R> toEachDef(ExceptionFunction<E, T, R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
@@ -320,7 +324,7 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms each value to a new list, or default if the list is null.
+		 * Transforms each non-null value to a new list, or default if the list is null.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor,
 			List<R> def) throws E {
@@ -328,14 +332,14 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the accessor using a constructor for each value.
+		 * Converts the accessor using a constructor for each non-null value.
 		 */
 		default <R> Types<R> asEach(ExceptionFunction<RuntimeException, T, R> constructor) {
 			return () -> parseValues(get(), null, constructor);
 		}
 
 		/**
-		 * Converts the accessor using a constructor for each flattened value.
+		 * Converts the accessor using a constructor for each flattened non-null value.
 		 */
 		default <E extends Exception, R> Types<R> asEachFlat(ExceptionFunction<E, T, R> constructor)
 			throws E {
@@ -607,20 +611,23 @@ public class Parser {
 
 		/**
 		 * Transforms the list to a boolean array, with default array if the value list is null.
+		 * Fails if any value in the list is null.
 		 */
 		default boolean[] toBoolArray(boolean... def) {
 			return toBoolArray(BOOL::apply, def);
 		}
 
 		/**
-		 * Transforms the list to an int array, with default array if the value list is null.
+		 * Transforms the list to an int array, with default array if the value list is null. Fails
+		 * if any value in the list is null.
 		 */
 		default int[] toIntArray(int... def) {
 			return toIntArray(INT::apply, def);
 		}
 
 		/**
-		 * Transforms the list to a long array, with default array if the value list is null.
+		 * Transforms the list to a long array, with default array if the value list is null. Fails
+		 * if any value in the list is null.
 		 */
 		default long[] toLongArray(long... def) {
 			return toLongArray(LONG::apply, def);
@@ -628,6 +635,7 @@ public class Parser {
 
 		/**
 		 * Transforms the list to a double array, with default array if the value list is null.
+		 * Fails if any value in the list is null.
 		 */
 		default double[] toDoubleArray(double... def) {
 			return toDoubleArray(DOUBLE::apply, def);
@@ -656,7 +664,7 @@ public class Parser {
 		default <U> Types<U> asBools(U trueVal, U falseVal) {
 			return asEach(s -> BasicUtil.conditional(BOOL.apply(s), trueVal, falseVal, null));
 		}
-		
+
 		/**
 		 * Provide a new typed accessor. Converts the values to ints from -0xffffffff to 0xffffffff.
 		 */
@@ -696,6 +704,13 @@ public class Parser {
 		for (int i = 0; i < values.size(); i++)
 			arraySetFn.accept(array, i, values.get(i));
 		return array;
+	}
+
+	private static <E extends Exception, T, R> R parsePrimitiveArrayValue(T value,
+		ExceptionFunction<E, T, R> constructor, int index) throws E {
+		var result = parseValue(value, constructor, null);
+		if (result != null) return result;
+		throw new NullPointerException("Value [" + index + "] is null");
 	}
 
 	private static <E extends Exception, T, R> R parseValue(T value,

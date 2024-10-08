@@ -872,6 +872,13 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Assert a NullPointerException is thrown.
+	 */
+	public static void assertNpe(ExceptionRunnable<Exception> runnable) {
+		assertThrown(NullPointerException.class, runnable);
+	}
+
+	/**
 	 * Assert an IllegalArgumentException is thrown.
 	 */
 	public static void assertIllegalArg(ExceptionRunnable<Exception> runnable) {

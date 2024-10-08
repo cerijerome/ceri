@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.test.Captor;
 import ceri.common.util.Align.H;
 
 public class ParserBehavior {
@@ -49,6 +51,29 @@ public class ParserBehavior {
 		assertEquals(string(null).def(() -> "x").get(), "x");
 	}
 
+	@Test
+	public void shouldValidateAgainstNull() {
+		assertIterable(strings("").getValid());
+		assertIllegalArg(() -> Parser.Type.of(null).getValid());
+		assertIllegalArg(() -> Parser.Type.of(null).getValid("test"));
+		assertIllegalArg(() -> Parser.Types.of((List<?>) null).getValid());
+	}
+	
+	@Test
+	public void shouldAcceptConsumer() {
+		string("123").asInt().accept(i -> assertEquals(i, 123));
+		string(null).asInt().accept(i -> assertEquals(i, null));
+	}
+	
+	@Test
+	public void shouldAcceptConsumerForEach() {
+		var captor = Captor.ofInt();
+		strings(null).asInts().each(captor::accept);
+		captor.verifyInt();
+		strings("1,2,3").asInts().each(captor::accept);
+		captor.verifyInt(1, 2, 3);
+	}
+	
 	@Test
 	public void shouldFlattenTypeAccessor() {
 		String[] vals = { "0" };
@@ -131,6 +156,11 @@ public class ParserBehavior {
 	}
 
 	@Test
+	public void shouldFailToConvertToArrayIfItemIsNull() {
+		assertNpe(() -> Parser.Strings.of("1", null, "2").toIntArray(3, 4));
+	}
+	
+	@Test
 	public void shouldStreamValues() {
 		assertStream(Parser.Types.from(() -> null).stream());
 		assertStream(Parser.Types.of(1, null, 3).stream(), 1, null, 3);
@@ -197,6 +227,41 @@ public class ParserBehavior {
 		assertEquals(string("right").toEnum(H.class), H.right);
 	}
 
+	@Test
+	public void shouldProvideBooleanConditionals() {
+		assertEquals(string("True").toBool(1, 0), 1);
+		assertEquals(string("").toBool(1, 0), 0);
+		assertEquals(string(null).toBool(1, 0), null);
+	}
+	
+	@Test
+	public void shouldProvideBooleanConditionalType() {
+		assertEquals(string("True").asBool(1, 0).get(), 1);
+		assertEquals(string("").asBool(1, 0).get(), 0);
+		assertEquals(string(null).asBool(1, 0).get(), null);
+	}
+	
+	@Test
+	public void shouldProvideBooleanConditionalTypes() {
+		assertIterable(strings("True, x, false").asBools(1, 0).get(), 1, 0, 0);
+		assertIterable(Parser.Strings.of("True", null, "x").asBools(1, 0).get(), 1, null, 0);
+	}
+	
+	@Test
+	public void shouldModifyStringType() {
+		assertEquals(string("3").mod(s -> s + "0").toInt(), 30);
+		assertEquals(string(null).mod(s -> s + "0").toInt(), null);
+	}
+	
+	@Test
+	public void shouldModifyStringTypes() {
+		assertIterable(strings("1,3").modEach(s -> s + "0").asInts().get(), 10, 30);
+		assertEquals(strings(null).modEach(s -> s + "0").asInts().get(), null);
+		assertIterable(Parser.Strings.of("1", null).modEach(s -> s + "0").asInts().get(),
+			10, null);
+		//assertEquals(string(null).mod(s -> s + "0").toInt(), null);
+	}
+	
 	@Test
 	public void shouldFailForBadConversion() {
 		assertIllegalArg(() -> string("x").toInt(1));
