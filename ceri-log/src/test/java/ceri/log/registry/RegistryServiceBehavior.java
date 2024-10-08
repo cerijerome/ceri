@@ -38,7 +38,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldLoadProperties() throws IOException {
 		init("a.b.c=123", "a.b.d=456");
-		assertEquals(service.registry.apply(p -> p.intValue("a.b.c")), 123);
+		assertEquals(service.registry.apply(p -> p.parse("a.b.c").toInt()), 123);
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class RegistryServiceBehavior {
 	}
 
 	private static void inc(TypedProperties p, String key, int diff) {
-		int value = p.intValue(key);
+		int value = p.parse(key).toInt();
 		p.setValue(value + diff, key);
 	}
 
@@ -74,9 +74,9 @@ public class RegistryServiceBehavior {
 		var a = service.registry.sub("a");
 		var aa = a.sub("a");
 		var ab = service.registry.sub("a.b");
-		assertEquals(a.apply(p -> p.intValue("a", "a")), 123);
-		assertEquals(aa.apply(p -> p.intValue("a")), 123);
-		assertEquals(ab.apply(p -> p.intValue("a")), 456);
+		assertEquals(a.apply(p -> p.parse("a", "a").toInt()), 123);
+		assertEquals(aa.apply(p -> p.parse("a").toInt()), 123);
+		assertEquals(ab.apply(p -> p.parse("a").toInt()), 456);
 	}
 
 	@Test

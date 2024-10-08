@@ -18,7 +18,7 @@ public class SimpleRegistryBehavior {
 	public void shouldReadProperties() {
 		var reg = SimpleRegistry.of("test");
 		reg.properties.setProperty("test.a.b", "123");
-		assertEquals(reg.apply(t -> t.intValue("a.b")), 123);
+		assertEquals(reg.apply(t -> t.parse("a.b").toInt()), 123);
 	}
 
 	@Test

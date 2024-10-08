@@ -23,7 +23,7 @@ public class TcpSocketProperties extends TypedProperties.Ref {
 	}
 
 	public HostPort hostPort() {
-		return HostPort.parse(ref.value(HOST_PORT_KEY));
+		return HostPort.parse(parse(HOST_PORT_KEY).get());
 	}
 
 	public TcpSocketOptions options() {

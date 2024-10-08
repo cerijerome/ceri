@@ -4,16 +4,10 @@ import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPath;
-import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -22,12 +16,6 @@ import org.junit.Test;
 
 public class TypedPropertiesBehavior {
 	private static Properties properties = new Properties();
-
-	private enum E {
-		A,
-		AB,
-		ABC;
-	}
 
 	@BeforeClass
 	public static void createProperties() {
@@ -72,16 +60,16 @@ public class TypedPropertiesBehavior {
 		TypedProperties tp = TypedProperties.merge( //
 			TypedProperties.from(load(getClass(), "property-test-a-b-c.properties")),
 			TypedProperties.from(load(getClass(), "property-test-d-e-f.properties")));
-		assertEquals(tp.value("name"), "property-test-d-e-f");
-		assertEquals(tp.value("a.b.c"), "true");
-		assertEquals(tp.value("d.e.f"), "true");
+		assertEquals(tp.get("name"), "property-test-d-e-f");
+		assertEquals(tp.get("a.b.c"), "true");
+		assertEquals(tp.get("d.e.f"), "true");
 	}
 
 	@Test
 	public void shouldCreateEmptyPropertiesFromNull() {
 		TypedProperties tp = TypedProperties.from((TypedProperties) null, "m.n.0");
-		assertNull(tp.value("a.b.c"));
-		assertNull(tp.value(""));
+		assertNull(tp.get("a.b.c"));
+		assertNull(tp.get(""));
 	}
 
 	@Test
@@ -89,7 +77,7 @@ public class TypedPropertiesBehavior {
 		ResourceBundle r = ResourceBundle.getBundle( //
 			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
 		TypedProperties tp = TypedProperties.from(r);
-		assertEquals(tp.value("name"), "PropertyAccessor");
+		assertEquals(tp.get("name"), "PropertyAccessor");
 	}
 
 	@Test
@@ -153,69 +141,6 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
-	public void shouldReadCommaSeparatedValues() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertCollection(tp.values(String::length, "y"), 3, 2, 1);
-		assertCollection(tp.values(Collections.singletonList(999), String::length, "xx"), 999);
-		assertCollection(tp.booleanValues("7.2.b"), true, false);
-		assertCollection(tp.intValues("7.2.i"), 7, 2);
-		assertCollection(tp.longValues("7.2.i"), 7L, 2L);
-		assertCollection(tp.doubleValues("7.2.f"), 7.2, 0.1);
-	}
-
-	@Test
-	public void shouldReadEnums() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertEquals(tp.enumValue(E.class, "a.b"), E.AB);
-		assertEquals(tp.enumValue(E.class, E.A, "a.b"), E.AB);
-		assertEquals(tp.enumValue(E.class, E.A, "xx"), E.A);
-		assertThrown(() -> tp.enumValue(E.class, "a.b.c"));
-		assertCollection(tp.enumValues(E.class, "a", "abc"), E.A, E.ABC);
-	}
-
-	@Test
-	public void shouldReadValues() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertNull(tp.value("xyz"));
-		assertEquals(tp.stringValue("", "a"), "A");
-		assertFalse(tp.booleanValue("a"));
-		assertFalse(tp.booleanValue(true, "a"));
-		assertEquals(tp.intValue("a.b.c"), 3);
-		assertEquals(tp.intValue(1, "a.b.c"), 3);
-		assertEquals(tp.longValue("a.b.c"), 3L);
-		assertEquals(tp.longValue(1L, "a.b.c"), 3L);
-		assertEquals(tp.doubleValue("a.b.c"), 3.0);
-		assertEquals(tp.doubleValue(1.0, "a.b.c"), 3.0);
-		assertPath(tp.pathValue("m.n.0.b.c.d"), "mn0bcd");
-		assertPath(tp.pathValue(java.nio.file.Path.of("a"), "m.n.0.b.c.d"), "mn0bcd");
-	}
-
-	@Test
-	public void shouldReadAndConvertValues() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertEquals(tp.valueFromBoolean(b -> b ? "Y" : "N", "a.y"), "Y");
-		assertEquals(tp.valueFromBoolean(b -> b ? "Y" : "N", "a.n"), "N");
-		assertEquals(tp.valueFromBoolean(1, 2, "a.y"), 1);
-		assertEquals(tp.valueFromBoolean(1, 2, "a.n"), 2);
-		assertEquals(tp.valueFromBoolean(0, 1, 2, "a.y"), 1);
-		assertEquals(tp.valueFromBoolean(0, 1, 2, "a.n"), 2);
-		assertEquals(tp.valueFromBoolean(0, 1, 2, "a.x"), 0);
-		assertEquals(tp.valueFromInt(Integer::toString, "a.b.c"), "3");
-		assertEquals(tp.valueFromDouble(Double::toString, "a.b.c"), "3.0");
-		assertEquals(tp.valueFromLong(Long::toHexString, "a.l"), "fedcba987654321");
-	}
-
-	@Test
-	public void shouldReadAndConvertListValues() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertIterable(tp.valuesFromBoolean(Boolean::toString, "z.b"), "true", "false", "true");
-		assertIterable(tp.valuesFromInt(Integer::toHexString, "z.i"), "12345678", "ffffffff", "ff");
-		assertIterable(tp.valuesFromLong(Long::toHexString, "z.l"), "123456789abcdef0",
-			"ffffffffffffffff", "ff");
-		assertIterable(tp.valuesFromDouble(Double::toString, "z.d"), "123.4", "-0.1", "1000.0");
-	}
-
-	@Test
 	public void shouldHaveStringRepresentationOfProperties() {
 		Properties properties = new Properties();
 		properties.put("a", "A");
@@ -229,39 +154,25 @@ public class TypedPropertiesBehavior {
 	public void shouldExtendPrefixWhenCreatingFromBaseProperties() {
 		TypedProperties tp0 = TypedProperties.from(properties);
 		TypedProperties tp1 = TypedProperties.from(tp0);
-		assertEquals(tp1.value("a"), "A");
+		assertEquals(tp1.get("a"), "A");
 		TypedProperties tp2 = TypedProperties.from(tp1, "a");
-		assertEquals(tp2.value("b"), "AB");
+		assertEquals(tp2.get("b"), "AB");
 		TypedProperties tp3 = TypedProperties.from(tp2, "b", "c");
-		assertEquals(tp3.value("d"), "4");
-	}
-
-	@Test
-	public void shouldReturnStringValuesFromACommaSeparatedList() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertEquals(tp.stringValues("x"), Arrays.asList("X"));
-		assertEquals(tp.stringValues("y"), Arrays.asList("YyY", "yy", "y"));
-		assertEquals(tp.stringValues("z"), Arrays.asList());
-		assertNull(tp.stringValues("Z"));
-		List<String> def = Arrays.asList("d,ef");
-		assertEquals(tp.stringValues(def, "x"), Arrays.asList("X"));
-		assertEquals(tp.stringValues(def, "y"), Arrays.asList("YyY", "yy", "y"));
-		assertEquals(tp.stringValues(def, "z"), Arrays.asList());
-		assertEquals(tp.stringValues(def, "Z"), def);
+		assertEquals(tp3.get("d"), "4");
 	}
 
 	@Test
 	public void shouldAllowNullPrefix() {
 		TypedProperties tp = TypedProperties.from(properties, new String[] { null });
-		assertEquals(tp.value("a"), "A");
+		assertEquals(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, (String[]) null);
-		assertEquals(tp.value("a"), "A");
+		assertEquals(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, null, null);
-		assertEquals(tp.value("a"), "A");
+		assertEquals(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, "a", null);
-		assertEquals(tp.value("b"), "AB");
+		assertEquals(tp.get("b"), "AB");
 		tp = TypedProperties.from(properties, null, "a");
-		assertEquals(tp.value("b"), "AB");
+		assertEquals(tp.get("b"), "AB");
 	}
 
 	@Test
@@ -272,49 +183,6 @@ public class TypedPropertiesBehavior {
 		tp = TypedProperties.from(properties);
 		assertEquals(tp.key("a.b"), "a.b");
 		assertCollection(tp.keys(), properties.keySet());
-	}
-
-	@Test
-	public void shouldAccessValuesWithKeySuffixes() {
-		TypedProperties tp = TypedProperties.from(properties, "a");
-		assertEquals(tp.value("b"), "AB");
-		assertEquals(tp.intValue("b.c"), 3);
-	}
-
-	@Test
-	public void shouldReturnDefaultValuesForMissingProperties() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertTrue(tp.booleanValue(true, "xx"));
-		assertEquals(tp.stringValue("x", "xx"), "x");
-		assertEquals(tp.intValue(Integer.MIN_VALUE, "xx"), Integer.MIN_VALUE);
-		assertEquals(tp.longValue(Long.MIN_VALUE, "xx"), Long.MIN_VALUE);
-		assertEquals(tp.doubleValue(Double.MIN_VALUE, "xx"), Double.MIN_VALUE);
-		assertPath(tp.pathValue(java.nio.file.Path.of("a"), "xx"), "a");
-	}
-
-	@Test
-	public void shouldReadBooleanValuesAsFalseForUnparseableStrings() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertFalse(tp.booleanValue("a.b"));
-		assertFalse(tp.booleanValue("a.b.c"));
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableInt() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.intValue("x");
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableLong() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.longValue("x");
-	}
-
-	@Test(expected = NumberFormatException.class)
-	public void shouldThrowExceptionForUnparseableDouble() {
-		TypedProperties tp = TypedProperties.from(properties);
-		tp.doubleValue("x");
 	}
 
 }
