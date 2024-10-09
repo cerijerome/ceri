@@ -11,6 +11,7 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.typedProperties;
+import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.jna.CFcntl.O_APPEND;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
@@ -159,13 +160,12 @@ public class SelfHealingFdBehavior {
 			var config = SelfHealingFd.Config.builder(() -> open.get(IO_ADAPTER))
 				.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
 			shf = SelfHealingFd.of(config);
-			var flags = shf.flags();
 			shf.open();
 			open.awaitAuto(); // fd0
-			assertEquals(flags.field().getInt(), 0x11);
+			assertEquals(shf.flags(), 0x11);
 			shf.broken();
 			open.awaitAuto(); // fd1
-			assertEquals(flags.field().getInt(), 0x22);
+			assertEquals(shf.flags(), 0x22);
 		}
 	}
 
@@ -173,7 +173,7 @@ public class SelfHealingFdBehavior {
 	public void shouldSetDelegateFlags() throws IOException {
 		init();
 		shf.open();
-		shf.flags().set(Open.RDWR, Open.APPEND);
+		FLAGS.set(shf, Open.RDWR, Open.APPEND);
 		assertEquals(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
 	}
 

@@ -1,13 +1,14 @@
 package ceri.jna.util;
 
+import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
-import ceri.common.data.ValueField;
-import ceri.common.function.Accessor;
+import ceri.common.exception.ExceptionUtil.Rte;
 import ceri.jna.util.JnaTestData.TestStruct;
 
 public class UnionFieldTest {
@@ -31,53 +32,70 @@ public class UnionFieldTest {
 	}
 
 	@Test
-	public void testTypeAccessorByName() {
-		Accessor.Typed<TestUnion, TestStruct> byName =
-			UnionField.of("struct", u -> u.struct, (u, t) -> u.struct = t);
+	public void testFieldAccessor() {
+		var field = UnionField.<Rte, TestUnion, TestStruct>of("struct", u -> u.struct,
+			(u, t) -> u.struct = t);
 		var union = new TestUnion();
-		byName.set(union, new TestStruct(100, null, -1, -2, -3));
+		field.set(union, new TestStruct(100, null, -1, -2, -3));
 		var ref = ref(union);
-		assertStruct(byName.get(ref), 100, null, -1, -2, -3);
+		assertStruct(field.get(ref), 100, null, -1, -2, -3);
 	}
 
 	@Test
-	public void testTypeAccessorByClass() {
-		Accessor.Typed<TestUnion, TestStruct> byClass =
-			UnionField.of(TestStruct.class, u -> u.struct, (u, t) -> u.struct = t);
+	public void testFieldWithoutGetter() {
+		var field =
+			UnionField.<Rte, TestUnion, TestStruct>of("struct", null, (u, t) -> u.struct = t);
 		var union = new TestUnion();
-		byClass.set(union, new TestStruct(100, null, -1, -2, -3));
-		var ref = ref(union);
-		assertStruct(byClass.get(ref), 100, null, -1, -2, -3);
+		field.set(union, new TestStruct(100, null, -1, -2, -3));
+		assertStruct(union.struct, new TestStruct(100, null, -1, -2, -3));
+		assertUnsupported(() -> field.get(union));
 	}
 
 	@Test
-	public void testIntAccessor() {
-		var accessor =
-			UnionField.<TestUnion>of("i", ValueField.Typed.ofInt(u -> u.i, (u, i) -> u.i = i));
+	public void testFieldWithoutSetter() {
+		var field = UnionField.<Rte, TestUnion, TestStruct>of("struct", u -> u.struct, null);
 		var union = new TestUnion();
-		accessor.set(union, 0x80000000);
-		var ref = ref(union);
-		assertEquals(accessor.getInt(ref), 0x80000000);
+		Struct.type(union, "struct").struct = new TestStruct(100, null, -1, -2, -3);
+		union.write();
+		assertUnsupported(() -> field.set(union, new TestStruct(200, null, 1, 2, 3)));
+		assertStruct(field.get(union), 100, null, -1, -2, -3);
 	}
 
 	@Test
-	public void testIntAccessorByName() {
-		var accessor =
-			UnionField.<TestUnion>of("i", ValueField.Typed.ofInt(u -> u.i, (u, i) -> u.i = i));
+	public void testUintFieldAccessor() {
+		var field = UnionField.<Rte, TestUnion>ofUint("i", u -> u.i, (u, i) -> u.i = i);
 		var union = new TestUnion();
-		accessor.set(union, 0x80000000);
+		field.set(union, -1);
 		var ref = ref(union);
-		assertEquals(accessor.getInt(ref), 0x80000000);
+		assertEquals(field.getUint(ref), 0xffffffffL);
 	}
 
 	@Test
-	public void testIntAccessorByClass() {
-		var accessor = UnionField.<TestUnion>of(short.class,
-			ValueField.Typed.ofInt(u -> u.s, (u, l) -> u.s = (short) l));
+	public void testUintFieldWithoutGetter() {
+		var field = UnionField.<Rte, TestUnion>ofUint("i", null, (u, i) -> u.i = i);
 		var union = new TestUnion();
-		accessor.set(union, 0x12345678);
+		field.set(union, -1);
+		assertEquals(union.i, -1);
+		assertUnsupported(() -> field.get(union));
+	}
+
+	@Test
+	public void testUintFieldWithoutSetter() {
+		var field = UnionField.<Rte, TestUnion>ofUint("i", u -> u.i, null);
+		var union = new TestUnion();
+		union.i = 123;
+		assertUnsupported(() -> field.set(union, 333));
+		assertEquals(field.get(union), 123L);
+	}
+
+	@Test
+	public void testFieldLongAccessor() {
+		var field =
+			UnionField.<Rte, TestUnion>ofLong("b", u -> ubyte(u.b), (u, l) -> u.b = (byte) l);
+		var union = new TestUnion();
+		field.set(union, 0xff);
 		var ref = ref(union);
-		assertEquals(accessor.getInt(ref), 0x5678);
+		assertEquals(field.get(ref), 0xffL);
 	}
 
 	private static TestUnion ref(TestUnion union) {

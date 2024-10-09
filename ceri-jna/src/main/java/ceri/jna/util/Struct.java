@@ -71,23 +71,7 @@ public abstract class Struct extends Structure {
 	 * Set active union field by name.
 	 */
 	public static <U extends Union> U type(U t, String name) {
-		t.setType(name);
-		return t;
-	}
-
-	/**
-	 * Set active union field by type.
-	 */
-	public static <U extends Union> U type(U t, Class<?> type) {
-		t.setType(type);
-		return t;
-	}
-
-	/**
-	 * Set active union field and value.
-	 */
-	public static <U extends Union> U typedValue(U t, Object value) {
-		t.setTypedValue(value);
+		if (t != null) t.setType(name);
 		return t;
 	}
 

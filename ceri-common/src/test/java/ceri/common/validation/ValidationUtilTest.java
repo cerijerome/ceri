@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.common.test.TestUtil.thrown;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,6 +88,12 @@ public class ValidationUtilTest {
 		Map<Integer, String> map = Map.of(1, "one", 2, "two", 3, "three");
 		assertEquals(ValidationUtil.validateIntLookupEquals(map::get, 2, "two"), "two");
 		assertThrown(() -> ValidationUtil.validateIntLookupEquals(map::get, 2, "three"));
+	}
+
+	@Test
+	public void testValidateSupported() {
+		ValidationUtil.validateSupported(OBJ, "test");
+		assertUnsupported(() -> ValidationUtil.validateSupported(null, "test"));
 	}
 
 	@Test

@@ -162,6 +162,14 @@ public class ValidationUtil {
 	/**
 	 * Validates that the object is not null.
 	 */
+	public static <T> T validateSupported(T value, String name) {
+		if (value != null) return value;
+		throw new UnsupportedOperationException(name + " is not supported");
+	}
+
+	/**
+	 * Validates that the object is not null.
+	 */
 	public static <T> T validateNotNull(T value) {
 		return validateNotNull(value, VALUE);
 	}

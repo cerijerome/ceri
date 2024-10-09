@@ -1,10 +1,14 @@
 package ceri.jna.util;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import static ceri.common.math.MathUtil.uint;
 import com.sun.jna.Union;
-import ceri.common.data.ValueField;
-import ceri.common.function.Accessor;
+import ceri.common.data.Field;
+import ceri.common.function.ExceptionBiConsumer;
+import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionObjIntConsumer;
+import ceri.common.function.ExceptionObjLongConsumer;
+import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.ExceptionToLongFunction;
 
 /**
  * Methods to provide access to union fields, automatically setting type for get and set.
@@ -14,74 +18,38 @@ public class UnionField {
 	private UnionField() {}
 
 	/**
-	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
-	 * setType().
+	 * Accessor for a union field. Sets field type, and auto-reads field on get.
 	 */
-	public static <U extends Union, T> Accessor.Typed<U, T> of(String name, Function<U, T> getFn,
-		BiConsumer<U, T> setFn) {
-		return of(name, Accessor.typed(getFn, setFn));
-	}
-
-	/**
-	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
-	 * setType().
-	 */
-	public static <U extends Union, T> Accessor.Typed<U, T> of(Class<?> cls, Function<U, T> getFn,
-		BiConsumer<U, T> setFn) {
-		return of(cls, Accessor.typed(getFn, setFn));
-	}
-
-	/**
-	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
-	 * setType().
-	 */
-	public static <U extends Union, T> Accessor.Typed<U, T> of(String name,
-		Accessor.Typed<U, T> accessor) {
-		return Accessor.typed(u -> {
+	public static <E extends Exception, U extends Union, T> Field<E, U, T> of(String name,
+		ExceptionFunction<E, U, T> getter, ExceptionBiConsumer<E, U, T> setter) {
+		return Field.of(getter == null ? null : u -> {
 			u.setType(name);
-			u.autoRead();
-			return accessor.get(u);
-		}, (u, t) -> {
+			if (u.getAutoRead()) u.readField(name);
+			return getter.apply(u);
+		}, setter == null ? null : (u, t) -> {
 			u.setType(name);
-			accessor.set(u, t);
+			setter.accept(u, t);
 		});
 	}
 
 	/**
-	 * Accessor for a typed field. Calls autoRead() on get, as typed fields are not loaded before
-	 * setType().
+	 * Create an instance with getter and setter for an unsigned int field.
 	 */
-	public static <U extends Union, T> Accessor.Typed<U, T> of(Class<?> cls,
-		Accessor.Typed<U, T> accessor) {
-		return Accessor.typed(u -> {
-			u.setType(cls);
-			u.autoRead();
-			return accessor.get(u);
-		}, (u, t) -> {
-			u.setType(cls);
-			accessor.set(u, t);
-		});
+	public static <E extends Exception, U extends Union> Field.Long<E, U> ofUint(String name,
+		ExceptionToIntFunction<E, U> getter, ExceptionObjIntConsumer<E, U> setter) {
+		return ofLong(name, getter == null ? null : t -> uint(getter.applyAsInt(t)),
+			setter == null ? null : (t, v) -> setter.accept(t, (int) v));
 	}
 
 	/**
-	 * Accessor for an int field.
+	 * Accessor for a union long field. Sets field type as needed.
 	 */
-	public static <U extends Union> ValueField.Typed<RuntimeException, U> of(String name,
-		ValueField.Typed<RuntimeException, U> accessor) {
-		return ValueField.Typed.of(accessor.getFn, (u, i) -> {
-			u.setType(name); // only needed for setter
-			accessor.set(u, i);
+	public static <E extends Exception, U extends Union> Field.Long<E, U> ofLong(String name,
+		ExceptionToLongFunction<E, U> getter, ExceptionObjLongConsumer<E, U> setter) {
+		return Field.ofLong(getter, setter == null ? null : (u, t) -> {
+			u.setType(name); // only required for set
+			setter.accept(u, t);
 		});
 	}
 
-	/**
-	 * Accessor for an int field.
-	 */
-	public static <U extends Union> ValueField.Typed<RuntimeException, U> of(Class<?> cls,
-		ValueField.Typed<RuntimeException, U> accessor) {
-		return ValueField.Typed.of(accessor.getFn, (u, i) -> {
-			u.setType(cls); // only needed for setter
-			accessor.set(u, i);
-		});
-	}
 }

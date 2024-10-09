@@ -135,13 +135,13 @@ public class TestI2cCLibNative extends TestCLibNative {
 	}
 
 	private void receive(i2c_msg msg, ByteProvider received) {
-		if (!msg.flags().has(I2C_M_RD) || msg.buf == null || received.length() == 0) return;
+		if (!i2c_msg.FLAGS.has(msg, I2C_M_RD) || msg.buf == null || received.length() == 0) return;
 		JnaUtil.write(msg.buf, received.copy(0));
 	}
 
 	private void append(List<Object> list, i2c_msg msg) {
 		Collections.addAll(list, ushort(msg.addr), ushort(msg.flags));
-		if (msg.flags().has(I2C_M_RD)) list.add(ushort(msg.len));
+		if (i2c_msg.FLAGS.has(msg, I2C_M_RD)) list.add(ushort(msg.len));
 		else if (msg.buf == null) list.add(ByteProvider.empty());
 		else list.add(ByteProvider.of(msg.buf.getByteArray(0, ushort(msg.len))));
 	}

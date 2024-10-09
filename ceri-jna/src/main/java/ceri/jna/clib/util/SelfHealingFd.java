@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import ceri.common.data.FieldTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
@@ -22,7 +21,6 @@ import ceri.log.io.SelfHealingConnector;
 public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	implements FileDescriptor.Fixable {
 	private final Config config;
-	private final FieldTranscoder<IOException, Open> flags;
 
 	public static class Config {
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
@@ -96,7 +94,6 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	private SelfHealingFd(Config config) {
 		super(config.selfHealing);
 		this.config = config;
-		flags = FileDescriptor.flagField(this::flagValue, this::flagValue);
 	}
 
 	@Override
@@ -110,20 +107,17 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	}
 
 	@Override
-	public FieldTranscoder<IOException, Open> flags() {
-		return flags;
+	public int flags() throws IOException {
+		return device.applyValid(FileDescriptor::flags);
+	}
+
+	@Override
+	public void flags(int flags) throws IOException {
+		device.acceptValid(fd -> fd.flags(flags));
 	}
 
 	@Override
 	protected FileDescriptor openConnector() throws IOException {
 		return config.open();
-	}
-
-	private int flagValue() throws IOException {
-		return device.applyValid(fd -> fd.flags().field().getInt());
-	}
-
-	private void flagValue(int value) throws IOException {
-		device.acceptValid(fd -> fd.flags().field().set(value));
 	}
 }

@@ -120,28 +120,46 @@ public class TypeTranscoder<T> {
 		return encode(Arrays.asList(ts));
 	}
 
+	/**
+	 * Encodes the types to a value.
+	 */
 	public long encode(Iterable<T> ts) {
 		return mask.encode(encodeTypes(ts));
 	}
 
+	/**
+	 * Encodes the types and remainder to a value.
+	 */
 	public long encode(Remainder<T> rem) {
 		if (rem == null) return 0;
 		return mask.encodeInt(encodeTypes(rem.types) | rem.diff);
 	}
 
+	/**
+	 * Encodes all types to an int value.
+	 */
 	public int encodeAllInt() {
 		return (int) encodeAll();
 	}
 
+	/**
+	 * Encodes the types to an int value.
+	 */
 	@SafeVarargs
 	public final int encodeInt(T... ts) {
 		return (int) encode(ts);
 	}
 
+	/**
+	 * Encodes the types to an int value.
+	 */
 	public int encodeInt(Iterable<T> ts) {
 		return (int) encode(ts);
 	}
 
+	/**
+	 * Encodes the types and remainder to an int value.
+	 */
 	public int encodeInt(Remainder<T> rem) {
 		return (int) encode(rem);
 	}
@@ -191,8 +209,11 @@ public class TypeTranscoder<T> {
 		return (value & mask) == mask;
 	}
 
+	/**
+	 * Returns true if the value contains types with no remainder.
+	 */
 	public boolean isValid(long value) {
-		value = mask.decodeInt(value);
+		value = mask.decode(value);
 		if (value == 0) return true;
 		if (lookup.containsKey(value)) return true;
 		for (var k : lookup.keySet()) {

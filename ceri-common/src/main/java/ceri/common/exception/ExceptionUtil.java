@@ -15,6 +15,12 @@ public class ExceptionUtil {
 	private ExceptionUtil() {}
 
 	/**
+	 * A stub that can be used for shorter generic type declarations.
+	 */
+	@SuppressWarnings("serial")
+	public static class Rte extends RuntimeException {}
+
+	/**
 	 * Call to generate an IllegalStateException. Use for lambdas that shouldn't be called.
 	 */
 	public static void doNotCall(Object... args) {

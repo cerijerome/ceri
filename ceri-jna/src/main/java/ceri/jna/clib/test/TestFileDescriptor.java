@@ -4,7 +4,6 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.data.FieldTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.test.CallSync;
@@ -18,7 +17,6 @@ public class TestFileDescriptor implements FileDescriptor {
 	public final TestInputStream in = TestInputStream.of();
 	public final TestOutputStream out = TestOutputStream.of();
 	public final CallSync.Runnable close = CallSync.runnable(true);
-	private final FieldTranscoder<IOException, Open> flagField;
 
 	public static TestFileDescriptor of(int fd) {
 		return new TestFileDescriptor(fd);
@@ -26,8 +24,6 @@ public class TestFileDescriptor implements FileDescriptor {
 
 	private TestFileDescriptor(int fd) {
 		this.fd.autoResponses(fd);
-		flagField = FileDescriptor.flagField(() -> flags.lastValue(IO_ADAPTER),
-			value -> flags.accept(value, IO_ADAPTER));
 	}
 
 	@Override
@@ -51,8 +47,13 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public FieldTranscoder<IOException, Open> flags() {
-		return flagField;
+	public int flags() throws IOException {
+		return flags.lastValue(IO_ADAPTER);
+	}
+
+	@Override
+	public void flags(int flags) throws IOException {
+		this.flags.accept(flags, IO_ADAPTER);
 	}
 
 	@Override

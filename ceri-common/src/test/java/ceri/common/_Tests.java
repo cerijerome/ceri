@@ -79,6 +79,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.CrcAlgorithmBehavior.class, //
 	ceri.common.data.CrcBehavior.class, //
 	ceri.common.data.DataUtilTest.class, //
+	ceri.common.data.FieldBehavior.class, //
 	ceri.common.data.FieldTranscoderBehavior.class, //
 	ceri.common.data.IntAccessorBehavior.class, //
 	ceri.common.data.IntArrayBehavior.class, //
@@ -111,7 +112,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.exception.ExceptionTrackerBehavior.class, //
 	ceri.common.exception.ExceptionUtilTest.class, //
 	// function
-	ceri.common.function.AccessorBehavior.class, //
 	ceri.common.function.BooleanConsumerBehavior.class, //
 	ceri.common.function.ByteConsumerBehavior.class, //
 	ceri.common.function.ExceptionBiConsumerBehavior.class, //

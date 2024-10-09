@@ -2,6 +2,7 @@ package ceri.common.exception;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrowable;
@@ -11,7 +12,9 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.junit.Test;
+import ceri.common.exception.ExceptionUtil.Rte;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.Captor;
 
@@ -20,6 +23,13 @@ public class ExceptionUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ExceptionUtil.class);
+	}
+
+	@Test
+	public void testRteStub() {
+		assertInstance(new Rte(), RuntimeException.class);
+		ExceptionSupplier<Rte, String> supplier = () -> "test";
+		assertEquals(supplier.get(), "test");
 	}
 
 	@Test

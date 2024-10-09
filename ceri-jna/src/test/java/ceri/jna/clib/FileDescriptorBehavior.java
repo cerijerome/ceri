@@ -2,6 +2,7 @@ package ceri.jna.clib;
 
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDONLY;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
@@ -26,7 +27,7 @@ public class FileDescriptorBehavior {
 		assertEquals(FileDescriptor.NULL.in().read(), 0);
 		FileDescriptor.NULL.out().write(0);
 		FileDescriptor.NULL.blocking(false);
-		assertCollection(FileDescriptor.NULL.flags().getAll(), RDONLY);
+		assertCollection(FLAGS.get(FileDescriptor.NULL), RDONLY);
 		FileDescriptor.NULL.close();
 		captor.verifyInt(); // no calls
 	}

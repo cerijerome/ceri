@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import ceri.common.data.FieldTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.function.ExceptionSupplier;
@@ -26,7 +25,6 @@ public class CFileDescriptor implements FileDescriptor {
 	private final int fd;
 	private final CInputStream in;
 	private final COutputStream out;
-	private final FieldTranscoder<IOException, Open> flags;
 	private volatile boolean closed = false;
 
 	/**
@@ -71,8 +69,7 @@ public class CFileDescriptor implements FileDescriptor {
 	/**
 	 * Opens a file.
 	 */
-	public static CFileDescriptor open(String path, Mode mode, Open... flags)
-		throws IOException {
+	public static CFileDescriptor open(String path, Mode mode, Open... flags) throws IOException {
 		return open(path, mode, Arrays.asList(flags));
 	}
 
@@ -98,7 +95,6 @@ public class CFileDescriptor implements FileDescriptor {
 		this.fd = fd;
 		in = CInputStream.of(fd);
 		out = COutputStream.of(fd);
-		flags = FileDescriptor.flagField(() -> CFcntl.getFl(fd), flags -> CFcntl.setFl(fd, flags));
 	}
 
 	public int fd() {
@@ -127,8 +123,13 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public FieldTranscoder<IOException, Open> flags() {
-		return flags;
+	public int flags() throws IOException {
+		return CFcntl.getFl(fd);
+	}
+
+	@Override
+	public void flags(int flags) throws IOException {
+		CFcntl.setFl(fd, flags);
 	}
 
 	@Override

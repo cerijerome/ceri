@@ -6,7 +6,6 @@ import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.function.Function;
@@ -54,22 +53,6 @@ public class StructBehavior {
 		var p = Struct.write(Struct.type(t0, "i")).getPointer();
 		var t = Struct.read(new TestUnion(p));
 		assertEquals(t.i, 123);
-	}
-
-	@Test
-	public void testSetUnionTypeByClass() {
-		var t0 = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
-		var p = Struct.write(Struct.type(t0, Pointer.class)).getPointer();
-		var t = Struct.read(new TestUnion(p));
-		assertPointer(t.p, 0, 5, 6, 7);
-	}
-
-	@Test
-	public void testSetUnionTypedValue() {
-		var t0 = new TestUnion(0, null);
-		var p = Struct.write(Struct.typedValue(t0, GcMemory.mallocBytes(5, 6, 7).m)).getPointer();
-		var t = Struct.read(new TestUnion(p));
-		assertPointer(t.p, 0, 5, 6, 7);
 	}
 
 	@Test

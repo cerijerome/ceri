@@ -6,13 +6,11 @@ import java.util.Collection;
 import java.util.Set;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.StreamUtil;
-import ceri.common.data.FieldTranscoder;
+import ceri.common.data.Field;
 import ceri.common.data.MaskTranscoder;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.data.ValueField;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
-import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.io.Connector;
 import ceri.common.text.StringUtil;
 import ceri.jna.clib.jna.CFcntl;
@@ -23,6 +21,8 @@ import ceri.jna.clib.jna.CFcntl;
 public interface FileDescriptor extends Connector {
 	/** A stateless, no-op instance. */
 	FileDescriptor.Fixable NULL = new Null() {};
+	/** Typed flag accessor. */
+	Field.Typed<IOException, FileDescriptor, Open> FLAGS = flagField().typed(Open.xcoder);
 
 	/**
 	 * Flags for CLib open() and specific CFcntl() calls.
@@ -58,15 +58,15 @@ public interface FileDescriptor extends Connector {
 		public static int encode(Open... flags) {
 			return encode(Arrays.asList(flags));
 		}
-		
+
 		public static int encode(Iterable<Open> flags) {
 			return xcoder.encodeInt(flags);
 		}
-		
+
 		public static Set<Open> decode(int value) {
 			return xcoder.decodeAll(value);
 		}
-		
+
 		public static String string(int value) {
 			return StringUtil.join("|", decode(value));
 		}
@@ -92,16 +92,21 @@ public interface FileDescriptor extends Connector {
 	<T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException;
 
 	/**
-	 * Provides access to status flags.
+	 * Reads the status flags.
 	 */
-	FieldTranscoder<IOException, Open> flags();
+	int flags() throws IOException;
+
+	/**
+	 * Writes the status flags.
+	 */
+	void flags(int flags) throws IOException;
 
 	/**
 	 * Set blocking or non-blocking mode.
 	 */
 	default void blocking(boolean enabled) throws IOException {
-		if (enabled) flags().remove(Open.NONBLOCK);
-		else flags().add(Open.NONBLOCK);
+		if (enabled) FLAGS.remove(this, Open.NONBLOCK);
+		else FLAGS.add(this, Open.NONBLOCK);
 	}
 
 	/**
@@ -113,9 +118,6 @@ public interface FileDescriptor extends Connector {
 	 * A stateless, no-op implementation.
 	 */
 	interface Null extends Connector.Null, FileDescriptor.Fixable {
-		static FieldTranscoder<IOException, Open> FLAGS =
-			FileDescriptor.flagField(() -> 0, x -> {});
-
 		@Override
 		default void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {}
 
@@ -125,16 +127,15 @@ public interface FileDescriptor extends Connector {
 		}
 
 		@Override
-		default FieldTranscoder<IOException, Open> flags() {
-			return FLAGS;
+		default int flags() throws IOException {
+			return 0;
 		}
+
+		@Override
+		default void flags(int flags) throws IOException {}
 	}
 
-	/**
-	 * Creates a flag access field transcoder from getter and setter.
-	 */
-	static FieldTranscoder<IOException, Open> flagField(ExceptionIntSupplier<IOException> getFn,
-		ExceptionIntConsumer<IOException> setFn) {
-		return Open.xcoder.field(ValueField.ofInt(getFn, setFn));
+	private static Field.Long<IOException, FileDescriptor> flagField() {
+		return Field.ofUint(FileDescriptor::flags, FileDescriptor::flags);
 	}
 }

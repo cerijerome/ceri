@@ -21,9 +21,9 @@ import com.sun.jna.Union;
 import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.data.FieldTranscoder;
+import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.data.ValueField;
+import ceri.common.exception.ExceptionUtil.Rte;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
@@ -72,10 +72,13 @@ public class I2cDev {
 	 * ACK. If last message in group, followed by STOP. Behavior changed with
 	 * I2C_FUNC_PROTOCOL_MANGLING and flags.
 	 */
+
 	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
-		private static final ValueField.Typed<RuntimeException, i2c_msg> flagsAccessor =
-			ValueField.Typed.of(t -> t.flags, (t, l) -> t.flags = (short) l);
+		/** Field to get/set typed flags. */
+		public static final Field.Typed<Rte, i2c_msg, i2c_msg_flag> FLAGS =
+			Field.<Rte, i2c_msg>ofLong(m -> ushort(m.flags), (m, l) -> m.flags = (short) l)
+				.typed(i2c_msg_flag.xcoder);
 		public short addr;
 		public short flags;
 		public short len;
@@ -98,10 +101,6 @@ public class I2cDev {
 			this.flags = (short) flags;
 			this.len = (short) len;
 			this.buf = buf;
-		}
-
-		public FieldTranscoder<RuntimeException, i2c_msg_flag> flags() {
-			return i2c_msg_flag.xcoder.field(flagsAccessor.from(this));
 		}
 
 		public byte addrByte() {

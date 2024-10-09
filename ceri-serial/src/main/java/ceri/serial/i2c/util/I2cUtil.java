@@ -58,8 +58,8 @@ public class I2cUtil {
 		msg.addr = address.value();
 		msg.len = ushortExact(size);
 		msg.buf = p;
-		if (address.tenBit()) msg.flags().add(flags).add(I2C_M_TEN);
-		else if (flags.length > 0) msg.flags().add(flags);
+		i2c_msg.FLAGS.add(msg, flags);
+		if (address.tenBit()) i2c_msg.FLAGS.add(msg, I2C_M_TEN);
 		return msg;
 	}
 
