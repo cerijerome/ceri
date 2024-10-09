@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.MaskTranscoder.mask;
+import static ceri.common.data.Mask.ofInt;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -10,7 +10,6 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -45,13 +44,6 @@ public class TypeTranscoderBehavior {
 		}
 	}
 
-	static class Holder {
-		static final ValueField.Typed<RuntimeException, Holder> acc =
-			ValueField.Typed.ofInt(h -> h.val, (h, i) -> h.val = i);
-
-		int val = 0;
-	}
-
 	@Test
 	public void shouldNotBreachRemainderEqualsContract() {
 		Remainder<E> t = xcoder.decodeWithRemainder(7);
@@ -61,6 +53,34 @@ public class TypeTranscoderBehavior {
 		Remainder<E> ne2 = xcoder.decodeWithRemainder(0);
 		exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2);
+	}
+
+	@Test
+	public void shouldDecodeWithRemainder() {
+		var rem = xcoder.decodeWithRemainder(0);
+		assertRemainder(rem, 0);
+		assertEquals(rem.isExact(), true);
+		assertEquals(rem.isEmpty(), true);
+		rem = xcoder.decodeWithRemainder(0xf);
+		assertRemainder(rem, 0, E.a, E.b, E.c);
+		assertEquals(rem.isExact(), true);
+		assertEquals(rem.isEmpty(), false);
+		rem = xcoder.decodeWithRemainder(7);
+		assertRemainder(rem, 4, E.a, E.b);
+		assertEquals(rem.isExact(), false);
+		assertEquals(rem.isEmpty(), false);
+		rem = xcoder.decodeWithRemainder(4);
+		assertRemainder(rem, 4);
+		assertEquals(rem.isExact(), false);
+		assertEquals(rem.isEmpty(), false);
+	}
+
+	@Test
+	public void shouldCreateRemainder() {
+		var rem = TypeTranscoder.Remainder.of(4, E.a, E.b);
+		assertEquals(rem.diffInt(), 4);
+		assertEquals(rem.isExact(), false);
+		assertEquals(rem.isEmpty(), false);
 	}
 
 	@Test
@@ -97,7 +117,6 @@ public class TypeTranscoderBehavior {
 		assertEquals(xcoder.encodeInt((E[]) null), 0);
 		assertEquals(xcoder.encodeInt((List<E>) null), 0);
 		assertEquals(xcoder.encodeInt(List.of()), 0);
-		assertEquals(xcoder.encodeInt((Remainder<E>) null), 0);
 		assertEquals(xcoder.encodeInt(E.b), E.b.value);
 		assertEquals(xcoder.encodeInt(E.b, E.c), E.b.value + E.c.value);
 	}
@@ -186,7 +205,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldTranscodeMaskValues() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, mask(0x0e, 0), E.class);
+		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, ofInt(0, 0x0e), E.class);
 		assertEquals(xcoder.encodeInt(E.a), 0);
 		assertEquals(xcoder.encodeInt(E.c), E.c.value);
 		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
@@ -197,7 +216,7 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldTranscodeOverlappingMaskValues() {
 		TypeTranscoder<E> xcoder =
-			TypeTranscoder.<E>of(t -> t.value, mask(0x0e, 0), List.of(E.b, E.c));
+			TypeTranscoder.<E>of(t -> t.value, ofInt(0, 0x0e), List.of(E.b, E.c));
 		assertEquals(xcoder.encodeInt(E.a), 0);
 		assertEquals(xcoder.encodeInt(E.c), E.c.value);
 		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
@@ -205,34 +224,9 @@ public class TypeTranscoderBehavior {
 		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
 
-	@Test
-	public void shouldTranscodeFields() {
-		int[] store = { 0 };
-		var accessor = ValueField.ofInt(() -> store[0], i -> store[0] = i);
-		var field = xcoder.field(accessor);
-		field.set(E.b);
-		assertEquals(store[0], E.b.value);
-		assertEquals(field.get(), E.b);
-		field.set(E.a, E.c);
-		assertEquals(store[0], E.a.value + E.c.value);
-		assertCollection(field.getAll(), E.a, E.c);
-	}
-
-	@Test
-	public void shouldTranscodeTypedFields() {
-		FieldTranscoder.Typed<RuntimeException, Holder, E> field = xcoder.field(Holder.acc);
-		Holder h = new Holder();
-		field.set(h, E.a, E.b);
-		assertEquals(h.val, 3);
-	}
-
 	@SafeVarargs
-	public static <T> void assertRemainder(Remainder<T> actual, int rem, T... ts) {
-		assertRemainder(actual, rem, Arrays.asList(ts));
-	}
-
-	public static <T> void assertRemainder(Remainder<T> actual, int rem, Collection<T> ts) {
-		assertEquals(actual.intDiff(), rem);
+	private static <T> void assertRemainder(Remainder<T> actual, long rem, T... ts) {
+		assertEquals(actual.diff(), rem);
 		assertCollection(actual.types(), ts);
 	}
 

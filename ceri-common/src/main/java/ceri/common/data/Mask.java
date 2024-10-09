@@ -6,76 +6,76 @@ import ceri.common.math.MathUtil;
 /**
  * Extracts and calculates masked values within a long value. The specified mask is absolute.
  */
-public record MaskTranscoder(long mask, int shiftBits) {
-	public static final MaskTranscoder NULL = new MaskTranscoder(-1L, 0);
+public record Mask(int shift, long mask) {
+	public static final Mask NULL = new Mask(0, -1L);
 
 	/**
 	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
-	public static MaskTranscoder mask(int mask, int shiftBits) {
-		return mask(MathUtil.uint(mask), shiftBits);
+	public static Mask ofInt(int shiftBits, int mask) {
+		return of(shiftBits, MathUtil.uint(mask));
 	}
 
 	/**
 	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
-	public static MaskTranscoder mask(long mask, int shiftBits) {
+	public static Mask of(int shiftBits, long mask) {
 		validateMin(shiftBits, 0);
-		return new MaskTranscoder(mask, shiftBits);
+		return new Mask(shiftBits, mask);
 	}
 
 	/**
 	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 */
-	public static MaskTranscoder bits(int bitCount, int shiftBits) {
-		validateMin(bitCount, 1);
-		return mask(ByteUtil.mask(shiftBits, bitCount), shiftBits);
+	public static Mask ofBits(int shift, int count) {
+		validateMin(count, 1);
+		return of(shift, ByteUtil.mask(shift, count));
 	}
 
 	/**
 	 * Return the standalone masked value.
 	 */
 	public long encode(long value) {
-		return encode(value, 0);
+		return encode(0, value);
 	}
 
 	/**
 	 * Return the standalone masked value.
 	 */
 	public int encodeInt(long value) {
-		return encodeInt(value, 0);
+		return encodeInt(0, value);
 	}
 
 	/**
 	 * Return the masked value combined with current value.
 	 */
-	public long encode(long value, long current) {
-		return setValue(current, mask, shiftBits, value);
+	public long encode(long current, long value) {
+		return setValue(current, mask, shift, value);
 	}
 
 	/**
 	 * Return the masked value combined with current value.
 	 */
-	public int encodeInt(long value, long current) {
-		return (int) encode(value, current);
+	public int encodeInt(long current, long value) {
+		return (int) encode(current, value);
 	}
 
 	/**
 	 * Extract the unmasked value from the current value.
 	 */
 	public long decode(long current) {
-		return getValue(current, mask, shiftBits);
+		return getValue(current, mask, shift);
 	}
 
 	/**
 	 * Extract the unmasked value from the current value.
 	 */
 	public int decodeInt(long current) {
-		return (int) getValue(current, mask, shiftBits);
+		return (int) getValue(current, mask, shift);
 	}
 
 	private static long setValue(long current, long mask, int shiftBits, long value) {
-		return (current & ~mask) | (value << shiftBits & mask);
+		return (current & ~mask) | ((value << shiftBits) & mask);
 	}
 
 	private static long getValue(long current, long mask, int shiftBits) {
@@ -84,7 +84,7 @@ public record MaskTranscoder(long mask, int shiftBits) {
 
 	@Override
 	public String toString() {
-		if (shiftBits == 0) return "0x" + Long.toHexString(mask);
-		return "0x" + Long.toHexString(mask) + ">>" + shiftBits;
+		if (shift == 0) return "0x" + Long.toHexString(mask);
+		return "0x" + Long.toHexString(mask) + ">>" + shift;
 	}
 }

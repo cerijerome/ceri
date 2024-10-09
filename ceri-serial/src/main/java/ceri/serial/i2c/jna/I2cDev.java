@@ -76,13 +76,16 @@ public class I2cDev {
 	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
 		/** Field to get/set typed flags. */
-		public static final Field.Typed<Rte, i2c_msg, i2c_msg_flag> FLAGS =
-			Field.<Rte, i2c_msg>ofLong(m -> ushort(m.flags), (m, l) -> m.flags = (short) l)
-				.typed(i2c_msg_flag.xcoder);
+		public static final Field.Types<Rte, i2c_msg, i2c_msg_flag> FLAGS;
 		public short addr;
 		public short flags;
 		public short len;
 		public Pointer buf;
+
+		static {
+			var f = Field.<Rte, i2c_msg>ofLong(m -> ushort(m.flags), (m, l) -> m.flags = (short) l);
+			FLAGS = f.types(i2c_msg_flag.xcoder);
+		}
 
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 

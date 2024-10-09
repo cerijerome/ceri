@@ -17,11 +17,11 @@ import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
- * Helper to convert between object types and integer values. Integers can map to a single instance
+ * Helper to convert between object types and long values. Longs can map to a single instance
  * or to a set of instances. Useful for converting between integers and enums.
  */
 public class TypeTranscoder<T> {
-	final MaskTranscoder mask;
+	final Mask mask;
 	final ToLongFunction<T> valueFn;
 	final Map<Long, T> lookup;
 
@@ -31,7 +31,7 @@ public class TypeTranscoder<T> {
 			return new Remainder<>(diff, ImmutableUtil.asSet(types));
 		}
 
-		public int intDiff() {
+		public int diffInt() {
 			return Math.toIntExact(diff());
 		}
 
@@ -40,12 +40,12 @@ public class TypeTranscoder<T> {
 		}
 
 		public boolean isExact() {
-			return diff == 0L;
+			return diff() == 0L;
 		}
 
 		@Override
 		public String toString() {
-			return types + "+" + diff;
+			return types() + "+" + diff();
 		}
 	}
 
@@ -60,53 +60,43 @@ public class TypeTranscoder<T> {
 	/**
 	 * Creates an encoder for unique type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
-		MaskTranscoder mask, Class<T> cls) {
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Mask mask,
+		Class<T> cls) {
 		return of(valueFn, mask, EnumUtil.enums(cls));
 	}
 
 	/**
 	 * Creates an encoder for unique type values, with optional mask.
 	 */
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, MaskTranscoder mask,
-		Iterable<T> ts) {
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Mask mask, Iterable<T> ts) {
 		return new TypeTranscoder<>(valueFn, mask, ts, null);
 	}
 
 	/**
 	 * Creates an encoder that allows duplicate type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
-		MaskTranscoder mask, Class<T> cls) {
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn, Mask mask,
+		Class<T> cls) {
 		return ofDup(valueFn, mask, EnumUtil.enums(cls));
 	}
 
 	/**
 	 * Creates an encoder that allows duplicate type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
-		MaskTranscoder mask, Iterable<T> ts) {
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn, Mask mask,
+		Iterable<T> ts) {
 		return new TypeTranscoder<>(valueFn, mask, ts, StreamUtil.mergeFirst());
 	}
 
-	protected TypeTranscoder(ToLongFunction<T> valueFn, MaskTranscoder mask, Iterable<T> ts,
+	protected TypeTranscoder(ToLongFunction<T> valueFn, Mask mask, Iterable<T> ts,
 		BinaryOperator<T> mergeFn) {
 		this.valueFn = valueFn;
-		this.mask = BasicUtil.defaultValue(mask, MaskTranscoder.NULL);
+		this.mask = BasicUtil.defaultValue(mask, Mask.NULL);
 		this.lookup = lookup(valueFn, ts, mergeFn);
 	}
 
 	public Collection<T> all() {
 		return lookup.values();
-	}
-
-	public <E extends Exception> FieldTranscoder<E, T> field(ValueField<E> accessor) {
-		return FieldTranscoder.of(accessor, this);
-	}
-
-	public <E extends Exception, U> FieldTranscoder.Typed<E, U, T>
-		field(ValueField.Typed<E, U> accessor) {
-		return FieldTranscoder.Typed.of(accessor, this);
 	}
 
 	public long encodeAll() {
@@ -125,14 +115,6 @@ public class TypeTranscoder<T> {
 	 */
 	public long encode(Iterable<T> ts) {
 		return mask.encode(encodeTypes(ts));
-	}
-
-	/**
-	 * Encodes the types and remainder to a value.
-	 */
-	public long encode(Remainder<T> rem) {
-		if (rem == null) return 0;
-		return mask.encodeInt(encodeTypes(rem.types) | rem.diff);
 	}
 
 	/**
@@ -155,13 +137,6 @@ public class TypeTranscoder<T> {
 	 */
 	public int encodeInt(Iterable<T> ts) {
 		return (int) encode(ts);
-	}
-
-	/**
-	 * Encodes the types and remainder to an int value.
-	 */
-	public int encodeInt(Remainder<T> rem) {
-		return (int) encode(rem);
 	}
 
 	/**

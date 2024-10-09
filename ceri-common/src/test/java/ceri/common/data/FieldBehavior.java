@@ -31,10 +31,11 @@ public class FieldBehavior {
 		private static final Field<Rte, Type, String> S = Field.of(t -> t.s, (t, v) -> t.s = v);
 		private static final Field.Long<Rte, Type> I = Field.ofUint(t -> t.i, (t, v) -> t.i = v);
 		private static final Field.Long<Rte, Type> L = Field.ofLong(t -> t.l, (t, v) -> t.l = v);
-		private static final Field.Long<Rte, Type> IM = I.masked(0xffff00L, 8);
-		private static final Field.Typed<Rte, Type, Bit> IMT = IM.typed(Bit.xcoder);
-		private static final Field.Long<Rte, Type> LM = L.masked(0xffffffff0000L, 16);
-		private static final Field.Typed<Rte, Type, Bit> LT = L.typed(Bit.xcoder);
+		private static final Field.Long<Rte, Type> IM = I.bits(8, 16);
+		private static final Field.Types<Rte, Type, Bit> IMT = IM.types(Bit.xcoder);
+		private static final Field.Type<Rte, Type, Bit> IT = I.type(Bit.xcoder);
+		private static final Field.Long<Rte, Type> LM = L.mask(16, 0xffffffff0000L);
+		private static final Field.Types<Rte, Type, Bit> LT = L.types(Bit.xcoder);
 		String s = null;
 		int i = 0;
 		long l = 0L;
@@ -112,6 +113,20 @@ public class FieldBehavior {
 	}
 
 	@Test
+	public void shouldSetWithBoolean() {
+		var type = new Type(null, 0, 0L);
+		Type.LM.set(type, true);
+		assertEquals(type.l, 0xffffffff0000L);
+		assertEquals(Type.LM.getBool(type), true);
+		type.l = -1L;
+		Type.LM.set(type, false);
+		assertEquals(type.l, 0xffff00000000ffffL);
+		assertEquals(Type.LM.getBool(type), false);
+		type.l = 0x10000;
+		assertEquals(Type.LM.getBool(type), true);
+	}
+
+	@Test
 	public void shouldSetTypedFieldValues() {
 		var type = new Type(null, 0, 0L);
 		Type.LT.set(type, Bit._63, Bit._15, Bit._1);
@@ -122,6 +137,17 @@ public class FieldBehavior {
 		assertEquals(type.l, 0x80008001L);
 		Type.LT.remove(type);
 		assertEquals(type.l, 0x80008001L);
+	}
+
+	@Test
+	public void shouldSetTypedFieldValue() {
+		var type = new Type(null, 0, 0L);
+		Type.IT.set(type, Bit._15);
+		assertEquals(type.i, 0x8000);
+		type.i = 0x80000000;
+		assertEquals(Type.IT.get(type), Bit._31);
+		type.i = 0xf0000000;
+		assertEquals(Type.IT.get(type), null); // no exact match
 	}
 
 	@Test

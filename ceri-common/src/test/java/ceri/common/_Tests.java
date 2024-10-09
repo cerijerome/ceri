@@ -80,7 +80,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.CrcBehavior.class, //
 	ceri.common.data.DataUtilTest.class, //
 	ceri.common.data.FieldBehavior.class, //
-	ceri.common.data.FieldTranscoderBehavior.class, //
 	ceri.common.data.IntAccessorBehavior.class, //
 	ceri.common.data.IntArrayBehavior.class, //
 	ceri.common.data.IntProviderBehavior.class, //
@@ -93,12 +92,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.LongReaderBehavior.class, //
 	ceri.common.data.LongReceiverBehavior.class, //
 	ceri.common.data.LongWriterBehavior.class, //
-	ceri.common.data.MaskTranscoderBehavior.class, //
+	ceri.common.data.MaskBehavior.class, //
 	ceri.common.data.NavigatorBehavior.class, //
 	ceri.common.data.SimpleBitSetBehavior.class, //
 	ceri.common.data.TypeTranscoderBehavior.class, //
 	ceri.common.data.TypeValueBehavior.class, //
-	ceri.common.data.ValueFieldBehavior.class, //
 	ceri.common.data.XorBehavior.class, //
 	// event
 	ceri.common.event.EventThreadBehavior.class, //

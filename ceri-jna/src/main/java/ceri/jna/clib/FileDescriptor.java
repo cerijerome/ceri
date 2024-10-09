@@ -7,7 +7,7 @@ import java.util.Set;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.Field;
-import ceri.common.data.MaskTranscoder;
+import ceri.common.data.Mask;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
@@ -22,7 +22,7 @@ public interface FileDescriptor extends Connector {
 	/** A stateless, no-op instance. */
 	FileDescriptor.Fixable NULL = new Null() {};
 	/** Typed flag accessor. */
-	Field.Typed<IOException, FileDescriptor, Open> FLAGS = flagField().typed(Open.xcoder);
+	Field.Types<IOException, FileDescriptor, Open> FLAGS = flagField().types(Open.xcoder);
 
 	/**
 	 * Flags for CLib open() and specific CFcntl() calls.
@@ -45,7 +45,7 @@ public interface FileDescriptor extends Connector {
 		SYNC(CFcntl.O_SYNC);
 
 		private static final TypeTranscoder<Open> xcoder = new TypeTranscoder<>(t -> t.value,
-			MaskTranscoder.NULL, EnumUtil.enums(Open.class), StreamUtil.mergeError()) {
+			Mask.NULL, EnumUtil.enums(Open.class), StreamUtil.mergeError()) {
 			@Override
 			protected long decodeWithRemainder(Collection<Open> receiver, long value) {
 				var rem = super.decodeWithRemainder(receiver, value);

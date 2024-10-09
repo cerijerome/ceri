@@ -82,25 +82,39 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		}
 
 		/**
+		 * Apply a mask of bit count and shift to current source access.
+		 */
+		public Long<E, T> bits(int shift, int count) {
+			return mask(Mask.ofBits(shift, count));
+		}
+
+		/**
 		 * Apply an absolute mask and bit shift to current source access.
 		 */
-		public Long<E, T> masked(long mask, int shiftBits) {
-			return masked(MaskTranscoder.mask(mask, shiftBits));
+		public Long<E, T> mask(int shift, long mask) {
+			return mask(Mask.of(shift, mask));
 		}
 
 		/**
 		 * Apply the mask transcoder to current source access.
 		 */
-		public Long<E, T> masked(MaskTranscoder mask) {
+		public Long<E, T> mask(Mask mask) {
 			return new Long<>(t -> mask.decode(getter().applyAsLong(t)),
-				(t, v) -> setter.accept(t, mask.encode(v, getter().applyAsLong(t))));
+				(t, v) -> setter.accept(t, mask.encode(getter().applyAsLong(t), v)));
+		}
+
+		/**
+		 * Provide a source transcoder for a single typed value.
+		 */
+		public <U> Type<E, T, U> type(TypeTranscoder<U> xcoder) {
+			return new Type<>(this, xcoder);
 		}
 
 		/**
 		 * Provide a source transcoder for multiple typed values.
 		 */
-		public <U> Typed<E, T, U> typed(TypeTranscoder<U> xcoder) {
-			return new Typed<>(this, xcoder);
+		public <U> Types<E, T, U> types(TypeTranscoder<U> xcoder) {
+			return new Types<>(this, xcoder);
 		}
 
 		/**
@@ -108,6 +122,13 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		 */
 		public long get(T source) throws E {
 			return validateSupported(getter, "Get").applyAsLong(source);
+		}
+
+		/**
+		 * Get source value as boolean.
+		 */
+		public boolean getBool(T source) throws E {
+			return get(source) != 0L;
 		}
 
 		/**
@@ -137,6 +158,13 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		public Long<E, T> set(T source, long value) throws E {
 			validateSupported(setter(), "Set").accept(source, value);
 			return this;
+		}
+
+		/**
+		 * Set source value to all on or all off.
+		 */
+		public Long<E, T> set(T source, boolean allOn) throws E {
+			return set(source, allOn ? -1L : 0L);
 		}
 
 		/**
@@ -174,20 +202,41 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 	/**
 	 * A field transcoder for multiple typed values.
 	 */
-	public record Typed<E extends Exception, T, U>(Long<E, T> field, TypeTranscoder<U> xcoder) {
+	public record Type<E extends Exception, T, U>(Long<E, T> field, TypeTranscoder<U> xcoder) {
+
+		/**
+		 * Sets the encoded type as the field value.
+		 */
+		public Type<E, T, U> set(T source, U type) throws E {
+			field().set(source, xcoder().encode(type));
+			return this;
+		}
+
+		/**
+		 * Decode the field value into a type. Any remainder is discarded.
+		 */
+		public U get(T source) throws E {
+			return xcoder().decode(field.get(source));
+		}
+	}
+
+	/**
+	 * A field transcoder for multiple typed values.
+	 */
+	public record Types<E extends Exception, T, U>(Long<E, T> field, TypeTranscoder<U> xcoder) {
 
 		/**
 		 * Sets the encoded types as the field value.
 		 */
 		@SafeVarargs
-		public final Typed<E, T, U> set(T source, U... types) throws E {
+		public final Types<E, T, U> set(T source, U... types) throws E {
 			return set(source, Arrays.asList(types));
 		}
 
 		/**
 		 * Sets the encoded types as the field value.
 		 */
-		public Typed<E, T, U> set(T source, Iterable<U> types) throws E {
+		public Types<E, T, U> set(T source, Iterable<U> types) throws E {
 			field().set(source, xcoder().encode(types));
 			return this;
 		}
@@ -196,14 +245,14 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		 * Adds the encoded types to the field value.
 		 */
 		@SafeVarargs
-		public final Typed<E, T, U> add(T source, U... types) throws E {
+		public final Types<E, T, U> add(T source, U... types) throws E {
 			return add(source, Arrays.asList(types));
 		}
 
 		/**
 		 * Adds the encoded types to the field value.
 		 */
-		public Typed<E, T, U> add(T source, Iterable<U> types) throws E {
+		public Types<E, T, U> add(T source, Iterable<U> types) throws E {
 			field().or(source, xcoder().encode(types));
 			return this;
 		}
@@ -212,14 +261,14 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		 * Removes the encoded types from the field value.
 		 */
 		@SafeVarargs
-		public final Typed<E, T, U> remove(T source, U... types) throws E {
+		public final Types<E, T, U> remove(T source, U... types) throws E {
 			return remove(source, Arrays.asList(types));
 		}
 
 		/**
 		 * Removes the encoded types from the field value.
 		 */
-		public Typed<E, T, U> remove(T source, Iterable<U> types) throws E {
+		public Types<E, T, U> remove(T source, Iterable<U> types) throws E {
 			field().and(source, ~xcoder().encode(types));
 			return this;
 		}
