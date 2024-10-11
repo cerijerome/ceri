@@ -13,17 +13,17 @@ import java.util.stream.Collectors;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
+import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
- * Helper to convert between object types and long values. Longs can map to a single instance
- * or to a set of instances. Useful for converting between integers and enums.
+ * Helper to convert between object types and long values. Longs can map to a single instance or to
+ * a set of instances. Useful for converting between integers and enums.
  */
 public class TypeTranscoder<T> {
-	final Mask mask;
-	final ToLongFunction<T> valueFn;
-	final Map<Long, T> lookup;
+	private final ToLongFunction<T> valueFn;
+	private final Map<Long, T> lookup;
 
 	public static record Remainder<T>(long diff, Set<T> types) {
 		@SafeVarargs
@@ -50,48 +50,38 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
-	 * Creates an encoder for unique type values.
+	 * Creates an encoder for unique type values, with optional mask.
 	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		Class<T> cls) {
-		return of(valueFn, null, cls);
+		return of(valueFn, EnumUtil.enums(cls));
 	}
 
 	/**
 	 * Creates an encoder for unique type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Mask mask,
-		Class<T> cls) {
-		return of(valueFn, mask, EnumUtil.enums(cls));
-	}
-
-	/**
-	 * Creates an encoder for unique type values, with optional mask.
-	 */
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Mask mask, Iterable<T> ts) {
-		return new TypeTranscoder<>(valueFn, mask, ts, null);
+	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Iterable<T> ts) {
+		return new TypeTranscoder<>(valueFn, ts, null);
 	}
 
 	/**
 	 * Creates an encoder that allows duplicate type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn, Mask mask,
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
 		Class<T> cls) {
-		return ofDup(valueFn, mask, EnumUtil.enums(cls));
+		return ofDup(valueFn, EnumUtil.enums(cls));
 	}
 
 	/**
 	 * Creates an encoder that allows duplicate type values, with optional mask.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn, Mask mask,
+	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
 		Iterable<T> ts) {
-		return new TypeTranscoder<>(valueFn, mask, ts, StreamUtil.mergeFirst());
+		return new TypeTranscoder<>(valueFn, ts, StreamUtil.mergeFirst());
 	}
 
-	protected TypeTranscoder(ToLongFunction<T> valueFn, Mask mask, Iterable<T> ts,
-		BinaryOperator<T> mergeFn) {
+	protected TypeTranscoder(ToLongFunction<T> valueFn, Iterable<T> ts, BinaryOperator<T> mergeFn) {
 		this.valueFn = valueFn;
-		this.mask = BasicUtil.defaultValue(mask, Mask.NULL);
 		this.lookup = lookup(valueFn, ts, mergeFn);
 	}
 
@@ -106,7 +96,7 @@ public class TypeTranscoder<T> {
 	@SafeVarargs
 	public final long encode(T... ts) {
 		if (ts == null || ts.length == 0) return 0;
-		if (ts.length == 1) return mask.encodeInt(encodeType(ts[0]));
+		if (ts.length == 1) return encodeType(ts[0]);
 		return encode(Arrays.asList(ts));
 	}
 
@@ -114,7 +104,11 @@ public class TypeTranscoder<T> {
 	 * Encodes the types to a value.
 	 */
 	public long encode(Iterable<T> ts) {
-		return mask.encode(encodeTypes(ts));
+		if (ts == null) return 0;
+		long value = 0;
+		for (T t : ts)
+			value |= encodeType(t);
+		return value;
 	}
 
 	/**
@@ -140,6 +134,105 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
+	 * Decode the value to return a single type matching the value exactly. Returns null if not
+	 * found.
+	 */
+	public T decode(long value) {
+		return lookup.get(value);
+	}
+
+	/**
+	 * Decode the value to return a single type matching the value exactly. Returns default if not
+	 * found.
+	 */
+	public T decode(long value, T def) {
+		return BasicUtil.defaultValue(decode(value), def);
+	}
+
+	/**
+	 * Decodes the value to find the first type that matches, with possible remainder. Returns null
+	 * if not found.
+	 */
+	public T decodeFirst(long value) {
+		T t = decode(value);
+		if (t != null) return t;
+		return findFirst(value);
+	}
+
+	/**
+	 * Decode the value to return a single type matching the value exactly. Throws
+	 * IllegalArgumentException if not found.
+	 */
+	public T decodeValid(long value) {
+		return decodeValid(value, ValidationUtil.VALUE);
+	}
+
+	/**
+	 * Decode the value to return a single type matching the value exactly. Throws
+	 * IllegalArgumentException if not found.
+	 */
+	public T decodeValid(long value, String name) {
+		return ValidationUtil.<T>validateLongLookup(this::decode, value, name);
+	}
+
+	/**
+	 * Decode the value into multiple types. Iteration over the types is in lookup entry order. Any
+	 * remainder is discarded.
+	 */
+	public Set<T> decodeAll(long value) {
+		var set = new LinkedHashSet<T>();
+		decodeRemainder(set, value);
+		return Collections.unmodifiableSet(set);
+	}
+
+	/**
+	 * Decode the value into multiple types with remainder value. Iteration over the types is in
+	 * lookup entry order.
+	 */
+	public Remainder<T> decodeRemainder(long value) {
+		Set<T> set = new LinkedHashSet<>();
+		long remainder = decodeRemainder(set, value);
+		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
+	}
+
+	/**
+	 * Decode the value into multiple types, and add to the given collection. Iteration over the
+	 * types is in lookup entry order. Any remainder is returned.
+	 */
+	public long decodeRemainder(Collection<T> receiver, long value) {
+		for (var entry : lookup.entrySet()) {
+			var k = entry.getKey();
+			if ((k & value) != k) continue;
+			if (receiver != null) receiver.add(entry.getValue());
+			value -= k;
+			if (value == 0) break;
+		}
+		return value;
+	}
+
+	/**
+	 * Decode the value into multiple types, and add to the given collection. Iteration over the
+	 * types is in lookup entry order. Any remainder is returned.
+	 */
+	public int decodeRemainderInt(Collection<T> receiver, int value) {
+		return (int) decodeRemainder(receiver, MathUtil.uint(value));
+	}
+
+	/**
+	 * Returns true if the value contains types with no remainder.
+	 */
+	public boolean isValid(long value) {
+		if (value == 0) return true;
+		if (lookup.containsKey(value)) return true;
+		for (var k : lookup.keySet()) {
+			if ((k & value) != k) continue;
+			value -= k;
+			if (value == 0) break;
+		}
+		return value == 0;
+	}
+
+	/**
 	 * Simple bitwise check if value contains the type. May not match decodeAll if type values
 	 * overlap.
 	 */
@@ -162,8 +255,9 @@ public class TypeTranscoder<T> {
 	 * overlap.
 	 */
 	public boolean hasAny(long value, Iterable<T> ts) {
-		return StreamUtil.stream(ts).mapToLong(valueFn).filter(v -> (value & v) == v).findAny()
-			.isPresent();
+		for (T t : ts)
+			if (has(value, t)) return true;
+		return false;
 	}
 
 	/**
@@ -180,98 +274,18 @@ public class TypeTranscoder<T> {
 	 * overlap.
 	 */
 	public boolean hasAll(long value, Iterable<T> ts) {
-		var mask = StreamUtil.bitwiseOr(StreamUtil.stream(ts).mapToLong(valueFn));
+		long mask = 0L;
+		for (var t : ts)
+			mask |= valueFn.applyAsLong(t);
 		return (value & mask) == mask;
 	}
 
-	/**
-	 * Returns true if the value contains types with no remainder.
-	 */
-	public boolean isValid(long value) {
-		value = mask.decode(value);
-		if (value == 0) return true;
-		if (lookup.containsKey(value)) return true;
-		for (var k : lookup.keySet()) {
-			if ((k & value) != k) continue;
-			value -= k;
-			if (value == 0) break;
-		}
-		return value == 0;
-	}
-
-	/**
-	 * Decode the value to return a single type. Returns null if not found.
-	 */
-	public T decode(long value) {
-		return lookup.get(mask.decode(value));
-	}
-
-	/**
-	 * Decode the value to return a single type. Returns default if not found.
-	 */
-	public T decode(long value, T def) {
-		return BasicUtil.defaultValue(decode(value), def);
-	}
-
-	/**
-	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
-	 */
-	public T decodeValid(long value) {
-		return decodeValid(value, ValidationUtil.VALUE);
-	}
-
-	/**
-	 * Decode the value to return a single type. Throws IllegalArgumentException if not found.
-	 */
-	public T decodeValid(long value, String name) {
-		return ValidationUtil.<T>validateLongLookup(this::decode, value, name);
-	}
-
-	/**
-	 * Decode the value into multiple types. Iteration over the types is in lookup entry order. Any
-	 * remainder is discarded.
-	 */
-	public Set<T> decodeAll(long value) {
-		return Collections.unmodifiableSet(decodeAll(new LinkedHashSet<>(), value));
-	}
-
-	/**
-	 * Decode the value into multiple types, and add to the given collection. Iteration over the
-	 * types is in lookup entry order. Any remainder is discarded.
-	 */
-	public <C extends Collection<T>> C decodeAll(C collection, long value) {
-		decodeWithRemainder(collection, value);
-		return collection;
-	}
-
-	/**
-	 * Decode the value into multiple types. Iteration over the types is in lookup entry order.
-	 */
-	public Remainder<T> decodeWithRemainder(long value) {
-		Set<T> set = new LinkedHashSet<>();
-		long remainder = decodeWithRemainder(set, value);
-		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
-	}
-
-	protected long decodeWithRemainder(Collection<T> receiver, long value) {
-		value = mask.decode(value);
-		for (var entry : lookup.entrySet()) {
+	private T findFirst(long unmasked) {
+		if (unmasked != 0) for (var entry : lookup.entrySet()) {
 			var k = entry.getKey();
-			T t = entry.getValue();
-			if ((k & value) != k) continue;
-			value -= k;
-			receiver.add(t);
-			if (value == 0) break;
+			if ((k & unmasked) == k) return entry.getValue();
 		}
-		return value;
-	}
-
-	private long encodeTypes(Iterable<T> ts) {
-		if (ts == null) return 0;
-		long value = 0;
-		for (T t : ts)
-			value |= encodeType(t);
-		return value;
+		return null;
 	}
 
 	private long encodeType(T t) {

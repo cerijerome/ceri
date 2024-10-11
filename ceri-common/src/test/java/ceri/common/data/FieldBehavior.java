@@ -168,8 +168,10 @@ public class FieldBehavior {
 	@Test
 	public void shouldCollectTypedFieldValues() {
 		var type = new Type(null, 0, 0xfL);
-		var c = Type.LT.get(type, new HashSet<>());
-		assertCollection(c, Bit._3, Bit._1, Bit._0);
+		var set = new HashSet<Bit>();
+		assertEquals(Type.LT.get(type, set), 4L);
+		assertEquals(Type.LT.getInt(type, set), 4);
+		assertCollection(set, Bit._3, Bit._1, Bit._0);
 	}
 
 	@Test

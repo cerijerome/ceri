@@ -1,14 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.data.Mask.ofInt;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -45,34 +43,36 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
-	public void shouldNotBreachRemainderEqualsContract() {
-		Remainder<E> t = xcoder.decodeWithRemainder(7);
-		Remainder<E> eq0 = xcoder.decodeWithRemainder(7);
-		Remainder<E> ne0 = xcoder.decodeWithRemainder(3);
-		Remainder<E> ne1 = xcoder.decodeWithRemainder(5);
-		Remainder<E> ne2 = xcoder.decodeWithRemainder(0);
-		exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2);
+	public void shouldProvideRemainderStringRepresentation() {
+		Remainder<E> t = xcoder.decodeRemainder(7);
+		assertString(t, "[a, b]+4");
 	}
 
 	@Test
-	public void shouldDecodeWithRemainder() {
-		var rem = xcoder.decodeWithRemainder(0);
+	public void shouldDecodeRemainder() {
+		var rem = xcoder.decodeRemainder(0);
 		assertRemainder(rem, 0);
 		assertEquals(rem.isExact(), true);
 		assertEquals(rem.isEmpty(), true);
-		rem = xcoder.decodeWithRemainder(0xf);
+		rem = xcoder.decodeRemainder(0xf);
 		assertRemainder(rem, 0, E.a, E.b, E.c);
 		assertEquals(rem.isExact(), true);
 		assertEquals(rem.isEmpty(), false);
-		rem = xcoder.decodeWithRemainder(7);
+		rem = xcoder.decodeRemainder(7);
 		assertRemainder(rem, 4, E.a, E.b);
 		assertEquals(rem.isExact(), false);
 		assertEquals(rem.isEmpty(), false);
-		rem = xcoder.decodeWithRemainder(4);
+		rem = xcoder.decodeRemainder(4);
 		assertRemainder(rem, 4);
 		assertEquals(rem.isExact(), false);
 		assertEquals(rem.isEmpty(), false);
+	}
+
+	@Test
+	public void shouldDecodeRemainderWithoutReceiver() {
+		assertEquals(xcoder.decodeRemainder(null, 0xf), 0L);
+		assertEquals(xcoder.decodeRemainder(null, 7), 4L);
+		assertEquals(xcoder.decodeRemainderInt(null, 7), 4);
 	}
 
 	@Test
@@ -85,19 +85,27 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldDetermineIfRemainderIsEmpty() {
-		assertTrue(xcoder.decodeWithRemainder(0).isEmpty());
-		assertFalse(xcoder.decodeWithRemainder(4).isEmpty());
-		assertFalse(xcoder.decodeWithRemainder(1).isEmpty());
-		assertFalse(xcoder.decodeWithRemainder(5).isEmpty());
+		assertTrue(xcoder.decodeRemainder(0).isEmpty());
+		assertFalse(xcoder.decodeRemainder(4).isEmpty());
+		assertFalse(xcoder.decodeRemainder(1).isEmpty());
+		assertFalse(xcoder.decodeRemainder(5).isEmpty());
 	}
 
 	@Test
 	public void shouldDetermineIfRemainderIsExact() {
-		assertTrue(xcoder.decodeWithRemainder(0).isExact());
-		assertTrue(xcoder.decodeWithRemainder(1).isExact());
-		assertTrue(xcoder.decodeWithRemainder(3).isExact());
-		assertFalse(xcoder.decodeWithRemainder(4).isExact());
-		assertFalse(xcoder.decodeWithRemainder(5).isExact());
+		assertTrue(xcoder.decodeRemainder(0).isExact());
+		assertTrue(xcoder.decodeRemainder(1).isExact());
+		assertTrue(xcoder.decodeRemainder(3).isExact());
+		assertFalse(xcoder.decodeRemainder(4).isExact());
+		assertFalse(xcoder.decodeRemainder(5).isExact());
+	}
+
+	@Test
+	public void shouldDecodeFirstMatch() {
+		assertEquals(xcoder.decodeFirst(0), null);
+		assertEquals(xcoder.decodeFirst(2), E.b);
+		assertEquals(xcoder.decodeFirst(0xe), E.b);
+		assertEquals(xcoder.decodeFirst(8), null);
 	}
 
 	@Test
@@ -143,10 +151,10 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldDecodeOverlappingValues() {
 		var array = Dup.values();
-		var xcoder = TypeTranscoder.ofDup(t -> t.value, null, Dup.class);
+		var xcoder = TypeTranscoder.ofDup(t -> t.value, Dup.class);
 		assertCollection(xcoder.decodeAll(3), Dup.a, Dup.b);
 		ArrayUtil.reverse(array);
-		xcoder = TypeTranscoder.ofDup(t -> t.value, null, Arrays.asList(array));
+		xcoder = TypeTranscoder.ofDup(t -> t.value, Arrays.asList(array));
 		assertCollection(xcoder.decodeAll(3), Dup.e);
 	}
 
@@ -193,7 +201,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldEncodeSubset() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, null, List.of(E.a, E.c));
+		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, List.of(E.a, E.c));
 		assertEquals(xcoder.encodeInt(), 0);
 		assertEquals(xcoder.encodeInt((E[]) null), 0);
 		assertEquals(xcoder.encodeInt((List<E>) null), 0);
@@ -201,27 +209,6 @@ public class TypeTranscoderBehavior {
 		assertEquals(xcoder.encodeInt(E.b), 0);
 		assertEquals(xcoder.encodeInt(E.a), E.a.value);
 		assertEquals(xcoder.encodeInt(E.b, E.c), E.c.value);
-	}
-
-	@Test
-	public void shouldTranscodeMaskValues() {
-		TypeTranscoder<E> xcoder = TypeTranscoder.of(t -> t.value, ofInt(0, 0x0e), E.class);
-		assertEquals(xcoder.encodeInt(E.a), 0);
-		assertEquals(xcoder.encodeInt(E.c), E.c.value);
-		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
-		assertEquals(xcoder.decode(0xd), E.c);
-		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
-	}
-
-	@Test
-	public void shouldTranscodeOverlappingMaskValues() {
-		TypeTranscoder<E> xcoder =
-			TypeTranscoder.<E>of(t -> t.value, ofInt(0, 0x0e), List.of(E.b, E.c));
-		assertEquals(xcoder.encodeInt(E.a), 0);
-		assertEquals(xcoder.encodeInt(E.c), E.c.value);
-		assertEquals(xcoder.encodeInt(E.a, E.c), E.c.value);
-		assertEquals(xcoder.decode(0xd), E.c);
-		assertCollection(xcoder.decodeAll(0xff), E.b, E.c);
 	}
 
 	@SafeVarargs

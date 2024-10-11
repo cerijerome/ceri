@@ -283,10 +283,18 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 
 		/**
 		 * Decode the field value into multiple types, and add to the given collection. Iteration
-		 * over the types is in lookup entry order. Any remainder is discarded.
+		 * over the types is in lookup entry order. Any remainder is returned.
 		 */
-		public <C extends Collection<U>> C get(T source, C collection) throws E {
-			return xcoder().decodeAll(collection, field.get(source));
+		public <C extends Collection<U>> long get(T source, C collection) throws E {
+			return xcoder().decodeRemainder(collection, field.get(source));
+		}
+
+		/**
+		 * Decode the field value into multiple types, and add to the given collection. Iteration
+		 * over the types is in lookup entry order. Any remainder is returned.
+		 */
+		public <C extends Collection<U>> int getInt(T source, C collection) throws E {
+			return (int) get(source, collection);
 		}
 
 		/**

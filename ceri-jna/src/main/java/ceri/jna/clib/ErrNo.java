@@ -164,7 +164,7 @@ public enum ErrNo {
 	ERPCMISMATCH(CErrNo.ERPCMISMATCH);
 
 	private static final TypeTranscoder<ErrNo> xcoder =
-		TypeTranscoder.ofDup(t -> t.code, null, ErrNo.class);
+		TypeTranscoder.ofDup(t -> t.code, ErrNo.class);
 	public final int code;
 
 	/**

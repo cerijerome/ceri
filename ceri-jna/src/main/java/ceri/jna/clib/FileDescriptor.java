@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.collection.EnumUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.data.Field;
-import ceri.common.data.Mask;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
@@ -44,15 +42,15 @@ public interface FileDescriptor extends Connector {
 		CLOEXEC(CFcntl.O_CLOEXEC),
 		SYNC(CFcntl.O_SYNC);
 
-		private static final TypeTranscoder<Open> xcoder = new TypeTranscoder<>(t -> t.value,
-			Mask.NULL, EnumUtil.enums(Open.class), StreamUtil.mergeError()) {
-			@Override
-			protected long decodeWithRemainder(Collection<Open> receiver, long value) {
-				var rem = super.decodeWithRemainder(receiver, value);
-				if ((value & CFcntl.O_ACCMODE) != 0) receiver.remove(RDONLY);
-				return rem;
-			}
-		};
+		private static final TypeTranscoder<Open> xcoder =
+			new TypeTranscoder<>(t -> t.value, EnumUtil.enums(Open.class), null) {
+				@Override
+				public long decodeRemainder(Collection<Open> receiver, long value) {
+					var rem = super.decodeRemainder(receiver, value);
+					if ((value & CFcntl.O_ACCMODE) != 0) receiver.remove(RDONLY);
+					return rem;
+				}
+			};
 		public final int value;
 
 		public static int encode(Open... flags) {
