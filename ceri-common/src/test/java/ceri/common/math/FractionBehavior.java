@@ -116,8 +116,8 @@ public class FractionBehavior {
 	}
 
 	public static void assertFraction(Fraction fraction, long numerator, long denominator) {
-		assertEquals(fraction.numerator, numerator);
-		assertEquals(fraction.denominator, denominator);
+		assertEquals(fraction.numerator(), numerator);
+		assertEquals(fraction.denominator(), denominator);
 	}
 
 }

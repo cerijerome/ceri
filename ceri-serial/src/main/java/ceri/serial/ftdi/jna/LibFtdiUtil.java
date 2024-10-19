@@ -12,8 +12,8 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_BM;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_R;
 import static java.util.regex.Pattern.compile;
 import java.util.regex.Pattern;
+import ceri.common.text.ParseUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.util.PrimitiveUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
@@ -77,7 +77,7 @@ public class LibFtdiUtil {
 			.address(Integer.decode(m.group(2))).build();
 		m = RegexUtil.matched(FIND_BY_VENDOR_INDEX, descriptor);
 		if (m != null) return LibUsbFinder.builder().vendor(Integer.decode(m.group(1)))
-			.product(Integer.decode(m.group(2))).index(PrimitiveUtil.valueOf(m.group(3), 0))
+			.product(Integer.decode(m.group(2))).index(ParseUtil.parseInt(m.group(3), 0))
 			.build();
 		m = RegexUtil.matched(FIND_BY_VENDOR_SERIAL, descriptor);
 		if (m != null) return LibUsbFinder.builder().vendor(Integer.decode(m.group(1)))

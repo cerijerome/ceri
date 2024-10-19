@@ -3,6 +3,7 @@ package ceri.common.text;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
@@ -234,13 +235,9 @@ public class RegexUtilTest {
 	public void testTypedGroups() {
 		Matcher m = MULTI_PATTERN.matcher("123 true 4.5");
 		assertTrue(m.find());
-		assertTrue(RegexUtil.booleanGroup(m, 2));
-		assertEquals(RegexUtil.byteGroup(m, 1), (byte) 123);
-		assertEquals(RegexUtil.shortGroup(m, 1), (short) 123);
-		assertEquals(RegexUtil.intGroup(m, 1), 123);
-		assertEquals(RegexUtil.longGroup(m, 1), 123L);
-		assertEquals(RegexUtil.floatGroup(m, 3), 4.5f);
-		assertEquals(RegexUtil.doubleGroup(m, 3), 4.5);
+		assertEquals(RegexUtil.parse(m, 1).toInt(), 123);
+		assertEquals(RegexUtil.parse(m, 2).toBool(), true);
+		assertEquals(RegexUtil.parse(m, 3).toDouble(), 4.5);
 	}
 
 	@Test
@@ -307,49 +304,6 @@ public class RegexUtilTest {
 	}
 
 	@Test
-	public void testFindBoolean() {
-		assertTrue(RegexUtil.findBoolean(USTRING_PATTERN, "falseTRUE123"));
-		assertFalse(RegexUtil.findBoolean(INT_PATTERN, "abc123DEF456ghi789JKL"));
-		assertFalse(RegexUtil.findBoolean(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindByte() {
-		assertEquals(RegexUtil.findByte(INT_PATTERN, "abc123DEF456ghi789JKL"), (byte) 123);
-		assertThrown(() -> RegexUtil.findByte(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindShort() {
-		assertEquals(RegexUtil.findShort(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123);
-		assertThrown(() -> RegexUtil.findShort(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindInt() {
-		assertEquals(RegexUtil.findInt(INT_PATTERN, "abc123DEF456ghi789JKL"), 123);
-		assertThrown(() -> RegexUtil.findInt(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindLong() {
-		assertEquals(RegexUtil.findLong(INT_PATTERN, "abc123DEF456ghi789JKL"), 123L);
-		assertThrown(() -> RegexUtil.findLong(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindFloat() {
-		assertEquals(RegexUtil.findFloat(INT_PATTERN, "abc123DEF456ghi789JKL"), 123f);
-		assertThrown(() -> RegexUtil.findFloat(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindDouble() {
-		assertEquals(RegexUtil.findDouble(INT_PATTERN, "abc123DEF456ghi789JKL"), 123.0);
-		assertThrown(() -> RegexUtil.findDouble(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
 	public void testFindAll() {
 		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc", "ghi");
 		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF", "JKL");
@@ -358,53 +312,26 @@ public class RegexUtilTest {
 	}
 
 	@Test
-	public void testFindAllBooleans() {
-		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abcDEFtrue123TRUE456True"),
+	public void testParseFind() {
+		assertEquals(RegexUtil.parseFind(USTRING_PATTERN, "falseTRUE123").toBool(), true);
+		assertEquals(RegexUtil.parseFind(INT_PATTERN, "abc123DEF456ghi789JKL").toInt(), 123);
+		assertEquals(RegexUtil.parseFind(INT_PATTERN, "abc123DEF456ghi789JKL").toDouble(), 123.0);
+		assertIllegalArg(() -> RegexUtil.parseFind(LSTRING_PATTERN, "abc123DEF456ghi").toDouble());
+	}
+
+	@Test
+	public void testParseFindAll() {
+		assertCollection(
+			RegexUtil.parseFindAll(LSTRING_PATTERN, "abcDEFtrue123TRUE456True").asBools().get(),
 			false, true, false);
-		assertCollection(RegexUtil.findAllBooleans(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), false,
-			false);
-	}
-
-	@Test
-	public void testFindAllBytes() {
-		assertCollection(RegexUtil.findAllBytes(INT_PATTERN, "abc123DEF127ghi0000JKL"), (byte) 123,
-			(byte) 127, (byte) 0);
-		assertThrown(() -> RegexUtil.findAllBytes(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindAllShorts() {
-		assertCollection(RegexUtil.findAllShorts(INT_PATTERN, "abc123DEF456ghi789JKL"), (short) 123,
-			(short) 456, (short) 789);
-		assertThrown(() -> RegexUtil.findAllShorts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindAllInts() {
-		assertCollection(RegexUtil.findAllInts(INT_PATTERN, "abc123DEF456ghi789JKL"), 123, 456,
+		assertCollection(
+			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asInts().get(), 123, 456,
 			789);
-		assertThrown(() -> RegexUtil.findAllInts(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindAllLongs() {
-		assertCollection(RegexUtil.findAllLongs(INT_PATTERN, "abc123DEF456ghi789JKL"), 123L, 456L,
-			789L);
-		assertThrown(() -> RegexUtil.findAllLongs(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindAllFloats() {
-		assertCollection(RegexUtil.findAllFloats(INT_PATTERN, "abc123DEF456ghi789JKL"), 123f, 456f,
-			789f);
-		assertThrown(() -> RegexUtil.findAllFloats(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
-	}
-
-	@Test
-	public void testFindAllDoubles() {
-		assertCollection(RegexUtil.findAllDoubles(INT_PATTERN, "abc123DEF456ghi789JKL"), 123.0,
+		assertCollection(
+			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asDoubles().get(), 123.0,
 			456.0, 789.0);
-		assertThrown(() -> RegexUtil.findAllDoubles(LSTRING_PATTERN, "abc123DEF456ghi789JKL"));
+		assertThrown(() -> RegexUtil.parseFindAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL")
+			.asDoubles().get());
 	}
 
 }

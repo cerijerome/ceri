@@ -2,8 +2,8 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.PrimitiveUtil.decode;
-import static ceri.common.util.PrimitiveUtil.valueOf;
+import static ceri.common.text.ParseUtil.decodeInt;
+import static ceri.common.text.ParseUtil.parseInt;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;
@@ -59,13 +59,13 @@ public class LibUsbFinder {
 		List<String> items = DsvParser.split(descriptor, ':');
 		int size = items.size();
 		int i = 0;
-		if (i < size) b.vendor(decode(items.get(i++), 0));
-		if (i < size) b.product(decode(items.get(i++), 0));
-		if (i < size) b.bus(decode(items.get(i++), 0));
-		if (i < size) b.address(decode(items.get(i++), 0));
+		if (i < size) b.vendor(decodeInt(items.get(i++), 0));
+		if (i < size) b.product(decodeInt(items.get(i++), 0));
+		if (i < size) b.bus(decodeInt(items.get(i++), 0));
+		if (i < size) b.address(decodeInt(items.get(i++), 0));
 		if (i < size) b.description(items.get(i++));
 		if (i < size) b.serial(items.get(i++));
-		if (i < size) b.index(valueOf(items.get(i++), 0));
+		if (i < size) b.index(parseInt(items.get(i++), 0));
 		return b.build();
 	}
 

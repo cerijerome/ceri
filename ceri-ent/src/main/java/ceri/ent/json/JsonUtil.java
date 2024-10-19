@@ -11,9 +11,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
-import ceri.common.property.PathFactory;
+import ceri.common.property.Separator;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.util.PrimitiveUtil;
+import ceri.common.text.ParseUtil;
+import ceri.common.text.StringUtil;
 
 public class JsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -76,7 +77,7 @@ public class JsonUtil {
 	 * such as "abc.def.1.ghi".
 	 */
 	public static Object extract(Object gsonObject, String path) {
-		List<String> parts = PathFactory.dot.split(path);
+		List<String> parts = Separator.DOT.split(path);
 		Object value = gsonObject;
 		for (String part : parts) {
 			Map<?, ?> map = ReflectUtil.castOrNull(Map.class, value);
@@ -84,7 +85,7 @@ public class JsonUtil {
 			else {
 				List<?> list = ReflectUtil.castOrNull(List.class, value);
 				if (list == null) return null;
-				Integer index = PrimitiveUtil.valueOf(part, (Integer) null);
+				Integer index = ParseUtil.parseInt(part);
 				if (index == null || list.size() <= index) return null;
 				value = list.get(index);
 			}
@@ -98,7 +99,7 @@ public class JsonUtil {
 
 	public static Character extractChar(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
-		return PrimitiveUtil.charValue(ReflectUtil.castOrNull(String.class, obj));
+		return StringUtil.charAt(ReflectUtil.castOrNull(String.class, obj), 0, null);
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {
@@ -106,31 +107,31 @@ public class JsonUtil {
 		if (obj == null) return null;
 		Boolean b = ReflectUtil.castOrNull(Boolean.class, obj);
 		if (b != null) return b;
-		return PrimitiveUtil.booleanValue(ReflectUtil.castOrNull(String.class, obj));
+		return ParseUtil.parseBool(ReflectUtil.castOrNull(String.class, obj));
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::byteValue, PrimitiveUtil::byteValue);
+		return extractNumber(gsonObject, path, Number::byteValue, ParseUtil::parseByte);
 	}
 
 	public static Short extractShort(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::shortValue, PrimitiveUtil::shortValue);
+		return extractNumber(gsonObject, path, Number::shortValue, ParseUtil::parseShort);
 	}
 
 	public static Integer extractInt(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::intValue, PrimitiveUtil::intValue);
+		return extractNumber(gsonObject, path, Number::intValue, ParseUtil::parseInt);
 	}
 
 	public static Long extractLong(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::longValue, PrimitiveUtil::longValue);
+		return extractNumber(gsonObject, path, Number::longValue, ParseUtil::parseLong);
 	}
 
 	public static Float extractFloat(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::floatValue, PrimitiveUtil::floatValue);
+		return extractNumber(gsonObject, path, Number::floatValue, ParseUtil::parseFloat);
 	}
 
 	public static Double extractDouble(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::doubleValue, PrimitiveUtil::doubleValue);
+		return extractNumber(gsonObject, path, Number::doubleValue, ParseUtil::parseDouble);
 	}
 
 	private static <T extends Number> T extractNumber(Object gsonObject, String path,

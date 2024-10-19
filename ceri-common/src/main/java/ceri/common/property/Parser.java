@@ -1,28 +1,40 @@
 package ceri.common.property;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.text.NumberParser.DINT;
+import static ceri.common.text.NumberParser.DLONG;
 import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.IntFunction;
+import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import java.util.regex.Pattern;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.ExceptionToBooleanFunction;
 import ceri.common.function.ExceptionToDoubleFunction;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.ExceptionToLongFunction;
 import ceri.common.function.FunctionUtil;
-import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -32,15 +44,58 @@ import ceri.common.util.BasicUtil;
 public class Parser {
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Boolean> BOOL =
 		Boolean::parseBoolean;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Integer> INT =
-		NumberParser::decodeInt;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Long> LONG =
-		NumberParser::decodeLong;
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Double> DOUBLE =
 		Double::parseDouble;
 
 	private Parser() {}
 
+	/**
+	 * Returns a string parser for the value.
+	 */
+	public static <T> Parser.Type<T> type(T value) {
+		return () -> value;
+	}
+
+	/**
+	 * Creates an instance using the fixed values.
+	 */
+	@SafeVarargs
+	public static <T> Types<T> types(T... values) {
+		return types(Arrays.asList(values));
+	}
+
+	/**
+	 * Creates an instance using the value collection.
+	 */
+	public static <T> Types<T> types(Collection<T> values) {
+		return () -> values;
+	}
+
+	/**
+	 * Returns a string parser for the value.
+	 */
+	public static Parser.String string(java.lang.String value) {
+		return () -> value;
+	}
+
+	/**
+	 * Creates a string collection parser for the values.
+	 */
+	@SafeVarargs
+	public static Strings strings(java.lang.String... values) {
+		return strings(Arrays.asList(values));
+	}
+
+	/**
+	 * Creates a string collection parser for the values.
+	 */
+	public static Strings strings(Collection<java.lang.String> values) {
+		return () -> values;
+	}
+
+	/**
+	 * Interface for setting primitive array values.
+	 */
 	private interface ArrayConsumer<E extends Exception, A, T> {
 		void accept(A array, int i, T t) throws E;
 	}
@@ -51,16 +106,9 @@ public class Parser {
 	public interface Type<T> extends ExceptionSupplier<RuntimeException, T> {
 
 		/**
-		 * Creates an instance using the fixed value.
-		 */
-		static <T> Type<T> of(T value) {
-			return () -> value;
-		}
-
-		/**
 		 * Creates an instance using the value supplier.
 		 */
-		static <T> Type<T> from(ExceptionSupplier<RuntimeException, T> supplier) {
+		static <T> Type<T> from(ExceptionSupplier<RuntimeException, ? extends T> supplier) {
 			return supplier::get;
 		}
 
@@ -74,7 +122,8 @@ public class Parser {
 		/**
 		 * Access the value or use default supplier if null.
 		 */
-		default <E extends Exception> T get(ExceptionSupplier<E, T> defSupplier) throws E {
+		default <E extends Exception> T get(ExceptionSupplier<E, ? extends T> defSupplier)
+			throws E {
 			return BasicUtil.defaultValue(get(), defSupplier);
 		}
 
@@ -116,7 +165,7 @@ public class Parser {
 		/**
 		 * Provides access with a default value supplier if the supplied value is null.
 		 */
-		default Type<T> def(ExceptionSupplier<RuntimeException, T> defSupplier) {
+		default Type<T> def(ExceptionSupplier<RuntimeException, ? extends T> defSupplier) {
 			return () -> get(defSupplier);
 		}
 
@@ -124,181 +173,193 @@ public class Parser {
 		 * Flattens the accessors to use the evaluated value.
 		 */
 		default Type<T> flat() {
-			return of(get());
+			return Parser.type(get());
 		}
 
 		/**
 		 * Converts the value using a constructor. Returns null if the value is null.
 		 */
-		default <E extends Exception, R> R to(ExceptionFunction<E, T, R> constructor) throws E {
+		default <E extends Exception, R> R to(ExceptionFunction<E, ? super T, R> constructor)
+			throws E {
 			return to(constructor, null);
 		}
 
 		/**
 		 * Converts the value using a constructor. Returns default if the value is null.
 		 */
-		default <E extends Exception, R> R to(ExceptionFunction<E, T, R> constructor, R def)
-			throws E {
+		default <E extends Exception, R> R
+			to(ExceptionFunction<E, ? super T, ? extends R> constructor, R def) throws E {
 			return parseValue(get(), constructor, def);
 		}
 
 		/**
 		 * Converts the accessor using a constructor.
 		 */
-		default <R> Type<R> as(ExceptionFunction<RuntimeException, T, R> constructor) {
+		default <R> Type<R> as(ExceptionFunction<RuntimeException, ? super T, R> constructor) {
 			return () -> parseValue(get(), constructor, null);
 		}
 
 		/**
 		 * Converts the evaluated value and provides an accessor.
 		 */
-		default <E extends Exception, R> Type<R> asFlat(ExceptionFunction<E, T, R> constructor)
-			throws E {
-			return of(to(constructor, null));
+		default <E extends Exception, R> Type<R>
+			asFlat(ExceptionFunction<E, ? super T, R> constructor) throws E {
+			return Parser.type(to(constructor, null));
 		}
 
 		/**
-		 * Returns the accessor for the value converted into a list. The list is null if the value
-		 * is null. Consider calling flat() if the accessor does not need dynamic access to the
-		 * original value.
+		 * Returns the accessor for the value converted into a collection. The collection is null if
+		 * the value is null. Consider calling flat() if the accessor does not need dynamic access
+		 * to the original value.
 		 */
-		default <R> Types<R> split(ExceptionFunction<RuntimeException, T, List<R>> splitter) {
+		default <R> Types<R> split(
+			ExceptionFunction<RuntimeException, ? super T, ? extends Collection<R>> splitter) {
 			return () -> splitValue(get(), splitter::apply);
 		}
 
 		/**
-		 * Returns the accessor for the value converted into a list via an array. The list is null
-		 * if the value is null. Consider calling flat() if the accessor does not need dynamic
-		 * access to the original value.
+		 * Returns the accessor for the value converted into a collection via an array. The
+		 * collection is null if the value is null. Consider calling flat() if the accessor does not
+		 * need dynamic access to the original value.
 		 */
-		default <R> Types<R> splitArray(ExceptionFunction<RuntimeException, T, R[]> splitter) {
+		default <R> Types<R>
+			splitArray(ExceptionFunction<RuntimeException, ? super T, R[]> splitter) {
 			return split(t -> FunctionUtil.safeApply(splitter.apply(t), Arrays::asList));
 		}
 
 		/**
 		 * Consume the value if not null.
 		 */
-		default <E extends Exception> void accept(ExceptionConsumer<E, T> consumer) throws E {
+		default <E extends Exception> void accept(ExceptionConsumer<E, ? super T> consumer)
+			throws E {
 			FunctionUtil.safeAccept(get(), consumer);
 		}
 	}
 
 	/**
-	 * Provides access to a list of typed values.
+	 * Provides access to a collection of typed values.
 	 */
-	public interface Types<T> extends Type<List<T>> {
+	public interface Types<T> extends Type<Collection<T>> {
 
 		/**
-		 * Creates an instance using the fixed values.
+		 * Creates an instance using the value collection supplier.
 		 */
-		@SafeVarargs
-		static <T> Types<T> of(T... values) {
-			return of(Arrays.asList(values));
-		}
-
-		/**
-		 * Creates an instance using the value list.
-		 */
-		static <T> Types<T> of(List<T> values) {
-			return () -> values;
-		}
-
-		/**
-		 * Creates an instance using the value list supplier.
-		 */
-		static <T> Types<T> from(ExceptionSupplier<RuntimeException, List<T>> type) {
+		static <T> Types<T>
+			from(ExceptionSupplier<RuntimeException, ? extends Collection<T>> type) {
 			return type::get;
 		}
 
 		/**
-		 * Returns the value list, or default values as a list if null.
+		 * Returns the value collection, or default values as a list if null.
 		 */
 		default Types<T> def(@SuppressWarnings("unchecked") T... defs) {
 			return def(Arrays.asList(defs));
 		}
 
 		@Override
-		default Types<T> def(List<T> def) {
+		default Types<T> def(Collection<T> def) {
 			return () -> BasicUtil.defaultValue(get(), def);
 		}
 
 		@Override
-		default Types<T> def(ExceptionSupplier<RuntimeException, List<T>> defSupplier) {
+		default Types<T>
+			def(ExceptionSupplier<RuntimeException, ? extends Collection<T>> defSupplier) {
 			return () -> BasicUtil.defaultValue(get(), defSupplier::get);
 		}
 
 		@Override
 		default Types<T> flat() {
-			return of(get());
+			return Parser.types(get());
 		}
 
 		/**
-		 * Returns true if the list is null or empty.
+		 * Returns true if the collection is null or empty.
 		 */
 		default boolean empty() {
 			return CollectionUtil.empty(get());
 		}
 
 		/**
-		 * Returns an accessor to the value at given index, or null if out of range, or if list is
-		 * null.
-		 */
-		default Type<T> at(int index) {
-			return () -> FunctionUtil.safeApply(get(),
-				list -> CollectionUtil.getOrDefault(list, index, null));
-		}
-
-		/**
-		 * Returns the values as an array, which is empty if the value list is null.
+		 * Returns the values as an array, or returns null if the value collection is null.
 		 */
 		default T[] array(IntFunction<T[]> arrayFn) {
-			return FunctionUtil.safeApplyGet(get(), list -> list.toArray(arrayFn),
-				() -> arrayFn.apply(0));
+			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn));
 		}
 
 		/**
-		 * Returns the values as a stream, which is empty if the value list is null.
+		 * Returns the values as an array, or returns default if the value collection is null.
+		 */
+		default T[] arrayDef(IntFunction<T[]> arrayFn, @SuppressWarnings("unchecked") T... defs) {
+			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn), defs);
+		}
+
+		/**
+		 * Returns the values as a stream, which is empty if the value collection is null.
 		 */
 		default Stream<T> stream() {
-			return FunctionUtil.safeApply(get(), List::stream, Stream.empty());
+			return FunctionUtil.safeApply(get(), Collection::stream, Stream.empty());
 		}
 
 		/**
-		 * Transforms the list to a boolean array, with default array if the value list is null.
-		 * Null list values are passed to the transform function.
+		 * Transforms as each value for an int stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
 		 */
-		default <E extends Exception> boolean[]
-			toBoolArray(ExceptionToBooleanFunction<E, T> constructor, boolean... def) throws E {
+		default IntStream intStream(ToIntFunction<? super T> constructor) {
+			return stream().mapToInt(constructor);
+		}
+
+		/**
+		 * Transforms as each value for a long stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
+		 */
+		default LongStream longStream(ToLongFunction<? super T> constructor) {
+			return stream().mapToLong(constructor);
+		}
+
+		/**
+		 * Transforms as each value for a double stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
+		 */
+		default DoubleStream doubleStream(ToDoubleFunction<? super T> constructor) {
+			return stream().mapToDouble(constructor);
+		}
+
+		/**
+		 * Transforms the collection to a boolean array, with default array if the value collection
+		 * is null. Null collection values are passed to the transform function.
+		 */
+		default <E extends Exception> boolean[] toBoolArray(
+			ExceptionToBooleanFunction<E, ? super T> constructor, boolean... def) throws E {
 			ExceptionFunction<E, T, Boolean> fn = constructor::applyAsBoolean;
 			return toPrimitiveArray(get(), boolean[]::new,
 				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to an int array, with default array if the value list is null. Null
-		 * list values are passed to the transform function.
+		 * Transforms the collection to an int array, with default array if the value collection is
+		 * null. Null collection values are passed to the transform function.
 		 */
-		default <E extends Exception> int[] toIntArray(ExceptionToIntFunction<E, T> constructor,
-			int... def) throws E {
+		default <E extends Exception> int[]
+			toIntArray(ExceptionToIntFunction<E, ? super T> constructor, int... def) throws E {
 			ExceptionFunction<E, T, Integer> fn = constructor::applyAsInt;
 			return toPrimitiveArray(get(), int[]::new,
 				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to a long array, with default array if the value list is null. Null
-		 * list values are passed to the transform function.
+		 * Transforms the collection to a long array, with default array if the value collection is
+		 * null. Null collection values are passed to the transform function.
 		 */
-		default <E extends Exception> long[] toLongArray(ExceptionToLongFunction<E, T> constructor,
-			long... def) throws E {
+		default <E extends Exception> long[]
+			toLongArray(ExceptionToLongFunction<E, ? super T> constructor, long... def) throws E {
 			ExceptionFunction<E, T, Long> fn = constructor::applyAsLong;
 			return toPrimitiveArray(get(), long[]::new,
 				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
 		}
 
 		/**
-		 * Transforms the list to a double array, with default array if the value list is null. Null
-		 * list values are passed to the transform function.
+		 * Transforms the collection to a double array, with default array if the value collection
+		 * is null. Null collection values are passed to the transform function.
 		 */
 		default <E extends Exception> double[]
 			toDoubleArray(ExceptionToDoubleFunction<E, T> constructor, double... def) throws E {
@@ -308,7 +369,33 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms each non-null value to a new list, or null if the list is null.
+		 * Collects each value into a new collection using a supplier, or returns null if the value
+		 * collection is null.
+		 */
+		default <C extends Collection<T>> C collect(Supplier<C> supplier) {
+			return FunctionUtil.safeApply(get(),
+				values -> CollectionUtil.collect(values, supplier));
+		}
+
+		/**
+		 * Collects each value into a new unmodifiable list, or returns null if the value collection
+		 * is null.
+		 */
+		default List<T> toList() {
+			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsList);
+		}
+
+		/**
+		 * Collects each value into a new unmodifiable set, or returns null if the value collection
+		 * is null.
+		 */
+		default Set<T> toSet() {
+			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsSet);
+		}
+
+		/**
+		 * Transforms each non-null value to a new unmodifiable list, or null if the collection is
+		 * null.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor)
 			throws E {
@@ -316,7 +403,8 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms each non-null value to a new list, or default if the list is null.
+		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
+		 * is null.
 		 */
 		default <E extends Exception, R> List<R> toEachDef(ExceptionFunction<E, T, R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
@@ -324,11 +412,26 @@ public class Parser {
 		}
 
 		/**
-		 * Transforms each non-null value to a new list, or default if the list is null.
+		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
+		 * is null.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor,
 			List<R> def) throws E {
 			return parseValues(get(), def, constructor);
+		}
+
+		/**
+		 * Removes null values.
+		 */
+		default Types<T> filter() {
+			return filter(Objects::nonNull);
+		}
+
+		/**
+		 * Removes values that do not match the filter.
+		 */
+		default Types<T> filter(ExceptionPredicate<RuntimeException, T> filter) {
+			return () -> filterValues(get(), filter);
 		}
 
 		/**
@@ -343,16 +446,16 @@ public class Parser {
 		 */
 		default <E extends Exception, R> Types<R> asEachFlat(ExceptionFunction<E, T, R> constructor)
 			throws E {
-			return of(toEach(constructor, null));
+			return Parser.types(toEach(constructor, null));
 		}
 
 		/**
-		 * Iterates the value list, calling the consumer, if the value list is not null. Any null
-		 * list items will be passed to the consumer.
+		 * Iterates the value collection, calling the consumer, if the value collection is not null.
+		 * Any null collection items will be passed to the consumer.
 		 */
 		default <E extends Exception> void each(ExceptionConsumer<E, T> consumer) throws E {
-			FunctionUtil.safeAccept(get(), list -> {
-				for (var t : list)
+			FunctionUtil.safeAccept(get(), collection -> {
+				for (var t : collection)
 					consumer.accept(t);
 			});
 		}
@@ -363,10 +466,6 @@ public class Parser {
 	 */
 	@FunctionalInterface
 	public interface String extends Type<java.lang.String> {
-
-		static Parser.String of(java.lang.String value) {
-			return () -> value;
-		}
 
 		static Parser.String from(ExceptionSupplier<RuntimeException, java.lang.String> type) {
 			return type::get;
@@ -379,7 +478,7 @@ public class Parser {
 
 		@Override
 		default Parser.String
-			def(ExceptionSupplier<RuntimeException, java.lang.String> defSupplier) {
+			def(ExceptionSupplier<RuntimeException, ? extends java.lang.String> defSupplier) {
 			return () -> BasicUtil.defaultValue(get(), defSupplier);
 		}
 
@@ -388,7 +487,7 @@ public class Parser {
 		 */
 		@Override
 		default Parser.String flat() {
-			return of(get());
+			return Parser.string(get());
 		}
 
 		/**
@@ -402,7 +501,14 @@ public class Parser {
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			return () -> FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter), null);
+			return () -> FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter));
+		}
+
+		/**
+		 * Returns an accessor for values split by separator.
+		 */
+		default Strings split(Separator separator) {
+			return () -> FunctionUtil.safeApply(get(), v -> separator.split(v));
 		}
 
 		/**
@@ -518,7 +624,7 @@ public class Parser {
 		 * Provide a new typed accessor. Converts the value to int from -0xffffffff to 0xffffffff.
 		 */
 		default Type<Integer> asInt() {
-			return as(INT);
+			return as(DINT);
 		}
 
 		/**
@@ -526,7 +632,7 @@ public class Parser {
 		 * 0xffffffff_ffffffff.
 		 */
 		default Type<Long> asLong() {
-			return as(LONG);
+			return as(DLONG);
 		}
 
 		/**
@@ -546,35 +652,21 @@ public class Parser {
 	}
 
 	/**
-	 * Provides access to a list of strings.
+	 * Provides access to a collection of strings.
 	 */
 	@FunctionalInterface
 	public interface Strings extends Types<java.lang.String> {
 
 		/**
-		 * Creates an instance using the fixed values.
+		 * Creates an instance using the value collection supplier.
 		 */
-		@SafeVarargs
-		static Strings of(java.lang.String... values) {
-			return of(Arrays.asList(values));
-		}
-
-		/**
-		 * Creates an instance using the value list.
-		 */
-		static Strings of(List<java.lang.String> values) {
-			return () -> values;
-		}
-
-		/**
-		 * Creates an instance using the value list supplier.
-		 */
-		static Strings from(ExceptionSupplier<RuntimeException, List<java.lang.String>> type) {
+		static Strings
+			from(ExceptionSupplier<RuntimeException, ? extends Collection<java.lang.String>> type) {
 			return type::get;
 		}
 
 		/**
-		 * Returns the value list, or default values as a list if null.
+		 * Returns the value collection, or default values as a list if null.
 		 */
 		@Override
 		default Strings def(java.lang.String... defs) {
@@ -582,72 +674,114 @@ public class Parser {
 		}
 
 		@Override
-		default Strings def(List<java.lang.String> def) {
+		default Strings def(Collection<java.lang.String> def) {
 			return () -> BasicUtil.defaultValue(get(), def);
 		}
 
 		@Override
-		default Strings
-			def(ExceptionSupplier<RuntimeException, List<java.lang.String>> defSupplier) {
+		default Strings def(
+			ExceptionSupplier<RuntimeException, ? extends Collection<java.lang.String>> defSupplier) {
 			return () -> BasicUtil.defaultValue(get(), defSupplier::get);
 		}
 
 		@Override
 		default Strings flat() {
-			return of(get());
-		}
-
-		@Override
-		default Parser.String at(int index) {
-			return () -> CollectionUtil.getOrDefault(get(), index, null);
+			return Parser.strings(get());
 		}
 
 		/**
-		 * Returns the values as an array, which is empty if the value list is null.
+		 * Returns the values as an array, or returns null if the value collection is null.
 		 */
 		default java.lang.String[] array() {
 			return array(java.lang.String[]::new);
 		}
 
 		/**
-		 * Transforms the list to a boolean array, with default array if the value list is null.
-		 * Fails if any value in the list is null.
+		 * Returns the values as an array, or returns default if the value collection is null.
+		 */
+		default java.lang.String[] arrayDef(java.lang.String... def) {
+			return arrayDef(java.lang.String[]::new, def);
+		}
+
+		/**
+		 * Transforms as each value for an int stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
+		 */
+		default IntStream intStream() {
+			return intStream(DINT::apply);
+		}
+
+		/**
+		 * Transforms as each value for a long stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
+		 */
+		default LongStream longStream() {
+			return longStream(DLONG::apply);
+		}
+
+		/**
+		 * Transforms as each value for a double stream, which is empty if the value collection is
+		 * null. Null collection values are passed to the transform function.
+		 */
+		default DoubleStream doubleStream() {
+			return doubleStream(DOUBLE::apply);
+		}
+
+		/**
+		 * Transforms the collection to a boolean array, with default array if the value collection
+		 * is null. Fails if any value in the collection is null.
 		 */
 		default boolean[] toBoolArray(boolean... def) {
 			return toBoolArray(BOOL::apply, def);
 		}
 
 		/**
-		 * Transforms the list to an int array, with default array if the value list is null. Fails
-		 * if any value in the list is null.
+		 * Transforms the collection to an int array, with default array if the value collection is
+		 * null. Fails if any value in the collection is null.
 		 */
 		default int[] toIntArray(int... def) {
-			return toIntArray(INT::apply, def);
+			return toIntArray(DINT::apply, def);
 		}
 
 		/**
-		 * Transforms the list to a long array, with default array if the value list is null. Fails
-		 * if any value in the list is null.
+		 * Transforms the collection to a long array, with default array if the value collection is
+		 * null. Fails if any value in the collection is null.
 		 */
 		default long[] toLongArray(long... def) {
-			return toLongArray(LONG::apply, def);
+			return toLongArray(DLONG::apply, def);
 		}
 
 		/**
-		 * Transforms the list to a double array, with default array if the value list is null.
-		 * Fails if any value in the list is null.
+		 * Transforms the collection to a double array, with default array if the value collection
+		 * is null. Fails if any value in the collection is null.
 		 */
 		default double[] toDoubleArray(double... def) {
 			return toDoubleArray(DOUBLE::apply, def);
 		}
 
 		/**
-		 * Modify each value if the value list is not null, without changing type. Null list values
-		 * will be passed to the modifier function.
+		 * Modify each value if the value collection is not null, without changing type. Null
+		 * collection values will be passed to the modifier function.
 		 */
 		default Strings
 			modEach(ExceptionFunction<RuntimeException, java.lang.String, java.lang.String> modFn) {
 			return () -> toEach(modFn);
+		}
+
+		/**
+		 * Removes null values.
+		 */
+		@Override
+		default Strings filter() {
+			return filter(Objects::nonNull);
+		}
+
+		/**
+		 * Removes values that do not match the filter.
+		 */
+		@Override
+		default Strings filter(ExceptionPredicate<RuntimeException, java.lang.String> filter) {
+			return () -> filterValues(get(), filter);
 		}
 
 		/**
@@ -669,7 +803,7 @@ public class Parser {
 		 * Provide a new typed accessor. Converts the values to ints from -0xffffffff to 0xffffffff.
 		 */
 		default Types<Integer> asInts() {
-			return asEach(INT);
+			return asEach(DINT);
 		}
 
 		/**
@@ -677,7 +811,7 @@ public class Parser {
 		 * 0xffffffff_ffffffff.
 		 */
 		default Types<Long> asLongs() {
-			return asEach(LONG);
+			return asEach(DLONG);
 		}
 
 		/**
@@ -697,33 +831,34 @@ public class Parser {
 
 	/* support */
 
-	private static <E extends Exception, A, T> A toPrimitiveArray(List<T> values,
+	private static <E extends Exception, A, T> A toPrimitiveArray(Collection<T> values,
 		IntFunction<A> arrayFn, ArrayConsumer<E, A, T> arraySetFn, A def) throws E {
 		if (values == null) return def;
 		var array = arrayFn.apply(values.size());
-		for (int i = 0; i < values.size(); i++)
-			arraySetFn.accept(array, i, values.get(i));
+		int i = 0;
+		for (var value : values)
+			arraySetFn.accept(array, i++, value);
 		return array;
 	}
 
 	private static <E extends Exception, T, R> R parsePrimitiveArrayValue(T value,
-		ExceptionFunction<E, T, R> constructor, int index) throws E {
+		ExceptionFunction<E, ? super T, R> constructor, int index) throws E {
 		var result = parseValue(value, constructor, null);
 		if (result != null) return result;
-		throw new NullPointerException("Value [" + index + "] is null");
+		throw new NullPointerException("Failed to transform [" + index + "]: " + value);
 	}
 
 	private static <E extends Exception, T, R> R parseValue(T value,
-		ExceptionFunction<E, T, R> constructor, R def) throws E {
+		ExceptionFunction<E, ? super T, ? extends R> constructor, R def) throws E {
 		try {
 			return FunctionUtil.safeApply(value, constructor, def);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(exceptionf("Invalid format: %s", value), e);
+			throw ExceptionUtil.initCause(exceptionf("Failed to transform: %s", value), e);
 		}
 	}
 
-	private static <E extends Exception, T, R> List<R> parseValues(List<T> values, List<R> def,
-		ExceptionFunction<E, T, R> constructor) throws E {
+	private static <E extends Exception, T, R> List<R> parseValues(Collection<T> values,
+		List<R> def, ExceptionFunction<E, ? super T, ? extends R> constructor) throws E {
 		if (values == null) return def;
 		if (values.isEmpty()) return List.of();
 		var list = new ArrayList<R>();
@@ -732,12 +867,22 @@ public class Parser {
 		return Collections.unmodifiableList(list);
 	}
 
-	private static <E extends Exception, T, R> List<R> splitValue(T value,
-		ExceptionFunction<E, T, List<R>> splitter) throws E {
+	private static <E extends Exception, T> List<T> filterValues(Collection<T> values,
+		ExceptionPredicate<E, ? super T> filter) throws E {
+		if (values == null) return null;
+		if (values.isEmpty()) return List.of();
+		var list = new ArrayList<T>();
+		for (var value : values)
+			if (filter.test(value)) list.add(value);
+		return Collections.unmodifiableList(list);
+	}
+
+	private static <E extends Exception, T, R> Collection<R> splitValue(T value,
+		ExceptionFunction<E, ? super T, ? extends Collection<R>> splitter) throws E {
 		try {
 			return FunctionUtil.safeApply(value, splitter);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(exceptionf("Invalid list format: %s", value), e);
+			throw ExceptionUtil.initCause(exceptionf("Failed to split: %s", value), e);
 		}
 	}
 }

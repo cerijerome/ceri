@@ -5,7 +5,6 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Map;
@@ -78,34 +77,18 @@ public class NodeBehavior {
 	}
 
 	@Test
-	public void shouldAccessValue() {
-		assertNull(NULL.asBoolean());
-		assertEquals(NULL.asBoolean(true), Boolean.TRUE);
-		assertEquals(Node.of(false).asBoolean(), Boolean.FALSE);
-		assertEquals(Node.of(false).asBoolean(true), Boolean.FALSE);
-		assertEquals(Node.of("true").asBoolean(), Boolean.TRUE);
-		assertEquals(Node.of("true").asBoolean(false), Boolean.TRUE);
+	public void shouldParseValue() {
+		assertEquals(NULL.parse().toBool(), null);
+		assertEquals(Node.of(false).parse().toBool(), Boolean.FALSE);
+		assertEquals(Node.of("true").parse().toBool(), Boolean.TRUE);
+		assertEquals(Node.of(2).parse().toInt(), 2);
+		assertEquals(Node.of("2").parse().toInt(), 2);
+	}
 
-		assertNull(NULL.asInt());
-		assertEquals(NULL.asInt(1), 1);
-		assertEquals(Node.of(2).asInt(), 2);
-		assertEquals(Node.of(2).asInt(1), 2);
-		assertEquals(Node.of("2").asInt(), 2);
-		assertEquals(Node.of("2").asInt(1), 2);
-
-		assertNull(NULL.asLong());
-		assertEquals(NULL.asLong(1), 1L);
-		assertEquals(Node.of(2).asLong(), 2L);
-		assertEquals(Node.of(2).asLong(1), 2L);
-		assertEquals(Node.of("2").asLong(), 2L);
-		assertEquals(Node.of("2").asLong(1), 2L);
-
-		assertNull(NULL.asDouble());
-		assertEquals(NULL.asDouble(1), 1.0);
-		assertEquals(Node.of(2).asDouble(), 2.0);
-		assertEquals(Node.of(2).asDouble(1), 2.0);
-		assertEquals(Node.of("2").asDouble(), 2.0);
-		assertEquals(Node.of("2").asDouble(1), 2.0);
+	@Test
+	public void shouldGetTypedValue() {
+		assertEquals(Node.of(1).asType(Number.class).doubleValue(), 1.0);
+		assertEquals(Node.of(1).asType(Long.class), null);
 	}
 
 	@Test

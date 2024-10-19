@@ -26,7 +26,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.PrimitiveUtil;
 
 /**
  * Utility methods for creating immutable objects.
@@ -68,42 +67,42 @@ public class ImmutableUtil {
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Integer> intSet(int... array) {
-		return Set.of(PrimitiveUtil.convertInts(array));
+		return Set.of(ArrayUtil.boxInts(array));
 	}
 
 	/**
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Long> longSet(long... array) {
-		return Set.of(PrimitiveUtil.convertLongs(array));
+		return Set.of(ArrayUtil.boxLongs(array));
 	}
 
 	/**
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Double> doubleSet(double... array) {
-		return Set.of(PrimitiveUtil.convertDoubles(array));
+		return Set.of(ArrayUtil.boxDoubles(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Integer> intList(int... array) {
-		return List.of(PrimitiveUtil.convertInts(array));
+		return List.of(ArrayUtil.boxInts(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Long> longList(long... array) {
-		return List.of(PrimitiveUtil.convertLongs(array));
+		return List.of(ArrayUtil.boxLongs(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Double> doubleList(double... array) {
-		return List.of(PrimitiveUtil.convertDoubles(array));
+		return List.of(ArrayUtil.boxDoubles(array));
 	}
 
 	/**
@@ -326,7 +325,7 @@ public class ImmutableUtil {
 	/**
 	 * Collects a objects into an immutable LinkedHashSet.
 	 */
-	public static <T> Set<T> collectAsSet(Iterable<? extends T> iterable) {
+	public static <T> Set<T> collectAsSet(Iterable<T> iterable) {
 		return collectAsSet(iterable, setSupplier());
 	}
 
@@ -341,7 +340,7 @@ public class ImmutableUtil {
 	/**
 	 * Collects a objects into an immutable ArrayList.
 	 */
-	public static <T> List<T> collectAsList(Iterable<? extends T> iterable) {
+	public static <T> List<T> collectAsList(Iterable<T> iterable) {
 		return collectAsList(iterable, listSupplier());
 	}
 
@@ -356,7 +355,7 @@ public class ImmutableUtil {
 	/**
 	 * Collects a stream of objects into an immutable LinkedHashSet.
 	 */
-	public static <T> Set<T> collectAsSet(Stream<? extends T> stream) {
+	public static <T> Set<T> collectAsSet(Stream<T> stream) {
 		Collector<T, ?, Set<T>> collector = Collectors.toCollection(setSupplier());
 		return Collections.unmodifiableSet(stream.collect(collector));
 	}
@@ -364,7 +363,7 @@ public class ImmutableUtil {
 	/**
 	 * Collects a stream of objects into an immutable NavigableSet.
 	 */
-	public static <T> NavigableSet<T> collectAsNavigableSet(Stream<? extends T> stream) {
+	public static <T> NavigableSet<T> collectAsNavigableSet(Stream<T> stream) {
 		Collector<T, ?, TreeSet<T>> collector = Collectors.toCollection(TreeSet::new);
 		return Collections.unmodifiableNavigableSet(stream.collect(collector));
 	}
@@ -372,7 +371,7 @@ public class ImmutableUtil {
 	/**
 	 * Collects a stream of objects into an immutable ArrayList.
 	 */
-	public static <T> List<T> collectAsList(Stream<? extends T> stream) {
+	public static <T> List<T> collectAsList(Stream<T> stream) {
 		Collector<T, ?, List<T>> collector = Collectors.toList();
 		return Collections.unmodifiableList(stream.collect(collector));
 	}

@@ -5,15 +5,15 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import java.util.function.Function;
 import org.junit.Test;
+import ceri.common.text.ParseUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.util.PrimitiveUtil;
 
 public class OutputBehavior {
 
 	@Test
 	public void shouldParseOutput() {
 		Function<String, int[]> parser =
-			s -> StringUtil.commaSplit(s).stream().mapToInt(PrimitiveUtil::intValue).toArray();
+			s -> StringUtil.commaSplit(s).stream().mapToInt(ParseUtil::parseInt).toArray();
 		Output<int[]> output = Output.of("1, 2, 3", parser);
 		assertEquals(output.out, "1, 2, 3");
 		assertEquals(output.toString(), "1, 2, 3");

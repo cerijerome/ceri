@@ -1,16 +1,13 @@
 package ceri.common.math;
 
+import static ceri.common.exception.ExceptionUtil.exceptionf;
 import static java.lang.Math.addExact;
 import static java.lang.Math.multiplyExact;
 import static java.lang.Math.negateExact;
-import java.util.Objects;
 
-public class MixedFraction {
+public record MixedFraction(long whole, Fraction fraction) {
 	public static final MixedFraction ZERO = new MixedFraction(0, Fraction.ZERO);
 	public static final MixedFraction ONE = new MixedFraction(1, Fraction.ZERO);
-	public final long whole;
-	public final Fraction fraction;
-	public final double value;
 
 	public static MixedFraction of(long whole) {
 		return of(whole, Fraction.ZERO);
@@ -32,20 +29,26 @@ public class MixedFraction {
 		return new MixedFraction(whole, proper);
 	}
 
-	private MixedFraction(long whole, Fraction fraction) {
-		this.whole = whole;
-		this.fraction = fraction;
-		value = whole + fraction.value;
+	public MixedFraction {
+		int wholeSgn = Long.signum(whole);
+		int fractionSgn = Long.signum(fraction.numerator());
+		if (wholeSgn != 0 && fractionSgn != 0 && wholeSgn == -fractionSgn)
+			throw exceptionf("Whole and fraction must be the same sign: %s, %s", whole, fraction);
+	}
+	
+	public double value() {
+		return whole() + fraction().value();
 	}
 
 	public Fraction asFraction() {
-		if (whole == 0) return fraction;
-		long numerator = addExact(multiplyExact(whole, fraction.denominator), fraction.numerator);
-		return Fraction.of(numerator, fraction.denominator);
+		if (whole() == 0) return fraction();
+		long numerator =
+			addExact(multiplyExact(whole(), fraction().denominator()), fraction().numerator());
+		return Fraction.of(numerator, fraction().denominator());
 	}
 
 	public boolean isZero() {
-		return whole == 0 && fraction.isZero();
+		return whole() == 0 && fraction().isZero();
 	}
 
 	public boolean isNegative() {
@@ -86,25 +89,10 @@ public class MixedFraction {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(whole, fraction);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof MixedFraction other)) return false;
-		if (whole != other.whole) return false;
-		if (!Objects.equals(fraction, other.fraction)) return false;
-		return true;
-	}
-
-	@Override
 	public String toString() {
-		if (fraction.isZero()) return String.valueOf(whole);
-		if (isProper()) return fraction.toString();
-		if (!isNegative()) return whole + "_" + fraction;
-		return whole + "_" + fraction.negate();
+		if (fraction().isZero()) return String.valueOf(whole());
+		if (isProper()) return fraction().toString();
+		if (!isNegative()) return whole() + "_" + fraction();
+		return whole() + "_" + fraction().negate();
 	}
-
 }

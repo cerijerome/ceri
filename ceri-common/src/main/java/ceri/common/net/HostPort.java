@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.property.Parser;
 import ceri.common.text.RegexUtil;
 
 public class HostPort {
@@ -21,8 +22,7 @@ public class HostPort {
 		Matcher m = RegexUtil.matched(HOST_REGEX, value);
 		if (m == null) return null;
 		String host = m.group(1);
-		String portGroup = m.group(2);
-		int port = portGroup != null ? Integer.parseInt(portGroup) : INVALID_PORT;
+		int port = Parser.string(m.group(2)).toInt(INVALID_PORT);
 		return of(host, port);
 	}
 

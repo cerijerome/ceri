@@ -1,36 +1,28 @@
 package ceri.common.math;
 
 import static ceri.common.math.FractionBehavior.assertFraction;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
 public class MixedFractionBehavior {
 
 	@Test
-	public void shouldNotBreachEqualsContract() {
-		MixedFraction f = MixedFraction.of(7, 41, 13);
-		MixedFraction eq0 = MixedFraction.of(7, 41, 13);
-		MixedFraction eq1 = MixedFraction.of(7, Fraction.of(41, 13));
-		MixedFraction eq2 = MixedFraction.of(7, 41, 13).add(MixedFraction.ZERO);
-		MixedFraction eq3 = MixedFraction.of(7, 41, 13).multiply(MixedFraction.ONE);
-		MixedFraction eq4 = MixedFraction.of(7, 41, 13).divide(MixedFraction.ONE);
-		MixedFraction eq5 = MixedFraction.of(7, -41, -13);
-		MixedFraction ne0 = MixedFraction.of(6, 41, 13);
-		MixedFraction ne1 = MixedFraction.of(-7, 41, 13);
-		MixedFraction ne2 = MixedFraction.of(7, 40, 13);
-		MixedFraction ne3 = MixedFraction.of(7, 41, 14);
-		MixedFraction ne4 = MixedFraction.of(7, -41, 13);
-		MixedFraction ne5 = MixedFraction.of(7, 41, -13);
-		MixedFraction ne6 = MixedFraction.of(-7, -41, 13);
-		MixedFraction ne7 = MixedFraction.of(-7, -41, -13);
-		MixedFraction ne8 = MixedFraction.of(0, 41, 13);
-		exerciseEquals(f, eq0, eq1, eq2, eq3, eq4, eq5);
-		assertAllNotEqual(f, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8);
+	public void shouldFailToCreateWithMixedSigns() {
+		assertIllegalArg(() -> new MixedFraction(-1, Fraction.of(1, 3)));
+		assertIllegalArg(() -> new MixedFraction(1, Fraction.of(-1, 3)));
+		assertIllegalArg(() -> new MixedFraction(1, Fraction.of(1, -3)));
+		assertIllegalArg(() -> new MixedFraction(-1, Fraction.of(-1, -3)));
+	}
+
+	@Test
+	public void shouldCalculateValue() {
+		assertEquals(MixedFraction.of(3, 4, 5).value(), 3.8);
+		assertEquals(MixedFraction.of(-3, 4, 5).value(), -2.2);
+		assertEquals(MixedFraction.of(3, 4, -5).value(), 2.2);
 	}
 
 	@Test
@@ -71,8 +63,9 @@ public class MixedFractionBehavior {
 		assertMixedFraction(MixedFraction.of(1).multiply(MixedFraction.of(0, 0, 1)), 0, 0, 1);
 		assertMixedFraction(MixedFraction.of(0).multiply(MixedFraction.of(1, 1, 2)), 0, 0, 1);
 		assertMixedFraction(MixedFraction.of(1).multiply(MixedFraction.of(1, 1, 2)), 1, 1, 2);
-		assertMixedFraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.of(-1, -1, 4)), //
-			-4, -7, 12);
+		assertMixedFraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.of(-1, -1, 4)), -4, -7,
+			12);
+		assertMixedFraction(MixedFraction.of(3, 2, 3).multiply(MixedFraction.ONE), 3, 2, 3);
 	}
 
 	@Test
@@ -81,8 +74,8 @@ public class MixedFractionBehavior {
 		assertMixedFraction(MixedFraction.of(1).divide(MixedFraction.of(1, 1, 2)), 0, 2, 3);
 		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(1, 0, 1)), 3, 2, 3);
 		assertThrown(() -> MixedFraction.of(0).divide(MixedFraction.of(0, 0, 1)));
-		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), //
-			-2, -14, 15);
+		assertMixedFraction(MixedFraction.of(3, 2, 3).divide(MixedFraction.of(-1, -1, 4)), -2, -14,
+			15);
 	}
 
 	@Test
@@ -136,9 +129,8 @@ public class MixedFractionBehavior {
 
 	public static void assertMixedFraction(MixedFraction fraction, long whole, long numerator,
 		long denominator) {
-		assertEquals(fraction.whole, whole);
-		assertEquals(fraction.fraction.numerator, numerator);
-		assertEquals(fraction.fraction.denominator, denominator);
+		assertEquals(fraction.whole(), whole);
+		assertEquals(fraction.fraction().equals(numerator, denominator), true);
 	}
 
 }

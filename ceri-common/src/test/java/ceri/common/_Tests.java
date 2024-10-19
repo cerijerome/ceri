@@ -243,12 +243,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.process.ProcessUtilTest.class, //
 	ceri.common.process.ProcessorBehavior.class, //
 	// property
-	ceri.common.property.LocatorBehavior.class, //
+	ceri.common.property.KeyBehavior.class, //
 	ceri.common.property.ParserBehavior.class, //
-	ceri.common.property.PathBehavior.class, //
-	ceri.common.property.PathFactoryBehavior.class, //
-	ceri.common.property.PropertyAccessorBehavior.class, //
+	ceri.common.property.PropertySourceBehavior.class, //
 	ceri.common.property.PropertyUtilTest.class, //
+	ceri.common.property.SeparatorBehavior.class, //
 	ceri.common.property.TypedPropertiesBehavior.class, //
 	// reflect
 	ceri.common.reflect.AnnotationUtilTest.class, //
@@ -311,7 +310,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.DsvCodecBehavior.class, //
 	ceri.common.text.DsvParserBehavior.class, //
 	ceri.common.text.FractionFormatsTest.class, //
-	ceri.common.text.MarshallerBehavior.class, //
 	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchResultBehavior.class, //
 	ceri.common.text.NonMatcherBehavior.class, //
@@ -321,6 +319,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.SplitterBehavior.class, //
 	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringUtilTest.class, //
+	ceri.common.text.SubSequenceBehavior.class, //
 	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextUtilTest.class, //
 	ceri.common.text.ToStringBehavior.class, //

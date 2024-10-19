@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 import ceri.common.process.Output;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
+import ceri.common.text.ParseUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.time.DateUtil;
 import ceri.common.util.OsUtil;
-import ceri.common.util.PrimitiveUtil;
 import ceri.process.net.Net;
 
 /**
@@ -73,10 +73,10 @@ public class Uptime {
 		Matcher m = RegexUtil.found(REGEX, output);
 		if (m == null) throw new IllegalArgumentException("Unexpected output: " + output);
 		int i = 1;
-		int days = PrimitiveUtil.valueOf(m.group(i++), 0);
-		int hours = PrimitiveUtil.valueOf(m.group(i++), 0);
-		int minutes = PrimitiveUtil.valueOf(m.group(i++), 0);
-		minutes += PrimitiveUtil.valueOf(m.group(i++), 0);
+		int days = ParseUtil.parseInt(m.group(i++), 0);
+		int hours = ParseUtil.parseInt(m.group(i++), 0);
+		int minutes = ParseUtil.parseInt(m.group(i++), 0);
+		minutes += ParseUtil.parseInt(m.group(i++), 0);
 		return DAYS.toMillis(days) + HOURS.toMillis(hours) + MINUTES.toMillis(minutes);
 	}
 

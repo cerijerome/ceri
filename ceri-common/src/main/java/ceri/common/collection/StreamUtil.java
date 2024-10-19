@@ -22,11 +22,9 @@ import java.util.function.BinaryOperator;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
-import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
 import java.util.function.ObjIntConsumer;
@@ -52,19 +50,13 @@ import ceri.common.util.BasicUtil;
  * Convenience shortcuts for common stream methods.
  */
 public class StreamUtil {
-	private static final IntBinaryOperator intBitwiseAnd = (lhs, rhs) -> lhs & rhs;
-	private static final IntBinaryOperator intBitwiseOr = (lhs, rhs) -> lhs | rhs;
-	private static final IntBinaryOperator intBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
-	private static final LongBinaryOperator longBitwiseAnd = (lhs, rhs) -> lhs & rhs;
-	private static final LongBinaryOperator longBitwiseOr = (lhs, rhs) -> lhs | rhs;
-	private static final LongBinaryOperator longBitwiseXor = (lhs, rhs) -> lhs ^ rhs;
-	private static final BiConsumer<?, ?> badCombiner = (r1, r2) -> {
-		throw new IllegalStateException();
-	};
-	private static final BinaryOperator<Object> MERGE_FIRST = (first, second) -> first;
-	private static final BinaryOperator<Object> MERGE_SECOND = (first, second) -> second;
-	private static final BinaryOperator<Object> MERGE_ERROR = (first, second) -> {
+	private static final BinaryOperator<?> MERGE_FIRST = (first, second) -> first;
+	private static final BinaryOperator<?> MERGE_SECOND = (first, second) -> second;
+	private static final BinaryOperator<?> MERGE_ERROR = (first, second) -> {
 		throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
+	};
+	private static final BiConsumer<?, ?> BAD_COMBINER = (r1, r2) -> {
+		throw new IllegalStateException();
 	};
 
 	private StreamUtil() {}
@@ -94,7 +86,7 @@ public class StreamUtil {
 	 * Use when a combiner is required for a Stream method, but should not be invoked.
 	 */
 	public static <T> BiConsumer<T, T> badCombiner() {
-		return BasicUtil.uncheckedCast(badCombiner);
+		return BasicUtil.uncheckedCast(BAD_COMBINER);
 	}
 
 	public static <E extends Exception, T, R> R closeableApply(Stream<T> stream,
@@ -138,27 +130,27 @@ public class StreamUtil {
 	}
 
 	public static int bitwiseAnd(IntStream stream) {
-		return stream.reduce(intBitwiseAnd).orElse(0);
+		return stream.reduce((lhs, rhs) -> lhs & rhs).orElse(0);
 	}
 
 	public static int bitwiseOr(IntStream stream) {
-		return stream.reduce(0, intBitwiseOr);
+		return stream.reduce(0, (lhs, rhs) -> lhs | rhs);
 	}
 
 	public static int bitwiseXor(IntStream stream) {
-		return stream.reduce(0, intBitwiseXor);
+		return stream.reduce(0, (lhs, rhs) -> lhs ^ rhs);
 	}
 
 	public static long bitwiseAnd(LongStream stream) {
-		return stream.reduce(longBitwiseAnd).orElse(0L);
+		return stream.reduce((lhs, rhs) -> lhs & rhs).orElse(0L);
 	}
 
 	public static long bitwiseOr(LongStream stream) {
-		return stream.reduce(0L, longBitwiseOr);
+		return stream.reduce(0L, (lhs, rhs) -> lhs | rhs);
 	}
 
 	public static long bitwiseXor(LongStream stream) {
-		return stream.reduce(0L, longBitwiseXor);
+		return stream.reduce(0L, (lhs, rhs) -> lhs ^ rhs);
 	}
 
 	public static <T> Stream<Indexed<T>> range(int count, IntFunction<T> fn) {
@@ -690,5 +682,4 @@ public class StreamUtil {
 		Function<T, Collection<K>> fn) {
 		return stream.flatMap(t -> fn.apply(t).stream().map(k -> new SimpleEntry<>(k, t)));
 	}
-
 }

@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.math.MathUtil;
+import ceri.common.property.Parser;
 import ceri.common.text.RegexUtil;
 
 /**
@@ -34,9 +35,8 @@ public class IndexRanges implements Iterable<Integer> {
 		var ranges = of();
 		var m = EXTRACT_REGEX.matcher(s);
 		while (m.find()) {
-			int start = Integer.parseInt(m.group(1));
-			String endStr = m.group(2);
-			int end = endStr == null ? start : Integer.parseInt(endStr);
+			int start = Parser.string(m.group(1)).toInt();
+			int end = Parser.string(m.group(2)).toInt(start);
 			ranges.add(start, end);
 		}
 		return ranges;

@@ -2,7 +2,6 @@ package ceri.common.collection;
 
 import static ceri.common.collection.ImmutableUtil.collectAsList;
 import static ceri.common.collection.ImmutableUtil.convertAsMap;
-import static ceri.common.util.BasicUtil.defaultValue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
@@ -13,14 +12,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.property.PathFactory;
+import ceri.common.property.Parser;
+import ceri.common.property.Separator;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.ParseUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.PrimitiveUtil;
 
 /**
  * Encapsulates a tree node with name, value, and child nodes. Node structure and value references
@@ -146,7 +145,7 @@ public class Node<T> {
 	 * otherwise a child name. Returns an empty node if not found.
 	 */
 	public Node<?> find(String path) {
-		return child(PathFactory.dot.split(path), 0);
+		return child(Separator.DOT.split(path), 0);
 	}
 
 	/**
@@ -196,36 +195,8 @@ public class Node<T> {
 		return !children.isEmpty();
 	}
 
-	public Boolean asBoolean() {
-		return convert(Boolean.class, PrimitiveUtil::booleanValue);
-	}
-
-	public boolean asBoolean(boolean def) {
-		return defaultValue(asBoolean(), def);
-	}
-
-	public Integer asInt() {
-		return convert(Integer.class, PrimitiveUtil::intValue);
-	}
-
-	public int asInt(int def) {
-		return defaultValue(asInt(), def);
-	}
-
-	public Long asLong() {
-		return convert(Long.class, PrimitiveUtil::longValue);
-	}
-
-	public Long asLong(long def) {
-		return defaultValue(asLong(), def);
-	}
-
-	public Double asDouble() {
-		return convert(Double.class, PrimitiveUtil::doubleValue);
-	}
-
-	public double asDouble(double def) {
-		return defaultValue(asDouble(), def);
+	public Parser.String parse() {
+		return Parser.string(asString());
 	}
 
 	public String asString() {
@@ -256,14 +227,9 @@ public class Node<T> {
 		return ToString.ofClass(this, name, value).childrens(children).toString();
 	}
 
-	private <U> U convert(Class<U> cls, Function<String, U> fn) {
-		U u = asType(cls);
-		return u != null ? u : fn.apply(asString());
-	}
-
 	private Stream<String> namedPathStream() {
-		return StreamUtil.prepend(
-			namedChildPathStream().map(p -> PathFactory.dot.path(name, ".", p).value), name);
+		return StreamUtil.prepend(namedChildPathStream().map(p -> Separator.DOT.join(name, p)),
+			name);
 	}
 
 	private Stream<String> namedChildPathStream() {
@@ -285,7 +251,7 @@ public class Node<T> {
 	private Node<?> childFromPart(String part) {
 		Node<?> child = lookup.get(part);
 		if (child != null) return child;
-		Integer i = PrimitiveUtil.intValue(part);
+		Integer i = ParseUtil.parseInt(part);
 		if (i != null && hasChild(i)) return children.get(i);
 		return null;
 	}

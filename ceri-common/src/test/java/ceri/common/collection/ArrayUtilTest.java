@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.util.PrimitiveUtil;
 
 public class ArrayUtilTest {
 
@@ -128,8 +127,8 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testEqualsForBooleanSubArray() {
-		boolean[] array0 = ArrayUtil.booleans(true, true, false, true, false);
-		boolean[] array1 = ArrayUtil.booleans(true, false, true, false);
+		boolean[] array0 = ArrayUtil.bools(true, true, false, true, false);
+		boolean[] array1 = ArrayUtil.bools(true, false, true, false);
 		assertTrue(ArrayUtil.equals(array0, 1, array1, 0, 3));
 	}
 
@@ -591,7 +590,7 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testBooleans() {
-		assertArray(ArrayUtil.booleans(1, 0, -1), true, false, true);
+		assertArray(ArrayUtil.bools(1, 0, -1), true, false, true);
 	}
 
 	@Test
@@ -603,7 +602,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testLast() {
 		assertEquals(ArrayUtil.last(ArrayUtil.array("0", "1")), "1");
-		assertFalse(ArrayUtil.last(ArrayUtil.booleans(true, false)));
+		assertFalse(ArrayUtil.last(ArrayUtil.bools(true, false)));
 		assertEquals(ArrayUtil.last(ArrayUtil.chars('\0', '\n')), '\n');
 		assertEquals(ArrayUtil.last(ArrayUtil.bytes(Byte.MAX_VALUE, Byte.MIN_VALUE)),
 			Byte.MIN_VALUE);
@@ -629,7 +628,7 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testReverse() {
-		assertArray(ArrayUtil.reverseArray(ArrayUtil.booleans(true, false, false)), false, false,
+		assertArray(ArrayUtil.reverseArray(ArrayUtil.bools(true, false, false)), false, false,
 			true);
 		assertThrown(() -> ArrayUtil.reverseArray(new Object()));
 		assertArray(ArrayUtil.reverse(ArrayUtil.array("0", "1", "2")), "2", "1", "0");
@@ -652,7 +651,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testCopyOf() {
 		assertArray(ArrayUtil.copyOf(ArrayUtil.array("a", "b", "c"), 2, String[]::new), "c");
-		assertArray(ArrayUtil.copyOf(ArrayUtil.booleans(true, false, true), 1), false, true);
+		assertArray(ArrayUtil.copyOf(ArrayUtil.bools(true, false, true), 1), false, true);
 		assertArray(ArrayUtil.copyOf(ArrayUtil.bytes(1, 2, 3), -1), 0, 1, 2, 3);
 		assertArray(ArrayUtil.copyOf(ArrayUtil.chars('a', 'b', 'c'), 4));
 		assertArray(ArrayUtil.copyOf(ArrayUtil.shorts(1, 2, 3), 3));
@@ -765,9 +764,9 @@ public class ArrayUtilTest {
 		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 2, "c"), "c");
 		assertEquals(ArrayUtil.at(ArrayUtil.array("a", "b"), 1, "c"), "b");
 		assertEquals(ArrayUtil.at((boolean[]) null, 0, true), true);
-		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), -1, true), true);
-		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), 2, true), true);
-		assertEquals(ArrayUtil.at(ArrayUtil.booleans(false, false), 1, true), false);
+		assertEquals(ArrayUtil.at(ArrayUtil.bools(false, false), -1, true), true);
+		assertEquals(ArrayUtil.at(ArrayUtil.bools(false, false), 2, true), true);
+		assertEquals(ArrayUtil.at(ArrayUtil.bools(false, false), 1, true), false);
 		assertEquals(ArrayUtil.at((byte[]) null, 0, (byte) 0), (byte) 0);
 		assertEquals(ArrayUtil.at(ArrayUtil.bytes(-1, 1), -1, (byte) 0), (byte) 0);
 		assertEquals(ArrayUtil.at(ArrayUtil.bytes(-1, 1), 2, (byte) 0), (byte) 0);
@@ -821,26 +820,62 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testAsFixedList() {
-		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 1), 2, 3);
-		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 0, 3), 1, 2, 3);
-		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3, 4), 1, 3), 2, 3);
-		assertCollection(ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 3, 3));
-		assertThrown(() -> ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 0, 4));
-		assertThrown(() -> ArrayUtil.asFixedList(PrimitiveUtil.convertInts(1, 2, 3), 4, 0));
+		assertCollection(ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3), 1), 2, 3);
+		assertCollection(ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3), 0, 3), 1, 2, 3);
+		assertCollection(ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3, 4), 1, 3), 2, 3);
+		assertCollection(ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3), 3, 3));
+		assertThrown(() -> ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3), 0, 4));
+		assertThrown(() -> ArrayUtil.asFixedList(ArrayUtil.boxInts(1, 2, 3), 4, 0));
 	}
 
 	@Test
 	public void testAsList() {
 		assertCollection(ArrayUtil.asList(1, 2, 3), 1, 2, 3);
-		assertCollection(ArrayUtil.asList(0, PrimitiveUtil.convertInts(1, 2, 3)), 0, 1, 2, 3);
-		assertCollection(ArrayUtil.asList(PrimitiveUtil.convertInts(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
+		assertCollection(ArrayUtil.asList(0, ArrayUtil.boxInts(1, 2, 3)), 0, 1, 2, 3);
+		assertCollection(ArrayUtil.asList(ArrayUtil.boxInts(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
+	}
+
+	@Test
+	public void testBoxingArrays() {
+		boolean[] b = { true, false };
+		Boolean[] B = { true, false };
+		assertArray(ArrayUtil.boxBools(b), B);
+		assertArray(ArrayUtil.unboxBools(B), b);
+		char[] c = { '\0', 'a' };
+		Character[] C = { '\0', 'a' };
+		assertArray(ArrayUtil.boxChars(c), C);
+		assertArray(ArrayUtil.unboxChars(C), c);
+		byte[] bt = { -128, 127 };
+		Byte[] Bt = { -128, 127 };
+		assertArray(ArrayUtil.boxBytes(bt), Bt);
+		assertArray(ArrayUtil.unboxBytes(Bt), bt);
+		short[] s = { Short.MAX_VALUE, Short.MIN_VALUE };
+		Short[] S = { Short.MAX_VALUE, Short.MIN_VALUE };
+		assertArray(ArrayUtil.boxShorts(s), S);
+		assertArray(ArrayUtil.unboxShorts(S), s);
+		int[] i = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		Integer[] I = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		assertArray(ArrayUtil.boxInts(i), I);
+		assertArray(ArrayUtil.unboxInts(I), i);
+		long[] l = { Long.MAX_VALUE, Long.MIN_VALUE };
+		Long[] L = { Long.MAX_VALUE, Long.MIN_VALUE };
+		assertArray(ArrayUtil.boxLongs(l), L);
+		assertArray(ArrayUtil.unboxLongs(L), l);
+		double[] d = { Double.MAX_VALUE, Double.MIN_VALUE };
+		Double[] D = { Double.MAX_VALUE, Double.MIN_VALUE };
+		assertArray(ArrayUtil.boxDoubles(d), D);
+		assertArray(ArrayUtil.unboxDoubles(D), d);
+		float[] f = { Float.MAX_VALUE, Float.MIN_VALUE };
+		Float[] F = { Float.MAX_VALUE, Float.MIN_VALUE };
+		assertArray(ArrayUtil.boxFloats(f), F);
+		assertArray(ArrayUtil.unboxFloats(F), f);
 	}
 
 	@Test
 	public void testPrimitiveList() {
-		assertCollection(ArrayUtil.booleanList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
+		assertCollection(ArrayUtil.boolList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
 			Boolean.FALSE);
-		assertCollection(ArrayUtil.booleanList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
+		assertCollection(ArrayUtil.boolList(Boolean.TRUE, Boolean.FALSE), Boolean.TRUE,
 			Boolean.FALSE);
 		assertCollection(ArrayUtil.byteList(Byte.MAX_VALUE, Byte.MIN_VALUE), Byte.MAX_VALUE,
 			Byte.MIN_VALUE);

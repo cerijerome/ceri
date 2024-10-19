@@ -58,7 +58,7 @@ public class FunctionUtil {
 	 * occurs, it is suppressed, and the error value is returned. Interrupted exceptions will
 	 * re-interrupt the current thread.
 	 */
-	public static <T> T getSilently(ExceptionSupplier<?, T> supplier, T errorVal) {
+	public static <T> T getSilently(ExceptionSupplier<?, ? extends T> supplier, T errorVal) {
 		return getIt(supplier::get, errorVal);
 	}
 
@@ -137,16 +137,16 @@ public class FunctionUtil {
 	/**
 	 * Passes only non-null values to function.
 	 */
-	public static <E extends Exception, T, R> R safeApply(T t, ExceptionFunction<E, T, R> function)
-		throws E {
+	public static <E extends Exception, T, R> R safeApply(T t,
+		ExceptionFunction<E, ? super T, R> function) throws E {
 		return safeApply(t, function, null);
 	}
 
 	/**
 	 * Passes only non-null values to function.
 	 */
-	public static <E extends Exception, T, R> R safeApply(T t, ExceptionFunction<E, T, R> function,
-		R def) throws E {
+	public static <E extends Exception, T, R> R safeApply(T t,
+		ExceptionFunction<E, ? super T, ? extends R> function, R def) throws E {
 		return t == null ? def : function.apply(t);
 	}
 
@@ -154,7 +154,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T> int safeApplyAsInt(T t,
-		ExceptionToIntFunction<E, T> function, int def) throws E {
+		ExceptionToIntFunction<E, ? super T> function, int def) throws E {
 		return t == null ? def : function.applyAsInt(t);
 	}
 
@@ -162,7 +162,8 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T, R> R safeApplyGet(T t,
-		ExceptionFunction<E, T, R> function, ExceptionSupplier<E, R> supplier) throws E {
+		ExceptionFunction<E, ? super T, ? extends R> function, ExceptionSupplier<E, R> supplier)
+		throws E {
 		return t == null ? supplier.get() : function.apply(t);
 	}
 
@@ -170,15 +171,15 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T> int safeApplyGetAsInt(T t,
-		ExceptionToIntFunction<E, T> function, ExceptionIntSupplier<E> supplier) throws E {
+		ExceptionToIntFunction<E, ? super T> function, ExceptionIntSupplier<E> supplier) throws E {
 		return t == null ? supplier.getAsInt() : function.applyAsInt(t);
 	}
 
 	/**
 	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
-	public static <E extends Exception, T> boolean safeAccept(T t, ExceptionConsumer<E, T> consumer)
-		throws E {
+	public static <E extends Exception, T> boolean safeAccept(T t,
+		ExceptionConsumer<E, ? super T> consumer) throws E {
 		if (t == null) return false;
 		consumer.accept(t);
 		return true;
@@ -188,7 +189,8 @@ public class FunctionUtil {
 	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
 	public static <E extends Exception, T> boolean safeAccept(T t,
-		ExceptionPredicate<E, T> predicate, ExceptionConsumer<E, T> consumer) throws E {
+		ExceptionPredicate<E, ? super T> predicate, ExceptionConsumer<E, ? super T> consumer)
+		throws E {
 		if (t == null || !predicate.test(t)) return false;
 		consumer.accept(t);
 		return true;
@@ -197,14 +199,14 @@ public class FunctionUtil {
 	/**
 	 * Execute the function until no change, or the maximum number of recursions is met.
 	 */
-	public static <T> T recurse(T t, Function<T, T> fn) {
+	public static <T> T recurse(T t, Function<? super T, ? extends T> fn) {
 		return recurse(t, fn, MAX_RECURSIONS_DEF);
 	}
 
 	/**
 	 * Execute the function recursively until no change, or the max number of recursions is met.
 	 */
-	public static <T> T recurse(T t, Function<T, T> fn, int max) {
+	public static <T> T recurse(T t, Function<? super T, ? extends T> fn, int max) {
 		while (max-- > 0) {
 			T last = t;
 			t = fn.apply(t);
@@ -304,7 +306,7 @@ public class FunctionUtil {
 	/**
 	 * Provides a predicate from a field accessor and predicate for the field type.
 	 */
-	public static <T, U> Predicate<T> testing(Function<? super T, ? extends U> extractor,
+	public static <T, U> Predicate<T> testing(Function<T, U> extractor,
 		Predicate<? super U> predicate) {
 		return t -> predicate.test(extractor.apply(t));
 	}
@@ -312,8 +314,7 @@ public class FunctionUtil {
 	/**
 	 * Provides an predicate from an int field accessor and int predicate.
 	 */
-	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> extractor,
-		IntPredicate predicate) {
+	public static <T> Predicate<T> testingInt(ToIntFunction<T> extractor, IntPredicate predicate) {
 		return t -> predicate.test(extractor.applyAsInt(t));
 	}
 
@@ -321,7 +322,7 @@ public class FunctionUtil {
 	 * Invokes the runnable and returns true. If an exception is thrown, it will be suppressed, and
 	 * false is returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static boolean runIt(ExceptionRunnable<Exception> runnable) {
+	private static boolean runIt(ExceptionRunnable<?> runnable) {
 		return getIt(() -> {
 			runnable.run();
 			return true;
@@ -333,7 +334,7 @@ public class FunctionUtil {
 	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
 	 * thread.
 	 */
-	private static <T> T getIt(ExceptionSupplier<Exception, T> supplier, T errorVal) {
+	private static <T> T getIt(ExceptionSupplier<Exception, ? extends T> supplier, T errorVal) {
 		try {
 			return supplier.get();
 		} catch (RuntimeInterruptedException | InterruptedException e) {

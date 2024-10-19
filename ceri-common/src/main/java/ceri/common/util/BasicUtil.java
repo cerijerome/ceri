@@ -41,7 +41,7 @@ public class BasicUtil {
 	 * Returns default value if main value is null.
 	 */
 	public static <E extends Exception, T> T defaultValue(T value,
-		ExceptionSupplier<E, T> defSupplier) throws E {
+		ExceptionSupplier<E, ? extends T> defSupplier) throws E {
 		return value != null ? value : defSupplier.get();
 	}
 
@@ -49,7 +49,7 @@ public class BasicUtil {
 	 * Supplies a value based on condition.
 	 */
 	public static <E extends Exception, T> T conditionalGet(boolean condition,
-		ExceptionSupplier<E, T> trueSupplier) throws E {
+		ExceptionSupplier<E, ? extends T> trueSupplier) throws E {
 		return conditionalGet(condition, trueSupplier, null);
 	}
 
@@ -57,7 +57,8 @@ public class BasicUtil {
 	 * Supplies a value based on condition.
 	 */
 	public static <E extends Exception, T> T conditionalGet(boolean condition,
-		ExceptionSupplier<E, T> trueSupplier, ExceptionSupplier<E, T> falseSupplier) throws E {
+		ExceptionSupplier<E, ? extends T> trueSupplier,
+		ExceptionSupplier<E, ? extends T> falseSupplier) throws E {
 		var supplier = conditional(condition, trueSupplier, falseSupplier);
 		return supplier == null ? null : supplier.get();
 	}
@@ -66,8 +67,9 @@ public class BasicUtil {
 	 * Supplies a value based on condition, which may be null.
 	 */
 	public static <E extends Exception, T> T conditionalGet(Boolean condition,
-		ExceptionSupplier<E, T> trueSupplier, ExceptionSupplier<E, T> falseSupplier,
-		ExceptionSupplier<E, T> nullSupplier) throws E {
+		ExceptionSupplier<E, ? extends T> trueSupplier,
+		ExceptionSupplier<E, ? extends T> falseSupplier,
+		ExceptionSupplier<E, ? extends T> nullSupplier) throws E {
 		var supplier = conditional(condition, trueSupplier, falseSupplier, nullSupplier);
 		return supplier == null ? null : supplier.get();
 	}

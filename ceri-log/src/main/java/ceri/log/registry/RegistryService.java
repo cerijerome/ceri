@@ -20,8 +20,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.property.PathFactory;
-import ceri.common.property.PropertyAccessor;
+import ceri.common.property.PropertySource;
 import ceri.common.property.TypedProperties;
 import ceri.common.time.DateUtil;
 import ceri.log.concurrent.LoopingExecutor;
@@ -43,8 +42,8 @@ public class RegistryService extends LoopingExecutor {
 	private final SequencedMap<Object, Runnable> updates = new LinkedHashMap<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private final Properties properties = new Properties();
-	private final PropertyAccessor accessor = PropertyAccessor.from(properties);
-	public final Registry registry = registry(TypedProperties.of(accessor, PathFactory.dot));
+	private final PropertySource source = PropertySource.Properties.of(properties);
+	public final Registry registry = registry(TypedProperties.of(source));
 
 	public static RegistryService of(String name, Path path) throws IOException {
 		return of(name, path, DELAY_MS_DEF, ERROR_DELAY_MS_DEF);
@@ -109,7 +108,7 @@ public class RegistryService extends LoopingExecutor {
 				if (entry == null) break;
 				entry.getValue().run();
 			}
-			return accessor.modified();
+			return source.modified();
 		}
 	}
 
@@ -132,7 +131,7 @@ public class RegistryService extends LoopingExecutor {
 
 			@Override
 			public Registry sub(String... subs) {
-				return registry(TypedProperties.from(properties, subs));
+				return registry(properties.sub(subs));
 			}
 		};
 	}

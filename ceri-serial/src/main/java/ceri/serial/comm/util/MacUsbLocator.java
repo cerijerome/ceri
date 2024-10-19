@@ -12,9 +12,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import ceri.common.io.IoUtil;
 import ceri.common.process.Parameters;
+import ceri.common.text.ParseUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.OsUtil;
-import ceri.common.util.PrimitiveUtil;
 import ceri.common.xml.XPathUtil;
 import ceri.common.xml.XmlUtil;
 import ceri.process.ioreg.Ioreg;
@@ -97,7 +97,7 @@ public class MacUsbLocator {
 	}
 
 	private static int locationId(Node usb) throws XPathException {
-		return PrimitiveUtil.valueOf(LOCATION_ID_XPATH.evaluate(usb), 0);
+		return ParseUtil.parseInt(LOCATION_ID_XPATH.evaluate(usb), 0);
 	}
 
 	private static String device(Node usb) throws XPathException {

@@ -4,7 +4,7 @@ import static ceri.common.text.StringUtil.trim;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import ceri.common.util.PrimitiveUtil;
+import ceri.common.property.Parser;
 
 public class DsvParser {
 	private final DsvCodec codec;
@@ -75,52 +75,18 @@ public class DsvParser {
 		return field != null ? field : def;
 	}
 
-	public Boolean booleanField(String headerValue) {
-		return PrimitiveUtil.booleanValue(trim(field(headerValue)));
+	public Parser.String parse(int index) {
+		return parseField(field(index));
 	}
 
-	public Boolean booleanField(String headerValue, Boolean def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
+	public Parser.String parse(String headerValue) {
+		return parseField(field(headerValue));
 	}
-
-	public Integer intField(String headerValue) {
-		return PrimitiveUtil.intValue(trim(field(headerValue)));
+	
+	private Parser.String parseField(String value) {
+		var trimmed = trim(value);
+		if (StringUtil.empty(trimmed)) trimmed = null;
+		return Parser.string(trimmed);
 	}
-
-	public Integer intField(String headerValue, Integer def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
-	}
-
-	public Integer intDecode(String headerValue) {
-		return PrimitiveUtil.intDecode(trim(field(headerValue)));
-	}
-
-	public Integer intDecode(String headerValue, Integer def) {
-		return PrimitiveUtil.decode(trim(field(headerValue)), def);
-	}
-
-	public Long longField(String headerValue) {
-		return PrimitiveUtil.longValue(trim(field(headerValue)));
-	}
-
-	public Long longField(String headerValue, Long def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
-	}
-
-	public Long longDecode(String headerValue) {
-		return PrimitiveUtil.longDecode(trim(field(headerValue)));
-	}
-
-	public Long longDecode(String headerValue, Long def) {
-		return PrimitiveUtil.decode(trim(field(headerValue)), def);
-	}
-
-	public Double doubleField(String headerValue) {
-		return PrimitiveUtil.doubleValue(trim(field(headerValue)));
-	}
-
-	public Double doubleField(String headerValue, Double def) {
-		return PrimitiveUtil.valueOf(trim(field(headerValue)), def);
-	}
-
+	
 }

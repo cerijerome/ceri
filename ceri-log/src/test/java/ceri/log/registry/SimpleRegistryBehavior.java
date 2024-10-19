@@ -8,9 +8,9 @@ public class SimpleRegistryBehavior {
 	@Test
 	public void shouldWriteProperties() {
 		var reg = SimpleRegistry.of("test");
-		reg.accept(t -> t.setValue(123, "a", "b"));
+		reg.accept(t -> t.set(123, "a", "b"));
 		assertEquals(reg.properties.get("test.a.b"), "123");
-		reg.queue(t -> t.setValue(125, "a", "b"));
+		reg.queue(t -> t.set(125, "a", "b"));
 		assertEquals(reg.properties.get("test.a.b"), "125");
 	}
 
@@ -25,7 +25,7 @@ public class SimpleRegistryBehavior {
 	public void shouldProvideSubRegistry() {
 		var reg = SimpleRegistry.of("test").sub("a");
 		assertEquals(reg.prefix(), "test.a");
-		reg.accept(t -> t.setValue(123, "b", "c"));
+		reg.accept(t -> t.set(123, "b", "c"));
 		assertEquals(reg.properties.get("test.a.b.c"), "123");
 	}
 

@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.collection.ArrayUtil.booleans;
+import static ceri.common.collection.ArrayUtil.bools;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.collection.ArrayUtil.chars;
 import static ceri.common.collection.ArrayUtil.doubles;
@@ -425,8 +425,8 @@ public class AssertUtilTest {
 		assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertCollection(list, 1, 2, 4, 5));
 		assertAssertion(() -> assertCollection(list, 1, 2, 3, 4, 5, 6));
-		assertCollection(booleans(true, false), false, true);
-		assertAssertion(() -> assertCollection(booleans(true, false), false, false));
+		assertCollection(bools(true, false), false, true);
+		assertAssertion(() -> assertCollection(bools(true, false), false, false));
 		assertCollection(chars('a', 'b'), 'b', 'a');
 		assertAssertion(() -> assertCollection(chars('a', 'b'), 'b', 'b'));
 		assertCollection(chars('a', 'b'), 0x62, 0x61);

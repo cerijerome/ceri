@@ -12,6 +12,9 @@ import java.util.stream.Stream;
 import ceri.common.collection.StreamUtil;
 import ceri.common.math.Fraction;
 
+/**
+ * Provides parsing and formatting of fractions.
+ */
 public class FractionFormats {
 
 	private FractionFormats() {}
@@ -60,16 +63,12 @@ public class FractionFormats {
 
 		public static Glyph of(Fraction fraction) {
 			if (fraction == null) return null;
-			return of(fraction.numerator, fraction.denominator);
+			return of(fraction.numerator(), fraction.denominator());
 		}
 
 		public static Glyph of(long numerator, long denominator) {
-			return StreamUtil.first(Stream.of(Glyph.values()).filter( //
-				g -> g.matches(numerator, denominator)));
-		}
-
-		private boolean matches(long numerator, long denominator) {
-			return fraction.numerator == numerator && fraction.denominator == denominator;
+			return StreamUtil.first(
+				Stream.of(Glyph.values()).filter(g -> g.fraction.equals(numerator, denominator)));
 		}
 
 		static String all() {
@@ -219,13 +218,13 @@ public class FractionFormats {
 		public static String format(Fraction fraction) {
 			Glyph glyph = Glyph.of(fraction);
 			if (glyph != null) return String.valueOf(glyph.code);
-			if (fraction.numerator == 1) return toOneOverString(fraction.denominator);
+			if (fraction.numerator() == 1) return toOneOverString(fraction.denominator());
 			return toSuperSlashSubString(fraction);
 		}
 
 		private static String toSuperSlashSubString(Fraction fraction) {
-			return Superscript.format(fraction.numerator) + Slash.solidus.code +
-				Subscript.format(fraction.denominator);
+			return Superscript.format(fraction.numerator()) + Slash.solidus.code
+				+ Subscript.format(fraction.denominator());
 		}
 
 		private static String toOneOverString(long denominator) {

@@ -3,14 +3,6 @@ package ceri.common.collection;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.text.StringUtil.NULL_STRING;
-import static ceri.common.util.PrimitiveUtil.convertBooleans;
-import static ceri.common.util.PrimitiveUtil.convertBytes;
-import static ceri.common.util.PrimitiveUtil.convertChars;
-import static ceri.common.util.PrimitiveUtil.convertDoubles;
-import static ceri.common.util.PrimitiveUtil.convertFloats;
-import static ceri.common.util.PrimitiveUtil.convertInts;
-import static ceri.common.util.PrimitiveUtil.convertLongs;
-import static ceri.common.util.PrimitiveUtil.convertShorts;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +18,7 @@ import ceri.common.validation.ValidationUtil;
 /**
  * Utility methods to test and manipulate arrays.
  * @see ceri.common.collection.CollectionUtil
- * @see ceri.common.util.PrimitiveUtil
+ * @see ceri.common.text.ParseUtil
  */
 public class ArrayUtil {
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
@@ -217,59 +209,219 @@ public class ArrayUtil {
 	}
 
 	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static boolean[] unboxBools(Boolean... array) {
+		var ts = new boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Boolean[] boxBools(boolean... array) {
+		var ts = new Boolean[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static byte[] unboxBytes(Byte... array) {
+		var ts = new byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Byte[] boxBytes(byte... array) {
+		var ts = new Byte[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static char[] unboxChars(Character... array) {
+		var ts = new char[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Character[] boxChars(char... array) {
+		var ts = new Character[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static short[] unboxShorts(Short... array) {
+		var ts = new short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Short[] boxShorts(short... array) {
+		var ts = new Short[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static int[] unboxInts(Integer... array) {
+		var ts = new int[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Integer[] boxInts(int... array) {
+		var ts = new Integer[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static long[] unboxLongs(Long[] array) {
+		var ts = new long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Long[] boxLongs(long... array) {
+		var ts = new Long[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static float[] unboxFloats(Float[] array) {
+		var ts = new float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Float[] boxFloats(float... array) {
+		var ts = new Float[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the object array to a primitive array.
+	 */
+	public static double[] unboxDoubles(Double[] array) {
+		var ts = new double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
+	 * Converts the primitive array to an object array.
+	 */
+	public static Double[] boxDoubles(double... array) {
+		var ts = new Double[array.length];
+		for (int i = 0; i < array.length; i++)
+			ts[i] = array[i];
+		return ts;
+	}
+
+	/**
 	 * Converts a primitive array to a list.
 	 */
-	public static List<Boolean> booleanList(boolean... array) {
-		return asList(convertBooleans(array));
+	public static List<Boolean> boolList(boolean... array) {
+		return asList(boxBools(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Character> charList(char... array) {
-		return asList(convertChars(array));
+		return asList(boxChars(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Byte> byteList(byte... array) {
-		return asList(convertBytes(array));
+		return asList(boxBytes(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Short> shortList(short... array) {
-		return asList(convertShorts(array));
+		return asList(boxShorts(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Integer> intList(int... array) {
-		return asList(convertInts(array));
+		return asList(boxInts(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Long> longList(long... array) {
-		return asList(convertLongs(array));
+		return asList(boxLongs(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Float> floatList(float... array) {
-		return asList(convertFloats(array));
+		return asList(boxFloats(array));
 	}
 
 	/**
 	 * Converts a primitive array to a list.
 	 */
 	public static List<Double> doubleList(double... array) {
-		return asList(convertDoubles(array));
+		return asList(boxDoubles(array));
 	}
 
 	/**
@@ -283,14 +435,14 @@ public class ArrayUtil {
 	/**
 	 * Convenience method to create an array.
 	 */
-	public static boolean[] booleans(boolean... ts) {
+	public static boolean[] bools(boolean... ts) {
 		return ts;
 	}
 
 	/**
 	 * Convenience method to create an array.
 	 */
-	public static boolean[] booleans(int... ts) {
+	public static boolean[] bools(int... ts) {
 		var array = new boolean[ts.length];
 		for (int i = 0; i < ts.length; i++)
 			array[i] = ts[i] != 0;

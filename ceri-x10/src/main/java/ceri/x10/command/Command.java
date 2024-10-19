@@ -2,7 +2,7 @@ package ceri.x10.command;
 
 import static ceri.common.collection.StreamUtil.toSet;
 import static ceri.common.math.MathUtil.limit;
-import static ceri.common.text.RegexUtil.intGroup;
+import static ceri.common.text.RegexUtil.parse;
 import static ceri.common.util.BasicUtil.defaultValue;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateUbyte;
@@ -235,8 +235,8 @@ public abstract class Command {
 		House house = House.from(m.group(i++).charAt(0));
 		Set<Unit> units = units(defaultValue(m.group(i++), m.group(i++)));
 		FunctionType type = FunctionType.from(m.group(i++));
-		int data = defaultValue(defaultValue(intGroup(m, i++), intGroup(m, i++)), 0);
-		int command = defaultValue(intGroup(m, i++), 0);
+		int data = defaultValue(parse(m, i++).toInt(), parse(m, i++).toInt(0));
+		int command = parse(m, i++).toInt(0);
 		return of(house, units, type, data, command);
 	}
 

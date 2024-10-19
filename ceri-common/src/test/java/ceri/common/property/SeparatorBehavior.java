@@ -1,0 +1,47 @@
+package ceri.common.property;
+
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertNpe;
+import org.junit.Test;
+
+public class SeparatorBehavior {
+
+	@Test
+	public void shouldDetermineIfNull() {
+		assertEquals(Separator.NULL.isNull(), true);
+		assertEquals(new Separator("").isNull(), true);
+		assertEquals(new Separator(" ").isNull(), false);
+		assertNpe(() -> new Separator(null));
+	}
+
+	@Test
+	public void shouldProvideRootKey() {
+		assertEquals(Separator.NULL.root().value(), "");
+		assertEquals(Separator.DASH.root().value(), "");
+	}
+
+	@Test
+	public void shouldChompStrings() {
+		String[] pre = { "", ".a.", null };
+		assertEquals(Separator.DOT.chomp(pre, "", null, ".b..c.d."), "a.b..c.d");
+		assertEquals(Separator.NULL.chomp(pre, "", null, ".b..c.d."), ".a..b..c.d.");
+	}
+
+	@Test
+	public void shouldNormalizeStrings() {
+		String[] pre = { "", ".a.", null };
+		assertEquals(Separator.DOT.normalize(pre, "", null, ".b..c.d."), "a.b.c.d");
+		assertEquals(Separator.NULL.normalize(pre, "", null, ".b..c.d."), ".a..b..c.d.");
+	}
+
+	@Test
+	public void shouldNormalizeStringsWithSeparator() {
+		String[] pre = { "", ".a.", null };
+		assertEquals(Separator.DOT.normalize(Separator.SLASH, pre, "", null, ".b..c.d."),
+			"a/b/c/d");
+		assertEquals(Separator.DOT.normalize(Separator.NULL, pre, "", null, ".b..c.d."), "abcd");
+		assertEquals(Separator.NULL.normalize(Separator.DOT, pre, "", null, ".b..c.d."),
+			".a...b..c.d.");
+	}
+
+}

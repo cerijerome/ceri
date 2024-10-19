@@ -18,7 +18,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ObjIntFunction;
-import ceri.common.util.PrimitiveUtil;
+import ceri.common.property.Parser;
 
 /**
  * General utilities for regular expressions.
@@ -338,8 +338,8 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Finds the first matching regex and returns the first group if it exists, otherwise the entire
-	 * matched pattern.
+	 * Finds the first match and returns the first group if it exists, otherwise the entire matched
+	 * pattern.
 	 */
 	public static String find(Pattern regex, String s) {
 		return groupOrAll(found(regex, s), 1);
@@ -411,164 +411,150 @@ public class RegexUtil {
 	}
 
 	/**
-	 * Returns the group or null. Matcher match should have been attempted.
+	 * Returns a parser for the group or null. Matcher match should have been attempted before
+	 * calling.
 	 */
-	public static Boolean booleanGroup(Matcher m, int group) {
-		return PrimitiveUtil.booleanValue(group(m, group));
+	public static Parser.String parse(Matcher m, int group) {
+		return Parser.string(group(m, group));
 	}
 
 	/**
-	 * Returns the group or null. Matcher match should have been attempted.
+	 * Returns a parser for the first found group or null.
 	 */
-	public static Byte byteGroup(Matcher m, int group) {
-		return PrimitiveUtil.byteDecode(group(m, group));
+	public static Parser.String parseFind(Pattern regex, String s) {
+		return Parser.string(find(regex, s));
 	}
 
 	/**
-	 * Returns the group or null. Matcher match should have been attempted.
+	 * Returns a parser for the group or null. Matcher match should have been attempted before
+	 * calling.
 	 */
-	public static Short shortGroup(Matcher m, int group) {
-		return PrimitiveUtil.shortDecode(group(m, group));
+	public static Parser.Strings parseFindAll(Pattern regex, String s) {
+		return Parser.strings(findAll(regex, s));
 	}
 
-	/**
-	 * Returns the group or null. Matcher match should have been attempted.
-	 */
-	public static Integer intGroup(Matcher m, int group) {
-		return PrimitiveUtil.intDecode(group(m, group));
-	}
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Boolean findBoolean(Pattern regex, String s) {
+	// return Boolean.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Byte findByte(Pattern regex, String s) {
+	// return Byte.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Short findShort(Pattern regex, String s) {
+	// return Short.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Integer findInt(Pattern regex, String s) {
+	// return Integer.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Long findLong(Pattern regex, String s) {
+	// return Long.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Float findFloat(Pattern regex, String s) {
+	// return Float.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds the first matching regex and returns the first group.
+	// */
+	// public static Double findDouble(Pattern regex, String s) {
+	// return Double.valueOf(find(regex, s));
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<String> findAll(Pattern regex, String s) {
+	// return findAll(regex, s, t -> t);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Boolean> findAllBooleans(Pattern regex, String s) {
+	// return findAll(regex, s, Boolean::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Byte> findAllBytes(Pattern regex, String s) {
+	// return findAll(regex, s, Byte::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Short> findAllShorts(Pattern regex, String s) {
+	// return findAll(regex, s, Short::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Integer> findAllInts(Pattern regex, String s) {
+	// return findAll(regex, s, Integer::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Long> findAllLongs(Pattern regex, String s) {
+	// return findAll(regex, s, Long::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Float> findAllFloats(Pattern regex, String s) {
+	// return findAll(regex, s, Float::valueOf);
+	// }
+	//
+	// /**
+	// * Finds matching regex and returns the first group for each match.
+	// */
+	// public static List<Double> findAllDoubles(Pattern regex, String s) {
+	// return findAll(regex, s, Double::valueOf);
+	// }
+	//
+	// private static <T> List<T> findAll(Pattern regex, String s, Function<String, T> fn) {
+	// List<T> values = new ArrayList<>();
+	// Matcher m = regex.matcher(s);
+	// while (m.find())
+	// values.add(fn.apply(m.group(1)));
+	// return values;
+	// }
 
 	/**
-	 * Returns the group or null. Matcher match should have been attempted.
-	 */
-	public static Long longGroup(Matcher m, int group) {
-		return PrimitiveUtil.longDecode(group(m, group));
-	}
-
-	/**
-	 * Returns the group or null. Matcher match should have been attempted.
-	 */
-	public static Float floatGroup(Matcher m, int group) {
-		return PrimitiveUtil.floatValue(group(m, group));
-	}
-
-	/**
-	 * Returns the group or null. Matcher match should have been attempted.
-	 */
-	public static Double doubleGroup(Matcher m, int group) {
-		return PrimitiveUtil.doubleValue(group(m, group));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Boolean findBoolean(Pattern regex, String s) {
-		return Boolean.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Byte findByte(Pattern regex, String s) {
-		return Byte.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Short findShort(Pattern regex, String s) {
-		return Short.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Integer findInt(Pattern regex, String s) {
-		return Integer.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Long findLong(Pattern regex, String s) {
-		return Long.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Float findFloat(Pattern regex, String s) {
-		return Float.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds the first matching regex and returns the first group.
-	 */
-	public static Double findDouble(Pattern regex, String s) {
-		return Double.valueOf(find(regex, s));
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
+	 * Finds the first match regex and collects the first group if it exists, otherwise the entire
+	 * matched pattern. Repeats until no results, collecting the groups as a list.
 	 */
 	public static List<String> findAll(Pattern regex, String s) {
-		return findAll(regex, s, t -> t);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Boolean> findAllBooleans(Pattern regex, String s) {
-		return findAll(regex, s, Boolean::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Byte> findAllBytes(Pattern regex, String s) {
-		return findAll(regex, s, Byte::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Short> findAllShorts(Pattern regex, String s) {
-		return findAll(regex, s, Short::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Integer> findAllInts(Pattern regex, String s) {
-		return findAll(regex, s, Integer::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Long> findAllLongs(Pattern regex, String s) {
-		return findAll(regex, s, Long::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Float> findAllFloats(Pattern regex, String s) {
-		return findAll(regex, s, Float::valueOf);
-	}
-
-	/**
-	 * Finds matching regex and returns the first group for each match.
-	 */
-	public static List<Double> findAllDoubles(Pattern regex, String s) {
-		return findAll(regex, s, Double::valueOf);
-	}
-
-	private static <T> List<T> findAll(Pattern regex, String s, Function<String, T> fn) {
-		List<T> values = new ArrayList<>();
+		List<String> values = new ArrayList<>();
 		Matcher m = regex.matcher(s);
 		while (m.find())
-			values.add(fn.apply(m.group(1)));
+			values.add(m.group(1));
 		return values;
 	}
 

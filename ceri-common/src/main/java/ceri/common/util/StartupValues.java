@@ -5,7 +5,7 @@ import java.util.function.Function;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.property.Parser;
-import ceri.common.property.PathFactory;
+import ceri.common.property.Separator;
 import ceri.common.text.StringUtil;
 
 /**
@@ -86,7 +86,7 @@ public class StartupValues {
 
 		public <E extends Exception, T> T parse(ExceptionFunction<E, Parser.String, T> parseFn)
 			throws E {
-			var result = parseFn.apply(Parser.String.of(value));
+			var result = parseFn.apply(Parser.string(value));
 			if (notifier != null) notifier.accept(desc(renderer.apply(result)));
 			return result;
 		}
@@ -242,9 +242,8 @@ public class StartupValues {
 
 	private static String sysProp(String prefix, String suffix) {
 		suffix = StringUtil.trim(suffix);
-		if (suffix == null || suffix.isEmpty()) return null;
-		if (prefix == null) return suffix;
-		return PathFactory.dot.path(prefix, suffix).value;
+		if (StringUtil.empty(suffix)) return null;
+		return Separator.DOT.join(prefix, suffix);
 	}
 
 	private int nextArg() {

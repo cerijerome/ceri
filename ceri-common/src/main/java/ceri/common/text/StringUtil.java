@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionPredicate;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Align;
 
@@ -76,6 +77,8 @@ public class StringUtil {
 	public static final int SHORT_BINARY_DIGITS = 16;
 	public static final int BYTE_BINARY_DIGITS = 8;
 	public static final int HEX_BINARY_DIGITS = 4;
+	public static final ExceptionPredicate<RuntimeException, String> NOT_EMPTY = s -> !empty(s);
+	public static final ExceptionPredicate<RuntimeException, String> NOT_BLANK = s -> !blank(s);
 
 	private StringUtil() {}
 
@@ -86,7 +89,7 @@ public class StringUtil {
 		if (s == null || index < 0 || index >= s.length()) return def;
 		return s.charAt(index);
 	}
-	
+
 	/**
 	 * Reverses a string.
 	 */
@@ -145,6 +148,13 @@ public class StringUtil {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the object as a string, or null if the object is null.
+	 */
+	public static String string(Object obj) {
+		return obj == null ? null : obj.toString();
 	}
 
 	/**
@@ -794,6 +804,21 @@ public class StringUtil {
 	}
 
 	/**
+	 * Returns true if the string range is the full string.
+	 */
+	public static boolean full(String s, int start, int end) {
+		return s != null && start == 0 && end == s.length();
+	}
+
+	/**
+	 * Returns true if the string contains the sub-string at the given index.
+	 */
+	public static boolean matchAt(String s, int index, String sub) {
+		if (s == null || sub == null) return false;
+		return s.regionMatches(index, sub, 0, sub.length());
+	}
+
+	/**
 	 * Functionality of String applied to StringBuilder.
 	 */
 	public static boolean regionMatches(StringBuilder b, int offset, String s, int sOffset,
@@ -919,14 +944,14 @@ public class StringUtil {
 	/**
 	 * Checks if the given string is null or empty. Can be used as a predicate.
 	 */
-	public static boolean empty(String str) {
+	public static boolean empty(CharSequence str) {
 		return str == null || str.isEmpty();
 	}
 
 	/**
 	 * Checks if the given string is non-null and not empty. Can be used as a predicate.
 	 */
-	public static boolean nonEmpty(String str) {
+	public static boolean nonEmpty(CharSequence str) {
 		return !empty(str);
 	}
 

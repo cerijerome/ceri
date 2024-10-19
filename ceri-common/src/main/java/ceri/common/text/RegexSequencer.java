@@ -7,14 +7,14 @@ import java.util.regex.Pattern;
  * Applies subsequent pattern matchers to a string. Can be replaced by Matcher.usePattern?
  */
 public class RegexSequencer {
-	private String s;
+	private CharSequence s;
 	private Matcher lastMatcher = null;
 
-	public static RegexSequencer of(String s) {
+	public static RegexSequencer of(CharSequence s) {
 		return new RegexSequencer(s);
 	}
 
-	private RegexSequencer(String s) {
+	private RegexSequencer(CharSequence s) {
 		this.s = s;
 	}
 
@@ -31,7 +31,7 @@ public class RegexSequencer {
 	private void updateString(Matcher lastMatcher) {
 		if (lastMatcher == null) return;
 		try {
-			s = s.substring(lastMatcher.end());
+			s = s.subSequence(lastMatcher.end(), s.length());
 		} catch (IllegalStateException e) {
 			// ignore
 		}

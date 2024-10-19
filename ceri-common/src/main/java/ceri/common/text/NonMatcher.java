@@ -19,27 +19,7 @@ public class NonMatcher implements NonMatchResult {
 	private int last;
 	private boolean noMoreFinds;
 
-	private static class Result implements NonMatchResult {
-		private final String input;
-		private final int start;
-		private final int end;
-
-		private Result(String input, int start, int end) {
-			this.input = input;
-			this.start = start;
-			this.end = end;
-		}
-
-		@Override
-		public int start() {
-			return start;
-		}
-
-		@Override
-		public int end() {
-			return end;
-		}
-
+	private record Result(String input, int start, int end) implements NonMatchResult {
 		@Override
 		public String group() {
 			verifyMatch(start);

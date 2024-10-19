@@ -54,14 +54,14 @@ public class RegistryServiceBehavior {
 
 	private static void inc(TypedProperties p, String key, int diff) {
 		int value = p.parse(key).toInt();
-		p.setValue(value + diff, key);
+		p.set(value + diff, key);
 	}
 
 	@Test
 	public void shouldSaveProperties() throws IOException {
 		init("");
-		service.registry.queue(p -> p.setValue(123, "a.b.c"));
-		service.registry.accept(p -> p.setValue(456, "a.b.d"));
+		service.registry.queue(p -> p.set(123, "a.b.c"));
+		service.registry.accept(p -> p.set(456, "a.b.d"));
 		service.close();
 		var content = regFileContent();
 		assertFind(content, "a\\.b\\.c=123");
@@ -83,7 +83,7 @@ public class RegistryServiceBehavior {
 	public void shouldPersistPropertiesOnRequest() throws IOException {
 		var save = CallSync.<Properties>consumer(null, true);
 		service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER));
-		service.registry.accept(p -> p.setValue(123, "a.b.c"));
+		service.registry.accept(p -> p.set(123, "a.b.c"));
 		service.persist(false);
 		save.assertNoCall();
 		service.persist(true);
@@ -96,7 +96,7 @@ public class RegistryServiceBehavior {
 			var save = CallSync.<Properties>consumer(null, false);
 			save.error.setFrom(IOX, IOX, null);
 			service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER), 0, 0);
-			service.registry.accept(p -> p.setValue(123, "a.b.c"));
+			service.registry.accept(p -> p.set(123, "a.b.c"));
 			service.persist(true);
 			save.await(); // error
 			save.await(); // error
@@ -109,7 +109,7 @@ public class RegistryServiceBehavior {
 	public void shouldSavePropertiesOnClose() throws IOException {
 		var save = CallSync.<Properties>consumer(null, true);
 		service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER));
-		service.registry.accept(p -> p.setValue(123, "a.b.c"));
+		service.registry.accept(p -> p.set(123, "a.b.c"));
 		service.close();
 		var p = save.awaitAuto();
 		assertEquals(p.getProperty("a.b.c"), "123");
@@ -118,7 +118,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldAllowNullPath() throws IOException {
 		service = RegistryService.of("reg", null);
-		service.registry.accept(p -> p.setValue(123, "a.b.c")); // no exception thrown
+		service.registry.accept(p -> p.set(123, "a.b.c")); // no exception thrown
 		service.persist(true);
 	}
 
@@ -131,8 +131,8 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldNotSaveIfEmpty() throws IOException {
 		init("a.b.c=123");
-		service.registry.accept(p -> p.setValue(456, "a.b.c"));
-		service.registry.accept(p -> p.setValue(null, "a.b.c")); // removes property
+		service.registry.accept(p -> p.set(456, "a.b.c"));
+		service.registry.accept(p -> p.set(null, "a.b.c")); // removes property
 		service.close();
 		var content = regFileContent();
 		assertEquals(content, "a.b.c=123");

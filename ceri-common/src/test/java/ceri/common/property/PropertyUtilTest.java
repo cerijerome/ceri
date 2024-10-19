@@ -72,14 +72,6 @@ public class PropertyUtilTest {
 	}
 
 	@Test
-	public void testProperty() {
-		Properties properties = new Properties();
-		properties.setProperty("a.b.c", "abc");
-		String value = PropertyUtil.property(properties, PathFactory.dot.path("a", "b", "c"));
-		assertEquals(value, "abc");
-	}
-
-	@Test
 	public void testLoadResource() throws IOException {
 		Properties properties = PropertyUtil.load(getClass());
 		assertEquals(properties.getProperty("a.b.c"), "abc");
@@ -101,28 +93,4 @@ public class PropertyUtilTest {
 			assertEquals(properties.getProperty("b"), "c");
 		}
 	}
-
-	@Test
-	public void testLoadLocators() throws IOException {
-		Locator abc = Locator.of(getClass(), "property-test-a-b-c");
-		Locator a = Locator.of(getClass(), "property-test-a");
-		Locator def = Locator.of(getClass(), "property-test-d-e-f");
-		Properties properties = PropertyUtil.load(abc, def, a);
-		assertEquals(properties.getProperty("a"), "true");
-		assertEquals(properties.getProperty("a.b.c"), "true");
-		assertEquals(properties.getProperty("d.e.f"), "true");
-		assertEquals(properties.getProperty("name"), "property-test-a");
-	}
-
-	@Test
-	public void testLoadLocatorPaths() throws IOException {
-		Locator abc = Locator.of(getClass(), "property-test-a-b-c");
-		Locator def = Locator.of(getClass(), "property-test-d-e-f");
-		Properties properties = PropertyUtil.loadPaths(abc, def);
-		assertEquals(properties.getProperty("a"), "true");
-		assertEquals(properties.getProperty("a.b.c"), "true");
-		assertEquals(properties.getProperty("d.e.f"), "true");
-		assertEquals(properties.getProperty("name"), "property-test-d-e-f");
-	}
-
 }

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -575,7 +576,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(boolean[] lhs, boolean... expected) {
-		assertCollection(ArrayUtil.booleanList(lhs), ArrayUtil.booleanList(expected));
+		assertCollection(ArrayUtil.boolList(lhs), ArrayUtil.boolList(expected));
 	}
 
 	/**
@@ -764,6 +765,10 @@ public class AssertUtil {
 
 	public static void assertStream(LongStream stream, long... ls) {
 		assertArray(stream.toArray(), ls);
+	}
+
+	public static void assertStream(DoubleStream stream, double... ds) {
+		assertArray(stream.toArray(), ds);
 	}
 
 	public static void assertBuffer(ByteBuffer buffer, int... bytes) {

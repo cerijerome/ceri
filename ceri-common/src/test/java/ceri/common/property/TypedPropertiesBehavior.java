@@ -4,9 +4,8 @@ import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertString;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
@@ -42,6 +41,8 @@ public class TypedPropertiesBehavior {
 		properties.put("m.n.0.b.d", "mn0bd");
 		properties.put("m.n.1", "mn1");
 		properties.put("m.n.2.a", "mn2a");
+		properties.put("n", "");
+		properties.put("n.n", " ");
 		properties.put("3.1", "31");
 		properties.put("7.2", "72");
 		properties.put("7.2.b", "true,false");
@@ -57,7 +58,7 @@ public class TypedPropertiesBehavior {
 
 	@Test
 	public void shouldMerge() throws IOException {
-		TypedProperties tp = TypedProperties.merge( //
+		var tp = TypedProperties.merge(
 			TypedProperties.from(load(getClass(), "property-test-a-b-c.properties")),
 			TypedProperties.from(load(getClass(), "property-test-d-e-f.properties")));
 		assertEquals(tp.get("name"), "property-test-d-e-f");
@@ -66,18 +67,18 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
-	public void shouldCreateEmptyPropertiesFromNull() {
-		TypedProperties tp = TypedProperties.from((TypedProperties) null, "m.n.0");
-		assertNull(tp.get("a.b.c"));
-		assertNull(tp.get(""));
+	public void shouldCreateFromResourceBundle() {
+		var r = ResourceBundle.getBundle(PropertySource.class.getName(), Locale.ENGLISH);
+		TypedProperties tp = TypedProperties.from(r);
+		assertEquals(tp.get("name"), "PropertySource");
 	}
 
 	@Test
-	public void shouldCreateFromResourceBundle() {
-		ResourceBundle r = ResourceBundle.getBundle( //
-			"ceri.common.property.PropertyAccessor", Locale.ENGLISH);
-		TypedProperties tp = TypedProperties.from(r);
-		assertEquals(tp.get("name"), "PropertyAccessor");
+	public void shouldNotReturnBlankValues() {
+		var p = TypedProperties.from(properties);
+		assertEquals(p.children().contains("n"), true);
+		assertEquals(p.get("n"), null);
+		assertEquals(p.get("n.n"), null);
 	}
 
 	@Test
@@ -85,7 +86,7 @@ public class TypedPropertiesBehavior {
 		var p = new Properties();
 		p.setProperty("a.b.c", "123");
 		var tp = TypedProperties.from(p, "a");
-		tp.setValue(456, "b", "c");
+		tp.set(456, "b", "c");
 		assertEquals(p.getProperty("a.b.c"), "456");
 	}
 
@@ -94,21 +95,21 @@ public class TypedPropertiesBehavior {
 		var p = new Properties();
 		p.setProperty("a.b.c", "123");
 		var tp = TypedProperties.from(p, "a");
-		tp.setValue(null, "b", "c");
+		tp.set(null, "b", "c");
 		assertFalse(p.containsKey("a.b.d"));
 	}
 
 	@Test
 	public void shouldReturnDescendants() {
-		TypedProperties tp = TypedProperties.from(properties, "m.n.0");
+		var tp = TypedProperties.from(properties, "m.n.0");
 		assertCollection(tp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
 		assertCollection(tp.descendants("b"), "c", "c.d", "d");
 	}
 
 	@Test
 	public void shouldReturnChildren() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertCollection(tp.children(), "xyz", "x", "y", "z", "a", "m", "3", "7");
+		var tp = TypedProperties.from(properties);
+		assertCollection(tp.children(), "xyz", "x", "y", "z", "a", "m", "n", "3", "7");
 		assertCollection(tp.children("m.n.0"), "a", "b");
 		tp = TypedProperties.from(properties, "m.n.0");
 		assertCollection(tp.children(), "a", "b");
@@ -116,56 +117,32 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
-	public void shouldCheckIfChildrenExist() {
-		TypedProperties tp = TypedProperties.from(properties, "m.n");
-		assertTrue(tp.hasChild("0"));
-		assertTrue(tp.hasChild("0.b"));
-		assertFalse(tp.hasChild("0.c"));
-		assertTrue(tp.hasChild("0.b.c"));
-		assertTrue(tp.hasChild("1"));
-		assertTrue(tp.hasChild("2.a"));
-		assertFalse(tp.hasChild("3"));
-	}
-
-	@Test
 	public void shouldReturnChildIds() {
-		TypedProperties tp = TypedProperties.from(properties);
-		assertCollection(tp.childIds("m.n"), 0, 1, 2);
-		assertCollection(tp.childIds("m"));
-		assertCollection(tp.childIds(""), 3, 7);
-		assertCollection(tp.childIds(), 3, 7);
+		var tp = TypedProperties.from(properties);
+		assertIterable(tp.childIds("m.n"), 0, 1, 2);
+		assertIterable(tp.childIds("m"));
+		assertIterable(tp.childIds(""), 3, 7);
+		assertIterable(tp.childIds(), 3, 7);
 		tp = TypedProperties.from(properties, "m");
-		assertCollection(tp.childIds("n"), 0, 1, 2);
+		assertIterable(tp.childIds("n"), 0, 1, 2);
 		tp = TypedProperties.from(properties, "m.n");
-		assertCollection(tp.childIds(""), 0, 1, 2);
+		assertIterable(tp.childIds(""), 0, 1, 2);
 	}
 
 	@Test
-	public void shouldHaveStringRepresentationOfProperties() {
-		Properties properties = new Properties();
-		properties.put("a", "A");
-		properties.put("b", "B");
-		TypedProperties tp = TypedProperties.from(properties);
-		assertMatch(tp.toString(), ".*a=A.*");
-		assertMatch(tp.toString(), ".*b=B.*");
-	}
-
-	@Test
-	public void shouldExtendPrefixWhenCreatingFromBaseProperties() {
-		TypedProperties tp0 = TypedProperties.from(properties);
-		TypedProperties tp1 = TypedProperties.from(tp0);
+	public void shouldExtendPrefixWhenCreatingSubs() {
+		var tp0 = TypedProperties.from(properties);
+		var tp1 = tp0.sub();
 		assertEquals(tp1.get("a"), "A");
-		TypedProperties tp2 = TypedProperties.from(tp1, "a");
+		TypedProperties tp2 = tp1.sub("a");
 		assertEquals(tp2.get("b"), "AB");
-		TypedProperties tp3 = TypedProperties.from(tp2, "b", "c");
+		TypedProperties tp3 = tp2.sub("b", "c");
 		assertEquals(tp3.get("d"), "4");
 	}
 
 	@Test
 	public void shouldAllowNullPrefix() {
-		TypedProperties tp = TypedProperties.from(properties, new String[] { null });
-		assertEquals(tp.get("a"), "A");
-		tp = TypedProperties.from(properties, (String[]) null);
+		var tp = TypedProperties.from(properties, new String[] { null });
 		assertEquals(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, null, null);
 		assertEquals(tp.get("a"), "A");
@@ -173,16 +150,14 @@ public class TypedPropertiesBehavior {
 		assertEquals(tp.get("b"), "AB");
 		tp = TypedProperties.from(properties, null, "a");
 		assertEquals(tp.get("b"), "AB");
+		tp = TypedProperties.from(properties, (String[]) null);
+		assertEquals(tp.get("a"), "A");
 	}
 
 	@Test
-	public void shouldOnlyReadPrefixedProperties() {
-		TypedProperties tp = TypedProperties.from(properties, "a");
-		assertEquals(tp.key("b.c"), "a.b.c");
-		assertCollection(tp.keys(), "a.b.c.d", "a.b.c", "a.b", "a.abc", "a", "a.y", "a.n", "a.l");
-		tp = TypedProperties.from(properties);
-		assertEquals(tp.key("a.b"), "a.b");
-		assertCollection(tp.keys(), properties.keySet());
+	public void shouldProvideStringRepresentation() {
+		var tp = TypedProperties.from(properties, "a", "b", "c");
+		assertString(tp, "Properties[a.b.c]");
 	}
 
 }

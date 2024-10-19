@@ -40,10 +40,10 @@ public class ScUtilBehavior {
 		p.assertParameters("scutil", "--nc", "status", "test");
 		NcStatus ns = result.parse();
 		assertEquals(ns.state, NcServiceState.connected);
-		assertEquals(ns.data.find("Extended Status.PPP.DeviceLastCause").asInt(), 99);
-		assertEquals(ns.data.find("Extended Status.PPP.LastCause").asInt(), 90);
-		assertEquals(ns.data.find("Extended Status.PPP.Status").asInt(), 1);
-		assertEquals(ns.data.find("Extended Status.Status").asInt(), 0);
+		assertEquals(ns.data.find("Extended Status.PPP.DeviceLastCause").parse().toInt(), 99);
+		assertEquals(ns.data.find("Extended Status.PPP.LastCause").parse().toInt(), 90);
+		assertEquals(ns.data.find("Extended Status.PPP.Status").parse().toInt(), 1);
+		assertEquals(ns.data.find("Extended Status.Status").parse().toInt(), 0);
 	}
 
 	@Test
@@ -56,10 +56,10 @@ public class ScUtilBehavior {
 			NcListItem.builder().enabled(true).state("Connecting")
 				.passwordHash("00000000-0000-0000-0000-000000000000").protocol("I2C")
 				.device("FT232R USB UART").name("FT232R USB UART").type("Device").build());
-		assertEquals(ns.data.find("Extended Status.PPP.DeviceLastCause").asInt(), 99);
-		assertEquals(ns.data.find("Extended Status.PPP.LastCause").asInt(), 90);
-		assertEquals(ns.data.find("Extended Status.PPP.Status").asInt(), 1);
-		assertEquals(ns.data.find("Extended Status.Status").asInt(), 0);
+		assertEquals(ns.data.find("Extended Status.PPP.DeviceLastCause").parse().toInt(), 99);
+		assertEquals(ns.data.find("Extended Status.PPP.LastCause").parse().toInt(), 90);
+		assertEquals(ns.data.find("Extended Status.PPP.Status").parse().toInt(), 1);
+		assertEquals(ns.data.find("Extended Status.Status").parse().toInt(), 0);
 	}
 
 	@Test

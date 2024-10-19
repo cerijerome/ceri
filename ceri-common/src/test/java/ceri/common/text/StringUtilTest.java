@@ -27,6 +27,22 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testNotBlankPredicate() {
+		assertEquals(StringUtil.NOT_BLANK.test(null), false);
+		assertEquals(StringUtil.NOT_BLANK.test(""), false);
+		assertEquals(StringUtil.NOT_BLANK.test(" "), false);
+		assertEquals(StringUtil.NOT_BLANK.test("x"), true);
+	}
+
+	@Test
+	public void testNotEmptyPredicate() {
+		assertEquals(StringUtil.NOT_EMPTY.test(null), false);
+		assertEquals(StringUtil.NOT_EMPTY.test(""), false);
+		assertEquals(StringUtil.NOT_EMPTY.test(" "), true);
+		assertEquals(StringUtil.NOT_EMPTY.test("x"), true);
+	}
+
+	@Test
 	public void testCharAt() {
 		assertEquals(StringUtil.charAt(null, 0, 'x'), 'x');
 		assertEquals(StringUtil.charAt("test", 2, 'x'), 's');
@@ -246,6 +262,32 @@ public class StringUtilTest {
 		assertFalse(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), null));
 		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), "abCDeF"));
 		assertTrue(StringUtil.startsWithIgnoreCase(new StringBuilder("ABCdefGHI"), 3, "DeF"));
+	}
+
+	@Test
+	public void testFull() {
+		assertEquals(StringUtil.full(null, 0, 0), false);
+		assertEquals(StringUtil.full("", -1, 0), false);
+		assertEquals(StringUtil.full("", 0, 1), false);
+		assertEquals(StringUtil.full("", 0, 0), true);
+		assertEquals(StringUtil.full("abc", 0, 3), true);
+		assertEquals(StringUtil.full("abc", 0, 2), false);
+		assertEquals(StringUtil.full("abc", 1, 3), false);
+	}
+
+	@Test
+	public void testMatchAt() {
+		assertEquals(StringUtil.matchAt(null, 0, ""), false);
+		assertEquals(StringUtil.matchAt("", 0, null), false);
+		assertEquals(StringUtil.matchAt("abc", -1, ""), false);
+		assertEquals(StringUtil.matchAt("abc", 0, ""), true);
+		assertEquals(StringUtil.matchAt("abc", 1, ""), true);
+		assertEquals(StringUtil.matchAt("abc", 3, ""), true);
+		assertEquals(StringUtil.matchAt("abc", 4, ""), false);
+		assertEquals(StringUtil.matchAt("ab", 0, "abc"), false);
+		assertEquals(StringUtil.matchAt("ab", 0, "ab"), true);
+		assertEquals(StringUtil.matchAt("abc", 0, "bc"), false);
+		assertEquals(StringUtil.matchAt("abc", 1, "bc"), true);
 	}
 
 	@Test

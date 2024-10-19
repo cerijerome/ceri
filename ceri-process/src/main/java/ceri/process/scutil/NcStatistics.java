@@ -1,6 +1,5 @@
 package ceri.process.scutil;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,7 +35,7 @@ public class NcStatistics {
 	public static NcStatistics from(String output) {
 		Builder b = builder();
 		Node<?> node = Parser.parse(output).child(0, 0);
-		node.namedChildren().forEach((name, n) -> safeAccept(n.asInt(), i -> b.add(name, i)));
+		node.namedChildren().forEach((name, n) -> n.parse().asInt().accept(i -> b.add(name, i)));
 		return b.build();
 	}
 

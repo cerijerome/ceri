@@ -70,35 +70,21 @@ public class DsvParserBehavior {
 	@Test
 	public void shouldParseTypedFields() {
 		skip(3);
-		assertEquals(parser.intField("field1"), 1);
-		assertEquals(parser.intField("field2"), 2);
-		assertEquals(parser.intField("field3"), 3);
-		assertEquals(parser.intField("field4", 4), 4);
+		assertEquals(parser.parse("field1").toInt(), 1);
+		assertEquals(parser.parse("field2").toInt(), 2);
+		assertEquals(parser.parse("field3").toInt(), 3);
 		next();
-		assertEquals(parser.doubleField("field1"), 1.0);
-		assertEquals(parser.doubleField("field2", 2.0), 2.0);
-		assertEquals(parser.doubleField("field3", 3.0), 2.0);
+		assertEquals(parser.parse(0).toDouble(), 1.0);
+		assertEquals(parser.parse(1).toDouble(), null);
+		assertEquals(parser.parse(2).toDouble(), 2.0);
 		next();
-		assertTrue(parser.booleanField("field1", true));
-		assertTrue(parser.booleanField("field2"));
-		assertFalse(parser.booleanField("field3", true));
+		assertEquals(parser.parse("field1").toBool(), null);
+		assertEquals(parser.parse("field2").toBool(), true);
+		assertEquals(parser.parse("field3").toBool(), false);
 		next();
-		assertEquals(parser.longField("field1", Long.MIN_VALUE), 1000000000000000000L);
-		assertEquals(parser.longField("field2"), -1L);
-		assertEquals(parser.longField("field3", Long.MAX_VALUE), Long.MAX_VALUE);
-	}
-
-	@Test
-	public void shouldDecodeFields() {
-		skip(7);
-		assertEquals(parser.longDecode("field1"), 0x123456789aL);
-		assertEquals(parser.longDecode("field2", 3L), 0xffL);
-		assertEquals(parser.longDecode("field3", 3L), 3L);
-		assertNull(parser.longDecode("field3"));
-		next();
-		assertEquals(parser.intDecode("field1"), -100);
-		assertNull(parser.intDecode("field2"));
-		assertEquals(parser.intDecode("field3", 1), 0777);
+		assertEquals(parser.parse(0).toLong(), 1000000000000000000L);
+		assertEquals(parser.parse(1).toLong(), -1L);
+		assertEquals(parser.parse(2).toLong(), null);
 	}
 
 	private void next() {
