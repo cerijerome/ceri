@@ -61,6 +61,15 @@ public class EnumUtil {
 	}
 
 	/**
+	 * Convenience method that calls Enum.valueOf and returns default value if no match.
+	 * Enum class is determined by the default value, which cannot be null. 
+	 */
+	public static <T extends Enum<T>> T valueOf(String value, T def) {
+		Objects.requireNonNull(def);
+		return valueOf(BasicUtil.<Class<T>>uncheckedCast(def.getClass()), value, def);
+	}
+
+	/**
 	 * Finds the first enum matching the filter; returns null if no match.
 	 */
 	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {

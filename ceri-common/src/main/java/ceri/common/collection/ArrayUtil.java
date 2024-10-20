@@ -18,7 +18,6 @@ import ceri.common.validation.ValidationUtil;
 /**
  * Utility methods to test and manipulate arrays.
  * @see ceri.common.collection.CollectionUtil
- * @see ceri.common.text.ParseUtil
  */
 public class ArrayUtil {
 	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];

@@ -3,12 +3,12 @@ package ceri.common.property;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Predicate;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.text.ParseUtil;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
 /**
@@ -18,6 +18,7 @@ import ceri.common.text.StringUtil;
 public class TypedProperties {
 	/** A no-op, stateless instance. */
 	public static final TypedProperties NULL = new TypedProperties(PropertySource.NULL) {};
+	private static final Predicate<String> BY_ID = RegexUtil.matcher("\\d+");
 	public final String prefix;
 	private final PropertySource properties;
 
@@ -146,8 +147,7 @@ public class TypedProperties {
 	 * Returns all the integer ids that are children of the given key.
 	 */
 	public List<Integer> childIds(String... keyParts) {
-		return children(keyParts).stream().map(ParseUtil::parseInt).filter(Objects::nonNull)
-			.sorted().toList();
+		return children(keyParts).stream().filter(BY_ID).map(Integer::parseInt).sorted().toList();
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -103,7 +105,7 @@ public class Parser {
 	/**
 	 * Provides access to a typed value.
 	 */
-	public interface Type<T> extends ExceptionSupplier<RuntimeException, T> {
+	public interface Type<T> extends ExceptionSupplier<RuntimeException, T>, Supplier<T> {
 
 		/**
 		 * Creates an instance using the value supplier.
@@ -116,7 +118,7 @@ public class Parser {
 		 * Access the value or use default supplier if null.
 		 */
 		default T get(T def) {
-			return get(() -> def);
+			return BasicUtil.defaultValue(get(), def);
 		}
 
 		/**
@@ -159,21 +161,15 @@ public class Parser {
 		 * Provides access with a default value if the supplied value is null.
 		 */
 		default Type<T> def(T def) {
-			return () -> get(def);
+			return Parser.type(get(def));
 		}
 
 		/**
 		 * Provides access with a default value supplier if the supplied value is null.
 		 */
-		default Type<T> def(ExceptionSupplier<RuntimeException, ? extends T> defSupplier) {
-			return () -> get(defSupplier);
-		}
-
-		/**
-		 * Flattens the accessors to use the evaluated value.
-		 */
-		default Type<T> flat() {
-			return Parser.type(get());
+		default <E extends Exception> Type<T> def(ExceptionSupplier<E, ? extends T> defSupplier)
+			throws E {
+			return Parser.type(get(defSupplier));
 		}
 
 		/**
@@ -195,36 +191,27 @@ public class Parser {
 		/**
 		 * Converts the accessor using a constructor.
 		 */
-		default <R> Type<R> as(ExceptionFunction<RuntimeException, ? super T, R> constructor) {
-			return () -> parseValue(get(), constructor, null);
-		}
-
-		/**
-		 * Converts the evaluated value and provides an accessor.
-		 */
-		default <E extends Exception, R> Type<R>
-			asFlat(ExceptionFunction<E, ? super T, R> constructor) throws E {
+		default <E extends Exception, R> Type<R> as(ExceptionFunction<E, ? super T, R> constructor)
+			throws E {
 			return Parser.type(to(constructor, null));
 		}
 
 		/**
 		 * Returns the accessor for the value converted into a collection. The collection is null if
-		 * the value is null. Consider calling flat() if the accessor does not need dynamic access
-		 * to the original value.
+		 * the value is null.
 		 */
-		default <R> Types<R> split(
-			ExceptionFunction<RuntimeException, ? super T, ? extends Collection<R>> splitter) {
-			return () -> splitValue(get(), splitter::apply);
+		default <E extends Exception, R> Types<R>
+			split(ExceptionFunction<E, ? super T, ? extends Collection<R>> splitter) throws E {
+			return Parser.types(splitValues(get(), splitter));
 		}
 
 		/**
 		 * Returns the accessor for the value converted into a collection via an array. The
-		 * collection is null if the value is null. Consider calling flat() if the accessor does not
-		 * need dynamic access to the original value.
+		 * collection is null if the value is null.
 		 */
-		default <R> Types<R>
-			splitArray(ExceptionFunction<RuntimeException, ? super T, R[]> splitter) {
-			return split(t -> FunctionUtil.safeApply(splitter.apply(t), Arrays::asList));
+		default <E extends Exception, R> Types<R>
+			splitArray(ExceptionFunction<E, ? super T, R[]> splitter) throws E {
+			return split(t -> Arrays.asList(splitter.apply(t)));
 		}
 
 		/**
@@ -250,26 +237,28 @@ public class Parser {
 		}
 
 		/**
+		 * Access the value or use default supplier if null.
+		 */
+		default Collection<T> get(@SuppressWarnings("unchecked") T... defs) {
+			return get(() -> Arrays.asList(defs));
+		}
+
+		/**
 		 * Returns the value collection, or default values as a list if null.
 		 */
 		default Types<T> def(@SuppressWarnings("unchecked") T... defs) {
-			return def(Arrays.asList(defs));
+			return Parser.types(get(defs));
 		}
 
 		@Override
 		default Types<T> def(Collection<T> def) {
-			return () -> BasicUtil.defaultValue(get(), def);
+			return Parser.types(get(def));
 		}
 
 		@Override
-		default Types<T>
-			def(ExceptionSupplier<RuntimeException, ? extends Collection<T>> defSupplier) {
-			return () -> BasicUtil.defaultValue(get(), defSupplier::get);
-		}
-
-		@Override
-		default Types<T> flat() {
-			return Parser.types(get());
+		default <E extends Exception> Types<T>
+			def(ExceptionSupplier<E, ? extends Collection<T>> defSupplier) throws E {
+			return Parser.types(get(defSupplier));
 		}
 
 		/**
@@ -430,23 +419,30 @@ public class Parser {
 		/**
 		 * Removes values that do not match the filter.
 		 */
-		default Types<T> filter(ExceptionPredicate<RuntimeException, T> filter) {
-			return () -> filterValues(get(), filter);
+		default <E extends Exception> Types<T> filter(ExceptionPredicate<E, ? super T> filter)
+			throws E {
+			return Parser.types(filterValues(get(), filter));
+		}
+
+		/**
+		 * Sorts the values in natural order. Throws cast exception if type is not comparable.
+		 */
+		default Types<T> sort() {
+			return sort(null);
+		}
+
+		/**
+		 * Sorts the values using the comparator.
+		 */
+		default Types<T> sort(Comparator<? super T> comparator) {
+			return Parser.types(sortValues(get(), comparator));
 		}
 
 		/**
 		 * Converts the accessor using a constructor for each non-null value.
 		 */
 		default <R> Types<R> asEach(ExceptionFunction<RuntimeException, T, R> constructor) {
-			return () -> parseValues(get(), null, constructor);
-		}
-
-		/**
-		 * Converts the accessor using a constructor for each flattened non-null value.
-		 */
-		default <E extends Exception, R> Types<R> asEachFlat(ExceptionFunction<E, T, R> constructor)
-			throws E {
-			return Parser.types(toEach(constructor, null));
+			return Parser.types(parseValues(get(), null, constructor));
 		}
 
 		/**
@@ -473,21 +469,13 @@ public class Parser {
 
 		@Override
 		default Parser.String def(java.lang.String def) {
-			return () -> BasicUtil.defaultValue(get(), def);
+			return Parser.string(get(def));
 		}
 
 		@Override
-		default Parser.String
-			def(ExceptionSupplier<RuntimeException, ? extends java.lang.String> defSupplier) {
-			return () -> BasicUtil.defaultValue(get(), defSupplier);
-		}
-
-		/**
-		 * Flattens the accessors to use the current value.
-		 */
-		@Override
-		default Parser.String flat() {
-			return Parser.string(get());
+		default <E extends Exception> Parser.String
+			def(ExceptionSupplier<E, ? extends java.lang.String> defSupplier) throws E {
+			return Parser.string(get(defSupplier));
 		}
 
 		/**
@@ -501,14 +489,15 @@ public class Parser {
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			return () -> FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter));
+			return Parser
+				.strings(FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter)));
 		}
 
 		/**
 		 * Returns an accessor for values split by separator.
 		 */
 		default Strings split(Separator separator) {
-			return () -> FunctionUtil.safeApply(get(), v -> separator.split(v));
+			return Parser.strings(FunctionUtil.safeApply(get(), v -> separator.split(v)));
 		}
 
 		/**
@@ -586,22 +575,22 @@ public class Parser {
 		 */
 		default <T extends Enum<T>> T toEnum(T def) {
 			Objects.requireNonNull(def);
-			return asEnum(BasicUtil.<Class<T>>uncheckedCast(def.getClass())).get(def);
+			return EnumUtil.valueOf(get(), def);
 		}
 
 		/**
-		 * Converts the value to enum, or default if the value is null.
+		 * Converts the value to enum, or null if the value is null.
 		 */
 		default <T extends Enum<T>> T toEnum(Class<T> cls) {
-			return asEnum(cls).get();
+			return FunctionUtil.safeApply(get(), s -> Enum.valueOf(cls, s));
 		}
 
 		/**
 		 * Modify the value if not null, without changing type.
 		 */
-		default Parser.String
-			mod(ExceptionFunction<RuntimeException, java.lang.String, java.lang.String> modFn) {
-			return () -> to(modFn);
+		default <E extends Exception> Parser.String
+			mod(ExceptionFunction<E, java.lang.String, java.lang.String> modFn) throws E {
+			return Parser.string(to(modFn));
 		}
 
 		/**
@@ -617,7 +606,7 @@ public class Parser {
 		 * corresponding true or false value, or null if the original value is null.
 		 */
 		default <U> Type<U> asBool(U trueVal, U falseVal) {
-			return () -> toBool(trueVal, falseVal);
+			return Parser.type(toBool(trueVal, falseVal));
 		}
 
 		/**
@@ -643,11 +632,10 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor for the converted value.
+		 * Provide a new typed accessor for the converted value, which is null if no matching enum.
 		 */
 		default <T extends Enum<T>> Type<T> asEnum(Class<T> cls) {
-			Objects.requireNonNull(cls);
-			return as(v -> Enum.valueOf(cls, v));
+			return Parser.type(toEnum(cls));
 		}
 	}
 
@@ -670,23 +658,18 @@ public class Parser {
 		 */
 		@Override
 		default Strings def(java.lang.String... defs) {
-			return def(Arrays.asList(defs));
+			return Parser.strings(get(defs));
 		}
 
 		@Override
 		default Strings def(Collection<java.lang.String> def) {
-			return () -> BasicUtil.defaultValue(get(), def);
+			return Parser.strings(get(def));
 		}
 
 		@Override
-		default Strings def(
-			ExceptionSupplier<RuntimeException, ? extends Collection<java.lang.String>> defSupplier) {
-			return () -> BasicUtil.defaultValue(get(), defSupplier::get);
-		}
-
-		@Override
-		default Strings flat() {
-			return Parser.strings(get());
+		default <E extends Exception> Strings
+			def(ExceptionSupplier<E, ? extends Collection<java.lang.String>> defSupplier) throws E {
+			return Parser.strings(get(defSupplier));
 		}
 
 		/**
@@ -763,9 +746,9 @@ public class Parser {
 		 * Modify each value if the value collection is not null, without changing type. Null
 		 * collection values will be passed to the modifier function.
 		 */
-		default Strings
-			modEach(ExceptionFunction<RuntimeException, java.lang.String, java.lang.String> modFn) {
-			return () -> toEach(modFn);
+		default <E extends Exception> Strings
+			modEach(ExceptionFunction<E, java.lang.String, java.lang.String> modFn) throws E {
+			return Parser.strings(toEach(modFn));
 		}
 
 		/**
@@ -780,8 +763,26 @@ public class Parser {
 		 * Removes values that do not match the filter.
 		 */
 		@Override
-		default Strings filter(ExceptionPredicate<RuntimeException, java.lang.String> filter) {
-			return () -> filterValues(get(), filter);
+		default <E extends Exception> Strings
+			filter(ExceptionPredicate<E, ? super java.lang.String> filter) throws E {
+			return Parser.strings(filterValues(get(), filter));
+		}
+
+		/**
+		 * Removes values that do not match the pattern.
+		 */
+		default Strings filter(Pattern pattern) {
+			return filter(s -> s != null && pattern.matcher(s).matches());
+		}
+
+		@Override
+		default Strings sort() {
+			return sort(null);
+		}
+
+		@Override
+		default Strings sort(Comparator<? super java.lang.String> comparator) {
+			return Parser.strings(sortValues(get(), comparator));
 		}
 
 		/**
@@ -822,7 +823,7 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the values to enums.
+		 * Provide a new typed accessor. Converts each value to enum or null if no match.
 		 */
 		default <T extends Enum<T>> Types<T> asEnums(Class<T> cls) {
 			return asEach(v -> Enum.valueOf(cls, v));
@@ -877,12 +878,21 @@ public class Parser {
 		return Collections.unmodifiableList(list);
 	}
 
-	private static <E extends Exception, T, R> Collection<R> splitValue(T value,
-		ExceptionFunction<E, ? super T, ? extends Collection<R>> splitter) throws E {
+	private static <E extends Exception, T, R> R splitValues(T value,
+		ExceptionFunction<E, ? super T, R> splitter) throws E {
+		if (value == null) return null;
 		try {
-			return FunctionUtil.safeApply(value, splitter);
+			return splitter.apply(value);
 		} catch (RuntimeException e) {
 			throw ExceptionUtil.initCause(exceptionf("Failed to split: %s", value), e);
 		}
+	}
+
+	private static <T> List<T> sortValues(Collection<T> collection,
+		Comparator<? super T> comparator) {
+		if (collection == null) return null;
+		List<T> list = new ArrayList<>(collection);
+		list.sort(comparator);
+		return Collections.unmodifiableList(list);
 	}
 }

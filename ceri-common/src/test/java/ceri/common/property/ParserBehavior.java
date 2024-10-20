@@ -8,8 +8,8 @@ import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.throwRuntime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -48,6 +48,7 @@ public class ParserBehavior {
 		assertIterable(Parser.types((List<Integer>) null).def(1).get(), 1);
 		assertIterable(Parser.types((List<Integer>) null).def(() -> List.of(1)).get(), 1);
 		assertIterable(Parser.Strings.from(() -> null).def("x").get(), "x");
+		assertIterable(Parser.Strings.from(() -> null).def(List.of("x")).get(), "x");
 		assertIterable(Parser.Strings.from(() -> null).def(() -> List.of("x")).get(), "x");
 		assertIterable(Parser.Types.from(() -> null).def(List.of(1)).get(), 1);
 		assertEquals(string(null).def("x").get(), "x");
@@ -78,46 +79,8 @@ public class ParserBehavior {
 	}
 
 	@Test
-	public void shouldFlattenTypeAccessor() {
-		String[] vals = { "0" };
-		var p = Parser.Type.from(() -> vals[0]);
-		var s = Parser.String.from(() -> vals[0]);
-		var i = s.as(Integer::parseInt);
-		assertEquals(p.get(), "0");
-		assertEquals(s.get(), "0");
-		assertEquals(i.get(), 0);
-		vals[0] = "1";
-		p = p.flat();
-		s = s.flat();
-		i = s.asFlat(Integer::parseInt);
-		assertEquals(p.get(), "1");
-		assertEquals(s.get(), "1");
-		assertEquals(i.get(), 1);
-		vals[0] = "2";
-		assertEquals(p.get(), "1");
-		assertEquals(s.get(), "1");
-		assertEquals(i.get(), 1);
-	}
-
-	@Test
-	public void shouldFlattenTypesAccessor() {
-		List<List<String>> list = Arrays.asList(List.of("1"));
-		var p = Parser.Types.from(() -> list.get(0));
-		var s = Parser.Strings.from(() -> list.get(0));
-		assertIterable(p.get(), "1");
-		assertIterable(s.get(), "1");
-		list.set(0, List.of("2", "3"));
-		p = p.flat();
-		s = s.flat();
-		assertIterable(p.get(), "2", "3");
-		assertIterable(s.get(), "2", "3");
-		list.set(0, List.of("1"));
-		assertIterable(p.get(), "2", "3");
-		assertIterable(s.get(), "2", "3");
-	}
-
-	@Test
 	public void shouldSplitValues() {
+		assertEquals(Parser.<Integer>type(null).split(BIT_LIST).get(), null);
 		assertIterable(Parser.type(0x124).split(BIT_LIST).get(), 2, 5, 8);
 		assertIterable(Parser.type(0x124).splitArray(BIT_ARRAY).get(), 2, 5, 8);
 	}
@@ -203,6 +166,9 @@ public class ParserBehavior {
 		assertEquals(Parser.Strings.from(() -> null).filter().get(), null);
 		assertIterable(Parser.strings().filter().get());
 		assertIterable(Parser.strings("1", null, "2", null).filter().asInts().get(), 1, 2);
+		assertIterable(
+			Parser.strings("1", "a", "2", null).filter(Pattern.compile("\\d+")).asInts().get(), 1,
+			2);
 	}
 
 	@Test
@@ -224,6 +190,14 @@ public class ParserBehavior {
 	}
 
 	@Test
+	public void shouldSortItems() {
+		assertEquals(Parser.Types.from(() -> null).sort().get(), null);
+		assertIterable(Parser.types(1, -1, 2, 0, -2).sort().get(), -2, -1, 0, 1, 2);
+		assertThrown(ClassCastException.class, () -> Parser.types(1, "2", -1.0).sort());
+		assertIterable(strings("2,0,1").sort().asInts().get(), 0, 1, 2);
+	}
+
+	@Test
 	public void shouldConvertAccessorItems() {
 		assertEquals(Parser.Strings.from(() -> null).asEach(String::length).get(), null);
 		assertIterable(Parser.types("a", "bb", "").asEach(String::length).get(), 1, 2, 0);
@@ -235,14 +209,10 @@ public class ParserBehavior {
 	}
 
 	@Test
-	public void shouldConvertAccessorFlatItems() {
-		assertEquals(Parser.Strings.from(() -> null).asEachFlat(String::length).get(), null);
-		String[] vals = { "a", "bb", "" };
-		var p = Parser.types(vals).asEach(String::length);
-		var f = Parser.types(vals).asEachFlat(String::length);
-		vals[1] = "bbb";
-		assertIterable(p.get(), 1, 3, 0);
-		assertIterable(f.get(), 1, 2, 0);
+	public void shouldCreateFromSupplier() {
+		assertEquals(Parser.String.from(() -> null).get(), null);
+		assertEquals(Parser.String.from(() -> null).get("test"), "test");
+		assertEquals(Parser.String.from(() -> "test").get(), "test");
 	}
 
 	@Test
@@ -272,8 +242,11 @@ public class ParserBehavior {
 	public void shouldParseEnums() {
 		assertEquals(string(null).toEnum(H.class), null);
 		assertEquals(string(null).toEnum(H.left), H.left);
+		assertEquals(string(null).asEnum(H.class).get(), null);
+		assertEquals(string(null).asEnum(H.class).get(H.left), H.left);
 		assertEquals(string("right").toEnum(H.left), H.right);
 		assertEquals(string("right").toEnum(H.class), H.right);
+		assertEquals(string("right").asEnum(H.class).get(), H.right);
 	}
 
 	@Test
@@ -317,8 +290,7 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldFailForBadSplit() {
-		var p = Parser.type(1).split(x -> throwRuntime());
-		assertIllegalArg(() -> p.get());
+		assertIllegalArg(() -> Parser.type(1).split(x -> throwRuntime()));
 	}
 
 	private static Parser.Strings strings(String s) {
