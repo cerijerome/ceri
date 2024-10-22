@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -112,7 +113,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value supplier.
 		 */
-		static <T> Type<T> from(Supplier<? extends T> supplier) {
+		static <T> Type<T> from(Supplier<T> supplier) {
 			return supplier::get;
 		}
 
@@ -245,7 +246,7 @@ public class Parser {
 		}
 
 		/**
-		 * Returns the value collection, or default values as a list if null.
+		 * Provides access with default values if the collection is null.
 		 */
 		default Types<T> def(@SuppressWarnings("unchecked") T... defs) {
 			return Parser.types(get(defs));
@@ -354,8 +355,8 @@ public class Parser {
 		 * Transforms the collection to a double array, with default array if the value collection
 		 * is null. Null values in the collection are dropped.
 		 */
-		default <E extends Exception> double[]
-			toDoubleArray(ExceptionToDoubleFunction<E, T> constructor, double... def) throws E {
+		default <E extends Exception> double[] toDoubleArray(
+			ExceptionToDoubleFunction<E, ? super T> constructor, double... def) throws E {
 			ExceptionFunction<E, T, Double> fn = constructor::applyAsDouble;
 			return toPrimitiveArray(get(), double[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
@@ -390,8 +391,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or null if the collection is
 		 * null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor)
-			throws E {
+		default <E extends Exception, R> List<R>
+			toEach(ExceptionFunction<E, ? super T, ? extends R> constructor) throws E {
 			return toEach(constructor, null);
 		}
 
@@ -399,7 +400,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
 		 * is null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R> toEachDef(ExceptionFunction<E, T, R> constructor,
+		default <E extends Exception, R> List<R> toEachDef(
+			ExceptionFunction<E, ? super T, ? extends R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
 			return toEach(constructor, Arrays.asList(defs));
 		}
@@ -408,8 +410,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
 		 * is null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor,
-			List<R> def) throws E {
+		default <E extends Exception, R> List<R>
+			toEach(ExceptionFunction<E, ? super T, ? extends R> constructor, List<R> def) throws E {
 			return parseValues(get(), def, constructor);
 		}
 
@@ -447,7 +449,8 @@ public class Parser {
 		 * Converts the accessor using a constructor for each non-null value. Null values in the
 		 * collection are retained.
 		 */
-		default <R> Types<R> asEach(ExceptionFunction<RuntimeException, T, R> constructor) {
+		default <E extends Exception, R> Types<R>
+			asEach(ExceptionFunction<E, ? super T, R> constructor) throws E {
 			return Parser.types(parseValues(get(), null, constructor));
 		}
 
@@ -455,7 +458,7 @@ public class Parser {
 		 * Iterates the value collection, calling the consumer, if the value collection is not null.
 		 * Null values in the collection are passed to the consumer.
 		 */
-		default <E extends Exception> void each(ExceptionConsumer<E, T> consumer) throws E {
+		default <E extends Exception> void each(ExceptionConsumer<E, ? super T> consumer) throws E {
 			FunctionUtil.safeAccept(get(), collection -> {
 				for (var t : collection)
 					consumer.accept(t);
@@ -511,7 +514,7 @@ public class Parser {
 		 * null.
 		 */
 		default Boolean toBool() {
-			return asBool().get();
+			return to(BOOL);
 		}
 
 		/**
@@ -519,7 +522,7 @@ public class Parser {
 		 * null.
 		 */
 		default boolean toBool(boolean def) {
-			return asBool().get(def);
+			return to(BOOL, def);
 		}
 
 		/**
@@ -542,14 +545,14 @@ public class Parser {
 		 * Decodes the value to int from -0xffffffff to 0xffffffff, or null if the value is null.
 		 */
 		default Integer toInt() {
-			return asInt().get();
+			return to(DINT);
 		}
 
 		/**
 		 * Decodes the value to int from -0xffffffff to 0xffffffff, or default if the value is null.
 		 */
 		default int toInt(int def) {
-			return asInt().get(def);
+			return to(DINT, def);
 		}
 
 		/**
@@ -557,7 +560,7 @@ public class Parser {
 		 * the value is null.
 		 */
 		default Long toLong() {
-			return asLong().get();
+			return to(DLONG);
 		}
 
 		/**
@@ -565,21 +568,21 @@ public class Parser {
 		 * the value is null.
 		 */
 		default long toLong(long def) {
-			return asLong().get(def);
+			return to(DLONG, def);
 		}
 
 		/**
 		 * Converts the value to double, or null if the value is null.
 		 */
 		default Double toDouble() {
-			return asDouble().get();
+			return to(DOUBLE);
 		}
 
 		/**
 		 * Converts the value to double, or default if the value is null.
 		 */
 		default double toDouble(double def) {
-			return asDouble().get(def);
+			return to(DOUBLE, def);
 		}
 
 		/**
@@ -588,15 +591,21 @@ public class Parser {
 		 */
 		default <T extends Enum<T>> T toEnum(T def) {
 			Objects.requireNonNull(def);
-			return FunctionUtil.safeApply(get(),
-				s -> Enum.valueOf(BasicUtil.<Class<T>>uncheckedCast(def.getClass()), s), def);
+			return toEnum(EnumUtil.enumClass(def), def);
 		}
 
 		/**
 		 * Converts non-null value to an enum; fails if no match.
 		 */
 		default <T extends Enum<T>> T toEnum(Class<T> cls) {
-			return FunctionUtil.safeApply(get(), s -> Enum.valueOf(cls, s));
+			return toEnum(cls, null);
+		}
+
+		/**
+		 * Converts non-null value to an enum; fails if no match.
+		 */
+		default <T extends Enum<T>> T toEnum(Class<T> cls, T def) {
+			return FunctionUtil.safeApply(get(), s -> Enum.valueOf(cls, s), def);
 		}
 
 		/**
@@ -675,9 +684,6 @@ public class Parser {
 			return type::get;
 		}
 
-		/**
-		 * Returns the value collection, or default values as a list if null.
-		 */
 		@Override
 		default Strings def(java.lang.String... defs) {
 			return Parser.strings(get(defs));

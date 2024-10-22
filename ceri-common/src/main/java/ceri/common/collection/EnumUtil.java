@@ -42,6 +42,14 @@ public class EnumUtil {
 	}
 
 	/**
+	 * Returns the enum class type.
+	 */
+	public static <T extends Enum<T>> Class<T> enumClass(T en) {
+		Objects.requireNonNull(en);
+		return BasicUtil.<Class<T>>uncheckedCast(en.getClass());
+	}
+	
+	/**
 	 * Convenience method that calls Enum.valueOf and returns null if no match.
 	 */
 	public static <T extends Enum<T>> T valueOf(Class<T> cls, String value) {
@@ -66,7 +74,7 @@ public class EnumUtil {
 	 */
 	public static <T extends Enum<T>> T valueOf(String value, T def) {
 		Objects.requireNonNull(def);
-		return valueOf(BasicUtil.<Class<T>>uncheckedCast(def.getClass()), value, def);
+		return valueOf(enumClass(def), value, def);
 	}
 
 	/**

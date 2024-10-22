@@ -78,6 +78,16 @@ public class ParserBehavior {
 	}
 
 	@Test
+	public void shouldConvertStrings() {
+		assertEquals(string(null).asBool().get(), null);
+		assertEquals(string(null).asLong().get(), null);
+		assertEquals(string(null).asDouble().get(), null);
+		assertEquals(string("true").asBool().get(), true);
+		assertEquals(string("-1").asLong().get(), -1L);
+		assertEquals(string("-1").asDouble().get(), -1.0);
+	}
+
+	@Test
 	public void shouldSplitValues() {
 		assertEquals(Parser.<Integer>type(null).split(BIT_LIST).get(), null);
 		assertIterable(Parser.type(0x124).split(BIT_LIST).get(), 2, 5, 8);
