@@ -6,7 +6,6 @@ import static ceri.common.text.StringUtil.OCTAL_RADIX;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Map;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.ExceptionFunction;
 import ceri.common.math.MathUtil;
 
 /**
@@ -17,39 +16,6 @@ import ceri.common.math.MathUtil;
 public class NumberParser {
 	private static final Map<String, Integer> RADIX_MAP = ImmutableUtil.asMap("0x", HEX_RADIX, "0X",
 		HEX_RADIX, "#", HEX_RADIX, "0b", BINARY_RADIX, "0B", BINARY_RADIX, "0", OCTAL_RADIX);
-	// Convenience filters for Parser.String
-	public static final ExceptionFunction<RuntimeException, String, Byte> BYTE =
-		NumberParser::parseByte;
-	public static final ExceptionFunction<RuntimeException, String, Byte> UBYTE =
-		NumberParser::parseUbyte;
-	public static final ExceptionFunction<RuntimeException, String, Byte> DBYTE =
-		NumberParser::decodeByte;
-	public static final ExceptionFunction<RuntimeException, String, Byte> DUBYTE =
-		NumberParser::decodeUbyte;
-	public static final ExceptionFunction<RuntimeException, String, Short> SHORT =
-		NumberParser::parseShort;
-	public static final ExceptionFunction<RuntimeException, String, Short> USHORT =
-		NumberParser::parseUshort;
-	public static final ExceptionFunction<RuntimeException, String, Short> DSHORT =
-		NumberParser::decodeShort;
-	public static final ExceptionFunction<RuntimeException, String, Short> DUSHORT =
-		NumberParser::decodeUshort;
-	public static final ExceptionFunction<RuntimeException, String, Integer> INT =
-		NumberParser::parseInt;
-	public static final ExceptionFunction<RuntimeException, String, Integer> UINT =
-		NumberParser::parseUint;
-	public static final ExceptionFunction<RuntimeException, String, Integer> DINT =
-		NumberParser::decodeInt;
-	public static final ExceptionFunction<RuntimeException, String, Integer> DUINT =
-		NumberParser::decodeUint;
-	public static final ExceptionFunction<RuntimeException, String, Long> LONG =
-		NumberParser::parseLong;	
-	public static final ExceptionFunction<RuntimeException, String, Long> ULONG =
-		NumberParser::parseUlong;	
-	public static final ExceptionFunction<RuntimeException, String, Long> DLONG =
-		NumberParser::decodeLong;
-	public static final ExceptionFunction<RuntimeException, String, Long> DULONG =
-		NumberParser::decodeUlong;
 	private boolean positive = true;
 	private int radix = 10;
 	private int i = 0;

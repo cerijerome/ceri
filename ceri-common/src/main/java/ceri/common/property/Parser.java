@@ -1,8 +1,6 @@
 package ceri.common.property;
 
 import static ceri.common.exception.ExceptionUtil.exceptionf;
-import static ceri.common.text.NumberParser.DINT;
-import static ceri.common.text.NumberParser.DLONG;
 import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
@@ -25,7 +23,6 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionConsumer;
@@ -37,6 +34,7 @@ import ceri.common.function.ExceptionToDoubleFunction;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.ExceptionToLongFunction;
 import ceri.common.function.FunctionUtil;
+import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -46,6 +44,10 @@ import ceri.common.util.BasicUtil;
 public class Parser {
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Boolean> BOOL =
 		Boolean::parseBoolean;
+	private static final ExceptionFunction<RuntimeException, java.lang.String, Integer> DINT =
+		NumberParser::decodeInt;
+	private static final ExceptionFunction<RuntimeException, java.lang.String, Long> DLONG =
+		NumberParser::decodeLong;
 	private static final ExceptionFunction<RuntimeException, java.lang.String, Double> DOUBLE =
 		Double::parseDouble;
 
@@ -110,7 +112,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value supplier.
 		 */
-		static <T> Type<T> from(ExceptionSupplier<RuntimeException, ? extends T> supplier) {
+		static <T> Type<T> from(Supplier<? extends T> supplier) {
 			return supplier::get;
 		}
 
@@ -231,8 +233,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value collection supplier.
 		 */
-		static <T> Types<T>
-			from(ExceptionSupplier<RuntimeException, ? extends Collection<T>> type) {
+		static <T> Types<T> from(Supplier<? extends Collection<T>> type) {
 			return type::get;
 		}
 
@@ -269,21 +270,24 @@ public class Parser {
 		}
 
 		/**
-		 * Returns the values as an array, or returns null if the value collection is null.
+		 * Returns the values as an array, or returns null if the value collection is null. Null
+		 * values in the collection are retained.
 		 */
 		default T[] array(IntFunction<T[]> arrayFn) {
-			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn));
+			return FunctionUtil.safeApply(get(), values -> values.toArray(arrayFn));
 		}
 
 		/**
-		 * Returns the values as an array, or returns default if the value collection is null.
+		 * Returns the values as an array, or returns default if the value collection is null. Null
+		 * values in the collection are retained.
 		 */
 		default T[] arrayDef(IntFunction<T[]> arrayFn, @SuppressWarnings("unchecked") T... defs) {
 			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn), defs);
 		}
 
 		/**
-		 * Returns the values as a stream, which is empty if the value collection is null.
+		 * Returns the values as a stream, which is empty if the value collection is null. Null
+		 * values in the collection are retained.
 		 */
 		default Stream<T> stream() {
 			return FunctionUtil.safeApply(get(), Collection::stream, Stream.empty());
@@ -291,75 +295,75 @@ public class Parser {
 
 		/**
 		 * Transforms as each value for an int stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default IntStream intStream(ToIntFunction<? super T> constructor) {
-			return stream().mapToInt(constructor);
+			return stream().filter(Objects::nonNull).mapToInt(constructor);
 		}
 
 		/**
 		 * Transforms as each value for a long stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default LongStream longStream(ToLongFunction<? super T> constructor) {
-			return stream().mapToLong(constructor);
+			return stream().filter(Objects::nonNull).mapToLong(constructor);
 		}
 
 		/**
 		 * Transforms as each value for a double stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default DoubleStream doubleStream(ToDoubleFunction<? super T> constructor) {
-			return stream().mapToDouble(constructor);
+			return stream().filter(Objects::nonNull).mapToDouble(constructor);
 		}
 
 		/**
 		 * Transforms the collection to a boolean array, with default array if the value collection
-		 * is null. Null collection values are passed to the transform function.
+		 * is null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> boolean[] toBoolArray(
 			ExceptionToBooleanFunction<E, ? super T> constructor, boolean... def) throws E {
 			ExceptionFunction<E, T, Boolean> fn = constructor::applyAsBoolean;
 			return toPrimitiveArray(get(), boolean[]::new,
-				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
+				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
 
 		/**
 		 * Transforms the collection to an int array, with default array if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> int[]
 			toIntArray(ExceptionToIntFunction<E, ? super T> constructor, int... def) throws E {
 			ExceptionFunction<E, T, Integer> fn = constructor::applyAsInt;
 			return toPrimitiveArray(get(), int[]::new,
-				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
+				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
 
 		/**
 		 * Transforms the collection to a long array, with default array if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> long[]
 			toLongArray(ExceptionToLongFunction<E, ? super T> constructor, long... def) throws E {
 			ExceptionFunction<E, T, Long> fn = constructor::applyAsLong;
 			return toPrimitiveArray(get(), long[]::new,
-				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
+				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
 
 		/**
 		 * Transforms the collection to a double array, with default array if the value collection
-		 * is null. Null collection values are passed to the transform function.
+		 * is null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> double[]
 			toDoubleArray(ExceptionToDoubleFunction<E, T> constructor, double... def) throws E {
 			ExceptionFunction<E, T, Double> fn = constructor::applyAsDouble;
 			return toPrimitiveArray(get(), double[]::new,
-				(array, i, value) -> array[i] = parsePrimitiveArrayValue(value, fn, i), def);
+				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
 
 		/**
 		 * Collects each value into a new collection using a supplier, or returns null if the value
-		 * collection is null.
+		 * collection is null. Null values in the collection are retained.
 		 */
 		default <C extends Collection<T>> C collect(Supplier<C> supplier) {
 			return FunctionUtil.safeApply(get(),
@@ -368,7 +372,7 @@ public class Parser {
 
 		/**
 		 * Collects each value into a new unmodifiable list, or returns null if the value collection
-		 * is null.
+		 * is null. Null values in the collection are retained.
 		 */
 		default List<T> toList() {
 			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsList);
@@ -376,7 +380,7 @@ public class Parser {
 
 		/**
 		 * Collects each value into a new unmodifiable set, or returns null if the value collection
-		 * is null.
+		 * is null. Null values in the collection are retained.
 		 */
 		default Set<T> toSet() {
 			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsSet);
@@ -384,7 +388,7 @@ public class Parser {
 
 		/**
 		 * Transforms each non-null value to a new unmodifiable list, or null if the collection is
-		 * null.
+		 * null. Null values in the collection are retained.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor)
 			throws E {
@@ -393,7 +397,7 @@ public class Parser {
 
 		/**
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
-		 * is null.
+		 * is null. Null values in the collection are retained.
 		 */
 		default <E extends Exception, R> List<R> toEachDef(ExceptionFunction<E, T, R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
@@ -402,7 +406,7 @@ public class Parser {
 
 		/**
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
-		 * is null.
+		 * is null. Null values in the collection are retained.
 		 */
 		default <E extends Exception, R> List<R> toEach(ExceptionFunction<E, T, R> constructor,
 			List<R> def) throws E {
@@ -413,11 +417,11 @@ public class Parser {
 		 * Removes null values.
 		 */
 		default Types<T> filter() {
-			return filter(Objects::nonNull);
+			return filter(v -> true);
 		}
 
 		/**
-		 * Removes values that do not match the filter.
+		 * Removes values that are null or that do not match the filter.
 		 */
 		default <E extends Exception> Types<T> filter(ExceptionPredicate<E, ? super T> filter)
 			throws E {
@@ -425,21 +429,23 @@ public class Parser {
 		}
 
 		/**
-		 * Sorts the values in natural order. Throws cast exception if type is not comparable.
+		 * Sorts the values in natural order. Throws cast exception if type is not comparable. Null
+		 * values in the collection are retained.
 		 */
 		default Types<T> sort() {
 			return sort(null);
 		}
 
 		/**
-		 * Sorts the values using the comparator.
+		 * Sorts the values using the comparator. Null values in the collection are retained.
 		 */
 		default Types<T> sort(Comparator<? super T> comparator) {
 			return Parser.types(sortValues(get(), comparator));
 		}
 
 		/**
-		 * Converts the accessor using a constructor for each non-null value.
+		 * Converts the accessor using a constructor for each non-null value. Null values in the
+		 * collection are retained.
 		 */
 		default <R> Types<R> asEach(ExceptionFunction<RuntimeException, T, R> constructor) {
 			return Parser.types(parseValues(get(), null, constructor));
@@ -447,7 +453,7 @@ public class Parser {
 
 		/**
 		 * Iterates the value collection, calling the consumer, if the value collection is not null.
-		 * Any null collection items will be passed to the consumer.
+		 * Null values in the collection are passed to the consumer.
 		 */
 		default <E extends Exception> void each(ExceptionConsumer<E, T> consumer) throws E {
 			FunctionUtil.safeAccept(get(), collection -> {
@@ -463,7 +469,7 @@ public class Parser {
 	@FunctionalInterface
 	public interface String extends Type<java.lang.String> {
 
-		static Parser.String from(ExceptionSupplier<RuntimeException, java.lang.String> type) {
+		static Parser.String from(Supplier<java.lang.String> type) {
 			return type::get;
 		}
 
@@ -521,26 +527,33 @@ public class Parser {
 		 * if the original value is null.
 		 */
 		default <U> U toBool(U trueVal, U falseVal) {
-			return BasicUtil.conditional(toBool(), trueVal, falseVal, null);
+			return toBool(trueVal, falseVal, null);
 		}
 
 		/**
-		 * Converts the value to int from -0xffffffff to 0xffffffff, or null if the value is null.
+		 * Converts the value to a boolean, and returns a corresponding true or false value, or null
+		 * if the original value is null.
+		 */
+		default <U> U toBool(U trueVal, U falseVal, U nullVal) {
+			return BasicUtil.conditional(toBool(), trueVal, falseVal, nullVal);
+		}
+
+		/**
+		 * Decodes the value to int from -0xffffffff to 0xffffffff, or null if the value is null.
 		 */
 		default Integer toInt() {
 			return asInt().get();
 		}
 
 		/**
-		 * Converts the value to int from -0xffffffff to 0xffffffff, or default if the value is
-		 * null.
+		 * Decodes the value to int from -0xffffffff to 0xffffffff, or default if the value is null.
 		 */
 		default int toInt(int def) {
 			return asInt().get(def);
 		}
 
 		/**
-		 * Converts the value to long from -0xffffffff_ffffffff to 0xffffffff_ffffffff, or null if
+		 * Decodes the value to long from -0xffffffff_ffffffff to 0xffffffff_ffffffff, or null if
 		 * the value is null.
 		 */
 		default Long toLong() {
@@ -548,8 +561,8 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to long from -0xffffffff_ffffffff to 0xffffffff_ffffffff, or default
-		 * if the value is null.
+		 * Decodes the value to long from -0xffffffff_ffffffff to 0xffffffff_ffffffff, or default if
+		 * the value is null.
 		 */
 		default long toLong(long def) {
 			return asLong().get(def);
@@ -570,16 +583,17 @@ public class Parser {
 		}
 
 		/**
-		 * Converts the value to enum, or default if the value is null. The default enum cannot be
-		 * null.
+		 * Converts non-null value to an enum, or default if the value is null. Fails if no match.
+		 * The default enum cannot be null.
 		 */
 		default <T extends Enum<T>> T toEnum(T def) {
 			Objects.requireNonNull(def);
-			return EnumUtil.valueOf(get(), def);
+			return FunctionUtil.safeApply(get(),
+				s -> Enum.valueOf(BasicUtil.<Class<T>>uncheckedCast(def.getClass()), s), def);
 		}
 
 		/**
-		 * Converts the value to enum, or null if the value is null.
+		 * Converts non-null value to an enum; fails if no match.
 		 */
 		default <T extends Enum<T>> T toEnum(Class<T> cls) {
 			return FunctionUtil.safeApply(get(), s -> Enum.valueOf(cls, s));
@@ -594,8 +608,8 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the value to a boolean, matching 'true' in any
-		 * case.
+		 * Provide a new typed accessor. Converts non-null value to a boolean, matching 'true' in
+		 * any case.
 		 */
 		default Type<Boolean> asBool() {
 			return as(BOOL);
@@ -606,18 +620,27 @@ public class Parser {
 		 * corresponding true or false value, or null if the original value is null.
 		 */
 		default <U> Type<U> asBool(U trueVal, U falseVal) {
-			return Parser.type(toBool(trueVal, falseVal));
+			return asBool(trueVal, falseVal, null);
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the value to int from -0xffffffff to 0xffffffff.
+		 * Provides a new typed accessor. Converts the value to a boolean, and returns a
+		 * corresponding true, false, or null value.
+		 */
+		default <U> Type<U> asBool(U trueVal, U falseVal, U nullVal) {
+			return Parser.type(toBool(trueVal, falseVal, nullVal));
+		}
+
+		/**
+		 * Provide a new typed accessor. Decodes non-null value to int from -0xffffffff to
+		 * 0xffffffff.
 		 */
 		default Type<Integer> asInt() {
 			return as(DINT);
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the value to long from -0xffffffff_ffffffff to
+		 * Provide a new typed accessor. Decodes non-null value to long from -0xffffffff_ffffffff to
 		 * 0xffffffff_ffffffff.
 		 */
 		default Type<Long> asLong() {
@@ -625,14 +648,14 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the value to double.
+		 * Provide a new typed accessor. Converts non-null value to double.
 		 */
 		default Type<Double> asDouble() {
 			return as(DOUBLE);
 		}
 
 		/**
-		 * Provide a new typed accessor for the converted value, which is null if no matching enum.
+		 * Provide a new typed accessor. Converts non-null value to an enum; fails if no match.
 		 */
 		default <T extends Enum<T>> Type<T> asEnum(Class<T> cls) {
 			return Parser.type(toEnum(cls));
@@ -648,8 +671,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value collection supplier.
 		 */
-		static Strings
-			from(ExceptionSupplier<RuntimeException, ? extends Collection<java.lang.String>> type) {
+		static Strings from(Supplier<? extends Collection<java.lang.String>> type) {
 			return type::get;
 		}
 
@@ -673,22 +695,24 @@ public class Parser {
 		}
 
 		/**
-		 * Returns the values as an array, or returns null if the value collection is null.
+		 * Returns the values as an array, or returns null if the value collection is null. Null
+		 * values in the collection are retained.
 		 */
 		default java.lang.String[] array() {
 			return array(java.lang.String[]::new);
 		}
 
 		/**
-		 * Returns the values as an array, or returns default if the value collection is null.
+		 * Returns the values as an array, or returns default if the value collection is null. Null
+		 * values in the collection are retained.
 		 */
 		default java.lang.String[] arrayDef(java.lang.String... def) {
 			return arrayDef(java.lang.String[]::new, def);
 		}
 
 		/**
-		 * Transforms as each value for an int stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * Decodes as each value for an int stream, which is empty if the value collection is null.
+		 * Null values in the collection are dropped.
 		 */
 		default IntStream intStream() {
 			return intStream(DINT::apply);
@@ -696,7 +720,7 @@ public class Parser {
 
 		/**
 		 * Transforms as each value for a long stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default LongStream longStream() {
 			return longStream(DLONG::apply);
@@ -704,7 +728,7 @@ public class Parser {
 
 		/**
 		 * Transforms as each value for a double stream, which is empty if the value collection is
-		 * null. Null collection values are passed to the transform function.
+		 * null. Null values in the collection are dropped.
 		 */
 		default DoubleStream doubleStream() {
 			return doubleStream(DOUBLE::apply);
@@ -712,7 +736,7 @@ public class Parser {
 
 		/**
 		 * Transforms the collection to a boolean array, with default array if the value collection
-		 * is null. Fails if any value in the collection is null.
+		 * is null. Null values in the collection are dropped.
 		 */
 		default boolean[] toBoolArray(boolean... def) {
 			return toBoolArray(BOOL::apply, def);
@@ -720,7 +744,7 @@ public class Parser {
 
 		/**
 		 * Transforms the collection to an int array, with default array if the value collection is
-		 * null. Fails if any value in the collection is null.
+		 * null. Null values in the collection are dropped.
 		 */
 		default int[] toIntArray(int... def) {
 			return toIntArray(DINT::apply, def);
@@ -728,7 +752,7 @@ public class Parser {
 
 		/**
 		 * Transforms the collection to a long array, with default array if the value collection is
-		 * null. Fails if any value in the collection is null.
+		 * null. Null values in the collection are dropped.
 		 */
 		default long[] toLongArray(long... def) {
 			return toLongArray(DLONG::apply, def);
@@ -736,15 +760,15 @@ public class Parser {
 
 		/**
 		 * Transforms the collection to a double array, with default array if the value collection
-		 * is null. Fails if any value in the collection is null.
+		 * is null. Null values in the collection are dropped.
 		 */
 		default double[] toDoubleArray(double... def) {
 			return toDoubleArray(DOUBLE::apply, def);
 		}
 
 		/**
-		 * Modify each value if the value collection is not null, without changing type. Null
-		 * collection values will be passed to the modifier function.
+		 * Modify each non-null value if the value collection is not null, without changing type.
+		 * Null values in the collection are retained.
 		 */
 		default <E extends Exception> Strings
 			modEach(ExceptionFunction<E, java.lang.String, java.lang.String> modFn) throws E {
@@ -756,11 +780,11 @@ public class Parser {
 		 */
 		@Override
 		default Strings filter() {
-			return filter(Objects::nonNull);
+			return filter(v -> true);
 		}
 
 		/**
-		 * Removes values that do not match the filter.
+		 * Removes values that are null or do not match the filter.
 		 */
 		@Override
 		default <E extends Exception> Strings
@@ -769,10 +793,10 @@ public class Parser {
 		}
 
 		/**
-		 * Removes values that do not match the pattern.
+		 * Removes values that are null or do not match the pattern.
 		 */
 		default Strings filter(Pattern pattern) {
-			return filter(s -> s != null && pattern.matcher(s).matches());
+			return filter(s -> pattern.matcher(s).matches());
 		}
 
 		@Override
@@ -786,7 +810,8 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the values to booleans.
+		 * Provide a new typed accessor. Converts the values to booleans. Null values in the
+		 * collection are retained.
 		 */
 		default Types<Boolean> asBools() {
 			return asEach(BOOL);
@@ -797,18 +822,26 @@ public class Parser {
 		 * corresponding true or false value, or null if the original value is null.
 		 */
 		default <U> Types<U> asBools(U trueVal, U falseVal) {
-			return asEach(s -> BasicUtil.conditional(BOOL.apply(s), trueVal, falseVal, null));
+			return asBools(trueVal, falseVal, null);
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the values to ints from -0xffffffff to 0xffffffff.
+		 * Provides a new typed accessor. Converts the value to a boolean, and returns a
+		 * corresponding true, false, or null value.
+		 */
+		default <U> Types<U> asBools(U trueVal, U falseVal, U nullVal) {
+			return asEach(s -> BasicUtil.conditional(BOOL.apply(s), trueVal, falseVal, nullVal));
+		}
+
+		/**
+		 * Provide a new typed accessor. Decodes the values to ints from -0xffffffff to 0xffffffff.
 		 */
 		default Types<Integer> asInts() {
 			return asEach(DINT);
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts the values to longs from -0xffffffff_ffffffff to
+		 * Provide a new typed accessor. Decodes the values to longs from -0xffffffff_ffffffff to
 		 * 0xffffffff_ffffffff.
 		 */
 		default Types<Long> asLongs() {
@@ -823,7 +856,8 @@ public class Parser {
 		}
 
 		/**
-		 * Provide a new typed accessor. Converts each value to enum or null if no match.
+		 * Provide a new typed accessor. Converts each non-null value to an enum; fails if no match
+		 * for a value. Null values in the collection are retained.
 		 */
 		default <T extends Enum<T>> Types<T> asEnums(Class<T> cls) {
 			return asEach(v -> Enum.valueOf(cls, v));
@@ -832,21 +866,21 @@ public class Parser {
 
 	/* support */
 
+	private static int count(Collection<?> values) {
+		int count = 0;
+		for (var value : values)
+			if (value != null) count++;
+		return count;
+	}
+
 	private static <E extends Exception, A, T> A toPrimitiveArray(Collection<T> values,
 		IntFunction<A> arrayFn, ArrayConsumer<E, A, T> arraySetFn, A def) throws E {
 		if (values == null) return def;
-		var array = arrayFn.apply(values.size());
+		var array = arrayFn.apply(count(values));
 		int i = 0;
 		for (var value : values)
-			arraySetFn.accept(array, i++, value);
+			if (value != null) arraySetFn.accept(array, i++, value);
 		return array;
-	}
-
-	private static <E extends Exception, T, R> R parsePrimitiveArrayValue(T value,
-		ExceptionFunction<E, ? super T, R> constructor, int index) throws E {
-		var result = parseValue(value, constructor, null);
-		if (result != null) return result;
-		throw new NullPointerException("Failed to transform [" + index + "]: " + value);
 	}
 
 	private static <E extends Exception, T, R> R parseValue(T value,
@@ -863,8 +897,10 @@ public class Parser {
 		if (values == null) return def;
 		if (values.isEmpty()) return List.of();
 		var list = new ArrayList<R>();
-		for (var value : values)
-			list.add(parseValue(value, constructor, null));
+		for (var value : values) {
+			if (value == null) list.add(null);
+			else list.add(parseValue(value, constructor, null));
+		}
 		return Collections.unmodifiableList(list);
 	}
 
@@ -874,7 +910,7 @@ public class Parser {
 		if (values.isEmpty()) return List.of();
 		var list = new ArrayList<T>();
 		for (var value : values)
-			if (filter.test(value)) list.add(value);
+			if (value != null && filter.test(value)) list.add(value);
 		return Collections.unmodifiableList(list);
 	}
 

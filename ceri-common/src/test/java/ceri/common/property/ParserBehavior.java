@@ -5,7 +5,6 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -132,7 +131,7 @@ public class ParserBehavior {
 	public void shouldFailToConvertToArrayIfItemIsNull() {
 		assertNull(Parser.types((List<Integer>) null).array(Integer[]::new));
 		assertNull(Parser.Strings.from(() -> null).array());
-		assertNpe(() -> Parser.strings("1", null, "2").toIntArray(3, 4));
+		assertArray(Parser.strings("1", null, "2").toIntArray(3, 4), 1, 2);
 	}
 
 	@Test

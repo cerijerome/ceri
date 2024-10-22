@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
@@ -64,6 +65,9 @@ public class EnumUtilTest {
 		assertEquals(EnumUtil.valueOf(Enum.class, null, Enum.a), Enum.a);
 		assertEquals(EnumUtil.valueOf(Enum.class, "ab", Enum.c), Enum.c);
 		assertNull(EnumUtil.valueOf(Enum.class, "ab", null));
+		assertEquals(EnumUtil.valueOf("a", Enum.c), Enum.a);
+		assertEquals(EnumUtil.valueOf("ab", Enum.c), Enum.c);
+		assertNpe(() -> EnumUtil.valueOf("a", (Enum) null));
 	}
 
 	@Test
