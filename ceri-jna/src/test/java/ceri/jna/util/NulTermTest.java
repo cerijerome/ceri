@@ -30,6 +30,7 @@ public class NulTermTest {
 
 	@Test
 	public void testTruncateBytes() {
+		assertEquals(NulTerm.truncate((byte[]) null), null);
 		assertArray(NulTerm.truncate(bytes()));
 		assertArray(NulTerm.truncate(bytes(0)));
 		assertArray(NulTerm.truncate(bytes(0, 0)));
@@ -40,6 +41,7 @@ public class NulTermTest {
 
 	@Test
 	public void testTrimBytes() {
+		assertEquals(NulTerm.trim((byte[]) null), null);
 		assertArray(NulTerm.trim(bytes()));
 		assertArray(NulTerm.trim(bytes(0)));
 		assertArray(NulTerm.trim(bytes(0, 0)));
@@ -50,6 +52,7 @@ public class NulTermTest {
 
 	@Test
 	public void testReadTruncate() {
+		assertEquals(NulTerm.readTruncate((byte[]) null), null);
 		assertEquals(NulTerm.readTruncate(b("")), "");
 		assertEquals(NulTerm.readTruncate(b("\0")), "");
 		assertEquals(NulTerm.readTruncate(b("\0\0")), "");
@@ -60,6 +63,7 @@ public class NulTermTest {
 
 	@Test
 	public void testReadTrim() {
+		assertEquals(NulTerm.readTrim((byte[]) null), null);
 		assertEquals(NulTerm.readTrim(b("")), "");
 		assertEquals(NulTerm.readTrim(b("\0")), "");
 		assertEquals(NulTerm.readTrim(b("\0\0")), "");

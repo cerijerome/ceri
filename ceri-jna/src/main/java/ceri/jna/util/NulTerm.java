@@ -4,6 +4,7 @@ import static ceri.jna.util.JnaUtil.DEFAULT_CHARSET;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.text.StringUtil;
 
 /**
  * Utilities for nul-terminated strings.
@@ -16,6 +17,7 @@ public class NulTerm {
 	 * Truncates a string up to the first char 0, if present.
 	 */
 	public static String truncate(String s) {
+		if (StringUtil.empty(s)) return s;
 		return s.substring(0, truncateLen(s, 0, s.length()));
 	}
 
@@ -23,6 +25,7 @@ public class NulTerm {
 	 * Truncates bytes up to the first 0, if present.
 	 */
 	public static byte[] truncate(byte[] bytes) {
+		if (bytes == null) return null;
 		return slice(bytes, 0, truncateLen(bytes, 0, bytes.length));
 	}
 
@@ -30,6 +33,7 @@ public class NulTerm {
 	 * Trims any trailing char 0.
 	 */
 	public static String trim(String s) {
+		if (StringUtil.empty(s)) return s;
 		return s.substring(0, trimLen(s, 0, s.length()));
 	}
 
@@ -37,6 +41,7 @@ public class NulTerm {
 	 * Trims any trailing 0.
 	 */
 	public static byte[] trim(byte[] bytes) {
+		if (bytes == null) return null;
 		return slice(bytes, 0, trimLen(bytes, 0, bytes.length));
 	}
 
@@ -51,6 +56,7 @@ public class NulTerm {
 	 * Decodes the bytes into a string, up to the first 0 or array limit.
 	 */
 	public static String readTruncate(Charset charset, byte[] bytes) {
+		if (bytes == null) return null;
 		int len = truncateLen(bytes, 0, bytes.length);
 		return charset.decode(ByteBuffer.wrap(bytes, 0, len)).toString();
 	}
@@ -66,6 +72,7 @@ public class NulTerm {
 	 * Decodes the bytes into a string, dropping any trailing 0.
 	 */
 	public static String readTrim(Charset charset, byte[] bytes) {
+		if (bytes == null) return null;
 		int len = trimLen(bytes, 0, bytes.length);
 		return charset.decode(ByteBuffer.wrap(bytes, 0, len)).toString();
 	}
@@ -83,7 +90,7 @@ public class NulTerm {
 	 * bytes written.
 	 */
 	public static int write(String s, Charset charset, byte[] dest) {
-		if (s == null || dest.length == 0) return 0;
+		if (StringUtil.empty(s) || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int len = Math.min(src.length, dest.length - 1);
 		ArrayUtil.copy(src, 0, dest, 0, len);

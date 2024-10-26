@@ -112,13 +112,6 @@ public class OsUtil {
 	}
 
 	/**
-	 * Determines if context is AWS, based on path system variable.
-	 */
-	public static boolean aws() {
-		return !StringUtil.blank(SystemVars.sys("AWS_PATH"));
-	}
-
-	/**
 	 * Overrides OS. Use null for actual values. Removes override on close.
 	 */
 	public static RuntimeCloseable os(String name, String arch, String version) {
@@ -127,5 +120,12 @@ public class OsUtil {
 		if (version == null) version = os.version;
 		osOverride = new Os(name, arch, version);
 		return () -> osOverride = null;
+	}
+	
+	/**
+	 * Determines if context is AWS, based on path system variable.
+	 */
+	public static boolean aws() {
+		return !StringUtil.blank(SystemVars.sys("AWS_PATH"));
 	}
 }

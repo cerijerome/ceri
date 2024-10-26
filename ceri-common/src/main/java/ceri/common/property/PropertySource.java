@@ -208,7 +208,7 @@ public interface PropertySource {
 	 * An implementation backed by (virtual) file system. Does not support removal of keys.
 	 */
 	static class File implements PropertySource {
-		private final Path root;
+		public final Path root;
 		private volatile boolean modified = false;
 
 		/**

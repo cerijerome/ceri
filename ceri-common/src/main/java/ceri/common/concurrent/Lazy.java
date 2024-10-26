@@ -41,10 +41,11 @@ public class Lazy<T> {
 	/**
 	 * Instantiates a value.
 	 */
-	public static interface Supplier<E extends Exception, T> {
+	public static interface Supplier<E extends Exception, T> extends ExceptionSupplier<E, T> {
 		/**
 		 * Gets the value, instantiating on first call.
 		 */
+		@Override
 		T get() throws E;
 
 		/**
@@ -60,6 +61,71 @@ public class Lazy<T> {
 		T value();
 	}
 
+	/**
+	 * A lazily instantiated value, with temporary override. The value can be manually initialized
+	 * if called before get().
+	 */
+	public static class Value<E extends Exception, T> {
+		private final ExceptionSupplier<E, T> supplier;
+		private final Lazy.Function<E, T> lazy;
+		private volatile T override;
+		
+		/**
+		 * Create an instance using the initializer without a lock.
+		 */
+		public static <E extends Exception, T> Value<E, T> unsafe(
+			ExceptionSupplier<E, T> supplier) {
+			return new Value<>(Lazy.unsafe(), supplier);
+		}
+		
+		/**
+		 * Create an instance using the initializer.
+		 */
+		public static <E extends Exception, T> Value<E, T> of(
+			ExceptionSupplier<E, T> supplier) {
+			return of(new ReentrantLock(), supplier);
+		}
+		
+		/**
+		 * Create an instance using the initializer and lock.
+		 */
+		public static <E extends Exception, T> Value<E, T> of(Lock lock,
+			ExceptionSupplier<E, T> supplier) {
+			return new Value<>(Lazy.of(lock), supplier);
+		}
+		
+		private Value(Lazy.Function<E, T> lazy, ExceptionSupplier<E, T> supplier) {
+			this.lazy = lazy;
+			this.supplier = supplier;
+		}
+		
+		/**
+		 * Returns the override if set, otherwise the initialized value, initializing if needed. 
+		 */
+		public T get() throws E {
+			return BasicUtil.defaultValue(override, this::init);
+		}
+
+		/**
+		 * Initializes the value using the value, if not yet initialized.
+		 */
+		public T init(T value) throws E {
+			return lazy.get(() -> value);
+		}
+		
+		/**
+		 * Temporary override. Close to stop the override.
+		 */
+		public RuntimeCloseable override(T override) {
+			this.override = override;
+			return () -> this.override = null;
+		}
+		
+		private T init() throws E {
+			return lazy.get(supplier);
+		}
+	}
+	
 	/**
 	 * Provides a lazily-instantiated constant that requires a supplier.
 	 */

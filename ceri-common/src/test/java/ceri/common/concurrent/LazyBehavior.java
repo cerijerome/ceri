@@ -90,4 +90,34 @@ public class LazyBehavior {
 		assertEquals(i.intValue(), 3);
 	}
 
+	@Test
+	public void shouldManuallyInitializeValueType() {
+		AtomicInteger i = new AtomicInteger(3);
+		var value = Lazy.Value.of(i::getAndIncrement);
+		value.init(7);
+		assertEquals(value.get(), 7);
+		value.init(3);
+		assertEquals(value.get(), 7);
+	}
+
+	@Test
+	public void shouldNotManuallyInitializeValueType() {
+		AtomicInteger i = new AtomicInteger(3);
+		var value = Lazy.Value.unsafe(i::getAndIncrement);
+		assertEquals(value.get(), 3);
+		value.init(7);
+		assertEquals(value.get(), 3);
+	}
+
+	@Test
+	public void shouldOverrideValueType() {
+		AtomicInteger i = new AtomicInteger(3);
+		var value = Lazy.Value.unsafe(i::getAndIncrement);
+		assertEquals(value.get(), 3);
+		try (var override = value.override(7)) {
+			assertEquals(value.get(), 7);
+		}
+		assertEquals(value.get(), 3);
+	}
+
 }

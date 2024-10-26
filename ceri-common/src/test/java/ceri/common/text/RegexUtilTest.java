@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.text.StringUtil.reverse;
@@ -18,6 +19,7 @@ import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.test.Captor;
 
@@ -96,6 +98,20 @@ public class RegexUtilTest {
 		assertFalse(RegexUtil.matcher("(\\d+)").test("123def456"));
 		assertTrue(RegexUtil.matcher(LSTRING_PATTERN).test("abc"));
 		assertFalse(RegexUtil.matcher(USTRING_PATTERN).test("abc"));
+	}
+
+	@Test
+	public void testGroupMatcher() {
+		assertStream(
+			Stream.of("abc123", "456def", "ghi").map(RegexUtil.groupMatcher(2, "(\\w+)(\\d).*")),
+			"3", "6", null);
+	}
+
+	@Test
+	public void testGroupFinder() {
+		assertStream(
+			Stream.of("abc123", "456def", "ghi").map(RegexUtil.groupFinder(2, "(\\d+)(\\d)")), "3",
+			"6", null);
 	}
 
 	@Test

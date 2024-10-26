@@ -132,6 +132,38 @@ public class RegexUtil {
 	}
 
 	/**
+	 * Returns a function that converts a string into a matching group or null. Null strings return
+	 * null.
+	 */
+	public static Function<String, String> groupMatcher(int group, String format, Object... objs) {
+		return groupMatcher(group, compile(format, objs));
+	}
+
+	/**
+	 * Returns a function that converts a string into a matching group or null. Null strings return
+	 * null.
+	 */
+	public static Function<String, String> groupMatcher(int group, Pattern pattern) {
+		return s -> group(matched(pattern, s), group);
+	}
+
+	/**
+	 * Returns a function that converts a string into a matching group or null. Null strings return
+	 * null.
+	 */
+	public static Function<String, String> groupFinder(int group, String format, Object... objs) {
+		return groupFinder(group, compile(format, objs));
+	}
+
+	/**
+	 * Returns a function that converts a string into a matching group or null. Null strings return
+	 * null.
+	 */
+	public static Function<String, String> groupFinder(int group, Pattern pattern) {
+		return s -> group(found(pattern, s), group);
+	}
+
+	/**
 	 * Compiles a pattern from string format.
 	 */
 	public static Pattern compile(String format, Object... objs) {
