@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
@@ -894,7 +894,7 @@ public class Parser {
 		try {
 			return FunctionUtil.safeApply(value, constructor, def);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(exceptionf("Failed to transform: %s", value), e);
+			throw ExceptionUtil.initCause(illegalArg("Failed to transform: %s", value), e);
 		}
 	}
 
@@ -926,7 +926,7 @@ public class Parser {
 		try {
 			return splitter.apply(value);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(exceptionf("Failed to split: %s", value), e);
+			throw ExceptionUtil.initCause(illegalArg("Failed to split: %s", value), e);
 		}
 	}
 

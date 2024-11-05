@@ -40,6 +40,11 @@ public interface PropertySource {
 	}
 
 	/**
+	 * Returns true if the key exists as leaf or parent.
+	 */
+	boolean hasKey(String key);
+
+	/**
 	 * Returns the property value.
 	 */
 	String property(String key);
@@ -95,6 +100,11 @@ public interface PropertySource {
 		@Override
 		public Set<String> descendants(String key) {
 			return PropertySource.descendantsFromKeys(separator(), allKeys(), key);
+		}
+
+		@Override
+		public boolean hasKey(String key) {
+			return PropertySource.hasKey(separator(), allKeys(), key);
 		}
 
 		@Override
@@ -183,6 +193,11 @@ public interface PropertySource {
 		}
 
 		@Override
+		public boolean hasKey(String key) {
+			return PropertySource.hasKey(separator(), allKeys.get(), key);
+		}
+
+		@Override
 		public String property(String key) {
 			return FunctionUtil.getSilently(() -> bundle.getString(key));
 		}
@@ -240,6 +255,11 @@ public interface PropertySource {
 			if (array == null) return Set.of();
 			Arrays.sort(array);
 			return ImmutableUtil.asSet(array);
+		}
+
+		@Override
+		public boolean hasKey(String key) {
+			return Files.exists(path(key));
 		}
 
 		@Override
@@ -303,6 +323,11 @@ public interface PropertySource {
 		}
 
 		@Override
+		default boolean hasKey(String key) {
+			return false;
+		}
+
+		@Override
 		default String property(String key) {
 			return null;
 		}
@@ -317,6 +342,15 @@ public interface PropertySource {
 	}
 
 	/* Support for implementations */
+
+	static boolean hasKey(Separator separator, Iterable<String> paths, String key) {
+		for (var path : paths) {
+			if (!path.startsWith(key)) continue;
+			if (path.length() == key.length()) return true;
+			if (separator.matches(path, key.length())) return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Provides child key names from full list of key paths.

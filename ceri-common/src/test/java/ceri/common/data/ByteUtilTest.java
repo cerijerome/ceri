@@ -354,6 +354,17 @@ public class ByteUtilTest {
 	}
 
 	@Test
+	public void testMasked() {
+		assertEquals(ByteUtil.masked(0), true);
+		assertEquals(ByteUtil.masked(1), true);
+		assertEquals(ByteUtil.masked(0, 1), false);
+		assertEquals(ByteUtil.masked(1, 0), true);
+		assertEquals(ByteUtil.masked(1, 1), false);
+		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3), true);
+		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3, 4), false);
+	}
+
+	@Test
 	public void testIndexMask() {
 		assertEquals(ByteUtil.indexMask(List.of()), 0L);
 		assertEquals(ByteUtil.indexMask(List.of(), "a", "b"), 0L);

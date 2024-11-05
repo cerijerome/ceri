@@ -38,6 +38,18 @@ public class ExceptionUtilTest {
 	}
 
 	@Test
+	public void testIllegalArg() {
+		assertThrowable(ExceptionUtil.illegalArg("test%d", 123), IllegalArgumentException.class,
+			"test123");
+	}
+
+	@Test
+	public void testUnsupportedOp() {
+		assertThrowable(ExceptionUtil.unsupportedOp("test%d", 123),
+			UnsupportedOperationException.class, "test123");
+	}
+
+	@Test
 	public void testExceptionf() {
 		var e = ExceptionUtil.exceptionf(IOException::new, "test%d", 123);
 		assertThrowable(e, IOException.class, "test123");

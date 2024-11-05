@@ -55,6 +55,15 @@ public class PropertySourceBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfKeyExists() {
+		initProperties(Map.of("a.b.c", "A-B-C", "a.cd", "A-CD"));
+		assertEquals(source.hasKey("a.b.c"), true);
+		assertEquals(source.hasKey("a.b"), true);
+		assertEquals(source.hasKey("a"), true);
+		assertEquals(source.hasKey("a.c"), false);
+	}
+
+	@Test
 	public void shouldAccessResourceBundleSubKeys() {
 		var source = PropertySource.Resource.of(r);
 		assertCollection(source.children(""), "a", "aaa", "name", "locale");
@@ -70,6 +79,11 @@ public class PropertySourceBehavior {
 		assertEquals(source.property("name"), "PropertySource");
 		assertEquals(source.property("locale"), "en");
 		assertEquals(source.property("a.b"), "ABX");
+		assertEquals(source.hasKey("a.b.c"), true);
+		assertEquals(source.hasKey("a.b.d"), true);
+		assertEquals(source.hasKey("a.b"), true);
+		assertEquals(source.hasKey("a"), true);
+		assertEquals(source.hasKey("aa"), false);
 	}
 
 	@Test
@@ -88,6 +102,10 @@ public class PropertySourceBehavior {
 		assertCollection(source.children("a"), "b", "c");
 		assertCollection(source.descendants(""), "a/b/c", "aaa", "a/b/d", "a/c");
 		assertCollection(source.descendants("a"), "b/c", "b/d", "c");
+		assertEquals(source.hasKey("a/b/c"), true);
+		assertEquals(source.hasKey("a/b"), true);
+		assertEquals(source.hasKey("a"), true);
+		assertEquals(source.hasKey("aa"), false);
 	}
 
 	@Test
@@ -133,6 +151,7 @@ public class PropertySourceBehavior {
 		assertCollection(PropertySource.NULL.descendants("a.b.c"));
 		PropertySource.NULL.property("a.b.c", "ABC");
 		assertEquals(PropertySource.NULL.property("a.b.c"), null);
+		assertEquals(PropertySource.NULL.hasKey("a.b.c"), false);
 		assertEquals(PropertySource.NULL.modified(), false);
 	}
 

@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -35,7 +35,7 @@ public class Crc {
 		value = algorithm.mask(value);
 		long crc = crc();
 		if (value == crc) return;
-		throw exceptionf("Expected CRC 0x%x: 0x%x", value, crc);
+		throw illegalArg("Expected CRC 0x%x: 0x%x", value, crc);
 	}
 
 	public boolean isValid(long value) {

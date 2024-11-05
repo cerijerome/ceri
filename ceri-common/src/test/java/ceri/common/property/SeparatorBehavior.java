@@ -44,4 +44,13 @@ public class SeparatorBehavior {
 			".a...b..c.d.");
 	}
 
+	@Test
+	public void shouldMatchString() {
+		assertEquals(Separator.DOT.matches(null, 0), false);
+		assertEquals(Separator.DOT.matches(".abc", 0), true);
+		assertEquals(Separator.DOT.matches("a.b", 0), false);
+		assertEquals(Separator.DOT.matches("a.b", 3), false);
+		assertEquals(Separator.DOT.matches("a.b", 1), true);
+	}
+
 }

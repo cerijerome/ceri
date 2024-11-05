@@ -569,6 +569,14 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Determines if all the bits are in the mask.
+	 */
+	public static boolean masked(long mask, int... bits) {
+		long bitMask = maskOfBits(bits);
+		return (mask & bitMask) == bitMask;
+	}
+
+	/**
 	 * Creates an indexed bit mask of other types against a type list.
 	 */
 	@SafeVarargs

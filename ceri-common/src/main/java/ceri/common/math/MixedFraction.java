@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static java.lang.Math.addExact;
 import static java.lang.Math.multiplyExact;
 import static java.lang.Math.negateExact;
@@ -33,9 +33,9 @@ public record MixedFraction(long whole, Fraction fraction) {
 		int wholeSgn = Long.signum(whole);
 		int fractionSgn = Long.signum(fraction.numerator());
 		if (wholeSgn != 0 && fractionSgn != 0 && wholeSgn == -fractionSgn)
-			throw exceptionf("Whole and fraction must be the same sign: %s, %s", whole, fraction);
+			throw illegalArg("Whole and fraction must be the same sign: %s, %s", whole, fraction);
 	}
-	
+
 	public double value() {
 		return whole() + fraction().value();
 	}

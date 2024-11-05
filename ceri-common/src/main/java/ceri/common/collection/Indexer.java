@@ -167,7 +167,7 @@ public class Indexer {
 	public static Indexer of(int... indexes) {
 		for (int i = 1; i < indexes.length; i++)
 			if (indexes[i - 1] > indexes[i]) throw ExceptionUtil
-				.exceptionf("Index cannot decrease: %d > %d [%d]", indexes[i - 1], indexes[i], i);
+				.illegalArg("Index cannot decrease: %d > %d [%d]", indexes[i - 1], indexes[i], i);
 		return new Indexer(indexes);
 	}
 

@@ -95,6 +95,14 @@ public record Separator(String value) {
 	}
 
 	/**
+	 * Returns true if this separator is at the given position of the string. 
+	 */
+	public boolean matches(String s, int pos) {
+		if (s == null) return false;
+		return value.regionMatches(0, s, pos, value.length());
+	}
+	
+	/**
 	 * Join non-empty strings with separators.
 	 */
 	public String join(String key, String... subs) {

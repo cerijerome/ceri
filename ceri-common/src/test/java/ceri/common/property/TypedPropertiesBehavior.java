@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.test.FileTestHelper;
 
 public class TypedPropertiesBehavior {
 	private static Properties properties = new Properties();
@@ -71,6 +72,14 @@ public class TypedPropertiesBehavior {
 		var r = ResourceBundle.getBundle(PropertySource.class.getName(), Locale.ENGLISH);
 		TypedProperties tp = TypedProperties.from(r);
 		assertEquals(tp.get("name"), "PropertySource");
+	}
+
+	@Test
+	public void shouldCreateFromFile() throws IOException {
+		try (var files = FileTestHelper.builder().file("a/b/c", "ABC").build()) {
+			TypedProperties tp = TypedProperties.from(files.root, "a");
+			assertEquals(tp.get("b/c"), "ABC");
+		}
 	}
 
 	@Test

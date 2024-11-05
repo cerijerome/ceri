@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -510,13 +510,13 @@ public class Matrix {
 	private static Matrix validateRowVector(Matrix m) {
 		if (m.isRow()) return m;
 		if (m.isColumn()) return m.transpose();
-		throw exceptionf("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
 	private static Matrix validateColumnVector(Matrix m) {
 		if (m.isColumn()) return m;
 		if (m.isRow()) return m.transpose();
-		throw exceptionf("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
 	private static double dot(Matrix rv, Matrix cv) {

@@ -31,16 +31,31 @@ public class ExceptionUtil {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static IllegalArgumentException exceptionf(String format, Object... args) {
-		return exceptionf((Throwable) null, format, args);
+	public static IllegalArgumentException illegalArg(String format, Object... args) {
+		return illegalArg((Throwable) null, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message and cause.
+	 */
+	public static IllegalArgumentException illegalArg(Throwable cause, String format,
+		Object... args) {
+		return exceptionf(IllegalArgumentException::new, cause, format, args);
 	}
 
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static IllegalArgumentException exceptionf(Throwable cause, String format,
+	public static UnsupportedOperationException unsupportedOp(String format, Object... args) {
+		return unsupportedOp((Throwable) null, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message and cause.
+	 */
+	public static UnsupportedOperationException unsupportedOp(Throwable cause, String format,
 		Object... args) {
-		return exceptionf(IllegalArgumentException::new, cause, format, args);
+		return exceptionf(UnsupportedOperationException::new, cause, format, args);
 	}
 
 	/**
@@ -57,7 +72,7 @@ public class ExceptionUtil {
 	public static <E extends Exception> E exceptionf(Function<String, E> fn, Throwable cause,
 		String format, Object... args) {
 		String message = StringUtil.format(format, args);
-		return ExceptionUtil.initCause(fn.apply(message), cause);
+		return initCause(fn.apply(message), cause);
 	}
 
 	/**

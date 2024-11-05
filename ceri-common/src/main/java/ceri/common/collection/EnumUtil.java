@@ -1,6 +1,6 @@
 package ceri.common.collection;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class EnumUtil {
 		Objects.requireNonNull(t);
 		for (var allow : allowed)
 			if (t == allow) return t;
-		throw exceptionf("%s must be one of %s: %s", ReflectUtil.className(t),
+		throw illegalArg("%s must be one of %s: %s", ReflectUtil.className(t),
 			Arrays.toString(allowed), t);
 	}
 
@@ -36,7 +36,7 @@ public class EnumUtil {
 	public static <T extends Enum<T>> T verifyDisallowed(T t, T... disallowed) {
 		Objects.requireNonNull(t);
 		for (var disallow : disallowed)
-			if (t == disallow) throw exceptionf("%s cannot be one of %s: %s",
+			if (t == disallow) throw illegalArg("%s cannot be one of %s: %s",
 				ReflectUtil.className(t), Arrays.toString(disallowed), t);
 		return t;
 	}

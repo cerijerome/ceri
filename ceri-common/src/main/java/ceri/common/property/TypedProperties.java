@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -71,6 +72,13 @@ public class TypedProperties {
 	 */
 	public static TypedProperties from(ResourceBundle bundle, String... prefix) {
 		return of(PropertySource.Resource.of(bundle), prefix);
+	}
+
+	/**
+	 * Creates typed properties with key prefix from given file path source.
+	 */
+	public static TypedProperties from(Path path, String... prefix) {
+		return of(PropertySource.File.of(path), prefix);
 	}
 
 	/**

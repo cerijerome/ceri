@@ -1,6 +1,6 @@
 package ceri.common.game;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
@@ -300,7 +300,7 @@ public class Sudoku {
 			row("ACDDD    ", 16, 24), //
 			row("ACCCD    "));
 	}
-	
+
 	/**
 	 * Encapsulates partial cages and sums for a single killer sudoku row.
 	 */
@@ -342,11 +342,11 @@ public class Sudoku {
 
 	public static void main(String[] args) {
 		List.of( //
-//			easy9x9(), medium9x9(), hard9x9(), //
-//			expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
-//			hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
-//			futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
-//			killer9x9a(), killer9x9b(), killer9x9c(), //
+			// easy9x9(), medium9x9(), hard9x9(), //
+			// expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
+			// hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
+			// futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
+			// killer9x9a(), killer9x9b(), killer9x9c(), //
 			killer9x9x() //
 		).forEach(s -> {
 			s.solve();
@@ -389,7 +389,7 @@ public class Sudoku {
 		return switch (size) {
 			case 9 -> boxes(3, 3);
 			case 6 -> boxes(2, 3);
-			default -> throw exceptionf("Unknown %1$dx%1$d box rules", size);
+			default -> throw illegalArg("Unknown %1$dx%1$d box rules", size);
 		};
 	}
 
@@ -505,7 +505,7 @@ public class Sudoku {
 	}
 
 	/* box support */
-	
+
 	private Sudoku boxes(int rows, int cols) {
 		for (int r = 0; r < size / rows; r++)
 			for (int c = 0; c < size / cols; c++)
@@ -523,7 +523,7 @@ public class Sudoku {
 		display.boxes.add(group);
 		return this;
 	}
-	
+
 	/* cage support */
 
 	private void addCages(Map<Character, List<Set<Integer>>> map, List<Integer> sums) {
@@ -695,7 +695,7 @@ public class Sudoku {
 			case '<' -> true;
 			case '>' -> false;
 			case ' ' -> null;
-			default -> throw exceptionf("Unsupported symbol: %c", ch);
+			default -> throw illegalArg("Unsupported symbol: %c", ch);
 		};
 	}
 
@@ -790,7 +790,7 @@ public class Sudoku {
 
 	private IntProvider addFullGroup(int... indexes) {
 		if (indexes.length != size)
-			throw exceptionf("Group size must be %d: %s", size, Arrays.toString(indexes));
+			throw illegalArg("Group size must be %d: %s", size, Arrays.toString(indexes));
 		return addGroup(IntProvider.of(indexes), (s, g) -> s.processUnique(g));
 	}
 
@@ -818,7 +818,7 @@ public class Sudoku {
 	private boolean setMask(int index, int mask) {
 		if (masks[index] == mask) return false;
 		if (mask == 0)
-			throw exceptionf("No numbers left at %d (%d,%d)", index, row(index), col(index));
+			throw illegalArg("No numbers left at %d (%d,%d)", index, row(index), col(index));
 		masks[index] = mask;
 		changedIndexes.add(index);
 		return true;
