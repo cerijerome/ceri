@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -217,7 +217,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 		private void validateEndPoint(int endPoint) {
 			if (endPoints.indexOf(0, endPoint) >= 0) return;
-			throw exceptionf("End point not in %s: %d", ByteProvider.toHex(endPoints), endPoint);
+			throw illegalArg("End point not in %s: %d", ByteProvider.toHex(endPoints), endPoint);
 		}
 	}
 

@@ -1,6 +1,6 @@
 package ceri.serial.i2c;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.collection.ArrayUtil;
@@ -32,7 +32,7 @@ public record I2cAddress(int address, boolean tenBit) {
 		validateRange(frames.length, 1, 2);
 		if (frames.length == 1) return of7Bit(MathUtil.ubyte(frames[0]) >>> 1);
 		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX)
-			throw exceptionf("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
+			throw illegalArg("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
 		int address =
 			(int) ByteUtil.fromMsb((~FRAME0_10BIT_PREFIX & ubyte(frames[0])) >>> 1, frames[1]);
 		return of10Bit(address);
@@ -44,7 +44,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static I2cAddress of(int value) {
 		if ((value & MASK_7BIT) == value) return new I2cAddress(value, false);
 		if ((value & MASK_10BIT) == value) return new I2cAddress(value, true);
-		throw exceptionf("Invalid 7-bit or 10-bit address: 0x%x", value);
+		throw illegalArg("Invalid 7-bit or 10-bit address: 0x%x", value);
 	}
 
 	/**
@@ -53,7 +53,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static I2cAddress of7Bit(int address) {
 		int masked = address & MASK_7BIT;
 		if (masked == address) return new I2cAddress(masked, false);
-		throw exceptionf("Invalid 7-bit address: 0x%x", address);
+		throw illegalArg("Invalid 7-bit address: 0x%x", address);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static I2cAddress of10Bit(int address) {
 		int masked = address & MASK_10BIT;
 		if (masked == address) return new I2cAddress(masked, true);
-		throw exceptionf("Invalid 10-bit address: 0x%x", address);
+		throw illegalArg("Invalid 10-bit address: 0x%x", address);
 	}
 
 	/**

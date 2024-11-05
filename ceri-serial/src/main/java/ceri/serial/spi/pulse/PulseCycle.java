@@ -1,6 +1,6 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.math.MathUtil.lcm;
 import static ceri.common.util.BasicUtil.unused;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -117,7 +117,7 @@ public class PulseCycle {
 		if (type == nbit27) return nbit27(n, offset, t0Bits, t1Bits);
 		if (type == nbit9) return nbit9(n, offset, t0Bits, t1Bits);
 		if (type == nbit) return nbit(n, offset, t0Bits, t1Bits);
-		throw exceptionf("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d", type, n,
+		throw illegalArg("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d", type, n,
 			offset, t0Bits, t1Bits);
 	}
 

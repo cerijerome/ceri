@@ -1,6 +1,6 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.clib.jna.CFcntl.O_NOCTTY;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
@@ -208,7 +208,7 @@ public class CSerial {
 			if (parity == PARITY_MARK) return PARENB | CMSPAR | PARODD;
 			if (parity == PARITY_SPACE) return PARENB | CMSPAR;
 		}
-		throw exceptionf("Unsupported parity: 0x%02x", parity);
+		throw illegalArg("Unsupported parity: 0x%02x", parity);
 	}
 
 	private static void setFlowControlFlags(NativeLong iflag, NativeLong cflag, int mode) {
@@ -278,10 +278,8 @@ public class CSerial {
 
 		private static void setAttr(int fd, termios tty) throws CException {
 			int baud = tty.c_ospeed.intValue(); // must re-apply if non-standard
-			if (CSerial.baudCode(baud) == BAUD_UNSUPPORTED)
-				enableCustomBaud(fd, tty, baud);
-			else 
-				CTermios.tcsetattr(fd, TCSANOW, tty);
+			if (CSerial.baudCode(baud) == BAUD_UNSUPPORTED) enableCustomBaud(fd, tty, baud);
+			else CTermios.tcsetattr(fd, TCSANOW, tty);
 		}
 
 		private static void enableCustomBaud(int fd, termios tty, int baud) throws CException {

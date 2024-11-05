@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import static ceri.common.exception.ExceptionUtil.exceptionf;
+import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.lang.ref.Reference;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -563,7 +563,7 @@ public class JnaUtil {
 	 */
 	public static <T extends Buffer> T validateDirect(T buffer) {
 		if (buffer.isDirect()) return buffer;
-		throw exceptionf("Buffer must be direct: " + buffer);
+		throw illegalArg("Buffer must be direct: " + buffer);
 	}
 
 	/**
