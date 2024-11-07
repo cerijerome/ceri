@@ -180,6 +180,12 @@ public class IntProviderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfContains() {
+		assertEquals(ip.contains(-1, 2, -3), true);
+		assertEquals(ip.contains(-1, 2, 3), false);
+	}
+
+	@Test
 	public void shouldDetermineIndexOfInts() {
 		assertEquals(ip.indexOf(0, -1, 2, -3), 1);
 		assertEquals(ip.indexOf(0, -1, 2, 3), -1);

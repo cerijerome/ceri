@@ -197,6 +197,14 @@ public class ByteProviderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfContains() {
+		assertEquals(bp.contains(-1, 2, -3), true);
+		assertEquals(bp.contains(-1, 2, 3), false);
+		assertEquals(bp.contains(ArrayUtil.bytes(-1, 2, -3)), true);
+		assertEquals(bp.contains(ArrayUtil.bytes(-1, 2, 3)), false);
+	}
+
+	@Test
 	public void shouldDetermineIndexOfBytes() {
 		assertEquals(bp.indexOf(0, -1, 2, -3), 1);
 		assertEquals(bp.indexOf(0, -1, 2, 3), -1);

@@ -133,6 +133,12 @@ public class LongProviderBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfContains() {
+		assertEquals(lp.contains(-1, 2, -3), true);
+		assertEquals(lp.contains(-1, 2, 3), false);
+	}
+
+	@Test
 	public void shouldDetermineIndexOfLongs() {
 		assertEquals(lp.indexOf(0, -1, 2, -3), 1);
 		assertEquals(lp.indexOf(0, -1, 2, 3), -1);

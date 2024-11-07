@@ -468,6 +468,22 @@ public class ByteUtil {
 	}
 
 	/**
+	 * Applies a mask with on/off state.
+	 */
+	public static long applyMask(long value, long mask, long state) {
+		long on = mask & state;
+		long off = mask & ~state;
+		return (value | on) & (~off);
+	}
+
+	/**
+	 * Applies a mask inclusively or exclusively.
+	 */
+	public static int applyMaskInt(int value, int mask, int state) {
+		return (int) applyMask(value, mask, state);
+	}
+
+	/**
 	 * Creates a 32-bit mask with given number of bits.
 	 */
 	public static int maskInt(int bitCount) {

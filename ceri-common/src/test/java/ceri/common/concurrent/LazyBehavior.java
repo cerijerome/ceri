@@ -111,8 +111,7 @@ public class LazyBehavior {
 
 	@Test
 	public void shouldOverrideValueType() {
-		AtomicInteger i = new AtomicInteger(3);
-		var value = Lazy.Value.unsafe(i::getAndIncrement);
+		var value = Lazy.Value.of(3);
 		assertEquals(value.get(), 3);
 		try (var override = value.override(7)) {
 			assertEquals(value.get(), 7);

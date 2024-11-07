@@ -69,23 +69,29 @@ public class Lazy<T> {
 		private final ExceptionSupplier<E, T> supplier;
 		private final Lazy.Function<E, T> lazy;
 		private volatile T override;
-		
+
 		/**
 		 * Create an instance using the initializer without a lock.
 		 */
-		public static <E extends Exception, T> Value<E, T> unsafe(
-			ExceptionSupplier<E, T> supplier) {
+		public static <E extends Exception, T> Value<E, T>
+			unsafe(ExceptionSupplier<E, T> supplier) {
 			return new Value<>(Lazy.unsafe(), supplier);
 		}
-		
+
+		/**
+		 * Create an instance using the fixed value.
+		 */
+		public static <T> Value<RuntimeException, T> of(T value) {
+			return unsafe(() -> value);
+		}
+
 		/**
 		 * Create an instance using the initializer.
 		 */
-		public static <E extends Exception, T> Value<E, T> of(
-			ExceptionSupplier<E, T> supplier) {
+		public static <E extends Exception, T> Value<E, T> of(ExceptionSupplier<E, T> supplier) {
 			return of(new ReentrantLock(), supplier);
 		}
-		
+
 		/**
 		 * Create an instance using the initializer and lock.
 		 */
@@ -93,14 +99,14 @@ public class Lazy<T> {
 			ExceptionSupplier<E, T> supplier) {
 			return new Value<>(Lazy.of(lock), supplier);
 		}
-		
+
 		private Value(Lazy.Function<E, T> lazy, ExceptionSupplier<E, T> supplier) {
 			this.lazy = lazy;
 			this.supplier = supplier;
 		}
-		
+
 		/**
-		 * Returns the override if set, otherwise the initialized value, initializing if needed. 
+		 * Returns the override if set, otherwise the initialized value, initializing if needed.
 		 */
 		public T get() throws E {
 			return BasicUtil.defaultValue(override, this::init);
@@ -112,7 +118,7 @@ public class Lazy<T> {
 		public T init(T value) throws E {
 			return lazy.get(() -> value);
 		}
-		
+
 		/**
 		 * Temporary override. Close to stop the override.
 		 */
@@ -120,12 +126,12 @@ public class Lazy<T> {
 			this.override = override;
 			return () -> this.override = null;
 		}
-		
+
 		private T init() throws E {
 			return lazy.get(supplier);
 		}
 	}
-	
+
 	/**
 	 * Provides a lazily-instantiated constant that requires a supplier.
 	 */

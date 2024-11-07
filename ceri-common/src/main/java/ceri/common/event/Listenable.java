@@ -61,6 +61,9 @@ public interface Listenable<T> {
 		return BasicUtil.uncheckedCast(Null.INSTANCE);
 	}
 
+	/**
+	 * No-op, stateless implementation. 
+	 */
 	static class Null<T> implements Listenable<T>, Listenable.Indirect<T> {
 		private static final Null<?> INSTANCE = new Null<>();
 

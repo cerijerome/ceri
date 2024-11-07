@@ -328,6 +328,13 @@ public interface LongProvider extends Iterable<Long> {
 	}
 
 	/**
+	 * Returns true if longs contain the given array.
+	 */
+	default boolean contains(long... array) {
+		return indexOf(0, array) >= 0;
+	}
+
+	/**
 	 * Returns the first index that matches array longs. Returns -1 if no match.
 	 */
 	default int indexOf(int index, long... array) {

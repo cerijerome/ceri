@@ -444,6 +444,13 @@ public interface IntProvider extends Iterable<Integer> {
 	}
 
 	/**
+	 * Returns true if ints contain the given array.
+	 */
+	default boolean contains(int... array) {
+		return indexOf(0, array) >= 0;
+	}
+	
+	/**
 	 * Returns the first index that matches array ints. Returns -1 if no match.
 	 */
 	default int indexOf(int index, int... array) {
