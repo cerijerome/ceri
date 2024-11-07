@@ -12,5 +12,4 @@ public class CMmanTest {
 		JnaTestUtil.testAsOs(MAC_OS, CMman.class);
 		JnaTestUtil.testAsOs(LINUX_OS, CMman.class);
 	}
-
 }

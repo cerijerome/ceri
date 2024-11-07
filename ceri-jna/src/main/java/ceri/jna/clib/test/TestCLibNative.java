@@ -59,25 +59,32 @@ public class TestCLibNative implements CLib.Native {
 	public final CallSync.Function<CtlArgs, Integer> fcntl = CallSync.function(null, 0);
 	public final CallSync.Function<TcArgs, Integer> tc = CallSync.function(null, 0);
 	public final CallSync.Function<CfArgs, Integer> cf = CallSync.function(null, 0);
-	public final CallSync.Function<MmapArgs, Integer> mmap = CallSync.function(null, 0);
+	public final CallSync.Function<MmapArgs, Presult> mmap = CallSync.function(null, Presult.OK);
 	private volatile int lastFd = -1;
+
+	/**
+	 * A result type of pointer or int.
+	 */
+	public record Presult(Pointer p, int result) {
+		public static final Presult OK = new Presult(null, 0);
+	}
 
 	/**
 	 * Arguments for open calls.
 	 */
-	public static record OpenArgs(String path, int flags, int mode) {
+	public record OpenArgs(String path, int flags, int mode) {
 		public static final OpenArgs NULL = new OpenArgs("", 0, 0);
 	}
 
 	/**
 	 * Arguments for read calls.
 	 */
-	public static record ReadArgs(int fd, int len) {}
+	public record ReadArgs(int fd, int len) {}
 
 	/**
 	 * Arguments for write calls.
 	 */
-	public static record WriteArgs(int fd, ByteProvider data) {
+	public record WriteArgs(int fd, ByteProvider data) {
 		public static WriteArgs of(int fd, int... data) {
 			return new WriteArgs(fd, ByteProvider.of(data));
 		}
@@ -86,12 +93,12 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for lseek calls.
 	 */
-	public static record LseekArgs(int fd, int offset, int whence) {}
+	public record LseekArgs(int fd, int offset, int whence) {}
 
 	/**
 	 * Arguments for signal calls. Handler type must be sighandler_t or Pointer.
 	 */
-	public static record SignalArgs(int signal, Object handler) {
+	public record SignalArgs(int signal, Object handler) {
 		public SignalArgs {
 			assertTrue(handler instanceof sighandler_t || handler instanceof Pointer);
 		}
@@ -100,7 +107,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for poll calls.
 	 */
-	public static record PollArgs(List<pollfd> pollfds, Duration timeout, Set<Integer> signals) {
+	public record PollArgs(List<pollfd> pollfds, Duration timeout, Set<Integer> signals) {
 		public static PollArgs of(pollfd[] pollfds, int timeoutMs) {
 			return new PollArgs(List.of(pollfds), Duration.ofMillis(timeoutMs), null);
 		}
@@ -131,7 +138,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for ioctl and fcntl calls.
 	 */
-	public static record CtlArgs(int fd, int request, List<Object> args) {
+	public record CtlArgs(int fd, int request, List<Object> args) {
 		public static CtlArgs of(int fd, int request, Object... args) {
 			return new CtlArgs(fd, request, List.of(args));
 		}
@@ -147,7 +154,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for tc calls.
 	 */
-	public static record TcArgs(String name, int fd, List<Object> args) {
+	public record TcArgs(String name, int fd, List<Object> args) {
 		public static TcArgs of(String name, int fd, Object... args) {
 			return new TcArgs(name, fd, List.of(args));
 		}
@@ -163,7 +170,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Arguments for cf calls.
 	 */
-	public static record CfArgs(String name, Pointer termios, List<Object> args) {
+	public record CfArgs(String name, Pointer termios, List<Object> args) {
 		public static CfArgs of(String name, Pointer termios, Object... args) {
 			return new CfArgs(name, termios, List.of(args));
 		}
@@ -190,9 +197,14 @@ public class TestCLibNative implements CLib.Native {
 		}
 	}
 
+	/**
+	 * Parameters for mmap/munmap.
+	 */
 	public record MmapArgs(Pointer addr, long len, int prot, int flags, int fd, int offset) {}
-	
 
+	/**
+	 * Register the test lib for the consumer, then remove it.
+	 */
 	public static <E extends Exception> void exec(ExceptionConsumer<E, TestCLibNative> consumer)
 		throws E {
 		try (var enc = TestCLibNative.register(TestCLibNative.of())) {
@@ -200,19 +212,31 @@ public class TestCLibNative implements CLib.Native {
 		}
 	}
 
+	/**
+	 * Register the test lib.
+	 */
 	public static Enclosed<RuntimeException, TestCLibNative> register() {
 		return register(of());
 	}
 
+	/**
+	 * Register the test lib as a closable resource.
+	 */
 	public static <T extends TestCLibNative> Enclosed<RuntimeException, T> register(T lib) {
 		return CLib.library.enclosed(lib);
 	}
 
+	/**
+	 * Set last error on a call sync, based on predicate.
+	 */
 	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
 		Predicate<T> predicate, String errorMessage, Object... args) {
 		autoError(sync, response, predicate, t -> StringUtil.format(errorMessage, args));
 	}
 
+	/**
+	 * Set last error on a call sync, based on predicate.
+	 */
 	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
 		Predicate<T> predicate, Function<T, String> errorMessageFn) {
 		sync.autoResponse(t -> {
@@ -247,8 +271,8 @@ public class TestCLibNative implements CLib.Native {
 		nextFd.set(1000);
 		fds.clear();
 		env.clear();
-		CallSync.resetAll(open, read, signal, close, isatty, pipe, write, lseek, raise, poll, ioctl,
-			fcntl, tc, cf);
+		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, mmap, open, pipe, poll, raise,
+			read, signal, sigset, tc, write);
 	}
 
 	@Override
@@ -429,13 +453,14 @@ public class TestCLibNative implements CLib.Native {
 	@Override
 	public Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
 		throws LastErrorException {
-		mmap.apply(new MmapArgs(addr, len.longValue(), prot, flags, fd, offset));
+		var presult = mmap.apply(new MmapArgs(addr, len.longValue(), prot, flags, fd, offset));
+		if (presult.p() != null) return presult.p();
 		return addr != null ? addr : new Memory(len.longValue());
 	}
 
 	@Override
 	public int munmap(Pointer addr, size_t len) throws LastErrorException {
-		return mmap.apply(new MmapArgs(addr, len.longValue(), 0, 0, 0, 0));
+		return mmap.apply(new MmapArgs(addr, len.longValue(), 0, 0, 0, 0)).result();
 	}
 
 	@Override

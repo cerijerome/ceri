@@ -35,10 +35,16 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 		executor = Executors.newSingleThreadExecutor();
 	}
 
+	/**
+	 * Start the loop.
+	 */
 	protected void start() {
 		executor.execute(this::loops);
 	}
 
+	/**
+	 * Loop implementation.
+	 */
 	protected abstract void loop() throws Exception;
 
 	@Override
@@ -46,14 +52,23 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 		LogUtil.close(executor, exitTimeoutMs);
 	}
 
+	/**
+	 * Wait for the loop to stop.
+	 */
 	public void waitUntilStopped() throws InterruptedException {
 		stopped.awaitPeek();
 	}
 
+	/**
+	 * Wait for the loop to stop or timeout.
+	 */
 	public void waitUntilStopped(long timeoutMs) throws InterruptedException {
 		stopped.awaitPeek(timeoutMs);
 	}
 
+	/**
+	 * Returns true if the loop has stopped.
+	 */
 	public boolean stopped() {
 		return stopped.isSet();
 	}

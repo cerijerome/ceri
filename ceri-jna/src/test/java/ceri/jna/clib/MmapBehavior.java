@@ -12,6 +12,7 @@ import ceri.jna.clib.Mmap.Protection;
 import ceri.jna.clib.Mmap.Visibility;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.MmapArgs;
+import ceri.jna.clib.test.TestCLibNative.Presult;
 
 public class MmapBehavior {
 	private TestCLibNative lib = null;
@@ -48,6 +49,15 @@ public class MmapBehavior {
 		lib.mmap.assertAuto(
 			new MmapArgs(null, 32L, Protection.READ.value, Visibility.PRIVATE.value, fd.fd(), 8));
 		mmap.address(0);
+	}
+
+	@Test
+	public void shouldPeovideMemoryMap() throws IOException {
+		initLib();
+		mem = new Memory(16);
+		lib.mmap.autoResponses(new Presult(mem, 0));
+		mmap = Mmap.anonymous(Visibility.SHARED, 16).map();
+		assertEquals(mmap.address(0), mem);
 	}
 
 	private void initLib() {
