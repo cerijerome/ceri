@@ -46,7 +46,6 @@ public class UdpChannel implements AutoCloseable {
 		this.port = channel.socket().getLocalPort();
 	}
 
-	@SuppressWarnings("resource")
 	public void blocking(boolean enabled) throws IOException {
 		channel.configureBlocking(enabled);
 	}

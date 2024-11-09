@@ -449,7 +449,7 @@ public interface IntProvider extends Iterable<Integer> {
 	default boolean contains(int... array) {
 		return indexOf(0, array) >= 0;
 	}
-	
+
 	/**
 	 * Returns the first index that matches array ints. Returns -1 if no match.
 	 */
@@ -600,8 +600,8 @@ public interface IntProvider extends Iterable<Integer> {
 		int length = provider.length();
 		var array = provider.copy(0, length <= max ? length : max - 1);
 		String s = fn.apply(array);
-		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
-		return s + "(" + length + ")";
+		if (length <= max) return s;
+		return s.substring(0, s.length() - 1) + ", ...](" + length + ")";
 	}
 
 }

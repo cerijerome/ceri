@@ -52,6 +52,7 @@ public class ThreadBuffers implements RuntimeCloseable {
 	/**
 	 * Get the current buffer.
 	 */
+	@SuppressWarnings("resource")
 	public Memory get() {
 		var size = this.size;
 		return ConcurrentUtil.lockedGet(lock, () -> buffers.compute(Thread.currentThread(),

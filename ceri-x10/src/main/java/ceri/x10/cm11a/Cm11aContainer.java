@@ -170,7 +170,6 @@ public class Cm11aContainer implements RuntimeCloseable {
 			Fixable.openSilently(config.replace(Cm11a.SERIAL).serial()) : null;
 	}
 
-	@SuppressWarnings("resource")
 	private Cm11a createCm11a(Connector.Fixable connector, Cm11aDevice.Config config) {
 		return switch (type) {
 			case cm11aRef -> null;

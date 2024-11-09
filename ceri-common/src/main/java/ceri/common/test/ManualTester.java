@@ -284,6 +284,7 @@ public class ManualTester implements RuntimeCloseable {
 		BasicColor promptColor = BasicColor.blue;
 		int delayMs = BasicUtil.conditionalInt(TestUtil.isTest, 0, 100);
 
+		@SuppressWarnings("resource")
 		protected Builder(List<?> subjects) {
 			if (subjects.isEmpty()) throw new IllegalArgumentException("No subjects");
 			this.subjects = subjects;

@@ -90,6 +90,7 @@ public class UsbHotPlugBehavior {
 		}, Level.OFF, UsbHotPlug.class);
 	}
 
+	@SuppressWarnings("resource")
 	private static UsbDevice device(UsbHotPlug hotPlug, int index) throws LibUsbException {
 		try (var devices = hotPlug.usb().deviceList()) {
 			var device = devices.devices().get(index);

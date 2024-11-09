@@ -82,6 +82,7 @@ public class FtdiDeviceBehavior {
 		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailIfClosed() throws LibUsbException {
 		ftdi = FtdiDevice.open();

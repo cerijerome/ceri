@@ -285,6 +285,7 @@ public class SelfHealingFtdiBehavior {
 		}, Level.OFF, SelfHealing.class);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailIfNotConnected() {
 		init();

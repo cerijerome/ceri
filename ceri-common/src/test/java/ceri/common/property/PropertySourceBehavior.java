@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertUnsupported;
 import java.io.IOException;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.io.RuntimeIoException;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.CloseableUtil;
 
@@ -153,6 +155,23 @@ public class PropertySourceBehavior {
 		assertEquals(PropertySource.NULL.property("a.b.c"), null);
 		assertEquals(PropertySource.NULL.hasKey("a.b.c"), false);
 		assertEquals(PropertySource.NULL.modified(), false);
+	}
+
+	@Test
+	public void shouldProvideContextForFileReadFailure() throws IOException {
+		initFiles(Map.of("a/b/c", "ABC"));
+		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "ABC");
+		assertThrown(RuntimeIoException.class, () -> PropertySource.fileRead(files.path("a/b")));
+	}
+
+	@Test
+	public void shouldProvideContextForFileFailure() throws IOException {
+		initFiles(Map.of("a/b/c", "ABC"));
+		PropertySource.fileWrite(files.path("a/b/c"), "AAA");
+		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "AAA");
+		assertThrown(RuntimeIoException.class,
+			() -> PropertySource.fileWrite(files.path("a/b"), "AA"));
+		assertThrown(RuntimeIoException.class, () -> PropertySource.fileRead(files.path("a/b")));
 	}
 
 	private void initProperties(Map<String, String> properties) {

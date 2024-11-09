@@ -131,6 +131,7 @@ public class SelfHealingFdBehavior {
 		}, Level.OFF, SelfHealing.class);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailIfNotOpen() {
 		init();

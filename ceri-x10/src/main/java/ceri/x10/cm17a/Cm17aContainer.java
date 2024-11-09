@@ -169,7 +169,6 @@ public class Cm17aContainer implements RuntimeCloseable {
 		return type == Type.serial ? Fixable.openSilently(config.serial()) : null;
 	}
 
-	@SuppressWarnings("resource")
 	private Cm17a createCm17a(Serial.Fixable serial, Cm17aDevice.Config config) {
 		return switch (type) {
 			case cm17aRef -> null;

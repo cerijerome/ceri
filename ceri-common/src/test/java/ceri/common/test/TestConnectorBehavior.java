@@ -68,6 +68,7 @@ public class TestConnectorBehavior {
 		assertThrown(con.in()::available);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailToWriteIfBroken() {
 		con.broken();
@@ -75,6 +76,7 @@ public class TestConnectorBehavior {
 		assertThrown(() -> con.out().write(new byte[3]));
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailToWriteIfNotConnected() {
 		assertThrown(() -> con.out().write(0));

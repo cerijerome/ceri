@@ -139,6 +139,17 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfKeyExists() {
+		var tp = TypedProperties.from(properties, "a");
+		assertEquals(tp.hasKey(), true);
+		assertEquals(tp.hasKey(""), true);
+		assertEquals(tp.hasKey("b"), true);
+		assertEquals(tp.hasKey("b.c"), true);
+		assertEquals(tp.hasKey("c"), false);
+		assertEquals(tp.hasKey("b.d"), false);
+	}
+
+	@Test
 	public void shouldExtendPrefixWhenCreatingSubs() {
 		var tp0 = TypedProperties.from(properties);
 		var tp1 = tp0.sub();

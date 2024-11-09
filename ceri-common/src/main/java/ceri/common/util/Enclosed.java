@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import ceri.common.function.ExceptionCloseable;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionRunnable;
 
 /**
@@ -34,6 +35,20 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	public static <E extends Exception, T> Enclosed<E, T> from(T subject,
 		ExceptionCloseable<E> closeable) {
 		return of(subject, x -> closeable.close());
+	}
+
+	/**
+	 * Adapts a closeable type to a new enclosed type; closing the type on close or failure.
+	 */
+	public static <E extends Exception, T extends ExceptionCloseable<E>, R> Enclosed<E, R>
+		adaptOrClose(T subject, ExceptionFunction<E, T, R> adapter) throws E {
+		try {
+			var result = adapter.apply(subject);
+			return of(result, r -> subject.close());
+		} catch (Exception e) {
+			subject.close();
+			throw e;
+		}
 	}
 
 	/**
@@ -97,4 +112,8 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		if (closer != null) closer.run();
 	}
 
+	@Override
+	public String toString() {
+		return "[" + ref + "]";
+	}
 }

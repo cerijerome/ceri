@@ -24,11 +24,11 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(IntArray.Immutable.wrap().toString(), "Immutable[](0)");
+		assertEquals(IntArray.Immutable.wrap().toString(), "Immutable[]");
 		assertEquals(IntArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
 			"Immutable[1, 2, 3, 4, 5, 6, 7, ...](9)");
 		assertEquals(IntArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8).toString(),
-			"Immutable[1, 2, 3, 4, 5, 6, 7, 8](8)");
+			"Immutable[1, 2, 3, 4, 5, 6, 7, 8]");
 	}
 
 	/* Immutable tests */

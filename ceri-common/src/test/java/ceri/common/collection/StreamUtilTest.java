@@ -183,6 +183,7 @@ public class StreamUtilTest {
 		assertIterable(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
 	}
 
+	@SuppressWarnings("resource")
 	@Test
 	public void testWrap() {
 		try (WrappedStream<IOException, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
@@ -384,7 +385,6 @@ public class StreamUtilTest {
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeError())));
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void testToList() {
 		Stream<String> stream = Stream.of("A", "BB", null, "DDDD");

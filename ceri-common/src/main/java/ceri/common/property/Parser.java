@@ -498,15 +498,16 @@ public class Parser {
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			return Parser
-				.strings(FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter)));
+			var split = FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter));
+			return Parser.strings(split);
 		}
 
 		/**
 		 * Returns an accessor for values split by separator.
 		 */
 		default Strings split(Separator separator) {
-			return Parser.strings(FunctionUtil.safeApply(get(), v -> separator.split(v)));
+			var split = FunctionUtil.safeApply(get(), v -> separator.split(v));
+			return Parser.strings(split);
 		}
 
 		/**

@@ -83,6 +83,7 @@ public class TestConnector extends TestFixable implements Connector.Fixable {
 	/**
 	 * Enable pairing; input data is written to another connector.
 	 */
+	@SuppressWarnings("resource")
 	public void pairWith(Connector other) {
 		writeOverride((b, off, len) -> other.out().write(b, off, len));
 	}

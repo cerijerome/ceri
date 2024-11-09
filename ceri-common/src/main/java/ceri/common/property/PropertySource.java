@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import java.util.Set;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.function.FunctionUtil;
-import ceri.common.io.IoUtil;
+import ceri.common.io.RuntimeIoException;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
@@ -266,7 +267,7 @@ public interface PropertySource {
 		public String property(String key) {
 			var path = path(key);
 			if (!exists(path)) return null;
-			return IoUtil.RUNTIME_IO_ADAPTER.get(() -> Files.readString(path(key)));
+			return PropertySource.fileRead(path);
 		}
 
 		@Override
@@ -276,7 +277,7 @@ public interface PropertySource {
 				if (!exists(path)) return; // do nothing
 				throw new UnsupportedOperationException("Key removal not permitted: " + key);
 			}
-			IoUtil.RUNTIME_IO_ADAPTER.run(() -> Files.writeString(path(key), value));
+			PropertySource.fileWrite(path, value);
 			modified = true;
 		}
 
@@ -406,5 +407,22 @@ public interface PropertySource {
 		else for (var child : children)
 			appendDescendantsFromChildren(receiver, source, preLen,
 				source.separator().join(key, child));
+	}
+
+	static String fileRead(Path path) {
+		try {
+			return Files.readString(path);
+		} catch (IOException e) {
+			throw new RuntimeIoException("Failed to read: " + path, e);
+		}
+	}
+
+	static void fileWrite(Path path, String value) {
+		try {
+			Files.writeString(path, value);
+		} catch (IOException e) {
+			throw new RuntimeIoException(
+				String.format("Failed to write: %s > %s", StringUtil.trim(value), path), e);
+		}
 	}
 }

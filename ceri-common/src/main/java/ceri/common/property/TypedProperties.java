@@ -152,6 +152,13 @@ public class TypedProperties {
 	}
 
 	/**
+	 * Returns true if the key exists as a leaf or parent.
+	 */
+	public boolean hasKey(String... keyParts) {
+		return properties.hasKey(key(keyParts));
+	}
+	
+	/**
 	 * Returns all the integer ids that are children of the given key.
 	 */
 	public List<Integer> childIds(String... keyParts) {

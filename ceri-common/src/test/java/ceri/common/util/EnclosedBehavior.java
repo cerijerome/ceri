@@ -1,10 +1,15 @@
 package ceri.common.util;
 
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
@@ -26,6 +31,26 @@ public class EnclosedBehavior {
 		sync.assertCalls(1);
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldAdaptCloseableType() {
+		var sync = CallSync.runnable(true);
+		RuntimeCloseable rc = sync::run;
+		try (Enclosed<RuntimeException, String> c = Enclosed.adaptOrClose(rc, t -> "test")) {
+			assertEquals(c.ref, "test");
+		}
+		sync.assertCalls(1);
+	}
+	
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldCloseOnAdaptFailure() {
+		var sync = CallSync.runnable(true);
+		RuntimeCloseable rc = sync::run;
+		assertThrown(() -> Enclosed.adaptOrClose(rc, t -> throwRuntime()));
+		sync.assertCalls(1);
+	}
+	
 	@Test
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };
@@ -76,4 +101,11 @@ public class EnclosedBehavior {
 		assertFalse(Enclosed.of(new Object(), x -> {}).isNoOp());
 	}
 
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldProvideStringRepresentation() {
+		assertString(Enclosed.of(() -> {}), "[null]");
+		assertString(Enclosed.of("test", t -> {}), "[test]");
+	}
+	
 }
