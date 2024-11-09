@@ -3,10 +3,10 @@ package ceri.jna.clib.jna;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.jna.test.JnaTestUtil.LEX;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import com.sun.jna.LastErrorException;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
@@ -37,7 +37,7 @@ public class CFcntlTest {
 
 	@Test
 	public void testFailToOpenWithParameters() {
-		lib.open.error.set(new LastErrorException("test"));
+		lib.open.error.setFrom(LEX);
 		assertThrown(() -> CFcntl.open("test1", 3));
 		assertThrown(() -> CFcntl.open("test2", 3, 0666));
 		lib.open.error.clear();
@@ -106,8 +106,8 @@ public class CFcntlTest {
 	public void testFields() {
 		JnaTestUtil.testForEachOs(CFcntl.class);
 	}
-	
-	private void assertFcntlAuto(int fd, int request, Object...args) {
+
+	private void assertFcntlAuto(int fd, int request, Object... args) {
 		assertEquals(lib.fcntl.awaitAuto(), CtlArgs.of(lib.fd(fd), request, args));
 	}
 }

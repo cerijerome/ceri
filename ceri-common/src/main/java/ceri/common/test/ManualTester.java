@@ -281,7 +281,7 @@ public class ManualTester implements RuntimeCloseable {
 		InputStream in = System.in;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
-		BasicColor promptColor = BasicColor.blue;
+		BasicColor promptColor = BasicColor.green;
 		int delayMs = BasicUtil.conditionalInt(TestUtil.isTest, 0, 100);
 
 		@SuppressWarnings("resource")

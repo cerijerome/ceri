@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import ceri.common.test.CallSync;
 
 public class DateUtilTest {
 
@@ -24,6 +25,15 @@ public class DateUtilTest {
 		assertPrivateConstructor(DateUtil.class);
 	}
 
+	@Test
+	public void testTimeUnitFromSymbol() {
+		assertEquals(DateUtil.timeUnit("xs"), null);
+		assertEquals(DateUtil.timeUnit("us"), TimeUnit.MICROSECONDS);
+		assertEquals(DateUtil.timeUnit("\u00b5s"), TimeUnit.MICROSECONDS);
+		assertEquals(DateUtil.timeUnit("\u00b5S"), TimeUnit.MICROSECONDS);
+		assertEquals(DateUtil.timeUnit("H"), TimeUnit.HOURS);
+	}
+	
 	@Test
 	public void testJvmUptime() {
 		assertTrue(DateUtil.jvmUptimeMs() > 0);

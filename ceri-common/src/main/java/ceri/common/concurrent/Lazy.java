@@ -65,7 +65,7 @@ public class Lazy<T> {
 	 * A lazily instantiated value, with temporary override. The value can be manually initialized
 	 * if called before get().
 	 */
-	public static class Value<E extends Exception, T> {
+	public static class Value<E extends Exception, T> implements ExceptionSupplier<E, T> {
 		private final ExceptionSupplier<E, T> supplier;
 		private final Lazy.Function<E, T> lazy;
 		private volatile T override;
@@ -108,6 +108,7 @@ public class Lazy<T> {
 		/**
 		 * Returns the override if set, otherwise the initialized value, initializing if needed.
 		 */
+		@Override
 		public T get() throws E {
 			return BasicUtil.defaultValue(override, this::init);
 		}

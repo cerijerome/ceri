@@ -10,6 +10,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
+import static ceri.jna.test.JnaTestUtil.LEX;
 import static ceri.serial.i2c.jna.I2cDev.i2c_func.I2C_FUNC_SMBUS_EMUL;
 import java.io.IOException;
 import java.util.List;
@@ -17,7 +18,6 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import com.sun.jna.LastErrorException;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative;
@@ -60,7 +60,7 @@ public class I2cDeviceBehavior {
 	public void shouldDetermineIfAddressExists() {
 		assertTrue(i2c.exists(I2cAddress.of(0x3b)));
 		assertThrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
-		lib.ioctlSmBusInt.error.setFrom(() -> new LastErrorException("test"));
+		lib.ioctlSmBusInt.error.setFrom(LEX);
 		assertFalse(i2c.exists(I2cAddress.of(0x3b)));
 	}
 

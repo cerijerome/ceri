@@ -1,13 +1,12 @@
-package ceri.common.util;
+package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.text.ParseUtil;
 
-public class PrimitiveUtilTest {
+public class ParseUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {

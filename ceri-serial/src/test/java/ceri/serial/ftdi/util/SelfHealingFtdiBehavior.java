@@ -14,6 +14,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.common.test.TestUtil.typedProperties;
+import static ceri.jna.test.JnaTestUtil.LEX;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_ANY;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_interface.INTERFACE_D;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284;
@@ -25,7 +26,6 @@ import java.util.function.Predicate;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
@@ -273,7 +273,7 @@ public class SelfHealingFtdiBehavior {
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var enc = con.listeners().enclose(sync::signal)) {
-				lib.transferOut.error.setFrom(() -> new LastErrorException("test"));
+				lib.transferOut.error.setFrom(LEX);
 				assertThrown(con::open);
 				sync.await(StateChange.broken);
 				lib.transferOut.awaitAuto();

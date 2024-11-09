@@ -69,7 +69,7 @@ public class ErrorGen {
 	 * may be used: RTX, RIX, INX, IOX. The generated errors will have a fixed message.
 	 */
 	@SafeVarargs
-	public final void setFrom(Supplier<Exception>... errorFns) {
+	public final void setFrom(Supplier<? extends Exception>... errorFns) {
 		if (errorFns.length == 0) clear();
 		else {
 			var sequential = sequentialSupplier(errorFns);

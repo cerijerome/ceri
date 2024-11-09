@@ -314,6 +314,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.NonMatchResultBehavior.class, //
 	ceri.common.text.NonMatcherBehavior.class, //
 	ceri.common.text.NumberParserTest.class, //
+	ceri.common.text.ParseUtilTest.class, //
 	ceri.common.text.RegexSequencerBehavior.class, //
 	ceri.common.text.RegexUtilTest.class, //
 	ceri.common.text.SplitterBehavior.class, //
@@ -353,7 +354,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.NamedBehavior.class, //
 	ceri.common.util.OsUtilTest.class, //
-	ceri.common.util.PrimitiveUtilTest.class, //
 	ceri.common.util.RefBehavior.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //

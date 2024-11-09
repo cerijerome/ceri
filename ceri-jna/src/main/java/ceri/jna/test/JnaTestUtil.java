@@ -7,6 +7,8 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
@@ -18,6 +20,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReloader;
+import ceri.common.test.ErrorGen;
 import ceri.common.util.OsUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
@@ -30,6 +33,7 @@ import ceri.jna.util.Struct;
 public class JnaTestUtil {
 	public static final String MAC_OS = "Mac";
 	public static final String LINUX_OS = "Linux";
+	public static final Supplier<Exception> LEX = ErrorGen.errorFn(LastErrorException::new);
 
 	private JnaTestUtil() {}
 

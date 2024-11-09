@@ -14,6 +14,7 @@ public record Separator(String value) {
 	public static final Separator DOT = new Separator(".");
 	public static final Separator DASH = new Separator("-");
 	public static final Separator SLASH = new Separator("/");
+	public static final Separator COMMA = new Separator(",");
 	public static final Separator COLON = new Separator(":");
 	public static final Separator SEMICOLON = new Separator(";");
 
