@@ -1,11 +1,13 @@
 package ceri.common.event;
 
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.Test;
 import ceri.common.test.Captor;
+import ceri.common.test.TestListeners;
 import ceri.common.util.Enclosed;
 
 public class ListenableBehavior {
@@ -56,6 +58,16 @@ public class ListenableBehavior {
 		indirect.listeners().listen(captor);
 		indirect.listeners().unlisten(captor);
 		captor.verify();
+	}
+
+	@Test
+	public void shouldProvideSafeAccess() {
+		var listen = TestListeners.<String>of();
+		Consumer<String> consumer = e -> {};
+		listen.listen(consumer);
+		Listenable.safe((Listenable<String>) null).unlisten(consumer);
+		Listenable.safe((Listenable.Indirect<String>) null).listeners().unlisten(consumer);
+		assertEquals(Listenable.safe((Listenable<String>) listen).unlisten(consumer), true);
 	}
 
 	private static class TestListenable implements Consumer<String>, Listenable<String> {

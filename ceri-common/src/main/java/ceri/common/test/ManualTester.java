@@ -60,7 +60,7 @@ public class ManualTester implements RuntimeCloseable {
 	public final PrintStream err;
 	public final List<Object> subjects;
 	private final String indent;
-	private final BasicColor promptColor;
+	private final Sgr promptSgr;
 	private final int delayMs;
 	private final Locker locker = Locker.of();
 	private CycleRunner cycleRunner = null;
@@ -281,7 +281,8 @@ public class ManualTester implements RuntimeCloseable {
 		InputStream in = System.in;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
-		BasicColor promptColor = BasicColor.green;
+		Sgr promptSgr = AnsiEscape.csi.sgr().fgColor(BasicColor.green, false);
+		Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
 		int delayMs = BasicUtil.conditionalInt(TestUtil.isTest, 0, 100);
 
 		@SuppressWarnings("resource")
@@ -332,14 +333,26 @@ public class ManualTester implements RuntimeCloseable {
 			return this;
 		}
 
-		public Builder promptColor(BasicColor color) {
-			this.promptColor = color;
+		public Builder promptSgr(Sgr sgr) {
+			this.promptSgr = sgr;
+			return this;
+		}
+
+		public Builder separatorSgr(Sgr sgr) {
+			this.separatorSgr = sgr;
 			return this;
 		}
 
 		public Builder delayMs(int delayMs) {
 			this.delayMs = delayMs;
 			return this;
+		}
+
+		/**
+		 * Listen for events and output during pre-processor stage. Uses current string function.
+		 */
+		public Builder listenTo(Object... subjects) {
+			return listen(Arrays.asList(subjects));
 		}
 
 		/**
@@ -398,7 +411,7 @@ public class ManualTester implements RuntimeCloseable {
 		}
 
 		public <T> Builder separator(Class<T> cls, String separator) {
-			command(cls, c -> false, separator);
+			command(cls, c -> false, start(separatorSgr) + separator + stop(separatorSgr));
 			return this;
 		}
 
@@ -435,7 +448,7 @@ public class ManualTester implements RuntimeCloseable {
 		out = builder.out;
 		err = builder.err;
 		indent = builder.indent;
-		promptColor = builder.promptColor;
+		promptSgr = builder.promptSgr;
 		delayMs = builder.delayMs;
 		stringFn = builder.stringFn;
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
@@ -453,10 +466,10 @@ public class ManualTester implements RuntimeCloseable {
 		while (!exit) {
 			ConcurrentUtil.delay(delayMs); // try to avoid err/out print conflict
 			preProcess();
-			print(promptColor() + prompt());
+			print(start(promptSgr) + prompt());
 			execute(() -> {
 				String input = readInput();
-				print(promptNoColor());
+				print(stop(promptSgr));
 				executeInput(input);
 			}, true);
 		}
@@ -606,15 +619,6 @@ public class ManualTester implements RuntimeCloseable {
 		return string(subject(), index()) + "> ";
 	}
 
-	private String promptColor() {
-		return promptColor == null ? "" :
-			AnsiEscape.csi.sgr().fgColor(promptColor, false).toString();
-	}
-
-	private String promptNoColor() {
-		return promptColor == null ? "" : Sgr.reset;
-	}
-
 	private String readInput() {
 		try {
 			return in.readLine();
@@ -726,5 +730,13 @@ public class ManualTester implements RuntimeCloseable {
 	private static Class<?> cls(Object subject) {
 		if (subject == null) return Object.class;
 		return subject.getClass();
+	}
+
+	private static String start(Sgr sgr) {
+		return sgr == null ? "" : sgr.toString();
+	}
+
+	private static String stop(Sgr sgr) {
+		return sgr == null ? "" : Sgr.reset;
 	}
 }

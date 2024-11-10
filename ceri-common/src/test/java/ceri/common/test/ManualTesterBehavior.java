@@ -25,6 +25,7 @@ import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
 import ceri.common.test.ManualTester.Action;
 import ceri.common.test.ManualTester.Parse;
+import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.util.Counter;
 
@@ -98,7 +99,7 @@ public class ManualTesterBehavior {
 		try (var stdIo = SystemIo.of()) {
 			stdIo.in(inputStream("?;*;-;+;@0;:;~0;!\n"));
 			stdIo.out(IoUtil.nullPrintStream());
-			ManualTester.builderArray("test", 1).promptColor(null).build().run();
+			ManualTester.builderArray("test", 1).promptSgr(null).build().run();
 		}
 	}
 
@@ -109,15 +110,16 @@ public class ManualTesterBehavior {
 			sys.in(inputStream("!\n"));
 			sys.out(IoUtil.nullPrintStream());
 			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).delayMs(0)
-				.err(System.err).indent("  ").promptColor(BasicColor.cyan)
+				.err(System.err).indent("  ")
+				.promptSgr(AnsiEscape.csi.sgr().fgColor(BasicColor.cyan, false))
 				.preProcessor(String.class, (m, s) -> m.out(s)).preProcessor(m -> m.out("test"))
-				.build().run();
+				.listenTo().build().run();
 		}
 	}
 
 	@Test
 	public void shouldProvideCommandSeparators() {
-		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test")
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test").separatorSgr(null)
 			.separator("--test--").command(".*", (t, r, s) -> {}, "end-test").build()) {
 			sys.in.print("x\n!\n");
 			m.run();

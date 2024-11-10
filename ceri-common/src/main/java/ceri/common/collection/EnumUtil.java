@@ -1,7 +1,9 @@
 package ceri.common.collection;
 
 import static ceri.common.exception.ExceptionUtil.illegalArg;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -48,7 +50,7 @@ public class EnumUtil {
 		Objects.requireNonNull(en);
 		return BasicUtil.<Class<T>>uncheckedCast(en.getClass());
 	}
-	
+
 	/**
 	 * Convenience method that calls Enum.valueOf and returns null if no match.
 	 */
@@ -69,8 +71,8 @@ public class EnumUtil {
 	}
 
 	/**
-	 * Convenience method that calls Enum.valueOf and returns default value if no match.
-	 * Enum class is determined by the default value, which cannot be null. 
+	 * Convenience method that calls Enum.valueOf and returns default value if no match. Enum class
+	 * is determined by the default value, which cannot be null.
 	 */
 	public static <T extends Enum<T>> T valueOf(String value, T def) {
 		Objects.requireNonNull(def);
@@ -80,54 +82,57 @@ public class EnumUtil {
 	/**
 	 * Finds the first enum matching the filter; returns null if no match.
 	 */
-	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter) {
+	public static <T> T find(Class<T> cls, Predicate<T> filter) {
 		return find(cls, filter, null);
 	}
 
 	/**
 	 * Finds the first enum matching the filter.
 	 */
-	public static <T extends Enum<T>> T find(Class<T> cls, Predicate<T> filter, T def) {
+	public static <T> T find(Class<T> cls, Predicate<T> filter, T def) {
 		return enums(cls).stream().filter(filter).findFirst().orElse(def);
 	}
 
 	/**
 	 * Returns enum constants as an immutable list, using a lookup cache.
 	 */
-	public static <T extends Enum<T>> List<T> enums(Class<T> cls) {
-		return BasicUtil.uncheckedCast(
-			cache.computeIfAbsent(cls, c -> ImmutableUtil.wrapAsList(c.getEnumConstants())));
+	public static <T> List<T> enums(Class<T> cls) {
+		var list = cache.computeIfAbsent(cls, c -> {
+			var enums = c.getEnumConstants();
+			return enums == null ? null : ImmutableUtil.wrapAsList(c.getEnumConstants());
+		});
+		return list == null ? List.of() : BasicUtil.uncheckedCast(list);
 	}
 
 	/**
 	 * Convenience method that returns all enum constants as a list in reverse order.
 	 */
-	public static <T extends Enum<T>> List<T> enumsReversed(Class<T> cls) {
-		return ImmutableUtil.wrapAsList(ArrayUtil.reverse(cls.getEnumConstants()));
+	public static <T> List<T> enumsReversed(Class<T> cls) {
+		var enums = enums(cls);
+		if (enums.isEmpty()) return enums;
+		return Collections.unmodifiableList(CollectionUtil.reverse(new ArrayList<>(enums(cls))));
 	}
 
 	/**
 	 * Look up enum from ordinal value. Returns null if out of ordinal range.
 	 */
-	public static <T extends Enum<T>> T fromOrdinal(Class<T> cls, int ordinal) {
-		T[] enums = cls.getEnumConstants();
-		if (ordinal < 0 || ordinal >= enums.length) return null;
-		return enums[ordinal];
+	public static <T> T fromOrdinal(Class<T> cls, int ordinal) {
+		return CollectionUtil.getOrDefault(enums(cls), ordinal, null);
 	}
 
 	/**
 	 * Look up enum from ordinal value. Throws exception if out of ordinal range.
 	 */
-	public static <T extends Enum<T>> T fromOrdinalValid(Class<T> cls, int ordinal) {
-		T[] enums = cls.getEnumConstants();
-		ValidationUtil.validateIndex(enums.length, ordinal);
-		return enums[ordinal];
+	public static <T> T fromOrdinalValid(Class<T> cls, int ordinal) {
+		var enums = enums(cls);
+		ValidationUtil.validateIndex(enums.size(), ordinal);
+		return enums.get(ordinal);
 	}
 
 	/**
 	 * Return a random enum value.
 	 */
-	public static <T extends Enum<T>> T random(Class<T> cls) {
+	public static <T> T random(Class<T> cls) {
 		var enums = enums(cls);
 		return enums.get(ThreadLocalRandom.current().nextInt(enums.size()));
 	}

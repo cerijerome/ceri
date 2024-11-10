@@ -43,6 +43,7 @@ public class EnumUtilTest {
 
 	@Test
 	public void testEnums() {
+		assertIterable(EnumUtil.enums(String.class)); // no enums
 		assertIterable(EnumUtil.enums(Align.H.class), Align.H.left, Align.H.center, Align.H.right);
 		assertIterable(EnumUtil.enums(Align.V.class), Align.V.top, Align.V.middle, Align.V.bottom);
 		exerciseEnum(Align.H.class);
@@ -51,6 +52,7 @@ public class EnumUtilTest {
 
 	@Test
 	public void testEnumsReversed() {
+		assertIterable(EnumUtil.enumsReversed(String.class)); // no enums
 		assertIterable(EnumUtil.enumsReversed(Align.H.class), Align.H.right, Align.H.center,
 			Align.H.left);
 	}

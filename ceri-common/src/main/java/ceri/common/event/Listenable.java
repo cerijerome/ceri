@@ -55,6 +55,20 @@ public interface Listenable<T> {
 	}
 
 	/**
+	 * Provides a no-op listenable type if null.
+	 */
+	static <T> Indirect<T> safe(Indirect<T> indirect) {
+		return BasicUtil.defaultValue(indirect, Listenable::ofNull);
+	}
+
+	/**
+	 * Provides a no-op listenable type if null.
+	 */
+	static <T> Listenable<T> safe(Listenable<T> listenable) {
+		return BasicUtil.defaultValue(listenable, Listenable::ofNull);
+	}
+
+	/**
 	 * Returns a typed, stateless, no-op listenable.
 	 */
 	static <T> Null<T> ofNull() {
@@ -62,7 +76,7 @@ public interface Listenable<T> {
 	}
 
 	/**
-	 * No-op, stateless implementation. 
+	 * No-op, stateless implementation.
 	 */
 	static class Null<T> implements Listenable<T>, Listenable.Indirect<T> {
 		private static final Null<?> INSTANCE = new Null<>();

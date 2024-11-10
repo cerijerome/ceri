@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import ceri.common.collection.CollectionUtil;
 
 /**
  * Utility methods for dates and times.
