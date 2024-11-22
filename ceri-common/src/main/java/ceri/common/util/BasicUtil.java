@@ -75,16 +75,17 @@ public class BasicUtil {
 	}
 
 	/**
-	 * Returns a value based on condition, which may be null.
-	 */
-	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
-		return condition == null ? nullValue : conditional(condition, trueValue, falseValue);
-	}
-
-	/**
 	 * Returns a value based on condition.
 	 */
 	public static <T> T conditional(boolean condition, T trueValue, T falseValue) {
+		return condition ? trueValue : falseValue;
+	}
+
+	/**
+	 * Returns a value based on condition, which may be null.
+	 */
+	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
+		if (condition == null) return nullValue;
 		return condition ? trueValue : falseValue;
 	}
 
@@ -96,9 +97,27 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Returns a value based on condition, which may be null.
+	 */
+	public static int conditionalInt(Boolean condition, int trueValue, int falseValue,
+		int nullValue) {
+		if (condition == null) return nullValue;
+		return condition ? trueValue : falseValue;
+	}
+
+	/**
 	 * Returns a value based on condition.
 	 */
 	public static long conditionalLong(boolean condition, long trueValue, long falseValue) {
+		return condition ? trueValue : falseValue;
+	}
+
+	/**
+	 * Returns a value based on condition, which may be null.
+	 */
+	public static long conditionalLong(Boolean condition, long trueValue, long falseValue,
+		long nullValue) {
+		if (condition == null) return nullValue;
 		return condition ? trueValue : falseValue;
 	}
 

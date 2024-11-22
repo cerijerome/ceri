@@ -27,6 +27,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
@@ -867,6 +868,20 @@ public class AssertUtil {
 			return;
 		}
 		throw failure("Nothing thrown, expected: %s", superCls.getName());
+	}
+
+	/**
+	 * Assert an InterruptedException is thrown.
+	 */
+	public static void assertInterrupted(ExceptionRunnable<Exception> runnable) {
+		assertThrown(InterruptedException.class, runnable);
+	}
+
+	/**
+	 * Assert a RuntimeInterruptedException is thrown.
+	 */
+	public static void assertRtInterrupted(ExceptionRunnable<Exception> runnable) {
+		assertThrown(RuntimeInterruptedException.class, runnable);
 	}
 
 	/**

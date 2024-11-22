@@ -25,6 +25,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertInstance;
+import static ceri.common.test.AssertUtil.assertInterrupted;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
@@ -48,6 +49,8 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertValue;
 import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.AssertUtil.throwRuntime;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -281,6 +284,13 @@ public class AssertUtilTest {
 	public void testAssertNan() {
 		assertNaN(Double.NaN);
 		assertAssertion(() -> assertNaN(Double.MAX_VALUE));
+	}
+
+	@Test
+	public void testAssertInterrupted() {
+		assertInterrupted(() -> throwIt(new InterruptedException()));
+		assertAssertion(() -> assertInterrupted(() -> {}));
+		assertAssertion(() -> assertInterrupted(() -> throwRuntime()));
 	}
 
 	@Test
@@ -523,11 +533,9 @@ public class AssertUtilTest {
 	@Test
 	public void testAssertConsumeFailure() {
 		assertAssertion(() -> assertConsume(List.of(0), t -> assertEquals(t, 1)));
-		assertAssertion(() ->
-			assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
+		assertAssertion(() -> assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
 			t -> {}, t -> {}));
-		assertAssertion(() -> 
-			assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
+		assertAssertion(() -> assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
 			t -> {}, t -> {}, t -> {}, t -> {}));
 	}
 

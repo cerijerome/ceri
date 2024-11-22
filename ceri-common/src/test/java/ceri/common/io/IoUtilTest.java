@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,6 +41,7 @@ import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -110,7 +112,12 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testClear() throws IOException {
+	public void testClearReader() throws IOException {
+		assertEquals(IoUtil.clear(new StringReader(StringUtil.repeat('x', 0x41))), 0x41L);
+	}
+
+	@Test
+	public void testClearInputStream() throws IOException {
 		assertClearBuffer(new byte[0]);
 		assertClearBuffer(new byte[100]);
 		assertClearBuffer(new byte[32 * 1024]);

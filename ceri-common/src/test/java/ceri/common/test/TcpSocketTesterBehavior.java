@@ -2,9 +2,24 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import ceri.common.function.RuntimeCloseable;
+import ceri.common.util.CloseableUtil;
 
 public class TcpSocketTesterBehavior {
+	private RuntimeCloseable fastMode;
+	
+	@Before
+	public void before() {
+		fastMode = ManualTester.fastMode();
+	}
+	
+	@After
+	public void after() {
+		CloseableUtil.close(fastMode);
+	}
 
 	@Test
 	public void shouldTestEcho() throws IOException {

@@ -1,9 +1,7 @@
 package ceri.common.test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -17,11 +15,14 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Lazy;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
@@ -33,6 +34,7 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
+import ceri.common.io.LineReader;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.AnsiEscape;
@@ -40,6 +42,7 @@ import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.CloseableUtil;
 
@@ -49,20 +52,26 @@ import ceri.common.util.CloseableUtil;
  * subject index changes.
  */
 public class ManualTester implements RuntimeCloseable {
+	private static final Lazy.Value<RuntimeException, Boolean> fastMode = Lazy.Value.of(false);
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
 	private final Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
 	private final List<Command<?>> commands;
 	private final StringBuilder binText = new StringBuilder();
 	private final BinaryPrinter bin;
-	public final BufferedReader in;
-	public final PrintStream out;
-	public final PrintStream err;
-	public final List<Object> subjects;
+	private final LineReader in;
+	private final PrintStream out;
+	private final PrintStream err;
+	private final List<Object> subjects;
+	private final Predicate<String> historical;
+	private final int historySize;
+	private final int historyBlock;
 	private final String indent;
 	private final Sgr promptSgr;
 	private final int delayMs;
+	private final int errorDelayMs;
 	private final Locker locker = Locker.of();
+	private final List<String> history = new ArrayList<>();
 	private CycleRunner cycleRunner = null;
 	private int index = 0;
 	private boolean exit = false;
@@ -153,6 +162,20 @@ public class ManualTester implements RuntimeCloseable {
 			String s = m.group(group);
 			if (s.isEmpty()) return null;
 			return Double.parseDouble(s);
+		}
+
+		/**
+		 * Returns group length; 0 if null.
+		 */
+		public static int len(Matcher m) {
+			return len(m, 1);
+		}
+
+		/**
+		 * Returns group length; 0 if null.
+		 */
+		public static int len(Matcher m, int group) {
+			return StringUtil.len(m.group(group));
 		}
 
 		/**
@@ -277,13 +300,17 @@ public class ManualTester implements RuntimeCloseable {
 		Function<Object, String> stringFn = String::valueOf;
 		final List<SubjectConsumer<Object>> preProcessors = new ArrayList<>();
 		final List<Command<?>> commands = new ArrayList<>();
+		int historySize = 100;
+		int historyBlock = 5;
+		Predicate<String> historical = RegexUtil.nonMatcher("[ ?!:<+\\-@].*");
 		String indent = "    ";
-		InputStream in = System.in;
+		LineReader in = null;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
 		Sgr promptSgr = AnsiEscape.csi.sgr().fgColor(BasicColor.green, false);
 		Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
-		int delayMs = BasicUtil.conditionalInt(TestUtil.isTest, 0, 100);
+		int delayMs = BasicUtil.conditionalInt(fast(), 0, 100);
+		int errorDelayMs = BasicUtil.conditionalInt(fast(), 0, 1000);
 
 		@SuppressWarnings("resource")
 		protected Builder(List<?> subjects) {
@@ -292,6 +319,8 @@ public class ManualTester implements RuntimeCloseable {
 			command("\\?", (t, m, s) -> t.showHelp(), "? = show commands");
 			command("\\!", (t, m, s) -> t.exit = true, "! = exit");
 			command(":", (t, m, s) -> t.out(ReflectUtil.nameHash(s)), ": = subject type");
+			command("(?:(<+)|<(\\d+))", (t, m, s) -> t.history(Parse.len(m), Parse.i(m, 2)),
+				"<N = execute Nth previous command");
 			command("~(\\d+)", (t, m, s) -> ConcurrentUtil.delay(Parse.i(m)),
 				"~N = sleep for N ms");
 			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
@@ -309,6 +338,10 @@ public class ManualTester implements RuntimeCloseable {
 		}
 
 		public Builder in(InputStream in) {
+			return in(LineReader.of(in));
+		}
+
+		public Builder in(LineReader in) {
 			this.in = in;
 			return this;
 		}
@@ -320,6 +353,17 @@ public class ManualTester implements RuntimeCloseable {
 
 		public Builder err(PrintStream err) {
 			this.err = err;
+			return this;
+		}
+
+		public Builder history(int size, int block) {
+			this.historySize = size;
+			this.historyBlock = block;
+			return this;
+		}
+
+		public Builder historical(Predicate<String> historical) {
+			this.historical = historical;
 			return this;
 		}
 
@@ -345,6 +389,11 @@ public class ManualTester implements RuntimeCloseable {
 
 		public Builder delayMs(int delayMs) {
 			this.delayMs = delayMs;
+			return this;
+		}
+
+		public Builder errorDelayMs(int errorDelayMs) {
+			this.errorDelayMs = errorDelayMs;
 			return this;
 		}
 
@@ -443,13 +492,24 @@ public class ManualTester implements RuntimeCloseable {
 		});
 	}
 
+	/**
+	 * Reduce timings to zero when building. Close to return to default timing.
+	 */
+	public static RuntimeCloseable fastMode() {
+		return fastMode.override(true);
+	}
+
 	protected ManualTester(Builder builder) {
-		in = new BufferedReader(new InputStreamReader(builder.in));
+		in = BasicUtil.defaultValue(builder.in, () -> LineReader.of(System.in));
 		out = builder.out;
 		err = builder.err;
+		historical = builder.historical;
+		historySize = builder.historySize;
+		historyBlock = builder.historyBlock;
 		indent = builder.indent;
 		promptSgr = builder.promptSgr;
 		delayMs = builder.delayMs;
+		errorDelayMs = builder.errorDelayMs;
 		stringFn = builder.stringFn;
 		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
 		commands = ImmutableUtil.copyAsList(builder.commands);
@@ -570,6 +630,21 @@ public class ManualTester implements RuntimeCloseable {
 	}
 
 	/**
+	 * Runs the action; only logs the runtime error message, not the stack trace.
+	 */
+	public static <T> Action.Match<T> rt(Action.Match<T> match) {
+		return (t, m, s) -> {
+			try {
+				match.execute(t, m, s);
+			} catch (RuntimeInterruptedException e) {
+				throw e;
+			} catch (RuntimeException e) {
+				t.err(e.getMessage());
+			}
+		};
+	}
+
+	/**
 	 * Read and print available bytes from the stream.
 	 */
 	public void readBytes(InputStream in) throws IOException {
@@ -600,6 +675,11 @@ public class ManualTester implements RuntimeCloseable {
 	@Override
 	public void close() {
 		CloseableUtil.close(cycleRunner);
+	}
+
+	@Override
+	public String toString() {
+		return ToString.forClass(this, subjects.size(), commands.size());
 	}
 
 	private void showHelp() {
@@ -641,15 +721,16 @@ public class ManualTester implements RuntimeCloseable {
 			throw new RuntimeInterruptedException(e);
 		} catch (Exception e) {
 			err(e, stackTrace);
+			ConcurrentUtil.delay(errorDelayMs); // slow down errors
 		}
 	}
 
 	private void executeInput(String line) throws Exception {
-		var inputs = Stream.<String>of(COMMAND_SPLIT_REGEX.split(line))
+		var inputs = Stream.<String>of(COMMAND_SPLIT_REGEX.split(StringUtil.trim(line)))
 			.map(s -> StringUtil.unEscape(s)).toList();
-		for (int i = 0; i < inputs.size(); i++) {
+		for (int i = 0; i < inputs.size(); i++)
 			executeInput(inputs, i);
-		}
+		addToHistory(line);
 	}
 
 	private void executeInput(List<String> inputs, int i) throws Exception {
@@ -663,7 +744,7 @@ public class ManualTester implements RuntimeCloseable {
 	}
 
 	private void repeat(Action.Context<?> context, int n) throws Exception {
-		for (; n > 0; n--) {
+		for (; n > 1; n--) { // n-1 repeats followed by normal exec = n times
 			for (int i = context.index() + 1; i < context.inputs().size(); i++) {
 				if (in.ready()) return; // stop if any input available
 				executeInput(context.inputs(), i);
@@ -677,6 +758,26 @@ public class ManualTester implements RuntimeCloseable {
 		if (m == null) return false;
 		consumer.accept(m);
 		return true;
+	}
+
+	private void addToHistory(String input) {
+		if (StringUtil.empty(input) || !historical.test(input)) return;
+		while (history.size() >= historySize)
+			history.remove(0);
+		history.add(input);
+	}
+
+	private void history(int n, Integer index) throws Exception {
+		if (index == null) {
+			int count = Math.min(history.size(), n * historyBlock);
+			for (int i = count; i > 0; i--)
+				outf("%d) %s", i, history.get(history.size() - i));
+		} else {
+			var command = CollectionUtil.getOrDefault(history, history.size() - index, "");
+			if (StringUtil.empty(command)) return;
+			outf("%d) %s", index, command);
+			executeInput(command);
+		}
 	}
 
 	private void listSubjects() {
@@ -725,6 +826,10 @@ public class ManualTester implements RuntimeCloseable {
 	private BinaryPrinter binaryPrinter() {
 		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))
 			.build();
+	}
+
+	private static boolean fast() {
+		return fastMode.get() == Boolean.TRUE;
 	}
 
 	private static Class<?> cls(Object subject) {

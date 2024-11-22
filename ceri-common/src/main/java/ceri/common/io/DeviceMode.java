@@ -18,11 +18,19 @@ public enum DeviceMode {
 		TypeTranscoder.of(t -> t.value, DeviceMode.class);
 	public final int value;
 
+	public static boolean enabled(DeviceMode mode) {
+		return mode != null && mode.enabled();
+	}
+
 	public static DeviceMode from(Boolean isEnabled) {
 		return BasicUtil.conditional(isEnabled, enabled, disabled, test);
 	}
 
 	private DeviceMode(int value) {
 		this.value = value;
+	}
+
+	public boolean enabled() {
+		return this == enabled;
 	}
 }

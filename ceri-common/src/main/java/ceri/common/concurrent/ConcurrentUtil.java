@@ -386,6 +386,13 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Returns true if the current thread is interrupted, without clearing status.
+	 */
+	public static boolean interrupted() {
+		return Thread.currentThread().isInterrupted();
+	}
+
+	/**
 	 * Returns true if the exception is from an interrupt.
 	 */
 	public static boolean interrupted(Exception e) {

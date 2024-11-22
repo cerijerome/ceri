@@ -2,9 +2,11 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNotFound;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertRtInterrupted;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -13,13 +15,19 @@ import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
+import static ceri.common.test.ManualTester.rt;
+import static ceri.common.test.ManualTester.Parse.i;
 import static ceri.common.test.TestUtil.inputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
@@ -27,9 +35,21 @@ import ceri.common.test.ManualTester.Action;
 import ceri.common.test.ManualTester.Parse;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
+import ceri.common.util.CloseableUtil;
 import ceri.common.util.Counter;
 
 public class ManualTesterBehavior {
+	private RuntimeCloseable fastMode;
+
+	@Before
+	public void before() {
+		fastMode = ManualTester.fastMode();
+	}
+
+	@After
+	public void after() {
+		CloseableUtil.close(fastMode);
+	}
 
 	@Test
 	public void shouldParseMatcherBoolean() {
@@ -73,6 +93,13 @@ public class ManualTesterBehavior {
 	}
 
 	@Test
+	public void shouldParseMatcherLen() {
+		assertEquals(ManualTester.Parse.len(matcher("x(.*)", "x")), 0);
+		assertEquals(ManualTester.Parse.len(matcher("x(.*)", "x123")), 3);
+		assertEquals(ManualTester.Parse.len(matcher("x(.)(.*)", "x123"), 2), 2);
+	}
+
+	@Test
 	public void shouldConsumeMatches() {
 		ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "b"), (x, i) -> {
 			assertEquals(x, "b");
@@ -106,14 +133,24 @@ public class ManualTesterBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldBuildAnInstance() {
+		fastMode.close();
 		try (var sys = SystemIo.of()) {
 			sys.in(inputStream("!\n"));
 			sys.out(IoUtil.nullPrintStream());
-			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out).delayMs(0)
+			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out)
 				.err(System.err).indent("  ")
 				.promptSgr(AnsiEscape.csi.sgr().fgColor(BasicColor.cyan, false))
 				.preProcessor(String.class, (m, s) -> m.out(s)).preProcessor(m -> m.out("test"))
-				.listenTo().build().run();
+				.listenTo().delayMs(0).errorDelayMs(0).build().run();
+		}
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() {
+		try (var sys = SystemIoCaptor.of();
+			var m = ManualTester.builderArray("test", "x").command("a", (t, r, s) -> {}, "a")
+				.command("b", (t, r, s) -> {}, "b").command("c", (t, r, s) -> {}, "c").build()) {
+			assertFind(m, "2,12");
 		}
 	}
 
@@ -217,12 +254,33 @@ public class ManualTesterBehavior {
 	}
 
 	@Test
+	public void shouldProvideRuntimeExecutionWarning() {
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
+			.command(Object.class, "x(\\d+)", rt(checkInt()), null).build()) {
+			sys.in.print("x9\nx0\nx1\n");
+			assertRtInterrupted(m::run);
+			assertMatch(sys.err, "\\s*0\\s*");
+		}
+	}
+
+	@Test
+	public void shouldApplyHistory() {
+		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
+			.history(2, 1).historical(s -> s.length() > 1).build()) {
+			sys.in.print("++\n--\n<\n<1\n<5\n!\n");
+			m.run();
+			assertFind(sys.out, "(?s)test>.*?1\\.0>.*?test>.*?test>.*?1>");
+			assertString(sys.err, "");
+		}
+	}
+
+	@Test
 	public void shouldRepeatCommands() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
 			.command("x", exitAfterCount(3, sys.in), "x help").build()) {
 			sys.in.print("^3;:;+;x\n");
 			m.run();
-			assertFind(sys.out, "(?s)String.*Integer.*Double");
+			assertFind(sys.out, "(?s)String.*?Integer.*?Double");
 			assertString(sys.err, "");
 		}
 	}
@@ -299,6 +357,17 @@ public class ManualTesterBehavior {
 		var m = Pattern.compile(pattern).matcher(input);
 		assertTrue(m.matches(), "Pattern \"%s\" does not match \"%s\"", pattern, input);
 		return m;
+	}
+
+	private static Action.Match<Object> checkInt() {
+		return (t, m, s) -> {
+			switch (i(m)) {
+				case 0 -> throw new RuntimeException("0");
+				case 1 -> throw new RuntimeInterruptedException("1");
+				case 2 -> throw new InterruptedException("2");
+				default -> {}
+			}
+		};
 	}
 
 	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {

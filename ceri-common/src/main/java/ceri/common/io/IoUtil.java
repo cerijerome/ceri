@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
@@ -50,6 +51,7 @@ public class IoUtil {
 	private static final String USER_DIR_PROPERTY = "user.dir";
 	private static final String CLASS_SUFFIX = ".class";
 	private static final int READ_POLL_MS = 20;
+	private static final int SKIP_BUFFER_SIZE = 64;
 	private static final int BUFFER_SIZE_DEF = 1024;
 	private static final int MIN_ABSOLUTE_DIRS = 3;
 	private static final Pattern PATH_SEPARATOR_REGEX =
@@ -84,6 +86,20 @@ public class IoUtil {
 	 */
 	public static long clear(InputStream in) throws IOException {
 		return in.skip(in.available());
+	}
+
+	/**
+	 * Clears available chars from a reader and returns the total number of chars cleared.
+	 */
+	public static long clear(Reader in) throws IOException {
+		var buffer = new char[SKIP_BUFFER_SIZE];
+		long total = 0;
+		while (in.ready()) {
+			int n = in.read(buffer);
+			if (n < 0) break;
+			total += n;
+		}
+		return total;
 	}
 
 	/**

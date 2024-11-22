@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.function.ExceptionCloseable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
@@ -16,12 +17,12 @@ import ceri.common.test.Captor;
 public class EnclosedBehavior {
 
 	@Test
-	public void shouldWrapCloseMethod() {
+	public void shouldWrapCloseable() throws IOException {
 		var sync = CallSync.runnable(true);
-		try (var x = Enclosed.of(sync::run)) {
-			sync.assertCalls(0);
+		try (ExceptionCloseable<IOException> ec = () -> sync.run()) {
+			try (Enclosed<IOException, ?> c = Enclosed.of(ec)) {}
+			sync.assertCalls(1);
 		}
-		sync.awaitAuto();
 	}
 
 	@Test
@@ -41,7 +42,7 @@ public class EnclosedBehavior {
 		}
 		sync.assertCalls(1);
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldCloseOnAdaptFailure() {
@@ -50,7 +51,7 @@ public class EnclosedBehavior {
 		assertThrown(() -> Enclosed.adaptOrClose(rc, t -> throwRuntime()));
 		sync.assertCalls(1);
 	}
-	
+
 	@Test
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };
@@ -104,8 +105,7 @@ public class EnclosedBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(Enclosed.of(() -> {}), "[null]");
 		assertString(Enclosed.of("test", t -> {}), "[test]");
 	}
-	
+
 }

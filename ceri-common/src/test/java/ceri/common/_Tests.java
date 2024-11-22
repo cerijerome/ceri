@@ -182,6 +182,7 @@ import ceri.common.test.TestUtil;
 	// io
 	ceri.common.io.BufferedOutputStreamBehavior.class, //
 	ceri.common.io.ConnectorBehavior.class, //
+	ceri.common.io.ConsoleInputBehavior.class, //
 	ceri.common.io.DeviceModeBehavior.class, //
 	ceri.common.io.DirectionBehavior.class, //
 	ceri.common.io.EdgeBehavior.class, //
@@ -193,6 +194,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.LevelBehavior.class, //
+	ceri.common.io.LineReaderBehavior.class, //
 	ceri.common.io.NioUtilTest.class, //
 	ceri.common.io.NotSetExceptionBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //

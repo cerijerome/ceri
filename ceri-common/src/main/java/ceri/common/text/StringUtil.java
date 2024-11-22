@@ -37,18 +37,19 @@ public class StringUtil {
 	private static final String INTEGRAL_FLOAT = ".0";
 	private static final char UNPRINTABLE_CHAR = '.';
 	public static final char BACKSLASH = '\\';
-	public static final char BACKSPACE = '\b';
-	public static final char ESC = '\u001b';
+	public static final char NULL = '\0';
+	public static final char BS = '\b';
 	public static final char TAB = '\t';
+	public static final char NL = '\n';
 	public static final char FF = '\f';
 	public static final char CR = '\r';
-	public static final char NL = '\n';
-	public static final char NULL = '\0';
+	public static final char ESC = '\u001b';
+	public static final char DEL = '\u007f';
 	public static final String NULL_STRING = "null";
 	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
-	private static final String ESCAPED_BACKSPACE = "\\b";
-	private static final String ESCAPED_ESCAPE = "\\e";
+	private static final String ESCAPED_BS = "\\b";
+	private static final String ESCAPED_ESC = "\\e";
 	private static final String ESCAPED_TAB = "\\t";
 	private static final String ESCAPED_FF = "\\f";
 	private static final String ESCAPED_CR = "\\r";
@@ -191,8 +192,8 @@ public class StringUtil {
 	static String escapeChar(char c) {
 		return switch (c) {
 			case BACKSLASH -> ESCAPED_BACKSLASH;
-			case BACKSPACE -> ESCAPED_BACKSPACE;
-			case ESC -> ESCAPED_ESCAPE;
+			case BS -> ESCAPED_BS;
+			case ESC -> ESCAPED_ESC;
 			case FF -> ESCAPED_FF;
 			case NL -> ESCAPED_NL;
 			case CR -> ESCAPED_CR;
@@ -216,8 +217,8 @@ public class StringUtil {
 		if (escapedChar == null) return NULL;
 		return switch (escapedChar) {
 			case ESCAPED_BACKSLASH -> BACKSLASH;
-			case ESCAPED_BACKSPACE -> BACKSPACE;
-			case ESCAPED_ESCAPE -> ESC;
+			case ESCAPED_BS -> BS;
+			case ESCAPED_ESC -> ESC;
 			case ESCAPED_FF -> FF;
 			case ESCAPED_NL -> NL;
 			case ESCAPED_CR -> CR;
@@ -554,8 +555,7 @@ public class StringUtil {
 	 */
 	public static boolean isPrintable(char c) {
 		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
-		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
-		return block != Character.UnicodeBlock.SPECIALS;
+		return Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS;
 	}
 
 	/**
@@ -939,6 +939,13 @@ public class StringUtil {
 		String s = b.toString();
 		clear(b);
 		return s;
+	}
+
+	/**
+	 * Returns the length, or 0 if null.
+	 */
+	public static int len(CharSequence str) {
+		return str == null ? 0 : str.length();
 	}
 
 	/**

@@ -52,21 +52,22 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
+	 * Create an instance of a closeable subject.
+	 */
+	public static <E extends Exception, T extends ExceptionCloseable<E>> Enclosed<E, T>
+		of(T subject) {
+		return from(subject, subject);
+	}
+
+	/**
 	 * Create an instance with a subject, and a close method. If the subject is null, the close
 	 * method is not executed.
 	 */
 	public static <E extends Exception, T> Enclosed<E, T> of(T subject,
-		ExceptionConsumer<E, T> closer) {
+		ExceptionConsumer<E, ? super T> closer) {
 		if (subject == null) return BasicUtil.uncheckedCast(EMPTY);
 		if (closer == null) return new Enclosed<>(subject, null);
 		return new Enclosed<>(subject, () -> closer.accept(subject));
-	}
-
-	/**
-	 * Create an instance with no subject, just a close method.
-	 */
-	public static <E extends Exception, T> Enclosed<E, T> of(ExceptionRunnable<E> closer) {
-		return new Enclosed<>((T) null, closer);
 	}
 
 	/**

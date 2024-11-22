@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#------------------------------------------------------------------------------
+# Runs the jar on the Raspberry Pi host
+#------------------------------------------------------------------------------
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+showHelp() {
+    echo "Usage: $(basename "${BASH_SOURCE[0]}") [options] host main-class [params]"
+    echo "Options:"
+    echo "  -h, --help, -?            Show this message"
+    echo "  -v, --verbose             Verbose messaging"
+    echo "  -l, --local               Run locally"
+}
+
+while true; do
+    case "$1" in
+        -h | --help | -\? ) HELP=1; break;;
+        -v | --verbose ) VERBOSE=1; shift;;
+        -l | --local ) LOCAL=1; shift;;
+        -- ) shift; break;;
+        -* ) UNKNOWN="$1"; break;;
+        * ) break ;;
+    esac
+done
+
+PRJDIR=$DIR/../..
+PRJNAME="$(basename "$(cd "$PRJDIR" && pwd)")"
+GITDIR=$PRJDIR/../..
+TARGETDIR="$DIR/../../target"
+CPATH="classes:test-classes:dependency/*"
+JAR="${PRJNAME}-1.0.0-SNAPSHOT.jar"
+[[ "$LOCAL" ]] || { HOST="$1"; }
+[[ "$HOST" ]] && { shift; }
+MAIN="$1"
+
+[[ "$HELP" ]] && { showHelp; exit 0; }
+[[ "$UNKNOWN" ]] && { >&2 echo "Unknown option: $UNKNOWN"; showHelp; exit 1; }
+[[ "$LOCAL" ]] || [[ "$HOST" ]] || { >&2 echo "Please specify a client host"; showHelp; exit 1; }
+[[ "$MAIN" ]] || { >&2 echo "Please specify a main class to run"; showHelp; exit 1; }
+
+shift
+
+if [[ "$LOCAL" ]]; then
+    echo "local: $MAIN $@"
+    cd "$TARGETDIR"
+    java -cp "$CPATH" "$MAIN" "$@"
+else
+    echo "$HOST: $MAIN $@"
+	ssh pi@$HOST "./java/jdk/bin/java -cp ./$JAR:lib/* $MAIN $@"
+fi
+
+

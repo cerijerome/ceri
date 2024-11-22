@@ -38,7 +38,7 @@ public class BasicUtilTest {
 		assertEquals(BasicUtil.conditionalGet(false, () -> "T", () -> "F", () -> null), "F");
 		assertEquals(BasicUtil.conditionalGet(null, () -> "T", () -> "F", null), null);
 	}
-	
+
 	@Test
 	public void testConditional() {
 		assertEquals(BasicUtil.conditional(true, "a", "b"), "a");
@@ -47,6 +47,19 @@ public class BasicUtilTest {
 		assertEquals(BasicUtil.conditionalInt(false, 1, -1), -1);
 		assertEquals(BasicUtil.conditionalLong(true, 1, -1), 1L);
 		assertEquals(BasicUtil.conditionalLong(false, 1, -1), -1L);
+	}
+
+	@Test
+	public void testConditionalObj() {
+		assertEquals(BasicUtil.conditional(null, "a", "b", "c"), "c");
+		assertEquals(BasicUtil.conditional(true, "a", "b", "c"), "a");
+		assertEquals(BasicUtil.conditional(false, "a", "b", "c"), "b");
+		assertEquals(BasicUtil.conditionalInt(null, 1, -1, 0), 0);
+		assertEquals(BasicUtil.conditionalInt(true, 1, -1, 0), 1);
+		assertEquals(BasicUtil.conditionalInt(false, 1, -1, 0), -1);
+		assertEquals(BasicUtil.conditionalLong(null, 1, -1, 0), 0L);
+		assertEquals(BasicUtil.conditionalLong(true, 1, -1, 0), 1L);
+		assertEquals(BasicUtil.conditionalLong(false, 1, -1, 0), -1L);
 	}
 
 	@Test

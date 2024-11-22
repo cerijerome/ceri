@@ -271,6 +271,14 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
+	public void testInterrupted() {
+		ConcurrentUtil.interrupt();
+		assertEquals(ConcurrentUtil.interrupted(), true); // not cleared
+		assertEquals(ConcurrentUtil.interrupted(), true);
+		assertEquals(Thread.interrupted(), true);
+	}
+
+	@Test
 	public void testCheckInterrupted() throws InterruptedException {
 		ConcurrentUtil.checkInterrupted();
 		ConcurrentUtil.interrupt();

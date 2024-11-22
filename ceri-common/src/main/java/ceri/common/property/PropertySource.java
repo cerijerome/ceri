@@ -137,7 +137,7 @@ public interface PropertySource {
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this);
+			return getClass().getSimpleName();
 		}
 
 		private Set<String> allKeys() {

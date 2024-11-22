@@ -115,20 +115,51 @@ public class RegexUtil {
 		return true;
 	}
 
+	/**
+	 * A predicate that returns true if the pattern is found.
+	 */
 	public static Predicate<String> finder(String format, Object... objs) {
 		return finder(compile(format, objs));
 	}
 
+	/**
+	 * A predicate that returns true if the pattern is found.
+	 */
 	public static Predicate<String> finder(Pattern p) {
 		return s -> s != null && p.matcher(s).find();
 	}
 
+	/**
+	 * A predicate that returns true if the pattern matches.
+	 */
 	public static Predicate<String> matcher(String format, Object... objs) {
 		return matcher(compile(format, objs));
 	}
 
+	/**
+	 * A predicate that returns true if the pattern matches.
+	 */
 	public static Predicate<String> matcher(Pattern p) {
 		return s -> s != null && p.matcher(s).matches();
+	}
+
+	/**
+	 * A predicate that returns true if the pattern is not found.
+	 */
+	public static Predicate<String> nonFinder(String format, Object... objs) {
+		return nonFinder(compile(format, objs));
+	}
+
+	public static Predicate<String> nonFinder(Pattern p) {
+		return s -> s != null && !p.matcher(s).find();
+	}
+
+	public static Predicate<String> nonMatcher(String format, Object... objs) {
+		return nonMatcher(compile(format, objs));
+	}
+
+	public static Predicate<String> nonMatcher(Pattern p) {
+		return s -> s != null && !p.matcher(s).matches();
 	}
 
 	/**
