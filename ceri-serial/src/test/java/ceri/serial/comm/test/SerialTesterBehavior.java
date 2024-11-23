@@ -5,9 +5,14 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertString;
 import java.io.IOException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.ManualTester;
 import ceri.common.test.SystemIoCaptor;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
@@ -16,6 +21,17 @@ import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.StopBits;
 
 public class SerialTesterBehavior {
+	private RuntimeCloseable fastMode;
+	
+	@Before
+	public void before() {
+		fastMode = ManualTester.fastMode();
+	}
+	
+	@After
+	public void after() {
+		CloseableUtil.close(fastMode);
+	}
 
 	@Test
 	public void shouldTestEcho() throws IOException {

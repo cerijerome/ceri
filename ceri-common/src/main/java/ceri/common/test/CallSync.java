@@ -653,11 +653,20 @@ public abstract class CallSync<T, R> {
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
+			autoResponseFn = originalAutoResponseSupplier.get();
+			saveValues = SAVE_VALUES_DEF;
+			clearCalls();
+		});
+	}
+
+	/**
+	 * Clears values and call count.
+	 */
+	public void clearCalls() {
+		lockedRun(lock, () -> {
 			values.clear();
 			valueDef = originalValueDef;
-			autoResponseFn = originalAutoResponseSupplier.get();
 			calls = 0;
-			saveValues = SAVE_VALUES_DEF;
 		});
 	}
 

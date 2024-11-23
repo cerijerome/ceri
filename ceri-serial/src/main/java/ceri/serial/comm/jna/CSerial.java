@@ -27,7 +27,7 @@ import static ceri.jna.clib.jna.CTermios.VMIN;
 import static ceri.jna.clib.jna.CTermios.VSTART;
 import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
-import com.sun.jna.NativeLong;
+import com.sun.jna.IntegerType;
 import ceri.common.collection.BiMap;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
@@ -167,7 +167,7 @@ public class CSerial {
 		CTermios.tcsetattr(fd, TCSANOW, tty);
 	}
 
-	private static void initTermios(NativeLong iflag, NativeLong cflag, byte[] cc) {
+	private static void initTermios(IntegerType iflag, IntegerType cflag, byte[] cc) {
 		iflag.setValue(iflag.longValue() & ~(IXANY | IXOFF | IXON));
 		cflag.setValue((cflag.longValue() & ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD | CRTSCTS))
 			| CLOCAL | CREAD | CS8);
@@ -177,7 +177,7 @@ public class CSerial {
 		cc[VTIME] = 0; // no timeout for read
 	}
 
-	private static void setParamFlags(NativeLong cflag, int dataBits, int stopBits, int parity) {
+	private static void setParamFlags(IntegerType cflag, int dataBits, int stopBits, int parity) {
 		cflag.setValue((cflag.longValue() & ~(CSIZE | CSTOPB | PARENB | CMSPAR | PARODD))
 			| dataBitFlag(dataBits) | stopBitFlag(stopBits) | parityFlags(parity));
 	}
@@ -211,7 +211,7 @@ public class CSerial {
 		throw illegalArg("Unsupported parity: 0x%02x", parity);
 	}
 
-	private static void setFlowControlFlags(NativeLong iflag, NativeLong cflag, int mode) {
+	private static void setFlowControlFlags(IntegerType iflag, IntegerType cflag, int mode) {
 		iflag.setValue((iflag.longValue() & ~(IXANY | IXOFF | IXON)) | flowControlSw(mode));
 		cflag.setValue((cflag.longValue() & ~CRTSCTS) | flowControlHw(mode));
 	}

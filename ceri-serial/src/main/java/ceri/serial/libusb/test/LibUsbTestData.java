@@ -244,7 +244,7 @@ public class LibUsbTestData {
 	}
 
 	private static Pointer pointer() {
-		return new Memory(JnaSize.POINTER.size);
+		return new Memory(JnaSize.POINTER.get());
 	}
 
 	public static class Data {
@@ -282,13 +282,13 @@ public class LibUsbTestData {
 		public Context context;
 
 		private DeviceList(int size) {
-			super(GcMemory.malloc(JnaSize.POINTER.size * (size + 1)).m);
+			super(GcMemory.malloc(JnaSize.POINTER.get() * (size + 1)).m);
 			this.size = size;
 		}
 
 		private Pointer p(int i) {
 			ValidationUtil.validateIndex(size, i);
-			return p.share(i * JnaSize.POINTER.size);
+			return p.share(i * JnaSize.POINTER.get());
 		}
 	}
 

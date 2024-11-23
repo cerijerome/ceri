@@ -123,7 +123,7 @@ public class LibUsbFinderBehavior {
 		assertThrown(() -> LibUsbFinder.FIRST.findAndOpen(null)); // device not found
 		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(null)); // device not found
 		libusb_context ctx =
-			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.size).m);
+			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.get()).m);
 		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(ctx, 1)); // device not found
 	}
 

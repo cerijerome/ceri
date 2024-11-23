@@ -27,11 +27,6 @@
 			<artifactId>ceri-jna</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 
 	<build>

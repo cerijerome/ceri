@@ -3,6 +3,7 @@ package ceri.serial.comm.jna;
 import static ceri.common.test.AssertUtil.assertEquals;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
@@ -45,7 +46,7 @@ public abstract class CSerialTestHelper {
 			var args = super.lib.ioctl.awaitAuto();
 			assertEquals(args.fd(), fd);
 			assertEquals(args.request(), CIoctl.Mac.IOSSIOSPEED);
-			JnaTestUtil.assertUnlong(args.arg(0), speed);
+			JnaTestUtil.assertRef(args.arg(0), new speed_t(speed));
 		}
 
 		private void handleIos(CtlArgs args) {
@@ -99,8 +100,8 @@ public abstract class CSerialTestHelper {
 	}
 
 	private static void assertSpeed(CTermios.termios termios, int speed) {
-		assertEquals(termios.c_ispeed, JnaUtil.unlong(speed));
-		assertEquals(termios.c_ospeed, JnaUtil.unlong(speed));
+		assertEquals(termios.c_ispeed, new speed_t(speed));
+		assertEquals(termios.c_ospeed, new speed_t(speed));
 	}
 
 	private static <T extends CTermios.termios> void handleTc(TcArgs args, T termios) {
