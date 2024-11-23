@@ -40,13 +40,13 @@ public class JnaMemoryBehavior {
 		assertEquals(m.getByte(0), (byte) 0x80);
 		assertEquals(m.setBytes(1, 0x80, 0xff, 0x7f), 4);
 		assertArray(m.copy(1, 3), 0x80, 0xff, 0x7f);
-		assertEquals(m.setNlong(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.size);
+		assertEquals(m.setNlong(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
 		assertEquals(m.getNlong(4), nlong(0x8fffffff));
 		assertEquals(m.getUnlong(4), unlong(0xffffffff8fffffffL));
-		assertEquals(m.setNlongMsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.size);
+		assertEquals(m.setNlongMsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
 		assertEquals(m.getNlongMsb(4), nlong(0x8fffffff));
 		assertEquals(m.getUnlongMsb(4), unlong(0xffffffff8fffffffL));
-		assertEquals(m.setNlongLsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.size);
+		assertEquals(m.setNlongLsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
 		assertEquals(m.getNlongLsb(4), nlong(0x8fffffff));
 		assertEquals(m.getUnlongLsb(4), unlong(0xffffffff8fffffffL));
 	}

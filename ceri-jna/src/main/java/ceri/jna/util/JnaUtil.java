@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.LongUnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
@@ -212,6 +213,22 @@ public class JnaUtil {
 	}
 
 	/**
+	 * Perform a bitwise-and followed by bitwise-or on an integer type value.
+	 */
+	public static <T extends IntegerType> T andOr(T t, long and, long or) {
+		t.setValue((t.longValue() & and) | or);
+		return t;
+	}
+
+	/**
+	 * Apply and set the native long value.
+	 */
+	public static <T extends IntegerType> T apply(T t, LongUnaryOperator operator) {
+		t.setValue(operator.applyAsLong(t.longValue()));
+		return t;
+	}
+
+	/**
 	 * Get unsigned value from pointer.
 	 */
 	public static short ubyte(Pointer p, int offset) {
@@ -313,7 +330,7 @@ public class JnaUtil {
 	 * Converts value to unsigned.
 	 */
 	public static long unlong(NativeLong value) {
-		if (JnaSize.LONG.size() >= Long.BYTES) return value.longValue();
+		if (JnaSize.LONG.get() >= Long.BYTES) return value.longValue();
 		return MathUtil.uint(value.intValue());
 	}
 

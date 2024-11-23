@@ -3,11 +3,11 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.Set;
-import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.util.IntType;
 import ceri.jna.util.JnaSize;
 import ceri.jna.util.JnaUtil;
 
@@ -31,24 +31,24 @@ public class CUnistd {
 	private CUnistd() {}
 
 	@SuppressWarnings("serial")
-	public static class size_t extends IntegerType {
+	public static class size_t extends IntType {
 		public size_t() {
 			this(0);
 		}
 
 		public size_t(long value) {
-			super(JnaSize.SIZE_T.size, value, true);
+			super(JnaSize.SIZE_T.get(), value, true);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class ssize_t extends IntegerType {
+	public static class ssize_t extends IntType {
 		public ssize_t() {
 			this(0);
 		}
 
 		public ssize_t(long value) {
-			super(JnaSize.SIZE_T.size, value);
+			super(JnaSize.SIZE_T.get(), value, false);
 		}
 	}
 
@@ -75,10 +75,17 @@ public class CUnistd {
 	}
 
 	/**
-	 * Tests whether a file descriptor refers to a terminal
+	 * Tests whether a file descriptor refers to a terminal.
 	 */
 	public static boolean isatty(int fd) throws CException {
 		return caller.verifyInt(() -> lib().isatty(fd), "isatty", fd) == 1;
+	}
+
+	/**
+	 * Returns the number of bytes in a memory allocation block for mmap.
+	 */
+	public static int getpagesize() throws CException {
+		return caller.verifyInt(() -> lib().getpagesize(), "getpagesize");
 	}
 
 	/**
@@ -560,5 +567,4 @@ public class CUnistd {
 		position(fd, pos);
 		return size;
 	}
-
 }

@@ -14,7 +14,7 @@ showHelp() {
     echo "  -b, --build               Build main jar before deploying"
     echo "  -B, --buildall            Build main jar and dependencies before deploying"
     echo "  -c, --clean               Build clean"
-    echo "  -n, --nodeploy            Do not deploy"
+    echo "  -l, --local               Local only (do not deploy)"
 }
 
 while true; do
@@ -24,7 +24,7 @@ while true; do
         -b | --build ) BUILD=1; shift;;
         -B | --buildall ) BUILDALL=1; BUILD=1; shift;;
         -c | --clean ) CLEAN=clean; shift;;
-        -n | --nodeploy ) NODEPLOY=1; shift;;
+        -l | --local ) LOCAL=1; shift;;
         -- ) shift; break;;
         -* ) UNKNOWN="$1"; break;;
         * ) break ;;
@@ -40,7 +40,7 @@ JAR="${PRJNAME}-1.0.0-SNAPSHOT.jar"
 
 [[ "$HELP" ]] && { showHelp; exit 0; }
 [[ "$UNKNOWN" ]] && { >&2 echo "Unknown option: $UNKNOWN"; showHelp; exit 1; }
-[[ "$NODEPLOY" || "$HOST" ]] || { >&2 echo "Please specify a client host"; showHelp; exit 1; }
+[[ "$LOCAL" || "$HOST" ]] || { >&2 echo "Please specify a client host"; showHelp; exit 1; }
 
 installPrj() {
     echo "Installing $1 $CLEAN"
@@ -73,7 +73,7 @@ deploy() {
 pushd . >/dev/null
 [[ "$BUILDALL" ]] && buildAll
 [[ "$BUILD" ]] && buildJar
-[[ "$NODEPLOY" ]] || deploy
+[[ "$LOCAL" ]] || deploy
 popd > /dev/null
 
-[[ "$NODEPLOY" ]] || echo "Run on remote: sudo \$JAVA_HOME/bin/java -cp ./$JAR:lib/* <main-class-fqn> <params>"
+[[ "$LOCAL" ]] || echo "Run on remote: sudo \$JAVA_HOME/bin/java -cp ./$JAR:lib/* <main-class-fqn> <params>"

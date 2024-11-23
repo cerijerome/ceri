@@ -22,6 +22,7 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.SeekBehavior.class, //
 	ceri.jna.clib.SigSetBehavior.class, //
 	ceri.jna.clib.SignalBehavior.class, //
+	ceri.jna.clib.TermiosBehavior.class, //
 	// clib.jna
 	ceri.jna.clib.jna.CErrNoBehavior.class, //
 	ceri.jna.clib.jna.CExceptionBehavior.class, //
@@ -44,6 +45,7 @@ import ceri.common.test.TestUtil;
 	// clib.util
 	ceri.jna.clib.util.SelfHealingFdBehavior.class, //
 	ceri.jna.clib.util.SyncPipeBehavior.class, //
+	ceri.jna.clib.util.TtyInputBehavior.class, //
 	// io
 	ceri.jna.io.JnaInputStreamBehavior.class, //
 	ceri.jna.io.JnaOutputStreamBehavior.class, //
@@ -53,11 +55,11 @@ import ceri.common.test.TestUtil;
 	ceri.jna.util.ArrayPointerBehavior.class, //
 	ceri.jna.util.CallerBehavior.class, //
 	ceri.jna.util.GcMemoryBehavior.class, //
+	ceri.jna.util.IntTypeBehavior.class, //
 	ceri.jna.util.JnaArgsBehavior.class, //
 	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //
 	ceri.jna.util.JnaMemoryBehavior.class, //
-	ceri.jna.util.JnaSizeTest.class, //
 	ceri.jna.util.JnaUtilTest.class, //
 	ceri.jna.util.NulTermTest.class, //
 	ceri.jna.util.PointerUtilTest.class, //

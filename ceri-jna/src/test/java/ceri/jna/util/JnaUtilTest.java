@@ -12,7 +12,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import org.junit.Test;
-import com.sun.jna.IntegerType;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -32,7 +31,7 @@ public class JnaUtilTest {
 	private final JnaTestData data = JnaTestData.of();
 
 	@SuppressWarnings("serial")
-	public static class Uint32 extends IntegerType {
+	public static class Uint32 extends IntType {
 		public Uint32(long value) {
 			super(Integer.BYTES, value, true);
 		}
@@ -260,8 +259,9 @@ public class JnaUtilTest {
 	public void testUnlong() {
 		NativeLongByReference ref = new NativeLongByReference(new NativeLong(0x80000000L));
 		assertEquals(JnaUtil.unlong(ref), 0x80000000L);
-		assertEquals(JnaUtil.unlong(ref.getPointer(), 0), 0x80000000L);
-		try (var x = JnaSize.LONG.removable(4)) {
+		JnaUtil.unlong(ref.getPointer(), 0, 0x80000001L);
+		assertEquals(JnaUtil.unlong(ref.getPointer(), 0), 0x80000001L);
+		try (var x = JnaSize.LONG.override(4)) {
 			assertEquals(JnaUtil.unlong(new NativeLong(-1L)), 0xffffffffL);
 		}
 	}

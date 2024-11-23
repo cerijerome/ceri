@@ -117,7 +117,7 @@ public class JnaTestData {
 	}
 
 	public Pointer structArrayByRefPointer(int i) {
-		return JnaTestUtil.deref(pointerArrayByVal[0].share(i * JnaSize.POINTER.size));
+		return JnaTestUtil.deref(pointerArrayByVal[0].share(i * JnaSize.POINTER.get()));
 	}
 
 	public Pointer pointerArrayByValPointer(int i) {
@@ -166,9 +166,9 @@ public class JnaTestData {
 	 */
 	private Pointer[] pointerArrayByVal(TestStruct[] ts) {
 		Pointer[] array = new Pointer[ts.length];
-		var m = mc.calloc((array.length + 1) * JnaSize.POINTER.size); // null-terminated
+		var m = mc.calloc((array.length + 1) * JnaSize.POINTER.get()); // null-terminated
 		for (int i = 0; i < array.length; i++) {
-			array[i] = m.share(i * JnaSize.POINTER.size).m;
+			array[i] = m.share(i * JnaSize.POINTER.get()).m;
 			array[i].setPointer(0, ts[i].getPointer());
 		}
 		return array;

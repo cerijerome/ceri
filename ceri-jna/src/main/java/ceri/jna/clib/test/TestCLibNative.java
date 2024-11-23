@@ -30,6 +30,7 @@ import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTime;
+import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.util.JnaUtil;
@@ -50,6 +51,7 @@ public class TestCLibNative implements CLib.Native {
 		CallSync.function(null, ByteProvider.empty());
 	public final CallSync.Function<WriteArgs, Integer> write = CallSync.function(null, 0);
 	public final CallSync.Function<LseekArgs, Integer> lseek = CallSync.function(null, 0);
+	public final CallSync.Supplier<Integer> pagesize = CallSync.supplier(0x1000); // 4k
 	public final CallSync.Function<SignalArgs, Pointer> signal =
 		CallSync.function(null, Pointer.NULL);
 	public final CallSync.Function<Integer, Integer> sigset = CallSync.function(null, 0);
@@ -271,12 +273,15 @@ public class TestCLibNative implements CLib.Native {
 		nextFd.set(1000);
 		fds.clear();
 		env.clear();
-		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, mmap, open, pipe, poll, raise,
-			read, signal, sigset, tc, write);
+		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
+			raise, read, signal, sigset, tc, write);
+		fds.put(CUnistd.STDIN_FILENO, new OpenArgs("stdin", CFcntl.O_RDONLY, 0));
+		fds.put(CUnistd.STDOUT_FILENO, new OpenArgs("stdout", CFcntl.O_WRONLY,  0));
+		fds.put(CUnistd.STDERR_FILENO, new OpenArgs("stderr", CFcntl.O_WRONLY,  0));
 	}
 
 	@Override
-	public int open(String path, int flags, Object... args) throws LastErrorException {
+	public int open(String path, int flags, Object... args) {
 		var openArgs = new OpenArgs(path, flags, args.length == 0 ? 0 : (int) args[0]);
 		var fd = createFd(openArgs);
 		open.accept(openArgs);
@@ -284,7 +289,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int close(int fd) throws LastErrorException {
+	public int close(int fd) {
 		int result = close.apply(fd(fd));
 		fds.remove(fd);
 		return result;
@@ -296,7 +301,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int pipe(int[] pipefd) throws LastErrorException {
+	public int pipe(int[] pipefd) {
 		var fr = createFd(new OpenArgs("pipe:r", CFcntl.O_RDONLY, 0));
 		var fw = createFd(new OpenArgs("pipe:w", CFcntl.O_WRONLY, 0));
 		int result = pipe.apply(new int[] { fr, fw });
@@ -306,7 +311,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public ssize_t read(int fd, Pointer buffer, size_t len) throws LastErrorException {
+	public ssize_t read(int fd, Pointer buffer, size_t len) {
 		ByteProvider data = read.apply(new ReadArgs(fd(fd), len.intValue()));
 		if (data == null || data.length() == 0) return new ssize_t(0);
 		int n = Math.min(data.length(), len.intValue());
@@ -315,7 +320,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public ssize_t write(int fd, Pointer buffer, size_t len) throws LastErrorException {
+	public ssize_t write(int fd, Pointer buffer, size_t len) {
 		byte[] bytes = new byte[len.intValue()];
 		if (buffer != null) JnaUtil.read(buffer, bytes);
 		int n = write.apply(new WriteArgs(fd(fd), ByteProvider.of(bytes)));
@@ -323,8 +328,13 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int lseek(int fd, int offset, int whence) throws LastErrorException {
+	public int lseek(int fd, int offset, int whence) {
 		return lseek.apply(new LseekArgs(fd(fd), offset, whence));
+	}
+
+	@Override
+	public int getpagesize() {
+		return pagesize.get();
 	}
 
 	@Override
@@ -343,22 +353,22 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int sigemptyset(Pointer set) throws LastErrorException {
+	public int sigemptyset(Pointer set) {
 		return sigset(set, 0);
 	}
 
 	@Override
-	public int sigaddset(Pointer set, int signum) throws LastErrorException {
+	public int sigaddset(Pointer set, int signum) {
 		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), true, signum));
 	}
 
 	@Override
-	public int sigdelset(Pointer set, int signum) throws LastErrorException {
+	public int sigdelset(Pointer set, int signum) {
 		return sigset(set, ByteUtil.applyBitsInt(set.getInt(0), false, signum));
 	}
 
 	@Override
-	public int sigismember(Pointer set, int signum) throws LastErrorException {
+	public int sigismember(Pointer set, int signum) {
 		int mask = set.getInt(0);
 		int result = sigset.apply(mask);
 		if (result == 0) return ByteUtil.bit(mask, signum) ? 1 : 0;
@@ -366,7 +376,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int poll(Pointer fds, int nfds, int timeout) throws LastErrorException {
+	public int poll(Pointer fds, int nfds, int timeout) {
 		var array = Struct.arrayByVal(fds, pollfd::new, pollfd[]::new, nfds);
 		return poll.apply(PollArgs.of(array, timeout));
 	}
@@ -386,67 +396,67 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException {
+	public int ioctl(int fd, NativeLong request, Object... objs) {
 		return ioctl.apply(CtlArgs.of(fd(fd), request.intValue(), objs));
 	}
 
 	@Override
-	public int fcntl(int fd, int cmd, Object... objs) throws LastErrorException {
+	public int fcntl(int fd, int cmd, Object... objs) {
 		return fcntl.apply(CtlArgs.of(fd(fd), cmd, objs));
 	}
 
 	@Override
-	public int tcgetattr(int fd, Pointer termios) throws LastErrorException {
+	public int tcgetattr(int fd, Pointer termios) {
 		return tc.apply(TcArgs.of("tcgetattr", fd(fd), termios));
 	}
 
 	@Override
-	public int tcsetattr(int fd, int optional_actions, Pointer termios) throws LastErrorException {
+	public int tcsetattr(int fd, int optional_actions, Pointer termios) {
 		return tc.apply(TcArgs.of("tcsetattr", fd(fd), optional_actions, termios));
 	}
 
 	@Override
-	public int tcsendbreak(int fd, int duration) throws LastErrorException {
+	public int tcsendbreak(int fd, int duration) {
 		return tc.apply(TcArgs.of("tcsendbreak", fd(fd), duration));
 	}
 
 	@Override
-	public int tcdrain(int fd) throws LastErrorException {
+	public int tcdrain(int fd) {
 		return tc.apply(TcArgs.of("tcdrain", fd(fd)));
 	}
 
 	@Override
-	public int tcflush(int fd, int queue_selector) throws LastErrorException {
+	public int tcflush(int fd, int queue_selector) {
 		return tc.apply(TcArgs.of("tcflush", fd(fd), queue_selector));
 	}
 
 	@Override
-	public int tcflow(int fd, int action) throws LastErrorException {
+	public int tcflow(int fd, int action) {
 		return tc.apply(TcArgs.of("tcflow", fd(fd), action));
 	}
 
 	@Override
-	public void cfmakeraw(Pointer termios) throws LastErrorException {
+	public void cfmakeraw(Pointer termios) {
 		cf.apply(CfArgs.of("cfmakeraw", termios));
 	}
 
 	@Override
-	public NativeLong cfgetispeed(Pointer termios) throws LastErrorException {
+	public NativeLong cfgetispeed(Pointer termios) {
 		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetispeed", termios)));
 	}
 
 	@Override
-	public NativeLong cfgetospeed(Pointer termios) throws LastErrorException {
+	public NativeLong cfgetospeed(Pointer termios) {
 		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetospeed", termios)));
 	}
 
 	@Override
-	public int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException {
+	public int cfsetispeed(Pointer termios, NativeLong speed) {
 		return cf.apply(CfArgs.of("cfsetispeed", termios, speed.intValue()));
 	}
 
 	@Override
-	public int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException {
+	public int cfsetospeed(Pointer termios, NativeLong speed) {
 		return cf.apply(CfArgs.of("cfsetospeed", termios, speed.intValue()));
 	}
 
@@ -459,12 +469,12 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int munmap(Pointer addr, size_t len) throws LastErrorException {
+	public int munmap(Pointer addr, size_t len) {
 		return mmap.apply(new MmapArgs(addr, len.longValue(), 0, 0, 0, 0)).result();
 	}
 
 	@Override
-	public int setenv(String name, String value, int overwrite) throws LastErrorException {
+	public int setenv(String name, String value, int overwrite) {
 		if (overwrite != 0) env.put(name, value);
 		else env.putIfAbsent(name, value);
 		return 0;
@@ -488,7 +498,7 @@ public class TestCLibNative implements CLib.Native {
 		throw new LastErrorException(errorCode);
 	}
 
-	private int sigset(Pointer set, int mask) throws LastErrorException {
+	private int sigset(Pointer set, int mask) {
 		int result = sigset.apply(mask);
 		if (result == 0) set.setInt(0, mask);
 		return result;

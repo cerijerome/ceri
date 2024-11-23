@@ -5,6 +5,8 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
+import ceri.jna.util.IntType;
+import ceri.jna.util.JnaSize;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
@@ -13,42 +15,91 @@ import ceri.jna.util.Struct.Fields;
  * Types and functions from {@code <termios.h>}
  */
 public class CTermios {
-	private static final int NCCS; // termios number of control chars
+	// Sizes
+	private static final int TCFLAG_T_SIZE;
+	private static final int SPEED_T_SIZE;
+	private static final int NCCS; // number of termios control chars
+	// Input flags
+	public static final int IGNBRK = 0x0001;
+	public static final int BRKINT = 0x0002;
+	public static final int IGNPAR = 0x0004;
+	public static final int PARMRK = 0x0008;
+	public static final int INPCK = 0x0010;
+	public static final int ISTRIP = 0x0020;
+	public static final int INLCR = 0x0040;
+	public static final int IGNCR = 0x0080;
+	public static final int ICRNL = 0x0100;
 	public static final int IXON;
+	public static final int IXANY = 0x800;
 	public static final int IXOFF;
-	public static final int IXANY;
+	public static final int IMAXBEL = 0x2000;
+	public static final int IUTF8 = 0x4000;
+	// Output flags
 	public static final int OPOST = 0x0001;
+	public static final int ONLCR;
+	public static final int OCRNL;
+	public static final int ONOCR;
+	public static final int ONLRET;
+	public static final int OFILL;
+	public static final int OFDEL;
+	// Control flags
 	public static final int CSIZE;
+	public static final int CSTOPB;
+	public static final int CREAD;
+	public static final int PARENB;
+	public static final int PARODD;
+	public static final int HUPCL;
+	public static final int CLOCAL;
+	public static final int CMSPAR;
+	public static final int CRTSCTS;
+	// CSIZE values
 	public static final int CS5 = 0x0000;
 	public static final int CS6;
 	public static final int CS7;
 	public static final int CS8;
-	public static final int CSTOPB;
-	public static final int CREAD;
-	public static final int PARENB;
-	public static final int CMSPAR;
-	public static final int PARODD;
-	public static final int CLOCAL;
-	public static final int CRTSCTS;
+	// Local flags
 	public static final int ISIG;
 	public static final int ICANON;
 	public static final int ECHO = 0x0008;
 	public static final int ECHOE;
+	public static final int ECHOK;
+	public static final int ECHONL;
+	public static final int ECHOCTL;
+	public static final int ECHOPRT;
+	public static final int ECHOKE;
+	public static final int NOFLSH;
+	public static final int TOSTOP;
+	public static final int IEXTEN;
+	// Special chars
 	public static final int VEOF;
+	public static final int VEOL;
+	public static final int VEOL2;
+	public static final int VERASE;
+	public static final int VINTR;
+	public static final int VKILL;
+	public static final int VLNEXT;
+	public static final int VMIN;
+	public static final int VQUIT;
+	public static final int VREPRINT;
 	public static final int VSTART;
 	public static final int VSTOP;
-	public static final int VMIN;
+	public static final int VSUSP = 10;
 	public static final int VTIME;
+	public static final int VWERASE;
+	// tcsetattr() optional actions
 	public static final int TCSANOW = 0;
 	public static final int TCSADRAIN = 1;
 	public static final int TCSAFLUSH = 2;
+	// tcflush() queue selector
 	public static final int TCIFLUSH;
 	public static final int TCOFLUSH;
 	public static final int TCIOFLUSH;
+	// tcflow() action
 	public static final int TCOOFF;
 	public static final int TCOON;
 	public static final int TCIOFF;
 	public static final int TCION;
+	// cfsetospeed() constants
 	public static final int B0;
 	public static final int B50;
 	public static final int B75;
@@ -83,17 +134,39 @@ public class CTermios {
 
 	private CTermios() {}
 
+	@SuppressWarnings("serial")
+	public static class tcflag_t extends IntType {
+		public tcflag_t() {
+			this(0);
+		}
+
+		public tcflag_t(long value) {
+			super(TCFLAG_T_SIZE, value, true);
+		}
+	}
+
+	@SuppressWarnings("serial")
+	public static class speed_t extends IntType {
+		public speed_t() {
+			this(0);
+		}
+
+		public speed_t(long value) {
+			super(SPEED_T_SIZE, value, true);
+		}
+	}
+
 	/**
 	 * Common base for os-specific termios struct.
 	 */
 	public static abstract class termios extends Struct {
-		public NativeLong c_iflag; // input flags
-		public NativeLong c_oflag; // output flags
-		public NativeLong c_cflag; // control flags
-		public NativeLong c_lflag; // local flags
+		public tcflag_t c_iflag; // input flags
+		public tcflag_t c_oflag; // output flags
+		public tcflag_t c_cflag; // control flags
+		public tcflag_t c_lflag; // local flags
 		public byte[] c_cc = new byte[NCCS]; // control chars
-		public NativeLong c_ispeed; // input speed
-		public NativeLong c_ospeed; // output speed
+		public speed_t c_ispeed; // input speed
+		public speed_t c_ospeed; // output speed
 	}
 
 	/**
@@ -235,7 +308,7 @@ public class CTermios {
 		@Fields({ "c_iflag", "c_oflag", "c_cflag", "c_lflag", "c_line", "c_cc", "c_ispeed",
 			"c_ospeed" })
 		public static class termios extends CTermios.termios {
-			public NativeLong c_line; // line discipline
+			public byte c_line; // line discipline
 		}
 
 		/**
@@ -250,29 +323,54 @@ public class CTermios {
 
 	static {
 		if (OsUtil.os().mac) {
+			TCFLAG_T_SIZE = JnaSize.LONG.get();
+			SPEED_T_SIZE = JnaSize.LONG.get();
 			NCCS = 20;
 			IXON = 0x0200;
 			IXOFF = 0x0400;
-			IXANY = 0x0800;
+			ONLCR = 0x0002;
+			OCRNL = 0x0010;
+			ONOCR = 0x0020;
+			ONLRET = 0x0040;
+			OFILL = 0x0080;
+			OFDEL = 0x00020000;
 			CSIZE = 0x0300;
-			CS6 = 0x0100;
-			CS7 = 0x0200;
-			CS8 = 0x0300;
 			CSTOPB = 0x0400;
 			CREAD = 0x0800;
 			PARENB = 0x1000;
-			CMSPAR = 0; // not supported
 			PARODD = 0x2000;
+			HUPCL = 0x4000;
 			CLOCAL = 0x8000;
-			CRTSCTS = 0x30000;
+			CMSPAR = 0; // not supported
+			CRTSCTS = 0x00030000;
+			CS6 = 0x0100;
+			CS7 = 0x0200;
+			CS8 = 0x0300;
 			ISIG = 0x0080;
 			ICANON = 0x0100;
 			ECHOE = 0x0002;
+			ECHOK = 0x0004;
+			ECHONL = 0x0010;
+			ECHOCTL = 0x0040;
+			ECHOPRT = 0x0020;
+			ECHOKE = 0x0001;
+			NOFLSH = 0x80000000;
+			TOSTOP = 0x00400000;
+			IEXTEN = 0x0400;
 			VEOF = 0;
+			VEOL = 1;
+			VEOL2 = 2;
+			VERASE = 3;
+			VINTR = 8;
+			VKILL = 5;
+			VLNEXT = 14;
+			VMIN = 16;
+			VQUIT = 9;
+			VREPRINT = 6;
 			VSTART = 12;
 			VSTOP = 13;
-			VMIN = 16;
 			VTIME = 17;
+			VWERASE = 4;
 			TCIFLUSH = 1;
 			TCOFLUSH = 2;
 			TCIOFLUSH = 3;
@@ -312,29 +410,54 @@ public class CTermios {
 			B3500000 = 3500000;
 			B4000000 = 4000000;
 		} else {
+			TCFLAG_T_SIZE = Integer.BYTES;
+			SPEED_T_SIZE = Integer.BYTES;
 			NCCS = 32;
 			IXON = 0x0400;
 			IXOFF = 0x1000;
-			IXANY = 0x0800;
+			ONLCR = 0x0004;
+			OCRNL = 0x0008;
+			ONOCR = 0x0010;
+			ONLRET = 0x0020;
+			OFILL = 0x0040;
+			OFDEL = 0x0080;
 			CSIZE = 0x0030;
-			CS6 = 0x0010;
-			CS7 = 0x0020;
-			CS8 = 0x0030;
 			CSTOPB = 0x0040;
 			CREAD = 0x0080;
 			PARENB = 0x0100;
-			CMSPAR = 0x40000000;
 			PARODD = 0x0200;
+			HUPCL = 0x0400;
 			CLOCAL = 0x0800;
+			CMSPAR = 0x40000000;
 			CRTSCTS = 0x80000000;
+			CS6 = 0x0010;
+			CS7 = 0x0020;
+			CS8 = 0x0030;
 			ISIG = 0x0001;
 			ICANON = 0x0002;
 			ECHOE = 0x0010;
+			ECHOK = 0x0020;
+			ECHONL = 0x0040;
+			ECHOCTL = 0x0200;
+			ECHOPRT = 0x0400;
+			ECHOKE = 0x0800;
+			NOFLSH = 0x0080;
+			TOSTOP = 0x0100;
+			IEXTEN = 0x8000;
 			VEOF = 4;
-			VTIME = 5;
+			VEOL = 11;
+			VEOL2 = 16;
+			VERASE = 2;
+			VINTR = 0;
+			VKILL = 3;
+			VLNEXT = 15;
 			VMIN = 6;
+			VQUIT = 1;
+			VREPRINT = 12;
 			VSTART = 8;
 			VSTOP = 9;
+			VTIME = 5;
+			VWERASE = 14;
 			TCIFLUSH = 0;
 			TCOFLUSH = 1;
 			TCIOFLUSH = 2;

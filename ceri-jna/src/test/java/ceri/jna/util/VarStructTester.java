@@ -168,7 +168,7 @@ public class VarStructTester {
 		public LenRefVar(int dummy1, int dummy2, Sub.ByRef... array) {
 			this.dummy1 = (byte) dummy1;
 			this.dummy2 = (short) dummy2;
-			this.length = lastOffset + (array.length * JnaSize.POINTER.size);
+			this.length = lastOffset + (array.length * JnaSize.POINTER.get());
 			this.array = array;
 		}
 
@@ -183,7 +183,7 @@ public class VarStructTester {
 
 		@Override
 		protected int varCount() {
-			return (length - lastOffset) / JnaSize.POINTER.size;
+			return (length - lastOffset) / JnaSize.POINTER.get();
 		}
 	}
 

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
@@ -24,7 +25,7 @@ import ceri.common.text.StringUtil;
 public class JnaArgs {
 	public static JnaArgs DEFAULT = builder().addDefault().build();
 	private static final List<Class<?>> INT_CLASSES =
-		List.of(Byte.class, Short.class, Integer.class, Long.class);
+		List.of(Byte.class, Short.class, Integer.class, Long.class, NativeLong.class);
 	private static final int HEX_LIMIT = 0xf;
 	private final List<Function<Object, String>> transforms;
 
@@ -46,9 +47,19 @@ public class JnaArgs {
 	 * Int Number type to string. Decimal and hex if within limits. Will throw exception if Number
 	 * type is incompatible with %d and %x format conversions.
 	 */
+	public static String stringInt(Number n) {
+		return stringInt(n, -HEX_LIMIT, HEX_LIMIT);
+	}
+
+	/**
+	 * Int Number type to string. Decimal and hex if within limits. Will throw exception if Number
+	 * type is incompatible with %d and %x format conversions.
+	 */
 	public static String stringInt(Number n, int hexMin, int hexMax) {
-		int i = n.intValue();
-		return i >= hexMin && i <= hexMax ? String.valueOf(n) : String.format("%1$d/0x%1$x", n);
+		long l = n.longValue();
+		if (l >= hexMin && l <= hexMax) return String.valueOf(n);
+		if (n instanceof NativeLong) n = l;
+		return String.format("%1$d/0x%1$x", n);
 	}
 
 	/**
@@ -89,6 +100,9 @@ public class JnaArgs {
 		return s.substring(s.lastIndexOf(".") + 1);
 	}
 
+	/**
+	 * Byte buffer to compact string.
+	 */
 	public static String string(ByteBuffer b) {
 		return String.format("%s(p=%d,l=%d,c=%d)", ReflectUtil.nestedName(b.getClass()),
 			b.position(), b.limit(), b.capacity());
@@ -107,7 +121,7 @@ public class JnaArgs {
 		 */
 		public Builder addDefault() {
 			return add(String.class, StringUtil::escape) //
-				.add(matchInt(), n -> stringInt(n, -HEX_LIMIT, HEX_LIMIT)) //
+				.add(matchInt(), n -> stringInt(n)) //
 				.add(Structure.class, JnaArgs::string) //
 				.add(Pointer.class, JnaArgs::string) //
 				.add(PointerType.class, JnaArgs::string) //

@@ -82,6 +82,7 @@ public class JnaArgsBehavior {
 	public void shouldPrintHexIntIfInRange() {
 		assertEquals(JnaArgs.DEFAULT.args(-256, -16, -15, 15, 16, 256),
 			"-256/0xffffff00, -16/0xfffffff0, -15, 15, 16/0x10, 256/0x100");
+		assertEquals(JnaArgs.DEFAULT.args(JnaUtil.unlong(0x100000000L)), "4294967296/0x100000000");
 	}
 
 	@Test

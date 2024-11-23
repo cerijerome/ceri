@@ -2,7 +2,6 @@ package ceri.jna.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.function.LongFunction;
-import com.sun.jna.IntegerType;
 
 /**
  * Class to test int type behavior.
@@ -10,28 +9,28 @@ import com.sun.jna.IntegerType;
 public class IntTypeTester {
 
 	@SuppressWarnings("serial")
-	public static class Int32 extends IntegerType {
+	public static class Int32 extends IntType {
 		public Int32(long value) {
 			super(4, value, false);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Uint32 extends IntegerType {
+	public static class Uint32 extends IntType {
 		public Uint32(long value) {
 			super(4, value, true);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Int64 extends IntegerType {
+	public static class Int64 extends IntType {
 		public Int64(long value) {
 			super(8, value, false);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Uint64 extends IntegerType {
+	public static class Uint64 extends IntType {
 		public Uint64(long value) {
 			super(8, value, true);
 		}
@@ -92,8 +91,8 @@ public class IntTypeTester {
 		test("Uint64", Uint64::new, n, number, value);
 	}
 
-	private static <T extends IntegerType> void test(String name, LongFunction<T> constructor,
-		long n, Object number, long value) {
+	private static <T extends IntType> void test(String name, LongFunction<T> constructor, long n,
+		Object number, long value) {
 		System.out.printf("%s(%d 0x%x) => ", name, n, n);
 		try {
 			var t = constructor.apply(n);

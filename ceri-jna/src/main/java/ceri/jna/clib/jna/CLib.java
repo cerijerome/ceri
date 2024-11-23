@@ -49,6 +49,9 @@ public class CLib {
 		// off_t lseek(int fd, off_t offset, int whence)
 		int lseek(int fd, int offset, int whence) throws LastErrorException;
 
+		// int getpagesize(void)
+		int getpagesize() throws LastErrorException;
+
 		/* <signal.h> */
 
 		// sighandler_t signal(int signum, sighandler_t handler)

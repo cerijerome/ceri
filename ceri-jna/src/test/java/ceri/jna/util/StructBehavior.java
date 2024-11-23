@@ -11,6 +11,7 @@ import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Memory;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
 import ceri.common.collection.ArrayUtil;
@@ -24,10 +25,11 @@ public class StructBehavior {
 		public int i;
 	}
 
-	@Fields({ "innerVal", "innerRef" })
+	@Fields({ "innerVal", "innerRef", "nlong" })
 	public static class Outer extends Struct {
 		public TestStruct[] innerVal = { new TestStruct(), new TestStruct() };
 		public TestStruct.ByRef[] innerRef = new TestStruct.ByRef[3];
+		public NativeLong nlong = JnaUtil.unlong(0x100000000L);
 	}
 
 	@Fields({ "innerVal", "innerRef" })

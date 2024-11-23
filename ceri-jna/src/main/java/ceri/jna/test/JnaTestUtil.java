@@ -23,6 +23,7 @@ import ceri.common.reflect.ClassReloader;
 import ceri.common.test.ErrorGen;
 import ceri.common.util.OsUtil;
 import ceri.jna.util.GcMemory;
+import ceri.jna.util.IntType;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
@@ -142,6 +143,15 @@ public class JnaTestUtil {
 	 */
 	public static void assertRef(IntByReference ref, int value) {
 		assertEquals(ref.getValue(), value);
+	}
+
+	/**
+	 * Make sure int type reference pointer stores the given value.
+	 */
+	public static void assertRef(Pointer p, IntType intType) {
+		var expected = intType.number();
+		var actual = intType.read(p, 0).number();
+		assertEquals(actual, expected);
 	}
 
 	/**

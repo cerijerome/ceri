@@ -8,12 +8,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.util.Enclosed;
+import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.test.JnaTestUtil;
-import ceri.jna.util.JnaUtil;
 
 public class CTermiosTest {
 	private static TestCLibNative lib;
@@ -58,18 +58,11 @@ public class CTermiosTest {
 
 	@Test
 	public void testMacTcgetattr() throws CException {
-		lib.tc.autoResponse(args -> JnaUtil.unlong(args.arg(0), 0, 0x3456), 0);
+		lib.tc.autoResponse(args -> new tcflag_t(0x3456).write(args.arg(0), 0), 0);
 		JnaTestUtil.testForEachOs(() -> {
 			var t = CTermios.tcgetattr(fd);
-			assertEquals(t.c_iflag, JnaUtil.unlong(0x3456));
+			assertEquals(t.c_iflag, new tcflag_t(0x3456));
 		});
-	}
-
-	@Test
-	public void testLinuxTcgetattr() throws CException {
-		lib.tc.autoResponse(args -> JnaUtil.unlong(args.arg(0), 0, 0x1234), 0);
-		var t = CTermios.Linux.tcgetattr(fd);
-		assertEquals(t.c_iflag, JnaUtil.unlong(0x1234));
 	}
 
 	@Test

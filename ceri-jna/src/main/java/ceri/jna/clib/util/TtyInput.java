@@ -3,6 +3,7 @@ package ceri.jna.clib.util;
 import static ceri.jna.clib.jna.CTermios.ECHO;
 import static ceri.jna.clib.jna.CTermios.ECHONL;
 import static ceri.jna.clib.jna.CTermios.ICANON;
+import static ceri.jna.clib.jna.CUnistd.STDIN_FILENO;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -10,7 +11,7 @@ import java.util.Arrays;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.ConsoleInput;
 import ceri.common.io.LineReader;
-import ceri.common.text.StringUtil;
+import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Termios;
@@ -18,21 +19,23 @@ import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.JnaUtil;
 import ceri.log.util.LogUtil;
 
+/**
+ * Modifies tty to provide char-based input and display. Attempts to copy functionality of terminal
+ * line-based input, and provides line history recall/editing.
+ */
 public class TtyInput implements LineReader, RuntimeCloseable {
 	private final FileDescriptor fd;
 	private final Reader reader;
 	private final ConsoleInput consoleInput;
 	private final Termios termios;
 
-	public static void main(String[] args) throws IOException {
-		try (var tty = TtyInput.of()) {
-			while (true) {
-				System.out.print("Enter: ");
-				var line = StringUtil.trim(tty.readLine());
-				System.out.println("\nLine = " + line);
-				if ("x".equals(line)) break;
-			}
-		}
+	/**
+	 * Provide a line reader for stdin. Returns regular reader if not a tty.
+	 */
+	@SuppressWarnings("resource")
+	public static Enclosed<RuntimeException, ? extends LineReader> in() throws IOException {
+		return CUnistd.isatty(STDIN_FILENO) ? Enclosed.of(of()) :
+			Enclosed.noOp(LineReader.of(System.in));
 	}
 
 	public static TtyInput of() throws IOException {
@@ -57,8 +60,13 @@ public class TtyInput implements LineReader, RuntimeCloseable {
 	}
 
 	@Override
+	public boolean ready() throws IOException {
+		return consoleInput.ready();
+	}
+
+	@Override
 	public void close() {
-		LogUtil.close(termios::set, fd);
+		LogUtil.close(termios::set);
 	}
 
 	private void configureTty(FileDescriptor fd) throws IOException {

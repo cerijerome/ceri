@@ -32,6 +32,14 @@ public class MmapBehavior {
 	}
 
 	@Test
+	public void shouldCalculateLength() throws IOException {
+		initLib();
+		lib.pagesize.autoResponses(0x1000);
+		assertEquals(Mmap.length(0x100), 0x1000L);
+		assertEquals(Mmap.length(0x1234), 0x2000L);
+	}
+
+	@Test
 	public void shouldCreateAnonymousMap() throws IOException {
 		initLib();
 		mem = new Memory(32);
@@ -52,7 +60,7 @@ public class MmapBehavior {
 	}
 
 	@Test
-	public void shouldPeovideMemoryMap() throws IOException {
+	public void shouldProvideMemoryMap() throws IOException {
 		initLib();
 		mem = new Memory(16);
 		lib.mmap.autoResponses(new Presult(mem, 0));

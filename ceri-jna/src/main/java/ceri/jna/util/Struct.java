@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import com.sun.jna.Callback;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
@@ -31,6 +32,7 @@ public abstract class Struct extends Structure {
 	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
 	private static final JnaArgs ARGS = JnaArgs.builder().add(Byte.class, "0x%02x")
 		.add(Short.class, "0x%04x").add(Integer.class, "0x%08x").add(Long.class, "0x%x")
+		.add(NativeLong.class, n -> String.format("0x%x", n.longValue()))
 		.add(Pointer.class, JnaArgs::string).add(Callback.class, JnaArgs::string).build();
 	private static final String INDENT = "\t";
 
@@ -192,8 +194,8 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Copies a structure to another memory location with auto-read. The given structure must
-	 * be synchronized with memory before calling this method. 
+	 * Copies a structure to another memory location with auto-read. The given structure must be
+	 * synchronized with memory before calling this method.
 	 */
 	public static <T extends Structure> T copy(T from, Pointer to,
 		Function<Pointer, T> constructor) {

@@ -11,6 +11,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionCloseable;
 import ceri.jna.clib.jna.CMman;
+import ceri.jna.clib.jna.CUnistd;
 
 public class Mmap implements ExceptionCloseable<IOException> {
 	private final Pointer address;
@@ -105,6 +106,14 @@ public class Mmap implements ExceptionCloseable<IOException> {
 			if (fd == null) return CMman.mmap(address, length, protection, flags, -1, offset);
 			return fd.apply(f -> CMman.mmap(address, length, protection, flags, f, offset));
 		}
+	}
+
+	/**
+	 * Calculates the minimum length based on page size.
+	 */
+	public static long length(long length) throws IOException {
+		long pageSize = CUnistd.getpagesize();
+		return Math.ceilDiv(length, pageSize) * pageSize;
 	}
 
 	public static Builder anonymous(Visibility visibility, long length) {

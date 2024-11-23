@@ -22,13 +22,13 @@
  * Example code to print symbols and type sizes.
  *
  * Build:
- * gcc symbols.c -o symbols; chmod a+x ./symbols
- * gcc -I<header-include-path> symbols.c -o symbols; chmod a+x ./symbols
+ * gcc clib-symbols.c -o clib-symbols; chmod a+x ./clib-symbols
+ * gcc -I<header-include-path> clib-symbols.c -o clib-symbols; chmod a+x ./clib-symbols
  *
  * Run:
- * ./symbols # default arg 013
- * ./symbols 013 # generate with dec, hex and symbol definitions
- * ./symbols 102 # generate java constants with hex values
+ * ./clib-symbols # default arg 013
+ * ./clib-symbols 013 # generate with dec, hex and symbol definitions
+ * ./clib-symbols 102 # generate java constants with hex values
  */
 
 #define STR(x) #x
@@ -1387,6 +1387,16 @@ int main(int argc, char *argv[]) {
 	SYMI(ECHOE);
 #else
 	SYM(ECHOE);
+#endif
+#ifdef ECHOK
+	SYMI(ECHOK);
+#else
+	SYM(ECHOK);
+#endif
+#ifdef ECHONL
+	SYMI(ECHONL);
+#else
+	SYM(ECHONL);
 #endif
 #ifdef VEOF
 	SYMI(VEOF);

@@ -2,10 +2,10 @@ package ceri.jna.clib;
 
 import static ceri.jna.clib.jna.CTermios.TCSANOW;
 import java.io.IOException;
-import com.sun.jna.IntegerType;
 import ceri.common.io.Direction;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.termios;
+import ceri.jna.util.IntType;
 import ceri.jna.util.Struct;
 
 /**
@@ -15,11 +15,11 @@ public class Termios {
 	private final int fd;
 	private final termios termios;
 
-	public static Termios of(FileDescriptor fd) throws IOException {
-		return fd.apply(f -> Termios.of(f));
+	public static Termios get(FileDescriptor fd) throws IOException {
+		return fd.apply(f -> Termios.get(f));
 	}
 
-	public static Termios of(int fd) throws IOException {
+	public static Termios get(int fd) throws IOException {
 		return new Termios(fd, CTermios.tcgetattr(fd));
 	}
 
@@ -38,28 +38,28 @@ public class Termios {
 	/**
 	 * Access input flags.
 	 */
-	public IntegerType inFlags() {
+	public IntType inFlags() {
 		return termios.c_iflag;
 	}
 
 	/**
 	 * Access output flags.
 	 */
-	public IntegerType outFlags() {
+	public IntType outFlags() {
 		return termios.c_oflag;
 	}
 
 	/**
 	 * Access control flags.
 	 */
-	public IntegerType controlFlags() {
+	public IntType controlFlags() {
 		return termios.c_cflag;
 	}
 
 	/**
 	 * Access local flags.
 	 */
-	public IntegerType localFlags() {
+	public IntType localFlags() {
 		return termios.c_lflag;
 	}
 
@@ -113,7 +113,7 @@ public class Termios {
 	/**
 	 * Configure for raw mode.
 	 */
-	public Termios raw() throws IOException {
+	public Termios makeRaw() throws IOException {
 		Struct.write(termios);
 		CTermios.cfmakeraw(termios);
 		return this;
@@ -122,7 +122,7 @@ public class Termios {
 	/**
 	 * Send a stream of zero bytes. Duration value is terminal-specific.
 	 */
-	public Termios brk(int duration) throws IOException {
+	public Termios sendBreak(int duration) throws IOException {
 		CTermios.tcsendbreak(fd, duration);
 		return this;
 	}
@@ -155,8 +155,7 @@ public class Termios {
 		switch (direction) {
 			case in -> CTermios.tcflow(fd, on ? CTermios.TCION : CTermios.TCIOFF);
 			case out -> CTermios.tcflow(fd, on ? CTermios.TCOON : CTermios.TCOOFF);
-			case duplex -> throw new IllegalArgumentException(
-				"Unsupported direction: " + direction);
+			case duplex -> flow(Direction.in, on).flow(Direction.out, on); 
 			default -> {} // do nothing
 		}
 		return this;
