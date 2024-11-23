@@ -36,6 +36,7 @@ PRJDIR=$DIR/../..
 PRJNAME="$(basename "$(cd "$PRJDIR" && pwd)")"
 GITDIR=$PRJDIR/../..
 TARGETDIR="$DIR/../../target"
+CPATH="classes:test-classes:dependency/*"
 JAR="${PRJNAME}-1.0.0-SNAPSHOT.jar"
 
 [[ "$HELP" ]] && { showHelp; exit 0; }
@@ -76,4 +77,8 @@ pushd . >/dev/null
 [[ "$LOCAL" ]] || deploy
 popd > /dev/null
 
-[[ "$LOCAL" ]] || echo "Run on remote: sudo \$JAVA_HOME/bin/java -cp ./$JAR:lib/* <main-class-fqn> <params>"
+if [[ "$LOCAL" ]]; then
+	echo "Run on remote: sudo \$JAVA_HOME/bin/java -cp ./$JAR:lib/* <main-class-fqn> <params>"
+else
+	echo "Run locally: java -cp $CPATH <main-class-fqn> <params>"
+fi
