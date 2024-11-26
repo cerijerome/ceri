@@ -8,9 +8,12 @@ import ceri.common.function.RuntimeCloseable;
  * Helper when overriding System i/o streams. Restores original streams on close.
  */
 public class SystemIo implements RuntimeCloseable {
-	private final InputStream in;
-	private final PrintStream out;
-	private final PrintStream err;
+	/** The original stream. */
+	public final InputStream in;
+	/** The original stream. */
+	public final PrintStream out;
+	/** The original stream. */
+	public final PrintStream err;
 
 	public static SystemIo of() {
 		return new SystemIo();

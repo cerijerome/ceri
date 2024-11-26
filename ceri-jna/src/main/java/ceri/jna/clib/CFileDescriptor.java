@@ -134,6 +134,7 @@ public class CFileDescriptor implements FileDescriptor {
 
 	@Override
 	public void close() {
+		if (closed) return;
 		closed = true;
 		LogUtil.close(in, out, () -> CUnistd.close(fd));
 	}

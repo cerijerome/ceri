@@ -10,11 +10,11 @@ import ceri.common.text.StringUtil;
  */
 public class SystemIoCaptor implements AutoCloseable {
 	private static final int SIZE_DEF = 1024;
-	private final SystemIo sysIo;
 	private final PipedStream pipe;
 	public final PrintStream in;
 	public final StringBuilder out = new StringBuilder();
 	public final StringBuilder err = new StringBuilder();
+	public final SystemIo io;
 
 	public static SystemIoCaptor of() {
 		return of(SIZE_DEF);
@@ -26,17 +26,17 @@ public class SystemIoCaptor implements AutoCloseable {
 
 	@SuppressWarnings("resource")
 	private SystemIoCaptor(int inBufferSize) {
-		sysIo = SystemIo.of();
+		io = SystemIo.of();
 		pipe = PipedStream.of(inBufferSize);
 		in = new PrintStream(pipe.out(), true);
-		sysIo.in(pipe.in());
-		sysIo.out(StringUtil.asPrintStream(out));
-		sysIo.err(StringUtil.asPrintStream(err));
+		io.in(pipe.in());
+		io.out(StringUtil.asPrintStream(out));
+		io.err(StringUtil.asPrintStream(err));
 	}
 
 	@Override
 	public void close() {
 		pipe.close();
-		sysIo.close();
+		io.close();
 	}
 }

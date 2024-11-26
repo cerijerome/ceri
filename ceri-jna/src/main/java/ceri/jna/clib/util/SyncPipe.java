@@ -117,6 +117,7 @@ public class SyncPipe implements RuntimeCloseable {
 		public boolean poll(Integer timeoutMs) throws IOException {
 			if (sync.closed()) return false;
 			poll.poll(timeoutMs);
+			if (sync.closed()) return false;
 			poll.fd(0).validate();
 			sync.clear();
 			return poll.fd(0).revents() != 0;
