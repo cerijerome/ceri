@@ -22,6 +22,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.runner.JUnitCore;
@@ -40,10 +41,13 @@ import ceri.common.math.MathUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.ReflectUtil.ThreadElement;
+import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 public class TestUtil {
+	private static final Pattern TEST_METHOD_REGEX = Pattern.compile("^(test|should)[A-Z]");
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
@@ -388,6 +392,17 @@ public class TestUtil {
 	 */
 	public static SimpleExecutor<RuntimeException, ?> threadRun(ExceptionRunnable<?> runnable) {
 		return SimpleExecutor.run(runnable);
+	}
+
+	/**
+	 * Searches all thread stack traces for a test class and method.
+	 */
+	public static ThreadElement findTest() {
+		return ReflectUtil.findElement(e -> {
+			var style = TestStyle.from(e.getClassName());
+			var m = RegexUtil.found(TEST_METHOD_REGEX, e.getMethodName());
+			return !style.isNone() && m != null;
+		});
 	}
 
 	/**

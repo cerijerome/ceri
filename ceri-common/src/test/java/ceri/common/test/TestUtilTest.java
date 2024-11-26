@@ -59,6 +59,19 @@ public class TestUtilTest {
 	}
 
 	@Test
+	public void testFindTest() {
+		var thread = Thread.currentThread();
+		try (var t = TestUtil.threadRun(() -> {
+			var te = TestUtil.findTest();
+			assertEquals(te.thread(), thread);
+			assertEquals(te.element().getClassName(), getClass().getName());
+			assertEquals(te.element().getMethodName(), "testFindTest");
+		})) {
+			t.get();
+		}
+	}
+
+	@Test
 	public void testExerciseRecord() {
 		TestUtil.exerciseRecord(null);
 		TestUtil.exerciseRecord(new Rec(-1, "test"));

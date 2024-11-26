@@ -3,6 +3,7 @@ package ceri.common.reflect;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -18,6 +19,7 @@ import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.Fluent;
+import ceri.common.reflect.ReflectUtil.ThreadElement;
 import ceri.common.test.Captor;
 
 public class ReflectUtilTest {
@@ -51,9 +53,32 @@ public class ReflectUtilTest {
 		private double d;
 	}
 
+	private enum E {
+		a,
+		b,
+		c;
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
+	}
+
+	@Test
+	public void testThreadElement() {
+		var te = new ThreadElement(Thread.currentThread(),
+			new StackTraceElement("my.pkg.MyClass", "method", "File.java", 123));
+		assertFind(te, "\\[.*\\] \\Qmy.pkg.MyClass.method(File.java:123)\\E");
+	}
+
+	@Test
+	public void testFindElement() {
+		assertEquals(ReflectUtil.findElement(e -> false), ThreadElement.NULL);
+		var thread = Thread.currentThread();
+		var name = getClass().getName();
+		var te = ReflectUtil.findElement((t, e) -> (thread == t) && e.getClassName().equals(name));
+		assertEquals(te.thread(), thread);
+		assertEquals(te.element().getClassName(), name);
 	}
 
 	@Test
@@ -61,12 +86,6 @@ public class ReflectUtilTest {
 		assertEquals(ReflectUtil.getClass(null), null);
 		assertEquals(ReflectUtil.getClass(String.class), Class.class);
 		assertEquals(ReflectUtil.getClass("abc"), String.class);
-	}
-
-	private static enum E {
-		a,
-		b,
-		c;
 	}
 
 	@Test

@@ -18,6 +18,8 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionUtil;
@@ -33,6 +35,38 @@ public class ReflectUtil {
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
 	private ReflectUtil() {}
+
+	/**
+	 * A thread and stack trace element.
+	 */
+	public record ThreadElement(Thread thread, StackTraceElement element) {
+		public static final ThreadElement NULL = new ThreadElement(null, null);
+		
+		@Override
+		public final String toString() {
+			return String.format("[%s] %s", thread().getName(), element);
+		}
+	}
+
+	/**
+	 * Searches all thread stack trace elements.
+	 */
+	public static ThreadElement findElement(Predicate<StackTraceElement> predicate) {
+		return findElement((t, e) -> predicate.test(e));
+	}
+	
+	/**
+	 * Searches all thread stack trace elements.
+	 */
+	public static ThreadElement findElement(BiPredicate<Thread, StackTraceElement> predicate) {
+		for (var entry : Thread.getAllStackTraces().entrySet()) {
+			for (var element : entry.getValue()) {
+				if (predicate.test(entry.getKey(), element))
+					return new ThreadElement(entry.getKey(), element);
+			}
+		}
+		return ThreadElement.NULL;
+	}
 
 	/**
 	 * Get the typed class of an object.
@@ -306,7 +340,7 @@ public class ReflectUtil {
 	public static boolean isStatic(Member member) {
 		return member != null && Modifier.isStatic(member.getModifiers());
 	}
-	
+
 	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
