@@ -79,7 +79,7 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 	public boolean closed() {
 		return closed.get();
 	}
-	
+
 	private void loops() {
 		logger.info("{} started", logName);
 		try {

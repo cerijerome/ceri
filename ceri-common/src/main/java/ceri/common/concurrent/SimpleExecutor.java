@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
 import ceri.common.function.ExceptionRunnable;
+import ceri.common.util.CloseableUtil;
 
 /**
  * A single-threaded execution of callable or runnable.
@@ -66,7 +67,7 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 			Future<T> future = exec.submit(callable);
 			return new SimpleExecutor<>(exec, future, exceptionConstructor, closeTimeoutMs);
 		} catch (RuntimeException e) {
-			ConcurrentUtil.close(exec, closeTimeoutMs);
+			CloseableUtil.close(exec, closeTimeoutMs);
 			throw e;
 		}
 	}
@@ -93,6 +94,6 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 
 	@Override
 	public void close() {
-		ConcurrentUtil.close(exec, closeTimeoutMs);
+		CloseableUtil.close(exec, closeTimeoutMs);
 	}
 }

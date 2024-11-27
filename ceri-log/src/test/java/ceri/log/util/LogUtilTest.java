@@ -276,9 +276,8 @@ public class LogUtilTest {
 	@Test
 	public void testCloseExecutorServiceWithInterrupt() {
 		try (TestExecutorService exec = TestExecutorService.of()) {
-			exec.awaitTermination.error.setFrom(INX);
-			assertFalse(LogUtil.close(exec));
-			testLog.assertFind("(?is)DEBUG .*InterruptedException");
+			exec.awaitTermination.error.setFrom(INX, INX, null);
+			assertTrue(LogUtil.close(exec));
 		}
 	}
 

@@ -27,7 +27,9 @@ import ceri.common.function.ExceptionLongSupplier;
 import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.TimedSupplier;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.time.Timer;
 import ceri.common.util.Holder;
 
 public class ConcurrentUtil {
@@ -93,6 +95,28 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Calls the supplier with remaining time, retrying if interrupted. Restores the current thread
+	 * interrupted status on completion..
+	 */
+	public static <E extends Exception, T> T getWhileInterrupted(TimedSupplier<E, T> supplier,
+		long time, TimeUnit unit) throws E {
+		boolean interrupted = Thread.interrupted();
+		var timer = Timer.of(time, unit);
+		try {
+			while (true) {
+				try {
+					long t = Math.max(0L, timer.snapshot().remaining());
+					return supplier.get(t, unit);
+				} catch (RuntimeInterruptedException | InterruptedException e) {
+					interrupted = true;
+				}
+			}
+		} finally {
+			if (interrupted) interrupt();
+		}
+	}
+
+	/**
 	 * Calls await() on a Condition with or without a timeout. Use a null timeout to call without.
 	 * Must be called inside a locked block.
 	 */
@@ -103,19 +127,6 @@ public class ConcurrentUtil {
 			return true;
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
-		}
-	}
-
-	/**
-	 * Shuts down an executor and waits for completion. Returns true if successfully shut down.
-	 */
-	public static boolean close(ExecutorService exec, int timeoutMs) {
-		try {
-			if (exec == null) return false;
-			exec.shutdownNow();
-			return exec.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			return false;
 		}
 	}
 

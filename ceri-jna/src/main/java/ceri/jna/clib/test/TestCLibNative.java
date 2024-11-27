@@ -19,6 +19,7 @@ import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.reflect.ReflectUtil.ThreadElement;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
@@ -44,6 +45,7 @@ import ceri.jna.util.Struct;
 public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
 	public final Map<Integer, OpenArgs> fds = new ConcurrentHashMap<>();
+	public final Map<Integer, ThreadElement> fdContext = new ConcurrentHashMap<>();
 	public final Map<String, String> env = new ConcurrentHashMap<>();
 	public final CallSync.Consumer<OpenArgs> open = CallSync.consumer(null, true);
 	public final CallSync.Function<Integer, Integer> close = CallSync.function(null, 0);
@@ -274,6 +276,7 @@ public class TestCLibNative implements CLib.Native {
 	public void reset() {
 		nextFd.set(1000);
 		fds.clear();
+		fdContext.clear();
 		env.clear();
 		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
 			raise, read, signal, sigset, tc, write);
@@ -497,7 +500,7 @@ public class TestCLibNative implements CLib.Native {
 
 	protected int fd(int fd, int errorCode) {
 		if (fds.containsKey(fd)) return fd;
-		throw JnaTestUtil.lastError(errorCode, TestUtil.findTest().toString());
+		throw JnaTestUtil.lastError(errorCode, String.valueOf(fdContext.get(fd)));
 	}
 
 	private int sigset(Pointer set, int mask) {
@@ -509,6 +512,7 @@ public class TestCLibNative implements CLib.Native {
 	private int createFd(OpenArgs open) {
 		int fd = nextFd.getAndIncrement();
 		fds.put(fd, open);
+		fdContext.put(fd, TestUtil.findTest());
 		lastFd = fd;
 		return fd;
 	}

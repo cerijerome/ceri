@@ -26,6 +26,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.AfterClass;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil.LockInfo;
+import ceri.common.test.CallSync;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.util.Holder;
@@ -132,20 +133,12 @@ public class ConcurrentUtilTest {
 	}
 
 	@Test
-	public void testCloseExecutor() {
-		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
-			exec.submit(() -> ConcurrentUtil.delay(60000));
-			assertTrue(ConcurrentUtil.close(exec, 1000));
-		}
-	}
-
-	@Test
-	public void testCloseExecutorWithException() {
-		assertFalse(ConcurrentUtil.close(null, 0));
-		try (TestExecutorService exec = TestExecutorService.of()) {
-			exec.awaitTermination.error.setFrom(INX);
-			assertFalse(ConcurrentUtil.close(exec, 0));
-		}
+	public void testGetWhileInterrupted() {
+		var sync = CallSync.function(0L, true);
+		sync.error.setFrom(INX, null);
+		assertEquals(ConcurrentUtil.getWhileInterrupted((t, u) -> sync.apply(t), 100L,
+			TimeUnit.MILLISECONDS), true);
+		assertEquals(Thread.interrupted(), true);
 	}
 
 	@Test

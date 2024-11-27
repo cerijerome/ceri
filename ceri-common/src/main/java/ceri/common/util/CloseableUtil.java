@@ -1,5 +1,6 @@
 package ceri.common.util;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -286,7 +287,8 @@ public class CloseableUtil {
 	public static boolean close(ExecutorService executor, int timeoutMs) {
 		return testIt(executor, e -> {
 			executor.shutdownNow();
-			return executor.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS);
+			return ConcurrentUtil.getWhileInterrupted(executor::awaitTermination, timeoutMs,
+				MILLISECONDS);
 		});
 	}
 
