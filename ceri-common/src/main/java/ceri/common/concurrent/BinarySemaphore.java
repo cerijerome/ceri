@@ -1,6 +1,7 @@
 package ceri.common.concurrent;
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.RuntimeCloseable;
 
 /**
@@ -9,7 +10,7 @@ import ceri.common.function.RuntimeCloseable;
  */
 public class BinarySemaphore implements AutoCloseable {
 	private final Semaphore semaphore;
-	private volatile boolean closed = false;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
 	public static BinarySemaphore of() {
 		return of(false);
@@ -44,9 +45,9 @@ public class BinarySemaphore implements AutoCloseable {
 	 */
 	public void acquire() {
 		try {
-			if (closed) throw closedException();
+			if (closed()) throw closedException();
 			semaphore.acquire();
-			if (!closed) return;
+			if (!closed()) return;
 			semaphore.release();
 			throw closedException();
 		} catch (InterruptedException e) {
@@ -65,12 +66,16 @@ public class BinarySemaphore implements AutoCloseable {
 	 * Returns true if the semaphore is not closed, and a permit is available.
 	 */
 	public boolean available() {
-		return !closed && semaphore.availablePermits() > 0;
+		return !closed() && semaphore.availablePermits() > 0;
+	}
+	
+	public boolean closed() {
+		return closed.get();
 	}
 	
 	@Override
 	public void close() {
-		closed = true;
+		if (closed.getAndSet(true)) return;
 		semaphore.release();
 	}
 

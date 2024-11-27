@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -144,6 +145,17 @@ public class ConcurrentUtilTest {
 		try (TestExecutorService exec = TestExecutorService.of()) {
 			exec.awaitTermination.error.setFrom(INX);
 			assertFalse(ConcurrentUtil.close(exec, 0));
+		}
+	}
+
+	@Test
+	public void testClosedExecutorSubmit() {
+		try (TestExecutorService exec = TestExecutorService.of()) {
+			exec.execute.error.set(new RejectedExecutionException("test"));
+			assertThrown(RejectedExecutionException.class,
+				() -> ConcurrentUtil.submit(exec, () -> {}));
+			exec.close();
+			ConcurrentUtil.submit(exec, () -> {}); // no exception if closed
 		}
 	}
 
@@ -341,6 +353,17 @@ public class ConcurrentUtilTest {
 				msgs.add("2");
 			}));
 		assertCollection(msgs);
+	}
+
+	@Test
+	public void testInvokeClosedWithTimeout() throws Exception {
+		try (TestExecutorService exec = TestExecutorService.of()) {
+			exec.execute.error.set(new RejectedExecutionException("test"));
+			assertThrown(RejectedExecutionException.class,
+				() -> ConcurrentUtil.invoke(exec, IOException::new, () -> {}));
+			exec.close();
+			ConcurrentUtil.invoke(exec, IOException::new, () -> {}); // no exception if closed
+		}
 	}
 
 }

@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.FunctionUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -41,10 +42,11 @@ public class ReflectUtil {
 	 */
 	public record ThreadElement(Thread thread, StackTraceElement element) {
 		public static final ThreadElement NULL = new ThreadElement(null, null);
-		
+
 		@Override
 		public final String toString() {
-			return String.format("[%s] %s", thread().getName(), element);
+			return String.format("[%s] %s",
+				FunctionUtil.safeApply(thread(), Thread::getName, "null"), element);
 		}
 	}
 
@@ -54,7 +56,7 @@ public class ReflectUtil {
 	public static ThreadElement findElement(Predicate<StackTraceElement> predicate) {
 		return findElement((t, e) -> predicate.test(e));
 	}
-	
+
 	/**
 	 * Searches all thread stack trace elements.
 	 */

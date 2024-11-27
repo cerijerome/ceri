@@ -9,7 +9,8 @@ public class TestExecutorService extends AbstractExecutorService {
 	public final CallSync.Consumer<Runnable> execute = CallSync.consumer(null, true);
 	public final CallSync.Function<Boolean, List<Runnable>> shutdown =
 		CallSync.function(false, List.of());
-	public final CallSync.Function<Timeout, Boolean> awaitTermination = CallSync.function(null, true);
+	public final CallSync.Function<Timeout, Boolean> awaitTermination =
+		CallSync.function(null, true);
 
 	public static TestExecutorService of() {
 		return new TestExecutorService();

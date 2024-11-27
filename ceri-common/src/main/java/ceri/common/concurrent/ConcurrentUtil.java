@@ -6,13 +6,13 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
@@ -213,20 +213,49 @@ public class ConcurrentUtil {
 	}
 
 	/**
-	 * Submits a runnable to the executor service, allowing exceptions to be thrown. Returns a
-	 * boolean Future.
+	 * Submits a task to the executor service and returns a Future. If the executor is shut down, a
+	 * cancelled future is returned.
 	 */
 	public static Future<?> submit(ExecutorService executor, ExceptionRunnable<?> runnable) {
-		return executor.submit(callable(runnable));
+		return submit(executor, runnable, Boolean.TRUE);
+	}
+
+	/**
+	 * Submits a task to the executor service and returns a Future. If the executor is shut down, a
+	 * cancelled future is returned.
+	 */
+	public static <T> Future<T> submit(ExecutorService executor, ExceptionRunnable<?> runnable,
+		T result) {
+		return submit(executor, callable(runnable, result));
+	}
+
+	/**
+	 * Submits a task to the executor service and returns a Future. If the executor is shut down, a
+	 * cancelled future is returned.
+	 */
+	public static <T> Future<T> submit(ExecutorService executor, Callable<T> callable) {
+		try {
+			return executor.submit(callable);
+		} catch (RejectedExecutionException e) {
+			if (executor.isShutdown()) return Futures.cancelled();
+			throw e;
+		}
 	}
 
 	/**
 	 * Converts a runnable with exception into a callable type.
 	 */
 	public static Callable<Boolean> callable(ExceptionRunnable<?> runnable) {
+		return callable(runnable, Boolean.TRUE);
+	}
+
+	/**
+	 * Converts a runnable with exception into a callable type.
+	 */
+	public static <T> Callable<T> callable(ExceptionRunnable<?> runnable, T result) {
 		return () -> {
 			runnable.run();
-			return Boolean.TRUE;
+			return result;
 		};
 	}
 
@@ -450,17 +479,21 @@ public class ConcurrentUtil {
 
 	/**
 	 * Executes all runnable tasks and waits for completion. A null timeout will wait indefinitely.
-	 * If the timeout expires, tasks are cancelled and a CancellationException is thrown.
+	 * If the timeout expires, tasks are cancelled and a CancellationException is thrown. Does
+	 * nothing If the executor is shut down.
 	 */
 	private static <E extends Exception> void invokeAll(ExecutorService executor,
 		Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
 		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
-		List<Callable<Boolean>> callables =
-			CollectionUtil.toList(ConcurrentUtil::callable, runnables);
-		List<Future<Boolean>> futures = timeoutMs == null ? executor.invokeAll(callables) :
-			executor.invokeAll(callables, timeoutMs, MILLISECONDS);
-		for (Future<Boolean> future : futures)
-			get(future, exceptionConstructor);
+		var callables = CollectionUtil.toList(ConcurrentUtil::callable, runnables);
+		try {
+			var futures = timeoutMs == null ? executor.invokeAll(callables) :
+				executor.invokeAll(callables, timeoutMs, MILLISECONDS);
+			for (var future : futures)
+				get(future, exceptionConstructor);
+		} catch (RejectedExecutionException e) {
+			if (!executor.isShutdown()) throw e;
+		}
 	}
 
 	private static Lock nullLock() {

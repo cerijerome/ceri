@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.util.CloseableUtil;
@@ -18,7 +19,7 @@ public class TcpServerSocket implements Closeable {
 	private final ExecutorService exec;
 	private final ServerSocket serverSocket;
 	private final int port;
-	private volatile boolean closed = false;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
 	public static TcpServerSocket of() throws IOException {
 		return of(0);
@@ -61,7 +62,7 @@ public class TcpServerSocket implements Closeable {
 
 	@Override
 	public void close() {
-		closed = true;
+		if (closed.getAndSet(true)) return;
 		CloseableUtil.close(serverSocket, exec); // must shut down socket first
 	}
 
@@ -70,14 +71,14 @@ public class TcpServerSocket implements Closeable {
 		throws IOException {
 		Socket socket = null;
 		try {
-			while (true) {
+			while (!closed.get()) {
 				ConcurrentUtil.checkRuntimeInterrupted();
 				socket = serverSocket.accept();
 				listener.accept(TcpSocket.wrap(socket));
 			}
 		} catch (RuntimeException | IOException e) {
 			CloseableUtil.close(socket);
-			if (!closed) throw e;
+			if (!closed.get()) throw e;
 		}
 	}
 }

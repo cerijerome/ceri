@@ -26,16 +26,14 @@ public class PollingInputStreamBehavior {
 		}
 	}
 
-	@SuppressWarnings("resource")
 	@Test
 	public void shouldNotWaitIfClosed() throws Exception {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
-		PollingInputStream in0;
 		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1, 1)) {
-			in0 = in;
+			in.close();
+			byte[] read = new byte[2];
+			in.read(read, 0, 0);
 		}
-		byte[] read = new byte[2];
-		in0.read(read, 0, 0);
 	}
 
 }

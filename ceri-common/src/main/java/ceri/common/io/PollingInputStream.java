@@ -3,6 +3,7 @@ package ceri.common.io;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An input stream that polls the underlying stream until data is available. This allows I/O to
@@ -11,7 +12,7 @@ import java.io.InputStream;
 public class PollingInputStream extends FilterInputStream {
 	private final long pollingMs;
 	private final long timeoutMs;
-	private volatile boolean closed = false;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
 	/**
 	 * Constructor with given polling interval and unlimited wait time for data to be available.
@@ -50,13 +51,12 @@ public class PollingInputStream extends FilterInputStream {
 
 	@Override
 	public void close() throws IOException {
-		closed = true;
+		if (closed.getAndSet(true)) return;
 		super.close();
 	}
 
 	private void waitForData(int count) throws IOException {
-		if (closed) return;
-		IoUtil.pollForData(in, count, timeoutMs, pollingMs);
+		if (!closed.get()) IoUtil.pollForData(in, count, timeoutMs, pollingMs);
 	}
 
 }

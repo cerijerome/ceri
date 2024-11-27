@@ -2,6 +2,7 @@ package ceri.common.net;
 
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
+import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.CallSync;
@@ -9,7 +10,7 @@ import ceri.common.test.CallSync;
 public class TcpServerSocketBehavior {
 
 	@Test
-	public void shouldStopListeningOnErrors() throws Exception {
+	public void shouldStopListeningOnErrors() throws IOException {
 		var c = CallSync.consumer(null, true);
 		c.error.setFrom(IOX);
 		try (var ss = TcpServerSocket.of()) {
@@ -21,11 +22,19 @@ public class TcpServerSocketBehavior {
 	}
 
 	@Test
-	public void shouldStopListeningOnInterrupt() throws Exception {
+	public void shouldStopListeningOnInterrupt() throws IOException {
 		try (var ss = TcpServerSocket.of()) {
 			ConcurrentUtil.interrupt();
 			ss.listenAndClose(s -> {});
 		}
 	}
 
+	@Test
+	public void shouldNotListenIfClosed() throws IOException {
+		try (var ss = TcpServerSocket.of()) {
+			ss.close();
+			ss.listenAndClose(s -> {});
+		}
+	}
+	
 }

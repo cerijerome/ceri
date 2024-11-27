@@ -55,6 +55,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
 	ceri.common.concurrent.BooleanConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
+	ceri.common.concurrent.FuturesBehavior.class, //
 	ceri.common.concurrent.LazyBehavior.class, //
 	ceri.common.concurrent.LockerBehavior.class, //
 	ceri.common.concurrent.RuntimeInterruptedExceptionBehavior.class, //
