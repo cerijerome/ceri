@@ -21,6 +21,7 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.test.ErrorGen;
+import ceri.common.text.StringUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.IntType;
@@ -202,6 +203,13 @@ public class JnaTestUtil {
 			m[i] = JnaUtil.calloc(MathUtil.random(min, max));
 		System.gc();
 		return m;
+	}
+
+	/**
+	 * Create a LastErrorException from the code and message.
+	 */
+	public static LastErrorException lastError(int code, String message, Object... args) {
+		return new LastErrorException("[" + code + "] " + StringUtil.format(message, args));
 	}
 
 	/**

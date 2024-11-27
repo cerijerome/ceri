@@ -262,8 +262,13 @@ public class CUnistdTest {
 
 	@Test
 	public void testCloseInvalidFd() throws IOException {
+		initLib();
 		CUnistd.close(-1);
 		CUnistd.closeSilently(-1);
+		int fd = CFcntl.open("test", 0, 0);
+		CUnistd.close(fd);
+		assertThrown(CException.class, () -> CUnistd.close(fd));
+		CUnistd.closeSilently(fd);
 	}
 
 	private void initLib() {

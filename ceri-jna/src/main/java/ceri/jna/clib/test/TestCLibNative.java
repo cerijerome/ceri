@@ -20,6 +20,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.test.CallSync;
+import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
@@ -33,6 +34,7 @@ import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
+import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
@@ -276,8 +278,8 @@ public class TestCLibNative implements CLib.Native {
 		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
 			raise, read, signal, sigset, tc, write);
 		fds.put(CUnistd.STDIN_FILENO, new OpenArgs("stdin", CFcntl.O_RDONLY, 0));
-		fds.put(CUnistd.STDOUT_FILENO, new OpenArgs("stdout", CFcntl.O_WRONLY,  0));
-		fds.put(CUnistd.STDERR_FILENO, new OpenArgs("stderr", CFcntl.O_WRONLY,  0));
+		fds.put(CUnistd.STDOUT_FILENO, new OpenArgs("stdout", CFcntl.O_WRONLY, 0));
+		fds.put(CUnistd.STDERR_FILENO, new OpenArgs("stderr", CFcntl.O_WRONLY, 0));
 	}
 
 	@Override
@@ -495,7 +497,7 @@ public class TestCLibNative implements CLib.Native {
 
 	protected int fd(int fd, int errorCode) {
 		if (fds.containsKey(fd)) return fd;
-		throw new LastErrorException(errorCode);
+		throw JnaTestUtil.lastError(errorCode, TestUtil.findTest().toString());
 	}
 
 	private int sigset(Pointer set, int mask) {

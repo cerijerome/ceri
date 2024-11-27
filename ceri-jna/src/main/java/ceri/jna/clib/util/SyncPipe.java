@@ -16,8 +16,8 @@ import ceri.log.util.LogUtil;
  */
 public class SyncPipe implements RuntimeCloseable {
 	private final AtomicBoolean sync = new AtomicBoolean();
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private final Pipe pipe;
-	private volatile boolean closed;
 
 	/**
 	 * Creates a sync pipe that can be used for multiple poll fds.
@@ -145,8 +145,7 @@ public class SyncPipe implements RuntimeCloseable {
 	 * present.
 	 */
 	public boolean signal() throws IOException {
-		if (sync.getAndSet(true)) return false; // signal already active
-		if (closed) return false;
+		if (sync.getAndSet(true) || closed.get()) return false; // signal already active
 		try {
 			return write();
 		} catch (RuntimeException | IOException e) {
@@ -167,20 +166,19 @@ public class SyncPipe implements RuntimeCloseable {
 	 */
 	@SuppressWarnings("resource")
 	public void clear() throws IOException {
-		if (!closed) IoUtil.clear(pipe.in());
+		if (!closed.get()) IoUtil.clear(pipe.in());
 		sync.set(false);
 	}
 
 	@Override
 	public void close() {
-		if (closed) return;
-		closed = true;
+		if (closed.getAndSet(true)) return;
 		CloseableUtil.close(this::write); // ignore failure
 		LogUtil.close(pipe); // log failure
 	}
 
 	private boolean closed() {
-		return closed;
+		return closed.get();
 	}
 	
 	@SuppressWarnings("resource")
