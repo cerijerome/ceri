@@ -5,6 +5,7 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_DEVICE;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NO_MEM;
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.concurrent.Lazy;
@@ -37,7 +38,7 @@ public class FtdiDevice implements Ftdi {
 	private final JnaOutputStream out;
 	private final Lazy.Supplier<LibUsbException, ftdi_usb_strings> descriptor =
 		Lazy.unsafe(this::deviceDescriptor);
-	private volatile boolean closed = false;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
 	public static boolean isFatal(Exception e) {
 		if (!(e instanceof LibUsbException le)) return false;
@@ -195,14 +196,13 @@ public class FtdiDevice implements Ftdi {
 
 	@Override
 	public void close() {
-		if (closed) return;
-		closed = true;
+		if (closed.getAndSet(true)) return;
 		LogUtil.close(ftdi, LibFtdi::ftdi_free);
 		LogUtil.close(in, out);
 	}
 
 	ftdi_context ftdi() throws LibUsbException {
-		if (!closed) return ftdi;
+		if (!closed.get()) return ftdi;
 		throw LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "Device is closed");
 	}
 

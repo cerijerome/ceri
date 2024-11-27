@@ -2,6 +2,7 @@ package ceri.log.concurrent;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
@@ -15,11 +16,12 @@ import ceri.log.util.LogUtil;
  */
 public abstract class LoopingExecutor implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int EXIT_TIMEOUT_MS_DEF = 1000;
+	private static final int EXIT_TIMEOUT_MS_DEF = 10000;
 	private final int exitTimeoutMs;
 	private final String logName;
 	private final ExecutorService executor;
 	private final BooleanCondition stopped = BooleanCondition.of();
+	private final AtomicBoolean closed = new AtomicBoolean(false);
 
 	protected LoopingExecutor() {
 		this(null);
@@ -49,6 +51,7 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 
 	@Override
 	public void close() {
+		if (closed.getAndSet(true)) return;
 		LogUtil.close(executor, exitTimeoutMs);
 	}
 
@@ -73,6 +76,10 @@ public abstract class LoopingExecutor implements RuntimeCloseable {
 		return stopped.isSet();
 	}
 
+	public boolean closed() {
+		return closed.get();
+	}
+	
 	private void loops() {
 		logger.info("{} started", logName);
 		try {

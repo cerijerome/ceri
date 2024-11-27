@@ -1,6 +1,7 @@
 package ceri.log.concurrent;
 
 import static ceri.common.concurrent.ConcurrentUtil.delayMicros;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
@@ -10,6 +11,18 @@ import ceri.common.function.ExceptionIntConsumer;
 import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
+
+	@Test
+	public void shouldDetermineIfClosed() {
+		ValueCondition<Integer> sync = ValueCondition.of();
+		try (var loop = new TestLoop(sync::signal)) {
+			assertEquals(loop.closed(), false);
+			loop.close();
+			assertEquals(loop.closed(), true);
+			loop.close();
+			assertEquals(loop.closed(), true);
+		}
+	}
 
 	@Test
 	public void shouldLoop() throws InterruptedException {
