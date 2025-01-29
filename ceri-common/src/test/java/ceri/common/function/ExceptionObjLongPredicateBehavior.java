@@ -51,7 +51,7 @@ public class ExceptionObjLongPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyOrTests() throws IOException {
-		ExceptionObjLongPredicate<IOException, Integer> p = objLongPredicate().or((i, j) -> i < -1);
+		ExceptionObjLongPredicate<IOException, Integer> p = objLongPredicate().or((i, _) -> i < -1);
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
@@ -61,7 +61,7 @@ public class ExceptionObjLongPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyAndTests() throws IOException {
-		ExceptionObjLongPredicate<IOException, Integer> p = objLongPredicate().and((i, j) -> i < 3);
+		ExceptionObjLongPredicate<IOException, Integer> p = objLongPredicate().and((i, _) -> i < 3);
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));

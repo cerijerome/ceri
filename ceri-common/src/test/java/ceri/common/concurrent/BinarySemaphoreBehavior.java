@@ -23,7 +23,7 @@ public class BinarySemaphoreBehavior {
 
 	@Test
 	public void shouldAcquireWithResource() {
-		try (var x = bs.acquirer()) {
+		try (var _ = bs.acquirer()) {
 			assertFalse(bs.available());
 		}
 		assertTrue(bs.available());
@@ -53,7 +53,7 @@ public class BinarySemaphoreBehavior {
 	@Test
 	public void shouldFailToAcquireIfInterrupted() {
 		bs.acquire();
-		try (var x = TestUtil.threadRun(() -> {
+		try (var _ = TestUtil.threadRun(() -> {
 			assertThrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)

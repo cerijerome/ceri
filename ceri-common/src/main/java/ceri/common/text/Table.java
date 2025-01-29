@@ -58,7 +58,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	 * Allows formatting of cell contents and framing, typically with ANSI escapes.
 	 */
 	public static interface Formatter {
-		public static final Formatter NULL = (f, r, c, or, s) -> s;
+		public static final Formatter NULL = (_, _, _, _, s) -> s;
 
 		/**
 		 * Return the formatted string. Visible string length must remain the same.

@@ -20,15 +20,15 @@ public class EnclosedBehavior {
 	public void shouldWrapCloseable() throws IOException {
 		var sync = CallSync.runnable(true);
 		try (ExceptionCloseable<IOException> ec = () -> sync.run()) {
-			try (Enclosed<IOException, ?> c = Enclosed.of(ec)) {}
+			try (var _ = Enclosed.of(ec)) {}
 			sync.assertCalls(1);
 		}
 	}
 
 	@Test
-	public void shouldTransformCloseable() throws IOException {
+	public void shouldTransformCloseable() {
 		var sync = CallSync.runnable(true);
-		try (Enclosed<IOException, String> c = Enclosed.from("test", () -> sync.run())) {}
+		try (var _ = Enclosed.from("test", () -> sync.run())) {}
 		sync.assertCalls(1);
 	}
 
@@ -37,7 +37,7 @@ public class EnclosedBehavior {
 	public void shouldAdaptCloseableType() {
 		var sync = CallSync.runnable(true);
 		RuntimeCloseable rc = sync::run;
-		try (Enclosed<RuntimeException, String> c = Enclosed.adaptOrClose(rc, t -> "test")) {
+		try (Enclosed<RuntimeException, String> c = Enclosed.adaptOrClose(rc, _ -> "test")) {
 			assertEquals(c.ref, "test");
 		}
 		sync.assertCalls(1);
@@ -48,21 +48,21 @@ public class EnclosedBehavior {
 	public void shouldCloseOnAdaptFailure() {
 		var sync = CallSync.runnable(true);
 		RuntimeCloseable rc = sync::run;
-		assertThrown(() -> Enclosed.adaptOrClose(rc, t -> throwRuntime()));
+		assertThrown(() -> Enclosed.adaptOrClose(rc, _ -> throwRuntime()));
 		sync.assertCalls(1);
 	}
 
 	@Test
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };
-		try (var c = Enclosed.of(ss, s -> s[0] = null)) {}
+		try (var _ = Enclosed.of(ss, s -> s[0] = null)) {}
 		assertNull(ss[0]);
 	}
 
 	@Test
 	public void shouldNotExecuteForNullSubject() {
 		String[] ss = null;
-		try (var c = Enclosed.of(ss, s -> {
+		try (var _ = Enclosed.of(ss, _ -> {
 			throw new RuntimeException();
 		})) {}
 	}
@@ -70,13 +70,13 @@ public class EnclosedBehavior {
 	@Test
 	public void shouldAllowNullCloser() throws Exception {
 		String[] ss = null;
-		try (var c = Enclosed.of(ss, null)) {}
+		try (var _ = Enclosed.of(ss, null)) {}
 	}
 
 	@Test
 	public void shouldCloseCloseablesInReverseOrder() {
 		var captor = Captor.ofInt();
-		try (var enc = Enclosed.ofAll(() -> captor.accept(1), () -> captor.accept(2))) {}
+		try (var _ = Enclosed.ofAll(() -> captor.accept(1), () -> captor.accept(2))) {}
 		captor.verify(2, 1);
 	}
 
@@ -87,8 +87,8 @@ public class EnclosedBehavior {
 		assertTrue(Enclosed.noOp(null).isEmpty());
 		assertFalse(Enclosed.noOp(new Object()).isEmpty());
 		assertFalse(Enclosed.of(new Object(), null).isEmpty());
-		assertTrue(Enclosed.of(null, x -> {}).isNoOp());
-		assertFalse(Enclosed.of(new Object(), x -> {}).isNoOp());
+		assertTrue(Enclosed.of(null, _ -> {}).isNoOp());
+		assertFalse(Enclosed.of(new Object(), _ -> {}).isNoOp());
 	}
 
 	@SuppressWarnings("resource")
@@ -98,14 +98,14 @@ public class EnclosedBehavior {
 		assertTrue(Enclosed.noOp(null).isNoOp());
 		assertTrue(Enclosed.noOp(new Object()).isNoOp());
 		assertTrue(Enclosed.of(new Object(), null).isNoOp());
-		assertTrue(Enclosed.of(null, x -> {}).isNoOp());
-		assertFalse(Enclosed.of(new Object(), x -> {}).isNoOp());
+		assertTrue(Enclosed.of(null, _ -> {}).isNoOp());
+		assertFalse(Enclosed.of(new Object(), _ -> {}).isNoOp());
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(Enclosed.of("test", t -> {}), "[test]");
+		assertString(Enclosed.of("test", _ -> {}), "[test]");
 	}
 
 }

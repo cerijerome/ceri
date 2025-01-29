@@ -264,7 +264,7 @@ public class CloseableUtil {
 	 * thread. Returns false on timeout, or if any exception occurred.
 	 */
 	public static boolean close(Process process, int timeoutMs) {
-		return testIt(process, p -> {
+		return testIt(process, _ -> {
 			process.destroy();
 			return process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
 		});
@@ -285,7 +285,7 @@ public class CloseableUtil {
 	 * thread. Returns false on timeout, or if any exception occurred.
 	 */
 	public static boolean close(ExecutorService executor, int timeoutMs) {
-		return testIt(executor, e -> {
+		return testIt(executor, _ -> {
 			executor.shutdownNow();
 			return ConcurrentUtil.getWhileInterrupted(executor::awaitTermination, timeoutMs,
 				MILLISECONDS);

@@ -21,7 +21,7 @@ public class FileVisitUtil {
 	 * Deletion function for path visitor. Can be used for post and file callbacks.
 	 */
 	public static <T> ExceptionBiFunction<IOException, Path, T, FileVisitResult> deletion() {
-		return (path, t) -> {
+		return (path, _) -> {
 			Files.delete(path);
 			return result(true);
 		};
@@ -32,7 +32,7 @@ public class FileVisitUtil {
 	 */
 	public static <T> ExceptionBiFunction<IOException, T, IOException, FileVisitResult>
 		ignoreOnFail() {
-		return (path, ex) -> result(true);
+		return (_, _) -> result(true);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class FileVisitUtil {
 	 */
 	public static <T> ExceptionBiFunction<IOException, T, IOException, FileVisitResult>
 		throwOnFail() {
-		return (path, ex) -> {
+		return (_, ex) -> {
 			throw ex;
 		};
 	}
@@ -58,7 +58,7 @@ public class FileVisitUtil {
 	 */
 	public static <T, U> ExceptionBiFunction<IOException, T, U, FileVisitResult>
 		adapt(ExceptionFunction<IOException, T, FileVisitResult> fn) {
-		return (t, u) -> fn.apply(t);
+		return (t, _) -> fn.apply(t);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class FileVisitUtil {
 	 */
 	public static <T, U> ExceptionBiFunction<IOException, T, U, FileVisitResult>
 		adaptPredicate(ExceptionPredicate<IOException, T> test) {
-		return (t, u) -> result(test.test(t));
+		return (t, _) -> result(test.test(t));
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class FileVisitUtil {
 	 */
 	public static <T, U> ExceptionBiFunction<IOException, T, U, FileVisitResult>
 		adaptConsumer(ExceptionConsumer<IOException, T> consumer) {
-		return (t, u) -> {
+		return (t, _) -> {
 			consumer.accept(t);
 			return result(true);
 		};

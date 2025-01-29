@@ -576,7 +576,7 @@ public class Sudoku {
 		for (int c = 0; c < chars.length; c++) {
 			char tag = chars[c];
 			if (tag == ' ') continue;
-			var cages = map.computeIfAbsent(tag, k -> new ArrayList<>());
+			var cages = map.computeIfAbsent(tag, _ -> new ArrayList<>());
 			addToAdjacentCage(cages, index(r, c));
 			mergeAdjacentCages(cages);
 		}
@@ -796,7 +796,7 @@ public class Sudoku {
 
 	private IntProvider addGroup(IntProvider group, BiConsumer<Sudoku, IntProvider> rule) {
 		for (int index : group)
-			indexGroups.computeIfAbsent(index, i -> CollectionUtil.identityHashSet()).add(group);
+			indexGroups.computeIfAbsent(index, _ -> CollectionUtil.identityHashSet()).add(group);
 		groupRules.put(group, rule);
 		return group;
 	}
@@ -810,7 +810,7 @@ public class Sudoku {
 	}
 
 	private State groupState(IntProvider group) {
-		return groupStates.computeIfAbsent(group, g -> new State(0));
+		return groupStates.computeIfAbsent(group, _ -> new State(0));
 	}
 
 	/* cell access */

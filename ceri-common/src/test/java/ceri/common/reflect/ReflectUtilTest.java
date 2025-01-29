@@ -3,12 +3,12 @@ package ceri.common.reflect;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.Serializable;
@@ -68,12 +68,15 @@ public class ReflectUtilTest {
 	public void testThreadElement() {
 		var te = new ThreadElement(Thread.currentThread(),
 			new StackTraceElement("my.pkg.MyClass", "method", "File.java", 123));
-		assertFind(te, "\\[.*\\] \\Qmy.pkg.MyClass.method(File.java:123)\\E");
+		assertString(te, "MyClass.method:123");
+		assertMatch(te.full(), "\\[.*\\] \\Qmy.pkg.MyClass.method(File.java:123)\\E");
+		assertString(ThreadElement.NULL, "null");
+		assertString(ThreadElement.NULL.full(), "[null] null");
 	}
 
 	@Test
 	public void testFindElement() {
-		assertEquals(ReflectUtil.findElement(e -> false), ThreadElement.NULL);
+		assertEquals(ReflectUtil.findElement(_ -> false), ThreadElement.NULL);
 		var thread = Thread.currentThread();
 		var name = getClass().getName();
 		var te = ReflectUtil.findElement((t, e) -> (thread == t) && e.getClassName().equals(name));
@@ -169,7 +172,8 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testName() {
-		assertEquals(ReflectUtil.name(null), "null");
+		assertEquals(ReflectUtil.name((Class<?>) null), "null");
+		assertEquals(ReflectUtil.name((String) null), "null");
 		assertEquals(ReflectUtil.name(int.class), "int");
 		assertEquals(ReflectUtil.name(byte[].class), "byte[]");
 		assertEquals(ReflectUtil.name(Abstract.class),
@@ -186,29 +190,6 @@ public class ReflectUtilTest {
 		assertEquals(ReflectUtil.nestedName(Abstract.class), Abstract.class.getSimpleName());
 		assertEquals(ReflectUtil.nestedName(Abstract[].class),
 			Abstract.class.getSimpleName() + "[]");
-	}
-
-	@Test
-	public void testToStringOrHashId() {
-		assertNull(ReflectUtil.toStringOrHash(null));
-		assertEquals(ReflectUtil.toStringOrHash(new Object() {
-			@Override
-			public int hashCode() {
-				return 0xabcdef;
-			}
-		}), "@abcdef");
-		assertEquals(ReflectUtil.toStringOrHash(new Object() {
-			@Override
-			public String toString() {
-				return "test";
-			}
-		}), "test");
-		assertEquals(ReflectUtil.toStringOrHash(new Object() {
-			@Override
-			public String toString() {
-				return "test@";
-			}
-		}), "test@");
 	}
 
 	@Test
@@ -286,7 +267,7 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testCurrentStackTraceElement() {
-		StackTraceElement element = ReflectUtil.currentStackTraceElement();
+		StackTraceElement element = ReflectUtil.currentElement();
 		assertEquals(element.getMethodName(), "testCurrentStackTraceElement");
 		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
 	}
@@ -302,7 +283,7 @@ public class ReflectUtilTest {
 	}
 
 	private StackTraceElement getPreviousStackTraceElement(int countBack) {
-		return ReflectUtil.previousStackTraceElement(countBack);
+		return ReflectUtil.previousElement(countBack);
 	}
 
 	@Test

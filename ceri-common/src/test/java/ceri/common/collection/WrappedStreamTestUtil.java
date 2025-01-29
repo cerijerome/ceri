@@ -57,11 +57,11 @@ public class WrappedStreamTestUtil {
 	}
 
 	public static <E extends Exception> void terminate(WrappedIntStream<E> stream) throws E {
-		stream.terminate(s -> s.forEach(x -> {}));
+		stream.terminate(s -> s.forEach(_ -> {}));
 	}
 
 	public static <E extends Exception> void terminate(WrappedStream<E, ?> stream) throws E {
-		stream.terminate(s -> s.forEach(x -> {}));
+		stream.terminate(s -> s.forEach(_ -> {}));
 	}
 
 	@SafeVarargs

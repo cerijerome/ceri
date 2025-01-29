@@ -41,13 +41,13 @@ public class ConnectorTester {
 		var b = ManualTester.builderList(connectors, Connector::name);
 		b.preProcessor(Connector.class, (t, con) -> t.readBytes(con.in()));
 		b.listen(connectors);
-		b.command(Fixable.class, "O(s?)", (t, m, s) -> open(m, s),
+		b.command(Fixable.class, "O(s?)", (_, m, s) -> open(m, s),
 			"O[s] = open the connector (s = silently)");
 		b.command(Connector.class, "o(?s)(.*)", (t, m, s) -> t.writeAscii(s.out(), m.group(1)),
 			"o... = write literal char bytes to output (e.g. \\xff for 0xff)");
-		b.command(Connector.class, "C", (t, m, s) -> s.close(), "C = close the connector");
-		b.command(Fixable.class, "z", (t, m, s) -> s.broken(), "z = mark connector as broken");
-		b.command(TestConnector.class, "Z", (t, m, s) -> s.fixed(), "Z = fix the connector");
+		b.command(Connector.class, "C", (_, _, s) -> s.close(), "C = close the connector");
+		b.command(Fixable.class, "z", (_, _, s) -> s.broken(), "z = mark connector as broken");
+		b.command(TestConnector.class, "Z", (_, _, s) -> s.fixed(), "Z = fix the connector");
 		return b;
 	}
 

@@ -182,6 +182,6 @@ public class SqlStatement implements AutoCloseable {
 	@Override
 	public String toString() {
 		if (values == null) return sql;
-		return RegexUtil.replaceAll(Q_REGEX, sql, (m, i) -> formatter.format(values[i]));
+		return RegexUtil.replaceAll(Q_REGEX, sql, (_, i) -> formatter.format(values[i]));
 	}
 }

@@ -17,8 +17,8 @@ import ceri.common.util.BasicUtil;
  * Helpers for building predicates.
  */
 public class Predicates {
-	private static final Predicate<Object> YES = (t -> true);
-	private static final Predicate<Object> NO = (t -> false);
+	private static final Predicate<Object> YES = (_ -> true);
+	private static final Predicate<Object> NO = (_ -> false);
 
 	private Predicates() {}
 

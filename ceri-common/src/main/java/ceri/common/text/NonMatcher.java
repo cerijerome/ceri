@@ -56,7 +56,7 @@ public class NonMatcher implements NonMatchResult {
 	}
 
 	public String replaceAll(String replacement) {
-		return replaceAll(m -> replacement);
+		return replaceAll(_ -> replacement);
 	}
 
 	public String replaceAll(Function<NonMatchResult, String> replacer) {
@@ -72,7 +72,7 @@ public class NonMatcher implements NonMatchResult {
 	}
 
 	public String replaceFirst(String replacement) {
-		return replaceFirst(m -> replacement);
+		return replaceFirst(_ -> replacement);
 	}
 
 	public String replaceFirst(Function<NonMatchResult, String> replacer) {

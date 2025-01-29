@@ -297,8 +297,8 @@ public class AssertUtilTest {
 	public void testAssertThrowable() {
 		IOException e = new FileNotFoundException("test");
 		// Class<? extends Throwable> nullCls = null;
-		assertAssertion(() -> assertThrowable(null, null, s -> {}));
-		assertAssertion(() -> assertThrowable(null, Exception.class, s -> {}));
+		assertAssertion(() -> assertThrowable(null, null, _ -> {}));
+		assertAssertion(() -> assertThrowable(null, Exception.class, _ -> {}));
 		assertThrowable(e, IOException.class);
 		assertThrowable(e, FileNotFoundException.class);
 		assertThrowable(e, "test");
@@ -527,16 +527,16 @@ public class AssertUtilTest {
 		assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
 			t -> assertEquals(t, Integer.MAX_VALUE), t -> assertEquals(t, Integer.MIN_VALUE),
 			t -> assertEquals(t, 0));
-		assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0), t -> {}, t -> {}, t -> {});
+		assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0), _ -> {}, _ -> {}, _ -> {});
 	}
 
 	@Test
 	public void testAssertConsumeFailure() {
 		assertAssertion(() -> assertConsume(List.of(0), t -> assertEquals(t, 1)));
 		assertAssertion(() -> assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
-			t -> {}, t -> {}));
+			_ -> {}, _ -> {}));
 		assertAssertion(() -> assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
-			t -> {}, t -> {}, t -> {}, t -> {}));
+			_ -> {}, _ -> {}, _ -> {}, _ -> {}));
 	}
 
 }

@@ -329,7 +329,7 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldReturnEmptyArrayForZeroSizeEncodable() {
-		assertArray(encodable(() -> 0, enc -> throwRuntime()).encode());
+		assertArray(encodable(() -> 0, _ -> throwRuntime()).encode());
 	}
 
 	@Test

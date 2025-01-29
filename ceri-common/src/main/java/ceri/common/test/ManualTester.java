@@ -316,12 +316,12 @@ public class ManualTester implements RuntimeCloseable {
 		protected Builder(List<?> subjects) {
 			if (subjects.isEmpty()) throw new IllegalArgumentException("No subjects");
 			this.subjects = subjects;
-			command("\\?", (t, m, s) -> t.showHelp(), "? = show commands");
-			command("\\!", (t, m, s) -> t.exit = true, "! = exit");
-			command(":", (t, m, s) -> t.out(ReflectUtil.nameHash(s)), ": = subject type");
-			command("(?:(<+)|<(\\d+))", (t, m, s) -> t.history(Parse.len(m), Parse.i(m, 2)),
+			command("\\?", (t, _, _) -> t.showHelp(), "? = show commands");
+			command("\\!", (t, _, _) -> t.exit = true, "! = exit");
+			command(":", (t, _, s) -> t.out(ReflectUtil.nameHash(s)), ": = subject type");
+			command("(?:(<+)|<(\\d+))", (t, m, _) -> t.history(Parse.len(m), Parse.i(m, 2)),
 				"<N = execute Nth previous command");
-			command("~(\\d+)", (t, m, s) -> ConcurrentUtil.delay(Parse.i(m)),
+			command("~(\\d+)", (_, m, _) -> ConcurrentUtil.delay(Parse.i(m)),
 				"~N = sleep for N ms");
 			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
 				"^N;... = repeat subsequent commands N times");
@@ -330,10 +330,10 @@ public class ManualTester implements RuntimeCloseable {
 
 		private void addIndexCommands(int n) {
 			if (n <= 1) return;
-			command("(\\*)", (t, m, s) -> t.listSubjects(), "* = list all subjects");
-			command("(\\-+|\\++)", (t, m, s) -> t.indexDiff(mDiff(m)),
+			command("(\\*)", (t, _, _) -> t.listSubjects(), "* = list all subjects");
+			command("(\\-+|\\++)", (t, m, _) -> t.indexDiff(mDiff(m)),
 				"-|+ = previous/next subject");
-			command("@(\\d+)", (t, m, s) -> t.index(Parse.i(m)),
+			command("@(\\d+)", (t, m, _) -> t.index(Parse.i(m)),
 				"@N = set subject index to N (0.." + (n - 1) + ")");
 		}
 
@@ -420,7 +420,7 @@ public class ManualTester implements RuntimeCloseable {
 		}
 
 		public Builder preProcessor(Consumer<ManualTester> preProcessor) {
-			return preProcessor((t, s) -> preProcessor.accept(t));
+			return preProcessor((t, _) -> preProcessor.accept(t));
 		}
 
 		public Builder preProcessor(SubjectConsumer<Object> preProcessor) {
@@ -460,7 +460,7 @@ public class ManualTester implements RuntimeCloseable {
 		}
 
 		public <T> Builder separator(Class<T> cls, String separator) {
-			command(cls, c -> false, start(separatorSgr) + separator + stop(separatorSgr));
+			command(cls, _ -> false, start(separatorSgr) + separator + stop(separatorSgr));
 			return this;
 		}
 

@@ -25,7 +25,7 @@ public class EventThreadBehavior {
 		var exceptionConsumer = CallSync.<Exception>consumer(null, false);
 		var exception = new RuntimeException("test");
 		try (var et = EventThread.of(exceptionConsumer)) {
-			et.listeners().listen(s -> throwIt(exception));
+			et.listeners().listen(_ -> throwIt(exception));
 			et.accept("test");
 			exceptionConsumer.assertCall(exception);
 		}

@@ -95,7 +95,7 @@ public class TestUtil {
 	 */
 	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable,
 		int delayUs) {
-		return runRepeat(i -> runnable.run(), delayUs);
+		return runRepeat(_ -> runnable.run(), delayUs);
 	}
 
 	/**

@@ -94,7 +94,7 @@ public class CrcAlgorithm {
 		}
 
 		public CrcAlgorithm algorithm() {
-			return cache.computeIfAbsent(this, k -> supplier.get());
+			return cache.computeIfAbsent(this, _ -> supplier.get());
 		}
 	}
 

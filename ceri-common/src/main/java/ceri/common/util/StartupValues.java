@@ -15,7 +15,7 @@ public class StartupValues {
 	private final String[] args;
 	private String prefix = null;
 	private int index = 0;
-	private Consumer<String> notifier = s -> {};
+	private Consumer<String> notifier = _ -> {};
 	private Function<Object, String> renderer = ArrayUtil::deepToString;
 
 	/**

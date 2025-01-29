@@ -18,13 +18,13 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionUtil;
+import ceri.common.function.ExceptionBiPredicate;
 import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -43,24 +43,34 @@ public class ReflectUtil {
 	public record ThreadElement(Thread thread, StackTraceElement element) {
 		public static final ThreadElement NULL = new ThreadElement(null, null);
 
+		/**
+		 * Detailed descriptor.
+		 */
+		public String full() {
+			return String.format("[%s] %s", ConcurrentUtil.name(thread()), element());
+		}
+
 		@Override
-		public final String toString() {
-			return String.format("[%s] %s",
-				FunctionUtil.safeApply(thread(), Thread::getName, "null"), element);
+		public String toString() {
+			if (element() == null) return NULL_STRING;
+			return ReflectUtil.name(element.getClassName()) + "." + element.getMethodName() + ":"
+				+ element.getLineNumber();
 		}
 	}
 
 	/**
 	 * Searches all thread stack trace elements.
 	 */
-	public static ThreadElement findElement(Predicate<StackTraceElement> predicate) {
-		return findElement((t, e) -> predicate.test(e));
+	public static <E extends Exception> ThreadElement
+		findElement(ExceptionPredicate<E, StackTraceElement> predicate) throws E {
+		return findElement((_, e) -> predicate.test(e));
 	}
 
 	/**
 	 * Searches all thread stack trace elements.
 	 */
-	public static ThreadElement findElement(BiPredicate<Thread, StackTraceElement> predicate) {
+	public static <E extends Exception> ThreadElement
+		findElement(ExceptionBiPredicate<E, Thread, StackTraceElement> predicate) throws E {
 		for (var entry : Thread.getAllStackTraces().entrySet()) {
 			for (var element : entry.getValue()) {
 				if (predicate.test(entry.getKey(), element))
@@ -101,17 +111,26 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Returns the class name without package. Undefined for class names containing '$'.
+	 * Returns the class name without package. Inner class names show the hierarchy. '$' is treated
+	 * as a name separator.
 	 */
 	public static String name(Class<?> cls) {
 		if (cls == null) return NULL_STRING;
-		String s = cls.getTypeName();
-		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
+		return name(cls.getTypeName());
+	}
+
+	/**
+	 * Extracts the class name without package. Inner class names show the hierarchy. '$' is treated
+	 * as a name separator.
+	 */
+	public static String name(String fullName) {
+		if (fullName == null) return NULL_STRING;
+		return fullName.substring(fullName.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
 	/**
 	 * Returns the class name without package and outer class, if nested. Otherwise returns the
-	 * class name without package (same as name()). Undefined for class names containing '$'.
+	 * class name without package (same as name()).
 	 */
 	public static String nestedName(Class<?> cls) {
 		if (cls == null) return NULL_STRING;
@@ -119,19 +138,6 @@ public class ReflectUtil {
 		int i = s.indexOf('$');
 		if (i > 0) return s.substring(i + 1).replace('$', '.');
 		return s.substring(s.lastIndexOf(".") + 1).replace('$', '.');
-	}
-
-	/**
-	 * Returns toString() value, or hash code as '@&lt;hash&gt;' if toString has not been
-	 * overridden. Assumes non-overridden toString is of the form '...@&lt;hash&gt;'. Useful for
-	 * displaying shorter string identifiers of lambdas.
-	 */
-	public static String toStringOrHash(Object obj) {
-		if (obj == null) return null;
-		String s = obj.toString();
-		int i = s.lastIndexOf('@');
-		if (i == -1 || i == s.length() - 1) return s;
-		return s.substring(i);
 	}
 
 	/**
@@ -200,55 +206,58 @@ public class ReflectUtil {
 	/**
 	 * Gets the caller's stack trace element.
 	 */
-	public static StackTraceElement currentStackTraceElement() {
-		return previousStackTraceElement(1);
+	public static StackTraceElement currentElement() {
+		return previousElement(1);
 	}
 
 	/**
 	 * Gets a previous stack trace element.
 	 */
-	public static StackTraceElement previousStackTraceElement(int countBack) {
+	public static StackTraceElement previousElement(int countBack) {
 		return previousStackTraceElement("previousStackTraceElement", countBack + 1);
 	}
 
 	/**
-	 * Gets the info on the caller of this method by looking at the stack trace.
+	 * Gets the info of the caller.
 	 */
 	public static Caller currentCaller() {
 		return previousCaller(1);
 	}
 
 	/**
-	 * Gets the info of a previous caller of this method by looking at the stack trace.
+	 * Gets the info of a previous caller.
 	 */
 	public static Caller previousCaller(int countBack) {
-		StackTraceElement s = previousStackTraceElement(countBack + 1);
+		StackTraceElement s = previousElement(countBack + 1);
 		return Caller.fromStackTraceElement(s);
 	}
 
 	/**
-	 * Gets the current method name by looking at the previous method on the stack trace.
+	 * Gets the method name of the caller.
 	 */
 	public static String currentMethodName() {
 		return previousMethodName(1);
 	}
 
 	/**
-	 * Gets the current method name by looking at the previous method on the stack trace.
+	 * Gets the method name of a previous caller.
 	 */
 	public static String previousMethodName(int countBack) {
-		return previousStackTraceElement(countBack + 1).getMethodName();
+		return previousElement(countBack + 1).getMethodName();
 	}
 
 	/**
-	 * Gets the current class and line number of the caller.
+	 * Gets the class and line number of the caller.
 	 */
 	public static String currentClassLine() {
 		return previousClassLine(1);
 	}
 
+	/**
+	 * Gets the class and line number of a previous caller.
+	 */
 	public static String previousClassLine(int countBack) {
-		StackTraceElement element = ReflectUtil.previousStackTraceElement(countBack + 1);
+		StackTraceElement element = ReflectUtil.previousElement(countBack + 1);
 		return element.getClassName() + ":" + element.getLineNumber();
 	}
 
@@ -264,7 +273,7 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Loads a class from its class file.
+	 * Loads class bytes from its class file.
 	 */
 	public static byte[] loadClassFile(String name) throws IOException {
 		String fileName = name.replace('.', File.separatorChar) + ".class";
@@ -395,7 +404,7 @@ public class ReflectUtil {
 	 */
 	public static String abbreviatePackages(String stackTrace) {
 		if (stackTrace == null) return null;
-		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(m -> "$1.");
+		return PACKAGE_REGEX.matcher(stackTrace).replaceAll(_ -> "$1.");
 	}
 
 	/**
@@ -459,7 +468,7 @@ public class ReflectUtil {
 		Class<?>... ifaces) {
 		var cls = delegate.getClass();
 		return BasicUtil.uncheckedCast(
-			Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (obj, method, args) -> {
+			Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);
 			}));

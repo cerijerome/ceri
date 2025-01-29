@@ -30,8 +30,8 @@ public class ParserBehavior {
 		assertEquals(string("x").isNull(), false);
 		assertEquals(string(null).isNull(), true);
 		assertEquals(string(null).optional().isEmpty(), true);
-		assertEquals(string("test").to(s -> null), null);
-		assertEquals(string("test").as(s -> null).get(), null);
+		assertEquals(string("test").to(_ -> null), null);
+		assertEquals(string("test").as(_ -> null).get(), null);
 		assertEquals(string(null).split().get(), null);
 		assertEquals(Parser.type(null).get(), null);
 		assertEquals(Parser.Type.from(() -> null).get(), null);
@@ -299,7 +299,7 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldFailForBadSplit() {
-		assertIllegalArg(() -> Parser.type(1).split(x -> throwRuntime()));
+		assertIllegalArg(() -> Parser.type(1).split(_ -> throwRuntime()));
 	}
 
 	private static Parser.Strings strings(String s) {

@@ -139,7 +139,7 @@ public class IntProviderBehavior {
 
 	@Test
 	public void shouldGetEachInt() {
-		provider().getEachInt((i, n) -> throwRuntime());
+		provider().getEachInt((_, _) -> throwRuntime());
 		int[] array = new int[ip.length()];
 		ip.getEachInt((i, n) -> array[i] = -n);
 		assertArray(array, 0, 1, -2, 3, -4, 5, -6, 7, -8, 9);

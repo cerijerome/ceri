@@ -9,8 +9,8 @@ public class ObjBooleanConsumerBehavior {
 	@Test
 	public void shouldCombineWithAndThen() {
 		Captor.Bi<Integer, Boolean> capturer = Captor.ofBi();
-		ObjBooleanConsumer<Integer> consumer0 = (i, b) -> capturer.accept(i, null);
-		ObjBooleanConsumer<Integer> consumer1 = (i, b) -> capturer.accept(null, b);
+		ObjBooleanConsumer<Integer> consumer0 = (i, _) -> capturer.accept(i, null);
+		ObjBooleanConsumer<Integer> consumer1 = (_, b) -> capturer.accept(null, b);
 		ObjBooleanConsumer<Integer> consumer = consumer0.andThen(consumer1);
 		consumer.accept(1, true);
 		capturer.first.verify(1, null);

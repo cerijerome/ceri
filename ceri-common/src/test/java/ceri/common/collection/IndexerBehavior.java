@@ -54,27 +54,27 @@ public class IndexerBehavior {
 	@Test
 	public void shouldAcceptTypeConsumer() {
 		var typed = Indexer.typed(String::length, "aa", "b", "ccc");
-		typed.accept(-1, (s, i) -> fail());
+		typed.accept(-1, (_, _) -> fail());
 		typed.accept(0, assertTypeConsumer("aa", 0));
 		typed.accept(1, assertTypeConsumer("aa", 1));
 		typed.accept(2, assertTypeConsumer("b", 0));
 		typed.accept(3, assertTypeConsumer("ccc", 0));
 		typed.accept(4, assertTypeConsumer("ccc", 1));
 		typed.accept(5, assertTypeConsumer("ccc", 2));
-		typed.accept(6, (s, i) -> fail());
+		typed.accept(6, (_, _) -> fail());
 	}
 
 	@Test
 	public void shouldApplyTypeFunction() {
 		var typed = Indexer.typed(String::length, "aa", "b", "ccc");
-		assertEquals(typed.apply(-1, (t, off) -> throwRuntime()), null);
+		assertEquals(typed.apply(-1, (_, _) -> throwRuntime()), null);
 		assertEquals(typed.apply(0, assertTypeFunction("aa", 0, "test")), "test");
 		assertEquals(typed.apply(1, assertTypeFunction("aa", 1, "test")), "test");
 		assertEquals(typed.apply(2, assertTypeFunction("b", 0, "test")), "test");
 		assertEquals(typed.apply(3, assertTypeFunction("ccc", 0, "test")), "test");
 		assertEquals(typed.apply(4, assertTypeFunction("ccc", 1, "test")), "test");
 		assertEquals(typed.apply(5, assertTypeFunction("ccc", 2, "test")), "test");
-		assertEquals(typed.apply(6, (t, off) -> throwRuntime()), null);
+		assertEquals(typed.apply(6, (_, _) -> throwRuntime()), null);
 	}
 
 	@Test
@@ -127,39 +127,39 @@ public class IndexerBehavior {
 	@Test
 	public void shouldAcceptConsumer() {
 		Indexer t = Indexer.of(1, 3, 6);
-		t.accept(-1, (i, off, len) -> fail());
+		t.accept(-1, (_, _, _) -> fail());
 		t.accept(0, assertConsumer(0, 0, 1));
 		t.accept(1, assertConsumer(1, 0, 2));
 		t.accept(2, assertConsumer(1, 1, 2));
 		t.accept(3, assertConsumer(2, 0, 3));
 		t.accept(4, assertConsumer(2, 1, 3));
 		t.accept(5, assertConsumer(2, 2, 3));
-		t.accept(6, (i, off, len) -> fail());
+		t.accept(6, (_, _, _) -> fail());
 	}
 
 	@Test
 	public void shouldApplyFunction() {
 		Indexer t = Indexer.of(1, 3, 6);
-		assertEquals(t.apply(-1, (i, off, len) -> throwRuntime()), null);
+		assertEquals(t.apply(-1, (_, _, _) -> throwRuntime()), null);
 		assertEquals(t.apply(0, assertFunction(0, 0, 1, "test")), "test");
 		assertEquals(t.apply(1, assertFunction(1, 0, 2, "test")), "test");
 		assertEquals(t.apply(2, assertFunction(1, 1, 2, "test")), "test");
 		assertEquals(t.apply(3, assertFunction(2, 0, 3, "test")), "test");
 		assertEquals(t.apply(4, assertFunction(2, 1, 3, "test")), "test");
 		assertEquals(t.apply(5, assertFunction(2, 2, 3, "test")), "test");
-		assertEquals(t.apply(6, (i, off, len) -> throwRuntime()), null);
+		assertEquals(t.apply(6, (_, _, _) -> throwRuntime()), null);
 	}
 
 	private static <T> Indexer.Function<T> assertFunction(int index, int offset, int length, T t) {
 		var consumer = assertConsumer(index, offset, length);
-		return (i, off, len) -> {
+		return (_, off, len) -> {
 			consumer.accept(index, off, len);
 			return t;
 		};
 	}
 
 	private static Indexer.Consumer assertConsumer(int index, int offset, int length) {
-		return (i, off, len) -> {
+		return (i, off, _) -> {
 			assertEquals(i, index);
 			assertEquals(off, offset);
 			assertEquals(length, length);

@@ -10,7 +10,7 @@ public class PollingInputStreamBehavior {
 
 	@Test(expected = IoTimeoutException.class)
 	public void shouldTimeoutIfNoData() throws IOException {
-		try (InputStream in0 = IoStreamUtil.in((b, offset, len) -> 0)) {
+		try (InputStream in0 = IoStreamUtil.in((_, _, _) -> 0)) {
 			try (PollingInputStream in = new PollingInputStream(in0, 1, 1)) {
 				in.read();
 			}

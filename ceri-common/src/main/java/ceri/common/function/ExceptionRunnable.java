@@ -25,7 +25,7 @@ public interface ExceptionRunnable<E extends Exception> {
 	 */
 	static <E extends Exception, T, R> ExceptionFunction<E, T, R>
 		asFunction(ExceptionRunnable<E> runnable, R result) {
-		return t -> {
+		return _ -> {
 			runnable.run();
 			return result;
 		};

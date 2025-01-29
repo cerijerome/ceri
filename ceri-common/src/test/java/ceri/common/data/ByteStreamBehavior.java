@@ -111,7 +111,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldWriteByteWithErrors() {
 		ErrorGen error = ErrorGen.of();
-		OutputStream out = IoStreamUtil.out(i -> error.call(IO_ADAPTER));
+		OutputStream out = IoStreamUtil.out(_ -> error.call(IO_ADAPTER));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);
 		assertThrown(RuntimeException.class, () -> w.writeByte(1));

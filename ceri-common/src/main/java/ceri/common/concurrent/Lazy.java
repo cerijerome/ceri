@@ -217,7 +217,7 @@ public class Lazy<T> {
 	}
 
 	private <E extends Exception> T get(ExceptionSupplier<E, T> supplier) throws E {
-		if (value == null) try (var x = locker()) { // double-checked locking
+		if (value == null) try (var _ = locker()) { // double-checked locking
 			value = BasicUtil.defaultValue(value, supplier);
 		}
 		return value;

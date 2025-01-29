@@ -262,7 +262,7 @@ public class Logger {
 	}
 
 	private static BiConsumer<Level, String> bi(Consumer<String> consumer) {
-		return consumer == null ? null : (l, s) -> consumer.accept(s);
+		return consumer == null ? null : (_, s) -> consumer.accept(s);
 	}
 
 }

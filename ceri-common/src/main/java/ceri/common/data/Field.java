@@ -25,7 +25,7 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 	 * Create a no-op, stateless instance.
 	 */
 	public static <T, U> Field<RuntimeException, T, U> ofNull() {
-		return new Field<>(t -> null, (t, v) -> {});
+		return new Field<>(_ -> null, (_, _) -> {});
 	}
 
 	/**
@@ -78,7 +78,7 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		 * Create a no-op, stateless instance.
 		 */
 		public static <T> Long<RuntimeException, T> ofNull() {
-			return new Long<>(t -> 0L, (t, v) -> {});
+			return new Long<>(_ -> 0L, (_, _) -> {});
 		}
 
 		/**

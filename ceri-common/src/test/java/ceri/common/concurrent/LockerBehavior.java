@@ -15,7 +15,7 @@ public class LockerBehavior {
 	@Test
 	public void shouldLockAndUnlock() {
 		Locker locker = Locker.of();
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			assertEquals(isLocked(locker.lock), true);
 			throw new RuntimeException();
 		} catch (RuntimeException e) {
@@ -28,7 +28,7 @@ public class LockerBehavior {
 	public void shouldLockAndExecuteFunctions() {
 		var captor = Captor.ofInt();
 		Locker locker = Locker.of();
-		try (var locked = locker.lock(() -> captor.accept(1), () -> captor.accept(2))) {
+		try (var _ = locker.lock(() -> captor.accept(1), () -> captor.accept(2))) {
 			captor.verifyInt(1);
 		}
 		captor.verifyInt(1, 2);
@@ -55,7 +55,7 @@ public class LockerBehavior {
 	@Test
 	public void shouldTryToExecuteLockedFunctions() {
 		Locker locker = Locker.of();
-		try (var locked = locker.lock(); var exec = TestUtil.threadRun(() -> {
+		try (var _ = locker.lock(); var exec = TestUtil.threadRun(() -> {
 			assertTrue(locker.tryGet(() -> assertLocked(locker, "test")).isEmpty());
 			assertTrue(locker.tryGetAsInt(() -> assertLocked(locker, 3)).isEmpty());
 			assertTrue(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).isEmpty());
@@ -69,8 +69,8 @@ public class LockerBehavior {
 	public void shouldCreateCondition() throws InterruptedException {
 		Locker locker = Locker.of();
 		Condition condition = locker.condition();
-		try (var exec = TestUtil.threadRun(() -> signalLoop(locker, condition))) {
-			try (var locked = locker.lock()) {
+		try (var _ = TestUtil.threadRun(() -> signalLoop(locker, condition))) {
+			try (var _ = locker.lock()) {
 				condition.await();
 			}
 		}
@@ -79,7 +79,7 @@ public class LockerBehavior {
 	private static void signalLoop(Locker locker, Condition condition) throws InterruptedException {
 		while (true) {
 			ConcurrentUtil.checkInterrupted();
-			try (var locked = locker.lock()) {
+			try (var _ = locker.lock()) {
 				condition.signal();
 			}
 		}

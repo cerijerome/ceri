@@ -22,13 +22,13 @@ public class OsUtilTest {
 
 	@Test
 	public void testAws() {
-		try (var x = SystemVars.removable("AWS_PATH", "x")) {
+		try (var _ = SystemVars.removable("AWS_PATH", "x")) {
 			assertTrue(OsUtil.aws());
 		}
-		try (var x = SystemVars.removable("AWS_PATH", "")) {
+		try (var _ = SystemVars.removable("AWS_PATH", "")) {
 			assertFalse(OsUtil.aws());
 		}
-		try (var x = SystemVars.removable("AWS_PATH", null)) {
+		try (var _ = SystemVars.removable("AWS_PATH", null)) {
 			assertFalse(OsUtil.aws());
 		}
 	}
@@ -36,22 +36,22 @@ public class OsUtilTest {
 	@Test
 	public void testNameOverride() {
 		var orig = OsUtil.os();
-		try (var x = OsUtil.os("Mac", null, null)) {
+		try (var _ = OsUtil.os("Mac", null, null)) {
 			assertOs(OsUtil.os(), "Mac", orig.arch, orig.version);
 			assertTrue(OsUtil.os().mac);
 			assertFalse(OsUtil.os().linux);
 		}
-		try (var x = OsUtil.os("Darwin", null, null)) {
+		try (var _ = OsUtil.os("Darwin", null, null)) {
 			assertOs(OsUtil.os(), "Darwin", orig.arch, orig.version);
 			assertTrue(OsUtil.os().mac);
 			assertFalse(OsUtil.os().linux);
 		}
-		try (var x = OsUtil.os("Linux", null, null)) {
+		try (var _ = OsUtil.os("Linux", null, null)) {
 			assertOs(OsUtil.os(), "Linux", orig.arch, orig.version);
 			assertFalse(OsUtil.os().mac);
 			assertTrue(OsUtil.os().linux);
 		}
-		try (var x = OsUtil.os("Other", null, null)) {
+		try (var _ = OsUtil.os("Other", null, null)) {
 			assertOs(OsUtil.os(), "Other", orig.arch, orig.version);
 			assertFalse(OsUtil.os().mac);
 			assertFalse(OsUtil.os().linux);
@@ -61,25 +61,25 @@ public class OsUtilTest {
 	@Test
 	public void testArchOverride() {
 		var orig = OsUtil.os();
-		try (var x = OsUtil.os(null, "x86", null)) {
+		try (var _ = OsUtil.os(null, "x86", null)) {
 			assertOs(OsUtil.os(), orig.name, "x86", orig.version);
 			assertTrue(OsUtil.os().x86);
 			assertFalse(OsUtil.os().arm);
 			assertFalse(OsUtil.os().bit64);
 		}
-		try (var x = OsUtil.os(null, "aarch", null)) {
+		try (var _ = OsUtil.os(null, "aarch", null)) {
 			assertOs(OsUtil.os(), orig.name, "aarch", orig.version);
 			assertFalse(OsUtil.os().x86);
 			assertTrue(OsUtil.os().arm);
 			assertFalse(OsUtil.os().bit64);
 		}
-		try (var x = OsUtil.os(null, "aarch64", null)) {
+		try (var _ = OsUtil.os(null, "aarch64", null)) {
 			assertOs(OsUtil.os(), orig.name, "aarch64", orig.version);
 			assertFalse(OsUtil.os().x86);
 			assertTrue(OsUtil.os().arm);
 			assertTrue(OsUtil.os().bit64);
 		}
-		try (var x = OsUtil.os(null, "xxx", null)) {
+		try (var _ = OsUtil.os(null, "xxx", null)) {
 			assertOs(OsUtil.os(), orig.name, "xxx", orig.version);
 			assertFalse(OsUtil.os().x86);
 			assertFalse(OsUtil.os().arm);
@@ -89,14 +89,14 @@ public class OsUtilTest {
 
 	@Test
 	public void testConditionals() {
-		try (var x = OsUtil.os("Mac", "aarch64", null)) {
+		try (var _ = OsUtil.os("Mac", "aarch64", null)) {
 			assertEquals(OsUtil.os().mac("y", "n"), "y");
 			assertEquals(OsUtil.os().linux("y", "n"), "n");
 			assertEquals(OsUtil.os().x86("y", "n"), "n");
 			assertEquals(OsUtil.os().arm("y", "n"), "y");
 			assertEquals(OsUtil.os().bit64("y", "n"), "y");
 		}
-		try (var x = OsUtil.os("Linux", "x86", null)) {
+		try (var _ = OsUtil.os("Linux", "x86", null)) {
 			assertEquals(OsUtil.os().mac("y", "n"), "n");
 			assertEquals(OsUtil.os().linux("y", "n"), "y");
 			assertEquals(OsUtil.os().x86("y", "n"), "y");
@@ -108,7 +108,7 @@ public class OsUtilTest {
 	@Test
 	public void testVersionOverride() {
 		var orig = OsUtil.os();
-		try (var x = OsUtil.os(null, null, "-999")) {
+		try (var _ = OsUtil.os(null, null, "-999")) {
 			assertOs(OsUtil.os(), orig.name, orig.arch, "-999");
 		}
 	}

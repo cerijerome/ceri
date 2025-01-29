@@ -19,7 +19,7 @@ import ceri.common.util.Holder;
  * Simple condition to signal and wait for a value change.
  */
 public class ValueCondition<T> {
-	private static final BinaryOperator<Object> REPLACER = (latest, current) -> latest;
+	private static final BinaryOperator<Object> REPLACER = (latest, _) -> latest;
 	public final Lock lock;
 	private final Condition condition;
 	private final BinaryOperator<T> merger;

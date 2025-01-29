@@ -9,8 +9,8 @@ public class ObjShortConsumerBehavior {
 	@Test
 	public void shouldCombineWithAndThen() {
 		Captor.Bi<String, Short> capturer = Captor.ofBi();
-		ObjShortConsumer<String> consumer0 = (st, sh) -> capturer.accept(st, null);
-		ObjShortConsumer<String> consumer1 = (st, sh) -> capturer.accept(null, sh);
+		ObjShortConsumer<String> consumer0 = (st, _) -> capturer.accept(st, null);
+		ObjShortConsumer<String> consumer1 = (_, sh) -> capturer.accept(null, sh);
 		var consumer = consumer0.andThen(consumer1);
 		consumer.accept("a", Short.MAX_VALUE);
 		capturer.first.verify("a", null);

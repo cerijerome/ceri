@@ -160,14 +160,14 @@ public interface IntReader {
 	 * Provides ints as a stream, starting at offset, for given length.
 	 */
 	default IntStream stream(int length) {
-		return IntStream.range(0, length).map(i -> readInt());
+		return IntStream.range(0, length).map(_ -> readInt());
 	}
 
 	/**
 	 * Provides unsigned ints as a stream, starting at offset, for given length.
 	 */
 	default LongStream ustream(int length) {
-		return IntStream.range(0, length).mapToLong(i -> readUint());
+		return IntStream.range(0, length).mapToLong(_ -> readUint());
 	}
 
 }

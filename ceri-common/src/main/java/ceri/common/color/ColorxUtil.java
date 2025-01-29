@@ -135,7 +135,7 @@ public class ColorxUtil {
 		Random rnd = ThreadLocalRandom.current();
 		int max = MAX_VALUE + 1;
 		int argb = ColorUtil.argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
-		int[] xs = IntStream.range(0, nx).map(i -> rnd.nextInt(max)).toArray();
+		int[] xs = IntStream.range(0, nx).map(_ -> rnd.nextInt(max)).toArray();
 		return xargb(argb, xs);
 	}
 

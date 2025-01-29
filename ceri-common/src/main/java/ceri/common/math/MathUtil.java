@@ -356,6 +356,21 @@ public class MathUtil {
 	}
 
 	/**
+	 * Rounds the value to the nearest long. Throws an ArithmeticException if the value overflows.
+	 */
+	public static long safeRound(double value) {
+		if (value >= Long.MIN_VALUE && value <= Long.MAX_VALUE) return Math.round(value);
+		throw new ArithmeticException("long overflow");
+	}
+
+	/**
+	 * Rounds the value to the nearest int. Throws an ArithmeticException if the value overflows.
+	 */
+	public static int safeRoundInt(double value) {
+		return Math.toIntExact(safeRound(value));
+	}
+
+	/**
 	 * Rounds the division of two values.
 	 */
 	public static int roundDiv(int x, int y) {

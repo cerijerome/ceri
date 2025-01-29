@@ -51,7 +51,7 @@ public class ExceptionObjIntPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyOrTests() throws IOException {
-		ExceptionObjIntPredicate<IOException, Integer> p = objIntPredicate().or((i, j) -> i < -1);
+		ExceptionObjIntPredicate<IOException, Integer> p = objIntPredicate().or((i, _) -> i < -1);
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
@@ -61,7 +61,7 @@ public class ExceptionObjIntPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyAndTests() throws IOException {
-		ExceptionObjIntPredicate<IOException, Integer> p = objIntPredicate().and((i, j) -> i < 3);
+		ExceptionObjIntPredicate<IOException, Integer> p = objIntPredicate().and((i, _) -> i < 3);
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));

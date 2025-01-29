@@ -8,7 +8,7 @@ public class ConnectorTesterBehavior {
 
 	@Test
 	public void shouldExecuteCommands() throws IOException {
-		try (var fast = ManualTester.fastMode(); SystemIoCaptor sys = SystemIoCaptor.of();
+		try (var _ = ManualTester.fastMode(); SystemIoCaptor sys = SystemIoCaptor.of();
 			var c = TestConnector.of()) {
 			sys.in.print("O\nC\nOs\nz\nZ\n!\n");
 			ConnectorTester.test(c);

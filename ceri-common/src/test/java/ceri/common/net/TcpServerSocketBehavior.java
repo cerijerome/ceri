@@ -15,7 +15,7 @@ public class TcpServerSocketBehavior {
 		c.error.setFrom(IOX);
 		try (var ss = TcpServerSocket.of()) {
 			var future = ss.listen(c::accept);
-			try (var socket = TcpSocket.connect(HostPort.localhost(ss.port()))) {
+			try (var _ = TcpSocket.connect(HostPort.localhost(ss.port()))) {
 				assertThrown(future::get);
 			}
 		}
@@ -25,7 +25,7 @@ public class TcpServerSocketBehavior {
 	public void shouldStopListeningOnInterrupt() throws IOException {
 		try (var ss = TcpServerSocket.of()) {
 			ConcurrentUtil.interrupt();
-			ss.listenAndClose(s -> {});
+			ss.listenAndClose(_ -> {});
 		}
 	}
 
@@ -33,7 +33,7 @@ public class TcpServerSocketBehavior {
 	public void shouldNotListenIfClosed() throws IOException {
 		try (var ss = TcpServerSocket.of()) {
 			ss.close();
-			ss.listenAndClose(s -> {});
+			ss.listenAndClose(_ -> {});
 		}
 	}
 	

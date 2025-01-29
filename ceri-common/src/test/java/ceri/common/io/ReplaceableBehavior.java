@@ -9,7 +9,7 @@ public class ReplaceableBehavior {
 	@Test
 	public void shouldCreateFieldWithDefaultName() throws IOException {
 		try (var field = Replaceable.field()) {
-			assertThrown(() -> field.acceptValid(x -> {}));
+			assertThrown(() -> field.acceptValid(_ -> {}));
 		}
 	}
 

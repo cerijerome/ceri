@@ -86,7 +86,7 @@ public class TestUtilTest {
 	@Test
 	public void testRunRepeat() throws InterruptedException {
 		var sync = BooleanCondition.of();
-		try (var exec = TestUtil.runRepeat(sync::signal)) {
+		try (var _ = TestUtil.runRepeat(sync::signal)) {
 			sync.await();
 			sync.await();
 		}
@@ -95,14 +95,14 @@ public class TestUtilTest {
 	@Test
 	public void testRunRepeatWithIndex() throws InterruptedException {
 		var sync = ValueCondition.<Integer>of();
-		try (var exec = TestUtil.runRepeat(i -> sync.signal(i))) {
+		try (var _ = TestUtil.runRepeat(i -> sync.signal(i))) {
 			sync.await(i -> i > 1);
 		}
 	}
 
 	@Test
 	public void testReadString() {
-		try (SystemIo sys = SystemIo.of()) {
+		try (var sys = SystemIo.of()) {
 			sys.in(new ByteArrayInputStream("test".getBytes()));
 			assertEquals(TestUtil.readString(), "test");
 			assertEquals(TestUtil.readString(), "");
@@ -111,7 +111,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testReadStringWithBadInputStream() throws IOException {
-		try (SystemIo sys = SystemIo.of()) {
+		try (var sys = SystemIo.of()) {
 			try (InputStream badIn = new InputStream() {
 				@Override
 				public int read() throws IOException {
@@ -135,7 +135,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testThreadRun() {
-		BooleanCondition sync = BooleanCondition.of();
+		var sync = BooleanCondition.of();
 		try (var exec = TestUtil.threadRun(sync::await)) {
 			sync.signal();
 			exec.get();
@@ -153,7 +153,7 @@ public class TestUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testExec() {
-		try (SystemIo sys = SystemIo.of()) {
+		try (var sys = SystemIo.of()) {
 			StringBuilder b = new StringBuilder();
 			sys.out(StringUtil.asPrintStream(b));
 			TestUtil.exec(ExecTest.class);
@@ -195,7 +195,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testNullErr() {
-		try (SystemIo sys = TestUtil.nullOutErr()) {
+		try (var _ = TestUtil.nullOutErr()) {
 			System.err.print("This text should not appear");
 		}
 	}

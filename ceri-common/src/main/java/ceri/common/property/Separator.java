@@ -206,7 +206,7 @@ public record Separator(String value) {
 	 */
 	public List<String> split(String key) {
 		var list = new ArrayList<String>();
-		split((s, start, end) -> list.add(key.substring(start, end)), key, value(), false);
+		split((_, start, end) -> list.add(key.substring(start, end)), key, value(), false);
 		return Collections.unmodifiableList(list);
 	}
 

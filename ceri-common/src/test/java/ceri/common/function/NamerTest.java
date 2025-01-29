@@ -23,7 +23,7 @@ public class NamerTest {
 			}
 		}));
 		assertFalse(Namer.unnamedLambda(new Object()));
-		IntPredicate p = i -> true;
+		IntPredicate p = _ -> true;
 		assertFalse(Namer.unnamedLambda(Namer.intPredicate(p, "test")));
 		assertTrue(Namer.unnamedLambda(p));
 	}

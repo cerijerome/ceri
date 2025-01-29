@@ -106,8 +106,8 @@ public class WrappedStreamBehavior {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
 		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(consumer()));
 		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).forEach(consumer()));
-		assertThrown(IOException.class, () -> wrap(2, 1, 0).map(function()).forEach(x -> {}));
-		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).map(function()).forEach(x -> {}));
+		assertThrown(IOException.class, () -> wrap(2, 1, 0).map(function()).forEach(_ -> {}));
+		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).map(function()).forEach(_ -> {}));
 	}
 
 	@Test

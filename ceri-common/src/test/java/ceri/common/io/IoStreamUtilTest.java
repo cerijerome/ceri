@@ -129,7 +129,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterInWithByteRead() throws IOException {
-		try (var in = IoStreamUtil.filterIn(bin1, is -> readOrNull(bin0))) {
+		try (var in = IoStreamUtil.filterIn(bin1, _ -> readOrNull(bin0))) {
 			assertEquals(in.available(), 3);
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, 2, 3, 4);
@@ -144,7 +144,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterInWithAvailable() throws IOException {
 		try (var in =
-			IoStreamUtil.filterIn(bin1, is -> readOrNull(bin0), is -> availableOrNull(bin0))) {
+			IoStreamUtil.filterIn(bin1, _ -> readOrNull(bin0), _ -> availableOrNull(bin0))) {
 			assertEquals(in.available(), 3);
 			in.read();
 			assertEquals(in.available(), 2);
@@ -155,7 +155,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterInWithByteReadError() throws IOException {
-		try (var in = IoStreamUtil.filterIn(IoStreamUtil.nullIn, is -> readOrError(bin0))) {
+		try (var in = IoStreamUtil.filterIn(IoStreamUtil.nullIn, _ -> readOrError(bin0))) {
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
 			assertThrown(in::read);
@@ -175,7 +175,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterInWithArrayRead() throws IOException {
 		try (var in =
-			IoStreamUtil.filterIn(bin1, (is, b, off, len) -> readOrNull(bin0, b, off, len))) {
+			IoStreamUtil.filterIn(bin1, (_, b, off, len) -> readOrNull(bin0, b, off, len))) {
 			assertEquals(in.available(), 3);
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
@@ -188,7 +188,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterInSkip() throws IOException {
 		try (var in =
-			IoStreamUtil.filterIn(bin1, (is, b, off, len) -> readOrNull(bin0, b, off, len))) {
+			IoStreamUtil.filterIn(bin1, (_, b, off, len) -> readOrNull(bin0, b, off, len))) {
 			assertEquals(in.skip(0), 0L);
 			assertEquals(in.skip(4), 4L);
 			assertEquals(in.skip(4), 2L);
@@ -245,7 +245,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterOutWithByteWrite() throws IOException {
-		try (var out = IoStreamUtil.filterOut(bout1, (os, b) -> writeMax(bout0, 3, b))) {
+		try (var out = IoStreamUtil.filterOut(bout1, (_, b) -> writeMax(bout0, 3, b))) {
 			out.write(bytes(1, 2, 3, 4));
 			out.write(5);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
@@ -265,7 +265,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterOutWithArrayWrite() throws IOException {
 		try (var out =
-			IoStreamUtil.filterOut(bout1, (os, b, off, len) -> writeMax(bout0, 3, b, off, len))) {
+			IoStreamUtil.filterOut(bout1, (_, b, off, len) -> writeMax(bout0, 3, b, off, len))) {
 			out.write(bytes(1, 2, 3));
 			out.write(bytes(4, 5));
 			out.write(6);

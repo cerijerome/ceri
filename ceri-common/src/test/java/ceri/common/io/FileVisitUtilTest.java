@@ -47,7 +47,7 @@ public class FileVisitUtilTest {
 	@Test
 	public void testAdapters() throws IOException {
 		FileVisitor<Path> visitor = FileVisitUtil.visitor( //
-			FileVisitUtil.adaptBiPredicate((dir, attr) -> dir != null),
+			FileVisitUtil.adaptBiPredicate((dir, _) -> dir != null),
 			FileVisitUtil.adaptPredicate(dir -> dir != null),
 			FileVisitUtil.adapt(file -> file != null ? CONTINUE : TERMINATE));
 		assertEquals(visitor.preVisitDirectory(null, null), SKIP_SUBTREE);
@@ -117,7 +117,7 @@ public class FileVisitUtilTest {
 		Captor<Path> fileCap = Captor.of();
 		FileVisitor<Path> visitor = FileVisitUtil.visitor( //
 			FileVisitUtil.adaptConsumer(preDirCap::accept), //
-			(dir, e) -> TERMINATE, //
+			(_, _) -> TERMINATE, //
 			FileVisitUtil.adaptConsumer(fileCap::accept));
 		Files.walkFileTree(helper.root, visitor);
 		assertHelperPaths(preDirCap.values, helper, "", "a", "a/a");

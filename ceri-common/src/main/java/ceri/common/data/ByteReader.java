@@ -335,7 +335,7 @@ public interface ByteReader {
 	 * Provides unsigned bytes as a stream, starting at offset, for given length.
 	 */
 	default IntStream ustream(int length) {
-		return IntStream.range(0, length).map(i -> readUbyte());
+		return IntStream.range(0, length).map(_ -> readUbyte());
 	}
 
 }

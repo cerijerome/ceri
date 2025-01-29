@@ -40,7 +40,7 @@ public class SystemVarsTest {
 	@Test
 	public void testRemovableProperty() {
 		String key = getClass().getName();
-		try (var x = SystemVars.removableProperty(key, "test")) {
+		try (var _ = SystemVars.removableProperty(key, "test")) {
 			assertEquals(System.getProperty(key), "test");
 		}
 		assertEquals(System.getProperty(key), null);
@@ -118,7 +118,7 @@ public class SystemVarsTest {
 	public void testRemovable() {
 		assertEquals(SystemVars.env("!@#$%"), null);
 		assertEquals(SystemVars.sys("!@#$%"), null);
-		try (var x = SystemVars.removable("!@#$%", "test")) {
+		try (var _ = SystemVars.removable("!@#$%", "test")) {
 			assertEquals(SystemVars.env("!@#$%"), "test");
 			assertEquals(SystemVars.sys("!@#$%"), "test");
 		}

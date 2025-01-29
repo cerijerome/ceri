@@ -73,14 +73,14 @@ public class ByteUtilTest {
 
 	@Test
 	public void testReduceMaskLong() {
-		assertEquals(ByteUtil.reduceMask(true, 0x8040201010204080L, 0L, (bit, n) -> n + 1), 8L);
-		assertEquals(ByteUtil.reduceMask(false, 0x8040201010204080L, 0L, (bit, n) -> n + 1), 8L);
+		assertEquals(ByteUtil.reduceMask(true, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
+		assertEquals(ByteUtil.reduceMask(false, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
 	}
 
 	@Test
 	public void testReduceMaskInt() {
-		assertEquals(ByteUtil.reduceMaskInt(true, 0x80402010, 0, (bit, n) -> n + 1), 4);
-		assertEquals(ByteUtil.reduceMaskInt(false, 0x80402010, 0, (bit, n) -> n + 1), 4);
+		assertEquals(ByteUtil.reduceMaskInt(true, 0x80402010, 0, (_, n) -> n + 1), 4);
+		assertEquals(ByteUtil.reduceMaskInt(false, 0x80402010, 0, (_, n) -> n + 1), 4);
 	}
 
 	@Test

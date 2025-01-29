@@ -29,6 +29,7 @@ import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.function.TimedSupplier;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
 import ceri.common.util.Holder;
 
@@ -75,7 +76,7 @@ public class ConcurrentUtil {
 	public static void delay(long delayMs) {
 		checkRuntimeInterrupted();
 		if (delayMs == 0) return;
-		ConcurrentUtil.executeInterruptible(() -> Thread.sleep(delayMs));
+		ConcurrentUtil.runInterruptible(() -> Thread.sleep(delayMs));
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class ConcurrentUtil {
 	public static <E extends Exception, T> T getWhileInterrupted(TimedSupplier<E, T> supplier,
 		long time, TimeUnit unit) throws E {
 		boolean interrupted = Thread.interrupted();
-		var timer = Timer.of(time, unit);
+		var timer = Timer.of(time, unit).start();
 		try {
 			while (true) {
 				try {
@@ -128,29 +129,6 @@ public class ConcurrentUtil {
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		}
-	}
-
-	public static <E extends Exception, T> T executeAndGet(ExecutorService executor,
-		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor) throws E {
-		return get(executor.submit(callable), exceptionConstructor);
-	}
-
-	public static <E extends Exception, T> T executeAndGet(ExecutorService executor,
-		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs)
-		throws E {
-		return get(executor.submit(callable), exceptionConstructor, timeoutMs);
-	}
-
-	public static <E extends Exception> void executeAndWait(ExecutorService executor,
-		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
-		throws E {
-		get(submit(executor, runnable), exceptionConstructor);
-	}
-
-	public static <E extends Exception> void executeAndWait(ExecutorService executor,
-		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor,
-		int timeoutMs) throws E {
-		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
 
 	/**
@@ -181,6 +159,41 @@ public class ConcurrentUtil {
 		} catch (ExecutionException e) {
 			throw exceptionConstructor.apply(e.getCause());
 		}
+	}
+
+	/**
+	 * Submit the action and wait for the result.
+	 */
+	public static <E extends Exception, T> T submitAndGet(ExecutorService executor,
+		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor) throws E {
+		return get(executor.submit(callable), exceptionConstructor);
+	}
+
+	/**
+	 * Submit the action and wait for the result.
+	 */
+	public static <E extends Exception, T> T submitAndGet(ExecutorService executor,
+		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs)
+		throws E {
+		return get(executor.submit(callable), exceptionConstructor, timeoutMs);
+	}
+
+	/**
+	 * Submit the action and wait for completion.
+	 */
+	public static <E extends Exception> void submitAndWait(ExecutorService executor,
+		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
+		throws E {
+		get(submit(executor, runnable), exceptionConstructor);
+	}
+
+	/**
+	 * Submit the action and wait for completion.
+	 */
+	public static <E extends Exception> void submitAndWait(ExecutorService executor,
+		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor,
+		int timeoutMs) throws E {
+		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
 
 	/**
@@ -409,6 +422,14 @@ public class ConcurrentUtil {
 	}
 
 	/**
+	 * Returns the thread name, or "null" if null.
+	 */
+	public static String name(Thread thread) {
+		if (thread == null) return StringUtil.NULL_STRING;
+		return thread.getName();
+	}
+
+	/**
 	 * Interrupt the current thread.
 	 */
 	public static void interrupt() {
@@ -458,7 +479,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static void executeInterruptible(ExceptionRunnable<InterruptedException> runnable) {
+	public static void runInterruptible(ExceptionRunnable<InterruptedException> runnable) {
 		try {
 			runnable.run();
 		} catch (InterruptedException e) {
@@ -469,8 +490,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static <T> T
-		executeGetInterruptible(ExceptionSupplier<InterruptedException, T> supplier) {
+	public static <T> T getInterruptible(ExceptionSupplier<InterruptedException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (InterruptedException e) {

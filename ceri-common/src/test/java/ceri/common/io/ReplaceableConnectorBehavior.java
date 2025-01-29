@@ -25,7 +25,7 @@ public class ReplaceableConnectorBehavior {
 	public void shouldListenForErrors() throws IOException {
 		var captor = Captor.of();
 		try (var rep = new ReplaceableConnector.Fixable<TestConnector>("test");
-			var con = TestConnector.of(); var enc = rep.listeners().enclose(captor::accept)) {
+			var con = TestConnector.of(); var _ = rep.listeners().enclose(captor::accept)) {
 			rep.replace(con);
 			rep.broken();
 			captor.verify(StateChange.broken);

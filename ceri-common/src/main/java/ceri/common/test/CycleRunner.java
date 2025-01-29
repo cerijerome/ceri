@@ -55,7 +55,7 @@ public class CycleRunner implements RuntimeCloseable {
 	 * Starts the given cycle.
 	 */
 	public void start(Cycle cycle) {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			this.cycle = cycle;
 			sync.signal(Action.start);
 		}
@@ -65,7 +65,7 @@ public class CycleRunner implements RuntimeCloseable {
 	 * Stops the current cycle.
 	 */
 	public void stop() {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			this.cycle = null;
 			sync.signal(Action.stop);
 		}
@@ -84,7 +84,7 @@ public class CycleRunner implements RuntimeCloseable {
 	}
 
 	private void loop(int max) throws InterruptedException {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			sync.await(Action.start);
 			var cycle = this.cycle;
 			if (cycle == null) return;

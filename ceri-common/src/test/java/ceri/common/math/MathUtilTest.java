@@ -325,6 +325,26 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testSafeRound() {
+		assertEquals(MathUtil.safeRound(LMAX), LMAX);
+		assertEquals(MathUtil.safeRound(LMIN), LMIN);
+		assertEquals(MathUtil.safeRound(LMAX + 1024.0), LMAX);
+		assertEquals(MathUtil.safeRound(LMIN - 1024.0), LMIN);
+		assertThrown(ArithmeticException.class, () -> MathUtil.safeRound(LMAX + 1025.0));
+		assertThrown(ArithmeticException.class, () -> MathUtil.safeRound(LMIN - 1025.0));
+	}
+
+	@Test
+	public void testSafeRoundInt() {
+		assertEquals(MathUtil.safeRoundInt(IMAX), IMAX);
+		assertEquals(MathUtil.safeRoundInt(IMIN), IMIN);
+		assertEquals(MathUtil.safeRoundInt(IMAX + 0.499999), IMAX);
+		assertEquals(MathUtil.safeRoundInt(IMIN - 0.5), IMIN);
+		assertThrown(ArithmeticException.class, () -> MathUtil.safeRoundInt(IMAX + 0.5));
+		assertThrown(ArithmeticException.class, () -> MathUtil.safeRoundInt(IMIN - 0.51));
+	}
+
+	@Test
 	public void testRoundDivInt() {
 		assertRoundDiv(1, 1, 1, -1, -1, 1);
 		assertRoundDiv(1, 2, 1, 0, 0, 1);

@@ -15,8 +15,8 @@ import ceri.common.util.BasicUtil;
  * Basic scores and score utilities.
  */
 public class Scorers {
-	private static final Scorer<Object> ONE = (t -> 1.0);
-	private static final Scorer<Object> ZERO = (t -> 0.0);
+	private static final Scorer<Object> ONE = (_ -> 1.0);
+	private static final Scorer<Object> ZERO = (_ -> 0.0);
 
 	private Scorers() {}
 
@@ -58,7 +58,7 @@ public class Scorers {
 	public static <T> Scorer<T> constant(double value) {
 		if (value == 0.0) return zero();
 		if (value == 1.0) return one();
-		return (t -> value);
+		return (_ -> value);
 	}
 
 	/**

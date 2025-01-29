@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.collection.CollectionUtil.getOrDefault;
-import static ceri.common.concurrent.ConcurrentUtil.executeGetInterruptible;
+import static ceri.common.concurrent.ConcurrentUtil.getInterruptible;
 import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
 import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
 import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
@@ -231,7 +231,7 @@ public abstract class CallSync<T, R> {
 		 * autoResponse is disabled.
 		 */
 		public T await(R response) {
-			return await(t -> response);
+			return await(_ -> response);
 		}
 
 		/**
@@ -255,7 +255,7 @@ public abstract class CallSync<T, R> {
 		 * when autoResponse is disabled.
 		 */
 		public void assertCall(T value, R response) {
-			assertCall(value, t -> response);
+			assertCall(value, _ -> response);
 		}
 
 		/**
@@ -406,7 +406,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits the call and signals completion. Use when autoResponse is disabled.
 		 */
 		public T await() {
-			return await(t -> {});
+			return await(_ -> {});
 		}
 
 		/**
@@ -429,7 +429,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits and asserts the call, and signals completion. Use when autoResponse is disabled.
 		 */
 		public void assertCall(T value) {
-			assertCall(value, t -> {});
+			assertCall(value, _ -> {});
 		}
 
 		/**
@@ -479,7 +479,7 @@ public abstract class CallSync<T, R> {
 		 * Sets the auto response supplier. Use null to disable.
 		 */
 		public Supplier<R> autoResponse(java.util.function.Supplier<R> autoResponseFn) {
-			super.autoResponseFn(autoResponseFn != null ? t -> autoResponseFn.get() : null);
+			super.autoResponseFn(autoResponseFn != null ? _ -> autoResponseFn.get() : null);
 			return this;
 		}
 
@@ -546,7 +546,7 @@ public abstract class CallSync<T, R> {
 		 * autoResponse is disabled.
 		 */
 		public <E extends Exception> void await(ExceptionSupplier<E, R> responseFn) throws E {
-			super.awaitCallWithResponse(t -> responseFn.get());
+			super.awaitCallWithResponse(_ -> responseFn.get());
 		}
 	}
 
@@ -628,7 +628,7 @@ public abstract class CallSync<T, R> {
 		 * disabled.
 		 */
 		public <E extends Exception> void await(ExceptionRunnable<E> actionFn) throws E {
-			super.awaitCallWithResponse(t -> exec(actionFn));
+			super.awaitCallWithResponse(_ -> exec(actionFn));
 		}
 
 		private <E extends Exception> Object exec(ExceptionRunnable<E> responseFn) throws E {
@@ -884,14 +884,14 @@ public abstract class CallSync<T, R> {
 	}
 
 	private T awaitCall() {
-		return executeGetInterruptible(callSync::await).value();
+		return getInterruptible(callSync::await).value();
 	}
 
 	private R sync(T t) {
 		callSync.signal(Holder.of(t));
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
-		return executeGetInterruptible(responseSync::await).value();
+		return getInterruptible(responseSync::await).value();
 	}
 
 	private static <T, R> java.util.function.Function<T, R>
@@ -904,19 +904,19 @@ public abstract class CallSync<T, R> {
 
 	private static <T, R> java.util.function.Function<T, R>
 		toAutoResponseFn(java.lang.Runnable runnable, R response) {
-		return t -> {
+		return _ -> {
 			if (runnable != null) runnable.run();
 			return response;
 		};
 	}
 
 	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(boolean enabled) {
-		return enabled ? t -> null : null;
+		return enabled ? _ -> null : null;
 	}
 
 	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(R[] responses) {
 		if (responses.length == 0) return null;
 		var supplier = sequentialSupplier(responses);
-		return x -> supplier.get();
+		return _ -> supplier.get();
 	}
 }

@@ -22,7 +22,7 @@ public class OutputBehavior {
 
 	@Test
 	public void shouldHandleNulls() {
-		assertNull(Output.of(null, s -> "test").parse());
+		assertNull(Output.of(null, _ -> "test").parse());
 		assertNull(Output.of("test", null).parse());
 	}
 

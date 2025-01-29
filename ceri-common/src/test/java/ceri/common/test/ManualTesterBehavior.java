@@ -106,7 +106,7 @@ public class ManualTesterBehavior {
 			assertEquals(i, 2);
 		});
 		assertNull(
-			ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "a"), 2, (x, i) -> fail()));
+			ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "a"), 2, (_, _) -> fail()));
 	}
 
 	@Test
@@ -147,9 +147,9 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		try (var sys = SystemIoCaptor.of();
-			var m = ManualTester.builderArray("test", "x").command("a", (t, r, s) -> {}, "a")
-				.command("b", (t, r, s) -> {}, "b").command("c", (t, r, s) -> {}, "c").build()) {
+		try (var _ = SystemIoCaptor.of();
+			var m = ManualTester.builderArray("test", "x").command("a", (_, _, _) -> {}, "a")
+				.command("b", (_, _, _) -> {}, "b").command("c", (_, _, _) -> {}, "c").build()) {
 			assertFind(m, "2,12");
 		}
 	}
@@ -157,7 +157,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldProvideCommandSeparators() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builder("test").separatorSgr(null)
-			.separator("--test--").command(".*", (t, r, s) -> {}, "end-test").build()) {
+			.separator("--test--").command(".*", (_, _, _) -> {}, "end-test").build()) {
 			sys.in.print("x\n!\n");
 			m.run();
 			assertFind(sys.out, "(?s)--test--.*end-test");
@@ -216,7 +216,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldShowHelpForMatchingCommandsOnly() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1)
-			.command(Integer.class, "i", (t, x, s) -> {}, "int-cmd").build()) {
+			.command(Integer.class, "i", (_, _, _) -> {}, "int-cmd").build()) {
 			sys.in.print("!\n"); // shows help for first subject
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -229,7 +229,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldExecuteCommandOnlyIfMatchingType() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1)
-			.command(Integer.class, "i", (t, x, i) -> t.out("int-cmd"), "i").build()) {
+			.command(Integer.class, "i", (t, _, _) -> t.out("int-cmd"), "i").build()) {
 			sys.in.print("i\n!\n"); // invalid command
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -243,7 +243,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldPreProcessOnlyIfMatchingType() {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray(null, 1)
-			.preProcessor(Integer.class, (t, i) -> t.out("int-cmd")).build()) {
+			.preProcessor(Integer.class, (t, _) -> t.out("int-cmd")).build()) {
 			sys.in.print(":;!\n");
 			m.run();
 			assertNotFound(sys.out, "int-cmd");
@@ -329,7 +329,7 @@ public class ManualTesterBehavior {
 		try (var sys = SystemIoCaptor.of()) {
 			ErrorGen error = ErrorGen.of();
 			try (var m = ManualTester.builder(1)
-				.command(Integer.class, "x", (t, x, i) -> error.callWithInterrupt(), "x").build()) {
+				.command(Integer.class, "x", (_, _, _) -> error.callWithInterrupt(), "x").build()) {
 				error.setFrom(IOX, INX, RIX); // IO, Interrupted, then RuntimeInterrupted exceptions
 				sys.in.print("x\nx\nx\n");
 				assertThrown(m::run); // exits on InterruptedException
@@ -343,8 +343,8 @@ public class ManualTesterBehavior {
 	public void shouldRunCycle() {
 		try (var sys = SystemIoCaptor.of();
 			var m = ManualTester.builder("test")
-				.command("c(\\-?\\d+)", (t, r, s) -> t.startCycle(cycle(Parse.i(r))), "help")
-				.command("C", (t, r, s) -> t.stopCycle(), "help").build()) {
+				.command("c(\\-?\\d+)", (t, r, _) -> t.startCycle(cycle(Parse.i(r))), "help")
+				.command("C", (t, _, _) -> t.stopCycle(), "help").build()) {
 			sys.in.print("C\nc100\nc200\nC\n!\n");
 			m.run();
 			assertFind(sys.out,
@@ -360,7 +360,7 @@ public class ManualTesterBehavior {
 	}
 
 	private static Action.Match<Object> checkInt() {
-		return (t, m, s) -> {
+		return (_, m, _) -> {
 			switch (i(m)) {
 				case 0 -> throw new RuntimeException("0");
 				case 1 -> throw new RuntimeInterruptedException("1");
@@ -372,7 +372,7 @@ public class ManualTesterBehavior {
 
 	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {
 		Counter counter = Counter.of();
-		return (t, m, s) -> {
+		return (_, _, _) -> {
 			if (counter.intInc() >= count) in.print("!\n");
 		};
 	}

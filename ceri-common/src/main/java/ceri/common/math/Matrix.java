@@ -72,7 +72,7 @@ public class Matrix {
 	 * Creates an constant matrix of given size.
 	 */
 	public static Matrix constant(int rows, int columns, double value) {
-		return of((r, c) -> value, rows, columns);
+		return of((_, _) -> value, rows, columns);
 	}
 
 	/**
@@ -86,14 +86,14 @@ public class Matrix {
 	 * Creates a column vector.
 	 */
 	public static Matrix vector(double... row) {
-		return of((r, c) -> row[r], row.length, 1);
+		return of((r, _) -> row[r], row.length, 1);
 	}
 
 	/**
 	 * Creates a row vector.
 	 */
 	public static Matrix ofRow(double... row) {
-		return of((r, c) -> row[c], 1, row.length);
+		return of((_, c) -> row[c], 1, row.length);
 	}
 
 	/**

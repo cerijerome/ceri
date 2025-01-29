@@ -34,7 +34,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 */
 	public static <E extends Exception, T> Enclosed<E, T> from(T subject,
 		ExceptionCloseable<E> closeable) {
-		return of(subject, x -> closeable.close());
+		return of(subject, _ -> closeable.close());
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		adaptOrClose(T subject, ExceptionFunction<E, T, R> adapter) throws E {
 		try {
 			var result = adapter.apply(subject);
-			return of(result, r -> subject.close());
+			return of(result, _ -> subject.close());
 		} catch (Exception e) {
 			subject.close();
 			throw e;

@@ -19,7 +19,7 @@ public class TaskQueueBehavior {
 	public void shouldProcessTasks() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(10);
 		// Start 2 threads and wait for one to generate an error
-		try (var exec = runRepeat(queue::processNext)) {
+		try (var _ = runRepeat(queue::processNext)) {
 			queue.execute(() -> {});
 			queue.execute(() -> {}, 1000, MILLISECONDS);
 			assertEquals(queue.executeGet(() -> "test"), "test");
@@ -46,7 +46,7 @@ public class TaskQueueBehavior {
 	public void shouldThrowTypedExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var exec = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
+		try (var _ = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
 			assertThrown(() -> queue.execute(() -> throwIo()));
 		}
 	}
@@ -55,7 +55,7 @@ public class TaskQueueBehavior {
 	public void shouldThrowRuntimeExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var exec = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
+		try (var _ = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
 			assertThrown(() -> queue.executeGet(() -> throwRuntime()));
 		}
 	}
@@ -65,8 +65,8 @@ public class TaskQueueBehavior {
 		BooleanCondition error = BooleanCondition.of();
 		TaskQueue<?> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var exec0 = SimpleExecutor.run(task(queue, error))) {
-			try (var exec1 = SimpleExecutor.run(task(queue, error))) {
+		try (var _ = SimpleExecutor.run(task(queue, error))) {
+			try (var _ = SimpleExecutor.run(task(queue, error))) {
 				error.await();
 			}
 		}

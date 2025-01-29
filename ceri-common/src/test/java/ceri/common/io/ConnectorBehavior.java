@@ -12,7 +12,7 @@ public class ConnectorBehavior {
 	@Test
 	public void shouldProvideNoOpImplementation() throws IOException {
 		try (var con = new Connector.Null() {}) {
-			con.listeners().listen(x -> {});
+			con.listeners().listen(_ -> {});
 			con.broken();
 			con.open();
 			con.name();

@@ -20,7 +20,7 @@ public class ObjIntPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyOrTests() {
-		ObjIntPredicate<Integer> p = Std.objIntPredicate().or((i, j) -> i < -1);
+		ObjIntPredicate<Integer> p = Std.objIntPredicate().or((i, _) -> i < -1);
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
@@ -29,7 +29,7 @@ public class ObjIntPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyAndTests() {
-		ObjIntPredicate<Integer> p = Std.objIntPredicate().and((i, j) -> i < 3);
+		ObjIntPredicate<Integer> p = Std.objIntPredicate().and((i, _) -> i < 3);
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));

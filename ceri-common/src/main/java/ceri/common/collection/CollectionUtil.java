@@ -220,7 +220,7 @@ public class CollectionUtil {
 	 * Inverts keys and values.
 	 */
 	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> supplier) {
-		return transform((k, v) -> v, (k, v) -> k, supplier, map);
+		return transform((_, v) -> v, (k, _) -> k, supplier, map);
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class CollectionUtil {
 	 */
 	public static <T> Map<Integer, T> toIndexMap(Supplier<Map<Integer, T>> mapSupplier,
 		Iterable<T> collection) {
-		return toIndexMap((t, i) -> t, mapSupplier, collection);
+		return toIndexMap((t, _) -> t, mapSupplier, collection);
 	}
 
 	/**
@@ -361,7 +361,7 @@ public class CollectionUtil {
 	public static <K, T, U> Map<K, U> transformKeys(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper, Supplier<Map<K, U>> mapSupplier,
 		Map<T, ? extends U> map) {
-		return transform(keyMapper, (k, v) -> v, mapSupplier, map);
+		return transform(keyMapper, (_, v) -> v, mapSupplier, map);
 	}
 
 	/**
@@ -394,7 +394,7 @@ public class CollectionUtil {
 	public static <K, V, U> Map<K, V> transformValues(
 		BiFunction<? super K, ? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
 		Map<? extends K, U> map) {
-		return transform((k, v) -> k, valueMapper, mapSupplier, map);
+		return transform((k, _) -> k, valueMapper, mapSupplier, map);
 	}
 
 	/**

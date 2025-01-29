@@ -137,7 +137,7 @@ public class RegexUtilTest {
 
 	@Test
 	public void testReplaceAllQuoted() {
-		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", m -> null),
+		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", _ -> null),
 			"abc123de45f6");
 		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", "N\\$"),
 			"abcN\\$deN\\$fN\\$");
@@ -148,7 +148,7 @@ public class RegexUtilTest {
 	@Test
 	public void testReplaceAllQuotedWithIndex() {
 		String s = "abcdef";
-		s = RegexUtil.replaceAllQuoted(Pattern.compile("[a-f]"), s, (m, i) -> "$" + i);
+		s = RegexUtil.replaceAllQuoted(Pattern.compile("[a-f]"), s, (_, i) -> "$" + i);
 		assertEquals(s, "$0$1$2$3$4$5");
 	}
 
@@ -167,22 +167,22 @@ public class RegexUtilTest {
 		assertEquals(RegexUtil.replaceAll(p, "\"t \\\"e s\\\" t\"", fn), "\"t \\\"e s\\\" t\"");
 		assertEquals(RegexUtil.replaceAll(p, "{ \"_id\" : ObjectId(\"12345\")", fn),
 			"{\"_id\":ObjectId(\"12345\")");
-		assertEquals(RegexUtil.replaceAll(Pattern.compile("abc"), "ab", (m, i) -> ""), "ab");
-		assertEquals(RegexUtil.replaceAll(Pattern.compile("^"), "ab", (m, i) -> "x"), "xab");
-		assertEquals(RegexUtil.replaceAll(Pattern.compile("ab"), "ab", (m, i) -> ""), "");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("abc"), "ab", (_, _) -> ""), "ab");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("^"), "ab", (_, _) -> "x"), "xab");
+		assertEquals(RegexUtil.replaceAll(Pattern.compile("ab"), "ab", (_, _) -> ""), "");
 	}
 
 	@Test
 	public void testReplaceAllOptimization() {
 		String s = "a1b2c3d";
-		assertTrue(RegexUtil.replaceAll(Pattern.compile("x"), s, (m, i) -> "X") == s);
-		assertTrue(RegexUtil.replaceAll(Pattern.compile("\\d"), s, (m, i) -> null) == s);
+		assertTrue(RegexUtil.replaceAll(Pattern.compile("x"), s, (_, _) -> "X") == s);
+		assertTrue(RegexUtil.replaceAll(Pattern.compile("\\d"), s, (_, _) -> null) == s);
 	}
 
 	@Test
 	public void testReplaceAllWithIndex() {
 		assertEquals(
-			RegexUtil.replaceAll(Pattern.compile("[a-f]"), "abcdefg", (m, i) -> String.valueOf(i)),
+			RegexUtil.replaceAll(Pattern.compile("[a-f]"), "abcdefg", (_, i) -> String.valueOf(i)),
 			"012345g");
 	}
 
@@ -204,7 +204,7 @@ public class RegexUtilTest {
 	@Test
 	public void testReplaceExceptWithIndex() {
 		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd",
-			(m, i) -> String.valueOf(i)), "0a1b2c3");
+			(_, i) -> String.valueOf(i)), "0a1b2c3");
 	}
 
 	@Test

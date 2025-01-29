@@ -190,7 +190,7 @@ public class StreamUtilTest {
 			assertThrown(IOException.class, () -> w.mapToInt(s -> {
 				if ("x".equals(s)) throw new IOException();
 				return s.length();
-			}).forEach(x -> {}));
+			}).forEach(_ -> {}));
 		}
 	}
 

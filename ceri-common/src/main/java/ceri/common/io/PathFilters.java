@@ -13,12 +13,12 @@ public class PathFilters {
 	/**
 	 * A filter that accepts no paths.
 	 */
-	public static final Predicate<Path> NONE = path -> false;
+	public static final Predicate<Path> NONE = _ -> false;
 
 	/**
 	 * A filter that accepts all paths.
 	 */
-	public static final Predicate<Path> ALL = path -> true;
+	public static final Predicate<Path> ALL = _ -> true;
 
 	/**
 	 * A filter that only accepts directories.

@@ -127,7 +127,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyWithAutoResponseFunction() {
 		Function<String, Integer> call = CallSync.function(null);
-		call.autoResponse(s -> {}, 3);
+		call.autoResponse(_ -> {}, 3);
 		assertEquals(call.apply("test0"), 3);
 		call.assertAuto("test0");
 	}
@@ -219,7 +219,7 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptWithAutoResponseFunction() {
 		Consumer<String> call = CallSync.consumer(null, false);
-		call.autoResponse(s -> {});
+		call.autoResponse(_ -> {});
 		call.accept("test");
 		call.assertAuto("test");
 	}

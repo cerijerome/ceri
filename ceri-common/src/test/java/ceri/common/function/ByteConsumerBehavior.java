@@ -9,7 +9,7 @@ public class ByteConsumerBehavior {
 	@Test
 	public void shouldCombineWithAndThen() {
 		Captor<Byte> captor = Captor.of();
-		ByteConsumer consumer0 = b -> captor.accept((byte) 0);
+		ByteConsumer consumer0 = _ -> captor.accept((byte) 0);
 		ByteConsumer consumer1 = b -> captor.accept(b);
 		var consumer = consumer0.andThen(consumer1);
 		consumer.accept(Byte.MAX_VALUE);

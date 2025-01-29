@@ -35,8 +35,8 @@ public class IntListenersBehavior {
 	@Test
 	public void shouldDuplicateIntListeners() {
 		IntListeners ls = IntListeners.of();
-		IntConsumer l0 = s -> {};
-		IntConsumer l1 = s -> {};
+		IntConsumer l0 = _ -> {};
+		IntConsumer l1 = _ -> {};
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l1));

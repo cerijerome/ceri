@@ -106,7 +106,7 @@ public interface LongReader {
 	 * Provides longs as a stream, starting at offset, for given length.
 	 */
 	default LongStream stream(int length) {
-		return IntStream.range(0, length).mapToLong(i -> readLong());
+		return IntStream.range(0, length).mapToLong(_ -> readLong());
 	}
 
 }

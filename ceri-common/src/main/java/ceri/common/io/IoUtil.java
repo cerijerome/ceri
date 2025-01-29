@@ -63,7 +63,7 @@ public class IoUtil {
 	public static final ExceptionAdapter<RuntimeIoException> RUNTIME_IO_ADAPTER =
 		ExceptionAdapter.of(RuntimeIoException.class, RuntimeIoException::new);
 	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.of();
-	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = path -> true;
+	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = _ -> true;
 
 	private IoUtil() {}
 
@@ -309,7 +309,7 @@ public class IoUtil {
 	 * Deletes all empty directories under this directory.
 	 */
 	public static void deleteEmptyDirs(Path dir) throws IOException {
-		FileVisitor<Path> visitor = FileVisitUtil.visitor(null, (path, ex) -> {
+		FileVisitor<Path> visitor = FileVisitUtil.visitor(null, (path, _) -> {
 			if (isEmptyDir(path)) Files.delete(path);
 			return FileVisitUtil.result(true);
 		}, null);

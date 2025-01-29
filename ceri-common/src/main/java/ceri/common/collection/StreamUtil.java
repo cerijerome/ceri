@@ -50,12 +50,12 @@ import ceri.common.util.BasicUtil;
  * Convenience shortcuts for common stream methods.
  */
 public class StreamUtil {
-	private static final BinaryOperator<?> MERGE_FIRST = (first, second) -> first;
-	private static final BinaryOperator<?> MERGE_SECOND = (first, second) -> second;
+	private static final BinaryOperator<?> MERGE_FIRST = (first, _) -> first;
+	private static final BinaryOperator<?> MERGE_SECOND = (_, second) -> second;
 	private static final BinaryOperator<?> MERGE_ERROR = (first, second) -> {
 		throw new IllegalArgumentException("Duplicate keys: " + first + ", " + second);
 	};
-	private static final BiConsumer<?, ?> BAD_COMBINER = (r1, r2) -> {
+	private static final BiConsumer<?, ?> BAD_COMBINER = (_, _) -> {
 		throw new IllegalStateException();
 	};
 

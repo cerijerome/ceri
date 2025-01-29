@@ -52,7 +52,7 @@ public class ExceptionBiPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyOrTests() throws IOException {
-		ExceptionBiPredicate<IOException, Integer, Integer> p = biPredicate().or((i, j) -> i < -1);
+		ExceptionBiPredicate<IOException, Integer, Integer> p = biPredicate().or((i, _) -> i < -1);
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
@@ -62,7 +62,7 @@ public class ExceptionBiPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyAndTests() throws IOException {
-		ExceptionBiPredicate<IOException, Integer, Integer> p = biPredicate().and((i, j) -> i < 3);
+		ExceptionBiPredicate<IOException, Integer, Integer> p = biPredicate().and((i, _) -> i < 3);
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));

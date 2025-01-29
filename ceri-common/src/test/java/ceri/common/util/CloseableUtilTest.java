@@ -74,11 +74,11 @@ public class CloseableUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testAcceptOrClose() {
-		assertEquals(CloseableUtil.acceptOrClose(null, c -> {}), null);
+		assertEquals(CloseableUtil.acceptOrClose(null, _ -> {}), null);
 		var closer = SyncCloser.io(true);
-		assertEquals(CloseableUtil.acceptOrClose(closer, c -> {}), closer);
+		assertEquals(CloseableUtil.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		assertThrown(() -> CloseableUtil.acceptOrClose(closer, c -> throwIo()));
+		assertThrown(() -> CloseableUtil.acceptOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -88,10 +88,10 @@ public class CloseableUtilTest {
 		assertEquals(CloseableUtil.applyOrClose(null, null), null);
 		assertEquals(CloseableUtil.applyOrClose(null, null, "x"), "x");
 		var closer = SyncCloser.io(true);
-		assertEquals(CloseableUtil.applyOrClose(closer, x -> null, 1), 1);
-		assertEquals(CloseableUtil.applyOrClose(closer, x -> 0), 0);
+		assertEquals(CloseableUtil.applyOrClose(closer, _ -> null, 1), 1);
+		assertEquals(CloseableUtil.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		assertThrown(() -> CloseableUtil.applyOrClose(closer, x -> throwIo()));
+		assertThrown(() -> CloseableUtil.applyOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -123,8 +123,8 @@ public class CloseableUtilTest {
 	@Test
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(CloseableUtil.acceptOrCloseAll(closers, cs -> {}), closers);
-		assertThrown(() -> CloseableUtil.acceptOrCloseAll(closers, cs -> throwIo()));
+		assertEquals(CloseableUtil.acceptOrCloseAll(closers, _ -> {}), closers);
+		assertThrown(() -> CloseableUtil.acceptOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -132,10 +132,10 @@ public class CloseableUtilTest {
 	@Test
 	public void testApplyOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> null), null);
-		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> null, 3), 3);
-		assertEquals(CloseableUtil.applyOrCloseAll(closers, cs -> 1, 3), 1);
-		assertThrown(() -> CloseableUtil.applyOrCloseAll(closers, cs -> throwIo()));
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, _ -> null), null);
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, _ -> null, 3), 3);
+		assertEquals(CloseableUtil.applyOrCloseAll(closers, _ -> 1, 3), 1);
+		assertThrown(() -> CloseableUtil.applyOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 

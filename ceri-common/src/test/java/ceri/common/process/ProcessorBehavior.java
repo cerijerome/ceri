@@ -95,6 +95,6 @@ public class ProcessorBehavior {
 
 	private static Processor.Builder processor(Process process) {
 		return Processor.builder().pollMs(0).timeoutMs(1).captureStdOut(false).verifyErr(false)
-			.verifyExitValue(false).processStarter(x -> () -> process);
+			.verifyExitValue(false).processStarter(_ -> () -> process);
 	}
 }

@@ -57,7 +57,7 @@ public class TableBehavior {
 		var format = AnsiEscape.csi.sgr().bgColor24(0xb0b0b0);
 		var table = Table.BLANK.print((r, c, lines) -> {
 			if (r < 2 && c < 2) lines.lines(" " + (r + c) + " ");
-		}, (f, r, c, or, s) -> or == Orientation.c ? s : format + s + reset);
+		}, (_, _, _, or, s) -> or == Orientation.c ? s : format + s + reset);
 		assertFind(table, "(?s) 0 .*? 1 .*? 1 .*? 2 ");
 	}
 

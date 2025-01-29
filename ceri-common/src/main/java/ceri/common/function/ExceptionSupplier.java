@@ -34,7 +34,7 @@ public interface ExceptionSupplier<E extends Exception, T> {
 	 */
 	static <E extends Exception, T> ExceptionFunction<E, ?, T>
 		asFunction(ExceptionSupplier<E, T> supplier) {
-		return t -> supplier.get();
+		return _ -> supplier.get();
 	}
 
 }

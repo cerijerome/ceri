@@ -18,21 +18,21 @@ public class TestListenersBehavior {
 	@Test
 	public void shouldNotifyOnListen() throws InterruptedException {
 		TestListeners<String> l = TestListeners.of();
-		l.listen(s -> {});
+		l.listen(_ -> {});
 		l.await(false);
 	}
 
 	@Test
 	public void shouldNotifyOnUnlisten() throws InterruptedException {
 		TestListeners<String> l = TestListeners.of();
-		l.unlisten(s -> {});
+		l.unlisten(_ -> {});
 		l.await(false);
 	}
 
 	@Test
 	public void shouldResetSync() throws InterruptedException {
 		TestListeners<String> l = TestListeners.of();
-		try (SimpleExecutor<?, ?> exec = SimpleExecutor.run(() -> unlisten(l))) {
+		try (var _ = SimpleExecutor.run(() -> unlisten(l))) {
 			l.await(true);
 		}
 	}
@@ -42,7 +42,7 @@ public class TestListenersBehavior {
 	 */
 	private static void unlisten(TestListeners<String> listeners) {
 		while (true) {
-			listeners.unlisten(s -> {});
+			listeners.unlisten(_ -> {});
 			ConcurrentUtil.delayMicros(10);
 		}
 	}

@@ -77,9 +77,9 @@ public class CollectionUtilTest {
 	@Test
 	public void testComputeMapping() {
 		Map<String, Integer> map = new LinkedHashMap<>();
-		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> k.length()), 3);
+		assertEquals(CollectionUtil.compute(map, "abc", (k, _) -> k.length()), 3);
 		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> k.length() + v), 6);
-		assertEquals(CollectionUtil.compute(map, "abc", (k, v) -> null), null);
+		assertEquals(CollectionUtil.compute(map, "abc", (_, _) -> null), null);
 		assertEquals(map.size(), 0);
 	}
 
@@ -88,30 +88,30 @@ public class CollectionUtilTest {
 		Map<String, Integer> map = new LinkedHashMap<>();
 		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> k.length()), 3);
 		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> k.length() - 1), 3);
-		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", k -> null), 3);
+		assertEquals(CollectionUtil.computeIfAbsent(map, "abc", _ -> null), 3);
 		assertEquals(map.size(), 1);
 	}
 
 	@Test
 	public void testComputeMappingIfPresent() {
 		Map<String, Integer> map = new LinkedHashMap<>();
-		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> k.length()), null);
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, _) -> k.length()), null);
 		assertEquals(map.put("abc", 0), null);
-		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> k.length()), 3);
-		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, v) -> null), null);
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (k, _) -> k.length()), 3);
+		assertEquals(CollectionUtil.computeIfPresent(map, "abc", (_, _) -> null), null);
 		assertEquals(map.size(), 0);
 	}
 
 	@Test
 	public void testReplaceAllMappings() {
 		Map<String, Integer> map = new LinkedHashMap<>();
-		CollectionUtil.replaceAll(map, (k, v) -> k.length());
+		CollectionUtil.replaceAll(map, (k, _) -> k.length());
 		assertEquals(map.put("a", 0), null);
 		assertEquals(map.put("abc", 0), null);
-		CollectionUtil.replaceAll(map, (k, v) -> k.length());
+		CollectionUtil.replaceAll(map, (k, _) -> k.length());
 		assertEquals(map.get("a"), 1);
 		assertEquals(map.get("abc"), 3);
-		CollectionUtil.replaceAll(map, (k, v) -> null);
+		CollectionUtil.replaceAll(map, (_, _) -> null);
 		assertEquals(map.get("a"), null);
 		assertEquals(map.get("abc"), null);
 		assertEquals(map.size(), 2);
@@ -120,8 +120,8 @@ public class CollectionUtilTest {
 	@Test
 	public void testMergedMappedValue() {
 		Map<String, Integer> map = new LinkedHashMap<>();
-		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> 3), 1);
-		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> 3), 3);
+		assertEquals(CollectionUtil.merge(map, "abc", 1, (_, _) -> 3), 1);
+		assertEquals(CollectionUtil.merge(map, "abc", 1, (_, _) -> 3), 3);
 		assertEquals(CollectionUtil.merge(map, "abc", 1, (v1, v2) -> v1 + v2), 4);
 		assertEquals(map.size(), 1);
 	}
@@ -230,7 +230,7 @@ public class CollectionUtilTest {
 			CollectionUtil.transform(Double::intValue, String::length, map);
 		assertCollection(imap.keySet(), 1, 3, 2);
 		assertCollection(imap.values(), 4, 6, 5);
-		imap = CollectionUtil.transform((d, s) -> s.length(), (d, s) -> d.intValue(), map);
+		imap = CollectionUtil.transform((_, s) -> s.length(), (d, _) -> d.intValue(), map);
 		assertCollection(imap.keySet(), 4, 6, 5);
 		assertCollection(imap.values(), 1, 3, 2);
 	}
@@ -358,7 +358,7 @@ public class CollectionUtilTest {
 	@Test
 	public void testMapRemoveIf() {
 		Map<String, Integer> map = new HashMap<>(Map.of("a", 1, "ab", 2, "abc", 3));
-		assertEquals(CollectionUtil.removeIf(map, (k, v) -> k.contains("b")), 2);
+		assertEquals(CollectionUtil.removeIf(map, (k, _) -> k.contains("b")), 2);
 		assertEquals(map, Map.of("a", 1));
 	}
 

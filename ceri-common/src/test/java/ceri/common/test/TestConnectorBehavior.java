@@ -88,7 +88,7 @@ public class TestConnectorBehavior {
 	public void shouldBreakConnector() throws InterruptedException {
 		con.in.to.writeBytes(1, 2, 3);
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		try (var enc = con.listeners().enclose(sync::signal)) {
+		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.broken();
 			assertEquals(sync.await(), StateChange.broken);
 			assertThrown(() -> con.in().read());
@@ -104,7 +104,7 @@ public class TestConnectorBehavior {
 		con.in.to.writeBytes(1, 2, 3);
 		con.broken();
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		try (var enc = con.listeners().enclose(sync::signal)) {
+		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.fixed();
 			assertEquals(sync.await(), StateChange.fixed);
 			con.fixed();

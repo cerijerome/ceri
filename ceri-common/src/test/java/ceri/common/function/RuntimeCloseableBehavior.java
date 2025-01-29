@@ -7,7 +7,7 @@ public class RuntimeCloseableBehavior {
 	@Test
 	public void shouldConvert() {
 		try (ExceptionCloseable<RuntimeException> ec = () -> {};
-			var rc = RuntimeCloseable.from(ec)) {}
+			var _ = RuntimeCloseable.from(ec)) {}
 	}
 
 }

@@ -20,7 +20,7 @@ public class ObjLongPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyOrTests() {
-		ObjLongPredicate<Integer> p = Std.objLongPredicate().or((i, j) -> i < -1);
+		ObjLongPredicate<Integer> p = Std.objLongPredicate().or((i, _) -> i < -1);
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
@@ -29,7 +29,7 @@ public class ObjLongPredicateBehavior {
 
 	@Test
 	public void shouldLogicallyAndTests() {
-		ObjLongPredicate<Integer> p = Std.objLongPredicate().and((i, j) -> i < 3);
+		ObjLongPredicate<Integer> p = Std.objLongPredicate().and((i, _) -> i < 3);
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));

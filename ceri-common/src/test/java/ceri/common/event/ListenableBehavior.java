@@ -16,7 +16,7 @@ public class ListenableBehavior {
 	public void shouldProvideWrapperToUnlistenOnClose() {
 		Captor<String> captor = Captor.of();
 		Listeners<String> listeners = Listeners.of();
-		try (Enclosed<RuntimeException, ?> enclosed = listeners.enclose(captor)) {
+		try (var _ = listeners.enclose(captor)) {
 			listeners.accept("test0");
 		}
 		listeners.accept("test1");
@@ -27,7 +27,7 @@ public class ListenableBehavior {
 	public void shouldUnlistenCloseWrappedListenerOnceOnly() {
 		Captor<String> captor = Captor.of();
 		TestListenable listeners = new TestListenable();
-		try (Enclosed<RuntimeException, ?> enclosed0 = listeners.enclose(captor)) {
+		try (var _ = listeners.enclose(captor)) {
 			listeners.accept("test0");
 			try (Enclosed<RuntimeException, ?> enclosed1 = listeners.enclose(captor)) {
 				listeners.accept("test1");
@@ -63,7 +63,7 @@ public class ListenableBehavior {
 	@Test
 	public void shouldProvideSafeAccess() {
 		var listen = TestListeners.<String>of();
-		Consumer<String> consumer = e -> {};
+		Consumer<String> consumer = _ -> {};
 		listen.listen(consumer);
 		Listenable.safe((Listenable<String>) null).unlisten(consumer);
 		Listenable.safe((Listenable.Indirect<String>) null).listeners().unlisten(consumer);

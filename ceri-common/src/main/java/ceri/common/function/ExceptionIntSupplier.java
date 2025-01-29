@@ -24,7 +24,7 @@ public interface ExceptionIntSupplier<E extends Exception> {
 	 */
 	static <E extends Exception, T> ExceptionToIntFunction<E, T>
 		asToIntFunction(ExceptionIntSupplier<E> supplier) {
-		return t -> supplier.getAsInt();
+		return _ -> supplier.getAsInt();
 	}
 
 }

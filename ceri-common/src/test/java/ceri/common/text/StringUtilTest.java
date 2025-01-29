@@ -205,7 +205,7 @@ public class StringUtilTest {
 		assertNull(StringUtil.printable(null));
 		assertEquals(StringUtil.printable(""), "");
 		assertEquals(StringUtil.printable("ab\0c\u2081"), "ab.c\u2081");
-		assertNull(StringUtil.replaceUnprintable(null, c -> "."));
+		assertNull(StringUtil.replaceUnprintable(null, _ -> "."));
 		assertEquals(StringUtil.replaceUnprintable("ab\0\1\2c", c -> String.valueOf((int) c)),
 			"ab012c");
 	}

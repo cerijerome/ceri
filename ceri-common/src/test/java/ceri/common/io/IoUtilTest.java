@@ -394,7 +394,7 @@ public class IoUtilTest {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
-		try (InputStream in = IoStreamUtil.in((buf, off, len) -> 0, () -> 3)) {
+		try (InputStream in = IoStreamUtil.in((_, _, _) -> 0, () -> 3)) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 	}
@@ -461,7 +461,7 @@ public class IoUtilTest {
 	@Test
 	public void testPipeWithDelay() throws IOException {
 		var read = CallSync.supplier(1, 0, 3, -1);
-		try (var in = IoStreamUtil.in((b, off, len) -> read.get())) {
+		try (var in = IoStreamUtil.in((_, _, _) -> read.get())) {
 			var out = new ByteArrayOutputStream();
 			IoUtil.pipe(in, out, new byte[3], 0);
 			assertArray(out.toByteArray(), 0, 0, 0, 0);
@@ -564,7 +564,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testDirStreamForEach() {
-		assertThrown(() -> IoUtil.dirStreamForEach(Files.newDirectoryStream(helper.root), path -> {
+		assertThrown(() -> IoUtil.dirStreamForEach(Files.newDirectoryStream(helper.root), _ -> {
 			throw new IOException();
 		}));
 	}

@@ -68,9 +68,9 @@ public class WrappedIntStreamBehavior {
 		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(intConsumer()));
 		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).forEach(intConsumer()));
 		assertThrown(IOException.class,
-			() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(x -> {}));
+			() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(_ -> {}));
 		assertThrown(RuntimeException.class,
-			() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(x -> {}));
+			() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(_ -> {}));
 	}
 
 	@SuppressWarnings("resource")

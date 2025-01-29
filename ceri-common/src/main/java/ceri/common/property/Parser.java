@@ -419,7 +419,7 @@ public class Parser {
 		 * Removes null values.
 		 */
 		default Types<T> filter() {
-			return filter(v -> true);
+			return filter(_ -> true);
 		}
 
 		/**
@@ -787,7 +787,7 @@ public class Parser {
 		 */
 		@Override
 		default Strings filter() {
-			return filter(v -> true);
+			return filter(_ -> true);
 		}
 
 		/**

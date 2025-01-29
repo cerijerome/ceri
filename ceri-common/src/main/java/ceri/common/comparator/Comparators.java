@@ -33,8 +33,8 @@ public class Comparators {
 	public static final Comparator<Locale> LOCALE = string();
 	private static final Comparator<?> STRING_VALUE =
 		nonNull((lhs, rhs) -> STRING.compare(String.valueOf(lhs), String.valueOf(rhs)));
-	private static final Comparator<?> NULL = ((lhs, rhs) -> 0);
-	private static final Comparator<?> NON_NULL = nonNull((lhs, rhs) -> 0);
+	private static final Comparator<?> NULL = ((_, _) -> 0);
+	private static final Comparator<?> NON_NULL = nonNull((_, _) -> 0);
 
 	private Comparators() {}
 

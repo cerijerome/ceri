@@ -77,7 +77,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testLocker() {
 		var lock = new ReentrantLock();
-		try (var x = ConcurrentUtil.locker(lock)) {
+		try (var _ = ConcurrentUtil.locker(lock)) {
 			assertTrue(lock.isLocked());
 		}
 		assertFalse(lock.isLocked());
@@ -86,7 +86,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testLockerWithException() {
 		var lock = new ReentrantLock();
-		try (var x = ConcurrentUtil.locker(lock, () -> throwIo(), () -> {})) {
+		try (var _ = ConcurrentUtil.locker(lock, () -> throwIo(), () -> {})) {
 			fail();
 		} catch (IOException e) {
 			assertFalse(lock.isLocked());
@@ -96,7 +96,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testDelay() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (var exec = SimpleExecutor.run(() -> {
+		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delay(0);
 			ConcurrentUtil.delay(1);
 			sync.signal();
@@ -109,7 +109,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testDelayMicros() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (var exec = SimpleExecutor.run(() -> {
+		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delayMicros(0);
 			ConcurrentUtil.delayMicros(10);
 			sync.signal();
@@ -122,7 +122,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testDelayNanos() throws InterruptedException {
 		BooleanCondition sync = BooleanCondition.of();
-		try (var exec = SimpleExecutor.run(() -> {
+		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delayNanos(0);
 			ConcurrentUtil.delayNanos(10);
 			sync.signal();
@@ -136,7 +136,7 @@ public class ConcurrentUtilTest {
 	public void testGetWhileInterrupted() {
 		var sync = CallSync.function(0L, true);
 		sync.error.setFrom(INX, null);
-		assertEquals(ConcurrentUtil.getWhileInterrupted((t, u) -> sync.apply(t), 100L,
+		assertEquals(ConcurrentUtil.getWhileInterrupted((t, _) -> sync.apply(t), 100L,
 			TimeUnit.MILLISECONDS), true);
 		assertEquals(Thread.interrupted(), true);
 	}
@@ -156,35 +156,35 @@ public class ConcurrentUtilTest {
 	public void testExecuteAndGet() throws IOException {
 		ValueCondition<String> signal = ValueCondition.of();
 		signal.signal("test");
-		assertEquals(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new), "test");
+		assertEquals(ConcurrentUtil.submitAndGet(exec, signal::await, IOException::new), "test");
 		signal.signal("test2");
-		assertEquals(ConcurrentUtil.executeAndGet(exec, signal::await, IOException::new, 10000),
+		assertEquals(ConcurrentUtil.submitAndGet(exec, signal::await, IOException::new, 10000),
 			"test2");
 	}
 
 	@Test
 	public void testExecuteAndWait() throws IOException {
 		BooleanCondition signal = BooleanCondition.of();
-		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new);
+		ConcurrentUtil.submitAndWait(exec, signal::signal, IOException::new);
 		assertTrue(signal.isSet());
 		signal.clear();
-		ConcurrentUtil.executeAndWait(exec, signal::signal, IOException::new, 10000);
+		ConcurrentUtil.submitAndWait(exec, signal::signal, IOException::new, 10000);
 		assertTrue(signal.isSet());
 	}
 
 	@Test
 	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
-		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new));
-		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, () -> {
+		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new, 10000));
 	}
 
 	@Test
 	public void testExecuteAndWaitTimeoutException() {
-		assertThrown(IOException.class, () -> ConcurrentUtil.executeAndWait(exec, //
+		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, //
 			() -> Thread.sleep(1000), IOException::new, 1));
 	}
 
@@ -299,18 +299,18 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteInterruptible() {
-		ConcurrentUtil.executeInterruptible(() -> {});
+		ConcurrentUtil.runInterruptible(() -> {});
 		assertThrown(RuntimeInterruptedException.class,
-			() -> ConcurrentUtil.executeInterruptible(() -> {
+			() -> ConcurrentUtil.runInterruptible(() -> {
 				throw new InterruptedException();
 			}));
 	}
 
 	@Test
 	public void testExecuteGetInterruptible() {
-		assertEquals(ConcurrentUtil.executeGetInterruptible(() -> "x"), "x");
+		assertEquals(ConcurrentUtil.getInterruptible(() -> "x"), "x");
 		assertThrown(RuntimeInterruptedException.class,
-			() -> ConcurrentUtil.executeGetInterruptible(() -> {
+			() -> ConcurrentUtil.getInterruptible(() -> {
 				throw new InterruptedException();
 			}));
 	}

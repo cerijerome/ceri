@@ -227,7 +227,7 @@ public class RegexUtil {
 	 * Replaces pattern matches with well behaved \ and $ in the replacement string.
 	 */
 	public static String replaceAllQuoted(Pattern pattern, String s, String replacement) {
-		return replaceAllQuoted(pattern, s, (m, i) -> replacement);
+		return replaceAllQuoted(pattern, s, (_, _) -> replacement);
 	}
 
 	/**
@@ -235,7 +235,7 @@ public class RegexUtil {
 	 */
 	public static String replaceAllQuoted(Pattern pattern, String s,
 		Function<MatchResult, String> replacer) {
-		return replaceAll(pattern, s, (m, i) -> quote(replacer.apply(m)));
+		return replaceAll(pattern, s, (m, _) -> quote(replacer.apply(m)));
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class RegexUtil {
 	 * Same as Matcher.replaceAll, but the replacer function can return null to skip replacement.
 	 */
 	public static String replaceAll(Pattern p, String s, Function<MatchResult, String> replacer) {
-		return replaceAll(p, s, (m, i) -> replacer.apply(m));
+		return replaceAll(p, s, (m, _) -> replacer.apply(m));
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class RegexUtil {
 	 * Replaces text that does not match the pattern.
 	 */
 	public static String replaceExcept(Pattern p, String s, String replacement) {
-		return replaceExcept(p, s, (t, i) -> replacement);
+		return replaceExcept(p, s, (_, _) -> replacement);
 	}
 
 	/**
@@ -290,7 +290,7 @@ public class RegexUtil {
 	 */
 	public static String replaceExcept(Pattern p, String s,
 		Function<NonMatchResult, String> replacer) {
-		return replaceExcept(p, s, (t, i) -> replacer.apply(t));
+		return replaceExcept(p, s, (t, _) -> replacer.apply(t));
 	}
 
 	/**

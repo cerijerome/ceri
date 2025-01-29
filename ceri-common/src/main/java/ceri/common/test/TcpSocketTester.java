@@ -92,7 +92,7 @@ public class TcpSocketTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(TcpSocket.class, "O", (t, m, s) -> options(s, t), "O = show all options");
+		b.command(TcpSocket.class, "O", (t, _, s) -> options(s, t), "O = show all options");
 		b.command(TcpSocket.class, "Ot(\\d*)",
 			(t, m, s) -> option(s, t, TcpSocketOption.soTimeout, i(m)),
 			"Ot[N] = SO_TIMEOUT: timeout in milliseconds");

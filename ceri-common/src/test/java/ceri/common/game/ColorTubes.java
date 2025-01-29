@@ -19,7 +19,7 @@ public class ColorTubes {
 	private static int count = 0;
 
 	enum Color {
-		none(0xffffff, ' '), // 0
+		none(0, ' '), // 0
 		red(0xf00000, 'r'), // 1
 		pink(0xf07080, 'p'), // 2
 		orange(0xf0a000, 'o'), // 3
@@ -46,19 +46,32 @@ public class ColorTubes {
 	}
 
 	public static void main(String[] args) {
-		run(level2565());
+		run(level3145());
 	}
 
 	public static int[] levelN() {
-		return tubes( //
-			"", "", "", "", "", "", "", //
-			"", "", "", "", "", "", "");
+		return lines( //
+			"" + "  ", //
+			"" + "  ", //
+			"" + "  ", //
+			"" + "  ");
+	}
+
+	public static int[] level3145() { // no solution!
+		return lines( //
+			"yaBBrcr" + "ayoPP  ", //
+			"oGbbcog" + "OccGa  ", //
+			"pOppoGO" + "rbGbp  ", //
+			//"aggBgyy" + "POBPr  "); // ayP
+			"aggBgyP" + "yOBPr  "); // aPy
 	}
 
 	public static int[] level2565() {
-		return tubes( //
-			"OPoa", "yGyB", "pgag", "bbar", "poGc", "cOGB", "pOBa", //
-			"ccoo", "rpGg", "bPgr", "OyPP", "rbyB", "", "");
+		return lines( //
+			"aBgrcBaogrPB  ", //
+			"oyaaGGBoGgPy  ", //
+			"PGgboOOcpPyb  ", //
+			"OypbpcpcrbOr  ");
 	}
 
 	public static int[] level2405() {
@@ -375,6 +388,20 @@ public class ColorTubes {
 	}
 
 	/**
+	 * Create tube values with given colors int rows starting at the top.
+	 */
+	private static int[] lines(String... lines) {
+		int[] tubes = new int[Stream.of(lines).mapToInt(String::length).max().orElse(0)];
+		for (int r = 0; r < lines.length; r++) {
+			for (int c = 0; c < tubes.length; c++) {
+				var color = Color.map.get(lines[r].charAt(c));
+				tubes[c] |= shift(color.ordinal(), lines.length - r - 1);
+			}
+		}
+		return tubes;
+	}
+
+	/**
 	 * Create a tube value with given colors starting at the bottom.
 	 */
 	private static int tube(Color... colors) {
@@ -416,9 +443,11 @@ public class ColorTubes {
 	private static void printTubes(int[] tubes) {
 		for (int i = SIZE - 1; i >= 0; i--) {
 			for (int j = 0; j < tubes.length; j++) {
-				var rgb = Color.values[color(tubes[j], i)].rgb;
-				System.out.printf(" %s%s%s", csi.sgr().bgColor24(rgb), i == 0 ? "__" : "  ",
-					Sgr.reset);
+				System.out.print(" ");
+				var color = Color.values[color(tubes[j], i)];
+				if (color != Color.none) System.out.print(csi.sgr().bgColor24(color.rgb));
+				System.out.printf(i == 0 ? "__" : "  ");
+				if (color != Color.none) System.out.print(Sgr.reset);
 			}
 			System.out.println();
 		}

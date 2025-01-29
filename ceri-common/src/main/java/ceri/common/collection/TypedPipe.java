@@ -27,7 +27,7 @@ public class TypedPipe<T> {
 		}
 
 		public T read() {
-			return ConcurrentUtil.executeGetInterruptible(queue::take);
+			return ConcurrentUtil.getInterruptible(queue::take);
 		}
 
 		public List<T> readN(int n) {
@@ -67,7 +67,7 @@ public class TypedPipe<T> {
 
 		public void write(T value) {
 			Objects.requireNonNull(value);
-			ConcurrentUtil.executeInterruptible(() -> queue.put(value));
+			ConcurrentUtil.runInterruptible(() -> queue.put(value));
 		}
 
 		@SafeVarargs

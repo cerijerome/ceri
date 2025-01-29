@@ -113,7 +113,7 @@ public class LazyBehavior {
 	public void shouldOverrideValueType() {
 		var value = Lazy.Value.of(3);
 		assertEquals(value.get(), 3);
-		try (var override = value.override(7)) {
+		try (var _ = value.override(7)) {
 			assertEquals(value.get(), 7);
 		}
 		assertEquals(value.get(), 3);

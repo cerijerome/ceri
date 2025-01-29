@@ -52,8 +52,8 @@ public class ListenersBehavior {
 	@Test
 	public void shouldDuplicateListeners() {
 		Listeners<String> ls = Listeners.of();
-		Consumer<String> l0 = s -> {};
-		Consumer<String> l1 = s -> {};
+		Consumer<String> l0 = _ -> {};
+		Consumer<String> l1 = _ -> {};
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l1));

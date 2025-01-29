@@ -9,8 +9,8 @@ import ceri.common.function.ExceptionLongConsumer;
 import ceri.common.text.ToString;
 
 /**
- * Timer to keep track of elapsed and remaining time. Can be paused/resumed multiple times without
- * resetting elapsed time. Not thread-safe.
+ * Timer to keep track of elapsed and remaining time. Must call start() to start the timer. Can be
+ * paused/resumed multiple times without resetting elapsed time. Not thread-safe.
  */
 public class Timer {
 	private static final long INFINITE_PERIOD = -1L;
