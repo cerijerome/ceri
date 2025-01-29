@@ -30,7 +30,7 @@ public class TestRpcService extends TestGrpc.TestImplBase implements RuntimeClos
 
 	public void reset() {
 		run = () -> {};
-		set = i -> {};
+		set = _ -> {};
 		get = () -> 0;
 	}
 

@@ -18,7 +18,7 @@ public class CallbackTester {
 	public static void runWithoutGc(int signal, int n, int delayMs, int timeoutMs)
 		throws CException {
 		System.out.println("Running without gc");
-		try (var x = JnaUtil.callback(set(signal))) {
+		try (var _ = JnaUtil.callback(set(signal))) {
 			exec(signal, n, delayMs, timeoutMs);
 		}
 	}

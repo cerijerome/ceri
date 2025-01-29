@@ -102,7 +102,7 @@ public class RegistryService extends LoopingExecutor {
 	}
 
 	private boolean processUpdates() {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			while (true) {
 				var entry = updates.pollFirstEntry();
 				if (entry == null) break;
@@ -116,7 +116,7 @@ public class RegistryService extends LoopingExecutor {
 		return new Registry() {
 			@Override
 			public void queue(Object source, Consumer<TypedProperties> update) {
-				try (var locked = locker.lock()) {
+				try (var _ = locker.lock()) {
 					updates.put(source, () -> update.accept(properties));
 				}
 			}
@@ -124,7 +124,7 @@ public class RegistryService extends LoopingExecutor {
 			@Override
 			public <E extends Exception, T> T
 				apply(ExceptionFunction<E, TypedProperties, T> function) throws E {
-				try (var locked = locker.lock()) {
+				try (var _ = locker.lock()) {
 					return function.apply(properties);
 				}
 			}

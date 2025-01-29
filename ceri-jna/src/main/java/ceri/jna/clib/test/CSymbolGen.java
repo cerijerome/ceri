@@ -52,7 +52,7 @@ public class CSymbolGen {
 	}
 
 	public static class FieldFilter implements Predicate<Field> {
-		private Predicate<Field> predicate = f -> true;
+		private Predicate<Field> predicate = _ -> true;
 
 		private FieldFilter() {}
 
@@ -162,7 +162,7 @@ public class CSymbolGen {
 		private final Map<Arch, Lines> archLines = new LinkedHashMap<>();
 
 		public Lines lines(Arch arch) {
-			return archLines.computeIfAbsent(arch, a -> new Lines());
+			return archLines.computeIfAbsent(arch, _ -> new Lines());
 		}
 
 		public void appendTo(StringBuilder out, int tabs) {

@@ -41,8 +41,8 @@ public class JsonTypeAuditor implements TypeAdapterFactory {
 	public static class Builder {
 		boolean enabled = true;
 		boolean exception = false;
-		Predicate<TypeToken<?>> allow = t -> false;
-		Predicate<TypeToken<?>> deny = t -> false;
+		Predicate<TypeToken<?>> allow = _ -> false;
+		Predicate<TypeToken<?>> deny = _ -> false;
 
 		Builder() {}
 

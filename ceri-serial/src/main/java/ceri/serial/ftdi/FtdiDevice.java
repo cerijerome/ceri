@@ -189,7 +189,7 @@ public class FtdiDevice implements Ftdi {
 	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
 		double progressIntervalSec) throws LibUsbException {
 		FTDIStreamCallback<?> ftdiCb = (buffer, length, progress,
-			user_data) -> streamCallback(buffer, length, progress, callback);
+			_) -> streamCallback(buffer, length, progress, callback);
 		LibFtdiStream.ftdi_readstream(ftdi(), ftdiCb, null, packetsPerTransfer, numTransfers,
 			progressIntervalSec);
 	}

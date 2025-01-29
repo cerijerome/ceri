@@ -60,7 +60,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int setByte(int pos, int b) {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			changed = true;
 			return buffer.setByte(pos, b);
 		}
@@ -68,7 +68,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int copyFrom(int pos, byte[] array, int offset, int length) {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			if (length > 0) changed = true;
 			return buffer.copyFrom(pos, array, offset, length);
 		}
@@ -76,7 +76,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int copyFrom(int pos, ByteProvider provider, int offset, int length) {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			if (length > 0) changed = true;
 			return buffer.copyFrom(pos, provider, offset, length);
 		}
@@ -84,7 +84,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 
 	@Override
 	public int fill(int pos, int length, int value) {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			if (length > 0) changed = true;
 			return buffer.fill(pos, length, value);
 		}
@@ -119,7 +119,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 	}
 
 	private void syncData() throws InterruptedException {
-		try (var locked = locker.lock()) {
+		try (var _ = locker.lock()) {
 			sync.await();
 			if (changed) buffer.writePulseTo(xfer.out());
 			changed = false;

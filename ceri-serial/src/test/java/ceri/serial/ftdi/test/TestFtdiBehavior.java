@@ -18,7 +18,7 @@ public class TestFtdiBehavior {
 	@Test
 	public void shouldEncapsulateParameters() {
 		exerciseRecord(new TestFtdi.Submit(Direction.duplex, Pointer.NULL, 0));
-		exerciseRecord(new TestFtdi.Stream((p, b) -> true, 0, 0, 0));
+		exerciseRecord(new TestFtdi.Stream((_, _) -> true, 0, 0, 0));
 	}
 
 	@SuppressWarnings("resource")
@@ -121,7 +121,7 @@ public class TestFtdiBehavior {
 	public void shouldReadStream() throws IOException {
 		try (var ftdi = TestFtdi.of()) {
 			ftdi.open();
-			Ftdi.StreamCallback cb = (i, b) -> true;
+			Ftdi.StreamCallback cb = (_, _) -> true;
 			ftdi.readStream(cb, 2, 1);
 			ftdi.stream.assertAuto(new TestFtdi.Stream(cb, 2, 1, 1.0));
 		}

@@ -27,7 +27,7 @@ public class RpcBehavior {
 	@Test
 	public void shouldHandleNotifications() throws InterruptedException {
 		var sync = ValueCondition.of();
-		try (var listener = rpc.client0.listen(i -> sync.signal(i))) {
+		try (var _ = rpc.client0.listen(i -> sync.signal(i))) {
 			rpc.service.waitForClients(1);
 			rpc.service.notify(1);
 			assertEquals(sync.await(), 1);

@@ -109,8 +109,8 @@ public class UsbTransferBehavior {
 		CallSync.Consumer<BulkStream> callback = CallSync.consumer(null, true);
 		try (var streams = handle.bulkStreams(2, 0x81, 0x02);
 			var transfer = streams.bulkTransfer(0x81, 2, callback)) {
-			assertThrown(() -> streams.bulkTransfer(0x01, 1, b -> {}));
-			assertThrown(() -> streams.bulkTransfer(0x81, 3, b -> {}));
+			assertThrown(() -> streams.bulkTransfer(0x01, 1, _ -> {}));
+			assertThrown(() -> streams.bulkTransfer(0x81, 3, _ -> {}));
 			assertEquals(transfer.streamId(), 2);
 			transfer.buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
@@ -127,7 +127,7 @@ public class UsbTransferBehavior {
 		LogModifier.run(() -> {
 			try (var streams = handle.bulkStreams(2, 0x81, 0x02)) {
 				handle.close();
-				assertThrown(() -> streams.bulkTransfer(0x81, 1, b -> {}));
+				assertThrown(() -> streams.bulkTransfer(0x81, 1, _ -> {}));
 			}
 		}, Level.OFF, LogUtil.class);
 	}

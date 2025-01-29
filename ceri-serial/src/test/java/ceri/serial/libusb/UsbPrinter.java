@@ -32,7 +32,7 @@ public class UsbPrinter {
 
 	public static void runTest(UsbPrinter printer) {
 		TestLibUsbNative lib = TestLibUsbNative.of();
-		try (var enc = TestLibUsbNative.register(lib)) {
+		try (var _ = TestLibUsbNative.register(lib)) {
 			LibUsbSampleData.populate(lib.data);
 			run(printer);
 		}

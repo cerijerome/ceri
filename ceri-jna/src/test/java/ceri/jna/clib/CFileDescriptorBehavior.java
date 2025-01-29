@@ -65,7 +65,7 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldOpenWithMode() throws IOException {
-		try (var fd = CFileDescriptor.open("test", Mode.of(Mask.rwxo), Open.APPEND)) {
+		try (var _ = CFileDescriptor.open("test", Mode.of(Mask.rwxo), Open.APPEND)) {
 			lib.open.assertCall(new OpenArgs("test", Open.APPEND.value, Mask.rwxo.value));
 		}
 	}

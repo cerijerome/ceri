@@ -83,7 +83,7 @@ public class JnaLibrary<T extends Library> {
 	 */
 	public <U extends T> Enclosed<RuntimeException, U> enclosed(U override) {
 		set(override);
-		return Enclosed.of(override, l -> set(null));
+		return Enclosed.of(override, _ -> set(null));
 	}
 
 	/**

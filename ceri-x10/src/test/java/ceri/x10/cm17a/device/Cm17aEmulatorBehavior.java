@@ -13,7 +13,7 @@ public class Cm17aEmulatorBehavior {
 	public void shouldDispatchCommands() throws IOException, InterruptedException {
 		TestCommandListener listener = TestCommandListener.of();
 		try (var emu = Cm17aEmulator.of(0)) {
-			try (var enc = emu.listen(listener)) {
+			try (var _ = emu.listen(listener)) {
 				emu.command(Command.from("I[1,3,5]:dim:30%"));
 				listener.sync.await(Command.from("I[1,3,5]:dim:30%"));
 			}
@@ -24,7 +24,7 @@ public class Cm17aEmulatorBehavior {
 	public void shouldNotifyOfStateChange() {
 		try (var emu = Cm17aEmulator.of(0)) {
 			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-			try (var listener = emu.listeners().enclose(sync::accept)) {
+			try (var _ = emu.listeners().enclose(sync::accept)) {
 				emu.listeners.accept(StateChange.broken);
 				sync.assertCall(StateChange.broken);
 			}

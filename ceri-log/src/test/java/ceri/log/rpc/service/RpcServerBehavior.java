@@ -54,7 +54,7 @@ public class RpcServerBehavior {
 	public void shouldNotThrowExceptionOnClose() {
 		var server = TestServer.of();
 		server.awaitTermination.error.setFrom(INX);
-		try (RpcServer rpcServer = new RpcServer(server, RpcServer.Config.DEFAULT)) {}
+		try (RpcServer _ = new RpcServer(server, RpcServer.Config.DEFAULT)) {}
 	}
 
 }

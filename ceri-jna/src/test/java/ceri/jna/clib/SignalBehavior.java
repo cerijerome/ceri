@@ -36,7 +36,7 @@ public class SignalBehavior {
 	@Test
 	public void shouldSetHandler() throws IOException {
 		var sync = CallSync.<Signal>consumer(null, true);
-		try (var cb = Signal.SIGUSR1.signal(sync)) {
+		try (var _ = Signal.SIGUSR1.signal(sync)) {
 			LogUtil.runSilently(Signal.SIGUSR1::raise);
 			sync.assertAuto(Signal.SIGUSR1);
 		}
@@ -46,7 +46,7 @@ public class SignalBehavior {
 	public void shouldFailToSetHandler() {
 		initLib();
 		lib.signal.autoResponses(new Pointer(CSignal.SIG_ERR));
-		assertThrown(IOException.class, () -> Signal.SIGUSR1.signal(sig -> {}));
+		assertThrown(IOException.class, () -> Signal.SIGUSR1.signal(_ -> {}));
 	}
 
 	private void initLib() {

@@ -27,7 +27,7 @@ public class ShutdownListener implements RuntimeCloseable {
 
 	private ShutdownListener(int port) throws IOException {
 		socket = SocketListener.of(port);
-		socket.listeners().listen(data -> stop());
+		socket.listeners().listen(_ -> stop());
 		logger.debug("Listening on port {}", port);
 	}
 

@@ -185,7 +185,7 @@ public class LibFtdiStream {
 	}
 
 	private static <T> libusb_transfer_cb_fn callback(FTDIStreamState<T> state, int i) {
-		return p -> ftdi_readstream_cb(state, i);
+		return _ -> ftdi_readstream_cb(state, i);
 	}
 
 	/**

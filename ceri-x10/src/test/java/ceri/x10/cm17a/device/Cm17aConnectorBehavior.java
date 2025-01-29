@@ -13,7 +13,7 @@ public class Cm17aConnectorBehavior {
 		Cm17aConnector con = Cm17aConnector.NULL;
 		con.dtr(true);
 		con.rts(false);
-		try (var enc = con.listeners().enclose(x -> {})) {}
+		try (var _ = con.listeners().enclose(_ -> {})) {}
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public class Cm17aConnectorBehavior {
 			con.rts(true);
 			serial.rts.assertAuto(true);
 			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-			try (var listener = con.listeners().enclose(sync::accept)) {
+			try (var _ = con.listeners().enclose(sync::accept)) {
 				con.broken();
 				sync.assertCall(StateChange.broken);
 			}

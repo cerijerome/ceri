@@ -122,7 +122,7 @@ public class WebDriverContainer implements RuntimeCloseable {
 	}
 
 	public void waitFor(BooleanSupplier test, int timeoutSec) {
-		Function<WebDriver, Boolean> fn = driver -> test.getAsBoolean();
+		Function<WebDriver, Boolean> fn = _ -> test.getAsBoolean();
 		waitFor(fn, timeoutSec);
 	}
 

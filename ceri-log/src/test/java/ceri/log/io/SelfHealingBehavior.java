@@ -48,7 +48,7 @@ public class SelfHealingBehavior {
 	@Test
 	public void shouldCopyConfigExceptForDefaultBrokenPredicate() {
 		var conf = SelfHealing.Config.builder().fixRetryDelayMs(1).recoveryDelayMs(3)
-			.brokenPredicate(e -> true).apply(SelfHealing.Config.DEFAULT).build();
+			.brokenPredicate(_ -> true).apply(SelfHealing.Config.DEFAULT).build();
 		assertEquals(conf.fixRetryDelayMs, SelfHealing.Config.DEFAULT.fixRetryDelayMs);
 		assertEquals(conf.recoveryDelayMs, SelfHealing.Config.DEFAULT.recoveryDelayMs);
 		assertTrue(conf.hasBrokenPredicate());
@@ -112,9 +112,9 @@ public class SelfHealingBehavior {
 		// 1) exception -> not broken
 		// 2) exception -> broken, set signal
 		// 3) exception -> broken, signal already set
-		assertThrown(() -> device.device.acceptValid(f -> throwIo()));
-		assertThrown(() -> device.device.acceptValid(f -> throwIt(BROKEN_EXCEPTION)));
-		assertThrown(() -> device.device.acceptValid(f -> throwIt(BROKEN_EXCEPTION)));
+		assertThrown(() -> device.device.acceptValid(_ -> throwIo()));
+		assertThrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
+		assertThrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
 		fixable.open.await();
 	}
 

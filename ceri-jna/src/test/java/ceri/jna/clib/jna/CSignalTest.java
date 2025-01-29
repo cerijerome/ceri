@@ -37,7 +37,7 @@ public class CSignalTest {
 	@Test
 	public void testSignal() throws CException {
 		initLib();
-		sighandler_t cb = i -> {};
+		sighandler_t cb = _ -> {};
 		assertTrue(CSignal.signal(15, cb));
 		assertTrue(CSignal.signal(15, 1));
 		assertThrown(() -> CSignal.signal(15, -1));

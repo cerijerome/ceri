@@ -34,6 +34,6 @@ public class RpcChannelBehavior {
 	public void shouldNotInterruptOnClose() {
 		TestManagedChannel mc = TestManagedChannel.of();
 		mc.awaitTermination.error.setFrom(INX);
-		try (RpcChannel channel = RpcChannel.of(mc)) {}
+		try (RpcChannel _ = RpcChannel.of(mc)) {}
 	}
 }

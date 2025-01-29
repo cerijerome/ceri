@@ -56,7 +56,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	 * Returns config that generates an error on ftdi construction.
 	 */
 	public static SelfHealingFtdi.Config errorConfig() {
-		return SelfHealingFtdi.Config.builder().ftdiFn(c -> {
+		return SelfHealingFtdi.Config.builder().ftdiFn(_ -> {
 			throw new RuntimeException("generated");
 		}).build();
 	}
@@ -90,7 +90,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	 * Create config for a self-healing wrapper constructor.
 	 */
 	public SelfHealingFtdi.Config selfHealingConfig() {
-		return SelfHealingFtdi.Config.builder().factory((f, i) -> {
+		return SelfHealingFtdi.Config.builder().factory((_, _) -> {
 			open();
 			return this;
 		}).build();
@@ -100,7 +100,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	 * Create config for a fixable ftdi constructor.
 	 */
 	public SelfHealingFtdi.Config config() {
-		return SelfHealingFtdi.Config.builder().ftdiFn(c -> this).build();
+		return SelfHealingFtdi.Config.builder().ftdiFn(_ -> this).build();
 	}
 
 	public void echoPins() {

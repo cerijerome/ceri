@@ -160,7 +160,7 @@ public class UsbHotPlug implements RuntimeCloseable {
 
 	@SuppressWarnings("resource")
 	private static libusb_hotplug_callback_fn jnaCallback(Usb usb, Callback callback) {
-		return (ctx, dev, evt, us) -> {
+		return (_, dev, evt, _) -> {
 			try {
 				UsbDevice device = new UsbDevice(usb, dev);
 				libusb_hotplug_event event = libusb_hotplug_event.xcoder.decode(evt);

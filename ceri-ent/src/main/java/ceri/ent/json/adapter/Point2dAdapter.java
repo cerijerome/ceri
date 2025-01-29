@@ -8,8 +8,8 @@ import ceri.common.geom.Point2d;
 
 public class Point2dAdapter {
 	public static final JsonSerialAdapter<Point2d> INSTANCE =
-		JsonSerialAdapter.of(Point2d.class, (json, typeOfT, context) -> deserialize(json, context),
-			(value, typeOfT, context) -> serialize(value, context));
+		JsonSerialAdapter.of(Point2d.class, (json, _, context) -> deserialize(json, context),
+			(value, _, context) -> serialize(value, context));
 
 	private static Point2d deserialize(JsonElement json, JsonDeserializationContext context) {
 		double[] values = context.deserialize(json, double[].class);

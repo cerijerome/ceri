@@ -44,8 +44,8 @@ import ceri.jna.util.Struct;
  */
 public class TestCLibNative implements CLib.Native {
 	private AtomicInteger nextFd = new AtomicInteger();
-	public final Map<Integer, OpenArgs> fds = new ConcurrentHashMap<>();
-	public final Map<Integer, ThreadElement> fdContext = new ConcurrentHashMap<>();
+	public final Set<Integer> fds = ConcurrentHashMap.newKeySet();
+	public final Map<Integer, FdContext> fdContext = new ConcurrentHashMap<>();
 	public final Map<String, String> env = new ConcurrentHashMap<>();
 	public final CallSync.Consumer<OpenArgs> open = CallSync.consumer(null, true);
 	public final CallSync.Function<Integer, Integer> close = CallSync.function(null, 0);
@@ -79,7 +79,27 @@ public class TestCLibNative implements CLib.Native {
 	 * Arguments for open calls.
 	 */
 	public record OpenArgs(String path, int flags, int mode) {
+
 		public static final OpenArgs NULL = new OpenArgs("", 0, 0);
+
+		@Override
+		public final String toString() {
+			return String.format("%s,0x%x,0%s", path, flags, Integer.toOctalString(mode));
+		}
+	}
+
+	/**
+	 * Fd context info for debugging closed fds.
+	 */
+	public record FdContext(int fd, OpenArgs args, ThreadElement origin) {
+		public static FdContext of(int fd, OpenArgs args) {
+			return new FdContext(fd, args, TestUtil.findTest());
+		}
+
+		@Override
+		public final String toString() {
+			return fd + ":" + args() + "/" + origin();
+		}
 	}
 
 	/**
@@ -237,7 +257,7 @@ public class TestCLibNative implements CLib.Native {
 	 */
 	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
 		Predicate<T> predicate, String errorMessage, Object... args) {
-		autoError(sync, response, predicate, t -> StringUtil.format(errorMessage, args));
+		autoError(sync, response, predicate, _ -> StringUtil.format(errorMessage, args));
 	}
 
 	/**
@@ -280,9 +300,9 @@ public class TestCLibNative implements CLib.Native {
 		env.clear();
 		CallSync.resetAll(cf, close, fcntl, ioctl, isatty, lseek, pagesize, mmap, open, pipe, poll,
 			raise, read, signal, sigset, tc, write);
-		fds.put(CUnistd.STDIN_FILENO, new OpenArgs("stdin", CFcntl.O_RDONLY, 0));
-		fds.put(CUnistd.STDOUT_FILENO, new OpenArgs("stdout", CFcntl.O_WRONLY, 0));
-		fds.put(CUnistd.STDERR_FILENO, new OpenArgs("stderr", CFcntl.O_WRONLY, 0));
+		fds.add(CUnistd.STDIN_FILENO);
+		fds.add(CUnistd.STDOUT_FILENO);
+		fds.add(CUnistd.STDERR_FILENO);
 	}
 
 	@Override
@@ -499,7 +519,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	protected int fd(int fd, int errorCode) {
-		if (fds.containsKey(fd)) return fd;
+		if (fds.contains(fd)) return fd;
 		throw JnaTestUtil.lastError(errorCode, String.valueOf(fdContext.get(fd)));
 	}
 
@@ -511,8 +531,8 @@ public class TestCLibNative implements CLib.Native {
 
 	private int createFd(OpenArgs open) {
 		int fd = nextFd.getAndIncrement();
-		fds.put(fd, open);
-		fdContext.put(fd, TestUtil.findTest());
+		fds.add(fd);
+		fdContext.put(fd, FdContext.of(fd, open));
 		lastFd = fd;
 		return fd;
 	}

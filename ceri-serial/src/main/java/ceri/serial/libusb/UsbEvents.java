@@ -70,7 +70,7 @@ public class UsbEvents {
 	 */
 	public Enclosed<RuntimeException, Boolean> tryLock() throws LibUsbException {
 		if (!LibUsb.libusb_try_lock_events(context())) return Enclosed.noOp(false);
-		return Enclosed.of(true, t -> unlockEvents());
+		return Enclosed.of(true, _ -> unlockEvents());
 	}
 
 	/**
@@ -156,13 +156,13 @@ public class UsbEvents {
 
 	private libusb_pollfd_added_cb addedCallback(ExceptionConsumer<IOException, PollFd> callback) {
 		if (callback == null) return null;
-		return (fd, events, user_data) -> LogUtil
+		return (fd, events, _) -> LogUtil
 			.runSilently(() -> callback.accept(new PollFd(fd, ushort(events))));
 	}
 
 	private libusb_pollfd_removed_cb removedCallback(ExceptionIntConsumer<IOException> callback) {
 		if (callback == null) return null;
-		return (fd, user_data) -> LogUtil.runSilently(() -> callback.accept(fd));
+		return (fd, _) -> LogUtil.runSilently(() -> callback.accept(fd));
 	}
 
 	private void unlockEvents() {

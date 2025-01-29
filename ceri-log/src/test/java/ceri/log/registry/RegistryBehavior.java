@@ -7,11 +7,11 @@ public class RegistryBehavior {
 
 	@Test
 	public void shouldProvideNullInstance() {
-		Registry.NULL.queue(p -> {});
-		Registry.NULL.queue("x", p -> {});
-		Registry.NULL.accept(p -> {});
-		assertEquals(Registry.NULL.apply(p -> 1), 1);
-		Registry.NULL.sub("a.b.c").queue(p -> {});
+		Registry.NULL.queue(_ -> {});
+		Registry.NULL.queue("x", _ -> {});
+		Registry.NULL.accept(_ -> {});
+		assertEquals(Registry.NULL.apply(_ -> 1), 1);
+		Registry.NULL.sub("a.b.c").queue(_ -> {});
 	}
 
 }

@@ -47,7 +47,7 @@ public class JnaUtilTest {
 	@Test
 	public void testCallback() {
 		try (var m = JnaUtil.mallocBytes(1, 2, 3)) {
-			try (var x = JnaUtil.callback(m)) {
+			try (var _ = JnaUtil.callback(m)) {
 				//
 			}
 		}
@@ -261,7 +261,7 @@ public class JnaUtilTest {
 		assertEquals(JnaUtil.unlong(ref), 0x80000000L);
 		JnaUtil.unlong(ref.getPointer(), 0, 0x80000001L);
 		assertEquals(JnaUtil.unlong(ref.getPointer(), 0), 0x80000001L);
-		try (var x = JnaSize.LONG.override(4)) {
+		try (var _ = JnaSize.LONG.override(4)) {
 			assertEquals(JnaUtil.unlong(new NativeLong(-1L)), 0xffffffffL);
 		}
 	}
@@ -412,7 +412,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testDefaultCharset() {
-		try (var x = SystemVars.removableProperty("jna.encoding", "test")) {
+		try (var _ = SystemVars.removableProperty("jna.encoding", "test")) {
 			ClassReloader.reload(CharsetTester.class, JnaUtil.class);
 		}
 	}

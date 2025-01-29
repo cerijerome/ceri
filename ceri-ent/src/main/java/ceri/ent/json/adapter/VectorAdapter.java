@@ -7,8 +7,8 @@ import ceri.common.math.Matrix;
 
 public class VectorAdapter {
 	public static final JsonSerialAdapter<Matrix> INSTANCE =
-		JsonSerialAdapter.of(Matrix.class, (json, typeOfT, context) -> deserialize(json, context),
-			(value, typeOfT, context) -> serialize(value, context));
+		JsonSerialAdapter.of(Matrix.class, (json, _, context) -> deserialize(json, context),
+			(value, _, context) -> serialize(value, context));
 
 	private static Matrix deserialize(JsonElement json, JsonDeserializationContext context) {
 		double[] values = context.deserialize(json, double[].class);

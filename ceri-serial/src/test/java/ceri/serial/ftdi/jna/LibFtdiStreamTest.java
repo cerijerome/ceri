@@ -35,7 +35,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiStreamTest {
-	private static final FTDIStreamCallback<?> trueCallback = (buf, len, prog, u) -> true;
+	private static final FTDIStreamCallback<?> trueCallback = (_, _, _, _) -> true;
 	private TestLibUsbNative lib;
 	private Enclosed<RuntimeException, TestLibUsbNative> enc;
 	private ftdi_context ftdi;
@@ -64,7 +64,7 @@ public class LibFtdiStreamTest {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
-		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> collect(encoder, buf, len, 24);
+		FTDIStreamCallback<?> callback = (buf, len, _, _) -> collect(encoder, buf, len, 24);
 		LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3);
 		assertArray(encoder.bytes(), 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4,
 			4, 4, 4, 5, 5, 5, 6, 6, 6); // 3 transfers x 2 packets each until cancel
@@ -75,7 +75,7 @@ public class LibFtdiStreamTest {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Function<FTDIProgressInfo, Boolean> sync = CallSync.function(null);
-		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> progress(sync, prog);
+		FTDIStreamCallback<?> callback = (_, _, prog, _) -> progress(sync, prog);
 		try (var exec =
 			threadRun(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0))) {
 			sync.await(prog -> assertTotalBytes(prog, 18, 0, 0, true));
@@ -111,7 +111,7 @@ public class LibFtdiStreamTest {
 
 	@Test
 	public void shouldFailOnCallbackError() {
-		FTDIStreamCallback<?> callback = (buf, len, prog, u) -> prog == null ? true : throwRuntime();
+		FTDIStreamCallback<?> callback = (_, _, prog, _) -> prog == null ? true : throwRuntime();
 		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
 	}
 

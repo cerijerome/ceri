@@ -64,9 +64,9 @@ public class SpiDeviceBehavior {
 		lib = TestSpiCLibNative.of();
 		enc = TestCLibNative.register(lib);
 		assertThrown(() -> SpiDevice.Config.of(0, 0, null));
-		try (var fd = SpiDevice.Config.of(0, 1, Direction.in).open()) {}
-		try (var fd = SpiDevice.Config.of(1, 1, Direction.out).open()) {}
-		try (var fd = SpiDevice.Config.of(1, 0).open()) {}
+		try (var _ = SpiDevice.Config.of(0, 1, Direction.in).open()) {}
+		try (var _ = SpiDevice.Config.of(1, 1, Direction.out).open()) {}
+		try (var _ = SpiDevice.Config.of(1, 0).open()) {}
 		lib.open.assertValues( //
 			new OpenArgs("/dev/spidev0.1", 0, 0), //
 			new OpenArgs("/dev/spidev1.1", 1, 0), //
@@ -75,8 +75,8 @@ public class SpiDeviceBehavior {
 
 	@Test
 	public void shouldOverrideFdCreation() throws IOException {
-		var config = SpiDevice.Config.builder().openFn(c -> FileDescriptor.NULL).build();
-		try (var fd = config.open()) {}
+		var config = SpiDevice.Config.builder().openFn(_ -> FileDescriptor.NULL).build();
+		try (var _ = config.open()) {}
 	}
 
 	@Test

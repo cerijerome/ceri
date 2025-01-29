@@ -13,8 +13,8 @@ public class LocalDateAdapter {
 	private static final String DAY = "day";
 	private static final String MONTH = "month";
 	public static final JsonSerialAdapter<LocalDate> INSTANCE =
-		JsonSerialAdapter.of(LocalDate.class, (json, typeOfT, context) -> deserialize(json),
-			(value, typeOfT, context) -> serialize(value, context));
+		JsonSerialAdapter.of(LocalDate.class, (json, _, _) -> deserialize(json),
+			(value, _, context) -> serialize(value, context));
 
 	private static LocalDate deserialize(JsonElement json) {
 		if (json.isJsonPrimitive()) return LocalDate.parse(json.getAsString());

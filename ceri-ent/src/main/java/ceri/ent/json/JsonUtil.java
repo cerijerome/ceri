@@ -63,11 +63,11 @@ public class JsonUtil {
 	}
 
 	public static <T> JsonDeserializer<T> stringDeserializer(Function<String, T> constructor) {
-		return (json, typeOfT, context) -> constructor.apply(json.getAsString());
+		return (json, _, _) -> constructor.apply(json.getAsString());
 	}
 
 	public static <T> JsonDeserializer<T> deserializer(Function<JsonElement, T> constructor) {
-		return (json, typeOfT, context) -> constructor.apply(json);
+		return (json, _, _) -> constructor.apply(json);
 	}
 
 	/**

@@ -100,7 +100,7 @@ public class SerialTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(Serial.class, "P", (t, m, s) -> t.out(s.port()), "P = get port");
+		b.command(Serial.class, "P", (t, _, s) -> t.out(s.port()), "P = get port");
 		b.command(Serial.class, "p(" + SerialParams.PARSE_REGEX.pattern() + ")?",
 			SerialTester::setParams,
 			"pN,N,N,[n|o|e|m|s] = set params baud, data bits, stop bits, parity");
@@ -108,10 +108,10 @@ public class SerialTester {
 			"f[rRxX|n] = set flow control RTS/CTS in/out, XON/XOFF in/out, none");
 		b.command(Serial.class, "B(i|o)(\\d*)", SerialTester::setBufferSize,
 			"B[i|o]N = set in/out buffer size");
-		b.command(Serial.class, "b(0|1)", (t, m, s) -> s.brk(b(m)), "b[0|1] = break off/on");
-		b.command(Serial.class, "r(0|1)", (t, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
-		b.command(Serial.class, "d(0|1)", (t, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
-		b.command(Serial.class, "l", (t, m, s) -> t.out(lineState(s)),
+		b.command(Serial.class, "b(0|1)", (_, m, s) -> s.brk(b(m)), "b[0|1] = break off/on");
+		b.command(Serial.class, "r(0|1)", (_, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
+		b.command(Serial.class, "d(0|1)", (_, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
+		b.command(Serial.class, "l", (t, _, s) -> t.out(lineState(s)),
 			"l = line state [RTS, DTR, CD, CTS, DSR, RI]");
 	}
 

@@ -37,7 +37,7 @@ public class ContainerTestHelper implements RuntimeCloseable {
 	protected <T extends AutoCloseable> T get(Object id,
 		ExceptionFunction<IOException, TypedProperties, T> supplier) throws IOException {
 		var name = name(id);
-		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, name, x -> {
+		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, name, _ -> {
 			logger.info("Creating container: {}", name);
 			return supplier.apply(properties(name));
 		}));

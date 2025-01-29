@@ -27,7 +27,7 @@ public class LoopingExecutorBehavior {
 	@Test
 	public void shouldLoop() throws InterruptedException {
 		ValueCondition<Integer> sync = ValueCondition.of();
-		try (TestLoop loop = new TestLoop(sync::signal)) {
+		try (var _ = new TestLoop(sync::signal)) {
 			assertTrue(sync.await(i -> i > 3) > 3);
 		}
 	}
@@ -35,7 +35,7 @@ public class LoopingExecutorBehavior {
 	@Test
 	public void shouldStopOnException() throws InterruptedException {
 		LogModifier.run(() -> {
-			try (TestLoop loop = new TestLoop(i -> throwIoException())) {
+			try (var loop = new TestLoop(_ -> throwIoException())) {
 				loop.waitUntilStopped();
 				loop.waitUntilStopped(1);
 				assertTrue(loop.stopped());
@@ -45,7 +45,7 @@ public class LoopingExecutorBehavior {
 
 	@Test
 	public void shouldUseLogName() {
-		try (TestLoop loop = new TestLoop("testloop", i -> delayMicros(10))) {}
+		try (var _ = new TestLoop("testloop", _ -> delayMicros(10))) {}
 	}
 
 	private static void throwIoException() throws IOException {

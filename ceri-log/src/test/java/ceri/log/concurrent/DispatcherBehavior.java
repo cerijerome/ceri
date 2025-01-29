@@ -18,7 +18,7 @@ public class DispatcherBehavior {
 	public void shouldDispatchToListeners() throws InterruptedException {
 		ValueCondition<String> sync = ValueCondition.of();
 		try (var disp = Dispatcher.<String>direct(0)) {
-			try (var enc = disp.listen(sync::signal)) {
+			try (var _ = disp.listen(sync::signal)) {
 				disp.dispatch("test");
 				assertEquals(sync.await(), "test");
 				ConcurrentUtil.delay(1); // to cover null queue poll
@@ -33,7 +33,7 @@ public class DispatcherBehavior {
 		ValueCondition<Integer> sync = ValueCondition.of();
 		Function<String, Consumer<Consumer<Integer>>> adapter = s -> l -> l.accept(s.length());
 		try (var disp = Dispatcher.of(0, adapter)) {
-			try (var enc = disp.listen(sync::signal)) {
+			try (var _ = disp.listen(sync::signal)) {
 				disp.dispatch("test");
 				assertEquals(sync.await(), 4);
 			}
@@ -46,7 +46,7 @@ public class DispatcherBehavior {
 		var x = new RuntimeException("generated");
 		LogModifier.run(() -> {
 			try (var disp = Dispatcher.<String>direct(0)) {
-				try (var enc = disp.listen(s -> {
+				try (var _ = disp.listen(s -> {
 					sync.signal(s); // signal, then generate error
 					throwIt(x);
 				})) {
@@ -55,7 +55,7 @@ public class DispatcherBehavior {
 					disp.dispatch("test");
 					assertEquals(sync.await(), "test");
 				}
-				try (var enc = disp.listen(sync::signal)) {
+				try (var _ = disp.listen(sync::signal)) {
 					disp.dispatch("test");
 					assertEquals(sync.await(), "test");
 				}
@@ -68,7 +68,7 @@ public class DispatcherBehavior {
 		CallSync.Consumer<String> sync = CallSync.consumer(null, true);
 		sync.error.setFrom(RIX);
 		try (var disp = Dispatcher.<String>direct(0)) {
-			try (var enc = disp.listen(sync::accept)) {
+			try (var _ = disp.listen(sync::accept)) {
 				disp.dispatch("test");
 				sync.assertAuto("test");
 			}

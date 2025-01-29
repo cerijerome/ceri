@@ -228,7 +228,7 @@ public class JnaTestUtil {
 	 */
 	public static <E extends Exception> void testAsOs(String osName, ExceptionRunnable<E> tester)
 		throws E {
-		try (var x = OsUtil.os(osName, null, null)) {
+		try (var _ = OsUtil.os(osName, null, null)) {
 			tester.run();
 		}
 	}

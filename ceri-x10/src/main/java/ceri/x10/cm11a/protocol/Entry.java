@@ -129,13 +129,13 @@ public class Entry {
 
 	private static Map<FunctionType, BiFunction<Collection<Unit>, Entry, Command>> commandMap() {
 		return Map.of( //
-			allUnitsOff, (units, input) -> Command.allUnitsOff(input.house), //
-			allLightsOn, (units, input) -> Command.allLightsOn(input.house), //
+			allUnitsOff, (_, input) -> Command.allUnitsOff(input.house), //
+			allLightsOn, (_, input) -> Command.allLightsOn(input.house), //
 			on, (units, input) -> Command.on(input.house, units), //
 			off, (units, input) -> Command.off(input.house, units), //
 			dim, (units, input) -> Command.dim(input.house, input.data, units), //
 			bright, (units, input) -> Command.bright(input.house, input.data, units), //
-			allLightsOff, (units, input) -> Command.allLightsOff(input.house), //
+			allLightsOff, (_, input) -> Command.allLightsOff(input.house), //
 			ext, (units, input) -> Command.ext(input.house, input.data, input.command, units));
 	}
 

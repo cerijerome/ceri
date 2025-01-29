@@ -89,7 +89,7 @@ public class Cm17aContainerBehavior {
 	public void shouldCreateFromConnector() throws IOException {
 		try (var serial = TestSerial.of()) {
 			serial.open();
-			try (var con = Cm17aContainer.of(1, serial)) {}
+			try (var _ = Cm17aContainer.of(1, serial)) {}
 		}
 	}
 

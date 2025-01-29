@@ -29,7 +29,7 @@ public class Cm11aEmulatorBehavior {
 	@Test
 	public void shouldListenForConnectionChanges() throws InterruptedException {
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		try (var enc = cm11a.listeners().enclose(sync::signal)) {
+		try (var _ = cm11a.listeners().enclose(sync::signal)) {
 			cm11a.listeners.accept(StateChange.broken);
 			assertEquals(sync.await(), StateChange.broken);
 		}
@@ -38,7 +38,7 @@ public class Cm11aEmulatorBehavior {
 	@Test
 	public void shouldDispatchCommands() throws InterruptedException, IOException {
 		TestCommandListener listener = TestCommandListener.of();
-		try (var enclosed = cm11a.listen(listener)) {
+		try (var _ = cm11a.listen(listener)) {
 			cm11a.command(Command.bright(B, 42, _6, _7));
 			listener.sync.await(Command.bright(B, 42, _6, _7));
 		}

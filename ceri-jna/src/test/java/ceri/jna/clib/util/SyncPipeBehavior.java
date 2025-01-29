@@ -118,7 +118,7 @@ public class SyncPipeBehavior {
 		initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
-		lib.poll.autoResponse(args -> {
+		lib.poll.autoResponse(_ -> {
 			fd.close();
 			sync.close();
 			return 0;

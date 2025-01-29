@@ -36,7 +36,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldNotNotifyListenersByDefault() {
-		try (var enclosed = X10Controller.NULL.listen(null)) {}
+		try (var _ = X10Controller.NULL.listen(null)) {}
 	}
 
 }

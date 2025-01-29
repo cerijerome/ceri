@@ -3,6 +3,7 @@ package ceri.jna.clib.util;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import ceri.common.function.FunctionUtil;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.util.CloseableUtil;
@@ -75,7 +76,7 @@ public class SyncPipe implements RuntimeCloseable {
 		/**
 		 * Clear any tokens written to the pipe.
 		 */
-		public void clear() throws IOException {
+		public void clear() {
 			pipe.clear();
 		}
 
@@ -83,7 +84,7 @@ public class SyncPipe implements RuntimeCloseable {
 		public void close() {
 			pipe.close();
 		}
-		
+
 		private boolean closed() {
 			return pipe.closed();
 		}
@@ -117,7 +118,6 @@ public class SyncPipe implements RuntimeCloseable {
 		public boolean poll(Integer timeoutMs) throws IOException {
 			if (sync.closed()) return false;
 			poll.poll(timeoutMs);
-			if (sync.closed()) return false;
 			poll.fd(0).validate();
 			sync.clear();
 			return poll.fd(0).revents() != 0;
@@ -164,9 +164,8 @@ public class SyncPipe implements RuntimeCloseable {
 	/**
 	 * Clear any tokens written to the pipe.
 	 */
-	@SuppressWarnings("resource")
-	public void clear() throws IOException {
-		if (!closed.get()) IoUtil.clear(pipe.in());
+	public void clear() {
+		if (!closed.get()) FunctionUtil.runSilently(() -> IoUtil.clear(pipe.in()));
 		sync.set(false);
 	}
 
@@ -180,7 +179,7 @@ public class SyncPipe implements RuntimeCloseable {
 	private boolean closed() {
 		return closed.get();
 	}
-	
+
 	@SuppressWarnings("resource")
 	private boolean write() throws IOException {
 		if (pipe.in().available() > 0) return false;

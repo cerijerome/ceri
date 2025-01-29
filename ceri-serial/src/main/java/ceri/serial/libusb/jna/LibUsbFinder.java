@@ -165,7 +165,7 @@ public class LibUsbFinder {
 	 * reference any matching device.
 	 */
 	public boolean matches(libusb_context ctx) throws LibUsbException {
-		return findWithCallback(ctx, dev -> true);
+		return findWithCallback(ctx, _ -> true);
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class LibUsbFinder {
 	 */
 	public int matchCount(libusb_context ctx) throws LibUsbException {
 		var counter = Counter.of();
-		findWithCallback(ctx, dev -> {
+		findWithCallback(ctx, _ -> {
 			counter.inc();
 			return false;
 		});

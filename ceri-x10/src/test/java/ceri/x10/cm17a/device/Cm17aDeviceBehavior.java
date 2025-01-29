@@ -91,7 +91,7 @@ public class Cm17aDeviceBehavior {
 	public void shouldListenForCommands() throws IOException, InterruptedException {
 		init();
 		TestCommandListener listener = TestCommandListener.of();
-		try (var enc = cm17a.listen(listener)) {
+		try (var _ = cm17a.listen(listener)) {
 			cm17a.command(Command.dim(L, 50, _5, _9));
 			assertEquals(listener.sync.await(), Command.dim(L, 50, _5, _9));
 		}
@@ -101,7 +101,7 @@ public class Cm17aDeviceBehavior {
 	public void shouldListenForConnectorStateChange() {
 		init();
 		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
-		try (var listener = cm17a.listeners().enclose(sync::accept)) {
+		try (var _ = cm17a.listeners().enclose(sync::accept)) {
 			con.listeners.accept(StateChange.broken);
 			sync.assertCall(StateChange.broken);
 		}

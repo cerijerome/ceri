@@ -40,7 +40,7 @@ public class LibUsbTestDataBehavior {
 					});
 				});
 			});
-			Util.bosDescriptor(dc, bos -> {});
+			Util.bosDescriptor(dc, _ -> {});
 		});
 	}
 

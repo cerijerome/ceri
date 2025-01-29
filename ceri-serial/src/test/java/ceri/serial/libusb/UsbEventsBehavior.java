@@ -44,7 +44,7 @@ public class UsbEventsBehavior {
 		lib.data.context(usb.context()).eventHandling = false;
 		assertEquals(events.handlingOk(), false);
 		assertEquals(events.handlerActive(), false);
-		try (var waiterLock = events.lockWaiters(); var lock = events.lock()) {
+		try (var _ = events.lockWaiters(); var _ = events.lock()) {
 			assertEquals(events.handlerActive(), true);
 			assertEquals(tryLock(), true);
 			try (var thread = threadCall(() -> tryLock())) {
@@ -75,7 +75,7 @@ public class UsbEventsBehavior {
 		events.handleTimeoutCompleted(Duration.ZERO, null);
 		events.handleTimeoutCompleted(Duration.ZERO, Completed.of());
 		assertThrown(() -> events.handleLocked(Duration.ZERO));
-		try (var locker = events.lock()) {
+		try (var _ = events.lock()) {
 			events.handleLocked(Duration.ZERO);
 		}
 	}

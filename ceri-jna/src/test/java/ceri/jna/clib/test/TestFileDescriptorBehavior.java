@@ -37,8 +37,8 @@ public class TestFileDescriptorBehavior {
 	public void shouldFailAllForBadFd() {
 		fd.fd.error.setFrom(IOException::new);
 		assertThrown(() -> fd.fd());
-		assertThrown(() -> fd.accept(f -> {}));
-		assertThrown(() -> fd.apply(f -> 0));
+		assertThrown(() -> fd.accept(_ -> {}));
+		assertThrown(() -> fd.apply(_ -> 0));
 	}
 
 }

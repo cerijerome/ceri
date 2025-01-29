@@ -127,7 +127,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldNotifyListenersOnFix() throws InterruptedException {
 		init();
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		try (var enc = shs.listeners().enclose(sync::signal)) {
+		try (var _ = shs.listeners().enclose(sync::signal)) {
 			shs.broken();
 			sync.await(StateChange.fixed);
 		}
@@ -139,7 +139,7 @@ public class SelfHealingTcpSocketBehavior {
 		LogModifier.run(() -> {
 			CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 			sync.error.setFrom(RTX);
-			try (var enc = shs.listeners().enclose(sync::accept)) {
+			try (var _ = shs.listeners().enclose(sync::accept)) {
 				shs.broken(); // error logged
 				sync.awaitAuto();
 			}
@@ -151,7 +151,7 @@ public class SelfHealingTcpSocketBehavior {
 		init();
 		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		sync.error.setFrom(RIX);
-		try (var enc = shs.listeners().enclose(sync::accept)) {
+		try (var _ = shs.listeners().enclose(sync::accept)) {
 			assertThrown(RuntimeInterruptedException.class, shs::broken);
 			sync.awaitAuto();
 		}
@@ -185,7 +185,7 @@ public class SelfHealingTcpSocketBehavior {
 			SelfHealingTcpSocket.Config.builder(hostPort)
 				.selfHealing(b -> b.brokenPredicate(IOException.class::isInstance)
 					.fixRetryDelayMs(1).recoveryDelayMs(1))
-				.factory(hostPort -> open(socket)).build();
+				.factory(_ -> open(socket)).build();
 		shs = SelfHealingTcpSocket.of(config);
 	}
 

@@ -141,13 +141,13 @@ public class LibUsbFinderBehavior {
 	public void shouldFindWithCallback() throws LibUsbException {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
-		assertFalse(LibUsbFinder.builder().bus(1).build().findWithCallback(nullCtx, d -> true));
-		assertFalse(LibUsbFinder.builder().address(1).build().findWithCallback(nullCtx, d -> true));
-		assertFalse(LibUsbFinder.builder().index(1).build().findWithCallback(nullCtx, d -> true));
+		assertFalse(LibUsbFinder.builder().bus(1).build().findWithCallback(nullCtx, _ -> true));
+		assertFalse(LibUsbFinder.builder().address(1).build().findWithCallback(nullCtx, _ -> true));
+		assertFalse(LibUsbFinder.builder().index(1).build().findWithCallback(nullCtx, _ -> true));
 		assertFalse(
-			LibUsbFinder.builder().description("x").build().findWithCallback(nullCtx, d -> true));
+			LibUsbFinder.builder().description("x").build().findWithCallback(nullCtx, _ -> true));
 		assertFalse(
-			LibUsbFinder.builder().serial("x").build().findWithCallback(nullCtx, d -> true));
+			LibUsbFinder.builder().serial("x").build().findWithCallback(nullCtx, _ -> true));
 	}
 
 	private void initLib() throws LibUsbException {

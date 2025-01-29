@@ -111,22 +111,22 @@ public class FtdiTester {
 	}
 
 	private static void buildCommands(ManualTester.Builder b) {
-		b.command(Ftdi.class, "D", (t, m, s) -> showDescriptor(t, s), "D = show device descriptor");
-		b.command(Ftdi.class, "R", (t, m, s) -> s.usbReset(), "R = USB reset");
-		b.command(Ftdi.class, "b([01])", (t, m, s) -> s.bitBang(b(m)),
+		b.command(Ftdi.class, "D", (t, _, s) -> showDescriptor(t, s), "D = show device descriptor");
+		b.command(Ftdi.class, "R", (_, _, s) -> s.usbReset(), "R = USB reset");
+		b.command(Ftdi.class, "b([01])", (_, m, s) -> s.bitBang(b(m)),
 			"b[0|1] = set bitbang on/off");
-		b.command(Ftdi.class, "B(\\d+)", (t, m, s) -> s.baud(i(m)), "BN = set baud");
+		b.command(Ftdi.class, "B(\\d+)", (_, m, s) -> s.baud(i(m)), "BN = set baud");
 		b.command(Ftdi.class,
 			"L(?i)(?:(7|8)\\,\\s*(1|1\\.5|2)\\,\\s*([noems]|none|odd|even|mark|space)\\,\\s*(0|1))",
 			FtdiTester::setLine,
 			"LN,N,[n|o|e|m|s],[0|1] = set line params data bits, stop bits, parity, break off/on");
-		b.command(Ftdi.class, "f([nrdx])", (t, m, s) -> setFlowControl(m, s),
+		b.command(Ftdi.class, "f([nrdx])", (_, m, s) -> setFlowControl(m, s),
 			"F[n|r|d|x] = set flow control: none, RTS/CTS, DTR/DSR, XON/XOFF");
-		b.command(Ftdi.class, "d(0|1)", (t, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
-		b.command(Ftdi.class, "r(0|1)", (t, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
-		b.command(Ftdi.class, "p", (t, m, s) -> showBits(t, s.readPins(), Byte.SIZE),
+		b.command(Ftdi.class, "d(0|1)", (_, m, s) -> s.dtr(b(m)), "d[0|1] = DTR off/on");
+		b.command(Ftdi.class, "r(0|1)", (_, m, s) -> s.rts(b(m)), "r[0|1] = RTS off/on");
+		b.command(Ftdi.class, "p", (t, _, s) -> showBits(t, s.readPins(), Byte.SIZE),
 			"p = read pins");
-		b.command(Ftdi.class, "m", (t, m, s) -> showBits(t, s.pollModemStatus(), Short.SIZE),
+		b.command(Ftdi.class, "m", (t, _, s) -> showBits(t, s.pollModemStatus(), Short.SIZE),
 			"m = modem status");
 	}
 

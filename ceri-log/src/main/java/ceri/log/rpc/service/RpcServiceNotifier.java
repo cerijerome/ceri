@@ -69,7 +69,7 @@ public class RpcServiceNotifier<T, V> implements RuntimeCloseable {
 	 */
 	public StreamObserver<Empty> listen(StreamObserver<V> response) {
 		logger.trace("Listen: {}", hashId(response));
-		return RpcUtil.observer(empty -> add(response), () -> remove(response),
+		return RpcUtil.observer(_ -> add(response), () -> remove(response),
 			t -> error(response, t));
 	}
 

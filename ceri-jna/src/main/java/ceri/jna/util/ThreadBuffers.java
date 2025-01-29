@@ -56,7 +56,7 @@ public class ThreadBuffers implements RuntimeCloseable {
 	public Memory get() {
 		var size = this.size;
 		return ConcurrentUtil.lockedGet(lock, () -> buffers.compute(Thread.currentThread(),
-			(t, m) -> (m != null && m.size() == size && m.valid()) ? m : new Memory(size)));
+			(_, m) -> (m != null && m.size() == size && m.valid()) ? m : new Memory(size)));
 	}
 
 	/**

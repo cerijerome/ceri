@@ -76,7 +76,7 @@ public interface Spi {
 
 		@Override
 		default SpiTransfer transfer(Direction direction, int size) {
-			return SpiTransfer.of(t -> {}, direction, size);
+			return SpiTransfer.of(_ -> {}, direction, size);
 		}
 	}
 }

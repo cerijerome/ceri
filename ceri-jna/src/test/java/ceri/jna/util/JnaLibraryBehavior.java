@@ -39,7 +39,7 @@ public class JnaLibraryBehavior {
 
 	@Test
 	public void testEmptyPath() {
-		try (var x = SystemVars.removableProperty("jna.library.path", null)) {
+		try (var _ = SystemVars.removableProperty("jna.library.path", null)) {
 			SystemVars.set("jna.library.path", null);
 			JnaLibrary.addPaths();
 			assertEquals(JnaLibrary.path(), "");
@@ -48,7 +48,7 @@ public class JnaLibraryBehavior {
 
 	@Test
 	public void testMacLibPath() {
-		try (var x = SystemVars.removableProperty("jna.library.path", null)) {
+		try (var _ = SystemVars.removableProperty("jna.library.path", null)) {
 			JnaTestUtil.testForEachOs(LibPath.class, JnaLibrary.class);
 		}
 	}

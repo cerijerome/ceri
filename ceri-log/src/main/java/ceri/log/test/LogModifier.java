@@ -29,7 +29,7 @@ public class LogModifier implements AutoCloseable {
 	 */
 	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
 		Class<?>... loggers) throws E {
-		try (var modifier = of(level, loggers)) {
+		try (var _ = of(level, loggers)) {
 			runnable.run();
 		}
 	}
@@ -39,7 +39,7 @@ public class LogModifier implements AutoCloseable {
 	 */
 	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
 		String... loggers) throws E {
-		try (var modifier = of(level, loggers)) {
+		try (var _ = of(level, loggers)) {
 			runnable.run();
 		}
 	}

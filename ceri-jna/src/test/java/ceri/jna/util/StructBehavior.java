@@ -132,8 +132,8 @@ public class StructBehavior {
 
 	@Test
 	public void testAdapt() {
-		assertNull(Struct.adapt(null, x -> null));
-		assertNull(Struct.adapt(new TestStruct(), x -> null));
+		assertNull(Struct.adapt(null, _ -> null));
+		assertNull(Struct.adapt(new TestStruct(), _ -> null));
 	}
 
 	@Test
@@ -230,7 +230,7 @@ public class StructBehavior {
 	@Test
 	public void testArrayByValForNullConstruction() {
 		var t = new TestStruct(100, null, 1, 2, 3);
-		assertThrown(() -> Struct.arrayByVal(t.getPointer(), p -> null, null, 3));
+		assertThrown(() -> Struct.arrayByVal(t.getPointer(), _ -> null, null, 3));
 		assertArray(Struct.<TestStruct>arrayByVal(() -> null, TestStruct[]::new, 3), null, null,
 			null);
 	}

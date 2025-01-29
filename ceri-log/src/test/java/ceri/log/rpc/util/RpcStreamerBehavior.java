@@ -18,7 +18,7 @@ public class RpcStreamerBehavior {
 	@Test
 	public void shouldPassThrough() {
 		List<String> next = new ArrayList<>();
-		StreamObserver<String> observer = RpcUtil.observer(next::add, t -> {});
+		StreamObserver<String> observer = RpcUtil.observer(next::add, _ -> {});
 		try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {
 			streamer.next("test1");
 			streamer.next("test2");
@@ -28,7 +28,7 @@ public class RpcStreamerBehavior {
 
 	@Test
 	public void shouldNotAddNextAfterClose() {
-		StreamObserver<String> observer = RpcUtil.observer(s -> {}, t -> {});
+		StreamObserver<String> observer = RpcUtil.observer(_ -> {}, _ -> {});
 		@SuppressWarnings("resource")
 		RpcStreamer<String> streamer = RpcStreamer.of(observer);
 		streamer.close();
@@ -38,7 +38,7 @@ public class RpcStreamerBehavior {
 
 	@Test
 	public void shouldNotAddNextAfterError() {
-		StreamObserver<String> observer = RpcUtil.observer(s -> {}, t -> {});
+		StreamObserver<String> observer = RpcUtil.observer(_ -> {}, _ -> {});
 		try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {
 			streamer.error(new IOException());
 			assertThrown(() -> streamer.next("test"));
@@ -49,7 +49,7 @@ public class RpcStreamerBehavior {
 	public void shouldNotLogIgnoredErrorOnClose() {
 		TestStreamObserver<String> observer = TestStreamObserver.of();
 		observer.completed.error.set(new IllegalStateException("already half-closed"));
-		try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {}
+		try (RpcStreamer<String> _ = RpcStreamer.of(observer)) {}
 	}
 
 	@Test
@@ -57,7 +57,7 @@ public class RpcStreamerBehavior {
 		LogModifier.run(() -> {
 			TestStreamObserver<String> observer = TestStreamObserver.of();
 			observer.completed.error.setFrom(RTX);
-			try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {}
+			try (RpcStreamer<String> _ = RpcStreamer.of(observer)) {}
 		}, Level.ERROR, RpcStreamer.class);
 	}
 }

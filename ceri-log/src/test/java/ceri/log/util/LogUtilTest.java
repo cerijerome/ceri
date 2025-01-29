@@ -112,11 +112,11 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testAcceptOrClose() {
-		assertEquals(LogUtil.acceptOrClose(null, c -> {}), null);
+		assertEquals(LogUtil.acceptOrClose(null, _ -> {}), null);
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.acceptOrClose(closer, c -> {}), closer);
+		assertEquals(LogUtil.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.acceptOrClose(closer, c -> throwIo()));
+		assertThrown(() -> LogUtil.acceptOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -126,10 +126,10 @@ public class LogUtilTest {
 		assertEquals(LogUtil.applyOrClose(null, null), null);
 		assertEquals(LogUtil.applyOrClose(null, null, "x"), "x");
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.applyOrClose(closer, x -> null, 1), 1);
-		assertEquals(LogUtil.applyOrClose(closer, x -> 0), 0);
+		assertEquals(LogUtil.applyOrClose(closer, _ -> null, 1), 1);
+		assertEquals(LogUtil.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.applyOrClose(closer, x -> throwIo()));
+		assertThrown(() -> LogUtil.applyOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -161,8 +161,8 @@ public class LogUtilTest {
 	@Test
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.acceptOrCloseAll(closers, cs -> {}), closers);
-		assertThrown(() -> LogUtil.acceptOrCloseAll(closers, cs -> throwIo()));
+		assertEquals(LogUtil.acceptOrCloseAll(closers, _ -> {}), closers);
+		assertThrown(() -> LogUtil.acceptOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -170,10 +170,10 @@ public class LogUtilTest {
 	@Test
 	public void testApplyOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> null), null);
-		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> null, 3), 3);
-		assertEquals(LogUtil.applyOrCloseAll(closers, cs -> 1, 3), 1);
-		assertThrown(() -> LogUtil.applyOrCloseAll(closers, cs -> throwIo()));
+		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null), null);
+		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null, 3), 3);
+		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> 1, 3), 1);
+		assertThrown(() -> LogUtil.applyOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -331,12 +331,6 @@ public class LogUtilTest {
 	@Test
 	public void testHashId() {
 		assertMatch(LogUtil.hashId(new Object()).toString(), "@[a-f\\d]+");
-	}
-
-	@Test
-	public void testToStringOrHash() {
-		assertEquals(LogUtil.toStringOrHash("test@1234").toString(), "@1234");
-		assertMatch(LogUtil.toStringOrHash(new Object()).toString(), "@[a-f\\d]+");
 	}
 
 	@Test

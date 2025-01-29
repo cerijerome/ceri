@@ -831,7 +831,7 @@ public class LibFtdi {
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int write_size = Math.min(size, ftdi.writebuffer_chunksize);
-			libusb_transfer_cb_fn callback = p -> ftdi_write_data_cb(tc);
+			libusb_transfer_cb_fn callback = _ -> ftdi_write_data_cb(tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.in_ep, buf, write_size,
 				callback, null, ftdi.usb_write_timeout);
 			LibUsb.libusb_submit_transfer(Struct.write(transfer));
@@ -853,7 +853,7 @@ public class LibFtdi {
 		try {
 			ftdi_transfer_control tc = transferControl(ftdi, buf, size, transfer);
 			int read_size = readLen(ftdi, size);
-			libusb_transfer_cb_fn callback = p -> ftdi_read_data_cb(tc);
+			libusb_transfer_cb_fn callback = _ -> ftdi_read_data_cb(tc);
 			LibUsb.libusb_fill_bulk_transfer(transfer, ftdi.usb_dev, ftdi.out_ep, ftdi.readbuffer,
 				read_size, callback, null, ftdi.usb_read_timeout);
 			LibUsb.libusb_submit_transfer(Struct.write(transfer));

@@ -14,8 +14,8 @@ public class Cm17aBehavior {
 	public void shouldProvideNoOpImplementation() throws IOException {
 		assertTrue(Cm17a.NULL.supports(Command.on(House.I, Unit._4)));
 		Cm17a.NULL.command(Command.on(House.I, Unit._4));
-		try (var l = Cm17a.NULL.listen(new CommandListener() {})) {}
-		try (var l = Cm17a.NULL.listeners().enclose(x -> {})) {}
+		try (var _ = Cm17a.NULL.listen(new CommandListener() {})) {}
+		try (var _ = Cm17a.NULL.listeners().enclose(_ -> {})) {}
 		Cm17a.NULL.close();
 	}
 

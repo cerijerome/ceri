@@ -53,7 +53,7 @@ public class SelfHealingFdBehavior {
 			var lib = enc.ref;
 			var config =
 				new SelfHealingFdProperties(typedProperties("self-healing-fd"), "fd").config();
-			try (var fd = config.open()) {
+			try (var _ = config.open()) {
 				lib.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
 				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
 				assertEquals(config.selfHealing.recoveryDelayMs, 456);
@@ -110,7 +110,7 @@ public class SelfHealingFdBehavior {
 		init();
 		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
 		shf.listeners().listen(listener::accept);
-		try (var x = TestUtil.threadRun(shf::broken)) {
+		try (var _ = TestUtil.threadRun(shf::broken)) {
 			listener.assertCall(StateChange.broken);
 			listener.assertCall(StateChange.fixed);
 		}
@@ -123,7 +123,7 @@ public class SelfHealingFdBehavior {
 		listener.error.setFrom(RTX, RIX);
 		shf.listeners().listen(listener::accept);
 		LogModifier.run(() -> {
-			try (var x = TestUtil.threadRun(shf::broken)) {
+			try (var _ = TestUtil.threadRun(shf::broken)) {
 				listener.assertCall(StateChange.broken);
 				listener.assertCall(StateChange.fixed);
 				shf.close();
@@ -137,8 +137,8 @@ public class SelfHealingFdBehavior {
 		init();
 		assertThrown(() -> shf.in().read());
 		assertThrown(() -> shf.out().write(0xff));
-		assertThrown(() -> shf.accept(fd -> {}));
-		assertThrown(() -> shf.apply(fd -> 0));
+		assertThrown(() -> shf.accept(_ -> {}));
+		assertThrown(() -> shf.apply(_ -> 0));
 	}
 
 	@Test
@@ -183,10 +183,10 @@ public class SelfHealingFdBehavior {
 		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
-		assertThrown(() -> shf.accept(fd -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
-		assertThrown(() -> shf.accept(fd -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
+		assertThrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
+		assertThrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
 		open.await(fd); // re-open
-		assertThrown(() -> shf.accept(fd -> throwRuntime())); // not broken
+		assertThrown(() -> shf.accept(_ -> throwRuntime())); // not broken
 	}
 
 	@Test

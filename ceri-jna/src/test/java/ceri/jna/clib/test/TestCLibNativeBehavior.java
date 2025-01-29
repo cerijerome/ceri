@@ -72,7 +72,7 @@ public class TestCLibNativeBehavior {
 	@Test
 	public void shouldCaptureOpenParams() {
 		init(true);
-		assertEquals(lib.fds.get(fd), new OpenArgs("test", O_RDWR, 0666));
+		assertEquals(lib.fdContext.get(fd).args(), new OpenArgs("test", O_RDWR, 0666));
 	}
 
 	@Test

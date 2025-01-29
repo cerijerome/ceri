@@ -115,7 +115,7 @@ public class LibUsbTest {
 	@Test
 	public void testErrorAndLog() throws LibUsbException {
 		initLib();
-		LibUsb.libusb_set_log_cb(null, (ctx, level, str) -> 0,
+		LibUsb.libusb_set_log_cb(null, (_, _, _) -> 0,
 			LibUsb.libusb_log_cb_mode.LIBUSB_LOG_CB_GLOBAL);
 		assertNotNull(LibUsb.libusb_error_name(libusb_error.LIBUSB_ERROR_BUSY));
 		LibUsb.libusb_strerror(libusb_error.LIBUSB_ERROR_BUSY); // may be null?

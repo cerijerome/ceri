@@ -72,7 +72,7 @@ public class Cm11aDeviceBehavior {
 	public void shouldListenForConnectionChanges() throws InterruptedException, IOException {
 		init();
 		ValueCondition<StateChange> sync = ValueCondition.of();
-		try (var enc = cm11a.listeners().enclose(sync::signal)) {
+		try (var _ = cm11a.listeners().enclose(sync::signal)) {
 			con.listeners.accept(StateChange.broken);
 			assertEquals(sync.await(), StateChange.broken);
 		}
@@ -179,7 +179,7 @@ public class Cm11aDeviceBehavior {
 	public void shouldReceiveDataFromDevice() throws InterruptedException, IOException {
 		init();
 		TestCommandListener listener = TestCommandListener.of();
-		try (var enclosed = cm11a.listen(listener)) {
+		try (var _ = cm11a.listen(listener)) {
 			con.in.to.writeByte(0x5a).flush();
 			assertArray(con.out.from.readBytes(1), 0xc3);
 			con.in.to.writeBytes(5, 0x04, 0xe9, 0xe5, 0xe5, 0x58);
@@ -224,7 +224,7 @@ public class Cm11aDeviceBehavior {
 	public void shouldCloseOnInterrupt() throws IOException {
 		try (TestConnector con = TestConnector.of()) {
 			con.open();
-			try (Cm11aDevice cm11a = Cm11aDevice.of(config, con)) {
+			try (Cm11aDevice _ = Cm11aDevice.of(config, con)) {
 				con.in.read.error.setFrom(RIX);
 				con.in.to.writeByte(0).flush();
 				con.in.awaitFeed();

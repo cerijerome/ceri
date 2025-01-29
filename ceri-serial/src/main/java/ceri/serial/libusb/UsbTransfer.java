@@ -481,7 +481,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	}
 
 	private libusb_transfer_cb_fn adaptCallback(Consumer<? super T> callback) {
-		return callback == null ? null : p -> {
+		return callback == null ? null : _ -> {
 			libusb_transfer_cb_fn.read(transfer());
 			LogUtil.runSilently(() -> callback.accept(typedThis()));
 		};

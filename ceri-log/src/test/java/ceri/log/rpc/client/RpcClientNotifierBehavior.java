@@ -48,7 +48,7 @@ public class RpcClientNotifierBehavior {
 	public void shouldReconnectOnServerCompletion() {
 		StreamObserver<String> clientControl = null;
 		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
-		try (var enc = notifier.enclose(sync::accept)) {
+		try (var _ = notifier.enclose(sync::accept)) {
 			// starts listening
 			clientControl = serverCall.awaitAuto(); // start streaming
 			serverControl.next.assertAuto(EMPTY); // start listening
@@ -65,7 +65,7 @@ public class RpcClientNotifierBehavior {
 	public void shouldReconnectOnServerError() {
 		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
 		LogModifier.run(() -> {
-			try (var enc = notifier.enclose(sync::accept)) {
+			try (var _ = notifier.enclose(sync::accept)) {
 				// starts listening
 				var clientControl = serverCall.awaitAuto(); // start streaming
 				serverControl.next.assertAuto(EMPTY); // start listening
@@ -81,7 +81,7 @@ public class RpcClientNotifierBehavior {
 	public void shouldClearListeners() {
 		notifier.clear(); // does nothing
 		CallSync.Consumer<Integer> sync = CallSync.consumer(null, true);
-		try (var enc = notifier.enclose(sync::accept)) {
+		try (var _ = notifier.enclose(sync::accept)) {
 			notifier.clear();
 		}
 	}

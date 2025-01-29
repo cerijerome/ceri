@@ -34,6 +34,6 @@ public class FtdiBehavior {
 		Ftdi.NULL.readSubmit(m, 3).dataCancel(Duration.ZERO);
 		assertEquals(Ftdi.NULL.readSubmit(m, 3).dataDone(), 0);
 		assertEquals(Ftdi.NULL.writeSubmit(m, 3).dataDone(), 0);
-		Ftdi.NULL.readStream((i, b) -> true, 1, 1);
+		Ftdi.NULL.readStream((_, _) -> true, 1, 1);
 	}
 }

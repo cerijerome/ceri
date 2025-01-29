@@ -272,7 +272,7 @@ public class SelfHealingFtdiBehavior {
 		init();
 		LogModifier.run(() -> {
 			ValueCondition<StateChange> sync = ValueCondition.of();
-			try (var enc = con.listeners().enclose(sync::signal)) {
+			try (var _ = con.listeners().enclose(sync::signal)) {
 				lib.transferOut.error.setFrom(LEX);
 				assertThrown(con::open);
 				sync.await(StateChange.broken);

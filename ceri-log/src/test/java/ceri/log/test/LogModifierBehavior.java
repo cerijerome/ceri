@@ -56,7 +56,7 @@ public class LogModifierBehavior {
 			}
 		};
 		obj.toString();
-		try (LogModifier mod = LogModifier.builder().set(Level.OFF, obj.getClass()).build()) {
+		try (var _ = LogModifier.builder().set(Level.OFF, obj.getClass()).build()) {
 			obj.toString();
 		}
 		obj.toString();

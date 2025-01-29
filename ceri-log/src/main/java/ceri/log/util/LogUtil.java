@@ -35,7 +35,7 @@ import ceri.log.io.LogPrintStream;
  */
 public class LogUtil {
 	private static final Logger logger = LogManager.getLogger();
-	private static final int TIMEOUT_MS_DEF = 1000;
+	private static final int TIMEOUT_MS_DEF = 10000;
 	private static final int TITLE_MAX_WIDTH = 76;
 
 	private LogUtil() {}
@@ -348,7 +348,7 @@ public class LogUtil {
 	 * thread. Returns false on timeout, or if any exception occurred.
 	 */
 	public static boolean close(Process process, int timeoutMs) {
-		return testIt(process, p -> {
+		return testIt(process, _ -> {
 			process.destroy();
 			return process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
 		});
@@ -369,7 +369,7 @@ public class LogUtil {
 	 * thread. Returns false on timeout, or if any exception occurred.
 	 */
 	public static boolean close(ExecutorService executor, int timeoutMs) {
-		return testIt(executor, e -> {
+		return testIt(executor, _ -> {
 			executor.shutdownNow();
 			return ConcurrentUtil.getWhileInterrupted(executor::awaitTermination, timeoutMs,
 				MILLISECONDS);
@@ -534,14 +534,6 @@ public class LogUtil {
 	 */
 	public static Object hashId(Object obj) {
 		return toString(() -> ReflectUtil.hashId(obj));
-	}
-
-	/**
-	 * Returns an object whose toString() returns the hex hash code if toString has not been
-	 * overridden.
-	 */
-	public static Object toStringOrHash(Object obj) {
-		return toString(() -> ReflectUtil.toStringOrHash(obj));
 	}
 
 	/**

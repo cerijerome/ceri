@@ -256,7 +256,7 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldFailToReadStreamForInvalidFtdiChip() throws IOException {
 		ftdi = open();
-		assertThrown(() -> ftdi.readStream((prog, buffer) -> true, 1, 1));
+		assertThrown(() -> ftdi.readStream((_, _) -> true, 1, 1));
 	}
 
 	@Test
@@ -265,7 +265,7 @@ public class FtdiDeviceBehavior {
 		AtomicInteger n = new AtomicInteger();
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
-		FtdiDevice.StreamCallback callback = (prog, buffer) -> collect(encoder, buffer, 24);
+		FtdiDevice.StreamCallback callback = (_, buffer) -> collect(encoder, buffer, 24);
 		ftdi.readStream(callback, 2, 3);
 		assertArray(encoder.bytes(), 3, 4, 5, 8, 9, 10, 13, 14, 15, 18, 19, 20, 23, 24, 25, 28, 29,
 			30, 33, 34, 35, 38, 39, 40, 43, 44, 45, 53, 54, 55); // 48, 49, 50 dropped
@@ -279,7 +279,7 @@ public class FtdiDeviceBehavior {
 		CallSync.Function<FtdiProgressInfo, Boolean> sync =
 			CallSync.function(null, true, true, false);
 		FtdiDevice.StreamCallback callback =
-			(prog, buffer) -> prog == null ? true : sync.apply(prog);
+			(prog, _) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
 		assertEquals(prog.currentTotalBytes(), 54L);

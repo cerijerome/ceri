@@ -40,7 +40,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	 * Returns config that generates an error on serial construction.
 	 */
 	public static SelfHealingSerial.Config errorConfig() {
-		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(c -> {
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(_ -> {
 			throw new RuntimeException("generated");
 		}).build();
 	}
@@ -86,7 +86,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	 * Create config for a self-healing wrapper constructor.
 	 */
 	public SelfHealingSerial.Config selfHealingConfig() {
-		return SelfHealingSerial.Config.builder(PortSupplier.NULL).factory(p -> {
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).factory(_ -> {
 			open();
 			return this;
 		}).build();
@@ -96,7 +96,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 	 * Create config for a fixable serial constructor.
 	 */
 	public SelfHealingSerial.Config config() {
-		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(c -> this).build();
+		return SelfHealingSerial.Config.builder(PortSupplier.NULL).serialFn(_ -> this).build();
 	}
 
 	@Override

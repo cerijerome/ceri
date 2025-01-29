@@ -19,7 +19,7 @@ public class EntryCollectorBehavior {
 	@Test
 	public void shouldDropNonMatchingEntries() {
 		LogModifier.run(() -> {
-			EntryCollector collector = new EntryCollector(c -> {});
+			EntryCollector collector = new EntryCollector(_ -> {});
 			collector.collect(Entry.function(G, on));
 		}, Level.ERROR, EntryCollector.class);
 	}
