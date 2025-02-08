@@ -1,6 +1,7 @@
 package ceri.common.reflect;
 
 import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertMatch;
@@ -51,6 +52,10 @@ public class ReflectUtilTest {
 		public byte[] b;
 		protected long l;
 		private double d;
+		public static final String sfs = "sfs";
+		public static String ss = null;
+		public static final int sfi = -1;
+		public static int si = 1;
 	}
 
 	private enum E {
@@ -136,6 +141,15 @@ public class ReflectUtilTest {
 		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
 		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), null));
 		assertNull(ReflectUtil.publicValue(null, "s"));
+	}
+
+	@Test
+	public void testStaticFields() {
+		Fields.ss = null;
+		assertCollection(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs");
+		Fields.ss = "ss";
+		assertCollection(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs",
+			"ss");
 	}
 
 	@Test

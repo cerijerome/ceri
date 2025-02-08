@@ -247,7 +247,7 @@ public class AnsiEscape {
 			sgr.b.append(b.subSequence(sgr.b.length(), b.length()));
 			return sgr;
 		}
-		
+
 		/**
 		 * Turns off all attributes.
 		 */
@@ -492,13 +492,16 @@ public class AnsiEscape {
 			return add(n == 0 ? 65 : 59 + n);
 		}
 
+		/**
+		 * Convert color component value 0..255 to 8-bit 0..5
+		 */
+		public static int to8Bit(int c) {
+			return (c * 6) >>> Byte.SIZE;
+		}
+
 		private Sgr add(int... codes) {
 			super.add(codes);
 			return this;
-		}
-
-		private static int to8Bit(int c) {
-			return (c * 6) >>> Byte.SIZE;
 		}
 	}
 

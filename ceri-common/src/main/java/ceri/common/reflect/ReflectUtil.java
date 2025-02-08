@@ -17,6 +17,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -383,6 +384,14 @@ public class ReflectUtil {
 	public static <T> T publicValue(Object obj, String name) {
 		if (obj == null) return null;
 		return publicFieldValue(obj, publicField(obj.getClass(), name));
+	}
+
+	/**
+	 * Provide the static fields of given type for a class.
+	 */
+	public static <T> Stream<T> staticFields(Class<?> source, Class<T> type) {
+		return Stream.of(source.getDeclaredFields())
+			.map(f -> castOrNull(type, publicFieldValue(null, f))).filter(Objects::nonNull);
 	}
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,

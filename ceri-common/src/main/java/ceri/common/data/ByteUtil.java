@@ -425,7 +425,7 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Applies a value at bit offset and bit count in current value.
+	 * Applies a value at bit offset and bit count in current value, using a mask.
 	 */
 	public static long setValue(long current, int bits, int bit, long value) {
 		long mask = mask(bits);
@@ -433,7 +433,7 @@ public class ByteUtil {
 	}
 
 	/**
-	 * Applies a value at bit offset and bit count in current value.
+	 * Applies a value at bit offset and bit count in current value, using a mask.
 	 */
 	public static int setValueInt(int current, int bits, int bit, int value) {
 		return (int) setValue(MathUtil.uint(current), bits, bit, MathUtil.uint(value));
