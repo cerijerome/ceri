@@ -20,7 +20,8 @@ import ceri.serial.i2c.smbus.SmBusI2c;
 import ceri.serial.i2c.util.I2cUtil;
 
 /**
- * Implementation of I2c interface using the standard Linux i2c driver. Not thread-safe.
+ * Implementation of I2c interface using the standard Linux i2c driver. Not thread-safe when using
+ * SMBus due to necessary state tracking.
  */
 public class I2cDevice implements I2c {
 	private static final Logger logger = LogManager.getLogger();

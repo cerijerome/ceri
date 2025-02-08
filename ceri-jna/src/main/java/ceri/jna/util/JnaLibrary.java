@@ -94,7 +94,7 @@ public class JnaLibrary<T extends Library> {
 	}
 
 	private T loadNative() {
-		logger.debug("Loading {} [{}]", name, ReflectUtil.name(cls));
+		logger.trace("Loading {} [{}]", name, ReflectUtil.name(cls));
 		long t = System.currentTimeMillis();
 		var loaded = Native.load(name, cls);
 		t = System.currentTimeMillis() - t;
