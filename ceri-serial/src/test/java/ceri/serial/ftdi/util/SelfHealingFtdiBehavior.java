@@ -98,8 +98,8 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldCreateFromProperties() {
 		var properties = typedProperties("ftdi");
-		var config1 = new SelfHealingFtdiProperties(properties, "ftdi.1").config();
-		var config2 = new SelfHealingFtdiProperties(properties, "ftdi.2").config();
+		var config1 = new SelfHealingFtdi.Properties(properties, "ftdi.1").config();
+		var config2 = new SelfHealingFtdi.Properties(properties, "ftdi.2").config();
 		assertEquals(config1.finder, LibUsbFinder.builder().vendor(0x401).build());
 		assertEquals(config1.iface, INTERFACE_D);
 		assertEquals(config1.ftdi.baud, 19200);

@@ -19,8 +19,8 @@ import ceri.common.util.Enclosed;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
+import ceri.serial.comm.util.PortSupplier;
 import ceri.serial.comm.util.SelfHealingSerial;
-import ceri.serial.comm.util.SerialPortLocator;
 
 /**
  * Utility to manually test serial ports.
@@ -51,7 +51,7 @@ public class SerialTester {
 	 * Create and manually test available USB serial ports. Use null for default path.
 	 */
 	public static void testUsbPorts(Path path) throws IOException {
-		testPorts(SerialPortLocator.of(path).usbPorts());
+		testPorts(PortSupplier.locator(path).usbPorts());
 	}
 
 	/**

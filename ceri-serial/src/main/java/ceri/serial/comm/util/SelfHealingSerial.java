@@ -9,9 +9,11 @@ import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.Namer;
 import ceri.common.io.IoUtil;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
+import ceri.log.io.SelfHealingProperties;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
@@ -27,6 +29,9 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	private final Config config;
 	private final SerialConfig.Builder serialConfig;
 
+	/**
+	 * Serial port and self-healing configuration.
+	 */
 	public static class Config {
 		public static final Config NULL = builder((PortSupplier) null).build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
@@ -135,6 +140,28 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 		}
 	}
 
+	/**
+	 * Serial port and self-healing configuration properties.
+	 */
+	public static class Properties extends TypedProperties.Ref {
+		private final SerialConfig.Properties serial;
+		private final SelfHealingProperties selfHealing;
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+			serial = new SerialConfig.Properties(ref);
+			selfHealing = new SelfHealingProperties(ref);
+		}
+
+		public Config config() {
+			return SelfHealingSerial.Config.builder(serial.portSupplier()).serial(serial.config())
+				.selfHealing(selfHealing.config()).build();
+		}
+	}
+	
+	/**
+	 * Create an instance from configuration.
+	 */
 	public static SelfHealingSerial of(Config config) {
 		return new SelfHealingSerial(config);
 	}

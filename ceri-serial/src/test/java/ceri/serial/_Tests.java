@@ -27,8 +27,6 @@ import ceri.common.test.TestUtil;
 	ceri.serial.comm.util.ReplaceableSerialBehavior.class, //
 	ceri.serial.comm.util.SelfHealingSerialBehavior.class, //
 	ceri.serial.comm.util.SerialConfigBehavior.class, //
-	ceri.serial.comm.util.SerialPortLocatorBehavior.class, //
-	ceri.serial.comm.util.SerialPropertiesBehavior.class, //
 	// ftdi
 	ceri.serial.ftdi.FtdiBehavior.class, //
 	ceri.serial.ftdi.FtdiBitModeBehavior.class, //
