@@ -18,6 +18,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -447,6 +448,13 @@ public class ReflectUtil {
 	public static <T> T castOrNull(Class<T> cls, Object obj) {
 		if (!cls.isInstance(obj)) return null;
 		return cls.cast(obj);
+	}
+
+	/**
+	 * Returns an optional with the object cast to given type or null if not compatible.
+	 */
+	public static <T> Optional<T> castOptional(Class<T> cls, Object obj) {
+		return Optional.ofNullable(castOrNull(cls, obj));
 	}
 
 	/**

@@ -7,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOptional;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertString;
@@ -104,6 +105,12 @@ public class ReflectUtilTest {
 		assertEquals(f.getName(), "a");
 	}
 
+	@Test
+	public void test() {
+		assertOptional(ReflectUtil.castOptional(String.class, 1.1), null);
+		assertOptional(ReflectUtil.castOptional(Number.class, 1.1), 1.1);
+	}
+	
 	@Test
 	public void testIsStatic() {
 		assertEquals(ReflectUtil.isStatic(null), false);

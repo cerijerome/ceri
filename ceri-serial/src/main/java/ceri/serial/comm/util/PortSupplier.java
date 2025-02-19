@@ -41,7 +41,7 @@ public interface PortSupplier {
 	/**
 	 * Logic for finding serial ports.
 	 */
-	static class Locator {
+	class Locator {
 		private static final String DEV_PATH = "/dev/";
 		private static final String USB_PATTERN = "regex:tty\\.(usb|USB).*";
 		private final Path dir;

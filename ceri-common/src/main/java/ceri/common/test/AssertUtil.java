@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -259,6 +260,20 @@ public class AssertUtil {
 		if (!test.test(t)) throw failure("No match: %s", String.valueOf(t).trim());
 	}
 
+	/**
+	 * Checks an optional value equals the given value.
+	 */
+	public static <T> void assertOptional(Optional<T> actual, T expected) {
+		assertOptional(actual, expected, null);
+	}
+	
+	/**
+	 * Checks an optional value equals the given value.
+	 */
+	public static <T> void assertOptional(Optional<T> actual, T expected, String format, Object... args) {
+		assertEquals(actual, Optional.ofNullable(expected), format, args);
+	}
+	
 	/**
 	 * Checks a double value is NaN.
 	 */

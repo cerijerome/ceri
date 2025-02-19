@@ -75,7 +75,7 @@ public class ConcurrentUtil {
 	 */
 	public static void delay(long delayMs) {
 		checkRuntimeInterrupted();
-		if (delayMs == 0) return;
+		if (delayMs <= 0) return;
 		ConcurrentUtil.runInterruptible(() -> Thread.sleep(delayMs));
 	}
 
