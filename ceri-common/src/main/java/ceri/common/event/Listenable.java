@@ -1,6 +1,9 @@
 package ceri.common.event;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
 
@@ -54,6 +57,40 @@ public interface Listenable<T> {
 		}
 	}
 
+	/**
+	 * Returns an adapter for listeners to only receive filtered events.
+	 */
+	static <T> Listenable<T> filter(Listenable<T> listenable, Predicate<? super T> predicate) {
+		return new Filter<>(listenable, predicate);
+	}
+	
+	/**
+	 * Adapter for listeners to only receive filtered events.
+	 */
+	static class Filter<T> implements Listenable<T> {
+		private final Map<Consumer<? super T>, Consumer<T>> lookup = new ConcurrentHashMap<>();
+		private final Listenable<T> listenable;
+		private final Predicate<? super T> predicate;
+		
+		private Filter(Listenable<T> listenable, Predicate<? super T> predicate) {
+			this.listenable = listenable;
+			this.predicate = predicate;
+		}
+		
+		@Override
+		public boolean listen(Consumer<? super T> listener) {
+			return listenable.listen(lookup.computeIfAbsent(listener, l -> t -> {
+				if (predicate.test(t)) l.accept(t);
+			}));
+		}
+		
+		@Override
+		public boolean unlisten(Consumer<? super T> listener) {
+			var adapted = lookup.remove(listener);
+			return (adapted != null) && listenable.unlisten(adapted); 
+		}
+	}
+	
 	/**
 	 * Provides a no-op listenable type if null.
 	 */

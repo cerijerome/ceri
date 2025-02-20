@@ -49,6 +49,34 @@ public class ListenableBehavior {
 	}
 
 	@Test
+	public void shouldFilterEvents() {
+		var captor = Captor.<String>of();
+		var filterCaptor = Captor.<String>of();
+		var listeners = Listeners.<String>of();
+		var filtered = Listenable.filter(listeners, s -> s.length() <= 3);
+		listeners.listen(captor);
+		filtered.listen(filterCaptor);
+		listeners.acceptAll("a", "bbbb", "ccc");
+		captor.verify("a", "bbbb", "ccc");
+		filterCaptor.verify("a", "ccc");
+	}
+
+	@Test
+	public void shouldUnlistenFilteredEvents() {
+		var captor = Captor.<String>of();
+		var filterCaptor = Captor.<String>of();
+		var listeners = Listeners.<String>of();
+		var filtered = Listenable.filter(listeners, s -> s.length() <= 3);
+		listeners.listen(captor);
+		filtered.listen(filterCaptor);
+		filtered.unlisten(captor); // does nothing
+		filtered.unlisten(filterCaptor);
+		listeners.acceptAll("a", "bbbb", "ccc");
+		captor.verify("a", "bbbb", "ccc");
+		filterCaptor.verify();
+	}
+
+	@Test
 	public void shouldProvideNullListener() {
 		Captor<String> captor = Captor.of();
 		Listenable<String> listeners = Listenable.ofNull();
