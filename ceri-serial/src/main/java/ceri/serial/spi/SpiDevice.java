@@ -7,6 +7,7 @@ import java.util.Objects;
 import ceri.common.collection.EnumUtil;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.io.Direction;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
@@ -26,9 +27,9 @@ public class SpiDevice implements Spi {
 	public static class Config {
 		public static final Config DEFAULT = of(0, 0);
 		private final ExceptionFunction<IOException, Config, FileDescriptor> openFn;
-		private final int bus;
-		private final int chip;
-		private final Direction direction;
+		public final int bus;
+		public final int chip;
+		public final Direction direction;
 
 		public static Config of(int bus, int chip) {
 			return builder().bus(bus).chip(chip).build();
@@ -101,16 +102,34 @@ public class SpiDevice implements Spi {
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Config other)) return false;
-			if (bus != other.bus) return false;
-			if (chip != other.chip) return false;
-			if (!Objects.equals(direction, other.direction)) return false;
-			return true;
+			return (obj instanceof Config other) && bus == other.bus && chip == other.chip
+				&& Objects.equals(direction, other.direction);
 		}
 
 		@Override
 		public String toString() {
 			return ToString.forClass(this, bus, chip, direction);
+		}
+	}
+
+	/**
+	 * Properties for config.
+	 */
+	public static class Properties extends TypedProperties.Ref {
+		private static final String BUS_KEY = "bus";
+		private static final String CHIP_KEY = "chip";
+		private static final String DIRECTION_KEY = "direction";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			var b = Config.builder();
+			parse(BUS_KEY).asInt().accept(b::bus);
+			parse(CHIP_KEY).asInt().accept(b::chip);
+			parse(DIRECTION_KEY).asEnum(Direction.class).accept(b::direction);
+			return b.build();
 		}
 	}
 
