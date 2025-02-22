@@ -67,7 +67,7 @@ public class TreeNodeTestHelper {
 		public TestNode(TestNode parent, Builder builder) {
 			super(parent, builder);
 			id2 = builder.id2;
-			toString = ToString.forClass(this, id, level);
+			toString = ToString.forName(TestNode.class.getSimpleName(), id, level);
 		}
 
 		@Override

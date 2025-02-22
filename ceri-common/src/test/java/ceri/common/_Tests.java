@@ -353,6 +353,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.IdBehavior.class, //
+	ceri.common.util.InitializableBehavior.class, //
 	ceri.common.util.LatLngBehavior.class, //
 	ceri.common.util.LocaleUtilTest.class, //
 	ceri.common.util.NamedBehavior.class, //

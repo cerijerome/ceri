@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertString;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import org.junit.Test;
+import ceri.common.reflect.ReflectUtil;
 
 public class ToStringBehavior {
 
@@ -18,7 +20,8 @@ public class ToStringBehavior {
 	public void shouldConvertRecordFormat() {
 		assertEquals(ToString.forRecord(null), "null");
 		var r = new Rec(123, "test = , 1, 2", new TreeMap<>(Map.of("1, 0", 1.0, "2, 0", 2.0)));
-		assertEquals(ToString.forRecord(r), "Rec(123,test = , 1, 2,{1, 0=1.0, 2, 0=2.0})");
+		assertString(ToString.forRecord(r), "%s(123,test = , 1, 2,{1, 0=1.0, 2, 0=2.0})",
+			ReflectUtil.name(Rec.class));
 	}
 
 	@Test

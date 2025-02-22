@@ -3,6 +3,7 @@ package ceri.common.event;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosed;
@@ -58,39 +59,49 @@ public interface Listenable<T> {
 	}
 
 	/**
-	 * Returns an adapter for listeners to only receive filtered events.
+	 * Adapts the listenable type for listeners to only receive filtered events.
 	 */
 	static <T> Listenable<T> filter(Listenable<T> listenable, Predicate<? super T> predicate) {
-		return new Filter<>(listenable, predicate);
+		return adapt(listenable, t -> predicate.test(t) ? t : null);
 	}
-	
+
 	/**
-	 * Adapter for listeners to only receive filtered events.
+	 * Adapts the listenable type for listeners to receive adapted events. If the adapter function
+	 * returns null, the event is ignored.
 	 */
-	static class Filter<T> implements Listenable<T> {
-		private final Map<Consumer<? super T>, Consumer<T>> lookup = new ConcurrentHashMap<>();
-		private final Listenable<T> listenable;
-		private final Predicate<? super T> predicate;
-		
-		private Filter(Listenable<T> listenable, Predicate<? super T> predicate) {
+	static <T, U> Listenable<T> adapt(Listenable<U> listenable,
+		Function<? super U, ? extends T> adapter) {
+		return new Adapter<>(listenable, adapter);
+	}
+
+	/**
+	 * Adapter for listeners to filter or receive adapted events.
+	 */
+	static class Adapter<T, U> implements Listenable<T> {
+		private final Map<Consumer<? super T>, Consumer<U>> lookup = new ConcurrentHashMap<>();
+		private final Listenable<U> listenable;
+		private final Function<? super U, ? extends T> adapter;
+
+		private Adapter(Listenable<U> listenable, Function<? super U, ? extends T> adapter) {
 			this.listenable = listenable;
-			this.predicate = predicate;
+			this.adapter = adapter;
 		}
-		
+
 		@Override
 		public boolean listen(Consumer<? super T> listener) {
 			return listenable.listen(lookup.computeIfAbsent(listener, l -> t -> {
-				if (predicate.test(t)) l.accept(t);
+				var u = adapter.apply(t);
+				if (u != null) l.accept(u);
 			}));
 		}
-		
+
 		@Override
 		public boolean unlisten(Consumer<? super T> listener) {
 			var adapted = lookup.remove(listener);
-			return (adapted != null) && listenable.unlisten(adapted); 
+			return (adapted != null) && listenable.unlisten(adapted);
 		}
 	}
-	
+
 	/**
 	 * Provides a no-op listenable type if null.
 	 */

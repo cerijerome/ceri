@@ -41,13 +41,7 @@ public class ToString {
 	 */
 	public static <T extends Record> String forRecord(T rec) {
 		if (rec == null) return String.valueOf(rec);
-		var s = ofClass(rec);
-		for (var component : rec.getClass().getRecordComponents()) {
-			var method = component.getAccessor();
-			method.setAccessible(true);
-			s.values(ReflectUtil.<Object>invoke(method, rec));
-		}
-		return s.toString();
+		return ofClass(rec).recordValues(rec).toString();
 	}
 
 	/**
@@ -62,7 +56,7 @@ public class ToString {
 	 */
 	public static String forClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return forName(obj.getClass().getSimpleName(), values);
+		return forName(ReflectUtil.className(obj), values);
 	}
 
 	/**
@@ -78,7 +72,7 @@ public class ToString {
 	 */
 	public static ToString ofClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return ofName(obj.getClass().getSimpleName(), values);
+		return ofName(ReflectUtil.className(obj), values);
 	}
 
 	private ToString(String name) {
@@ -95,6 +89,18 @@ public class ToString {
 		return this;
 	}
 
+	/**
+	 * Adds record field values.
+	 */
+	public <T extends Record> ToString recordValues(T rec) {
+		for (var component : rec.getClass().getRecordComponents()) {
+			var method = component.getAccessor();
+			method.setAccessible(true);
+			values(ReflectUtil.<Object>invoke(method, rec));
+		}
+		return this;
+	}
+	
 	/**
 	 * Adds fields to the string representation. ...[Field1,Field2,...]
 	 */
@@ -117,7 +123,7 @@ public class ToString {
 	 * Add a key-value field to the string representation, class name as key. ...[ClassName=Value]
 	 */
 	public ToString field(Class<?> key, Object value) {
-		return field(key.getSimpleName(), value);
+		return field(ReflectUtil.name(key), value);
 	}
 
 	/**

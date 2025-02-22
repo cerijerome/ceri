@@ -63,8 +63,8 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 * Create an instance with a subject, and a close method. If the subject is null, the close
 	 * method is not executed.
 	 */
-	public static <E extends Exception, T> Enclosed<E, T> of(T subject,
-		ExceptionConsumer<E, ? super T> closer) {
+	public static <E extends Exception, T, U extends T> Enclosed<E, T> of(U subject,
+		ExceptionConsumer<E, ? super U> closer) {
 		if (subject == null) return BasicUtil.uncheckedCast(EMPTY);
 		if (closer == null) return new Enclosed<>(subject, null);
 		return new Enclosed<>(subject, () -> closer.accept(subject));
