@@ -17,6 +17,32 @@ import ceri.common.test.Captor;
 public class EnclosedBehavior {
 
 	@Test
+	public void shouldProvideRepeatableClosure() {
+		var sync = CallSync.runnable(true);
+		try (var rep = Enclosed.Repeater.of(() -> enclosed("test", sync))) {
+			assertEquals(rep.ref(), null);
+			assertEquals(rep.get(), "test");
+			sync.assertNoCall();
+			assertEquals(rep.init(), "test");
+			assertEquals(rep.get(), "test");
+			sync.assertCalls(1);
+			assertEquals(rep.ref(), "test");
+		}
+	}
+
+	@Test
+	public void shouldProvideUnsafeRepeatableClosure() {
+		var sync = CallSync.runnable(true);
+		try (var rep = Enclosed.Repeater.unsafe(() -> enclosed("test", sync))) {
+			assertEquals(rep.get(), "test");
+			sync.assertNoCall();
+			assertEquals(rep.init(), "test");
+			assertEquals(rep.get(), "test");
+			sync.assertCalls(1);
+		}
+	}
+
+	@Test
 	public void shouldWrapCloseable() throws IOException {
 		var sync = CallSync.runnable(true);
 		try (ExceptionCloseable<IOException> ec = () -> sync.run()) {
@@ -108,4 +134,7 @@ public class EnclosedBehavior {
 		assertString(Enclosed.of("test", _ -> {}), "[test]");
 	}
 
+	private static <T> Enclosed<RuntimeException, T> enclosed(T t, Runnable closer) {
+		return Enclosed.from(t, closer::run);
+	}
 }
