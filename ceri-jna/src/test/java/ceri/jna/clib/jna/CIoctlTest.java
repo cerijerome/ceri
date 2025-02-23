@@ -6,39 +6,24 @@ import static ceri.jna.test.JnaTestUtil.LINUX_OS;
 import static ceri.jna.test.JnaTestUtil.MAC_OS;
 import static ceri.jna.test.JnaTestUtil.assertRef;
 import static ceri.jna.test.JnaTestUtil.assertUnlong;
-import java.io.IOException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.util.Enclosed;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CIoctl.Linux.serial_struct;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 
 public class CIoctlTest {
-	private static TestCLibNative lib;
-	private static Enclosed<RuntimeException, ?> enc;
-	private static int fd;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private int fd;
 
-	@BeforeClass
-	public static void beforeClass() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		fd = CFcntl.open("test", 0);
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		lib.close(fd);
-		enc.close();
-	}
-
-	@Before
-	public void before() {
-		lib.ioctl.autoResponses(0);
+	@After
+	public void after() {
+		CloseableUtil.close(ref);
+		fd = -1;
 	}
 
 	@Test
@@ -50,6 +35,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testIoctl() throws CException {
+		var lib = initFd();
 		lib.ioctl.autoResponses(3);
 		assertEquals(CIoctl.ioctl(fd, 0x111, -1, -2, -3), 3);
 		assertIoctlAuto(fd, 0x111, -1, -2, -3);
@@ -59,6 +45,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testBreak() throws CException {
+		initFd();
 		CIoctl.tiocsbrk(fd);
 		assertIoctlAuto(fd, CIoctl.TIOCSBRK);
 		CIoctl.tioccbrk(fd);
@@ -67,6 +54,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testFionread() throws CException {
+		initFd();
 		ioctlAutoIntRef(31);
 		assertEquals(CIoctl.fionread(fd), 31);
 		assertIoctlIntRef(fd, CIoctl.FIONREAD, 31);
@@ -74,6 +62,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testTiocoutq() throws CException {
+		initFd();
 		ioctlAutoIntRef(37);
 		assertEquals(CIoctl.tiocoutq(fd), 37);
 		assertIoctlIntRef(fd, CIoctl.TIOCOUTQ, 37);
@@ -81,12 +70,14 @@ public class CIoctlTest {
 
 	@Test
 	public void testTioexcl() throws CException {
+		initFd();
 		CIoctl.tiocexcl(fd);
 		assertIoctlAuto(fd, CIoctl.TIOCEXCL);
 	}
 
 	@Test
 	public void testTiocmget() throws CException {
+		initFd();
 		ioctlAutoIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 		assertEquals(CIoctl.tiocmget(fd), CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
@@ -94,24 +85,28 @@ public class CIoctlTest {
 
 	@Test
 	public void testTiocmbis() throws CException {
+		initFd();
 		CIoctl.tiocmbis(fd, CIoctl.TIOCM_LE);
 		assertIoctlIntRef(fd, CIoctl.TIOCMBIS, CIoctl.TIOCM_LE);
 	}
 
 	@Test
 	public void testTiocmbic() throws CException {
+		initFd();
 		CIoctl.tiocmbic(fd, CIoctl.TIOCM_LE);
 		assertIoctlIntRef(fd, CIoctl.TIOCMBIC, CIoctl.TIOCM_LE);
 	}
 
 	@Test
 	public void testTiocmset() throws CException {
+		initFd();
 		CIoctl.tiocmset(fd, CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS);
 		assertIoctlIntRef(fd, CIoctl.TIOCMSET, CIoctl.TIOCM_CD | CIoctl.TIOCM_RTS);
 	}
 
 	@Test
 	public void testTiocmbitSet() throws CException {
+		initFd();
 		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, true);
 		assertIoctlIntRef(fd, CIoctl.TIOCMBIS, CIoctl.TIOCM_RI);
 		CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI, false);
@@ -120,6 +115,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testTiocmbitGet() throws CException {
+		initFd();
 		ioctlAutoIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS), true);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
@@ -131,6 +127,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testMacIossiospeed() throws CException {
+		var lib = initFd();
 		CIoctl.Mac.iossiospeed(fd, 250000);
 		var args = lib.ioctl.awaitAuto();
 		assertEquals(args.fd(), fd);
@@ -140,6 +137,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testLinuxTiocgserial() throws CException {
+		var lib = initFd();
 		lib.ioctl.autoResponse(args -> {
 			serial_struct ss = args.arg(0);
 			ss.type = 0x33;
@@ -153,6 +151,7 @@ public class CIoctlTest {
 
 	@Test
 	public void testLinuxTiocsserial() throws CException {
+		initFd();
 		serial_struct ss = new serial_struct();
 		ss.type = 0x33;
 		ss.baud_base = 0x123;
@@ -202,17 +201,26 @@ public class CIoctlTest {
 	}
 
 	private void ioctlAutoIntRef(int value) {
+		var lib = ref.lib();
 		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(value), 0);
 	}
 
 	private void assertIoctlIntRef(int fd, int request, int value) {
+		var lib = ref.lib();
 		var args = lib.ioctl.awaitAuto();
 		assertEquals(args.fd(), fd);
 		assertEquals(args.request(), request);
 		assertRef(args.arg(0), value);
 	}
-	
-	private void assertIoctlAuto(int fd, int request, Object...args) {
+
+	private void assertIoctlAuto(int fd, int request, Object... args) {
+		var lib = ref.lib();
 		lib.ioctl.assertAuto(CtlArgs.of(lib.fd(fd), request, args));
+	}
+
+	private TestCLibNative initFd() throws CException {
+		ref.init();
+		fd = CFcntl.open("test", 0);
+		return ref.get();
 	}
 }

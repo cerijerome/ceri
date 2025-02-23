@@ -7,19 +7,16 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 
 public class CUtilTest {
-	private TestCLibNative lib = null;
-	private Enclosed<RuntimeException, ?> enc = null;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
 	@After
 	public void after() {
-		CloseableUtil.close(enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ref);
 	}
 
 	@Test
@@ -38,16 +35,11 @@ public class CUtilTest {
 
 	@Test
 	public void testTty() {
-		initLib();
+		var lib = ref.init();
 		lib.isatty.autoResponses(0, 1);
 		assertEquals(CUtil.tty(), false);
 		assertEquals(CUtil.tty(), true);
 		lib.isatty.error.setFrom(ErrNo.EBADFD::lastError);
 		assertEquals(CUtil.tty(), false);
-	}
-
-	private void initLib() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
 	}
 }

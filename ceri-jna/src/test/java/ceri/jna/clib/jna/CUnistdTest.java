@@ -16,28 +16,25 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Seek;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 
 public class CUnistdTest {
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private FileTestHelper helper = null;
-	private TestCLibNative lib = null;
-	private Enclosed<RuntimeException, ?> enc = null;
 	private int fd = -1;
 	private Memory m = null;
 
 	@After
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
-		CloseableUtil.close(m, enc, helper);
+		CloseableUtil.close(m, ref, helper);
 		helper = null;
-		enc = null;
-		lib = null;
 		fd = -1;
 		m = null;
 	}
@@ -49,7 +46,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testIsatty() throws IOException {
-		initLib();
+		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
 		assertFalse(CUnistd.isatty(fd));
 		lib.isatty.autoResponses(1);
@@ -58,7 +55,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testPageSize() throws IOException {
-		initLib();
+		var lib = ref.init();
 		lib.pagesize.autoResponses(0x100);
 		assertEquals(CUnistd.getpagesize(), 0x100);
 	}
@@ -128,7 +125,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testReadNothingOnNonBlockError() throws IOException {
-		initLib();
+		var lib = ref.init();
 		int fd = CFcntl.open("test", 0);
 		lib.read.error.setFrom(ErrNo.EAGAIN::lastError);
 		assertEquals(CUnistd.read(fd, new byte[3]), 0);
@@ -192,7 +189,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testWriteNothingOnNonBlockError() throws IOException {
-		initLib();
+		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
 		lib.write.error.setFrom(ErrNo.EAGAIN::lastError);
 		assertEquals(CUnistd.write(fd, new byte[3]), 0);
@@ -226,7 +223,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testWriteAllUnderWrite() throws IOException {
-		initLib();
+		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
 		m = new Memory(3);
 		lib.write.autoResponses(0);
@@ -254,7 +251,7 @@ public class CUnistdTest {
 
 	@Test
 	public void testSetFilePositionFailure() throws IOException {
-		initLib();
+		var lib = ref.init();
 		int fd = CFcntl.open("test", 0);
 		lib.lseek.autoResponses(3);
 		assertThrown(() -> CUnistd.position(fd, 2));
@@ -262,18 +259,13 @@ public class CUnistdTest {
 
 	@Test
 	public void testCloseInvalidFd() throws IOException {
-		initLib();
+		ref.init();
 		CUnistd.close(-1);
 		CUnistd.closeSilently(-1);
 		int fd = CFcntl.open("test", 0, 0);
 		CUnistd.close(fd);
 		assertThrown(CException.class, () -> CUnistd.close(fd));
 		CUnistd.closeSilently(fd);
-	}
-
-	private void initLib() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
 	}
 
 	private void initFile() throws IOException {

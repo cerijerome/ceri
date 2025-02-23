@@ -9,21 +9,18 @@ import static ceri.jna.clib.jna.CPoll.POLLPRI;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.Enclosed;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.PollArgs;
-import ceri.log.util.LogUtil;
+import ceri.jna.util.JnaLibrary;
 
 public class CPollTest {
-	private Enclosed<?, TestCLibNative> enc;
-	private TestCLibNative lib;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
 	@After
 	public void after() {
-		LogUtil.close(enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ref);
 	}
 
 	@Test
@@ -33,7 +30,7 @@ public class CPollTest {
 
 	@Test
 	public void testPoll() throws CException {
-		initLib();
+		var lib = ref.init();
 		var fds = pollfd.array(3);
 		fds[0].fd = 1;
 		fds[0].events = POLLIN | POLLOUT;
@@ -67,7 +64,7 @@ public class CPollTest {
 
 	@Test
 	public void testPpoll() throws CException {
-		initLib();
+		var lib = ref.init();
 		var fds = pollfd.array(3);
 		fds[0].fd = 1;
 		fds[0].events = POLLIN | POLLOUT;
@@ -85,10 +82,5 @@ public class CPollTest {
 		assertEquals(CPoll.Linux.ppoll(fds, tmo, sigset), 1);
 		assertEquals(fds[0].revents, (short) POLLIN);
 		lib.poll.assertAuto(PollArgs.of(fds, 1000000, CSignal.SIGINT));
-	}
-
-	private void initLib() {
-		enc = TestCLibNative.register();
-		lib = enc.ref;
 	}
 }

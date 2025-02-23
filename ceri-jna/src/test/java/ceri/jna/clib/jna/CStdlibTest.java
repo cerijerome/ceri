@@ -34,7 +34,7 @@ public class CStdlibTest {
 
 	@Test
 	public void testSetEnv() throws CException {
-		TestCLibNative.exec(_ -> {
+		try (var _ = TestCLibNative.register()) {
 			assertEquals(CStdlib.getenv(KEY), null);
 			CStdlib.setenv(KEY, "123", false);
 			assertEquals(CStdlib.getenv(KEY), "123");
@@ -42,7 +42,7 @@ public class CStdlibTest {
 			assertEquals(CStdlib.getenv(KEY), "123");
 			CStdlib.setenv(KEY, "456", true);
 			assertEquals(CStdlib.getenv(KEY), "456");
-		});
+		}
 	}
 
 }

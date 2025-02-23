@@ -50,11 +50,10 @@ public class SelfHealingFdBehavior {
 	@Test
 	public void shouldCreateFromProperties() throws IOException {
 		try (var enc = TestCLibNative.register()) {
-			var lib = enc.ref;
 			var config =
 				new SelfHealingFdProperties(typedProperties("self-healing-fd"), "fd").config();
 			try (var _ = config.open()) {
-				lib.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
+				enc.ref.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
 				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
 				assertEquals(config.selfHealing.recoveryDelayMs, 456);
 			}

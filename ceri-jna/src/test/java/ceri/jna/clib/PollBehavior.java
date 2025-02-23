@@ -99,8 +99,7 @@ public class PollBehavior {
 		initPipe();
 		JnaTestUtil.testAsOs(LINUX_OS, () -> {
 			try (var enc = TestCLibNative.register()) {
-				var lib = enc.ref;
-				lib.poll.autoResponses(1, 2);
+				enc.ref.poll.autoResponses(1, 2);
 				assertEquals(poll.poll(SigSet.of(Signal.SIGINT)), 1);
 				assertEquals(poll.poll(TimeSpec.ZERO, SigSet.of(Signal.SIGINT)), 2);
 			}

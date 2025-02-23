@@ -11,17 +11,16 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.Poll;
 import ceri.jna.clib.Poll.Event;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 
 public class SyncPipeBehavior {
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, TestCLibNative> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private Poll poll;
 	private SyncPipe.Fixed pipe;
 	private SyncPipe.Fd sync;
@@ -30,9 +29,7 @@ public class SyncPipeBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(thread, sync, pipe, fd, enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(thread, sync, pipe, fd, ref);
 		poll = null;
 		pipe = null;
 		sync = null;
@@ -50,7 +47,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldSignalOnlyIfReadBytesUnavailable() throws IOException {
-		initLib(1);
+		var lib = initLib(1);
 		pipe = SyncPipe.of(poll.fd(0));
 		lib.ioctl.autoResponse(args -> { // available() always returns 1
 			if (args.request() == CIoctl.FIONREAD) args.<IntByReference>arg(0).setValue(1);
@@ -61,7 +58,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldAllowSignalAfterWriteError() throws IOException {
-		initLib(1);
+		var lib = initLib(1);
 		lib.write.error.setFrom(ErrNo.EBADFD::lastError, null);
 		pipe = SyncPipe.of(poll.fd(0));
 		assertThrown(IOException.class, pipe::signal);
@@ -81,7 +78,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldDoNothingAfterClosure() throws IOException {
-		initLib(1);
+		var lib = initLib(1);
 		pipe = SyncPipe.of(poll.fd(0));
 		pipe.close();
 		lib.write.assertCalls(1);
@@ -94,7 +91,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldSyncSingleFd() throws IOException {
-		initLib(0);
+		var lib = initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
 		assertFalse(sync.poll());
@@ -104,7 +101,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldSignalSingleFd() throws IOException {
-		initLib(0);
+		var lib = initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
 		assertTrue(sync.signal());
@@ -115,7 +112,7 @@ public class SyncPipeBehavior {
 
 	@Test
 	public void shouldNotPollFdAfterClosure() throws IOException {
-		initLib(0);
+		var lib = initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
 		lib.poll.autoResponse(_ -> {
@@ -128,10 +125,10 @@ public class SyncPipeBehavior {
 		lib.poll.assertCalls(1);
 	}
 
-	private void initLib(int pollFds) {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+	private TestCLibNative initLib(int pollFds) {
+		var lib = ref.init();
 		poll = Poll.of(pollFds);
 		lib.write.autoResponses(1);
+		return lib;
 	}
 }

@@ -1,6 +1,5 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.collection.ImmutableUtil.asList;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_MESSAGE;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_BITS_PER_WORD;
@@ -13,7 +12,6 @@ import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_LSB_FIRST;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MAX_SPEED_HZ;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
-import java.util.List;
 import java.util.Set;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
@@ -22,7 +20,9 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
+import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -33,13 +33,22 @@ public class TestSpiCLibNative extends TestCLibNative {
 		Set.of(SPI_IOC_WR_MODE, SPI_IOC_WR_LSB_FIRST, SPI_IOC_WR_BITS_PER_WORD);
 	private static final Set<Integer> GET_INT = Set.of(SPI_IOC_RD_MAX_SPEED_HZ, SPI_IOC_RD_MODE32);
 	private static final Set<Integer> SET_INT = Set.of(SPI_IOC_WR_MAX_SPEED_HZ, SPI_IOC_WR_MODE32);
-	// List<?> = int request, [int value]
-	public final CallSync.Function<List<?>, Integer> ioctlSpiInt = CallSync.function(null, 0);
-	// List<?> = int request, ByteProvider txBytes, int len, int speed_hz, int delay_usecs,
-	// int bits_per_word, int cs_change, int tx_nbits, int rx_nbits
-	public final CallSync.Function<List<?>, ByteProvider> ioctlSpiMsg =
+	public final CallSync.Function<Int, Integer> ioctlSpiInt = CallSync.function(null, 0);
+	public final CallSync.Function<Msg, ByteProvider> ioctlSpiMsg =
 		CallSync.function(null, ByteProvider.empty());
 
+	public record Int(int request, Integer value) {}
+
+	public record Msg(int request, ByteProvider txBytes, int len, int speed_hz, int delay_usecs,
+		int bits_per_word, int cs_change, int tx_nbits, int rx_nbits) {}
+
+	/**
+	 * A wrapper for repeatedly overriding the library in tests.
+	 */
+	public static JnaLibrary.Ref<TestSpiCLibNative> ref() {
+		return CLib.library.ref(TestSpiCLibNative::of);
+	}
+	
 	public static TestSpiCLibNative of() {
 		return new TestSpiCLibNative();
 	}
@@ -59,10 +68,9 @@ public class TestSpiCLibNative extends TestCLibNative {
 
 	private int ioctlSpiMsg(int request, spi_ioc_transfer xfer) {
 		ByteProvider txBytes = transmitBytes(xfer);
-		List<?> list = asList(request, txBytes, xfer.len, xfer.speed_hz, ushort(xfer.delay_usecs),
-			xfer.bits_per_word & 0xff, xfer.cs_change & 0xff, xfer.tx_nbits & 0xff,
-			xfer.rx_nbits & 0xff);
-		ByteProvider rxBytes = ioctlSpiMsg.apply(list);
+		ByteProvider rxBytes = ioctlSpiMsg.apply(new Msg(request, txBytes, xfer.len, xfer.speed_hz,
+			ushort(xfer.delay_usecs), xfer.bits_per_word & 0xff, xfer.cs_change & 0xff,
+			xfer.tx_nbits & 0xff, xfer.rx_nbits & 0xff));
 		receiveBytes(xfer, rxBytes);
 		return 0;
 	}
@@ -80,23 +88,22 @@ public class TestSpiCLibNative extends TestCLibNative {
 	}
 
 	private int ioctlSpiSetByte(int request, ByteByReference ref) {
-		ioctlSpiInt.apply(List.of(request, ref.getValue() & 0xff));
+		ioctlSpiInt.apply(new Int(request, ref.getValue() & 0xff));
 		return 0;
 	}
 
 	private int ioctlSpiGetByte(int request, ByteByReference ref) {
-		ref.setValue(ioctlSpiInt.apply(List.of(request)).byteValue());
+		ref.setValue(ioctlSpiInt.apply(new Int(request, null)).byteValue());
 		return 0;
 	}
 
 	private int ioctlSpiSetInt(int request, IntByReference ref) {
-		ioctlSpiInt.apply(List.of(request, ref.getValue()));
+		ioctlSpiInt.apply(new Int(request, ref.getValue()));
 		return 0;
 	}
 
 	private int ioctlSpiGetInt(int request, IntByReference ref) {
-		ref.setValue(ioctlSpiInt.apply(List.of(request)));
+		ref.setValue(ioctlSpiInt.apply(new Int(request, null)));
 		return 0;
 	}
-
 }

@@ -23,7 +23,6 @@ import static ceri.serial.comm.jna.CSerial.STOPBITS_2;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -32,21 +31,19 @@ import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 
 public class CSerialTest {
-	private static TestCLibNative lib;
-	private static Enclosed<RuntimeException, ?> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
 	@After
 	public void after() {
-		CloseableUtil.close(enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ref);
 	}
 
 	@Test
 	public void testCloseAfterOpenFailure() {
-		var lib = initLib();
+		var lib = ref.init();
 		lib.fcntl.error.set(CException.general("test"));
 		assertThrown(() -> CSerial.open("test"));
 		lib.open.assertCalls(1);
@@ -55,7 +52,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldBreak() throws CException {
-		var lib = initLib();
+		var lib = ref.init();
 		int fd = CSerial.open("test");
 		CSerial.brk(fd, true);
 		lib.ioctl.assertAuto(CtlArgs.of(fd, CIoctl.TIOCSBRK));
@@ -65,7 +62,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldFailToSetInvalidParameters() throws CException {
-		initLib();
+		ref.init();
 		int fd = CSerial.open("test");
 		assertThrown(() -> CSerial.setParams(fd, 9600, 4, STOPBITS_1, PARITY_NONE));
 		assertThrown(() -> CSerial.setParams(fd, 9600, DATABITS_8, 4, PARITY_NONE));
@@ -99,7 +96,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetStandardBaudForLinux() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var helper = CSerialTestHelper.linux(initLib());
+			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0030, 16000000, 3);
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 115200, DATABITS_7, STOPBITS_2, PARITY_EVEN);
@@ -111,7 +108,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetCustomBaudForLinux() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var helper = CSerialTestHelper.linux(initLib());
+			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0000, 16000000, 0);
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_6, STOPBITS_2, PARITY_EVEN);
@@ -126,7 +123,7 @@ public class CSerialTest {
 	@Test
 	public void shouldFailToSetIncompatibleBaudForLinux() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var helper = CSerialTestHelper.linux(initLib());
+			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0, 16000000, 0);
 			int fd = CSerial.open("test");
 			assertThrown(() -> CSerial.setParams(fd, 3750000, DATABITS_6, STOPBITS_2, PARITY_EVEN));
@@ -136,7 +133,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetReadParametersForLinux() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var helper = CSerialTestHelper.linux(initLib());
+			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
 			assertByte(helper.termios.c_cc[CTermios.VMIN], 11);
@@ -147,7 +144,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetFlowControlForLinux() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var helper = CSerialTestHelper.linux(initLib());
+			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_IN);
 			assertMask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
@@ -157,7 +154,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetStandardBaudForMac() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
-			var helper = CSerialTestHelper.mac(initLib());
+			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 115200, DATABITS_7, STOPBITS_2, PARITY_EVEN);
 			helper.assertSpeed(CTermios.B115200);
@@ -167,7 +164,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetCustomBaudForMac() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
-			var helper = CSerialTestHelper.mac(initLib());
+			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_6, STOPBITS_2, PARITY_EVEN);
 			helper.assertSpeed(CTermios.B9600);
@@ -181,7 +178,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetReadParametersForMac() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
-			var helper = CSerialTestHelper.mac(initLib());
+			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
 			assertByte(helper.termios.c_cc[CTermios.VMIN], 11);
@@ -192,7 +189,7 @@ public class CSerialTest {
 	@Test
 	public void shouldSetReadParametersWithCustomBaudForMac() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
-			var helper = CSerialTestHelper.mac(initLib());
+			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_8, STOPBITS_1, PARITY_NONE);
 			CSerial.setReadParams(fd, 11, 22);
@@ -206,16 +203,10 @@ public class CSerialTest {
 	@Test
 	public void shouldSetFlowControlForMac() throws CException {
 		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
-			var helper = CSerialTestHelper.mac(initLib());
+			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_OUT);
 			assertMask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
 		});
-	}
-
-	private TestCLibNative initLib() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		return lib;
 	}
 }

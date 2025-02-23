@@ -1,11 +1,13 @@
 package ceri.jna.util;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
+import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.Enclosed;
@@ -26,6 +28,38 @@ public class JnaLibrary<T extends Library> {
 	private volatile T loaded;
 	private volatile T override;
 
+	/**
+	 * A wrapper for repeatedly overriding the native library.
+	 */
+	public static class Ref<T extends Library> implements RuntimeCloseable, Supplier<T> {
+		private final Enclosed.Repeater<RuntimeException, T> repeater;
+
+		private Ref(JnaLibrary<? super T> library, Supplier<? extends T> constructor) {
+			repeater = Enclosed.Repeater.unsafe(() -> library.enclosed(constructor.get()));
+		}
+		
+		public T init() {
+			return repeater.init();
+		}
+
+		@Override
+		public T get() {
+			return repeater.get();
+		}
+
+		/**
+		 * Returns the current value of the override, which may be null.
+		 */
+		public T lib() {
+			return repeater.ref();
+		}
+		
+		@Override
+		public void close() {
+			repeater.close();
+		}
+	}
+	
 	/**
 	 * Return the platform library search path system property.
 	 */
@@ -84,6 +118,13 @@ public class JnaLibrary<T extends Library> {
 	public <U extends T> Enclosed<RuntimeException, U> enclosed(U override) {
 		set(override);
 		return Enclosed.of(override, _ -> set(null));
+	}
+
+	/**
+	 * A wrapper for repeatedly overriding the native library.
+	 */
+	public <U extends T> Ref<U> ref(Supplier<U> constructor) {
+		return new Ref<>(this, constructor);
 	}
 
 	/**

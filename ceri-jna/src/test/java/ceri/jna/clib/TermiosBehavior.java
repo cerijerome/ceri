@@ -6,26 +6,23 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.io.Direction;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Struct;
 
 public class TermiosBehavior {
-	private TestCLibNative lib = null;
-	private Enclosed<RuntimeException, ?> enc = null;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private CFileDescriptor fd = null;
 	private CTermios.termios termios = null;
 	private Termios tm = null;
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(fd, ref);
 		fd = null;
 		termios = null;
 		tm = null;
@@ -33,7 +30,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldAccessFields() throws IOException {
-		init();
+		initTermios();
 		termios.c_cflag.setValue(0xffff);
 		tm = Termios.get(fd);
 		tm.inFlags().setValue(0x111);
@@ -50,7 +47,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldAccessSpeeds() throws IOException {
-		init();
+		initTermios();
 		tm = Termios.get(fd);
 		tm.inSpeed(11111);
 		tm.outSpeed(22222);
@@ -60,7 +57,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldMakeRaw() throws IOException {
-		init();
+		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.makeRaw();
 		assertEquals(lib.cf.awaitAuto().name(), "cfmakeraw");
@@ -68,7 +65,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldSendBreak() throws IOException {
-		init();
+		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.sendBreak(111);
 		lib.tc.assertAuto(TcArgs.of("tcsendbreak", fd.fd(), 111));
@@ -76,7 +73,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldDrain() throws IOException {
-		init();
+		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.drain();
 		lib.tc.assertAuto(TcArgs.of("tcdrain", fd.fd()));
@@ -84,7 +81,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldFlush() throws IOException {
-		init();
+		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.flush(Direction.none); // does nothing
 		tm.flush(Direction.in);
@@ -97,7 +94,7 @@ public class TermiosBehavior {
 
 	@Test
 	public void shouldFlow() throws IOException {
-		init();
+		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.flow(Direction.none, true); // does nothing
 		tm.flow(Direction.in, false);
@@ -110,13 +107,13 @@ public class TermiosBehavior {
 			TcArgs.of("tcflow", fd.fd(), CTermios.TCOON));
 	}
 
-	private void init() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+	private TestCLibNative initTermios() throws IOException {
+		var lib = ref.init();
 		fd = CFileDescriptor.open("test", Open.RDWR);
 		termios = CTermios.tcgetattr(fd.fd());
 		lib.cf.autoResponse(args -> handleCfSpeed(args, termios));
 		lib.tc.autoResponse(args -> handleTc(args, termios), 0);
+		return lib;
 	}
 
 	private static <T extends CTermios.termios> void handleTc(TcArgs args, T termios) {

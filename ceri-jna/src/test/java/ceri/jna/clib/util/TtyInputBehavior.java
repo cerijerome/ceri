@@ -15,12 +15,12 @@ import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.Struct;
 
 public class TtyInputBehavior {
 	private static final int LFLAGS = ICANON | ECHO | ECHONL;
-	private TestCLibNative lib = null;
-	private Enclosed<RuntimeException, ?> enc = null;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private CTermios.termios termios = null;
 	private SystemIoCaptor sys = null;
 	private Enclosed<RuntimeException, ? extends LineReader> ttyRef = null;
@@ -28,9 +28,7 @@ public class TtyInputBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ttyRef, sys, enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ttyRef, sys, ref);
 		termios = null;
 		sys = null;
 		ttyRef = null;
@@ -39,8 +37,7 @@ public class TtyInputBehavior {
 
 	@Test
 	public void shouldProvideStandardInputIfNotTty() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+		ref.init();
 		sys = SystemIoCaptor.of();
 		ttyRef = TtyInput.in();
 		sys.in.print("abc\n");
@@ -49,7 +46,7 @@ public class TtyInputBehavior {
 
 	@Test
 	public void shouldModifyTermios() throws IOException {
-		init();
+		var lib = initTty();
 		termios(lib.tc.value(), t -> assertEquals(t.c_lflag.intValue() & ~LFLAGS, 0));
 		sys.in.print("abc\n");
 		assertEquals(tty.ready(), true);
@@ -70,9 +67,8 @@ public class TtyInputBehavior {
 		if (args.name().equals("tcsetattr")) Struct.copyFrom(args.arg(1), termios);
 	}
 
-	private void init() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+	private TestCLibNative initTty() throws IOException {
+		var lib = ref.init();
 		lib.isatty.autoResponses(1);
 		termios = CTermios.tcgetattr(0);
 		termios.c_lflag.setValue(LFLAGS);
@@ -80,5 +76,6 @@ public class TtyInputBehavior {
 		sys = SystemIoCaptor.of();
 		ttyRef = TtyInput.in();
 		tty = ttyRef.ref;
+		return lib;
 	}
 }

@@ -4,29 +4,20 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.io.IOException;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
-import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 import ceri.serial.spi.SpiDevice;
 
 public class SpiDevTest {
-	private TestSpiCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc;
+	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.ref();
 	private FileDescriptor fd;
 
-	@Before
-	public void before() throws IOException {
-		lib = TestSpiCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		fd = SpiDevice.Config.of(0, 0).open();
-	}
-
 	@After
-	public void after() throws IOException {
-		fd.close();
-		enc.close();
+	public void after() {
+		CloseableUtil.close(fd, ref);
+		fd = null;
 	}
 
 	@Test
@@ -36,6 +27,7 @@ public class SpiDevTest {
 
 	@Test
 	public void testGetMode() throws IOException {
+		var lib = initSpi();
 		lib.ioctlSpiInt.autoResponses(0xde);
 		fd.accept(f -> assertEquals(SpiDev.getMode(f), 0xde));
 	}
@@ -46,4 +38,9 @@ public class SpiDevTest {
 		SpiDev.SPI_IOC_MESSAGE(1 << 15); // no error
 	}
 
+	private TestSpiCLibNative initSpi() throws IOException {
+		ref.init();
+		fd = SpiDevice.Config.of(0, 0).open();
+		return ref.get();
+	}
 }

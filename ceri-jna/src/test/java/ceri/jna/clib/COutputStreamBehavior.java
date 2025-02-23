@@ -4,49 +4,29 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
+import ceri.jna.util.JnaLibrary;
 
 public class COutputStreamBehavior {
-	private static TestCLibNative lib;
-	private static Enclosed<RuntimeException, ?> enc;
-	private static int fd;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private int fd;
 	private COutputStream out;
-
-	@BeforeClass
-	public static void beforeClass() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
-		fd = lib.open("test", 0);
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		lib.close(fd);
-		enc.close();
-	}
-
-	@Before
-	public void before() {
-		lib.write.reset();
-		out = COutputStream.of(fd);
-		out.bufferSize(3);
-	}
 
 	@After
 	public void after() {
-		out.close();
+		CloseableUtil.close(out, ref);
+		fd = -1;
+		out = null;
 	}
 
 	@Test
 	public void shouldWriteSingleByte() throws IOException {
+		var lib = initOut();
 		lib.write.autoResponses(1);
 		out.write(0xabcd);
 		lib.write.assertAuto(WriteArgs.of(fd, 0xcd));
@@ -55,6 +35,7 @@ public class COutputStreamBehavior {
 
 	@Test
 	public void shouldContinueWithIncompleteWrites() throws IOException {
+		var lib = initOut();
 		assertEquals(out.bufferSize(), 3);
 		lib.write.autoResponses(1, 2, 1);
 		out.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
@@ -67,6 +48,7 @@ public class COutputStreamBehavior {
 
 	@Test
 	public void shouldFailForIncompleteWrite() {
+		var lib = initOut();
 		lib.write.autoResponses(0);
 		assertThrown(() -> out.write(0xff));
 		lib.write.autoResponses(2, 0);
@@ -75,21 +57,32 @@ public class COutputStreamBehavior {
 
 	@Test
 	public void shouldProvideQueueSize() throws IOException {
+		var lib = initOut();
 		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(33), 0);
 		assertEquals(out.queued(), 33);
 	}
 
 	@Test
 	public void shouldFlush() throws IOException {
+		initOut();
 		out.flush(); // no-op
 	}
 
 	@Test
 	public void shouldFailIfClosed() {
+		var lib = initOut();
 		lib.write.autoResponses(1);
 		out.close();
 		assertThrown(() -> out.write(0));
 		assertThrown(() -> out.write(new byte[3]));
 		assertThrown(() -> out.flush());
+	}
+
+	private TestCLibNative initOut() {
+		var lib = ref.init();
+		fd = lib.open("test", 0);
+		out = COutputStream.of(fd);
+		out.bufferSize(3);
+		return lib;
 	}
 }

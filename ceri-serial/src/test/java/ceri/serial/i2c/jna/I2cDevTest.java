@@ -6,29 +6,22 @@ import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
-import java.util.List;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
-import ceri.jna.clib.test.TestCLibNative;
+import ceri.common.util.CloseableUtil;
+import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_data;
+import ceri.serial.i2c.jna.TestI2cCLibNative.Int;
+import ceri.serial.i2c.jna.TestI2cCLibNative.Rw;
 
 public class I2cDevTest {
-	private TestI2cCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc;
-
-	@Before
-	public void before() {
-		lib = TestI2cCLibNative.of();
-		enc = TestCLibNative.register(lib);
-	}
+	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.ref();
 
 	@After
 	public void after() {
-		enc.close();
+		CloseableUtil.close(ref);
 	}
 
 	@Test
@@ -61,19 +54,20 @@ public class I2cDevTest {
 
 	@Test
 	public void testI2cTenBit() throws IOException {
+		var lib = ref.init();
 		int fd = I2cDev.i2c_open(1, 0);
 		I2cDev.i2c_tenbit(fd, false);
 		I2cDev.i2c_tenbit(fd, true);
-		lib.ioctlI2cInt.assertValues(List.of(0x704, 0), List.of(0x704, 1));
+		lib.ioctlI2cInt.assertValues(new Int(0x704, 0), new Int(0x704, 1));
 	}
 
 	@Test
 	public void testWriteBlockData() throws IOException {
+		var lib = ref.init();
 		int fd = I2cDev.i2c_open(1, 0);
 		I2cDev.i2c_smbus_write_block_data(fd, 0x12, bytes(1, 2, 3));
 		I2cDev.i2c_smbus_write_i2c_block_data(fd, 0x12, bytes(1, 2, 3));
-		lib.ioctlSmBusBytes.assertValues(List.of(0, 0x12, 5, 0, 0, smBusBlock(3, 1, 2, 3)),
-			List.of(0, 0x12, 8, 0, 0, smBusBlock(3, 1, 2, 3)));
+		lib.ioctlSmBusBytes.assertValues(new Rw(0, 0x12, 5, 0, 0, smBusBlock(3, 1, 2, 3)),
+			new Rw(0, 0x12, 8, 0, 0, smBusBlock(3, 1, 2, 3)));
 	}
-
 }

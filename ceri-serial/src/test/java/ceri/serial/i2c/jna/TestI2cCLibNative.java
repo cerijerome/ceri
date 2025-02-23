@@ -3,32 +3,43 @@ package ceri.serial.i2c.jna;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.NativeLong;
 import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
+import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
 import ceri.serial.i2c.jna.I2cDev.i2c_smbus_ioctl_data;
 
 public class TestI2cCLibNative extends TestCLibNative {
-	// List<?> = int request, int value
-	public final CallSync.Function<List<?>, Integer> ioctlI2cInt = CallSync.function(null, 0);
-	// List<?> = int address, int flags, [ByteProvider command | int length], ...
-	public final CallSync.Function<List<?>, ByteProvider> ioctlI2cBytes =
+	public final CallSync.Function<Int, Integer> ioctlI2cInt = CallSync.function(null, 0);
+	public final CallSync.Function<List<Bytes>, ByteProvider> ioctlI2cBytes =
 		CallSync.function(null, ByteProvider.empty());
-	// List<?> = int read_write, int command, int type, int byte_, int word, ByteProvider block
-	public final CallSync.Function<List<?>, Integer> ioctlSmBusInt = CallSync.function(null, 0);
-	// List<?> = int read_write, int command, int type, int byte_, int word, ByteProvider block
-	public final CallSync.Function<List<?>, ByteProvider> ioctlSmBusBytes =
+	public final CallSync.Function<Rw, Integer> ioctlSmBusInt = CallSync.function(null, 0);
+	public final CallSync.Function<Rw, ByteProvider> ioctlSmBusBytes =
 		CallSync.function(null, ByteProvider.empty());
+
+	public record Int(int request, int value) {}
+
+	public record Bytes(int address, int flags, ByteProvider command, int length) {}
+
+	public record Rw(int read_write, int command, int type, int byte_, int word,
+		ByteProvider block) {}
+
+	/**
+	 * A wrapper for repeatedly overriding the library in tests.
+	 */
+	public static JnaLibrary.Ref<TestI2cCLibNative> ref() {
+		return CLib.library.ref(TestI2cCLibNative::of);
+	}
 
 	public static TestI2cCLibNative of() {
 		return new TestI2cCLibNative();
@@ -53,7 +64,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 			case 0x0704: // I2C_TENBIT 1/0
 			case 0x0706: // I2C_SLAVE_FORCE
 			case 0x0708: // I2C_PEC 1/0
-				return ioctlI2cInt.apply(List.of(request, ((Number) objs[0]).intValue()));
+				return ioctlI2cInt.apply(new Int(request, ((Number) objs[0]).intValue()));
 			case 0x0705: // I2C_FUNCS, pointer to unsigned long
 				return ioctlI2cFuncs(request, (NativeLongByReference) objs[0]);
 			case 0x0707: // I2C_RDWR, pointer to struct i2c_rdwr_ioctl_data
@@ -90,35 +101,34 @@ public class TestI2cCLibNative extends TestCLibNative {
 	}
 
 	private int ioctlSmBusByte(i2c_smbus_ioctl_data smBus, boolean read) {
-		int value = ioctlSmBusInt.apply(list(smBus));
+		int value = ioctlSmBusInt.apply(rw(smBus));
 		if (read && smBus.data != null) smBus.data.byte_ = (byte) value;
 		return 0;
 	}
 
 	private int ioctlSmBusWord(i2c_smbus_ioctl_data smBus, boolean read) {
-		int value = ioctlSmBusInt.apply(list(smBus));
+		int value = ioctlSmBusInt.apply(rw(smBus));
 		if (read && smBus.data != null) smBus.data.word = (short) value;
 		return 0;
 	}
 
 	private int ioctlSmBusBytes(i2c_smbus_ioctl_data smBus, boolean read) {
-		ByteProvider bp = ioctlSmBusBytes.apply(list(smBus));
+		ByteProvider bp = ioctlSmBusBytes.apply(rw(smBus));
 		if (read && smBus.data != null && bp != null)
 			bp.copyTo(0, smBus.data.block, 0, bp.length());
 		return 0;
 	}
 
-	private List<?> list(i2c_smbus_ioctl_data smBus) {
-		List<Object> list = new ArrayList<>();
-		Collections.addAll(list, (int) ubyte(smBus.read_write), (int) ubyte(smBus.command),
-			smBus.size);
-		if (smBus.data != null) Collections.addAll(list, (int) ubyte(smBus.data.byte_),
-			ushort(smBus.data.word), ByteArray.Immutable.copyOf(smBus.data.block));
-		return Collections.unmodifiableList(list);
+	private Rw rw(i2c_smbus_ioctl_data smBus) {
+		return smBus.data == null ?
+			new Rw(ubyte(smBus.read_write), ubyte(smBus.command), smBus.size, 0, 0, null) :
+			new Rw(ubyte(smBus.read_write), ubyte(smBus.command), smBus.size,
+				ubyte(smBus.data.byte_), ushort(smBus.data.word),
+				ByteArray.Immutable.copyOf(smBus.data.block));
 	}
 
 	private int ioctlI2cFuncs(int request, NativeLongByReference ref) {
-		int funcs = ioctlI2cInt.apply(List.of(request, 0));
+		int funcs = ioctlI2cInt.apply(new Int(request, 0));
 		ref.setValue(new NativeLong(funcs));
 		return 0;
 	}
@@ -126,9 +136,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 	private int ioctlI2cRdwr(i2c_rdwr_ioctl_data data) {
 		data.write(); // write data to memory before reading back
 		i2c_msg[] msgs = data.msgs();
-		List<Object> list = new ArrayList<>();
-		for (var msg : msgs)
-			append(list, msg);
+		var list = Stream.of(msgs).map(this::bytes).toList();
 		ByteProvider bp = ioctlI2cBytes.apply(list);
 		receive(msgs[msgs.length - 1], bp);
 		return 0;
@@ -139,11 +147,15 @@ public class TestI2cCLibNative extends TestCLibNative {
 		JnaUtil.write(msg.buf, received.copy(0));
 	}
 
-	private void append(List<Object> list, i2c_msg msg) {
-		Collections.addAll(list, ushort(msg.addr), ushort(msg.flags));
-		if (i2c_msg.FLAGS.has(msg, I2C_M_RD)) list.add(ushort(msg.len));
-		else if (msg.buf == null) list.add(ByteProvider.empty());
-		else list.add(ByteProvider.of(msg.buf.getByteArray(0, ushort(msg.len))));
+	private Bytes bytes(i2c_msg msg) {
+		var buffer = buffer(msg);
+		return new Bytes(ushort(msg.addr), ushort(msg.flags), buffer,
+			buffer == null ? ushort(msg.len) : buffer.length());
 	}
 
+	private ByteProvider buffer(i2c_msg msg) {
+		if (i2c_msg.FLAGS.has(msg, I2C_M_RD)) return null;
+		if (msg.buf == null) return ByteProvider.empty();
+		return ByteProvider.of(msg.buf.getByteArray(0, ushort(msg.len)));
+	}
 }

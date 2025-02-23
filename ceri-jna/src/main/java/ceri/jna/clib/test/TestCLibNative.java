@@ -18,7 +18,6 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
-import ceri.common.function.ExceptionConsumer;
 import ceri.common.reflect.ReflectUtil.ThreadElement;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
@@ -36,6 +35,7 @@ import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
@@ -229,27 +229,17 @@ public class TestCLibNative implements CLib.Native {
 	public record MmapArgs(Pointer addr, long len, int prot, int flags, int fd, int offset) {}
 
 	/**
-	 * Register the test lib for the consumer, then remove it.
+	 * A wrapper for repeatedly overriding the library in tests.
 	 */
-	public static <E extends Exception> void exec(ExceptionConsumer<E, TestCLibNative> consumer)
-		throws E {
-		try (var enc = TestCLibNative.register(TestCLibNative.of())) {
-			consumer.accept(enc.ref);
-		}
+	public static JnaLibrary.Ref<? extends TestCLibNative> ref() {
+		return CLib.library.ref(TestCLibNative::of);
 	}
 
 	/**
-	 * Register the test lib.
+	 * Register a new test lib.
 	 */
 	public static Enclosed<RuntimeException, TestCLibNative> register() {
-		return register(of());
-	}
-
-	/**
-	 * Register the test lib as a closable resource.
-	 */
-	public static <T extends TestCLibNative> Enclosed<RuntimeException, T> register(T lib) {
-		return CLib.library.enclosed(lib);
+		return CLib.library.enclosed(of());
 	}
 
 	/**

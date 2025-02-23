@@ -8,20 +8,17 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.SystemIoCaptor;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 
 public class CLibVerifierBehavior {
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
 	@After
 	public void after() {
-		CloseableUtil.close(enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ref);
 	}
 
 	@Test
@@ -50,7 +47,7 @@ public class CLibVerifierBehavior {
 	@Test
 	public void shouldVerifyLinuxPpoll() throws IOException {
 		JnaTestUtil.testAsOs(LINUX_OS, () -> {
-			initLib();
+			var lib = ref.init();
 			lib.poll.autoResponses(2);
 			CLibVerifier.verifyPoll();
 		});
@@ -63,7 +60,7 @@ public class CLibVerifierBehavior {
 
 	@Test
 	public void shouldVerifySerial() throws IOException {
-		initLib();
+		var lib = ref.init();
 		lib.cf.autoResponses(0, 0, 0, // cfmakeraw, cfsetispeed, cfsetospeed
 			CTermios.B9600, CTermios.B9600, 0); // cfgetispeed, cfgetospeed, ...
 		CLibVerifier.verifyTermios("serial");
@@ -71,7 +68,7 @@ public class CLibVerifierBehavior {
 
 	@Test
 	public void shouldFailToVerifyBadSerial() throws IOException {
-		initLib();
+		var lib = ref.init();
 		lib.open.error.setFrom(ErrNo.ENOENT::lastError);
 		assertFalse(CLibVerifier.verifyTermios("serial"));
 	}
@@ -79,10 +76,5 @@ public class CLibVerifierBehavior {
 	@Test
 	public void shouldVerifyEnv() throws IOException {
 		CLibVerifier.verifyEnv();
-	}
-
-	private void initLib() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
 	}
 }

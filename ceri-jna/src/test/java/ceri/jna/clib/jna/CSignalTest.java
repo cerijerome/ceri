@@ -10,23 +10,20 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteUtil;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CSignal.sigset_t;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaLibrary;
 
 public class CSignalTest {
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, TestCLibNative> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 
 	@After
 	public void after() {
-		CloseableUtil.close(enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(ref);
 	}
 
 	@Test
@@ -36,7 +33,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSignal() throws CException {
-		initLib();
+		var lib = ref.init();
 		sighandler_t cb = _ -> {};
 		assertTrue(CSignal.signal(15, cb));
 		assertTrue(CSignal.signal(15, 1));
@@ -53,7 +50,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSigSet() throws CException {
-		initLib();
+		var lib = ref.init();
 		// clear all
 		var sigset = CSignal.sigemptyset(new sigset_t());
 		lib.sigset.assertAuto(0);
@@ -72,7 +69,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSigSetWithError() throws CException {
-		initLib();
+		var lib = ref.init();
 		var sigset = CSignal.sigemptyset(new sigset_t());
 		lib.sigset.autoResponses(-1, 0);
 		assertThrown(CException.class, () -> CSignal.sigismember(sigset, CSignal.SIGINT));
@@ -88,10 +85,5 @@ public class CSignalTest {
 	@Test
 	public void testFields() {
 		JnaTestUtil.testForEachOs(CSignal.class);
-	}
-
-	private void initLib() {
-		enc = TestCLibNative.register();
-		lib = enc.ref;
 	}
 }

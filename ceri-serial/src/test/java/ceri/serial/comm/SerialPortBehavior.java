@@ -10,24 +10,21 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.util.JnaLibrary;
 
 public class SerialPortBehavior {
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private SerialPort serial;
 
 	@After
 	public void after() {
-		CloseableUtil.close(serial, enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(serial, ref);
 		serial = null;
 	}
 
@@ -59,7 +56,7 @@ public class SerialPortBehavior {
 
 	@Test
 	public void shouldSetSerialState() throws IOException {
-		initSerial();
+		var lib = initSerial();
 		serial.brk(true);
 		assertEquals(lib.ioctl.awaitAuto(), CtlArgs.of(lib.lastFd(), CIoctl.TIOCSBRK));
 		serial.rts(false);
@@ -90,25 +87,25 @@ public class SerialPortBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldFlushOutputStream() throws IOException {
-		initSerial();
+		var lib = initSerial();
 		lib.write.autoResponses(1);
 		serial.out().write(1);
 		serial.out().flush();
 		lib.tc.assertAuto(TcArgs.of("tcdrain", lib.lastFd()));
 	}
 
-	private void initSerial() throws IOException {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
+	private TestCLibNative initSerial() throws IOException {
+		var lib = ref.init();
 		serial = SerialPort.open("test");
+		return lib;
 	}
 
 	private void ioctlAutoIntRef(int value) {
-		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(value), 0);
+		ref.lib().ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(value), 0);
 	}
 
 	private void assertIoctlIntRef(int fd, int request, int value) {
-		var args = lib.ioctl.awaitAuto();
+		var args = ref.lib().ioctl.awaitAuto();
 		assertEquals(args.fd(), fd);
 		assertEquals(args.request(), request);
 		assertRef(args.arg(0), value);

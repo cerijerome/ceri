@@ -13,8 +13,8 @@ import ceri.common.test.FileTestHelper;
 import ceri.common.test.ManualTester;
 import ceri.common.test.SystemIoCaptor;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
@@ -22,9 +22,8 @@ import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.StopBits;
 
 public class SerialTesterBehavior {
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private RuntimeCloseable fastMode;
-	private TestCLibNative lib;
-	private Enclosed<RuntimeException, ?> enc = null;
 	private SystemIoCaptor sys;
 	private TestSerial serial;
 	private FileTestHelper files;
@@ -36,13 +35,11 @@ public class SerialTesterBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(serial, sys, enc, files, fastMode);
+		CloseableUtil.close(serial, sys, ref, files, fastMode);
 		fastMode = null;
 		files = null;
 		sys = null;
 		serial = null;
-		enc = null;
-		lib = null;
 	}
 
 	@Test
@@ -108,9 +105,7 @@ public class SerialTesterBehavior {
 
 	private void init(boolean initLib) {
 		sys = SystemIoCaptor.of();
-		if (initLib) {
-			lib = TestCLibNative.of();
-			enc = TestCLibNative.register(lib);
-		} else serial = TestSerial.of();
+		if (initLib) ref.init();
+		else serial = TestSerial.of();
 	}
 }

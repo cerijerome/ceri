@@ -6,26 +6,23 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
 import ceri.jna.clib.Mmap.Option;
 import ceri.jna.clib.Mmap.Protection;
 import ceri.jna.clib.Mmap.Visibility;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.MmapArgs;
 import ceri.jna.clib.test.TestCLibNative.Presult;
+import ceri.jna.util.JnaLibrary;
 
 public class MmapBehavior {
-	private TestCLibNative lib = null;
-	private Enclosed<RuntimeException, ?> enc = null;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private Memory mem = null;
 	private CFileDescriptor fd = null;
 	private Mmap mmap = null;
 
 	@After
 	public void after() {
-		CloseableUtil.close(mmap, fd, mem, enc);
-		enc = null;
-		lib = null;
+		CloseableUtil.close(mmap, fd, mem, ref);
 		mem = null;
 		fd = null;
 		mmap = null;
@@ -33,7 +30,7 @@ public class MmapBehavior {
 
 	@Test
 	public void shouldCalculateLength() throws IOException {
-		initLib();
+		var lib = ref.init();
 		lib.pagesize.autoResponses(0x1000);
 		assertEquals(Mmap.length(0x100), 0x1000L);
 		assertEquals(Mmap.length(0x1234), 0x2000L);
@@ -41,7 +38,7 @@ public class MmapBehavior {
 
 	@Test
 	public void shouldCreateAnonymousMap() throws IOException {
-		initLib();
+		var lib = ref.init();
 		mem = new Memory(32);
 		mmap = Mmap.anonymous(Visibility.SHARED, 32).address(mem).options(Option.FIXED).map();
 		lib.mmap.assertAuto(new MmapArgs(mem, 32L, 0,
@@ -51,7 +48,7 @@ public class MmapBehavior {
 
 	@Test
 	public void shouldCreateFileMap() throws IOException {
-		initLib();
+		var lib = ref.init();
 		fd = CFileDescriptor.open("test");
 		mmap = Mmap.file(Visibility.PRIVATE, 32, fd, 8).protections(Protection.READ).map();
 		lib.mmap.assertAuto(
@@ -61,15 +58,10 @@ public class MmapBehavior {
 
 	@Test
 	public void shouldProvideMemoryMap() throws IOException {
-		initLib();
+		var lib = ref.init();
 		mem = new Memory(16);
 		lib.mmap.autoResponses(new Presult(mem, 0));
 		mmap = Mmap.anonymous(Visibility.SHARED, 16).map();
 		assertEquals(mmap.address(0), mem);
-	}
-
-	private void initLib() {
-		lib = TestCLibNative.of();
-		enc = TestCLibNative.register(lib);
 	}
 }

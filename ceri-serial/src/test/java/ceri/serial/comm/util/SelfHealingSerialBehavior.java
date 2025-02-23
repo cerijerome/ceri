@@ -12,10 +12,10 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.util.JnaLibrary;
 import ceri.log.io.SelfHealing;
-import ceri.log.util.LogUtil;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
@@ -26,15 +26,15 @@ import ceri.serial.comm.test.TestSerial;
 public class SelfHealingSerialBehavior {
 	private static final SelfHealingSerial.Config config =
 		SelfHealingSerial.Config.builder("test").selfHealing(SelfHealing.Config.NULL).build();
-	private Enclosed<RuntimeException, TestCLibNative> enc;
+	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private SelfHealingSerial serial;
 	private TestSerial testSerial;
 
 	@After
 	public void after() {
-		LogUtil.close(serial, enc);
+		CloseableUtil.close(serial, ref);
 		serial = null;
-		testSerial = null;
+		testSerial = null; // sometimes log error if closed
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class SelfHealingSerialBehavior {
 
 	@Test
 	public void shouldProvidePort() throws IOException {
-		initLib();
+		ref.init();
 		serial = SelfHealingSerial.of(config);
 		assertEquals(serial.port(), "test"); // from config
 		serial.open();
@@ -88,7 +88,7 @@ public class SelfHealingSerialBehavior {
 
 	@Test
 	public void shouldConfigureSerialDevice() throws IOException {
-		initLib();
+		ref.init();
 		serial = SelfHealingSerial.of(config);
 		serial.inBufferSize(111);
 		serial.outBufferSize(222);
@@ -154,9 +154,5 @@ public class SelfHealingSerialBehavior {
 	public void shouldOverrideConstruction() {
 		testSerial = TestSerial.of();
 		assertSame(testSerial.config().serial(), testSerial);
-	}
-
-	private void initLib() {
-		enc = TestCLibNative.register();
 	}
 }
