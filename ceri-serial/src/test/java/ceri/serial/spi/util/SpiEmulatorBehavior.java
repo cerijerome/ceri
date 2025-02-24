@@ -29,7 +29,7 @@ public class SpiEmulatorBehavior {
 
 	@Test
 	public void shouldIgnoreOutput() throws IOException {
-		var spi = SpiEmulator.echo();
+		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.out, 5);
 		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
 		xfer.execute();
@@ -38,7 +38,7 @@ public class SpiEmulatorBehavior {
 
 	@Test
 	public void shouldProvideBlankInput() throws IOException {
-		var spi = SpiEmulator.echo();
+		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.in, 5);
 		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5)); // ignored
 		xfer.execute();
@@ -47,7 +47,7 @@ public class SpiEmulatorBehavior {
 
 	@Test
 	public void shouldEcho() throws IOException {
-		var spi = SpiEmulator.echo();
+		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.duplex, 5);
 		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
 		xfer.execute();
@@ -55,11 +55,20 @@ public class SpiEmulatorBehavior {
 	}
 
 	@Test
+	public void shouldDelayForTransferTime() throws IOException {
+		var spi = SpiEmulator.echo();
+		var xfer = spi.transfer(Direction.duplex, 3).speedHz(25000000);
+		xfer.write(ArrayUtil.bytes(1, 2, 3));
+		xfer.execute(); // < 1us
+		assertArray(xfer.read(), 1, 2, 3);
+	}
+
+	@Test
 	public void shouldPrintPulsesWithSpacing() throws IOException {
 		try (var out = StringPrintStream.of()) {
 			var config = SpiPulseConfig.of(2);
 			var buffer = config.buffer();
-			var spi = SpiEmulator.pulsePrinter(out, config.cycle());
+			var spi = SpiEmulator.pulsePrinter(out, config.cycle()).delay(false);
 			sendPulses(spi, buffer, 0x85, 0xf3);
 			assertEquals(compactPulse(out.toString()), "10000101 11110011");
 		}
@@ -69,7 +78,7 @@ public class SpiEmulatorBehavior {
 	public void shouldPrintPulses() throws IOException {
 		try (var out = StringPrintStream.of()) {
 			var buffer = SpiPulseConfig.of(2).buffer();
-			var spi = SpiEmulator.pulsePrinter(out);
+			var spi = SpiEmulator.pulsePrinter(out).delay(false);
 			sendPulses(spi, buffer, 0x85, 0xf3);
 			assertEquals(compactPulse(out.toString()), "1000010111110011");
 		}

@@ -1,6 +1,8 @@
 package ceri.serial.spi.test;
 
+import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.Direction;
 import ceri.common.io.IoUtil;
@@ -12,28 +14,49 @@ import ceri.serial.spi.util.SpiEmulator;
 
 public class TestSpi extends SpiEmulator {
 	public final ErrorGen error = ErrorGen.of();
-	public final CallSync.Function<Integer, ByteProvider> in;
-	public final CallSync.Consumer<ByteProvider> out;
+	public final CallSync.Function<Request, ByteProvider> xfer;
+
+	public record Request(int n, ByteProvider data) {
+		public static final Request NULL = new Request(0, null);
+		
+		public static Request in(int size) {
+			return new Request(size, ByteProvider.empty());
+		}
+		
+		public static Request out(int... data) {
+			return out(ArrayUtil.bytes(data));
+		}
+		
+		public static Request out(byte[] data) {
+			return new Request(0, ByteProvider.of(data));
+		}
+		
+		public static Request duplex(int... data) {
+			return duplex(ArrayUtil.bytes(data));
+		}
+		
+		public static Request duplex(byte[] data) {
+			return new Request(data.length, ByteProvider.copyOf(data));
+		}
+	}
 
 	private static class IoResponder implements SpiEmulator.Responder {
-		private final CallSync.Function<Integer, ByteProvider> in =
-			CallSync.function(0, ByteProvider.empty());
-		private final CallSync.Consumer<ByteProvider> out = CallSync.consumer(null, true);
+		private final CallSync.Function<Request, ByteProvider> xfer =
+			CallSync.function(Request.NULL, ByteProvider.empty());
 
 		@Override
 		public byte[] in(int size) throws IOException {
-			return in.apply(size, IoUtil.IO_ADAPTER).copy(0);
+			return xfer.apply(Request.in(size), IO_ADAPTER).copy(0);
 		}
 
 		@Override
 		public void out(byte[] data) throws IOException {
-			out.accept(ByteProvider.of(data), IoUtil.IO_ADAPTER);
+			xfer.apply(Request.out(data), IO_ADAPTER);
 		}
 
 		@Override
 		public byte[] duplex(byte[] data) throws IOException {
-			out(data);
-			return in(data.length);
+			return xfer.apply(Request.duplex(data), IO_ADAPTER).copy(0);
 		}
 	}
 
@@ -43,8 +66,8 @@ public class TestSpi extends SpiEmulator {
 
 	private TestSpi(IoResponder responder) {
 		super(responder);
-		this.in = responder.in;
-		this.out = responder.out;
+		xfer = responder.xfer;
+		delay(false);
 	}
 
 	@Override

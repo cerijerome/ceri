@@ -108,7 +108,7 @@ public class SpiPulseTransmitterBehavior {
 
 	private void init() {
 		sync = CallSync.consumer(null, false);
-		spi = SpiEmulator.of(responder(sync));
+		spi = SpiEmulator.of(responder(sync)).delay(false);
 		spix = SpiPulseTransmitter.of(1, spi, config);
 	}
 }

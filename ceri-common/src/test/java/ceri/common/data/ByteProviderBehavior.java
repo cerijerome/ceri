@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
@@ -30,6 +31,16 @@ public class ByteProviderBehavior {
 	public void testOf() {
 		assertArray(ByteProvider.of(0xff, 0, 0x80, 0x7f).copy(0), 0xff, 0, 0x80, 0x7f);
 		assertArray(ByteProvider.of(Byte.MAX_VALUE, Byte.MIN_VALUE).copy(0), 0x7f, 0x80);
+	}
+
+	@Test
+	public void testCopyOf() {
+		byte[] bytes = { Byte.MAX_VALUE, Byte.MIN_VALUE };
+		var of = ByteProvider.of(bytes);
+		var copyOf = ByteProvider.copyOf(bytes);
+		Arrays.fill(bytes, (byte) 0);
+		assertArray(of.copy(0), 0, 0);
+		assertArray(copyOf.copy(0), 0x7f, 0x80);
 	}
 
 	@Test

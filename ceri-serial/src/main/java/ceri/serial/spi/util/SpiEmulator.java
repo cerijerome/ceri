@@ -25,6 +25,7 @@ public class SpiEmulator implements Spi {
 	private boolean lsbFirst = false;
 	private int bitsPerWord = 0; // 0 => 8 bits
 	private int maxSpeedHz = 250_000_000 / 2; // Raspberry Pi 4 default?
+	private boolean delay = true;
 
 	public static interface Responder {
 		Responder ECHO = new Responder() {};
@@ -83,6 +84,11 @@ public class SpiEmulator implements Spi {
 		this.responder = responder;
 	}
 
+	public SpiEmulator delay(boolean delay) {
+		this.delay = delay;
+		return this;
+	}
+
 	@Override
 	public SpiMode mode() throws IOException {
 		return mode;
@@ -138,7 +144,7 @@ public class SpiEmulator implements Spi {
 			case in -> write(in, responder.in(xfer.size()));
 			default -> write(in, responder.duplex(read(out)));
 		}
-		ConcurrentUtil.delayMicros(transferTimeMicros(xfer));
+		ConcurrentUtil.delayMicros(delay ? transferTimeMicros(xfer) : 0L);
 	}
 
 	private ByteBuffer buffer(long peer, int len) {
