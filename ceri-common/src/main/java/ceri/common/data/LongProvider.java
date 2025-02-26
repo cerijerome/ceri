@@ -1,12 +1,13 @@
 package ceri.common.data;
 
 import java.util.PrimitiveIterator;
-import java.util.function.Function;
+import java.util.function.LongFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
+import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -24,13 +25,28 @@ import ceri.common.validation.ValidationUtil;
  * @see ceri.common.data.LongArray.Immutable
  */
 public interface LongProvider extends Iterable<Long> {
+	/** String formatting configuration. */
+	Joiner JOINER = Joiner.of("[", ",", "]", 8);
 
+	/**
+	 * Return an unmodifiable empty instance.
+	 */
 	static LongProvider empty() {
 		return LongArray.Immutable.EMPTY;
 	}
 
+	/**
+	 * Create an unmodifiable wrapper for the given values.
+	 */
 	static LongProvider of(long... longs) {
 		return LongArray.Immutable.wrap(longs);
+	}
+
+	/**
+	 * Create an unmodifiable copy of the given values.
+	 */
+	static LongProvider copyOf(long... longs) {
+		return LongArray.Immutable.copyOf(longs);
 	}
 
 	/**
@@ -450,42 +466,44 @@ public interface LongProvider extends Iterable<Long> {
 	}
 
 	/**
-	 * Provides a hex string representation.
+	 * Provides a limited string representation.
 	 */
 	static String toHex(LongProvider provider) {
-		return toHex(provider, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Provides a limited hex string representation.
-	 */
-	static String toHex(LongProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toHex(array, 0, array.length));
+		return toHex(JOINER, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
+	static String toHex(Joiner joiner, LongProvider provider) {
+		return toString(joiner, l -> "0x" + Long.toHexString(l), provider);
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
 	static String toString(LongProvider provider) {
-		return toString(provider, Integer.MAX_VALUE);
+		return toString(JOINER, provider);
+	}
+
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(Joiner joiner, LongProvider provider) {
+		return toString(joiner, b -> b, provider);
 	}
 
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(LongProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toString(array, 0, array.length));
+	static String toString(LongFunction<?> stringFn, LongProvider provider) {
+		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
-	 * Provides a limited string representation.
+	 * Provides a string representation.
 	 */
-	private static String toString(LongProvider provider, int max, Function<long[], String> fn) {
-		int length = provider.length();
-		var array = provider.copy(0, length <= max ? length : max - 1);
-		String s = fn.apply(array);
-		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
-		return s + "(" + length + ")";
+	static String toString(Joiner joiner, LongFunction<?> stringFn, LongProvider provider) {
+		return joiner.joinIndex(i -> stringFn.apply(provider.getLong(i)), provider.length());
 	}
-
 }

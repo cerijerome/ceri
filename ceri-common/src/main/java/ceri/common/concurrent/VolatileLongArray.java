@@ -12,7 +12,6 @@ import ceri.common.validation.ValidationUtil;
  * Fixed-size long array with volatile values.
  */
 public class VolatileLongArray implements LongAccessor {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final VolatileLongArray EMPTY = VolatileLongArray.wrap(EMPTY_LONG);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(long[].class);
 	private final long[] array;
@@ -74,7 +73,6 @@ public class VolatileLongArray implements LongAccessor {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + LongProvider.toHex(this, MAX_LEN_FOR_STRING);
+		return "V" + LongProvider.toString(this);
 	}
-
 }

@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import ceri.common.collection.EnumUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Joiner;
 
 public class Mode {
 	public static final Mode NONE = new Mode(0);
@@ -56,7 +56,7 @@ public class Mode {
 		}
 
 		public static String string(int value) {
-			return StringUtil.join("|", decode(value));
+			return Joiner.OR.join(decode(value));
 		}
 
 		private Mask(int value) {

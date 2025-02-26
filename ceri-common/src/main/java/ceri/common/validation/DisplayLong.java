@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
+import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 
 public enum DisplayLong implements LongFunction<String>, IntFunction<String> {
@@ -26,7 +27,7 @@ public enum DisplayLong implements LongFunction<String>, IntFunction<String> {
 	public static String format(long value, Collection<DisplayLong> flags) {
 		if (flags.isEmpty()) return DisplayLong.dec.apply(value);
 		if (flags.size() == 1) return first(flags).apply(value);
-		return StringUtil.join(", ", "(", ")", flag -> flag.apply(value), flags);
+		return Joiner.PARAM.join(f -> f.apply(value), flags);
 	}
 
 	private DisplayLong(LongFunction<String> formatter) {
@@ -37,7 +38,7 @@ public enum DisplayLong implements LongFunction<String>, IntFunction<String> {
 	public String apply(long value) {
 		return formatter.apply(value);
 	}
-	
+
 	@Override
 	public String apply(int value) {
 		return apply((long) value);

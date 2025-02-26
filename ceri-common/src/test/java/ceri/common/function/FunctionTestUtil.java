@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import ceri.common.math.MathUtil;
 
 /**
  * Utilities to help test functions.
@@ -60,6 +61,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionByteSupplier<IOException> byteSupplier(byte b) {
+		return () -> {
+			if (b == 1) throw new IOException("1");
+			if (b == 0) throw new RuntimeException("0");
+			return b;
+		};
+	}
+
 	public static ExceptionIntSupplier<IOException> intSupplier(int i) {
 		return () -> {
 			if (i == 1) throw new IOException("1");
@@ -85,6 +94,13 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionConsumer<IOException, Integer> consumer() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+		};
+	}
+
+	public static ExceptionByteConsumer<IOException> byteConsumer() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -134,6 +150,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionByteFunction<IOException, Integer> byteFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return (int) i;
+		};
+	}
+
 	public static ExceptionIntFunction<IOException, Integer> intFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -158,6 +182,14 @@ public class FunctionTestUtil {
 		};
 	}
 
+	public static ExceptionToByteFunction<IOException, Integer> toByteFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return MathUtil.byteExact(i);
+		};
+	}
+
 	public static ExceptionToIntFunction<IOException, Integer> toIntFunction() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
@@ -175,6 +207,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionToDoubleFunction<IOException, Integer> toDoubleFunction() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
+	public static ExceptionByteUnaryOperator<IOException> byteUnaryOperator() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -318,6 +358,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ByteSupplier byteSupplier(byte b) {
+			return () -> {
+				if (b == 0) throw new RuntimeException("0");
+				return b;
+			};
+		}
+
 		public static IntSupplier intSupplier(int i) {
 			return () -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -345,6 +392,12 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ByteConsumer byteConsumer() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+			};
+		}
+
 		public static IntConsumer intConsumer() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -358,6 +411,12 @@ public class FunctionTestUtil {
 		}
 
 		public static BiConsumer<Integer, Integer> biConsumer() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+			};
+		}
+
+		public static ObjByteConsumer<Integer> objByteConsumer() {
 			return (i, j) -> {
 				if (i == 0 || j == 0) throw new RuntimeException("0");
 			};
@@ -382,6 +441,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ByteFunction<Integer> byteFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return (int) i;
+			};
+		}
+
 		public static IntFunction<Integer> intFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -403,6 +469,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static ToByteFunction<Integer> toByteFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return MathUtil.byteExact(i);
+			};
+		}
+
 		public static ToIntFunction<Integer> toIntFunction() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
@@ -418,6 +491,13 @@ public class FunctionTestUtil {
 		}
 
 		public static ToDoubleFunction<Integer> toDoubleFunction() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
+		public static ByteUnaryOperator byteUnaryOperator() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i;

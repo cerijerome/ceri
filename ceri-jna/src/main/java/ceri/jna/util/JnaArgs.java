@@ -17,6 +17,7 @@ import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 
 /**
@@ -185,7 +186,7 @@ public class JnaArgs {
 	 * Creates a comma-separated string from given arguments.
 	 */
 	public String args(Object... args) {
-		return StringUtil.joinAll(", ", transformArgs(args));
+		return Joiner.COMMA.join(transformArgs(args));
 	}
 
 	/**

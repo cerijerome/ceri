@@ -7,11 +7,12 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
-import java.util.List;
+import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
+import ceri.common.math.MathUtil;
 import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
@@ -29,22 +30,25 @@ public class IntProviderBehavior {
 	}
 
 	@Test
+	public void testCopyOf() {
+		int[] ints = { Integer.MAX_VALUE, Integer.MIN_VALUE };
+		var of = IntProvider.of(ints);
+		var copyOf = IntProvider.copyOf(ints);
+		Arrays.fill(ints, (byte) 0);
+		assertArray(of.copy(0), 0, 0);
+		assertArray(copyOf.copy(0), 0x7fffffff, 0x80000000);
+	}
+
+	@Test
 	public void testToHex() {
-		assertEquals(IntProvider.toHex(ip), "[0x0, 0xffffffff, 0x2, 0xfffffffd, 0x4, "
-			+ "0xfffffffb, 0x6, 0xfffffff9, 0x8, 0xfffffff7]");
-		assertEquals(IntProvider.toHex(ip, 3), "[0x0, 0xffffffff, ...](10)");
+		assertEquals(IntProvider.toHex(ip), "[0x0,0xffffffff,0x2,0xfffffffd,0x4,"
+			+ "0xfffffffb,0x6,...](10)");
 	}
 
 	@Test
 	public void testToString() {
-		assertEquals(IntProvider.toString(ip), "[0, -1, 2, -3, 4, -5, 6, -7, 8, -9]");
-		assertEquals(IntProvider.toString(ip, 3), "[0, -1, ...](10)");
-	}
-
-	@Test
-	public void shouldCreateFromCollection() {
-		assertArray(IntProvider.of(List.of()));
-		assertArray(IntProvider.of(List.of(-1, 1, 0)), -1, 1, 0);
+		assertEquals(IntProvider.toString(ip), "[0,-1,2,-3,4,-5,6,...](10)");
+		assertEquals(IntProvider.toString(MathUtil::ubyte, ip), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test

@@ -1,7 +1,6 @@
 package ceri.common.text;
 
 import static ceri.common.text.RegexUtil.replaceAllQuoted;
-import static java.util.Arrays.asList;
 import java.awt.event.KeyEvent;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -627,99 +626,17 @@ public class StringUtil {
 		return count;
 	}
 
-	public static StringBuilder append(StringBuilder b, CharSequence delimiter, Object... items) {
-		return append(b, delimiter, asList(items));
-	}
-
-	public static StringBuilder append(StringBuilder b, CharSequence delimiter, Iterable<?> items) {
-		return append(b, delimiter, String::valueOf, items);
-	}
-
-	@SafeVarargs
-	public static <T> StringBuilder append(StringBuilder b, CharSequence delimiter,
-		Function<T, ? extends CharSequence> fn, T... items) {
-		return append(b, delimiter, fn, asList(items));
-	}
-
-	public static <T> StringBuilder append(StringBuilder b, CharSequence delimiter,
-		Function<T, ? extends CharSequence> fn, Iterable<T> items) {
-		int len = b.length();
-		for (T item : items) {
-			if (b.length() > len && delimiter.length() > 0) b.append(delimiter);
-			b.append(fn.apply(item));
-		}
-		return b;
-	}
-
 	/**
-	 * Creates a formatted string for iterable items.
+	 * Converts to lower case if not null.
 	 */
-	public static String joinAll(CharSequence delimiter, Object... iterable) {
-		return join(delimiter, String::valueOf, asList(iterable));
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	public static String join(CharSequence delimiter, Iterable<?> iterable) {
-		return join(delimiter, String::valueOf, iterable);
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	@SafeVarargs
-	public static <T> String join(CharSequence delimiter, Function<T, ? extends CharSequence> fn,
-		T... iterable) {
-		return join(delimiter, fn, asList(iterable));
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	public static <T> String join(CharSequence delimiter, Function<T, ? extends CharSequence> fn,
-		Iterable<T> iterable) {
-		return append(new StringBuilder(), delimiter, fn, iterable).toString();
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-		Object... iterable) {
-		return join(delimiter, prefix, suffix, asList(iterable));
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	public static String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-		Iterable<?> iterable) {
-		return join(delimiter, prefix, suffix, String::valueOf, iterable);
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	@SafeVarargs
-	public static <T> String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-		Function<T, ? extends CharSequence> fn, T... iterable) {
-		return join(delimiter, prefix, suffix, fn, asList(iterable));
-	}
-
-	/**
-	 * Creates a formatted string for iterable items.
-	 */
-	public static <T> String join(CharSequence delimiter, CharSequence prefix, CharSequence suffix,
-		Function<T, ? extends CharSequence> fn, Iterable<T> iterable) {
-		return append(new StringBuilder(prefix), delimiter, fn, iterable).append(suffix).toString();
-	}
-
 	public static String toLowerCase(CharSequence s) {
 		if (s == null) return null;
 		return s.toString().toLowerCase();
 	}
 
+	/**
+	 * Converts to upper case if not null.
+	 */
 	public static String toUpperCase(CharSequence s) {
 		if (s == null) return null;
 		return s.toString().toUpperCase();
@@ -890,8 +807,8 @@ public class StringUtil {
 	}
 
 	/**
-	 * Add separators to a string each count characters, aligned to left or right. Multiple counts
-	 * can be used for variable separation widths.
+	 * Separate a string into sections, aligned to left or right. Multiple counts can be used for
+	 * variable separation widths.
 	 */
 	public static String separate(CharSequence str, CharSequence separator, Align.H align,
 		int... counts) {

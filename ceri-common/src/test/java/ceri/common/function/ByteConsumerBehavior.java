@@ -45,5 +45,4 @@ public class ByteConsumerBehavior {
 		consumer.accept(0xff);
 		captor.verify(Byte.MAX_VALUE, (byte) -1);
 	}
-
 }

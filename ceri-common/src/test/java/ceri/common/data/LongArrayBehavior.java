@@ -24,11 +24,11 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(LongArray.Immutable.wrap().toString(), "Immutable[](0)");
+		assertEquals(LongArray.Immutable.wrap().toString(), "[]");
 		assertEquals(LongArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8, 9).toString(),
-			"Immutable[1, 2, 3, 4, 5, 6, 7, ...](9)");
+			"[1,2,3,4,5,6,7,...](9)");
 		assertEquals(LongArray.Immutable.wrap(1, 2, 3, 4, 5, 6, 7, 8).toString(),
-			"Immutable[1, 2, 3, 4, 5, 6, 7, 8](8)");
+			"[1,2,3,4,5,6,7,8]");
 	}
 
 	/* Immutable tests */

@@ -23,7 +23,6 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import ceri.common.net.NetUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 
 public class MongoUtil {
 	public static final String MONGODB_PROTOCOL = "mongodb://";
@@ -47,7 +46,7 @@ public class MongoUtil {
 	}
 
 	public static String connection(Iterable<String> hostPorts) {
-		return StringUtil.join(",", MONGODB_PROTOCOL, "", hostPorts);
+		return MONGODB_PROTOCOL + String.join(",", hostPorts);
 	}
 
 	public static String connection(HostList hosts) {

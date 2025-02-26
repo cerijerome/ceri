@@ -10,7 +10,7 @@ import ceri.common.data.TypeTranscoder;
 import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionIntFunction;
 import ceri.common.io.Connector;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Joiner;
 import ceri.jna.clib.jna.CFcntl;
 
 /**
@@ -66,7 +66,7 @@ public interface FileDescriptor extends Connector {
 		}
 
 		public static String string(int value) {
-			return StringUtil.join("|", decode(value));
+			return Joiner.OR.join(decode(value));
 		}
 
 		private Open(int value) {

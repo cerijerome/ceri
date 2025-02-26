@@ -2,7 +2,7 @@ package ceri.common.concurrent;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
@@ -66,7 +66,7 @@ public class VolatileIntArrayBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertFind(VolatileIntArray.wrap(-1, 0x80, 0x7f).toString(), "[0xff, 0x80, 0x7f]");
+		assertString(VolatileIntArray.wrap(-1, 0x80, 0x7f), "V[-1,128,127]");
 	}
 
 }

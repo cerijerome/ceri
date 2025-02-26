@@ -124,7 +124,7 @@ public class JnaMemoryBehavior {
 	public void shouldProvideStringRepresentation() {
 		try (var m = JnaUtil.mallocBytes(0x80, 0xff, 0x7f, 0, 0x80, 0xff, 0x7f, 0, 0x80)) {
 			assertEquals(JnaMemory.of(m).toString(),
-				String.format("%s@%x[0x80, 0xff, 0x7f, 0x0, 0x80, 0xff, 0x7f, ...](9)",
+				String.format("%s@%x[0x80,0xff,0x7f,0x00,0x80,0xff,0x7f,...](9)",
 					JnaMemory.class.getSimpleName(), PointerUtil.peer(m)));
 		}
 	}

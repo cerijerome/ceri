@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionBooleanSupplier;
+import ceri.common.function.ExceptionByteSupplier;
 import ceri.common.function.ExceptionDoubleSupplier;
 import ceri.common.function.ExceptionIntSupplier;
 import ceri.common.function.ExceptionLongSupplier;
@@ -69,6 +70,17 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	public boolean getBoolean(ExceptionBooleanSupplier<?> supplier) throws E {
 		try {
 			return supplier.getAsBoolean();
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			adaptInterrupted(e);
+			throw apply(e);
+		}
+	}
+
+	public byte getByte(ExceptionByteSupplier<?> supplier) throws E {
+		try {
+			return supplier.getAsByte();
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

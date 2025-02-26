@@ -24,7 +24,6 @@ import ceri.common.validation.ValidationUtil;
  * window must not be accessed or copied.
  */
 public abstract class ByteArray implements ByteProvider {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	final byte[] array;
 	private final int offset;
 	private final int length;
@@ -552,7 +551,7 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ByteProvider.toHex(this, MAX_LEN_FOR_STRING);
+		return ByteProvider.toHex(this);
 	}
 
 	/* Support methods */

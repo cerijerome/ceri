@@ -6,10 +6,12 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.LongProvider.Reader;
 import ceri.common.data.LongReceiverBehavior.Holder;
+import ceri.common.math.MathUtil;
 import ceri.common.test.Captor;
 
 public class LongProviderBehavior {
@@ -24,18 +26,25 @@ public class LongProviderBehavior {
 	}
 
 	@Test
+	public void testCopyOf() {
+		long[] longs = { Long.MAX_VALUE, Long.MIN_VALUE };
+		var of = LongProvider.of(longs);
+		var copyOf = LongProvider.copyOf(longs);
+		Arrays.fill(longs, (byte) 0);
+		assertArray(of.copy(0), 0, 0);
+		assertArray(copyOf.copy(0), 0x7fffffffffffffffL, 0x8000000000000000L);
+	}
+
+	@Test
 	public void testToHex() {
 		assertEquals(LongProvider.toHex(lp),
-			"[0x0, 0xffffffffffffffff, " +
-				"0x2, 0xfffffffffffffffd, 0x4, 0xfffffffffffffffb, 0x6, 0xfffffffffffffff9, " +
-				"0x8, 0xfffffffffffffff7](10)");
-		assertEquals(LongProvider.toHex(lp, 3), "[0x0, 0xffffffffffffffff, ...](10)");
+			"[0x0,0xffffffffffffffff,0x2,0xfffffffffffffffd,0x4,0xfffffffffffffffb,0x6,...](10)");
 	}
 
 	@Test
 	public void testToString() {
-		assertEquals(LongProvider.toString(lp), "[0, -1, 2, -3, 4, -5, 6, -7, 8, -9](10)");
-		assertEquals(LongProvider.toString(lp, 3), "[0, -1, ...](10)");
+		assertEquals(LongProvider.toString(lp), "[0,-1,2,-3,4,-5,6,...](10)");
+		assertEquals(LongProvider.toString(MathUtil::ubyte, lp), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test

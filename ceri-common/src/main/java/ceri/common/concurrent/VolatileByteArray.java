@@ -13,7 +13,6 @@ import ceri.common.validation.ValidationUtil;
  * Fixed-size byte array with volatile values.
  */
 public class VolatileByteArray implements ByteAccessor {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final VolatileByteArray EMPTY = VolatileByteArray.wrap(EMPTY_BYTE);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(byte[].class);
 	private final byte[] array;
@@ -79,7 +78,6 @@ public class VolatileByteArray implements ByteAccessor {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ByteProvider.toHex(this, MAX_LEN_FOR_STRING);
+		return "V" + ByteProvider.toHex(this);
 	}
-
 }

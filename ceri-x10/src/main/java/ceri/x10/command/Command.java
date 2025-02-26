@@ -16,6 +16,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.StreamUtil;
+import ceri.common.text.Joiner;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
@@ -214,15 +215,15 @@ public abstract class Command {
 	public String toString() {
 		return switch (group()) {
 			case house -> String.format("%s:%s", house, type);
-			case dim -> String.format("%s[%s]:%s:%d%%", house, unitStr(), type, data);
-			case ext -> String.format("%s[%s]:%s:0x%02x:0x%02x", house, unitStr(), type, data,
+			case dim -> String.format("%s%s:%s:%d%%", house, unitStr(), type, data);
+			case ext -> String.format("%s%s:%s:0x%02x:0x%02x", house, unitStr(), type, data,
 				command);
-			default -> String.format("%s[%s]:%s", house, unitStr(), type);
+			default -> String.format("%s%s:%s", house, unitStr(), type);
 		};
 	}
 
 	private String unitStr() {
-		return StringUtil.join(",", unit -> String.valueOf(unit.value), units);
+		return Joiner.ARRAY_COMPACT.join(u -> u.value, units);
 	}
 
 	private static Set<Unit> normalize(Collection<Unit> units) {

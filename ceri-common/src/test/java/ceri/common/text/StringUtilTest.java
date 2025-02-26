@@ -14,7 +14,6 @@ import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Test;
 import ceri.common.util.Align;
 import ceri.common.util.Align.H;
@@ -98,16 +97,6 @@ public class StringUtilTest {
 	public void testToStringFromChars() {
 		assertEquals(StringUtil.toString(new char[0]), "");
 		assertEquals(StringUtil.toString('a', '\0', 'b'), "a\0b");
-	}
-
-	@Test
-	public void testAppend() {
-		assertEquals(
-			StringUtil.append(new StringBuilder(), "", String::valueOf, "", "a", "").toString(),
-			"a");
-		assertEquals(
-			StringUtil.append(new StringBuilder(), ":", String::valueOf, 1, 2, 3).toString(),
-			"1:2:3");
 	}
 
 	@Test
@@ -416,22 +405,6 @@ public class StringUtilTest {
 		assertCollection(StringUtil.whiteSpaceSplit(" "));
 		assertCollection(StringUtil.whiteSpaceSplit("a"), "a");
 		assertCollection(StringUtil.whiteSpaceSplit(" a b "), "", "a", "b");
-	}
-
-	@Test
-	public void testJoin() {
-		assertEquals(StringUtil.join("|", "{", "}", "Test1", "Test2", "Test3"),
-			"{Test1|Test2|Test3}");
-		assertEquals(StringUtil.join("|", "{", "}", "Test"), "{Test}");
-		assertEquals(StringUtil.join("|", "{", "}", Collections.singleton("Test")), "{Test}");
-		assertEquals(StringUtil.join("|", Arrays.asList(1, 2, 3)), "1|2|3");
-		assertEquals(StringUtil.join("|", i -> repeat("x", i), 1, 2, 3), "x|xx|xxx");
-		assertEquals(StringUtil.join("|", "{", "}", i -> repeat("x", i), 1, 2, 3), "{x|xx|xxx}");
-	}
-
-	@Test
-	public void testJoinAll() {
-		assertEquals(StringUtil.joinAll("|", 1, 2, 3), "1|2|3");
 	}
 
 	@Test

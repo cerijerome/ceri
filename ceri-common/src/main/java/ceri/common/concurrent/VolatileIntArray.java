@@ -12,7 +12,6 @@ import ceri.common.validation.ValidationUtil;
  * Fixed-size int array with volatile values.
  */
 public class VolatileIntArray implements IntAccessor {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final VolatileIntArray EMPTY = VolatileIntArray.wrap(EMPTY_INT);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(int[].class);
 	private final int[] array;
@@ -71,10 +70,9 @@ public class VolatileIntArray implements IntAccessor {
 		ValidationUtil.validateSlice(length(), offset, length);
 		return new VolatileIntArray(array, this.offset + offset, length);
 	}
-
+	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + IntProvider.toHex(this, MAX_LEN_FOR_STRING);
+		return "V" + IntProvider.toString(this);
 	}
-
 }

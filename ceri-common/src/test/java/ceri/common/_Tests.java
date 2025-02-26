@@ -113,10 +113,15 @@ import ceri.common.test.TestUtil;
 	// function
 	ceri.common.function.BooleanConsumerBehavior.class, //
 	ceri.common.function.ByteConsumerBehavior.class, //
+	ceri.common.function.ByteUnaryOperatorBehavior.class, //
 	ceri.common.function.ExceptionBiConsumerBehavior.class, //
 	ceri.common.function.ExceptionBiFunctionBehavior.class, //
 	ceri.common.function.ExceptionBiPredicateBehavior.class, //
 	ceri.common.function.ExceptionBooleanSupplierBehavior.class, //
+	ceri.common.function.ExceptionByteConsumerBehavior.class, //
+	ceri.common.function.ExceptionByteFunctionBehavior.class, //
+	ceri.common.function.ExceptionByteSupplierBehavior.class, //
+	ceri.common.function.ExceptionByteUnaryOperatorBehavior.class, //
 	ceri.common.function.ExceptionConsumerBehavior.class, //
 	ceri.common.function.ExceptionDoubleSupplierBehavior.class, //
 	ceri.common.function.ExceptionFunctionBehavior.class, //
@@ -142,6 +147,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionRunnableBehavior.class, //
 	ceri.common.function.ExceptionSupplierBehavior.class, //
 	ceri.common.function.ExceptionToBooleanFunctionBehavior.class, //
+	ceri.common.function.ExceptionToByteFunctionBehavior.class, //
 	ceri.common.function.ExceptionToDoubleFunctionBehavior.class, //
 	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
 	ceri.common.function.ExceptionToLongFunctionBehavior.class, //
@@ -313,6 +319,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.DsvCodecBehavior.class, //
 	ceri.common.text.DsvParserBehavior.class, //
 	ceri.common.text.FractionFormatsTest.class, //
+	ceri.common.text.JoinerBehavior.class, //
 	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchResultBehavior.class, //
 	ceri.common.text.NonMatcherBehavior.class, //
@@ -361,6 +368,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.RefBehavior.class, //
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
+	ceri.common.util.TruthBehavior.class, //
 	// validation
 	ceri.common.validation.DisplayDoubleBehavior.class, //
 	ceri.common.validation.DisplayLongBehavior.class, //

@@ -8,7 +8,7 @@ import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.net.HostPort;
 import ceri.common.net.NetUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Joiner;
 
 public class HostList {
 	public static final HostList LOCALHOST = from(NetUtil.LOCALHOST);
@@ -82,7 +82,7 @@ public class HostList {
 
 	@Override
 	public String toString() {
-		return StringUtil.join(",", hosts);
+		return Joiner.COMMA.join(hosts);
 	}
 
 }

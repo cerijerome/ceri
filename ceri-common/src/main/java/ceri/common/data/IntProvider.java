@@ -2,9 +2,8 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
-import java.util.Collection;
 import java.util.PrimitiveIterator;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
@@ -12,6 +11,7 @@ import ceri.common.collection.Iterators;
 import ceri.common.function.ExceptionIntBinaryConsumer;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
+import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -30,7 +30,12 @@ import ceri.common.validation.ValidationUtil;
  * @see ceri.common.data.IntArray.Immutable
  */
 public interface IntProvider extends Iterable<Integer> {
+	/** String formatting configuration. */
+	Joiner JOINER = Joiner.of("[", ",", "]", 8);
 
+	/**
+	 * Return an unmodifiable empty instance.
+	 */
 	static IntProvider empty() {
 		return IntArray.Immutable.EMPTY;
 	}
@@ -43,10 +48,10 @@ public interface IntProvider extends Iterable<Integer> {
 	}
 
 	/**
-	 * Create an immutable provider for the given values.
+	 * Create an unmodifiable copy of the given values.
 	 */
-	static IntProvider of(Collection<Integer> ints) {
-		return of(ArrayUtil.ints(ints));
+	static IntProvider copyOf(int... ints) {
+		return IntArray.Immutable.copyOf(ints);
 	}
 
 	/**
@@ -566,42 +571,44 @@ public interface IntProvider extends Iterable<Integer> {
 	}
 
 	/**
-	 * Provides a hex string representation.
+	 * Provides a limited string representation.
 	 */
 	static String toHex(IntProvider provider) {
-		return toHex(provider, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Provides a limited hex string representation.
-	 */
-	static String toHex(IntProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toHex(array, 0, array.length));
+		return toHex(JOINER, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
+	static String toHex(Joiner joiner, IntProvider provider) {
+		return toString(joiner, i -> "0x" + Integer.toHexString(i), provider);
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
 	static String toString(IntProvider provider) {
-		return toString(provider, Integer.MAX_VALUE);
+		return toString(JOINER, provider);
+	}
+
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(Joiner joiner, IntProvider provider) {
+		return toString(joiner, i -> i, provider);
 	}
 
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(IntProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toString(array, 0, array.length));
+	static String toString(IntFunction<?> stringFn, IntProvider provider) {
+		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
-	 * Provides a limited string representation.
+	 * Provides a string representation.
 	 */
-	private static String toString(IntProvider provider, int max, Function<int[], String> fn) {
-		int length = provider.length();
-		var array = provider.copy(0, length <= max ? length : max - 1);
-		String s = fn.apply(array);
-		if (length <= max) return s;
-		return s.substring(0, s.length() - 1) + ", ...](" + length + ")";
+	static String toString(Joiner joiner, IntFunction<?> stringFn, IntProvider provider) {
+		return joiner.joinIndex(i -> stringFn.apply(provider.getInt(i)), provider.length());
 	}
-
 }

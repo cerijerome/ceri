@@ -17,7 +17,6 @@ import ceri.common.validation.ValidationUtil;
  * Byte accessor wrapper for memory. Wrapped length must be within int range.
  */
 public class JnaMemory implements ByteAccessor {
-	private static final int MAX_LEN_FOR_STRING = 8;
 	public static final JnaMemory EMPTY = JnaMemory.of(null, 0, 0);
 	private final Pointer p;
 	private final long offset;
@@ -436,7 +435,7 @@ public class JnaMemory implements ByteAccessor {
 	@Override
 	public String toString() {
 		return String.format("%s@%x%s", getClass().getSimpleName(), PointerUtil.peer(p) + offset,
-			ByteProvider.toHex(this, MAX_LEN_FOR_STRING));
+			ByteProvider.toHex(this));
 	}
 
 	/* Support methods */

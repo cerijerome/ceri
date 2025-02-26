@@ -122,14 +122,10 @@ public class ConsoleInputBehavior {
 		assertEquals(con.readLine(), "abc");
 	}
 
-	private void init(ConsoleInput.Config config, List<String> history, Object... inputs) {
-		in = new StringReader(in(inputs));
+	private void init(ConsoleInput.Config config, List<String> history, String... inputs) {
+		in = new StringReader(String.join("", inputs));
 		out = new StringBuilder();
 		ps = StringUtil.asPrintStream(out);
 		con = ConsoleInput.of(in, ps, config, history);
-	}
-
-	private String in(Object... args) {
-		return StringUtil.append(new StringBuilder(), "", args).toString();
 	}
 }

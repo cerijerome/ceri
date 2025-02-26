@@ -7,12 +7,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
+import ceri.common.function.ByteFunction;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
+import ceri.common.text.Joiner;
+import ceri.common.text.StringUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -34,19 +36,33 @@ import ceri.common.validation.ValidationUtil;
  * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteProvider extends Iterable<Integer> {
+	/** String formatting configuration. */
+	Joiner JOINER = Joiner.of("[", ",", "]", 8);
 
+	/**
+	 * Return an unmodifiable empty instance.
+	 */
 	static ByteProvider empty() {
 		return ByteArray.Immutable.EMPTY;
 	}
 
+	/**
+	 * Create an unmodifiable copy of the given values as bytes.
+	 */
 	static ByteProvider of(int... bytes) {
 		return ByteArray.Immutable.wrap(bytes);
 	}
 
+	/**
+	 * Create an unmodifiable wrapper for the given values.
+	 */
 	static ByteProvider of(byte... bytes) {
 		return ByteArray.Immutable.wrap(bytes);
 	}
 
+	/**
+	 * Create an unmodifiable copy of the given values.
+	 */
 	static ByteProvider copyOf(byte... bytes) {
 		return ByteArray.Immutable.copyOf(bytes);
 	}
@@ -682,14 +698,14 @@ public interface ByteProvider extends Iterable<Integer> {
 	default boolean contains(int... array) {
 		return indexOf(0, array) >= 0;
 	}
-	
+
 	/**
 	 * Returns true if bytes contain the given array.
 	 */
 	default boolean contains(byte[] array) {
 		return indexOf(0, array) >= 0;
 	}
-	
+
 	/**
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
@@ -820,42 +836,44 @@ public interface ByteProvider extends Iterable<Integer> {
 	}
 
 	/**
-	 * Provides a hex string representation.
+	 * Provides a limited string representation.
 	 */
 	static String toHex(ByteProvider provider) {
-		return toHex(provider, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Provides a limited hex string representation.
-	 */
-	static String toHex(ByteProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toHex(array, 0, array.length));
+		return toHex(JOINER, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
+	static String toHex(Joiner joiner, ByteProvider provider) {
+		return toString(joiner, b -> "0x" + StringUtil.toHex(b), provider);
+	}
+
+	/**
+	 * Provides a limited string representation.
+	 */
 	static String toString(ByteProvider provider) {
-		return toString(provider, Integer.MAX_VALUE);
+		return toString(JOINER, provider);
+	}
+
+	/**
+	 * Provides a string representation.
+	 */
+	static String toString(Joiner joiner, ByteProvider provider) {
+		return toString(joiner, b -> b, provider);
 	}
 
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(ByteProvider provider, int max) {
-		return toString(provider, max, array -> ArrayUtil.toString(array, 0, array.length));
+	static String toString(ByteFunction<?> stringFn, ByteProvider provider) {
+		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
-	 * Provides a limited string representation.
+	 * Provides a string representation.
 	 */
-	private static String toString(ByteProvider provider, int max, Function<byte[], String> fn) {
-		int length = provider.length();
-		var array = provider.copy(0, length <= max ? length : max - 1);
-		String s = fn.apply(array);
-		if (length > max) s = s.substring(0, s.length() - 1) + ", ...]";
-		return s + "(" + length + ")";
+	static String toString(Joiner joiner, ByteFunction<?> stringFn, ByteProvider provider) {
+		return joiner.joinIndex(i -> stringFn.apply(provider.getByte(i)), provider.length());
 	}
-
 }

@@ -27,7 +27,7 @@ import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionBiPredicate;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Joiner;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -292,10 +292,8 @@ public class ReflectUtil {
 		try {
 			return cls.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
-			StringBuilder b = new StringBuilder();
-			b.append("constructor ").append(cls.getSimpleName()).append('(');
-			StringUtil.append(b, ", ", Class::getSimpleName, argTypes).append(") not found");
-			throw new RuntimeInvocationException(b.toString(), e);
+			throw new RuntimeInvocationException(String.format("constructor %s%s not found",
+				cls.getSimpleName(), Joiner.PARAM.join(Class::getSimpleName, argTypes)), e);
 		}
 	}
 
@@ -492,10 +490,10 @@ public class ReflectUtil {
 	}
 
 	private static String args(Object[] args) {
-		return StringUtil.append(new StringBuilder(), ", ", args).toString();
+		return Joiner.COMMA.join(args);
 	}
 
 	private static String types(Class<?>[] types) {
-		return StringUtil.append(new StringBuilder(), ", ", Class::getSimpleName, types).toString();
+		return Joiner.COMMA.join(Class::getSimpleName, types);
 	}
 }

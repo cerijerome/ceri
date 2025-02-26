@@ -257,7 +257,7 @@ public class CrcAlgorithm {
 	@Override
 	public String toString() {
 		return String.format("CRC-%d[%s,%s,%c,%c,%s]", width, hex(poly), hex(init), bool(refIn),
-			bool(refOut), hex(xorOut)).toString();
+			bool(refOut), hex(xorOut));
 	}
 
 	private char bool(boolean b) {
