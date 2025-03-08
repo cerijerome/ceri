@@ -18,7 +18,12 @@ import ceri.jna.clib.jna.CFcntl;
  */
 public interface FileDescriptor extends Connector {
 	/** A stateless, no-op instance. */
-	FileDescriptor.Fixable NULL = new Null() {};
+	FileDescriptor.Fixable NULL = new Null() {
+		@Override
+		public String toString() {
+			return FileDescriptor.class.getSimpleName() + ".NULL";
+		}
+	};
 	/** Typed flag accessor. */
 	Field.Types<IOException, FileDescriptor, Open> FLAGS = flagField().types(Open.xcoder);
 
