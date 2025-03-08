@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
@@ -98,7 +100,10 @@ public class DateUtilTest {
 	public void testDateTime() {
 		LocalDateTime t0 = LocalDateTime.now();
 		LocalDateTime t1 = DateUtil.dateTime(System.currentTimeMillis());
+		LocalDateTime t2 = DateUtil.dateTimeSec(System.currentTimeMillis());
 		assertTrue(Duration.between(t0, t1).toMillis() < 1000);
+		assertTrue(Duration.between(t2, t1).toMillis() < 1000);
+		assertEquals(t2.getNano(), 0);
 	}
 
 	@Test
@@ -110,9 +115,31 @@ public class DateUtilTest {
 	}
 
 	@Test
+	public void testTruncSec() {
+		long millis = 1666666666666L;
+		var instant = Instant.ofEpochMilli(millis);
+		var zdt = ZonedDateTime.ofInstant(instant, ZoneOffset.UTC);
+		assertEquals(instant.getNano(), 666000000);
+		assertEquals(DateUtil.truncSec(instant).getNano(), 0);
+		assertEquals(zdt.getNano(), 666000000);
+		assertEquals(DateUtil.truncSec(zdt).getNano(), 0);
+	}
+
+	@Test
 	public void testNowSec() {
 		assertEquals(DateUtil.nowSec().get(ChronoField.MILLI_OF_SECOND), 0);
 		assertEquals(DateUtil.nowSec().get(ChronoField.MICRO_OF_SECOND), 0);
+	}
+
+	@Test
+	public void testUtcDateTimeSec() {
+		long millis = 1666666666666L;
+		var t0 = DateUtil.utcDateTime(millis);
+		var t1 = DateUtil.utcDateTimeSec(millis);
+		assertEquals(t0.getSecond(), 46);
+		assertEquals(t1.getSecond(), 46);
+		assertEquals(t0.getNano(), 666000000);
+		assertEquals(t1.getNano(), 0);
 	}
 
 	@Test
@@ -133,14 +160,14 @@ public class DateUtilTest {
 
 	@Test
 	public void testTimeToDuration() {
-		assertEquals(DateUtil.timeToDuration(LocalTime.of(2, 15)), Duration.ofMinutes(135));
-		assertNull(DateUtil.timeToDuration(null));
+		assertEquals(DateUtil.toDuration(LocalTime.of(2, 15)), Duration.ofMinutes(135));
+		assertNull(DateUtil.toDuration(null));
 	}
 
 	@Test
 	public void testDurationToTime() {
-		assertEquals(DateUtil.durationToTime(Duration.ofMinutes(135)), LocalTime.of(2, 15));
-		assertNull(DateUtil.durationToTime(null));
+		assertEquals(DateUtil.toTime(Duration.ofMinutes(135)), LocalTime.of(2, 15));
+		assertNull(DateUtil.toTime(null));
 	}
 
 }

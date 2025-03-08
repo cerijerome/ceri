@@ -2,6 +2,7 @@ package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
+import ceri.common.math.MathUtil;
 
 public class Dimension2d {
 	public static final Dimension2d ZERO = new Dimension2d(0, 0);
@@ -33,7 +34,7 @@ public class Dimension2d {
 	}
 
 	public double aspectRatio() {
-		if (Double.doubleToRawLongBits(w) == Double.doubleToRawLongBits(h)) return 1;
+		if (Double.doubleToLongBits(w) == Double.doubleToLongBits(h)) return 1;
 		if (w == 0) return 0;
 		if (h == 0) return Double.POSITIVE_INFINITY;
 		return w / h;
@@ -47,10 +48,8 @@ public class Dimension2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Dimension2d other)) return false;
-		if (!Objects.equals(w, other.w)) return false;
-		if (!Objects.equals(h, other.h)) return false;
-		return true;
+		return (obj instanceof Dimension2d other) && MathUtil.equals(w, other.w)
+			&& MathUtil.equals(h, other.h);
 	}
 
 	@Override

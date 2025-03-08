@@ -536,6 +536,26 @@ public class MathUtilTest {
 	}
 
 	@Test
+	public void testEqualsDouble() {
+		assertTrue(MathUtil.equals(Double.MIN_VALUE, Double.MIN_VALUE));
+		assertTrue(MathUtil.equals(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY));
+		assertTrue(MathUtil.equals(Double.NaN, Double.NaN));
+		assertFalse(MathUtil.equals(Double.MIN_VALUE, Double.MIN_NORMAL));
+		assertFalse(MathUtil.equals(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+		assertFalse(MathUtil.equals(Double.NaN, Double.POSITIVE_INFINITY));
+	}
+
+	@Test
+	public void testEqualsFloat() {
+		assertTrue(MathUtil.equals(Float.MIN_VALUE, Float.MIN_VALUE));
+		assertTrue(MathUtil.equals(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY));
+		assertTrue(MathUtil.equals(Float.NaN, Float.NaN));
+		assertFalse(MathUtil.equals(Float.MIN_VALUE, Float.MIN_NORMAL));
+		assertFalse(MathUtil.equals(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY));
+		assertFalse(MathUtil.equals(Float.NaN, Float.POSITIVE_INFINITY));
+	}
+
+	@Test
 	public void testApproxEqual() {
 		assertTrue(MathUtil.approxEqual(DMIN, DMIN, DMIN));
 		assertTrue(MathUtil.approxEqual(0.001, 0.0001, 0.1));

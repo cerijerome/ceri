@@ -1,6 +1,7 @@
 package ceri.common.log;
 
 import java.util.Comparator;
+import ceri.common.data.TypeTranscoder;
 
 public enum Level {
 	ALL(6),
@@ -12,6 +13,7 @@ public enum Level {
 	NONE(0);
 
 	public static final Comparator<Level> COMPARATOR = Comparator.comparingInt(l -> l.value);
+	public static final TypeTranscoder<Level> xcoder = TypeTranscoder.of(t -> t.value, Level.class);
 	public final int value;
 
 	private Level(int value) {

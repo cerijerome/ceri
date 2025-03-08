@@ -135,10 +135,31 @@ public class DateUtil {
 	}
 
 	/**
+	 * Truncate to seconds.
+	 */
+	public static Instant truncSec(Instant instant) {
+		return instant.truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	/**
+	 * Truncate to seconds.
+	 */
+	public static LocalDateTime truncSec(LocalDateTime dateTime) {
+		return dateTime.truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	/**
+	 * Truncate to seconds.
+	 */
+	public static ZonedDateTime truncSec(ZonedDateTime dateTime) {
+		return dateTime.truncatedTo(ChronoUnit.SECONDS);
+	}
+
+	/**
 	 * Return the current local time truncated to seconds.
 	 */
 	public static LocalDateTime nowSec() {
-		return LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+		return truncSec(LocalDateTime.now());
 	}
 
 	/**
@@ -149,10 +170,24 @@ public class DateUtil {
 	}
 
 	/**
+	 * Returns a local date-time in UTC truncated to seconds, from epoch milliseconds.
+	 */
+	public static LocalDateTime utcDateTimeSec(long millis) {
+		return dateTimeSec(millis, ZoneOffset.UTC);
+	}
+
+	/**
 	 * Returns a local date-time in given time zone from epoch milliseconds.
 	 */
 	public static LocalDateTime dateTime(long millis, ZoneId zone) {
 		return Instant.ofEpochMilli(millis).atZone(zone).toLocalDateTime();
+	}
+
+	/**
+	 * Returns a local date-time in given time zone truncated to seconds, from epoch milliseconds.
+	 */
+	public static LocalDateTime dateTimeSec(long millis, ZoneId zone) {
+		return truncSec(Instant.ofEpochMilli(millis).atZone(zone).toLocalDateTime());
 	}
 
 	/**
@@ -163,9 +198,17 @@ public class DateUtil {
 	}
 
 	/**
+	 * Returns a local date-time in the system time zone truncated to seconds, from epoch
+	 * milliseconds.
+	 */
+	public static LocalDateTime dateTimeSec(long millis) {
+		return truncSec(dateTime(millis));
+	}
+
+	/**
 	 * Converts a duration into local time starting from 00:00.
 	 */
-	public static LocalTime durationToTime(Duration duration) {
+	public static LocalTime toTime(Duration duration) {
 		if (duration == null) return null;
 		return LocalTime.MIN.plus(duration);
 	}
@@ -173,7 +216,7 @@ public class DateUtil {
 	/**
 	 * Converts a local time from 00:00 to a duration.
 	 */
-	public static Duration timeToDuration(LocalTime time) {
+	public static Duration toDuration(LocalTime time) {
 		if (time == null) return null;
 		return Duration.between(LocalTime.MIN, time);
 	}

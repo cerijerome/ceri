@@ -14,6 +14,14 @@ public class DeviceModeBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfDisabled() {
+		assertEquals(DeviceMode.disabled(null), true);
+		assertEquals(DeviceMode.disabled(DeviceMode.disabled), true);
+		assertEquals(DeviceMode.disabled(DeviceMode.test), false);
+		assertEquals(DeviceMode.disabled(DeviceMode.enabled), false);
+	}
+
+	@Test
 	public void shouldGetFromBoolean() {
 		assertEquals(DeviceMode.from(null), DeviceMode.test);
 		assertEquals(DeviceMode.from(true), DeviceMode.enabled);

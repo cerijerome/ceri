@@ -445,6 +445,20 @@ public class MathUtil {
 	}
 
 	/**
+	 * Determines if float values are equal, or if both are NaN.
+	 */
+	public static boolean equals(float lhs, float rhs) {
+		return Float.floatToIntBits(lhs) ==Float.floatToIntBits(rhs);
+	}
+	
+	/**
+	 * Determines if double values are equal, or if both are NaN.
+	 */
+	public static boolean equals(double lhs, double rhs) {
+		return Double.doubleToLongBits(lhs) ==Double.doubleToLongBits(rhs);
+	}
+	
+	/**
 	 * Determines values are equal within given precision.
 	 */
 	public static boolean approxEqual(double lhs, double rhs, double precision) {

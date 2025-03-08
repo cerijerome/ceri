@@ -22,6 +22,10 @@ public enum DeviceMode {
 		return mode != null && mode.enabled();
 	}
 
+	public static boolean disabled(DeviceMode mode) {
+		return mode == null || mode.disabled();
+	}
+
 	public static DeviceMode from(Boolean isEnabled) {
 		return BasicUtil.conditional(isEnabled, enabled, disabled, test);
 	}
@@ -32,5 +36,9 @@ public enum DeviceMode {
 
 	public boolean enabled() {
 		return this == enabled;
+	}
+
+	public boolean disabled() {
+		return this == disabled;
 	}
 }
