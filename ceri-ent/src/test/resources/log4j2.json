@@ -1,6 +1,6 @@
 {
   "configuration": {
-    "status": "info",
+    "status": "warn",
     "appenders": {
       "console": {
         "name": "Console",
