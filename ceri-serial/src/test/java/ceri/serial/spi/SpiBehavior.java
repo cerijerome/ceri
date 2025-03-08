@@ -1,6 +1,7 @@
 package ceri.serial.spi;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.Direction;
@@ -17,6 +18,7 @@ public class SpiBehavior {
 		assertEquals(Spi.NULL.lsbFirst(), false);
 		assertEquals(Spi.NULL.bitsPerWord(), 0);
 		assertEquals(Spi.NULL.maxSpeedHz(), 0);
+		assertFind(Spi.NULL, ".*NULL$");
 	}
 
 	@Test

@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
+import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -32,9 +33,9 @@ public class I2cDevice implements I2c {
 	 * Keep state to avoid unneeded ioctl calls for SMBus (direct and emulated).
 	 */
 	private static class State {
-		Integer address = null;
-		Boolean tenBit = null;
-		Boolean pec = null;
+		volatile Integer address = null;
+		volatile Boolean tenBit = null;
+		volatile Boolean pec = null;
 
 		public void reset() {
 			address = null;
@@ -124,6 +125,11 @@ public class I2cDevice implements I2c {
 		transfer(msgs);
 	}
 
+	@Override
+	public String toString() {
+		return ToString.forClass(this, fd, state.address);
+	}
+	
 	/* Shared with emulated SMBus */
 
 	/**

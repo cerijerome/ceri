@@ -38,7 +38,7 @@ public class I2cEmulator implements I2c.Null {
 
 	/**
 	 * Static constructor with I2C frequency. The frequency is used to simulate I2C data transfer
-	 * delays.
+	 * delays. Use zero for no delay.
 	 */
 	public static I2cEmulator of(int hz) {
 		return new I2cEmulator(hz);

@@ -217,7 +217,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 		private void validateEndPoint(int endPoint) {
 			if (endPoints.indexOf(0, endPoint) >= 0) return;
-			throw illegalArg("End point not in %s: %d", ByteProvider.toHex(endPoints), endPoint);
+			throw illegalArg("End point not in %s: %d", endPoints, endPoint);
 		}
 	}
 

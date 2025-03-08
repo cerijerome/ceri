@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
@@ -37,6 +38,12 @@ public class I2cDeviceBehavior {
 	public void after() {
 		CloseableUtil.close(fd, ref);
 		fd = null;
+	}
+
+	@Test
+	public void shouldProvideStringRepresentation() throws IOException {
+		initI2c();
+		assertFind(i2c, "%s.*fd=", I2cDevice.class.getSimpleName());
 	}
 
 	@Test

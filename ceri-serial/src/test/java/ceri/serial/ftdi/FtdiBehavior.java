@@ -1,6 +1,7 @@
 package ceri.serial.ftdi;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
 import java.time.Duration;
 import org.junit.Test;
@@ -35,5 +36,6 @@ public class FtdiBehavior {
 		assertEquals(Ftdi.NULL.readSubmit(m, 3).dataDone(), 0);
 		assertEquals(Ftdi.NULL.writeSubmit(m, 3).dataDone(), 0);
 		Ftdi.NULL.readStream((_, _) -> true, 1, 1);
+		assertFind(Ftdi.NULL, ".*NULL$");
 	}
 }

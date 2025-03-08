@@ -20,7 +20,7 @@ public class I2cUtil {
 
 	/**
 	 * Calculates the minimum time to send/receive the address and given number of bytes at the
-	 * given frequency.
+	 * given frequency. A zero frequency represents no delay.
 	 */
 	public static long micros(int hz, I2cAddress address, int bytes) {
 		int addrBytes = address.tenBit() ? 2 : 1;
@@ -29,8 +29,10 @@ public class I2cUtil {
 
 	/**
 	 * Calculates the minimum time to send/receive the given number of bytes at the given frequency.
+	 * A zero frequency represents no delay.
 	 */
 	public static long micros(int hz, int bytes) {
+		if (hz == 0) return 0;
 		long bits = bytes * BITS_PER_FRAME;
 		return (long) Math.ceil(((double) bits * TimeUnit.SECONDS.toMicros(1)) / hz);
 	}

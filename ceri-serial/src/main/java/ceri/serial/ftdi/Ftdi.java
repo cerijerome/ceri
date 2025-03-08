@@ -15,7 +15,12 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
  */
 public interface Ftdi extends Connector {
 	/** A stateless, no-op instance. */
-	Ftdi NULL = new Null() {};
+	Ftdi NULL = new Null() {
+		@Override
+		public String toString() {
+			return Ftdi.class.getSimpleName() + ".NULL";
+		}
+	};
 
 	/**
 	 * Callback to register for streaming events. Returns false to stop streaming.

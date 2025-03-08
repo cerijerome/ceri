@@ -5,7 +5,12 @@ import ceri.common.io.Direction;
 
 public interface Spi {
 	/** A stateless, no-op instance. */
-	Spi NULL = new Null() {};
+	Spi NULL = new Null() {
+		@Override
+		public String toString() {
+			return Spi.class.getSimpleName() + ".NULL";
+		}
+	};
 
 	SpiMode mode() throws IOException;
 

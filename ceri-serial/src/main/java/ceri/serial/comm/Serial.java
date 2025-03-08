@@ -12,7 +12,12 @@ import ceri.common.text.StringUtil;
  */
 public interface Serial extends Connector {
 	/** A stateless, no-op instance. */
-	Serial.Fixable NULL = new Null() {};
+	Serial.Fixable NULL = new Null() {
+		@Override
+		public String toString() {
+			return Serial.class.getSimpleName() + ".NULL";
+		}
+	};
 
 	@Override
 	default java.lang.String name() {

@@ -2,6 +2,7 @@ package ceri.serial.comm;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -27,6 +28,7 @@ public class SerialBehavior {
 		assertFalse(Serial.NULL.cts());
 		assertFalse(Serial.NULL.dsr());
 		assertFalse(Serial.NULL.ri());
+		assertFind(Serial.NULL, ".*NULL$");
 	}
 
 }

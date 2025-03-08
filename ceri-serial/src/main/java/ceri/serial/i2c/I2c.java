@@ -23,7 +23,12 @@ import ceri.serial.i2c.smbus.SmBus;
  */
 public interface I2c {
 	/** A stateless, no-op instance. */
-	I2c NULL = new Null() {};
+	I2c NULL = new Null() {
+		@Override
+		public String toString() {
+			return I2c.class.getSimpleName() + ".NULL";
+		}
+	};
 
 	/**
 	 * Specify the number of times a device address should be polled when not acknowledging.
