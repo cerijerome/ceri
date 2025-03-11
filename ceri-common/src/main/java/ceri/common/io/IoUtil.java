@@ -67,10 +67,16 @@ public class IoUtil {
 	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.of();
 	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = _ -> true;
 	public static final ByteProvider EOL_BYTES = ByteProvider.of(EOL.getBytes());
-	private static final ExceptionObjIntPredicate<RuntimeException, byte[]> EOL_PREDICATE =
-		(b, n) -> EOL_BYTES.isEqualTo(0, b, n - EOL_BYTES.length(), EOL_BYTES.length());
 
 	private IoUtil() {}
+
+	/**
+	 * System line separator as encoded bytes.
+	 */
+	public static ByteProvider eolBytes(Charset charset) {
+		if (charset == null || Charset.defaultCharset().equals(charset)) return EOL_BYTES;
+		return ByteProvider.of(EOL.getBytes(charset));
+	}
 
 	/**
 	 * Creates an exception with formatted message.
@@ -413,7 +419,9 @@ public class IoUtil {
 	 */
 	public static String availableLine(InputStream in, Charset charset) throws IOException {
 		if (in == null) return null;
-		return availableBytes(in, EOL_PREDICATE).getString(0, charset);
+		var eol = eolBytes(charset);
+		return availableBytes(in, (b, n) -> eol.isEqualTo(0, b, n - eol.length(), eol.length()))
+			.getString(0, charset);
 	}
 
 	/**

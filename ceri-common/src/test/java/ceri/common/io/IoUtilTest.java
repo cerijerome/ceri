@@ -1,6 +1,9 @@
 package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.bytes;
+import static ceri.common.io.IoUtil.EOL_BYTES;
+import static ceri.common.io.IoUtil.IO_ADAPTER;
+import static ceri.common.io.IoUtil.RUNTIME_IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -18,12 +21,14 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.text.StringUtil.EOL;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,6 +68,13 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testEolBytes() {
+		assertEquals(IoUtil.eolBytes(null), EOL_BYTES);
+		assertEquals(IoUtil.eolBytes(Charset.defaultCharset()), EOL_BYTES);
+		assertArray(IoUtil.eolBytes(US_ASCII), EOL.getBytes(US_ASCII));
+	}
+
+	@Test
 	public void testIoExceptionf() {
 		assertEquals(IoUtil.ioExceptionf("%s", "test").getMessage(), "test");
 		assertEquals(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), "test");
@@ -70,42 +82,40 @@ public class IoUtilTest {
 
 	@Test
 	public void testExecIo() throws IOException {
-		IoUtil.IO_ADAPTER.run(() -> {});
-		assertThrown(RuntimeException.class,
-			() -> IoUtil.IO_ADAPTER.run(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
+		IO_ADAPTER.run(() -> {});
+		assertThrown(RuntimeException.class, () -> IO_ADAPTER.run(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IO_ADAPTER.run(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.run(() -> {
+		assertThrown(IOException.class, () -> IO_ADAPTER.run(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void testCallableIo() throws IOException {
-		IoUtil.IO_ADAPTER.get(() -> "a");
-		assertThrown(RuntimeException.class,
-			() -> IoUtil.IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
+		IO_ADAPTER.get(() -> "a");
+		assertThrown(RuntimeException.class, () -> IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertThrown(IOException.class, () -> IO_ADAPTER.get(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IoUtil.IO_ADAPTER.get(() -> {
+		assertThrown(IOException.class, () -> IO_ADAPTER.get(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void testRuntimeIo() {
-		IoUtil.RUNTIME_IO_ADAPTER.get(() -> "a");
+		RUNTIME_IO_ADAPTER.get(() -> "a");
 		assertThrown(RuntimeException.class,
-			() -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+			() -> RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
 			throw new Exception();
 		}));
-		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeIoException.class, () -> IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
 			throw new RuntimeIoException("");
 		}));
 	}
