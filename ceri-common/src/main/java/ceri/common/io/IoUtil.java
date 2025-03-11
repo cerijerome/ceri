@@ -1,6 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
+import static ceri.common.text.StringUtil.EOL;
 import static ceri.common.util.BasicUtil.defaultValue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.BufferedReader;
@@ -36,6 +37,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionObjIntPredicate;
 import ceri.common.function.ExceptionPredicate;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
@@ -64,6 +66,9 @@ public class IoUtil {
 		ExceptionAdapter.of(RuntimeIoException.class, RuntimeIoException::new);
 	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.of();
 	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = _ -> true;
+	public static final ByteProvider EOL_BYTES = ByteProvider.of(EOL.getBytes());
+	private static final ExceptionObjIntPredicate<RuntimeException, byte[]> EOL_PREDICATE =
+		(b, n) -> EOL_BYTES.isEqualTo(0, b, n - EOL_BYTES.length(), EOL_BYTES.length());
 
 	private IoUtil() {}
 
@@ -392,6 +397,43 @@ public class IoUtil {
 		count = in.read(buffer);
 		if (count <= 0) return ByteProvider.empty();
 		return ByteArray.Immutable.wrap(buffer, 0, count);
+	}
+
+	/**
+	 * Reads available single bytes without blocking, stopping if a line separator is found. The
+	 * returned string contains the line separator if found.
+	 */
+	public static String availableLine(InputStream in) throws IOException {
+		return availableLine(in, Charset.defaultCharset());
+	}
+
+	/**
+	 * Reads available single bytes without blocking, stopping if a line separator is found. The
+	 * returned string contains the line separator if found.
+	 */
+	public static String availableLine(InputStream in, Charset charset) throws IOException {
+		if (in == null) return null;
+		return availableBytes(in, EOL_PREDICATE).getString(0, charset);
+	}
+
+	/**
+	 * Reads available single bytes without blocking, stopping if the predicate tests true. The
+	 * predicate receives the byte array buffer and the number of bytes filled.
+	 */
+	public static <E extends Exception> ByteProvider availableBytes(InputStream in,
+		ExceptionObjIntPredicate<E, byte[]> predicate) throws E, IOException {
+		if (in == null) return null;
+		int count = in.available();
+		if (count == 0) return ByteProvider.empty();
+		var buffer = new byte[count];
+		int i = 0;
+		while (i < count) {
+			var b = in.read();
+			if (b < 0) break;
+			buffer[i++] = (byte) b;
+			if (predicate != null && predicate.test(buffer, i)) break;
+		}
+		return ByteArray.Immutable.wrap(buffer, 0, i);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseSwitch;
+import static ceri.common.text.StringUtil.EOL;
 import static ceri.common.text.StringUtil.repeat;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
@@ -520,8 +521,7 @@ public class StringUtilTest {
 			p.write(0);
 			p.println("\b\t\f\'\"");
 			p.close();
-			assertEquals(b.toString(),
-				"Testing1" + System.lineSeparator() + "\0\b\t\f\'\"" + System.lineSeparator());
+			assertEquals(b.toString(), "Testing1" + EOL + "\0\b\t\f\'\"" + EOL);
 		}
 	}
 

@@ -45,6 +45,7 @@ public class StringUtil {
 	public static final char ESC = '\u001b';
 	public static final char DEL = '\u007f';
 	public static final String NULL_STRING = "null";
+	public static final String EOL = System.lineSeparator();
 	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
 	private static final String ESCAPED_BS = "\\b";

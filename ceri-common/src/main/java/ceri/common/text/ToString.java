@@ -1,5 +1,6 @@
 package ceri.common.text;
 
+import static ceri.common.text.StringUtil.EOL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -180,10 +181,10 @@ public class ToString {
 		if (!values.isEmpty()) appendValues(b, values);
 		if (!fields.isEmpty()) appendFields(b, fields);
 		if (children.isEmpty()) return b.toString();
-		b.append(" {").append(System.lineSeparator());
+		b.append(" {").append(EOL);
 		for (Object child : children) {
 			String childStr = StringUtil.prefixLines(childIndent, childStringValue(child));
-			b.append(childStr).append(System.lineSeparator());
+			b.append(childStr).append(EOL);
 		}
 		return b.append('}').toString();
 	}

@@ -1,5 +1,6 @@
 package ceri.process.scutil;
 
+import static ceri.common.text.StringUtil.EOL;
 import java.util.Objects;
 import ceri.common.collection.Node;
 import ceri.common.text.StringUtil;
@@ -41,7 +42,7 @@ public class NcShow {
 
 	@Override
 	public String toString() {
-		return item + System.lineSeparator() + data;
+		return item + EOL + data;
 	}
 
 }

@@ -2,6 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.text.StringUtil.EOL;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -104,7 +105,7 @@ public class ToStringBehavior {
 	}
 
 	private static String lines(String... lines) {
-		return String.join(System.lineSeparator(), lines);
+		return String.join(EOL, lines);
 	}
 
 }

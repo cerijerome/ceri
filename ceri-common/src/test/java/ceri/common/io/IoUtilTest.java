@@ -1,5 +1,6 @@
 package ceri.common.io;
 
+import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -16,15 +17,13 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
+import static ceri.common.text.StringUtil.EOL;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.StringReader;
-import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,9 +31,9 @@ import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.ExceptionObjIntPredicate;
 import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;
@@ -124,14 +123,14 @@ public class IoUtilTest {
 	}
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
-		InputStream in = new ByteArrayInputStream(buffer);
+		var in = new ByteArrayInputStream(buffer);
 		assertEquals(IoUtil.clear(in), (long) buffer.length);
 		assertEquals(in.available(), 0);
 	}
 
 	@Test
 	public void testNullPrintStream() throws IOException {
-		try (PrintStream out = IoUtil.nullPrintStream()) {
+		try (var out = IoUtil.nullPrintStream()) {
 			out.write(-1);
 			out.write(new byte[1000]);
 			out.write(new byte[1000], 1, 999);
@@ -163,7 +162,7 @@ public class IoUtilTest {
 	@Test
 	public void testEnvironmentPath() {
 		assertNull(IoUtil.environmentPath("?"));
-		String name = firstEnvironmentVariableName();
+		var name = firstEnvironmentVariableName();
 		assertPath(IoUtil.environmentPath(name), SystemVars.env(name));
 	}
 
@@ -187,7 +186,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testExtend() throws IOException {
-		try (ResourcePath rp = ResourcePath.of(String.class)) {
+		try (var rp = ResourcePath.of(String.class)) {
 			assertNull(IoUtil.extend(null, "test"));
 			assertPath(IoUtil.extend(rp.path()), rp.path().toString());
 			assertPath(IoUtil.extend(rp.path(), "ref", "Finalizer.class"),
@@ -200,7 +199,7 @@ public class IoUtilTest {
 	public void testRoot() {
 		assertNull(IoUtil.root(null));
 		assertPath(IoUtil.root(FileSystems.getDefault()), "/");
-		TestFileSystem fs = TestFileSystem.of();
+		var fs = TestFileSystem.of();
 		assertNull(IoUtil.root(fs));
 	}
 
@@ -303,7 +302,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testCreateTempDir() throws IOException {
-		Path tempDir = IoUtil.createTempDir(helper.root);
+		var tempDir = IoUtil.createTempDir(helper.root);
 		assertTrue(Files.exists(tempDir));
 		assertTrue(Files.isDirectory(tempDir));
 		Files.delete(tempDir);
@@ -317,8 +316,8 @@ public class IoUtilTest {
 
 	@Test
 	public void testDeleteAll() throws IOException {
-		try (FileTestHelper deleteHelper = FileTestHelper.builder(helper.root).file("x/x/x.txt", "")
-			.dir("y/y").file("z.txt", "").build()) {
+		try (var deleteHelper = FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y")
+			.file("z.txt", "").build()) {
 			assertFalse(IoUtil.deleteAll(null));
 			assertFalse(IoUtil.deleteAll(Path.of("XXX/XXX/XXX/XXX")));
 			assertThrown(() -> IoUtil.deleteAll(Path.of("/XXX/XXX/XXX")));
@@ -355,15 +354,15 @@ public class IoUtilTest {
 
 	@Test
 	public void testPollString() throws IOException {
-		try (InputStream in = TestUtil.inputStream("test")) {
-			String s = IoUtil.pollString(in);
+		try (var in = TestUtil.inputStream("test")) {
+			var s = IoUtil.pollString(in);
 			assertEquals(s, "test");
 		}
 	}
 
 	@Test
 	public void testAvailableChar() throws IOException {
-		try (SystemIo sys = SystemIo.of()) {
+		try (var sys = SystemIo.of()) {
 			sys.in(TestUtil.inputStream("test"));
 			assertEquals(IoUtil.availableChar(), 't');
 			assertEquals(IoUtil.availableChar(), 'e');
@@ -372,7 +371,7 @@ public class IoUtilTest {
 			sys.in().close();
 			assertEquals(IoUtil.availableChar(), '\0');
 		}
-		try (TestInputStream in = TestInputStream.of()) {
+		try (var in = TestInputStream.of()) {
 			in.available.error.setFrom(IOX);
 			assertEquals(IoUtil.availableChar(in), '\0');
 		}
@@ -381,28 +380,58 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableString() throws IOException {
 		assertNull(IoUtil.availableString(null));
-		try (InputStream in = new ByteArrayInputStream("test".getBytes())) {
+		try (var in = new ByteArrayInputStream("test".getBytes())) {
 			assertEquals(IoUtil.availableString(in), "test");
 			assertEquals(IoUtil.availableString(in), "");
 		}
 	}
 
 	@Test
+	public void testAvailableLine() throws IOException {
+		assertNull(IoUtil.availableLine(null));
+		var s = "te" + EOL + EOL + "s" + EOL + "t";
+		try (var in = new ByteArrayInputStream(s.getBytes())) {
+			assertEquals(IoUtil.availableLine(in), "te" + EOL);
+			assertEquals(IoUtil.availableLine(in), EOL);
+			assertEquals(IoUtil.availableLine(in), "s" + EOL);
+			assertEquals(IoUtil.availableLine(in), "t");
+		}
+	}
+
+	@Test
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
-		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(bytes(0, 1, 2, 3, 4))) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
-		try (InputStream in = IoStreamUtil.in((_, _, _) -> 0, () -> 3)) {
+		try (var in = IoStreamUtil.in((_, _, _) -> 0, () -> 3)) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
+		}
+	}
+
+	@Test
+	public void testAvailableBytesWithPredicate() throws IOException {
+		assertNull(IoUtil.availableBytes(null, null));
+		ExceptionObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
+		try (var in = new ByteArrayInputStream(bytes(0, 1, -1, -1, 2, 3))) {
+			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
+			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(-1));
+			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(2, 3));
+			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.empty());
+		}
+		try (var in = IoStreamUtil.in((_, _, _) -> 0, () -> 3)) {
+			assertEquals(IoUtil.availableBytes(in, null), ByteProvider.of(0, 0, 0));
+		}
+		try (var in = IoStreamUtil.in((_, _, _) -> -1, () -> 3)) {
+			assertEquals(IoUtil.availableBytes(in, null), ByteProvider.empty());
 		}
 	}
 
 	@Test
 	public void testReadBytes() throws IOException {
 		assertEquals(IoUtil.readBytes(null, null), 0);
-		try (InputStream in = new ByteArrayInputStream(ArrayUtil.bytes(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(bytes(0, 1, 2, 3, 4))) {
 			assertEquals(IoUtil.readBytes(in, null), 0);
 			byte[] buffer = new byte[4];
 			IoUtil.readBytes(in, buffer);
@@ -476,7 +505,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testUnixToPath() {
-		String path = "a" + File.separatorChar + "b" + File.separatorChar + "c";
+		var path = "a" + File.separatorChar + "b" + File.separatorChar + "c";
 		assertEquals(IoUtil.unixToPath("a/b/c"), path);
 	}
 
@@ -571,21 +600,21 @@ public class IoUtilTest {
 
 	@Test
 	public void testReadString() throws IOException {
-		InputStream in = inputStream("abc\0");
+		var in = inputStream("abc\0");
 		assertEquals(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() {
-		InputStream in = inputStream("line0\n\nline2\nend");
+		var in = inputStream("line0\n\nline2\nend");
 		assertStream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}
 
 	@Test
 	public void testCopyFile() throws IOException {
 		try {
-			Path fromFile = helper.path("a/a/a.txt");
-			Path toFile = helper.path("x/x/x.txt");
+			var fromFile = helper.path("a/a/a.txt");
+			var toFile = helper.path("x/x/x.txt");
 			IoUtil.copyFile(fromFile, toFile);
 			assertFile(fromFile, toFile);
 		} finally {
@@ -596,8 +625,8 @@ public class IoUtilTest {
 	@Test
 	public void testCopyBadFile() throws IOException {
 		try {
-			TestPath badFile = TestPath.of();
-			Path toFile2 = helper.path("x/y/z.txt");
+			var badFile = TestPath.of();
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copyFile(badFile, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
@@ -608,9 +637,9 @@ public class IoUtilTest {
 	@Test
 	public void testCopy() throws IOException {
 		try {
-			Path fromFile = helper.path("a/a/a.txt");
-			Path toFile = helper.path("x/x/x.txt");
-			try (InputStream in = Files.newInputStream(fromFile)) {
+			var fromFile = helper.path("a/a/a.txt");
+			var toFile = helper.path("x/x/x.txt");
+			try (var in = Files.newInputStream(fromFile)) {
 				long n = IoUtil.copy(in, toFile);
 				assertEquals(n, 3L);
 				assertFile(fromFile, toFile);
@@ -624,8 +653,8 @@ public class IoUtilTest {
 	public void testCopyWithBadInput() throws IOException {
 		try {
 			@SuppressWarnings("resource")
-			InputStream badIn = IoStreamUtil.in(AssertUtil::throwIo);
-			Path toFile2 = helper.path("x/y/z.txt");
+			var badIn = IoStreamUtil.in(AssertUtil::throwIo);
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
@@ -636,12 +665,12 @@ public class IoUtilTest {
 	@Test
 	public void testWrite() throws IOException {
 		try {
-			ByteProvider ba = ByteProvider.of('a', 'b', 'c');
-			Path toFile = helper.path("x/x/x.txt");
+			var ba = ByteProvider.of('a', 'b', 'c');
+			var toFile = helper.path("x/x/x.txt");
 			IoUtil.write(toFile, ba);
 			assertFile(toFile, 'a', 'b', 'c');
-			ByteProvider badArray = badProvider(3);
-			Path toFile2 = helper.path("x/y/z.txt");
+			var badArray = badProvider(3);
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> IoUtil.write(toFile2, badArray));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
@@ -671,7 +700,7 @@ public class IoUtilTest {
 	@Test
 	public void testClassUrl() {
 		assertNull(IoUtil.classUrl(null));
-		URL url = IoUtil.classUrl(String.class);
+		var url = IoUtil.classUrl(String.class);
 		assertTrue(url.getPath().endsWith("/java/lang/String.class"));
 		url = IoUtil.classUrl(Test.class);
 		assertTrue(url.getPath().endsWith("/org/junit/Test.class"));
@@ -691,7 +720,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testResourceString() throws IOException {
-		String s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
+		var s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
 		assertEquals(s, "a=b");
 	}
 

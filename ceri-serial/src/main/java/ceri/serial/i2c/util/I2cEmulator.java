@@ -139,5 +139,4 @@ public class I2cEmulator implements I2c.Null {
 		long micros = I2cUtil.micros(hz, address, bytes);
 		ConcurrentUtil.delayMicros(micros);
 	}
-
 }
