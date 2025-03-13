@@ -39,10 +39,9 @@ public abstract class CallSync<T, R> {
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
 	private final List<T> values = new ArrayList<>();
 	private final T originalValueDef;
-	private final java.util.function.Supplier //
-	<java.util.function.Function<T, R>> originalAutoResponseSupplier;
+	private final java.util.function.Supplier<ExceptionFunction<?, T, R>> origAutoResponseSupplier;
 	private T valueDef;
-	private java.util.function.Function<T, R> autoResponseFn = null; // can be stateful
+	private ExceptionFunction<?, T, R> autoResponseFn = null; // can be stateful
 	private int calls = 0;
 	private boolean saveValues = SAVE_VALUES_DEF;
 
@@ -172,7 +171,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Sets the auto response function. Use null to disable.
 		 */
-		public Function<T, R> autoResponse(java.util.function.Function<T, R> autoResponseFn) {
+		public Function<T, R> autoResponse(ExceptionFunction<?, T, R> autoResponseFn) {
 			super.autoResponseFn(autoResponseFn);
 			return this;
 		}
@@ -180,7 +179,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Enables auto response with value consumer and fixed response.
 		 */
-		public Function<T, R> autoResponse(java.util.function.Consumer<T> consumer, R response) {
+		public Function<T, R> autoResponse(ExceptionConsumer<?, T> consumer, R response) {
 			return autoResponse(toAutoResponseFn(consumer, response));
 		}
 
@@ -356,7 +355,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Enables auto response with value consumer when called.
 		 */
-		public Consumer<T> autoResponse(java.util.function.Consumer<T> consumer) {
+		public Consumer<T> autoResponse(ExceptionConsumer<?, T> consumer) {
 			super.autoResponseFn(toAutoResponseFn(consumer, null));
 			return this;
 		}
@@ -638,10 +637,10 @@ public abstract class CallSync<T, R> {
 	}
 
 	protected CallSync(T valueDef,
-		java.util.function.Supplier<java.util.function.Function<T, R>> autoResponseSupplier) {
+		java.util.function.Supplier<ExceptionFunction<?, T, R>> autoResponseSupplier) {
 		originalValueDef = valueDef;
 		this.valueDef = valueDef;
-		originalAutoResponseSupplier = autoResponseSupplier;
+		origAutoResponseSupplier = autoResponseSupplier;
 		this.autoResponseFn = autoResponseSupplier.get();
 	}
 
@@ -653,7 +652,7 @@ public abstract class CallSync<T, R> {
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
-			autoResponseFn = originalAutoResponseSupplier.get();
+			autoResponseFn = origAutoResponseSupplier.get();
 			saveValues = SAVE_VALUES_DEF;
 			clearCalls();
 		});
@@ -808,7 +807,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
-	private void autoResponseFn(java.util.function.Function<T, R> autoResponseFn) {
+	private void autoResponseFn(ExceptionFunction<?, T, R> autoResponseFn) {
 		lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
@@ -819,10 +818,14 @@ public abstract class CallSync<T, R> {
 		lock.lock();
 		try {
 			calls++;
-			R response = sync(value);
+			R response = adapter.get(() -> sync(value));
 			error.call(adapter);
 			setValue(value);
 			return response;
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw adapter.apply(e);
 		} finally {
 			lock.unlock();
 		}
@@ -836,7 +839,7 @@ public abstract class CallSync<T, R> {
 		lock.lock();
 		try {
 			calls++;
-			R response = sync(value);
+			R response = adapter.get(() -> sync(value));
 			error.callWithInterrupt(adapter);
 			setValue(value);
 			return response;
@@ -887,34 +890,34 @@ public abstract class CallSync<T, R> {
 		return getInterruptible(callSync::await).value();
 	}
 
-	private R sync(T t) {
+	private R sync(T t) throws Exception {
 		callSync.signal(Holder.of(t));
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
 		return getInterruptible(responseSync::await).value();
 	}
 
-	private static <T, R> java.util.function.Function<T, R>
-		toAutoResponseFn(java.util.function.Consumer<T> consumer, R response) {
+	private static <T, R> ExceptionFunction<?, T, R>
+		toAutoResponseFn(ExceptionConsumer<?, T> consumer, R response) {
 		return t -> {
 			if (consumer != null) consumer.accept(t);
 			return response;
 		};
 	}
 
-	private static <T, R> java.util.function.Function<T, R>
-		toAutoResponseFn(java.lang.Runnable runnable, R response) {
+	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(java.lang.Runnable runnable,
+		R response) {
 		return _ -> {
 			if (runnable != null) runnable.run();
 			return response;
 		};
 	}
 
-	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(boolean enabled) {
+	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(boolean enabled) {
 		return enabled ? _ -> null : null;
 	}
 
-	private static <T, R> java.util.function.Function<T, R> toAutoResponseFn(R[] responses) {
+	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(R[] responses) {
 		if (responses.length == 0) return null;
 		var supplier = sequentialSupplier(responses);
 		return _ -> supplier.get();

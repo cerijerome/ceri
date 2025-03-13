@@ -115,6 +115,19 @@ public abstract class ByteArray implements ByteProvider {
 			return wrap(new byte[length]);
 		}
 
+		public static Mutable copyOf(byte[] array) {
+			return copyOf(array, 0);
+		}
+
+		public static Mutable copyOf(byte[] array, int offset) {
+			return copyOf(array, offset, array.length - offset);
+		}
+
+		public static Mutable copyOf(byte[] array, int offset, int length) {
+			byte[] newArray = Arrays.copyOfRange(array, offset, offset + length);
+			return wrap(newArray);
+		}
+
 		public static Mutable wrap(int... array) {
 			return wrap(ArrayUtil.bytes(array));
 		}

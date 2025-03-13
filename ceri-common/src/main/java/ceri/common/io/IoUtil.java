@@ -406,16 +406,16 @@ public class IoUtil {
 	}
 
 	/**
-	 * Reads available single bytes without blocking, stopping if a line separator is found. The
-	 * returned string contains the line separator if found.
+	 * Reads single bytes without blocking, stopping if no bytes are available, or a line separator
+	 * is found. The returned string contains the line separator if found.
 	 */
 	public static String availableLine(InputStream in) throws IOException {
 		return availableLine(in, Charset.defaultCharset());
 	}
 
 	/**
-	 * Reads available single bytes without blocking, stopping if a line separator is found. The
-	 * returned string contains the line separator if found.
+	 * Reads single bytes without blocking, stopping if no bytes are available, or a line separator
+	 * is found. The returned string contains the line separator if found.
 	 */
 	public static String availableLine(InputStream in, Charset charset) throws IOException {
 		if (in == null) return null;
@@ -425,8 +425,8 @@ public class IoUtil {
 	}
 
 	/**
-	 * Reads available single bytes without blocking, stopping if the predicate tests true. The
-	 * predicate receives the byte array buffer and the number of bytes filled.
+	 * Reads single bytes without blocking, stopping if no bytes are available, or the predicate
+	 * tests true. The predicate receives the byte array buffer and the number of bytes filled.
 	 */
 	public static <E extends Exception> ByteProvider availableBytes(InputStream in,
 		ExceptionObjIntPredicate<E, byte[]> predicate) throws E, IOException {

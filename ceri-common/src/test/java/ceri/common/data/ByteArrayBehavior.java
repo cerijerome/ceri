@@ -96,6 +96,16 @@ public class ByteArrayBehavior {
 	}
 
 	@Test
+	public void shouldCreateMutableCopy() {
+		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
+		var m = Mutable.copyOf(bytes);
+		bytes[1] = 0;
+		assertByte(m.getByte(1), 2);
+		m.setByte(0, 3);
+		assertByte(bytes[0], 1);
+	}
+
+	@Test
 	public void shouldProvideAnImmutableView() {
 		byte[] bytes = ArrayUtil.bytes(1, 2, 3);
 		Mutable m = Mutable.wrap(bytes);
