@@ -2,6 +2,8 @@ package ceri.common.test;
 
 import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -48,8 +50,8 @@ public class ErrorGenBehavior {
 		assertEquals(thrown(err::call), rtx);
 		assertEquals(thrown(err::call), rix);
 		assertThrown(RuntimeInterruptedException.class, err::call);
-		assertThrown(RuntimeException.class, err::call);
-		assertThrown(RuntimeException.class, err::call);
+		assertRte(err::call);
+		assertRte(err::call);
 	}
 
 	@Test
@@ -61,7 +63,7 @@ public class ErrorGenBehavior {
 		assertEquals(thrown(() -> err.call(IO_ADAPTER)), rix);
 		assertThrown(RuntimeInterruptedException.class, () -> err.call(IO_ADAPTER));
 		assertEquals(thrown(() -> err.call(IO_ADAPTER)), iox);
-		assertThrown(IOException.class, () -> err.call(IO_ADAPTER));
+		assertIoe(() -> err.call(IO_ADAPTER));
 	}
 
 	@Test
@@ -72,8 +74,8 @@ public class ErrorGenBehavior {
 		assertEquals(thrown(err::callWithInterrupt), rtx);
 		assertEquals(thrown(err::callWithInterrupt), rix);
 		assertThrown(InterruptedException.class, err::callWithInterrupt);
-		assertThrown(RuntimeException.class, err::callWithInterrupt);
-		assertThrown(RuntimeException.class, err::callWithInterrupt);
+		assertRte(err::callWithInterrupt);
+		assertRte(err::callWithInterrupt);
 	}
 
 	@Test
@@ -86,14 +88,14 @@ public class ErrorGenBehavior {
 		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), rix);
 		assertThrown(InterruptedException.class, () -> err.callWithInterrupt(IO_ADAPTER));
 		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), iox);
-		assertThrown(IOException.class, () -> err.callWithInterrupt(IO_ADAPTER));
+		assertIoe(() -> err.callWithInterrupt(IO_ADAPTER));
 	}
 
 	@Test
 	public void shouldSetExceptionFunctionFromMessage() {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
-		assertThrown(IOException.class, () -> err.callWithInterrupt(IO_ADAPTER));
+		assertIoe(() -> err.callWithInterrupt(IO_ADAPTER));
 		Throwable t = thrown(() -> err.callWithInterrupt(IO_ADAPTER));
 		assertThrowable(t.getCause(), SQLException.class);
 	}

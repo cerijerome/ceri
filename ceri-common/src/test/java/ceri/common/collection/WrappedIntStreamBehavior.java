@@ -8,8 +8,9 @@ import static ceri.common.function.FunctionTestUtil.intFunction;
 import static ceri.common.function.FunctionTestUtil.intPredicate;
 import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,12 +66,10 @@ public class WrappedIntStreamBehavior {
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
-		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(intConsumer()));
-		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).forEach(intConsumer()));
-		assertThrown(IOException.class,
-			() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(_ -> {}));
-		assertThrown(RuntimeException.class,
-			() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(_ -> {}));
+		assertIoe(() -> wrap(2, 1, 0).forEach(intConsumer()));
+		assertRte(() -> wrap(3, 2, 0).forEach(intConsumer()));
+		assertIoe(() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(_ -> {}));
+		assertRte(() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(_ -> {}));
 	}
 
 	@SuppressWarnings("resource")
@@ -79,13 +78,11 @@ public class WrappedIntStreamBehavior {
 		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
 		try (WrappedIntStream<IOException> stream =
 			wrap(4, 3, 1).map(FunctionTestUtil.intUnaryOperator())) {
-			assertThrown(IOException.class,
-				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+			assertIoe(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
 		try (WrappedIntStream<IOException> stream =
 			wrap(4, 3, 0).map(FunctionTestUtil.intUnaryOperator())) {
-			assertThrown(RuntimeException.class,
-				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+			assertRte(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
 	}
 

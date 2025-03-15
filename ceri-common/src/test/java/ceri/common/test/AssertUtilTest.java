@@ -26,6 +26,7 @@ import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertInterrupted;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
@@ -477,7 +478,7 @@ public class AssertUtilTest {
 		assertThrown(() -> AssertUtil.throwRuntime());
 		assertThrown(() -> AssertUtil.throwIo());
 		assertThrown(() -> AssertUtil.throwInterrupted());
-		assertThrown(IOException.class, () -> AssertUtil.throwIt(new IOException("test")));
+		assertIoe(() -> AssertUtil.throwIt(new IOException("test")));
 	}
 
 	@Test

@@ -82,11 +82,11 @@ public class DsvParser {
 	public Parser.String parse(String headerValue) {
 		return parseField(field(headerValue));
 	}
-	
+
 	private Parser.String parseField(String value) {
 		var trimmed = trim(value);
 		if (StringUtil.empty(trimmed)) trimmed = null;
 		return Parser.string(trimmed);
 	}
-	
+
 }

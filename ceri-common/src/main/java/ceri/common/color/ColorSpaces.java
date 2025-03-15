@@ -205,12 +205,12 @@ public class ColorSpaces {
 		double q = hsb[2] * (1.0 - hsb[1] * f);
 		double t = hsb[2] * (1.0 - hsb[1] * (1.0 - f));
 		return switch ((int) h) {
-		case 0 -> new double[] { hsb[2], t, p };
-		case 1 -> new double[] { q, hsb[2], p };
-		case 2 -> new double[] { p, hsb[2], t };
-		case 3 -> new double[] { p, q, hsb[2] };
-		case 4 -> new double[] { t, p, hsb[2] };
-		default -> new double[] { hsb[2], p, q };
+			case 0 -> new double[] { hsb[2], t, p };
+			case 1 -> new double[] { q, hsb[2], p };
+			case 2 -> new double[] { p, hsb[2], t };
+			case 3 -> new double[] { p, q, hsb[2] };
+			case 4 -> new double[] { t, p, hsb[2] };
+			default -> new double[] { hsb[2], p, q };
 		};
 	}
 
@@ -218,8 +218,8 @@ public class ColorSpaces {
 	 * Convert sRGB 0-1 values to int value, limiting component values to 0-255.
 	 */
 	public static int rgb(double... srgb) {
-		return Component.a.intMask | Component.r.intValue(srgb[0]) | Component.g.intValue(srgb[1]) |
-			Component.b.intValue(srgb[2]);
+		return Component.a.intMask | Component.r.intValue(srgb[0]) | Component.g.intValue(srgb[1])
+			| Component.b.intValue(srgb[2]);
 	}
 
 	/**

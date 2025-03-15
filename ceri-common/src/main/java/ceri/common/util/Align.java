@@ -38,27 +38,27 @@ public interface Align {
 		@Override
 		public int offsetFloor(int actual, int length) {
 			return switch (this) {
-			case left -> 0;
-			case right -> length - actual;
-			default -> (length - actual) >> 1; // allows for -ve
+				case left -> 0;
+				case right -> length - actual;
+				default -> (length - actual) >> 1; // allows for -ve
 			};
 		}
 
 		@Override
 		public H reverse() {
 			return switch (this) {
-			case left -> right;
-			case right -> left;
-			default -> this;
+				case left -> right;
+				case right -> left;
+				default -> this;
 			};
 		}
 
 		@Override
 		public V invert() {
 			return switch (this) {
-			case left -> V.top;
-			case right -> V.bottom;
-			default -> V.middle;
+				case left -> V.top;
+				case right -> V.bottom;
+				default -> V.middle;
 			};
 		}
 	}
@@ -76,27 +76,27 @@ public interface Align {
 		@Override
 		public int offsetFloor(int actual, int length) {
 			return switch (this) {
-			case top -> 0;
-			case bottom -> length - actual;
-			default -> (length - actual) >> 1; // allows for -ve
+				case top -> 0;
+				case bottom -> length - actual;
+				default -> (length - actual) >> 1; // allows for -ve
 			};
 		}
 
 		@Override
 		public V reverse() {
 			return switch (this) {
-			case top -> bottom;
-			case bottom -> top;
-			default -> this;
+				case top -> bottom;
+				case bottom -> top;
+				default -> this;
 			};
 		}
 
 		@Override
 		public H invert() {
 			return switch (this) {
-			case top -> H.left;
-			case bottom -> H.right;
-			default -> H.center;
+				case top -> H.left;
+				case bottom -> H.right;
+				default -> H.center;
 			};
 		}
 	}

@@ -157,7 +157,7 @@ public class TypedProperties {
 	public boolean hasKey(String... keyParts) {
 		return properties.hasKey(key(keyParts));
 	}
-	
+
 	/**
 	 * Returns all the integer ids that are children of the given key.
 	 */

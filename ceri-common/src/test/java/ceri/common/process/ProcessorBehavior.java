@@ -1,6 +1,7 @@
 package ceri.common.process;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.RIX;
@@ -38,7 +39,7 @@ public class ProcessorBehavior {
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).verifyErr(true).build();
-			assertThrown(IOException.class, () -> p.exec("test"));
+			assertIoe(() -> p.exec("test"));
 		}
 	}
 
@@ -50,7 +51,7 @@ public class ProcessorBehavior {
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).verifyExitValue(true).build();
-			assertThrown(IOException.class, () -> p.exec("test"));
+			assertIoe(() -> p.exec("test"));
 		}
 	}
 
@@ -63,7 +64,7 @@ public class ProcessorBehavior {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
 			process.alive.autoResponses(true);
 			Processor p = processor(process).build();
-			assertThrown(IOException.class, () -> p.exec("test"));
+			assertIoe(() -> p.exec("test"));
 		}
 	}
 

@@ -39,7 +39,7 @@ public class TimeQueue<T> {
 	public boolean contains(T t) {
 		return set.contains(t);
 	}
-	
+
 	/**
 	 * Adds an item, if not currently present, at current time. Returns true if added, false if the
 	 * queue already contains the item.

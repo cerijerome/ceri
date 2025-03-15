@@ -8,7 +8,7 @@ import java.util.function.BooleanSupplier;
  * Supplier that can throw exceptions.
  */
 public interface ExceptionBooleanSupplier<E extends Exception> {
-	
+
 	boolean getAsBoolean() throws E;
 
 	default BooleanSupplier asBooleanSupplier() {

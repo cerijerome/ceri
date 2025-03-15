@@ -1,6 +1,6 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertIoe;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -43,6 +43,6 @@ public class SignalBehavior {
 	public void shouldFailToSetHandler() {
 		var lib = ref.init();
 		lib.signal.autoResponses(new Pointer(CSignal.SIG_ERR));
-		assertThrown(IOException.class, () -> Signal.SIGUSR1.signal(_ -> {}));
+		assertIoe(() -> Signal.SIGUSR1.signal(_ -> {}));
 	}
 }

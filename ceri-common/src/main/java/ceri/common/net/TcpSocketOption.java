@@ -7,7 +7,7 @@ import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionFunction;
 
 /**
- * Option constants for Socket. Created due to missing types in StandardSocketOptions. 
+ * Option constants for Socket. Created due to missing types in StandardSocketOptions.
  */
 public class TcpSocketOption<T> {
 	public static final TcpSocketOption<Integer> soTimeout =

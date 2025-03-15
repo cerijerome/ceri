@@ -36,5 +36,5 @@ public class TcpServerSocketBehavior {
 			ss.listenAndClose(_ -> {});
 		}
 	}
-	
+
 }

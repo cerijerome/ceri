@@ -47,7 +47,7 @@ public enum TimeSupplier {
 	public void delay(long count) {
 		delayFn.accept(count);
 	}
-	
+
 	public long time() {
 		return supplier.getAsLong();
 	}
@@ -55,7 +55,7 @@ public enum TimeSupplier {
 	public String symbol() {
 		return DateUtil.symbol(unit);
 	}
-	
+
 	private static LongSupplier supplier(TimeUnit unit) {
 		return switch (unit) {
 			case NANOSECONDS -> System::nanoTime;
@@ -67,7 +67,7 @@ public enum TimeSupplier {
 			}
 		};
 	}
-	
+
 	private static LongConsumer delayFn(TimeUnit unit) {
 		return switch (unit) {
 			case NANOSECONDS -> ConcurrentUtil::delayNanos;
@@ -79,5 +79,5 @@ public enum TimeSupplier {
 			}
 		};
 	}
-	
+
 }

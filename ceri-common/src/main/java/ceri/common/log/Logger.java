@@ -30,8 +30,8 @@ import ceri.common.util.BasicUtil;
 /**
  * Simple logger for when a logging framework cannot be used. A logger is built with a global lookup
  * key. When requesting a log, if the key is not found, the default logger is returned. Loggers can
- * specify the default output consumer. An optional error output can be specified, with a level
- * at which to write instead of the standard output. Log format is specified with Formatter syntax.
+ * specify the default output consumer. An optional error output can be specified, with a level at
+ * which to write instead of the standard output. Log format is specified with Formatter syntax.
  * FormatFlags can be used to optimize unused log fields. The format field indexes are:
  *
  * <pre>

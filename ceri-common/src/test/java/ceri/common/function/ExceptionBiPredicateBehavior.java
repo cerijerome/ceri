@@ -3,7 +3,8 @@ package ceri.common.function;
 import static ceri.common.function.FunctionTestUtil.biPredicate;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.function.BiPredicate;
@@ -18,16 +19,16 @@ public class ExceptionBiPredicateBehavior {
 		assertEquals(p.toString(), "name");
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(IOException.class, () -> p.test(1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertIoe(() -> p.test(1, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
 	public void shouldConvertToBiPredicate() {
 		BiPredicate<Integer, Integer> p = biPredicate().asBiPredicate();
 		assertTrue(p.test(2, 2));
-		assertThrown(RuntimeException.class, () -> p.test(1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertRte(() -> p.test(1, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -36,7 +37,7 @@ public class ExceptionBiPredicateBehavior {
 			ExceptionBiPredicate.of(Std.biPredicate());
 		assertTrue(p.test(1, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(() -> p.test(0, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -46,8 +47,8 @@ public class ExceptionBiPredicateBehavior {
 		assertTrue(p0.test(2, 2));
 		assertFalse(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
-		assertThrown(IOException.class, () -> p.test(1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertIoe(() -> p.test(1, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -56,8 +57,8 @@ public class ExceptionBiPredicateBehavior {
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(IOException.class, () -> p.test(1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertIoe(() -> p.test(1, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -66,8 +67,8 @@ public class ExceptionBiPredicateBehavior {
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(IOException.class, () -> p.test(1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertIoe(() -> p.test(1, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 }

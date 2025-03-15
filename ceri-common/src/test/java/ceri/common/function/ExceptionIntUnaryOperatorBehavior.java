@@ -2,7 +2,8 @@ package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.AssertUtil.assertRte;
 import java.io.IOException;
 import java.util.function.IntUnaryOperator;
 import org.junit.Test;
@@ -14,8 +15,8 @@ public class ExceptionIntUnaryOperatorBehavior {
 	public void shouldConvertToUnaryOperator() {
 		IntUnaryOperator f = intUnaryOperator().asIntUnaryOperator();
 		assertEquals(f.applyAsInt(2), 2);
-		assertThrown(RuntimeException.class, () -> f.applyAsInt(1));
-		assertThrown(RuntimeException.class, () -> f.applyAsInt(0));
+		assertRte(() -> f.applyAsInt(1));
+		assertRte(() -> f.applyAsInt(0));
 	}
 
 	@Test
@@ -23,23 +24,23 @@ public class ExceptionIntUnaryOperatorBehavior {
 		ExceptionIntUnaryOperator<RuntimeException> f =
 			ExceptionIntUnaryOperator.of(Std.intUnaryOperator());
 		assertEquals(f.applyAsInt(1), 1);
-		assertThrown(() -> f.applyAsInt(0));
+		assertRte(() -> f.applyAsInt(0));
 	}
 
 	@Test
 	public void shouldComposeOperators() throws IOException {
 		ExceptionIntUnaryOperator<IOException> f = intUnaryOperator().compose(i -> i + 1);
 		assertEquals(f.applyAsInt(1), 2);
-		assertThrown(IOException.class, () -> f.applyAsInt(0));
-		assertThrown(RuntimeException.class, () -> f.applyAsInt(-1));
+		assertIoe(() -> f.applyAsInt(0));
+		assertRte(() -> f.applyAsInt(-1));
 	}
 
 	@Test
 	public void shouldSequenceOperators() throws IOException {
 		ExceptionIntUnaryOperator<IOException> f = intUnaryOperator().andThen(i -> i + 1);
 		assertEquals(f.applyAsInt(2), 3);
-		assertThrown(IOException.class, () -> f.applyAsInt(1));
-		assertThrown(RuntimeException.class, () -> f.applyAsInt(0));
+		assertIoe(() -> f.applyAsInt(1));
+		assertRte(() -> f.applyAsInt(0));
 	}
 
 }

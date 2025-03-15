@@ -59,7 +59,7 @@ public class BiMap<K, V> {
 	}
 
 	public static <K, V> Builder<K, V> builder(K k, V v) {
-		return BiMap.<K, V>builder().put(k,  v);
+		return BiMap.<K, V>builder().put(k, v);
 	}
 
 	BiMap(Builder<K, V> builder) {

@@ -2,7 +2,8 @@ package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.byteUnaryOperator;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.AssertUtil.assertRte;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
@@ -13,8 +14,8 @@ public class ExceptionByteUnaryOperatorBehavior {
 	public void shouldConvertToUnaryOperator() {
 		ByteUnaryOperator f = byteUnaryOperator().asByteUnaryOperator();
 		assertEquals(f.applyAsByte((byte) 2), (byte) 2);
-		assertThrown(RuntimeException.class, () -> f.applyAsByte((byte) 1));
-		assertThrown(RuntimeException.class, () -> f.applyAsByte((byte) 0));
+		assertRte(() -> f.applyAsByte((byte) 1));
+		assertRte(() -> f.applyAsByte((byte) 0));
 	}
 
 	@Test
@@ -22,7 +23,7 @@ public class ExceptionByteUnaryOperatorBehavior {
 		ExceptionByteUnaryOperator<RuntimeException> f =
 			ExceptionByteUnaryOperator.of(Std.byteUnaryOperator());
 		assertEquals(f.applyAsByte((byte) 1), (byte) 1);
-		assertThrown(() -> f.applyAsByte((byte) 0));
+		assertRte(() -> f.applyAsByte((byte) 0));
 	}
 
 	@Test
@@ -30,8 +31,8 @@ public class ExceptionByteUnaryOperatorBehavior {
 		ExceptionByteUnaryOperator<IOException> f =
 			byteUnaryOperator().compose(i -> (byte) (i + 1));
 		assertEquals(f.applyAsByte((byte) 1), (byte) 2);
-		assertThrown(IOException.class, () -> f.applyAsByte((byte) 0));
-		assertThrown(RuntimeException.class, () -> f.applyAsByte((byte) -1));
+		assertIoe(() -> f.applyAsByte((byte) 0));
+		assertRte(() -> f.applyAsByte((byte) -1));
 	}
 
 	@Test
@@ -39,7 +40,7 @@ public class ExceptionByteUnaryOperatorBehavior {
 		ExceptionByteUnaryOperator<IOException> f =
 			byteUnaryOperator().andThen(i -> (byte) (i + 1));
 		assertEquals(f.applyAsByte((byte) 2), (byte) 3);
-		assertThrown(IOException.class, () -> f.applyAsByte((byte) 1));
-		assertThrown(RuntimeException.class, () -> f.applyAsByte((byte) 0));
+		assertIoe(() -> f.applyAsByte((byte) 1));
+		assertRte(() -> f.applyAsByte((byte) 0));
 	}
 }

@@ -266,14 +266,15 @@ public class AssertUtil {
 	public static <T> void assertOptional(Optional<T> actual, T expected) {
 		assertOptional(actual, expected, null);
 	}
-	
+
 	/**
 	 * Checks an optional value equals the given value.
 	 */
-	public static <T> void assertOptional(Optional<T> actual, T expected, String format, Object... args) {
+	public static <T> void assertOptional(Optional<T> actual, T expected, String format,
+		Object... args) {
 		assertEquals(actual, Optional.ofNullable(expected), format, args);
 	}
-	
+
 	/**
 	 * Checks a double value is NaN.
 	 */
@@ -911,6 +912,20 @@ public class AssertUtil {
 	 */
 	public static void assertNpe(ExceptionRunnable<Exception> runnable) {
 		assertThrown(NullPointerException.class, runnable);
+	}
+
+	/**
+	 * Assert a NullPointerException is thrown.
+	 */
+	public static void assertRte(ExceptionRunnable<Exception> runnable) {
+		assertThrown(RuntimeException.class, runnable);
+	}
+
+	/**
+	 * Assert an IOException is thrown.
+	 */
+	public static void assertIoe(ExceptionRunnable<Exception> runnable) {
+		assertThrown(IOException.class, runnable);
 	}
 
 	/**

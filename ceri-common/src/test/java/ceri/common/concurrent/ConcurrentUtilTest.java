@@ -3,7 +3,9 @@ package ceri.common.concurrent;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.fail;
@@ -174,18 +176,18 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
-		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, () -> {
+		assertIoe(() -> ConcurrentUtil.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new));
-		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, () -> {
+		assertIoe(() -> ConcurrentUtil.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new, 10000));
 	}
 
 	@Test
 	public void testExecuteAndWaitTimeoutException() {
-		assertThrown(IOException.class, () -> ConcurrentUtil.submitAndWait(exec, //
-			() -> Thread.sleep(1000), IOException::new, 1));
+		assertIoe(() -> ConcurrentUtil.submitAndWait(exec, () -> Thread.sleep(1000),
+			IOException::new, 1));
 	}
 
 	@Test
@@ -211,7 +213,7 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
-		assertThrown(() -> ConcurrentUtil.lockedRun(lock, () -> {
+		assertRte(() -> ConcurrentUtil.lockedRun(lock, () -> {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertTrue(lock.tryLock(1, TimeUnit.MILLISECONDS));
@@ -257,7 +259,7 @@ public class ConcurrentUtilTest {
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		Lock lock = new ReentrantLock();
 		boolean throwEx = true;
-		assertThrown(() -> ConcurrentUtil.lockedGet(lock, () -> {
+		assertRte(() -> ConcurrentUtil.lockedGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));
@@ -327,10 +329,9 @@ public class ConcurrentUtilTest {
 	@Test
 	public void testInvokeWithException() {
 		Set<String> msgs = new HashSet<>();
-		assertThrown(IOException.class,
-			() -> ConcurrentUtil.invoke(exec, IOException::new, () -> msgs.add("1"), () -> {
-				throw new Exception("test");
-			}));
+		assertIoe(() -> ConcurrentUtil.invoke(exec, IOException::new, () -> msgs.add("1"), () -> {
+			throw new Exception("test");
+		}));
 		assertCollection(msgs, "1");
 	}
 

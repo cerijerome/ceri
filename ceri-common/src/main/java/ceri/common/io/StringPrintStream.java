@@ -16,16 +16,16 @@ public class StringPrintStream extends PrintStream {
 	 * Constructor using default character set.
 	 */
 	public static StringPrintStream of() {
-		return of(Charset.defaultCharset());	
+		return of(Charset.defaultCharset());
 	}
-	
+
 	/**
 	 * Constructor using given character set.
 	 */
 	public static StringPrintStream of(Charset charset) {
 		return new StringPrintStream(charset);
 	}
-	
+
 	protected StringPrintStream(Charset charset) {
 		super(new ByteArrayOutputStream(), true, charset);
 		baos = (ByteArrayOutputStream) out;

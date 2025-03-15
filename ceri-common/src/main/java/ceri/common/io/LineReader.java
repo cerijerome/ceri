@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 public interface LineReader {
 	/** A no-op, stateless instance. */
 	Null NULL = new Null() {};
-	
+
 	/**
 	 * Reads the next line of input.
 	 */
@@ -21,7 +21,7 @@ public interface LineReader {
 	 * Returns true if any input is available.
 	 */
 	boolean ready() throws IOException;
-	
+
 	/**
 	 * Adapt a buffered reader.
 	 */
@@ -31,21 +31,21 @@ public interface LineReader {
 			public String readLine() throws IOException {
 				return reader.readLine();
 			}
-			
+
 			@Override
 			public boolean ready() throws IOException {
 				return reader.ready();
 			}
 		};
 	}
-	
+
 	/**
 	 * Adapt an input stream.
 	 */
 	static LineReader of(InputStream in) {
 		return of(new BufferedReader(new InputStreamReader(in)));
 	}
-	
+
 	/**
 	 * A no-op, stateless implementation.
 	 */
@@ -54,6 +54,7 @@ public interface LineReader {
 		default String readLine() throws IOException {
 			return "";
 		}
+
 		@Override
 		default boolean ready() throws IOException {
 			return false;

@@ -3,7 +3,7 @@ package ceri.common.util;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import java.io.IOException;
 import java.util.Date;
 import org.junit.Test;
@@ -80,11 +80,11 @@ public class BasicUtilTest {
 	@Test
 	public void testRuntimeRun() {
 		BasicUtil.runtimeRun(() -> {});
-		assertThrown(RuntimeException.class, () -> BasicUtil.runtimeRun(() -> {
+		assertRte(() -> BasicUtil.runtimeRun(() -> {
 			throw new IOException();
 		}));
 		BasicUtil.runtimeCall(() -> "test");
-		assertThrown(RuntimeException.class, () -> BasicUtil.runtimeCall(() -> {
+		assertRte(() -> BasicUtil.runtimeCall(() -> {
 			throw new IOException();
 		}));
 	}

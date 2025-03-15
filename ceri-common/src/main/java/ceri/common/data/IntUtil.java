@@ -11,11 +11,11 @@ public class IntUtil {
 	public static int low(long value) {
 		return (int) value;
 	}
-	
+
 	public static int high(long value) {
 		return (int) (value >>> Integer.SIZE);
 	}
-	
+
 	public static long longFromMsb(int... array) {
 		return longFromMsb(array, 0);
 	}

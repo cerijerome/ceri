@@ -8,8 +8,9 @@ import static ceri.common.function.FunctionTestUtil.function;
 import static ceri.common.function.FunctionTestUtil.predicate;
 import static ceri.common.function.FunctionTestUtil.toIntFunction;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -104,10 +105,10 @@ public class WrappedStreamBehavior {
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
-		assertThrown(IOException.class, () -> wrap(2, 1, 0).forEach(consumer()));
-		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).forEach(consumer()));
-		assertThrown(IOException.class, () -> wrap(2, 1, 0).map(function()).forEach(_ -> {}));
-		assertThrown(RuntimeException.class, () -> wrap(3, 2, 0).map(function()).forEach(_ -> {}));
+		assertIoe(() -> wrap(2, 1, 0).forEach(consumer()));
+		assertRte(() -> wrap(3, 2, 0).forEach(consumer()));
+		assertIoe(() -> wrap(2, 1, 0).map(function()).forEach(_ -> {}));
+		assertRte(() -> wrap(3, 2, 0).map(function()).forEach(_ -> {}));
 	}
 
 	@Test
@@ -116,21 +117,19 @@ public class WrappedStreamBehavior {
 		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
 		try (WrappedStream<IOException, Integer> stream =
 			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
-			assertThrown(IOException.class,
-				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+			assertIoe(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
 		try (WrappedStream<IOException, Integer> stream =
 			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
-			assertThrown(IOException.class, () -> stream.collect(Collectors.toList()));
+			assertIoe(() -> stream.collect(Collectors.toList()));
 		}
 		try (WrappedStream<IOException, Integer> stream =
 			wrap(4, 3, 0).map(FunctionTestUtil.function())) {
-			assertThrown(RuntimeException.class,
-				() -> stream.collect(ArrayList::new, List::add, List::addAll));
+			assertRte(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
 		try (WrappedStream<IOException, Integer> stream = wrap(4, 3, 0) //
 			.map(FunctionTestUtil.function())) {
-			assertThrown(RuntimeException.class, () -> stream.collect(Collectors.toList()));
+			assertRte(() -> stream.collect(Collectors.toList()));
 		}
 	}
 

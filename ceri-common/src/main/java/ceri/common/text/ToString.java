@@ -101,7 +101,7 @@ public class ToString {
 		}
 		return this;
 	}
-	
+
 	/**
 	 * Adds fields to the string representation. ...[Field1,Field2,...]
 	 */

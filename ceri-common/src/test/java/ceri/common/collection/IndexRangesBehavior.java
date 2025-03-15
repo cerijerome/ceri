@@ -149,7 +149,7 @@ public class IndexRangesBehavior {
 		assertRanges(r, 1, 2, 3, 4, 6, 7);
 		assertRanges(copy, 1, 2, 3, 6, 7);
 	}
-	
+
 	private void iterate(PrimitiveIterator.OfInt iterator, int n) {
 		while (n-- > 0)
 			iterator.next();

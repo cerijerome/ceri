@@ -10,12 +10,12 @@ import ceri.common.util.CloseableUtil;
 
 public class TcpSocketTesterBehavior {
 	private RuntimeCloseable fastMode;
-	
+
 	@Before
 	public void before() {
 		fastMode = ManualTester.fastMode();
 	}
-	
+
 	@After
 	public void after() {
 		CloseableUtil.close(fastMode);

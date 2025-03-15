@@ -38,7 +38,7 @@ public class BinarySemaphore implements AutoCloseable {
 	public int waitingThreads() {
 		return semaphore.getQueueLength();
 	}
-	
+
 	/**
 	 * Wait to acquire the permit. Throws RuntimeInterruptedException if interrupted,
 	 * IllegalStateException if the semaphore is closed before acquiring the permit.
@@ -68,11 +68,11 @@ public class BinarySemaphore implements AutoCloseable {
 	public boolean available() {
 		return !closed() && semaphore.availablePermits() > 0;
 	}
-	
+
 	public boolean closed() {
 		return closed.get();
 	}
-	
+
 	@Override
 	public void close() {
 		if (closed.getAndSet(true)) return;

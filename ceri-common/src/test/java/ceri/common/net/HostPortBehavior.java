@@ -76,7 +76,7 @@ public class HostPortBehavior {
 	static void assertHostPort(HostPort hostPort, String host) {
 		assertHostPort(hostPort, host, HostPort.INVALID_PORT);
 	}
-	
+
 	static void assertHostPort(HostPort hostPort, String host, int port) {
 		if (host == null) {
 			assertNull(hostPort);

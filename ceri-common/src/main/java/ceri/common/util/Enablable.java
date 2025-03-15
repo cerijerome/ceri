@@ -6,11 +6,11 @@ package ceri.common.util;
 public interface Enablable {
 
 	boolean enabled();
-	
+
 	static boolean enabled(Enablable enablable) {
 		return enablable != null && enablable.enabled();
 	}
-	
+
 	static <T> T conditional(Enablable enablable, T enabled, T disabled) {
 		return enabled(enablable) ? enabled : disabled;
 	}

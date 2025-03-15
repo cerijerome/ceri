@@ -10,10 +10,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertHelperPaths;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPath;
 import static ceri.common.test.AssertUtil.assertPaths;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -83,11 +85,11 @@ public class IoUtilTest {
 	@Test
 	public void testExecIo() throws IOException {
 		IO_ADAPTER.run(() -> {});
-		assertThrown(RuntimeException.class, () -> IO_ADAPTER.run(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IO_ADAPTER.run(() -> {
+		assertRte(() -> IO_ADAPTER.run(() -> Integer.valueOf(null)));
+		assertIoe(() -> IO_ADAPTER.run(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IO_ADAPTER.run(() -> {
+		assertIoe(() -> IO_ADAPTER.run(() -> {
 			throw new IOException();
 		}));
 	}
@@ -95,11 +97,11 @@ public class IoUtilTest {
 	@Test
 	public void testCallableIo() throws IOException {
 		IO_ADAPTER.get(() -> "a");
-		assertThrown(RuntimeException.class, () -> IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertThrown(IOException.class, () -> IO_ADAPTER.get(() -> {
+		assertRte(() -> IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertIoe(() -> IO_ADAPTER.get(() -> {
 			throw new Exception();
 		}));
-		assertThrown(IOException.class, () -> IO_ADAPTER.get(() -> {
+		assertIoe(() -> IO_ADAPTER.get(() -> {
 			throw new IOException();
 		}));
 	}
@@ -107,8 +109,7 @@ public class IoUtilTest {
 	@Test
 	public void testRuntimeIo() {
 		RUNTIME_IO_ADAPTER.get(() -> "a");
-		assertThrown(RuntimeException.class,
-			() -> RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
+		assertRte(() -> RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
 		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
 			throw new Exception();
 		}));

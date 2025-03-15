@@ -29,8 +29,8 @@ public class PulsePrinterBehavior {
 		assertEquals(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.ofBytes(1);
 			p.print(0, 0xff);
-		}), "\u2581\u2581\u2581\u2581\u2581\u2581\u2581\u2581\n" +
-			"\u2587\u2587\u2587\u2587\u2587\u2587\u2587\u2587\n");
+		}), "\u2581\u2581\u2581\u2581\u2581\u2581\u2581\u2581\n"
+			+ "\u2587\u2587\u2587\u2587\u2587\u2587\u2587\u2587\n");
 	}
 
 	@Test

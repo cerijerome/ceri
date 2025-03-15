@@ -68,7 +68,7 @@ public interface ByteAccessor extends ByteProvider, ByteReceiver {
 		@Override
 		public ByteAccessor slice(int index, int length) {
 			if (ValidationUtil.validateFullSlice(length(), index, length)) return this;
-			return ofNull(length);
+			return ByteAccessor.ofNull(length);
 		}
 	}
 }

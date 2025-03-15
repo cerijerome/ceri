@@ -1,5 +1,6 @@
 package ceri.common.function;
 
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.function.ObjLongConsumer;
@@ -26,8 +27,8 @@ public class ExceptionObjLongConsumerBehavior {
 	public void shouldConvertToConsumer() {
 		ObjLongConsumer<Integer> c = FunctionTestUtil.objLongConsumer().asObjLongConsumer();
 		c.accept(2, 3);
-		assertThrown(RuntimeException.class, () -> c.accept(1, 2));
-		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
+		assertRte(() -> c.accept(1, 2));
+		assertRte(() -> c.accept(0, 2));
 	}
 
 	@Test
@@ -35,7 +36,7 @@ public class ExceptionObjLongConsumerBehavior {
 		ExceptionObjLongConsumer<RuntimeException, Integer> c =
 			ExceptionObjLongConsumer.of(Std.objLongConsumer());
 		c.accept(1, 2);
-		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
+		assertRte(() -> c.accept(0, 2));
 	}
 
 }

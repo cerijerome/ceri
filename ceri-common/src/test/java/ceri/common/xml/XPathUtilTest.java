@@ -3,7 +3,7 @@ package ceri.common.xml;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import java.util.List;
 import javax.xml.xpath.XPathException;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class XPathUtilTest {
 
 	@Test
 	public void testCompilingABadExpressionThrowsRuntimeException() {
-		assertThrown(RuntimeException.class, () -> XPathUtil.compile("-"));
+		assertRte(() -> XPathUtil.compile("-"));
 	}
 
 	@Test

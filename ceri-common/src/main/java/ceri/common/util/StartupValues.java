@@ -214,14 +214,14 @@ public class StartupValues {
 	public String sysProp(String name) {
 		return sysProp(prefix, name);
 	}
-	
+
 	/**
 	 * Determines the environment variable name.
 	 */
 	public String envVar(String name) {
 		return envVarFrom(sysProp(name));
 	}
-	
+
 	/**
 	 * Provides the named source from arg index, or explicitly named environment variable or system
 	 * property.

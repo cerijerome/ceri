@@ -41,8 +41,8 @@ public class IntProviderBehavior {
 
 	@Test
 	public void testToHex() {
-		assertEquals(IntProvider.toHex(ip), "[0x0,0xffffffff,0x2,0xfffffffd,0x4,"
-			+ "0xfffffffb,0x6,...](10)");
+		assertEquals(IntProvider.toHex(ip),
+			"[0x0,0xffffffff,0x2,0xfffffffd,0x4," + "0xfffffffb,0x6,...](10)");
 	}
 
 	@Test

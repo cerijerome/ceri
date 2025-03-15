@@ -70,7 +70,7 @@ public class VolatileIntArray implements IntAccessor {
 		ValidationUtil.validateSlice(length(), offset, length);
 		return new VolatileIntArray(array, this.offset + offset, length);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "V" + IntProvider.toString(this);

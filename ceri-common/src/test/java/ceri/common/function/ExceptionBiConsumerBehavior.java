@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.function.FunctionTestUtil.biConsumer;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.util.function.BiConsumer;
@@ -27,8 +28,8 @@ public class ExceptionBiConsumerBehavior {
 	public void shouldConvertToConsumer() {
 		BiConsumer<Integer, Integer> c = biConsumer().asBiConsumer();
 		c.accept(2, 3);
-		assertThrown(RuntimeException.class, () -> c.accept(1, 2));
-		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
+		assertRte(() -> c.accept(1, 2));
+		assertRte(() -> c.accept(0, 2));
 	}
 
 	@Test
@@ -36,7 +37,7 @@ public class ExceptionBiConsumerBehavior {
 		ExceptionBiConsumer<RuntimeException, Integer, Integer> c =
 			ExceptionBiConsumer.of(Std.biConsumer());
 		c.accept(1, 2);
-		assertThrown(RuntimeException.class, () -> c.accept(0, 2));
+		assertRte(() -> c.accept(0, 2));
 	}
 
 }

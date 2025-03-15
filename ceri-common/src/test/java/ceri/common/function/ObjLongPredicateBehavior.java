@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
@@ -15,7 +15,7 @@ public class ObjLongPredicateBehavior {
 		assertTrue(p0.test(2, 2));
 		assertFalse(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -24,7 +24,7 @@ public class ObjLongPredicateBehavior {
 		assertTrue(p.test(2, 2));
 		assertTrue(p.test(-2, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class ObjLongPredicateBehavior {
 		assertTrue(p.test(2, 2));
 		assertFalse(p.test(3, 2));
 		assertFalse(p.test(-1, 2));
-		assertThrown(RuntimeException.class, () -> p.test(0, 2));
+		assertRte(() -> p.test(0, 2));
 	}
 
 }

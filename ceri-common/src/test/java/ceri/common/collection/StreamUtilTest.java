@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
@@ -187,7 +188,7 @@ public class StreamUtilTest {
 	@Test
 	public void testWrap() {
 		try (WrappedStream<IOException, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
-			assertThrown(IOException.class, () -> w.mapToInt(s -> {
+			assertIoe(() -> w.mapToInt(s -> {
 				if ("x".equals(s)) throw new IOException();
 				return s.length();
 			}).forEach(_ -> {}));

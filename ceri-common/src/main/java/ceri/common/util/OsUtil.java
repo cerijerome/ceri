@@ -121,7 +121,7 @@ public class OsUtil {
 		osOverride = new Os(name, arch, version);
 		return () -> osOverride = null;
 	}
-	
+
 	/**
 	 * Determines if context is AWS, based on path system variable.
 	 */

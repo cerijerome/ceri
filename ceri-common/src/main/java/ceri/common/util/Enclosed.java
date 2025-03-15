@@ -88,7 +88,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		public T ref() {
 			return ref;
 		}
-		
+
 		@Override
 		public void close() throws E {
 			try (var _ = locker()) {

@@ -3,10 +3,11 @@ package ceri.common.exception;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertInstance;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testDoNotCall() {
-		assertThrown(() -> ExceptionUtil.doNotCall(1, "2"));
+		assertRte(() -> ExceptionUtil.doNotCall(1, "2"));
 	}
 
 	@Test
@@ -57,7 +58,7 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testThrowUnchecked() {
-		assertThrown(IOException.class, () -> ExceptionUtil.throwUnchecked(new IOException("io")));
+		assertIoe(() -> ExceptionUtil.throwUnchecked(new IOException("io")));
 	}
 
 	@Test
@@ -68,12 +69,12 @@ public class ExceptionUtilTest {
 			capturer.accept(2);
 			throw new IOException();
 		};
-		assertThrown(RuntimeException.class, () -> ExceptionUtil.shouldNotThrow(runnable));
+		assertRte(() -> ExceptionUtil.shouldNotThrow(runnable));
 		Callable<String> callable = () -> {
 			capturer.accept(3);
 			throw new IOException();
 		};
-		assertThrown(RuntimeException.class, () -> ExceptionUtil.shouldNotThrow(callable));
+		assertRte(() -> ExceptionUtil.shouldNotThrow(callable));
 		capturer.verifyInt(1, 2, 3);
 	}
 
@@ -152,8 +153,7 @@ public class ExceptionUtilTest {
 	@Test
 	public void testThrowIfType() throws IOException {
 		ExceptionUtil.throwIfType(IOException.class, new InterruptedException());
-		assertThrown(IOException.class,
-			() -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
+		assertIoe(() -> ExceptionUtil.throwIfType(IOException.class, new EOFException()));
 	}
 
 	private static class TestException extends Exception {

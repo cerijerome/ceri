@@ -18,7 +18,7 @@ public interface ExceptionIntSupplier<E extends Exception> {
 		Objects.requireNonNull(supplier);
 		return supplier::getAsInt;
 	}
-	
+
 	/**
 	 * Converts a supplier to a function that ignores input.
 	 */

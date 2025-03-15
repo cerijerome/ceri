@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertRte;
 import org.junit.Test;
 import ceri.common.function.FunctionTestUtil.Std;
 
@@ -11,8 +11,8 @@ public class ExceptionObjLongFunctionBehavior {
 	public void shouldConvertToFunction() {
 		ObjLongFunction<Integer, Long> f = FunctionTestUtil.objLongFunction().asObjLongFunction();
 		assertEquals(f.apply(2, 3), 5L);
-		assertThrown(RuntimeException.class, () -> f.apply(1, 2));
-		assertThrown(RuntimeException.class, () -> f.apply(2, 0));
+		assertRte(() -> f.apply(1, 2));
+		assertRte(() -> f.apply(2, 0));
 	}
 
 	@Test
@@ -20,7 +20,7 @@ public class ExceptionObjLongFunctionBehavior {
 		ExceptionObjLongFunction<RuntimeException, Integer, Long> f =
 			ExceptionObjLongFunction.of(Std.objLongFunction());
 		f.apply(1, 2);
-		assertThrown(RuntimeException.class, () -> f.apply(0, 2));
+		assertRte(() -> f.apply(0, 2));
 	}
 
 }

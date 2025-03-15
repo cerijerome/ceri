@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertRange;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -188,7 +189,7 @@ public class TestUtilTest {
 			if (throwIt) throw new IOException();
 			return "test";
 		}), "test");
-		assertThrown(RuntimeException.class, () -> init(() -> {
+		assertRte(() -> init(() -> {
 			throw new IOException();
 		}));
 	}
@@ -212,7 +213,7 @@ public class TestUtilTest {
 	@Test
 	public void testResource() {
 		assertEquals(resource("resource.txt"), "test");
-		assertThrown(RuntimeException.class, () -> resource("not-found.txt"));
+		assertRte(() -> resource("not-found.txt"));
 	}
 
 	@Test

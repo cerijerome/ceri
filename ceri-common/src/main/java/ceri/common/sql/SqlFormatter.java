@@ -10,7 +10,6 @@ public interface SqlFormatter {
 
 	/**
 	 * Format field by sql type. By default, the type is ignored and object class is used.
-	 *
 	 * @param type
 	 */
 	default String format(Object field, SqlType type) {

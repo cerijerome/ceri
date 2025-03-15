@@ -65,7 +65,7 @@ public class PropertyUtilTest {
 			properties.put("a.b", "ab");
 			properties.put("a.b.c", "abc");
 			java.nio.file.Path file = helper.path("test.properties");
-			PropertyUtil.store(properties, file);			
+			PropertyUtil.store(properties, file);
 			try (var stream = Files.lines(file)) {
 				List<String> lines = toList(stream.filter(line -> !line.startsWith("#")));
 				assertCollection(lines, "a.b.c=abc", "a.b=ab");

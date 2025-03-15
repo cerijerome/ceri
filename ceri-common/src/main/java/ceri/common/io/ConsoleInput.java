@@ -125,7 +125,7 @@ public class ConsoleInput implements LineReader {
 	public List<String> history() {
 		return Collections.unmodifiableList(history);
 	}
-	
+
 	private int read() throws IOException {
 		while (true) {
 			if (config.pollDelayMs() == null || in.ready()) return in.read();

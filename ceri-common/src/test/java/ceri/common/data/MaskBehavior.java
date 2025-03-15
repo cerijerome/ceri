@@ -71,8 +71,7 @@ public class MaskBehavior {
 
 	@Test
 	public void shouldDecodeMaskedValues() {
-		assertEquals(Mask.of(0, 0xffff_ffff0000L).decode(0xff_ffffff00L),
-			0xff_ffff0000L);
+		assertEquals(Mask.of(0, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xff_ffff0000L);
 		assertEquals(Mask.of(16, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xffffffL);
 		assertEquals(Mask.of(47, 0xffff8000_00000000L).decode(-1L), 0x1ffffL);
 		assertEquals(Mask.of(15, 0xffff8000L).decode(-1L), 0x1ffffL);
@@ -82,8 +81,7 @@ public class MaskBehavior {
 
 	@Test
 	public void shouldDecodeMaskedValuesAsInt() {
-		assertEquals(Mask.of(0, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L),
-			0xffff0000);
+		assertEquals(Mask.of(0, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffff0000);
 		assertEquals(Mask.of(16, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffffff);
 		assertEquals(Mask.of(47, 0xffff8000_00000000L).decodeInt(-1L), 0x1ffff);
 		assertEquals(Mask.of(15, 0xffff8000L).decodeInt(-1L), 0x1ffff);

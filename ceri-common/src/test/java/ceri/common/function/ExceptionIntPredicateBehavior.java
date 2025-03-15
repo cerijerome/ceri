@@ -3,6 +3,8 @@ package ceri.common.function;
 import static ceri.common.function.FunctionTestUtil.intPredicate;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
@@ -18,16 +20,16 @@ public class ExceptionIntPredicateBehavior {
 		assertEquals(p.toString(), "name");
 		assertTrue(p.test(2));
 		assertFalse(p.test(-1));
-		assertThrown(IOException.class, () -> p.test(1));
-		assertThrown(RuntimeException.class, () -> p.test(0));
+		assertIoe(() -> p.test(1));
+		assertRte(() -> p.test(0));
 	}
 
 	@Test
 	public void shouldConvertToPredicate() {
 		IntPredicate p = intPredicate().asPredicate();
 		assertTrue(p.test(2));
-		assertThrown(RuntimeException.class, () -> p.test(1));
-		assertThrown(RuntimeException.class, () -> p.test(0));
+		assertRte(() -> p.test(1));
+		assertRte(() -> p.test(0));
 	}
 
 	@Test
@@ -45,8 +47,8 @@ public class ExceptionIntPredicateBehavior {
 		assertTrue(p0.test(2));
 		assertFalse(p.test(2));
 		assertTrue(p.test(-1));
-		assertThrown(IOException.class, () -> p.test(1));
-		assertThrown(RuntimeException.class, () -> p.test(0));
+		assertIoe(() -> p.test(1));
+		assertRte(() -> p.test(0));
 	}
 
 	@Test
@@ -55,8 +57,8 @@ public class ExceptionIntPredicateBehavior {
 		assertTrue(p.test(2));
 		assertTrue(p.test(-2));
 		assertFalse(p.test(-1));
-		assertThrown(IOException.class, () -> p.test(1));
-		assertThrown(RuntimeException.class, () -> p.test(0));
+		assertIoe(() -> p.test(1));
+		assertRte(() -> p.test(0));
 	}
 
 	@Test
@@ -65,8 +67,8 @@ public class ExceptionIntPredicateBehavior {
 		assertTrue(p.test(2));
 		assertFalse(p.test(3));
 		assertFalse(p.test(-1));
-		assertThrown(IOException.class, () -> p.test(1));
-		assertThrown(RuntimeException.class, () -> p.test(0));
+		assertIoe(() -> p.test(1));
+		assertRte(() -> p.test(0));
 	}
 
 }

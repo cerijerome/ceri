@@ -110,7 +110,8 @@ public class NioUtilTest {
 		public final CallSync.Runnable wakeUp = CallSync.runnable(true);
 		public final CallSync.Function<Long, Integer> select = CallSync.function(0L, 0);
 		public final CallSync.Supplier<Integer> selectNow = CallSync.supplier(0);
-		public final CallSync.Supplier<Set<SelectionKey>> selectedKeys = CallSync.supplier(Set.of());
+		public final CallSync.Supplier<Set<SelectionKey>> selectedKeys =
+			CallSync.supplier(Set.of());
 		public boolean open = true;
 
 		public TestSelector(SelectorProvider provider, Set<SelectionKey> keys) {

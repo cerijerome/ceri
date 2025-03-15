@@ -81,7 +81,7 @@ public class ReplaceableConnector<T extends Connector> extends Replaceable<T> im
 		in.set(delegate.in());
 		out.set(delegate.out());
 	}
-	
+
 	@Override
 	public InputStream in() {
 		return in;

@@ -56,14 +56,15 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	public final void acceptAll(T... events) {
 		acceptAll(Arrays.asList(events));
 	}
-	
+
 	/**
 	 * Sends notification to listeners for each event.
 	 */
 	public void acceptAll(Collection<T> events) {
-		for (var event : events) accept(event);
+		for (var event : events)
+			accept(event);
 	}
-	
+
 	protected Collection<Consumer<? super T>> listeners() {
 		return listeners;
 	}

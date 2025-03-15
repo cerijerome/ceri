@@ -30,5 +30,5 @@ public class TestFixableBehavior {
 	public void shouldOpenOnCreation() throws IOException {
 		TestFixable.ofOpen().open.assertAuto(true);
 	}
-	
+
 }

@@ -12,7 +12,7 @@ public interface Named {
 	}
 
 	/**
-	 * Provides a default name if the given name is null. 
+	 * Provides a default name if the given name is null.
 	 */
 	static String name(Object obj, String name) {
 		if (name != null) return name;

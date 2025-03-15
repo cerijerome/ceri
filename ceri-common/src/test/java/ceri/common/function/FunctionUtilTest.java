@@ -7,8 +7,10 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
@@ -158,10 +160,8 @@ public class FunctionUtilTest {
 	@Test
 	public void testForEachIterable() {
 		Captor.OfInt capturer = Captor.ofInt();
-		assertThrown(IOException.class,
-			() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
-		assertThrown(RuntimeException.class,
-			() -> FunctionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
+		assertIoe(() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
+		assertRte(() -> FunctionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
 		FunctionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
 	}
@@ -173,13 +173,10 @@ public class FunctionUtilTest {
 		capturer.verify(1, 2, 3);
 		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
-		assertThrown(IOException.class, () -> FunctionUtil.forEach(Stream.of(1, 2, 3), consumer()));
-		assertThrown(IOException.class,
-			() -> FunctionUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
-		assertThrown(RuntimeException.class,
-			() -> FunctionUtil.forEach(Stream.of(2, 0, 3), consumer()));
-		assertThrown(RuntimeException.class,
-			() -> FunctionUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
+		assertIoe(() -> FunctionUtil.forEach(Stream.of(1, 2, 3), consumer()));
+		assertIoe(() -> FunctionUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
+		assertRte(() -> FunctionUtil.forEach(Stream.of(2, 0, 3), consumer()));
+		assertRte(() -> FunctionUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
 	}
 
 	@Test
@@ -188,10 +185,8 @@ public class FunctionUtilTest {
 		FunctionUtil.forEach(Map.of(1, 2, 3, 4), capturer.reset()::accept);
 		assertCollection(capturer.first.values, 1, 3);
 		assertCollection(capturer.second.values, 2, 4);
-		assertThrown(IOException.class,
-			() -> FunctionUtil.forEach(Map.of(1, 2, 3, 4), biConsumer()));
-		assertThrown(RuntimeException.class,
-			() -> FunctionUtil.forEach(Map.of(3, 2, 0, 4), biConsumer()));
+		assertIoe(() -> FunctionUtil.forEach(Map.of(1, 2, 3, 4), biConsumer()));
+		assertRte(() -> FunctionUtil.forEach(Map.of(3, 2, 0, 4), biConsumer()));
 	}
 
 	@Test
@@ -200,14 +195,14 @@ public class FunctionUtilTest {
 		assertFalse(FunctionUtil.any(String::isBlank, "a", "b", "c"));
 		assertFalse(FunctionUtil.any(String::isBlank));
 	}
-	
+
 	@Test
 	public void testAll() {
 		assertTrue(FunctionUtil.all(String::isBlank, "", " ", "\t"));
 		assertFalse(FunctionUtil.all(String::isBlank, "a", " ", "\t"));
 		assertTrue(FunctionUtil.all(String::isBlank));
 	}
-	
+
 	@Test
 	public void testPredicateAnd() {
 		Predicate<Integer> n = null;

@@ -52,7 +52,7 @@ public interface Colorable {
 	}
 
 	/**
-	 * A no-op, stateless implementation. 
+	 * A no-op, stateless implementation.
 	 */
 	interface Null extends Colorable {
 		@Override
@@ -63,7 +63,7 @@ public interface Colorable {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * Adapt a type that gets/sets colorx, by denormalizing color with given x colors.
 	 */

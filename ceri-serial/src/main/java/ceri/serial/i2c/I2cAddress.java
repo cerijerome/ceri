@@ -19,8 +19,8 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static final I2cAddress DEVICE_ID = new I2cAddress(0x7c, false);
 	private static final int HEX_DIGITS_7 = 2;
 	private static final int HEX_DIGITS_10 = 3;
-	private static final int MASK_7BIT = ByteUtil.maskInt(7);
-	private static final int MASK_10BIT = ByteUtil.maskInt(10);
+	public static final int MASK_7BIT = ByteUtil.maskInt(7);
+	public static final int MASK_10BIT = ByteUtil.maskInt(10);
 	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
 	private static final int SLAVE_7BIT_MIN = 0x08;
 	private static final int SLAVE_7BIT_MAX = 0x77;

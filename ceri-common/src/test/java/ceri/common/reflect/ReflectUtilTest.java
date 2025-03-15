@@ -110,7 +110,7 @@ public class ReflectUtilTest {
 		assertOptional(ReflectUtil.castOptional(String.class, 1.1), null);
 		assertOptional(ReflectUtil.castOptional(Number.class, 1.1), 1.1);
 	}
-	
+
 	@Test
 	public void testIsStatic() {
 		assertEquals(ReflectUtil.isStatic(null), false);

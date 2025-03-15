@@ -4,6 +4,7 @@ import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
@@ -47,7 +48,7 @@ public class ByteStreamBehavior {
 		});
 		Reader r = ByteStream.reader(in);
 		error.setFrom(RTX);
-		assertThrown(RuntimeException.class, () -> r.readByte());
+		assertRte(() -> r.readByte());
 		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> r.readByte());
 		error.setFrom(IOX);
@@ -114,7 +115,7 @@ public class ByteStreamBehavior {
 		OutputStream out = IoStreamUtil.out(_ -> error.call(IO_ADAPTER));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);
-		assertThrown(RuntimeException.class, () -> w.writeByte(1));
+		assertRte(() -> w.writeByte(1));
 		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
 		error.setFrom(IOX);

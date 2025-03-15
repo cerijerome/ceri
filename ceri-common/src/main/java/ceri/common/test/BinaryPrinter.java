@@ -30,7 +30,7 @@ public class BinaryPrinter {
 		builder().showBinary(false).bytesPerColumn(16).printableSpace(true).build();
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
-	private final Supplier<PrintStream> outSupplier; // works with SystemIo overrides 
+	private final Supplier<PrintStream> outSupplier; // works with SystemIo overrides
 	private final int bufferSize;
 	private final int bytesPerColumn;
 	private final int columns;

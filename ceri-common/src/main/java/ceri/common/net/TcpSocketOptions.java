@@ -137,7 +137,7 @@ public class TcpSocketOptions {
 		if (!(obj instanceof TcpSocketOptions other)) return false;
 		return map.equals(other.map);
 	}
-	
+
 	@Override
 	public String toString() {
 		return map.toString();

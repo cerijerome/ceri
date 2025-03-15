@@ -13,7 +13,7 @@ public interface Initializable<E extends Exception> {
 	void init() throws E;
 
 	interface Runtime extends Initializable<RuntimeException> {}
-	
+
 	/**
 	 * Initializes the given types.
 	 */
@@ -21,7 +21,7 @@ public interface Initializable<E extends Exception> {
 	static <E extends Exception> void init(Initializable<E>... initializables) throws E {
 		init(Arrays.asList(initializables));
 	}
-	
+
 	/**
 	 * Initializes the given types.
 	 */

@@ -34,7 +34,7 @@ public class NamerTest {
 		assertEquals(Namer.lambda(fn), "[lambda]");
 		assertNotEquals(Namer.lambda(this), "[lambda]");
 	}
-	
+
 	@Test
 	public void testFunction() {
 		Function<String, Integer> f = Namer.function(s -> s.length(), "test");

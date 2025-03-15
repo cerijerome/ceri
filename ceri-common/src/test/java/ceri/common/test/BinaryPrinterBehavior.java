@@ -126,8 +126,8 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		bin.print(bytes);
 		assertEquals(b.toString(),
-			"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
-				"00 7f 80 ff 01 00 00 81  \n");
+			"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
+				+ "00 7f 80 ff 01 00 00 81  \n");
 	}
 
 	@Test
@@ -138,8 +138,8 @@ public class BinaryPrinterBehavior {
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in);
 			assertEquals(b.toString(),
-				"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  " +
-					"........\n");
+				"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
+					+ "........\n");
 		}
 	}
 

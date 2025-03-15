@@ -81,7 +81,7 @@ public class IndexRanges implements Iterable<Integer> {
 	public boolean isEmpty() {
 		return n == 0;
 	}
-	
+
 	/**
 	 * Returns the number of distinct ranges.
 	 */
@@ -110,14 +110,14 @@ public class IndexRanges implements Iterable<Integer> {
 		indexes.forEachInt(this::add);
 		return this;
 	}
-	
+
 	/**
 	 * Adds a new index. Merges with existing ranges.
 	 */
 	public IndexRanges add(int index) {
 		return add(index, index);
 	}
-	
+
 	/**
 	 * Adds a new range. Merges with existing ranges.
 	 */
@@ -140,14 +140,14 @@ public class IndexRanges implements Iterable<Integer> {
 		indexes.forEachInt(this::remove);
 		return this;
 	}
-	
+
 	/**
 	 * Removes a new index. Splits and crops existing ranges.
 	 */
 	public IndexRanges remove(int index) {
 		return remove(index, index);
 	}
-	
+
 	/**
 	 * Removes a new range. Splits and crops existing ranges.
 	 */
@@ -229,7 +229,7 @@ public class IndexRanges implements Iterable<Integer> {
 		indexes.n = n;
 		return indexes;
 	}
-	
+
 	private class IntIterator implements PrimitiveIterator.OfInt {
 		int index = 0;
 		int i = -1;
