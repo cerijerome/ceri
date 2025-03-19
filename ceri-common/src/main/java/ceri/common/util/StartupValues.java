@@ -19,6 +19,20 @@ public class StartupValues {
 	private Function<Object, String> renderer = ArrayUtil::deepToString;
 
 	/**
+	 * Parse system property or environment variable by name, without notification.
+	 */
+	public static Parser.String lookup(String name) {
+		return of().value(name);
+	}
+
+	/**
+	 * Parse system property or environment variable by name, without notification
+	 */
+	public static Parser.String lookup(String sysProp, String envVar) {
+		return of().value(sysProp, envVar);
+	}
+
+	/**
 	 * Parse system property or environment variable by name
 	 */
 	public static <E extends Exception, T> T lookup(String name,
@@ -86,11 +100,15 @@ public class StartupValues {
 
 		public <E extends Exception, T> T parse(ExceptionFunction<E, Parser.String, T> parseFn)
 			throws E {
-			var result = parseFn.apply(Parser.string(value));
+			var result = parseFn.apply(parser());
 			if (notifier != null) notifier.accept(desc(renderer.apply(result)));
 			return result;
 		}
 
+		public Parser.String parser() {
+			return Parser.string(value);
+		}
+		
 		private String desc(String value) {
 			var desc = String.format("%s = %s (%s)", BasicUtil.defaultValue(id.name(), "value"),
 				value, this.desc);
@@ -142,6 +160,30 @@ public class StartupValues {
 	}
 
 	/**
+	 * Parse the next value without notifications, using args only. No notifications.
+	 */
+	public Parser.String next() {
+		return next((String) null);
+	}
+
+	/**
+	 * Parse the next value without notifications, from args, or name-based environment variable or
+	 * system property.
+	 */
+	public Parser.String next(String name) {
+		String sysProp = sysProp(name);
+		return next(name, sysProp, envVarFrom(sysProp));
+	}
+
+	/**
+	 * Parse the next value without notifications, from args, or explicitly named environment
+	 * variable or system property.
+	 */
+	public Parser.String next(String name, String sysProp, String envVar) {
+		return source(name, nextArg(), sysProp, envVar).parser();
+	}
+
+	/**
 	 * Parse the next value, using args only.
 	 */
 	public <E extends Exception, T> T next(ExceptionFunction<E, Parser.String, T> fn) throws E {
@@ -154,8 +196,7 @@ public class StartupValues {
 	public <E extends Exception, T> T next(String name, ExceptionFunction<E, Parser.String, T> fn)
 		throws E {
 		String sysProp = sysProp(name);
-		String envVar = envVarFrom(sysProp);
-		return next(name, sysProp, envVar, fn);
+		return next(name, sysProp, envVarFrom(sysProp), fn);
 	}
 
 	/**
@@ -164,6 +205,43 @@ public class StartupValues {
 	public <E extends Exception, T> T next(String name, String sysProp, String envVar,
 		ExceptionFunction<E, Parser.String, T> fn) throws E {
 		return source(name, nextArg(), sysProp, envVar).parse(fn);
+	}
+
+	/**
+	 * Parse the value from arg index.
+	 */
+	public Parser.String value(int index) {
+		return value((String) null, index);
+	}
+
+	/**
+	 * Parse the value from name-based environment variable or system property.
+	 */
+	public Parser.String value(String name) {
+		String sysProp = sysProp(name);
+		return source(name, null, sysProp, envVarFrom(sysProp)).parser();
+	}
+
+	/**
+	 * Parse the value from arg index, or name-based environment variable or system property.
+	 */
+	public Parser.String value(String name, int index) {
+		String sysProp = sysProp(name);
+		return source(name, index, sysProp, envVarFrom(sysProp)).parser();
+	}
+
+	/**
+	 * Parse the value from explicitly named environment variable or system property.
+	 */
+	public Parser.String value(String sysProp, String envVar) {
+		return source(null, null, sysProp, envVar).parser();
+	}
+
+	/**
+	 * Parse the value from arg index, or explicitly named environment variable or system property.
+	 */
+	public Parser.String value(int index, String sysProp, String envVar) {
+		return source(null, index, sysProp, envVar).parser();
 	}
 
 	/**

@@ -19,6 +19,8 @@ public class StartupValuesBehavior {
 	public void shouldLookupValue() {
 		String sysProp = firstSystemPropertyName();
 		String envVar = firstEnvironmentVariableName();
+		assertEquals(StartupValues.lookup(sysProp).get(), SystemVars.sys(sysProp));
+		assertEquals(StartupValues.lookup(null, envVar).get(), SystemVars.env(envVar));
 		assertEquals(StartupValues.lookup(sysProp, p -> p.get()), SystemVars.sys(sysProp));
 		assertEquals(StartupValues.lookup(null, envVar, p -> p.get()), SystemVars.env(envVar));
 	}
@@ -49,11 +51,32 @@ public class StartupValuesBehavior {
 	}
 
 	@Test
+	public void shouldGetParserFromArgumentArray() {
+		StartupValues v = StartupValues.of("a", null, "c");
+		assertEquals(v.next().get(), "a");
+		assertEquals(v.next().get("b"), "b");
+		assertEquals(v.next().get("d"), "c");
+		assertEquals(v.skip().next().get("e"), "e");
+		assertEquals(v.value(0).get("d"), "a");
+		assertEquals(StartupValues.of((String[]) null).next().get("x"), "x");
+		assertEquals(StartupValues.of().next().get("x"), "x");
+		assertEquals(StartupValues.of().value(-1).get("x"), "x");
+	}
+
+	@Test
 	public void shouldGetSystemProperties() {
 		StartupValues v = StartupValues.of();
 		String sysProp = firstSystemPropertyName();
 		assertEquals(v.value(sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
 		assertEquals(v.value(1, sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
+	}
+
+	@Test
+	public void shouldGetParserSystemProperties() {
+		StartupValues v = StartupValues.of();
+		String sysProp = firstSystemPropertyName();
+		assertEquals(v.value(sysProp, (String) null).get(), SystemVars.sys(sysProp));
+		assertEquals(v.value(1, sysProp, null).get(), SystemVars.sys(sysProp));
 	}
 
 	@Test
