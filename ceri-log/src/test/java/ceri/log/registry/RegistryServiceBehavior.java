@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
@@ -14,6 +15,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
+import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 
@@ -31,7 +33,15 @@ public class RegistryServiceBehavior {
 	}
 
 	@Test
-	public void should() throws IOException {
+	public void shouldCreateConfigFromProperties() {
+		var config = new RegistryService.Properties(TestUtil.typedProperties("registry", "service"))
+			.config();
+		assertEquals(config,
+			new RegistryService.Config("test", Path.of("test/registry.properties"), 100, 200));
+	}
+
+	@Test
+	public void shouldCreateNoOpInstance() throws IOException {
 		service = RegistryService.of(NULL_CONSUMER, NULL_CONSUMER);
 	}
 
@@ -117,7 +127,7 @@ public class RegistryServiceBehavior {
 
 	@Test
 	public void shouldAllowNullPath() throws IOException {
-		service = RegistryService.of("reg", null);
+		service = service("reg", null);
 		service.registry.accept(p -> p.set(123, "a.b.c")); // no exception thrown
 		service.persist(true);
 	}
@@ -125,7 +135,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldIgnoreLoadForMissingFile() throws IOException {
 		files = FileTestHelper.builder().build();
-		service = RegistryService.of("reg", files.path(REG_FILENAME)); // no exception thrown
+		service = service("reg", files.path(REG_FILENAME)); // no exception thrown
 	}
 
 	@Test
@@ -138,10 +148,14 @@ public class RegistryServiceBehavior {
 		assertEquals(content, "a.b.c=123");
 	}
 
+	private static RegistryService service(String name, Path path) throws IOException {
+		return RegistryService.of(RegistryService.Config.of(name, path));
+	}
+
 	private void init(String... lines) throws IOException {
 		var content = String.join("\n", lines);
 		files = FileTestHelper.builder().file(REG_FILENAME, content).build();
-		service = RegistryService.of("reg", files.path(REG_FILENAME));
+		service = service("reg", files.path(REG_FILENAME));
 	}
 
 	private String regFileContent() throws IOException {

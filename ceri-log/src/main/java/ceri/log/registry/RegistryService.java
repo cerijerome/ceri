@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.Properties;
 import java.util.SequencedMap;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
@@ -31,42 +30,66 @@ import ceri.log.util.LogUtil;
  */
 public class RegistryService extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
-	private static final int DELAY_MS_DEF = 5000;
-	private static final int ERROR_DELAY_MS_DEF = 5000;
 	private final Locker locker = Locker.of();
 	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
-	private final ExceptionConsumer<IOException, Properties> loadFn;
-	private final ExceptionConsumer<IOException, Properties> saveFn;
+	private final ExceptionConsumer<IOException, java.util.Properties> loadFn;
+	private final ExceptionConsumer<IOException, java.util.Properties> saveFn;
 	private final int delayMs;
 	private final int errorDelayMs;
 	private final SequencedMap<Object, Runnable> updates = new LinkedHashMap<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
-	private final Properties properties = new Properties();
+	private final java.util.Properties properties = new java.util.Properties();
 	private final PropertySource source = PropertySource.Properties.of(properties);
 	public final Registry registry = registry(TypedProperties.of(source));
 
-	public static RegistryService of(String name, Path path) throws IOException {
-		return of(name, path, DELAY_MS_DEF, ERROR_DELAY_MS_DEF);
+	public record Config(String name, Path path, int delayMs, int errorDelayMs) {
+
+		public static final int DELAY_MS = 5000;
+		public static final int ERROR_DELAY_MS = 5000;
+
+		public static Config of(String name, Path path) {
+			return new Config(name, path, DELAY_MS, ERROR_DELAY_MS);
+		}
 	}
 
-	public static RegistryService of(String name, Path path, int delayMs, int errorDelayMs)
-		throws IOException {
-		return of(p -> loadPath(p, path), p -> savePath(p, path, name), delayMs, errorDelayMs);
+	/**
+	 * Instantiates config from properties.
+	 */
+	public static class Properties extends TypedProperties.Ref {
+		private static final String NAME_KEY = "name";
+		private static final String PATH_KEY = "path";
+		private static final String DELAY_MS_KEY = "delay.ms";
+		private static final String ERROR_DELAY_MS_KEY = "error.delay.ms";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			return new Config(parse(NAME_KEY).get(), parse(PATH_KEY).to(Path::of),
+				parse(DELAY_MS_KEY).toInt(Config.DELAY_MS),
+				parse(ERROR_DELAY_MS_KEY).toInt(Config.ERROR_DELAY_MS));
+		}
 	}
 
-	public static RegistryService of(ExceptionConsumer<IOException, Properties> loadFn,
-		ExceptionConsumer<IOException, Properties> saveFn) throws IOException {
-		return of(loadFn, saveFn, DELAY_MS_DEF, ERROR_DELAY_MS_DEF);
+	public static RegistryService of(Config config) throws IOException {
+		return of(p -> loadPath(p, config.path()), p -> savePath(p, config.path(), config.name()),
+			config.delayMs(), config.errorDelayMs());
 	}
 
-	public static RegistryService of(ExceptionConsumer<IOException, Properties> loadFn,
-		ExceptionConsumer<IOException, Properties> saveFn, int delayMs, int errorDelayMs)
+	public static RegistryService of(ExceptionConsumer<IOException, java.util.Properties> loadFn,
+		ExceptionConsumer<IOException, java.util.Properties> saveFn) throws IOException {
+		return of(loadFn, saveFn, Config.DELAY_MS, Config.ERROR_DELAY_MS);
+	}
+
+	public static RegistryService of(ExceptionConsumer<IOException, java.util.Properties> loadFn,
+		ExceptionConsumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
 		throws IOException {
 		return new RegistryService(loadFn, saveFn, delayMs, errorDelayMs);
 	}
 
-	private RegistryService(ExceptionConsumer<IOException, Properties> loadFn,
-		ExceptionConsumer<IOException, Properties> saveFn, int delayMs, int errorDelayMs)
+	private RegistryService(ExceptionConsumer<IOException, java.util.Properties> loadFn,
+		ExceptionConsumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
 		throws IOException {
 		this.loadFn = loadFn;
 		this.saveFn = saveFn;
@@ -144,14 +167,15 @@ public class RegistryService extends LoopingExecutor {
 		if (saveFn != null) saveFn.accept(properties);
 	}
 
-	private static void loadPath(Properties properties, Path path) throws IOException {
+	private static void loadPath(java.util.Properties properties, Path path) throws IOException {
 		if (path == null || !Files.exists(path)) return;
 		try (InputStream in = Files.newInputStream(path)) {
 			properties.load(in);
 		}
 	}
 
-	private static void savePath(Properties properties, Path path, String name) throws IOException {
+	private static void savePath(java.util.Properties properties, Path path, String name)
+		throws IOException {
 		if (path == null || properties.isEmpty()) return;
 		var comment = String.format("# Written by %s %s", name, DateUtil.nowSec());
 		Files.createDirectories(path.getParent());

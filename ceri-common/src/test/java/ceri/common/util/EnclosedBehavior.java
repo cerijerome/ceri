@@ -58,6 +58,15 @@ public class EnclosedBehavior {
 		sync.assertCalls(1);
 	}
 
+	@Test
+	public void shouldCreateCloseable() {
+		var sync = CallSync.runnable(true);
+		try (var c = Enclosed.from(() -> sync, CallSync.Runnable::run)) {
+			assertEquals(c.ref, sync);
+		}
+		sync.assertCalls(1);
+	}
+	
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAdaptCloseableType() {

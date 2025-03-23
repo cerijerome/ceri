@@ -245,7 +245,7 @@ public class CloseableUtil {
 	 * subject is null. Exceptions are suppressed, and interrupted exceptions will re-interrupt the
 	 * thread. Returns false if any exception occurred.
 	 */
-	public static <T> boolean close(T t, ExceptionConsumer<?, T> closeFn) {
+	public static <T> boolean close(T t, ExceptionConsumer<?, ? super T> closeFn) {
 		return consumeIt(t, closeFn::accept);
 	}
 

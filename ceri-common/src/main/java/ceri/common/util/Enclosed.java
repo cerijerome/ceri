@@ -127,6 +127,15 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	}
 
 	/**
+	 * Creates a type then wraps as an enclosed type.
+	 */
+	public static <E extends Exception, F extends Exception, T, U extends T> Enclosed<F, T>
+		from(ExceptionSupplier<E, ? extends U> constructor, ExceptionConsumer<F, ? super U> closer)
+			throws E {
+		return of(constructor.get(), closer);
+	}
+
+	/**
 	 * Adapts a closeable type to a new enclosed type; closing the type on close or failure.
 	 */
 	public static <E extends Exception, T extends ExceptionCloseable<E>, R> Enclosed<E, R>
