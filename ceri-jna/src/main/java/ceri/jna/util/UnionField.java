@@ -1,55 +1,157 @@
 package ceri.jna.util;
 
-import static ceri.common.math.MathUtil.uint;
+import java.util.Objects;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
+import java.util.function.ObjLongConsumer;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import com.sun.jna.Union;
-import ceri.common.data.Field;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionObjIntConsumer;
-import ceri.common.function.ExceptionObjLongConsumer;
-import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.ExceptionToLongFunction;
 
 /**
  * Methods to provide access to union fields, automatically setting type for get and set.
  */
-public class UnionField {
+public class UnionField<U extends Union> {
+	public final String name;
 
-	private UnionField() {}
-
-	/**
-	 * Accessor for a union field. Sets field type, and auto-reads field on get.
-	 */
-	public static <E extends Exception, U extends Union, T> Field<E, U, T> of(String name,
-		ExceptionFunction<E, U, T> getter, ExceptionBiConsumer<E, U, T> setter) {
-		return Field.of(getter == null ? null : u -> {
-			u.setType(name);
-			if (u.getAutoRead()) u.readField(name);
-			return getter.apply(u);
-		}, setter == null ? null : (u, t) -> {
-			u.setType(name);
-			setter.accept(u, t);
-		});
+	public static <U extends Union, T> UnionField.Type<U, T> of(String name, Function<U, T> getter,
+		BiConsumer<U, T> setter) {
+		return new UnionField.Type<>(name, getter, setter);
 	}
 
-	/**
-	 * Create an instance with getter and setter for an unsigned int field.
-	 */
-	public static <E extends Exception, U extends Union> Field.Long<E, U> ofUint(String name,
-		ExceptionToIntFunction<E, U> getter, ExceptionObjIntConsumer<E, U> setter) {
-		return ofLong(name, getter == null ? null : t -> uint(getter.applyAsInt(t)),
-			setter == null ? null : (t, v) -> setter.accept(t, (int) v));
+	public static <U extends Union> UnionField.Int<U> ofInt(String name, ToIntFunction<U> getter,
+		ObjIntConsumer<U> setter) {
+		return new UnionField.Int<>(name, getter, setter);
 	}
 
-	/**
-	 * Accessor for a union long field. Sets field type as needed.
-	 */
-	public static <E extends Exception, U extends Union> Field.Long<E, U> ofLong(String name,
-		ExceptionToLongFunction<E, U> getter, ExceptionObjLongConsumer<E, U> setter) {
-		return Field.ofLong(getter, setter == null ? null : (u, t) -> {
-			u.setType(name); // only required for set
-			setter.accept(u, t);
-		});
+	public static <U extends Union> UnionField.Long<U> ofLong(String name, ToLongFunction<U> getter,
+		ObjLongConsumer<U> setter) {
+		return new UnionField.Long<>(name, getter, setter);
 	}
 
+	public static class Type<U extends Union, T> extends UnionField<U> {
+		private final Function<U, T> getter;
+		private final BiConsumer<U, T> setter;
+
+		private Type(String name, Function<U, T> getter, BiConsumer<U, T> setter) {
+			super(name);
+			this.getter = getter;
+			this.setter = setter;
+		}
+
+		public T get(U union) {
+			if (super.autoRead(union) == null) return null;
+			return Objects.requireNonNull(getter).apply(union);
+		}
+
+		public U set(U union, T value) {
+			if (super.activate(union) != null) Objects.requireNonNull(setter).accept(union, value);
+			return union;
+		}
+
+		public T read(U union) {
+			if (super.readField(union) == null) return null;
+			return Objects.requireNonNull(getter).apply(union);
+		}
+
+		public U write(U union, T value) {
+			if (union != null) Objects.requireNonNull(setter).accept(union, value);
+			return super.writeField(union);
+		}
+	}
+
+	public static class Int<U extends Union> extends UnionField<U> {
+		private final ToIntFunction<U> getter;
+		private final ObjIntConsumer<U> setter;
+
+		private Int(String name, ToIntFunction<U> getter, ObjIntConsumer<U> setter) {
+			super(name);
+			this.getter = getter;
+			this.setter = setter;
+		}
+
+		public int get(U union) {
+			if (super.autoRead(union) == null) return 0;
+			return Objects.requireNonNull(getter).applyAsInt(union);
+		}
+
+		public U set(U union, int value) {
+			if (super.activate(union) != null) Objects.requireNonNull(setter).accept(union, value);
+			return union;
+		}
+
+		public int read(U union) {
+			if (super.readField(union) == null) return 0;
+			return Objects.requireNonNull(getter).applyAsInt(union);
+		}
+
+		public U write(U union, int value) {
+			if (union != null) Objects.requireNonNull(setter).accept(union, value);
+			return super.writeField(union);
+		}
+	}
+
+	public static class Long<U extends Union> extends UnionField<U> {
+		private final ToLongFunction<U> getter;
+		private final ObjLongConsumer<U> setter;
+
+		private Long(String name, ToLongFunction<U> getter, ObjLongConsumer<U> setter) {
+			super(name);
+			this.getter = getter;
+			this.setter = setter;
+		}
+
+		public long get(U union) {
+			if (super.autoRead(union) == null) return 0;
+			return Objects.requireNonNull(getter).applyAsLong(union);
+		}
+
+		public U set(U union, long value) {
+			if (super.activate(union) != null) Objects.requireNonNull(setter).accept(union, value);
+			return union;
+		}
+
+		public long read(U union) {
+			if (super.readField(union) == null) return 0L;
+			return Objects.requireNonNull(getter).applyAsLong(union);
+		}
+
+		public U write(U union, long value) {
+			if (union != null) Objects.requireNonNull(setter).accept(union, value);
+			return super.writeField(union);
+		}
+	}
+
+	private UnionField(String name) {
+		this.name = name;
+	}
+
+	public U activate(U union) {
+		if (union != null) union.setType(name);
+		return union;
+	}
+
+	public U write(U union) {
+		if (union != null) union.writeField(name);
+		return union;
+	}
+
+	private U autoRead(U union) {
+		if (union != null) {
+			if (union.getAutoRead()) union.readField(name);
+			else union.setType(name);
+		}
+		return union;
+	}
+
+	private U readField(U union) {
+		if (union != null) union.readField(name);
+		return union;
+	}
+
+	private U writeField(U union) {
+		if (union != null) union.writeField(name);
+		return union;
+	}
 }

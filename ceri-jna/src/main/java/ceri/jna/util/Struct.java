@@ -21,6 +21,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.data.ByteProvider;
 import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
@@ -30,10 +31,7 @@ import ceri.common.util.BasicUtil;
  */
 public abstract class Struct extends Structure {
 	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
-	private static final JnaArgs ARGS = JnaArgs.builder().add(Byte.class, "0x%02x")
-		.add(Short.class, "0x%04x").add(Integer.class, "0x%08x").add(Long.class, "0x%x")
-		.add(NativeLong.class, n -> String.format("0x%x", n.longValue()))
-		.add(Pointer.class, JnaArgs::string).add(Callback.class, JnaArgs::string).build();
+	private static final JnaArgs ARGS = args();
 	private static final String INDENT = "\t";
 
 	/**
@@ -72,11 +70,19 @@ public abstract class Struct extends Structure {
 	/**
 	 * Set active union field by name.
 	 */
-	public static <U extends Union> U type(U t, String name) {
-		if (t != null) t.setType(name);
-		return t;
+	public static <U extends Union> U type(U u, String name) {
+		if (u != null) u.setType(name);
+		return u;
 	}
 
+	/**
+	 * Read a struct/union field and cast to type.
+	 */
+	public static <T> T readField(Structure struct, String name) {
+		if (struct == null) return null;
+		return BasicUtil.uncheckedCast(struct.readField(name));
+	}
+	
 	/**
 	 * Returns the pointer to the first element of the array, or null if empty. The array is not
 	 * required to be contiguous.
@@ -542,4 +548,17 @@ public abstract class Struct extends Structure {
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
 				Fields.class.getSimpleName(), ReflectUtil.name(cls)));
 	}
+	
+	private static JnaArgs args() {
+		return JnaArgs.builder() //
+			.add(Byte.class, "0x%02x") //
+			.add(Short.class, "0x%04x") //
+			.add(Integer.class, "0x%08x") //
+			.add(Long.class, "0x%x") //
+			.add(NativeLong.class, n -> String.format("0x%x", n.longValue())) //
+			.add(byte[].class, a -> ByteProvider.toHex(ByteProvider.of(a))) //
+			.add(Pointer.class, JnaArgs::string) //
+			.add(Callback.class, JnaArgs::string) //
+			.build();
+	}	
 }

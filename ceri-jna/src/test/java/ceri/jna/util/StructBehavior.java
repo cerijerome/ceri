@@ -14,7 +14,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Union;
-import ceri.common.collection.ArrayUtil;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.Struct.Fields;
 
@@ -41,7 +40,8 @@ public class StructBehavior {
 		public TestUnion(int i, Pointer p, int... bytes) {
 			this.i = i;
 			this.p = p;
-			ArrayUtil.copy(ArrayUtil.bytes(bytes), 0, this.b, 0, bytes.length);
+			for (int k = 0; k < Math.min(b.length, bytes.length); k++)
+				b[k] = (byte) bytes[k];
 		}
 
 		public TestUnion(Pointer p) {
@@ -50,11 +50,26 @@ public class StructBehavior {
 	}
 
 	@Test
+	public void testTypeForNullUnion() {
+		assertEquals(Struct.type(null, "x"), null);
+	}
+
+	@Test
 	public void testSetUnionTypeByName() {
 		var t0 = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
 		var p = Struct.write(Struct.type(t0, "i")).getPointer();
 		var t = Struct.read(new TestUnion(p));
 		assertEquals(t.i, 123);
+	}
+
+	@Test
+	public void testReadTypedField() {
+		var t = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
+		t.writeField("i");
+		assertEquals(Struct.readField(null, "i"), null);
+		assertEquals(Struct.readField(t, "i"), 123);
+		t.writeField("b");
+		assertArray(Struct.<byte[]>readField(t, "b"), -1, -2, -3, -4);
 	}
 
 	@Test
