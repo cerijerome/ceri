@@ -48,11 +48,11 @@ public class JnaTestUtil {
 		private MemCache() {}
 
 		public GcMemory mallocBytes(int... bytes) {
-			return cache(GcMemory.mallocBytes(bytes));
+			return cache(mem(bytes));
 		}
 
 		public GcMemory calloc(int size) {
-			return cache(GcMemory.malloc(size).clear());
+			return cache(memSize(size).clear());
 		}
 
 		@Override
@@ -75,6 +75,20 @@ public class JnaTestUtil {
 		return new MemCache();
 	}
 
+	/**
+	 * Allocate native memory and copy array.
+	 */
+	public static GcMemory mem(int... array) {
+		return GcMemory.mallocBytes(array);
+	}
+	
+	/**
+	 * Allocate native memory and copy array.
+	 */
+	public static GcMemory memSize(int size) {
+		return GcMemory.malloc(size);
+	}
+	
 	/**
 	 * Checks remaining memory from offset matches bytes.
 	 */

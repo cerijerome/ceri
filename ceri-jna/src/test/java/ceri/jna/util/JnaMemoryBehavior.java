@@ -7,6 +7,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
+import static ceri.jna.test.JnaTestUtil.mem;
+import static ceri.jna.test.JnaTestUtil.memSize;
 import static ceri.jna.util.JnaUtil.nlong;
 import static ceri.jna.util.JnaUtil.unlong;
 import java.io.ByteArrayOutputStream;
@@ -97,7 +99,7 @@ public class JnaMemoryBehavior {
 	@Test
 	public void shouldCopyFromMemory() {
 		var m = calloc(5);
-		assertEquals(m.copyFrom(1, GcMemory.mallocBytes(0x80, 0xff, 0x7f).m), 4);
+		assertEquals(m.copyFrom(1, mem(0x80, 0xff, 0x7f).m), 4);
 		assertArray(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
 
@@ -157,7 +159,7 @@ public class JnaMemoryBehavior {
 	@Test
 	public void shouldWriteFromMemory() {
 		try (var m = JnaUtil.calloc(5)) {
-			JnaMemory.of(m).writer(0).writeFrom(GcMemory.mallocBytes(0x80, 0xff, 0, 0x7f).m);
+			JnaMemory.of(m).writer(0).writeFrom(mem(0x80, 0xff, 0, 0x7f).m);
 			assertMemory(m, 0, 0x80, 0xff, 0, 0x7f, 0);
 		}
 	}
@@ -186,15 +188,15 @@ public class JnaMemoryBehavior {
 	}
 
 	private static JnaMemory malloc(int size) {
-		return JnaMemory.of(GcMemory.malloc(size).m);
+		return JnaMemory.of(memSize(size).m);
 	}
 
 	private static JnaMemory calloc(int size) {
-		return JnaMemory.of(GcMemory.malloc(size).clear().m);
+		return JnaMemory.of(memSize(size).clear().m);
 	}
 
 	private static JnaMemory m(int... bytes) {
-		return JnaMemory.of(GcMemory.mallocBytes(bytes).m);
+		return JnaMemory.of(mem(bytes).m);
 	}
 
 }

@@ -8,12 +8,12 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
+import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.util.Enclosed;
 import ceri.jna.util.ArrayPointer;
-import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
@@ -64,7 +64,7 @@ public class LibUsbTest {
 	@Test
 	public void testControlSetup() {
 		var transfer = new LibUsb.libusb_transfer(null);
-		var m = GcMemory.mallocBytes(0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9);
+		var m = mem(0, 0, 0, 0, 0, 0, 0, 0, 7, 8, 9);
 		var setup = LibUsb.libusb_fill_control_setup(m.m, 0x80, 3, 4, 5, 3);
 		LibUsb.libusb_fill_control_transfer(transfer, null, setup, null, null, 0);
 		setup = LibUsb.libusb_control_transfer_get_setup(transfer);

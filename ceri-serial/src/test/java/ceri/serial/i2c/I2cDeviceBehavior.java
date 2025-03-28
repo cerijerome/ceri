@@ -12,6 +12,8 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.jna.test.JnaTestUtil.LEX;
+import static ceri.jna.test.JnaTestUtil.mem;
+import static ceri.jna.test.JnaTestUtil.memSize;
 import static ceri.serial.i2c.jna.I2cDev.i2c_func.I2C_FUNC_SMBUS_EMUL;
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +24,6 @@ import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.test.JnaTestUtil;
-import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
 import ceri.serial.i2c.jna.TestI2cCLibNative;
@@ -116,8 +117,8 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldWriteAndReadFromMemory() throws IOException {
 		var lib = initI2c();
-		var out = GcMemory.mallocBytes(1, 2, 3);
-		var in = GcMemory.malloc(3);
+		var out = mem(1, 2, 3);
+		var in = memSize(3);
 		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
 		i2c.writeRead(I2cAddress.of(0x1ab), out.m, in.m);
 		JnaTestUtil.assertMemory(in.m, 0, 4, 5, 6);

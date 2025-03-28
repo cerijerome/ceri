@@ -293,7 +293,7 @@ public class ReflectUtil {
 			return cls.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeInvocationException(String.format("constructor %s%s not found",
-				cls.getSimpleName(), Joiner.PARAM.join(Class::getSimpleName, argTypes)), e);
+				cls.getSimpleName(), Joiner.PARAM.joinAll(Class::getSimpleName, argTypes)), e);
 		}
 	}
 
@@ -490,10 +490,10 @@ public class ReflectUtil {
 	}
 
 	private static String args(Object[] args) {
-		return Joiner.COMMA.join(args);
+		return Joiner.COMMA.joinAll(args);
 	}
 
 	private static String types(Class<?>[] types) {
-		return Joiner.COMMA.join(Class::getSimpleName, types);
+		return Joiner.COMMA.joinAll(Class::getSimpleName, types);
 	}
 }

@@ -36,6 +36,15 @@ public class JnaArgsBehavior {
 	}
 
 	@Test
+	public void shouldLimitArrays() {
+		var args = JnaArgs.builder().arrayMax(3).build();
+		assertEquals(args.arg(new int[][] { { 1 }, { 2, 3, 4, 5 }, { 6, 7 } }),
+			"[[1],[2,3,..](4),[6,7]]");
+		assertEquals(args.arg(new int[][] { { 1 }, { 2, 3, 4, 5 }, { 6, 7 }, { 8 } }),
+			"[[1],[2,3,..](4),..](4)");
+	}
+
+	@Test
 	public void shouldExpandIterable() {
 		assertEquals(JnaArgs.DEFAULT.args(Set.of(Set.of(1)), List.of(2, 3, new int[] { 4, 5 })),
 			"[[1]],[2,3,[4,5]]");
@@ -80,9 +89,9 @@ public class JnaArgsBehavior {
 
 	@Test
 	public void shouldPrintHexIntIfInRange() {
-		assertEquals(JnaArgs.DEFAULT.args(-256, -16, -15, 15, 16, 256),
-			"-256/0xffffff00,-16/0xfffffff0,-15,15,16/0x10,256/0x100");
-		assertEquals(JnaArgs.DEFAULT.args(JnaUtil.unlong(0x100000000L)), "4294967296/0x100000000");
+		assertEquals(JnaArgs.DEFAULT.args(-256, -2, -1, 9, 10, 256),
+			"-256|0xffffff00,-2|0xfffffffe,-1,9,10|0xa,256|0x100");
+		assertEquals(JnaArgs.DEFAULT.args(JnaUtil.unlong(0x100000000L)), "4294967296|0x100000000");
 	}
 
 	@Test

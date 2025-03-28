@@ -594,6 +594,18 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testInts() {
+		assertArray(ArrayUtil.ints(new byte[] { -1, 0, 1 }), -1, 0, 1);
+		assertArray(ArrayUtil.ints(new short[] { -1, 0, 1 }), -1, 0, 1);
+	}
+
+	@Test
+	public void testUints() {
+		assertArray(ArrayUtil.uints(new byte[] { -1, 0, 1 }), 0xff, 0, 1);
+		assertArray(ArrayUtil.uints(new short[] { -1, 0, 1 }), 0xffff, 0, 1);
+	}
+
+	@Test
 	public void testIsArray() {
 		assertTrue(ArrayUtil.isArray(new boolean[] {}));
 		assertFalse(ArrayUtil.isArray((boolean[]) null));

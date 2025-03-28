@@ -46,32 +46,34 @@ public class JoinerBehavior {
 	@Test
 	public void shouldShowCount() {
 		var b = Joiner.builder().separator("/").remainder(".").countFormat("=%d");
-		assertString(b.max(null).showCount(Truth.yes).build().join(1, 2, 3), "1/2/3=3");
-		assertString(b.max(2).showCount(Truth.maybe).build().join(1, 2), "1/2");
-		assertString(b.max(2).showCount(Truth.maybe).build().join(1, 2, 3), "1/.=3");
-		assertString(b.max(2).showCount(Truth.no).build().join(1, 2, 3), "1/.");
+		assertString(b.max(null).showCount(Truth.yes).build().joinAll(1, 2, 3), "1/2/3=3");
+		assertString(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2), "1/2");
+		assertString(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2, 3), "1/.=3");
+		assertString(b.max(2).showCount(Truth.no).build().joinAll(1, 2, 3), "1/.");
 	}
 
 	@Test
 	public void shouldShowRemainder() {
 		var b = Joiner.builder().separator("/").max(2).showCount(Truth.no);
-		assertString(b.remainder(".").build().join(1, 2, 3), "1/.");
-		assertString(b.remainder(null).build().join(1, 2, 3), "1/");
+		assertString(b.remainder(".").build().joinAll(1, 2, 3), "1/.");
+		assertString(b.remainder(null).build().joinAll(1, 2, 3), "1/");
 	}
 
 	@Test
 	public void shouldIgnoreBadJoinInput() {
 		assertString(COLON.joinIndex(NULL_IDX_FN, 1, 3), "");
 		assertString(COLON.joinIndex(NULL_IDX_APP, 1, 3), "");
-		assertString(COLON.join(NULL_STR_FN, 1, 2, 3), "");
+		assertString(COLON.joinAll(NULL_STR_FN, 1, 2, 3), "");
 		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1)), "");
 		assertString(COLON.join(NULL_STR_FN, Stream.of(-1, 0, 1)), "");
 		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator()), "");
+		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator(), 1), "");
 		assertString(COLON.join(NULL_APP, List.of(-1, 0, 1)), "");
-		assertString(COLON.join(NULL_ARRAY), "");
+		assertString(COLON.joinAll(NULL_ARRAY), "");
 		assertString(COLON.join(NULL_LIST), "");
 		assertString(COLON.join(NULL_STREAM), "");
 		assertString(COLON.join(NULL_ITERATOR), "");
+		assertString(COLON.join(NULL_ITERATOR, 1), "");
 	}
 
 	@Test
@@ -79,18 +81,22 @@ public class JoinerBehavior {
 		assertEquals(COLON.appendIndex(null, StringBuilder::append, 3), null);
 		assertString(COLON.appendIndex(sb(), NULL_IDX_FN, 3), "");
 		assertString(COLON.appendIndex(sb(), NULL_IDX_APP, 3), "");
-		assertEquals(COLON.append(null, StringBuilder::append, 1, 2, 3), null);
+		assertEquals(COLON.appendAll(null, StringBuilder::append, 1, 2, 3), null);
 		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3)), null);
 		assertEquals(COLON.append(null, StringBuilder::append, Stream.of(1, 2, 3)), null);
 		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator()), null);
-		assertString(COLON.append(sb(), NULL_STR_FN, 1, 2, 3), "");
+		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator(), 1),
+			null);
+		assertString(COLON.appendAll(sb(), NULL_STR_FN, 1, 2, 3), "");
 		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3)), "");
 		assertString(COLON.append(sb(), NULL_STR_FN, Stream.of(1, 2, 3)), "");
 		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator()), "");
-		assertString(COLON.append(sb(), NULL_ARRAY), "");
+		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator(), 1), "");
+		assertString(COLON.appendAll(sb(), NULL_ARRAY), "");
 		assertString(COLON.append(sb(), NULL_LIST), "");
 		assertString(COLON.append(sb(), NULL_STREAM), "");
 		assertString(COLON.append(sb(), NULL_ITERATOR), "");
+		assertString(COLON.append(sb(), NULL_ITERATOR, 1), "");
 	}
 
 	@Test
@@ -102,10 +108,10 @@ public class JoinerBehavior {
 
 	@Test
 	public void shouldJoinArrays() {
-		assertString(OR.join(-1, 0, 1), "-1|0|1");
-		assertString(OR.join(i -> -i, -1, 0, 1), "1|0|-1");
-		assertString(OR.append(sb(), -1, 0, 1), "-1|0|1");
-		assertString(OR.append(sb(), i -> -i, -1, 0, 1), "1|0|-1");
+		assertString(OR.joinAll(-1, 0, 1), "-1|0|1");
+		assertString(OR.joinAll(i -> -i, -1, 0, 1), "1|0|-1");
+		assertString(OR.appendAll(sb(), -1, 0, 1), "-1|0|1");
+		assertString(OR.appendAll(sb(), i -> -i, -1, 0, 1), "1|0|-1");
 	}
 
 	@Test
@@ -128,8 +134,12 @@ public class JoinerBehavior {
 	public void shouldJoinIterators() {
 		assertString(OR.join(List.of(-1, 0, 1).iterator()), "-1|0|1");
 		assertString(OR.join(i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
+		assertString(OR.join(List.of(-1, 0, 1).iterator(), 2), "-1|0");
+		assertString(OR.join(i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
 		assertString(OR.append(sb(), List.of(-1, 0, 1).iterator()), "-1|0|1");
+		assertString(OR.append(sb(), List.of(-1, 0, 1).iterator(), 2), "-1|0");
 		assertString(OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
+		assertString(OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
 	}
 
 	private static StringBuilder sb() {

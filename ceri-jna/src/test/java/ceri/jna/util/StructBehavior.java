@@ -8,12 +8,12 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
+import java.util.List;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
-import com.sun.jna.Union;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.Struct.Fields;
 
@@ -29,47 +29,6 @@ public class StructBehavior {
 		public TestStruct[] innerVal = { new TestStruct(), new TestStruct() };
 		public TestStruct.ByRef[] innerRef = new TestStruct.ByRef[3];
 		public NativeLong nlong = JnaUtil.unlong(0x100000000L);
-	}
-
-	@Fields({ "innerVal", "innerRef" })
-	public static class TestUnion extends Union {
-		public int i;
-		public Pointer p;
-		public byte[] b = new byte[4];
-
-		public TestUnion(int i, Pointer p, int... bytes) {
-			this.i = i;
-			this.p = p;
-			for (int k = 0; k < Math.min(b.length, bytes.length); k++)
-				b[k] = (byte) bytes[k];
-		}
-
-		public TestUnion(Pointer p) {
-			super(p);
-		}
-	}
-
-	@Test
-	public void testTypeForNullUnion() {
-		assertEquals(Struct.type(null, "x"), null);
-	}
-
-	@Test
-	public void testSetUnionTypeByName() {
-		var t0 = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
-		var p = Struct.write(Struct.type(t0, "i")).getPointer();
-		var t = Struct.read(new TestUnion(p));
-		assertEquals(t.i, 123);
-	}
-
-	@Test
-	public void testReadTypedField() {
-		var t = new TestUnion(123, GcMemory.mallocBytes(5, 6, 7).m, -1, -2, -3, -4);
-		t.writeField("i");
-		assertEquals(Struct.readField(null, "i"), null);
-		assertEquals(Struct.readField(t, "i"), 123);
-		t.writeField("b");
-		assertArray(Struct.<byte[]>readField(t, "b"), -1, -2, -3, -4);
 	}
 
 	@Test
@@ -368,6 +327,7 @@ public class StructBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
+		assertEquals(Struct.toString(null, List.of(), _ -> 0), "null");
 		String s = new Outer().toString();
 		assertMatch(s, """
 			(?s)Outer\\(@\\w+\\+\\w+\\) \\{

@@ -15,6 +15,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.collection.StreamUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.Joiner;
@@ -24,11 +25,12 @@ import ceri.common.text.StringUtil;
  * Utility to create strings from method arguments. Arrays and Iterable types are expanded.
  */
 public class JnaArgs {
-	public static JnaArgs DEFAULT = builder().addDefault().build();
+	public static JnaArgs DEFAULT = builder().addDefault(true).build();
 	private static final List<Class<?>> INT_CLASSES =
 		List.of(Byte.class, Short.class, Integer.class, Long.class, NativeLong.class);
-	private static final int HEX_LIMIT = 0xf;
+	private static final int DEC_LIMIT = 9;
 	private final List<Function<Object, String>> transforms;
+	private final Joiner arrayJoiner;
 
 	/**
 	 * Predicate to match an instance of any given of the classes.
@@ -49,7 +51,7 @@ public class JnaArgs {
 	 * type is incompatible with %d and %x format conversions.
 	 */
 	public static String stringInt(Number n) {
-		return stringInt(n, -HEX_LIMIT, HEX_LIMIT);
+		return stringInt(n, -1, DEC_LIMIT);
 	}
 
 	/**
@@ -60,7 +62,7 @@ public class JnaArgs {
 		long l = n.longValue();
 		if (l >= hexMin && l <= hexMax) return String.valueOf(n);
 		if (n instanceof NativeLong) n = l;
-		return String.format("%1$d/0x%1$x", n);
+		return String.format("%1$d|0x%1$x", n);
 	}
 
 	/**
@@ -114,16 +116,17 @@ public class JnaArgs {
 	 */
 	public static class Builder {
 		final Collection<Function<Object, String>> transforms = new LinkedHashSet<>();
+		int arrayMax = 8;
 
 		Builder() {}
 
 		/**
 		 * Adds default transforms.
 		 */
-		public Builder addDefault() {
+		public Builder addDefault(boolean compactStruct) {
+			if (compactStruct) add(Structure.class, JnaArgs::string);
 			return add(String.class, StringUtil::escape) //
 				.add(matchInt(), n -> stringInt(n)) //
-				.add(Structure.class, JnaArgs::string) //
 				.add(Pointer.class, JnaArgs::string) //
 				.add(PointerType.class, JnaArgs::string) //
 				.add(Callback.class, JnaArgs::string) //
@@ -169,6 +172,11 @@ public class JnaArgs {
 			return this;
 		}
 
+		public Builder arrayMax(int arrayMax) {
+			this.arrayMax = arrayMax;
+			return this;
+		}
+
 		public JnaArgs build() {
 			return new JnaArgs(this);
 		}
@@ -180,13 +188,15 @@ public class JnaArgs {
 
 	JnaArgs(Builder builder) {
 		transforms = ImmutableUtil.copyAsList(builder.transforms);
+		arrayJoiner = Joiner.builder().prefix("[").separator(",").suffix("]")
+			.max(builder.arrayMax).remainder("..").build();
 	}
 
 	/**
 	 * Creates a comma-separated string from given arguments.
 	 */
 	public String args(Object... args) {
-		return Joiner.COMMA.join(transformArgs(args));
+		return Joiner.COMMA.joinAll(this::arg, args);
 	}
 
 	/**
@@ -194,33 +204,22 @@ public class JnaArgs {
 	 */
 	public String arg(Object arg) {
 		if (arg == null) return NULL_STRING;
-		if (arg instanceof Iterable<?> i) return iterableString(i);
-		if (arg.getClass().isArray()) return arrayString(arg);
 		for (var transform : transforms) {
 			var result = transform.apply(arg);
 			if (result != null) return result;
 		}
+		if (arg instanceof Iterable<?> i) return iterableString(i);
+		if (arg.getClass().isArray()) return arrayString(arg);
 		return String.valueOf(arg);
-	}
-
-	private Object[] transformArgs(Object... args) {
-		for (int i = 0; i < args.length; i++)
-			args[i] = arg(args[i]);
-		return args;
 	}
 
 	private String iterableString(Iterable<?> iterable) {
 		return arrayString(StreamUtil.stream(iterable.iterator()).toArray());
 	}
 
-	private String arrayString(Object obj) {
-		return "[" + args(array(obj)) + "]";
-	}
-
-	private static Object[] array(Object obj) {
-		Object[] array = new Object[Array.getLength(obj)];
-		for (int i = 0; i < array.length; i++)
-			array[i] = Array.get(obj, i);
-		return array;
+	private String arrayString(Object array) {
+		int len = Array.getLength(array);
+		var iter = Iterators.indexed(len, i -> Array.get(array, i));
+		return arrayJoiner.join(this::arg, iter, len);
 	}
 }

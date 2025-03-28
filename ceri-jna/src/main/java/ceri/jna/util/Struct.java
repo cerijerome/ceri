@@ -15,15 +15,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-import com.sun.jna.Callback;
-import com.sun.jna.NativeLong;
+import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.Union;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.data.ByteProvider;
 import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -31,7 +29,7 @@ import ceri.common.util.BasicUtil;
  */
 public abstract class Struct extends Structure {
 	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
-	private static final JnaArgs ARGS = args();
+	private static final JnaArgs ARGS = JnaArgs.builder().addDefault(false).build();
 	private static final String INDENT = "\t";
 
 	/**
@@ -68,21 +66,13 @@ public abstract class Struct extends Structure {
 	}
 
 	/**
-	 * Set active union field by name.
-	 */
-	public static <U extends Union> U type(U u, String name) {
-		if (u != null) u.setType(name);
-		return u;
-	}
-
-	/**
 	 * Read a struct/union field and cast to type.
 	 */
 	public static <T> T readField(Structure struct, String name) {
 		if (struct == null) return null;
 		return BasicUtil.uncheckedCast(struct.readField(name));
 	}
-	
+
 	/**
 	 * Returns the pointer to the first element of the array, or null if empty. The array is not
 	 * required to be contiguous.
@@ -338,9 +328,26 @@ public abstract class Struct extends Structure {
 	/**
 	 * Provides a compact string suitable for error messages.
 	 */
-	public static <T extends Structure> String compactString(T t) {
+	public static String compactString(Structure t) {
 		return String.format("%s(@%x+%x)", ReflectUtil.nestedName(t.getClass()),
 			Pointer.nativeValue(t.getPointer()), t.size());
+	}
+
+	/**
+	 * Provides an expanded string representation of a structure.
+	 */
+	public static String toString(Structure s, List<String> fields,
+		ToIntFunction<String> fieldOffsetFn) {
+		if (s == null) return StringUtil.NULL_STRING;
+		Class<?> cls = s.getClass();
+		StringBuilder b = new StringBuilder();
+		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(s.getPointer()));
+		for (String name : fields) {
+			Field f = Objects.requireNonNull(ReflectUtil.publicField(cls, name));
+			int offset = fieldOffsetFn.applyAsInt(name);
+			b.append(INDENT).append(fieldString(s, f, offset));
+		}
+		return b.append("}").toString();
 	}
 
 	/**
@@ -371,6 +378,11 @@ public abstract class Struct extends Structure {
 	public Structure[] toArray(Structure[] array) {
 		if (array.length == 0) return array;
 		return super.toArray(array);
+	}
+
+	@Override
+	public String toString() {
+		return toString(this, getFieldOrder(), this::fieldOffset);
 	}
 
 	/**
@@ -514,26 +526,10 @@ public abstract class Struct extends Structure {
 		return fields.computeIfAbsent(getClass(), Struct::annotatedFields);
 	}
 
-	@Override
-	public String toString() {
-		Class<?> cls = getClass();
-		Pointer p = getPointer();
-		long peer = PointerUtil.peer(getPointer());
-		StringBuilder b = new StringBuilder();
-		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(p));
-		for (String name : getFieldOrder())
-			appendField(b, cls, name, peer);
-		return b.append("}").toString();
-	}
-
-	private void appendField(StringBuilder b, Class<?> cls, String name, long peer) {
-		Field f = ReflectUtil.publicField(cls, name);
-		Objects.requireNonNull(f);
-		int offset = fieldOffset(name);
+	private static String fieldString(Structure s, Field f, int offset) {
 		String type = ReflectUtil.nestedName(f.getType());
-		String value = ARGS.arg(ReflectUtil.publicValue(this, name));
-		format(b.append(INDENT), "+%x:@%x %s %s = %s%n", offset, peer + offset, type, f.getName(),
-			prefix(value));
+		String value = ARGS.arg(ReflectUtil.publicFieldValue(s, f));
+		return String.format("+%02x: %s %s = %s%n", offset, type, f.getName(), prefix(value));
 	}
 
 	private static String prefix(String s) {
@@ -548,17 +544,4 @@ public abstract class Struct extends Structure {
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
 				Fields.class.getSimpleName(), ReflectUtil.name(cls)));
 	}
-	
-	private static JnaArgs args() {
-		return JnaArgs.builder() //
-			.add(Byte.class, "0x%02x") //
-			.add(Short.class, "0x%04x") //
-			.add(Integer.class, "0x%08x") //
-			.add(Long.class, "0x%x") //
-			.add(NativeLong.class, n -> String.format("0x%x", n.longValue())) //
-			.add(byte[].class, a -> ByteProvider.toHex(ByteProvider.of(a))) //
-			.add(Pointer.class, JnaArgs::string) //
-			.add(Callback.class, JnaArgs::string) //
-			.build();
-	}	
 }

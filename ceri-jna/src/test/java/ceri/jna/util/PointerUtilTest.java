@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.deref;
+import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -39,7 +40,7 @@ public class PointerUtilTest {
 	@Test
 	public void testPointerOffset() {
 		assertNull(PointerUtil.offset(null, 0));
-		Pointer p = deref(GcMemory.mallocBytes(1, 2, 3).m);
+		Pointer p = deref(mem(1, 2, 3).m);
 		assertPointer(PointerUtil.offset(p, 0), 0, 1, 2, 3);
 		assertPointer(PointerUtil.offset(p, 1), 0, 2, 3);
 	}

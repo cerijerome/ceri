@@ -66,7 +66,8 @@ import ceri.common.test.TestUtil;
 	ceri.jna.util.StructBehavior.class, //
 	ceri.jna.util.StructFieldTest.class, //
 	ceri.jna.util.ThreadBuffersBehavior.class, //
-	ceri.jna.util.UnionFieldTest.class, //
+	ceri.jna.util.UnionBehavior.class, //
+	ceri.jna.util.UnionFieldBehavior.class, //
 	ceri.jna.util.VarStructBehavior.class, //
 })
 public class _Tests {

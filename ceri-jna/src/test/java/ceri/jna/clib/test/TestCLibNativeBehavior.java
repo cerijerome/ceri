@@ -7,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
+import static ceri.jna.test.JnaTestUtil.mem;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -28,7 +29,6 @@ import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
-import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
@@ -108,7 +108,7 @@ public class TestCLibNativeBehavior {
 	public void shouldWriteFromMemory() throws IOException {
 		var lib = initFd();
 		lib.write.autoResponses(2, 1);
-		assertEquals(CUnistd.write(fd, GcMemory.mallocBytes(1, 2, 3).m, 3), 2);
+		assertEquals(CUnistd.write(fd, mem(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(WriteArgs.of(fd, 1, 2, 3));
 		assertEquals(CUnistd.write(fd, (Pointer) null, 2), 1);
 		lib.write.assertAuto(WriteArgs.of(fd, 0, 0));

@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.Union;
 import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
@@ -31,6 +30,7 @@ import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
+import ceri.jna.util.Union;
 
 /**
  * I2C device communication, through ioctl commands. Linux-only?

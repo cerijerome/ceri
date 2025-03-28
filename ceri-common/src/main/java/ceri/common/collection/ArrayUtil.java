@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
 import ceri.common.validation.ValidationUtil;
@@ -502,8 +503,48 @@ public class ArrayUtil {
 	/**
 	 * Convenience method to create an array.
 	 */
+	public static int[] ints(byte[] ts) {
+		var array = new int[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static int[] ints(short[] ts) {
+		var array = new int[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = ts[i];
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
 	public static int[] ints(int... ts) {
 		return ts;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static int[] uints(byte[] ts) {
+		var array = new int[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = MathUtil.ubyte(ts[i]);
+		return array;
+	}
+
+	/**
+	 * Convenience method to create an array.
+	 */
+	public static int[] uints(short[] ts) {
+		var array = new int[ts.length];
+		for (int i = 0; i < ts.length; i++)
+			array[i] = MathUtil.ushort(ts[i]);
+		return array;
 	}
 
 	/**
