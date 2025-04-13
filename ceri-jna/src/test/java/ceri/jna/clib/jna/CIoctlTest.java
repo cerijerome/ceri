@@ -37,8 +37,6 @@ public class CIoctlTest {
 	public void testIoctl() throws CException {
 		var lib = initFd();
 		lib.ioctl.autoResponses(3);
-		assertEquals(CIoctl.ioctl(fd, 0x111, -1, -2, -3), 3);
-		assertIoctlAuto(fd, 0x111, -1, -2, -3);
 		assertEquals(CIoctl.ioctl(() -> "test", fd, 0x111, -1, -2, -3), 3);
 		assertIoctlAuto(fd, 0x111, -1, -2, -3);
 	}

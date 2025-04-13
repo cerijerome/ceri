@@ -15,7 +15,9 @@ import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.jna.util.JnaTestData.TestStruct;
+import ceri.jna.util.Struct.Align;
 import ceri.jna.util.Struct.Fields;
+import ceri.jna.util.Struct.Packed;
 
 public class StructBehavior {
 	private final JnaTestData data = JnaTestData.of();
@@ -29,6 +31,26 @@ public class StructBehavior {
 		public TestStruct[] innerVal = { new TestStruct(), new TestStruct() };
 		public TestStruct.ByRef[] innerRef = new TestStruct.ByRef[3];
 		public NativeLong nlong = JnaUtil.unlong(0x100000000L);
+	}
+
+	@Packed
+	@Fields({ "b", "l" })
+	public static class Aligned extends Struct {
+		public byte b;
+		public long l;
+
+		public Aligned() {}
+
+		public Aligned(Align align) {
+			super(null, align);
+		}
+	}
+
+	@Test
+	public void testPackedStruct() {
+		assertEquals(new Aligned().size(), 9);
+		assertEquals(new Aligned(Align.none).size(), 9);
+		assertEquals(new Aligned(Align.gnuc).size(), 16);
 	}
 
 	@Test

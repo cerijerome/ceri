@@ -28,6 +28,7 @@ import ceri.common.util.BasicUtil;
  * Extends Structure to provide more array and general field support.
  */
 public abstract class Struct extends Structure {
+	private static final Map<Class<?>, Align> align = new ConcurrentHashMap<>();
 	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
 	private static final JnaArgs ARGS = JnaArgs.builder().addDefault(false).build();
 	private static final String INDENT = "\t";
@@ -44,6 +45,13 @@ public abstract class Struct extends Structure {
 	public static @interface Fields {
 		String[] value();
 	}
+
+	/**
+	 * Annotation for declaring a struct with {@code __attribute__ ((packed))}
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public static @interface Packed {}
 
 	/**
 	 * Structure alignment constants as an enum.
@@ -336,8 +344,7 @@ public abstract class Struct extends Structure {
 	/**
 	 * Provides an expanded string representation of a structure.
 	 */
-	public static String toString(Structure s, List<String> fields,
-		ToIntFunction<String> fieldOffsetFn) {
+	static String toString(Structure s, List<String> fields, ToIntFunction<String> fieldOffsetFn) {
 		if (s == null) return StringUtil.NULL_STRING;
 		Class<?> cls = s.getClass();
 		StringBuilder b = new StringBuilder();
@@ -355,6 +362,7 @@ public abstract class Struct extends Structure {
 	 */
 	protected Struct() {
 		this(null);
+		setAlignType(ALIGN_DEFAULT);
 	}
 
 	/**
@@ -526,6 +534,13 @@ public abstract class Struct extends Structure {
 		return fields.computeIfAbsent(getClass(), Struct::annotatedFields);
 	}
 
+	@Override
+	protected void setAlignType(int alignType) {
+		if (alignType == Align.platform.value) alignType =
+			align.computeIfAbsent(getClass(), Struct::annotatedAlignment).value;
+		super.setAlignType(alignType);
+	}
+	
 	private static String fieldString(Structure s, Field f, int offset) {
 		String type = ReflectUtil.nestedName(f.getType());
 		String value = ARGS.arg(ReflectUtil.publicFieldValue(s, f));
@@ -537,11 +552,20 @@ public abstract class Struct extends Structure {
 	}
 
 	private static List<String> annotatedFields(Class<?> cls) {
-		if (isByRef(cls) || isByVal(cls)) cls = cls.getSuperclass();
+		cls = structClass(cls);
 		String[] fields = AnnotationUtil.value(cls, Fields.class, Fields::value);
 		if (fields != null) return ImmutableUtil.wrapAsList(fields);
 		throw new IllegalStateException(
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
 				Fields.class.getSimpleName(), ReflectUtil.name(cls)));
+	}
+
+	private static Align annotatedAlignment(Class<?> cls) {
+		boolean packed = AnnotationUtil.annotation(structClass(cls), Struct.Packed.class) != null;
+		return packed ? Align.none : Align.platform;
+	}
+
+	private static Class<?> structClass(Class<?> cls) {
+		return isByRef(cls) || isByVal(cls) ? cls.getSuperclass() : cls;
 	}
 }

@@ -1,6 +1,7 @@
 package ceri.jna.clib;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -28,6 +29,14 @@ public class MmapBehavior {
 		mmap = null;
 	}
 
+	@Test
+	public void shouldProvideStringRepresentation() throws IOException {
+		ref.init();
+		mem = new Memory(32);
+		mmap = Mmap.anonymous(Visibility.SHARED, 32).address(mem).options(Option.FIXED).map();
+		assertFind(mmap, "@\\w+\\+20");
+	}
+	
 	@Test
 	public void shouldCalculateLength() throws IOException {
 		var lib = ref.init();

@@ -76,13 +76,6 @@ public class CIoctl {
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
-	public static int ioctl(int fd, int request, Object... objs) throws CException {
-		return ioctl("", fd, request, objs);
-	}
-
-	/**
-	 * Performs an ioctl function. Arguments and return value depend on the function.
-	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
 		var n = JnaUtil.unlong(request);
 		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
@@ -250,12 +243,12 @@ public class CIoctl {
 
 		public static serial_struct tiocgserial(int fd) throws CException {
 			var serial = new serial_struct();
-			ioctl(fd, TIOCGSERIAL, serial); // serial: auto-write before, auto-read after
+			ioctl("TIOCGSERIAL", fd, TIOCGSERIAL, serial);
 			return serial;
 		}
 
 		public static void tiocsserial(int fd, serial_struct serial) throws CException {
-			ioctl(fd, TIOCSSERIAL, serial); // serial: auto-write before, auto-read after
+			ioctl("TIOCGSERIAL", fd, TIOCSSERIAL, serial);
 		}
 	}
 
