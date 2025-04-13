@@ -369,6 +369,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	ceri.common.util.TruthBehavior.class, //
+	ceri.common.util.VersionBehavior.class, //
 	// validation
 	ceri.common.validation.DisplayDoubleBehavior.class, //
 	ceri.common.validation.DisplayLongBehavior.class, //

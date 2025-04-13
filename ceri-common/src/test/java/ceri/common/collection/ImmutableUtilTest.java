@@ -26,6 +26,7 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.util.BasicUtil;
@@ -448,79 +449,113 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCollectIterableAsList() {
-		List<String> list = ImmutableUtil.collectAsList(Arrays.asList("1", "2", "3", "4", "5"));
+		var list = ImmutableUtil.collectAsList(Arrays.asList("1", "2", "3", "4", "5"));
 		assertEquals(list, Arrays.asList("1", "2", "3", "4", "5"));
 		assertImmutableList(list);
 	}
 
 	@Test
 	public void testCollectIterableAsSet() {
-		Set<String> set = ImmutableUtil.collectAsSet(Arrays.asList("1", "2", "3", "4", "5"));
+		var set = ImmutableUtil.collectAsSet(Arrays.asList("1", "2", "3", "4", "5"));
 		assertEquals(set, asSet("1", "2", "3", "4", "5"));
 		assertImmutableCollection(set);
 	}
 
 	@Test
 	public void testCollectStreamAsList() {
-		List<String> list = ImmutableUtil.collectAsList(Stream.of("1", "2", "3", "4", "5"));
+		var list = ImmutableUtil.collectAsList(Stream.of("1", "2", "3", "4", "5"));
 		assertEquals(list, Arrays.asList("1", "2", "3", "4", "5"));
 		assertImmutableList(list);
 	}
 
 	@Test
 	public void testCollectStreamAsSet() {
-		Set<String> set = ImmutableUtil.collectAsSet(Stream.of("1", "2", "3", "4", "5"));
+		var set = ImmutableUtil.collectAsSet(Stream.of("1", "2", "3", "4", "5"));
 		assertEquals(set, asSet("1", "2", "3", "4", "5"));
 		assertImmutableCollection(set);
 	}
 
 	@Test
 	public void testCollectStreamAsNavigableSet() {
-		NavigableSet<String> set =
-			ImmutableUtil.collectAsNavigableSet(Stream.of("4", "1", "3", "5", "2"));
+		var set = ImmutableUtil.collectAsNavigableSet(Stream.of("4", "1", "3", "5", "2"));
 		assertEquals(set, asSet("1", "2", "3", "4", "5"));
 		assertImmutableCollection(set);
 	}
 
 	@Test
 	public void testConvertAsList() {
-		List<Integer> list =
-			ImmutableUtil.convertAsList(Integer::parseInt, "1", "2", "3", "4", "5");
+		var list = ImmutableUtil.convertAsList(Integer::parseInt, "1", "2", "3", "4", "5");
 		assertEquals(list, Arrays.asList(1, 2, 3, 4, 5));
 		assertImmutableList(list);
 	}
 
 	@Test
 	public void testConvertAsSet() {
-		Set<Integer> set = ImmutableUtil.convertAsSet(Integer::parseInt, "1", "2", "3", "4", "5");
+		var set = ImmutableUtil.convertAsSet(Integer::parseInt, "1", "2", "3", "4", "5");
 		assertEquals(set, new HashSet<>(Arrays.asList(1, 2, 3, 4, 5)));
 		assertImmutableCollection(set);
 	}
 
 	@Test
 	public void testConvertAsNavigableSet() {
-		NavigableSet<Integer> set =
-			ImmutableUtil.convertAsNavigableSet(Integer::parseInt, "5", "4", "1", "3", "2");
+		var set = ImmutableUtil.convertAsNavigableSet(Integer::parseInt, "5", "4", "1", "3", "2");
 		assertIterable(set, 1, 2, 3, 4, 5);
 		assertImmutableCollection(set);
 	}
 
 	@Test
-	public void testConvertAsMap() {
-		Map<String, Integer> map = ImmutableUtil.convertAsMap(String::valueOf, 1, 3, 2);
+	public void testConvertAllAsMap() {
+		var map = ImmutableUtil.convertAllAsMap(String::valueOf, 1, 3, 2);
 		assertImmutableMap(map);
 		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
-		map = ImmutableUtil.convertAsMap(String::valueOf, i -> i + 1, new Integer[] { 1, 3, 2 });
+		map = ImmutableUtil.convertAllAsMap(String::valueOf, i -> i + 1, new Integer[] { 1, 3, 2 });
 		assertEquals(map, Map.of("1", 2, "3", 4, "2", 3));
+	}
+
+	@Test
+	public void testConvertAsMap() {
+		var map = ImmutableUtil.convertAsMap(String::valueOf, List.of(1, 3, 2));
+		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
 		map = ImmutableUtil.convertAsMap(String::valueOf, i -> i + 1, List.of(1, 3, 2));
 		assertEquals(map, Map.of("1", 2, "3", 4, "2", 3));
 	}
 
 	@Test
 	public void testConvertStreamAsMap() {
-		Map<String, Integer> map = ImmutableUtil.convertAsMap(String::valueOf, Stream.of(1, 3, 2));
+		var map = ImmutableUtil.convertAsMap(String::valueOf, Stream.of(1, 3, 2));
 		assertImmutableMap(map);
 		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
+	}
+
+	@Test
+	public void testConvertAsMapWithMerge() {
+		Function<Integer, Integer> keyFn = i -> String.valueOf(i).length();
+		Function<Integer, Integer> valueFn = i -> -i;
+		var map = ImmutableUtil.convertAsMap(keyFn, valueFn, StreamUtil.merge(true),
+			List.of(1, 22, 333, 44));
+		assertImmutableMap(map);
+		assertEquals(map, Map.of(1, -1, 2, -22, 3, -333));
+		map = ImmutableUtil.convertAsMap(keyFn, valueFn, StreamUtil.merge(false),
+			List.of(1, 22, 333, 44));
+		assertImmutableMap(map);
+		assertEquals(map, Map.of(1, -1, 2, -44, 3, -333));
+	}
+
+	@Test
+	public void testConvertStreamAsMapWithMerge() {
+		Function<Integer, Integer> keyFn = i -> String.valueOf(i).length();
+		Function<Integer, Integer> valueFn = i -> -i;
+		var map =
+			ImmutableUtil.convertAsMap(keyFn, StreamUtil.merge(true), Stream.of(1, 22, 333, 44));
+		assertImmutableMap(map);
+		assertEquals(map, Map.of(1, 1, 2, 22, 3, 333));
+		map = ImmutableUtil.convertAsMap(keyFn, StreamUtil.merge(false), Stream.of(1, 22, 333, 44));
+		assertImmutableMap(map);
+		assertEquals(map, Map.of(1, 1, 2, 44, 3, 333));
+		map = ImmutableUtil.convertAsMap(keyFn, valueFn, StreamUtil.merge(false),
+			Stream.of(1, 22, 333, 44));
+		assertImmutableMap(map);
+		assertEquals(map, Map.of(1, -1, 2, -44, 3, -333));
 	}
 
 	private static void assertImmutableMap(final Map<?, ?> map) {

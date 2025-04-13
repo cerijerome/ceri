@@ -558,6 +558,14 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Merge keys first, second, or throw IllegalArgumentException.
+	 */
+	public static <T> BinaryOperator<T> merge(Boolean first) {
+		if (first == null) return mergeError();
+		return first ? mergeFirst() : mergeSecond();
+	}
+
+	/**
 	 * Convert a map to an object stream.
 	 */
 	public static <K, V, T> Stream<T> stream(Map<K, V> map,

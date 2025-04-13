@@ -50,7 +50,7 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
-	 * Creates an encoder for unique type values, with optional mask.
+	 * Creates an encoder for unique type values.
 	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
 		Class<T> cls) {
@@ -58,14 +58,14 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
-	 * Creates an encoder for unique type values, with optional mask.
+	 * Creates an encoder for unique type values.
 	 */
 	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Iterable<T> ts) {
 		return new TypeTranscoder<>(valueFn, ts, null);
 	}
 
 	/**
-	 * Creates an encoder that allows duplicate type values, with optional mask.
+	 * Creates an encoder that allows duplicate type values.
 	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
 		Class<T> cls) {
@@ -73,7 +73,7 @@ public class TypeTranscoder<T> {
 	}
 
 	/**
-	 * Creates an encoder that allows duplicate type values, with optional mask.
+	 * Creates an encoder that allows duplicate type values.
 	 */
 	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
 		Iterable<T> ts) {

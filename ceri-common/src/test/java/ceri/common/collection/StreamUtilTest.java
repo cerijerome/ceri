@@ -387,6 +387,13 @@ public class StreamUtilTest {
 	}
 
 	@Test
+	public void testMerge() {
+		assertEquals(StreamUtil.merge(true), StreamUtil.mergeFirst());
+		assertEquals(StreamUtil.merge(false), StreamUtil.mergeSecond());
+		assertEquals(StreamUtil.merge(null), StreamUtil.mergeError());
+	}
+
+	@Test
 	public void testToList() {
 		Stream<String> stream = Stream.of("A", "BB", null, "DDDD");
 		assertList(StreamUtil.toList(stream), Arrays.asList("A", "BB", null, "DDDD"));
