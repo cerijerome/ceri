@@ -149,7 +149,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates BaseProperties from name.properties file under caller's package.
+	 * Creates TypedProperties from name.properties file under caller's package.
 	 */
 	public static TypedProperties typedProperties(String name, String... prefix) {
 		Class<?> cls = ReflectUtil.previousCaller(1).cls();
@@ -157,7 +157,7 @@ public class TestUtil {
 	}
 
 	/**
-	 * Creates BaseProperties from name.properties under class package.
+	 * Creates TypedProperties from name.properties under class package.
 	 */
 	public static TypedProperties typedProperties(Class<?> cls, String name, String... prefix) {
 		return TypedProperties.from(properties(cls, name), prefix);

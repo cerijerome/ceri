@@ -70,8 +70,8 @@ public class CException extends IOException {
 	public static CException full(int code, String format, Object... args) {
 		var message = StringUtil.format(format, args);
 		var errNo = ErrNo.from(code);
-		return new CException(code,
-			"[" + code + "] " + (errNo.defined() ? errNo + " " : "") + message);
+		if (errNo.defined() && !message.startsWith(errNo.name())) message = errNo + " " + message;
+		return new CException(code, "[" + code + "] " + message);
 	}
 
 	protected CException(int code, String message) {
