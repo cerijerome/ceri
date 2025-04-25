@@ -25,7 +25,7 @@ public class AnnotationUtil {
 	 * Get FIELD annotation from enum, or return null.
 	 */
 	public static <T extends Annotation> T annotation(Enum<?> en, Class<T> annotationCls) {
-		Field field = ReflectUtil.enumField(en);
+		Field field = ReflectUtil.enumToField(en);
 		return field == null ? null : field.getAnnotation(annotationCls);
 	}
 

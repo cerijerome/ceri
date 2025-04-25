@@ -154,6 +154,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
 	ceri.common.function.FunctionWrapperBehavior.class, //
+	ceri.common.function.FunctionalBehavior.class, //
 	ceri.common.function.NamerTest.class, //
 	ceri.common.function.ObjBooleanConsumerBehavior.class, //
 	ceri.common.function.ObjIntPredicateBehavior.class, //
@@ -261,6 +262,7 @@ import ceri.common.test.TestUtil;
 	// reflect
 	ceri.common.reflect.AnnotationUtilTest.class, //
 	ceri.common.reflect.CallerBehavior.class, //
+	ceri.common.reflect.ClassReInitializerBehavior.class, //
 	ceri.common.reflect.ClassReloaderBehavior.class, //
 	ceri.common.reflect.CreateExceptionBehavior.class, //
 	ceri.common.reflect.ReflectUtilTest.class, //

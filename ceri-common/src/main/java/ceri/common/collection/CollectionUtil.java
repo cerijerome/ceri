@@ -414,6 +414,13 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Creates a non fixed-size list joining the given elements.
+	 */
+	public static <T> List<T> joinAsList(T t, Collection<? extends T> ts) {
+		return addAll(addAll(new ArrayList<T>(1 + ts.size()), t), ts);
+	}
+
+	/**
 	 * Returns a linked hash map copy with entries sorted by value.
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {

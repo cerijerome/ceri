@@ -275,6 +275,17 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Loads a class by name, throws {@link IllegalArgumentException} if not found.
+	 */
+    public static Class<?> forName(String className, boolean init, ClassLoader loader) {
+		try {
+			return Class.forName(className, init, loader);
+		} catch (ClassNotFoundException e) {
+			throw new IllegalArgumentException("Class not found", e);
+		}
+    }
+
+	/**
 	 * Loads class bytes from its class file.
 	 */
 	public static byte[] loadClassFile(String name) throws IOException {
@@ -433,13 +444,21 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Get enum value as a field.
+	 * Get field from enum instance.
 	 */
-	public static Field enumField(Enum<?> en) {
+	public static Field enumToField(Enum<?> en) {
 		if (en == null) return null;
 		return ExceptionUtil.shouldNotThrow(() -> en.getClass().getField(en.name()));
 	}
 
+	/**
+	 * Get enum instance from field, or null if not an enum.
+	 */
+	public static Enum<?> fieldToEnum(Field field) {
+		if (field == null || !field.isEnumConstant()) return null; 
+		return (Enum<?>) ReflectUtil.publicFieldValue(null, field);
+	}
+	
 	/**
 	 * Casts object to given type or returns null if not compatible.
 	 */

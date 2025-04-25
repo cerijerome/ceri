@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
@@ -20,8 +20,15 @@ public class ClassReloader extends ClassLoader {
 	 * Reloads and initializes the given class; support classes are reloaded if accessed.
 	 */
 	public static <T> Class<T> reload(Class<T> cls, Class<?>... supportClasses) {
-		return BasicUtil.uncheckedCast(ExceptionUtil.shouldNotThrow(
-			() -> Class.forName(cls.getName(), true, of(ArrayUtil.asList(cls, supportClasses)))));
+		return reload(cls, Arrays.asList(supportClasses));
+	}
+
+	/**
+	 * Reloads and initializes the given class; support classes are reloaded if accessed.
+	 */
+	public static <T> Class<T> reload(Class<T> cls, Collection<Class<?>> supportClasses) {
+		var reloader = of(CollectionUtil.joinAsList(cls, supportClasses));
+		return BasicUtil.uncheckedCast(ReflectUtil.forName(cls.getName(), true, reloader));
 	}
 
 	/**
@@ -76,5 +83,4 @@ public class ClassReloader extends ClassLoader {
 		return BasicUtil
 			.uncheckedCast(ExceptionUtil.shouldNotThrow(() -> loadClass(cls.getName())));
 	}
-
 }

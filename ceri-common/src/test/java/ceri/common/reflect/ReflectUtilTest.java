@@ -98,15 +98,23 @@ public class ReflectUtilTest {
 	}
 
 	@Test
-	public void testEnumField() {
-		assertEquals(ReflectUtil.enumField(null), null);
-		Field f = ReflectUtil.enumField(E.a);
+	public void testEnumToField() {
+		assertEquals(ReflectUtil.enumToField(null), null);
+		Field f = ReflectUtil.enumToField(E.a);
 		assertEquals(f.isEnumConstant(), true);
 		assertEquals(f.getName(), "a");
 	}
 
 	@Test
-	public void test() {
+	public void testFieldToEnum() throws ReflectiveOperationException {
+		assertEquals(ReflectUtil.fieldToEnum(null), null);
+		var f = E.class.getField("a");
+		var en = ReflectUtil.fieldToEnum(f);
+		assertEquals(en, E.a);
+	}
+
+	@Test
+	public void testOptionalCast() {
 		assertOptional(ReflectUtil.castOptional(String.class, 1.1), null);
 		assertOptional(ReflectUtil.castOptional(Number.class, 1.1), 1.1);
 	}
@@ -187,8 +195,11 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testForName() {
+		var cl = getClass().getClassLoader();
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
 		assertThrown(() -> ReflectUtil.forName("___"));
+		assertSame(ReflectUtil.forName("java.lang.String", true, cl), String.class);
+		assertThrown(() -> ReflectUtil.forName("___", true, cl));
 	}
 
 	@Test

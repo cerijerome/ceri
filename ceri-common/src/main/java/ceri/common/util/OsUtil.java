@@ -1,6 +1,7 @@
 package ceri.common.util;
 
 import java.util.regex.Pattern;
+import ceri.common.concurrent.Lazy;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.StringUtil;
 
@@ -25,9 +26,8 @@ public class OsUtil {
 	private static final Pattern X86_REGEX = Pattern.compile("^x86");
 	private static final Pattern ARM_REGEX = Pattern.compile("^(?:arm|aarch)");
 	private static final Pattern BIT64_REGEX = Pattern.compile("64$");
-	private static final Os os =
-		new Os(SystemVars.sys("os.name"), SystemVars.sys("os.arch"), SystemVars.sys("os.version"));
-	private static volatile Os osOverride = null;
+	private static final Lazy.Value<RuntimeException, Os> os = Lazy.Value.of(
+		new Os(SystemVars.sys("os.name"), SystemVars.sys("os.arch"), SystemVars.sys("os.version")));
 
 	private OsUtil() {}
 
@@ -108,18 +108,18 @@ public class OsUtil {
 	 * Retrieve the current OS info, or override if set.
 	 */
 	public static Os os() {
-		return BasicUtil.defaultValue(osOverride, os);
+		return os.get();
 	}
 
 	/**
 	 * Overrides OS. Use null for actual values. Removes override on close.
 	 */
 	public static RuntimeCloseable os(String name, String arch, String version) {
+		var os = OsUtil.os.get();
 		if (name == null) name = os.name;
 		if (arch == null) arch = os.arch;
 		if (version == null) version = os.version;
-		osOverride = new Os(name, arch, version);
-		return () -> osOverride = null;
+		return OsUtil.os.override(new Os(name, arch, version));
 	}
 
 	/**

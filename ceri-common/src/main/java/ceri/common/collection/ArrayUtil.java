@@ -195,8 +195,7 @@ public class ArrayUtil {
 	 * Creates a non fixed-size list joining the given elements.
 	 */
 	public static <T> List<T> asList(T t, T[] ts) {
-		List<T> list = CollectionUtil.addAll(new ArrayList<>(1 + ts.length), t);
-		return CollectionUtil.addAll(list, ts);
+		return CollectionUtil.addAll(CollectionUtil.addAll(new ArrayList<T>(1 + ts.length), t), ts);
 	}
 
 	/**
