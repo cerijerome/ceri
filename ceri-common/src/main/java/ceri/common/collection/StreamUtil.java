@@ -40,8 +40,8 @@ import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionIntConsumer;
 import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.FunctionUtil;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
@@ -113,8 +113,26 @@ public class StreamUtil {
 	public static <E extends Exception, T> void closeableForEach(Stream<T> stream,
 		ExceptionConsumer<E, T> consumer) throws E {
 		try (stream) {
-			FunctionUtil.forEach(stream, consumer);
+			forEach(stream, consumer);
 		}
+	}
+
+	/**
+	 * Executes for-each, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception, T> void forEach(Stream<T> stream,
+		ExceptionConsumer<E, ? super T> consumer) throws E {
+		for (var i = stream.iterator(); i.hasNext();)
+			consumer.accept(i.next());
+	}
+
+	/**
+	 * Executes for-each, allowing exception of given type to be thrown.
+	 */
+	public static <E extends Exception> void forEach(IntStream stream,
+		ExceptionIntConsumer<E> consumer) throws E {
+		for (var i = stream.iterator(); i.hasNext();)
+			consumer.accept(i.nextInt());
 	}
 
 	public static DoubleStream unitRange(int steps) {

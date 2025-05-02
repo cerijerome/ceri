@@ -159,6 +159,15 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Returns true if the classes are effectively the same, even if from different classloaders.
+	 */
+	public static boolean same(Class<?> cls1, Class<?> cls2) {
+		if (cls1 == cls2) return true;
+		if (cls1 == null || cls2 == null) return false;
+		return cls1.getName().equals(cls2.getName()); 
+	}
+	
+	/**
 	 * Applies the consumer only to instances of the given type.
 	 */
 	public static <E extends Exception, T> void acceptInstances(Class<T> cls,

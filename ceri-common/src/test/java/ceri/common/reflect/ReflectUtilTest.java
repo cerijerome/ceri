@@ -59,7 +59,9 @@ public class ReflectUtilTest {
 		public static int si = 1;
 	}
 
-	private enum E {
+	public static final Class<?> E_CLASS = E.class;
+
+	public enum E {
 		a,
 		b,
 		c;
@@ -228,6 +230,21 @@ public class ReflectUtilTest {
 	public void testHashId() {
 		assertNull(ReflectUtil.hashId(null));
 		assertMatch(ReflectUtil.hashId(new Object()), "@[0-9a-fA-F]+");
+	}
+
+	@Test
+	public void testSame() {
+		assertEquals(ReflectUtil.same(null, null), true);
+		assertEquals(ReflectUtil.same(E.class, E.class), true);
+		assertEquals(ReflectUtil.same(E.class, null), false);
+		assertEquals(ReflectUtil.same(null, E.class), false);
+		class TestSame {
+			static {
+				assertEquals(E_CLASS.equals(E.class), false);
+				assertEquals(ReflectUtil.same(E_CLASS, E.class), true);
+			}
+		}
+		ClassReInitializer.of(TestSame.class, E.class).reinit();
 	}
 
 	@Test(expected = RuntimeInvocationException.class)

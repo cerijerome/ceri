@@ -1,30 +1,19 @@
 package ceri.common.function;
 
-import static ceri.common.function.FunctionTestUtil.biConsumer;
-import static ceri.common.function.FunctionTestUtil.consumer;
-import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.test.Captor;
 
 public class FunctionUtilTest {
 
@@ -155,38 +144,6 @@ public class FunctionUtilTest {
 		assertEquals(FunctionUtil.recurse("test", s -> s.replaceFirst("[a-z]", "X")), "XXXX");
 		assertEquals(FunctionUtil.recurse("hello", s -> s.substring(1), 3), "lo");
 		assertThrown(() -> FunctionUtil.recurse("hello", s -> s.substring(1)));
-	}
-
-	@Test
-	public void testForEachIterable() {
-		Captor.OfInt capturer = Captor.ofInt();
-		assertIoe(() -> FunctionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
-		assertRte(() -> FunctionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
-		FunctionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset()::accept);
-		capturer.verify(1, 2, 3);
-	}
-
-	@Test
-	public void testForEachStream() {
-		Captor.OfInt capturer = Captor.ofInt();
-		FunctionUtil.forEach(Stream.of(1, 2, 3), capturer.reset()::accept);
-		capturer.verify(1, 2, 3);
-		FunctionUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
-		capturer.verify(1, 2, 3);
-		assertIoe(() -> FunctionUtil.forEach(Stream.of(1, 2, 3), consumer()));
-		assertIoe(() -> FunctionUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
-		assertRte(() -> FunctionUtil.forEach(Stream.of(2, 0, 3), consumer()));
-		assertRte(() -> FunctionUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
-	}
-
-	@Test
-	public void testForEachMap() {
-		Captor.Bi<Integer, Integer> capturer = Captor.ofBi();
-		FunctionUtil.forEach(Map.of(1, 2, 3, 4), capturer.reset()::accept);
-		assertCollection(capturer.first.values, 1, 3);
-		assertCollection(capturer.second.values, 2, 4);
-		assertIoe(() -> FunctionUtil.forEach(Map.of(1, 2, 3, 4), biConsumer()));
-		assertRte(() -> FunctionUtil.forEach(Map.of(3, 2, 0, 4), biConsumer()));
 	}
 
 	@Test

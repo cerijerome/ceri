@@ -1,7 +1,6 @@
 package ceri.common.function;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -12,8 +11,6 @@ import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
@@ -213,42 +210,6 @@ public class FunctionUtil {
 			if (Objects.equals(t, last)) break;
 		}
 		return t;
-	}
-
-	/**
-	 * Executes for-each, allowing an exception of given type to be thrown.
-	 */
-	public static <E extends Exception, T> void forEach(Iterable<T> iter,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
-		for (var t : iter)
-			consumer.accept(t);
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception, T> void forEach(Stream<T> stream,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
-		for (var i = stream.iterator(); i.hasNext();)
-			consumer.accept(i.next());
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception> void forEach(IntStream stream,
-		ExceptionIntConsumer<E> consumer) throws E {
-		for (var i = stream.iterator(); i.hasNext();)
-			consumer.accept(i.nextInt());
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
-		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
-		for (var entry : map.entrySet())
-			consumer.accept(entry.getKey(), entry.getValue());
 	}
 
 	/**

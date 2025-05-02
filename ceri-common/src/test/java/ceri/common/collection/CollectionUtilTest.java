@@ -1,12 +1,15 @@
 package ceri.common.collection;
 
+import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
@@ -72,6 +75,15 @@ public class CollectionUtilTest {
 		CollectionUtil.forEach(map, (k, v) -> captor.accept(k, v));
 		captor.first.verify("1", "2", "3");
 		captor.second.verify(1, 2, 3);
+	}
+
+	@Test
+	public void testForEachIterable() {
+		Captor.OfInt capturer = Captor.ofInt();
+		assertIoe(() -> CollectionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
+		assertRte(() -> CollectionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
+		CollectionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset()::accept);
+		capturer.verify(1, 2, 3);
 	}
 
 	@Test

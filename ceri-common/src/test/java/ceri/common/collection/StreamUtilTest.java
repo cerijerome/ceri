@@ -1,5 +1,7 @@
 package ceri.common.collection;
 
+import static ceri.common.function.FunctionTestUtil.consumer;
+import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -10,6 +12,7 @@ import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -35,6 +38,7 @@ import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.function.ExceptionToIntFunction;
 import ceri.common.function.FunctionTestUtil;
+import ceri.common.test.Captor;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -86,6 +90,19 @@ public class StreamUtilTest {
 		StreamUtil.closeableForEach(Stream.of(2, 3, 4), FunctionTestUtil.consumer());
 		assertThrown(
 			() -> StreamUtil.closeableForEach(Stream.of(2, 1), FunctionTestUtil.consumer()));
+	}
+
+	@Test
+	public void testForEachStream() {
+		Captor.OfInt capturer = Captor.ofInt();
+		StreamUtil.forEach(Stream.of(1, 2, 3), capturer.reset()::accept);
+		capturer.verify(1, 2, 3);
+		StreamUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
+		capturer.verify(1, 2, 3);
+		assertIoe(() -> StreamUtil.forEach(Stream.of(1, 2, 3), consumer()));
+		assertIoe(() -> StreamUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
+		assertRte(() -> StreamUtil.forEach(Stream.of(2, 0, 3), consumer()));
+		assertRte(() -> StreamUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
 	}
 
 	@Test

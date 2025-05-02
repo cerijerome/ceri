@@ -7,7 +7,7 @@ public class CaptorBehavior {
 
 	@Test
 	public void shouldProvideIntArray() {
-		Captor.OfInt captor = Captor.ofInt();
+		var captor = Captor.ofInt();
 		captor.accept(1);
 		captor.accept(2);
 		captor.accept(3);
@@ -16,7 +16,7 @@ public class CaptorBehavior {
 
 	@Test
 	public void shouldProvideLongArray() {
-		Captor.OfLong captor = Captor.ofLong();
+		var captor = Captor.ofLong();
 		captor.accept(1);
 		captor.accept(2);
 		captor.accept(3);
@@ -25,12 +25,23 @@ public class CaptorBehavior {
 
 	@Test
 	public void shouldReset() {
-		Captor.OfLong captor = Captor.ofLong();
+		var captor = Captor.ofLong();
 		captor.accept(1);
 		captor.accept(2);
 		captor.reset();
 		captor.accept(3);
 		assertArray(captor.longs(), 3);
+	}
+
+	@Test
+	public void shouldResetBi() {
+		var captor = Captor.<String, Integer>ofBi();
+		captor.accept("1", 1);
+		captor.accept("2", 2);
+		captor.reset();
+		captor.accept("3", 3);
+		captor.first.verify("3");
+		captor.second.verify(3);
 	}
 
 }

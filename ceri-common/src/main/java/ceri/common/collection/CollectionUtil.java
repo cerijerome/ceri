@@ -28,6 +28,7 @@ import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionBiFunction;
+import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.function.ObjIntFunction;
@@ -87,6 +88,15 @@ public class CollectionUtil {
 		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
 		for (var entry : map.entrySet())
 			consumer.accept(entry.getKey(), entry.getValue());
+	}
+
+	/**
+	 * Iterates over entries; allows checked exceptions.
+	 */
+	public static <E extends Exception, T> void forEach(Iterable<T> iterable,
+		ExceptionConsumer<E, T> consumer) throws E {
+		for (var entry : iterable)
+			consumer.accept(entry);
 	}
 
 	/**
