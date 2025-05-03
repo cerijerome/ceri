@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
@@ -46,7 +46,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * Writes native-order ints.
 	 */
 	default T writeLong(long value) {
-		return writeLong(value, BIG_ENDIAN);
+		return writeLong(value, IS_BIG_ENDIAN);
 	}
 
 	/**

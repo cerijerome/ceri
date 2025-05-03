@@ -2209,7 +2209,7 @@ public class LibUsb {
 	}
 
 	public static short libusb_cpu_to_le16(short x) {
-		return (short) BasicUtil.conditionalInt(ByteUtil.BIG_ENDIAN, Short.reverseBytes(x), x);
+		return (short) BasicUtil.conditionalInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
 	}
 
 	public static short libusb_le16_to_cpu(short x) {

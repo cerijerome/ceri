@@ -31,9 +31,23 @@ public enum JnaOs implements Functional<JnaOs> {
 	 */
 	public static <E extends Exception> void forEach(ExceptionConsumer<E, JnaOs> consumer)
 		throws E {
-		CollectionUtil.forEach(KNOWN, consumer::accept);
+		CollectionUtil.forEach(KNOWN, os -> os.accept(consumer));
 	}
 
+	/**
+	 * Returns true if the given OS types are compatible.
+	 */
+	public static boolean compatible(JnaOs os1, JnaOs os2) {
+		return !known(os1) || !known(os2) || os1 == os2;
+	}
+	
+	/**
+	 * Returns true if the given OS type is compatible with the current OS type.
+	 */
+	public static boolean current(JnaOs os) {
+		return !known(os) || compatible(os, current());
+	}
+	
 	/**
 	 * Determine the current OS type.
 	 */

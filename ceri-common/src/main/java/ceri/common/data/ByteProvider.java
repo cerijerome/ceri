@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -270,7 +270,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default short getShort(int index) {
-		return (short) getEndian(index, Short.BYTES, BIG_ENDIAN);
+		return (short) getEndian(index, Short.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -312,7 +312,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default int getInt(int index) {
-		return (int) getEndian(index, Integer.BYTES, BIG_ENDIAN);
+		return (int) getEndian(index, Integer.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -354,7 +354,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default long getLong(int index) {
-		return getEndian(index, Long.BYTES, BIG_ENDIAN);
+		return getEndian(index, Long.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**

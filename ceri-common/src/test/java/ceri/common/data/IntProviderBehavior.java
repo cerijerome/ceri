@@ -16,7 +16,7 @@ import ceri.common.math.MathUtil;
 import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final IntProvider ip = provider(0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();

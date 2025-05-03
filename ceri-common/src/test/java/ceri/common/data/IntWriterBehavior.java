@@ -12,7 +12,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.validation.ValidationUtil;
 
 public class IntWriterBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();
 

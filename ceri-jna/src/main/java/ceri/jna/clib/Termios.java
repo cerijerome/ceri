@@ -4,8 +4,8 @@ import static ceri.jna.clib.jna.CTermios.TCSANOW;
 import java.io.IOException;
 import ceri.common.io.Direction;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
-import ceri.jna.util.IntType;
 import ceri.jna.util.Struct;
 
 /**
@@ -38,28 +38,28 @@ public class Termios {
 	/**
 	 * Access input flags.
 	 */
-	public IntType inFlags() {
+	public tcflag_t inFlags() {
 		return termios.c_iflag;
 	}
 
 	/**
 	 * Access output flags.
 	 */
-	public IntType outFlags() {
+	public tcflag_t outFlags() {
 		return termios.c_oflag;
 	}
 
 	/**
 	 * Access control flags.
 	 */
-	public IntType controlFlags() {
+	public tcflag_t controlFlags() {
 		return termios.c_cflag;
 	}
 
 	/**
 	 * Access local flags.
 	 */
-	public IntType localFlags() {
+	public tcflag_t localFlags() {
 		return termios.c_lflag;
 	}
 
@@ -155,7 +155,7 @@ public class Termios {
 		switch (direction) {
 			case in -> CTermios.tcflow(fd, on ? CTermios.TCION : CTermios.TCIOFF);
 			case out -> CTermios.tcflow(fd, on ? CTermios.TCOON : CTermios.TCOOFF);
-			case duplex -> flow(Direction.in, on).flow(Direction.out, on); 
+			case duplex -> flow(Direction.in, on).flow(Direction.out, on);
 			default -> {} // do nothing
 		}
 		return this;

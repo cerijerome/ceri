@@ -242,19 +242,20 @@ public class CSerial {
 	}
 
 	private static BiMap<Integer, Integer> baudMap() {
-		return BiMap.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
+		var b = BiMap.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
 			.put(CTermios.B110, 110).put(CTermios.B134, 134).put(CTermios.B150, 150)
 			.put(CTermios.B200, 200).put(CTermios.B300, 300).put(CTermios.B600, 600)
 			.put(CTermios.B1200, 1200).put(CTermios.B1800, 1800).put(CTermios.B2400, 2400)
 			.put(CTermios.B4800, 4800).put(CTermios.B9600, 9600).put(CTermios.B19200, 19200)
 			.put(CTermios.B38400, 38400).put(CTermios.B57600, 57600).put(CTermios.B115200, 115200)
-			.put(CTermios.B230400, 230400).put(CTermios.B460800, 460800)
-			.put(CTermios.B500000, 500000).put(CTermios.B576000, 576000)
-			.put(CTermios.B921600, 921600).put(CTermios.B1000000, 1000000)
-			.put(CTermios.B1152000, 1152000).put(CTermios.B1500000, 1500000)
-			.put(CTermios.B2000000, 2000000).put(CTermios.B2500000, 2500000)
-			.put(CTermios.B3000000, 3000000).put(CTermios.B3500000, 3500000)
-			.put(CTermios.B4000000, 4000000).build();
+			.put(CTermios.B230400, 230400);
+		if (OsUtil.os().linux) b.put(CTermios.B460800, 460800).put(CTermios.B500000, 500000)
+			.put(CTermios.B576000, 576000).put(CTermios.B921600, 921600)
+			.put(CTermios.B1000000, 1000000).put(CTermios.B1152000, 1152000)
+			.put(CTermios.B1500000, 1500000).put(CTermios.B2000000, 2000000)
+			.put(CTermios.B2500000, 2500000).put(CTermios.B3000000, 3000000)
+			.put(CTermios.B3500000, 3500000).put(CTermios.B4000000, 4000000);
+		return b.build();
 	}
 
 	private static void setAttr(int fd, termios tty) throws CException {

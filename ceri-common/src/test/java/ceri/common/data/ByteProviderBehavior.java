@@ -20,7 +20,7 @@ import ceri.common.math.MathUtil;
 import ceri.common.test.Captor;
 
 public class ByteProviderBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final ByteProvider bp = provider(0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);

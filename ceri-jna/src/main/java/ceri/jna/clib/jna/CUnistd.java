@@ -7,7 +7,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
-import ceri.jna.util.IntType;
+import ceri.jna.type.IntType;
 import ceri.jna.util.JnaSize;
 import ceri.jna.util.JnaUtil;
 
@@ -31,7 +31,7 @@ public class CUnistd {
 	private CUnistd() {}
 
 	@SuppressWarnings("serial")
-	public static class size_t extends IntType {
+	public static class size_t extends IntType<size_t> {
 		public size_t() {
 			this(0);
 		}
@@ -42,7 +42,7 @@ public class CUnistd {
 	}
 
 	@SuppressWarnings("serial")
-	public static class ssize_t extends IntType {
+	public static class ssize_t extends IntType<ssize_t> {
 		public ssize_t() {
 			this(0);
 		}

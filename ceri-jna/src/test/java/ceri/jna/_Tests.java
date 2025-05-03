@@ -51,15 +51,19 @@ import ceri.common.test.TestUtil;
 	ceri.jna.io.JnaOutputStreamBehavior.class, //
 	// test
 	ceri.jna.test.JnaTestUtilTest.class, //
+	// type
+	ceri.jna.type.CLongBehavior.class, //
+	ceri.jna.type.CUlongBehavior.class, //
+	ceri.jna.type.IntTypeBehavior.class, //
 	// util
 	ceri.jna.util.ArrayPointerBehavior.class, //
 	ceri.jna.util.CallerBehavior.class, //
 	ceri.jna.util.GcMemoryBehavior.class, //
-	ceri.jna.util.IntTypeBehavior.class, //
 	ceri.jna.util.JnaArgsBehavior.class, //
 	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //
 	ceri.jna.util.JnaMemoryBehavior.class, //
+	ceri.jna.util.JnaOsBehavior.class, //
 	ceri.jna.util.JnaUtilTest.class, //
 	ceri.jna.util.NulTermTest.class, //
 	ceri.jna.util.PointerUtilTest.class, //

@@ -1,17 +1,19 @@
 package ceri.jna.util;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.type.CLong;
+import ceri.jna.type.CUlong;
+import ceri.jna.type.IntType;
 
 /**
  * Byte accessor wrapper for memory. Wrapped length must be within int range.
@@ -48,43 +50,64 @@ public class JnaMemory implements ByteAccessor {
 		/**
 		 * Returns the value from native-order bytes.
 		 */
-		public NativeLong readNlong() {
-			return new NativeLong(readEndian(NativeLong.SIZE, BIG_ENDIAN), false);
+		public CLong readCLong() {
+			return new CLong(readEndian(CLong.SIZE, IS_BIG_ENDIAN));
 		}
 
 		/**
 		 * Returns the value from big-endian bytes.
 		 */
-		public NativeLong readNlongMsb() {
-			return new NativeLong(readEndian(NativeLong.SIZE, true), false);
+		public CLong readCLongMsb() {
+			return new CLong(readEndian(CLong.SIZE, true));
 		}
 
 		/**
 		 * Returns the value from little-endian bytes.
 		 */
-		public NativeLong readNlongLsb() {
-			return new NativeLong(readEndian(NativeLong.SIZE, false), false);
+		public CLong readCLongLsb() {
+			return new CLong(readEndian(CLong.SIZE, false));
 		}
 
 		/**
 		 * Returns the unsigned value from native-order bytes.
 		 */
-		public NativeLong readUnlong() {
-			return new NativeLong(readEndian(NativeLong.SIZE, BIG_ENDIAN), true);
+		public CUlong readCUlong() {
+			return new CUlong(readEndian(CUlong.SIZE, IS_BIG_ENDIAN));
 		}
 
 		/**
 		 * Returns the unsigned value from big-endian bytes.
 		 */
-		public NativeLong readUnlongMsb() {
-			return new NativeLong(readEndian(NativeLong.SIZE, true), true);
+		public CUlong readCUlongMsb() {
+			return new CUlong(readEndian(CUlong.SIZE, true));
 		}
 
 		/**
 		 * Returns the unsigned value from little-endian bytes.
 		 */
-		public NativeLong readUnlongLsb() {
-			return new NativeLong(readEndian(NativeLong.SIZE, false), true);
+		public CUlong readCUlongLsb() {
+			return new CUlong(readEndian(CUlong.SIZE, false));
+		}
+
+		/**
+		 * Returns the value populated from native-order bytes.
+		 */
+		public <T extends IntType<T>> T readInto(T t) {
+			return IntType.set(t, readEndian(t.size, IS_BIG_ENDIAN));
+		}
+
+		/**
+		 * Returns the value populated from big-endian bytes.
+		 */
+		public <T extends IntType<T>> T readIntoMsb(T t) {
+			return IntType.set(t, readEndian(t.size, true));
+		}
+
+		/**
+		 * Returns the value populated from little-endian bytes.
+		 */
+		public <T extends IntType<T>> T readIntoLsb(T t) {
+			return IntType.set(t, readEndian(t.size, false));
 		}
 
 		/**
@@ -142,22 +165,22 @@ public class JnaMemory implements ByteAccessor {
 		/**
 		 * Writes native-order bytes.
 		 */
-		public Writer writeNlong(NativeLong value) {
-			return writeEndian(value.longValue(), NativeLong.SIZE, BIG_ENDIAN);
+		public Writer write(IntType<?> value) {
+			return writeEndian(value.longValue(), value.size, IS_BIG_ENDIAN);
 		}
 
 		/**
 		 * Writes big-endian bytes.
 		 */
-		public Writer writeNlongMsb(NativeLong value) {
-			return writeEndian(value.longValue(), NativeLong.SIZE, true);
+		public Writer writeMsb(IntType<?> value) {
+			return writeEndian(value.longValue(), value.size, true);
 		}
 
 		/**
 		 * Writes little-endian bytes.
 		 */
-		public Writer writeNlongLsb(NativeLong value) {
-			return writeEndian(value.longValue(), NativeLong.SIZE, false);
+		public Writer writeLsb(IntType<?> value) {
+			return writeEndian(value.longValue(), value.size, false);
 		}
 
 		/**
@@ -216,43 +239,64 @@ public class JnaMemory implements ByteAccessor {
 	/**
 	 * Returns the value from native-order bytes at given index.
 	 */
-	public NativeLong getNlong(int index) {
-		return getNlong(index, BIG_ENDIAN, false);
+	public CLong getCLong(int index) {
+		return getCLong(index, IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the value from big-endian bytes at given index.
 	 */
-	public NativeLong getNlongMsb(int index) {
-		return getNlong(index, true, false);
+	public CLong getCLongMsb(int index) {
+		return getCLong(index, true);
 	}
 
 	/**
 	 * Returns the value from little-endian bytes at given index.
 	 */
-	public NativeLong getNlongLsb(int index) {
-		return getNlong(index, false, false);
+	public CLong getCLongLsb(int index) {
+		return getCLong(index, false);
 	}
 
 	/**
 	 * Returns the unsigned value from native-order bytes at given index.
 	 */
-	public NativeLong getUnlong(int index) {
-		return getNlong(index, BIG_ENDIAN, true);
+	public CUlong getCUlong(int index) {
+		return getCUlong(index, IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the unsigned value from big-endian bytes at given index.
 	 */
-	public NativeLong getUnlongMsb(int index) {
-		return getNlong(index, true, true);
+	public CUlong getCUlongMsb(int index) {
+		return getCUlong(index, true);
 	}
 
 	/**
 	 * Returns the unsigned value from little-endian bytes at given index.
 	 */
-	public NativeLong getUnlongLsb(int index) {
-		return getNlong(index, false, true);
+	public CUlong getCUlongLsb(int index) {
+		return getCUlong(index, false);
+	}
+
+	/**
+	 * Returns the value populated from native-order bytes at given index.
+	 */
+	public <T extends IntType<T>> T getFrom(int index, T t) {
+		return getIntType(index, t, IS_BIG_ENDIAN);
+	}
+
+	/**
+	 * Returns the value populated from big-endian bytes at given index.
+	 */
+	public <T extends IntType<T>> T getFromMsb(int index, T t) {
+		return getIntType(index, t, true);
+	}
+
+	/**
+	 * Returns the value populated from little-endian bytes at given index.
+	 */
+	public <T extends IntType<T>> T getFromLsb(int index, T t) {
+		return getIntType(index, t, false);
 	}
 
 	@Override
@@ -320,23 +364,23 @@ public class JnaMemory implements ByteAccessor {
 	/**
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
-	public int setNlong(int index, NativeLong value) {
-		return setNlong(index, value, BIG_ENDIAN);
+	public int set(int index, IntType<?> value) {
+		return set(index, value, IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Sets the value in big-endian bytes at the index. Returns the index after the written bytes.
 	 */
-	public int setNlongMsb(int index, NativeLong value) {
-		return setNlong(index, value, true);
+	public int setMsb(int index, IntType<?> value) {
+		return set(index, value, true);
 	}
 
 	/**
 	 * Sets the value in little-endian bytes at the index. Returns the index after the written
 	 * bytes.
 	 */
-	public int setNlongLsb(int index, NativeLong value) {
-		return setNlong(index, value, false);
+	public int setLsb(int index, IntType<?> value) {
+		return set(index, value, false);
 	}
 
 	@Override
@@ -440,12 +484,21 @@ public class JnaMemory implements ByteAccessor {
 
 	/* Support methods */
 
-	private NativeLong getNlong(int index, boolean msb, boolean unsigned) {
-		return new NativeLong(getEndian(index, NativeLong.SIZE, msb), unsigned);
+	private CLong getCLong(int index, boolean msb) {
+		return new CLong(getEndian(index, CLong.SIZE, msb));
 	}
 
-	private int setNlong(int index, NativeLong value, boolean msb) {
-		return setEndian(index, NativeLong.SIZE, value.longValue(), msb);
+	private CUlong getCUlong(int index, boolean msb) {
+		return new CUlong(getEndian(index, CUlong.SIZE, msb));
+	}
+
+	private <T extends IntType<T>> T getIntType(int index, T t, boolean msb) {
+		t.setValue(getEndian(index, t.size, msb));
+		return t;
+	}
+
+	private int set(int index, IntType<?> value, boolean msb) {
+		return setEndian(index, value.size, value.longValue(), msb);
 	}
 
 	private long peer() {

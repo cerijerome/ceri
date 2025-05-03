@@ -1,9 +1,8 @@
 package ceri.jna.clib.jna;
 
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.time.TimeSpec;
-import ceri.jna.util.JnaUtil;
+import ceri.jna.type.CLong;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
@@ -22,13 +21,13 @@ public class CTime {
 	 */
 	@Fields({ "tv_sec", "tv_usec" })
 	public static class timeval extends Struct {
-		public NativeLong tv_sec = JnaUtil.nlong(0); // time_t
-		public NativeLong tv_usec = JnaUtil.nlong(0); // suseconds_t
+		public CLong tv_sec = new CLong(0); // time_t
+		public CLong tv_usec = new CLong(0); // suseconds_t
 
 		public static timeval of(TimeSpec time) {
 			return time == null ? null : new timeval().time(time);
 		}
-		
+
 		public timeval() {}
 
 		public timeval(Pointer p) {
@@ -63,13 +62,13 @@ public class CTime {
 	 */
 	@Fields({ "tv_sec", "tv_nsec" })
 	public static class timespec extends Struct {
-		public NativeLong tv_sec = JnaUtil.nlong(0); // time_t
-		public NativeLong tv_nsec = JnaUtil.nlong(0); // usually long / long long
+		public CLong tv_sec = new CLong(0); // time_t
+		public CLong tv_nsec = new CLong(0); // usually long / long long
 
 		public static timespec of(TimeSpec time) {
 			return time == null ? null : new timespec().time(time);
 		}
-		
+
 		public timespec() {}
 
 		public timespec(Pointer p) {

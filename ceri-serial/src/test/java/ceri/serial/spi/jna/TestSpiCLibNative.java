@@ -14,7 +14,6 @@ import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
 import java.util.Set;
 import com.sun.jna.LastErrorException;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
@@ -22,6 +21,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
@@ -48,7 +48,7 @@ public class TestSpiCLibNative extends TestCLibNative {
 	public static JnaLibrary.Ref<TestSpiCLibNative> ref() {
 		return CLib.library.ref(TestSpiCLibNative::of);
 	}
-	
+
 	public static TestSpiCLibNative of() {
 		return new TestSpiCLibNative();
 	}
@@ -56,7 +56,7 @@ public class TestSpiCLibNative extends TestCLibNative {
 	private TestSpiCLibNative() {}
 
 	@Override
-	public int ioctl(int fd, NativeLong req, Object... objs) throws LastErrorException {
+	public int ioctl(int fd, CUlong req, Object... objs) throws LastErrorException {
 		int request = req.intValue();
 		if (request == SPI_IOC_MESSAGE(1)) return ioctlSpiMsg(request, (spi_ioc_transfer) objs[0]);
 		if (GET_BYTE.contains(request)) return ioctlSpiGetByte(request, (ByteByReference) objs[0]);

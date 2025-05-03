@@ -32,6 +32,7 @@ import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaLibrary;
+import ceri.jna.util.JnaOs;
 
 public class CSerialTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -71,7 +72,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetParityForLinux() {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, SetParityForLinux.class, CSerial.class,
+		JnaTestUtil.testAsOs(JnaOs.linux, SetParityForLinux.class, CSerial.class,
 			CSerial.Linux.class, CTermios.class, CTermios.Linux.class, CTermios.Linux.termios.class,
 			CFcntl.class, CIoctl.class, CIoctl.Linux.class, CIoctl.Linux.serial_struct.class,
 			CLib.class, CLib.Native.class, CSerialTestHelper.class, CSerialTestHelper.Linux.class,
@@ -95,7 +96,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetStandardBaudForLinux() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0030, 16000000, 3);
 			int fd = CSerial.open("test");
@@ -107,7 +108,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetCustomBaudForLinux() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0000, 16000000, 0);
 			int fd = CSerial.open("test");
@@ -122,7 +123,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldFailToSetIncompatibleBaudForLinux() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0, 16000000, 0);
 			int fd = CSerial.open("test");
@@ -132,7 +133,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersForLinux() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
@@ -143,7 +144,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetFlowControlForLinux() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_IN);
@@ -153,7 +154,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetStandardBaudForMac() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 115200, DATABITS_7, STOPBITS_2, PARITY_EVEN);
@@ -163,7 +164,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetCustomBaudForMac() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_6, STOPBITS_2, PARITY_EVEN);
@@ -177,7 +178,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersForMac() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
@@ -188,7 +189,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersWithCustomBaudForMac() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_8, STOPBITS_1, PARITY_NONE);
@@ -202,7 +203,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetFlowControlForMac() throws CException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_OUT);

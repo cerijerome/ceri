@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
+import ceri.common.collection.CollectionUtil;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.FunctionUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
@@ -87,7 +87,7 @@ public class I2cEmulator implements I2c.Null {
 	public void slaveWrite(I2cAddress address, byte[] command) throws IOException {
 		delay(address, command.length);
 		if (address.isSlave()) slaveWrite(slaves.get(address), address, command);
-		else FunctionUtil.forEach(slaves.values(), slave -> slaveWrite(slave, address, command));
+		else CollectionUtil.forEach(slaves.values(), slave -> slaveWrite(slave, address, command));
 	}
 
 	/**

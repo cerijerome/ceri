@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -56,7 +56,7 @@ public interface IntReader {
 	 * Returns the value from native-order ints.
 	 */
 	default long readLong() {
-		return readLong(BIG_ENDIAN);
+		return readLong(IS_BIG_ENDIAN);
 	}
 
 	/**

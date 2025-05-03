@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.Struct.Align;
 import ceri.jna.util.Struct.Fields;
@@ -30,7 +30,7 @@ public class StructBehavior {
 	public static class Outer extends Struct {
 		public TestStruct[] innerVal = { new TestStruct(), new TestStruct() };
 		public TestStruct.ByRef[] innerRef = new TestStruct.ByRef[3];
-		public NativeLong nlong = JnaUtil.unlong(0x100000000L);
+		public CUlong nlong = new CUlong(0x100000000L);
 	}
 
 	@Packed

@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.function.LongFunction;
@@ -9,28 +9,28 @@ import java.util.function.LongFunction;
 public class IntTypeTester {
 
 	@SuppressWarnings("serial")
-	public static class Int32 extends IntType {
+	public static class Int32 extends IntType<Int32> {
 		public Int32(long value) {
 			super(4, value, false);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Uint32 extends IntType {
+	public static class Uint32 extends IntType<Uint32> {
 		public Uint32(long value) {
 			super(4, value, true);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Int64 extends IntType {
+	public static class Int64 extends IntType<Int64> {
 		public Int64(long value) {
 			super(8, value, false);
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class Uint64 extends IntType {
+	public static class Uint64 extends IntType<Uint64> {
 		public Uint64(long value) {
 			super(8, value, true);
 		}
@@ -91,8 +91,8 @@ public class IntTypeTester {
 		test("Uint64", Uint64::new, n, number, value);
 	}
 
-	private static <T extends IntType> void test(String name, LongFunction<T> constructor, long n,
-		Object number, long value) {
+	private static <T extends IntType<T>> void test(String name, LongFunction<T> constructor,
+		long n, Object number, long value) {
 		System.out.printf("%s(%d 0x%x) => ", name, n, n);
 		try {
 			var t = constructor.apply(n);

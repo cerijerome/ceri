@@ -20,6 +20,7 @@ import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.LseekArgs;
@@ -30,7 +31,6 @@ import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
 public class TestCLibNativeBehavior {
@@ -149,7 +149,7 @@ public class TestCLibNativeBehavior {
 	@Test
 	public void shouldAccessCfArgs() {
 		var lib = ref.init();
-		lib.cfsetispeed(null, JnaUtil.unlong(250000));
+		lib.cfsetispeed(null, new speed_t(250000));
 		assertEquals(lib.cf.awaitAuto().arg(0), 250000);
 	}
 

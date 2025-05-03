@@ -1,9 +1,9 @@
 package ceri.jna.util;
 
 import java.util.function.IntFunction;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.Struct.Fields;
 
 public class StructArraySpeedTester {
@@ -41,7 +41,7 @@ public class StructArraySpeedTester {
 		public byte[] f0 = new byte[S_BYTES];
 		public short f1;
 		public int f2;
-		public NativeLong f3;
+		public CUlong f3;
 		public Pointer f4;
 
 		public static class ByReference extends Small implements Structure.ByReference {}
@@ -56,7 +56,7 @@ public class StructArraySpeedTester {
 		public byte[] f0 = new byte[M_BYTES];
 		public short f1;
 		public int f2;
-		public NativeLong f3;
+		public CUlong f3;
 		public Pointer f4;
 
 		public static class ByReference extends Medium implements Structure.ByReference {}
@@ -71,7 +71,7 @@ public class StructArraySpeedTester {
 		public byte[] f0 = new byte[L_BYTES];
 		public short f1;
 		public int f2;
-		public NativeLong f3;
+		public CUlong f3;
 		public Pointer f4;
 
 		public static class ByReference extends Large implements Structure.ByReference {}

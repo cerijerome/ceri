@@ -15,18 +15,18 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Enclosed;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.type.CLong;
+import ceri.jna.type.CUlong;
 
 public class JnaUtil {
 	private static final Pattern LAST_ERROR_REGEX =
@@ -271,67 +271,31 @@ public class JnaUtil {
 	}
 
 	/**
-	 * Convenience constructor for signed native long.
-	 */
-	public static NativeLong nlong(long value) {
-		return new NativeLong(value);
-	}
-
-	/**
-	 * Convenience constructor for unsigned native long.
-	 */
-	public static NativeLong unlong(long value) {
-		return new NativeLong(value, true);
-	}
-
-	/**
-	 * Convenience constructor for unsigned native long from uint.
-	 */
-	public static NativeLong unlong(int value) {
-		return unlong(MathUtil.uint(value));
-	}
-
-	/**
 	 * Get signed value from pointer.
 	 */
-	public static long nlong(Pointer p, long offset) {
-		return p.getNativeLong(offset).longValue();
+	public static long clong(Pointer p, long offset) {
+		return CLong.readFrom(p, offset).longValue();
 	}
 
 	/**
 	 * Get unsigned value from pointer.
 	 */
-	public static long unlong(Pointer p, long offset) {
-		return unlong(p.getNativeLong(offset));
+	public static long culong(Pointer p, long offset) {
+		return CUlong.readFrom(p, offset).longValue();
 	}
 
 	/**
 	 * Set signed value at pointer.
 	 */
-	public static void nlong(Pointer p, long offset, long value) {
-		p.setNativeLong(offset, nlong(value));
+	public static void clong(Pointer p, long offset, long value) {
+		new CLong(value).write(p, offset);
 	}
 
 	/**
 	 * Set unsigned value at pointer.
 	 */
-	public static void unlong(Pointer p, long offset, long value) {
-		p.setNativeLong(offset, unlong(value));
-	}
-
-	/**
-	 * Get unsigned value from pointer.
-	 */
-	public static long unlong(NativeLongByReference ref) {
-		return unlong(ref.getValue());
-	}
-
-	/**
-	 * Converts value to unsigned.
-	 */
-	public static long unlong(NativeLong value) {
-		if (JnaSize.LONG.get() >= Long.BYTES) return value.longValue();
-		return MathUtil.uint(value.intValue());
+	public static void culong(Pointer p, long offset, long value) {
+		new CUlong(value).write(p, offset);
 	}
 
 	/**
@@ -353,34 +317,6 @@ public class JnaUtil {
 	 */
 	public static IntByReference intRef(int value) {
 		return new IntByReference(value);
-	}
-
-	/**
-	 * Creates a reference containing the value.
-	 */
-	public static NativeLongByReference nlongRef(NativeLong value) {
-		return new NativeLongByReference(value);
-	}
-
-	/**
-	 * Creates a reference containing the value.
-	 */
-	public static NativeLongByReference nlongRef(long value) {
-		return nlongRef(new NativeLong(value));
-	}
-
-	/**
-	 * Creates a reference containing the unsigned value.
-	 */
-	public static NativeLongByReference unlongRef(long value) {
-		return nlongRef(new NativeLong(value, true));
-	}
-
-	/**
-	 * Creates a reference containing the unsigned value.
-	 */
-	public static NativeLongByReference unlongRef(int value) {
-		return nlongRef(MathUtil.uint(value));
 	}
 
 	/**
@@ -409,34 +345,6 @@ public class JnaUtil {
 	 */
 	public static Pointer intRefPtr(int value) {
 		return intRef(value).getPointer();
-	}
-
-	/**
-	 * Creates a reference pointer containing the value.
-	 */
-	public static Pointer nlongRefPtr(NativeLong value) {
-		return nlongRef(value).getPointer();
-	}
-
-	/**
-	 * Creates a reference pointer containing the value.
-	 */
-	public static Pointer nlongRefPtr(long value) {
-		return nlongRefPtr(new NativeLong(value));
-	}
-
-	/**
-	 * Creates a reference pointer containing the value.
-	 */
-	public static Pointer unlongRefPtr(long value) {
-		return unlongRef(value).getPointer();
-	}
-
-	/**
-	 * Creates a reference pointer containing the value.
-	 */
-	public static Pointer unlongRefPtr(int value) {
-		return unlongRefPtr(MathUtil.uint(value));
 	}
 
 	/**

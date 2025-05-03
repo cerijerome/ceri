@@ -2,70 +2,71 @@ package ceri.jna.util;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
-import static ceri.jna.test.JnaTestUtil.memSize;
-import static ceri.jna.util.JnaUtil.nlong;
-import static ceri.jna.util.JnaUtil.unlong;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.TestUtil;
+import ceri.common.util.CloseableUtil;
+import ceri.jna.type.CLong;
+import ceri.jna.type.CUlong;
 
 public class JnaMemoryBehavior {
+	private Memory m0;
+	private JnaMemory m;
+	private JnaMemory.Reader r;
+	private JnaMemory.Writer w;
 
-	@Test
-	public void shouldNotBreachEqualsContract() {
-		try (var m = JnaUtil.mallocBytes(1, 2, 3, 4, 5)) {
-			JnaMemory t = JnaMemory.of(m, 1, 3);
-			JnaMemory eq0 = JnaMemory.of(m, 1, 3);
-			JnaMemory eq1 = JnaMemory.of(m.share(1), 0, 3);
-			JnaMemory ne0 = JnaMemory.of(m, 0, 3);
-			JnaMemory ne1 = JnaMemory.of(m, 1, 4);
-			exerciseEquals(t, eq0, eq1);
-			assertAllNotEqual(t, ne0, ne1);
-		}
+	@After
+	public void after() {
+		CloseableUtil.close(m0);
+		r = null;
+		w = null;
+		m = null;
+		m0 = null;
 	}
 
 	@Test
-	public void shouldSetAndGetValues() {
-		var m = malloc(16);
-		m.reader(0);
+	public void shouldNotBreachEqualsContract() {
+		m0 = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
+		JnaMemory t = JnaMemory.of(m0, 1, 3);
+		JnaMemory eq0 = JnaMemory.of(m0, 1, 3);
+		JnaMemory eq1 = JnaMemory.of(m0.share(1), 0, 3);
+		JnaMemory ne0 = JnaMemory.of(m0, 0, 3);
+		JnaMemory ne1 = JnaMemory.of(m0, 1, 4);
+		exerciseEquals(t, eq0, eq1);
+		assertAllNotEqual(t, ne0, ne1);
+	}
+
+	@Test
+	public void shouldSetBytes() {
+		init(4);
 		assertEquals(m.setByte(0, 0x80), 1);
 		assertEquals(m.getByte(0), (byte) 0x80);
 		assertEquals(m.setBytes(1, 0x80, 0xff, 0x7f), 4);
 		assertArray(m.copy(1, 3), 0x80, 0xff, 0x7f);
-		assertEquals(m.setNlong(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
-		assertEquals(m.getNlong(4), nlong(0x8fffffff));
-		assertEquals(m.getUnlong(4), unlong(0xffffffff8fffffffL));
-		assertEquals(m.setNlongMsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
-		assertEquals(m.getNlongMsb(4), nlong(0x8fffffff));
-		assertEquals(m.getUnlongMsb(4), unlong(0xffffffff8fffffffL));
-		assertEquals(m.setNlongLsb(4, nlong(0x8fffffff)), 4 + JnaSize.LONG.get());
-		assertEquals(m.getNlongLsb(4), nlong(0x8fffffff));
-		assertEquals(m.getUnlongLsb(4), unlong(0xffffffff8fffffffL));
 	}
 
 	@Test
 	public void shouldCopyToJnaMemory() {
-		var m = calloc(3);
+		init(3);
 		assertEquals(m(0x80, 0xff, 0, 0x7f, 0xff).copyTo(1, m), 4);
 		assertArray(m.copy(0), 0xff, 0, 0x7f);
 	}
 
 	@Test
 	public void shouldCopyToMemory() {
-		try (var m = JnaUtil.calloc(3)) {
-			assertEquals(m(0x80, 0xff, 0, 0x7f, 0xff).copyTo(1, m), 4);
-			assertMemory(m, 0, 0xff, 0, 0x7f);
-		}
+		init(3);
+		assertEquals(m(0x80, 0xff, 0, 0x7f, 0xff).copyTo(1, m0), 4);
+		assertMemory(m0, 0, 0xff, 0, 0x7f);
 	}
 
 	@Test
@@ -84,35 +85,35 @@ public class JnaMemoryBehavior {
 
 	@Test
 	public void shouldFillBytes() {
-		var m = calloc(4);
+		init(4);
 		assertEquals(m.fill(1, 0x80), 4);
 		assertArray(m.copy(0), 0, 0x80, 0x80, 0x80);
 	}
 
 	@Test
 	public void shouldCopyFromJnaMemory() {
-		var m = calloc(5);
+		init(5);
 		assertEquals(m.copyFrom(1, m(0x80, 0xff, 0x7f)), 4);
 		assertPointer(m.pointer(), 0, 0, 0x80, 0xff, 0x7f, 0);
 	}
 
 	@Test
 	public void shouldCopyFromMemory() {
-		var m = calloc(5);
+		init(5);
 		assertEquals(m.copyFrom(1, mem(0x80, 0xff, 0x7f).m), 4);
 		assertArray(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
 
 	@Test
 	public void shouldCopyFromByteProvider() {
-		var m = calloc(5);
+		init(5);
 		assertEquals(m.copyFrom(1, ByteProvider.of(0x80, 0xff, 0x7f)), 4);
 		assertArray(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
 
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
-		var m = calloc(5);
+		init(5);
 		assertEquals(m.readFrom(1, TestUtil.inputStream(0x80, 0xff, 0x7f)), 4);
 		assertArray(m.copy(0), 0, 0x80, 0xff, 0x7f, 0);
 	}
@@ -124,27 +125,70 @@ public class JnaMemoryBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		try (var m = JnaUtil.mallocBytes(0x80, 0xff, 0x7f, 0, 0x80, 0xff, 0x7f, 0, 0x80)) {
-			assertEquals(JnaMemory.of(m).toString(),
-				String.format("%s@%x[0x80,0xff,0x7f,0x00,0x80,0xff,0x7f,...](9)",
-					JnaMemory.class.getSimpleName(), PointerUtil.peer(m)));
-		}
+		m0 = JnaUtil.mallocBytes(0x80, 0xff, 0x7f, 0, 0x80, 0xff, 0x7f, 0, 0x80);
+		assertEquals(JnaMemory.of(m0).toString(),
+			String.format("%s@%x[0x80,0xff,0x7f,0x00,0x80,0xff,0x7f,...](9)",
+				JnaMemory.class.getSimpleName(), PointerUtil.peer(m0)));
 	}
 
 	@Test
-	public void shouldWriteAndReadValues() {
-		var m = malloc(128);
-		m.writer(0).writeByte(0x80).writeNlong(nlong(0x80000000L)).writeNlong(unlong(0x80000000L))
-			.writeNlongMsb(nlong(0x80000000L)).writeNlongMsb(unlong(0x80000000L))
-			.writeNlongLsb(nlong(0x80000000L)).writeNlongLsb(unlong(0x80000000L));
-		var r = m.reader(0);
-		assertByte(r.readByte(), 0x80);
-		assertEquals(r.readNlong(), nlong(0x80000000L));
-		assertEquals(r.readUnlong(), unlong(0x80000000L));
-		assertEquals(r.readNlongMsb(), nlong(0x80000000L));
-		assertEquals(r.readUnlongMsb(), unlong(0x80000000L));
-		assertEquals(r.readNlongLsb(), nlong(0x80000000L));
-		assertEquals(r.readUnlongLsb(), unlong(0x80000000L));
+	public void shouldSetCLong() {
+		init(24);
+		m.set(0, new CLong(-111));
+		m.setMsb(8, new CLong(222));
+		m.setLsb(16, new CLong(-333));
+		assertEquals(m.getCLong(0), new CLong(-111));
+		assertEquals(m.getCLongMsb(8), new CLong(222));
+		assertEquals(m.getCLongLsb(16), new CLong(-333));
+	}
+
+	@Test
+	public void shouldSetCUlong() {
+		init(24);
+		m.set(0, new CUlong(-111));
+		m.setMsb(8, new CUlong(222));
+		m.setLsb(16, new CUlong(-333));
+		assertEquals(m.getCUlong(0), new CUlong(-111));
+		assertEquals(m.getCUlongMsb(8), new CUlong(222));
+		assertEquals(m.getCUlongLsb(16), new CUlong(-333));
+	}
+
+	@Test
+	public void shouldSetIntType() {
+		init(24);
+		m.set(0, new CLong(-111));
+		m.setMsb(8, new CLong(222));
+		m.setLsb(16, new CLong(-333));
+		assertEquals(m.getFrom(0, new CLong()), new CLong(-111));
+		assertEquals(m.getFromMsb(8, new CLong()), new CLong(222));
+		assertEquals(m.getFromLsb(16, new CLong()), new CLong(-333));
+	}
+
+	@Test
+	public void shouldWriteCLong() {
+		initRw(24);
+		w.write(new CLong(-111)).writeMsb(new CLong(222)).writeLsb(new CLong(-333));
+		assertEquals(r.readCLong(), new CLong(-111));
+		assertEquals(r.readCLongMsb(), new CLong(222));
+		assertEquals(r.readCLongLsb(), new CLong(-333));
+	}
+
+	@Test
+	public void shouldWriteCUlong() {
+		initRw(24);
+		w.write(new CUlong(-111)).writeMsb(new CUlong(222)).writeLsb(new CUlong(-333));
+		assertEquals(r.readCUlong(), new CUlong(-111));
+		assertEquals(r.readCUlongMsb(), new CUlong(222));
+		assertEquals(r.readCUlongLsb(), new CUlong(-333));
+	}
+
+	@Test
+	public void shouldWriteIntType() {
+		initRw(24);
+		w.write(new CLong(-111)).writeMsb(new CUlong(222)).writeLsb(new CLong(-333));
+		assertEquals(r.readInto(new CLong()), new CLong(-111));
+		assertEquals(r.readIntoMsb(new CUlong()), new CUlong(222));
+		assertEquals(r.readIntoLsb(new CLong()), new CLong(-333));
 	}
 
 	@Test
@@ -158,10 +202,9 @@ public class JnaMemoryBehavior {
 
 	@Test
 	public void shouldWriteFromMemory() {
-		try (var m = JnaUtil.calloc(5)) {
-			JnaMemory.of(m).writer(0).writeFrom(mem(0x80, 0xff, 0, 0x7f).m);
-			assertMemory(m, 0, 0x80, 0xff, 0, 0x7f, 0);
-		}
+		m0 = JnaUtil.calloc(5);
+		JnaMemory.of(m0).writer(0).writeFrom(mem(0x80, 0xff, 0, 0x7f).m);
+		assertMemory(m0, 0, 0x80, 0xff, 0, 0x7f, 0);
 	}
 
 	@Test
@@ -172,27 +215,28 @@ public class JnaMemoryBehavior {
 
 	@Test
 	public void shouldSliceWriter() {
-		try (Memory m = JnaUtil.calloc(5)) {
-			JnaMemory.of(m).writer(0).skip(1).slice().writeBytes(0x80, 0xff, 0, 0x7f);
-			assertMemory(m, 0, 0, 0x80, 0xff, 0, 0x7f);
-		}
+		m0 = JnaUtil.calloc(5);
+		JnaMemory.of(m0).writer(0).skip(1).slice().writeBytes(0x80, 0xff, 0, 0x7f);
+		assertMemory(m0, 0, 0, 0x80, 0xff, 0, 0x7f);
 	}
 
 	@Test
 	public void shouldProvidePointer() {
-		try (var m = JnaUtil.mallocBytes(1, 2, 3)) {
-			assertEquals(JnaMemory.of(m).pointer(), m);
-			assertEquals(JnaMemory.of(m, 1, 1).pointer(), m.share(1));
-		}
+		m0 = JnaUtil.mallocBytes(1, 2, 3);
+		assertEquals(JnaMemory.of(m0).pointer(), m0);
+		assertEquals(JnaMemory.of(m0, 1, 1).pointer(), m0.share(1));
 		assertEquals(JnaMemory.of(null).pointer(), null);
 	}
 
-	private static JnaMemory malloc(int size) {
-		return JnaMemory.of(memSize(size).m);
+	private void init(int size) {
+		m0 = JnaUtil.calloc(size);
+		m = JnaMemory.of(m0);
 	}
 
-	private static JnaMemory calloc(int size) {
-		return JnaMemory.of(memSize(size).clear().m);
+	private void initRw(int size) {
+		init(size);
+		r = m.reader(0);
+		w = m.writer(0);
 	}
 
 	private static JnaMemory m(int... bytes) {

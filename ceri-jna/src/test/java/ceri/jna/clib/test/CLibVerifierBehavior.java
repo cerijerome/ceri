@@ -2,7 +2,6 @@ package ceri.jna.clib.test;
 
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.jna.test.JnaTestUtil.LINUX_OS;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -10,8 +9,8 @@ import ceri.common.test.SystemIoCaptor;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CTermios;
-import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaLibrary;
+import ceri.jna.util.JnaOs;
 
 public class CLibVerifierBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -46,7 +45,7 @@ public class CLibVerifierBehavior {
 
 	@Test
 	public void shouldVerifyLinuxPpoll() throws IOException {
-		JnaTestUtil.testAsOs(LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			var lib = ref.init();
 			lib.poll.autoResponses(2);
 			CLibVerifier.verifyPoll();

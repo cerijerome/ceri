@@ -16,15 +16,14 @@ import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ClassReloader;
+import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
 import ceri.common.text.StringUtil;
-import ceri.common.util.OsUtil;
+import ceri.jna.type.IntType;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.IntType;
+import ceri.jna.util.JnaOs;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.jna.util.Struct;
@@ -81,14 +80,14 @@ public class JnaTestUtil {
 	public static GcMemory mem(int... array) {
 		return GcMemory.mallocBytes(array);
 	}
-	
+
 	/**
 	 * Allocate native memory and copy array.
 	 */
 	public static GcMemory memSize(int size) {
 		return GcMemory.malloc(size);
 	}
-	
+
 	/**
 	 * Checks remaining memory from offset matches bytes.
 	 */
@@ -161,26 +160,26 @@ public class JnaTestUtil {
 	}
 
 	/**
-	 * Make sure int type reference pointer stores the given value.
+	 * Make sure int type reference pointer stores the given value. Given int type will be modified.
 	 */
-	public static void assertRef(Pointer p, IntType intType) {
-		var expected = intType.number();
-		var actual = intType.read(p, 0).number();
+	public static void assertRef(Pointer p, IntType<? extends IntType<?>> intType) {
+		var expected = intType.longValue();
+		var actual = intType.read(p, 0).longValue();
 		assertEquals(actual, expected);
 	}
 
 	/**
 	 * Make sure unsigned native long reference pointer stores the given value.
 	 */
-	public static void assertNlong(Pointer p, long value) {
-		assertEquals(JnaUtil.nlong(p, 0), value);
+	public static void assertCLong(Pointer p, long value) {
+		assertEquals(JnaUtil.clong(p, 0), value);
 	}
 
 	/**
 	 * Make sure unsigned native long reference pointer stores the given value.
 	 */
-	public static void assertUnlong(Pointer p, long value) {
-		assertEquals(JnaUtil.unlong(p, 0), value);
+	public static void assertCUlong(Pointer p, long value) {
+		assertEquals(JnaUtil.culong(p, 0), value);
 	}
 
 	/**
@@ -238,29 +237,11 @@ public class JnaTestUtil {
 	}
 
 	/**
-	 * Runs the test, overriding the current OS.
-	 */
-	public static <E extends Exception> void testAsOs(String osName, ExceptionRunnable<E> tester)
-		throws E {
-		try (var _ = OsUtil.os(osName, null, null)) {
-			tester.run();
-		}
-	}
-
-	/**
-	 * Runs the test for each supported OS, overriding the current OS.
-	 */
-	public static <E extends Exception> void testForEachOs(ExceptionRunnable<E> tester) throws E {
-		testAsOs(MAC_OS, tester);
-		testAsOs(LINUX_OS, tester);
-	}
-
-	/**
 	 * Reloads and instantiates the test class, overriding the current OS. Support classes are
 	 * reloaded if accessed.
 	 */
-	public static void testAsOs(String osName, Class<?> testCls, Class<?>... supportClasses) {
-		testAsOs(osName, () -> ClassReloader.reload(testCls, supportClasses));
+	public static void testAsOs(JnaOs os, Class<?> testCls, Class<?>... supportClasses) {
+		os.run(() -> ClassReInitializer.of(testCls, supportClasses).reinit());
 	}
 
 	/**
@@ -268,8 +249,7 @@ public class JnaTestUtil {
 	 * Support classes are reloaded if accessed.
 	 */
 	public static void testForEachOs(Class<?> testCls, Class<?>... supportClasses) {
-		testAsOs(MAC_OS, testCls, supportClasses);
-		testAsOs(LINUX_OS, testCls, supportClasses);
+		JnaOs.forEach(os -> testAsOs(os, testCls, supportClasses));
 	}
 
 }

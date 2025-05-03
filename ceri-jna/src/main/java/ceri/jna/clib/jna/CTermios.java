@@ -2,12 +2,11 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
-import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
+import java.util.function.Supplier;
+import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
-import ceri.jna.util.IntType;
+import ceri.jna.type.IntType;
 import ceri.jna.util.JnaSize;
-import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 
@@ -135,9 +134,11 @@ public class CTermios {
 	private CTermios() {}
 
 	@SuppressWarnings("serial")
-	public static class tcflag_t extends IntType {
+	public static class tcflag_t extends IntType<tcflag_t> {
+		public static final int SIZE = TCFLAG_T_SIZE;
+
 		public tcflag_t() {
-			this(0);
+			this(0L);
 		}
 
 		public tcflag_t(long value) {
@@ -146,11 +147,28 @@ public class CTermios {
 	}
 
 	@SuppressWarnings("serial")
-	public static class speed_t extends IntType {
-		public speed_t() {
-			this(0);
+	public static class speed_t extends IntType<speed_t> {
+		private static final Supplier<speed_t> CONSTRUCTOR = speed_t::new;
+		public static final int SIZE = SPEED_T_SIZE;
+
+		public static class ByRef extends IntType.ByRef<speed_t> {
+			public ByRef() {
+				this(new speed_t());
+			}
+
+			public ByRef(speed_t value) {
+				super(CONSTRUCTOR, value);
+			}
 		}
 
+		public speed_t() {
+			this(0L);
+		}
+
+		public speed_t(int value) {
+			this(MathUtil.uint(value));
+		}
+		
 		public speed_t(long value) {
 			super(SPEED_T_SIZE, value, true);
 		}
@@ -174,7 +192,7 @@ public class CTermios {
 	 * communications ports.
 	 */
 	public static <T extends termios> T tcgetattr(int fd, T termios) throws CException {
-		Pointer p = termios.getPointer();
+		var p = termios.getPointer();
 		caller.verify(() -> lib().tcgetattr(fd, p), "tcgetattr", fd, p);
 		return Struct.read(termios);
 	}
@@ -190,7 +208,7 @@ public class CTermios {
 	 * Set termios attributes on the terminal.
 	 */
 	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
-		Pointer p = Struct.write(termios).getPointer();
+		var p = Struct.write(termios).getPointer();
 		caller.verify(() -> lib().tcsetattr(fd, actions, p), "tcsetattr", fd, actions, p);
 	}
 
@@ -229,7 +247,7 @@ public class CTermios {
 	 * first if memory is out of date.
 	 */
 	public static void cfmakeraw(termios termios) throws CException {
-		Pointer p = termios.getPointer();
+		var p = termios.getPointer();
 		caller.call(() -> lib().cfmakeraw(p), "cfmakeraw", p);
 		Struct.read(termios);
 	}
@@ -239,7 +257,7 @@ public class CTermios {
 	 * <code>Struct.write(termios)</code> first if memory is out of date.
 	 */
 	public static int cfgetispeed(termios termios) throws CException {
-		Pointer p = termios.getPointer();
+		var p = termios.getPointer();
 		return caller.callType(() -> lib().cfgetispeed(p), "cfgetispeed", p).intValue();
 	}
 
@@ -248,8 +266,8 @@ public class CTermios {
 	 * first if memory is out of date.
 	 */
 	public static void cfsetispeed(termios termios, int speed) throws CException {
-		Pointer p = termios.getPointer();
-		NativeLong n = JnaUtil.unlong(speed);
+		var p = termios.getPointer();
+		var n = new speed_t(speed);
 		caller.verify(() -> lib().cfsetispeed(p, n), "cfsetispeed", p, n);
 		Struct.read(termios);
 	}
@@ -259,7 +277,7 @@ public class CTermios {
 	 * <code>Struct.write(termios)</code> first if memory is out of date.
 	 */
 	public static int cfgetospeed(termios termios) throws CException {
-		Pointer p = termios.getPointer();
+		var p = termios.getPointer();
 		return caller.callType(() -> lib().cfgetospeed(p), "cfgetospeed", p).intValue();
 	}
 
@@ -268,8 +286,8 @@ public class CTermios {
 	 * first if memory is out of date.
 	 */
 	public static void cfsetospeed(termios termios, int speed) throws CException {
-		Pointer p = termios.getPointer();
-		NativeLong n = JnaUtil.unlong(speed);
+		var p = termios.getPointer();
+		var n = new speed_t(speed);
 		caller.verify(() -> lib().cfsetospeed(p, n), "cfsetospeed", p, n);
 		Struct.read(termios);
 	}

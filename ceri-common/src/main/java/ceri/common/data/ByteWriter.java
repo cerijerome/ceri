@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -55,7 +55,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeShort(int value) {
-		return writeEndian(value, Short.BYTES, BIG_ENDIAN);
+		return writeEndian(value, Short.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeInt(int value) {
-		return writeEndian(value, Integer.BYTES, BIG_ENDIAN);
+		return writeEndian(value, Integer.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeLong(long value) {
-		return writeEndian(value, Long.BYTES, BIG_ENDIAN);
+		return writeEndian(value, Long.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**

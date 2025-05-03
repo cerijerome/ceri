@@ -9,7 +9,6 @@ import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.test.JnaTestUtil;
-import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 
 /**
@@ -50,7 +49,8 @@ public abstract class CSerialTestHelper {
 		}
 
 		private void handleIos(CtlArgs args) {
-			if (args.request() == CIoctl.Mac.IOSSIOSPEED) speed = JnaUtil.unlong(args.arg(0), 0);
+			if (args.request() == CIoctl.Mac.IOSSIOSPEED)
+				speed = new speed_t().read(args.arg(0), 0).longValue();
 		}
 
 		private void handleTc(TcArgs args) {

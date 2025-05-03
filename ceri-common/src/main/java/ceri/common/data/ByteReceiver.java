@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -179,7 +179,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setShort(int index, int value) {
-		return setEndian(index, Short.BYTES, value, BIG_ENDIAN);
+		return setEndian(index, Short.BYTES, value, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -201,7 +201,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setInt(int index, int value) {
-		return setEndian(index, Integer.BYTES, value, BIG_ENDIAN);
+		return setEndian(index, Integer.BYTES, value, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setLong(int index, long value) {
-		return setEndian(index, Long.BYTES, value, BIG_ENDIAN);
+		return setEndian(index, Long.BYTES, value, IS_BIG_ENDIAN);
 	}
 
 	/**

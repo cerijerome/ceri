@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestProcess;
 import ceri.common.test.TestUtil;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaOs;
 import ceri.process.ioreg.Ioreg;
 
 public class MacUsbLocatorBehavior {
@@ -16,18 +16,18 @@ public class MacUsbLocatorBehavior {
 
 	@Test
 	public void shouldProvidePortSupplierForMacOnly() {
-		JnaTestUtil.testAsOs(JnaTestUtil.LINUX_OS, () -> {
-			var locator = MacUsbLocator.of();
+		JnaOs.linux.run(() -> {
+			var locator = MacUsbLocator.of(); // no error on creation
 			assertThrown(() -> locator.portSupplier(0x123));
 		});
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			assertString(MacUsbLocator.of().portSupplier(0x123), "locationId:0x123");
 		});
 	}
 
 	@Test
 	public void shouldProvidePortSupplier() throws IOException {
-		JnaTestUtil.testAsOs(JnaTestUtil.MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			var locator = MacUsbLocator.of(Ioreg.of(TestProcess.processor(IOREG_XML)));
 			var supplier = locator.portSupplier(18087936);
 			assertEquals(supplier.get(), "/dev/tty.usbserial-1140");

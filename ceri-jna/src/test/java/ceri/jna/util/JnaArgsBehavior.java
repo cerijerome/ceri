@@ -9,9 +9,9 @@ import java.util.Set;
 import org.junit.Test;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.Struct.Fields;
 
 public class JnaArgsBehavior {
@@ -20,10 +20,10 @@ public class JnaArgsBehavior {
 		boolean invoke(String s, int i);
 	}
 
-	@Fields({ "bb", "nl" })
+	@Fields({ "bb", "ul" })
 	public static class TestStruct extends Struct {
 		public byte[] bb = new byte[3];
-		public NativeLong nl = JnaUtil.unlong(123);
+		public CUlong ul = new CUlong(123);
 	}
 
 	public static class TestPointerType extends PointerType {}
@@ -91,7 +91,7 @@ public class JnaArgsBehavior {
 	public void shouldPrintHexIntIfInRange() {
 		assertEquals(JnaArgs.DEFAULT.args(-256, -2, -1, 9, 10, 256),
 			"-256|0xffffff00,-2|0xfffffffe,-1,9,10|0xa,256|0x100");
-		assertEquals(JnaArgs.DEFAULT.args(JnaUtil.unlong(0x100000000L)), "4294967296|0x100000000");
+		assertEquals(JnaArgs.DEFAULT.args(new CUlong(0x100000000L)), "4294967296|0x100000000");
 	}
 
 	@Test

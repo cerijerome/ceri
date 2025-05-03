@@ -14,7 +14,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionConsumer;
 
 public class IntReceiverBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final String str = "abc\ud83c\udc39de";
 	private static final int[] cp = str.codePoints().toArray();
 

@@ -17,7 +17,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionConsumer;
 
 public class ByteReceiverBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final byte[] ascii = "abcde".getBytes(ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(UTF_8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());

@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -62,7 +62,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default short readShort() {
-		return (short) readEndian(Short.BYTES, BIG_ENDIAN);
+		return (short) readEndian(Short.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default int readInt() {
-		return (int) readEndian(Integer.BYTES, BIG_ENDIAN);
+		return (int) readEndian(Integer.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default long readLong() {
-		return readEndian(Long.BYTES, BIG_ENDIAN);
+		return readEndian(Long.BYTES, IS_BIG_ENDIAN);
 	}
 
 	/**

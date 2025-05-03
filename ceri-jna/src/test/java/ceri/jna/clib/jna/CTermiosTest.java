@@ -12,6 +12,7 @@ import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaLibrary;
+import ceri.jna.util.JnaOs;
 
 public class CTermiosTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -31,6 +32,13 @@ public class CTermiosTest {
 	}
 
 	@Test
+	public void testSpeedRef() {
+		var ref = new CTermios.speed_t.ByRef();
+		ref.setValue(new CTermios.speed_t(-1));
+		assertEquals(ref.longValue(), 0xffffffffL);
+	}
+
+	@Test
 	public void testTcsetattr() throws CException {
 		var lib = initFd();
 		var termios = new CTermios.Mac.termios();
@@ -42,7 +50,7 @@ public class CTermiosTest {
 	public void testMacTcgetattr() throws CException {
 		var lib = initFd();
 		lib.tc.autoResponse(args -> new tcflag_t(0x3456).write(args.arg(0), 0), 0);
-		JnaTestUtil.testForEachOs(() -> {
+		JnaOs.forEach(_ -> {
 			var t = CTermios.tcgetattr(fd);
 			assertEquals(t.c_iflag, new tcflag_t(0x3456));
 		});

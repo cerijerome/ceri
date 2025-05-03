@@ -1,0 +1,68 @@
+package ceri.jna.util;
+
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertThrown;
+import org.junit.After;
+import org.junit.Test;
+import ceri.common.function.RuntimeCloseable;
+import ceri.common.util.CloseableUtil;
+import ceri.common.util.OsUtil;
+
+public class JnaOsBehavior {
+	private RuntimeCloseable override;
+
+	@After
+	public void after() {
+		CloseableUtil.close(override);
+		override = null;
+	}
+
+	@Test
+	public void testKnown() {
+		assertEquals(JnaOs.known(null), false);
+	}
+
+	@Test
+	public void testCompatible() {
+		assertEquals(JnaOs.compatible(JnaOs.unknown, JnaOs.unknown), true);
+		assertEquals(JnaOs.compatible(JnaOs.unknown, JnaOs.linux), true);
+		assertEquals(JnaOs.compatible(JnaOs.unknown, JnaOs.mac), true);
+		assertEquals(JnaOs.compatible(JnaOs.linux, JnaOs.unknown), true);
+		assertEquals(JnaOs.compatible(JnaOs.linux, JnaOs.linux), true);
+		assertEquals(JnaOs.compatible(JnaOs.linux, JnaOs.mac), false);
+		assertEquals(JnaOs.compatible(JnaOs.mac, JnaOs.unknown), true);
+		assertEquals(JnaOs.compatible(JnaOs.mac, JnaOs.linux), false);
+		assertEquals(JnaOs.compatible(JnaOs.mac, JnaOs.mac), true);
+	}
+
+	@Test
+	public void testCurrentCompatibility() {
+		override = OsUtil.os("test", null, null);
+		assertEquals(JnaOs.current(JnaOs.unknown), true);
+		assertEquals(JnaOs.current(JnaOs.mac), true);
+		assertEquals(JnaOs.current(JnaOs.linux), true);
+		override = JnaOs.linux.override();
+		assertEquals(JnaOs.current(JnaOs.unknown), true);
+		assertEquals(JnaOs.current(JnaOs.mac), false);
+		assertEquals(JnaOs.current(JnaOs.linux), true);
+	}
+
+	@Test
+	public void testCurrent() {
+		override = JnaOs.mac.override();
+		assertEquals(JnaOs.validCurrent(), JnaOs.mac);
+		override = JnaOs.linux.override();
+		assertEquals(JnaOs.validCurrent(), JnaOs.linux);
+		override = OsUtil.os("test", null, null);
+		assertThrown(() -> JnaOs.validCurrent());
+	}
+
+	@Test
+	public void shouldModifyFilename() {
+		assertEquals(JnaOs.mac.file(null), null);
+		assertEquals(JnaOs.unknown.file("file.c"), "file.c");
+		assertEquals(JnaOs.linux.file("file"), "file-linux");
+		assertEquals(JnaOs.linux.file("file.c"), "file-linux.c");
+	}
+
+}

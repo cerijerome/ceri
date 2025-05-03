@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.PrimitiveIterator;
 import java.util.function.IntFunction;
@@ -231,7 +231,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Returns the value from native-order ints at given index.
 	 */
 	default long getLong(int index) {
-		return getLong(index, BIG_ENDIAN);
+		return getLong(index, IS_BIG_ENDIAN);
 	}
 
 	/**

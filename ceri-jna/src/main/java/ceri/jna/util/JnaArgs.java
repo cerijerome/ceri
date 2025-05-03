@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.Callback;
+import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
@@ -27,7 +27,7 @@ import ceri.common.text.StringUtil;
 public class JnaArgs {
 	public static JnaArgs DEFAULT = builder().addDefault(true).build();
 	private static final List<Class<?>> INT_CLASSES =
-		List.of(Byte.class, Short.class, Integer.class, Long.class, NativeLong.class);
+		List.of(Byte.class, Short.class, Integer.class, Long.class);
 	private static final int DEC_LIMIT = 9;
 	private final List<Function<Object, String>> transforms;
 	private final Joiner arrayJoiner;
@@ -61,7 +61,7 @@ public class JnaArgs {
 	public static String stringInt(Number n, int hexMin, int hexMax) {
 		long l = n.longValue();
 		if (l >= hexMin && l <= hexMax) return String.valueOf(n);
-		if (n instanceof NativeLong) n = l;
+		if (n instanceof IntegerType) n = l;
 		return String.format("%1$d|0x%1$x", n);
 	}
 
@@ -127,6 +127,7 @@ public class JnaArgs {
 			if (compactStruct) add(Structure.class, JnaArgs::string);
 			return add(String.class, StringUtil::escape) //
 				.add(matchInt(), n -> stringInt(n)) //
+				.add(IntegerType.class, n -> stringInt(n)) //
 				.add(Pointer.class, JnaArgs::string) //
 				.add(PointerType.class, JnaArgs::string) //
 				.add(Callback.class, JnaArgs::string) //
@@ -188,8 +189,8 @@ public class JnaArgs {
 
 	JnaArgs(Builder builder) {
 		transforms = ImmutableUtil.copyAsList(builder.transforms);
-		arrayJoiner = Joiner.builder().prefix("[").separator(",").suffix("]")
-			.max(builder.arrayMax).remainder("..").build();
+		arrayJoiner = Joiner.builder().prefix("[").separator(",").suffix("]").max(builder.arrayMax)
+			.remainder("..").build();
 	}
 
 	/**

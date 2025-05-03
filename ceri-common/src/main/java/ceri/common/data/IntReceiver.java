@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BIG_ENDIAN;
+import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import ceri.common.function.ExceptionIntUnaryOperator;
 import ceri.common.validation.ValidationUtil;
 
@@ -157,7 +157,7 @@ public interface IntReceiver {
 	 * Sets the value in native-order ints at the index. Returns the index after the written ints.
 	 */
 	default int setLong(int index, long value) {
-		return setLong(index, value, BIG_ENDIAN);
+		return setLong(index, value, IS_BIG_ENDIAN);
 	}
 
 	/**

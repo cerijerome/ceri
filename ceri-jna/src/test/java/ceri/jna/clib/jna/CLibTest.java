@@ -3,7 +3,8 @@ package ceri.jna.clib.jna;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
-import ceri.jna.test.JnaTestUtil;
+import ceri.common.util.OsUtil;
+import ceri.jna.util.JnaOs;
 
 public class CLibTest {
 
@@ -14,7 +15,9 @@ public class CLibTest {
 
 	@Test
 	public void testValidateOs() {
-		JnaTestUtil.testForEachOs(CLib::validateOs);
-		JnaTestUtil.testAsOs("Other", () -> assertThrown(CLib::validateOs));
+		JnaOs.forEach(_ -> CLib.validateOs());
+		try (var _ = OsUtil.os("Other", null, null)) {
+			assertThrown(CLib::validateOs);
+		}
 	}
 }

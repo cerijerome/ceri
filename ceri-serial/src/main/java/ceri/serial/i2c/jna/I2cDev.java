@@ -14,10 +14,8 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QU
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
 import java.util.Set;
 import java.util.stream.Stream;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.ptr.NativeLongByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.Field;
@@ -28,6 +26,7 @@ import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
 import ceri.jna.util.Union;
@@ -340,9 +339,9 @@ public class I2cDev {
 	 * Get the adapter functionality mask.
 	 */
 	public static int i2c_funcs(int fd) throws CException {
-		NativeLongByReference valueRef = new NativeLongByReference();
-		CIoctl.ioctl("I2C_FUNCS", fd, I2C_FUNCS, valueRef);
-		return valueRef.getValue().intValue();
+		var ref = new CUlong.ByRef();
+		CIoctl.ioctl("I2C_FUNCS", fd, I2C_FUNCS, ref.getPointer());
+		return ref.getValue().intValue();
 	}
 
 	/**
@@ -536,7 +535,7 @@ public class I2cDev {
 	}
 
 	private static void ioctl(String name, int fd, int request, long value) throws CException {
-		CIoctl.ioctl(name, fd, request, new NativeLong(value, true));
+		CIoctl.ioctl(name, fd, request, new CUlong(value));
 	}
 
 	private static int smbusIoctl(int fd, int readWrite, int command,

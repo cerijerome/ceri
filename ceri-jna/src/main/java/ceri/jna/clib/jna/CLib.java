@@ -2,13 +2,14 @@ package ceri.jna.clib.jna;
 
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
+import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.Caller;
 import ceri.jna.util.JnaLibrary;
 
@@ -95,7 +96,7 @@ public class CLib {
 		/* <sys/ioctl.h> */
 
 		// int ioctl(int d, unsigned long request, ...)
-		int ioctl(int fd, NativeLong request, Object... objs) throws LastErrorException;
+		int ioctl(int fd, CUlong request, Object... objs) throws LastErrorException;
 
 		/* <termios.h> */
 
@@ -121,16 +122,16 @@ public class CLib {
 		void cfmakeraw(Pointer termios) throws LastErrorException;
 
 		// speed_t cfgetispeed(const struct termios *termios_p)
-		NativeLong cfgetispeed(Pointer termios) throws LastErrorException;
+		speed_t cfgetispeed(Pointer termios) throws LastErrorException;
 
 		// speed_t cfgetospeed(const struct termios *termios_p)
-		NativeLong cfgetospeed(Pointer termios) throws LastErrorException;
+		speed_t cfgetospeed(Pointer termios) throws LastErrorException;
 
 		// int cfsetispeed(struct termios *termios_p, speed_t speed)
-		int cfsetispeed(Pointer termios, NativeLong speed) throws LastErrorException;
+		int cfsetispeed(Pointer termios, speed_t speed) throws LastErrorException;
 
 		// int cfsetospeed(struct termios *termios_p, speed_t speed)
-		int cfsetospeed(Pointer termios, NativeLong speed) throws LastErrorException;
+		int cfsetospeed(Pointer termios, speed_t speed) throws LastErrorException;
 
 		/* <sys/mman.h> */
 

@@ -33,7 +33,7 @@ public class ByteUtil {
 	public static final int SHORT_MASK = 0xffff;
 	public static final long INT_MASK = 0xffff_ffffL;
 	public static final long LONG_MASK = 0xffff_ffff_ffff_ffffL;
-	public static final boolean BIG_ENDIAN =
+	public static final boolean IS_BIG_ENDIAN =
 		Objects.equals(ByteOrder.nativeOrder(), ByteOrder.BIG_ENDIAN);
 
 	private ByteUtil() {}

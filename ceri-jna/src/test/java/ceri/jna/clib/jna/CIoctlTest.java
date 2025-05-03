@@ -2,10 +2,8 @@ package ceri.jna.clib.jna;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.jna.test.JnaTestUtil.LINUX_OS;
-import static ceri.jna.test.JnaTestUtil.MAC_OS;
+import static ceri.jna.test.JnaTestUtil.assertCUlong;
 import static ceri.jna.test.JnaTestUtil.assertRef;
-import static ceri.jna.test.JnaTestUtil.assertUnlong;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
@@ -15,6 +13,7 @@ import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.JnaLibrary;
+import ceri.jna.util.JnaOs;
 
 public class CIoctlTest {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
@@ -130,7 +129,7 @@ public class CIoctlTest {
 		var args = lib.ioctl.awaitAuto();
 		assertEquals(args.fd(), fd);
 		assertEquals(args.request(), CIoctl.Mac.IOSSIOSPEED);
-		assertUnlong(args.arg(0), 250000L);
+		assertCUlong(args.arg(0), 250000L);
 	}
 
 	@Test
@@ -159,8 +158,8 @@ public class CIoctlTest {
 
 	@Test
 	public void testFields() throws Exception {
-		JnaTestUtil.testAsOs(MAC_OS, Mac.class, CIoctl.class, CIoctl.Mac.class);
-		JnaTestUtil.testAsOs(LINUX_OS, Linux.class, CIoctl.class, CIoctl.Linux.class);
+		JnaTestUtil.testAsOs(JnaOs.mac, Mac.class, CIoctl.class, CIoctl.Mac.class);
+		JnaTestUtil.testAsOs(JnaOs.linux, Linux.class, CIoctl.class, CIoctl.Linux.class);
 	}
 
 	public static class Mac {

@@ -1,4 +1,6 @@
 clib-symbols
+clib-symbols-linux
+clib-symbols-mac
 h-files*
 hpp-files
 

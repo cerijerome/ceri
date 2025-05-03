@@ -9,11 +9,12 @@ import static ceri.jna.test.JnaTestUtil.assertPointer;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Structure;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.test.JnaTestUtil.MemCache;
+import ceri.jna.type.CLong;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.JnaUtil;
@@ -43,12 +44,21 @@ public class JnaTestUtilTest {
 	}
 
 	@Test
-	public void testAssertNlong() {
-		m = new Memory(NativeLong.SIZE);
-		JnaUtil.nlong(m, 0, Long.MIN_VALUE);
-		JnaTestUtil.assertNlong(m, Long.MIN_VALUE);
-		JnaUtil.nlong(m, 0, Long.MAX_VALUE);
-		JnaTestUtil.assertNlong(m, Long.MAX_VALUE);
+	public void testAssertCLong() {
+		m = new Memory(CLong.SIZE);
+		JnaUtil.clong(m, 0, Long.MIN_VALUE);
+		JnaTestUtil.assertCLong(m, Long.MIN_VALUE);
+		JnaUtil.clong(m, 0, Long.MAX_VALUE);
+		JnaTestUtil.assertCLong(m, Long.MAX_VALUE);
+	}
+
+	@Test
+	public void testAssertCUlong() {
+		m = new Memory(CUlong.SIZE);
+		JnaUtil.culong(m, 0, Long.MIN_VALUE);
+		JnaTestUtil.assertCUlong(m, Long.MIN_VALUE);
+		JnaUtil.culong(m, 0, Long.MAX_VALUE);
+		JnaTestUtil.assertCUlong(m, Long.MAX_VALUE);
 	}
 
 	@Test

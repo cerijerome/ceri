@@ -12,7 +12,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
@@ -30,11 +29,13 @@ import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CTermios;
+import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.test.JnaTestUtil;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
@@ -411,7 +412,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int ioctl(int fd, NativeLong request, Object... objs) {
+	public int ioctl(int fd, CUlong request, Object... objs) {
 		return ioctl.apply(CtlArgs.of(fd(fd), request.intValue(), objs));
 	}
 
@@ -456,22 +457,22 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public NativeLong cfgetispeed(Pointer termios) {
-		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetispeed", termios)));
+	public speed_t cfgetispeed(Pointer termios) {
+		return new speed_t(cf.apply(CfArgs.of("cfgetispeed", termios)));
 	}
 
 	@Override
-	public NativeLong cfgetospeed(Pointer termios) {
-		return JnaUtil.unlong(cf.apply(CfArgs.of("cfgetospeed", termios)));
+	public speed_t cfgetospeed(Pointer termios) {
+		return new speed_t(cf.apply(CfArgs.of("cfgetospeed", termios)));
 	}
 
 	@Override
-	public int cfsetispeed(Pointer termios, NativeLong speed) {
+	public int cfsetispeed(Pointer termios, speed_t speed) {
 		return cf.apply(CfArgs.of("cfsetispeed", termios, speed.intValue()));
 	}
 
 	@Override
-	public int cfsetospeed(Pointer termios, NativeLong speed) {
+	public int cfsetospeed(Pointer termios, speed_t speed) {
 		return cf.apply(CfArgs.of("cfsetospeed", termios, speed.intValue()));
 	}
 

@@ -9,15 +9,13 @@ import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.jna.clib.Poll.Error.POLLNVAL;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import static ceri.jna.clib.Poll.Event.POLLOUT;
-import static ceri.jna.test.JnaTestUtil.LINUX_OS;
-import static ceri.jna.test.JnaTestUtil.MAC_OS;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.test.TestCLibNative;
-import ceri.jna.test.JnaTestUtil;
+import ceri.jna.util.JnaOs;
 import ceri.log.util.LogUtil;
 
 public class PollBehavior {
@@ -89,7 +87,7 @@ public class PollBehavior {
 	@Test
 	public void shouldNotPollWithSigsetOnMac() throws IOException {
 		initPipe();
-		JnaTestUtil.testAsOs(MAC_OS, () -> {
+		JnaOs.mac.run(() -> {
 			assertUnsupported(() -> poll.poll(SigSet.of(Signal.SIGINT)));
 		});
 	}
@@ -97,7 +95,7 @@ public class PollBehavior {
 	@Test
 	public void shouldPollWithSigsetOnLinux() throws IOException {
 		initPipe();
-		JnaTestUtil.testAsOs(LINUX_OS, () -> {
+		JnaOs.linux.run(() -> {
 			try (var enc = TestCLibNative.register()) {
 				enc.ref.poll.autoResponses(1, 2);
 				assertEquals(poll.poll(SigSet.of(Signal.SIGINT)), 1);

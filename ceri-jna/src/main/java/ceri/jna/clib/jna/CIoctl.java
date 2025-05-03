@@ -5,9 +5,10 @@ import static ceri.common.validation.ValidationUtil.validateUbyte;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.Supplier;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
+import ceri.jna.clib.jna.CTermios.speed_t;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.Struct;
 import ceri.jna.util.Struct.Fields;
@@ -77,7 +78,7 @@ public class CIoctl {
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
-		var n = JnaUtil.unlong(request);
+		var n = new CUlong(request);
 		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
 	}
 
@@ -86,7 +87,7 @@ public class CIoctl {
 	 */
 	public static int ioctl(Supplier<String> errorMsg, int fd, int request, Object... objs)
 		throws CException {
-		var n = JnaUtil.unlong(request);
+		var n = new CUlong(request);
 		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), errorMsg);
 	}
 
@@ -186,15 +187,15 @@ public class CIoctl {
 
 		/* <IOKit/serial/ioss.h> */
 
-		public static final int IOSSIOSPEED = _IOW('T', 2, NativeLong.SIZE); // 0x80085402
+		public static final int IOSSIOSPEED = _IOW('T', 2, speed_t.SIZE); // 0x80085402
 
 		/**
 		 * Sets input and output speeds to a non-traditional baud rate. Value is not represented in
 		 * struct termios.
 		 */
 		public static void iossiospeed(int fd, int speed) throws CException {
-			var p = JnaUtil.unlongRefPtr(speed);
-			ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, p);
+			var ref = new speed_t.ByRef(new speed_t(speed));
+			ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, ref.getPointer());
 		}
 	}
 
@@ -233,7 +234,7 @@ public class CIoctl {
 			public Pointer iomem_base;
 			public short iomem_reg_shift;
 			public int port_high;
-			public NativeLong iomap_base;
+			public CUlong iomap_base;
 		}
 
 		/* <sys/ioctl.h> */
@@ -273,7 +274,7 @@ public class CIoctl {
 		} else {
 			_IOC_SIZEBITS = 14;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
-			IOC_VOID = 0;
+			IOC_VOID = 0; // _IOC_NONE
 			IOC_OUT = 0x80000000;
 			IOC_IN = 0x40000000;
 			TIOCSBRK = 0x5427;

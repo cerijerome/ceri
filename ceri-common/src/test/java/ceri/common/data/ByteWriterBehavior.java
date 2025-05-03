@@ -17,7 +17,7 @@ import ceri.common.test.TestUtil;
 import ceri.common.validation.ValidationUtil;
 
 public class ByteWriterBehavior {
-	private static final boolean msb = ByteUtil.BIG_ENDIAN;
+	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
 	private static final byte[] ascii = "abcde".getBytes(StandardCharsets.ISO_8859_1);
 	private static final byte[] utf8 = "abcde".getBytes(StandardCharsets.UTF_8);
 	private static final byte[] defCset = "abcde".getBytes(Charset.defaultCharset());

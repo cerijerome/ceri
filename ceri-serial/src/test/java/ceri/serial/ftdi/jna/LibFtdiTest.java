@@ -15,8 +15,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.test.JnaTestUtil;
 import ceri.jna.util.GcMemory;
+import ceri.jna.util.JnaOs;
 import ceri.jna.util.Struct;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
@@ -170,7 +170,7 @@ public class LibFtdiTest {
 
 	@Test
 	public void testAutoDetach() throws LibUsbException {
-		JnaTestUtil.testForEachOs(() -> {
+		JnaOs.forEach(_ -> {
 			ftdi = openFtdi();
 			int expected = OsUtil.os().linux(1, 0);
 			assertEquals(lib.data.deviceHandle(ftdi.usb_dev).kernelDriverInterfaceBits, expected);

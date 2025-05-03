@@ -15,23 +15,22 @@ import org.junit.Test;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.util.SystemVars;
+import ceri.jna.type.IntType;
 import ceri.jna.util.JnaTestData.TestStruct;
 
 public class JnaUtilTest {
 	private final JnaTestData data = JnaTestData.of();
 
 	@SuppressWarnings("serial")
-	public static class Uint32 extends IntType {
+	public static class Uint32 extends IntType<Uint32> {
 		public Uint32(long value) {
 			super(Integer.BYTES, value, true);
 		}
@@ -256,23 +255,10 @@ public class JnaUtilTest {
 	}
 
 	@Test
-	public void testUnlong() {
-		NativeLongByReference ref = new NativeLongByReference(new NativeLong(0x80000000L));
-		assertEquals(JnaUtil.unlong(ref), 0x80000000L);
-		JnaUtil.unlong(ref.getPointer(), 0, 0x80000001L);
-		assertEquals(JnaUtil.unlong(ref.getPointer(), 0), 0x80000001L);
-		try (var _ = JnaSize.LONG.override(4)) {
-			assertEquals(JnaUtil.unlong(new NativeLong(-1L)), 0xffffffffL);
-		}
-	}
-
-	@Test
 	public void testRefs() {
 		assertEquals(JnaUtil.byteRef(0x80).getValue(), (byte) 0x80);
 		assertEquals(JnaUtil.shortRef(0x8000).getValue(), (short) 0x8000);
 		assertEquals(JnaUtil.intRef(0x80000000).getValue(), 0x80000000);
-		assertEquals(JnaUtil.nlongRef(0x80000000).getValue(), new NativeLong(0x80000000));
-		assertEquals(JnaUtil.unlongRef(0x80000000).getValue(), new NativeLong(0x80000000L, true));
 		assertEquals(JnaUtil.longRef(0x8000000000000000L).getValue(), 0x8000000000000000L);
 	}
 
@@ -281,9 +267,6 @@ public class JnaUtilTest {
 		assertEquals(JnaUtil.byteRefPtr(0x80).getByte(0), (byte) 0x80);
 		assertEquals(JnaUtil.shortRefPtr(0x8000).getShort(0), (short) 0x8000);
 		assertEquals(JnaUtil.intRefPtr(0x80000000).getInt(0), 0x80000000);
-		assertEquals(JnaUtil.nlongRefPtr(0x80000000).getNativeLong(0), new NativeLong(0x80000000));
-		assertEquals(JnaUtil.unlongRefPtr(0x80000000).getNativeLong(0),
-			new NativeLong(0x80000000L, true));
 		assertEquals(JnaUtil.longRefPtr(0x8000000000000000L).getLong(0), 0x8000000000000000L);
 	}
 

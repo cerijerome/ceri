@@ -6,13 +6,13 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import java.util.List;
 import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
-import com.sun.jna.NativeLong;
-import com.sun.jna.ptr.NativeLongByReference;
+import com.sun.jna.Pointer;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.test.CallSync;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.test.TestCLibNative;
+import ceri.jna.type.CUlong;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
@@ -55,7 +55,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 	private TestI2cCLibNative() {}
 
 	@Override
-	public int ioctl(int fd, NativeLong req, Object... objs) throws LastErrorException {
+	public int ioctl(int fd, CUlong req, Object... objs) throws LastErrorException {
 		int request = req.intValue();
 		switch (request) {
 			case 0x0701: // I2C_RETRIES
@@ -66,7 +66,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 			case 0x0708: // I2C_PEC 1/0
 				return ioctlI2cInt.apply(new Int(request, ((Number) objs[0]).intValue()));
 			case 0x0705: // I2C_FUNCS, pointer to unsigned long
-				return ioctlI2cFuncs(request, (NativeLongByReference) objs[0]);
+				return ioctlI2cFuncs(request, (Pointer) objs[0]);
 			case 0x0707: // I2C_RDWR, pointer to struct i2c_rdwr_ioctl_data
 				return ioctlI2cRdwr((i2c_rdwr_ioctl_data) objs[0]);
 			case 0x0720: // I2C_SMBUS, pointer to struct i2c_smbus_ioctl_data
@@ -127,9 +127,9 @@ public class TestI2cCLibNative extends TestCLibNative {
 				ByteArray.Immutable.copyOf(smBus.data.block));
 	}
 
-	private int ioctlI2cFuncs(int request, NativeLongByReference ref) {
+	private int ioctlI2cFuncs(int request, Pointer ref) {
 		int funcs = ioctlI2cInt.apply(new Int(request, 0));
-		ref.setValue(new NativeLong(funcs));
+		new CUlong(funcs).write(ref, 0);
 		return 0;
 	}
 
