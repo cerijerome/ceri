@@ -257,18 +257,39 @@ public class ImmutableUtil {
 	/**
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
-	public static <T> List<T> copyAsList(Collection<? extends T> list) {
-		return copyAsList(list, listSupplier());
+	public static <T> List<T> copyAsList(Collection<? extends T> collection) {
+		return copyAsList(collection, listSupplier());
 	}
 
 	/**
-	 * Copies a collection of objects into an immutable ArrayList.
+	 * Copies a collection of objects into an immutable List.
 	 */
-	public static <T> List<T> copyAsList(Collection<? extends T> list, Supplier<List<T>> supplier) {
-		if (list == null) return null;
-		if (list.isEmpty()) return Collections.emptyList();
+	public static <T> List<T> copyAsList(Collection<? extends T> collection,
+		Supplier<List<T>> supplier) {
+		if (collection == null) return null;
+		if (collection.isEmpty()) return Collections.emptyList();
 		List<T> copy = supplier.get();
-		copy.addAll(list);
+		copy.addAll(collection);
+		return Collections.unmodifiableList(copy);
+	}
+
+	/**
+	 * Reverses a collection of objects into an immutable ArrayList.
+	 */
+	public static <T> List<T> reverseAsList(Collection<? extends T> collection) {
+		return reverseAsList(collection, listSupplier());
+	}
+
+	/**
+	 * Reverses a collection of objects into an immutable List.
+	 */
+	public static <T> List<T> reverseAsList(Collection<? extends T> collection,
+		Supplier<List<T>> supplier) {
+		if (collection == null) return null;
+		if (collection.isEmpty()) return Collections.emptyList();
+		List<T> copy = supplier.get();
+		copy.addAll(collection);
+		Collections.reverse(copy);
 		return Collections.unmodifiableList(copy);
 	}
 
@@ -618,7 +639,8 @@ public class ImmutableUtil {
 	}
 
 	@SafeVarargs
-	public static <K, T> Map<K, T> convertAllAsMap(Function<? super T, ? extends K> keyFn, T... ts) {
+	public static <K, T> Map<K, T> convertAllAsMap(Function<? super T, ? extends K> keyFn,
+		T... ts) {
 		return convertAllAsMap(keyFn, mapSupplier(), ts);
 	}
 

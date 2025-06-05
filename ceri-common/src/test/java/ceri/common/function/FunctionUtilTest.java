@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOptional;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -87,6 +88,8 @@ public class FunctionUtilTest {
 
 	@Test
 	public void testOptional() {
+		assertOptional(FunctionUtil.optional(false, "test"), null);
+		assertOptional(FunctionUtil.optional(true, "test"), "test");
 		assertEquals(FunctionUtil.optional((Integer) null), OptionalInt.empty());
 		assertEquals(FunctionUtil.optional((Long) null), OptionalLong.empty());
 		assertEquals(FunctionUtil.optional((Double) null), OptionalDouble.empty());

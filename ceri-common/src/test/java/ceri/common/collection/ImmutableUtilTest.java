@@ -395,6 +395,12 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testReverseAsList() {
+		assertNull(ImmutableUtil.reverseAsList(null));
+		assertImmutableList(ImmutableUtil.reverseAsList(new HashSet<>()));
+	}
+
+	@Test
 	public void testCopyAsNavigableSet() {
 		assertIterable(ImmutableUtil.copyAsNavigableSet(asSet()));
 		Set<Integer> srcSet = new HashSet<>();

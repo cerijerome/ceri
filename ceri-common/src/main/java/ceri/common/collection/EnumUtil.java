@@ -1,9 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.exception.ExceptionUtil.illegalArg;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -110,7 +108,7 @@ public class EnumUtil {
 	public static <T> List<T> enumsReversed(Class<T> cls) {
 		var enums = enums(cls);
 		if (enums.isEmpty()) return enums;
-		return Collections.unmodifiableList(CollectionUtil.reverse(new ArrayList<>(enums(cls))));
+		return ImmutableUtil.reverseAsList(enums(cls));
 	}
 
 	/**

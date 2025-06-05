@@ -2,6 +2,7 @@ package ceri.common.function;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -87,6 +88,13 @@ public class FunctionUtil {
 			if (i.hasNext()) holder.set(i.next());
 			return holder.value();
 		};
+	}
+
+	/**
+	 * Creates an optional instance of the type; empty if the flag indicates not valid.
+	 */
+	public static <T> Optional<T> optional(boolean valid, T value) {
+		return valid ? Optional.ofNullable(value) : Optional.empty();
 	}
 
 	/**
