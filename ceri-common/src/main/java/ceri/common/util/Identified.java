@@ -3,11 +3,11 @@ package ceri.common.util;
 /**
  * Indicates that an object provides an id.
  */
-public class Id {
+public class Identified {
 
-	private Id() {}
+	private Identified() {}
 
-	public interface OfInt {
+	public interface ByInt {
 		/**
 		 * Provides an id. By default this is the identity hash.
 		 */
@@ -24,7 +24,7 @@ public class Id {
 		}
 	}
 
-	public interface OfLong {
+	public interface ByLong {
 		/**
 		 * Provides an id. By default this is the identity hash.
 		 */

@@ -26,6 +26,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.IntBinaryPredicate;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Align;
 
@@ -231,11 +232,6 @@ public class StringUtil {
 				yield c == null ? NULL : c;
 			}
 		};
-	}
-
-	private static Character escaped(String escapedChar, String prefix, int radix) {
-		if (!escapedChar.startsWith(prefix)) return null;
-		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
 	}
 
 	/**
@@ -546,10 +542,6 @@ public class StringUtil {
 		return b == null ? s : b.toString();
 	}
 
-	private static int tabSpaces(int pos, int tabSize) {
-		return ((pos + tabSize) / tabSize) * tabSize - pos;
-	}
-
 	/**
 	 * Checks if a char is printable
 	 */
@@ -797,16 +789,6 @@ public class StringUtil {
 		return b.toString();
 	}
 
-	private static int pads(int padLen, int len) {
-		return padLen > 0 ? len / padLen : 0;
-	}
-
-	private static int leftCount(int count, Align.H align) {
-		if (align == Align.H.right) return count;
-		if (align == Align.H.center) return count / 2;
-		return 0;
-	}
-
 	/**
 	 * Separate a string into sections, aligned to left or right. Multiple counts can be used for
 	 * variable separation widths.
@@ -825,21 +807,6 @@ public class StringUtil {
 			if (sections[i] < len) b.append(separator);
 		}
 		return b.toString();
-	}
-
-	private static int[] sections(int len, Align.H align, int... counts) {
-		List<Integer> list = new ArrayList<>();
-		list.add(0);
-		for (int pos = 0, i = 0; pos < len;) {
-			int count = counts[Math.min(counts.length - 1, i++)];
-			pos = count <= 0 ? len : Math.min(len, pos + count);
-			list.add(pos);
-		}
-		int[] sections = new int[list.size()];
-		for (int i = 0; i < list.size(); i++)
-			sections[i] =
-				align == Align.H.left ? list.get(i) : len - list.get(sections.length - i - 1);
-		return sections;
 	}
 
 	/**
@@ -864,6 +831,34 @@ public class StringUtil {
 	 */
 	public static int len(CharSequence str) {
 		return str == null ? 0 : str.length();
+	}
+
+	/**
+	 * Returns the minimum length of the strings, 0 if none, and 0 for any null strings.
+	 */
+	public static int minLen(CharSequence... strings) {
+		return minLen(Arrays.asList(strings));
+	}
+
+	/**
+	 * Returns the minimum length of the strings, 0 if none, and 0 for any null strings.
+	 */
+	public static int minLen(Iterable<? extends CharSequence> strings) {
+		return len(strings, (l, m) -> l < m);
+	}
+
+	/**
+	 * Returns the maximum length of the strings, 0 if none, and 0 for any null strings.
+	 */
+	public static int maxLen(CharSequence... strings) {
+		return maxLen(Arrays.asList(strings));
+	}
+
+	/**
+	 * Returns the maximum length of the strings, 0 if none, and 0 for any null strings.
+	 */
+	public static int maxLen(Iterable<? extends CharSequence> strings) {
+		return len(strings, (l, m) -> l > m);
 	}
 
 	/**
@@ -968,4 +963,100 @@ public class StringUtil {
 			.replaceAll("$1" + Matcher.quoteReplacement(prefix.toString()));
 	}
 
+	/**
+	 * Finds the length of the common prefix between the given strings.
+	 */
+	public static int commonPrefixLen(CharSequence... strings) {
+		return commonPrefixLen(Arrays.asList(strings));
+	}
+
+	/**
+	 * Finds the length of the common prefix between the given strings.
+	 */
+	public static int commonPrefixLen(Collection<? extends CharSequence> strings) {
+		int min = minLen(strings);
+		for (int i = 0; i < min; i++) {
+			int c = -1;
+			for (var s : strings)
+				if (c == -1) c = s.charAt(i);
+				else if (c != s.charAt(i)) return i;
+		}
+		return min;
+	}
+
+	/**
+	 * Returns the common prefix between the given strings.
+	 */
+	public static CharSequence commonPrefix(CharSequence... strings) {
+		return commonPrefix(Arrays.asList(strings));
+	}
+
+	/**
+	 * Returns the common prefix between the given strings.
+	 */
+	public static CharSequence commonPrefix(Collection<? extends CharSequence> strings) {
+		int len = commonPrefixLen(strings);
+		if (len == 0) return "";
+		return strings.iterator().next().subSequence(0, len);
+	}
+
+	/**
+	 * Returns true if the index marks a change to upper-case, or between letter and symbol.
+	 */
+	public static boolean nameBoundary(CharSequence s, int i) {
+		if (s == null) return false;
+		if (i <= 0 || i >= s.length()) return true;
+		char l = s.charAt(i - 1);
+		char r = s.charAt(i);
+		if (Character.isLetter(l) != Character.isLetter(r)) return true; 
+		if (Character.isDigit(l) != Character.isDigit(r)) return true; 
+		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
+		return false;
+	}
+	
+	// support methods
+
+	private static Character escaped(String escapedChar, String prefix, int radix) {
+		if (!escapedChar.startsWith(prefix)) return null;
+		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
+	}
+
+	private static int pads(int padLen, int len) {
+		return padLen > 0 ? len / padLen : 0;
+	}
+
+	private static int leftCount(int count, Align.H align) {
+		if (align == Align.H.right) return count;
+		if (align == Align.H.center) return count / 2;
+		return 0;
+	}
+
+	private static int tabSpaces(int pos, int tabSize) {
+		return ((pos + tabSize) / tabSize) * tabSize - pos;
+	}
+
+	private static int[] sections(int len, Align.H align, int... counts) {
+		List<Integer> list = new ArrayList<>();
+		list.add(0);
+		for (int pos = 0, i = 0; pos < len;) {
+			int count = counts[Math.min(counts.length - 1, i++)];
+			pos = count <= 0 ? len : Math.min(len, pos + count);
+			list.add(pos);
+		}
+		int[] sections = new int[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			sections[i] =
+				align == Align.H.left ? list.get(i) : len - list.get(sections.length - i - 1);
+		return sections;
+	}
+
+	private static int len(Iterable<? extends CharSequence> strings, IntBinaryPredicate predicate) {
+		if (strings == null) return 0;
+		int value = -1;
+		for (var s : strings) {
+			int len = len(s);
+			if (value == -1 || predicate.test(len, value)) value = len;
+		}
+		return Math.max(value, 0);
+	}
 }

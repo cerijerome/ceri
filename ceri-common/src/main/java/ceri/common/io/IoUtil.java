@@ -749,10 +749,21 @@ public class IoUtil {
 	}
 
 	/**
+	 * Collects mapped paths from a directory. The mapping function excludes entries by returning
+	 * null.
+	 */
+	public static <T> List<T> listCollect(Path dir, ExceptionFunction<IOException, Path, T> mapper)
+		throws IOException {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+			return listCollect(stream, mapper);
+		}
+	}
+
+	/**
 	 * Collects mapped paths from a directory stream, then closes the stream. The mapping function
 	 * excludes entries by returning null.
 	 */
-	@SuppressWarnings("resource")
+	@SuppressWarnings("resource") // due to requireNonNull
 	public static <T> List<T> listCollect(DirectoryStream<Path> stream,
 		ExceptionFunction<IOException, Path, T> mapper) throws IOException {
 		Objects.requireNonNull(stream);

@@ -18,6 +18,18 @@ public class EnumUtilTest {
 		c;
 	}
 
+	private static enum Prefix {
+		a_b_c_123,
+		a_b_c_123456,
+		a_b_c_12345;
+	}
+
+	private static enum Prefix2 {
+		abc,
+		abcd,
+		abcde;
+	}
+
 	@Test
 	public void testVerifyAllowed() {
 		EnumUtil.verifyAllowed(Enum.a, Enum.a, Enum.b, Enum.c);
@@ -88,6 +100,20 @@ public class EnumUtilTest {
 		assertEquals(EnumUtil.fromOrdinalValid(Enum.class, 2), Enum.c);
 		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, -1));
 		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, 3));
+	}
+
+	@Test
+	public void testShortName() {
+		assertEquals(EnumUtil.shortName(null), "null");
+		assertEquals(EnumUtil.shortName(Enum.a), "a");
+		assertEquals(EnumUtil.shortName(Enum.b), "b");
+		assertEquals(EnumUtil.shortName(Enum.c), "c");
+		assertEquals(EnumUtil.shortName(Prefix.a_b_c_123), "123");
+		assertEquals(EnumUtil.shortName(Prefix.a_b_c_12345), "12345");
+		assertEquals(EnumUtil.shortName(Prefix.a_b_c_123456), "123456");
+		assertEquals(EnumUtil.shortName(Prefix2.abc), "abc");
+		assertEquals(EnumUtil.shortName(Prefix2.abcd), "abcd");
+		assertEquals(EnumUtil.shortName(Prefix2.abcde), "abcde");
 	}
 
 }

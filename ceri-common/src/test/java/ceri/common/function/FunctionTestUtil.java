@@ -566,6 +566,13 @@ public class FunctionTestUtil {
 			};
 		}
 
+		public static IntBinaryPredicate intBinaryPredicate() {
+			return (i, j) -> {
+				if (i == 0 || j == 0) throw new RuntimeException("0");
+				return i > 0;
+			};
+		}
+
 		public static LongPredicate longPredicate() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");

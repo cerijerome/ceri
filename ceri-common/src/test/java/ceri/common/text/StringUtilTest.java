@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import ceri.common.util.Align;
 import ceri.common.util.Align.H;
@@ -558,6 +559,64 @@ public class StringUtilTest {
 		assertEquals(StringUtil.prefixLines("\t", "\n\r"), "\t\n\t\r\t");
 		assertEquals(StringUtil.prefixLines("\t", "\n\r\n\t"), "\t\n\t\r\n\t\t");
 		assertEquals(StringUtil.prefixLines("x", "a\nb\r\nc\rd"), "xa\nxb\r\nxc\rxd");
+	}
+
+	@Test
+	public void testMinLen() {
+		assertEquals(StringUtil.minLen(), 0);
+		assertEquals(StringUtil.minLen((String) null), 0);
+		assertEquals(StringUtil.minLen((List<String>) null), 0);
+		assertEquals(StringUtil.minLen("", null, "abc"), 0);
+		assertEquals(StringUtil.minLen("", "abc"), 0);
+		assertEquals(StringUtil.minLen("\0\0\0\0\0", "\0\0\0", "abcd"), 3);
+	}
+
+	@Test
+	public void testMaxLen() {
+		assertEquals(StringUtil.maxLen(), 0);
+		assertEquals(StringUtil.maxLen((String) null), 0);
+		assertEquals(StringUtil.maxLen((List<String>) null), 0);
+		assertEquals(StringUtil.maxLen("", null, "abc"), 3);
+		assertEquals(StringUtil.maxLen("", "abc"), 3);
+		assertEquals(StringUtil.maxLen("\0\0\0", "\0\0\0\0\0", "abcd"), 5);
+	}
+
+	@Test
+	public void testCommonPrefixLen() {
+		assertEquals(StringUtil.commonPrefixLen(), 0);
+		assertEquals(StringUtil.commonPrefixLen((String) null), 0);
+		assertEquals(StringUtil.commonPrefixLen((List<String>) null), 0);
+		assertEquals(StringUtil.commonPrefixLen("", null, "abc"), 0);
+		assertEquals(StringUtil.commonPrefixLen("abcde", "abc", "ab123"), 2);
+	}
+
+	@Test
+	public void testCommonPrefix() {
+		assertEquals(StringUtil.commonPrefix(), "");
+		assertEquals(StringUtil.commonPrefix((String) null), "");
+		assertEquals(StringUtil.commonPrefix((List<String>) null), "");
+		assertEquals(StringUtil.commonPrefix("", null, "abc"), "");
+		assertEquals(StringUtil.commonPrefix("abc", "abcde", "ab123"), "ab");
+	}
+
+	@Test
+	public void testNameBoundary() {
+		assertEquals(StringUtil.nameBoundary(null, 0), false);
+		assertEquals(StringUtil.nameBoundary("", 0), true);
+		assertEquals(StringUtil.nameBoundary("abc", 0), true);
+		assertEquals(StringUtil.nameBoundary("abc", 1), false);
+		assertEquals(StringUtil.nameBoundary("abc", 2), false);
+		assertEquals(StringUtil.nameBoundary("abc", 3), true);
+		assertEquals(StringUtil.nameBoundary("abCde", 1), false);
+		assertEquals(StringUtil.nameBoundary("abCde", 2), true);
+		assertEquals(StringUtil.nameBoundary("abCde", 3), false);
+		assertEquals(StringUtil.nameBoundary("ab123", 1), false);
+		assertEquals(StringUtil.nameBoundary("ab123", 2), true);
+		assertEquals(StringUtil.nameBoundary("ab123", 3), false);
+		assertEquals(StringUtil.nameBoundary("ab__de", 1), false);
+		assertEquals(StringUtil.nameBoundary("ab__de", 2), true);
+		assertEquals(StringUtil.nameBoundary("ab__de", 3), false);
+		assertEquals(StringUtil.nameBoundary("ab__de", 4), true);
 	}
 
 }

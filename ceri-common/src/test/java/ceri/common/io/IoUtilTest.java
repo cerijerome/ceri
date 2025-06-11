@@ -596,10 +596,8 @@ public class IoUtilTest {
 
 	@Test
 	public void testListCollect() throws IOException {
-		try (var stream = Files.newDirectoryStream(helper.root)) {
-			assertCollection(IoUtil.listCollect(stream, //
-				path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
-		}
+		assertCollection(IoUtil.listCollect(helper.root, //
+			path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
 	}
 
 	@Test

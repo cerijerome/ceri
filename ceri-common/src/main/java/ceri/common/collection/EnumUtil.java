@@ -9,11 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 
 public class EnumUtil {
 	private static final Map<Class<?>, List<?>> cache = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, Integer> namePrefixLens = new ConcurrentHashMap<>();
 
 	private EnumUtil() {}
 
@@ -133,5 +135,28 @@ public class EnumUtil {
 	public static <T> T random(Class<T> cls) {
 		var enums = enums(cls);
 		return enums.get(ThreadLocalRandom.current().nextInt(enums.size()));
+	}
+
+	/**
+	 * Returns the enum name with common prefix removed, up to last word boundary.
+	 */
+	public static String shortName(Enum<?> en) {
+		if (en == null) return StringUtil.NULL_STRING;
+		var cls = en.getClass();
+		int index = namePrefixLens.computeIfAbsent(cls,
+			_ -> prefixLen(enums(cls).stream().map(Enum::name).toList()));
+		return en.name().substring(index);
+	}
+
+	// support methods
+
+	private static int prefixLen(List<String> names) {
+		int min = StringUtil.minLen(names);
+		int i = StringUtil.commonPrefixLen(names);
+		if (i == min) i--;
+		var name = names.get(0);
+		for (; i > 0; i--)
+			if (StringUtil.nameBoundary(name, i)) return i;
+		return i;
 	}
 }
