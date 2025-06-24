@@ -4,12 +4,15 @@ import ceri.common.data.TypeTranscoder;
 import ceri.common.util.BasicUtil;
 
 /**
- * I/O direction.
+ * I/O direction; used for in/out or read/write.
  */
 public enum Direction {
 	none(0),
+	/** Input or read. */
 	in(1),
+	/** Output or write. */
 	out(2),
+	/** Input and output, or read and write. */
 	duplex(3);
 
 	public static final TypeTranscoder<Direction> xcoder =

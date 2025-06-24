@@ -2,6 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -137,6 +138,20 @@ public class EnumUtil {
 		return enums.get(ThreadLocalRandom.current().nextInt(enums.size()));
 	}
 
+	/**
+	 * Returns the enum names with common prefix removed, up to last word boundary.
+	 */
+	public static List<String> shortNames(Enum<?>... enums) {
+		return shortNames(Arrays.asList(enums));
+	}
+	
+	/**
+	 * Returns the enum names with common prefix removed, up to last word boundary.
+	 */
+	public static List<String> shortNames(Collection<? extends Enum<?>> enums) {
+		return enums.stream().map(e -> shortName(e)).toList();
+	}
+	
 	/**
 	 * Returns the enum name with common prefix removed, up to last word boundary.
 	 */

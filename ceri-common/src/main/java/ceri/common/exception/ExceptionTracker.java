@@ -12,7 +12,7 @@ public class ExceptionTracker {
 	public final int max;
 	private final Map<Key, Throwable> map = new HashMap<>();
 
-	static record Key(Class<?> cls, String message) {}
+	record Key(Class<?> cls, String message) {}
 
 	public static ExceptionTracker of() {
 		return of(MAX_DEF);

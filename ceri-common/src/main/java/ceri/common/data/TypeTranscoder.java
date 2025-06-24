@@ -52,9 +52,12 @@ public class TypeTranscoder<T> {
 	/**
 	 * Creates an encoder for unique type values.
 	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn,
-		Class<T> cls) {
-		return of(valueFn, EnumUtil.enums(cls));
+	@SafeVarargs
+	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Class<T> cls,
+		T... ignore) {
+		if (ignore.length == 0) return of(valueFn, EnumUtil.enums(cls));
+		var set = Set.of(ignore);
+		return of(valueFn, EnumUtil.enums(cls).stream().filter(t -> !set.contains(t))::iterator);
 	}
 
 	/**
@@ -67,9 +70,12 @@ public class TypeTranscoder<T> {
 	/**
 	 * Creates an encoder that allows duplicate type values.
 	 */
+	@SafeVarargs
 	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
-		Class<T> cls) {
-		return ofDup(valueFn, EnumUtil.enums(cls));
+		Class<T> cls, T... ignore) {
+		if (ignore.length == 0) return ofDup(valueFn, EnumUtil.enums(cls));
+		var set = Set.of(ignore);
+		return ofDup(valueFn, EnumUtil.enums(cls).stream().filter(t -> !set.contains(t))::iterator);
 	}
 
 	/**

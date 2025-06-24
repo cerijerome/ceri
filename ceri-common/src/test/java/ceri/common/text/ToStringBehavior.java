@@ -18,6 +18,14 @@ public class ToStringBehavior {
 	private static record Rec(int i, String s, Map<String, Double> map) {}
 
 	@Test
+	public void testHex() {
+		assertEquals(ToString.hex(Byte.MIN_VALUE), "0x80");
+		assertEquals(ToString.hex(Short.MIN_VALUE), "0x8000");
+		assertEquals(ToString.hex(Integer.MIN_VALUE), "0x80000000");
+		assertEquals(ToString.hex(Long.MIN_VALUE), "0x8000000000000000");
+	}
+
+	@Test
 	public void shouldConvertRecordFormat() {
 		assertEquals(ToString.forRecord(null), "null");
 		var r = new Rec(123, "test = , 1, 2", new TreeMap<>(Map.of("1, 0", 1.0, "2, 0", 2.0)));

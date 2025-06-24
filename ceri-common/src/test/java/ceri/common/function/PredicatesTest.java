@@ -36,8 +36,8 @@ public class PredicatesTest {
 	}
 
 	@Test
-	public void testTransform() {
-		Predicate<String> filter = Predicates.transform(Predicates.gt(3), String::length);
+	public void testTesting() {
+		Predicate<String> filter = Predicates.testing(String::length, Predicates.gt(3));
 		assertFalse(filter.test(null));
 		assertTrue(filter.test("test"));
 	}

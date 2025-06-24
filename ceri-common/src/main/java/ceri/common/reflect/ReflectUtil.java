@@ -23,6 +23,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.ExceptionBiPredicate;
 import ceri.common.function.ExceptionConsumer;
@@ -164,9 +165,9 @@ public class ReflectUtil {
 	public static boolean same(Class<?> cls1, Class<?> cls2) {
 		if (cls1 == cls2) return true;
 		if (cls1 == null || cls2 == null) return false;
-		return cls1.getName().equals(cls2.getName()); 
+		return cls1.getName().equals(cls2.getName());
 	}
-	
+
 	/**
 	 * Applies the consumer only to instances of the given type.
 	 */
@@ -273,6 +274,15 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Initialize a class if not already initialized.
+	 */
+	public static <T> Class<T> init(Class<T> cls) {
+		if (cls != null) ExceptionAdapter.RUNTIME
+			.run(() -> Class.forName(cls.getName(), true, cls.getClassLoader()));
+		return cls;
+	}
+
+	/**
 	 * Loads a class by name, throws {@link IllegalArgumentException} if not found.
 	 */
 	public static Class<?> forName(String className) {
@@ -286,13 +296,13 @@ public class ReflectUtil {
 	/**
 	 * Loads a class by name, throws {@link IllegalArgumentException} if not found.
 	 */
-    public static Class<?> forName(String className, boolean init, ClassLoader loader) {
+	public static Class<?> forName(String className, boolean init, ClassLoader loader) {
 		try {
 			return Class.forName(className, init, loader);
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException("Class not found", e);
 		}
-    }
+	}
 
 	/**
 	 * Loads class bytes from its class file.
@@ -305,16 +315,27 @@ public class ReflectUtil {
 	}
 
 	/**
-	 * Wraps class getConstructor with unchecked exception.
+	 * Returns the constructor matching the argument types, or null if no matching constructor is
+	 * found.
 	 */
 	public static <T> Constructor<T> constructor(Class<T> cls, Class<?>... argTypes)
 		throws RuntimeInvocationException {
 		try {
 			return cls.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
-			throw new RuntimeInvocationException(String.format("constructor %s%s not found",
-				cls.getSimpleName(), Joiner.PARAM.joinAll(Class::getSimpleName, argTypes)), e);
+			return null;
 		}
+	}
+
+	/**
+	 * Wraps class getConstructor with unchecked exception.
+	 */
+	public static <T> Constructor<T> validConstructor(Class<T> cls, Class<?>... argTypes)
+		throws RuntimeInvocationException {
+		var constructor = constructor(cls, argTypes);
+		if (constructor != null) return constructor;
+		throw new IllegalArgumentException(String.format("constructor %s%s not found",
+			cls.getSimpleName(), Joiner.PARAM.joinAll(Class::getSimpleName, argTypes)));
 	}
 
 	/**
@@ -335,6 +356,7 @@ public class ReflectUtil {
 	 * Creates an object of given type, using constructor that matches given argument types.
 	 */
 	public static <T> T create(Constructor<T> constructor, Object... args) {
+		if (constructor == null) return null;
 		Throwable t = null;
 		try {
 			return constructor.newInstance(args);
@@ -464,10 +486,10 @@ public class ReflectUtil {
 	 * Get enum instance from field, or null if not an enum.
 	 */
 	public static Enum<?> fieldToEnum(Field field) {
-		if (field == null || !field.isEnumConstant()) return null; 
+		if (field == null || !field.isEnumConstant()) return null;
 		return (Enum<?>) ReflectUtil.publicFieldValue(null, field);
 	}
-	
+
 	/**
 	 * Casts object to given type or returns null if not compatible.
 	 */

@@ -1,6 +1,5 @@
 package ceri.common.exception;
 
-import java.lang.reflect.Constructor;
 import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.ExceptionBooleanSupplier;
@@ -25,7 +24,7 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	private final Function<Throwable, E> fn;
 
 	public static <E extends Exception> ExceptionAdapter<E> of(Class<E> cls) {
-		Constructor<E> constructor = ReflectUtil.constructor(cls, Throwable.class);
+		var constructor = ReflectUtil.validConstructor(cls, Throwable.class);
 		return of(cls, e -> ReflectUtil.create(constructor, e));
 	}
 

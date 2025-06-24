@@ -5,12 +5,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 
 /**
@@ -37,6 +39,34 @@ public class ToString {
 		}
 	}
 
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(byte value) {
+		return "0x" + Integer.toHexString(MathUtil.ubyte(value));
+	}
+	
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(short value) {
+		return "0x" + Integer.toHexString(MathUtil.ushort(value));
+	}
+	
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(int value) {
+		return "0x" + Integer.toHexString(value);
+	}
+	
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(long value) {
+		return "0x" + Long.toHexString(value);
+	}
+	
 	/**
 	 * Converts record string format to match.
 	 */
@@ -147,6 +177,22 @@ public class ToString {
 		return this;
 	}
 
+	/**
+	 * Add child to nested line if not null.
+	 */
+	public ToString child(Object child) {
+		if (child == null) return this;
+		return children(child);
+	}
+	
+	/**
+	 * Add collection of items to nested line if not empty.
+	 */
+	public ToString childs(Collection<?> collection) {
+		if (collection == null || collection.isEmpty()) return this;
+		return children(collection);
+	}
+	
 	/**
 	 * Add items to nested lines.
 	 */

@@ -23,8 +23,10 @@ import org.junit.Test;
 import ceri.common.function.Fluent;
 import ceri.common.reflect.ReflectUtil.ThreadElement;
 import ceri.common.test.Captor;
+import ceri.common.util.Counter;
 
 public class ReflectUtilTest {
+	private static final Counter counter = Counter.of();
 
 	private static abstract class Abstract {
 		@SuppressWarnings("unused")
@@ -65,6 +67,12 @@ public class ReflectUtilTest {
 		a,
 		b,
 		c;
+	}
+
+	public static class Init {
+		static {
+			ReflectUtilTest.counter.inc();
+		}
 	}
 
 	@Test
@@ -196,6 +204,17 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testInit() {
+		var cls = Init.class;
+		assertEquals(counter.count(), 0L);
+		assertEquals(ReflectUtil.init(null), null);
+		assertEquals(ReflectUtil.init(cls), cls);
+		assertEquals(counter.count(), 1L);
+		assertEquals(ReflectUtil.init(cls), cls);
+		assertEquals(counter.count(), 1L);
+	}
+
+	@Test
 	public void testForName() {
 		var cl = getClass().getClassLoader();
 		assertSame(ReflectUtil.forName("java.lang.String"), String.class);
@@ -247,13 +266,9 @@ public class ReflectUtilTest {
 		ClassReInitializer.of(TestSame.class, E.class).reinit();
 	}
 
-	@Test(expected = RuntimeInvocationException.class)
-	public void testCreateAbstractObject() throws RuntimeInvocationException {
-		ReflectUtil.create(Abstract.class);
-	}
-
 	@Test
-	public void testCreateErrorObject() {
+	public void testCreateWithError() {
+		assertThrown(() -> ReflectUtil.create(Abstract.class));
 		assertThrown(() -> ReflectUtil.create(Error.class));
 	}
 
@@ -301,10 +316,10 @@ public class ReflectUtilTest {
 		assertFalse(ReflectUtil.assignableFromAny(Serializable.class, Number.class, Long.class));
 	}
 
-	@Test(expected = RuntimeInvocationException.class)
-	public void testCreateObjectDefault() throws RuntimeInvocationException {
+	@Test
+	public void testCreateObjectDefault() {
 		assertEquals(ReflectUtil.create(String.class), "");
-		ReflectUtil.create(Boolean.class);
+		assertEquals(ReflectUtil.create(Boolean.class), null);
 	}
 
 	@Test

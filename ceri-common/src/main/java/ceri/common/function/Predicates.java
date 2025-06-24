@@ -6,8 +6,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.DoublePredicate;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import java.util.regex.Pattern;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.text.StringUtil;
@@ -22,7 +28,7 @@ public class Predicates {
 
 	private Predicates() {}
 
-	/* General predicates */
+	// General predicates
 
 	/**
 	 * A filter that returns true for all conditions.
@@ -128,15 +134,41 @@ public class Predicates {
 		});
 	}
 
+	// Adapter predicates
+	
 	/**
-	 * Transforms a filter of one type to another using an accessor.
+	 * Transforms a predicate of one type to another using an accessor.
 	 */
-	public static <T, R> Predicate<T> transform(Predicate<R> filter, Function<T, R> accessor) {
-		Function<T, R> safe = t -> t == null ? null : accessor.apply(t);
-		return t -> filter.test(safe.apply(t));
+	public static <T, R> Predicate<T> testing(Function<? super T, ? extends R> accessor,
+		Predicate<? super R> predicate) {
+		return t -> predicate.test(t == null ? null : accessor.apply(t));
 	}
 
-	/* Comparable predicates */
+	/**
+	 * Transforms a predicate of one type to another using an accessor.
+	 */
+	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> accessor,
+		IntPredicate predicate) {
+		return t -> predicate.test(t == null ? null : accessor.applyAsInt(t));
+	}
+
+	/**
+	 * Transforms a predicate of one type to another using an accessor.
+	 */
+	public static <T> Predicate<T> testingLong(ToLongFunction<? super T> accessor,
+		LongPredicate predicate) {
+		return t -> predicate.test(t == null ? null : accessor.applyAsLong(t));
+	}
+
+	/**
+	 * Transforms a predicate of one type to another using an accessor.
+	 */
+	public static <T> Predicate<T> testingDouble(ToDoubleFunction<? super T> accessor,
+		DoublePredicate predicate) {
+		return t -> predicate.test(t == null ? null : accessor.applyAsDouble(t));
+	}
+
+	// Comparable predicates
 
 	/**
 	 * Comparable filter that returns true if the value >= given minimum value.
@@ -183,7 +215,7 @@ public class Predicates {
 		});
 	}
 
-	/* String predicates */
+	// String predicates
 
 	/**
 	 * Predicate that returns true for strings that equal the given substring, ignoring case.
@@ -241,7 +273,7 @@ public class Predicates {
 		});
 	}
 
-	/* Enum predicates */
+	// Enum predicates
 
 	/**
 	 * Predicate to match enum name.
@@ -257,7 +289,7 @@ public class Predicates {
 		return nonNull(t -> filter.test(t.name()));
 	}
 
-	/* Collection predicates */
+	// Collection predicates
 
 	/**
 	 * Filter that applies given filter to the size of the collection.
@@ -298,7 +330,7 @@ public class Predicates {
 		});
 	}
 
-	/* Action methods */
+	// Action methods
 
 	/**
 	 * Applies a filter to a collection, removing items that do not match.
@@ -309,5 +341,4 @@ public class Predicates {
 			if (!filter.test(t)) i.remove();
 		}
 	}
-
 }

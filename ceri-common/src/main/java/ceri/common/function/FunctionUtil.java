@@ -91,6 +91,15 @@ public class FunctionUtil {
 	}
 
 	/**
+	 * Consumer called for each supplied value until null.
+	 */
+	public static <E extends Exception, T> void forEach(ExceptionSupplier<E, T> supplier,
+		ExceptionConsumer<E, T> consumer) throws E {
+		for (var t = supplier.get(); t != null; t = supplier.get())
+			consumer.accept(t);
+	}
+
+	/**
 	 * Creates an optional instance of the type; empty if the flag indicates not valid.
 	 */
 	public static <T> Optional<T> optional(boolean valid, T value) {

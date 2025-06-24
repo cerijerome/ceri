@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -30,6 +31,8 @@ import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionBiFunction;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
+import ceri.common.function.ExceptionIntFunction;
+import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
@@ -454,7 +457,7 @@ public class CollectionUtil {
 	/**
 	 * Collects objects using the given collection supplier.
 	 */
-	public static <T, C extends Collection<T>> C collect(Iterable<? extends T> iterable,
+	public static <T, C extends Collection<? super T>> C collect(Iterable<? extends T> iterable,
 		Supplier<C> supplier) {
 		var collection = supplier.get();
 		iterable.forEach(collection::add);
@@ -464,13 +467,41 @@ public class CollectionUtil {
 	/**
 	 * Collects objects using the given collection supplier.
 	 */
-	public static <T, C extends Collection<T>> C collect(Stream<? extends T> stream,
+	public static <T, C extends Collection<? super T>> C collect(Stream<? extends T> stream,
 		Supplier<C> supplier) {
 		var collection = supplier.get();
 		stream.forEach(collection::add);
 		return collection;
 	}
 
+	/**
+	 * Collects objects by index until null is returned, using the given collection supplier.
+	 */
+	public static <E extends Exception, T, C extends Collection<? super T>> C
+		collectByIndex(ExceptionIntFunction<E, T> indexFn, Supplier<C> supplier) throws E {
+		var collection = supplier.get();
+		for (int i = 0;; i++) {
+			var t = indexFn.apply(i);
+			if (t != null) collection.add(t);
+			else break;
+		}
+		return collection;
+	}
+	
+	/**
+	 * Collects objects until null is returned, using the given collection supplier.
+	 */
+	public static <E extends Exception, T, C extends Collection<? super T>> C
+		collectBy(ExceptionSupplier<E, T> nextFn, Supplier<C> supplier) throws E {
+		var collection = supplier.get();
+		while (true) {
+			var t = nextFn.get();
+			if (t != null) collection.add(t);
+			else break;
+		}
+		return collection;
+	}
+	
 	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
@@ -548,6 +579,20 @@ public class CollectionUtil {
 		return i.next();
 	}
 
+	/**
+	 * Returns the first element as optional type, or empty if no elements.
+	 */
+	public static <T> Optional<T> optionalFirst(Iterable<T> iterable) {
+		return Optional.ofNullable(first(iterable));
+	}
+	
+	/**
+	 * Returns the last element as optional type, or empty if no elements.
+	 */
+	public static <T> Optional<T> optionalLast(Iterable<T> iterable) {
+		return Optional.ofNullable(last(iterable));
+	}
+	
 	/**
 	 * Removes all given items from the collection. Returns true if the collection is modified.
 	 */
