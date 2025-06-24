@@ -30,8 +30,8 @@ import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.Struct;
 
 public class TestCLibNativeBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();

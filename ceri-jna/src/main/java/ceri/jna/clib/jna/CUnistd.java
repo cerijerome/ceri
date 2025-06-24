@@ -8,7 +8,7 @@ import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.IntType;
-import ceri.jna.util.JnaSize;
+import ceri.jna.type.JnaSize;
 import ceri.jna.util.JnaUtil;
 
 /**

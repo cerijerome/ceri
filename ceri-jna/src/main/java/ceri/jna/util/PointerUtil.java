@@ -1,5 +1,7 @@
 package ceri.jna.util;
 
+import static ceri.common.validation.ValidationUtil.validateEqual;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -7,6 +9,7 @@ import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.jna.type.JnaSize;
 
 /**
  * Utilities for pointers.
@@ -14,6 +17,27 @@ import com.sun.jna.ptr.PointerByReference;
 public class PointerUtil {
 
 	private PointerUtil() {}
+
+	/**
+	 * Validates an offset and length from a given pointer. If the pointer is null, only 0 length is
+	 * allowed.
+	 */
+	public static Pointer validate(Pointer p, long offset, long len) {
+		if (p == null) JnaUtil.validateSlice(0, offset, len);
+		else validateMin(len, 0);
+		validateMin(offset, 0);
+		return p;
+	}
+
+	/**
+	 * Validates an offset and length from a given memory segment. If the pointer is null, only 0
+	 * size is allowed.
+	 */
+	public static Pointer validate(Pointer p, long size, long offset, long len) {
+		if (p == null) validateEqual(size, 0);
+		JnaUtil.validateSlice(size, offset, len);
+		return p;
+	}
 
 	/**
 	 * Returns the native peer for a pointer, or 0L if null. Use with caution.

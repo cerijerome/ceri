@@ -52,27 +52,27 @@ import ceri.common.test.TestUtil;
 	// test
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// type
+	ceri.jna.type.ArrayPointerBehavior.class, //
 	ceri.jna.type.CLongBehavior.class, //
 	ceri.jna.type.CUlongBehavior.class, //
 	ceri.jna.type.IntTypeBehavior.class, //
+	ceri.jna.type.JnaEnumTest.class, //
+	ceri.jna.type.StructBehavior.class, //
+	ceri.jna.type.StructFieldTest.class, //
+	ceri.jna.type.UnionBehavior.class, //
+	ceri.jna.type.UnionFieldBehavior.class, //
+	ceri.jna.type.VarStructBehavior.class, //
 	// util
-	ceri.jna.util.ArrayPointerBehavior.class, //
 	ceri.jna.util.CallerBehavior.class, //
 	ceri.jna.util.GcMemoryBehavior.class, //
 	ceri.jna.util.JnaArgsBehavior.class, //
-	ceri.jna.util.JnaEnumTest.class, //
 	ceri.jna.util.JnaLibraryBehavior.class, //
 	ceri.jna.util.JnaMemoryBehavior.class, //
 	ceri.jna.util.JnaOsBehavior.class, //
 	ceri.jna.util.JnaUtilTest.class, //
 	ceri.jna.util.NulTermTest.class, //
 	ceri.jna.util.PointerUtilTest.class, //
-	ceri.jna.util.StructBehavior.class, //
-	ceri.jna.util.StructFieldTest.class, //
 	ceri.jna.util.ThreadBuffersBehavior.class, //
-	ceri.jna.util.UnionBehavior.class, //
-	ceri.jna.util.UnionFieldBehavior.class, //
-	ceri.jna.util.VarStructBehavior.class, //
 })
 public class _Tests {
 	public static void main(String... args) {

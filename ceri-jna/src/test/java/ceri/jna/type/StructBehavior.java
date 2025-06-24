@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -13,11 +13,12 @@ import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.jna.type.CUlong;
+import ceri.jna.type.Struct.Align;
+import ceri.jna.type.Struct.Fields;
+import ceri.jna.type.Struct.Packed;
+import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
-import ceri.jna.util.Struct.Align;
-import ceri.jna.util.Struct.Fields;
-import ceri.jna.util.Struct.Packed;
+import ceri.jna.util.JnaUtil;
 
 public class StructBehavior {
 	private final JnaTestData data = JnaTestData.of();
@@ -60,6 +61,22 @@ public class StructBehavior {
 		assertEquals(Struct.pointer(new Outer[3]), null);
 		Outer[] array = { new Outer(), new Outer(), new Outer() };
 		assertEquals(Struct.pointer(array), array[0].getPointer());
+	}
+
+	@Test
+	public void testPeerFromStructArray() {
+		assertEquals(Struct.peer((Outer[]) null), 0L);
+		assertEquals(Struct.peer(new Outer[0]), 0L);
+		assertEquals(Struct.peer(new Outer[3]), 0L);
+		Outer[] array = { new Outer(), new Outer(), new Outer() };
+		assertEquals(Struct.peer(array), Pointer.nativeValue(array[0].getPointer()));
+	}
+
+	@Test
+	public void testPeerFromStruct() {
+		assertEquals(Struct.peer((Outer) null), 0L);
+		Outer[] array = { new Outer(), new Outer(), new Outer() };
+		assertEquals(Struct.peer(array), Pointer.nativeValue(array[0].getPointer()));
 	}
 
 	@Test
@@ -227,8 +244,7 @@ public class StructBehavior {
 	public void testArrayByValForNullConstruction() {
 		var t = new TestStruct(100, null, 1, 2, 3);
 		assertThrown(() -> Struct.arrayByVal(t.getPointer(), _ -> null, null, 3));
-		assertArray(Struct.<TestStruct>arrayByVal(() -> null, TestStruct[]::new, 3), null, null,
-			null);
+		assertArray(Struct.arrayByVal(() -> null, TestStruct[]::new, 3), null, null, null);
 	}
 
 	@Test

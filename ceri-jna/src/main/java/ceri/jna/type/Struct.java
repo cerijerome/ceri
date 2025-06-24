@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.reflect.ReflectUtil.publicField;
 import static ceri.common.text.StringUtil.NEWLINE_REGEX;
@@ -23,6 +23,9 @@ import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
+import ceri.jna.util.JnaArgs;
+import ceri.jna.util.JnaUtil;
+import ceri.jna.util.PointerUtil;
 
 /**
  * Extends Structure to provide more array and general field support.
@@ -95,6 +98,21 @@ public abstract class Struct extends Structure {
 	 */
 	public static Pointer pointer(Structure struct) {
 		return struct == null ? null : struct.getPointer();
+	}
+
+	/**
+	 * Returns the pointer peer to the first element of the array, or 0 if empty. The array is not
+	 * required to be contiguous.
+	 */
+	public static long peer(Structure[] array) {
+		return PointerUtil.peer(pointer(array));
+	}
+
+	/**
+	 * Returns the pointer peer, or 0.
+	 */
+	public static long peer(Structure struct) {
+		return PointerUtil.peer(pointer(struct));
 	}
 
 	/**
@@ -265,7 +283,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
-		return arrayByVal(readAuto(JnaUtil.type(p, constructor)), arrayFn, count);
+		return arrayOfVal(readAuto(JnaUtil.type(p, constructor)), arrayFn, count);
 	}
 
 	/**
@@ -275,7 +293,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] arrayByVal(Supplier<T> constructor,
 		IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
-		return arrayByVal(readAuto(constructor.get()), arrayFn, count);
+		return arrayOfVal(readAuto(constructor.get()), arrayFn, count);
 	}
 
 	/**
@@ -287,7 +305,7 @@ public abstract class Struct extends Structure {
 	 * If count is 0, an empty array is returned. If the type is null, an array of nulls is
 	 * returned. Make sure count is unsigned (call ubyte/ushort if needed).
 	 */
-	public static <T extends Structure> T[] arrayByVal(T t, IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] arrayOfVal(T t, IntFunction<T[]> arrayFn, int count) {
 		if (count == 0 || t == null) return arrayFn.apply(count);
 		return BasicUtil.uncheckedCast(t.toArray(count));
 	}
@@ -536,11 +554,11 @@ public abstract class Struct extends Structure {
 
 	@Override
 	protected void setAlignType(int alignType) {
-		if (alignType == Align.platform.value) alignType =
-			align.computeIfAbsent(getClass(), Struct::annotatedAlignment).value;
+		if (alignType == Align.platform.value)
+			alignType = align.computeIfAbsent(getClass(), Struct::annotatedAlignment).value;
 		super.setAlignType(alignType);
 	}
-	
+
 	private static String fieldString(Structure s, Field f, int offset) {
 		String type = ReflectUtil.nestedName(f.getType());
 		String value = ARGS.arg(ReflectUtil.publicFieldValue(s, f));

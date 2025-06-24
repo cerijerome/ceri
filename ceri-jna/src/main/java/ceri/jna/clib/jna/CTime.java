@@ -3,8 +3,8 @@ package ceri.jna.clib.jna;
 import com.sun.jna.Pointer;
 import ceri.common.time.TimeSpec;
 import ceri.jna.type.CLong;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * Types and functions from {@code <sys/time.h>} and {@code <time.h>}

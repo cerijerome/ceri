@@ -15,10 +15,10 @@ import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.test.JnaTestUtil.MemCache;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
 import ceri.jna.util.JnaUtil;
-import ceri.jna.util.Struct;
 
 public class JnaTestUtilTest {
 	private MemCache mc = null;

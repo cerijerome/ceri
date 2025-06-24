@@ -20,6 +20,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
+import com.sun.jna.Union;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -33,7 +36,7 @@ import ceri.jna.util.JnaOs;
 
 /**
  * Generates c code to compile and run on a target system, in order to print symbol values and
- * definitions. Useful to determine constant values for JNA code.
+ * definitions. Useful to verify constant values for JNA code.
  */
 public class CSymbolGen {
 	private static final String PLACEHOLDER_PRE = "$$CSYMBOLGEN_PRE$$";
@@ -51,6 +54,8 @@ public class CSymbolGen {
 	public final Section pre;
 	public final Section main;
 	private final Map<Class<?>, EnumType> enumTypes = new HashMap<>();
+	private final Map<Class<?>, StructType> structTypes = new HashMap<>();
+	private StructType structTypeDef = StructType.type;
 	private Predicate<Field> fieldFilter;
 	private Predicate<Field> intFilter;
 
@@ -62,6 +67,15 @@ public class CSymbolGen {
 		public static final EnumType NULL = new EnumType(null, false, null);
 	}
 
+	/**
+	 * Specify how struct/union types are defined in c.
+	 */
+	public enum StructType {
+		ignore,
+		type, // struct or union
+		typedef;
+	}
+	
 	/**
 	 * Generate a file and print build instructions.
 	 */
@@ -164,9 +178,9 @@ public class CSymbolGen {
 			return this;
 		}
 
-		public Lines sizes(String... names) {
-			for (var name : names)
-				add("CERI_SIZE(%s);", name);
+		public Lines sizes(String... types) {
+			for (var type : types)
+				add("CERI_SIZE(%s);", type);
 			return this;
 		}
 
@@ -174,6 +188,11 @@ public class CSymbolGen {
 			sizes(type);
 			for (var field : fields)
 				add("CERI_FSIZE(%s,%s);", type, field);
+			return this;
+		}
+
+		public Lines vsize(String type, int size) {
+			add("CERI_VSIZE(%s,%s);", type, size);
 			return this;
 		}
 
@@ -224,8 +243,10 @@ public class CSymbolGen {
 		}
 
 		private Lines include(Iterable<String> includes) {
-			for (var include : includes)
-				add("#include <%s.h>", include);
+			for (var include : includes) { // prevent duplicates
+				var line = String.format("#include <%s.h>", include);
+				if (!lines.contains(line)) add(line);
+			}
 			return this;
 		}
 
@@ -331,6 +352,18 @@ public class CSymbolGen {
 		return this;
 	}
 
+	@SafeVarargs
+	public final CSymbolGen structs(StructType type, Class<? extends Structure>... structs) {
+		if (structs.length == 0) structTypeDef = type;
+		return structs(type, Arrays.asList(structs));
+	}
+	
+	public CSymbolGen structs(StructType type, Iterable<Class<? extends Structure>> structs) {
+		for (var struct : structs)
+			structTypes.put(struct, type);
+		return this;
+	}
+
 	public String generate() {
 		var template = this.template;
 		template = template.replace(PLACEHOLDER_PRE, pre.toString());
@@ -346,6 +379,7 @@ public class CSymbolGen {
 	}
 
 	private void add(Lines lines, Class<?> cls) {
+		if (addSizeOfStruct(lines, cls)) return;
 		var fields = fields(cls);
 		if (!fields.isEmpty()) {
 			lines.add("").add("printf(\"\\n// %s types\\n\");", ReflectUtil.name(cls));
@@ -353,6 +387,17 @@ public class CSymbolGen {
 		}
 		for (var c : cls.getDeclaredClasses())
 			add(lines, c);
+	}
+
+	private boolean addSizeOfStruct(Lines lines, Class<?> cls) {
+		if (!Structure.class.isAssignableFrom(cls)) return false;
+		var type = structTypes.getOrDefault(cls, structTypeDef);
+		if (type == StructType.ignore) return false;
+		int size = sizeOfStruct(BasicUtil.uncheckedCast(cls));
+		if (size == 0) return false;
+		var name = structName(cls, type);
+		lines.add("printf(\"\\n\");").vsize(name, size);
+		return true;
 	}
 
 	private void addSymbol(Lines lines, Field field) {
@@ -405,4 +450,19 @@ public class CSymbolGen {
 			if (ReflectUtil.same(fcls, cls)) return true;
 		return false;
 	}
+
+	private static int sizeOfStruct(Class<? extends Structure> cls) {
+		var constructor = ReflectUtil.constructor(cls);
+		if (constructor != null) return ReflectUtil.create(constructor).size();
+		constructor = ReflectUtil.constructor(cls, Pointer.class);
+		if (constructor != null) return ReflectUtil.create(constructor, (Pointer) null).size();
+		return 0;
+	}
+	
+	private static String structName(Class<?> cls, StructType type) {
+		var name = cls.getSimpleName();
+		if (type == StructType.typedef) return name;
+		if (Union.class.isAssignableFrom(cls)) return "union " + name;
+		return "struct " + name;
+	}	
 }

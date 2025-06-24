@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.function.Function;
@@ -9,6 +9,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.util.JnaUtil;
+import ceri.jna.util.PointerUtil;
 
 /**
  * Holds a pointer to a typed array, and provides access to the array. The array may be

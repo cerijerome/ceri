@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -6,8 +6,9 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.jna.type.Struct.Fields;
+import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
-import ceri.jna.util.Struct.Fields;
 
 public class StructFieldTest {
 	private final JnaTestData data = JnaTestData.of();

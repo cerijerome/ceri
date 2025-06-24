@@ -22,11 +22,11 @@ import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
 import ceri.common.text.StringUtil;
 import ceri.jna.type.IntType;
+import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaOs;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
-import ceri.jna.util.Struct;
 
 /**
  * Supports tests for JNA-based code.

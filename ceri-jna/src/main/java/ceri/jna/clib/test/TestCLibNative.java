@@ -36,9 +36,9 @@ import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.type.CUlong;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
-import ceri.jna.util.Struct;
 
 /**
  * Test implementation for CLib native interface.

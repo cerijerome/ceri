@@ -20,6 +20,7 @@ import ceri.common.collection.StreamUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
+import ceri.jna.type.Struct;
 
 /**
  * Utility to create strings from method arguments. Arrays and Iterable types are expanded.

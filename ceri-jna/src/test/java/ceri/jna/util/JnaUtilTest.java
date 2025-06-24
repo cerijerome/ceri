@@ -24,6 +24,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.util.SystemVars;
 import ceri.jna.type.IntType;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaTestData.TestStruct;
 
 public class JnaUtilTest {

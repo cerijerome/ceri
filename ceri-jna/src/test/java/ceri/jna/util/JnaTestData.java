@@ -9,7 +9,9 @@ import com.sun.jna.Structure;
 import ceri.common.collection.ArrayUtil;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.test.JnaTestUtil.MemCache;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.JnaSize;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * Provides JNA test data. Prevents gc that may unexpectedly cause a test to fail.

@@ -1,10 +1,11 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import org.junit.Test;
+import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
 
 public class ArrayPointerBehavior {

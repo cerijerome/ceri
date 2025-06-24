@@ -12,7 +12,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import ceri.jna.type.CUlong;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 public class JnaArgsBehavior {
 

@@ -3,6 +3,9 @@ package ceri.jna.util;
 import static ceri.jna.util.JnaUtil.DEFAULT_CHARSET;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Objects;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.text.StringUtil;
 
@@ -62,6 +65,35 @@ public class NulTerm {
 	}
 
 	/**
+	 * Decodes the bytes into a string, up to the first 0 or array limit.
+	 */
+	public static String readTruncate(Memory m) {
+		return readTruncate(DEFAULT_CHARSET, m);
+	}
+
+	/**
+	 * Decodes the bytes into a string, up to the first 0 or array limit.
+	 */
+	public static String readTruncate(Charset charset, Memory m) {
+		return readTruncate(charset, m, JnaUtil.intSize(m));
+	}
+
+	/**
+	 * Decodes the bytes into a string, up to the first 0 or array limit.
+	 */
+	public static String readTruncate(Pointer p, int len) {
+		return readTruncate(DEFAULT_CHARSET, p, len);
+	}
+
+	/**
+	 * Decodes the bytes into a string, up to the first 0 or array limit.
+	 */
+	public static String readTruncate(Charset charset, Pointer p, int len) {
+		if (PointerUtil.validate(p,0,len) == null) return null;
+		return readTruncate(charset, JnaUtil.bytes(p, 0L, len));
+	}
+
+	/**
 	 * Decodes the bytes into a string, dropping any trailing 0.
 	 */
 	public static String readTrim(byte[] bytes) {
@@ -78,6 +110,35 @@ public class NulTerm {
 	}
 
 	/**
+	 * Decodes the bytes into a string, dropping any trailing 0.
+	 */
+	public static String readTrim(Memory m) {
+		return readTrim(DEFAULT_CHARSET, m);
+	}
+
+	/**
+	 * Decodes the bytes into a string, dropping any trailing 0.
+	 */
+	public static String readTrim(Charset charset, Memory m) {
+		return readTrim(charset, m, JnaUtil.intSize(m));
+	}
+
+	/**
+	 * Decodes the bytes into a string, dropping any trailing 0.
+	 */
+	public static String readTrim(Pointer p, int len) {
+		return readTrim(DEFAULT_CHARSET, p, len);
+	}
+
+	/**
+	 * Decodes the bytes into a string, dropping any trailing 0.
+	 */
+	public static String readTrim(Charset charset, Pointer p, int len) {
+		if (PointerUtil.validate(p, 0, len) == null) return null;
+		return readTrim(charset, JnaUtil.bytes(p, 0L, len));
+	}
+
+	/**
 	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
 	 * bytes written.
 	 */
@@ -90,12 +151,50 @@ public class NulTerm {
 	 * bytes written.
 	 */
 	public static int write(String s, Charset charset, byte[] dest) {
-		if (StringUtil.empty(s) || dest.length == 0) return 0;
+		if (s == null || dest == null || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
-		int len = Math.min(src.length, dest.length - 1);
-		ArrayUtil.copy(src, 0, dest, 0, len);
-		dest[len] = 0;
-		return len + 1;
+		int n = Math.min(src.length, dest.length - 1);
+		ArrayUtil.copy(src, 0, dest, 0, n);
+		dest[n] = 0;
+		return n + 1;
+	}
+
+	/**
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int write(String s, Memory m) {
+		return write(s, DEFAULT_CHARSET, m);
+	}
+	
+	/**
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int write(String s, Charset charset, Memory m) {
+		return write(s, charset, m, JnaUtil.intSize(m));
+	}
+	
+	/**
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int write(String s, Pointer p, int len) {
+		return write(s, DEFAULT_CHARSET, p, len);
+	}
+	
+	/**
+	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int write(String s, Charset charset, Pointer p, int len) {
+		if (s == null || len == 0) return 0;
+		Objects.requireNonNull(p);
+		byte[] src = s.getBytes(charset);
+		int n = Math.min(src.length, len - 1);
+		JnaUtil.write(p, src, n);
+		p.setByte(n, (byte) 0);
+		return n + 1;
 	}
 
 	/**
@@ -114,6 +213,40 @@ public class NulTerm {
 		int n = write(s, charset, dest);
 		ArrayUtil.fill(dest, n, 0);
 		return dest.length;
+	}
+
+	/**
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int writePad(String s, Memory m) {
+		return writePad(s, DEFAULT_CHARSET, m);
+	}
+
+	/**
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int writePad(String s, Charset charset, Memory m) {
+		return writePad(s, charset, m, JnaUtil.intSize(m));
+	}
+
+	/**
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int writePad(String s, Pointer p, int len) {
+		return writePad(s, DEFAULT_CHARSET, p, len);
+	}
+
+	/**
+	 * Encodes the string to bytes, padding with 0, and truncating if needed. Returns the number of
+	 * bytes written.
+	 */
+	public static int writePad(String s, Charset charset, Pointer p, int len) {
+		int n = write(s, charset, p, len);
+		JnaUtil.fill(p, n, len - n, 0);
+		return len;
 	}
 
 	private static int truncateLen(String chars, int start, int length) {

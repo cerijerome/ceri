@@ -24,8 +24,8 @@ import ceri.jna.clib.jna.CStdlib;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.Struct;
 import ceri.log.test.LogModifier;
 
 /**

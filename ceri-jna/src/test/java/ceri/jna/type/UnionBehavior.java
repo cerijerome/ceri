@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct.Fields;
 
 public class UnionBehavior {
 

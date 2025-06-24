@@ -16,6 +16,7 @@ public enum JnaOs implements Functional<JnaOs> {
 	mac("Mac", "__APPLE__"),
 	linux("Linux", "__linux__");
 
+	/** The list of supported OS types. */
 	public static final List<JnaOs> KNOWN = List.of(mac, linux);
 	/** The OS arch name */
 	public final String name;
@@ -40,14 +41,14 @@ public enum JnaOs implements Functional<JnaOs> {
 	public static boolean compatible(JnaOs os1, JnaOs os2) {
 		return !known(os1) || !known(os2) || os1 == os2;
 	}
-	
+
 	/**
 	 * Returns true if the given OS type is compatible with the current OS type.
 	 */
 	public static boolean current(JnaOs os) {
 		return !known(os) || compatible(os, current());
 	}
-	
+
 	/**
 	 * Determine the current OS type.
 	 */
@@ -72,14 +73,23 @@ public enum JnaOs implements Functional<JnaOs> {
 		this.cdefine = cdefine;
 	}
 
+	/**
+	 * Returns true if this OS is supported.
+	 */
 	public boolean known() {
 		return this != unknown;
 	}
 
+	/**
+	 * Overrides the current OS type with this OS type. Close to revert the override.
+	 */
 	public RuntimeCloseable override() {
 		return OsUtil.os(name, null, null);
 	}
 
+	/**
+	 * Overrides the current OS to execute the function, passing in this OS type.
+	 */
 	@Override
 	public <E extends Exception, T> T apply(ExceptionFunction<E, JnaOs, T> function) throws E {
 		try (var _ = override()) {
@@ -87,6 +97,9 @@ public enum JnaOs implements Functional<JnaOs> {
 		}
 	}
 
+	/**
+	 * Adds the OS name to the end of the filename.
+	 */
 	public String file(String file) {
 		if (file == null || !known()) return file;
 		int i = file.lastIndexOf('.');

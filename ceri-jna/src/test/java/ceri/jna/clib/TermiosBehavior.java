@@ -11,8 +11,8 @@ import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.Struct;
 
 public class TermiosBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();

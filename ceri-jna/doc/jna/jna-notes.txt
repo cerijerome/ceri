@@ -45,6 +45,7 @@ Man page numbers:
 JNA coding
 ----------
 General:
+- java launch arg needed: --enable-native-access=ALL-UNNAMED 
 - Don't expect new Memory() to be zeroed
 - Dereferencing objects to pointers may cause gc on object (be careful in tests)
 - Callbacks should have hard references to prevent gc
@@ -79,5 +80,8 @@ Projects
 - libftdi
 - spidev
 - i2cdev
+- gpio
+- v4l2/media
+- pigpio
 
 

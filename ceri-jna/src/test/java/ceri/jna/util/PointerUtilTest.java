@@ -12,6 +12,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.jna.type.JnaSize;
 
 public class PointerUtilTest {
 

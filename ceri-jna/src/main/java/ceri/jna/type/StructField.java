@@ -1,4 +1,4 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -7,6 +7,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.util.JnaUtil;
+import ceri.jna.util.PointerUtil;
 
 /**
  * Provides access to struct field pointers as typed arrays. Can be set as

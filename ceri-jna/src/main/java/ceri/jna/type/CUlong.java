@@ -3,7 +3,6 @@ package ceri.jna.type;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
 import ceri.common.math.MathUtil;
-import ceri.jna.util.JnaSize;
 
 /**
  * Unsigned native long.

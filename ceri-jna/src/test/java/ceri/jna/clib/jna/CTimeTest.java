@@ -8,7 +8,7 @@ import com.sun.jna.Pointer;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timespec;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 
 public class CTimeTest {
 

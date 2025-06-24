@@ -5,9 +5,9 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.PointerUtil;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
 
 /**
  * Types and functions from {@code <signal.h>}

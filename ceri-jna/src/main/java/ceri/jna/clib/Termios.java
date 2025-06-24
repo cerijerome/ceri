@@ -6,7 +6,7 @@ import ceri.common.io.Direction;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 
 /**
  * Encapsulates a file descriptor and termios structure for terminal/communications control.

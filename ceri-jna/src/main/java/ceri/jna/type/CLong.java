@@ -2,7 +2,6 @@ package ceri.jna.type;
 
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
-import ceri.jna.util.JnaSize;
 
 /**
  * Signed native long.

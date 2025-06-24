@@ -6,9 +6,9 @@ import java.util.function.Supplier;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.type.IntType;
-import ceri.jna.util.JnaSize;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.JnaSize;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * Types and functions from {@code <termios.h>}

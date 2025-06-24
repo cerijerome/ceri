@@ -5,8 +5,8 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Pointer;
 import ceri.jna.clib.jna.CSignal.sigset_t;
 import ceri.jna.clib.jna.CTime.timespec;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * Types and functions from {@code <poll.h>}
@@ -37,7 +37,7 @@ public class CPoll {
 		public short revents; // events that occurred
 
 		public static pollfd[] array(int size) {
-			return Struct.<pollfd>arrayByVal(() -> new pollfd(), pollfd[]::new, size);
+			return Struct.arrayByVal(() -> new pollfd(), pollfd[]::new, size);
 		}
 
 		public pollfd() {}

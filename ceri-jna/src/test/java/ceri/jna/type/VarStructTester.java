@@ -1,11 +1,11 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.function.Function;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * Demonstration of various var array struct types.

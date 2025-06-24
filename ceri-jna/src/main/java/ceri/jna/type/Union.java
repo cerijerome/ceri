@@ -1,7 +1,7 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import com.sun.jna.Pointer;
-import ceri.jna.util.Struct.Align;
+import ceri.jna.type.Struct.Align;
 
 /**
  * Extends JNA Union to provide extra support.

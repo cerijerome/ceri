@@ -15,8 +15,8 @@ import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
+import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
-import ceri.jna.util.Struct;
 
 public class TtyInputBehavior {
 	private static final int LFLAGS = ICANON | ECHO | ECHONL;

@@ -169,10 +169,11 @@ public class JnaUtil {
 	/**
 	 * Provide typed sub-view of given memory, or null.
 	 */
-	public static Memory share(Memory m, long offset, long size) {
-		if (m == null) validateNullSlice(offset, size);
-		if (m == null || (offset == 0 && size == m.size())) return m;
-		return (Memory) m.share(offset, size);
+	public static Memory share(Memory m, long offset, long len) {
+		long size = size(m);
+		PointerUtil.validate(m, size, offset, len);
+		if (m == null || (offset == 0 && len == size)) return m;
+		return (Memory) m.share(offset, len);
 	}
 
 	/**
@@ -231,7 +232,7 @@ public class JnaUtil {
 	/**
 	 * Get unsigned value from pointer.
 	 */
-	public static short ubyte(Pointer p, int offset) {
+	public static short ubyte(Pointer p, long offset) {
 		return MathUtil.ubyte(p.getByte(offset));
 	}
 
@@ -443,7 +444,7 @@ public class JnaUtil {
 	/**
 	 * Creates an array of bytes from the given memory pointer.
 	 */
-	private static byte[] bytes(Memory m, long offset) {
+	public static byte[] bytes(Memory m, long offset) {
 		return bytes(m, offset, Math.toIntExact(size(m) - offset));
 	}
 
@@ -451,8 +452,8 @@ public class JnaUtil {
 	 * Creates an array of bytes from the given memory pointer.
 	 */
 	public static byte[] bytes(Pointer p, long offset, long length) {
-		if (p != null) return p.getByteArray(offset, Math.toIntExact(length));
-		validateNullSlice(offset, length);
+		if (PointerUtil.validate(p, offset, length) != null)
+			return p.getByteArray(offset, Math.toIntExact(length));
 		return ArrayUtil.EMPTY_BYTE;
 	}
 
@@ -483,6 +484,16 @@ public class JnaUtil {
 		return bytes;
 	}
 
+	/**
+	 * Throws an exception if the memory slice is out of range.
+	 */
+	public static void validateSlice(long size, long offset, long length) {
+		if (offset < 0 || offset > size)
+			throw new IndexOutOfBoundsException("Offset must be 0.." + size + ": " + offset);
+		if (length < 0 || offset + length > size) throw new IndexOutOfBoundsException(
+			"Length must be 0.." + (size - offset) + ": " + length);
+	}
+	
 	/**
 	 * Throws an exception if the given buffer is not direct.
 	 */
@@ -518,8 +529,8 @@ public class JnaUtil {
 	 * Convenience method to get a byte buffer for the pointer.
 	 */
 	public static ByteBuffer buffer(Pointer p, long offset, long length) {
-		if (p != null) return p.getByteBuffer(offset, length);
-		validateNullSlice(offset, length);
+		if (PointerUtil.validate(p, offset, length) != null)
+			return p.getByteBuffer(offset, length);
 		return ByteBuffer.allocate(0);
 	}
 
@@ -661,9 +672,9 @@ public class JnaUtil {
 	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
 	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
-		ValidationUtil.validateSlice(buffer.length, index, length);
-		if (p == null) validateNullSlice(offset, length);
-		else if (length > 0) p.read(offset, buffer, index, length);
+		ValidationUtil.validateSlice(buffer, index, length);
+		PointerUtil.validate(p, offset, length);
+		if (length > 0) p.read(offset, buffer, index, length);
 		return index + length;
 	}
 
@@ -714,8 +725,8 @@ public class JnaUtil {
 	 */
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
 		ValidationUtil.validateSlice(buffer.length, index, length);
-		if (p == null) validateNullSlice(offset, length);
-		else if (length > 0) p.write(offset, buffer, index, length);
+		if (PointerUtil.validate(p, offset, length) != null)
+			p.write(offset, buffer, index, length);
 		return offset + length;
 	}
 
@@ -738,8 +749,8 @@ public class JnaUtil {
 	 * offset after writing.
 	 */
 	public static long fill(Pointer p, long offset, long length, int value) {
-		if (p == null) validateNullSlice(offset, length);
-		else p.setMemory(offset, length, (byte) value);
+		if (PointerUtil.validate(p, offset, length) != null)
+			p.setMemory(offset, length, (byte) value);
 		return offset + length;
 	}
 
@@ -750,10 +761,4 @@ public class JnaUtil {
 		if (!Charset.isSupported(encoding)) return Charset.defaultCharset();
 		return Charset.forName(encoding);
 	}
-
-	private static void validateNullSlice(long offset, long length) {
-		if (offset != 0 || length != 0) throw new IndexOutOfBoundsException(
-			"Offset and length must be 0: " + offset + " + " + length);
-	}
-
 }

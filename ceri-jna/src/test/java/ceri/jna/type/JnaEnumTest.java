@@ -1,9 +1,9 @@
-package ceri.jna.util;
+package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
-import ceri.jna.util.JnaEnum.Value;
-import ceri.jna.util.JnaEnum.Valued;
+import ceri.jna.type.JnaEnum.Value;
+import ceri.jna.type.JnaEnum.Valued;
 
 public class JnaEnumTest {
 

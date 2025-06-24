@@ -9,9 +9,9 @@ import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.type.CUlong;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaUtil;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
 
 /**
  * Types and functions from {@code <sys/ioctl.h>}
