@@ -9,7 +9,7 @@ import ceri.jna.clib.test.TestCLibNative.CfArgs;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.test.JnaTestUtil;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 
 /**
  * Provides support for low-level serial testing. Simulates some interactions of serial calls using

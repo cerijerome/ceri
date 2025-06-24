@@ -14,7 +14,7 @@ import ceri.common.function.RuntimeCloseable;
 import ceri.common.time.TimeSpec;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;

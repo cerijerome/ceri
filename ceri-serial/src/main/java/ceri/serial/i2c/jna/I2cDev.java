@@ -27,9 +27,9 @@ import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.type.CUlong;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
-import ceri.jna.util.Union;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Union;
+import ceri.jna.type.Struct.Fields;
 
 /**
  * I2C device communication, through ioctl commands. Linux-only?
@@ -89,7 +89,7 @@ public class I2cDev {
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 
 		public static ByReference[] array(int count) {
-			return Struct.<ByReference>arrayByVal(ByReference::new, ByReference[]::new, count);
+			return Struct.arrayByVal(ByReference::new, ByReference[]::new, count);
 		}
 
 		public i2c_msg() {}
@@ -266,7 +266,7 @@ public class I2cDev {
 		public int nmsgs;
 
 		public i2c_msg[] msgs() {
-			return Struct.arrayByVal(msgs, i2c_msg[]::new, nmsgs);
+			return Struct.arrayOfVal(msgs, i2c_msg[]::new, nmsgs);
 		}
 	}
 

@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.util.Enclosed;
-import ceri.jna.util.ArrayPointer;
+import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;

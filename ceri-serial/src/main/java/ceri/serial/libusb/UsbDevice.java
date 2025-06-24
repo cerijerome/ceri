@@ -6,7 +6,7 @@ import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.text.ToString;
-import ceri.jna.util.ArrayPointer;
+import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.PointerUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;

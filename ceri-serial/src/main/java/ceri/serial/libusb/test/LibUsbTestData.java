@@ -44,10 +44,10 @@ import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.type.JnaSize;
+import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
-import ceri.jna.util.JnaSize;
 import ceri.jna.util.PointerUtil;
-import ceri.jna.util.Struct;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
@@ -119,9 +119,8 @@ public class LibUsbTestData {
 		@SafeVarargs
 		public static void configDescriptors(DeviceConfig dc,
 			Consumer<libusb_config_descriptor>... populators) {
-			var descs = Struct.<libusb_config_descriptor>arrayByVal( //
-				() -> new libusb_config_descriptor(null), libusb_config_descriptor[]::new,
-				populators.length);
+			var descs = Struct.arrayByVal(() -> new libusb_config_descriptor(null),
+				libusb_config_descriptor[]::new, populators.length);
 			for (int i = 0; i < populators.length; i++) {
 				descs[i].bLength = LIBUSB_DT_CONFIG_SIZE;
 				descs[i].bDescriptorType = (byte) LIBUSB_DT_CONFIG.value;
@@ -136,7 +135,7 @@ public class LibUsbTestData {
 		@SafeVarargs
 		public static void interfaces(libusb_config_descriptor cd,
 			Consumer<libusb_interface.ByRef>... populators) {
-			var interfaces = Struct.<libusb_interface.ByRef>arrayByVal(libusb_interface.ByRef::new,
+			var interfaces = Struct.arrayByVal(libusb_interface.ByRef::new,
 				libusb_interface.ByRef[]::new, populators.length);
 			for (int i = 0; i < populators.length; i++) {
 				populators[i].accept(interfaces[i]);
@@ -149,9 +148,8 @@ public class LibUsbTestData {
 		@SafeVarargs
 		public static void interfaceDescriptors(libusb_config_descriptor cd, libusb_interface it,
 			Consumer<libusb_interface_descriptor.ByRef>... populators) {
-			var descs = Struct.<libusb_interface_descriptor.ByRef>arrayByVal(
-				libusb_interface_descriptor.ByRef::new, libusb_interface_descriptor.ByRef[]::new,
-				populators.length);
+			var descs = Struct.arrayByVal(libusb_interface_descriptor.ByRef::new,
+				libusb_interface_descriptor.ByRef[]::new, populators.length);
 			for (int i = 0; i < populators.length; i++) {
 				descs[i].bLength = LIBUSB_DT_INTERFACE_SIZE;
 				descs[i].bDescriptorType = (byte) LIBUSB_DT_INTERFACE.value;
@@ -167,9 +165,8 @@ public class LibUsbTestData {
 		@SafeVarargs
 		public static void endPointDescriptors(libusb_interface_descriptor id,
 			Consumer<libusb_endpoint_descriptor.ByRef>... populators) {
-			var descs = Struct.<libusb_endpoint_descriptor.ByRef>arrayByVal(
-				libusb_endpoint_descriptor.ByRef::new, libusb_endpoint_descriptor.ByRef[]::new,
-				populators.length);
+			var descs = Struct.arrayByVal(libusb_endpoint_descriptor.ByRef::new,
+				libusb_endpoint_descriptor.ByRef[]::new, populators.length);
 			for (int i = 0; i < populators.length; i++) {
 				descs[i].bLength = LIBUSB_DT_ENDPOINT_SIZE;
 				descs[i].bDescriptorType = (byte) LIBUSB_DT_ENDPOINT.value;
@@ -586,9 +583,7 @@ public class LibUsbTestData {
 	}
 
 	public HotPlug hotPlug(int handle) {
-		return find(hotPlugs, t -> 
-			t.handle == handle
-		, null);
+		return find(hotPlugs, t -> t.handle == handle, null);
 	}
 
 	public List<HotPlug> hotPlugs() {
@@ -596,9 +591,7 @@ public class LibUsbTestData {
 	}
 
 	public void removeHotPlug(int handle) {
-		hotPlugs.removeIf(t -> 
-			t.handle == handle
-		);
+		hotPlugs.removeIf(t -> t.handle == handle);
 	}
 
 	private static <T extends Data> void forEach(List<T> list, Predicate<? super T> filter,

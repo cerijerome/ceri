@@ -19,7 +19,7 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.util.Enclosed;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;

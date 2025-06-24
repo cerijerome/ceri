@@ -43,7 +43,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;

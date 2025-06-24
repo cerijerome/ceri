@@ -21,14 +21,14 @@ import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.util.BasicUtil;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.ArrayPointer;
+import ceri.jna.type.ArrayPointer;
+import ceri.jna.type.Struct;
+import ceri.jna.type.VarStruct;
+import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.Caller;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
-import ceri.jna.util.VarStruct;
 
 /**
  * Provides types and static function calls. Updated to libusb 1.0.24.
@@ -697,7 +697,7 @@ public class LibUsb {
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
-			return arrayByVal(endpoint, libusb_endpoint_descriptor[]::new, ubyte(bNumEndpoints));
+			return arrayOfVal(endpoint, libusb_endpoint_descriptor[]::new, ubyte(bNumEndpoints));
 		}
 
 		public byte[] extra() {
@@ -716,7 +716,7 @@ public class LibUsb {
 		public static class ByRef extends libusb_interface implements Structure.ByReference {}
 
 		public libusb_interface_descriptor[] altsettings() {
-			return arrayByVal(altsetting, libusb_interface_descriptor[]::new, num_altsetting);
+			return arrayOfVal(altsetting, libusb_interface_descriptor[]::new, num_altsetting);
 		}
 	}
 
@@ -751,7 +751,7 @@ public class LibUsb {
 		}
 
 		public libusb_interface[] interfaces() {
-			return arrayByVal(interfaces, libusb_interface[]::new, ubyte(bNumInterfaces));
+			return arrayOfVal(interfaces, libusb_interface[]::new, ubyte(bNumInterfaces));
 		}
 
 		public byte[] extra() {

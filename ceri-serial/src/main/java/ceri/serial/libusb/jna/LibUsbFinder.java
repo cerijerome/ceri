@@ -24,7 +24,7 @@ import ceri.common.function.ExceptionPredicate;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Counter;
-import ceri.jna.util.ArrayPointer;
+import ceri.jna.type.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_device;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;

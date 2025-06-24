@@ -3,7 +3,7 @@ package ceri.serial.ftdi;
 import java.time.Duration;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
-import ceri.jna.util.Struct;
+import ceri.jna.type.Struct;
 import ceri.serial.ftdi.jna.LibFtdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_transfer_control;
 import ceri.serial.libusb.jna.LibUsbException;

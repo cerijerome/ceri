@@ -8,8 +8,8 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
-import ceri.jna.util.Struct;
-import ceri.jna.util.Struct.Fields;
+import ceri.jna.type.Struct;
+import ceri.jna.type.Struct.Fields;
 
 public class SpiDev {
 	private static final Logger logger = LogManager.getLogger();
