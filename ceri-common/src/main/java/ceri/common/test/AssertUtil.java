@@ -1,6 +1,7 @@
 package ceri.common.test;
 
 import static ceri.common.reflect.ReflectUtil.hashId;
+import static ceri.common.text.StringUtil.EOL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -980,6 +981,13 @@ public class AssertUtil {
 	 */
 	public static void assertString(Object actual, String format, Object... objs) {
 		assertEquals(String.valueOf(actual), StringUtil.format(format, objs));
+	}
+
+	/**
+	 * Checks string representation is made up of lines with native separators.
+	 */
+	public static void assertLines(Object actual, String... lines) {
+		assertString(actual, String.join(EOL, lines));
 	}
 
 	/**

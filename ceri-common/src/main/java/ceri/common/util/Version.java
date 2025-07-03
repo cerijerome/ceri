@@ -36,8 +36,10 @@ public record Version(int version, Integer major, Integer minor, String rev)
 	 * Encodes version, major and minor into a 32-bit kernel version value (16-8-8 bits).
 	 */
 	public int kernel() {
-		return (MathUtil.ushort(version()) << Short.SIZE) | (MathUtil.ubyte(major()) << Byte.SIZE)
-			| MathUtil.ubyte(minor());
+		int version = MathUtil.ushort(version());
+		int major = major() == null ? 0 : MathUtil.ubyte(major());
+		int minor = minor() == null ? 0 : MathUtil.ubyte(minor());
+		return (version << Short.SIZE) | (major << Byte.SIZE) | minor;
 	}
 
 	@Override

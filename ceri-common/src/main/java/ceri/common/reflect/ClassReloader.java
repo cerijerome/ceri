@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.exception.ExceptionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.util.BasicUtil;
 
@@ -32,17 +31,31 @@ public class ClassReloader extends ClassLoader {
 	}
 
 	/**
-	 * Constructor specifying classes to reload.
+	 * Constructor for reloading specified classes.
 	 */
 	public static ClassReloader of(Class<?>... classes) {
 		return of(Arrays.asList(classes));
 	}
 
 	/**
-	 * Constructor specifying classes to reload.
+	 * Constructor for reloading specified classes.
 	 */
 	public static ClassReloader of(Collection<Class<?>> classes) {
 		return new ClassReloader(classes);
+	}
+
+	/**
+	 * Constructor for reloading specified classes and their declared nested classes.
+	 */
+	public static ClassReloader ofNested(Class<?>... classes) {
+		return ofNested(Arrays.asList(classes));
+	}
+
+	/**
+	 * Constructor for reloading specified classes and their declared nested classes.
+	 */
+	public static ClassReloader ofNested(Iterable<Class<?>> classes) {
+		return new ClassReloader(ReflectUtil.nested(classes));
 	}
 
 	private ClassReloader(Collection<Class<?>> classes) {
@@ -64,9 +77,9 @@ public class ClassReloader extends ClassLoader {
 	}
 
 	/**
-	 * Loads the class from its given name. For a constructor-specified class, it is loaded once
-	 * only from its class file resource. For other classes, standard delegating ClassLoader logic
-	 * is applied.
+	 * Loads the class from its given name. For a class specified in the constructor, it is loaded
+	 * once only from its class file resource. For other classes, standard delegating ClassLoader
+	 * logic is applied.
 	 */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -76,11 +89,20 @@ public class ClassReloader extends ClassLoader {
 	}
 
 	/**
-	 * Loads the class. For a constructor-specified class, it is loaded once only from its class
-	 * file resource. For other classes, standard delegating ClassLoader logic is applied.
+	 * Loads the class with optional initialization. For a class specified in the constructor, it is
+	 * loaded once only from its class file resource. For other classes, standard delegating
+	 * ClassLoader logic is applied.
 	 */
-	public <T> Class<T> load(Class<T> cls) {
-		return BasicUtil
-			.uncheckedCast(ExceptionUtil.shouldNotThrow(() -> loadClass(cls.getName())));
+	public Class<?> forName(String name, boolean init) {
+		return ReflectUtil.forName(name, init, this);
+	}
+
+	/**
+	 * Loads the class with optional initialization. For a class specified in the constructor, it is
+	 * loaded once only from its class file resource. For other classes, standard delegating
+	 * ClassLoader logic is applied.
+	 */
+	public <T> Class<T> forName(Class<T> cls, boolean init) {
+		return BasicUtil.uncheckedCast(forName(cls.getName(), init));
 	}
 }

@@ -25,6 +25,20 @@ public class TextUtil {
 	private TextUtil() {}
 
 	/**
+	 * Wrap a multi-line string as a javadoc block.
+	 */
+	public static String multilineJavadoc(String s) {
+		return multilineComment("/**", " * ", " */", s);
+	}
+
+	/**
+	 * Wrap a multi-line string as a comment block.
+	 */
+	public static String multilineComment(String s) {
+		return multilineComment("/*", " * ", " */", s);
+	}
+
+	/**
 	 * Split a string into words, based on word boundary of non-letter followed by letter,
 	 * underscores, or whitespace.
 	 */
@@ -212,4 +226,10 @@ public class TextUtil {
 		return DOT_PATTERN.matcher(str.toUpperCase()).replaceAll("_");
 	}
 
+	// support methods
+
+	private static String multilineComment(String start, String prefix, String end, String str) {
+		if (StringUtil.empty(str)) return str;
+		return start + StringUtil.EOL + StringUtil.prefixLines(prefix, str) + StringUtil.EOL + end;
+	}
 }

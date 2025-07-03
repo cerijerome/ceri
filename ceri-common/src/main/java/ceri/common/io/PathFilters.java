@@ -57,7 +57,7 @@ public class PathFilters {
 	 * A filter that applies the path filter to the filename path only.
 	 */
 	public static ExceptionPredicate<IOException, Path> byFileName(Predicate<String> filter) {
-		return ExceptionPredicate.testing(IoUtil::fileName, filter::test);
+		return ExceptionPredicate.testing(IoUtil::filename, filter::test);
 	}
 
 	/**

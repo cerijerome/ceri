@@ -43,6 +43,30 @@ public class PredicatesTest {
 	}
 
 	@Test
+	public void testTestingInt() {
+		Predicate<String> filter = Predicates.testingInt(String::length, i -> i > 0);
+		assertFalse(filter.test(null));
+		assertFalse(filter.test(""));
+		assertTrue(filter.test("test"));
+	}
+
+	@Test
+	public void testTestingLong() {
+		Predicate<String> filter = Predicates.testingLong(String::length, l -> l > 0);
+		assertFalse(filter.test(null));
+		assertFalse(filter.test(""));
+		assertTrue(filter.test("test"));
+	}
+
+	@Test
+	public void testTestingDouble() {
+		Predicate<String> filter = Predicates.testingDouble(String::length, d -> d > 0.0);
+		assertFalse(filter.test(null));
+		assertFalse(filter.test(""));
+		assertTrue(filter.test("test"));
+	}
+
+	@Test
 	public void testLower() {
 		assertTrue(Predicates.lower(null).test("aaa"));
 		Predicate<String> filter = Predicates.lower(Predicates.eqAny("a"));

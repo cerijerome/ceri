@@ -6,6 +6,9 @@ import ceri.common.function.Predicates;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 
+/**
+ * Implemented by classes that provide a name.
+ */
 public interface Named {
 	static Comparator<Named> COMPARATOR = Comparator.comparing(Named::name);
 

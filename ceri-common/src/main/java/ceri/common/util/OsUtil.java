@@ -112,6 +112,13 @@ public class OsUtil {
 	}
 
 	/**
+	 * Retrieve the current OS info, ignoring any override.
+	 */
+	public static Os value() {
+		return os.value();
+	}
+
+	/**
 	 * Overrides OS. Use null for actual values. Removes override on close.
 	 */
 	public static RuntimeCloseable os(String name, String arch, String version) {

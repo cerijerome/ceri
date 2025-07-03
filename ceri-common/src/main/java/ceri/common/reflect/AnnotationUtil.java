@@ -1,10 +1,12 @@
 package ceri.common.reflect;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
+import java.lang.reflect.AnnotatedElement;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.ToBooleanFunction;
 
 /**
@@ -15,18 +17,34 @@ public class AnnotationUtil {
 	private AnnotationUtil() {}
 
 	/**
-	 * Get TYPE annotation from class, or return null.
+	 * Get annotation from element, or return null.
 	 */
-	public static <T extends Annotation> T annotation(Class<?> cls, Class<T> annotationCls) {
-		return cls == null ? null : cls.getAnnotation(annotationCls);
+	public static <T extends Annotation> T annotation(AnnotatedElement element,
+		Class<T> annotationCls) {
+		return element == null ? null : element.getAnnotation(annotationCls);
 	}
 
 	/**
-	 * Get FIELD annotation from enum, or return null.
+	 * Get field annotation from enum, or return null.
 	 */
 	public static <T extends Annotation> T annotation(Enum<?> en, Class<T> annotationCls) {
-		Field field = ReflectUtil.enumToField(en);
-		return field == null ? null : field.getAnnotation(annotationCls);
+		return annotation(ReflectUtil.enumToField(en), annotationCls);
+	}
+
+	/**
+	 * Get repeat annotations from element as a list.
+	 */
+	public static <T extends Annotation> List<T> annotations(AnnotatedElement element,
+		Class<T> annotationCls) {
+		return element == null ? List.of() :
+			ImmutableUtil.wrapAsList(element.getAnnotationsByType(annotationCls));
+	}
+
+	/**
+	 * Get repeat field annotations from enum as a list.
+	 */
+	public static <T extends Annotation> List<T> annotations(Enum<?> en, Class<T> annotationCls) {
+		return annotations(ReflectUtil.enumToField(en), annotationCls);
 	}
 
 	/**
@@ -52,9 +70,9 @@ public class AnnotationUtil {
 	 * }
 	 * </pre>
 	 */
-	public static <T extends Annotation> T annotationFromClass(Supplier<Class<?>> clsSupplier,
-		Class<T> annotationCls) {
-		return clsSupplier == null ? null : annotation(clsSupplier.get(), annotationCls);
+	public static <T extends Annotation> T annotationFromClass(
+		Supplier<? extends AnnotatedElement> elementSupplier, Class<T> annotationCls) {
+		return elementSupplier == null ? null : annotation(elementSupplier.get(), annotationCls);
 	}
 
 	/**
@@ -88,73 +106,72 @@ public class AnnotationUtil {
 	}
 
 	/**
-	 * Apply function to TYPE annotation, return null if not found.
+	 * Apply accessor to annotation, return null if not found.
 	 */
-	public static <T extends Annotation, R> R value(Class<?> cls, Class<T> annotationCls,
-		Function<T, R> fn) {
-		return value(cls, annotationCls, fn, null);
+	public static <T extends Annotation, R> R value(AnnotatedElement element,
+		Class<T> annotationCls, Function<T, R> valueAccessor) {
+		return value(element, annotationCls, valueAccessor, null);
 	}
 
 	/**
-	 * Apply function to TYPE annotation, return default if not found.
+	 * Apply accessor to annotation, return default if not found.
 	 */
-	public static <T extends Annotation, R> R value(Class<?> cls, Class<T> annotationCls,
-		Function<T, R> fn, R def) {
-		T annotation = annotation(cls, annotationCls);
-		return annotation == null ? def : fn.apply(annotation);
+	public static <T extends Annotation, R> R value(AnnotatedElement element,
+		Class<T> annotationCls, Function<T, R> valueAccessor, R def) {
+		T annotation = annotation(element, annotationCls);
+		return annotation == null ? def : valueAccessor.apply(annotation);
 	}
 
 	/**
-	 * Apply function to TYPE annotation, return default if not found.
+	 * Apply accessor to annotation, return default if not found.
 	 */
-	public static <T extends Annotation> boolean value(Class<?> cls, Class<T> annotationCls,
-		ToBooleanFunction<T> fn, boolean def) {
-		T annotation = annotation(cls, annotationCls);
-		return annotation == null ? def : fn.applyAsBoolean(annotation);
+	public static <T extends Annotation> boolean value(AnnotatedElement element,
+		Class<T> annotationCls, ToBooleanFunction<T> valueAccessor, boolean def) {
+		T annotation = annotation(element, annotationCls);
+		return annotation == null ? def : valueAccessor.applyAsBoolean(annotation);
 	}
 
 	/**
-	 * Apply function to TYPE annotation, return default if not found.
+	 * Apply accessor to annotation, return default if not found.
 	 */
-	public static <T extends Annotation> int value(Class<?> cls, Class<T> annotationCls,
-		ToIntFunction<T> fn, int def) {
-		T annotation = annotation(cls, annotationCls);
-		return annotation == null ? def : fn.applyAsInt(annotation);
+	public static <T extends Annotation> int value(AnnotatedElement element, Class<T> annotationCls,
+		ToIntFunction<T> valueAccessor, int def) {
+		T annotation = annotation(element, annotationCls);
+		return annotation == null ? def : valueAccessor.applyAsInt(annotation);
 	}
 
 	/**
-	 * Apply function to FIELD annotation, return null if not found.
+	 * Apply accessor to field annotation, return null if not found.
 	 */
 	public static <T extends Annotation, R> R value(Enum<?> en, Class<T> annotationCls,
-		Function<T, R> fn) {
-		return value(en, annotationCls, fn, null);
+		Function<T, R> valueAccessor) {
+		return value(en, annotationCls, valueAccessor, null);
 	}
 
 	/**
-	 * Apply function to FIELD annotation, return default if not found.
+	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation, R> R value(Enum<?> en, Class<T> annotationCls,
-		Function<T, R> fn, R def) {
+		Function<T, R> valueAccessor, R def) {
 		T annotation = annotation(en, annotationCls);
-		return annotation == null ? def : fn.apply(annotation);
+		return annotation == null ? def : valueAccessor.apply(annotation);
 	}
 
 	/**
-	 * Apply function to FIELD annotation, return default if not found.
+	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation> boolean value(Enum<?> en, Class<T> annotationCls,
-		ToBooleanFunction<T> fn, boolean def) {
+		ToBooleanFunction<T> valueAccessor, boolean def) {
 		T annotation = annotation(en, annotationCls);
-		return annotation == null ? def : fn.applyAsBoolean(annotation);
+		return annotation == null ? def : valueAccessor.applyAsBoolean(annotation);
 	}
 
 	/**
-	 * Apply function to FIELD annotation, return default if not found.
+	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation> int value(Enum<?> en, Class<T> annotationCls,
-		ToIntFunction<T> fn, int def) {
+		ToIntFunction<T> valueAccessor, int def) {
 		T annotation = annotation(en, annotationCls);
-		return annotation == null ? def : fn.applyAsInt(annotation);
+		return annotation == null ? def : valueAccessor.applyAsInt(annotation);
 	}
-
 }

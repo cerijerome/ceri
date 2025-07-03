@@ -8,6 +8,7 @@ import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import org.junit.Test;
+import ceri.common.reflect.ReflectUtilTest.E;
 import ceri.common.util.Align;
 
 public class EnumUtilTest {
@@ -100,6 +101,17 @@ public class EnumUtilTest {
 		assertEquals(EnumUtil.fromOrdinalValid(Enum.class, 2), Enum.c);
 		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, -1));
 		assertThrown(() -> EnumUtil.fromOrdinalValid(Enum.class, 3));
+	}
+
+	@Test
+	public void testName() {
+		assertEquals(EnumUtil.name(null), null);
+		assertEquals(EnumUtil.name(E.a), "a");
+	}
+
+	@Test
+	public void testShortNames() {
+		assertIterable(EnumUtil.shortNames(Prefix.a_b_c_123, Prefix.a_b_c_123456), "123", "123456");
 	}
 
 	@Test

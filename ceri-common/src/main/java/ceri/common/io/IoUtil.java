@@ -39,6 +39,7 @@ import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
 import ceri.common.function.ExceptionObjIntPredicate;
 import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.ExceptionUnaryOperator;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.text.StringUtil;
@@ -206,12 +207,23 @@ public class IoUtil {
 	/**
 	 * Replaces the last part of the path.
 	 */
-	public static Path changeName(Path path, String fileName) {
+	public static Path changeName(Path path, String filename) {
+		return changeName(path, _ -> filename);
+	}
+
+	/**
+	 * Replaces the last part of the path.
+	 */
+	public static <E extends Exception> Path changeName(Path path,
+		ExceptionUnaryOperator<E, String> filenameFn) throws E {
 		if (path == null) return null;
+		Path file = path.getFileName();
+		var filename = filenameFn.apply(file == null ? "" : file.toString());
+		if (filename == null) return path;
 		Path parent = path.getParent();
-		if (parent != null) return parent.resolve(fileName);
-		if (path.isAbsolute()) return path.resolve(fileName);
-		return newPath(path, fileName);
+		if (parent != null) return parent.resolve(filename);
+		if (path.isAbsolute()) return path.resolve(filename);
+		return newPath(path, filename);
 	}
 
 	/**
@@ -265,7 +277,7 @@ public class IoUtil {
 	 * Returns the last segment of the path as a string, or blank if empty. Returns null for a null
 	 * path.
 	 */
-	public static String fileName(Path path) {
+	public static String filename(Path path) {
 		if (path == null) return null;
 		Path fileName = path.getFileName();
 		return fileName == null ? "" : fileName.toString();
@@ -276,11 +288,19 @@ public class IoUtil {
 	 * check if path is a file or if it exists. Returns full name for file names starting with a
 	 * dot, and no extension.
 	 */
-	public static String fileNameWithoutExt(Path path) {
-		String fileName = fileName(path);
-		if (fileName == null) return null;
-		int i = fileName.lastIndexOf('.');
-		return i <= 0 ? fileName : fileName.substring(0, i);
+	public static String filenameWithoutExt(Path path) {
+		return filenameWithoutExt(filename(path));
+	}
+
+	/**
+	 * Returns the file name without extension, full name if none, or null for null name. Does not
+	 * check if path is a file or if it exists. Returns full name for file names starting with a
+	 * dot, and no extension.
+	 */
+	public static String filenameWithoutExt(String filename) {
+		if (filename == null) return null;
+		int i = filename.lastIndexOf('.');
+		return i <= 0 ? filename : filename.substring(0, i);
 	}
 
 	/**
@@ -289,10 +309,18 @@ public class IoUtil {
 	 * no extension.
 	 */
 	public static String extension(Path path) {
-		String fileName = fileName(path);
-		if (fileName == null) return null;
-		int i = fileName.lastIndexOf('.');
-		return i <= 0 ? "" : fileName.substring(i + 1);
+		return extension(filename(path));
+	}
+
+	/**
+	 * Returns the file extension, empty string if none, or null for null path. Does not check if
+	 * path is a file or if it exists. Returns empty string for file names starting with a dot, and
+	 * no extension.
+	 */
+	public static String extension(String filename) {
+		if (filename == null) return null;
+		int i = filename.lastIndexOf('.');
+		return i <= 0 ? "" : filename.substring(i + 1);
 	}
 
 	/**
@@ -706,7 +734,7 @@ public class IoUtil {
 		throws IOException {
 		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, test::test)) {
-			return listCollect(stream, IoUtil::fileName);
+			return listCollect(stream, IoUtil::filename);
 		}
 	}
 
@@ -861,7 +889,7 @@ public class IoUtil {
 	}
 
 	/**
-	 * Returns the url path for class.
+	 * Returns the URL path for class.
 	 */
 	public static URL classUrl(Class<?> cls) {
 		if (cls == null) return null;

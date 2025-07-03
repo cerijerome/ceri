@@ -139,19 +139,26 @@ public class EnumUtil {
 	}
 
 	/**
+	 * Returns the enum name, or null.
+	 */
+	public static String name(Enum<?> en) {
+		return en == null ? null : en.name();
+	}
+
+	/**
 	 * Returns the enum names with common prefix removed, up to last word boundary.
 	 */
 	public static List<String> shortNames(Enum<?>... enums) {
 		return shortNames(Arrays.asList(enums));
 	}
-	
+
 	/**
 	 * Returns the enum names with common prefix removed, up to last word boundary.
 	 */
 	public static List<String> shortNames(Collection<? extends Enum<?>> enums) {
 		return enums.stream().map(e -> shortName(e)).toList();
 	}
-	
+
 	/**
 	 * Returns the enum name with common prefix removed, up to last word boundary.
 	 */

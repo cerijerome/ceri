@@ -94,7 +94,7 @@ public class FileVisitUtilTest {
 		IOException ex = new IOException("Test");
 		FileVisitor<Path> visitor = FileVisitUtil.visitor(null, null, //
 			FileVisitUtil.adaptConsumer(file -> {
-				if ("b.txt".equals(IoUtil.fileName(file))) throw ex;
+				if ("b.txt".equals(IoUtil.filename(file))) throw ex;
 			}));
 		assertThrown(() -> Files.walkFileTree(helper.root, visitor));
 	}

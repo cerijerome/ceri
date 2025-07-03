@@ -1,9 +1,11 @@
 package ceri.common.reflect;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -14,7 +16,8 @@ public class AnnotationUtilTest {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.FIELD, ElementType.TYPE })
-	private static @interface A {
+	@Repeatable(As.class)
+	private @interface A {
 		String s() default "s";
 
 		int i() default -1;
@@ -22,11 +25,19 @@ public class AnnotationUtilTest {
 		boolean b() default true;
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.FIELD, ElementType.TYPE })
+	private @interface As {
+		A[] value() default {};
+	}
+
 	@A(i = 123)
 	private static enum E {
 		a,
 		@A(s = "b")
 		b,
+		@A(i = 3)
+		@A(s = "c")
 		c;
 	}
 
@@ -48,6 +59,20 @@ public class AnnotationUtilTest {
 		assertNull(AnnotationUtil.annotation(Align.H.left, A.class));
 		assertNull(AnnotationUtil.annotation(E.a, A.class));
 		assertA(AnnotationUtil.annotation(E.b, A.class), "b", -1);
+	}
+
+	@Test
+	public void testEnumAnnotations() {
+		assertIterable(AnnotationUtil.annotations((Enum<?>) null, A.class));
+		assertIterable(AnnotationUtil.annotations(Align.H.left, A.class));
+		assertIterable(AnnotationUtil.annotations(E.a, A.class));
+		var annos = AnnotationUtil.annotations(E.b, A.class);
+		assertEquals(annos.size(), 1);
+		assertA(annos.get(0), "b", -1);
+		annos = AnnotationUtil.annotations(E.c, A.class);
+		assertEquals(annos.size(), 2);
+		assertA(annos.get(0), "s", 3);
+		assertA(annos.get(1), "c", -1);
 	}
 
 	@Test

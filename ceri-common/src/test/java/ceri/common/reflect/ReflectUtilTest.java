@@ -75,6 +75,16 @@ public class ReflectUtilTest {
 		}
 	}
 
+	public static class Nested {
+		public static class A {
+			public static class AA {}
+
+			public static class AB {}
+		}
+
+		public static class B {}
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
@@ -108,6 +118,15 @@ public class ReflectUtilTest {
 	}
 
 	@Test
+	public void testNested() {
+		assertCollection(ReflectUtil.nested());
+		assertCollection(ReflectUtil.nested(Nested.class), Nested.class, Nested.A.class,
+			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
+		assertCollection(ReflectUtil.nested(Nested.A.class, Nested.B.class), Nested.A.class,
+			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
+	}
+
+	@Test
 	public void testEnumToField() {
 		assertEquals(ReflectUtil.enumToField(null), null);
 		Field f = ReflectUtil.enumToField(E.a);
@@ -118,6 +137,7 @@ public class ReflectUtilTest {
 	@Test
 	public void testFieldToEnum() throws ReflectiveOperationException {
 		assertEquals(ReflectUtil.fieldToEnum(null), null);
+		assertEquals(ReflectUtil.fieldToEnum(Fields.class.getField("s")), null);
 		var f = E.class.getField("a");
 		var en = ReflectUtil.fieldToEnum(f);
 		assertEquals(en, E.a);

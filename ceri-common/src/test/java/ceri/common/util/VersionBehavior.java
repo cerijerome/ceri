@@ -46,4 +46,12 @@ public class VersionBehavior {
 		assertEquals(Version.kernel(0x1234567), new Version(0x123, 0x45, 0x67, null));
 	}
 
+	@Test
+	public void shouldProvideKernelValue() {
+		assertEquals(v1.kernel(), 0x10000);
+		assertEquals(v1_1__x.kernel(), 0x10100);
+		assertEquals(v1__1_x.kernel(), 0x10001);
+		assertEquals(v1_1_1_x.kernel(), 0x10101);
+	}
+
 }

@@ -580,6 +580,12 @@ public class ArrayUtilTest {
 	}
 
 	@Test
+	public void testContainsAny() {
+		assertTrue(ArrayUtil.containsAny(new Integer[] { 0, 1, 2, 3, 4 }, -2, -1, 0));
+		assertFalse(ArrayUtil.containsAny(new Integer[] { 0, 1, 2, 3, 4 }, 5, 6, 7));
+	}
+
+	@Test
 	public void testCreate() {
 		String[] array = ArrayUtil.create(String.class, 3);
 		array[0] = "0";

@@ -110,6 +110,7 @@ public class OsUtilTest {
 		var orig = OsUtil.os();
 		try (var _ = OsUtil.os(null, null, "-999")) {
 			assertOs(OsUtil.os(), orig.name, orig.arch, "-999");
+			assertOs(OsUtil.value(), orig.name, orig.arch, orig.version);
 		}
 	}
 

@@ -33,12 +33,36 @@ public class ClassReloaderBehavior {
 	}
 
 	@Test
-	public void shouldReloadOnceOnly() {
+	public void shouldReloadOnceOnly() throws ClassNotFoundException {
 		var cl = ClassReloader.of(Nested.class);
-		var c1 = cl.load(Nested.class);
-		var c2 = cl.load(Nested.class);
+		var c0 = Nested.class;
+		var c1 = cl.loadClass(Nested.class.getName());
+		var c2 = cl.loadClass(Nested.class.getName());
+		assertNotSame(c0, c1);
 		assertSame(c1, c2);
 	}
 
-	private static class Nested {}
+	@Test
+	public void shouldOnlyReloadSpecifiedClasses() {
+		var cl = ClassReloader.of(Nested.class);
+		var c0 = Nested.Nested2.class;
+		var c1 = cl.forName(Nested.Nested2.class, false);
+		var c2 = cl.forName(Nested.Nested2.class, true);
+		assertSame(c0, c1);
+		assertSame(c1, c2);
+	}
+
+	@Test
+	public void shouldReloadNested() {
+		var cl = ClassReloader.ofNested(Nested.class);
+		var c0 = Nested.Nested2.class;
+		var c1 = cl.forName(Nested.Nested2.class, false);
+		var c2 = cl.forName(Nested.Nested2.class, true);
+		assertNotSame(c0, c1);
+		assertSame(c1, c2);
+	}
+
+	private static class Nested {
+		private static class Nested2 {}
+	}
 }

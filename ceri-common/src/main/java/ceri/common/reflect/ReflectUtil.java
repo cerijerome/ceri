@@ -15,7 +15,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,6 +46,7 @@ public class ReflectUtil {
 	 * A thread and stack trace element.
 	 */
 	public record ThreadElement(Thread thread, StackTraceElement element) {
+
 		public static final ThreadElement NULL = new ThreadElement(null, null);
 
 		/**
@@ -315,6 +318,41 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Returns a list of the given classes and their declared nested classes.
+	 */
+	public static List<Class<?>> nested(Class<?>... classes) {
+		return nested(Arrays.asList(classes));
+	}
+
+	/**
+	 * Returns a list of the given classes and their declared nested classes.
+	 */
+	public static List<Class<?>> nested(Iterable<Class<?>> classes) {
+		var list = new ArrayList<Class<?>>();
+		nested(list::add, classes);
+		return Collections.unmodifiableList(list);
+	}
+
+	/**
+	 * Iterates the given classes and their declared nested classes.
+	 */
+	public static <E extends Exception> void nested(ExceptionConsumer<E, Class<?>> consumer,
+		Class<?>... classes) throws E {
+		nested(consumer, Arrays.asList(classes));
+	}
+
+	/**
+	 * Iterates the given classes and their declared nested classes.
+	 */
+	public static <E extends Exception> void nested(ExceptionConsumer<E, Class<?>> consumer,
+		Iterable<Class<?>> classes) throws E {
+		for (var cls : classes) {
+			consumer.accept(cls);
+			nested(consumer, cls.getDeclaredClasses());
+		}
+	}
+
+	/**
 	 * Returns the constructor matching the argument types, or null if no matching constructor is
 	 * found.
 	 */
@@ -410,12 +448,19 @@ public class ReflectUtil {
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
 	public static <T> T publicFieldValue(Object obj, Field field) {
-		if (field == null) return null;
-		if (obj == null && !isStatic(field)) return null;
+		return publicFieldValue(obj, field, null);
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns default if not found.
+	 */
+	public static <T> T publicFieldValue(Object obj, Field field, T def) {
+		if (field == null) return def;
+		if (obj == null && !isStatic(field)) return def;
 		try {
 			return BasicUtil.uncheckedCast(field.get(obj));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
-			return null;
+			return def;
 		}
 	}
 
@@ -423,8 +468,15 @@ public class ReflectUtil {
 	 * Returns the public field value from the instance. Returns null if not found.
 	 */
 	public static <T> T publicValue(Object obj, String name) {
-		if (obj == null) return null;
-		return publicFieldValue(obj, publicField(obj.getClass(), name));
+		return publicValue(obj, name, null);
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns default if not found.
+	 */
+	public static <T> T publicValue(Object obj, String name, T def) {
+		if (obj == null) return def;
+		return publicFieldValue(obj, publicField(obj.getClass(), name), def);
 	}
 
 	/**
@@ -485,9 +537,9 @@ public class ReflectUtil {
 	/**
 	 * Get enum instance from field, or null if not an enum.
 	 */
-	public static Enum<?> fieldToEnum(Field field) {
+	public static <T extends Enum<?>> T fieldToEnum(Field field) {
 		if (field == null || !field.isEnumConstant()) return null;
-		return (Enum<?>) ReflectUtil.publicFieldValue(null, field);
+		return BasicUtil.uncheckedCast(ReflectUtil.publicFieldValue(null, field));
 	}
 
 	/**

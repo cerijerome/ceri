@@ -656,6 +656,14 @@ public class StreamUtil {
 	}
 
 	/**
+	 * Streams the collection elements.
+	 */
+	@SafeVarargs
+	public static <T> Stream<T> streamAll(Collection<? extends T>... collections) {
+		return Stream.of(collections).filter(Objects::nonNull).flatMap(Collection::stream);
+	}
+
+	/**
 	 * Returns a stream for an iterator.
 	 */
 	public static <T> Stream<T> stream(Iterator<T> i) {

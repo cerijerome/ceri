@@ -110,7 +110,7 @@ public class Lazy<T> {
 		 */
 		@Override
 		public T get() throws E {
-			return BasicUtil.defaultValue(override, this::init);
+			return BasicUtil.defaultValue(override, this::value);
 		}
 
 		/**
@@ -128,7 +128,10 @@ public class Lazy<T> {
 			return () -> this.override = null;
 		}
 
-		private T init() throws E {
+		/**
+		 * Returns the initialized value ignoring any override, initializing if needed.
+		 */
+		public T value() throws E {
 			return lazy.get(supplier);
 		}
 	}

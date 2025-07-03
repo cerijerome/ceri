@@ -485,69 +485,69 @@ public class ValidationUtil {
 	}
 
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static boolean[] validateSlice(boolean[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static char[] validateSlice(char[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static byte[] validateSlice(byte[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static short[] validateSlice(short[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static int[] validateSlice(int[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static long[] validateSlice(long[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static float[] validateSlice(float[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null,
-	 * only 0 offset and 0 length is allowed.
+	 * Validates parameters to slice an array range by offset and length. If the array is null, only
+	 * 0 offset and 0 length is allowed.
 	 */
 	public static double[] validateSlice(double[] array, int offset, int length) {
 		return validateArraySlice(array, offset, length);
 	}
-	
+
 	/**
 	 * Validates parameters to slice a range by offset and length.
 	 */

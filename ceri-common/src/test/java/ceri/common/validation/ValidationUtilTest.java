@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil;
 import ceri.common.math.Interval;
 
 public class ValidationUtilTest {
@@ -277,6 +278,24 @@ public class ValidationUtilTest {
 		ValidationUtil.validateIndex(array.length, 3);
 		assertThrown(() -> ValidationUtil.validateIndex(array.length, -1));
 		assertThrown(() -> ValidationUtil.validateIndex(array.length, 4));
+	}
+
+	@Test
+	public void testValidateArraySlice() {
+		ValidationUtil.validateSlice((boolean[]) null, 0, 0);
+		ValidationUtil.validateSlice("ab".toCharArray(), 1, 1);
+		ValidationUtil.validateSlice(ArrayUtil.bytes(-1, 0, 1), 0, 3);
+		ValidationUtil.validateSlice(ArrayUtil.shorts(-1, 0, 1), 0, 2);
+		ValidationUtil.validateSlice(ArrayUtil.ints(-1, 0, 1), 1, 0);
+		ValidationUtil.validateSlice(ArrayUtil.longs(-1, 0, 1), 0, 0);
+		ValidationUtil.validateSlice(ArrayUtil.floats(-1, 0, 1), 2, 1);
+		ValidationUtil.validateSlice(ArrayUtil.doubles(-1, 0, 1), 3, 0);
+		assertThrown(() -> ValidationUtil.validateSlice((byte[]) null, 0, 1));
+		assertThrown(() -> ValidationUtil.validateSlice((short[]) null, 1, 0));
+		assertThrown(() -> ValidationUtil.validateSlice(ArrayUtil.ints(0), -1, 0));
+		assertThrown(() -> ValidationUtil.validateSlice(ArrayUtil.ints(0), 0, 2));
+		assertThrown(() -> ValidationUtil.validateSlice(ArrayUtil.ints(0), 1, 1));
+		assertThrown(() -> ValidationUtil.validateSlice(ArrayUtil.ints(0), 2, 0));
 	}
 
 	@Test

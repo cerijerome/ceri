@@ -2,6 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertLines;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -12,6 +13,24 @@ public class TextUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(TextUtil.class);
+	}
+
+	@Test
+	public void testMultilineJavadoc() {
+		assertEquals(TextUtil.multilineJavadoc(null), null);
+		assertEquals(TextUtil.multilineJavadoc(""), "");
+		assertLines(TextUtil.multilineJavadoc("a"), "/**", " * a", " */");
+		assertLines(TextUtil.multilineJavadoc("a" + StringUtil.EOL + "b"), "/**", " * a", " * b",
+			" */");
+	}
+
+	@Test
+	public void testMultilineComment() {
+		assertEquals(TextUtil.multilineComment(null), null);
+		assertEquals(TextUtil.multilineComment(""), "");
+		assertLines(TextUtil.multilineComment("a"), "/*", " * a", " */");
+		assertLines(TextUtil.multilineComment("a" + StringUtil.EOL + "b"), "/*", " * a", " * b",
+			" */");
 	}
 
 	@Test
@@ -274,5 +293,4 @@ public class TextUtilTest {
 		assertEquals(TextUtil.propertyToUnderscore("hello.there.abc"), "HELLO_THERE_ABC");
 		assertEquals(TextUtil.propertyToUnderscore("hello1.there2.abc3"), "HELLO1_THERE2_ABC3");
 	}
-
 }

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import ceri.common.math.MathUtil;
@@ -158,13 +159,32 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the given array contains all of the given elements in any order.
+	 * Returns true if the array contains the element.
+	 */
+	public static <T> boolean contains(T[] array, T t) {
+		for (var item : array)
+			if (Objects.equals(item, t)) return true;
+		return false;
+	}
+
+	/**
+	 * Returns true if the array contains all of the elements in any order.
 	 */
 	@SafeVarargs
 	public static <T> boolean containsAll(T[] array, T... ts) {
-		List<T> arrayList = asList(array);
-		List<T> tList = Arrays.asList(ts);
-		return arrayList.containsAll(tList);
+		for (var t : ts)
+			if (!contains(array, t)) return false;
+		return true;
+	}
+
+	/**
+	 * Returns true if the array contains any of the elements.
+	 */
+	@SafeVarargs
+	public static <T> boolean containsAny(T[] array, T... ts) {
+		for (var t : ts)
+			if (contains(array, t)) return true;
+		return false;
 	}
 
 	/**

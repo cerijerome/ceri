@@ -9,12 +9,14 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import org.junit.Test;
+import ceri.common.test.Captor;
 
 public class FunctionUtilTest {
 
@@ -84,6 +86,14 @@ public class FunctionUtilTest {
 		assertEquals(supplier1.get(), 2);
 		assertEquals(supplier1.get(), 3);
 		assertEquals(supplier1.get(), 3);
+	}
+
+	@Test
+	public void testForEach() {
+		var iterator = Arrays.asList("1", "2", null).iterator();
+		var captor = Captor.of();
+		FunctionUtil.forEach(iterator::next, captor::accept);
+		captor.verify("1", "2");
 	}
 
 	@Test

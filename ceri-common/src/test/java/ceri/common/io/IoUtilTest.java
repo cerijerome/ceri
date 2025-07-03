@@ -236,6 +236,12 @@ public class IoUtilTest {
 	}
 
 	@Test
+	public void testChangeNameFunction() {
+		assertPath(IoUtil.changeName(Path.of("/test"), f -> f + "0"), "/test0");
+		assertPath(IoUtil.changeName(Path.of("/test"), _ -> null), "/test");
+	}
+
+	@Test
 	public void testName() {
 		assertNull(IoUtil.name(null, 0));
 		assertNull(IoUtil.name(Path.of("/a/b/c/d"), -1));
@@ -280,29 +286,29 @@ public class IoUtilTest {
 
 	@Test
 	public void testFilename() {
-		assertNull(IoUtil.fileName(null));
-		assertEquals(IoUtil.fileName(Path.of("/")), "");
-		assertEquals(IoUtil.fileName(Path.of("")), "");
-		assertEquals(IoUtil.fileName(Path.of("/a")), "a");
-		assertEquals(IoUtil.fileName(Path.of("/a/b")), "b");
-		assertEquals(IoUtil.fileName(Path.of("a")), "a");
-		assertEquals(IoUtil.fileName(Path.of("a/b")), "b");
+		assertNull(IoUtil.filename(null));
+		assertEquals(IoUtil.filename(Path.of("/")), "");
+		assertEquals(IoUtil.filename(Path.of("")), "");
+		assertEquals(IoUtil.filename(Path.of("/a")), "a");
+		assertEquals(IoUtil.filename(Path.of("/a/b")), "b");
+		assertEquals(IoUtil.filename(Path.of("a")), "a");
+		assertEquals(IoUtil.filename(Path.of("a/b")), "b");
 	}
 
 	@Test
 	public void testFileNameWithoutExt() {
-		assertNull(IoUtil.fileNameWithoutExt(null));
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/")), "");
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of("")), "");
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of(".file")), ".file");
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/a")), "a");
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of("/a.txt")), "a");
-		assertEquals(IoUtil.fileNameWithoutExt(Path.of("a.b.c")), "a.b");
+		assertNull(IoUtil.filenameWithoutExt((Path) null));
+		assertEquals(IoUtil.filenameWithoutExt(Path.of("/")), "");
+		assertEquals(IoUtil.filenameWithoutExt(Path.of("")), "");
+		assertEquals(IoUtil.filenameWithoutExt(Path.of(".file")), ".file");
+		assertEquals(IoUtil.filenameWithoutExt(Path.of("/a")), "a");
+		assertEquals(IoUtil.filenameWithoutExt(Path.of("/a.txt")), "a");
+		assertEquals(IoUtil.filenameWithoutExt(Path.of("a.b.c")), "a.b");
 	}
 
 	@Test
 	public void testExtension() {
-		assertNull(IoUtil.extension(null));
+		assertNull(IoUtil.extension((Path) null));
 		assertEquals(IoUtil.extension(Path.of("/")), "");
 		assertEquals(IoUtil.extension(Path.of("")), "");
 		assertEquals(IoUtil.extension(Path.of(".file")), "");

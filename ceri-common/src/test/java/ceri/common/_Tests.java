@@ -151,6 +151,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.function.ExceptionToDoubleFunctionBehavior.class, //
 	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
 	ceri.common.function.ExceptionToLongFunctionBehavior.class, //
+	ceri.common.function.ExceptionUnaryOperatorBehavior.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
 	ceri.common.function.FunctionWrapperBehavior.class, //

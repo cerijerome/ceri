@@ -10,6 +10,9 @@ import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
+/**
+ * Exception support and convenience methods.
+ */
 public class ExceptionUtil {
 
 	private ExceptionUtil() {}
@@ -41,6 +44,21 @@ public class ExceptionUtil {
 	public static IllegalArgumentException illegalArg(Throwable cause, String format,
 		Object... args) {
 		return exceptionf(IllegalArgumentException::new, cause, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static IllegalStateException illegalState(String format, Object... args) {
+		return illegalState((Throwable) null, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message and cause.
+	 */
+	public static IllegalStateException illegalState(Throwable cause, String format,
+		Object... args) {
+		return exceptionf(IllegalStateException::new, cause, format, args);
 	}
 
 	/**
@@ -147,15 +165,25 @@ public class ExceptionUtil {
 		return e;
 	}
 
-	public static boolean matches(Throwable t, Class<?> cls) {
+	/**
+	 * Returns true if the throwable matches the class.
+	 */
+	public static boolean matches(Throwable t, Class<? extends Throwable> cls) {
 		return matches(t, cls, null);
 	}
 
+	/**
+	 * Returns true if the throwable matches the message predicate.
+	 */
 	public static boolean matches(Throwable t, Predicate<String> msgTest) {
 		return matches(t, null, msgTest);
 	}
 
-	public static boolean matches(Throwable t, Class<?> cls, Predicate<String> msgTest) {
+	/**
+	 * Returns true if the throwable matches the class and message predicate.
+	 */
+	public static boolean matches(Throwable t, Class<? extends Throwable> cls,
+		Predicate<String> msgTest) {
 		if (t == null) return false;
 		if (cls != null && !cls.isInstance(t)) return false;
 		if (msgTest == null) return true;
@@ -172,6 +200,9 @@ public class ExceptionUtil {
 		if (exceptionCls.isInstance(t)) throw BasicUtil.<E>uncheckedCast(t);
 	}
 
+	/**
+	 * Execute the runnable; any unexpected error is wrapped as runtime.
+	 */
 	public static void shouldNotThrow(ExceptionRunnable<? extends Exception> runnable) {
 		try {
 			runnable.run();
@@ -180,6 +211,9 @@ public class ExceptionUtil {
 		}
 	}
 
+	/**
+	 * Execute the callable and return result; any unexpected error is wrapped as runtime.
+	 */
 	public static <T> T shouldNotThrow(Callable<T> callable) {
 		try {
 			return callable.call();
@@ -187,5 +221,4 @@ public class ExceptionUtil {
 			throw new IllegalStateException("Should not happen", e);
 		}
 	}
-
 }

@@ -24,5 +24,4 @@ public class ExceptionFunctionBehavior {
 		f.apply(1);
 		assertRte(() -> f.apply(0));
 	}
-
 }

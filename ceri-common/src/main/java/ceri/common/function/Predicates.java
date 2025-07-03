@@ -135,7 +135,7 @@ public class Predicates {
 	}
 
 	// Adapter predicates
-	
+
 	/**
 	 * Transforms a predicate of one type to another using an accessor.
 	 */
@@ -145,27 +145,27 @@ public class Predicates {
 	}
 
 	/**
-	 * Transforms a predicate of one type to another using an accessor.
+	 * Transforms a predicate of one type to another using an accessor. Null is considered false.
 	 */
 	public static <T> Predicate<T> testingInt(ToIntFunction<? super T> accessor,
 		IntPredicate predicate) {
-		return t -> predicate.test(t == null ? null : accessor.applyAsInt(t));
+		return t -> t == null ? false : predicate.test(accessor.applyAsInt(t));
 	}
 
 	/**
-	 * Transforms a predicate of one type to another using an accessor.
+	 * Transforms a predicate of one type to another using an accessor. Null is considered false.
 	 */
 	public static <T> Predicate<T> testingLong(ToLongFunction<? super T> accessor,
 		LongPredicate predicate) {
-		return t -> predicate.test(t == null ? null : accessor.applyAsLong(t));
+		return t -> t == null ? false : predicate.test(accessor.applyAsLong(t));
 	}
 
 	/**
-	 * Transforms a predicate of one type to another using an accessor.
+	 * Transforms a predicate of one type to another using an accessor. Null is considered false.
 	 */
 	public static <T> Predicate<T> testingDouble(ToDoubleFunction<? super T> accessor,
 		DoublePredicate predicate) {
-		return t -> predicate.test(t == null ? null : accessor.applyAsDouble(t));
+		return t -> t == null ? false : predicate.test(accessor.applyAsDouble(t));
 	}
 
 	// Comparable predicates

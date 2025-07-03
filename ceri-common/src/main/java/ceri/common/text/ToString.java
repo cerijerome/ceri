@@ -45,28 +45,28 @@ public class ToString {
 	public static String hex(byte value) {
 		return "0x" + Integer.toHexString(MathUtil.ubyte(value));
 	}
-	
+
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(short value) {
 		return "0x" + Integer.toHexString(MathUtil.ushort(value));
 	}
-	
+
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(int value) {
 		return "0x" + Integer.toHexString(value);
 	}
-	
+
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(long value) {
 		return "0x" + Long.toHexString(value);
 	}
-	
+
 	/**
 	 * Converts record string format to match.
 	 */
@@ -184,7 +184,7 @@ public class ToString {
 		if (child == null) return this;
 		return children(child);
 	}
-	
+
 	/**
 	 * Add collection of items to nested line if not empty.
 	 */
@@ -192,7 +192,7 @@ public class ToString {
 		if (collection == null || collection.isEmpty()) return this;
 		return children(collection);
 	}
-	
+
 	/**
 	 * Add items to nested lines.
 	 */

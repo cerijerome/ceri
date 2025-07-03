@@ -219,6 +219,22 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
+	public void testJoinAsList() {
+		var list = ImmutableUtil.joinAsList(List.of("a", "b"), Set.of("c"), List.of(),
+			Arrays.asList(null, "d"));
+		assertIterable(list, "a", "b", "c", null, "d");
+		assertImmutableList(list);
+	}
+
+	@Test
+	public void testJoinAsSet() {
+		var set = ImmutableUtil.joinAsSet(List.of("a", "b"), Set.of("c"), List.of(),
+			Arrays.asList(null, "d"));
+		assertCollection(set, "a", "b", "c", "d", null);
+		assertImmutableCollection(set);
+	}
+
+	@Test
 	public void testWrapEmptyMap() {
 		Map<String, Integer> map = new HashMap<>();
 		Map<String, Integer> immutableMap = ImmutableUtil.wrapMap(map);

@@ -31,9 +31,9 @@ public class ClassReInitializerBehavior {
 	}
 
 	@Test
-	public void shouldReinitClassAndSupport() {
+	public void shouldReinitClassAndSupporters() {
 		I.i = 3;
-		ClassReInitializer.builder().init(S.class).support(I.class).build().reinit();
+		ClassReInitializer.builder().init(S.class).reload(I.class).build().reinit();
 		captor.verify("s");
 	}
 }

@@ -27,16 +27,15 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import ceri.common.math.MathUtil;
 
 /**
- * Utilities to help test functions.
+ * Function types to help with testing: 0 => throws RuntimeException, 1 => throws IOException
  */
 public class FunctionTestUtil {
 
-	/*
-	 * Function types to help with testing: 0 => throws RuntimeException, 1 => throws IOException
-	 */
+	// Function types to help with testing: 0 => throws RuntimeException, 1 => throws IOException
 
 	public static ExceptionRunnable<IOException> runnable(int i) {
 		return () -> {
@@ -143,6 +142,14 @@ public class FunctionTestUtil {
 	}
 
 	public static ExceptionFunction<IOException, Integer, Integer> function() {
+		return i -> {
+			if (i == 1) throw new IOException("1");
+			if (i == 0) throw new RuntimeException("0");
+			return i;
+		};
+	}
+
+	public static ExceptionUnaryOperator<IOException, Integer> unaryOperator() {
 		return i -> {
 			if (i == 1) throw new IOException("1");
 			if (i == 0) throw new RuntimeException("0");
@@ -435,6 +442,13 @@ public class FunctionTestUtil {
 		}
 
 		public static Function<Integer, Integer> function() {
+			return i -> {
+				if (i == 0) throw new RuntimeException("0");
+				return i;
+			};
+		}
+
+		public static UnaryOperator<Integer> unaryOperator() {
 			return i -> {
 				if (i == 0) throw new RuntimeException("0");
 				return i;

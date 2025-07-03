@@ -12,7 +12,7 @@ import ceri.common.collection.ImmutableUtil;
  */
 public class ClassReInitializer {
 	private final List<Class<?>> inits;
-	private final List<Class<?>> supports;
+	private final List<Class<?>> reloads;
 
 	/**
 	 * Creates an instance for one re-init class, and any number of support classes.
@@ -25,12 +25,12 @@ public class ClassReInitializer {
 	 * Creates an instance for one re-init class, and any number of support classes.
 	 */
 	public static ClassReInitializer of(Class<?> cls, Collection<Class<?>> supports) {
-		return builder().init(cls).support(supports).build();
+		return builder().init(cls).reload(supports).build();
 	}
 
 	public static class Builder {
 		private final Set<Class<?>> inits = new LinkedHashSet<>();
-		private final Set<Class<?>> supports = new LinkedHashSet<>();
+		private final Set<Class<?>> reloads = new LinkedHashSet<>();
 
 		private Builder() {}
 
@@ -40,15 +40,15 @@ public class ClassReInitializer {
 
 		public Builder init(Collection<Class<?>> inits) {
 			this.inits.addAll(inits);
-			return support(inits);
+			return reload(inits);
 		}
 
-		public Builder support(Class<?>... supports) {
-			return support(Arrays.asList(supports));
+		public Builder reload(Class<?>... supports) {
+			return reload(Arrays.asList(supports));
 		}
 
-		public Builder support(Collection<Class<?>> supports) {
-			this.supports.addAll(supports);
+		public Builder reload(Collection<Class<?>> supports) {
+			this.reloads.addAll(supports);
 			return this;
 		}
 
@@ -63,15 +63,15 @@ public class ClassReInitializer {
 
 	private ClassReInitializer(Builder builder) {
 		inits = ImmutableUtil.copyAsList(builder.inits);
-		supports = ImmutableUtil.copyAsList(builder.supports);
+		reloads = ImmutableUtil.copyAsList(builder.reloads);
 	}
 
 	/**
 	 * Reloads and re-initializes the classes.
 	 */
 	public void reinit() {
-		var reloader = ClassReloader.of(supports);
+		var reloader = ClassReloader.ofNested(reloads);
 		for (var cls : inits)
-			ReflectUtil.forName(cls.getName(), true, reloader);
+			reloader.forName(cls, true);
 	}
 }

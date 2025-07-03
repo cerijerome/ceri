@@ -45,6 +45,12 @@ public class ExceptionUtilTest {
 	}
 
 	@Test
+	public void testIllegalState() {
+		assertThrowable(ExceptionUtil.illegalState("test%d", 123), IllegalStateException.class,
+			"test123");
+	}
+
+	@Test
 	public void testUnsupportedOp() {
 		assertThrowable(ExceptionUtil.unsupportedOp("test%d", 123),
 			UnsupportedOperationException.class, "test123");

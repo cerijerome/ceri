@@ -8,16 +8,16 @@ import java.util.function.Predicate;
  */
 public interface Enablable {
 	static Comparator<Enablable> COMPARATOR = Comparator.comparing(Enablable::enabledInt);
-	static Predicate<Enablable> PREDICATE = t -> t.enabled();
+	static Predicate<Enablable> PREDICATE = t -> Enablable.enabled(t);
 
 	boolean enabled();
 
-	default int enabledInt() {
-		return enabled() ? 1 : 0;
-	}
-
 	static boolean enabled(Enablable enablable) {
 		return enablable != null && enablable.enabled();
+	}
+
+	static int enabledInt(Enablable enablable) {
+		return enabled(enablable) ? 1 : 0;
 	}
 
 	static <T> T conditional(Enablable enablable, T enabled, T disabled) {

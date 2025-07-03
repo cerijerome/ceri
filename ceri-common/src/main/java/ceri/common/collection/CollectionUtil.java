@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -31,8 +30,6 @@ import ceri.common.function.ExceptionBiConsumer;
 import ceri.common.function.ExceptionBiFunction;
 import ceri.common.function.ExceptionConsumer;
 import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntFunction;
-import ceri.common.function.ExceptionSupplier;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.function.ObjIntFunction;
 import ceri.common.util.BasicUtil;
@@ -427,10 +424,50 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Creates a non fixed-size list joining the given elements.
+	 * Creates a list joining the given elements.
 	 */
-	public static <T> List<T> joinAsList(T t, Collection<? extends T> ts) {
-		return addAll(addAll(new ArrayList<T>(1 + ts.size()), t), ts);
+	public static <T> List<T> joinAsList(T t, Collection<? extends T> collection) {
+		return joinAs(t, collection, listSupplier());
+	}
+
+	/**
+	 * Creates a set joining the given elements.
+	 */
+	public static <T> Set<T> joinAsSet(T t, Collection<? extends T> collection) {
+		return joinAs(t, collection, setSupplier());
+	}
+
+	/**
+	 * Creates a collection joining the given elements.
+	 */
+	public static <T, C extends Collection<T>> C joinAs(T t, Collection<? extends T> collection,
+		Supplier<C> supplier) {
+		return joinAs(supplier, Arrays.asList(t), collection);
+	}
+
+	/**
+	 * Joins collection elements into a single collection.
+	 */
+	@SafeVarargs
+	public static <T> List<T> joinAsList(Collection<? extends T>... collections) {
+		return joinAs(listSupplier(), collections);
+	}
+
+	/**
+	 * Joins collection elements into a single collection.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> joinAsSet(Collection<? extends T>... collections) {
+		return joinAs(setSupplier(), collections);
+	}
+
+	/**
+	 * Joins collection elements into a single collection.
+	 */
+	@SafeVarargs
+	public static <T, C extends Collection<T>> C joinAs(Supplier<C> supplier,
+		Collection<? extends T>... collections) {
+		return collect(StreamUtil.streamAll(collections), supplier);
 	}
 
 	/**
@@ -447,10 +484,10 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Reverses the items in a list and returns the given reference.
+	 * Reverses the items in a mutable list and returns the given reference.
 	 */
 	public static <T> List<T> reverse(List<T> ts) {
-		Collections.reverse(ts);
+		if (ts != null) Collections.reverse(ts);
 		return ts;
 	}
 
@@ -474,34 +511,6 @@ public class CollectionUtil {
 		return collection;
 	}
 
-	/**
-	 * Collects objects by index until null is returned, using the given collection supplier.
-	 */
-	public static <E extends Exception, T, C extends Collection<? super T>> C
-		collectByIndex(ExceptionIntFunction<E, T> indexFn, Supplier<C> supplier) throws E {
-		var collection = supplier.get();
-		for (int i = 0;; i++) {
-			var t = indexFn.apply(i);
-			if (t != null) collection.add(t);
-			else break;
-		}
-		return collection;
-	}
-	
-	/**
-	 * Collects objects until null is returned, using the given collection supplier.
-	 */
-	public static <E extends Exception, T, C extends Collection<? super T>> C
-		collectBy(ExceptionSupplier<E, T> nextFn, Supplier<C> supplier) throws E {
-		var collection = supplier.get();
-		while (true) {
-			var t = nextFn.get();
-			if (t != null) collection.add(t);
-			else break;
-		}
-		return collection;
-	}
-	
 	/**
 	 * Variation of Collection.addAll that returns the collection type.
 	 */
@@ -579,20 +588,6 @@ public class CollectionUtil {
 		return i.next();
 	}
 
-	/**
-	 * Returns the first element as optional type, or empty if no elements.
-	 */
-	public static <T> Optional<T> optionalFirst(Iterable<T> iterable) {
-		return Optional.ofNullable(first(iterable));
-	}
-	
-	/**
-	 * Returns the last element as optional type, or empty if no elements.
-	 */
-	public static <T> Optional<T> optionalLast(Iterable<T> iterable) {
-		return Optional.ofNullable(last(iterable));
-	}
-	
 	/**
 	 * Removes all given items from the collection. Returns true if the collection is modified.
 	 */

@@ -43,6 +43,14 @@ public class TypeTranscoderBehavior {
 	}
 
 	@Test
+	public void shouldSkipValues() {
+		var xc = TypeTranscoder.of(t -> t.value, E.class, E.a);
+		assertCollection(xc.decodeAll(-1), E.b, E.c);
+		var xd = TypeTranscoder.ofDup(t -> t.value, Dup.class, Dup.e);
+		assertCollection(xd.decodeAll(-1), Dup.a, Dup.b);
+	}
+
+	@Test
 	public void shouldProvideRemainderStringRepresentation() {
 		Remainder<E> t = xcoder.decodeRemainder(7);
 		assertString(t, "[a, b]+4");

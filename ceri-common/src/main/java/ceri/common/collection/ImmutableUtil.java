@@ -406,6 +406,22 @@ public class ImmutableUtil {
 	}
 
 	/**
+	 * Joins collection elements into a single collection.
+	 */
+	@SafeVarargs
+	public static <T> List<T> joinAsList(Collection<? extends T>... collections) {
+		return Collections.unmodifiableList(CollectionUtil.joinAsList(collections));
+	}
+
+	/**
+	 * Joins collection elements into a single collection.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> joinAsSet(Collection<? extends T>... collections) {
+		return Collections.unmodifiableSet(CollectionUtil.joinAsSet(collections));
+	}
+
+	/**
 	 * Wraps a map as unmodifiable, or Map.of() if empty.
 	 */
 	public static <K, V> Map<K, V> wrapMap(Map<K, V> map) {
