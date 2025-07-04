@@ -300,6 +300,7 @@ public class ReflectUtilTest {
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
 		assertEquals(ReflectUtil.create(Date.class, argTypes, args), new Date(0));
+		assertEquals(ReflectUtil.create(String.class, byte[].class, bytes(0, 0)), "\0\0");
 	}
 
 	@Test

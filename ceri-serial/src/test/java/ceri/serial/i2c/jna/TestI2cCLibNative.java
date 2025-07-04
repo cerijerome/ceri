@@ -37,7 +37,7 @@ public class TestI2cCLibNative extends TestCLibNative {
 	/**
 	 * A wrapper for repeatedly overriding the library in tests.
 	 */
-	public static JnaLibrary.Ref<TestI2cCLibNative> ref() {
+	public static JnaLibrary.Ref<TestI2cCLibNative> i2cRef() {
 		return CLib.library.ref(TestI2cCLibNative::of);
 	}
 

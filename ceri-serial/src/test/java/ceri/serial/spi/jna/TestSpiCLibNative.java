@@ -45,7 +45,7 @@ public class TestSpiCLibNative extends TestCLibNative {
 	/**
 	 * A wrapper for repeatedly overriding the library in tests.
 	 */
-	public static JnaLibrary.Ref<TestSpiCLibNative> ref() {
+	public static JnaLibrary.Ref<TestSpiCLibNative> spiRef() {
 		return CLib.library.ref(TestSpiCLibNative::of);
 	}
 

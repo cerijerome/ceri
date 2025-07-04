@@ -17,7 +17,7 @@ import ceri.serial.i2c.jna.TestI2cCLibNative.Int;
 import ceri.serial.i2c.jna.TestI2cCLibNative.Rw;
 
 public class I2cDevTest {
-	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.ref();
+	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.i2cRef();
 
 	@After
 	public void after() {

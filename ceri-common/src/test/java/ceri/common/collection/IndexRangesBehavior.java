@@ -3,6 +3,7 @@ package ceri.common.collection;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertIllegalState;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -115,11 +116,11 @@ public class IndexRangesBehavior {
 		var i = r.iterator();
 		iterate(i, 3);
 		r.remove(7, 7);
-		assertThrown(IllegalStateException.class, i::nextInt);
+		assertIllegalState(i::nextInt);
 		r.remove(8, 9);
-		assertThrown(IllegalStateException.class, i::nextInt);
+		assertIllegalState(i::nextInt);
 		r.add(6, 6);
-		assertThrown(IllegalStateException.class, i::nextInt);
+		assertIllegalState(i::nextInt);
 		r.add(7, 7);
 		assertThrown(NoSuchElementException.class, i::nextInt);
 	}

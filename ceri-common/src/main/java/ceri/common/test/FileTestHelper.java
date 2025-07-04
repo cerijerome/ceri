@@ -1,7 +1,9 @@
 package ceri.common.test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.io.IoUtil;
+import ceri.common.text.StringUtil;
 
 /**
  * Creates files and dirs under a temp directory, and deletes them on close. Use this to test
@@ -34,16 +37,9 @@ public class FileTestHelper implements RuntimeCloseable {
 		/**
 		 * Specify the relative name of the root dir.
 		 */
-		public Builder root(Path root) {
-			this.root = verify(root);
-			return this;
-		}
-
-		/**
-		 * Specify the relative name of the root dir.
-		 */
 		public Builder root(String root) {
-			return root(Path.of(root));
+			this.root = verify(Path.of(root));
+			return this;
 		}
 
 		/**
@@ -101,14 +97,14 @@ public class FileTestHelper implements RuntimeCloseable {
 		 * Add a relative file with given content.
 		 */
 		public Builder filef(String content, String format, Object... objs) {
-			return file(String.format(format, objs), content);
+			return file(StringUtil.format(format, objs), content);
 		}
 
 		/**
 		 * Add a relative file with given content.
 		 */
 		public Builder filef(byte[] content, String format, Object... objs) {
-			return file(String.format(format, objs), content);
+			return file(StringUtil.format(format, objs), content);
 		}
 
 		/**
@@ -138,8 +134,8 @@ public class FileTestHelper implements RuntimeCloseable {
 	/**
 	 * Use given directory as the helper root.
 	 */
-	public static Builder builder(Path path) {
-		return new Builder(path);
+	public static Builder builder(Path parent) {
+		return new Builder(parent);
 	}
 
 	/**
@@ -151,8 +147,7 @@ public class FileTestHelper implements RuntimeCloseable {
 
 	FileTestHelper(Builder builder) throws IOException {
 		try {
-			if (builder.root == null) root = IoUtil.createTempDir(builder.parent);
-			else root = builder.parent.resolve(builder.root);
+			root = createRoot(builder.parent, builder.root);
 			createDirs(builder.dirs);
 			createFiles(builder.files);
 		} catch (RuntimeException | IOException e) {
@@ -161,18 +156,18 @@ public class FileTestHelper implements RuntimeCloseable {
 		}
 	}
 
-	/**
-	 * Creates a path relative to the helper root dir from unix format.
-	 */
-	public Path path(String path) {
-		return root.resolve(path);
+	private Path createRoot(Path parent, Path root) throws IOException {
+		if (root == null) return IoUtil.createTempDir(parent);
+		root = parent.resolve(root);
+		if (Files.exists(root)) throw new FileAlreadyExistsException(root.toString());
+		return Files.createDirectory(root);
 	}
 
 	/**
 	 * Creates a path relative to the helper root dir from unix format.
 	 */
-	public Path pathf(String format, Object... objs) {
-		return path(String.format(format, objs));
+	public Path path(String format, Object... objs) {
+		return root.resolve(StringUtil.format(format, objs));
 	}
 
 	/**
@@ -187,6 +182,27 @@ public class FileTestHelper implements RuntimeCloseable {
 	 */
 	public List<Path> pathList(String... paths) {
 		return Stream.of(paths).map(this::path).collect(Collectors.toList());
+	}
+
+	/**
+	 * Reads bytes from file relative to the helper root dir from unix format.
+	 */
+	public byte[] read(String format, Object... objs) throws IOException {
+		return Files.readAllBytes(path(format, objs));
+	}
+
+	/**
+	 * Reads string from file relative to the helper root dir from unix format.
+	 */
+	public String readString(String format, Object... objs) throws IOException {
+		return readString(Charset.defaultCharset(), format, objs);
+	}
+
+	/**
+	 * Reads string from file relative to the helper root dir from unix format.
+	 */
+	public String readString(Charset cs, String format, Object... objs) throws IOException {
+		return Files.readString(path(format, objs), cs);
 	}
 
 	@Override
@@ -206,5 +222,4 @@ public class FileTestHelper implements RuntimeCloseable {
 			Files.write(file, entry.getValue());
 		}
 	}
-
 }

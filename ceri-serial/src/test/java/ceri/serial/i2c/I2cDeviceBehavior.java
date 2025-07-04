@@ -31,7 +31,7 @@ import ceri.serial.i2c.jna.TestI2cCLibNative.Bytes;
 import ceri.serial.i2c.jna.TestI2cCLibNative.Int;
 
 public class I2cDeviceBehavior {
-	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.ref();
+	private JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.i2cRef();
 	private CFileDescriptor fd;
 	private I2cDevice i2c;
 

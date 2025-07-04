@@ -5,7 +5,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 import org.apache.logging.log4j.Level;
@@ -58,8 +57,7 @@ public class RegistryServiceBehavior {
 		service.registry.queue("x", p -> inc(p, "a.b.c", 33));
 		service.registry.queue("x", p -> inc(p, "a.b.c", 7));
 		service.close();
-		var content = regFileContent();
-		assertFind(content, "a\\.b\\.c=117");
+		assertFind(files.readString(REG_FILENAME), "a\\.b\\.c=117");
 	}
 
 	private static void inc(TypedProperties p, String key, int diff) {
@@ -73,7 +71,7 @@ public class RegistryServiceBehavior {
 		service.registry.queue(p -> p.set(123, "a.b.c"));
 		service.registry.accept(p -> p.set(456, "a.b.d"));
 		service.close();
-		var content = regFileContent();
+		var content = files.readString(REG_FILENAME);
 		assertFind(content, "a\\.b\\.c=123");
 		assertFind(content, "a\\.b\\.d=456");
 	}
@@ -144,8 +142,7 @@ public class RegistryServiceBehavior {
 		service.registry.accept(p -> p.set(456, "a.b.c"));
 		service.registry.accept(p -> p.set(null, "a.b.c")); // removes property
 		service.close();
-		var content = regFileContent();
-		assertEquals(content, "a.b.c=123");
+		assertEquals(files.readString(REG_FILENAME), "a.b.c=123");
 	}
 
 	private static RegistryService service(String name, Path path) throws IOException {
@@ -158,7 +155,7 @@ public class RegistryServiceBehavior {
 		service = service("reg", files.path(REG_FILENAME));
 	}
 
-	private String regFileContent() throws IOException {
-		return Files.readString(files.path(REG_FILENAME));
-	}
+	// private String regFileContent() throws IOException {
+	// return files.readString(REG_FILENAME);
+	// }
 }

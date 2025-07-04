@@ -21,7 +21,7 @@ import ceri.serial.i2c.jna.TestI2cCLibNative.Rw;
 public class SmBusDeviceBehavior {
 	private static final ByteProvider emptyBlock = smBusBlock();
 	private static final I2cAddress address = I2cAddress.of(0x3b);
-	private final JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.ref();
+	private final JnaLibrary.Ref<TestI2cCLibNative> ref = TestI2cCLibNative.i2cRef();
 	private CFileDescriptor fd;
 	private I2cDevice i2c;
 	private SmBus smBus;

@@ -72,11 +72,8 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetParityForLinux() {
-		JnaTestUtil.testAsOs(JnaOs.linux, SetParityForLinux.class, CSerial.class,
-			CSerial.Linux.class, CTermios.class, CTermios.Linux.class, CTermios.Linux.termios.class,
-			CFcntl.class, CIoctl.class, CIoctl.Linux.class, CIoctl.Linux.serial_struct.class,
-			CLib.class, CLib.Native.class, CSerialTestHelper.class, CSerialTestHelper.Linux.class,
-			TestCLibNative.class);
+		JnaTestUtil.testAsOs(JnaOs.linux, SetParityForLinux.class, CSerial.class, CTermios.class,
+			CFcntl.class, CIoctl.class, CLib.class, CSerialTestHelper.class, TestCLibNative.class);
 	}
 
 	public static class SetParityForLinux {

@@ -18,6 +18,7 @@ import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertConsume;
+import static ceri.common.test.AssertUtil.assertContains;
 import static ceri.common.test.AssertUtil.assertDir;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
@@ -34,6 +35,7 @@ import static ceri.common.test.AssertUtil.assertMask;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNaN;
 import static ceri.common.test.AssertUtil.assertNoMatch;
+import static ceri.common.test.AssertUtil.assertNotContains;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotFound;
 import static ceri.common.test.AssertUtil.assertNotNull;
@@ -411,6 +413,11 @@ public class AssertUtilTest {
 	}
 
 	@Test
+	public void testAssertNullArray() {
+		assertArray((int[]) null, null);
+	}
+
+	@Test
 	public void testAssertApproxArray() {
 		assertApproxArray(doubles(0.1234, 0.1235), 0.1233, 0.1236);
 		assertApproxArray(4, doubles(0.1234, 0.1235), 0.1234, 0.1235);
@@ -485,6 +492,18 @@ public class AssertUtilTest {
 	public void testAssertString() {
 		assertString("x123.1", "%s%d%.1f", "x", 12, 3.1);
 		assertAssertion(() -> assertString("x123.1", "%s%d%f", "x", 12, 3.1));
+	}
+
+	@Test
+	public void testAssertContains() {
+		assertContains("aBcDe", "cD");
+		assertAssertion(() -> assertContains("aBcDe", "cd"));
+	}
+
+	@Test
+	public void testAssertNotContains() {
+		assertNotContains("aBcDe", "cd");
+		assertAssertion(() -> assertNotContains("aBcDe", "cD"));
 	}
 
 	@Test

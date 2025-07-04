@@ -384,6 +384,13 @@ public class ReflectUtil {
 	}
 
 	/**
+	 * Creates an object of given type, using constructor that matches given argument type.
+	 */
+	public static <T, U> T create(Class<T> cls, Class<U> argType, U arg) {
+		return create(constructor(cls, argType), arg);
+	}
+
+	/**
 	 * Creates an object of given type, using constructor that matches given argument types.
 	 */
 	public static <T> T create(Class<T> cls, Class<?>[] argTypes, Object... args) {

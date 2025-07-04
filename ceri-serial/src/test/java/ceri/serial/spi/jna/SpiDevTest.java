@@ -11,7 +11,7 @@ import ceri.jna.util.JnaLibrary;
 import ceri.serial.spi.SpiDevice;
 
 public class SpiDevTest {
-	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.ref();
+	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.spiRef();
 	private FileDescriptor fd;
 
 	@After

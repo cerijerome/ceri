@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.jna.test.JnaTestUtil.assertLastError;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_SUPPORTED;
@@ -13,7 +14,6 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_OVERFLOW;
 import java.nio.ByteBuffer;
 import org.junit.After;
 import org.junit.Test;
-import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
@@ -145,8 +145,7 @@ public class TestLibUsbNativeBehavior {
 		lib.data.addConfig(LibUsbSampleData.audioConfig());
 		var xfer = LibUsb.libusb_alloc_transfer(1);
 		LibUsb.libusb_transfer_set_stream_id(xfer, 3);
-		assertThrown(LastErrorException.class,
-			() -> lib.libusb_transfer_set_stream_id(xfer.getPointer(), 3));
+		assertLastError(() -> lib.libusb_transfer_set_stream_id(xfer.getPointer(), 3));
 	}
 
 	@Test
@@ -162,8 +161,7 @@ public class TestLibUsbNativeBehavior {
 			initLib();
 			int h = LibUsb.libusb_hotplug_register_callback(null, 3, 0, 0, 0, 0, null, m).value;
 			assertEquals(lib.libusb_hotplug_get_user_data(null, h), m);
-			assertThrown(LastErrorException.class,
-				() -> lib.libusb_hotplug_get_user_data(LibUsb.libusb_init(), h));
+			assertLastError(() -> lib.libusb_hotplug_get_user_data(LibUsb.libusb_init(), h));
 		}
 	}
 

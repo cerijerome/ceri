@@ -33,7 +33,7 @@ import ceri.serial.spi.jna.TestSpiCLibNative.Int;
 import ceri.serial.spi.jna.TestSpiCLibNative.Msg;
 
 public class SpiDeviceBehavior {
-	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.ref();
+	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.spiRef();
 	private FileDescriptor fd;
 	private SpiDevice spi;
 

@@ -3,10 +3,9 @@ package ceri.serial.libusb.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.jna.test.JnaTestUtil.assertLastError;
 import org.junit.After;
 import org.junit.Test;
-import com.sun.jna.LastErrorException;
 import ceri.common.util.Enclosed;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
@@ -100,8 +99,7 @@ public class LibUsbTestDataBehavior {
 		var ctx = LibUsb.libusb_init();
 		LibUsb.libusb_hotplug_register_callback(null, 0, 0, 0, 0, 0, null, null);
 		var h = LibUsb.libusb_hotplug_register_callback(ctx, 0, 0, 0, 0, 0, null, null);
-		assertThrown(LastErrorException.class,
-			() -> lib.libusb_hotplug_get_user_data(null, h.value));
+		assertLastError(() -> lib.libusb_hotplug_get_user_data(null, h.value));
 		LibUsb.libusb_hotplug_deregister_callback(null, h); // fails
 	}
 

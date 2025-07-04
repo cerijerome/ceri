@@ -937,6 +937,13 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Assert an IllegalArgumentException is thrown.
+	 */
+	public static void assertIllegalState(ExceptionRunnable<Exception> runnable) {
+		assertThrown(IllegalStateException.class, runnable);
+	}
+
+	/**
 	 * Assert an IndexOutOfBounds exception is thrown with an overflow message.
 	 */
 	public static void assertIndexOob(ExceptionRunnable<Exception> runnable) {
@@ -981,6 +988,26 @@ public class AssertUtil {
 	 */
 	public static void assertString(Object actual, String format, Object... objs) {
 		assertEquals(String.valueOf(actual), StringUtil.format(format, objs));
+	}
+
+	/**
+	 * Checks string representation contains the formatted string.
+	 */
+	public static void assertContains(Object actual, String format, Object... objs) {
+		var s = String.valueOf(actual);
+		var text = StringUtil.format(format, objs);
+		if (s.contains(text)) return;
+		throw failure("%sNot contained in string\nString: %s", nl(text), s);
+	}
+
+	/**
+	 * Checks string representation contains the formatted string.
+	 */
+	public static void assertNotContains(Object actual, String format, Object... objs) {
+		var s = String.valueOf(actual);
+		var text = StringUtil.format(format, objs);
+		if (!s.contains(text)) return;
+		throw failure("%sContained in string\nString: %s", nl(text), s);
 	}
 
 	/**
@@ -1191,7 +1218,11 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	private static void assertArrayObject(Object lhs, Object rhs) {
-		assertArrayObject(lhs, rhs, ItemAssert.DEEP_EQUALS);
+		if (rhs == null) assertNull(lhs);
+		else {
+			assertNotNull(lhs);
+			assertArrayObject(lhs, rhs, ItemAssert.DEEP_EQUALS);
+		}
 	}
 
 	/**
