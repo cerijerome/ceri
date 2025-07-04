@@ -39,7 +39,6 @@ import ceri.common.test.TestUtil;
 	ceri.jna.clib.jna.CUtilTest.class, //
 	// clib.test
 	ceri.jna.clib.test.CLibVerifierBehavior.class, //
-	ceri.jna.clib.test.CSymbolGenBehavior.class, //
 	ceri.jna.clib.test.TestCLibNativeBehavior.class, //
 	ceri.jna.clib.test.TestFileDescriptorBehavior.class, //
 	// clib.util
@@ -49,6 +48,9 @@ import ceri.common.test.TestUtil;
 	// io
 	ceri.jna.io.JnaInputStreamBehavior.class, //
 	ceri.jna.io.JnaOutputStreamBehavior.class, //
+	// reflect
+	ceri.jna.reflect.CAnnotationsTest.class, //
+	ceri.jna.reflect.CSymbolGenBehavior.class, //
 	// test
 	ceri.jna.test.JnaTestUtilTest.class, //
 	// type

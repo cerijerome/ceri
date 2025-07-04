@@ -5,6 +5,7 @@ import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
@@ -72,9 +73,9 @@ public class CSignalTest {
 		var lib = ref.init();
 		var sigset = CSignal.sigemptyset(new sigset_t());
 		lib.sigset.autoResponses(-1, 0);
-		assertThrown(CException.class, () -> CSignal.sigismember(sigset, CSignal.SIGINT));
+		assertCException(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
 		lib.sigset.error.setFrom(ErrNo.EACCES::lastError);
-		assertThrown(CException.class, () -> CSignal.sigismember(sigset, CSignal.SIGINT));
+		assertCException(() -> CSignal.sigismember(sigset, CSignal.SIGINT));
 	}
 
 	@Test

@@ -9,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
+import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -264,7 +265,7 @@ public class CUnistdTest {
 		CUnistd.closeSilently(-1);
 		int fd = CFcntl.open("test", 0, 0);
 		CUnistd.close(fd);
-		assertThrown(CException.class, () -> CUnistd.close(fd));
+		assertCException(() -> CUnistd.close(fd));
 		CUnistd.closeSilently(fd);
 	}
 

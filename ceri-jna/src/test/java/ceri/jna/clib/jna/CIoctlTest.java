@@ -158,8 +158,8 @@ public class CIoctlTest {
 
 	@Test
 	public void testFields() throws Exception {
-		JnaTestUtil.testAsOs(JnaOs.mac, Mac.class, CIoctl.class, CIoctl.Mac.class);
-		JnaTestUtil.testAsOs(JnaOs.linux, Linux.class, CIoctl.class, CIoctl.Linux.class);
+		JnaTestUtil.testAsOs(JnaOs.mac, Mac.class, CIoctl.class);
+		JnaTestUtil.testAsOs(JnaOs.linux, Linux.class, CIoctl.class);
 	}
 
 	public static class Mac {

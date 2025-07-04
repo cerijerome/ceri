@@ -89,7 +89,7 @@ public class NulTerm {
 	 * Decodes the bytes into a string, up to the first 0 or array limit.
 	 */
 	public static String readTruncate(Charset charset, Pointer p, int len) {
-		if (PointerUtil.validate(p,0,len) == null) return null;
+		if (PointerUtil.validate(p, 0, len) == null) return null;
 		return readTruncate(charset, JnaUtil.bytes(p, 0L, len));
 	}
 
@@ -166,7 +166,7 @@ public class NulTerm {
 	public static int write(String s, Memory m) {
 		return write(s, DEFAULT_CHARSET, m);
 	}
-	
+
 	/**
 	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
 	 * bytes written.
@@ -174,7 +174,7 @@ public class NulTerm {
 	public static int write(String s, Charset charset, Memory m) {
 		return write(s, charset, m, JnaUtil.intSize(m));
 	}
-	
+
 	/**
 	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
 	 * bytes written.
@@ -182,7 +182,7 @@ public class NulTerm {
 	public static int write(String s, Pointer p, int len) {
 		return write(s, DEFAULT_CHARSET, p, len);
 	}
-	
+
 	/**
 	 * Encodes the string to bytes with a trailing 0, truncating if needed. Returns the number of
 	 * bytes written.
@@ -192,7 +192,7 @@ public class NulTerm {
 		Objects.requireNonNull(p);
 		byte[] src = s.getBytes(charset);
 		int n = Math.min(src.length, len - 1);
-		JnaUtil.write(p, src, n);
+		JnaUtil.write(p, src, 0, n);
 		p.setByte(n, (byte) 0);
 		return n + 1;
 	}

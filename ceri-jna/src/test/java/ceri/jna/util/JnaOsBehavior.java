@@ -58,6 +58,11 @@ public class JnaOsBehavior {
 	}
 
 	@Test
+	public void testFrom() {
+		assertEquals(JnaOs.from(null), JnaOs.unknown);
+	}
+
+	@Test
 	public void shouldModifyFilename() {
 		assertEquals(JnaOs.mac.file(null), null);
 		assertEquals(JnaOs.unknown.file("file.c"), "file.c");

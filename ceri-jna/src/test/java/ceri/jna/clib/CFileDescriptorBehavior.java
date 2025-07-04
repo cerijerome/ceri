@@ -24,7 +24,7 @@ import ceri.log.test.LogModifier;
 import ceri.log.util.LogUtil;
 
 public class CFileDescriptorBehavior {
-	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
+	private final JnaLibrary.Ref<TestCLibNative> ref = TestCLibNative.ref();
 	private CFileDescriptor fd;
 
 	@After

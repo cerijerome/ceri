@@ -4,22 +4,32 @@ import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validateUbyte;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
+import static ceri.jna.util.JnaOs.linux;
+import static ceri.jna.util.JnaOs.mac;
 import java.util.function.Supplier;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTermios.speed_t;
+import ceri.jna.reflect.CAnnotations.CInclude;
+import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
+import ceri.jna.util.JnaOs;
 import ceri.jna.util.JnaUtil;
 
 /**
  * Types and functions from {@code <sys/ioctl.h>}
  */
+@CInclude("sys/ioctl.h")
 public class CIoctl {
+	@CType(os = linux)
 	public static final int _IOC_SIZEBITS;
+	@CType(os = linux)
 	public static final int _IOC_SIZEMASK;
-	public static final int IOC_VOID;
+	@CType(os = mac, name = "IOC_VOID")
+	@CType(os = linux)
+	public static final int _IOC_NONE;
 	public static final int IOC_OUT;
 	public static final int IOC_IN;
 	public static final int TIOCSBRK;
@@ -59,7 +69,7 @@ public class CIoctl {
 	}
 
 	public static int _IO(int group, int num) {
-		return _IOC(IOC_VOID, group, num, 0);
+		return _IOC(_IOC_NONE, group, num, 0);
 	}
 
 	public static int _IOR(int group, int num, int size) {
@@ -182,6 +192,8 @@ public class CIoctl {
 	/**
 	 * Types and calls specific to Mac.
 	 */
+	@CType(os = JnaOs.mac)
+	@CInclude("IOKit/serial/ioss.h")
 	public static final class Mac {
 		private Mac() {}
 
@@ -202,6 +214,8 @@ public class CIoctl {
 	/**
 	 * Types and calls specific to Linux.
 	 */
+	@CType(os = JnaOs.linux)
+	@CInclude("linux/serial.h")
 	public static final class Linux {
 		private Linux() {}
 
@@ -259,7 +273,7 @@ public class CIoctl {
 		if (OsUtil.os().mac) {
 			_IOC_SIZEBITS = 13; // IOCPARM_MASK = 0x1fff;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
-			IOC_VOID = 0x20000000;
+			_IOC_NONE = 0x20000000;
 			IOC_OUT = 0x40000000;
 			IOC_IN = 0x80000000;
 			TIOCSBRK = _IO('t', 123); // 0x2000747b
@@ -274,7 +288,7 @@ public class CIoctl {
 		} else {
 			_IOC_SIZEBITS = 14;
 			_IOC_SIZEMASK = (1 << _IOC_SIZEBITS) - 1;
-			IOC_VOID = 0; // _IOC_NONE
+			_IOC_NONE = 0; // _IOC_NONE
 			IOC_OUT = 0x80000000;
 			IOC_IN = 0x40000000;
 			TIOCSBRK = 0x5427;

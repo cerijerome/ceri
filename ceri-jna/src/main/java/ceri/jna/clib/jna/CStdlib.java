@@ -2,10 +2,12 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
+import ceri.jna.reflect.CAnnotations.CInclude;
 
 /**
  * Types and functions from {@code <stdlib.h>}
  */
+@CInclude("stdlib.h")
 public class CStdlib {
 	
 	private CStdlib() {}

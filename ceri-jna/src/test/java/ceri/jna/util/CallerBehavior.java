@@ -1,8 +1,8 @@
 package ceri.jna.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.util.function.IntPredicate;
 import java.util.function.ToIntFunction;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldCallAndWrapLastException() {
-		assertThrown(CException.class, () -> caller.call(this::voidError, "test"));
+		assertCException(() -> caller.call(this::voidError, "test"));
 	}
 
 	@Test
@@ -28,42 +28,42 @@ public class CallerBehavior {
 		assertEquals(caller.callInt(() -> 0, "test"), 0);
 		assertEquals(caller.callInt(() -> 1, "test"), 1);
 		assertEquals(caller.callInt(() -> -1, "test"), -1);
-		assertThrown(CException.class, () -> caller.callInt(this::intError, "test"));
+		assertCException(() -> caller.callInt(this::intError, "test"));
 	}
 
 	@Test
 	public void shouldCallType() throws CException {
 		assertEquals(caller.callType(() -> "x", "test"), "x");
 		assertEquals(caller.callType(() -> null, "test"), null);
-		assertThrown(CException.class, () -> caller.callType(this::typeError, "test"));
+		assertCException(() -> caller.callType(this::typeError, "test"));
 	}
 
 	@Test
 	public void shouldVerifyZeroResultValue() throws CException {
 		caller.verify(0, "test");
-		assertThrown(CException.class, () -> caller.verify(1, "test"));
-		assertThrown(CException.class, () -> caller.verify(-1, "test"));
+		assertCException(() -> caller.verify(1, "test"));
+		assertCException(() -> caller.verify(-1, "test"));
 	}
 
 	@Test
 	public void shouldVerifyIntResultValue() throws CException {
 		caller.verifyInt(0, "test");
 		caller.verifyInt(1, "test");
-		assertThrown(CException.class, () -> caller.verifyInt(-1, "test"));
+		assertCException(() -> caller.verifyInt(-1, "test"));
 	}
 
 	@Test
 	public void shouldVerifyZeroResult() throws CException {
 		caller.verify(() -> 0, "test");
-		assertThrown(CException.class, () -> caller.verify(() -> 1, "test"));
-		assertThrown(CException.class, () -> caller.verify(() -> -1, "test"));
+		assertCException(() -> caller.verify(() -> 1, "test"));
+		assertCException(() -> caller.verify(() -> -1, "test"));
 	}
 
 	@Test
 	public void shouldVerifyIntResult() throws CException {
 		caller.verifyInt(() -> 0, "test");
 		caller.verifyInt(() -> 1, "test");
-		assertThrown(CException.class, () -> caller.verifyInt(() -> -1, "test"));
+		assertCException(() -> caller.verifyInt(() -> -1, "test"));
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class CallerBehavior {
 		IntPredicate verifyFn = i -> Math.abs(i) <= 1;
 		caller.verifyInt(() -> 0, verifyFn, "test");
 		caller.verifyInt(() -> -1, verifyFn, "test");
-		assertThrown(CException.class, () -> caller.verifyInt(() -> 2, verifyFn, "test"));
+		assertCException(() -> caller.verifyInt(() -> 2, verifyFn, "test"));
 	}
 
 	@Test

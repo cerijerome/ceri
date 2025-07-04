@@ -37,7 +37,6 @@ public enum Signal {
 	SIGPROF(CSignal.SIGPROF),
 	SIGWINCH(CSignal.SIGWINCH),
 	SIGIO(CSignal.SIGIO),
-	SIGPOLL(CSignal.SIGPOLL),
 	SIGSYS(CSignal.SIGSYS);
 
 	private static final TypeTranscoder<Signal> xcoder =

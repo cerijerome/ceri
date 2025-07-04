@@ -6,18 +6,22 @@ import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.FileDescriptor.Open;
+import ceri.jna.reflect.CAnnotations.CInclude;
+import ceri.jna.reflect.CAnnotations.CUndefined;
 
 /**
  * Types and functions from {@code <fcntl.h>}
  */
+@CInclude("fcntl.h")
 public class CFcntl {
+	@CUndefined
 	public static final int INVALID_FD = -1;
-	/* Access modes */
+	// Access modes
 	public static final int O_RDONLY = 0x0;
 	public static final int O_WRONLY = 0x1;
 	public static final int O_RDWR = 0x2;
 	public static final int O_ACCMODE = 0x3; // mask
-	/* Creation flags */
+	// Creation flags
 	public static final int O_CREAT;
 	public static final int O_EXCL;
 	public static final int O_NOCTTY;
@@ -30,11 +34,12 @@ public class CFcntl {
 	public static final int O_NOFOLLOW;
 	public static final int O_CLOEXEC;
 	public static final int O_SYNC;
-	static final int F_DUPFD = 0;
-	static final int F_GETFD = 1;
-	static final int F_SETFD = 2;
-	static final int F_GETFL = 3;
-	static final int F_SETFL = 4;
+	// File descriptor actions
+	public static final int F_DUPFD = 0;
+	public static final int F_GETFD = 1;
+	public static final int F_SETFD = 2;
+	public static final int F_GETFL = 3;
+	public static final int F_SETFL = 4;
 
 	private CFcntl() {}
 

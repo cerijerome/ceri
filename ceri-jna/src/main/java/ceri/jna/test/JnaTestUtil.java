@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,11 +17,13 @@ import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.ExceptionRunnable;
 import ceri.common.function.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
 import ceri.common.text.StringUtil;
+import ceri.jna.clib.jna.CException;
 import ceri.jna.type.IntType;
 import ceri.jna.type.Struct;
 import ceri.jna.util.GcMemory;
@@ -32,8 +35,6 @@ import ceri.jna.util.PointerUtil;
  * Supports tests for JNA-based code.
  */
 public class JnaTestUtil {
-	public static final String MAC_OS = "Mac";
-	public static final String LINUX_OS = "Linux";
 	public static final Supplier<Exception> LEX = ErrorGen.errorFn(LastErrorException::new);
 
 	private JnaTestUtil() {}
@@ -183,6 +184,34 @@ public class JnaTestUtil {
 	}
 
 	/**
+	 * Assert a LastErrorException was thrown.
+	 */
+	public static void assertLastError(ExceptionRunnable<Exception> runnable) {
+		assertThrown(LastErrorException.class, runnable);
+	}
+
+	/**
+	 * Assert a LastErrorException with specific code was thrown.
+	 */
+	public static void assertLastError(int code, ExceptionRunnable<Exception> runnable) {
+		assertThrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
+	}
+
+	/**
+	 * Assert a CException was thrown.
+	 */
+	public static void assertCException(ExceptionRunnable<Exception> runnable) {
+		assertThrown(CException.class, runnable);
+	}
+
+	/**
+	 * Assert a CException with specific code was thrown.
+	 */
+	public static void assertCException(int code, ExceptionRunnable<Exception> runnable) {
+		assertThrown(CException.class, e -> assertEquals(e.code, code), runnable);
+	}
+
+	/**
 	 * Creates a new pointer copy at offset. Be careful of gc on original object.
 	 */
 	public static Pointer deref(Pointer p, long offset) {
@@ -219,6 +248,13 @@ public class JnaTestUtil {
 	}
 
 	/**
+	 * Create a LastErrorException from the code and standard message.
+	 */
+	public static LastErrorException lastError(int code) {
+		return lastError(code, "test");
+	}
+
+	/**
 	 * Create a LastErrorException from the code and message.
 	 */
 	public static LastErrorException lastError(int code, String message, Object... args) {
@@ -240,16 +276,16 @@ public class JnaTestUtil {
 	 * Reloads and instantiates the test class, overriding the current OS. Support classes are
 	 * reloaded if accessed.
 	 */
-	public static void testAsOs(JnaOs os, Class<?> testCls, Class<?>... supportClasses) {
-		os.run(() -> ClassReInitializer.of(testCls, supportClasses).reinit());
+	public static void testAsOs(JnaOs os, Class<?> testCls, Class<?>... reloads) {
+		os.run(() -> ClassReInitializer.of(testCls, reloads).reinit());
 	}
 
 	/**
 	 * Reloads and instantiates the test class for each supported OS, overriding the current OS.
 	 * Support classes are reloaded if accessed.
 	 */
-	public static void testForEachOs(Class<?> testCls, Class<?>... supportClasses) {
-		JnaOs.forEach(os -> testAsOs(os, testCls, supportClasses));
+	public static void testForEachOs(Class<?> testCls, Class<?>... reloads) {
+		JnaOs.forEach(os -> testAsOs(os, testCls, reloads));
 	}
 
 }

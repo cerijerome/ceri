@@ -4,8 +4,15 @@ import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.jna.test.JnaTestUtil.assertCLong;
+import static ceri.jna.test.JnaTestUtil.assertCUlong;
+import static ceri.jna.test.JnaTestUtil.assertLastError;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
+import static ceri.jna.test.JnaTestUtil.assertRef;
+import static ceri.jna.test.JnaTestUtil.handleStructRef;
+import static ceri.jna.test.JnaTestUtil.lastError;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
@@ -39,34 +46,34 @@ public class JnaTestUtilTest {
 	@Test
 	public void testMemCache() {
 		mc = JnaTestUtil.memCache();
-		JnaTestUtil.assertMemory(mc.calloc(3).m, 0, 0, 0, 0);
-		JnaTestUtil.assertMemory(mc.mallocBytes(1, 2, 3).m, 0, 1, 2, 3);
+		assertMemory(mc.calloc(3).m, 0, 0, 0, 0);
+		assertMemory(mc.mallocBytes(1, 2, 3).m, 0, 1, 2, 3);
 	}
 
 	@Test
 	public void testAssertCLong() {
 		m = new Memory(CLong.SIZE);
 		JnaUtil.clong(m, 0, Long.MIN_VALUE);
-		JnaTestUtil.assertCLong(m, Long.MIN_VALUE);
+		assertCLong(m, Long.MIN_VALUE);
 		JnaUtil.clong(m, 0, Long.MAX_VALUE);
-		JnaTestUtil.assertCLong(m, Long.MAX_VALUE);
+		assertCLong(m, Long.MAX_VALUE);
 	}
 
 	@Test
 	public void testAssertCUlong() {
 		m = new Memory(CUlong.SIZE);
 		JnaUtil.culong(m, 0, Long.MIN_VALUE);
-		JnaTestUtil.assertCUlong(m, Long.MIN_VALUE);
+		assertCUlong(m, Long.MIN_VALUE);
 		JnaUtil.culong(m, 0, Long.MAX_VALUE);
-		JnaTestUtil.assertCUlong(m, Long.MAX_VALUE);
+		assertCUlong(m, Long.MAX_VALUE);
 	}
 
 	@Test
 	public void testAssertIntTypeRef() {
 		m = new Memory(8);
 		new size_t(123).write(m, 0);
-		JnaTestUtil.assertRef(m, new size_t(123));
-		assertAssertion(() -> JnaTestUtil.assertRef(m, new size_t(122)));
+		assertRef(m, new size_t(123));
+		assertAssertion(() -> assertRef(m, new size_t(122)));
 	}
 
 	@Test
@@ -99,6 +106,13 @@ public class JnaTestUtilTest {
 	}
 
 	@Test
+	public void testAssertLastError() {
+		assertLastError(() -> throwIt(lastError(1)));
+		assertLastError(1, () -> throwIt(lastError(1)));
+		assertAssertion(() -> assertLastError(2, () -> throwIt(lastError(1))));
+	}
+
+	@Test
 	public void testBuffer() {
 		var b = JnaTestUtil.buffer(-1, 0x7f, 0, 0x80);
 		assertByte(b.get(), -1);
@@ -115,7 +129,7 @@ public class JnaTestUtilTest {
 	@Test
 	public void testHandleStructRef() {
 		var t0 = new TestStruct(0x1111, null, 1, 2, 3);
-		JnaTestUtil.handleStructRef(Struct.write(t0).getPointer(), new TestStruct(), t -> {
+		handleStructRef(Struct.write(t0).getPointer(), new TestStruct(), t -> {
 			JnaTestData.assertStruct(t, 0x1111, null, 1, 2, 3);
 			t.i = 0x2222;
 		});

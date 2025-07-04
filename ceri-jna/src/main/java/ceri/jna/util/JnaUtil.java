@@ -493,7 +493,7 @@ public class JnaUtil {
 		if (length < 0 || offset + length > size) throw new IndexOutOfBoundsException(
 			"Length must be 0.." + (size - offset) + ": " + length);
 	}
-	
+
 	/**
 	 * Throws an exception if the given buffer is not direct.
 	 */
@@ -529,8 +529,7 @@ public class JnaUtil {
 	 * Convenience method to get a byte buffer for the pointer.
 	 */
 	public static ByteBuffer buffer(Pointer p, long offset, long length) {
-		if (PointerUtil.validate(p, offset, length) != null)
-			return p.getByteBuffer(offset, length);
+		if (PointerUtil.validate(p, offset, length) != null) return p.getByteBuffer(offset, length);
 		return ByteBuffer.allocate(0);
 	}
 
@@ -725,8 +724,7 @@ public class JnaUtil {
 	 */
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
 		ValidationUtil.validateSlice(buffer.length, index, length);
-		if (PointerUtil.validate(p, offset, length) != null)
-			p.write(offset, buffer, index, length);
+		if (PointerUtil.validate(p, offset, length) != null) p.write(offset, buffer, index, length);
 		return offset + length;
 	}
 
@@ -752,6 +750,19 @@ public class JnaUtil {
 		if (PointerUtil.validate(p, offset, length) != null)
 			p.setMemory(offset, length, (byte) value);
 		return offset + length;
+	}
+
+	/**
+	 * Attempt to get a signed or unsigned long from a value. Returns null if incompatible.
+	 */
+	public static Long asLong(Object value, boolean signed) {
+		return switch (value) {
+			case Byte b -> (long) (signed ? b : MathUtil.ubyte(b));
+			case Short s -> (long) (signed ? s : MathUtil.ushort(s));
+			case Integer i -> (signed ? i : MathUtil.uint(i));
+			case Number n -> n.longValue();
+			default -> null;
+		};
 	}
 
 	/* Support methods */

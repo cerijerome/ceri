@@ -5,12 +5,14 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Pointer;
 import ceri.jna.clib.jna.CSignal.sigset_t;
 import ceri.jna.clib.jna.CTime.timespec;
+import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 
 /**
  * Types and functions from {@code <poll.h>}
  */
+@CInclude("poll.h")
 public class CPoll {
 	/** There is data to read. */
 	public static final int POLLIN = 0x0001;

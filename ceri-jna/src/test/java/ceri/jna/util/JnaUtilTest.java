@@ -395,6 +395,19 @@ public class JnaUtilTest {
 	}
 
 	@Test
+	public void testAsLong() {
+		assertEquals(JnaUtil.asLong(Byte.MIN_VALUE, true), -0x80L);
+		assertEquals(JnaUtil.asLong(Byte.MIN_VALUE, false), 0x80L);
+		assertEquals(JnaUtil.asLong(Short.MIN_VALUE, true), -0x8000L);
+		assertEquals(JnaUtil.asLong(Short.MIN_VALUE, false), 0x8000L);
+		assertEquals(JnaUtil.asLong(Integer.MIN_VALUE, true), -0x80000000L);
+		assertEquals(JnaUtil.asLong(Integer.MIN_VALUE, false), 0x80000000L);
+		assertEquals(JnaUtil.asLong(Long.MIN_VALUE, true), -0x80000000_00000000L);
+		assertEquals(JnaUtil.asLong(Long.MIN_VALUE, false), 0x80000000_00000000L);
+		assertEquals(JnaUtil.asLong("1", true), null);
+	}
+
+	@Test
 	public void testDefaultCharset() {
 		try (var _ = SystemVars.removableProperty("jna.encoding", "test")) {
 			ClassReloader.reload(CharsetTester.class, JnaUtil.class);

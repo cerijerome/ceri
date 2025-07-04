@@ -2,17 +2,22 @@ package ceri.jna.clib.jna;
 
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
+import static ceri.jna.util.JnaOs.linux;
 import java.util.function.Supplier;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
+import ceri.jna.reflect.CAnnotations.CInclude;
+import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.type.IntType;
 import ceri.jna.type.JnaSize;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
+import ceri.jna.util.JnaOs;
 
 /**
  * Types and functions from {@code <termios.h>}
  */
+@CInclude("termios.h")
 public class CTermios {
 	// Sizes
 	private static final int TCFLAG_T_SIZE;
@@ -49,6 +54,7 @@ public class CTermios {
 	public static final int PARODD;
 	public static final int HUPCL;
 	public static final int CLOCAL;
+	@CType(os = linux)
 	public static final int CMSPAR;
 	public static final int CRTSCTS;
 	// CSIZE values
@@ -118,17 +124,29 @@ public class CTermios {
 	public static final int B57600;
 	public static final int B115200;
 	public static final int B230400;
+	@CType(os = linux)
 	public static final int B460800;
+	@CType(os = linux)
 	public static final int B500000;
+	@CType(os = linux)
 	public static final int B576000;
+	@CType(os = linux)
 	public static final int B921600;
+	@CType(os = linux)
 	public static final int B1000000;
+	@CType(os = linux)
 	public static final int B1152000;
+	@CType(os = linux)
 	public static final int B1500000;
+	@CType(os = linux)
 	public static final int B2000000;
+	@CType(os = linux)
 	public static final int B2500000;
+	@CType(os = linux)
 	public static final int B3000000;
+	@CType(os = linux)
 	public static final int B3500000;
+	@CType(os = linux)
 	public static final int B4000000;
 
 	private CTermios() {}
@@ -297,6 +315,7 @@ public class CTermios {
 	/**
 	 * Types and calls specific to Mac.
 	 */
+	@CType(os = JnaOs.mac)
 	public static final class Mac {
 		private Mac() {}
 
@@ -317,6 +336,7 @@ public class CTermios {
 	/**
 	 * Types and calls specific to Linux.
 	 */
+	@CType(os = JnaOs.linux)
 	public static final class Linux {
 		private Linux() {}
 

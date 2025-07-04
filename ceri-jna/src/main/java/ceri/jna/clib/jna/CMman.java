@@ -5,10 +5,12 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CUnistd.size_t;
+import ceri.jna.reflect.CAnnotations.CInclude;
 
 /**
  * Types and functions from {@code <sys/mman.h>}
  */
+@CInclude("sys/mman.h")
 public class CMman {
 	public static final Pointer MAP_FAILED = Pointer.createConstant(-1L);
 	/** Pages may not be accessed. */

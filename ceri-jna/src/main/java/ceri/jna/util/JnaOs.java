@@ -18,11 +18,16 @@ public enum JnaOs implements Functional<JnaOs> {
 
 	/** The list of supported OS types. */
 	public static final List<JnaOs> KNOWN = List.of(mac, linux);
+	/** Empty array */
+	public static final JnaOs[] NONE = new JnaOs[0];
 	/** The OS arch name */
 	public final String name;
 	/** The OS c code #ifdef check */
 	public final String cdefine;
 
+	/**
+	 * Returns true if the given OS is not null and is known.
+	 */
 	public static boolean known(JnaOs os) {
 		return os != null && os.known();
 	}
@@ -53,7 +58,14 @@ public enum JnaOs implements Functional<JnaOs> {
 	 * Determine the current OS type.
 	 */
 	public static JnaOs current() {
-		var os = OsUtil.os();
+		return from(OsUtil.os());
+	}
+
+	/**
+	 * Determine the OS type.
+	 */
+	public static JnaOs from(OsUtil.Os os) {
+		if (os == null) return unknown;
 		if (os.mac) return mac;
 		if (os.linux) return linux;
 		return unknown;

@@ -5,6 +5,9 @@ import static ceri.jna.clib.jna.CLib.lib;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import ceri.common.util.OsUtil;
+import ceri.jna.reflect.CAnnotations.CInclude;
+import ceri.jna.reflect.CAnnotations.CType;
+import ceri.jna.reflect.CAnnotations.CUndefined;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.PointerUtil;
@@ -12,6 +15,7 @@ import ceri.jna.util.PointerUtil;
 /**
  * Types and functions from {@code <signal.h>}
  */
+@CInclude("signal.h")
 public class CSignal {
 	private static final int SIGSET_T_SIZE;
 
@@ -80,15 +84,16 @@ public class CSignal {
 	public static final int SIGWINCH = 28;
 	/** I/O now possible (Term) */
 	public static final int SIGIO;
-	/** Pollable event; synonym for SIGIO (Term) */
-	public static final int SIGPOLL;
 	/** Bad system call (Core) */
 	public static final int SIGSYS;
 	/** Default signal handler */
+	@CUndefined // cast to pointer
 	public static final int SIG_DFL = 0;
 	/** Ignore signal handler */
+	@CUndefined // cast to pointer
 	public static final int SIG_IGN = 1;
 	/** Error response */
+	@CUndefined // cast to pointer
 	public static final int SIG_ERR = -1;
 
 	private CSignal() {}
@@ -127,6 +132,7 @@ public class CSignal {
 	/**
 	 * Represents a sigset_t instance; underlying OS may use an integer type or struct.
 	 */
+	@CType(attrs = CType.Attr.typedef)
 	@Fields({ "bytes" })
 	public static class sigset_t extends Struct {
 		public byte[] bytes = new byte[SIGSET_T_SIZE];
@@ -176,7 +182,6 @@ public class CSignal {
 			SIGTSTP = 18;
 			SIGURG = 16;
 			SIGIO = 23;
-			SIGPOLL = SIGIO;
 			SIGSYS = 12;
 		} else {
 			SIGSET_T_SIZE = 128;
@@ -189,7 +194,6 @@ public class CSignal {
 			SIGTSTP = 20;
 			SIGURG = 23;
 			SIGIO = 29;
-			SIGPOLL = SIGIO;
 			SIGSYS = 31;
 		}
 	}

@@ -1,14 +1,3 @@
-$$CSYMBOLGEN_PRE$$
-/*
- * Example code to print symbols and type sizes.
- *
- * Build:
- * gcc <filename>.c -o <filename>; chmod a+x ./<filename>
- * gcc -I<header-include-path> <filename>.c -o <filename>; chmod a+x ./<filename>
- *
- * Run:
- * ./<filename>
- */
 
 #define CERI_STR(x) #x
 #define CERI_SYM(x) ceri_print_symbol(#x,CERI_STR(x))
@@ -49,9 +38,7 @@ void ceri_verify_symbol_i(const char *name, const char *sym, long int isym, long
 }
 
 int main(int argc, char *argv[]) {
-	printf("\n");
-
-$$CSYMBOLGEN_MAIN$$
+//$$PLACEHOLDER$$
 	printf("\n");
 	if (ceri_errors > 0) printf("[ERRORS: %d]\n", ceri_errors);
 	if (ceri_undefineds > 0) printf("[undefined: %d]\n", ceri_undefineds);

@@ -1,19 +1,26 @@
 package ceri.jna.clib.jna;
 
+import static ceri.jna.util.JnaOs.linux;
+import static ceri.jna.util.JnaOs.mac;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import ceri.common.util.OsUtil;
+import ceri.jna.reflect.CAnnotations.CInclude;
+import ceri.jna.reflect.CAnnotations.CType;
+import ceri.jna.reflect.CAnnotations.CUndefined;
 
 /**
  * Error codes from {@code <errno.h>}.
  */
+@CInclude("errno.h")
 public class CErrNo {
 	/** Signifies an undefined code */
+	@CUndefined
 	public static final int UNDEFINED = -1;
-	
+
 	/* Common codes */
-	
+
 	/** Operation not permitted */
 	public static final int EPERM = 1;
 	/** No such file or directory */
@@ -86,7 +93,7 @@ public class CErrNo {
 	public static final int ERANGE = 34;
 
 	/* OS-defined codes */
-	
+
 	/** Resource deadlock would occur */
 	public static final int EDEADLK; // (EDEADLOCK)
 	/** File name too long */
@@ -104,34 +111,49 @@ public class CErrNo {
 	/** Identifier removed */
 	public static final int EIDRM;
 	/** Channel number out of range */
+	@CType(os = linux)
 	public static final int ECHRNG;
 	/** Level 2 not synchronized */
+	@CType(os = linux)
 	public static final int EL2NSYNC;
 	/** Level 3 halted */
+	@CType(os = linux)
 	public static final int EL3HLT;
 	/** Level 3 reset */
+	@CType(os = linux)
 	public static final int EL3RST;
 	/** Link number out of range */
+	@CType(os = linux)
 	public static final int ELNRNG;
 	/** Protocol driver not attached */
+	@CType(os = linux)
 	public static final int EUNATCH;
 	/** No CSI structure available */
+	@CType(os = linux)
 	public static final int ENOCSI;
 	/** Level 2 halted */
+	@CType(os = linux)
 	public static final int EL2HLT;
 	/** Invalid exchange */
+	@CType(os = linux)
 	public static final int EBADE;
 	/** Invalid request descriptor */
+	@CType(os = linux)
 	public static final int EBADR;
 	/** Exchange full */
+	@CType(os = linux)
 	public static final int EXFULL;
 	/** No anode */
+	@CType(os = linux)
 	public static final int ENOANO;
 	/** Invalid request code */
+	@CType(os = linux)
 	public static final int EBADRQC;
 	/** Invalid slot */
+	@CType(os = linux)
 	public static final int EBADSLT;
 	/** Bad font file format */
+	@CType(os = linux)
 	public static final int EBFONT;
 	/** Device not a stream */
 	public static final int ENOSTR;
@@ -142,50 +164,66 @@ public class CErrNo {
 	/** Out of streams resources */
 	public static final int ENOSR;
 	/** Machine is not on the network */
+	@CType(os = linux)
 	public static final int ENONET;
 	/** Package not installed */
+	@CType(os = linux)
 	public static final int ENOPKG;
 	/** Object is remote */
 	public static final int EREMOTE;
 	/** Link has been severed */
 	public static final int ENOLINK;
 	/** Advertise error */
+	@CType(os = linux)
 	public static final int EADV;
 	/** Srmount error */
+	@CType(os = linux)
 	public static final int ESRMNT;
 	/** Communication error on send */
+	@CType(os = linux)
 	public static final int ECOMM;
 	/** Protocol error */
 	public static final int EPROTO;
 	/** Multi-hop attempted */
 	public static final int EMULTIHOP;
 	/** RFS specific error */
+	@CType(os = linux)
 	public static final int EDOTDOT;
 	/** Not a data message */
 	public static final int EBADMSG;
 	/** Value too large for defined data type */
 	public static final int EOVERFLOW;
 	/** Name not unique on network */
+	@CType(os = linux)
 	public static final int ENOTUNIQ;
 	/** File descriptor in bad state */
+	@CType(os = linux)
 	public static final int EBADFD;
 	/** Remote address changed */
+	@CType(os = linux)
 	public static final int EREMCHG;
 	/** Can not access a needed shared library */
+	@CType(os = linux)
 	public static final int ELIBACC;
 	/** Accessing a corrupted shared library */
+	@CType(os = linux)
 	public static final int ELIBBAD;
 	/** .lib section in a.out corrupted */
+	@CType(os = linux)
 	public static final int ELIBSCN;
 	/** Attempting to link in too many shared libraries */
+	@CType(os = linux)
 	public static final int ELIBMAX;
 	/** Cannot exec a shared library directly */
+	@CType(os = linux)
 	public static final int ELIBEXEC;
 	/** Illegal byte sequence */
 	public static final int EILSEQ;
 	/** Interrupted system call should be restarted */
+	@CType(os = linux)
 	public static final int ERESTART;
 	/** Streams pipe error */
+	@CType(os = linux)
 	public static final int ESTRPIPE;
 	/** Too many users */
 	public static final int EUSERS;
@@ -250,30 +288,41 @@ public class CErrNo {
 	/** Stale NFS file handle */
 	public static final int ESTALE;
 	/** Structure needs cleaning */
+	@CType(os = linux)
 	public static final int EUCLEAN;
 	/** Not a XENIX named type file */
+	@CType(os = linux)
 	public static final int ENOTNAM;
 	/** No XENIX semaphores available */
+	@CType(os = linux)
 	public static final int ENAVAIL;
 	/** Is a named type file */
+	@CType(os = linux)
 	public static final int EISNAM;
 	/** Remote I/O error */
+	@CType(os = linux)
 	public static final int EREMOTEIO;
 	/** Quota exceeded */
 	public static final int EDQUOT;
 	/** No medium found */
+	@CType(os = linux)
 	public static final int ENOMEDIUM;
 	/** Wrong medium type */
+	@CType(os = linux)
 	public static final int EMEDIUMTYPE;
 	/** Operation Canceled */
 	public static final int ECANCELED;
 	/** Required key not available */
+	@CType(os = linux)
 	public static final int ENOKEY;
 	/** Key has expired */
+	@CType(os = linux)
 	public static final int EKEYEXPIRED;
 	/** Key has been revoked */
+	@CType(os = linux)
 	public static final int EKEYREVOKED;
 	/** Key was rejected by service */
+	@CType(os = linux)
 	public static final int EKEYREJECTED;
 	/** For robust mutexes */
 	/** Owner died */
@@ -281,31 +330,43 @@ public class CErrNo {
 	/** State not recoverable */
 	public static final int ENOTRECOVERABLE;
 	/** Operation not possible due to RF-kill */
+	@CType(os = linux)
 	public static final int ERFKILL;
 	/** Memory page has hardware error */
+	@CType(os = linux)
 	public static final int EHWPOISON;
 
 	/* Mac only */
 
 	/** Authentication error */
+	@CType(os = mac)
 	public static final int EAUTH;
 	/** RPC struct is bad */
+	@CType(os = mac)
 	public static final int EBADRPC;
 	/** Inappropriate file type or format */
+	@CType(os = mac)
 	public static final int EFTYPE;
 	/** Need authenticator */
+	@CType(os = mac)
 	public static final int ENEEDAUTH;
 	/** Attribute not found */
+	@CType(os = mac)
 	public static final int ENOATTR;
 	/** Too many processes */
+	@CType(os = mac)
 	public static final int EPROCLIM;
 	/** Bad procedure for program */
+	@CType(os = mac)
 	public static final int EPROCUNAVAIL;
 	/** Program version wrong */
+	@CType(os = mac)
 	public static final int EPROGMISMATCH;
 	/** RPC prog. not avail */
+	@CType(os = mac)
 	public static final int EPROGUNAVAIL;
 	/** RPC version wrong */
+	@CType(os = mac)
 	public static final int ERPCMISMATCH;
 
 	private CErrNo() {}

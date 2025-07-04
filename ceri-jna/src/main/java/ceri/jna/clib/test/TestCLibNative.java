@@ -232,7 +232,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * A wrapper for repeatedly overriding the library in tests.
 	 */
-	public static JnaLibrary.Ref<? extends TestCLibNative> ref() {
+	public static JnaLibrary.Ref<TestCLibNative> ref() {
 		return CLib.library.ref(TestCLibNative::of);
 	}
 

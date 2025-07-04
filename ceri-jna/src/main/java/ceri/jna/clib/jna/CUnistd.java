@@ -7,6 +7,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
+import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.type.IntType;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.JnaUtil;
@@ -14,6 +15,7 @@ import ceri.jna.util.JnaUtil;
 /**
  * Types and functions from {@code <unistd.h>}
  */
+@CInclude("unistd.h")
 public class CUnistd {
 	private static final Set<Integer> NONBLOCK_ERRORS =
 		CErrNo.codes(CErrNo.EAGAIN, CErrNo.EWOULDBLOCK, CErrNo.EINTR);

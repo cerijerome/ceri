@@ -81,7 +81,7 @@ public class CUtil {
 	}
 
 	/**
-	 * Throws an exception if the array is not contiguous.
+	 * Throws a CLib exception if the array is not contiguous.
 	 */
 	public static <T extends Structure> T[] requireContiguous(T[] array) throws CException {
 		if (Struct.isByVal(array)) return array;
