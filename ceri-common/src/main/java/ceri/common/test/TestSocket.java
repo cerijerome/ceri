@@ -1,10 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.net.HostPort;
 
 /**
@@ -26,7 +26,7 @@ public class TestSocket extends Socket {
 	}
 
 	public TestSocket connect(String host, int port) throws IOException {
-		remote.accept(HostPort.of(host, port), IO_ADAPTER);
+		remote.accept(HostPort.of(host, port), ExceptionAdapter.io);
 		return this;
 	}
 

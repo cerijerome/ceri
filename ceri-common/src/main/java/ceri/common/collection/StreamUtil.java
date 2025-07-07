@@ -1,8 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.CollectionUtil.listSupplier;
-import static ceri.common.collection.CollectionUtil.mapSupplier;
-import static ceri.common.collection.CollectionUtil.setSupplier;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,11 +35,8 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.comparator.Comparators;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.function.Excepts;
+import ceri.common.function.Funcs.ObjIntFunction;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
@@ -86,32 +80,32 @@ public class StreamUtil {
 	 * Use when a combiner is required for a Stream method, but should not be invoked.
 	 */
 	public static <T> BiConsumer<T, T> badCombiner() {
-		return BasicUtil.uncheckedCast(BAD_COMBINER);
+		return BasicUtil.unchecked(BAD_COMBINER);
 	}
 
 	public static <E extends Exception, T, R> R closeableApply(Stream<T> stream,
-		ExceptionFunction<E, Stream<T>, R> fn) throws E {
+		Excepts.Function<E, Stream<T>, R> fn) throws E {
 		try (stream) {
 			return fn.apply(stream);
 		}
 	}
 
 	public static <E extends Exception, T> int closeableApplyAsInt(Stream<T> stream,
-		ExceptionToIntFunction<E, Stream<T>> fn) throws E {
+		Excepts.ToIntFunction<E, Stream<T>> fn) throws E {
 		try (stream) {
 			return fn.applyAsInt(stream);
 		}
 	}
 
 	public static <E extends Exception, T> void closeableAccept(Stream<T> stream,
-		ExceptionConsumer<E, Stream<T>> consumer) throws E {
+		Excepts.Consumer<E, Stream<T>> consumer) throws E {
 		try (stream) {
 			consumer.accept(stream);
 		}
 	}
 
 	public static <E extends Exception, T> void closeableForEach(Stream<T> stream,
-		ExceptionConsumer<E, T> consumer) throws E {
+		Excepts.Consumer<E, T> consumer) throws E {
 		try (stream) {
 			forEach(stream, consumer);
 		}
@@ -121,7 +115,7 @@ public class StreamUtil {
 	 * Executes for-each, allowing exception of given type to be thrown.
 	 */
 	public static <E extends Exception, T> void forEach(Stream<T> stream,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
+		Excepts.Consumer<E, ? super T> consumer) throws E {
 		for (var i = stream.iterator(); i.hasNext();)
 			consumer.accept(i.next());
 	}
@@ -130,7 +124,7 @@ public class StreamUtil {
 	 * Executes for-each, allowing exception of given type to be thrown.
 	 */
 	public static <E extends Exception> void forEach(IntStream stream,
-		ExceptionIntConsumer<E> consumer) throws E {
+		Excepts.IntConsumer<E> consumer) throws E {
 		for (var i = stream.iterator(); i.hasNext();)
 			consumer.accept(i.nextInt());
 	}
@@ -311,7 +305,7 @@ public class StreamUtil {
 	 * Returns the first instance of the given class in the stream , or null if no match.
 	 */
 	public static <T, U extends T> U firstOf(Stream<T> stream, Class<U> cls) {
-		return BasicUtil.uncheckedCast(first(stream.filter(t -> cls.isInstance(t))));
+		return BasicUtil.unchecked(first(stream.filter(t -> cls.isInstance(t))));
 	}
 
 	/**
@@ -360,7 +354,7 @@ public class StreamUtil {
 	 * Join streams of collections.
 	 */
 	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream) {
-		return joinToSet(stream, setSupplier());
+		return joinToSet(stream, CollectionUtil.setSupplier());
 	}
 
 	/**
@@ -375,7 +369,7 @@ public class StreamUtil {
 	 * Join streams of collections.
 	 */
 	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream) {
-		return joinToList(stream, listSupplier());
+		return joinToList(stream, CollectionUtil.listSupplier());
 	}
 
 	/**
@@ -390,7 +384,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashSet.
 	 */
 	public static <T> Set<T> toSet(Stream<T> stream) {
-		return toSet(stream, setSupplier());
+		return toSet(stream, CollectionUtil.setSupplier());
 	}
 
 	/**
@@ -418,7 +412,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
 	 */
 	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn) {
-		return toMap(stream, keyFn, mapSupplier());
+		return toMap(stream, keyFn, CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -426,7 +420,7 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMap(stream, keyFn, valueFn, mapSupplier());
+		return toMap(stream, keyFn, valueFn, CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -461,7 +455,8 @@ public class StreamUtil {
 	public static <K, V, T, C extends Collection<V>> Map<K, C> toMapOfCollections(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
 		Supplier<C> collectionSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier(), collectionSupplier);
+		return toMapOfCollections(stream, keyFn, valueFn, CollectionUtil.mapSupplier(),
+			collectionSupplier);
 	}
 
 	/**
@@ -487,7 +482,7 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMapOfSets(stream, keyFn, valueFn, mapSupplier());
+		return toMapOfSets(stream, keyFn, valueFn, CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -496,7 +491,8 @@ public class StreamUtil {
 	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
 		Supplier<Map<K, Set<V>>> mapSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, setSupplier());
+		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier,
+			CollectionUtil.setSupplier());
 	}
 
 	/**
@@ -512,7 +508,7 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMapOfLists(stream, keyFn, valueFn, mapSupplier());
+		return toMapOfLists(stream, keyFn, valueFn, CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -521,14 +517,15 @@ public class StreamUtil {
 	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
 		Supplier<Map<K, List<V>>> mapSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, listSupplier());
+		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier,
+			CollectionUtil.listSupplier());
 	}
 
 	/**
 	 * Convert a map entry stream back to a map.
 	 */
 	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream) {
-		return toEntryMap(stream, mapSupplier());
+		return toEntryMap(stream, CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -543,7 +540,7 @@ public class StreamUtil {
 	 * Collector for map entry back to map.
 	 */
 	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entryCollector() {
-		return entryCollector(mergeError(), mapSupplier());
+		return entryCollector(mergeError(), CollectionUtil.mapSupplier());
 	}
 
 	/**
@@ -558,21 +555,21 @@ public class StreamUtil {
 	 * When merging keys, only keep the original key.
 	 */
 	public static <T> BinaryOperator<T> mergeFirst() {
-		return BasicUtil.uncheckedCast(MERGE_FIRST);
+		return BasicUtil.unchecked(MERGE_FIRST);
 	}
 
 	/**
 	 * When merging keys, only keep the new key.
 	 */
 	public static <T> BinaryOperator<T> mergeSecond() {
-		return BasicUtil.uncheckedCast(MERGE_SECOND);
+		return BasicUtil.unchecked(MERGE_SECOND);
 	}
 
 	/**
 	 * Throw an IllegalArgumentException for duplicate keys.
 	 */
 	public static <T> BinaryOperator<T> mergeError() {
-		return BasicUtil.uncheckedCast(MERGE_ERROR);
+		return BasicUtil.unchecked(MERGE_ERROR);
 	}
 
 	/**

@@ -17,8 +17,7 @@ import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts;
 import ceri.common.property.PropertySource;
 import ceri.common.property.TypedProperties;
 import ceri.common.time.DateUtil;
@@ -32,8 +31,8 @@ public class RegistryService extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Locker locker = Locker.of();
 	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
-	private final ExceptionConsumer<IOException, java.util.Properties> loadFn;
-	private final ExceptionConsumer<IOException, java.util.Properties> saveFn;
+	private final Excepts.Consumer<IOException, java.util.Properties> loadFn;
+	private final Excepts.Consumer<IOException, java.util.Properties> saveFn;
 	private final int delayMs;
 	private final int errorDelayMs;
 	private final SequencedMap<Object, Runnable> updates = new LinkedHashMap<>();
@@ -77,19 +76,19 @@ public class RegistryService extends LoopingExecutor {
 			config.delayMs(), config.errorDelayMs());
 	}
 
-	public static RegistryService of(ExceptionConsumer<IOException, java.util.Properties> loadFn,
-		ExceptionConsumer<IOException, java.util.Properties> saveFn) throws IOException {
+	public static RegistryService of(Excepts.Consumer<IOException, java.util.Properties> loadFn,
+		Excepts.Consumer<IOException, java.util.Properties> saveFn) throws IOException {
 		return of(loadFn, saveFn, Config.DELAY_MS, Config.ERROR_DELAY_MS);
 	}
 
-	public static RegistryService of(ExceptionConsumer<IOException, java.util.Properties> loadFn,
-		ExceptionConsumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
+	public static RegistryService of(Excepts.Consumer<IOException, java.util.Properties> loadFn,
+		Excepts.Consumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
 		throws IOException {
 		return new RegistryService(loadFn, saveFn, delayMs, errorDelayMs);
 	}
 
-	private RegistryService(ExceptionConsumer<IOException, java.util.Properties> loadFn,
-		ExceptionConsumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
+	private RegistryService(Excepts.Consumer<IOException, java.util.Properties> loadFn,
+		Excepts.Consumer<IOException, java.util.Properties> saveFn, int delayMs, int errorDelayMs)
 		throws IOException {
 		this.loadFn = loadFn;
 		this.saveFn = saveFn;
@@ -146,7 +145,7 @@ public class RegistryService extends LoopingExecutor {
 
 			@Override
 			public <E extends Exception, T> T
-				apply(ExceptionFunction<E, TypedProperties, T> function) throws E {
+				apply(Excepts.Function<E, TypedProperties, T> function) throws E {
 				try (var _ = locker.lock()) {
 					return function.apply(properties);
 				}

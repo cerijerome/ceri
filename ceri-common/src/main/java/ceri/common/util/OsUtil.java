@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import java.util.regex.Pattern;
 import ceri.common.concurrent.Lazy;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.text.StringUtil;
 
 /**
@@ -59,35 +59,35 @@ public class OsUtil {
 		 * Convenience conditional.
 		 */
 		public <T> T mac(T trueVal, T falseVal) {
-			return BasicUtil.conditional(mac, trueVal, falseVal);
+			return BasicUtil.ternary(mac, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T linux(T trueVal, T falseVal) {
-			return BasicUtil.conditional(linux, trueVal, falseVal);
+			return BasicUtil.ternary(linux, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T x86(T trueVal, T falseVal) {
-			return BasicUtil.conditional(x86, trueVal, falseVal);
+			return BasicUtil.ternary(x86, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T arm(T trueVal, T falseVal) {
-			return BasicUtil.conditional(arm, trueVal, falseVal);
+			return BasicUtil.ternary(arm, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T bit64(T trueVal, T falseVal) {
-			return BasicUtil.conditional(bit64, trueVal, falseVal);
+			return BasicUtil.ternary(bit64, trueVal, falseVal);
 		}
 
 		/**

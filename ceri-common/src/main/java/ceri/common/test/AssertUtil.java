@@ -35,9 +35,7 @@ import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
@@ -139,7 +137,7 @@ public class AssertUtil {
 	}
 
 	public static <T> T assertInstance(Object actual, Class<T> expected) {
-		if (expected.isInstance(actual)) return BasicUtil.uncheckedCast(actual);
+		if (expected.isInstance(actual)) return BasicUtil.unchecked(actual);
 		throw failure("Expected instance: %s\n           actual: %s", ReflectUtil.name(expected),
 			ReflectUtil.className(actual));
 	}
@@ -231,7 +229,7 @@ public class AssertUtil {
 	/**
 	 * Check an assertion error is thrown. Useful for checking assertXxx methods.
 	 */
-	public static void assertAssertion(ExceptionRunnable<Exception> runnable) {
+	public static void assertAssertion(Excepts.Runnable<Exception> runnable) {
 		try {
 			runnable.run();
 		} catch (Exception e) {
@@ -256,7 +254,7 @@ public class AssertUtil {
 	/**
 	 * Checks a value, with failure message.
 	 */
-	public static <E extends Exception, T> void assertValue(T t, ExceptionPredicate<E, T> test)
+	public static <E extends Exception, T> void assertValue(T t, Excepts.Predicate<E, T> test)
 		throws E {
 		if (!test.test(t)) throw failure("No match: %s", String.valueOf(t).trim());
 	}
@@ -736,7 +734,7 @@ public class AssertUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T> void assertConsume(Iterable<T> iterable,
-		ExceptionConsumer<E, T>... consumers) throws E {
+		Excepts.Consumer<E, T>... consumers) throws E {
 		int i = 0;
 		var iter = iterable.iterator();
 		while (iter.hasNext()) {
@@ -832,13 +830,13 @@ public class AssertUtil {
 		assertNotNull(t);
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
-		if (test != null) test.accept(BasicUtil.uncheckedCast(t));
+		if (test != null) test.accept(BasicUtil.unchecked(t));
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertThrown(ExceptionRunnable<Exception> runnable) {
+	public static void assertThrown(Excepts.Runnable<Exception> runnable) {
 		assertThrown(Exception.class, runnable);
 	}
 
@@ -846,14 +844,14 @@ public class AssertUtil {
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
 	public static void assertThrown(Class<? extends Throwable> exceptionCls,
-		ExceptionRunnable<?> runnable) {
+		Excepts.Runnable<?> runnable) {
 		assertThrown(exceptionCls, (Consumer<Throwable>) null, runnable);
 	}
 
 	/**
 	 * Use this for more flexibility than adding @Test(expected=...)
 	 */
-	public static void assertThrown(String regex, ExceptionRunnable<Exception> runnable) {
+	public static void assertThrown(String regex, Excepts.Runnable<Exception> runnable) {
 		assertThrown(Throwable.class, regex, runnable);
 	}
 
@@ -861,7 +859,7 @@ public class AssertUtil {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static void assertThrown(Class<? extends Throwable> superCls, String regex,
-		ExceptionRunnable<?> runnable) {
+		Excepts.Runnable<?> runnable) {
 		assertThrown(superCls, t -> assertMatch(t.getMessage(), regex), runnable);
 	}
 
@@ -869,7 +867,7 @@ public class AssertUtil {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static void assertThrown(Consumer<? super Throwable> test,
-		ExceptionRunnable<?> runnable) {
+		Excepts.Runnable<?> runnable) {
 		assertThrown(Throwable.class, test, runnable);
 	}
 
@@ -877,7 +875,7 @@ public class AssertUtil {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static <E extends Throwable> void assertThrown(Class<E> superCls,
-		Consumer<? super E> test, ExceptionRunnable<?> runnable) {
+		Consumer<? super E> test, Excepts.Runnable<?> runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable t) {
@@ -890,70 +888,70 @@ public class AssertUtil {
 	/**
 	 * Assert an InterruptedException is thrown.
 	 */
-	public static void assertInterrupted(ExceptionRunnable<Exception> runnable) {
+	public static void assertInterrupted(Excepts.Runnable<Exception> runnable) {
 		assertThrown(InterruptedException.class, runnable);
 	}
 
 	/**
 	 * Assert a RuntimeInterruptedException is thrown.
 	 */
-	public static void assertRtInterrupted(ExceptionRunnable<Exception> runnable) {
+	public static void assertRtInterrupted(Excepts.Runnable<Exception> runnable) {
 		assertThrown(RuntimeInterruptedException.class, runnable);
 	}
 
 	/**
 	 * Assert an UnsupportedOperationException is thrown.
 	 */
-	public static void assertUnsupported(ExceptionRunnable<Exception> runnable) {
+	public static void assertUnsupported(Excepts.Runnable<Exception> runnable) {
 		assertThrown(UnsupportedOperationException.class, runnable);
 	}
 
 	/**
 	 * Assert a NullPointerException is thrown.
 	 */
-	public static void assertNpe(ExceptionRunnable<Exception> runnable) {
+	public static void assertNpe(Excepts.Runnable<Exception> runnable) {
 		assertThrown(NullPointerException.class, runnable);
 	}
 
 	/**
 	 * Assert a NullPointerException is thrown.
 	 */
-	public static void assertRte(ExceptionRunnable<Exception> runnable) {
+	public static void assertRte(Excepts.Runnable<Exception> runnable) {
 		assertThrown(RuntimeException.class, runnable);
 	}
 
 	/**
 	 * Assert an IOException is thrown.
 	 */
-	public static void assertIoe(ExceptionRunnable<Exception> runnable) {
+	public static void assertIoe(Excepts.Runnable<Exception> runnable) {
 		assertThrown(IOException.class, runnable);
 	}
 
 	/**
 	 * Assert an IllegalArgumentException is thrown.
 	 */
-	public static void assertIllegalArg(ExceptionRunnable<Exception> runnable) {
+	public static void assertIllegalArg(Excepts.Runnable<Exception> runnable) {
 		assertThrown(IllegalArgumentException.class, runnable);
 	}
 
 	/**
 	 * Assert an IllegalArgumentException is thrown.
 	 */
-	public static void assertIllegalState(ExceptionRunnable<Exception> runnable) {
+	public static void assertIllegalState(Excepts.Runnable<Exception> runnable) {
 		assertThrown(IllegalStateException.class, runnable);
 	}
 
 	/**
 	 * Assert an IndexOutOfBounds exception is thrown with an overflow message.
 	 */
-	public static void assertIndexOob(ExceptionRunnable<Exception> runnable) {
+	public static void assertIndexOob(Excepts.Runnable<Exception> runnable) {
 		assertThrown(IndexOutOfBoundsException.class, runnable);
 	}
 
 	/**
 	 * Assert an ArithmeticException is thrown with an overflow message.
 	 */
-	public static void assertOverflow(ExceptionRunnable<Exception> runnable) {
+	public static void assertOverflow(Excepts.Runnable<Exception> runnable) {
 		assertThrown(ArithmeticException.class, "(?i).*\\boverflow\\b.*", runnable);
 	}
 

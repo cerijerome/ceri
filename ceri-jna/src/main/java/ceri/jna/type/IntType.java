@@ -189,6 +189,6 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	}
 
 	protected T typedThis() {
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 }

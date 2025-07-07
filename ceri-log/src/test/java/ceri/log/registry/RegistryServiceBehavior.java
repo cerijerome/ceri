@@ -1,6 +1,5 @@
 package ceri.log.registry;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
@@ -10,7 +9,8 @@ import java.util.Properties;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.Excepts.Consumer;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
@@ -19,7 +19,7 @@ import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 
 public class RegistryServiceBehavior {
-	private static final ExceptionConsumer<IOException, Properties> NULL_CONSUMER = null;
+	private static final Consumer<IOException, Properties> NULL_CONSUMER = null;
 	private static final String REG_FILENAME = "reg.properties";
 	private FileTestHelper files = null;
 	private RegistryService service = null;
@@ -90,7 +90,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldPersistPropertiesOnRequest() throws IOException {
 		var save = CallSync.<Properties>consumer(null, true);
-		service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER));
+		service = RegistryService.of(null, p -> save.accept(p, ExceptionAdapter.io));
 		service.registry.accept(p -> p.set(123, "a.b.c"));
 		service.persist(false);
 		save.assertNoCall();
@@ -103,7 +103,7 @@ public class RegistryServiceBehavior {
 		LogModifier.run(() -> {
 			var save = CallSync.<Properties>consumer(null, false);
 			save.error.setFrom(IOX, IOX, null);
-			service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER), 0, 0);
+			service = RegistryService.of(null, p -> save.accept(p, ExceptionAdapter.io), 0, 0);
 			service.registry.accept(p -> p.set(123, "a.b.c"));
 			service.persist(true);
 			save.await(); // error
@@ -116,7 +116,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldSavePropertiesOnClose() throws IOException {
 		var save = CallSync.<Properties>consumer(null, true);
-		service = RegistryService.of(null, p -> save.accept(p, IO_ADAPTER));
+		service = RegistryService.of(null, p -> save.accept(p, ExceptionAdapter.io));
 		service.registry.accept(p -> p.set(123, "a.b.c"));
 		service.close();
 		var p = save.awaitAuto();

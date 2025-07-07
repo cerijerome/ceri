@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 
 /**

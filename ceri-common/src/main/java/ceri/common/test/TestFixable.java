@@ -1,8 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import ceri.common.event.Listenable;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.Fixable;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
@@ -76,14 +76,14 @@ public class TestFixable implements Fixable {
 
 	@Override
 	public void open() throws IOException {
-		open.accept(true, IO_ADAPTER);
+		open.accept(true, ExceptionAdapter.io);
 		verifyUnbroken();
 	}
 
 	@Override
 	public void close() throws IOException {
 		open.value(false);
-		close.run(IO_ADAPTER);
+		close.run(ExceptionAdapter.io);
 	}
 
 	/**

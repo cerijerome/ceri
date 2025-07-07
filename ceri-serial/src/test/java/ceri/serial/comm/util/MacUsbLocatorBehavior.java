@@ -16,18 +16,18 @@ public class MacUsbLocatorBehavior {
 
 	@Test
 	public void shouldProvidePortSupplierForMacOnly() {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var locator = MacUsbLocator.of(); // no error on creation
 			assertThrown(() -> locator.portSupplier(0x123));
 		});
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			assertString(MacUsbLocator.of().portSupplier(0x123), "locationId:0x123");
 		});
 	}
 
 	@Test
 	public void shouldProvidePortSupplier() throws IOException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var locator = MacUsbLocator.of(Ioreg.of(TestProcess.processor(IOREG_XML)));
 			var supplier = locator.portSupplier(18087936);
 			assertEquals(supplier.get(), "/dev/tty.usbserial-1140");

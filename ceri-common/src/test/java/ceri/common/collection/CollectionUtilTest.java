@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.function.FunctionTestUtil.consumer;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -27,6 +26,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
 
 public class CollectionUtilTest {
@@ -80,8 +80,8 @@ public class CollectionUtilTest {
 	@Test
 	public void testForEachIterable() {
 		var capturer = Captor.ofInt();
-		assertIoe(() -> CollectionUtil.forEach(Arrays.asList(1, 2, 3), consumer()));
-		assertRte(() -> CollectionUtil.forEach(Arrays.asList(0, 1, 2), consumer()));
+		assertIoe(() -> CollectionUtil.forEach(Arrays.asList(1, 2, 3), E.consumer));
+		assertRte(() -> CollectionUtil.forEach(Arrays.asList(0, 1, 2), E.consumer));
 		CollectionUtil.forEach(Arrays.asList(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
 	}

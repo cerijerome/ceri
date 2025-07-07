@@ -36,7 +36,7 @@ public class ValueCondition<T> {
 	 * Creates an instance with the given lock. A new signal value overwrites an existing value.
 	 */
 	public static <T> ValueCondition<T> of(Lock lock) {
-		return of(lock, BasicUtil.uncheckedCast(REPLACER));
+		return of(lock, BasicUtil.unchecked(REPLACER));
 	}
 
 	/**

@@ -2,7 +2,7 @@ package ceri.log.rpc.service;
 
 import java.io.IOException;
 import java.util.function.Supplier;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.Enablable;
 import ceri.common.util.Named;
 import ceri.log.util.LogUtil;

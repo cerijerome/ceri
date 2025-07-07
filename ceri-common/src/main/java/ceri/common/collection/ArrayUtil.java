@@ -81,8 +81,8 @@ public class ArrayUtil {
 	 * Returns an immutable zero-size array for the given component type.
 	 */
 	public static <T> T[] empty(Class<T> cls) {
-		if (cls == String.class) return BasicUtil.uncheckedCast(EMPTY_STRING);
-		if (cls == Object.class) return BasicUtil.uncheckedCast(EMPTY_OBJECT);
+		if (cls == String.class) return BasicUtil.unchecked(EMPTY_STRING);
+		if (cls == Object.class) return BasicUtil.unchecked(EMPTY_OBJECT);
 		return create(cls, 0);
 	}
 
@@ -90,14 +90,14 @@ public class ArrayUtil {
 	 * Returns the typed component class of an array type.
 	 */
 	public static <T> Class<T> componentType(Class<T[]> cls) {
-		return BasicUtil.uncheckedCast(cls.getComponentType());
+		return BasicUtil.unchecked(cls.getComponentType());
 	}
 
 	/**
 	 * Returns the compile-time array type component class.
 	 */
 	public static <T> Class<T[]> arrayType(Class<T> cls) {
-		return BasicUtil.uncheckedCast(empty(cls).getClass());
+		return BasicUtil.unchecked(empty(cls).getClass());
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class ArrayUtil {
 	public static <T> T[] create(Class<T> type, int size) {
 		if (type.isPrimitive())
 			throw new IllegalArgumentException("Primitive types not allowed: " + type);
-		return BasicUtil.uncheckedCast(Array.newInstance(type, size));
+		return BasicUtil.unchecked(Array.newInstance(type, size));
 	}
 
 	/**

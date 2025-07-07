@@ -1,8 +1,7 @@
 package ceri.log.registry;
 
 import java.util.function.Consumer;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts;
 import ceri.common.property.TypedProperties;
 
 /**
@@ -29,12 +28,12 @@ public interface Registry {
 	/**
 	 * Executes the function immediately, passing the registry properties.
 	 */
-	<E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function) throws E;
+	<E extends Exception, T> T apply(Excepts.Function<E, TypedProperties, T> function) throws E;
 
 	/**
 	 * Executes the consumer immediately, passing the registry properties.
 	 */
-	default <E extends Exception> void accept(ExceptionConsumer<E, TypedProperties> consumer)
+	default <E extends Exception> void accept(Excepts.Consumer<E, TypedProperties> consumer)
 		throws E {
 		apply(p -> {
 			consumer.accept(p);
@@ -55,7 +54,7 @@ public interface Registry {
 		default void queue(Object source, Consumer<TypedProperties> update) {}
 
 		@Override
-		default <E extends Exception, T> T apply(ExceptionFunction<E, TypedProperties, T> function)
+		default <E extends Exception, T> T apply(Excepts.Function<E, TypedProperties, T> function)
 			throws E {
 			return function.apply(TypedProperties.NULL);
 		}

@@ -1,6 +1,5 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.io.IoUtil.ioExceptionf;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -14,6 +13,7 @@ import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.exception.Exceptions;
 import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
 import ceri.log.concurrent.LoopingExecutor;
@@ -157,7 +157,7 @@ public class Processor extends LoopingExecutor {
 			if (actual == expected) return;
 			processInput(actual);
 		}
-		throw ioExceptionf("Failed to receive 0x%02x in %d attempts", expected,
+		throw Exceptions.io("Failed to receive 0x%02x in %d attempts", expected,
 			config.maxSendAttempts);
 	}
 

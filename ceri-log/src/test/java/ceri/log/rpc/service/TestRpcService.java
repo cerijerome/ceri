@@ -5,19 +5,19 @@ import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UInt32Value;
 import ceri.common.event.Listeners;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntSupplier;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.IntSupplier;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.rpc.TestGrpc;
 import io.grpc.stub.StreamObserver;
 
 public class TestRpcService extends TestGrpc.TestImplBase implements RuntimeCloseable {
 	private final Listeners<Integer> listeners = Listeners.of();
 	private final RpcServiceNotifier<Integer, UInt32Value> notifier;
-	public ExceptionRunnable<?> run = null;
-	public ExceptionIntConsumer<?> set = null;
-	public ExceptionIntSupplier<?> get = null;
+	public Runnable<?> run = null;
+	public IntConsumer<?> set = null;
+	public IntSupplier<?> get = null;
 
 	public static TestRpcService of() {
 		return new TestRpcService();

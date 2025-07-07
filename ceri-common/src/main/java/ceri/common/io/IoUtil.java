@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import static ceri.common.function.FunctionUtil.safeAccept;
 import static ceri.common.text.StringUtil.EOL;
-import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.util.BasicUtil.def;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,12 +35,7 @@ import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionObjIntPredicate;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.ExceptionUnaryOperator;
+import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.text.StringUtil;
@@ -61,12 +57,8 @@ public class IoUtil {
 		Pattern.compile("\\Q" + File.pathSeparator + "\\E");
 	private static final FileVisitor<Path> DELETING_VISITOR =
 		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
-	public static final ExceptionAdapter<IOException> IO_ADAPTER =
-		ExceptionAdapter.of(IOException.class, IOException::new);
-	public static final ExceptionAdapter<RuntimeIoException> RUNTIME_IO_ADAPTER =
-		ExceptionAdapter.of(RuntimeIoException.class, RuntimeIoException::new);
 	private static final FunctionWrapper<IOException> WRAPPER = FunctionWrapper.of();
-	private static final ExceptionPredicate<IOException, Path> NULL_FILTER = _ -> true;
+	private static final Excepts.Predicate<IOException, Path> NULL_FILTER = _ -> true;
 	public static final ByteProvider EOL_BYTES = ByteProvider.of(EOL.getBytes());
 
 	private IoUtil() {}
@@ -77,20 +69,6 @@ public class IoUtil {
 	public static ByteProvider eolBytes(Charset charset) {
 		if (charset == null || Charset.defaultCharset().equals(charset)) return EOL_BYTES;
 		return ByteProvider.of(EOL.getBytes(charset));
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static IOException ioExceptionf(String format, Object... args) {
-		return new IOException(StringUtil.format(format, args));
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static IOException ioExceptionf(Throwable cause, String format, Object... args) {
-		return new IOException(StringUtil.format(format, args), cause);
 	}
 
 	/**
@@ -215,7 +193,7 @@ public class IoUtil {
 	 * Replaces the last part of the path.
 	 */
 	public static <E extends Exception> Path changeName(Path path,
-		ExceptionUnaryOperator<E, String> filenameFn) throws E {
+		Excepts.Operator<E, String> filenameFn) throws E {
 		if (path == null) return null;
 		Path file = path.getFileName();
 		var filename = filenameFn.apply(file == null ? "" : file.toString());
@@ -457,7 +435,7 @@ public class IoUtil {
 	 * tests true. The predicate receives the byte array buffer and the number of bytes filled.
 	 */
 	public static <E extends Exception> ByteProvider availableBytes(InputStream in,
-		ExceptionObjIntPredicate<E, byte[]> predicate) throws E, IOException {
+		Excepts.ObjIntPredicate<E, byte[]> predicate) throws E, IOException {
 		if (in == null) return null;
 		int count = in.available();
 		if (count == 0) return ByteProvider.empty();
@@ -605,7 +583,7 @@ public class IoUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static WrappedStream<IOException, Path> walkRelative(Path dir,
-		ExceptionPredicate<IOException, Path> filter) throws IOException {
+		Excepts.Predicate<IOException, Path> filter) throws IOException {
 		int levels = dir.getNameCount();
 		return walk(dir, filter).map(path -> subpath(path, levels));
 	}
@@ -616,7 +594,7 @@ public class IoUtil {
 	 */
 	public static WrappedStream<IOException, Path> walkRelative(Path dir, String syntaxPattern)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> filter =
+		Excepts.Predicate<IOException, Path> filter =
 			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
 		return walkRelative(dir, filter);
 	}
@@ -635,9 +613,9 @@ public class IoUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static WrappedStream<IOException, Path> walk(Path dir,
-		ExceptionPredicate<IOException, Path> filter) throws IOException {
+		Excepts.Predicate<IOException, Path> filter) throws IOException {
 		return WrappedStream.<IOException, Path>of(Files.walk(dir))
-			.filter(defaultValue(filter, NULL_FILTER));
+			.filter(def(filter, NULL_FILTER));
 	}
 
 	/**
@@ -646,7 +624,7 @@ public class IoUtil {
 	 */
 	public static WrappedStream<IOException, Path> walk(Path dir, String syntaxPattern)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> filter =
+		Excepts.Predicate<IOException, Path> filter =
 			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
 		return walk(dir, filter);
 	}
@@ -662,9 +640,9 @@ public class IoUtil {
 	 * Lists relative filtered paths recursively under a given directory. A null filter matches all
 	 * paths.
 	 */
-	public static List<Path> pathsRelative(Path dir, ExceptionPredicate<IOException, Path> filter)
+	public static List<Path> pathsRelative(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
 		int levels = dir.getNameCount();
 		return pathsCollect(dir, path -> test.test(path) ? subpath(path, levels) : null);
 	}
@@ -674,7 +652,7 @@ public class IoUtil {
 	 * paths. The pattern is applied against the full path.
 	 */
 	public static List<Path> pathsRelative(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter =
+		Excepts.Predicate<IOException, Path> filter =
 			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
 		return pathsRelative(dir, filter);
 	}
@@ -689,9 +667,9 @@ public class IoUtil {
 	/**
 	 * Lists filtered paths recursively under a given directory. A null filter matches all paths.
 	 */
-	public static List<Path> paths(Path dir, ExceptionPredicate<IOException, Path> filter)
+	public static List<Path> paths(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
 		return pathsCollect(dir, path -> test.test(path) ? path : null);
 	}
 
@@ -700,7 +678,7 @@ public class IoUtil {
 	 * The pattern is applied against the full path.
 	 */
 	public static List<Path> paths(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter =
+		Excepts.Predicate<IOException, Path> filter =
 			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
 		return paths(dir, filter);
 	}
@@ -709,8 +687,8 @@ public class IoUtil {
 	 * Recursively collects mapped paths under a given directory. The mapping function excludes
 	 * entries by returning null.
 	 */
-	public static <T> List<T> pathsCollect(Path dir, ExceptionFunction<IOException, Path, T> mapper)
-		throws IOException {
+	public static <T> List<T> pathsCollect(Path dir,
+		Excepts.Function<IOException, Path, T> mapper) throws IOException {
 		Objects.requireNonNull(dir);
 		Objects.requireNonNull(mapper);
 		List<T> list = new ArrayList<>();
@@ -730,9 +708,9 @@ public class IoUtil {
 	/**
 	 * Lists filtered path names under a directory (no recursion).
 	 */
-	public static List<String> listNames(Path dir, ExceptionPredicate<IOException, Path> filter)
+	public static List<String> listNames(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, test::test)) {
 			return listCollect(stream, IoUtil::filename);
 		}
@@ -743,7 +721,7 @@ public class IoUtil {
 	 * The pattern is applied against the file name path, not the full path.
 	 */
 	public static List<String> listNames(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+		Excepts.Predicate<IOException, Path> filter = syntaxPattern == null ? null :
 			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return listNames(dir, filter);
 	}
@@ -758,9 +736,9 @@ public class IoUtil {
 	/**
 	 * Lists filtered paths under a directory (no recursion). A null filter matches all paths.
 	 */
-	public static List<Path> list(Path dir, ExceptionPredicate<IOException, Path> filter)
+	public static List<Path> list(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		ExceptionPredicate<IOException, Path> test = defaultValue(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, test::test)) {
 			return listCollect(stream, path -> path);
 		}
@@ -771,7 +749,7 @@ public class IoUtil {
 	 * pattern is applied against the file name path, not the full path.
 	 */
 	public static List<Path> list(Path dir, String syntaxPattern) throws IOException {
-		ExceptionPredicate<IOException, Path> filter = syntaxPattern == null ? null :
+		Excepts.Predicate<IOException, Path> filter = syntaxPattern == null ? null :
 			PathFilters.byFileNamePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
 		return list(dir, filter);
 	}
@@ -780,7 +758,7 @@ public class IoUtil {
 	 * Collects mapped paths from a directory. The mapping function excludes entries by returning
 	 * null.
 	 */
-	public static <T> List<T> listCollect(Path dir, ExceptionFunction<IOException, Path, T> mapper)
+	public static <T> List<T> listCollect(Path dir, Excepts.Function<IOException, Path, T> mapper)
 		throws IOException {
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
 			return listCollect(stream, mapper);
@@ -793,7 +771,7 @@ public class IoUtil {
 	 */
 	@SuppressWarnings("resource") // due to requireNonNull
 	public static <T> List<T> listCollect(DirectoryStream<Path> stream,
-		ExceptionFunction<IOException, Path, T> mapper) throws IOException {
+		Excepts.Function<IOException, Path, T> mapper) throws IOException {
 		Objects.requireNonNull(stream);
 		Objects.requireNonNull(mapper);
 		List<T> list = new ArrayList<>();
@@ -805,9 +783,10 @@ public class IoUtil {
 	 * Applies a function to each path in a directory stream, then closes the stream.
 	 */
 	public static void dirStreamForEach(DirectoryStream<Path> stream,
-		ExceptionConsumer<IOException, Path> consumer) throws IOException {
+		Excepts.Consumer<IOException, Path> consumer) throws IOException {
+		Consumer<Path> wrapped = p -> WRAPPER.wrap.run(() -> consumer.accept(p));
 		try (stream) {
-			WRAPPER.unwrap(() -> stream.forEach(WRAPPER.wrap(consumer::accept)));
+			WRAPPER.unwrap.run(() -> stream.forEach(wrapped));
 		}
 	}
 

@@ -17,7 +17,7 @@ import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.CrcAlgorithm;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
@@ -29,16 +29,16 @@ import ceri.serial.i2c.jna.I2cDev.i2c_msg;
  */
 public class SmBusI2c implements SmBus {
 	private static final CrcAlgorithm CRC = crc8Smbus.algorithm();
-	private final ExceptionConsumer<IOException, i2c_msg.ByReference[]> transferFn;
+	private final Consumer<IOException, i2c_msg.ByReference[]> transferFn;
 	private final BooleanSupplier smBusPecFn;
 	private final I2cAddress address;
 
-	public static SmBusI2c of(ExceptionConsumer<IOException, i2c_msg.ByReference[]> transferFn,
+	public static SmBusI2c of(Consumer<IOException, i2c_msg.ByReference[]> transferFn,
 		BooleanSupplier smBusPecFn, I2cAddress address) {
 		return new SmBusI2c(transferFn, smBusPecFn, address);
 	}
 
-	private SmBusI2c(ExceptionConsumer<IOException, i2c_msg.ByReference[]> transferFn,
+	private SmBusI2c(Consumer<IOException, i2c_msg.ByReference[]> transferFn,
 		BooleanSupplier smBusPecFn, I2cAddress address) {
 		this.transferFn = transferFn;
 		this.smBusPecFn = smBusPecFn;

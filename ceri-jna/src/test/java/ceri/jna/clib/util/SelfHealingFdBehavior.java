@@ -1,6 +1,5 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
@@ -19,6 +18,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
@@ -65,7 +65,7 @@ public class SelfHealingFdBehavior {
 	public void shouldCreateFromOpenFunction() throws IOException {
 		TestFileDescriptor fd = TestFileDescriptor.of(33);
 		CallSync.Supplier<FileDescriptor> sync = CallSync.supplier(fd);
-		var config = SelfHealingFd.Config.of(() -> sync.get(IO_ADAPTER));
+		var config = SelfHealingFd.Config.of(() -> sync.get(ExceptionAdapter.io));
 		assertEquals(config.open(), fd);
 		sync.awaitAuto();
 	}
@@ -157,7 +157,7 @@ public class SelfHealingFdBehavior {
 			fd0.flags.accept(0x11);
 			fd1.flags.accept(0x22);
 			open = CallSync.supplier(fd0, fd1);
-			var config = SelfHealingFd.Config.builder(() -> open.get(IO_ADAPTER))
+			var config = SelfHealingFd.Config.builder(() -> open.get(ExceptionAdapter.io))
 				.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
 			shf = SelfHealingFd.of(config);
 			shf.open();
@@ -206,7 +206,7 @@ public class SelfHealingFdBehavior {
 	private void init() {
 		fd = TestFileDescriptor.of(33);
 		open = CallSync.supplier(fd);
-		var config = SelfHealingFd.Config.builder(() -> open.get(IO_ADAPTER))
+		var config = SelfHealingFd.Config.builder(() -> open.get(ExceptionAdapter.io))
 			.selfHealing(b -> b.recoveryDelayMs(1).fixRetryDelayMs(1)).build();
 		shf = SelfHealingFd.of(config);
 	}

@@ -1,11 +1,11 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntFunction;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.IntFunction;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
@@ -37,23 +37,23 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {
+	public void accept(IntConsumer<IOException> consumer) throws IOException {
 		consumer.accept(fd());
 	}
 
 	@Override
-	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
+	public <T> T apply(IntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
 	}
 
 	@Override
 	public int flags() throws IOException {
-		return flags.lastValue(IO_ADAPTER);
+		return flags.lastValue(ExceptionAdapter.io);
 	}
 
 	@Override
 	public void flags(int flags) throws IOException {
-		this.flags.accept(flags, IO_ADAPTER);
+		this.flags.accept(flags, ExceptionAdapter.io);
 	}
 
 	@Override
@@ -62,6 +62,6 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	public int fd() throws IOException {
-		return fd.get(IO_ADAPTER);
+		return fd.get(ExceptionAdapter.io);
 	}
 }

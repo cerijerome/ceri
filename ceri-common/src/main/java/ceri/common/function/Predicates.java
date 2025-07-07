@@ -34,14 +34,14 @@ public class Predicates {
 	 * A filter that returns true for all conditions.
 	 */
 	public static <T> Predicate<T> yes() {
-		return BasicUtil.uncheckedCast(YES);
+		return BasicUtil.unchecked(YES);
 	}
 
 	/**
 	 * A filter that returns false for all conditions.
 	 */
 	public static <T> Predicate<T> no() {
-		return BasicUtil.uncheckedCast(NO);
+		return BasicUtil.unchecked(NO);
 	}
 
 	/**

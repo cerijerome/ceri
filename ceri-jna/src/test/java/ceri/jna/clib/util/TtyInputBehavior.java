@@ -7,7 +7,7 @@ import static ceri.jna.clib.jna.CTermios.ICANON;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.LineReader;
 import ceri.common.test.SystemIoCaptor;
 import ceri.common.util.CloseableUtil;
@@ -55,7 +55,7 @@ public class TtyInputBehavior {
 		termios(lib.tc.value(), t -> assertEquals(t.c_lflag.intValue() & LFLAGS, LFLAGS));
 	}
 
-	private void termios(TcArgs tc, ExceptionConsumer<IOException, CTermios.termios> consumer)
+	private void termios(TcArgs tc, Consumer<IOException, CTermios.termios> consumer)
 		throws IOException {
 		CTermios.termios termios = CTermios.tcgetattr(0);
 		Struct.copyTo(termios, tc.arg(1));

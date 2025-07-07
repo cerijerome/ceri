@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;

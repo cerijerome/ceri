@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.CloseableUtil;
 
 public class TcpSocketTesterBehavior {

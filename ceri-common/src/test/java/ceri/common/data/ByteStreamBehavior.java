@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRead;
@@ -20,6 +19,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.RuntimeIoException;
@@ -43,7 +43,7 @@ public class ByteStreamBehavior {
 	public void shouldReadByteWithErrors() {
 		ErrorGen error = ErrorGen.of();
 		InputStream in = IoStreamUtil.in(() -> {
-			error.call(IO_ADAPTER);
+			error.call(ExceptionAdapter.io);
 			return 0;
 		});
 		Reader r = ByteStream.reader(in);
@@ -112,7 +112,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldWriteByteWithErrors() {
 		ErrorGen error = ErrorGen.of();
-		OutputStream out = IoStreamUtil.out(_ -> error.call(IO_ADAPTER));
+		OutputStream out = IoStreamUtil.out(_ -> error.call(ExceptionAdapter.io));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);
 		assertRte(() -> w.writeByte(1));

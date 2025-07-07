@@ -16,16 +16,16 @@ import ceri.common.util.BasicUtil;
 public class Comparators {
 	private static final Comparator<Comparable<Comparable<?>>> COMPARABLE =
 		nonNull(Comparable::compareTo);
-	public static final Comparator<Double> DOUBLE = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Float> FLOAT = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Byte> BYTE = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Short> SHORT = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Integer> INT = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Long> LONG = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Boolean> BOOL = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Character> CHAR = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<String> STRING = BasicUtil.uncheckedCast(COMPARABLE);
-	public static final Comparator<Date> DATE = BasicUtil.uncheckedCast(COMPARABLE);
+	public static final Comparator<Double> DOUBLE = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Float> FLOAT = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Byte> BYTE = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Short> SHORT = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Integer> INT = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Long> LONG = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Boolean> BOOL = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Character> CHAR = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<String> STRING = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Date> DATE = BasicUtil.unchecked(COMPARABLE);
 	public static final Comparator<Byte> UBYTE = nonNull(Byte::compareUnsigned);
 	public static final Comparator<Short> USHORT = nonNull(Short::compareUnsigned);
 	public static final Comparator<Integer> UINT = nonNull(Integer::compareUnsigned);
@@ -74,7 +74,7 @@ public class Comparators {
 	 * Wraps a comparator, where null values are considered inferior to non-null values.
 	 */
 	public static <T> Comparator<T> nonNull(final Comparator<? super T> comparator) {
-		if (comparator == null) return BasicUtil.uncheckedCast(NULL);
+		if (comparator == null) return BasicUtil.unchecked(NULL);
 		return ((lhs, rhs) -> {
 			if (lhs == rhs) return 0;
 			if (lhs == null) return -1;
@@ -88,28 +88,28 @@ public class Comparators {
 	 * Comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> comparable() {
-		return BasicUtil.uncheckedCast(COMPARABLE);
+		return BasicUtil.unchecked(COMPARABLE);
 	}
 
 	/**
 	 * Comparator for string representations of objects.
 	 */
 	public static <T> Comparator<T> string() {
-		return BasicUtil.uncheckedCast(STRING_VALUE);
+		return BasicUtil.unchecked(STRING_VALUE);
 	}
 
 	/**
 	 * Null comparator treats everything as equal.
 	 */
 	public static <T> Comparator<T> nullComparator() {
-		return BasicUtil.uncheckedCast(NULL);
+		return BasicUtil.unchecked(NULL);
 	}
 
 	/**
 	 * Non-null comparator treats null as inferior, everything else equal.
 	 */
 	public static <T> Comparator<T> nonNullComparator() {
-		return BasicUtil.uncheckedCast(NON_NULL);
+		return BasicUtil.unchecked(NON_NULL);
 	}
 
 	/**

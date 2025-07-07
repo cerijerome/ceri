@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 
 public class LongReceiverBehavior {
 
@@ -130,7 +130,7 @@ public class LongReceiverBehavior {
 	 * LongReceiver, and asserts the longs in the array.
 	 */
 	private static <E extends Exception> void assertLongs(int size,
-		ExceptionConsumer<E, LongReceiver> action, long... longs) throws E {
+		Consumer<E, LongReceiver> action, long... longs) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		assertArray(holder.longs, longs);

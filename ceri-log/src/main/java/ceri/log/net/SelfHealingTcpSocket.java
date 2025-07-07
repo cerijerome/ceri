@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts.Function;
 import ceri.common.function.Namer;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
 import ceri.common.text.ToString;
-import ceri.log.io.SelfHealingConnector;
 import ceri.log.io.SelfHealing;
+import ceri.log.io.SelfHealingConnector;
 import ceri.log.util.LogUtil;
 
 /**
@@ -29,7 +29,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
 			Namer.predicate(TcpSocket::isBroken, "TcpSocket::isBroken");
 		public final HostPort hostPort;
-		public final ExceptionFunction<IOException, HostPort, TcpSocket> factory;
+		public final Function<IOException, HostPort, TcpSocket> factory;
 		public final TcpSocketOptions options;
 		public final SelfHealing.Config selfHealing;
 
@@ -39,7 +39,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 
 		public static class Builder {
 			final HostPort hostPort;
-			ExceptionFunction<IOException, HostPort, TcpSocket> factory = TcpSocket::connect;
+			Function<IOException, HostPort, TcpSocket> factory = TcpSocket::connect;
 			TcpSocketOptions.Mutable options = TcpSocketOptions.of();
 			final SelfHealing.Config.Builder selfHealing =
 				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
@@ -48,7 +48,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 				this.hostPort = hostPort;
 			}
 
-			public Builder factory(ExceptionFunction<IOException, HostPort, TcpSocket> factory) {
+			public Builder factory(Function<IOException, HostPort, TcpSocket> factory) {
 				this.factory = factory;
 				return this;
 			}

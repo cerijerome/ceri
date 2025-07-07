@@ -3,8 +3,8 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CUnistd.STDIN_FILENO;
 import java.util.Optional;
 import com.sun.jna.Structure;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.Supplier;
 import ceri.jna.type.Struct;
 
 /**
@@ -44,8 +44,8 @@ public class CUtil {
 	 * Execute supplier and return the result as optional. If a given error occurs, return empty.
 	 * Any other error will throw an exception.
 	 */
-	public static <T> Optional<T> optionalGet(ExceptionSupplier<CException, T> supplier,
-		int... errNos) throws CException {
+	public static <T> Optional<T> optionalGet(Supplier<CException, T> supplier, int... errNos)
+		throws CException {
 		return Optional.ofNullable(get(supplier, errNos));
 	}
 
@@ -53,8 +53,7 @@ public class CUtil {
 	 * Execute supplier and return the result. If a given error occurs, return null. Any other error
 	 * will throw an exception.
 	 */
-	public static <T> T get(ExceptionSupplier<CException, T> supplier, int... errNos)
-		throws CException {
+	public static <T> T get(Supplier<CException, T> supplier, int... errNos) throws CException {
 		try {
 			return supplier.get();
 		} catch (CException e) {
@@ -68,8 +67,7 @@ public class CUtil {
 	 * Execute runnable and return true. If a given error occurs, return false. Any other error will
 	 * throw an exception.
 	 */
-	public static boolean run(ExceptionRunnable<CException> runnable, int... errNos)
-		throws CException {
+	public static boolean run(Runnable<CException> runnable, int... errNos) throws CException {
 		try {
 			runnable.run();
 			return true;

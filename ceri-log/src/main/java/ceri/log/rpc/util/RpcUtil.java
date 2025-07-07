@@ -10,7 +10,7 @@ import com.google.protobuf.Int64Value;
 import com.google.protobuf.StringValue;
 import com.google.protobuf.UInt32Value;
 import com.google.protobuf.UInt64Value;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts.Function;
 import ceri.common.util.BasicUtil;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -132,11 +132,11 @@ public class RpcUtil {
 	 * Transforms a steam observer type.
 	 */
 	public static <E extends Exception, T, U> StreamObserver<T>
-		transformObserver(ExceptionFunction<E, T, U> fn, StreamObserver<U> observer) {
+		transformObserver(Function<E, T, U> fn, StreamObserver<U> observer) {
 		return observer(t -> onNext(t, fn, observer), observer::onCompleted, observer::onError);
 	}
 
-	private static <E extends Exception, T, U> void onNext(T t, ExceptionFunction<E, T, U> fn,
+	private static <E extends Exception, T, U> void onNext(T t, Function<E, T, U> fn,
 		StreamObserver<U> observer) {
 		try {
 			observer.onNext(t == null ? null : fn.apply(t));
@@ -146,10 +146,10 @@ public class RpcUtil {
 	}
 
 	/**
-	 * A no-op oberver.
+	 * A no-op observer.
 	 */
 	public static <T> StreamObserver<T> nullObserver() {
-		return BasicUtil.uncheckedCast(NULL_OBSERVER);
+		return BasicUtil.unchecked(NULL_OBSERVER);
 	}
 
 	/**
@@ -164,5 +164,4 @@ public class RpcUtil {
 			t0 = t0.getCause();
 		return t0 == null ? t : t0;
 	}
-
 }

@@ -13,11 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 
 /**
  * Utilities for AutoCloseable resources.
@@ -50,7 +46,7 @@ public class CloseableUtil {
 	 * is closed, and the exception re-thrown. Returns the passed-in resource.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T acceptOrClose(T t,
-		ExceptionConsumer<E, T> consumer) throws E {
+		Excepts.Consumer<E, T> consumer) throws E {
 		return acceptOrClose(t, consumer, CloseableUtil::close);
 	}
 
@@ -58,8 +54,8 @@ public class CloseableUtil {
 	 * Invokes the consumer on the given resource if non-null. If an exception occurs, the resource
 	 * is closed, and the exception re-thrown. Returns the passed-in resource.
 	 */
-	public static <E extends Exception, T> T acceptOrClose(T t, ExceptionConsumer<E, T> consumer,
-		ExceptionConsumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T> T acceptOrClose(T t, Excepts.Consumer<E, T> consumer,
+		Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			if (t != null) consumer.accept(t);
 			return t;
@@ -75,7 +71,7 @@ public class CloseableUtil {
 	 * resource is null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrClose(T t,
-		ExceptionFunction<E, T, R> function) throws E {
+		Excepts.Function<E, T, R> function) throws E {
 		return applyOrClose(t, function, null);
 	}
 
@@ -85,7 +81,7 @@ public class CloseableUtil {
 	 * default value if the resource or function result is null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrClose(T t,
-		ExceptionFunction<E, T, R> function, R def) throws E {
+		Excepts.Function<E, T, R> function, R def) throws E {
 		return applyOrClose(t, function, def, CloseableUtil::close);
 	}
 
@@ -95,7 +91,7 @@ public class CloseableUtil {
 	 * default value if the resource or function result is null.
 	 */
 	public static <E extends Exception, T, R> R applyOrClose(T t,
-		ExceptionFunction<E, T, R> function, R def, ExceptionConsumer<E, T> closeFn) throws E {
+		Excepts.Function<E, T, R> function, R def, Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			if (t == null) return def;
 			var result = function.apply(t);
@@ -111,7 +107,7 @@ public class CloseableUtil {
 	 * re-thrown. Returns the passed-in resource.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T runOrClose(T t,
-		ExceptionRunnable<E> runnable) throws E {
+		Excepts.Runnable<E> runnable) throws E {
 		return runOrClose(t, runnable, CloseableUtil::close);
 	}
 
@@ -119,8 +115,8 @@ public class CloseableUtil {
 	 * Invokes the runnable. If an exception occurs, the resource is closed, and the exception
 	 * re-thrown. Returns the passed-in resource.
 	 */
-	public static <E extends Exception, T> T runOrClose(T t, ExceptionRunnable<E> runnable,
-		ExceptionConsumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T> T runOrClose(T t, Excepts.Runnable<E> runnable,
+		Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			runnable.run();
 			return t;
@@ -135,7 +131,7 @@ public class CloseableUtil {
 	 * re-thrown. Returns the function result.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
-		ExceptionSupplier<E, R> supplier) throws E {
+		Excepts.Supplier<E, R> supplier) throws E {
 		return getOrClose(t, supplier, null);
 	}
 
@@ -145,7 +141,7 @@ public class CloseableUtil {
 	 * null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
-		ExceptionSupplier<E, R> supplier, R def) throws E {
+		Excepts.Supplier<E, R> supplier, R def) throws E {
 		return getOrClose(t, supplier, def, CloseableUtil::close);
 	}
 
@@ -154,8 +150,8 @@ public class CloseableUtil {
 	 * re-thrown. Returns the function result, or the given default value if the function result is
 	 * null.
 	 */
-	public static <E extends Exception, T, R> R getOrClose(T t, ExceptionSupplier<E, R> supplier,
-		R def, ExceptionConsumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T, R> R getOrClose(T t, Excepts.Supplier<E, R> supplier,
+		R def, Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			var result = supplier.get();
 			return result == null ? def : result;
@@ -170,7 +166,7 @@ public class CloseableUtil {
 	 * and the exception re-thrown. Returns the passed-in resources.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> Collection<T>
-		acceptOrCloseAll(Collection<T> ts, ExceptionConsumer<E, Collection<T>> consumer) throws E {
+		acceptOrCloseAll(Collection<T> ts, Excepts.Consumer<E, Collection<T>> consumer) throws E {
 		return acceptOrClose(ts, consumer, CloseableUtil::close);
 	}
 
@@ -178,8 +174,8 @@ public class CloseableUtil {
 	 * Invokes the function on the given resources. If an exception occurs, the resources are
 	 * closed, and the exception re-thrown. Returns the function result.
 	 */
-	public static <E extends Exception, T extends AutoCloseable, R> R applyOrCloseAll(
-		Collection<T> ts, ExceptionFunction<E, Collection<T>, R> function) throws E {
+	public static <E extends Exception, T extends AutoCloseable, R> R
+		applyOrCloseAll(Collection<T> ts, Excepts.Function<E, Collection<T>, R> function) throws E {
 		return applyOrCloseAll(ts, function, null);
 	}
 
@@ -189,7 +185,7 @@ public class CloseableUtil {
 	 * if the resources or function result are null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrCloseAll(
-		Collection<T> ts, ExceptionFunction<E, Collection<T>, R> function, R def) throws E {
+		Collection<T> ts, Excepts.Function<E, Collection<T>, R> function, R def) throws E {
 		return applyOrClose(ts, function, def, CloseableUtil::close);
 	}
 
@@ -198,7 +194,7 @@ public class CloseableUtil {
 	 * re-thrown. Returns the passed-in resources.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> Collection<T>
-		runOrCloseAll(Collection<T> ts, ExceptionRunnable<E> runnable) throws E {
+		runOrCloseAll(Collection<T> ts, Excepts.Runnable<E> runnable) throws E {
 		return runOrClose(ts, runnable, CloseableUtil::close);
 	}
 
@@ -207,7 +203,7 @@ public class CloseableUtil {
 	 * re-thrown. Returns the function result.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R
-		getOrCloseAll(Collection<T> ts, ExceptionSupplier<E, R> supplier) throws E {
+		getOrCloseAll(Collection<T> ts, Excepts.Supplier<E, R> supplier) throws E {
 		return getOrCloseAll(ts, supplier, null);
 	}
 
@@ -217,7 +213,7 @@ public class CloseableUtil {
 	 * null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R
-		getOrCloseAll(Collection<T> ts, ExceptionSupplier<E, R> supplier, R def) throws E {
+		getOrCloseAll(Collection<T> ts, Excepts.Supplier<E, R> supplier, R def) throws E {
 		return getOrClose(ts, supplier, def, CloseableUtil::close);
 	}
 
@@ -245,7 +241,7 @@ public class CloseableUtil {
 	 * subject is null. Exceptions are suppressed, and interrupted exceptions will re-interrupt the
 	 * thread. Returns false if any exception occurred.
 	 */
-	public static <T> boolean close(T t, ExceptionConsumer<?, ? super T> closeFn) {
+	public static <T> boolean close(T t, Excepts.Consumer<?, ? super T> closeFn) {
 		return consumeIt(t, closeFn::accept);
 	}
 
@@ -343,7 +339,7 @@ public class CloseableUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
-		create(ExceptionFunction<E, T, R> constructor, T... inputs) throws E {
+		create(Excepts.Function<E, T, R> constructor, T... inputs) throws E {
 		return create(constructor, Arrays.asList(inputs));
 	}
 
@@ -353,7 +349,7 @@ public class CloseableUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
-		create(ExceptionFunction<E, T, R> constructor, Iterable<T> inputs) throws E {
+		create(Excepts.Function<E, T, R> constructor, Iterable<T> inputs) throws E {
 		List<R> results = new ArrayList<>();
 		try {
 			for (T input : inputs)
@@ -371,7 +367,7 @@ public class CloseableUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T extends AutoCloseable> List<T>
-		create(ExceptionSupplier<E, T> constructor, int count) throws E {
+		create(Excepts.Supplier<E, T> constructor, int count) throws E {
 		List<T> results = new ArrayList<>(count);
 		try {
 			for (int i = 0; i < count; i++)
@@ -389,7 +385,7 @@ public class CloseableUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(
-		IntFunction<R[]> arrayFn, ExceptionFunction<E, T, R> constructor, T... inputs) throws E {
+		IntFunction<R[]> arrayFn, Excepts.Function<E, T, R> constructor, T... inputs) throws E {
 		return createArray(arrayFn, constructor, Arrays.asList(inputs));
 	}
 
@@ -398,7 +394,7 @@ public class CloseableUtil {
 	 * exception occurs the already created instances will be closed.
 	 */
 	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(
-		IntFunction<R[]> arrayFn, ExceptionFunction<E, T, R> constructor, Collection<T> inputs)
+		IntFunction<R[]> arrayFn, Excepts.Function<E, T, R> constructor, Collection<T> inputs)
 		throws E {
 		R[] results = arrayFn.apply(inputs.size());
 		int i = 0;
@@ -417,7 +413,7 @@ public class CloseableUtil {
 	 * times. If any exception occurs the already created instances will be closed.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T[] createArray(
-		IntFunction<T[]> arrayFn, ExceptionSupplier<E, T> constructor, int count) throws E {
+		IntFunction<T[]> arrayFn, Excepts.Supplier<E, T> constructor, int count) throws E {
 		T[] results = arrayFn.apply(count);
 		try {
 			for (int i = 0; i < count; i++)
@@ -434,7 +430,7 @@ public class CloseableUtil {
 	 * is returned. If an exception is thrown, it will be suppressed, and false is returned.
 	 * Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static <T> boolean consumeIt(T t, ExceptionConsumer<Exception, T> consumer) {
+	private static <T> boolean consumeIt(T t, Excepts.Consumer<Exception, T> consumer) {
 		if (t == null) return true;
 		return runIt(() -> consumer.accept(t));
 	}
@@ -443,7 +439,7 @@ public class CloseableUtil {
 	 * Invokes the runnable and returns true. If an exception is thrown, it will be suppressed, and
 	 * false is returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static boolean runIt(ExceptionRunnable<Exception> runnable) {
+	private static boolean runIt(Excepts.Runnable<Exception> runnable) {
 		return getIt(() -> {
 			runnable.run();
 			return true;
@@ -455,7 +451,7 @@ public class CloseableUtil {
 	 * null, true is returned. If an exception is thrown, it is suppressed, and false is returned.
 	 * Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static <T> boolean testIt(T t, ExceptionPredicate<Exception, T> predicate) {
+	private static <T> boolean testIt(T t, Excepts.Predicate<Exception, T> predicate) {
 		if (t == null) return true;
 		return getIt(() -> predicate.test(t), false);
 	}
@@ -464,7 +460,7 @@ public class CloseableUtil {
 	 * Invokes the supplier and returns the result. If an exception is thrown, it is suppressed, and
 	 * error value returned instead. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static <T> T getIt(ExceptionSupplier<Exception, T> supplier, T errorVal) {
+	private static <T> T getIt(Excepts.Supplier<Exception, T> supplier, T errorVal) {
 		try {
 			return supplier.get();
 		} catch (RuntimeInterruptedException | InterruptedException e) {

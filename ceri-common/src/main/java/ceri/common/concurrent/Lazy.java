@@ -3,8 +3,8 @@ package ceri.common.concurrent;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -23,12 +23,12 @@ public class Lazy<T> {
 		/**
 		 * Gets the value, instantiating on first call using the given supplier.
 		 */
-		T get(ExceptionSupplier<E, T> supplier) throws E;
+		T get(Excepts.Supplier<E, T> supplier) throws E;
 
 		/**
 		 * Instantiates on first call using the given supplier.
 		 */
-		default void init(ExceptionSupplier<E, T> supplier) throws E {
+		default void init(Excepts.Supplier<E, T> supplier) throws E {
 			get(supplier);
 		}
 
@@ -41,7 +41,7 @@ public class Lazy<T> {
 	/**
 	 * Instantiates a value.
 	 */
-	public static interface Supplier<E extends Exception, T> extends ExceptionSupplier<E, T> {
+	public static interface Supplier<E extends Exception, T> extends Excepts.Supplier<E, T> {
 		/**
 		 * Gets the value, instantiating on first call.
 		 */
@@ -65,8 +65,8 @@ public class Lazy<T> {
 	 * A lazily instantiated value, with temporary override. The value can be manually initialized
 	 * if called before get().
 	 */
-	public static class Value<E extends Exception, T> implements ExceptionSupplier<E, T> {
-		private final ExceptionSupplier<E, T> supplier;
+	public static class Value<E extends Exception, T> implements Excepts.Supplier<E, T> {
+		private final Excepts.Supplier<E, T> supplier;
 		private final Lazy.Function<E, T> lazy;
 		private volatile T override;
 
@@ -74,7 +74,7 @@ public class Lazy<T> {
 		 * Create an instance using the initializer without a lock.
 		 */
 		public static <E extends Exception, T> Value<E, T>
-			unsafe(ExceptionSupplier<E, T> supplier) {
+			unsafe(Excepts.Supplier<E, T> supplier) {
 			return new Value<>(Lazy.unsafe(), supplier);
 		}
 
@@ -88,7 +88,7 @@ public class Lazy<T> {
 		/**
 		 * Create an instance using the initializer.
 		 */
-		public static <E extends Exception, T> Value<E, T> of(ExceptionSupplier<E, T> supplier) {
+		public static <E extends Exception, T> Value<E, T> of(Excepts.Supplier<E, T> supplier) {
 			return of(new ReentrantLock(), supplier);
 		}
 
@@ -96,11 +96,11 @@ public class Lazy<T> {
 		 * Create an instance using the initializer and lock.
 		 */
 		public static <E extends Exception, T> Value<E, T> of(Lock lock,
-			ExceptionSupplier<E, T> supplier) {
+			Excepts.Supplier<E, T> supplier) {
 			return new Value<>(Lazy.of(lock), supplier);
 		}
 
-		private Value(Lazy.Function<E, T> lazy, ExceptionSupplier<E, T> supplier) {
+		private Value(Lazy.Function<E, T> lazy, Excepts.Supplier<E, T> supplier) {
 			this.lazy = lazy;
 			this.supplier = supplier;
 		}
@@ -110,7 +110,7 @@ public class Lazy<T> {
 		 */
 		@Override
 		public T get() throws E {
-			return BasicUtil.defaultValue(override, this::value);
+			return BasicUtil.def(override, this::value);
 		}
 
 		/**
@@ -163,7 +163,7 @@ public class Lazy<T> {
 		var cc = new Lazy<T>(lock);
 		return new Function<>() {
 			@Override
-			public T get(ExceptionSupplier<E, T> supplier) throws E {
+			public T get(Excepts.Supplier<E, T> supplier) throws E {
 				return cc.get(supplier);
 			}
 
@@ -177,7 +177,7 @@ public class Lazy<T> {
 	/**
 	 * Provides a lazily instantiated constant using given supplier.
 	 */
-	public static <E extends Exception, T> Supplier<E, T> of(ExceptionSupplier<E, T> supplier) {
+	public static <E extends Exception, T> Supplier<E, T> of(Excepts.Supplier<E, T> supplier) {
 		return of(new ReentrantLock(), supplier);
 	}
 
@@ -185,7 +185,7 @@ public class Lazy<T> {
 	 * Provides a lazily instantiated constant using given supplier.
 	 */
 	public static <E extends Exception, T> Supplier<E, T> of(Lock lock,
-		ExceptionSupplier<E, T> supplier) {
+		Excepts.Supplier<E, T> supplier) {
 		Objects.requireNonNull(lock);
 		return supplier(lock, supplier);
 	}
@@ -194,12 +194,13 @@ public class Lazy<T> {
 	 * Provides a lazily-instantiated constant using the given supplier. Does not use a lock, so the
 	 * supplier may be called more than once.
 	 */
-	public static <E extends Exception, T> Supplier<E, T> unsafe(ExceptionSupplier<E, T> supplier) {
+	public static <E extends Exception, T> Supplier<E, T>
+		unsafe(Excepts.Supplier<E, T> supplier) {
 		return supplier(null, supplier);
 	}
 
 	private static <E extends Exception, T> Supplier<E, T> supplier(Lock lock,
-		ExceptionSupplier<E, T> supplier) {
+		Excepts.Supplier<E, T> supplier) {
 		Objects.requireNonNull(supplier);
 		var cc = new Lazy<T>(lock);
 		return new Supplier<>() {
@@ -219,9 +220,9 @@ public class Lazy<T> {
 		this.lock = lock;
 	}
 
-	private <E extends Exception> T get(ExceptionSupplier<E, T> supplier) throws E {
+	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
 		if (value == null) try (var _ = locker()) { // double-checked locking
-			value = BasicUtil.defaultValue(value, supplier);
+			value = BasicUtil.def(value, supplier);
 		}
 		return value;
 	}

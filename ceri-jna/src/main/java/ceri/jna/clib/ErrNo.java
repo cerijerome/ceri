@@ -194,7 +194,7 @@ public enum ErrNo {
 	 * Returns a matching type, or undefined type if no match.
 	 */
 	public static ErrNo from(int code) {
-		return BasicUtil.defaultValue(xcoder.decode(code), UNDEFINED);
+		return BasicUtil.def(xcoder.decode(code), UNDEFINED);
 	}
 
 	private ErrNo(int code) {

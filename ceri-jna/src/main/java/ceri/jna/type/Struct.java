@@ -81,7 +81,7 @@ public abstract class Struct extends Structure {
 	 */
 	public static <T> T readField(Structure struct, String name) {
 		if (struct == null) return null;
-		return BasicUtil.uncheckedCast(struct.readField(name));
+		return BasicUtil.unchecked(struct.readField(name));
 	}
 
 	/**
@@ -307,7 +307,7 @@ public abstract class Struct extends Structure {
 	 */
 	public static <T extends Structure> T[] arrayOfVal(T t, IntFunction<T[]> arrayFn, int count) {
 		if (count == 0 || t == null) return arrayFn.apply(count);
-		return BasicUtil.uncheckedCast(t.toArray(count));
+		return BasicUtil.unchecked(t.toArray(count));
 	}
 
 	/**
@@ -512,7 +512,7 @@ public abstract class Struct extends Structure {
 	 * Convenience method to get the last field name.
 	 */
 	protected String lastName() {
-		List<String> fieldNames = BasicUtil.uncheckedCast(getFieldOrder());
+		List<String> fieldNames = BasicUtil.unchecked(getFieldOrder());
 		return fieldNames.get(fieldNames.size() - 1);
 	}
 
@@ -539,12 +539,12 @@ public abstract class Struct extends Structure {
 
 	@Override
 	protected List<Field> getFieldList() {
-		return BasicUtil.uncheckedCast(super.getFieldList());
+		return BasicUtil.unchecked(super.getFieldList());
 	}
 
 	@Override
 	protected List<Field> getFields(boolean force) {
-		return BasicUtil.uncheckedCast(super.getFields(force));
+		return BasicUtil.unchecked(super.getFields(force));
 	}
 
 	@Override

@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntFunction;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.IntFunction;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.text.RegexUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -42,7 +42,7 @@ public class CFileDescriptor implements FileDescriptor {
 	 * Encapsulates open arguments. Use Mode.NONE if mode is unspecified.
 	 */
 	public static record Opener(String path, Mode mode, Collection<Open> flags)
-		implements ExceptionSupplier<IOException, CFileDescriptor> {
+		implements Supplier<IOException, CFileDescriptor> {
 		public Opener(String path, Mode mode, Open... flags) {
 			this(path, mode, List.of(flags));
 		}
@@ -114,12 +114,12 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public void accept(ExceptionIntConsumer<IOException> consumer) throws IOException {
+	public void accept(IntConsumer<IOException> consumer) throws IOException {
 		consumer.accept(fd());
 	}
 
 	@Override
-	public <T> T apply(ExceptionIntFunction<IOException, T> function) throws IOException {
+	public <T> T apply(IntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
 	}
 

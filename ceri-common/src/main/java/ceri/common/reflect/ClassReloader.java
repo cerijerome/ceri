@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.io.IoUtil;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -27,7 +27,7 @@ public class ClassReloader extends ClassLoader {
 	 */
 	public static <T> Class<T> reload(Class<T> cls, Collection<Class<?>> supportClasses) {
 		var reloader = of(CollectionUtil.joinAsList(cls, supportClasses));
-		return BasicUtil.uncheckedCast(ReflectUtil.forName(cls.getName(), true, reloader));
+		return BasicUtil.unchecked(ReflectUtil.forName(cls.getName(), true, reloader));
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class ClassReloader extends ClassLoader {
 	 */
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
-		return IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+		return ExceptionAdapter.runtimeIo.get(() -> {
 			var bytes = ReflectUtil.loadClassFile(name);
 			var pd = classes.get(name);
 			return defineClass(name, bytes, 0, bytes.length, pd);
@@ -103,6 +103,6 @@ public class ClassReloader extends ClassLoader {
 	 * ClassLoader logic is applied.
 	 */
 	public <T> Class<T> forName(Class<T> cls, boolean init) {
-		return BasicUtil.uncheckedCast(forName(cls.getName(), init));
+		return BasicUtil.unchecked(forName(cls.getName(), init));
 	}
 }

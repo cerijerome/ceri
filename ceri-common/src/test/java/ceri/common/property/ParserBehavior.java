@@ -15,14 +15,14 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.data.ByteUtil;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts.Function;
 import ceri.common.test.Captor;
 import ceri.common.util.Align.H;
 
 public class ParserBehavior {
-	private static final ExceptionFunction<RuntimeException, Integer, List<Integer>> BIT_LIST =
+	private static final Function<RuntimeException, Integer, List<Integer>> BIT_LIST =
 		i -> IntStream.of(ByteUtil.bits(i)).boxed().toList();
-	private static final ExceptionFunction<RuntimeException, Integer, Integer[]> BIT_ARRAY =
+	private static final Function<RuntimeException, Integer, Integer[]> BIT_ARRAY =
 		i -> IntStream.of(ByteUtil.bits(i)).boxed().toArray(Integer[]::new);
 
 	@Test

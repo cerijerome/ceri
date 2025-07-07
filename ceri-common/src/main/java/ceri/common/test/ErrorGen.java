@@ -89,7 +89,7 @@ public class ErrorGen {
 	 * Execute the error generator if set. Exceptions are adapted to runtime exceptions.
 	 */
 	public void call() {
-		call(ExceptionAdapter.RUNTIME);
+		call(ExceptionAdapter.runtime);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class ErrorGen {
 	 * adapted to runtime exceptions.
 	 */
 	public void callWithInterrupt() throws InterruptedException {
-		callWithInterrupt(ExceptionAdapter.RUNTIME);
+		callWithInterrupt(ExceptionAdapter.runtime);
 	}
 
 	/**

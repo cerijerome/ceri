@@ -2,7 +2,7 @@ package ceri.log.rpc.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.rpc.client.RpcClientUtil;
 import io.grpc.stub.StreamObserver;
 

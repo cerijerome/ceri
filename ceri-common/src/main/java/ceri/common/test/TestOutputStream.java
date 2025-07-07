@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,6 +9,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.SubArray;
 import ceri.common.collection.SubArray.Bytes;
 import ceri.common.data.ByteStream;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
@@ -59,20 +59,20 @@ public class TestOutputStream extends OutputStream {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		piped.out().write(b, off, len);
-		write.accept(SubArray.of(b, off, len), IO_ADAPTER);
+		write.accept(SubArray.of(b, off, len), ExceptionAdapter.io);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public void flush() throws IOException {
 		piped.out().flush();
-		flush.run(IO_ADAPTER);
+		flush.run(ExceptionAdapter.io);
 	}
 
 	@Override
 	public void close() throws IOException {
 		piped.close();
-		close.run(IO_ADAPTER);
+		close.run(ExceptionAdapter.io);
 	}
 
 	/**

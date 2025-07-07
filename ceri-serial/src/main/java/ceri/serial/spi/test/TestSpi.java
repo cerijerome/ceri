@@ -1,11 +1,10 @@
 package ceri.serial.spi.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.Direction;
-import ceri.common.io.IoUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.serial.spi.SpiMode;
@@ -46,17 +45,17 @@ public class TestSpi extends SpiEmulator {
 
 		@Override
 		public byte[] in(int size) throws IOException {
-			return xfer.apply(Request.in(size), IO_ADAPTER).copy(0);
+			return xfer.apply(Request.in(size), ExceptionAdapter.io).copy(0);
 		}
 
 		@Override
 		public void out(byte[] data) throws IOException {
-			xfer.apply(Request.out(data), IO_ADAPTER);
+			xfer.apply(Request.out(data), ExceptionAdapter.io);
 		}
 
 		@Override
 		public byte[] duplex(byte[] data) throws IOException {
-			return xfer.apply(Request.duplex(data), IO_ADAPTER).copy(0);
+			return xfer.apply(Request.duplex(data), ExceptionAdapter.io).copy(0);
 		}
 	}
 
@@ -72,49 +71,49 @@ public class TestSpi extends SpiEmulator {
 
 	@Override
 	public SpiMode mode() throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		return super.mode();
 	}
 
 	@Override
 	public void mode(SpiMode mode) throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		super.mode(mode);
 	}
 
 	@Override
 	public boolean lsbFirst() throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		return super.lsbFirst();
 	}
 
 	@Override
 	public void lsbFirst(boolean enabled) throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		super.lsbFirst(enabled);
 	}
 
 	@Override
 	public int bitsPerWord() throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		return super.bitsPerWord();
 	}
 
 	@Override
 	public void bitsPerWord(int bitsPerWord) throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		super.bitsPerWord(bitsPerWord);
 	}
 
 	@Override
 	public int maxSpeedHz() throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		return super.maxSpeedHz();
 	}
 
 	@Override
 	public void maxSpeedHz(int maxSpeedHz) throws IOException {
-		error.call(IoUtil.IO_ADAPTER);
+		error.call(ExceptionAdapter.io);
 		super.maxSpeedHz(maxSpeedHz);
 	}
 

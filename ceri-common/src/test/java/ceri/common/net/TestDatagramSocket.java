@@ -1,11 +1,11 @@
 package ceri.common.net;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
 public class TestDatagramSocket extends DatagramSocket {
@@ -31,7 +31,7 @@ public class TestDatagramSocket extends DatagramSocket {
 
 	@Override
 	public void receive(DatagramPacket p) throws IOException {
-		receive.accept(p, IO_ADAPTER);
+		receive.accept(p, ExceptionAdapter.io);
 	}
 
 }

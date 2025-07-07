@@ -27,7 +27,7 @@ public enum DeviceMode {
 	}
 
 	public static DeviceMode from(Boolean isEnabled) {
-		return BasicUtil.conditional(isEnabled, enabled, disabled, test);
+		return BasicUtil.ternary(isEnabled, enabled, disabled, test);
 	}
 
 	private DeviceMode(int value) {

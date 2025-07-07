@@ -1,7 +1,7 @@
 package ceri.serial.libusb;
 
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.util.BasicUtil.def;
 import ceri.common.text.StringUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
 
@@ -29,11 +29,11 @@ public class UsbLibVersion {
 	}
 
 	public String describe() {
-		return defaultValue(StringUtil.trim(version.describe), "");
+		return def(StringUtil.trim(version.describe), "");
 	}
 
 	public String rcSuffix() {
-		return defaultValue(StringUtil.trim(version.rc), "");
+		return def(StringUtil.trim(version.rc), "");
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.function.FunctionTestUtil.consumer;
-import static ceri.common.function.FunctionTestUtil.intConsumer;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -17,7 +15,6 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Double.parseDouble;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,12 +30,10 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntUnaryOperator;
-import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.FunctionTestUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
+import ceri.common.test.TestUtil.Ioe;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -59,37 +54,35 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testCloseableApply() throws IOException {
-		ExceptionFunction<IOException, Integer, Integer> iFn = FunctionTestUtil.function();
-		ExceptionFunction<IOException, Stream<Integer>, Integer> fn =
-			s -> iFn.apply(s.findFirst().get());
+	public void testCloseableApply() throws Ioe {
+		Excepts.Function<Ioe, Integer, Integer> iFn = E.function;
+		Excepts.Function<Ioe, Stream<Integer>, Integer> fn = s -> iFn.apply(s.findFirst().get());
 		StreamUtil.closeableApply(Stream.of(2, 3, 4), fn);
 		assertThrown(() -> StreamUtil.closeableApply(Stream.of(1, 2, 3), fn));
 	}
 
 	@Test
-	public void testCloseableApplyAsInt() throws IOException {
-		ExceptionIntUnaryOperator<IOException> intOp = FunctionTestUtil.intUnaryOperator();
-		ExceptionToIntFunction<IOException, Stream<Integer>> toIntFn =
+	public void testCloseableApplyAsInt() throws Ioe {
+		Excepts.IntOperator<Ioe> intOp = E.function::apply;
+		Excepts.ToIntFunction<Ioe, Stream<Integer>> toIntFn =
 			s -> intOp.applyAsInt(s.findFirst().get());
 		StreamUtil.closeableApplyAsInt(Stream.of(2, 3, 4), toIntFn);
 		assertThrown(() -> StreamUtil.closeableApplyAsInt(Stream.of(1, 2, 3), toIntFn));
 	}
 
 	@Test
-	public void testCloseableAccept() throws IOException {
-		ExceptionConsumer<IOException, Integer> consumer = FunctionTestUtil.consumer();
-		ExceptionConsumer<IOException, Stream<Integer>> streamConsumer =
+	public void testCloseableAccept() throws Ioe {
+		Excepts.Consumer<Ioe, Integer> consumer = E.consumer::accept;
+		Excepts.Consumer<Ioe, Stream<Integer>> streamConsumer =
 			s -> consumer.accept(s.findFirst().get());
 		StreamUtil.closeableAccept(Stream.of(2, 3, 4), streamConsumer);
 		assertThrown(() -> StreamUtil.closeableAccept(Stream.of(1, 2, 3), streamConsumer));
 	}
 
 	@Test
-	public void testCloseableForEach() throws IOException {
-		StreamUtil.closeableForEach(Stream.of(2, 3, 4), FunctionTestUtil.consumer());
-		assertThrown(
-			() -> StreamUtil.closeableForEach(Stream.of(2, 1), FunctionTestUtil.consumer()));
+	public void testCloseableForEach() throws Ioe {
+		StreamUtil.closeableForEach(Stream.of(2, 3, 4), E.consumer);
+		assertThrown(() -> StreamUtil.closeableForEach(Stream.of(2, 1), E.consumer));
 	}
 
 	@Test
@@ -99,10 +92,10 @@ public class StreamUtilTest {
 		capturer.verify(1, 2, 3);
 		StreamUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
 		capturer.verify(1, 2, 3);
-		assertIoe(() -> StreamUtil.forEach(Stream.of(1, 2, 3), consumer()));
-		assertIoe(() -> StreamUtil.forEach(IntStream.of(1, 2, 3), intConsumer()));
-		assertRte(() -> StreamUtil.forEach(Stream.of(2, 0, 3), consumer()));
-		assertRte(() -> StreamUtil.forEach(IntStream.of(2, 0, 3), intConsumer()));
+		assertIoe(() -> StreamUtil.forEach(Stream.of(1, 2, 3), E.consumer));
+		assertIoe(() -> StreamUtil.forEach(IntStream.of(1, 2, 3), E.consumer::accept));
+		assertRte(() -> StreamUtil.forEach(Stream.of(2, 0, 3), E.consumer));
+		assertRte(() -> StreamUtil.forEach(IntStream.of(2, 0, 3), E.consumer::accept));
 	}
 
 	@Test
@@ -204,9 +197,9 @@ public class StreamUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testWrap() {
-		try (WrappedStream<IOException, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
+		try (WrappedStream<Ioe, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
 			assertIoe(() -> w.mapToInt(s -> {
-				if ("x".equals(s)) throw new IOException();
+				if ("x".equals(s)) throw new Ioe("x");
 				return s.length();
 			}).forEach(_ -> {}));
 		}

@@ -1,7 +1,7 @@
 package ceri.common.collection;
 
 import java.util.function.ObjIntConsumer;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.function.Funcs.ObjIntFunction;
 
 /**
  * Useful for streaming an object and its index, to replace a for loop.

@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
@@ -11,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
 public class NioUtilTest {
@@ -32,7 +32,7 @@ public class NioUtilTest {
 		TestKeySet keys = new TestKeySet(key0, key1, key2);
 		selector.selectedKeys.autoResponses(keys);
 		CallSync.Consumer<SelectionKey> consumer = CallSync.consumer(null, true);
-		NioUtil.selectKeys(selector, k -> consumer.accept(k, IO_ADAPTER));
+		NioUtil.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
 		consumer.assertValues(key0, key1, key2);
 		assertEquals(keys.isEmpty(), true);
 	}
@@ -121,17 +121,17 @@ public class NioUtilTest {
 
 		@Override
 		public int select() throws IOException {
-			return select.apply(0L, IO_ADAPTER);
+			return select.apply(0L, ExceptionAdapter.io);
 		}
 
 		@Override
 		public int select(long timeout) throws IOException {
-			return select.apply(timeout, IO_ADAPTER);
+			return select.apply(timeout, ExceptionAdapter.io);
 		}
 
 		@Override
 		public int selectNow() throws IOException {
-			return selectNow.get(IO_ADAPTER);
+			return selectNow.get(ExceptionAdapter.io);
 		}
 
 		@Override

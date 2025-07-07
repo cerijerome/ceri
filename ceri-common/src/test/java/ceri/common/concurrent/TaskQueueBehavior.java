@@ -11,7 +11,7 @@ import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts.Runnable;
 
 public class TaskQueueBehavior {
 
@@ -72,7 +72,7 @@ public class TaskQueueBehavior {
 		}
 	}
 
-	private ExceptionRunnable<?> task(TaskQueue<?> queue, BooleanCondition error) {
+	private Runnable<?> task(TaskQueue<?> queue, BooleanCondition error) {
 		return () -> {
 			try {
 				queue.execute(() -> ConcurrentUtil.delay(100000));

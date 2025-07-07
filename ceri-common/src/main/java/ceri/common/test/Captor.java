@@ -9,11 +9,12 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.function.Excepts;
 
 /**
  * Simple consumer to collect values during testing, then verify.
  */
-public class Captor<T> implements Consumer<T> {
+public class Captor<T> implements Consumer<T>, Excepts.Consumer<RuntimeException, T> {
 	public final List<T> values = new ArrayList<>();
 
 	public static <T> Captor<T> of() {
@@ -51,7 +52,8 @@ public class Captor<T> implements Consumer<T> {
 		assertList(this.values, values);
 	}
 
-	public static class OfInt extends Captor<Integer> implements IntConsumer, LongConsumer {
+	public static class OfInt extends Captor<Integer> implements IntConsumer, LongConsumer,
+		Excepts.IntConsumer<RuntimeException>, Excepts.LongConsumer<RuntimeException> {
 		@Override
 		public void accept(int value) {
 			accept(Integer.valueOf(value));
@@ -77,7 +79,8 @@ public class Captor<T> implements Consumer<T> {
 		}
 	}
 
-	public static class OfLong extends Captor<Long> implements LongConsumer {
+	public static class OfLong extends Captor<Long>
+		implements LongConsumer, Excepts.LongConsumer<RuntimeException> {
 		@Override
 		public void accept(long value) {
 			accept(Long.valueOf(value));
@@ -98,7 +101,8 @@ public class Captor<T> implements Consumer<T> {
 		}
 	}
 
-	public static class Bi<T, U> implements BiConsumer<T, U> {
+	public static class Bi<T, U>
+		implements BiConsumer<T, U>, Excepts.BiConsumer<RuntimeException, T, U> {
 		public final Captor<T> first;
 		public final Captor<U> second;
 

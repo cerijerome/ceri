@@ -3,8 +3,7 @@ package ceri.common.concurrent;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 
 public class SafeReadWrite {
 	public final ReadWriteLock lock;
@@ -25,19 +24,19 @@ public class SafeReadWrite {
 		return lock.writeLock();
 	}
 
-	public <E extends Exception, T> T read(ExceptionSupplier<E, T> supplier) throws E {
+	public <E extends Exception, T> T read(Excepts.Supplier<E, T> supplier) throws E {
 		return ConcurrentUtil.lockedGet(lock.readLock(), supplier);
 	}
 
-	public <E extends Exception> void readNoReturn(ExceptionRunnable<E> runnable) throws E {
+	public <E extends Exception> void readNoReturn(Excepts.Runnable<E> runnable) throws E {
 		ConcurrentUtil.lockedRun(lock.readLock(), runnable);
 	}
 
-	public <E extends Exception> void write(ExceptionRunnable<E> runnable) throws E {
+	public <E extends Exception> void write(Excepts.Runnable<E> runnable) throws E {
 		ConcurrentUtil.lockedRun(lock.writeLock(), runnable);
 	}
 
-	public <E extends Exception, T> T writeWithReturn(ExceptionSupplier<E, T> supplier) throws E {
+	public <E extends Exception, T> T writeWithReturn(Excepts.Supplier<E, T> supplier) throws E {
 		return ConcurrentUtil.lockedGet(lock.writeLock(), supplier);
 	}
 

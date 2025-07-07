@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.Enclosed;

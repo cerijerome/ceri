@@ -97,7 +97,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Returns the typed instance.
 	 */
 	private T typedThis() {
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 
 }

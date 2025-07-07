@@ -1,6 +1,5 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
@@ -11,6 +10,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
@@ -101,7 +101,7 @@ public class SpiPulseTransmitterBehavior {
 		return new Responder() {
 			@Override
 			public void out(byte[] data) throws IOException {
-				sync.accept(ByteProvider.of(data), IO_ADAPTER);
+				sync.accept(ByteProvider.of(data), ExceptionAdapter.io);
 			}
 		};
 	}

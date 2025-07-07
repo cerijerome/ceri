@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
-import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.Excepts;
 import ceri.common.text.DsvParser;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Counter;
@@ -200,7 +200,7 @@ public class LibUsbFinder {
 	 * match is found and the callback is made.
 	 */
 	public boolean findWithCallback(ArrayPointer<libusb_device> devs,
-		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
+		Excepts.Predicate<LibUsbException, libusb_device> callback) throws LibUsbException {
 		require(devs, "Device list");
 		require(callback, "Callback");
 		int index = this.index;
@@ -221,7 +221,7 @@ public class LibUsbFinder {
 	 * and the callback is made.
 	 */
 	public boolean findWithCallback(libusb_context ctx,
-		ExceptionPredicate<LibUsbException, libusb_device> callback) throws LibUsbException {
+		Excepts.Predicate<LibUsbException, libusb_device> callback) throws LibUsbException {
 		require(callback, "Callback");
 		var devs = libusb_get_device_list(ctx);
 		try {

@@ -1,8 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
@@ -69,12 +69,12 @@ public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
 	@Override
 	public <T> void option(TcpSocketOption<T> option, T value) throws IOException {
 		options.set(option, value);
-		optionSync.run(IO_ADAPTER);
+		optionSync.run(ExceptionAdapter.io);
 	}
 
 	@Override
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
-		optionSync.run(IO_ADAPTER);
+		optionSync.run(ExceptionAdapter.io);
 		return options.get(option);
 	}
 }

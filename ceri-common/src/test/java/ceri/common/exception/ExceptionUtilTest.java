@@ -11,13 +11,10 @@ import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import org.junit.Test;
-import ceri.common.exception.ExceptionUtil.Rte;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.test.Captor;
+import ceri.common.test.TestUtil.Rte;
 
 public class ExceptionUtilTest {
 
@@ -28,8 +25,8 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testRteStub() {
-		assertInstance(new Rte(), RuntimeException.class);
-		ExceptionSupplier<Rte, String> supplier = () -> "test";
+		assertInstance(new Rte("test"), RuntimeException.class);
+		Supplier<Rte, String> supplier = () -> "test";
 		assertEquals(supplier.get(), "test");
 	}
 
@@ -40,48 +37,31 @@ public class ExceptionUtilTest {
 
 	@Test
 	public void testIllegalArg() {
-		assertThrowable(ExceptionUtil.illegalArg("test%d", 123), IllegalArgumentException.class,
+		assertThrowable(Exceptions.illegalArg("test%d", 123), IllegalArgumentException.class,
 			"test123");
 	}
 
 	@Test
 	public void testIllegalState() {
-		assertThrowable(ExceptionUtil.illegalState("test%d", 123), IllegalStateException.class,
+		assertThrowable(Exceptions.illegalState("test%d", 123), IllegalStateException.class,
 			"test123");
 	}
 
 	@Test
 	public void testUnsupportedOp() {
-		assertThrowable(ExceptionUtil.unsupportedOp("test%d", 123),
+		assertThrowable(Exceptions.unsupportedOp("test%d", 123),
 			UnsupportedOperationException.class, "test123");
 	}
 
 	@Test
 	public void testExceptionf() {
-		var e = ExceptionUtil.exceptionf(IOException::new, "test%d", 123);
+		var e = Exceptions.from(IOException::new, "test%d", 123);
 		assertThrowable(e, IOException.class, "test123");
 	}
 
 	@Test
 	public void testThrowUnchecked() {
 		assertIoe(() -> ExceptionUtil.throwUnchecked(new IOException("io")));
-	}
-
-	@Test
-	public void testShouldNotThrow() {
-		Captor.OfInt capturer = Captor.ofInt();
-		ExceptionUtil.shouldNotThrow(() -> capturer.accept(1));
-		ExceptionRunnable<IOException> runnable = () -> {
-			capturer.accept(2);
-			throw new IOException();
-		};
-		assertRte(() -> ExceptionUtil.shouldNotThrow(runnable));
-		Callable<String> callable = () -> {
-			capturer.accept(3);
-			throw new IOException();
-		};
-		assertRte(() -> ExceptionUtil.shouldNotThrow(callable));
-		capturer.verifyInt(1, 2, 3);
 	}
 
 	@Test

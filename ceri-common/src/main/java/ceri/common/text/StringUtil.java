@@ -24,9 +24,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.StreamUtil;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.IntBinaryPredicate;
+import ceri.common.function.Excepts;
+import ceri.common.function.Funcs.IntBiPredicate;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Align;
 
@@ -79,8 +78,8 @@ public class StringUtil {
 	public static final int SHORT_BINARY_DIGITS = 16;
 	public static final int BYTE_BINARY_DIGITS = 8;
 	public static final int HEX_BINARY_DIGITS = 4;
-	public static final ExceptionPredicate<RuntimeException, String> NOT_EMPTY = s -> !empty(s);
-	public static final ExceptionPredicate<RuntimeException, String> NOT_BLANK = s -> !blank(s);
+	public static final Excepts.Predicate<RuntimeException, String> NOT_EMPTY = s -> !empty(s);
+	public static final Excepts.Predicate<RuntimeException, String> NOT_BLANK = s -> !blank(s);
 
 	private StringUtil() {}
 
@@ -920,7 +919,7 @@ public class StringUtil {
 	/**
 	 * Captures the output of a print stream consumer.
 	 */
-	public static <E extends Exception> String print(ExceptionConsumer<E, PrintStream> consumer)
+	public static <E extends Exception> String print(Excepts.Consumer<E, PrintStream> consumer)
 		throws E {
 		StringBuilder b = new StringBuilder();
 		try (PrintStream out = asPrintStream(b)) {
@@ -1008,12 +1007,12 @@ public class StringUtil {
 		if (i <= 0 || i >= s.length()) return true;
 		char l = s.charAt(i - 1);
 		char r = s.charAt(i);
-		if (Character.isLetter(l) != Character.isLetter(r)) return true; 
-		if (Character.isDigit(l) != Character.isDigit(r)) return true; 
+		if (Character.isLetter(l) != Character.isLetter(r)) return true;
+		if (Character.isDigit(l) != Character.isDigit(r)) return true;
 		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
 		return false;
 	}
-	
+
 	// support methods
 
 	private static Character escaped(String escapedChar, String prefix, int radix) {
@@ -1050,7 +1049,7 @@ public class StringUtil {
 		return sections;
 	}
 
-	private static int len(Iterable<? extends CharSequence> strings, IntBinaryPredicate predicate) {
+	private static int len(Iterable<? extends CharSequence> strings, IntBiPredicate predicate) {
 		if (strings == null) return 0;
 		int value = -1;
 		for (var s : strings) {

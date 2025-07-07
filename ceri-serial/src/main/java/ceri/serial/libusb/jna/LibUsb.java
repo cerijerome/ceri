@@ -2,7 +2,7 @@ package ceri.serial.libusb.jna;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.BasicUtil.conditional;
+import static ceri.common.util.BasicUtil.ternary;
 import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -953,7 +953,7 @@ public class LibUsb {
 		public short wLength; // always little-endian, use libusb_cpu_to_le16/libusb_le16_to_cpu
 
 		public libusb_control_setup(Pointer p) {
-			super(p, conditional(Platform.isWindows(), Align.none, Align.platform));
+			super(p, ternary(Platform.isWindows(), Align.none, Align.platform));
 		}
 	}
 
@@ -2209,7 +2209,7 @@ public class LibUsb {
 	}
 
 	public static short libusb_cpu_to_le16(short x) {
-		return (short) BasicUtil.conditionalInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
+		return (short) BasicUtil.ternaryInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
 	}
 
 	public static short libusb_le16_to_cpu(short x) {

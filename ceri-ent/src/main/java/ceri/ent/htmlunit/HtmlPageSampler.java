@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 
 public class HtmlPageSampler {
 	private static final Logger logger = LogManager.getLogger();
@@ -29,17 +29,16 @@ public class HtmlPageSampler {
 	/**
 	 * Load a page depending on sample mode.
 	 */
-	public static HtmlPage loadPage(Mode mode,
-		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Path file) throws IOException {
+	public static HtmlPage loadPage(Mode mode, Excepts.Supplier<IOException, HtmlPage> pageSupplier,
+		Path file) throws IOException {
 		return loadPage(mode, pageSupplier, () -> file);
 	}
 
 	/**
 	 * Load a page depending on sample mode.
 	 */
-	public static HtmlPage loadPage(Mode mode,
-		ExceptionSupplier<IOException, HtmlPage> pageSupplier, Supplier<Path> fileSupplier)
-		throws IOException {
+	public static HtmlPage loadPage(Mode mode, Excepts.Supplier<IOException, HtmlPage> pageSupplier,
+		Supplier<Path> fileSupplier) throws IOException {
 		if (mode == null || mode == Mode.off) return pageSupplier.get();
 		Path f = fileSupplier.get();
 		if (mode == Mode.auto) mode = Files.exists(f) ? Mode.load : Mode.save;

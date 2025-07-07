@@ -1,6 +1,5 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.math.MathUtil.lcm;
 import static ceri.common.util.BasicUtil.unused;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -10,6 +9,7 @@ import static ceri.serial.spi.pulse.PulseCycle.Type.nbit27;
 import static ceri.serial.spi.pulse.PulseCycle.Type.nbit9;
 import static java.lang.Math.min;
 import java.util.Objects;
+import ceri.common.exception.Exceptions;
 
 /**
  * Encapsulates mapping logic to create pulse shapes from high and low bits, such as driving WS2812
@@ -117,7 +117,7 @@ public class PulseCycle {
 		if (type == nbit27) return nbit27(n, offset, t0Bits, t1Bits);
 		if (type == nbit9) return nbit9(n, offset, t0Bits, t1Bits);
 		if (type == nbit) return nbit(n, offset, t0Bits, t1Bits);
-		throw illegalArg("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d", type, n,
+		throw Exceptions.illegalArg("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d", type, n,
 			offset, t0Bits, t1Bits);
 	}
 

@@ -5,9 +5,7 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import com.sun.jna.LastErrorException;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionIntSupplier;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 
 /**
  * Utility to call C functions and check status codes.
@@ -19,7 +17,7 @@ public class Caller<E extends Exception> {
 	/**
 	 * Capture the error code or 0 if successful.
 	 */
-	public static int capture(ExceptionRunnable<? extends LastErrorException> runnable) {
+	public static int capture(Excepts.Runnable<? extends LastErrorException> runnable) {
 		try {
 			runnable.run();
 			return 0;
@@ -69,14 +67,14 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call void library function. Throws an exception on LastErrorException.
 	 */
-	public void call(ExceptionRunnable<E> fn, String name, Object... args) throws E {
+	public void call(Excepts.Runnable<E> fn, String name, Object... args) throws E {
 		call(fn, messageFn(name, args));
 	}
 
 	/**
 	 * Call void library function. Throws an exception on LastErrorException.
 	 */
-	public void call(ExceptionRunnable<E> fn, Supplier<String> msgFn) throws E {
+	public void call(Excepts.Runnable<E> fn, Supplier<String> msgFn) throws E {
 		try {
 			fn.run();
 		} catch (LastErrorException e) {
@@ -87,14 +85,14 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call library function and return int result. Throws an exception on LastErrorException.
 	 */
-	public int callInt(ExceptionIntSupplier<E> fn, String name, Object... args) throws E {
+	public int callInt(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
 		return callInt(fn, messageFn(name, args));
 	}
 
 	/**
 	 * Call library function and return int result. Throws an exception on LastErrorException.
 	 */
-	public int callInt(ExceptionIntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public int callInt(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
 		try {
 			return fn.getAsInt();
 		} catch (LastErrorException e) {
@@ -105,14 +103,14 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call library function and return type result. Throws an exception on LastErrorException.
 	 */
-	public <R> R callType(ExceptionSupplier<E, R> fn, String name, Object... args) throws E {
+	public <R> R callType(Excepts.Supplier<E, R> fn, String name, Object... args) throws E {
 		return callType(fn, messageFn(name, args));
 	}
 
 	/**
 	 * Call library function and return type result. Throws an exception on LastErrorException.
 	 */
-	public <R> R callType(ExceptionSupplier<E, R> fn, Supplier<String> msgFn) throws E {
+	public <R> R callType(Excepts.Supplier<E, R> fn, Supplier<String> msgFn) throws E {
 		try {
 			return fn.get();
 		} catch (LastErrorException e) {
@@ -146,7 +144,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, and verify result. Throws an exception on non-zero status code, or
 	 * LastErrorException.
 	 */
-	public void verify(ExceptionIntSupplier<E> fn, String name, Object... args) throws E {
+	public void verify(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
 		verify(fn, messageFn(name, args));
 	}
 
@@ -154,7 +152,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, and verify result. Throws an exception on non-zero status code, or
 	 * LastErrorException.
 	 */
-	public void verify(ExceptionIntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public void verify(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
 		verifyInt(fn, r -> r == 0, msgFn);
 	}
 
@@ -162,7 +160,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on negative status
 	 * code, or LastErrorException.
 	 */
-	public int verifyInt(ExceptionIntSupplier<E> fn, String name, Object... args) throws E {
+	public int verifyInt(Excepts.IntSupplier<E> fn, String name, Object... args) throws E {
 		return verifyInt(fn, messageFn(name, args));
 	}
 
@@ -170,7 +168,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on negative status
 	 * code, or LastErrorException.
 	 */
-	public int verifyInt(ExceptionIntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public int verifyInt(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
 		return verifyInt(fn, r -> r >= 0, msgFn);
 	}
 
@@ -178,7 +176,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on failed status
 	 * code verification, or LastErrorException.
 	 */
-	public int verifyInt(ExceptionIntSupplier<E> fn, IntPredicate verifyFn, String name,
+	public int verifyInt(Excepts.IntSupplier<E> fn, IntPredicate verifyFn, String name,
 		Object... args) throws E {
 		return verifyInt(fn, verifyFn, messageFn(name, args));
 	}
@@ -187,7 +185,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on failed status
 	 * code verification, or LastErrorException.
 	 */
-	public int verifyInt(ExceptionIntSupplier<E> fn, IntPredicate verifyFn, Supplier<String> msgFn)
+	public int verifyInt(Excepts.IntSupplier<E> fn, IntPredicate verifyFn, Supplier<String> msgFn)
 		throws E {
 		int result = callInt(fn, msgFn);
 		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(msgFn));
@@ -198,7 +196,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on null result with
 	 * given error code, and on LastErrorException.
 	 */
-	public <R> R verifyType(ExceptionSupplier<E, R> fn, int errorCode, String name, Object... args)
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode, String name, Object... args)
 		throws E {
 		return verifyType(fn, errorCode, messageFn(name, args));
 	}
@@ -207,7 +205,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on null result with
 	 * given error code, and on LastErrorException.
 	 */
-	public <R> R verifyType(ExceptionSupplier<E, R> fn, int errorCode, Supplier<String> msgFn)
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode, Supplier<String> msgFn)
 		throws E {
 		return verifyType(fn, r -> r != null ? 0 : errorCode, msgFn);
 	}
@@ -216,7 +214,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on non-zero status
 	 * verification, or LastErrorException.
 	 */
-	public <R> R verifyType(ExceptionSupplier<E, R> fn, ToIntFunction<R> statusFn, String name,
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, ToIntFunction<R> statusFn, String name,
 		Object... args) throws E {
 		return verifyType(fn, statusFn, messageFn(name, args));
 	}
@@ -225,7 +223,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on non-zero status
 	 * verification, or LastErrorException.
 	 */
-	public <R> R verifyType(ExceptionSupplier<E, R> fn, ToIntFunction<R> statusFn,
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, ToIntFunction<R> statusFn,
 		Supplier<String> msgFn) throws E {
 		R result = callType(fn, msgFn);
 		int status = statusFn.applyAsInt(result);

@@ -5,7 +5,7 @@ import static ceri.common.concurrent.ConcurrentUtil.getInterruptible;
 import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
 import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
 import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
-import static ceri.common.exception.ExceptionAdapter.RUNTIME;
+import static ceri.common.exception.ExceptionAdapter.runtime;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIterable;
@@ -18,10 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 import ceri.common.text.ToString;
 import ceri.common.util.Holder;
 
@@ -39,9 +36,9 @@ public abstract class CallSync<T, R> {
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
 	private final List<T> values = new ArrayList<>();
 	private final T originalValueDef;
-	private final java.util.function.Supplier<ExceptionFunction<?, T, R>> origAutoResponseSupplier;
+	private final java.util.function.Supplier<Excepts.Function<?, T, R>> origAutoResponseSupplier;
 	private T valueDef;
-	private ExceptionFunction<?, T, R> autoResponseFn = null; // can be stateful
+	private Excepts.Function<?, T, R> autoResponseFn = null; // can be stateful
 	private int calls = 0;
 	private boolean saveValues = SAVE_VALUES_DEF;
 
@@ -113,7 +110,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValue() {
-			return lastValue(RUNTIME);
+			return lastValue(runtime);
 		}
 
 		/**
@@ -127,7 +124,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValueWithInterrupt() throws InterruptedException {
-			return lastValueWithInterrupt(RUNTIME);
+			return lastValueWithInterrupt(runtime);
 		}
 
 		/**
@@ -171,7 +168,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Sets the auto response function. Use null to disable.
 		 */
-		public Function<T, R> autoResponse(ExceptionFunction<?, T, R> autoResponseFn) {
+		public Function<T, R> autoResponse(Excepts.Function<?, T, R> autoResponseFn) {
 			super.autoResponseFn(autoResponseFn);
 			return this;
 		}
@@ -179,7 +176,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Enables auto response with value consumer and fixed response.
 		 */
-		public Function<T, R> autoResponse(ExceptionConsumer<?, T> consumer, R response) {
+		public Function<T, R> autoResponse(Excepts.Consumer<?, T> consumer, R response) {
 			return autoResponse(toAutoResponseFn(consumer, response));
 		}
 
@@ -189,7 +186,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public R apply(T t) {
-			return apply(t, RUNTIME);
+			return apply(t, runtime);
 		}
 
 		/**
@@ -205,7 +202,7 @@ public abstract class CallSync<T, R> {
 		 * RuntimeException or InterruptedException if the generator is configured.
 		 */
 		public R applyWithInterrupt(T t) throws InterruptedException {
-			return applyWithInterrupt(t, RUNTIME);
+			return applyWithInterrupt(t, runtime);
 		}
 
 		/**
@@ -237,7 +234,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits the call, evaluates the response action, and signals completion. Use when
 		 * autoResponse is disabled.
 		 */
-		public <E extends Exception> T await(ExceptionFunction<E, T, R> responseFn) throws E {
+		public <E extends Exception> T await(Excepts.Function<E, T, R> responseFn) throws E {
 			return super.awaitCallWithResponse(responseFn);
 		}
 
@@ -269,7 +266,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits and asserts the call, evaluates the response action, and signals completion. Use
 		 * when autoResponse is disabled.
 		 */
-		public <E extends Exception> void assertCall(T value, ExceptionFunction<E, T, R> responseFn)
+		public <E extends Exception> void assertCall(T value, Excepts.Function<E, T, R> responseFn)
 			throws E {
 			super.assertCallWithResponse(value, responseFn);
 		}
@@ -297,7 +294,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValue() {
-			return lastValue(RUNTIME);
+			return lastValue(runtime);
 		}
 
 		/**
@@ -311,7 +308,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValueWithInterrupt() throws InterruptedException {
-			return lastValueWithInterrupt(RUNTIME);
+			return lastValueWithInterrupt(runtime);
 		}
 
 		/**
@@ -355,7 +352,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Enables auto response with value consumer when called.
 		 */
-		public Consumer<T> autoResponse(ExceptionConsumer<?, T> consumer) {
+		public Consumer<T> autoResponse(Excepts.Consumer<?, T> consumer) {
 			super.autoResponseFn(toAutoResponseFn(consumer, null));
 			return this;
 		}
@@ -366,7 +363,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public void accept(T t) {
-			accept(t, RUNTIME);
+			accept(t, runtime);
 		}
 
 		/**
@@ -382,7 +379,7 @@ public abstract class CallSync<T, R> {
 		 * InterruptedException if the generator is configured.
 		 */
 		public void acceptWithInterrupt(T t) throws InterruptedException {
-			acceptWithInterrupt(t, RUNTIME);
+			acceptWithInterrupt(t, runtime);
 		}
 
 		/**
@@ -412,7 +409,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits the call, executes the action, and signals completion. Use when autoResponse is
 		 * disabled.
 		 */
-		public <E extends Exception> T await(ExceptionConsumer<E, T> actionFn) throws E {
+		public <E extends Exception> T await(Excepts.Consumer<E, T> actionFn) throws E {
 			return super.awaitCallWithResponse(t -> exec(t, actionFn));
 		}
 
@@ -435,7 +432,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits and asserts the call, executes the action, and signals completion. Use when
 		 * autoResponse is disabled.
 		 */
-		public <E extends Exception> void assertCall(T value, ExceptionConsumer<E, T> actionFn)
+		public <E extends Exception> void assertCall(T value, Excepts.Consumer<E, T> actionFn)
 			throws E {
 			super.assertCallWithResponse(value, t -> exec(t, actionFn));
 		}
@@ -448,8 +445,7 @@ public abstract class CallSync<T, R> {
 			super.assertAndClearValues(values);
 		}
 
-		private <E extends Exception> Object exec(T t, ExceptionConsumer<E, T> responseFn)
-			throws E {
+		private <E extends Exception> Object exec(T t, Excepts.Consumer<E, T> responseFn) throws E {
 			responseFn.accept(t);
 			return null;
 		}
@@ -496,7 +492,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public R get() {
-			return get(RUNTIME);
+			return get(runtime);
 		}
 
 		/**
@@ -512,7 +508,7 @@ public abstract class CallSync<T, R> {
 		 * RuntimeException or InterruptedException if the generator is configured.
 		 */
 		public R getWithInterrupt() throws InterruptedException {
-			return getWithInterrupt(RUNTIME);
+			return getWithInterrupt(runtime);
 		}
 
 		/**
@@ -544,7 +540,7 @@ public abstract class CallSync<T, R> {
 		 * Awaits the call, evaluates the response action, and signals completion. Use when
 		 * autoResponse is disabled.
 		 */
-		public <E extends Exception> void await(ExceptionSupplier<E, R> responseFn) throws E {
+		public <E extends Exception> void await(Excepts.Supplier<E, R> responseFn) throws E {
 			super.awaitCallWithResponse(_ -> responseFn.get());
 		}
 	}
@@ -580,7 +576,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public void run() {
-			run(RUNTIME);
+			run(runtime);
 		}
 
 		/**
@@ -596,7 +592,7 @@ public abstract class CallSync<T, R> {
 		 * InterruptedException if the generator is configured.
 		 */
 		public void runWithInterrupt() throws InterruptedException {
-			runWithInterrupt(RUNTIME);
+			runWithInterrupt(runtime);
 		}
 
 		/**
@@ -626,18 +622,18 @@ public abstract class CallSync<T, R> {
 		 * Awaits the call, executes the action, and signals completion. Use when autoResponse is
 		 * disabled.
 		 */
-		public <E extends Exception> void await(ExceptionRunnable<E> actionFn) throws E {
+		public <E extends Exception> void await(Excepts.Runnable<E> actionFn) throws E {
 			super.awaitCallWithResponse(_ -> exec(actionFn));
 		}
 
-		private <E extends Exception> Object exec(ExceptionRunnable<E> responseFn) throws E {
+		private <E extends Exception> Object exec(Excepts.Runnable<E> responseFn) throws E {
 			responseFn.run();
 			return null;
 		}
 	}
 
 	protected CallSync(T valueDef,
-		java.util.function.Supplier<ExceptionFunction<?, T, R>> autoResponseSupplier) {
+		java.util.function.Supplier<Excepts.Function<?, T, R>> autoResponseSupplier) {
 		originalValueDef = valueDef;
 		this.valueDef = valueDef;
 		origAutoResponseSupplier = autoResponseSupplier;
@@ -807,7 +803,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
-	private void autoResponseFn(ExceptionFunction<?, T, R> autoResponseFn) {
+	private void autoResponseFn(Excepts.Function<?, T, R> autoResponseFn) {
 		lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
@@ -861,7 +857,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Thread-safe; awaits call, and signals completion. Auto-response is temporarily disabled.
 	 */
-	private <E extends Exception> T awaitCallWithResponse(ExceptionFunction<E, T, R> responseFn)
+	private <E extends Exception> T awaitCallWithResponse(Excepts.Function<E, T, R> responseFn)
 		throws E {
 		return lockedGet(lock, () -> {
 			var autoResponseFn = this.autoResponseFn;
@@ -882,7 +878,7 @@ public abstract class CallSync<T, R> {
 	}
 
 	private <E extends Exception> void assertCallWithResponse(T value,
-		ExceptionFunction<E, T, R> responseFn) throws E {
+		Excepts.Function<E, T, R> responseFn) throws E {
 		assertEquals(awaitCallWithResponse(responseFn), value);
 	}
 
@@ -897,15 +893,15 @@ public abstract class CallSync<T, R> {
 		return getInterruptible(responseSync::await).value();
 	}
 
-	private static <T, R> ExceptionFunction<?, T, R>
-		toAutoResponseFn(ExceptionConsumer<?, T> consumer, R response) {
+	private static <T, R> Excepts.Function<?, T, R>
+		toAutoResponseFn(Excepts.Consumer<?, T> consumer, R response) {
 		return t -> {
 			if (consumer != null) consumer.accept(t);
 			return response;
 		};
 	}
 
-	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(java.lang.Runnable runnable,
+	private static <T, R> Excepts.Function<?, T, R> toAutoResponseFn(java.lang.Runnable runnable,
 		R response) {
 		return _ -> {
 			if (runnable != null) runnable.run();
@@ -913,11 +909,11 @@ public abstract class CallSync<T, R> {
 		};
 	}
 
-	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(boolean enabled) {
+	private static <T, R> Excepts.Function<?, T, R> toAutoResponseFn(boolean enabled) {
 		return enabled ? _ -> null : null;
 	}
 
-	private static <T, R> ExceptionFunction<?, T, R> toAutoResponseFn(R[] responses) {
+	private static <T, R> Excepts.Function<?, T, R> toAutoResponseFn(R[] responses) {
 		if (responses.length == 0) return null;
 		var supplier = sequentialSupplier(responses);
 		return _ -> supplier.get();

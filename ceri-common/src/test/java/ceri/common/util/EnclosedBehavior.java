@@ -9,8 +9,8 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.ExceptionCloseable;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.Closeable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
@@ -45,7 +45,7 @@ public class EnclosedBehavior {
 	@Test
 	public void shouldWrapCloseable() throws IOException {
 		var sync = CallSync.runnable(true);
-		try (ExceptionCloseable<IOException> ec = () -> sync.run()) {
+		try (Closeable<IOException> ec = () -> sync.run()) {
 			try (var _ = Enclosed.of(ec)) {}
 			sync.assertCalls(1);
 		}
@@ -66,7 +66,7 @@ public class EnclosedBehavior {
 		}
 		sync.assertCalls(1);
 	}
-	
+
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAdaptCloseableType() {

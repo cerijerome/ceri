@@ -26,12 +26,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionBiFunction;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts;
 import ceri.common.function.FunctionWrapper;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.function.Funcs.ObjIntFunction;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -85,7 +82,7 @@ public class CollectionUtil {
 	 * Iterates over map entries; allows checked exceptions.
 	 */
 	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
-		ExceptionBiConsumer<E, ? super K, ? super V> consumer) throws E {
+		Excepts.BiConsumer<E, ? super K, ? super V> consumer) throws E {
 		for (var entry : map.entrySet())
 			consumer.accept(entry.getKey(), entry.getValue());
 	}
@@ -94,7 +91,7 @@ public class CollectionUtil {
 	 * Iterates over entries; allows checked exceptions.
 	 */
 	public static <E extends Exception, T> void forEach(Iterable<T> iterable,
-		ExceptionConsumer<E, T> consumer) throws E {
+		Excepts.Consumer<E, T> consumer) throws E {
 		for (var entry : iterable)
 			consumer.accept(entry);
 	}
@@ -103,45 +100,45 @@ public class CollectionUtil {
 	 * Computes and (re-)maps the value for the key.
 	 */
 	public static <E extends Exception, K, V> V compute(Map<K, V> map, K key,
-		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> remappingFunction) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.of();
-		return w.unwrapSupplier(() -> map.compute(key, w.wrap(remappingFunction)));
+		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> remapper) throws E {
+		var w = FunctionWrapper.<E>of();
+		return w.unwrap.get(() -> map.compute(key, wrapBiFn(w, remapper)));
 	}
 
 	/**
 	 * Computes and adds the value if the key is not mapped.
 	 */
 	public static <E extends Exception, K, V> V computeIfAbsent(Map<K, V> map, K key,
-		ExceptionFunction<E, ? super K, ? extends V> mappingFunction) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.of();
-		return w.unwrapSupplier(() -> map.computeIfAbsent(key, w.wrap(mappingFunction)));
+		Excepts.Function<E, ? super K, ? extends V> mapper) throws E {
+		var w = FunctionWrapper.<E>of();
+		return w.unwrap.get(() -> map.computeIfAbsent(key, wrapFn(w, mapper)));
 	}
 
 	/**
 	 * Computes and re-maps the value if the key is not present.
 	 */
 	public static <E extends Exception, K, V> V computeIfPresent(Map<K, V> map, K key,
-		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> remappingFunction) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.of();
-		return w.unwrapSupplier(() -> map.computeIfPresent(key, w.wrap(remappingFunction)));
+		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> remapper) throws E {
+		var w = FunctionWrapper.<E>of();
+		return w.unwrap.get(() -> map.computeIfPresent(key, wrapBiFn(w, remapper)));
 	}
 
 	/**
 	 * Applies the function to each map entry.
 	 */
 	public static <E extends Exception, K, V> void replaceAll(Map<K, V> map,
-		ExceptionBiFunction<E, ? super K, ? super V, ? extends V> function) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.of();
-		w.unwrap(() -> map.replaceAll(w.wrap(function)));
+		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> function) throws E {
+		var w = FunctionWrapper.<E>of();
+		w.unwrap.run(() -> map.replaceAll(wrapBiFn(w, function)));
 	}
 
 	/**
 	 * Map the value, or merge the currently mapped value.
 	 */
 	public static <E extends Exception, K, V> V merge(Map<K, V> map, K key, V value,
-		ExceptionBiFunction<E, ? super V, ? super V, ? extends V> remappingFunction) throws E {
-		FunctionWrapper<E> w = FunctionWrapper.of();
-		return w.unwrapSupplier(() -> map.merge(key, value, w.wrap(remappingFunction)));
+		Excepts.BiFunction<E, ? super V, ? super V, ? extends V> remapper) throws E {
+		var w = FunctionWrapper.<E>of();
+		return w.unwrap.get(() -> map.merge(key, value, wrapBiFn(w, remapper)));
 	}
 
 	@SafeVarargs
@@ -694,24 +691,50 @@ public class CollectionUtil {
 		};
 	}
 
+	/**
+	 * Default map provider.
+	 */
 	public static <K, V> Supplier<Map<K, V>> mapSupplier() {
-		return BasicUtil.uncheckedCast(mapSupplier);
+		return BasicUtil.unchecked(mapSupplier);
 	}
 
+	/**
+	 * Default navigable map provider.
+	 */
 	public static <K, V> Supplier<NavigableMap<K, V>> navigableMapSupplier() {
-		return BasicUtil.uncheckedCast(navigableMapSupplier);
+		return BasicUtil.unchecked(navigableMapSupplier);
 	}
 
+	/**
+	 * Default set provider.
+	 */
 	public static <T> Supplier<Set<T>> setSupplier() {
-		return BasicUtil.uncheckedCast(setSupplier);
+		return BasicUtil.unchecked(setSupplier);
 	}
 
+	/**
+	 * Default navigable set provider.
+	 */
 	public static <T> Supplier<NavigableSet<T>> navigableSetSupplier() {
-		return BasicUtil.uncheckedCast(navigableSetSupplier);
+		return BasicUtil.unchecked(navigableSetSupplier);
 	}
 
+	/**
+	 * Default list provider.
+	 */
 	public static <T> Supplier<List<T>> listSupplier() {
-		return BasicUtil.uncheckedCast(listSupplier);
+		return BasicUtil.unchecked(listSupplier);
 	}
 
+	// Support methods
+
+	private static <E extends Exception, K, V> Function<K, V> wrapFn(FunctionWrapper<E> w,
+		Excepts.Function<E, ? super K, ? extends V> fn) {
+		return k -> w.wrap.get(() -> fn.apply(k));
+	}
+
+	private static <E extends Exception, K, V> BiFunction<K, V, V> wrapBiFn(FunctionWrapper<E> w,
+		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> fn) {
+		return (k, v) -> w.wrap.get(() -> fn.apply(k, v));
+	}
 }

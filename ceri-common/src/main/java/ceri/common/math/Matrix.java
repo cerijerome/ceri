@@ -1,6 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.validation.ValidationUtil.validate;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -10,6 +9,7 @@ import static ceri.common.validation.ValidationUtil.validatef;
 import static java.lang.Math.floorMod;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
+import ceri.common.exception.Exceptions;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
@@ -510,13 +510,13 @@ public class Matrix {
 	private static Matrix validateRowVector(Matrix m) {
 		if (m.isRow()) return m;
 		if (m.isColumn()) return m.transpose();
-		throw illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw Exceptions.illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
 	private static Matrix validateColumnVector(Matrix m) {
 		if (m.isColumn()) return m;
 		if (m.isRow()) return m.transpose();
-		throw illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw Exceptions.illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
 	private static double dot(Matrix rv, Matrix cv) {

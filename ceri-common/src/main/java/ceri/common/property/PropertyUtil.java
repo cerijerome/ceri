@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +11,6 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
-import ceri.common.exception.ExceptionUtil;
 
 /**
  * Utility methods for property files.
@@ -26,7 +26,7 @@ public class PropertyUtil {
 	public static Properties parse(String text) {
 		try (var r = new StringReader(text)) {
 			Properties properties = new Properties();
-			ExceptionUtil.shouldNotThrow(() -> properties.load(r));
+			shouldNotThrow.run(() -> properties.load(r));
 			return properties;
 		}
 	}

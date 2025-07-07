@@ -1,9 +1,9 @@
 package ceri.x10.cm17a;
 
-import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.util.BasicUtil.def;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
@@ -143,9 +143,9 @@ public class Cm17aContainer implements RuntimeCloseable {
 			id = config.id;
 			type = config.type(cm17a, serial);
 			createdSerial = createSerial(config.serial);
-			this.serial = defaultValue(createdSerial, serial);
+			this.serial = def(createdSerial, serial);
 			createdCm17a = createCm17a(this.serial, config.device);
-			this.cm17a = defaultValue(createdCm17a, cm17a);
+			this.cm17a = def(createdCm17a, cm17a);
 			logger.info("[%d:%s] started", id, type);
 		} catch (RuntimeException e) {
 			close();

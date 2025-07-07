@@ -19,11 +19,11 @@ public class XPathUtil {
 	}
 
 	public static List<DomNode> xPaths(DomNode dom, String xPath) {
-		return BasicUtil.uncheckedCast(dom.getByXPath(xPath));
+		return BasicUtil.unchecked(dom.getByXPath(xPath));
 	}
 
 	public static List<DomElement> xPathElements(DomNode dom, String xPath) {
-		return BasicUtil.uncheckedCast(dom.getByXPath(xPath));
+		return BasicUtil.unchecked(dom.getByXPath(xPath));
 	}
 
 	public static String xPathText(DomNode node, String xPath) {

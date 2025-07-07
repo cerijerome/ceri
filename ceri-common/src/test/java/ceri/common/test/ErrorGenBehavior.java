@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertRte;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.exception.ExceptionAdapter;
 
 public class ErrorGenBehavior {
 	private final Exception rtx = new RuntimeException("test");
@@ -57,13 +57,13 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldConvertToTypedException() throws IOException {
 		var err = ErrorGen.of();
-		err.call(IO_ADAPTER);
+		err.call(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(() -> err.call(IO_ADAPTER)), rtx);
-		assertEquals(thrown(() -> err.call(IO_ADAPTER)), rix);
-		assertThrown(RuntimeInterruptedException.class, () -> err.call(IO_ADAPTER));
-		assertEquals(thrown(() -> err.call(IO_ADAPTER)), iox);
-		assertIoe(() -> err.call(IO_ADAPTER));
+		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rtx);
+		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rix);
+		assertThrown(RuntimeInterruptedException.class, () -> err.call(ExceptionAdapter.io));
+		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), iox);
+		assertIoe(() -> err.call(ExceptionAdapter.io));
 	}
 
 	@Test
@@ -82,21 +82,21 @@ public class ErrorGenBehavior {
 	public void shouldConvertToTypedWithInterruptedException()
 		throws InterruptedException, IOException {
 		var err = ErrorGen.of();
-		err.callWithInterrupt(IO_ADAPTER);
+		err.callWithInterrupt(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), rtx);
-		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), rix);
-		assertThrown(InterruptedException.class, () -> err.callWithInterrupt(IO_ADAPTER));
-		assertEquals(thrown(() -> err.callWithInterrupt(IO_ADAPTER)), iox);
-		assertIoe(() -> err.callWithInterrupt(IO_ADAPTER));
+		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
+		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
+		assertThrown(InterruptedException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
+		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
+		assertIoe(() -> err.callWithInterrupt(ExceptionAdapter.io));
 	}
 
 	@Test
 	public void shouldSetExceptionFunctionFromMessage() {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
-		assertIoe(() -> err.callWithInterrupt(IO_ADAPTER));
-		Throwable t = thrown(() -> err.callWithInterrupt(IO_ADAPTER));
+		assertIoe(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		Throwable t = thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
 		assertThrowable(t.getCause(), SQLException.class);
 	}
 

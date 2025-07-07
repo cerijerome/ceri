@@ -21,7 +21,7 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.collection.StreamUtil;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.validation.ValidationUtil;
@@ -68,7 +68,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	public static <E extends Exception> void iterateMask(boolean highBit, int mask,
-		ExceptionIntConsumer<E> consumer) throws E {
+		IntConsumer<E> consumer) throws E {
 		int min = Integer.numberOfTrailingZeros(mask);
 		int max = Integer.SIZE - Integer.numberOfLeadingZeros(mask) - 1;
 		acceptMask(highBit, MathUtil.uint(mask), consumer, min, max);
@@ -78,7 +78,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	public static <E extends Exception> void iterateMask(boolean highBit, long mask,
-		ExceptionIntConsumer<E> consumer) throws E {
+		IntConsumer<E> consumer) throws E {
 		int min = Long.numberOfTrailingZeros(mask);
 		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
 		acceptMask(highBit, mask, consumer, min, max);
@@ -314,7 +314,7 @@ public class ByteUtil {
 	 * Writes bytes to output stream.
 	 */
 	public static void writeTo(ByteArrayOutputStream out, ByteProvider b, int offset, int length) {
-		ExceptionAdapter.RUNTIME.run(() -> b.writeTo(offset, out, length));
+		ExceptionAdapter.runtime.run(() -> b.writeTo(offset, out, length));
 	}
 
 	/**
@@ -949,7 +949,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	private static <E extends Exception> void acceptMask(boolean highBit, long mask,
-		ExceptionIntConsumer<E> consumer, int min, int max) throws E {
+		IntConsumer<E> consumer, int min, int max) throws E {
 		if (highBit) {
 			for (int i = max; i >= min; i--)
 				if (bit(mask, i)) consumer.accept(i);

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbTransfer.BulkStreams;
 import ceri.serial.libusb.jna.LibUsb;

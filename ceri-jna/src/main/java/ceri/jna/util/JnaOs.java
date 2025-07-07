@@ -2,16 +2,16 @@ package ceri.jna.util;
 
 import java.util.List;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.Functional;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Accessible;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.OsUtil;
 
 /**
  * Supported OS types for JNA code.
  */
-public enum JnaOs implements Functional<JnaOs> {
+public enum JnaOs implements Accessible<JnaOs> {
 	unknown(null, null),
 	mac("Mac", "__APPLE__"),
 	linux("Linux", "__linux__");
@@ -35,8 +35,7 @@ public enum JnaOs implements Functional<JnaOs> {
 	/**
 	 * Apply the consumer to known OS types.
 	 */
-	public static <E extends Exception> void forEach(ExceptionConsumer<E, JnaOs> consumer)
-		throws E {
+	public static <E extends Exception> void forEach(Consumer<E, JnaOs> consumer) throws E {
 		CollectionUtil.forEach(KNOWN, os -> os.accept(consumer));
 	}
 
@@ -103,7 +102,7 @@ public enum JnaOs implements Functional<JnaOs> {
 	 * Overrides the current OS to execute the function, passing in this OS type.
 	 */
 	@Override
-	public <E extends Exception, T> T apply(ExceptionFunction<E, JnaOs, T> function) throws E {
+	public <E extends Exception, T> T apply(Function<E, JnaOs, T> function) throws E {
 		try (var _ = override()) {
 			return function.apply(this);
 		}

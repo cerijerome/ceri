@@ -16,9 +16,9 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
@@ -186,28 +186,28 @@ public class JnaTestUtil {
 	/**
 	 * Assert a LastErrorException was thrown.
 	 */
-	public static void assertLastError(ExceptionRunnable<Exception> runnable) {
+	public static void assertLastError(Runnable<Exception> runnable) {
 		assertThrown(LastErrorException.class, runnable);
 	}
 
 	/**
 	 * Assert a LastErrorException with specific code was thrown.
 	 */
-	public static void assertLastError(int code, ExceptionRunnable<Exception> runnable) {
+	public static void assertLastError(int code, Runnable<Exception> runnable) {
 		assertThrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
 	}
 
 	/**
 	 * Assert a CException was thrown.
 	 */
-	public static void assertCException(ExceptionRunnable<Exception> runnable) {
+	public static void assertCException(Runnable<Exception> runnable) {
 		assertThrown(CException.class, runnable);
 	}
 
 	/**
 	 * Assert a CException with specific code was thrown.
 	 */
-	public static void assertCException(int code, ExceptionRunnable<Exception> runnable) {
+	public static void assertCException(int code, Runnable<Exception> runnable) {
 		assertThrown(CException.class, e -> assertEquals(e.code, code), runnable);
 	}
 
@@ -266,7 +266,7 @@ public class JnaTestUtil {
 	 * pointer. Useful for testing when a struct doesn't provide a pointer constructor.
 	 */
 	public static <E extends Exception, T extends Structure> void handleStructRef(Pointer p,
-		T struct, ExceptionConsumer<E, T> consumer) throws E {
+		T struct, Consumer<E, T> consumer) throws E {
 		Struct.copyFrom(p, struct);
 		consumer.accept(struct);
 		Struct.copyTo(struct, p);
@@ -277,7 +277,7 @@ public class JnaTestUtil {
 	 * reloaded if accessed.
 	 */
 	public static void testAsOs(JnaOs os, Class<?> testCls, Class<?>... reloads) {
-		os.run(() -> ClassReInitializer.of(testCls, reloads).reinit());
+		os.accept(_ -> ClassReInitializer.of(testCls, reloads).reinit());
 	}
 
 	/**

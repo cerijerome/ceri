@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.text.StringUtil;
 
@@ -207,7 +207,7 @@ public class FileTestHelper implements RuntimeCloseable {
 
 	@Override
 	public void close() {
-		ExceptionAdapter.RUNTIME.run(() -> IoUtil.deleteAll(root));
+		ExceptionAdapter.runtime.run(() -> IoUtil.deleteAll(root));
 	}
 
 	private void createDirs(List<Path> dirs) throws IOException {

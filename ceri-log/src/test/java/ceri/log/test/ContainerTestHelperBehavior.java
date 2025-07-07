@@ -3,7 +3,7 @@ package ceri.log.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.property.TypedProperties;
 
 public class ContainerTestHelperBehavior {

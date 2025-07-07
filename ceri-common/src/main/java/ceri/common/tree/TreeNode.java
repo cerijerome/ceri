@@ -21,7 +21,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 	private final Set<T> children;
 
 	protected TreeNode(T parent, Builder<T> builder) {
-		this.cls = BasicUtil.uncheckedCast(getClass());
+		this.cls = BasicUtil.unchecked(getClass());
 		this.parent = parent;
 		this.id = builder.id;
 		level = parent == null ? 0 : parent.level + 1;

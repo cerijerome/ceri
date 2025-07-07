@@ -13,7 +13,7 @@ public class EnumComparators {
 	private EnumComparators() {}
 
 	public static <T extends Enum<T>> Comparator<T> name() {
-		return BasicUtil.uncheckedCast(NAME);
+		return BasicUtil.unchecked(NAME);
 	}
 
 	public static <T extends Enum<T>> Comparator<T> ordinal() {

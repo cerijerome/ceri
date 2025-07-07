@@ -3,11 +3,7 @@ package ceri.common.util;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
-import java.io.IOException;
-import java.util.Date;
 import org.junit.Test;
-import ceri.common.reflect.ReflectUtil;
 
 public class BasicUtilTest {
 
@@ -17,76 +13,55 @@ public class BasicUtilTest {
 	}
 
 	@Test
-	public void testDefaultValue() throws Exception {
-		assertNull(BasicUtil.<String>defaultValue(null, null));
-		assertEquals(BasicUtil.defaultValue(null, 1), 1);
-		assertEquals(BasicUtil.defaultValue(1, null), 1);
-		assertEquals(BasicUtil.defaultValue(1, 2), 1);
+	public void testDef() throws Exception {
+		assertNull(BasicUtil.<String>def(null, null));
+		assertEquals(BasicUtil.def(null, 1), 1);
+		assertEquals(BasicUtil.def(1, null), 1);
+		assertEquals(BasicUtil.def(1, 2), 1);
 	}
 
 	@Test
-	public void testConditionalGet() {
-		assertEquals(BasicUtil.conditionalGet(false, () -> "x"), null);
-		assertEquals(BasicUtil.conditionalGet(true, () -> "x"), "x");
-		assertEquals(BasicUtil.conditionalGet(true, () -> "x", () -> "y"), "x");
+	public void testTernaryGet() {
+		assertEquals(BasicUtil.ternaryGet(false, () -> "x"), null);
+		assertEquals(BasicUtil.ternaryGet(true, () -> "x"), "x");
+		assertEquals(BasicUtil.ternaryGet(true, () -> "x", () -> "y"), "x");
 	}
 
 	@Test
-	public void testConditionalGetWithNull() {
-		assertEquals(BasicUtil.conditionalGet(null, () -> "T", () -> "F", () -> null), null);
-		assertEquals(BasicUtil.conditionalGet(true, () -> "T", () -> "F", () -> null), "T");
-		assertEquals(BasicUtil.conditionalGet(false, () -> "T", () -> "F", () -> null), "F");
-		assertEquals(BasicUtil.conditionalGet(null, () -> "T", () -> "F", null), null);
+	public void testTernaryGetWithNull() {
+		assertEquals(BasicUtil.ternaryGet(null, () -> "T", () -> "F", () -> null), null);
+		assertEquals(BasicUtil.ternaryGet(true, () -> "T", () -> "F", () -> null), "T");
+		assertEquals(BasicUtil.ternaryGet(false, () -> "T", () -> "F", () -> null), "F");
+		assertEquals(BasicUtil.ternaryGet(null, () -> "T", () -> "F", null), null);
 	}
 
 	@Test
-	public void testConditional() {
-		assertEquals(BasicUtil.conditional(true, "a", "b"), "a");
-		assertEquals(BasicUtil.conditional(false, "a", "b"), "b");
-		assertEquals(BasicUtil.conditionalInt(true, 1, -1), 1);
-		assertEquals(BasicUtil.conditionalInt(false, 1, -1), -1);
-		assertEquals(BasicUtil.conditionalLong(true, 1, -1), 1L);
-		assertEquals(BasicUtil.conditionalLong(false, 1, -1), -1L);
+	public void testTernary() {
+		assertEquals(BasicUtil.ternary(true, "a", "b"), "a");
+		assertEquals(BasicUtil.ternary(false, "a", "b"), "b");
+		assertEquals(BasicUtil.ternaryInt(true, 1, -1), 1);
+		assertEquals(BasicUtil.ternaryInt(false, 1, -1), -1);
+		assertEquals(BasicUtil.ternaryLong(true, 1, -1), 1L);
+		assertEquals(BasicUtil.ternaryLong(false, 1, -1), -1L);
 	}
 
 	@Test
-	public void testConditionalObj() {
-		assertEquals(BasicUtil.conditional(null, "a", "b", "c"), "c");
-		assertEquals(BasicUtil.conditional(true, "a", "b", "c"), "a");
-		assertEquals(BasicUtil.conditional(false, "a", "b", "c"), "b");
-		assertEquals(BasicUtil.conditionalInt(null, 1, -1, 0), 0);
-		assertEquals(BasicUtil.conditionalInt(true, 1, -1, 0), 1);
-		assertEquals(BasicUtil.conditionalInt(false, 1, -1, 0), -1);
-		assertEquals(BasicUtil.conditionalLong(null, 1, -1, 0), 0L);
-		assertEquals(BasicUtil.conditionalLong(true, 1, -1, 0), 1L);
-		assertEquals(BasicUtil.conditionalLong(false, 1, -1, 0), -1L);
+	public void testTernaryObj() {
+		assertEquals(BasicUtil.ternary(null, "a", "b", "c"), "c");
+		assertEquals(BasicUtil.ternary(true, "a", "b", "c"), "a");
+		assertEquals(BasicUtil.ternary(false, "a", "b", "c"), "b");
+		assertEquals(BasicUtil.ternaryInt(null, 1, -1, 0), 0);
+		assertEquals(BasicUtil.ternaryInt(true, 1, -1, 0), 1);
+		assertEquals(BasicUtil.ternaryInt(false, 1, -1, 0), -1);
+		assertEquals(BasicUtil.ternaryLong(null, 1, -1, 0), 0L);
+		assertEquals(BasicUtil.ternaryLong(true, 1, -1, 0), 1L);
+		assertEquals(BasicUtil.ternaryLong(false, 1, -1, 0), -1L);
 	}
 
 	@Test
-	public void testUncheckedCast() {
+	public void testUnchecked() {
 		Object[] array = new String[3];
-		String[] castArray = BasicUtil.uncheckedCast(array);
+		String[] castArray = BasicUtil.unchecked(array);
 		BasicUtil.unused((Object) castArray);
 	}
-
-	@Test
-	public void testCastOrNull() {
-		java.sql.Date sqlDate = new java.sql.Date(0);
-		assertEquals(ReflectUtil.castOrNull(Date.class, sqlDate), sqlDate);
-		Date date = new Date(0);
-		assertNull(ReflectUtil.castOrNull(java.sql.Date.class, date));
-	}
-
-	@Test
-	public void testRuntimeRun() {
-		BasicUtil.runtimeRun(() -> {});
-		assertRte(() -> BasicUtil.runtimeRun(() -> {
-			throw new IOException();
-		}));
-		BasicUtil.runtimeCall(() -> "test");
-		assertRte(() -> BasicUtil.runtimeCall(() -> {
-			throw new IOException();
-		}));
-	}
-
 }

@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -9,6 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import ceri.common.exception.Exceptions;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -28,7 +28,7 @@ public class EnumUtil {
 		Objects.requireNonNull(t);
 		for (var allow : allowed)
 			if (t == allow) return t;
-		throw illegalArg("%s must be one of %s: %s", ReflectUtil.className(t),
+		throw Exceptions.illegalArg("%s must be one of %s: %s", ReflectUtil.className(t),
 			Arrays.toString(allowed), t);
 	}
 
@@ -39,7 +39,7 @@ public class EnumUtil {
 	public static <T extends Enum<T>> T verifyDisallowed(T t, T... disallowed) {
 		Objects.requireNonNull(t);
 		for (var disallow : disallowed)
-			if (t == disallow) throw illegalArg("%s cannot be one of %s: %s",
+			if (t == disallow) throw Exceptions.illegalArg("%s cannot be one of %s: %s",
 				ReflectUtil.className(t), Arrays.toString(disallowed), t);
 		return t;
 	}
@@ -49,7 +49,7 @@ public class EnumUtil {
 	 */
 	public static <T extends Enum<T>> Class<T> enumClass(T en) {
 		Objects.requireNonNull(en);
-		return BasicUtil.<Class<T>>uncheckedCast(en.getClass());
+		return BasicUtil.<Class<T>>unchecked(en.getClass());
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class EnumUtil {
 			var enums = c.getEnumConstants();
 			return enums == null ? null : ImmutableUtil.wrapAsList(c.getEnumConstants());
 		});
-		return list == null ? List.of() : BasicUtil.uncheckedCast(list);
+		return list == null ? List.of() : BasicUtil.unchecked(list);
 	}
 
 	/**

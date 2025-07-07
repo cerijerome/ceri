@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.OsUtil;
 

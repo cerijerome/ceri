@@ -1,9 +1,9 @@
 package ceri.serial.comm.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
@@ -133,7 +133,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 
 	@Override
 	public void params(SerialParams params) throws IOException {
-		this.params.accept(params, IO_ADAPTER);
+		this.params.accept(params, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
@@ -144,7 +144,7 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 
 	@Override
 	public void flowControl(Collection<FlowControl> flowControl) throws IOException {
-		this.flowControl.accept(Set.copyOf(flowControl), IO_ADAPTER);
+		this.flowControl.accept(Set.copyOf(flowControl), ExceptionAdapter.io);
 		verifyConnected();
 	}
 
@@ -155,55 +155,55 @@ public class TestSerial extends TestConnector implements Serial.Fixable {
 
 	@Override
 	public void brk(boolean on) throws IOException {
-		brk.accept(on, IO_ADAPTER);
+		brk.accept(on, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		rts.accept(on, IO_ADAPTER);
+		rts.accept(on, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		dtr.accept(on, IO_ADAPTER);
+		dtr.accept(on, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public boolean rts() throws IOException {
 		verifyConnected();
-		return rts.lastValue(IO_ADAPTER);
+		return rts.lastValue(ExceptionAdapter.io);
 	}
 
 	@Override
 	public boolean dtr() throws IOException {
 		verifyConnected();
-		return dtr.lastValue(IO_ADAPTER);
+		return dtr.lastValue(ExceptionAdapter.io);
 	}
 
 	@Override
 	public boolean cd() throws IOException {
 		verifyConnected();
-		return cd.get(IO_ADAPTER);
+		return cd.get(ExceptionAdapter.io);
 	}
 
 	@Override
 	public boolean cts() throws IOException {
 		verifyConnected();
-		return cts.get(IO_ADAPTER);
+		return cts.get(ExceptionAdapter.io);
 	}
 
 	@Override
 	public boolean dsr() throws IOException {
 		verifyConnected();
-		return dsr.get(IO_ADAPTER);
+		return dsr.get(ExceptionAdapter.io);
 	}
 
 	@Override
 	public boolean ri() throws IOException {
 		verifyConnected();
-		return ri.get(IO_ADAPTER);
+		return ri.get(ExceptionAdapter.io);
 	}
 }

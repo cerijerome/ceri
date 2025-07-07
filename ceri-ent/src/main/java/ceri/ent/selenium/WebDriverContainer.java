@@ -15,19 +15,19 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.math.MathUtil;
 
 /**
- * A container and support methods for selenium web drivers. Supports lifecycle management with
+ * A container and support methods for Selenium web drivers. Supports lifecycle management with
  * create, reset, and close.
  */
 public class WebDriverContainer implements RuntimeCloseable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";
-	private final ExceptionSupplier<IOException, WebDriver> constructor;
+	private final Supplier<IOException, WebDriver> constructor;
 	private final int timeoutSec;
 	private final boolean canReset;
 	private volatile WebDriver driver;
@@ -40,18 +40,17 @@ public class WebDriverContainer implements RuntimeCloseable {
 		return new WebDriverContainer(() -> driver, timeoutMs, false);
 	}
 
-	public WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor)
-		throws IOException {
+	public WebDriverContainer(Supplier<IOException, WebDriver> constructor) throws IOException {
 		this(constructor, TIMEOUT_MS_DEF);
 	}
 
-	public WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor, long timeoutMs)
+	public WebDriverContainer(Supplier<IOException, WebDriver> constructor, long timeoutMs)
 		throws IOException {
 		this(constructor, timeoutMs, true);
 	}
 
-	private WebDriverContainer(ExceptionSupplier<IOException, WebDriver> constructor,
-		long timeoutMs, boolean canReset) throws IOException {
+	private WebDriverContainer(Supplier<IOException, WebDriver> constructor, long timeoutMs,
+		boolean canReset) throws IOException {
 		logger.info("{} started", getClass().getSimpleName());
 		this.constructor = constructor;
 		this.timeoutSec = (int) MathUtil.roundDiv(timeoutMs, 1000);
@@ -162,8 +161,7 @@ public class WebDriverContainer implements RuntimeCloseable {
 		return driver().getPageSource();
 	}
 
-	private WebDriver create(ExceptionSupplier<IOException, WebDriver> constructor)
-		throws IOException {
+	private WebDriver create(Supplier<IOException, WebDriver> constructor) throws IOException {
 		return constructor.get();
 	}
 

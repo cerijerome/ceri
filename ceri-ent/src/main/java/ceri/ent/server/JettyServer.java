@@ -9,7 +9,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
-import ceri.common.io.IoUtil;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.net.NetUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
@@ -30,11 +30,11 @@ public class JettyServer implements AutoCloseable {
 	}
 
 	public void start() throws IOException {
-		IoUtil.IO_ADAPTER.run(server::start);
+		ExceptionAdapter.io.run(server::start);
 	}
 
 	public void stop() throws IOException {
-		IoUtil.IO_ADAPTER.run(server::stop);
+		ExceptionAdapter.io.run(server::stop);
 	}
 
 	public void waitForServer() throws InterruptedException {

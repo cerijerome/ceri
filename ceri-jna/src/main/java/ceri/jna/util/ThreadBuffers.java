@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import com.sun.jna.Memory;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 
 /**
  * A class that provides resizable thread-local buffers.

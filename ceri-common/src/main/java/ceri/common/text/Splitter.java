@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.function.Funcs.ObjIntFunction;
 
 /**
  * Utility for extracting text sequentially.

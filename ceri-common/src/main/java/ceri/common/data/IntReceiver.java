@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
-import ceri.common.function.ExceptionIntUnaryOperator;
+import ceri.common.function.Excepts.IntOperator;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -200,7 +200,7 @@ public interface IntReceiver {
 	/**
 	 * Iterates over each index to set the int value. Returns the index after writing.
 	 */
-	default <E extends Exception> int setEachInt(ExceptionIntUnaryOperator<E> supplier) throws E {
+	default <E extends Exception> int setEachInt(IntOperator<E> supplier) throws E {
 		int i = 0;
 		for (; i < length(); i++)
 			setInt(i, supplier.applyAsInt(i));

@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.exception.ExceptionAdapter.RUNTIME;
+import static ceri.common.exception.ExceptionAdapter.runtime;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import java.io.ByteArrayInputStream;
@@ -31,10 +31,10 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.Runnable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.math.MathUtil;
@@ -55,6 +55,26 @@ public class TestUtil {
 
 	private TestUtil() {}
 
+	/**
+	 * Shortened declaration for test readability. 
+	 */
+	@SuppressWarnings("serial")
+	public static class Rte extends RuntimeException {
+		public Rte(String message) {
+			super(message);
+		}
+	}
+	
+	/**
+	 * Shortened declaration for test readability. 
+	 */
+	@SuppressWarnings("serial")
+	public static class Ioe extends IOException {
+		public Ioe(String message) {
+			super(message);
+		}
+	}
+	
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
@@ -85,7 +105,7 @@ public class TestUtil {
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable) {
 		return runRepeat(runnable, DELAY_MICROS);
 	}
 
@@ -93,7 +113,7 @@ public class TestUtil {
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionRunnable<?> runnable,
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable,
 		int delayUs) {
 		return runRepeat(_ -> runnable.run(), delayUs);
 	}
@@ -103,7 +123,7 @@ public class TestUtil {
 	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
 	 * that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionIntConsumer<?> action) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(IntConsumer<?> action) {
 		return runRepeat(action, DELAY_MICROS);
 	}
 
@@ -112,7 +132,7 @@ public class TestUtil {
 	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
 	 * that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(ExceptionIntConsumer<?> action,
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(IntConsumer<?> action,
 		int delayUs) {
 		return SimpleExecutor.run(() -> {
 			for (int i = 0;; i++) {
@@ -124,7 +144,7 @@ public class TestUtil {
 
 	public static String firstSystemPropertyName() {
 		Set<Object> keys = System.getProperties().keySet();
-		return BasicUtil.conditional(keys.isEmpty(), "", String.valueOf(keys.iterator().next()));
+		return BasicUtil.ternary(keys.isEmpty(), "", String.valueOf(keys.iterator().next()));
 	}
 
 	public static String firstSystemProperty() {
@@ -133,7 +153,7 @@ public class TestUtil {
 
 	public static String firstEnvironmentVariableName() {
 		Set<String> keys = System.getenv().keySet();
-		return BasicUtil.conditional(keys.isEmpty(), "", keys.iterator().next());
+		return BasicUtil.ternary(keys.isEmpty(), "", keys.iterator().next());
 	}
 
 	public static String firstEnvironmentVariable() {
@@ -208,8 +228,8 @@ public class TestUtil {
 		Map<K, V> map = new LinkedHashMap<>();
 		int i = 0;
 		while (i < objs.length) {
-			K key = BasicUtil.uncheckedCast(objs[i++]);
-			V value = i < objs.length ? BasicUtil.uncheckedCast(objs[i++]) : null;
+			K key = BasicUtil.unchecked(objs[i++]);
+			V value = i < objs.length ? BasicUtil.unchecked(objs[i++]) : null;
 			map.put(key, value);
 		}
 		return map;
@@ -246,10 +266,10 @@ public class TestUtil {
 	 * not public.
 	 */
 	public static <T extends Record> void exerciseRecord(T t,
-		ExceptionBiConsumer<ReflectiveOperationException, Method, T> invoker) {
+		BiConsumer<ReflectiveOperationException, Method, T> invoker) {
 		if (t != null) for (Field field : t.getClass().getDeclaredFields()) {
 			if (field.accessFlags().contains(AccessFlag.STATIC)) continue;
-			RUNTIME.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
+			runtime.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
 		}
 	}
 
@@ -270,7 +290,7 @@ public class TestUtil {
 	 * the value check is only 1 of 2 branches. The methods calls the code using strings with same
 	 * hashes but different values.
 	 */
-	public static <E extends Exception> void exerciseSwitch(ExceptionConsumer<E, String> consumer,
+	public static <E extends Exception> void exerciseSwitch(Consumer<E, String> consumer,
 		String... strings) throws E {
 		for (String s : strings)
 			consumer.accept("\0" + s);
@@ -300,7 +320,7 @@ public class TestUtil {
 	/**
 	 * Capture and return any thrown exception.
 	 */
-	public static Throwable thrown(ExceptionRunnable<?> runnable) {
+	public static Throwable thrown(Runnable<?> runnable) {
 		try {
 			runnable.run();
 			return null;
@@ -390,7 +410,7 @@ public class TestUtil {
 	/**
 	 * Execute a closable call in a separate thread. Use get() to wait for completion.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> threadRun(ExceptionRunnable<?> runnable) {
+	public static SimpleExecutor<RuntimeException, ?> threadRun(Runnable<?> runnable) {
 		return SimpleExecutor.run(runnable);
 	}
 

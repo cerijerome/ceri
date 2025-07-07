@@ -174,7 +174,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.uncheckedCast(args().get(i));
+			return BasicUtil.unchecked(args().get(i));
 		}
 	}
 
@@ -190,7 +190,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.uncheckedCast(args().get(i));
+			return BasicUtil.unchecked(args().get(i));
 		}
 	}
 
@@ -220,7 +220,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.uncheckedCast(args().get(i));
+			return BasicUtil.unchecked(args().get(i));
 		}
 	}
 

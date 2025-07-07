@@ -4,7 +4,7 @@ import static ceri.common.collection.ImmutableUtil.convertAsList;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
 import ceri.serial.libusb.UsbHotPlug.Callback;

@@ -121,7 +121,7 @@ public class FunctionUtilTest {
 	@Test
 	public void testSafeAccept() throws IOException {
 		String[] store = { "" };
-		ExceptionConsumer<IOException, String> consumer = s -> store[0] = s;
+		Excepts.Consumer<IOException, String> consumer = s -> store[0] = s;
 		FunctionUtil.safeAccept("test", consumer);
 		assertArray(store, "test");
 		FunctionUtil.safeAccept(null, consumer);

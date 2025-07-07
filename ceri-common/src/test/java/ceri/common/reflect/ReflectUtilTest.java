@@ -18,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.function.IntConsumer;
+//import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.function.Fluent;
@@ -431,12 +432,19 @@ public class ReflectUtilTest {
 	public void testInterceptor() throws ReflectiveOperationException {
 		var delegate = Captor.ofInt();
 		var captor = Captor.<Method, Object[]>ofBi();
-		var method = IntConsumer.class.getMethod("accept", int.class);
-		ReflectUtil.<IntConsumer>interceptor(delegate, captor).accept(3);
+		var method = Captor.OfInt.class.getMethod("accept", int.class);
+		ReflectUtil.interceptor(delegate, captor).accept(3);
 		ReflectUtil.interceptor(IntConsumer.class, delegate, captor).accept(-1);
 		delegate.verify(3, -1);
 		captor.first.verify(method, method);
 		captor.second.verify(new Object[] { 3 }, new Object[] { -1 });
 	}
 
+	@Test
+	public void testCastOrNull() {
+		java.sql.Date sqlDate = new java.sql.Date(0);
+		assertEquals(ReflectUtil.castOrNull(Date.class, sqlDate), sqlDate);
+		Date date = new Date(0);
+		assertNull(ReflectUtil.castOrNull(java.sql.Date.class, date));
+	}
 }

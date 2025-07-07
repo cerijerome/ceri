@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CPoll;
 import ceri.jna.clib.jna.CUnistd;
@@ -27,7 +27,7 @@ public class SerialVminTester {
 		test(250000, fd -> runPoll(fd, 10, 0));
 	}
 
-	public static void test(int baud, ExceptionIntConsumer<IOException> consumer) throws Exception {
+	public static void test(int baud, IntConsumer<IOException> consumer) throws Exception {
 		var ports = SerialTestUtil.usbPorts(2);
 		try (var p = SerialTestUtil.execFd(ports[0], baud, consumer);
 			var w = SerialTestUtil.execFd(ports[1], baud, fd -> runWrite(fd))) {

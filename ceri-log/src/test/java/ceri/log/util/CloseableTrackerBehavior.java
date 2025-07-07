@@ -2,7 +2,7 @@ package ceri.log.util;
 
 import static ceri.common.test.AssertUtil.assertIterable;
 import org.junit.Test;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.test.Captor;
 
 public class CloseableTrackerBehavior {

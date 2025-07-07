@@ -45,7 +45,7 @@ public class CLibVerifierBehavior {
 
 	@Test
 	public void shouldVerifyLinuxPpoll() throws IOException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var lib = ref.init();
 			lib.poll.autoResponses(2);
 			CLibVerifier.verifyPoll();

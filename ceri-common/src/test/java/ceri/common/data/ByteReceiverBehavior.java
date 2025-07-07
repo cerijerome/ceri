@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 
 public class ByteReceiverBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -198,7 +198,7 @@ public class ByteReceiverBehavior {
 	/* Support methods */
 
 	private static <E extends Exception> void assertBytes(int size,
-		ExceptionConsumer<E, ByteReceiver> action, int... bytes) throws E {
+		Consumer<E, ByteReceiver> action, int... bytes) throws E {
 		assertBytes(size, action, ArrayUtil.bytes(bytes));
 	}
 
@@ -207,7 +207,7 @@ public class ByteReceiverBehavior {
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		ExceptionConsumer<E, ByteReceiver> action, byte[] bytes) throws E {
+		Consumer<E, ByteReceiver> action, byte[] bytes) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		assertArray(holder.bytes, bytes);

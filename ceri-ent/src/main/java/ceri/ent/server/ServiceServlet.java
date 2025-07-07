@@ -1,6 +1,6 @@
 package ceri.ent.server;
 
-import static ceri.common.util.BasicUtil.uncheckedCast;
+import static ceri.common.util.BasicUtil.unchecked;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import jakarta.servlet.GenericServlet;
 import jakarta.servlet.ServletException;
@@ -22,7 +22,7 @@ public abstract class ServiceServlet<T> extends HttpServlet {
 
 	public static <T> T getService(GenericServlet servlet, Class<T> cls) {
 		String attributeName = cls.getName();
-		return uncheckedCast(servlet.getServletContext().getAttribute(attributeName));
+		return unchecked(servlet.getServletContext().getAttribute(attributeName));
 	}
 
 	@Override

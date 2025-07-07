@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.Iterators;
-import ceri.common.function.ExceptionIntBinaryConsumer;
+import ceri.common.function.Excepts.IntBiConsumer;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
@@ -191,7 +191,7 @@ public interface IntProvider extends Iterable<Integer> {
 	/**
 	 * Iterates over each index and value.
 	 */
-	default <E extends Exception> void getEachInt(ExceptionIntBinaryConsumer<E> consumer) throws E {
+	default <E extends Exception> void getEachInt(IntBiConsumer<E> consumer) throws E {
 		for (int i = 0; i < length(); i++)
 			consumer.accept(i, getInt(i));
 	}

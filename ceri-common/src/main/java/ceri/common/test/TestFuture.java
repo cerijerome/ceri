@@ -24,7 +24,7 @@ public class TestFuture<T> extends FutureTask<T> {
 	@Override
 	public T get() throws InterruptedException, ExecutionException {
 		try {
-			return get.applyWithInterrupt(Timeout.NULL, ExceptionAdapter.NULL);
+			return get.applyWithInterrupt(Timeout.NULL, ExceptionAdapter.none);
 		} catch (InterruptedException | ExecutionException | RuntimeException e) {
 			throw e;
 		} catch (Exception e) {
@@ -36,7 +36,7 @@ public class TestFuture<T> extends FutureTask<T> {
 	public T get(long timeout, TimeUnit unit)
 		throws InterruptedException, ExecutionException, TimeoutException {
 		try {
-			return get.applyWithInterrupt(Timeout.of(timeout, unit), ExceptionAdapter.NULL);
+			return get.applyWithInterrupt(Timeout.of(timeout, unit), ExceptionAdapter.none);
 		} catch (InterruptedException | ExecutionException | TimeoutException
 			| RuntimeException e) {
 			throw e;

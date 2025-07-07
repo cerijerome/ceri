@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
 import ceri.common.text.RegexUtil;
@@ -182,7 +182,7 @@ public class IndexRanges implements Iterable<Integer> {
 	/**
 	 * Consumes each index within the ranges.
 	 */
-	public <E extends Exception> void forEachInt(ExceptionIntConsumer<E> consumer) throws E {
+	public <E extends Exception> void forEachInt(IntConsumer<E> consumer) throws E {
 		var iterator = iterator();
 		while (iterator.hasNext())
 			consumer.accept(iterator.next());

@@ -1,6 +1,5 @@
 package ceri.common.game;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
@@ -24,6 +23,7 @@ import java.util.stream.IntStream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.StreamUtil;
 import ceri.common.data.IntProvider;
+import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.AnsiEscape;
@@ -389,7 +389,7 @@ public class Sudoku {
 		return switch (size) {
 			case 9 -> boxes(3, 3);
 			case 6 -> boxes(2, 3);
-			default -> throw illegalArg("Unknown %1$dx%1$d box rules", size);
+			default -> throw Exceptions.illegalArg("Unknown %1$dx%1$d box rules", size);
 		};
 	}
 
@@ -695,7 +695,7 @@ public class Sudoku {
 			case '<' -> true;
 			case '>' -> false;
 			case ' ' -> null;
-			default -> throw illegalArg("Unsupported symbol: %c", ch);
+			default -> throw Exceptions.illegalArg("Unsupported symbol: %c", ch);
 		};
 	}
 
@@ -790,7 +790,7 @@ public class Sudoku {
 
 	private IntProvider addFullGroup(int... indexes) {
 		if (indexes.length != size)
-			throw illegalArg("Group size must be %d: %s", size, Arrays.toString(indexes));
+			throw Exceptions.illegalArg("Group size must be %d: %s", size, Arrays.toString(indexes));
 		return addGroup(IntProvider.of(indexes), (s, g) -> s.processUnique(g));
 	}
 
@@ -818,7 +818,7 @@ public class Sudoku {
 	private boolean setMask(int index, int mask) {
 		if (masks[index] == mask) return false;
 		if (mask == 0)
-			throw illegalArg("No numbers left at %d (%d,%d)", index, row(index), col(index));
+			throw Exceptions.illegalArg("No numbers left at %d (%d,%d)", index, row(index), col(index));
 		masks[index] = mask;
 		changedIndexes.add(index);
 		return true;

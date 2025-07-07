@@ -9,18 +9,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.exception.ExceptionUtil.Rte;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntFunction;
-import ceri.common.function.ExceptionObjIntConsumer;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.IntFunction;
+import ceri.common.function.Excepts.ObjIntConsumer;
 import ceri.common.util.Truth;
 
 public class JoinerBehavior {
-	private static final ExceptionIntFunction<Rte, ?> NULL_IDX_FN = null;
-	private static final ExceptionFunction<Rte, Integer, ?> NULL_STR_FN = null;
-	private static final ExceptionObjIntConsumer<Rte, StringBuilder> NULL_IDX_APP = null;
-	private static final ExceptionBiConsumer<Rte, StringBuilder, Integer> NULL_APP = null;
+	private static final IntFunction<RuntimeException, ?> NULL_IDX_FN = null;
+	private static final Function<RuntimeException, Integer, ?> NULL_STR_FN = null;
+	private static final ObjIntConsumer<RuntimeException, StringBuilder> NULL_IDX_APP = null;
+	private static final BiConsumer<RuntimeException, StringBuilder, Integer> NULL_APP = null;
 	private static final Integer[] NULL_ARRAY = null;
 	private static final List<Integer> NULL_LIST = null;
 	private static final Stream<Integer> NULL_STREAM = null;

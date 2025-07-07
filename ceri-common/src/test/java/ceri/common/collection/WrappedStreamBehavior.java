@@ -3,10 +3,6 @@ package ceri.common.collection;
 import static ceri.common.collection.WrappedStreamTestUtil.assertCapture;
 import static ceri.common.collection.WrappedStreamTestUtil.assertStream;
 import static ceri.common.collection.WrappedStreamTestUtil.assertTerminalThrow;
-import static ceri.common.function.FunctionTestUtil.consumer;
-import static ceri.common.function.FunctionTestUtil.function;
-import static ceri.common.function.FunctionTestUtil.predicate;
-import static ceri.common.function.FunctionTestUtil.toIntFunction;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
@@ -22,10 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.FunctionTestUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
+import ceri.common.test.TestUtil.Ioe;
 
 @SuppressWarnings("resource")
 public class WrappedStreamBehavior {
@@ -57,14 +53,13 @@ public class WrappedStreamBehavior {
 		assertTerminalThrow(RuntimeException.class, WrappedStream.stream(tryAdvanceFn(4, 3, 0)));
 	}
 
-	private static ExceptionPredicate<IOException, Consumer<? super Integer>>
+	private static Excepts.Predicate<IOException, Consumer<? super Integer>>
 		tryAdvanceFn(int... is) {
 		Iterator<Integer> i = IntStream.of(is).iterator();
-		ExceptionConsumer<IOException, Integer> consumer = FunctionTestUtil.consumer();
 		return c -> {
 			if (!i.hasNext()) return false;
 			int n = i.next();
-			consumer.accept(n);
+			E.consumer.accept(n);
 			c.accept(n);
 			return true;
 		};
@@ -73,7 +68,7 @@ public class WrappedStreamBehavior {
 	@Test
 	public void shouldStreamCollections() throws Exception {
 		assertStream(WrappedStream.stream(List.of(4, 3, 2)), 4, 3, 2);
-		assertStream(WrappedStream.stream(List.of(4, 3, 2), FunctionTestUtil.function()), 4, 3, 2);
+		assertStream(WrappedStream.stream(List.of(4, 3, 2), E.function), 4, 3, 2);
 	}
 
 	@Test
@@ -83,52 +78,49 @@ public class WrappedStreamBehavior {
 
 	@Test
 	public void shouldThrowTypedExceptionFromMap() throws IOException {
-		assertStream(wrap(4, 3, 2).map(function()), 4, 3, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).map(function()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(function()));
+		assertStream(wrap(4, 3, 2).map(E.function), 4, 3, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).map(E.function));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(E.function));
 	}
 
 	@Test
 	public void shouldThrowTypedExceptionFromMapToInt() throws IOException {
-		assertStream(wrap(4, 3, 2).mapToInt(toIntFunction()), 4, 3, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).mapToInt(toIntFunction()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToInt(toIntFunction()));
+		assertStream(wrap(4, 3, 2).mapToInt(E.toIntFunction), 4, 3, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).mapToInt(E.toIntFunction));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToInt(E.toIntFunction));
 	}
 
 	@Test
 	public void shouldThrowTypedExceptionFromFilter() throws IOException {
-		assertStream(wrap(4, -1, 2).filter(predicate()), 4, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).filter(predicate()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(predicate()));
+		assertStream(wrap(4, -1, 2).filter(E.predicate), 4, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).filter(E.predicate));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(E.predicate));
 	}
 
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
-		assertIoe(() -> wrap(2, 1, 0).forEach(consumer()));
-		assertRte(() -> wrap(3, 2, 0).forEach(consumer()));
-		assertIoe(() -> wrap(2, 1, 0).map(function()).forEach(_ -> {}));
-		assertRte(() -> wrap(3, 2, 0).map(function()).forEach(_ -> {}));
+		assertIoe(() -> wrap(2, 1, 0).forEach(E.consumer));
+		assertRte(() -> wrap(3, 2, 0).forEach(E.consumer));
+		assertIoe(() -> wrap(2, 1, 0).map(E.function).forEach(_ -> {}));
+		assertRte(() -> wrap(3, 2, 0).map(E.function).forEach(_ -> {}));
 	}
 
 	@Test
 	public void shouldThrowTypedExceptionFromCollect() throws IOException {
 		assertIterable(wrap(4, 3, 2).collect(Collectors.toList()), 4, 3, 2);
 		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
-		try (WrappedStream<IOException, Integer> stream =
-			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
+		try (WrappedStream<Ioe, Integer> stream = wrap(4, 3, 1).map(E.function)) {
 			assertIoe(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
-		try (WrappedStream<IOException, Integer> stream =
-			wrap(4, 3, 1).map(FunctionTestUtil.function())) {
+		try (WrappedStream<Ioe, Integer> stream = wrap(4, 3, 1).map(E.function)) {
 			assertIoe(() -> stream.collect(Collectors.toList()));
 		}
-		try (WrappedStream<IOException, Integer> stream =
-			wrap(4, 3, 0).map(FunctionTestUtil.function())) {
+		try (WrappedStream<Ioe, Integer> stream = wrap(4, 3, 0).map(E.function)) {
 			assertRte(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
-		try (WrappedStream<IOException, Integer> stream = wrap(4, 3, 0) //
-			.map(FunctionTestUtil.function())) {
+		try (WrappedStream<Ioe, Integer> stream = wrap(4, 3, 0) //
+			.map(E.function)) {
 			assertRte(() -> stream.collect(Collectors.toList()));
 		}
 	}
@@ -147,18 +139,12 @@ public class WrappedStreamBehavior {
 	}
 
 	@Test
-	public void shouldFindFirst() throws IOException {
-		assertEquals(wrap(4, 3, 2).filter(i -> i < 4).findFirst().get(), 3);
-		assertTrue(wrap(4, 3, 2).filter(i -> i > 4).findFirst().isEmpty());
-	}
-
-	@Test
 	public void shouldFindAny() throws IOException {
 		assertEquals(wrap(4, 3, 2).filter(i -> i < 4).findAny().get(), 3);
 		assertTrue(wrap(4, 3, 2).filter(i -> i > 4).findAny().isEmpty());
 	}
 
-	private WrappedStream<IOException, Integer> wrap(Integer... values) {
+	private WrappedStream<Ioe, Integer> wrap(Integer... values) {
 		return WrappedStream.of(values);
 	}
 

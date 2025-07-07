@@ -594,7 +594,7 @@ public class ImmutableUtilTest {
 		} catch (Exception e) {}
 		if (!map.isEmpty()) {
 			try {
-				Map<Object, Object> objMap = BasicUtil.uncheckedCast(map);
+				Map<Object, Object> objMap = BasicUtil.unchecked(map);
 				objMap.putAll(map);
 				fail();
 			} catch (Exception e) {}

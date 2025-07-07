@@ -1,35 +1,24 @@
 package ceri.common.text;
 
 import static ceri.common.text.StringUtil.DECIMAL_RADIX;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts.Function;
 
 /**
  * Utility methods for parsing types, with defaults if invalid.
  */
 public class ParseUtil {
 	// Convenience filters for Parser.String
-	public static final ExceptionFunction<RuntimeException, String, Boolean> BOOL =
-		ParseUtil::parseBool;
-	public static final ExceptionFunction<RuntimeException, String, Byte> BYTE =
-		ParseUtil::parseByte;
-	public static final ExceptionFunction<RuntimeException, String, Byte> DBYTE =
-		ParseUtil::decodeByte;
-	public static final ExceptionFunction<RuntimeException, String, Short> SHORT =
-		ParseUtil::parseShort;
-	public static final ExceptionFunction<RuntimeException, String, Short> DSHORT =
-		ParseUtil::decodeShort;
-	public static final ExceptionFunction<RuntimeException, String, Integer> INT =
-		ParseUtil::parseInt;
-	public static final ExceptionFunction<RuntimeException, String, Integer> DINT =
-		ParseUtil::decodeInt;
-	public static final ExceptionFunction<RuntimeException, String, Long> LONG =
-		ParseUtil::parseLong;
-	public static final ExceptionFunction<RuntimeException, String, Long> DLONG =
-		ParseUtil::decodeLong;
-	public static final ExceptionFunction<RuntimeException, String, Float> FLOAT =
-		ParseUtil::parseFloat;
-	public static final ExceptionFunction<RuntimeException, String, Double> DOUBLE =
-		ParseUtil::parseDouble;
+	public static final Function<RuntimeException, String, Boolean> BOOL = ParseUtil::parseBool;
+	public static final Function<RuntimeException, String, Byte> BYTE = ParseUtil::parseByte;
+	public static final Function<RuntimeException, String, Byte> DBYTE = ParseUtil::decodeByte;
+	public static final Function<RuntimeException, String, Short> SHORT = ParseUtil::parseShort;
+	public static final Function<RuntimeException, String, Short> DSHORT = ParseUtil::decodeShort;
+	public static final Function<RuntimeException, String, Integer> INT = ParseUtil::parseInt;
+	public static final Function<RuntimeException, String, Integer> DINT = ParseUtil::decodeInt;
+	public static final Function<RuntimeException, String, Long> LONG = ParseUtil::parseLong;
+	public static final Function<RuntimeException, String, Long> DLONG = ParseUtil::decodeLong;
+	public static final Function<RuntimeException, String, Float> FLOAT = ParseUtil::parseFloat;
+	public static final Function<RuntimeException, String, Double> DOUBLE = ParseUtil::parseDouble;
 
 	private ParseUtil() {}
 

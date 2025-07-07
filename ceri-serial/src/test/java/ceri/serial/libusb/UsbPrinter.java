@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.IntProvider;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
@@ -267,7 +267,7 @@ public class UsbPrinter {
 		return IntProvider.toHex(ints);
 	}
 
-	private static <T> T get(ExceptionSupplier<LibUsbException, T> supplier) {
+	private static <T> T get(Supplier<LibUsbException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (LibUsbException e) {

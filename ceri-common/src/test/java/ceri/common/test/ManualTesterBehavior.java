@@ -27,7 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;

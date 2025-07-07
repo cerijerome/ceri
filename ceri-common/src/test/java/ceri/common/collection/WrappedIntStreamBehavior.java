@@ -3,10 +3,6 @@ package ceri.common.collection;
 import static ceri.common.collection.WrappedStreamTestUtil.assertCapture;
 import static ceri.common.collection.WrappedStreamTestUtil.assertStream;
 import static ceri.common.collection.WrappedStreamTestUtil.assertTerminalThrow;
-import static ceri.common.function.FunctionTestUtil.intConsumer;
-import static ceri.common.function.FunctionTestUtil.intFunction;
-import static ceri.common.function.FunctionTestUtil.intPredicate;
-import static ceri.common.function.FunctionTestUtil.intUnaryOperator;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
@@ -16,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
-import ceri.common.function.FunctionTestUtil;
+import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
+import ceri.common.test.TestUtil.Ioe;
 
 public class WrappedIntStreamBehavior {
 	private final Captor.OfInt capture = Captor.ofInt();
@@ -35,25 +32,25 @@ public class WrappedIntStreamBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMap() throws IOException {
-		assertStream(wrap(4, 3, 2).map(intUnaryOperator()), 4, 3, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).map(intUnaryOperator()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(intUnaryOperator()));
+		assertStream(wrap(4, 3, 2).map(E.intOperator), 4, 3, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).map(E.intOperator));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).map(E.intOperator));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromMapToInt() throws IOException {
-		assertStream(wrap(4, 3, 2).mapToObj(intFunction()), 4, 3, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).mapToObj(intFunction()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToObj(intFunction()));
+		assertStream(wrap(4, 3, 2).mapToObj(E.intFunction), 4, 3, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).mapToObj(E.intFunction));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).mapToObj(E.intFunction));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromFilter() throws IOException {
-		assertStream(wrap(4, -1, 2).filter(intPredicate()), 4, 2);
-		assertTerminalThrow(IOException.class, wrap(2, 1, 0).filter(intPredicate()));
-		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(intPredicate()));
+		assertStream(wrap(4, -1, 2).filter(E.intPredicate), 4, 2);
+		assertTerminalThrow(IOException.class, wrap(2, 1, 0).filter(E.intPredicate));
+		assertTerminalThrow(RuntimeException.class, wrap(3, 2, 0).filter(E.intPredicate));
 	}
 
 	@SuppressWarnings("resource")
@@ -66,22 +63,20 @@ public class WrappedIntStreamBehavior {
 	@Test
 	public void shouldThrowTypedExceptionFromForEach() {
 		assertCapture(wrap(4, 3, 2)::forEach, 4, 3, 2);
-		assertIoe(() -> wrap(2, 1, 0).forEach(intConsumer()));
-		assertRte(() -> wrap(3, 2, 0).forEach(intConsumer()));
-		assertIoe(() -> wrap(2, 1, 0).map(intUnaryOperator()).forEach(_ -> {}));
-		assertRte(() -> wrap(3, 2, 0).map(intUnaryOperator()).forEach(_ -> {}));
+		assertIoe(() -> wrap(2, 1, 0).forEach(E.intConsumer));
+		assertRte(() -> wrap(3, 2, 0).forEach(E.intConsumer));
+		assertIoe(() -> wrap(2, 1, 0).map(E.intOperator).forEach(_ -> {}));
+		assertRte(() -> wrap(3, 2, 0).map(E.intOperator).forEach(_ -> {}));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldThrowTypedExceptionFromCollect() throws IOException {
 		assertIterable(wrap(4, 3, 2).collect(ArrayList::new, List::add, List::addAll), 4, 3, 2);
-		try (WrappedIntStream<IOException> stream =
-			wrap(4, 3, 1).map(FunctionTestUtil.intUnaryOperator())) {
+		try (WrappedIntStream<Ioe> stream = wrap(4, 3, 1).map(E.intOperator)) {
 			assertIoe(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
-		try (WrappedIntStream<IOException> stream =
-			wrap(4, 3, 0).map(FunctionTestUtil.intUnaryOperator())) {
+		try (WrappedIntStream<Ioe> stream = wrap(4, 3, 0).map(E.intOperator)) {
 			assertRte(() -> stream.collect(ArrayList::new, List::add, List::addAll));
 		}
 	}
@@ -101,7 +96,7 @@ public class WrappedIntStreamBehavior {
 		capture.verify(4, 3, 2);
 	}
 
-	private WrappedIntStream<IOException> wrap(int... values) {
+	private WrappedIntStream<Ioe> wrap(int... values) {
 		return WrappedIntStream.of(values);
 	}
 }

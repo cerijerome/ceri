@@ -7,7 +7,7 @@ import static ceri.log.rpc.util.RpcUtil.uint32;
 import java.io.IOException;
 import java.util.function.Consumer;
 import com.google.protobuf.UInt32Value;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.rpc.TestGrpc;
 import ceri.log.rpc.TestGrpc.TestStub;

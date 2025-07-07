@@ -4,7 +4,7 @@ import static ceri.jna.clib.Poll.Event.POLLIN;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.FunctionUtil;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;

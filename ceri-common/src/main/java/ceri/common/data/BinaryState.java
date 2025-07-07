@@ -28,7 +28,7 @@ public enum BinaryState {
 	}
 
 	public static BinaryState from(Boolean isOn) {
-		return BasicUtil.conditional(isOn, on, off, unknown);
+		return BasicUtil.ternary(isOn, on, off, unknown);
 	}
 
 	private BinaryState(int value, char symbol) {

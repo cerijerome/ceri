@@ -1,10 +1,10 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.serial.i2c.I2cAddress.DEVICE_ID;
 import static ceri.serial.i2c.I2cAddress.GENERAL_CALL;
 import java.io.IOException;
 import ceri.common.data.ByteProvider;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
@@ -52,21 +52,21 @@ public class I2cSlaveDeviceEmulator implements I2cEmulator.SlaveDevice {
 	}
 
 	private void write(byte[] command) throws IOException {
-		write.accept(ByteProvider.of(command), IO_ADAPTER);
+		write.accept(ByteProvider.of(command), ExceptionAdapter.io);
 	}
 
 	private byte[] read(byte[] command, int readLen) throws IOException {
 		var read = new Read(ByteProvider.of(command), readLen);
-		var response = this.read.apply(read, IO_ADAPTER);
+		var response = this.read.apply(read, ExceptionAdapter.io);
 		return response == null ? null : response.copy(0);
 	}
 
 	private void softwareReset() throws IOException {
-		softwareReset.run(IO_ADAPTER);
+		softwareReset.run(ExceptionAdapter.io);
 	}
 
 	private DeviceId deviceId() throws IOException {
-		return deviceId.get(IO_ADAPTER);
+		return deviceId.get(ExceptionAdapter.io);
 	}
 
 	private static boolean isSoftwareReset(byte[] command) {

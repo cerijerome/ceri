@@ -21,11 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.junit.Test;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionCloseable;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
-import ceri.common.io.IoUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
@@ -304,15 +301,15 @@ public class CloseableUtilTest {
 	 * Simple closer.
 	 */
 	public static class SyncCloser<E extends Exception> extends CallSync.Runnable
-		implements ExceptionCloseable<E> {
+		implements Excepts.Closeable<E> {
 		private final ExceptionAdapter<E> adapter;
 
 		public static SyncCloser<RuntimeException> runtime(boolean autoResponse) {
-			return new SyncCloser<>(ExceptionAdapter.RUNTIME, autoResponse);
+			return new SyncCloser<>(ExceptionAdapter.runtime, autoResponse);
 		}
 
 		public static SyncCloser<IOException> io(boolean autoResponse) {
-			return new SyncCloser<>(IoUtil.IO_ADAPTER, autoResponse);
+			return new SyncCloser<>(ExceptionAdapter.io, autoResponse);
 		}
 
 		public SyncCloser(ExceptionAdapter<E> adapter, boolean autoResponse) {
@@ -331,7 +328,7 @@ public class CloseableUtilTest {
 		}
 	}
 
-	private static ExceptionFunction<RuntimeException, Integer, Closer>
+	private static Excepts.Function<RuntimeException, Integer, Closer>
 		function(Captor<Object> captor) {
 		return i -> {
 			Closer c = Closer.of(i, false);
@@ -340,7 +337,7 @@ public class CloseableUtilTest {
 		};
 	}
 
-	private static ExceptionSupplier<RuntimeException, Closer> supplier(Captor<Object> captor) {
+	private static Excepts.Supplier<RuntimeException, Closer> supplier(Captor<Object> captor) {
 		return () -> {
 			Closer c = Closer.of(captor.values.size() + 1, false);
 			captor.accept(c);

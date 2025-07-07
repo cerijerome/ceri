@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntFunction;
-import ceri.common.function.ExceptionObjIntConsumer;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.IntFunction;
+import ceri.common.function.Excepts.ObjIntConsumer;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Truth;
 
@@ -68,17 +68,17 @@ public class Joiner {
 		private Builder() {}
 
 		public Builder prefix(String prefix) {
-			this.prefix = BasicUtil.defaultValue(prefix, "");
+			this.prefix = BasicUtil.def(prefix, "");
 			return this;
 		}
 
 		public Builder suffix(String suffix) {
-			this.suffix = BasicUtil.defaultValue(suffix, "");
+			this.suffix = BasicUtil.def(suffix, "");
 			return this;
 		}
 
 		public Builder separator(String separator) {
-			this.separator = BasicUtil.defaultValue(separator, "");
+			this.separator = BasicUtil.def(separator, "");
 			return this;
 		}
 
@@ -88,17 +88,17 @@ public class Joiner {
 		}
 
 		public Builder remainder(String remainder) {
-			this.remainder = BasicUtil.defaultValue(remainder, "");
+			this.remainder = BasicUtil.def(remainder, "");
 			return this;
 		}
 
 		public Builder showCount(Truth showCount) {
-			this.showCount = BasicUtil.defaultValue(showCount, Truth.maybe);
+			this.showCount = BasicUtil.def(showCount, Truth.maybe);
 			return this;
 		}
 
 		public Builder countFormat(String countFormat) {
-			this.countFormat = BasicUtil.defaultValue(countFormat, "");
+			this.countFormat = BasicUtil.def(countFormat, "");
 			return this;
 		}
 
@@ -136,21 +136,20 @@ public class Joiner {
 		return max != null ? Math.min(max, count) : count;
 	}
 
-	/* joining methods */
+	// joining methods
 
 	/**
 	 * Join items based on index.
 	 */
-	public <E extends Exception> String joinIndex(ExceptionIntFunction<E, ?> indexFn, int count)
-		throws E {
+	public <E extends Exception> String joinIndex(IntFunction<E, ?> indexFn, int count) throws E {
 		return joinIndex(indexFn, 0, count);
 	}
 
 	/**
 	 * Join items based on index.
 	 */
-	public <E extends Exception> String joinIndex(ExceptionIntFunction<E, ?> indexFn, int offset,
-		int count) throws E {
+	public <E extends Exception> String joinIndex(IntFunction<E, ?> indexFn, int offset, int count)
+		throws E {
 		if (indexFn == null) return "";
 		return joinIndex((b, i) -> b.append(indexFn.apply(i)), offset, count);
 	}
@@ -158,16 +157,16 @@ public class Joiner {
 	/**
 	 * Join items based on index.
 	 */
-	public <E extends Exception> String
-		joinIndex(ExceptionObjIntConsumer<E, StringBuilder> indexAppender, int count) throws E {
+	public <E extends Exception> String joinIndex(ObjIntConsumer<E, StringBuilder> indexAppender,
+		int count) throws E {
 		return joinIndex(indexAppender, 0, count);
 	}
 
 	/**
 	 * Join items based on index.
 	 */
-	public <E extends Exception> String joinIndex(
-		ExceptionObjIntConsumer<E, StringBuilder> indexAppender, int offset, int count) throws E {
+	public <E extends Exception> String joinIndex(ObjIntConsumer<E, StringBuilder> indexAppender,
+		int offset, int count) throws E {
 		return appendIndex(new StringBuilder(), indexAppender, offset, count).toString();
 	}
 
@@ -183,8 +182,8 @@ public class Joiner {
 	 * Join items based on type.
 	 */
 	@SafeVarargs
-	public final <E extends Exception, T> String joinAll(ExceptionFunction<E, T, ?> stringFn,
-		T... ts) throws E {
+	public final <E extends Exception, T> String joinAll(Function<E, T, ?> stringFn, T... ts)
+		throws E {
 		if (stringFn == null) return "";
 		return joinAll((b, t) -> b.append(stringFn.apply(t)), ts);
 	}
@@ -193,8 +192,8 @@ public class Joiner {
 	 * Join items based on type.
 	 */
 	@SafeVarargs
-	public final <E extends Exception, T> String
-		joinAll(ExceptionBiConsumer<E, StringBuilder, T> appender, T... ts) throws E {
+	public final <E extends Exception, T> String joinAll(BiConsumer<E, StringBuilder, T> appender,
+		T... ts) throws E {
 		return appendAll(new StringBuilder(), appender, ts).toString();
 	}
 
@@ -208,7 +207,7 @@ public class Joiner {
 	/**
 	 * Join items based on type.
 	 */
-	public <E extends Exception, T> String join(ExceptionFunction<E, T, ?> stringFn,
+	public <E extends Exception, T> String join(Function<E, T, ?> stringFn,
 		Collection<T> collection) throws E {
 		if (stringFn == null) return "";
 		return join((b, t) -> b.append(stringFn.apply(t)), collection);
@@ -217,7 +216,7 @@ public class Joiner {
 	/**
 	 * Join items based on type.
 	 */
-	public <E extends Exception, T> String join(ExceptionBiConsumer<E, StringBuilder, T> appender,
+	public <E extends Exception, T> String join(BiConsumer<E, StringBuilder, T> appender,
 		Collection<T> collection) throws E {
 		return append(new StringBuilder(), appender, collection).toString();
 	}
@@ -232,8 +231,8 @@ public class Joiner {
 	/**
 	 * Join items based on type; count is not available.
 	 */
-	public <E extends Exception, T> String join(ExceptionFunction<E, T, ?> stringFn,
-		Stream<T> stream) throws E {
+	public <E extends Exception, T> String join(Function<E, T, ?> stringFn, Stream<T> stream)
+		throws E {
 		if (stringFn == null) return "";
 		return join((b, t) -> b.append(stringFn.apply(t)), stream);
 	}
@@ -241,7 +240,7 @@ public class Joiner {
 	/**
 	 * Join items based on type; count is not available.
 	 */
-	public <E extends Exception, T> String join(ExceptionBiConsumer<E, StringBuilder, T> appender,
+	public <E extends Exception, T> String join(BiConsumer<E, StringBuilder, T> appender,
 		Stream<T> stream) throws E {
 		return append(new StringBuilder(), appender, stream).toString();
 	}
@@ -263,8 +262,8 @@ public class Joiner {
 	/**
 	 * Join items based on type; count is not available.
 	 */
-	public <E extends Exception, T> String join(ExceptionFunction<E, T, ?> stringFn,
-		Iterator<T> iterator) throws E {
+	public <E extends Exception, T> String join(Function<E, T, ?> stringFn, Iterator<T> iterator)
+		throws E {
 		if (stringFn == null) return "";
 		return join((b, t) -> b.append(stringFn.apply(t)), iterator);
 	}
@@ -272,8 +271,8 @@ public class Joiner {
 	/**
 	 * Join items based on type, up to count.
 	 */
-	public <E extends Exception, T> String join(ExceptionFunction<E, T, ?> stringFn,
-		Iterator<T> iterator, int count) throws E {
+	public <E extends Exception, T> String join(Function<E, T, ?> stringFn, Iterator<T> iterator,
+		int count) throws E {
 		if (stringFn == null) return "";
 		return join((b, t) -> b.append(stringFn.apply(t)), iterator, count);
 	}
@@ -281,7 +280,7 @@ public class Joiner {
 	/**
 	 * Join items based on type; count is not available.
 	 */
-	public <E extends Exception, T> String join(ExceptionBiConsumer<E, StringBuilder, T> appender,
+	public <E extends Exception, T> String join(BiConsumer<E, StringBuilder, T> appender,
 		Iterator<T> iterator) throws E {
 		return append(new StringBuilder(), appender, iterator).toString();
 	}
@@ -289,18 +288,18 @@ public class Joiner {
 	/**
 	 * Join items based on type, up to count.
 	 */
-	public <E extends Exception, T> String join(ExceptionBiConsumer<E, StringBuilder, T> appender,
+	public <E extends Exception, T> String join(BiConsumer<E, StringBuilder, T> appender,
 		Iterator<T> iterator, int count) throws E {
 		return appendTo(new StringBuilder(), appender, iterator, count).toString();
 	}
 
-	/* appending methods */
+	// appending methods
 
 	/**
 	 * Append items based on index.
 	 */
 	public <E extends Exception> StringBuilder appendIndex(StringBuilder sb,
-		ExceptionIntFunction<E, ?> indexFn, int count) throws E {
+		IntFunction<E, ?> indexFn, int count) throws E {
 		return appendIndex(sb, indexFn, 0, count);
 	}
 
@@ -308,7 +307,7 @@ public class Joiner {
 	 * Append items based on index.
 	 */
 	public <E extends Exception> StringBuilder appendIndex(StringBuilder sb,
-		ExceptionIntFunction<E, ?> indexFn, int offset, int count) throws E {
+		IntFunction<E, ?> indexFn, int offset, int count) throws E {
 		if (indexFn == null) return sb;
 		return appendIndex(sb, (b, i) -> b.append(indexFn.apply(i)), offset, count);
 	}
@@ -317,7 +316,7 @@ public class Joiner {
 	 * Append items based on index.
 	 */
 	public <E extends Exception> StringBuilder appendIndex(StringBuilder sb,
-		ExceptionObjIntConsumer<E, StringBuilder> indexAppender, int count) throws E {
+		ObjIntConsumer<E, StringBuilder> indexAppender, int count) throws E {
 		return appendIndex(sb, indexAppender, 0, count);
 	}
 
@@ -325,7 +324,7 @@ public class Joiner {
 	 * Append items based on index.
 	 */
 	public <E extends Exception> StringBuilder appendIndex(StringBuilder sb,
-		ExceptionObjIntConsumer<E, StringBuilder> indexAppender, int offset, int count) throws E {
+		ObjIntConsumer<E, StringBuilder> indexAppender, int offset, int count) throws E {
 		if (sb == null || indexAppender == null) return sb;
 		validateMin(offset, 0, "offset");
 		validateMin(count, 0, "count");
@@ -356,7 +355,7 @@ public class Joiner {
 	 */
 	@SafeVarargs
 	public final <E extends Exception, T> StringBuilder appendAll(StringBuilder sb,
-		ExceptionFunction<E, T, ?> stringFn, T... ts) throws E {
+		Function<E, T, ?> stringFn, T... ts) throws E {
 		if (stringFn == null) return sb;
 		return appendAll(sb, (b, t) -> b.append(stringFn.apply(t)), ts);
 	}
@@ -366,7 +365,7 @@ public class Joiner {
 	 */
 	@SafeVarargs
 	public final <E extends Exception, T> StringBuilder appendAll(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, T... ts) throws E {
+		BiConsumer<E, StringBuilder, T> appender, T... ts) throws E {
 		if (ts == null) return sb;
 		return append(sb, appender, Arrays.asList(ts));
 	}
@@ -382,7 +381,7 @@ public class Joiner {
 	 * Append items based on type.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionFunction<E, T, ?> stringFn, Collection<T> collection) throws E {
+		Function<E, T, ?> stringFn, Collection<T> collection) throws E {
 		if (stringFn == null) return sb;
 		return append(sb, (b, t) -> b.append(stringFn.apply(t)), collection);
 	}
@@ -391,7 +390,7 @@ public class Joiner {
 	 * Append items based on type.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, Collection<T> collection) throws E {
+		BiConsumer<E, StringBuilder, T> appender, Collection<T> collection) throws E {
 		if (collection == null) return sb;
 		return appendTo(sb, appender, collection.iterator(), collection.size());
 	}
@@ -407,7 +406,7 @@ public class Joiner {
 	 * Append items based on type; count is not available.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionFunction<E, T, ?> stringFn, Stream<T> stream) throws E {
+		Function<E, T, ?> stringFn, Stream<T> stream) throws E {
 		if (stringFn == null) return sb;
 		return append(sb, (b, t) -> b.append(stringFn.apply(t)), stream);
 	}
@@ -416,7 +415,7 @@ public class Joiner {
 	 * Append items based on type; count is not available.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, Stream<T> stream) throws E {
+		BiConsumer<E, StringBuilder, T> appender, Stream<T> stream) throws E {
 		if (stream == null) return sb;
 		return append(sb, appender, stream.iterator());
 	}
@@ -432,7 +431,7 @@ public class Joiner {
 	 * Append items based on type; count is not available.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionFunction<E, T, ?> stringFn, Iterator<T> iterator) throws E {
+		Function<E, T, ?> stringFn, Iterator<T> iterator) throws E {
 		if (stringFn == null) return sb;
 		return append(sb, (b, t) -> b.append(stringFn.apply(t)), iterator);
 	}
@@ -441,7 +440,7 @@ public class Joiner {
 	 * Append items based on type; count is not available.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator) throws E {
+		BiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator) throws E {
 		return appendTo(sb, appender, iterator, null);
 	}
 
@@ -456,7 +455,7 @@ public class Joiner {
 	 * Append items based on type, up to count.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionFunction<E, T, ?> stringFn, Iterator<T> iterator, int count) throws E {
+		Function<E, T, ?> stringFn, Iterator<T> iterator, int count) throws E {
 		if (stringFn == null) return sb;
 		return append(sb, (b, t) -> b.append(stringFn.apply(t)), iterator, count);
 	}
@@ -465,16 +464,14 @@ public class Joiner {
 	 * Append items based on type, up to count.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator, int count)
-		throws E {
+		BiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator, int count) throws E {
 		return appendTo(sb, appender, iterator, count);
 	}
 
-	/* Support methods */
+	// Support methods
 
 	private <E extends Exception, T> StringBuilder appendTo(StringBuilder sb,
-		ExceptionBiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator, Integer count)
-		throws E {
+		BiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator, Integer count) throws E {
 		if (sb == null || iterator == null || appender == null) return sb;
 		sb.append(prefix);
 		for (int i = 0;; i++) {

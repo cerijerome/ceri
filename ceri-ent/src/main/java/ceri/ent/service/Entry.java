@@ -31,7 +31,7 @@ public class Entry<K, V> {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (!(obj instanceof Entry)) return false;
-		Entry<K, V> other = BasicUtil.uncheckedCast(obj);
+		Entry<K, V> other = BasicUtil.unchecked(obj);
 		return Objects.equals(key, other.key) && Objects.equals(value, other.value) &&
 			expiration == other.expiration;
 	}

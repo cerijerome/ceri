@@ -9,8 +9,8 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.ToIntFunction;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
-import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.exception.Exceptions;
+import ceri.common.function.Funcs.ObjIntFunction;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 
@@ -66,7 +66,7 @@ public class Indexer {
 		public final Indexer indexer;
 
 		public static <T> Typed<T> ofNull() {
-			return BasicUtil.uncheckedCast(NULL);
+			return BasicUtil.unchecked(NULL);
 		}
 
 		private Typed(List<T> list, Indexer indexer) {
@@ -166,7 +166,7 @@ public class Indexer {
 	 */
 	public static Indexer of(int... indexes) {
 		for (int i = 1; i < indexes.length; i++)
-			if (indexes[i - 1] > indexes[i]) throw ExceptionUtil
+			if (indexes[i - 1] > indexes[i]) throw Exceptions
 				.illegalArg("Index cannot decrease: %d > %d [%d]", indexes[i - 1], indexes[i], i);
 		return new Indexer(indexes);
 	}

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.function.IntConsumer;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts.Runnable;
 import ceri.common.text.StringUtil;
 import ceri.jna.clib.ErrNo;
 
@@ -27,8 +27,8 @@ public class CException extends IOException {
 	/**
 	 * Capture the error code to a consumer and rethrow the error.
 	 */
-	public static <E extends CException> void intercept(ExceptionRunnable<E> runnable,
-		IntConsumer consumer) throws E {
+	public static <E extends CException> void intercept(Runnable<E> runnable, IntConsumer consumer)
+		throws E {
 		try {
 			runnable.run();
 			consumer.accept(0);
@@ -41,7 +41,7 @@ public class CException extends IOException {
 	/**
 	 * Capture the error code or 0 if successful.
 	 */
-	public static int capture(ExceptionRunnable<? extends CException> runnable) {
+	public static int capture(Runnable<? extends CException> runnable) {
 		try {
 			runnable.run();
 			return 0;

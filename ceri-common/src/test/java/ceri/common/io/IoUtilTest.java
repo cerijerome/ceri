@@ -2,8 +2,6 @@ package ceri.common.io;
 
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.io.IoUtil.EOL_BYTES;
-import static ceri.common.io.IoUtil.IO_ADAPTER;
-import static ceri.common.io.IoUtil.RUNTIME_IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -40,7 +38,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.collection.WrappedStream;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.ExceptionObjIntPredicate;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.exception.Exceptions;
+import ceri.common.function.Excepts.ObjIntPredicate;
 import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;
@@ -78,45 +78,45 @@ public class IoUtilTest {
 
 	@Test
 	public void testIoExceptionf() {
-		assertEquals(IoUtil.ioExceptionf("%s", "test").getMessage(), "test");
-		assertEquals(IoUtil.ioExceptionf(new Throwable(), "%s", "test").getMessage(), "test");
+		assertEquals(Exceptions.io("%s", "test").getMessage(), "test");
+		assertEquals(Exceptions.io(new Throwable(), "%s", "test").getMessage(), "test");
 	}
 
 	@Test
 	public void testExecIo() throws IOException {
-		IO_ADAPTER.run(() -> {});
-		assertRte(() -> IO_ADAPTER.run(() -> Integer.valueOf(null)));
-		assertIoe(() -> IO_ADAPTER.run(() -> {
+		ExceptionAdapter.io.run(() -> {});
+		assertRte(() -> ExceptionAdapter.io.run(() -> Integer.valueOf(null)));
+		assertIoe(() -> ExceptionAdapter.io.run(() -> {
 			throw new Exception();
 		}));
-		assertIoe(() -> IO_ADAPTER.run(() -> {
+		assertIoe(() -> ExceptionAdapter.io.run(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void testCallableIo() throws IOException {
-		IO_ADAPTER.get(() -> "a");
-		assertRte(() -> IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertIoe(() -> IO_ADAPTER.get(() -> {
+		ExceptionAdapter.io.get(() -> "a");
+		assertRte(() -> ExceptionAdapter.io.get(() -> Integer.valueOf(null)));
+		assertIoe(() -> ExceptionAdapter.io.get(() -> {
 			throw new Exception();
 		}));
-		assertIoe(() -> IO_ADAPTER.get(() -> {
+		assertIoe(() -> ExceptionAdapter.io.get(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void testRuntimeIo() {
-		RUNTIME_IO_ADAPTER.get(() -> "a");
-		assertRte(() -> RUNTIME_IO_ADAPTER.get(() -> Integer.valueOf(null)));
-		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
+		ExceptionAdapter.runtimeIo.get(() -> "a");
+		assertRte(() -> ExceptionAdapter.runtimeIo.get(() -> Integer.valueOf(null)));
+		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
 			throw new Exception();
 		}));
-		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
+		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeIoException.class, () -> RUNTIME_IO_ADAPTER.get(() -> {
+		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
 			throw new RuntimeIoException("");
 		}));
 	}
@@ -430,7 +430,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableBytesWithPredicate() throws IOException {
 		assertNull(IoUtil.availableBytes(null, null));
-		ExceptionObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
+		ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
 		try (var in = new ByteArrayInputStream(bytes(0, 1, -1, -1, 2, 3))) {
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(-1));

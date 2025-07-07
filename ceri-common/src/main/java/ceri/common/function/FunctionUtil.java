@@ -32,40 +32,42 @@ public class FunctionUtil {
 	 * Provides a no-op consumer.
 	 */
 	public static <T> Consumer<T> nullConsumer() {
-		return BasicUtil.uncheckedCast(NULL_CONSUMER);
+		return BasicUtil.unchecked(NULL_CONSUMER);
 	}
 
 	/**
 	 * Provides a predicate that is always true.
 	 */
 	public static <T> Predicate<T> truePredicate() {
-		return BasicUtil.uncheckedCast(TRUE_PREDICATE);
+		return BasicUtil.unchecked(TRUE_PREDICATE);
 	}
 
 	/**
-	 * Invokes the supplier and returns the supplied value, which may be null. If an exception
-	 * occurs, it is suppressed, and null is returned. Interrupted exceptions will re-interrupt the
-	 * current thread.
+	 * Invokes the supplier and returns the result, which may be null. Errors will be thrown, but
+	 * exceptions will be suppressed, and null returned. Interrupted exceptions will re-interrupt
+	 * the thread.
 	 */
-	public static <T> T getSilently(ExceptionSupplier<?, T> supplier) {
+	public static <T> T getSilently(Excepts.Supplier<?, T> supplier) {
 		return getSilently(supplier, null);
 	}
 
 	/**
-	 * Invokes the supplier and returns the supplied value, which may be null. If an exception
-	 * occurs, it is suppressed, and the error value is returned. Interrupted exceptions will
-	 * re-interrupt the current thread.
+	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
+	 * suppressed, and an error value returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	public static <T> T getSilently(ExceptionSupplier<?, ? extends T> supplier, T errorVal) {
-		return getIt(supplier::get, errorVal);
+	public static <T> T getSilently(Throws.Supplier<? extends T> supplier, T errorVal) {
+		return getIt(supplier, errorVal);
 	}
 
 	/**
-	 * Invokes the runnable and returns true. If an exception is thrown, it is suppressed, and false
-	 * is returned. Interrupted exceptions will re-interrupt the thread.
+	 * Invokes the runnable and returns true. Errors will be thrown, but exceptions will be
+	 * suppressed, and false returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	public static boolean runSilently(ExceptionRunnable<?> runnable) {
-		return runIt(runnable::run);
+	public static boolean runSilently(Throws.Runnable runnable) {
+		return getSilently(() -> {
+			runnable.run();
+			return true;
+		}, false);
 	}
 
 	/**
@@ -93,8 +95,8 @@ public class FunctionUtil {
 	/**
 	 * Consumer called for each supplied value until null.
 	 */
-	public static <E extends Exception, T> void forEach(ExceptionSupplier<E, T> supplier,
-		ExceptionConsumer<E, T> consumer) throws E {
+	public static <E extends Exception, T> void forEach(Excepts.Supplier<E, T> supplier,
+		Excepts.Consumer<E, T> consumer) throws E {
 		for (var t = supplier.get(); t != null; t = supplier.get())
 			consumer.accept(t);
 	}
@@ -152,7 +154,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T, R> R safeApply(T t,
-		ExceptionFunction<E, ? super T, R> function) throws E {
+		Excepts.Function<E, ? super T, R> function) throws E {
 		return safeApply(t, function, null);
 	}
 
@@ -160,7 +162,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T, R> R safeApply(T t,
-		ExceptionFunction<E, ? super T, ? extends R> function, R def) throws E {
+		Excepts.Function<E, ? super T, ? extends R> function, R def) throws E {
 		return t == null ? def : function.apply(t);
 	}
 
@@ -168,7 +170,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T> int safeApplyAsInt(T t,
-		ExceptionToIntFunction<E, ? super T> function, int def) throws E {
+		Excepts.ToIntFunction<E, ? super T> function, int def) throws E {
 		return t == null ? def : function.applyAsInt(t);
 	}
 
@@ -176,7 +178,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T, R> R safeApplyGet(T t,
-		ExceptionFunction<E, ? super T, ? extends R> function, ExceptionSupplier<E, R> supplier)
+		Excepts.Function<E, ? super T, ? extends R> function, Excepts.Supplier<E, R> supplier)
 		throws E {
 		return t == null ? supplier.get() : function.apply(t);
 	}
@@ -185,7 +187,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to function.
 	 */
 	public static <E extends Exception, T> int safeApplyGetAsInt(T t,
-		ExceptionToIntFunction<E, ? super T> function, ExceptionIntSupplier<E> supplier) throws E {
+		Excepts.ToIntFunction<E, ? super T> function, Excepts.IntSupplier<E> supplier) throws E {
 		return t == null ? supplier.getAsInt() : function.applyAsInt(t);
 	}
 
@@ -193,7 +195,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
 	public static <E extends Exception, T> boolean safeAccept(T t,
-		ExceptionConsumer<E, ? super T> consumer) throws E {
+		Excepts.Consumer<E, ? super T> consumer) throws E {
 		if (t == null) return false;
 		consumer.accept(t);
 		return true;
@@ -203,7 +205,7 @@ public class FunctionUtil {
 	 * Passes only non-null values to consumer. Returns true if consumed.
 	 */
 	public static <E extends Exception, T> boolean safeAccept(T t,
-		ExceptionPredicate<E, ? super T> predicate, ExceptionConsumer<E, ? super T> consumer)
+		Excepts.Predicate<E, ? super T> predicate, Excepts.Consumer<E, ? super T> consumer)
 		throws E {
 		if (t == null || !predicate.test(t)) return false;
 		consumer.accept(t);
@@ -233,7 +235,7 @@ public class FunctionUtil {
 	 * Returns true if the predicate matches any of the given values.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> boolean any(ExceptionPredicate<E, ? super T> predicate,
+	public static <E extends Exception, T> boolean any(Excepts.Predicate<E, ? super T> predicate,
 		T... ts) throws E {
 		return any(predicate, Arrays.asList(ts));
 	}
@@ -241,7 +243,7 @@ public class FunctionUtil {
 	/**
 	 * Returns true if the predicate matches any of the given values.
 	 */
-	public static <E extends Exception, T> boolean any(ExceptionPredicate<E, ? super T> predicate,
+	public static <E extends Exception, T> boolean any(Excepts.Predicate<E, ? super T> predicate,
 		Iterable<T> ts) throws E {
 		for (var t : ts)
 			if (predicate.test(t)) return true;
@@ -252,7 +254,7 @@ public class FunctionUtil {
 	 * Returns true if the predicate matches all of the given values.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> boolean all(ExceptionPredicate<E, ? super T> predicate,
+	public static <E extends Exception, T> boolean all(Excepts.Predicate<E, ? super T> predicate,
 		T... ts) throws E {
 		return all(predicate, Arrays.asList(ts));
 	}
@@ -260,7 +262,7 @@ public class FunctionUtil {
 	/**
 	 * Returns true if the predicate matches all of the given values.
 	 */
-	public static <E extends Exception, T> boolean all(ExceptionPredicate<E, ? super T> predicate,
+	public static <E extends Exception, T> boolean all(Excepts.Predicate<E, ? super T> predicate,
 		Iterable<T> ts) throws E {
 		for (var t : ts)
 			if (!predicate.test(t)) return false;
@@ -297,27 +299,17 @@ public class FunctionUtil {
 	}
 
 	/**
-	 * Invokes the runnable and returns true. If an exception is thrown, it will be suppressed, and
-	 * false is returned. Interrupted exceptions will re-interrupt the thread.
+	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
+	 * suppressed, and an error value returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static boolean runIt(ExceptionRunnable<?> runnable) {
-		return getIt(() -> {
-			runnable.run();
-			return true;
-		}, false);
-	}
-
-	/**
-	 * Invokes the supplier and returns the result. If an exception is thrown, it will be
-	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
-	 * thread.
-	 */
-	private static <T> T getIt(ExceptionSupplier<Exception, ? extends T> supplier, T errorVal) {
+	private static <T> T getIt(Throws.Supplier<? extends T> supplier, T errorVal) {
 		try {
 			return supplier.get();
+		} catch (Error e) {
+			throw e;
 		} catch (RuntimeInterruptedException | InterruptedException e) {
 			ConcurrentUtil.interrupt(); // reset interrupt since we ignore the exception
-		} catch (Exception e) {
+		} catch (Throwable _) {
 			// ignored
 		}
 		return errorVal;

@@ -5,8 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import ceri.common.concurrent.SimpleExecutor;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CUnistd;
@@ -41,7 +41,7 @@ public class SerialTestUtil {
 	}
 
 	public static void applySelfHealing(String path, Integer baud,
-		ExceptionConsumer<IOException, SelfHealingSerial> consumer) throws IOException {
+		Consumer<IOException, SelfHealingSerial> consumer) throws IOException {
 		try (var serial = SelfHealingSerial.of(SelfHealingSerial.Config.of(path))) {
 			serial.open();
 			if (baud != null) serial.params(SerialParams.of(baud));
@@ -50,14 +50,14 @@ public class SerialTestUtil {
 	}
 
 	public static void applySerial(String path, Integer baud,
-		ExceptionConsumer<IOException, SerialPort> consumer) throws IOException {
+		Consumer<IOException, SerialPort> consumer) throws IOException {
 		try (var serial = SerialPort.open(path)) {
 			if (baud != null) serial.params(SerialParams.of(baud));
 			consumer.accept(serial);
 		}
 	}
 
-	public static void applyFd(String path, int baud, ExceptionIntConsumer<IOException> consumer)
+	public static void applyFd(String path, int baud, IntConsumer<IOException> consumer)
 		throws IOException {
 		int fd = CSerial.open(path);
 		try {
@@ -70,17 +70,17 @@ public class SerialTestUtil {
 	}
 
 	public static SimpleExecutor<RuntimeException, ?> execSelfHealing(String path, Integer baud,
-		ExceptionConsumer<IOException, SelfHealingSerial> consumer) {
+		Consumer<IOException, SelfHealingSerial> consumer) {
 		return TestUtil.threadRun(() -> applySelfHealing(path, baud, consumer));
 	}
 
 	public static SimpleExecutor<RuntimeException, ?> execSerial(String path, Integer baud,
-		ExceptionConsumer<IOException, SerialPort> consumer) {
+		Consumer<IOException, SerialPort> consumer) {
 		return TestUtil.threadRun(() -> applySerial(path, baud, consumer));
 	}
 
 	public static SimpleExecutor<RuntimeException, ?> execFd(String path, int baud,
-		ExceptionIntConsumer<IOException> consumer) {
+		IntConsumer<IOException> consumer) {
 		return TestUtil.threadRun(() -> applyFd(path, baud, consumer));
 	}
 

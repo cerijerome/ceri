@@ -3,7 +3,7 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.Connector;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.log.util.LogUtil;

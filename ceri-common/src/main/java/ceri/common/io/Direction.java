@@ -20,7 +20,7 @@ public enum Direction {
 	public final int value;
 
 	public static Direction from(Boolean isOut) {
-		return BasicUtil.conditional(isOut, out, in, none);
+		return BasicUtil.ternary(isOut, out, in, none);
 	}
 
 	public static boolean in(Direction direction) {

@@ -153,7 +153,7 @@ public abstract class SubArray<T> {
 		if (t == obj) return true;
 		if (obj == null) return false;
 		if (!t.getClass().isInstance(obj)) return false;
-		SubArray<T> other = BasicUtil.uncheckedCast(obj);
+		SubArray<T> other = BasicUtil.unchecked(obj);
 		if (t.length != other.length) return false;
 		if (t.array == other.array && t.offset == other.offset) return true;
 		return equalsFn.isEqual(t.array, t.offset, t.offset + t.length, other.array, other.offset,

@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.function.Predicate;
-import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.Predicates;
 
@@ -35,7 +35,7 @@ public class PathFilters {
 	/**
 	 * Adapts a non-exception predicate, making it easier to combine with other predicates.
 	 */
-	public static ExceptionPredicate<IOException, Path> adapt(Predicate<Path> filter) {
+	public static Excepts.Predicate<IOException, Path> adapt(Predicate<Path> filter) {
 		return filter::test;
 	}
 
@@ -49,15 +49,15 @@ public class PathFilters {
 	/**
 	 * A filter that applies the path filter to the filename path only.
 	 */
-	public static ExceptionPredicate<IOException, Path> byFileNamePath(Predicate<Path> filter) {
-		return ExceptionPredicate.testing(Path::getFileName, filter::test);
+	public static Excepts.Predicate<IOException, Path> byFileNamePath(Predicate<Path> filter) {
+		return Excepts.Predicate.testing(Path::getFileName, filter::test);
 	}
 
 	/**
 	 * A filter that applies the path filter to the filename path only.
 	 */
-	public static ExceptionPredicate<IOException, Path> byFileName(Predicate<String> filter) {
-		return ExceptionPredicate.testing(IoUtil::filename, filter::test);
+	public static Excepts.Predicate<IOException, Path> byFileName(Predicate<String> filter) {
+		return Excepts.Predicate.testing(IoUtil::filename, filter::test);
 	}
 
 	/**
@@ -88,37 +88,36 @@ public class PathFilters {
 	/**
 	 * A filter that applies the time instant match to the path last modified time.
 	 */
-	public static ExceptionPredicate<IOException, Path> byLastModified(Predicate<Instant> filter) {
-		return ExceptionPredicate.testing(path -> Files.getLastModifiedTime(path).toInstant(),
+	public static Excepts.Predicate<IOException, Path> byLastModified(Predicate<Instant> filter) {
+		return Excepts.Predicate.testing(path -> Files.getLastModifiedTime(path).toInstant(),
 			filter::test);
 	}
 
 	/**
 	 * A filter that applies the time instant match to the path last modified time.
 	 */
-	public static ExceptionPredicate<IOException, Path> byModifiedSince(long epochMs) {
+	public static Excepts.Predicate<IOException, Path> byModifiedSince(long epochMs) {
 		return byLastModified(instant -> instant.toEpochMilli() >= epochMs);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static ExceptionPredicate<IOException, Path> bySize(Predicate<Long> filter) {
-		return ExceptionPredicate.testing(path -> Files.size(path), filter::test);
+	public static Excepts.Predicate<IOException, Path> bySize(Predicate<Long> filter) {
+		return Excepts.Predicate.testing(path -> Files.size(path), filter::test);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static ExceptionPredicate<IOException, Path> byMaxSize(long maxSize) {
+	public static Excepts.Predicate<IOException, Path> byMaxSize(long maxSize) {
 		return bySize(size -> size <= maxSize);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static ExceptionPredicate<IOException, Path> byMinSize(long minSize) {
+	public static Excepts.Predicate<IOException, Path> byMinSize(long minSize) {
 		return bySize(size -> size >= minSize);
 	}
-
 }

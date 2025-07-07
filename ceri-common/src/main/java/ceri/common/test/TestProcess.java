@@ -1,10 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.time.Timeout;
@@ -39,7 +39,7 @@ public class TestProcess extends Process implements AutoCloseable {
 
 		@Override
 		public String exec(Parameters parameters) throws IOException {
-			return exec.apply(parameters, IO_ADAPTER);
+			return exec.apply(parameters, ExceptionAdapter.io);
 		}
 	}
 

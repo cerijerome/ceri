@@ -106,21 +106,21 @@ public interface Listenable<T> {
 	 * Provides a no-op listenable type if null.
 	 */
 	static <T> Indirect<T> safe(Indirect<T> indirect) {
-		return BasicUtil.defaultValue(indirect, Listenable::ofNull);
+		return BasicUtil.def(indirect, Listenable::ofNull);
 	}
 
 	/**
 	 * Provides a no-op listenable type if null.
 	 */
 	static <T> Listenable<T> safe(Listenable<T> listenable) {
-		return BasicUtil.defaultValue(listenable, Listenable::ofNull);
+		return BasicUtil.def(listenable, Listenable::ofNull);
 	}
 
 	/**
 	 * Returns a typed, stateless, no-op listenable.
 	 */
 	static <T> Null<T> ofNull() {
-		return BasicUtil.uncheckedCast(Null.INSTANCE);
+		return BasicUtil.unchecked(Null.INSTANCE);
 	}
 
 	/**

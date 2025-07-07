@@ -23,7 +23,7 @@ public abstract class Holder<T> {
 	 * Returns an immutable empty holder.
 	 */
 	public static <T> Holder<T> of() {
-		return BasicUtil.uncheckedCast(EMPTY);
+		return BasicUtil.unchecked(EMPTY);
 	}
 
 	/**

@@ -10,7 +10,7 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import ceri.common.io.IoUtil;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.text.ParseUtil;
 import ceri.common.text.StringUtil;
@@ -62,7 +62,7 @@ public class MacUsbLocator {
 	 * Returns a map of USB device location ids and paths.
 	 */
 	public Map<Integer, String> ports() throws IOException {
-		return IoUtil.IO_ADAPTER.get(() -> {
+		return ExceptionAdapter.io.get(() -> {
 			Map<Integer, String> devices = new TreeMap<>();
 			for (Node usb : usbNodes()) {
 				int id = locationId(usb);
@@ -78,7 +78,7 @@ public class MacUsbLocator {
 	 * Scans all USB devices to find a matching location id, and returns the device path.
 	 */
 	public String port(int locationId) throws IOException {
-		return IoUtil.IO_ADAPTER.get(() -> {
+		return ExceptionAdapter.io.get(() -> {
 			for (Node usb : usbNodes()) {
 				int id = locationId(usb);
 				if (id == 0 || id != locationId) continue;

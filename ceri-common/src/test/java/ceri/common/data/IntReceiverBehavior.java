@@ -11,7 +11,7 @@ import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 
 public class IntReceiverBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -164,8 +164,8 @@ public class IntReceiverBehavior {
 	 * Creates a IntReceiver wrapping a fixed-size int array, executes the action on the
 	 * IntReceiver, and asserts the ints in the array.
 	 */
-	private static <E extends Exception> void assertInts(int size,
-		ExceptionConsumer<E, IntReceiver> action, int... ints) throws E {
+	private static <E extends Exception> void assertInts(int size, Consumer<E, IntReceiver> action,
+		int... ints) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		assertArray(holder.ints, ints);

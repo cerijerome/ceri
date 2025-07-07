@@ -1,11 +1,11 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import static ceri.common.test.AssertUtil.assertRead;
 import java.io.IOException;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.event.Listenable;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestFixable;
@@ -58,7 +58,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 		boolean rts = this.rts.value();
 		boolean dtr = this.dtr.value();
 		if (!reset && rts && !dtr && on) bit(true);
-		this.dtr.accept(on, IO_ADAPTER);
+		this.dtr.accept(on, ExceptionAdapter.io);
 		if (!rts && !on) reset = true;
 		if (rts && on) standby();
 	}
@@ -68,7 +68,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 		boolean rts = this.rts.value();
 		boolean dtr = this.dtr.value();
 		if (!reset && dtr && !rts && on) bit(false);
-		this.rts.accept(on, IO_ADAPTER);
+		this.rts.accept(on, ExceptionAdapter.io);
 		if (!dtr && !on) reset = true;
 		if (dtr && on) standby();
 	}

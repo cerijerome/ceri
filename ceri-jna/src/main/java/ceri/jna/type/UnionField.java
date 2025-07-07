@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import com.sun.jna.Union;
-import ceri.common.function.ExceptionConsumer;
+import ceri.common.function.Excepts.Consumer;
 
 /**
  * Methods to provide typed access to union fields.
@@ -48,7 +48,7 @@ public class UnionField<U extends Union, T> {
 		if (union != null) union.writeField(name, value);
 	}
 
-	public <E extends Exception> void write(U union, ExceptionConsumer<E, T> consumer) throws E {
+	public <E extends Exception> void write(U union, Consumer<E, T> consumer) throws E {
 		if (union == null) return;
 		consumer.accept(get(union));
 		write(union);

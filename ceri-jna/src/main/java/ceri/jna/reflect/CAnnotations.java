@@ -1,6 +1,5 @@
 package ceri.jna.reflect;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -16,6 +15,7 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.exception.Exceptions;
 import ceri.common.reflect.AnnotationUtil;
 import ceri.common.reflect.ReflectUtil;
 import ceri.jna.util.JnaOs;
@@ -414,7 +414,7 @@ public class CAnnotations {
 		// No type annotation and no undefined annotation => default
 		// Type annotation and undefined annotation => not permitted
 		if (ctypes.length == 0) return undefined ? CType.Value.UNDEFINED : CType.Value.DEFAULT;
-		if (undefined) throw illegalArg("Not permitted: %s and %s",
+		if (undefined) throw Exceptions.illegalArg("Not permitted: %s and %s",
 			CUndefined.class.getSimpleName(), CType.class.getSimpleName());
 		return ctypeForOs(ctypes, os);
 	}

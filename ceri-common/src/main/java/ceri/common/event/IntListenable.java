@@ -52,7 +52,7 @@ public interface IntListenable {
 	}
 
 	static Null ofNull() {
-		return BasicUtil.uncheckedCast(Null.INSTANCE);
+		return BasicUtil.unchecked(Null.INSTANCE);
 	}
 
 	interface Null extends IntListenable, IntListenable.Indirect {

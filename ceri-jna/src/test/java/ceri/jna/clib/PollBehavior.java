@@ -87,15 +87,13 @@ public class PollBehavior {
 	@Test
 	public void shouldNotPollWithSigsetOnMac() throws IOException {
 		initPipe();
-		JnaOs.mac.run(() -> {
-			assertUnsupported(() -> poll.poll(SigSet.of(Signal.SIGINT)));
-		});
+		JnaOs.mac.accept(_ -> assertUnsupported(() -> poll.poll(SigSet.of(Signal.SIGINT))));
 	}
 
 	@Test
 	public void shouldPollWithSigsetOnLinux() throws IOException {
 		initPipe();
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			try (var enc = TestCLibNative.register()) {
 				enc.ref.poll.autoResponses(1, 2);
 				assertEquals(poll.poll(SigSet.of(Signal.SIGINT)), 1);

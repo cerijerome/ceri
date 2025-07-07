@@ -65,7 +65,7 @@ public class Bound<T> {
 	}
 
 	public static <T> Bound<T> unbound() {
-		return BasicUtil.uncheckedCast(UNBOUND);
+		return BasicUtil.unchecked(UNBOUND);
 	}
 
 	public static <T extends Comparable<T>> Bound<T> inclusive(T value) {

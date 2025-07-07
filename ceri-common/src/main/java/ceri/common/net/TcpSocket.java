@@ -159,7 +159,7 @@ public interface TcpSocket extends Connector {
 
 		@Override
 		default <T> T option(TcpSocketOption<T> option) throws IOException {
-			return Objects.requireNonNullElse(option.disableValue, BasicUtil.uncheckedCast(0));
+			return Objects.requireNonNullElse(option.disableValue, BasicUtil.unchecked(0));
 		}
 	}
 }

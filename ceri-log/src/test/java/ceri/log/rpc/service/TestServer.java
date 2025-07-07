@@ -1,8 +1,8 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 import ceri.common.time.Timeout;
 import io.grpc.Server;
@@ -21,7 +21,7 @@ public class TestServer extends Server {
 
 	@Override
 	public TestServer start() throws IOException {
-		start.run(IO_ADAPTER);
+		start.run(ExceptionAdapter.io);
 		return this;
 	}
 

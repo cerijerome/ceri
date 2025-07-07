@@ -1,6 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
@@ -26,14 +25,8 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.ExceptionToBooleanFunction;
-import ceri.common.function.ExceptionToDoubleFunction;
-import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.ExceptionToLongFunction;
+import ceri.common.exception.Exceptions;
+import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
 import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
@@ -43,13 +36,13 @@ import ceri.common.util.BasicUtil;
  * Encapsulates conversion between types.
  */
 public class Parser {
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Boolean> BOOL =
+	private static final Excepts.Function<RuntimeException, java.lang.String, Boolean> BOOL =
 		Boolean::parseBoolean;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Integer> DINT =
+	private static final Excepts.Function<RuntimeException, java.lang.String, Integer> DINT =
 		NumberParser::decodeInt;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Long> DLONG =
+	private static final Excepts.Function<RuntimeException, java.lang.String, Long> DLONG =
 		NumberParser::decodeLong;
-	private static final ExceptionFunction<RuntimeException, java.lang.String, Double> DOUBLE =
+	private static final Excepts.Function<RuntimeException, java.lang.String, Double> DOUBLE =
 		Double::parseDouble;
 
 	private Parser() {}
@@ -108,7 +101,7 @@ public class Parser {
 	/**
 	 * Provides access to a typed value.
 	 */
-	public interface Type<T> extends ExceptionSupplier<RuntimeException, T>, Supplier<T> {
+	public interface Type<T> extends Excepts.Supplier<RuntimeException, T>, Supplier<T> {
 
 		/**
 		 * Creates an instance using the value supplier.
@@ -121,15 +114,15 @@ public class Parser {
 		 * Access the value or use default supplier if null.
 		 */
 		default T get(T def) {
-			return BasicUtil.defaultValue(get(), def);
+			return BasicUtil.def(get(), def);
 		}
 
 		/**
 		 * Access the value or use default supplier if null.
 		 */
-		default <E extends Exception> T get(ExceptionSupplier<E, ? extends T> defSupplier)
+		default <E extends Exception> T get(Excepts.Supplier<E, ? extends T> defSupplier)
 			throws E {
-			return BasicUtil.defaultValue(get(), defSupplier);
+			return BasicUtil.def(get(), defSupplier);
 		}
 
 		/**
@@ -170,7 +163,7 @@ public class Parser {
 		/**
 		 * Provides access with a default value supplier if the supplied value is null.
 		 */
-		default <E extends Exception> Type<T> def(ExceptionSupplier<E, ? extends T> defSupplier)
+		default <E extends Exception> Type<T> def(Excepts.Supplier<E, ? extends T> defSupplier)
 			throws E {
 			return Parser.type(get(defSupplier));
 		}
@@ -178,7 +171,7 @@ public class Parser {
 		/**
 		 * Converts the value using a constructor. Returns null if the value is null.
 		 */
-		default <E extends Exception, R> R to(ExceptionFunction<E, ? super T, R> constructor)
+		default <E extends Exception, R> R to(Excepts.Function<E, ? super T, R> constructor)
 			throws E {
 			return to(constructor, null);
 		}
@@ -187,14 +180,14 @@ public class Parser {
 		 * Converts the value using a constructor. Returns default if the value is null.
 		 */
 		default <E extends Exception, R> R
-			to(ExceptionFunction<E, ? super T, ? extends R> constructor, R def) throws E {
+			to(Excepts.Function<E, ? super T, ? extends R> constructor, R def) throws E {
 			return parseValue(get(), constructor, def);
 		}
 
 		/**
 		 * Converts the accessor using a constructor.
 		 */
-		default <E extends Exception, R> Type<R> as(ExceptionFunction<E, ? super T, R> constructor)
+		default <E extends Exception, R> Type<R> as(Excepts.Function<E, ? super T, R> constructor)
 			throws E {
 			return Parser.type(to(constructor, null));
 		}
@@ -204,7 +197,7 @@ public class Parser {
 		 * the value is null.
 		 */
 		default <E extends Exception, R> Types<R>
-			split(ExceptionFunction<E, ? super T, ? extends Collection<R>> splitter) throws E {
+			split(Excepts.Function<E, ? super T, ? extends Collection<R>> splitter) throws E {
 			return Parser.types(splitValues(get(), splitter));
 		}
 
@@ -213,14 +206,14 @@ public class Parser {
 		 * collection is null if the value is null.
 		 */
 		default <E extends Exception, R> Types<R>
-			splitArray(ExceptionFunction<E, ? super T, R[]> splitter) throws E {
+			splitArray(Excepts.Function<E, ? super T, R[]> splitter) throws E {
 			return split(t -> Arrays.asList(splitter.apply(t)));
 		}
 
 		/**
 		 * Consume the value if not null.
 		 */
-		default <E extends Exception> void accept(ExceptionConsumer<E, ? super T> consumer)
+		default <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer)
 			throws E {
 			FunctionUtil.safeAccept(get(), consumer);
 		}
@@ -259,7 +252,7 @@ public class Parser {
 
 		@Override
 		default <E extends Exception> Types<T>
-			def(ExceptionSupplier<E, ? extends Collection<T>> defSupplier) throws E {
+			def(Excepts.Supplier<E, ? extends Collection<T>> defSupplier) throws E {
 			return Parser.types(get(defSupplier));
 		}
 
@@ -323,8 +316,8 @@ public class Parser {
 		 * is null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> boolean[] toBoolArray(
-			ExceptionToBooleanFunction<E, ? super T> constructor, boolean... def) throws E {
-			ExceptionFunction<E, T, Boolean> fn = constructor::applyAsBoolean;
+			Excepts.ToBoolFunction<E, ? super T> constructor, boolean... def) throws E {
+			Excepts.Function<E, T, Boolean> fn = constructor::applyAsBool;
 			return toPrimitiveArray(get(), boolean[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
@@ -334,8 +327,8 @@ public class Parser {
 		 * null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> int[]
-			toIntArray(ExceptionToIntFunction<E, ? super T> constructor, int... def) throws E {
-			ExceptionFunction<E, T, Integer> fn = constructor::applyAsInt;
+			toIntArray(Excepts.ToIntFunction<E, ? super T> constructor, int... def) throws E {
+			Excepts.Function<E, T, Integer> fn = constructor::applyAsInt;
 			return toPrimitiveArray(get(), int[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
@@ -345,8 +338,8 @@ public class Parser {
 		 * null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> long[]
-			toLongArray(ExceptionToLongFunction<E, ? super T> constructor, long... def) throws E {
-			ExceptionFunction<E, T, Long> fn = constructor::applyAsLong;
+			toLongArray(Excepts.ToLongFunction<E, ? super T> constructor, long... def) throws E {
+			Excepts.Function<E, T, Long> fn = constructor::applyAsLong;
 			return toPrimitiveArray(get(), long[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
@@ -356,8 +349,8 @@ public class Parser {
 		 * is null. Null values in the collection are dropped.
 		 */
 		default <E extends Exception> double[] toDoubleArray(
-			ExceptionToDoubleFunction<E, ? super T> constructor, double... def) throws E {
-			ExceptionFunction<E, T, Double> fn = constructor::applyAsDouble;
+			Excepts.ToDoubleFunction<E, ? super T> constructor, double... def) throws E {
+			Excepts.Function<E, T, Double> fn = constructor::applyAsDouble;
 			return toPrimitiveArray(get(), double[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
 		}
@@ -392,7 +385,7 @@ public class Parser {
 		 * null. Null values in the collection are retained.
 		 */
 		default <E extends Exception, R> List<R>
-			toEach(ExceptionFunction<E, ? super T, ? extends R> constructor) throws E {
+			toEach(Excepts.Function<E, ? super T, ? extends R> constructor) throws E {
 			return toEach(constructor, null);
 		}
 
@@ -401,7 +394,7 @@ public class Parser {
 		 * is null. Null values in the collection are retained.
 		 */
 		default <E extends Exception, R> List<R> toEachDef(
-			ExceptionFunction<E, ? super T, ? extends R> constructor,
+			Excepts.Function<E, ? super T, ? extends R> constructor,
 			@SuppressWarnings("unchecked") R... defs) throws E {
 			return toEach(constructor, Arrays.asList(defs));
 		}
@@ -410,8 +403,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
 		 * is null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R>
-			toEach(ExceptionFunction<E, ? super T, ? extends R> constructor, List<R> def) throws E {
+		default <E extends Exception, R> List<R> toEach(
+			Excepts.Function<E, ? super T, ? extends R> constructor, List<R> def) throws E {
 			return parseValues(get(), def, constructor);
 		}
 
@@ -425,7 +418,7 @@ public class Parser {
 		/**
 		 * Removes values that are null or that do not match the filter.
 		 */
-		default <E extends Exception> Types<T> filter(ExceptionPredicate<E, ? super T> filter)
+		default <E extends Exception> Types<T> filter(Excepts.Predicate<E, ? super T> filter)
 			throws E {
 			return Parser.types(filterValues(get(), filter));
 		}
@@ -450,7 +443,7 @@ public class Parser {
 		 * collection are retained.
 		 */
 		default <E extends Exception, R> Types<R>
-			asEach(ExceptionFunction<E, ? super T, R> constructor) throws E {
+			asEach(Excepts.Function<E, ? super T, R> constructor) throws E {
 			return Parser.types(parseValues(get(), null, constructor));
 		}
 
@@ -458,7 +451,8 @@ public class Parser {
 		 * Iterates the value collection, calling the consumer, if the value collection is not null.
 		 * Null values in the collection are passed to the consumer.
 		 */
-		default <E extends Exception> void each(ExceptionConsumer<E, ? super T> consumer) throws E {
+		default <E extends Exception> void each(Excepts.Consumer<E, ? super T> consumer)
+			throws E {
 			FunctionUtil.safeAccept(get(), collection -> {
 				for (var t : collection)
 					consumer.accept(t);
@@ -483,7 +477,7 @@ public class Parser {
 
 		@Override
 		default <E extends Exception> Parser.String
-			def(ExceptionSupplier<E, ? extends java.lang.String> defSupplier) throws E {
+			def(Excepts.Supplier<E, ? extends java.lang.String> defSupplier) throws E {
 			return Parser.string(get(defSupplier));
 		}
 
@@ -539,7 +533,7 @@ public class Parser {
 		 * if the original value is null.
 		 */
 		default <U> U toBool(U trueVal, U falseVal, U nullVal) {
-			return BasicUtil.conditional(toBool(), trueVal, falseVal, nullVal);
+			return BasicUtil.ternary(toBool(), trueVal, falseVal, nullVal);
 		}
 
 		/**
@@ -613,7 +607,7 @@ public class Parser {
 		 * Modify the value if not null, without changing type.
 		 */
 		default <E extends Exception> Parser.String
-			mod(ExceptionFunction<E, java.lang.String, java.lang.String> modFn) throws E {
+			mod(Excepts.Function<E, java.lang.String, java.lang.String> modFn) throws E {
 			return Parser.string(to(modFn));
 		}
 
@@ -696,8 +690,8 @@ public class Parser {
 		}
 
 		@Override
-		default <E extends Exception> Strings
-			def(ExceptionSupplier<E, ? extends Collection<java.lang.String>> defSupplier) throws E {
+		default <E extends Exception> Strings def(
+			Excepts.Supplier<E, ? extends Collection<java.lang.String>> defSupplier) throws E {
 			return Parser.strings(get(defSupplier));
 		}
 
@@ -778,7 +772,7 @@ public class Parser {
 		 * Null values in the collection are retained.
 		 */
 		default <E extends Exception> Strings
-			modEach(ExceptionFunction<E, java.lang.String, java.lang.String> modFn) throws E {
+			modEach(Excepts.Function<E, java.lang.String, java.lang.String> modFn) throws E {
 			return Parser.strings(toEach(modFn));
 		}
 
@@ -795,7 +789,7 @@ public class Parser {
 		 */
 		@Override
 		default <E extends Exception> Strings
-			filter(ExceptionPredicate<E, ? super java.lang.String> filter) throws E {
+			filter(Excepts.Predicate<E, ? super java.lang.String> filter) throws E {
 			return Parser.strings(filterValues(get(), filter));
 		}
 
@@ -837,7 +831,7 @@ public class Parser {
 		 * corresponding true, false, or null value.
 		 */
 		default <U> Types<U> asBools(U trueVal, U falseVal, U nullVal) {
-			return asEach(s -> BasicUtil.conditional(BOOL.apply(s), trueVal, falseVal, nullVal));
+			return asEach(s -> BasicUtil.ternary(BOOL.apply(s), trueVal, falseVal, nullVal));
 		}
 
 		/**
@@ -891,16 +885,16 @@ public class Parser {
 	}
 
 	private static <E extends Exception, T, R> R parseValue(T value,
-		ExceptionFunction<E, ? super T, ? extends R> constructor, R def) throws E {
+		Excepts.Function<E, ? super T, ? extends R> constructor, R def) throws E {
 		try {
 			return FunctionUtil.safeApply(value, constructor, def);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(illegalArg("Failed to transform: %s", value), e);
+			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to transform: %s", value), e);
 		}
 	}
 
 	private static <E extends Exception, T, R> List<R> parseValues(Collection<T> values,
-		List<R> def, ExceptionFunction<E, ? super T, ? extends R> constructor) throws E {
+		List<R> def, Excepts.Function<E, ? super T, ? extends R> constructor) throws E {
 		if (values == null) return def;
 		if (values.isEmpty()) return List.of();
 		var list = new ArrayList<R>();
@@ -912,7 +906,7 @@ public class Parser {
 	}
 
 	private static <E extends Exception, T> List<T> filterValues(Collection<T> values,
-		ExceptionPredicate<E, ? super T> filter) throws E {
+		Excepts.Predicate<E, ? super T> filter) throws E {
 		if (values == null) return null;
 		if (values.isEmpty()) return List.of();
 		var list = new ArrayList<T>();
@@ -922,12 +916,12 @@ public class Parser {
 	}
 
 	private static <E extends Exception, T, R> R splitValues(T value,
-		ExceptionFunction<E, ? super T, R> splitter) throws E {
+		Excepts.Function<E, ? super T, R> splitter) throws E {
 		if (value == null) return null;
 		try {
 			return splitter.apply(value);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(illegalArg("Failed to split: %s", value), e);
+			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to split: %s", value), e);
 		}
 	}
 

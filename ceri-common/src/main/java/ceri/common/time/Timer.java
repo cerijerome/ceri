@@ -4,8 +4,8 @@ import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.concurrent.TimeUnit;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionLongConsumer;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.LongConsumer;
 import ceri.common.text.ToString;
 
 /**
@@ -68,15 +68,13 @@ public class Timer {
 			return timer.isInfinite();
 		}
 
-		public <E extends Exception> Snapshot applyRemaining(ExceptionLongConsumer<E> consumer)
-			throws E {
+		public <E extends Exception> Snapshot applyRemaining(LongConsumer<E> consumer) throws E {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remaining);
 			return this;
 		}
 
-		public <E extends Exception> Snapshot applyRemainingInt(ExceptionIntConsumer<E> consumer)
-			throws E {
+		public <E extends Exception> Snapshot applyRemainingInt(IntConsumer<E> consumer) throws E {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remainingInt());
 			return this;
@@ -188,13 +186,11 @@ public class Timer {
 		return period == INFINITE_PERIOD;
 	}
 
-	public <E extends Exception> Snapshot applyRemaining(ExceptionLongConsumer<E> consumer)
-		throws E {
+	public <E extends Exception> Snapshot applyRemaining(LongConsumer<E> consumer) throws E {
 		return snapshot().applyRemaining(consumer);
 	}
 
-	public <E extends Exception> Snapshot applyRemainingInt(ExceptionIntConsumer<E> consumer)
-		throws E {
+	public <E extends Exception> Snapshot applyRemainingInt(IntConsumer<E> consumer) throws E {
 		return snapshot().applyRemainingInt(consumer);
 	}
 

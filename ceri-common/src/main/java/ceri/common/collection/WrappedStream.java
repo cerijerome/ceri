@@ -6,22 +6,19 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import ceri.common.function.ExceptionBooleanSupplier;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionPredicate;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.ExceptionToIntFunction;
+import ceri.common.function.Excepts;
 import ceri.common.function.FunctionWrapper;
 
 /**
- * Wrapped stream that allows and throws checked exceptions.
+ * Wrapped stream that allows checked exceptions.
  */
 public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	private final FunctionWrapper<E> w;
@@ -31,9 +28,9 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	 * Construct a stream from hasNext and next functions.
 	 */
 	public static <E extends Exception, T> WrappedStream<E, T>
-		stream(ExceptionBooleanSupplier<E> hasNextFn, ExceptionSupplier<E, T> nextFn) {
+		stream(Excepts.BoolSupplier<E> hasNextFn, Excepts.Supplier<E, T> nextFn) {
 		return stream(action -> {
-			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
+			if (hasNextFn == null || !hasNextFn.getAsBool()) return false;
 			if (nextFn != null) action.accept(nextFn.get());
 			return true;
 		});
@@ -43,40 +40,50 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 	 * Construct a stream from spliterator tryAdvance function.
 	 */
 	public static <E extends Exception, T> WrappedStream<E, T>
-		stream(ExceptionPredicate<E, Consumer<? super T>> tryAdvanceFn) {
-		FunctionWrapper<E> wrapper = FunctionWrapper.of();
-		Predicate<Consumer<? super T>> wrappedFn = wrapper.wrap(tryAdvanceFn);
-		Spliterator<T> spliterator = spliterator(wrappedFn, Long.MAX_VALUE, Spliterator.ORDERED);
-		return WrappedStream.of(wrapper, StreamSupport.stream(spliterator, false));
+		stream(Excepts.Predicate<E, Consumer<? super T>> tryAdvance) {
+		var w = FunctionWrapper.<E>of();
+		Predicate<Consumer<? super T>> wrapped = c -> w.wrap.getBool(() -> tryAdvance.test(c));
+		var spliterator = spliterator(wrapped, Long.MAX_VALUE, Spliterator.ORDERED);
+		return new WrappedStream<>(w, StreamSupport.stream(spliterator, false));
 	}
 
+	/**
+	 * Create a wrapped stream from an existing stream and mapping function.
+	 */
 	@SuppressWarnings("resource") // no files open at this point
 	public static <E extends Exception, T, R> WrappedStream<E, R> mapped(Stream<T> stream,
-		ExceptionFunction<E, T, R> fn) {
+		Excepts.Function<E, T, R> fn) {
 		return WrappedStream.<E, T>of(stream).map(fn);
 	}
 
+	/**
+	 * Create a wrapped stream from a collection and mapping function.
+	 */
 	public static <E extends Exception, T, R> WrappedStream<E, R> stream(Collection<T> collection,
-		ExceptionFunction<E, T, R> fn) {
+		Excepts.Function<E, T, R> fn) {
 		return mapped(collection.stream(), fn);
 	}
 
+	/**
+	 * Create a wrapped stream from a collection.
+	 */
 	public static <E extends Exception, T> WrappedStream<E, T> stream(Collection<T> collection) {
-		return of(collection.stream());
+		return WrappedStream.<E, T>of(collection.stream());
 	}
 
+	/**
+	 * Create a wrapped stream from values.
+	 */
 	@SafeVarargs
 	public static <E extends Exception, T> WrappedStream<E, T> of(T... values) {
-		return of(Stream.of(values));
+		return WrappedStream.<E, T>of(Stream.of(values));
 	}
 
+	/**
+	 * Create a wrapped stream from an existing stream.
+	 */
 	public static <E extends Exception, T> WrappedStream<E, T> of(Stream<T> stream) {
-		return of(FunctionWrapper.of(), stream);
-	}
-
-	private static <E extends Exception, T> WrappedStream<E, T> of(FunctionWrapper<E> w,
-		Stream<T> stream) {
-		return new WrappedStream<>(w, stream);
+		return new WrappedStream<>(FunctionWrapper.<E>of(), stream);
 	}
 
 	WrappedStream(FunctionWrapper<E> w, Stream<T> stream) {
@@ -84,64 +91,100 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 		this.stream = stream;
 	}
 
-	@Override
-	public void close() {
-		stream.close();
+	/**
+	 * Maps elements for a new stream.
+	 */
+	public <R> WrappedStream<E, R> map(Excepts.Function<E, T, R> mapper) {
+		Function<T, R> wrapped = t -> w.wrap.get(() -> mapper.apply(t));
+		return new WrappedStream<>(w, stream.map(wrapped));
 	}
 
-	public <R> WrappedStream<E, R> map(ExceptionFunction<E, T, R> mapFn) {
-		return new WrappedStream<>(w, stream.map(w.wrap(mapFn)));
+	/**
+	 * Maps elements for a new int stream.
+	 */
+	public WrappedIntStream<E> mapToInt(Excepts.ToIntFunction<E, T> mapper) {
+		ToIntFunction<T> wrapped = t -> w.wrap.getInt(() -> mapper.applyAsInt(t));
+		return new WrappedIntStream<>(w, stream.mapToInt(wrapped));
 	}
 
-	public WrappedIntStream<E> mapToInt(ExceptionToIntFunction<E, T> mapFn) {
-		return new WrappedIntStream<>(w, stream.mapToInt(w.wrap(mapFn)));
+	/**
+	 * Filters elements for a new stream.
+	 */
+	public WrappedStream<E, T> filter(Excepts.Predicate<E, ? super T> predicate) {
+		Predicate<T> wrapped = t -> w.wrap.getBool(() -> predicate.test(t));
+		return new WrappedStream<>(w, stream.filter(wrapped));
 	}
 
-	public WrappedStream<E, T> filter(ExceptionPredicate<E, ? super T> predicate) {
-		return new WrappedStream<>(w, stream.filter(w.wrap(predicate)));
+	/**
+	 * Iterates elements with a consumer.
+	 */
+	public void forEach(Excepts.Consumer<E, ? super T> consumer) throws E {
+		Consumer<T> wrapped = t -> w.wrap.run(() -> consumer.accept(t));
+		terminate(s -> s.forEach(wrapped));
 	}
 
-	public void forEach(ExceptionConsumer<E, ? super T> fn) throws E {
-		w.unwrap(() -> stream.forEach(w.wrap(fn)));
+	/**
+	 * Collects elements.
+	 */
+	public <R> R collect(Excepts.Supplier<E, R> supplier,
+		Excepts.BiConsumer<E, R, ? super T> accumulator, Excepts.BiConsumer<E, R, R> combiner)
+		throws E {
+		Supplier<R> wrappedSup = () -> w.wrap.get(supplier);
+		BiConsumer<R, T> wrappedAcc = (r, t) -> w.wrap.run(() -> accumulator.accept(r, t));
+		BiConsumer<R, R> wrappedCom = (l, r) -> w.wrap.run(() -> combiner.accept(l, r));
+		return terminateAs(s -> s.collect(wrappedSup, wrappedAcc, wrappedCom));
 	}
 
-	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator,
-		BiConsumer<R, R> combiner) throws E {
-		return w.unwrapSupplier(() -> stream.collect(supplier, accumulator, combiner));
-	}
-
+	/**
+	 * Collects elements.
+	 */
 	public <R, A> R collect(Collector<? super T, A, R> collector) throws E {
-		return w.unwrapSupplier(() -> stream.collect(collector));
+		return terminateAs(s -> s.collect(collector));
 	}
 
+	/**
+	 * Apply the stream function, returning a new wrapped stream.
+	 */
 	@SuppressWarnings("all") // avoid alternating warnings
 	public <R> WrappedStream<E, R>
-		apply(ExceptionFunction<E, ? super Stream<T>, ? extends Stream<R>> fn) throws E {
+		apply(Excepts.Function<E, ? super Stream<T>, ? extends Stream<R>> fn) throws E {
 		Stream<R> s = fn.apply(stream);
 		return new WrappedStream<>(w, s);
 	}
 
+	/**
+	 * Apply the stream function, returning a new wrapped stream.
+	 */
 	@SuppressWarnings("resource")
 	public WrappedIntStream<E>
-		applyInt(ExceptionFunction<E, ? super Stream<T>, ? extends IntStream> fn) throws E {
+		applyInt(Excepts.Function<E, ? super Stream<T>, ? extends IntStream> fn) throws E {
 		IntStream intStream = fn.apply(stream);
 		return new WrappedIntStream<>(w, intStream);
 	}
 
+	/**
+	 * Find any element.
+	 */
 	public Optional<T> findAny() throws E {
 		return terminateAs(Stream::findAny);
 	}
 
-	public Optional<T> findFirst() throws E {
-		return terminateAs(Stream::findFirst);
+	/**
+	 * Terminate the stream with the given function.
+	 */
+	public <R> R terminateAs(Excepts.Function<E, ? super Stream<T>, R> fn) throws E {
+		return w.unwrap.get(() -> fn.apply(stream));
 	}
 
-	public <R> R terminateAs(ExceptionFunction<E, ? super Stream<T>, R> fn) throws E {
-		return w.unwrapSupplier(() -> fn.apply(stream));
+	/**
+	 * Terminate the stream with the given function.
+	 */
+	public void terminate(Excepts.Consumer<E, ? super Stream<T>> fn) throws E {
+		w.unwrap.run(() -> fn.accept(stream));
 	}
 
-	public void terminate(ExceptionConsumer<E, ? super Stream<T>> fn) throws E {
-		w.unwrap(() -> fn.accept(stream));
+	@Override
+	public void close() {
+		stream.close();
 	}
-
 }

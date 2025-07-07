@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntSupplier;
-import ceri.common.function.ExceptionObjIntPredicate;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.IntSupplier;
+import ceri.common.function.Excepts.ObjIntPredicate;
 import ceri.common.math.MathUtil;
 
 /**
@@ -107,15 +107,15 @@ public class IoStreamUtil {
 	/**
 	 * Returns a stream based on given read function.
 	 */
-	public static InputStream in(ExceptionIntSupplier<IOException> readFn) {
+	public static InputStream in(IntSupplier<IOException> readFn) {
 		return in(readFn, null);
 	}
 
 	/**
 	 * Returns a stream based on given read and available functions.
 	 */
-	public static InputStream in(ExceptionIntSupplier<IOException> readFn,
-		ExceptionIntSupplier<IOException> availableFn) {
+	public static InputStream in(IntSupplier<IOException> readFn,
+		IntSupplier<IOException> availableFn) {
 		return new InputStream() {
 			@Override
 			public int available() throws IOException {
@@ -139,7 +139,7 @@ public class IoStreamUtil {
 	/**
 	 * Returns a stream based on given read and available functions.
 	 */
-	public static InputStream in(Read readFn, ExceptionIntSupplier<IOException> availableFn) {
+	public static InputStream in(Read readFn, IntSupplier<IOException> availableFn) {
 		return new InputStream() {
 			@Override
 			public int available() throws IOException {
@@ -162,7 +162,7 @@ public class IoStreamUtil {
 	 * Returns a filtered stream that can handle or delegate read methods to the wrapped stream.
 	 */
 	public static InputStream filterIn(InputStream in,
-		ExceptionFunction<IOException, InputStream, Integer> readFn) {
+		Function<IOException, InputStream, Integer> readFn) {
 		return filterIn(in, readFn, null);
 	}
 
@@ -171,8 +171,8 @@ public class IoStreamUtil {
 	 * wrapped stream.
 	 */
 	public static InputStream filterIn(InputStream in,
-		ExceptionFunction<IOException, InputStream, Integer> readFn,
-		ExceptionFunction<IOException, InputStream, Integer> availableFn) {
+		Function<IOException, InputStream, Integer> readFn,
+		Function<IOException, InputStream, Integer> availableFn) {
 		return new FilterInputStream(in) {
 			@Override
 			public int available() throws IOException {
@@ -208,7 +208,7 @@ public class IoStreamUtil {
 	 * wrapped stream.
 	 */
 	public static InputStream filterIn(InputStream in, FilterRead readFn,
-		ExceptionFunction<IOException, InputStream, Integer> availableFn) {
+		Function<IOException, InputStream, Integer> availableFn) {
 		return new FilterInputStream(in) {
 			@Override
 			public int available() throws IOException {
@@ -235,7 +235,7 @@ public class IoStreamUtil {
 	/**
 	 * Returns a stream based on given write function.
 	 */
-	public static OutputStream out(ExceptionIntConsumer<IOException> writeFn) {
+	public static OutputStream out(IntConsumer<IOException> writeFn) {
 		return new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
@@ -266,7 +266,7 @@ public class IoStreamUtil {
 	 * Returns a stream based on given write function.
 	 */
 	public static OutputStream filterOut(OutputStream out,
-		ExceptionObjIntPredicate<IOException, OutputStream> writeFn) {
+		ObjIntPredicate<IOException, OutputStream> writeFn) {
 		return new FilterOutputStream(out) {
 			@Override
 			public void write(int b) throws IOException {
@@ -299,12 +299,12 @@ public class IoStreamUtil {
 
 	/* InputStream methods */
 
-	private static int available(ExceptionIntSupplier<IOException> availableFn) throws IOException {
+	private static int available(IntSupplier<IOException> availableFn) throws IOException {
 		if (availableFn == null) return 0;
 		return availableFn.getAsInt();
 	}
 
-	private static int read(ExceptionIntSupplier<IOException> readFn) throws IOException {
+	private static int read(IntSupplier<IOException> readFn) throws IOException {
 		if (readFn == null) return 0;
 		return readFn.getAsInt();
 	}
@@ -336,20 +336,19 @@ public class IoStreamUtil {
 	}
 
 	private static int available(InputStream in,
-		ExceptionFunction<IOException, InputStream, Integer> availableFn) throws IOException {
+		Function<IOException, InputStream, Integer> availableFn) throws IOException {
 		Integer n = safeApply(availableFn, a -> a.apply(in));
 		return n != null ? n : in.available();
 	}
 
-	private static int read(InputStream in,
-		ExceptionFunction<IOException, InputStream, Integer> readFn) throws IOException {
+	private static int read(InputStream in, Function<IOException, InputStream, Integer> readFn)
+		throws IOException {
 		Integer n = safeApply(readFn, r -> r.apply(in));
 		return n != null ? n : in.read();
 	}
 
-	private static int read(InputStream in,
-		ExceptionFunction<IOException, InputStream, Integer> readFn, byte b[], int off, int len)
-		throws IOException {
+	private static int read(InputStream in, Function<IOException, InputStream, Integer> readFn,
+		byte b[], int off, int len) throws IOException {
 		if (readFn == null) return in.read(b, off, len);
 		Objects.checkFromIndexSize(off, len, b.length);
 		if (len == 0) return 0;
@@ -383,14 +382,13 @@ public class IoStreamUtil {
 
 	/* FilterOutputStream methods */
 
-	private static void write(OutputStream out,
-		ExceptionObjIntPredicate<IOException, OutputStream> writeFn, int b) throws IOException {
+	private static void write(OutputStream out, ObjIntPredicate<IOException, OutputStream> writeFn,
+		int b) throws IOException {
 		if (!safeApply(writeFn, w -> w.test(out, b), false)) out.write(b);
 	}
 
-	private static void write(OutputStream out,
-		ExceptionObjIntPredicate<IOException, OutputStream> writeFn, byte[] b, int off, int len)
-		throws IOException {
+	private static void write(OutputStream out, ObjIntPredicate<IOException, OutputStream> writeFn,
+		byte[] b, int off, int len) throws IOException {
 		if (writeFn == null) out.write(b, off, len);
 		else {
 			Objects.checkFromIndexSize(off, len, b.length);

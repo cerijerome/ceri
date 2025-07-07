@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts;
 import ceri.common.util.CloseableUtil;
 
 /**
@@ -18,31 +18,31 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	private final Function<Throwable, ? extends E> exceptionConstructor;
 	private final int closeTimeoutMs;
 
-	public static SimpleExecutor<RuntimeException, ?> run(ExceptionRunnable<?> runnable) {
+	public static SimpleExecutor<RuntimeException, ?> run(Excepts.Runnable<?> runnable) {
 		return run(runnable, RuntimeException::new);
 	}
 
-	public static <E extends Exception> SimpleExecutor<E, ?> run(ExceptionRunnable<?> runnable,
+	public static <E extends Exception> SimpleExecutor<E, ?> run(Excepts.Runnable<?> runnable,
 		Function<Throwable, ? extends E> exceptionConstructor) {
 		return run(runnable, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
-	public static <E extends Exception> SimpleExecutor<E, ?> run(ExceptionRunnable<?> runnable,
+	public static <E extends Exception> SimpleExecutor<E, ?> run(Excepts.Runnable<?> runnable,
 		Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		return run(runnable, null, exceptionConstructor, closeTimeoutMs);
 	}
 
-	public static <T> SimpleExecutor<RuntimeException, T> run(ExceptionRunnable<?> runnable,
+	public static <T> SimpleExecutor<RuntimeException, T> run(Excepts.Runnable<?> runnable,
 		T value) {
 		return run(runnable, value, RuntimeException::new);
 	}
 
-	public static <E extends Exception, T> SimpleExecutor<E, T> run(ExceptionRunnable<?> runnable,
+	public static <E extends Exception, T> SimpleExecutor<E, T> run(Excepts.Runnable<?> runnable,
 		T value, Function<Throwable, ? extends E> exceptionConstructor) {
 		return run(runnable, value, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
-	public static <E extends Exception, T> SimpleExecutor<E, T> run(ExceptionRunnable<?> runnable,
+	public static <E extends Exception, T> SimpleExecutor<E, T> run(Excepts.Runnable<?> runnable,
 		T value, Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		return call(() -> {
 			runnable.run();

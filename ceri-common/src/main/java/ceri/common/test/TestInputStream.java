@@ -1,13 +1,13 @@
 package ceri.common.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
-import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.collection.SubArray;
 import ceri.common.collection.SubArray.Bytes;
 import ceri.common.data.ByteStream;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Fluent;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.PipedStream;
@@ -87,14 +87,14 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		int n = piped.in().read(b, off, len);
-		return defaultValue(read.apply(SubArray.of(b, off, len), IO_ADAPTER), n);
+		return def(read.apply(SubArray.of(b, off, len), ExceptionAdapter.io), n);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public int available() throws IOException {
 		int n = piped.in().available();
-		return defaultValue(available.get(IO_ADAPTER), n);
+		return def(available.get(ExceptionAdapter.io), n);
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public void reset() throws IOException {
 		// Not supported by PipedInputStream
-		reset.run(IO_ADAPTER);
+		reset.run(ExceptionAdapter.io);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public void close() throws IOException {
 		piped.close();
-		close.run(IO_ADAPTER);
+		close.run(ExceptionAdapter.io);
 	}
 
 	/**

@@ -6,20 +6,20 @@ import static ceri.common.validation.ValidationUtil.validateSupported;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionLongUnaryOperator;
-import ceri.common.function.ExceptionObjIntConsumer;
-import ceri.common.function.ExceptionObjLongConsumer;
-import ceri.common.function.ExceptionToIntFunction;
-import ceri.common.function.ExceptionToLongFunction;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.LongOperator;
+import ceri.common.function.Excepts.ObjIntConsumer;
+import ceri.common.function.Excepts.ObjLongConsumer;
+import ceri.common.function.Excepts.ToIntFunction;
+import ceri.common.function.Excepts.ToLongFunction;
 import ceri.common.math.MathUtil;
 
 /**
  * Provides access to a field.
  */
-public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter,
-	ExceptionBiConsumer<E, T, U> setter) {
+public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
+	BiConsumer<E, T, U> setter) {
 
 	/**
 	 * Create a no-op, stateless instance.
@@ -31,16 +31,16 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 	/**
 	 * Create an instance with getter and setter for a long field.
 	 */
-	public static <E extends Exception, T, U> Field<E, T, U> of(ExceptionFunction<E, T, U> getter,
-		ExceptionBiConsumer<E, T, U> setter) {
+	public static <E extends Exception, T, U> Field<E, T, U> of(Function<E, T, U> getter,
+		BiConsumer<E, T, U> setter) {
 		return new Field<>(getter, setter);
 	}
 
 	/**
 	 * Create an instance with getter and setter for an unsigned int field.
 	 */
-	public static <E extends Exception, T> Long<E, T> ofUint(ExceptionToIntFunction<E, T> getter,
-		ExceptionObjIntConsumer<E, T> setter) {
+	public static <E extends Exception, T> Long<E, T> ofUint(ToIntFunction<E, T> getter,
+		ObjIntConsumer<E, T> setter) {
 		return ofLong(getter == null ? null : t -> uint(getter.applyAsInt(t)),
 			setter == null ? null : (t, v) -> setter.accept(t, (int) v));
 	}
@@ -48,8 +48,8 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 	/**
 	 * Create an instance with getter and setter for a long field.
 	 */
-	public static <E extends Exception, T> Long<E, T> ofLong(ExceptionToLongFunction<E, T> getter,
-		ExceptionObjLongConsumer<E, T> setter) {
+	public static <E extends Exception, T> Long<E, T> ofLong(ToLongFunction<E, T> getter,
+		ObjLongConsumer<E, T> setter) {
 		return new Long<>(getter, setter);
 	}
 
@@ -71,8 +71,8 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 	/**
 	 * A long field accessor. Covers all integral types.
 	 */
-	public record Long<E extends Exception, T>(ExceptionToLongFunction<E, T> getter,
-		ExceptionObjLongConsumer<E, T> setter) {
+	public record Long<E extends Exception, T>(ToLongFunction<E, T> getter,
+		ObjLongConsumer<E, T> setter) {
 
 		/**
 		 * Create a no-op, stateless instance.
@@ -191,7 +191,7 @@ public record Field<E extends Exception, T, U>(ExceptionFunction<E, T, U> getter
 		/**
 		 * Apply the operator to the source value.
 		 */
-		public Long<E, T> apply(T source, ExceptionLongUnaryOperator<E> operator) throws E {
+		public Long<E, T> apply(T source, LongOperator<E> operator) throws E {
 			long value = get(source);
 			long modified = operator.applyAsLong(value);
 			if (modified != value) set(source, modified);

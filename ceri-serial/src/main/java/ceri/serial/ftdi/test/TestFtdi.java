@@ -1,8 +1,8 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.io.IoUtil.IO_ADAPTER;
 import java.io.IOException;
 import com.sun.jna.Pointer;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.Direction;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.test.CallSync;
@@ -119,65 +119,65 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public ftdi_usb_strings descriptor() throws IOException {
-		return descriptor.get(IO_ADAPTER);
+		return descriptor.get(ExceptionAdapter.io);
 	}
 
 	@Override
 	public void usbReset() throws IOException {
-		usbReset.run(IO_ADAPTER);
+		usbReset.run(ExceptionAdapter.io);
 	}
 
 	@Override
 	public void bitMode(FtdiBitMode bitMode) throws IOException {
-		this.bitMode.accept(bitMode, IO_ADAPTER);
+		this.bitMode.accept(bitMode, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public void baud(int baud) throws IOException {
-		this.baud.accept(baud, IO_ADAPTER);
+		this.baud.accept(baud, ExceptionAdapter.io);
 	}
 
 	@Override
 	public void line(FtdiLineParams line) throws IOException {
-		this.params.accept(line, IO_ADAPTER);
+		this.params.accept(line, ExceptionAdapter.io);
 	}
 
 	@Override
 	public void flowControl(FtdiFlowControl flowControl) throws IOException {
-		this.flowControl.accept(flowControl, IO_ADAPTER);
+		this.flowControl.accept(flowControl, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public void dtr(boolean on) throws IOException {
-		dtr.accept(on, IO_ADAPTER);
+		dtr.accept(on, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public void rts(boolean on) throws IOException {
-		rts.accept(on, IO_ADAPTER);
+		rts.accept(on, ExceptionAdapter.io);
 		verifyConnected();
 	}
 
 	@Override
 	public int readPins() throws IOException {
-		int n = pins.get(IO_ADAPTER);
+		int n = pins.get(ExceptionAdapter.io);
 		verifyConnected();
 		return n;
 	}
 
 	@Override
 	public int pollModemStatus() throws IOException {
-		int n = modem.get(IO_ADAPTER);
+		int n = modem.get(ExceptionAdapter.io);
 		verifyConnected();
 		return n;
 	}
 
 	@Override
 	public void latencyTimer(int latency) throws IOException {
-		this.latency.accept(latency, IO_ADAPTER);
+		this.latency.accept(latency, ExceptionAdapter.io);
 	}
 
 	@Override
@@ -187,7 +187,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public void readChunkSize(int size) throws IOException {
-		readChunk.accept(size, IO_ADAPTER);
+		readChunk.accept(size, ExceptionAdapter.io);
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public void writeChunkSize(int size) throws IOException {
-		writeChunk.accept(size, IO_ADAPTER);
+		writeChunk.accept(size, ExceptionAdapter.io);
 	}
 
 	@Override
@@ -207,12 +207,12 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	@Override
 	public void purgeReadBuffer() throws IOException {
-		purgeBuffer.run(IO_ADAPTER);
+		purgeBuffer.run(ExceptionAdapter.io);
 	}
 
 	@Override
 	public void purgeWriteBuffer() throws IOException {
-		purgeBuffer.run(IO_ADAPTER);
+		purgeBuffer.run(ExceptionAdapter.io);
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 
 	private FtdiTransferControl submit(Direction direction, Pointer buffer, int len)
 		throws IOException {
-		var xfer = submit.apply(new Submit(direction, buffer, len), IO_ADAPTER);
+		var xfer = submit.apply(new Submit(direction, buffer, len), ExceptionAdapter.io);
 		verifyConnected();
 		return xfer;
 	}
@@ -236,7 +236,7 @@ public class TestFtdi extends TestConnector implements Ftdi.Fixable {
 	public void readStream(StreamCallback callback, int packetsPerTransfer, int numTransfers,
 		double progressIntervalSec) throws IOException {
 		stream.accept(new Stream(callback, packetsPerTransfer, numTransfers, progressIntervalSec),
-			IO_ADAPTER);
+			ExceptionAdapter.io);
 		verifyConnected();
 	}
 }

@@ -34,7 +34,7 @@ public interface PortSupplier {
 	}
 
 	static Locator locator(Path dir) {
-		dir = BasicUtil.defaultValue(dir, () -> Path.of(Locator.DEV_PATH));
+		dir = BasicUtil.def(dir, () -> Path.of(Locator.DEV_PATH));
 		return new Locator(dir);
 	}
 

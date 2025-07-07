@@ -7,8 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.property.PropertyUtil;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.BasicUtil;
@@ -35,9 +35,9 @@ public class ContainerTestHelper implements RuntimeCloseable {
 
 	@SuppressWarnings("resource")
 	protected <T extends AutoCloseable> T get(Object id,
-		ExceptionFunction<IOException, TypedProperties, T> supplier) throws IOException {
+		Function<IOException, TypedProperties, T> supplier) throws IOException {
 		var name = name(id);
-		return BasicUtil.uncheckedCast(CollectionUtil.computeIfAbsent(cache, name, _ -> {
+		return BasicUtil.unchecked(CollectionUtil.computeIfAbsent(cache, name, _ -> {
 			logger.info("Creating container: {}", name);
 			return supplier.apply(properties(name));
 		}));

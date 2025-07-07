@@ -14,10 +14,10 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionIntConsumer;
-import ceri.common.function.ExceptionIntSupplier;
-import ceri.common.function.ExceptionObjIntPredicate;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts.IntSupplier;
+import ceri.common.function.Excepts.ObjIntPredicate;
 import ceri.common.io.IoStreamUtil.FilterRead;
 import ceri.common.io.IoStreamUtil.FilterWrite;
 import ceri.common.io.IoStreamUtil.Read;
@@ -71,7 +71,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testInWithNullByteRead() throws IOException {
-		try (var in = IoStreamUtil.in((ExceptionIntSupplier<IOException>) null)) {
+		try (var in = IoStreamUtil.in((IntSupplier<IOException>) null)) {
 			assertEquals(in.available(), 0);
 			assertEquals(in.read(), 0);
 			assertReadBytes(in, 0, 0, 0);
@@ -118,8 +118,8 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterInWithNullByteRead() throws IOException {
-		try (var in = IoStreamUtil.filterIn(bin0,
-			(ExceptionFunction<IOException, InputStream, Integer>) null)) {
+		try (var in =
+			IoStreamUtil.filterIn(bin0, (Function<IOException, InputStream, Integer>) null)) {
 			assertEquals(in.available(), 3);
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[2], 2, 3);
@@ -199,7 +199,7 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testOutWithNullByteWrite() throws IOException {
-		try (var out = IoStreamUtil.out((ExceptionIntConsumer<IOException>) null)) {
+		try (var out = IoStreamUtil.out((IntConsumer<IOException>) null)) {
 			out.write(bytes(1, 2));
 			out.write(3);
 		}
@@ -235,8 +235,8 @@ public class IoStreamUtilTest {
 
 	@Test
 	public void testFilterOutWithNullByteWrite() throws IOException {
-		try (var out = IoStreamUtil.filterOut(bout0,
-			(ExceptionObjIntPredicate<IOException, OutputStream>) null)) {
+		try (var out =
+			IoStreamUtil.filterOut(bout0, (ObjIntPredicate<IOException, OutputStream>) null)) {
 			out.write(bytes(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);

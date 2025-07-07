@@ -172,7 +172,7 @@ public class Logger {
 
 	Logger(Builder builder) {
 		out = builder.out;
-		err = BasicUtil.defaultValue(builder.err, out);
+		err = BasicUtil.def(builder.err, out);
 		minLevel = builder.minLevel;
 		errLevel = builder.errLevel;
 		format = builder.format;

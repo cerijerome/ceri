@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.util.BasicUtil.defaultValue;
+import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.DisplayLong.dec;
 import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
@@ -85,7 +85,7 @@ public class TypeValue<T> {
 		this.value = value;
 		this.sub = sub;
 		this.name = type != null ? null : name; // ignore if has type
-		this.formatter = defaultValue(formatter, dec);
+		this.formatter = def(formatter, dec);
 	}
 
 	public T type() {

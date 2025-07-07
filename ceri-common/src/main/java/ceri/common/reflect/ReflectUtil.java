@@ -1,9 +1,7 @@
-/*
- * Created on Jun 12, 2004
- */
 package ceri.common.reflect;
 
 import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
+import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import static ceri.common.text.StringUtil.NULL_STRING;
 import java.io.File;
 import java.io.IOException;
@@ -21,15 +19,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionBiPredicate;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionPredicate;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.BiPredicate;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.Predicate;
 import ceri.common.text.Joiner;
 import ceri.common.util.BasicUtil;
 
@@ -46,7 +43,6 @@ public class ReflectUtil {
 	 * A thread and stack trace element.
 	 */
 	public record ThreadElement(Thread thread, StackTraceElement element) {
-
 		public static final ThreadElement NULL = new ThreadElement(null, null);
 
 		/**
@@ -68,7 +64,7 @@ public class ReflectUtil {
 	 * Searches all thread stack trace elements.
 	 */
 	public static <E extends Exception> ThreadElement
-		findElement(ExceptionPredicate<E, StackTraceElement> predicate) throws E {
+		findElement(Predicate<E, StackTraceElement> predicate) throws E {
 		return findElement((_, e) -> predicate.test(e));
 	}
 
@@ -76,7 +72,7 @@ public class ReflectUtil {
 	 * Searches all thread stack trace elements.
 	 */
 	public static <E extends Exception> ThreadElement
-		findElement(ExceptionBiPredicate<E, Thread, StackTraceElement> predicate) throws E {
+		findElement(BiPredicate<E, Thread, StackTraceElement> predicate) throws E {
 		for (var entry : Thread.getAllStackTraces().entrySet()) {
 			for (var element : entry.getValue()) {
 				if (predicate.test(entry.getKey(), element))
@@ -90,7 +86,7 @@ public class ReflectUtil {
 	 * Get the typed class of an object.
 	 */
 	public static <T> Class<? extends T> getClass(T t) {
-		return t == null ? null : BasicUtil.uncheckedCast(t.getClass());
+		return t == null ? null : BasicUtil.unchecked(t.getClass());
 	}
 
 	/**
@@ -175,7 +171,7 @@ public class ReflectUtil {
 	 * Applies the consumer only to instances of the given type.
 	 */
 	public static <E extends Exception, T> void acceptInstances(Class<T> cls,
-		ExceptionConsumer<E, ? super T> consumer, Iterable<?> objects) throws E {
+		Consumer<E, ? super T> consumer, Iterable<?> objects) throws E {
 		for (var obj : objects) {
 			var t = castOrNull(cls, obj);
 			if (t != null) consumer.accept(t);
@@ -280,7 +276,7 @@ public class ReflectUtil {
 	 * Initialize a class if not already initialized.
 	 */
 	public static <T> Class<T> init(Class<T> cls) {
-		if (cls != null) ExceptionAdapter.RUNTIME
+		if (cls != null) ExceptionAdapter.runtime
 			.run(() -> Class.forName(cls.getName(), true, cls.getClassLoader()));
 		return cls;
 	}
@@ -336,7 +332,7 @@ public class ReflectUtil {
 	/**
 	 * Iterates the given classes and their declared nested classes.
 	 */
-	public static <E extends Exception> void nested(ExceptionConsumer<E, Class<?>> consumer,
+	public static <E extends Exception> void nested(Consumer<E, Class<?>> consumer,
 		Class<?>... classes) throws E {
 		nested(consumer, Arrays.asList(classes));
 	}
@@ -344,7 +340,7 @@ public class ReflectUtil {
 	/**
 	 * Iterates the given classes and their declared nested classes.
 	 */
-	public static <E extends Exception> void nested(ExceptionConsumer<E, Class<?>> consumer,
+	public static <E extends Exception> void nested(Consumer<E, Class<?>> consumer,
 		Iterable<Class<?>> classes) throws E {
 		for (var cls : classes) {
 			consumer.accept(cls);
@@ -408,7 +404,7 @@ public class ReflectUtil {
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
 			t = e;
 		} catch (InvocationTargetException e) {
-			t = BasicUtil.defaultValue(e.getCause(), e);
+			t = BasicUtil.def(e.getCause(), e);
 		}
 		throw new RuntimeInvocationException(String.format("new %s(%s) failed with args %s",
 			constructor.getDeclaringClass().getSimpleName(), types(constructor.getParameterTypes()),
@@ -421,9 +417,9 @@ public class ReflectUtil {
 	public static <T> T invoke(Method method, Object subject, Object... args) {
 		Throwable t = null;
 		try {
-			return BasicUtil.uncheckedCast(method.invoke(subject, args));
+			return BasicUtil.unchecked(method.invoke(subject, args));
 		} catch (InvocationTargetException e) {
-			t = BasicUtil.defaultValue(e.getCause(), e);
+			t = BasicUtil.def(e.getCause(), e);
 		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			t = e;
 		}
@@ -465,7 +461,7 @@ public class ReflectUtil {
 		if (field == null) return def;
 		if (obj == null && !isStatic(field)) return def;
 		try {
-			return BasicUtil.uncheckedCast(field.get(obj));
+			return BasicUtil.unchecked(field.get(obj));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return def;
 		}
@@ -538,7 +534,7 @@ public class ReflectUtil {
 	 */
 	public static Field enumToField(Enum<?> en) {
 		if (en == null) return null;
-		return ExceptionUtil.shouldNotThrow(() -> en.getClass().getField(en.name()));
+		return shouldNotThrow.get(() -> en.getClass().getField(en.name()));
 	}
 
 	/**
@@ -546,7 +542,7 @@ public class ReflectUtil {
 	 */
 	public static <T extends Enum<?>> T fieldToEnum(Field field) {
 		if (field == null || !field.isEnumConstant()) return null;
-		return BasicUtil.uncheckedCast(ReflectUtil.publicFieldValue(null, field));
+		return BasicUtil.unchecked(ReflectUtil.publicFieldValue(null, field));
 	}
 
 	/**
@@ -575,8 +571,8 @@ public class ReflectUtil {
 	 * Returns a proxy that calls the consumer before delegating each method call. iface type must
 	 * be a non-sealed, non-hidden interface.
 	 */
-	public static <T> T interceptor(Class<T> iface, T delegate,
-		BiConsumer<Method, Object[]> consumer) {
+	public static <E extends Exception, T> T interceptor(Class<T> iface, T delegate,
+		BiConsumer<E, Method, Object[]> consumer) {
 		return methodInterceptor(delegate, consumer, iface);
 	}
 
@@ -584,15 +580,16 @@ public class ReflectUtil {
 	 * Returns a proxy that calls the consumer before delegating each method call. T must be a
 	 * non-sealed, non-hidden interface.
 	 */
-	public static <T> T interceptor(T delegate, BiConsumer<Method, Object[]> consumer) {
+	public static <E extends Exception, T> T interceptor(T delegate,
+		BiConsumer<E, Method, Object[]> consumer) {
 		return methodInterceptor(delegate, consumer, delegate.getClass().getInterfaces());
 	}
 
-	private static <T> T methodInterceptor(T delegate, BiConsumer<Method, Object[]> consumer,
-		Class<?>... ifaces) {
+	private static <E extends Exception, T> T methodInterceptor(T delegate,
+		BiConsumer<E, Method, Object[]> consumer, Class<?>... ifaces) {
 		var cls = delegate.getClass();
-		return BasicUtil.uncheckedCast(
-			Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {
+		return BasicUtil
+			.unchecked(Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);
 			}));

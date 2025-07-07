@@ -21,13 +21,8 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.function.ExceptionCloseable;
-import ceri.common.function.ExceptionIntSupplier;
-import ceri.common.function.ExceptionLongSupplier;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
-import ceri.common.function.TimedSupplier;
+import ceri.common.function.Excepts;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
@@ -39,6 +34,11 @@ public class ConcurrentUtil {
 	public static final Lock NULL_LOCK = nullLock();
 
 	private ConcurrentUtil() {}
+
+	public interface TimedSupplier<E extends Exception, T> {
+		/** Apply the time, and return the result. */
+		T get(long time, TimeUnit unit) throws E, InterruptedException;
+	}
 
 	/**
 	 * Estimated lock state information.
@@ -182,7 +182,7 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for completion.
 	 */
 	public static <E extends Exception> void submitAndWait(ExecutorService executor,
-		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
+		Excepts.Runnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
 		throws E {
 		get(submit(executor, runnable), exceptionConstructor);
 	}
@@ -191,7 +191,7 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for completion.
 	 */
 	public static <E extends Exception> void submitAndWait(ExecutorService executor,
-		ExceptionRunnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor,
+		Excepts.Runnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor,
 		int timeoutMs) throws E {
 		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
@@ -201,7 +201,7 @@ public class ConcurrentUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, E> exceptionConstructor, ExceptionRunnable<E>... runnables)
+		Function<Throwable, E> exceptionConstructor, Excepts.Runnable<E>... runnables)
 		throws InterruptedException, E {
 		invoke(executor, exceptionConstructor, Arrays.asList(runnables));
 	}
@@ -211,7 +211,7 @@ public class ConcurrentUtil {
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
 		Function<Throwable, ? extends E> exceptionConstructor,
-		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
+		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, null, runnables);
 	}
 
@@ -222,7 +222,7 @@ public class ConcurrentUtil {
 	@SafeVarargs
 	public static <E extends Exception> void invoke(ExecutorService executor,
 		Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
-		ExceptionRunnable<E>... runnables) throws InterruptedException, E {
+		Excepts.Runnable<E>... runnables) throws InterruptedException, E {
 		invoke(executor, exceptionConstructor, timeoutMs, Arrays.asList(runnables));
 	}
 
@@ -232,7 +232,7 @@ public class ConcurrentUtil {
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
 		Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
-		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
+		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, timeoutMs, runnables);
 	}
 
@@ -240,7 +240,7 @@ public class ConcurrentUtil {
 	 * Submits a task to the executor service and returns a Future. If the executor is shut down, a
 	 * cancelled future is returned.
 	 */
-	public static Future<?> submit(ExecutorService executor, ExceptionRunnable<?> runnable) {
+	public static Future<?> submit(ExecutorService executor, Excepts.Runnable<?> runnable) {
 		return submit(executor, runnable, Boolean.TRUE);
 	}
 
@@ -248,7 +248,7 @@ public class ConcurrentUtil {
 	 * Submits a task to the executor service and returns a Future. If the executor is shut down, a
 	 * cancelled future is returned.
 	 */
-	public static <T> Future<T> submit(ExecutorService executor, ExceptionRunnable<?> runnable,
+	public static <T> Future<T> submit(ExecutorService executor, Excepts.Runnable<?> runnable,
 		T result) {
 		return submit(executor, callable(runnable, result));
 	}
@@ -269,14 +269,14 @@ public class ConcurrentUtil {
 	/**
 	 * Converts a runnable with exception into a callable type.
 	 */
-	public static Callable<Boolean> callable(ExceptionRunnable<?> runnable) {
+	public static Callable<Boolean> callable(Excepts.Runnable<?> runnable) {
 		return callable(runnable, Boolean.TRUE);
 	}
 
 	/**
 	 * Converts a runnable with exception into a callable type.
 	 */
-	public static <T> Callable<T> callable(ExceptionRunnable<?> runnable, T result) {
+	public static <T> Callable<T> callable(Excepts.Runnable<?> runnable, T result) {
 		return () -> {
 			runnable.run();
 			return result;
@@ -295,8 +295,8 @@ public class ConcurrentUtil {
 	 * Provides a locked try-with-resources that unlocks on close. Executes given post-lock and
 	 * pre-unlock logic, making sure the lock is unlocked if an exception occurs.
 	 */
-	public static <E extends Exception> ExceptionCloseable<E> locker(Lock lock,
-		ExceptionRunnable<E> postLock, ExceptionRunnable<E> preUnlock) throws E {
+	public static <E extends Exception> Excepts.Closeable<E> locker(Lock lock,
+		Excepts.Runnable<E> postLock, Excepts.Runnable<E> preUnlock) throws E {
 		lock.lock();
 		try {
 			if (postLock != null) postLock.run();
@@ -316,7 +316,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes the operation within the lock and returns the result.
 	 */
-	public static <E extends Exception, T> T lockedGet(Lock lock, ExceptionSupplier<E, T> supplier)
+	public static <E extends Exception, T> T lockedGet(Lock lock, Excepts.Supplier<E, T> supplier)
 		throws E {
 		lock.lock();
 		try {
@@ -330,7 +330,7 @@ public class ConcurrentUtil {
 	 * Executes the operation within the lock and returns the result.
 	 */
 	public static <E extends Exception> int lockedGetAsInt(Lock lock,
-		ExceptionIntSupplier<E> supplier) throws E {
+		Excepts.IntSupplier<E> supplier) throws E {
 		lock.lock();
 		try {
 			return supplier.getAsInt();
@@ -343,7 +343,7 @@ public class ConcurrentUtil {
 	 * Executes the operation within the lock and returns the result.
 	 */
 	public static <E extends Exception> long lockedGetAsLong(Lock lock,
-		ExceptionLongSupplier<E> supplier) throws E {
+		Excepts.LongSupplier<E> supplier) throws E {
 		lock.lock();
 		try {
 			return supplier.getAsLong();
@@ -355,7 +355,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes the operation within the lock.
 	 */
-	public static <E extends Exception> void lockedRun(Lock lock, ExceptionRunnable<E> runnable)
+	public static <E extends Exception> void lockedRun(Lock lock, Excepts.Runnable<E> runnable)
 		throws E {
 		lock.lock();
 		try {
@@ -370,7 +370,7 @@ public class ConcurrentUtil {
 	 * holder is empty if the lock is not available.
 	 */
 	public static <E extends Exception, T> Holder<T> tryLockedGet(Lock lock,
-		ExceptionSupplier<E, T> supplier) throws E {
+		Excepts.Supplier<E, T> supplier) throws E {
 		if (!lock.tryLock()) return Holder.of();
 		try {
 			return Holder.of(supplier.get());
@@ -384,7 +384,7 @@ public class ConcurrentUtil {
 	 * holder is empty if the lock is not available.
 	 */
 	public static <E extends Exception> OptionalInt tryLockedGetAsInt(Lock lock,
-		ExceptionIntSupplier<E> supplier) throws E {
+		Excepts.IntSupplier<E> supplier) throws E {
 		if (!lock.tryLock()) return OptionalInt.empty();
 		try {
 			return OptionalInt.of(supplier.getAsInt());
@@ -398,7 +398,7 @@ public class ConcurrentUtil {
 	 * holder is empty if the lock is not available.
 	 */
 	public static <E extends Exception> OptionalLong tryLockedGetAsLong(Lock lock,
-		ExceptionLongSupplier<E> supplier) throws E {
+		Excepts.LongSupplier<E> supplier) throws E {
 		if (!lock.tryLock()) return OptionalLong.empty();
 		try {
 			return OptionalLong.of(supplier.getAsLong());
@@ -411,7 +411,7 @@ public class ConcurrentUtil {
 	 * Tries to execute the operation within the lock. Returns false if the lock is not available.
 	 */
 	public static <E extends Exception> boolean tryLockedRun(Lock lock,
-		ExceptionRunnable<E> runnable) throws E {
+		Excepts.Runnable<E> runnable) throws E {
 		if (!lock.tryLock()) return false;
 		try {
 			runnable.run();
@@ -479,7 +479,8 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static void runInterruptible(ExceptionRunnable<InterruptedException> runnable) {
+	public static void
+		runInterruptible(Excepts.Runnable<? extends InterruptedException> runnable) {
 		try {
 			runnable.run();
 		} catch (InterruptedException e) {
@@ -490,7 +491,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static <T> T getInterruptible(ExceptionSupplier<InterruptedException, T> supplier) {
+	public static <T> T getInterruptible(Excepts.Supplier<InterruptedException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (InterruptedException e) {
@@ -515,7 +516,7 @@ public class ConcurrentUtil {
 	 */
 	private static <E extends Exception> void invokeAll(ExecutorService executor,
 		Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
-		Collection<ExceptionRunnable<E>> runnables) throws InterruptedException, E {
+		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		var callables = CollectionUtil.toList(ConcurrentUtil::callable, runnables);
 		try {
 			var futures = timeoutMs == null ? executor.invokeAll(callables) :

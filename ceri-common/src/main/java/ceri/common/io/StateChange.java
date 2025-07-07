@@ -16,7 +16,7 @@ public enum StateChange {
 	public final int value;
 
 	public static StateChange from(Boolean isFixed) {
-		return BasicUtil.conditional(isFixed, fixed, broken, none);
+		return BasicUtil.ternary(isFixed, fixed, broken, none);
 	}
 
 	private StateChange(int value) {

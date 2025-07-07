@@ -1,6 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateMin;
@@ -12,8 +11,9 @@ import java.util.Set;
 import java.util.function.Consumer;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.exception.Exceptions;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.Struct;
@@ -217,7 +217,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 
 		private void validateEndPoint(int endPoint) {
 			if (endPoints.indexOf(0, endPoint) >= 0) return;
-			throw illegalArg("End point not in %s: %d", endPoints, endPoint);
+			throw Exceptions.illegalArg("End point not in %s: %d", endPoints, endPoint);
 		}
 	}
 
@@ -488,7 +488,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	}
 
 	private static <T> T allocTransfer(int isoPackets,
-		ExceptionFunction<LibUsbException, libusb_transfer, T> function) throws LibUsbException {
+		Function<LibUsbException, libusb_transfer, T> function) throws LibUsbException {
 		var transfer = LibUsb.libusb_alloc_transfer(isoPackets);
 		try {
 			return function.apply(transfer);
@@ -499,6 +499,6 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	}
 
 	private T typedThis() {
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 }

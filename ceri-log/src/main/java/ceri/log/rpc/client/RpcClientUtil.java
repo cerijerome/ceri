@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.Supplier;
 import io.grpc.StatusRuntimeException;
 
 public class RpcClientUtil {
@@ -34,7 +34,7 @@ public class RpcClientUtil {
 	/**
 	 * Executes runnable, squashing exceptions that can be ignored.
 	 */
-	public static <E extends Exception> void execute(ExceptionRunnable<E> runnable) throws E {
+	public static <E extends Exception> void execute(Runnable<E> runnable) throws E {
 		try {
 			runnable.run();
 		} catch (Exception e) {
@@ -46,21 +46,21 @@ public class RpcClientUtil {
 	/**
 	 * Converts StatusRuntimeException into an IOException.
 	 */
-	public static void wrap(ExceptionRunnable<IOException> runnable) throws IOException {
+	public static void wrap(Runnable<IOException> runnable) throws IOException {
 		wrap(runnable, IOException::new);
 	}
 
 	/**
 	 * Converts StatusRuntimeException into an IOException.
 	 */
-	public static <T> T wrapReturn(ExceptionSupplier<IOException, T> supplier) throws IOException {
+	public static <T> T wrapReturn(Supplier<IOException, T> supplier) throws IOException {
 		return wrapReturn(supplier, IOException::new);
 	}
 
 	/**
 	 * Converts StatusRuntimeException into a new exception.
 	 */
-	public static <E extends Exception> void wrap(ExceptionRunnable<E> runnable,
+	public static <E extends Exception> void wrap(Runnable<E> runnable,
 		Function<String, E> exceptionFn) throws E {
 		try {
 			runnable.run();
@@ -72,7 +72,7 @@ public class RpcClientUtil {
 	/**
 	 * Converts StatusRuntimeException into a new exception.
 	 */
-	public static <E extends Exception, T> T wrapReturn(ExceptionSupplier<E, T> supplier,
+	public static <E extends Exception, T> T wrapReturn(Supplier<E, T> supplier,
 		Function<String, E> exceptionFn) throws E {
 		try {
 			return supplier.get();

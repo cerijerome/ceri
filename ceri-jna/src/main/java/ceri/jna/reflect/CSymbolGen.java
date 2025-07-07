@@ -1,5 +1,6 @@
 package ceri.jna.reflect;
 
+import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import static java.lang.reflect.AccessFlag.FINAL;
 import static java.lang.reflect.AccessFlag.PUBLIC;
 import static java.lang.reflect.AccessFlag.STATIC;
@@ -21,9 +22,8 @@ import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
-import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.reflect.ReflectUtil;
@@ -69,8 +69,6 @@ public class CSymbolGen {
 	 * Automatic generation of c code based on annotations.
 	 */
 	public static class Auto {
-		private static final ExceptionBiConsumer<RuntimeException, JnaOs, CSymbolGen> CONFIGURATOR =
-			(_, _) -> {};
 
 		private Auto() {}
 
@@ -78,31 +76,31 @@ public class CSymbolGen {
 		 * Generate based on the class annotations.
 		 */
 		public static void gen(Class<?> cls) {
-			gen(cls, CONFIGURATOR);
+			gen(cls, null);
 		}
 
 		/**
 		 * Generate based on the class annotations, with pre-process configurator.
 		 */
 		public static <E extends Exception> void gen(Class<?> cls,
-			ExceptionBiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
+			Excepts.BiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
 			gen(CAnnotations.cgen(cls), cls, configurator);
 		}
 
 		private static <E extends Exception> void gen(CAnnotations.CGen.Value cgen, Class<?> cls,
-			ExceptionBiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
+			Excepts.BiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
 			var location = location(cgen, cls);
 			for (var os : cgen.os())
-				os.run(() -> genOs(os, cgen, location, configurator));
+				os.accept(_ -> genOs(os, cgen, location, configurator));
 		}
 
 		private static <E extends Exception> void genOs(JnaOs os, CAnnotations.CGen.Value cgen,
-			Path location, ExceptionBiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
+			Path location, Excepts.BiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
 			var file = IoUtil.changeName(location, os::file);
 			var reloader = ClassReloader.ofNested(cgen.classes());
 			var targets = Stream.of(cgen.target()).map(c -> reloader.forName(c, false)).toList();
 			var gen = CSymbolGen.of();
-			configurator.accept(os, gen);
+			if (configurator != null) configurator.accept(os, gen);
 			gen.add(targets).generateFile(file);
 		}
 	}
@@ -167,23 +165,20 @@ public class CSymbolGen {
 			new Matcher<>(CAnnotations.CType.Value.UNDEFINED);
 
 		private Set<String> includes(Class<?> cls, JnaOs os) {
-			return BasicUtil
-				.defaultValue(includes.match(cls, os), () -> CAnnotations.cincludes(cls))
+			return BasicUtil.def(includes.match(cls, os), () -> CAnnotations.cincludes(cls))
 				.includes(os);
 		}
 
 		private CAnnotations.CType.Value ctype(Class<?> cls, JnaOs os) {
-			return BasicUtil.defaultValue(classes.match(cls, os),
-				() -> CAnnotations.ctype(cls, os));
+			return BasicUtil.def(classes.match(cls, os), () -> CAnnotations.ctype(cls, os));
 		}
 
 		private CAnnotations.CType.Value ctype(Field field, JnaOs os) {
-			return BasicUtil.defaultValue(fields.match(field, os),
-				() -> CAnnotations.ctype(field, os));
+			return BasicUtil.def(fields.match(field, os), () -> CAnnotations.ctype(field, os));
 		}
 
 		private CAnnotations.CType.Value ctype(Enum<?> en, JnaOs os) {
-			return BasicUtil.defaultValue(enums.match(en, os), () -> CAnnotations.ctype(en, os));
+			return BasicUtil.def(enums.match(en, os), () -> CAnnotations.ctype(en, os));
 		}
 	}
 
@@ -295,16 +290,16 @@ public class CSymbolGen {
 		/**
 		 * Add a preprocessor #if defined construct.
 		 */
-		public <E extends Exception> CSymbolGen addIfDef(String defined, ExceptionRunnable<E> runIf)
-			throws E {
+		public <E extends Exception> CSymbolGen addIfDef(String defined,
+			Excepts.Runnable<E> runIf) throws E {
 			return addIfDef(defined, runIf, null);
 		}
 
 		/**
 		 * Add a preprocessor #if defined/#else construct.
 		 */
-		public <E extends Exception> CSymbolGen addIfDef(String defined, ExceptionRunnable<E> runIf,
-			ExceptionRunnable<E> runElse) throws E {
+		public <E extends Exception> CSymbolGen addIfDef(String defined,
+			Excepts.Runnable<E> runIf, Excepts.Runnable<E> runElse) throws E {
 			var condition = (defined == null ? null : "defined(" + defined + ")");
 			return addIf(condition, runIf, runElse);
 		}
@@ -312,7 +307,7 @@ public class CSymbolGen {
 		/**
 		 * Add a preprocessor #if construct.
 		 */
-		public <E extends Exception> CSymbolGen addIf(String condition, ExceptionRunnable<E> runIf)
+		public <E extends Exception> CSymbolGen addIf(String condition, Excepts.Runnable<E> runIf)
 			throws E {
 			return addIf(condition, runIf, null);
 		}
@@ -320,8 +315,8 @@ public class CSymbolGen {
 		/**
 		 * Add a preprocessor #if/#else construct.
 		 */
-		public <E extends Exception> CSymbolGen addIf(String condition, ExceptionRunnable<E> runIf,
-			ExceptionRunnable<E> runElse) throws E {
+		public <E extends Exception> CSymbolGen addIf(String condition, Excepts.Runnable<E> runIf,
+			Excepts.Runnable<E> runElse) throws E {
 			if (condition != null) add("#if " + condition);
 			runIf.run();
 			if (condition != null && runElse != null) add("#else");
@@ -370,8 +365,7 @@ public class CSymbolGen {
 	}
 
 	private CSymbolGen(JnaOs os) {
-		this.template =
-			ExceptionUtil.shouldNotThrow(() -> IoUtil.resourceString(getClass(), TEMPLATE));
+		this.template = shouldNotThrow.get(() -> IoUtil.resourceString(getClass(), TEMPLATE));
 		this.os = os;
 	}
 
@@ -408,7 +402,7 @@ public class CSymbolGen {
 	 * Generate c code and save to the file.
 	 */
 	public String generateFile(Path file) {
-		return IoUtil.RUNTIME_IO_ADAPTER.get(() -> {
+		return ExceptionAdapter.runtimeIo.get(() -> {
 			var filename = IoUtil.filenameWithoutExt(file);
 			var gen = generate(filename);
 			Files.writeString(file, gen);
@@ -472,11 +466,10 @@ public class CSymbolGen {
 	}
 
 	private boolean addSpecialType(Class<?> cls, CAnnotations.CType.Value ctype) {
-		if (Structure.class.isAssignableFrom(cls)) addStruct(BasicUtil.uncheckedCast(cls), ctype);
+		if (Structure.class.isAssignableFrom(cls)) addStruct(BasicUtil.unchecked(cls), ctype);
 		else if (Enum.class.isAssignableFrom(cls))
-			addEnums(BasicUtil.uncheckedCast(cls), ctype.valueField());
-		else if (IntType.class.isAssignableFrom(cls))
-			addIntType(BasicUtil.uncheckedCast(cls), ctype);
+			addEnums(BasicUtil.unchecked(cls), ctype.valueField());
+		else if (IntType.class.isAssignableFrom(cls)) addIntType(BasicUtil.unchecked(cls), ctype);
 		else return false;
 		return true;
 	}

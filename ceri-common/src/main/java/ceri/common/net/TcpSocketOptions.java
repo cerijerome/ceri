@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
-import ceri.common.function.ExceptionBiConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -23,7 +23,7 @@ public class TcpSocketOptions {
 		var options = of();
 		for (var option : TcpSocketOption.all) {
 			Object value = socket.option(option);
-			if (value != null) options.set(option, BasicUtil.uncheckedCast(value));
+			if (value != null) options.set(option, BasicUtil.unchecked(value));
 		}
 		return options.immutable();
 	}
@@ -97,7 +97,7 @@ public class TcpSocketOptions {
 	 * Returns the option value, or null if unset.
 	 */
 	public <T> T get(TcpSocketOption<T> option) {
-		return BasicUtil.uncheckedCast(map.get(option));
+		return BasicUtil.unchecked(map.get(option));
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class TcpSocketOptions {
 	 * Applies the option only if set.
 	 */
 	public <E extends Exception, T> boolean apply(TcpSocketOption<T> option,
-		ExceptionBiConsumer<E, TcpSocketOption<T>, T> consumer) throws E {
+		Excepts.BiConsumer<E, TcpSocketOption<T>, T> consumer) throws E {
 		T value = get(option);
 		if (value == null) return false;
 		consumer.accept(option, value);

@@ -5,7 +5,7 @@ import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.Named;
 

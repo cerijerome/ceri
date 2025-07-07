@@ -14,7 +14,7 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listenable;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.Enclosed;
 import ceri.log.rpc.util.RpcUtil;
 import ceri.log.util.LogUtil;

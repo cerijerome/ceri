@@ -93,7 +93,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetStandardBaudForLinux() throws CException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0030, 16000000, 3);
 			int fd = CSerial.open("test");
@@ -105,7 +105,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetCustomBaudForLinux() throws CException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0xabc0000, 16000000, 0);
 			int fd = CSerial.open("test");
@@ -120,7 +120,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldFailToSetIncompatibleBaudForLinux() throws CException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0, 16000000, 0);
 			int fd = CSerial.open("test");
@@ -130,7 +130,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersForLinux() throws CException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
@@ -141,7 +141,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetFlowControlForLinux() throws CException {
-		JnaOs.linux.run(() -> {
+		JnaOs.linux.accept(_ -> {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_IN);
@@ -151,7 +151,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetStandardBaudForMac() throws CException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 115200, DATABITS_7, STOPBITS_2, PARITY_EVEN);
@@ -161,7 +161,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetCustomBaudForMac() throws CException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_6, STOPBITS_2, PARITY_EVEN);
@@ -175,7 +175,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersForMac() throws CException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
@@ -186,7 +186,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetReadParametersWithCustomBaudForMac() throws CException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_8, STOPBITS_1, PARITY_NONE);
@@ -200,7 +200,7 @@ public class CSerialTest {
 
 	@Test
 	public void shouldSetFlowControlForMac() throws CException {
-		JnaOs.mac.run(() -> {
+		JnaOs.mac.accept(_ -> {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_OUT);

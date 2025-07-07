@@ -20,7 +20,6 @@ import ceri.common.collection.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.exception.ExceptionUtil.Rte;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
@@ -28,8 +27,8 @@ import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
-import ceri.jna.type.Union;
 import ceri.jna.type.Struct.Fields;
+import ceri.jna.type.Union;
 
 /**
  * I2C device communication, through ioctl commands. Linux-only?
@@ -75,14 +74,15 @@ public class I2cDev {
 	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
 		/** Field to get/set typed flags. */
-		public static final Field.Types<Rte, i2c_msg, i2c_msg_flag> FLAGS;
+		public static final Field.Types<RuntimeException, i2c_msg, i2c_msg_flag> FLAGS;
 		public short addr;
 		public short flags;
 		public short len;
 		public Pointer buf;
 
 		static {
-			var f = Field.<Rte, i2c_msg>ofLong(m -> ushort(m.flags), (m, l) -> m.flags = (short) l);
+			var f = Field.<RuntimeException, i2c_msg>ofLong(m -> ushort(m.flags),
+				(m, l) -> m.flags = (short) l);
 			FLAGS = f.types(i2c_msg_flag.xcoder);
 		}
 

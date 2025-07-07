@@ -15,9 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ObjIntFunction;
+import ceri.common.function.Excepts;
+import ceri.common.function.Funcs.ObjIntFunction;
 import ceri.common.property.Parser;
 
 /**
@@ -458,7 +457,7 @@ public class RegexUtil {
 	 * Calls the consumer with the group only if non-null. Matcher match should have been attempted.
 	 */
 	public static <E extends Exception> void acceptGroup(Matcher m, int group,
-		ExceptionConsumer<E, String> consumer) throws E {
+		Excepts.Consumer<E, String> consumer) throws E {
 		var s = group(m, group);
 		if (s != null) consumer.accept(s);
 	}
@@ -468,7 +467,7 @@ public class RegexUtil {
 	 * Matcher match should have been attempted.
 	 */
 	public static <E extends Exception, T> T applyGroup(Matcher m, int group,
-		ExceptionFunction<E, String, T> function) throws E {
+		Excepts.Function<E, String, T> function) throws E {
 		var s = group(m, group);
 		return s == null ? null : function.apply(s);
 	}

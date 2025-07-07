@@ -68,7 +68,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.VolatileLongArrayBehavior.class, //
 	// data
 	ceri.common.data.BinaryStateBehavior.class, //
-	ceri.common.data.BooleanAccessorBehavior.class, //
 	ceri.common.data.ByteAccessorBehavior.class, //
 	ceri.common.data.ByteArrayBehavior.class, //
 	ceri.common.data.ByteProviderBehavior.class, //
@@ -111,63 +110,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.exception.ExceptionTrackerBehavior.class, //
 	ceri.common.exception.ExceptionUtilTest.class, //
 	// function
-	ceri.common.function.BooleanConsumerBehavior.class, //
-	ceri.common.function.ByteConsumerBehavior.class, //
-	ceri.common.function.ByteUnaryOperatorBehavior.class, //
-	ceri.common.function.ExceptionBiConsumerBehavior.class, //
-	ceri.common.function.ExceptionBiFunctionBehavior.class, //
-	ceri.common.function.ExceptionBiPredicateBehavior.class, //
-	ceri.common.function.ExceptionBooleanSupplierBehavior.class, //
-	ceri.common.function.ExceptionByteConsumerBehavior.class, //
-	ceri.common.function.ExceptionByteFunctionBehavior.class, //
-	ceri.common.function.ExceptionByteSupplierBehavior.class, //
-	ceri.common.function.ExceptionByteUnaryOperatorBehavior.class, //
-	ceri.common.function.ExceptionConsumerBehavior.class, //
-	ceri.common.function.ExceptionDoubleSupplierBehavior.class, //
-	ceri.common.function.ExceptionFunctionBehavior.class, //
-	ceri.common.function.ExceptionIntBinaryConsumerBehavior.class, //
-	ceri.common.function.ExceptionIntBinaryOperatorBehavior.class, //
-	ceri.common.function.ExceptionIntConsumerBehavior.class, //
-	ceri.common.function.ExceptionIntFunctionBehavior.class, //
-	ceri.common.function.ExceptionIntPredicateBehavior.class, //
-	ceri.common.function.ExceptionIntSupplierBehavior.class, //
-	ceri.common.function.ExceptionIntUnaryOperatorBehavior.class, //
-	ceri.common.function.ExceptionLongConsumerBehavior.class, //
-	ceri.common.function.ExceptionLongFunctionBehavior.class, //
-	ceri.common.function.ExceptionLongPredicateBehavior.class, //
-	ceri.common.function.ExceptionLongSupplierBehavior.class, //
-	ceri.common.function.ExceptionLongUnaryOperatorBehavior.class, //
-	ceri.common.function.ExceptionObjIntConsumerBehavior.class, //
-	ceri.common.function.ExceptionObjIntFunctionBehavior.class, //
-	ceri.common.function.ExceptionObjIntPredicateBehavior.class, //
-	ceri.common.function.ExceptionObjLongConsumerBehavior.class, //
-	ceri.common.function.ExceptionObjLongFunctionBehavior.class, //
-	ceri.common.function.ExceptionObjLongPredicateBehavior.class, //
-	ceri.common.function.ExceptionPredicateBehavior.class, //
-	ceri.common.function.ExceptionRunnableBehavior.class, //
-	ceri.common.function.ExceptionSupplierBehavior.class, //
-	ceri.common.function.ExceptionToBooleanFunctionBehavior.class, //
-	ceri.common.function.ExceptionToByteFunctionBehavior.class, //
-	ceri.common.function.ExceptionToDoubleFunctionBehavior.class, //
-	ceri.common.function.ExceptionToIntFunctionBehavior.class, //
-	ceri.common.function.ExceptionToLongFunctionBehavior.class, //
-	ceri.common.function.ExceptionUnaryOperatorBehavior.class, //
+	ceri.common.function.AccessibleBehavior.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
-	ceri.common.function.FunctionWrapperBehavior.class, //
-	ceri.common.function.FunctionalBehavior.class, //
-	ceri.common.function.IntBinaryPredicateBehavior.class, //
 	ceri.common.function.NamerTest.class, //
-	ceri.common.function.ObjBooleanConsumerBehavior.class, //
-	ceri.common.function.ObjIntPredicateBehavior.class, //
-	ceri.common.function.ObjLongPredicateBehavior.class, //
-	ceri.common.function.ObjShortConsumerBehavior.class, //
 	ceri.common.function.PredicatesTest.class, //
-	ceri.common.function.RuntimeCloseableBehavior.class, //
-	ceri.common.function.ToBooleanFunctionBehavior.class, //
-	ceri.common.function.ToShortFunctionBehavior.class, //
-	ceri.common.function.VarArgsConsumerBehavior.class, //
-	ceri.common.function.VarArgsIntConsumerBehavior.class, //
 	// geom
 	ceri.common.geom.Circle2dBehavior.class, //
 	ceri.common.geom.ConcaveSpheroidBehavior.class, //

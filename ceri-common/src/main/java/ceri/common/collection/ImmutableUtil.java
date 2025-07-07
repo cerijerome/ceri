@@ -803,7 +803,7 @@ public class ImmutableUtil {
 
 	public static <T extends Enum<T>> Set<T> enumRange(T first, T last) {
 		if (first == null && last == null) return Set.of();
-		Class<T> cls = BasicUtil.uncheckedCast(BasicUtil.defaultValue(first, last).getClass());
+		Class<T> cls = BasicUtil.unchecked(BasicUtil.def(first, last).getClass());
 		T[] ts = cls.getEnumConstants();
 		int start = first == null ? 0 : first.ordinal();
 		int end = last == null ? ts.length : last.ordinal() + 1;

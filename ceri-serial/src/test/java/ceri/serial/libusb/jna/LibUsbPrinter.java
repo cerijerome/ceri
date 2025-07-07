@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.RegexUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
@@ -355,7 +355,7 @@ public class LibUsbPrinter {
 		return ArrayUtil.toHex(bytes);
 	}
 
-	private static <T> T get(ExceptionSupplier<LibUsbException, T> supplier) {
+	private static <T> T get(Supplier<LibUsbException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (LibUsbException e) {

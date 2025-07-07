@@ -2,8 +2,8 @@ package ceri.common.time;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionBiFunction;
+import ceri.common.function.Excepts.BiConsumer;
+import ceri.common.function.Excepts.BiFunction;
 
 /**
  * Represent a timeout value with time unit.
@@ -40,12 +40,11 @@ public record Timeout(long timeout, TimeUnit unit) {
 		return of(unit.convert(timeout, this.unit), unit);
 	}
 
-	public <E extends Exception, R> R applyTo(ExceptionBiFunction<E, Long, TimeUnit, R> fn)
-		throws E {
+	public <E extends Exception, R> R applyTo(BiFunction<E, Long, TimeUnit, R> fn) throws E {
 		return isNull() ? null : fn.apply(timeout, unit);
 	}
 
-	public <E extends Exception> void acceptBy(ExceptionBiConsumer<E, Long, TimeUnit> fn) throws E {
+	public <E extends Exception> void acceptBy(BiConsumer<E, Long, TimeUnit> fn) throws E {
 		if (!isNull()) fn.accept(timeout, unit);
 	}
 

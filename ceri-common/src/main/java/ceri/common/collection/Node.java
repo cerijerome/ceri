@@ -77,7 +77,7 @@ public class Node<T> {
 	 * Returns an empty node.
 	 */
 	public static <T> Node<T> of() {
-		return BasicUtil.uncheckedCast(NULL);
+		return BasicUtil.unchecked(NULL);
 	}
 
 	/**

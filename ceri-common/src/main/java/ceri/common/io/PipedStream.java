@@ -1,13 +1,13 @@
 package ceri.common.io;
 
-import static ceri.common.exception.ExceptionUtil.shouldNotThrow;
+import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.util.CloseableUtil;
 
 /**
@@ -78,7 +78,7 @@ public class PipedStream implements RuntimeCloseable {
 
 	private PipedStream(int size) {
 		out = new PipedOutputStream();
-		in = shouldNotThrow(() -> new PipedInputStream(out, size));
+		in = shouldNotThrow.get(() -> new PipedInputStream(out, size));
 	}
 
 	public InputStream in() {

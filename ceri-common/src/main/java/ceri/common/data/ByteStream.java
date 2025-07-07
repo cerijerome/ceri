@@ -6,8 +6,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.Supplier;
 import ceri.common.function.Fluent;
 import ceri.common.io.RuntimeEofException;
 import ceri.common.io.RuntimeIoException;
@@ -123,7 +123,7 @@ public class ByteStream {
 		}
 	}
 
-	private static void run(ExceptionRunnable<IOException> runnable) {
+	private static void run(Runnable<IOException> runnable) {
 		try {
 			runnable.run();
 		} catch (EOFException e) {
@@ -133,7 +133,7 @@ public class ByteStream {
 		}
 	}
 
-	private static <T> T get(ExceptionSupplier<IOException, T> supplier) {
+	private static <T> T get(Supplier<IOException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (IOException e) {

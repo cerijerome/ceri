@@ -4,7 +4,7 @@ import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.text.ToString;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.PointerUtil;

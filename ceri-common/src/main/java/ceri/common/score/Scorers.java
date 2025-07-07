@@ -65,14 +65,14 @@ public class Scorers {
 	 * A score that returns 1.0 for all conditions.
 	 */
 	public static <T> Scorer<T> one() {
-		return BasicUtil.uncheckedCast(ONE);
+		return BasicUtil.unchecked(ONE);
 	}
 
 	/**
 	 * A score that returns 0.0 for all conditions.
 	 */
 	public static <T> Scorer<T> zero() {
-		return BasicUtil.uncheckedCast(ZERO);
+		return BasicUtil.unchecked(ZERO);
 	}
 
 	/**

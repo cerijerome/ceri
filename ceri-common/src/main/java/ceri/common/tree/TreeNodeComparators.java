@@ -17,7 +17,7 @@ public class TreeNodeComparators {
 	 * Comparator for tree nodes by id.
 	 */
 	public static <T extends TreeNode<T>> Comparator<T> id() {
-		return BasicUtil.uncheckedCast(ID);
+		return BasicUtil.unchecked(ID);
 	}
 
 }

@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertUnsupported;
 import java.util.HashSet;
 import org.junit.Test;
-import ceri.common.exception.ExceptionUtil.Rte;
+import ceri.common.test.TestUtil.Rte;
 
 public class FieldBehavior {
 

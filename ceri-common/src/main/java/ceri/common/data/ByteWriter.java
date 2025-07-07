@@ -202,7 +202,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	default T fill(int length, int value) {
 		while (length-- > 0)
 			writeByte(value);
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 
 	/**
@@ -234,7 +234,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(array[offset + i]);
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 
 	/**
@@ -259,7 +259,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(provider.getByte(offset + i));
-		return BasicUtil.uncheckedCast(this);
+		return BasicUtil.unchecked(this);
 	}
 
 	/**

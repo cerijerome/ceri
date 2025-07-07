@@ -3,8 +3,8 @@ package ceri.common.collection;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.Captor;
 
@@ -24,8 +24,8 @@ public class WrappedStreamTestUtil {
 	}
 
 	@SafeVarargs
-	public static <E extends Exception, T> void
-		assertCapture(ExceptionConsumer<E, ExceptionConsumer<E, T>> fn, T... values) {
+	public static <E extends Exception, T> void assertCapture(Consumer<E, Consumer<E, T>> fn,
+		T... values) {
 		Captor<T> captor = Captor.of();
 		try {
 			fn.accept(captor::accept);
@@ -35,8 +35,8 @@ public class WrappedStreamTestUtil {
 		captor.verify(values);
 	}
 
-	public static <E extends Exception> void
-		assertCapture(ExceptionConsumer<E, ExceptionIntConsumer<E>> fn, int... values) {
+	public static <E extends Exception> void assertCapture(Consumer<E, IntConsumer<E>> fn,
+		int... values) {
 		Captor.OfInt capture = Captor.ofInt();
 		try {
 			fn.accept(capture::accept);
@@ -76,5 +76,4 @@ public class WrappedStreamTestUtil {
 		IntStream iStream = stream.terminateAs(s -> s);
 		AssertUtil.assertStream(iStream, values);
 	}
-
 }

@@ -28,11 +28,9 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.Listenable;
-import ceri.common.function.ExceptionBiConsumer;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ObjIntFunction;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts;
+import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;
 import ceri.common.math.MathUtil;
@@ -286,7 +284,7 @@ public class ManualTester implements RuntimeCloseable {
 			}
 		}
 
-		public void execute(ExceptionRunnable<Exception> runnable) {
+		public void execute(Excepts.Runnable<Exception> runnable) {
 			try {
 				runnable.run();
 			} catch (Exception e) {
@@ -309,8 +307,8 @@ public class ManualTester implements RuntimeCloseable {
 		PrintStream err = System.err;
 		Sgr promptSgr = AnsiEscape.csi.sgr().fgColor(BasicColor.green, false);
 		Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
-		int delayMs = BasicUtil.conditionalInt(fast(), 0, 100);
-		int errorDelayMs = BasicUtil.conditionalInt(fast(), 0, 1000);
+		int delayMs = BasicUtil.ternaryInt(fast(), 0, 100);
+		int errorDelayMs = BasicUtil.ternaryInt(fast(), 0, 1000);
 
 		@SuppressWarnings("resource")
 		protected Builder(List<?> subjects) {
@@ -440,7 +438,7 @@ public class ManualTester implements RuntimeCloseable {
 		}
 
 		public <T> Builder command(Class<T> cls, String pattern,
-			ExceptionBiConsumer<?, Action.Context<T>, Matcher> action, String help) {
+			Excepts.BiConsumer<?, Action.Context<T>, Matcher> action, String help) {
 			var p = Pattern.compile(pattern);
 			return command(cls, c -> ManualTester.matches(p, c.input(), m -> action.accept(c, m)),
 				help);
@@ -488,7 +486,7 @@ public class ManualTester implements RuntimeCloseable {
 
 	public static <T> Builder builderList(List<T> subjects, Function<T, String> stringFn) {
 		return builderList(subjects).stringFn(s -> {
-			return stringFn.apply(BasicUtil.<T>uncheckedCast(s));
+			return stringFn.apply(BasicUtil.<T>unchecked(s));
 		});
 	}
 
@@ -500,7 +498,7 @@ public class ManualTester implements RuntimeCloseable {
 	}
 
 	protected ManualTester(Builder builder) {
-		in = BasicUtil.defaultValue(builder.in, () -> LineReader.of(System.in));
+		in = BasicUtil.def(builder.in, () -> LineReader.of(System.in));
 		out = builder.out;
 		err = builder.err;
 		historical = builder.historical;
@@ -712,7 +710,7 @@ public class ManualTester implements RuntimeCloseable {
 	/**
 	 * Attempt to execute the runnable function.
 	 */
-	private void execute(ExceptionRunnable<Exception> runnable, boolean stackTrace) {
+	private void execute(Excepts.Runnable<Exception> runnable, boolean stackTrace) {
 		try {
 			runnable.run();
 		} catch (RuntimeInterruptedException e) {
@@ -738,7 +736,7 @@ public class ManualTester implements RuntimeCloseable {
 		if (StringUtil.blank(context.input())) return;
 		for (var command : commands) {
 			if (!command.assignable(context.subject())) continue;
-			if (command.action().execute(BasicUtil.uncheckedCast(context))) return;
+			if (command.action().execute(BasicUtil.unchecked(context))) return;
 		}
 		err("Invalid command: " + context.input());
 	}
@@ -753,7 +751,7 @@ public class ManualTester implements RuntimeCloseable {
 	}
 
 	private static <E extends Exception> boolean matches(Pattern pattern, String input,
-		ExceptionConsumer<E, Matcher> consumer) throws Exception {
+		Excepts.Consumer<E, Matcher> consumer) throws Exception {
 		var m = RegexUtil.matched(pattern, input);
 		if (m == null) return false;
 		consumer.accept(m);
@@ -801,7 +799,7 @@ public class ManualTester implements RuntimeCloseable {
 
 	private static <T> SubjectConsumer<Object> typed(Class<T> cls, SubjectConsumer<T> consumer) {
 		return (t, s) -> {
-			if (cls.isInstance(s)) consumer.accept(t, BasicUtil.<T>uncheckedCast(s));
+			if (cls.isInstance(s)) consumer.accept(t, BasicUtil.<T>unchecked(s));
 		};
 	}
 

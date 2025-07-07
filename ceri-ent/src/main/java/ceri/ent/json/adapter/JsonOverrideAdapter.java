@@ -54,9 +54,9 @@ public class JsonOverrideAdapter<T> {
 
 	private <U> TypeAdapter<U> factoryCreate(Gson gson, TypeToken<U> type) {
 		if (type.getType() != this.type) return null;
-		TypeAdapter<T> delegate = BasicUtil.uncheckedCast(gson.getDelegateAdapter(factory, type));
+		TypeAdapter<T> delegate = BasicUtil.unchecked(gson.getDelegateAdapter(factory, type));
 		if (delegate == null) throw new IllegalStateException("No delegate registered for " + type);
-		return BasicUtil.uncheckedCast(createAdapter(delegate));
+		return BasicUtil.unchecked(createAdapter(delegate));
 	}
 
 	private TypeAdapter<T> createAdapter(TypeAdapter<T> delegate) {

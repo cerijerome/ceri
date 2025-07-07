@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Function;
 import ceri.common.data.ByteArray;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
@@ -16,7 +15,7 @@ public class Processor {
 	public static final Processor DEFAULT = builder().build();
 	public static final Processor LONG_RUNNING = builder().noTimeout().captureStdOut(false).build();
 	public static final Processor IGNORE_EXIT_VALUE = builder().verifyExitValue(false).build();
-	private final Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter;
+	private final Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter;
 	private final int pollMs;
 	private final int timeoutMs;
 	private final boolean captureStdOut;
@@ -25,7 +24,7 @@ public class Processor {
 
 	public static class Builder {
 		// Allows tests to set process without sacrificing code coverage
-		Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter =
+		Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter =
 			p -> new ProcessBuilder(p.list())::start;
 		int pollMs = 50;
 		int timeoutMs = 5000;
@@ -36,7 +35,7 @@ public class Processor {
 		Builder() {}
 
 		public Builder processStarter(
-			Function<Parameters, ExceptionSupplier<IOException, Process>> processStarter) {
+			Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter) {
 			this.processStarter = processStarter;
 			return this;
 		}
@@ -148,7 +147,7 @@ public class Processor {
 
 	@SuppressWarnings("resource")
 	private void waitForProcess(Process process, Parameters parameters,
-		ExceptionConsumer<IOException, InputStream> consumer) throws IOException {
+		Excepts.Consumer<IOException, InputStream> consumer) throws IOException {
 		InputStream in = process.getInputStream();
 		Timer timer = Timer.of(timeoutMs, millis).start();
 		while (true) {

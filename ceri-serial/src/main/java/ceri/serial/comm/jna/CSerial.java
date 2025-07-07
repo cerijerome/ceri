@@ -1,6 +1,5 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.exception.ExceptionUtil.illegalArg;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.clib.jna.CFcntl.O_NOCTTY;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
@@ -29,6 +28,7 @@ import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.IntegerType;
 import ceri.common.collection.BiMap;
+import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CException;
@@ -208,7 +208,7 @@ public class CSerial {
 			if (parity == PARITY_MARK) return PARENB | CMSPAR | PARODD;
 			if (parity == PARITY_SPACE) return PARENB | CMSPAR;
 		}
-		throw illegalArg("Unsupported parity: 0x%02x", parity);
+		throw Exceptions.illegalArg("Unsupported parity: 0x%02x", parity);
 	}
 
 	private static void setFlowControlFlags(IntegerType iflag, IntegerType cflag, int mode) {

@@ -2,7 +2,7 @@ package ceri.common.io;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 
 /**
  * Helper when overriding System i/o streams. Restores original streams on close.

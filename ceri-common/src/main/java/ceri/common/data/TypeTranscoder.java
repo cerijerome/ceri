@@ -152,7 +152,7 @@ public class TypeTranscoder<T> {
 	 * found.
 	 */
 	public T decode(long value, T def) {
-		return BasicUtil.defaultValue(decode(value), def);
+		return BasicUtil.def(decode(value), def);
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class TypeTranscoder<T> {
 
 	private static <T> Map<Long, T> lookup(ToLongFunction<T> valueFn, Iterable<T> ts,
 		BinaryOperator<T> mergeFn) {
-		mergeFn = BasicUtil.defaultValue(mergeFn, StreamUtil.mergeError());
+		mergeFn = BasicUtil.def(mergeFn, StreamUtil.mergeError());
 		return Collections.unmodifiableMap(StreamUtil.stream(ts).collect(Collectors
 			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
 	}

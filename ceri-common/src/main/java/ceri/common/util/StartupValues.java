@@ -3,7 +3,7 @@ package ceri.common.util;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.function.ExceptionFunction;
+import ceri.common.function.Excepts;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.text.StringUtil;
@@ -36,7 +36,7 @@ public class StartupValues {
 	 * Parse system property or environment variable by name
 	 */
 	public static <E extends Exception, T> T lookup(String name,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		return of().value(name, fn);
 	}
 
@@ -44,7 +44,7 @@ public class StartupValues {
 	 * Parse system property or environment variable by name
 	 */
 	public static <E extends Exception, T> T lookup(String sysProp, String envVar,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		return of().value(sysProp, envVar, fn);
 	}
 
@@ -98,7 +98,7 @@ public class StartupValues {
 			this.desc = desc;
 		}
 
-		public <E extends Exception, T> T parse(ExceptionFunction<E, Parser.String, T> parseFn)
+		public <E extends Exception, T> T parse(Excepts.Function<E, Parser.String, T> parseFn)
 			throws E {
 			var result = parseFn.apply(parser());
 			if (notifier != null) notifier.accept(desc(renderer.apply(result)));
@@ -108,10 +108,10 @@ public class StartupValues {
 		public Parser.String parser() {
 			return Parser.string(value);
 		}
-		
+
 		private String desc(String value) {
-			var desc = String.format("%s = %s (%s)", BasicUtil.defaultValue(id.name(), "value"),
-				value, this.desc);
+			var desc =
+				String.format("%s = %s (%s)", BasicUtil.def(id.name(), "value"), value, this.desc);
 			return id.argIndex == null ? desc : id.argIndex + ") " + desc;
 		}
 	}
@@ -186,14 +186,14 @@ public class StartupValues {
 	/**
 	 * Parse the next value, using args only.
 	 */
-	public <E extends Exception, T> T next(ExceptionFunction<E, Parser.String, T> fn) throws E {
+	public <E extends Exception, T> T next(Excepts.Function<E, Parser.String, T> fn) throws E {
 		return next(null, fn);
 	}
 
 	/**
 	 * Parse the next value, from args, or name-based environment variable or system property.
 	 */
-	public <E extends Exception, T> T next(String name, ExceptionFunction<E, Parser.String, T> fn)
+	public <E extends Exception, T> T next(String name, Excepts.Function<E, Parser.String, T> fn)
 		throws E {
 		String sysProp = sysProp(name);
 		return next(name, sysProp, envVarFrom(sysProp), fn);
@@ -203,7 +203,7 @@ public class StartupValues {
 	 * Parse the next value, from args, or explicitly named environment variable or system property.
 	 */
 	public <E extends Exception, T> T next(String name, String sysProp, String envVar,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		return source(name, nextArg(), sysProp, envVar).parse(fn);
 	}
 
@@ -247,7 +247,7 @@ public class StartupValues {
 	/**
 	 * Parse the value from arg index.
 	 */
-	public <E extends Exception, T> T value(int index, ExceptionFunction<E, Parser.String, T> fn)
+	public <E extends Exception, T> T value(int index, Excepts.Function<E, Parser.String, T> fn)
 		throws E {
 		return value(null, index, fn);
 	}
@@ -255,7 +255,7 @@ public class StartupValues {
 	/**
 	 * Parse the value from name-based environment variable or system property.
 	 */
-	public <E extends Exception, T> T value(String name, ExceptionFunction<E, Parser.String, T> fn)
+	public <E extends Exception, T> T value(String name, Excepts.Function<E, Parser.String, T> fn)
 		throws E {
 		String sysProp = sysProp(name);
 		return source(name, null, sysProp, envVarFrom(sysProp)).parse(fn);
@@ -265,7 +265,7 @@ public class StartupValues {
 	 * Parse the value from arg index, or name-based environment variable or system property.
 	 */
 	public <E extends Exception, T> T value(String name, int index,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		String sysProp = sysProp(name);
 		return source(name, index, sysProp, envVarFrom(sysProp)).parse(fn);
 	}
@@ -274,7 +274,7 @@ public class StartupValues {
 	 * Parse the value from explicitly named environment variable or system property.
 	 */
 	public <E extends Exception, T> T value(String sysProp, String envVar,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		return source(null, null, sysProp, envVar).parse(fn);
 	}
 
@@ -282,7 +282,7 @@ public class StartupValues {
 	 * Parse the value from arg index, or explicitly named environment variable or system property.
 	 */
 	public <E extends Exception, T> T value(int index, String sysProp, String envVar,
-		ExceptionFunction<E, Parser.String, T> fn) throws E {
+		Excepts.Function<E, Parser.String, T> fn) throws E {
 		return source(null, index, sysProp, envVar).parse(fn);
 	}
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.function.ExceptionIntConsumer;
+import ceri.common.function.Excepts.IntConsumer;
 import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
@@ -53,16 +53,16 @@ public class LoopingExecutorBehavior {
 	}
 
 	private static class TestLoop extends LoopingExecutor {
-		private final ExceptionIntConsumer<?> looper;
+		private final IntConsumer<?> looper;
 		private int count = 0;
 
-		TestLoop(String logName, ExceptionIntConsumer<?> looper) {
+		TestLoop(String logName, IntConsumer<?> looper) {
 			super(logName);
 			this.looper = looper;
 			start();
 		}
 
-		TestLoop(ExceptionIntConsumer<?> looper) {
+		TestLoop(IntConsumer<?> looper) {
 			this.looper = looper;
 			start();
 		}

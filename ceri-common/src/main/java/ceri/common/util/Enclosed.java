@@ -5,28 +5,27 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.ExceptionCloseable;
-import ceri.common.function.ExceptionConsumer;
-import ceri.common.function.ExceptionFunction;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.Closeable;
+import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Excepts.Supplier;
 
 /**
  * Provides an AutoCloseable type encapsulating an object reference and a close method.
  */
-public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
+public class Enclosed<E extends Exception, T> implements Closeable<E> {
 	private static final Enclosed<?, ?> EMPTY = new Enclosed<>(null, null);
 	public final T ref;
-	private final ExceptionRunnable<E> closer;
+	private final Runnable<E> closer;
 
 	/**
 	 * A wrapper type that can be repeatedly initialized and closed.
 	 */
-	public static class Repeater<E extends Exception, T>
-		implements ExceptionCloseable<E>, ExceptionSupplier<E, T> {
+	public static class Repeater<E extends Exception, T> implements Closeable<E>, Supplier<E, T> {
 		private final Lock lock;
-		private final ExceptionSupplier<E, Enclosed<E, T>> constructor;
+		private final Supplier<E, Enclosed<E, T>> constructor;
 		private volatile Enclosed<E, T> enc = null;
 		private volatile T ref = null;
 
@@ -34,7 +33,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		 * Creates an instance without using a lock. Not thread-safe.
 		 */
 		public static <E extends Exception, T> Repeater<E, T>
-			unsafe(ExceptionSupplier<E, Enclosed<E, T>> constructor) {
+			unsafe(Supplier<E, Enclosed<E, T>> constructor) {
 			return of(null, constructor);
 		}
 
@@ -42,7 +41,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		 * Creates an instance using a new lock.
 		 */
 		public static <E extends Exception, T> Repeater<E, T>
-			of(ExceptionSupplier<E, Enclosed<E, T>> constructor) {
+			of(Supplier<E, Enclosed<E, T>> constructor) {
 			return of(new ReentrantLock(), constructor);
 		}
 
@@ -50,11 +49,11 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		 * Creates an instance using the given lock. If the lock is null, it behaves as unsafe.
 		 */
 		public static <E extends Exception, T> Repeater<E, T> of(Lock lock,
-			ExceptionSupplier<E, Enclosed<E, T>> constructor) {
+			Supplier<E, Enclosed<E, T>> constructor) {
 			return new Repeater<>(lock, constructor);
 		}
 
-		private Repeater(Lock lock, ExceptionSupplier<E, Enclosed<E, T>> constructor) {
+		private Repeater(Lock lock, Supplier<E, Enclosed<E, T>> constructor) {
 			this.lock = lock;
 			this.constructor = constructor;
 		}
@@ -121,8 +120,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	/**
 	 * Transforms a closeable function to an enclosed type.
 	 */
-	public static <E extends Exception, T> Enclosed<E, T> from(T subject,
-		ExceptionCloseable<E> closeable) {
+	public static <E extends Exception, T> Enclosed<E, T> from(T subject, Closeable<E> closeable) {
 		return of(subject, _ -> closeable.close());
 	}
 
@@ -130,16 +128,15 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 * Creates a type then wraps as an enclosed type.
 	 */
 	public static <E extends Exception, F extends Exception, T, U extends T> Enclosed<F, T>
-		from(ExceptionSupplier<E, ? extends U> constructor, ExceptionConsumer<F, ? super U> closer)
-			throws E {
+		from(Supplier<E, ? extends U> constructor, Consumer<F, ? super U> closer) throws E {
 		return of(constructor.get(), closer);
 	}
 
 	/**
 	 * Adapts a closeable type to a new enclosed type; closing the type on close or failure.
 	 */
-	public static <E extends Exception, T extends ExceptionCloseable<E>, R> Enclosed<E, R>
-		adaptOrClose(T subject, ExceptionFunction<E, T, R> adapter) throws E {
+	public static <E extends Exception, T extends Closeable<E>, R> Enclosed<E, R>
+		adaptOrClose(T subject, Function<E, T, R> adapter) throws E {
 		try {
 			var result = adapter.apply(subject);
 			return of(result, _ -> subject.close());
@@ -152,8 +149,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	/**
 	 * Create an instance of a closeable subject.
 	 */
-	public static <E extends Exception, T extends ExceptionCloseable<E>> Enclosed<E, T>
-		of(T subject) {
+	public static <E extends Exception, T extends Closeable<E>> Enclosed<E, T> of(T subject) {
 		return from(subject, subject);
 	}
 
@@ -162,8 +158,8 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 	 * method is not executed.
 	 */
 	public static <E extends Exception, T, U extends T> Enclosed<E, T> of(U subject,
-		ExceptionConsumer<E, ? super U> closer) {
-		if (subject == null) return BasicUtil.uncheckedCast(EMPTY);
+		Consumer<E, ? super U> closer) {
+		if (subject == null) return BasicUtil.unchecked(EMPTY);
 		if (closer == null) return new Enclosed<>(subject, null);
 		return new Enclosed<>(subject, () -> closer.accept(subject));
 	}
@@ -187,7 +183,7 @@ public class Enclosed<E extends Exception, T> implements ExceptionCloseable<E> {
 		return new Enclosed<>(closeables, () -> CloseableUtil.closeReversed(closeables));
 	}
 
-	private Enclosed(T subject, ExceptionRunnable<E> closer) {
+	private Enclosed(T subject, Runnable<E> closer) {
 		this.ref = subject;
 		this.closer = closer;
 	}

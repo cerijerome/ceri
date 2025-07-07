@@ -2,7 +2,7 @@ package ceri.common.concurrent;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ceri.common.function.RuntimeCloseable;
+import ceri.common.function.Excepts.RuntimeCloseable;
 
 /**
  * A closable binary semaphore. Can be used to protect a long-running code block. Acquisition is

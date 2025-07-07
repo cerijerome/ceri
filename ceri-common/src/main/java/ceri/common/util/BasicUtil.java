@@ -3,9 +3,7 @@
  */
 package ceri.common.util;
 
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.ExceptionRunnable;
-import ceri.common.function.ExceptionSupplier;
+import ceri.common.function.Excepts.Supplier;
 
 /**
  * Basic utility methods.
@@ -26,65 +24,71 @@ public class BasicUtil {
 	 * a runtime cast exception.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T uncheckedCast(Object o) {
+	public static <T> T unchecked(Object o) {
 		return (T) o;
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <T> T defaultValue(T value, T def) {
+	public static <T> T def(T value, T def) {
 		return value != null ? value : def;
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception, T> T defaultValue(T value,
-		ExceptionSupplier<E, ? extends T> defSupplier) throws E {
+	public static <E extends Exception, T> T def(T value, Supplier<E, ? extends T> defSupplier)
+		throws E {
 		return value != null ? value : defSupplier.get();
 	}
 
 	/**
-	 * Supplies a value based on condition.
+	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception, T> T conditionalGet(boolean condition,
-		ExceptionSupplier<E, ? extends T> trueSupplier) throws E {
-		return conditionalGet(condition, trueSupplier, null);
+	public static <E extends Exception, T> T defGet(Supplier<E, ? extends T> supplier,
+		Supplier<E, ? extends T> defSupplier) throws E {
+		return def(supplier.get(), defSupplier);
 	}
 
 	/**
 	 * Supplies a value based on condition.
 	 */
-	public static <E extends Exception, T> T conditionalGet(boolean condition,
-		ExceptionSupplier<E, ? extends T> trueSupplier,
-		ExceptionSupplier<E, ? extends T> falseSupplier) throws E {
-		var supplier = conditional(condition, trueSupplier, falseSupplier);
+	public static <E extends Exception, T> T ternaryGet(boolean condition,
+		Supplier<E, ? extends T> trueSupplier) throws E {
+		return ternaryGet(condition, trueSupplier, null);
+	}
+
+	/**
+	 * Supplies a value based on condition.
+	 */
+	public static <E extends Exception, T> T ternaryGet(boolean condition,
+		Supplier<E, ? extends T> trueSupplier, Supplier<E, ? extends T> falseSupplier) throws E {
+		var supplier = ternary(condition, trueSupplier, falseSupplier);
 		return supplier == null ? null : supplier.get();
 	}
 
 	/**
 	 * Supplies a value based on condition, which may be null.
 	 */
-	public static <E extends Exception, T> T conditionalGet(Boolean condition,
-		ExceptionSupplier<E, ? extends T> trueSupplier,
-		ExceptionSupplier<E, ? extends T> falseSupplier,
-		ExceptionSupplier<E, ? extends T> nullSupplier) throws E {
-		var supplier = conditional(condition, trueSupplier, falseSupplier, nullSupplier);
+	public static <E extends Exception, T> T ternaryGet(Boolean condition,
+		Supplier<E, ? extends T> trueSupplier, Supplier<E, ? extends T> falseSupplier,
+		Supplier<E, ? extends T> nullSupplier) throws E {
+		var supplier = ternary(condition, trueSupplier, falseSupplier, nullSupplier);
 		return supplier == null ? null : supplier.get();
 	}
 
 	/**
 	 * Returns a value based on condition.
 	 */
-	public static <T> T conditional(boolean condition, T trueValue, T falseValue) {
+	public static <T> T ternary(boolean condition, T trueValue, T falseValue) {
 		return condition ? trueValue : falseValue;
 	}
 
 	/**
 	 * Returns a value based on condition, which may be null.
 	 */
-	public static <T> T conditional(Boolean condition, T trueValue, T falseValue, T nullValue) {
+	public static <T> T ternary(Boolean condition, T trueValue, T falseValue, T nullValue) {
 		if (condition == null) return nullValue;
 		return condition ? trueValue : falseValue;
 	}
@@ -92,15 +96,14 @@ public class BasicUtil {
 	/**
 	 * Returns a value based on condition.
 	 */
-	public static int conditionalInt(boolean condition, int trueValue, int falseValue) {
+	public static int ternaryInt(boolean condition, int trueValue, int falseValue) {
 		return condition ? trueValue : falseValue;
 	}
 
 	/**
 	 * Returns a value based on condition, which may be null.
 	 */
-	public static int conditionalInt(Boolean condition, int trueValue, int falseValue,
-		int nullValue) {
+	public static int ternaryInt(Boolean condition, int trueValue, int falseValue, int nullValue) {
 		if (condition == null) return nullValue;
 		return condition ? trueValue : falseValue;
 	}
@@ -108,31 +111,16 @@ public class BasicUtil {
 	/**
 	 * Returns a value based on condition.
 	 */
-	public static long conditionalLong(boolean condition, long trueValue, long falseValue) {
+	public static long ternaryLong(boolean condition, long trueValue, long falseValue) {
 		return condition ? trueValue : falseValue;
 	}
 
 	/**
 	 * Returns a value based on condition, which may be null.
 	 */
-	public static long conditionalLong(Boolean condition, long trueValue, long falseValue,
+	public static long ternaryLong(Boolean condition, long trueValue, long falseValue,
 		long nullValue) {
 		if (condition == null) return nullValue;
 		return condition ? trueValue : falseValue;
 	}
-
-	/**
-	 * Execute runnable and convert non-runtime exceptions to runtime.
-	 */
-	public static void runtimeRun(ExceptionRunnable<?> runnable) {
-		ExceptionAdapter.RUNTIME.run(runnable);
-	}
-
-	/**
-	 * Execute callable and convert non-runtime exceptions to runtime.
-	 */
-	public static <T> T runtimeCall(ExceptionSupplier<?, T> callable) {
-		return ExceptionAdapter.RUNTIME.get(callable);
-	}
-
 }

@@ -3,10 +3,7 @@ package ceri.common.exception;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import ceri.common.function.ExceptionRunnable;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
@@ -14,90 +11,21 @@ import ceri.common.util.BasicUtil;
  * Exception support and convenience methods.
  */
 public class ExceptionUtil {
-
 	private ExceptionUtil() {}
-
-	/**
-	 * A stub that can be used for shorter generic type declarations.
-	 */
-	@SuppressWarnings("serial")
-	public static class Rte extends RuntimeException {}
 
 	/**
 	 * Call to generate an IllegalStateException. Use for lambdas that shouldn't be called.
 	 */
 	public static void doNotCall(Object... args) {
 		BasicUtil.unused(args);
-		throw new IllegalStateException();
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static IllegalArgumentException illegalArg(String format, Object... args) {
-		return illegalArg((Throwable) null, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message and cause.
-	 */
-	public static IllegalArgumentException illegalArg(Throwable cause, String format,
-		Object... args) {
-		return exceptionf(IllegalArgumentException::new, cause, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static IllegalStateException illegalState(String format, Object... args) {
-		return illegalState((Throwable) null, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message and cause.
-	 */
-	public static IllegalStateException illegalState(Throwable cause, String format,
-		Object... args) {
-		return exceptionf(IllegalStateException::new, cause, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static UnsupportedOperationException unsupportedOp(String format, Object... args) {
-		return unsupportedOp((Throwable) null, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message and cause.
-	 */
-	public static UnsupportedOperationException unsupportedOp(Throwable cause, String format,
-		Object... args) {
-		return exceptionf(UnsupportedOperationException::new, cause, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static <E extends Exception> E exceptionf(Function<String, E> fn, String format,
-		Object... args) {
-		return exceptionf(fn, null, format, args);
-	}
-
-	/**
-	 * Creates an exception with formatted message.
-	 */
-	public static <E extends Exception> E exceptionf(Function<String, E> fn, Throwable cause,
-		String format, Object... args) {
-		String message = StringUtil.format(format, args);
-		return initCause(fn.apply(message), cause);
+		throw new IllegalStateException("Unexpected call");
 	}
 
 	/**
 	 * Use to avoid declaring a thrown checked exception.
 	 */
 	public static <E extends Throwable> void throwUnchecked(Throwable e) throws E {
-		throw BasicUtil.<E>uncheckedCast(e);
+		throw BasicUtil.<E>unchecked(e);
 	}
 
 	/**
@@ -197,28 +125,6 @@ public class ExceptionUtil {
 	 */
 	public static <E extends Exception> void throwIfType(Class<E> exceptionCls, Throwable t)
 		throws E {
-		if (exceptionCls.isInstance(t)) throw BasicUtil.<E>uncheckedCast(t);
-	}
-
-	/**
-	 * Execute the runnable; any unexpected error is wrapped as runtime.
-	 */
-	public static void shouldNotThrow(ExceptionRunnable<? extends Exception> runnable) {
-		try {
-			runnable.run();
-		} catch (Exception e) {
-			throw new IllegalStateException("Should not happen", e);
-		}
-	}
-
-	/**
-	 * Execute the callable and return result; any unexpected error is wrapped as runtime.
-	 */
-	public static <T> T shouldNotThrow(Callable<T> callable) {
-		try {
-			return callable.call();
-		} catch (Exception e) {
-			throw new IllegalStateException("Should not happen", e);
-		}
+		if (exceptionCls.isInstance(t)) throw BasicUtil.<E>unchecked(t);
 	}
 }

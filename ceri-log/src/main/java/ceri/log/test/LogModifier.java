@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.ExceptionRunnable;
+import ceri.common.function.Excepts.Runnable;
 
 /**
  * Use to temporarily change log level during tests, to prevent noise.
@@ -23,11 +23,11 @@ public class LogModifier implements AutoCloseable {
 	public static void set(Level level, Class<?>... loggers) {
 		of(level, loggers);
 	}
-	
+
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
+	public static <E extends Exception> void run(Runnable<E> runnable, Level level,
 		Class<?>... loggers) throws E {
 		try (var _ = of(level, loggers)) {
 			runnable.run();
@@ -37,7 +37,7 @@ public class LogModifier implements AutoCloseable {
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(ExceptionRunnable<E> runnable, Level level,
+	public static <E extends Exception> void run(Runnable<E> runnable, Level level,
 		String... loggers) throws E {
 		try (var _ = of(level, loggers)) {
 			runnable.run();

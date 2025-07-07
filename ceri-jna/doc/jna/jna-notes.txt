@@ -80,8 +80,9 @@ Projects
 - libftdi
 - spidev
 - i2cdev
-- gpio
-- v4l2/media
+- linux gpio
+- linux v4l2
+- linux media
 - pigpio
 
 
