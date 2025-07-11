@@ -1,7 +1,7 @@
 package ceri.serial.i2c;
 
 import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.collection.StreamUtil.toSet;
+import static ceri.common.stream.StreamUtil.toSet;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;

@@ -2,12 +2,13 @@ package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.jna.clib.jna.CException;
 
 public interface SmBus {
 	/** A stateless, no-op instance. */
 	SmBus NULL = new Null() {};
-	
+
 	void writeQuick(boolean on) throws IOException;
 
 	int readByte() throws IOException;
@@ -108,7 +109,7 @@ public interface SmBus {
 
 		@Override
 		default byte[] readBlockData(int command) throws CException {
-			return ArrayUtil.EMPTY_BYTE;
+			return Empty.BYTES;
 		}
 
 		@Override
@@ -127,7 +128,7 @@ public interface SmBus {
 		@Override
 		default byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 			throws CException {
-			return ArrayUtil.EMPTY_BYTE;
+			return Empty.BYTES;
 		}
 	}
 }

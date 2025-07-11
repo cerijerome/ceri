@@ -1,6 +1,5 @@
 package ceri.serial.spi;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.common.validation.ValidationUtil.validateRange;
@@ -9,6 +8,7 @@ import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.collection.EnumUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
@@ -48,7 +48,7 @@ public class SpiTransfer {
 	}
 
 	public byte[] read() {
-		if (in().capacity() == 0) return EMPTY_BYTE;
+		if (in().capacity() == 0) return Empty.BYTES;
 		byte[] buffer = new byte[size()];
 		in().clear().get(buffer);
 		return buffer;
