@@ -1,14 +1,14 @@
 package ceri.common.score;
 
-import static ceri.common.collection.StreamUtil.toList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 import ceri.common.comparator.Comparators;
+import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Predicates;
 import ceri.common.score.Scorer.Result;
+import ceri.common.stream.Streams;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -39,17 +39,18 @@ public class Scorers {
 		return results(scorer, Arrays.asList(ts));
 	}
 
-	public static <T> List<Result<T>> results(Scorer<? super T> scorer,
-		Collection<? extends T> ts) {
-		return toList(ts.stream().map((T t) -> new Result<>(t, scorer.score(t))).sorted());
+	public static <T> List<Result<T>> results(Scorer<? super T> scorer, Iterable<T> ts) {
+		return Streams.sortedList(Streams.from(ts).map(t -> new Result<>(t, scorer.score(t))));
 	}
 
-	public static <T> Predicate<T> filter(Scorer<T> scorer, Predicate<Double> filter) {
-		return (t -> filter.test(scorer.score(t)));
+	public static <E extends Exception, T> Predicate<E, T> filter(Scorer<? super T> scorer,
+		Predicate<? extends E, ? super Double> filter) {
+		return Predicates.testing(scorer::score, filter);
 	}
 
-	public static <T> Predicate<T> filter(Scorer<T> scorer, Double min, Double max) {
-		return filter(scorer, Predicates.all(Predicates.gte(min), Predicates.lte(max)));
+	public static <T> Predicate<RuntimeException, T> filter(Scorer<? super T> scorer, Double min,
+		Double max) {
+		return filter(scorer, Predicates.range(min, max));
 	}
 
 	/**

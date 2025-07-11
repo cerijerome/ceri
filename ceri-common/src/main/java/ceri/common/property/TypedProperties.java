@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
@@ -93,7 +93,7 @@ public class TypedProperties {
 	 */
 	private TypedProperties(PropertySource properties, String... prefix) {
 		this.properties = properties;
-		if (prefix == null) prefix = ArrayUtil.EMPTY_STRING;
+		if (prefix == null) prefix = Empty.STRINGS;
 		this.prefix = separator().join(prefix);
 	}
 

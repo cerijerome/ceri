@@ -1,13 +1,19 @@
 package ceri.common.function;
 
+import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts.Supplier;
+
 /**
  * Adapts various function types.
  */
 public class Adapters {
 	private Adapters() {}
 
-	public static <E extends Exception, T> Excepts.Supplier<E, T>
-		runnableAsSupplier(Excepts.Runnable<E> runnable, T t) {
+	/**
+	 * Adapts a runnable type to supplier with fixed value.
+	 */
+	public static <E extends Exception, T> Supplier<E, T> supplier(Runnable<? extends E> runnable,
+		T t) {
 		return () -> {
 			runnable.run();
 			return t;

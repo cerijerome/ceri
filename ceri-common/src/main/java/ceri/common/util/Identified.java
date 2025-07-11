@@ -1,9 +1,9 @@
 package ceri.common.util;
 
 import java.util.Comparator;
-import java.util.function.IntPredicate;
-import java.util.function.LongPredicate;
-import java.util.function.Predicate;
+import ceri.common.function.Excepts.IntPredicate;
+import ceri.common.function.Excepts.LongPredicate;
+import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Predicates;
 
 /**
@@ -38,7 +38,7 @@ public class Identified {
 		/**
 		 * A predicate by id.
 		 */
-		static Predicate<ByInt> by(IntPredicate predicate) {
+		static <E extends Exception> Predicate<E, ByInt> by(IntPredicate<E> predicate) {
 			return Predicates.testingInt(ByInt::id, predicate);
 		}
 	}
@@ -69,7 +69,7 @@ public class Identified {
 		/**
 		 * A predicate by id.
 		 */
-		static Predicate<ByLong> by(LongPredicate predicate) {
+		static <E extends Exception> Predicate<E, ByLong> by(LongPredicate<E> predicate) {
 			return Predicates.testingLong(ByLong::id, predicate);
 		}
 	}

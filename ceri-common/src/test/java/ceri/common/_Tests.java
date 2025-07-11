@@ -18,10 +18,10 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.IndexRangesBehavior.class, //
 	ceri.common.collection.IndexedBehavior.class, //
 	ceri.common.collection.IndexerBehavior.class, //
-	ceri.common.collection.IteratorsTest.class, //
+	ceri.common.collection.IteratorUtilTest.class, //
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //
-	ceri.common.collection.StreamUtilTest.class, //
+	ceri.common.stream.StreamUtilTest.class, //
 	ceri.common.collection.SubArrayBehavior.class, //
 	ceri.common.collection.TimeQueueBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
@@ -224,6 +224,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.sql.SqlFormatterBehavior.class, //
 	ceri.common.sql.SqlStatementBehavior.class, //
 	ceri.common.sql.SqlUtilTest.class, //
+	// stream
+	ceri.common.stream.StreamBehavior.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //

@@ -31,7 +31,7 @@ public class TreeIterator<T extends Parent<T>> implements Iterator<T> {
 
 	@Override
 	public T next() {
-		Iterator<T> iterator = iterators.getLast();
+		var iterator = iterators.getLast();
 		T next = iterator.next();
 		if (!next.children().isEmpty()) {
 			iterator = next.children().iterator();

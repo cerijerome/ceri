@@ -1,11 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_INT;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -31,7 +31,7 @@ public abstract class IntArray implements IntProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends IntArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(EMPTY_INT, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Empty.INTS, 0, 0);
 
 		public static Immutable copyOf(int[] array) {
 			return copyOf(array, 0);
@@ -100,7 +100,7 @@ public abstract class IntArray implements IntProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends IntArray implements IntAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(EMPTY_INT, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Empty.INTS, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new int[length]);
@@ -440,7 +440,7 @@ public abstract class IntArray implements IntProvider {
 
 	@Override
 	public int[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_INT;
+		if (length == 0) return Empty.INTS;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}

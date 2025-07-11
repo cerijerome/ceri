@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
@@ -11,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -36,7 +36,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends ByteArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(EMPTY_BYTE, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Empty.BYTES, 0, 0);
 
 		public static Immutable copyOf(byte[] array) {
 			return copyOf(array, 0);
@@ -109,7 +109,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends ByteArray implements ByteAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(EMPTY_BYTE, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Empty.BYTES, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new byte[length]);
@@ -515,7 +515,7 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public byte[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}

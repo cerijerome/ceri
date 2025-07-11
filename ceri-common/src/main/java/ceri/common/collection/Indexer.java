@@ -10,7 +10,7 @@ import java.util.function.ToIntFunction;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 

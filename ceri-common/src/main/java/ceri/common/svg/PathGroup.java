@@ -7,10 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.ToString;
 
 public class PathGroup implements Path<PathGroup> {

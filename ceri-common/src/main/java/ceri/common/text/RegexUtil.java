@@ -1,13 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.toList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,8 +13,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Excepts;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.Function;
+import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.function.Functions.Predicate;
 import ceri.common.property.Parser;
 
 /**
@@ -219,7 +220,7 @@ public class RegexUtil {
 	 * Allows for-each loop over match results.
 	 */
 	public static Iterable<MatchResult> forEach(Pattern pattern, String s) {
-		return CollectionUtil.iterable(pattern.matcher(s).results().iterator());
+		return IteratorUtil.iterable(pattern.matcher(s).results().iterator());
 	}
 
 	/**
@@ -362,7 +363,7 @@ public class RegexUtil {
 	public static Map<String, String> namedGroups(Matcher m) {
 		List<String> names = groupNames(m);
 		if (names.isEmpty()) return Collections.emptyMap();
-		return CollectionUtil.toMap(Function.identity(), name -> namedGroup(m, name), names);
+		return CollectionUtil.toMap(s -> s, name -> namedGroup(m, name), names);
 	}
 
 	/**

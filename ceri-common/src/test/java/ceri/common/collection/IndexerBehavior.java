@@ -9,7 +9,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.function.ObjIntConsumer;
 import org.junit.Test;
 import ceri.common.data.IntArray;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.ObjIntFunction;
 
 public class IndexerBehavior {
 

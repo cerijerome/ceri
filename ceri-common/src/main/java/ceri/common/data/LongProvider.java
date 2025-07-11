@@ -5,7 +5,8 @@ import java.util.function.LongFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.Iterators;
+import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Fluent;
 import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
@@ -161,7 +162,7 @@ public interface LongProvider extends Iterable<Long> {
 	 */
 	@Override
 	default PrimitiveIterator.OfLong iterator() {
-		return Iterators.longIndexed(length(), this::getLong);
+		return IteratorUtil.longIndexed(length(), this::getLong);
 	}
 
 	/**
@@ -218,7 +219,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Returns a copy of provided longs from index.
 	 */
 	default long[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_LONG;
+		if (length == 0) return Empty.LONGS;
 		ValidationUtil.validateSlice(length(), index, length);
 		long[] copy = new long[length];
 		copyTo(index, copy, 0, length);

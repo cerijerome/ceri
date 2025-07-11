@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.Iterators.spliterator;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -43,7 +42,7 @@ public class WrappedStream<E extends Exception, T> implements AutoCloseable {
 		stream(Excepts.Predicate<E, Consumer<? super T>> tryAdvance) {
 		var w = FunctionWrapper.<E>of();
 		Predicate<Consumer<? super T>> wrapped = c -> w.wrap.getBool(() -> tryAdvance.test(c));
-		var spliterator = spliterator(wrapped, Long.MAX_VALUE, Spliterator.ORDERED);
+		var spliterator = IteratorUtil.spliterator(wrapped, Long.MAX_VALUE, Spliterator.ORDERED);
 		return new WrappedStream<>(w, StreamSupport.stream(spliterator, false));
 	}
 

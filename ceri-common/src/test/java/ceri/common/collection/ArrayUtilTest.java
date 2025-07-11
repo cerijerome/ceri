@@ -1,8 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.collection.ArrayUtil.chars;
-import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -18,6 +15,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.junit.Test;
+import ceri.common.collection.ArrayUtil.Empty;
 
 public class ArrayUtilTest {
 
@@ -209,22 +207,22 @@ public class ArrayUtilTest {
 	@Test
 	public void testIndexOfForByteArray() {
 		byte[] array = { 1, -1, 1, 1, -1, 1, 1 };
-		assertEquals(ArrayUtil.indexOf(array, 0, bytes(-1, 1, 1)), 1);
-		assertEquals(ArrayUtil.indexOf(array, 5, bytes(-1, 1, 1)), -1);
+		assertEquals(ArrayUtil.indexOf(array, 0, ArrayUtil.bytes(-1, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, ArrayUtil.bytes(-1, 1, 1)), -1);
 	}
 
 	@Test
 	public void testIndexOfForCharArray() {
 		char[] array = { 1, 0xffff, 1, 1, 0xffff, 1, 1 };
-		assertEquals(ArrayUtil.indexOf(array, 0, chars(0xffff, 1, 1)), 1);
-		assertEquals(ArrayUtil.indexOf(array, 5, chars(0xffff, 1, 1)), -1);
+		assertEquals(ArrayUtil.indexOf(array, 0, ArrayUtil.chars(0xffff, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, ArrayUtil.chars(0xffff, 1, 1)), -1);
 	}
 
 	@Test
 	public void testIndexOfForShortArray() {
 		short[] array = { 1, -1, 1, 1, -1, 1, 1 };
-		assertEquals(ArrayUtil.indexOf(array, 0, shorts(-1, 1, 1)), 1);
-		assertEquals(ArrayUtil.indexOf(array, 5, shorts(-1, 1, 1)), -1);
+		assertEquals(ArrayUtil.indexOf(array, 0, ArrayUtil.shorts(-1, 1, 1)), 1);
+		assertEquals(ArrayUtil.indexOf(array, 5, ArrayUtil.shorts(-1, 1, 1)), -1);
 	}
 
 	@Test
@@ -276,22 +274,22 @@ public class ArrayUtilTest {
 	@Test
 	public void testLastIndexOfForByteArray() {
 		byte[] array = { 1, -1, 1, 1, -1, 1, 1 };
-		assertEquals(ArrayUtil.lastIndexOf(array, 0, bytes(-1, 1, 1)), 4);
-		assertEquals(ArrayUtil.lastIndexOf(array, 5, bytes(-1, 1, 1)), -1);
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, ArrayUtil.bytes(-1, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, ArrayUtil.bytes(-1, 1, 1)), -1);
 	}
 
 	@Test
 	public void testLastIndexOfForCharArray() {
 		char[] array = { 1, 0xffff, 1, 1, 0xffff, 1, 1 };
-		assertEquals(ArrayUtil.lastIndexOf(array, 0, chars(0xffff, 1, 1)), 4);
-		assertEquals(ArrayUtil.lastIndexOf(array, 5, chars(0xffff, 1, 1)), -1);
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, ArrayUtil.chars(0xffff, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, ArrayUtil.chars(0xffff, 1, 1)), -1);
 	}
 
 	@Test
 	public void testLastIndexOfForShortArray() {
 		short[] array = { 1, -1, 1, 1, -1, 1, 1 };
-		assertEquals(ArrayUtil.lastIndexOf(array, 0, shorts(-1, 1, 1)), 4);
-		assertEquals(ArrayUtil.lastIndexOf(array, 5, shorts(-1, 1, 1)), -1);
+		assertEquals(ArrayUtil.lastIndexOf(array, 0, ArrayUtil.shorts(-1, 1, 1)), 4);
+		assertEquals(ArrayUtil.lastIndexOf(array, 5, ArrayUtil.shorts(-1, 1, 1)), -1);
 	}
 
 	@Test
@@ -503,10 +501,10 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testEmptyArrays() {
-		assertArray(ArrayUtil.EMPTY_BOOLEAN);
-		assertArray(ArrayUtil.empty(String.class));
-		assertArray(ArrayUtil.empty(Object.class));
-		assertArray(ArrayUtil.empty(Date.class));
+		assertArray(ArrayUtil.Empty.BOOLS);
+		assertArray(ArrayUtil.ofEmpty(String.class));
+		assertArray(ArrayUtil.ofEmpty(Object.class));
+		assertArray(ArrayUtil.ofEmpty(Date.class));
 	}
 
 	@Test
@@ -634,14 +632,14 @@ public class ArrayUtilTest {
 			Float.MAX_VALUE);
 		assertEquals(ArrayUtil.last(ArrayUtil.doubles(Double.MIN_VALUE, Double.MAX_VALUE)),
 			Double.MAX_VALUE);
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BOOLEAN));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_CHAR));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_BYTE));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_SHORT));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_INT));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_LONG));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_FLOAT));
-		assertThrown(() -> ArrayUtil.last(ArrayUtil.EMPTY_DOUBLE));
+		assertThrown(() -> ArrayUtil.last(Empty.BOOLS));
+		assertThrown(() -> ArrayUtil.last(Empty.CHARS));
+		assertThrown(() -> ArrayUtil.last(Empty.BYTES));
+		assertThrown(() -> ArrayUtil.last(Empty.SHORT));
+		assertThrown(() -> ArrayUtil.last(Empty.INTS));
+		assertThrown(() -> ArrayUtil.last(Empty.LONGS));
+		assertThrown(() -> ArrayUtil.last(Empty.FLOATS));
+		assertThrown(() -> ArrayUtil.last(Empty.DOUBLES));
 	}
 
 	@Test

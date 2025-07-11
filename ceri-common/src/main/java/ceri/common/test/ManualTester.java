@@ -29,7 +29,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.Listenable;
 import ceri.common.function.Excepts;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;

@@ -17,18 +17,16 @@ public interface Fluent<T> {
 	}
 
 	default <E extends Exception> T apply(Consumer<E, ? super T> consumer) throws E {
-		return apply(BasicUtil.<T>unchecked(this), consumer);
+		return apply(BasicUtil.unchecked(this), consumer);
 	}
 
 	default <E extends Exception, U> U map(Function<E, ? super T, U> fn) throws E {
 		Objects.requireNonNull(fn);
-		T typedThis = BasicUtil.unchecked(this);
-		return fn.apply(typedThis);
+		return fn.apply(BasicUtil.unchecked(this));
 	}
 
 	default <E extends Exception> int mapToInt(ToIntFunction<E, ? super T> fn) throws E {
 		Objects.requireNonNull(fn);
-		T typedThis = BasicUtil.unchecked(this);
-		return fn.applyAsInt(typedThis);
+		return fn.applyAsInt(BasicUtil.unchecked(this));
 	}
 }

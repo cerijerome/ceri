@@ -12,8 +12,8 @@ import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import ceri.common.collection.EnumUtil;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 

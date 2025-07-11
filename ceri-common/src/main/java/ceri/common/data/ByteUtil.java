@@ -18,11 +18,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.Iterators;
-import ceri.common.collection.StreamUtil;
+import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -57,7 +58,7 @@ public class ByteUtil {
 	 */
 	public static Iterator<Boolean> bitIterator(boolean highBit, ByteProvider bytes) {
 		IntUnaryOperator bitFn = highBit ? i -> Byte.SIZE - i - 1 : i -> i;
-		return Iterators.indexed(bytes.length() * Byte.SIZE, i -> {
+		return IteratorUtil.indexed(bytes.length() * Byte.SIZE, i -> {
 			int value = bytes.getByte(i / Byte.SIZE);
 			int bit = bitFn.applyAsInt(i % Byte.SIZE);
 			return bit(value, bit);
@@ -206,7 +207,7 @@ public class ByteUtil {
 	 * Creates a byte array of given value.
 	 */
 	public static byte[] fill(int length, int value) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		byte[] bytes = new byte[length];
 		Arrays.fill(bytes, (byte) value);
 		return bytes;
@@ -216,7 +217,7 @@ public class ByteUtil {
 	 * Copies bytes from the buffer, and moves the buffer position after the read.
 	 */
 	public static byte[] readFrom(ByteBuffer buffer, int pos, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		byte[] bytes = new byte[length];
 		readFrom(buffer, pos, bytes);
 		return bytes;
@@ -634,7 +635,7 @@ public class ByteUtil {
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(long value) {
-		if (value == 0L) return ArrayUtil.EMPTY_INT;
+		if (value == 0L) return Empty.INTS;
 		int[] bits = new int[Long.bitCount(value)];
 		for (int i = Long.numberOfTrailingZeros(value), j = 0; j < bits.length; i++)
 			if (bit(value, i)) bits[j++] = i;

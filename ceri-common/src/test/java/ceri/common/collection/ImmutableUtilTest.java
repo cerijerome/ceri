@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.stream.StreamUtil;
 import ceri.common.util.BasicUtil;
 
 public class ImmutableUtilTest {

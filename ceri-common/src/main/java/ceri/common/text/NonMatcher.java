@@ -4,8 +4,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import ceri.common.collection.StreamUtil;
 import ceri.common.concurrent.Lazy;
+import ceri.common.stream.StreamUtil;
 
 /**
  * Similar to {@link java.util.regex.Matcher}, but finds sequences that do not match a pattern.

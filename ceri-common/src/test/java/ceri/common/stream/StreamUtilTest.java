@@ -1,4 +1,4 @@
-package ceri.common.collection;
+package ceri.common.stream;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
@@ -30,7 +30,10 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.function.Excepts;
+import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.Indexed;
+import ceri.common.collection.MapPopulator;
+import ceri.common.collection.WrappedStream;
 import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil.Ioe;
@@ -51,38 +54,6 @@ public class StreamUtilTest {
 	public void testBadCombiner() {
 		assertThrown(() -> StreamUtil.badCombiner().accept(null, null));
 		assertThrown(() -> StreamUtil.badCombiner().accept(1, 2));
-	}
-
-	@Test
-	public void testCloseableApply() throws Ioe {
-		Excepts.Function<Ioe, Integer, Integer> iFn = E.function;
-		Excepts.Function<Ioe, Stream<Integer>, Integer> fn = s -> iFn.apply(s.findFirst().get());
-		StreamUtil.closeableApply(Stream.of(2, 3, 4), fn);
-		assertThrown(() -> StreamUtil.closeableApply(Stream.of(1, 2, 3), fn));
-	}
-
-	@Test
-	public void testCloseableApplyAsInt() throws Ioe {
-		Excepts.IntOperator<Ioe> intOp = E.function::apply;
-		Excepts.ToIntFunction<Ioe, Stream<Integer>> toIntFn =
-			s -> intOp.applyAsInt(s.findFirst().get());
-		StreamUtil.closeableApplyAsInt(Stream.of(2, 3, 4), toIntFn);
-		assertThrown(() -> StreamUtil.closeableApplyAsInt(Stream.of(1, 2, 3), toIntFn));
-	}
-
-	@Test
-	public void testCloseableAccept() throws Ioe {
-		Excepts.Consumer<Ioe, Integer> consumer = E.consumer::accept;
-		Excepts.Consumer<Ioe, Stream<Integer>> streamConsumer =
-			s -> consumer.accept(s.findFirst().get());
-		StreamUtil.closeableAccept(Stream.of(2, 3, 4), streamConsumer);
-		assertThrown(() -> StreamUtil.closeableAccept(Stream.of(1, 2, 3), streamConsumer));
-	}
-
-	@Test
-	public void testCloseableForEach() throws Ioe {
-		StreamUtil.closeableForEach(Stream.of(2, 3, 4), E.consumer);
-		assertThrown(() -> StreamUtil.closeableForEach(Stream.of(2, 1), E.consumer));
 	}
 
 	@Test
@@ -231,25 +202,6 @@ public class StreamUtilTest {
 	public void testIsEmpty() {
 		assertTrue(StreamUtil.isEmpty(Stream.of()));
 		assertFalse(StreamUtil.isEmpty(Stream.of("test")));
-	}
-
-	@Test
-	public void testDistinctBy() {
-		assertStream(
-			StreamUtil.distinctByIdentity(Stream.of(new String("abc"), new String("def"),
-				new String("ghi"), new String("abc"), new String("def"))),
-			"abc", "def", "ghi", "abc", "def");
-	}
-
-	@Test
-	public void testDistinctByIdentity() {
-		String abc = "abc";
-		assertStream(StreamUtil.distinctByIdentity(Stream.of(abc, "def", "ghi", abc, "def")), "abc",
-			"def", "ghi");
-		assertStream(
-			StreamUtil.distinctByIdentity(Stream.of(new String("abc"), new String("def"),
-				new String("ghi"), new String("abc"), new String("def"))),
-			"abc", "def", "ghi", "abc", "def");
 	}
 
 	@Test

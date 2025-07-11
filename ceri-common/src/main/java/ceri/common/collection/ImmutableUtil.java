@@ -1,11 +1,7 @@
 package ceri.common.collection;
 
 import static ceri.common.collection.CollectionUtil.addAll;
-import static ceri.common.collection.CollectionUtil.listSupplier;
-import static ceri.common.collection.CollectionUtil.mapSupplier;
-import static ceri.common.collection.CollectionUtil.navigableMapSupplier;
 import static ceri.common.collection.CollectionUtil.putAll;
-import static ceri.common.collection.CollectionUtil.setSupplier;
 import static java.util.function.Function.identity;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,12 +22,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.stream.StreamUtil;
 import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods for creating immutable objects.
  */
 public class ImmutableUtil {
+	private static final CollectionSupplier supplier = CollectionSupplier.DEFAULT;
 
 	private ImmutableUtil() {}
 
@@ -39,14 +37,14 @@ public class ImmutableUtil {
 	 * Creates an immutable iterable wrapper that returns an immutable iterator.
 	 */
 	public static <T> Iterable<T> iterable(final Iterable<T> iterable) {
-		return () -> iterator(iterable.iterator());
+		return IteratorUtil.iterable(iterator(iterable.iterator()));
 	}
 
 	/**
 	 * Creates an immutable iterator wrapper.
 	 */
 	public static <T> Iterator<T> iterator(final Iterator<T> iterator) {
-		return new Iterator<>() {
+		return new Iterator<>() { // remove throws an exception by default
 			@Override
 			public boolean hasNext() {
 				return iterator.hasNext();
@@ -55,11 +53,6 @@ public class ImmutableUtil {
 			@Override
 			public T next() {
 				return iterator.next();
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException("Iterator is immutable.");
 			}
 		};
 	}
@@ -110,7 +103,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set) {
-		return copyAsSet(set, setSupplier());
+		return copyAsSet(set, supplier.<T>set());
 	}
 
 	/**
@@ -145,7 +138,7 @@ public class ImmutableUtil {
 	 * Copies a map of objects into an immutable LinkedHashMap.
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map) {
-		return copyAsMap(map, mapSupplier());
+		return copyAsMap(map, supplier.map());
 	}
 
 	/**
@@ -163,7 +156,7 @@ public class ImmutableUtil {
 	 * Copies a map of objects into an immutable Map.
 	 */
 	public static <K, V> NavigableMap<K, V> copyAsNavigableMap(Map<? extends K, ? extends V> map) {
-		return copyAsNavigableMap(map, navigableMapSupplier());
+		return copyAsNavigableMap(map, supplier.navMap());
 	}
 
 	/**
@@ -182,7 +175,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, Set<V>>
 		copyAsMapOfSets(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfSets(map, mapSupplier(), setSupplier());
+		return copyAsMapOfSets(map, supplier.map(), supplier.set());
 	}
 
 	/**
@@ -207,7 +200,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, List<V>>
 		copyAsMapOfLists(Map<? extends K, ? extends Collection<? extends V>> map) {
-		return copyAsMapOfLists(map, mapSupplier(), listSupplier());
+		return copyAsMapOfLists(map, supplier.map(), supplier.list());
 	}
 
 	/**
@@ -233,7 +226,7 @@ public class ImmutableUtil {
 	 */
 	public static <K1, K2, V> Map<K1, Map<K2, V>>
 		copyAsMapOfMaps(Map<? extends K1, ? extends Map<? extends K2, ? extends V>> map) {
-		return copyAsMapOfMaps(map, mapSupplier(), mapSupplier());
+		return copyAsMapOfMaps(map, supplier.map(), supplier.map());
 	}
 
 	/**
@@ -258,7 +251,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> copyAsList(Collection<? extends T> collection) {
-		return copyAsList(collection, listSupplier());
+		return copyAsList(collection, supplier.list());
 	}
 
 	/**
@@ -277,7 +270,7 @@ public class ImmutableUtil {
 	 * Reverses a collection of objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> reverseAsList(Collection<? extends T> collection) {
-		return reverseAsList(collection, listSupplier());
+		return reverseAsList(collection, supplier.list());
 	}
 
 	/**
@@ -297,7 +290,7 @@ public class ImmutableUtil {
 	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
 	 */
 	public static <K, V> Map<K, Set<V>> asMapOfSets(Map<K, ? extends Set<V>> map) {
-		return asMapOfSets(map, mapSupplier());
+		return asMapOfSets(map, supplier.map());
 	}
 
 	/**
@@ -314,7 +307,7 @@ public class ImmutableUtil {
 	 * Copies a map of collections into an immutable map, wrapping each collection as unmodifiable.
 	 */
 	public static <K, V> Map<K, List<V>> asMapOfLists(Map<K, ? extends List<V>> map) {
-		return asMapOfLists(map, mapSupplier());
+		return asMapOfLists(map, supplier.map());
 	}
 
 	/**
@@ -331,7 +324,7 @@ public class ImmutableUtil {
 	 * Copies a map of sub-maps into an immutable map, wrapping each sub-map as unmodifiable.
 	 */
 	public static <K1, K2, V> Map<K1, Map<K2, V>> asMapOfMaps(Map<K1, ? extends Map<K2, V>> map) {
-		return asMapOfMaps(map, mapSupplier());
+		return asMapOfMaps(map, supplier.map());
 	}
 
 	/**
@@ -348,7 +341,7 @@ public class ImmutableUtil {
 	 * Collects a objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Iterable<T> iterable) {
-		return collectAsSet(iterable, setSupplier());
+		return collectAsSet(iterable, supplier.set());
 	}
 
 	/**
@@ -363,7 +356,7 @@ public class ImmutableUtil {
 	 * Collects a objects into an immutable ArrayList.
 	 */
 	public static <T> List<T> collectAsList(Iterable<T> iterable) {
-		return collectAsList(iterable, listSupplier());
+		return collectAsList(iterable, supplier.list());
 	}
 
 	/**
@@ -378,7 +371,7 @@ public class ImmutableUtil {
 	 * Collects a stream of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> collectAsSet(Stream<T> stream) {
-		Collector<T, ?, Set<T>> collector = Collectors.toCollection(setSupplier());
+		Collector<T, ?, Set<T>> collector = Collectors.toCollection(supplier.set());
 		return Collections.unmodifiableSet(stream.collect(collector));
 	}
 
@@ -448,7 +441,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(T... array) {
-		return asList(listSupplier(), array);
+		return asList(supplier.list(), array);
 	}
 
 	/**
@@ -467,7 +460,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
-		return asSet(setSupplier(), array);
+		return asSet(supplier.set(), array);
 	}
 
 	/**
@@ -486,7 +479,7 @@ public class ImmutableUtil {
 	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K key, V value) {
-		return asMap(mapSupplier(), key, value);
+		return asMap(supplier.map(), key, value);
 	}
 
 	/**
@@ -504,7 +497,7 @@ public class ImmutableUtil {
 	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1) {
-		return asMap(mapSupplier(), k0, v0, k1, v1);
+		return asMap(supplier.map(), k0, v0, k1, v1);
 	}
 
 	/**
@@ -523,7 +516,7 @@ public class ImmutableUtil {
 	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2) {
-		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2);
+		return asMap(supplier.map(), k0, v0, k1, v1, k2, v2);
 	}
 
 	/**
@@ -544,7 +537,7 @@ public class ImmutableUtil {
 	 * checked for duplicates.
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3) {
-		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3);
+		return asMap(supplier.map(), k0, v0, k1, v1, k2, v2, k3, v3);
 	}
 
 	/**
@@ -567,7 +560,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4,
 		V v4) {
-		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4);
+		return asMap(supplier.map(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4);
 	}
 
 	/**
@@ -591,7 +584,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, V> asMap(K k0, V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4,
 		K k5, V v5) {
-		return asMap(mapSupplier(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
+		return asMap(supplier.map(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
 	}
 
 	/**
@@ -643,7 +636,7 @@ public class ImmutableUtil {
 
 	public static <F, T> NavigableSet<T> convertAsNavigableSet(Function<? super F, ? extends T> fn,
 		Iterable<F> fs) {
-		return convertAsNavigableSet(fn, fs, CollectionUtil.navigableSetSupplier());
+		return convertAsNavigableSet(fn, fs, supplier.navSet());
 	}
 
 	public static <F, T> NavigableSet<T> convertAsNavigableSet(Function<? super F, ? extends T> fn,
@@ -657,7 +650,7 @@ public class ImmutableUtil {
 	@SafeVarargs
 	public static <K, T> Map<K, T> convertAllAsMap(Function<? super T, ? extends K> keyFn,
 		T... ts) {
-		return convertAllAsMap(keyFn, mapSupplier(), ts);
+		return convertAllAsMap(keyFn, supplier.map(), ts);
 	}
 
 	@SafeVarargs
@@ -668,12 +661,12 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Collection<T> ts) {
-		return convertAsMap(keyFn, ts, mapSupplier());
+		return convertAsMap(keyFn, ts, supplier.map());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		BinaryOperator<T> merge, Collection<T> ts) {
-		return convertAsMap(keyFn, merge, ts, mapSupplier());
+		return convertAsMap(keyFn, merge, ts, supplier.map());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
@@ -688,12 +681,12 @@ public class ImmutableUtil {
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Stream<T> stream) {
-		return convertAsMap(keyFn, stream, mapSupplier());
+		return convertAsMap(keyFn, stream, supplier.map());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		BinaryOperator<T> merge, Stream<T> stream) {
-		return convertAsMap(keyFn, merge, stream, mapSupplier());
+		return convertAsMap(keyFn, merge, stream, supplier.map());
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
@@ -709,7 +702,7 @@ public class ImmutableUtil {
 	@SafeVarargs
 	public static <K, V, T> Map<K, V> convertAllAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, T... ts) {
-		return convertAllAsMap(keyFn, valueFn, mapSupplier(), ts);
+		return convertAllAsMap(keyFn, valueFn, supplier.map(), ts);
 	}
 
 	@SafeVarargs
@@ -726,7 +719,7 @@ public class ImmutableUtil {
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, BinaryOperator<V> merge,
 		Collection<T> collection) {
-		return convertAsMap(keyFn, valueFn, merge, collection, mapSupplier());
+		return convertAsMap(keyFn, valueFn, merge, collection, supplier.map());
 	}
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
@@ -743,12 +736,12 @@ public class ImmutableUtil {
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, Stream<T> stream) {
-		return convertAsMap(keyFn, valueFn, stream, mapSupplier());
+		return convertAsMap(keyFn, valueFn, stream, supplier.map());
 	}
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, BinaryOperator<V> merge, Stream<T> stream) {
-		return convertAsMap(keyFn, valueFn, merge, stream, mapSupplier());
+		return convertAsMap(keyFn, valueFn, merge, stream, supplier.map());
 	}
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
@@ -765,7 +758,7 @@ public class ImmutableUtil {
 	}
 
 	public static <K, V> Map<V, K> invert(Map<K, V> map) {
-		return invert(map, mapSupplier());
+		return invert(map, supplier.map());
 	}
 
 	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> mapSupplier) {
@@ -809,5 +802,4 @@ public class ImmutableUtil {
 		int end = last == null ? ts.length : last.ordinal() + 1;
 		return Set.of(Arrays.copyOfRange(ts, start, end));
 	}
-
 }

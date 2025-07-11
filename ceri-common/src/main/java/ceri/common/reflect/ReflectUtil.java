@@ -1,6 +1,5 @@
 package ceri.common.reflect;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_CLASS;
 import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import static ceri.common.text.StringUtil.NULL_STRING;
 import java.io.File;
@@ -21,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.BiConsumer;
@@ -376,7 +376,7 @@ public class ReflectUtil {
 	 * Creates an object of given type, using default constructor
 	 */
 	public static <T> T create(Class<T> classType) throws RuntimeInvocationException {
-		return create(classType, EMPTY_CLASS);
+		return create(classType, Empty.CLASSES);
 	}
 
 	/**

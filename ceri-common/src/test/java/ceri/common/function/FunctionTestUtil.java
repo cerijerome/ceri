@@ -8,10 +8,10 @@ import ceri.common.test.TestUtil.Rte;
  */
 public class FunctionTestUtil {
 
-	public static class S {
-		private S() {}
+	public static class F {
+		private F() {}
 
-		public static final Funcs.BinConsumer<Integer> binConsumer = (l, r) -> fn(l, r);
+		public static final Functions.BinConsumer<Integer> binConsumer = (l, r) -> fn(l, r);
 
 		private static int fn(int l, int r) {
 			if (l == 0 || r == 0) throw new Rte("0");

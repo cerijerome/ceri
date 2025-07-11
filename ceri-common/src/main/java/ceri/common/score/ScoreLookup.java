@@ -48,24 +48,24 @@ public class ScoreLookup<T> implements Scorer<T> {
 	}
 
 	private Map<T, Double> normalize(Map<T, Double> map) {
-		Map<T, Double> normalizedMap = new HashMap<>();
+		var normalizedMap = new HashMap<T, Double>();
 		double sum = sum(map.values());
 		if (sum == 0.0) return Collections.emptyMap();
-		for (Map.Entry<T, Double> entry : map.entrySet())
+		for (var entry : map.entrySet())
 			normalizedMap.put(entry.getKey(), entry.getValue() / sum);
 		return normalizedMap;
 	}
 
 	private double sum(Collection<Double> values) {
 		double sum = 0;
-		for (Double f : values)
+		for (var f : values)
 			sum += f;
 		return sum;
 	}
 
 	@Override
 	public double score(T t) {
-		Double value = map.get(t);
+		var value = map.get(t);
 		if (value == null) return 0.0;
 		return value;
 	}
@@ -85,5 +85,4 @@ public class ScoreLookup<T> implements Scorer<T> {
 	public String toString() {
 		return ToString.forClass(this, map);
 	}
-
 }

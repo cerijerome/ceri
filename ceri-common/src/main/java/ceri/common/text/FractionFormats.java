@@ -9,8 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.collection.StreamUtil;
 import ceri.common.math.Fraction;
+import ceri.common.stream.StreamUtil;
 
 /**
  * Provides parsing and formatting of fractions.

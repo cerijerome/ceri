@@ -1,7 +1,7 @@
 package ceri.common.net;
 
-import static ceri.common.collection.StreamUtil.first;
-import static ceri.common.collection.StreamUtil.stream;
+import static ceri.common.stream.StreamUtil.first;
+import static ceri.common.stream.StreamUtil.stream;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;

@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 
 /**
  * Utility for creating text frames in monospace fonts. Characters signify vertical, horizontal,
@@ -94,7 +94,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 		}
 
 		public String get(int row, int col, int i) {
-			var lines = cells.getOrDefault(new Coord(row, col), ArrayUtil.EMPTY_STRING);
+			var lines = cells.getOrDefault(new Coord(row, col), Empty.STRINGS);
 			if (i >= lines.length) return StringUtil.repeat(' ', colSize(col));
 			return lines[i] + StringUtil.repeat(' ', colSize(col) - lines[i].length());
 		}

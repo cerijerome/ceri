@@ -9,7 +9,6 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import org.junit.Test;
 
 public class ScorersTest {
@@ -82,7 +81,7 @@ public class ScorersTest {
 	@Test
 	public void testFilter() {
 		Scorer<String> len = Scorers.nonNull(String::length);
-		Predicate<String> filter = Scorers.filter(len, 2.0, 3.0);
+		var filter = Scorers.filter(len, 2.0, 3.0);
 		assertTrue(filter.test("AAA"));
 		assertFalse(filter.test("B"));
 		assertFalse(filter.test("CCCC"));

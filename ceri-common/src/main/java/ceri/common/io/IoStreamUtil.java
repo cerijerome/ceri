@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_BYTE;
 import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.function.FunctionUtil.safeApply;
 import java.io.FilterInputStream;
@@ -9,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntSupplier;
@@ -42,7 +42,7 @@ public class IoStreamUtil {
 
 		@Override
 		public byte[] readAllBytes() {
-			return EMPTY_BYTE; // 1-byte instead?
+			return Empty.BYTES; // 1-byte instead?
 		}
 
 		@Override

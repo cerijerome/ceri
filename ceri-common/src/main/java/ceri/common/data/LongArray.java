@@ -1,10 +1,10 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_LONG;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.LongStream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -30,7 +30,7 @@ public abstract class LongArray implements LongProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends LongArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(EMPTY_LONG, 0, 0);
+		public static final Immutable EMPTY = new Immutable(Empty.LONGS, 0, 0);
 
 		public static Immutable copyOf(long[] array) {
 			return copyOf(array, 0);
@@ -99,7 +99,7 @@ public abstract class LongArray implements LongProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends LongArray implements LongAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(EMPTY_LONG, 0, 0);
+		public static final Mutable EMPTY = new Mutable(Empty.LONGS, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new long[length]);
@@ -428,7 +428,7 @@ public abstract class LongArray implements LongProvider {
 
 	@Override
 	public long[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_LONG;
+		if (length == 0) return Empty.LONGS;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}

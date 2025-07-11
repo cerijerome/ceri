@@ -1,9 +1,9 @@
 package ceri.common.concurrent;
 
-import static ceri.common.collection.ArrayUtil.EMPTY_INT;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.IntProvider;
 import ceri.common.validation.ValidationUtil;
@@ -12,7 +12,7 @@ import ceri.common.validation.ValidationUtil;
  * Fixed-size int array with volatile values.
  */
 public class VolatileIntArray implements IntAccessor {
-	public static final VolatileIntArray EMPTY = VolatileIntArray.wrap(EMPTY_INT);
+	public static final VolatileIntArray EMPTY = VolatileIntArray.wrap(Empty.INTS);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(int[].class);
 	private final int[] array;
 	private final int offset;

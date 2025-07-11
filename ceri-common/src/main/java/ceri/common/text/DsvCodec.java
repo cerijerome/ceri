@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.StreamUtil;
+import ceri.common.stream.StreamUtil;
 
 /**
  * For encoding and decoding delimiter-separated values such as csv and tsv.

@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import java.util.function.IntPredicate;
-import java.util.function.Predicate;
 import org.junit.Test;
 import ceri.common.test.Captor;
 
@@ -171,51 +169,5 @@ public class FunctionUtilTest {
 		assertTrue(FunctionUtil.all(String::isBlank, "", " ", "\t"));
 		assertFalse(FunctionUtil.all(String::isBlank, "a", " ", "\t"));
 		assertTrue(FunctionUtil.all(String::isBlank));
-	}
-
-	@Test
-	public void testPredicateAnd() {
-		Predicate<Integer> n = null;
-		Predicate<Integer> p0 = i -> i > -1;
-		Predicate<Integer> p1 = i -> i < 1;
-		assertNull(FunctionUtil.and(n, n));
-		assertFalse(FunctionUtil.and(p0, null).test(-1));
-		assertTrue(FunctionUtil.and(p0, null).test(1));
-		assertTrue(FunctionUtil.and(null, p1).test(-1));
-		assertFalse(FunctionUtil.and(null, p1).test(1));
-		assertFalse(FunctionUtil.and(p0, p1).test(-1));
-		assertTrue(FunctionUtil.and(p0, p1).test(0));
-		assertFalse(FunctionUtil.and(p0, p1).test(1));
-	}
-
-	@Test
-	public void testPredicateOr() {
-		Predicate<Integer> n = null;
-		Predicate<Integer> p0 = i -> i > -1;
-		Predicate<Integer> p1 = i -> i < 1;
-		assertNull(FunctionUtil.or(n, n));
-		assertFalse(FunctionUtil.or(p0, null).test(-1));
-		assertTrue(FunctionUtil.or(p0, null).test(1));
-		assertTrue(FunctionUtil.or(null, p1).test(-1));
-		assertFalse(FunctionUtil.or(null, p1).test(1));
-		assertTrue(FunctionUtil.or(p0, p1).test(-1));
-		assertTrue(FunctionUtil.or(p0, p1).test(0));
-		assertTrue(FunctionUtil.or(p0, p1).test(1));
-	}
-
-	@Test
-	public void testTesting() {
-		Predicate<Integer> p0 = i -> i > 0;
-		Predicate<String> p = FunctionUtil.testing(String::length, p0);
-		assertFalse(p.test(""));
-		assertTrue(p.test("x"));
-	}
-
-	@Test
-	public void testTestingInt() {
-		IntPredicate p0 = i -> i > 0;
-		Predicate<String> p = FunctionUtil.testingInt(String::length, p0);
-		assertFalse(p.test(""));
-		assertTrue(p.test("x"));
 	}
 }

@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.ParseUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;

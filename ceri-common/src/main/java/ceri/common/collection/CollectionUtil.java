@@ -1,46 +1,35 @@
 package ceri.common.collection;
 
 import static java.util.function.Function.identity;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
+import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.FunctionWrapper;
-import ceri.common.function.Funcs.ObjIntFunction;
-import ceri.common.util.BasicUtil;
+import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.function.Predicates;
+import ceri.common.stream.StreamUtil;
 
 /**
  * Utility methods to test and manipulate collections.
  */
 public class CollectionUtil {
-	private static final Supplier<Map<?, ?>> mapSupplier = LinkedHashMap::new;
-	private static final Supplier<NavigableMap<?, ?>> navigableMapSupplier = TreeMap::new;
-	private static final Supplier<Set<?>> setSupplier = LinkedHashSet::new;
-	private static final Supplier<NavigableSet<?>> navigableSetSupplier = TreeSet::new;
-	private static final Supplier<List<?>> listSupplier = ArrayList::new;
-
+	public static final CollectionSupplier supplier = CollectionSupplier.of();
+	
 	private CollectionUtil() {}
 
 	/**
@@ -58,24 +47,17 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Checks if the given collection is null or empty.
+	 * Checks the given collection is null or empty.
 	 */
 	public static boolean empty(Collection<?> collection) {
 		return collection == null || collection.isEmpty();
 	}
 
 	/**
-	 * Checks if the given collection is null or empty.
+	 * Checks the given collection is not null and not empty.
 	 */
 	public static boolean nonEmpty(Collection<?> collection) {
 		return !empty(collection);
-	}
-
-	/**
-	 * Makes an iterator compatible with a for-each loop.
-	 */
-	public static <T> Iterable<T> iterable(final Iterator<T> iterator) {
-		return () -> iterator;
 	}
 
 	/**
@@ -181,7 +163,7 @@ public class CollectionUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
-		return addAll(CollectionUtil.<T>setSupplier().get(), array);
+		return addAll(supplier.<T>set().get(), array);
 	}
 
 	/**
@@ -220,7 +202,7 @@ public class CollectionUtil {
 	 * Inverts keys and values.
 	 */
 	public static <K, V> Map<V, K> invert(Map<K, V> map) {
-		return invert(map, mapSupplier());
+		return invert(map, supplier.map());
 	}
 
 	/**
@@ -235,7 +217,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
 		Collection<T> collection) {
-		return toMap(keyMapper, mapSupplier(), collection);
+		return toMap(keyMapper, supplier.map(), collection);
 	}
 
 	/**
@@ -251,7 +233,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
 		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
-		return toMap(keyMapper, valueMapper, mapSupplier(), collection);
+		return toMap(keyMapper, valueMapper, supplier.map(), collection);
 	}
 
 	/**
@@ -267,7 +249,7 @@ public class CollectionUtil {
 	 * Converts a collection to a map by index.
 	 */
 	public static <T> Map<Integer, T> toIndexMap(Iterable<T> collection) {
-		return toIndexMap(mapSupplier(), collection);
+		return toIndexMap(supplier.map(), collection);
 	}
 
 	/**
@@ -283,7 +265,7 @@ public class CollectionUtil {
 	 */
 	public static <V, T> Map<Integer, V>
 		toIndexMap(ObjIntFunction<? super T, ? extends V> valueMapper, Iterable<T> collection) {
-		return toIndexMap(valueMapper, mapSupplier(), collection);
+		return toIndexMap(valueMapper, supplier.map(), collection);
 	}
 
 	/**
@@ -304,7 +286,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
 		Function<? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, mapSupplier(), map);
+		return transform(keyMapper, valueMapper, supplier.map(), map);
 	}
 
 	/**
@@ -323,7 +305,7 @@ public class CollectionUtil {
 	public static <K, V, T, U> Map<K, V> transform(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper,
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, mapSupplier(), map);
+		return transform(keyMapper, valueMapper, supplier.map(), map);
 	}
 
 	/**
@@ -343,7 +325,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
 		Map<T, U> map) {
-		return transformKeys(keyMapper, mapSupplier(), map);
+		return transformKeys(keyMapper, supplier.map(), map);
 	}
 
 	/**
@@ -359,7 +341,7 @@ public class CollectionUtil {
 	 */
 	public static <K, T, U> Map<K, U>
 		transformKeys(BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
-		return transformKeys(keyMapper, mapSupplier(), map);
+		return transformKeys(keyMapper, supplier.map(), map);
 	}
 
 	/**
@@ -376,7 +358,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
 		Map<? extends K, U> map) {
-		return transformValues(valueMapper, mapSupplier(), map);
+		return transformValues(valueMapper, supplier.map(), map);
 	}
 
 	/**
@@ -392,7 +374,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, U> Map<K, V> transformValues(
 		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<? extends K, U> map) {
-		return transformValues(valueMapper, mapSupplier(), map);
+		return transformValues(valueMapper, supplier.map(), map);
 	}
 
 	/**
@@ -424,14 +406,14 @@ public class CollectionUtil {
 	 * Creates a list joining the given elements.
 	 */
 	public static <T> List<T> joinAsList(T t, Collection<? extends T> collection) {
-		return joinAs(t, collection, listSupplier());
+		return joinAs(t, collection, supplier.list());
 	}
 
 	/**
 	 * Creates a set joining the given elements.
 	 */
 	public static <T> Set<T> joinAsSet(T t, Collection<? extends T> collection) {
-		return joinAs(t, collection, setSupplier());
+		return joinAs(t, collection, supplier.set());
 	}
 
 	/**
@@ -447,7 +429,7 @@ public class CollectionUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> joinAsList(Collection<? extends T>... collections) {
-		return joinAs(listSupplier(), collections);
+		return joinAs(supplier.list(), collections);
 	}
 
 	/**
@@ -455,7 +437,7 @@ public class CollectionUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> joinAsSet(Collection<? extends T>... collections) {
-		return joinAs(setSupplier(), collections);
+		return joinAs(supplier.set(), collections);
 	}
 
 	/**
@@ -471,7 +453,7 @@ public class CollectionUtil {
 	 * Returns a linked hash map copy with entries sorted by value.
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-		Map<K, V> result = CollectionUtil.<K, V>mapSupplier().get();
+		var result = supplier.<K, V>map().get();
 		Stream<Entry<K, V>> stream = map.entrySet().stream();
 		Comparator<V> comparator = Comparators.comparable();
 		Comparator<Entry<K, V>> entryComparator =
@@ -569,20 +551,16 @@ public class CollectionUtil {
 	 */
 	public static <T> T first(Iterable<T> iterable) {
 		if (iterable == null) return null;
-		Iterator<T> i = iterable.iterator();
-		if (!i.hasNext()) return null;
-		return i.next();
+		var i = iterable.iterator();
+		return i.hasNext() ? i.next() : null;
 	}
 
 	/**
 	 * Returns the element at index based on the set iterator, or null if no element.
 	 */
 	public static <T> T get(int index, Set<T> set) {
-		if (set == null || index < 0 || set.size() <= index) return null;
-		Iterator<T> i = set.iterator();
-		while (index-- > 0)
-			i.next();
-		return i.next();
+		if (set == null || set.size() <= index) return null;
+		return IteratorUtil.nth(set.iterator(), index);
 	}
 
 	/**
@@ -596,28 +574,17 @@ public class CollectionUtil {
 	/**
 	 * Removes collection entries that match the predicate. Returns the removed entry count.
 	 */
-	public static <T> int removeIf(Collection<T> collection, Predicate<T> predicate) {
-		int n = 0;
-		for (var i = collection.iterator(); i.hasNext();) {
-			if (!predicate.test(i.next())) continue;
-			i.remove();
-			n++;
-		}
-		return n;
+	public static <E extends Exception, T> int removeIf(Collection<T> collection,
+		Excepts.Predicate<? extends E, ? super T> predicate) throws E {
+		return IteratorUtil.removeIf(collection.iterator(), predicate);
 	}
 
 	/**
 	 * Removes map entries that match the predicate. Returns the removed entry count.
 	 */
-	public static <K, V> int removeIf(Map<K, V> map, BiPredicate<K, V> predicate) {
-		int n = 0;
-		for (var i = map.entrySet().iterator(); i.hasNext();) {
-			var next = i.next();
-			if (!predicate.test(next.getKey(), next.getValue())) continue;
-			i.remove();
-			n++;
-		}
-		return n;
+	public static <E extends Exception, K, V> int removeIf(Map<K, V> map,
+		BiPredicate<E, K, V> predicate) throws E {
+		return removeIf(map.entrySet(), Predicates.testingMapEntry(predicate));
 	}
 
 	/**
@@ -652,7 +619,7 @@ public class CollectionUtil {
 	 * Finds all keys with matching value.
 	 */
 	public static <K, V> Collection<K> keys(Map<K, V> map, V value) {
-		Set<K> keys = CollectionUtil.<K>setSupplier().get();
+		var keys = supplier.<K>set().get();
 		for (var entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
 			if (entry.getValue() == value || entry.getValue().equals(value))
@@ -689,41 +656,6 @@ public class CollectionUtil {
 				return size() > max;
 			}
 		};
-	}
-
-	/**
-	 * Default map provider.
-	 */
-	public static <K, V> Supplier<Map<K, V>> mapSupplier() {
-		return BasicUtil.unchecked(mapSupplier);
-	}
-
-	/**
-	 * Default navigable map provider.
-	 */
-	public static <K, V> Supplier<NavigableMap<K, V>> navigableMapSupplier() {
-		return BasicUtil.unchecked(navigableMapSupplier);
-	}
-
-	/**
-	 * Default set provider.
-	 */
-	public static <T> Supplier<Set<T>> setSupplier() {
-		return BasicUtil.unchecked(setSupplier);
-	}
-
-	/**
-	 * Default navigable set provider.
-	 */
-	public static <T> Supplier<NavigableSet<T>> navigableSetSupplier() {
-		return BasicUtil.unchecked(navigableSetSupplier);
-	}
-
-	/**
-	 * Default list provider.
-	 */
-	public static <T> Supplier<List<T>> listSupplier() {
-		return BasicUtil.unchecked(listSupplier);
 	}
 
 	// Support methods

@@ -1,6 +1,6 @@
 package ceri.common.game;
 
-import ceri.common.function.Funcs.ObjIntPredicate;
+import ceri.common.function.Functions.ObjIntPredicate;
 
 /**
  * Utilities to help solve sudoku variant puzzles.

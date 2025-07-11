@@ -8,10 +8,8 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
@@ -267,35 +265,6 @@ public class FunctionUtil {
 		for (var t : ts)
 			if (!predicate.test(t)) return false;
 		return true;
-	}
-
-	/**
-	 * Combines nullable predicates with logical AND.
-	 */
-	public static <T> Predicate<T> and(Predicate<T> lhs, Predicate<T> rhs) {
-		return lhs == null ? rhs : rhs == null ? lhs : lhs.and(rhs);
-	}
-
-	/**
-	 * Combines nullable predicates with logical OR.
-	 */
-	public static <T> Predicate<T> or(Predicate<T> lhs, Predicate<T> rhs) {
-		return lhs == null ? rhs : rhs == null ? lhs : lhs.or(rhs);
-	}
-
-	/**
-	 * Provides a predicate from a field accessor and predicate for the field type.
-	 */
-	public static <T, U> Predicate<T> testing(Function<T, U> extractor,
-		Predicate<? super U> predicate) {
-		return t -> predicate.test(extractor.apply(t));
-	}
-
-	/**
-	 * Provides an predicate from an int field accessor and int predicate.
-	 */
-	public static <T> Predicate<T> testingInt(ToIntFunction<T> extractor, IntPredicate predicate) {
-		return t -> predicate.test(extractor.applyAsInt(t));
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 
 public class AlgebraUtil {
 
@@ -39,10 +39,10 @@ public class AlgebraUtil {
 	 * Finds real roots of ax^2 + bx + c = 0
 	 */
 	public static double[] quadraticRealRoots(double a, double b, double c) {
-		if (a == 0.0 && b == 0.0) return ArrayUtil.EMPTY_DOUBLE;
+		if (a == 0.0 && b == 0.0) return Empty.DOUBLES;
 		if (a == 0.0) return new double[] { -c / b };
 		double d = (b * b) - (4 * a * c);
-		if (d < 0) return ArrayUtil.EMPTY_DOUBLE;
+		if (d < 0) return Empty.DOUBLES;
 		double sqrtd = Math.sqrt(d);
 		double x1 = (-b + sqrtd) / (2 * a);
 		double x2 = (-b - sqrtd) / (2 * a);

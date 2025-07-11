@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.test.Captor;
 
 public class ByteUtilTest {
@@ -32,8 +32,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorHigh() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : CollectionUtil
-			.iterable(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
+		for (boolean b : IteratorUtil.iterable(ByteUtil.bitIterator(true, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, true, false, true, false, false, true, //
 			false, false, false, false, false, false, false, false, //
@@ -43,7 +42,7 @@ public class ByteUtilTest {
 	@Test
 	public void testBitIteratorLow() {
 		Captor<Boolean> captor = Captor.of();
-		for (boolean b : CollectionUtil
+		for (boolean b : IteratorUtil
 			.iterable(ByteUtil.bitIterator(false, provider(0xa9, 0, 0xff))))
 			captor.accept(b);
 		captor.verify(true, false, false, true, false, true, false, true, //

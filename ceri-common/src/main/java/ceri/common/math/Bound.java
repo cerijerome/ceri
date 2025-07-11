@@ -163,5 +163,4 @@ public class Bound<T> {
 		if (align == Align.H.right) return INFINITY + type.right;
 		return type.left + INFINITY + type.right;
 	}
-
 }

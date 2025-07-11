@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.Funcs.ToBoolFunction;
+import ceri.common.function.Functions.ToBoolFunction;
 
 /**
  * Utility methods to support annotations.

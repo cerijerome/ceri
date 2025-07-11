@@ -4,8 +4,8 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.StreamUtil;
 
 /**
  * A bit set with access up to 64 bits.

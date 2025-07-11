@@ -1,7 +1,5 @@
 package ceri.common.function;
 
-import java.util.Objects;
-
 /**
  * Functional interfaces that throw specific exceptions.
  */
@@ -564,45 +562,6 @@ public class Excepts {
 	public interface Predicate<E extends Exception, T> extends Throws.Predicate<T> {
 		@Override
 		boolean test(T t) throws E;
-
-		/**
-		 * Compose a new predicate with logical AND.
-		 */
-		default Predicate<E, T> and(Predicate<? extends E, ? super T> other) {
-			Objects.requireNonNull(other);
-			return t -> test(t) && other.test(t);
-		}
-
-		/**
-		 * Compose a new predicate with logical OR.
-		 */
-		default Predicate<E, T> or(Predicate<? extends E, ? super T> other) {
-			Objects.requireNonNull(other);
-			return t -> test(t) || other.test(t);
-		}
-
-		/**
-		 * Reverse the predicate.
-		 */
-		default Predicate<E, T> negate() {
-			return t -> !test(t);
-		}
-
-		/**
-		 * Provides a predicate from a field accessor and predicate for the field type.
-		 */
-		static <E extends Exception, T, U> Predicate<E, T> testing(
-			Function<? extends E, T, U> extractor, Predicate<? extends E, ? super U> predicate) {
-			return t -> predicate.test(extractor.apply(t));
-		}
-
-		/**
-		 * Provides an predicate from an int field accessor and int predicate.
-		 */
-		static <E extends Exception, T> Predicate<E, T> testingInt(
-			ToIntFunction<? extends E, T> extractor, IntPredicate<? extends E> predicate) {
-			return t -> predicate.test(extractor.applyAsInt(t));
-		}
 	}
 
 	/**

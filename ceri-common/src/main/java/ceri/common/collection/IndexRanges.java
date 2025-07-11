@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.RegexUtil;
 
 /**

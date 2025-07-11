@@ -1,6 +1,6 @@
 package ceri.common.property;
 
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;

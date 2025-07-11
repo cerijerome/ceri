@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator.OfInt;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.data.ByteProvider;
 
 /**
@@ -232,12 +232,12 @@ public class Utf8Util {
 	 * Encodes a code point into bytes. Returns an empty array if the code point is invalid.
 	 */
 	public static byte[] encode(int codePoint) {
-		if (codePoint < 0) return ArrayUtil.EMPTY_BYTE;
+		if (codePoint < 0) return Empty.BYTES;
 		if (codePoint <= ONE_BYTE_MAX_CODE_POINT) return new byte[] { (byte) codePoint };
 		if (codePoint <= TWO_BYTE_MAX_CODE_POINT) return twoByte(codePoint);
 		if (codePoint <= THREE_BYTE_MAX_CODE_POINT) return threeByte(codePoint);
 		if (codePoint <= FOUR_BYTE_MAX_CODE_POINT) return fourByte(codePoint);
-		return ArrayUtil.EMPTY_BYTE;
+		return Empty.BYTES;
 	}
 
 	private static int writeOneByte(int codePoint, byte[] array, int offset) {

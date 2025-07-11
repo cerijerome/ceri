@@ -1,6 +1,5 @@
 package ceri.common.event;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,10 +41,8 @@ public class EventTracker {
 	}
 
 	private void purge(long t) {
-		Iterator<Long> i = timeStamps.iterator();
 		long t0 = t - windowMs;
-		while (i.hasNext())
-			if (i.next() < t0) i.remove();
+		timeStamps.removeIf(ts -> ts < t0);
 	}
 
 	long currentTimeMs() {

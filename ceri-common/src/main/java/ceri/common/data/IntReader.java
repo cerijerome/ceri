@@ -4,7 +4,7 @@ import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -100,7 +100,7 @@ public interface IntReader {
 	 * Reads a copied array of ints.
 	 */
 	default int[] readInts(int length) {
-		if (length == 0) return ArrayUtil.EMPTY_INT;
+		if (length == 0) return Empty.INTS;
 		int[] copy = new int[length];
 		readInto(copy);
 		return copy;

@@ -9,9 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.Iterators;
+import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Fluent;
-import ceri.common.function.Funcs.ByteFunction;
+import ceri.common.function.Functions.ByteFunction;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
@@ -232,7 +233,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	@Override
 	default PrimitiveIterator.OfInt iterator() {
-		return Iterators.intIndexed(length(), i -> (int) getUbyte(i));
+		return IteratorUtil.intIndexed(length(), i -> (int) getUbyte(i));
 	}
 
 	/**
@@ -525,7 +526,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns a copy of provided bytes from index.
 	 */
 	default byte[] copy(int index, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		ValidationUtil.validateSlice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);

@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.StreamUtil;
 import ceri.common.function.Excepts;
-import ceri.common.function.Funcs.IntBiPredicate;
+import ceri.common.function.Functions.IntBiPredicate;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.util.Align;
 
 /**
@@ -725,6 +725,15 @@ public class StringUtil {
 	public static boolean matchAt(String s, int index, String sub) {
 		if (s == null || sub == null) return false;
 		return s.regionMatches(index, sub, 0, sub.length());
+	}
+
+	/**
+	 * Returns true if the string contains the given string, ignoring case.
+	 */
+	public static boolean containsIgnoreCase(String s, String other) {
+		if (s == null || other == null) return false;
+		if (s == other) return true;
+		return s.regionMatches(true, 0, other, 0, s.length());
 	}
 
 	/**

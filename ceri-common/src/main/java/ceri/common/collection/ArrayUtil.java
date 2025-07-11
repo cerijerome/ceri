@@ -22,20 +22,35 @@ import ceri.common.validation.ValidationUtil;
  * @see ceri.common.collection.CollectionUtil
  */
 public class ArrayUtil {
-	public static final boolean[] EMPTY_BOOLEAN = new boolean[0];
-	public static final byte[] EMPTY_BYTE = new byte[0];
-	public static final char[] EMPTY_CHAR = new char[0];
-	public static final short[] EMPTY_SHORT = new short[0];
-	public static final int[] EMPTY_INT = new int[0];
-	public static final long[] EMPTY_LONG = new long[0];
-	public static final float[] EMPTY_FLOAT = new float[0];
-	public static final double[] EMPTY_DOUBLE = new double[0];
-	public static final String[] EMPTY_STRING = new String[0];
-	public static final Object[] EMPTY_OBJECT = new Object[0];
-	public static final Class<?>[] EMPTY_CLASS = new Class<?>[0];
 	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 
 	private ArrayUtil() {}
+
+	/**
+	 * Empty array constants.
+	 */
+	public static class Empty {
+		public static final boolean[] BOOLS = new boolean[0];
+		public static final byte[] BYTES = new byte[0];
+		public static final char[] CHARS = new char[0];
+		public static final short[] SHORT = new short[0];
+		public static final int[] INTS = new int[0];
+		public static final long[] LONGS = new long[0];
+		public static final float[] FLOATS = new float[0];
+		public static final double[] DOUBLES = new double[0];
+		public static final String[] STRINGS = new String[0];
+		public static final Object[] OBJECTS = new Object[0];
+		public static final Class<?>[] CLASSES = new Class<?>[0];
+
+		private Empty() {}
+	}
+
+	/**
+	 * Returns true if the array is null or empty.
+	 */
+	public static boolean empty(Object[] array) {
+		return array == null || array.length == 0;
+	}
 
 	/**
 	 * Returns true if index is within array.
@@ -80,9 +95,9 @@ public class ArrayUtil {
 	/**
 	 * Returns an immutable zero-size array for the given component type.
 	 */
-	public static <T> T[] empty(Class<T> cls) {
-		if (cls == String.class) return BasicUtil.unchecked(EMPTY_STRING);
-		if (cls == Object.class) return BasicUtil.unchecked(EMPTY_OBJECT);
+	public static <T> T[] ofEmpty(Class<T> cls) {
+		if (cls == String.class) return BasicUtil.unchecked(Empty.STRINGS);
+		if (cls == Object.class) return BasicUtil.unchecked(Empty.OBJECTS);
 		return create(cls, 0);
 	}
 
@@ -97,7 +112,7 @@ public class ArrayUtil {
 	 * Returns the compile-time array type component class.
 	 */
 	public static <T> Class<T[]> arrayType(Class<T> cls) {
-		return BasicUtil.unchecked(empty(cls).getClass());
+		return BasicUtil.unchecked(ofEmpty(cls).getClass());
 	}
 
 	/**
@@ -130,7 +145,7 @@ public class ArrayUtil {
 		if (componentCls.isArray()) componentSuperCls = superclass(componentCls);
 		else componentSuperCls = componentCls.getSuperclass();
 		if (componentSuperCls == null) return Object.class;
-		return empty(componentSuperCls).getClass();
+		return ofEmpty(componentSuperCls).getClass();
 	}
 
 	@SafeVarargs
@@ -1785,7 +1800,7 @@ public class ArrayUtil {
 		if (obj == null) return NULL_STRING;
 		Class<?> cls = obj.getClass();
 		if (!cls.isArray()) return String.valueOf(obj);
-		Function<Object, String> fn = toStringMap.get(cls);
+		var fn = toStringMap.get(cls);
 		if (fn != null) return fn.apply(obj);
 		return Arrays.deepToString((Object[]) obj);
 	}

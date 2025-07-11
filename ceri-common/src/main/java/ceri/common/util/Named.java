@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import java.util.Comparator;
-import java.util.function.Predicate;
+import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Predicates;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
@@ -37,7 +37,7 @@ public interface Named {
 	/**
 	 * Predicate by name.
 	 */
-	static <T extends Named> Predicate<T> by(Predicate<String> name) {
+	static <E extends Exception, T extends Named> Predicate<E, T> by(Predicate<E, String> name) {
 		return Predicates.testing(Named::name, name);
 	}
 }

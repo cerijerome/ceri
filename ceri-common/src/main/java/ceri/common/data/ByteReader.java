@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -248,7 +248,7 @@ public interface ByteReader {
 	 * Reads a copied array of bytes.
 	 */
 	default byte[] readBytes(int length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		byte[] copy = new byte[length];
 		readInto(copy);
 		return copy;

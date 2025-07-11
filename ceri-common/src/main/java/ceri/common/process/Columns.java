@@ -1,7 +1,7 @@
 package ceri.common.process;
 
-import static ceri.common.collection.StreamUtil.collect;
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.collect;
+import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.text.Splitter.Extractor.bySpaces;
 import static java.util.function.Predicate.not;
 import java.util.ArrayList;

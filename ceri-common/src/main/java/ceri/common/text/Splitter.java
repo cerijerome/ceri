@@ -1,17 +1,16 @@
 package ceri.common.text;
 
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.ObjIntFunction;
 
 /**
  * Utility for extracting text sequentially.
@@ -139,9 +138,9 @@ public class Splitter {
 	 * no change in position.
 	 */
 	public List<Extraction> extractToCompletion(Collection<Extractor> extractors) {
-		List<Extraction> list = new ArrayList<>();
-		for (Iterator<Extractor> i = extractors.iterator(); i.hasNext();) {
-			Extractor extractor = i.next();
+		var list = new ArrayList<Extraction>();
+		for (var i = extractors.iterator(); i.hasNext();) {
+			var extractor = i.next();
 			if (i.hasNext()) list.add(extract(extractor));
 			else repeatExtraction(list, extractor);
 		}
