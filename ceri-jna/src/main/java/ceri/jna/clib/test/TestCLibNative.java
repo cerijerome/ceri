@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -407,7 +407,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	private static int[] signals(Pointer sigmask) {
-		if (sigmask == null) return ArrayUtil.EMPTY_INT;
+		if (sigmask == null) return Empty.INTS;
 		return ByteUtil.bits(sigmask.getInt(0));
 	}
 

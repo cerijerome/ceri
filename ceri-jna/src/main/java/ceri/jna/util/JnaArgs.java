@@ -15,9 +15,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.collection.Iterators;
-import ceri.common.collection.StreamUtil;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 import ceri.jna.type.Struct;
@@ -221,7 +221,7 @@ public class JnaArgs {
 
 	private String arrayString(Object array) {
 		int len = Array.getLength(array);
-		var iter = Iterators.indexed(len, i -> Array.get(array, i));
+		var iter = IteratorUtil.indexed(len, i -> Array.get(array, i));
 		return arrayJoiner.join(this::arg, iter, len);
 	}
 }

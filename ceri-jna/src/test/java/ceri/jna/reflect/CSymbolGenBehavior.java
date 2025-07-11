@@ -70,10 +70,13 @@ public class CSymbolGenBehavior {
 	}
 
 	@Test
-	public void shouldSpecifyFileName() throws IOException {
+	public void shouldCustomizeAutoGen() throws IOException {
 		initFile();
-		CSymbolGen.Auto.gen(TestNamed.class);
-		files.readString("named-linux.c"); // file exists
+		CSymbolGen.Auto.gen(TestNamed.class, (os, gen) -> {
+			if (os == JnaOs.linux) gen.includes.add("custom.h");
+		});
+		var c = files.readString("named-linux.c");
+		assertLines(c, "#include <custom.h>");
 	}
 
 	@Test

@@ -5,7 +5,7 @@ import java.util.function.IntFunction;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.function.Funcs.ObjIntFunction;
+import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;

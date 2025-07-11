@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.reflect.AnnotationUtil;
@@ -51,8 +52,7 @@ public class CAnnotations {
 		record Value(JnaOs[] os, Class<?>[] target, Class<?>[] reload, String location) {
 
 			/** No targets to process. */
-			public static final Value NONE =
-				new Value(JnaOs.NONE, ArrayUtil.EMPTY_CLASS, ArrayUtil.EMPTY_CLASS, "");
+			public static final Value NONE = new Value(JnaOs.NONE, Empty.CLASSES, Empty.CLASSES, "");
 
 			/**
 			 * Create from annotation.
@@ -380,7 +380,7 @@ public class CAnnotations {
 			public boolean cenum() {
 				return ArrayUtil.contains(attrs(), Attr.cenum);
 			}
-			
+
 			/**
 			 * Returns true if the type value is defined as signed in c.
 			 */

@@ -7,6 +7,7 @@ import java.util.Objects;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.text.StringUtil;
 
 /**
@@ -274,7 +275,7 @@ public class NulTerm {
 	}
 
 	private static byte[] slice(byte[] bytes, int start, int length) {
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		if (start == 0 && bytes.length == length) return bytes;
 		return ArrayUtil.copyOf(bytes, start, length);
 	}

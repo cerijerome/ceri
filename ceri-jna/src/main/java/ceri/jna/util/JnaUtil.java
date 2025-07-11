@@ -20,6 +20,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.collection.ArrayUtil;
+import ceri.common.collection.ArrayUtil.Empty;
 import ceri.common.concurrent.Lazy;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
@@ -454,7 +455,7 @@ public class JnaUtil {
 	public static byte[] bytes(Pointer p, long offset, long length) {
 		if (PointerUtil.validate(p, offset, length) != null)
 			return p.getByteArray(offset, Math.toIntExact(length));
-		return ArrayUtil.EMPTY_BYTE;
+		return Empty.BYTES;
 	}
 
 	/**
@@ -477,7 +478,7 @@ public class JnaUtil {
 	 */
 	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
 		Objects.requireNonNull(buffer);
-		if (length == 0) return ArrayUtil.EMPTY_BYTE;
+		if (length == 0) return Empty.BYTES;
 		if (position == 0 && length == buffer.limit() && buffer.hasArray()) return buffer.array();
 		byte[] bytes = new byte[length];
 		buffer.get(position, bytes);
