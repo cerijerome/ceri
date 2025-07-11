@@ -1,7 +1,7 @@
 package ceri.x10.command;
 
-import static ceri.common.collection.StreamUtil.toSet;
 import static ceri.common.math.MathUtil.limit;
+import static ceri.common.stream.StreamUtil.toSet;
 import static ceri.common.text.RegexUtil.parse;
 import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.StreamUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;

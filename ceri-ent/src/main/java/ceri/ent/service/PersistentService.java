@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import ceri.common.concurrent.SafeReadWrite;
+import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Predicates;
 
 /**
@@ -38,16 +38,16 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		return find(Predicates.yes());
 	}
 
-	public V findFirst(Predicate<V> filter) {
+	public <E extends Exception> V findFirst(Predicate<E, V> filter) throws E {
 		Collection<V> collection = find(filter, 1);
 		return collection.isEmpty() ? null : collection.iterator().next();
 	}
 
-	public Collection<V> find(Predicate<V> filter) {
+	public <E extends Exception> Collection<V> find(Predicate<E, V> filter) throws E {
 		return find(filter, UNLIMITED_COUNT);
 	}
 
-	public Collection<V> find(Predicate<V> filter, int maxCount) {
+	public <E extends Exception> Collection<V> find(Predicate<E, V> filter, int maxCount) throws E {
 		return safe.read(() -> {
 			Collection<V> values = new HashSet<>();
 			for (V value : this.map.values()) {

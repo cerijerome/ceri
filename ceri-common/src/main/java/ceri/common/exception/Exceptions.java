@@ -3,17 +3,12 @@ package ceri.common.exception;
 import java.io.IOException;
 import java.util.function.Function;
 import ceri.common.text.StringUtil;
-import ceri.common.util.TypeContext;
 
 /**
  * Exception generation convenience methods.
  */
 public class Exceptions {
-	/** Exception context for implied exception types. */
-	public static TypeContext<RuntimeException> rt = TypeContext.of();
-	/** Exception context for implied exception types. */
-	public static TypeContext<IOException> io = TypeContext.of();
-	
+
 	private Exceptions() {}
 
 	/**

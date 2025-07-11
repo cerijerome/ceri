@@ -1,6 +1,6 @@
 package ceri.process.nmcli;
 
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.toList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

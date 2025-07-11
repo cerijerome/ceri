@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.openqa.selenium.WebElement;
-import ceri.common.collection.StreamUtil;
+import ceri.common.stream.StreamUtil;
 
 public class WebElementUtil {
 	private static final Pattern WHITESPACE = Pattern.compile("\\p{Zs}+");

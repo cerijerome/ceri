@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import ceri.common.collection.StreamUtil;
+import ceri.common.stream.StreamUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;

@@ -1,6 +1,6 @@
 package ceri.process.scutil;
 
-import static ceri.common.collection.StreamUtil.toList;
+import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.text.StringUtil.lines;
 import java.util.List;
 import java.util.Objects;
