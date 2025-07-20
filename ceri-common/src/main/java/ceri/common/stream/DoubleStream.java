@@ -1,20 +1,65 @@
 package ceri.common.stream;
 
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
 import ceri.common.array.DynamicArray;
+import ceri.common.array.RawArrays;
 import ceri.common.function.Excepts;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Counter;
 
 /**
  * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
  * create a new instance. Not thread-safe.
  */
 public class DoubleStream<E extends Exception> {
-	private static final DoubleStream<RuntimeException> EMPTY = new DoubleStream<>(Stream.empty());
-	private Stream<E, Double> stream;
+	private static final Excepts.DoubleConsumer<?> NULL_CONSUMER = _ -> {};
+	private static final DoubleStream<RuntimeException> EMPTY = new DoubleStream<>(_ -> false);
+	private NextSupplier<E> supplier;
+
+	/**
+	 * Iterating functional interface
+	 */
+	@FunctionalInterface
+	interface NextSupplier<E extends Exception> {
+		/**
+		 * Temporary element receiver.
+		 */
+		class Receiver<E extends Exception> implements Excepts.DoubleConsumer<E> {
+			public double value;
+
+			@Override
+			public void accept(double value) throws E {
+				this.value = value;
+			}
+		}
+
+		/**
+		 * Returns true and calls the consumer with the next element, otherwise returns false.
+		 */
+		boolean next(Excepts.DoubleConsumer<? extends E> consumer) throws E;
+
+		/**
+		 * Iterates over elements.
+		 */
+		default void forEach(Excepts.DoubleConsumer<? extends E> consumer) throws E {
+			while (next(consumer)) {}
+		}
+
+		/**
+		 * Populates the receiver with the next filtered element, otherwise returns false.
+		 */
+		default boolean nextFiltered(NextSupplier.Receiver<? extends E> receiver,
+			Excepts.DoublePredicate<? extends E> filter) throws E {
+			while (true) {
+				if (!next(receiver)) return false;
+				if (filter.test(receiver.value)) return true;
+			}
+		}
+	}
 
 	/**
 	 * Returns an empty stream.
@@ -26,131 +71,163 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Returns a stream of values.
 	 */
-	@SafeVarargs
 	public static <E extends Exception> DoubleStream<E> of(double... values) {
-		if (values == null || values.length == 0) return empty();
-		return from(java.util.stream.DoubleStream.of(values).iterator());
+		return of(values, 0);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception> DoubleStream<E> of(double[] values, int offset) {
+		return of(values, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception> DoubleStream<E> of(double[] values, int offset,
+		int length) {
+		return RawArrays.applySlice(values, offset, length,
+			(o, l) -> l == 0 ? empty() : new DoubleStream<E>(arraySupplier(values, o, l)));
 	}
 
 	/**
 	 * Returns a stream of iterable values.
 	 */
-	public static <E extends Exception> DoubleStream<E> from(Iterable<Double> iterable) {
+	public static <E extends Exception> DoubleStream<E> from(Iterable<? extends Number> iterable) {
+		if (iterable == null) return empty();
 		return from(iterable.iterator());
 	}
 
 	/**
 	 * Returns a stream of iterator values.
 	 */
-	public static <E extends Exception> DoubleStream<E> from(Iterator<Double> iterator) {
+	public static <E extends Exception> DoubleStream<E> from(Iterator<? extends Number> iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return DoubleStream.of(Stream.from(iterator));
+		return Stream.<E, Number>from(iterator).mapToDouble(Number::doubleValue);
 	}
 
-	static <E extends Exception> DoubleStream<E> of(Stream<E, Double> stream) {
-		return new DoubleStream<>(stream);
+	DoubleStream(NextSupplier<E> supplier) {
+		this.supplier = supplier;
 	}
 
-	private DoubleStream(Stream<E, Double> stream) {
-		this.stream = stream;
+	NextSupplier<E> supplier() {
+		return supplier;
 	}
+
+	// filters
 
 	/**
 	 * Only streams elements that match the filter.
 	 */
-	public DoubleStream<E> filter(Excepts.DoublePredicate<E> filter) {
-		Objects.requireNonNull(filter);
-		stream.filter(filter::test);
-		return this;
+	public DoubleStream<E> filter(Excepts.DoublePredicate<? extends E> filter) {
+		if (noOp(filter)) return this;
+		return update(filterSupplier(supplier, filter));
 	}
 
 	/**
-	 * Return stream of boxed ints.
+	 * Returns true if any element matched.
+	 */
+	public boolean anyMatch(Excepts.DoublePredicate<? extends E> predicate) throws E {
+		return filter(predicate).supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Returns true if all elements matched.
+	 */
+	public boolean allMatch(Excepts.DoublePredicate<? extends E> predicate) throws E {
+		if (noOp(predicate)) return true;
+		return !anyMatch(i -> !predicate.test(i));
+	}
+
+	/**
+	 * Returns true if no elements matched.
+	 */
+	public boolean noneMatch(Excepts.DoublePredicate<? extends E> predicate) throws E {
+		return !anyMatch(predicate);
+	}
+
+	// mappers
+
+	/**
+	 * Maps stream elements to boxed types.
 	 */
 	public Stream<E, Double> boxed() {
-		return stream;
-	}
-
-	/**
-	 * Maps stream elements to new values.
-	 */
-	public DoubleStream<E> map(Excepts.DoubleOperator<E> mapper) {
-		Objects.requireNonNull(mapper);
-		stream.map(mapper::applyAsDouble);
-		return this;
+		return mapToObj(Double::valueOf);
 	}
 
 	/**
 	 * Maps stream elements to a new type.
 	 */
-	public <T> Stream<E, T> mapToObj(Excepts.DoubleFunction<E, T> mapper) {
-		Objects.requireNonNull(mapper);
-		return stream.map(mapper::apply);
+	public DoubleStream<E> map(Excepts.DoubleOperator<? extends E> mapper) {
+		if (noOp(mapper)) return empty();
+		return update(mapSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to a new type.
+	 */
+	public <T> Stream<E, T> mapToObj(Excepts.DoubleFunction<? extends E, ? extends T> mapper) {
+		if (noOp(mapper)) return Stream.empty();
+		return new Stream<>(objSupplier(supplier, mapper));
 	}
 
 	/**
 	 * Maps each element to a stream, and flattens the streams.
 	 */
 	public DoubleStream<E>
-		flatMap(Excepts.DoubleFunction<? extends E, DoubleStream<? extends E>> mapper) {
-		Objects.requireNonNull(mapper);
-		stream.flatMap(t -> FunctionUtil.safeApply(mapper.apply(t), s -> s.stream));
-		return this;
+		flatMap(Excepts.DoubleFunction<? extends E, ? extends DoubleStream<E>> mapper) {
+		if (noOp(mapper)) return empty();
+		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
+
+	// manipulators
 
 	/**
 	 * Limits the number of elements.
 	 */
 	public DoubleStream<E> limit(long size) {
-		stream.limit(size);
-		return this;
+		var counter = Counter.ofLong(size);
+		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) >= 0));
 	}
 
 	/**
-	 * Streams distinct elements, by first collecting into a linked set.
+	 * IntStreams distinct elements.
 	 */
-	public DoubleStream<E> distinct() throws E {
-		stream.distinct();
-		return this;
+	public DoubleStream<E> distinct() {
+		return filter(new HashSet<Double>()::add);
 	}
 
 	/**
-	 * Streams sorted elements, by first collecting into a sorted list.
+	 * IntStreams sorted elements, by first collecting into a sorted list.
 	 */
-	public DoubleStream<E> sorted() throws E {
-		stream.sorted(Comparator.naturalOrder());
-		return this;
+	public DoubleStream<E> sorted() {
+		if (emptyInstance()) return this;
+		return update(adaptedSupplier(supplier, s -> sortedSupplier(s)));
 	}
 
+	// terminating functions
+
 	/**
-	 * Iterates elements with a consumer.
+	 * Returns the next element or default.
 	 */
-	public void forEach(Excepts.DoubleConsumer<E> action) throws E {
-		Objects.requireNonNull(action);
-		stream.forEach(action::accept);
+	public Double next() throws E {
+		var receiver = new NextSupplier.Receiver<E>();
+		return supplier.next(receiver) ? receiver.value : null;
 	}
 
 	/**
-	 * Collects elements into an array.
+	 * Returns the next element or default.
 	 */
-	public double[] toArray() throws E {
-		var array = DynamicArray.doubles();
-		stream.forEach(array::accept);
-		return array.truncate();
+	public double next(double def) throws E {
+		return BasicUtil.defDouble(next(), def);
 	}
 
 	/**
-	 * Returns the element count.
-	 */
-	public long count() throws E {
-		return stream.count();
-	}
-
-	/**
-	 * Returns the minimum value or null.
+	 * Returns the minimum value or default.
 	 */
 	public Double min() throws E {
-		return stream.min(Comparator.naturalOrder());
+		return reduce((t, u) -> Double.compare(t, u) <= 0 ? t : u);
 	}
 
 	/**
@@ -161,10 +238,10 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	/**
-	 * Returns the minimum value or null.
+	 * Returns the maximum value or default.
 	 */
 	public Double max() throws E {
-		return stream.max(Comparator.naturalOrder());
+		return reduce((t, u) -> Double.compare(t, u) >= 0 ? t : u);
 	}
 
 	/**
@@ -175,54 +252,167 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	/**
-	 * Reduces stream to an element or null, using an accumulator.
+	 * Returns the element count.
 	 */
-	public Double reduce(Excepts.DoubleBiOperator<E> accumulator) throws E {
-		return stream.reduce(accumulator::applyAsDouble);
+	public long count() throws E {
+		for (long n = 0L;; n++)
+			if (!supplier.next(nullConsumer())) return n;
+	}
+
+	// collectors
+
+	public void forEach(Excepts.DoubleConsumer<? extends E> consumer) throws E {
+		supplier.forEach(consumer);
+	}
+
+	/**
+	 * Collects elements into an array.
+	 */
+	public double[] toArray() throws E {
+		return array(supplier).truncate();
+	}
+
+	/**
+	 * Collects elements into a supplied container, with accumulator.
+	 */
+	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
+		Excepts.ObjDoubleConsumer<? extends E, R> accumulator) throws E {
+		if (supplier == null) return null;
+		var r = supplier.get();
+		if (!noOp(accumulator) && r != null) forEach(i -> accumulator.accept(r, i));
+		return r;
+	}
+
+	// reducers
+
+	/**
+	 * Reduces stream to an element, using an identity and accumulator.
+	 */
+	public Double reduce(Excepts.DoubleBiOperator<? extends E> accumulator) throws E {
+		if (noOp(accumulator)) return null;
+		var next = next();
+		return next == null ? null : reduce(next, accumulator);
 	}
 
 	/**
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
-	public double reduce(double identity, Excepts.DoubleBiOperator<E> accumulator) throws E {
-		return stream.reduce(identity, accumulator::applyAsDouble);
+	public double reduce(double identity, Excepts.DoubleBiOperator<? extends E> accumulator)
+		throws E {
+		if (noOp(accumulator)) return identity;
+		var receiver = new NextSupplier.Receiver<E>();
+		for (double d = identity;;) {
+			if (!supplier.next(receiver)) return d;
+			d = accumulator.applyAsDouble(d, receiver.value);
+		}
 	}
 
-	/**
-	 * Returns true if any element matches.
-	 */
-	public boolean anyMatch(Excepts.DoublePredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.anyMatch(predicate::test);
-	}
+	// support
 
 	/**
-	 * Returns true if all elements match.
+	 * Returns true if this is the empty instance.
 	 */
-	public boolean allMatch(Excepts.DoublePredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.allMatch(predicate::test);
+	boolean emptyInstance() {
+		return this == EMPTY;
 	}
 
-	/**
-	 * Returns true if no elements match.
-	 */
-	public boolean noneMatch(Excepts.DoublePredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.noneMatch(predicate::test);
+	private boolean noOp(Object op) {
+		return op == null || emptyInstance();
 	}
 
-	/**
-	 * Returns the next element or null.
-	 */
-	public Double next() throws E {
-		return stream.next();
+	private Excepts.DoubleConsumer<E> nullConsumer() {
+		return BasicUtil.unchecked(NULL_CONSUMER);
 	}
 
-	/**
-	 * Returns the next element or default.
-	 */
-	public double next(double def) throws E {
-		return stream.next(def);
+	private DoubleStream<E> update(NextSupplier<E> supplier) {
+		if (!emptyInstance()) this.supplier = supplier;
+		return this;
+	}
+
+	private static <E extends Exception> NextSupplier<E> arraySupplier(double[] array, int offset,
+		int length) {
+		var counter = Counter.ofInt(0);
+		return c -> {
+			if (counter.count() >= length) return false;
+			c.accept(array[offset + counter.preInc(1)]);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> filterSupplier(NextSupplier<E> supplier,
+		Excepts.DoublePredicate<? extends E> filter) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.nextFiltered(receiver, filter)) return false;
+			c.accept(receiver.value);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> mapSupplier(NextSupplier<E> supplier,
+		Excepts.DoubleOperator<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsDouble(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception, R> Stream.NextSupplier<E, R> objSupplier(
+		NextSupplier<E> supplier, Excepts.DoubleFunction<? extends E, ? extends R> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.apply(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E>
+		flatSupplier(Stream.NextSupplier<E, ? extends DoubleStream<E>> supplier) {
+		var streamReceiver =
+			new ceri.common.stream.Stream.NextSupplier.Receiver<E, DoubleStream<E>>();
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			while (true) {
+				if (streamReceiver.value == null && !supplier.next(streamReceiver)) return false;
+				if (streamReceiver.value.supplier.next(receiver)) break;
+				streamReceiver.value = null;
+			}
+			c.accept(receiver.value);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> preSupplier(NextSupplier<E> supplier,
+		Excepts.BoolSupplier<? extends E> pre) {
+		return c -> {
+			if (!pre.getAsBool()) return false;
+			return supplier.next(c);
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> adaptedSupplier(NextSupplier<E> supplier,
+		Excepts.Operator<E, NextSupplier<E>> adapter) {
+		var receiver = new ceri.common.stream.Stream.NextSupplier.Receiver<E, NextSupplier<E>>();
+		return c -> {
+			if (receiver.value == null) receiver.value = adapter.apply(supplier);
+			return receiver.value.next(c);
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> sortedSupplier(NextSupplier<E> supplier)
+		throws E {
+		var array = array(supplier);
+		Arrays.sort(array.array(), 0, array.index());
+		return arraySupplier(array.array(), 0, array.index());
+	}
+
+	private static <E extends Exception> DynamicArray.OfDouble
+		array(NextSupplier<? extends E> supplier) throws E {
+		var array = DynamicArray.doubles();
+		supplier.forEach(Functions.DoubleConsumer.except(array));
+		return array;
 	}
 }

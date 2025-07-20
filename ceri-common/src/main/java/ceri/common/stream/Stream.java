@@ -37,6 +37,18 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	@FunctionalInterface
 	interface NextSupplier<E extends Exception, T> {
 		/**
+		 * Temporary element receiver.
+		 */
+		class Receiver<E extends Exception, T> implements Excepts.Consumer<E, T> {
+			public T value = null;
+
+			@Override
+			public void accept(T value) throws E {
+				this.value = value;
+			}
+		}
+
+		/**
 		 * Returns true and calls the consumer with the next element, otherwise returns false.
 		 */
 		boolean next(Excepts.Consumer<? extends E, ? super T> consumer) throws E;
@@ -57,18 +69,6 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 				if (!next(receiver)) return false;
 				if (filter.test(receiver.value)) return true;
 			}
-		}
-	}
-
-	/**
-	 * Temporary element receiver.
-	 */
-	static class Receiver<E extends Exception, T> implements Excepts.Consumer<E, T> {
-		public T value = null;
-
-		@Override
-		public void accept(T value) throws E {
-			this.value = value;
 		}
 	}
 
@@ -108,7 +108,9 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		this.supplier = supplier;
 	}
 
-	// filters
+	NextSupplier<E, ? extends T> supplier() {
+		return supplier;
+	}
 
 	/**
 	 * Only streams elements that match the filter.
@@ -158,29 +160,28 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return new IntStream<>(intSupplier(supplier, mapper));
 	}
 
-	// /**
-	// * Maps stream elements to a new stream.
-	// */
-	// public LongStream<E> mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper) {
-	// Objects.requireNonNull(mapper);
-	// return LongStream.of(map(mapper::applyAsLong));
-	// }
-	//
-	// /**
-	// * Maps stream elements to a new stream.
-	// */
-	// public DoubleStream<E> mapToDouble(Excepts.ToDoubleFunction<? extends E, ? super T> mapper) {
-	// Objects.requireNonNull(mapper);
-	// return DoubleStream.of(map(mapper::applyAsDouble));
-	// }
+	/**
+	 * Maps stream elements to a new stream.
+	 */
+	public LongStream<E> mapToLong(Excepts.ToLongFunction<? extends E, ? super T> mapper) {
+		if (noOp(mapper)) return LongStream.empty();
+		return new LongStream<>(longSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to a new stream.
+	 */
+	public DoubleStream<E> mapToDouble(Excepts.ToDoubleFunction<? extends E, ? super T> mapper) {
+		if (noOp(mapper)) return DoubleStream.empty();
+		return new DoubleStream<>(doubleSupplier(supplier, mapper));
+	}
 
 	/**
 	 * Maps each element to a stream, and flattens the streams.
 	 */
 	public <R> Stream<E, R> flatMap(Excepts.Function<? extends E, ? super T, //
 		? extends Stream<E, ? extends R>> mapper) {
-		if (noOp(mapper)) return empty();
-		return update(flatSupplier(mapSupplier(supplier, mapper)));
+		return update(flatSupplier(map(mapper).filter(Objects::nonNull).supplier));
 	}
 
 	// manipulators
@@ -189,16 +190,15 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 * Limits the number of elements.
 	 */
 	public Stream<E, T> limit(long size) {
-		if (emptyInstance()) return this;
-		return update(limitSupplier(supplier, size));
+		var counter = Counter.ofLong(size);
+		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) > 0));
 	}
 
 	/**
 	 * Streams distinct elements.
 	 */
 	public Stream<E, T> distinct() {
-		if (emptyInstance()) return this;
-		return update(distinctSupplier(supplier));
+		return filter(new HashSet<T>()::add);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 * Returns the next element or default.
 	 */
 	public T next(T def) throws E {
-		var receiver = new Receiver<E, T>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return supplier.next(receiver) ? receiver.value : def;
 	}
 
@@ -362,12 +362,8 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 * Reduces stream to an element or null, using an accumulator.
 	 */
 	public T reduce(Excepts.BinFunction<? extends E, ? super T, ? extends T> accumulator) throws E {
-		if (accumulator == null) return null;
-		return this.reduce(null, (t, u) -> {
-			if (t == null) return u;
-			if (u == null) return t;
-			return accumulator.apply(t, u);
-		});
+		if (noOp(accumulator)) return null;
+		return reduce(next(), accumulator);
 	}
 
 	/**
@@ -375,8 +371,8 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public <U> U reduce(U identity,
 		Excepts.BiFunction<? extends E, ? super U, ? super T, ? extends U> accumulator) throws E {
-		if (accumulator == null) return identity;
-		var receiver = new Receiver<E, T>();
+		if (noOp(accumulator)) return identity;
+		var receiver = new NextSupplier.Receiver<E, T>();
 		for (U u = identity;;) {
 			if (!supplier.next(receiver)) return u;
 			if (receiver.value == null) continue;
@@ -415,7 +411,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 
 	private <R> void contain(R container, BiConsumer<R, ? super T> accumulator) throws E {
 		if (container == null || accumulator == null) return;
-		var receiver = new Receiver<E, T>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		while (true) {
 			if (!supplier.next(receiver)) break;
 			accumulator.accept(container, receiver.value);
@@ -442,7 +438,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 
 	private static <E extends Exception, T> NextSupplier<E, T> filterSupplier(
 		NextSupplier<E, T> supplier, Excepts.Predicate<? extends E, ? super T> filter) {
-		var receiver = new Receiver<E, T>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
 			if (!supplier.nextFiltered(receiver, filter)) return false;
 			c.accept(receiver.value);
@@ -452,7 +448,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 
 	private static <E extends Exception, T, R> NextSupplier<E, R> mapSupplier(
 		NextSupplier<E, T> supplier, Excepts.Function<? extends E, ? super T, R> mapper) {
-		var receiver = new Receiver<E, T>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.apply(receiver.value));
@@ -462,7 +458,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 
 	private static <E extends Exception, T> IntStream.NextSupplier<E> intSupplier(
 		NextSupplier<E, T> supplier, Excepts.ToIntFunction<? extends E, ? super T> mapper) {
-		var receiver = new Receiver<E, T>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.applyAsInt(receiver.value));
@@ -470,50 +466,52 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		};
 	}
 
-	private static <E extends Exception, T> NextSupplier<E, T>
-		flatSupplier(NextSupplier<E, ? extends Stream<E, ? extends T>> supplier) {
-		var streamReceiver = new Receiver<E, Stream<E, ? extends T>>();
-		var receiver = new Receiver<E, T>();
+	private static <E extends Exception, T> LongStream.NextSupplier<E> longSupplier(
+		NextSupplier<E, T> supplier, Excepts.ToLongFunction<? extends E, ? super T> mapper) {
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
-			while (true) {
-				if (streamReceiver.value == null
-					&& !supplier.nextFiltered(streamReceiver, Objects::nonNull)) return false;
-				if (streamReceiver.value.supplier.next(receiver)) {
-					c.accept(receiver.value);
-					return true;
-				}
-				streamReceiver.value = null;
-			}
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsLong(receiver.value));
+			return true;
 		};
 	}
 
-	private static <E extends Exception, T> NextSupplier<E, T>
-		limitSupplier(NextSupplier<E, T> supplier, long limit) {
-		var counter = Counter.ofLong(0L);
+	private static <E extends Exception, T> DoubleStream.NextSupplier<E> doubleSupplier(
+		NextSupplier<E, T> supplier, Excepts.ToDoubleFunction<? extends E, ? super T> mapper) {
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
-			if (counter.count() >= limit || !supplier.next(c)) return false;
-			counter.inc(1L);
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsDouble(receiver.value));
 			return true;
 		};
 	}
 
 	private static <E extends Exception, T> NextSupplier<E, T>
-		distinctSupplier(NextSupplier<E, T> supplier) {
-		var set = new HashSet<T>();
-		var receiver = new Receiver<E, T>();
+		flatSupplier(NextSupplier<E, ? extends Stream<E, ? extends T>> supplier) {
+		var streamReceiver = new NextSupplier.Receiver<E, Stream<E, ? extends T>>();
+		var receiver = new NextSupplier.Receiver<E, T>();
 		return c -> {
 			while (true) {
-				if (!supplier.next(receiver)) return false;
-				if (!set.add(receiver.value)) continue;
-				c.accept(receiver.value);
-				return true;
+				if (streamReceiver.value == null && !supplier.next(streamReceiver)) return false;
+				if (streamReceiver.value.supplier.next(receiver)) break;
+				streamReceiver.value = null;
 			}
+			c.accept(receiver.value);
+			return true;
+		};
+	}
+
+	private static <E extends Exception, T> NextSupplier<E, T>
+		preSupplier(NextSupplier<E, T> supplier, Excepts.BoolSupplier<? extends E> pre) {
+		return c -> {
+			if (!pre.getAsBool()) return false;
+			return supplier.next(c);
 		};
 	}
 
 	private static <E extends Exception, T> NextSupplier<E, T> adaptedSupplier(
 		NextSupplier<E, T> supplier, Excepts.Operator<E, NextSupplier<E, T>> adapter) {
-		var receiver = new Receiver<E, NextSupplier<E, T>>();
+		var receiver = new NextSupplier.Receiver<E, NextSupplier<E, T>>();
 		return c -> {
 			if (receiver.value == null) receiver.value = adapter.apply(supplier);
 			return receiver.value.next(c);
@@ -531,7 +529,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	private static <E extends Exception, T> Excepts.Iterator<E, T>
 		iterator(NextSupplier<E, ? extends T> supplier) {
 		return new Excepts.Iterator<>() {
-			private final Receiver<E, T> receiver = new Receiver<>();
+			private final NextSupplier.Receiver<E, T> receiver = new NextSupplier.Receiver<>();
 			private boolean fetch = true;
 			private boolean active = true;
 

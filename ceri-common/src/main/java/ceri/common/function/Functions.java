@@ -568,14 +568,24 @@ public class Functions {
 	 */
 	@FunctionalInterface
 	public interface LongConsumer
-		extends Excepts.LongConsumer<RuntimeException>, java.util.function.LongConsumer {}
+		extends Excepts.LongConsumer<RuntimeException>, java.util.function.LongConsumer {
+		/** Casts to given exception type. */
+		static <E extends Exception> Excepts.LongConsumer<E> except(LongConsumer consumer) {
+			return BasicUtil.unchecked(consumer);
+		}
+	}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
 	public interface DoubleConsumer
-		extends Excepts.DoubleConsumer<RuntimeException>, java.util.function.DoubleConsumer {}
+		extends Excepts.DoubleConsumer<RuntimeException>, java.util.function.DoubleConsumer {
+		/** Casts to given exception type. */
+		static <E extends Exception> Excepts.DoubleConsumer<E> except(DoubleConsumer consumer) {
+			return BasicUtil.unchecked(consumer);
+		}
+	}
 
 	// Bi-consumers
 

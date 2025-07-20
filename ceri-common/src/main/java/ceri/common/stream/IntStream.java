@@ -16,7 +16,7 @@ import ceri.common.util.Counter;
  * create a new instance. Not thread-safe.
  */
 public class IntStream<E extends Exception> {
-	private static final Excepts.IntConsumer<RuntimeException> NULL_CONSUMER = _ -> {};
+	private static final Excepts.IntConsumer<?> NULL_CONSUMER = _ -> {};
 	private static final IntStream<RuntimeException> EMPTY = new IntStream<>(_ -> false);
 	private NextSupplier<E> supplier;
 
@@ -25,6 +25,18 @@ public class IntStream<E extends Exception> {
 	 */
 	@FunctionalInterface
 	interface NextSupplier<E extends Exception> {
+		/**
+		 * Temporary element receiver.
+		 */
+		class Receiver<E extends Exception> implements Excepts.IntConsumer<E> {
+			public int value;
+
+			@Override
+			public void accept(int value) throws E {
+				this.value = value;
+			}
+		}
+
 		/**
 		 * Returns true and calls the consumer with the next element, otherwise returns false.
 		 */
@@ -40,24 +52,12 @@ public class IntStream<E extends Exception> {
 		/**
 		 * Populates the receiver with the next filtered element, otherwise returns false.
 		 */
-		default boolean nextFiltered(Receiver<? extends E> receiver,
+		default boolean nextFiltered(NextSupplier.Receiver<? extends E> receiver,
 			Excepts.IntPredicate<? extends E> filter) throws E {
 			while (true) {
 				if (!next(receiver)) return false;
 				if (filter.test(receiver.value)) return true;
 			}
-		}
-	}
-
-	/**
-	 * Temporary element receiver.
-	 */
-	static class Receiver<E extends Exception> implements Excepts.IntConsumer<E> {
-		public int value;
-
-		@Override
-		public void accept(int value) throws E {
-			this.value = value;
 		}
 	}
 
@@ -110,6 +110,10 @@ public class IntStream<E extends Exception> {
 		this.supplier = supplier;
 	}
 
+	NextSupplier<E> supplier() {
+		return supplier;
+	}
+
 	// filters
 
 	/**
@@ -145,7 +149,7 @@ public class IntStream<E extends Exception> {
 	// mappers
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to boxed types.
 	 */
 	public Stream<E, Integer> boxed() {
 		return mapToObj(Integer::valueOf);
@@ -172,7 +176,7 @@ public class IntStream<E extends Exception> {
 	 */
 	public IntStream<E> flatMap(Excepts.IntFunction<? extends E, ? extends IntStream<E>> mapper) {
 		if (noOp(mapper)) return empty();
-		return update(flatSupplier(objSupplier(supplier, mapper)));
+		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
 	// manipulators
@@ -181,16 +185,15 @@ public class IntStream<E extends Exception> {
 	 * Limits the number of elements.
 	 */
 	public IntStream<E> limit(long size) {
-		if (emptyInstance()) return this;
-		return update(limitSupplier(supplier, size));
+		var counter = Counter.ofLong(size);
+		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) >= 0));
 	}
 
 	/**
 	 * IntStreams distinct elements.
 	 */
 	public IntStream<E> distinct() {
-		if (emptyInstance()) return this;
-		return update(distinctSupplier(supplier));
+		return filter(new HashSet<Integer>()::add);
 	}
 
 	/**
@@ -207,7 +210,7 @@ public class IntStream<E extends Exception> {
 	 * Returns the next element or default.
 	 */
 	public Integer next() throws E {
-		var receiver = new Receiver<E>();
+		var receiver = new NextSupplier.Receiver<E>();
 		return supplier.next(receiver) ? receiver.value : null;
 	}
 
@@ -294,7 +297,7 @@ public class IntStream<E extends Exception> {
 	 */
 	public int reduce(int identity, Excepts.IntBiOperator<? extends E> accumulator) throws E {
 		if (noOp(accumulator)) return identity;
-		var receiver = new Receiver<E>();
+		var receiver = new NextSupplier.Receiver<E>();
 		for (int i = identity;;) {
 			if (!supplier.next(receiver)) return i;
 			i = accumulator.applyAsInt(i, receiver.value);
@@ -335,7 +338,7 @@ public class IntStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> filterSupplier(NextSupplier<E> supplier,
 		Excepts.IntPredicate<? extends E> filter) {
-		var receiver = new Receiver<E>();
+		var receiver = new NextSupplier.Receiver<E>();
 		return c -> {
 			if (!supplier.nextFiltered(receiver, filter)) return false;
 			c.accept(receiver.value);
@@ -345,7 +348,7 @@ public class IntStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> mapSupplier(NextSupplier<E> supplier,
 		Excepts.IntOperator<? extends E> mapper) {
-		var receiver = new Receiver<E>();
+		var receiver = new NextSupplier.Receiver<E>();
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.applyAsInt(receiver.value));
@@ -355,7 +358,7 @@ public class IntStream<E extends Exception> {
 
 	private static <E extends Exception, R> Stream.NextSupplier<E, R> objSupplier(
 		NextSupplier<E> supplier, Excepts.IntFunction<? extends E, ? extends R> mapper) {
-		var receiver = new Receiver<E>();
+		var receiver = new NextSupplier.Receiver<E>();
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.apply(receiver.value));
@@ -364,49 +367,31 @@ public class IntStream<E extends Exception> {
 	}
 
 	private static <E extends Exception> NextSupplier<E>
-		flatSupplier(Stream.NextSupplier<E, IntStream<E>> supplier) {
-		var streamReceiver = new Stream.Receiver<E, IntStream<E>>();
-		var receiver = new Receiver<E>();
+		flatSupplier(Stream.NextSupplier<E, ? extends IntStream<E>> supplier) {
+		var streamReceiver = new ceri.common.stream.Stream.NextSupplier.Receiver<E, IntStream<E>>();
+		var receiver = new NextSupplier.Receiver<E>();
 		return c -> {
 			while (true) {
-				if (streamReceiver.value == null
-					&& !supplier.nextFiltered(streamReceiver, Objects::nonNull)) return false;
-				if (streamReceiver.value.supplier.next(receiver)) {
-					c.accept(receiver.value);
-					return true;
-				}
+				if (streamReceiver.value == null && !supplier.next(streamReceiver)) return false;
+				if (streamReceiver.value.supplier.next(receiver)) break;
 				streamReceiver.value = null;
 			}
-		};
-	}
-
-	private static <E extends Exception> NextSupplier<E> limitSupplier(NextSupplier<E> supplier,
-		long limit) {
-		var counter = Counter.ofLong(0L);
-		return c -> {
-			if (counter.count() >= limit || !supplier.next(c)) return false;
-			counter.inc(1L);
+			c.accept(receiver.value);
 			return true;
 		};
 	}
 
-	private static <E extends Exception> NextSupplier<E>
-		distinctSupplier(NextSupplier<E> supplier) {
-		var set = new HashSet<Integer>();
-		var receiver = new Receiver<E>();
+	private static <E extends Exception> NextSupplier<E> preSupplier(NextSupplier<E> supplier,
+		Excepts.BoolSupplier<? extends E> pre) {
 		return c -> {
-			while (true) {
-				if (!supplier.next(receiver)) return false;
-				if (!set.add(receiver.value)) continue;
-				c.accept(receiver.value);
-				return true;
-			}
+			if (!pre.getAsBool()) return false;
+			return supplier.next(c);
 		};
 	}
 
 	private static <E extends Exception> NextSupplier<E> adaptedSupplier(NextSupplier<E> supplier,
 		Excepts.Operator<E, NextSupplier<E>> adapter) {
-		var receiver = new Stream.Receiver<E, NextSupplier<E>>();
+		var receiver = new ceri.common.stream.Stream.NextSupplier.Receiver<E, NextSupplier<E>>();
 		return c -> {
 			if (receiver.value == null) receiver.value = adapter.apply(supplier);
 			return receiver.value.next(c);
