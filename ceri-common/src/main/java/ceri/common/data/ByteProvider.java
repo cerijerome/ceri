@@ -8,8 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions.ByteFunction;
@@ -526,7 +525,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns a copy of provided bytes from index.
 	 */
 	default byte[] copy(int index, int length) {
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		ValidationUtil.validateSlice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
@@ -640,7 +639,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns true if bytes are equal to array bytes.
 	 */
 	default boolean isEqualTo(int index, int... array) {
-		return isEqualTo(index, ArrayUtil.bytes(array));
+		return isEqualTo(index, ArrayUtil.bytes.of(array));
 	}
 
 	/**
@@ -711,7 +710,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the first index that matches array bytes. Returns -1 if no match.
 	 */
 	default int indexOf(int index, int... array) {
-		return indexOf(index, ArrayUtil.bytes(array));
+		return indexOf(index, ArrayUtil.bytes.of(array));
 	}
 
 	/**
@@ -768,7 +767,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the last index that matches array bytes. Returns -1 if no match.
 	 */
 	default int lastIndexOf(int index, int... array) {
-		return lastIndexOf(index, ArrayUtil.bytes(array));
+		return lastIndexOf(index, ArrayUtil.bytes.of(array));
 	}
 
 	/**

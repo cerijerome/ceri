@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
@@ -209,7 +209,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes bytes from array.
 	 */
 	default T writeBytes(int... array) {
-		return writeFrom(ArrayUtil.bytes(array));
+		return writeFrom(ArrayUtil.bytes.of(array));
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.ArrayUtil.asList;
+import static ceri.common.array.ArrayUtil.asList;
 import static ceri.common.collection.CollectionUtil.asSet;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;

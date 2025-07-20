@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.validation.ValidationUtil;
 
@@ -133,7 +133,7 @@ public class ByteReaderBehavior {
 	}
 
 	private static ByteReader reader(int... bytes) {
-		return reader(ArrayUtil.bytes(bytes));
+		return reader(ArrayUtil.bytes.of(bytes));
 	}
 
 	private static ByteReader reader(byte[] bytes) {

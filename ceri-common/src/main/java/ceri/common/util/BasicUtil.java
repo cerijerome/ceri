@@ -1,9 +1,10 @@
 package ceri.common.util;
 
-import ceri.common.function.Excepts.DoubleSupplier;
-import ceri.common.function.Excepts.IntSupplier;
-import ceri.common.function.Excepts.LongSupplier;
-import ceri.common.function.Excepts.Supplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
+import ceri.common.function.Excepts;
 
 /**
  * Basic utility methods.
@@ -29,6 +30,28 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Returns true if all values are null, or the varargs array is null.
+	 */
+	@SafeVarargs
+	public static <T> boolean allNull(T... args) {
+		if (args == null) return true; 
+		for (T arg : args)
+			if (arg != null) return false;
+		return true;
+	}
+
+	/**
+	 * Returns true if any values are null, or the varargs array is null.
+	 */
+	@SafeVarargs
+	public static <T> boolean anyNull(T... args) {
+		if (args == null) return true; 
+		for (T arg : args)
+			if (arg == null) return true;
+		return false;
+	}
+
+	/**
 	 * Returns default value if main value is null.
 	 */
 	public static <T> T def(T value, T def) {
@@ -38,9 +61,10 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static <E extends Exception, T> T def(T value, Supplier<E, ? extends T> defSupplier)
-		throws E {
-		return value != null ? value : defSupplier.get();
+	public static <E extends Exception, T> T def(T value,
+		Excepts.Supplier<E, ? extends T> defSupplier) throws E {
+		if (value != null) return value;
+		return defSupplier == null ? null : defSupplier.get();
 	}
 
 	/**
@@ -53,8 +77,15 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static <E extends Exception> int defInt(Integer value, IntSupplier<E> defSupplier)
-		throws E {
+	public static int defInt(Integer value, IntSupplier defSupplier) {
+		return value != null ? value : defSupplier.getAsInt();
+	}
+
+	/**
+	 * Returns default supplied value if main value is null.
+	 */
+	public static <E extends Exception> int defInt(Integer value,
+		Excepts.IntSupplier<E> defSupplier) throws E {
 		return value != null ? value : defSupplier.getAsInt();
 	}
 
@@ -68,8 +99,15 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static <E extends Exception> long defLong(Long value, LongSupplier<E> defSupplier)
-		throws E {
+	public static long defLong(Long value, LongSupplier defSupplier) {
+		return value != null ? value : defSupplier.getAsLong();
+	}
+
+	/**
+	 * Returns default supplied value if main value is null.
+	 */
+	public static <E extends Exception> long defLong(Long value,
+		Excepts.LongSupplier<E> defSupplier) throws E {
 		return value != null ? value : defSupplier.getAsLong();
 	}
 
@@ -83,40 +121,72 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
+	public static double defDouble(Double value, DoubleSupplier defSupplier) {
+		return value != null ? value : defSupplier.getAsDouble();
+	}
+
+	/**
+	 * Returns default supplied value if main value is null.
+	 */
 	public static <E extends Exception> double defDouble(Double value,
-		DoubleSupplier<E> defSupplier) throws E {
+		Excepts.DoubleSupplier<E> defSupplier) throws E {
 		return value != null ? value : defSupplier.getAsDouble();
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception, T> T defGet(Supplier<E, ? extends T> supplier,
-		Supplier<E, ? extends T> defSupplier) throws E {
+	public static <E extends Exception, T> T defGet(Excepts.Supplier<E, ? extends T> supplier,
+		Excepts.Supplier<E, ? extends T> defSupplier) throws E {
 		return def(supplier.get(), defSupplier);
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception> int defGetInt(Supplier<E, ? extends Integer> supplier,
-		IntSupplier<E> defSupplier) throws E {
+	public static int defGetInt(Supplier<? extends Integer> supplier, IntSupplier defSupplier) {
 		return defInt(supplier.get(), defSupplier);
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception> long defGetLong(Supplier<E, ? extends Long> supplier,
-		LongSupplier<E> defSupplier) throws E {
+	public static <E extends Exception> int defGetInt(
+		Excepts.Supplier<E, ? extends Integer> supplier, Excepts.IntSupplier<E> defSupplier)
+		throws E {
+		return defInt(supplier.get(), defSupplier);
+	}
+
+	/**
+	 * Returns default value if main value is null.
+	 */
+	public static long defGetLong(Supplier<? extends Long> supplier, LongSupplier defSupplier) {
 		return defLong(supplier.get(), defSupplier);
 	}
 
 	/**
 	 * Returns default value if main value is null.
 	 */
-	public static <E extends Exception> double defGetDouble(Supplier<E, ? extends Double> supplier,
-		DoubleSupplier<E> defSupplier) throws E {
+	public static <E extends Exception> long defGetLong(
+		Excepts.Supplier<E, ? extends Long> supplier, Excepts.LongSupplier<E> defSupplier)
+		throws E {
+		return defLong(supplier.get(), defSupplier);
+	}
+
+	/**
+	 * Returns default value if main value is null.
+	 */
+	public static double defGetDouble(Supplier<? extends Double> supplier,
+		DoubleSupplier defSupplier) {
+		return defDouble(supplier.get(), defSupplier);
+	}
+
+	/**
+	 * Returns default value if main value is null.
+	 */
+	public static <E extends Exception> double defGetDouble(
+		Excepts.Supplier<E, ? extends Double> supplier, Excepts.DoubleSupplier<E> defSupplier)
+		throws E {
 		return defDouble(supplier.get(), defSupplier);
 	}
 
@@ -124,7 +194,7 @@ public class BasicUtil {
 	 * Supplies a value based on condition.
 	 */
 	public static <E extends Exception, T> T ternaryGet(boolean condition,
-		Supplier<E, ? extends T> trueSupplier) throws E {
+		Excepts.Supplier<E, ? extends T> trueSupplier) throws E {
 		return ternaryGet(condition, trueSupplier, null);
 	}
 
@@ -132,7 +202,8 @@ public class BasicUtil {
 	 * Supplies a value based on condition.
 	 */
 	public static <E extends Exception, T> T ternaryGet(boolean condition,
-		Supplier<E, ? extends T> trueSupplier, Supplier<E, ? extends T> falseSupplier) throws E {
+		Excepts.Supplier<E, ? extends T> trueSupplier,
+		Excepts.Supplier<E, ? extends T> falseSupplier) throws E {
 		var supplier = ternary(condition, trueSupplier, falseSupplier);
 		return supplier == null ? null : supplier.get();
 	}
@@ -141,8 +212,9 @@ public class BasicUtil {
 	 * Supplies a value based on condition, which may be null.
 	 */
 	public static <E extends Exception, T> T ternaryGet(Boolean condition,
-		Supplier<E, ? extends T> trueSupplier, Supplier<E, ? extends T> falseSupplier,
-		Supplier<E, ? extends T> nullSupplier) throws E {
+		Excepts.Supplier<E, ? extends T> trueSupplier,
+		Excepts.Supplier<E, ? extends T> falseSupplier,
+		Excepts.Supplier<E, ? extends T> nullSupplier) throws E {
 		var supplier = ternary(condition, trueSupplier, falseSupplier, nullSupplier);
 		return supplier == null ? null : supplier.get();
 	}

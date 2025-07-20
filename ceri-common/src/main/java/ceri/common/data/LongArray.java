@@ -3,8 +3,7 @@ package ceri.common.data;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.LongStream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -30,7 +29,7 @@ public abstract class LongArray implements LongProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends LongArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Empty.LONGS, 0, 0);
+		public static final Immutable EMPTY = new Immutable(ArrayUtil.longs.empty, 0, 0);
 
 		public static Immutable copyOf(long[] array) {
 			return copyOf(array, 0);
@@ -99,7 +98,7 @@ public abstract class LongArray implements LongProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends LongArray implements LongAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Empty.LONGS, 0, 0);
+		public static final Mutable EMPTY = new Mutable(ArrayUtil.longs.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new long[length]);
@@ -428,7 +427,7 @@ public abstract class LongArray implements LongProvider {
 
 	@Override
 	public long[] copy(int index, int length) {
-		if (length == 0) return Empty.LONGS;
+		if (length == 0) return ArrayUtil.longs.empty;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -452,7 +451,7 @@ public abstract class LongArray implements LongProvider {
 	public boolean isEqualTo(int index, long[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
+		return ArrayUtil.longs.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -472,11 +471,11 @@ public abstract class LongArray implements LongProvider {
 
 	boolean isEqual(LongArray other) {
 		if (length != other.length) return false;
-		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length);
+		return ArrayUtil.longs.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return ArrayUtil.hash(array, offset, length);
+		return ArrayUtil.longs.hash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

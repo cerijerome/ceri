@@ -6,8 +6,7 @@ import java.util.PrimitiveIterator;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Excepts.IntBiConsumer;
 import ceri.common.function.Fluent;
@@ -309,7 +308,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Returns a copy of provided ints from index.
 	 */
 	default int[] copy(int index, int length) {
-		if (length == 0) return Empty.INTS;
+		if (length == 0) return ArrayUtil.ints.empty;
 		ValidationUtil.validateSlice(length(), index, length);
 		int[] copy = new int[length];
 		copyTo(index, copy, 0, length);

@@ -163,7 +163,7 @@ public class EnumUtil {
 	 * Returns the enum name with common prefix removed, up to last word boundary.
 	 */
 	public static String shortName(Enum<?> en) {
-		if (en == null) return StringUtil.NULL_STRING;
+		if (en == null) return StringUtil.NULL;
 		var cls = en.getClass();
 		int index = namePrefixLens.computeIfAbsent(cls,
 			_ -> prefixLen(enums(cls).stream().map(Enum::name).toList()));

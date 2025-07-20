@@ -1,4 +1,4 @@
-package ceri.common.collection;
+package ceri.common.stream;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -13,6 +13,7 @@ import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import ceri.common.collection.IteratorUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.FunctionWrapper;
 

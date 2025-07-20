@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
@@ -225,8 +226,8 @@ public class IndexRanges implements Iterable<Integer> {
 	public IndexRanges copy() {
 		int size = Math.max(SIZE_DEF, n);
 		var indexes = new IndexRanges(linearMax, size);
-		ArrayUtil.copy(starts, 0, indexes.starts, 0, n);
-		ArrayUtil.copy(ends, 0, indexes.ends, 0, n);
+		ArrayUtil.ints.copy(starts, 0, indexes.starts, 0, n);
+		ArrayUtil.ints.copy(ends, 0, indexes.ends, 0, n);
 		indexes.n = n;
 		return indexes;
 	}
@@ -312,8 +313,8 @@ public class IndexRanges implements Iterable<Integer> {
 		if (from == to) return this;
 		int diff = to - from;
 		ensureSize(n + diff);
-		ArrayUtil.copy(starts, from, starts, to, n - from);
-		ArrayUtil.copy(ends, from, ends, to, n - from);
+		ArrayUtil.ints.copy(starts, from, starts, to, n - from);
+		ArrayUtil.ints.copy(ends, from, ends, to, n - from);
 		n += diff;
 		return this;
 	}

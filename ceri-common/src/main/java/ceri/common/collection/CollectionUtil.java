@@ -29,7 +29,7 @@ import ceri.common.stream.StreamUtil;
  */
 public class CollectionUtil {
 	public static final CollectionSupplier supplier = CollectionSupplier.of();
-	
+
 	private CollectionUtil() {}
 
 	/**
@@ -387,6 +387,14 @@ public class CollectionUtil {
 	}
 
 	/**
+	 * Converts an array to a list by mapping elements from the original collection.
+	 */
+	@SafeVarargs
+	public static <F, T> List<T> toList(Function<? super F, ? extends T> mapper, F... values) {
+		return toList(mapper, Arrays.asList(values));
+	}
+
+	/**
 	 * Converts a collection to a new list by mapping elements from the original collection.
 	 */
 	public static <F, T> List<T> toList(Function<? super F, ? extends T> mapper,
@@ -592,16 +600,6 @@ public class CollectionUtil {
 	 */
 	public static void intersect(Collection<?> lhs, Collection<?> rhs) {
 		lhs.removeIf(o -> !rhs.contains(o));
-	}
-
-	/**
-	 * Creates a typed array from a collection and given type. The type must not be a primitive
-	 * class type such as int.class otherwise a ClassCastException will be thrown.
-	 */
-	public static <T> T[] toArray(Collection<? extends T> collection, Class<T> type) {
-		if (type.isPrimitive()) throw new IllegalArgumentException("Primitives types not allowed");
-		T[] array = ArrayUtil.create(type, collection.size());
-		return collection.toArray(array);
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package ceri.common.util;
 
+import java.util.Arrays;
+
 /**
  * Simple hashCoder, keeping result state.
  */
@@ -10,6 +12,13 @@ public class Hasher {
 	private static final int FALSE_HASH = 1237;
 	private int hash = HASH_INIT;
 
+	/**
+	 * Varargs method for Arrays.deepHashCode().
+	 */
+	public static int deep(Object... objs) {
+		return Arrays.deepHashCode(objs);
+	}
+	
 	public static Hasher of() {
 		return new Hasher();
 	}

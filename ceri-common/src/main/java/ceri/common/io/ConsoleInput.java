@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.math.MathUtil;
@@ -263,7 +263,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private static char[] repeat(char c, int n) {
-		if (n <= 0) return Empty.CHARS;
+		if (n <= 0) return ArrayUtil.chars.empty;
 		var chars = new char[n];
 		Arrays.fill(chars, c);
 		return chars;

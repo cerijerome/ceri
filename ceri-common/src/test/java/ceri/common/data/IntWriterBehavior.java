@@ -1,12 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.ints;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.validation.ValidationUtil;
@@ -28,10 +28,10 @@ public class IntWriterBehavior {
 		assertInts(1, w -> w.writeBool(true), 1);
 		assertInts(1, w -> w.writeInt(MIN_VALUE), MIN_VALUE);
 		assertInts(2, w -> w.writeLong(0xff01007f80L),
-			msb ? ints(0xff, 0x1007f80) : ints(0x1007f80, 0xff));
+			msb ? ArrayUtil.ints.of(0xff, 0x1007f80) : ArrayUtil.ints.of(0x1007f80, 0xff));
 		assertInts(1, w -> w.writeFloat(Float.intBitsToFloat(0xff01007f)), 0xff01007f);
 		assertInts(2, w -> w.writeDouble(Double.longBitsToDouble(0xff01007f80L)),
-			msb ? ints(0xff, 0x1007f80) : ints(0x1007f80, 0xff));
+			msb ? ArrayUtil.ints.of(0xff, 0x1007f80) : ArrayUtil.ints.of(0x1007f80, 0xff));
 	}
 
 	@Test

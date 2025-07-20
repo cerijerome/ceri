@@ -27,7 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
@@ -39,7 +39,7 @@ import ceri.common.util.CloseableUtil;
 import ceri.common.util.Counter;
 
 public class ManualTesterBehavior {
-	private RuntimeCloseable fastMode;
+	private Functions.Closeable fastMode;
 
 	@Before
 	public void before() {
@@ -371,9 +371,9 @@ public class ManualTesterBehavior {
 	}
 
 	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {
-		Counter counter = Counter.of();
+		var counter = Counter.ofInt(0);
 		return (_, _, _) -> {
-			if (counter.intInc() >= count) in.print("!\n");
+			if (counter.inc(1) >= count) in.print("!\n");
 		};
 	}
 

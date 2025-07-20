@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.Excepts;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -123,7 +123,7 @@ public class Lazy<T> {
 		/**
 		 * Temporary override. Close to stop the override.
 		 */
-		public RuntimeCloseable override(T override) {
+		public Functions.Closeable override(T override) {
 			this.override = override;
 			return () -> this.override = null;
 		}
@@ -227,8 +227,8 @@ public class Lazy<T> {
 		return value;
 	}
 
-	private RuntimeCloseable locker() {
+	private Functions.Closeable locker() {
 		if (lock != null) return ConcurrentUtil.locker(lock);
-		return RuntimeCloseable.NULL;
+		return Functions.Closeable.NULL;
 	}
 }

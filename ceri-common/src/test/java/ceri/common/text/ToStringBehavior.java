@@ -19,6 +19,21 @@ public class ToStringBehavior {
 	private static record Rec(int i, String s, Map<String, Double> map) {}
 
 	@Test
+	public void testDeep() {
+		assertEquals(ToString.deep(null), "null");
+		assertEquals(ToString.deep("test"), "test");
+		assertEquals(ToString.deep(new boolean[] { true, false }), "[true, false]");
+		assertEquals(ToString.deep(new byte[] { 1, 2 }), "[1, 2]");
+		assertEquals(ToString.deep(new char[] { '1', '2' }), "[1, 2]");
+		assertEquals(ToString.deep(new short[] { 1, 2 }), "[1, 2]");
+		assertEquals(ToString.deep(new int[] { 1, 2 }), "[1, 2]");
+		assertEquals(ToString.deep(new long[] { 1, 2 }), "[1, 2]");
+		assertEquals(ToString.deep(new float[] { 1, 2 }), "[1.0, 2.0]");
+		assertEquals(ToString.deep(new double[] { 1, 2 }), "[1.0, 2.0]");
+		assertEquals(ToString.deep(new String[] { "1", "2" }), "[1, 2]");
+	}
+
+	@Test
 	public void testHex() {
 		assertEquals(ToString.hex(Byte.MIN_VALUE), "0x80");
 		assertEquals(ToString.hex(Short.MIN_VALUE), "0x8000");

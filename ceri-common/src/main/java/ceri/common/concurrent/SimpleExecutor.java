@@ -4,18 +4,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Function;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.util.CloseableUtil;
 
 /**
  * A single-threaded execution of callable or runnable.
  */
-public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
+public class SimpleExecutor<E extends Exception, T> implements Functions.Closeable {
 	private static final int TIMEOUT_MS_DEF = 3000;
 	private final ExecutorService exec;
 	private final Future<T> future;
-	private final Function<Throwable, ? extends E> exceptionConstructor;
+	private final Functions.Function<Throwable, ? extends E> exceptionConstructor;
 	private final int closeTimeoutMs;
 
 	public static SimpleExecutor<RuntimeException, ?> run(Excepts.Runnable<?> runnable) {
@@ -23,12 +23,12 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	}
 
 	public static <E extends Exception> SimpleExecutor<E, ?> run(Excepts.Runnable<?> runnable,
-		Function<Throwable, ? extends E> exceptionConstructor) {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor) {
 		return run(runnable, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
 	public static <E extends Exception> SimpleExecutor<E, ?> run(Excepts.Runnable<?> runnable,
-		Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		return run(runnable, null, exceptionConstructor, closeTimeoutMs);
 	}
 
@@ -38,12 +38,13 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	}
 
 	public static <E extends Exception, T> SimpleExecutor<E, T> run(Excepts.Runnable<?> runnable,
-		T value, Function<Throwable, ? extends E> exceptionConstructor) {
+		T value, Functions.Function<Throwable, ? extends E> exceptionConstructor) {
 		return run(runnable, value, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
 	public static <E extends Exception, T> SimpleExecutor<E, T> run(Excepts.Runnable<?> runnable,
-		T value, Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
+		T value, Functions.Function<Throwable, ? extends E> exceptionConstructor,
+		int closeTimeoutMs) {
 		return call(() -> {
 			runnable.run();
 			return value;
@@ -55,13 +56,13 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	}
 
 	public static <E extends Exception, T> SimpleExecutor<E, T> call(Callable<T> callable,
-		Function<Throwable, ? extends E> exceptionConstructor) {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor) {
 		return call(callable, exceptionConstructor, TIMEOUT_MS_DEF);
 	}
 
 	@SuppressWarnings("resource") // shouldn't be required
 	public static <E extends Exception, T> SimpleExecutor<E, T> call(Callable<T> callable,
-		Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		ExecutorService exec = Executors.newSingleThreadExecutor();
 		try {
 			Future<T> future = exec.submit(callable);
@@ -73,7 +74,7 @@ public class SimpleExecutor<E extends Exception, T> implements AutoCloseable {
 	}
 
 	private SimpleExecutor(ExecutorService exec, Future<T> future,
-		Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int closeTimeoutMs) {
 		this.exec = exec;
 		this.future = future;
 		this.exceptionConstructor = exceptionConstructor;

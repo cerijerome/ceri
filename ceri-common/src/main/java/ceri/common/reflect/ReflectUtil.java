@@ -1,7 +1,7 @@
 package ceri.common.reflect;
 
 import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
-import static ceri.common.text.StringUtil.NULL_STRING;
+import static ceri.common.text.StringUtil.NULL;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -20,14 +20,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
+import ceri.common.array.RawArrays;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.BiConsumer;
 import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Functions;
 import ceri.common.text.Joiner;
+import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -54,7 +56,7 @@ public class ReflectUtil {
 
 		@Override
 		public String toString() {
-			if (element() == null) return NULL_STRING;
+			if (element() == null) return StringUtil.NULL;
 			return ReflectUtil.name(element.getClassName()) + "." + element.getMethodName() + ":"
 				+ element.getLineNumber();
 		}
@@ -117,7 +119,7 @@ public class ReflectUtil {
 	 * as a name separator.
 	 */
 	public static String name(Class<?> cls) {
-		if (cls == null) return NULL_STRING;
+		if (cls == null) return NULL;
 		return name(cls.getTypeName());
 	}
 
@@ -126,7 +128,7 @@ public class ReflectUtil {
 	 * as a name separator.
 	 */
 	public static String name(String fullName) {
-		if (fullName == null) return NULL_STRING;
+		if (fullName == null) return NULL;
 		return fullName.substring(fullName.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
@@ -135,7 +137,7 @@ public class ReflectUtil {
 	 * class name without package (same as name()).
 	 */
 	public static String nestedName(Class<?> cls) {
-		if (cls == null) return NULL_STRING;
+		if (cls == null) return NULL;
 		String s = cls.getTypeName();
 		int i = s.indexOf('$');
 		if (i > 0) return s.substring(i + 1).replace('$', '.');
@@ -154,7 +156,7 @@ public class ReflectUtil {
 	 * Returns '&lt;class-name&gt;@&lt;hash&gt;'.
 	 */
 	public static String nameHash(Object obj) {
-		if (obj == null) return NULL_STRING;
+		if (obj == null) return NULL;
 		return className(obj) + hashId(obj);
 	}
 
@@ -212,6 +214,19 @@ public class ReflectUtil {
 		for (Class<?> c : classes)
 			if (c.isAssignableFrom(cls)) return true;
 		return false;
+	}
+
+	/**
+	 * Returns the array class of the type component superclass. Or the regular superclass if not an
+	 * array type. For example: {@code Class<Integer[][]>, Class<Number[][]>,
+	 * Class<Object[][]>, Class<Object[]>, Class<Object>, null}
+	 */
+	public static Class<?> superClass(Class<?> cls) {
+		var componentCls = cls.getComponentType();
+		if (componentCls == null) return cls.getSuperclass();
+		var componentSuperCls =
+			componentCls.isArray() ? superClass(componentCls) : componentCls.getSuperclass();
+		return componentSuperCls == null ? Object.class : RawArrays.arrayType(componentSuperCls);
 	}
 
 	/**
@@ -376,7 +391,7 @@ public class ReflectUtil {
 	 * Creates an object of given type, using default constructor
 	 */
 	public static <T> T create(Class<T> classType) throws RuntimeInvocationException {
-		return create(classType, Empty.CLASSES);
+		return create(classType, ArrayUtil.Empty.classes);
 	}
 
 	/**
@@ -571,8 +586,8 @@ public class ReflectUtil {
 	 * Returns a proxy that calls the consumer before delegating each method call. iface type must
 	 * be a non-sealed, non-hidden interface.
 	 */
-	public static <E extends Exception, T> T interceptor(Class<T> iface, T delegate,
-		BiConsumer<E, Method, Object[]> consumer) {
+	public static <T> T interceptor(Class<T> iface, T delegate,
+		Functions.BiConsumer<Method, Object[]> consumer) {
 		return methodInterceptor(delegate, consumer, iface);
 	}
 
@@ -580,13 +595,12 @@ public class ReflectUtil {
 	 * Returns a proxy that calls the consumer before delegating each method call. T must be a
 	 * non-sealed, non-hidden interface.
 	 */
-	public static <E extends Exception, T> T interceptor(T delegate,
-		BiConsumer<E, Method, Object[]> consumer) {
+	public static <T> T interceptor(T delegate, Functions.BiConsumer<Method, Object[]> consumer) {
 		return methodInterceptor(delegate, consumer, delegate.getClass().getInterfaces());
 	}
 
-	private static <E extends Exception, T> T methodInterceptor(T delegate,
-		BiConsumer<E, Method, Object[]> consumer, Class<?>... ifaces) {
+	private static <T> T methodInterceptor(T delegate,
+		Functions.BiConsumer<Method, Object[]> consumer, Class<?>... ifaces) {
 		var cls = delegate.getClass();
 		return BasicUtil
 			.unchecked(Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {

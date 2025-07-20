@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import java.util.regex.Pattern;
 import ceri.common.concurrent.Lazy;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.text.StringUtil;
 
 /**
@@ -121,7 +121,7 @@ public class OsUtil {
 	/**
 	 * Overrides OS. Use null for actual values. Removes override on close.
 	 */
-	public static RuntimeCloseable os(String name, String arch, String version) {
+	public static Functions.Closeable os(String name, String arch, String version) {
 		var os = OsUtil.os.get();
 		if (name == null) name = os.name;
 		if (arch == null) arch = os.arch;

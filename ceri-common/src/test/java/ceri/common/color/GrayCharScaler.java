@@ -2,7 +2,7 @@ package ceri.common.color;
 
 import static ceri.common.text.StringUtil.repeat;
 import java.io.IOException;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.io.RuntimeIoException;
 
@@ -50,8 +50,8 @@ public class GrayCharScaler {
 
 	private static void delete(char[] cs, int i) {
 		char c = cs[i];
-		if (i < cs.length - 1) ArrayUtil.copy(cs, i + 1, cs, i);
-		cs = ArrayUtil.copyOf(cs, 0, cs.length - 1);
+		if (i < cs.length - 1) ArrayUtil.chars.copy(cs, i + 1, cs, i);
+		cs = ArrayUtil.chars.copyOf(cs, 0, cs.length - 1);
 		System.out.println("Deleted " + c);
 	}
 

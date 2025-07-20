@@ -2,13 +2,13 @@ package ceri.common.concurrent;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 
 /**
  * A closable binary semaphore. Can be used to protect a long-running code block. Acquisition is
  * interruptible; may perform better than Lock.lockInterruptibly.
  */
-public class BinarySemaphore implements AutoCloseable {
+public class BinarySemaphore implements Functions.Closeable {
 	private final Semaphore semaphore;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 
@@ -27,7 +27,7 @@ public class BinarySemaphore implements AutoCloseable {
 	/**
 	 * Acquires the permit for try-with-resource.
 	 */
-	public RuntimeCloseable acquirer() {
+	public Functions.Closeable acquirer() {
 		acquire();
 		return this::release;
 	}

@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.function.FunctionUtil.safeApply;
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
@@ -8,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntSupplier;
@@ -42,7 +41,7 @@ public class IoStreamUtil {
 
 		@Override
 		public byte[] readAllBytes() {
-			return Empty.BYTES; // 1-byte instead?
+			return ArrayUtil.bytes.empty; // 1-byte instead?
 		}
 
 		@Override
@@ -251,7 +250,7 @@ public class IoStreamUtil {
 		return new OutputStream() {
 			@Override
 			public void write(int b) throws IOException {
-				if (writeFn != null) write(bytes(b), 0, 1);
+				if (writeFn != null) write(ArrayUtil.bytes.of(b), 0, 1);
 			}
 
 			@Override
@@ -399,7 +398,7 @@ public class IoStreamUtil {
 
 	private static void write(OutputStream out, FilterWrite writeFn, int b) throws IOException {
 		if (writeFn == null) out.write(b);
-		else write(out, writeFn, bytes(b), 0, 1);
+		else write(out, writeFn, ArrayUtil.bytes.of(b), 0, 1);
 	}
 
 	private static void write(OutputStream out, FilterWrite writeFn, byte[] b, int off, int len)

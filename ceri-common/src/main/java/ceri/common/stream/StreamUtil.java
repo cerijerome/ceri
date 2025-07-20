@@ -38,7 +38,6 @@ import ceri.common.collection.CollectionSupplier;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Indexed;
 import ceri.common.collection.IteratorUtil;
-import ceri.common.collection.WrappedStream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions.ObjIntFunction;
@@ -46,7 +45,7 @@ import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
 /**
- * Convenience shortcuts for common stream methods.
+ * Convenience shortcuts for common java stream methods.
  */
 public class StreamUtil {
 	private static final CollectionSupplier supplier = CollectionSupplier.DEFAULT;

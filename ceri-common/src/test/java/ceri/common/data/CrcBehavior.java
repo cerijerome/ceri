@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
 
 public class CrcBehavior {
@@ -34,8 +34,8 @@ public class CrcBehavior {
 	public void shouldAddBytes() {
 		CrcAlgorithm ca = CrcAlgorithm.of(8, 1);
 		assertEquals(ca.start().add(1, 2).crcByte(), (byte) 0x3);
-		assertEquals(ca.start().add(ArrayUtil.bytes(1, 2)).crcByte(), (byte) 0x3);
-		assertEquals(ca.start().add(ArrayUtil.bytes(0, 1, 2), 1).crcByte(), (byte) 0x3);
+		assertEquals(ca.start().add(ArrayUtil.bytes.of(1, 2)).crcByte(), (byte) 0x3);
+		assertEquals(ca.start().add(ArrayUtil.bytes.of(0, 1, 2), 1).crcByte(), (byte) 0x3);
 		ByteProvider.Reader<?> r = Immutable.wrap(1, 2).reader(0);
 		assertEquals(ca.start().add(r, 2).crcByte(), (byte) 0x3);
 	}

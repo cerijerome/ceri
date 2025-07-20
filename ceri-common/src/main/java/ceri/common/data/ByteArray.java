@@ -9,8 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -36,7 +35,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends ByteArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Empty.BYTES, 0, 0);
+		public static final Immutable EMPTY = new Immutable(ArrayUtil.bytes.empty, 0, 0);
 
 		public static Immutable copyOf(byte[] array) {
 			return copyOf(array, 0);
@@ -52,7 +51,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(int... array) {
-			return wrap(ArrayUtil.bytes(array));
+			return wrap(ArrayUtil.bytes.of(array));
 		}
 
 		public static Immutable wrap(byte[] array) {
@@ -109,7 +108,7 @@ public abstract class ByteArray implements ByteProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends ByteArray implements ByteAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Empty.BYTES, 0, 0);
+		public static final Mutable EMPTY = new Mutable(ArrayUtil.bytes.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new byte[length]);
@@ -129,7 +128,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(int... array) {
-			return wrap(ArrayUtil.bytes(array));
+			return wrap(ArrayUtil.bytes.of(array));
 		}
 
 		public static Mutable wrap(byte[] array) {
@@ -515,7 +514,7 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public byte[] copy(int index, int length) {
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -551,7 +550,7 @@ public abstract class ByteArray implements ByteProvider {
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
+		return ArrayUtil.bytes.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -571,11 +570,11 @@ public abstract class ByteArray implements ByteProvider {
 
 	boolean isEqual(ByteArray other) {
 		if (length() != other.length()) return false;
-		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length());
+		return ArrayUtil.bytes.equals(array, offset(0), other.array, other.offset(0), length());
 	}
 
 	int hash() {
-		return ArrayUtil.hash(array, offset, length());
+		return ArrayUtil.bytes.hash(array, offset, length());
 	}
 
 	boolean isValidSlice(int index, int length) {

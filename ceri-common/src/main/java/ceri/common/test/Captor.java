@@ -4,17 +4,13 @@ import static ceri.common.test.AssertUtil.assertList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.LongConsumer;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.function.Excepts;
+import ceri.common.array.ArrayUtil;
+import ceri.common.function.Functions;
 
 /**
  * Simple consumer to collect values during testing, then verify.
  */
-public class Captor<T> implements Consumer<T>, Excepts.Consumer<RuntimeException, T> {
+public class Captor<T> implements Functions.Consumer<T> {
 	public final List<T> values = new ArrayList<>();
 
 	public static <T> Captor<T> of() {
@@ -52,8 +48,8 @@ public class Captor<T> implements Consumer<T>, Excepts.Consumer<RuntimeException
 		assertList(this.values, values);
 	}
 
-	public static class OfInt extends Captor<Integer> implements IntConsumer, LongConsumer,
-		Excepts.IntConsumer<RuntimeException>, Excepts.LongConsumer<RuntimeException> {
+	public static class OfInt extends Captor<Integer>
+		implements Functions.IntConsumer, Functions.LongConsumer {
 		@Override
 		public void accept(int value) {
 			accept(Integer.valueOf(value));
@@ -71,38 +67,36 @@ public class Captor<T> implements Consumer<T>, Excepts.Consumer<RuntimeException
 		}
 
 		public final void verifyInt(int... values) {
-			verify(ArrayUtil.intList(values));
+			verify(ArrayUtil.ints.list(values));
 		}
 
 		public int[] ints() {
-			return ArrayUtil.ints(values);
+			return ArrayUtil.ints.unboxed(values);
 		}
 	}
 
-	public static class OfLong extends Captor<Long>
-		implements LongConsumer, Excepts.LongConsumer<RuntimeException> {
+	public static class OfLong extends Captor<Long> implements Functions.LongConsumer {
 		@Override
 		public void accept(long value) {
 			accept(Long.valueOf(value));
 		}
 
 		@Override
-		public Captor.OfLong reset() {
+		public OfLong reset() {
 			values.clear();
 			return this;
 		}
 
 		public final void verifyLong(long... values) {
-			verify(ArrayUtil.longList(values));
+			verify(ArrayUtil.longs.list(values));
 		}
 
 		public long[] longs() {
-			return ArrayUtil.longs(values);
+			return ArrayUtil.longs.unboxed(values);
 		}
 	}
 
-	public static class Bi<T, U>
-		implements BiConsumer<T, U>, Excepts.BiConsumer<RuntimeException, T, U> {
+	public static class Bi<T, U> implements Functions.BiConsumer<T, U> {
 		public final Captor<T> first;
 		public final Captor<U> second;
 
@@ -123,5 +117,4 @@ public class Captor<T> implements Consumer<T>, Excepts.Consumer<RuntimeException
 			second.accept(u);
 		}
 	}
-
 }

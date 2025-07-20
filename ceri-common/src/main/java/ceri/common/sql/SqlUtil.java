@@ -6,8 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import ceri.common.collection.WrappedStream;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.stream.WrappedStream;
 
 public class SqlUtil {
 	private static final int TABLE_NAME_INDEX = 3;

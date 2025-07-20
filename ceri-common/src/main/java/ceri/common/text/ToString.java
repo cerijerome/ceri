@@ -1,6 +1,7 @@
 package ceri.common.text;
 
 import static ceri.common.text.StringUtil.EOL;
+import static ceri.common.text.StringUtil.NULL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import ceri.common.collection.ArrayUtil;
+import java.util.function.Function;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
 
@@ -22,6 +23,7 @@ import ceri.common.reflect.ReflectUtil;
  * Typical usage is Value for intrinsic or unnamed data, Field for supplementary or named data.
  */
 public class ToString {
+	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 	private static final String CHILD_INDENT_DEF = "  ";
 	private final String name;
 	private List<Object> values = Collections.emptyList();
@@ -37,6 +39,46 @@ public class ToString {
 			this.name = name;
 			this.value = value;
 		}
+	}
+
+	/**
+	 * Extends Arrays.deepToString to include any object type.
+	 */
+	public static String deep(Object obj) {
+		if (obj == null) return NULL;
+		Class<?> cls = obj.getClass();
+		if (!cls.isArray()) return String.valueOf(obj);
+		var fn = toStringMap.get(cls);
+		if (fn != null) return fn.apply(obj);
+		return Arrays.deepToString((Object[]) obj);
+	}
+
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(Byte value) {
+		return value == null ? NULL : hex(value);
+	}
+
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(Short value) {
+		return value == null ? NULL : hex(value);
+	}
+
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(Integer value) {
+		return value == null ? NULL : hex(value);
+	}
+
+	/**
+	 * Provide unsigned hex string with prefix.
+	 */
+	public static String hex(Long value) {
+		return value == null ? NULL : hex(value);
 	}
 
 	/**
@@ -243,7 +285,7 @@ public class ToString {
 	private String stringValue(Object obj) {
 		if (obj == null) return String.valueOf(obj);
 		if (obj instanceof Date date) return toString(date);
-		return ArrayUtil.deepToString(obj);
+		return deep(obj);
 	}
 
 	private String toString(Date date) {
@@ -274,4 +316,15 @@ public class ToString {
 		b.append(']');
 	}
 
+	private static Map<Class<?>, Function<Object, String>> toStringMap() {
+		return Map.of( //
+			boolean[].class, obj -> Arrays.toString((boolean[]) obj), //
+			char[].class, obj -> Arrays.toString((char[]) obj), //
+			byte[].class, obj -> Arrays.toString((byte[]) obj), //
+			short[].class, obj -> Arrays.toString((short[]) obj), //
+			int[].class, obj -> Arrays.toString((int[]) obj), //
+			long[].class, obj -> Arrays.toString((long[]) obj), //
+			float[].class, obj -> Arrays.toString((float[]) obj), //
+			double[].class, obj -> Arrays.toString((double[]) obj));
+	}
 }

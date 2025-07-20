@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongProvider.Reader;
 import ceri.common.data.LongReceiverBehavior.Holder;
 import ceri.common.math.MathUtil;
@@ -124,7 +124,7 @@ public class LongProviderBehavior {
 	public void shouldDetermineIfIntsAreEqual() {
 		assertTrue(lp.isEqualTo(5, -5, 6, -7, 8, -9));
 		assertFalse(lp.isEqualTo(5, -5, 6, -7, 8, 9));
-		long[] longs = ArrayUtil.longs(0, -1, 2, -3, 4);
+		long[] longs = ArrayUtil.longs.of(0, -1, 2, -3, 4);
 		assertTrue(lp.isEqualTo(0, longs));
 		assertFalse(lp.isEqualTo(0, longs, 0, 6));
 		assertFalse(lp.isEqualTo(9, -9, 0));
@@ -152,7 +152,7 @@ public class LongProviderBehavior {
 		assertEquals(lp.indexOf(0, -1, 2, -3), 1);
 		assertEquals(lp.indexOf(0, -1, 2, 3), -1);
 		assertEquals(lp.indexOf(8, -1, 2, -3), -1);
-		assertEquals(lp.indexOf(0, ArrayUtil.longs(-1, 2, -3), 0, 4), -1);
+		assertEquals(lp.indexOf(0, ArrayUtil.longs.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -169,7 +169,7 @@ public class LongProviderBehavior {
 		assertEquals(lp.lastIndexOf(0, 2, -1), 5);
 		assertEquals(lp.lastIndexOf(0, 2, 1), -1);
 		assertEquals(lp.lastIndexOf(7, 0, -1), -1);
-		assertEquals(lp.lastIndexOf(0, ArrayUtil.longs(2, -1, 0), 0, 4), -1);
+		assertEquals(lp.lastIndexOf(0, ArrayUtil.longs.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test

@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.text.StringUtil;
@@ -266,7 +266,7 @@ public class BinaryPrinter {
 	 * Print binary data.
 	 */
 	public BinaryPrinter print(int... bytes) {
-		return print(ArrayUtil.bytes(bytes));
+		return print(ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongArray;
 import ceri.common.data.LongProvider;
 
@@ -28,8 +28,8 @@ public class VolatileLongArrayBehavior {
 
 	@Test
 	public void shouldCreateACopyFromLongArray() {
-		long[] b = ArrayUtil.longs(0xff, 0x80, 0x7f);
-		VolatileLongArray a = VolatileLongArray.copyOf(ArrayUtil.longs(0xff, 0x80, 0x7f));
+		long[] b = ArrayUtil.longs.of(0xff, 0x80, 0x7f);
+		VolatileLongArray a = VolatileLongArray.copyOf(ArrayUtil.longs.of(0xff, 0x80, 0x7f));
 		a.setLong(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
 		assertArray(a.copy(0), 0xff, 0x80, 0);
@@ -37,7 +37,7 @@ public class VolatileLongArrayBehavior {
 
 	@Test
 	public void shouldCreateByWrappingLongs() {
-		long[] b = ArrayUtil.longs(0xff, 0x80, 0x7f);
+		long[] b = ArrayUtil.longs.of(0xff, 0x80, 0x7f);
 		VolatileLongArray a = VolatileLongArray.wrap(b);
 		a.setLong(2, 0);
 		assertArray(b, 0xff, 0x80, 0);

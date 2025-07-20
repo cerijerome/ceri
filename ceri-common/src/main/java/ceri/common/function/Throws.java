@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 /**
- * Functional interfaces with throwable methods.
+ * Interfaces with throwable methods.
  */
 public class Throws {
 	private Throws() {}
@@ -1049,6 +1049,30 @@ public class Throws {
 		void accept(double l, double r) throws Throwable;
 	}
 
+	// Tri-consumers
+
+	/**
+	 * Functional interface that allows throwable.
+	 */
+	@FunctionalInterface
+	public interface BiObjIntConsumer<T, U> {
+		/**
+		 * Accepts the types, with possible throwable.
+		 */
+		void accept(T t, U u, int i) throws Throwable;
+	}
+
+	/**
+	 * Functional interface that allows throwable.
+	 */
+	@FunctionalInterface
+	public interface ObjBiIntConsumer<T> {
+		/**
+		 * Accepts the types, with possible throwable.
+		 */
+		void accept(T t, int i0, int i1) throws Throwable;
+	}
+
 	// Suppliers
 
 	/**
@@ -1129,5 +1153,4 @@ public class Throws {
 		 */
 		void run() throws Throwable;
 	}
-
 }

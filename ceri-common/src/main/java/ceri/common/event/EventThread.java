@@ -4,29 +4,30 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.function.Consumer;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.CloseableUtil;
 
 /**
  * A utility to propagate events to listeners in a separate thread.
  */
-public class EventThread<T> implements RuntimeCloseable, Consumer<T>, Listenable.Indirect<T> {
+public class EventThread<T>
+	implements Functions.Closeable, Functions.Consumer<T>, Listenable.Indirect<T> {
 	private final Listeners<T> listeners = Listeners.of();
 	private final BlockingQueue<T> events = new LinkedBlockingQueue<>();
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private final Consumer<? super RuntimeException> errorListener;
+	private final Functions.Consumer<? super RuntimeException> errorListener;
 
 	public static <T> EventThread<T> of() {
 		return of(null);
 	}
 
-	public static <T> EventThread<T> of(Consumer<? super RuntimeException> errorListener) {
+	public static <T> EventThread<T>
+		of(Functions.Consumer<? super RuntimeException> errorListener) {
 		return new EventThread<>(errorListener);
 	}
 
-	private EventThread(Consumer<? super RuntimeException> errorListener) {
+	private EventThread(Functions.Consumer<? super RuntimeException> errorListener) {
 		this.errorListener = errorListener;
 		executor.execute(this::loop);
 	}

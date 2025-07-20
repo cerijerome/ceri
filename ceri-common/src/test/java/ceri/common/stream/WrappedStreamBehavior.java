@@ -1,8 +1,8 @@
-package ceri.common.collection;
+package ceri.common.stream;
 
-import static ceri.common.collection.WrappedStreamTestUtil.assertCapture;
-import static ceri.common.collection.WrappedStreamTestUtil.assertStream;
-import static ceri.common.collection.WrappedStreamTestUtil.assertTerminalThrow;
+import static ceri.common.stream.WrappedStreamTestUtil.assertCapture;
+import static ceri.common.stream.WrappedStreamTestUtil.assertStream;
+import static ceri.common.stream.WrappedStreamTestUtil.assertTerminalThrow;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertIterable;
@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import ceri.common.function.Excepts;
 import ceri.common.function.FunctionTestUtil.E;
+import ceri.common.stream.WrappedStream;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil.Ioe;
 

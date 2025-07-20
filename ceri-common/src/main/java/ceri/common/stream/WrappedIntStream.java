@@ -1,4 +1,4 @@
-package ceri.common.collection;
+package ceri.common.stream;
 
 import java.util.OptionalInt;
 import java.util.function.BiConsumer;

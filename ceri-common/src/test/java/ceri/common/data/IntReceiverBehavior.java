@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.ints;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -10,7 +9,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 
 public class IntReceiverBehavior {
@@ -41,12 +40,12 @@ public class IntReceiverBehavior {
 		assertInts(3, br -> assertEquals(br.setInt(1, MAX_VALUE), 2), 0, MAX_VALUE, 0);
 		assertInts(2, br -> assertEquals(br.setInt(0, MIN_VALUE), 1), MIN_VALUE, 0);
 		assertInts(2, br -> assertEquals(br.setLong(0, 0x1234567890L), 2),
-			msb ? ints(0x12, 0x34567890) : ints(0x34567890, 0x12));
+			msb ? ArrayUtil.ints.of(0x12, 0x34567890) : ArrayUtil.ints.of(0x34567890, 0x12));
 		assertInts(2, br -> assertEquals(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 1),
 			0x12345678, 0);
 		assertInts(2,
 			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 2),
-			msb ? ints(0x12, 0x34567890) : ints(0x34567890, 0x12));
+			msb ? ArrayUtil.ints.of(0x12, 0x34567890) : ArrayUtil.ints.of(0x34567890, 0x12));
 	}
 
 	@Test
@@ -127,7 +126,7 @@ public class IntReceiverBehavior {
 
 	@Test
 	public void shouldWriteFromIntArray() {
-		int[] ints = ArrayUtil.ints(1, 2, 3, 4, 5);
+		int[] ints = ArrayUtil.ints.of(1, 2, 3, 4, 5);
 		assertInts(5, br -> br.writer(1).writeFrom(ints, 1, 3), 0, 2, 3, 4, 0);
 	}
 
@@ -144,7 +143,7 @@ public class IntReceiverBehavior {
 
 	@Test
 	public void shouldReturnWriterIntProvider() {
-		IntReceiver br = receiver(ArrayUtil.ints(1, 2, 3, 4, 5));
+		IntReceiver br = receiver(ArrayUtil.ints.of(1, 2, 3, 4, 5));
 		assertEquals(br.writer(0).receiver(), br);
 		assertTrue(br.writer(5, 0).receiver().isEmpty());
 		assertThrown(() -> br.writer(2).receiver());

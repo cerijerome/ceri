@@ -13,7 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
 import ceri.common.math.MathUtil;
@@ -189,7 +189,7 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfBytesAreEqual() {
 		assertTrue(bp.isEqualTo(5, -5, 6, -7, 8, -9));
 		assertFalse(bp.isEqualTo(5, -5, 6, -7, 8, 9));
-		byte[] bytes = ArrayUtil.bytes(0, -1, 2, -3, 4);
+		byte[] bytes = ArrayUtil.bytes.of(0, -1, 2, -3, 4);
 		assertTrue(bp.isEqualTo(0, bytes));
 		assertFalse(bp.isEqualTo(0, bytes, 0, 6));
 		assertFalse(bp.isEqualTo(9, -9, 0));
@@ -210,8 +210,8 @@ public class ByteProviderBehavior {
 	public void shouldDetermineIfContains() {
 		assertEquals(bp.contains(-1, 2, -3), true);
 		assertEquals(bp.contains(-1, 2, 3), false);
-		assertEquals(bp.contains(ArrayUtil.bytes(-1, 2, -3)), true);
-		assertEquals(bp.contains(ArrayUtil.bytes(-1, 2, 3)), false);
+		assertEquals(bp.contains(ArrayUtil.bytes.of(-1, 2, -3)), true);
+		assertEquals(bp.contains(ArrayUtil.bytes.of(-1, 2, 3)), false);
 	}
 
 	@Test
@@ -219,7 +219,7 @@ public class ByteProviderBehavior {
 		assertEquals(bp.indexOf(0, -1, 2, -3), 1);
 		assertEquals(bp.indexOf(0, -1, 2, 3), -1);
 		assertEquals(bp.indexOf(8, -1, 2, -3), -1);
-		assertEquals(bp.indexOf(0, ArrayUtil.bytes(-1, 2, -3), 0, 4), -1);
+		assertEquals(bp.indexOf(0, ArrayUtil.bytes.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -236,7 +236,7 @@ public class ByteProviderBehavior {
 		assertEquals(bp.lastIndexOf(0, 2, -1), 5);
 		assertEquals(bp.lastIndexOf(0, 2, 1), -1);
 		assertEquals(bp.lastIndexOf(7, 0, -1), -1);
-		assertEquals(bp.lastIndexOf(0, ArrayUtil.bytes(2, -1, 0), 0, 4), -1);
+		assertEquals(bp.lastIndexOf(0, ArrayUtil.bytes.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
@@ -336,7 +336,7 @@ public class ByteProviderBehavior {
 	/* Support methods */
 
 	public static ByteProvider provider(int... values) {
-		return provider(ArrayUtil.bytes(values));
+		return provider(ArrayUtil.bytes.of(values));
 	}
 
 	public static ByteProvider provider(byte[] bytes) {

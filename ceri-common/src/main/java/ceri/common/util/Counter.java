@@ -1,58 +1,112 @@
 package ceri.common.util;
 
 /**
- * Simple counter.
+ * Simple counters that prevent overflow.
  */
 public class Counter {
-	private long count;
-
-	public static Counter of() {
-		return of(0);
+	private Counter() {}
+	
+	/**
+	 * Returns an int counter.
+	 */
+	public static Counter.OfInt ofInt(int value) {
+		var counter = new Counter.OfInt();
+		counter.set(value);
+		return counter;
 	}
-
-	public static Counter of(long count) {
-		return new Counter(count);
+	
+	/**
+	 * Returns a long counter.
+	 */
+	public static Counter.OfLong ofLong(long value) {
+		var counter = new Counter.OfLong();
+		counter.set(value);
+		return counter;
 	}
+	
+	/**
+	 * Counter that prevents int overflow.
+	 */
+	public static class OfInt {
+		private int count = 0;
 
-	private Counter(long count) {
-		this.count = count;
+		/**
+		 * Returns the current count.
+		 */
+		public int count() {
+			return count;
+		}
+		
+		/**
+		 * Set the current count and return the previous count.
+		 */
+		public int set(int value) {
+			var old = count;
+			count = value;
+			return old;
+		}
+
+		/**
+		 * Increment then return the current count; value can be negative.
+		 */
+		public int inc(int value) {
+			count = Math.addExact(count, value);
+			return count;
+		}
+
+		/**
+		 * Increment the current count and return the previous count; value can be negative.
+		 */
+		public int preInc(int value) {
+			return set(Math.addExact(count, value));
+		}
+		
+		@Override
+		public String toString() {
+			return String.valueOf(count);
+		}
 	}
+	
+	/**
+	 * Counter that prevents int overflow.
+	 */
+	public static class OfLong {
+		private long count = 0;
 
-	public long count() {
-		return count;
-	}
+		/**
+		 * Returns the current count.
+		 */
+		public long count() {
+			return count;
+		}
+		
+		/**
+		 * Set the current count.
+		 */
+		public long set(long value) {
+			var old = count;
+			count = value;
+			return old;
+		}
 
-	public int intCount() {
-		return Math.toIntExact(count);
-	}
+		/**
+		 * Increment then return the current count; value can be negative.
+		 */
+		public long inc(long value) {
+			count = Math.addExact(count, value);
+			return count;
+		}
 
-	public long set(long value) {
-		long old = count;
-		count = value;
-		return old;
-	}
-
-	public long inc() {
-		return inc(1);
-	}
-
-	public long inc(long value) {
-		count = Math.addExact(count, value);
-		return count;
-	}
-
-	public int intInc() {
-		return intInc(1);
-	}
-
-	public int intInc(long value) {
-		inc(value);
-		return intCount();
-	}
-
-	@Override
-	public String toString() {
-		return String.valueOf(count);
-	}
-
+		/**
+		 * Increment the current count and return the previous count; value can be negative.
+		 */
+		public long preInc(long value) {
+			return set(Math.addExact(count, value));
+		}
+		
+		@Override
+		public String toString() {
+			return String.valueOf(count);
+		}
+	}	
 }

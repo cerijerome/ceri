@@ -4,8 +4,7 @@ import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
 import ceri.common.validation.ValidationUtil;
@@ -31,7 +30,7 @@ public abstract class IntArray implements IntProvider {
 	 * array is no longer held.
 	 */
 	public static class Immutable extends IntArray implements Fluent<Immutable> {
-		public static final Immutable EMPTY = new Immutable(Empty.INTS, 0, 0);
+		public static final Immutable EMPTY = new Immutable(ArrayUtil.ints.empty, 0, 0);
 
 		public static Immutable copyOf(int[] array) {
 			return copyOf(array, 0);
@@ -100,7 +99,7 @@ public abstract class IntArray implements IntProvider {
 	 * and modifications of the original array will modify the wrapped array.
 	 */
 	public static class Mutable extends IntArray implements IntAccessor, Fluent<Mutable> {
-		public static final Mutable EMPTY = new Mutable(Empty.INTS, 0, 0);
+		public static final Mutable EMPTY = new Mutable(ArrayUtil.ints.empty, 0, 0);
 
 		public static Mutable of(int length) {
 			return wrap(new int[length]);
@@ -440,7 +439,7 @@ public abstract class IntArray implements IntProvider {
 
 	@Override
 	public int[] copy(int index, int length) {
-		if (length == 0) return Empty.INTS;
+		if (length == 0) return ArrayUtil.ints.empty;
 		validateSlice(index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
@@ -464,7 +463,7 @@ public abstract class IntArray implements IntProvider {
 	public boolean isEqualTo(int index, int[] array, int offset, int length) {
 		if (!isValidSlice(index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
-		return ArrayUtil.equals(this.array, offset(index), array, offset, length);
+		return ArrayUtil.ints.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
@@ -484,11 +483,11 @@ public abstract class IntArray implements IntProvider {
 
 	boolean isEqual(IntArray other) {
 		if (length != other.length) return false;
-		return ArrayUtil.equals(array, offset(0), other.array, other.offset(0), length);
+		return ArrayUtil.ints.equals(array, offset(0), other.array, other.offset(0), length);
 	}
 
 	int hash() {
-		return ArrayUtil.hash(array, offset, length);
+		return ArrayUtil.ints.hash(array, offset, length);
 	}
 
 	boolean isValidSlice(int index, int length) {

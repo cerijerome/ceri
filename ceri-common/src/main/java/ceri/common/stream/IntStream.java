@@ -1,22 +1,65 @@
 package ceri.common.stream;
 
-import java.util.Comparator;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
-import ceri.common.function.Excepts.IntBiOperator;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntFunction;
-import ceri.common.function.Excepts.IntOperator;
-import ceri.common.function.Excepts.IntPredicate;
+import ceri.common.array.DynamicArray;
+import ceri.common.array.RawArrays;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
+import ceri.common.util.Counter;
 
 /**
  * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
  * create a new instance. Not thread-safe.
  */
 public class IntStream<E extends Exception> {
-	private static final IntStream<RuntimeException> EMPTY = new IntStream<>(Stream.empty());
-	private Stream<E, Integer> stream;
+	private static final Excepts.IntConsumer<RuntimeException> NULL_CONSUMER = _ -> {};
+	private static final IntStream<RuntimeException> EMPTY = new IntStream<>(_ -> false);
+	private NextSupplier<E> supplier;
+
+	/**
+	 * Iterating functional interface
+	 */
+	@FunctionalInterface
+	interface NextSupplier<E extends Exception> {
+		/**
+		 * Returns true and calls the consumer with the next element, otherwise returns false.
+		 */
+		boolean next(Excepts.IntConsumer<? extends E> consumer) throws E;
+
+		/**
+		 * Iterates over elements.
+		 */
+		default void forEach(Excepts.IntConsumer<? extends E> consumer) throws E {
+			while (next(consumer)) {}
+		}
+
+		/**
+		 * Populates the receiver with the next filtered element, otherwise returns false.
+		 */
+		default boolean nextFiltered(Receiver<? extends E> receiver,
+			Excepts.IntPredicate<? extends E> filter) throws E {
+			while (true) {
+				if (!next(receiver)) return false;
+				if (filter.test(receiver.value)) return true;
+			}
+		}
+	}
+
+	/**
+	 * Temporary element receiver.
+	 */
+	static class Receiver<E extends Exception> implements Excepts.IntConsumer<E> {
+		public int value;
+
+		@Override
+		public void accept(int value) throws E {
+			this.value = value;
+		}
+	}
 
 	/**
 	 * Returns an empty stream.
@@ -28,119 +71,158 @@ public class IntStream<E extends Exception> {
 	/**
 	 * Returns a stream of values.
 	 */
-	@SafeVarargs
 	public static <E extends Exception> IntStream<E> of(int... values) {
-		if (values == null || values.length == 0) return empty();
-		return from(java.util.stream.IntStream.of(values));
+		return of(values, 0);
 	}
 
 	/**
-	 * Returns a stream from a standard stream iterator.
+	 * Returns a stream of values.
 	 */
-	public static <E extends Exception> IntStream<E> from(java.util.stream.IntStream stream) {
-		return from(stream.iterator());
+	public static <E extends Exception> IntStream<E> of(int[] values, int offset) {
+		return of(values, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception> IntStream<E> of(int[] values, int offset, int length) {
+		return RawArrays.applySlice(values, offset, length,
+			(o, l) -> l == 0 ? empty() : new IntStream<E>(arraySupplier(values, o, l)));
+	}
+
+	/**
+	 * Returns a stream of iterable values.
+	 */
+	public static <E extends Exception> IntStream<E> from(Iterable<? extends Number> iterable) {
+		if (iterable == null) return empty();
+		return from(iterable.iterator());
 	}
 
 	/**
 	 * Returns a stream of iterator values.
 	 */
-	public static <E extends Exception> IntStream<E> from(Iterator<Integer> iterator) {
+	public static <E extends Exception> IntStream<E> from(Iterator<? extends Number> iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return IntStream.of(Stream.from(iterator));
+		return Stream.<E, Number>from(iterator).mapToInt(Number::intValue);
 	}
 
-	static <E extends Exception> IntStream<E> of(Stream<E, Integer> stream) {
-		return new IntStream<>(stream);
+	IntStream(NextSupplier<E> supplier) {
+		this.supplier = supplier;
 	}
 
-	private IntStream(Stream<E, Integer> stream) {
-		this.stream = stream;
-	}
+	// filters
 
 	/**
 	 * Only streams elements that match the filter.
 	 */
-	public IntStream<E> filter(IntPredicate<E> filter) {
-		Objects.requireNonNull(filter);
-		stream.filter(filter::test);
-		return this;
+	public IntStream<E> filter(Excepts.IntPredicate<? extends E> filter) {
+		if (noOp(filter)) return this;
+		return update(filterSupplier(supplier, filter));
 	}
 
 	/**
-	 * Return stream of boxed ints.
+	 * Returns true if any element matched.
+	 */
+	public boolean anyMatch(Excepts.IntPredicate<? extends E> predicate) throws E {
+		return filter(predicate).supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Returns true if all elements matched.
+	 */
+	public boolean allMatch(Excepts.IntPredicate<? extends E> predicate) throws E {
+		if (noOp(predicate)) return true;
+		return !anyMatch(i -> !predicate.test(i));
+	}
+
+	/**
+	 * Returns true if no elements matched.
+	 */
+	public boolean noneMatch(Excepts.IntPredicate<? extends E> predicate) throws E {
+		return !anyMatch(predicate);
+	}
+
+	// mappers
+
+	/**
+	 * Maps stream elements to a new type.
 	 */
 	public Stream<E, Integer> boxed() {
-		return stream;
-	}
-
-	/**
-	 * Maps stream elements to new values.
-	 */
-	public IntStream<E> map(IntOperator<E> mapper) {
-		Objects.requireNonNull(mapper);
-		stream.map(mapper::applyAsInt);
-		return this;
+		return mapToObj(Integer::valueOf);
 	}
 
 	/**
 	 * Maps stream elements to a new type.
 	 */
-	public <T> Stream<E, T> mapToObj(IntFunction<E, T> mapper) {
-		Objects.requireNonNull(mapper);
-		return stream.map(mapper::apply);
+	public IntStream<E> map(Excepts.IntOperator<? extends E> mapper) {
+		if (noOp(mapper)) return empty();
+		return update(mapSupplier(supplier, mapper));
 	}
+
+	/**
+	 * Maps stream elements to a new type.
+	 */
+	public <T> Stream<E, T> mapToObj(Excepts.IntFunction<? extends E, ? extends T> mapper) {
+		if (noOp(mapper)) return Stream.empty();
+		return new Stream<>(objSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps each element to a stream, and flattens the streams.
+	 */
+	public IntStream<E> flatMap(Excepts.IntFunction<? extends E, ? extends IntStream<E>> mapper) {
+		if (noOp(mapper)) return empty();
+		return update(flatSupplier(objSupplier(supplier, mapper)));
+	}
+
+	// manipulators
 
 	/**
 	 * Limits the number of elements.
 	 */
 	public IntStream<E> limit(long size) {
-		stream.limit(size);
-		return this;
+		if (emptyInstance()) return this;
+		return update(limitSupplier(supplier, size));
 	}
 
 	/**
-	 * Streams distinct elements, by first collecting into a linked set.
+	 * IntStreams distinct elements.
 	 */
-	public IntStream<E> distinct() throws E {
-		stream.distinct();
-		return this;
+	public IntStream<E> distinct() {
+		if (emptyInstance()) return this;
+		return update(distinctSupplier(supplier));
 	}
 
 	/**
-	 * Streams sorted elements, by first collecting into a sorted list.
+	 * IntStreams sorted elements, by first collecting into a sorted list.
 	 */
-	public IntStream<E> sorted() throws E {
-		stream.sorted(Comparator.naturalOrder());
-		return this;
+	public IntStream<E> sorted() {
+		if (emptyInstance()) return this;
+		return update(adaptedSupplier(supplier, s -> sortedSupplier(s)));
 	}
 
+	// terminating functions
+
 	/**
-	 * Iterates elements with a consumer.
+	 * Returns the next element or default.
 	 */
-	public void forEach(IntConsumer<E> action) throws E {
-		Objects.requireNonNull(action);
-		stream.forEach(action::accept);
+	public Integer next() throws E {
+		var receiver = new Receiver<E>();
+		return supplier.next(receiver) ? receiver.value : null;
 	}
 
 	/**
-	 * Collects elements into an array.
+	 * Returns the next element or default.
 	 */
-	public int[] toArray() throws E {
-		return stream.toList().stream().mapToInt(i -> i).toArray();
+	public int next(int def) throws E {
+		return BasicUtil.defInt(next(), def);
 	}
 
 	/**
-	 * Returns the element count.
-	 */
-	public long count() throws E {
-		return stream.count();
-	}
-
-	/**
-	 * Returns the minimum value or null.
+	 * Returns the minimum value or default.
 	 */
 	public Integer min() throws E {
-		return stream.min(Comparator.naturalOrder());
+		return reduce((t, u) -> Integer.compare(t, u) <= 0 ? t : u);
 	}
 
 	/**
@@ -151,10 +233,10 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
-	 * Returns the minimum value or null.
+	 * Returns the maximum value or default.
 	 */
 	public Integer max() throws E {
-		return stream.max(Comparator.naturalOrder());
+		return reduce((t, u) -> Integer.compare(t, u) >= 0 ? t : u);
 	}
 
 	/**
@@ -165,47 +247,183 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
-	 * Reduces stream to an element.
+	 * Returns the element count.
 	 */
-	public Integer reduce(int identity, IntBiOperator<E> accumulator) throws E {
-		return stream.reduce(identity, accumulator::applyAsInt);
+	public long count() throws E {
+		for (long n = 0L;; n++)
+			if (!supplier.next(nullConsumer())) return n;
+	}
+
+	// collectors
+
+	public void forEach(Excepts.IntConsumer<? extends E> consumer) throws E {
+		supplier.forEach(consumer);
 	}
 
 	/**
-	 * Returns true if any element matches.
+	 * Collects elements into an array.
 	 */
-	public boolean anyMatch(IntPredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.anyMatch(predicate::test);
+	public int[] toArray() throws E {
+		return array(supplier).truncate();
 	}
 
 	/**
-	 * Returns true if all elements match.
+	 * Collects elements into a supplied container, with accumulator.
 	 */
-	public boolean allMatch(IntPredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.allMatch(predicate::test);
+	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
+		Excepts.ObjIntConsumer<? extends E, R> accumulator) throws E {
+		if (supplier == null) return null;
+		var r = supplier.get();
+		if (!noOp(accumulator) && r != null) forEach(i -> accumulator.accept(r, i));
+		return r;
+	}
+
+	// reducers
+
+	/**
+	 * Reduces stream to an element, using an identity and accumulator.
+	 */
+	public Integer reduce(Excepts.IntBiOperator<? extends E> accumulator) throws E {
+		if (noOp(accumulator)) return null;
+		var next = next();
+		return next == null ? null : reduce(next, accumulator);
 	}
 
 	/**
-	 * Returns true if no elements match.
+	 * Reduces stream to an element, using an identity and accumulator.
 	 */
-	public boolean noneMatch(IntPredicate<E> predicate) throws E {
-		Objects.requireNonNull(predicate);
-		return stream.noneMatch(predicate::test);
+	public int reduce(int identity, Excepts.IntBiOperator<? extends E> accumulator) throws E {
+		if (noOp(accumulator)) return identity;
+		var receiver = new Receiver<E>();
+		for (int i = identity;;) {
+			if (!supplier.next(receiver)) return i;
+			i = accumulator.applyAsInt(i, receiver.value);
+		}
 	}
 
-	/**
-	 * Returns the next element or null.
-	 */
-	public Integer next() throws E {
-		return stream.next();
-	}
+	// support
 
 	/**
-	 * Returns the next element or default.
+	 * Returns true if this is the empty instance.
 	 */
-	public int next(int def) throws E {
-		return stream.next(def);
+	boolean emptyInstance() {
+		return this == EMPTY;
+	}
+
+	private boolean noOp(Object op) {
+		return op == null || emptyInstance();
+	}
+
+	private Excepts.IntConsumer<E> nullConsumer() {
+		return BasicUtil.unchecked(NULL_CONSUMER);
+	}
+
+	private IntStream<E> update(NextSupplier<E> supplier) {
+		if (!emptyInstance()) this.supplier = supplier;
+		return this;
+	}
+
+	private static <E extends Exception> NextSupplier<E> arraySupplier(int[] array, int offset,
+		int length) {
+		var counter = Counter.ofInt(0);
+		return c -> {
+			if (counter.count() >= length) return false;
+			c.accept(array[offset + counter.preInc(1)]);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> filterSupplier(NextSupplier<E> supplier,
+		Excepts.IntPredicate<? extends E> filter) {
+		var receiver = new Receiver<E>();
+		return c -> {
+			if (!supplier.nextFiltered(receiver, filter)) return false;
+			c.accept(receiver.value);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> mapSupplier(NextSupplier<E> supplier,
+		Excepts.IntOperator<? extends E> mapper) {
+		var receiver = new Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsInt(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception, R> Stream.NextSupplier<E, R> objSupplier(
+		NextSupplier<E> supplier, Excepts.IntFunction<? extends E, ? extends R> mapper) {
+		var receiver = new Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.apply(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E>
+		flatSupplier(Stream.NextSupplier<E, IntStream<E>> supplier) {
+		var streamReceiver = new Stream.Receiver<E, IntStream<E>>();
+		var receiver = new Receiver<E>();
+		return c -> {
+			while (true) {
+				if (streamReceiver.value == null
+					&& !supplier.nextFiltered(streamReceiver, Objects::nonNull)) return false;
+				if (streamReceiver.value.supplier.next(receiver)) {
+					c.accept(receiver.value);
+					return true;
+				}
+				streamReceiver.value = null;
+			}
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> limitSupplier(NextSupplier<E> supplier,
+		long limit) {
+		var counter = Counter.ofLong(0L);
+		return c -> {
+			if (counter.count() >= limit || !supplier.next(c)) return false;
+			counter.inc(1L);
+			return true;
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E>
+		distinctSupplier(NextSupplier<E> supplier) {
+		var set = new HashSet<Integer>();
+		var receiver = new Receiver<E>();
+		return c -> {
+			while (true) {
+				if (!supplier.next(receiver)) return false;
+				if (!set.add(receiver.value)) continue;
+				c.accept(receiver.value);
+				return true;
+			}
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> adaptedSupplier(NextSupplier<E> supplier,
+		Excepts.Operator<E, NextSupplier<E>> adapter) {
+		var receiver = new Stream.Receiver<E, NextSupplier<E>>();
+		return c -> {
+			if (receiver.value == null) receiver.value = adapter.apply(supplier);
+			return receiver.value.next(c);
+		};
+	}
+
+	private static <E extends Exception> NextSupplier<E> sortedSupplier(NextSupplier<E> supplier)
+		throws E {
+		var array = array(supplier);
+		Arrays.sort(array.array(), 0, array.index());
+		return arraySupplier(array.array(), 0, array.index());
+	}
+
+	private static <E extends Exception> DynamicArray.OfInt
+		array(NextSupplier<? extends E> supplier) throws E {
+		var array = DynamicArray.ints();
+		supplier.forEach(Functions.IntConsumer.except(array));
+		return array;
 	}
 }

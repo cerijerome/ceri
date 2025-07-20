@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.runner.JUnitCore;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray.Immutable;
@@ -389,7 +389,7 @@ public class TestUtil {
 	 * Creates a test input stream with given bytes.
 	 */
 	public static ByteArrayInputStream inputStream(int... bytes) {
-		return new ByteArrayInputStream(ArrayUtil.bytes(bytes));
+		return new ByteArrayInputStream(ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

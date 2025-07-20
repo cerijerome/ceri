@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.array.ArrayUtil;
 import ceri.common.stream.StreamUtil;
 import ceri.common.util.BasicUtil;
 
@@ -61,42 +62,42 @@ public class ImmutableUtil {
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Integer> intSet(int... array) {
-		return Set.of(ArrayUtil.boxInts(array));
+		return Set.of(ArrayUtil.ints.boxed(array));
 	}
 
 	/**
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Long> longSet(long... array) {
-		return Set.of(ArrayUtil.boxLongs(array));
+		return Set.of(ArrayUtil.longs.boxed(array));
 	}
 
 	/**
 	 * Creates an immutable set from primitives.
 	 */
 	public static Set<Double> doubleSet(double... array) {
-		return Set.of(ArrayUtil.boxDoubles(array));
+		return Set.of(ArrayUtil.doubles.boxed(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Integer> intList(int... array) {
-		return List.of(ArrayUtil.boxInts(array));
+		return wrapAsList(ArrayUtil.ints.boxed(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Long> longList(long... array) {
-		return List.of(ArrayUtil.boxLongs(array));
+		return wrapAsList(ArrayUtil.longs.boxed(array));
 	}
 
 	/**
 	 * Creates an immutable list from primitives.
 	 */
 	public static List<Double> doubleList(double... array) {
-		return List.of(ArrayUtil.boxDoubles(array));
+		return wrapAsList(ArrayUtil.doubles.boxed(array));
 	}
 
 	/**
@@ -425,7 +426,7 @@ public class ImmutableUtil {
 	 * Wraps a sub-array from start (inclusive) to end (exclusive) as an unmodifiable list.
 	 */
 	public static <T> List<T> wrapAsList(T[] array, int start, int end) {
-		return Collections.unmodifiableList(ArrayUtil.asFixedList(array, start, end));
+		return Collections.unmodifiableList(Arrays.asList(array).subList(start, end));
 	}
 
 	/**

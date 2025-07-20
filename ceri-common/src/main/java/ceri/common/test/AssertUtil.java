@@ -27,7 +27,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
@@ -468,7 +468,7 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(byte[] array, int... values) {
-		assertArray(array, ArrayUtil.bytes(values));
+		assertArray(array, ArrayUtil.bytes.of(values));
 	}
 
 	/**
@@ -482,7 +482,7 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(short[] array, int... values) {
-		assertArray(array, ArrayUtil.shorts(values));
+		assertArray(array, ArrayUtil.shorts.of(values));
 	}
 
 	/**
@@ -545,7 +545,7 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(ByteProvider array, int... values) {
-		assertArray(array, ArrayUtil.bytes(values));
+		assertArray(array, ArrayUtil.bytes.of(values));
 	}
 
 	/**
@@ -592,7 +592,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(boolean[] lhs, boolean... expected) {
-		assertCollection(ArrayUtil.boolList(lhs), ArrayUtil.boolList(expected));
+		assertCollection(ArrayUtil.bools.list(lhs), ArrayUtil.bools.list(expected));
 	}
 
 	/**
@@ -600,7 +600,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(byte[] lhs, byte... expected) {
-		assertCollection(ArrayUtil.byteList(lhs), ArrayUtil.byteList(expected));
+		assertCollection(ArrayUtil.bytes.list(lhs), ArrayUtil.bytes.list(expected));
 	}
 
 	/**
@@ -608,7 +608,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(byte[] lhs, int... values) {
-		assertCollection(lhs, ArrayUtil.bytes(values));
+		assertCollection(lhs, ArrayUtil.bytes.of(values));
 	}
 
 	/**
@@ -616,7 +616,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(char[] lhs, char... expected) {
-		assertCollection(ArrayUtil.charList(lhs), ArrayUtil.charList(expected));
+		assertCollection(ArrayUtil.chars.list(lhs), ArrayUtil.chars.list(expected));
 	}
 
 	/**
@@ -624,7 +624,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(char[] lhs, int... expected) {
-		assertCollection(lhs, ArrayUtil.chars(expected));
+		assertCollection(lhs, ArrayUtil.chars.of(expected));
 	}
 
 	/**
@@ -632,7 +632,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(short[] lhs, short... expected) {
-		assertCollection(ArrayUtil.shortList(lhs), ArrayUtil.shortList(expected));
+		assertCollection(ArrayUtil.shorts.list(lhs), ArrayUtil.shorts.list(expected));
 	}
 
 	/**
@@ -640,7 +640,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(short[] lhs, int... expected) {
-		assertCollection(lhs, ArrayUtil.shorts(expected));
+		assertCollection(lhs, ArrayUtil.shorts.of(expected));
 	}
 
 	/**
@@ -648,7 +648,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(int[] lhs, int... expected) {
-		assertCollection(ArrayUtil.intList(lhs), ArrayUtil.intList(expected));
+		assertCollection(ArrayUtil.ints.list(lhs), ArrayUtil.ints.list(expected));
 	}
 
 	/**
@@ -656,7 +656,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(long[] lhs, long... expected) {
-		assertCollection(ArrayUtil.longList(lhs), ArrayUtil.longList(expected));
+		assertCollection(ArrayUtil.longs.list(lhs), ArrayUtil.longs.list(expected));
 	}
 
 	/**
@@ -664,7 +664,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(float[] lhs, float... expected) {
-		assertCollection(ArrayUtil.floatList(lhs), ArrayUtil.floatList(expected));
+		assertCollection(ArrayUtil.floats.list(lhs), ArrayUtil.floats.list(expected));
 	}
 
 	/**
@@ -672,7 +672,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(float[] lhs, double... expected) {
-		assertCollection(lhs, ArrayUtil.floats(expected));
+		assertCollection(lhs, ArrayUtil.floats.of(expected));
 	}
 
 	/**
@@ -680,7 +680,7 @@ public class AssertUtil {
 	 * if not.
 	 */
 	public static void assertCollection(double[] lhs, double... expected) {
-		assertCollection(ArrayUtil.doubleList(lhs), ArrayUtil.doubleList(expected));
+		assertCollection(ArrayUtil.doubles.list(lhs), ArrayUtil.doubles.list(expected));
 	}
 
 	/**
@@ -1105,7 +1105,7 @@ public class AssertUtil {
 	 * Check bytes read from input stream.
 	 */
 	public static void assertRead(InputStream in, int... bytes) throws IOException {
-		assertRead(in, ArrayUtil.bytes(bytes));
+		assertRead(in, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

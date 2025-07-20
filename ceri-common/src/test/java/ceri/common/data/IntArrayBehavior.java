@@ -13,7 +13,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray.Encodable;
 import ceri.common.data.IntArray.Encoder;
 import ceri.common.data.IntArray.Immutable;
@@ -37,8 +37,8 @@ public class IntArrayBehavior {
 	public void shouldNotBreachImmutableEqualsContract() {
 		Immutable t = Immutable.wrap(1, 2, 3);
 		Immutable eq0 = Immutable.wrap(1, 2, 3);
-		Immutable eq1 = Immutable.copyOf(ArrayUtil.ints(1, 2, 3));
-		Immutable eq2 = Immutable.copyOf(ArrayUtil.ints(0, 1, 2, 3, 4), 1, 3);
+		Immutable eq1 = Immutable.copyOf(ArrayUtil.ints.of(1, 2, 3));
+		Immutable eq2 = Immutable.copyOf(ArrayUtil.ints.of(0, 1, 2, 3, 4), 1, 3);
 		Immutable ne0 = Immutable.wrap(1, 2, 4);
 		Immutable ne1 = Immutable.wrap(1, 2, 3, 0);
 		Immutable ne2 = Immutable.wrap();
@@ -48,7 +48,7 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableCopy() {
-		int[] ints = ArrayUtil.ints(1, 2, 3);
+		int[] ints = ArrayUtil.ints.of(1, 2, 3);
 		Immutable im = Immutable.copyOf(ints);
 		ints[1] = 0;
 		assertEquals(im.getInt(1), 2);
@@ -56,9 +56,9 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableIntWrapper() {
-		assertTrue(Immutable.wrap(ArrayUtil.ints(1, 2, 3)).isEqualTo(0, 1, 2, 3));
-		assertTrue(Immutable.wrap(ArrayUtil.ints(1, 2, 3), 3).isEmpty());
-		int[] ints = ArrayUtil.ints(1, 2, 3);
+		assertTrue(Immutable.wrap(ArrayUtil.ints.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
+		assertTrue(Immutable.wrap(ArrayUtil.ints.of(1, 2, 3), 3).isEmpty());
+		int[] ints = ArrayUtil.ints.of(1, 2, 3);
 		Immutable im = Immutable.wrap(ints);
 		ints[1] = 0;
 		assertEquals(im.getInt(1), 0);
@@ -116,7 +116,7 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldSetLong() {
-		int[] ints = ArrayUtil.ints(1, 2, 3);
+		int[] ints = ArrayUtil.ints.of(1, 2, 3);
 		Mutable m = Mutable.wrap(ints);
 		assertEquals(m.setLong(1, 0xffffeeeeddddccccL, true), 3);
 		assertArray(ints, 1, 0xffffeeee, 0xddddcccc);
@@ -137,8 +137,8 @@ public class IntArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.setInts(3, -4, -5), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, ArrayUtil.ints(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, ArrayUtil.ints(1, 2, 3), 2, 2));
+		assertThrown(() -> m.copyFrom(3, ArrayUtil.ints.of(1, 2, 3), 0));
+		assertThrown(() -> m.copyFrom(0, ArrayUtil.ints.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -185,9 +185,9 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldDetermineIfEqualToInts() {
-		assertTrue(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, ArrayUtil.ints(2, 3, 4)));
-		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(2, ArrayUtil.ints(1, 2)));
-		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(0, ArrayUtil.ints(1, 2), 0, 3));
+		assertTrue(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, ArrayUtil.ints.of(2, 3, 4)));
+		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(2, ArrayUtil.ints.of(1, 2)));
+		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(0, ArrayUtil.ints.of(1, 2), 0, 3));
 	}
 
 	@Test
@@ -257,7 +257,7 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldEncodeAndReadFromIntoIntArray() {
-		int[] bin = ArrayUtil.ints(1, 2, 3, 4, 5);
+		int[] bin = ArrayUtil.ints.of(1, 2, 3, 4, 5);
 		int[] bout = new int[3];
 		Encoder.of().writeFrom(bin, 1, 3).skip(-3).readInto(bout, 1, 2);
 		assertArray(bout, 0, 2, 3);

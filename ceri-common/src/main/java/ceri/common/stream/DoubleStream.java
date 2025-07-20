@@ -3,10 +3,9 @@ package ceri.common.stream;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
-import ceri.common.function.Excepts.DoubleConsumer;
-import ceri.common.function.Excepts.DoubleFunction;
-import ceri.common.function.Excepts.DoubleOperator;
-import ceri.common.function.Excepts.DoublePredicate;
+import ceri.common.array.DynamicArray;
+import ceri.common.function.Excepts;
+import ceri.common.function.FunctionUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -30,14 +29,14 @@ public class DoubleStream<E extends Exception> {
 	@SafeVarargs
 	public static <E extends Exception> DoubleStream<E> of(double... values) {
 		if (values == null || values.length == 0) return empty();
-		return from(java.util.stream.DoubleStream.of(values));
+		return from(java.util.stream.DoubleStream.of(values).iterator());
 	}
 
 	/**
-	 * Returns a stream from a standard stream iterator.
+	 * Returns a stream of iterable values.
 	 */
-	public static <E extends Exception> DoubleStream<E> from(java.util.stream.DoubleStream stream) {
-		return from(stream.iterator());
+	public static <E extends Exception> DoubleStream<E> from(Iterable<Double> iterable) {
+		return from(iterable.iterator());
 	}
 
 	/**
@@ -59,7 +58,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Only streams elements that match the filter.
 	 */
-	public DoubleStream<E> filter(DoublePredicate<E> filter) {
+	public DoubleStream<E> filter(Excepts.DoublePredicate<E> filter) {
 		Objects.requireNonNull(filter);
 		stream.filter(filter::test);
 		return this;
@@ -75,7 +74,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Maps stream elements to new values.
 	 */
-	public DoubleStream<E> map(DoubleOperator<E> mapper) {
+	public DoubleStream<E> map(Excepts.DoubleOperator<E> mapper) {
 		Objects.requireNonNull(mapper);
 		stream.map(mapper::applyAsDouble);
 		return this;
@@ -84,9 +83,27 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Maps stream elements to a new type.
 	 */
-	public <T> Stream<E, T> mapToObj(DoubleFunction<E, T> mapper) {
+	public <T> Stream<E, T> mapToObj(Excepts.DoubleFunction<E, T> mapper) {
 		Objects.requireNonNull(mapper);
 		return stream.map(mapper::apply);
+	}
+
+	/**
+	 * Maps each element to a stream, and flattens the streams.
+	 */
+	public DoubleStream<E>
+		flatMap(Excepts.DoubleFunction<? extends E, DoubleStream<? extends E>> mapper) {
+		Objects.requireNonNull(mapper);
+		stream.flatMap(t -> FunctionUtil.safeApply(mapper.apply(t), s -> s.stream));
+		return this;
+	}
+
+	/**
+	 * Limits the number of elements.
+	 */
+	public DoubleStream<E> limit(long size) {
+		stream.limit(size);
+		return this;
 	}
 
 	/**
@@ -108,7 +125,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Iterates elements with a consumer.
 	 */
-	public void forEach(DoubleConsumer<E> action) throws E {
+	public void forEach(Excepts.DoubleConsumer<E> action) throws E {
 		Objects.requireNonNull(action);
 		stream.forEach(action::accept);
 	}
@@ -117,21 +134,64 @@ public class DoubleStream<E extends Exception> {
 	 * Collects elements into an array.
 	 */
 	public double[] toArray() throws E {
-		return stream.toList().stream().mapToDouble(i -> i).toArray();
+		var array = DynamicArray.doubles();
+		stream.forEach(array::accept);
+		return array.truncate();
 	}
 
 	/**
-	 * Limits the number of elements.
+	 * Returns the element count.
 	 */
-	public DoubleStream<E> limit(long size) {
-		stream.limit(size);
-		return this;
+	public long count() throws E {
+		return stream.count();
+	}
+
+	/**
+	 * Returns the minimum value or null.
+	 */
+	public Double min() throws E {
+		return stream.min(Comparator.naturalOrder());
+	}
+
+	/**
+	 * Returns the minimum value or default.
+	 */
+	public double min(double def) throws E {
+		return BasicUtil.defDouble(min(), def);
+	}
+
+	/**
+	 * Returns the minimum value or null.
+	 */
+	public Double max() throws E {
+		return stream.max(Comparator.naturalOrder());
+	}
+
+	/**
+	 * Returns the maximum value or default.
+	 */
+	public double max(double def) throws E {
+		return BasicUtil.defDouble(max(), def);
+	}
+
+	/**
+	 * Reduces stream to an element or null, using an accumulator.
+	 */
+	public Double reduce(Excepts.DoubleBiOperator<E> accumulator) throws E {
+		return stream.reduce(accumulator::applyAsDouble);
+	}
+
+	/**
+	 * Reduces stream to an element, using an identity and accumulator.
+	 */
+	public double reduce(double identity, Excepts.DoubleBiOperator<E> accumulator) throws E {
+		return stream.reduce(identity, accumulator::applyAsDouble);
 	}
 
 	/**
 	 * Returns true if any element matches.
 	 */
-	public boolean anyMatch(DoublePredicate<E> predicate) throws E {
+	public boolean anyMatch(Excepts.DoublePredicate<E> predicate) throws E {
 		Objects.requireNonNull(predicate);
 		return stream.anyMatch(predicate::test);
 	}
@@ -139,7 +199,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Returns true if all elements match.
 	 */
-	public boolean allMatch(DoublePredicate<E> predicate) throws E {
+	public boolean allMatch(Excepts.DoublePredicate<E> predicate) throws E {
 		Objects.requireNonNull(predicate);
 		return stream.allMatch(predicate::test);
 	}
@@ -147,7 +207,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Returns true if no elements match.
 	 */
-	public boolean noneMatch(DoublePredicate<E> predicate) throws E {
+	public boolean noneMatch(Excepts.DoublePredicate<E> predicate) throws E {
 		Objects.requireNonNull(predicate);
 		return stream.noneMatch(predicate::test);
 	}

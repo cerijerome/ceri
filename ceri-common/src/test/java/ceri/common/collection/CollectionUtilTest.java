@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
 
@@ -284,13 +285,6 @@ public class CollectionUtilTest {
 		map = CollectionUtil.sortByValue(map);
 		assertIterable(map.keySet(), 0, -2, 1, 2, 4);
 		assertIterable(map.values(), null, "-2", "1", "2", "4");
-	}
-
-	@Test
-	public void testToArray() {
-		assertThrown(() -> CollectionUtil.toArray(Collections.emptyList(), Integer.TYPE));
-		var numbers = CollectionUtil.toArray(Arrays.asList(1, 2, 3), Number.class);
-		assertCollection(numbers, 1, 2, 3);
 	}
 
 	@Test

@@ -3,7 +3,7 @@ package ceri.common.event;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.util.function.Supplier;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.event.EventTracker.State;
 import ceri.common.test.TestUtil;
 
@@ -55,7 +55,7 @@ public class EventTrackerBehavior {
 	}
 
 	private EventTracker tracker(int maxEvents, Long windowMs, int... timeStamps) {
-		Supplier<Integer> supplier = ArrayUtil.intList(timeStamps).iterator()::next;
+		Supplier<Integer> supplier = ArrayUtil.ints.list(timeStamps).iterator()::next;
 		return tracker(maxEvents, windowMs, supplier);
 	}
 

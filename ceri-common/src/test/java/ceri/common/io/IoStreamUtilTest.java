@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -14,6 +13,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntSupplier;
@@ -24,8 +24,8 @@ import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.io.IoStreamUtil.Write;
 
 public class IoStreamUtilTest {
-	private final ByteArrayInputStream bin0 = new ByteArrayInputStream(bytes(1, 2, 3));
-	private final ByteArrayInputStream bin1 = new ByteArrayInputStream(bytes(4, 5, 6));
+	private final ByteArrayInputStream bin0 = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+	private final ByteArrayInputStream bin1 = new ByteArrayInputStream(ArrayUtil.bytes.of(4, 5, 6));
 	private final ByteArrayOutputStream bout0 = new ByteArrayOutputStream();
 	private final ByteArrayOutputStream bout1 = new ByteArrayOutputStream();
 
@@ -200,7 +200,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testOutWithNullByteWrite() throws IOException {
 		try (var out = IoStreamUtil.out((IntConsumer<IOException>) null)) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 		}
 	}
@@ -208,7 +208,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testOutWithByteWrite() throws IOException {
 		try (var out = IoStreamUtil.out(b -> bout0.write(b))) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 		}
@@ -217,7 +217,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testOutWithNullArrayWrite() throws IOException {
 		try (var out = IoStreamUtil.out((Write) null)) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 		}
 	}
@@ -225,7 +225,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testOutWithArrayWrite() throws IOException {
 		try (var out = IoStreamUtil.out((b, off, len) -> bout0.write(b, off, len))) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 		}
@@ -237,7 +237,7 @@ public class IoStreamUtilTest {
 	public void testFilterOutWithNullByteWrite() throws IOException {
 		try (var out =
 			IoStreamUtil.filterOut(bout0, (ObjIntPredicate<IOException, OutputStream>) null)) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 		}
@@ -246,7 +246,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterOutWithByteWrite() throws IOException {
 		try (var out = IoStreamUtil.filterOut(bout1, (_, b) -> writeMax(bout0, 3, b))) {
-			out.write(bytes(1, 2, 3, 4));
+			out.write(ArrayUtil.bytes.of(1, 2, 3, 4));
 			out.write(5);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 			assertArray(bout1.toByteArray(), 4, 5);
@@ -256,7 +256,7 @@ public class IoStreamUtilTest {
 	@Test
 	public void testFilterOutWithNullArrayWrite() throws IOException {
 		try (var out = IoStreamUtil.filterOut(bout0, (FilterWrite) null)) {
-			out.write(bytes(1, 2));
+			out.write(ArrayUtil.bytes.of(1, 2));
 			out.write(3);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 		}
@@ -266,8 +266,8 @@ public class IoStreamUtilTest {
 	public void testFilterOutWithArrayWrite() throws IOException {
 		try (var out =
 			IoStreamUtil.filterOut(bout1, (_, b, off, len) -> writeMax(bout0, 3, b, off, len))) {
-			out.write(bytes(1, 2, 3));
-			out.write(bytes(4, 5));
+			out.write(ArrayUtil.bytes.of(1, 2, 3));
+			out.write(ArrayUtil.bytes.of(4, 5));
 			out.write(6);
 			assertArray(bout0.toByteArray(), 1, 2, 3);
 			assertArray(bout1.toByteArray(), 4, 5, 6);

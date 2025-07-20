@@ -13,7 +13,7 @@ import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongArray.Encodable;
 import ceri.common.data.LongArray.Encoder;
 import ceri.common.data.LongArray.Immutable;
@@ -37,8 +37,8 @@ public class LongArrayBehavior {
 	public void shouldNotBreachImmutableEqualsContract() {
 		Immutable t = Immutable.wrap(1, 2, 3);
 		Immutable eq0 = Immutable.wrap(1, 2, 3);
-		Immutable eq1 = Immutable.copyOf(ArrayUtil.longs(1, 2, 3));
-		Immutable eq2 = Immutable.copyOf(ArrayUtil.longs(0, 1, 2, 3, 4), 1, 3);
+		Immutable eq1 = Immutable.copyOf(ArrayUtil.longs.of(1, 2, 3));
+		Immutable eq2 = Immutable.copyOf(ArrayUtil.longs.of(0, 1, 2, 3, 4), 1, 3);
 		Immutable ne0 = Immutable.wrap(1, 2, 4);
 		Immutable ne1 = Immutable.wrap(1, 2, 3, 0);
 		Immutable ne2 = Immutable.wrap();
@@ -48,7 +48,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableCopy() {
-		long[] longs = ArrayUtil.longs(1, 2, 3);
+		long[] longs = ArrayUtil.longs.of(1, 2, 3);
 		Immutable im = Immutable.copyOf(longs);
 		longs[1] = 0;
 		assertEquals(im.getLong(1), 2L);
@@ -56,9 +56,9 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldCreateImmutableLongWrapper() {
-		assertTrue(Immutable.wrap(ArrayUtil.longs(1, 2, 3)).isEqualTo(0, 1, 2, 3));
-		assertTrue(Immutable.wrap(ArrayUtil.longs(1, 2, 3), 3).isEmpty());
-		long[] longs = ArrayUtil.longs(1, 2, 3);
+		assertTrue(Immutable.wrap(ArrayUtil.longs.of(1, 2, 3)).isEqualTo(0, 1, 2, 3));
+		assertTrue(Immutable.wrap(ArrayUtil.longs.of(1, 2, 3), 3).isEmpty());
+		long[] longs = ArrayUtil.longs.of(1, 2, 3);
 		Immutable im = Immutable.wrap(longs);
 		longs[1] = 0;
 		assertEquals(im.getLong(1), 0L);
@@ -109,7 +109,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldSetLong() {
-		long[] longs = ArrayUtil.longs(1, 2, -1L);
+		long[] longs = ArrayUtil.longs.of(1, 2, -1L);
 		Mutable m = Mutable.wrap(longs);
 		assertEquals(m.setLong(1, 0xffffeeeeddddccccL), 2);
 		assertArray(longs, 1, 0xffffeeeeddddccccL, -1L);
@@ -128,8 +128,8 @@ public class LongArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.setLongs(3, -4, -5), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, ArrayUtil.longs(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, ArrayUtil.longs(1, 2, 3), 2, 2));
+		assertThrown(() -> m.copyFrom(3, ArrayUtil.longs.of(1, 2, 3), 0));
+		assertThrown(() -> m.copyFrom(0, ArrayUtil.longs.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -159,9 +159,9 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldDetermineIfEqualToLongs() {
-		assertTrue(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, ArrayUtil.longs(2, 3, 4)));
-		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(2, ArrayUtil.longs(1, 2)));
-		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(0, ArrayUtil.longs(1, 2), 0, 3));
+		assertTrue(Immutable.wrap(1, 2, 3, 4, 5).isEqualTo(1, ArrayUtil.longs.of(2, 3, 4)));
+		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(2, ArrayUtil.longs.of(1, 2)));
+		assertFalse(Immutable.wrap(1, 2, 3).isEqualTo(0, ArrayUtil.longs.of(1, 2), 0, 3));
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldEncodeAndReadFromIntoLongArray() {
-		long[] bin = ArrayUtil.longs(1, 2, 3, 4, 5);
+		long[] bin = ArrayUtil.longs.of(1, 2, 3, 4, 5);
 		long[] bout = new long[3];
 		Encoder.of().writeFrom(bin, 1, 3).skip(-3).readInto(bout, 1, 2);
 		assertArray(bout, 0, 2, 3);

@@ -1,6 +1,5 @@
 package ceri.common.reflect;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -17,17 +16,17 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.function.IntConsumer;
-//import java.util.function.IntConsumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
+import ceri.common.function.Functions;
 import ceri.common.reflect.ReflectUtil.ThreadElement;
 import ceri.common.test.Captor;
 import ceri.common.util.Counter;
 
 public class ReflectUtilTest {
-	private static final Counter counter = Counter.of();
+	private static final Counter.OfInt counter = Counter.ofInt(0);
 
 	private static abstract class Abstract {
 		@SuppressWarnings("unused")
@@ -72,7 +71,7 @@ public class ReflectUtilTest {
 
 	public static class Init {
 		static {
-			ReflectUtilTest.counter.inc();
+			ReflectUtilTest.counter.inc(1);
 		}
 	}
 
@@ -89,6 +88,31 @@ public class ReflectUtilTest {
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(ReflectUtil.class);
+	}
+
+	static class SuperA {}
+
+	static class SuperB extends SuperA {}
+
+	static class SuperC extends SuperB {}
+
+	@Test
+	public void testSuperclass() {
+		SuperC[][] obj = new SuperC[0][];
+		Class<?> cls = obj.getClass();
+		assertSame(cls, SuperC[][].class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, SuperB[][].class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, SuperA[][].class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, Object[][].class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, Object[].class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, Object.class);
+		cls = ReflectUtil.superClass(cls);
+		assertSame(cls, null);
 	}
 
 	@Test
@@ -180,7 +204,7 @@ public class ReflectUtilTest {
 	public void testPublicValue() {
 		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
 		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
-		byte[] bytes = bytes(1, 2, 3);
+		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
 		assertEquals(ReflectUtil.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
 		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.l = 100), "l"));
 		assertNull(ReflectUtil.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
@@ -227,12 +251,12 @@ public class ReflectUtilTest {
 	@Test
 	public void testInit() {
 		var cls = Init.class;
-		assertEquals(counter.count(), 0L);
+		assertEquals(counter.count(), 0);
 		assertEquals(ReflectUtil.init(null), null);
 		assertEquals(ReflectUtil.init(cls), cls);
-		assertEquals(counter.count(), 1L);
+		assertEquals(counter.count(), 1);
 		assertEquals(ReflectUtil.init(cls), cls);
-		assertEquals(counter.count(), 1L);
+		assertEquals(counter.count(), 1);
 	}
 
 	@Test
@@ -301,7 +325,8 @@ public class ReflectUtilTest {
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
 		assertEquals(ReflectUtil.create(Date.class, argTypes, args), new Date(0));
-		assertEquals(ReflectUtil.create(String.class, byte[].class, bytes(0, 0)), "\0\0");
+		assertEquals(ReflectUtil.create(String.class, byte[].class, ArrayUtil.bytes.of(0, 0)),
+			"\0\0");
 	}
 
 	@Test
@@ -432,9 +457,9 @@ public class ReflectUtilTest {
 	public void testInterceptor() throws ReflectiveOperationException {
 		var delegate = Captor.ofInt();
 		var captor = Captor.<Method, Object[]>ofBi();
-		var method = Captor.OfInt.class.getMethod("accept", int.class);
-		ReflectUtil.interceptor(delegate, captor).accept(3);
-		ReflectUtil.interceptor(IntConsumer.class, delegate, captor).accept(-1);
+		var method = Functions.IntConsumer.class.getMethod("accept", int.class);
+		ReflectUtil.<Functions.IntConsumer>interceptor(delegate, captor).accept(3);
+		ReflectUtil.interceptor(Functions.IntConsumer.class, delegate, captor).accept(-1);
 		delegate.verify(3, -1);
 		captor.first.verify(method, method);
 		captor.second.verify(new Object[] { 3 }, new Object[] { -1 });

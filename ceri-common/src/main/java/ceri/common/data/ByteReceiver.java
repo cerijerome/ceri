@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -165,7 +165,7 @@ public interface ByteReceiver {
 	 * Sets bytes at given index. Returns the index after the written bytes.
 	 */
 	default int setBytes(int index, int... array) {
-		return copyFrom(index, ArrayUtil.bytes(array));
+		return copyFrom(index, ArrayUtil.bytes.of(array));
 	}
 
 	/**

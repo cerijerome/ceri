@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.collection.WrappedStream;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -38,6 +37,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.FunctionWrapper;
 import ceri.common.stream.StreamUtil;
+import ceri.common.stream.WrappedStream;
 import ceri.common.text.StringUtil;
 import ceri.common.util.SystemVars;
 

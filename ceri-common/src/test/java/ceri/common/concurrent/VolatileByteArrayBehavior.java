@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 
 public class VolatileByteArrayBehavior {
@@ -27,8 +27,8 @@ public class VolatileByteArrayBehavior {
 
 	@Test
 	public void shouldCreateACopyFromByteArray() {
-		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
-		VolatileByteArray a = VolatileByteArray.copyOf(ArrayUtil.bytes(0xff, 0x80, 0x7f));
+		byte[] b = ArrayUtil.bytes.of(0xff, 0x80, 0x7f);
+		VolatileByteArray a = VolatileByteArray.copyOf(ArrayUtil.bytes.of(0xff, 0x80, 0x7f));
 		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
 		assertArray(a.copy(0), 0xff, 0x80, 0);
@@ -36,7 +36,7 @@ public class VolatileByteArrayBehavior {
 
 	@Test
 	public void shouldCreateByWrappingBytes() {
-		byte[] b = ArrayUtil.bytes(0xff, 0x80, 0x7f);
+		byte[] b = ArrayUtil.bytes.of(0xff, 0x80, 0x7f);
 		VolatileByteArray a = VolatileByteArray.wrap(b);
 		a.setByte(2, 0);
 		assertArray(b, 0xff, 0x80, 0);

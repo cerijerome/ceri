@@ -2,11 +2,11 @@ package ceri.common.util;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.function.Excepts;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.text.StringUtil;
+import ceri.common.text.ToString;
 
 /**
  * Utility to read parameters from args[], system properties, and environment variables.
@@ -16,7 +16,7 @@ public class StartupValues {
 	private String prefix = null;
 	private int index = 0;
 	private Consumer<String> notifier = _ -> {};
-	private Function<Object, String> renderer = ArrayUtil::deepToString;
+	private Function<Object, String> renderer = ToString::deep;
 
 	/**
 	 * Parse system property or environment variable by name, without notification.

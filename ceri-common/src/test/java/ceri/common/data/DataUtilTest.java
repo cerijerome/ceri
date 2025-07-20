@@ -1,11 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.reader;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
 
 public class DataUtilTest {
@@ -60,7 +60,7 @@ public class DataUtilTest {
 	public void testExpectByteArray() {
 		DataUtil.expect(reader(1, 2, 3), 1, 2, 3);
 		DataUtil.expect(reader(1, 2, 3, 4), 1, 2, 3);
-		DataUtil.expect(reader(1, 2, 3), bytes(0, 1, 2, 3, 4), 1, 3);
+		DataUtil.expect(reader(1, 2, 3), ArrayUtil.bytes.of(0, 1, 2, 3, 4), 1, 3);
 		assertThrown(() -> DataUtil.expect(reader(1, 2, 3), 1, 2, 4));
 		var r = reader(1, 2, 3, 4, 5);
 		assertThrown(() -> DataUtil.expect(r, 1, 1, 3));
@@ -82,7 +82,7 @@ public class DataUtilTest {
 	public void testExpectAllByteArray() {
 		DataUtil.expectAll(reader(1, 2, 3), 1, 2, 3);
 		DataUtil.expectAll(reader(1, 2, 3, 4), 1, 2, 3);
-		DataUtil.expectAll(reader(1, 2, 3), bytes(0, 1, 2, 3, 4), 1, 3);
+		DataUtil.expectAll(reader(1, 2, 3), ArrayUtil.bytes.of(0, 1, 2, 3, 4), 1, 3);
 		assertThrown(() -> DataUtil.expectAll(reader(1, 2, 3), 1, 2, 4));
 		var r = reader(1, 2, 3, 4, 5);
 		assertThrown(() -> DataUtil.expectAll(r, 1, 1, 3));

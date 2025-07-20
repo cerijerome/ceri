@@ -1,7 +1,7 @@
 package ceri.common.function;
 
 /**
- * Functional interfaces that throw specific exceptions.
+ * Interfaces that throw specific exceptions.
  */
 public class Excepts {
 	private Excepts() {}
@@ -882,6 +882,27 @@ public class Excepts {
 		void accept(double l, double r) throws E;
 	}
 
+	// Tri-consumers
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface BiObjIntConsumer<E extends Exception, T, U>
+		extends Throws.BiObjIntConsumer<T, U> {
+		@Override
+		void accept(T t, U u, int i) throws E;
+	}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjBiIntConsumer<E extends Exception, T> extends Throws.ObjBiIntConsumer<T> {
+		@Override
+		void accept(T t, int i0, int i1) throws E;
+	}
+
 	// Suppliers
 
 	/**
@@ -964,7 +985,42 @@ public class Excepts {
 	 * Functional interface that throws specific exceptions.
 	 */
 	@FunctionalInterface
+	@Deprecated
 	public interface RuntimeCloseable extends Closeable<RuntimeException> {
 		static RuntimeCloseable NULL = () -> {};
+	}
+
+	/**
+	 * Provides an iterator that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface Iterable<E extends Exception, T> {
+		/**
+		 * Returns a new iterator.
+		 */
+		Iterator<E, T> iterator();
+
+		/**
+		 * Iterates over elements, passing each element to the consumer.
+		 */
+		default void forEach(Consumer<? extends E, ? super T> consumer) throws E {
+			for (var i = iterator(); i.hasNext();)
+				consumer.accept(i.next());
+		}
+	}
+
+	/**
+	 * Simplified iterator that throws specific exceptions.
+	 */
+	public interface Iterator<E extends Exception, T> {
+		/**
+		 * Returns true if the iterator has more elements.
+		 */
+		boolean hasNext() throws E;
+
+		/**
+		 * Returns the next element or throws no element exception.
+		 */
+		T next() throws E;
 	}
 }

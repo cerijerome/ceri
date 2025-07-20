@@ -31,7 +31,7 @@ public interface Named {
 	 * Provides name or null string.
 	 */
 	static String nameOf(Named named) {
-		return named != null ? named.name() : StringUtil.NULL_STRING;
+		return named != null ? named.name() : StringUtil.NULL;
 	}
 
 	/**

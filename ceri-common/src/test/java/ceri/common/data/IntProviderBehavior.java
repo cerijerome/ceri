@@ -9,7 +9,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
 import ceri.common.math.MathUtil;
@@ -166,7 +166,7 @@ public class IntProviderBehavior {
 	public void shouldDetermineIfIntsAreEqual() {
 		assertTrue(ip.isEqualTo(5, -5, 6, -7, 8, -9));
 		assertFalse(ip.isEqualTo(5, -5, 6, -7, 8, 9));
-		int[] ints = ArrayUtil.ints(0, -1, 2, -3, 4);
+		int[] ints = ArrayUtil.ints.of(0, -1, 2, -3, 4);
 		assertTrue(ip.isEqualTo(0, ints));
 		assertFalse(ip.isEqualTo(0, ints, 0, 6));
 		assertFalse(ip.isEqualTo(9, -9, 0));
@@ -194,7 +194,7 @@ public class IntProviderBehavior {
 		assertEquals(ip.indexOf(0, -1, 2, -3), 1);
 		assertEquals(ip.indexOf(0, -1, 2, 3), -1);
 		assertEquals(ip.indexOf(8, -1, 2, -3), -1);
-		assertEquals(ip.indexOf(0, ArrayUtil.ints(-1, 2, -3), 0, 4), -1);
+		assertEquals(ip.indexOf(0, ArrayUtil.ints.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
@@ -211,7 +211,7 @@ public class IntProviderBehavior {
 		assertEquals(ip.lastIndexOf(0, 2, -1), 5);
 		assertEquals(ip.lastIndexOf(0, 2, 1), -1);
 		assertEquals(ip.lastIndexOf(7, 0, -1), -1);
-		assertEquals(ip.lastIndexOf(0, ArrayUtil.ints(2, -1, 0), 0, 4), -1);
+		assertEquals(ip.lastIndexOf(0, ArrayUtil.ints.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test

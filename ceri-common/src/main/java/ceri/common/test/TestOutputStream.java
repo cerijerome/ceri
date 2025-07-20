@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.regex.Pattern;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.SubArray;
-import ceri.common.collection.SubArray.Bytes;
+import ceri.common.array.ArrayUtil;
+import ceri.common.array.SubArray;
+import ceri.common.array.SubArray.Bytes;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
@@ -52,7 +52,7 @@ public class TestOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		write(ArrayUtil.bytes(b));
+		write(ArrayUtil.bytes.of(b));
 	}
 
 	@SuppressWarnings("resource")

@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -13,7 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 
 public class ByteReceiverBehavior {
@@ -44,18 +43,20 @@ public class ByteReceiverBehavior {
 		assertBytes(1, br -> assertEquals(br.setByte(0, -1), 1), 0xff);
 		assertBytes(3, br -> assertEquals(br.setByte(1, 0x7f), 2), 0, 0x7f, 0);
 		assertBytes(3, br -> assertEquals(br.setShort(1, 0x7ff7), 3),
-			msb ? bytes(0, 0x7f, 0xf7) : bytes(0, 0xf7, 0x7f));
+			msb ? ArrayUtil.bytes.of(0, 0x7f, 0xf7) : ArrayUtil.bytes.of(0, 0xf7, 0x7f));
 		assertBytes(4, br -> assertEquals(br.setInt(0, 0x12345678), 4),
-			msb ? bytes(0x12, 0x34, 0x56, 0x78) : bytes(0x78, 0x56, 0x34, 0x12));
+			msb ? ArrayUtil.bytes.of(0x12, 0x34, 0x56, 0x78) :
+				ArrayUtil.bytes.of(0x78, 0x56, 0x34, 0x12));
 		assertBytes(8, br -> assertEquals(br.setLong(0, 0x1234567890L), 8),
-			msb ? bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
-				bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
+			msb ? ArrayUtil.bytes.of(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
+				ArrayUtil.bytes.of(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
 		assertBytes(4, br -> assertEquals(br.setFloat(0, Float.intBitsToFloat(0x12345678)), 4),
-			msb ? bytes(0x12, 0x34, 0x56, 0x78) : bytes(0x78, 0x56, 0x34, 0x12));
+			msb ? ArrayUtil.bytes.of(0x12, 0x34, 0x56, 0x78) :
+				ArrayUtil.bytes.of(0x78, 0x56, 0x34, 0x12));
 		assertBytes(8,
 			br -> assertEquals(br.setDouble(0, Double.longBitsToDouble(0x1234567890L)), 8),
-			msb ? bytes(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
-				bytes(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
+			msb ? ArrayUtil.bytes.of(0, 0, 0, 0x12, 0x34, 0x56, 0x78, 0x90) :
+				ArrayUtil.bytes.of(0x90, 0x78, 0x56, 0x34, 0x12, 0, 0, 0));
 	}
 
 	@Test
@@ -119,7 +120,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldReadFromInputStream() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
 		assertBytes(5, br -> assertEquals(br.readFrom(1, in), 4), 0, 1, 2, 3, 0);
 		assertBytes(2, br -> assertEquals(br.readFrom(1, in, 0), 1), 0, 0);
 		in.reset();
@@ -158,7 +159,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldWriteFromByteArray() {
-		byte[] bytes = ArrayUtil.bytes(1, 2, 3, 4, 5);
+		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3, 4, 5);
 		assertBytes(5, br -> br.writer(1).writeFrom(bytes, 1, 3), 0, 2, 3, 4, 0);
 	}
 
@@ -170,7 +171,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
 		assertBytes(5, br -> assertEquals(br.writer(1).transferFrom(in), 3), 0, 1, 2, 3, 0);
 	}
 
@@ -181,7 +182,7 @@ public class ByteReceiverBehavior {
 
 	@Test
 	public void shouldReturnWriterByteProvider() {
-		ByteReceiver br = receiver(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		ByteReceiver br = receiver(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		assertEquals(br.writer(0).receiver(), br);
 		assertTrue(br.writer(5, 0).receiver().isEmpty());
 		assertThrown(() -> br.writer(2).receiver());
@@ -199,7 +200,7 @@ public class ByteReceiverBehavior {
 
 	private static <E extends Exception> void assertBytes(int size,
 		Consumer<E, ByteReceiver> action, int... bytes) throws E {
-		assertBytes(size, action, ArrayUtil.bytes(bytes));
+		assertBytes(size, action, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

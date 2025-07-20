@@ -9,8 +9,10 @@ import ceri.common.test.TestUtil;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	// array
+	ceri.common.array.RawArraysTest.class, //
+	ceri.common.array.SubArrayBehavior.class, //
 	// collection
-	ceri.common.collection.ArrayUtilTest.class, //
 	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumUtilTest.class, //
@@ -21,12 +23,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.collection.IteratorUtilTest.class, //
 	ceri.common.collection.MapPopulatorBehavior.class, //
 	ceri.common.collection.NodeBehavior.class, //
-	ceri.common.stream.StreamUtilTest.class, //
-	ceri.common.collection.SubArrayBehavior.class, //
 	ceri.common.collection.TimeQueueBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
-	ceri.common.collection.WrappedIntStreamBehavior.class, //
-	ceri.common.collection.WrappedStreamBehavior.class, //
 	// color
 	ceri.common.color.BiasTest.class, //
 	ceri.common.color.BlendTypeBehavior.class, //
@@ -226,6 +224,9 @@ import ceri.common.test.TestUtil;
 	ceri.common.sql.SqlUtilTest.class, //
 	// stream
 	ceri.common.stream.StreamBehavior.class, //
+	ceri.common.stream.StreamUtilTest.class, //
+	ceri.common.stream.WrappedIntStreamBehavior.class, //
+	ceri.common.stream.WrappedStreamBehavior.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //

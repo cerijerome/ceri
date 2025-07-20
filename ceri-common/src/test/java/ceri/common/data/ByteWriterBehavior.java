@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -10,7 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.test.TestUtil;
@@ -33,15 +32,18 @@ public class ByteWriterBehavior {
 		assertBytes(1, w -> w.writeBool(false), 0);
 		assertBytes(1, w -> w.writeBool(true), 1);
 		assertBytes(1, w -> w.writeByte(-1), -1);
-		assertBytes(2, w -> w.writeShort(0x7f80), msb ? bytes(0x7f, 0x80) : bytes(0x80, 0x7f));
+		assertBytes(2, w -> w.writeShort(0x7f80),
+			msb ? ArrayUtil.bytes.of(0x7f, 0x80) : ArrayUtil.bytes.of(0x80, 0x7f));
 		assertBytes(4, w -> w.writeInt(0x1007f80),
-			msb ? bytes(1, 0, 0x7f, 0x80) : bytes(0x80, 0x7f, 0, 1));
+			msb ? ArrayUtil.bytes.of(1, 0, 0x7f, 0x80) : ArrayUtil.bytes.of(0x80, 0x7f, 0, 1));
 		assertBytes(8, w -> w.writeLong(0xff01007f80L),
-			msb ? bytes(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) : bytes(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
+			msb ? ArrayUtil.bytes.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
+				ArrayUtil.bytes.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
 		assertBytes(4, w -> w.writeFloat(Float.intBitsToFloat(0x1007f80)),
-			msb ? bytes(1, 0, 0x7f, 0x80) : bytes(0x80, 0x7f, 0, 1));
+			msb ? ArrayUtil.bytes.of(1, 0, 0x7f, 0x80) : ArrayUtil.bytes.of(0x80, 0x7f, 0, 1));
 		assertBytes(8, w -> w.writeDouble(Double.longBitsToDouble(0xff01007f80L)),
-			msb ? bytes(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) : bytes(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
+			msb ? ArrayUtil.bytes.of(0, 0, 0, 0xff, 1, 0, 0x7f, 0x80) :
+				ArrayUtil.bytes.of(0x80, 0x7f, 0, 1, 0xff, 0, 0, 0));
 	}
 
 	@Test
@@ -108,7 +110,7 @@ public class ByteWriterBehavior {
 	 */
 	private static <E extends Exception> void assertBytes(int size,
 		Consumer<E, ByteWriter<?>> action, int... bytes) throws E {
-		assertBytes(size, action, ArrayUtil.bytes(bytes));
+		assertBytes(size, action, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

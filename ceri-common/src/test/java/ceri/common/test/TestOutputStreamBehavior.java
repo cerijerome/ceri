@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 
 public class TestOutputStreamBehavior {
@@ -27,7 +27,7 @@ public class TestOutputStreamBehavior {
 
 	@Test
 	public void shouldSinkBytes() throws IOException {
-		out.write(ArrayUtil.bytes(1, 2, 3));
+		out.write(ArrayUtil.bytes.of(1, 2, 3));
 		assertEquals(out.from.available(), 3);
 		assertRead(out.from, 1, 2, 3);
 		assertEquals(out.from.available(), 0);
@@ -36,7 +36,7 @@ public class TestOutputStreamBehavior {
 	@Test
 	public void should() throws IOException {
 		out.assertAvailable(0);
-		out.write(ArrayUtil.bytes(1, 2, 3));
+		out.write(ArrayUtil.bytes.of(1, 2, 3));
 		out.flush();
 		assertAssertion(() -> out.assertAvailable(2));
 		out.assertAvailable(3);

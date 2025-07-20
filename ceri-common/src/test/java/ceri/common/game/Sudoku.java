@@ -55,7 +55,7 @@ public class Sudoku {
 	private final Map<IntProvider, State> groupStates = new IdentityHashMap<>();
 	private final int[] masks;
 	private final Set<Integer> changedIndexes = new HashSet<>();
-	private final Counter trialCount = Counter.of();
+	private final Counter.OfInt trialCount = Counter.ofInt(0);
 	private long timeMs = -1;
 
 	public static Sudoku easy9x9() {
@@ -425,7 +425,7 @@ public class Sudoku {
 		if (!solved) return false; // unsolvable
 		if (trials.isEmpty()) return true; // no trials
 		trials.forEach(t -> setMask(t.index(), mask(t.number())));
-		return solve(new ArrayDeque<>(), Counter.of());
+		return solve(new ArrayDeque<>(), Counter.ofInt(0));
 	}
 
 	private void fixed(String line, int r) {
@@ -444,7 +444,7 @@ public class Sudoku {
 
 	/* solving support */
 
-	private boolean solve(Deque<Trial> trials, Counter counter) {
+	private boolean solve(Deque<Trial> trials, Counter.OfInt counter) {
 		processGroups();
 		return complete() || processTrialAndError(trials, counter);
 	}
@@ -464,7 +464,7 @@ public class Sudoku {
 		}
 	}
 
-	private boolean processTrialAndError(Deque<Trial> trials, Counter counter) {
+	private boolean processTrialAndError(Deque<Trial> trials, Counter.OfInt counter) {
 		int index = trialIndex();
 		if (index == INVALID) return false;
 		int mask = masks[index];
@@ -492,11 +492,11 @@ public class Sudoku {
 		return index;
 	}
 
-	private boolean trial(Deque<Trial> trials, Counter counter) {
+	private boolean trial(Deque<Trial> trials, Counter.OfInt counter) {
 		var trial = trials.getLast();
 		var copy = new Sudoku(this);
 		copy.setMask(trial.index(), mask(trial.number()));
-		counter.inc();
+		counter.inc(1);
 		try {
 			return copy.solve(trials, counter);
 		} catch (IllegalArgumentException e) {

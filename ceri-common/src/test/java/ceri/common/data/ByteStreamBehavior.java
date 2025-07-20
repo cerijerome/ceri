@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
@@ -134,7 +134,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldWriteFromByteArray() throws IOException {
 		var pipe = PipedStream.of();
-		byte[] bytes = ArrayUtil.bytes(1, 2, 3, 4, 5);
+		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3, 4, 5);
 		Writer w = ByteStream.writer(pipe.out());
 		w.writeFrom(bytes, 1, 3);
 		w.writeFrom(bytes, 0, 2);

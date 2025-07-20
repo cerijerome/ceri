@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -11,6 +10,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.Connector;
 import ceri.common.io.StateChange;
@@ -33,7 +33,7 @@ public class TestConnectorBehavior {
 	public void shouldEchoToInput() throws IOException {
 		con.open();
 		con.echoOn();
-		con.out().write(bytes(1, 2, 3, 4, 5), 1, 3);
+		con.out().write(ArrayUtil.bytes.of(1, 2, 3, 4, 5), 1, 3);
 		assertEquals(con.in().available(), 3);
 		assertRead(con.in(), 2, 3, 4);
 	}
@@ -45,7 +45,7 @@ public class TestConnectorBehavior {
 		con.pairWith((Connector) con2);
 		con.open();
 		con2.open();
-		con.out().write(bytes(1, 2, 3));
+		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(con2.out.from, 1, 2, 3);
 	}
 

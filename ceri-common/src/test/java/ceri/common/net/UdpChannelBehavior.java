@@ -1,6 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -8,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.net.InetAddress;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.reflect.ReflectUtil;
@@ -51,7 +51,7 @@ public class UdpChannelBehavior {
 	@Test
 	public void shouldJoinMulticastGroup() throws IOException {
 		if (!isNetworkAvailable()) return;
-		var multicastAddress = InetAddress.getByAddress(bytes(239, 255, 1, 1));
+		var multicastAddress = InetAddress.getByAddress(ArrayUtil.bytes.of(239, 255, 1, 1));
 		try (var udp0 = UdpChannel.of(0); var udp1 = UdpChannel.of(0)) {
 			assertTrue(udp1.join(multicastAddress));
 			assertFalse(udp1.join(multicastAddress)); // already joined

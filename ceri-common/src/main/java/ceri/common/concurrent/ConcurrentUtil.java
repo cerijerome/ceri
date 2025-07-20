@@ -19,10 +19,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.Excepts;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
@@ -135,7 +134,7 @@ public class ConcurrentUtil {
 	 * Calls future get with support for converting exceptions.
 	 */
 	public static <T, E extends Exception> T get(Future<T> future,
-		Function<Throwable, ? extends E> exceptionConstructor) throws E {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor) throws E {
 		try {
 			return future.get();
 		} catch (InterruptedException e) {
@@ -149,7 +148,7 @@ public class ConcurrentUtil {
 	 * Calls future get with millisecond time limit, with support for converting exceptions.
 	 */
 	public static <T, E extends Exception> T get(Future<T> future,
-		Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs) throws E {
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs) throws E {
 		try {
 			return future.get(timeoutMs, MILLISECONDS);
 		} catch (InterruptedException e) {
@@ -165,7 +164,8 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for the result.
 	 */
 	public static <E extends Exception, T> T submitAndGet(ExecutorService executor,
-		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor) throws E {
+		Callable<T> callable, Functions.Function<Throwable, ? extends E> exceptionConstructor)
+		throws E {
 		return get(executor.submit(callable), exceptionConstructor);
 	}
 
@@ -173,8 +173,8 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for the result.
 	 */
 	public static <E extends Exception, T> T submitAndGet(ExecutorService executor,
-		Callable<T> callable, Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs)
-		throws E {
+		Callable<T> callable, Functions.Function<Throwable, ? extends E> exceptionConstructor,
+		int timeoutMs) throws E {
 		return get(executor.submit(callable), exceptionConstructor, timeoutMs);
 	}
 
@@ -182,8 +182,8 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for completion.
 	 */
 	public static <E extends Exception> void submitAndWait(ExecutorService executor,
-		Excepts.Runnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor)
-		throws E {
+		Excepts.Runnable<?> runnable,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor) throws E {
 		get(submit(executor, runnable), exceptionConstructor);
 	}
 
@@ -191,8 +191,8 @@ public class ConcurrentUtil {
 	 * Submit the action and wait for completion.
 	 */
 	public static <E extends Exception> void submitAndWait(ExecutorService executor,
-		Excepts.Runnable<?> runnable, Function<Throwable, ? extends E> exceptionConstructor,
-		int timeoutMs) throws E {
+		Excepts.Runnable<?> runnable,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs) throws E {
 		get(submit(executor, runnable), exceptionConstructor, timeoutMs);
 	}
 
@@ -201,7 +201,7 @@ public class ConcurrentUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, E> exceptionConstructor, Excepts.Runnable<E>... runnables)
+		Functions.Function<Throwable, E> exceptionConstructor, Excepts.Runnable<E>... runnables)
 		throws InterruptedException, E {
 		invoke(executor, exceptionConstructor, Arrays.asList(runnables));
 	}
@@ -210,7 +210,7 @@ public class ConcurrentUtil {
 	 * Executes all runnable tasks and waits for completion.
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor,
 		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, null, runnables);
 	}
@@ -221,7 +221,7 @@ public class ConcurrentUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
 		Excepts.Runnable<E>... runnables) throws InterruptedException, E {
 		invoke(executor, exceptionConstructor, timeoutMs, Arrays.asList(runnables));
 	}
@@ -231,7 +231,7 @@ public class ConcurrentUtil {
 	 * cancelled and a CancellationException is thrown.
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
 		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, timeoutMs, runnables);
 	}
@@ -286,7 +286,7 @@ public class ConcurrentUtil {
 	/**
 	 * Provides a locked try-with-resources that unlocks on close.
 	 */
-	public static RuntimeCloseable locker(Lock lock) {
+	public static Functions.Closeable locker(Lock lock) {
 		lock.lock();
 		return () -> lock.unlock();
 	}
@@ -425,7 +425,7 @@ public class ConcurrentUtil {
 	 * Returns the thread name, or "null" if null.
 	 */
 	public static String name(Thread thread) {
-		if (thread == null) return StringUtil.NULL_STRING;
+		if (thread == null) return StringUtil.NULL;
 		return thread.getName();
 	}
 
@@ -479,8 +479,7 @@ public class ConcurrentUtil {
 	/**
 	 * Executes and converts InterruptedException to runtime.
 	 */
-	public static void
-		runInterruptible(Excepts.Runnable<? extends InterruptedException> runnable) {
+	public static void runInterruptible(Excepts.Runnable<? extends InterruptedException> runnable) {
 		try {
 			runnable.run();
 		} catch (InterruptedException e) {
@@ -515,7 +514,7 @@ public class ConcurrentUtil {
 	 * nothing If the executor is shut down.
 	 */
 	private static <E extends Exception> void invokeAll(ExecutorService executor,
-		Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
+		Functions.Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
 		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		var callables = CollectionUtil.toList(ConcurrentUtil::callable, runnables);
 		try {

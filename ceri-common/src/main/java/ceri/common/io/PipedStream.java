@@ -7,13 +7,13 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.CloseableUtil;
 
 /**
  * Creates a paired PipedInputStream and PipedOutputStream.
  */
-public class PipedStream implements RuntimeCloseable {
+public class PipedStream implements Functions.Closeable {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedInputStream in;
 	private final PipedOutputStream out;
@@ -23,7 +23,7 @@ public class PipedStream implements RuntimeCloseable {
 	 * InputStream, and a sink to collect the data written to the OutputStream. Typically used to
 	 * test device control logic that requires i/o streams to a hardware device.
 	 */
-	public static class Connector implements RuntimeCloseable {
+	public static class Connector implements Functions.Closeable {
 		public final PipedStream pipedIn;
 		public final PipedStream pipedOut;
 

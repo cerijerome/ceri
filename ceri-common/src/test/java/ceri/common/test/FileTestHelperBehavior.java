@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
@@ -11,6 +10,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.TestPath;
 import ceri.common.util.CloseableUtil;
 
@@ -49,8 +49,8 @@ public class FileTestHelperBehavior {
 	@Test
 	public void shouldFailIfRootExists() throws IOException {
 		files = FileTestHelper.builder().dir("r").build();
-		assertThrown(FileAlreadyExistsException.class, () -> 
-		FileTestHelper.builder(files.root).root("r").build());
+		assertThrown(FileAlreadyExistsException.class,
+			() -> FileTestHelper.builder(files.root).root("r").build());
 	}
 
 	@Test
@@ -62,7 +62,8 @@ public class FileTestHelperBehavior {
 
 	@Test
 	public void shouldCreateBinaryFiles() throws IOException {
-		files = FileTestHelper.builder().filef(bytes(1, 2, 3, 4, 5), "a/%s", "data").build();
+		files = FileTestHelper.builder().filef(ArrayUtil.bytes.of(1, 2, 3, 4, 5), "a/%s", "data")
+			.build();
 		assertArray(files.read("a/data"), 1, 2, 3, 4, 5);
 	}
 

@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.io.IoUtil.EOL_BYTES;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertCollection;
@@ -36,12 +35,13 @@ import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.collection.WrappedStream;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts.ObjIntPredicate;
 import ceri.common.io.IoStreamUtil.Read;
+import ceri.common.stream.WrappedStream;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
@@ -418,7 +418,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableBytes() throws IOException {
 		assertNull(IoUtil.availableBytes(null));
-		try (var in = new ByteArrayInputStream(bytes(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, 2, 3, 4))) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
@@ -431,7 +431,7 @@ public class IoUtilTest {
 	public void testAvailableBytesWithPredicate() throws IOException {
 		assertNull(IoUtil.availableBytes(null, null));
 		ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
-		try (var in = new ByteArrayInputStream(bytes(0, 1, -1, -1, 2, 3))) {
+		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, -1, -1, 2, 3))) {
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(-1));
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(2, 3));
@@ -448,7 +448,7 @@ public class IoUtilTest {
 	@Test
 	public void testReadBytes() throws IOException {
 		assertEquals(IoUtil.readBytes(null, null), 0);
-		try (var in = new ByteArrayInputStream(bytes(0, 1, 2, 3, 4))) {
+		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, 2, 3, 4))) {
 			assertEquals(IoUtil.readBytes(in, null), 0);
 			byte[] buffer = new byte[4];
 			IoUtil.readBytes(in, buffer);

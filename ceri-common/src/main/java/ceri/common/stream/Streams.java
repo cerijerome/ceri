@@ -1,12 +1,16 @@
 package ceri.common.stream;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.IntFunction;
+import java.util.Set;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Functions;
+import ceri.common.text.Joiner;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -14,6 +18,36 @@ import ceri.common.util.BasicUtil;
  */
 public class Streams {
 	private Streams() {}
+
+	public static void main(String[] args) {
+		var comp = Comparator.<Integer>naturalOrder();
+		var joiner = Joiner.LIST_COMPACT.edit().max(10).build();
+		System.out.println(stream().flatMap(Streams::from).collect(joiner));
+		System.out.println(stream().flatMap(Streams::from).sorted(comp).collect(joiner));
+		System.out.println(stream().flatMap(Streams::from).distinct().collect(joiner));
+		System.out.println(stream().flatMap(Streams::from).distinct().sorted(comp).collect(joiner));
+		System.out.println();
+		System.out.println(ArrayUtil.ints.toString(joiner, intStream().flatMap(
+			i -> Streams.from(array[i]).mapToInt(j -> j)).toArray()));
+		System.out.println(ArrayUtil.ints.toString(joiner, intStream().flatMap(
+			i -> Streams.from(array[i]).mapToInt(j -> j)).sorted().toArray()));
+		System.out.println(ArrayUtil.ints.toString(joiner, intStream().flatMap(
+			i -> Streams.from(array[i]).mapToInt(j -> j)).distinct().toArray()));
+		System.out.println(ArrayUtil.ints.toString(joiner, intStream().flatMap(
+			i -> Streams.from(array[i]).mapToInt(j -> j)).distinct().sorted().toArray()));
+	}
+
+	private static final Collection<Integer>[] array = 
+		ArrayUtil.array(null, List.of(3, 2, 1), null, List.of(2, 4, 6, 8),
+			Set.of(3, 4, 5, 6));
+
+	private static Stream<RuntimeException, Collection<Integer>> stream() {
+		return Streams.of(array);
+	}
+
+	private static IntStream<RuntimeException> intStream() {
+		return Streams.ofInt(ArrayUtil.ints.range(0, array.length));
+	}
 
 	/**
 	 * Cast a runtime exception based stream to a specific exception type.
@@ -29,6 +63,27 @@ public class Streams {
 	@SafeVarargs
 	public static <T> Stream<RuntimeException, T> of(T... values) {
 		return Stream.of(values);
+	}
+
+	/**
+	 * Returns a stream of values that supports runtime exceptions.
+	 */
+	public static IntStream<RuntimeException> ofInt(int... values) {
+		return IntStream.of(values);
+	}
+
+	/**
+	 * Returns a stream of values that supports runtime exceptions.
+	 */
+	public static LongStream<RuntimeException> ofLong(long... values) {
+		return LongStream.of(values);
+	}
+
+	/**
+	 * Returns a stream of values that supports runtime exceptions.
+	 */
+	public static DoubleStream<RuntimeException> ofDouble(double... values) {
+		return DoubleStream.of(values);
 	}
 
 	/**
@@ -81,7 +136,7 @@ public class Streams {
 	 * Streams elements sorted by natural order.
 	 */
 	public static <E extends Exception, T extends Comparable<? super T>> Stream<E, T>
-		sorted(Stream<E, T> stream) throws E {
+		sorted(Stream<E, T> stream) {
 		return stream.sorted(Comparator.naturalOrder());
 	}
 
@@ -97,7 +152,7 @@ public class Streams {
 	 * Collects and sorts elements by natural order.
 	 */
 	public static <E extends Exception, T extends Comparable<? super T>> T[]
-		sortedArray(Stream<? extends E, T> stream, IntFunction<T[]> generator) throws E {
+		sortedArray(Stream<? extends E, T> stream, Functions.IntFunction<T[]> generator) throws E {
 		var array = stream.toArray(generator);
 		Arrays.sort(array);
 		return array;

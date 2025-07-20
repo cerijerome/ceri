@@ -77,9 +77,9 @@ public class JoinerBehavior {
 
 	@Test
 	public void shouldIgnoreBadAppendInput() {
-		assertEquals(COLON.appendIndex(null, StringBuilder::append, 3), null);
-		assertString(COLON.appendIndex(sb(), NULL_IDX_FN, 3), "");
-		assertString(COLON.appendIndex(sb(), NULL_IDX_APP, 3), "");
+		assertEquals(COLON.appendWithIndex(null, StringBuilder::append, 3), null);
+		assertString(COLON.appendByIndex(sb(), NULL_IDX_FN, 3), "");
+		assertString(COLON.appendWithIndex(sb(), NULL_IDX_APP, 3), "");
 		assertEquals(COLON.appendAll(null, StringBuilder::append, 1, 2, 3), null);
 		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3)), null);
 		assertEquals(COLON.append(null, StringBuilder::append, Stream.of(1, 2, 3)), null);
@@ -101,8 +101,8 @@ public class JoinerBehavior {
 	@Test
 	public void shouldJoinByIndex() {
 		assertString(LIST.joinIndex((b, i) -> b.append('x').append(i), 3), "{x0, x1, x2}");
-		assertString(LIST.appendIndex(sb(), (b, i) -> b.append('x').append(i), 3), "{x0, x1, x2}");
-		assertString(LIST.appendIndex(sb(), i -> -i, 3), "{0, -1, -2}");
+		assertString(LIST.appendWithIndex(sb(), (b, i) -> b.append('x').append(i), 3), "{x0, x1, x2}");
+		assertString(LIST.appendByIndex(sb(), i -> -i, 3), "{0, -1, -2}");
 	}
 
 	@Test

@@ -10,7 +10,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.TypeTranscoder.Remainder;
 
 public class TypeTranscoderBehavior {

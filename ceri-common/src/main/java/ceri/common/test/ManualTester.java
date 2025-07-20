@@ -29,8 +29,8 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.Listenable;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.function.Functions.ObjIntFunction;
-import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;
 import ceri.common.math.MathUtil;
@@ -49,7 +49,7 @@ import ceri.common.util.CloseableUtil;
  * pre-processing actions before waiting for input, and is able to notify a listener when the
  * subject index changes.
  */
-public class ManualTester implements RuntimeCloseable {
+public class ManualTester implements Functions.Closeable {
 	private static final Lazy.Value<RuntimeException, Boolean> fastMode = Lazy.Value.of(false);
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
 	private final Function<Object, String> stringFn;
@@ -493,7 +493,7 @@ public class ManualTester implements RuntimeCloseable {
 	/**
 	 * Reduce timings to zero when building. Close to return to default timing.
 	 */
-	public static RuntimeCloseable fastMode() {
+	public static Functions.Closeable fastMode() {
 		return fastMode.override(true);
 	}
 

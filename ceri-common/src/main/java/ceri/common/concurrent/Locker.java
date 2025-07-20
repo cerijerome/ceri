@@ -6,14 +6,14 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.Excepts;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.Holder;
 
 /**
  * Encapsulate a lock, handling locking as a closeable resource.
  */
 public class Locker {
-	private final RuntimeCloseable unlocker;
+	private final Functions.Closeable unlocker;
 	public final Lock lock;
 
 	public static Locker of(Lock lock) {
@@ -32,7 +32,7 @@ public class Locker {
 	/**
 	 * Lock, and return a resource that executes unlock on close.
 	 */
-	public RuntimeCloseable lock() {
+	public Functions.Closeable lock() {
 		lock.lock();
 		return unlocker;
 	}
@@ -86,8 +86,7 @@ public class Locker {
 	 * Tries to execute the operation within the lock and return the result as a value holder. The
 	 * holder is empty if the lock is not available.
 	 */
-	public <E extends Exception> OptionalInt tryGetAsInt(Excepts.IntSupplier<E> supplier)
-		throws E {
+	public <E extends Exception> OptionalInt tryGetAsInt(Excepts.IntSupplier<E> supplier) throws E {
 		return ConcurrentUtil.tryLockedGetAsInt(lock, supplier);
 	}
 

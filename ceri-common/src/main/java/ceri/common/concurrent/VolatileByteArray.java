@@ -3,8 +3,7 @@ package ceri.common.concurrent;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Arrays;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.validation.ValidationUtil;
@@ -13,7 +12,7 @@ import ceri.common.validation.ValidationUtil;
  * Fixed-size byte array with volatile values.
  */
 public class VolatileByteArray implements ByteAccessor {
-	public static final VolatileByteArray EMPTY = VolatileByteArray.wrap(Empty.BYTES);
+	public static final VolatileByteArray EMPTY = VolatileByteArray.wrap(ArrayUtil.bytes.empty);
 	private static final VarHandle handle = MethodHandles.arrayElementVarHandle(byte[].class);
 	private final byte[] array;
 	private final int offset;
@@ -36,7 +35,7 @@ public class VolatileByteArray implements ByteAccessor {
 	}
 
 	public static VolatileByteArray wrap(int... array) {
-		return wrap(ArrayUtil.bytes(array));
+		return wrap(ArrayUtil.bytes.of(array));
 	}
 
 	public static VolatileByteArray wrap(byte[] array) {

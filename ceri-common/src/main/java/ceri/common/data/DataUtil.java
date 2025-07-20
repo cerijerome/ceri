@@ -3,7 +3,7 @@ package ceri.common.data;
 import static ceri.common.text.StringUtil.DECIMAL_RADIX;
 import static ceri.common.text.StringUtil.escape;
 import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.validation.ValidationUtil;
 
@@ -72,7 +72,7 @@ public class DataUtil {
 	 * Expect next byte values. Reading stops if a byte does not match, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, int... bytes) {
-		expect(r, ArrayUtil.bytes(bytes));
+		expect(r, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class DataUtil {
 	 * length bytes.
 	 */
 	public static void expectAll(ByteReader r, int... bytes) {
-		expectAll(r, ArrayUtil.bytes(bytes));
+		expectAll(r, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

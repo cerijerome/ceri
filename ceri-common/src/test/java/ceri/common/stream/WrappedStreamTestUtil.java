@@ -1,10 +1,12 @@
-package ceri.common.collection;
+package ceri.common.stream;
 
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.stream.WrappedIntStream;
+import ceri.common.stream.WrappedStream;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.Captor;
 

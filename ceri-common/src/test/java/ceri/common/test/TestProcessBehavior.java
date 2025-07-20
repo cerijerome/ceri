@@ -7,7 +7,7 @@ import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.process.Parameters;
 import ceri.common.test.TestProcess.TestProcessor;
 import ceri.common.time.Timeout;
@@ -25,7 +25,7 @@ public class TestProcessBehavior {
 	@Test
 	public void shouldReset() throws IOException {
 		try (var p = TestProcess.of("in", "err", 0)) {
-			p.getOutputStream().write(ArrayUtil.bytes(1, 2, 3));
+			p.getOutputStream().write(ArrayUtil.bytes.of(1, 2, 3));
 			assertEquals(p.getInputStream().available(), 2);
 			assertEquals(p.getErrorStream().available(), 3);
 			p.out.assertAvailable(3);

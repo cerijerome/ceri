@@ -3,7 +3,7 @@ package ceri.common.data;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.stream.StreamUtil;
 
@@ -14,7 +14,7 @@ import ceri.common.stream.StreamUtil;
 public class SimpleBitSet extends BitSet {
 
 	public static SimpleBitSet from(int... bits) {
-		return from(ArrayUtil.intList(bits));
+		return from(ArrayUtil.ints.list(bits));
 	}
 
 	public static SimpleBitSet from(Collection<Integer> bits) {

@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 
@@ -28,8 +28,8 @@ public class VolatileIntArrayBehavior {
 
 	@Test
 	public void shouldCreateACopyFromIntArray() {
-		int[] b = ArrayUtil.ints(0xff, 0x80, 0x7f);
-		VolatileIntArray a = VolatileIntArray.copyOf(ArrayUtil.ints(0xff, 0x80, 0x7f));
+		int[] b = ArrayUtil.ints.of(0xff, 0x80, 0x7f);
+		VolatileIntArray a = VolatileIntArray.copyOf(ArrayUtil.ints.of(0xff, 0x80, 0x7f));
 		a.setInt(2, 0);
 		assertArray(b, 0xff, 0x80, 0x7f);
 		assertArray(a.copy(0), 0xff, 0x80, 0);
@@ -37,7 +37,7 @@ public class VolatileIntArrayBehavior {
 
 	@Test
 	public void shouldCreateByWrappingInts() {
-		int[] b = ArrayUtil.ints(0xff, 0x80, 0x7f);
+		int[] b = ArrayUtil.ints.of(0xff, 0x80, 0x7f);
 		VolatileIntArray a = VolatileIntArray.wrap(b);
 		a.setInt(2, 0);
 		assertArray(b, 0xff, 0x80, 0);

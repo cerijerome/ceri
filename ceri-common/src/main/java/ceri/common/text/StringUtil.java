@@ -21,12 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions.IntBiPredicate;
 import ceri.common.math.MathUtil;
 import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 import ceri.common.util.Align;
 
 /**
@@ -36,7 +36,7 @@ public class StringUtil {
 	private static final String INTEGRAL_FLOAT = ".0";
 	private static final char UNPRINTABLE_CHAR = '.';
 	public static final char BACKSLASH = '\\';
-	public static final char NULL = '\0';
+	public static final char NUL = '\0';
 	public static final char BS = '\b';
 	public static final char TAB = '\t';
 	public static final char NL = '\n';
@@ -44,7 +44,7 @@ public class StringUtil {
 	public static final char CR = '\r';
 	public static final char ESC = '\u001b';
 	public static final char DEL = '\u007f';
-	public static final String NULL_STRING = "null";
+	public static final String NULL = "null";
 	public static final String EOL = System.lineSeparator();
 	private static final String ESCAPED_NULL = "\\0";
 	private static final String ESCAPED_BACKSLASH = "\\\\";
@@ -198,7 +198,7 @@ public class StringUtil {
 			case NL -> ESCAPED_NL;
 			case CR -> ESCAPED_CR;
 			case TAB -> ESCAPED_TAB;
-			case NULL -> ESCAPED_NULL;
+			case NUL -> ESCAPED_NULL;
 			default -> ESCAPED_UTF16 + toHex(c, SHORT_HEX_DIGITS);
 		};
 	}
@@ -214,7 +214,7 @@ public class StringUtil {
 	 * Encodes an escaped character string.
 	 */
 	static char unEscapeChar(String escapedChar) {
-		if (escapedChar == null) return NULL;
+		if (escapedChar == null) return NUL;
 		return switch (escapedChar) {
 			case ESCAPED_BACKSLASH -> BACKSLASH;
 			case ESCAPED_BS -> BS;
@@ -223,12 +223,12 @@ public class StringUtil {
 			case ESCAPED_NL -> NL;
 			case ESCAPED_CR -> CR;
 			case ESCAPED_TAB -> TAB;
-			case ESCAPED_NULL -> NULL;
+			case ESCAPED_NULL -> NUL;
 			default -> {
 				Character c = escaped(escapedChar, ESCAPED_OCTAL, OCTAL_RADIX);
 				if (c == null) c = escaped(escapedChar, ESCAPED_HEX, HEX_RADIX);
 				if (c == null) c = escaped(escapedChar, ESCAPED_UTF16, HEX_RADIX);
-				yield c == null ? NULL : c;
+				yield c == null ? NUL : c;
 			}
 		};
 	}
@@ -273,7 +273,7 @@ public class StringUtil {
 	 * Splits a string at given indexes.
 	 */
 	public static List<String> split(String s, Collection<Integer> indexes) {
-		return split(s, ArrayUtil.ints(indexes));
+		return split(s, ArrayUtil.ints.unboxed(indexes));
 	}
 
 	/**
@@ -493,7 +493,7 @@ public class StringUtil {
 	 */
 	public static List<String> split(CharSequence s, Pattern pattern) {
 		if (s == null || s.length() == 0) return Collections.emptyList();
-		return StreamUtil.toList(Stream.of(pattern.split(s)).map(String::trim));
+		return Streams.of(pattern.split(s)).map(String::trim).toList();
 	}
 
 	/**

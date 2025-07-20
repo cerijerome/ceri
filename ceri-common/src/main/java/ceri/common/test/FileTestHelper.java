@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.text.StringUtil;
 
@@ -21,7 +21,7 @@ import ceri.common.text.StringUtil;
  * Creates files and dirs under a temp directory, and deletes them on close. Use this to test
  * file-based actions.
  */
-public class FileTestHelper implements RuntimeCloseable {
+public class FileTestHelper implements Functions.Closeable {
 	public final Path root;
 
 	public static class Builder {

@@ -1,10 +1,18 @@
 package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 
 public class HasherBehavior {
+
+	@Test
+	public void shouldProvideDeepHash() {
+		boolean[] bb = { true, false };
+		int[][] ii = { { 3 }, { 1, -1 } };
+		assertEquals(Hasher.deep(bb, ii), 0x1326b8);
+	}
 
 	@Test
 	public void shouldNotBreachEqualsContract() {

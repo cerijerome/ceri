@@ -1,4 +1,4 @@
-package ceri.common.collection;
+package ceri.common.array;
 
 import java.util.Arrays;
 import ceri.common.util.BasicUtil;
@@ -34,7 +34,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public int hashCode() {
-			return ArrayUtil.hash(array, offset, length);
+			return ArrayUtil.objs.hash(array, offset, length);
 		}
 
 		@Override
@@ -44,7 +44,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public String toString() {
-			return ArrayUtil.toString(array, offset, length);
+			return ArrayUtil.objs.toString(array, offset, length);
 		}
 	}
 
@@ -55,7 +55,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public int hashCode() {
-			return ArrayUtil.hash(array, offset, length);
+			return ArrayUtil.bytes.hash(array, offset, length);
 		}
 
 		@Override
@@ -65,7 +65,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public String toString() {
-			return ArrayUtil.toString(array, offset, length);
+			return ArrayUtil.bytes.toString(array, offset, length);
 		}
 	}
 
@@ -76,7 +76,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public int hashCode() {
-			return ArrayUtil.hash(array, offset, length);
+			return ArrayUtil.ints.hash(array, offset, length);
 		}
 
 		@Override
@@ -86,7 +86,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public String toString() {
-			return ArrayUtil.toString(array, offset, length);
+			return ArrayUtil.ints.toString(array, offset, length);
 		}
 	}
 
@@ -97,7 +97,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public int hashCode() {
-			return ArrayUtil.hash(array, offset, length);
+			return ArrayUtil.longs.hash(array, offset, length);
 		}
 
 		@Override
@@ -107,7 +107,7 @@ public abstract class SubArray<T> {
 
 		@Override
 		public String toString() {
-			return ArrayUtil.toString(array, offset, length);
+			return ArrayUtil.longs.toString(array, offset, length);
 		}
 	}
 
@@ -145,19 +145,14 @@ public abstract class SubArray<T> {
 		return offset + length;
 	}
 
-	private static interface Equals<T> {
-		boolean isEqual(T lhs, int lhsOff, int lhsLen, T rhs, int rhsOff, int rhsLen);
-	}
-
-	private static <T> boolean isEqual(SubArray<T> t, Object obj, Equals<T> equalsFn) {
+	private static <T> boolean isEqual(SubArray<T> t, Object obj, RawArrays.Equals<T> equalsFn) {
 		if (t == obj) return true;
 		if (obj == null) return false;
 		if (!t.getClass().isInstance(obj)) return false;
 		SubArray<T> other = BasicUtil.unchecked(obj);
 		if (t.length != other.length) return false;
 		if (t.array == other.array && t.offset == other.offset) return true;
-		return equalsFn.isEqual(t.array, t.offset, t.offset + t.length, other.array, other.offset,
+		return equalsFn.equals(t.array, t.offset, t.offset + t.length, other.array, other.offset,
 			other.offset + other.length);
 	}
-
 }

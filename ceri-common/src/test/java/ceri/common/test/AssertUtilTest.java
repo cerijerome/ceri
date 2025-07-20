@@ -1,13 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.collection.ArrayUtil.bools;
-import static ceri.common.collection.ArrayUtil.bytes;
-import static ceri.common.collection.ArrayUtil.chars;
-import static ceri.common.collection.ArrayUtil.doubles;
-import static ceri.common.collection.ArrayUtil.floats;
-import static ceri.common.collection.ArrayUtil.ints;
-import static ceri.common.collection.ArrayUtil.longs;
-import static ceri.common.collection.ArrayUtil.shorts;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertApproxArray;
 import static ceri.common.test.AssertUtil.assertArray;
@@ -66,7 +58,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 
@@ -193,7 +185,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertRead() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes(1, 2, 3));
+		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(in, 1, 2, 3);
 		in.reset();
 		assertRead(in, ByteProvider.of(1, 2));
@@ -419,16 +411,18 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertApproxArray() {
-		assertApproxArray(doubles(0.1234, 0.1235), 0.1233, 0.1236);
-		assertApproxArray(4, doubles(0.1234, 0.1235), 0.1234, 0.1235);
-		assertAssertion(() -> assertApproxArray(doubles(0.1234, 0.1235), 0.1235, 0.1235));
+		assertApproxArray(ArrayUtil.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
+		assertApproxArray(4, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
+		assertAssertion(
+			() -> assertApproxArray(ArrayUtil.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
 	}
 
 	@Test
 	public void testAssertArrayWithinDiff() {
-		assertArray(0.001, doubles(0.1234, 0.1235), 0.1233, 0.1236);
-		assertArray(0.0001, doubles(0.1234, 0.1235), 0.1234, 0.1235);
-		assertAssertion(() -> assertArray(0.0001, doubles(0.1234, 0.1235), 0.1235, 0.1235));
+		assertArray(0.001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1233, 0.1236);
+		assertArray(0.0001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1234, 0.1235);
+		assertAssertion(
+			() -> assertArray(0.0001, ArrayUtil.doubles.of(0.1234, 0.1235), 0.1235, 0.1235));
 	}
 
 	@Test
@@ -439,28 +433,28 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertCollection() {
-		List<Integer> list = ArrayUtil.intList(5, 1, 4, 2, 3);
+		List<Integer> list = ArrayUtil.ints.list(5, 1, 4, 2, 3);
 		assertCollection(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertCollection(list, 1, 2, 4, 5));
 		assertAssertion(() -> assertCollection(list, 1, 2, 3, 4, 5, 6));
-		assertCollection(bools(true, false), false, true);
-		assertAssertion(() -> assertCollection(bools(true, false), false, false));
-		assertCollection(chars('a', 'b'), 'b', 'a');
-		assertAssertion(() -> assertCollection(chars('a', 'b'), 'b', 'b'));
-		assertCollection(chars('a', 'b'), 0x62, 0x61);
-		assertAssertion(() -> assertCollection(chars('a', 'b'), 0x62, 0x62));
-		assertCollection(bytes(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(bytes(-1, 1), 1, 1));
-		assertCollection(shorts(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(shorts(-1, 1), 1, 1));
-		assertCollection(ints(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ints(-1, 1), 1, 1));
-		assertCollection(longs(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(longs(-1, 1), 1, 1));
-		assertCollection(floats(-1.0, 1.0), 1.0, -1.0);
-		assertAssertion(() -> assertCollection(floats(-1.0, 1.0), 1.0, 1.0));
-		assertCollection(doubles(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(doubles(-1, 1), 1, 1));
+		assertCollection(ArrayUtil.bools.of(true, false), false, true);
+		assertAssertion(() -> assertCollection(ArrayUtil.bools.of(true, false), false, false));
+		assertCollection(ArrayUtil.chars.of('a', 'b'), 'b', 'a');
+		assertAssertion(() -> assertCollection(ArrayUtil.chars.of('a', 'b'), 'b', 'b'));
+		assertCollection(ArrayUtil.chars.of('a', 'b'), 0x62, 0x61);
+		assertAssertion(() -> assertCollection(ArrayUtil.chars.of('a', 'b'), 0x62, 0x62));
+		assertCollection(ArrayUtil.bytes.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertCollection(ArrayUtil.bytes.of(-1, 1), 1, 1));
+		assertCollection(ArrayUtil.shorts.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertCollection(ArrayUtil.shorts.of(-1, 1), 1, 1));
+		assertCollection(ArrayUtil.ints.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertCollection(ArrayUtil.ints.of(-1, 1), 1, 1));
+		assertCollection(ArrayUtil.longs.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertCollection(ArrayUtil.longs.of(-1, 1), 1, 1));
+		assertCollection(ArrayUtil.floats.of(-1.0, 1.0), 1.0, -1.0);
+		assertAssertion(() -> assertCollection(ArrayUtil.floats.of(-1.0, 1.0), 1.0, 1.0));
+		assertCollection(ArrayUtil.doubles.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertCollection(ArrayUtil.doubles.of(-1, 1), 1, 1));
 	}
 
 	@Test
@@ -476,8 +470,8 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertBuffer() {
-		assertBuffer(ByteBuffer.wrap(bytes()));
-		assertBuffer(ByteBuffer.wrap(bytes(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
+		assertBuffer(ByteBuffer.wrap(ArrayUtil.bytes.of()));
+		assertBuffer(ByteBuffer.wrap(ArrayUtil.bytes.of(0x80, 0xff, 0x7f)), 0x80, 0xff, 0x7f);
 	}
 
 	@Test

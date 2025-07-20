@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Excepts.DoublePredicate;
@@ -271,7 +271,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T> Predicate<E, T>
 		and(Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.empty(predicates)) return ex(YES);
+		if (ArrayUtil.isEmpty(predicates)) return ex(YES);
 		return and(Arrays.asList(predicates));
 	}
 
@@ -294,7 +294,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T> Predicate<E, T>
 		or(Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.empty(predicates)) return ex(NO);
+		if (ArrayUtil.isEmpty(predicates)) return ex(NO);
 		return or(Arrays.asList(predicates));
 	}
 

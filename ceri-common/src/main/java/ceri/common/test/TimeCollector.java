@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.time.TimeSupplier;
 
@@ -111,6 +111,6 @@ public class TimeCollector {
 		out.printf("mean = %.01f, median = %.01f, range = [%d..%d], [0] = %d, [%d] = %d\n",
 			MathUtil.mean(diff, 0, i), MathUtil.median(diff.clone(), 0, i),
 			MathUtil.min(diff, 0, i), MathUtil.max(diff, 0, i), diff[0], i - 1, diff[i - 1]);
-		if (full) out.println(ArrayUtil.toString(diff, 0, i));
+		if (full) out.println(ArrayUtil.longs.toString(diff, 0, i));
 	}
 }

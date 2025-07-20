@@ -22,7 +22,7 @@ import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
@@ -564,7 +564,7 @@ public class ValidationUtil {
 	 */
 	public static boolean validateFullSlice(int size, int offset, int length) {
 		validateSlice(size, offset, length);
-		return ArrayUtil.fullSlice(size, offset, length);
+		return ArrayUtil.isFullSlice(size, offset, length);
 	}
 
 	/**
@@ -583,7 +583,7 @@ public class ValidationUtil {
 	 */
 	public static boolean validateFullSubRange(int size, int offset, int length) {
 		validateSubRange(size, offset, length);
-		return ArrayUtil.fullSlice(size, offset, length);
+		return ArrayUtil.isFullSlice(size, offset, length);
 	}
 
 	/**

@@ -17,8 +17,7 @@ import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.IteratorUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.IntConsumer;
@@ -207,7 +206,7 @@ public class ByteUtil {
 	 * Creates a byte array of given value.
 	 */
 	public static byte[] fill(int length, int value) {
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		byte[] bytes = new byte[length];
 		Arrays.fill(bytes, (byte) value);
 		return bytes;
@@ -217,7 +216,7 @@ public class ByteUtil {
 	 * Copies bytes from the buffer, and moves the buffer position after the read.
 	 */
 	public static byte[] readFrom(ByteBuffer buffer, int pos, int length) {
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		byte[] bytes = new byte[length];
 		readFrom(buffer, pos, bytes);
 		return bytes;
@@ -250,7 +249,7 @@ public class ByteUtil {
 	 * Copies bytes to the buffer, and moves the buffer position after the write.
 	 */
 	public static int writeTo(ByteBuffer buffer, int pos, int... data) {
-		return writeTo(buffer, pos, ArrayUtil.bytes(data));
+		return writeTo(buffer, pos, ArrayUtil.bytes.of(data));
 	}
 
 	/**
@@ -280,7 +279,7 @@ public class ByteUtil {
 	 * Writes bytes to output stream.
 	 */
 	public static void writeTo(ByteArrayOutputStream out, int... bytes) {
-		writeTo(out, ArrayUtil.bytes(bytes));
+		writeTo(out, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**
@@ -336,7 +335,7 @@ public class ByteUtil {
 	 * Decodes string from latin-1 bytes.
 	 */
 	public static String fromAscii(int... data) {
-		return fromAscii(ArrayUtil.bytes(data));
+		return fromAscii(ArrayUtil.bytes.of(data));
 	}
 
 	/**
@@ -635,7 +634,7 @@ public class ByteUtil {
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(long value) {
-		if (value == 0L) return Empty.INTS;
+		if (value == 0L) return ArrayUtil.ints.empty;
 		int[] bits = new int[Long.bitCount(value)];
 		for (int i = Long.numberOfTrailingZeros(value), j = 0; j < bits.length; i++)
 			if (bit(value, i)) bits[j++] = i;
@@ -763,7 +762,7 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromMsb(int... array) {
-		return fromMsb(ArrayUtil.bytes(array));
+		return fromMsb(ArrayUtil.bytes.of(array));
 	}
 
 	/**
@@ -796,7 +795,7 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromLsb(int... array) {
-		return fromLsb(ArrayUtil.bytes(array));
+		return fromLsb(ArrayUtil.bytes.of(array));
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -18,7 +17,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.IteratorUtil;
 import ceri.common.test.Captor;
 
@@ -84,7 +83,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToHex() {
-		byte[] b = ArrayUtil.bytes(-1, 0, 127, 128);
+		byte[] b = ArrayUtil.bytes.of(-1, 0, 127, 128);
 		assertNull(ByteUtil.toHex((byte[]) null, ""));
 		assertNull(ByteUtil.toHex((byte[]) null, 0, 0, ""));
 		assertEquals(ByteUtil.toHex(b, ""), "ff007f80");
@@ -102,7 +101,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testStreamOf() {
-		byte[] b = ArrayUtil.bytes(-1, 0, 1, 127, 128);
+		byte[] b = ArrayUtil.bytes.of(-1, 0, 1, 127, 128);
 		assertStream(ByteUtil.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
 		assertStream(ByteUtil.ustream(-1, 0, 1, 127, 128), 0xff, 0, 1, 0x7f, 0x80);
 	}
@@ -115,7 +114,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testBytesFromBuffer() {
-		ByteBuffer buffer = ByteBuffer.wrap(bytes(1, 2, 3, 4, 5));
+		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		buffer.position(2).limit(4);
 		assertArray(ByteUtil.bytes(buffer), 3, 4);
 	}
@@ -129,13 +128,13 @@ public class ByteUtilTest {
 	@Test
 	public void testReadByteArrayFromByteBuffer() {
 		assertArray(ByteUtil.readFrom(null, 1, 0));
-		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		assertArray(ByteUtil.readFrom(buffer, 1, 3), 2, 3, 4);
 	}
 
 	@Test
 	public void testReadFromByteBuffer() {
-		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		byte[] bytes = new byte[3];
 		assertEquals(ByteUtil.readFrom(buffer, 1, bytes), 3);
 		assertArray(bytes, 2, 3, 4);
@@ -202,10 +201,10 @@ public class ByteUtilTest {
 
 	@Test
 	public void testFromNullTerm() {
-		assertEquals(ByteUtil.fromNullTerm(bytes(0, 't', 'e', 's', 't'), UTF_8), "");
-		assertEquals(ByteUtil.fromNullTerm(bytes('t', 'e', 's', 't'), UTF_8), "test");
-		assertEquals(ByteUtil.fromNullTerm(bytes('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8),
-			"\t\r\n");
+		assertEquals(ByteUtil.fromNullTerm(ArrayUtil.bytes.of(0, 't', 'e', 's', 't'), UTF_8), "");
+		assertEquals(ByteUtil.fromNullTerm(ArrayUtil.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
+		assertEquals(ByteUtil.fromNullTerm(
+			ArrayUtil.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8), "\t\r\n");
 		assertEquals(ByteUtil.fromNullTerm(provider('t', 'e', 's', 't', 0, 0), UTF_8), "test");
 	}
 
@@ -451,9 +450,8 @@ public class ByteUtilTest {
 	public void testFromMsb() {
 		assertEquals(ByteUtil.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0xabcd_ef01_2345_6789L);
-		assertEquals(
-			ByteUtil.fromMsb(ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3),
-			0xcdef01L);
+		assertEquals(ByteUtil.fromMsb(
+			ArrayUtil.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0xcdef01L);
 	}
 
 	@Test
@@ -461,7 +459,7 @@ public class ByteUtilTest {
 		assertEquals(ByteUtil.fromLsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0x8967_4523_01ef_cdabL);
 		assertEquals(ByteUtil.fromLsb( //
-			ArrayUtil.bytes(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0x01efcdL);
+			ArrayUtil.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0x01efcdL);
 	}
 
 	@Test

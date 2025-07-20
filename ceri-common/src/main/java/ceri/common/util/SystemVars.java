@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.text.StringUtil;
 
 /**
@@ -77,7 +77,7 @@ public class SystemVars {
 	/**
 	 * Returns a closeable instance that sets a system property, then reverts it on close.
 	 */
-	public static RuntimeCloseable removableProperty(String name, String value) {
+	public static Functions.Closeable removableProperty(String name, String value) {
 		String orig = setProperty(name, value); // null if property not set
 		return () -> setProperty(name, orig);
 	}
@@ -110,7 +110,7 @@ public class SystemVars {
 	/**
 	 * Returns a closeable instance that sets an override, then removes it on close.
 	 */
-	public static RuntimeCloseable removable(String name, String value) {
+	public static Functions.Closeable removable(String name, String value) {
 		set(name, value);
 		return () -> remove(name);
 	}
