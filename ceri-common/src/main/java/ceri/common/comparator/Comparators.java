@@ -14,6 +14,10 @@ import ceri.common.util.BasicUtil;
  * Comparators for primitives and other objects, handling null cases.
  */
 public class Comparators {
+	private static final Comparator<Comparable<Comparable<?>>> NULLS_FIRST_COMPARABLE =
+		Comparator.nullsFirst(Comparator.naturalOrder());
+	private static final Comparator<Comparable<Comparable<?>>> NULLS_LAST_COMPARABLE =
+		Comparator.nullsLast(Comparator.naturalOrder());
 	private static final Comparator<Comparable<Comparable<?>>> COMPARABLE =
 		nonNull(Comparable::compareTo);
 	public static final Comparator<Double> DOUBLE = BasicUtil.unchecked(COMPARABLE);
@@ -82,6 +86,20 @@ public class Comparators {
 			if (lhs.equals(rhs)) return 0;
 			return comparator.compare(lhs, rhs);
 		});
+	}
+
+	/**
+	 * Comparator for comparable objects.
+	 */
+	public static <T extends Comparable<? super T>> Comparator<T> nullsFirstComparable() {
+		return BasicUtil.unchecked(NULLS_FIRST_COMPARABLE);
+	}
+
+	/**
+	 * Comparator for comparable objects.
+	 */
+	public static <T extends Comparable<? super T>> Comparator<T> nullsLastComparable() {
+		return BasicUtil.unchecked(NULLS_LAST_COMPARABLE);
 	}
 
 	/**

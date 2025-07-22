@@ -121,6 +121,13 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
+	 * Drops non-null elements.
+	 */
+	public Stream<E, T> nonNull() {
+		return filter(Objects::nonNull);
+	}
+
+	/**
 	 * Returns true if any element matched.
 	 */
 	public boolean anyMatch(Excepts.Predicate<? extends E, ? super T> predicate) throws E {
@@ -177,11 +184,11 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
-	 * Maps each element to a stream, and flattens the streams.
+	 * Maps each element to a stream, and flattens the streams. Null streams are dropped.
 	 */
 	public <R> Stream<E, R> flatMap(Excepts.Function<? extends E, ? super T, //
 		? extends Stream<E, ? extends R>> mapper) {
-		return update(flatSupplier(map(mapper).filter(Objects::nonNull).supplier));
+		return update(flatSupplier(map(mapper).nonNull().supplier));
 	}
 
 	// manipulators
@@ -190,8 +197,10 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 * Limits the number of elements.
 	 */
 	public Stream<E, T> limit(long size) {
+		if (emptyInstance()) return this;
 		var counter = Counter.ofLong(size);
-		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) > 0));
+		return update(
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
 	}
 
 	/**
@@ -228,9 +237,25 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
+	 * Returns true if no elements are available. Consumes the next value if available.
+	 */
+	public boolean isEmpty() throws E {
+		return !supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Returns the element count.
+	 */
+	public long count() throws E {
+		for (long n = 0L;; n++)
+			if (!supplier.next(nullConsumer())) return n;
+	}
+
+	/**
 	 * Returns the minimum value or null.
 	 */
 	public T min(Comparator<? super T> comparator) throws E {
+		if (noOp(comparator)) return null;
 		return reduce((t, u) -> comparator.compare(t, u) <= 0 ? t : u);
 	}
 
@@ -245,6 +270,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 * Returns the maximum value or null.
 	 */
 	public T max(Comparator<? super T> comparator) throws E {
+		if (noOp(comparator)) return null;
 		return reduce((t, u) -> comparator.compare(t, u) >= 0 ? t : u);
 	}
 
@@ -253,14 +279,6 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public T max(Comparator<? super T> comparator, T def) throws E {
 		return BasicUtil.def(max(comparator), def);
-	}
-
-	/**
-	 * Returns the element count.
-	 */
-	public long count() throws E {
-		for (long n = 0L;; n++)
-			if (!supplier.next(nullConsumer())) return n;
 	}
 
 	// collectors
@@ -286,7 +304,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
-	 * Collects elements.
+	 * Collects elements to an immutable set.
 	 */
 	public Set<T> toSet() throws E {
 		if (emptyInstance()) return Set.of();
@@ -294,7 +312,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
-	 * Collects elements.
+	 * Collects elements to an immutable list.
 	 */
 	public List<T> toList() throws E {
 		if (emptyInstance()) return List.of();
@@ -302,7 +320,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
-	 * Collects and sorts elements.
+	 * Collects elements to an immutable sorted list.
 	 */
 	public List<T> toList(Comparator<? super T> comparator) throws E {
 		if (emptyInstance()) return List.of();
@@ -310,29 +328,46 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	}
 
 	/**
-	 * Collects elements.
+	 * Collects mapped elements to an immutable map.
 	 */
 	public <K> Map<K, T> toMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn)
 		throws E {
-		if (emptyInstance()) return Map.of();
-		return Collections
-			.unmodifiableMap(collectMap(keyFn, CollectionUtil.supplier.<K, T>map().get()));
+		return toMap(keyFn, t -> t);
 	}
 
 	/**
-	 * Collects elements.
+	 * Collects mapped elements to an immutable map.
+	 */
+	public <K, V> Map<K, V> toMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueFn) throws E {
+		if (emptyInstance()) return Map.of();
+		return Collections
+			.unmodifiableMap(collectMap(keyFn, valueFn, CollectionUtil.supplier.<K, V>map().get()));
+	}
+
+	/**
+	 * Adds mapped elements to a map.
 	 */
 	public <K, M extends Map<K, T>> M
 		collectMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn, M map) throws E {
-		Objects.requireNonNull(keyFn);
-		if (map != null) forEach(t -> map.put(keyFn.apply(t), t));
+		return collectMap(keyFn, t -> t, map);
+	}
+
+	/**
+	 * Adds mapped elements to a map.
+	 */
+	public <K, V, M extends Map<K, V>> M collectMap(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueFn, M map) throws E {
+		if (map != null && keyFn != null && valueFn != null)
+			forEach(t -> map.put(keyFn.apply(t), valueFn.apply(t)));
 		return map;
 	}
 
 	/**
-	 * Collects elements into a collection.
+	 * Adds elements to a collection.
 	 */
-	public <C extends Collection<T>> C collect(C collection) throws E {
+	public <C extends Collection<? super T>> C collect(C collection) throws E {
 		if (collection != null) forEach(collection::add);
 		return collection;
 	}
@@ -350,9 +385,9 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public <A, R> R collect(Supplier<A> supplier, BiConsumer<A, ? super T> accumulator,
 		Function<A, R> finisher) throws E {
-		if (supplier == null || accumulator == null || finisher == null) return null;
+		if (supplier == null || finisher == null) return null;
 		var container = supplier.get();
-		contain(container, accumulator);
+		if (!noOp(accumulator) && container != null) forEach(t -> accumulator.accept(container, t));
 		return finisher.apply(container);
 	}
 
@@ -375,9 +410,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		var receiver = new NextSupplier.Receiver<E, T>();
 		for (U u = identity;;) {
 			if (!supplier.next(receiver)) return u;
-			if (receiver.value == null) continue;
-			var result = accumulator.apply(u, receiver.value);
-			if (result != null) u = result;
+			u = accumulator.apply(u, receiver.value);
 		}
 	}
 
@@ -407,15 +440,6 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		var list = collect(CollectionUtil.supplier.<T>list().get());
 		Collections.sort(list, comparator);
 		return list;
-	}
-
-	private <R> void contain(R container, BiConsumer<R, ? super T> accumulator) throws E {
-		if (container == null || accumulator == null) return;
-		var receiver = new NextSupplier.Receiver<E, T>();
-		while (true) {
-			if (!supplier.next(receiver)) break;
-			accumulator.accept(container, receiver.value);
-		}
 	}
 
 	private static <E extends Exception, T> NextSupplier<E, T> arraySupplier(T[] array) {
@@ -512,7 +536,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	private static <E extends Exception, T> NextSupplier<E, T> adaptedSupplier(
 		NextSupplier<E, T> supplier, Excepts.Operator<E, NextSupplier<E, T>> adapter) {
 		var receiver = new NextSupplier.Receiver<E, NextSupplier<E, T>>();
-		return c -> {
+		return c -> { // create the supplier on first call to next
 			if (receiver.value == null) receiver.value = adapter.apply(supplier);
 			return receiver.value.next(c);
 		};

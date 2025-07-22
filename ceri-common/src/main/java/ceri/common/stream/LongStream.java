@@ -187,7 +187,8 @@ public class LongStream<E extends Exception> {
 	 */
 	public LongStream<E> limit(long size) {
 		var counter = Counter.ofLong(size);
-		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) >= 0));
+		return update(
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
 	}
 
 	/**
@@ -223,6 +224,21 @@ public class LongStream<E extends Exception> {
 	}
 
 	/**
+	 * Returns true if no elements are available. Consumes the next value if available.
+	 */
+	public boolean isEmpty() throws E {
+		return supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Returns the element count.
+	 */
+	public long count() throws E {
+		for (long n = 0L;; n++)
+			if (!supplier.next(nullConsumer())) return n;
+	}
+
+	/**
 	 * Returns the minimum value or default.
 	 */
 	public Long min() throws E {
@@ -248,14 +264,6 @@ public class LongStream<E extends Exception> {
 	 */
 	public long max(long def) throws E {
 		return BasicUtil.defLong(max(), def);
-	}
-
-	/**
-	 * Returns the element count.
-	 */
-	public long count() throws E {
-		for (long n = 0L;; n++)
-			if (!supplier.next(nullConsumer())) return n;
 	}
 
 	// collectors

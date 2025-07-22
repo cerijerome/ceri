@@ -193,25 +193,17 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testFill() {
-		var list = ArrayUtil.asList(1, 2, 3, 4, 5);
+		var list = Mutables.asList(1, 2, 3, 4, 5);
 		assertEquals(CollectionUtil.fill(list, 1, 2, 0), 3);
 		assertIterable(list, 1, 0, 0, 4, 5);
 	}
 
 	@Test
 	public void testInsert() {
-		var list1 = ArrayUtil.asList(1, 2, 3);
-		var list2 = ArrayUtil.asList(4, 5, 6);
+		var list1 = Mutables.asList(1, 2, 3);
+		var list2 = Mutables.asList(4, 5, 6);
 		assertEquals(CollectionUtil.insert(list2, 1, list1, 1, 2), 3);
 		assertIterable(list1, 1, 5, 6, 2, 3);
-	}
-
-	@Test
-	public void testCopy() {
-		var list1 = ArrayUtil.asList(1, 2, 3);
-		var list2 = ArrayUtil.asList(4, 5, 6);
-		assertEquals(CollectionUtil.copy(list2, 1, list1, 1, 2), 3);
-		assertIterable(list1, 1, 5, 6);
 	}
 
 	@Test
@@ -346,15 +338,15 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testIntersect() {
-		var list1 = ArrayUtil.asList(0, 1, 2, 3, 4);
-		var list2 = ArrayUtil.asList(1, 3, 5, 7, 9);
+		var list1 = Mutables.asList(0, 1, 2, 3, 4);
+		var list2 = Mutables.asList(1, 3, 5, 7, 9);
 		CollectionUtil.intersect(list1, list2);
 		assertEquals(list1, Arrays.asList(1, 3));
 	}
 
 	@Test
 	public void testRemoveAll() {
-		var list = ArrayUtil.asList(0, 1, 2, 3, 4);
+		var list = Mutables.asList(0, 1, 2, 3, 4);
 		CollectionUtil.removeAll(list, 1, 3, 5, 7, 9);
 		assertEquals(list, Arrays.asList(0, 2, 4));
 	}

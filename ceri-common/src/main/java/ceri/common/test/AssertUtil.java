@@ -17,16 +17,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -39,6 +36,11 @@ import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ReflectUtil;
+import ceri.common.stream.DoubleStream;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -92,19 +94,19 @@ public class AssertUtil {
 		throw exception;
 	}
 
-	public static void fail() {
+	public static <T> T fail() {
 		throw new AssertionError("Failed");
 	}
 
-	public static void fail(Throwable t) {
+	public static <T> T fail(Throwable t) {
 		throw new AssertionError("Failed", t);
 	}
 
-	public static void fail(String format, Object... args) {
+	public static <T> T fail(String format, Object... args) {
 		throw failure(format, args);
 	}
 
-	public static void fail(Throwable t, String format, Object... args) {
+	public static <T> T fail(Throwable t, String format, Object... args) {
 		throw failure(t, format, args);
 	}
 
@@ -771,19 +773,39 @@ public class AssertUtil {
 	}
 
 	@SafeVarargs
-	public static <T> void assertStream(Stream<T> stream, T... ts) {
-		assertArray(stream.toArray(), ts);
+	public static <E extends Exception, T> void assertStream(Stream<E, T> stream, T... ts)
+		throws E {
+		assertIterable(stream.toList(), ts);
 	}
 
-	public static void assertStream(IntStream stream, int... is) {
+	public static <E extends Exception> void assertStream(IntStream<E> stream, int... is) throws E {
 		assertArray(stream.toArray(), is);
 	}
 
-	public static void assertStream(LongStream stream, long... ls) {
+	public static <E extends Exception> void assertStream(LongStream<E> stream, long... ls)
+		throws E {
 		assertArray(stream.toArray(), ls);
 	}
 
-	public static void assertStream(DoubleStream stream, double... ds) {
+	public static <E extends Exception> void assertStream(DoubleStream<E> stream, double... ds)
+		throws E {
+		assertArray(stream.toArray(), ds);
+	}
+
+	@SafeVarargs
+	public static <T> void assertStream(java.util.stream.Stream<T> stream, T... ts) {
+		assertArray(stream.toArray(), ts);
+	}
+
+	public static void assertStream(java.util.stream.IntStream stream, int... is) {
+		assertArray(stream.toArray(), is);
+	}
+
+	public static void assertStream(java.util.stream.LongStream stream, long... ls) {
+		assertArray(stream.toArray(), ls);
+	}
+
+	public static void assertStream(java.util.stream.DoubleStream stream, double... ds) {
 		assertArray(stream.toArray(), ds);
 	}
 
@@ -953,6 +975,13 @@ public class AssertUtil {
 	 */
 	public static void assertOverflow(Excepts.Runnable<Exception> runnable) {
 		assertThrown(ArithmeticException.class, "(?i).*\\boverflow\\b.*", runnable);
+	}
+
+	/**
+	 * Assert a NoSuchElementException is thrown.
+	 */
+	public static void assertNoSuchElement(Excepts.Runnable<Exception> runnable) {
+		assertThrown(NoSuchElementException.class, runnable);
 	}
 
 	/**
@@ -1199,7 +1228,7 @@ public class AssertUtil {
 		}
 		@SuppressWarnings("resource")
 		FileSystem fs = actual.iterator().next().getFileSystem();
-		List<Path> expected = Stream.of(paths).map(fs::getPath).collect(Collectors.toList());
+		List<Path> expected = Streams.of(paths).map(fs::getPath).collect(Collectors.toList());
 		assertCollection(actual, expected);
 	}
 
@@ -1208,7 +1237,7 @@ public class AssertUtil {
 	 */
 	public static void assertHelperPaths(Collection<Path> actual, FileTestHelper helper,
 		String... paths) {
-		List<Path> expected = Stream.of(paths).map(helper::path).collect(Collectors.toList());
+		List<Path> expected = Streams.of(paths).map(helper::path).collect(Collectors.toList());
 		assertCollection(actual, expected);
 	}
 
@@ -1276,5 +1305,4 @@ public class AssertUtil {
 		if (obj instanceof Float) return String.format("%sf", obj);
 		return String.valueOf(obj);
 	}
-
 }

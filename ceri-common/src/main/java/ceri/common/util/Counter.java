@@ -5,7 +5,7 @@ package ceri.common.util;
  */
 public class Counter {
 	private Counter() {}
-	
+
 	/**
 	 * Returns an int counter.
 	 */
@@ -14,7 +14,7 @@ public class Counter {
 		counter.set(value);
 		return counter;
 	}
-	
+
 	/**
 	 * Returns a long counter.
 	 */
@@ -23,7 +23,7 @@ public class Counter {
 		counter.set(value);
 		return counter;
 	}
-	
+
 	/**
 	 * Counter that prevents int overflow.
 	 */
@@ -36,7 +36,7 @@ public class Counter {
 		public int count() {
 			return count;
 		}
-		
+
 		/**
 		 * Set the current count and return the previous count.
 		 */
@@ -60,13 +60,13 @@ public class Counter {
 		public int preInc(int value) {
 			return set(Math.addExact(count, value));
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.valueOf(count);
 		}
 	}
-	
+
 	/**
 	 * Counter that prevents int overflow.
 	 */
@@ -79,7 +79,7 @@ public class Counter {
 		public long count() {
 			return count;
 		}
-		
+
 		/**
 		 * Set the current count.
 		 */
@@ -103,10 +103,10 @@ public class Counter {
 		public long preInc(long value) {
 			return set(Math.addExact(count, value));
 		}
-		
+
 		@Override
 		public String toString() {
 			return String.valueOf(count);
 		}
-	}	
+	}
 }

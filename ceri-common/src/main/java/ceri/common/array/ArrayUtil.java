@@ -36,11 +36,6 @@ public class ArrayUtil {
 		private Empty() {}
 	}
 
-	public static void main(String[] args) {
-		boolean[] array = RawArrays.empty(boolean.class);
-		System.out.println(Arrays.toString(array));
-	}
-
 	/**
 	 * Returns true if index is within array.
 	 */

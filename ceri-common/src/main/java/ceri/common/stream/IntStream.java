@@ -186,7 +186,8 @@ public class IntStream<E extends Exception> {
 	 */
 	public IntStream<E> limit(long size) {
 		var counter = Counter.ofLong(size);
-		return update(preSupplier(supplier, () -> counter.count() > 0 && counter.inc(-1) >= 0));
+		return update(
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
 	}
 
 	/**
@@ -222,6 +223,21 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
+	 * Returns true if no elements are available. Consumes the next value if available.
+	 */
+	public boolean isEmpty() throws E {
+		return supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Returns the element count.
+	 */
+	public long count() throws E {
+		for (long n = 0L;; n++)
+			if (!supplier.next(nullConsumer())) return n;
+	}
+
+	/**
 	 * Returns the minimum value or default.
 	 */
 	public Integer min() throws E {
@@ -249,14 +265,6 @@ public class IntStream<E extends Exception> {
 		return BasicUtil.defInt(max(), def);
 	}
 
-	/**
-	 * Returns the element count.
-	 */
-	public long count() throws E {
-		for (long n = 0L;; n++)
-			if (!supplier.next(nullConsumer())) return n;
-	}
-
 	// collectors
 
 	public void forEach(Excepts.IntConsumer<? extends E> consumer) throws E {
@@ -276,9 +284,9 @@ public class IntStream<E extends Exception> {
 	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
 		Excepts.ObjIntConsumer<? extends E, R> accumulator) throws E {
 		if (supplier == null) return null;
-		var r = supplier.get();
-		if (!noOp(accumulator) && r != null) forEach(i -> accumulator.accept(r, i));
-		return r;
+		var container = supplier.get();
+		if (!noOp(accumulator) && container != null) forEach(i -> accumulator.accept(container, i));
+		return container;
 	}
 
 	// reducers

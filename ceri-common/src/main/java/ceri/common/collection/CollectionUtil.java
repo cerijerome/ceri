@@ -188,17 +188,6 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Copies elements from one list to another. Returns the destination offset after the copied
-	 * elements.
-	 */
-	public static <T> int copy(List<? extends T> from, int srcOffset, List<? super T> to,
-		int destOffset, int length) {
-		for (int i = 0; i < length; i++)
-			to.set(destOffset + i, from.get(srcOffset + i));
-		return destOffset + length;
-	}
-
-	/**
 	 * Inverts keys and values.
 	 */
 	public static <K, V> Map<V, K> invert(Map<K, V> map) {

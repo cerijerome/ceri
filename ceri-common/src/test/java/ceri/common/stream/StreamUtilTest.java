@@ -30,9 +30,9 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Indexed;
 import ceri.common.collection.MapPopulator;
+import ceri.common.collection.Mutables;
 import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil.Ioe;
@@ -271,14 +271,14 @@ public class StreamUtilTest {
 
 	@Test
 	public void testIntStreamFromIteratorFunctions() {
-		var list = ArrayUtil.asList(5, 2, 4, 1);
+		var list = Mutables.asList(5, 2, 4, 1);
 		var stream = StreamUtil.intStream(() -> !list.isEmpty(), () -> list.remove(0));
 		assertStream(stream, 5, 2, 4, 1);
 	}
 
 	@Test
 	public void testLongStreamFromIteratorFunctions() {
-		var list = ArrayUtil.asList(5L, 2L, 4L, 1L);
+		var list = Mutables.asList(5L, 2L, 4L, 1L);
 		var stream = StreamUtil.longStream(() -> !list.isEmpty(), () -> list.remove(0));
 		assertStream(stream, 5, 2, 4, 1);
 	}

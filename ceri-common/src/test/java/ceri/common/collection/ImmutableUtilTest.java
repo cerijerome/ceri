@@ -1,6 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.array.ArrayUtil.asList;
 import static ceri.common.collection.CollectionUtil.asSet;
 import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -309,7 +308,8 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testAsMapOfLists() {
-		var srcMap = new HashMap<>(Map.of("123", asList(1, 2, 3), "4", asList(4)));
+		var srcMap =
+			new HashMap<>(Map.of("123", Mutables.asList(1, 2, 3), "4", Mutables.asList(4)));
 		final var map = ImmutableUtil.asMapOfLists(srcMap);
 		assertImmutableMap(map);
 		assertImmutableList(map.get("123"));
@@ -350,10 +350,10 @@ public class ImmutableUtilTest {
 	public void testCopyAsMapOfSets() {
 		assertNull(ImmutableUtil.copyAsMapOfSets(null));
 		assertTrue(ImmutableUtil.copyAsMapOfSets(new HashMap<>()).isEmpty());
-		Map<String, Set<Integer>> srcMap = testMap( //
-			"123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
-		Map<String, Set<Integer>> copy = testMap( //
-			"123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
+		Map<String, Set<Integer>> srcMap =
+			testMap("123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
+		Map<String, Set<Integer>> copy =
+			testMap("123", asSet(1, 2, 3), "4", asSet(4), "", asSet(), "null", null);
 		final Map<String, Set<Integer>> map = ImmutableUtil.copyAsMapOfSets(srcMap);
 		assertTrue(srcMap.get("123").remove(1));
 		assertNotNull(srcMap.remove("4"));
@@ -367,10 +367,10 @@ public class ImmutableUtilTest {
 	public void testCopyAsMapOfLists() {
 		assertNull(ImmutableUtil.copyAsMapOfLists(null));
 		assertTrue(ImmutableUtil.copyAsMapOfLists(new HashMap<>()).isEmpty());
-		Map<String, List<Integer>> srcMap = testMap( //
-			"123", asList(1, 2, 3), "4", asList(4), "", asList(), "null", null);
-		Map<String, List<Integer>> copy = testMap( //
-			"123", asList(1, 2, 3), "4", asList(4), "", asList(), "null", null);
+		Map<String, List<Integer>> srcMap = testMap("123", Mutables.asList(1, 2, 3), "4",
+			Mutables.asList(4), "", Mutables.asList(), "null", null);
+		Map<String, List<Integer>> copy = testMap("123", Mutables.asList(1, 2, 3), "4",
+			Mutables.asList(4), "", Mutables.asList(), "null", null);
 		final Map<String, List<Integer>> map = ImmutableUtil.copyAsMapOfLists(srcMap);
 		assertEquals(srcMap.get("123").set(0, -1), 1);
 		assertNotNull(srcMap.remove("4"));

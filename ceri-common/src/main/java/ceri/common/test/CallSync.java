@@ -19,6 +19,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.common.util.Holder;
 
@@ -36,7 +37,7 @@ public abstract class CallSync<T, R> {
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
 	private final List<T> values = new ArrayList<>();
 	private final T originalValueDef;
-	private final java.util.function.Supplier<Excepts.Function<?, T, R>> origAutoResponseSupplier;
+	private final Functions.Supplier<Excepts.Function<?, T, R>> origAutoResponseSupplier;
 	private T valueDef;
 	private Excepts.Function<?, T, R> autoResponseFn = null; // can be stateful
 	private int calls = 0;
@@ -91,8 +92,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a function call.
 	 */
-	public static class Function<T, R> extends CallSync<T, R>
-		implements java.util.function.Function<T, R> {
+	public static class Function<T, R> extends CallSync<T, R> implements Functions.Function<T, R> {
 
 		protected Function(T valueDef, R[] autoResponses) {
 			super(valueDef, () -> toAutoResponseFn(autoResponses));
@@ -275,8 +275,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a consumer call.
 	 */
-	public static class Consumer<T> extends CallSync<T, Object>
-		implements java.util.function.Consumer<T> {
+	public static class Consumer<T> extends CallSync<T, Object> implements Functions.Consumer<T> {
 
 		protected Consumer(T valueDef, boolean autoResponse) {
 			super(valueDef, () -> toAutoResponseFn(autoResponse));
@@ -454,8 +453,7 @@ public abstract class CallSync<T, R> {
 	/**
 	 * Sub-class for a supplier call.
 	 */
-	public static class Supplier<R> extends CallSync<Object, R>
-		implements java.util.function.Supplier<R> {
+	public static class Supplier<R> extends CallSync<Object, R> implements Functions.Supplier<R> {
 
 		protected Supplier(R[] autoResponses) {
 			super(null, () -> toAutoResponseFn(autoResponses));
@@ -473,7 +471,7 @@ public abstract class CallSync<T, R> {
 		/**
 		 * Sets the auto response supplier. Use null to disable.
 		 */
-		public Supplier<R> autoResponse(java.util.function.Supplier<R> autoResponseFn) {
+		public Supplier<R> autoResponse(Functions.Supplier<R> autoResponseFn) {
 			super.autoResponseFn(autoResponseFn != null ? _ -> autoResponseFn.get() : null);
 			return this;
 		}
@@ -633,7 +631,7 @@ public abstract class CallSync<T, R> {
 	}
 
 	protected CallSync(T valueDef,
-		java.util.function.Supplier<Excepts.Function<?, T, R>> autoResponseSupplier) {
+		Functions.Supplier<Excepts.Function<?, T, R>> autoResponseSupplier) {
 		originalValueDef = valueDef;
 		this.valueDef = valueDef;
 		origAutoResponseSupplier = autoResponseSupplier;

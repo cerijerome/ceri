@@ -5,11 +5,11 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.CloseableUtil;
 
 public class TcpSocketTesterBehavior {
-	private RuntimeCloseable fastMode;
+	private Functions.Closeable fastMode;
 
 	@Before
 	public void before() {
