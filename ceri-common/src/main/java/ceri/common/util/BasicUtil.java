@@ -1,9 +1,6 @@
 package ceri.common.util;
 
-import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+import java.util.Objects;
 import ceri.common.function.Excepts;
 
 /**
@@ -30,25 +27,43 @@ public class BasicUtil {
 	}
 
 	/**
+	 * Verifies all arguments and the argument array are non-null.
+	 */
+	@SafeVarargs
+	public static <T> void requireNonNull(T... args) {
+		Objects.requireNonNull(args);
+		for (var arg : args)
+			Objects.requireNonNull(arg);
+	}
+
+	/**
 	 * Returns true if all values are null, or the varargs array is null.
 	 */
 	@SafeVarargs
 	public static <T> boolean allNull(T... args) {
-		if (args == null) return true; 
+		if (args == null) return true;
 		for (T arg : args)
 			if (arg != null) return false;
 		return true;
 	}
 
 	/**
-	 * Returns true if any values are null, or the varargs array is null.
+	 * Returns true if any values are null, and the varargs array is not null.
 	 */
 	@SafeVarargs
 	public static <T> boolean anyNull(T... args) {
-		if (args == null) return true; 
+		if (args == null) return false;
 		for (T arg : args)
 			if (arg == null) return true;
 		return false;
+	}
+
+	/**
+	 * Returns true if any values are null, or the varargs array is null.
+	 */
+	@SafeVarargs
+	public static <T> boolean noneNull(T... args) {
+		return !anyNull(args);
 	}
 
 	/**
@@ -77,16 +92,9 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static int defInt(Integer value, IntSupplier defSupplier) {
-		return value != null ? value : defSupplier.getAsInt();
-	}
-
-	/**
-	 * Returns default supplied value if main value is null.
-	 */
 	public static <E extends Exception> int defInt(Integer value,
 		Excepts.IntSupplier<E> defSupplier) throws E {
-		return value != null ? value : defSupplier.getAsInt();
+		return value != null ? value : Objects.requireNonNull(defSupplier).getAsInt();
 	}
 
 	/**
@@ -99,16 +107,9 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static long defLong(Long value, LongSupplier defSupplier) {
-		return value != null ? value : defSupplier.getAsLong();
-	}
-
-	/**
-	 * Returns default supplied value if main value is null.
-	 */
 	public static <E extends Exception> long defLong(Long value,
 		Excepts.LongSupplier<E> defSupplier) throws E {
-		return value != null ? value : defSupplier.getAsLong();
+		return value != null ? value : Objects.requireNonNull(defSupplier).getAsLong();
 	}
 
 	/**
@@ -121,16 +122,9 @@ public class BasicUtil {
 	/**
 	 * Returns default supplied value if main value is null.
 	 */
-	public static double defDouble(Double value, DoubleSupplier defSupplier) {
-		return value != null ? value : defSupplier.getAsDouble();
-	}
-
-	/**
-	 * Returns default supplied value if main value is null.
-	 */
 	public static <E extends Exception> double defDouble(Double value,
 		Excepts.DoubleSupplier<E> defSupplier) throws E {
-		return value != null ? value : defSupplier.getAsDouble();
+		return value != null ? value : Objects.requireNonNull(defSupplier).getAsDouble();
 	}
 
 	/**
@@ -138,14 +132,7 @@ public class BasicUtil {
 	 */
 	public static <E extends Exception, T> T defGet(Excepts.Supplier<E, ? extends T> supplier,
 		Excepts.Supplier<E, ? extends T> defSupplier) throws E {
-		return def(supplier.get(), defSupplier);
-	}
-
-	/**
-	 * Returns default value if main value is null.
-	 */
-	public static int defGetInt(Supplier<? extends Integer> supplier, IntSupplier defSupplier) {
-		return defInt(supplier.get(), defSupplier);
+		return def(supplier == null ? null : supplier.get(), defSupplier);
 	}
 
 	/**
@@ -154,14 +141,7 @@ public class BasicUtil {
 	public static <E extends Exception> int defGetInt(
 		Excepts.Supplier<E, ? extends Integer> supplier, Excepts.IntSupplier<E> defSupplier)
 		throws E {
-		return defInt(supplier.get(), defSupplier);
-	}
-
-	/**
-	 * Returns default value if main value is null.
-	 */
-	public static long defGetLong(Supplier<? extends Long> supplier, LongSupplier defSupplier) {
-		return defLong(supplier.get(), defSupplier);
+		return defInt(supplier == null ? null : supplier.get(), defSupplier);
 	}
 
 	/**
@@ -170,15 +150,7 @@ public class BasicUtil {
 	public static <E extends Exception> long defGetLong(
 		Excepts.Supplier<E, ? extends Long> supplier, Excepts.LongSupplier<E> defSupplier)
 		throws E {
-		return defLong(supplier.get(), defSupplier);
-	}
-
-	/**
-	 * Returns default value if main value is null.
-	 */
-	public static double defGetDouble(Supplier<? extends Double> supplier,
-		DoubleSupplier defSupplier) {
-		return defDouble(supplier.get(), defSupplier);
+		return defLong(supplier == null ? null : supplier.get(), defSupplier);
 	}
 
 	/**
@@ -187,7 +159,7 @@ public class BasicUtil {
 	public static <E extends Exception> double defGetDouble(
 		Excepts.Supplier<E, ? extends Double> supplier, Excepts.DoubleSupplier<E> defSupplier)
 		throws E {
-		return defDouble(supplier.get(), defSupplier);
+		return defDouble(supplier == null ? null : supplier.get(), defSupplier);
 	}
 
 	/**

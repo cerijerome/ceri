@@ -1,7 +1,7 @@
 package ceri.common.collection;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
@@ -11,8 +11,8 @@ public class MapPopulatorBehavior {
 	@Test
 	public void shouldInitializeFromGivenData() {
 		Map<String, Integer> map = MapPopulator.of("A", 1, "ABC", 3, "BC", 2).map;
-		assertCollection(map.keySet(), "A", "ABC", "BC");
-		assertCollection(map.values(), 1, 3, 2);
+		assertUnordered(map.keySet(), "A", "ABC", "BC");
+		assertUnordered(map.values(), 1, 3, 2);
 	}
 
 	@Test

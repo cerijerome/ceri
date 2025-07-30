@@ -1,13 +1,12 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import static ceri.serial.i2c.util.I2cEmulator.ANY_READ_LEN;
 import java.io.IOException;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteUtil;
-import ceri.common.collection.ArrayUtil.Empty;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cEmulator;
 
@@ -29,33 +28,34 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public void writeQuick(boolean on) throws IOException {
-		if (on) read(Empty.BYTES, 0);
-		else write(Empty.BYTES);
+		if (on) read(ArrayUtil.bytes.empty, 0);
+		else write(ArrayUtil.bytes.empty);
 	}
 
 	@Override
 	public int readByte() throws IOException {
-		return ubyte(read(Empty.BYTES, Byte.BYTES)[0]);
+		return ubyte(read(ArrayUtil.bytes.empty, Byte.BYTES)[0]);
 	}
 
 	@Override
 	public void writeByte(int value) throws IOException {
-		write(bytes(value));
+		write(ArrayUtil.bytes.of(value));
 	}
 
 	@Override
 	public int readByteData(int command) throws IOException {
-		return ubyte(read(bytes(command), Byte.BYTES)[0]);
+		return ubyte(read(ArrayUtil.bytes.of(command), Byte.BYTES)[0]);
 	}
 
 	@Override
 	public void writeByteData(int command, int value) throws IOException {
-		write(bytes(command, value));
+		write(ArrayUtil.bytes.of(command, value));
 	}
 
 	@Override
 	public int readWordData(int command) throws IOException {
-		return ushort(ByteUtil.fromLsb(read(bytes(command), Short.BYTES), 0, Short.BYTES));
+		return ushort(
+			ByteUtil.fromLsb(read(ArrayUtil.bytes.of(command), Short.BYTES), 0, Short.BYTES));
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public byte[] readBlockData(int command) throws IOException {
-		return read(bytes(command), ANY_READ_LEN);
+		return read(ArrayUtil.bytes.of(command), ANY_READ_LEN);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class SmBusEmulator implements SmBus {
 
 	@Override
 	public byte[] readI2cBlockData(int command, int length) throws IOException {
-		return read(bytes(command), length);
+		return read(ArrayUtil.bytes.of(command), length);
 	}
 
 	@Override

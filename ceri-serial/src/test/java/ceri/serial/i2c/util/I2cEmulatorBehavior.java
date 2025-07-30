@@ -1,6 +1,5 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -10,6 +9,7 @@ import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
@@ -60,7 +60,7 @@ public class I2cEmulatorBehavior {
 	public void shouldReadFromDevice() throws IOException {
 		init(address);
 		dev.read.autoResponses(provider(4, 5, 6));
-		i2c.readData(address, bytes(1, 2, 3), 3);
+		i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3);
 		dev.read.assertAuto(new Read(provider(1, 2, 3), 3));
 	}
 
@@ -84,21 +84,21 @@ public class I2cEmulatorBehavior {
 	@Test
 	public void shouldFailReadForBadDevice() {
 		init(address);
-		assertThrown(() -> i2c.readData(badAddress, bytes(1, 2, 3), 3));
+		assertThrown(() -> i2c.readData(badAddress, ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.autoResponses((ByteProvider) null);
-		assertThrown(() -> i2c.readData(address, bytes(1, 2, 3), 3));
+		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.autoResponses(provider(1, 2, 3));
-		assertThrown(() -> i2c.readData(address, bytes(1, 2, 3), 2));
-		assertThrown(() -> i2c.readData(I2cAddress.of(0x05), bytes(1, 2, 3), 3));
+		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 2));
+		assertThrown(() -> i2c.readData(I2cAddress.of(0x05), ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.error.setFrom(IOX);
-		assertThrown(() -> i2c.readData(address, bytes(1, 2, 3), 3));
+		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
 	}
 
 	@Test
 	public void shouldProvideDefaultDevice() throws IOException {
 		init(address);
 		i2c.writeData(address, 1, 2, 3);
-		assertArray(i2c.readData(address, bytes(1, 2, 3), 3), 0, 0, 0);
+		assertArray(i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3), 0, 0, 0);
 		assertEquals(i2c.deviceId(address), DeviceId.NONE);
 		i2c.softwareReset();
 		i2c.remove(dev.address);

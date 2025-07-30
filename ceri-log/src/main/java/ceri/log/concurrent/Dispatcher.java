@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 
 /**
  * A dispatcher thread for notifying listeners of events. Useful to prevent a misbehaving listener
@@ -47,9 +47,9 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		start();
 	}
 
-	public Enclosed<RuntimeException, L> listen(L listener) {
+	public Enclosure<L> listen(L listener) {
 		listeners.add(listener);
-		return Enclosed.of(listener, listeners::remove);
+		return Enclosure.of(listener, listeners::remove);
 	}
 
 	public void dispatch(T t) {

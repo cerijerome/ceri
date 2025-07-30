@@ -1,6 +1,5 @@
 package ceri.jna.type;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -8,6 +7,7 @@ import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import ceri.common.array.ArrayUtil;
 import ceri.jna.type.Struct.Fields;
 
 public class VarStructBehavior {
@@ -31,7 +31,7 @@ public class VarStructBehavior {
 		public ByteVar(int dummy, int... array) {
 			this.dummy = dummy;
 			this.count = (byte) array.length;
-			this.array = bytes(array);
+			this.array = ArrayUtil.bytes.of(array);
 		}
 
 		public ByteVar(Pointer p) {

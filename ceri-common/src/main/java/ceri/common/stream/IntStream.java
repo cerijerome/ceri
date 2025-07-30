@@ -4,21 +4,120 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.ObjIntConsumer;
+import java.util.function.Supplier;
+import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArrays;
 import ceri.common.function.Excepts;
-import ceri.common.function.Functions;
+import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
 /**
- * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
- * create a new instance. Not thread-safe.
+ * A simple stream that allows checked exceptions. Where possible, modifiers change the current
+ * stream rather than create a new instance. Not thread-safe.
  */
 public class IntStream<E extends Exception> {
 	private static final Excepts.IntConsumer<?> NULL_CONSUMER = _ -> {};
 	private static final IntStream<RuntimeException> EMPTY = new IntStream<>(_ -> false);
 	private NextSupplier<E> supplier;
+
+	public static void main(String[] args) {
+		var array = Streams.ofInt(-1, 1, 0, -2, 3).collect(Collector.array);
+		System.out.println(Arrays.toString(array));
+	}
+
+	/**
+	 * Collects stream elements into containers.
+	 */
+	public interface Collector<A, R> {
+		/** Collects elements into a primitive array. */
+		Collector<DynamicArray.OfInt, int[]> array =
+			of(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		Collector<DynamicArray.OfInt, int[]> sortedArray = of(DynamicArray::ints,
+			DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
+			Function<A, R> finisher) implements Collector<A, R> {}
+
+		/**
+		 * Provides a container.
+		 */
+		Supplier<A> supplier();
+
+		/**
+		 * Provides an accumulator to add elements to the container.
+		 */
+		ObjIntConsumer<A> accumulator();
+
+		/**
+		 * Provides a finisher to complete the container.
+		 */
+		Function<A, R> finisher();
+
+		/**
+		 * Composes a collector without a finisher.
+		 */
+		static <A> Collector<A, A> of(Supplier<A> supplier, ObjIntConsumer<A> accumulator) {
+			return new Composed<>(supplier, accumulator, t -> t);
+		}
+
+		/**
+		 * Composes a collector from functions.
+		 */
+		static <A, R> Collector<A, R> of(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
+			Function<A, R> finisher) {
+			return new Composed<>(supplier, accumulator, finisher);
+		}
+	}
+
+	/**
+	 * Reduction operators.
+	 */
+	public static class Reduce {
+		private Reduce() {}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> min() {
+			return (l, r) -> Integer.compare(l, r) <= 0 ? l : r;
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> max() {
+			return (l, r) -> Integer.compare(l, r) >= 0 ? l : r;
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> and() {
+			return (l, r) -> l & r;
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> or() {
+			return (l, r) -> l | r;
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> xor() {
+			return (l, r) -> l ^ r;
+		}
+	}
 
 	/**
 	 * Iterating functional interface
@@ -86,8 +185,21 @@ public class IntStream<E extends Exception> {
 	 * Returns a stream of values.
 	 */
 	public static <E extends Exception> IntStream<E> of(int[] values, int offset, int length) {
+		if (values == null) return empty();
 		return RawArrays.applySlice(values, offset, length,
-			(o, l) -> l == 0 ? empty() : new IntStream<E>(arraySupplier(values, o, l)));
+			(o, l) -> l == 0 ? empty() : ofSupplier(arraySupplier(values, o, l)));
+	}
+
+	/**
+	 * Streams a range of values.
+	 */
+	public static <E extends Exception> IntStream<E> range(int offset, int length) {
+		var counter = Counter.ofInt(0);
+		return ofSupplier(c -> {
+			if (counter.count() >= length) return false;
+			c.accept(offset + counter.preInc(1));
+			return true;
+		});
 	}
 
 	/**
@@ -106,12 +218,15 @@ public class IntStream<E extends Exception> {
 		return Stream.<E, Number>from(iterator).mapToInt(Number::intValue);
 	}
 
-	IntStream(NextSupplier<E> supplier) {
-		this.supplier = supplier;
+	/**
+	 * Creates a stream for the supplier.
+	 */
+	public static <E extends Exception> IntStream<E> ofSupplier(NextSupplier<E> supplier) {
+		return new IntStream<>(supplier);
 	}
 
-	NextSupplier<E> supplier() {
-		return supplier;
+	IntStream(NextSupplier<E> supplier) {
+		this.supplier = supplier;
 	}
 
 	// filters
@@ -156,7 +271,14 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to unsigned ints.
+	 */
+	public LongStream<E> unsigned() {
+		return mapToLong(MathUtil::uint);
+	}
+
+	/**
+	 * Maps stream elements to new values.
 	 */
 	public IntStream<E> map(Excepts.IntOperator<? extends E> mapper) {
 		if (noOp(mapper)) return empty();
@@ -164,7 +286,23 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to long values.
+	 */
+	public LongStream<E> mapToLong(Excepts.IntToLongFunction<? extends E> mapper) {
+		if (noOp(mapper)) return LongStream.empty();
+		return LongStream.ofSupplier(longSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to double values.
+	 */
+	public DoubleStream<E> mapToDouble(Excepts.IntToDoubleFunction<? extends E> mapper) {
+		if (noOp(mapper)) return DoubleStream.empty();
+		return DoubleStream.ofSupplier(doubleSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to typed values.
 	 */
 	public <T> Stream<E, T> mapToObj(Excepts.IntFunction<? extends E, ? extends T> mapper) {
 		if (noOp(mapper)) return Stream.empty();
@@ -205,7 +343,7 @@ public class IntStream<E extends Exception> {
 		return update(adaptedSupplier(supplier, s -> sortedSupplier(s)));
 	}
 
-	// terminating functions
+	// termination
 
 	/**
 	 * Returns the next element or default.
@@ -226,7 +364,7 @@ public class IntStream<E extends Exception> {
 	 * Returns true if no elements are available. Consumes the next value if available.
 	 */
 	public boolean isEmpty() throws E {
-		return supplier.next(nullConsumer());
+		return !supplier.next(nullConsumer());
 	}
 
 	/**
@@ -237,35 +375,7 @@ public class IntStream<E extends Exception> {
 			if (!supplier.next(nullConsumer())) return n;
 	}
 
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public Integer min() throws E {
-		return reduce((t, u) -> Integer.compare(t, u) <= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public int min(int def) throws E {
-		return BasicUtil.defInt(min(), def);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public Integer max() throws E {
-		return reduce((t, u) -> Integer.compare(t, u) >= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public int max(int def) throws E {
-		return BasicUtil.defInt(max(), def);
-	}
-
-	// collectors
+	// iteration
 
 	public void forEach(Excepts.IntConsumer<? extends E> consumer) throws E {
 		supplier.forEach(consumer);
@@ -275,27 +385,39 @@ public class IntStream<E extends Exception> {
 	 * Collects elements into an array.
 	 */
 	public int[] toArray() throws E {
-		return array(supplier).truncate();
+		return collect(Collector.array);
 	}
 
 	/**
-	 * Collects elements into a supplied container, with accumulator.
+	 * Collects elements with a collector.
 	 */
-	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
-		Excepts.ObjIntConsumer<? extends E, R> accumulator) throws E {
-		if (supplier == null) return null;
-		var container = supplier.get();
-		if (!noOp(accumulator) && container != null) forEach(i -> accumulator.accept(container, i));
-		return container;
+	public <A, R> R collect(Collector<A, R> collector) throws E {
+		if (collector == null) return null;
+		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
 	}
 
-	// reducers
+	/**
+	 * Collect elements with container supplier and accumulator.
+	 */
+	public <R> R collect(Supplier<R> supplier, ObjIntConsumer<R> accumulator) throws E {
+		return collect(supplier, accumulator, r -> r);
+	}
+
+	/**
+	 * Collect elements with container supplier, accumulator, and finisher.
+	 */
+	public <A, R> R collect(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
+		Function<A, R> finisher) throws E {
+		return collect(this.supplier, supplier, accumulator, finisher);
+	}
+
+	// reduction
 
 	/**
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
 	public Integer reduce(Excepts.IntBiOperator<? extends E> accumulator) throws E {
-		if (noOp(accumulator)) return null;
+		if (accumulator == null) return null;
 		var next = next();
 		return next == null ? null : reduce(next, accumulator);
 	}
@@ -304,12 +426,7 @@ public class IntStream<E extends Exception> {
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
 	public int reduce(int identity, Excepts.IntBiOperator<? extends E> accumulator) throws E {
-		if (noOp(accumulator)) return identity;
-		var receiver = new NextSupplier.Receiver<E>();
-		for (int i = identity;;) {
-			if (!supplier.next(receiver)) return i;
-			i = accumulator.applyAsInt(i, receiver.value);
-		}
+		return reduce(supplier, identity, accumulator);
 	}
 
 	// support
@@ -364,6 +481,26 @@ public class IntStream<E extends Exception> {
 		};
 	}
 
+	private static <E extends Exception> LongStream.NextSupplier<E>
+		longSupplier(NextSupplier<E> supplier, Excepts.IntToLongFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsLong(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> DoubleStream.NextSupplier<E>
+		doubleSupplier(NextSupplier<E> supplier, Excepts.IntToDoubleFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsDouble(receiver.value));
+			return true;
+		};
+	}
+
 	private static <E extends Exception, R> Stream.NextSupplier<E, R> objSupplier(
 		NextSupplier<E> supplier, Excepts.IntFunction<? extends E, ? extends R> mapper) {
 		var receiver = new NextSupplier.Receiver<E>();
@@ -408,15 +545,27 @@ public class IntStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> sortedSupplier(NextSupplier<E> supplier)
 		throws E {
-		var array = array(supplier);
+		var array = collect(supplier, DynamicArray::ints, DynamicArray.OfInt::accept, t -> t);
 		Arrays.sort(array.array(), 0, array.index());
 		return arraySupplier(array.array(), 0, array.index());
 	}
 
-	private static <E extends Exception> DynamicArray.OfInt
-		array(NextSupplier<? extends E> supplier) throws E {
-		var array = DynamicArray.ints();
-		supplier.forEach(Functions.IntConsumer.except(array));
-		return array;
+	private static <E extends Exception, A, R> R collect(NextSupplier<E> next, Supplier<A> supplier,
+		ObjIntConsumer<A> accumulator, Function<A, R> finisher) throws E {
+		if (supplier == null || finisher == null) return null;
+		var container = supplier.get();
+		if (accumulator != null && container != null)
+			next.forEach(i -> accumulator.accept(container, i));
+		return finisher.apply(container);
+	}
+
+	private static <E extends Exception> int reduce(NextSupplier<E> supplier, int identity,
+		Excepts.IntBiOperator<? extends E> accumulator) throws E {
+		if (accumulator == null) return identity;
+		var receiver = new NextSupplier.Receiver<E>();
+		for (int i = identity;;) {
+			if (!supplier.next(receiver)) return i;
+			i = accumulator.applyAsInt(i, receiver.value);
+		}
 	}
 }

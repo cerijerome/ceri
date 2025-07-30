@@ -1,6 +1,5 @@
 package ceri.log.io;
 
-import static ceri.common.function.Namer.lambda;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,10 +12,12 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.function.Lambdas;
 import ceri.common.function.Predicates;
 import ceri.common.io.Fixable;
 import ceri.common.io.Replaceable;
 import ceri.common.io.StateChange;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Named;
 import ceri.log.concurrent.LoopingExecutor;
@@ -103,7 +104,23 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 		@Override
 		public String toString() {
 			return ToString.forClass(this, fixRetryDelayMs, recoveryDelayMs,
-				lambda(brokenPredicate));
+				Lambdas.name(brokenPredicate));
+		}
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private static final String FIX_RETRY_DELAY_MS_KEY = "fix.retry.delay.ms";
+		private static final String RECOVERY_DELAY_MS_KEY = "recovery.delay.ms";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			var b = Config.builder();
+			parse(FIX_RETRY_DELAY_MS_KEY).asInt().accept(b::fixRetryDelayMs);
+			parse(RECOVERY_DELAY_MS_KEY).asInt().accept(b::recoveryDelayMs);
+			return b.build();
 		}
 	}
 

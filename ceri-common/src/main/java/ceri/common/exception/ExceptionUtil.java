@@ -14,21 +14,6 @@ public class ExceptionUtil {
 	private ExceptionUtil() {}
 
 	/**
-	 * Call to generate an IllegalStateException. Use for lambdas that shouldn't be called.
-	 */
-	public static void doNotCall(Object... args) {
-		BasicUtil.unused(args);
-		throw new IllegalStateException("Unexpected call");
-	}
-
-	/**
-	 * Use to avoid declaring a thrown checked exception.
-	 */
-	public static <E extends Throwable> void throwUnchecked(Throwable e) throws E {
-		throw BasicUtil.<E>unchecked(e);
-	}
-
-	/**
 	 * Gets the root cause of a throwable.
 	 */
 	public static Throwable rootCause(Throwable t) {

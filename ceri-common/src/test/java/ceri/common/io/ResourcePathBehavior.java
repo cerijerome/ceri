@@ -1,10 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
@@ -39,7 +39,7 @@ public class ResourcePathBehavior {
 	public void shouldCreateForFile() throws IOException {
 		assertNull(ResourcePath.of(null));
 		try (ResourcePath rp = ResourcePath.of(getClass(), "res", "test")) {
-			assertCollection(IoUtil.listNames(rp.path()), "A.txt", "BB.txt", "CCC.txt");
+			assertUnordered(IoUtil.listNames(rp.path()), "A.txt", "BB.txt", "CCC.txt");
 			assertEquals(Files.readString(rp.resolve("A.txt")), "aaa");
 		}
 		try (ResourcePath rp = ResourcePath.of(getClass(), "res", "test", "BB.txt")) {

@@ -982,15 +982,6 @@ public class Excepts {
 	}
 
 	/**
-	 * Functional interface that throws specific exceptions.
-	 */
-	@FunctionalInterface
-	@Deprecated
-	public interface RuntimeCloseable extends Closeable<RuntimeException> {
-		static RuntimeCloseable NULL = () -> {};
-	}
-
-	/**
 	 * Provides an iterator that throws specific exceptions.
 	 */
 	@FunctionalInterface

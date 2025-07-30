@@ -1,10 +1,10 @@
 package ceri.jna.clib;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.jna.clib.Mode.Mask.flnk;
 import static ceri.jna.clib.Mode.Mask.fmt;
@@ -46,11 +46,11 @@ public class ModeBehavior {
 
 	@Test
 	public void shouldDecodeMask() {
-		assertCollection(Mode.of(0777).masks(), rwxu, rwxg, rwxo);
-		assertCollection(Mode.of(0666).masks(), rusr, wusr, rgrp, wgrp, roth, woth);
-		assertCollection(Mask.decode(0170000), fmt);
-		assertCollection(Mask.decode(0140000), fsock);
-		assertCollection(Mask.decode(0120000), flnk);
+		assertUnordered(Mode.of(0777).masks(), rwxu, rwxg, rwxo);
+		assertUnordered(Mode.of(0666).masks(), rusr, wusr, rgrp, wgrp, roth, woth);
+		assertUnordered(Mask.decode(0170000), fmt);
+		assertUnordered(Mask.decode(0140000), fsock);
+		assertUnordered(Mask.decode(0120000), flnk);
 	}
 
 	@Test

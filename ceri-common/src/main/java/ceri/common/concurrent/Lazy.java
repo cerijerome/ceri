@@ -73,8 +73,7 @@ public class Lazy<T> {
 		/**
 		 * Create an instance using the initializer without a lock.
 		 */
-		public static <E extends Exception, T> Value<E, T>
-			unsafe(Excepts.Supplier<E, T> supplier) {
+		public static <E extends Exception, T> Value<E, T> unsafe(Excepts.Supplier<E, T> supplier) {
 			return new Value<>(Lazy.unsafe(), supplier);
 		}
 
@@ -194,8 +193,7 @@ public class Lazy<T> {
 	 * Provides a lazily-instantiated constant using the given supplier. Does not use a lock, so the
 	 * supplier may be called more than once.
 	 */
-	public static <E extends Exception, T> Supplier<E, T>
-		unsafe(Excepts.Supplier<E, T> supplier) {
+	public static <E extends Exception, T> Supplier<E, T> unsafe(Excepts.Supplier<E, T> supplier) {
 		return supplier(null, supplier);
 	}
 
@@ -221,14 +219,9 @@ public class Lazy<T> {
 	}
 
 	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
-		if (value == null) try (var _ = locker()) { // double-checked locking
+		if (value == null) try (var _ = ConcurrentUtil.locker(lock)) { // double-checked locking
 			value = BasicUtil.def(value, supplier);
 		}
 		return value;
-	}
-
-	private Functions.Closeable locker() {
-		if (lock != null) return ConcurrentUtil.locker(lock);
-		return Functions.Closeable.NULL;
 	}
 }

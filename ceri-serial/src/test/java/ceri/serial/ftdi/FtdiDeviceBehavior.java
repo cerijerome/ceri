@@ -1,6 +1,5 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -30,14 +29,14 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
 import ceri.common.test.CallSync;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.util.GcMemory;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi;
@@ -52,7 +51,7 @@ import ceri.serial.libusb.test.TestLibUsbNative.TransferEvent;
 
 public class FtdiDeviceBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private FtdiDevice ftdi;
 	private DeviceConfig config;
 
@@ -155,13 +154,13 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldWriteData() throws IOException {
 		ftdi = open();
-		ftdi.out().write(bytes(1, 2, 3));
-		ftdi.out().write(bytes(4, 5));
+		ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3));
+		ftdi.out().write(ArrayUtil.bytes.of(4, 5));
 		lib.transferOut.assertValues( //
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5)));
 		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
-		assertThrown(() -> ftdi.out().write(bytes(1, 2, 3))); // incomplete i/o exception
+		assertThrown(() -> ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3))); // incomplete i/o
 	}
 
 	@SuppressWarnings("resource")
@@ -245,7 +244,7 @@ public class FtdiDeviceBehavior {
 		ftdi.readChunkSize(8);
 		var m = GcMemory.malloc(5).clear();
 		lib.handleTransferEvent.autoResponse(te -> {
-			te.buffer().put(ArrayUtil.bytes(1, 2, 3, 4, 5, 6, 7));
+			te.buffer().put(ArrayUtil.bytes.of(1, 2, 3, 4, 5, 6, 7));
 			return LIBUSB_TRANSFER_COMPLETED;
 		});
 		var control = ftdi.readSubmit(m.m, 5);
@@ -278,8 +277,7 @@ public class FtdiDeviceBehavior {
 		lib.handleTransferEvent.autoResponse(event -> fill(event.buffer(), n));
 		CallSync.Function<FtdiProgressInfo, Boolean> sync =
 			CallSync.function(null, true, true, false);
-		FtdiDevice.StreamCallback callback =
-			(prog, _) -> prog == null ? true : sync.apply(prog);
+		FtdiDevice.StreamCallback callback = (prog, _) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
 		assertEquals(prog.currentTotalBytes(), 54L);

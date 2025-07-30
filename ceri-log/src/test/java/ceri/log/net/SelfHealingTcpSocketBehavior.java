@@ -15,7 +15,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
@@ -74,8 +74,8 @@ public class SelfHealingTcpSocketBehavior {
 	@Test
 	public void shouldCreateFromProperties() {
 		SelfHealingTcpSocket.Config config =
-			new SelfHealingTcpSocketProperties(typedProperties("self-healing-tcp-socket"), "socket")
-				.config();
+			new SelfHealingTcpSocket.Properties(typedProperties("self-healing-tcp-socket"),
+				"socket").config();
 		assertEquals(config.hostPort, HostPort.of("test", 123));
 		assertEquals(config.options.get(TcpSocketOption.soTimeout), 111);
 		assertEquals(config.options.get(TcpSocketOption.soLinger), 222);
@@ -110,7 +110,7 @@ public class SelfHealingTcpSocketBehavior {
 	public void shouldWriteData() throws IOException {
 		init();
 		shs.open();
-		shs.out().write(ArrayUtil.bytes(1, 2, 3));
+		shs.out().write(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(socket.out.from, 1, 2, 3);
 	}
 
@@ -181,11 +181,9 @@ public class SelfHealingTcpSocketBehavior {
 	private void init() {
 		socket = TestTcpSocket.of(hostPort, localPort);
 		// Broken if IOException is thrown, not RuntimeException
-		config =
-			SelfHealingTcpSocket.Config.builder(hostPort)
-				.selfHealing(b -> b.brokenPredicate(IOException.class::isInstance)
-					.fixRetryDelayMs(1).recoveryDelayMs(1))
-				.factory(_ -> open(socket)).build();
+		config = SelfHealingTcpSocket.Config.builder(hostPort).selfHealing(b -> b
+			.brokenPredicate(IOException.class::isInstance).fixRetryDelayMs(1).recoveryDelayMs(1))
+			.factory(_ -> open(socket)).build();
 		shs = SelfHealingTcpSocket.of(config);
 	}
 

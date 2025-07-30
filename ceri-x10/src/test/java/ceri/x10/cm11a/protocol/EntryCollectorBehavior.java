@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.x10.command.FunctionType.on;
 import static ceri.x10.command.House.E;
 import static ceri.x10.command.House.G;
@@ -33,7 +33,7 @@ public class EntryCollectorBehavior {
 		collector.collect(Entry.function(E, on));
 		collector.collect(Entry.address(E, _3));
 		collector.collect(Entry.function(E, on));
-		assertIterable(list, Command.on(E, _1, _2), Command.on(E, _3));
+		assertOrdered(list, Command.on(E, _1, _2), Command.on(E, _3));
 	}
 
 }

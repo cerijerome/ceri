@@ -5,7 +5,7 @@ import ceri.common.collection.CollectionUtil;
 import ceri.common.function.Accessible;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.OsUtil;
 
 /**
@@ -94,7 +94,7 @@ public enum JnaOs implements Accessible<JnaOs> {
 	/**
 	 * Overrides the current OS type with this OS type. Close to revert the override.
 	 */
-	public RuntimeCloseable override() {
+	public Functions.Closeable override() {
 		return OsUtil.os(name, null, null);
 	}
 

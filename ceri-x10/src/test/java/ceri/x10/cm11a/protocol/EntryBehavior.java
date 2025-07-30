@@ -2,8 +2,8 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.FunctionType.allLightsOff;
@@ -58,13 +58,13 @@ public class EntryBehavior {
 	@Test
 	public void shouldCreateEntriesFromCommand() {
 		var entries = Entry.allFrom(Command.dim(L, 13, _1, _2, _3));
-		assertIterable(entries, Entry.address(L, _1), Entry.address(L, _2), Entry.address(L, _3),
+		assertOrdered(entries, Entry.address(L, _1), Entry.address(L, _2), Entry.address(L, _3),
 			Entry.dim(L, dim, 13));
 	}
 
 	@Test
 	public void shouldProvideEmptyEntryListForNoOpcommand() {
-		assertIterable(Entry.allFrom(Command.on(P)));
+		assertOrdered(Entry.allFrom(Command.on(P)));
 	}
 
 	@Test

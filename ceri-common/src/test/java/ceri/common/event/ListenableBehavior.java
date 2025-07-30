@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 import org.junit.Test;
 import ceri.common.test.Captor;
 import ceri.common.test.TestListeners;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 
 public class ListenableBehavior {
 
@@ -29,7 +29,7 @@ public class ListenableBehavior {
 		TestListenable listeners = new TestListenable();
 		try (var _ = listeners.enclose(captor)) {
 			listeners.accept("test0");
-			try (Enclosed<RuntimeException, ?> enclosed1 = listeners.enclose(captor)) {
+			try (Enclosure<?> enclosed1 = listeners.enclose(captor)) {
 				listeners.accept("test1");
 				assertTrue(enclosed1.isNoOp());
 			}

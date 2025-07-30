@@ -33,7 +33,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.test.CallSync;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.jna.util.Caller;
@@ -110,11 +110,11 @@ public class TestLibUsbNative implements LibUsbNative {
 		return new LastErrorException("[" + error.value + "] " + LibUsbUtil.errorMessage(error));
 	}
 
-	public static Enclosed<RuntimeException, TestLibUsbNative> register() {
+	public static Enclosure<TestLibUsbNative> register() {
 		return register(of());
 	}
 
-	public static <T extends LibUsbNative> Enclosed<RuntimeException, T> register(T lib) {
+	public static <T extends LibUsbNative> Enclosure<T> register(T lib) {
 		return LibUsb.library.enclosed(lib);
 	}
 

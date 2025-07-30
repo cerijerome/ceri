@@ -186,12 +186,12 @@ public class LibUsbFinder {
 	 * any matching device.
 	 */
 	public int matchCount(libusb_context ctx) throws LibUsbException {
-		var counter = Counter.of();
+		var counter = Counter.ofInt(0);
 		findWithCallback(ctx, _ -> {
-			counter.inc();
+			counter.inc(1);
 			return false;
 		});
-		return counter.intCount();
+		return counter.count();
 	}
 
 	/**

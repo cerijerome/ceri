@@ -1,8 +1,8 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.After;
@@ -30,7 +30,7 @@ public class PortSupplierBehavior {
 	@Test
 	public void shouldLocateUsbPorts() throws IOException {
 		var path = initLocator("tty.xxx", "tty.usb0", "tty.USB1");
-		assertCollection(locator.usbPorts(), path + "/tty.usb0", path + "/tty.USB1");
+		assertUnordered(locator.usbPorts(), path + "/tty.usb0", path + "/tty.USB1");
 		assertEquals(locator.usbPort(1), path + "/tty.usb0"); // USB before usb
 		assertThrown(() -> locator.usbPort(2));
 	}
@@ -38,7 +38,7 @@ public class PortSupplierBehavior {
 	@Test
 	public void shouldFailWithNoPorts() throws IOException {
 		initLocator();
-		assertCollection(locator.ports("glob:*"));
+		assertUnordered(locator.ports("glob:*"));
 		assertThrown(() -> locator.port("glob:*", 0));
 	}
 

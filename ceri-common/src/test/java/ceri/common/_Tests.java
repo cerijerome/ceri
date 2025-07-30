@@ -11,7 +11,6 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// array
 	ceri.common.array.RawArraysTest.class, //
-	ceri.common.array.SubArrayBehavior.class, //
 	// collection
 	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
@@ -107,11 +106,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.exception.ExceptionAdapterBehavior.class, //
 	ceri.common.exception.ExceptionTrackerBehavior.class, //
 	ceri.common.exception.ExceptionUtilTest.class, //
+	ceri.common.exception.ExceptionsTest.class, //
 	// function
 	ceri.common.function.AccessibleBehavior.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
-	ceri.common.function.NamerTest.class, //
+	ceri.common.function.LambdasTest.class, //
 	ceri.common.function.PredicatesTest.class, //
 	// geom
 	ceri.common.geom.Circle2dBehavior.class, //
@@ -144,14 +144,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.FileTrackerBehavior.class, //
 	ceri.common.io.FileVisitUtilTest.class, //
 	ceri.common.io.FixableBehavior.class, //
-	ceri.common.io.IncompleteIoExceptionBehavior.class, //
+	ceri.common.io.IoExceptionsBehavior.class, //
 	ceri.common.io.IoStreamUtilTest.class, //
-	ceri.common.io.IoTimeoutExceptionBehavior.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
 	ceri.common.io.NioUtilTest.class, //
-	ceri.common.io.NotSetExceptionBehavior.class, //
 	ceri.common.io.PathFiltersTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
@@ -161,8 +159,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.ReplaceableInputStreamBehavior.class, //
 	ceri.common.io.ReplaceableOutputStreamBehavior.class, //
 	ceri.common.io.ResourcePathBehavior.class, //
-	ceri.common.io.RuntimeEofExceptionBehavior.class, //
-	ceri.common.io.RuntimeIoExceptionBehavior.class, //
 	ceri.common.io.StateChangeBehavior.class, //
 	ceri.common.io.StringPrintStreamBehavior.class, //
 	// log
@@ -223,10 +219,11 @@ import ceri.common.test.TestUtil;
 	ceri.common.sql.SqlStatementBehavior.class, //
 	ceri.common.sql.SqlUtilTest.class, //
 	// stream
+	ceri.common.stream.DoubleStreamBehavior.class, //
+	ceri.common.stream.IntStreamBehavior.class, //
+	ceri.common.stream.LongStreamBehavior.class, //
 	ceri.common.stream.StreamBehavior.class, //
 	ceri.common.stream.StreamUtilTest.class, //
-	ceri.common.stream.WrappedIntStreamBehavior.class, //
-	ceri.common.stream.WrappedStreamBehavior.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //
@@ -310,7 +307,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.CloseableUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnablableBehavior.class, //
-	ceri.common.util.EnclosedBehavior.class, //
+	ceri.common.util.EnclosureBehavior.class, //
 	ceri.common.util.HasherBehavior.class, //
 	ceri.common.util.HolderBehavior.class, //
 	ceri.common.util.IdentifiedBehavior.class, //

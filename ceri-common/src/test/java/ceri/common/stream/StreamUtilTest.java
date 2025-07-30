@@ -1,19 +1,19 @@
 package ceri.common.stream;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static java.lang.Double.parseDouble;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,12 +30,10 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.collection.Indexed;
 import ceri.common.collection.MapPopulator;
 import ceri.common.collection.Mutables;
 import ceri.common.function.FunctionTestUtil.E;
 import ceri.common.test.Captor;
-import ceri.common.test.TestUtil.Ioe;
 
 public class StreamUtilTest {
 	private enum Abc {
@@ -69,73 +67,6 @@ public class StreamUtilTest {
 	}
 
 	@Test
-	public void testUnitRange() {
-		assertArray(StreamUtil.unitRange(5).toArray(), 0.0, 0.25, 0.5, 0.75, 1.0);
-	}
-
-	@Test
-	public void testToInt() {
-		assertArray(StreamUtil.toInt(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(), 1, 2, 3, 4);
-	}
-
-	@Test
-	public void testToLong() {
-		assertArray(StreamUtil.toLong(List.of(1.2, 2.4, 3.6, 4.8).stream()).toArray(), 1L, 2L, 3L,
-			4L);
-	}
-
-	@Test
-	public void testBitwiseIntOperators() {
-		assertEquals(StreamUtil.bitwiseOr(IntStream.of(1, 2, 5)), 7);
-		assertEquals(StreamUtil.bitwiseAnd(IntStream.of(15, 7, 14)), 6);
-		assertEquals(StreamUtil.bitwiseXor(IntStream.of(1, 2, 5)), 6);
-	}
-
-	@Test
-	public void testBitwiseLongOperators() {
-		assertEquals(StreamUtil.bitwiseOr(LongStream.of(1, 2, 5)), 7L);
-		assertEquals(StreamUtil.bitwiseAnd(LongStream.of(15, 7, 14)), 6L);
-		assertEquals(StreamUtil.bitwiseXor(LongStream.of(1, 2, 5)), 6L);
-	}
-
-	@Test
-	public void testCastAny() {
-		Stream<Number> stream = StreamUtil.castAny(Stream.of("1", 1, 0.1, null, 2), Number.class);
-		assertStream(stream, 1, 0.1, 2);
-	}
-
-	@Test
-	public void testRange() {
-		assertStream(StreamUtil.range(3, i -> (char) ('A' + i)), Indexed.of('A', 0),
-			Indexed.of('B', 1), Indexed.of('C', 2));
-		assertStream(StreamUtil.range(1, 3, i -> (char) ('A' + i)), Indexed.of('B', 1),
-			Indexed.of('C', 2));
-	}
-
-	@Test
-	public void testIndexed() {
-		assertStream(StreamUtil.indexed(List.of("A", "B", "C")), Indexed.of("A", 0),
-			Indexed.of("B", 1), Indexed.of("C", 2));
-		assertStream(StreamUtil.indexed("A", "B", "C"), Indexed.of("A", 0), Indexed.of("B", 1),
-			Indexed.of("C", 2));
-	}
-
-	@Test
-	public void testIndexedMap() {
-		assertStream(StreamUtil.map(StreamUtil.indexed("A", "B", "C"), (s, i) -> s + i), "A0", "B1",
-			"C2");
-		assertStream(StreamUtil.indexedMap(List.of("A", "B", "C"), (s, i) -> s + i), "A0", "B1",
-			"C2");
-	}
-
-	@Test
-	public void testIndexedForEach() {
-		List<String> capture = new ArrayList<>();
-		StreamUtil.indexedForEach(List.of("a", "b", "c"), (s, i) -> capture.add(i + ":" + s));
-		assertIterable(capture, "0:a", "1:b", "2:c");
-	}
-
-	@Test
 	public void testIterable() {
 		String[] array = { "a", "b", "c" };
 		int i = 0;
@@ -161,18 +92,7 @@ public class StreamUtilTest {
 
 	@Test
 	public void testCollect() {
-		assertIterable(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
-	}
-
-	@SuppressWarnings("resource")
-	@Test
-	public void testWrap() {
-		try (WrappedStream<Ioe, String> w = StreamUtil.wrap(Stream.of("", "a", "x"))) {
-			assertIoe(() -> w.mapToInt(s -> {
-				if ("x".equals(s)) throw new Ioe("x");
-				return s.length();
-			}).forEach(_ -> {}));
-		}
+		assertOrdered(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
 	}
 
 	@Test
@@ -181,20 +101,6 @@ public class StreamUtilTest {
 		assertNull(StreamUtil.toString(null, "(", ":", ")"));
 		assertEquals(StreamUtil.toString(Stream.of(1, null, 2), "-"), "1-null-2");
 		assertEquals(StreamUtil.toString(Stream.of(1, null, 2), "(", "::", ")"), "(1::null::2)");
-	}
-
-	@Test
-	public void testAppend() {
-		assertStream(StreamUtil.append(Stream.of(), 1, 2), 1, 2);
-		assertStream(StreamUtil.append(Stream.of(1, 2, 3)), 1, 2, 3);
-		assertStream(StreamUtil.append(Stream.of(1, 2, 3), 4, 5), 1, 2, 3, 4, 5);
-	}
-
-	@Test
-	public void testPrepend() {
-		assertStream(StreamUtil.prepend(Stream.of(), 1, 2), 1, 2);
-		assertStream(StreamUtil.prepend(Stream.of(1, 2, 3)), 1, 2, 3);
-		assertStream(StreamUtil.prepend(Stream.of(1, 2, 3), 4, 5), 4, 5, 1, 2, 3);
 	}
 
 	@Test
@@ -238,13 +144,13 @@ public class StreamUtilTest {
 	@Test
 	public void testJoinToSet() {
 		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
-		assertCollection(StreamUtil.joinToSet(stream), "1", "2", "3");
+		assertUnordered(StreamUtil.joinToSet(stream), "1", "2", "3");
 	}
 
 	@Test
 	public void testJoinToList() {
 		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
-		assertIterable(StreamUtil.joinToList(stream), "1", "2", "2", "3");
+		assertOrdered(StreamUtil.joinToList(stream), "1", "2", "2", "3");
 	}
 
 	@Test
@@ -295,7 +201,7 @@ public class StreamUtilTest {
 
 	@Test
 	public void testStreamEnums() {
-		assertIterable(StreamUtil.toList(StreamUtil.stream(Abc.class)), Abc.A, Abc.B, Abc.C);
+		assertOrdered(StreamUtil.toList(StreamUtil.stream(Abc.class)), Abc.A, Abc.B, Abc.C);
 	}
 
 	@Test
@@ -304,15 +210,15 @@ public class StreamUtilTest {
 		props.put("A", 1);
 		props.put("B", 2);
 		props.put("C", 3);
-		assertCollection(StreamUtil.stream(props.elements()).toList(), 1, 2, 3);
+		assertUnordered(StreamUtil.stream(props.elements()).toList(), 1, 2, 3);
 	}
 
 	@Test
 	public void testToSet() {
 		Set<Integer> set = StreamUtil.toSet(Stream.of(1, 3, 2));
-		assertCollection(set, 1, 3, 2);
+		assertUnordered(set, 1, 3, 2);
 		set = StreamUtil.toSet(Stream.of(1, 3, 2), TreeSet::new);
-		assertIterable(set, 1, 2, 3);
+		assertOrdered(set, 1, 2, 3);
 	}
 
 	@Test
@@ -321,7 +227,7 @@ public class StreamUtilTest {
 		String a1 = new String("a");
 		String b0 = new String("b");
 		Set<String> set = StreamUtil.toIdentitySet(Stream.of(a0, b0, a1));
-		assertCollection(set, a0, b0, a1);
+		assertUnordered(set, a0, b0, a1);
 	}
 
 	@Test
@@ -329,7 +235,7 @@ public class StreamUtilTest {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
 		Map<Integer, String> map = stream.collect(
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeFirst()));
-		assertIterable(map.values(), "1", "2", "3");
+		assertOrdered(map.values(), "1", "2", "3");
 	}
 
 	@Test
@@ -337,7 +243,7 @@ public class StreamUtilTest {
 		Stream<String> stream = Stream.of("1", "2", "3", "01");
 		Map<Integer, String> map = stream.collect(
 			Collectors.toMap(Integer::parseInt, Function.identity(), StreamUtil.mergeSecond()));
-		assertIterable(map.values(), "01", "2", "3");
+		assertOrdered(map.values(), "01", "2", "3");
 	}
 
 	@Test
@@ -368,15 +274,15 @@ public class StreamUtilTest {
 	public void testToMapKeysAndValues() {
 		Stream<Integer> stream = Stream.of(1, 3, 2);
 		Map<Integer, String> map = StreamUtil.toMap(stream, i -> i + 10, String::valueOf);
-		assertCollection(map.keySet(), 11, 12, 13);
-		assertCollection(map.values(), "1", "2", "3");
+		assertUnordered(map.keySet(), 11, 12, 13);
+		assertUnordered(map.values(), "1", "2", "3");
 	}
 
 	@Test
 	public void testToMapKeys() {
 		Stream<String> stream = Stream.of("1", "2", "3", "4");
 		Map<Integer, String> map = StreamUtil.toMap(stream, Integer::parseInt);
-		assertIterable(map.keySet(), 1, 2, 3, 4);
+		assertOrdered(map.keySet(), 1, 2, 3, 4);
 		assertEquals(map.get(1), "1");
 		assertEquals(map.get(2), "2");
 		assertEquals(map.get(3), "3");

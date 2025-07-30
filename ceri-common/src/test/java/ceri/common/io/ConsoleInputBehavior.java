@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertString;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -94,7 +94,7 @@ public class ConsoleInputBehavior {
 	public void shouldEditHistory() throws IOException {
 		init(Config.BLOCK, List.of("abc", "d"), U, U, "d", D, "e\n");
 		assertEquals(con.readLine(), "de");
-		assertIterable(con.history(), "abcd", "d", "de");
+		assertOrdered(con.history(), "abcd", "d", "de");
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class ConsoleInputBehavior {
 		assertEquals(con.readLine(), " abc"); // not added
 		assertEquals(con.readLine(), ""); // not added
 		assertEquals(con.readLine(), "abc");
-		assertIterable(con.history(), "abc");
+		assertOrdered(con.history(), "abc");
 	}
 
 	@Test
@@ -113,7 +113,7 @@ public class ConsoleInputBehavior {
 		assertEquals(con.readLine(), "b");
 		assertEquals(con.readLine(), "c");
 		assertEquals(con.readLine(), "d");
-		assertIterable(con.history(), "b", "c", "d");
+		assertOrdered(con.history(), "b", "c", "d");
 	}
 
 	@Test

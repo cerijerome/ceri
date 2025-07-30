@@ -1,17 +1,17 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.text.StringUtil.reverse;
 import java.util.ArrayList;
 import java.util.List;
@@ -132,7 +132,7 @@ public class RegexUtilTest {
 		List<String> list = new ArrayList<>();
 		for (MatchResult result : RegexUtil.forEach(INT_PATTERN, "123abcA1B2C3"))
 			list.add(result.group());
-		assertIterable(list, "123", "1", "2", "3");
+		assertOrdered(list, "123", "1", "2", "3");
 	}
 
 	@Test
@@ -209,25 +209,25 @@ public class RegexUtilTest {
 
 	@Test
 	public void testSplitBefore() {
-		assertIterable(RegexUtil.splitBefore(INT_PATTERN, "123abcA1B2C3"), //
+		assertOrdered(RegexUtil.splitBefore(INT_PATTERN, "123abcA1B2C3"), //
 			"123abcA", "1B", "2C", "3");
-		assertIterable(RegexUtil.splitBefore(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
+		assertOrdered(RegexUtil.splitBefore(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
 			"1", "2", "3abcA", "1B", "2C", "3");
 	}
 
 	@Test
 	public void testSplitAfter() {
-		assertIterable(RegexUtil.splitAfter(INT_PATTERN, "123abcA1B2C3"), //
+		assertOrdered(RegexUtil.splitAfter(INT_PATTERN, "123abcA1B2C3"), //
 			"123", "abcA1", "B2", "C3");
-		assertIterable(RegexUtil.splitAfter(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
+		assertOrdered(RegexUtil.splitAfter(Pattern.compile("(?=\\d++)"), "123abcA1B2C3"), //
 			"", "1", "2", "3abcA", "1B", "2C", "3");
 	}
 
 	@Test
 	public void testGroups() {
-		assertIterable(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
-		assertIterable(RegexUtil.groups(MULTI_PATTERN, ""));
-		assertIterable(RegexUtil.groups(Pattern.compile("abc"), "abc"));
+		assertOrdered(RegexUtil.groups(MULTI_PATTERN, " ab CD--ef"), "ab", "CD", "ef");
+		assertOrdered(RegexUtil.groups(MULTI_PATTERN, ""));
+		assertOrdered(RegexUtil.groups(Pattern.compile("abc"), "abc"));
 	}
 
 	@Test
@@ -290,8 +290,8 @@ public class RegexUtilTest {
 		assertTrue(m.find());
 		assertMap(RegexUtil.namedGroups(m), "letter", "abc", "number", null);
 		assertMap(RegexUtil.namedGroups(null));
-		assertCollection(RegexUtil.groupNames((Matcher) null));
-		assertCollection(RegexUtil.groupNames((Pattern) null));
+		assertUnordered(RegexUtil.groupNames((Matcher) null));
+		assertUnordered(RegexUtil.groupNames((Pattern) null));
 	}
 
 	@Test
@@ -321,9 +321,9 @@ public class RegexUtilTest {
 
 	@Test
 	public void testFindAll() {
-		assertCollection(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc", "ghi");
-		assertCollection(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF", "JKL");
-		assertCollection(RegexUtil.findAll(INT_PATTERN, "abc123DEF456ghi789JKL"), "123", "456",
+		assertUnordered(RegexUtil.findAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL"), "abc", "ghi");
+		assertUnordered(RegexUtil.findAll(USTRING_PATTERN, "abc123DEF456ghi789JKL"), "DEF", "JKL");
+		assertUnordered(RegexUtil.findAll(INT_PATTERN, "abc123DEF456ghi789JKL"), "123", "456",
 			"789");
 	}
 
@@ -337,13 +337,13 @@ public class RegexUtilTest {
 
 	@Test
 	public void testParseFindAll() {
-		assertCollection(
+		assertUnordered(
 			RegexUtil.parseFindAll(LSTRING_PATTERN, "abcDEFtrue123TRUE456True").asBools().get(),
 			false, true, false);
-		assertCollection(
+		assertUnordered(
 			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asInts().get(), 123, 456,
 			789);
-		assertCollection(
+		assertUnordered(
 			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asDoubles().get(), 123.0,
 			456.0, 789.0);
 		assertThrown(() -> RegexUtil.parseFindAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL")

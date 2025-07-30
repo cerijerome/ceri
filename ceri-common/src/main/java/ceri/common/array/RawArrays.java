@@ -2,7 +2,10 @@ package ceri.common.array;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
+import ceri.common.collection.Iterables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
@@ -16,6 +19,28 @@ import ceri.common.util.Hasher;
  */
 public class RawArrays {
 	private RawArrays() {}
+
+	/**
+	 * Represents a ranged view onto an array.
+	 */
+	public record Sub<T>(T array, int offset, int length) {
+		/**
+		 * Create an instance with validated range.
+		 */
+		public static <T> Sub<T> of(T array, int offset, int length) {
+			int arrayLen = RawArrays.length(array);
+			offset = MathUtil.limit(offset, 0, arrayLen);
+			length = MathUtil.limit(length, 0, arrayLen - offset);
+			return new Sub<>(array, offset, length);
+		}
+
+		/**
+		 * The range end index.
+		 */
+		public int to() {
+			return offset + length;
+		}
+	}
 
 	/**
 	 * Array equality function; matches Arrays.equals().
@@ -80,6 +105,33 @@ public class RawArrays {
 	public static boolean in(Object array, int index) {
 		if (array == null || index < 0) return false;
 		return index < Array.getLength(array);
+	}
+
+	/**
+	 * Returns an iterable type for the array.
+	 */
+	public static Iterable<Object> iterable(Object array, int offset, int length) {
+		return Iterables.of(iterator(array, offset, length));
+	}
+
+	/**
+	 * Returns an iterator for the array.
+	 */
+	public static Iterator<Object> iterator(Object array, int offset, int length) {
+		return applySlice(array, offset, length, (o, l) -> new Iterator<Object>() {
+			int i = 0;
+
+			@Override
+			public boolean hasNext() {
+				return MathUtil.within(i, 0, l - 1);
+			}
+
+			@Override
+			public Object next() {
+				if (!hasNext()) throw new NoSuchElementException();
+				return Array.get(array, o + i++);
+			}
+		});
 	}
 
 	/**
@@ -266,6 +318,13 @@ public class RawArrays {
 	/**
 	 * Copies a bounded array into a new boxed array.
 	 */
+	public static Object[] boxed(Object array, int offset, int length) {
+		return boxed(Object[]::new, array, offset, length);
+	}
+
+	/**
+	 * Copies a bounded array into a new boxed array.
+	 */
 	public static <C> C[] boxed(Functions.IntFunction<C[]> boxedConstructor, Object array,
 		int offset, int length) {
 		if (array == null || boxedConstructor == null) return null;
@@ -331,8 +390,8 @@ public class RawArrays {
 	/**
 	 * Returns true if the bounded array ranges are equals, using an equality function.
 	 */
-	public static <T> boolean equals(Equals<T> equalsFn, T lhs, int lhsOffset, T rhs,
-		int rhsOffset, int length) {
+	public static <T> boolean equals(Equals<T> equalsFn, T lhs, int lhsOffset, T rhs, int rhsOffset,
+		int length) {
 		if (lhs == null && rhs == null) return true;
 		if (lhs == null || rhs == null) return false;
 		int lhsLen = Array.getLength(lhs);

@@ -1,6 +1,5 @@
 package ceri.serial.i2c.jna;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertByte;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -8,6 +7,7 @@ import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
@@ -48,7 +48,7 @@ public class I2cDevTest {
 	@Test
 	public void testI2cSmBusData() {
 		var smBus = new i2c_smbus_data();
-		smBus.setBlock(bytes(1, 2, 3, 4, 5));
+		smBus.setBlock(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		assertArray(smBus.block, smBusBlock(5, 1, 2, 3, 4, 5).copy(0));
 	}
 
@@ -65,8 +65,8 @@ public class I2cDevTest {
 	public void testWriteBlockData() throws IOException {
 		var lib = ref.init();
 		int fd = I2cDev.i2c_open(1, 0);
-		I2cDev.i2c_smbus_write_block_data(fd, 0x12, bytes(1, 2, 3));
-		I2cDev.i2c_smbus_write_i2c_block_data(fd, 0x12, bytes(1, 2, 3));
+		I2cDev.i2c_smbus_write_block_data(fd, 0x12, ArrayUtil.bytes.of(1, 2, 3));
+		I2cDev.i2c_smbus_write_i2c_block_data(fd, 0x12, ArrayUtil.bytes.of(1, 2, 3));
 		lib.ioctlSmBusBytes.assertValues(new Rw(0, 0x12, 5, 0, 0, smBusBlock(3, 1, 2, 3)),
 			new Rw(0, 0x12, 8, 0, 0, smBusBlock(3, 1, 2, 3)));
 	}

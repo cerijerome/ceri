@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.Test;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
@@ -27,7 +27,7 @@ public class BranchCaptorBehavior {
 		bc.add(true, false, true);
 		bc.add(true, true, true);
 		assertEquals(bc.branches(), 5);
-		assertCollection(bc.missing(), //
+		assertUnordered(bc.missing(), //
 			BranchCaptor.string(false, true, true), //
 			BranchCaptor.string(true, false, false), //
 			BranchCaptor.string(true, true, false));

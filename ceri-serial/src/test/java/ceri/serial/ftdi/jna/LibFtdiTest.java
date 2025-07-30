@@ -12,7 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
@@ -28,7 +28,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibFtdiTest {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private ftdi_context ftdi;
 	private DeviceConfig config;
 

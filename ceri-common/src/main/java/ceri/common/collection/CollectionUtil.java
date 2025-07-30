@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Excepts.BiPredicate;
-import ceri.common.function.FunctionWrapper;
 import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.function.Predicates;
 import ceri.common.stream.StreamUtil;
@@ -76,51 +75,6 @@ public class CollectionUtil {
 		Excepts.Consumer<E, T> consumer) throws E {
 		for (var entry : iterable)
 			consumer.accept(entry);
-	}
-
-	/**
-	 * Computes and (re-)maps the value for the key.
-	 */
-	public static <E extends Exception, K, V> V compute(Map<K, V> map, K key,
-		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> remapper) throws E {
-		var w = FunctionWrapper.<E>of();
-		return w.unwrap.get(() -> map.compute(key, wrapBiFn(w, remapper)));
-	}
-
-	/**
-	 * Computes and adds the value if the key is not mapped.
-	 */
-	public static <E extends Exception, K, V> V computeIfAbsent(Map<K, V> map, K key,
-		Excepts.Function<E, ? super K, ? extends V> mapper) throws E {
-		var w = FunctionWrapper.<E>of();
-		return w.unwrap.get(() -> map.computeIfAbsent(key, wrapFn(w, mapper)));
-	}
-
-	/**
-	 * Computes and re-maps the value if the key is not present.
-	 */
-	public static <E extends Exception, K, V> V computeIfPresent(Map<K, V> map, K key,
-		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> remapper) throws E {
-		var w = FunctionWrapper.<E>of();
-		return w.unwrap.get(() -> map.computeIfPresent(key, wrapBiFn(w, remapper)));
-	}
-
-	/**
-	 * Applies the function to each map entry.
-	 */
-	public static <E extends Exception, K, V> void replaceAll(Map<K, V> map,
-		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> function) throws E {
-		var w = FunctionWrapper.<E>of();
-		w.unwrap.run(() -> map.replaceAll(wrapBiFn(w, function)));
-	}
-
-	/**
-	 * Map the value, or merge the currently mapped value.
-	 */
-	public static <E extends Exception, K, V> V merge(Map<K, V> map, K key, V value,
-		Excepts.BiFunction<E, ? super V, ? super V, ? extends V> remapper) throws E {
-		var w = FunctionWrapper.<E>of();
-		return w.unwrap.get(() -> map.merge(key, value, wrapBiFn(w, remapper)));
 	}
 
 	@SafeVarargs
@@ -643,17 +597,5 @@ public class CollectionUtil {
 				return size() > max;
 			}
 		};
-	}
-
-	// Support methods
-
-	private static <E extends Exception, K, V> Function<K, V> wrapFn(FunctionWrapper<E> w,
-		Excepts.Function<E, ? super K, ? extends V> fn) {
-		return k -> w.wrap.get(() -> fn.apply(k));
-	}
-
-	private static <E extends Exception, K, V> BiFunction<K, V, V> wrapBiFn(FunctionWrapper<E> w,
-		Excepts.BiFunction<E, ? super K, ? super V, ? extends V> fn) {
-		return (k, v) -> w.wrap.get(() -> fn.apply(k, v));
 	}
 }

@@ -13,7 +13,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts.Function;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.Struct;
@@ -35,7 +35,7 @@ import ceri.serial.libusb.jna.LibUsbException;
 /**
  * Encapsulates async transfers and associated types.
  */
-public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
+public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeable {
 	private static final int DIRECTION_MASK = LibUsb.LIBUSB_ENDPOINT_DIR_MASK;
 	private static final int RECIPIENT_MASK = 0x1f;
 	private static final int TYPE_MASK = 0x60;
@@ -187,7 +187,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements RuntimeCloseable {
 	/**
 	 * Encapsulates allocation and freeing of bulk streams for device end-points.
 	 */
-	public static class BulkStreams implements RuntimeCloseable {
+	public static class BulkStreams implements Functions.Closeable {
 		private final UsbDeviceHandle handle;
 		private final byte[] endPointBytes;
 		public final ByteProvider endPoints;

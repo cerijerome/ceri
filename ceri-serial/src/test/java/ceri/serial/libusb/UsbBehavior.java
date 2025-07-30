@@ -10,14 +10,14 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 
 	@Before
 	public void before() {

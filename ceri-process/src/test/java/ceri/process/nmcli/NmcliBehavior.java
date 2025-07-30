@@ -2,8 +2,8 @@ package ceri.process.nmcli;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class NmcliBehavior {
 		var output = Nmcli.of(p).con.show();
 		p.assertParameters("nmcli", "con", "show");
 		var results = output.parse();
-		assertIterable(results,
+		assertOrdered(results,
 			ConShowItem.of("eth1", "01fa0bf4-b6bd-484f-a9a3-2b10ff701dcd", "ethernet", "eth1"),
 			ConShowItem.of("eth0", "2e9f0cdd-ea2f-4b63-b146-3b9a897c9e45", "ethernet", "eth0"),
 			ConShowItem.of("eth2", "186053d4-9369-4a4e-87b8-d1f9a419f985", "ethernet", "eth2"));

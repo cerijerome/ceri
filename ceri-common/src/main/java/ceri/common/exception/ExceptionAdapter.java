@@ -3,14 +3,15 @@ package ceri.common.exception;
 import java.io.IOException;
 import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.Functions;
 import ceri.common.function.Throws;
-import ceri.common.io.RuntimeIoException;
+import ceri.common.io.IoExceptions;
 import ceri.common.reflect.ReflectUtil;
 
 /**
  * Adapter that wraps non-assignable exceptions.
  */
-public class ExceptionAdapter<E extends Exception> implements Function<Throwable, E> {
+public class ExceptionAdapter<E extends Exception> implements Functions.Function<Throwable, E> {
 	/** Makes no change to exceptions. */
 	public static ExceptionAdapter<Exception> none = of(Exception.class, Exception::new);
 	/** Wraps unexpected exceptions in illegal state exception. */
@@ -25,8 +26,8 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	/** Wraps checked exceptions as IO. */
 	public static final ExceptionAdapter<IOException> io = of(IOException.class, IOException::new);
 	/** Wraps checked exceptions as runtime IO. */
-	public static final ExceptionAdapter<RuntimeIoException> runtimeIo =
-		of(RuntimeIoException.class, RuntimeIoException::new);
+	public static final ExceptionAdapter<IoExceptions.Runtime> runtimeIo =
+		of(IoExceptions.Runtime.class, IoExceptions.Runtime::new);
 	private final Class<E> cls;
 	private final Function<Throwable, E> fn;
 
@@ -36,11 +37,11 @@ public class ExceptionAdapter<E extends Exception> implements Function<Throwable
 	}
 
 	public static <E extends Exception> ExceptionAdapter<E> of(Class<E> cls,
-		Function<Throwable, E> fn) {
+		Functions.Function<Throwable, E> fn) {
 		return new ExceptionAdapter<>(cls, fn);
 	}
 
-	private ExceptionAdapter(Class<E> cls, Function<Throwable, E> fn) {
+	private ExceptionAdapter(Class<E> cls, Functions.Function<Throwable, E> fn) {
 		this.cls = cls;
 		this.fn = fn;
 	}

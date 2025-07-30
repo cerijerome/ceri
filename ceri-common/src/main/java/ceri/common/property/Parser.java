@@ -211,11 +211,11 @@ public class Parser {
 		}
 
 		/**
-		 * Consume the value if not null.
+		 * Consume the value if not null. Returns true if consumed.
 		 */
-		default <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer)
+		default <E extends Exception> boolean accept(Excepts.Consumer<E, ? super T> consumer)
 			throws E {
-			FunctionUtil.safeAccept(get(), consumer);
+			return FunctionUtil.safeAccept(get(), consumer);
 		}
 	}
 

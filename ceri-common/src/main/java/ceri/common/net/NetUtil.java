@@ -1,9 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.stream.StreamUtil.first;
-import static ceri.common.stream.StreamUtil.firstOf;
-import static ceri.common.stream.StreamUtil.stream;
-import static ceri.common.stream.StreamUtil.toList;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -15,10 +11,11 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.Functions;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 
 public class NetUtil {
 	private static final Pattern LOCALHOST_REGEX =
@@ -72,14 +69,15 @@ public class NetUtil {
 	 * Iterates network interfaces to find the first local address.
 	 */
 	public static Inet4Address localIp4Address() throws SocketException {
-		return firstOf(addressStream().filter(InetAddress::isSiteLocalAddress), Inet4Address.class);
+		return inetAddresses().filter(InetAddress::isSiteLocalAddress).instances(Inet4Address.class)
+			.next();
 	}
 
 	/**
 	 * Finds the first local address for the interface.
 	 */
 	public static InetAddress localAddressFor(NetworkInterface n) {
-		return first(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress));
+		return inetAddresses(n).filter(InetAddress::isSiteLocalAddress).next();
 	}
 
 	/**
@@ -93,37 +91,37 @@ public class NetUtil {
 	 * Finds the first local address for the interface.
 	 */
 	public static Inet4Address localIp4AddressFor(NetworkInterface n) {
-		return firstOf(stream(n.getInetAddresses()).filter(InetAddress::isSiteLocalAddress),
-			Inet4Address.class);
+		return inetAddresses(n).filter(InetAddress::isSiteLocalAddress)
+			.instances(Inet4Address.class).next();
 	}
 
 	/**
 	 * Iterates network interfaces to find the first with a local address.
 	 */
 	public static NetworkInterface localInterface() throws SocketException {
-		return first(NetworkInterface.networkInterfaces().filter(NetUtil::hasLocalAddress));
+		return networkInterfaces().filter(NetUtil::hasLocalAddress).next();
 	}
 
 	/**
 	 * Iterates network interfaces to find the first address matching the predicate.
 	 */
-	public static InetAddress findLocalAddress(Predicate<? super InetAddress> predicate)
+	public static InetAddress findLocalAddress(Functions.Predicate<? super InetAddress> predicate)
 		throws SocketException {
-		return first(addressStream().filter(predicate));
+		return inetAddresses().filter(predicate).next();
 	}
 
 	/**
 	 * Lists all network interface addresses.
 	 */
 	public static List<InetAddress> localAddresses() throws SocketException {
-		return toList(addressStream());
+		return inetAddresses().toList();
 	}
 
 	/**
 	 * Iterates network interfaces to find the first IP4 broadcast address.
 	 */
 	public static Inet4Address localBroadcast() throws SocketException {
-		return broadcast(ifAddressStream());
+		return broadcast(ifaceAddresses());
 	}
 
 	/**
@@ -131,21 +129,36 @@ public class NetUtil {
 	 */
 	public static Inet4Address broadcast(NetworkInterface iface) {
 		if (iface == null) return null;
-		return broadcast(iface.getInterfaceAddresses().stream());
+		return broadcast(ifaceAddresses(iface));
 	}
 
-	private static Inet4Address broadcast(Stream<InterfaceAddress> stream) {
-		return firstOf(stream.map(InterfaceAddress::getBroadcast).filter(Objects::nonNull),
-			Inet4Address.class);
+	private static Inet4Address broadcast(Stream<RuntimeException, InterfaceAddress> stream) {
+		return stream.map(InterfaceAddress::getBroadcast).instances(Inet4Address.class).next();
 	}
 
-	private static Stream<InetAddress> addressStream() throws SocketException {
-		return NetworkInterface.networkInterfaces().flatMap(NetworkInterface::inetAddresses);
+	private static Stream<RuntimeException, InetAddress> inetAddresses() throws SocketException {
+		return networkInterfaces().map(NetworkInterface::inetAddresses).flatMap(Stream::from);
 	}
 
-	private static Stream<InterfaceAddress> ifAddressStream() throws SocketException {
-		return NetworkInterface.networkInterfaces()
-			.flatMap(n -> n.getInterfaceAddresses().stream());
+	private static Stream<RuntimeException, InterfaceAddress> ifaceAddresses()
+		throws SocketException {
+		return networkInterfaces().map(NetworkInterface::getInterfaceAddresses)
+			.flatMap(Stream::from);
 	}
 
+	private static Stream<RuntimeException, InetAddress> inetAddresses(NetworkInterface iface) {
+		if (iface == null) return Stream.empty();
+		return Stream.from(iface.inetAddresses());
+	}
+
+	private static Stream<RuntimeException, InterfaceAddress>
+		ifaceAddresses(NetworkInterface iface) {
+		if (iface == null) return Stream.empty();
+		return Stream.from(iface.getInterfaceAddresses());
+	}
+
+	private static Stream<RuntimeException, NetworkInterface> networkInterfaces()
+		throws SocketException {
+		return Streams.from(NetworkInterface.networkInterfaces());
+	}
 }

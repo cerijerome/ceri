@@ -8,9 +8,9 @@ import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
 import static ceri.common.exception.ExceptionAdapter.runtime;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -795,7 +795,7 @@ public abstract class CallSync<T, R> {
 			this.values.clear();
 			return list;
 		});
-		assertIterable(values, expecteds);
+		assertOrdered(values, expecteds);
 	}
 
 	/**

@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 
 public class TestSerialBehavior {
 
@@ -13,7 +13,7 @@ public class TestSerialBehavior {
 	public void shouldEchoOutputToInput() throws IOException {
 		try (var serial = TestSerial.ofEcho()) {
 			serial.open();
-			serial.out().write(ArrayUtil.bytes(1, 2, 3));
+			serial.out().write(ArrayUtil.bytes.of(1, 2, 3));
 			assertRead(serial.in(), 1, 2, 3);
 		}
 	}
@@ -24,9 +24,9 @@ public class TestSerialBehavior {
 		var serials = TestSerial.pairOf();
 		serials[0].open();
 		serials[1].open();
-		serials[0].out().write(ArrayUtil.bytes(1, 2, 3));
+		serials[0].out().write(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(serials[1].in(), 1, 2, 3);
-		serials[1].out().write(ArrayUtil.bytes(4, 5, 6));
+		serials[1].out().write(ArrayUtil.bytes.of(4, 5, 6));
 		assertRead(serials[0].in(), 4, 5, 6);
 	}
 

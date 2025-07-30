@@ -1,6 +1,5 @@
 package ceri.serial.spi;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -22,6 +21,7 @@ import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
 import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
@@ -120,7 +120,7 @@ public class SpiDeviceBehavior {
 	public void shouldTransferOut() throws IOException {
 		var lib = initSpi();
 		var xfer = spi.transfer(Direction.out, 5);
-		xfer.write(bytes(1, 2, 3, 4, 5));
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		assertArray(xfer.read());
 		lib.ioctlSpiMsg.assertValues(
@@ -132,7 +132,7 @@ public class SpiDeviceBehavior {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.in, 5);
-		xfer.write(bytes(1, 2, 3)); // ignored
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3)); // ignored
 		xfer.execute();
 		assertArray(xfer.read(), 5, 4, 3, 2, 1);
 		lib.ioctlSpiMsg.assertValues(new Msg(SPI_IOC_MESSAGE(1), null, 5, 0, 0, 0, 0, 0, 0));
@@ -143,7 +143,7 @@ public class SpiDeviceBehavior {
 		var lib = initSpi();
 		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.duplex, 5);
-		xfer.write(bytes(5, 6, 7, 8, 9));
+		xfer.write(ArrayUtil.bytes.of(5, 6, 7, 8, 9));
 		xfer.execute();
 		assertArray(xfer.read(), 5, 4, 3, 2, 1);
 		lib.ioctlSpiMsg.assertValues(

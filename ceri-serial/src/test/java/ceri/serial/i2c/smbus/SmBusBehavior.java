@@ -1,10 +1,10 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 
 public class SmBusBehavior {
 
@@ -14,8 +14,8 @@ public class SmBusBehavior {
 		SmBus.NULL.writeByte(0xab);
 		SmBus.NULL.writeByteData(0x12, 0xab);
 		SmBus.NULL.writeWordData(0x12, 0xabcd);
-		SmBus.NULL.writeBlockData(0x12, bytes(0xab, 0xcd));
-		SmBus.NULL.writeI2cBlockData(0x12, bytes(0xab, 0xcd));
+		SmBus.NULL.writeBlockData(0x12, ArrayUtil.bytes.of(0xab, 0xcd));
+		SmBus.NULL.writeI2cBlockData(0x12, ArrayUtil.bytes.of(0xab, 0xcd));
 	}
 
 	@Test

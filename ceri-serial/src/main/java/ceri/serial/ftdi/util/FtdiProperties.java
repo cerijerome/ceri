@@ -1,10 +1,10 @@
 package ceri.serial.ftdi.util;
 
 import static ceri.common.math.MathUtil.approxEqual;
-import ceri.common.collection.ArrayUtil;
 import ceri.common.function.FunctionUtil;
 import ceri.common.property.Parser;
 import ceri.common.property.TypedProperties;
+import ceri.common.util.BasicUtil;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -74,7 +74,7 @@ public class FtdiProperties extends TypedProperties.Ref {
 		var parity = parse(PARITY_KEY).mod(String::toUpperCase).toEnum(ftdi_parity_type.class);
 		var breakType =
 			parse(BREAK_KEY).toBool(ftdi_break_type.BREAK_ON, ftdi_break_type.BREAK_OFF);
-		if (ArrayUtil.allNull(dataBits, stopBits, parity, breakType)) return null;
+		if (BasicUtil.allNull(dataBits, stopBits, parity, breakType)) return null;
 		var b = FtdiLineParams.builder();
 		if (dataBits != null) b.dataBits(dataBits);
 		if (stopBits != null) b.stopBits(stopBits);

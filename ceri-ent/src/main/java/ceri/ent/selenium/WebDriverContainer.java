@@ -15,15 +15,15 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ceri.common.function.Excepts.RuntimeCloseable;
 import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 
 /**
  * A container and support methods for Selenium web drivers. Supports lifecycle management with
  * create, reset, and close.
  */
-public class WebDriverContainer implements RuntimeCloseable {
+public class WebDriverContainer implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";

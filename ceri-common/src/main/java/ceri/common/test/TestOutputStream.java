@@ -6,8 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.array.SubArray;
-import ceri.common.array.SubArray.Bytes;
+import ceri.common.array.RawArrays;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
@@ -22,7 +21,7 @@ import ceri.common.text.ToString;
 public class TestOutputStream extends OutputStream {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;
-	public final CallSync.Consumer<Bytes> write = CallSync.consumer(null, true);
+	public final CallSync.Consumer<RawArrays.Sub<byte[]>> write = CallSync.consumer(null, true);
 	public final CallSync.Runnable flush = CallSync.runnable(true);
 	public final CallSync.Runnable close = CallSync.runnable(true);
 	public final ByteStream.Reader from; // read from output
@@ -59,7 +58,7 @@ public class TestOutputStream extends OutputStream {
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		piped.out().write(b, off, len);
-		write.accept(SubArray.of(b, off, len), ExceptionAdapter.io);
+		write.accept(RawArrays.Sub.of(b, off, len), ExceptionAdapter.io);
 	}
 
 	@SuppressWarnings("resource")

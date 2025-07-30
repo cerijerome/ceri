@@ -5,7 +5,7 @@ import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -223,13 +223,13 @@ public class ColorxUtilTest {
 
 	@Test
 	public void testXargbList() {
-		assertIterable(ColorxUtil.xargbList(LongStream.of(0xffffffffffL, 0x123456789aL)),
+		assertOrdered(ColorxUtil.xargbList(LongStream.of(0xffffffffffL, 0x123456789aL)),
 			0xffffffffffL, 0x123456789aL);
 	}
 
 	@Test
 	public void testColorxList() {
-		assertIterable(ColorxUtil.colorxList(LongStream.of(0xffffffffffL, 0x123456789aL)),
+		assertOrdered(ColorxUtil.colorxList(LongStream.of(0xffffffffffL, 0x123456789aL)),
 			Colorx.of(0xffffffffffL), Colorx.of(0x123456789aL));
 	}
 

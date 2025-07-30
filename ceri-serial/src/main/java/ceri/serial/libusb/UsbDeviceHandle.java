@@ -2,9 +2,9 @@ package ceri.serial.libusb;
 
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbTransfer.BulkStreams;
 import ceri.serial.libusb.jna.LibUsb;
@@ -14,7 +14,7 @@ import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class UsbDeviceHandle implements RuntimeCloseable {
+public class UsbDeviceHandle implements Functions.Closeable {
 	private final Usb usb;
 	private UsbDevice device = null;
 	private libusb_device_handle handle;
@@ -99,7 +99,7 @@ public class UsbDeviceHandle implements RuntimeCloseable {
 	 * Holder for allocated streams used for bulk transfers.
 	 */
 	public UsbTransfer.BulkStreams bulkStreams(int count, int... endPoints) throws LibUsbException {
-		byte[] eps = ArrayUtil.bytes(endPoints);
+		byte[] eps = ArrayUtil.bytes.of(endPoints);
 		int n = LibUsb.libusb_alloc_streams(handle(), count, eps);
 		return new BulkStreams(this, n, eps);
 	}

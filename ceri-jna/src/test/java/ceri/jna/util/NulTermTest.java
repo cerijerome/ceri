@@ -1,11 +1,11 @@
 package ceri.jna.util;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray;
 
 public class NulTermTest {
@@ -33,23 +33,24 @@ public class NulTermTest {
 	@Test
 	public void testTruncateBytes() {
 		assertEquals(NulTerm.truncate((byte[]) null), null);
-		assertArray(NulTerm.truncate(bytes()));
-		assertArray(NulTerm.truncate(bytes(0)));
-		assertArray(NulTerm.truncate(bytes(0, 0)));
-		assertArray(NulTerm.truncate(bytes(1, 2, 3)), 1, 2, 3);
-		assertArray(NulTerm.truncate(bytes(0, 1, 2, 3, 0)));
-		assertArray(NulTerm.truncate(bytes(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of()));
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of(0)));
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of(0, 0)));
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of(1, 2, 3)), 1, 2, 3);
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of(0, 1, 2, 3, 0)));
+		assertArray(NulTerm.truncate(ArrayUtil.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3);
 	}
 
 	@Test
 	public void testTrimBytes() {
 		assertEquals(NulTerm.trim((byte[]) null), null);
-		assertArray(NulTerm.trim(bytes()));
-		assertArray(NulTerm.trim(bytes(0)));
-		assertArray(NulTerm.trim(bytes(0, 0)));
-		assertArray(NulTerm.trim(bytes(1, 2, 3)), 1, 2, 3);
-		assertArray(NulTerm.trim(bytes(0, 1, 2, 3, 0)), 0, 1, 2, 3);
-		assertArray(NulTerm.trim(bytes(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5, 6);
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of()));
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of(0)));
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of(0, 0)));
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of(1, 2, 3)), 1, 2, 3);
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of(0, 1, 2, 3, 0)), 0, 1, 2, 3);
+		assertArray(NulTerm.trim(ArrayUtil.bytes.of(1, 2, 3, 0, 4, 5, 6, 0, 0)), 1, 2, 3, 0, 4, 5,
+			6);
 	}
 
 	@Test

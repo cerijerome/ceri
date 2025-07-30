@@ -16,7 +16,7 @@ public abstract class SelfHealingConnector<T extends Connector> extends SelfHeal
 	private final ReplaceableInputStream in = new ReplaceableInputStream();
 	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
 
-	protected SelfHealingConnector(Config config) {
+	protected SelfHealingConnector(SelfHealing.Config config) {
 		super(config);
 		in.errors().listen(this::checkIfBroken);
 		out.errors().listen(this::checkIfBroken);

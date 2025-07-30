@@ -2,8 +2,8 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,15 +31,15 @@ public class DsvParserBehavior {
 
 	@Test
 	public void testSplit() {
-		assertIterable(DsvParser.split(null, '|'));
-		assertIterable(DsvParser.split("abc||de|f|", '|'), "abc", "", "de", "f", "");
+		assertOrdered(DsvParser.split(null, '|'));
+		assertOrdered(DsvParser.split("abc||de|f|", '|'), "abc", "", "de", "f", "");
 	}
 
 	@Test
 	public void shouldReadFieldsByName() {
 		assertTrue(parser.hasHeaderValue("field1"));
 		assertFalse(parser.hasHeaderValue("field4"));
-		assertIterable(parser.header(), "field1", "field2", "field3");
+		assertOrdered(parser.header(), "field1", "field2", "field3");
 		assertTrue(parser.hasFields());
 		assertEquals(parser.field("field1"), "this");
 		assertEquals(parser.field("field2"), "is");

@@ -3,12 +3,10 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertApproxArray;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertArrayObject;
 import static ceri.common.test.AssertUtil.assertAscii;
 import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertConsume;
 import static ceri.common.test.AssertUtil.assertContains;
 import static ceri.common.test.AssertUtil.assertDir;
@@ -20,7 +18,6 @@ import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertInterrupted;
 import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertMask;
@@ -33,8 +30,10 @@ import static ceri.common.test.AssertUtil.assertNotFound;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNotSame;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertRange;
+import static ceri.common.test.AssertUtil.assertRawArray;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertShort;
@@ -42,6 +41,7 @@ import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.assertValue;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwIt;
@@ -399,8 +399,8 @@ public class AssertUtilTest {
 	public void testAssertArray() {
 		boolean[] b0 = { false, false };
 		boolean[] b1 = { false, false };
-		assertArrayObject(b0, 0, b1, 0, 2);
-		assertAssertion(() -> assertArrayObject(b0, 0, b1, 0, 3));
+		assertRawArray(b0, 0, b1, 0, 2);
+		assertAssertion(() -> assertRawArray(b0, 0, b1, 0, 3));
 		assertArray(new short[] { 1, 2 }, 1, 2);
 	}
 
@@ -432,29 +432,29 @@ public class AssertUtilTest {
 	}
 
 	@Test
-	public void testAssertCollection() {
+	public void testAssertUnordered() {
 		List<Integer> list = ArrayUtil.ints.list(5, 1, 4, 2, 3);
-		assertCollection(list, 1, 2, 3, 4, 5);
-		assertAssertion(() -> assertCollection(list, 1, 2, 4, 5));
-		assertAssertion(() -> assertCollection(list, 1, 2, 3, 4, 5, 6));
-		assertCollection(ArrayUtil.bools.of(true, false), false, true);
-		assertAssertion(() -> assertCollection(ArrayUtil.bools.of(true, false), false, false));
-		assertCollection(ArrayUtil.chars.of('a', 'b'), 'b', 'a');
-		assertAssertion(() -> assertCollection(ArrayUtil.chars.of('a', 'b'), 'b', 'b'));
-		assertCollection(ArrayUtil.chars.of('a', 'b'), 0x62, 0x61);
-		assertAssertion(() -> assertCollection(ArrayUtil.chars.of('a', 'b'), 0x62, 0x62));
-		assertCollection(ArrayUtil.bytes.of(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ArrayUtil.bytes.of(-1, 1), 1, 1));
-		assertCollection(ArrayUtil.shorts.of(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ArrayUtil.shorts.of(-1, 1), 1, 1));
-		assertCollection(ArrayUtil.ints.of(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ArrayUtil.ints.of(-1, 1), 1, 1));
-		assertCollection(ArrayUtil.longs.of(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ArrayUtil.longs.of(-1, 1), 1, 1));
-		assertCollection(ArrayUtil.floats.of(-1.0, 1.0), 1.0, -1.0);
-		assertAssertion(() -> assertCollection(ArrayUtil.floats.of(-1.0, 1.0), 1.0, 1.0));
-		assertCollection(ArrayUtil.doubles.of(-1, 1), 1, -1);
-		assertAssertion(() -> assertCollection(ArrayUtil.doubles.of(-1, 1), 1, 1));
+		assertUnordered(list, 1, 2, 3, 4, 5);
+		assertAssertion(() -> assertUnordered(list, 1, 2, 4, 5));
+		assertAssertion(() -> assertUnordered(list, 1, 2, 3, 4, 5, 6));
+		assertUnordered(ArrayUtil.bools.of(true, false), false, true);
+		assertAssertion(() -> assertUnordered(ArrayUtil.bools.of(true, false), false, false));
+		assertUnordered(ArrayUtil.chars.of('a', 'b'), 'b', 'a');
+		assertAssertion(() -> assertUnordered(ArrayUtil.chars.of('a', 'b'), 'b', 'b'));
+		assertUnordered(ArrayUtil.chars.of('a', 'b'), 0x62, 0x61);
+		assertAssertion(() -> assertUnordered(ArrayUtil.chars.of('a', 'b'), 0x62, 0x62));
+		assertUnordered(ArrayUtil.bytes.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertUnordered(ArrayUtil.bytes.of(-1, 1), 1, 1));
+		assertUnordered(ArrayUtil.shorts.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertUnordered(ArrayUtil.shorts.of(-1, 1), 1, 1));
+		assertUnordered(ArrayUtil.ints.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertUnordered(ArrayUtil.ints.of(-1, 1), 1, 1));
+		assertUnordered(ArrayUtil.longs.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertUnordered(ArrayUtil.longs.of(-1, 1), 1, 1));
+		assertUnordered(ArrayUtil.floats.of(-1.0, 1.0), 1.0, -1.0);
+		assertAssertion(() -> assertUnordered(ArrayUtil.floats.of(-1.0, 1.0), 1.0, 1.0));
+		assertUnordered(ArrayUtil.doubles.of(-1, 1), 1, -1);
+		assertAssertion(() -> assertUnordered(ArrayUtil.doubles.of(-1, 1), 1, 1));
 	}
 
 	@Test
@@ -529,9 +529,9 @@ public class AssertUtilTest {
 	@Test
 	public void testAssertIterable() {
 		final Set<Integer> set = new TreeSet<>();
-		assertIterable(set);
+		assertOrdered(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
-		assertIterable(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
+		assertOrdered(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 	}
 
 	@Test

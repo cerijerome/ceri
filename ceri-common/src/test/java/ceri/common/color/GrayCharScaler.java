@@ -3,8 +3,8 @@ package ceri.common.color;
 import static ceri.common.text.StringUtil.repeat;
 import java.io.IOException;
 import ceri.common.array.ArrayUtil;
+import ceri.common.io.IoExceptions;
 import ceri.common.io.IoUtil;
-import ceri.common.io.RuntimeIoException;
 
 /**
  * Tool to manually order characters by gray-level.
@@ -81,7 +81,7 @@ public class GrayCharScaler {
 		try {
 			return IoUtil.pollString(System.in).trim();
 		} catch (IOException e) {
-			throw new RuntimeIoException(e);
+			throw new IoExceptions.Runtime(e);
 		}
 	}
 

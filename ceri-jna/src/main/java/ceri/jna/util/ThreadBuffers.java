@@ -6,12 +6,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import com.sun.jna.Memory;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 
 /**
  * A class that provides resizable thread-local buffers.
  */
-public class ThreadBuffers implements RuntimeCloseable {
+public class ThreadBuffers implements Functions.Closeable {
 	public static final int SIZE_DEF = 1024;
 	private final WeakHashMap<Thread, Memory> buffers = new WeakHashMap<>();
 	private final Lock lock;

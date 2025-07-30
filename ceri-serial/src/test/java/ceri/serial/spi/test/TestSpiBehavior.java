@@ -1,10 +1,10 @@
 package ceri.serial.spi.test;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.Direction;
 import ceri.serial.spi.SpiMode;
@@ -29,7 +29,7 @@ public class TestSpiBehavior {
 	public void shouldCaptureOutput() throws IOException {
 		var spi = TestSpi.of();
 		var xfer = spi.transfer(Direction.out, 10);
-		xfer.write(bytes(1, 2, 3, 4, 5));
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		spi.xfer.assertAuto(Request.out(1, 2, 3, 4, 5));
 	}
@@ -48,7 +48,7 @@ public class TestSpiBehavior {
 		var spi = TestSpi.of();
 		var xfer = spi.transfer(Direction.duplex, 10);
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
-		xfer.write(bytes(6, 7, 8, 9));
+		xfer.write(ArrayUtil.bytes.of(6, 7, 8, 9));
 		xfer.execute();
 		assertArray(xfer.read(), 1, 2, 3, 4); // only 4 bytes
 		spi.xfer.assertAuto(Request.duplex(6, 7, 8, 9));

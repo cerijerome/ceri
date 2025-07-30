@@ -1,9 +1,9 @@
 package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertLines;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
@@ -36,96 +36,96 @@ public class TextUtilTest {
 	@Test
 	public void testToWordsWithSpaces() {
 		assertTrue(TextUtil.toWords(null).isEmpty());
-		assertIterable(TextUtil.toWords(""));
-		assertIterable(TextUtil.toWords("  "));
+		assertOrdered(TextUtil.toWords(""));
+		assertOrdered(TextUtil.toWords("  "));
 
-		assertIterable(TextUtil.toWords("a "), "a");
-		assertIterable(TextUtil.toWords(" a"), "a");
-		assertIterable(TextUtil.toWords("A "), "A");
-		assertIterable(TextUtil.toWords(" A"), "A");
+		assertOrdered(TextUtil.toWords("a "), "a");
+		assertOrdered(TextUtil.toWords(" a"), "a");
+		assertOrdered(TextUtil.toWords("A "), "A");
+		assertOrdered(TextUtil.toWords(" A"), "A");
 
-		assertIterable(TextUtil.toWords("a b"), "a", "b");
-		assertIterable(TextUtil.toWords(" ab"), "ab");
-		assertIterable(TextUtil.toWords("A b"), "A", "b");
-		assertIterable(TextUtil.toWords(" Ab"), "Ab");
-		assertIterable(TextUtil.toWords("a B"), "a", "B");
-		assertIterable(TextUtil.toWords(" aB"), "a", "B");
-		assertIterable(TextUtil.toWords("A B"), "A", "B");
-		assertIterable(TextUtil.toWords(" AB"), "AB");
+		assertOrdered(TextUtil.toWords("a b"), "a", "b");
+		assertOrdered(TextUtil.toWords(" ab"), "ab");
+		assertOrdered(TextUtil.toWords("A b"), "A", "b");
+		assertOrdered(TextUtil.toWords(" Ab"), "Ab");
+		assertOrdered(TextUtil.toWords("a B"), "a", "B");
+		assertOrdered(TextUtil.toWords(" aB"), "a", "B");
+		assertOrdered(TextUtil.toWords("A B"), "A", "B");
+		assertOrdered(TextUtil.toWords(" AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithUnderscores() {
-		assertIterable(TextUtil.toWords("_"));
-		assertIterable(TextUtil.toWords("__"));
-		assertIterable(TextUtil.toWords("__ _ "));
+		assertOrdered(TextUtil.toWords("_"));
+		assertOrdered(TextUtil.toWords("__"));
+		assertOrdered(TextUtil.toWords("__ _ "));
 
-		assertIterable(TextUtil.toWords("a_"), "a");
-		assertIterable(TextUtil.toWords("_a"), "a");
-		assertIterable(TextUtil.toWords("A_"), "A");
-		assertIterable(TextUtil.toWords("_A"), "A");
+		assertOrdered(TextUtil.toWords("a_"), "a");
+		assertOrdered(TextUtil.toWords("_a"), "a");
+		assertOrdered(TextUtil.toWords("A_"), "A");
+		assertOrdered(TextUtil.toWords("_A"), "A");
 
-		assertIterable(TextUtil.toWords("a_b"), "a", "b");
-		assertIterable(TextUtil.toWords("_ab"), "ab");
-		assertIterable(TextUtil.toWords("A_b"), "A", "b");
-		assertIterable(TextUtil.toWords("_Ab"), "Ab");
-		assertIterable(TextUtil.toWords("a_B"), "a", "B");
-		assertIterable(TextUtil.toWords("_aB"), "a", "B");
-		assertIterable(TextUtil.toWords("A_B"), "A", "B");
-		assertIterable(TextUtil.toWords("_AB"), "AB");
+		assertOrdered(TextUtil.toWords("a_b"), "a", "b");
+		assertOrdered(TextUtil.toWords("_ab"), "ab");
+		assertOrdered(TextUtil.toWords("A_b"), "A", "b");
+		assertOrdered(TextUtil.toWords("_Ab"), "Ab");
+		assertOrdered(TextUtil.toWords("a_B"), "a", "B");
+		assertOrdered(TextUtil.toWords("_aB"), "a", "B");
+		assertOrdered(TextUtil.toWords("A_B"), "A", "B");
+		assertOrdered(TextUtil.toWords("_AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithLettersAndNumbers() {
-		assertIterable(TextUtil.toWords("a1"), "a", "1");
-		assertIterable(TextUtil.toWords("1a"), "1a");
-		assertIterable(TextUtil.toWords("A1"), "A1");
-		assertIterable(TextUtil.toWords("1A"), "1", "A");
-		assertIterable(TextUtil.toWords("a1b"), "a", "1b");
-		assertIterable(TextUtil.toWords("1ab"), "1ab");
-		assertIterable(TextUtil.toWords("A1b"), "A1b");
-		assertIterable(TextUtil.toWords("1Ab"), "1", "Ab");
-		assertIterable(TextUtil.toWords("a1B"), "a", "1", "B");
-		assertIterable(TextUtil.toWords("1aB"), "1a", "B");
-		assertIterable(TextUtil.toWords("A1B"), "A1", "B");
-		assertIterable(TextUtil.toWords("1AB"), "1", "AB");
+		assertOrdered(TextUtil.toWords("a1"), "a", "1");
+		assertOrdered(TextUtil.toWords("1a"), "1a");
+		assertOrdered(TextUtil.toWords("A1"), "A1");
+		assertOrdered(TextUtil.toWords("1A"), "1", "A");
+		assertOrdered(TextUtil.toWords("a1b"), "a", "1b");
+		assertOrdered(TextUtil.toWords("1ab"), "1ab");
+		assertOrdered(TextUtil.toWords("A1b"), "A1b");
+		assertOrdered(TextUtil.toWords("1Ab"), "1", "Ab");
+		assertOrdered(TextUtil.toWords("a1B"), "a", "1", "B");
+		assertOrdered(TextUtil.toWords("1aB"), "1a", "B");
+		assertOrdered(TextUtil.toWords("A1B"), "A1", "B");
+		assertOrdered(TextUtil.toWords("1AB"), "1", "AB");
 	}
 
 	@Test
 	public void testToWordsWithLetters() {
-		assertIterable(TextUtil.toWords("a"), "a");
-		assertIterable(TextUtil.toWords("A"), "A");
+		assertOrdered(TextUtil.toWords("a"), "a");
+		assertOrdered(TextUtil.toWords("A"), "A");
 
-		assertIterable(TextUtil.toWords("ab"), "ab");
-		assertIterable(TextUtil.toWords("Ab"), "Ab");
-		assertIterable(TextUtil.toWords("aB"), "a", "B");
-		assertIterable(TextUtil.toWords("AB"), "AB");
+		assertOrdered(TextUtil.toWords("ab"), "ab");
+		assertOrdered(TextUtil.toWords("Ab"), "Ab");
+		assertOrdered(TextUtil.toWords("aB"), "a", "B");
+		assertOrdered(TextUtil.toWords("AB"), "AB");
 
-		assertIterable(TextUtil.toWords("abc"), "abc");
-		assertIterable(TextUtil.toWords("Abc"), "Abc");
-		assertIterable(TextUtil.toWords("aBc"), "a", "Bc");
-		assertIterable(TextUtil.toWords("ABc"), "A", "Bc");
-		assertIterable(TextUtil.toWords("abC"), "ab", "C");
-		assertIterable(TextUtil.toWords("AbC"), "Ab", "C");
-		assertIterable(TextUtil.toWords("aBC"), "a", "BC");
-		assertIterable(TextUtil.toWords("ABC"), "ABC");
+		assertOrdered(TextUtil.toWords("abc"), "abc");
+		assertOrdered(TextUtil.toWords("Abc"), "Abc");
+		assertOrdered(TextUtil.toWords("aBc"), "a", "Bc");
+		assertOrdered(TextUtil.toWords("ABc"), "A", "Bc");
+		assertOrdered(TextUtil.toWords("abC"), "ab", "C");
+		assertOrdered(TextUtil.toWords("AbC"), "Ab", "C");
+		assertOrdered(TextUtil.toWords("aBC"), "a", "BC");
+		assertOrdered(TextUtil.toWords("ABC"), "ABC");
 
-		assertIterable(TextUtil.toWords("abcd"), "abcd");
-		assertIterable(TextUtil.toWords("Abcd"), "Abcd");
-		assertIterable(TextUtil.toWords("aBcd"), "a", "Bcd");
-		assertIterable(TextUtil.toWords("ABcd"), "A", "Bcd");
-		assertIterable(TextUtil.toWords("abCd"), "ab", "Cd");
-		assertIterable(TextUtil.toWords("AbCd"), "Ab", "Cd");
-		assertIterable(TextUtil.toWords("aBCd"), "a", "B", "Cd");
-		assertIterable(TextUtil.toWords("ABCd"), "AB", "Cd");
-		assertIterable(TextUtil.toWords("abcD"), "abc", "D");
-		assertIterable(TextUtil.toWords("AbcD"), "Abc", "D");
-		assertIterable(TextUtil.toWords("aBcD"), "a", "Bc", "D");
-		assertIterable(TextUtil.toWords("ABcD"), "A", "Bc", "D");
-		assertIterable(TextUtil.toWords("abCD"), "ab", "CD");
-		assertIterable(TextUtil.toWords("AbCD"), "Ab", "CD");
-		assertIterable(TextUtil.toWords("aBCD"), "a", "BCD");
-		assertIterable(TextUtil.toWords("ABCD"), "ABCD");
+		assertOrdered(TextUtil.toWords("abcd"), "abcd");
+		assertOrdered(TextUtil.toWords("Abcd"), "Abcd");
+		assertOrdered(TextUtil.toWords("aBcd"), "a", "Bcd");
+		assertOrdered(TextUtil.toWords("ABcd"), "A", "Bcd");
+		assertOrdered(TextUtil.toWords("abCd"), "ab", "Cd");
+		assertOrdered(TextUtil.toWords("AbCd"), "Ab", "Cd");
+		assertOrdered(TextUtil.toWords("aBCd"), "a", "B", "Cd");
+		assertOrdered(TextUtil.toWords("ABCd"), "AB", "Cd");
+		assertOrdered(TextUtil.toWords("abcD"), "abc", "D");
+		assertOrdered(TextUtil.toWords("AbcD"), "Abc", "D");
+		assertOrdered(TextUtil.toWords("aBcD"), "a", "Bc", "D");
+		assertOrdered(TextUtil.toWords("ABcD"), "A", "Bc", "D");
+		assertOrdered(TextUtil.toWords("abCD"), "ab", "CD");
+		assertOrdered(TextUtil.toWords("AbCD"), "Ab", "CD");
+		assertOrdered(TextUtil.toWords("aBCD"), "a", "BCD");
+		assertOrdered(TextUtil.toWords("ABCD"), "ABCD");
 	}
 
 	@Test

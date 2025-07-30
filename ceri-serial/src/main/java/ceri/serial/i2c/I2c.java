@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MAX;
 import static ceri.serial.i2c.util.I2cUtil.SCAN_7BIT_MIN;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
@@ -10,7 +9,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.stream.StreamUtil;
 import ceri.jna.util.GcMemory;
@@ -83,7 +82,7 @@ public interface I2c {
 	 * Send a software reset to all devices.
 	 */
 	default void softwareReset() throws IOException {
-		writeData(I2cAddress.GENERAL_CALL, ArrayUtil.bytes(SOFTWARE_RESET));
+		writeData(I2cAddress.GENERAL_CALL, ArrayUtil.bytes.of(SOFTWARE_RESET));
 	}
 
 	/**
@@ -147,7 +146,7 @@ public interface I2c {
 	 * Send byte array data to address, using ioctl.
 	 */
 	default void writeData(I2cAddress address, int... bytes) throws IOException {
-		writeData(address, bytes(bytes));
+		writeData(address, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

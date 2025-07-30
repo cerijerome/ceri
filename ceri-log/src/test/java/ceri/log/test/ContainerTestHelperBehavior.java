@@ -3,7 +3,7 @@ package ceri.log.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 
 public class ContainerTestHelperBehavior {
@@ -20,7 +20,7 @@ public class ContainerTestHelperBehavior {
 		}
 	}
 
-	private static class TestContainer implements RuntimeCloseable {
+	private static class TestContainer implements Functions.Closeable {
 		public static int instances = 0;
 		public final String value;
 
@@ -37,7 +37,7 @@ public class ContainerTestHelperBehavior {
 			super("test-container-helper");
 		}
 
-		public TestContainer container(int id) throws IOException {
+		public TestContainer container(int id) {
 			return get(id, p -> new TestContainer(p));
 		}
 	}

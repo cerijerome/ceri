@@ -4,7 +4,6 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.test.TestUtil.Rte;
 
 public class PredicatesTest {
 

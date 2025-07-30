@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwInterrupted;
@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
@@ -220,9 +220,9 @@ public class CloseableUtilTest {
 	@Test
 	public void testReverseClose() {
 		var captor = Captor.ofInt();
-		RuntimeCloseable c0 = () -> captor.accept(0);
-		RuntimeCloseable c1 = () -> captor.accept(1);
-		RuntimeCloseable c2 = () -> captor.accept(2);
+		Functions.Closeable c0 = () -> captor.accept(0);
+		Functions.Closeable c1 = () -> captor.accept(1);
+		Functions.Closeable c2 = () -> captor.accept(2);
 		assertTrue(CloseableUtil.closeReversed(c0, c1, c2));
 		captor.verify(2, 1, 0);
 	}
@@ -238,7 +238,7 @@ public class CloseableUtilTest {
 	public void testCreateList() {
 		var captor = Captor.of();
 		var list = CloseableUtil.create(function(captor), 1, 2, 3);
-		assertIterable(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		assertOrdered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")
@@ -254,7 +254,7 @@ public class CloseableUtilTest {
 	public void testCreateFromCount() {
 		var captor = Captor.of();
 		var list = CloseableUtil.create(supplier(captor), 3);
-		assertIterable(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		assertOrdered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")

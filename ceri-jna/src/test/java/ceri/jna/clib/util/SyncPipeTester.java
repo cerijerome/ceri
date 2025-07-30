@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.test.TestUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.Poll;
 import ceri.log.test.LogModifier;
 
@@ -30,7 +30,7 @@ public class SyncPipeTester {
 		var n = IntStream.range(0, THREADS).boxed().toList();
 		Poll poll = Poll.of(1);
 		try (var pipe = SyncPipe.of(poll.fd(0));
-			var pollers = Enclosed.ofAll(create(i -> threadRun(() -> runPoll(poll, i)), n));
+			var pollers = Enclosure.ofAll(create(i -> threadRun(() -> runPoll(poll, i)), n));
 			var closer = TestUtil.threadRun(() -> runClose(pipe))) {
 			closer.get();
 			pollers.ref.forEach(SimpleExecutor::get);

@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwInterrupted;
@@ -209,7 +209,7 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreate() {
-		assertIterable(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
+		assertOrdered(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
 			new TestCloseable(-1));
 		assertThrown(() -> LogUtil.create(TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
@@ -218,7 +218,7 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateWithCount() {
-		assertIterable(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
+		assertOrdered(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
 			new TestCloseable(0), new TestCloseable(0));
 		assertThrown(() -> LogUtil.create(() -> TestCloseable.of("x"), 3));
 	}

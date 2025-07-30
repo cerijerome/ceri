@@ -1,8 +1,8 @@
 package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.text.DsvCodec.CSV;
 import static ceri.common.text.DsvCodec.TSV;
 import static java.util.Arrays.asList;
@@ -75,23 +75,23 @@ public class DsvCodecBehavior {
 	@Test
 	public void shouldDecodeDocument() {
 		assertNull(CSV.decode(null));
-		assertIterable(CSV.decode(""));
-		assertIterable(CSV.decode(" "), asList(""));
-		assertIterable(CSV.decode(","), asList("", ""));
-		assertIterable(CSV.decode(",,\r\n\",\"\n\n"), asList("", "", ""), asList(","));
-		assertIterable(CSV.decode(",,\r\n\",\"\n\n "), asList("", "", ""), asList(","), asList(),
+		assertOrdered(CSV.decode(""));
+		assertOrdered(CSV.decode(" "), asList(""));
+		assertOrdered(CSV.decode(","), asList("", ""));
+		assertOrdered(CSV.decode(",,\r\n\",\"\n\n"), asList("", "", ""), asList(","));
+		assertOrdered(CSV.decode(",,\r\n\",\"\n\n "), asList("", "", ""), asList(","), asList(),
 			asList(""));
 	}
 
 	@Test
 	public void shouldDecodeLines() {
 		assertNull(CSV.decodeLine(null));
-		assertIterable(CSV.decodeLine(""));
-		assertIterable(CSV.decodeLine(" "), "");
-		assertIterable(CSV.decodeLine(","), "", "");
-		assertIterable(CSV.decodeLine(",,"), "", "", "");
-		assertIterable(CSV.decodeLine(" , ,"), "", "", "");
-		assertIterable(CSV.decodeLine(", \",\"\" ,\",\" , \""), "", ",\" ,", " , ");
+		assertOrdered(CSV.decodeLine(""));
+		assertOrdered(CSV.decodeLine(" "), "");
+		assertOrdered(CSV.decodeLine(","), "", "");
+		assertOrdered(CSV.decodeLine(",,"), "", "", "");
+		assertOrdered(CSV.decodeLine(" , ,"), "", "", "");
+		assertOrdered(CSV.decodeLine(", \",\"\" ,\",\" , \""), "", ",\" ,", " , ");
 	}
 
 	@Test

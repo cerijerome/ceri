@@ -1,6 +1,5 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertIoe;
@@ -8,6 +7,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwIo;
 import static ceri.common.test.ErrorGen.INX;
@@ -321,9 +321,9 @@ public class ConcurrentUtilTest {
 	public void testInvokeMultipleThreads() throws InterruptedException, IOException {
 		Set<String> msgs = new HashSet<>();
 		ConcurrentUtil.invoke(exec, IOException::new, () -> msgs.add("1"), () -> msgs.add("2"));
-		assertCollection(msgs, "1", "2");
+		assertUnordered(msgs, "1", "2");
 		ConcurrentUtil.invoke(exec, IOException::new, 1000, () -> msgs.add("3"));
-		assertCollection(msgs, "1", "2", "3");
+		assertUnordered(msgs, "1", "2", "3");
 	}
 
 	@Test
@@ -332,7 +332,7 @@ public class ConcurrentUtilTest {
 		assertIoe(() -> ConcurrentUtil.invoke(exec, IOException::new, () -> msgs.add("1"), () -> {
 			throw new Exception("test");
 		}));
-		assertCollection(msgs, "1");
+		assertUnordered(msgs, "1");
 	}
 
 	@Test
@@ -346,7 +346,7 @@ public class ConcurrentUtilTest {
 				Thread.sleep(10000);
 				msgs.add("2");
 			}));
-		assertCollection(msgs);
+		assertUnordered(msgs);
 	}
 
 	@Test

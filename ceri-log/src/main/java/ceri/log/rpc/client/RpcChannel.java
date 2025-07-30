@@ -5,8 +5,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.net.NetUtil;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -14,7 +15,7 @@ import io.grpc.ManagedChannelBuilder;
 /**
  * Wraps a ManagedChannel as a Closeable resource.
  */
-public class RpcChannel implements RuntimeCloseable {
+public class RpcChannel implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int SHUTDOWN_TIMEOUT_MS_DEF = 5000;
 	private final int shutdownTimeoutMs;
@@ -36,6 +37,21 @@ public class RpcChannel implements RuntimeCloseable {
 
 		public boolean isLocalhost() {
 			return NetUtil.isLocalhost(host);
+		}
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private static final String HOST_KEY = "host";
+		private static final String PORT_KEY = "port";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			var host = parse(HOST_KEY).get();
+			var port = parse(PORT_KEY).toInt();
+			return new Config(host, port);
 		}
 	}
 

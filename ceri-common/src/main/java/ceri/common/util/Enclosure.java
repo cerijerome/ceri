@@ -9,28 +9,28 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
 /**
- * Provides an AutoCloseable type encapsulating an object reference and a close method.
+ * Provides a reference enclosed in a closeable wrapper.
  */
-public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
-	private static final Enclosed<?, ?> EMPTY = new Enclosed<>(null, null);
+public class Enclosure<T> implements Functions.Closeable {
+	private static final Enclosure<?> EMPTY = new Enclosure<>(null, null);
 	public final T ref;
-	private final Excepts.Runnable<E> closer;
+	private final Functions.Runnable closer;
 
 	/**
 	 * A wrapper type that can be repeatedly initialized and closed.
 	 */
 	public static class Repeater<E extends Exception, T>
-		implements Excepts.Closeable<E>, Excepts.Supplier<E, T> {
+		implements Functions.Closeable, Excepts.Supplier<E, T> {
 		private final Lock lock;
-		private final Excepts.Supplier<E, Enclosed<E, T>> constructor;
-		private volatile Enclosed<E, T> enc = null;
+		private final Excepts.Supplier<E, Enclosure<T>> constructor;
+		private volatile Enclosure<T> enc = null;
 		private volatile T ref = null;
 
 		/**
 		 * Creates an instance without using a lock. Not thread-safe.
 		 */
 		public static <E extends Exception, T> Repeater<E, T>
-			unsafe(Excepts.Supplier<E, Enclosed<E, T>> constructor) {
+			unsafe(Excepts.Supplier<E, Enclosure<T>> constructor) {
 			return of(null, constructor);
 		}
 
@@ -38,7 +38,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 		 * Creates an instance using a new lock.
 		 */
 		public static <E extends Exception, T> Repeater<E, T>
-			of(Excepts.Supplier<E, Enclosed<E, T>> constructor) {
+			of(Excepts.Supplier<E, Enclosure<T>> constructor) {
 			return of(new ReentrantLock(), constructor);
 		}
 
@@ -46,11 +46,11 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 		 * Creates an instance using the given lock. If the lock is null, it behaves as unsafe.
 		 */
 		public static <E extends Exception, T> Repeater<E, T> of(Lock lock,
-			Excepts.Supplier<E, Enclosed<E, T>> constructor) {
+			Excepts.Supplier<E, Enclosure<T>> constructor) {
 			return new Repeater<>(lock, constructor);
 		}
 
-		private Repeater(Lock lock, Excepts.Supplier<E, Enclosed<E, T>> constructor) {
+		private Repeater(Lock lock, Excepts.Supplier<E, Enclosure<T>> constructor) {
 			this.lock = lock;
 			this.constructor = constructor;
 		}
@@ -59,7 +59,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 		 * Closes any current reference, and creates a new reference.
 		 */
 		public T init() throws E {
-			try (var _ = locker()) {
+			try (var _ = ConcurrentUtil.locker(lock)) {
 				close();
 				enc = constructor.get();
 				ref = enc.ref;
@@ -72,7 +72,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 		 */
 		@Override
 		public T get() throws E {
-			try (var _ = locker()) {
+			try (var _ = ConcurrentUtil.locker(lock)) {
 				if (enc == null) init();
 				return ref;
 			}
@@ -86,47 +86,41 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 		}
 
 		@Override
-		public void close() throws E {
-			try (var _ = locker()) {
+		public void close() {
+			try (var _ = ConcurrentUtil.locker(lock)) {
 				CloseableUtil.close(enc);
 				enc = null;
 				ref = null;
 			}
-		}
-
-		private Functions.Closeable locker() {
-			if (lock != null) return ConcurrentUtil.locker(lock);
-			return Functions.Closeable.NULL;
 		}
 	}
 
 	/**
 	 * Return an empty instance. Use of(null, null) for typed exception.
 	 */
-	public static <T> Enclosed<RuntimeException, T> empty() {
+	public static <T> Enclosure<T> empty() {
 		return of(null, null);
 	}
 
 	/**
 	 * Create an instance that has no close operation. Use of(T, null) for typed exception.
 	 */
-	public static <T> Enclosed<RuntimeException, T> noOp(T subject) {
+	public static <T> Enclosure<T> noOp(T subject) {
 		return of(subject, null);
 	}
 
 	/**
 	 * Transforms a closeable function to an enclosed type.
 	 */
-	public static <E extends Exception, T> Enclosed<E, T> from(T subject,
-		Excepts.Closeable<E> closeable) {
-		return of(subject, _ -> closeable.close());
+	public static <T> Enclosure<T> from(T subject, AutoCloseable closeable) {
+		return of(subject, _ -> CloseableUtil.close(closeable));
 	}
 
 	/**
 	 * Creates a type then wraps as an enclosed type.
 	 */
-	public static <E extends Exception, F extends Exception, T, U extends T> Enclosed<F, T>
-		from(Excepts.Supplier<E, ? extends U> constructor, Excepts.Consumer<F, ? super U> closer)
+	public static <E extends Exception, T, U extends T> Enclosure<T>
+		from(Excepts.Supplier<E, ? extends U> constructor, Functions.Consumer<? super U> closer)
 			throws E {
 		return of(constructor.get(), closer);
 	}
@@ -134,13 +128,13 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	/**
 	 * Adapts a closeable type to a new enclosed type; closing the type on close or failure.
 	 */
-	public static <E extends Exception, T extends Excepts.Closeable<E>, R> Enclosed<E, R>
-		adaptOrClose(T subject, Excepts.Function<E, T, R> adapter) throws E {
+	public static <E extends Exception, T extends AutoCloseable, R> Enclosure<R> adapt(T subject,
+		Excepts.Function<E, T, R> adapter) throws E {
 		try {
 			var result = adapter.apply(subject);
-			return of(result, _ -> subject.close());
+			return of(result, _ -> CloseableUtil.close(subject));
 		} catch (Exception e) {
-			subject.close();
+			CloseableUtil.close(subject);
 			throw e;
 		}
 	}
@@ -148,8 +142,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	/**
 	 * Create an instance of a closeable subject.
 	 */
-	public static <E extends Exception, T extends Excepts.Closeable<E>> Enclosed<E, T>
-		of(T subject) {
+	public static <T extends AutoCloseable> Enclosure<T> of(T subject) {
 		return from(subject, subject);
 	}
 
@@ -157,11 +150,11 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	 * Create an instance with a subject, and a close method. If the subject is null, the close
 	 * method is not executed.
 	 */
-	public static <E extends Exception, T, U extends T> Enclosed<E, T> of(U subject,
-		Excepts.Consumer<E, ? super U> closer) {
+	public static <T, U extends T> Enclosure<T> of(U subject,
+		Functions.Consumer<? super U> closer) {
 		if (subject == null) return BasicUtil.unchecked(EMPTY);
-		if (closer == null) return new Enclosed<>(subject, null);
-		return new Enclosed<>(subject, () -> closer.accept(subject));
+		if (closer == null) return new Enclosure<>(subject, null);
+		return new Enclosure<>(subject, () -> closer.accept(subject));
 	}
 
 	/**
@@ -169,8 +162,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	 * order.
 	 */
 	@SafeVarargs
-	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
-		ofAll(T... closeables) {
+	public static <T extends AutoCloseable> Enclosure<List<T>> ofAll(T... closeables) {
 		return ofAll(Arrays.asList(closeables));
 	}
 
@@ -178,12 +170,11 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	 * Create an instance with a collection of AutoCloseables. The collection is closed in reverse
 	 * order.
 	 */
-	public static <T extends AutoCloseable> Enclosed<RuntimeException, List<T>>
-		ofAll(List<T> closeables) {
-		return new Enclosed<>(closeables, () -> CloseableUtil.closeReversed(closeables));
+	public static <T extends AutoCloseable> Enclosure<List<T>> ofAll(List<T> closeables) {
+		return new Enclosure<>(closeables, () -> CloseableUtil.closeReversed(closeables));
 	}
 
-	private Enclosed(T subject, Excepts.Runnable<E> closer) {
+	private Enclosure(T subject, Functions.Runnable closer) {
 		this.ref = subject;
 		this.closer = closer;
 	}
@@ -203,7 +194,7 @@ public class Enclosed<E extends Exception, T> implements Excepts.Closeable<E> {
 	}
 
 	@Override
-	public void close() throws E {
+	public void close() {
 		if (closer != null) closer.run();
 	}
 

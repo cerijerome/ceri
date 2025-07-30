@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.function.Functions.ObjBiIntConsumer;
 import ceri.common.text.Joiner;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
@@ -163,6 +164,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<boolean[]> sorter() {
+			return OfBool::sortArray;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, boolean[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -170,6 +176,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		@Override
 		protected RawArrays.Equals<boolean[]> equals() {
 			return Arrays::equals;
+		}
+
+		private static void sortArray(boolean[] array, int from, int to) {
+			int n = from;
+			for (int i = from; i < to; i++)
+				if (!array[i]) n++;
+			for (int i = from; i < to; i++)
+				array[i] = i >= n;
 		}
 	}
 
@@ -331,6 +345,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		@Override
 		public String toHex(Joiner joiner, char[] array, int offset, int length) {
 			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+		}
+
+		@Override
+		protected ObjBiIntConsumer<char[]> sorter() {
+			return Arrays::sort;
 		}
 
 		@Override
@@ -512,6 +531,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<byte[]> sorter() {
+			return Arrays::sort;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, byte[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -690,6 +714,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<short[]> sorter() {
+			return Arrays::sort;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, short[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -861,6 +890,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		@Override
 		public String toHex(Joiner joiner, int[] array, int offset, int length) {
 			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+		}
+
+		@Override
+		protected ObjBiIntConsumer<int[]> sorter() {
+			return Arrays::sort;
 		}
 
 		@Override
@@ -1038,6 +1072,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<long[]> sorter() {
+			return Arrays::sort;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, long[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -1209,6 +1248,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<float[]> sorter() {
+			return Arrays::sort;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, float[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -1366,6 +1410,11 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
+		protected ObjBiIntConsumer<double[]> sorter() {
+			return Arrays::sort;
+		}
+
+		@Override
 		protected void hash(Hasher hasher, double[] array, int index) {
 			hasher.hash(array[index]);
 		}
@@ -1496,6 +1545,33 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		return RawArrays.acceptIndexes(array, offset, length,
 			i -> consumer.accept(getBoxed(array, i), i));
 	}
+
+	/**
+	 * Sorts the array range in place.
+	 */
+	public T sort(T array) {
+		return sort(array, 0);
+	}
+
+	/**
+	 * Sorts the array range in place.
+	 */
+	public T sort(T array, int offset) {
+		return sort(array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Sorts the array range in place.
+	 */
+	public T sort(T array, int offset, int length) {
+		return RawArrays.acceptSlice(array, offset, length,
+			(o, l) -> sorter().accept(array, o, o + l));
+	}
+
+	/**
+	 * Array range sort function.
+	 */
+	protected abstract Functions.ObjBiIntConsumer<T> sorter();
 
 	private C getBoxed(T array, int index) {
 		return BasicUtil.unchecked(Array.get(array, index));

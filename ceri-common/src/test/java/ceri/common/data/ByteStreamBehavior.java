@@ -20,9 +20,9 @@ import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.io.IoExceptions;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.PipedStream;
-import ceri.common.io.RuntimeIoException;
 import ceri.common.test.ErrorGen;
 
 @SuppressWarnings("resource")
@@ -52,7 +52,7 @@ public class ByteStreamBehavior {
 		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> r.readByte());
 		error.setFrom(IOX);
-		assertThrown(RuntimeIoException.class, () -> r.readByte());
+		assertThrown(IoExceptions.Runtime.class, () -> r.readByte());
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class ByteStreamBehavior {
 		error.setFrom(RIX);
 		assertThrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
 		error.setFrom(IOX);
-		assertThrown(RuntimeIoException.class, () -> w.writeByte(3));
+		assertThrown(IoExceptions.Runtime.class, () -> w.writeByte(3));
 	}
 
 	@Test

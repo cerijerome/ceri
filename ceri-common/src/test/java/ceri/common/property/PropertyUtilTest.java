@@ -1,10 +1,10 @@
 package ceri.common.property;
 
 import static ceri.common.stream.StreamUtil.toList;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -68,14 +68,15 @@ public class PropertyUtilTest {
 			PropertyUtil.store(properties, file);
 			try (var stream = Files.lines(file)) {
 				List<String> lines = toList(stream.filter(line -> !line.startsWith("#")));
-				assertCollection(lines, "a.b.c=abc", "a.b=ab");
+				assertUnordered(lines, "a.b.c=abc", "a.b=ab");
 			}
 		}
 	}
 
 	@Test
 	public void testLoadResource() throws IOException {
-		Properties properties = PropertyUtil.load(getClass());
+		Properties properties =
+			PropertyUtil.load(getClass(), getClass().getSimpleName() + ".properties");
 		assertEquals(properties.getProperty("a.b.c"), "abc");
 		assertEquals(properties.getProperty("d.e.f"), "def");
 	}

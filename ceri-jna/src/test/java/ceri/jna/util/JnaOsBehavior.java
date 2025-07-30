@@ -4,12 +4,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.CloseableUtil;
 import ceri.common.util.OsUtil;
 
 public class JnaOsBehavior {
-	private RuntimeCloseable override;
+	private Functions.Closeable override;
 
 	@After
 	public void after() {

@@ -8,11 +8,11 @@ import ceri.common.event.Listeners;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntSupplier;
 import ceri.common.function.Excepts.Runnable;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.rpc.TestGrpc;
 import io.grpc.stub.StreamObserver;
 
-public class TestRpcService extends TestGrpc.TestImplBase implements RuntimeCloseable {
+public class TestRpcService extends TestGrpc.TestImplBase implements Functions.Closeable {
 	private final Listeners<Integer> listeners = Listeners.of();
 	private final RpcServiceNotifier<Integer, UInt32Value> notifier;
 	public Runnable<?> run = null;

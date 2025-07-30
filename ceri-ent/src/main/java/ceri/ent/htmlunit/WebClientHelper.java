@@ -11,11 +11,11 @@ import com.gargoylesoftware.htmlunit.TopLevelWindow;
 import com.gargoylesoftware.htmlunit.WebClient;
 //import com.gargoylesoftware.htmlunit.html.HTMLParser;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.net.NetUtil;
 import ceri.ent.web.SampleHeader;
 
-public class WebClientHelper implements RuntimeCloseable {
+public class WebClientHelper implements Functions.Closeable {
 	private static final int DEFAULT_TIMEOUT_MS = 60_000;
 	private static final int DEFAULT_JS_TIMEOUT_MS = 10_000;
 	protected final WebClient webClient;

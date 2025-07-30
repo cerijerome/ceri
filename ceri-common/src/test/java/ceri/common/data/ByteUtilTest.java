@@ -320,12 +320,9 @@ public class ByteUtilTest {
 	public void testMaskOfBits() {
 		assertEquals(ByteUtil.maskOfBits((int[]) null), 0L);
 		assertEquals(ByteUtil.maskOfBits((List<Integer>) null), 0L);
-		assertEquals(ByteUtil.maskOfBits((IntStream) null), 0L);
 		assertEquals(ByteUtil.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1),
 			0x8000_0001_8001_8181L);
 		assertEquals(ByteUtil.maskOfBits(List.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
-			0x8000_0001_8001_8181L);
-		assertEquals(ByteUtil.maskOfBits(IntStream.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
 			0x8000_0001_8001_8181L);
 	}
 
@@ -333,10 +330,8 @@ public class ByteUtilTest {
 	public void testMaskOfBitsInt() {
 		assertEquals(ByteUtil.maskOfBitsInt((int[]) null), 0);
 		assertEquals(ByteUtil.maskOfBitsInt((List<Integer>) null), 0);
-		assertEquals(ByteUtil.maskOfBitsInt((IntStream) null), 0);
 		assertEquals(ByteUtil.maskOfBitsInt(32, 31, 16, 15, 8, 7, 0, -1), 0x80018181);
 		assertEquals(ByteUtil.maskOfBitsInt(List.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
-		assertEquals(ByteUtil.maskOfBitsInt(IntStream.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
 	}
 
 	@Test
@@ -364,24 +359,6 @@ public class ByteUtilTest {
 		assertEquals(ByteUtil.masked(1, 1), false);
 		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3), true);
 		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3, 4), false);
-	}
-
-	@Test
-	public void testIndexMask() {
-		assertEquals(ByteUtil.indexMask(List.of()), 0L);
-		assertEquals(ByteUtil.indexMask(List.of(), "a", "b"), 0L);
-		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c", "d")), 0L);
-		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c", "d"), "c", "a", "d"), 0b1101L);
-		assertEquals(ByteUtil.indexMask(List.of("a", "b", "c"), "b", "e", "a"), 0b11L);
-	}
-
-	@Test
-	public void testIndexMaskInt() {
-		assertEquals(ByteUtil.indexMaskInt(List.of()), 0);
-		assertEquals(ByteUtil.indexMaskInt(List.of(), "a", "b"), 0);
-		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c", "d")), 0);
-		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c", "d"), "c", "a", "d"), 0b1101);
-		assertEquals(ByteUtil.indexMaskInt(List.of("a", "b", "c"), "b", "e", "a"), 0b11);
 	}
 
 	@Test

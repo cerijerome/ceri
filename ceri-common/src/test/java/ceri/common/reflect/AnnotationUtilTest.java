@@ -1,8 +1,8 @@
 package ceri.common.reflect;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
@@ -63,9 +63,9 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testEnumAnnotations() {
-		assertIterable(AnnotationUtil.annotations((Enum<?>) null, A.class));
-		assertIterable(AnnotationUtil.annotations(Align.H.left, A.class));
-		assertIterable(AnnotationUtil.annotations(E.a, A.class));
+		assertOrdered(AnnotationUtil.annotations((Enum<?>) null, A.class));
+		assertOrdered(AnnotationUtil.annotations(Align.H.left, A.class));
+		assertOrdered(AnnotationUtil.annotations(E.a, A.class));
 		var annos = AnnotationUtil.annotations(E.b, A.class);
 		assertEquals(annos.size(), 1);
 		assertA(annos.get(0), "b", -1);

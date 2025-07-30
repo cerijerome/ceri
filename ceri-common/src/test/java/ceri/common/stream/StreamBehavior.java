@@ -1,13 +1,13 @@
 package ceri.common.stream;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNoSuchElement;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.fail;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Spliterator;
 import java.util.stream.Collector;
 import org.junit.Test;
 import ceri.common.comparator.Comparators;
@@ -55,10 +56,32 @@ public class StreamBehavior {
 	}
 
 	@Test
+	public void testFromStream() throws Exception {
+		assertEquals(Stream.from((java.util.stream.Stream<?>) null).isEmpty(), true);
+		assertEquals(Stream.from(List.of().stream()).isEmpty(), true);
+		assertStream(Stream.from(List.of(1, 2, 3).stream()), 1, 2, 3);
+	}
+
+	@Test
+	public void testFromSpliterator() throws Exception {
+		assertEquals(Stream.from((Spliterator<?>) null).isEmpty(), true);
+		assertEquals(Stream.from(List.of().spliterator()).isEmpty(), true);
+		assertStream(Stream.from(List.of(1, 2, 3).spliterator()), 1, 2, 3);
+	}
+
+	@Test
 	public void shouldFilterElements() throws Exception {
 		assertStream(Stream.empty().filter(Objects::nonNull));
 		assertStream(testStream().filter(null), -1, 0, null, 1);
 		assertStream(testStream().filter(Objects::nonNull), -1, 0, 1);
+	}
+
+	@Test
+	public void shouldFilterInstances() throws Exception {
+		assertStream(Stream.empty().instances(Object.class));
+		assertStream(testStream().instances(Number.class), -1, 0, 1);
+		assertStream(testStream().instances(Integer.class), -1, 0, 1);
+		assertStream(testStream().instances(Long.class));
 	}
 
 	@Test
@@ -184,33 +207,9 @@ public class StreamBehavior {
 	}
 
 	@Test
-	public void shouldDetermineMinElement() throws Exception {
-		assertEquals(Stream.empty().min(null), null);
-		assertEquals(Stream.empty().min(null, 3), 3);
-		assertEquals(Stream.empty().min((_, _) -> 0), null);
-		assertEquals(Stream.empty().min((_, _) -> 0, 3), 3);
-		assertEquals(testStream().min(null), null);
-		assertEquals(testStream().min(null, 3), 3);
-		assertEquals(testStream().min(Comparators.nullsFirstComparable()), null);
-		assertEquals(testStream().min(Comparators.nullsLastComparable()), -1);
-	}
-
-	@Test
-	public void shouldDetermineMaxElement() throws Exception {
-		assertEquals(Stream.empty().max(null), null);
-		assertEquals(Stream.empty().max(null, 3), 3);
-		assertEquals(Stream.empty().max((_, _) -> 0), null);
-		assertEquals(Stream.empty().max((_, _) -> 0, 3), 3);
-		assertEquals(testStream().max(null), null);
-		assertEquals(testStream().max(null, 3), 3);
-		assertEquals(testStream().max(Comparators.nullsFirstComparable()), 1);
-		assertEquals(testStream().max(Comparators.nullsLastComparable()), null);
-	}
-
-	@Test
 	public void shouldProvideIterator() {
-		assertNoSuchElement(Stream.empty().iterator()::next);
-		var iter = testStream().iterator();
+		assertNoSuchElement(Stream.empty().iterable().iterator()::next);
+		var iter = testStream().iterable().iterator();
 		assertEquals(iter.hasNext(), true);
 		assertEquals(iter.next(), -1);
 		assertEquals(iter.next(), 0);
@@ -222,32 +221,25 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldProvideAnElementArray() throws Exception {
+		assertArray(Stream.empty().toArray());
 		assertArray(Stream.empty().toArray(Object[]::new));
+		assertArray(testStream().toArray(), -1, 0, null, 1);
 		assertEquals(testStream().toArray(null), null);
 		assertArray(testStream().toArray(Integer[]::new), -1, 0, null, 1);
 	}
 
 	@Test
 	public void shouldCollectToSet() throws Exception {
-		assertCollection(Stream.empty().toSet());
-		assertCollection(testStream().toSet(), -1, 0, null, 1);
-		assertCollection(Stream.of(1, 0, null, 0, -1, null).toSet(), 1, 0, null, -1);
+		assertUnordered(Stream.empty().toSet());
+		assertUnordered(testStream().toSet(), -1, 0, null, 1);
+		assertUnordered(Stream.of(1, 0, null, 0, -1, null).toSet(), 1, 0, null, -1);
 	}
 
 	@Test
 	public void shouldCollectToList() throws Exception {
-		assertIterable(Stream.empty().toList());
-		assertIterable(testStream().toList(), -1, 0, null, 1);
-		assertIterable(Stream.of(1, 0, null, 0, -1, null).toList(), 1, 0, null, 0, -1, null);
-	}
-
-	@Test
-	public void shouldCollectToSortedList() throws Exception {
-		assertIterable(Stream.empty().toList((_, _) -> 0));
-		assertIterable(testStream().toList(Comparators.nullsFirstComparable()), null, -1, 0, 1);
-		assertIterable(
-			Stream.of(1, 0, null, 0, -1, null).toList(Comparators.nullsFirstComparable()), null,
-			null, -1, 0, 0, 1);
+		assertOrdered(Stream.empty().toList());
+		assertOrdered(testStream().toList(), -1, 0, null, 1);
+		assertOrdered(Stream.of(1, 0, null, 0, -1, null).toList(), 1, 0, null, 0, -1, null);
 	}
 
 	@Test
@@ -267,9 +259,9 @@ public class StreamBehavior {
 
 	@Test
 	public void shouldAddToCollection() throws Exception {
-		assertCollection(Stream.empty().collect(new HashSet<>()));
+		assertUnordered(Stream.empty().collect(new HashSet<>()));
 		assertEquals(testStream().collect((Collection<Object>) null), null);
-		assertCollection(testStream().collect(new HashSet<>()), -1, 0, null, 1);
+		assertUnordered(testStream().collect(new HashSet<>()), -1, 0, null, 1);
 	}
 
 	@Test

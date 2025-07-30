@@ -2,9 +2,9 @@ package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import org.junit.Test;
@@ -56,17 +56,17 @@ public class EnumUtilTest {
 
 	@Test
 	public void testEnums() {
-		assertIterable(EnumUtil.enums(String.class)); // no enums
-		assertIterable(EnumUtil.enums(Align.H.class), Align.H.left, Align.H.center, Align.H.right);
-		assertIterable(EnumUtil.enums(Align.V.class), Align.V.top, Align.V.middle, Align.V.bottom);
+		assertOrdered(EnumUtil.enums(String.class)); // no enums
+		assertOrdered(EnumUtil.enums(Align.H.class), Align.H.left, Align.H.center, Align.H.right);
+		assertOrdered(EnumUtil.enums(Align.V.class), Align.V.top, Align.V.middle, Align.V.bottom);
 		exerciseEnum(Align.H.class);
 		exerciseEnum(Align.V.class);
 	}
 
 	@Test
 	public void testEnumsReversed() {
-		assertIterable(EnumUtil.enumsReversed(String.class)); // no enums
-		assertIterable(EnumUtil.enumsReversed(Align.H.class), Align.H.right, Align.H.center,
+		assertOrdered(EnumUtil.enumsReversed(String.class)); // no enums
+		assertOrdered(EnumUtil.enumsReversed(Align.H.class), Align.H.right, Align.H.center,
 			Align.H.left);
 	}
 
@@ -111,7 +111,7 @@ public class EnumUtilTest {
 
 	@Test
 	public void testShortNames() {
-		assertIterable(EnumUtil.shortNames(Prefix.a_b_c_123, Prefix.a_b_c_123456), "123", "123456");
+		assertOrdered(EnumUtil.shortNames(Prefix.a_b_c_123, Prefix.a_b_c_123456), "123", "123456");
 	}
 
 	@Test

@@ -1,6 +1,5 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,7 +9,8 @@ import java.util.function.Predicate;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.function.Namer;
+import ceri.common.function.Lambdas;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
@@ -24,7 +24,7 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 
 	public static class Config {
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
-			Namer.predicate(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
+			Lambdas.register(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
 		public final Supplier<IOException, ? extends FileDescriptor> openFn;
 		public final SelfHealing.Config selfHealing;
 
@@ -82,7 +82,22 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this, lambda(openFn), selfHealing);
+			return ToString.forClass(this, Lambdas.name(openFn), selfHealing);
+		}
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private final FileDescriptorProperties fd;
+		private final SelfHealing.Properties selfHealing;
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+			fd = new FileDescriptorProperties(ref);
+			selfHealing = new SelfHealing.Properties(ref);
+		}
+
+		public Config config() {
+			return Config.builder(fd.opener()).selfHealing(selfHealing.config()).build();
 		}
 	}
 

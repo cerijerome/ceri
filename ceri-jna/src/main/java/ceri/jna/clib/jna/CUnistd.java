@@ -5,7 +5,7 @@ import static ceri.jna.clib.jna.CLib.lib;
 import java.util.Set;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.type.IntType;
@@ -357,7 +357,7 @@ public class CUnistd {
 	 * number of bytes written, or 0 on EAGAIN/EWOULDBLOCK (with O_NONBLOCK) and EINTR errors.
 	 */
 	public static int write(int fd, int... bytes) throws CException {
-		return write(fd, ArrayUtil.bytes(bytes));
+		return write(fd, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**
@@ -437,7 +437,7 @@ public class CUnistd {
 	 * total number of bytes written.
 	 */
 	public static int writeAll(int fd, int... bytes) throws CException {
-		return writeAll(fd, ArrayUtil.bytes(bytes));
+		return writeAll(fd, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

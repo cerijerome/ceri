@@ -1,9 +1,9 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.jna.test.JnaTestUtil.assertRef;
 import java.io.IOException;
 import org.junit.After;
@@ -49,7 +49,7 @@ public class SerialPortBehavior {
 		serial.inBufferSize(111);
 		serial.outBufferSize(222);
 		assertEquals(serial.params(), params);
-		assertCollection(serial.flowControl(), FlowControl.xonXoffIn);
+		assertUnordered(serial.flowControl(), FlowControl.xonXoffIn);
 		assertEquals(serial.inBufferSize(), 111);
 		assertEquals(serial.outBufferSize(), 222);
 	}

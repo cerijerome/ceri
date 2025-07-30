@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.stream.WrappedStream;
+import ceri.common.stream.Stream;
 
 public class SqlUtil {
 	private static final int TABLE_NAME_INDEX = 3;
@@ -29,7 +29,6 @@ public class SqlUtil {
 		return tableNames(con, null, null, null, TABLE_TYPE);
 	}
 
-	@SuppressWarnings("resource")
 	public static List<String> tableNames(Connection con, String catalog, String schemaPattern,
 		String namePattern, String... types) throws SQLException {
 		try (ResultSet rs =
@@ -38,8 +37,11 @@ public class SqlUtil {
 		}
 	}
 
-	public static WrappedStream<SQLException, ResultSet> stream(ResultSet rs) {
-		return WrappedStream.stream(rs::next, () -> rs);
+	public static Stream<SQLException, ResultSet> stream(ResultSet rs) {
+		return Stream.ofSupplier(c -> {
+			if (!rs.next()) return false;
+			c.accept(rs);
+			return true;
+		});
 	}
-
 }

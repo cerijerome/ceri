@@ -14,7 +14,7 @@ public class RpcServerBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcServerProperties(typedProperties("rpc-server"), "rpc-server").config();
+		var config = new RpcServer.Properties(typedProperties("rpc-server"), "rpc-server").config();
 		assertEquals(config.port(), 12345);
 		assertEquals(config.shutdownTimeoutMs(), 1000);
 	}

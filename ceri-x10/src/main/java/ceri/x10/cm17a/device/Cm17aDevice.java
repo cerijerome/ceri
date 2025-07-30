@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
 import ceri.x10.command.Command;
@@ -135,7 +135,7 @@ public class Cm17aDevice implements Cm17a {
 	}
 
 	@Override
-	public Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
+	public Enclosure<CommandListener> listen(CommandListener listener) {
 		return dispatcher.listen(listener);
 	}
 

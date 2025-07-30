@@ -10,9 +10,9 @@ import com.sun.jna.ptr.IntByReference;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
@@ -65,18 +65,18 @@ public class UsbEvents {
 	}
 
 	/**
-	 * Attempts to lock event-handling. Returns an Enclosed type, with boolean to indicate if
+	 * Attempts to lock event-handling. Returns an enclosed type, with boolean to indicate if
 	 * locking was successful. Events are unlocked on close only if true.
 	 */
-	public Enclosed<RuntimeException, Boolean> tryLock() throws LibUsbException {
-		if (!LibUsb.libusb_try_lock_events(context())) return Enclosed.noOp(false);
-		return Enclosed.of(true, _ -> unlockEvents());
+	public Enclosure<Boolean> tryLock() throws LibUsbException {
+		if (!LibUsb.libusb_try_lock_events(context())) return Enclosure.noOp(false);
+		return Enclosure.of(true, _ -> unlockEvents());
 	}
 
 	/**
 	 * Locks event-handling. Returns a closable type, that unlocks events on close.
 	 */
-	public RuntimeCloseable lock() throws LibUsbException {
+	public Functions.Closeable lock() throws LibUsbException {
 		LibUsb.libusb_lock_events(context());
 		return () -> unlockEvents();
 	}
@@ -84,7 +84,7 @@ public class UsbEvents {
 	/**
 	 * Acquires the event waiters lock. Returns a closable type that unlocks on close.
 	 */
-	public RuntimeCloseable lockWaiters() throws LibUsbException {
+	public Functions.Closeable lockWaiters() throws LibUsbException {
 		LibUsb.libusb_lock_event_waiters(context());
 		return () -> unlockEventWaiters();
 	}

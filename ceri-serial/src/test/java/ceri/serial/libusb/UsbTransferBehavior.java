@@ -1,11 +1,10 @@
 package ceri.serial.libusb;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.jna.test.JnaTestUtil.buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
@@ -23,8 +22,9 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.test.CallSync;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
 import ceri.log.util.LogUtil;
@@ -40,7 +40,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbTransferBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 	private UsbDeviceHandle handle;
 
@@ -65,7 +65,8 @@ public class UsbTransferBehavior {
 	public void shouldExecuteAsyncControlTransfer() throws LibUsbException {
 		CallSync.Consumer<Control> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.controlTransfer(callback)) {
-			transfer.buffer(ByteBuffer.allocateDirect(12)).length(12).data().put(bytes(1, 2, 3, 4));
+			transfer.buffer(ByteBuffer.allocateDirect(12)).length(12).data()
+				.put(ArrayUtil.bytes.of(1, 2, 3, 4));
 			transfer.setup().recipient(LIBUSB_RECIPIENT_DEVICE).type(LIBUSB_REQUEST_TYPE_STANDARD)
 				.standard(LIBUSB_REQUEST_GET_STATUS).direction(LIBUSB_ENDPOINT_OUT).value(0xff)
 				.index(3);
@@ -97,7 +98,7 @@ public class UsbTransferBehavior {
 				.timeoutMs(33);
 			assertEquals(transfer.endPoint(), 0);
 			assertEquals(transfer.type(), LIBUSB_TRANSFER_TYPE_CONTROL);
-			assertCollection(transfer.flags(), LIBUSB_TRANSFER_SHORT_NOT_OK);
+			assertUnordered(transfer.flags(), LIBUSB_TRANSFER_SHORT_NOT_OK);
 			assertEquals(transfer.timeoutMs(), 33);
 			assertEquals(transfer.length(), 11);
 		}

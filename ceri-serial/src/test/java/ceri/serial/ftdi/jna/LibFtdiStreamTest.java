@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteArray;
 import ceri.common.test.CallSync;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -30,14 +30,14 @@ import ceri.serial.ftdi.jna.LibFtdi.ftdi_interface;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIStreamCallback;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_status;
+import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
-import ceri.serial.libusb.jna.LibUsbException;
 
 public class LibFtdiStreamTest {
 	private static final FTDIStreamCallback<?> trueCallback = (_, _, _, _) -> true;
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private ftdi_context ftdi;
 
 	@Before

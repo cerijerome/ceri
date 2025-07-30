@@ -1,14 +1,13 @@
 package ceri.serial.ftdi.util;
 
 import java.io.IOException;
-
 /**
  * Encapsulates the dynamic properties of an Ftdi device.
  */
 import java.util.Objects;
 import ceri.common.text.ToString;
-import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.Ftdi;
+import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
 

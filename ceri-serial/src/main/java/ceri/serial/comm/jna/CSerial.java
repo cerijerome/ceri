@@ -36,8 +36,8 @@ import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.termios;
-import ceri.jna.type.Struct;
 import ceri.jna.clib.jna.CUnistd;
+import ceri.jna.type.Struct;
 
 /**
  * Provides logic for opening and configuring serial ttys. For Macos and non-standard baud, changes

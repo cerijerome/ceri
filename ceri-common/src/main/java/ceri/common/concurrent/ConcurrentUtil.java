@@ -287,6 +287,7 @@ public class ConcurrentUtil {
 	 * Provides a locked try-with-resources that unlocks on close.
 	 */
 	public static Functions.Closeable locker(Lock lock) {
+		if (lock == null) return Functions.Closeable.NULL;
 		lock.lock();
 		return () -> lock.unlock();
 	}

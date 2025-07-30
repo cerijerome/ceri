@@ -1,8 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.assertUnsupported;
 import java.util.HashSet;
 import org.junit.Test;
@@ -160,7 +160,7 @@ public class FieldBehavior {
 	@Test
 	public void shouldGetMaskedTypedFieldValues() {
 		var type = new Type(null, 0xfff0f1f0, 0L);
-		assertCollection(Type.IMT.get(type), Bit._15, Bit._7, Bit._0);
+		assertUnordered(Type.IMT.get(type), Bit._15, Bit._7, Bit._0);
 		assertEquals(Type.IMT.has(type, Bit._7, Bit._0), true);
 		assertEquals(Type.IMT.has(type, Bit._7, Bit._1), false);
 	}
@@ -171,7 +171,7 @@ public class FieldBehavior {
 		var set = new HashSet<Bit>();
 		assertEquals(Type.LT.get(type, set), 4L);
 		assertEquals(Type.LT.getInt(type, set), 4);
-		assertCollection(set, Bit._3, Bit._1, Bit._0);
+		assertUnordered(set, Bit._3, Bit._1, Bit._0);
 	}
 
 	@Test

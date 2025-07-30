@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
@@ -16,7 +16,7 @@ import ceri.serial.libusb.test.LibUsbTestData.Util;
 
 public class LibUsbTestDataBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 
 	@After
 	public void after() {

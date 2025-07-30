@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.ConsoleInput;
 import ceri.common.io.LineReader;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Termios;
@@ -23,7 +23,7 @@ import ceri.log.util.LogUtil;
  * Modifies tty to provide char-based input and display. Attempts to copy functionality of terminal
  * line-based input, and provides line history recall/editing.
  */
-public class TtyInput implements LineReader, RuntimeCloseable {
+public class TtyInput implements LineReader, Functions.Closeable {
 	private final FileDescriptor fd;
 	private final Reader reader;
 	private final ConsoleInput consoleInput;
@@ -33,9 +33,9 @@ public class TtyInput implements LineReader, RuntimeCloseable {
 	 * Provide a line reader for stdin. Returns regular reader if not a tty.
 	 */
 	@SuppressWarnings("resource")
-	public static Enclosed<RuntimeException, ? extends LineReader> in() throws IOException {
-		return CUnistd.isatty(STDIN_FILENO) ? Enclosed.of(of()) :
-			Enclosed.noOp(LineReader.of(System.in));
+	public static Enclosure<? extends LineReader> in() throws IOException {
+		return CUnistd.isatty(STDIN_FILENO) ? Enclosure.of(of()) :
+			Enclosure.noOp(LineReader.of(System.in));
 	}
 
 	public static TtyInput of() throws IOException {

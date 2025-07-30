@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
@@ -22,7 +21,6 @@ import ceri.common.collection.IteratorUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
-import ceri.common.stream.StreamUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -519,21 +517,12 @@ public class ByteUtil {
 	/**
 	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
 	 */
-	public static long maskOfBits(Collection<Integer> bits) {
+	public static long maskOfBits(Iterable<Integer> bits) {
 		if (bits == null) return 0L;
 		long mask = 0L;
 		for (int bit : bits)
 			if (bit >= 0 && bit < Long.SIZE) mask |= 1L << bit;
 		return mask;
-	}
-
-	/**
-	 * Creates a 64-bit mask from given true bits. Bits do not wrap.
-	 */
-	public static long maskOfBits(IntStream bits) {
-		if (bits == null) return 0L;
-		return StreamUtil
-			.bitwiseOr(bits.mapToLong(bit -> (bit >= 0 && bit < Long.SIZE) ? 1L << bit : 0L));
 	}
 
 	/**
@@ -559,14 +548,7 @@ public class ByteUtil {
 	/**
 	 * Creates a 32-bit mask from given true bits.
 	 */
-	public static int maskOfBitsInt(Collection<Integer> bits) {
-		return (int) maskOfBits(bits);
-	}
-
-	/**
-	 * Creates a 32-bit mask from given true bits.
-	 */
-	public static int maskOfBitsInt(IntStream bits) {
+	public static int maskOfBitsInt(Iterable<Integer> bits) {
 		return (int) maskOfBits(bits);
 	}
 
@@ -590,37 +572,6 @@ public class ByteUtil {
 	public static boolean masked(long mask, int... bits) {
 		long bitMask = maskOfBits(bits);
 		return (mask & bitMask) == bitMask;
-	}
-
-	/**
-	 * Creates an indexed bit mask of other types against a type list.
-	 */
-	@SafeVarargs
-	public static <T> long indexMask(List<T> source, T... others) {
-		return indexMask(source, Arrays.asList(others));
-	}
-
-	/**
-	 * Creates an indexed bit mask of other types against a type list.
-	 */
-	public static <T> long indexMask(List<T> source, Iterable<T> others) {
-		return StreamUtil.bitwiseOr(StreamUtil.stream(others).mapToInt(source::indexOf)
-			.mapToLong(i -> i < 0 ? 0L : 1L << i));
-	}
-
-	/**
-	 * Creates an indexed bit mask of other types against a type list.
-	 */
-	@SafeVarargs
-	public static <T> int indexMaskInt(List<T> source, T... others) {
-		return indexMaskInt(source, Arrays.asList(others));
-	}
-
-	/**
-	 * Creates an indexed bit mask of other types against a type list.
-	 */
-	public static <T> int indexMaskInt(List<T> source, Iterable<T> others) {
-		return (int) indexMask(source, others);
 	}
 
 	/**

@@ -4,8 +4,8 @@ import static ceri.common.property.Parser.string;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.throwRuntime;
@@ -43,20 +43,20 @@ public class ParserBehavior {
 		assertEquals(Parser.type(null).def("x").get(), "x");
 		assertEquals(Parser.type(null).def(() -> "x").get(), "x");
 		assertEquals(Parser.Type.from(() -> null).def("x").get(), "x");
-		assertIterable(Parser.types((List<Integer>) null).def(List.of(1)).get(), 1);
-		assertIterable(Parser.types((List<Integer>) null).def(1).get(), 1);
-		assertIterable(Parser.types((List<Integer>) null).def(() -> List.of(1)).get(), 1);
-		assertIterable(Parser.Strings.from(() -> null).def("x").get(), "x");
-		assertIterable(Parser.Strings.from(() -> null).def(List.of("x")).get(), "x");
-		assertIterable(Parser.Strings.from(() -> null).def(() -> List.of("x")).get(), "x");
-		assertIterable(Parser.Types.from(() -> null).def(List.of(1)).get(), 1);
+		assertOrdered(Parser.types((List<Integer>) null).def(List.of(1)).get(), 1);
+		assertOrdered(Parser.types((List<Integer>) null).def(1).get(), 1);
+		assertOrdered(Parser.types((List<Integer>) null).def(() -> List.of(1)).get(), 1);
+		assertOrdered(Parser.Strings.from(() -> null).def("x").get(), "x");
+		assertOrdered(Parser.Strings.from(() -> null).def(List.of("x")).get(), "x");
+		assertOrdered(Parser.Strings.from(() -> null).def(() -> List.of("x")).get(), "x");
+		assertOrdered(Parser.Types.from(() -> null).def(List.of(1)).get(), 1);
 		assertEquals(string(null).def("x").get(), "x");
 		assertEquals(string(null).def(() -> "x").get(), "x");
 	}
 
 	@Test
 	public void shouldValidateAgainstNull() {
-		assertIterable(strings("").getValid());
+		assertOrdered(strings("").getValid());
 		assertIllegalArg(() -> Parser.type(null).getValid());
 		assertIllegalArg(() -> Parser.type(null).getValid("test"));
 		assertIllegalArg(() -> Parser.types((List<?>) null).getValid());
@@ -90,16 +90,16 @@ public class ParserBehavior {
 	@Test
 	public void shouldSplitValues() {
 		assertEquals(Parser.<Integer>type(null).split(BIT_LIST).get(), null);
-		assertIterable(Parser.type(0x124).split(BIT_LIST).get(), 2, 5, 8);
-		assertIterable(Parser.type(0x124).splitArray(BIT_ARRAY).get(), 2, 5, 8);
+		assertOrdered(Parser.type(0x124).split(BIT_LIST).get(), 2, 5, 8);
+		assertOrdered(Parser.type(0x124).splitArray(BIT_ARRAY).get(), 2, 5, 8);
 	}
 
 	@Test
 	public void shouldSplitStrings() {
 		assertEquals(string(null).split().get(), null);
-		assertIterable(string("1,2,3").split().get(), "1", "2", "3");
-		assertIterable(string("1 2 3").split(Pattern.compile(" ")).get(), "1", "2", "3");
-		assertIterable(string("/1/2//3/").split(Separator.SLASH).get(), "1", "2", "3");
+		assertOrdered(string("1,2,3").split().get(), "1", "2", "3");
+		assertOrdered(string("1 2 3").split(Pattern.compile(" ")).get(), "1", "2", "3");
+		assertOrdered(string("/1/2//3/").split(Separator.SLASH).get(), "1", "2", "3");
 	}
 
 	@Test
@@ -166,16 +166,16 @@ public class ParserBehavior {
 	@Test
 	public void shouldFilterValues() {
 		assertEquals(Parser.Types.from(() -> null).filter().get(), null);
-		assertIterable(Parser.types().filter().get());
-		assertIterable(Parser.types(1, null, 2, null).filter().get(), 1, 2);
+		assertOrdered(Parser.types().filter().get());
+		assertOrdered(Parser.types(1, null, 2, null).filter().get(), 1, 2);
 	}
 
 	@Test
 	public void shouldFilterStringValues() {
 		assertEquals(Parser.Strings.from(() -> null).filter().get(), null);
-		assertIterable(Parser.strings().filter().get());
-		assertIterable(Parser.strings("1", null, "2", null).filter().asInts().get(), 1, 2);
-		assertIterable(
+		assertOrdered(Parser.strings().filter().get());
+		assertOrdered(Parser.strings("1", null, "2", null).filter().asInts().get(), 1, 2);
+		assertOrdered(
 			Parser.strings("1", "a", "2", null).filter(Pattern.compile("\\d+")).asInts().get(), 1,
 			2);
 	}
@@ -185,36 +185,36 @@ public class ParserBehavior {
 		assertEquals(Parser.Types.from(() -> null).collect(TreeSet::new), null);
 		assertEquals(Parser.Types.from(() -> null).toList(), null);
 		assertEquals(Parser.Types.from(() -> null).toSet(), null);
-		assertIterable(Parser.types(1, -1, 0).collect(TreeSet::new), -1, 0, 1);
-		assertIterable(Parser.types(-1, 0, 1).toList(), -1, 0, 1);
-		assertIterable(Parser.types(-1, 0, 1).toSet(), -1, 0, 1);
+		assertOrdered(Parser.types(1, -1, 0).collect(TreeSet::new), -1, 0, 1);
+		assertOrdered(Parser.types(-1, 0, 1).toList(), -1, 0, 1);
+		assertOrdered(Parser.types(-1, 0, 1).toSet(), -1, 0, 1);
 	}
 
 	@Test
 	public void shouldConvertListItems() {
 		assertEquals(Parser.Strings.from(() -> null).toEach(String::length), null);
-		assertIterable(Parser.types("a", "bb", "").toEach(String::length), 1, 2, 0);
-		assertIterable(Parser.types((List<String>) null).toEachDef(String::length, 1), 1);
-		assertIterable(strings("").toEachDef(String::length, 1));
+		assertOrdered(Parser.types("a", "bb", "").toEach(String::length), 1, 2, 0);
+		assertOrdered(Parser.types((List<String>) null).toEachDef(String::length, 1), 1);
+		assertOrdered(strings("").toEachDef(String::length, 1));
 	}
 
 	@Test
 	public void shouldSortItems() {
 		assertEquals(Parser.Types.from(() -> null).sort().get(), null);
-		assertIterable(Parser.types(1, -1, 2, 0, -2).sort().get(), -2, -1, 0, 1, 2);
+		assertOrdered(Parser.types(1, -1, 2, 0, -2).sort().get(), -2, -1, 0, 1, 2);
 		assertThrown(ClassCastException.class, () -> Parser.types(1, "2", -1.0).sort());
-		assertIterable(strings("2,0,1").sort().asInts().get(), 0, 1, 2);
+		assertOrdered(strings("2,0,1").sort().asInts().get(), 0, 1, 2);
 	}
 
 	@Test
 	public void shouldConvertAccessorItems() {
 		assertEquals(Parser.Strings.from(() -> null).asEach(String::length).get(), null);
-		assertIterable(Parser.types("a", "bb", "").asEach(String::length).get(), 1, 2, 0);
-		assertIterable(strings("true, false").asBools().get(), true, false);
-		assertIterable(strings("-0xffffffff,0xffffffff").asInts().get(), 1, -1);
-		assertIterable(strings("-0xffffffffffffffff,0xffffffffffffffff").asLongs().get(), 1L, -1L);
-		assertIterable(strings("-1,NaN,1").asDoubles().get(), -1.0, Double.NaN, 1.0);
-		assertIterable(strings("left,right").asEnums(H.class).get(), H.left, H.right);
+		assertOrdered(Parser.types("a", "bb", "").asEach(String::length).get(), 1, 2, 0);
+		assertOrdered(strings("true, false").asBools().get(), true, false);
+		assertOrdered(strings("-0xffffffff,0xffffffff").asInts().get(), 1, -1);
+		assertOrdered(strings("-0xffffffffffffffff,0xffffffffffffffff").asLongs().get(), 1L, -1L);
+		assertOrdered(strings("-1,NaN,1").asDoubles().get(), -1.0, Double.NaN, 1.0);
+		assertOrdered(strings("left,right").asEnums(H.class).get(), H.left, H.right);
 	}
 
 	@Test
@@ -274,8 +274,8 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldProvideBooleanConditionalTypes() {
-		assertIterable(strings("True, x, false").asBools(1, 0).get(), 1, 0, 0);
-		assertIterable(Parser.strings("True", null, "x").asBools(1, 0).get(), 1, null, 0);
+		assertOrdered(strings("True, x, false").asBools(1, 0).get(), 1, 0, 0);
+		assertOrdered(Parser.strings("True", null, "x").asBools(1, 0).get(), 1, null, 0);
 	}
 
 	@Test
@@ -286,9 +286,9 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldModifyStringTypes() {
-		assertIterable(strings("1,3").modEach(s -> s + "0").asInts().get(), 10, 30);
+		assertOrdered(strings("1,3").modEach(s -> s + "0").asInts().get(), 10, 30);
 		assertEquals(strings(null).modEach(s -> s + "0").asInts().get(), null);
-		assertIterable(Parser.strings("1", null).modEach(s -> s + "0").asInts().get(), 10, null);
+		assertOrdered(Parser.strings("1", null).modEach(s -> s + "0").asInts().get(), 10, null);
 	}
 
 	@Test

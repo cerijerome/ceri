@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.threadCall;
 import static ceri.common.test.TestUtil.threadRun;
@@ -21,9 +21,9 @@ public class CallSyncBehavior {
 		CallSync.saveValuesAll(true, call0, call1);
 		call0.apply("1");
 		call0.apply("2");
-		assertIterable(call0.values(), "1", "2");
+		assertOrdered(call0.values(), "1", "2");
 		CallSync.saveValuesAll(false, call0, call1);
-		assertIterable(call0.values(), "2");
+		assertOrdered(call0.values(), "2");
 	}
 
 	@Test
@@ -153,39 +153,39 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldApplyAndGetValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
-		assertIterable(call.values());
+		assertOrdered(call.values());
 		call.value("test0");
 		call.value(null);
 		call.apply("test2");
 		call.apply(null);
-		assertIterable(call.values(), "test0", null, "test2", null);
+		assertOrdered(call.values(), "test0", null, "test2", null);
 	}
 
 	@Test
 	public void shouldApplyAndAssertValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
-		assertIterable(call.values());
+		assertOrdered(call.values());
 		call.apply("test0");
 		call.apply(null);
 		call.apply("test1");
 		call.assertValues("test0", null, "test1");
-		assertIterable(call.values()); // cleared
+		assertOrdered(call.values()); // cleared
 	}
 
 	@Test
 	public void shouldApplyWithoutSavingValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
 		call.saveValues(false);
-		assertIterable(call.values());
+		assertOrdered(call.values());
 		call.saveValues(true);
 		call.apply("1");
 		call.apply("2");
 		call.saveValues(false);
-		assertIterable(call.values(), "2");
+		assertOrdered(call.values(), "2");
 		call.apply("3");
-		assertIterable(call.values(), "3");
+		assertOrdered(call.values(), "3");
 		call.saveValues(false);
-		assertIterable(call.values(), "3");
+		assertOrdered(call.values(), "3");
 	}
 
 	@Test
@@ -245,23 +245,23 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptAndGetValues() {
 		Consumer<String> call = CallSync.consumer(null, true);
-		assertIterable(call.values());
+		assertOrdered(call.values());
 		call.value("test0");
 		call.value(null);
 		call.accept("test2");
 		call.accept(null);
-		assertIterable(call.values(), "test0", null, "test2", null);
+		assertOrdered(call.values(), "test0", null, "test2", null);
 	}
 
 	@Test
 	public void shouldAcceptAndAssertValues() {
 		Consumer<String> call = CallSync.consumer(null, true);
-		assertIterable(call.values());
+		assertOrdered(call.values());
 		call.accept("test0");
 		call.accept(null);
 		call.accept("test1");
 		call.assertValues("test0", null, "test1");
-		assertIterable(call.values()); // cleared
+		assertOrdered(call.values()); // cleared
 	}
 
 	@Test

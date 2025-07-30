@@ -1,10 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -122,7 +121,7 @@ public class StringUtilTest {
 
 	@Test
 	public void testSplit() {
-		assertIterable(StringUtil.split("Thisisatest", Arrays.asList(4, 6, 7, 20)), //
+		assertOrdered(StringUtil.split("Thisisatest", Arrays.asList(4, 6, 7, 20)), //
 			"This", "is", "a", "test", "");
 	}
 
@@ -388,25 +387,25 @@ public class StringUtilTest {
 
 	@Test
 	public void testCommaSplit() {
-		assertCollection(StringUtil.commaSplit(null));
-		assertCollection(StringUtil.commaSplit(""));
-		assertCollection(StringUtil.commaSplit(" "), "");
-		assertCollection(StringUtil.commaSplit("a"), "a");
-		assertCollection(StringUtil.commaSplit(" a "), "a");
-		assertCollection(StringUtil.commaSplit(",,a"), "", "", "a");
-		assertCollection(StringUtil.commaSplit("a,,"), "a");
-		assertCollection(StringUtil.commaSplit(" , a "), "", "a");
-		assertCollection(StringUtil.commaSplit("a,b"), "a", "b");
-		assertCollection(StringUtil.commaSplit(" a , b "), "a", "b");
+		assertOrdered(StringUtil.commaSplit(null));
+		assertOrdered(StringUtil.commaSplit(""));
+		assertOrdered(StringUtil.commaSplit(" "), "");
+		assertOrdered(StringUtil.commaSplit("a"), "a");
+		assertOrdered(StringUtil.commaSplit(" a "), "a");
+		assertOrdered(StringUtil.commaSplit(",,a"), "", "", "a");
+		assertOrdered(StringUtil.commaSplit("a,,"), "a");
+		assertOrdered(StringUtil.commaSplit(" , a "), "", "a");
+		assertOrdered(StringUtil.commaSplit("a,b"), "a", "b");
+		assertOrdered(StringUtil.commaSplit(" a , b "), "a", "b");
 	}
 
 	@Test
 	public void testWhitespaceSplit() {
-		assertCollection(StringUtil.whiteSpaceSplit(null));
-		assertCollection(StringUtil.whiteSpaceSplit(""));
-		assertCollection(StringUtil.whiteSpaceSplit(" "));
-		assertCollection(StringUtil.whiteSpaceSplit("a"), "a");
-		assertCollection(StringUtil.whiteSpaceSplit(" a b "), "", "a", "b");
+		assertOrdered(StringUtil.whiteSpaceSplit(null));
+		assertOrdered(StringUtil.whiteSpaceSplit(""));
+		assertOrdered(StringUtil.whiteSpaceSplit(" "));
+		assertOrdered(StringUtil.whiteSpaceSplit("a"), "a");
+		assertOrdered(StringUtil.whiteSpaceSplit(" a b "), "", "a", "b");
 	}
 
 	@Test
@@ -541,10 +540,10 @@ public class StringUtilTest {
 
 	@Test
 	public void testLines() {
-		assertIterable(StringUtil.lines(""));
-		assertIterable(StringUtil.lines(" "), " ");
-		assertIterable(StringUtil.lines("\n"));
-		assertIterable(StringUtil.lines(" \n\t"), " ", "\t");
+		assertOrdered(StringUtil.lines(""));
+		assertOrdered(StringUtil.lines(" "), " ");
+		assertOrdered(StringUtil.lines("\n"));
+		assertOrdered(StringUtil.lines(" \n\t"), " ", "\t");
 	}
 
 	@Test

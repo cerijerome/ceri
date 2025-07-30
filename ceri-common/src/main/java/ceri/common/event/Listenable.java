@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 
 /**
  * Interface to add/remove notification listeners.
@@ -17,10 +17,10 @@ public interface Listenable<T> {
 	 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call to
 	 * listen returns false, the listener is already registered, and close() will do nothing.
 	 */
-	default <U extends Consumer<? super T>> Enclosed<RuntimeException, U> enclose(U listener) {
+	default <U extends Consumer<? super T>> Enclosure<U> enclose(U listener) {
 		boolean added = listen(listener);
-		if (!added) return Enclosed.noOp(listener); // no unlisten on close
-		return Enclosed.of(listener, this::unlisten); // unlistens on close
+		if (!added) return Enclosure.noOp(listener); // no unlisten on close
+		return Enclosure.of(listener, this::unlisten); // unlistens on close
 	}
 
 	/**

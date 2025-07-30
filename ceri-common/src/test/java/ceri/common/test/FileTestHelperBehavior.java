@@ -3,7 +3,7 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertExists;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -73,7 +73,7 @@ public class FileTestHelperBehavior {
 		assertEquals(files.path("%s/%s", "a", "b"), files.path("a/b"));
 		assertArray(files.paths("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 			files.path("a/b/c"));
-		assertIterable(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
+		assertOrdered(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 			files.path("a/b/c"));
 	}
 
@@ -84,7 +84,7 @@ public class FileTestHelperBehavior {
 		assertEquals(files.path("%s/%s", "a", "b"), files.path("a/b"));
 		assertArray(files.paths("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 			files.path("a/b/c"));
-		assertIterable(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
+		assertOrdered(files.pathList("a", "a/b", "a/b/c"), files.path("a"), files.path("a/b"),
 			files.path("a/b/c"));
 	}
 }

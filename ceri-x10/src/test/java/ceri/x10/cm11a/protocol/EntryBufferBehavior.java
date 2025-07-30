@@ -2,7 +2,7 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.x10.command.FunctionType.dim;
 import static ceri.x10.command.FunctionType.off;
@@ -37,14 +37,14 @@ public class EntryBufferBehavior {
 	@Test
 	public void shouldCreateBuffersFromCommand() {
 		var buffers = EntryBuffer.allFrom(Command.dim(B, 99, _1, _2, _3));
-		assertIterable(buffers, EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _2),
+		assertOrdered(buffers, EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _2),
 			Entry.address(B, _3), Entry.dim(B, dim, 99)));
 	}
 
 	@Test
 	public void shouldStartNewBufferIfSizeExceeded() {
 		var buffers = EntryBuffer.allFrom(Command.dim(B, 99, _1, _2, _3, _4, _5, _6, _7));
-		assertIterable(buffers,
+		assertOrdered(buffers,
 			EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _2), Entry.address(B, _3),
 				Entry.address(B, _4), Entry.address(B, _5), Entry.address(B, _6),
 				Entry.address(B, _7)),
@@ -54,7 +54,7 @@ public class EntryBufferBehavior {
 	@Test
 	public void shouldNotCreateEmptyBuffer() {
 		var buffers = EntryBuffer.allFrom(Command.on(B));
-		assertIterable(buffers);
+		assertOrdered(buffers);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ public class EntryBufferBehavior {
 		EntryBuffer buffer1 =
 			EntryBuffer.of(Entry.address(C, _2), Entry.address(C, _2), Entry.function(C, off));
 		var entries = EntryBuffer.combine(buffer0, buffer1);
-		assertIterable(entries, Entry.address(B, _1), Entry.dim(B, dim, 99), Entry.address(C, _2),
+		assertOrdered(entries, Entry.address(B, _1), Entry.dim(B, dim, 99), Entry.address(C, _2),
 			Entry.address(C, _2), Entry.function(C, off));
 	}
 

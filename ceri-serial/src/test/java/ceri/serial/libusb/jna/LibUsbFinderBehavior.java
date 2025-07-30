@@ -10,7 +10,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.PointerUtil;
@@ -21,7 +21,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 public class LibUsbFinderBehavior {
 	private final libusb_context nullCtx = null;
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 
 	@After
 	public void after() {

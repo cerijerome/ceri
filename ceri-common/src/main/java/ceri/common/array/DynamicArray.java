@@ -10,7 +10,7 @@ public abstract class DynamicArray<T> {
 	/** Default growth formula. */
 	public static final Functions.IntOperator GROWTH = growX2(8);
 	private final Functions.IntOperator growth;
-	private final TypedArray<T> typed;
+	public final TypedArray<T> typed;
 	private T array;
 	private int index = 0;
 
@@ -26,6 +26,20 @@ public abstract class DynamicArray<T> {
 	 */
 	public static Functions.IntOperator growByStep(int min, int step) {
 		return i -> (i < min ? min : i + step);
+	}
+
+	/**
+	 * Create an object array builder with default growth.
+	 */
+	public static OfType<Object> of() {
+		return of(GROWTH);
+	}
+
+	/**
+	 * Create an object array builder with given growth.
+	 */
+	public static OfType<Object> of(Functions.IntOperator growth) {
+		return of(Object[]::new, growth);
 	}
 
 	/**

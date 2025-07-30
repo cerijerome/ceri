@@ -1,12 +1,12 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOptional;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertString;
@@ -144,10 +144,10 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testNested() {
-		assertCollection(ReflectUtil.nested());
-		assertCollection(ReflectUtil.nested(Nested.class), Nested.class, Nested.A.class,
+		assertOrdered(ReflectUtil.nested());
+		assertOrdered(ReflectUtil.nested(Nested.class), Nested.class, Nested.A.class,
 			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
-		assertCollection(ReflectUtil.nested(Nested.A.class, Nested.B.class), Nested.A.class,
+		assertOrdered(ReflectUtil.nested(Nested.A.class, Nested.B.class), Nested.A.class,
 			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
 	}
 
@@ -216,10 +216,9 @@ public class ReflectUtilTest {
 	@Test
 	public void testStaticFields() {
 		Fields.ss = null;
-		assertCollection(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs");
+		assertOrdered(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs");
 		Fields.ss = "ss";
-		assertCollection(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs",
-			"ss");
+		assertOrdered(ReflectUtil.staticFields(Fields.class, String.class).toList(), "sfs", "ss");
 	}
 
 	@Test

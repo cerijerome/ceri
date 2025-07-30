@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.function.IntConsumer;
 import org.junit.Test;
 import ceri.common.test.Captor;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 
 public class IntListenableBehavior {
 
@@ -27,7 +27,7 @@ public class IntListenableBehavior {
 		TestListenable listeners = new TestListenable();
 		try (var _ = listeners.enclose(captor)) {
 			listeners.accept(0);
-			try (Enclosed<RuntimeException, ?> enclosed = listeners.enclose(captor)) {
+			try (Enclosure<?> enclosed = listeners.enclose(captor)) {
 				listeners.accept(1);
 				assertTrue(enclosed.isNoOp());
 			}

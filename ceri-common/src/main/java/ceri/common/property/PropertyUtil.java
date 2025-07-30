@@ -11,12 +11,13 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
+import ceri.common.text.TextUtil;
 
 /**
  * Utility methods for property files.
  */
 public class PropertyUtil {
-	private static final String PROPERTIES_FILE_EXT = ".properties";
+	private static final String PROPERTIES_EXT = ".properties";
 
 	private PropertyUtil() {}
 
@@ -75,17 +76,19 @@ public class PropertyUtil {
 	}
 
 	/**
-	 * Creates properties from resource file. Location is same package as the class, file name is
-	 * <simple-class-name>.properties
+	 * Creates properties from resource file. Location is same package as the class, the name is the
+	 * hyphenated lower-case simple class name.
 	 */
 	public static Properties load(Class<?> cls) throws IOException {
-		return load(cls, cls.getSimpleName() + PROPERTIES_FILE_EXT);
+		return load(cls, null);
 	}
 
 	/**
-	 * Creates properties from resource file. Location is same package as the class.
+	 * Creates properties from resource file. Location is same package as the class. The hyphenated
+	 * lower-case simple class name is used if the given name is null.
 	 */
 	public static Properties load(Class<?> cls, String name) throws IOException {
+		if (name == null) name = TextUtil.camelToHyphenated(cls.getSimpleName()) + PROPERTIES_EXT;
 		Properties properties = new Properties();
 		try (InputStream in = cls.getResourceAsStream(name)) {
 			if (in == null) throw new FileNotFoundException(cls.getName() + ": " + name);

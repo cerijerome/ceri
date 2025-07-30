@@ -21,8 +21,10 @@ public class HasherBehavior {
 		Hasher ne0 = Hasher.of().hash((float) 1.1).hash(true).hash(-1L);
 		Hasher ne1 = Hasher.of().hash(1.1).hash(false).hash(-1L);
 		Hasher ne2 = Hasher.of().hash(1.1).hash(true).hash(-2L);
+		Hasher ne3 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash(null);
+		Hasher ne4 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash("");
 		exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2);
+		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
 }

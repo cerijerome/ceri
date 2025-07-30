@@ -1,13 +1,11 @@
 package ceri.jna.util;
 
-import static ceri.common.text.StringUtil.NULL_STRING;
+import static ceri.common.text.StringUtil.NULL;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import com.sun.jna.Callback;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
@@ -16,8 +14,9 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.IteratorUtil;
+import ceri.common.function.Functions;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 import ceri.jna.type.Struct;
@@ -30,20 +29,20 @@ public class JnaArgs {
 	private static final List<Class<?>> INT_CLASSES =
 		List.of(Byte.class, Short.class, Integer.class, Long.class);
 	private static final int DEC_LIMIT = 9;
-	private final List<Function<Object, String>> transforms;
+	private final List<Functions.Function<Object, String>> transforms;
 	private final Joiner arrayJoiner;
 
 	/**
 	 * Predicate to match an instance of any given of the classes.
 	 */
-	public static Predicate<Object> matchClass(Class<?>... classes) {
+	public static Functions.Predicate<Object> matchClass(Class<?>... classes) {
 		return obj -> ReflectUtil.instanceOfAny(obj, classes);
 	}
 
 	/**
 	 * Predicate to match byte/short/int/long primitive or primitive wrapper, and cast to Number.
 	 */
-	public static Function<Object, Number> matchInt() {
+	public static Functions.Function<Object, Number> matchInt() {
 		return arg -> INT_CLASSES.contains(arg.getClass()) ? (Number) arg : null;
 	}
 
@@ -116,7 +115,7 @@ public class JnaArgs {
 	 * Builder with convenience methods to add transforms.
 	 */
 	public static class Builder {
-		final Collection<Function<Object, String>> transforms = new LinkedHashSet<>();
+		final Collection<Functions.Function<Object, String>> transforms = new LinkedHashSet<>();
 		int arrayMax = 8;
 
 		Builder() {}
@@ -138,7 +137,8 @@ public class JnaArgs {
 		/**
 		 * Adds an argument string transform for matching type.
 		 */
-		public <T> Builder add(Function<Object, T> match, Function<T, String> fn) {
+		public <T> Builder add(Functions.Function<Object, T> match,
+			Functions.Function<T, String> fn) {
 			return add(arg -> {
 				T t = match.apply(arg);
 				return t == null ? null : fn.apply(t);
@@ -148,7 +148,7 @@ public class JnaArgs {
 		/**
 		 * Adds an argument string formatter for matching predicate.
 		 */
-		public Builder add(Predicate<Object> match, String format) {
+		public Builder add(Functions.Predicate<Object> match, String format) {
 			return add(arg -> match.test(arg) ? String.format(format, arg) : null);
 		}
 
@@ -162,14 +162,14 @@ public class JnaArgs {
 		/**
 		 * Adds an argument string transform for matching class.
 		 */
-		public <T> Builder add(Class<T> cls, Function<T, String> fn) {
+		public <T> Builder add(Class<T> cls, Functions.Function<T, String> fn) {
 			return add(arg -> ReflectUtil.castOrNull(cls, arg), fn);
 		}
 
 		/**
 		 * Adds an argument string transform. Transform should return null if no match.
 		 */
-		public Builder add(Function<Object, String> transform) {
+		public Builder add(Functions.Function<Object, String> transform) {
 			transforms.add(transform);
 			return this;
 		}
@@ -205,18 +205,18 @@ public class JnaArgs {
 	 * Creates a string from given argument.
 	 */
 	public String arg(Object arg) {
-		if (arg == null) return NULL_STRING;
+		if (arg == null) return NULL;
 		for (var transform : transforms) {
 			var result = transform.apply(arg);
 			if (result != null) return result;
 		}
-		if (arg instanceof Iterable<?> i) return iterableString(i);
 		if (arg.getClass().isArray()) return arrayString(arg);
+		if (arg instanceof Iterable<?> i) return iterableString(i);
 		return String.valueOf(arg);
 	}
 
 	private String iterableString(Iterable<?> iterable) {
-		return arrayString(StreamUtil.stream(iterable.iterator()).toArray());
+		return arrayString(Streams.from(iterable).toArray());
 	}
 
 	private String arrayString(Object array) {

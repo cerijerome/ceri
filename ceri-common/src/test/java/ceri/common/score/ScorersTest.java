@@ -1,11 +1,11 @@
 package ceri.common.score;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +21,7 @@ public class ScorersTest {
 	@Test
 	public void testResults() {
 		Scorer<String> len = Scorers.nonNull(String::length);
-		assertIterable(Scorers.results(len, "abc", "de", "f", ""), len.result("abc"),
+		assertOrdered(Scorers.results(len, "abc", "de", "f", ""), len.result("abc"),
 			len.result("de"), len.result("f"), len.result(""));
 	}
 
@@ -92,7 +92,7 @@ public class ScorersTest {
 	public void testSort() {
 		List<Integer> list = new ArrayList<>(Arrays.asList(3, 6, 8, 3, 2));
 		Scorers.sort(list, i -> 10 - i);
-		assertCollection(list, 8, 6, 3, 3, 2);
+		assertUnordered(list, 8, 6, 3, 3, 2);
 	}
 
 }

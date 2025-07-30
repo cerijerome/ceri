@@ -2,16 +2,17 @@ package ceri.common.tree;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.tree.TreeNodeTestHelper.builder;
 import org.junit.Test;
 import ceri.common.tree.TreeNodeTestHelper.TestNode;
 
 public class NodeTreeBehavior {
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldNotAllowDuplicateIds() {
 		TestNode root = builder(1).child(builder(1)).build();
-		NodeTree.create(root);
+		assertThrown(IllegalStateException.class, () -> NodeTree.create(root));
 	}
 
 	@Test

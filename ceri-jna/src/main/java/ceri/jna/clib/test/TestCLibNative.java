@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
@@ -22,7 +22,7 @@ import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CLib;
@@ -239,7 +239,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Register a new test lib.
 	 */
-	public static Enclosed<RuntimeException, TestCLibNative> register() {
+	public static Enclosure<TestCLibNative> register() {
 		return CLib.library.enclosed(of());
 	}
 
@@ -407,7 +407,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	private static int[] signals(Pointer sigmask) {
-		if (sigmask == null) return Empty.INTS;
+		if (sigmask == null) return ArrayUtil.ints.empty;
 		return ByteUtil.bits(sigmask.getInt(0));
 	}
 

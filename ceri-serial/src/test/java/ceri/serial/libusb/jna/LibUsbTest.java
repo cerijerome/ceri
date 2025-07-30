@@ -1,18 +1,18 @@
 package ceri.serial.libusb.jna;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -32,7 +32,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class LibUsbTest {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 
 	@After
 	public void after() {
@@ -101,7 +101,7 @@ public class LibUsbTest {
 	public void testPollfdEvents() {
 		var pollfd = new LibUsb.libusb_pollfd(null);
 		pollfd.events = 0x05;
-		assertCollection(pollfd.events(), libusb_poll_event.POLLIN, libusb_poll_event.POLLOUT);
+		assertUnordered(pollfd.events(), libusb_poll_event.POLLIN, libusb_poll_event.POLLOUT);
 	}
 
 	@Test

@@ -2,7 +2,7 @@ package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.threadRun;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class TypedPipeBehavior {
 	public void shouldWriteToAndReadFromQueue() {
 		TypedPipe<String> pipe = TypedPipe.of();
 		pipe.out().writeAll("a", "b", "c");
-		assertIterable(pipe.in().readN(3), "a", "b", "c");
+		assertOrdered(pipe.in().readN(3), "a", "b", "c");
 	}
 
 	@Test

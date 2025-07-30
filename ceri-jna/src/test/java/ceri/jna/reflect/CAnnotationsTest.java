@@ -1,10 +1,10 @@
 package ceri.jna.reflect;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertMap;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.Test;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CInclude;
@@ -54,7 +54,7 @@ public class CAnnotationsTest {
 
 	@Test
 	public void shouldProvideCGenClasses() {
-		assertCollection(CAnnotations.cgen(Gen.class).classes(), Integer.class, Long.class);
+		assertUnordered(CAnnotations.cgen(Gen.class).classes(), Integer.class, Long.class);
 	}
 
 	@Test
@@ -67,8 +67,8 @@ public class CAnnotationsTest {
 	public void testCIncludesFromAnnotation() {
 		assertMap(CAnnotations.cincludes(Object.class).map());
 		var inc = CAnnotations.cincludes(Inc.class);
-		assertCollection(inc.includes(JnaOs.linux), "inc.h", "aaa.h", "bbb.h", "linux.h");
-		assertCollection(inc.includes(JnaOs.mac), "inc.h", "aaa.h", "bbb.h", "mac.h");
+		assertUnordered(inc.includes(JnaOs.linux), "inc.h", "aaa.h", "bbb.h", "linux.h");
+		assertUnordered(inc.includes(JnaOs.mac), "inc.h", "aaa.h", "bbb.h", "mac.h");
 	}
 
 	@Test

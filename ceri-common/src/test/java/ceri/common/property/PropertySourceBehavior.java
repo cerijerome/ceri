@@ -1,10 +1,10 @@
 package ceri.common.property;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.assertUnsupported;
 import java.io.IOException;
 import java.util.Locale;
@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.io.RuntimeIoException;
+import ceri.common.io.IoExceptions;
 import ceri.common.test.FileTestHelper;
 import ceri.common.util.CloseableUtil;
 
@@ -37,13 +37,13 @@ public class PropertySourceBehavior {
 		assertEquals(source.modified(), false);
 		source.property("a.c", null);
 		assertEquals(source.modified(), true);
-		assertCollection(source.children(""), "a", "aaa");
-		assertCollection(source.children("a"), "b");
-		assertCollection(source.descendants(""), "a", "aaa", "a.b", "a..b");
-		assertCollection(source.descendants("a"), "b", ".b");
+		assertUnordered(source.children(""), "a", "aaa");
+		assertUnordered(source.children("a"), "b");
+		assertUnordered(source.descendants(""), "a", "aaa", "a.b", "a..b");
+		assertUnordered(source.descendants("a"), "b", ".b");
 		source.property("a", null);
 		assertEquals(source.modified(), true);
-		assertCollection(source.descendants(""), "aaa", "a.b", "a..b");
+		assertUnordered(source.descendants(""), "aaa", "a.b", "a..b");
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class PropertySourceBehavior {
 		assertEquals(source.modified(), false);
 		source.property("a.b.c", "ABC");
 		assertEquals(source.modified(), true);
-		assertCollection(source.descendants(""), "a", "a.b", "a.c", "a.b.c");
+		assertUnordered(source.descendants(""), "a", "a.b", "a.c", "a.b.c");
 	}
 
 	@Test
@@ -68,11 +68,11 @@ public class PropertySourceBehavior {
 	@Test
 	public void shouldAccessResourceBundleSubKeys() {
 		var source = PropertySource.Resource.of(r);
-		assertCollection(source.children(""), "a", "aaa", "name", "locale");
-		assertCollection(source.children("a.b"), "c", "d");
-		assertCollection(source.descendants(""), "a", "aaa", "a.b", "a.b.c", "a.b.d", "name",
+		assertUnordered(source.children(""), "a", "aaa", "name", "locale");
+		assertUnordered(source.children("a.b"), "c", "d");
+		assertUnordered(source.descendants(""), "a", "aaa", "a.b", "a.b.c", "a.b.d", "name",
 			"locale");
-		assertCollection(source.descendants("a"), "b", "b.c", "b.d");
+		assertUnordered(source.descendants("a"), "b", "b.c", "b.d");
 	}
 
 	@Test
@@ -100,10 +100,10 @@ public class PropertySourceBehavior {
 	@Test
 	public void shouldAccessFileSubKeys() throws IOException {
 		initFiles(Map.of("a/b/c", "ABC", "aaa", "AAA", "a/b/d", "ABD", "a/c", "AC"));
-		assertCollection(source.children(""), "a", "aaa");
-		assertCollection(source.children("a"), "b", "c");
-		assertCollection(source.descendants(""), "a/b/c", "aaa", "a/b/d", "a/c");
-		assertCollection(source.descendants("a"), "b/c", "b/d", "c");
+		assertUnordered(source.children(""), "a", "aaa");
+		assertUnordered(source.children("a"), "b", "c");
+		assertUnordered(source.descendants(""), "a/b/c", "aaa", "a/b/d", "a/c");
+		assertUnordered(source.descendants("a"), "b/c", "b/d", "c");
 		assertEquals(source.hasKey("a/b/c"), true);
 		assertEquals(source.hasKey("a/b"), true);
 		assertEquals(source.hasKey("a"), true);
@@ -149,8 +149,8 @@ public class PropertySourceBehavior {
 
 	@Test
 	public void shouldProvideNullImplementation() {
-		assertCollection(PropertySource.NULL.children("a.b.c"));
-		assertCollection(PropertySource.NULL.descendants("a.b.c"));
+		assertUnordered(PropertySource.NULL.children("a.b.c"));
+		assertUnordered(PropertySource.NULL.descendants("a.b.c"));
 		PropertySource.NULL.property("a.b.c", "ABC");
 		assertEquals(PropertySource.NULL.property("a.b.c"), null);
 		assertEquals(PropertySource.NULL.hasKey("a.b.c"), false);
@@ -161,7 +161,7 @@ public class PropertySourceBehavior {
 	public void shouldProvideContextForFileReadFailure() throws IOException {
 		initFiles(Map.of("a/b/c", "ABC"));
 		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "ABC");
-		assertThrown(RuntimeIoException.class, () -> PropertySource.fileRead(files.path("a/b")));
+		assertThrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
 	}
 
 	@Test
@@ -169,9 +169,9 @@ public class PropertySourceBehavior {
 		initFiles(Map.of("a/b/c", "ABC"));
 		PropertySource.fileWrite(files.path("a/b/c"), "AAA");
 		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "AAA");
-		assertThrown(RuntimeIoException.class,
+		assertThrown(IoExceptions.Runtime.class,
 			() -> PropertySource.fileWrite(files.path("a/b"), "AA"));
-		assertThrown(RuntimeIoException.class, () -> PropertySource.fileRead(files.path("a/b")));
+		assertThrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
 	}
 
 	private void initProperties(Map<String, String> properties) {

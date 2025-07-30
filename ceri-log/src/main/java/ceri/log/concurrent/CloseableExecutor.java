@@ -9,14 +9,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 
 /**
  * Originally used to encapsulate an executor service as a Closeable resource. Now ExecutorService
  * is AutoCloseable, this implementation offers a shorter close timeout of 1 second vs 1 day.
  */
-public class CloseableExecutor implements RuntimeCloseable {
+public class CloseableExecutor implements Functions.Closeable {
 	public final ExecutorService executor;
 
 	@SuppressWarnings("resource")

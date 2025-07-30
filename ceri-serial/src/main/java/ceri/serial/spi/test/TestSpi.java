@@ -1,7 +1,7 @@
 package ceri.serial.spi.test;
 
 import java.io.IOException;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.Direction;
@@ -23,7 +23,7 @@ public class TestSpi extends SpiEmulator {
 		}
 		
 		public static Request out(int... data) {
-			return out(ArrayUtil.bytes(data));
+			return out(ArrayUtil.bytes.of(data));
 		}
 		
 		public static Request out(byte[] data) {
@@ -31,7 +31,7 @@ public class TestSpi extends SpiEmulator {
 		}
 		
 		public static Request duplex(int... data) {
-			return duplex(ArrayUtil.bytes(data));
+			return duplex(ArrayUtil.bytes.of(data));
 		}
 		
 		public static Request duplex(byte[] data) {

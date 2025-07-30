@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;

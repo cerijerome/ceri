@@ -1,7 +1,7 @@
 package ceri.common.process;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Arrays;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ParametersBehavior {
 
 	@Test
 	public void shouldAcceptNullValues() {
-		assertIterable(Parameters.of().add(null, "a", null, 1).list(), null, "a", null, "1");
+		assertOrdered(Parameters.of().add(null, "a", null, 1).list(), null, "a", null, "1");
 	}
 
 }

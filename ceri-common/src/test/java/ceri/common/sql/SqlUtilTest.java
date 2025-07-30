@@ -1,7 +1,7 @@
 package ceri.common.sql;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -36,6 +36,6 @@ public class SqlUtilTest {
 		dbmd.getTables.autoResponses(rs);
 		rs.next.autoResponses(true, true, true, false);
 		rs.getString.autoResponses("T1", "T2", "T3");
-		assertIterable(SqlUtil.tableNames(con), "T1", "T2", "T3");
+		assertOrdered(SqlUtil.tableNames(con), "T1", "T2", "T3");
 	}
 }

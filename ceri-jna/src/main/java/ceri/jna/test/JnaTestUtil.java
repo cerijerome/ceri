@@ -15,10 +15,10 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Runnable;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
@@ -42,7 +42,7 @@ public class JnaTestUtil {
 	/**
 	 * Provides cached memory allocation to prevent gc in tests.
 	 */
-	public static class MemCache implements RuntimeCloseable {
+	public static class MemCache implements Functions.Closeable {
 		private final Set<GcMemory> cache = new HashSet<>();
 
 		private MemCache() {}
@@ -93,7 +93,7 @@ public class JnaTestUtil {
 	 * Checks remaining memory from offset matches bytes.
 	 */
 	public static void assertMemory(Memory m, int offset, int... bytes) {
-		assertMemory(m, offset, ArrayUtil.bytes(bytes));
+		assertMemory(m, offset, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class JnaTestUtil {
 	 * Checks memory at pointer offset, matches bytes.
 	 */
 	public static void assertPointer(Pointer p, int offset, int... bytes) {
-		assertPointer(p, offset, ArrayUtil.bytes(bytes));
+		assertPointer(p, offset, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

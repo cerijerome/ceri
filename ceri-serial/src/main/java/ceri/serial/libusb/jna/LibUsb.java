@@ -16,15 +16,15 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.util.BasicUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.type.Struct;
-import ceri.jna.type.VarStruct;
 import ceri.jna.type.Struct.Fields;
+import ceri.jna.type.VarStruct;
 import ceri.jna.util.Caller;
 import ceri.jna.util.JnaLibrary;
 import ceri.jna.util.JnaUtil;
@@ -1868,7 +1868,7 @@ public class LibUsb {
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		int... endpoints) throws LibUsbException {
-		return libusb_alloc_streams(dev, num_streams, ArrayUtil.bytes(endpoints));
+		return libusb_alloc_streams(dev, num_streams, ArrayUtil.bytes.of(endpoints));
 	}
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
@@ -1883,7 +1883,7 @@ public class LibUsb {
 
 	public static void libusb_free_streams(libusb_device_handle dev, int... endpoints)
 		throws LibUsbException {
-		libusb_free_streams(dev, ArrayUtil.bytes(endpoints));
+		libusb_free_streams(dev, ArrayUtil.bytes.of(endpoints));
 	}
 
 	public static void libusb_free_streams(libusb_device_handle dev, byte[] endpoints)

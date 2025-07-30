@@ -414,27 +414,9 @@ public class AssertUtil {
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
-	public static void assertArrayObject(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
+	public static void assertRawArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
 		int len) {
-		assertArrayObject(lhs, lhsOffset, rhs, rhsOffset, len, ItemAssert.DEEP_EQUALS);
-	}
-
-	/**
-	 * Checks two arrays are equal, with specific failure information if not.
-	 */
-	private static void assertArrayObject(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
-		int len, ItemAssert itemAssert) {
-		assertIsArray(lhs);
-		assertIsArray(rhs);
-		int lhsLen = Array.getLength(lhs);
-		int rhsLen = Array.getLength(rhs);
-		for (int i = 0; i < len; i++) {
-			boolean hasLhs = lhsOffset + i < lhsLen;
-			Object lhsVal = hasLhs ? Array.get(lhs, lhsOffset + i) : null;
-			boolean hasRhs = rhsOffset + i < rhsLen;
-			Object rhsVal = hasRhs ? Array.get(rhs, rhsOffset + i) : null;
-			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
-		}
+		assertRawArray(lhs, lhsOffset, rhs, rhsOffset, len, ItemAssert.DEEP_EQUALS);
 	}
 
 	/**
@@ -442,28 +424,28 @@ public class AssertUtil {
 	 */
 	@SafeVarargs
 	public static <T> void assertArray(T[] array, T... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(boolean[] array, boolean... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(char[] array, char... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(byte[] array, byte[] expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
@@ -477,7 +459,7 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(short[] array, short[] expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
@@ -491,35 +473,35 @@ public class AssertUtil {
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(int[] array, int... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(long[] array, long... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(float[] array, float... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal, with specific failure information if not.
 	 */
 	public static void assertArray(double[] array, double... expected) {
-		assertArrayObject(array, expected);
+		assertRawArray(array, expected);
 	}
 
 	/**
 	 * Checks two arrays are equal with diff, with specific failure information if not.
 	 */
 	public static void assertArray(double diff, double[] array, double... expected) {
-		assertArrayObject(array, expected, ItemAssert.doubleEquals(diff));
+		assertRawArray(array, expected, ItemAssert.doubleEquals(diff));
 	}
 
 	/**
@@ -533,7 +515,7 @@ public class AssertUtil {
 	 * Checks two arrays are equal within precision, with specific failure information if not.
 	 */
 	public static void assertApproxArray(int precision, double[] array, double... expected) {
-		assertArrayObject(array, expected, ItemAssert.doubleApprox(precision));
+		assertRawArray(array, expected, ItemAssert.doubleApprox(precision));
 	}
 
 	/**
@@ -585,118 +567,118 @@ public class AssertUtil {
 	 * information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertCollection(T[] lhs, T... ts) {
-		assertCollection(Arrays.asList(lhs), ts);
+	public static <T> void assertUnordered(T[] lhs, T... ts) {
+		assertUnordered(Arrays.asList(lhs), ts);
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(boolean[] lhs, boolean... expected) {
-		assertCollection(ArrayUtil.bools.list(lhs), ArrayUtil.bools.list(expected));
+	public static void assertUnordered(boolean[] lhs, boolean... expected) {
+		assertUnordered(ArrayUtil.bools.list(lhs), ArrayUtil.bools.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(byte[] lhs, byte... expected) {
-		assertCollection(ArrayUtil.bytes.list(lhs), ArrayUtil.bytes.list(expected));
+	public static void assertUnordered(byte[] lhs, byte... expected) {
+		assertUnordered(ArrayUtil.bytes.list(lhs), ArrayUtil.bytes.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(byte[] lhs, int... values) {
-		assertCollection(lhs, ArrayUtil.bytes.of(values));
+	public static void assertUnordered(byte[] lhs, int... values) {
+		assertUnordered(lhs, ArrayUtil.bytes.of(values));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(char[] lhs, char... expected) {
-		assertCollection(ArrayUtil.chars.list(lhs), ArrayUtil.chars.list(expected));
+	public static void assertUnordered(char[] lhs, char... expected) {
+		assertUnordered(ArrayUtil.chars.list(lhs), ArrayUtil.chars.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(char[] lhs, int... expected) {
-		assertCollection(lhs, ArrayUtil.chars.of(expected));
+	public static void assertUnordered(char[] lhs, int... expected) {
+		assertUnordered(lhs, ArrayUtil.chars.of(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(short[] lhs, short... expected) {
-		assertCollection(ArrayUtil.shorts.list(lhs), ArrayUtil.shorts.list(expected));
+	public static void assertUnordered(short[] lhs, short... expected) {
+		assertUnordered(ArrayUtil.shorts.list(lhs), ArrayUtil.shorts.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(short[] lhs, int... expected) {
-		assertCollection(lhs, ArrayUtil.shorts.of(expected));
+	public static void assertUnordered(short[] lhs, int... expected) {
+		assertUnordered(lhs, ArrayUtil.shorts.of(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(int[] lhs, int... expected) {
-		assertCollection(ArrayUtil.ints.list(lhs), ArrayUtil.ints.list(expected));
+	public static void assertUnordered(int[] lhs, int... expected) {
+		assertUnordered(ArrayUtil.ints.list(lhs), ArrayUtil.ints.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(long[] lhs, long... expected) {
-		assertCollection(ArrayUtil.longs.list(lhs), ArrayUtil.longs.list(expected));
+	public static void assertUnordered(long[] lhs, long... expected) {
+		assertUnordered(ArrayUtil.longs.list(lhs), ArrayUtil.longs.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(float[] lhs, float... expected) {
-		assertCollection(ArrayUtil.floats.list(lhs), ArrayUtil.floats.list(expected));
+	public static void assertUnordered(float[] lhs, float... expected) {
+		assertUnordered(ArrayUtil.floats.list(lhs), ArrayUtil.floats.list(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(float[] lhs, double... expected) {
-		assertCollection(lhs, ArrayUtil.floats.of(expected));
+	public static void assertUnordered(float[] lhs, double... expected) {
+		assertUnordered(lhs, ArrayUtil.floats.of(expected));
 	}
 
 	/**
 	 * Checks array contains exactly given elements in any order, with specific failure information
 	 * if not.
 	 */
-	public static void assertCollection(double[] lhs, double... expected) {
-		assertCollection(ArrayUtil.doubles.list(lhs), ArrayUtil.doubles.list(expected));
+	public static void assertUnordered(double[] lhs, double... expected) {
+		assertUnordered(ArrayUtil.doubles.list(lhs), ArrayUtil.doubles.list(expected));
 	}
 
 	/**
 	 * Checks exact items in any order, with specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertCollection(Collection<T> lhs, T... ts) {
-		assertCollection(lhs, Arrays.asList(ts));
+	public static <T> void assertUnordered(Collection<T> lhs, T... ts) {
+		assertUnordered(lhs, Arrays.asList(ts));
 	}
 
 	/**
 	 * Checks two collections have equal elements, with specific failure information if not.
 	 */
-	public static <T> void assertCollection(Collection<? extends T> lhs,
+	public static <T> void assertUnordered(Collection<? extends T> lhs,
 		Collection<? extends T> rhs) {
 		int i = 0;
 		for (T t : lhs) {
@@ -712,15 +694,15 @@ public class AssertUtil {
 	 * Checks iterable type against given list of items, with specific failure information if not.
 	 */
 	@SafeVarargs
-	public static <T> void assertIterable(Iterable<T> lhs, T... ts) {
-		assertIterable(lhs, Arrays.asList(ts));
+	public static <T> void assertOrdered(Iterable<T> lhs, T... ts) {
+		assertOrdered(lhs, Arrays.asList(ts));
 	}
 
 	/**
 	 * Checks two iterable types have equal elements, with specific failure information if not.
 	 * Useful for testing Collections.unmodifiableXXX as they don't implement equals().
 	 */
-	public static <T> void assertIterable(Iterable<T> lhs, Iterable<T> rhs) {
+	public static <T> void assertOrdered(Iterable<T> lhs, Iterable<T> rhs) {
 		List<T> lhsC = new ArrayList<>();
 		for (T t : lhs)
 			lhsC.add(t);
@@ -775,7 +757,7 @@ public class AssertUtil {
 	@SafeVarargs
 	public static <E extends Exception, T> void assertStream(Stream<E, T> stream, T... ts)
 		throws E {
-		assertIterable(stream.toList(), ts);
+		assertOrdered(stream.toList(), ts);
 	}
 
 	public static <E extends Exception> void assertStream(IntStream<E> stream, int... is) throws E {
@@ -856,14 +838,14 @@ public class AssertUtil {
 	}
 
 	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
+	 * Tests that an exception was thrown while executing the runnable.
 	 */
 	public static void assertThrown(Excepts.Runnable<Exception> runnable) {
 		assertThrown(Exception.class, runnable);
 	}
 
 	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
+	 * Tests that a specific exception type was thrown while executing the runnable.
 	 */
 	public static void assertThrown(Class<? extends Throwable> exceptionCls,
 		Excepts.Runnable<?> runnable) {
@@ -871,14 +853,16 @@ public class AssertUtil {
 	}
 
 	/**
-	 * Use this for more flexibility than adding @Test(expected=...)
+	 * Tests that an exception was thrown while executing the runnable, with message matching the
+	 * regex.
 	 */
 	public static void assertThrown(String regex, Excepts.Runnable<Exception> runnable) {
 		assertThrown(Throwable.class, regex, runnable);
 	}
 
 	/**
-	 * Tests if an exception is thrown with given message.
+	 * Tests that a specific exception type was thrown while executing the runnable, with message
+	 * matching the regex.
 	 */
 	public static void assertThrown(Class<? extends Throwable> superCls, String regex,
 		Excepts.Runnable<?> runnable) {
@@ -1166,7 +1150,7 @@ public class AssertUtil {
 	public static void assertDir(Path lhsDir, Path rhsDir) throws IOException {
 		List<Path> lhsPathsRelative = IoUtil.pathsRelative(lhsDir);
 		List<Path> rhsPathsRelative = IoUtil.pathsRelative(rhsDir);
-		assertCollection(lhsPathsRelative, rhsPathsRelative);
+		assertUnordered(lhsPathsRelative, rhsPathsRelative);
 		for (Path path : lhsPathsRelative) {
 			Path lhsFile = lhsDir.resolve(path);
 			Path rhsFile = rhsDir.resolve(path);
@@ -1229,7 +1213,7 @@ public class AssertUtil {
 		@SuppressWarnings("resource")
 		FileSystem fs = actual.iterator().next().getFileSystem();
 		List<Path> expected = Streams.of(paths).map(fs::getPath).collect(Collectors.toList());
-		assertCollection(actual, expected);
+		assertUnordered(actual, expected);
 	}
 
 	/**
@@ -1238,28 +1222,7 @@ public class AssertUtil {
 	public static void assertHelperPaths(Collection<Path> actual, FileTestHelper helper,
 		String... paths) {
 		List<Path> expected = Streams.of(paths).map(helper::path).collect(Collectors.toList());
-		assertCollection(actual, expected);
-	}
-
-	/**
-	 * Checks two arrays are equal, with specific failure information if not.
-	 */
-	private static void assertArrayObject(Object lhs, Object rhs) {
-		if (rhs == null) assertNull(lhs);
-		else {
-			assertNotNull(lhs);
-			assertArrayObject(lhs, rhs, ItemAssert.DEEP_EQUALS);
-		}
-	}
-
-	/**
-	 * Checks two arrays are equal, with specific failure information if not.
-	 */
-	private static void assertArrayObject(Object lhs, Object rhs, ItemAssert itemAssert) {
-		assertIsArray(lhs);
-		assertIsArray(rhs);
-		assertEquals(Array.getLength(lhs), Array.getLength(rhs), "Invalid array size");
-		assertArrayObject(lhs, 0, rhs, 0, Array.getLength(lhs), itemAssert);
+		assertUnordered(actual, expected);
 	}
 
 	private static void assertIsArray(Object array) {
@@ -1304,5 +1267,35 @@ public class AssertUtil {
 		if (obj instanceof Long) return String.format("%1$dL (0x%1$016x)", obj);
 		if (obj instanceof Float) return String.format("%sf", obj);
 		return String.valueOf(obj);
+	}
+
+	private static void assertRawArray(Object lhs, Object rhs) {
+		if (rhs == null) assertNull(lhs);
+		else {
+			assertNotNull(lhs);
+			assertRawArray(lhs, rhs, ItemAssert.DEEP_EQUALS);
+		}
+	}
+
+	private static void assertRawArray(Object lhs, Object rhs, ItemAssert itemAssert) {
+		assertIsArray(lhs);
+		assertIsArray(rhs);
+		assertEquals(Array.getLength(lhs), Array.getLength(rhs), "Invalid array size");
+		assertRawArray(lhs, 0, rhs, 0, Array.getLength(lhs), itemAssert);
+	}
+
+	private static void assertRawArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
+		int len, ItemAssert itemAssert) {
+		assertIsArray(lhs);
+		assertIsArray(rhs);
+		int lhsLen = Array.getLength(lhs);
+		int rhsLen = Array.getLength(rhs);
+		for (int i = 0; i < len; i++) {
+			boolean hasLhs = lhsOffset + i < lhsLen;
+			Object lhsVal = hasLhs ? Array.get(lhs, lhsOffset + i) : null;
+			boolean hasRhs = rhsOffset + i < rhsLen;
+			Object rhsVal = hasRhs ? Array.get(rhs, rhsOffset + i) : null;
+			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
+		}
 	}
 }

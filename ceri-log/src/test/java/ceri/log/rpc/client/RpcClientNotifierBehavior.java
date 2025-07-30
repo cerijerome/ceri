@@ -39,8 +39,9 @@ public class RpcClientNotifierBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcClientNotifierProperties( //
-			typedProperties("rpc-client"), "rpc-client.notifier").config();
+		var config =
+			new RpcClientNotifier.Properties(typedProperties("rpc-client"), "rpc-client.notifier")
+				.config();
 		assertEquals(config.resetDelayMs(), 1000);
 	}
 

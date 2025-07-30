@@ -1,8 +1,7 @@
 package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.jna.clib.jna.CException;
 
 public interface SmBus {
@@ -28,7 +27,7 @@ public interface SmBus {
 	byte[] readBlockData(int command) throws IOException;
 
 	default void writeBlockData(int command, int... values) throws IOException {
-		writeBlockData(command, ArrayUtil.bytes(values));
+		writeBlockData(command, ArrayUtil.bytes.of(values));
 	}
 
 	default void writeBlockData(int command, byte[] values) throws IOException {
@@ -44,7 +43,7 @@ public interface SmBus {
 	byte[] readI2cBlockData(int command, int length) throws IOException;
 
 	default void writeI2cBlockData(int command, int... values) throws IOException {
-		writeI2cBlockData(command, ArrayUtil.bytes(values));
+		writeI2cBlockData(command, ArrayUtil.bytes.of(values));
 	}
 
 	default void writeI2cBlockData(int command, byte[] values) throws IOException {
@@ -58,7 +57,7 @@ public interface SmBus {
 	void writeI2cBlockData(int command, byte[] values, int offset, int length) throws IOException;
 
 	default byte[] blockProcessCall(int command, int... values) throws IOException {
-		return blockProcessCall(command, ArrayUtil.bytes(values));
+		return blockProcessCall(command, ArrayUtil.bytes.of(values));
 	}
 
 	default byte[] blockProcessCall(int command, byte[] values) throws IOException {
@@ -109,7 +108,7 @@ public interface SmBus {
 
 		@Override
 		default byte[] readBlockData(int command) throws CException {
-			return Empty.BYTES;
+			return ArrayUtil.bytes.empty;
 		}
 
 		@Override
@@ -128,7 +127,7 @@ public interface SmBus {
 		@Override
 		default byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 			throws CException {
-			return Empty.BYTES;
+			return ArrayUtil.bytes.empty;
 		}
 	}
 }

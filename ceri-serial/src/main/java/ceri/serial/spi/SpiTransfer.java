@@ -8,7 +8,7 @@ import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.EnumUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
@@ -48,7 +48,7 @@ public class SpiTransfer {
 	}
 
 	public byte[] read() {
-		if (in().capacity() == 0) return Empty.BYTES;
+		if (in().capacity() == 0) return ArrayUtil.bytes.empty;
 		byte[] buffer = new byte[size()];
 		in().clear().get(buffer);
 		return buffer;

@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRead;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -9,6 +8,7 @@ import java.io.IOException;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
@@ -27,9 +27,9 @@ public class TestFtdiBehavior {
 		var ftdis = TestFtdi.pairOf();
 		ftdis[0].open();
 		ftdis[1].open();
-		ftdis[0].out().write(bytes(1, 2, 3));
+		ftdis[0].out().write(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(ftdis[1].in(), 1, 2, 3);
-		ftdis[1].out().write(bytes(4, 5, 6));
+		ftdis[1].out().write(ArrayUtil.bytes.of(4, 5, 6));
 		assertRead(ftdis[0].in(), 4, 5, 6);
 	}
 
@@ -40,7 +40,7 @@ public class TestFtdiBehavior {
 		ftdi.open();
 		ftdi.out().write(0xa5);
 		assertEquals(ftdi.readPins(), 0xa5);
-		ftdi.out().write(bytes());
+		ftdi.out().write(ArrayUtil.bytes.of());
 		assertEquals(ftdi.readPins(), 0xa5);
 		ftdi.out().write(0xfde);
 		assertEquals(ftdi.readPins(), 0xde);

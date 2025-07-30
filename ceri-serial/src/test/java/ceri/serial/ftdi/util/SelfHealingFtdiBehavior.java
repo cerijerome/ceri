@@ -1,14 +1,13 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.function.FunctionUtil.runSilently;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
@@ -27,12 +26,13 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.StateChange;
 import ceri.common.test.Captor;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 import ceri.serial.ftdi.FtdiBitMode;
@@ -53,7 +53,7 @@ public class SelfHealingFtdiBehavior {
 	private static final SelfHealingFtdi.Config config =
 		SelfHealingFtdi.Config.builder().selfHealing(SelfHealing.Config.NULL).build();
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private DeviceConfig sampleConfig;
 	private SelfHealingFtdi con;
 
@@ -120,7 +120,7 @@ public class SelfHealingFtdiBehavior {
 	public void shouldOpenFtdiDevice() throws IOException {
 		init();
 		con.open();
-		assertIterable(lib.transferOut.values(),
+		assertOrdered(lib.transferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // open:ftdi_set_baudrate()
 		lib.transferIn.assertCalls(0);
@@ -139,7 +139,7 @@ public class SelfHealingFtdiBehavior {
 	public void shouldResetUsb() throws IOException {
 		connect();
 		con.usbReset();
-		assertIterable(lib.transferOut.values(),
+		assertOrdered(lib.transferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()));
 	}
 
@@ -228,7 +228,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldWriteBytes() throws IOException {
 		connect();
-		con.out().write(bytes(1, 2, 3));
+		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
 		lib.transferOut.assertAuto(List.of(0x02, provider(1, 2, 3)));
 	}
 

@@ -4,8 +4,7 @@ import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.io.IOException;
 import java.io.InputStream;
-import ceri.common.array.SubArray;
-import ceri.common.array.SubArray.Bytes;
+import ceri.common.array.RawArrays;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Fluent;
@@ -21,7 +20,8 @@ import ceri.common.text.ToString;
 public class TestInputStream extends InputStream implements Fluent<TestInputStream> {
 	private static final int DEFAULT_SIZE = 1024;
 	private final PipedStream piped;
-	public final CallSync.Function<Bytes, Integer> read = CallSync.function(null, (Integer) null);
+	public final CallSync.Function<RawArrays.Sub<byte[]>, Integer> read =
+		CallSync.function(null, (Integer) null);
 	public final CallSync.Supplier<Integer> available = CallSync.supplier((Integer) null);
 	public final CallSync.Consumer<Integer> mark = CallSync.consumer(null, true);
 	public final CallSync.Runnable reset = CallSync.runnable(true);
@@ -87,7 +87,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		int n = piped.in().read(b, off, len);
-		return def(read.apply(SubArray.of(b, off, len), ExceptionAdapter.io), n);
+		return def(read.apply(RawArrays.Sub.of(b, off, len), ExceptionAdapter.io), n);
 	}
 
 	@SuppressWarnings("resource")

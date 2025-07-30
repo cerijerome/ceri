@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
@@ -42,7 +42,7 @@ public class SerialTester {
 	 * Create and manually test two simulated serial ports that connect to each other.
 	 */
 	public static void testPair() throws IOException {
-		try (var serials = Enclosed.ofAll(TestSerial.pairOf())) {
+		try (var serials = Enclosure.ofAll(TestSerial.pairOf())) {
 			test(serials.ref);
 		}
 	}

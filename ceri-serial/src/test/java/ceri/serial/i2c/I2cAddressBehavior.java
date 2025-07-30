@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -9,6 +8,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 
 public class I2cAddressBehavior {
 
@@ -41,9 +41,9 @@ public class I2cAddressBehavior {
 
 	@Test
 	public void shouldCreateFromFrames() {
-		assertEquals(I2cAddress.fromFrames(bytes(0xdd)), I2cAddress.of7Bit(0x6e));
-		assertEquals(I2cAddress.fromFrames(bytes(0xf1, 0x6e)), I2cAddress.of10Bit(0x6e));
-		assertThrown(() -> I2cAddress.fromFrames(bytes(0xe1, 0x6e)));
+		assertEquals(I2cAddress.fromFrames(ArrayUtil.bytes.of(0xdd)), I2cAddress.of7Bit(0x6e));
+		assertEquals(I2cAddress.fromFrames(ArrayUtil.bytes.of(0xf1, 0x6e)), I2cAddress.of10Bit(0x6e));
+		assertThrown(() -> I2cAddress.fromFrames(ArrayUtil.bytes.of(0xe1, 0x6e)));
 	}
 
 	@Test

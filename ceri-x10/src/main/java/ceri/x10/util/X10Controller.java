@@ -1,7 +1,7 @@
 package ceri.x10.util;
 
 import java.io.IOException;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 
@@ -30,9 +30,9 @@ public interface X10Controller {
 	/**
 	 * Listen to received/sent commands.
 	 */
-	default Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
+	default Enclosure<CommandListener> listen(CommandListener listener) {
 		// Do nothing by default
-		return Enclosed.noOp(listener);
+		return Enclosure.noOp(listener);
 	}
 
 	/**

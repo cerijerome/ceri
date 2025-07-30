@@ -3,7 +3,7 @@ package ceri.x10.cm17a;
 import static ceri.common.util.BasicUtil.def;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
@@ -18,7 +18,7 @@ import ceri.x10.cm17a.device.Cm17aEmulator;
 /**
  * Container for a cm17a controller.
  */
-public class Cm17aContainer implements RuntimeCloseable {
+public class Cm17aContainer implements Functions.Closeable {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	public final int id;
 	public final Type type;

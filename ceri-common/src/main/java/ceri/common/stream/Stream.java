@@ -11,39 +11,168 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.BaseStream;
 import java.util.stream.Collector;
+import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
+import ceri.common.array.RawArrays;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
 /**
- * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
- * create a new instance. Not thread-safe.
+ * A simple stream that allows checked exceptions. Where possible, modifiers change the current
+ * stream rather than create a new instance. Not thread-safe.
  */
-public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
+public class Stream<E extends Exception, T> {
 	private static final Excepts.Consumer<RuntimeException, Object> NULL_CONSUMER = _ -> {};
 	private static final Stream<RuntimeException, Object> EMPTY = new Stream<>(_ -> false);
 	private NextSupplier<E, ? extends T> supplier;
 
 	/**
+	 * Collection operators
+	 */
+	public static class Collect {
+		private Collect() {}
+
+		/**
+		 * A collector composed of method responses.
+		 */
+		private record Composed<T, A, R>(Supplier<A> supplier, BinaryOperator<A> combiner,
+			BiConsumer<A, T> accumulator, Function<A, R> finisher,
+			Set<Characteristics> characteristics) implements Collector<T, A, R> {}
+
+		/**
+		 * Collects elements into an object array.
+		 */
+		public static <T> Collector<T, ?, Object[]> array() {
+			return array(Object[]::new);
+		}
+
+		/**
+		 * Collects elements into an array.
+		 */
+		public static <R, T extends R> Collector<T, ?, R[]>
+			array(Functions.IntFunction<R[]> constructor) {
+			return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
+				DynamicArray::truncate);
+		}
+
+		/**
+		 * Collects elements into a sorted array.
+		 */
+		public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, R[]>
+			sortedArray(Functions.IntFunction<R[]> constructor) {
+			return sortedArray(constructor, Comparator.naturalOrder());
+		}
+
+		/**
+		 * Collects elements into a sorted array.
+		 */
+		public static <R, T extends R> Collector<T, ?, R[]>
+			sortedArray(Functions.IntFunction<R[]> constructor, Comparator<? super R> comparator) {
+			return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
+				a -> ArrayUtil.sort(a.truncate(), comparator));
+		}
+
+		/**
+		 * Collects elements into an immutable sorted list.
+		 */
+		public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, List<R>>
+			sortedList() {
+			return sortedList(Comparator.naturalOrder());
+		}
+
+		/**
+		 * Collects elements into an immutable sorted list.
+		 */
+		public static <R, T extends R> Collector<T, ?, List<R>>
+			sortedList(Comparator<? super R> comparator) {
+			return of(CollectionUtil.supplier.list(), Collection::add, list -> {
+				Collections.sort(list, comparator);
+				return Collections.unmodifiableList(list);
+			});
+		}
+
+		/**
+		 * Composes a collector from functions.
+		 */
+		public static <T, A, R> Collector<T, A, R> of(Supplier<A> supplier,
+			BiConsumer<A, T> accumulator, Function<A, R> finisher) {
+			return new Composed<>(supplier, null, accumulator, finisher, Set.of());
+		}
+
+		/**
+		 * Composes a collector without a finisher.
+		 */
+		public static <T, A> Collector<T, A, A> of(Supplier<A> supplier,
+			BiConsumer<A, T> accumulator) {
+			return of(supplier, accumulator, t -> t);
+		}
+	}
+
+	/**
+	 * Reduction operators.
+	 */
+	public static class Reduce {
+		private Reduce() {}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
+			min() {
+			return min(Comparator.naturalOrder());
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception, T> Excepts.BinFunction<E, T, T>
+			min(Comparator<? super T> comparator) {
+			return (l, r) -> comparator.compare(l, r) <= 0 ? l : r;
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
+			max() {
+			return max(Comparator.naturalOrder());
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception, T> Excepts.BinFunction<E, T, T>
+			max(Comparator<? super T> comparator) {
+			return (l, r) -> comparator.compare(l, r) >= 0 ? l : r;
+		}
+	}
+
+	/**
 	 * Iterating functional interface
 	 */
 	@FunctionalInterface
-	interface NextSupplier<E extends Exception, T> {
+	public interface NextSupplier<E extends Exception, T> {
 		/**
 		 * Temporary element receiver.
 		 */
-		class Receiver<E extends Exception, T> implements Excepts.Consumer<E, T> {
+		class Receiver<E extends Exception, T> implements Excepts.Consumer<E, T>, Consumer<T> {
 			public T value = null;
 
 			@Override
-			public void accept(T value) throws E {
+			public void accept(T value) {
 				this.value = value;
 			}
 		}
@@ -84,8 +213,23 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T> Stream<E, T> of(T... values) {
-		if (values == null || values.length == 0) return empty();
-		return new Stream<>(arraySupplier(values));
+		return of(values, 0);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception, T> Stream<E, T> of(T[] values, int offset) {
+		return of(values, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception, T> Stream<E, T> of(T[] values, int offset, int length) {
+		if (values == null) return empty();
+		return RawArrays.applySlice(values, offset, length,
+			(o, l) -> l == 0 ? empty() : ofSupplier(arraySupplier(values, o, l)));
 	}
 
 	/**
@@ -101,16 +245,45 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public static <E extends Exception, T> Stream<E, T> from(Iterator<? extends T> iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return new Stream<>(iteratorSupplier(iterator));
+		return ofSupplier(iteratorSupplier(iterator));
+	}
+
+	/**
+	 * Returns a stream from a java stream.
+	 */
+	public static <E extends Exception, T> Stream<E, T> from(BaseStream<? extends T, ?> stream) {
+		if (stream == null) return empty();
+		return from(stream.spliterator());
+	}
+
+	/**
+	 * Returns a stream of spliterator values.
+	 */
+	public static <E extends Exception, T> Stream<E, T> from(Spliterator<? extends T> spliterator) {
+		if (spliterator == null) return empty();
+		return ofSupplier(spliteratorSupplier(spliterator));
+	}
+
+	/**
+	 * Creates a stream for the supplier.
+	 */
+	public static <E extends Exception, T> Stream<E, T>
+		ofSupplier(NextSupplier<E, ? extends T> supplier) {
+		return new Stream<>(supplier);
 	}
 
 	Stream(NextSupplier<E, ? extends T> supplier) {
 		this.supplier = supplier;
 	}
 
-	NextSupplier<E, ? extends T> supplier() {
+	/**
+	 * Provides access to the supplier.
+	 */
+	public NextSupplier<E, ? extends T> supplier() {
 		return supplier;
 	}
+
+	// filtering
 
 	/**
 	 * Only streams elements that match the filter.
@@ -118,6 +291,13 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	public Stream<E, T> filter(Excepts.Predicate<? extends E, ? super T> filter) {
 		if (noOp(filter)) return this;
 		return update(filterSupplier(supplier, filter));
+	}
+
+	/**
+	 * Filters elements that are instances of the type.
+	 */
+	public <U> Stream<E, U> instances(Class<U> cls) {
+		return map(t -> ReflectUtil.castOrNull(cls, t)).nonNull();
 	}
 
 	/**
@@ -149,14 +329,14 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return !anyMatch(predicate);
 	}
 
-	// mappers
+	// mapping
 
 	/**
 	 * Maps stream elements to a new type.
 	 */
 	public <R> Stream<E, R> map(Excepts.Function<? extends E, ? super T, ? extends R> mapper) {
 		if (noOp(mapper)) return empty();
-		return this.<R>update(mapSupplier(supplier, mapper));
+		return this.<E, R>update(mapSupplier(supplier, mapper));
 	}
 
 	/**
@@ -191,7 +371,14 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return update(flatSupplier(map(mapper).nonNull().supplier));
 	}
 
-	// manipulators
+	// manipulation
+
+	/**
+	 * Wraps any unchecked exceptions as runtime.
+	 */
+	public Stream<RuntimeException, T> runtime() {
+		return update(runtimeSupplier(supplier));
+	}
 
 	/**
 	 * Limits the number of elements.
@@ -219,7 +406,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 			adaptedSupplier(supplier, s -> iteratorSupplier(sortedList(s, comparator).iterator())));
 	}
 
-	// terminating functions
+	// termination
 
 	/**
 	 * Returns the next element or null.
@@ -251,46 +438,29 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 			if (!supplier.next(nullConsumer())) return n;
 	}
 
-	/**
-	 * Returns the minimum value or null.
-	 */
-	public T min(Comparator<? super T> comparator) throws E {
-		if (noOp(comparator)) return null;
-		return reduce((t, u) -> comparator.compare(t, u) <= 0 ? t : u);
-	}
+	// iteration
 
 	/**
-	 * Returns the minimum value or default.
+	 * Provides an iterable view that wraps checked exceptions as runtime.
 	 */
-	public T min(Comparator<? super T> comparator, T def) throws E {
-		return BasicUtil.def(min(comparator), def);
+	public Iterable<T> iterable() {
+		return () -> iterator(supplier);
 	}
 
 	/**
-	 * Returns the maximum value or null.
+	 * Calls the consumer for each element.
 	 */
-	public T max(Comparator<? super T> comparator) throws E {
-		if (noOp(comparator)) return null;
-		return reduce((t, u) -> comparator.compare(t, u) >= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public T max(Comparator<? super T> comparator, T def) throws E {
-		return BasicUtil.def(max(comparator), def);
-	}
-
-	// collectors
-
-	@Override
-	public Excepts.Iterator<E, T> iterator() {
-		return iterator(supplier);
-	}
-
-	@Override
 	public void forEach(Excepts.Consumer<? extends E, ? super T> consumer) throws E {
 		supplier.forEach(consumer);
+	}
+
+	// collection
+
+	/**
+	 * Collects elements into an object array.
+	 */
+	public Object[] toArray() throws E {
+		return collect(Collect.array());
 	}
 
 	/**
@@ -298,9 +468,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public T[] toArray(Functions.IntFunction<T[]> generator) throws E {
 		if (generator == null) return null;
-		var array = DynamicArray.of(generator);
-		forEach(Functions.Consumer.except(array));
-		return array.truncate();
+		return collect(Collect.array(generator));
 	}
 
 	/**
@@ -317,14 +485,6 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	public List<T> toList() throws E {
 		if (emptyInstance()) return List.of();
 		return Collections.unmodifiableList(collect(CollectionUtil.supplier.<T>list().get()));
-	}
-
-	/**
-	 * Collects elements to an immutable sorted list.
-	 */
-	public List<T> toList(Comparator<? super T> comparator) throws E {
-		if (emptyInstance()) return List.of();
-		return Collections.unmodifiableList(sortedList(comparator));
 	}
 
 	/**
@@ -383,21 +543,25 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	/**
 	 * Collect elements with container supplier, accumulator, and finisher.
 	 */
-	public <A, R> R collect(Supplier<A> supplier, BiConsumer<A, ? super T> accumulator,
-		Function<A, R> finisher) throws E {
-		if (supplier == null || finisher == null) return null;
-		var container = supplier.get();
-		if (!noOp(accumulator) && container != null) forEach(t -> accumulator.accept(container, t));
-		return finisher.apply(container);
+	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator) throws E {
+		return collect(this.supplier, supplier, accumulator, r -> r);
 	}
 
-	// reducers
+	/**
+	 * Collect elements with container supplier, accumulator, and finisher.
+	 */
+	public <A, R> R collect(Supplier<A> supplier, BiConsumer<A, ? super T> accumulator,
+		Function<A, R> finisher) throws E {
+		return collect(this.supplier, supplier, accumulator, finisher);
+	}
+
+	// reduction
 
 	/**
 	 * Reduces stream to an element or null, using an accumulator.
 	 */
 	public T reduce(Excepts.BinFunction<? extends E, ? super T, ? extends T> accumulator) throws E {
-		if (noOp(accumulator)) return null;
+		if (accumulator == null) return null;
 		return reduce(next(), accumulator);
 	}
 
@@ -406,12 +570,7 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 	 */
 	public <U> U reduce(U identity,
 		Excepts.BiFunction<? extends E, ? super U, ? super T, ? extends U> accumulator) throws E {
-		if (noOp(accumulator)) return identity;
-		var receiver = new NextSupplier.Receiver<E, T>();
-		for (U u = identity;;) {
-			if (!supplier.next(receiver)) return u;
-			u = accumulator.apply(u, receiver.value);
-		}
+		return reduce(supplier, identity, accumulator);
 	}
 
 	// support
@@ -431,22 +590,17 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return BasicUtil.unchecked(NULL_CONSUMER);
 	}
 
-	private <R> Stream<E, R> update(NextSupplier<E, ? extends R> supplier) {
+	private <F extends Exception, R> Stream<F, R> update(NextSupplier<F, ? extends R> supplier) {
 		if (emptyInstance()) return empty();
 		return new Stream<>(supplier);
 	}
 
-	private List<T> sortedList(Comparator<? super T> comparator) throws E {
-		var list = collect(CollectionUtil.supplier.<T>list().get());
-		Collections.sort(list, comparator);
-		return list;
-	}
-
-	private static <E extends Exception, T> NextSupplier<E, T> arraySupplier(T[] array) {
+	private static <E extends Exception, T> NextSupplier<E, T> arraySupplier(T[] array, int offset,
+		int length) {
 		var counter = Counter.ofInt(0);
 		return c -> {
-			if (counter.count() >= array.length) return false;
-			c.accept(array[counter.preInc(1)]);
+			if (counter.count() >= length) return false;
+			c.accept(array[offset + counter.preInc(1)]);
 			return true;
 		};
 	}
@@ -456,6 +610,16 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return c -> {
 			if (!iterator.hasNext()) return false;
 			c.accept(iterator.next());
+			return true;
+		};
+	}
+
+	private static <E extends Exception, T> NextSupplier<E, T>
+		spliteratorSupplier(Spliterator<? extends T> spliterator) {
+		var receiver = new NextSupplier.Receiver<RuntimeException, T>();
+		return c -> {
+			if (!spliterator.tryAdvance(receiver)) return false;
+			c.accept(receiver.value);
 			return true;
 		};
 	}
@@ -542,6 +706,11 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		};
 	}
 
+	private static <E extends Exception, T> NextSupplier<RuntimeException, T>
+		runtimeSupplier(NextSupplier<E, T> supplier) {
+		return c -> ExceptionAdapter.runtime.getBool(() -> supplier.next(c::accept));
+	}
+
 	private static <E extends Exception, T> List<T> sortedList(NextSupplier<E, T> supplier,
 		Comparator<? super T> comparator) throws E {
 		var list = new ArrayList<T>();
@@ -550,20 +719,41 @@ public class Stream<E extends Exception, T> implements Excepts.Iterable<E, T> {
 		return list;
 	}
 
-	private static <E extends Exception, T> Excepts.Iterator<E, T>
-		iterator(NextSupplier<E, ? extends T> supplier) {
-		return new Excepts.Iterator<>() {
-			private final NextSupplier.Receiver<E, T> receiver = new NextSupplier.Receiver<>();
+	private static <E extends Exception, T, A, R> R collect(NextSupplier<E, T> next,
+		Supplier<A> supplier, BiConsumer<A, ? super T> accumulator, Function<A, R> finisher)
+		throws E {
+		if (supplier == null || finisher == null) return null;
+		var container = supplier.get();
+		if (accumulator != null && container != null)
+			next.forEach(t -> accumulator.accept(container, t));
+		return finisher.apply(container);
+	}
+
+	private static <E extends Exception, T, U> U reduce(NextSupplier<E, T> supplier, U identity,
+		Excepts.BiFunction<? extends E, ? super U, ? super T, ? extends U> accumulator) throws E {
+		if (accumulator == null) return identity;
+		var receiver = new NextSupplier.Receiver<E, T>();
+		for (U u = identity;;) {
+			if (!supplier.next(receiver)) return u;
+			u = accumulator.apply(u, receiver.value);
+		}
+	}
+
+	private static <E extends Exception, T> Iterator<T>
+		iterator(Stream.NextSupplier<E, ? extends T> supplier) {
+		var receiver = new NextSupplier.Receiver<E, T>();
+		Excepts.BoolSupplier<E> next = () -> supplier.next(receiver);
+		return new Iterator<>() {
 			private boolean fetch = true;
 			private boolean active = true;
 
-			public boolean hasNext() throws E {
-				if (fetch) active = supplier.next(receiver);
+			public boolean hasNext() {
+				if (fetch) active = ExceptionAdapter.runtime.getBool(next);
 				fetch = false;
 				return active;
 			}
 
-			public T next() throws E {
+			public T next() {
 				if (!hasNext()) throw new NoSuchElementException();
 				fetch = true;
 				return receiver.value;

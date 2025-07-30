@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.reflect.AnnotationUtil;
@@ -52,7 +51,8 @@ public class CAnnotations {
 		record Value(JnaOs[] os, Class<?>[] target, Class<?>[] reload, String location) {
 
 			/** No targets to process. */
-			public static final Value NONE = new Value(JnaOs.NONE, Empty.CLASSES, Empty.CLASSES, "");
+			public static final Value NONE =
+				new Value(JnaOs.NONE, ArrayUtil.Empty.classes, ArrayUtil.Empty.classes, "");
 
 			/**
 			 * Create from annotation.

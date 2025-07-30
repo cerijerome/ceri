@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Set;
 import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.function.Excepts.Closeable;
+import ceri.common.function.Excepts;
 import ceri.common.reflect.ReflectUtil;
 import ceri.jna.clib.jna.CMman;
 import ceri.jna.clib.jna.CUnistd;
 
-public class Mmap implements Closeable<IOException> {
+public class Mmap implements Excepts.Closeable<IOException> {
 	private final Pointer address;
 	public final long length;
 

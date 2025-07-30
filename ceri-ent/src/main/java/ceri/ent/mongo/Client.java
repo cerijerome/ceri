@@ -8,11 +8,11 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.net.HostPort;
 import ceri.log.util.LogUtil;
 
-public class Client implements RuntimeCloseable {
+public class Client implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String TEST_DB = "test";
 	private static final String ADMIN_DB = "admin";

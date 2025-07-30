@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
@@ -16,7 +16,7 @@ import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbDeviceBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 
 	@Before

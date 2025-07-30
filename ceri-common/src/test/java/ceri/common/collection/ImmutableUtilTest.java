@@ -1,15 +1,15 @@
 package ceri.common.collection;
 
 import static ceri.common.collection.CollectionUtil.asSet;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.TestUtil.testMap;
 import java.util.ArrayList;
@@ -46,54 +46,54 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testIntSet() {
-		assertCollection(ImmutableUtil.intSet());
+		assertUnordered(ImmutableUtil.intSet());
 		assertImmutableCollection(ImmutableUtil.intSet());
-		assertCollection(ImmutableUtil.intSet(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
+		assertUnordered(ImmutableUtil.intSet(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
 			Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 		assertImmutableCollection(ImmutableUtil.intSet(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testLongSet() {
-		assertCollection(ImmutableUtil.longSet());
+		assertUnordered(ImmutableUtil.longSet());
 		assertImmutableCollection(ImmutableUtil.longSet());
-		assertCollection(ImmutableUtil.longSet(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE,
+		assertUnordered(ImmutableUtil.longSet(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE,
 			0L, Long.MAX_VALUE);
 		assertImmutableCollection(ImmutableUtil.longSet(Long.MIN_VALUE, 0, Long.MAX_VALUE));
 	}
 
 	@Test
 	public void testDoubleSet() {
-		assertCollection(ImmutableUtil.doubleSet());
+		assertUnordered(ImmutableUtil.doubleSet());
 		assertImmutableCollection(ImmutableUtil.doubleSet());
-		assertCollection(ImmutableUtil.doubleSet(Double.MIN_VALUE, 0, Double.MAX_VALUE),
+		assertUnordered(ImmutableUtil.doubleSet(Double.MIN_VALUE, 0, Double.MAX_VALUE),
 			Double.MIN_VALUE, 0.0, Double.MAX_VALUE);
 		assertImmutableCollection(ImmutableUtil.doubleSet(Double.MIN_VALUE, 0, Double.MAX_VALUE));
 	}
 
 	@Test
 	public void testIntList() {
-		assertIterable(ImmutableUtil.intList());
+		assertOrdered(ImmutableUtil.intList());
 		assertImmutableList(ImmutableUtil.intList());
-		assertIterable(ImmutableUtil.intList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
+		assertOrdered(ImmutableUtil.intList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE),
 			Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
 		assertImmutableList(ImmutableUtil.intList(Integer.MIN_VALUE, 0, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testLongList() {
-		assertIterable(ImmutableUtil.longList());
+		assertOrdered(ImmutableUtil.longList());
 		assertImmutableList(ImmutableUtil.longList());
-		assertIterable(ImmutableUtil.longList(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE,
-			0L, Long.MAX_VALUE);
+		assertOrdered(ImmutableUtil.longList(Long.MIN_VALUE, 0, Long.MAX_VALUE), Long.MIN_VALUE, 0L,
+			Long.MAX_VALUE);
 		assertImmutableList(ImmutableUtil.longList(Long.MIN_VALUE, 0, Long.MAX_VALUE));
 	}
 
 	@Test
 	public void testDoubleList() {
-		assertIterable(ImmutableUtil.doubleList());
+		assertOrdered(ImmutableUtil.doubleList());
 		assertImmutableList(ImmutableUtil.doubleList());
-		assertIterable(ImmutableUtil.doubleList(Double.MIN_VALUE, 0, Double.MAX_VALUE),
+		assertOrdered(ImmutableUtil.doubleList(Double.MIN_VALUE, 0, Double.MAX_VALUE),
 			Double.MIN_VALUE, 0.0, Double.MAX_VALUE);
 		assertImmutableList(ImmutableUtil.doubleList(Double.MIN_VALUE, 0, Double.MAX_VALUE));
 	}
@@ -117,22 +117,22 @@ public class ImmutableUtilTest {
 		Set<E> one = ImmutableUtil.enumSet(E.A);
 		Set<E> two = ImmutableUtil.enumSet(E.ABC, E.BC);
 		assertImmutableCollection(one);
-		assertCollection(one, E.A);
+		assertUnordered(one, E.A);
 		assertImmutableCollection(two);
-		assertCollection(two, E.ABC, E.BC);
+		assertUnordered(two, E.ABC, E.BC);
 	}
 
 	@Test
 	public void testEnumRange() {
 		Set<E> set = ImmutableUtil.enumRange(E.A, E.BC);
 		assertImmutableCollection(set);
-		assertCollection(set, E.A, E.ABC, E.BC);
+		assertUnordered(set, E.A, E.ABC, E.BC);
 		set = ImmutableUtil.enumRange(E.ABC, E.BC);
 		assertImmutableCollection(set);
-		assertCollection(set, E.ABC, E.BC);
+		assertUnordered(set, E.ABC, E.BC);
 		set = ImmutableUtil.enumRange(E.A, E.A);
 		assertImmutableCollection(set);
-		assertCollection(set, E.A);
+		assertUnordered(set, E.A);
 		assertThrown(() -> ImmutableUtil.enumRange(E.BC, E.A));
 	}
 
@@ -140,13 +140,13 @@ public class ImmutableUtilTest {
 	public void testUnboundedEnumRange() {
 		Set<E> set = ImmutableUtil.enumRange(null, null);
 		assertImmutableCollection(set);
-		assertCollection(set);
+		assertUnordered(set);
 		set = ImmutableUtil.enumRange(null, E.ABC);
 		assertImmutableCollection(set);
-		assertCollection(set, E.A, E.ABC);
+		assertUnordered(set, E.A, E.ABC);
 		set = ImmutableUtil.enumRange(E.ABC, null);
 		assertImmutableCollection(set);
-		assertCollection(set, E.ABC, E.BC);
+		assertUnordered(set, E.ABC, E.BC);
 	}
 
 	@Test
@@ -166,7 +166,7 @@ public class ImmutableUtilTest {
 	@Test
 	public void testAsSet() {
 		Set<String> set = ImmutableUtil.asSet("1", "2", "3");
-		assertCollection(set, "1", "2", "3");
+		assertUnordered(set, "1", "2", "3");
 		assertImmutableCollection(set);
 	}
 
@@ -208,21 +208,21 @@ public class ImmutableUtilTest {
 		}
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void testIterableShouldNotAllowRemovals() {
 		List<String> list = new ArrayList<>();
 		Collections.addAll(list, "A", "B", "C");
 		Iterable<String> iterable = ImmutableUtil.iterable(list);
 		Iterator<String> iterator = iterable.iterator();
 		assertEquals(iterator.next(), "A");
-		iterator.remove();
+		assertThrown(UnsupportedOperationException.class, iterator::remove);
 	}
 
 	@Test
 	public void testJoinAsList() {
 		var list = ImmutableUtil.joinAsList(List.of("a", "b"), Set.of("c"), List.of(),
 			Arrays.asList(null, "d"));
-		assertIterable(list, "a", "b", "c", null, "d");
+		assertOrdered(list, "a", "b", "c", null, "d");
 		assertImmutableList(list);
 	}
 
@@ -230,7 +230,7 @@ public class ImmutableUtilTest {
 	public void testJoinAsSet() {
 		var set = ImmutableUtil.joinAsSet(List.of("a", "b"), Set.of("c"), List.of(),
 			Arrays.asList(null, "d"));
-		assertCollection(set, "a", "b", "c", "d", null);
+		assertUnordered(set, "a", "b", "c", "d", null);
 		assertImmutableCollection(set);
 	}
 
@@ -261,8 +261,8 @@ public class ImmutableUtilTest {
 		var array = new Integer[] { 1, 2, 3, 4, 5 };
 		assertThrown(() -> ImmutableUtil.wrapAsList(array, 3, 6));
 		assertThrown(() -> ImmutableUtil.wrapAsList(array, 6, 6));
-		assertIterable(ImmutableUtil.wrapAsList(array, 0, 0));
-		assertIterable(ImmutableUtil.wrapAsList(array, 5, 5));
+		assertOrdered(ImmutableUtil.wrapAsList(array, 0, 0));
+		assertOrdered(ImmutableUtil.wrapAsList(array, 5, 5));
 		final List<Integer> list = ImmutableUtil.wrapAsList(array, 1, 4);
 		assertEquals(list, Arrays.asList(2, 3, 4));
 		assertImmutableList(list);
@@ -295,7 +295,7 @@ public class ImmutableUtilTest {
 		assertImmutableCollection(map.get("123"));
 		assertImmutableCollection(map.get("4"));
 		srcMap.get("4").add(5);
-		assertCollection(map.get("4"), 4, 5);
+		assertUnordered(map.get("4"), 4, 5);
 	}
 
 	@Test
@@ -315,7 +315,7 @@ public class ImmutableUtilTest {
 		assertImmutableList(map.get("123"));
 		assertImmutableList(map.get("4"));
 		srcMap.get("4").add(5);
-		assertIterable(map.get("4"), 4, 5);
+		assertOrdered(map.get("4"), 4, 5);
 	}
 
 	@Test
@@ -419,12 +419,12 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCopyAsNavigableSet() {
-		assertIterable(ImmutableUtil.copyAsNavigableSet(asSet()));
+		assertOrdered(ImmutableUtil.copyAsNavigableSet(asSet()));
 		Set<Integer> srcSet = new HashSet<>();
 		Collections.addAll(srcSet, 2, 3, 1, 5, 4);
 		final NavigableSet<Integer> set = ImmutableUtil.copyAsNavigableSet(srcSet);
 		srcSet.remove(0);
-		assertIterable(set, 1, 2, 3, 4, 5);
+		assertOrdered(set, 1, 2, 3, 4, 5);
 		assertImmutableCollection(set);
 	}
 
@@ -466,7 +466,7 @@ public class ImmutableUtilTest {
 		final NavigableMap<Integer, String> map = ImmutableUtil.copyAsNavigableMap(srcMap);
 		srcMap.remove(1);
 		assertEquals(map, copy);
-		assertIterable(map.keySet(), 1, 2, 3, 4, 5);
+		assertOrdered(map.keySet(), 1, 2, 3, 4, 5);
 		assertImmutableMap(map);
 	}
 
@@ -522,7 +522,7 @@ public class ImmutableUtilTest {
 	@Test
 	public void testConvertAsNavigableSet() {
 		var set = ImmutableUtil.convertAsNavigableSet(Integer::parseInt, "5", "4", "1", "3", "2");
-		assertIterable(set, 1, 2, 3, 4, 5);
+		assertOrdered(set, 1, 2, 3, 4, 5);
 		assertImmutableCollection(set);
 	}
 

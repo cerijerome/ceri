@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import com.google.protobuf.BytesValue;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -22,7 +22,7 @@ public class RpcUtilTest {
 
 	@Test
 	public void testBytes() {
-		BytesValue value = RpcUtil.bytes(ArrayUtil.bytes(1, 2, 3));
+		BytesValue value = RpcUtil.bytes(ArrayUtil.bytes.of(1, 2, 3));
 		assertArray(value.getValue().toByteArray(), 1, 2, 3);
 	}
 
@@ -75,8 +75,8 @@ public class RpcUtilTest {
 		observer.onNext("test2");
 		observer.onCompleted();
 		observer.onError(e);
-		assertIterable(next, "test1", "test2");
-		assertIterable(stop, null, e);
+		assertOrdered(next, "test1", "test2");
+		assertOrdered(stop, null, e);
 	}
 
 	@Test
@@ -100,7 +100,7 @@ public class RpcUtilTest {
 		sob.onNext("abc");
 		sob.onCompleted();
 		sob.onError(e);
-		assertIterable(next, 123, null, 456);
+		assertOrdered(next, 123, null, 456);
 		assertThrowable(stop.get(0), NumberFormatException.class);
 		assertNull(stop.get(1));
 		assertEquals(stop.get(2), e);

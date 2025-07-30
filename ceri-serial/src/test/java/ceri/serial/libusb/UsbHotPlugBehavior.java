@@ -9,18 +9,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.CallSync;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.log.test.LogModifier;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
+import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.test.TestLibUsbNative.HotPlugEvent;
-import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbHotPlugBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 	private CallSync.Function<CallbackArgs, Boolean> callback;
 	private UsbHotPlug.Builder builder;

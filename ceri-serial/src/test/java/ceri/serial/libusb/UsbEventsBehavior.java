@@ -1,9 +1,9 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.threadCall;
 import java.time.Duration;
 import java.util.List;
@@ -11,16 +11,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.Captor;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.libusb.UsbEvents.Completed;
 import ceri.serial.libusb.UsbEvents.PollFd;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
-import ceri.serial.libusb.test.TestLibUsbNative;
 import ceri.serial.libusb.jna.LibUsbException;
+import ceri.serial.libusb.test.TestLibUsbNative;
 
 public class UsbEventsBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 	private UsbEvents events;
 
@@ -82,9 +82,9 @@ public class UsbEventsBehavior {
 
 	@Test
 	public void shouldPollFds() throws LibUsbException {
-		assertIterable(events.pollFds());
+		assertOrdered(events.pollFds());
 		lib.pollFds.autoResponses(List.of(new PollFd(7, 0x5), new PollFd(8, 0x4)));
-		assertIterable(events.pollFds(), new PollFd(7, 0x5), new PollFd(8, 0x4));
+		assertOrdered(events.pollFds(), new PollFd(7, 0x5), new PollFd(8, 0x4));
 		assertEquals(events.pollHandleTimeouts(), false);
 	}
 
@@ -101,7 +101,7 @@ public class UsbEventsBehavior {
 		events.pollNotifiers(addedCaptor::accept, removedCaptor::accept);
 		events.handle();
 		addedCaptor.verify(new PollFd(5, 0x5));
-		assertCollection(addedCaptor.values.get(0).pollEvents(), libusb_poll_event.POLLIN,
+		assertUnordered(addedCaptor.values.get(0).pollEvents(), libusb_poll_event.POLLIN,
 			libusb_poll_event.POLLOUT);
 		events.handle();
 		removedCaptor.verify(6);

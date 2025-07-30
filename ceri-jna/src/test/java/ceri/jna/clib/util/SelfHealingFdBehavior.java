@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.exception.ExceptionAdapter;
+import ceri.common.function.Lambdas;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
@@ -51,7 +52,7 @@ public class SelfHealingFdBehavior {
 	public void shouldCreateFromProperties() throws IOException {
 		try (var enc = TestCLibNative.register()) {
 			var config =
-				new SelfHealingFdProperties(typedProperties("self-healing-fd"), "fd").config();
+				new SelfHealingFd.Properties(typedProperties("self-healing-fd"), "fd").config();
 			try (var _ = config.open()) {
 				enc.ref.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
 				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
@@ -81,7 +82,7 @@ public class SelfHealingFdBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var config = SelfHealingFd.Config.of(() -> TestFileDescriptor.of(33));
-		assertFind(config, "\\(2000,1000,%s\\)", config.selfHealing.brokenPredicate);
+		assertFind(config, "\\(2000,1000,%s\\)", Lambdas.name(config.selfHealing.brokenPredicate));
 	}
 
 	@Test

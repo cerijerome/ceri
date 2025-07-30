@@ -4,7 +4,7 @@ import static ceri.common.collection.ImmutableUtil.convertAsList;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
 import ceri.serial.libusb.UsbHotPlug.Callback;
@@ -18,7 +18,7 @@ import ceri.serial.libusb.jna.LibUsbFinder;
 /**
  * Entry point for access to libusb functionality. Wraps libusb_context.
  */
-public class Usb implements RuntimeCloseable {
+public class Usb implements Functions.Closeable {
 	private static final Map<Level, libusb_log_level> levelMap = levelMap();
 	private final UsbEvents events;
 	private libusb_context context;

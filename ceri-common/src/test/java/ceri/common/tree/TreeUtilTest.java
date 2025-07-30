@@ -25,9 +25,9 @@ public class TreeUtilTest {
 		assertThrown(() -> TreeUtil.isChild(helper.root, null));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testLeavesOfNull() {
-		TreeUtil.leaves(null);
+		assertThrown(NullPointerException.class, () -> TreeUtil.leaves(null));
 	}
 
 	@Test
@@ -35,9 +35,9 @@ public class TreeUtilTest {
 		assertEquals(TreeUtil.leaves(helper.root), helper.nodes(111, 21, 3));
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testRootOfNull() {
-		TreeUtil.rootOf(null);
+		assertThrown(NullPointerException.class, () -> TreeUtil.rootOf(null));
 	}
 
 	@Test

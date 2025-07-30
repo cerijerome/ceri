@@ -2,7 +2,7 @@ package ceri.log.rpc.service;
 
 import java.io.IOException;
 import java.util.function.Supplier;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.util.Enablable;
 import ceri.common.util.Named;
 import ceri.log.util.LogUtil;
@@ -30,7 +30,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 	/**
 	 * A container for an optional service and a server.
 	 */
-	class Container implements RuntimeCloseable, Enablable {
+	class Container implements Functions.Closeable, Enablable {
 		private final RpcService service;
 		private final RpcServer server;
 

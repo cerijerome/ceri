@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import com.sun.jna.Memory;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 
 /**
  * Wrapper for long-term Memory that relies on gc to free rather than close(). Avoids
@@ -23,7 +23,7 @@ public class GcMemory {
 	 * Allocate native memory and copy array.
 	 */
 	public static GcMemory mallocBytes(int... array) {
-		return mallocBytes(ArrayUtil.bytes(array));
+		return mallocBytes(ArrayUtil.bytes.of(array));
 	}
 
 	/**

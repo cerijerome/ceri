@@ -1,16 +1,16 @@
 package ceri.log.net;
 
-import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import ceri.common.function.Excepts.Function;
-import ceri.common.function.Namer;
+import ceri.common.function.Lambdas;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
@@ -27,7 +27,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 	public static class Config {
 		public static final Config NULL = new Builder(HostPort.NULL).build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
-			Namer.predicate(TcpSocket::isBroken, "TcpSocket::isBroken");
+			Lambdas.register(TcpSocket::isBroken, "TcpSocket::isBroken");
 		public final HostPort hostPort;
 		public final Function<IOException, HostPort, TcpSocket> factory;
 		public final TcpSocketOptions options;
@@ -104,7 +104,23 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this, hostPort, lambda(factory), options, selfHealing);
+			return ToString.forClass(this, hostPort, Lambdas.name(factory), options, selfHealing);
+		}
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private final TcpSocketProperties socket;
+		private final SelfHealing.Properties selfHealing;
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+			socket = new TcpSocketProperties(ref);
+			selfHealing = new SelfHealing.Properties(ref);
+		}
+
+		public Config config() {
+			return Config.builder(socket.hostPort()).options(socket.options())
+				.selfHealing(selfHealing.config()).build();
 		}
 	}
 

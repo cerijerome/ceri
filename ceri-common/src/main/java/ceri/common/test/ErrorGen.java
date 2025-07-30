@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
-import ceri.common.function.Namer;
+import ceri.common.function.Lambdas;
 import ceri.common.reflect.ReflectUtil;
 
 /**
@@ -40,7 +40,7 @@ public class ErrorGen {
 	 * purposes.
 	 */
 	public static Supplier<Exception> errorFn(Function<String, Exception> errorFn, String name) {
-		return Namer.supplier(errorFn(errorFn), name);
+		return Lambdas.register(errorFn(errorFn), name);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public class ErrorGen {
 		if (errorFns.length == 0) clear();
 		else {
 			var sequential = sequentialSupplier(errorFns);
-			var name = Stream.of(errorFns).map(Namer::lambdaSymbol).collect(JOINER);
+			var name = Stream.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
 			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Supplier::get), name);
 		}
 	}
@@ -139,11 +139,11 @@ public class ErrorGen {
 	 */
 	@Override
 	public String toString() {
-		return errorFn == null ? "none" : Namer.lambda(errorFn);
+		return errorFn == null ? "none" : Lambdas.name(errorFn);
 	}
 
 	private ErrorGen setErrorFn(Supplier<Exception> errorFn, String name) {
-		return setErrorFn(Namer.supplier(errorFn, name));
+		return setErrorFn(Lambdas.register(errorFn, name));
 	}
 
 	private ErrorGen setErrorFn(Supplier<Exception> errorFn) {

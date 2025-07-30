@@ -2,20 +2,18 @@ package ceri.common.io;
 
 import static ceri.common.io.IoUtil.EOL_BYTES;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertHelperPaths;
-import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPath;
 import static ceri.common.test.AssertUtil.assertPaths;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.inputStream;
@@ -31,17 +29,14 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
 import ceri.common.exception.Exceptions;
-import ceri.common.function.Excepts.ObjIntPredicate;
+import ceri.common.function.Excepts;
 import ceri.common.io.IoStreamUtil.Read;
-import ceri.common.stream.WrappedStream;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
@@ -80,45 +75,6 @@ public class IoUtilTest {
 	public void testIoExceptionf() {
 		assertEquals(Exceptions.io("%s", "test").getMessage(), "test");
 		assertEquals(Exceptions.io(new Throwable(), "%s", "test").getMessage(), "test");
-	}
-
-	@Test
-	public void testExecIo() throws IOException {
-		ExceptionAdapter.io.run(() -> {});
-		assertRte(() -> ExceptionAdapter.io.run(() -> Integer.valueOf(null)));
-		assertIoe(() -> ExceptionAdapter.io.run(() -> {
-			throw new Exception();
-		}));
-		assertIoe(() -> ExceptionAdapter.io.run(() -> {
-			throw new IOException();
-		}));
-	}
-
-	@Test
-	public void testCallableIo() throws IOException {
-		ExceptionAdapter.io.get(() -> "a");
-		assertRte(() -> ExceptionAdapter.io.get(() -> Integer.valueOf(null)));
-		assertIoe(() -> ExceptionAdapter.io.get(() -> {
-			throw new Exception();
-		}));
-		assertIoe(() -> ExceptionAdapter.io.get(() -> {
-			throw new IOException();
-		}));
-	}
-
-	@Test
-	public void testRuntimeIo() {
-		ExceptionAdapter.runtimeIo.get(() -> "a");
-		assertRte(() -> ExceptionAdapter.runtimeIo.get(() -> Integer.valueOf(null)));
-		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
-			throw new Exception();
-		}));
-		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
-			throw new IOException();
-		}));
-		assertThrown(RuntimeIoException.class, () -> ExceptionAdapter.runtimeIo.get(() -> {
-			throw new RuntimeIoException("");
-		}));
 	}
 
 	@Test
@@ -186,12 +142,12 @@ public class IoUtilTest {
 
 	@Test
 	public void testVariablePaths() {
-		assertCollection(IoUtil.variablePaths(null));
-		assertCollection(IoUtil.variablePaths(""));
-		assertCollection(IoUtil.variablePaths(File.pathSeparator));
-		assertCollection(IoUtil.variablePaths(" " + File.pathSeparator + " a"), "a");
-		assertCollection(IoUtil.variablePaths("a/b" + File.pathSeparator + "a/b"), "a/b");
-		assertCollection(IoUtil.variablePaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
+		assertUnordered(IoUtil.variablePaths(null));
+		assertUnordered(IoUtil.variablePaths(""));
+		assertUnordered(IoUtil.variablePaths(File.pathSeparator));
+		assertUnordered(IoUtil.variablePaths(" " + File.pathSeparator + " a"), "a");
+		assertUnordered(IoUtil.variablePaths("a/b" + File.pathSeparator + "a/b"), "a/b");
+		assertUnordered(IoUtil.variablePaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
 			"a/b /c");
 	}
 
@@ -430,7 +386,7 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableBytesWithPredicate() throws IOException {
 		assertNull(IoUtil.availableBytes(null, null));
-		ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
+		Excepts.ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, -1, -1, 2, 3))) {
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(-1));
@@ -490,7 +446,7 @@ public class IoUtilTest {
 	public void testPollForData() throws IOException {
 		int[] available = { 0 };
 		try (var in = IoStreamUtil.in((Read) null, () -> available[0])) {
-			assertThrown(IoTimeoutException.class, () -> IoUtil.pollForData(in, 1, 1, 1));
+			assertThrown(IoExceptions.Timeout.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
 			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
 		}
@@ -531,26 +487,6 @@ public class IoUtilTest {
 		assertEquals(IoUtil.convertPath("a\\b\\c", '\\', '/'), "a/b/c");
 	}
 
-	@SuppressWarnings("resource")
-	@Test
-	public void testWalkRelative() throws IOException {
-		assertStreamPaths(IoUtil.walkRelative(helper.root), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
-		assertStreamPaths(IoUtil.walkRelative(helper.root, "glob:**/{a,b}"), "a", "a/a", "b");
-		assertStreamPaths(IoUtil.walkRelative(helper.root, (String) null), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
-	}
-
-	@SuppressWarnings("resource")
-	@Test
-	public void testWalk() throws IOException {
-		assertStreamHelperPaths(IoUtil.walk(helper.root), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
-		assertStreamHelperPaths(IoUtil.walk(helper.root, "glob:**/{a,b}"), "a", "a/a", "b");
-		assertStreamHelperPaths(IoUtil.walk(helper.root, (String) null), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.txt", "d");
-	}
-
 	@Test
 	public void testPathsRelative() throws IOException {
 		assertPaths(IoUtil.pathsRelative(helper.root), //
@@ -571,21 +507,22 @@ public class IoUtilTest {
 
 	@Test
 	public void testPathsCollect() throws IOException {
-		assertCollection(IoUtil.pathsCollect(helper.root, //
+		assertUnordered(IoUtil.pathsCollect(helper.root, //
 			path -> helper.root.equals(path) ? null : path.getFileName().toString().charAt(0)), //
 			'a', 'a', 'a', 'b', 'b', 'c', 'd');
 	}
 
 	@Test
 	public void testListNames() throws IOException {
-		assertCollection(IoUtil.listNames(helper.root), "a", "b", "c.txt", "d");
-		assertCollection(IoUtil.listNames(helper.path("a")), "a");
-		assertCollection(IoUtil.listNames(helper.path("a/a")), "a.txt");
-		assertCollection(IoUtil.listNames(helper.path("d")));
-		assertCollection(IoUtil.listNames(helper.root, //
-			path -> path.getFileName().toString().length() == 1), "a", "b", "d");
-		assertCollection(IoUtil.listNames(helper.root, "regex:a|.*\\.txt"), "a", "c.txt");
-		assertCollection(IoUtil.listNames(helper.root, (String) null), "a", "b", "c.txt", "d");
+		assertUnordered(IoUtil.listNames(helper.root), "a", "b", "c.txt", "d");
+		assertUnordered(IoUtil.listNames(helper.path("a")), "a");
+		assertUnordered(IoUtil.listNames(helper.path("a/a")), "a.txt");
+		assertUnordered(IoUtil.listNames(helper.path("d")));
+		assertUnordered(
+			IoUtil.listNames(helper.root, path -> path.getFileName().toString().length() == 1), "a",
+			"b", "d");
+		assertUnordered(IoUtil.listNames(helper.root, "regex:a|.*\\.txt"), "a", "c.txt");
+		assertUnordered(IoUtil.listNames(helper.root, (String) null), "a", "b", "c.txt", "d");
 	}
 
 	@Test
@@ -602,15 +539,8 @@ public class IoUtilTest {
 
 	@Test
 	public void testListCollect() throws IOException {
-		assertCollection(IoUtil.listCollect(helper.root, //
+		assertUnordered(IoUtil.listCollect(helper.root, //
 			path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
-	}
-
-	@Test
-	public void testDirStreamForEach() {
-		assertThrown(() -> IoUtil.dirStreamForEach(Files.newDirectoryStream(helper.root), _ -> {
-			throw new IOException();
-		}));
 	}
 
 	@Test
@@ -620,7 +550,7 @@ public class IoUtilTest {
 	}
 
 	@Test
-	public void testLines() {
+	public void testLines() throws IOException {
 		var in = inputStream("line0\n\nline2\nend");
 		assertStream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}
@@ -738,15 +668,4 @@ public class IoUtilTest {
 		var s = IoUtil.resourceString(getClass(), getClass().getSimpleName() + ".properties");
 		assertEquals(s, "a=b");
 	}
-
-	private void assertStreamHelperPaths(WrappedStream<IOException, Path> actual, String... paths)
-		throws IOException {
-		assertHelperPaths(actual.collect(Collectors.toList()), helper, paths);
-	}
-
-	private void assertStreamPaths(WrappedStream<IOException, Path> actual, String... paths)
-		throws IOException {
-		assertPaths(actual.collect(Collectors.toList()), paths);
-	}
-
 }

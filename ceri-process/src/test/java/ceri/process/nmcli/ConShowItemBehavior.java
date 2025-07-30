@@ -2,7 +2,7 @@ package ceri.process.nmcli;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ConShowItemBehavior {
 
 	@Test
 	public void shouldReturnNoResultForHeaderOutputOnly() {
-		assertIterable(ConShowItem.fromOutput("A  B  C"));
+		assertOrdered(ConShowItem.fromOutput("A  B  C"));
 	}
 
 	@Test

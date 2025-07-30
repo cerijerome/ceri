@@ -4,7 +4,7 @@ import static ceri.common.math.MathUtil.ubyte;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdiUtil;
@@ -41,7 +41,7 @@ public class UsbFtdiTester {
 		read(handle);
 		ConcurrentUtil.delay(delayMs);
 		ByteBuffer b =
-			ByteBuffer.wrap(ArrayUtil.bytes(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
+			ByteBuffer.wrap(ArrayUtil.bytes.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15));
 		for (int i = 0; i < 16; i++) {
 			write(handle, b, i);
 			ConcurrentUtil.delay(delayMs);

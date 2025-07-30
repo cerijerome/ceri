@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
 import ceri.common.io.StringPrintStream;
 import ceri.serial.spi.Spi;
@@ -31,7 +31,7 @@ public class SpiEmulatorBehavior {
 	public void shouldIgnoreOutput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.out, 5);
-		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		assertArray(xfer.read());
 	}
@@ -40,7 +40,7 @@ public class SpiEmulatorBehavior {
 	public void shouldProvideBlankInput() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.in, 5);
-		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5)); // ignored
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5)); // ignored
 		xfer.execute();
 		assertArray(xfer.read(), 0, 0, 0, 0, 0);
 	}
@@ -49,7 +49,7 @@ public class SpiEmulatorBehavior {
 	public void shouldEcho() throws IOException {
 		var spi = SpiEmulator.echo().delay(false);
 		var xfer = spi.transfer(Direction.duplex, 5);
-		xfer.write(ArrayUtil.bytes(1, 2, 3, 4, 5));
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		assertArray(xfer.read(), 1, 2, 3, 4, 5);
 	}
@@ -58,7 +58,7 @@ public class SpiEmulatorBehavior {
 	public void shouldDelayForTransferTime() throws IOException {
 		var spi = SpiEmulator.echo();
 		var xfer = spi.transfer(Direction.duplex, 3).speedHz(25000000);
-		xfer.write(ArrayUtil.bytes(1, 2, 3));
+		xfer.write(ArrayUtil.bytes.of(1, 2, 3));
 		xfer.execute(); // < 1us
 		assertArray(xfer.read(), 1, 2, 3);
 	}

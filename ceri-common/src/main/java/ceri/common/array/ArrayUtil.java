@@ -2,6 +2,7 @@ package ceri.common.array;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -488,6 +489,51 @@ public class ArrayUtil {
 		length = MathUtil.limit(length, 0, arrayLen - offset);
 		for (int i = 0; i < length; i++)
 			consumer.accept(i);
+	}
+
+	/**
+	 * Sort the array in place and return the array.
+	 */
+	public static <T extends Comparable<? super T>> T[] sort(T[] array) {
+		return sort(array, 0);
+	}
+
+	/**
+	 * Sort the array range in place and return the array.
+	 */
+	public static <T extends Comparable<? super T>> T[] sort(T[] array, int offset) {
+		return sort(array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Sort the array range in place and return the array.
+	 */
+	public static <T extends Comparable<? super T>> T[] sort(T[] array, int offset, int length) {
+		return sort(array, offset, length, Comparator.naturalOrder());
+	}
+
+	/**
+	 * Sort the array in place and return the array.
+	 */
+	public static <T> T[] sort(T[] array, Comparator<? super T> comparator) {
+		return sort(array, 0, comparator);
+	}
+
+	/**
+	 * Sort the array range in place and return the array.
+	 */
+	public static <T> T[] sort(T[] array, int offset, Comparator<? super T> comparator) {
+		return sort(array, offset, Integer.MAX_VALUE, comparator);
+	}
+
+	/**
+	 * Sort the array range in place and return the array.
+	 */
+	public static <T> T[] sort(T[] array, int offset, int length,
+		Comparator<? super T> comparator) {
+		return RawArrays.acceptSlice(array, offset, length, (o, l) -> {
+			Arrays.sort(array, o, o + l, comparator);
+		});
 	}
 
 	/**

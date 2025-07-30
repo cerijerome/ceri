@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import org.junit.Test;
 import ceri.common.exception.ExceptionTracker.Key;
-import ceri.common.io.RuntimeIoException;
+import ceri.common.io.IoExceptions;
 
 public class ExceptionTrackerBehavior {
 
@@ -20,7 +20,7 @@ public class ExceptionTrackerBehavior {
 
 	@Test
 	public void shouldAllowNullMessages() {
-		ExceptionTracker tracker = ExceptionTracker.of();
+		var tracker = ExceptionTracker.of();
 		assertFalse(tracker.add(null));
 		assertTrue(tracker.add(new IOException()));
 		assertFalse(tracker.add(new IOException()));
@@ -28,13 +28,13 @@ public class ExceptionTrackerBehavior {
 
 	@Test
 	public void shouldMatchExactTypeAndMessageOnly() {
-		IOException e0 = new IOException("test");
-		IOException e1 = new IOException("test");
-		IOException e2 = new IOException("Test");
-		IOException e3 = new FileNotFoundException("test");
-		Exception e4 = new RuntimeIoException("test");
-		IOException e5 = new IOException("test\0");
-		ExceptionTracker tracker = ExceptionTracker.of();
+		var e0 = new IOException("test");
+		var e1 = new IOException("test");
+		var e2 = new IOException("Test");
+		var e3 = new FileNotFoundException("test");
+		var e4 = new IoExceptions.Runtime("test");
+		var e5 = new IOException("test\0");
+		var tracker = ExceptionTracker.of();
 		assertTrue(tracker.add(e0));
 		assertFalse(tracker.add(e0));
 		assertFalse(tracker.add(e1));
@@ -48,7 +48,7 @@ public class ExceptionTrackerBehavior {
 
 	@Test
 	public void shouldClearExceptions() {
-		ExceptionTracker tracker = ExceptionTracker.of();
+		var tracker = ExceptionTracker.of();
 		assertTrue(tracker.add(new IOException("test")));
 		assertFalse(tracker.add(new IOException("test")));
 		tracker.clear();

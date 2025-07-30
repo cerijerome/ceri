@@ -1,10 +1,9 @@
 package ceri.common.collection;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Map;
@@ -93,8 +92,8 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldDetermineChildNamePaths() {
-		assertCollection(NODE.namedPaths(), "b0", "b1", "b1.c0", "b2", "b4");
-		assertCollection(NODE.child(3).namedPaths(), "c3");
+		assertOrdered(NODE.namedPaths(), "b0", "b1", "b1.c0", "b2", "b4");
+		assertOrdered(NODE.child(3).namedPaths(), "c3");
 	}
 
 	@Test
@@ -106,7 +105,7 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldDetermineChildren() {
-		assertIterable(NODE.childNames(), "b0", "b1", "b2", "b4");
+		assertOrdered(NODE.childNames(), "b0", "b1", "b2", "b4");
 		assertTrue(NODE.hasChild("b2"));
 		assertFalse(NODE.hasChild("3"));
 		assertFalse(NODE.hasChild("b3"));

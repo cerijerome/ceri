@@ -5,12 +5,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import com.sun.jna.Pointer;
 import ceri.common.function.FunctionUtil;
-import ceri.common.function.Namer;
+import ceri.common.function.Lambdas;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
-import ceri.log.io.SelfHealingProperties;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiBitMode;
@@ -35,7 +34,7 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 	public static class Config {
 		public static final Config DEFAULT = builder().build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
-			Namer.predicate(FtdiDevice::isFatal, "Ftdi::isFatal");
+			Lambdas.register(FtdiDevice::isFatal, "Ftdi::isFatal");
 		private final Function<Config, Ftdi.Fixable> ftdiFn;
 		public final LibUsbFinder finder;
 		public final ftdi_interface iface;
@@ -144,16 +143,16 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 
 	public static class Properties extends TypedProperties.Ref {
 		private final FtdiProperties ftdi;
-		private final SelfHealingProperties selfHealing;
+		private final SelfHealing.Properties selfHealing;
 
 		public Properties(TypedProperties properties, String... groups) {
 			super(properties, groups);
 			ftdi = new FtdiProperties(ref);
-			selfHealing = new SelfHealingProperties(ref);
+			selfHealing = new SelfHealing.Properties(ref);
 		}
 
-		public SelfHealingFtdi.Config config() {
-			var b = SelfHealingFtdi.Config.builder();
+		public Config config() {
+			var b = Config.builder();
 			FunctionUtil.safeAccept(ftdi.finder(), b::finder);
 			FunctionUtil.safeAccept(ftdi.iface(), b::iface);
 			return b.ftdi(ftdi.config()).selfHealing(selfHealing.config()).build();

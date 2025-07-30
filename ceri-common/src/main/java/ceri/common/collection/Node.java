@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.reflect.ReflectUtil;
-import ceri.common.stream.StreamUtil;
 import ceri.common.text.ParseUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
@@ -229,8 +228,8 @@ public class Node<T> {
 	}
 
 	private Stream<String> namedPathStream() {
-		return StreamUtil.prepend(namedChildPathStream().map(p -> Separator.DOT.join(name, p)),
-			name);
+		return Stream.concat(Stream.of(name),
+			namedChildPathStream().map(p -> Separator.DOT.join(name, p)));
 	}
 
 	private Stream<String> namedChildPathStream() {

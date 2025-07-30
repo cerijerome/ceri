@@ -11,7 +11,7 @@ import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.LineReader;
 import ceri.common.test.SystemIoCaptor;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
@@ -23,7 +23,7 @@ public class TtyInputBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
 	private CTermios.termios termios = null;
 	private SystemIoCaptor sys = null;
-	private Enclosed<RuntimeException, ? extends LineReader> ttyRef = null;
+	private Enclosure<? extends LineReader> ttyRef = null;
 	private LineReader tty = null;
 
 	@After

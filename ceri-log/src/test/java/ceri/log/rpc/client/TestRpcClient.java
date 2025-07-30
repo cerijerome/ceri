@@ -7,15 +7,15 @@ import static ceri.log.rpc.util.RpcUtil.uint32;
 import java.io.IOException;
 import java.util.function.Consumer;
 import com.google.protobuf.UInt32Value;
-import ceri.common.function.Excepts.RuntimeCloseable;
-import ceri.common.util.Enclosed;
+import ceri.common.function.Functions;
+import ceri.common.util.Enclosure;
 import ceri.log.rpc.TestGrpc;
 import ceri.log.rpc.TestGrpc.TestStub;
 
 /**
  * Client for the Test service.
  */
-public class TestRpcClient implements RuntimeCloseable {
+public class TestRpcClient implements Functions.Closeable {
 	private final RpcChannel channel;
 	private final TestGrpc.TestBlockingStub stub;
 	private final RpcClientNotifier<Integer, UInt32Value> notifier;
@@ -26,7 +26,7 @@ public class TestRpcClient implements RuntimeCloseable {
 		notifier = createNotifier(channel, notifierResetDelayMs);
 	}
 
-	public Enclosed<RuntimeException, ?> listen(Consumer<Integer> consumer) {
+	public Enclosure<?> listen(Consumer<Integer> consumer) {
 		return notifier.enclose(consumer);
 	}
 

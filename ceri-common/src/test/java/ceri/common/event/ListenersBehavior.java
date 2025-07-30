@@ -2,7 +2,7 @@ package ceri.common.event;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -74,7 +74,7 @@ public class ListenersBehavior {
 		var listeners = Listeners.<String>of();
 		listeners.listen(events::add);
 		listeners.acceptAll("abc", "de", "f");
-		assertIterable(events, "abc", "de", "f");
+		assertOrdered(events, "abc", "de", "f");
 	}
 
 }

@@ -21,6 +21,12 @@ public class CollectorUtil {
 		throw unsupportedOp("Joining cannot be combined");
 	};
 
+	// TODO:
+	// - rename to Collectors?
+	// - sortedList collector?
+	// - Int/Long/Double/Collector Excepts.*?
+	
+	
 	private CollectorUtil() {}
 
 	/**

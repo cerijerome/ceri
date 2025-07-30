@@ -4,7 +4,7 @@ import static ceri.jna.clib.Poll.Event.POLLIN;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.function.FunctionUtil;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
@@ -15,7 +15,7 @@ import ceri.log.util.LogUtil;
 /**
  * A pipe used to interrupt a blocking C poll(). Can be applied to multiple poll fds.
  */
-public class SyncPipe implements RuntimeCloseable {
+public class SyncPipe implements Functions.Closeable {
 	private final AtomicBoolean sync = new AtomicBoolean();
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private final Pipe pipe;
@@ -49,7 +49,7 @@ public class SyncPipe implements RuntimeCloseable {
 	/**
 	 * A pipe used for a single poll fd.
 	 */
-	public static class Fixed implements RuntimeCloseable {
+	public static class Fixed implements Functions.Closeable {
 		private final SyncPipe pipe;
 		private final Poll.Fd pollFd;
 
@@ -93,7 +93,7 @@ public class SyncPipe implements RuntimeCloseable {
 	/**
 	 * A pipe for monitoring a single file descriptor.
 	 */
-	public static class Fd implements RuntimeCloseable {
+	public static class Fd implements Functions.Closeable {
 		public final FileDescriptor fd;
 		private final SyncPipe.Fixed sync;
 		private final Poll poll;

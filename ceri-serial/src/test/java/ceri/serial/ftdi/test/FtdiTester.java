@@ -13,7 +13,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
 import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -51,7 +51,7 @@ public class FtdiTester {
 	 * Create and manually test two simulated ftdi devices that connect to each other.
 	 */
 	public static void testPair() throws IOException {
-		try (var ftdis = Enclosed.ofAll(TestFtdi.pairOf())) {
+		try (var ftdis = Enclosure.ofAll(TestFtdi.pairOf())) {
 			test(ftdis.ref);
 		}
 	}

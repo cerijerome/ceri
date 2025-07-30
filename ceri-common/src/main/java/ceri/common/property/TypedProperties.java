@@ -1,5 +1,6 @@
 package ceri.common.property;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +59,23 @@ public class TypedProperties {
 			}
 		}
 		return from(properties, prefix);
+	}
+
+	/**
+	 * Loads properties from resource file. Location is same package as the class, the name is the
+	 * hyphenated lower-case simple class name.
+	 */
+	public static TypedProperties load(Class<?> cls) throws IOException {
+		return load(cls, null);
+	}
+
+	/**
+	 * Loads properties from resource file. Location is same package as the class. The hyphenated
+	 * lower-case simple class name is used if the given name is null.
+	 */
+	public static TypedProperties load(Class<?> cls, String name, String... prefix)
+		throws IOException {
+		return from(PropertyUtil.load(cls, name), prefix);
 	}
 
 	/**

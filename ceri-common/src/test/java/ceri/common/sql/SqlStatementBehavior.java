@@ -4,7 +4,7 @@ import static ceri.common.sql.SqlNull.nullClob;
 import static ceri.common.sql.SqlNull.nullDate;
 import static ceri.common.sql.SqlNull.nullInt;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static java.sql.Types.BIGINT;
 import static java.sql.Types.BIT;
 import static java.sql.Types.BLOB;
@@ -80,7 +80,7 @@ public class SqlStatementBehavior {
 			"select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1")) {
 			stmt.setDate(date).skip().setBlob(blob).setClob(clob).skip().setTimestamp(timestamp)
 				.setBigDecimal(bigD).setTime(time).setString(s).setText(txt);
-			assertIterable(ps.setObject.values(), //
+			assertOrdered(ps.setObject.values(), //
 				List.of(1, date, DATE), //
 				List.of(3, blob, BLOB), //
 				List.of(4, clob, CLOB), //
@@ -107,7 +107,7 @@ public class SqlStatementBehavior {
 			"select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1")) {
 			stmt.setBytes(bytes).setBoolean(bo).setByte(bt).skip(2).setShort(sh).setInt(it)
 				.setLong(lg).setFloat(fl).setDouble(db);
-			assertIterable(ps.setObject.values(), //
+			assertOrdered(ps.setObject.values(), //
 				List.of(1, bytes, VARBINARY), //
 				List.of(2, bo, BIT), //
 				List.of(3, bt, TINYINT), //
@@ -124,7 +124,7 @@ public class SqlStatementBehavior {
 	public void shouldSetNullParameters() throws SQLException {
 		try (SqlStatement stmt = SqlStatement.track(con, "select ?, ?, ?, ?, ? from table1")) {
 			stmt.set(1, nullClob, "x", nullDate, nullInt);
-			assertIterable(ps.setObject.values(), //
+			assertOrdered(ps.setObject.values(), //
 				Arrays.asList(1, 1), //
 				Arrays.asList(2, null, CLOB), //
 				Arrays.asList(3, "x"), //
@@ -162,7 +162,7 @@ public class SqlStatementBehavior {
 			assertEquals(stmt.toString(), "select 2, null, x from table1");
 			stmt.skip(2).set("z").batch();
 			assertEquals(stmt.toString(), "select 2, null, z from table1");
-			assertIterable(ps.setObject.values(), //
+			assertOrdered(ps.setObject.values(), //
 				Arrays.asList(1, 1), //
 				Arrays.asList(2, null, DATE), //
 				Arrays.asList(3, "x"), //

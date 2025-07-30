@@ -9,8 +9,7 @@ import java.io.OutputStream;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
 import ceri.common.function.Fluent;
-import ceri.common.io.RuntimeEofException;
-import ceri.common.io.RuntimeIoException;
+import ceri.common.io.IoExceptions;
 
 /**
  * Container class for {@link ByteReader} and {@link ByteWriter} wrappers for I/O streams. The
@@ -43,7 +42,7 @@ public class ByteStream {
 		@Override
 		public byte readByte() {
 			int b = get(in::read);
-			if (b < 0) throw RuntimeEofException.of();
+			if (b < 0) throw IoExceptions.RuntimeEof.of();
 			return (byte) b;
 		}
 
@@ -81,7 +80,7 @@ public class ByteStream {
 
 		private static void checkEof(int actual, int expected) {
 			if (actual < expected)
-				throw RuntimeEofException.of("Incomplete read: %d/%d", actual, expected);
+				throw IoExceptions.RuntimeEof.of("Incomplete read: %d/%d", actual, expected);
 		}
 	}
 
@@ -127,9 +126,9 @@ public class ByteStream {
 		try {
 			runnable.run();
 		} catch (EOFException e) {
-			throw RuntimeEofException.of(e, e.getMessage());
+			throw IoExceptions.RuntimeEof.of(e, e.getMessage());
 		} catch (IOException e) {
-			throw new RuntimeIoException(e);
+			throw new IoExceptions.Runtime(e);
 		}
 	}
 
@@ -137,8 +136,7 @@ public class ByteStream {
 		try {
 			return supplier.get();
 		} catch (IOException e) {
-			throw new RuntimeIoException(e);
+			throw new IoExceptions.Runtime(e);
 		}
 	}
-
 }

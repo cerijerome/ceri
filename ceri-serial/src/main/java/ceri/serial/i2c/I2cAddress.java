@@ -2,7 +2,7 @@ package ceri.serial.i2c;
 
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
@@ -85,8 +85,8 @@ public record I2cAddress(int address, boolean tenBit) {
 	 * for 7-bit.
 	 */
 	public byte[] frames(boolean read) {
-		if (!tenBit) return ArrayUtil.bytes((address << 1) | (read ? 1 : 0));
-		return ArrayUtil.bytes(
+		if (!tenBit) return ArrayUtil.bytes.of((address << 1) | (read ? 1 : 0));
+		return ArrayUtil.bytes.of(
 			FRAME0_10BIT_PREFIX | (ByteUtil.byteAt(address, 1) << 1) | (read ? 1 : 0),
 			ByteUtil.byteAt(address, 0));
 	}

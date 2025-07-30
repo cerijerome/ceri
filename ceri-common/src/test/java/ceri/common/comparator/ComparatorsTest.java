@@ -2,7 +2,7 @@ package ceri.common.comparator;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Arrays;
@@ -61,7 +61,7 @@ public class ComparatorsTest {
 			Comparators.sequence(Comparators.nonNullComparator(), Comparators.STRING);
 		List<String> list = Arrays.asList(null, "2", "1", null);
 		list.sort(comparator);
-		assertIterable(list, null, null, "1", "2");
+		assertOrdered(list, null, null, "1", "2");
 	}
 
 	@Test

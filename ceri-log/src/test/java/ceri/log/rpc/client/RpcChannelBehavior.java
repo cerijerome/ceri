@@ -18,7 +18,8 @@ public class RpcChannelBehavior {
 
 	@Test
 	public void shouldBuildFromProperties() {
-		var config = new RpcChannelProperties(typedProperties("rpc-client"), "rpc-client").config();
+		var config =
+			new RpcChannel.Properties(typedProperties("rpc-client"), "rpc-client").config();
 		assertEquals(config.host(), "127.0.0.1");
 		assertEquals(config.port(), 12345);
 	}

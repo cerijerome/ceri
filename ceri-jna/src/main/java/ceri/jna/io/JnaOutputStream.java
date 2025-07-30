@@ -3,7 +3,7 @@ package ceri.jna.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import com.sun.jna.Memory;
-import ceri.common.io.IncompleteIoException;
+import ceri.common.io.IoExceptions;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
@@ -103,6 +103,6 @@ public abstract class JnaOutputStream extends OutputStream {
 	}
 
 	private void verifyWrite(int actual, int expected) throws IOException {
-		IncompleteIoException.verify(actual, expected);
+		IoExceptions.Incomplete.verify(actual, expected);
 	}
 }

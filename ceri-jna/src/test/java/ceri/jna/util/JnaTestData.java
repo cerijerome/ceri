@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.test.JnaTestUtil.MemCache;
 import ceri.jna.type.JnaSize;
@@ -60,13 +60,13 @@ public class JnaTestData {
 		}
 
 		public TestStruct populate(int i, Pointer p, int... bytes) {
-			return populate(i, p, ArrayUtil.bytes(bytes));
+			return populate(i, p, ArrayUtil.bytes.of(bytes));
 		}
 
 		public TestStruct populate(int i, Pointer p, byte[] bytes) {
 			this.i = i;
 			this.p = p;
-			ArrayUtil.copy(bytes, 0, this.b, 0, bytes.length);
+			ArrayUtil.bytes.copy(bytes, 0, this.b, 0, bytes.length);
 			return this;
 		}
 
@@ -87,7 +87,7 @@ public class JnaTestData {
 	 * Assert struct fields.
 	 */
 	public static void assertStruct(TestStruct t, int i, Pointer p, int... bytes) {
-		assertStruct(t, i, p, ArrayUtil.bytes(bytes));
+		assertStruct(t, i, p, ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

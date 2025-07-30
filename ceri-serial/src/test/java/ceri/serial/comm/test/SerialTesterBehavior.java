@@ -1,14 +1,14 @@
 package ceri.serial.comm.test;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.ManualTester;
 import ceri.common.test.SystemIoCaptor;
@@ -23,7 +23,7 @@ import ceri.serial.comm.StopBits;
 
 public class SerialTesterBehavior {
 	private final JnaLibrary.Ref<? extends TestCLibNative> ref = TestCLibNative.ref();
-	private RuntimeCloseable fastMode;
+	private Functions.Closeable fastMode;
 	private SystemIoCaptor sys;
 	private TestSerial serial;
 	private FileTestHelper files;
@@ -83,7 +83,7 @@ public class SerialTesterBehavior {
 		sys.in.print("P\np1200,5,2,e\np\nfN\nfrRxX\nf\nBi111\nBi\nBo222\nBo\n!\n");
 		SerialTester.test(serial);
 		assertEquals(serial.params(), SerialParams.of(1200, DataBits._5, StopBits._2, Parity.even));
-		assertCollection(serial.flowControl(), FlowControl.rtsCtsIn, FlowControl.rtsCtsOut,
+		assertUnordered(serial.flowControl(), FlowControl.rtsCtsIn, FlowControl.rtsCtsOut,
 			FlowControl.xonXoffIn, FlowControl.xonXoffOut);
 		assertEquals(serial.inBufferSize(), 111);
 		assertEquals(serial.outBufferSize(), 222);

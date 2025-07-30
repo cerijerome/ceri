@@ -6,7 +6,7 @@ import static ceri.common.color.ColorUtil.color;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
@@ -292,12 +292,12 @@ public class ColorUtilTest {
 
 	@Test
 	public void testArgbList() {
-		assertIterable(ColorUtil.argbList(IntStream.of(0, 0x12345678)), 0, 0x12345678);
+		assertOrdered(ColorUtil.argbList(IntStream.of(0, 0x12345678)), 0, 0x12345678);
 	}
 
 	@Test
 	public void testColorList() {
-		assertIterable(ColorUtil.colorList(IntStream.of(0, 0x12345678)), ColorUtil.clear,
+		assertOrdered(ColorUtil.colorList(IntStream.of(0, 0x12345678)), ColorUtil.clear,
 			color(0x12345678));
 	}
 

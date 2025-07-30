@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
@@ -199,13 +199,13 @@ public class I2cDev {
 		public void setBlock(byte[] data, int offset, int length) {
 			ValidationUtil.validateSlice(data.length, offset, length);
 			validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
-			ArrayUtil.copy(data, offset, block, 1, length);
+			ArrayUtil.bytes.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
 
 		public byte[] getBlock() {
 			int length = Math.min(ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
-			return ArrayUtil.copyOf(block, 1, length);
+			return ArrayUtil.bytes.copyOf(block, 1, length);
 		}
 	}
 

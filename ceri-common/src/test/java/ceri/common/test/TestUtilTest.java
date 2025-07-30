@@ -1,7 +1,6 @@
 package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -10,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.init;
 import static ceri.common.test.TestUtil.resource;
 import static ceri.common.test.TestUtil.testMap;
@@ -249,14 +249,14 @@ public class TestUtilTest {
 	@Test
 	public void testPathsToUnix() {
 		List<Path> paths = List.of(Path.of("a", "b", "c.txt"), Path.of("a", "a.txt"));
-		assertCollection(TestUtil.pathsToUnix(paths), "a/b/c.txt", "a/a.txt");
+		assertUnordered(TestUtil.pathsToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test
 	public void testToUnixFromPath() {
 		List<String> paths =
 			List.of(Path.of("a", "b", "c.txt").toString(), Path.of("a", "a.txt").toString());
-		assertCollection(TestUtil.pathNamesToUnix(paths), "a/b/c.txt", "a/a.txt");
+		assertUnordered(TestUtil.pathNamesToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test

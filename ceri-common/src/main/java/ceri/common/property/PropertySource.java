@@ -12,7 +12,7 @@ import java.util.Set;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.function.FunctionUtil;
-import ceri.common.io.RuntimeIoException;
+import ceri.common.io.IoExceptions;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
@@ -413,7 +413,7 @@ public interface PropertySource {
 		try {
 			return Files.readString(path);
 		} catch (IOException e) {
-			throw new RuntimeIoException("Failed to read: " + path, e);
+			throw new IoExceptions.Runtime("Failed to read: " + path, e);
 		}
 	}
 
@@ -421,7 +421,7 @@ public interface PropertySource {
 		try {
 			Files.writeString(path, value);
 		} catch (IOException e) {
-			throw new RuntimeIoException(
+			throw new IoExceptions.Runtime(
 				String.format("Failed to write: %s > %s", StringUtil.trim(value), path), e);
 		}
 	}

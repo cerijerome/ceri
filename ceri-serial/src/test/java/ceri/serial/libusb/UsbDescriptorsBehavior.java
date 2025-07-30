@@ -1,14 +1,14 @@
 package ceri.serial.libusb;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_attributes;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -17,13 +17,13 @@ import ceri.serial.libusb.jna.LibUsb.libusb_iso_usage_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_supported_speed;
 import ceri.serial.libusb.jna.LibUsb.libusb_transfer_type;
 import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_attributes;
+import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
-import ceri.serial.libusb.jna.LibUsbException;
 
 public class UsbDescriptorsBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private Usb usb;
 
 	@Before
@@ -66,7 +66,7 @@ public class UsbDescriptorsBehavior {
 			var handle = device.open(); var config = device.activeConfig()) {
 			assertEquals(config.value(), 1);
 			assertEquals(config.description(handle), null);
-			assertCollection(config.attributes(), libusb_config_attributes.LIBUSB_CA_REMOTE_WAKEUP);
+			assertUnordered(config.attributes(), libusb_config_attributes.LIBUSB_CA_REMOTE_WAKEUP);
 			assertEquals(config.maxPower(), 0x70);
 			assertEquals(config.extra(), ByteProvider.empty());
 			config.close();
@@ -162,7 +162,7 @@ public class UsbDescriptorsBehavior {
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor();
 			var usb2Ext = bos.capabilities().get(0).usb20Extension()) {
-			assertCollection(usb2Ext.attributes(),
+			assertUnordered(usb2Ext.attributes(),
 				libusb_usb_2_0_extension_attributes.LIBUSB_BM_LPM_SUPPORT);
 			usb2Ext.close();
 			assertThrown(() -> usb2Ext.attributes());
@@ -177,8 +177,8 @@ public class UsbDescriptorsBehavior {
 		try (var devices = usb.deviceList(); var device = devices.devices().get(0);
 			var handle = device.open(); var bos = handle.bosDescriptor();
 			var ssUsb = bos.capabilities().get(1).ssUsbDeviceCapability()) {
-			assertCollection(ssUsb.attributes());
-			assertCollection(ssUsb.supportedSpeeds(),
+			assertUnordered(ssUsb.attributes());
+			assertUnordered(ssUsb.supportedSpeeds(),
 				libusb_supported_speed.LIBUSB_FULL_SPEED_OPERATION,
 				libusb_supported_speed.LIBUSB_HIGH_SPEED_OPERATION,
 				libusb_supported_speed.LIBUSB_SUPER_SPEED_OPERATION);

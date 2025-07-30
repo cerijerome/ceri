@@ -1,10 +1,10 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.jna.clib.Poll.Error.POLLNVAL;
 import static ceri.jna.clib.Poll.Event.POLLIN;
@@ -12,7 +12,7 @@ import static ceri.jna.clib.Poll.Event.POLLOUT;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaOs;
@@ -45,11 +45,11 @@ public class PollBehavior {
 		assertFalse(poll.fd(1).has(POLLOUT));
 		writeToPipe(0);
 		assertEquals(poll.poll(), 2);
-		assertCollection(poll.responses(), POLLOUT, POLLIN);
+		assertUnordered(poll.responses(), POLLOUT, POLLIN);
 		assertTrue(poll.fd(0).has(POLLIN));
 		assertTrue(poll.fd(1).has(POLLOUT));
-		assertCollection(poll.fd(0).responses(), POLLIN);
-		assertCollection(poll.fd(1).responses(), POLLOUT);
+		assertUnordered(poll.fd(0).responses(), POLLIN);
+		assertUnordered(poll.fd(1).responses(), POLLOUT);
 	}
 
 	@Test
@@ -63,14 +63,14 @@ public class PollBehavior {
 		pipe.close();
 		pipe = null;
 		assertEquals(poll.poll(), 2);
-		assertCollection(poll.responses());
-		assertCollection(poll.errors(), POLLNVAL);
+		assertUnordered(poll.responses());
+		assertUnordered(poll.errors(), POLLNVAL);
 		assertTrue(poll.fd(0).hasErrors());
 		assertTrue(poll.fd(0).has(POLLNVAL));
 		assertTrue(poll.fd(1).hasErrors());
 		assertTrue(poll.fd(1).has(POLLNVAL));
-		assertCollection(poll.fd(0).errors(), POLLNVAL);
-		assertCollection(poll.fd(1).errors(), POLLNVAL);
+		assertUnordered(poll.fd(0).errors(), POLLNVAL);
+		assertUnordered(poll.fd(1).errors(), POLLNVAL);
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class PollBehavior {
 
 	@SuppressWarnings("resource")
 	private void writeToPipe(int... bytes) throws IOException {
-		pipe.out().write(ArrayUtil.bytes(bytes));
+		pipe.out().write(ArrayUtil.bytes.of(bytes));
 	}
 
 	private void initPipe() throws IOException {

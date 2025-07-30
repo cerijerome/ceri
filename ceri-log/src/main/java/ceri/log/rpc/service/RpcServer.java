@@ -7,7 +7,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
+import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Enablable;
 import ceri.log.rpc.client.RpcChannel;
@@ -16,7 +17,7 @@ import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
-public class RpcServer implements RuntimeCloseable, Enablable {
+public class RpcServer implements Functions.Closeable, Enablable {
 	private static final Logger logger = LogManager.getLogger();
 	public static final RpcServer NULL = new RpcServer(NULL_SERVER, Config.NULL);
 	private final Config config;
@@ -54,6 +55,22 @@ public class RpcServer implements RuntimeCloseable, Enablable {
 		public Config requireNoLoop(RpcChannel.Config channel) {
 			if (!isLoop(channel)) return this;
 			throw new IllegalArgumentException("Rpc service and client loop on port " + port);
+		}
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private static final String PORT_KEY = "port";
+		private static final String SHUTDOWN_TIMEOUT_MS_KEY = "shutdown.timeout.ms";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			var port = parse(PORT_KEY).toInt();
+			var shutdownTimeoutMs =
+				parse(SHUTDOWN_TIMEOUT_MS_KEY).toInt(RpcServer.Config.DEFAULT.shutdownTimeoutMs());
+			return new Config(port, shutdownTimeoutMs);
 		}
 	}
 

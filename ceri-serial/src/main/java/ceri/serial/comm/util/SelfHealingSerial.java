@@ -1,19 +1,17 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.function.Namer.lambda;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
-import ceri.common.function.Namer;
+import ceri.common.function.Lambdas;
 import ceri.common.io.IoUtil;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.log.io.SelfHealing;
 import ceri.log.io.SelfHealingConnector;
-import ceri.log.io.SelfHealingProperties;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
@@ -35,7 +33,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	public static class Config {
 		public static final Config NULL = builder((PortSupplier) null).build();
 		private static final Predicate<Exception> DEFAULT_PREDICATE =
-			Namer.predicate(SerialPort::isFatal, "SerialPort::isFatal");
+			Lambdas.register(SerialPort::isFatal, "SerialPort::isFatal");
 		private final Function<Config, Serial.Fixable> serialFn;
 		public final PortSupplier portSupplier;
 		public final SerialFactory factory;
@@ -135,8 +133,8 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this, lambda(portSupplier), lambda(factory), serial,
-				selfHealing);
+			return ToString.forClass(this, Lambdas.name(portSupplier), Lambdas.name(factory),
+				serial, selfHealing);
 		}
 	}
 
@@ -145,12 +143,12 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	 */
 	public static class Properties extends TypedProperties.Ref {
 		private final SerialConfig.Properties serial;
-		private final SelfHealingProperties selfHealing;
+		private final SelfHealing.Properties selfHealing;
 
 		public Properties(TypedProperties properties, String... groups) {
 			super(properties, groups);
 			serial = new SerialConfig.Properties(ref);
-			selfHealing = new SelfHealingProperties(ref);
+			selfHealing = new SelfHealing.Properties(ref);
 		}
 
 		public Config config() {
@@ -158,7 +156,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 				.selfHealing(selfHealing.config()).build();
 		}
 	}
-	
+
 	/**
 	 * Create an instance from configuration.
 	 */

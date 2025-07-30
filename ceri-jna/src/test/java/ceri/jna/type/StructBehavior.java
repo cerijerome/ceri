@@ -2,9 +2,9 @@ package ceri.jna.type;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
@@ -376,9 +376,9 @@ public class StructBehavior {
 
 	@Test
 	public void shouldProvideFieldsFromAnnotation() {
-		assertIterable(new TestStruct().getFieldOrder(), "i", "b", "p");
-		assertIterable(new TestStruct.ByRef(null).getFieldOrder(), "i", "b", "p");
-		assertIterable(new TestStruct.ByVal().getFieldOrder(), "i", "b", "p");
+		assertOrdered(new TestStruct().getFieldOrder(), "i", "b", "p");
+		assertOrdered(new TestStruct.ByRef(null).getFieldOrder(), "i", "b", "p");
+		assertOrdered(new TestStruct.ByVal().getFieldOrder(), "i", "b", "p");
 	}
 
 }

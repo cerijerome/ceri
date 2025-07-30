@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertString;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +37,7 @@ public class VersionBehavior {
 		var list = Arrays.asList(v1, v1_1, v1_2, v1__1, v1__2, v1_1_1, v1_1_2, v1___x, v1___y,
 			v1_1__x, v1__1_x, v1_1_1_x);
 		Collections.sort(list);
-		assertIterable(list, v1, v1___x, v1___y, v1__1, v1__1_x, v1__2, v1_1, v1_1__x, v1_1_1,
+		assertOrdered(list, v1, v1___x, v1___y, v1__1, v1__1_x, v1__2, v1_1, v1_1__x, v1_1_1,
 			v1_1_1_x, v1_1_2, v1_2);
 	}
 

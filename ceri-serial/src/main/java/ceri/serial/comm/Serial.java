@@ -76,7 +76,7 @@ public interface Serial extends Connector {
 
 		@Override
 		default String port() {
-			return StringUtil.NULL_STRING;
+			return StringUtil.NULL;
 		}
 
 		@Override

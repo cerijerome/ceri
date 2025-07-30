@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
@@ -26,7 +26,7 @@ import ceri.serial.libusb.jna.LibUsbException;
  * WARNING: If a device is plugged in then removed, calling <code>device.open()</code> on the arrive
  * event can generate SIGABRT cause the application to abort.
  */
-public class UsbHotPlug implements RuntimeCloseable {
+public class UsbHotPlug implements Functions.Closeable {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Usb usb;
 	private final libusb_hotplug_callback_handle handle;

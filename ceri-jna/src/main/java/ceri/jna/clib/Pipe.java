@@ -3,12 +3,12 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.io.Connector;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.log.util.LogUtil;
 
-public class Pipe implements Connector, RuntimeCloseable {
+public class Pipe implements Connector, Functions.Closeable {
 	public final FileDescriptor read;
 	public final FileDescriptor write;
 

@@ -1,8 +1,8 @@
 package ceri.log.util;
 
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import org.junit.Test;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.test.Captor;
 
 public class CloseableTrackerBehavior {
@@ -23,14 +23,14 @@ public class CloseableTrackerBehavior {
 	@Test
 	public void shouldProvideCreatedObjects() {
 		var captor = Captor.ofInt();
-		RuntimeCloseable c0 = () -> captor.accept(0);
-		RuntimeCloseable c1 = () -> captor.accept(1);
-		RuntimeCloseable c2 = () -> captor.accept(2);
+		Functions.Closeable c0 = () -> captor.accept(0);
+		Functions.Closeable c1 = () -> captor.accept(1);
+		Functions.Closeable c2 = () -> captor.accept(2);
 		var tracker = CloseableTracker.of();
 		tracker.add(c0);
 		tracker.add(c1);
 		tracker.add(c2);
-		assertIterable(tracker.list(), c0, c1, c2);
+		assertOrdered(tracker.list(), c0, c1, c2);
 	}
 
 }

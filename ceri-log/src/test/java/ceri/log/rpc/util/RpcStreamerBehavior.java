@@ -1,6 +1,6 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.ErrorGen.RTX;
@@ -23,7 +23,7 @@ public class RpcStreamerBehavior {
 			streamer.next("test1");
 			streamer.next("test2");
 		}
-		assertIterable(next, "test1", "test2");
+		assertOrdered(next, "test1", "test2");
 	}
 
 	@Test

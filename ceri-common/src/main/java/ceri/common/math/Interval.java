@@ -2,7 +2,6 @@ package ceri.common.math;
 
 import java.util.Comparator;
 import java.util.Objects;
-import ceri.common.function.Functions.Predicate;
 import ceri.common.math.Bound.Type;
 import ceri.common.util.Align;
 
@@ -57,10 +56,6 @@ public class Interval<T> {
 		this.upper = upper;
 	}
 
-	public Predicate<T> asPredicate() {
-		return this::contains;
-	}
-	
 	public boolean isUnbound() {
 		return lower.isUnbound() && upper.isUnbound();
 	}

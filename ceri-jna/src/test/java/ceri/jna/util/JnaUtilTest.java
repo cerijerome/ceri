@@ -1,6 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertBuffer;
 import static ceri.common.test.AssertUtil.assertEquals;
@@ -19,7 +18,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.util.SystemVars;
@@ -81,8 +80,8 @@ public class JnaUtilTest {
 	@Test
 	public void testMallocBytes() {
 		assertNull(JnaUtil.mallocBytes(new byte[0]));
-		assertNull(JnaUtil.mallocBytes(ArrayUtil.bytes(1, 2, 3), 1, 0));
-		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes(-1, -2, -3)), 0, -1, -2, -3);
+		assertNull(JnaUtil.mallocBytes(ArrayUtil.bytes.of(1, 2, 3), 1, 0));
+		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes.of(-1, -2, -3)), 0, -1, -2, -3);
 	}
 
 	@Test
@@ -286,7 +285,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testBytesFromBuffer() {
-		ByteBuffer bb = ByteBuffer.wrap(ArrayUtil.bytes(0x80, 0, 0xff));
+		ByteBuffer bb = ByteBuffer.wrap(ArrayUtil.bytes.of(0x80, 0, 0xff));
 		assertArray(JnaUtil.bytes(bb), 0x80, 0, 0xff);
 		assertArray(JnaUtil.bytes(bb, 0, 2), 0x80, 0);
 		assertArray(JnaUtil.bytes(bb, 1), 0, 0xff);
@@ -311,7 +310,7 @@ public class JnaUtilTest {
 		assertEquals(JnaUtil.pointer(null), null);
 		assertThrown(() -> JnaUtil.pointer(ByteBuffer.allocate(3)));
 		var buffer = ByteBuffer.allocateDirect(3);
-		buffer.put(ArrayUtil.bytes(1, 2, 3));
+		buffer.put(ArrayUtil.bytes.of(1, 2, 3));
 		assertArray(JnaUtil.bytes(JnaUtil.pointer(buffer), 0, 3), 1, 2, 3);
 	}
 
@@ -327,7 +326,7 @@ public class JnaUtilTest {
 
 	@Test
 	public void testStringFromBytes() {
-		assertEquals(JnaUtil.string(bytes('a', 0, 'b', 0)), "a\0b\0"); // no nul-term
+		assertEquals(JnaUtil.string(ArrayUtil.bytes.of('a', 0, 'b', 0)), "a\0b\0"); // no nul-term
 	}
 
 	@Test

@@ -1,12 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
@@ -45,9 +45,9 @@ public class TypeTranscoderBehavior {
 	@Test
 	public void shouldSkipValues() {
 		var xc = TypeTranscoder.of(t -> t.value, E.class, E.a);
-		assertCollection(xc.decodeAll(-1), E.b, E.c);
+		assertUnordered(xc.decodeAll(-1), E.b, E.c);
 		var xd = TypeTranscoder.ofDup(t -> t.value, Dup.class, Dup.e);
-		assertCollection(xd.decodeAll(-1), Dup.a, Dup.b);
+		assertUnordered(xd.decodeAll(-1), Dup.a, Dup.b);
 	}
 
 	@Test
@@ -118,7 +118,7 @@ public class TypeTranscoderBehavior {
 
 	@Test
 	public void shouldReturnAllValues() {
-		assertCollection(xcoder.all(), E.a, E.b, E.c);
+		assertUnordered(xcoder.all(), E.a, E.b, E.c);
 	}
 
 	@Test
@@ -142,11 +142,11 @@ public class TypeTranscoderBehavior {
 		assertNull(xcoder.decode(0));
 		assertNull(xcoder.decode(3));
 		assertEquals(xcoder.decode(2), E.b);
-		assertCollection(xcoder.decodeAll(0));
-		assertCollection(xcoder.decodeAll(4));
-		assertCollection(xcoder.decodeAll(3), E.a, E.b);
-		assertCollection(xcoder.decodeAll(15), E.a, E.b, E.c);
-		assertCollection(xcoder.decodeAll(31), E.a, E.b, E.c);
+		assertUnordered(xcoder.decodeAll(0));
+		assertUnordered(xcoder.decodeAll(4));
+		assertUnordered(xcoder.decodeAll(3), E.a, E.b);
+		assertUnordered(xcoder.decodeAll(15), E.a, E.b, E.c);
+		assertUnordered(xcoder.decodeAll(31), E.a, E.b, E.c);
 	}
 
 	@Test
@@ -160,10 +160,10 @@ public class TypeTranscoderBehavior {
 	public void shouldDecodeOverlappingValues() {
 		var array = Dup.values();
 		var xcoder = TypeTranscoder.ofDup(t -> t.value, Dup.class);
-		assertCollection(xcoder.decodeAll(3), Dup.a, Dup.b);
+		assertUnordered(xcoder.decodeAll(3), Dup.a, Dup.b);
 		ArrayUtil.reverse(array);
 		xcoder = TypeTranscoder.ofDup(t -> t.value, Arrays.asList(array));
-		assertCollection(xcoder.decodeAll(3), Dup.e);
+		assertUnordered(xcoder.decodeAll(3), Dup.e);
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class TypeTranscoderBehavior {
 	@SafeVarargs
 	private static <T> void assertRemainder(Remainder<T> actual, long rem, T... ts) {
 		assertEquals(actual.diff(), rem);
-		assertCollection(actual.types(), ts);
+		assertUnordered(actual.types(), ts);
 	}
 
 }

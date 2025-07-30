@@ -5,12 +5,12 @@ import static ceri.serial.ftdi.jna.LibFtdi.ftdi_enable_bitbang;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_free;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_new;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_read_pins;
-import static ceri.serial.ftdi.jna.LibFtdi.*;
+import static ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_open_find;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_write_data;
 import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ArrayUtil;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
@@ -53,7 +53,7 @@ public class LibFtdiTester {
 
 	private static void write(ftdi_context ftdi, int value) throws LibUsbException {
 		logger.info("Writing");
-		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(ArrayUtil.bytes(value)), 1);
+		int n = ftdi_write_data(ftdi, ByteBuffer.wrap(ArrayUtil.bytes.of(value)), 1);
 		logger.info("Write: {} byte(s)", n);
 	}
 }

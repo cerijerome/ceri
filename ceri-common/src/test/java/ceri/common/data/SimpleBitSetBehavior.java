@@ -1,8 +1,8 @@
 package ceri.common.data;
 
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.Test;
 
 public class SimpleBitSetBehavior {
@@ -61,7 +61,7 @@ public class SimpleBitSetBehavior {
 	@Test
 	public void shouldProvideSetBits() {
 		SimpleBitSet b = SimpleBitSet.ofInt(0x4321);
-		assertCollection(b.bits(), 0, 5, 8, 9, 14);
+		assertUnordered(b.bits(), 0, 5, 8, 9, 14);
 	}
 
 	@Test

@@ -1,10 +1,10 @@
 package ceri.common.net;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class TcpSocketOptionsBehavior {
 			s.option(TcpSocketOption.soKeepAlive, true);
 			s.option(TcpSocketOption.soLinger, 123);
 			var options = TcpSocketOptions.from(s);
-			assertCollection(options.options(), TcpSocketOption.soKeepAlive,
+			assertUnordered(options.options(), TcpSocketOption.soKeepAlive,
 				TcpSocketOption.soLinger);
 			assertTrue(options.has(TcpSocketOption.soKeepAlive));
 			assertTrue(options.has(TcpSocketOption.soLinger));

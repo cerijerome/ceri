@@ -7,13 +7,13 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 
 /**
  * Executes a runnable method in a repeating loop until an exception is thrown.
  */
-public abstract class LoopingExecutor implements RuntimeCloseable {
+public abstract class LoopingExecutor implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int EXIT_TIMEOUT_MS_DEF = 10000;
 	private final int exitTimeoutMs;

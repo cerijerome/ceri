@@ -4,8 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 import ceri.common.util.Named;
 
 /**
@@ -18,10 +17,26 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 	private final String delegateName;
 	private volatile T delegate = null;
 
+	/**
+	 * An exception thrown when a delegate has not been set.
+	 */
+	@SuppressWarnings("serial")
+	public static class NotSetException extends IOException {
+		public NotSetException(String message) {
+			super(message);
+		}
+	}
+
+	/**
+	 * Creates a delegate field instance.
+	 */
 	public static <T extends Closeable> Field<T> field() {
 		return field(NAME);
 	}
 
+	/**
+	 * Creates a named replaceable field instance.
+	 */
 	public static <T extends Closeable> Field<T> field(String name) {
 		return new Field<>(name);
 	}
@@ -36,23 +51,24 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 		}
 
 		@Override
-		public <E extends Exception> void acceptIfSet(Consumer<E, T> consumer) throws E {
+		public <E extends Exception> void acceptIfSet(Excepts.Consumer<E, T> consumer) throws E {
 			super.acceptIfSet(consumer);
 		}
 
 		@Override
-		public <E extends Exception, R> R applyIfSet(Function<E, T, R> function, R def) throws E {
+		public <E extends Exception, R> R applyIfSet(Excepts.Function<E, T, R> function, R def)
+			throws E {
 			return super.applyIfSet(function, def);
 		}
 
 		@Override
-		public <E extends Exception> void acceptValid(Consumer<E, T> consumer)
+		public <E extends Exception> void acceptValid(Excepts.Consumer<E, T> consumer)
 			throws IOException, E {
 			super.acceptValid(consumer);
 		}
 
 		@Override
-		public <E extends Exception, R> R applyValid(Function<E, T, R> function)
+		public <E extends Exception, R> R applyValid(Excepts.Function<E, T, R> function)
 			throws IOException, E {
 			return super.applyValid(function);
 		}
@@ -93,7 +109,7 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 	/**
 	 * Invokes the consumer with the current delegate. Does nothing if the delegate is not set.
 	 */
-	protected <E extends Exception> void acceptIfSet(Consumer<E, T> consumer) throws E {
+	protected <E extends Exception> void acceptIfSet(Excepts.Consumer<E, T> consumer) throws E {
 		applyIfSet(delegate -> {
 			consumer.accept(delegate);
 			return null;
@@ -104,7 +120,8 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 	 * Invokes the function with the current delegate. Returns the given default value if the
 	 * delegate is not set.
 	 */
-	protected <E extends Exception, R> R applyIfSet(Function<E, T, R> function, R def) throws E {
+	protected <E extends Exception, R> R applyIfSet(Excepts.Function<E, T, R> function, R def)
+		throws E {
 		var delegate = this.delegate;
 		if (delegate == null) return def;
 		try {
@@ -119,7 +136,7 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 	 * Invokes the consumer with the current delegate. If the delegate is not set, an exception is
 	 * thrown. Error listeners are notified of any exception thrown by the consumer.
 	 */
-	protected <E extends Exception> void acceptValid(Consumer<E, T> consumer)
+	protected <E extends Exception> void acceptValid(Excepts.Consumer<E, T> consumer)
 		throws IOException, E {
 		applyValid(delegate -> {
 			consumer.accept(delegate);
@@ -132,7 +149,7 @@ public abstract class Replaceable<T extends Closeable> implements Closeable, Nam
 	 * thrown. Error listeners are notified of any exception thrown by the function.
 	 */
 	@SuppressWarnings("resource")
-	protected <E extends Exception, R> R applyValid(Function<E, T, R> function)
+	protected <E extends Exception, R> R applyValid(Excepts.Function<E, T, R> function)
 		throws IOException, E {
 		var delegate = validDelegate();
 		try {

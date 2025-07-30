@@ -6,8 +6,6 @@ import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
@@ -28,40 +26,6 @@ public class ExceptionUtilTest {
 		assertInstance(new Rte("test"), RuntimeException.class);
 		Supplier<Rte, String> supplier = () -> "test";
 		assertEquals(supplier.get(), "test");
-	}
-
-	@Test
-	public void testDoNotCall() {
-		assertRte(() -> ExceptionUtil.doNotCall(1, "2"));
-	}
-
-	@Test
-	public void testIllegalArg() {
-		assertThrowable(Exceptions.illegalArg("test%d", 123), IllegalArgumentException.class,
-			"test123");
-	}
-
-	@Test
-	public void testIllegalState() {
-		assertThrowable(Exceptions.illegalState("test%d", 123), IllegalStateException.class,
-			"test123");
-	}
-
-	@Test
-	public void testUnsupportedOp() {
-		assertThrowable(Exceptions.unsupportedOp("test%d", 123),
-			UnsupportedOperationException.class, "test123");
-	}
-
-	@Test
-	public void testExceptionf() {
-		var e = Exceptions.from(IOException::new, "test%d", 123);
-		assertThrowable(e, IOException.class, "test123");
-	}
-
-	@Test
-	public void testThrowUnchecked() {
-		assertIoe(() -> ExceptionUtil.throwUnchecked(new IOException("io")));
 	}
 
 	@Test

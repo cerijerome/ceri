@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDONLY;
@@ -28,7 +28,7 @@ public class FileDescriptorBehavior {
 		assertEquals(FileDescriptor.NULL.in().read(), 0);
 		FileDescriptor.NULL.out().write(0);
 		FileDescriptor.NULL.blocking(false);
-		assertCollection(FLAGS.get(FileDescriptor.NULL), RDONLY);
+		assertUnordered(FLAGS.get(FileDescriptor.NULL), RDONLY);
 		FileDescriptor.NULL.close();
 		assertFind(FileDescriptor.NULL, ".*NULL$");
 		captor.verifyInt(); // no calls
@@ -42,8 +42,8 @@ public class FileDescriptorBehavior {
 
 	@Test
 	public void shouldDecodeOpens() {
-		assertCollection(Open.decode(3), WRONLY, RDWR);
-		assertCollection(Open.decode(0), RDONLY);
+		assertUnordered(Open.decode(3), WRONLY, RDWR);
+		assertUnordered(Open.decode(0), RDONLY);
 	}
 
 	@Test

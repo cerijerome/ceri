@@ -5,10 +5,10 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 
-public abstract class ProcessGroup implements RuntimeCloseable {
+public abstract class ProcessGroup implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private final List<? extends ProcessRunner> runners;
 

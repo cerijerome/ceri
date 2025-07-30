@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
@@ -116,7 +116,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Config implements RuntimeCloseable {
+	public static class Config implements Functions.Closeable {
 		private final UsbDevice device;
 		private libusb_config_descriptor descriptor;
 		private List<Interface> interfaces = null;
@@ -307,7 +307,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsEndPointCompanion implements RuntimeCloseable {
+	public static class SsEndPointCompanion implements Functions.Closeable {
 		private libusb_ss_endpoint_companion_descriptor descriptor;
 
 		SsEndPointCompanion(libusb_ss_endpoint_companion_descriptor descriptor) {
@@ -346,7 +346,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Bos implements RuntimeCloseable {
+	public static class Bos implements Functions.Closeable {
 		private final UsbDeviceHandle handle;
 		private libusb_bos_descriptor descriptor;
 		private List<BosDevCapability> capabilities = null;
@@ -418,7 +418,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class Usb20Extension implements RuntimeCloseable {
+	public static class Usb20Extension implements Functions.Closeable {
 		private libusb_usb_2_0_extension_descriptor descriptor;
 
 		Usb20Extension(libusb_usb_2_0_extension_descriptor descriptor) {
@@ -441,7 +441,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class SsUsbDeviceCapability implements RuntimeCloseable {
+	public static class SsUsbDeviceCapability implements Functions.Closeable {
 		private libusb_ss_usb_device_capability_descriptor descriptor;
 
 		SsUsbDeviceCapability(libusb_ss_usb_device_capability_descriptor descriptor) {
@@ -480,7 +480,7 @@ public class UsbDescriptors {
 		}
 	}
 
-	public static class ContainerId implements RuntimeCloseable {
+	public static class ContainerId implements Functions.Closeable {
 		private libusb_container_id_descriptor descriptor;
 
 		ContainerId(libusb_container_id_descriptor descriptor) {

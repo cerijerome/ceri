@@ -1,14 +1,13 @@
 package ceri.serial.i2c;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.common.stream.StreamUtil.toSet;
 import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.jna.test.JnaTestUtil.LEX;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.array.ArrayUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
@@ -53,7 +53,7 @@ public class I2cDeviceBehavior {
 		assertThrown(() -> I2cDevice.open(-1));
 		lib.open.assertAuto(new OpenArgs("/dev/i2c-1", 2, 0)); // open fd
 		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encodeInt(I2C_FUNC_SMBUS_EMUL));
-		assertCollection(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
+		assertUnordered(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
 		lib.ioctlI2cInt.assertAuto(new Int(0x0705, 0)); // I2C_FUNCS, dummy 0
 	}
 
@@ -73,7 +73,7 @@ public class I2cDeviceBehavior {
 		Set<I2cAddress> existAddrs = toSet(exists.stream().map(I2cAddress::of));
 		autoError(lib.ioctlI2cInt, 0, i -> i.request() == 0x704 || exists.contains(i.value()),
 			"Address does not exist");
-		assertCollection(i2c.scan7Bit(), existAddrs);
+		assertUnordered(i2c.scan7Bit(), existAddrs);
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class I2cDeviceBehavior {
 		var lib = initI2c();
 		byte[] receive = new byte[3];
 		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
-		i2c.readData(I2cAddress.of(0x1ab), bytes(1, 2, 3), receive);
+		i2c.readData(I2cAddress.of(0x1ab), ArrayUtil.bytes.of(1, 2, 3), receive);
 		assertArray(receive, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(
 			List.of(new Bytes(0x1ab, 0x10, provider(1, 2, 3), 3), new Bytes(0x1ab, 0x11, null, 3)));

@@ -363,7 +363,7 @@ public abstract class Struct extends Structure {
 	 * Provides an expanded string representation of a structure.
 	 */
 	static String toString(Structure s, List<String> fields, ToIntFunction<String> fieldOffsetFn) {
-		if (s == null) return StringUtil.NULL_STRING;
+		if (s == null) return StringUtil.NULL;
 		Class<?> cls = s.getClass();
 		StringBuilder b = new StringBuilder();
 		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(s.getPointer()));

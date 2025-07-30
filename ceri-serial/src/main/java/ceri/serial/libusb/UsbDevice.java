@@ -4,7 +4,7 @@ import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.PointerUtil;
@@ -16,12 +16,12 @@ import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 
-public class UsbDevice implements RuntimeCloseable {
+public class UsbDevice implements Functions.Closeable {
 	private final Usb usb;
 	private libusb_device device;
 	private int refs;
 
-	public static class Devices implements RuntimeCloseable {
+	public static class Devices implements Functions.Closeable {
 		private ArrayPointer<libusb_device> list;
 		private final List<UsbDevice> devices;
 

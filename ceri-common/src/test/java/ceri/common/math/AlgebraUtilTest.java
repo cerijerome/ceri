@@ -1,9 +1,9 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.Test;
 
 public class AlgebraUtilTest {
@@ -15,14 +15,14 @@ public class AlgebraUtilTest {
 
 	@Test
 	public void testCubicRealRoots() {
-		assertCollection(AlgebraUtil.cubicRealRoots(0, 0, 0), 0, 0, 0);
-		assertCollection(AlgebraUtil.cubicRealRoots(0, 0, 1), -1);
-		assertCollection(AlgebraUtil.cubicRealRoots(0, 0, -1000000000000000000000000000000000.0),
+		assertUnordered(AlgebraUtil.cubicRealRoots(0, 0, 0), 0, 0, 0);
+		assertUnordered(AlgebraUtil.cubicRealRoots(0, 0, 1), -1);
+		assertUnordered(AlgebraUtil.cubicRealRoots(0, 0, -1000000000000000000000000000000000.0),
 			100000000000.0);
-		assertCollection(AlgebraUtil.cubicRealRoots(-3, 3, -1), 1, 1, 1);
-		assertCollection(AlgebraUtil.cubicRealRoots(1, -1, -1), 1, -1, -1);
-		assertCollection(round(10, AlgebraUtil.cubicRealRoots(-14, 56, -64)), 2, 4, 8);
-		assertCollection(round(10, AlgebraUtil.cubicRealRoots(-0.875, 0.21875, -0.015625)), 0.5,
+		assertUnordered(AlgebraUtil.cubicRealRoots(-3, 3, -1), 1, 1, 1);
+		assertUnordered(AlgebraUtil.cubicRealRoots(1, -1, -1), 1, -1, -1);
+		assertUnordered(round(10, AlgebraUtil.cubicRealRoots(-14, 56, -64)), 2, 4, 8);
+		assertUnordered(round(10, AlgebraUtil.cubicRealRoots(-0.875, 0.21875, -0.015625)), 0.5,
 			0.25, 0.125);
 	}
 
@@ -34,13 +34,13 @@ public class AlgebraUtilTest {
 
 	@Test
 	public void testQuadraticRealRoots() {
-		assertCollection(AlgebraUtil.quadraticRealRoots(0, 0, 0));
-		assertCollection(AlgebraUtil.quadraticRealRoots(1, 0, -1), 1, -1);
-		assertCollection(AlgebraUtil.quadraticRealRoots(1000, 0, -1000), 1, -1);
-		assertCollection(AlgebraUtil.quadraticRealRoots(0, 50000000000.0, 100000000000.0), -2);
-		assertCollection(AlgebraUtil.quadraticRealRoots(1, 0, 1));
-		assertCollection(AlgebraUtil.quadraticRealRoots(1, 3, 1.25), -0.5, -2.5);
-		assertCollection(AlgebraUtil.quadraticRealRoots(32, -12, 1), 0.25, 0.125);
+		assertUnordered(AlgebraUtil.quadraticRealRoots(0, 0, 0));
+		assertUnordered(AlgebraUtil.quadraticRealRoots(1, 0, -1), 1, -1);
+		assertUnordered(AlgebraUtil.quadraticRealRoots(1000, 0, -1000), 1, -1);
+		assertUnordered(AlgebraUtil.quadraticRealRoots(0, 50000000000.0, 100000000000.0), -2);
+		assertUnordered(AlgebraUtil.quadraticRealRoots(1, 0, 1));
+		assertUnordered(AlgebraUtil.quadraticRealRoots(1, 3, 1.25), -0.5, -2.5);
+		assertUnordered(AlgebraUtil.quadraticRealRoots(32, -12, 1), 0.25, 0.125);
 	}
 
 	@Test

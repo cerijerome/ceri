@@ -14,8 +14,8 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listenable;
-import ceri.common.function.Excepts.RuntimeCloseable;
-import ceri.common.util.Enclosed;
+import ceri.common.function.Functions;
+import ceri.common.util.Enclosure;
 import ceri.log.rpc.util.RpcUtil;
 import ceri.log.util.LogUtil;
 import io.grpc.stub.StreamObserver;
@@ -34,13 +34,13 @@ import io.grpc.stub.StreamObserver;
  * This class receives local notifications, transforms to the rpc notify-type and uses the rpc
  * stream observers to notify remote clients.
  */
-public class RpcServiceNotifier<T, V> implements RuntimeCloseable {
+public class RpcServiceNotifier<T, V> implements Functions.Closeable {
 	static final Logger logger = LogManager.getLogger();
 	private final SafeReadWrite safe = SafeReadWrite.of();
 	/** Used to notify whenever a listener is added or removed */
 	private final ValueCondition<Integer> listenerSync = ValueCondition.of(safe.conditionLock());
 	private final Set<StreamObserver<V>> observers = new LinkedHashSet<>(); // rpc clients
-	private final Enclosed<RuntimeException, ?> listener; // listen on create, unlisten on close
+	private final Enclosure<?> listener; // listen on create, unlisten on close
 	private final Function<T, V> transform; // transforms T to grpc value type V
 
 	public static <T, V> RpcServiceNotifier<T, V> of(Listenable<T> listenable,

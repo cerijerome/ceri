@@ -7,9 +7,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.function.Excepts.RuntimeCloseable;
+import ceri.common.function.Functions;
 
-public class Persistables implements RuntimeCloseable, Persistable {
+public class Persistables implements Functions.Closeable, Persistable {
 	private static final Logger logger = LogManager.getLogger();
 	private final List<? extends Persistable> persistables;
 

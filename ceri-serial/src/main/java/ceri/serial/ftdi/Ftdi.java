@@ -1,10 +1,10 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.collection.ArrayUtil.bytes;
 import static ceri.serial.ftdi.jna.LibFtdiStream.PROGRESS_INTERVAL_SEC;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Pointer;
+import ceri.common.array.ArrayUtil;
 import ceri.common.io.Connector;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
@@ -144,7 +144,7 @@ public interface Ftdi extends Connector {
 	 * Writes data to the chip in asynchronous mode.
 	 */
 	default FtdiTransferControl writeSubmit(int... bytes) throws IOException {
-		return writeSubmit(bytes(bytes));
+		return writeSubmit(ArrayUtil.bytes.of(bytes));
 	}
 
 	/**

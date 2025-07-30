@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
@@ -31,7 +31,7 @@ import ceri.serial.libusb.test.TestLibUsbNative.PollFdEvent;
 
 public class TestLibUsbNativeBehavior {
 	private TestLibUsbNative lib;
-	private Enclosed<RuntimeException, TestLibUsbNative> enc;
+	private Enclosure<TestLibUsbNative> enc;
 	private timeval t0 = new timeval();
 
 	@After

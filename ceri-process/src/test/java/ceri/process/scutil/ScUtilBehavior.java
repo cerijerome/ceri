@@ -1,8 +1,8 @@
 package ceri.process.scutil;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterable;
 import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class ScUtilBehavior {
 		TestProcessor p = TestProcess.processor(TestUtil.resource("list-output.txt"));
 		var result = ScUtil.of(p).nc.list();
 		p.exec.assertAuto(Parameters.of("scutil", "--nc", "list"));
-		assertIterable(result.parse(),
+		assertOrdered(result.parse(),
 			NcListItem.builder().enabled(false).state("Disconnected")
 				.passwordHash("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX").protocol("PPP")
 				.device("FT245R USB FIFO").name("FT245R USB FIFO").type("Modem").build(),

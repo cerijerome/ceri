@@ -1,11 +1,11 @@
 package ceri.common.property;
 
 import static ceri.common.property.PropertyUtil.load;
-import static ceri.common.test.AssertUtil.assertCollection;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIterable;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
@@ -111,31 +111,31 @@ public class TypedPropertiesBehavior {
 	@Test
 	public void shouldReturnDescendants() {
 		var tp = TypedProperties.from(properties, "m.n.0");
-		assertCollection(tp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
-		assertCollection(tp.descendants("b"), "c", "c.d", "d");
+		assertUnordered(tp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
+		assertUnordered(tp.descendants("b"), "c", "c.d", "d");
 	}
 
 	@Test
 	public void shouldReturnChildren() {
 		var tp = TypedProperties.from(properties);
-		assertCollection(tp.children(), "xyz", "x", "y", "z", "a", "m", "n", "3", "7");
-		assertCollection(tp.children("m.n.0"), "a", "b");
+		assertUnordered(tp.children(), "xyz", "x", "y", "z", "a", "m", "n", "3", "7");
+		assertUnordered(tp.children("m.n.0"), "a", "b");
 		tp = TypedProperties.from(properties, "m.n.0");
-		assertCollection(tp.children(), "a", "b");
-		assertCollection(tp.children("b"), "c", "d");
+		assertUnordered(tp.children(), "a", "b");
+		assertUnordered(tp.children("b"), "c", "d");
 	}
 
 	@Test
 	public void shouldReturnChildIds() {
 		var tp = TypedProperties.from(properties);
-		assertIterable(tp.childIds("m.n"), 0, 1, 2);
-		assertIterable(tp.childIds("m"));
-		assertIterable(tp.childIds(""), 3, 7);
-		assertIterable(tp.childIds(), 3, 7);
+		assertOrdered(tp.childIds("m.n"), 0, 1, 2);
+		assertOrdered(tp.childIds("m"));
+		assertOrdered(tp.childIds(""), 3, 7);
+		assertOrdered(tp.childIds(), 3, 7);
 		tp = TypedProperties.from(properties, "m");
-		assertIterable(tp.childIds("n"), 0, 1, 2);
+		assertOrdered(tp.childIds("n"), 0, 1, 2);
 		tp = TypedProperties.from(properties, "m.n");
-		assertIterable(tp.childIds(""), 0, 1, 2);
+		assertOrdered(tp.childIds(""), 0, 1, 2);
 	}
 
 	@Test

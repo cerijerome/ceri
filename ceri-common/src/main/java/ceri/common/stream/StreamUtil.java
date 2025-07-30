@@ -20,27 +20,22 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 import java.util.function.IntSupplier;
 import java.util.function.LongConsumer;
 import java.util.function.LongSupplier;
-import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import ceri.common.collection.CollectionSupplier;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.Indexed;
 import ceri.common.collection.IteratorUtil;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
-import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
@@ -85,82 +80,6 @@ public class StreamUtil {
 			consumer.accept(i.nextInt());
 	}
 
-	public static DoubleStream unitRange(int steps) {
-		return IntStream.range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
-	}
-
-	public static IntStream toInt(Stream<? extends Number> stream) {
-		return stream.mapToInt(Number::intValue);
-	}
-
-	public static LongStream toLong(Stream<? extends Number> stream) {
-		return stream.mapToLong(Number::longValue);
-	}
-
-	public static int bitwiseAnd(IntStream stream) {
-		return stream.reduce((lhs, rhs) -> lhs & rhs).orElse(0);
-	}
-
-	public static int bitwiseOr(IntStream stream) {
-		return stream.reduce(0, (lhs, rhs) -> lhs | rhs);
-	}
-
-	public static int bitwiseXor(IntStream stream) {
-		return stream.reduce(0, (lhs, rhs) -> lhs ^ rhs);
-	}
-
-	public static long bitwiseAnd(LongStream stream) {
-		return stream.reduce((lhs, rhs) -> lhs & rhs).orElse(0L);
-	}
-
-	public static long bitwiseOr(LongStream stream) {
-		return stream.reduce(0L, (lhs, rhs) -> lhs | rhs);
-	}
-
-	public static long bitwiseXor(LongStream stream) {
-		return stream.reduce(0L, (lhs, rhs) -> lhs ^ rhs);
-	}
-
-	public static <T> Stream<Indexed<T>> range(int count, IntFunction<T> fn) {
-		return range(0, count, fn);
-	}
-
-	public static <T> Stream<Indexed<T>> range(int from, int to, IntFunction<T> fn) {
-		return IntStream.range(from, to).mapToObj(i -> Indexed.of(fn.apply(i), i));
-	}
-
-	public static <T> Stream<Indexed<T>> indexed(List<T> values) {
-		return range(values.size(), values::get);
-	}
-
-	@SafeVarargs
-	public static <T> Stream<Indexed<T>> indexed(T... array) {
-		return range(array.length, i -> array[i]);
-	}
-
-	public static <T, R> Stream<R> map(Stream<Indexed<T>> indexStream, ObjIntFunction<T, R> mapFn) {
-		return indexStream.map(i -> mapFn.apply(i.val(), i.i()));
-	}
-
-	public static <T, R> Stream<R> indexedMap(List<T> values, ObjIntFunction<T, R> mapFn) {
-		return map(indexed(values), mapFn);
-	}
-
-	public static <T> void indexedForEach(List<T> values, ObjIntConsumer<T> consumer) {
-		indexed(values).forEach(i -> consumer.accept(i.val(), i.i()));
-	}
-
-	public static <E extends Exception, T> WrappedStream<E, T> wrap(Stream<T> stream) {
-		return WrappedStream.of(stream);
-	}
-
-	/**
-	 * Filters objects of given type and casts the stream.
-	 */
-	public static <T> Stream<T> castAny(Stream<?> stream, Class<T> cls) {
-		return stream.map(obj -> ReflectUtil.castOrNull(cls, obj)).filter(Objects::nonNull);
-	}
-
 	/**
 	 * Collects a stream of int code points into a string.
 	 */
@@ -181,22 +100,6 @@ public class StreamUtil {
 			if (b.length() > prefixLen) b.append(delimiter);
 			b.append(t);
 		}, StringBuilder::append).append(suffix).toString();
-	}
-
-	/**
-	 * Append items to a stream.
-	 */
-	@SafeVarargs
-	public static <T> Stream<T> append(Stream<T> stream, T... ts) {
-		return Stream.concat(stream, Stream.of(ts));
-	}
-
-	/**
-	 * Prepend items to a stream.
-	 */
-	@SafeVarargs
-	public static <T> Stream<T> prepend(Stream<T> stream, T... ts) {
-		return Stream.concat(Stream.of(ts), stream);
 	}
 
 	/**

@@ -6,8 +6,7 @@ import java.nio.charset.Charset;
 import java.util.Objects;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.text.StringUtil;
 
 /**
@@ -155,7 +154,7 @@ public class NulTerm {
 		if (s == null || dest == null || dest.length == 0) return 0;
 		byte[] src = s.getBytes(charset);
 		int n = Math.min(src.length, dest.length - 1);
-		ArrayUtil.copy(src, 0, dest, 0, n);
+		ArrayUtil.bytes.copy(src, 0, dest, 0, n);
 		dest[n] = 0;
 		return n + 1;
 	}
@@ -212,7 +211,7 @@ public class NulTerm {
 	 */
 	public static int writePad(String s, Charset charset, byte[] dest) {
 		int n = write(s, charset, dest);
-		ArrayUtil.fill(dest, n, 0);
+		ArrayUtil.bytes.fill(dest, n, 0);
 		return dest.length;
 	}
 
@@ -275,8 +274,8 @@ public class NulTerm {
 	}
 
 	private static byte[] slice(byte[] bytes, int start, int length) {
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		if (start == 0 && bytes.length == length) return bytes;
-		return ArrayUtil.copyOf(bytes, start, length);
+		return ArrayUtil.bytes.copyOf(bytes, start, length);
 	}
 }

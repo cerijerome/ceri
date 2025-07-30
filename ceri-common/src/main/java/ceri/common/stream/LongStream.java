@@ -12,14 +12,56 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
 /**
- * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
- * create a new instance. Not thread-safe.
+ * A simple stream that allows checked exceptions. Where possible, modifiers change the current
+ * stream rather than create a new instance. Not thread-safe.
  */
 public class LongStream<E extends Exception> {
 	private static final Excepts.LongConsumer<?> NULL_CONSUMER = _ -> {};
 	private static final LongStream<RuntimeException> EMPTY = new LongStream<>(_ -> false);
 	private NextSupplier<E> supplier;
 
+	/**
+	 * Reduction operators.
+	 */
+	public static class Reduce {
+		private Reduce() {}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> min() {
+			return (l, r) -> Long.compare(l, r) <= 0 ? l : r;
+		}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> max() {
+			return (l, r) -> Long.compare(l, r) >= 0 ? l : r;
+		}
+		
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> and() {
+			return (l, r) -> l & r;
+		}
+		
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> or() {
+			return (l, r) -> l | r;
+		}
+		
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> xor() {
+			return (l, r) -> l ^ r;
+		}
+	}
+	
 	/**
 	 * Iterating functional interface
 	 */
@@ -86,8 +128,21 @@ public class LongStream<E extends Exception> {
 	 * Returns a stream of values.
 	 */
 	public static <E extends Exception> LongStream<E> of(long[] values, int offset, int length) {
+		if (values == null) return empty();
 		return RawArrays.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : new LongStream<E>(arraySupplier(values, o, l)));
+	}
+
+	/**
+	 * Streams a range of values.
+	 */
+	public static <E extends Exception> LongStream<E> range(long offset, long length) {
+		var counter = Counter.ofLong(0L);
+		return ofSupplier(c -> {
+			if (counter.count() >= length) return false;
+			c.accept(offset + counter.preInc(1));
+			return true;
+		});
 	}
 
 	/**
@@ -106,12 +161,15 @@ public class LongStream<E extends Exception> {
 		return Stream.<E, Number>from(iterator).mapToLong(Number::longValue);
 	}
 
-	LongStream(NextSupplier<E> supplier) {
-		this.supplier = supplier;
+	/**
+	 * Creates a stream for the supplier.
+	 */
+	public static <E extends Exception> LongStream<E> ofSupplier(NextSupplier<E> supplier) {
+		return new LongStream<>(supplier);
 	}
 
-	NextSupplier<E> supplier() {
-		return supplier;
+	LongStream(NextSupplier<E> supplier) {
+		this.supplier = supplier;
 	}
 
 	// filters
@@ -156,7 +214,16 @@ public class LongStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to ints.
+	 */
+	public IntStream<E> ints() {
+		if (emptyInstance()) return IntStream.empty();
+		var supplier = this.supplier;
+		return IntStream.ofSupplier(c -> supplier.next(l -> c.accept((int) l)));
+	}
+
+	/**
+	 * Maps stream elements to new values.
 	 */
 	public LongStream<E> map(Excepts.LongOperator<? extends E> mapper) {
 		if (noOp(mapper)) return empty();
@@ -164,7 +231,23 @@ public class LongStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to int values.
+	 */
+	public IntStream<E> mapToInt(Excepts.LongToIntFunction<? extends E> mapper) {
+		if (noOp(mapper)) return IntStream.empty();
+		return IntStream.ofSupplier(intSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to double values.
+	 */
+	public DoubleStream<E> mapToDouble(Excepts.LongToDoubleFunction<? extends E> mapper) {
+		if (noOp(mapper)) return DoubleStream.empty();
+		return DoubleStream.ofSupplier(doubleSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to typed values.
 	 */
 	public <T> Stream<E, T> mapToObj(Excepts.LongFunction<? extends E, ? extends T> mapper) {
 		if (noOp(mapper)) return Stream.empty();
@@ -227,7 +310,7 @@ public class LongStream<E extends Exception> {
 	 * Returns true if no elements are available. Consumes the next value if available.
 	 */
 	public boolean isEmpty() throws E {
-		return supplier.next(nullConsumer());
+		return !supplier.next(nullConsumer());
 	}
 
 	/**
@@ -236,34 +319,6 @@ public class LongStream<E extends Exception> {
 	public long count() throws E {
 		for (long n = 0L;; n++)
 			if (!supplier.next(nullConsumer())) return n;
-	}
-
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public Long min() throws E {
-		return reduce((t, u) -> Long.compare(t, u) <= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public long min(int def) throws E {
-		return BasicUtil.defLong(min(), def);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public Long max() throws E {
-		return reduce((t, u) -> Long.compare(t, u) >= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public long max(long def) throws E {
-		return BasicUtil.defLong(max(), def);
 	}
 
 	// collectors
@@ -361,6 +416,26 @@ public class LongStream<E extends Exception> {
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.applyAsLong(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> IntStream.NextSupplier<E>
+		intSupplier(NextSupplier<E> supplier, Excepts.LongToIntFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsInt(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> DoubleStream.NextSupplier<E>
+		doubleSupplier(NextSupplier<E> supplier, Excepts.LongToDoubleFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsDouble(receiver.value));
 			return true;
 		};
 	}

@@ -19,12 +19,11 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.ShortByReference;
-import ceri.common.collection.ArrayUtil;
-import ceri.common.collection.ArrayUtil.Empty;
+import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
@@ -50,8 +49,8 @@ public class JnaUtil {
 	/**
 	 * Returns a closeable resource to prevent gc. Use for objects referenced in async callbacks.
 	 */
-	public static <T> Enclosed<RuntimeException, T> callback(T callback) {
-		return Enclosed.of(callback, Reference::reachabilityFence);
+	public static <T> Enclosure<T> callback(T callback) {
+		return Enclosure.of(callback, Reference::reachabilityFence);
 	}
 
 	/**
@@ -86,7 +85,7 @@ public class JnaUtil {
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory mallocBytes(int... array) {
-		return mallocBytes(ArrayUtil.bytes(array));
+		return mallocBytes(ArrayUtil.bytes.of(array));
 	}
 
 	/**
@@ -455,7 +454,7 @@ public class JnaUtil {
 	public static byte[] bytes(Pointer p, long offset, long length) {
 		if (PointerUtil.validate(p, offset, length) != null)
 			return p.getByteArray(offset, Math.toIntExact(length));
-		return Empty.BYTES;
+		return ArrayUtil.bytes.empty;
 	}
 
 	/**
@@ -478,7 +477,7 @@ public class JnaUtil {
 	 */
 	public static byte[] bytes(ByteBuffer buffer, int position, int length) {
 		Objects.requireNonNull(buffer);
-		if (length == 0) return Empty.BYTES;
+		if (length == 0) return ArrayUtil.bytes.empty;
 		if (position == 0 && length == buffer.limit() && buffer.hasArray()) return buffer.array();
 		byte[] bytes = new byte[length];
 		buffer.get(position, bytes);
@@ -703,7 +702,7 @@ public class JnaUtil {
 	 * Copies bytes to the pointer. Returns the pointer offset after writing.
 	 */
 	public static long write(Pointer p, long offset, int... buffer) {
-		return write(p, offset, ArrayUtil.bytes(buffer));
+		return write(p, offset, ArrayUtil.bytes.of(buffer));
 	}
 
 	/**

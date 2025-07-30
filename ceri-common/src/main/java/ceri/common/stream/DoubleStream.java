@@ -12,14 +12,35 @@ import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
 /**
- * A simple stream that allows checked exceptions. Modifiers change the current stream rather than
- * create a new instance. Not thread-safe.
+ * A simple stream that allows checked exceptions. Where possible, modifiers change the current
+ * stream rather than create a new instance. Not thread-safe.
  */
 public class DoubleStream<E extends Exception> {
 	private static final Excepts.DoubleConsumer<?> NULL_CONSUMER = _ -> {};
 	private static final DoubleStream<RuntimeException> EMPTY = new DoubleStream<>(_ -> false);
 	private NextSupplier<E> supplier;
 
+	/**
+	 * Reduction operators.
+	 */
+	public static class Reduce {
+		private Reduce() {}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.DoubleBiOperator<E> min() {
+			return (l, r) -> Double.compare(l, r) <= 0 ? l : r;
+		}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.DoubleBiOperator<E> max() {
+			return (l, r) -> Double.compare(l, r) >= 0 ? l : r;
+		}
+	}
+	
 	/**
 	 * Iterating functional interface
 	 */
@@ -87,6 +108,7 @@ public class DoubleStream<E extends Exception> {
 	 */
 	public static <E extends Exception> DoubleStream<E> of(double[] values, int offset,
 		int length) {
+		if (values == null) return empty();
 		return RawArrays.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : new DoubleStream<E>(arraySupplier(values, o, l)));
 	}
@@ -107,12 +129,15 @@ public class DoubleStream<E extends Exception> {
 		return Stream.<E, Number>from(iterator).mapToDouble(Number::doubleValue);
 	}
 
-	DoubleStream(NextSupplier<E> supplier) {
-		this.supplier = supplier;
+	/**
+	 * Creates a stream for the supplier.
+	 */
+	public static <E extends Exception> DoubleStream<E> ofSupplier(NextSupplier<E> supplier) {
+		return new DoubleStream<>(supplier);
 	}
 
-	NextSupplier<E> supplier() {
-		return supplier;
+	DoubleStream(NextSupplier<E> supplier) {
+		this.supplier = supplier;
 	}
 
 	// filters
@@ -157,7 +182,7 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to new values.
 	 */
 	public DoubleStream<E> map(Excepts.DoubleOperator<? extends E> mapper) {
 		if (noOp(mapper)) return empty();
@@ -165,7 +190,23 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	/**
-	 * Maps stream elements to a new type.
+	 * Maps stream elements to int values.
+	 */
+	public IntStream<E> mapToInt(Excepts.DoubleToIntFunction<? extends E> mapper) {
+		if (noOp(mapper)) return IntStream.empty();
+		return IntStream.ofSupplier(intSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to long values.
+	 */
+	public LongStream<E> mapToLong(Excepts.DoubleToLongFunction<? extends E> mapper) {
+		if (noOp(mapper)) return LongStream.empty();
+		return LongStream.ofSupplier(longSupplier(supplier, mapper));
+	}
+
+	/**
+	 * Maps stream elements to typed values.
 	 */
 	public <T> Stream<E, T> mapToObj(Excepts.DoubleFunction<? extends E, ? extends T> mapper) {
 		if (noOp(mapper)) return Stream.empty();
@@ -228,7 +269,7 @@ public class DoubleStream<E extends Exception> {
 	 * Returns true if no elements are available. Consumes the next value if available.
 	 */
 	public boolean isEmpty() throws E {
-		return supplier.next(nullConsumer());
+		return !supplier.next(nullConsumer());
 	}
 
 	/**
@@ -237,34 +278,6 @@ public class DoubleStream<E extends Exception> {
 	public long count() throws E {
 		for (long n = 0L;; n++)
 			if (!supplier.next(nullConsumer())) return n;
-	}
-
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public Double min() throws E {
-		return reduce((t, u) -> Double.compare(t, u) <= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the minimum value or default.
-	 */
-	public double min(double def) throws E {
-		return BasicUtil.defDouble(min(), def);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public Double max() throws E {
-		return reduce((t, u) -> Double.compare(t, u) >= 0 ? t : u);
-	}
-
-	/**
-	 * Returns the maximum value or default.
-	 */
-	public double max(double def) throws E {
-		return BasicUtil.defDouble(max(), def);
 	}
 
 	// collectors
@@ -363,6 +376,26 @@ public class DoubleStream<E extends Exception> {
 		return c -> {
 			if (!supplier.next(receiver)) return false;
 			c.accept(mapper.applyAsDouble(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> IntStream.NextSupplier<E>
+		intSupplier(NextSupplier<E> supplier, Excepts.DoubleToIntFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsInt(receiver.value));
+			return true;
+		};
+	}
+
+	private static <E extends Exception> LongStream.NextSupplier<E>
+		longSupplier(NextSupplier<E> supplier, Excepts.DoubleToLongFunction<? extends E> mapper) {
+		var receiver = new NextSupplier.Receiver<E>();
+		return c -> {
+			if (!supplier.next(receiver)) return false;
+			c.accept(mapper.applyAsLong(receiver.value));
 			return true;
 		};
 	}

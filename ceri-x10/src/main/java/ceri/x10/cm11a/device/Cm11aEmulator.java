@@ -5,7 +5,7 @@ import java.io.IOException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.io.StateChange;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
 import ceri.x10.command.Command;
@@ -29,7 +29,7 @@ public class Cm11aEmulator implements Cm11a {
 	}
 
 	@Override
-	public Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
+	public Enclosure<CommandListener> listen(CommandListener listener) {
 		return dispatcher.listen(listener);
 	}
 

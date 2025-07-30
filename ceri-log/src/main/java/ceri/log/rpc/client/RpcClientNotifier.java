@@ -15,6 +15,7 @@ import com.google.protobuf.Empty;
 import ceri.common.concurrent.BooleanCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
+import ceri.common.property.TypedProperties;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
 import ceri.log.rpc.util.RpcUtil;
@@ -51,6 +52,18 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	public record Config(int resetDelayMs) {
 		public static final Config DEFAULT = new Config(3000);
+	}
+
+	public static class Properties extends TypedProperties.Ref {
+		private static final String RESET_DELAY_MS_KEY = "reset.delay.ms";
+
+		public Properties(TypedProperties properties, String... groups) {
+			super(properties, groups);
+		}
+
+		public Config config() {
+			return parse(RESET_DELAY_MS_KEY).asInt().as(Config::new).get(Config.DEFAULT);
+		}
 	}
 
 	private static enum Action {

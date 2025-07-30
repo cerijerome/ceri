@@ -3,7 +3,7 @@ package ceri.x10.cm17a.device;
 import java.io.Closeable;
 import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
-import ceri.common.util.Enclosed;
+import ceri.common.util.Enclosure;
 import ceri.x10.command.Command;
 import ceri.x10.command.CommandListener;
 import ceri.x10.util.X10Controller;
@@ -19,8 +19,8 @@ public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, 
 		}
 
 		@Override
-		public Enclosed<RuntimeException, CommandListener> listen(CommandListener listener) {
-			return Enclosed.noOp(listener);
+		public Enclosure<CommandListener> listen(CommandListener listener) {
+			return Enclosure.noOp(listener);
 		}
 
 		@Override
