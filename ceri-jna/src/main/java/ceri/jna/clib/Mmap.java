@@ -10,7 +10,7 @@ import java.util.Set;
 import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.Excepts;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.jna.clib.jna.CMman;
 import ceri.jna.clib.jna.CUnistd;
 
@@ -142,7 +142,7 @@ public class Mmap implements Excepts.Closeable<IOException> {
 
 	@Override
 	public String toString() {
-		return String.format("%s@%x+%x", ReflectUtil.name(getClass()), Pointer.nativeValue(address),
+		return String.format("%s@%x+%x", Reflect.name(getClass()), Pointer.nativeValue(address),
 			length);
 	}
 }

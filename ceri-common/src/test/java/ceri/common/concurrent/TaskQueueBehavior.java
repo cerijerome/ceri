@@ -62,7 +62,7 @@ public class TaskQueueBehavior {
 
 	@Test
 	public void shouldFailToExecuteTaskIfQueueIsFull() throws Exception {
-		BooleanCondition error = BooleanCondition.of();
+		BoolCondition error = BoolCondition.of();
 		TaskQueue<?> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
 		try (var _ = SimpleExecutor.run(task(queue, error))) {
@@ -72,7 +72,7 @@ public class TaskQueueBehavior {
 		}
 	}
 
-	private Runnable<?> task(TaskQueue<?> queue, BooleanCondition error) {
+	private Runnable<?> task(TaskQueue<?> queue, BoolCondition error) {
 		return () -> {
 			try {
 				queue.execute(() -> ConcurrentUtil.delay(100000));

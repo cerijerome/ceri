@@ -3,10 +3,11 @@ package ceri.common.stream;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.fail;
-import java.util.Iterator;
 import java.util.List;
+import java.util.PrimitiveIterator;
 import org.junit.Test;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterables;
+import ceri.common.collection.Iterators;
 import ceri.common.test.Captor;
 
 public class DoubleStreamBehavior {
@@ -21,15 +22,16 @@ public class DoubleStreamBehavior {
 	@Test
 	public void testFromIterable() {
 		assertStream(DoubleStream.from((List<Number>) null));
-		assertStream(DoubleStream.from(IteratorUtil.nullIterable()));
+		assertStream(DoubleStream.from(Iterables.ofNull()));
 		assertStream(DoubleStream.from(List.of(-1, 0, 1)), -1.0, 0.0, 1.0);
 	}
 
 	@Test
 	public void testFromIterator() {
-		assertStream(DoubleStream.from((Iterator<Number>) null));
-		assertStream(DoubleStream.from(IteratorUtil.nullIterator()));
-		assertStream(DoubleStream.from(List.of(-1, 0, 1).iterator()), -1.0, 0.0, 1.0);
+		assertStream(DoubleStream.from((PrimitiveIterator.OfDouble) null));
+		assertStream(DoubleStream.from(Iterators.nullDouble));
+		assertStream(DoubleStream.from(java.util.stream.DoubleStream.of(-1, 0, 1).iterator()), -1.0,
+			0.0, 1.0);
 	}
 
 	@Test
@@ -78,8 +80,8 @@ public class DoubleStreamBehavior {
 		assertStream(DoubleStream.empty().flatMap(null));
 		assertStream(DoubleStream.empty().flatMap(_ -> fail()));
 		assertStream(testStream().flatMap(null));
-		assertStream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2, -1,
-			1);
+		assertStream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2,
+			-1, 1);
 	}
 
 	@Test

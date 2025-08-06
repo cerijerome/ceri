@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.validation.ValidationUtil;
 
 public class MathUtil {
@@ -547,8 +547,7 @@ public class MathUtil {
 	 */
 	public static <T> T random(List<T> ts) {
 		if (ts.isEmpty()) return null;
-		int index = random(0, ts.size() - 1);
-		return ts.get(index);
+		return ts.get(random(0, ts.size() - 1));
 	}
 
 	/**
@@ -556,8 +555,7 @@ public class MathUtil {
 	 */
 	public static <T> T random(Set<T> ts) {
 		if (ts.isEmpty()) return null;
-		int i = random(0, ts.size() - 1);
-		return CollectionUtil.get(i, ts);
+		return Iterators.nth(ts.iterator(), random(0, ts.size() - 1));
 	}
 
 	/**

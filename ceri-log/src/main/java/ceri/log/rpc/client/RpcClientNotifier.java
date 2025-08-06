@@ -12,7 +12,7 @@ import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
 import ceri.common.property.TypedProperties;
@@ -44,7 +44,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	private final Function<V, T> transform;
 	private final StreamObserver<V> callback; // handles notifications from service
 	private final Lock lock = new ReentrantLock();
-	private final BooleanCondition sync = BooleanCondition.of(lock);
+	private final BoolCondition sync = BoolCondition.of(lock);
 	private final Set<Consumer<? super T>> listeners = new LinkedHashSet<>();
 	private final Config config;
 	private boolean reset = false;

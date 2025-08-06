@@ -1,6 +1,5 @@
 package ceri.common.array;
 
-import java.lang.reflect.Array;
 import ceri.common.function.Functions;
 
 /**
@@ -447,7 +446,7 @@ public abstract class DynamicArray<T> {
 	}
 
 	private void ensureSize(int size) {
-		int len = Array.getLength(array);
+		int len = RawArrays.length(array);
 		while (len < size)
 			len = growth.applyAsInt(len);
 		array = typed.resize(array, len);

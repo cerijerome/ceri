@@ -163,8 +163,7 @@ public enum ErrNo {
 	EPROGUNAVAIL(CErrNo.EPROGUNAVAIL),
 	ERPCMISMATCH(CErrNo.ERPCMISMATCH);
 
-	private static final TypeTranscoder<ErrNo> xcoder =
-		TypeTranscoder.ofDup(t -> t.code, ErrNo.class);
+	private static final TypeTranscoder<ErrNo> xcoder = TypeTranscoder.of(t -> t.code, ErrNo.class);
 	public final int code;
 
 	/**

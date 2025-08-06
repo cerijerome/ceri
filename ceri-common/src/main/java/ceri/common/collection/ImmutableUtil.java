@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.stream.StreamUtil;
-import ceri.common.util.BasicUtil;
 
 /**
  * Utility methods for creating immutable objects.
@@ -38,7 +36,7 @@ public class ImmutableUtil {
 	 * Creates an immutable iterable wrapper that returns an immutable iterator.
 	 */
 	public static <T> Iterable<T> iterable(final Iterable<T> iterable) {
-		return IteratorUtil.iterable(iterator(iterable.iterator()));
+		return Iterables.of(iterator(iterable.iterator()));
 	}
 
 	/**
@@ -393,13 +391,6 @@ public class ImmutableUtil {
 	}
 
 	/**
-	 * Collects a stream of objects into an immutable LinkedHashMap.
-	 */
-	public static <K, V> Map<K, V> collectAsMap(Stream<Map.Entry<K, V>> stream) {
-		return Collections.unmodifiableMap(StreamUtil.toEntryMap(stream));
-	}
-
-	/**
 	 * Joins collection elements into a single collection.
 	 */
 	@SafeVarargs
@@ -648,18 +639,6 @@ public class ImmutableUtil {
 		return Collections.unmodifiableNavigableSet(ts);
 	}
 
-	@SafeVarargs
-	public static <K, T> Map<K, T> convertAllAsMap(Function<? super T, ? extends K> keyFn,
-		T... ts) {
-		return convertAllAsMap(keyFn, supplier.map(), ts);
-	}
-
-	@SafeVarargs
-	public static <K, T> Map<K, T> convertAllAsMap(Function<? super T, ? extends K> keyFn,
-		Supplier<Map<K, T>> mapSupplier, T... ts) {
-		return convertAsMap(keyFn, Arrays.asList(ts), mapSupplier);
-	}
-
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Collection<T> ts) {
 		return convertAsMap(keyFn, ts, supplier.map());
@@ -681,11 +660,6 @@ public class ImmutableUtil {
 	}
 
 	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
-		Stream<T> stream) {
-		return convertAsMap(keyFn, stream, supplier.map());
-	}
-
-	public static <K, T> Map<K, T> convertAsMap(Function<? super T, ? extends K> keyFn,
 		BinaryOperator<T> merge, Stream<T> stream) {
 		return convertAsMap(keyFn, merge, stream, supplier.map());
 	}
@@ -700,18 +674,6 @@ public class ImmutableUtil {
 		return convertAsMap(keyFn, identity(), merge, stream, mapSupplier);
 	}
 
-	@SafeVarargs
-	public static <K, V, T> Map<K, V> convertAllAsMap(Function<? super T, ? extends K> keyFn,
-		Function<? super T, ? extends V> valueFn, T... ts) {
-		return convertAllAsMap(keyFn, valueFn, supplier.map(), ts);
-	}
-
-	@SafeVarargs
-	public static <K, V, T> Map<K, V> convertAllAsMap(Function<? super T, ? extends K> keyFn,
-		Function<? super T, ? extends V> valueFn, Supplier<Map<K, V>> mapSupplier, T... ts) {
-		return convertAsMap(keyFn, valueFn, Arrays.asList(ts), mapSupplier);
-	}
-
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
 		Function<? super T, ? extends V> valueFn, Collection<T> collection) {
 		return convertAsMap(keyFn, valueFn, collection.stream());
@@ -721,12 +683,6 @@ public class ImmutableUtil {
 		Function<? super T, ? extends V> valueFn, BinaryOperator<V> merge,
 		Collection<T> collection) {
 		return convertAsMap(keyFn, valueFn, merge, collection, supplier.map());
-	}
-
-	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
-		Function<? super T, ? extends V> valueFn, Collection<T> collection,
-		Supplier<Map<K, V>> mapSupplier) {
-		return convertAsMap(keyFn, valueFn, collection.stream(), mapSupplier);
 	}
 
 	public static <K, V, T> Map<K, V> convertAsMap(Function<? super T, ? extends K> keyFn,
@@ -764,43 +720,5 @@ public class ImmutableUtil {
 
 	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> mapSupplier) {
 		return Collections.unmodifiableMap(CollectionUtil.invert(map, mapSupplier));
-	}
-
-	/**
-	 * Create an enum lookup map; fails for duplicate values.
-	 */
-	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn, Class<T> cls) {
-		return enumMap(fn, StreamUtil.mergeError(), cls);
-	}
-
-	/**
-	 * Create an enum lookup map, with merge function.
-	 */
-	public static <K, T extends Enum<T>> Map<K, T> enumMap(Function<T, K> fn,
-		BinaryOperator<T> merge, Class<T> cls) {
-		return convertAsMap(fn, merge, EnumSet.allOf(cls));
-	}
-
-	public static <K, T extends Enum<T>> Map<K, T> enumsMap(Function<T, Collection<K>> fn,
-		Class<T> cls) {
-		return collectAsMap(StreamUtil.flatInvert(StreamUtil.stream(cls), fn));
-	}
-
-	public static <T extends Enum<T>> Set<T> enumSet(T one) {
-		return Collections.unmodifiableSet(EnumSet.of(one));
-	}
-
-	@SafeVarargs
-	public static <T extends Enum<T>> Set<T> enumSet(T first, T... rest) {
-		return Collections.unmodifiableSet(EnumSet.of(first, rest));
-	}
-
-	public static <T extends Enum<T>> Set<T> enumRange(T first, T last) {
-		if (first == null && last == null) return Set.of();
-		Class<T> cls = BasicUtil.unchecked(BasicUtil.def(first, last).getClass());
-		T[] ts = cls.getEnumConstants();
-		int start = first == null ? 0 : first.ordinal();
-		int end = last == null ? ts.length : last.ordinal() + 1;
-		return Set.of(Arrays.copyOfRange(ts, start, end));
 	}
 }

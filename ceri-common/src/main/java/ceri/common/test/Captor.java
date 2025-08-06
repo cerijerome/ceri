@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collection.Immutables;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
 /**
@@ -29,9 +31,23 @@ public class Captor<T> implements Functions.Consumer<T> {
 		return new Captor.Bi<>(of(), of());
 	}
 
+	public static <T> Captor.N<T> ofN() {
+		return new Captor.N<>();
+	}
+
 	@Override
 	public void accept(T t) {
 		values.add(t);
+	}
+
+	public <R> R accept(T t, R response) {
+		accept(t);
+		return response;
+	}
+
+	public <E extends Exception> Captor<T> apply(Excepts.Consumer<E, Captor<T>> consumer) throws E {
+		if (consumer != null) consumer.accept(this);
+		return this;
 	}
 
 	public Captor<T> reset() {
@@ -116,5 +132,54 @@ public class Captor<T> implements Functions.Consumer<T> {
 			first.accept(t);
 			second.accept(u);
 		}
+
+		public <R> R accept(T t, U u, R response) {
+			accept(t, u);
+			return response;
+		}
+
+		public <E extends Exception> Bi<T, U> apply(Excepts.Consumer<E, Bi<T, U>> consumer)
+			throws E {
+			if (consumer != null) consumer.accept(this);
+			return this;
+		}
+		
+		public void verify(List<T> ts, List<U> us) {
+			first.verify(ts);
+			second.verify(us);
+		}
+		
+		public void verify(T t, U u) {
+			first.verify(t);
+			second.verify(u);
+		}
+		
+		public void verify(T t0, U u0, T t1, U u1) {
+			first.verify(t0, t1);
+			second.verify(u0, u1);
+		}
+		
+		public void verify(T t0, U u0, T t1, U u1, T t2, U u2) {
+			first.verify(t0, t1, t2);
+			second.verify(u0, u1, u2);
+		}
+		
+		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3) {
+			first.verify(t0, t1, t2, t3);
+			second.verify(u0, u1, u2, u3);
+		}
+		
+		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3, T t4, U u4) {
+			first.verify(t0, t1, t2, t3, t4);
+			second.verify(u0, u1, u2, u3, u4);
+		}
 	}
+	
+	public static class N<T> extends Captor<List<T>> {
+		@SafeVarargs
+		public final void acceptAll(T... ts) {
+			super.accept(Immutables.wrapAsList(ts));
+		}
+	}
+
 }

@@ -1,20 +1,22 @@
 package ceri.common.array;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
+import ceri.common.text.Strings;
 
 /**
  * Utility methods to test and manipulate arrays.
  * @see ceri.common.collection.CollectionUtil
  */
 public class ArrayUtil {
-	public static final TypedArray.Type<Object> objs = TypedArray.type(Object[]::new);
+	private ArrayUtil() {}
+
 	public static final PrimitiveArray.OfBool bools = new PrimitiveArray.OfBool();
 	public static final PrimitiveArray.OfChar chars = new PrimitiveArray.OfChar();
 	public static final PrimitiveArray.OfByte bytes = new PrimitiveArray.OfByte();
@@ -24,24 +26,54 @@ public class ArrayUtil {
 	public static final PrimitiveArray.OfFloat floats = new PrimitiveArray.OfFloat();
 	public static final PrimitiveArray.OfDouble doubles = new PrimitiveArray.OfDouble();
 
-	private ArrayUtil() {}
-
 	/**
 	 * Empty array constants.
 	 */
 	public static class Empty {
+		private Empty() {}
+
+		public static final Boolean[] bools = new Boolean[0];
+		public static final Character[] chars = new Character[0];
+		public static final Byte[] bytes = new Byte[0];
+		public static final Short[] shorts = new Short[0];
+		public static final Integer[] ints = new Integer[0];
+		public static final Long[] longs = new Long[0];
+		public static final Float[] floats = new Float[0];
+		public static final Double[] doubles = new Double[0];
 		public static final String[] strings = new String[0];
 		public static final Object[] objects = new Object[0];
 		public static final Class<?>[] classes = new Class<?>[0];
-
-		private Empty() {}
 	}
 
 	/**
-	 * Returns true if index is within array.
+	 * Convenience method to create an array.
 	 */
-	public static boolean isValidIndex(int arrayLength, int index) {
-		return (index >= 0 && index < arrayLength);
+	@SafeVarargs
+	public static <T> T[] of(T... ts) {
+		return ts;
+	}
+
+	/**
+	 * Creates a typed array. Primitives are not supported.
+	 */
+	public static <T> T[] ofType(Class<T> type, int size) {
+		if (type == null) return null;
+		return RawArrays.array(requireNonPrimitive(type), size);
+	}
+
+	/**
+	 * Returns the array length or 0 if null.
+	 */
+	@SafeVarargs
+	public static <T> int length(T... array) {
+		return RawArrays.length(array);
+	}
+
+	/**
+	 * Returns true if the array is null or empty.
+	 */
+	public static <T> boolean isEmpty(T[] array) {
+		return RawArrays.isEmpty(array);
 	}
 
 	/**
@@ -73,7 +105,7 @@ public class ArrayUtil {
 	 * Returns the typed array component class, or null. Primitives not supported.
 	 */
 	public static <T> Class<T[]> arrayType(Class<T> cls) {
-		return RawArrays.arrayType(cls);
+		return RawArrays.arrayType(requireNonPrimitive(cls));
 	}
 
 	/**
@@ -84,67 +116,11 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns true if the given object is a non-null array.
+	 * Returns true if index is within array length.
 	 */
-	public static boolean isArray(Object obj) {
-		return obj != null && obj.getClass().isArray();
+	public static boolean in(int arrayLength, int index) {
+		return (index >= 0 && index < arrayLength);
 	}
-
-	/**
-	 * Creates a typed array. Primitives are not supported.
-	 */
-	public static <T> T[] array(Class<T> type, int size) {
-		if (type == null) return null;
-		if (!type.isPrimitive()) return RawArrays.array(type, size);
-		throw new IllegalArgumentException("Primitives not supported: " + type);
-	}
-
-	/**
-	 * Convenience method to create an array.
-	 */
-	@SafeVarargs
-	public static <T> T[] array(T... ts) {
-		return ts;
-	}
-
-	/**
-	 * Creates an empty typed array. Primitives are not supported.
-	 */
-	public static <T> T[] empty(Class<T> type) {
-		return array(type, 0);
-	}
-
-	/**
-	 * Returns the array length or 0 if null.
-	 */
-	@SafeVarargs
-	public static <T> int length(T... array) {
-		return RawArrays.length(array);
-	}
-
-	/**
-	 * Returns true if the array is null or empty.
-	 */
-	public static <T> boolean isEmpty(T[] array) {
-		return RawArrays.isEmpty(array);
-	}
-
-	// ---------------------------------------------------------------------------
-
-	// contains(T[], T...)
-	// contains(T[], offset, T[] offset)
-	// contains(T[], offset, length, T[] offset, length)
-
-	/**
-	 * Returns true if the array contains the element.
-	 */
-	public static <T> boolean contains(T[] array, T t) {
-		for (var item : array)
-			if (Objects.equals(item, t)) return true;
-		return false;
-	}
-
-	// ----------------------------------------------------------------------------
 
 	/**
 	 * Returns true if the index is inside the array.
@@ -279,6 +255,15 @@ public class ArrayUtil {
 	public static <T> T[] insert(Functions.IntFunction<T[]> constructor, T[] lhs, int lhsOffset,
 		T[] rhs, int rhsOffset, int length) {
 		return RawArrays.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
+	}
+
+	/**
+	 * Returns true if the array contains the element.
+	 */
+	public static <T> boolean has(T[] array, T t) {
+		if (array != null) for (var item : array)
+			if (Objects.equals(item, t)) return true;
+		return false;
 	}
 
 	/**
@@ -433,6 +418,7 @@ public class ArrayUtil {
 	 */
 	public static <E extends Exception, T> T[] forEach(T[] array, int offset, int length,
 		Excepts.Consumer<E, T> consumer) throws E {
+		if (consumer == null) return array;
 		return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
 	}
 
@@ -457,6 +443,7 @@ public class ArrayUtil {
 	 */
 	public static <E extends Exception, T> T[] forEachIndexed(T[] array, int offset, int length,
 		Excepts.ObjIntConsumer<E, T> consumer) throws E {
+		if (consumer == null) return array;
 		return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i], i));
 	}
 
@@ -465,6 +452,7 @@ public class ArrayUtil {
 	 */
 	public static <E extends Exception, R> R applySlice(int arrayLen, int offset, int length,
 		Excepts.IntBiFunction<E, R> function) throws E {
+		if (function == null) return null;
 		offset = MathUtil.limit(offset, 0, arrayLen);
 		length = MathUtil.limit(length, 0, arrayLen - offset);
 		return function.apply(offset, length);
@@ -475,6 +463,7 @@ public class ArrayUtil {
 	 */
 	public static <E extends Exception> void acceptSlice(int arrayLen, int offset, int length,
 		Excepts.IntBiConsumer<E> consumer) throws E {
+		if (consumer == null) return;
 		offset = MathUtil.limit(offset, 0, arrayLen);
 		length = MathUtil.limit(length, 0, arrayLen - offset);
 		consumer.accept(offset, length);
@@ -485,6 +474,7 @@ public class ArrayUtil {
 	 */
 	public static <E extends Exception> void acceptIndexes(int arrayLen, int offset, int length,
 		Excepts.IntConsumer<E> consumer) throws E {
+		if (consumer == null) return;
 		offset = MathUtil.limit(offset, 0, arrayLen);
 		length = MathUtil.limit(length, 0, arrayLen - offset);
 		for (int i = 0; i < length; i++)
@@ -509,7 +499,7 @@ public class ArrayUtil {
 	 * Sort the array range in place and return the array.
 	 */
 	public static <T extends Comparable<? super T>> T[] sort(T[] array, int offset, int length) {
-		return sort(array, offset, length, Comparator.naturalOrder());
+		return sort(array, offset, length, Comparators.nullsFirst());
 	}
 
 	/**
@@ -621,12 +611,12 @@ public class ArrayUtil {
 	 * Returns a string representation of the array range.
 	 */
 	public static <T> String toString(Joiner joiner, T[] array, int offset, int length) {
-		return RawArrays.appendToString((b, a, i) -> b.append(Array.get(a, i)), joiner, array,
-			offset, length);
+		return RawArrays.appendToString((b, a, i) -> b.append(RawArrays.<Object>get(a, i)), joiner,
+			array, offset, length);
 	}
 
 	/**
-	 * Returns a hex string representation of the array, or regular string if not numeric.
+	 * Returns a custom string representation of the array.
 	 */
 	@SafeVarargs
 	public static <T> String toString(Functions.Function<T, String> stringFn, Joiner joiner,
@@ -635,7 +625,7 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns a hex string representation of the array range, or regular string if not numeric.
+	 * Returns a custom string representation of the array range.
 	 */
 	public static <T> String toString(Functions.Function<T, String> stringFn, Joiner joiner,
 		T[] array, int offset) {
@@ -643,10 +633,16 @@ public class ArrayUtil {
 	}
 
 	/**
-	 * Returns a hex string representation of the array range, or regular string if not numeric.
+	 * Returns a custom string representation of the array range.
 	 */
 	public static <T> String toString(Functions.Function<T, String> stringFn, Joiner joiner,
 		T[] array, int offset, int length) {
+		if (stringFn == null) return Strings.NULL;
 		return RawArrays.toString((a, i) -> stringFn.apply(a[i]), joiner, array, offset, length);
+	}
+
+	private static <T> Class<T> requireNonPrimitive(Class<T> type) {
+		if (type == null || !type.isPrimitive()) return type;
+		throw new IllegalArgumentException("Primitives not supported: " + type);
 	}
 }

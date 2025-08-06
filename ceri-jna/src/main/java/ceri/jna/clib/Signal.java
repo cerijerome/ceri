@@ -40,7 +40,7 @@ public enum Signal {
 	SIGSYS(CSignal.SIGSYS);
 
 	private static final TypeTranscoder<Signal> xcoder =
-		TypeTranscoder.ofDup(t -> t.signal, Signal.class);
+		TypeTranscoder.of(t -> t.signal, Signal.class);
 	public final int signal;
 
 	public static Signal from(int signal) {

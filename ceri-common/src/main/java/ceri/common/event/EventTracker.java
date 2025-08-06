@@ -11,31 +11,46 @@ public class EventTracker {
 	private final long windowMs;
 	private final List<Long> timeStamps = new LinkedList<>();
 
-	public enum State {
-		ok,
-		exceeded;
+	/**
+	 * Creates a new instance.
+	 */
+	public static EventTracker of(int maxEvents, long windowMs) {
+		return new EventTracker(maxEvents, windowMs);
 	}
 
-	public EventTracker(int maxEvents, long windowMs) {
+	protected EventTracker(int maxEvents, long windowMs) {
 		this.maxEvents = maxEvents;
 		this.windowMs = windowMs;
 	}
 
-	public State addEvent() {
-		return addEvent(currentTimeMs());
+	/**
+	 * Purges the current window and adds an event. Returns false if the max events have been
+	 * exceeded.
+	 */
+	public boolean add() {
+		return add(currentTimeMs());
 	}
 
-	public State addEvent(long t) {
+	/**
+	 * Purges the current window and adds an event. Returns false if the max events have been
+	 * exceeded.
+	 */
+	public boolean add(long t) {
 		purge(t);
 		timeStamps.add(t);
-		if (timeStamps.size() > maxEvents) return State.exceeded;
-		return State.ok;
+		return timeStamps.size() <= maxEvents;
 	}
 
+	/**
+	 * Returns the number of events in the current window.
+	 */
 	public int events() {
 		return timeStamps.size();
 	}
 
+	/**
+	 * Clears events.
+	 */
 	public void clear() {
 		timeStamps.clear();
 	}
@@ -48,5 +63,4 @@ public class EventTracker {
 	long currentTimeMs() {
 		return System.currentTimeMillis();
 	}
-
 }

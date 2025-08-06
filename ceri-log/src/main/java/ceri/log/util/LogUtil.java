@@ -23,7 +23,7 @@ import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.StringUtil;
 import ceri.common.util.Align;
@@ -69,7 +69,7 @@ public class LogUtil {
 	 * Provides StartupValues that logs whenever a value is read.
 	 */
 	public static StartupValues startupValues(String... args) {
-		var caller = ReflectUtil.previousCaller(1);
+		var caller = Reflect.previousCaller(1);
 		return StartupValues.of(args).prefix(caller.pkg()).notifier(logger::info);
 	}
 
@@ -77,7 +77,7 @@ public class LogUtil {
 	 * Provides StartupValues that logs whenever a value is read.
 	 */
 	public static StartupValues startupValues(Level level, String... args) {
-		var caller = ReflectUtil.previousCaller(1);
+		var caller = Reflect.previousCaller(1);
 		return StartupValues.of(args).prefix(caller.pkg()).notifier(s -> logger.log(level, s));
 	}
 
@@ -532,7 +532,7 @@ public class LogUtil {
 	 * Returns an object whose toString() returns the hex hash code.
 	 */
 	public static Object hashId(Object obj) {
-		return toString(() -> ReflectUtil.hashId(obj));
+		return toString(() -> Reflect.hashId(obj));
 	}
 
 	/**

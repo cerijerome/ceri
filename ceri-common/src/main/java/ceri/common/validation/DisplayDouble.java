@@ -3,7 +3,7 @@ package ceri.common.validation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.DoubleFunction;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Iterables;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
 
@@ -22,7 +22,7 @@ public enum DisplayDouble implements DoubleFunction<String> {
 
 	public static String format(double value, Collection<DisplayDouble> flags) {
 		if (flags.isEmpty()) return DisplayDouble.std.apply(value);
-		if (flags.size() == 1) return CollectionUtil.first(flags).apply(value);
+		if (flags.size() == 1) return Iterables.first(flags).apply(value);
 		return Joiner.PARAM.join(f -> f.apply(value), flags);
 	}
 

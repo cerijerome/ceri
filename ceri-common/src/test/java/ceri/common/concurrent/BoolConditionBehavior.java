@@ -4,18 +4,18 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 
-public class BooleanConditionBehavior {
+public class BoolConditionBehavior {
 
 	@Test
 	public void shouldReturnSignalState() {
-		BooleanCondition flag = BooleanCondition.of();
+		BoolCondition flag = BoolCondition.of();
 		assertTrue(flag.signal());
 		assertFalse(flag.signal());
 	}
 
 	@Test
 	public void shouldPeekWithoutResettingValue() throws InterruptedException {
-		BooleanCondition flag = BooleanCondition.of();
+		BoolCondition flag = BoolCondition.of();
 		assertFalse(flag.awaitPeek(0));
 		assertFalse(flag.awaitPeek(1));
 		flag.signal();
@@ -26,7 +26,7 @@ public class BooleanConditionBehavior {
 
 	@Test
 	public void shouldSetWithoutSignal() {
-		BooleanCondition flag = BooleanCondition.of();
+		BoolCondition flag = BoolCondition.of();
 		assertFalse(flag.isSet());
 		assertTrue(flag.set());
 		assertFalse(flag.set());
@@ -35,7 +35,7 @@ public class BooleanConditionBehavior {
 
 	@Test
 	public void shouldSetAndClearValues() throws InterruptedException {
-		BooleanCondition flag = BooleanCondition.of();
+		BoolCondition flag = BoolCondition.of();
 		assertFalse(flag.isSet());
 		flag.signal();
 		assertTrue(flag.isSet());

@@ -9,7 +9,7 @@ public class SafeReadWriteBehavior {
 	@Test
 	public void shouldProvideLockForConditions() {
 		SafeReadWrite safe = SafeReadWrite.of();
-		BooleanCondition.of(safe.conditionLock());
+		BoolCondition.of(safe.conditionLock());
 	}
 
 	@Test

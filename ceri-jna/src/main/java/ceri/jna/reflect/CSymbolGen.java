@@ -26,7 +26,7 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ClassReloader;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 import ceri.common.text.TextUtil;
 import ceri.common.time.DateUtil;
@@ -429,7 +429,7 @@ public class CSymbolGen {
 
 	private void addType(Class<?> cls, CAnnotations.CType.Value ctype) {
 		includes.add(overrides.includes(cls, os));
-		if (!ReflectUtil.assignableFromAny(cls, TYPE_IGNORE_FIELDS)) addFields(cls);
+		if (!Reflect.assignableFromAny(cls, TYPE_IGNORE_FIELDS)) addFields(cls);
 		if (addSpecialType(cls, ctype)) return;
 		addNestedTypes(cls);
 	}
@@ -447,11 +447,11 @@ public class CSymbolGen {
 		int count = 0;
 		for (var field : cls.getDeclaredFields()) {
 			if (!field.accessFlags().containsAll(FIELD_ACCESS_FLAGS)) continue;
-			if (!ReflectUtil.assignableFromAny(field.getType(), FIELD_TYPES)) continue;
+			if (!Reflect.assignableFromAny(field.getType(), FIELD_TYPES)) continue;
 			if (count++ == 0) printType(cls);
 			var ctype = overrides.ctype(field, os);
 			if (ctype.undefined()) lines.add("// Ignore: %s = %s", field.getName(),
-				ReflectUtil.publicFieldValue(null, field));
+				Reflect.publicFieldValue(null, field));
 			else addField(field, ctype);
 		}
 		return count;
@@ -460,7 +460,7 @@ public class CSymbolGen {
 	private void addField(Field field, CAnnotations.CType.Value ctype) {
 		var fieldName = field.getName();
 		var name = ctype.name(fieldName);
-		var value = ReflectUtil.publicFieldValue(null, field);
+		var value = Reflect.publicFieldValue(null, field);
 		macros.vsymi(name, longValue(value, ctype.signed()));
 		if (!fieldName.equals(name)) lines.appendComment(fieldName);
 	}
@@ -479,7 +479,7 @@ public class CSymbolGen {
 		for (var en : cls.getEnumConstants()) {
 			var ctype = overrides.ctype(en, os);
 			if (ctype.undefined())
-				lines.add("// Ignore: %s = %s", en.name(), ReflectUtil.publicValue(en, valueField));
+				lines.add("// Ignore: %s = %s", en.name(), Reflect.publicValue(en, valueField));
 			else addEnum(en, valueField, ctype);
 		}
 	}
@@ -487,7 +487,7 @@ public class CSymbolGen {
 	private void addEnum(Enum<?> en, String valueField, CAnnotations.CType.Value ctype) {
 		var enName = en.name();
 		var name = ctype.name(enName);
-		var value = ReflectUtil.publicValue(en, valueField);
+		var value = Reflect.publicValue(en, valueField);
 		macros.vsymi(name, longValue(value, ctype.signed()));
 		if (!enName.equals(name)) lines.appendComment(enName);
 	}
@@ -511,7 +511,7 @@ public class CSymbolGen {
 	}
 
 	private void printType(Class<?> cls) {
-		lines.printf("// %s\n", ReflectUtil.name(cls));
+		lines.printf("// %s\n", Reflect.name(cls));
 	}
 
 	private static Object longValue(Object value, boolean signed) {
@@ -527,18 +527,18 @@ public class CSymbolGen {
 	}
 
 	private static int structSize(Class<? extends Structure> cls) {
-		var t = ReflectUtil.create(cls);
-		if (t == null) t = ReflectUtil.create(cls, Pointer.class, Pointer.NULL);
+		var t = Reflect.create(cls);
+		if (t == null) t = Reflect.create(cls, Pointer.class, Pointer.NULL);
 		if (t != null) return t.size();
-		throw new IllegalArgumentException("Unable to determine size: " + ReflectUtil.name(cls));
+		throw new IllegalArgumentException("Unable to determine size: " + Reflect.name(cls));
 	}
 
 	private static int intTypeSize(Class<? extends IntType<?>> cls) {
-		var t = ReflectUtil.create(cls);
-		if (t == null) t = ReflectUtil.create(cls, int.class, 0);
-		if (t == null) t = ReflectUtil.create(cls, long.class, 0L);
+		var t = Reflect.create(cls);
+		if (t == null) t = Reflect.create(cls, int.class, 0);
+		if (t == null) t = Reflect.create(cls, long.class, 0L);
 		if (t != null) return t.size;
-		throw new IllegalArgumentException("Unable to determine size: " + ReflectUtil.name(cls));
+		throw new IllegalArgumentException("Unable to determine size: " + Reflect.name(cls));
 	}
 
 	private static Path location(CAnnotations.CGen.Value cgen, Class<?> cls) {
@@ -556,7 +556,7 @@ public class CSymbolGen {
 			 * Build:  gcc %s.c -o %s; chmod a+x ./%s
 			 *  Run:  ./%s
 			 */
-			""", os, ReflectUtil.name(CSymbolGen.class), OsUtil.value(), DateUtil.nowSec(),
+			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), DateUtil.nowSec(),
 			filename, filename, filename, filename);
 	}
 }

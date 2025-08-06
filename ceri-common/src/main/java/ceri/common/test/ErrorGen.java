@@ -12,7 +12,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.Lambdas;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Utility for generating errors during tests.
@@ -152,7 +152,7 @@ public class ErrorGen {
 	}
 
 	private static String name(Exception e) {
-		String s = ReflectUtil.className(e);
+		String s = Reflect.className(e);
 		return !s.endsWith(EXCEPTION) ? s : s.substring(0, s.length() - EXCEPTION.length());
 	}
 }

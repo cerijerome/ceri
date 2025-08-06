@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -23,7 +23,7 @@ import ceri.serial.spi.SpiTransfer;
 public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver {
 	private static final Logger logger = LogManager.getLogger();
 	private final Locker locker = Locker.of();
-	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
+	private final BoolCondition sync = BoolCondition.of(locker.lock);
 	private final SpiPulseConfig config;
 	private final int id;
 	private final PulseBuffer buffer;

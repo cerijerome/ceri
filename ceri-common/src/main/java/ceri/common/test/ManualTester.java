@@ -34,7 +34,7 @@ import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
@@ -316,7 +316,7 @@ public class ManualTester implements Functions.Closeable {
 			this.subjects = subjects;
 			command("\\?", (t, _, _) -> t.showHelp(), "? = show commands");
 			command("\\!", (t, _, _) -> t.exit = true, "! = exit");
-			command(":", (t, _, s) -> t.out(ReflectUtil.nameHash(s)), ": = subject type");
+			command(":", (t, _, s) -> t.out(Reflect.nameHash(s)), ": = subject type");
 			command("(?:(<+)|<(\\d+))", (t, m, _) -> t.history(Parse.len(m), Parse.i(m, 2)),
 				"<N = execute Nth previous command");
 			command("~(\\d+)", (_, m, _) -> ConcurrentUtil.delay(Parse.i(m)),

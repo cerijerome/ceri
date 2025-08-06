@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.collection.ImmutableUtil.enumsMap;
 import static ceri.common.data.ByteUtil.BYTE_MASK;
 import static ceri.common.data.ByteUtil.INT_MASK;
 import static ceri.common.data.ByteUtil.maskOfBits;
@@ -11,6 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import ceri.common.collection.Enums;
 
 /**
  * Encapsulates the algorithm used to generate CRC values. Generates an entry cache on creation.
@@ -72,7 +72,8 @@ public class CrcAlgorithm {
 			"CRC-64/XZ");
 
 		private static final Map<Std, CrcAlgorithm> cache = new ConcurrentHashMap<>();
-		private static final Map<String, Std> nameLookup = enumsMap(t -> t.names, Std.class);
+		private static final Map<String, Std> nameLookup =
+			Enums.inverseMap(t -> t.names, Std.class);
 		private final Supplier<CrcAlgorithm> supplier;
 		public final Set<String> names;
 

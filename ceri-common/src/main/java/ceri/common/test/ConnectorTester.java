@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import ceri.common.io.Connector;
 import ceri.common.io.Fixable;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Provides manual commands to test connectors.
@@ -37,7 +37,7 @@ public class ConnectorTester {
 	 */
 	public static ManualTester.Builder manual(List<? extends Connector> connectors)
 		throws IOException {
-		ReflectUtil.acceptInstances(Fixable.class, Fixable::open, connectors);
+		Reflect.acceptInstances(Fixable.class, Fixable::open, connectors);
 		var b = ManualTester.builderList(connectors, Connector::name);
 		b.preProcessor(Connector.class, (t, con) -> t.readBytes(con.in()));
 		b.listen(connectors);

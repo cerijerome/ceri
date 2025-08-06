@@ -5,18 +5,44 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.text.NonMatchResultBehavior.assertNonMatchResult;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import org.junit.Test;
 
-public class NonMatcherBehavior {
+public class NonMatchBehavior {
+
+	@Test
+	public void testReplaceExcept() {
+		assertEquals(NonMatch.replace(Pattern.compile(""), "", ""), "");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "AaBbCcDd", "x"), "xaxbxcx");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "abc", "x"), "abc");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", "x"), "x");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", ""), "");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", (String) null),
+			"def");
+		assertEquals(NonMatch.replace(Pattern.compile("^"), "abc", "x"), "x");
+		assertEquals(NonMatch.replace(Pattern.compile("$"), "abc", "x"), "x");
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]+"), "abcdefbca",
+			m -> m.group().toUpperCase()), "abcDEFbca");
+	}
+
+	@Test
+	public void testReplaceExceptWithIndex() {
+		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "AaBbCcDd",
+			(_, i) -> String.valueOf(i)), "0a1b2c3");
+	}
+
+	@Test
+	public void shouldProvideToResultString() {
+		var m = NonMatch.of(Pattern.compile("[a-c]"), "abcDEF");
+		assertFalse(m.toResult().toString().isEmpty());
+		assertTrue(m.find());
+		assertFalse(m.toResult().toString().isEmpty());
+	}
 
 	@Test
 	public void shouldReplaceAllMatches() {
-		NonMatcher m = nonMatcher("[a-c]+", "abc");
+		var m = nonMatcher("[a-c]+", "abc");
 		assertEquals(m.replaceAll("X"), "abc");
 		assertEquals(m.replaceAll(r -> String.valueOf(r.end() - r.start())), "abc");
 		m = nonMatcher("[a-c]+", "AaBBbbCCCcccDDDDdddd");
@@ -26,7 +52,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldReplaceFirstMatch() {
-		NonMatcher m = nonMatcher("[a-c]+", "abc");
+		var m = nonMatcher("[a-c]+", "abc");
 		assertEquals(m.replaceFirst("X"), "abc");
 		assertEquals(m.replaceFirst(r -> String.valueOf(r.end() - r.start())), "abc");
 		m = nonMatcher("[a-c]+", "abcABCabABaA");
@@ -36,7 +62,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldFindNonMatchingText() {
-		NonMatcher m = nonMatcher("[a-c]", "AaBbCcDd");
+		var m = nonMatcher("[a-c]", "AaBbCcDd");
 		assertTrue(m.find());
 		assertNonMatcher(m, "A", 0, 1);
 		assertTrue(m.find());
@@ -50,7 +76,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldFindNonMatchingTextFromPosition() {
-		NonMatcher m = nonMatcher("[a-c]", "AaBbCcDd");
+		var m = nonMatcher("[a-c]", "AaBbCcDd");
 		assertTrue(m.find(2));
 		assertNonMatcher(m, "B", 2, 3);
 		assertTrue(m.find());
@@ -62,7 +88,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldSkipEmptyMatches() {
-		NonMatcher m = nonMatcher("[a-c]", "aBbbCccDdc");
+		var m = nonMatcher("[a-c]", "aBbbCccDdc");
 		assertTrue(m.find());
 		assertNonMatcher(m, "B", 1, 2);
 		assertTrue(m.find());
@@ -74,7 +100,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldSkipEmptyMatchesFromPosition() {
-		NonMatcher m = nonMatcher("[a-c]", "aBbbCccDdc");
+		var m = nonMatcher("[a-c]", "aBbbCccDdc");
 		assertTrue(m.find(2));
 		assertNonMatcher(m, "C", 4, 5);
 		assertTrue(m.find());
@@ -84,7 +110,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldNotFindFromEndPosition() {
-		NonMatcher m = nonMatcher("[a-c]", "abcDEF");
+		var m = nonMatcher("[a-c]", "abcDEF");
 		assertFalse(m.find(6));
 		m = nonMatcher("[a-c]", "abc");
 		assertFalse(m.find(3));
@@ -94,21 +120,21 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldFailWhenFindingFromPositionOutOfRange() {
-		NonMatcher m = nonMatcher("[a-c]", "abcDEF");
+		var m = nonMatcher("[a-c]", "abcDEF");
 		assertThrown(() -> m.find(-1));
 		assertThrown(() -> m.find(7));
 	}
 
 	@Test
 	public void shouldIgnoreRegionWhenFindingFromPosition() {
-		NonMatcher m = nonMatcher("[a-c]", "ABCabc").region(2, 6);
+		var m = nonMatcher("[a-c]", "ABCabc").region(2, 6);
 		assertTrue(m.find(1));
 		assertNonMatcher(m, "BC", 1, 3);
 	}
 
 	@Test
 	public void shouldMatchIffPatternMatches() {
-		NonMatcher m = nonMatcher("[a-c]+", "abc");
+		var m = nonMatcher("[a-c]+", "abc");
 		assertFalse(m.matches());
 		m = nonMatcher("[a-c]", "abcDEF");
 		assertTrue(m.matches());
@@ -117,7 +143,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldNotFindAfterMatches() {
-		NonMatcher m = nonMatcher("[a-c]+", "abc");
+		var m = nonMatcher("[a-c]+", "abc");
 		assertFalse(m.matches());
 		assertFalse(m.find());
 		m = nonMatcher("[a-c]+", "Aabc");
@@ -127,7 +153,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldFailToReadMatchIfNoMatch() {
-		NonMatcher m = nonMatcher("[a-c]+", "ABC");
+		var m = nonMatcher("[a-c]+", "ABC");
 		assertThrown(() -> m.group());
 		assertThrown(() -> m.start());
 		assertThrown(() -> m.end());
@@ -141,7 +167,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldResetState() {
-		NonMatcher m = nonMatcher("[a-c]+", "abBCcDd");
+		var m = nonMatcher("[a-c]+", "abBCcDd");
 		assertTrue(m.find());
 		assertNonMatcher(m, "BC", 2, 4);
 		m.reset();
@@ -151,7 +177,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldResetStateWithNewText() {
-		NonMatcher m = nonMatcher("[a-c]+", "abBCcDd");
+		var m = nonMatcher("[a-c]+", "abBCcDd");
 		assertTrue(m.find());
 		assertNonMatcher(m, "BC", 2, 4);
 		m.reset("aBbCcDd");
@@ -161,8 +187,8 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldConvertToResult() {
-		NonMatcher m = nonMatcher("[a-c]+", "abBCcDd");
-		NonMatchResult r0 = m.toResult();
+		var m = nonMatcher("[a-c]+", "abBCcDd");
+		var r0 = m.toResult();
 		assertThrown(() -> r0.group());
 		m.find();
 		assertEquals(m.toResult().group(), "BC");
@@ -170,9 +196,7 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldStreamResults() {
-		NonMatcher m = nonMatcher("[a-c]+", "abBCcDd");
-		Stream<NonMatchResult> results = m.results();
-		Iterator<NonMatchResult> i = results.iterator();
+		var i = nonMatcher("[a-c]+", "abBCcDd").results().iterator();
 		assertNonMatchResult(i.next(), "BC", 2, 4);
 		assertNonMatchResult(i.next(), "Dd", 5, 7);
 		assertThrown(NoSuchElementException.class, () -> i.next());
@@ -181,9 +205,9 @@ public class NonMatcherBehavior {
 
 	@Test
 	public void shouldReturnStringRepresentationOfState() {
-		NonMatcher m0 = nonMatcher("[a-c]+", "ABC").region(1, 2);
-		NonMatcher m1 = nonMatcher("[a-c]+", "ABC").region(1, 2);
-		NonMatcher m2 = nonMatcher("[a-c]+", "ABC");
+		var m0 = nonMatcher("[a-c]+", "ABC").region(1, 2);
+		var m1 = nonMatcher("[a-c]+", "ABC").region(1, 2);
+		var m2 = nonMatcher("[a-c]+", "ABC");
 		assertEquals(m0.toString(), m1.toString());
 		assertNotEquals(m0.toString(), m2.toString());
 		assertTrue(m0.find());
@@ -192,14 +216,19 @@ public class NonMatcherBehavior {
 		assertEquals(m0.toString(), m1.toString());
 	}
 
-	public static void assertNonMatcher(NonMatcher m, String group, int start, int end) {
+	private static void assertNonMatcher(NonMatch.Matcher m, String group, int start, int end) {
 		assertEquals(m.group(), group, "group");
 		assertEquals(m.start(), start, "start");
 		assertEquals(m.end(), end, "end");
 	}
 
-	private static NonMatcher nonMatcher(String pattern, String text) {
-		return NonMatcher.of(Pattern.compile(pattern), text);
+	private static void assertNonMatchResult(NonMatch.Result r, String group, int start, int end) {
+		assertEquals(r.group(), group, "group");
+		assertEquals(r.start(), start, "start");
+		assertEquals(r.end(), end, "end");
 	}
 
+	private static NonMatch.Matcher nonMatcher(String pattern, String text) {
+		return NonMatch.of(Pattern.compile(pattern), text);
+	}
 }

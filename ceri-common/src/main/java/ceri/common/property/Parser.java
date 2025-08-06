@@ -11,23 +11,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 import java.util.regex.Pattern;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.Enums;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functions;
+import ceri.common.stream.DoubleStream;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 import ceri.common.text.NumberParser;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -101,12 +98,12 @@ public class Parser {
 	/**
 	 * Provides access to a typed value.
 	 */
-	public interface Type<T> extends Excepts.Supplier<RuntimeException, T>, Supplier<T> {
+	public interface Type<T> extends Functions.Supplier<T> {
 
 		/**
 		 * Creates an instance using the value supplier.
 		 */
-		static <T> Type<T> from(Supplier<T> supplier) {
+		static <T> Type<T> from(Functions.Supplier<T> supplier) {
 			return supplier::get;
 		}
 
@@ -120,8 +117,7 @@ public class Parser {
 		/**
 		 * Access the value or use default supplier if null.
 		 */
-		default <E extends Exception> T get(Excepts.Supplier<E, ? extends T> defSupplier)
-			throws E {
+		default <E extends Exception> T get(Excepts.Supplier<E, ? extends T> defSupplier) throws E {
 			return BasicUtil.def(get(), defSupplier);
 		}
 
@@ -227,7 +223,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value collection supplier.
 		 */
-		static <T> Types<T> from(Supplier<? extends Collection<T>> type) {
+		static <T> Types<T> from(Functions.Supplier<? extends Collection<T>> type) {
 			return type::get;
 		}
 
@@ -267,7 +263,7 @@ public class Parser {
 		 * Returns the values as an array, or returns null if the value collection is null. Null
 		 * values in the collection are retained.
 		 */
-		default T[] array(IntFunction<T[]> arrayFn) {
+		default T[] array(Functions.IntFunction<T[]> arrayFn) {
 			return FunctionUtil.safeApply(get(), values -> values.toArray(arrayFn));
 		}
 
@@ -275,7 +271,8 @@ public class Parser {
 		 * Returns the values as an array, or returns default if the value collection is null. Null
 		 * values in the collection are retained.
 		 */
-		default T[] arrayDef(IntFunction<T[]> arrayFn, @SuppressWarnings("unchecked") T... defs) {
+		default T[] arrayDef(Functions.IntFunction<T[]> arrayFn,
+			@SuppressWarnings("unchecked") T... defs) {
 			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn), defs);
 		}
 
@@ -283,40 +280,43 @@ public class Parser {
 		 * Returns the values as a stream, which is empty if the value collection is null. Null
 		 * values in the collection are retained.
 		 */
-		default Stream<T> stream() {
-			return FunctionUtil.safeApply(get(), Collection::stream, Stream.empty());
+		default Stream<RuntimeException, T> stream() {
+			return FunctionUtil.safeApply(get(), Streams::from, Stream.empty());
 		}
 
 		/**
 		 * Transforms as each value for an int stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default IntStream intStream(ToIntFunction<? super T> constructor) {
-			return stream().filter(Objects::nonNull).mapToInt(constructor);
+		default IntStream<RuntimeException>
+			intStream(Functions.ToIntFunction<? super T> constructor) {
+			return stream().nonNull().mapToInt(constructor);
 		}
 
 		/**
 		 * Transforms as each value for a long stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default LongStream longStream(ToLongFunction<? super T> constructor) {
-			return stream().filter(Objects::nonNull).mapToLong(constructor);
+		default LongStream<RuntimeException>
+			longStream(Functions.ToLongFunction<? super T> constructor) {
+			return stream().nonNull().mapToLong(constructor);
 		}
 
 		/**
 		 * Transforms as each value for a double stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default DoubleStream doubleStream(ToDoubleFunction<? super T> constructor) {
-			return stream().filter(Objects::nonNull).mapToDouble(constructor);
+		default DoubleStream<RuntimeException>
+			doubleStream(Functions.ToDoubleFunction<? super T> constructor) {
+			return stream().nonNull().mapToDouble(constructor);
 		}
 
 		/**
 		 * Transforms the collection to a boolean array, with default array if the value collection
 		 * is null. Null values in the collection are dropped.
 		 */
-		default <E extends Exception> boolean[] toBoolArray(
-			Excepts.ToBoolFunction<E, ? super T> constructor, boolean... def) throws E {
+		default <E extends Exception> boolean[]
+			toBoolArray(Excepts.ToBoolFunction<E, ? super T> constructor, boolean... def) throws E {
 			Excepts.Function<E, T, Boolean> fn = constructor::applyAsBool;
 			return toPrimitiveArray(get(), boolean[]::new,
 				(array, i, value) -> array[i] = parseValue(value, fn, null), def);
@@ -359,7 +359,7 @@ public class Parser {
 		 * Collects each value into a new collection using a supplier, or returns null if the value
 		 * collection is null. Null values in the collection are retained.
 		 */
-		default <C extends Collection<T>> C collect(Supplier<C> supplier) {
+		default <C extends Collection<T>> C collect(Functions.Supplier<C> supplier) {
 			return FunctionUtil.safeApply(get(),
 				values -> CollectionUtil.collect(values, supplier));
 		}
@@ -403,8 +403,8 @@ public class Parser {
 		 * Transforms each non-null value to a new unmodifiable list, or default if the collection
 		 * is null. Null values in the collection are retained.
 		 */
-		default <E extends Exception, R> List<R> toEach(
-			Excepts.Function<E, ? super T, ? extends R> constructor, List<R> def) throws E {
+		default <E extends Exception, R> List<R>
+			toEach(Excepts.Function<E, ? super T, ? extends R> constructor, List<R> def) throws E {
 			return parseValues(get(), def, constructor);
 		}
 
@@ -451,8 +451,7 @@ public class Parser {
 		 * Iterates the value collection, calling the consumer, if the value collection is not null.
 		 * Null values in the collection are passed to the consumer.
 		 */
-		default <E extends Exception> void each(Excepts.Consumer<E, ? super T> consumer)
-			throws E {
+		default <E extends Exception> void each(Excepts.Consumer<E, ? super T> consumer) throws E {
 			FunctionUtil.safeAccept(get(), collection -> {
 				for (var t : collection)
 					consumer.accept(t);
@@ -466,7 +465,7 @@ public class Parser {
 	@FunctionalInterface
 	public interface String extends Type<java.lang.String> {
 
-		static Parser.String from(Supplier<java.lang.String> type) {
+		static Parser.String from(Functions.Supplier<java.lang.String> type) {
 			return type::get;
 		}
 
@@ -586,7 +585,7 @@ public class Parser {
 		 */
 		default <T extends Enum<T>> T toEnum(T def) {
 			Objects.requireNonNull(def);
-			return toEnum(EnumUtil.enumClass(def), def);
+			return toEnum(Enums.type(def), def);
 		}
 
 		/**
@@ -675,7 +674,7 @@ public class Parser {
 		/**
 		 * Creates an instance using the value collection supplier.
 		 */
-		static Strings from(Supplier<? extends Collection<java.lang.String>> type) {
+		static Strings from(Functions.Supplier<? extends Collection<java.lang.String>> type) {
 			return type::get;
 		}
 
@@ -690,8 +689,8 @@ public class Parser {
 		}
 
 		@Override
-		default <E extends Exception> Strings def(
-			Excepts.Supplier<E, ? extends Collection<java.lang.String>> defSupplier) throws E {
+		default <E extends Exception> Strings
+			def(Excepts.Supplier<E, ? extends Collection<java.lang.String>> defSupplier) throws E {
 			return Parser.strings(get(defSupplier));
 		}
 
@@ -715,7 +714,7 @@ public class Parser {
 		 * Decodes as each value for an int stream, which is empty if the value collection is null.
 		 * Null values in the collection are dropped.
 		 */
-		default IntStream intStream() {
+		default IntStream<RuntimeException> intStream() {
 			return intStream(DINT::apply);
 		}
 
@@ -723,7 +722,7 @@ public class Parser {
 		 * Transforms as each value for a long stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default LongStream longStream() {
+		default LongStream<RuntimeException> longStream() {
 			return longStream(DLONG::apply);
 		}
 
@@ -731,7 +730,7 @@ public class Parser {
 		 * Transforms as each value for a double stream, which is empty if the value collection is
 		 * null. Null values in the collection are dropped.
 		 */
-		default DoubleStream doubleStream() {
+		default DoubleStream<RuntimeException> doubleStream() {
 			return doubleStream(DOUBLE::apply);
 		}
 
@@ -875,7 +874,7 @@ public class Parser {
 	}
 
 	private static <E extends Exception, A, T> A toPrimitiveArray(Collection<T> values,
-		IntFunction<A> arrayFn, ArrayConsumer<E, A, T> arraySetFn, A def) throws E {
+		Functions.IntFunction<A> arrayFn, ArrayConsumer<E, A, T> arraySetFn, A def) throws E {
 		if (values == null) return def;
 		var array = arrayFn.apply(count(values));
 		int i = 0;
@@ -889,7 +888,8 @@ public class Parser {
 		try {
 			return FunctionUtil.safeApply(value, constructor, def);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to transform: %s", value), e);
+			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to transform: %s", value),
+				e);
 		}
 	}
 

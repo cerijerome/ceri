@@ -9,7 +9,7 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Enclosure;
 import ceri.common.util.OsUtil;
 import ceri.common.util.SystemVars;
@@ -135,11 +135,11 @@ public class JnaLibrary<T extends Library> {
 	}
 
 	private T loadNative() {
-		logger.trace("Loading {} [{}]", name, ReflectUtil.name(cls));
+		logger.trace("Loading {} [{}]", name, Reflect.name(cls));
 		long t = System.currentTimeMillis();
 		var loaded = Native.load(name, cls);
 		t = System.currentTimeMillis() - t;
-		logger.info("Loaded {} [{}] {}ms", name, ReflectUtil.name(cls), t);
+		logger.info("Loaded {} [{}] {}ms", name, Reflect.name(cls), t);
 		return loaded;
 	}
 

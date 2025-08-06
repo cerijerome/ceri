@@ -3,10 +3,11 @@ package ceri.common.stream;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.fail;
-import java.util.Iterator;
 import java.util.List;
+import java.util.PrimitiveIterator;
 import org.junit.Test;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterables;
+import ceri.common.collection.Iterators;
 import ceri.common.test.Captor;
 
 public class LongStreamBehavior {
@@ -28,15 +29,16 @@ public class LongStreamBehavior {
 	@Test
 	public void testFromIterable() {
 		assertStream(LongStream.from((List<Number>) null));
-		assertStream(LongStream.from(IteratorUtil.nullIterable()));
+		assertStream(LongStream.from(Iterables.ofNull()));
 		assertStream(LongStream.from(List.of(-1.1, 0.6, 1.9)), -1L, 0L, 1L);
 	}
 
 	@Test
 	public void testFromIterator() {
-		assertStream(LongStream.from((Iterator<Number>) null));
-		assertStream(LongStream.from(IteratorUtil.nullIterator()));
-		assertStream(LongStream.from(List.of(-1.1, 0.6, 1.9).iterator()), -1L, 0L, 1L);
+		assertStream(LongStream.from((PrimitiveIterator.OfLong) null));
+		assertStream(LongStream.from(Iterators.nullLong));
+		assertStream(LongStream.from(java.util.stream.LongStream.of(-1, 0, 1).iterator()), -1L, 0L,
+			1L);
 	}
 
 	@Test

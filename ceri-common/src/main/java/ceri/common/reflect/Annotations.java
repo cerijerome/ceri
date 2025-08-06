@@ -12,9 +12,9 @@ import ceri.common.function.Functions.ToBoolFunction;
 /**
  * Utility methods to support annotations.
  */
-public class AnnotationUtil {
+public class Annotations {
 
-	private AnnotationUtil() {}
+	private Annotations() {}
 
 	/**
 	 * Get annotation from element, or return null.
@@ -28,7 +28,7 @@ public class AnnotationUtil {
 	 * Get field annotation from enum, or return null.
 	 */
 	public static <T extends Annotation> T annotation(Enum<?> en, Class<T> annotationCls) {
-		return annotation(ReflectUtil.enumToField(en), annotationCls);
+		return annotation(Reflect.enumToField(en), annotationCls);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class AnnotationUtil {
 	 * Get repeat field annotations from enum as a list.
 	 */
 	public static <T extends Annotation> List<T> annotations(Enum<?> en, Class<T> annotationCls) {
-		return annotations(ReflectUtil.enumToField(en), annotationCls);
+		return annotations(Reflect.enumToField(en), annotationCls);
 	}
 
 	/**

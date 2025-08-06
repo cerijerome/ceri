@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.ExceptionUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 import ceri.common.time.DateUtil;
 import ceri.common.util.BasicUtil;
@@ -247,8 +247,8 @@ public class Logger {
 
 	private String classLine() {
 		if (flag(noStackTrace)) return "";
-		String classLine = ReflectUtil.previousClassLine(STACK_OFFSET);
-		if (flag(abbreviatePackage)) classLine = ReflectUtil.abbreviatePackages(classLine);
+		String classLine = Reflect.previousClassLine(STACK_OFFSET);
+		if (flag(abbreviatePackage)) classLine = Reflect.abbreviatePackages(classLine);
 		return classLine;
 	}
 

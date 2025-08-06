@@ -7,7 +7,7 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Excepts.IntBiConsumer;
 import ceri.common.function.Fluent;
 import ceri.common.math.MathUtil;
@@ -185,7 +185,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 */
 	@Override
 	default PrimitiveIterator.OfInt iterator() {
-		return IteratorUtil.intIndexed(length(), this::getInt);
+		return Iterators.intIndexed(length(), this::getInt);
 	}
 
 	/**

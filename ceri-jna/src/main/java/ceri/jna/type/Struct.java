@@ -1,6 +1,6 @@
 package ceri.jna.type;
 
-import static ceri.common.reflect.ReflectUtil.publicField;
+import static ceri.common.reflect.Reflect.publicField;
 import static ceri.common.text.StringUtil.NEWLINE_REGEX;
 import static ceri.common.text.StringUtil.format;
 import java.lang.annotation.ElementType;
@@ -19,8 +19,8 @@ import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.reflect.AnnotationUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Annotations;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
 import ceri.jna.util.JnaArgs;
@@ -355,7 +355,7 @@ public abstract class Struct extends Structure {
 	 * Provides a compact string suitable for error messages.
 	 */
 	public static String compactString(Structure t) {
-		return String.format("%s(@%x+%x)", ReflectUtil.nestedName(t.getClass()),
+		return String.format("%s(@%x+%x)", Reflect.nestedName(t.getClass()),
 			Pointer.nativeValue(t.getPointer()), t.size());
 	}
 
@@ -366,9 +366,9 @@ public abstract class Struct extends Structure {
 		if (s == null) return StringUtil.NULL;
 		Class<?> cls = s.getClass();
 		StringBuilder b = new StringBuilder();
-		format(b, "%s(%s) {%n", ReflectUtil.nestedName(cls), JnaArgs.string(s.getPointer()));
+		format(b, "%s(%s) {%n", Reflect.nestedName(cls), JnaArgs.string(s.getPointer()));
 		for (String name : fields) {
-			Field f = Objects.requireNonNull(ReflectUtil.publicField(cls, name));
+			Field f = Objects.requireNonNull(Reflect.publicField(cls, name));
 			int offset = fieldOffsetFn.applyAsInt(name);
 			b.append(INDENT).append(fieldString(s, f, offset));
 		}
@@ -560,8 +560,8 @@ public abstract class Struct extends Structure {
 	}
 
 	private static String fieldString(Structure s, Field f, int offset) {
-		String type = ReflectUtil.nestedName(f.getType());
-		String value = ARGS.arg(ReflectUtil.publicFieldValue(s, f));
+		String type = Reflect.nestedName(f.getType());
+		String value = ARGS.arg(Reflect.publicFieldValue(s, f));
 		return String.format("+%02x: %s %s = %s%n", offset, type, f.getName(), prefix(value));
 	}
 
@@ -571,15 +571,15 @@ public abstract class Struct extends Structure {
 
 	private static List<String> annotatedFields(Class<?> cls) {
 		cls = structClass(cls);
-		String[] fields = AnnotationUtil.value(cls, Fields.class, Fields::value);
+		String[] fields = Annotations.value(cls, Fields.class, Fields::value);
 		if (fields != null) return ImmutableUtil.wrapAsList(fields);
 		throw new IllegalStateException(
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
-				Fields.class.getSimpleName(), ReflectUtil.name(cls)));
+				Fields.class.getSimpleName(), Reflect.name(cls)));
 	}
 
 	private static Align annotatedAlignment(Class<?> cls) {
-		boolean packed = AnnotationUtil.annotation(structClass(cls), Struct.Packed.class) != null;
+		boolean packed = Annotations.annotation(structClass(cls), Struct.Packed.class) != null;
 		return packed ? Align.none : Align.platform;
 	}
 

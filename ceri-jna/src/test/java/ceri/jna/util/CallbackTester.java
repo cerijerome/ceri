@@ -1,6 +1,6 @@
 package ceri.jna.util;
 
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.time.TimeSupplier;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CSignal;
@@ -47,7 +47,7 @@ public class CallbackTester {
 		sighandler_t cb = callback();
 		CSignal.signal(signal, cb);
 		lastCallbackMs = System.currentTimeMillis();
-		System.out.println("callback=" + ReflectUtil.hashId(cb));
+		System.out.println("callback=" + Reflect.hashId(cb));
 		return cb;
 	}
 
@@ -62,7 +62,7 @@ public class CallbackTester {
 			@Deprecated
 			@Override
 			protected void finalize() throws Throwable {
-				System.out.printf("gc! (callback=%s)%n", ReflectUtil.hashId(this));
+				System.out.printf("gc! (callback=%s)%n", Reflect.hashId(this));
 			}
 		};
 	}

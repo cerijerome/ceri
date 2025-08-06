@@ -513,7 +513,7 @@ public class AnsiEscape {
 		private boolean empty = true;
 
 		private static String escape(char prefix) {
-			return StringUtil.toString(ESC, prefix);
+			return Strings.of(ESC, prefix);
 		}
 
 		private static String escape(char prefix, char suffix, char separator, int blankCode,

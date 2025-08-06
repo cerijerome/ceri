@@ -8,14 +8,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 
 public class CloseableExecutorBehavior {
 
 	@Test
 	public void shouldExecuteRunnable() throws InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (CloseableExecutor exec = CloseableExecutor.single()) {
 			exec.execute(sync::signal);
 			sync.await();

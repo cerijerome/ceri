@@ -97,7 +97,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testDelay() throws InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delay(0);
 			ConcurrentUtil.delay(1);
@@ -110,7 +110,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testDelayMicros() throws InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delayMicros(0);
 			ConcurrentUtil.delayMicros(10);
@@ -123,7 +123,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testDelayNanos() throws InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (var _ = SimpleExecutor.run(() -> {
 			ConcurrentUtil.delayNanos(0);
 			ConcurrentUtil.delayNanos(10);
@@ -166,7 +166,7 @@ public class ConcurrentUtilTest {
 
 	@Test
 	public void testExecuteAndWait() throws IOException {
-		BooleanCondition signal = BooleanCondition.of();
+		BoolCondition signal = BoolCondition.of();
 		ConcurrentUtil.submitAndWait(exec, signal::signal, IOException::new);
 		assertTrue(signal.isSet());
 		signal.clear();

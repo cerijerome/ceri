@@ -1,42 +1,25 @@
 package ceri.common.stream;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.PrimitiveIterator;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
-import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import ceri.common.collection.CollectionSupplier;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.IteratorUtil;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
-import ceri.common.reflect.ReflectUtil;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -81,75 +64,11 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Collects a stream of int code points into a string.
-	 */
-	public static String toString(IntStream codePointStream) {
-		return codePointStream.collect(StringBuilder::new, StringBuilder::appendCodePoint, //
-			StringBuilder::append).toString();
-	}
-
-	public static String toString(Stream<?> stream, CharSequence delimiter) {
-		return toString(stream, "", delimiter, "");
-	}
-
-	public static String toString(Stream<?> stream, CharSequence prefix, CharSequence delimiter,
-		CharSequence suffix) {
-		if (stream == null) return null;
-		int prefixLen = prefix.length();
-		return stream.collect(() -> new StringBuilder(prefix), (b, t) -> {
-			if (b.length() > prefixLen) b.append(delimiter);
-			b.append(t);
-		}, StringBuilder::append).append(suffix).toString();
-	}
-
-	/**
-	 * Make a stream compatible with a for-each loop.
-	 */
-	public static <T> Iterable<T> iterable(Stream<T> stream) {
-		return IteratorUtil.iterable(stream.iterator());
-	}
-
-	/**
-	 * Make a stream compatible with a for-each loop.
-	 */
-	public static Iterable<Integer> iterable(IntStream stream) {
-		return IteratorUtil.iterable(stream.iterator());
-	}
-
-	/**
-	 * Make a stream compatible with a for-each loop.
-	 */
-	public static Iterable<Long> iterable(LongStream stream) {
-		return IteratorUtil.iterable(stream.iterator());
-	}
-
-	/**
 	 * Makes a stream sequential then applies simple collection.
 	 */
 	public static <T, R> R collect(Stream<T> stream, Supplier<R> supplier,
 		BiConsumer<R, ? super T> accumulator) {
 		return stream.sequential().collect(supplier, accumulator, badCombiner());
-	}
-
-	/**
-	 * Returns the first matching non-null entry in the stream, or null if no match.
-	 */
-	public static <T> T findFirstNonNull(Stream<T> stream, Predicate<? super T> predicate) {
-		return first(stream.filter(Objects::nonNull).filter(predicate));
-	}
-
-	/**
-	 * Returns the first non-null entry in the stream, or null.
-	 */
-	public static <T> T firstNonNull(Stream<T> stream) {
-		return first(stream.filter(Objects::nonNull));
-	}
-
-	/**
-	 * Returns the first instance of the given class in the stream , or null if no match.
-	 */
-	public static <T, U extends T> U firstOf(Stream<T> stream, Class<U> cls) {
-		return BasicUtil.unchecked(first(stream.filter(t -> cls.isInstance(t))));
 	}
 
 	/**
@@ -232,13 +151,6 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Convert a stream to an identity hash set.
-	 */
-	public static <T> Set<T> toIdentitySet(Stream<T> stream) {
-		return toSet(stream, CollectionUtil::identityHashSet);
-	}
-
-	/**
 	 * Convert a stream to a LinkedHashSet.
 	 */
 	public static <T> Set<T> toSet(Stream<? extends T> stream, Supplier<Set<T>> supplier) {
@@ -286,113 +198,6 @@ public class StreamUtil {
 	}
 
 	/**
-	 * Convert a stream to a map of collections.
-	 */
-	public static <K, T, C extends Collection<T>> Map<K, C> toMapOfCollections(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Supplier<C> collectionSupplier) {
-		return toMapOfCollections(stream, keyFn, t -> t, collectionSupplier);
-	}
-
-	/**
-	 * Convert a stream to a map of collections.
-	 */
-	public static <K, V, T, C extends Collection<V>> Map<K, C> toMapOfCollections(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
-		Supplier<C> collectionSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, supplier.map(), collectionSupplier);
-	}
-
-	/**
-	 * Convert a stream to a map of collections.
-	 */
-	public static <K, V, T, C extends Collection<V>> Map<K, C> toMapOfCollections(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
-		Supplier<Map<K, C>> mapSupplier, Supplier<C> collectionSupplier) {
-		return stream.collect(Collectors.groupingBy(keyFn, mapSupplier,
-			Collectors.mapping(valueFn, Collectors.toCollection(collectionSupplier))));
-	}
-
-	/**
-	 * Convert a stream to a map of sets.
-	 */
-	public static <K, T> Map<K, Set<T>> toMapOfSets(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn) {
-		return toMapOfSets(stream, keyFn, t -> t);
-	}
-
-	/**
-	 * Convert a stream to a map of sets.
-	 */
-	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMapOfSets(stream, keyFn, valueFn, supplier.map());
-	}
-
-	/**
-	 * Convert a stream to a map of sets.
-	 */
-	public static <K, V, T> Map<K, Set<V>> toMapOfSets(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
-		Supplier<Map<K, Set<V>>> mapSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, supplier.set());
-	}
-
-	/**
-	 * Convert a stream to a map of lists.
-	 */
-	public static <K, T> Map<K, List<T>> toMapOfLists(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn) {
-		return toMapOfLists(stream, keyFn, t -> t);
-	}
-
-	/**
-	 * Convert a stream to a map of lists.
-	 */
-	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMapOfLists(stream, keyFn, valueFn, supplier.map());
-	}
-
-	/**
-	 * Convert a stream to a map of lists.
-	 */
-	public static <K, V, T> Map<K, List<V>> toMapOfLists(Stream<T> stream,
-		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn,
-		Supplier<Map<K, List<V>>> mapSupplier) {
-		return toMapOfCollections(stream, keyFn, valueFn, mapSupplier, supplier.list());
-	}
-
-	/**
-	 * Convert a map entry stream back to a map.
-	 */
-	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream) {
-		return toEntryMap(stream, supplier.map());
-	}
-
-	/**
-	 * Convert a map entry stream back to a map.
-	 */
-	public static <K, V> Map<K, V> toEntryMap(Stream<Map.Entry<K, V>> stream,
-		Supplier<Map<K, V>> mapSupplier) {
-		return stream.collect(entryCollector(mergeSecond(), mapSupplier));
-	}
-
-	/**
-	 * Collector for map entry back to map.
-	 */
-	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>> entryCollector() {
-		return entryCollector(mergeError(), supplier.map());
-	}
-
-	/**
-	 * Collector for map entry back to map.
-	 */
-	public static <K, V> Collector<Map.Entry<K, V>, ?, Map<K, V>>
-		entryCollector(BinaryOperator<V> mergeFn, Supplier<Map<K, V>> mapSupplier) {
-		return Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, mergeFn, mapSupplier);
-	}
-
-	/**
 	 * When merging keys, only keep the original key.
 	 */
 	public static <T> BinaryOperator<T> mergeFirst() {
@@ -419,139 +224,5 @@ public class StreamUtil {
 	public static <T> BinaryOperator<T> merge(Boolean first) {
 		if (first == null) return mergeError();
 		return first ? mergeFirst() : mergeSecond();
-	}
-
-	/**
-	 * Convert a map to an object stream.
-	 */
-	public static <K, V, T> Stream<T> stream(Map<K, V> map,
-		BiFunction<? super K, ? super V, ? extends T> mapFn) {
-		Function<Map.Entry<K, V>, T> fn = (entry -> mapFn.apply(entry.getKey(), entry.getValue()));
-		return map.entrySet().stream().map(fn);
-	}
-
-	/**
-	 * Construct an ordered stream from hasNext and next functions.
-	 */
-	public static <T> Stream<T> stream(BooleanSupplier hasNextFn, Supplier<T> nextFn) {
-		return stream(action -> {
-			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
-			if (nextFn != null) action.accept(nextFn.get());
-			return true;
-		});
-	}
-
-	/**
-	 * Construct an ordered stream from a try-advance method. The method returns false if no more
-	 * values, otherwise it passes the next value to the action, and returns true.
-	 */
-	public static <T> Stream<T> stream(Predicate<Consumer<? super T>> tryAdvanceFn) {
-		Spliterator<T> spliterator =
-			IteratorUtil.spliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
-		return StreamSupport.stream(spliterator, false);
-	}
-
-	/**
-	 * Construct an ordered stream from hasNext and next functions.
-	 */
-	public static IntStream intStream(BooleanSupplier hasNextFn, IntSupplier nextFn) {
-		return intStream(action -> {
-			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
-			if (nextFn != null) action.accept(nextFn.getAsInt());
-			return true;
-		});
-	}
-
-	/**
-	 * Construct an ordered stream from a try-advance method. The method returns false if no more
-	 * values, otherwise it passes the next value to the action, and returns true.
-	 */
-	public static IntStream intStream(Predicate<IntConsumer> tryAdvanceFn) {
-		Spliterator.OfInt spliterator =
-			IteratorUtil.intSpliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
-		return StreamSupport.intStream(spliterator, false);
-	}
-
-	/**
-	 * Construct an ordered stream from hasNext and next functions.
-	 */
-	public static LongStream longStream(BooleanSupplier hasNextFn, LongSupplier nextFn) {
-		return longStream(action -> {
-			if (hasNextFn == null || !hasNextFn.getAsBoolean()) return false;
-			if (nextFn != null) action.accept(nextFn.getAsLong());
-			return true;
-		});
-	}
-
-	/**
-	 * Construct an ordered stream from a try-advance method. The method returns false if no more
-	 * values, otherwise it passes the next value to the action, and returns true.
-	 */
-	public static LongStream longStream(Predicate<LongConsumer> tryAdvanceFn) {
-		Spliterator.OfLong spliterator =
-			IteratorUtil.longSpliterator(tryAdvanceFn, Long.MAX_VALUE, Spliterator.ORDERED);
-		return StreamSupport.longStream(spliterator, false);
-	}
-
-	/**
-	 * Streams the collection elements.
-	 */
-	@SafeVarargs
-	public static <T> Stream<T> streamAll(Collection<? extends T>... collections) {
-		return Stream.of(collections).filter(Objects::nonNull).flatMap(Collection::stream);
-	}
-
-	/**
-	 * Returns a stream for an iterator.
-	 */
-	public static <T> Stream<T> stream(Iterator<T> i) {
-		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
-		return StreamSupport.stream(spliterator, false);
-	}
-
-	/**
-	 * Returns a stream for an iterable type.
-	 */
-	public static <T> Stream<T> stream(Iterable<T> i) {
-		return StreamSupport.stream(i.spliterator(), false);
-	}
-
-	/**
-	 * Returns a stream for an int iterator.
-	 */
-	public static IntStream intStream(PrimitiveIterator.OfInt i) {
-		var spliterator = Spliterators.spliteratorUnknownSize(i, Spliterator.ORDERED);
-		return StreamSupport.intStream(spliterator, false);
-	}
-
-	/**
-	 * Returns a stream for an Enumeration.
-	 */
-	public static <T> Stream<T> stream(Enumeration<T> e) {
-		return stream(e::hasMoreElements, e::nextElement);
-	}
-
-	/**
-	 * Stream subarray. The case missing from Arrays.stream
-	 */
-	public static <T> Stream<T> stream(T[] array, int offset) {
-		return Arrays.stream(array, offset, array.length);
-	}
-
-	/**
-	 * Returns a stream for all enum values. The enum array is created each time; for cached enum
-	 * values use <code>EnumUtil.enums(enumCls).stream()</code>.
-	 */
-	public static <T extends Enum<T>> Stream<T> stream(Class<T> enumCls) {
-		return Stream.of(enumCls.getEnumConstants());
-	}
-
-	/**
-	 * Split a stream into map entries, with split value as key, original value as value. Useful for
-	 * creating maps of types that have collection fields.
-	 */
-	public static <T, K> Stream<Map.Entry<K, T>> flatInvert(Stream<T> stream,
-		Function<T, Collection<K>> fn) {
-		return stream.flatMap(t -> fn.apply(t).stream().map(k -> new SimpleEntry<>(k, t)));
 	}
 }

@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions.ByteFunction;
 import ceri.common.math.MathUtil;
@@ -232,7 +232,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	@Override
 	default PrimitiveIterator.OfInt iterator() {
-		return IteratorUtil.intIndexed(length(), i -> (int) getUbyte(i));
+		return Iterators.intIndexed(length(), i -> (int) getUbyte(i));
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package ceri.x10.command;
 
 import java.util.Map;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Enums;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.text.StringUtil;
 
@@ -27,7 +27,7 @@ public enum FunctionType {
 	statusReq(16, FunctionGroup.unsupported);
 
 	private static final Map<String, FunctionType> names =
-		ImmutableUtil.enumMap(f -> f.name().toLowerCase(), FunctionType.class);
+		Enums.map(f -> f.name().toLowerCase(), FunctionType.class);
 	private static final TypeTranscoder<FunctionType> xcoder =
 		TypeTranscoder.of(t -> t.id, FunctionType.class);
 	public final FunctionGroup group;

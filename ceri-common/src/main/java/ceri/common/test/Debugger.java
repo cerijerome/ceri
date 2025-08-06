@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import ceri.common.reflect.Caller;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Useful class for printf-style debugging. Log methods of interest, with information automatically
@@ -48,7 +48,7 @@ public class Debugger {
 	 */
 	public void log(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
-		Caller caller = ReflectUtil.previousCaller(1);
+		Caller caller = Reflect.previousCaller(1);
 		StringBuilder b = new StringBuilder();
 		if (objs != null) for (int i = 0; i < objs.length; i++) {
 			if (i > 0) b.append(", ");
@@ -63,7 +63,7 @@ public class Debugger {
 	 */
 	public void method(Object... objs) {
 		if (shouldStop(totalCalls++)) return;
-		Caller caller = ReflectUtil.previousCaller(1);
+		Caller caller = Reflect.previousCaller(1);
 		int count = incrementMethodCount(caller);
 		print(caller, 1, count, objs);
 	}

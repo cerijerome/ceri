@@ -1,10 +1,10 @@
 package ceri.ent.server;
 
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 
 public class ShutdownSync {
-	private final BooleanCondition sync = BooleanCondition.of();
+	private final BoolCondition sync = BoolCondition.of();
 
 	public void signal() {
 		sync.signal();

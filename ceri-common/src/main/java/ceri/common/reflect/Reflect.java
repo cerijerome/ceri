@@ -16,18 +16,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArrays;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.BiPredicate;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -35,11 +33,11 @@ import ceri.common.util.BasicUtil;
 /**
  * Utility methods related to reflection
  */
-public class ReflectUtil {
+public class Reflect {
 	public static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
-	private ReflectUtil() {}
+	private Reflect() {}
 
 	/**
 	 * A thread and stack trace element.
@@ -57,7 +55,7 @@ public class ReflectUtil {
 		@Override
 		public String toString() {
 			if (element() == null) return StringUtil.NULL;
-			return ReflectUtil.name(element.getClassName()) + "." + element.getMethodName() + ":"
+			return Reflect.name(element.getClassName()) + "." + element.getMethodName() + ":"
 				+ element.getLineNumber();
 		}
 	}
@@ -66,7 +64,7 @@ public class ReflectUtil {
 	 * Searches all thread stack trace elements.
 	 */
 	public static <E extends Exception> ThreadElement
-		findElement(Predicate<E, StackTraceElement> predicate) throws E {
+		findElement(Excepts.Predicate<E, StackTraceElement> predicate) throws E {
 		return findElement((_, e) -> predicate.test(e));
 	}
 
@@ -74,7 +72,7 @@ public class ReflectUtil {
 	 * Searches all thread stack trace elements.
 	 */
 	public static <E extends Exception> ThreadElement
-		findElement(BiPredicate<E, Thread, StackTraceElement> predicate) throws E {
+		findElement(Excepts.BiPredicate<E, Thread, StackTraceElement> predicate) throws E {
 		for (var entry : Thread.getAllStackTraces().entrySet()) {
 			for (var element : entry.getValue()) {
 				if (predicate.test(entry.getKey(), element))
@@ -173,7 +171,7 @@ public class ReflectUtil {
 	 * Applies the consumer only to instances of the given type.
 	 */
 	public static <E extends Exception, T> void acceptInstances(Class<T> cls,
-		Consumer<E, ? super T> consumer, Iterable<?> objects) throws E {
+		Excepts.Consumer<E, ? super T> consumer, Iterable<?> objects) throws E {
 		for (var obj : objects) {
 			var t = castOrNull(cls, obj);
 			if (t != null) consumer.accept(t);
@@ -283,7 +281,7 @@ public class ReflectUtil {
 	 * Gets the class and line number of a previous caller.
 	 */
 	public static String previousClassLine(int countBack) {
-		StackTraceElement element = ReflectUtil.previousElement(countBack + 1);
+		StackTraceElement element = Reflect.previousElement(countBack + 1);
 		return element.getClassName() + ":" + element.getLineNumber();
 	}
 
@@ -323,7 +321,7 @@ public class ReflectUtil {
 	 */
 	public static byte[] loadClassFile(String name) throws IOException {
 		String fileName = name.replace('.', File.separatorChar) + ".class";
-		try (var in = ReflectUtil.class.getClassLoader().getResourceAsStream(fileName)) {
+		try (var in = Reflect.class.getClassLoader().getResourceAsStream(fileName)) {
 			return in.readAllBytes();
 		}
 	}
@@ -347,7 +345,7 @@ public class ReflectUtil {
 	/**
 	 * Iterates the given classes and their declared nested classes.
 	 */
-	public static <E extends Exception> void nested(Consumer<E, Class<?>> consumer,
+	public static <E extends Exception> void nested(Excepts.Consumer<E, Class<?>> consumer,
 		Class<?>... classes) throws E {
 		nested(consumer, Arrays.asList(classes));
 	}
@@ -355,7 +353,7 @@ public class ReflectUtil {
 	/**
 	 * Iterates the given classes and their declared nested classes.
 	 */
-	public static <E extends Exception> void nested(Consumer<E, Class<?>> consumer,
+	public static <E extends Exception> void nested(Excepts.Consumer<E, Class<?>> consumer,
 		Iterable<Class<?>> classes) throws E {
 		for (var cls : classes) {
 			consumer.accept(cls);
@@ -500,9 +498,9 @@ public class ReflectUtil {
 	/**
 	 * Provide the static fields of given type for a class.
 	 */
-	public static <T> Stream<T> staticFields(Class<?> source, Class<T> type) {
-		return Stream.of(source.getDeclaredFields())
-			.map(f -> castOrNull(type, publicFieldValue(null, f))).filter(Objects::nonNull);
+	public static <T> Stream<RuntimeException, T> staticFields(Class<?> source, Class<T> type) {
+		return Streams.of(source.getDeclaredFields()).map(f -> publicFieldValue(null, f))
+			.instances(type);
 	}
 
 	private static StackTraceElement previousStackTraceElement(String callingMethodName,
@@ -540,7 +538,7 @@ public class ReflectUtil {
 	 */
 	public static boolean stackHasPackage(String pkg) {
 		if (pkg == null) return false;
-		return Stream.of(Thread.currentThread().getStackTrace())
+		return Streams.of(Thread.currentThread().getStackTrace())
 			.map(StackTraceElement::getClassName).anyMatch(s -> s.startsWith(pkg));
 	}
 
@@ -557,7 +555,7 @@ public class ReflectUtil {
 	 */
 	public static <T extends Enum<?>> T fieldToEnum(Field field) {
 		if (field == null || !field.isEnumConstant()) return null;
-		return BasicUtil.unchecked(ReflectUtil.publicFieldValue(null, field));
+		return BasicUtil.unchecked(Reflect.publicFieldValue(null, field));
 	}
 
 	/**

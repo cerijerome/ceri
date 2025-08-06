@@ -4,27 +4,24 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.IntUnaryOperator;
-import java.util.function.ObjIntConsumer;
-import java.util.function.ToIntFunction;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
-import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 
 /**
- * Combines ranges into a single length. Looks up range index by position. Uses linear or binary
- * search depending on the number of indexes.
+ * Splits a range into indexed sections such as {@code 0001222233}. Index lookup may Use linear or
+ * binary search depending on the number of indexes.
  */
-public class Indexer {
+public class SplitRange {
 	public static final int INVALID_INDEX = -1;
-	public static final Indexer NULL = of();
+	public static final SplitRange NULL = of();
 	private static final int LINEAR_MAX = 256; // roughly when search is more efficient
-	private final int[] indexes;
+	private final int[] indexes; // the exclusive end index of each section
 	private final IntProvider indexProvider;
-	private final IntUnaryOperator indexFn;
+	private final Functions.IntOperator indexFn;
 	public final int length;
 	public final int count;
 
@@ -46,46 +43,48 @@ public class Indexer {
 	 * Creates an indexed list of types using a length function.
 	 */
 	@SafeVarargs
-	public static <T> Indexer.Typed<T> typed(ToIntFunction<? super T> lengthFn, T... ts) {
+	public static <T> SplitRange.Typed<T> typed(Functions.ToIntFunction<? super T> lengthFn,
+		T... ts) {
 		return typed(lengthFn, Arrays.asList(ts));
 	}
 
 	/**
 	 * Creates an indexed list of types using a length function.
 	 */
-	public static <T> Indexer.Typed<T> typed(ToIntFunction<? super T> lengthFn, Collection<T> ts) {
+	public static <T> SplitRange.Typed<T> typed(Functions.ToIntFunction<? super T> lengthFn,
+		Collection<T> ts) {
 		return new Typed<>(ImmutableUtil.copyAsList(ts), from(lengthFn, ts));
 	}
 
 	/**
-	 * Holds a list of types with intrinsic lengths, and an indexer.
+	 * Splits a range into indexed sections, with typed object lookup per section.
 	 */
 	public static class Typed<T> {
-		private static final Typed<?> NULL = new Typed<>(List.of(), Indexer.NULL);
+		private static final Typed<?> NULL = new Typed<>(List.of(), SplitRange.NULL);
 		public final List<T> list;
-		public final Indexer indexer;
+		public final SplitRange range;
 
 		public static <T> Typed<T> ofNull() {
 			return BasicUtil.unchecked(NULL);
 		}
 
-		private Typed(List<T> list, Indexer indexer) {
+		private Typed(List<T> list, SplitRange range) {
 			this.list = list;
-			this.indexer = indexer;
+			this.range = range;
 		}
 
 		/**
 		 * Returns the total length.
 		 */
 		public int length() {
-			return indexer.length;
+			return range.length;
 		}
 
 		/**
 		 * Returns the index in which the position appears, or -1 if outside the range.
 		 */
 		public int index(int position) {
-			return indexer.index(position);
+			return range.index(position);
 		}
 
 		/**
@@ -99,64 +98,65 @@ public class Indexer {
 		 * Calls the consumer with the corresponding type and offset for the position, if within the
 		 * range.
 		 */
-		public void accept(int position, ObjIntConsumer<? super T> consumer) {
+		public void accept(int position, Functions.ObjIntConsumer<? super T> consumer) {
 			int index = index(position);
 			if (index != INVALID_INDEX)
-				consumer.accept(list.get(index), position - indexer.start(index));
+				consumer.accept(list.get(index), position - range.start(index));
 		}
 
 		/**
 		 * Calls the function with the corresponding type and offset for the position, if within the
 		 * range, and returns the result. Returns null if out of range.
 		 */
-		public <R> R apply(int position, ObjIntFunction<? super T, R> function) {
+		public <R> R apply(int position, Functions.ObjIntFunction<? super T, R> function) {
 			int index = index(position);
 			return index == INVALID_INDEX ? null :
-				function.apply(list.get(index), position - indexer.start(index));
+				function.apply(list.get(index), position - range.start(index));
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(indexer, list);
+			return Objects.hash(range, list);
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (this == obj) return true;
-			if (!(obj instanceof Indexer.Typed<?> other)) return false;
-			return Objects.equals(indexer, other.indexer) && Objects.equals(list, other.list);
+			if (!(obj instanceof SplitRange.Typed<?> other)) return false;
+			return Objects.equals(range, other.range) && Objects.equals(list, other.list);
 		}
 
 		@Override
 		public String toString() {
-			return ToString.ofClass(this, indexer.indexes()).childrens(list).toString();
+			return ToString.ofClass(this, range.indexes()).childrens(list).toString();
 		}
 	}
 
 	/**
 	 * Creates from section lengths.
 	 */
-	public static Indexer from(int... lengths) {
+	public static SplitRange from(int... lengths) {
 		var enc = IntArray.Encoder.fixed(lengths.length);
 		for (int i = 0, n = 0; i < lengths.length; i++) {
 			n += lengths[i];
 			enc.writeInt(n);
 		}
-		return new Indexer(enc.ints());
+		return new SplitRange(enc.ints());
 	}
 
 	/**
 	 * Creates from types and a length function.
 	 */
 	@SafeVarargs
-	public static <T> Indexer from(ToIntFunction<? super T> lengthFn, T... ts) {
+	public static <T> SplitRange from(Functions.ToIntFunction<? super T> lengthFn, T... ts) {
 		return from(lengthFn, Arrays.asList(ts));
 	}
 
 	/**
 	 * Creates from types and a length function.
 	 */
-	public static <T> Indexer from(ToIntFunction<? super T> lengthFn, Collection<T> ts) {
+	public static <T> SplitRange from(Functions.ToIntFunction<? super T> lengthFn,
+		Collection<T> ts) {
 		return from(ts.stream().mapToInt(lengthFn).toArray());
 	}
 
@@ -164,14 +164,14 @@ public class Indexer {
 	 * Creates from section indexes, which must be a non-decreasing sequence. The last index is the
 	 * total length.
 	 */
-	public static Indexer of(int... indexes) {
+	public static SplitRange of(int... indexes) {
 		for (int i = 1; i < indexes.length; i++)
 			if (indexes[i - 1] > indexes[i]) throw Exceptions
 				.illegalArg("Index cannot decrease: %d > %d [%d]", indexes[i - 1], indexes[i], i);
-		return new Indexer(indexes);
+		return new SplitRange(indexes.clone());
 	}
 
-	private Indexer(int[] indexes) {
+	private SplitRange(int[] indexes) {
 		this.indexes = indexes;
 		indexProvider = IntArray.Immutable.wrap(indexes);
 		indexFn = indexes.length <= LINEAR_MAX ? this::linearIndex : this::searchIndex;
@@ -237,7 +237,7 @@ public class Indexer {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Indexer other)) return false;
+		if (!(obj instanceof SplitRange other)) return false;
 		return Arrays.equals(indexes, other.indexes);
 	}
 

@@ -6,19 +6,19 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Simple condition to signal and wait for a boolean state change.
  */
-public class BooleanCondition {
+public class BoolCondition {
 	private final Object value = new Object();
 	private final ValueCondition<Object> condition;
 
-	public static BooleanCondition of() {
+	public static BoolCondition of() {
 		return of(new ReentrantLock());
 	}
 
-	public static BooleanCondition of(Lock lock) {
-		return new BooleanCondition(ValueCondition.of(lock));
+	public static BoolCondition of(Lock lock) {
+		return new BoolCondition(ValueCondition.of(lock));
 	}
 
-	private BooleanCondition(ValueCondition<Object> condition) {
+	private BoolCondition(ValueCondition<Object> condition) {
 		this.condition = condition;
 	}
 

@@ -1,8 +1,8 @@
 package ceri.serial.comm;
 
-import static ceri.common.math.MathUtil.approxEqual;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.Enums;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.math.MathUtil;
 import ceri.serial.comm.jna.CSerial;
 
 public enum StopBits {
@@ -10,7 +10,8 @@ public enum StopBits {
 	_2(CSerial.STOPBITS_2, 2.0),
 	_1_5(CSerial.STOPBITS_1_5, 1.5);
 
-	private static final TypeTranscoder<StopBits> xcoder = TypeTranscoder.of(t -> t.value, StopBits.class);
+	private static final TypeTranscoder<StopBits> xcoder =
+		TypeTranscoder.of(t -> t.value, StopBits.class);
 	private static final double PRECISION = 0.1;
 	public final int value;
 	public final double bits;
@@ -20,7 +21,7 @@ public enum StopBits {
 	}
 
 	public static StopBits fromBits(double bits) {
-		return EnumUtil.find(StopBits.class, t -> approxEqual(t.bits, bits, PRECISION));
+		return Enums.find(StopBits.class, t -> MathUtil.approxEqual(t.bits, bits, PRECISION));
 	}
 
 	private StopBits(int value, double bits) {

@@ -1,7 +1,5 @@
 package ceri.common.array;
 
-import static ceri.common.exception.Exceptions.illegalState;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import ceri.common.function.Functions;
 import ceri.common.text.Joiner;
@@ -11,6 +9,7 @@ import ceri.common.util.Hasher;
  * Typed (non-raw) array support, including primitive and object arrays.
  */
 public abstract class TypedArray<T> {
+	public static final Type<Object> OBJ = type(Object[]::new);
 	public final Functions.IntFunction<T> constructor;
 
 	/**
@@ -231,7 +230,6 @@ public abstract class TypedArray<T> {
 	 * Creates an empty array.
 	 */
 	public T array(int length) {
-		if (true == true && length > 1000) throw illegalState("big array alert! = " + length);
 		return constructor.apply(length);
 	}
 
@@ -468,8 +466,8 @@ public abstract class TypedArray<T> {
 	 * Returns a string representation of the array range.
 	 */
 	public String toString(Joiner joiner, T array, int offset, int length) {
-		return RawArrays.appendToString((b, a, i) -> b.append(Array.get(a, i)), joiner, array,
-			offset, length);
+		return RawArrays.appendToString((b, a, i) -> b.append(RawArrays.<Object>get(a, i)), joiner,
+			array, offset, length);
 	}
 
 	/**

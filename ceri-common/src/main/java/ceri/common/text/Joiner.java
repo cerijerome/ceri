@@ -2,17 +2,12 @@ package ceri.common.text;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Stream;
 import ceri.common.function.Excepts;
-import ceri.common.stream.CollectorUtil;
+import ceri.common.function.Functions;
+import ceri.common.stream.Stream;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Truth;
 
@@ -204,40 +199,25 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 			.remainder(remainder).showCount(showCount).countFormat(countFormat);
 	}
 
-	/**
-	 * Returns true if the given count would be limited to the configured maximum.
-	 */
-	public boolean limited(int count) {
-		return max != null && count > max;
-	}
-
-	/**
-	 * Returns the actual joined item count, limited to the configured maximum.
-	 */
-	public int count(int count) {
-		count = Math.max(0, count);
-		return max != null ? Math.min(max, count) : count;
-	}
-
 	// stream collector
 
 	@Override
-	public Supplier<Composer.Collecting> supplier() {
+	public Functions.Supplier<Composer.Collecting> supplier() {
 		return () -> new Composer.Collecting(this);
 	}
 
 	@Override
-	public BiConsumer<Composer.Collecting, Object> accumulator() {
+	public Functions.BiConsumer<Composer.Collecting, Object> accumulator() {
 		return (c, o) -> c.add(o);
 	}
 
 	@Override
-	public BinaryOperator<Composer.Collecting> combiner() {
-		return CollectorUtil.unsupportedCombiner();
+	public Functions.BiOperator<Composer.Collecting> combiner() {
+		return Stream.Collect.unsupportedCombiner();
 	}
 
 	@Override
-	public Function<Composer.Collecting, String> finisher() {
+	public Functions.Function<Composer.Collecting, String> finisher() {
 		return c -> c.complete().toString();
 	}
 
@@ -311,49 +291,25 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	/**
 	 * Join items based on type.
 	 */
-	public <T> String join(Collection<T> collection) {
-		return join(StringBuilder::append, collection);
+	public <T> String join(Iterable<T> iterable) {
+		return join(StringBuilder::append, iterable);
 	}
 
 	/**
 	 * Join items based on type.
 	 */
 	public <E extends Exception, T> String join(Excepts.Function<E, T, ?> stringFn,
-		Collection<T> collection) throws E {
+		Iterable<T> iterable) throws E {
 		if (stringFn == null) return "";
-		return join((b, t) -> b.append(stringFn.apply(t)), collection);
+		return join((b, t) -> b.append(stringFn.apply(t)), iterable);
 	}
 
 	/**
 	 * Join items based on type.
 	 */
 	public <E extends Exception, T> String join(Excepts.BiConsumer<E, StringBuilder, T> appender,
-		Collection<T> collection) throws E {
+		Iterable<T> collection) throws E {
 		return append(new StringBuilder(), appender, collection).toString();
-	}
-
-	/**
-	 * Join items based on type; count is not available.
-	 */
-	public <T> String join(Stream<T> stream) {
-		return join(StringBuilder::append, stream);
-	}
-
-	/**
-	 * Join items based on type; count is not available.
-	 */
-	public <E extends Exception, T> String join(Excepts.Function<E, T, ?> stringFn,
-		Stream<T> stream) throws E {
-		if (stringFn == null) return "";
-		return join((b, t) -> b.append(stringFn.apply(t)), stream);
-	}
-
-	/**
-	 * Join items based on type; count is not available.
-	 */
-	public <E extends Exception, T> String join(Excepts.BiConsumer<E, StringBuilder, T> appender,
-		Stream<T> stream) throws E {
-		return append(new StringBuilder(), appender, stream).toString();
 	}
 
 	/**
@@ -478,51 +434,26 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	/**
 	 * Append items based on type.
 	 */
-	public <T> StringBuilder append(StringBuilder sb, Collection<T> collection) {
-		return append(sb, StringBuilder::append, collection);
+	public <T> StringBuilder append(StringBuilder sb, Iterable<T> iterable) {
+		return append(sb, StringBuilder::append, iterable);
 	}
 
 	/**
 	 * Append items based on type.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		Excepts.Function<E, T, ?> stringFn, Collection<T> collection) throws E {
+		Excepts.Function<E, T, ?> stringFn, Iterable<T> iterable) throws E {
 		if (stringFn == null) return sb;
-		return append(sb, (b, t) -> b.append(stringFn.apply(t)), collection);
+		return append(sb, (b, t) -> b.append(stringFn.apply(t)), iterable);
 	}
 
 	/**
 	 * Append items based on type.
 	 */
 	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		Excepts.BiConsumer<E, StringBuilder, T> appender, Collection<T> collection) throws E {
-		if (collection == null) return sb;
-		return appendTo(sb, appender, collection.iterator(), collection.size());
-	}
-
-	/**
-	 * Append items based on type; count is not available.
-	 */
-	public <T> StringBuilder append(StringBuilder sb, Stream<T> stream) {
-		return append(sb, StringBuilder::append, stream);
-	}
-
-	/**
-	 * Append items based on type; count is not available.
-	 */
-	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		Excepts.Function<E, T, ?> stringFn, Stream<T> stream) throws E {
-		if (stringFn == null) return sb;
-		return append(sb, (b, t) -> b.append(stringFn.apply(t)), stream);
-	}
-
-	/**
-	 * Append items based on type; count is not available.
-	 */
-	public <E extends Exception, T> StringBuilder append(StringBuilder sb,
-		Excepts.BiConsumer<E, StringBuilder, T> appender, Stream<T> stream) throws E {
-		if (stream == null) return sb;
-		return append(sb, appender, stream.iterator());
+		Excepts.BiConsumer<E, StringBuilder, T> appender, Iterable<T> iterable) throws E {
+		if (iterable == null) return sb;
+		return appendTo(sb, appender, iterable.iterator(), null);
 	}
 
 	/**

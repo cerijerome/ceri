@@ -4,7 +4,7 @@ import java.io.IOException;
 import com.sun.jna.Pointer;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.Direction;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
 import ceri.serial.ftdi.Ftdi;
@@ -19,7 +19,7 @@ import ceri.serial.ftdi.util.SelfHealingFtdi;
  * A connector for testing logic against serial connectors.
  */
 public class TestFtdi extends TestConnector implements Ftdi.Fixable {
-	private static final String NAME = ReflectUtil.name(TestFtdi.class);
+	private static final String NAME = Reflect.name(TestFtdi.class);
 	public final CallSync.Supplier<ftdi_usb_strings> descriptor =
 		CallSync.supplier(new ftdi_usb_strings("test", "test", "test"));
 	public final CallSync.Runnable usbReset = CallSync.runnable(true);

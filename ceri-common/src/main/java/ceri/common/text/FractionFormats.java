@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import ceri.common.collection.Enums;
 import ceri.common.math.Fraction;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Streams;
 
 /**
  * Provides parsing and formatting of fractions.
@@ -47,6 +47,7 @@ public class FractionFormats {
 		fiveEighths(5, 8, '\u215D'),
 		sevenEighths(7, 8, '\u215E');
 
+		private static final Map<Fraction, Glyph> map = Enums.map(g -> g.fraction, Glyph.class);
 		public final Fraction fraction;
 		public final double value;
 		public final char code;
@@ -58,21 +59,19 @@ public class FractionFormats {
 		}
 
 		public static Glyph from(char code) {
-			return StreamUtil.first(Stream.of(Glyph.values()).filter(g -> g.code == code));
+			return Enums.stream(Glyph.class).filter(g -> g.code == code).next();
 		}
 
 		public static Glyph of(Fraction fraction) {
-			if (fraction == null) return null;
-			return of(fraction.numerator(), fraction.denominator());
+			return map.get(fraction);
 		}
 
 		public static Glyph of(long numerator, long denominator) {
-			return StreamUtil.first(
-				Stream.of(Glyph.values()).filter(g -> g.fraction.equals(numerator, denominator)));
+			return of(Fraction.of(numerator, denominator));
 		}
 
 		static String all() {
-			return StreamUtil.toString(Stream.of(Glyph.values()).mapToInt(g -> g.code));
+			return Enums.stream(Glyph.class).mapToInt(g -> g.code).collect(IntStream.Collect.chars);
 		}
 	}
 
@@ -89,7 +88,7 @@ public class FractionFormats {
 		}
 
 		static String all() {
-			return StreamUtil.toString(Stream.of(Slash.values()).mapToInt(g -> g.code));
+			return Enums.stream(Slash.class).mapToInt(g -> g.code).collect(IntStream.Collect.chars);
 		}
 	}
 
@@ -119,7 +118,7 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return StreamUtil.toString(IntStream.range(0, 10).map(Superscript::toChar));
+			return Streams.range(0, 10).map(Superscript::toChar).collect(IntStream.Collect.chars);
 		}
 
 	}
@@ -146,7 +145,8 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return StreamUtil.toString(IntStream.range(0, 10).map(Subscript::toChar));
+			return Streams.range(0, 10).map(Subscript::toChar)
+				.collect(ceri.common.stream.IntStream.Collect.chars);
 		}
 	}
 
@@ -188,11 +188,12 @@ public class FractionFormats {
 		}
 
 		private static String expandables() {
-			return StreamUtil.toString(EXPANSIONS.keySet().stream().mapToInt(c -> (int) c));
+			return Streams.from(EXPANSIONS.keySet()).mapToInt(c -> (int) c)
+				.collect(IntStream.Collect.chars);
 		}
 
 		private static Map<Character, String> expansions() {
-			Map<Character, String> expansions = new LinkedHashMap<>();
+			var expansions = new LinkedHashMap<Character, String>();
 			for (Glyph g : Glyph.values())
 				expansions.put(g.code, g.fraction.toString());
 			expansions.put(Superscript.PLUS, "+");
@@ -212,7 +213,6 @@ public class FractionFormats {
 	}
 
 	static class Formatter {
-
 		private Formatter() {}
 
 		public static String format(Fraction fraction) {
@@ -232,5 +232,4 @@ public class FractionFormats {
 				.toString();
 		}
 	}
-
 }

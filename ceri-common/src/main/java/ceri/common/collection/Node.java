@@ -1,9 +1,8 @@
 package ceri.common.collection;
 
-import static ceri.common.collection.ImmutableUtil.collectAsList;
-import static ceri.common.collection.ImmutableUtil.convertAsMap;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -12,11 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 import ceri.common.text.ParseUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
@@ -135,9 +134,9 @@ public class Node<T> {
 	Node(Builder<T> builder) {
 		name = builder.name;
 		value = builder.value;
-		children = collectAsList(builder.children.stream().map(Builder::build));
-		lookup = convertAsMap(node -> node.name, //
-			children.stream().filter(Node::isNamed), TreeMap::new);
+		children = Streams.from(builder.children).<Node<?>>map(Builder::build).toList();
+		lookup = Collections.unmodifiableMap(
+			Streams.from(children).filter(Node::isNamed).collectMap(n -> n.name, new TreeMap<>()));
 	}
 
 	/**
@@ -152,7 +151,7 @@ public class Node<T> {
 	 * Lists all named child paths recursively.
 	 */
 	public List<String> namedPaths() {
-		return namedChildPathStream().distinct().collect(Collectors.toList());
+		return namedChildPathStream().distinct().toList();
 	}
 
 	public Set<String> childNames() {
@@ -204,7 +203,7 @@ public class Node<T> {
 	}
 
 	public <U> U asType(Class<U> cls) {
-		return ReflectUtil.castOrNull(cls, value);
+		return Reflect.castOrNull(cls, value);
 	}
 
 	@Override
@@ -227,13 +226,13 @@ public class Node<T> {
 		return ToString.ofClass(this, name, value).childrens(children).toString();
 	}
 
-	private Stream<String> namedPathStream() {
-		return Stream.concat(Stream.of(name),
+	private Stream<RuntimeException, String> namedPathStream() {
+		return Streams.merge(Streams.of(name),
 			namedChildPathStream().map(p -> Separator.DOT.join(name, p)));
 	}
 
-	private Stream<String> namedChildPathStream() {
-		return lookup.values().stream().flatMap(n -> n.namedPathStream());
+	private Stream<RuntimeException, String> namedChildPathStream() {
+		return Streams.from(lookup.values()).flatMap(n -> n.namedPathStream());
 	}
 
 	private Node<?> child(int[] indexes, int i) {
@@ -244,16 +243,15 @@ public class Node<T> {
 
 	private Node<?> child(List<String> parts, int index) {
 		if (index >= parts.size()) return this;
-		Node<?> child = childFromPart(parts.get(index));
+		var child = childFromPart(parts.get(index));
 		return child == null ? Node.NULL : child.child(parts, index + 1);
 	}
 
 	private Node<?> childFromPart(String part) {
-		Node<?> child = lookup.get(part);
+		var child = lookup.get(part);
 		if (child != null) return child;
-		Integer i = ParseUtil.parseInt(part);
+		var i = ParseUtil.parseInt(part);
 		if (i != null && hasChild(i)) return children.get(i);
 		return null;
 	}
-
 }

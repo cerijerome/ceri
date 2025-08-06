@@ -2,10 +2,13 @@ package ceri.common.stream;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.PrimitiveIterator;
+import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArrays;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
@@ -21,18 +24,75 @@ public class DoubleStream<E extends Exception> {
 	private NextSupplier<E> supplier;
 
 	/**
+	 * Collects stream elements into containers.
+	 */
+	public interface Collector<A, R> {
+		/**
+		 * Provides a container.
+		 */
+		Functions.Supplier<A> supplier();
+
+		/**
+		 * Provides an accumulator to add elements to the container.
+		 */
+		Functions.ObjDoubleConsumer<A> accumulator();
+
+		/**
+		 * Provides a finisher to complete the container.
+		 */
+		Functions.Function<A, R> finisher();
+	}
+
+	/**
+	 * Collector support.
+	 */
+	public static class Collect {
+		/** Collects elements into a primitive array. */
+		public static final Collector<DynamicArray.OfDouble, double[]> array =
+			of(DynamicArray::doubles, DynamicArray.OfDouble::accept, DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		Collector<DynamicArray.OfDouble, double[]> sortedArray = of(DynamicArray::doubles,
+			DynamicArray.OfDouble::accept, a -> ArrayUtil.doubles.sort(a.truncate()));
+
+		private Collect() {}
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements Collector<A, R> {}
+
+		/**
+		 * Composes a collector without a finisher.
+		 */
+		static <A> Collector<A, A> of(Functions.Supplier<A> supplier,
+			Functions.ObjDoubleConsumer<A> accumulator) {
+			return new Composed<>(supplier, accumulator, t -> t);
+		}
+
+		/**
+		 * Composes a collector from functions.
+		 */
+		static <A, R> Collector<A, R> of(Functions.Supplier<A> supplier,
+			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher) {
+			return new Composed<>(supplier, accumulator, finisher);
+		}
+	}
+
+	/**
 	 * Reduction operators.
 	 */
 	public static class Reduce {
 		private Reduce() {}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
 		public static <E extends Exception> Excepts.DoubleBiOperator<E> min() {
 			return (l, r) -> Double.compare(l, r) <= 0 ? l : r;
 		}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
@@ -40,7 +100,7 @@ public class DoubleStream<E extends Exception> {
 			return (l, r) -> Double.compare(l, r) >= 0 ? l : r;
 		}
 	}
-	
+
 	/**
 	 * Iterating functional interface
 	 */
@@ -118,15 +178,21 @@ public class DoubleStream<E extends Exception> {
 	 */
 	public static <E extends Exception> DoubleStream<E> from(Iterable<? extends Number> iterable) {
 		if (iterable == null) return empty();
-		return from(iterable.iterator());
+		var iterator = iterable.iterator();
+		if (iterator == null || !iterator.hasNext()) return empty();
+		return Stream.<E, Number>from(iterator).mapToDouble(Number::doubleValue);
 	}
 
 	/**
-	 * Returns a stream of iterator values.
+	 * Returns a stream for a primitive iterator.
 	 */
-	public static <E extends Exception> DoubleStream<E> from(Iterator<? extends Number> iterator) {
+	public static <E extends Exception> DoubleStream<E> from(PrimitiveIterator.OfDouble iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return Stream.<E, Number>from(iterator).mapToDouble(Number::doubleValue);
+		return ofSupplier(c -> {
+			if (!iterator.hasNext()) return false;
+			c.accept(iterator.nextDouble());
+			return true;
+		});
 	}
 
 	/**
@@ -280,28 +346,53 @@ public class DoubleStream<E extends Exception> {
 			if (!supplier.next(nullConsumer())) return n;
 	}
 
-	// collectors
+	// iteration
 
+	/**
+	 * Provides a one-off iterator that wraps checked exceptions as runtime.
+	 */
+	public PrimitiveIterator.OfDouble iterator() {
+		return iterator(supplier);
+	}
+
+	/**
+	 * Calls the consumer for each element.
+	 */
 	public void forEach(Excepts.DoubleConsumer<? extends E> consumer) throws E {
 		supplier.forEach(consumer);
 	}
+
+	// collection
 
 	/**
 	 * Collects elements into an array.
 	 */
 	public double[] toArray() throws E {
-		return array(supplier).truncate();
+		return collect(Collect.array);
 	}
 
 	/**
-	 * Collects elements into a supplied container, with accumulator.
+	 * Collects elements with a collector.
 	 */
-	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
-		Excepts.ObjDoubleConsumer<? extends E, R> accumulator) throws E {
-		if (supplier == null) return null;
-		var r = supplier.get();
-		if (!noOp(accumulator) && r != null) forEach(i -> accumulator.accept(r, i));
-		return r;
+	public <A, R> R collect(Collector<A, R> collector) throws E {
+		if (collector == null) return null;
+		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
+	}
+
+	/**
+	 * Collect elements with container supplier and accumulator.
+	 */
+	public <R> R collect(Functions.Supplier<R> supplier, Functions.ObjDoubleConsumer<R> accumulator)
+		throws E {
+		return collect(supplier, accumulator, r -> r);
+	}
+
+	/**
+	 * Collect elements with container supplier, accumulator, and finisher.
+	 */
+	public <A, R> R collect(Functions.Supplier<A> supplier,
+		Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher) throws E {
+		return collect(this.supplier, supplier, accumulator, finisher);
 	}
 
 	// reducers
@@ -310,7 +401,7 @@ public class DoubleStream<E extends Exception> {
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
 	public Double reduce(Excepts.DoubleBiOperator<? extends E> accumulator) throws E {
-		if (noOp(accumulator)) return null;
+		if (accumulator == null) return null;
 		var next = next();
 		return next == null ? null : reduce(next, accumulator);
 	}
@@ -320,12 +411,7 @@ public class DoubleStream<E extends Exception> {
 	 */
 	public double reduce(double identity, Excepts.DoubleBiOperator<? extends E> accumulator)
 		throws E {
-		if (noOp(accumulator)) return identity;
-		var receiver = new NextSupplier.Receiver<E>();
-		for (double d = identity;;) {
-			if (!supplier.next(receiver)) return d;
-			d = accumulator.applyAsDouble(d, receiver.value);
-		}
+		return reduce(supplier, identity, accumulator);
 	}
 
 	// support
@@ -445,15 +531,52 @@ public class DoubleStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> sortedSupplier(NextSupplier<E> supplier)
 		throws E {
-		var array = array(supplier);
+		var array = collect(supplier, DynamicArray::doubles, DynamicArray.OfDouble::accept, t -> t);
 		Arrays.sort(array.array(), 0, array.index());
 		return arraySupplier(array.array(), 0, array.index());
 	}
 
-	private static <E extends Exception> DynamicArray.OfDouble
-		array(NextSupplier<? extends E> supplier) throws E {
-		var array = DynamicArray.doubles();
-		supplier.forEach(Functions.DoubleConsumer.except(array));
-		return array;
+	private static <E extends Exception, A, R> R collect(NextSupplier<E> next,
+		Functions.Supplier<A> supplier, Functions.ObjDoubleConsumer<A> accumulator,
+		Functions.Function<A, R> finisher) throws E {
+		if (supplier == null || finisher == null) return null;
+		var container = supplier.get();
+		if (accumulator != null && container != null)
+			next.forEach(d -> accumulator.accept(container, d));
+		return finisher.apply(container);
+	}
+
+	private static <E extends Exception> double reduce(NextSupplier<E> supplier, double identity,
+		Excepts.DoubleBiOperator<? extends E> accumulator) throws E {
+		if (accumulator == null) return identity;
+		var receiver = new NextSupplier.Receiver<E>();
+		for (double d = identity;;) {
+			if (!supplier.next(receiver)) return d;
+			d = accumulator.applyAsDouble(d, receiver.value);
+		}
+	}
+
+	private static <E extends Exception> PrimitiveIterator.OfDouble
+		iterator(NextSupplier<E> supplier) {
+		var receiver = new NextSupplier.Receiver<E>();
+		Excepts.BoolSupplier<E> next = () -> supplier.next(receiver);
+		return new PrimitiveIterator.OfDouble() {
+			private boolean fetch = true;
+			private boolean active = true;
+
+			@Override
+			public boolean hasNext() {
+				if (fetch) active = ExceptionAdapter.runtime.getBool(next);
+				fetch = false;
+				return active;
+			}
+
+			@Override
+			public double nextDouble() {
+				if (!hasNext()) throw new NoSuchElementException();
+				fetch = true;
+				return receiver.value;
+			}
+		};
 	}
 }

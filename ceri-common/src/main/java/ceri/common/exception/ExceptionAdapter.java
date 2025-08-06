@@ -6,7 +6,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.common.function.Throws;
 import ceri.common.io.IoExceptions;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Adapter that wraps non-assignable exceptions.
@@ -32,8 +32,8 @@ public class ExceptionAdapter<E extends Exception> implements Functions.Function
 	private final Function<Throwable, E> fn;
 
 	public static <E extends Exception> ExceptionAdapter<E> of(Class<E> cls) {
-		var constructor = ReflectUtil.validConstructor(cls, Throwable.class);
-		return of(cls, e -> ReflectUtil.create(constructor, e));
+		var constructor = Reflect.validConstructor(cls, Throwable.class);
+		return of(cls, e -> Reflect.create(constructor, e));
 	}
 
 	public static <E extends Exception> ExceptionAdapter<E> of(Class<E> cls,

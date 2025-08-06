@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.junit.Test;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
 import ceri.common.property.TypedProperties;
@@ -86,7 +86,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testRunRepeat() throws InterruptedException {
-		var sync = BooleanCondition.of();
+		var sync = BoolCondition.of();
 		try (var _ = TestUtil.runRepeat(sync::signal)) {
 			sync.await();
 			sync.await();
@@ -136,7 +136,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testThreadRun() {
-		var sync = BooleanCondition.of();
+		var sync = BoolCondition.of();
 		try (var exec = TestUtil.threadRun(sync::await)) {
 			sync.signal();
 			exec.get();

@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.net.NetUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.RegexUtil;
 
 /**
@@ -41,7 +41,7 @@ public class ResourcePath implements AutoCloseable {
 	 * Returns the path applied relative to class package root directory.
 	 */
 	public static ResourcePath ofRoot(Class<?> cls, String... paths) throws IOException {
-		int levels = ReflectUtil.packageLevels(cls) + 1;
+		int levels = Reflect.packageLevels(cls) + 1;
 		return of(cls, path -> IoUtil.extend(IoUtil.shorten(path, levels), paths));
 	}
 

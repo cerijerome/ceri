@@ -13,7 +13,7 @@ import java.util.SequencedMap;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
@@ -30,7 +30,7 @@ import ceri.log.util.LogUtil;
 public class RegistryService extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Locker locker = Locker.of();
-	private final BooleanCondition sync = BooleanCondition.of(locker.lock);
+	private final BoolCondition sync = BoolCondition.of(locker.lock);
 	private final Excepts.Consumer<IOException, java.util.Properties> loadFn;
 	private final Excepts.Consumer<IOException, java.util.Properties> saveFn;
 	private final int delayMs;

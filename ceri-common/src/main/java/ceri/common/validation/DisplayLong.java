@@ -1,10 +1,10 @@
 package ceri.common.validation;
 
-import static ceri.common.collection.CollectionUtil.first;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
+import ceri.common.collection.Iterables;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
 
@@ -26,7 +26,7 @@ public enum DisplayLong implements LongFunction<String>, IntFunction<String> {
 
 	public static String format(long value, Collection<DisplayLong> flags) {
 		if (flags.isEmpty()) return DisplayLong.dec.apply(value);
-		if (flags.size() == 1) return first(flags).apply(value);
+		if (flags.size() == 1) return Iterables.first(flags).apply(value);
 		return Joiner.PARAM.join(f -> f.apply(value), flags);
 	}
 

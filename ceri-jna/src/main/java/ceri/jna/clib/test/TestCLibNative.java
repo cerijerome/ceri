@@ -17,7 +17,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
-import ceri.common.reflect.ReflectUtil.ThreadElement;
+import ceri.common.reflect.Reflect.ThreadElement;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.text.StringUtil;

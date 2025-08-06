@@ -82,7 +82,7 @@ public class FtdiTester {
 		var configs = IntStream.range(0, count)
 			.mapToObj(i -> LibUsbFinder.builder().vendor(LibFtdi.FTDI_VENDOR_ID).index(i).build())
 			.map(SelfHealingFtdi.Config::of).toList();
-		return CloseableUtil.create(SelfHealingFtdi.Config::ftdi, configs);
+		return CloseableUtil.createFrom(SelfHealingFtdi.Config::ftdi, configs);
 	}
 
 	/**

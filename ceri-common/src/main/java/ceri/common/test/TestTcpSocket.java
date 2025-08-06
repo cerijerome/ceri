@@ -7,13 +7,13 @@ import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * A connector for testing logic against serial connectors.
  */
 public class TestTcpSocket extends TestConnector implements TcpSocket.Fixable {
-	private static final String NAME = ReflectUtil.name(TestTcpSocket.class);
+	private static final String NAME = Reflect.name(TestTcpSocket.class);
 	public final CallSync.Supplier<HostPort> hostPort;
 	public final CallSync.Supplier<Integer> localPort;
 	public final CallSync.Runnable optionSync = CallSync.runnable(true);

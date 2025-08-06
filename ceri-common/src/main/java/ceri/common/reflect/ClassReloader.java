@@ -27,7 +27,7 @@ public class ClassReloader extends ClassLoader {
 	 */
 	public static <T> Class<T> reload(Class<T> cls, Collection<Class<?>> supportClasses) {
 		var reloader = of(CollectionUtil.joinAsList(cls, supportClasses));
-		return BasicUtil.unchecked(ReflectUtil.forName(cls.getName(), true, reloader));
+		return BasicUtil.unchecked(Reflect.forName(cls.getName(), true, reloader));
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class ClassReloader extends ClassLoader {
 	 * Constructor for reloading specified classes and their declared nested classes.
 	 */
 	public static ClassReloader ofNested(Iterable<Class<?>> classes) {
-		return new ClassReloader(ReflectUtil.nested(classes));
+		return new ClassReloader(Reflect.nested(classes));
 	}
 
 	private ClassReloader(Collection<Class<?>> classes) {
@@ -70,7 +70,7 @@ public class ClassReloader extends ClassLoader {
 	@Override
 	protected Class<?> findClass(String name) throws ClassNotFoundException {
 		return ExceptionAdapter.runtimeIo.get(() -> {
-			var bytes = ReflectUtil.loadClassFile(name);
+			var bytes = Reflect.loadClassFile(name);
 			var pd = classes.get(name);
 			return defineClass(name, bytes, 0, bytes.length, pd);
 		});
@@ -94,7 +94,7 @@ public class ClassReloader extends ClassLoader {
 	 * ClassLoader logic is applied.
 	 */
 	public Class<?> forName(String name, boolean init) {
-		return ReflectUtil.forName(name, init, this);
+		return Reflect.forName(name, init, this);
 	}
 
 	/**

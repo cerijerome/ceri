@@ -11,7 +11,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.test.TestUtil.Rte;
 
 public class ExceptionUtilTest {
@@ -73,7 +73,7 @@ public class ExceptionUtilTest {
 		assertEquals(lines[0], "java.lang.Exception");
 		String fullClassName = getClass().getName();
 		String className = getClass().getSimpleName();
-		String methodName = ReflectUtil.currentMethodName();
+		String methodName = Reflect.currentMethodName();
 		String s = String.format("at %s.%s(%s.java:", fullClassName, methodName, className);
 		assertTrue(lines[1].trim().startsWith(s));
 	}
@@ -82,7 +82,7 @@ public class ExceptionUtilTest {
 	public void testFirstStackElement() {
 		assertNull(ExceptionUtil.firstStackElement(null));
 		StackTraceElement el = ExceptionUtil.firstStackElement(new IOException());
-		assertEquals(el.getMethodName(), ReflectUtil.currentMethodName());
+		assertEquals(el.getMethodName(), Reflect.currentMethodName());
 		TestException e = new TestException();
 		assertNull(ExceptionUtil.firstStackElement(e));
 		e.stackTrace = new StackTraceElement[0];

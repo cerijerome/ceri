@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.Enums;
 import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.Excepts.IntConsumer;
@@ -48,7 +48,7 @@ public interface FileDescriptor extends Connector {
 		SYNC(CFcntl.O_SYNC);
 
 		private static final TypeTranscoder<Open> xcoder =
-			new TypeTranscoder<>(t -> t.value, EnumUtil.enums(Open.class), null) {
+			new TypeTranscoder<>(t -> t.value, Enums.stream(Open.class)) {
 				@Override
 				public long decodeRemainder(Collection<Open> receiver, long value) {
 					var rem = super.decodeRemainder(receiver, value);

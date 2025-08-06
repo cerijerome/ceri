@@ -7,10 +7,8 @@ import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertUnordered;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.array.ArrayUtil;
 import ceri.common.data.TypeTranscoder.Remainder;
 
 public class TypeTranscoderBehavior {
@@ -46,8 +44,6 @@ public class TypeTranscoderBehavior {
 	public void shouldSkipValues() {
 		var xc = TypeTranscoder.of(t -> t.value, E.class, E.a);
 		assertUnordered(xc.decodeAll(-1), E.b, E.c);
-		var xd = TypeTranscoder.ofDup(t -> t.value, Dup.class, Dup.e);
-		assertUnordered(xd.decodeAll(-1), Dup.a, Dup.b);
 	}
 
 	@Test
@@ -154,16 +150,6 @@ public class TypeTranscoderBehavior {
 		assertEquals(xcoder.decode(0, E.c), E.c);
 		assertEquals(xcoder.decode(3, E.b), E.b);
 		assertEquals(xcoder.decode(2, E.a), E.b);
-	}
-
-	@Test
-	public void shouldDecodeOverlappingValues() {
-		var array = Dup.values();
-		var xcoder = TypeTranscoder.ofDup(t -> t.value, Dup.class);
-		assertUnordered(xcoder.decodeAll(3), Dup.a, Dup.b);
-		ArrayUtil.reverse(array);
-		xcoder = TypeTranscoder.ofDup(t -> t.value, Arrays.asList(array));
-		assertUnordered(xcoder.decodeAll(3), Dup.e);
 	}
 
 	@Test

@@ -1,6 +1,5 @@
 package ceri.common.array;
 
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +10,7 @@ import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
 
@@ -75,7 +75,8 @@ public class RawArrays {
 	 * Creates an array of given size.
 	 */
 	public static <T> T array(Class<?> type, int size) {
-		return type == null ? null : BasicUtil.unchecked(Array.newInstance(type, size));
+		return type == null ? null :
+			BasicUtil.unchecked(java.lang.reflect.Array.newInstance(type, size));
 	}
 
 	/**
@@ -89,7 +90,7 @@ public class RawArrays {
 	 * Returns the array length, or 0 if null.
 	 */
 	public static int length(Object array) {
-		return array == null ? 0 : Array.getLength(array);
+		return array == null ? 0 : java.lang.reflect.Array.getLength(array);
 	}
 
 	/**
@@ -100,11 +101,25 @@ public class RawArrays {
 	}
 
 	/**
+	 * Sets the value at index.
+	 */
+	public static void set(Object array, int index, Object value) {
+		java.lang.reflect.Array.set(array, index, value);
+	}
+
+	/**
+	 * Gets the value at index.
+	 */
+	public static <T> T get(Object array, int index) {
+		return BasicUtil.unchecked(java.lang.reflect.Array.get(array, index));
+	}
+
+	/**
 	 * Returns true if the index is inside the array.
 	 */
 	public static boolean in(Object array, int index) {
 		if (array == null || index < 0) return false;
-		return index < Array.getLength(array);
+		return index < length(array);
 	}
 
 	/**
@@ -129,7 +144,7 @@ public class RawArrays {
 			@Override
 			public Object next() {
 				if (!hasNext()) throw new NoSuchElementException();
-				return Array.get(array, o + i++);
+				return get(array, o + i++);
 			}
 		});
 	}
@@ -153,9 +168,9 @@ public class RawArrays {
 	 */
 	public static <T> T copy(T src, int srcOffset, T dest, int destOffset, int length) {
 		if (src == null || dest == null) return dest;
-		int srcLen = Array.getLength(src);
+		int srcLen = length(src);
 		srcOffset = MathUtil.limit(srcOffset, 0, srcLen);
-		int destLen = Array.getLength(dest);
+		int destLen = length(dest);
 		destOffset = MathUtil.limit(destOffset, 0, destLen);
 		length = MathUtil.min(length, srcLen, destLen);
 		if (length > 0) System.arraycopy(src, srcOffset, dest, destOffset, length);
@@ -184,7 +199,7 @@ public class RawArrays {
 	public static <T> T resize(Functions.IntFunction<T> constructor, T array, int length) {
 		length = Math.max(0, length);
 		if (array == null) return constructor.apply(length);
-		int arrayLen = Array.getLength(array);
+		int arrayLen = length(array);
 		if (arrayLen == length) return array;
 		return copyOf(constructor, array, length);
 	}
@@ -195,13 +210,13 @@ public class RawArrays {
 	public static Object arrayCopy(Object src, int srcOffset, Object dest, int destOffset,
 		int length) {
 		if (src == null || dest == null) return dest;
-		int srcLen = Array.getLength(src);
+		int srcLen = length(src);
 		srcOffset = MathUtil.limit(srcOffset, 0, srcLen);
-		int destLen = Array.getLength(dest);
+		int destLen = length(dest);
 		destOffset = MathUtil.limit(destOffset, 0, destLen);
 		length = MathUtil.min(length, srcLen, destLen);
 		while (length-- > 0)
-			Array.set(src, srcOffset++, Array.get(dest, destOffset++));
+			set(src, srcOffset++, get(dest, destOffset++));
 		return dest;
 	}
 
@@ -211,7 +226,7 @@ public class RawArrays {
 	public static <E extends Exception, T, R> R applySlice(T array, int offset, int length,
 		Excepts.IntBiFunction<E, R> function) throws E {
 		if (array == null) return null;
-		return ArrayUtil.applySlice(Array.getLength(array), offset, length, function);
+		return ArrayUtil.applySlice(length(array), offset, length, function);
 	}
 
 	/**
@@ -219,8 +234,7 @@ public class RawArrays {
 	 */
 	public static <E extends Exception, T> T acceptSlice(T array, int offset, int length,
 		Excepts.IntBiConsumer<E> consumer) throws E {
-		if (array == null) return array;
-		ArrayUtil.acceptSlice(Array.getLength(array), offset, length, consumer);
+		if (array != null) ArrayUtil.acceptSlice(length(array), offset, length, consumer);
 		return array;
 	}
 
@@ -229,6 +243,7 @@ public class RawArrays {
 	 */
 	public static <E extends Exception, T> T acceptIndexes(T array, int offset, int length,
 		Excepts.IntConsumer<E> consumer) throws E {
+		if (consumer == null) return array;
 		return acceptSlice(array, offset, length, (o, l) -> {
 			for (int i = 0; i < l; i++)
 				consumer.accept(o + i);
@@ -241,9 +256,9 @@ public class RawArrays {
 	public static <T> T insert(Functions.IntFunction<T> constructor, T lhs, int lhsOffset, T rhs,
 		int rhsOffset, int length) {
 		if (constructor == null || lhs == null || rhs == null) return lhs;
-		int lhsLen = Array.getLength(lhs);
+		int lhsLen = length(lhs);
 		lhsOffset = MathUtil.limit(lhsOffset, 0, lhsLen);
-		int rhsLen = Array.getLength(rhs);
+		int rhsLen = length(rhs);
 		rhsOffset = MathUtil.limit(rhsOffset, 0, rhsLen);
 		length = MathUtil.limit(length, 0, rhsLen - rhsOffset);
 		var inserted = insert(constructor, lhs, lhsOffset, length);
@@ -257,7 +272,7 @@ public class RawArrays {
 	public static <T> T insert(Functions.IntFunction<T> constructor, T array, int offset,
 		int length) {
 		if (constructor == null || array == null || length <= 0) return array;
-		int arrayLen = Array.getLength(array);
+		int arrayLen = length(array);
 		offset = MathUtil.limit(offset, 0, arrayLen);
 		var inserted = constructor.apply(arrayLen + length);
 		if (offset > 0) System.arraycopy(array, 0, inserted, 0, offset);
@@ -272,7 +287,7 @@ public class RawArrays {
 	public static <T, U> T copyValues(Functions.IntFunction<T> constructor, U values,
 		Functions.ObjIntConsumer<T> indexConsumer) {
 		if (constructor == null || values == null || indexConsumer == null) return null;
-		int length = Array.getLength(values);
+		int length = length(values);
 		var array = constructor.apply(length);
 		for (int i = 0; i < length; i++)
 			indexConsumer.accept(array, i);
@@ -285,15 +300,15 @@ public class RawArrays {
 	public static <T> int indexOf(Equals<T> equalsFn, T array, int arrayOffset, int arrayLen,
 		T values, int valuesOffset, int valuesLen) {
 		if (array == null || values == null) return -1;
-		int actualArrayLen = Array.getLength(array);
+		int actualArrayLen = length(array);
 		arrayOffset = MathUtil.limit(arrayOffset, 0, actualArrayLen);
 		arrayLen = MathUtil.limit(arrayLen, 0, actualArrayLen - arrayOffset);
-		int actualValuesLen = Array.getLength(values);
+		int actualValuesLen = length(values);
 		valuesOffset = MathUtil.limit(valuesOffset, 0, actualValuesLen);
 		valuesLen = MathUtil.limit(valuesLen, 0, actualValuesLen - valuesOffset);
-		for (int i = arrayOffset; i <= arrayLen - valuesLen; i++)
-			if (equalsFn.equals(array, i, i + valuesLen, values, valuesOffset,
-				valuesOffset + valuesLen)) return i;
+		for (int i = 0; i <= arrayLen - valuesLen; i++)
+			if (equalsFn.equals(array, arrayOffset + i, arrayOffset + i + valuesLen, values,
+				valuesOffset, valuesOffset + valuesLen)) return i;
 		return -1;
 	}
 
@@ -303,10 +318,10 @@ public class RawArrays {
 	public static <T> int lastIndexOf(Equals<T> equalsFn, T array, int arrayOffset, int arrayLen,
 		T values, int valuesOffset, int valuesLen) {
 		if (array == null || values == null) return -1;
-		int actualArrayLen = Array.getLength(array);
+		int actualArrayLen = length(array);
 		arrayOffset = MathUtil.limit(arrayOffset, 0, actualArrayLen);
 		arrayLen = MathUtil.limit(arrayLen, 0, actualArrayLen - arrayOffset);
-		int actualValuesLen = Array.getLength(values);
+		int actualValuesLen = length(values);
 		valuesOffset = MathUtil.limit(valuesOffset, 0, actualValuesLen);
 		valuesLen = MathUtil.limit(valuesLen, 0, actualValuesLen - valuesOffset);
 		for (int i = arrayLen - valuesLen; i >= arrayOffset; i--)
@@ -331,7 +346,7 @@ public class RawArrays {
 		return applySlice(array, offset, length, (o, l) -> {
 			C[] boxed = boxedConstructor.apply(l);
 			for (int i = 0; i < l; i++)
-				boxed[i] = BasicUtil.unchecked(Array.get(array, o + i));
+				boxed[i] = get(array, o + i);
 			return boxed;
 		});
 	}
@@ -345,7 +360,7 @@ public class RawArrays {
 		return applySlice(array, offset, length, (o, l) -> {
 			T unboxed = constructor.apply(l);
 			for (int i = 0; i < l; i++)
-				Array.set(unboxed, i, array[o + i]);
+				set(unboxed, i, array[o + i]);
 			return unboxed;
 		});
 	}
@@ -358,7 +373,7 @@ public class RawArrays {
 		T unboxed = constructor.apply(collection.size());
 		int i = 0;
 		for (var c : collection)
-			Array.set(unboxed, i++, c);
+			set(unboxed, i++, c);
 		return unboxed;
 	}
 
@@ -371,7 +386,7 @@ public class RawArrays {
 		return ArrayUtil.applySlice(list.size(), offset, length, (o, l) -> {
 			T unboxed = constructor.apply(l);
 			for (int i = 0; i < l; i++)
-				Array.set(unboxed, i, list.get(o + i));
+				set(unboxed, i, list.get(o + i));
 			return unboxed;
 		});
 	}
@@ -394,9 +409,9 @@ public class RawArrays {
 		int length) {
 		if (lhs == null && rhs == null) return true;
 		if (lhs == null || rhs == null) return false;
-		int lhsLen = Array.getLength(lhs);
+		int lhsLen = length(lhs);
 		lhsOffset = MathUtil.limit(lhsOffset, 0, lhsLen);
-		int rhsLen = Array.getLength(rhs);
+		int rhsLen = length(rhs);
 		rhsOffset = MathUtil.limit(rhsOffset, 0, rhsLen);
 		return equalsFn.equals(lhs, lhsOffset, Math.min(lhsOffset + length, lhsLen), rhs, rhsOffset,
 			Math.min(rhsOffset + length, rhsLen));
@@ -419,7 +434,7 @@ public class RawArrays {
 	public static <T> String appendToString(
 		Functions.BiObjIntConsumer<StringBuilder, ? super T> appendFn, Joiner joiner, T array,
 		int offset, int length) {
-		if (array == null || joiner == null) return StringUtil.NULL;
+		if (array == null || joiner == null) return Strings.NULL;
 		return applySlice(array, offset, length, (o, l) -> {
 			return joiner.joinIndex((b, i) -> appendFn.accept(b, array, i), o, l);
 		});

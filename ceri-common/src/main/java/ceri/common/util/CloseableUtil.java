@@ -340,7 +340,7 @@ public class CloseableUtil {
 	@SafeVarargs
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
 		create(Excepts.Function<E, T, R> constructor, T... inputs) throws E {
-		return create(constructor, Arrays.asList(inputs));
+		return createFrom(constructor, Arrays.asList(inputs));
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class CloseableUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
-		create(Excepts.Function<E, T, R> constructor, Iterable<T> inputs) throws E {
+		createFrom(Excepts.Function<E, T, R> constructor, Iterable<T> inputs) throws E {
 		List<R> results = new ArrayList<>();
 		try {
 			for (T input : inputs)

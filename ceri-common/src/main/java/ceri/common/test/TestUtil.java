@@ -40,8 +40,8 @@ import ceri.common.io.SystemIo;
 import ceri.common.math.MathUtil;
 import ceri.common.property.PropertyUtil;
 import ceri.common.property.TypedProperties;
-import ceri.common.reflect.ReflectUtil;
-import ceri.common.reflect.ReflectUtil.ThreadElement;
+import ceri.common.reflect.Reflect;
+import ceri.common.reflect.Reflect.ThreadElement;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.util.BasicUtil;
@@ -51,7 +51,7 @@ public class TestUtil {
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
-	public static final boolean isTest = ReflectUtil.stackHasPackage(Assert.class);
+	public static final boolean isTest = Reflect.stackHasPackage(Assert.class);
 
 	private TestUtil() {}
 
@@ -164,7 +164,7 @@ public class TestUtil {
 	 * Reads a string resource from the caller's package with given name.
 	 */
 	public static String resource(String name) {
-		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		Class<?> cls = Reflect.previousCaller(1).cls();
 		return init(() -> IoUtil.resourceString(cls, name));
 	}
 
@@ -172,7 +172,7 @@ public class TestUtil {
 	 * Creates TypedProperties from name.properties file under caller's package.
 	 */
 	public static TypedProperties typedProperties(String name, String... prefix) {
-		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		Class<?> cls = Reflect.previousCaller(1).cls();
 		return typedProperties(cls, name, prefix);
 	}
 
@@ -187,7 +187,7 @@ public class TestUtil {
 	 * Creates Properties from name.properties file under caller's package.
 	 */
 	public static Properties properties(String name) {
-		Class<?> cls = ReflectUtil.previousCaller(1).cls();
+		Class<?> cls = Reflect.previousCaller(1).cls();
 		return properties(cls, name);
 	}
 
@@ -418,7 +418,7 @@ public class TestUtil {
 	 * Searches all thread stack traces for a test class and method.
 	 */
 	public static ThreadElement findTest() {
-		return ReflectUtil.findElement(e -> {
+		return Reflect.findElement(e -> {
 			var style = TestStyle.from(e.getClassName());
 			var m = RegexUtil.found(TEST_METHOD_REGEX, e.getMethodName());
 			return !style.isNone() && m != null;

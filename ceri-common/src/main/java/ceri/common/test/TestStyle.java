@@ -1,10 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.collection.ImmutableUtil.enumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collection.Enums;
 import ceri.common.text.RegexUtil;
 
 /**
@@ -20,7 +20,7 @@ public enum TestStyle {
 	private static final List<String> testGuessSuffixes = List.of("Util");
 	private static final Pattern REGEX =
 		RegexUtil.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
-	private static final Map<String, TestStyle> lookup = enumMap(t -> t.suffix, TestStyle.class);
+	private static final Map<String, TestStyle> lookup = Enums.map(t -> t.suffix, TestStyle.class);
 	private static final int TARGET_INDEX = 1;
 	private static final int STYLE_INDEX = 2;
 	private static final int FILE_TYPE_INDEX = 3;

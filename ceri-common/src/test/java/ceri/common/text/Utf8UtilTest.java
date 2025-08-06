@@ -200,20 +200,18 @@ public class Utf8UtilTest {
 
 	@Test
 	public void testDecodeBytes() {
-		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of('A')), StringUtil.toString(_1B));
-		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xc2, 0xa9)), StringUtil.toString(_2B));
-		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xe2, 0x84, 0x83)), StringUtil.toString(_3B));
-		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xf0, 0x9d, 0x90, 0x80)),
-			StringUtil.toString(_4B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of('A')), Strings.of(_1B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xc2, 0xa9)), Strings.of(_2B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xe2, 0x84, 0x83)), Strings.of(_3B));
+		assertEquals(Utf8Util.decode(ArrayUtil.bytes.of(0xf0, 0x9d, 0x90, 0x80)), Strings.of(_4B));
 	}
 
 	@Test
 	public void testDecodeByteProvider() {
-		assertEquals(Utf8Util.decode(ByteProvider.of('A')), StringUtil.toString(_1B));
-		assertEquals(Utf8Util.decode(ByteProvider.of(0xc2, 0xa9)), StringUtil.toString(_2B));
-		assertEquals(Utf8Util.decode(ByteProvider.of(0xe2, 0x84, 0x83)), StringUtil.toString(_3B));
-		assertEquals(Utf8Util.decode(ByteProvider.of(0xf0, 0x9d, 0x90, 0x80)),
-			StringUtil.toString(_4B));
+		assertEquals(Utf8Util.decode(ByteProvider.of('A')), Strings.of(_1B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xc2, 0xa9)), Strings.of(_2B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xe2, 0x84, 0x83)), Strings.of(_3B));
+		assertEquals(Utf8Util.decode(ByteProvider.of(0xf0, 0x9d, 0x90, 0x80)), Strings.of(_4B));
 	}
 
 	@Test

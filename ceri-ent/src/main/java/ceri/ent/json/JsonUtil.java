@@ -12,7 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
 import ceri.common.property.Separator;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.ParseUtil;
 import ceri.common.text.StringUtil;
 
@@ -80,10 +80,10 @@ public class JsonUtil {
 		List<String> parts = Separator.DOT.split(path);
 		Object value = gsonObject;
 		for (String part : parts) {
-			Map<?, ?> map = ReflectUtil.castOrNull(Map.class, value);
+			Map<?, ?> map = Reflect.castOrNull(Map.class, value);
 			if (map != null) value = map.get(part);
 			else {
-				List<?> list = ReflectUtil.castOrNull(List.class, value);
+				List<?> list = Reflect.castOrNull(List.class, value);
 				if (list == null) return null;
 				Integer index = ParseUtil.parseInt(part);
 				if (index == null || list.size() <= index) return null;
@@ -94,20 +94,20 @@ public class JsonUtil {
 	}
 
 	public static String extractString(Object gsonObject, String path) {
-		return ReflectUtil.castOrNull(String.class, extract(gsonObject, path));
+		return Reflect.castOrNull(String.class, extract(gsonObject, path));
 	}
 
 	public static Character extractChar(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
-		return StringUtil.charAt(ReflectUtil.castOrNull(String.class, obj), 0, null);
+		return StringUtil.charAt(Reflect.castOrNull(String.class, obj), 0, null);
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Boolean b = ReflectUtil.castOrNull(Boolean.class, obj);
+		Boolean b = Reflect.castOrNull(Boolean.class, obj);
 		if (b != null) return b;
-		return ParseUtil.parseBool(ReflectUtil.castOrNull(String.class, obj));
+		return ParseUtil.parseBool(Reflect.castOrNull(String.class, obj));
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
@@ -138,9 +138,9 @@ public class JsonUtil {
 		Function<Number, T> nFn, Function<String, T> sFn) {
 		Object obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Number n = ReflectUtil.castOrNull(Number.class, obj);
+		Number n = Reflect.castOrNull(Number.class, obj);
 		if (n != null) return nFn.apply(n);
-		return sFn.apply(ReflectUtil.castOrNull(String.class, obj));
+		return sFn.apply(Reflect.castOrNull(String.class, obj));
 	}
 
 }

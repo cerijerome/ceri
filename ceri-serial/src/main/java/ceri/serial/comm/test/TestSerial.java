@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;
 import ceri.jna.util.ThreadBuffers;
@@ -18,7 +18,7 @@ import ceri.serial.comm.util.SelfHealingSerial;
  * A connector for testing logic against serial connectors.
  */
 public class TestSerial extends TestConnector implements Serial.Fixable {
-	private static final String NAME = ReflectUtil.name(TestSerial.class);
+	private static final String NAME = Reflect.name(TestSerial.class);
 	public final CallSync.Supplier<String> port = CallSync.supplier("test");
 	public final CallSync.Consumer<Integer> inBufferSize =
 		CallSync.consumer(ThreadBuffers.SIZE_DEF, true);

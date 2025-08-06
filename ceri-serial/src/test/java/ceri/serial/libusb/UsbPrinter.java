@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.IntProvider;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
@@ -256,7 +256,7 @@ public class UsbPrinter {
 	}
 
 	private static String name(Object obj) {
-		return ReflectUtil.name(obj.getClass());
+		return Reflect.name(obj.getClass());
 	}
 
 	private static String hex(ByteProvider bytes) {

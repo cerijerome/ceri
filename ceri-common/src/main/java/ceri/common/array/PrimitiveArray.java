@@ -1,6 +1,5 @@
 package ceri.common.array;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +8,6 @@ import ceri.common.function.Functions;
 import ceri.common.function.Functions.ObjBiIntConsumer;
 import ceri.common.text.Joiner;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
 
 /**
@@ -236,14 +234,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		/**
 		 * Returns the element at index, or default if out of range.
 		 */
-		public char at(char[] array, int index, char def) {
-			return in(array, index) ? array[index] : def;
+		public char at(char[] array, int index, int def) {
+			return in(array, index) ? array[index] : (char) def;
 		}
 
 		/**
 		 * Returns the last element, or default if empty.
 		 */
-		public char last(char[] array, char def) {
+		public char last(char[] array, int def) {
 			return at(array, length(array) - 1, def);
 		}
 
@@ -419,14 +417,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		/**
 		 * Returns the element at index, or default if out of range.
 		 */
-		public byte at(byte[] array, int index, byte def) {
-			return in(array, index) ? array[index] : def;
+		public byte at(byte[] array, int index, int def) {
+			return in(array, index) ? array[index] : (byte) def;
 		}
 
 		/**
 		 * Returns the last element, or default if empty.
 		 */
-		public byte last(byte[] array, byte def) {
+		public byte last(byte[] array, int def) {
 			return at(array, length(array) - 1, def);
 		}
 
@@ -602,14 +600,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		/**
 		 * Returns the element at index, or default if out of range.
 		 */
-		public short at(short[] array, int index, short def) {
-			return in(array, index) ? array[index] : def;
+		public short at(short[] array, int index, int def) {
+			return in(array, index) ? array[index] : (short) def;
 		}
 
 		/**
 		 * Returns the last element, or default if empty.
 		 */
-		public short last(short[] array, short def) {
+		public short last(short[] array, int def) {
 			return at(array, length(array) - 1, def);
 		}
 
@@ -753,6 +751,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Creates an array of sequential values.
 		 */
 		public int[] range(int offset, int length) {
+			if (length <= 0) return empty;
 			var array = array(length);
 			for (int i = 0; i < length; i++)
 				array[i] = offset + i;
@@ -931,7 +930,8 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		/**
 		 * Creates an array of sequential values.
 		 */
-		public long[] range(int offset, int length) {
+		public long[] range(long offset, int length) {
+			if (length <= 0) return empty;
 			var array = array(length);
 			for (int i = 0; i < length; i++)
 				array[i] = offset + i;
@@ -1141,14 +1141,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		/**
 		 * Returns the element at index, or default if out of range.
 		 */
-		public float at(float[] array, int index, float def) {
-			return in(array, index) ? array[index] : def;
+		public float at(float[] array, int index, double def) {
+			return in(array, index) ? array[index] : (float) def;
 		}
 
 		/**
 		 * Returns the last element, or default if empty.
 		 */
-		public float last(float[] array, float def) {
+		public float last(float[] array, double def) {
 			return at(array, length(array) - 1, def);
 		}
 
@@ -1518,7 +1518,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	public <E extends Exception> T forEachBox(T array, int offset, int length,
 		Excepts.Consumer<E, C> consumer) throws E {
 		return RawArrays.acceptIndexes(array, offset, length,
-			i -> consumer.accept(getBoxed(array, i)));
+			i -> consumer.accept(RawArrays.get(array, i)));
 	}
 
 	/**
@@ -1543,7 +1543,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	public <E extends Exception> T forEachBoxIndexed(T array, int offset, int length,
 		Excepts.ObjIntConsumer<E, C> consumer) throws E {
 		return RawArrays.acceptIndexes(array, offset, length,
-			i -> consumer.accept(getBoxed(array, i), i));
+			i -> consumer.accept(RawArrays.get(array, i), i));
 	}
 
 	/**
@@ -1573,7 +1573,4 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	protected abstract Functions.ObjBiIntConsumer<T> sorter();
 
-	private C getBoxed(T array, int index) {
-		return BasicUtil.unchecked(Array.get(array, index));
-	}
 }

@@ -2,15 +2,15 @@ package ceri.common.stream;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.ObjIntConsumer;
-import java.util.function.Supplier;
+import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArrays;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
@@ -25,7 +25,7 @@ public class IntStream<E extends Exception> {
 	private NextSupplier<E> supplier;
 
 	public static void main(String[] args) {
-		var array = Streams.ofInt(-1, 1, 0, -2, 3).collect(Collector.array);
+		var array = Streams.ints(-1, 1, 0, -2, 3).collect(Collect.array);
 		System.out.println(Arrays.toString(array));
 	}
 
@@ -33,48 +33,47 @@ public class IntStream<E extends Exception> {
 	 * Collects stream elements into containers.
 	 */
 	public interface Collector<A, R> {
-		/** Collects elements into a primitive array. */
-		Collector<DynamicArray.OfInt, int[]> array =
-			of(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
-		/** Collects elements into a sorted primitive array. */
-		Collector<DynamicArray.OfInt, int[]> sortedArray = of(DynamicArray::ints,
-			DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
-
-		/**
-		 * A collector instance composed from its functions.
-		 */
-		record Composed<A, R>(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
-			Function<A, R> finisher) implements Collector<A, R> {}
-
 		/**
 		 * Provides a container.
 		 */
-		Supplier<A> supplier();
+		Functions.Supplier<A> supplier();
 
 		/**
 		 * Provides an accumulator to add elements to the container.
 		 */
-		ObjIntConsumer<A> accumulator();
+		Functions.ObjIntConsumer<A> accumulator();
 
 		/**
 		 * Provides a finisher to complete the container.
 		 */
-		Function<A, R> finisher();
+		Functions.Function<A, R> finisher();
+	}
+
+	/**
+	 * Collector support.
+	 */
+	public static class Collect {
+		/** Collects elements into a primitive array. */
+		public static final Collector<?, int[]> array =
+			new Composed<>(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		public static final Collector<?, int[]> sortedArray = new Composed<>(DynamicArray::ints,
+			DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
+		/** Collects chars into a string. */
+		public static final Collector<?, String> chars = new Composed<>(StringBuilder::new,
+			(b, i) -> b.append((char) i), StringBuilder::toString);
+		/** Collects code points into a string. */
+		public static final Collector<?, String> codePoints = new Composed<>(StringBuilder::new,
+			StringBuilder::appendCodePoint, StringBuilder::toString);
+
+		private Collect() {}
 
 		/**
-		 * Composes a collector without a finisher.
+		 * A collector instance composed from its functions.
 		 */
-		static <A> Collector<A, A> of(Supplier<A> supplier, ObjIntConsumer<A> accumulator) {
-			return new Composed<>(supplier, accumulator, t -> t);
-		}
-
-		/**
-		 * Composes a collector from functions.
-		 */
-		static <A, R> Collector<A, R> of(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
-			Function<A, R> finisher) {
-			return new Composed<>(supplier, accumulator, finisher);
-		}
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjIntConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements Collector<A, R> {}
 	}
 
 	/**
@@ -207,15 +206,21 @@ public class IntStream<E extends Exception> {
 	 */
 	public static <E extends Exception> IntStream<E> from(Iterable<? extends Number> iterable) {
 		if (iterable == null) return empty();
-		return from(iterable.iterator());
+		var iterator = iterable.iterator();
+		if (iterator == null || !iterator.hasNext()) return empty();
+		return Stream.<E, Number>from(iterator).mapToInt(Number::intValue);
 	}
 
 	/**
-	 * Returns a stream of iterator values.
+	 * Returns a stream for a primitive iterator.
 	 */
-	public static <E extends Exception> IntStream<E> from(Iterator<? extends Number> iterator) {
+	public static <E extends Exception> IntStream<E> from(PrimitiveIterator.OfInt iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return Stream.<E, Number>from(iterator).mapToInt(Number::intValue);
+		return ofSupplier(c -> {
+			if (!iterator.hasNext()) return false;
+			c.accept(iterator.nextInt());
+			return true;
+		});
 	}
 
 	/**
@@ -377,15 +382,27 @@ public class IntStream<E extends Exception> {
 
 	// iteration
 
+	/**
+	 * Provides a one-off iterator that wraps checked exceptions as runtime.
+	 */
+	public PrimitiveIterator.OfInt iterator() {
+		return iterator(supplier);
+	}
+
+	/**
+	 * Calls the consumer for each element.
+	 */
 	public void forEach(Excepts.IntConsumer<? extends E> consumer) throws E {
 		supplier.forEach(consumer);
 	}
+
+	// collection
 
 	/**
 	 * Collects elements into an array.
 	 */
 	public int[] toArray() throws E {
-		return collect(Collector.array);
+		return collect(Collect.array);
 	}
 
 	/**
@@ -399,15 +416,16 @@ public class IntStream<E extends Exception> {
 	/**
 	 * Collect elements with container supplier and accumulator.
 	 */
-	public <R> R collect(Supplier<R> supplier, ObjIntConsumer<R> accumulator) throws E {
+	public <R> R collect(Functions.Supplier<R> supplier, Functions.ObjIntConsumer<R> accumulator)
+		throws E {
 		return collect(supplier, accumulator, r -> r);
 	}
 
 	/**
 	 * Collect elements with container supplier, accumulator, and finisher.
 	 */
-	public <A, R> R collect(Supplier<A> supplier, ObjIntConsumer<A> accumulator,
-		Function<A, R> finisher) throws E {
+	public <A, R> R collect(Functions.Supplier<A> supplier, Functions.ObjIntConsumer<A> accumulator,
+		Functions.Function<A, R> finisher) throws E {
 		return collect(this.supplier, supplier, accumulator, finisher);
 	}
 
@@ -550,8 +568,9 @@ public class IntStream<E extends Exception> {
 		return arraySupplier(array.array(), 0, array.index());
 	}
 
-	private static <E extends Exception, A, R> R collect(NextSupplier<E> next, Supplier<A> supplier,
-		ObjIntConsumer<A> accumulator, Function<A, R> finisher) throws E {
+	private static <E extends Exception, A, R> R collect(NextSupplier<E> next,
+		Functions.Supplier<A> supplier, Functions.ObjIntConsumer<A> accumulator,
+		Functions.Function<A, R> finisher) throws E {
 		if (supplier == null || finisher == null) return null;
 		var container = supplier.get();
 		if (accumulator != null && container != null)
@@ -567,5 +586,29 @@ public class IntStream<E extends Exception> {
 			if (!supplier.next(receiver)) return i;
 			i = accumulator.applyAsInt(i, receiver.value);
 		}
+	}
+
+	private static <E extends Exception> PrimitiveIterator.OfInt
+		iterator(NextSupplier<E> supplier) {
+		var receiver = new NextSupplier.Receiver<E>();
+		Excepts.BoolSupplier<E> next = () -> supplier.next(receiver);
+		return new PrimitiveIterator.OfInt() {
+			private boolean fetch = true;
+			private boolean active = true;
+
+			@Override
+			public boolean hasNext() {
+				if (fetch) active = ExceptionAdapter.runtime.getBool(next);
+				fetch = false;
+				return active;
+			}
+
+			@Override
+			public int nextInt() {
+				if (!hasNext()) throw new NoSuchElementException();
+				fetch = true;
+				return receiver.value;
+			}
+		};
 	}
 }

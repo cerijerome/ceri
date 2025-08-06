@@ -21,11 +21,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Mutables;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ReflectUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.stream.Streams;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr;
 import ceri.common.text.StringUtil;
@@ -42,7 +43,6 @@ public class Sudoku {
 		Comparator.comparingInt(g -> g.getInt(0));
 	private static final int RED = 0xf00000;
 	private static final int GRAY = 0xc0c0c0;
-	private static final int BLACK = 0;
 	private static final IntProvider RGBS = IntProvider.of(0xffffbf, 0xffbfff, 0xbfffff, 0xffdfdf,
 		0xdfffdf, 0xdfdfff, 0xefefdf, 0xefdfef, 0xdfefef);
 	// config
@@ -319,8 +319,8 @@ public class Sudoku {
 	 */
 	private static class Display {
 		public final Set<Integer> fixed = new HashSet<>();
-		public final Set<IntProvider> boxes = CollectionUtil.identityHashSet();
-		public final Set<IntProvider> futos = CollectionUtil.identityHashSet();
+		public final Set<IntProvider> boxes = Mutables.identitySet();
+		public final Set<IntProvider> futos = Mutables.identitySet();
 		public final Map<IntProvider, Integer> cageRgbs = new IdentityHashMap<>();
 	}
 
@@ -342,12 +342,11 @@ public class Sudoku {
 
 	public static void main(String[] args) {
 		List.of( //
-			// easy9x9(), medium9x9(), hard9x9(), //
-			// expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
-			// hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
-			// futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
-			// killer9x9a(), killer9x9b(), killer9x9c(), //
-			killer9x9x() //
+			easy9x9(), medium9x9(), hard9x9(), //
+			expert9x9a(), expert9x9b(), expert9x9c(), expert9x9d(), //
+			hardest9x9a(), hardest9x9b(), hardest9x9c(), hardest9x9d(), //
+			futoshiki5x5(), futoshiki653(), futoshiki659(), futoshiki662(), //
+			killer9x9a(), killer9x9b(), killer9x9c() // , killer9x9x() //
 		).forEach(s -> {
 			s.solve();
 			s.print(System.out, Table.UTF);
@@ -355,7 +354,7 @@ public class Sudoku {
 	}
 
 	public static Sudoku of(int size) {
-		return new Sudoku(ReflectUtil.previousMethodName(1), size);
+		return new Sudoku(Reflect.previousMethodName(1), size);
 	}
 
 	private Sudoku(String name, int size) {
@@ -769,8 +768,8 @@ public class Sudoku {
 	/* group support */
 
 	private Set<IntProvider> changedGroups() {
-		Set<IntProvider> changedGroups = StreamUtil
-			.toIdentitySet(changedIndexes.stream().flatMap(index -> groups(index).stream()));
+		var changedGroups = Streams.from(changedIndexes).flatMap(i -> Streams.from(groups(i)))
+			.collect(Mutables.identitySet());
 		changedIndexes.clear();
 		return changedGroups;
 	}
@@ -789,8 +788,8 @@ public class Sudoku {
 	}
 
 	private IntProvider addFullGroup(int... indexes) {
-		if (indexes.length != size)
-			throw Exceptions.illegalArg("Group size must be %d: %s", size, Arrays.toString(indexes));
+		if (indexes.length != size) throw Exceptions.illegalArg("Group size must be %d: %s", size,
+			Arrays.toString(indexes));
 		return addGroup(IntProvider.of(indexes), (s, g) -> s.processUnique(g));
 	}
 
@@ -817,8 +816,8 @@ public class Sudoku {
 
 	private boolean setMask(int index, int mask) {
 		if (masks[index] == mask) return false;
-		if (mask == 0)
-			throw Exceptions.illegalArg("No numbers left at %d (%d,%d)", index, row(index), col(index));
+		if (mask == 0) throw Exceptions.illegalArg("No numbers left at %d (%d,%d)", index,
+			row(index), col(index));
 		masks[index] = mask;
 		changedIndexes.add(index);
 		return true;
@@ -944,10 +943,10 @@ public class Sudoku {
 			var futo = futo(index - size, index);
 			if (futo != null)
 				s = StringUtil.pad("\0", s.length(), s.substring(0, 1), Align.H.center)
-					.replace("\0", sgr.fgColor24(BLACK) + (futo ? "^" : "v") + Sgr.reset + fmt);
+					.replace("\0", (futo ? "^" : "v"));
 		} else if (or == Orientation.w) {
 			var futo = futo(index - 1, index);
-			if (futo != null) return sgr.fgColor24(BLACK) + (futo ? "<" : ">") + Sgr.reset;
+			if (futo != null) return (futo ? "<" : ">");
 		}
 		return fmt + s + Sgr.reset;
 	}

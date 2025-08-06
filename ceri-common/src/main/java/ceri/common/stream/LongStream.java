@@ -2,10 +2,13 @@ package ceri.common.stream;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.PrimitiveIterator;
+import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArrays;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
@@ -21,39 +24,96 @@ public class LongStream<E extends Exception> {
 	private NextSupplier<E> supplier;
 
 	/**
+	 * Collects stream elements into containers.
+	 */
+	public interface Collector<A, R> {
+		/**
+		 * Provides a container.
+		 */
+		Functions.Supplier<A> supplier();
+
+		/**
+		 * Provides an accumulator to add elements to the container.
+		 */
+		Functions.ObjLongConsumer<A> accumulator();
+
+		/**
+		 * Provides a finisher to complete the container.
+		 */
+		Functions.Function<A, R> finisher();
+	}
+
+	/**
+	 * Collector support.
+	 */
+	public static class Collect {
+		/** Collects elements into a primitive array. */
+		public static final Collector<DynamicArray.OfLong, long[]> array =
+			of(DynamicArray::longs, DynamicArray.OfLong::accept, DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		Collector<DynamicArray.OfLong, long[]> sortedArray = of(DynamicArray::longs,
+			DynamicArray.OfLong::accept, a -> ArrayUtil.longs.sort(a.truncate()));
+
+		private Collect() {}
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements Collector<A, R> {}
+
+		/**
+		 * Composes a collector without a finisher.
+		 */
+		static <A> Collector<A, A> of(Functions.Supplier<A> supplier,
+			Functions.ObjLongConsumer<A> accumulator) {
+			return new Composed<>(supplier, accumulator, t -> t);
+		}
+
+		/**
+		 * Composes a collector from functions.
+		 */
+		static <A, R> Collector<A, R> of(Functions.Supplier<A> supplier,
+			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher) {
+			return new Composed<>(supplier, accumulator, finisher);
+		}
+	}
+
+	/**
 	 * Reduction operators.
 	 */
 	public static class Reduce {
 		private Reduce() {}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
 		public static <E extends Exception> Excepts.LongBiOperator<E> min() {
 			return (l, r) -> Long.compare(l, r) <= 0 ? l : r;
 		}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
 		public static <E extends Exception> Excepts.LongBiOperator<E> max() {
 			return (l, r) -> Long.compare(l, r) >= 0 ? l : r;
 		}
-		
+
 		/**
 		 * Bitwise reduction operation.
 		 */
 		public static <E extends Exception> Excepts.LongBiOperator<E> and() {
 			return (l, r) -> l & r;
 		}
-		
+
 		/**
 		 * Bitwise reduction operation.
 		 */
 		public static <E extends Exception> Excepts.LongBiOperator<E> or() {
 			return (l, r) -> l | r;
 		}
-		
+
 		/**
 		 * Bitwise reduction operation.
 		 */
@@ -61,7 +121,7 @@ public class LongStream<E extends Exception> {
 			return (l, r) -> l ^ r;
 		}
 	}
-	
+
 	/**
 	 * Iterating functional interface
 	 */
@@ -150,15 +210,21 @@ public class LongStream<E extends Exception> {
 	 */
 	public static <E extends Exception> LongStream<E> from(Iterable<? extends Number> iterable) {
 		if (iterable == null) return empty();
-		return from(iterable.iterator());
+		var iterator = iterable.iterator();
+		if (iterator == null || !iterator.hasNext()) return empty();
+		return Stream.<E, Number>from(iterator).mapToLong(Number::longValue);
 	}
 
 	/**
-	 * Returns a stream of iterator values.
+	 * Returns a stream for a primitive iterator.
 	 */
-	public static <E extends Exception> LongStream<E> from(Iterator<? extends Number> iterator) {
+	public static <E extends Exception> LongStream<E> from(PrimitiveIterator.OfLong iterator) {
 		if (iterator == null || !iterator.hasNext()) return empty();
-		return Stream.<E, Number>from(iterator).mapToLong(Number::longValue);
+		return ofSupplier(c -> {
+			if (!iterator.hasNext()) return false;
+			c.accept(iterator.nextLong());
+			return true;
+		});
 	}
 
 	/**
@@ -321,28 +387,53 @@ public class LongStream<E extends Exception> {
 			if (!supplier.next(nullConsumer())) return n;
 	}
 
-	// collectors
+	// iteration
 
+	/**
+	 * Provides a one-off iterator that wraps checked exceptions as runtime.
+	 */
+	public PrimitiveIterator.OfLong iterator() {
+		return iterator(supplier);
+	}
+
+	/**
+	 * Calls the consumer for each element.
+	 */
 	public void forEach(Excepts.LongConsumer<? extends E> consumer) throws E {
 		supplier.forEach(consumer);
 	}
+
+	// collection
 
 	/**
 	 * Collects elements into an array.
 	 */
 	public long[] toArray() throws E {
-		return array(supplier).truncate();
+		return collect(Collect.array);
 	}
 
 	/**
-	 * Collects elements into a supplied container, with accumulator.
+	 * Collects elements with a collector.
 	 */
-	public <R> R collect(Excepts.Supplier<? extends E, R> supplier,
-		Excepts.ObjLongConsumer<? extends E, R> accumulator) throws E {
-		if (supplier == null) return null;
-		var r = supplier.get();
-		if (!noOp(accumulator) && r != null) forEach(i -> accumulator.accept(r, i));
-		return r;
+	public <A, R> R collect(Collector<A, R> collector) throws E {
+		if (collector == null) return null;
+		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
+	}
+
+	/**
+	 * Collect elements with container supplier and accumulator.
+	 */
+	public <R> R collect(Functions.Supplier<R> supplier, Functions.ObjLongConsumer<R> accumulator)
+		throws E {
+		return collect(supplier, accumulator, r -> r);
+	}
+
+	/**
+	 * Collect elements with container supplier, accumulator, and finisher.
+	 */
+	public <A, R> R collect(Functions.Supplier<A> supplier,
+		Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher) throws E {
+		return collect(this.supplier, supplier, accumulator, finisher);
 	}
 
 	// reducers
@@ -351,7 +442,7 @@ public class LongStream<E extends Exception> {
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
 	public Long reduce(Excepts.LongBiOperator<? extends E> accumulator) throws E {
-		if (noOp(accumulator)) return null;
+		if (accumulator == null) return null;
 		var next = next();
 		return next == null ? null : reduce(next, accumulator);
 	}
@@ -360,12 +451,7 @@ public class LongStream<E extends Exception> {
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
 	public long reduce(long identity, Excepts.LongBiOperator<? extends E> accumulator) throws E {
-		if (noOp(accumulator)) return identity;
-		var receiver = new NextSupplier.Receiver<E>();
-		for (long l = identity;;) {
-			if (!supplier.next(receiver)) return l;
-			l = accumulator.applyAsLong(l, receiver.value);
-		}
+		return reduce(supplier, identity, accumulator);
 	}
 
 	// support
@@ -485,15 +571,52 @@ public class LongStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> sortedSupplier(NextSupplier<E> supplier)
 		throws E {
-		var array = array(supplier);
+		var array = collect(supplier, DynamicArray::longs, DynamicArray.OfLong::accept, t -> t);
 		Arrays.sort(array.array(), 0, array.index());
 		return arraySupplier(array.array(), 0, array.index());
 	}
 
-	private static <E extends Exception> DynamicArray.OfLong
-		array(NextSupplier<? extends E> supplier) throws E {
-		var array = DynamicArray.longs();
-		supplier.forEach(Functions.LongConsumer.except(array));
-		return array;
+	private static <E extends Exception, A, R> R collect(NextSupplier<E> next,
+		Functions.Supplier<A> supplier, Functions.ObjLongConsumer<A> accumulator,
+		Functions.Function<A, R> finisher) throws E {
+		if (supplier == null || finisher == null) return null;
+		var container = supplier.get();
+		if (accumulator != null && container != null)
+			next.forEach(l -> accumulator.accept(container, l));
+		return finisher.apply(container);
+	}
+
+	private static <E extends Exception> long reduce(NextSupplier<E> supplier, long identity,
+		Excepts.LongBiOperator<? extends E> accumulator) throws E {
+		if (accumulator == null) return identity;
+		var receiver = new NextSupplier.Receiver<E>();
+		for (long l = identity;;) {
+			if (!supplier.next(receiver)) return l;
+			l = accumulator.applyAsLong(l, receiver.value);
+		}
+	}
+
+	private static <E extends Exception> PrimitiveIterator.OfLong
+		iterator(NextSupplier<E> supplier) {
+		var receiver = new NextSupplier.Receiver<E>();
+		Excepts.BoolSupplier<E> next = () -> supplier.next(receiver);
+		return new PrimitiveIterator.OfLong() {
+			private boolean fetch = true;
+			private boolean active = true;
+
+			@Override
+			public boolean hasNext() {
+				if (fetch) active = ExceptionAdapter.runtime.getBool(next);
+				fetch = false;
+				return active;
+			}
+
+			@Override
+			public long nextLong() {
+				if (!hasNext()) throw new NoSuchElementException();
+				fetch = true;
+				return receiver.value;
+			}
+		};
 	}
 }

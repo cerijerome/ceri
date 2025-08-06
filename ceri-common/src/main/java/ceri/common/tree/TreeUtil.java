@@ -3,7 +3,7 @@ package ceri.common.tree;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterables;
 
 public class TreeUtil {
 
@@ -38,7 +38,7 @@ public class TreeUtil {
 
 	public static <T extends Parent<T>> Iterable<T> iterable(T node) {
 		if (node == null) throw new NullPointerException("Node cannot be null");
-		return IteratorUtil.iterable(new TreeIterator<>(node));
+		return Iterables.of(new TreeIterator<>(node));
 	}
 
 	public static <T extends Parent<T>> String toString(T node) {

@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.collection.ImmutableUtil.enumSet;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
@@ -39,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import ceri.common.collection.Enums;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.util.OsUtil;
@@ -107,8 +107,8 @@ public class LibFtdi {
 		public static final TypeTranscoder<ftdi_chip_type> xcoder =
 			TypeTranscoder.of(t -> t.value, ftdi_chip_type.class);
 		public static final Set<ftdi_chip_type> H_TYPES =
-			enumSet(TYPE_2232H, TYPE_4232H, TYPE_232H);
-		public static final Set<ftdi_chip_type> SYNC_FIFO_TYPES = enumSet(TYPE_2232H, TYPE_232H);
+			Enums.set(TYPE_2232H, TYPE_4232H, TYPE_232H);
+		public static final Set<ftdi_chip_type> SYNC_FIFO_TYPES = Enums.set(TYPE_2232H, TYPE_232H);
 		public final int value;
 
 		public static boolean isHType(ftdi_chip_type type) {

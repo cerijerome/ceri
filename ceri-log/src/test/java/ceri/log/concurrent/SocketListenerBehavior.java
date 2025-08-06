@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
 
@@ -25,7 +25,7 @@ public class SocketListenerBehavior {
 
 	@Test
 	public void shouldExecuteOnNotification() throws IOException, InterruptedException {
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (SocketListener sl = SocketListener.of(12345, () -> sync.signal())) {
 			send("test", sl.port());
 			sync.await();

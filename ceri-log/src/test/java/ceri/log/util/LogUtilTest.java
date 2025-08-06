@@ -25,7 +25,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
@@ -265,7 +265,7 @@ public class LogUtilTest {
 	@Test
 	public void testCloseExecutorService() throws InterruptedException {
 		assertTrue(LogUtil.close((ExecutorService) null));
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
 			exec.execute(() -> signalAndSleep(sync, 60000));
 			sync.await();
@@ -294,7 +294,7 @@ public class LogUtilTest {
 	@Test
 	public void testCloseFutureWithCancellation() throws InterruptedException {
 		assertTrue(LogUtil.close((Future<?>) null));
-		BooleanCondition sync = BooleanCondition.of();
+		BoolCondition sync = BoolCondition.of();
 		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
 			Future<?> future = exec.submit(() -> signalAndSleep(sync, 60000));
 			sync.await();
@@ -366,7 +366,7 @@ public class LogUtilTest {
 			" " + StringUtil.repeat("Test", 19) + " ");
 	}
 
-	private static void signalAndSleep(BooleanCondition sync, long sleepMs) {
+	private static void signalAndSleep(BoolCondition sync, long sleepMs) {
 		sync.signal();
 		try {
 			Thread.sleep(sleepMs);

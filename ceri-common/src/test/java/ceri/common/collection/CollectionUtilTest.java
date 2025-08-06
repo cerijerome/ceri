@@ -124,7 +124,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testGetAdapted() {
-		var map = MapPopulator.of(1, "1", 2, "2", 3, null).map;
+		var map = Maps.Builder.of(1, "1", 2, "2", 3, null).map;
 		assertEquals(CollectionUtil.getAdapted(map, 1, (k, v) -> v.repeat(k)), "1");
 		assertEquals(CollectionUtil.getAdapted(map, 2, (k, v) -> v.repeat(k)), "22");
 		assertEquals(CollectionUtil.getAdapted(map, 3, (k, v) -> v.repeat(k)), null);
@@ -154,35 +154,35 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testTransformValues() {
-		var map = MapPopulator.of(1, "1", 3, "333", 2, "22").map;
+		var map = Maps.Builder.of(1, "1", 3, "333", 2, "22").map;
 		var imap = CollectionUtil.transformValues(String::length, map);
 		assertUnordered(imap.keySet(), 1, 3, 2);
-		assertOrdered(imap.values(), 1, 3, 2);
+		assertUnordered(imap.values(), 1, 3, 2);
 		imap = CollectionUtil.transformValues((i, s) -> i + s.length(), map);
 		assertUnordered(imap.keySet(), 1, 3, 2);
-		assertOrdered(imap.values(), 2, 6, 4);
+		assertUnordered(imap.values(), 2, 6, 4);
 	}
 
 	@Test
 	public void testTransformKeys() {
-		var map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
+		var map = Maps.Builder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
 		var imap = CollectionUtil.transformKeys(Double::intValue, map);
 		assertUnordered(imap.keySet(), 1, 3, 2);
-		assertOrdered(imap.values(), "1.10", "3.3000", "2.200");
+		assertUnordered(imap.values(), "1.10", "3.3000", "2.200");
 		imap = CollectionUtil.transformKeys((d, s) -> d.intValue() + s.length(), map);
 		assertUnordered(imap.keySet(), 5, 9, 7);
-		assertOrdered(imap.values(), "1.10", "3.3000", "2.200");
+		assertUnordered(imap.values(), "1.10", "3.3000", "2.200");
 	}
 
 	@Test
 	public void testTransform() {
-		var map = MapPopulator.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
+		var map = Maps.Builder.of(1.1, "1.10", 3.3, "3.3000", 2.2, "2.200").map;
 		var imap = CollectionUtil.transform(Double::intValue, String::length, map);
 		assertUnordered(imap.keySet(), 1, 3, 2);
-		assertOrdered(imap.values(), 4, 6, 5);
+		assertUnordered(imap.values(), 4, 6, 5);
 		imap = CollectionUtil.transform((_, s) -> s.length(), (d, _) -> d.intValue(), map);
 		assertUnordered(imap.keySet(), 4, 6, 5);
-		assertOrdered(imap.values(), 1, 3, 2);
+		assertUnordered(imap.values(), 1, 3, 2);
 	}
 
 	@Test
@@ -204,8 +204,8 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testToList() {
-		var map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()).put(1, "1").put(0, null)
-			.put(4, "4").put(2, "2").put(-2, "-2").map;
+		var map = Maps.Builder.<Integer, String>linked().put(1, "1", 0, null, 4, "4", 2, "2", -2,
+			"-2").map;
 		var list = CollectionUtil.toList((i, s) -> String.valueOf(s) + i, map);
 		assertOrdered(list, "11", "null0", "44", "22", "-2-2");
 	}
@@ -218,8 +218,8 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testSortByValue() {
-		var map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()).put(1, "1").put(0, null)
-			.put(4, "4").put(2, "2").put(-2, "-2").map;
+		var map = Maps.Builder.<Integer, String>linked().put(1, "1", 0, null, 4, "4", 2, "2", -2,
+			"-2").map;
 		map = CollectionUtil.sortByValue(map);
 		assertOrdered(map.keySet(), 0, -2, 1, 2, 4);
 		assertOrdered(map.values(), null, "-2", "1", "2", "4");
@@ -262,27 +262,6 @@ public class CollectionUtilTest {
 	}
 
 	@Test
-	public void testFirst() {
-		assertNull(CollectionUtil.first(null));
-		assertNull(CollectionUtil.first(Collections.emptySet()));
-		assertEquals(CollectionUtil.first(Arrays.asList("1", "2", "3")), "1");
-		var set = new LinkedHashSet<String>();
-		Collections.addAll(set, "1", "2", "3");
-		assertEquals(CollectionUtil.first(set), "1");
-	}
-
-	@Test
-	public void testGetFromSet() {
-		var set = new LinkedHashSet<>(Arrays.asList("1", "2", "3"));
-		assertEquals(CollectionUtil.get(0, set), "1");
-		assertEquals(CollectionUtil.get(1, set), "2");
-		assertEquals(CollectionUtil.get(2, set), "3");
-		assertNull(CollectionUtil.get(-1, set));
-		assertNull(CollectionUtil.get(3, set));
-		assertNull(CollectionUtil.get(0, null));
-	}
-
-	@Test
 	public void testIntersect() {
 		var list1 = Mutables.asList(0, 1, 2, 3, 4);
 		var list2 = Mutables.asList(1, 3, 5, 7, 9);
@@ -320,8 +299,7 @@ public class CollectionUtilTest {
 	@Test
 	public void testKey() {
 		assertEquals(CollectionUtil.key(Collections.emptyMap(), "a"), (Integer) null);
-		var map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()).put(1, "1").put(-1, null)
-			.put(2, "2").put(22, "2").put(-2, null).map;
+		var map = Maps.Builder.of(1, "1", -1, null, 2, "2", 22, "2", -2, null).map;
 		assertEquals(CollectionUtil.key(map, "1"), 1);
 		assertEquals(CollectionUtil.key(map, "2"), 2);
 		assertEquals(CollectionUtil.key(map, new String("2")), 2);
@@ -330,8 +308,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testKeys() {
-		var map = MapPopulator.wrap(new LinkedHashMap<Integer, String>()).put(1, "1").put(-1, null)
-			.put(2, "2").put(22, "2").put(-2, null).map;
+		var map = Maps.Builder.of(1, "1", -1, null, 2, "2", 22, "2", -2, null).map;
 		assertUnordered(CollectionUtil.keys(map, "1"), 1);
 		assertUnordered(CollectionUtil.keys(map, "2"), 2, 22);
 		assertUnordered(CollectionUtil.keys(map, new String("2")), 2, 22);

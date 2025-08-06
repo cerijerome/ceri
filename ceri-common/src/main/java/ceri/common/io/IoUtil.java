@@ -33,10 +33,11 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
+import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
-import ceri.common.stream.StreamUtil;
 import ceri.common.stream.Streams;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.SystemVars;
 
 /**
@@ -52,7 +53,7 @@ public class IoUtil {
 	private static final int BUFFER_SIZE_DEF = 1024;
 	private static final int MIN_ABSOLUTE_DIRS = 3;
 	private static final Pattern PATH_SEPARATOR_REGEX =
-		Pattern.compile("\\Q" + File.pathSeparator + "\\E");
+		Pattern.compile("\\s*\\Q" + File.pathSeparator + "\\E\\s*");
 	private static final FileVisitor<Path> DELETING_VISITOR =
 		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
 	private static final Excepts.Predicate<IOException, Path> NULL_FILTER = _ -> true;
@@ -151,8 +152,8 @@ public class IoUtil {
 	 */
 	public static Set<String> variablePaths(String variable) {
 		if (variable == null) return Set.of();
-		return StreamUtil.toSet(PATH_SEPARATOR_REGEX.splitAsStream(variable).map(String::trim)
-			.filter(StringUtil::nonEmpty));
+		return Parser.string(variable).split(PATH_SEPARATOR_REGEX).filter(Strings::nonEmpty)
+			.toSet();
 	}
 
 	/**

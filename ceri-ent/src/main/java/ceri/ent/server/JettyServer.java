@@ -11,7 +11,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.net.NetUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.RegexUtil;
 import ceri.log.util.LogUtil;
 
@@ -84,11 +84,11 @@ public class JettyServer implements AutoCloseable {
 	private ServerConnector connector() {
 		Connector[] connectors = server.getConnectors();
 		if (connectors == null || connectors.length == 0) return null;
-		return ReflectUtil.castOrNull(ServerConnector.class, connectors[0]);
+		return Reflect.castOrNull(ServerConnector.class, connectors[0]);
 	}
 
 	private WebAppContext context() {
-		return ReflectUtil.castOrNull(WebAppContext.class, server.getHandler());
+		return Reflect.castOrNull(WebAppContext.class, server.getHandler());
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
@@ -19,7 +19,7 @@ public abstract class LoopingExecutor implements Functions.Closeable {
 	private final int exitTimeoutMs;
 	private final String logName;
 	private final ExecutorService executor;
-	private final BooleanCondition stopped = BooleanCondition.of();
+	private final BoolCondition stopped = BoolCondition.of();
 	private volatile boolean closed = false;
 
 	protected LoopingExecutor() {

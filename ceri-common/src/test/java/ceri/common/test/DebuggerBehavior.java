@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.reflect.Caller;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 
 public class DebuggerBehavior {
@@ -121,16 +121,16 @@ public class DebuggerBehavior {
 	}
 
 	private String file() {
-		return ReflectUtil.currentCaller().file;
+		return Reflect.currentCaller().file;
 	}
 
 	private String method() {
-		Caller caller = ReflectUtil.previousCaller(1);
+		Caller caller = Reflect.previousCaller(1);
 		return caller.cls + '.' + caller.method + "()";
 	}
 
 	private String method(String value) {
-		Caller caller = ReflectUtil.previousCaller(1);
+		Caller caller = Reflect.previousCaller(1);
 		return caller.cls + '.' + caller.method + "(" + value + ")";
 	}
 

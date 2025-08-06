@@ -35,8 +35,8 @@ public class Comparators {
 	public static final Comparator<Integer> UINT = nonNull(Integer::compareUnsigned);
 	public static final Comparator<Long> ULONG = nonNull(Long::compareUnsigned);
 	public static final Comparator<Locale> LOCALE = string();
-	private static final Comparator<?> STRING_VALUE =
-		nonNull((lhs, rhs) -> STRING.compare(String.valueOf(lhs), String.valueOf(rhs)));
+	private static final Comparator<Object> STRING_VALUE =
+		Comparator.nullsFirst(Comparator.comparing(String::valueOf));
 	private static final Comparator<?> NULL = ((_, _) -> 0);
 	private static final Comparator<?> NON_NULL = nonNull((_, _) -> 0);
 
@@ -91,14 +91,14 @@ public class Comparators {
 	/**
 	 * Comparator for comparable objects.
 	 */
-	public static <T extends Comparable<? super T>> Comparator<T> nullsFirstComparable() {
+	public static <T extends Comparable<? super T>> Comparator<T> nullsFirst() {
 		return BasicUtil.unchecked(NULLS_FIRST_COMPARABLE);
 	}
 
 	/**
 	 * Comparator for comparable objects.
 	 */
-	public static <T extends Comparable<? super T>> Comparator<T> nullsLastComparable() {
+	public static <T extends Comparable<? super T>> Comparator<T> nullsLast() {
 		return BasicUtil.unchecked(NULLS_LAST_COMPARABLE);
 	}
 

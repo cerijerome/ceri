@@ -1,11 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.collection.ImmutableUtil.enumMap;
 import java.awt.Color;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.Enums;
 
 /**
  * Opaque color presets.
@@ -375,7 +374,7 @@ public enum Colors {
 
 	private static final Map<Integer, Colors> argbLookup = argbLookup();
 	private static final Map<String, Colors> nameLookup =
-		enumMap(t -> t.name().toLowerCase(), Colors.class);
+		Enums.map(t -> t.name().toLowerCase(), Colors.class);
 	public final int argb;
 
 	/**
@@ -434,7 +433,7 @@ public enum Colors {
 	 * Provide a random entry.
 	 */
 	public static Colors random() {
-		return EnumUtil.random(Colors.class);
+		return Enums.random(Colors.class);
 	}
 
 	Colors(int rgb) {

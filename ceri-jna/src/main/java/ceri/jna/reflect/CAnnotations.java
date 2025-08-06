@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.exception.Exceptions;
-import ceri.common.reflect.AnnotationUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Annotations;
+import ceri.common.reflect.Reflect;
 import ceri.jna.util.JnaOs;
 
 /**
@@ -132,7 +132,7 @@ public class CAnnotations {
 	 * Return annotated c code generation settings.
 	 */
 	public static CGen.Value cgen(Class<?> cls) {
-		return CGen.Value.from(AnnotationUtil.annotation(cls, CGen.class));
+		return CGen.Value.from(Annotations.annotation(cls, CGen.class));
 	}
 
 	/**
@@ -371,21 +371,21 @@ public class CAnnotations {
 			 * Returns true if the type is defined by typedef in c.
 			 */
 			public boolean typedef() {
-				return ArrayUtil.contains(attrs(), Attr.typedef);
+				return ArrayUtil.has(attrs(), Attr.typedef);
 			}
 
 			/**
 			 * Returns true if the type is defined as an enum in c.
 			 */
 			public boolean cenum() {
-				return ArrayUtil.contains(attrs(), Attr.cenum);
+				return ArrayUtil.has(attrs(), Attr.cenum);
 			}
 
 			/**
 			 * Returns true if the type value is defined as signed in c.
 			 */
 			public boolean signed() {
-				return ArrayUtil.contains(attrs(), Attr.signed);
+				return ArrayUtil.has(attrs(), Attr.signed);
 			}
 		}
 	}
@@ -400,7 +400,7 @@ public class CAnnotations {
 	 * Find c type settings by annotation for the OS.
 	 */
 	public static CType.Value ctype(Enum<?> en, JnaOs os) {
-		return ctype(ReflectUtil.enumToField(en), os);
+		return ctype(Reflect.enumToField(en), os);
 	}
 
 	/**
@@ -424,7 +424,7 @@ public class CAnnotations {
 		// Type annotation without OS => type
 		// Otherwise undefined
 		for (var ctype : ctypes)
-			if (ArrayUtil.contains(ctype.os(), os)) return CType.Value.from(ctype);
+			if (ArrayUtil.has(ctype.os(), os)) return CType.Value.from(ctype);
 		for (var ctype : ctypes)
 			if (ctype.os().length == 0) return CType.Value.from(ctype);
 		return CType.Value.UNDEFINED;

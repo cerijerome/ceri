@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import java.io.PrintStream;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import junit.runner.TestRunListener;
 
 /**
@@ -44,32 +44,32 @@ public class TestRunAdapter implements TestRunListener {
 
 		@Override
 		public void testEnded(String arg0) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+			out.println(Reflect.currentMethodName() + ": " + arg0);
 		}
 
 		@Override
 		public void testFailed(int arg0, String arg1, String arg2) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1 + ", " + arg2);
+			out.println(Reflect.currentMethodName() + ": " + arg0 + ", " + arg1 + ", " + arg2);
 		}
 
 		@Override
 		public void testRunEnded(long arg0) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+			out.println(Reflect.currentMethodName() + ": " + arg0);
 		}
 
 		@Override
 		public void testRunStarted(String arg0, int arg1) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0 + ", " + arg1);
+			out.println(Reflect.currentMethodName() + ": " + arg0 + ", " + arg1);
 		}
 
 		@Override
 		public void testRunStopped(long arg0) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+			out.println(Reflect.currentMethodName() + ": " + arg0);
 		}
 
 		@Override
 		public void testStarted(String arg0) {
-			out.println(ReflectUtil.currentMethodName() + ": " + arg0);
+			out.println(Reflect.currentMethodName() + ": " + arg0);
 		}
 	}
 }

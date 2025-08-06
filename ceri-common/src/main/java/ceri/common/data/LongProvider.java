@@ -5,7 +5,7 @@ import java.util.function.LongFunction;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
@@ -161,7 +161,7 @@ public interface LongProvider extends Iterable<Long> {
 	 */
 	@Override
 	default PrimitiveIterator.OfLong iterator() {
-		return IteratorUtil.longIndexed(length(), this::getLong);
+		return Iterators.longIndexed(length(), this::getLong);
 	}
 
 	/**

@@ -6,11 +6,11 @@ import static ceri.serial.spi.jna.SpiDevUtil.transferTimeMicros;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import ceri.common.collection.EnumUtil;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
+import ceri.common.util.BasicUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 import ceri.serial.spi.Spi;
@@ -131,7 +131,7 @@ public class SpiEmulator implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		EnumUtil.verifyDisallowed(direction, Direction.none);
+		BasicUtil.requireNot(direction, null, Direction.none);
 		validateMin(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

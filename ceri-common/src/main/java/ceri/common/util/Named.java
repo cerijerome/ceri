@@ -3,7 +3,7 @@ package ceri.common.util;
 import java.util.Comparator;
 import ceri.common.function.Excepts.Predicate;
 import ceri.common.function.Predicates;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 
 /**
@@ -24,7 +24,7 @@ public interface Named {
 	 */
 	static String name(Object obj, String name) {
 		if (name != null) return name;
-		return ReflectUtil.nameHash(obj);
+		return Reflect.nameHash(obj);
 	}
 
 	/**

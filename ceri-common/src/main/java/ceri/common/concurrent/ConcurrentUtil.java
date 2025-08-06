@@ -22,7 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
 import ceri.common.util.Holder;
@@ -63,7 +63,7 @@ public class ConcurrentUtil {
 	 * ReentrantLock.
 	 */
 	public static LockInfo lockInfo(Lock lock) {
-		ReentrantLock rlock = ReflectUtil.castOrNull(ReentrantLock.class, lock);
+		ReentrantLock rlock = Reflect.castOrNull(ReentrantLock.class, lock);
 		return rlock == null ? LockInfo.NULL :
 			new LockInfo(rlock.getHoldCount(), rlock.getQueueLength());
 	}

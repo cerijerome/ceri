@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.EnumUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
+import ceri.common.util.BasicUtil;
 import ceri.jna.util.GcMemory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -28,7 +28,7 @@ public class SpiTransfer {
 
 	public static SpiTransfer of(Consumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
-		EnumUtil.verifyDisallowed(direction, Direction.none);
+		BasicUtil.requireNot(direction, null, Direction.none);
 		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
 		var inMem = direction == Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
 		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);

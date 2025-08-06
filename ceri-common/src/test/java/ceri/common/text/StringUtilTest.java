@@ -89,18 +89,6 @@ public class StringUtilTest {
 	}
 
 	@Test
-	public void testToStringFromCodePoints() {
-		assertEquals(StringUtil.toString(new int[0]), "");
-		assertEquals(StringUtil.toString(1, 2, 3), "\u0001\u0002\u0003");
-	}
-
-	@Test
-	public void testToStringFromChars() {
-		assertEquals(StringUtil.toString(new char[0]), "");
-		assertEquals(StringUtil.toString('a', '\0', 'b'), "a\0b");
-	}
-
-	@Test
 	public void testRepeat() {
 		assertNull(repeat(null, 0));
 		assertNull(repeat(null, 10));
@@ -561,16 +549,6 @@ public class StringUtilTest {
 	}
 
 	@Test
-	public void testMinLen() {
-		assertEquals(StringUtil.minLen(), 0);
-		assertEquals(StringUtil.minLen((String) null), 0);
-		assertEquals(StringUtil.minLen((List<String>) null), 0);
-		assertEquals(StringUtil.minLen("", null, "abc"), 0);
-		assertEquals(StringUtil.minLen("", "abc"), 0);
-		assertEquals(StringUtil.minLen("\0\0\0\0\0", "\0\0\0", "abcd"), 3);
-	}
-
-	@Test
 	public void testMaxLen() {
 		assertEquals(StringUtil.maxLen(), 0);
 		assertEquals(StringUtil.maxLen((String) null), 0);
@@ -578,44 +556,6 @@ public class StringUtilTest {
 		assertEquals(StringUtil.maxLen("", null, "abc"), 3);
 		assertEquals(StringUtil.maxLen("", "abc"), 3);
 		assertEquals(StringUtil.maxLen("\0\0\0", "\0\0\0\0\0", "abcd"), 5);
-	}
-
-	@Test
-	public void testCommonPrefixLen() {
-		assertEquals(StringUtil.commonPrefixLen(), 0);
-		assertEquals(StringUtil.commonPrefixLen((String) null), 0);
-		assertEquals(StringUtil.commonPrefixLen((List<String>) null), 0);
-		assertEquals(StringUtil.commonPrefixLen("", null, "abc"), 0);
-		assertEquals(StringUtil.commonPrefixLen("abcde", "abc", "ab123"), 2);
-	}
-
-	@Test
-	public void testCommonPrefix() {
-		assertEquals(StringUtil.commonPrefix(), "");
-		assertEquals(StringUtil.commonPrefix((String) null), "");
-		assertEquals(StringUtil.commonPrefix((List<String>) null), "");
-		assertEquals(StringUtil.commonPrefix("", null, "abc"), "");
-		assertEquals(StringUtil.commonPrefix("abc", "abcde", "ab123"), "ab");
-	}
-
-	@Test
-	public void testNameBoundary() {
-		assertEquals(StringUtil.nameBoundary(null, 0), false);
-		assertEquals(StringUtil.nameBoundary("", 0), true);
-		assertEquals(StringUtil.nameBoundary("abc", 0), true);
-		assertEquals(StringUtil.nameBoundary("abc", 1), false);
-		assertEquals(StringUtil.nameBoundary("abc", 2), false);
-		assertEquals(StringUtil.nameBoundary("abc", 3), true);
-		assertEquals(StringUtil.nameBoundary("abCde", 1), false);
-		assertEquals(StringUtil.nameBoundary("abCde", 2), true);
-		assertEquals(StringUtil.nameBoundary("abCde", 3), false);
-		assertEquals(StringUtil.nameBoundary("ab123", 1), false);
-		assertEquals(StringUtil.nameBoundary("ab123", 2), true);
-		assertEquals(StringUtil.nameBoundary("ab123", 3), false);
-		assertEquals(StringUtil.nameBoundary("ab__de", 1), false);
-		assertEquals(StringUtil.nameBoundary("ab__de", 2), true);
-		assertEquals(StringUtil.nameBoundary("ab__de", 3), false);
-		assertEquals(StringUtil.nameBoundary("ab__de", 4), true);
 	}
 
 }

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Helps create string representations of objects. Output takes the form:
@@ -57,28 +57,28 @@ public class ToString {
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(Byte value) {
-		return value == null ? NULL : hex(value);
+		return value == null ? NULL : hex(value.byteValue());
 	}
 
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(Short value) {
-		return value == null ? NULL : hex(value);
+		return value == null ? NULL : hex(value.shortValue());
 	}
 
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(Integer value) {
-		return value == null ? NULL : hex(value);
+		return value == null ? NULL : hex(value.intValue());
 	}
 
 	/**
 	 * Provide unsigned hex string with prefix.
 	 */
 	public static String hex(Long value) {
-		return value == null ? NULL : hex(value);
+		return value == null ? NULL : hex(value.longValue());
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class ToString {
 	 */
 	public static String forClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return forName(ReflectUtil.className(obj), values);
+		return forName(Reflect.className(obj), values);
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class ToString {
 	 */
 	public static ToString ofClass(Object obj, Object... values) {
 		Objects.requireNonNull(obj);
-		return ofName(ReflectUtil.className(obj), values);
+		return ofName(Reflect.className(obj), values);
 	}
 
 	private ToString(String name) {
@@ -169,7 +169,7 @@ public class ToString {
 		for (var component : rec.getClass().getRecordComponents()) {
 			var method = component.getAccessor();
 			method.setAccessible(true);
-			values(ReflectUtil.<Object>invoke(method, rec));
+			values(Reflect.<Object>invoke(method, rec));
 		}
 		return this;
 	}
@@ -196,7 +196,7 @@ public class ToString {
 	 * Add a key-value field to the string representation, class name as key. ...[ClassName=Value]
 	 */
 	public ToString field(Class<?> key, Object value) {
-		return field(ReflectUtil.name(key), value);
+		return field(Reflect.name(key), value);
 	}
 
 	/**

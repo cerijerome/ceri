@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
@@ -32,7 +32,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 	protected static final Logger logger = LogManager.getFormatterLogger();
 	private final Config config;
 	private final Listeners<StateChange> listeners = Listeners.of();
-	private final BooleanCondition sync = BooleanCondition.of();
+	private final BoolCondition sync = BoolCondition.of();
 	private final AtomicBoolean open = new AtomicBoolean(false);
 	protected final Replaceable.Field<T> device = Replaceable.field("device");
 

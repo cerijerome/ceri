@@ -10,18 +10,19 @@ import ceri.common.test.TestUtil;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	// array
+	ceri.common.array.ArrayUtilTest.class, //
+	ceri.common.array.PrimitiveArrayBehavior.class, //
 	ceri.common.array.RawArraysTest.class, //
 	// collection
 	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
-	ceri.common.collection.EnumUtilTest.class, //
+	ceri.common.collection.EnumsTest.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexRangesBehavior.class, //
-	ceri.common.collection.IndexedBehavior.class, //
-	ceri.common.collection.IndexerBehavior.class, //
-	ceri.common.collection.IteratorUtilTest.class, //
-	ceri.common.collection.MapPopulatorBehavior.class, //
+	ceri.common.collection.IteratorsTest.class, //
+	ceri.common.collection.MapsTest.class, //
 	ceri.common.collection.NodeBehavior.class, //
+	ceri.common.collection.SplitRangeBehavior.class, //
 	ceri.common.collection.TimeQueueBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
 	// color
@@ -47,10 +48,9 @@ import ceri.common.test.TestUtil;
 	// comparator
 	ceri.common.comparator.ComparatorSequenceBehavior.class, //
 	ceri.common.comparator.ComparatorsTest.class, //
-	ceri.common.comparator.EnumComparatorsTest.class, //
 	// concurrent
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
-	ceri.common.concurrent.BooleanConditionBehavior.class, //
+	ceri.common.concurrent.BoolConditionBehavior.class, //
 	ceri.common.concurrent.ConcurrentUtilTest.class, //
 	ceri.common.concurrent.FuturesBehavior.class, //
 	ceri.common.concurrent.LazyBehavior.class, //
@@ -272,8 +272,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.FractionFormatsTest.class, //
 	ceri.common.text.JoinerBehavior.class, //
 	ceri.common.text.MultiPatternBehavior.class, //
-	ceri.common.text.NonMatchResultBehavior.class, //
-	ceri.common.text.NonMatcherBehavior.class, //
+	ceri.common.text.NonMatchBehavior.class, //
 	ceri.common.text.NumberParserTest.class, //
 	ceri.common.text.ParseUtilTest.class, //
 	ceri.common.text.RegexSequencerBehavior.class, //
@@ -281,6 +280,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.SplitterBehavior.class, //
 	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringUtilTest.class, //
+	ceri.common.text.StringsTest.class, //
 	ceri.common.text.SubSequenceBehavior.class, //
 	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextUtilTest.class, //

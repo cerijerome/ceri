@@ -3,6 +3,7 @@ package ceri.common.exception;
 import java.io.IOException;
 import java.util.function.Function;
 import ceri.common.text.StringUtil;
+import ceri.common.util.BasicUtil;
 
 /**
  * Exception generation convenience methods.
@@ -40,6 +41,13 @@ public class Exceptions {
 	 */
 	public static IOException io(Throwable cause, String format, Object... args) {
 		return new IOException(StringUtil.format(format, args), cause);
+	}
+
+	/**
+	 * Creates an exception with formatted message.
+	 */
+	public static NullPointerException nullPtr(String format, Object... args) {
+		return from(NullPointerException::new, null, format, args);
 	}
 
 	/**
@@ -85,5 +93,21 @@ public class Exceptions {
 	public static UnsupportedOperationException unsupportedOp(Throwable cause, String format,
 		Object... args) {
 		return from(UnsupportedOperationException::new, cause, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message and cause.
+	 */
+	public static IndexOutOfBoundsException indexOob(String format, Object... args) {
+		return from(IndexOutOfBoundsException::new, null, format, args);
+	}
+
+	/**
+	 * Creates an exception with formatted message and cause.
+	 */
+	public static IndexOutOfBoundsException indexOob(String name, Number index, Number min,
+		Number max) {
+		return indexOob("%s out of bounds: %s [%s, %s]", name, index, BasicUtil.def(min, "?"),
+			BasicUtil.def(max, "?"));
 	}
 }

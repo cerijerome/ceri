@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.reflect.AnnotationUtil;
+import ceri.common.reflect.Annotations;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -103,9 +103,9 @@ public class JnaEnum {
 	private static <T extends Enum<T> & Valued> void initFromAnnotations(Class<T> cls) {
 		Map<Integer, Enum<?>> valueMap = new TreeMap<>();
 		Map<Enum<?>, Integer> enumMap = new TreeMap<>();
-		int value = AnnotationUtil.value(cls, Value.class, Value::value, 0);
+		int value = Annotations.value(cls, Value.class, Value::value, 0);
 		for (var t : cls.getEnumConstants()) {
-			value = AnnotationUtil.value(t, Value.class, Value::value, value);
+			value = Annotations.value(t, Value.class, Value::value, value);
 			if (value != t.ordinal()) { // no need to map ordinals
 				valueMap.put(value, t);
 				enumMap.put(t, value);

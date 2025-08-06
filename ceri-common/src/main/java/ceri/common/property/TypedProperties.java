@@ -143,7 +143,7 @@ public class TypedProperties {
 	 * UnsupportedOperationException for read-only properties.
 	 */
 	public void set(Object value, String... keyParts) {
-		properties.property(key(keyParts), StringUtil.string(value));
+		properties.property(key(keyParts), value == null ? null : String.valueOf(value));
 	}
 
 	/**

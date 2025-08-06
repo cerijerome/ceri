@@ -12,7 +12,6 @@ import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import static ceri.common.validation.DisplayLong.hex8;
 import static ceri.common.validation.DisplayLong.udec;
-import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -23,6 +22,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
+import ceri.common.array.RawArrays;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
@@ -930,8 +930,7 @@ public class ValidationUtil {
 	/* Support methods */
 
 	private static <T> T validateArraySlice(T array, int offset, int length) {
-		int size = array == null ? 0 : Array.getLength(array);
-		validateSlice(size, offset, length);
+		validateSlice(RawArrays.length(array), offset, length);
 		return array;
 	}
 

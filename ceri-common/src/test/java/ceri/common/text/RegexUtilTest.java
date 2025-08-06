@@ -116,7 +116,7 @@ public class RegexUtilTest {
 
 	@Test
 	public void testCompileOr() {
-		Pattern p = RegexUtil.compileOr(INT_PATTERN, LSTRING_PATTERN);
+		var p = Patterns.compileOr(INT_PATTERN, LSTRING_PATTERN);
 		assertEquals(p.pattern().toString(), "((\\d+)|([a-z]+))");
 	}
 
@@ -184,27 +184,6 @@ public class RegexUtilTest {
 		assertEquals(
 			RegexUtil.replaceAll(Pattern.compile("[a-f]"), "abcdefg", (_, i) -> String.valueOf(i)),
 			"012345g");
-	}
-
-	@Test
-	public void testReplaceExcept() {
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile(""), "", ""), "");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd", "x"), "xaxbxcx");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "abc", "x"), "abc");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", "x"), "x");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", ""), "");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "def", (String) null),
-			"def");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("^"), "abc", "x"), "x");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("$"), "abc", "x"), "x");
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]+"), "abcdefbca",
-			m -> m.group().toUpperCase()), "abcDEFbca");
-	}
-
-	@Test
-	public void testReplaceExceptWithIndex() {
-		assertEquals(RegexUtil.replaceExcept(Pattern.compile("[a-c]"), "AaBbCcDd",
-			(_, i) -> String.valueOf(i)), "0a1b2c3");
 	}
 
 	@Test

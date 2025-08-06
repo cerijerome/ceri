@@ -1,10 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.reflect.ReflectUtil.hashId;
+import static ceri.common.reflect.Reflect.hashId;
 import static ceri.common.text.StringUtil.EOL;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -25,6 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
+import ceri.common.array.RawArrays;
 import ceri.common.collection.ImmutableUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
@@ -35,7 +35,7 @@ import ceri.common.data.LongProvider;
 import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
@@ -140,8 +140,8 @@ public class AssertUtil {
 
 	public static <T> T assertInstance(Object actual, Class<T> expected) {
 		if (expected.isInstance(actual)) return BasicUtil.unchecked(actual);
-		throw failure("Expected instance: %s\n           actual: %s", ReflectUtil.name(expected),
-			ReflectUtil.className(actual));
+		throw failure("Expected instance: %s\n           actual: %s", Reflect.name(expected),
+			Reflect.className(actual));
 	}
 
 	public static <T> void assertSame(T actual, T expected) {
@@ -1280,21 +1280,21 @@ public class AssertUtil {
 	private static void assertRawArray(Object lhs, Object rhs, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		assertEquals(Array.getLength(lhs), Array.getLength(rhs), "Invalid array size");
-		assertRawArray(lhs, 0, rhs, 0, Array.getLength(lhs), itemAssert);
+		assertEquals(RawArrays.length(lhs), RawArrays.length(rhs), "Invalid array size");
+		assertRawArray(lhs, 0, rhs, 0, RawArrays.length(lhs), itemAssert);
 	}
 
 	private static void assertRawArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
 		int len, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		int lhsLen = Array.getLength(lhs);
-		int rhsLen = Array.getLength(rhs);
+		int lhsLen = RawArrays.length(lhs);
+		int rhsLen = RawArrays.length(rhs);
 		for (int i = 0; i < len; i++) {
 			boolean hasLhs = lhsOffset + i < lhsLen;
-			Object lhsVal = hasLhs ? Array.get(lhs, lhsOffset + i) : null;
+			Object lhsVal = hasLhs ? RawArrays.get(lhs, lhsOffset + i) : null;
 			boolean hasRhs = rhsOffset + i < rhsLen;
-			Object rhsVal = hasRhs ? Array.get(rhs, rhsOffset + i) : null;
+			Object rhsVal = hasRhs ? RawArrays.get(rhs, rhsOffset + i) : null;
 			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
 		}
 	}

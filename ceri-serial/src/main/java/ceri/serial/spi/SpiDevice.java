@@ -1,14 +1,13 @@
 package ceri.serial.spi;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.io.IOException;
 import java.util.Objects;
-import ceri.common.collection.EnumUtil;
 import ceri.common.function.Excepts.Function;
 import ceri.common.io.Direction;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
+import ceri.common.util.BasicUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -65,8 +64,7 @@ public class SpiDevice implements Spi {
 			}
 
 			public Builder direction(Direction direction) {
-				EnumUtil.verifyDisallowed(direction, Direction.none);
-				validateNotNull(direction);
+				BasicUtil.requireNot(direction, null, Direction.none);
 				this.direction = direction;
 				return this;
 			}
@@ -144,7 +142,7 @@ public class SpiDevice implements Spi {
 	 * Opens the SPI file descriptor.
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
-		EnumUtil.verifyDisallowed(direction, Direction.none);
+		BasicUtil.requireNot(direction, null, Direction.none);
 		validateMin(bus, 0, "Bus number");
 		validateMin(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
@@ -206,7 +204,7 @@ public class SpiDevice implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		EnumUtil.verifyDisallowed(direction, Direction.none);
+		BasicUtil.requireNot(direction, null, Direction.none);
 		validateMin(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

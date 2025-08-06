@@ -18,7 +18,7 @@ import ceri.common.data.LongArray.Encodable;
 import ceri.common.data.LongArray.Encoder;
 import ceri.common.data.LongArray.Immutable;
 import ceri.common.data.LongArray.Mutable;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 public class LongArrayBehavior {
 
@@ -93,7 +93,7 @@ public class LongArrayBehavior {
 	public void shouldProvideAnImmutableView() {
 		Mutable m = Mutable.wrap(1, 2, 3);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
-		assertNull(ReflectUtil.castOrNull(LongReceiver.class, m.asImmutable()));
+		assertNull(Reflect.castOrNull(LongReceiver.class, m.asImmutable()));
 		m.setLong(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}

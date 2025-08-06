@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.reflect.ReflectUtil.className;
+import static ceri.common.reflect.Reflect.className;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

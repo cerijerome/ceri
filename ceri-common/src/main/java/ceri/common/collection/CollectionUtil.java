@@ -19,9 +19,11 @@ import java.util.stream.Stream;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Excepts.BiPredicate;
+import ceri.common.function.Functions;
 import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.function.Predicates;
 import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 
 /**
  * Utility methods to test and manipulate collections.
@@ -348,9 +350,9 @@ public class CollectionUtil {
 	/**
 	 * Converts a map to a list by mapping entry elements from the original map.
 	 */
-	public static <K, V, T> List<T> toList(BiFunction<? super K, ? super V, ? extends T> mapper,
+	public static <K, V, T> List<T> toList(Functions.BiFunction<? super K, ? super V, ? extends T> mapper,
 		Map<? extends K, ? extends V> map) {
-		return StreamUtil.toList(StreamUtil.stream(map, mapper));
+		return Streams.<RuntimeException, K, V, T>unMap(mapper, map).toList();
 	}
 
 	/**
@@ -397,7 +399,7 @@ public class CollectionUtil {
 	@SafeVarargs
 	public static <T, C extends Collection<T>> C joinAs(Supplier<C> supplier,
 		Collection<? extends T>... collections) {
-		return collect(StreamUtil.streamAll(collections), supplier);
+		return Streams.of(collections).flatMap(Streams::from).collect(supplier.get());
 	}
 
 	/**
@@ -498,23 +500,6 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Returns the first element, or null if no elements.
-	 */
-	public static <T> T first(Iterable<T> iterable) {
-		if (iterable == null) return null;
-		var i = iterable.iterator();
-		return i.hasNext() ? i.next() : null;
-	}
-
-	/**
-	 * Returns the element at index based on the set iterator, or null if no element.
-	 */
-	public static <T> T get(int index, Set<T> set) {
-		if (set == null || set.size() <= index) return null;
-		return IteratorUtil.nth(set.iterator(), index);
-	}
-
-	/**
 	 * Removes all given items from the collection. Returns true if the collection is modified.
 	 */
 	@SafeVarargs
@@ -527,7 +512,7 @@ public class CollectionUtil {
 	 */
 	public static <E extends Exception, T> int removeIf(Collection<T> collection,
 		Excepts.Predicate<? extends E, ? super T> predicate) throws E {
-		return IteratorUtil.removeIf(collection.iterator(), predicate);
+		return Iterables.removeIf(collection, predicate);
 	}
 
 	/**
@@ -535,7 +520,7 @@ public class CollectionUtil {
 	 */
 	public static <E extends Exception, K, V> int removeIf(Map<K, V> map,
 		BiPredicate<E, K, V> predicate) throws E {
-		return removeIf(map.entrySet(), Predicates.testingMapEntry(predicate));
+		return Iterables.removeIf(map.entrySet(), Predicates.testingMapEntry(predicate));
 	}
 
 	/**

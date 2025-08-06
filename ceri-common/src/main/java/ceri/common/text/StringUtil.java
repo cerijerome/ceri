@@ -25,7 +25,6 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions.IntBiPredicate;
 import ceri.common.math.MathUtil;
-import ceri.common.stream.StreamUtil;
 import ceri.common.stream.Streams;
 import ceri.common.util.Align;
 
@@ -149,27 +148,6 @@ public class StringUtil {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the object as a string, or null if the object is null.
-	 */
-	public static String string(Object obj) {
-		return obj == null ? null : obj.toString();
-	}
-
-	/**
-	 * Creates a string from code points.
-	 */
-	public static String toString(int... codePoints) {
-		return StreamUtil.toString(IntStream.of(codePoints));
-	}
-
-	/**
-	 * Creates a string from vararg chars.
-	 */
-	public static String toString(char... chars) {
-		return String.valueOf(chars);
 	}
 
 	/**
@@ -990,36 +968,6 @@ public class StringUtil {
 				else if (c != s.charAt(i)) return i;
 		}
 		return min;
-	}
-
-	/**
-	 * Returns the common prefix between the given strings.
-	 */
-	public static CharSequence commonPrefix(CharSequence... strings) {
-		return commonPrefix(Arrays.asList(strings));
-	}
-
-	/**
-	 * Returns the common prefix between the given strings.
-	 */
-	public static CharSequence commonPrefix(Collection<? extends CharSequence> strings) {
-		int len = commonPrefixLen(strings);
-		if (len == 0) return "";
-		return strings.iterator().next().subSequence(0, len);
-	}
-
-	/**
-	 * Returns true if the index marks a change to upper-case, or between letter and symbol.
-	 */
-	public static boolean nameBoundary(CharSequence s, int i) {
-		if (s == null) return false;
-		if (i <= 0 || i >= s.length()) return true;
-		char l = s.charAt(i - 1);
-		char r = s.charAt(i);
-		if (Character.isLetter(l) != Character.isLetter(r)) return true;
-		if (Character.isDigit(l) != Character.isDigit(r)) return true;
-		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
-		return false;
 	}
 
 	// support methods

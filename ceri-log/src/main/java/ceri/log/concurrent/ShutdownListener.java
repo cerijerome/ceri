@@ -3,7 +3,7 @@ package ceri.log.concurrent;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.BooleanCondition;
+import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
@@ -14,7 +14,7 @@ import ceri.log.util.LogUtil;
 public class ShutdownListener implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	public static final int PORT_DEF = 9999;
-	private final BooleanCondition stop = BooleanCondition.of();
+	private final BoolCondition stop = BoolCondition.of();
 	private final SocketListener socket;
 
 	public static ShutdownListener of() throws IOException {

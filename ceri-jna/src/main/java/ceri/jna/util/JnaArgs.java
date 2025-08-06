@@ -1,7 +1,6 @@
 package ceri.jna.util;
 
 import static ceri.common.text.StringUtil.NULL;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -12,10 +11,11 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
+import ceri.common.array.RawArrays;
 import ceri.common.collection.ImmutableUtil;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.function.Functions;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.StringUtil;
@@ -36,7 +36,7 @@ public class JnaArgs {
 	 * Predicate to match an instance of any given of the classes.
 	 */
 	public static Functions.Predicate<Object> matchClass(Class<?>... classes) {
-		return obj -> ReflectUtil.instanceOfAny(obj, classes);
+		return obj -> Reflect.instanceOfAny(obj, classes);
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class JnaArgs {
 	 * Memory to compact string.
 	 */
 	public static String string(PointerType p) {
-		return String.format("%s(%s)", ReflectUtil.nestedName(p.getClass()),
+		return String.format("%s(%s)", Reflect.nestedName(p.getClass()),
 			string(p.getPointer()));
 	}
 
@@ -107,7 +107,7 @@ public class JnaArgs {
 	 * Byte buffer to compact string.
 	 */
 	public static String string(ByteBuffer b) {
-		return String.format("%s(p=%d,l=%d,c=%d)", ReflectUtil.nestedName(b.getClass()),
+		return String.format("%s(p=%d,l=%d,c=%d)", Reflect.nestedName(b.getClass()),
 			b.position(), b.limit(), b.capacity());
 	}
 
@@ -163,7 +163,7 @@ public class JnaArgs {
 		 * Adds an argument string transform for matching class.
 		 */
 		public <T> Builder add(Class<T> cls, Functions.Function<T, String> fn) {
-			return add(arg -> ReflectUtil.castOrNull(cls, arg), fn);
+			return add(arg -> Reflect.castOrNull(cls, arg), fn);
 		}
 
 		/**
@@ -220,8 +220,8 @@ public class JnaArgs {
 	}
 
 	private String arrayString(Object array) {
-		int len = Array.getLength(array);
-		var iter = IteratorUtil.indexed(len, i -> Array.get(array, i));
+		int len = RawArrays.length(array);
+		var iter = Iterators.indexed(len, i -> RawArrays.get(array, i));
 		return arrayJoiner.join(this::arg, iter, len);
 	}
 }

@@ -3,17 +3,15 @@ package ceri.common.data;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BinaryOperator;
-import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
-import ceri.common.collection.EnumUtil;
+import ceri.common.collection.Enums;
 import ceri.common.collection.ImmutableUtil;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Stream;
+import ceri.common.stream.Streams;
 import ceri.common.util.BasicUtil;
 import ceri.common.validation.ValidationUtil;
 
@@ -22,7 +20,7 @@ import ceri.common.validation.ValidationUtil;
  * a set of instances. Useful for converting between integers and enums.
  */
 public class TypeTranscoder<T> {
-	private final ToLongFunction<T> valueFn;
+	private final Functions.ToLongFunction<T> valueFn;
 	private final Map<Long, T> lookup;
 
 	public static record Remainder<T>(long diff, Set<T> types) {
@@ -53,42 +51,27 @@ public class TypeTranscoder<T> {
 	 * Creates an encoder for unique type values.
 	 */
 	@SafeVarargs
-	public static <T extends Enum<T>> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Class<T> cls,
-		T... ignore) {
-		if (ignore.length == 0) return of(valueFn, EnumUtil.enums(cls));
-		var set = Set.of(ignore);
-		return of(valueFn, EnumUtil.enums(cls).stream().filter(t -> !set.contains(t))::iterator);
+	public static <T extends Enum<T>> TypeTranscoder<T> of(Functions.ToLongFunction<T> valueFn,
+		Class<T> cls, T... ignore) {
+		return of(valueFn, Enums.of(cls), ignore);
 	}
 
 	/**
 	 * Creates an encoder for unique type values.
 	 */
-	public static <T> TypeTranscoder<T> of(ToLongFunction<T> valueFn, Iterable<T> ts) {
-		return new TypeTranscoder<>(valueFn, ts, null);
-	}
-
-	/**
-	 * Creates an encoder that allows duplicate type values.
-	 */
 	@SafeVarargs
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
-		Class<T> cls, T... ignore) {
-		if (ignore.length == 0) return ofDup(valueFn, EnumUtil.enums(cls));
+	public static <T> TypeTranscoder<T> of(Functions.ToLongFunction<T> valueFn,
+		Iterable<T> iterable, T... ignore) {
+		var stream = Streams.from(iterable);
+		if (ignore.length == 0) return new TypeTranscoder<>(valueFn, stream);
 		var set = Set.of(ignore);
-		return ofDup(valueFn, EnumUtil.enums(cls).stream().filter(t -> !set.contains(t))::iterator);
+		return new TypeTranscoder<>(valueFn, stream.filter(t -> !set.contains(t)));
 	}
 
-	/**
-	 * Creates an encoder that allows duplicate type values.
-	 */
-	public static <T extends Enum<T>> TypeTranscoder<T> ofDup(ToLongFunction<T> valueFn,
-		Iterable<T> ts) {
-		return new TypeTranscoder<>(valueFn, ts, StreamUtil.mergeFirst());
-	}
-
-	protected TypeTranscoder(ToLongFunction<T> valueFn, Iterable<T> ts, BinaryOperator<T> mergeFn) {
+	protected TypeTranscoder(Functions.ToLongFunction<T> valueFn,
+		Stream<RuntimeException, T> stream) {
 		this.valueFn = valueFn;
-		this.lookup = lookup(valueFn, ts, mergeFn);
+		this.lookup = stream.collect(Stream.Collect.mapIfAbsent(valueFn::applyAsLong));
 	}
 
 	public Collection<T> all() {
@@ -297,12 +280,5 @@ public class TypeTranscoder<T> {
 	private long encodeType(T t) {
 		var value = valueFn.applyAsLong(t);
 		return lookup.containsKey(value) ? value : 0L;
-	}
-
-	private static <T> Map<Long, T> lookup(ToLongFunction<T> valueFn, Iterable<T> ts,
-		BinaryOperator<T> mergeFn) {
-		mergeFn = BasicUtil.def(mergeFn, StreamUtil.mergeError());
-		return Collections.unmodifiableMap(StreamUtil.stream(ts).collect(Collectors
-			.toMap(t -> valueFn.applyAsLong(t), t -> t, mergeFn, () -> new LinkedHashMap<>())));
 	}
 }

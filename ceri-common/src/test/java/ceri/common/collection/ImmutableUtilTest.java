@@ -38,12 +38,6 @@ public class ImmutableUtilTest {
 		assertPrivateConstructor(ImmutableUtil.class);
 	}
 
-	private enum E {
-		A,
-		ABC,
-		BC;
-	}
-
 	@Test
 	public void testIntSet() {
 		assertUnordered(ImmutableUtil.intSet());
@@ -103,50 +97,6 @@ public class ImmutableUtilTest {
 		Map<String, Integer> map = ImmutableUtil.invert(Map.of(1, "1", 2, "2"));
 		assertImmutableMap(map);
 		assertEquals(map, Map.of("1", 1, "2", 2));
-	}
-
-	@Test
-	public void testEnumMap() {
-		Map<Integer, E> map = ImmutableUtil.enumMap(e -> e.name().length(), E.class);
-		assertImmutableMap(map);
-		assertEquals(map, Map.of(1, E.A, 3, E.ABC, 2, E.BC));
-	}
-
-	@Test
-	public void testEnumSet() {
-		Set<E> one = ImmutableUtil.enumSet(E.A);
-		Set<E> two = ImmutableUtil.enumSet(E.ABC, E.BC);
-		assertImmutableCollection(one);
-		assertUnordered(one, E.A);
-		assertImmutableCollection(two);
-		assertUnordered(two, E.ABC, E.BC);
-	}
-
-	@Test
-	public void testEnumRange() {
-		Set<E> set = ImmutableUtil.enumRange(E.A, E.BC);
-		assertImmutableCollection(set);
-		assertUnordered(set, E.A, E.ABC, E.BC);
-		set = ImmutableUtil.enumRange(E.ABC, E.BC);
-		assertImmutableCollection(set);
-		assertUnordered(set, E.ABC, E.BC);
-		set = ImmutableUtil.enumRange(E.A, E.A);
-		assertImmutableCollection(set);
-		assertUnordered(set, E.A);
-		assertThrown(() -> ImmutableUtil.enumRange(E.BC, E.A));
-	}
-
-	@Test
-	public void testUnboundedEnumRange() {
-		Set<E> set = ImmutableUtil.enumRange(null, null);
-		assertImmutableCollection(set);
-		assertUnordered(set);
-		set = ImmutableUtil.enumRange(null, E.ABC);
-		assertImmutableCollection(set);
-		assertUnordered(set, E.A, E.ABC);
-		set = ImmutableUtil.enumRange(E.ABC, null);
-		assertImmutableCollection(set);
-		assertUnordered(set, E.ABC, E.BC);
 	}
 
 	@Test
@@ -527,27 +477,11 @@ public class ImmutableUtilTest {
 	}
 
 	@Test
-	public void testConvertAllAsMap() {
-		var map = ImmutableUtil.convertAllAsMap(String::valueOf, 1, 3, 2);
-		assertImmutableMap(map);
-		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
-		map = ImmutableUtil.convertAllAsMap(String::valueOf, i -> i + 1, new Integer[] { 1, 3, 2 });
-		assertEquals(map, Map.of("1", 2, "3", 4, "2", 3));
-	}
-
-	@Test
 	public void testConvertAsMap() {
 		var map = ImmutableUtil.convertAsMap(String::valueOf, List.of(1, 3, 2));
 		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
 		map = ImmutableUtil.convertAsMap(String::valueOf, i -> i + 1, List.of(1, 3, 2));
 		assertEquals(map, Map.of("1", 2, "3", 4, "2", 3));
-	}
-
-	@Test
-	public void testConvertStreamAsMap() {
-		var map = ImmutableUtil.convertAsMap(String::valueOf, Stream.of(1, 3, 2));
-		assertImmutableMap(map);
-		assertEquals(map, Map.of("1", 1, "3", 3, "2", 2));
 	}
 
 	@Test

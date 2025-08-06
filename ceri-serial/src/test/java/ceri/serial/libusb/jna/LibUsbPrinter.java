@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.RegexUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
 import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
@@ -343,7 +343,7 @@ public class LibUsbPrinter {
 	}
 
 	private static String name(Object obj) {
-		return RegexUtil.find(NAME_REGEX, ReflectUtil.name(obj.getClass()));
+		return RegexUtil.find(NAME_REGEX, Reflect.name(obj.getClass()));
 	}
 
 	private static String descriptor(libusb_device_handle handle, byte desc_index)

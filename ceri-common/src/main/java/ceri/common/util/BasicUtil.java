@@ -1,7 +1,10 @@
 package ceri.common.util;
 
+import java.util.Arrays;
 import java.util.Objects;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
+import ceri.common.reflect.Reflect;
 
 /**
  * Basic utility methods.
@@ -34,6 +37,31 @@ public class BasicUtil {
 		Objects.requireNonNull(args);
 		for (var arg : args)
 			Objects.requireNonNull(arg);
+	}
+
+	/**
+	 * Throws an exception if the value is equal to one of the disallowed values.
+	 */
+	@SafeVarargs
+	public static <T> T requireNot(T t, T... disallowed) {
+		for (var disallow : disallowed) {
+			if (t == null && disallow == null) throw Exceptions.nullPtr("Cannot be null");
+			else if (Objects.equals(t, disallow))
+				throw Exceptions.illegalArg("%s cannot be one of %s: %s", Reflect.className(t),
+					Arrays.toString(disallowed), t);
+		}
+		return t;
+	}
+
+	/**
+	 * Throws an exception if the value is not equal to one of the allowed values.
+	 */
+	@SafeVarargs
+	public static <T> T requireAny(T t, T... allowed) {
+		for (var allow : allowed)
+			if (Objects.equals(t, allow)) return t;
+		throw Exceptions.illegalArg("%s must be one of %s: %s", Reflect.className(t),
+			Arrays.toString(allowed), t);
 	}
 
 	/**

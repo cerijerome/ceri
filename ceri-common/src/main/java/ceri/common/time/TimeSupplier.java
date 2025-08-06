@@ -1,6 +1,5 @@
 package ceri.common.time;
 
-import static ceri.common.collection.ImmutableUtil.enumMap;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
@@ -10,9 +9,9 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.LongConsumer;
-import java.util.function.LongSupplier;
+import ceri.common.collection.Enums;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 
 /**
@@ -29,10 +28,11 @@ public enum TimeSupplier {
 	days(DAYS); // absolute time
 
 	private static final long MICRO_IN_NANOS = 1000;
-	private static final Map<TimeUnit, TimeSupplier> map = enumMap(t -> t.unit, TimeSupplier.class);
-	public final LongSupplier supplier;
+	private static final Map<TimeUnit, TimeSupplier> map =
+		Enums.map(t -> t.unit, TimeSupplier.class);
+	public final Functions.LongSupplier supplier;
 	public final TimeUnit unit;
-	private final LongConsumer delayFn;
+	private final Functions.LongConsumer delayFn;
 
 	public static TimeSupplier from(TimeUnit unit) {
 		return map.get(unit);
@@ -56,7 +56,7 @@ public enum TimeSupplier {
 		return DateUtil.symbol(unit);
 	}
 
-	private static LongSupplier supplier(TimeUnit unit) {
+	private static Functions.LongSupplier supplier(TimeUnit unit) {
 		return switch (unit) {
 			case NANOSECONDS -> System::nanoTime;
 			case MICROSECONDS -> () -> System.nanoTime() / MICRO_IN_NANOS;
@@ -68,7 +68,7 @@ public enum TimeSupplier {
 		};
 	}
 
-	private static LongConsumer delayFn(TimeUnit unit) {
+	private static Functions.LongConsumer delayFn(TimeUnit unit) {
 		return switch (unit) {
 			case NANOSECONDS -> ConcurrentUtil::delayNanos;
 			case MICROSECONDS -> ConcurrentUtil::delayMicros;
@@ -79,5 +79,4 @@ public enum TimeSupplier {
 			}
 		};
 	}
-
 }

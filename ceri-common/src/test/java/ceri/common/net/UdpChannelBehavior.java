@@ -10,7 +10,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.reflect.ReflectUtil;
+import ceri.common.reflect.Reflect;
 
 public class UdpChannelBehavior {
 
@@ -64,7 +64,7 @@ public class UdpChannelBehavior {
 
 	private static boolean isNetworkAvailable() throws IOException {
 		if (NetUtil.localInterface() != null) return true;
-		var caller = ReflectUtil.previousCaller(1);
+		var caller = Reflect.previousCaller(1);
 		System.err.printf("Network unavailable for test: %s.%s\n", caller.cls, caller.method);
 		return false;
 	}

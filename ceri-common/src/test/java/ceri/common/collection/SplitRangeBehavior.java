@@ -6,40 +6,39 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwRuntime;
 import static ceri.common.test.TestUtil.exerciseEquals;
-import java.util.function.ObjIntConsumer;
 import org.junit.Test;
-import ceri.common.data.IntArray;
-import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.array.ArrayUtil;
+import ceri.common.function.Functions;
 
-public class IndexerBehavior {
+public class SplitRangeBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Indexer t = Indexer.of(1, 3, 6);
-		Indexer eq0 = Indexer.of(1, 3, 6);
-		Indexer eq1 = Indexer.from(1, 2, 3);
-		Indexer eq2 = Indexer.from(String::length, "a", "bb", "ccc");
-		Indexer ne0 = Indexer.of(1, 3, 7);
-		Indexer ne1 = Indexer.of(1, 3, 6, 6);
+		var t = SplitRange.of(1, 3, 6);
+		var eq0 = SplitRange.of(1, 3, 6);
+		var eq1 = SplitRange.from(1, 2, 3);
+		var eq2 = SplitRange.from(String::length, "a", "bb", "ccc");
+		var ne0 = SplitRange.of(1, 3, 7);
+		var ne1 = SplitRange.of(1, 3, 6, 6);
 		exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1);
 	}
 
 	@Test
 	public void shouldNotBreachEqualsContractForTyped() {
-		Indexer.Typed<String> t = Indexer.typed(String::length, "aa", "b", "ccc");
-		Indexer.Typed<String> eq0 = Indexer.typed(String::length, "aa", "b", "ccc");
-		Indexer.Typed<String> ne0 = Indexer.typed(s -> s.length() + 1, "aa", "b", "ccc");
-		Indexer.Typed<String> ne1 = Indexer.typed(String::length, "aa", "b", "ddd");
-		Indexer.Typed<String> ne2 = Indexer.typed(String::length, "aa", "b", "cccc");
-		Indexer.Typed<String> ne3 = Indexer.Typed.ofNull();
+		var t = SplitRange.typed(String::length, "aa", "b", "ccc");
+		var eq0 = SplitRange.typed(String::length, "aa", "b", "ccc");
+		var ne0 = SplitRange.typed(s -> s.length() + 1, "aa", "b", "ccc");
+		var ne1 = SplitRange.typed(String::length, "aa", "b", "ddd");
+		var ne2 = SplitRange.typed(String::length, "aa", "b", "cccc");
+		var ne3 = SplitRange.Typed.ofNull();
 		exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
 	public void shouldFindTypeAtPosition() {
-		var typed = Indexer.typed(String::length, "aa", "b", "ccc");
+		var typed = SplitRange.typed(String::length, "aa", "b", "ccc");
 		assertEquals(typed.length(), 6);
 		assertEquals(typed.at(-1), null);
 		assertEquals(typed.at(0), "aa");
@@ -53,7 +52,7 @@ public class IndexerBehavior {
 
 	@Test
 	public void shouldAcceptTypeConsumer() {
-		var typed = Indexer.typed(String::length, "aa", "b", "ccc");
+		var typed = SplitRange.typed(String::length, "aa", "b", "ccc");
 		typed.accept(-1, (_, _) -> fail());
 		typed.accept(0, assertTypeConsumer("aa", 0));
 		typed.accept(1, assertTypeConsumer("aa", 1));
@@ -66,7 +65,7 @@ public class IndexerBehavior {
 
 	@Test
 	public void shouldApplyTypeFunction() {
-		var typed = Indexer.typed(String::length, "aa", "b", "ccc");
+		var typed = SplitRange.typed(String::length, "aa", "b", "ccc");
 		assertEquals(typed.apply(-1, (_, _) -> throwRuntime()), null);
 		assertEquals(typed.apply(0, assertTypeFunction("aa", 0, "test")), "test");
 		assertEquals(typed.apply(1, assertTypeFunction("aa", 1, "test")), "test");
@@ -79,54 +78,55 @@ public class IndexerBehavior {
 
 	@Test
 	public void shouldFindFromManyIndexes() {
-		var indexer = Indexer.from(IntArray.Encoder.fixed(300).fill(300, 10).ints());
-		assertEquals(indexer.index(-1), -1);
-		assertEquals(indexer.index(0), 0);
-		assertEquals(indexer.index(1000), 100);
-		assertEquals(indexer.index(2999), 299);
-		assertEquals(indexer.index(3000), -1);
+		var range = SplitRange.from(ArrayUtil.ints.fill(new int[300], 10));
+		assertEquals(range.index(-1), -1);
+		assertEquals(range.index(0), 0);
+		assertEquals(range.index(1000), 100);
+		assertEquals(range.index(2999), 299);
+		assertEquals(range.index(3000), -1);
 	}
 
 	@Test
 	public void shouldFindFromIndexes() {
-		var indexer = Indexer.from(IntArray.Encoder.fixed(100).fill(100, 10).ints());
-		assertEquals(indexer.index(-1), -1);
-		assertEquals(indexer.index(0), 0);
-		assertEquals(indexer.index(100), 10);
-		assertEquals(indexer.index(999), 99);
-		assertEquals(indexer.index(1000), -1);
+		var range = SplitRange.from(ArrayUtil.ints.fill(new int[100], 10));
+		assertEquals(range.length, 1000);
+		assertEquals(range.index(-1), -1);
+		assertEquals(range.index(0), 0);
+		assertEquals(range.index(100), 10);
+		assertEquals(range.index(999), 99);
+		assertEquals(range.index(1000), -1);
 	}
 
 	@Test
 	public void shouldFailToCreateFromDecreasingIndex() {
-		assertThrown(() -> Indexer.of(1, 3, 2));
+		assertThrown(() -> SplitRange.of(1, 3, 2));
 	}
 
 	@Test
 	public void shouldProvideSectionStarts() {
-		var indexer = Indexer.of(1, 3, 6, 10);
-		assertEquals(indexer.start(-1), 0);
-		assertEquals(indexer.start(0), 0);
-		assertEquals(indexer.start(1), 1);
-		assertEquals(indexer.start(2), 3);
-		assertEquals(indexer.start(3), 6);
-		assertEquals(indexer.start(4), 0);
+		var range = SplitRange.of(1, 3, 6, 10);
+		assertEquals(range.start(-1), 0);
+		assertEquals(range.start(0), 0);
+		assertEquals(range.start(1), 1);
+		assertEquals(range.start(2), 3);
+		assertEquals(range.start(3), 6);
+		assertEquals(range.start(4), 0);
 	}
 
 	@Test
 	public void shouldProvideSectionLength() {
-		var indexer = Indexer.of(1, 3, 6, 10);
-		assertEquals(indexer.length(-1), 0);
-		assertEquals(indexer.length(0), 1);
-		assertEquals(indexer.length(1), 2);
-		assertEquals(indexer.length(2), 3);
-		assertEquals(indexer.length(3), 4);
-		assertEquals(indexer.length(4), 0);
+		var range = SplitRange.of(1, 3, 6, 10);
+		assertEquals(range.length(-1), 0);
+		assertEquals(range.length(0), 1);
+		assertEquals(range.length(1), 2);
+		assertEquals(range.length(2), 3);
+		assertEquals(range.length(3), 4);
+		assertEquals(range.length(4), 0);
 	}
 
 	@Test
 	public void shouldAcceptConsumer() {
-		Indexer t = Indexer.of(1, 3, 6);
+		SplitRange t = SplitRange.of(1, 3, 6);
 		t.accept(-1, (_, _, _) -> fail());
 		t.accept(0, assertConsumer(0, 0, 1));
 		t.accept(1, assertConsumer(1, 0, 2));
@@ -139,7 +139,7 @@ public class IndexerBehavior {
 
 	@Test
 	public void shouldApplyFunction() {
-		Indexer t = Indexer.of(1, 3, 6);
+		SplitRange t = SplitRange.of(1, 3, 6);
 		assertEquals(t.apply(-1, (_, _, _) -> throwRuntime()), null);
 		assertEquals(t.apply(0, assertFunction(0, 0, 1, "test")), "test");
 		assertEquals(t.apply(1, assertFunction(1, 0, 2, "test")), "test");
@@ -150,7 +150,8 @@ public class IndexerBehavior {
 		assertEquals(t.apply(6, (_, _, _) -> throwRuntime()), null);
 	}
 
-	private static <T> Indexer.Function<T> assertFunction(int index, int offset, int length, T t) {
+	private static <T> SplitRange.Function<T> assertFunction(int index, int offset, int length,
+		T t) {
 		var consumer = assertConsumer(index, offset, length);
 		return (_, off, len) -> {
 			consumer.accept(index, off, len);
@@ -158,7 +159,7 @@ public class IndexerBehavior {
 		};
 	}
 
-	private static Indexer.Consumer assertConsumer(int index, int offset, int length) {
+	private static SplitRange.Consumer assertConsumer(int index, int offset, int length) {
 		return (i, off, _) -> {
 			assertEquals(i, index);
 			assertEquals(off, offset);
@@ -166,7 +167,8 @@ public class IndexerBehavior {
 		};
 	}
 
-	private static <T, R> ObjIntFunction<T, R> assertTypeFunction(T type, int offset, R r) {
+	private static <T, R> Functions.ObjIntFunction<T, R> assertTypeFunction(T type, int offset,
+		R r) {
 		var consumer = assertTypeConsumer(type, offset);
 		return (t, off) -> {
 			consumer.accept(t, off);
@@ -174,7 +176,7 @@ public class IndexerBehavior {
 		};
 	}
 
-	private static <T> ObjIntConsumer<T> assertTypeConsumer(T type, int offset) {
+	private static <T> Functions.ObjIntConsumer<T> assertTypeConsumer(T type, int offset) {
 		return (t, off) -> {
 			assertEquals(t, type);
 			assertEquals(off, offset);

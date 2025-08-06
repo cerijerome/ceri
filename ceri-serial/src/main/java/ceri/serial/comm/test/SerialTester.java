@@ -66,7 +66,7 @@ public class SerialTester {
 	 */
 	public static void testPorts(Collection<String> ports) throws IOException {
 		var serials =
-			CloseableUtil.create(port -> SelfHealingSerial.Config.of(port).serial(), ports);
+			CloseableUtil.createFrom(port -> SelfHealingSerial.Config.of(port).serial(), ports);
 		try {
 			test(serials);
 		} finally {

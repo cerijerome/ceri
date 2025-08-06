@@ -6,17 +6,16 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.IntStream;
 import ceri.common.text.RegexUtil;
 
 /**
- * Tracks ranges of indexes. Allows adding and removing ranges. Uses linear or binary search
- * depending on the number of index ranges.
+ * Tracks ranges of indexes such as {@code ((-3..0), (2), (4..5))}. Allows adding and removing
+ * ranges. Uses linear or binary search depending on the number of index ranges.
  */
 public class IndexRanges implements Iterable<Integer> {
 	private static final Pattern EXTRACT_REGEX = Pattern.compile("(\\d+)(?:\\-(\\d+))?");
@@ -184,7 +183,7 @@ public class IndexRanges implements Iterable<Integer> {
 	/**
 	 * Consumes each index within the ranges.
 	 */
-	public <E extends Exception> void forEachInt(IntConsumer<E> consumer) throws E {
+	public <E extends Exception> void forEachInt(Excepts.IntConsumer<E> consumer) throws E {
 		var iterator = iterator();
 		while (iterator.hasNext())
 			consumer.accept(iterator.next());
@@ -194,8 +193,8 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Streams all indexes within the ranges. The indexes must not be modified while the stream is
 	 * active.
 	 */
-	public IntStream stream() {
-		return StreamUtil.intStream(iterator());
+	public IntStream<RuntimeException> stream() {
+		return IntStream.from(iterator());
 	}
 
 	/**

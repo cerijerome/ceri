@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.IteratorUtil;
+import ceri.common.collection.Iterators;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.math.MathUtil;
@@ -55,7 +55,7 @@ public class ByteUtil {
 	 */
 	public static Iterator<Boolean> bitIterator(boolean highBit, ByteProvider bytes) {
 		IntUnaryOperator bitFn = highBit ? i -> Byte.SIZE - i - 1 : i -> i;
-		return IteratorUtil.indexed(bytes.length() * Byte.SIZE, i -> {
+		return Iterators.indexed(bytes.length() * Byte.SIZE, i -> {
 			int value = bytes.getByte(i / Byte.SIZE);
 			int bit = bitFn.applyAsInt(i % Byte.SIZE);
 			return bit(value, bit);

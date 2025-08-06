@@ -1,7 +1,6 @@
 package ceri.x10.command;
 
 import static ceri.common.math.MathUtil.limit;
-import static ceri.common.stream.StreamUtil.toSet;
 import static ceri.common.text.RegexUtil.parse;
 import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
@@ -15,10 +14,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.stream.StreamUtil;
+import ceri.common.property.Parser;
+import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 
 public abstract class Command {
 	private static final Pattern COMMAND_REGEX = Pattern.compile("([A-Pa-p])" + // house
@@ -169,7 +168,7 @@ public abstract class Command {
 	}
 
 	public Set<Address> addresses() {
-		return toSet(units.stream().map(unit -> Address.of(house, unit)));
+		return Streams.from(units).map(unit -> Address.of(house, unit)).toSet();
 	}
 
 	public FunctionType type() {
@@ -243,8 +242,8 @@ public abstract class Command {
 
 	private static Set<Unit> units(String unitStr) {
 		if (unitStr == null) return Set.of();
-		return StreamUtil.toSet(StringUtil.commaSplit(unitStr).stream().filter(s -> s.length() > 0)
-			.mapToInt(Integer::parseInt).mapToObj(Unit::from));
+		return Parser.string(unitStr).split().filter(s -> s.length() > 0).asInts()
+			.asEach(Unit::from).toSet();
 	}
 
 	private static Command of(House house, Set<Unit> units, FunctionType type, int data,

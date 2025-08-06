@@ -1,6 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.property.PropertyUtil.load;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertOrdered;
@@ -60,8 +59,8 @@ public class TypedPropertiesBehavior {
 	@Test
 	public void shouldMerge() throws IOException {
 		var tp = TypedProperties.merge(
-			TypedProperties.from(load(getClass(), "property-test-a-b-c.properties")),
-			TypedProperties.from(load(getClass(), "property-test-d-e-f.properties")));
+			TypedProperties.load(getClass(), "property-test-a-b-c.properties"),
+			TypedProperties.load(getClass(), "property-test-d-e-f.properties"));
 		assertEquals(tp.get("name"), "property-test-d-e-f");
 		assertEquals(tp.get("a.b.c"), "true");
 		assertEquals(tp.get("d.e.f"), "true");
