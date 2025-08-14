@@ -11,17 +11,22 @@ import ceri.common.test.TestUtil;
 @Suite.SuiteClasses({
 	// array
 	ceri.common.array.ArrayUtilTest.class, //
+	ceri.common.array.DynamicArrayBehavior.class, //
 	ceri.common.array.PrimitiveArrayBehavior.class, //
-	ceri.common.array.RawArraysTest.class, //
+	ceri.common.array.RawArrayTest.class, //
+	ceri.common.array.TypedArrayBehavior.class, //
 	// collection
-	ceri.common.collection.BiMapBehavior.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumsTest.class, //
+	ceri.common.collection.ImmutableTest.class, //
 	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexRangesBehavior.class, //
 	ceri.common.collection.IteratorsTest.class, //
+	ceri.common.collection.ListsTest.class, //
 	ceri.common.collection.MapsTest.class, //
+	ceri.common.collection.MutableTest.class, //
 	ceri.common.collection.NodeBehavior.class, //
+	ceri.common.collection.SetsTest.class, //
 	ceri.common.collection.SplitRangeBehavior.class, //
 	ceri.common.collection.TimeQueueBehavior.class, //
 	ceri.common.collection.TypedPipeBehavior.class, //
@@ -91,7 +96,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.data.LongWriterBehavior.class, //
 	ceri.common.data.MaskBehavior.class, //
 	ceri.common.data.NavigatorBehavior.class, //
-	ceri.common.data.SimpleBitSetBehavior.class, //
 	ceri.common.data.TypeTranscoderBehavior.class, //
 	ceri.common.data.TypeValueBehavior.class, //
 	ceri.common.data.XorBehavior.class, //

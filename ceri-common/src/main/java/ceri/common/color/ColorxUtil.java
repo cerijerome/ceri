@@ -13,6 +13,7 @@ import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntUnaryOperator;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import ceri.common.collection.BiMap;
+import ceri.common.collection.Immutable;
 import ceri.common.data.IntProvider;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
@@ -32,7 +33,7 @@ public class ColorxUtil {
 	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|0X|#)([0-9a-fA-F]{1,16})");
 	public static final Pattern COLORX_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,16})");
-	private static final BiMap<Long, String> colorxs = colorxs(); // full alpha
+	private static final Immutable.BiMap<Long, String> colorxs = colorxs(); // full alpha
 
 	private ColorxUtil() {}
 
@@ -661,13 +662,9 @@ public class ColorxUtil {
 		return (double) c / c0;
 	}
 
-	private static BiMap<Long, String> colorxs() {
-		return BiMap.<Long, String>builder() //
-			.put(Colorx.black.xargb(), "black") //
-			.put(Colorx.fullX0.xargb(), "fullX0") //
-			.put(Colorx.fullX01.xargb(), "fullX01") //
-			.put(Colorx.fullX012.xargb(), "fullX012") //
-			.put(Colorx.full.xargb(), "full") //
-			.build();
+	private static Immutable.BiMap<Long, String> colorxs() {
+		return Immutable.wrapBiMap(Map.of(Colorx.black.xargb(), "black", Colorx.fullX0.xargb(),
+			"fullX0", Colorx.fullX01.xargb(), "fullX01", Colorx.fullX012.xargb(), "fullX012",
+			Colorx.full.xargb(), "full"));
 	}
 }

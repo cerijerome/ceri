@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.net.HostPort;
 import ceri.common.net.NetUtil;
 import ceri.common.text.Joiner;
@@ -63,7 +63,7 @@ public class HostList {
 	}
 
 	HostList(Builder builder) {
-		hosts = ImmutableUtil.copyAsList(builder.hosts);
+		hosts = Immutable.list(builder.hosts);
 	}
 
 	@Override

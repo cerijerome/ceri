@@ -1,10 +1,10 @@
 package ceri.common.text;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.math.MathUtil;
 
 /**
  * Word-based formatting utilities. Not intended for UI purposes; tailored for ASCII in default
@@ -25,6 +25,20 @@ public class TextUtil {
 	private TextUtil() {}
 
 	/**
+	 * Prefix lines with line numbers and join the lines into a string.
+	 */
+	public static String prefixLineNumbers(String[] lines) {
+		if (lines == null || lines.length == 0) return "";
+		var fmt = "%" + MathUtil.decimalDigits(lines.length + 1) + "d";
+		var b = new StringBuilder();
+		for (int i = 0; i < lines.length; i++) {
+			if (i > 0) b.append(Strings.EOL);
+			b.append(String.format(fmt, i + 1)).append(": ").append(lines[i]);
+		}
+		return b.toString();
+	}
+
+	/**
 	 * Wrap a multi-line string as a javadoc block.
 	 */
 	public static String multilineJavadoc(String s) {
@@ -43,7 +57,7 @@ public class TextUtil {
 	 * underscores, or whitespace.
 	 */
 	public static List<String> toWords(String str) {
-		if (str == null) return Collections.emptyList();
+		if (str == null) return List.of();
 		List<String> words = new ArrayList<>();
 		for (String word : WORD_SPLIT_PATTERN.split(str)) {
 			word = word.trim();

@@ -11,8 +11,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
-import ceri.common.array.RawArrays;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.array.RawArray;
+import ceri.common.collection.Immutable;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -189,7 +189,7 @@ public class JnaArgs {
 	}
 
 	JnaArgs(Builder builder) {
-		transforms = ImmutableUtil.copyAsList(builder.transforms);
+		transforms = Immutable.list(builder.transforms);
 		arrayJoiner = Joiner.builder().prefix("[").separator(",").suffix("]").max(builder.arrayMax)
 			.remainder("..").build();
 	}
@@ -220,8 +220,8 @@ public class JnaArgs {
 	}
 
 	private String arrayString(Object array) {
-		int len = RawArrays.length(array);
-		var iter = Iterators.indexed(len, i -> RawArrays.get(array, i));
+		int len = RawArray.length(array);
+		var iter = Iterators.indexed(len, i -> RawArray.get(array, i));
 		return arrayJoiner.join(this::arg, iter, len);
 	}
 }

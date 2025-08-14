@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -169,10 +169,17 @@ public class DoubleStream<E extends Exception> {
 	public static <E extends Exception> DoubleStream<E> of(double[] values, int offset,
 		int length) {
 		if (values == null) return empty();
-		return RawArrays.applySlice(values, offset, length,
+		return RawArray.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : new DoubleStream<E>(arraySupplier(values, o, l)));
 	}
 
+	/**
+	 * Stream values from 0 to 1 in even steps.
+	 */
+	public static <E extends Exception> DoubleStream<E> segment(int steps) {
+		return IntStream.<E>range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
+	}
+	
 	/**
 	 * Returns a stream of iterable values.
 	 */
@@ -206,7 +213,7 @@ public class DoubleStream<E extends Exception> {
 		this.supplier = supplier;
 	}
 
-	// filters
+	// filtration
 
 	/**
 	 * Only streams elements that match the filter.
@@ -238,7 +245,7 @@ public class DoubleStream<E extends Exception> {
 		return !anyMatch(predicate);
 	}
 
-	// mappers
+	// mapping
 
 	/**
 	 * Maps stream elements to boxed types.
@@ -288,7 +295,7 @@ public class DoubleStream<E extends Exception> {
 		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
-	// manipulators
+	// manipulation
 
 	/**
 	 * Limits the number of elements.
@@ -314,7 +321,7 @@ public class DoubleStream<E extends Exception> {
 		return update(adaptedSupplier(supplier, s -> sortedSupplier(s)));
 	}
 
-	// terminating functions
+	// termination
 
 	/**
 	 * Returns the next element or default.
@@ -395,23 +402,35 @@ public class DoubleStream<E extends Exception> {
 		return collect(this.supplier, supplier, accumulator, finisher);
 	}
 
-	// reducers
+	// reduction
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Return the min value, or default.
+	 */
+	public double min(double def) throws E {
+		return reduce(Reduce.min(), def);
+	}
+	
+	/**
+	 * Return the max value, or default.
+	 */
+	public double max(double def) throws E {
+		return reduce(Reduce.max(), def);
+	}
+	
+	/**
+	 * Reduces stream to a value using an accumulator, or null.
 	 */
 	public Double reduce(Excepts.DoubleBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return null;
-		var next = next();
-		return next == null ? null : reduce(next, accumulator);
+		return reduce(supplier, accumulator);
 	}
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Reduces stream to a value using an accumulator, or default.
 	 */
-	public double reduce(double identity, Excepts.DoubleBiOperator<? extends E> accumulator)
+	public double reduce(Excepts.DoubleBiOperator<? extends E> accumulator, double def)
 		throws E {
-		return reduce(supplier, identity, accumulator);
+		return BasicUtil.defDouble(reduce(accumulator), def);
 	}
 
 	// support
@@ -546,11 +565,12 @@ public class DoubleStream<E extends Exception> {
 		return finisher.apply(container);
 	}
 
-	private static <E extends Exception> double reduce(NextSupplier<E> supplier, double identity,
+	private static <E extends Exception> Double reduce(NextSupplier<E> supplier,
 		Excepts.DoubleBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return identity;
+		if (accumulator == null) return null;
 		var receiver = new NextSupplier.Receiver<E>();
-		for (double d = identity;;) {
+		if (!supplier.next(receiver)) return null;
+		for (double d = receiver.value;;) {
 			if (!supplier.next(receiver)) return d;
 			d = accumulator.applyAsDouble(d, receiver.value);
 		}

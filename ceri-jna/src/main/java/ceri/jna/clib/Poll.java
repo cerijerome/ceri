@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.IntStream;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 import ceri.common.time.TimeSpec;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CPoll;
@@ -164,7 +163,7 @@ public class Poll implements Iterable<Poll.Fd> {
 
 	private Poll(CPoll.pollfd[] pollfds) {
 		this.pollfds = pollfds;
-		fds = IntStream.range(0, pollfds.length).mapToObj(Fd::new).toList();
+		fds = Streams.range(0, pollfds.length).mapToObj(Fd::new).toList();
 	}
 
 	/**
@@ -201,14 +200,14 @@ public class Poll implements Iterable<Poll.Fd> {
 	 * Combines responses from all fds.
 	 */
 	public Set<Event> responses() {
-		return StreamUtil.toSet(fds().stream().flatMap(fd -> fd.responses().stream()));
+		return Streams.from(fds()).expand(Fd::responses).toSet();
 	}
 
 	/**
 	 * Combines errors from all fds.
 	 */
 	public Set<Error> errors() {
-		return StreamUtil.toSet(fds().stream().flatMap(fd -> fd.errors().stream()));
+		return Streams.from(fds()).expand(Fd::errors).toSet();
 	}
 
 	/**

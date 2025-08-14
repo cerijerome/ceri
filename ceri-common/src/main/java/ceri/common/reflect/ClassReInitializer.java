@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 
 /**
  * Reloads and re-initializes classes; additional support classes are reloaded if accessed.
@@ -62,8 +62,8 @@ public class ClassReInitializer {
 	}
 
 	private ClassReInitializer(Builder builder) {
-		inits = ImmutableUtil.copyAsList(builder.inits);
-		reloads = ImmutableUtil.copyAsList(builder.reloads);
+		inits = Immutable.list(builder.inits);
+		reloads = Immutable.list(builder.reloads);
 	}
 
 	/**

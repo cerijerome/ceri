@@ -160,9 +160,9 @@ public class LongStreamBehavior {
 	@Test
 	public void shouldReduceElements() throws Exception {
 		assertEquals(LongStream.empty().reduce((_, _) -> 0L), null);
-		assertEquals(LongStream.empty().reduce(3L, (_, _) -> 0L), 3L);
+		assertEquals(LongStream.empty().reduce((_, _) -> 0L, 3), 3L);
 		assertEquals(testStream().reduce(null), null);
-		assertEquals(testStream().reduce(3L, null), 3L);
+		assertEquals(testStream().reduce(null, 3), 3L);
 		assertEquals(testStream().filter(i -> i > 1L).reduce((_, _) -> 0L), null);
 	}
 

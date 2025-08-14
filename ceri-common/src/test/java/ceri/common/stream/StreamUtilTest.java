@@ -1,29 +1,17 @@
 package ceri.common.stream;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertList;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertUnordered;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Test;
-import ceri.common.function.FunctionTestUtil.E;
-import ceri.common.test.Captor;
 
 public class StreamUtilTest {
 
@@ -36,64 +24,6 @@ public class StreamUtilTest {
 	public void testBadCombiner() {
 		assertThrown(() -> StreamUtil.badCombiner().accept(null, null));
 		assertThrown(() -> StreamUtil.badCombiner().accept(1, 2));
-	}
-
-	@Test
-	public void testForEachStream() {
-		Captor.OfInt capturer = Captor.ofInt();
-		StreamUtil.forEach(Stream.of(1, 2, 3), capturer.reset()::accept);
-		capturer.verify(1, 2, 3);
-		StreamUtil.forEach(IntStream.of(1, 2, 3), capturer.reset()::accept);
-		capturer.verify(1, 2, 3);
-		assertIoe(() -> StreamUtil.forEach(Stream.of(1, 2, 3), E.consumer));
-		assertIoe(() -> StreamUtil.forEach(IntStream.of(1, 2, 3), E.consumer::accept));
-		assertRte(() -> StreamUtil.forEach(Stream.of(2, 0, 3), E.consumer));
-		assertRte(() -> StreamUtil.forEach(IntStream.of(2, 0, 3), E.consumer::accept));
-	}
-
-	@Test
-	public void testCollect() {
-		assertOrdered(StreamUtil.collect(Stream.of(1, 2, 3), ArrayList::new, List::add), 1, 2, 3);
-	}
-
-	@Test
-	public void testIsEmpty() {
-		assertTrue(StreamUtil.isEmpty(Stream.of()));
-		assertFalse(StreamUtil.isEmpty(Stream.of("test")));
-	}
-
-	@Test
-	public void testMaxAndMin() {
-		assertEquals(StreamUtil.min(Stream.of("abc", "", "ABC")), "");
-		assertEquals(StreamUtil.max(Stream.of("abc", "", "ABC")), "abc");
-		assertThrown(() -> StreamUtil.min(Stream.of("abc", null, "ABC")));
-		assertEquals(StreamUtil.max(Stream.of("abc", null, "ABC")), "abc");
-	}
-
-	@Test
-	public void testFirst() {
-		Stream<Integer> stream = Stream.of(1, 2, 3, 4, 5).filter(i -> i % 2 == 0);
-		assertEquals(StreamUtil.first(stream), 2);
-	}
-
-	@Test
-	public void testJoinToSet() {
-		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
-		assertUnordered(StreamUtil.joinToSet(stream), "1", "2", "3");
-	}
-
-	@Test
-	public void testJoinToList() {
-		Stream<Collection<String>> stream = Stream.of(List.of("1", "2"), List.of("2", "3"));
-		assertOrdered(StreamUtil.joinToList(stream), "1", "2", "2", "3");
-	}
-
-	@Test
-	public void testToSet() {
-		Set<Integer> set = StreamUtil.toSet(Stream.of(1, 3, 2));
-		assertUnordered(set, 1, 3, 2);
-		set = StreamUtil.toSet(Stream.of(1, 3, 2), TreeSet::new);
-		assertOrdered(set, 1, 2, 3);
 	}
 
 	@Test

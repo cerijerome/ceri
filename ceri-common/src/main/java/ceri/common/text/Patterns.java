@@ -1,8 +1,11 @@
 package ceri.common.text;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.array.ArrayUtil;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 
@@ -122,6 +125,29 @@ public class Patterns {
 	}
 
 	/**
+	 * Split the string into an array.
+	 */
+	public static String[] split(Pattern p, CharSequence s) {
+		if (p == null || s == null) return ArrayUtil.Empty.strings;
+		return p.split(s);
+	}
+
+	/**
+	 * Split the string into a list.
+	 */
+	public static List<String> splitList(Pattern p, CharSequence s) {
+		return Arrays.asList(split(p, s));
+	}
+
+	/**
+	 * Split the string as a stream.
+	 */
+	public static Stream<RuntimeException, String> splitStream(Pattern p, CharSequence s) {
+		if (p == null || s == null) return Stream.empty();
+		return Streams.from(p.splitAsStream(s));
+	}
+
+	/**
 	 * Calls find and returns the matcher.
 	 */
 	public static Matcher find(Matcher m) {
@@ -135,6 +161,13 @@ public class Patterns {
 	public static Matcher match(Matcher m) {
 		if (m != null) m.matches();
 		return m;
+	}
+
+	/**
+	 * Returns true if the matcher has a match.
+	 */
+	public static boolean hasMatch(Matcher m) {
+		return m != null && m.hasMatch();
 	}
 
 	/**
@@ -156,7 +189,7 @@ public class Patterns {
 	 * before calling.
 	 */
 	public static Stream<RuntimeException, String> groups(Matcher m) {
-		if (m == null || !m.hasMatch()) return Stream.empty();
+		if (!hasMatch(m)) return Stream.empty();
 		int count = m.groupCount();
 		if (count <= 0) return Stream.empty();
 		return Streams.range(1, count).mapToObj(m::group);

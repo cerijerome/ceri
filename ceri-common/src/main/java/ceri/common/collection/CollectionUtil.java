@@ -144,28 +144,6 @@ public class CollectionUtil {
 	}
 
 	/**
-	 * Inverts keys and values.
-	 */
-	public static <K, V> Map<V, K> invert(Map<K, V> map) {
-		return invert(map, supplier.map());
-	}
-
-	/**
-	 * Inverts keys and values.
-	 */
-	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> supplier) {
-		return transform((_, v) -> v, (k, _) -> k, supplier, map);
-	}
-
-	/**
-	 * Converts a collection to a map.
-	 */
-	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
-		Collection<T> collection) {
-		return toMap(keyMapper, supplier.map(), collection);
-	}
-
-	/**
 	 * Converts a collection to a map.
 	 */
 	public static <K, T> Map<K, T> toMap(Function<? super T, ? extends K> keyMapper,
@@ -230,14 +208,6 @@ public class CollectionUtil {
 	 * Transforms a map.
 	 */
 	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
-		Function<? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, supplier.map(), map);
-	}
-
-	/**
-	 * Transforms a map.
-	 */
-	public static <K, V, T, U> Map<K, V> transform(Function<? super T, ? extends K> keyMapper,
 		Function<? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
 		Map<T, U> map) {
 		return StreamUtil.toMap(map.entrySet().stream(), e -> keyMapper.apply(e.getKey()),
@@ -268,67 +238,17 @@ public class CollectionUtil {
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
+	public static <K, T, U> Map<K, U> transformKeys(Functions.Function<? super T, ? extends K> keyMapper,
 		Map<T, U> map) {
-		return transformKeys(keyMapper, supplier.map(), map);
-	}
-
-	/**
-	 * Transforms a map's keys.
-	 */
-	public static <K, T, U> Map<K, U> transformKeys(Function<? super T, ? extends K> keyMapper,
-		Supplier<Map<K, U>> mapSupplier, Map<T, U> map) {
-		return transform(keyMapper, v -> v, mapSupplier, map);
-	}
-
-	/**
-	 * Transforms a map's keys.
-	 */
-	public static <K, T, U> Map<K, U>
-		transformKeys(BiFunction<? super T, ? super U, ? extends K> keyMapper, Map<T, U> map) {
-		return transformKeys(keyMapper, supplier.map(), map);
-	}
-
-	/**
-	 * Transforms a map's keys.
-	 */
-	public static <K, T, U> Map<K, U> transformKeys(
-		BiFunction<? super T, ? super U, ? extends K> keyMapper, Supplier<Map<K, U>> mapSupplier,
-		Map<T, ? extends U> map) {
-		return transform(keyMapper, (_, v) -> v, mapSupplier, map);
+		return Mutable.adaptMap(keyMapper, map);
 	}
 
 	/**
 	 * Transforms a map's values.
 	 */
-	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
-		Map<? extends K, U> map) {
-		return transformValues(valueMapper, supplier.map(), map);
-	}
-
-	/**
-	 * Transforms a map's values.
-	 */
-	public static <K, V, U> Map<K, V> transformValues(Function<? super U, ? extends V> valueMapper,
+	public static <K, V, U> Map<K, V> transformValues(Functions.Function<? super U, ? extends V> valueMapper,
 		Supplier<Map<K, V>> mapSupplier, Map<? extends K, U> map) {
-		return transform(k -> k, valueMapper, mapSupplier, map);
-	}
-
-	/**
-	 * Transforms a map's keys.
-	 */
-	public static <K, V, U> Map<K, V> transformValues(
-		BiFunction<? super K, ? super U, ? extends V> valueMapper, Map<? extends K, U> map) {
-		return transformValues(valueMapper, supplier.map(), map);
-	}
-
-	/**
-	 * Transforms a map's keys.
-	 */
-	public static <K, V, U> Map<K, V> transformValues(
-		BiFunction<? super K, ? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
-		Map<? extends K, U> map) {
-		return transform((k, _) -> k, valueMapper, mapSupplier, map);
+		return Maps.adaptPut(mapSupplier.get(), k -> k, valueMapper, map);
 	}
 
 	/**
@@ -352,7 +272,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T> List<T> toList(Functions.BiFunction<? super K, ? super V, ? extends T> mapper,
 		Map<? extends K, ? extends V> map) {
-		return Streams.<RuntimeException, K, V, T>unMap(mapper, map).toList();
+		return Streams.<RuntimeException, K, V, T>unmap(mapper, map).toList();
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.stream.StreamUtil.toSet;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -20,6 +19,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.stream.Streams;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
@@ -69,8 +69,8 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldScanFor7BitAddresses() throws IOException {
 		var lib = initI2c();
-		Set<Integer> exists = Set.of(0x2a, 0x3b, 0x4c);
-		Set<I2cAddress> existAddrs = toSet(exists.stream().map(I2cAddress::of));
+		var exists = Set.of(0x2a, 0x3b, 0x4c);
+		var existAddrs = Streams.from(exists).map(I2cAddress::of).toSet();
 		autoError(lib.ioctlI2cInt, 0, i -> i.request() == 0x704 || exists.contains(i.value()),
 			"Address does not exist");
 		assertUnordered(i2c.scan7Bit(), existAddrs);

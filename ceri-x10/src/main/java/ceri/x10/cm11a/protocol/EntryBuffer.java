@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -96,7 +96,7 @@ public class EntryBuffer {
 
 	public static EntryBuffer of(Collection<Entry> entries) {
 		validateMax(size(entries), MAX_BYTES, "Total entry size");
-		return new EntryBuffer(ImmutableUtil.copyAsList(entries));
+		return new EntryBuffer(Immutable.list(entries));
 	}
 
 	private EntryBuffer(List<Entry> entries) {

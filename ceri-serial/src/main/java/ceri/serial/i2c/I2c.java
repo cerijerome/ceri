@@ -6,12 +6,11 @@ import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 import ceri.jna.util.GcMemory;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.jna.I2cDev.i2c_func;
@@ -74,8 +73,8 @@ public interface I2c {
 	 * Scan 7-bit address range for existing devices.
 	 */
 	default Set<I2cAddress> scan7Bit() {
-		return StreamUtil.toSet(IntStream.rangeClosed(SCAN_7BIT_MIN, SCAN_7BIT_MAX)
-			.mapToObj(i -> I2cAddress.of7Bit(i)).filter(this::exists));
+		return Streams.range(SCAN_7BIT_MIN, SCAN_7BIT_MAX - SCAN_7BIT_MIN + 1)
+			.mapToObj(i -> I2cAddress.of7Bit(i)).filter(this::exists).toSet();
 	}
 
 	/**

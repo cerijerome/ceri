@@ -27,7 +27,8 @@ import static ceri.jna.clib.jna.CTermios.VSTART;
 import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.IntegerType;
-import ceri.common.collection.BiMap;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Mutable;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
@@ -49,7 +50,7 @@ public class CSerial {
 	private static final int BAUD_UNSUPPORTED = -1;
 	private static final int DC1 = 0x11; // ASCII device control 1 (^Q)
 	private static final int DC3 = 0x13; // ASCII device control 3 (^S)
-	private static final BiMap<Integer, Integer> baudMap = baudMap();
+	private static final Immutable.BiMap<Integer, Integer> baudMap = baudMap();
 	private static final double BAUD_MATCH = 0.05;
 	public static final int DATABITS_5 = 5;
 	public static final int DATABITS_6 = 6;
@@ -241,8 +242,8 @@ public class CSerial {
 		return baudMap.values.getOrDefault(baud, BAUD_UNSUPPORTED);
 	}
 
-	private static BiMap<Integer, Integer> baudMap() {
-		var b = BiMap.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
+	private static Immutable.BiMap<Integer, Integer> baudMap() {
+		var b = Mutable.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
 			.put(CTermios.B110, 110).put(CTermios.B134, 134).put(CTermios.B150, 150)
 			.put(CTermios.B200, 200).put(CTermios.B300, 300).put(CTermios.B600, 600)
 			.put(CTermios.B1200, 1200).put(CTermios.B1800, 1800).put(CTermios.B2400, 2400)
@@ -255,7 +256,7 @@ public class CSerial {
 			.put(CTermios.B1500000, 1500000).put(CTermios.B2000000, 2000000)
 			.put(CTermios.B2500000, 2500000).put(CTermios.B3000000, 3000000)
 			.put(CTermios.B3500000, 3500000).put(CTermios.B4000000, 4000000);
-		return b.build();
+		return Immutable.wrapBiMap(b.map);
 	}
 
 	private static void setAttr(int fd, termios tty) throws CException {

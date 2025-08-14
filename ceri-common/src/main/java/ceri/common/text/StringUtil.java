@@ -13,7 +13,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Formatter;
 import java.util.List;
 import java.util.function.Function;
@@ -470,7 +469,7 @@ public class StringUtil {
 	 * the regular split method.
 	 */
 	public static List<String> split(CharSequence s, Pattern pattern) {
-		if (s == null || s.length() == 0) return Collections.emptyList();
+		if (s == null || s.length() == 0) return List.of();
 		return Streams.of(pattern.split(s)).map(String::trim).toList();
 	}
 

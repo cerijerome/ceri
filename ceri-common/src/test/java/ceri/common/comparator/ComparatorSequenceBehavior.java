@@ -2,8 +2,8 @@ package ceri.common.comparator;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import org.junit.Test;
 
 public class ComparatorSequenceBehavior {
@@ -31,7 +31,7 @@ public class ComparatorSequenceBehavior {
 	@Test
 	public void should() {
 		ComparatorSequence<String> comparator = ComparatorSequence.<String>builder().build();
-		assertEquals(comparator.comparators(), Collections.emptyList());
+		assertEquals(comparator.comparators(), List.of());
 		assertEquals(comparator.compare("1", ""), 0);
 	}
 
@@ -58,5 +58,4 @@ public class ComparatorSequenceBehavior {
 		assertTrue(comparator.compare(A3, A4) < 0);
 		assertTrue(comparator.compare(A4, A1) > 0);
 	}
-
 }

@@ -17,8 +17,8 @@ import ceri.common.util.Hasher;
 /**
  * Operations on untyped arrays; calls with non-arrays have undefined behavior.
  */
-public class RawArrays {
-	private RawArrays() {}
+public class RawArray {
+	private RawArray() {}
 
 	/**
 	 * Represents a ranged view onto an array.
@@ -28,7 +28,7 @@ public class RawArrays {
 		 * Create an instance with validated range.
 		 */
 		public static <T> Sub<T> of(T array, int offset, int length) {
-			int arrayLen = RawArrays.length(array);
+			int arrayLen = RawArray.length(array);
 			offset = MathUtil.limit(offset, 0, arrayLen);
 			length = MathUtil.limit(length, 0, arrayLen - offset);
 			return new Sub<>(array, offset, length);
@@ -38,7 +38,7 @@ public class RawArrays {
 		 * The range end index.
 		 */
 		public int to() {
-			return offset + length;
+			return offset() + length();
 		}
 	}
 
@@ -61,7 +61,7 @@ public class RawArrays {
 	 * Returns the array component class, or null.
 	 */
 	public static <T> Class<T> arrayType(Class<?> cls) {
-		return cls == null ? null : BasicUtil.unchecked(empty(cls).getClass());
+		return cls == null ? null : BasicUtil.unchecked(ofType(cls, 0).getClass());
 	}
 
 	/**
@@ -74,16 +74,9 @@ public class RawArrays {
 	/**
 	 * Creates an array of given size.
 	 */
-	public static <T> T array(Class<?> type, int size) {
+	public static <T> T ofType(Class<?> type, int size) {
 		return type == null ? null :
 			BasicUtil.unchecked(java.lang.reflect.Array.newInstance(type, size));
-	}
-
-	/**
-	 * Creates an array of given size.
-	 */
-	public static <T> T empty(Class<?> type) {
-		return array(type, 0);
 	}
 
 	/**
@@ -216,7 +209,7 @@ public class RawArrays {
 		destOffset = MathUtil.limit(destOffset, 0, destLen);
 		length = MathUtil.min(length, srcLen, destLen);
 		while (length-- > 0)
-			set(src, srcOffset++, get(dest, destOffset++));
+			set(dest, destOffset++, get(src, srcOffset++));
 		return dest;
 	}
 
@@ -396,6 +389,7 @@ public class RawArrays {
 	 */
 	public static <T> T reverse(Functions.ObjBiIntConsumer<T> swapper, T array, int offset,
 		int length) {
+		if (swapper == null) return array;
 		return acceptSlice(array, offset, length, (o, l) -> {
 			for (int i = 0; i < l / 2; i++)
 				swapper.accept(array, o + i, o + l - i - 1);
@@ -407,6 +401,7 @@ public class RawArrays {
 	 */
 	public static <T> boolean equals(Equals<T> equalsFn, T lhs, int lhsOffset, T rhs, int rhsOffset,
 		int length) {
+		if (equalsFn == null) return false;
 		if (lhs == null && rhs == null) return true;
 		if (lhs == null || rhs == null) return false;
 		int lhsLen = length(lhs);
@@ -445,7 +440,7 @@ public class RawArrays {
 	 */
 	public static <T> String toString(Functions.ObjIntFunction<? super T, ? super String> stringFn,
 		Joiner joiner, T array, int offset, int length) {
-		if (array == null || joiner == null) return StringUtil.NULL;
+		if (stringFn == null || array == null || joiner == null) return StringUtil.NULL;
 		return applySlice(array, offset, length, (o, l) -> {
 			return joiner.joinIndex((b, i) -> b.append(stringFn.apply(array, i)), o, l);
 		});

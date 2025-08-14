@@ -109,7 +109,7 @@ public class ImmutableUtil {
 	 * Copies a collection of objects into an immutable LinkedHashSet.
 	 */
 	public static <T> Set<T> copyAsSet(Collection<? extends T> set, Supplier<Set<T>> supplier) {
-		if (set.isEmpty()) return Collections.emptySet();
+		if (set.isEmpty()) return Set.of();
 		Set<T> copy = supplier.get();
 		copy.addAll(set);
 		return Collections.unmodifiableSet(copy);
@@ -145,7 +145,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, V> copyAsMap(Map<? extends K, ? extends V> map,
 		Supplier<Map<K, V>> supplier) {
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		Map<K, V> copy = supplier.get();
 		copy.putAll(map);
 		return Collections.unmodifiableMap(copy);
@@ -184,7 +184,7 @@ public class ImmutableUtil {
 		Map<? extends K, ? extends Collection<? extends V>> map,
 		Supplier<Map<K, Set<V>>> mapSupplier, Supplier<Set<V>> listSupplier) {
 		if (map == null) return null;
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> set(c, listSupplier), mapSupplier, map));
 	}
@@ -209,7 +209,7 @@ public class ImmutableUtil {
 		Map<? extends K, ? extends Collection<? extends V>> map,
 		Supplier<Map<K, List<V>>> mapSupplier, Supplier<List<V>> listSupplier) {
 		if (map == null) return null;
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> list(c, listSupplier), mapSupplier, map));
 	}
@@ -235,7 +235,7 @@ public class ImmutableUtil {
 		Map<? extends K1, ? extends Map<? extends K2, ? extends V>> map,
 		Supplier<Map<K1, Map<K2, V>>> mapSupplier, Supplier<Map<K2, V>> subMapSupplier) {
 		if (map == null) return null;
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			m -> map(m, subMapSupplier), mapSupplier, map));
 	}
@@ -259,7 +259,7 @@ public class ImmutableUtil {
 	public static <T> List<T> copyAsList(Collection<? extends T> collection,
 		Supplier<List<T>> supplier) {
 		if (collection == null) return null;
-		if (collection.isEmpty()) return Collections.emptyList();
+		if (collection.isEmpty()) return List.of();
 		List<T> copy = supplier.get();
 		copy.addAll(collection);
 		return Collections.unmodifiableList(copy);
@@ -278,7 +278,7 @@ public class ImmutableUtil {
 	public static <T> List<T> reverseAsList(Collection<? extends T> collection,
 		Supplier<List<T>> supplier) {
 		if (collection == null) return null;
-		if (collection.isEmpty()) return Collections.emptyList();
+		if (collection.isEmpty()) return List.of();
 		List<T> copy = supplier.get();
 		copy.addAll(collection);
 		Collections.reverse(copy);
@@ -297,7 +297,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, Set<V>> asMapOfSets(Map<K, ? extends Set<V>> map,
 		Supplier<Map<K, Set<V>>> mapSupplier) {
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> Collections.unmodifiableSet(c), mapSupplier, map));
 	}
@@ -314,7 +314,7 @@ public class ImmutableUtil {
 	 */
 	public static <K, V> Map<K, List<V>> asMapOfLists(Map<K, ? extends List<V>> map,
 		Supplier<Map<K, List<V>>> mapSupplier) {
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			c -> Collections.unmodifiableList(c), mapSupplier, map));
 	}
@@ -331,7 +331,7 @@ public class ImmutableUtil {
 	 */
 	public static <K1, K2, V> Map<K1, Map<K2, V>> asMapOfMaps(Map<K1, ? extends Map<K2, V>> map,
 		Supplier<Map<K1, Map<K2, V>>> mapSupplier) {
-		if (map.isEmpty()) return Collections.emptyMap();
+		if (map.isEmpty()) return Map.of();
 		return Collections.unmodifiableMap(CollectionUtil.transformValues( //
 			m -> Collections.unmodifiableMap(m), mapSupplier, map));
 	}
@@ -441,7 +441,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> List<T> asList(Supplier<List<T>> supplier, T... array) {
-		if (array.length == 0) return Collections.emptyList();
+		if (array.length == 0) return List.of();
 		List<T> list = supplier.get();
 		Collections.addAll(list, array);
 		return Collections.unmodifiableList(list);
@@ -460,7 +460,7 @@ public class ImmutableUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(Supplier<Set<T>> supplier, T... array) {
-		if (array.length == 0) return Collections.emptySet();
+		if (array.length == 0) return Set.of();
 		Set<T> set = supplier.get();
 		Collections.addAll(set, array);
 		return Collections.unmodifiableSet(set);
@@ -715,10 +715,6 @@ public class ImmutableUtil {
 	}
 
 	public static <K, V> Map<V, K> invert(Map<K, V> map) {
-		return invert(map, supplier.map());
-	}
-
-	public static <K, V> Map<V, K> invert(Map<K, V> map, Supplier<Map<V, K>> mapSupplier) {
-		return Collections.unmodifiableMap(CollectionUtil.invert(map, mapSupplier));
+		return wrapMap(Maps.invert(map));
 	}
 }

@@ -1,25 +1,14 @@
 package ceri.common.stream;
 
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionSupplier;
-import ceri.common.collection.CollectionUtil;
-import ceri.common.comparator.Comparators;
-import ceri.common.function.Excepts;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -43,118 +32,6 @@ public class StreamUtil {
 	 */
 	public static <T> BiConsumer<T, T> badCombiner() {
 		return BasicUtil.unchecked(BAD_COMBINER);
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception, T> void forEach(Stream<T> stream,
-		Excepts.Consumer<E, ? super T> consumer) throws E {
-		for (var i = stream.iterator(); i.hasNext();)
-			consumer.accept(i.next());
-	}
-
-	/**
-	 * Executes for-each, allowing exception of given type to be thrown.
-	 */
-	public static <E extends Exception> void forEach(IntStream stream,
-		Excepts.IntConsumer<E> consumer) throws E {
-		for (var i = stream.iterator(); i.hasNext();)
-			consumer.accept(i.nextInt());
-	}
-
-	/**
-	 * Makes a stream sequential then applies simple collection.
-	 */
-	public static <T, R> R collect(Stream<T> stream, Supplier<R> supplier,
-		BiConsumer<R, ? super T> accumulator) {
-		return stream.sequential().collect(supplier, accumulator, badCombiner());
-	}
-
-	/**
-	 * Returns the first entry in the stream, or null if empty.
-	 */
-	public static <T> T first(Stream<T> stream) {
-		return stream.findFirst().orElse(null);
-	}
-
-	/**
-	 * Returns true if the stream is empty.
-	 */
-	public static boolean isEmpty(Stream<?> stream) {
-		return stream.findAny().isEmpty();
-	}
-
-	/**
-	 * Returns the max entry in the stream, or null if empty.
-	 */
-	public static <T extends Comparable<T>> T max(Stream<T> stream) {
-		return max(stream, Comparators.comparable());
-	}
-
-	/**
-	 * Returns the max entry in the stream, or null if empty.
-	 */
-	public static <T> T max(Stream<T> stream, Comparator<? super T> comparator) {
-		return stream.max(comparator).orElse(null);
-	}
-
-	/**
-	 * Returns the min entry in the stream, or null if empty.
-	 */
-	public static <T extends Comparable<T>> T min(Stream<T> stream) {
-		return min(stream, Comparators.comparable());
-	}
-
-	/**
-	 * Returns the min entry in the stream, or null if empty.
-	 */
-	public static <T> T min(Stream<T> stream, Comparator<? super T> comparator) {
-		return stream.min(comparator).orElse(null);
-	}
-
-	/**
-	 * Join streams of collections.
-	 */
-	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream) {
-		return joinToSet(stream, supplier.set());
-	}
-
-	/**
-	 * Join streams of collections.
-	 */
-	public static <T> Set<T> joinToSet(Stream<? extends Collection<? extends T>> stream,
-		Supplier<Set<T>> supplier) {
-		return stream.collect(supplier, Set::addAll, Set::addAll);
-	}
-
-	/**
-	 * Join streams of collections.
-	 */
-	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream) {
-		return joinToList(stream, supplier.list());
-	}
-
-	/**
-	 * Join streams of collections.
-	 */
-	public static <T> List<T> joinToList(Stream<? extends Collection<? extends T>> stream,
-		Supplier<List<T>> supplier) {
-		return stream.collect(supplier, List::addAll, List::addAll);
-	}
-
-	/**
-	 * Convert a stream to a LinkedHashSet.
-	 */
-	public static <T> Set<T> toSet(Stream<T> stream) {
-		return toSet(stream, supplier.set());
-	}
-
-	/**
-	 * Convert a stream to a LinkedHashSet.
-	 */
-	public static <T> Set<T> toSet(Stream<? extends T> stream, Supplier<Set<T>> supplier) {
-		return stream.collect(Collectors.toCollection(supplier));
 	}
 
 	/**

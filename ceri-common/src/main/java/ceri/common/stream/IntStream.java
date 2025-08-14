@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -23,11 +23,6 @@ public class IntStream<E extends Exception> {
 	private static final Excepts.IntConsumer<?> NULL_CONSUMER = _ -> {};
 	private static final IntStream<RuntimeException> EMPTY = new IntStream<>(_ -> false);
 	private NextSupplier<E> supplier;
-
-	public static void main(String[] args) {
-		var array = Streams.ints(-1, 1, 0, -2, 3).collect(Collect.array);
-		System.out.println(Arrays.toString(array));
-	}
 
 	/**
 	 * Collects stream elements into containers.
@@ -185,7 +180,7 @@ public class IntStream<E extends Exception> {
 	 */
 	public static <E extends Exception> IntStream<E> of(int[] values, int offset, int length) {
 		if (values == null) return empty();
-		return RawArrays.applySlice(values, offset, length,
+		return RawArray.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : ofSupplier(arraySupplier(values, o, l)));
 	}
 
@@ -234,7 +229,7 @@ public class IntStream<E extends Exception> {
 		this.supplier = supplier;
 	}
 
-	// filters
+	// filtration
 
 	/**
 	 * Only streams elements that match the filter.
@@ -266,7 +261,7 @@ public class IntStream<E extends Exception> {
 		return !anyMatch(predicate);
 	}
 
-	// mappers
+	// mapping
 
 	/**
 	 * Maps stream elements to boxed types.
@@ -322,7 +317,7 @@ public class IntStream<E extends Exception> {
 		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
-	// manipulators
+	// manipulation
 
 	/**
 	 * Limits the number of elements.
@@ -432,19 +427,31 @@ public class IntStream<E extends Exception> {
 	// reduction
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Returns the min value, or default.
 	 */
-	public Integer reduce(Excepts.IntBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return null;
-		var next = next();
-		return next == null ? null : reduce(next, accumulator);
+	public int min(int def) throws E {
+		return reduce(Reduce.min(), def);
 	}
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Returns the max value, or default.
 	 */
-	public int reduce(int identity, Excepts.IntBiOperator<? extends E> accumulator) throws E {
-		return reduce(supplier, identity, accumulator);
+	public int max(int def) throws E {
+		return reduce(Reduce.max(), def);
+	}
+
+	/**
+	 * Reduces stream to a value using an accumulator, or null.
+	 */
+	public Integer reduce(Excepts.IntBiOperator<? extends E> accumulator) throws E {
+		return reduce(supplier, accumulator);
+	}
+
+	/**
+	 * Reduces stream to a value using an accumulator, or default.
+	 */
+	public int reduce(Excepts.IntBiOperator<? extends E> accumulator, int def) throws E {
+		return BasicUtil.defInt(reduce(accumulator), def);
 	}
 
 	// support
@@ -578,11 +585,12 @@ public class IntStream<E extends Exception> {
 		return finisher.apply(container);
 	}
 
-	private static <E extends Exception> int reduce(NextSupplier<E> supplier, int identity,
+	private static <E extends Exception> Integer reduce(NextSupplier<E> supplier,
 		Excepts.IntBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return identity;
+		if (accumulator == null) return null;
 		var receiver = new NextSupplier.Receiver<E>();
-		for (int i = identity;;) {
+		if (!supplier.next(receiver)) return null;
+		for (int i = receiver.value;;) {
 			if (!supplier.next(receiver)) return i;
 			i = accumulator.applyAsInt(i, receiver.value);
 		}

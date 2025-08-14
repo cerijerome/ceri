@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -127,7 +126,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	private Map<K, V> toMap(Iterable<V> values) {
-		if (values == null) return Collections.emptyMap();
+		if (values == null) return Map.of();
 		Map<K, V> map = new HashMap<>();
 		for (V value : values) {
 			K id = idFn.apply(value);

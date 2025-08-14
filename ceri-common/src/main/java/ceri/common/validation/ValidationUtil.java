@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
 import ceri.common.text.StringUtil;
@@ -930,7 +930,7 @@ public class ValidationUtil {
 	/* Support methods */
 
 	private static <T> T validateArraySlice(T array, int offset, int length) {
-		validateSlice(RawArrays.length(array), offset, length);
+		validateSlice(RawArray.length(array), offset, length);
 		return array;
 	}
 

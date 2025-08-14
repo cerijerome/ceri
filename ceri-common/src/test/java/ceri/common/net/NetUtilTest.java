@@ -1,6 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.stream.StreamUtil.first;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -48,6 +47,11 @@ public class NetUtilTest {
 	}
 
 	@Test
+	public void testLocalAddressFor() {
+		assertEquals(NetUtil.localAddressFor(null), null);
+	}
+
+	@Test
 	public void testLocalAddresses() throws SocketException {
 		NetUtil.localAddress();
 		NetUtil.localAddresses();
@@ -62,7 +66,7 @@ public class NetUtilTest {
 	@Test
 	public void testLocalInterfaceAddresses() throws SocketException {
 		NetUtil.localInterface();
-		var iface = first(NetworkInterface.networkInterfaces());
+		var iface = NetworkInterface.networkInterfaces().findFirst().orElse(null);
 		NetUtil.localIp4AddressFor(iface);
 	}
 

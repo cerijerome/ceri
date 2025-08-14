@@ -1,7 +1,6 @@
 package ceri.common.test;
 
 import static ceri.common.reflect.Reflect.hashId;
-import static ceri.common.text.StringUtil.EOL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -14,18 +13,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
-import ceri.common.array.RawArrays;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.array.RawArray;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -33,6 +33,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
@@ -43,6 +44,8 @@ import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
+import ceri.common.text.TextUtil;
 import ceri.common.util.BasicUtil;
 
 public class AssertUtil {
@@ -687,11 +690,11 @@ public class AssertUtil {
 		}
 		for (T t : rhs)
 			if (!lhs.contains(t)) throw failure("Missing element: %s", str(t));
-		assertEquals(lhs.size(), rhs.size(), "Invalid collection size");
+		assertEquals(lhs.size(), rhs.size(), "Unexpected collection size");
 	}
 
 	/**
-	 * Checks iterable type against given list of items, with specific failure information if not.
+	 * Checks iterable type has equal elements in order.
 	 */
 	@SafeVarargs
 	public static <T> void assertOrdered(Iterable<T> lhs, T... ts) {
@@ -699,17 +702,71 @@ public class AssertUtil {
 	}
 
 	/**
-	 * Checks two iterable types have equal elements, with specific failure information if not.
-	 * Useful for testing Collections.unmodifiableXXX as they don't implement equals().
+	 * Checks iterable types have equal elements in order.
 	 */
 	public static <T> void assertOrdered(Iterable<T> lhs, Iterable<T> rhs) {
+		assertIterator(lhs.iterator(), rhs);
+	}
+
+	/**
+	 * Checks map entry keys and values in order.
+	 */
+	public static <K, V> void assertOrdered(Map<K, V> subject, K k, V v) {
+		assertMap(subject, k, v);
+	}
+
+	/**
+	 * Checks map entry keys and values in order.
+	 */
+	public static <K, V> void assertOrdered(Map<K, V> subject, K k0, V v0, K k1, V v1) {
+		assertOrdered(subject, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
+	}
+
+	/**
+	 * Checks map entry keys and values in order.
+	 */
+	public static <K, V> void assertOrdered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
+		assertOrdered(subject, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
+	}
+
+	/**
+	 * Checks map entry keys and values in order.
+	 */
+	public static <K, V> void assertOrdered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2,
+		K k3, V v3) {
+		assertOrdered(subject, Immutable.listOf(k0, k1, k2, k3), Immutable.listOf(v0, v1, v2, v3));
+	}
+
+	/**
+	 * Checks map entry keys and values in order.
+	 */
+	public static <K, V> void assertOrdered(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2,
+		K k3, V v3, K k4, V v4) {
+		assertOrdered(subject, Immutable.listOf(k0, k1, k2, k3, k4),
+			Immutable.listOf(v0, v1, v2, v3, v4));
+	}
+
+	/**
+	 * Checks iterator type has equal elements in order.
+	 */
+	@SafeVarargs
+	public static <T> void assertIterator(Iterator<T> lhs, T... ts) {
+		assertIterator(lhs, Arrays.asList(ts));
+	}
+
+	/**
+	 * Checks iterator and iterable types have equal elements in order.
+	 */
+	public static <T> void assertIterator(Iterator<T> lhs, Iterable<T> rhs) {
 		List<T> lhsC = new ArrayList<>();
-		for (T t : lhs)
-			lhsC.add(t);
+		while (lhs.hasNext())
+			lhsC.add(lhs.next());
 		List<T> rhsC = new ArrayList<>();
 		for (T t : rhs)
 			rhsC.add(t);
 		assertList(lhsC, rhsC);
+		assertFalse(lhs.hasNext(), "Has more elements");
+		assertNoSuchElement(() -> lhs.next());
 	}
 
 	/**
@@ -733,25 +790,74 @@ public class AssertUtil {
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k, V v) {
-		assertEquals(subject, ImmutableUtil.asMap(k, v));
+		assertEquals(subject, Immutable.mapOf(k, v));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1) {
-		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1));
+		assertUnordered(subject, Immutable.listOf(k0, k1), Immutable.listOf(v0, v1));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2) {
-		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2));
+		assertUnordered(subject, Immutable.listOf(k0, k1, k2), Immutable.listOf(v0, v1, v2));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3) {
-		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3));
+		assertUnordered(subject, Immutable.listOf(k0, k1, k2, k3),
+			Immutable.listOf(v0, v1, v2, v3));
 	}
 
 	public static <K, V> void assertMap(Map<K, V> subject, K k0, V v0, K k1, V v1, K k2, V v2, K k3,
 		V v3, K k4, V v4) {
-		assertEquals(subject, ImmutableUtil.asMap(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
+		assertUnordered(subject, Immutable.listOf(k0, k1, k2, k3, k4),
+			Immutable.listOf(v0, v1, v2, v3, v4));
+	}
+
+	public static <K, V> void assertEntry(Map<K, V> subject, K key, V value) {
+		assertEquals(subject.get(key), value, "Unexpected value for key %s", key);
+	}
+
+	public static <K, V, M extends Map<K, V>> M assertImmutable(M map) {
+		assertImmutable(map.entrySet());
+		assertImmutable(map.keySet());
+		assertImmutable(map.values());
+		assertUnsupported(() -> map.put(null, null));
+		assertUnsupported(() -> map.putAll(Immutable.mapOf(null, null)));
+		if (map.isEmpty()) return map;
+		var k = map.keySet().iterator().next();
+		assertUnsupported(() -> map.remove(k));
+		assertUnsupported(map::clear);
+		return map;
+	}
+
+	public static <T, C extends Collection<T>> C assertImmutable(C collection) {
+		assertImmutable(collection.iterator());
+		assertUnsupported(() -> collection.add(null));
+		assertUnsupported(() -> collection.addAll(Immutable.setOf((T) null)));
+		if (collection instanceof List<?> list) assertImmutableList(list);
+		if (collection.isEmpty()) return collection;
+		var t = collection.iterator().next();
+		assertUnsupported(() -> collection.remove(t));
+		assertUnsupported(() -> collection.removeAll(Immutable.setOf(t)));
+		assertUnsupported(() -> collection.retainAll(Set.of()));
+		assertUnsupported(collection::clear);
+		return collection;
+
+	}
+
+	private static <T> void assertImmutableList(List<T> list) {
+		assertImmutable(list.listIterator());
+		assertImmutable(list.listIterator(0));
+		assertUnsupported(() -> list.add(0, null));
+		assertUnsupported(() -> list.addAll(0, Immutable.setOf((T) null)));
+		assertUnsupported(() -> list.set(0, null));
+		assertUnsupported(() -> list.remove(0));
+	}
+
+	public static <T> void assertImmutable(Iterator<T> iterator) {
+		if (!iterator.hasNext()) return;
+		iterator.next();
+		assertUnsupported(() -> iterator.remove());
 	}
 
 	@SafeVarargs
@@ -799,7 +905,7 @@ public class AssertUtil {
 	 * Verifies throwable super class.
 	 */
 	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls) {
-		assertThrowable(t, superCls, (Consumer<Throwable>) null);
+		assertThrowable(t, superCls, (Functions.Consumer<Throwable>) null);
 	}
 
 	/**
@@ -812,7 +918,7 @@ public class AssertUtil {
 	/**
 	 * Verifies throwable message.
 	 */
-	public static void assertThrowable(Throwable t, Consumer<Throwable> messageTest) {
+	public static void assertThrowable(Throwable t, Functions.Consumer<Throwable> messageTest) {
 		assertThrowable(t, null, messageTest);
 	}
 
@@ -829,7 +935,7 @@ public class AssertUtil {
 	 */
 	@SuppressWarnings("null")
 	public static <E extends Throwable> void assertThrowable(Throwable t, Class<E> superCls,
-		Consumer<? super E> test) {
+		Functions.Consumer<? super E> test) {
 		if (t == null && superCls == null && test == null) return;
 		assertNotNull(t);
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
@@ -849,7 +955,7 @@ public class AssertUtil {
 	 */
 	public static void assertThrown(Class<? extends Throwable> exceptionCls,
 		Excepts.Runnable<?> runnable) {
-		assertThrown(exceptionCls, (Consumer<Throwable>) null, runnable);
+		assertThrown(exceptionCls, (Functions.Consumer<Throwable>) null, runnable);
 	}
 
 	/**
@@ -872,7 +978,7 @@ public class AssertUtil {
 	/**
 	 * Tests if an exception is thrown with given message.
 	 */
-	public static void assertThrown(Consumer<? super Throwable> test,
+	public static void assertThrown(Functions.Consumer<? super Throwable> test,
 		Excepts.Runnable<?> runnable) {
 		assertThrown(Throwable.class, test, runnable);
 	}
@@ -881,7 +987,7 @@ public class AssertUtil {
 	 * Tests if an exception is thrown with given message.
 	 */
 	public static <E extends Throwable> void assertThrown(Class<E> superCls,
-		Consumer<? super E> test, Excepts.Runnable<?> runnable) {
+		Functions.Consumer<? super E> test, Excepts.Runnable<?> runnable) {
 		try {
 			runnable.run();
 		} catch (Throwable t) {
@@ -1002,6 +1108,29 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Checks string representation split into lines.
+	 */
+	public static void assertLines(Object actual, String... expectedLines) {
+		var actualLines = Strings.lineArray(String.valueOf(actual));
+		int lines = Math.max(actualLines.length, expectedLines.length);
+		for (int i = 0; i < lines; i++) {
+			var textLine = ArrayUtil.at(actualLines, i, "");
+			var expectedLine = ArrayUtil.at(expectedLines, i, "");
+			if (Objects.equals(textLine, expectedLine)) continue;
+			throw failure("Line %d%nExpected: %s%n  actual: %s%n%nExpected:%n%s%n%nActual:%n%s%n",
+				i + 1, expectedLine.trim(), textLine.trim(),
+				TextUtil.prefixLineNumbers(expectedLines), TextUtil.prefixLineNumbers(actualLines));
+		}
+	}
+
+	/**
+	 * Checks multi-line text, with line-specific failure info.
+	 */
+	public static void assertText(Object actual, String expected) {
+		assertLines(actual, Strings.lineArray(expected));
+	}
+
+	/**
 	 * Checks string representation contains the formatted string.
 	 */
 	public static void assertContains(Object actual, String format, Object... objs) {
@@ -1019,13 +1148,6 @@ public class AssertUtil {
 		var text = StringUtil.format(format, objs);
 		if (!s.contains(text)) return;
 		throw failure("%sContained in string\nString: %s", nl(text), s);
-	}
-
-	/**
-	 * Checks string representation is made up of lines with native separators.
-	 */
-	public static void assertLines(Object actual, String... lines) {
-		assertString(actual, String.join(EOL, lines));
 	}
 
 	/**
@@ -1250,6 +1372,20 @@ public class AssertUtil {
 		itemAssert.assertItem(lhs, rhs, "Index %d", i);
 	}
 
+	private static <K, V> void assertOrdered(Map<K, V> subject, List<K> keys, List<V> values) {
+		for (int i = 0; i < keys.size(); i++)
+			assertEquals(subject.get(keys.get(i)), values.get(i));
+		assertOrdered(subject.keySet(), keys);
+		assertOrdered(subject.values(), values);
+	}
+
+	private static <K, V> void assertUnordered(Map<K, V> subject, List<K> keys, List<V> values) {
+		for (int i = 0; i < keys.size(); i++)
+			assertEntry(subject, keys.get(i), values.get(i));
+		assertUnordered(subject.keySet(), keys);
+		assertUnordered(subject.values(), values);
+	}
+
 	private static void assertDeepEquals(Object lhs, Object rhs, String format, Object... args) {
 		if (Objects.deepEquals(lhs, rhs)) return;
 		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(rhs), str(lhs));
@@ -1280,21 +1416,21 @@ public class AssertUtil {
 	private static void assertRawArray(Object lhs, Object rhs, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		assertEquals(RawArrays.length(lhs), RawArrays.length(rhs), "Invalid array size");
-		assertRawArray(lhs, 0, rhs, 0, RawArrays.length(lhs), itemAssert);
+		assertEquals(RawArray.length(lhs), RawArray.length(rhs), "Invalid array size");
+		assertRawArray(lhs, 0, rhs, 0, RawArray.length(lhs), itemAssert);
 	}
 
 	private static void assertRawArray(Object lhs, int lhsOffset, Object rhs, int rhsOffset,
 		int len, ItemAssert itemAssert) {
 		assertIsArray(lhs);
 		assertIsArray(rhs);
-		int lhsLen = RawArrays.length(lhs);
-		int rhsLen = RawArrays.length(rhs);
+		int lhsLen = RawArray.length(lhs);
+		int rhsLen = RawArray.length(rhs);
 		for (int i = 0; i < len; i++) {
 			boolean hasLhs = lhsOffset + i < lhsLen;
-			Object lhsVal = hasLhs ? RawArrays.get(lhs, lhsOffset + i) : null;
+			Object lhsVal = hasLhs ? RawArray.get(lhs, lhsOffset + i) : null;
 			boolean hasRhs = rhsOffset + i < rhsLen;
-			Object rhsVal = hasRhs ? RawArrays.get(rhs, rhsOffset + i) : null;
+			Object rhsVal = hasRhs ? RawArray.get(rhs, rhsOffset + i) : null;
 			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
 		}
 	}

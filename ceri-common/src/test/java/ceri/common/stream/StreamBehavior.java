@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.Collector;
 import org.junit.Test;
@@ -147,6 +148,15 @@ public class StreamBehavior {
 		assertStream(Stream.empty().mapToDouble(_ -> .0));
 		assertStream(testStream().mapToDouble(null));
 		assertStream(testStream().mapToDouble(d -> d == null ? .0 : d + .1), -.9, .1, .0, 1.1);
+	}
+
+	@Test
+	public void shouldExpand() throws Exception {
+		assertStream(Stream.empty().expand(null));
+		assertStream(Stream.empty().expand(_ -> Set.of(1)));
+		assertStream(testStream().expand(null));
+		assertStream(testStream().expand(i -> i == null ? null : List.of(i - 1, i + 1)), -2, 0,
+			-1, 1, 0, 2);
 	}
 
 	@Test
@@ -285,11 +295,11 @@ public class StreamBehavior {
 	@Test
 	public void shouldReduceElements() throws Exception {
 		assertEquals(Stream.empty().reduce((_, _) -> 1), null);
-		assertEquals(Stream.empty().reduce(3, (_, _) -> 1), 3);
+		assertEquals(Stream.empty().reduce((_, _) -> 1, 3), 3);
 		assertEquals(testStream().reduce(null), null);
-		assertEquals(testStream().reduce(1, null), 1);
+		assertEquals(testStream().reduce(null, 1), 1);
 		assertEquals(testStream().reduce((i, _) -> i), -1);
-		assertEquals(testStream().reduce(3, (i, _) -> i), 3);
+		assertEquals(testStream().reduce((i, _) -> i, 3), -1);
 	}
 
 	private static Stream<RuntimeException, Integer> testStream() {

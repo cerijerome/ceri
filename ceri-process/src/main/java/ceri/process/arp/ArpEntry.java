@@ -3,10 +3,8 @@ package ceri.process.arp;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import ceri.common.stream.StreamUtil;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /*
@@ -28,8 +26,7 @@ public class ArpEntry {
 	public final String iface;
 
 	public static List<ArpEntry> fromOuput(String output) {
-		return StreamUtil.toList(Stream.of(StringUtil.NEWLINE_REGEX.split(output))
-			.map(ArpEntry::fromLine).filter(a -> !a.isNull()));
+		return Strings.lines(output).map(ArpEntry::fromLine).filter(a -> !a.isNull()).toList();
 	}
 
 	public static ArpEntry fromLine(String line) {
@@ -79,5 +76,4 @@ public class ArpEntry {
 	public String toString() {
 		return ToString.forClass(this, ip, mac, iface);
 	}
-
 }

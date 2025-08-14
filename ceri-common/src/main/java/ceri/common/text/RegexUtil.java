@@ -1,8 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.stream.StreamUtil.toList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,13 +8,13 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Iterables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.property.Parser;
+import ceri.common.stream.Streams;
 
 /**
  * General utilities for regular expressions.
@@ -327,7 +325,7 @@ public class RegexUtil {
 	 */
 	public static Map<String, String> namedGroups(Matcher m) {
 		List<String> names = groupNames(m);
-		if (names.isEmpty()) return Collections.emptyMap();
+		if (names.isEmpty()) return Map.of();
 		return CollectionUtil.toMap(s -> s, name -> namedGroup(m, name), names);
 	}
 
@@ -335,7 +333,7 @@ public class RegexUtil {
 	 * Returns group names from the pattern.
 	 */
 	public static List<String> groupNames(Matcher m) {
-		if (m == null) return Collections.emptyList();
+		if (m == null) return List.of();
 		return groupNames(m.pattern());
 	}
 
@@ -343,7 +341,7 @@ public class RegexUtil {
 	 * Returns group names from the pattern.
 	 */
 	public static List<String> groupNames(Pattern pattern) {
-		if (pattern == null) return Collections.emptyList();
+		if (pattern == null) return List.of();
 		return findAll(GROUP_NAME_REGEX, pattern.pattern());
 	}
 
@@ -352,7 +350,7 @@ public class RegexUtil {
 	 */
 	public static List<String> groups(Pattern regex, String s) {
 		Matcher m = found(regex, s);
-		if (m == null) return Collections.emptyList();
+		if (m == null) return List.of();
 		return groups(m);
 	}
 
@@ -361,8 +359,8 @@ public class RegexUtil {
 	 */
 	public static List<String> groups(Matcher m) {
 		int count = m.groupCount();
-		if (count <= 0) return Collections.emptyList();
-		return toList(IntStream.range(1, count + 1).mapToObj(m::group));
+		if (count <= 0) return List.of();
+		return Streams.range(1, count).mapToObj(m::group).toList();
 	}
 
 	/**

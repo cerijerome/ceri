@@ -26,10 +26,10 @@ public class ToString {
 	private static final Map<Class<?>, Function<Object, String>> toStringMap = toStringMap();
 	private static final String CHILD_INDENT_DEF = "  ";
 	private final String name;
-	private List<Object> values = Collections.emptyList();
-	private List<Field> fields = Collections.emptyList();
+	private List<Object> values = List.of();
+	private List<Field> fields = List.of();
 	private String childIndent = CHILD_INDENT_DEF;
-	private List<Object> children = Collections.emptyList();
+	private List<Object> children = List.of();
 
 	private static class Field {
 		final String name;
@@ -246,7 +246,7 @@ public class ToString {
 	 * Add items to nested lines.
 	 */
 	public ToString childrens(Map<?, ?> children) {
-		if (children == null) children = Collections.emptyMap();
+		if (children == null) children = Map.of();
 		return childrens(children.entrySet());
 	}
 

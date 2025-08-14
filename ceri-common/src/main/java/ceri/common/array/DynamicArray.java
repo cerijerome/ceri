@@ -6,7 +6,7 @@ import ceri.common.function.Functions;
  * Utility to create arrays without initially knowing the required size. Not thread-safe.
  */
 public abstract class DynamicArray<T> {
-	/** Default growth formula. */
+	/** Default growth function. */
 	public static final Functions.IntOperator GROWTH = growX2(8);
 	private final Functions.IntOperator growth;
 	public final TypedArray<T> typed;
@@ -268,7 +268,7 @@ public abstract class DynamicArray<T> {
 
 		@Override
 		public void accept(int value) {
-			accept((byte) value);
+			super.accept((a, i) -> a[i] = (byte) value);
 		}
 
 		/**
@@ -380,7 +380,8 @@ public abstract class DynamicArray<T> {
 	/**
 	 * For building typed arrays.
 	 */
-	public static class OfDouble extends DynamicArray<double[]> implements Functions.DoubleConsumer {
+	public static class OfDouble extends DynamicArray<double[]>
+		implements Functions.DoubleConsumer {
 		private OfDouble(Functions.IntOperator growth) {
 			super(ArrayUtil.doubles, growth);
 		}
@@ -437,7 +438,7 @@ public abstract class DynamicArray<T> {
 	 * Appends the array and returns the index.
 	 */
 	public int append(T array, int offset, int length) {
-		RawArrays.acceptSlice(array, offset, length, (o, l) -> {
+		RawArray.acceptSlice(array, offset, length, (o, l) -> {
 			ensureSize(index + l);
 			typed.copy(array, o, this.array, index, l);
 			index += l;
@@ -446,14 +447,14 @@ public abstract class DynamicArray<T> {
 	}
 
 	private void ensureSize(int size) {
-		int len = RawArrays.length(array);
+		int len = RawArray.length(array);
 		while (len < size)
 			len = growth.applyAsInt(len);
 		array = typed.resize(array, len);
 	}
 
 	private <U> int append(U array, Functions.ObjBiIntConsumer<T> consumer) {
-		return append(RawArrays.length(array), 0, Integer.MAX_VALUE, consumer);
+		return append(RawArray.length(array), 0, Integer.MAX_VALUE, consumer);
 	}
 
 	private int append(int arrayLen, int offset, int length,

@@ -79,7 +79,7 @@ public class Enums {
 	 */
 	public static <T> List<T> of(Class<T> cls) {
 		return BasicUtil.unchecked(
-			cache.computeIfAbsent(cls, c -> Immutables.wrapAsList(c.getEnumConstants())));
+			cache.computeIfAbsent(cls, c -> Immutable.wrapListOf(c.getEnumConstants())));
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class Enums {
 	 */
 	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
 		map(Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
-		return Immutables.map(keyMapper, of(cls));
+		return Immutable.convertMap(keyMapper, of(cls));
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class Enums {
 	 */
 	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
 		mapIfAbsent(Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
-		return Immutables.mapIfAbsent(keyMapper, of(cls));
+		return Immutable.wrap(Mutable.convertPutIfAbsent(Mutable.map(), keyMapper, t -> t, of(cls)));
 	}
 
 	/**

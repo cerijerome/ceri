@@ -20,7 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.concurrent.Locker;
@@ -509,10 +509,10 @@ public class ManualTester implements Functions.Closeable {
 		delayMs = builder.delayMs;
 		errorDelayMs = builder.errorDelayMs;
 		stringFn = builder.stringFn;
-		preProcessors = ImmutableUtil.copyAsList(builder.preProcessors);
-		commands = ImmutableUtil.copyAsList(builder.commands);
+		preProcessors = Immutable.list(builder.preProcessors);
+		commands = Immutable.list(builder.commands);
 		bin = binaryPrinter();
-		subjects = ImmutableUtil.copyAsList(builder.subjects);
+		subjects = Immutable.list(builder.subjects);
 	}
 
 	/**

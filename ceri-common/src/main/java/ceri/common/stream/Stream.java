@@ -21,7 +21,7 @@ import java.util.stream.BaseStream;
 import java.util.stream.Collector;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
@@ -316,7 +316,7 @@ public class Stream<E extends Exception, T> {
 	 */
 	public static <E extends Exception, T> Stream<E, T> of(T[] values, int offset, int length) {
 		if (values == null) return empty();
-		return RawArrays.applySlice(values, offset, length,
+		return RawArray.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : ofSupplier(arraySupplier(values, o, l)));
 	}
 
@@ -452,10 +452,19 @@ public class Stream<E extends Exception, T> {
 	}
 
 	/**
+	 * Maps elements to an iterable types, and flattens the streams. Null streams are dropped.
+	 */
+	public <R> Stream<E, R>
+		expand(Excepts.Function<? extends E, ? super T, ? extends Iterable<? extends R>> mapper) {
+		if (noOp(mapper)) return empty();
+		return flatMap(t -> Stream.from(mapper.apply(t)));
+	}
+
+	/**
 	 * Maps each element to a stream, and flattens the streams. Null streams are dropped.
 	 */
-	public <R> Stream<E, R> flatMap(Excepts.Function<? extends E, ? super T, //
-		? extends Stream<E, ? extends R>> mapper) {
+	public <R> Stream<E, R>
+		flatMap(Excepts.Function<? extends E, ? super T, ? extends Stream<E, ? extends R>> mapper) {
 		return update(flatSupplier(map(mapper).nonNull().supplier));
 	}
 
@@ -658,16 +667,15 @@ public class Stream<E extends Exception, T> {
 	 * Reduces stream to an element or null, using an accumulator.
 	 */
 	public T reduce(Excepts.BinFunction<? extends E, ? super T, ? extends T> accumulator) throws E {
-		if (accumulator == null) return null;
-		return reduce(next(), accumulator);
+		return reduce(accumulator, null);
 	}
 
 	/**
 	 * Reduces stream to an element, using an identity and accumulator.
 	 */
-	public <U> U reduce(U identity,
-		Excepts.BiFunction<? extends E, ? super U, ? super T, ? extends U> accumulator) throws E {
-		return reduce(supplier, identity, accumulator);
+	public T reduce(Excepts.BinFunction<? extends E, ? super T, ? extends T> accumulator, T def)
+		throws E {
+		return reduce(supplier, accumulator, def);
 	}
 
 	// support
@@ -826,13 +834,14 @@ public class Stream<E extends Exception, T> {
 		return finisher.apply(container);
 	}
 
-	private static <E extends Exception, T, U> U reduce(NextSupplier<E, T> supplier, U identity,
-		Excepts.BiFunction<? extends E, ? super U, ? super T, ? extends U> accumulator) throws E {
-		if (accumulator == null) return identity;
+	private static <E extends Exception, T> T reduce(NextSupplier<E, ? extends T> supplier,
+		Excepts.BinFunction<? extends E, ? super T, ? extends T> accumulator, T def) throws E {
+		if (accumulator == null) return def;
 		var receiver = new NextSupplier.Receiver<E, T>();
-		for (U u = identity;;) {
-			if (!supplier.next(receiver)) return u;
-			u = accumulator.apply(u, receiver.value);
+		if (!supplier.next(receiver)) return def;
+		for (T t = receiver.value;;) {
+			if (!supplier.next(receiver)) return t;
+			t = accumulator.apply(t, receiver.value);
 		}
 	}
 

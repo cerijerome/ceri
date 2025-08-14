@@ -55,12 +55,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.Functions;
 
 public class AssertUtilTest {
 
@@ -300,7 +300,7 @@ public class AssertUtilTest {
 		assertThrowable(e, t -> assertTrue(t.getMessage().startsWith("test")));
 		assertAssertion(
 			() -> assertThrowable(e, t -> assertTrue(t.getMessage().startsWith("Test"))));
-		assertThrowable(null, null, (Consumer<Throwable>) null);
+		assertThrowable(null, null, (Functions.Consumer<Throwable>) null);
 	}
 
 	@Test

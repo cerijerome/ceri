@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -37,11 +37,20 @@ public class Comparators {
 	public static final Comparator<Locale> LOCALE = string();
 	private static final Comparator<Object> STRING_VALUE =
 		Comparator.nullsFirst(Comparator.comparing(String::valueOf));
-	private static final Comparator<?> NULL = ((_, _) -> 0);
-	private static final Comparator<?> NON_NULL = nonNull((_, _) -> 0);
+	private static final Comparator<Object> NULL = ((_, _) -> 0);
+	private static final Comparator<Object> NON_NULL = nonNull((_, _) -> 0);
+	public static final Comparator<Object> nullsFirst = Comparator.nullsFirst(NULL);
+	public static final Comparator<Object> nullsLast = Comparator.nullsLast(NULL);
 
 	private Comparators() {}
 
+	/**
+	 * Casts the comparator, with default null first no-op comparator.
+	 */
+	public static <T> Comparator<T> of(Comparator<? super T> comparator) {
+		return BasicUtil.unchecked(comparator != null ? comparator : nullsFirst);
+	}
+	
 	/**
 	 * Comparator based on position in a given collection. Items not in the list are placed at the
 	 * end.
@@ -56,7 +65,7 @@ public class Comparators {
 	 * end.
 	 */
 	public static <T> Comparator<T> order(Collection<T> ts) {
-		List<T> list = ImmutableUtil.copyAsList(ts);
+		List<T> list = Immutable.list(ts);
 		return transform(INT, t -> indexOf(list, t));
 	}
 

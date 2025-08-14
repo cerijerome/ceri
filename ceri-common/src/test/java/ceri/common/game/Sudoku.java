@@ -21,7 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import ceri.common.collection.CollectionUtil;
-import ceri.common.collection.Mutables;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
@@ -318,10 +319,10 @@ public class Sudoku {
 	 * Display properties.
 	 */
 	private static class Display {
-		public final Set<Integer> fixed = new HashSet<>();
-		public final Set<IntProvider> boxes = Mutables.identitySet();
-		public final Set<IntProvider> futos = Mutables.identitySet();
-		public final Map<IntProvider, Integer> cageRgbs = new IdentityHashMap<>();
+		public final Set<Integer> fixed = Sets.Supplier.hash();
+		public final Set<IntProvider> boxes = Sets.Supplier.identity();
+		public final Set<IntProvider> futos = Sets.Supplier.identity();
+		public final Map<IntProvider, Integer> cageRgbs = Maps.Supplier.identity();
 	}
 
 	/**
@@ -768,8 +769,8 @@ public class Sudoku {
 	/* group support */
 
 	private Set<IntProvider> changedGroups() {
-		var changedGroups = Streams.from(changedIndexes).flatMap(i -> Streams.from(groups(i)))
-			.collect(Mutables.identitySet());
+		var changedGroups =
+			Streams.from(changedIndexes).expand(this::groups).collect(Sets.Supplier.identity());
 		changedIndexes.clear();
 		return changedGroups;
 	}

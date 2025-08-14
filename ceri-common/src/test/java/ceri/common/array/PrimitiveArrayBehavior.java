@@ -246,7 +246,7 @@ public class PrimitiveArrayBehavior {
 	}
 
 	@Test
-	public void shouldHashelement() {
+	public void shouldHashElements() {
 		assertEquals(ArrayUtil.bools.hash(bools), Arrays.hashCode(bools));
 		assertEquals(ArrayUtil.chars.hash(chars), Arrays.hashCode(chars));
 		assertEquals(ArrayUtil.bytes.hash(bytes), Arrays.hashCode(bytes));
@@ -257,6 +257,64 @@ public class PrimitiveArrayBehavior {
 		assertEquals(ArrayUtil.doubles.hash(doubles), Arrays.hashCode(doubles));
 	}
 
+	@Test
+	public void shouldDetermineElementEquality() {
+		assertEquals(ArrayUtil.bools.equals(bools, true, false, true), true);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', '\0', 'c'), true);
+		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0), true);
+		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 0),
+			true);
+		assertEquals(ArrayUtil.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 0), true);
+		assertEquals(ArrayUtil.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 0L), true);
+		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0f), true);
+		assertEquals(ArrayUtil.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, 0.0),
+			true);
+	}
+
+	@Test
+	public void shouldDetermineElementInEquality() {
+		assertEquals(ArrayUtil.bools.equals(bools, true, false), false);
+		assertEquals(ArrayUtil.bools.equals(bools, true, false), false);
+		assertEquals(ArrayUtil.bools.equals(bools, true, false, false), false);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', '\0'), false);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', '\0', 'd'), false);
+		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE), false);
+		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 1),
+			false);
+		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE), false);
+		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, (short) 1),
+			false);
+		assertEquals(ArrayUtil.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE), false);
+		assertEquals(ArrayUtil.ints.equals(ints, Integer.MIN_VALUE, Integer.MAX_VALUE, 1), false);
+		assertEquals(ArrayUtil.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE), false);
+		assertEquals(ArrayUtil.longs.equals(longs, Long.MIN_VALUE, Long.MAX_VALUE, 1L), false);
+		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE), false);
+		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1f), false);
+		assertEquals(ArrayUtil.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE), false);
+		assertEquals(ArrayUtil.doubles.equals(doubles, Double.MIN_VALUE, Double.MAX_VALUE, .1),
+			false);
+	}
+
+	@Test
+	public void shouldDetermineElementEquivalence() {
+		assertEquals(ArrayUtil.chars.equals(null, (int[]) null), true);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', 0, 'c'), true);
+		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 0), true);
+		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 0), true);
+		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, 0.0), true);
+	}
+
+	@Test
+	public void shouldDetermineElementInEquivalence() {
+		assertEquals(ArrayUtil.chars.equals(null, 0), false);
+		assertEquals(ArrayUtil.chars.equals(chars, (int[]) null), false);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', 0, 'c', 0), false);
+		assertEquals(ArrayUtil.chars.equals(chars, 'a', 1, 'c'), false);
+		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 1), false);
+		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 1), false);
+		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1), false);
+	}	
+	
 	@Test
 	public void shouldProvideHexString() {
 		assertEquals(ArrayUtil.chars.toHex(chars), "[0x61, 0x0, 0x63]");

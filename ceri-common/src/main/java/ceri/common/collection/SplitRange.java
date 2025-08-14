@@ -53,7 +53,7 @@ public class SplitRange {
 	 */
 	public static <T> SplitRange.Typed<T> typed(Functions.ToIntFunction<? super T> lengthFn,
 		Collection<T> ts) {
-		return new Typed<>(ImmutableUtil.copyAsList(ts), from(lengthFn, ts));
+		return new Typed<>(Immutable.list(ts), from(lengthFn, ts));
 	}
 
 	/**

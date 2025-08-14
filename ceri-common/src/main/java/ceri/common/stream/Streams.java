@@ -68,6 +68,13 @@ public class Streams {
 	}
 
 	/**
+	 * Stream values from 0 to 1 in even steps.
+	 */
+	public static DoubleStream<RuntimeException> segment(int steps) {
+		return DoubleStream.segment(steps);
+	}
+
+	/**
 	 * Creates a single stream from sequential streams.
 	 */
 	@SafeVarargs
@@ -78,9 +85,11 @@ public class Streams {
 	/**
 	 * Convert a map to a stream.
 	 */
-	public static <E extends Exception, K, V, T> Stream<E, T>
-		unMap(Excepts.BiFunction<E, ? super K, ? super V, ? extends T> combiner, Map<? extends K, ? extends V> map) {
+	public static <E extends Exception, K, V, T> Stream<E, T> unmap(
+		Excepts.BiFunction<E, ? super K, ? super V, ? extends T> unmapper,
+		Map<? extends K, ? extends V> map) {
+		if (map == null || unmapper == null) return Stream.empty();
 		return Stream.<E, Map.Entry<? extends K, ? extends V>>from(map.entrySet())
-			.map(e -> combiner.apply(e.getKey(), e.getValue()));
+			.map(e -> unmapper.apply(e.getKey(), e.getValue()));
 	}
 }

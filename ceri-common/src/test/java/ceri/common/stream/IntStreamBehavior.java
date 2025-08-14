@@ -1,6 +1,9 @@
 package ceri.common.stream;
 
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterator;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.fail;
 import java.util.List;
@@ -8,6 +11,7 @@ import java.util.PrimitiveIterator;
 import org.junit.Test;
 import ceri.common.collection.Iterables;
 import ceri.common.collection.Iterators;
+import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
 public class IntStreamBehavior {
@@ -30,6 +34,7 @@ public class IntStreamBehavior {
 	public void testFromIterable() {
 		assertStream(IntStream.from((List<Number>) null));
 		assertStream(IntStream.from(Iterables.ofNull()));
+		assertStream(IntStream.from(() -> null));
 		assertStream(IntStream.from(List.of(-1.1, 0.6, 1.9)), -1, 0, 1);
 	}
 
@@ -74,6 +79,12 @@ public class IntStreamBehavior {
 	}
 
 	@Test
+	public void shouldProvideUnsignedElements() throws Exception {
+		assertStream(IntStream.empty().unsigned());
+		assertArray(testStream().unsigned().toArray(), 0xffffffffL, 0L, 1L, 0L);
+	}
+
+	@Test
 	public void shouldMapElements() throws Exception {
 		assertStream(IntStream.empty().map(null));
 		assertStream(IntStream.empty().map(_ -> fail()));
@@ -81,6 +92,12 @@ public class IntStreamBehavior {
 		assertStream(testStream().map(i -> i + 1), 0, 1, 2, 1);
 	}
 
+	@Test
+	public void shouldMapElementsToDouble() throws Exception {
+		assertStream(IntStream.empty().mapToDouble(null));
+		assertStream(testStream().mapToDouble(i -> i), -1.0, 0.0, 1.0, 0.0);
+	}
+	
 	@Test
 	public void shouldFlatMapElements() throws Exception {
 		assertStream(IntStream.empty().flatMap(null));
@@ -140,6 +157,12 @@ public class IntStreamBehavior {
 	}
 
 	@Test
+	public void shouldProvideIterator() throws Exception {
+		assertIterator(IntStream.empty().iterator());
+		assertIterator(testStream().iterator(), -1, 0, 1, 0);
+	}
+	
+	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
 		IntStream.empty().forEach(captor::accept);
@@ -157,14 +180,26 @@ public class IntStreamBehavior {
 	}
 
 	@Test
+	public void shouldUseCollectors() throws Exception {
+		assertArray(testStream().collect(IntStream.Collect.sortedArray), -1, 0, 0, 1);
+	}
+	
+	@Test
 	public void shouldReduceElements() throws Exception {
 		assertEquals(IntStream.empty().reduce((_, _) -> 0), null);
-		assertEquals(IntStream.empty().reduce(3, (_, _) -> 0), 3);
+		assertEquals(IntStream.empty().reduce((_, _) -> 0, 3), 3);
 		assertEquals(testStream().reduce(null), null);
-		assertEquals(testStream().reduce(3, null), 3);
+		assertEquals(testStream().reduce(null, 3), 3);
 		assertEquals(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
 	}
 
+	@Test
+	public void shouldUseReducers() {
+		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.and()), 6);
+		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.or()), 15);
+		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.xor()), 9);
+	}
+	
 	private static IntStream<RuntimeException> testStream() {
 		return IntStream.of(-1, 0, 1, 0);
 	}

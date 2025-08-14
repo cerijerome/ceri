@@ -5,13 +5,14 @@ import static ceri.common.text.StringUtil.HEX_RADIX;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import ceri.common.collection.BiMap;
+import ceri.common.collection.Immutable;
 import ceri.common.math.Bound;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
@@ -25,7 +26,7 @@ public class ColorUtil {
 	public static final Pattern COLOR_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
-	private static final BiMap<Integer, String> colors = colors(); // any alpha
+	private static final Immutable.BiMap<Integer, String> colors = colors(); // any alpha
 	private static final int HEX_RGB_MAX_LEN = 6;
 	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int HEX3_LEN = 3;
@@ -717,7 +718,8 @@ public class ColorUtil {
 		return argb((r | g | b) * (HEX_RADIX + 1)); // triple-hex #rgb
 	}
 
-	private static BiMap<Integer, String> colors() {
-		return BiMap.<Integer, String>builder().put(argb(clear), "clear").build();
+	private static Immutable.BiMap<Integer, String> colors() {
+		// Placeholder for custom colors
+		return Immutable.wrapBiMap(Map.of(argb(clear), "clear"));
 	}
 }

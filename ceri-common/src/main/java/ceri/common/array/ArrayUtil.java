@@ -58,7 +58,7 @@ public class ArrayUtil {
 	 */
 	public static <T> T[] ofType(Class<T> type, int size) {
 		if (type == null) return null;
-		return RawArrays.array(requireNonPrimitive(type), size);
+		return RawArray.ofType(requireNonPrimitive(type), size);
 	}
 
 	/**
@@ -66,14 +66,14 @@ public class ArrayUtil {
 	 */
 	@SafeVarargs
 	public static <T> int length(T... array) {
-		return RawArrays.length(array);
+		return RawArray.length(array);
 	}
 
 	/**
 	 * Returns true if the array is null or empty.
 	 */
 	public static <T> boolean isEmpty(T[] array) {
-		return RawArrays.isEmpty(array);
+		return RawArray.isEmpty(array);
 	}
 
 	/**
@@ -105,14 +105,14 @@ public class ArrayUtil {
 	 * Returns the typed array component class, or null. Primitives not supported.
 	 */
 	public static <T> Class<T[]> arrayType(Class<T> cls) {
-		return RawArrays.arrayType(requireNonPrimitive(cls));
+		return RawArray.arrayType(requireNonPrimitive(cls));
 	}
 
 	/**
 	 * Returns the typed component class of an array type, or null.
 	 */
 	public static <T> Class<T> componentType(Class<T[]> cls) {
-		return RawArrays.componentType(cls);
+		return RawArray.componentType(cls);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class ArrayUtil {
 	 * Returns true if the index is inside the array.
 	 */
 	public static <T> boolean in(T[] array, int index) {
-		return RawArrays.in(array, index);
+		return RawArray.in(array, index);
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class ArrayUtil {
 	 * Copies an array to given length if the length is different.
 	 */
 	public static <T> T[] resize(Functions.IntFunction<T[]> constructor, T[] array, int length) {
-		return RawArrays.resize(constructor, array, length);
+		return RawArray.resize(constructor, array, length);
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class ArrayUtil {
 	 */
 	public static <T> T[] copyOf(Functions.IntFunction<T[]> constructor, T[] array, int offset,
 		int length) {
-		return RawArrays.copyOf(constructor, array, offset, length);
+		return RawArray.copyOf(constructor, array, offset, length);
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class ArrayUtil {
 	 * Copies bounded source to bounded destination, returning the destination array.
 	 */
 	public static <T> T[] copy(T[] src, int srcOffset, T[] dest, int destOffset, int length) {
-		return RawArrays.copy(src, srcOffset, dest, destOffset, length);
+		return RawArray.copy(src, srcOffset, dest, destOffset, length);
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class ArrayUtil {
 	 */
 	public static <T> T[] insert(Functions.IntFunction<T[]> constructor, T[] lhs, int lhsOffset,
 		T[] rhs, int rhsOffset, int length) {
-		return RawArrays.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
 	}
 
 	/**
@@ -313,7 +313,7 @@ public class ArrayUtil {
 	 */
 	public static <T> int indexOf(T[] array, int arrayOffset, int arrayLen, T[] values,
 		int valuesOffset, int valuesLen) {
-		return RawArrays.indexOf(Arrays::equals, array, arrayOffset, arrayLen, values, valuesOffset,
+		return RawArray.indexOf(Arrays::equals, array, arrayOffset, arrayLen, values, valuesOffset,
 			valuesLen);
 	}
 
@@ -340,7 +340,7 @@ public class ArrayUtil {
 	 */
 	public static <T> int lastIndexOf(T[] array, int arrayOffset, int arrayLen, T[] values,
 		int valuesOffset, int valuesLen) {
-		return RawArrays.lastIndexOf(Arrays::equals, array, arrayOffset, arrayLen, values,
+		return RawArray.lastIndexOf(Arrays::equals, array, arrayOffset, arrayLen, values,
 			valuesOffset, valuesLen);
 	}
 
@@ -362,7 +362,7 @@ public class ArrayUtil {
 	 * Fill bounded array range with value.
 	 */
 	public static <T> T[] fill(T[] array, int offset, int length, T value) {
-		return RawArrays.acceptSlice(array, offset, length,
+		return RawArray.acceptSlice(array, offset, length,
 			(o, l) -> Arrays.fill(array, o, o + l, value));
 	}
 
@@ -394,7 +394,7 @@ public class ArrayUtil {
 	 * Reverses the array range in place and returns the array.
 	 */
 	public static <T> T[] reverse(T[] array, int offset, int length) {
-		return RawArrays.reverse(ArrayUtil::swap, array, offset, length);
+		return RawArray.reverse(ArrayUtil::swap, array, offset, length);
 	}
 
 	/**
@@ -419,7 +419,7 @@ public class ArrayUtil {
 	public static <E extends Exception, T> T[] forEach(T[] array, int offset, int length,
 		Excepts.Consumer<E, T> consumer) throws E {
 		if (consumer == null) return array;
-		return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
 	}
 
 	/**
@@ -444,7 +444,7 @@ public class ArrayUtil {
 	public static <E extends Exception, T> T[] forEachIndexed(T[] array, int offset, int length,
 		Excepts.ObjIntConsumer<E, T> consumer) throws E {
 		if (consumer == null) return array;
-		return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i], i));
+		return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i], i));
 	}
 
 	/**
@@ -521,7 +521,7 @@ public class ArrayUtil {
 	 */
 	public static <T> T[] sort(T[] array, int offset, int length,
 		Comparator<? super T> comparator) {
-		return RawArrays.acceptSlice(array, offset, length, (o, l) -> {
+		return RawArray.acceptSlice(array, offset, length, (o, l) -> {
 			Arrays.sort(array, o, o + l, comparator);
 		});
 	}
@@ -545,7 +545,7 @@ public class ArrayUtil {
 	 * Returns true if the array ranges are equals. Offsets and lengths are bounded.
 	 */
 	public static <T> boolean equals(T[] lhs, int lhsOffset, T[] rhs, int rhsOffset, int length) {
-		return RawArrays.equals(Arrays::equals, lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.equals(Arrays::equals, lhs, lhsOffset, rhs, rhsOffset, length);
 	}
 
 	/**
@@ -567,7 +567,7 @@ public class ArrayUtil {
 	 * Hashes the array range.
 	 */
 	public static <T> int hash(T[] array, int offset, int length) {
-		return RawArrays.hash((h, a, i) -> h.hash(a[i]), array, offset, length);
+		return RawArray.hash((h, a, i) -> h.hash(a[i]), array, offset, length);
 	}
 
 	/**
@@ -611,7 +611,7 @@ public class ArrayUtil {
 	 * Returns a string representation of the array range.
 	 */
 	public static <T> String toString(Joiner joiner, T[] array, int offset, int length) {
-		return RawArrays.appendToString((b, a, i) -> b.append(RawArrays.<Object>get(a, i)), joiner,
+		return RawArray.appendToString((b, a, i) -> b.append(RawArray.<Object>get(a, i)), joiner,
 			array, offset, length);
 	}
 
@@ -638,7 +638,7 @@ public class ArrayUtil {
 	public static <T> String toString(Functions.Function<T, String> stringFn, Joiner joiner,
 		T[] array, int offset, int length) {
 		if (stringFn == null) return Strings.NULL;
-		return RawArrays.toString((a, i) -> stringFn.apply(a[i]), joiner, array, offset, length);
+		return RawArray.toString((a, i) -> stringFn.apply(a[i]), joiner, array, offset, length);
 	}
 
 	private static <T> Class<T> requireNonPrimitive(Class<T> type) {

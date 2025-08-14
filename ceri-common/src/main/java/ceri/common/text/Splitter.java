@@ -1,6 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
@@ -9,8 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.function.Functions;
+import ceri.common.stream.Streams;
 
 /**
  * Utility for extracting text sequentially.
@@ -44,7 +43,7 @@ public class Splitter {
 	/**
 	 * Interface for extracting text starting at given position.
 	 */
-	public static interface Extractor extends ObjIntFunction<String, Extraction> {
+	public static interface Extractor extends Functions.ObjIntFunction<String, Extraction> {
 		/**
 		 * Extract text starting at given position. Pass the extracted text to the consumer, and
 		 * return the next text position.
@@ -85,7 +84,7 @@ public class Splitter {
 		 * end.
 		 */
 		static List<Extractor> byWidths(int... counts) {
-			return toList(IntStream.of(counts).mapToObj(Extractor::byWidth));
+			return Streams.ints(counts).mapToObj(Extractor::byWidth).toList();
 		}
 
 		/**

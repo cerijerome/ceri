@@ -153,10 +153,11 @@ public class DoubleStreamBehavior {
 	@Test
 	public void shouldReduceElements() throws Exception {
 		assertEquals(DoubleStream.empty().reduce((_, _) -> 0), null);
-		assertEquals(DoubleStream.empty().reduce(3, (_, _) -> 0), 3.0);
+		assertEquals(DoubleStream.empty().reduce((_, _) -> 0, 3), 3.0);
 		assertEquals(testStream().reduce(null), null);
-		assertEquals(testStream().reduce(3, null), 3.0);
+		assertEquals(testStream().reduce(null, 3), 3.0);
 		assertEquals(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
+		assertEquals(testStream().filter(i -> i > 1).reduce((_, _) -> 0, 3), 3.0);
 	}
 
 	private static DoubleStream<RuntimeException> testStream() {

@@ -17,6 +17,7 @@ import ceri.common.collection.Iterators;
 import ceri.common.validation.ValidationUtil;
 
 public class MathUtil {
+	private static final long ZERO10 = 10000000000L;
 	// PI approximations: 22/7, 355/113
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
 	public static final double PI_3_BY_2 = Math.PI * 3 / 2; // common calculation
@@ -36,6 +37,16 @@ public class MathUtil {
 
 	private MathUtil() {}
 
+	/**
+	 * Returns the number of decimal digits, not including sign.
+	 */
+	public static int decimalDigits(long n) {
+		if (n == Long.MIN_VALUE) return decimalDigits(Long.MAX_VALUE); 
+		if (n < 0) return decimalDigits(-n); 
+		if (n >= ZERO10) return 10 + decimalDigits(n / ZERO10);
+		return (int) Math.round(Math.log10(n) + 0.5); // not accurate for high n
+	}
+	
 	/**
 	 * Returns the approximate sine value of pi * n/d radians multiplied by the given max.
 	 */

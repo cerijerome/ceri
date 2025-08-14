@@ -4,7 +4,6 @@ import static ceri.common.collection.ImmutableUtil.copyAsMap;
 import static java.util.Collections.unmodifiableMap;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +49,7 @@ public class ScoreLookup<T> implements Scorer<T> {
 	private Map<T, Double> normalize(Map<T, Double> map) {
 		var normalizedMap = new HashMap<T, Double>();
 		double sum = sum(map.values());
-		if (sum == 0.0) return Collections.emptyMap();
+		if (sum == 0.0) return Map.of();
 		for (var entry : map.entrySet())
 			normalizedMap.put(entry.getKey(), entry.getValue() / sum);
 		return normalizedMap;

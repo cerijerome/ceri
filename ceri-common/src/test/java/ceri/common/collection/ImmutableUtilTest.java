@@ -101,14 +101,14 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testEmptyCopyAsSet() {
-		Set<?> set = ImmutableUtil.copyAsSet(new HashSet<>());
+		Set<?> set = Immutable.set(new HashSet<>());
 		assertTrue(set.isEmpty());
 		assertImmutableCollection(set);
 	}
 
 	@Test
 	public void testEmptyCopyAsList() {
-		List<?> list = ImmutableUtil.copyAsList(new ArrayList<>());
+		List<?> list = Immutable.list(new ArrayList<>());
 		assertTrue(list.isEmpty());
 		assertImmutableList(list);
 	}
@@ -258,8 +258,7 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testAsMapOfLists() {
-		var srcMap =
-			new HashMap<>(Map.of("123", Mutables.asList(1, 2, 3), "4", Mutables.asList(4)));
+		var srcMap = new HashMap<>(Map.of("123", Lists.of(1, 2, 3), "4", Lists.of(4)));
 		final var map = ImmutableUtil.asMapOfLists(srcMap);
 		assertImmutableMap(map);
 		assertImmutableList(map.get("123"));
@@ -317,10 +316,10 @@ public class ImmutableUtilTest {
 	public void testCopyAsMapOfLists() {
 		assertNull(ImmutableUtil.copyAsMapOfLists(null));
 		assertTrue(ImmutableUtil.copyAsMapOfLists(new HashMap<>()).isEmpty());
-		Map<String, List<Integer>> srcMap = testMap("123", Mutables.asList(1, 2, 3), "4",
-			Mutables.asList(4), "", Mutables.asList(), "null", null);
-		Map<String, List<Integer>> copy = testMap("123", Mutables.asList(1, 2, 3), "4",
-			Mutables.asList(4), "", Mutables.asList(), "null", null);
+		Map<String, List<Integer>> srcMap =
+			testMap("123", Lists.of(1, 2, 3), "4", Lists.of(4), "", Lists.of(), "null", null);
+		Map<String, List<Integer>> copy =
+			testMap("123", Lists.of(1, 2, 3), "4", Lists.of(4), "", Lists.of(), "null", null);
 		final Map<String, List<Integer>> map = ImmutableUtil.copyAsMapOfLists(srcMap);
 		assertEquals(srcMap.get("123").set(0, -1), 1);
 		assertNotNull(srcMap.remove("4"));
@@ -351,11 +350,10 @@ public class ImmutableUtilTest {
 
 	@Test
 	public void testCopyAsList() {
-		assertNull(ImmutableUtil.copyAsList(null));
 		List<Integer> srcList = new ArrayList<>();
 		Collections.addAll(srcList, 1, 2, 3, 4, 5);
 		List<Integer> copy = new ArrayList<>(srcList);
-		final List<Integer> list = ImmutableUtil.copyAsList(srcList);
+		final List<Integer> list = Immutable.list(srcList);
 		srcList.remove(0);
 		assertEquals(list, copy);
 		assertImmutableList(list);
@@ -383,7 +381,7 @@ public class ImmutableUtilTest {
 		Set<Integer> srcSet = new HashSet<>();
 		Collections.addAll(srcSet, 1, 2, 3, 4, 5);
 		Set<Integer> copy = new HashSet<>(srcSet);
-		final Set<Integer> set = ImmutableUtil.copyAsSet(srcSet);
+		final Set<Integer> set = Immutable.set(srcSet);
 		srcSet.remove(0);
 		assertEquals(set, copy);
 		assertImmutableCollection(set);
@@ -584,11 +582,11 @@ public class ImmutableUtilTest {
 				fail();
 			} catch (Exception e) {}
 			try {
-				collection.removeAll(Collections.emptySet());
+				collection.removeAll(Set.of());
 				fail();
 			} catch (Exception e) {}
 			try {
-				collection.retainAll(Collections.emptySet());
+				collection.retainAll(Set.of());
 				fail();
 			} catch (Exception e) {}
 		}

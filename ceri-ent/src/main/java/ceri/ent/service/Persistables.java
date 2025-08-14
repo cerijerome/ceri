@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Functions;
 
 public class Persistables implements Functions.Closeable, Persistable {
@@ -22,7 +22,7 @@ public class Persistables implements Functions.Closeable, Persistable {
 	}
 
 	Persistables(Collection<? extends Persistable> persistables) {
-		this.persistables = ImmutableUtil.copyAsList(persistables);
+		this.persistables = Immutable.list(persistables);
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 
@@ -13,7 +13,7 @@ public abstract class ProcessGroup implements Functions.Closeable {
 	private final List<? extends ProcessRunner> runners;
 
 	protected ProcessGroup(List<? extends ProcessRunner> runners) {
-		this.runners = ImmutableUtil.copyAsList(runners);
+		this.runners = Immutable.list(runners);
 	}
 
 	public boolean isEmpty() {

@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -189,7 +189,7 @@ public class LongStream<E extends Exception> {
 	 */
 	public static <E extends Exception> LongStream<E> of(long[] values, int offset, int length) {
 		if (values == null) return empty();
-		return RawArrays.applySlice(values, offset, length,
+		return RawArray.applySlice(values, offset, length,
 			(o, l) -> l == 0 ? empty() : new LongStream<E>(arraySupplier(values, o, l)));
 	}
 
@@ -238,7 +238,7 @@ public class LongStream<E extends Exception> {
 		this.supplier = supplier;
 	}
 
-	// filters
+	// filtration
 
 	/**
 	 * Only streams elements that match the filter.
@@ -270,7 +270,7 @@ public class LongStream<E extends Exception> {
 		return !anyMatch(predicate);
 	}
 
-	// mappers
+	// mapping
 
 	/**
 	 * Maps stream elements to boxed types.
@@ -329,7 +329,7 @@ public class LongStream<E extends Exception> {
 		return update(flatSupplier(mapToObj(mapper).filter(Objects::nonNull).supplier()));
 	}
 
-	// manipulators
+	// manipulation
 
 	/**
 	 * Limits the number of elements.
@@ -355,7 +355,7 @@ public class LongStream<E extends Exception> {
 		return update(adaptedSupplier(supplier, s -> sortedSupplier(s)));
 	}
 
-	// terminating functions
+	// termination
 
 	/**
 	 * Returns the next element or default.
@@ -436,22 +436,34 @@ public class LongStream<E extends Exception> {
 		return collect(this.supplier, supplier, accumulator, finisher);
 	}
 
-	// reducers
+	// reduction
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Return the min value, or default.
 	 */
-	public Long reduce(Excepts.LongBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return null;
-		var next = next();
-		return next == null ? null : reduce(next, accumulator);
+	public long min(long def) throws E {
+		return reduce(Reduce.min(), def);
 	}
 
 	/**
-	 * Reduces stream to an element, using an identity and accumulator.
+	 * Return the max value, or default.
 	 */
-	public long reduce(long identity, Excepts.LongBiOperator<? extends E> accumulator) throws E {
-		return reduce(supplier, identity, accumulator);
+	public long max(long def) throws E {
+		return reduce(Reduce.max(), def);
+	}
+
+	/**
+	 * Reduces stream to a value using an accumulator, or null.
+	 */
+	public Long reduce(Excepts.LongBiOperator<? extends E> accumulator) throws E {
+		return reduce(supplier, accumulator);
+	}
+
+	/**
+	 * Reduces stream to a value using an accumulator, or default.
+	 */
+	public long reduce(Excepts.LongBiOperator<? extends E> accumulator, long def) throws E {
+		return BasicUtil.defLong(reduce(accumulator), def);
 	}
 
 	// support
@@ -586,11 +598,12 @@ public class LongStream<E extends Exception> {
 		return finisher.apply(container);
 	}
 
-	private static <E extends Exception> long reduce(NextSupplier<E> supplier, long identity,
+	private static <E extends Exception> Long reduce(NextSupplier<E> supplier,
 		Excepts.LongBiOperator<? extends E> accumulator) throws E {
-		if (accumulator == null) return identity;
+		if (accumulator == null) return null;
 		var receiver = new NextSupplier.Receiver<E>();
-		for (long l = identity;;) {
+		if (!supplier.next(receiver)) return null;
+		for (long l = receiver.value;;) {
 			if (!supplier.next(receiver)) return l;
 			l = accumulator.applyAsLong(l, receiver.value);
 		}

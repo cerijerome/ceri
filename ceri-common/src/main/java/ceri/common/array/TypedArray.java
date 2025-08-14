@@ -101,14 +101,6 @@ public abstract class TypedArray<T> {
 		}
 
 		/**
-		 * Simple array creation.
-		 */
-		@SafeVarargs
-		public final T[] of(T... values) {
-			return values;
-		}
-
-		/**
 		 * Returns the element at index, or default if out of range.
 		 */
 		public T at(T[] array, int index) {
@@ -119,7 +111,7 @@ public abstract class TypedArray<T> {
 		 * Returns the element at index, or default if out of range.
 		 */
 		public T at(T[] array, int index, T def) {
-			return RawArrays.in(array, index) ? array[index] : def;
+			return RawArray.in(array, index) ? array[index] : def;
 		}
 
 		/**
@@ -133,7 +125,7 @@ public abstract class TypedArray<T> {
 		 * Returns the last element, or default if empty.
 		 */
 		public T last(T[] array, T def) {
-			return at(array, RawArrays.length(array) - 1, def);
+			return at(array, RawArray.length(array) - 1, def);
 		}
 
 		/**
@@ -150,6 +142,13 @@ public abstract class TypedArray<T> {
 		@SafeVarargs
 		public final T[] insert(T[] array, int offset, T... values) {
 			return insert(array, offset, values, 0);
+		}
+
+		/**
+		 * Returns true if the value is found within the array.
+		 */
+		public final boolean has(T[] array, T value) {
+			return ArrayUtil.has(array, value);
 		}
 
 		/**
@@ -190,13 +189,21 @@ public abstract class TypedArray<T> {
 			return array;
 		}
 
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		@SafeVarargs
+		public final boolean equals(T[] array, T... values) {
+			return super.equals(array, 0, values, 0);
+		}
+		
 		@Override
 		protected void hash(Hasher hasher, T[] array, int index) {
 			hasher.hash(array[index]);
 		}
 
 		@Override
-		protected RawArrays.Equals<T[]> equals() {
+		protected RawArray.Equals<T[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -209,21 +216,21 @@ public abstract class TypedArray<T> {
 	 * Returns the array length, or 0 if null.
 	 */
 	public int length(T array) {
-		return RawArrays.length(array);
+		return RawArray.length(array);
 	}
 
 	/**
 	 * Returns true if the array is null or empty.
 	 */
 	public boolean isEmpty(T array) {
-		return RawArrays.isEmpty(array);
+		return RawArray.isEmpty(array);
 	}
 
 	/**
 	 * Returns true if the index is inside the array.
 	 */
 	public boolean in(T array, int index) {
-		return RawArrays.in(array, index);
+		return RawArray.in(array, index);
 	}
 
 	/**
@@ -237,7 +244,7 @@ public abstract class TypedArray<T> {
 	 * Copies an array up to given length if the length is different.
 	 */
 	public T resize(T array, int length) {
-		return RawArrays.resize(constructor, array, length);
+		return RawArray.resize(constructor, array, length);
 	}
 
 	/**
@@ -258,7 +265,7 @@ public abstract class TypedArray<T> {
 	 * Copies an array up to given length.
 	 */
 	public T copyOf(T array, int offset, int length) {
-		return RawArrays.copyOf(constructor, array, offset, length);
+		return RawArray.copyOf(constructor, array, offset, length);
 	}
 
 	/**
@@ -279,7 +286,7 @@ public abstract class TypedArray<T> {
 	 * Copies bounded source to bounded destination, returning the destination array.
 	 */
 	public T copy(T src, int srcOffset, T dest, int destOffset, int length) {
-		return RawArrays.copy(src, srcOffset, dest, destOffset, length);
+		return RawArray.copy(src, srcOffset, dest, destOffset, length);
 	}
 
 	/**
@@ -307,7 +314,7 @@ public abstract class TypedArray<T> {
 	 * Copies a bounded array into the array.
 	 */
 	public T insert(T lhs, int lhsOffset, T rhs, int rhsOffset, int length) {
-		return RawArrays.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
 	}
 
 	/**
@@ -343,7 +350,7 @@ public abstract class TypedArray<T> {
 	 */
 	public int indexOf(T array, int arrayOffset, int arrayLen, T values, int valuesOffset,
 		int valuesLen) {
-		return RawArrays.indexOf(equals(), array, arrayOffset, arrayLen, values, valuesOffset,
+		return RawArray.indexOf(equals(), array, arrayOffset, arrayLen, values, valuesOffset,
 			valuesLen);
 	}
 
@@ -362,7 +369,7 @@ public abstract class TypedArray<T> {
 	 */
 	public int lastIndexOf(T array, int arrayOffset, int arrayLen, T values, int valuesOffset,
 		int valuesLen) {
-		return RawArrays.lastIndexOf(equals(), array, arrayOffset, arrayLen, values, valuesOffset,
+		return RawArray.lastIndexOf(equals(), array, arrayOffset, arrayLen, values, valuesOffset,
 			valuesLen);
 	}
 
@@ -382,28 +389,7 @@ public abstract class TypedArray<T> {
 	 * Reverses the array range in place and returns the array.
 	 */
 	public T reverse(T array, int offset, int length) {
-		return RawArrays.reverse(this::swap, array, offset, length);
-	}
-
-	/**
-	 * Returns true if the array ranges are equals. Offsets and lengths are bounded.
-	 */
-	public boolean equals(T lhs, T rhs) {
-		return equals(lhs, 0, rhs, 0);
-	}
-
-	/**
-	 * Returns true if the array ranges are equals. Offsets and lengths are bounded.
-	 */
-	public boolean equals(T lhs, int lhsOffset, T rhs, int rhsOffset) {
-		return equals(lhs, lhsOffset, rhs, rhsOffset, Integer.MAX_VALUE);
-	}
-
-	/**
-	 * Returns true if the array ranges are equals. Offsets and lengths are bounded.
-	 */
-	public boolean equals(T lhs, int lhsOffset, T rhs, int rhsOffset, int length) {
-		return RawArrays.equals(equals(), lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.reverse(this::swap, array, offset, length);
 	}
 
 	/**
@@ -424,7 +410,21 @@ public abstract class TypedArray<T> {
 	 * Hashes the array range.
 	 */
 	public int hash(T array, int offset, int length) {
-		return RawArrays.hash(this::hash, array, offset, length);
+		return RawArray.hash(this::hash, array, offset, length);
+	}
+
+	/**
+	 * Returns true if the array ranges are equal. Offsets and lengths are bounded.
+	 */
+	public boolean equals(T lhs, int lhsOffset, T rhs, int rhsOffset) {
+		return equals(lhs, lhsOffset, rhs, rhsOffset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns true if the array ranges are equal. Offsets and lengths are bounded.
+	 */
+	public boolean equals(T lhs, int lhsOffset, T rhs, int rhsOffset, int length) {
+		return RawArray.equals(equals(), lhs, lhsOffset, rhs, rhsOffset, length);
 	}
 
 	/**
@@ -466,7 +466,7 @@ public abstract class TypedArray<T> {
 	 * Returns a string representation of the array range.
 	 */
 	public String toString(Joiner joiner, T array, int offset, int length) {
-		return RawArrays.appendToString((b, a, i) -> b.append(RawArrays.<Object>get(a, i)), joiner,
+		return RawArray.appendToString((b, a, i) -> b.append(RawArray.<Object>get(a, i)), joiner,
 			array, offset, length);
 	}
 
@@ -491,14 +491,14 @@ public abstract class TypedArray<T> {
 	 */
 	public String toString(Functions.ObjIntFunction<? super T, ? super String> stringFn,
 		Joiner joiner, T array, int offset, int length) {
-		return RawArrays.toString(stringFn, joiner, array, offset, length);
+		return RawArray.toString(stringFn, joiner, array, offset, length);
 	}
 
 	/**
 	 * Simple array creation.
 	 */
 	protected <U> T copyValues(U values, Functions.ObjIntConsumer<T> consumer) {
-		return RawArrays.copyValues(constructor, values, consumer);
+		return RawArray.copyValues(constructor, values, consumer);
 	}
 
 	/**
@@ -509,5 +509,5 @@ public abstract class TypedArray<T> {
 	/**
 	 * Provides the equals operation.
 	 */
-	protected abstract RawArrays.Equals<T> equals();
+	protected abstract RawArray.Equals<T> equals();
 }

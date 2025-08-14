@@ -29,6 +29,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	public static final Joiner PARAM = of("(", ", ", ")");
 	/** Parameter-style joining, without spaces. */
 	public static final Joiner PARAM_COMPACT = of("(", ",", ")");
+	/** Quote each item, separated by comma. */
+	public static final Joiner QUOTE = of("\"", "\", \"", "\"");
 	/** Comma separator without prefix or suffix. */
 	public static final Joiner COMMA = of(",");
 	/** Pipe separator without prefix or suffix. */

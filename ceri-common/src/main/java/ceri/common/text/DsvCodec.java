@@ -2,15 +2,14 @@ package ceri.common.text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import ceri.common.collection.CollectionUtil;
-import ceri.common.stream.StreamUtil;
+import ceri.common.collection.Lists;
+import ceri.common.stream.Streams;
 
 /**
  * For encoding and decoding delimiter-separated values such as csv and tsv.
@@ -21,7 +20,7 @@ public class DsvCodec {
 	private static final Pattern UNQUOTE_REGEX = Pattern.compile("^\\s*\"(.*?)\"?\\s*$");
 	private static final Pattern STARTING_QUOTES_REGEX = Pattern.compile("^\\s*(\"+)\\s*");
 	private static final Pattern NEW_LINE_REGEX = Pattern.compile("\r?\n");
-	private static final String NEW_LINE = "\r\n";
+	private static final Collector<CharSequence, ?, String> JOIN_LINES = Collectors.joining("\r\n");
 	public final char delimiter;
 	private final String delimiterStr;
 
@@ -38,14 +37,12 @@ public class DsvCodec {
 
 	public String encode(String[]... lines) {
 		if (lines == null) return null;
-		return Stream.of(lines).map(this::encodeLine).filter(Objects::nonNull)
-			.collect(Collectors.joining(NEW_LINE));
+		return Streams.of(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
 	}
 
 	public String encode(List<List<String>> lines) {
 		if (lines == null) return null;
-		return lines.stream().map(this::encodeLine).filter(Objects::nonNull)
-			.collect(Collectors.joining(NEW_LINE));
+		return Streams.from(lines).map(this::encodeLine).nonNull().collect(JOIN_LINES);
 	}
 
 	public String encodeLine(String... values) {
@@ -69,14 +66,13 @@ public class DsvCodec {
 
 	public List<List<String>> decode(String document) {
 		if (document == null) return null;
-		if (document.isEmpty()) return Collections.emptyList();
-		return StreamUtil.toList(
-			NEW_LINE_REGEX.splitAsStream(document).map(this::decodeLine).filter(Objects::nonNull));
+		if (document.isEmpty()) return List.of();
+		return Streams.of(NEW_LINE_REGEX.split(document)).map(this::decodeLine).nonNull().toList();
 	}
 
 	public List<String> decodeLine(String line) {
 		if (line == null) return null;
-		return CollectionUtil.toList(this::decodeValue, splitLine(line));
+		return Lists.adapt(this::decodeValue, splitLine(line));
 	}
 
 	public String decodeValue(String value) {
@@ -102,7 +98,7 @@ public class DsvCodec {
 	}
 
 	private List<String> splitLine(String line) {
-		if (line.isEmpty()) return Collections.emptyList();
+		if (line.isEmpty()) return List.of();
 		List<String> values = new ArrayList<>();
 		StringBuilder b = new StringBuilder();
 		boolean inQuotes = false;

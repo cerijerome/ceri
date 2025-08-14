@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.array.RawArrays;
+import ceri.common.array.RawArray;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
@@ -224,7 +224,7 @@ public class Reflect {
 		if (componentCls == null) return cls.getSuperclass();
 		var componentSuperCls =
 			componentCls.isArray() ? superClass(componentCls) : componentCls.getSuperclass();
-		return componentSuperCls == null ? Object.class : RawArrays.arrayType(componentSuperCls);
+		return componentSuperCls == null ? Object.class : RawArray.arrayType(componentSuperCls);
 	}
 
 	/**

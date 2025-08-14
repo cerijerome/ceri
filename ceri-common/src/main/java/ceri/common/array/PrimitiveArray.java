@@ -42,7 +42,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Boolean[] boxed(boolean[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -119,7 +119,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public boolean[] fill(boolean[] array, int offset, int length, boolean value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, value));
 		}
 
@@ -158,7 +158,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> boolean[] forEach(boolean[] array, int offset, int length,
 			Excepts.BoolConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(boolean[] array, boolean... values) {
+			return super.equals(array, 0, values, 0);
 		}
 
 		@Override
@@ -172,7 +179,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<boolean[]> equals() {
+		protected RawArray.Equals<boolean[]> equals() {
 			return Arrays::equals;
 		}
 
@@ -221,7 +228,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Character[] boxed(char[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -298,7 +305,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public char[] fill(char[] array, int offset, int length, int value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, (char) value));
 		}
 
@@ -337,12 +344,26 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> char[] forEach(char[] array, int offset, int length,
 			Excepts.IntConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
 		}
 
 		@Override
 		public String toHex(Joiner joiner, char[] array, int offset, int length) {
 			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(char[] array, char... values) {
+			return super.equals(array, 0, values, 0);
+		}
+
+		/**
+		 * Returns true if the arrays are equivalent.
+		 */
+		public boolean equals(char[] array, int... values) {
+			return equivalent(array, values, i -> array[i] == (char) values[i]);
 		}
 
 		@Override
@@ -356,7 +377,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<char[]> equals() {
+		protected RawArray.Equals<char[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -404,7 +425,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Byte[] boxed(byte[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -481,7 +502,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public byte[] fill(byte[] array, int offset, int length, int value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, (byte) value));
 		}
 
@@ -520,7 +541,21 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> byte[] forEach(byte[] array, int offset, int length,
 			Excepts.IntConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(byte[] array, byte... values) {
+			return super.equals(array, 0, values, 0);
+		}
+
+		/**
+		 * Returns true if the arrays are equivalent.
+		 */
+		public boolean equals(byte[] array, int... values) {
+			return equivalent(array, values, i -> array[i] == (byte) values[i]);
 		}
 
 		@Override
@@ -539,7 +574,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<byte[]> equals() {
+		protected RawArray.Equals<byte[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -587,7 +622,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Short[] boxed(short[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -664,7 +699,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public short[] fill(short[] array, int offset, int length, int value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, (short) value));
 		}
 
@@ -703,7 +738,21 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> short[] forEach(short[] array, int offset, int length,
 			Excepts.IntConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(short[] array, short... values) {
+			return super.equals(array, 0, values, 0);
+		}
+
+		/**
+		 * Returns true if the arrays are equivalent.
+		 */
+		public boolean equals(short[] array, int... values) {
+			return equivalent(array, values, i -> array[i] == (short) values[i]);
 		}
 
 		@Override
@@ -722,7 +771,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<short[]> equals() {
+		protected RawArray.Equals<short[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -767,7 +816,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Integer[] boxed(int[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -844,7 +893,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public int[] fill(int[] array, int offset, int length, int value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, value));
 		}
 
@@ -883,7 +932,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> int[] forEach(int[] array, int offset, int length,
 			Excepts.IntConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(int[] array, int... values) {
+			return super.equals(array, 0, values, 0);
 		}
 
 		@Override
@@ -902,7 +958,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<int[]> equals() {
+		protected RawArray.Equals<int[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -947,7 +1003,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Long[] boxed(long[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -1024,7 +1080,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public long[] fill(long[] array, int offset, int length, long value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, value));
 		}
 
@@ -1063,7 +1119,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> long[] forEach(long[] array, int offset, int length,
 			Excepts.LongConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(long[] array, long... values) {
+			return super.equals(array, 0, values, 0);
 		}
 
 		@Override
@@ -1082,7 +1145,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<long[]> equals() {
+		protected RawArray.Equals<long[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -1128,7 +1191,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Float[] boxed(float[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -1205,7 +1268,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public float[] fill(float[] array, int offset, int length, double value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, (float) value));
 		}
 
@@ -1244,7 +1307,21 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> float[] forEach(float[] array, int offset, int length,
 			Excepts.DoubleConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(float[] array, float... values) {
+			return super.equals(array, 0, values, 0);
+		}
+
+		/**
+		 * Returns true if the arrays are equivalent.
+		 */
+		public boolean equals(float[] array, double... values) {
+			return equivalent(array, values, i -> array[i] == (float) values[i]);
 		}
 
 		@Override
@@ -1258,7 +1335,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<float[]> equals() {
+		protected RawArray.Equals<float[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -1290,7 +1367,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public Double[] boxed(double[] array, int offset, int length) {
-			return RawArrays.boxed(box::array, array, offset, length);
+			return RawArray.boxed(box::array, array, offset, length);
 		}
 
 		/**
@@ -1367,7 +1444,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 * Fill array range with value.
 		 */
 		public double[] fill(double[] array, int offset, int length, double value) {
-			return RawArrays.acceptSlice(array, offset, length,
+			return RawArray.acceptSlice(array, offset, length,
 				(o, l) -> Arrays.fill(array, o, o + l, value));
 		}
 
@@ -1406,7 +1483,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		 */
 		public <E extends Exception> double[] forEach(double[] array, int offset, int length,
 			Excepts.DoubleConsumer<E> consumer) throws E {
-			return RawArrays.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+			return RawArray.acceptIndexes(array, offset, length, i -> consumer.accept(array[i]));
+		}
+
+		/**
+		 * Returns true if the arrays are equal.
+		 */
+		public boolean equals(double[] array, double... values) {
+			return super.equals(array, 0, values, 0);
 		}
 
 		@Override
@@ -1420,7 +1504,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected RawArrays.Equals<double[]> equals() {
+		protected RawArray.Equals<double[]> equals() {
 			return Arrays::equals;
 		}
 	}
@@ -1473,14 +1557,14 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 * Converts a boxed array to an unboxed array.
 	 */
 	public T unboxed(C[] array, int offset, int length) {
-		return RawArrays.unboxed(this::array, array, offset, length);
+		return RawArray.unboxed(this::array, array, offset, length);
 	}
 
 	/**
 	 * Converts a boxed collection to an unboxed array.
 	 */
 	public T unboxed(Collection<C> collection) {
-		return RawArrays.unboxed(this::array, collection);
+		return RawArray.unboxed(this::array, collection);
 	}
 
 	/**
@@ -1494,7 +1578,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 * Converts a boxed collection to an unboxed array.
 	 */
 	public T unboxed(List<C> list, int offset, int length) {
-		return RawArrays.unboxed(this::array, list, offset, length);
+		return RawArray.unboxed(this::array, list, offset, length);
 	}
 
 	/**
@@ -1517,8 +1601,8 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public <E extends Exception> T forEachBox(T array, int offset, int length,
 		Excepts.Consumer<E, C> consumer) throws E {
-		return RawArrays.acceptIndexes(array, offset, length,
-			i -> consumer.accept(RawArrays.get(array, i)));
+		return RawArray.acceptIndexes(array, offset, length,
+			i -> consumer.accept(RawArray.get(array, i)));
 	}
 
 	/**
@@ -1542,8 +1626,8 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	public <E extends Exception> T forEachBoxIndexed(T array, int offset, int length,
 		Excepts.ObjIntConsumer<E, C> consumer) throws E {
-		return RawArrays.acceptIndexes(array, offset, length,
-			i -> consumer.accept(RawArrays.get(array, i), i));
+		return RawArray.acceptIndexes(array, offset, length,
+			i -> consumer.accept(RawArray.get(array, i), i));
 	}
 
 	/**
@@ -1564,7 +1648,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 * Sorts the array range in place.
 	 */
 	public T sort(T array, int offset, int length) {
-		return RawArrays.acceptSlice(array, offset, length,
+		return RawArray.acceptSlice(array, offset, length,
 			(o, l) -> sorter().accept(array, o, o + l));
 	}
 
@@ -1573,4 +1657,16 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	 */
 	protected abstract Functions.ObjBiIntConsumer<T> sorter();
 
+	// support
+	
+	private static <T, U> boolean equivalent(T lhs, U rhs, Functions.IntPredicate equivalence) {
+		if (lhs == null && rhs == null) return true;
+		if (lhs == null || rhs == null) return false;
+		int lhsLen = RawArray.length(lhs);
+		int rhsLen = RawArray.length(rhs);
+		if (lhsLen != rhsLen) return false;
+		for (int i = 0; i < lhsLen; i++)
+			if (!equivalence.test(i)) return false;
+		return true;
+	}
 }

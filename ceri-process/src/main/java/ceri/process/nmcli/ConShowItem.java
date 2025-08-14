@@ -1,11 +1,11 @@
 package ceri.process.nmcli;
 
-import static ceri.common.stream.StreamUtil.toList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import ceri.common.collection.Immutable;
 import ceri.common.process.Columns;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /**
@@ -30,10 +30,11 @@ public class ConShowItem {
 	public final String device;
 
 	public static List<ConShowItem> fromOutput(String output) {
-		List<String> lines = StringUtil.lines(output);
+		var lines = Strings.lines(output).toList();
 		if (lines.size() <= 1) return List.of();
-		Columns columns = Columns.fromFixedWidthHeader(lines.get(0));
-		return toList(lines.stream().skip(1).map(line -> fromNameValues(columns.parseAsMap(line))));
+		var columns = Columns.fromFixedWidthHeader(lines.get(0));
+		lines = lines.subList(1, lines.size());
+		return Immutable.adaptList(line -> fromNameValues(columns.parseAsMap(line)), lines);
 	}
 
 	private static ConShowItem fromNameValues(Map<String, String> map) {
@@ -80,5 +81,4 @@ public class ConShowItem {
 	public String toString() {
 		return ToString.forClass(this, name, uuid, type, device);
 	}
-
 }

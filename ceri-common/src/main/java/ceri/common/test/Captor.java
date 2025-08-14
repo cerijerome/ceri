@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Immutables;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
@@ -178,7 +178,7 @@ public class Captor<T> implements Functions.Consumer<T> {
 	public static class N<T> extends Captor<List<T>> {
 		@SafeVarargs
 		public final void acceptAll(T... ts) {
-			super.accept(Immutables.wrapAsList(ts));
+			super.accept(Immutable.listOf(ts));
 		}
 	}
 

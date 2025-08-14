@@ -1,6 +1,7 @@
 package ceri.common.function;
 
 import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
@@ -8,6 +9,7 @@ import static ceri.common.test.AssertUtil.assertOptional;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.fail;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.OptionalDouble;
@@ -44,6 +46,7 @@ public class FunctionUtilTest {
 	public void testGetSilently() {
 		assertEquals(FunctionUtil.getSilently(() -> "test"), "test");
 		assertEquals(FunctionUtil.getSilently(() -> "test", "x"), "test");
+		assertAssertion(() -> FunctionUtil.getSilently(() -> fail(), "x"));
 		assertEquals(FunctionUtil.getSilently(() -> {
 			throw new IOException();
 		}, "test"), "test");

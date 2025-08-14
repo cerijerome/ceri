@@ -1,12 +1,10 @@
 package ceri.process.scutil;
 
-import static ceri.common.stream.StreamUtil.toList;
-import static ceri.common.text.StringUtil.lines;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Patterns;
+import ceri.common.text.Strings;
 
 /**
  * One line from scutil --nc list.
@@ -28,12 +26,12 @@ public class NcListItem {
 	public final String type;
 
 	public static List<NcListItem> fromList(String output) {
-		return toList(lines(output).stream().map(NcListItem::from).filter(Objects::nonNull));
+		return Strings.lines(output).map(NcListItem::from).nonNull().toList();
 	}
 
 	public static NcListItem from(String line) {
-		Matcher m = RegexUtil.found(DECODE_REGEX, line);
-		if (m == null) return null;
+		var m = Patterns.find(DECODE_REGEX.matcher(line));
+		if (!Patterns.hasMatch(m)) return null;
 		int i = 1;
 		return NcListItem.builder().enabled(NcListItem.ENABLED.equals(m.group(i++)))
 			.state(m.group(i++)).passwordHash(m.group(i++)).protocol(m.group(i++))
@@ -135,5 +133,4 @@ public class NcListItem {
 		return String.format("%s %-16s %s %s --> %-10s %-32s [%s:%s]", enabled ? ENABLED : " ",
 			"(" + state + ")", passwordHash, protocol, device, "\"" + name + "\"", protocol, type);
 	}
-
 }

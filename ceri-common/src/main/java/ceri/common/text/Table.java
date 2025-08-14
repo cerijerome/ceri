@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import ceri.common.array.ArrayUtil;
-import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
 
 /**
@@ -225,6 +224,6 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	}
 
 	private static int maxLen(String... strings) {
-		return Streams.of(strings).mapToInt(String::length).reduce(0, IntStream.Reduce.max());
+		return Streams.of(strings).mapToInt(String::length).max(0);
 	}
 }

@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 
 public class MultiPattern {
 	private final List<Pattern> patterns;
@@ -41,7 +41,7 @@ public class MultiPattern {
 	}
 
 	MultiPattern(Builder builder) {
-		patterns = ImmutableUtil.copyAsList(builder.patterns);
+		patterns = Immutable.list(builder.patterns);
 	}
 
 	public static Builder builder() {

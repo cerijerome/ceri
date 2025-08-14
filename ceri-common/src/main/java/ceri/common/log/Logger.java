@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
@@ -177,7 +177,7 @@ public class Logger {
 		errLevel = builder.errLevel;
 		format = builder.format;
 		threadMax = builder.threadMax;
-		flags = ImmutableUtil.copyAsSet(builder.flags);
+		flags = Immutable.set(builder.flags);
 	}
 
 	public <T> T trace(String format, Object... args) {

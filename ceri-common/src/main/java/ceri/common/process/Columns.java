@@ -1,16 +1,13 @@
 package ceri.common.process;
 
-import static ceri.common.stream.StreamUtil.collect;
-import static ceri.common.stream.StreamUtil.toList;
 import static ceri.common.text.Splitter.Extractor.bySpaces;
-import static java.util.function.Predicate.not;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
+import ceri.common.stream.Streams;
 import ceri.common.text.Splitter;
 import ceri.common.text.Splitter.Extraction;
 import ceri.common.text.Splitter.Extractor;
@@ -24,17 +21,16 @@ public class Columns {
 	 * should not have spaces.
 	 */
 	public static Columns fromFixedWidthHeader(String header) {
-		return collect(Splitter.of(header).extractToCompletion(bySpaces()).stream()
-			.filter(not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex)).build();
+		return Streams.from(Splitter.of(header).extractToCompletion(bySpaces())).nonNull()
+			.collect(Columns::builder, (b, ex) -> b.add(ex), Columns.Builder::build);
 	}
 
 	/**
 	 * Creates an instance that uses the same extractor for all columns, including headers.
 	 */
 	public static Columns fromHeader(String header, Extractor extractor) {
-		return collect(Splitter.of(header).extractToCompletion(extractor).stream().filter(
-			not(Extraction::isNull)), Columns::builder, (b, ex) -> b.add(ex.text(), extractor))
-				.build();
+		return Streams.from(Splitter.of(header).extractToCompletion(extractor)).nonNull().collect(
+			Columns::builder, (b, ex) -> b.add(ex.text(), extractor), Columns.Builder::build);
 	}
 
 	public static class Builder {
@@ -44,7 +40,7 @@ public class Columns {
 		Builder() {}
 
 		public Builder add(int... widths) {
-			IntStream.of(widths).mapToObj(Extractor::byWidth).forEach(this::add);
+			Streams.ints(widths).mapToObj(Extractor::byWidth).forEach(this::add);
 			return this;
 		}
 
@@ -76,15 +72,16 @@ public class Columns {
 	}
 
 	Columns(Builder builder) {
-		names = ImmutableUtil.copyAsList(builder.names);
-		extractors = ImmutableUtil.copyAsList(builder.extractors);
+		names = Immutable.list(builder.names);
+		extractors = Immutable.list(builder.extractors);
 	}
 
 	/**
 	 * Extract values from a line.
 	 */
 	public List<String> parse(String line) {
-		return toList(Splitter.of(line).extractAll(extractors).stream().map(ex -> ex.text()));
+		return Streams.from(Splitter.of(line).extractAll(extractors)).map(Extraction::text)
+			.toList();
 	}
 
 	/**

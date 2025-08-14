@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.openqa.selenium.WebElement;
-import ceri.common.stream.StreamUtil;
+import ceri.common.collection.Immutable;
 
 public class WebElementUtil {
 	private static final Pattern WHITESPACE = Pattern.compile("\\p{Zs}+");
@@ -30,22 +30,21 @@ public class WebElementUtil {
 
 	public static List<String> innerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return StreamUtil.toList(elements.stream().map(WebElementUtil::innerHtml));
+		return Immutable.adaptList(WebElementUtil::innerHtml, elements);
 	}
 
 	public static List<String> outerHtmls(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return StreamUtil.toList(elements.stream().map(WebElementUtil::outerHtml));
+		return Immutable.adaptList(WebElementUtil::outerHtml, elements);
 	}
 
 	public static List<String> texts(Collection<WebElement> elements) {
 		if (elements == null) return null;
-		return StreamUtil.toList(elements.stream().map(WebElementUtil::text));
+		return Immutable.adaptList(WebElementUtil::text, elements);
 	}
 
 	public static String trim(String s) {
 		if (s == null) return null;
 		return WHITESPACE.matcher(s).replaceAll(" ").trim();
 	}
-
 }

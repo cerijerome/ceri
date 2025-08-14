@@ -128,7 +128,6 @@ public class NetUtil {
 	 * Iterates interface addresses to find the first IP4 broadcast address.
 	 */
 	public static Inet4Address broadcast(NetworkInterface iface) {
-		if (iface == null) return null;
 		return broadcast(ifaceAddresses(iface));
 	}
 
