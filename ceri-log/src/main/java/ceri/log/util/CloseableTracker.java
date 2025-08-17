@@ -1,8 +1,8 @@
 package ceri.log.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import ceri.common.collection.Immutable;
 
 /**
  * Use to keep track of closeable objects during construction. If an exception occurs, all the
@@ -23,7 +23,7 @@ public class CloseableTracker {
 	}
 
 	public List<AutoCloseable> list() {
-		return Collections.unmodifiableList(tracked);
+		return Immutable.wrap(tracked);
 	}
 
 	public void close() {

@@ -16,15 +16,15 @@ import ceri.common.test.TestUtil;
 	ceri.common.array.RawArrayTest.class, //
 	ceri.common.array.TypedArrayBehavior.class, //
 	// collection
+	ceri.common.collection.CollectableTest.class, //
 	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumsTest.class, //
 	ceri.common.collection.ImmutableTest.class, //
-	ceri.common.collection.ImmutableUtilTest.class, //
 	ceri.common.collection.IndexRangesBehavior.class, //
+	ceri.common.collection.IterablesTest.class, //
 	ceri.common.collection.IteratorsTest.class, //
 	ceri.common.collection.ListsTest.class, //
 	ceri.common.collection.MapsTest.class, //
-	ceri.common.collection.MutableTest.class, //
 	ceri.common.collection.NodeBehavior.class, //
 	ceri.common.collection.SetsTest.class, //
 	ceri.common.collection.SplitRangeBehavior.class, //

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Excepts;
@@ -354,7 +355,7 @@ public class CloseableUtil {
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
-			return Collections.unmodifiableList(results);
+			return Immutable.wrap(results);
 		} catch (Exception e) {
 			close(results);
 			throw e;
@@ -372,7 +373,7 @@ public class CloseableUtil {
 		try {
 			for (int i = 0; i < count; i++)
 				results.add(constructor.get());
-			return Collections.unmodifiableList(results);
+			return Immutable.wrap(results);
 		} catch (Exception e) {
 			close(results);
 			throw e;

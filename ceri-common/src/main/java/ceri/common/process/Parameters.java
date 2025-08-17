@@ -2,9 +2,9 @@ package ceri.common.process;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import ceri.common.collection.Immutable;
 
 /**
  * Convenience class for collecting command string parameters.
@@ -36,7 +36,7 @@ public class Parameters {
 
 	private Parameters(List<String> list) {
 		this.list = list;
-		readOnly = Collections.unmodifiableList(list);
+		readOnly = Immutable.wrap(list);
 	}
 
 	/**

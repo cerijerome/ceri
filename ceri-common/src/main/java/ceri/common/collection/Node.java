@@ -2,7 +2,6 @@ package ceri.common.collection;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -135,7 +134,7 @@ public class Node<T> {
 		name = builder.name;
 		value = builder.value;
 		children = Streams.from(builder.children).<Node<?>>map(Builder::build).toList();
-		lookup = Collections.unmodifiableMap(
+		lookup = Immutable.wrap(
 			Streams.from(children).filter(Node::isNamed).collectMap(n -> n.name, new TreeMap<>()));
 	}
 

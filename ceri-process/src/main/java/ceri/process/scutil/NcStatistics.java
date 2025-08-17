@@ -3,7 +3,6 @@ package ceri.process.scutil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.collection.Node;
 
 /**
@@ -64,7 +63,7 @@ public class NcStatistics {
 	}
 
 	NcStatistics(Builder builder) {
-		values = ImmutableUtil.copyAsMap(builder.values);
+		values = Map.copyOf(builder.values);
 	}
 
 	public int value(String name, int def) {

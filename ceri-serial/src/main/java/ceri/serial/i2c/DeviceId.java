@@ -1,9 +1,9 @@
 package ceri.serial.i2c;
 
 import static ceri.common.validation.ValidationUtil.validateRange;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import ceri.common.collection.Immutable;
 import ceri.common.data.ByteUtil;
 
 public record DeviceId(int manufacturer, int part, int revision) {
@@ -93,6 +93,6 @@ public record DeviceId(int manufacturer, int part, int revision) {
 		map.put(i++, Company.Flir);
 		map.put(i++, Company.O2Micro);
 		map.put(i++, Company.Atmel); // 13
-		return Collections.unmodifiableMap(map);
+		return Immutable.wrap(map);
 	}
 }

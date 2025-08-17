@@ -1,9 +1,9 @@
 package ceri.common.property;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import ceri.common.collection.Immutable;
 import ceri.common.text.StringUtil;
 
 /**
@@ -207,7 +207,7 @@ public record Separator(String value) {
 	public List<String> split(String key) {
 		var list = new ArrayList<String>();
 		split((_, start, end) -> list.add(key.substring(start, end)), key, value(), false);
-		return Collections.unmodifiableList(list);
+		return Immutable.wrap(list);
 	}
 
 	/**

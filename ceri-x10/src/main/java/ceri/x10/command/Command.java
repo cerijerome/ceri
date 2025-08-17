@@ -8,12 +8,12 @@ import static ceri.common.validation.ValidationUtil.validateUbyte;
 import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collection.Immutable;
 import ceri.common.property.Parser;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
@@ -227,7 +227,7 @@ public abstract class Command {
 
 	private static Set<Unit> normalize(Collection<Unit> units) {
 		if (units == null || units.isEmpty()) return Set.of();
-		return Collections.unmodifiableSet(new TreeSet<>(units));
+		return Immutable.wrap(new TreeSet<>(units));
 	}
 
 	private static Command from(Matcher m) {

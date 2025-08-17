@@ -103,6 +103,20 @@ public class Strings {
 	}
 
 	/**
+	 * Converts to lower case.
+	 */
+	public static String lower(String s) {
+		return s == null ? null : s.toLowerCase();
+	}
+	
+	/**
+	 * Converts to lower case.
+	 */
+	public static String upper(String s) {
+		return s == null ? null : s.toUpperCase();
+	}
+	
+	/**
 	 * Formats the string; returns unformatted format if no objects are given.
 	 */
 	public static String format(String format, Object... objs) {

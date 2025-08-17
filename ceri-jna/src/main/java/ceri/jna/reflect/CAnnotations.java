@@ -12,12 +12,12 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.exception.Exceptions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Streams;
 import ceri.jna.util.JnaOs;
 
 /**
@@ -116,7 +116,7 @@ public class CAnnotations {
 			 * Returns the set of combined target and support classes.
 			 */
 			public Set<Class<?>> classes() {
-				return ImmutableUtil.collectAsSet(Stream.of(target, reload).flatMap(Stream::of));
+				return Streams.of(target, reload).flatMap(Streams::of).toSet();
 			}
 
 			/**
@@ -220,7 +220,7 @@ public class CAnnotations {
 				 * Create the container.
 				 */
 				public Value value() {
-					return map.isEmpty() ? NONE : new Value(ImmutableUtil.copyAsMapOfSets(map));
+					return map.isEmpty() ? NONE : new Value(Immutable.mapOfSets(map));
 				}
 			}
 

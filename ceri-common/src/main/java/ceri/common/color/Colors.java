@@ -1,8 +1,6 @@
 package ceri.common.color;
 
 import java.awt.Color;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import ceri.common.collection.Enums;
 
@@ -372,7 +370,7 @@ public enum Colors {
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#9acd32;"/> */
 	yellowGreen(0x9acd32);
 
-	private static final Map<Integer, Colors> argbLookup = argbLookup();
+	private static final Map<Integer, Colors> argbLookup = Enums.map(c -> c.argb, Colors.class);
 	private static final Map<String, Colors> nameLookup =
 		Enums.map(t -> t.name().toLowerCase(), Colors.class);
 	public final int argb;
@@ -459,12 +457,5 @@ public enum Colors {
 	 */
 	public double lightness() {
 		return LuvColor.Ref.CIE_D65.l(argb);
-	}
-
-	private static Map<Integer, Colors> argbLookup() {
-		Map<Integer, Colors> map = new HashMap<>();
-		for (Colors c : Colors.values())
-			map.put(c.argb, c);
-		return Collections.unmodifiableMap(map);
 	}
 }

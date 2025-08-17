@@ -1,10 +1,10 @@
 package ceri.common.tree;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import ceri.common.collection.Immutable;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -28,7 +28,7 @@ public abstract class TreeNode<T extends TreeNode<T>> implements Parent<T> {
 		Set<T> children = new LinkedHashSet<>();
 		for (Builder<T> child : builder.children)
 			children.add(child.build(typedThis()));
-		this.children = Collections.unmodifiableSet(children);
+		this.children = Immutable.wrap(children);
 	}
 
 	@Override

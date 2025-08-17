@@ -1,13 +1,10 @@
 package ceri.common.collection;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -16,14 +13,15 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
 /**
  * Enum type support.
  */
 public class Enums {
-	private static final Map<Class<?>, List<?>> cache = new ConcurrentHashMap<>();
-	private static final Map<Class<?>, Integer> namePrefixLens = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, List<?>> cache = Maps.concurrent();
+	private static final Map<Class<?>, Integer> namePrefixLens = Maps.concurrent();
 
 	private Enums() {}
 
@@ -31,23 +29,34 @@ public class Enums {
 	 * Enum comparators.
 	 */
 	public static class Comparators {
-		public static final Comparator<Enum<?>> NAME =
+		/** Name comparator. */
+		public static final Comparator<Enum<?>> name =
 			Comparator.nullsFirst(Comparator.comparing(Enums::name));
-		public static final Comparator<Enum<?>> ORDINAL =
+		/** Ordinal comparator. */
+		public static final Comparator<Enum<?>> ordinal =
 			Comparator.nullsFirst(Comparator.comparing(Enum::ordinal));
 
 		private Comparators() {}
 
+		/**
+		 * Typed name comparator, with nulls first.
+		 */
 		public static <T extends Enum<T>> Comparator<T> name() {
-			return BasicUtil.unchecked(NAME);
+			return BasicUtil.unchecked(name);
 		}
 
+		/**
+		 * Typed applied name comparator, with nulls first.
+		 */
 		public static <T extends Enum<T>> Comparator<T> name(Comparator<String> nameComparator) {
 			return Comparator.nullsFirst(Comparator.comparing(Enums::name, nameComparator));
 		}
 
+		/**
+		 * Typed ordinal comparator, with nulls first.
+		 */
 		public static <T extends Enum<T>> Comparator<T> ordinal() {
-			return BasicUtil.unchecked(ORDINAL);
+			return BasicUtil.unchecked(ordinal);
 		}
 	}
 
@@ -60,7 +69,7 @@ public class Enums {
 		/**
 		 * Predicate to match enum name.
 		 */
-		public static <T extends Enum<T>> Functions.Predicate<T> name(String name) {
+		public static Functions.Predicate<Enum<?>> name(String name) {
 			if (name == null) return ceri.common.function.Predicates.isNull();
 			return t -> t != null && name.equals(t.name());
 		}
@@ -68,7 +77,7 @@ public class Enums {
 		/**
 		 * Predicate applied to enum name.
 		 */
-		public static <E extends Exception, T extends Enum<T>> Excepts.Predicate<E, T>
+		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
 			name(Excepts.Predicate<? extends E, ? super String> predicate) {
 			return ceri.common.function.Predicates.testing(Enum::name, predicate);
 		}
@@ -78,8 +87,31 @@ public class Enums {
 	 * Returns enum constants as an immutable list, using a lookup cache.
 	 */
 	public static <T> List<T> of(Class<T> cls) {
-		return BasicUtil.unchecked(
-			cache.computeIfAbsent(cls, c -> Immutable.wrapListOf(c.getEnumConstants())));
+		if (cls == null) return List.of();
+		return BasicUtil
+			.unchecked(cache.computeIfAbsent(cls, c -> Immutable.wrapListOf(c.getEnumConstants())));
+	}
+
+	/**
+	 * Create an immutable enum set.
+	 */
+	public static <T extends Enum<T>> Set<T> set(Class<T> cls) {
+		var enums = of(cls);
+		return enums.isEmpty() ? Set.of() : Immutable.wrap(EnumSet.copyOf(enums));
+	}
+
+	/**
+	 * Create an immutable set from values.
+	 */
+	@SafeVarargs
+	public static <T extends Enum<T>> Set<T> set(T... values) {
+		if (values == null || values.length == 0) return Set.of();
+		for (var value : values)
+			if (value == null) return Sets.ofAll(values);
+		var set = EnumSet.of(values[0]);
+		for (int i = 1; i < values.length; i++)
+			set.add(values[i]);
+		return Immutable.wrap(set);
 	}
 
 	/**
@@ -166,38 +198,19 @@ public class Enums {
 	}
 
 	/**
-	 * Create an immutable enum set.
+	 * Create an immutable lookup map by mapping each enum to a key.
 	 */
-	public static <T extends Enum<T>> Set<T> set(Class<T> cls) {
-		return Collections.unmodifiableSet(EnumSet.copyOf(of(cls)));
-	}
-
-	/**
-	 * Create an immutable enum set from values.
-	 */
-	@SafeVarargs
-	public static <T extends Enum<T>> Set<T> set(T... values) {
-		if (values == null || values.length == 0) return Set.of();
-		var set = EnumSet.of(values[0]);
-		for (int i = 1; i < values.length; i++)
-			set.add(values[i]);
-		return Collections.unmodifiableSet(set);
+	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
+		map(Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
+		return map(Maps.Put.def, keyMapper, cls);
 	}
 
 	/**
 	 * Create an immutable lookup map by mapping each enum to a key.
 	 */
-	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
-		map(Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
-		return Immutable.convertMap(keyMapper, of(cls));
-	}
-
-	/**
-	 * Create an immutable lookup map by mapping each enum to a key, if absent.
-	 */
-	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
-		mapIfAbsent(Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
-		return Immutable.wrap(Mutable.convertPutIfAbsent(Mutable.map(), keyMapper, t -> t, of(cls)));
+	public static <E extends Exception, K, T extends Enum<T>> Map<K, T> map(Maps.Put put,
+		Excepts.Function<? extends E, T, K> keyMapper, Class<T> cls) throws E {
+		return Immutable.wrap(Maps.convertPut(put, Maps.of(), keyMapper, t -> t, of(cls)));
 	}
 
 	/**
@@ -205,32 +218,21 @@ public class Enums {
 	 * the collection back to the enum.
 	 */
 	public static <E extends Exception, K, T extends Enum<T>> Map<K, T>
-		inverseMap(Excepts.Function<E, T, Collection<K>> mapper, Class<T> cls) throws E {
-		return Collections
-			.unmodifiableMap(Iterables.inverseMap(mapper, CollectionUtil.supplier.map(), of(cls)));
+		inverseMap(Excepts.Function<E, T, Iterable<K>> mapper, Class<T> cls) throws E {
+		return Immutable.wrap(Maps.expandKeyPut(Maps.of(), mapper, t -> t, of(cls)));
 	}
 
 	// support methods
 
 	private static Integer prefixLen(List<? extends Enum<?>> enums) {
-		if (enums == null || enums.isEmpty()) return null;
 		int min =
 			Streams.from(enums).mapToInt(e -> e.name().length()).reduce(IntStream.Reduce.min());
 		int i = commonPrefixLen(min, enums);
 		if (i == min) i--;
 		var name = enums.get(0).name();
 		for (; i > 0; i--)
-			if (isNameBoundary(name, i)) return i;
+			if (Strings.isNameBoundary(name, i)) return i;
 		return i;
-	}
-
-	private static boolean isNameBoundary(CharSequence s, int i) {
-		char l = s.charAt(i - 1);
-		char r = s.charAt(i);
-		if (Character.isLetter(l) != Character.isLetter(r)) return true;
-		if (Character.isDigit(l) != Character.isDigit(r)) return true;
-		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
-		return false;
 	}
 
 	private static int commonPrefixLen(int min, Iterable<? extends Enum<?>> enums) {

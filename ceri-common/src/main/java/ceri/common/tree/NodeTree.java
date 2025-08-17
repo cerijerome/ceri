@@ -1,8 +1,8 @@
 package ceri.common.tree;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import ceri.common.collection.Immutable;
 
 /**
  * Holds a tree by referencing the root node, and allows node lookup by id.
@@ -15,7 +15,7 @@ public class NodeTree<T extends TreeNode<T>> {
 		this.root = root;
 		Map<Integer, T> lookup = new HashMap<>();
 		process(lookup, root);
-		this.lookup = Collections.unmodifiableMap(lookup);
+		this.lookup = Immutable.wrap(lookup);
 	}
 
 	public T get(int id) {

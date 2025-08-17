@@ -9,13 +9,13 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
@@ -123,7 +123,7 @@ public class ConsoleInput implements LineReader {
 	 * Provide a view onto current history.
 	 */
 	public List<String> history() {
-		return Collections.unmodifiableList(history);
+		return Immutable.wrap(history);
 	}
 
 	private int read() throws IOException {

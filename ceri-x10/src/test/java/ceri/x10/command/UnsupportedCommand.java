@@ -3,9 +3,9 @@ package ceri.x10.command;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+import ceri.common.collection.Immutable;
 
 public class UnsupportedCommand extends Command {
 
@@ -33,6 +33,6 @@ public class UnsupportedCommand extends Command {
 
 	private static Set<Unit> normalize(Collection<Unit> units) {
 		if (units == null || units.isEmpty()) return Set.of();
-		return Collections.unmodifiableSet(new TreeSet<>(units));
+		return Immutable.wrap(new TreeSet<>(units));
 	}
 }

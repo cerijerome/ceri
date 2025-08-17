@@ -5,90 +5,110 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
+import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 
 public class Sets {
 	private Sets() {}
 
 	/**
-	 * Set supplier.
+	 * Utility for building sets.
 	 */
-	public static class Supplier {
-		private Supplier() {}
+	public static class Builder<T, S extends Set<T>>
+		extends Collectable.Builder<T, S, Builder<T, S>> {
 
 		/**
-		 * Returns a typed set instance.
+		 * Create a builder using the list.
 		 */
-		public static <T> Set<T> hash() {
-			return new HashSet<>();
+		public static <T, S extends Set<T>> Builder<T, S> of(S set) {
+			return new Builder<>(set);
 		}
 
-		/**
-		 * Returns a typed set instance, optimized for initial size.
-		 */
-		public static <T> Set<T> hash(int initialSize) {
-			return new HashSet<>(initialSize);
+		private Builder(S set) {
+			super(set);
 		}
 
-		/**
-		 * Returns a typed set instance.
-		 */
-		public static <T> Set<T> linked() {
-			return new LinkedHashSet<>();
+		@Override
+		public Set<T> wrap() {
+			return Immutable.wrap(get());
 		}
+	}
 
-		/**
-		 * Returns a typed set instance, optimized for initial size.
-		 */
-		public static <T> Set<T> linked(int initialSize) {
-			return new LinkedHashSet<>(initialSize);
-		}
+	/**
+	 * Create a builder.
+	 */
+	@SafeVarargs
+	public static <T> Builder<T, Set<T>> build(T value, T... values) {
+		return build(Sets::of, value, values);
+	}
 
-		/**
-		 * Returns a typed set instance.
-		 */
-		public static <T> NavigableSet<T> tree() {
-			return new TreeSet<>();
-		}
+	/**
+	 * Create a builder using the supplier.
+	 */
+	@SafeVarargs
+	public static <T, S extends Set<T>> Builder<T, S> build(Functions.Supplier<S> supplier, T value,
+		T... values) {
+		return Builder.of(supplier.get()).add(value, values);
+	}
 
-		/**
-		 * Returns an identity hash set backed by a map.
-		 */
-		public static <T> Set<T> identity() {
-			return Collections.newSetFromMap(new IdentityHashMap<>());
-		}
+	/**
+	 * Creates an empty mutable linked hash set.
+	 */
+	public static <T> LinkedHashSet<T> link() {
+		return new LinkedHashSet<>();
+	}
+
+	/**
+	 * Creates an empty mutable tree set.
+	 */
+	public static <T extends Comparable<? super T>> TreeSet<T> tree() {
+		return new TreeSet<>(Comparators.nullsFirst());
+	}
+
+	/**
+	 * Creates an empty mutable identity hash set.
+	 */
+	public static <T> Set<T> id() {
+		return Collections.newSetFromMap(new IdentityHashMap<>());
+	}
+
+	/**
+	 * Creates an empty mutable set.
+	 */
+	public static <T> Set<T> of() {
+		return new HashSet<>();
 	}
 
 	/**
 	 * Creates a mutable set from values.
 	 */
 	@SafeVarargs
-	public static <T> Set<T> of(T... values) {
-		return Mutable.addAll(Supplier.hash(), values);
+	public static <T> Set<T> ofAll(T... values) {
+		return of(values, 0);
 	}
 
 	/**
 	 * Creates a mutable set from array values.
 	 */
-	public static <T> Set<T> set(T[] array, int offset) {
-		return set(array, offset, Integer.MAX_VALUE);
+	public static <T> Set<T> of(T[] array, int offset) {
+		return of(array, offset, Integer.MAX_VALUE);
 	}
 
 	/**
 	 * Creates a mutable set from array values.
 	 */
-	public static <T> Set<T> set(T[] array, int offset, int length) {
-		return Mutable.add(Supplier.hash(), array, offset, length);
+	public static <T> Set<T> of(T[] array, int offset, int length) {
+		return Collectable.add(of(), array, offset, length);
 	}
 
 	/**
 	 * Creates a mutable set from iterable values.
 	 */
-	public static <T> Set<T> set(Iterable<? extends T> values) {
-		return Mutable.add(Supplier.hash(), values);
+	public static <T> Set<T> of(Iterable<? extends T> values) {
+		return Collectable.add(of(), values);
 	}
 
 	/**
@@ -97,7 +117,7 @@ public class Sets {
 	@SafeVarargs
 	public static <E extends Exception, T, U> Set<U> adaptAll(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		return Mutable.adaptAddAll(Supplier.hash(), mapper, values);
+		return adapt(mapper, values, 0);
 	}
 
 	/**
@@ -115,7 +135,7 @@ public class Sets {
 	public static <E extends Exception, T, U> Set<U> adapt(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset,
 		int length) throws E {
-		return Mutable.adaptAdd(Supplier.hash(), mapper, array, offset, length);
+		return Collectable.adaptAdd(of(), mapper, array, offset, length);
 	}
 
 	/**
@@ -124,15 +144,15 @@ public class Sets {
 	public static <E extends Exception, T, U> Set<U> adapt(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, Iterable<? extends T> values)
 		throws E {
-		return Mutable.adaptAdd(Supplier.hash(), mapper, values);
+		return Collectable.adaptAdd(of(), mapper, values);
 	}
 
 	/**
 	 * Creates a mutable set from transformed map entries.
 	 */
-	public static <E extends Exception, K, V, T> Set<T> unmap(
+	public static <E extends Exception, K, V, T> Set<T> convert(
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> unmapper, Map<K, V> map)
 		throws E {
-		return Mutable.convertAdd(Supplier.hash(), unmapper, map);
+		return Collectable.convertAdd(of(), unmapper, map);
 	}
 }

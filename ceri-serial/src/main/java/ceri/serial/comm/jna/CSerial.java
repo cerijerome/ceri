@@ -28,7 +28,7 @@ import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.IntegerType;
 import ceri.common.collection.Immutable;
-import ceri.common.collection.Mutable;
+import ceri.common.collection.Maps;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
@@ -243,7 +243,7 @@ public class CSerial {
 	}
 
 	private static Immutable.BiMap<Integer, Integer> baudMap() {
-		var b = Mutable.builder(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
+		var b = Maps.build(CTermios.B0, 0).put(CTermios.B50, 50).put(CTermios.B75, 75)
 			.put(CTermios.B110, 110).put(CTermios.B134, 134).put(CTermios.B150, 150)
 			.put(CTermios.B200, 200).put(CTermios.B300, 300).put(CTermios.B600, 600)
 			.put(CTermios.B1200, 1200).put(CTermios.B1800, 1800).put(CTermios.B2400, 2400)
@@ -256,7 +256,7 @@ public class CSerial {
 			.put(CTermios.B1500000, 1500000).put(CTermios.B2000000, 2000000)
 			.put(CTermios.B2500000, 2500000).put(CTermios.B3000000, 3000000)
 			.put(CTermios.B3500000, 3500000).put(CTermios.B4000000, 4000000);
-		return Immutable.wrapBiMap(b.map);
+		return Immutable.wrapBiMap(b.get());
 	}
 
 	private static void setAttr(int fd, termios tty) throws CException {

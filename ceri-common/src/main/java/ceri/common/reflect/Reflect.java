@@ -14,12 +14,12 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
@@ -339,7 +339,7 @@ public class Reflect {
 	public static List<Class<?>> nested(Iterable<Class<?>> classes) {
 		var list = new ArrayList<Class<?>>();
 		nested(list::add, classes);
-		return Collections.unmodifiableList(list);
+		return Immutable.wrap(list);
 	}
 
 	/**

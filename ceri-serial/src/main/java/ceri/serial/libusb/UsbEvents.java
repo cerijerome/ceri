@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Functions;
@@ -19,7 +18,6 @@ import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
 import ceri.serial.libusb.jna.LibUsb.libusb_poll_event;
-import ceri.serial.libusb.jna.LibUsb.libusb_pollfd;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_added_cb;
 import ceri.serial.libusb.jna.LibUsb.libusb_pollfd_removed_cb;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -134,9 +132,8 @@ public class UsbEvents {
 	public List<PollFd> pollFds() throws LibUsbException {
 		var ref = LibUsb.libusb_get_pollfds(context());
 		try {
-			libusb_pollfd[] array = Struct.read(ref.get());
-			return ImmutableUtil.collectAsList(
-				Stream.of(array).map(pollFd -> new PollFd(pollFd.fd, ushort(pollFd.events))));
+			var array = Struct.read(ref.get());
+			return Immutable.adaptListOf(t -> new PollFd(t.fd, ushort(t.events)), array);
 		} finally {
 			LogUtil.close(() -> LibUsb.libusb_free_pollfds(ref));
 		}

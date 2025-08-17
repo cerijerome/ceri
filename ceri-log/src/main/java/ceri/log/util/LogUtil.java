@@ -4,7 +4,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +13,7 @@ import java.util.function.IntFunction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteUtil;
@@ -442,7 +442,7 @@ public class LogUtil {
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
-			return Collections.unmodifiableList(results);
+			return Immutable.wrap(results);
 		} catch (Exception e) {
 			close(results);
 			throw e;
@@ -460,7 +460,7 @@ public class LogUtil {
 		try {
 			for (int i = 0; i < count; i++)
 				results.add(constructor.get());
-			return Collections.unmodifiableList(results);
+			return Immutable.wrap(results);
 		} catch (Exception e) {
 			close(results);
 			throw e;

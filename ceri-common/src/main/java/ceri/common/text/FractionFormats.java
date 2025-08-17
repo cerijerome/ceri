@@ -2,12 +2,12 @@ package ceri.common.text;
 
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validatef;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Enums;
+import ceri.common.collection.Immutable;
 import ceri.common.math.Fraction;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
@@ -208,7 +208,7 @@ public class FractionFormats {
 			expansions.put(Slash.fractionSlash.code, "/");
 			expansions.put(Slash.divisionSlash.code, "/");
 			expansions.put(Slash.fullwidthSolidus.code, "/");
-			return Collections.unmodifiableMap(expansions);
+			return Immutable.wrap(expansions);
 		}
 	}
 

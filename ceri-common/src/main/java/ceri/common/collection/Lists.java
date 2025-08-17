@@ -3,11 +3,14 @@ package ceri.common.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import ceri.common.array.ArrayUtil;
+import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 
 /**
@@ -17,60 +20,88 @@ public class Lists {
 	private Lists() {}
 
 	/**
-	 * List supplier.
+	 * Utility for building lists.
 	 */
-	public static class Supplier {
-		private Supplier() {}
+	public static class Builder<T, L extends List<T>>
+		extends Collectable.Builder<T, L, Builder<T, L>> {
 
 		/**
-		 * Returns a typed list instance.
+		 * Create a builder using the list.
 		 */
-		public static <T> List<T> array() {
-			return new ArrayList<>();
+		public static <T, L extends List<T>> Builder<T, L> of(L list) {
+			return new Builder<>(list);
 		}
 
-		/**
-		 * Returns a typed list instance, optimized for initial size.
-		 */
-		public static <T> List<T> array(int initialSize) {
-			return new ArrayList<>(initialSize);
+		private Builder(L list) {
+			super(list);
 		}
 
-		/**
-		 * Returns a typed list instance.
-		 */
-		public static <T> List<T> linked() {
-			return new LinkedList<>();
+		@Override
+		public List<T> wrap() {
+			return Immutable.wrap(get());
 		}
+	}
+
+	/**
+	 * Create a builder.
+	 */
+	@SafeVarargs
+	public static <T> Builder<T, List<T>> build(T value, T... values) {
+		return build(Lists::of, value, values);
+	}
+
+	/**
+	 * Create a builder using the supplier.
+	 */
+	@SafeVarargs
+	public static <T, L extends List<T>> Builder<T, L> build(Functions.Supplier<L> supplier,
+		T value, T... values) {
+		return Builder.of(supplier.get()).add(value, values);
+	}
+
+	// create
+
+	/**
+	 * Creates an empty mutable linked list.
+	 */
+	public static <T> LinkedList<T> link() {
+		return new LinkedList<>();
+	}
+
+	/**
+	 * Creates an empty mutable list.
+	 */
+	public static <T> List<T> of() {
+		return new ArrayList<>();
 	}
 
 	/**
 	 * Creates a mutable list from values.
 	 */
 	@SafeVarargs
-	public static <T> List<T> of(T... values) {
-		return Mutable.addAll(Supplier.array(), values);
+	public static <T> List<T> ofAll(T... values) {
+		return of(values, 0);
 	}
 
 	/**
 	 * Creates a mutable list from array values.
 	 */
-	public static <T> List<T> list(T[] array, int offset) {
-		return list(array, offset, Integer.MAX_VALUE);
+	public static <T> List<T> of(T[] array, int offset) {
+		return of(array, offset, Integer.MAX_VALUE);
 	}
 
 	/**
 	 * Creates a mutable list from array values.
 	 */
-	public static <T> List<T> list(T[] array, int offset, int length) {
-		return Mutable.add(Supplier.array(), array, offset, length);
+	public static <T> List<T> of(T[] array, int offset, int length) {
+		return Collectable.add(of(), array, offset, length);
 	}
 
 	/**
 	 * Creates a mutable list from iterable values.
 	 */
-	public static <T> List<T> list(Iterable<? extends T> values) {
-		return Mutable.add(Supplier.array(), values);
+	public static <T> List<T> of(Iterable<? extends T> values) {
+		return Collectable.add(of(), values);
 	}
 
 	/**
@@ -79,7 +110,7 @@ public class Lists {
 	@SafeVarargs
 	public static <E extends Exception, T, U> List<U> adaptAll(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		return Mutable.adaptAddAll(Supplier.array(), mapper, values);
+		return adapt(mapper, values, 0);
 	}
 
 	/**
@@ -97,7 +128,7 @@ public class Lists {
 	public static <E extends Exception, T, U> List<U> adapt(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset,
 		int length) throws E {
-		return Mutable.adaptAdd(Supplier.array(), mapper, array, offset, length);
+		return Collectable.adaptAdd(of(), mapper, array, offset, length);
 	}
 
 	/**
@@ -106,17 +137,19 @@ public class Lists {
 	public static <E extends Exception, T, U> List<U> adapt(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, Iterable<? extends T> values)
 		throws E {
-		return Mutable.adaptAdd(Supplier.array(), mapper, values);
+		return Collectable.adaptAdd(of(), mapper, values);
 	}
 
 	/**
 	 * Creates a mutable list from transformed map entries.
 	 */
-	public static <E extends Exception, K, V, T> List<T> unmap(
+	public static <E extends Exception, K, V, T> List<T> convert(
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> unmapper, Map<K, V> map)
 		throws E {
-		return Mutable.convertAdd(Supplier.array(), unmapper, map);
+		return Collectable.convertAdd(of(), unmapper, map);
 	}
+
+	// access
 
 	/**
 	 * Gets the element at index, or null.
@@ -147,6 +180,24 @@ public class Lists {
 		if (list == null || list.isEmpty()) return def;
 		return list.getLast();
 	}
+
+	/**
+	 * Sorts the list with natural ordering and nulls first.
+	 */
+	public static <T extends Comparable<? super T>, L extends List<T>> L sort(L list) {
+		return sort(list, Comparators.nullsFirst());
+	}
+
+	/**
+	 * Sorts the list.
+	 */
+	public static <T, L extends List<T>> L sort(L list, Comparator<? super T> comparator) {
+		if (Collectable.isEmpty(list) || comparator == null) return list;
+		list.sort(comparator);
+		return list;
+	}
+
+	// insert
 
 	/**
 	 * Inserts values into the list at index.

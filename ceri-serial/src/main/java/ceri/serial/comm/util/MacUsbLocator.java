@@ -2,7 +2,6 @@ package ceri.serial.comm.util;
 
 import static ceri.common.xml.XPathUtil.compile;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,6 +9,7 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import ceri.common.collection.Immutable;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.text.ParseUtil;
@@ -70,7 +70,7 @@ public class MacUsbLocator {
 				String device = device(usb);
 				if (device != null) devices.put(id, device);
 			}
-			return Collections.unmodifiableMap(devices);
+			return Immutable.wrap(devices);
 		});
 	}
 

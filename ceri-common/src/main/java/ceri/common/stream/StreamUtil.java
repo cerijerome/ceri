@@ -8,14 +8,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import ceri.common.collection.CollectionSupplier;
+import ceri.common.collection.Maps;
 import ceri.common.util.BasicUtil;
 
 /**
  * Convenience shortcuts for common java stream methods.
  */
 public class StreamUtil {
-	private static final CollectionSupplier supplier = CollectionSupplier.DEFAULT;
 	private static final BinaryOperator<?> MERGE_FIRST = (first, _) -> first;
 	private static final BinaryOperator<?> MERGE_SECOND = (_, second) -> second;
 	private static final BinaryOperator<?> MERGE_ERROR = (first, second) -> {
@@ -45,7 +44,7 @@ public class StreamUtil {
 	 * Convert a stream to a LinkedHashMap and don't allow duplicate keys.
 	 */
 	public static <K, V> Map<K, V> toMap(Stream<V> stream, Function<? super V, ? extends K> keyFn) {
-		return toMap(stream, keyFn, supplier.map());
+		return toMap(stream, keyFn, () -> Maps.of());
 	}
 
 	/**
@@ -53,7 +52,7 @@ public class StreamUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Stream<T> stream,
 		Function<? super T, ? extends K> keyFn, Function<? super T, ? extends V> valueFn) {
-		return toMap(stream, keyFn, valueFn, supplier.map());
+		return toMap(stream, keyFn, valueFn, Maps::of);
 	}
 
 	/**

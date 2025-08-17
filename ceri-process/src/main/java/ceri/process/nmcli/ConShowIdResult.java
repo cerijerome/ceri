@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
@@ -75,7 +74,7 @@ public class ConShowIdResult {
 	}
 
 	ConShowIdResult(Builder builder) {
-		values = ImmutableUtil.copyAsMap(builder.values);
+		values = Map.copyOf(builder.values);
 	}
 
 	public boolean isNull() {

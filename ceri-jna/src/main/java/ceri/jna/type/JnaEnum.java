@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.reflect.Annotations;
 import ceri.common.util.BasicUtil;
 
@@ -96,8 +96,8 @@ public class JnaEnum {
 			valueMap.put(value, t);
 			enumMap.put(t, value);
 		}
-		valueToEnumMap.put(cls, ImmutableUtil.wrapMap(valueMap));
-		enumToValueMap.put(cls, ImmutableUtil.wrapMap(enumMap));
+		valueToEnumMap.put(cls, Immutable.wrap(valueMap));
+		enumToValueMap.put(cls, Immutable.wrap(enumMap));
 	}
 
 	private static <T extends Enum<T> & Valued> void initFromAnnotations(Class<T> cls) {
@@ -112,8 +112,7 @@ public class JnaEnum {
 			}
 			value++;
 		}
-		valueToEnumMap.put(cls, ImmutableUtil.wrapMap(valueMap));
-		enumToValueMap.put(cls, ImmutableUtil.wrapMap(enumMap));
+		valueToEnumMap.put(cls, Immutable.wrap(valueMap));
+		enumToValueMap.put(cls, Immutable.wrap(enumMap));
 	}
-
 }

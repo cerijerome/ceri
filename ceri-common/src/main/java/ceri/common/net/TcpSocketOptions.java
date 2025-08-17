@@ -1,12 +1,12 @@
 package ceri.common.net;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.util.BasicUtil;
 
@@ -83,7 +83,7 @@ public class TcpSocketOptions {
 	 * Provides the set of options with values.
 	 */
 	public Set<TcpSocketOption<?>> options() {
-		return Collections.unmodifiableSet(map.keySet());
+		return Immutable.wrap(map.keySet());
 	}
 
 	/**

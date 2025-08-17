@@ -98,14 +98,14 @@ public class Comparators {
 	}
 
 	/**
-	 * Comparator for comparable objects.
+	 * Nulls first comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> nullsFirst() {
 		return BasicUtil.unchecked(NULLS_FIRST_COMPARABLE);
 	}
 
 	/**
-	 * Comparator for comparable objects.
+	 * Nulls last comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> nullsLast() {
 		return BasicUtil.unchecked(NULLS_LAST_COMPARABLE);

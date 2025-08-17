@@ -1,8 +1,5 @@
 package ceri.jna.type;
 
-import static ceri.common.reflect.Reflect.publicField;
-import static ceri.common.text.StringUtil.NEWLINE_REGEX;
-import static ceri.common.text.StringUtil.format;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +15,7 @@ import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
@@ -366,7 +363,7 @@ public abstract class Struct extends Structure {
 		if (s == null) return StringUtil.NULL;
 		Class<?> cls = s.getClass();
 		StringBuilder b = new StringBuilder();
-		format(b, "%s(%s) {%n", Reflect.nestedName(cls), JnaArgs.string(s.getPointer()));
+		StringUtil.format(b, "%s(%s) {%n", Reflect.nestedName(cls), JnaArgs.string(s.getPointer()));
 		for (String name : fields) {
 			Field f = Objects.requireNonNull(Reflect.publicField(cls, name));
 			int offset = fieldOffsetFn.applyAsInt(name);
@@ -534,7 +531,7 @@ public abstract class Struct extends Structure {
 	 * Convenience method to get the named field type.
 	 */
 	protected Field field(String name) {
-		return publicField(getClass(), name);
+		return Reflect.publicField(getClass(), name);
 	}
 
 	@Override
@@ -566,13 +563,13 @@ public abstract class Struct extends Structure {
 	}
 
 	private static String prefix(String s) {
-		return NEWLINE_REGEX.matcher(s).replaceAll("$1" + INDENT);
+		return StringUtil.NEWLINE_REGEX.matcher(s).replaceAll("$1" + INDENT);
 	}
 
 	private static List<String> annotatedFields(Class<?> cls) {
 		cls = structClass(cls);
-		String[] fields = Annotations.value(cls, Fields.class, Fields::value);
-		if (fields != null) return ImmutableUtil.wrapAsList(fields);
+		var fields = Annotations.value(cls, Fields.class, Fields::value);
+		if (fields != null) return Immutable.wrapListOf(fields);
 		throw new IllegalStateException(
 			String.format("@%s({...}) or getFieldOrder() must be declared on %s",
 				Fields.class.getSimpleName(), Reflect.name(cls)));

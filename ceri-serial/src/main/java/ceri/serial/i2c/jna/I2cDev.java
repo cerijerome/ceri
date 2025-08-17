@@ -13,14 +13,13 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_PR
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QUICK;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
 import java.util.Set;
-import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.Streams;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -146,10 +145,10 @@ public class I2cDev {
 			Set.of(I2C_FUNC_SMBUS_READ_BLOCK_DATA, I2C_FUNC_SMBUS_WRITE_BLOCK_DATA);
 		public static final Set<i2c_func> I2C_FUNC_SMBUS_I2C_BLOCK =
 			Set.of(I2C_FUNC_SMBUS_READ_I2C_BLOCK, I2C_FUNC_SMBUS_WRITE_I2C_BLOCK);
-		public static final Set<i2c_func> I2C_FUNC_SMBUS_EMUL = ImmutableUtil.collectAsSet( //
-			Stream.of(Set.of(I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_PROC_CALL, I2C_FUNC_SMBUS_PEC),
+		public static final Set<i2c_func> I2C_FUNC_SMBUS_EMUL =
+			Streams.of(Set.of(I2C_FUNC_SMBUS_QUICK, I2C_FUNC_SMBUS_PROC_CALL, I2C_FUNC_SMBUS_PEC),
 				I2C_FUNC_SMBUS_BYTE, I2C_FUNC_SMBUS_BYTE_DATA, I2C_FUNC_SMBUS_WORD_DATA,
-				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK).flatMap(t -> t.stream()));
+				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK).expand(t -> t).toSet();
 		public final int value;
 
 		public static final TypeTranscoder<i2c_func> xcoder =

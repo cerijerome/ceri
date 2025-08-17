@@ -2,7 +2,6 @@ package ceri.ent.service.fixer;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import ceri.common.collection.ImmutableUtil;
 
 /**
  * Replaces values by key and sub-field. Useful for correcting fields retrieved by services.
@@ -31,7 +30,7 @@ public class Fixer<K, V> {
 	}
 
 	Fixer(Builder<K, V> builder) {
-		map = ImmutableUtil.copyAsMap(builder.map);
+		map = Map.copyOf(builder.map);
 	}
 
 	public V value(K key) {

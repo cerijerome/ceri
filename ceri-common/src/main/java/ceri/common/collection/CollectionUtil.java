@@ -29,36 +29,13 @@ import ceri.common.stream.Streams;
  * Utility methods to test and manipulate collections.
  */
 public class CollectionUtil {
-	public static final CollectionSupplier supplier = CollectionSupplier.of();
-
 	private CollectionUtil() {}
-
-	/**
-	 * Checks if the given map is null or empty.
-	 */
-	public static boolean empty(Map<?, ?> map) {
-		return map == null || map.isEmpty();
-	}
-
-	/**
-	 * Checks if the given map is null or empty.
-	 */
-	public static boolean nonEmpty(Map<?, ?> map) {
-		return !empty(map);
-	}
 
 	/**
 	 * Checks the given collection is null or empty.
 	 */
 	public static boolean empty(Collection<?> collection) {
 		return collection == null || collection.isEmpty();
-	}
-
-	/**
-	 * Checks the given collection is not null and not empty.
-	 */
-	public static boolean nonEmpty(Collection<?> collection) {
-		return !empty(collection);
 	}
 
 	/**
@@ -119,7 +96,7 @@ public class CollectionUtil {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> asSet(T... array) {
-		return addAll(supplier.<T>set().get(), array);
+		return addAll(Sets.of(), array);
 	}
 
 	/**
@@ -156,7 +133,7 @@ public class CollectionUtil {
 	 */
 	public static <K, V, T> Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
 		Function<? super T, ? extends V> valueMapper, Collection<T> collection) {
-		return toMap(keyMapper, valueMapper, supplier.map(), collection);
+		return toMap(keyMapper, valueMapper, Maps::of, collection);
 	}
 
 	/**
@@ -172,7 +149,7 @@ public class CollectionUtil {
 	 * Converts a collection to a map by index.
 	 */
 	public static <T> Map<Integer, T> toIndexMap(Iterable<T> collection) {
-		return toIndexMap(supplier.map(), collection);
+		return toIndexMap(() -> Maps.of(), collection);
 	}
 
 	/**
@@ -188,7 +165,7 @@ public class CollectionUtil {
 	 */
 	public static <V, T> Map<Integer, V>
 		toIndexMap(ObjIntFunction<? super T, ? extends V> valueMapper, Iterable<T> collection) {
-		return toIndexMap(valueMapper, supplier.map(), collection);
+		return toIndexMap(valueMapper, Maps::of, collection);
 	}
 
 	/**
@@ -220,7 +197,7 @@ public class CollectionUtil {
 	public static <K, V, T, U> Map<K, V> transform(
 		BiFunction<? super T, ? super U, ? extends K> keyMapper,
 		BiFunction<? super T, ? super U, ? extends V> valueMapper, Map<T, U> map) {
-		return transform(keyMapper, valueMapper, supplier.map(), map);
+		return transform(keyMapper, valueMapper, Maps::of, map);
 	}
 
 	/**
@@ -238,16 +215,17 @@ public class CollectionUtil {
 	/**
 	 * Transforms a map's keys.
 	 */
-	public static <K, T, U> Map<K, U> transformKeys(Functions.Function<? super T, ? extends K> keyMapper,
-		Map<T, U> map) {
-		return Mutable.adaptMap(keyMapper, map);
+	public static <K, T, U> Map<K, U>
+		transformKeys(Functions.Function<? super T, ? extends K> keyMapper, Map<T, U> map) {
+		return Maps.adapt(keyMapper, map);
 	}
 
 	/**
 	 * Transforms a map's values.
 	 */
-	public static <K, V, U> Map<K, V> transformValues(Functions.Function<? super U, ? extends V> valueMapper,
-		Supplier<Map<K, V>> mapSupplier, Map<? extends K, U> map) {
+	public static <K, V, U> Map<K, V> transformValues(
+		Functions.Function<? super U, ? extends V> valueMapper, Supplier<Map<K, V>> mapSupplier,
+		Map<? extends K, U> map) {
 		return Maps.adaptPut(mapSupplier.get(), k -> k, valueMapper, map);
 	}
 
@@ -270,7 +248,8 @@ public class CollectionUtil {
 	/**
 	 * Converts a map to a list by mapping entry elements from the original map.
 	 */
-	public static <K, V, T> List<T> toList(Functions.BiFunction<? super K, ? super V, ? extends T> mapper,
+	public static <K, V, T> List<T> toList(
+		Functions.BiFunction<? super K, ? super V, ? extends T> mapper,
 		Map<? extends K, ? extends V> map) {
 		return Streams.<RuntimeException, K, V, T>unmap(mapper, map).toList();
 	}
@@ -279,14 +258,7 @@ public class CollectionUtil {
 	 * Creates a list joining the given elements.
 	 */
 	public static <T> List<T> joinAsList(T t, Collection<? extends T> collection) {
-		return joinAs(t, collection, supplier.list());
-	}
-
-	/**
-	 * Creates a set joining the given elements.
-	 */
-	public static <T> Set<T> joinAsSet(T t, Collection<? extends T> collection) {
-		return joinAs(t, collection, supplier.set());
+		return joinAs(t, collection, Lists::of);
 	}
 
 	/**
@@ -295,22 +267,6 @@ public class CollectionUtil {
 	public static <T, C extends Collection<T>> C joinAs(T t, Collection<? extends T> collection,
 		Supplier<C> supplier) {
 		return joinAs(supplier, Arrays.asList(t), collection);
-	}
-
-	/**
-	 * Joins collection elements into a single collection.
-	 */
-	@SafeVarargs
-	public static <T> List<T> joinAsList(Collection<? extends T>... collections) {
-		return joinAs(supplier.list(), collections);
-	}
-
-	/**
-	 * Joins collection elements into a single collection.
-	 */
-	@SafeVarargs
-	public static <T> Set<T> joinAsSet(Collection<? extends T>... collections) {
-		return joinAs(supplier.set(), collections);
 	}
 
 	/**
@@ -326,7 +282,7 @@ public class CollectionUtil {
 	 * Returns a linked hash map copy with entries sorted by value.
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-		var result = supplier.<K, V>map().get();
+		var result = Maps.<K, V>of();
 		Stream<Entry<K, V>> stream = map.entrySet().stream();
 		Comparator<V> comparator = Comparators.comparable();
 		Comparator<Entry<K, V>> entryComparator =
@@ -465,7 +421,7 @@ public class CollectionUtil {
 	 * Finds all keys with matching value.
 	 */
 	public static <K, V> Collection<K> keys(Map<K, V> map, V value) {
-		var keys = supplier.<K>set().get();
+		var keys = Sets.<K>of();
 		for (var entry : map.entrySet()) {
 			if (entry.getValue() == null && value != null) continue;
 			if (entry.getValue() == value || entry.getValue().equals(value))
@@ -479,15 +435,6 @@ public class CollectionUtil {
 	 */
 	public static <T> Set<T> identityHashSet() {
 		return Collections.newSetFromMap(new IdentityHashMap<>());
-	}
-
-	/**
-	 * Creates an identity hash set, backed by a map, and copying from the given set.
-	 */
-	public static <T> Set<T> identityHashSet(Set<? extends T> set) {
-		var copy = CollectionUtil.<T>identityHashSet();
-		copy.addAll(set);
-		return copy;
 	}
 
 	/**

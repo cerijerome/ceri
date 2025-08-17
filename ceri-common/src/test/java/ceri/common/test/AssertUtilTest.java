@@ -15,6 +15,7 @@ import static ceri.common.test.AssertUtil.assertExists;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.AssertUtil.assertImmutable;
 import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertInterrupted;
 import static ceri.common.test.AssertUtil.assertIoe;
@@ -50,7 +51,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +62,10 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Functions;
@@ -466,6 +474,25 @@ public class AssertUtilTest {
 		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D"), 1, "A", 2, "B", 3, "C", 4, "D");
 		assertMap(Map.of(1, "A", 2, "B", 3, "C", 4, "D", 5, "E"), 1, "A", 2, "B", 3, "C", 4, "D", 5,
 			"E");
+	}
+
+	@Test
+	public void testAssertImmutables() {
+		assertImmutable(Map.of());
+		assertImmutable(Immutable.wrap(Maps.of()));
+		assertImmutable(Map.of(1, "A"));
+		assertImmutable(Immutable.wrap(new HashMap<>(Map.of(1, "A"))));
+		assertImmutable(List.of());
+		assertImmutable(Immutable.wrap(Lists.of()));
+		assertImmutable(List.of(1));
+		assertImmutable(Immutable.wrap(new ArrayList<>(Set.of(1))));
+		assertImmutable(Set.of());
+		assertImmutable(Immutable.wrap(Sets.of()));
+		assertImmutable(Set.of(1));
+		assertImmutable(Immutable.wrap(new HashSet<>(Set.of(1))));
+		assertAssertion(() -> assertImmutable(Maps.of()));
+		assertAssertion(() -> assertImmutable(Lists.of()));
+		assertAssertion(() -> assertImmutable(Sets.of()));
 	}
 
 	@Test

@@ -1,11 +1,10 @@
 package ceri.serial.libusb;
 
-import static ceri.common.collection.ImmutableUtil.collectAsList;
 import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.math.MathUtil.ushort;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
+import ceri.common.collection.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
@@ -147,8 +146,8 @@ public class UsbDescriptors {
 		}
 
 		public List<Interface> interfaces() {
-			if (interfaces == null) interfaces = collectAsList(
-				Stream.of(descriptor().interfaces()).map(t -> new Interface(this, t)));
+			if (interfaces == null) interfaces =
+				Immutable.adaptListOf(t -> new Interface(this, t), descriptor().interfaces());
 			return interfaces;
 		}
 
@@ -184,7 +183,7 @@ public class UsbDescriptors {
 
 		public List<AltSetting> altSettings() {
 			if (descriptors == null) descriptors =
-				collectAsList(Stream.of(iface.altsettings()).map(t -> new AltSetting(this, t)));
+				Immutable.adaptListOf(t -> new AltSetting(this, t), iface.altsettings());
 			return descriptors;
 		}
 	}
@@ -229,7 +228,7 @@ public class UsbDescriptors {
 
 		public List<EndPoint> endPoints() {
 			if (descriptors == null) descriptors =
-				collectAsList(Stream.of(descriptor.endpoints()).map(t -> new EndPoint(this, t)));
+				Immutable.adaptListOf(t -> new EndPoint(this, t), descriptor.endpoints());
 			return descriptors;
 		}
 
@@ -361,8 +360,8 @@ public class UsbDescriptors {
 		}
 
 		public List<BosDevCapability> capabilities() {
-			if (capabilities == null) capabilities = collectAsList(
-				Stream.of(descriptor().dev_capability).map(t -> new BosDevCapability(this, t)));
+			if (capabilities == null) capabilities = Immutable
+				.adaptListOf(t -> new BosDevCapability(this, t), descriptor().dev_capability);
 			return capabilities;
 		}
 

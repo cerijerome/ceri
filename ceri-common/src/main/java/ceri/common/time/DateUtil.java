@@ -20,11 +20,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
 
 /**
  * Utility methods for dates and times.
@@ -263,9 +263,9 @@ public class DateUtil {
 	}
 
 	private static Map<String, TimeUnit> symbolTimes() {
-		var map = new HashMap<String, TimeUnit>();
+		var map = Maps.<String, TimeUnit>of();
 		TIME_SYMBOLS.forEach((u, s) -> map.put(s, u));
 		map.put("us", MICROSECONDS);
-		return Collections.unmodifiableMap(map);
+		return Immutable.wrap(map);
 	}
 }

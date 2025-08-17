@@ -766,7 +766,7 @@ public class AssertUtil {
 			rhsC.add(t);
 		assertList(lhsC, rhsC);
 		assertFalse(lhs.hasNext(), "Has more elements");
-		assertNoSuchElement(() -> lhs.next());
+		assertNoSuchElement(lhs::next);
 	}
 
 	/**

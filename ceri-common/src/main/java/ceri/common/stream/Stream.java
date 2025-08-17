@@ -22,7 +22,10 @@ import java.util.stream.Collector;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -110,65 +113,49 @@ public class Stream<E extends Exception, T> {
 		 */
 		public static <R, T extends R> Collector<T, ?, List<R>>
 			sortedList(Comparator<? super R> comparator) {
-			return of(CollectionUtil.supplier.list(), Collection::add, list -> {
+			return of(() -> Lists.of(), Collection::add, list -> {
 				Collections.sort(list, comparator);
-				return Collections.unmodifiableList(list);
+				return Immutable.wrap(list);
 			});
 		}
 
 		/**
 		 * Collects elements into an immutable map by mapping each element to a key.
 		 */
-		public static <T, K> Collector<T, ?, Map<K, T>> map(Functions.Function<T, K> keyMapper) {
+		public static <T, K> Collector<T, ?, Map<K, T>>
+			map(Functions.Function<? super T, ? extends K> keyMapper) {
 			return map(keyMapper, t -> t);
 		}
 
 		/**
 		 * Collects elements into an immutable map by mapping each element to a key and value.
 		 */
-		public static <T, K, V> Collector<T, ?, Map<K, V>> map(Functions.Function<T, K> keyMapper,
-			Functions.Function<T, V> valueMapper) {
-			return map(keyMapper, valueMapper, CollectionUtil.supplier.<K, V>map());
+		public static <T, K, V> Collector<T, ?, Map<K, V>> map(
+			Functions.Function<? super T, ? extends K> keyMapper,
+			Functions.Function<? super T, ? extends V> valueMapper) {
+			return map(Maps::of, keyMapper, valueMapper);
 		}
 
 		/**
 		 * Collects elements into an immutable map by mapping each element to a key and value.
 		 */
-		public static <T, K, V, M extends Map<K, V>> Collector<T, ?, Map<K, V>> map(
-			Functions.Function<T, K> keyMapper, Functions.Function<T, V> valueMapper,
-			Functions.Supplier<M> mapSupplier) {
-			return of(mapSupplier, (m, t) -> m.put(keyMapper.apply(t), valueMapper.apply(t)),
-				Collections::unmodifiableMap);
+		public static <T, K, V> Collector<T, ?, Map<K, V>> map(
+			Functions.Supplier<? extends Map<K, V>> supplier,
+			Functions.Function<? super T, ? extends K> keyMapper,
+			Functions.Function<? super T, ? extends V> valueMapper) {
+			return map(Maps.Put.def, supplier, keyMapper, valueMapper);
 		}
 
 		/**
-		 * Collects elements into an immutable map by mapping each element to a key. The first key
-		 * mapping is preserved.
+		 * Collects elements into an immutable map by mapping each element to a key and value.
 		 */
-		public static <T, K> Collector<T, ?, Map<K, T>>
-			mapIfAbsent(Functions.Function<T, K> keyMapper) {
-			return mapIfAbsent(keyMapper, t -> t);
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and value. The
-		 * first key mapping is preserved.
-		 */
-		public static <T, K, V> Collector<T, ?, Map<K, V>>
-			mapIfAbsent(Functions.Function<T, K> keyMapper, Functions.Function<T, V> valueMapper) {
-			return mapIfAbsent(keyMapper, valueMapper, CollectionUtil.supplier.<K, V>map());
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and value. The
-		 * first key mapping is preserved.
-		 */
-		public static <T, K, V, M extends Map<K, V>> Collector<T, ?, Map<K, V>> mapIfAbsent(
-			Functions.Function<T, K> keyMapper, Functions.Function<T, V> valueMapper,
-			Functions.Supplier<M> mapSupplier) {
-			return of(mapSupplier,
-				(m, t) -> m.putIfAbsent(keyMapper.apply(t), valueMapper.apply(t)),
-				Collections::unmodifiableMap);
+		public static <T, K, V> Collector<T, ?, Map<K, V>> map(Maps.Put put,
+			Functions.Supplier<? extends Map<K, V>> supplier,
+			Functions.Function<? super T, ? extends K> keyMapper,
+			Functions.Function<? super T, ? extends V> valueMapper) {
+			return of(supplier,
+				(m, t) -> Maps.Put.put(put, m, keyMapper.apply(t), valueMapper.apply(t)),
+				m -> Immutable.wrap(m));
 		}
 
 		/**
@@ -177,7 +164,7 @@ public class Stream<E extends Exception, T> {
 		 */
 		public static <T, K> Collector<T, ?, Map<K, Set<T>>>
 			mapSet(Functions.Function<T, K> keyMapper) {
-			return mapSet(keyMapper, CollectionUtil.supplier.map(), CollectionUtil.supplier.set());
+			return mapSet(Maps::of, Sets::of, keyMapper);
 		}
 
 		/**
@@ -185,8 +172,8 @@ public class Stream<E extends Exception, T> {
 		 * the value to a set.
 		 */
 		public static <T, K, M extends Map<K, Set<T>>, S extends Set<T>>
-			Collector<T, ?, Map<K, Set<T>>> mapSet(Functions.Function<T, K> keyMapper,
-				Functions.Supplier<M> mapSupplier, Functions.Supplier<S> setSupplier) {
+			Collector<T, ?, Map<K, Set<T>>> mapSet(Functions.Supplier<M> mapSupplier,
+				Functions.Supplier<S> setSupplier, Functions.Function<T, K> keyMapper) {
 			return of(mapSupplier,
 				(m, t) -> m.computeIfAbsent(keyMapper.apply(t), _ -> setSupplier.get()).add(t),
 				Collections::unmodifiableMap);
@@ -581,7 +568,7 @@ public class Stream<E extends Exception, T> {
 	 */
 	public Set<T> toSet() throws E {
 		if (emptyInstance()) return Set.of();
-		return Collections.unmodifiableSet(collect(CollectionUtil.supplier.<T>set().get()));
+		return Immutable.wrap(collect(Sets.of()));
 	}
 
 	/**
@@ -589,7 +576,7 @@ public class Stream<E extends Exception, T> {
 	 */
 	public List<T> toList() throws E {
 		if (emptyInstance()) return List.of();
-		return Collections.unmodifiableList(collect(CollectionUtil.supplier.<T>list().get()));
+		return Immutable.wrap(collect(Lists.of()));
 	}
 
 	/**
@@ -607,8 +594,7 @@ public class Stream<E extends Exception, T> {
 	public <K, V> Map<K, V> toMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
 		Excepts.Function<? extends E, ? super T, ? extends V> valueFn) throws E {
 		if (emptyInstance()) return Map.of();
-		return Collections
-			.unmodifiableMap(collectMap(keyFn, valueFn, CollectionUtil.supplier.<K, V>map().get()));
+		return Immutable.wrap(collectMap(keyFn, valueFn, Maps.of()));
 	}
 
 	/**

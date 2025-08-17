@@ -141,5 +141,4 @@ public class Mode {
 	public String toString() {
 		return "mode:0" + Integer.toOctalString(mode);
 	}
-
 }

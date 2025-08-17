@@ -3,13 +3,12 @@ package ceri.common.property;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
-import ceri.common.collection.ImmutableUtil;
+import java.util.TreeSet;
+import ceri.common.collection.Immutable;
 import ceri.common.concurrent.Lazy;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoExceptions;
@@ -253,9 +252,7 @@ public interface PropertySource {
 		@Override
 		public Set<String> children(String key) {
 			var array = path(key).toFile().list();
-			if (array == null) return Set.of();
-			Arrays.sort(array);
-			return ImmutableUtil.asSet(array);
+			return Immutable.setOfAll(TreeSet::new, array);
 		}
 
 		@Override
@@ -368,7 +365,7 @@ public interface PropertySource {
 			if (i < 0) i = path.length();
 			children.add(path.substring(prefixLen, i));
 		}
-		return Collections.unmodifiableSet(children);
+		return Immutable.wrap(children);
 	}
 
 	/**
@@ -384,7 +381,7 @@ public interface PropertySource {
 				|| !StringUtil.matchAt(path, key.length(), separator.value()))) continue;
 			descendants.add(path.substring(prefixLen));
 		}
-		return Collections.unmodifiableSet(descendants);
+		return Immutable.wrap(descendants);
 	}
 
 	/**
@@ -394,7 +391,7 @@ public interface PropertySource {
 		Set<String> descendants = new LinkedHashSet<>();
 		int preLen = StringUtil.empty(key) ? 0 : key.length() + source.separator().value().length();
 		appendDescendantsFromChildren(descendants, source, preLen, key);
-		return Collections.unmodifiableSet(descendants);
+		return Immutable.wrap(descendants);
 	}
 
 	/**

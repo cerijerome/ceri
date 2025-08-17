@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Enums;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
@@ -369,7 +369,7 @@ public class Parser {
 		 * is null. Null values in the collection are retained.
 		 */
 		default List<T> toList() {
-			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsList);
+			return FunctionUtil.safeApply(get(), Immutable::list);
 		}
 
 		/**
@@ -377,7 +377,7 @@ public class Parser {
 		 * is null. Null values in the collection are retained.
 		 */
 		default Set<T> toSet() {
-			return FunctionUtil.safeApply(get(), ImmutableUtil::collectAsSet);
+			return FunctionUtil.safeApply(get(), Immutable::set);
 		}
 
 		/**
@@ -902,7 +902,7 @@ public class Parser {
 			if (value == null) list.add(null);
 			else list.add(parseValue(value, constructor, null));
 		}
-		return Collections.unmodifiableList(list);
+		return Immutable.wrap(list);
 	}
 
 	private static <E extends Exception, T> List<T> filterValues(Collection<T> values,
@@ -912,7 +912,7 @@ public class Parser {
 		var list = new ArrayList<T>();
 		for (var value : values)
 			if (value != null && filter.test(value)) list.add(value);
-		return Collections.unmodifiableList(list);
+		return Immutable.wrap(list);
 	}
 
 	private static <E extends Exception, T, R> R splitValues(T value,
@@ -928,8 +928,8 @@ public class Parser {
 	private static <T> List<T> sortValues(Collection<T> collection,
 		Comparator<? super T> comparator) {
 		if (collection == null) return null;
-		List<T> list = new ArrayList<>(collection);
+		var list = new ArrayList<>(collection);
 		list.sort(comparator);
-		return Collections.unmodifiableList(list);
+		return Immutable.wrap(list);
 	}
 }

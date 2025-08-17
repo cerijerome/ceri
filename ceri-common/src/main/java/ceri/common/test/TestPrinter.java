@@ -1,13 +1,13 @@
 package ceri.common.test;
 
 import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.TreeSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
 import ceri.common.comparator.Comparators;
 import ceri.common.text.TextUtil;
 
@@ -18,8 +18,8 @@ import ceri.common.text.TextUtil;
 public class TestPrinter extends RunListener {
 	private static final Pattern BEHAVIOR_METHOD_PATTERN = Pattern.compile("^(should.*)$");
 	private static final Pattern TEST_METHOD_PATTERN = Pattern.compile("^test(.*)$");
-	private final Collection<Test> tests = new TreeSet<>();
-	private final Collection<Test> behaviors = new TreeSet<>();
+	private final Set<Test> tests = Sets.tree();
+	private final Set<Test> behaviors = Sets.tree();
 
 	public static final class Test implements Comparable<Test> {
 		public final String testClassName;
@@ -73,15 +73,15 @@ public class TestPrinter extends RunListener {
 	/**
 	 * Returns the list of tests only.
 	 */
-	public Collection<Test> tests() {
-		return Collections.unmodifiableCollection(tests);
+	public Set<Test> tests() {
+		return Immutable.wrap(tests);
 	}
 
 	/**
 	 * Returns the list of behavior tests only.
 	 */
-	public Collection<Test> behaviors() {
-		return Collections.unmodifiableCollection(behaviors);
+	public Set<Test> behaviors() {
+		return Immutable.wrap(behaviors);
 	}
 
 	/**

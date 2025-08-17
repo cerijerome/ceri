@@ -39,41 +39,8 @@ public class CollectionUtilTest {
 	public void testEmptyCollection() {
 		assertEquals(CollectionUtil.empty((Collection<?>) null), true);
 		assertEquals(CollectionUtil.empty(List.of()), true);
-		assertEquals(CollectionUtil.empty(ImmutableUtil.asList((String) null)), false);
+		assertEquals(CollectionUtil.empty(Immutable.listOf((String) null)), false);
 		assertEquals(CollectionUtil.empty(List.of("a")), false);
-	}
-
-	@Test
-	public void testNonEmptyCollection() {
-		assertEquals(CollectionUtil.nonEmpty((Collection<?>) null), false);
-		assertEquals(CollectionUtil.nonEmpty(List.of()), false);
-		assertEquals(CollectionUtil.nonEmpty(ImmutableUtil.asList((String) null)), true);
-		assertEquals(CollectionUtil.nonEmpty(List.of("a")), true);
-	}
-
-	@Test
-	public void testEmptyMap() {
-		assertEquals(CollectionUtil.empty((Map<?, ?>) null), true);
-		assertEquals(CollectionUtil.empty(Map.of()), true);
-		assertEquals(CollectionUtil.empty(ImmutableUtil.asMap(null, null)), false);
-		assertEquals(CollectionUtil.empty(Map.of("a", 1)), false);
-	}
-
-	@Test
-	public void testNonEmptyMap() {
-		assertEquals(CollectionUtil.nonEmpty((Map<?, ?>) null), false);
-		assertEquals(CollectionUtil.nonEmpty(Map.of()), false);
-		assertEquals(CollectionUtil.nonEmpty(ImmutableUtil.asMap(null, null)), true);
-		assertEquals(CollectionUtil.nonEmpty(Map.of("a", 1)), true);
-	}
-
-	@Test
-	public void testForEachMapEntry() {
-		var map = ImmutableUtil.asMap("1", 1, "2", 2, "3", 3);
-		var captor = Captor.ofBi();
-		CollectionUtil.forEach(map, (k, v) -> captor.accept(k, v));
-		captor.first.verify("1", "2", "3");
-		captor.second.verify(1, 2, 3);
 	}
 
 	@Test
@@ -124,7 +91,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testGetAdapted() {
-		var map = Mutable.builder(1, "1").put(2, "2").put(3, null).map;
+		var map = Immutable.mapOf(1, "1", 2, "2", 3, null);
 		assertEquals(CollectionUtil.getAdapted(map, 1, (k, v) -> v.repeat(k)), "1");
 		assertEquals(CollectionUtil.getAdapted(map, 2, (k, v) -> v.repeat(k)), "22");
 		assertEquals(CollectionUtil.getAdapted(map, 3, (k, v) -> v.repeat(k)), null);
@@ -132,17 +99,16 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testFill() {
-		var list = Lists.of(1, 2, 3, 4, 5);
+		var list = Lists.ofAll(1, 2, 3, 4, 5);
 		assertEquals(CollectionUtil.fill(list, 1, 2, 0), 3);
 		assertOrdered(list, 1, 0, 0, 4, 5);
 	}
 
 	@Test
 	public void testInsert() {
-		var list1 = Lists.of(1, 2, 3);
-		var list2 = Lists.of(4, 5, 6);
-		assertEquals(CollectionUtil.insert(list2, 1, list1, 1, 2), 3);
-		assertOrdered(list1, 1, 5, 6, 2, 3);
+		var list1 = Lists.ofAll(1, 2, 3);
+		var list2 = Lists.ofAll(4, 5, 6);
+		assertOrdered(Lists.insert(list1, 1, list2), 1, 4, 5, 6, 2, 3);
 	}
 
 	@Test
@@ -161,23 +127,8 @@ public class CollectionUtilTest {
 	}
 
 	@Test
-	public void testToList() {
-		var map = new Mutable.MapBuilder<>(new LinkedHashMap<Integer, String>()).put(1, "1")
-			.put(0, null).put(4, "4").put(2, "2").put(-2, "-2").map;
-		var list = CollectionUtil.toList((i, s) -> String.valueOf(s) + i, map);
-		assertOrdered(list, "11", "null0", "44", "22", "-2-2");
-	}
-
-	@Test
-	public void testJoinAsSet() {
-		assertUnordered(CollectionUtil.joinAsSet("a", Arrays.asList(null, "b")), "a", "b", null);
-		assertUnordered(CollectionUtil.joinAsSet(null, Arrays.asList("a", "b")), "a", "b", null);
-	}
-
-	@Test
 	public void testSortByValue() {
-		var m = Mutable.builder(new LinkedHashMap<Integer, String>()).put(1, "1")
-			.put(0, null).put(4, "4").put(2, "2").put(-2, "-2").map;
+		var m = Maps.put(Maps.link(), 1, "1", 0, null, 4, "4", 2, "2", -2, "-2");
 		var map = CollectionUtil.sortByValue(m);
 		assertOrdered(map.keySet(), 0, -2, 1, 2, 4);
 		assertOrdered(map.values(), null, "-2", "1", "2", "4");
@@ -221,15 +172,15 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testIntersect() {
-		var list1 = Lists.of(0, 1, 2, 3, 4);
-		var list2 = Lists.of(1, 3, 5, 7, 9);
+		var list1 = Lists.ofAll(0, 1, 2, 3, 4);
+		var list2 = Lists.ofAll(1, 3, 5, 7, 9);
 		CollectionUtil.intersect(list1, list2);
 		assertEquals(list1, Arrays.asList(1, 3));
 	}
 
 	@Test
 	public void testRemoveAll() {
-		var list = Lists.of(0, 1, 2, 3, 4);
+		var list = Lists.ofAll(0, 1, 2, 3, 4);
 		CollectionUtil.removeAll(list, 1, 3, 5, 7, 9);
 		assertEquals(list, Arrays.asList(0, 2, 4));
 	}
@@ -257,7 +208,7 @@ public class CollectionUtilTest {
 	@Test
 	public void testKey() {
 		assertEquals(CollectionUtil.key(Map.of(), "a"), (Integer) null);
-		var map = Mutable.builder(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).map;
+		var map = Immutable.mapOf(1, "1", -1, null, 2, "2", 22, "2", -2, null);
 		assertEquals(CollectionUtil.key(map, "1"), 1);
 		assertEquals(CollectionUtil.key(map, "2"), 2);
 		assertEquals(CollectionUtil.key(map, new String("2")), 2);
@@ -266,7 +217,7 @@ public class CollectionUtilTest {
 
 	@Test
 	public void testKeys() {
-		var map = Mutable.builder(1, "1").put(-1, null).put(2, "2").put(22, "2").put(-2, null).map;
+		var map = Immutable.mapOf(1, "1", -1, null, 2, "2", 22, "2", -2, null);
 		assertUnordered(CollectionUtil.keys(map, "1"), 1);
 		assertUnordered(CollectionUtil.keys(map, "2"), 2, 22);
 		assertUnordered(CollectionUtil.keys(map, new String("2")), 2, 22);
@@ -292,13 +243,4 @@ public class CollectionUtilTest {
 		cache.put(4, "four");
 		assertFalse(cache.containsKey(1));
 	}
-
-	@Test
-	public void testIdentityHashSet() {
-		var set = CollectionUtil.identityHashSet(Set.of("test"));
-		set.add(new String("test"));
-		set.add(new String("test"));
-		assertEquals(set.size(), 3);
-	}
-
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Functions.ToBoolFunction;
 
 /**
@@ -37,7 +37,7 @@ public class Annotations {
 	public static <T extends Annotation> List<T> annotations(AnnotatedElement element,
 		Class<T> annotationCls) {
 		return element == null ? List.of() :
-			ImmutableUtil.wrapAsList(element.getAnnotationsByType(annotationCls));
+			Immutable.wrapListOf(element.getAnnotationsByType(annotationCls));
 	}
 
 	/**

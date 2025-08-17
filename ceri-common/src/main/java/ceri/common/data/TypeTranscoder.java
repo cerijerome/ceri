@@ -2,12 +2,12 @@ package ceri.common.data;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import ceri.common.collection.Enums;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.stream.Stream;
@@ -26,7 +26,7 @@ public class TypeTranscoder<T> {
 	public static record Remainder<T>(long diff, Set<T> types) {
 		@SafeVarargs
 		public static <T> Remainder<T> of(long diff, T... types) {
-			return new Remainder<>(diff, ImmutableUtil.asSet(types));
+			return new Remainder<>(diff, Immutable.setOf(types));
 		}
 
 		public int diffInt() {
@@ -71,7 +71,8 @@ public class TypeTranscoder<T> {
 	protected TypeTranscoder(Functions.ToLongFunction<T> valueFn,
 		Stream<RuntimeException, T> stream) {
 		this.valueFn = valueFn;
-		this.lookup = stream.collect(Stream.Collect.mapIfAbsent(valueFn::applyAsLong));
+		this.lookup = stream
+			.collect(Stream.Collect.map(Maps.Put.first, Maps::link, valueFn::applyAsLong, t -> t));
 	}
 
 	public Collection<T> all() {
@@ -169,9 +170,9 @@ public class TypeTranscoder<T> {
 	 * remainder is discarded.
 	 */
 	public Set<T> decodeAll(long value) {
-		var set = new LinkedHashSet<T>();
+		var set = Sets.<T>link();
 		decodeRemainder(set, value);
-		return Collections.unmodifiableSet(set);
+		return Immutable.wrap(set);
 	}
 
 	/**
@@ -179,9 +180,9 @@ public class TypeTranscoder<T> {
 	 * lookup entry order.
 	 */
 	public Remainder<T> decodeRemainder(long value) {
-		Set<T> set = new LinkedHashSet<>();
+		var set = Sets.<T>link();
 		long remainder = decodeRemainder(set, value);
-		return new Remainder<>(remainder, Collections.unmodifiableSet(set));
+		return new Remainder<>(remainder, Immutable.wrap(set));
 	}
 
 	/**

@@ -2,16 +2,16 @@ package ceri.common.text;
 
 import static ceri.common.text.StringUtil.trim;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import ceri.common.collection.Immutable;
 import ceri.common.property.Parser;
 
 public class DsvParser {
 	private final DsvCodec codec;
 	private final List<String> header = new ArrayList<>();
 	private final List<String> current = new ArrayList<>();
-	private final List<String> immutableHeader = Collections.unmodifiableList(header);
-	private final List<String> immutableCurrent = Collections.unmodifiableList(current);
+	private final List<String> immutableHeader = Immutable.wrap(header);
+	private final List<String> immutableCurrent = Immutable.wrap(current);
 
 	public static List<String> split(String s, DsvCodec codec) {
 		if (s == null) return List.of();

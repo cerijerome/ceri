@@ -3,28 +3,23 @@ package ceri.common.game;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.IntUnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
@@ -50,12 +45,12 @@ public class Sudoku {
 	private final String name;
 	private final int size;
 	private final Map<Integer, Set<IntProvider>> indexGroups;
-	private final Map<IntProvider, BiConsumer<Sudoku, IntProvider>> groupRules;
+	private final Map<IntProvider, Functions.BiConsumer<Sudoku, IntProvider>> groupRules;
 	private final Display display;
 	// state
-	private final Map<IntProvider, State> groupStates = new IdentityHashMap<>();
+	private final Map<IntProvider, State> groupStates = Maps.id();
 	private final int[] masks;
-	private final Set<Integer> changedIndexes = new HashSet<>();
+	private final Set<Integer> changedIndexes = Sets.of();
 	private final Counter.OfInt trialCount = Counter.ofInt(0);
 	private long timeMs = -1;
 
@@ -319,10 +314,10 @@ public class Sudoku {
 	 * Display properties.
 	 */
 	private static class Display {
-		public final Set<Integer> fixed = Sets.Supplier.hash();
-		public final Set<IntProvider> boxes = Sets.Supplier.identity();
-		public final Set<IntProvider> futos = Sets.Supplier.identity();
-		public final Map<IntProvider, Integer> cageRgbs = Maps.Supplier.identity();
+		public final Set<Integer> fixed = Sets.of();
+		public final Set<IntProvider> boxes = Sets.id();
+		public final Set<IntProvider> futos = Sets.id();
+		public final Map<IntProvider, Integer> cageRgbs = Maps.id();
 	}
 
 	/**
@@ -361,8 +356,8 @@ public class Sudoku {
 	private Sudoku(String name, int size) {
 		this.name = name;
 		this.size = size;
-		indexGroups = new HashMap<>();
-		groupRules = new IdentityHashMap<>();
+		indexGroups = Maps.of();
+		groupRules = Maps.id();
 		display = new Display();
 		masks = new int[size * size];
 		Arrays.fill(masks, mask(size + 1) - 1);
@@ -404,8 +399,8 @@ public class Sudoku {
 	}
 
 	public Sudoku cages(CageRow... rows) {
-		var map = new LinkedHashMap<Character, List<Set<Integer>>>();
-		var sums = new ArrayList<Integer>();
+		var map = Maps.<Character, List<Set<Integer>>>link();
+		var sums = Lists.<Integer>of();
 		for (int r = 0; r < rows.length; r++) {
 			fixed(rows[r].fixed(), r);
 			cage(map, rows[r].cage(), r);
@@ -527,7 +522,7 @@ public class Sudoku {
 	/* cage support */
 
 	private void addCages(Map<Character, List<Set<Integer>>> map, List<Integer> sums) {
-		var groups = new ArrayList<IntProvider>();
+		var groups = Lists.<IntProvider>of();
 		map.forEach((tag, cages) -> {
 			for (var cage : cages) {
 				var group = group(cage);
@@ -576,7 +571,7 @@ public class Sudoku {
 		for (int c = 0; c < chars.length; c++) {
 			char tag = chars[c];
 			if (tag == ' ') continue;
-			var cages = map.computeIfAbsent(tag, _ -> new ArrayList<>());
+			var cages = map.computeIfAbsent(tag, _ -> Lists.of());
 			addToAdjacentCage(cages, index(r, c));
 			mergeAdjacentCages(cages);
 		}
@@ -628,13 +623,13 @@ public class Sudoku {
 
 	/* futoshiki support */
 
-	private void futoGroups(String line, IntUnaryOperator indexFn) {
+	private void futoGroups(String line, Functions.IntOperator indexFn) {
 		futoPairs(line, indexFn);
 		futoLines(LT_LOW_REGEX.matcher(line), indexFn, true);
 		futoLines(LT_HIGH_REGEX.matcher(line), indexFn, false);
 	}
 
-	private void futoLines(Matcher m, IntUnaryOperator indexFn, boolean low) {
+	private void futoLines(Matcher m, Functions.IntOperator indexFn, boolean low) {
 		while (m.find()) {
 			var group = futoLineGroup(m, indexFn);
 			int i = m.group(1).length();
@@ -671,14 +666,14 @@ public class Sudoku {
 		return 0;
 	}
 
-	private IntProvider futoLineGroup(Matcher m, IntUnaryOperator indexFn) {
+	private IntProvider futoLineGroup(Matcher m, Functions.IntOperator indexFn) {
 		int[] indexes = new int[m.end() + 1 - m.start()];
 		for (int i = 0; i < indexes.length; i++)
 			indexes[i] = indexFn.applyAsInt(m.start() + i);
 		return IntProvider.of(indexes);
 	}
 
-	private void futoPairs(String line, IntUnaryOperator indexFn) {
+	private void futoPairs(String line, Functions.IntOperator indexFn) {
 		for (int i = 0; i < line.length(); i++) {
 			var low = futoLow(line.charAt(i));
 			if (low == null) continue;
@@ -769,8 +764,7 @@ public class Sudoku {
 	/* group support */
 
 	private Set<IntProvider> changedGroups() {
-		var changedGroups =
-			Streams.from(changedIndexes).expand(this::groups).collect(Sets.Supplier.identity());
+		var changedGroups = Streams.from(changedIndexes).expand(this::groups).collect(Sets.id());
 		changedIndexes.clear();
 		return changedGroups;
 	}
@@ -794,9 +788,10 @@ public class Sudoku {
 		return addGroup(IntProvider.of(indexes), (s, g) -> s.processUnique(g));
 	}
 
-	private IntProvider addGroup(IntProvider group, BiConsumer<Sudoku, IntProvider> rule) {
+	private IntProvider addGroup(IntProvider group,
+		Functions.BiConsumer<Sudoku, IntProvider> rule) {
 		for (int index : group)
-			indexGroups.computeIfAbsent(index, _ -> CollectionUtil.identityHashSet()).add(group);
+			indexGroups.computeIfAbsent(index, _ -> Sets.id()).add(group);
 		groupRules.put(group, rule);
 		return group;
 	}

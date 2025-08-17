@@ -1,9 +1,9 @@
 package ceri.serial.libusb;
 
-import static ceri.common.collection.ImmutableUtil.convertAsList;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;
@@ -50,7 +50,7 @@ public class Usb implements Functions.Closeable {
 
 	public Devices deviceList() throws LibUsbException {
 		var list = LibUsb.libusb_get_device_list(context());
-		var devices = convertAsList(d -> new UsbDevice(this, d), list.get());
+		var devices = Immutable.adaptListOf(d -> new UsbDevice(this, d), list.get());
 		return new Devices(list, devices);
 	}
 

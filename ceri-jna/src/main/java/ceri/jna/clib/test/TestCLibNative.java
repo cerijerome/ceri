@@ -14,7 +14,6 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.ImmutableUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.reflect.Reflect.ThreadElement;
@@ -141,7 +140,7 @@ public class TestCLibNative implements CLib.Native {
 
 		public static PollArgs of(pollfd[] pollfds, long timeoutNs, int... signals) {
 			return new PollArgs(List.of(pollfds), Duration.ofNanos(timeoutNs),
-				ImmutableUtil.intSet(signals));
+				Set.of(ArrayUtil.ints.boxed(signals)));
 		}
 
 		/**

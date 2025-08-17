@@ -5,7 +5,7 @@ import static ceri.common.text.StringUtil.HEX_RADIX;
 import static ceri.common.text.StringUtil.OCTAL_RADIX;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Map;
-import ceri.common.collection.ImmutableUtil;
+import ceri.common.collection.Maps;
 import ceri.common.math.MathUtil;
 
 /**
@@ -14,8 +14,9 @@ import ceri.common.math.MathUtil;
  * and byte types.
  */
 public class NumberParser {
-	private static final Map<String, Integer> RADIX_MAP = ImmutableUtil.asMap("0x", HEX_RADIX, "0X",
-		HEX_RADIX, "#", HEX_RADIX, "0b", BINARY_RADIX, "0B", BINARY_RADIX, "0", OCTAL_RADIX);
+	private static final Map<String, Integer> RADIX_MAP =
+		Maps.build(Maps::link, "0x", HEX_RADIX).put("0X", HEX_RADIX).put("#", HEX_RADIX)
+			.put("0b", BINARY_RADIX).put("0B", BINARY_RADIX).put("0", OCTAL_RADIX).wrap();
 	private boolean positive = true;
 	private int radix = 10;
 	private int i = 0;

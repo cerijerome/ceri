@@ -1,16 +1,9 @@
 package ceri.common.collection;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -62,34 +55,32 @@ public class Immutable {
 	/**
 	 * Provides unmodifiable collection wrappers and compatible mutable collections.
 	 */
-	public static class Wrap<T> implements Functions.Function<T, T> {
+	public static class Wrap<T> { // implements Functions.Function<T, T> {
 		private static final Wrap<Collection<?>> COLLECT =
-			new Wrap<>(Collections::unmodifiableCollection, Collections::emptyList, ArrayList::new);
+			new Wrap<>(Collections::unmodifiableCollection, Collections::emptyList, Lists::of);
 		private static final Wrap<SequencedCollection<?>> SEQ_COLLECT = new Wrap<>(
-			Collections::unmodifiableSequencedCollection, Collections::emptyList, ArrayList::new);
+			Collections::unmodifiableSequencedCollection, Collections::emptyList, Lists::of);
 		private static final Wrap<List<?>> LIST =
-			new Wrap<>(Collections::unmodifiableList, Collections::emptyList, ArrayList::new);
-		private static final Wrap<List<?>> LINK_LIST = LIST.to(LinkedList::new);
+			new Wrap<>(Collections::unmodifiableList, Collections::emptyList, Lists::of);
+		private static final Wrap<List<?>> LINK_LIST = LIST.to(Lists::link);
 		private static final Wrap<Set<?>> SET =
-			new Wrap<>(Collections::unmodifiableSet, Collections::emptySet, HashSet::new);
+			new Wrap<>(Collections::unmodifiableSet, Collections::emptySet, Sets::of);
 		private static final Wrap<SequencedSet<?>> SEQ_SET = new Wrap<>(
-			Collections::unmodifiableSequencedSet, Collections::emptySortedSet, LinkedHashSet::new);
-		private static final Wrap<SortedSet<?>> SORT_SET = new Wrap<>(
-			Collections::unmodifiableSortedSet, Collections::emptySortedSet, Mutable::treeSet);
-		private static final Wrap<NavigableSet<?>> NAV_SET =
-			new Wrap<>(Collections::unmodifiableNavigableSet, Collections::emptyNavigableSet,
-				Mutable::treeSet);
-		private static final Wrap<Set<?>> ID_SET = SET.to(Mutable::idSet);
+			Collections::unmodifiableSequencedSet, Collections::emptySortedSet, Sets::link);
+		private static final Wrap<SortedSet<?>> SORT_SET =
+			new Wrap<>(Collections::unmodifiableSortedSet, Collections::emptySortedSet, Sets::tree);
+		private static final Wrap<NavigableSet<?>> NAV_SET = new Wrap<>(
+			Collections::unmodifiableNavigableSet, Collections::emptyNavigableSet, Sets::tree);
+		private static final Wrap<Set<?>> ID_SET = SET.to(Sets::id);
 		private static final Wrap<Map<?, ?>> MAP =
-			new Wrap<>(Collections::unmodifiableMap, Collections::emptyMap, HashMap::new);
+			new Wrap<>(Collections::unmodifiableMap, Collections::emptyMap, Maps::of);
 		private static final Wrap<SequencedMap<?, ?>> SEQ_MAP = new Wrap<>(
-			Collections::unmodifiableSequencedMap, Collections::emptySortedMap, LinkedHashMap::new);
-		private static final Wrap<SortedMap<?, ?>> SORT_MAP = new Wrap<>(
-			Collections::unmodifiableSortedMap, Collections::emptySortedMap, Mutable::treeMap);
-		private static final Wrap<NavigableMap<?, ?>> NAV_MAP =
-			new Wrap<>(Collections::unmodifiableNavigableMap, Collections::emptyNavigableMap,
-				Mutable::treeMap);
-		private static final Wrap<Map<?, ?>> ID_MAP = MAP.to(IdentityHashMap::new);
+			Collections::unmodifiableSequencedMap, Collections::emptySortedMap, Maps::link);
+		private static final Wrap<SortedMap<?, ?>> SORT_MAP =
+			new Wrap<>(Collections::unmodifiableSortedMap, Collections::emptySortedMap, Maps::tree);
+		private static final Wrap<NavigableMap<?, ?>> NAV_MAP = new Wrap<>(
+			Collections::unmodifiableNavigableMap, Collections::emptyNavigableMap, Maps::tree);
+		private static final Wrap<Map<?, ?>> ID_MAP = MAP.to(Maps::id);
 		private final Functions.Operator<T> wrapper;
 		private final Functions.Supplier<? extends T> supplier;
 		private final Functions.Supplier<? extends T> emptySupplier;
@@ -147,7 +138,8 @@ public class Immutable {
 		 * Provides an immutable sorted set wrapper, using an underlying tree set.
 		 */
 		public static <T> Wrap<SortedSet<T>> sortSet(Comparator<? super T> comparator) {
-			return BasicUtil.unchecked(SORT_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
+			return BasicUtil
+				.unchecked(SORT_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
 		}
 
 		/**
@@ -251,9 +243,8 @@ public class Immutable {
 		}
 
 		/**
-		 * Applies the unmodifiable wrapper to the collection.
+		 * Applies the unmodifiable wrapper to the collection; converts null to empty collection.
 		 */
-		@Override
 		public T apply(T type) {
 			return type == null ? empty() : wrapper.apply(type);
 		}
@@ -270,7 +261,7 @@ public class Immutable {
 	}
 
 	/**
-	 * Wraps a type as unmodifiable.
+	 * Wraps a type as unmodifiable, converting null to empty collection type.
 	 */
 	public static <T> T wrap(Wrap<T> wrap, T type) {
 		if (wrap == null) return null;
@@ -319,10 +310,40 @@ public class Immutable {
 	}
 
 	/**
+	 * Wraps a set as unmodifiable.
+	 */
+	public static <T extends Comparable<? super T>> SortedSet<T> wrapSort(SortedSet<T> set) {
+		return wrap(Wrap.sortSet(), set);
+	}
+
+	/**
+	 * Wraps a set as unmodifiable.
+	 */
+	public static <T extends Comparable<? super T>> NavigableSet<T> wrapNav(NavigableSet<T> set) {
+		return wrap(Wrap.navSet(), set);
+	}
+
+	/**
 	 * Wraps a map as unmodifiable.
 	 */
 	public static <K, V> Map<K, V> wrap(Map<K, V> map) {
-		return of(Wrap.map(), map);
+		return wrap(Wrap.map(), map);
+	}
+
+	/**
+	 * Wraps a map as unmodifiable.
+	 */
+	public static <K extends Comparable<? super K>, V> SortedMap<K, V>
+		wrapSort(SortedMap<K, V> map) {
+		return wrap(Wrap.sortMap(), map);
+	}
+
+	/**
+	 * Wraps a map as unmodifiable.
+	 */
+	public static <K extends Comparable<? super K>, V> NavigableMap<K, V>
+		wrapNav(NavigableMap<K, V> map) {
+		return wrap(Wrap.navMap(), map);
 	}
 
 	/**
@@ -330,6 +351,30 @@ public class Immutable {
 	 */
 	public static <K, V> BiMap<K, V> wrapBiMap(Map<K, V> map) {
 		return new BiMap<>(wrap(map), invertMap(map));
+	}
+
+	/**
+	 * Create an immutable map copy by wrapping the value lists.
+	 */
+	public static <K, T> Map<K, List<T>>
+		wrapMapOfLists(Map<? extends K, ? extends List<T>> mapOfLists) {
+		return adaptMap(t -> t, Immutable::wrap, mapOfLists);
+	}
+
+	/**
+	 * Create an immutable map copy by wrapping the value sets.
+	 */
+	public static <K, T> Map<K, Set<T>>
+		wrapMapOfSets(Map<? extends K, ? extends Set<T>> mapOfSets) {
+		return adaptMap(t -> t, Immutable::wrap, mapOfSets);
+	}
+
+	/**
+	 * Create an immutable map copy by wrapping the value maps.
+	 */
+	public static <K, T, U> Map<K, Map<T, U>>
+		wrapMapOfMaps(Map<? extends K, ? extends Map<T, U>> mapOfMaps) {
+		return adaptMap(k -> k, Immutable::wrap, mapOfMaps);
 	}
 
 	// typed wrappers
@@ -355,7 +400,7 @@ public class Immutable {
 	public static <T, C extends Collection<T>> C of(Wrap<C> wrap, T[] array, int offset,
 		int length) {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.add(wrap.mutable(), array, offset, length));
+		return wrap.apply(Collectable.add(wrap.mutable(), array, offset, length));
 	}
 
 	/**
@@ -363,7 +408,7 @@ public class Immutable {
 	 */
 	public static <T, C extends Collection<T>> C of(Wrap<C> wrap, Iterable<? extends T> values) {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.add(wrap.mutable(), values));
+		return wrap.apply(Collectable.add(wrap.mutable(), values));
 	}
 
 	/**
@@ -372,7 +417,7 @@ public class Immutable {
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap,
 		Map<? extends K, ? extends V> map) {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.put(wrap.mutable(), map));
+		return wrap.apply(Maps.put(wrap.mutable(), map));
 	}
 
 	/**
@@ -380,7 +425,7 @@ public class Immutable {
 	 */
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap, K k, V v) {
 		if (wrap == null) return null;
-		return wrap.wrap(m -> Mutable.put(m, k, v));
+		return wrap.wrap(m -> Maps.put(m, k, v));
 	}
 
 	/**
@@ -388,7 +433,7 @@ public class Immutable {
 	 */
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap, K k0, V v0, K k1, V v1) {
 		if (wrap == null) return null;
-		return wrap.wrap(m -> Mutable.put(m, k0, v0, k1, v1));
+		return wrap.wrap(m -> Maps.put(m, k0, v0, k1, v1));
 	}
 
 	/**
@@ -397,7 +442,7 @@ public class Immutable {
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap, K k0, V v0, K k1, V v1, K k2,
 		V v2) {
 		if (wrap == null) return null;
-		return wrap.wrap(m -> Mutable.put(m, k0, v0, k1, v1, k2, v2));
+		return wrap.wrap(m -> Maps.put(m, k0, v0, k1, v1, k2, v2));
 	}
 
 	/**
@@ -406,7 +451,7 @@ public class Immutable {
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap, K k0, V v0, K k1, V v1, K k2, V v2,
 		K k3, V v3) {
 		if (wrap == null) return null;
-		return wrap.wrap(m -> Mutable.put(m, k0, v0, k1, v1, k2, v2, k3, v3));
+		return wrap.wrap(m -> Maps.put(m, k0, v0, k1, v1, k2, v2, k3, v3));
 	}
 
 	/**
@@ -415,7 +460,7 @@ public class Immutable {
 	public static <K, V, M extends Map<K, V>> M of(Wrap<M> wrap, K k0, V v0, K k1, V v1, K k2, V v2,
 		K k3, V v3, K k4, V v4) {
 		if (wrap == null) return null;
-		return wrap.wrap(m -> Mutable.put(m, k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
+		return wrap.wrap(m -> Maps.put(m, k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
 	}
 
 	/**
@@ -431,7 +476,8 @@ public class Immutable {
 	 * Creates an immutable collection from transformed array values.
 	 */
 	public static <E extends Exception, T, U, C extends Collection<U>> C adapt(Wrap<C> wrap,
-		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset) throws E {
+		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset)
+		throws E {
 		return adapt(wrap, mapper, array, offset, Integer.MAX_VALUE);
 	}
 
@@ -442,7 +488,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset,
 		int length) throws E {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.adaptAdd(wrap.mutable(), mapper, array, offset, length));
+		return wrap.apply(Collectable.adaptAdd(wrap.mutable(), mapper, array, offset, length));
 	}
 
 	/**
@@ -450,7 +496,7 @@ public class Immutable {
 	 */
 	public static <E extends Exception, T, U, C extends Collection<U>> C adapt(Wrap<C> wrap,
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, Iterable<T> values) throws E {
-		return wrap.apply(Mutable.adaptAdd(wrap.mutable(), mapper, values));
+		return wrap.apply(Collectable.adaptAdd(wrap.mutable(), mapper, values));
 	}
 
 	/**
@@ -460,7 +506,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super K, ? extends T> keyMapper,
 		Excepts.Function<? extends E, ? super V, ? extends U> valueMapper, Map<K, V> map) throws E {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.adaptPut(wrap.mutable(), keyMapper, valueMapper, map));
+		return wrap.apply(Maps.adaptPut(wrap.mutable(), keyMapper, valueMapper, map));
 	}
 
 	/**
@@ -471,7 +517,16 @@ public class Immutable {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends U> valueMapper,
 		Map<K, V> map) throws E {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.biAdaptPut(wrap.mutable(), keyMapper, valueMapper, map));
+		return wrap.apply(Maps.biAdaptPut(wrap.mutable(), keyMapper, valueMapper, map));
+	}
+
+	/**
+	 * Creates an immutable map, inverting the keys and values.
+	 */
+	public static <K, V, R extends Map<V, K>> R invert(Wrap<R> wrap,
+		Map<? extends K, ? extends V> map) {
+		if (wrap == null) return null;
+		return wrap.apply(Maps.invertPut(wrap.mutable(), map));
 	}
 
 	/**
@@ -481,14 +536,14 @@ public class Immutable {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> unmapper, Map<K, V> map)
 		throws E {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.convertAdd(wrap.mutable(), unmapper, map));
+		return wrap.apply(Collectable.convertAdd(wrap.mutable(), unmapper, map));
 	}
 
 	/**
 	 * Creates an immutable map by mapping each element to a key and value.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T, K, V, M extends Map<K, V>> M convert(Wrap<M> wrap,
+	public static <E extends Exception, T, K, V, M extends Map<K, V>> M convertAll(Wrap<M> wrap,
 		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
 		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T... values) throws E {
 		return convert(wrap, keyMapper, valueMapper, values, 0);
@@ -512,8 +567,8 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T[] values, int offset,
 		int length) throws E {
 		if (wrap == null) return null;
-		return wrap.apply(
-			Mutable.convertPut(wrap.mutable(), keyMapper, valueMapper, values, offset, length));
+		return wrap
+			.apply(Maps.convertPut(wrap.mutable(), keyMapper, valueMapper, values, offset, length));
 	}
 
 	/**
@@ -524,7 +579,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, Iterable<T> values)
 		throws E {
 		if (wrap == null) return null;
-		return wrap.apply(Mutable.convertPut(wrap.mutable(), keyMapper, valueMapper, values));
+		return wrap.apply(Maps.convertPut(wrap.mutable(), keyMapper, valueMapper, values));
 	}
 
 	// lists
@@ -534,17 +589,7 @@ public class Immutable {
 	 */
 	@SafeVarargs
 	public static <T> List<T> listOf(T... values) {
-		return ofAll(Wrap.list(), values);
-	}
-
-	/**
-	 * Creates an immutable list, copied from value vararg array.
-	 */
-	@SafeVarargs
-	public static <T> List<T> listOfAll(Functions.Supplier<? extends List<T>> supplier,
-		T... values) {
-		if (supplier == null) return listOf(values);
-		return wrap(Mutable.addAll(supplier.get(), values));
+		return list(values, 0);
 	}
 
 	/**
@@ -562,12 +607,29 @@ public class Immutable {
 	}
 
 	/**
+	 * Creates an immutable list, copied from value vararg array.
+	 */
+	@SafeVarargs
+	public static <T> List<T> listOfAll(Functions.Supplier<? extends List<T>> supplier,
+		T... values) {
+		return list(supplier, values, 0);
+	}
+
+	/**
+	 * Creates an immutable list, copied from array region.
+	 */
+	public static <T> List<T> list(Functions.Supplier<? extends List<T>> supplier, T[] array,
+		int offset) {
+		return list(supplier, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
 	 * Creates an immutable list, copied from array region.
 	 */
 	public static <T> List<T> list(Functions.Supplier<? extends List<T>> supplier, T[] array,
 		int offset, int length) {
 		if (supplier == null) return list(array, offset, length);
-		return wrap(Mutable.add(supplier.get(), array, offset, length));
+		return wrap(Collectable.add(supplier.get(), array, offset, length));
 	}
 
 	/**
@@ -583,7 +645,7 @@ public class Immutable {
 	public static <T> List<T> list(Functions.Supplier<? extends List<T>> supplier,
 		Iterable<? extends T> values) {
 		if (supplier == null) return list(values);
-		return wrap(Mutable.add(supplier.get(), values));
+		return wrap(Collectable.add(supplier.get(), values));
 	}
 
 	/**
@@ -592,18 +654,7 @@ public class Immutable {
 	@SafeVarargs
 	public static <E extends Exception, T, U> List<U> adaptListOf(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		return adaptAll(Wrap.list(), mapper, values);
-	}
-
-	/**
-	 * Creates an immutable list from transformed values.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T, U> List<U> adaptListOfAll(
-		Functions.Supplier<? extends List<U>> supplier,
-		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		if (supplier == null) return adaptListOf(mapper, values);
-		return wrap(Mutable.adaptAddAll(supplier.get(), mapper, values));
+		return adaptList(mapper, values, 0);
 	}
 
 	/**
@@ -625,6 +676,26 @@ public class Immutable {
 	}
 
 	/**
+	 * Creates an immutable list from transformed values.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T, U> List<U> adaptListOfAll(
+		Functions.Supplier<? extends List<U>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
+		return adaptList(supplier, mapper, values, 0);
+	}
+
+	/**
+	 * Creates an immutable list from transformed array values.
+	 */
+	public static <E extends Exception, T, U> List<U> adaptList(
+		Functions.Supplier<? extends List<U>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset)
+		throws E {
+		return adaptList(supplier, mapper, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
 	 * Creates an immutable list from transformed array values.
 	 */
 	public static <E extends Exception, T, U> List<U> adaptList(
@@ -632,7 +703,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset,
 		int length) throws E {
 		if (supplier == null) return adaptList(mapper, array, offset, length);
-		return wrap(Mutable.adaptAdd(supplier.get(), mapper, array, offset, length));
+		return wrap(Collectable.adaptAdd(supplier.get(), mapper, array, offset, length));
 	}
 
 	/**
@@ -650,7 +721,7 @@ public class Immutable {
 		Functions.Supplier<? extends List<U>> supplier,
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, Iterable<T> values) throws E {
 		if (supplier == null) return adaptList(mapper, values);
-		return wrap(Mutable.adaptAdd(supplier.get(), mapper, values));
+		return wrap(Collectable.adaptAdd(supplier.get(), mapper, values));
 	}
 
 	/**
@@ -670,7 +741,7 @@ public class Immutable {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> unmapper, Map<K, V> map)
 		throws E {
 		if (supplier == null) return convertList(unmapper, map);
-		return wrap(Mutable.convertAdd(supplier.get(), unmapper, map));
+		return wrap(Collectable.convertAdd(supplier.get(), unmapper, map));
 	}
 
 	// sets
@@ -680,16 +751,7 @@ public class Immutable {
 	 */
 	@SafeVarargs
 	public static <T> Set<T> setOf(T... values) {
-		return ofAll(Wrap.set(), values);
-	}
-
-	/**
-	 * Creates an immutable set, copied from value vararg array.
-	 */
-	@SafeVarargs
-	public static <T> Set<T> setOfAll(Functions.Supplier<? extends Set<T>> supplier, T... values) {
-		if (supplier == null) return setOf(values);
-		return wrap(Mutable.addAll(supplier.get(), values));
+		return set(values, 0);
 	}
 
 	/**
@@ -707,12 +769,28 @@ public class Immutable {
 	}
 
 	/**
+	 * Creates an immutable set, copied from value vararg array.
+	 */
+	@SafeVarargs
+	public static <T> Set<T> setOfAll(Functions.Supplier<? extends Set<T>> supplier, T... values) {
+		return set(supplier, values, 0);
+	}
+
+	/**
+	 * Creates an immutable set, copied from array region.
+	 */
+	public static <T> Set<T> set(Functions.Supplier<? extends Set<T>> supplier, T[] array,
+		int offset) {
+		return set(supplier, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
 	 * Creates an immutable set, copied from array region.
 	 */
 	public static <T> Set<T> set(Functions.Supplier<? extends Set<T>> supplier, T[] array,
 		int offset, int length) {
 		if (supplier == null) return set(array, offset, length);
-		return wrap(Mutable.add(supplier.get(), array, offset, length));
+		return wrap(Collectable.add(supplier.get(), array, offset, length));
 	}
 
 	/**
@@ -728,7 +806,7 @@ public class Immutable {
 	public static <T> Set<T> set(Functions.Supplier<? extends Set<T>> supplier,
 		Iterable<? extends T> values) {
 		if (supplier == null) return set(values);
-		return wrap(Mutable.add(supplier.get(), values));
+		return wrap(Collectable.add(supplier.get(), values));
 	}
 
 	/**
@@ -737,18 +815,7 @@ public class Immutable {
 	@SafeVarargs
 	public static <E extends Exception, T, U> Set<U> adaptSetOf(
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		return adaptAll(Wrap.set(), mapper, values);
-	}
-
-	/**
-	 * Creates an immutable set from transformed values.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T, U> Set<U> adaptSetOfAll(
-		Functions.Supplier<? extends Set<U>> supplier,
-		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
-		if (supplier == null) return adaptSetOf(mapper, values);
-		return wrap(Mutable.adaptAddAll(supplier.get(), mapper, values));
+		return adaptSet(mapper, values, 0);
 	}
 
 	/**
@@ -770,6 +837,26 @@ public class Immutable {
 	}
 
 	/**
+	 * Creates an immutable set from transformed values.
+	 */
+	@SafeVarargs
+	public static <E extends Exception, T, U> Set<U> adaptSetOfAll(
+		Functions.Supplier<? extends Set<U>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T... values) throws E {
+		return adaptSet(supplier, mapper, values, 0);
+	}
+
+	/**
+	 * Creates an immutable set from transformed array values.
+	 */
+	public static <E extends Exception, T, U> Set<U> adaptSet(
+		Functions.Supplier<? extends Set<U>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset)
+		throws E {
+		return adaptSet(supplier, mapper, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
 	 * Creates an immutable set from transformed array values.
 	 */
 	public static <E extends Exception, T, U> Set<U> adaptSet(
@@ -777,7 +864,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, T[] array, int offset,
 		int length) throws E {
 		if (supplier == null) return adaptSet(mapper, array, offset, length);
-		return wrap(Mutable.adaptAdd(supplier.get(), mapper, array, offset, length));
+		return wrap(Collectable.adaptAdd(supplier.get(), mapper, array, offset, length));
 	}
 
 	/**
@@ -797,7 +884,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super T, ? extends U> mapper, Iterable<? extends T> values)
 		throws E {
 		if (supplier == null) return adaptSet(mapper, values);
-		return wrap(Mutable.adaptAdd(supplier.get(), mapper, values));
+		return wrap(Collectable.adaptAdd(supplier.get(), mapper, values));
 	}
 
 	/**
@@ -817,7 +904,7 @@ public class Immutable {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> unmapper, Map<K, V> map)
 		throws E {
 		if (supplier == null) return convertSet(unmapper, map);
-		return wrap(Mutable.convertAdd(supplier.get(), unmapper, map));
+		return wrap(Collectable.convertAdd(supplier.get(), unmapper, map));
 	}
 
 	// maps
@@ -871,7 +958,7 @@ public class Immutable {
 	public static <K, V> Map<K, V> mapOf(Functions.Supplier<? extends Map<K, V>> supplier, K k,
 		V v) {
 		if (supplier == null) return mapOf(k, v);
-		return wrap(Mutable.put(supplier.get(), k, v));
+		return wrap(Maps.put(supplier.get(), k, v));
 	}
 
 	/**
@@ -880,7 +967,7 @@ public class Immutable {
 	public static <K, V> Map<K, V> mapOf(Functions.Supplier<? extends Map<K, V>> supplier, K k0,
 		V v0, K k1, V v1) {
 		if (supplier == null) return mapOf(k0, v0, k1, v1);
-		return wrap(Mutable.put(supplier.get(), k0, v0, k1, v1));
+		return wrap(Maps.put(supplier.get(), k0, v0, k1, v1));
 	}
 
 	/**
@@ -889,7 +976,7 @@ public class Immutable {
 	public static <K, V> Map<K, V> mapOf(Functions.Supplier<? extends Map<K, V>> supplier, K k0,
 		V v0, K k1, V v1, K k2, V v2) {
 		if (supplier == null) return mapOf(k0, v0, k1, v1, k2, v2);
-		return wrap(Mutable.put(supplier.get(), k0, v0, k1, v1, k2, v2));
+		return wrap(Maps.put(supplier.get(), k0, v0, k1, v1, k2, v2));
 	}
 
 	/**
@@ -898,7 +985,7 @@ public class Immutable {
 	public static <K, V> Map<K, V> mapOf(Functions.Supplier<? extends Map<K, V>> supplier, K k0,
 		V v0, K k1, V v1, K k2, V v2, K k3, V v3) {
 		if (supplier == null) return mapOf(k0, v0, k1, v1, k2, v2, k3, v3);
-		return wrap(Mutable.put(supplier.get(), k0, v0, k1, v1, k2, v2, k3, v3));
+		return wrap(Maps.put(supplier.get(), k0, v0, k1, v1, k2, v2, k3, v3));
 	}
 
 	/**
@@ -907,7 +994,7 @@ public class Immutable {
 	public static <K, V> Map<K, V> mapOf(Functions.Supplier<? extends Map<K, V>> supplier, K k0,
 		V v0, K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4) {
 		if (supplier == null) return mapOf(k0, v0, k1, v1, k2, v2, k3, v3, k4, v4);
-		return wrap(Mutable.put(supplier.get(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
+		return wrap(Maps.put(supplier.get(), k0, v0, k1, v1, k2, v2, k3, v3, k4, v4));
 	}
 
 	/**
@@ -923,38 +1010,30 @@ public class Immutable {
 	public static <K, V> Map<K, V> map(Functions.Supplier<? extends Map<K, V>> supplier,
 		Map<? extends K, ? extends V> map) {
 		if (supplier == null) return map(map);
-		return wrap(Mutable.put(supplier.get(), map));
+		return wrap(Maps.put(supplier.get(), map));
 	}
 
 	/**
-	 * Creates an immutable map by mapping each element to a key.
+	 * Create an immutable map copy by copying the value lists.
 	 */
-	public static <E extends Exception, T, K> Map<K, T> convertMap(
-		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
-		Iterable<? extends T> iterable) throws E {
-		return convertMap(keyMapper, t -> t, iterable);
+	public static <K, T> Map<K, List<T>>
+		mapOfLists(Map<? extends K, ? extends List<T>> mapOfLists) {
+		return adaptMap(t -> t, Immutable::list, mapOfLists);
 	}
 
 	/**
-	 * Creates an immutable map by mapping each element to a key and value.
+	 * Create an immutable map copy by copying the value sets.
 	 */
-	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
-		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
-		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, Iterable<T> values)
-		throws E {
-		return convert(Wrap.map(), keyMapper, valueMapper, values);
+	public static <K, T> Map<K, Set<T>> mapOfSets(Map<? extends K, ? extends Set<T>> mapOfSets) {
+		return adaptMap(t -> t, Immutable::set, mapOfSets);
 	}
 
 	/**
-	 * Creates an immutable map by mapping each element to a key and value.
+	 * Create an immutable map copy by copying the value maps.
 	 */
-	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
-		Functions.Supplier<? extends Map<K, V>> supplier,
-		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
-		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, Iterable<T> values)
-		throws E {
-		if (supplier == null) return convertMap(keyMapper, valueMapper, values);
-		return wrap(Mutable.convertPut(supplier.get(), keyMapper, valueMapper, values));
+	public static <K, T, U> Map<K, Map<T, U>>
+		mapOfMaps(Map<? extends K, ? extends Map<T, U>> mapOfMaps) {
+		return adaptMap(k -> k, Immutable::map, mapOfMaps);
 	}
 
 	/**
@@ -983,7 +1062,7 @@ public class Immutable {
 		Excepts.Function<? extends E, ? super K, ? extends T> keyMapper,
 		Excepts.Function<? extends E, ? super V, ? extends U> valueMapper, Map<K, V> map) throws E {
 		if (supplier == null) return adaptMap(keyMapper, valueMapper, map);
-		return wrap(Mutable.adaptPut(supplier.get(), keyMapper, valueMapper, map));
+		return wrap(Maps.adaptPut(supplier.get(), keyMapper, valueMapper, map));
 	}
 
 	/**
@@ -1014,14 +1093,14 @@ public class Immutable {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends U> valueMapper,
 		Map<K, V> map) throws E {
 		if (supplier == null) return biAdaptMap(keyMapper, valueMapper, map);
-		return wrap(Mutable.biAdaptMap(keyMapper, valueMapper, map));
+		return wrap(Maps.biAdapt(keyMapper, valueMapper, map));
 	}
 
 	/**
 	 * Creates an immutable map, inverting the keys and values.
 	 */
 	public static <K, V> Map<V, K> invertMap(Map<? extends K, ? extends V> map) {
-		return invertMap(Wrap.map(), map);
+		return invert(Wrap.map(), map);
 	}
 
 	/**
@@ -1030,15 +1109,79 @@ public class Immutable {
 	public static <K, V> Map<V, K> invertMap(Functions.Supplier<? extends Map<V, K>> supplier,
 		Map<? extends K, ? extends V> map) {
 		if (supplier == null) return invertMap(map);
-		return wrap(Mutable.putInvert(supplier.get(), map));
+		return wrap(Maps.invertPut(supplier.get(), map));
 	}
 
 	/**
-	 * Creates an immutable map, inverting the keys and values.
+	 * Creates an immutable map by mapping each element to a key and value.
 	 */
-	public static <K, V, R extends Map<V, K>> R invertMap(Wrap<R> wrap,
-		Map<? extends K, ? extends V> map) {
-		if (wrap == null) return null;
-		return wrap.apply(Mutable.putInvert(wrap.mutable(), map));
+	@SafeVarargs
+	public static <E extends Exception, T, K, V> Map<K, V> convertMapOf(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T... values) throws E {
+		return convertMap(keyMapper, valueMapper, values, 0);
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key and value.
+	 */
+	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T[] array, int offset)
+		throws E {
+		return convertMap(keyMapper, valueMapper, array, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key and value.
+	 */
+	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T[] array, int offset,
+		int length) throws E {
+		return convert(Wrap.map(), keyMapper, valueMapper, array, offset, length);
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key and value.
+	 */
+	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
+		Functions.Supplier<? extends Map<K, V>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, T[] array, int offset,
+		int length) throws E {
+		if (supplier == null) return convertMap(keyMapper, valueMapper, array, offset, length);
+		return wrap(Maps.convertPut(supplier.get(), keyMapper, valueMapper, array, offset, length));
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key.
+	 */
+	public static <E extends Exception, T, K> Map<K, T> convertMap(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Iterable<? extends T> iterable) throws E {
+		return convertMap(keyMapper, t -> t, iterable);
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key and value.
+	 */
+	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, Iterable<T> values)
+		throws E {
+		return convert(Wrap.map(), keyMapper, valueMapper, values);
+	}
+
+	/**
+	 * Creates an immutable map by mapping each element to a key and value.
+	 */
+	public static <E extends Exception, T, K, V> Map<K, V> convertMap(
+		Functions.Supplier<? extends Map<K, V>> supplier,
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper, Iterable<T> values)
+		throws E {
+		if (supplier == null) return convertMap(keyMapper, valueMapper, values);
+		return wrap(Maps.convertPut(supplier.get(), keyMapper, valueMapper, values));
 	}
 }
