@@ -6,6 +6,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
+import ceri.common.function.Predicates;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 
@@ -86,6 +89,130 @@ public class Patterns {
 	}
 
 	/**
+	 * Joining patterns.
+	 */
+	public static class Join {
+		public static final Joiner or = Joiner.of("(", "|", ")");
+		public static final Joiner orNoCap = Joiner.of("(?:", "|", ")");
+		
+		private Join() {}
+	}
+	
+	/**
+	 * Split patterns.
+	 */
+	public static class Split {
+		public static final Pattern line = Pattern.compile("(\\r\\n|\\n|\\r)");
+		public static final Pattern comma = Pattern.compile("\\s*,\\s*");
+		public static final Pattern space = Pattern.compile("\\s+");
+
+		private Split() {}
+		
+		/**
+		 * Split the string into an array.
+		 */
+		public static String[] array(Pattern pattern, CharSequence s) {
+			if (pattern == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
+			return pattern.split(s);
+		}
+
+		/**
+		 * Split the string into a list.
+		 */
+		public static List<String> list(Pattern pattern, CharSequence s) {
+			return Arrays.asList(split(pattern, s));
+		}
+
+		/**
+		 * Split the string as a stream.
+		 */
+		public static Stream<RuntimeException, String> stream(Pattern pattern, CharSequence s) {
+			if (pattern == null || Strings.isEmpty(s)) return Stream.empty();
+			return Streams.from(pattern.splitAsStream(s));
+		}
+	}
+	
+	/**
+	 * Regex filters.
+	 */
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Returns true if the pattern is found.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> find(String format,
+			Object... objs) {
+			return find(compile(format, objs));
+		}
+
+		/**
+		 * Returns true if the pattern is found.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> find(Pattern pattern) {
+			return matching(pattern, Matcher::find);
+		}
+
+		/**
+		 * Returns true if the pattern matches.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> match(String format,
+			Object... objs) {
+			return match(compile(format, objs));
+		}
+
+		/**
+		 * Returns true if the pattern matches.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> match(Pattern pattern) {
+			return matching(pattern, Matcher::matches);
+		}
+
+		/**
+		 * Applies the predicate to the matcher (before find or match is called).
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> matching(Pattern pattern,
+			Excepts.Predicate<? extends E, ? super Matcher> predicate) {
+			if (pattern == null || predicate == null) return Predicates.no();
+			return t -> t != null && predicate.test(pattern.matcher(t));
+		}
+	}
+
+	/**
+	 * Wrapper for matcher.
+	 */
+	public static class Match {
+		public final Matcher matcher;
+
+		private Match(Matcher matcher) {
+			this.matcher = matcher;
+		}
+
+		/**
+		 * Returns the matcher groups as a stream, or empty stream if no matches.
+		 */
+		public static Stream<RuntimeException, String> groups(Matcher m) {
+			if (!hasMatch(m)) return Stream.empty();
+			int count = m.groupCount();
+			if (count <= 0) return Stream.empty();
+			return Streams.slice(1, count).mapToObj(m::group);
+		}
+
+		public <E extends Exception> boolean accept(Excepts.Consumer<E, ? super Matcher> consumer)
+			throws E {
+			if (!matcher.hasMatch() || consumer == null) return false;
+			consumer.accept(matcher);
+			return true;
+		}
+
+		public <E extends Exception, T> T accept(Excepts.Function<E, ? super Matcher, T> function,
+			T def) throws E {
+			if (!matcher.hasMatch() || function == null) return def;
+			return function.apply(matcher);
+		}
+	}
+
+	/**
 	 * Pattern does not override hashCode(); this method generates a hash code for a Pattern
 	 * instance.
 	 */
@@ -101,6 +228,13 @@ public class Patterns {
 		if (lhs == rhs) return true;
 		return lhs != null && rhs != null && Objects.equals(lhs.pattern(), rhs.pattern())
 			&& lhs.flags() == rhs.flags();
+	}
+
+	/**
+	 * Returns true if the matcher has a match.
+	 */
+	public static boolean hasMatch(Matcher m) {
+		return m != null && m.hasMatch();
 	}
 
 	/**
@@ -128,7 +262,7 @@ public class Patterns {
 	 * Split the string into an array.
 	 */
 	public static String[] split(Pattern p, CharSequence s) {
-		if (p == null || s == null) return ArrayUtil.Empty.strings;
+		if (p == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
 		return p.split(s);
 	}
 
@@ -143,12 +277,12 @@ public class Patterns {
 	 * Split the string as a stream.
 	 */
 	public static Stream<RuntimeException, String> splitStream(Pattern p, CharSequence s) {
-		if (p == null || s == null) return Stream.empty();
+		if (p == null || Strings.isEmpty(s)) return Stream.empty();
 		return Streams.from(p.splitAsStream(s));
 	}
 
 	/**
-	 * Calls find and returns the matcher.
+	 * Returns the matcher after find().
 	 */
 	public static Matcher find(Matcher m) {
 		if (m != null) m.find();
@@ -156,7 +290,25 @@ public class Patterns {
 	}
 
 	/**
-	 * Calls matches and returns the matcher.
+	 * Calls the consumer on successful find().
+	 */
+	public static <E extends Exception> boolean find(Matcher m,
+		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
+		if (!hasMatch(find(m))) return false;
+		consumer.accept(m);
+		return true;
+	}
+
+	/**
+	 * Calls the consumer on successful matches().
+	 */
+	public static <E extends Exception> boolean find(Pattern pattern, CharSequence text,
+		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
+		return accept(find(pattern.matcher(text)), consumer);
+	}
+
+	/**
+	 * Returns the matcher after matches().
 	 */
 	public static Matcher match(Matcher m) {
 		if (m != null) m.matches();
@@ -164,10 +316,21 @@ public class Patterns {
 	}
 
 	/**
-	 * Returns true if the matcher has a match.
+	 * Calls the consumer on successful matches().
 	 */
-	public static boolean hasMatch(Matcher m) {
-		return m != null && m.hasMatch();
+	public static <E extends Exception> boolean match(Pattern pattern, CharSequence text,
+		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
+		return accept(match(pattern.matcher(text)), consumer);
+	}
+
+	/**
+	 * Calls the consumer if the matcher has a match.
+	 */
+	public static <E extends Exception> boolean accept(Matcher m,
+		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
+		if (!hasMatch(m)) return false;
+		consumer.accept(m);
+		return true;
 	}
 
 	/**
@@ -185,14 +348,13 @@ public class Patterns {
 	}
 
 	/**
-	 * Returns the groups of the given matcher as a stream. Find or match should have been attempted
-	 * before calling.
+	 * Returns the groups of the given matcher as a stream, or empty stream if no match.
 	 */
 	public static Stream<RuntimeException, String> groups(Matcher m) {
 		if (!hasMatch(m)) return Stream.empty();
 		int count = m.groupCount();
 		if (count <= 0) return Stream.empty();
-		return Streams.range(1, count).mapToObj(m::group);
+		return Streams.slice(1, count).mapToObj(m::group);
 	}
 
 }

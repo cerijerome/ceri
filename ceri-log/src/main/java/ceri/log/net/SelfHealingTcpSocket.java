@@ -3,8 +3,8 @@ package ceri.log.net;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import ceri.common.function.Excepts.Function;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
@@ -26,7 +26,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 
 	public static class Config {
 		public static final Config NULL = new Builder(HostPort.NULL).build();
-		private static final Predicate<Exception> DEFAULT_PREDICATE =
+		private static final Functions.Predicate<Exception> DEFAULT_PREDICATE =
 			Lambdas.register(TcpSocket::isBroken, "TcpSocket::isBroken");
 		public final HostPort hostPort;
 		public final Function<IOException, HostPort, TcpSocket> factory;

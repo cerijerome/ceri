@@ -22,8 +22,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import ceri.common.collection.Immutable;
 import ceri.common.exception.ExceptionUtil;
+import ceri.common.exception.Exceptions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.time.DateUtil;
 import ceri.common.util.BasicUtil;
 
@@ -253,8 +255,8 @@ public class Logger {
 	}
 
 	private String formatMessage(Throwable t, String format, Object... args) {
-		if (t != null) return StringUtil.trim(ExceptionUtil.stackTrace(t));
-		return StringUtil.format(format, args);
+		if (t != null) return Strings.trim(Exceptions.stackTrace(t));
+		return Strings.format(format, args);
 	}
 
 	private boolean flag(FormatFlag flag) {

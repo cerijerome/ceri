@@ -1,6 +1,5 @@
 package ceri.x10.cm11a;
 
-import static ceri.common.util.BasicUtil.def;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
@@ -8,6 +7,7 @@ import ceri.common.io.Connector;
 import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
+import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.util.SelfHealingSerial;
 import ceri.x10.cm11a.device.Cm11a;
@@ -143,9 +143,9 @@ public class Cm11aContainer implements Functions.Closeable {
 			id = config.id;
 			type = config.type(cm11a, connector);
 			createdConnector = createConnector(config.serial);
-			this.connector = def(createdConnector, connector);
+			this.connector = BasicUtil.def(createdConnector, connector);
 			createdCm11a = createCm11a(this.connector, config.device);
-			this.cm11a = def(createdCm11a, cm11a);
+			this.cm11a = BasicUtil.def(createdCm11a, cm11a);
 			logger.info("[%d:%s] started", id, type);
 		} catch (RuntimeException e) {
 			close();

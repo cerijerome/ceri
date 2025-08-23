@@ -42,9 +42,9 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
+import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
-import ceri.common.text.Strings;
 import ceri.common.text.TextUtil;
 import ceri.common.util.BasicUtil;
 
@@ -747,6 +747,14 @@ public class AssertUtil {
 	}
 
 	/**
+	 * Checks iterable iterator has equal elements in order.
+	 */
+	@SafeVarargs
+	public static <T> void assertIterable(Iterable<T> lhs, T... ts) {
+		assertIterator(lhs.iterator(), ts);
+	}
+
+	/**
 	 * Checks iterator type has equal elements in order.
 	 */
 	@SafeVarargs
@@ -1111,7 +1119,7 @@ public class AssertUtil {
 	 * Checks string representation split into lines.
 	 */
 	public static void assertLines(Object actual, String... expectedLines) {
-		var actualLines = Strings.lineArray(String.valueOf(actual));
+		var actualLines = Patterns.Split.array(Patterns.Split.line, String.valueOf(actual));
 		int lines = Math.max(actualLines.length, expectedLines.length);
 		for (int i = 0; i < lines; i++) {
 			var textLine = ArrayUtil.at(actualLines, i, "");
@@ -1127,7 +1135,7 @@ public class AssertUtil {
 	 * Checks multi-line text, with line-specific failure info.
 	 */
 	public static void assertText(Object actual, String expected) {
-		assertLines(actual, Strings.lineArray(expected));
+		assertLines(actual, Patterns.Split.array(Patterns.Split.line, expected));
 	}
 
 	/**

@@ -23,5 +23,4 @@ public enum Protocol {
 	Protocol(int value) {
 		this.value = value;
 	}
-
 }

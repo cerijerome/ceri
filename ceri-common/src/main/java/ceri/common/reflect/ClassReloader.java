@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Collectable;
+import ceri.common.collection.Lists;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.util.BasicUtil;
 
@@ -25,9 +26,11 @@ public class ClassReloader extends ClassLoader {
 	/**
 	 * Reloads and initializes the given class; support classes are reloaded if accessed.
 	 */
-	public static <T> Class<T> reload(Class<T> cls, Collection<Class<?>> supportClasses) {
-		var reloader = of(CollectionUtil.joinAsList(cls, supportClasses));
-		return BasicUtil.unchecked(Reflect.forName(cls.getName(), true, reloader));
+	public static <T> Class<T> reload(Class<T> cls, Iterable<Class<?>> supportClasses) {
+		var classes = Lists.<Class<?>>of();
+		Collectable.addTo(classes, cls);
+		Collectable.add(classes, supportClasses);
+		return BasicUtil.unchecked(Reflect.forName(cls.getName(), true, of(classes)));
 	}
 
 	/**

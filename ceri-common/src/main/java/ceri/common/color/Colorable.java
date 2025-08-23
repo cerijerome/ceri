@@ -27,28 +27,28 @@ public interface Colorable {
 	 * Set the color as an opaque rgb int.
 	 */
 	default void rgb(int rgb) {
-		argb(ColorUtil.argb(rgb));
+		argb(Colors.argb(rgb));
 	}
 
 	/**
 	 * Get the color as an rgb int with alpha removed.
 	 */
 	default int rgb() {
-		return ColorUtil.rgb(argb());
+		return Colors.rgb(argb());
 	}
 
 	/**
 	 * Set the color.
 	 */
 	default void color(Color color) {
-		argb(ColorUtil.argb(color));
+		argb(Colors.argb(color));
 	}
 
 	/**
 	 * Get the color.
 	 */
 	default Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**
@@ -68,7 +68,7 @@ public interface Colorable {
 	 * Adapt a type that gets/sets colorx, by denormalizing color with given x colors.
 	 */
 	static Colorable from(Colorxable colorxable, Color... xs) {
-		return from(colorxable, ColorUtil.argbs(xs));
+		return from(colorxable, Colors.argbs(xs));
 	}
 
 	/**
@@ -78,12 +78,12 @@ public interface Colorable {
 		return new Colorable() {
 			@Override
 			public void argb(int argb) {
-				colorxable.xargb(ColorxUtil.denormalizeXargb(argb, xrgbs));
+				colorxable.xargb(Colorxs.denormalizeXargb(argb, xrgbs));
 			}
 
 			@Override
 			public int argb() {
-				return ColorxUtil.normalizeArgb(colorxable.xargb(), xrgbs);
+				return Colorxs.normalizeArgb(colorxable.xargb(), xrgbs);
 			}
 		};
 	}

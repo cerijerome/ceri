@@ -51,19 +51,7 @@ public class PredicatesTest {
 	}
 
 	@Test
-	public void testEqNoCase() throws Exception {
-		assertTrue(Predicates.eqIgnoreCase(null).test(null));
-		assertFalse(Predicates.eqIgnoreCase("").test(null));
-		assertFalse(Predicates.eqIgnoreCase(null).test(""));
-		var filter = Predicates.eqIgnoreCase("aBc");
-		assertTrue(filter.test("aBc"));
-		assertTrue(filter.test("abc"));
-		assertTrue(filter.test("ABC"));
-		assertFalse(filter.test("aBcd"));
-	}
-
-	@Test
-	public void testEq() {
+	public void testEq() throws Exception {
 		var filter = Predicates.eqAny(-1, 1);
 		assertTrue(filter.test(1));
 		assertTrue(filter.test(-1));

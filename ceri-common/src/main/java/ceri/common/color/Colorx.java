@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.argbs;
+import static ceri.common.color.Colors.argbs;
 import static ceri.common.color.Component.x0;
 import static ceri.common.color.Component.x1;
 import static ceri.common.color.Component.x2;
@@ -33,7 +33,7 @@ public record Colorx(long xargb) {
 	 * Construct by extracting x-color components from argb.
 	 */
 	public static Colorx from(int argb, int... xrgbs) {
-		return of(ColorxUtil.denormalizeXargb(argb, xrgbs));
+		return of(Colorxs.denormalizeXargb(argb, xrgbs));
 	}
 
 	/**
@@ -47,7 +47,7 @@ public record Colorx(long xargb) {
 	 * Construct from argb int and x components.
 	 */
 	public static Colorx of(int argb, int... xs) {
-		return of(ColorxUtil.xargb(argb, xs));
+		return of(Colorxs.xargb(argb, xs));
 	}
 
 	/**
@@ -61,77 +61,77 @@ public record Colorx(long xargb) {
 	 * Determine if any x component is set.
 	 */
 	public boolean hasX() {
-		return ColorxUtil.hasX(xargb);
+		return Colorxs.hasX(xargb);
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int a() {
-		return ColorxUtil.a(xargb);
+		return Colorxs.a(xargb);
 	}
 
 	/**
 	 * Return colorx with component value set.
 	 */
 	public Colorx a(int a) {
-		return a() == a ? this : of(ColorxUtil.a(xargb, a));
+		return a() == a ? this : of(Colorxs.a(xargb, a));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int r() {
-		return ColorxUtil.r(xargb);
+		return Colorxs.r(xargb);
 	}
 
 	/**
 	 * Return colorx with component value set.
 	 */
 	public Colorx r(int r) {
-		return r() == r ? this : of(ColorxUtil.r(xargb, r));
+		return r() == r ? this : of(Colorxs.r(xargb, r));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int g() {
-		return ColorxUtil.g(xargb);
+		return Colorxs.g(xargb);
 	}
 
 	/**
 	 * Return colorx with component value set.
 	 */
 	public Colorx g(int g) {
-		return g() == g ? this : of(ColorxUtil.g(xargb, g));
+		return g() == g ? this : of(Colorxs.g(xargb, g));
 	}
 
 	/**
 	 * Extract component.
 	 */
 	public int b() {
-		return ColorxUtil.b(xargb);
+		return Colorxs.b(xargb);
 	}
 
 	/**
 	 * Return colorx with component value set.
 	 */
 	public Colorx b(int b) {
-		return b() == b ? this : of(ColorxUtil.b(xargb, b));
+		return b() == b ? this : of(Colorxs.b(xargb, b));
 	}
 
 	/**
 	 * Extract x[i] component.
 	 */
 	public int x(int i) {
-		return ColorxUtil.x(xargb, i);
+		return Colorxs.x(xargb, i);
 	}
 
 	/**
 	 * Return colorx with component value set.
 	 */
 	public Colorx x(int i, int x) {
-		return x(i) == x ? this : of(ColorxUtil.x(xargb, i, x));
+		return x(i) == x ? this : of(Colorxs.x(xargb, i, x));
 	}
 
 	/**
@@ -145,7 +145,7 @@ public record Colorx(long xargb) {
 	 * Extract rgb int. X and alpha values are dropped.
 	 */
 	public int rgb() {
-		return ColorUtil.rgb(argb());
+		return Colors.rgb(argb());
 	}
 
 	/**
@@ -159,7 +159,7 @@ public record Colorx(long xargb) {
 	 * Extract argb color. X values are dropped.
 	 */
 	public Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**
@@ -167,7 +167,7 @@ public record Colorx(long xargb) {
 	 */
 	public Color normalize(Color... xrgbs) {
 		if (xrgbs.length == 0) return color();
-		return ColorUtil.color(normalizeArgb(argbs(xrgbs)));
+		return Colors.color(normalizeArgb(argbs(xrgbs)));
 	}
 
 	/**
@@ -175,14 +175,14 @@ public record Colorx(long xargb) {
 	 */
 	public int normalizeArgb(int... xrgbs) {
 		if (xrgbs.length == 0) return argb();
-		return ColorxUtil.normalizeArgb(xargb, xrgbs);
+		return Colorxs.normalizeArgb(xargb, xrgbs);
 	}
 
 	/**
 	 * Flattens the color by applying alpha channel on opaque black.
 	 */
 	public Colorx flatten() {
-		long xargb = ColorxUtil.flattenXargb(this.xargb);
+		long xargb = Colorxs.flattenXargb(this.xargb);
 		return this.xargb == xargb ? this : of(xargb);
 	}
 

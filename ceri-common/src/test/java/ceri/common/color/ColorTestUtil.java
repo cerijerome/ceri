@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_VALUE;
+import static ceri.common.color.Colors.MAX_VALUE;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRange;
@@ -9,7 +9,7 @@ import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr;
 
 public class ColorTestUtil {
-	public static final int white = Colors.white.argb;
+	public static final int white = Coloring.white.argb;
 
 	private ColorTestUtil() {}
 
@@ -139,7 +139,7 @@ public class ColorTestUtil {
 	}
 
 	public static String sgr(int argb, int bg) {
-		return AnsiEscape.csi.sgr().bgColor24(ColorUtil.blendArgbs(argb, bg | Component.a.intMask))
+		return AnsiEscape.csi.sgr().bgColor24(Colors.blendArgbs(argb, bg | Component.a.intMask))
 			.toString();
 	}
 

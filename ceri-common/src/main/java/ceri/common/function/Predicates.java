@@ -2,99 +2,44 @@ package ceri.common.function;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.CollectionUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.collection.Collectable;
+import ceri.common.collection.Sets;
 import ceri.common.util.BasicUtil;
 
 /**
  * Methods for building predicates.
  */
 public class Predicates {
-	public static final Functions.Predicate<Object> YES = (_ -> true);
-	public static final Functions.Predicate<Object> NO = (_ -> false);
-	public static final Functions.Predicate<Object> IS_NULL = (t -> t == null);
-	public static final Functions.Predicate<Object> NON_NULL = (t -> t != null);
+	public static final Functions.Predicate<Object> yes = (_ -> true);
+	public static final Functions.Predicate<Object> no = (_ -> false);
+	public static final Functions.Predicate<Object> isNull = (t -> t == null);
+	public static final Functions.Predicate<Object> nonNull = (t -> t != null);
 
 	private Predicates() {}
 
 	// Principles:
-	// - Avoid rt() as it creates a new object (required for java predicates)
-	// - ex() is cheap; use to ensure uniform exceptions across predicates
-	// - Return Functions.Predicate if rt() is not needed
-
-	// TODO:
-	// - replace wrapped stream use with new streams
-	// - look for general stream use
-	// - replace predicates
+	// - flexible return type, remove need for caller to cast
+	// - but caller needs to store Excepts.Predicate
+	// - null predicate == no
+	// - filters usually static final; don't worry too much about optimization
 
 	// Casting
 
 	/**
-	 * Converts a runtime exception predicate to a non-exception predicate. (Try to avoid)
+	 * Casts to super exception and sub-type.
 	 */
-	public static <T> Functions.Predicate<T>
-		rt(Excepts.Predicate<? extends RuntimeException, ? super T> predicate) {
-		return predicate == null ? null : predicate::test;
+	public static <E extends Exception, T> Excepts.Predicate<E, T>
+		cast(Excepts.Predicate<? extends E, ? super T> predicate) {
+		return BasicUtil.unchecked(predicate);
 	}
 
 	/**
-	 * Converts a runtime exception predicate to a non-exception predicate. (Try to avoid)
-	 */
-	public static Functions.IntPredicate
-		rt(Excepts.IntPredicate<? extends RuntimeException> predicate) {
-		return predicate == null ? null : predicate::test;
-	}
-
-	/**
-	 * Converts a runtime exception predicate to a non-exception predicate. (Try to avoid)
-	 */
-	public static Functions.LongPredicate
-		rt(Excepts.LongPredicate<? extends RuntimeException> predicate) {
-		return predicate == null ? null : predicate::test;
-	}
-
-	/**
-	 * Converts a runtime exception predicate to a non-exception predicate. (Try to avoid)
-	 */
-	public static Functions.DoublePredicate
-		rt(Excepts.DoublePredicate<? extends RuntimeException> predicate) {
-		return predicate == null ? null : predicate::test;
-	}
-
-	/**
-	 * Casts a runtime exception predicate to an exception predicate.
+	 * Casts from runtime to any exception, and type to sub-type.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		ex(Excepts.Predicate<? extends RuntimeException, ? super T> predicate) {
-		return BasicUtil.unchecked(predicate);
-	}
-
-	/**
-	 * Casts a runtime exception predicate to an exception predicate.
-	 */
-	public static <E extends Exception> Excepts.IntPredicate<E>
-		ex(Excepts.IntPredicate<? extends RuntimeException> predicate) {
-		return BasicUtil.unchecked(predicate);
-	}
-
-	/**
-	 * Casts a runtime exception predicate to an exception predicate.
-	 */
-	public static <E extends Exception> Excepts.LongPredicate<E>
-		ex(Excepts.LongPredicate<? extends RuntimeException> predicate) {
-		return BasicUtil.unchecked(predicate);
-	}
-
-	/**
-	 * Casts a runtime exception predicate to an exception predicate.
-	 */
-	public static <E extends Exception> Excepts.DoublePredicate<E>
-		ex(Excepts.DoublePredicate<? extends RuntimeException> predicate) {
 		return BasicUtil.unchecked(predicate);
 	}
 
@@ -103,35 +48,35 @@ public class Predicates {
 	/**
 	 * Returns true for all arguments.
 	 */
-	public static <T> Functions.Predicate<T> yes() {
-		return BasicUtil.unchecked(YES);
+	public static <E extends Exception, T> Excepts.Predicate<E, T> yes() {
+		return BasicUtil.unchecked(yes);
 	}
 
 	/**
 	 * Returns false for all arguments.
 	 */
-	public static <T> Functions.Predicate<T> no() {
-		return BasicUtil.unchecked(NO);
+	public static <E extends Exception, T> Excepts.Predicate<E, T> no() {
+		return BasicUtil.unchecked(no);
 	}
 
 	/**
 	 * Returns true if the argument is null.
 	 */
-	public static <T> Functions.Predicate<T> isNull() {
-		return BasicUtil.unchecked(IS_NULL);
+	public static <E extends Exception, T> Excepts.Predicate<E, T> isNull() {
+		return BasicUtil.unchecked(isNull);
 	}
 
 	/**
 	 * Returns true if the argument is not null.
 	 */
-	public static <T> Functions.Predicate<T> nonNull() {
-		return BasicUtil.unchecked(NON_NULL);
+	public static <E extends Exception, T> Excepts.Predicate<E, T> nonNull() {
+		return BasicUtil.unchecked(nonNull);
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static <T> Functions.Predicate<T> eq(T value) {
+	public static <E extends Exception, T> Excepts.Predicate<E, T> eq(T value) {
 		return t -> Objects.equals(t, value);
 	}
 
@@ -139,38 +84,46 @@ public class Predicates {
 	 * Returns true if the argument equals any of the values.
 	 */
 	@SafeVarargs
-	public static <T> Functions.Predicate<T> eqAny(T... values) {
+	public static <E extends Exception, T> Excepts.Predicate<E, T> eqAny(T... values) {
 		if (values == null) return no();
-		return eqAny(Arrays.asList(values));
+		return eqAny(Sets.ofAll(values));
 	}
 
 	/**
 	 * Returns true if the argument equals any of the values. The collection is not copied.
 	 */
-	public static <T> Functions.Predicate<T> eqAny(Collection<? extends T> values) {
-		if (CollectionUtil.empty(values)) return no();
-		return t -> values.contains(t);
+	public static <E extends Exception, T> Excepts.Predicate<E, T>
+		eqAny(Collection<? extends T> values) {
+		if (values == null) return no();
+		return values::contains;
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static Functions.IntPredicate eqInt(int value) {
+	public static <E extends Exception> Excepts.IntPredicate<E> eqInt(int value) {
 		return t -> t == value;
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static Functions.LongPredicate eqLong(long value) {
+	public static <E extends Exception> Excepts.LongPredicate<E> eqLong(long value) {
 		return t -> t == value;
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static Functions.DoublePredicate eqDouble(double value) {
+	public static <E extends Exception> Excepts.DoublePredicate<E> eqDouble(double value) {
 		return t -> t == value;
+	}
+
+	/**
+	 * Returns true if the argument is an instance of the class. A null class matches all.
+	 */
+	public static <E extends Exception, T> Excepts.Predicate<E, T> instance(Class<?> cls) {
+		return t -> cls == null || cls.isInstance(t);
 	}
 
 	// Adapters
@@ -196,7 +149,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> nullAs(boolean nullResult,
 		Excepts.Predicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(nullResult ? YES : NO);
+		if (predicate == null) return no();
 		return t -> (t == null ? nullResult : predicate.test(t));
 	}
 
@@ -205,7 +158,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		not(Excepts.Predicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
+		if (predicate == null) return no();
 		return t -> !predicate.test(t);
 	}
 
@@ -213,9 +166,9 @@ public class Predicates {
 	 * Transforms a predicate with accessor; returns false for null.
 	 */
 	public static <E extends Exception, T, R> Excepts.Predicate<E, T> testing(
-		Excepts.Function<? extends E, ? super T, ? extends R> accessor,
+		Excepts.Function<? extends E, ? super T, R> accessor,
 		Excepts.Predicate<? extends E, ? super R> predicate) {
-		if (predicate == null || accessor == null) return ex(NO);
+		if (predicate == null || accessor == null) return no();
 		return t -> t != null && predicate.test(accessor.apply(t));
 	}
 
@@ -225,7 +178,7 @@ public class Predicates {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> testingInt(
 		Excepts.ToIntFunction<? extends E, ? super T> accessor,
 		Excepts.IntPredicate<? extends E> predicate) {
-		if (predicate == null || accessor == null) return ex(NO);
+		if (predicate == null || accessor == null) return no();
 		return t -> t != null && predicate.test(accessor.applyAsInt(t));
 	}
 
@@ -235,7 +188,7 @@ public class Predicates {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> testingLong(
 		Excepts.ToLongFunction<? extends E, ? super T> accessor,
 		Excepts.LongPredicate<? extends E> predicate) {
-		if (predicate == null || accessor == null) return ex(NO);
+		if (predicate == null || accessor == null) return no();
 		return t -> t != null && predicate.test(accessor.applyAsLong(t));
 	}
 
@@ -245,17 +198,19 @@ public class Predicates {
 	public static <E extends Exception, T> Excepts.Predicate<E, T> testingDouble(
 		Excepts.ToDoubleFunction<? extends E, ? super T> accessor,
 		Excepts.DoublePredicate<? extends E> predicate) {
-		if (predicate == null || accessor == null) return ex(NO);
+		if (predicate == null || accessor == null) return no();
 		return t -> t != null && predicate.test(accessor.applyAsDouble(t));
 	}
 
 	/**
-	 * Transforms a bi-predicate into a map entry predicate.
+	 * Transforms a predicate with accessor; returns false for null.
 	 */
-	public static <E extends Exception, K, V> Excepts.Predicate<E, Map.Entry<K, V>>
-		testingMapEntry(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate) {
-		if (predicate == null) return ex(NO);
-		return t -> t != null && predicate.test(t.getKey(), t.getValue());
+	public static <E extends Exception, T, U, V> Excepts.Predicate<E, T> biTesting(
+		Excepts.Function<? extends E, ? super T, U> uAccessor,
+		Excepts.Function<? extends E, ? super T, V> vAccessor,
+		Excepts.BiPredicate<? extends E, ? super U, ? super V> predicate) {
+		if (predicate == null || uAccessor == null || vAccessor == null) return no();
+		return t -> t != null && predicate.test(uAccessor.apply(t), vAccessor.apply(t));
 	}
 
 	// Composers
@@ -266,7 +221,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		and(Excepts.Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.isEmpty(predicates)) return ex(YES);
+		if (ArrayUtil.isEmpty(predicates)) return yes();
 		return and(Arrays.asList(predicates));
 	}
 
@@ -275,7 +230,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		and(Collection<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
-		if (CollectionUtil.empty(predicates)) return ex(YES);
+		if (Collectable.isEmpty(predicates)) return yes();
 		return t -> {
 			for (var predicate : predicates)
 				if (predicate != null && !predicate.test(t)) return false;
@@ -289,7 +244,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		or(Excepts.Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.isEmpty(predicates)) return ex(NO);
+		if (ArrayUtil.isEmpty(predicates)) return ex(no);
 		return or(Arrays.asList(predicates));
 	}
 
@@ -298,7 +253,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		or(Collection<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
-		if (CollectionUtil.empty(predicates)) return ex(NO);
+		if (Collectable.isEmpty(predicates)) return ex(no);
 		return t -> {
 			for (var predicate : predicates)
 				if (predicate != null && predicate.test(t)) return true;
@@ -311,7 +266,8 @@ public class Predicates {
 	/**
 	 * Returns true if the argument >= min and not null.
 	 */
-	public static <T extends Comparable<T>> Functions.Predicate<T> gte(T min) {
+	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
+		gte(T min) {
 		if (min == null) return yes();
 		return t -> t != null && t.compareTo(min) >= 0;
 	}
@@ -319,7 +275,7 @@ public class Predicates {
 	/**
 	 * Returns true if the argument > min and not null.
 	 */
-	public static <T extends Comparable<T>> Functions.Predicate<T> gt(T min) {
+	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T> gt(T min) {
 		if (min == null) return yes();
 		return t -> t != null && t.compareTo(min) > 0;
 	}
@@ -327,7 +283,8 @@ public class Predicates {
 	/**
 	 * Returns true if the argument <= max and not null.
 	 */
-	public static <T extends Comparable<T>> Functions.Predicate<T> lte(T max) {
+	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
+		lte(T max) {
 		if (max == null) return yes();
 		return t -> t != null && t.compareTo(max) <= 0;
 	}
@@ -335,7 +292,7 @@ public class Predicates {
 	/**
 	 * Returns true if the argument < max and not null.
 	 */
-	public static <T extends Comparable<T>> Functions.Predicate<T> lt(T max) {
+	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T> lt(T max) {
 		if (max == null) return yes();
 		return t -> t != null && t.compareTo(max) < 0;
 	}
@@ -343,181 +300,9 @@ public class Predicates {
 	/**
 	 * Returns true if the min <= argument <= max and not null.
 	 */
-	public static <T extends Comparable<T>> Functions.Predicate<T> range(T min, T max) {
-		var gte = gte(min);
-		var lte = lte(max);
-		return t -> t != null && gte.test(t) && lte.test(t);
-	}
-
-	// String predicates
-
-	/**
-	 * Returns true if the argument equals the string, ignoring case.
-	 */
-	public static Functions.Predicate<String> eqIgnoreCase(String value) {
-		if (value == null) return isNull();
-		return t -> t != null && value.equalsIgnoreCase(t);
-	}
-
-	/**
-	 * Predicate that returns true for strings that contain the given substring.
-	 */
-	public static Functions.Predicate<String> contains(CharSequence s) {
-		if (s == null) return isNull();
-		if (s.isEmpty()) return yes();
-		return t -> t != null && t.contains(s);
-	}
-
-	/**
-	 * Predicate that returns true for strings that contain the given substring.
-	 */
-	public static Functions.Predicate<String> containsIgnoreCase(String s) {
-		if (s == null) return isNull();
-		if (s.isEmpty()) return yes();
-		return t -> t != null && StringUtil.containsIgnoreCase(t, s);
-	}
-
-	/**
-	 * Returns true if the argument contains the pattern.
-	 */
-	public static Functions.Predicate<CharSequence> find(Pattern pattern) {
-		if (pattern == null) return isNull();
-		return t -> t != null && pattern.matcher(t).find();
-	}
-
-	/**
-	 * Returns true if the argument matches the pattern.
-	 */
-	public static Functions.Predicate<String> match(Pattern pattern) {
-		if (pattern == null) return isNull();
-		return t -> t != null && pattern.matcher(t).matches();
-	}
-
-	/**
-	 * Returns true if the argument matches the pattern.
-	 */
-	public static <E extends Exception> Excepts.Predicate<E, String> matching(Pattern pattern,
-		Excepts.Predicate<? extends E, ? super Matcher> predicate) {
-		if (pattern == null) return ex(IS_NULL);
-		if (predicate == null) return ex(NO);
-		return t -> t != null && predicate.test(pattern.matcher(t));
-	}
-
-	// Array predicates
-
-	/**
-	 * Predicate that returns true if any element and index matches.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, T[]>
-		arrayAny(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			for (int i = 0; i < ts.length; i++)
-				if (predicate.test(ts[i], i)) return true;
-			return false;
-		};
-	}
-
-	/**
-	 * Predicate that returns true if any element and index matches.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, T[]>
-		arrayAll(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			for (int i = 0; i < ts.length; i++)
-				if (!predicate.test(ts[i], i)) return false;
-			return true;
-		};
-	}
-
-	// Iterable predicates
-
-	/**
-	 * Predicate that returns true if any element matches.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-		forAny(Excepts.Predicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			for (T t : ts)
-				if (predicate.test(t)) return true;
-			return false;
-		};
-	}
-
-	/**
-	 * Predicate that returns true if all elements match.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-		forAll(Excepts.Predicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			for (T t : ts)
-				if (!predicate.test(t)) return false;
-			return true;
-		};
-	}
-
-	/**
-	 * Predicate that returns true if any indexed element matches.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-		forAnyIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			int i = 0;
-			for (T t : ts)
-				if (predicate.test(t, i++)) return true;
-			return false;
-		};
-	}
-
-	/**
-	 * Predicate that returns true if all indexed elements match.
-	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
-		forAllIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return ex(NO);
-		return ts -> {
-			if (ts == null) return false;
-			int i = 0;
-			for (T t : ts)
-				if (!predicate.test(t, i++)) return false;
-			return true;
-		};
-	}
-
-	// Collection predicates
-
-	/**
-	 * Predicate that returns true if a collection contains all the values.
-	 */
-	public static <T> Functions.Predicate<Collection<T>> containsItem(T value) {
-		return ts -> ts != null && ts.contains(value);
-	}
-
-	/**
-	 * Predicate that returns true if a collection contains all the values.
-	 */
-	@SafeVarargs
-	public static <T> Functions.Predicate<Collection<T>> containsAll(T... values) {
-		if (values == null) return isNull();
-		return containsAll(Arrays.asList(values));
-	}
-
-	/**
-	 * Predicate that returns true if a collection contains all the values.
-	 */
-	public static <T> Functions.Predicate<Collection<T>>
-		containsAll(Collection<? extends T> values) {
-		if (values == null) return isNull();
-		return ts -> ts != null && ts.containsAll(ts);
+	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
+		range(T min, T max) {
+		return and(gte(min), lte(max));
 	}
 
 	// Bi-predicates
@@ -528,7 +313,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
 		applyAllOf(Excepts.BiPredicate<? extends E, T, U> predicate, U... values) {
-		if (values == null) return ex(YES);
+		if (values == null) return ex(yes);
 		return applyAll(predicate, Arrays.asList(values));
 	}
 
@@ -537,7 +322,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
 		applyAll(Excepts.BiPredicate<? extends E, T, U> predicate, Iterable<U> values) {
-		if (values == null) return ex(YES);
+		if (values == null) return ex(yes);
 		return t -> {
 			if (t == null) return false;
 			for (var value : values)
@@ -552,7 +337,7 @@ public class Predicates {
 	@SafeVarargs
 	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
 		applyAnyOf(Excepts.BiPredicate<? extends E, T, U> predicate, U... values) {
-		if (values == null) return ex(NO);
+		if (values == null) return ex(no);
 		return applyAny(predicate, Arrays.asList(values));
 	}
 
@@ -561,7 +346,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
 		applyAny(Excepts.BiPredicate<? extends E, T, U> predicate, Iterable<U> values) {
-		if (values == null) return ex(NO);
+		if (values == null) return ex(no);
 		return t -> {
 			if (t == null) return false;
 			for (var value : values)
@@ -569,5 +354,4 @@ public class Predicates {
 			return false;
 		};
 	}
-
 }

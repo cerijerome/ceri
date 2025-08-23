@@ -48,10 +48,10 @@ public class ComponentBehavior {
 	public void testLimit() {
 		assertEquals(Component.limit(0), 0);
 		assertEquals(Component.limit(100), 100);
-		assertEquals(Component.limit(ColorUtil.MAX_VALUE), ColorUtil.MAX_VALUE);
+		assertEquals(Component.limit(Colors.MAX_VALUE), Colors.MAX_VALUE);
 		assertEquals(Component.limit(-1), 0);
-		assertEquals(Component.limit(ColorUtil.MAX_VALUE + 1), ColorUtil.MAX_VALUE);
-		assertEquals(Component.limit(Integer.MAX_VALUE), ColorUtil.MAX_VALUE);
+		assertEquals(Component.limit(Colors.MAX_VALUE + 1), Colors.MAX_VALUE);
+		assertEquals(Component.limit(Integer.MAX_VALUE), Colors.MAX_VALUE);
 		assertEquals(Component.limit(Integer.MIN_VALUE), 0);
 	}
 

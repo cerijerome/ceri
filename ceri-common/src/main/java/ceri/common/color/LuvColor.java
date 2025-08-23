@@ -1,8 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.ratio;
-import static ceri.common.color.ColorUtil.value;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.ratio;
+import static ceri.common.color.Colors.value;
 import java.awt.Color;
 
 /**
@@ -52,7 +52,7 @@ public record LuvColor(double a, double l, double u, double v) {
 		 */
 		public LuvColor luv(int argb) {
 			double[] luv = ColorSpaces.rgbToLuv(yn, un, vn, argb);
-			return LuvColor.of(ratio(ColorUtil.a(argb)), luv[0], luv[1], luv[2]);
+			return LuvColor.of(ratio(Colors.a(argb)), luv[0], luv[1], luv[2]);
 		}
 
 		/**
@@ -98,7 +98,7 @@ public record LuvColor(double a, double l, double u, double v) {
 		 * Convert CIE LUV to sRGB color, using this reference. Alpha is maintained.
 		 */
 		public Color color(LuvColor luv) {
-			return ColorUtil.color(argb(luv));
+			return Colors.color(argb(luv));
 		}
 
 		/**

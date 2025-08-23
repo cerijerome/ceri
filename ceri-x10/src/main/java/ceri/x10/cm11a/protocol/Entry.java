@@ -1,19 +1,11 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.x10.command.FunctionType.allLightsOff;
-import static ceri.x10.command.FunctionType.allLightsOn;
-import static ceri.x10.command.FunctionType.allUnitsOff;
-import static ceri.x10.command.FunctionType.bright;
-import static ceri.x10.command.FunctionType.dim;
-import static ceri.x10.command.FunctionType.ext;
-import static ceri.x10.command.FunctionType.off;
-import static ceri.x10.command.FunctionType.on;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import ceri.common.collection.Lists;
+import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionGroup;
@@ -26,8 +18,8 @@ import ceri.x10.command.Unit;
  * differently for transmitting vs receiving.
  */
 public class Entry {
-	private static final Map<FunctionType, BiFunction<Collection<Unit>, Entry, Command>> commands =
-		commandMap();
+	private static final Map<FunctionType, //
+		Functions.BiFunction<Collection<Unit>, Entry, Command>> commands = commandMap();
 	public final House house; // always present
 	public final Unit unit; // for address
 	public final FunctionType type; // null for address
@@ -37,7 +29,7 @@ public class Entry {
 	public static List<Entry> allFrom(Command command) {
 		if (command.isNoOp()) return List.of();
 		Entry function = functionFrom(command);
-		List<Entry> entries = new ArrayList<>();
+		List<Entry> entries = Lists.of();
 		command.units().forEach(unit -> entries.add(address(command.house(), unit)));
 		entries.add(function);
 		return entries;
@@ -105,8 +97,7 @@ public class Entry {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Entry)) return false;
-		Entry other = (Entry) obj;
+		if (!(obj instanceof Entry other)) return false;
 		if (house != other.house) return false;
 		if (unit != other.unit) return false;
 		if (type != other.type) return false;
@@ -127,16 +118,16 @@ public class Entry {
 		return house == this.house; // must be same house
 	}
 
-	private static Map<FunctionType, BiFunction<Collection<Unit>, Entry, Command>> commandMap() {
-		return Map.of( //
-			allUnitsOff, (_, input) -> Command.allUnitsOff(input.house), //
-			allLightsOn, (_, input) -> Command.allLightsOn(input.house), //
-			on, (units, input) -> Command.on(input.house, units), //
-			off, (units, input) -> Command.off(input.house, units), //
-			dim, (units, input) -> Command.dim(input.house, input.data, units), //
-			bright, (units, input) -> Command.bright(input.house, input.data, units), //
-			allLightsOff, (_, input) -> Command.allLightsOff(input.house), //
-			ext, (units, input) -> Command.ext(input.house, input.data, input.command, units));
+	private static Map<FunctionType, Functions.BiFunction<Collection<Unit>, Entry, Command>>
+		commandMap() {
+		return Map.of(FunctionType.allUnitsOff, (_, input) -> Command.allUnitsOff(input.house),
+			FunctionType.allLightsOn, (_, input) -> Command.allLightsOn(input.house),
+			FunctionType.on, (units, input) -> Command.on(input.house, units), //
+			FunctionType.off, (units, input) -> Command.off(input.house, units), //
+			FunctionType.dim, (units, input) -> Command.dim(input.house, input.data, units), //
+			FunctionType.bright, (units, input) -> Command.bright(input.house, input.data, units),
+			FunctionType.allLightsOff, (_, input) -> Command.allLightsOff(input.house),
+			FunctionType.ext,
+			(units, input) -> Command.ext(input.house, input.data, input.command, units));
 	}
-
 }

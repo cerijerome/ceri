@@ -1,13 +1,9 @@
 package ceri.common.comparator;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.function.Function;
-import ceri.common.collection.Immutable;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -30,57 +26,28 @@ public class Comparators {
 	public static final Comparator<Character> CHAR = BasicUtil.unchecked(COMPARABLE);
 	public static final Comparator<String> STRING = BasicUtil.unchecked(COMPARABLE);
 	public static final Comparator<Date> DATE = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Byte> UBYTE = nonNull(Byte::compareUnsigned);
-	public static final Comparator<Short> USHORT = nonNull(Short::compareUnsigned);
-	public static final Comparator<Integer> UINT = nonNull(Integer::compareUnsigned);
-	public static final Comparator<Long> ULONG = nonNull(Long::compareUnsigned);
+	public static final Comparator<Byte> UBYTE = Comparator.nullsFirst(Byte::compareUnsigned);
+	public static final Comparator<Short> USHORT = Comparator.nullsFirst(Short::compareUnsigned);
+	public static final Comparator<Integer> UINT = Comparator.nullsFirst(Integer::compareUnsigned);
+	public static final Comparator<Long> ULONG = Comparator.nullsFirst(Long::compareUnsigned);
 	public static final Comparator<Locale> LOCALE = string();
-	private static final Comparator<Object> STRING_VALUE =
-		Comparator.nullsFirst(Comparator.comparing(String::valueOf));
+	public static final Comparator<Object> TO_STRING = comparing(String::valueOf, STRING);
 	private static final Comparator<Object> NULL = ((_, _) -> 0);
-	private static final Comparator<Object> NON_NULL = nonNull((_, _) -> 0);
-	public static final Comparator<Object> nullsFirst = Comparator.nullsFirst(NULL);
-	public static final Comparator<Object> nullsLast = Comparator.nullsLast(NULL);
 
 	private Comparators() {}
 
 	/**
-	 * Casts the comparator, with default null first no-op comparator.
+	 * Null comparator treats everything as equal.
+	 */
+	public static <T> Comparator<T> ofNull() {
+		return BasicUtil.unchecked(NULL);
+	}
+
+	/**
+	 * Casts the comparator, with default no-op comparator.
 	 */
 	public static <T> Comparator<T> of(Comparator<? super T> comparator) {
-		return BasicUtil.unchecked(comparator != null ? comparator : nullsFirst);
-	}
-	
-	/**
-	 * Comparator based on position in a given collection. Items not in the list are placed at the
-	 * end.
-	 */
-	@SafeVarargs
-	public static <T> Comparator<T> order(T... ts) {
-		return order(Arrays.asList(ts));
-	}
-
-	/**
-	 * Comparator based on position in a given collection. Items not in the list are placed at the
-	 * end.
-	 */
-	public static <T> Comparator<T> order(Collection<T> ts) {
-		List<T> list = Immutable.list(ts);
-		return transform(INT, t -> indexOf(list, t));
-	}
-
-	private static <T> int indexOf(List<T> list, T t) {
-		int i = list.indexOf(t);
-		return i == -1 ? list.size() : i;
-	}
-
-	/**
-	 * Transforms a comparator of one type to another using an accessor.
-	 */
-	public static <T, R> Comparator<T> transform(Comparator<? super R> comparator,
-		Function<T, R> accessor) {
-		Function<T, R> safe = t -> t == null ? null : accessor.apply(t);
-		return (lhs, rhs) -> comparator.compare(safe.apply(lhs), safe.apply(rhs));
+		return BasicUtil.unchecked(comparator != null ? comparator : NULL);
 	}
 
 	/**
@@ -122,68 +89,44 @@ public class Comparators {
 	 * Comparator for string representations of objects.
 	 */
 	public static <T> Comparator<T> string() {
-		return BasicUtil.unchecked(STRING_VALUE);
+		return BasicUtil.unchecked(TO_STRING);
 	}
 
 	/**
-	 * Null comparator treats everything as equal.
+	 * Nulls first, field access and comparison.
 	 */
-	public static <T> Comparator<T> nullComparator() {
-		return BasicUtil.unchecked(NULL);
+	public static <T, U> Comparator<T> comparing(
+		Functions.Function<? super T, ? extends U> accessor, Comparator<? super U> comparator) {
+		return Comparator.nullsFirst(Comparator.comparing(accessor, comparator));
 	}
 
 	/**
-	 * Non-null comparator treats null as inferior, everything else equal.
+	 * Nulls first, field access and natural order comparison.
 	 */
-	public static <T> Comparator<T> nonNullComparator() {
-		return BasicUtil.unchecked(NON_NULL);
+	public static <T, U extends Comparable<? super U>> Comparator<T>
+		comparing(Functions.Function<? super T, ? extends U> accessor) {
+		return comparing(accessor, Comparator.naturalOrder());
 	}
 
 	/**
-	 * Create a comparator the checks comparators in sequence.
+	 * Nulls first, field access and natural order comparison.
 	 */
-	@SafeVarargs
-	// public static <T> Comparator<T> sequence(Comparator<? super T>... comparators) {
-	public static <T> Comparator<T> sequence(Comparator<T>... comparators) {
-		return sequence(Arrays.asList(comparators));
+	public static <T> Comparator<T> comparingInt(Functions.ToIntFunction<? super T> accessor) {
+		return Comparator.nullsFirst(Comparator.comparingInt(accessor));
 	}
 
 	/**
-	 * Create a comparator the checks comparators in sequence.
+	 * Nulls first, field access and natural order comparison.
 	 */
-	public static <T> Comparator<T> sequence(Collection<? extends Comparator<T>> comparators) {
-		// sequence(Collection<? extends Comparator<? super T>> comparators) {
-		return ComparatorSequence.<T>builder().add(comparators).build();
+	public static <T> Comparator<T> comparingLong(Functions.ToLongFunction<? super T> accessor) {
+		return Comparator.nullsFirst(Comparator.comparingLong(accessor));
 	}
 
 	/**
-	 * Comparator to group given items first, then apply the comparator.
+	 * Nulls first, field access and natural order comparison.
 	 */
-	@SafeVarargs
-	public static <T> Comparator<T> group(Comparator<? super T> comparator, T... ts) {
-		return group(comparator, Arrays.asList(ts));
+	public static <T> Comparator<T>
+		comparingDouble(Functions.ToDoubleFunction<? super T> accessor) {
+		return Comparator.nullsFirst(Comparator.comparingDouble(accessor));
 	}
-
-	/**
-	 * Comparator to group given items first.
-	 */
-	public static <T> Comparator<T> group(final Comparator<? super T> comparator,
-		final Collection<T> ts) {
-		return nonNull((lhs, rhs) -> {
-			boolean lhsEq = ts.contains(lhs);
-			boolean rhsEq = ts.contains(rhs);
-			if (lhsEq && rhsEq) return comparator.compare(lhs, rhs);
-			if (lhsEq) return -1;
-			if (rhsEq) return 1;
-			return comparator.compare(lhs, rhs);
-		});
-	}
-
-	/**
-	 * Reverses a given comparator.
-	 */
-	public static <T> Comparator<T> reverse(final Comparator<T> comparator) {
-		return ((lhs, rhs) -> -comparator.compare(lhs, rhs));
-	}
-
 }

@@ -42,8 +42,8 @@ public class Streams {
 	/**
 	 * Returns a stream of a value range, that supports runtime exceptions.
 	 */
-	public static IntStream<RuntimeException> range(int offset, int length) {
-		return IntStream.range(offset, length);
+	public static IntStream<RuntimeException> slice(int offset, int length) {
+		return IntStream.slice(offset, length);
 	}
 
 	/**
@@ -56,8 +56,8 @@ public class Streams {
 	/**
 	 * Returns a stream of a value range, that supports runtime exceptions.
 	 */
-	public static LongStream<RuntimeException> range(long offset, long length) {
-		return LongStream.range(offset, length);
+	public static LongStream<RuntimeException> slice(long offset, long length) {
+		return LongStream.slice(offset, length);
 	}
 
 	/**

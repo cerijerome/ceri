@@ -197,6 +197,33 @@ public class Lists {
 		return list;
 	}
 
+	// set
+
+	/**
+	 * Fills the list with the given value.
+	 */
+	public static <T, L extends List<T>> L fill(L list, T fill) {
+		return fill(list, 0, fill);
+	}
+
+	/**
+	 * Fills the list range with the given value.
+	 */
+	public static <T, L extends List<T>> L fill(L list, int offset, T fill) {
+		return fill(list, offset, Integer.MAX_VALUE, fill);
+	}
+
+	/**
+	 * Fills the list range with the given value.
+	 */
+	public static <T, L extends List<T>> L fill(L list, int offset, int length, T fill) {
+		if (list != null) ArrayUtil.acceptSlice(list.size(), offset, length, (o, l) -> {
+			for (int i = 0; i < l; i++)
+				list.set(o + i, fill);
+		});
+		return list;
+	}
+
 	// insert
 
 	/**
@@ -229,7 +256,7 @@ public class Lists {
 	/**
 	 * Inserts values into the list at index.
 	 */
-	public static <T> List<T> insert(List<T> dest, int index, Collection<T> src) {
+	public static <T> List<T> insert(List<T> dest, int index, Collection<? extends T> src) {
 		if (src == null || dest == null) return dest;
 		int i = MathUtil.limit(index, 0, dest.size() - 1);
 		dest.addAll(i, src);

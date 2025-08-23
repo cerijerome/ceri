@@ -1,17 +1,20 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.MAX_VALUE;
-import static ceri.common.color.ColorUtil.scaleValue;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.MAX_VALUE;
+import static ceri.common.color.Colors.scaleValue;
 import static ceri.common.color.Component.X_COUNT;
 import static ceri.common.color.Component.X_MASK;
+import static ceri.common.comparator.Comparators.nonNull;
 import static ceri.common.math.MathUtil.intRound;
 import static ceri.common.math.MathUtil.limit;
 import static ceri.common.math.MathUtil.min;
 import static ceri.common.math.MathUtil.uint;
 import static ceri.common.text.StringUtil.HEX_RADIX;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import java.awt.Color;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -23,19 +26,63 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
+import ceri.common.comparator.Comparators;
 import ceri.common.data.IntProvider;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
 
-public class ColorxUtil {
+public class Colorxs {
 	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|0X|#)([0-9a-fA-F]{1,16})");
 	public static final Pattern COLORX_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,16})");
-	private static final Immutable.BiMap<Long, String> colorxs = colorxs(); // full alpha
+	private static final Maps.Bi<Long, String> colorxs = colorxs(); // full alpha
 
-	private ColorxUtil() {}
+	private Colorxs() {}
+
+	/**
+	 * Comparators for Colorx.
+	 */
+	public static class Compare {
+		/** Compare by xargb long. */
+		public static final Comparator<Colorx> XARGB =
+			Comparators.comparing(Colorx::xargb, Comparators.ULONG);
+		/** Compare by xrgb long value without alpha. */
+		public static final Comparator<Colorx> XRGB =
+			Comparators.comparing(cx -> Colorxs.xrgb(cx.xargb()), Comparators.ULONG);
+		/** Compare by argb int value. */
+		public static final Comparator<Colorx> ARGB =
+			Comparators.comparing(Colorx::argb, Comparators.UINT);
+		/** Compare by alpha component. */
+		public static final Comparator<Colorx> A =
+			Comparators.comparing(cx -> Colorxs.a(cx.xargb()), Comparators.INT);
+		/** Compare by red component. */
+		public static final Comparator<Colorx> R =
+			Comparators.comparing(cx -> Colorxs.r(cx.xargb()), Comparators.INT);
+		/** Compare by green component. */
+		public static final Comparator<Colorx> G =
+			Comparators.comparing(cx -> Colorxs.g(cx.xargb()), Comparators.INT);
+		/** Compare by blue component. */
+		public static final Comparator<Colorx> B =
+			Comparators.comparing(cx -> Colorxs.b(cx.xargb()), Comparators.INT);
+
+		private Compare() {}
+
+		/**
+		 * Compare by x[i].
+		 */
+		public static Comparator<Colorx> x(int i) {
+			return nonNull(comparing(cx -> Colorxs.x(cx.xargb(), i), Comparators.INT));
+		}
+
+		/**
+		 * Compare using color comparator, ignoring x.
+		 */
+		public static Comparator<Colorx> color(Comparator<Color> comparator) {
+			return Comparators.comparing(t -> t.color(), comparator);
+		}
+	}
 
 	/* xargb long methods */
 
@@ -81,7 +128,7 @@ public class ColorxUtil {
 	 * Returns an xargb long from colorx name, or hex representation. Returns null if no match.
 	 */
 	public static Long xargb(String text) {
-		Integer argb = ColorUtil.argb(text);
+		Integer argb = Colors.argb(text);
 		if (argb != null) return xargb(argb);
 		Long xargb = namedArgbx(text);
 		return xargb != null ? xargb : hexXargb(text);
@@ -108,13 +155,13 @@ public class ColorxUtil {
 	 * Creates an xargb long with max components in the same ratio.
 	 */
 	public static long maxXargb(int argb, int... xs) {
-		int a = ColorUtil.a(argb);
-		int r = ColorUtil.r(argb);
-		int g = ColorUtil.g(argb);
-		int b = ColorUtil.b(argb);
+		int a = Colors.a(argb);
+		int r = Colors.r(argb);
+		int g = Colors.g(argb);
+		int b = Colors.b(argb);
 		int max = MathUtil.max(r, g, b, MathUtil.max(xs));
 		if (max == 0 || max == MAX_VALUE) return xargb(argb, xs);
-		argb = ColorUtil.argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
+		argb = Colors.argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
 			roundDiv(b * MAX_VALUE, max));
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = roundDiv(xs[i] * MAX_VALUE, max);
@@ -135,7 +182,7 @@ public class ColorxUtil {
 	public static long randomXargb(int nx) {
 		Random rnd = ThreadLocalRandom.current();
 		int max = MAX_VALUE + 1;
-		int argb = ColorUtil.argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
+		int argb = Colors.argb(MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
 		int[] xs = IntStream.range(0, nx).map(_ -> rnd.nextInt(max)).toArray();
 		return xargb(argb, xs);
 	}
@@ -179,7 +226,7 @@ public class ColorxUtil {
 		int[] xs = new int[X_COUNT];
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = scaleValue(x(minXargb, i), x(maxXargb, i), ratio);
-		return xargb(ColorUtil.argb(a, r, g, b), xs);
+		return xargb(Colors.argb(a, r, g, b), xs);
 	}
 
 	/* Colorx methods */
@@ -253,7 +300,7 @@ public class ColorxUtil {
 	 * Extract component from xargb long.
 	 */
 	public static int a(long xargb) {
-		return ColorUtil.a((int) xargb);
+		return Colors.a((int) xargb);
 	}
 
 	/**
@@ -267,7 +314,7 @@ public class ColorxUtil {
 	 * Extract component from xargb long.
 	 */
 	public static int r(long xargb) {
-		return ColorUtil.r((int) xargb);
+		return Colors.r((int) xargb);
 	}
 
 	/**
@@ -281,7 +328,7 @@ public class ColorxUtil {
 	 * Extract component from xargb long.
 	 */
 	public static int g(long xargb) {
-		return ColorUtil.g((int) xargb);
+		return Colors.g((int) xargb);
 	}
 
 	/**
@@ -295,7 +342,7 @@ public class ColorxUtil {
 	 * Extract component from xargb long.
 	 */
 	public static int b(long xargb) {
-		return ColorUtil.b((int) xargb);
+		return Colors.b((int) xargb);
 	}
 
 	/**
@@ -339,7 +386,7 @@ public class ColorxUtil {
 	 * Returns the hex string, with name if xargb matches a named colorx.
 	 */
 	public static String toString(long xargb) {
-		return hasX(xargb) ? toStringX(xargb) : ColorUtil.toString((int) xargb);
+		return hasX(xargb) ? toStringX(xargb) : Colors.toString((int) xargb);
 	}
 
 	/**
@@ -353,7 +400,7 @@ public class ColorxUtil {
 	 * Looks up the colorx name. Returns null if no match.
 	 */
 	public static String name(long xargb) {
-		return hasX(xargb) ? nameX(xargb) : ColorUtil.name((int) xargb);
+		return hasX(xargb) ? nameX(xargb) : Colors.name((int) xargb);
 	}
 
 	/**
@@ -367,7 +414,7 @@ public class ColorxUtil {
 	 * Creates a hex string from xargb long. Returns argb hex if no x component.
 	 */
 	public static String hex(long xargb) {
-		return hasX(xargb) ? hexX(xargb) : ColorUtil.hex((int) xargb);
+		return hasX(xargb) ? hexX(xargb) : Colors.hex((int) xargb);
 	}
 
 	/* stream methods */
@@ -435,7 +482,7 @@ public class ColorxUtil {
 	 * to parse the text.
 	 */
 	public static LongStream stream(String... strings) {
-		return Stream.of(strings).mapToLong(ColorxUtil::validXargb);
+		return Stream.of(strings).mapToLong(Colorxs::validXargb);
 	}
 
 	/**
@@ -450,7 +497,7 @@ public class ColorxUtil {
 	 * Extract sequence of rgb values from each argb to determine x components.
 	 */
 	public static LongStream denormalize(IntStream argbStream, Color... xcolors) {
-		return denormalize(argbStream, ColorUtil.argbs(xcolors));
+		return denormalize(argbStream, Colors.argbs(xcolors));
 	}
 
 	/**
@@ -471,7 +518,7 @@ public class ColorxUtil {
 	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static IntStream normalize(LongStream xargbStream, Color... xcolors) {
-		return normalize(xargbStream, ColorUtil.argbs(xcolors));
+		return normalize(xargbStream, Colors.argbs(xcolors));
 	}
 
 	/**
@@ -516,7 +563,7 @@ public class ColorxUtil {
 	 * Extract sequence of color values from color to determine x components.
 	 */
 	public static Colorx denormalize(Color color, Color... xcolors) {
-		return Colorx.of(denormalizeXargb(color.getRGB(), ColorUtil.argbs(xcolors)));
+		return Colorx.of(denormalizeXargb(color.getRGB(), Colors.argbs(xcolors)));
 	}
 
 	/**
@@ -531,14 +578,14 @@ public class ColorxUtil {
 	 */
 	public static long denormalizeXargb(int argb, IntProvider xrgbs) {
 		if (xrgbs.length() == 0) return xargb(argb);
-		int[] rgb = { ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb) };
+		int[] rgb = { Colors.r(argb), Colors.g(argb), Colors.b(argb) };
 		int[] xs = new int[Math.min(X_COUNT, xrgbs.length())];
 		for (int i = 0; i < xs.length; i++) {
 			int xrgb = xrgbs.getInt(i);
-			if (ColorUtil.rgb(xrgb) != 0)
-				xs[i] = denormalize(rgb, ColorUtil.r(xrgb), ColorUtil.g(xrgb), ColorUtil.b(xrgb));
+			if (Colors.rgb(xrgb) != 0)
+				xs[i] = denormalize(rgb, Colors.r(xrgb), Colors.g(xrgb), Colors.b(xrgb));
 		}
-		argb = ColorUtil.argb(ColorUtil.a(argb), rgb[0], rgb[1], rgb[2]);
+		argb = Colors.argb(Colors.a(argb), rgb[0], rgb[1], rgb[2]);
 		return xargb(argb, xs);
 	}
 
@@ -546,7 +593,7 @@ public class ColorxUtil {
 	 * Combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
 	public static Color normalize(Colorx colorx, Color... xcolors) {
-		return ColorUtil.color(normalizeArgb(colorx.xargb(), ColorUtil.argbs(xcolors)));
+		return Colors.color(normalizeArgb(colorx.xargb(), Colors.argbs(xcolors)));
 	}
 
 	/**
@@ -565,8 +612,8 @@ public class ColorxUtil {
 		for (int i = 0; i < Math.min(X_COUNT, xrgbs.length()); i++)
 			normalize(rgb, xrgbs.getInt(i), x(xargb, i));
 		int max = MathUtil.max(rgb);
-		if (max <= MAX_VALUE) return ColorUtil.argb(a(xargb), rgb[0], rgb[1], rgb[2]);
-		return ColorUtil.argb(a(xargb), roundDiv(rgb[0] * MAX_VALUE, max),
+		if (max <= MAX_VALUE) return Colors.argb(a(xargb), rgb[0], rgb[1], rgb[2]);
+		return Colors.argb(a(xargb), roundDiv(rgb[0] * MAX_VALUE, max),
 			roundDiv(rgb[1] * MAX_VALUE, max), roundDiv(rgb[2] * MAX_VALUE, max));
 	}
 
@@ -648,7 +695,7 @@ public class ColorxUtil {
 		rgb[0] -= intRound(x * r);
 		rgb[1] -= intRound(x * g);
 		rgb[2] -= intRound(x * b);
-		return ColorUtil.value(x);
+		return Colors.value(x);
 	}
 
 	private static void normalize(int[] rgb, int xrgb, int x) {
@@ -662,9 +709,9 @@ public class ColorxUtil {
 		return (double) c / c0;
 	}
 
-	private static Immutable.BiMap<Long, String> colorxs() {
-		return Immutable.wrapBiMap(Map.of(Colorx.black.xargb(), "black", Colorx.fullX0.xargb(),
-			"fullX0", Colorx.fullX01.xargb(), "fullX01", Colorx.fullX012.xargb(), "fullX012",
+	private static Maps.Bi<Long, String> colorxs() {
+		return Maps.Bi.of(Map.of(Colorx.black.xargb(), "black", Colorx.fullX0.xargb(), "fullX0",
+			Colorx.fullX01.xargb(), "fullX01", Colorx.fullX012.xargb(), "fullX012",
 			Colorx.full.xargb(), "full"));
 	}
 }

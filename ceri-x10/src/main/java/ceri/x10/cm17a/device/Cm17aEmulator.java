@@ -1,6 +1,5 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.IOException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
@@ -9,18 +8,18 @@ import ceri.common.util.Enclosure;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
+import ceri.x10.util.X10Controller;
 
 public class Cm17aEmulator implements Cm17a {
 	public final Listeners<StateChange> listeners = Listeners.of();
-	private final Dispatcher<CommandListener, Command> dispatcher;
+	private final Dispatcher<Command.Listener, Command> dispatcher;
 
 	public static Cm17aEmulator of(int queuePollTimeoutMs) {
 		return new Cm17aEmulator(queuePollTimeoutMs);
 	}
 
 	private Cm17aEmulator(int queuePollTimeoutMs) {
-		dispatcher = Dispatcher.of(queuePollTimeoutMs, CommandListener::dispatcher);
+		dispatcher = Dispatcher.of(queuePollTimeoutMs, Command.Listener::dispatcher);
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class Cm17aEmulator implements Cm17a {
 	}
 
 	@Override
-	public Enclosure<CommandListener> listen(CommandListener listener) {
+	public Enclosure<Command.Listener> listen(Command.Listener listener) {
 		return dispatcher.listen(listener);
 	}
 
@@ -40,7 +39,7 @@ public class Cm17aEmulator implements Cm17a {
 
 	@Override
 	public void command(Command command) throws IOException {
-		verifySupported(this, command);
+		X10Controller.verifySupported(this, command);
 		dispatcher.dispatch(command);
 	}
 

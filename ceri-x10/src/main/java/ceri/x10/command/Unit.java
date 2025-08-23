@@ -33,5 +33,4 @@ public enum Unit {
 	private Unit() {
 		value = Integer.parseInt(name().substring(1));
 	}
-
 }

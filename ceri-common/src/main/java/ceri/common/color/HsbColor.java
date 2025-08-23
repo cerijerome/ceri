@@ -1,7 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.ratio;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.ratio;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 
@@ -34,7 +34,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 */
 	public static HsbColor from(int argb) {
 		double[] hsb = ColorSpaces.rgbToHsb(argb);
-		return of(ratio(ColorUtil.a(argb)), hsb[0], hsb[1], hsb[2]);
+		return of(ratio(Colors.a(argb)), hsb[0], hsb[1], hsb[2]);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Convert to color. Alpha is maintained.
 	 */
 	public Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**
@@ -112,7 +112,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Apply alpha to convert to an opaque color.
 	 */
 	public HsbColor applyAlpha() {
-		double b = ColorUtil.limit(this.b * a);
+		double b = Colors.limit(this.b * a);
 		return b == this.b ? this : of(h, s, b);
 	}
 
@@ -127,7 +127,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Shift hue by given amount, normalized to 0-1.
 	 */
 	public HsbColor shiftHue(double delta) {
-		double h = ColorUtil.limitHue(this.h + delta);
+		double h = Colors.limitHue(this.h + delta);
 		return h == this.h ? this : of(a, h, s, b);
 	}
 
@@ -135,7 +135,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Dims by given ratio.
 	 */
 	public HsbColor dim(double ratio) {
-		double b = ColorUtil.limit(this.b * ratio);
+		double b = Colors.limit(this.b * ratio);
 		return b == this.b ? this : of(a, h, s, b);
 	}
 
@@ -143,10 +143,10 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Hue wraps to 0-1, other components truncated to 0-1.
 	 */
 	public HsbColor normalize() {
-		double a = ColorUtil.limit(this.a);
-		double h = ColorUtil.limitHue(this.h);
-		double s = ColorUtil.limit(this.s);
-		double b = ColorUtil.limit(this.b);
+		double a = Colors.limit(this.a);
+		double h = Colors.limitHue(this.h);
+		double s = Colors.limit(this.s);
+		double b = Colors.limit(this.b);
 		if (a == this.a && h == this.h && s == this.s && b == this.b) return this;
 		return of(a, h, s, b);
 	}

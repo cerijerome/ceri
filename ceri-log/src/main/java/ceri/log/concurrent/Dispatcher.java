@@ -5,13 +5,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.function.Functions;
 import ceri.common.util.Enclosure;
 
 /**
@@ -22,12 +21,12 @@ import ceri.common.util.Enclosure;
 public class Dispatcher<L, T> extends LoopingExecutor {
 	private static final Logger logger = LogManager.getLogger();
 	private final long pollTimeoutMs;
-	private final Function<T, Consumer<L>> adapter;
+	private final Functions.Function<T, Functions.Consumer<L>> adapter;
 	private final BlockingQueue<T> queue = new LinkedBlockingQueue<>();
 	private final Collection<L> listeners = new ConcurrentLinkedQueue<>();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
-	public static class Direct<T> extends Dispatcher<Consumer<T>, T> {
+	public static class Direct<T> extends Dispatcher<Functions.Consumer<T>, T> {
 		private Direct(long pollTimeoutMs) {
 			super(pollTimeoutMs, t -> l -> l.accept(t));
 		}
@@ -37,11 +36,12 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 		return new Direct<>(pollTimeoutMs);
 	}
 
-	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs, Function<T, Consumer<L>> adapter) {
+	public static <L, T> Dispatcher<L, T> of(long pollTimeoutMs,
+		Functions.Function<T, Functions.Consumer<L>> adapter) {
 		return new Dispatcher<>(pollTimeoutMs, adapter);
 	}
 
-	private Dispatcher(long pollTimeoutMs, Function<T, Consumer<L>> adapter) {
+	private Dispatcher(long pollTimeoutMs, Functions.Function<T, Functions.Consumer<L>> adapter) {
 		this.adapter = adapter;
 		this.pollTimeoutMs = pollTimeoutMs;
 		start();
@@ -64,7 +64,7 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 			if (t == null) return;
 			if (listeners.isEmpty()) return;
 			logger.debug("Dispatching: {}", t);
-			Consumer<L> consumer = adapter.apply(t);
+			var consumer = adapter.apply(t);
 			listeners.forEach(l -> consumer.accept(l));
 		} catch (InterruptedException | RuntimeInterruptedException e) {
 			throw e;
@@ -72,5 +72,4 @@ public class Dispatcher<L, T> extends LoopingExecutor {
 			if (exceptions.add(e)) logger.catching(Level.WARN, e);
 		}
 	}
-
 }

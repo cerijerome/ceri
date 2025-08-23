@@ -97,5 +97,4 @@ public abstract class LoopingExecutor implements Functions.Closeable {
 		logger.info("{} stopped", logName);
 		stopped.signal();
 	}
-
 }

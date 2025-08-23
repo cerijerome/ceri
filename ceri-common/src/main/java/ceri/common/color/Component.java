@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_VALUE;
+import static ceri.common.color.Colors.MAX_VALUE;
 import static ceri.common.math.MathUtil.ubyte;
 import java.util.List;
 import ceri.common.data.TypeTranscoder;
@@ -156,14 +156,14 @@ public enum Component {
 	 * Convert ratio to value, and shift to its position in argb int.
 	 */
 	public int intValue(double ratio) {
-		return intValue(ColorUtil.value(ratio));
+		return intValue(Colors.value(ratio));
 	}
 
 	/**
 	 * Convert ratio to value, and shift to its position in xargb long.
 	 */
 	public long longValue(double ratio) {
-		return longValue(ColorUtil.value(ratio));
+		return longValue(Colors.value(ratio));
 	}
 
 	/**

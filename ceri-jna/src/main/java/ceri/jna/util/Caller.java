@@ -1,11 +1,9 @@
 package ceri.jna.util;
 
-import java.util.function.IntPredicate;
-import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import com.sun.jna.LastErrorException;
-import ceri.common.exception.ExceptionUtil;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 
 /**
  * Utility to call C functions and check status codes.
@@ -74,7 +72,7 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call void library function. Throws an exception on LastErrorException.
 	 */
-	public void call(Excepts.Runnable<E> fn, Supplier<String> msgFn) throws E {
+	public void call(Excepts.Runnable<E> fn, Functions.Supplier<String> msgFn) throws E {
 		try {
 			fn.run();
 		} catch (LastErrorException e) {
@@ -92,7 +90,7 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call library function and return int result. Throws an exception on LastErrorException.
 	 */
-	public int callInt(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public int callInt(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
 		try {
 			return fn.getAsInt();
 		} catch (LastErrorException e) {
@@ -110,7 +108,7 @@ public class Caller<E extends Exception> {
 	/**
 	 * Call library function and return type result. Throws an exception on LastErrorException.
 	 */
-	public <R> R callType(Excepts.Supplier<E, R> fn, Supplier<String> msgFn) throws E {
+	public <R> R callType(Excepts.Supplier<E, R> fn, Functions.Supplier<String> msgFn) throws E {
 		try {
 			return fn.get();
 		} catch (LastErrorException e) {
@@ -135,7 +133,8 @@ public class Caller<E extends Exception> {
 	/**
 	 * Verify and return int result. Throws an exception on failed status code verification.
 	 */
-	public int verifyInt(int result, IntPredicate verifyFn, String name, Object... args) throws E {
+	public int verifyInt(int result, Functions.IntPredicate verifyFn, String name, Object... args)
+		throws E {
 		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(name, args));
 		return result;
 	}
@@ -152,7 +151,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, and verify result. Throws an exception on non-zero status code, or
 	 * LastErrorException.
 	 */
-	public void verify(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public void verify(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
 		verifyInt(fn, r -> r == 0, msgFn);
 	}
 
@@ -168,7 +167,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on negative status
 	 * code, or LastErrorException.
 	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, Supplier<String> msgFn) throws E {
+	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.Supplier<String> msgFn) throws E {
 		return verifyInt(fn, r -> r >= 0, msgFn);
 	}
 
@@ -176,7 +175,7 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on failed status
 	 * code verification, or LastErrorException.
 	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, IntPredicate verifyFn, String name,
+	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.IntPredicate verifyFn, String name,
 		Object... args) throws E {
 		return verifyInt(fn, verifyFn, messageFn(name, args));
 	}
@@ -185,8 +184,8 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return int result. Throws an exception on failed status
 	 * code verification, or LastErrorException.
 	 */
-	public int verifyInt(Excepts.IntSupplier<E> fn, IntPredicate verifyFn, Supplier<String> msgFn)
-		throws E {
+	public int verifyInt(Excepts.IntSupplier<E> fn, Functions.IntPredicate verifyFn,
+		Functions.Supplier<String> msgFn) throws E {
 		int result = callInt(fn, msgFn);
 		if (!verifyFn.test(result)) throw exceptionFn.apply(result, failMessage(msgFn));
 		return result;
@@ -205,8 +204,8 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on null result with
 	 * given error code, and on LastErrorException.
 	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode, Supplier<String> msgFn)
-		throws E {
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, int errorCode,
+		Functions.Supplier<String> msgFn) throws E {
 		return verifyType(fn, r -> r != null ? 0 : errorCode, msgFn);
 	}
 
@@ -214,8 +213,8 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on non-zero status
 	 * verification, or LastErrorException.
 	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, ToIntFunction<R> statusFn, String name,
-		Object... args) throws E {
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, Functions.ToIntFunction<R> statusFn,
+		String name, Object... args) throws E {
 		return verifyType(fn, statusFn, messageFn(name, args));
 	}
 
@@ -223,8 +222,8 @@ public class Caller<E extends Exception> {
 	 * Call library function, verify, and return result. Throws an exception on non-zero status
 	 * verification, or LastErrorException.
 	 */
-	public <R> R verifyType(Excepts.Supplier<E, R> fn, ToIntFunction<R> statusFn,
-		Supplier<String> msgFn) throws E {
+	public <R> R verifyType(Excepts.Supplier<E, R> fn, Functions.ToIntFunction<R> statusFn,
+		Functions.Supplier<String> msgFn) throws E {
 		R result = callType(fn, msgFn);
 		int status = statusFn.applyAsInt(result);
 		if (status != 0) throw exceptionFn.apply(status, failMessage(msgFn));
@@ -235,14 +234,14 @@ public class Caller<E extends Exception> {
 		int code = e.getErrorCode();
 		String lastErrorMsg = JnaUtil.message(e);
 		if (!lastErrorMsg.isEmpty()) message = lastErrorMsg + ": " + message;
-		return ExceptionUtil.initCause(exceptionFn.apply(code, message), e);
+		return Exceptions.initCause(exceptionFn.apply(code, message), e);
 	}
 
-	private Supplier<String> messageFn(String name, Object... args) {
+	private Functions.Supplier<String> messageFn(String name, Object... args) {
 		return () -> functionString(name, args);
 	}
 
-	private static String failMessage(Supplier<String> msgFn) {
+	private static String failMessage(Functions.Supplier<String> msgFn) {
 		return msgFn.get() + " failed";
 	}
 }

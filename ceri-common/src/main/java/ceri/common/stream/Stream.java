@@ -1,11 +1,7 @@
 package ceri.common.stream;
 
-import static ceri.common.exception.Exceptions.unsupportedOp;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +15,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.BaseStream;
 import java.util.stream.Collector;
-import ceri.common.array.ArrayUtil;
-import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Lists;
@@ -41,199 +35,6 @@ public class Stream<E extends Exception, T> {
 	private static final Excepts.Consumer<RuntimeException, Object> NULL_CONSUMER = _ -> {};
 	private static final Stream<RuntimeException, Object> EMPTY = new Stream<>(_ -> false);
 	private NextSupplier<E, ? extends T> supplier;
-
-	/**
-	 * Collection operators
-	 */
-	public static class Collect {
-		private static final Functions.BiOperator<Object> UNSUPPORTED_COMBINER = (_, _) -> {
-			throw unsupportedOp("Joining cannot be combined");
-		};
-
-		private Collect() {}
-
-		/**
-		 * A combiner that throws unsupported exception.
-		 */
-		public static <T> Functions.BiOperator<T> unsupportedCombiner() {
-			return BasicUtil.unchecked(UNSUPPORTED_COMBINER);
-		}
-
-		/**
-		 * A collector composed of method responses.
-		 */
-		private record Composed<T, A, R>(Functions.Supplier<A> supplier,
-			Functions.BiOperator<A> combiner, Functions.BiConsumer<A, T> accumulator,
-			Functions.Function<A, R> finisher, Set<Characteristics> characteristics)
-			implements Collector<T, A, R> {}
-
-		/**
-		 * Collects elements into an object array.
-		 */
-		public static <T> Collector<T, ?, Object[]> array() {
-			return array(Object[]::new);
-		}
-
-		/**
-		 * Collects elements into an array.
-		 */
-		public static <R, T extends R> Collector<T, ?, R[]>
-			array(Functions.IntFunction<R[]> constructor) {
-			return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
-				DynamicArray::truncate);
-		}
-
-		/**
-		 * Collects elements into a sorted array.
-		 */
-		public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, R[]>
-			sortedArray(Functions.IntFunction<R[]> constructor) {
-			return sortedArray(constructor, Comparator.naturalOrder());
-		}
-
-		/**
-		 * Collects elements into a sorted array.
-		 */
-		public static <R, T extends R> Collector<T, ?, R[]>
-			sortedArray(Functions.IntFunction<R[]> constructor, Comparator<? super R> comparator) {
-			return of(() -> DynamicArray.of(constructor), DynamicArray.OfType::accept,
-				a -> ArrayUtil.sort(a.truncate(), comparator));
-		}
-
-		/**
-		 * Collects elements into an immutable sorted list.
-		 */
-		public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, List<R>>
-			sortedList() {
-			return sortedList(Comparator.naturalOrder());
-		}
-
-		/**
-		 * Collects elements into an immutable sorted list.
-		 */
-		public static <R, T extends R> Collector<T, ?, List<R>>
-			sortedList(Comparator<? super R> comparator) {
-			return of(() -> Lists.of(), Collection::add, list -> {
-				Collections.sort(list, comparator);
-				return Immutable.wrap(list);
-			});
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key.
-		 */
-		public static <T, K> Collector<T, ?, Map<K, T>>
-			map(Functions.Function<? super T, ? extends K> keyMapper) {
-			return map(keyMapper, t -> t);
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and value.
-		 */
-		public static <T, K, V> Collector<T, ?, Map<K, V>> map(
-			Functions.Function<? super T, ? extends K> keyMapper,
-			Functions.Function<? super T, ? extends V> valueMapper) {
-			return map(Maps::of, keyMapper, valueMapper);
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and value.
-		 */
-		public static <T, K, V> Collector<T, ?, Map<K, V>> map(
-			Functions.Supplier<? extends Map<K, V>> supplier,
-			Functions.Function<? super T, ? extends K> keyMapper,
-			Functions.Function<? super T, ? extends V> valueMapper) {
-			return map(Maps.Put.def, supplier, keyMapper, valueMapper);
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and value.
-		 */
-		public static <T, K, V> Collector<T, ?, Map<K, V>> map(Maps.Put put,
-			Functions.Supplier<? extends Map<K, V>> supplier,
-			Functions.Function<? super T, ? extends K> keyMapper,
-			Functions.Function<? super T, ? extends V> valueMapper) {
-			return of(supplier,
-				(m, t) -> Maps.Put.put(put, m, keyMapper.apply(t), valueMapper.apply(t)),
-				m -> Immutable.wrap(m));
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and and adding
-		 * the value to a set.
-		 */
-		public static <T, K> Collector<T, ?, Map<K, Set<T>>>
-			mapSet(Functions.Function<T, K> keyMapper) {
-			return mapSet(Maps::of, Sets::of, keyMapper);
-		}
-
-		/**
-		 * Collects elements into an immutable map by mapping each element to a key and and adding
-		 * the value to a set.
-		 */
-		public static <T, K, M extends Map<K, Set<T>>, S extends Set<T>>
-			Collector<T, ?, Map<K, Set<T>>> mapSet(Functions.Supplier<M> mapSupplier,
-				Functions.Supplier<S> setSupplier, Functions.Function<T, K> keyMapper) {
-			return of(mapSupplier,
-				(m, t) -> m.computeIfAbsent(keyMapper.apply(t), _ -> setSupplier.get()).add(t),
-				Collections::unmodifiableMap);
-		}
-
-		/**
-		 * Composes a collector from functions.
-		 */
-		public static <T, A, R> Collector<T, A, R> of(Functions.Supplier<A> supplier,
-			Functions.BiConsumer<A, T> accumulator, Functions.Function<A, R> finisher) {
-			return new Composed<>(supplier, unsupportedCombiner(), accumulator, finisher, Set.of());
-		}
-
-		/**
-		 * Composes a collector without a finisher.
-		 */
-		public static <T, A> Collector<T, A, A> of(Functions.Supplier<A> supplier,
-			Functions.BiConsumer<A, T> accumulator) {
-			return of(supplier, accumulator, t -> t);
-		}
-	}
-
-	/**
-	 * Reduction operators.
-	 */
-	public static class Reduce {
-		private Reduce() {}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
-			min() {
-			return min(Comparator.naturalOrder());
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception, T> Excepts.BinFunction<E, T, T>
-			min(Comparator<? super T> comparator) {
-			return (l, r) -> comparator.compare(l, r) <= 0 ? l : r;
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
-			max() {
-			return max(Comparator.naturalOrder());
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception, T> Excepts.BinFunction<E, T, T>
-			max(Comparator<? super T> comparator) {
-			return (l, r) -> comparator.compare(l, r) >= 0 ? l : r;
-		}
-	}
 
 	/**
 	 * Iterating functional interface
@@ -287,7 +88,14 @@ public class Stream<E extends Exception, T> {
 	 * Returns a stream of values.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> Stream<E, T> of(T... values) {
+	public static <E extends Exception, T> Stream<E, T> ofAll(T... values) {
+		return of(values, 0);
+	}
+
+	/**
+	 * Returns a stream of values.
+	 */
+	public static <E extends Exception, T> Stream<E, T> of(T[] values) {
 		return of(values, 0);
 	}
 
@@ -478,7 +286,7 @@ public class Stream<E extends Exception, T> {
 	 * Streams distinct elements.
 	 */
 	public Stream<E, T> distinct() {
-		return filter(new HashSet<T>()::add);
+		return filter(Sets.of()::add);
 	}
 
 	/**
@@ -489,8 +297,6 @@ public class Stream<E extends Exception, T> {
 		return update(
 			adaptedSupplier(supplier, s -> iteratorSupplier(sortedList(s, comparator).iterator())));
 	}
-
-	// termination
 
 	/**
 	 * Returns the next element or null.
@@ -508,10 +314,27 @@ public class Stream<E extends Exception, T> {
 	}
 
 	/**
-	 * Returns true if no elements are available. Consumes the next value if available.
+	 * Skips up to the given number of elements.
+	 */
+	public Stream<E, T> skip(int count) throws E {
+		var receiver = new NextSupplier.Receiver<E, T>();
+		while (count-- > 0)
+			if (!supplier.next(receiver)) break;
+		return this;
+	}
+
+	/**
+	 * Consumes the next value and returns false if available.
 	 */
 	public boolean isEmpty() throws E {
 		return !supplier.next(nullConsumer());
+	}
+
+	/**
+	 * Consumes the next value and returns true if available.
+	 */
+	public boolean nonEmpty() throws E {
+		return supplier.next(nullConsumer());
 	}
 
 	/**
@@ -549,6 +372,42 @@ public class Stream<E extends Exception, T> {
 	// collection
 
 	/**
+	 * Adds elements to a collection.
+	 */
+	public <C extends Collection<? super T>> C add(C collection) throws E {
+		if (collection != null) forEach(collection::add);
+		return collection;
+	}
+
+	/**
+	 * Puts elements in a map.
+	 */
+	public <K, M extends Map<K, T>> M put(M map,
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper) throws E {
+		return put(map, keyMapper, t -> t);
+	}
+
+	/**
+	 * Puts elements in a map.
+	 */
+	public <K, V, M extends Map<K, V>> M put(M map,
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper) throws E {
+		return put(Maps.Put.def, map, keyMapper, valueMapper);
+	}
+
+	/**
+	 * Puts elements in a map.
+	 */
+	public <K, V, M extends Map<K, V>> M put(Maps.Put put, M map,
+		Excepts.Function<? extends E, ? super T, ? extends K> keyMapper,
+		Excepts.Function<? extends E, ? super T, ? extends V> valueMapper) throws E {
+		if (map == null || keyMapper == null || valueMapper == null) return map;
+		forEach(t -> Maps.put(put, map, keyMapper.apply(t), valueMapper.apply(t)));
+		return map;
+	}
+
+	/**
 	 * Collects elements into an object array.
 	 */
 	public Object[] toArray() throws E {
@@ -567,16 +426,16 @@ public class Stream<E extends Exception, T> {
 	 * Collects elements to an immutable set.
 	 */
 	public Set<T> toSet() throws E {
-		if (emptyInstance()) return Set.of();
-		return Immutable.wrap(collect(Sets.of()));
+		if (emptyInstance()) return Immutable.set();
+		return collect(Collect.set());
 	}
 
 	/**
 	 * Collects elements to an immutable list.
 	 */
 	public List<T> toList() throws E {
-		if (emptyInstance()) return List.of();
-		return Immutable.wrap(collect(Lists.of()));
+		if (emptyInstance()) return Immutable.list();
+		return collect(Collect.list());
 	}
 
 	/**
@@ -593,35 +452,8 @@ public class Stream<E extends Exception, T> {
 	 */
 	public <K, V> Map<K, V> toMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
 		Excepts.Function<? extends E, ? super T, ? extends V> valueFn) throws E {
-		if (emptyInstance()) return Map.of();
-		return Immutable.wrap(collectMap(keyFn, valueFn, Maps.of()));
-	}
-
-	/**
-	 * Adds mapped elements to a map. Keys replace older mappings.
-	 */
-	public <K, M extends Map<K, T>> M
-		collectMap(Excepts.Function<? extends E, ? super T, ? extends K> keyFn, M map) throws E {
-		return collectMap(keyFn, t -> t, map);
-	}
-
-	/**
-	 * Adds mapped elements to a map. Keys replace older mappings.
-	 */
-	public <K, V, M extends Map<K, V>> M collectMap(
-		Excepts.Function<? extends E, ? super T, ? extends K> keyFn,
-		Excepts.Function<? extends E, ? super T, ? extends V> valueFn, M map) throws E {
-		if (map != null && keyFn != null && valueFn != null)
-			forEach(t -> map.put(keyFn.apply(t), valueFn.apply(t)));
-		return map;
-	}
-
-	/**
-	 * Adds elements to a collection.
-	 */
-	public <C extends Collection<? super T>> C collect(C collection) throws E {
-		if (collection != null) forEach(collection::add);
-		return collection;
+		if (emptyInstance()) return Immutable.map();
+		return Immutable.wrap(put(Maps.of(), keyFn, valueFn));
 	}
 
 	/**
@@ -630,13 +462,6 @@ public class Stream<E extends Exception, T> {
 	public <A, R> R collect(Collector<? super T, A, R> collector) throws E {
 		if (collector == null) return null;
 		return collect(collector.supplier(), collector.accumulator(), collector.finisher());
-	}
-
-	/**
-	 * Collect elements with container supplier, accumulator, and finisher.
-	 */
-	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator) throws E {
-		return collect(this.supplier, supplier, accumulator, r -> r);
 	}
 
 	/**
@@ -804,10 +629,9 @@ public class Stream<E extends Exception, T> {
 
 	private static <E extends Exception, T> List<T> sortedList(NextSupplier<E, T> supplier,
 		Comparator<? super T> comparator) throws E {
-		var list = new ArrayList<T>();
+		var list = Lists.<T>of();
 		supplier.forEach(list::add);
-		Collections.sort(list, comparator);
-		return list;
+		return Lists.sort(list, comparator);
 	}
 
 	private static <E extends Exception, T, A, R> R collect(NextSupplier<E, T> next,

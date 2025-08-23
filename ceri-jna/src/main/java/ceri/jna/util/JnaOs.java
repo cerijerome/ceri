@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import java.util.List;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Iterables;
 import ceri.common.function.Accessible;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
@@ -36,7 +36,7 @@ public enum JnaOs implements Accessible<JnaOs> {
 	 * Apply the consumer to known OS types.
 	 */
 	public static <E extends Exception> void forEach(Consumer<E, JnaOs> consumer) throws E {
-		CollectionUtil.forEach(KNOWN, os -> os.accept(consumer));
+		Iterables.forEach(KNOWN, os -> os.accept(consumer));
 	}
 
 	/**

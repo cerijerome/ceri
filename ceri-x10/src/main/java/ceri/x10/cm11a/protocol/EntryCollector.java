@@ -2,10 +2,10 @@ package ceri.x10.cm11a.protocol;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.Sets;
+import ceri.common.function.Functions;
 import ceri.x10.command.Command;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
@@ -16,15 +16,15 @@ import ceri.x10.command.Unit;
  */
 public class EntryCollector {
 	private static final Logger logger = LogManager.getFormatterLogger();
-	private final Consumer<Command> dispatcher;
-	private final Set<Unit> lastUnits = new TreeSet<>();
+	private final Functions.Consumer<Command> dispatcher;
+	private final Set<Unit> lastUnits = Sets.tree();
 	private House lastHouse = null;
 	private boolean lastInputIsFunction = false;
 
 	/**
 	 * Constructs the dispatcher with a listener to receive command events.
 	 */
-	public EntryCollector(Consumer<Command> dispatcher) {
+	public EntryCollector(Functions.Consumer<Command> dispatcher) {
 		this.dispatcher = dispatcher;
 	}
 
@@ -62,5 +62,4 @@ public class EntryCollector {
 		lastUnits.clear();
 		lastInputIsFunction = false;
 	}
-
 }

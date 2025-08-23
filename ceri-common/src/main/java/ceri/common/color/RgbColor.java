@@ -1,8 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.ratio;
-import static ceri.common.color.ColorUtil.value;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.ratio;
+import static ceri.common.color.Colors.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import ceri.common.math.MathUtil;
@@ -29,14 +29,14 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Construct an opaque instance from rgb int value.
 	 */
 	public static RgbColor fromRgb(int rgb) {
-		return from(ColorUtil.r(rgb), ColorUtil.g(rgb), ColorUtil.b(rgb));
+		return from(Colors.r(rgb), Colors.g(rgb), Colors.b(rgb));
 	}
 
 	/**
 	 * Construct from argb int value.
 	 */
 	public static RgbColor from(int argb) {
-		return from(ColorUtil.a(argb), ColorUtil.r(argb), ColorUtil.g(argb), ColorUtil.b(argb));
+		return from(Colors.a(argb), Colors.r(argb), Colors.g(argb), Colors.b(argb));
 	}
 
 	/**
@@ -78,14 +78,14 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Convert to argb int. Alpha is maintained.
 	 */
 	public int argb() {
-		return ColorUtil.argb(value(a), value(r), value(g), value(b));
+		return Colors.argb(value(a), value(r), value(g), value(b));
 	}
 
 	/**
 	 * Convert to color. Alpha is maintained.
 	 */
 	public Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**
@@ -160,7 +160,7 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Normalize components, limiting a, and scaling rgb so that max and min are 0-1.
 	 */
 	public RgbColor normalize() {
-		double a = ColorUtil.limit(this.a);
+		double a = Colors.limit(this.a);
 		double min = MathUtil.min(r, g, b, 0);
 		double d = MathUtil.max(r, g, b, 1) - min;
 		if (min == 0 && d == 1 && a == this.a) return this;
@@ -171,10 +171,10 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Truncates components to range 0-1.
 	 */
 	public RgbColor limit() {
-		double a = ColorUtil.limit(this.a);
-		double r = ColorUtil.limit(this.r);
-		double g = ColorUtil.limit(this.g);
-		double b = ColorUtil.limit(this.b);
+		double a = Colors.limit(this.a);
+		double r = Colors.limit(this.r);
+		double g = Colors.limit(this.g);
+		double b = Colors.limit(this.b);
 		if (a == this.a && r == this.r && g == this.g && b == this.b) return this;
 		return of(a, r, g, b);
 	}

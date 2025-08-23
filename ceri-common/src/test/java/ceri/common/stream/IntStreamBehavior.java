@@ -23,9 +23,9 @@ public class IntStreamBehavior {
 
 	@Test
 	public void testRange() {
-		assertStream(IntStream.range(-1, 0));
-		assertStream(IntStream.range(-1, 1), -1);
-		assertStream(IntStream.range(-1, 2), -1, 0);
+		assertStream(IntStream.slice(-1, 0));
+		assertStream(IntStream.slice(-1, 1), -1);
+		assertStream(IntStream.slice(-1, 2), -1, 0);
 	}
 
 	@Test

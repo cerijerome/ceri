@@ -1,6 +1,6 @@
 package ceri.common.concurrent;
 
-import ceri.common.exception.ExceptionUtil;
+import ceri.common.exception.Exceptions;
 
 public class RuntimeInterruptedException extends RuntimeException {
 	private static final long serialVersionUID = 4222882577886865396L;
@@ -10,7 +10,6 @@ public class RuntimeInterruptedException extends RuntimeException {
 	}
 
 	public RuntimeInterruptedException(InterruptedException e) {
-		super(ExceptionUtil.message(e), e);
+		super(Exceptions.message(e), e);
 	}
-
 }

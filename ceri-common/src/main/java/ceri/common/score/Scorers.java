@@ -8,7 +8,7 @@ import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
 import ceri.common.score.Scorer.Result;
-import ceri.common.stream.Stream;
+import ceri.common.stream.Collect;
 import ceri.common.stream.Streams;
 import ceri.common.util.BasicUtil;
 
@@ -42,7 +42,7 @@ public class Scorers {
 
 	public static <T> List<Result<T>> results(Scorer<? super T> scorer, Iterable<T> ts) {
 		return Streams.from(ts).map(t -> new Result<>(t, scorer.score(t)))
-			.collect(Stream.Collect.sortedList());
+			.collect(Collect.sortedList());
 	}
 
 	public static <E extends Exception, T> Excepts.Predicate<E, T> filter(Scorer<? super T> scorer,

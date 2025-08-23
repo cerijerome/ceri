@@ -1,21 +1,18 @@
 package ceri.common.property;
 
-import static ceri.common.text.StringUtil.COMMA_SPLIT_REGEX;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Collectable;
 import ceri.common.collection.Enums;
 import ceri.common.collection.Immutable;
-import ceri.common.exception.ExceptionUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.FunctionUtil;
@@ -26,7 +23,7 @@ import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.NumberParser;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings.Regex;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -256,7 +253,7 @@ public class Parser {
 		 * Returns true if the collection is null or empty.
 		 */
 		default boolean empty() {
-			return CollectionUtil.empty(get());
+			return Collectable.isEmpty(get());
 		}
 
 		/**
@@ -360,8 +357,7 @@ public class Parser {
 		 * collection is null. Null values in the collection are retained.
 		 */
 		default <C extends Collection<T>> C collect(Functions.Supplier<C> supplier) {
-			return FunctionUtil.safeApply(get(),
-				values -> CollectionUtil.collect(values, supplier));
+			return FunctionUtil.safeApply(get(), values -> Collectable.add(supplier.get(), values));
 		}
 
 		/**
@@ -484,14 +480,15 @@ public class Parser {
 		 * Returns the accessor for values split by comma.
 		 */
 		default Strings split() {
-			return split(COMMA_SPLIT_REGEX);
+			return split(Regex.comma);
 		}
 
 		/**
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			var split = FunctionUtil.safeApply(get(), v -> StringUtil.split(v, splitter));
+			var split = FunctionUtil.safeApply(get(),
+				v -> ceri.common.text.Strings.Split.list(splitter, v));
 			return Parser.strings(split);
 		}
 
@@ -888,8 +885,7 @@ public class Parser {
 		try {
 			return FunctionUtil.safeApply(value, constructor, def);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to transform: %s", value),
-				e);
+			throw Exceptions.initCause(Exceptions.illegalArg("Failed to transform: %s", value), e);
 		}
 	}
 
@@ -921,7 +917,7 @@ public class Parser {
 		try {
 			return splitter.apply(value);
 		} catch (RuntimeException e) {
-			throw ExceptionUtil.initCause(Exceptions.illegalArg("Failed to split: %s", value), e);
+			throw Exceptions.initCause(Exceptions.illegalArg("Failed to split: %s", value), e);
 		}
 	}
 

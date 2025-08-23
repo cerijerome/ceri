@@ -1,15 +1,14 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.math.MathUtil.limit;
-import static ceri.common.math.MathUtil.roundDiv;
-import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
-import ceri.common.data.ByteArray.Encoder;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
+import ceri.common.math.MathUtil;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
+import ceri.x10.util.X10Util;
 
 /**
  * Methods for converting between types and bytes for transmitting to the CM11A controller.
@@ -43,8 +42,8 @@ public class Transmit {
 	}
 
 	private static int dimPercent(int header) {
-		int value = limit((header >>> DIM_START_BIT) & DIM_MASK, 0, DIM_MAX);
-		return roundDiv(value * DIM_MAX_PERCENT, DIM_MAX);
+		int value = MathUtil.limit((header >>> DIM_START_BIT) & DIM_MASK, 0, DIM_MAX);
+		return MathUtil.roundDiv(value * X10Util.DIM_MAX_PERCENT, DIM_MAX);
 	}
 
 	private static boolean function(int header) {
@@ -58,7 +57,8 @@ public class Transmit {
 	/* Encoding support */
 
 	public static ByteProvider encode(Entry entry) {
-		return Encoder.fixed(size(entry)).apply(encoder -> encode(entry, encoder)).immutable();
+		return ByteArray.Encoder.fixed(size(entry)).apply(encoder -> encode(entry, encoder))
+			.immutable();
 	}
 
 	public static void encode(Entry entry, ByteWriter<?> w) {
@@ -70,9 +70,10 @@ public class Transmit {
 	}
 
 	private static int header(int dimPercent, boolean function, boolean extended) {
-		int dim = limit(roundDiv(dimPercent * DIM_MAX, DIM_MAX_PERCENT), 0, DIM_MAX);
-		return (dim << DIM_START_BIT) | HEADER_MASK | (function ? FUNCTION_MASK : 0) |
-			(extended ? EXTENDED_MASK : 0);
+		int dim = MathUtil.limit(MathUtil.roundDiv(dimPercent * DIM_MAX, X10Util.DIM_MAX_PERCENT),
+			0, DIM_MAX);
+		return (dim << DIM_START_BIT) | HEADER_MASK | (function ? FUNCTION_MASK : 0)
+			| (extended ? EXTENDED_MASK : 0);
 	}
 
 }

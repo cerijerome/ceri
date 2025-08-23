@@ -1,11 +1,11 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.data.DataUtil.expect;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import ceri.common.data.ByteArray.Encodable;
 import ceri.common.data.ByteArray.Encoder;
 import ceri.common.data.ByteReader;
+import ceri.common.data.DataUtil;
 import ceri.common.text.ToString;
 import ceri.common.time.DateUtil;
 import ceri.x10.command.House;
@@ -43,7 +43,7 @@ public class Clock implements Encodable {
 	public final boolean purgeTimer;
 
 	public static Clock decode(ByteReader r) {
-		expect(r, Protocol.TIME.value);
+		DataUtil.expect(r, Protocol.TIME.value);
 		Builder builder = new Builder();
 		builder.date(Data.readDateFrom(r));
 		int code = r.readUbyte();

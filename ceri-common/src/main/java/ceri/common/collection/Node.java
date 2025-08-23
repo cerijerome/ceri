@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.ParseUtil;
@@ -134,8 +134,8 @@ public class Node<T> {
 		name = builder.name;
 		value = builder.value;
 		children = Streams.from(builder.children).<Node<?>>map(Builder::build).toList();
-		lookup = Immutable.wrap(
-			Streams.from(children).filter(Node::isNamed).collectMap(n -> n.name, new TreeMap<>()));
+		lookup = Streams.from(children).filter(Node::isNamed)
+			.collect(Collect.map(Maps::tree, t -> t.name, t -> t));
 	}
 
 	/**

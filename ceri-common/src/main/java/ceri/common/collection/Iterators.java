@@ -67,7 +67,7 @@ public class Iterators {
 	public static <T> T nth(Iterator<? extends T> iterator, int n, T def) {
 		return next(skip(iterator, n), def);
 	}
-	
+
 	/**
 	 * Calls the consumer for each element and returns the element count.
 	 */
@@ -85,7 +85,7 @@ public class Iterators {
 	 */
 	public static <E extends Exception, T> int removeIf(Iterator<T> iterator,
 		Excepts.Predicate<E, ? super T> predicate) throws E {
-		if (iterator == null) return 0;
+		if (iterator == null || predicate == null) return 0;
 		int n = 0;
 		while (iterator.hasNext()) {
 			if (!predicate.test(iterator.next())) continue;
@@ -214,7 +214,7 @@ public class Iterators {
 	}
 
 	// support
-	
+
 	private static Iterator<Object> nullObj() {
 		return new Iterator<>() {
 			@Override

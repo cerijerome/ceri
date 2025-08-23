@@ -1,6 +1,5 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.IOException;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
@@ -14,13 +13,13 @@ import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
+import ceri.x10.util.X10Controller;
 
 public class Cm11aDevice implements Cm11a {
 	private static final Logger logger = LogManager.getLogger();
 	private final Connector.Fixable connector;
 	private final Processor processor;
-	private final Dispatcher<CommandListener, Command> dispatcher;
+	private final Dispatcher<Command.Listener, Command> dispatcher;
 
 	public static class Config {
 		public static final Config DEFAULT = builder().build();
@@ -121,7 +120,7 @@ public class Cm11aDevice implements Cm11a {
 
 	private Cm11aDevice(Config config, Connector.Fixable connector) {
 		this.connector = connector;
-		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, CommandListener::dispatcher);
+		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, Command.Listener::dispatcher);
 		processor = new Processor(config, connector, dispatcher::dispatch);
 	}
 
@@ -132,7 +131,7 @@ public class Cm11aDevice implements Cm11a {
 
 	@Override
 	public void command(Command command) throws IOException {
-		verifySupported(this, command);
+		X10Controller.verifySupported(this, command);
 		logger.info("Command: {}", command);
 		processor.command(command);
 	}
@@ -143,7 +142,7 @@ public class Cm11aDevice implements Cm11a {
 	}
 
 	@Override
-	public Enclosure<CommandListener> listen(CommandListener listener) {
+	public Enclosure<Command.Listener> listen(Command.Listener listener) {
 		return dispatcher.listen(listener);
 	}
 
@@ -151,5 +150,4 @@ public class Cm11aDevice implements Cm11a {
 	public void close() {
 		LogUtil.close(processor, dispatcher);
 	}
-
 }

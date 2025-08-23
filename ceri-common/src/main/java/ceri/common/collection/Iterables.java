@@ -1,7 +1,9 @@
 package ceri.common.collection;
 
+import java.util.Collection;
 import java.util.Iterator;
 import ceri.common.function.Excepts;
+import ceri.common.function.Predicates;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -11,6 +13,94 @@ public class Iterables {
 	private static final Iterable<Object> NULL = () -> Iterators.ofNull();
 
 	private Iterables() {}
+
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>> has(T value) {
+			return any(Predicates.eq(value));
+		}
+
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		@SafeVarargs
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			hasAny(T... values) {
+			if (values == null) return Predicates.isNull();
+			return hasAny(Sets.ofAll(values));
+		}
+
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			hasAny(Collection<? extends T> values) {
+			if (values == null) return Predicates.isNull();
+			return any(values::contains);
+		}
+
+		/**
+		 * Returns true if any element matches the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			any(Excepts.Predicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				for (T t : ts)
+					if (predicate.test(t)) return true;
+				return false;
+			};
+		}
+
+		/**
+		 * Returns true if all elements match the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			all(Excepts.Predicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				for (T t : ts)
+					if (!predicate.test(t)) return false;
+				return true;
+			};
+		}
+
+		/**
+		 * Returns true if any element and index matches the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			anyIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				int i = 0;
+				for (T t : ts)
+					if (predicate.test(t, i++)) return true;
+				return false;
+			};
+		}
+
+		/**
+		 * Returns true if all elements and indexes match the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
+			allIndex(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				int i = 0;
+				for (T t : ts)
+					if (!predicate.test(t, i++)) return false;
+				return true;
+			};
+		}
+	}
 
 	/**
 	 * Returns a no-op, stateless iterable.
@@ -67,7 +157,6 @@ public class Iterables {
 	 */
 	public static <E extends Exception, T> int removeIf(Iterable<T> iterable,
 		Excepts.Predicate<E, ? super T> predicate) throws E {
-		if (iterable == null || predicate == null) return 0;
-		return Iterators.removeIf(iterable.iterator(), predicate);
+		return iterable == null ? 0 : Iterators.removeIf(iterable.iterator(), predicate);
 	}
 }

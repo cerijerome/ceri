@@ -1,13 +1,13 @@
 package ceri.common.collection;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
+import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 
@@ -52,7 +52,7 @@ public class SplitRange {
 	 * Creates an indexed list of types using a length function.
 	 */
 	public static <T> SplitRange.Typed<T> typed(Functions.ToIntFunction<? super T> lengthFn,
-		Collection<T> ts) {
+		Iterable<T> ts) {
 		return new Typed<>(Immutable.list(ts), from(lengthFn, ts));
 	}
 
@@ -91,7 +91,7 @@ public class SplitRange {
 		 * Returns the item at the index of the given position, or null if outside range.
 		 */
 		public T at(int position) {
-			return CollectionUtil.getOrDefault(list, index(position), null);
+			return Lists.at(list, index(position));
 		}
 
 		/**
@@ -156,8 +156,8 @@ public class SplitRange {
 	 * Creates from types and a length function.
 	 */
 	public static <T> SplitRange from(Functions.ToIntFunction<? super T> lengthFn,
-		Collection<T> ts) {
-		return from(ts.stream().mapToInt(lengthFn).toArray());
+		Iterable<T> ts) {
+		return from(Streams.from(ts).mapToInt(lengthFn).toArray());
 	}
 
 	/**

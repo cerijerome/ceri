@@ -1,16 +1,14 @@
 package ceri.common.text;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Iterables;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.property.Parser;
@@ -20,6 +18,7 @@ import ceri.common.stream.Streams;
  * General utilities for regular expressions.
  */
 public class RegexUtil {
+	private static final Joiner OR = Joiner.of("(", "|", ")");
 	public static final Pattern ALL = Pattern.compile(".*");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
 
@@ -203,8 +202,7 @@ public class RegexUtil {
 	 * Compiles a pattern with a group OR of string values of given objects.
 	 */
 	public static Pattern compileOr(Object... objs) {
-		return Pattern.compile(
-			Stream.of(objs).map(String::valueOf).collect(Collectors.joining("|", "(", ")")));
+		return Pattern.compile(OR.joinAll(objs));
 	}
 
 	/**
@@ -282,7 +280,7 @@ public class RegexUtil {
 	 */
 	public static List<String> splitBefore(Pattern pattern, String s) {
 		Matcher m = pattern.matcher(s);
-		List<String> list = new ArrayList<>();
+		var list = Lists.<String>of();
 		int last = 0;
 		while (m.find()) {
 			if (m.start() == 0) continue;
@@ -297,8 +295,8 @@ public class RegexUtil {
 	 * Splits a string by splitting after each instance of the pattern.
 	 */
 	public static List<String> splitAfter(Pattern pattern, String s) {
-		Matcher m = pattern.matcher(s);
-		List<String> list = new ArrayList<>();
+		var m = pattern.matcher(s);
+		var list = Lists.<String>of();
 		int last = 0;
 		while (m.find()) {
 			if (m.end() == s.length()) break;
@@ -324,9 +322,9 @@ public class RegexUtil {
 	 * Returns named group or null. Matcher match should have been attempted.
 	 */
 	public static Map<String, String> namedGroups(Matcher m) {
-		List<String> names = groupNames(m);
+		var names = groupNames(m);
 		if (names.isEmpty()) return Map.of();
-		return CollectionUtil.toMap(s -> s, name -> namedGroup(m, name), names);
+		return Maps.convert(s -> s, name -> namedGroup(m, name), names);
 	}
 
 	/**
@@ -349,7 +347,7 @@ public class RegexUtil {
 	 * Returns the groups of the given matcher as a list.
 	 */
 	public static List<String> groups(Pattern regex, String s) {
-		Matcher m = found(regex, s);
+		var m = found(regex, s);
 		if (m == null) return List.of();
 		return groups(m);
 	}
@@ -360,7 +358,7 @@ public class RegexUtil {
 	public static List<String> groups(Matcher m) {
 		int count = m.groupCount();
 		if (count <= 0) return List.of();
-		return Streams.range(1, count).mapToObj(m::group).toList();
+		return Streams.slice(1, count).mapToObj(m::group).toList();
 	}
 
 	/**
@@ -464,8 +462,8 @@ public class RegexUtil {
 	 * matched pattern. Repeats until no results, collecting the groups as a list.
 	 */
 	public static List<String> findAll(Pattern regex, String s) {
-		List<String> values = new ArrayList<>();
-		Matcher m = regex.matcher(s);
+		var values = Lists.<String>of();
+		var m = regex.matcher(s);
 		while (m.find())
 			values.add(m.group(1));
 		return values;

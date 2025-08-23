@@ -3,7 +3,6 @@ package ceri.log.io;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
@@ -12,6 +11,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.exception.ExceptionTracker;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.function.Predicates;
 import ceri.common.io.Fixable;
@@ -37,15 +37,15 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 	protected final Replaceable.Field<T> device = Replaceable.field("device");
 
 	public static class Config {
-		public static final Predicate<Exception> NULL_PREDICATE = Predicates.no();
+		public static final Functions.Predicate<? super Exception> NULL_PREDICATE = Predicates.no;
 		public static final Config DEFAULT = new Builder().build();
 		public static final Config NULL = of(0, 0, NULL_PREDICATE);
 		public final int fixRetryDelayMs;
 		public final int recoveryDelayMs;
-		public final Predicate<Exception> brokenPredicate;
+		public final Functions.Predicate<? super Exception> brokenPredicate;
 
 		public static Config of(int fixRetryDelayMs, int recoveryDelayMs,
-			Predicate<Exception> brokenPredicate) {
+			Functions.Predicate<? super Exception> brokenPredicate) {
 			return builder().fixRetryDelayMs(fixRetryDelayMs).recoveryDelayMs(recoveryDelayMs)
 				.brokenPredicate(brokenPredicate).build();
 		}
@@ -53,7 +53,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 		public static class Builder {
 			int fixRetryDelayMs = 2000;
 			int recoveryDelayMs = fixRetryDelayMs / 2;
-			Predicate<Exception> brokenPredicate = NULL_PREDICATE;
+			Functions.Predicate<? super Exception> brokenPredicate = NULL_PREDICATE;
 
 			Builder() {}
 
@@ -73,7 +73,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 				return this;
 			}
 
-			public Builder brokenPredicate(Predicate<Exception> brokenPredicate) {
+			public Builder brokenPredicate(Functions.Predicate<? super Exception> brokenPredicate) {
 				this.brokenPredicate = brokenPredicate;
 				return this;
 			}

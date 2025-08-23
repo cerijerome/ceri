@@ -3,12 +3,11 @@ package ceri.log.concurrent;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.RIX;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.Functions;
 import ceri.common.test.CallSync;
 import ceri.log.test.LogModifier;
 
@@ -31,7 +30,8 @@ public class DispatcherBehavior {
 	@Test
 	public void shouldAdaptTypeForListeners() throws InterruptedException {
 		ValueCondition<Integer> sync = ValueCondition.of();
-		Function<String, Consumer<Consumer<Integer>>> adapter = s -> l -> l.accept(s.length());
+		Functions.Function<String, Functions.Consumer<Functions.Consumer<Integer>>> adapter =
+			s -> l -> l.accept(s.length());
 		try (var disp = Dispatcher.of(0, adapter)) {
 			try (var _ = disp.listen(sync::signal)) {
 				disp.dispatch("test");

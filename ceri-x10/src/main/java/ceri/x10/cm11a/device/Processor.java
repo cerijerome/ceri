@@ -1,10 +1,9 @@
 package ceri.x10.cm11a.device;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.ConcurrentUtil;
@@ -14,6 +13,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
 import ceri.common.exception.ExceptionTracker;
 import ceri.common.exception.Exceptions;
+import ceri.common.function.Functions;
 import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
 import ceri.log.concurrent.LoopingExecutor;
@@ -35,14 +35,15 @@ public class Processor extends LoopingExecutor {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Cm11aDevice.Config config;
 	private final TaskQueue<IOException> taskQueue;
-	private final Consumer<Command> dispatcher;
+	private final Functions.Consumer<Command> dispatcher;
 	private final ByteStream.Reader in;
 	private final ByteStream.Writer out;
 	private final EntryCollector collector;
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 
 	@SuppressWarnings("resource")
-	Processor(Cm11aDevice.Config config, Connector connector, Consumer<Command> dispatcher) {
+	Processor(Cm11aDevice.Config config, Connector connector,
+		Functions.Consumer<Command> dispatcher) {
 		try {
 			this.config = config;
 			taskQueue = TaskQueue.of(config.queueSize);
@@ -72,7 +73,7 @@ public class Processor extends LoopingExecutor {
 		try {
 			ConcurrentUtil.checkInterrupted();
 			if (in.available() > 0) processInput(in.readUbyte());
-			else taskQueue.processNext(config.queuePollTimeoutMs, MILLISECONDS);
+			else taskQueue.processNext(config.queuePollTimeoutMs, TimeUnit.MILLISECONDS);
 			exceptions.clear();
 		} catch (RuntimeInterruptedException | InterruptedException e) {
 			throw e;
@@ -160,5 +161,4 @@ public class Processor extends LoopingExecutor {
 		throw Exceptions.io("Failed to receive 0x%02x in %d attempts", expected,
 			config.maxSendAttempts);
 	}
-
 }

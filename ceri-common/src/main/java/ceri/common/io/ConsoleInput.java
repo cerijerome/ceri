@@ -1,25 +1,21 @@
 package ceri.common.io;
 
-import static ceri.common.text.StringUtil.BS;
-import static ceri.common.text.StringUtil.CR;
-import static ceri.common.text.StringUtil.ESC;
-import static ceri.common.text.StringUtil.NL;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * A console input and display utility for char-based input. Attempts to copy functionality of
@@ -30,15 +26,15 @@ public class ConsoleInput implements LineReader {
 	private static final int ESC_END_MAX = 0x7e;
 	private static final int ESC_LEN_MIN = 3;
 	private static final int ESC_LEN_MAX = 4;
-	private static final String DEL = ESC + "[3~";
-	private static final String UP = ESC + "[A";
-	private static final String DOWN = ESC + "[B";
-	private static final String RIGHT = ESC + "[C";
-	private static final String LEFT = ESC + "[D";
+	private static final String DEL = Strings.ESC + "[3~";
+	private static final String UP = Strings.ESC + "[A";
+	private static final String DOWN = Strings.ESC + "[B";
+	private static final String RIGHT = Strings.ESC + "[C";
+	private static final String LEFT = Strings.ESC + "[D";
 	private static final char START = 0x01;
 	private static final char END = 0x05;
 	private final Config config;
-	private final List<String> history = new ArrayList<>();
+	private final List<String> history = Lists.of();
 	private final Reader in;
 	private final PrintStream out;
 
@@ -46,7 +42,7 @@ public class ConsoleInput implements LineReader {
 	 * Internal state.
 	 */
 	private class State {
-		private final Map<Integer, String> historyMods = new HashMap<>();
+		private final Map<Integer, String> historyMods = Maps.of();
 		private int historyIndex = history.size();
 		private final StringBuilder esc = new StringBuilder();
 		private final StringBuilder line = new StringBuilder();
@@ -60,9 +56,9 @@ public class ConsoleInput implements LineReader {
 	 * history. Poll delay determines how long to wait before checking for new input; a null value
 	 * blocks until input is available.
 	 */
-	public record Config(int historySize, boolean historyEdit, Predicate<String> historical,
+	public record Config(int historySize, boolean historyEdit, Functions.Predicate<String> historical,
 		Integer pollDelayMs) {
-		public static Predicate<String> NO_SPACE = RegexUtil.nonFinder("^ ");
+		public static Functions.Predicate<String> NO_SPACE = RegexUtil.nonFinder("^ ");
 		public static Config POLL = new Config(100, true, NO_SPACE, 20);
 		public static Config BLOCK = new Config(100, true, NO_SPACE, null);
 		public static Config NO_EDIT = new Config(100, false, NO_SPACE, null);
@@ -140,8 +136,8 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private boolean processEsc(State state, char c) {
-		if (state.esc.isEmpty() && c != ESC) return false;
-		if (c == ESC) state.esc.setLength(0);
+		if (state.esc.isEmpty() && c != Strings.ESC) return false;
+		if (c == Strings.ESC) state.esc.setLength(0);
 		state.esc.append(c);
 		int len = state.esc.length();
 		if (len >= ESC_LEN_MAX
@@ -165,9 +161,9 @@ public class ConsoleInput implements LineReader {
 		switch (c) {
 			case START -> moveTo(state, 0);
 			case END -> moveTo(state, state.line.length());
-			case BS -> moveTo(state, state.pos - 1);
-			case StringUtil.DEL -> deleteLeft(state, 1);
-			case NL, CR -> state.complete = true;
+			case Strings.BS -> moveTo(state, state.pos - 1);
+			case Strings.DEL -> deleteLeft(state, 1);
+			case Strings.NL, Strings.CR -> state.complete = true;
 			default -> result = !StringUtil.isPrintable(c); // drop if non-printable
 		}
 		return result;
@@ -225,7 +221,7 @@ public class ConsoleInput implements LineReader {
 	private String historyAt(State state, int index) {
 		var s = state.historyMods.get(index);
 		if (s != null) return s;
-		return CollectionUtil.getOrDefault(history, index, "");
+		return Lists.at(history, index, "");
 	}
 
 	private void insert(State state, String s) {
@@ -250,7 +246,7 @@ public class ConsoleInput implements LineReader {
 	private void moveTo(State state, int pos) {
 		pos = MathUtil.limit(pos, 0, state.line.length());
 		if (pos == state.pos) return;
-		if (pos < state.pos) out.print(repeat(BS, state.pos - pos));
+		if (pos < state.pos) out.print(repeat(Strings.BS, state.pos - pos));
 		else out.print(state.line.substring(state.pos, pos));
 		state.pos = pos;
 	}
@@ -259,7 +255,7 @@ public class ConsoleInput implements LineReader {
 		max = Math.max(state.line.length(), max);
 		out.print(state.line.substring(state.pos));
 		out.print(repeat(' ', max - state.line.length()));
-		out.print(repeat(BS, max - state.pos));
+		out.print(repeat(Strings.BS, max - state.pos));
 	}
 
 	private static char[] repeat(char c, int n) {

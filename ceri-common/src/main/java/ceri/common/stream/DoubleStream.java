@@ -177,9 +177,9 @@ public class DoubleStream<E extends Exception> {
 	 * Stream values from 0 to 1 in even steps.
 	 */
 	public static <E extends Exception> DoubleStream<E> segment(int steps) {
-		return IntStream.<E>range(0, steps).mapToDouble(i -> (double) i / (steps - 1));
+		return IntStream.<E>slice(0, steps).mapToDouble(i -> (double) i / (steps - 1));
 	}
-	
+
 	/**
 	 * Returns a stream of iterable values.
 	 */
@@ -339,6 +339,16 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	/**
+	 * Skips up to the given number of elements.
+	 */
+	public DoubleStream<E> skip(int count) throws E {
+		var receiver = new NextSupplier.Receiver<E>();
+		while (count-- > 0)
+			if (!supplier.next(receiver)) break;
+		return this;
+	}
+
+	/**
 	 * Returns true if no elements are available. Consumes the next value if available.
 	 */
 	public boolean isEmpty() throws E {
@@ -410,14 +420,14 @@ public class DoubleStream<E extends Exception> {
 	public double min(double def) throws E {
 		return reduce(Reduce.min(), def);
 	}
-	
+
 	/**
 	 * Return the max value, or default.
 	 */
 	public double max(double def) throws E {
 		return reduce(Reduce.max(), def);
 	}
-	
+
 	/**
 	 * Reduces stream to a value using an accumulator, or null.
 	 */
@@ -428,8 +438,7 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Reduces stream to a value using an accumulator, or default.
 	 */
-	public double reduce(Excepts.DoubleBiOperator<? extends E> accumulator, double def)
-		throws E {
+	public double reduce(Excepts.DoubleBiOperator<? extends E> accumulator, double def) throws E {
 		return BasicUtil.defDouble(reduce(accumulator), def);
 	}
 

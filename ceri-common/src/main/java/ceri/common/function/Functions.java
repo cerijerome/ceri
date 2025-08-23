@@ -741,32 +741,4 @@ public class Functions {
 	public interface Closeable extends Excepts.Closeable<RuntimeException> {
 		static Closeable NULL = () -> {};
 	}
-
-	/**
-	 * Iterates elements, passing each element to a consumer.
-	 */
-	@FunctionalInterface
-	public interface ForEachable<T> {
-		/**
-		 * Calls the consumer for each element.
-		 */
-		void forEach(Consumer<? super T> consumer);
-	}
-
-	/**
-	 * Provides an iterator that only allows runtime exceptions.
-	 */
-	@FunctionalInterface
-	public interface Iterable<T>
-		extends Excepts.Iterable<RuntimeException, T>, java.lang.Iterable<T> {
-		@Override
-		Iterator<T> iterator();
-	}
-
-	/**
-	 * Simplified iterator that only allows runtime exceptions.
-	 */
-	public interface Iterator<T>
-		extends Excepts.Iterator<RuntimeException, T>, java.util.Iterator<T> {}
-
 }

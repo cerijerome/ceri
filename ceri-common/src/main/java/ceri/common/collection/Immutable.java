@@ -29,30 +29,6 @@ public class Immutable {
 	private Immutable() {}
 
 	/**
-	 * Immutable two-way map of keys and values.
-	 */
-	public static class BiMap<K, V> {
-		public final Map<K, V> keys;
-		public final Map<V, K> values;
-
-		private BiMap(Map<K, V> keys, Map<V, K> values) {
-			this.keys = keys;
-			this.values = values;
-		}
-
-		/**
-		 * Gets the values for the key.
-		 */
-		public V value(K key) {
-			return keys.get(key);
-		}
-
-		public K key(V value) {
-			return values.get(value);
-		}
-	}
-
-	/**
 	 * Provides unmodifiable collection wrappers and compatible mutable collections.
 	 */
 	public static class Wrap<T> { // implements Functions.Function<T, T> {
@@ -260,6 +236,8 @@ public class Immutable {
 		}
 	}
 
+	// wrapping
+
 	/**
 	 * Wraps a type as unmodifiable, converting null to empty collection type.
 	 */
@@ -267,8 +245,6 @@ public class Immutable {
 		if (wrap == null) return null;
 		return wrap.apply(type);
 	}
-
-	// wrapping
 
 	/**
 	 * Wraps a list as unmodifiable.
@@ -344,13 +320,6 @@ public class Immutable {
 	public static <K extends Comparable<? super K>, V> NavigableMap<K, V>
 		wrapNav(NavigableMap<K, V> map) {
 		return wrap(Wrap.navMap(), map);
-	}
-
-	/**
-	 * Wraps a two-way map of keys and values as unmodifiable.
-	 */
-	public static <K, V> BiMap<K, V> wrapBiMap(Map<K, V> map) {
-		return new BiMap<>(wrap(map), invertMap(map));
 	}
 
 	/**
@@ -585,6 +554,13 @@ public class Immutable {
 	// lists
 
 	/**
+	 * Returns an immutable empty list.
+	 */
+	public static <T> List<T> list() {
+		return Collections.emptyList();
+	}
+
+	/**
 	 * Creates an immutable list, copied from value vararg array.
 	 */
 	@SafeVarargs
@@ -745,6 +721,13 @@ public class Immutable {
 	}
 
 	// sets
+
+	/**
+	 * Returns an immutable empty set.
+	 */
+	public static <T> Set<T> set() {
+		return Collections.emptySet();
+	}
 
 	/**
 	 * Creates an immutable set, copied from value vararg array.
@@ -910,10 +893,10 @@ public class Immutable {
 	// maps
 
 	/**
-	 * Creates an immutable two-way map of keys and values.
+	 * Returns an immutable empty map.
 	 */
-	public static <K, V> BiMap<K, V> biMap(Map<K, V> map) {
-		return wrapBiMap(map(map));
+	public static <K, V> Map<K, V> map() {
+		return Collections.emptyMap();
 	}
 
 	/**
@@ -1112,6 +1095,14 @@ public class Immutable {
 		return wrap(Maps.invertPut(supplier.get(), map));
 	}
 
+	/**
+	 * Creates an immutable linked hash map by sorting and copying entries.
+	 */
+	public static <K, V> Map<K, V> sortMap( 
+		Comparator<? super Map.Entry<K, V>> comparator, Map<K, V> map) {
+		return wrap(Maps.sort(comparator, map));
+	}
+	
 	/**
 	 * Creates an immutable map by mapping each element to a key and value.
 	 */

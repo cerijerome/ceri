@@ -1,9 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.x10.util.X10Util.fromNybble;
-import static ceri.x10.util.X10Util.octet;
-import static java.time.DayOfWeek.SATURDAY;
-import static java.util.concurrent.TimeUnit.HOURS;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -19,6 +16,7 @@ import ceri.common.math.MathUtil;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
+import ceri.x10.util.X10Util;
 
 /**
  * Common methods for converting between types and bytes for transmitting to / receiving from the
@@ -35,31 +33,31 @@ public class Data {
 	private Data() {}
 
 	public static House decodeHouse(int code) {
-		return toHouse(fromNybble(code, 1));
+		return toHouse(X10Util.fromNybble(code, 1));
 	}
 
 	public static int decodeLower(int code) {
-		return fromNybble(code, 0);
+		return X10Util.fromNybble(code, 0);
 	}
 
 	public static Unit decodeUnit(int code) {
-		return toUnit(fromNybble(code, 0));
+		return toUnit(X10Util.fromNybble(code, 0));
 	}
 
 	public static FunctionType decodeFunctionType(int code) {
-		return toFunctionType(fromNybble(code, 0));
+		return toFunctionType(X10Util.fromNybble(code, 0));
 	}
 
 	public static int encode(House house, int value) {
-		return octet(fromHouse(house), value);
+		return X10Util.octet(fromHouse(house), value);
 	}
 
 	public static int encode(House house, Unit unit) {
-		return octet(fromHouse(house), fromUnit(unit));
+		return X10Util.octet(fromHouse(house), fromUnit(unit));
 	}
 
 	public static int encode(House house, FunctionType type) {
-		return octet(fromHouse(house), fromFunctionType(type));
+		return X10Util.octet(fromHouse(house), fromFunctionType(type));
 	}
 
 	private static int fromHouse(House house) {
@@ -145,9 +143,9 @@ public class Data {
 		int min = dateTime.getMinute();
 		int hour = dateTime.getHour();
 		int day = dateTime.getDayOfYear();
-		int dayOfWeek = SATURDAY.getValue() - dateTime.getDayOfWeek().getValue();
-		if (dayOfWeek < 0) dayOfWeek = SATURDAY.getValue();
-		if ((hour & 1) != 0) min += HOURS.toMinutes(1);
+		int dayOfWeek = DayOfWeek.SATURDAY.getValue() - dateTime.getDayOfWeek().getValue();
+		if (dayOfWeek < 0) dayOfWeek = DayOfWeek.SATURDAY.getValue();
+		if ((hour & 1) != 0) min += TimeUnit.HOURS.toMinutes(1);
 		hour = hour >>> 1;
 		w.writeBytes(sec, min, hour, day, (day >>> Byte.SIZE) | (1 << dayOfWeek));
 	}
@@ -170,5 +168,4 @@ public class Data {
 			reverse[provider.getInt(i)] = i;
 		return IntArray.Immutable.wrap(reverse);
 	}
-
 }

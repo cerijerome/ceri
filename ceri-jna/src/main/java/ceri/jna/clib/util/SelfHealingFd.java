@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
@@ -23,7 +23,7 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	private final Config config;
 
 	public static class Config {
-		private static final Predicate<Exception> DEFAULT_PREDICATE =
+		private static final Functions.Predicate<Exception> DEFAULT_PREDICATE =
 			Lambdas.register(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
 		public final Supplier<IOException, ? extends FileDescriptor> openFn;
 		public final SelfHealing.Config selfHealing;

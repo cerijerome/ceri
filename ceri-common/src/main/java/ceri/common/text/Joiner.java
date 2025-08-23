@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collector;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.stream.Stream;
+import ceri.common.stream.Collect;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Truth;
 
@@ -215,7 +215,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 
 	@Override
 	public Functions.BiOperator<Composer.Collecting> combiner() {
-		return Stream.Collect.unsupportedCombiner();
+		return Collect.noCombiner();
 	}
 
 	@Override

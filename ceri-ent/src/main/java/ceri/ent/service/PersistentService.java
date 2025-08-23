@@ -1,16 +1,14 @@
 package ceri.ent.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.Set;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.concurrent.SafeReadWrite;
-import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
 
 /**
@@ -18,13 +16,13 @@ import ceri.common.function.Predicates;
  */
 public class PersistentService<K extends Comparable<K>, V> implements Persistable {
 	private static final int UNLIMITED_COUNT = -1;
-	private final PersistentStore<Collection<V>> store;
+	private final PersistentStore<Set<V>> store;
 	private final SafeReadWrite safe = SafeReadWrite.of();
-	private final Map<K, V> map = new TreeMap<>();
-	private final Function<V, K> idFn;
+	private final Map<K, V> map = Maps.tree();
+	private final Functions.Function<V, K> idFn;
 	private boolean modified = false;
 
-	public PersistentService(PersistentStore<Collection<V>> store, Function<V, K> idFn) {
+	public PersistentService(PersistentStore<Set<V>> store, Functions.Function<V, K> idFn) {
 		this.store = store;
 		this.idFn = idFn;
 	}
@@ -33,22 +31,22 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 		return safe.read(() -> map.get(id));
 	}
 
-	protected Collection<V> findAll() {
+	protected Set<V> findAll() {
 		return find(Predicates.yes());
 	}
 
-	public <E extends Exception> V findFirst(Predicate<E, V> filter) throws E {
-		Collection<V> collection = find(filter, 1);
-		return collection.isEmpty() ? null : collection.iterator().next();
+	public <E extends Exception> V findFirst(Excepts.Predicate<E, V> filter) throws E {
+		var find = find(filter, 1);
+		return find.isEmpty() ? null : find.iterator().next();
 	}
 
-	public <E extends Exception> Collection<V> find(Predicate<E, V> filter) throws E {
+	public <E extends Exception> Set<V> find(Excepts.Predicate<E, V> filter) throws E {
 		return find(filter, UNLIMITED_COUNT);
 	}
 
-	public <E extends Exception> Collection<V> find(Predicate<E, V> filter, int maxCount) throws E {
+	public <E extends Exception> Set<V> find(Excepts.Predicate<E, V> filter, int maxCount) throws E {
 		return safe.read(() -> {
-			Collection<V> values = new HashSet<>();
+			var values = Sets.<V>of();
 			for (V value : this.map.values()) {
 				if (!filter.test(value)) continue;
 				values.add(value);
@@ -100,7 +98,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	@Override
 	public void save() throws IOException {
 		if (!saveEntries()) return;
-		Collection<V> values = safe.read(() -> new ArrayList<>(this.map.values()));
+		var values = safe.read(() -> Sets.of(this.map.values()));
 		store.save(values);
 		safe.write(() -> modified = false); // but entries may have been written after read...
 	}
@@ -126,13 +124,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	private Map<K, V> toMap(Iterable<V> values) {
-		if (values == null) return Map.of();
-		Map<K, V> map = new HashMap<>();
-		for (V value : values) {
-			K id = idFn.apply(value);
-			map.put(id, value);
-		}
-		return map;
+		if (values == null) return Maps.of();
+		return Maps.convert(idFn, values);
 	}
-
 }

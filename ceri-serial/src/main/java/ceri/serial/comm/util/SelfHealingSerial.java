@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.io.IoUtil;
 import ceri.common.property.TypedProperties;
@@ -32,7 +32,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	 */
 	public static class Config {
 		public static final Config NULL = builder((PortSupplier) null).build();
-		private static final Predicate<Exception> DEFAULT_PREDICATE =
+		private static final Functions.Predicate<Exception> DEFAULT_PREDICATE =
 			Lambdas.register(SerialPort::isFatal, "SerialPort::isFatal");
 		private final Function<Config, Serial.Fixable> serialFn;
 		public final PortSupplier portSupplier;

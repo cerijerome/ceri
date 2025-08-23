@@ -2,6 +2,7 @@ package ceri.x10.util;
 
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.TestUtil.exerciseEnum;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.x10.command.Command;
@@ -11,6 +12,11 @@ import ceri.x10.command.Unit;
 
 public class X10ControllerBehavior {
 
+	@Test
+	public void shouldEnumerateType() {
+		exerciseEnum(X10Controller.Type.class);
+	}
+	
 	@Test
 	public void shouldSupportNoCommandByDefault() {
 		assertFalse(X10Controller.NULL.supports(Command.on(House.J, Unit._8)));

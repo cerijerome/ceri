@@ -73,7 +73,7 @@ public interface I2c {
 	 * Scan 7-bit address range for existing devices.
 	 */
 	default Set<I2cAddress> scan7Bit() {
-		return Streams.range(SCAN_7BIT_MIN, SCAN_7BIT_MAX - SCAN_7BIT_MIN + 1)
+		return Streams.slice(SCAN_7BIT_MIN, SCAN_7BIT_MAX - SCAN_7BIT_MIN + 1)
 			.mapToObj(i -> I2cAddress.of7Bit(i)).filter(this::exists).toSet();
 	}
 

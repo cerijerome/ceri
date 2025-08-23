@@ -5,7 +5,6 @@ import ceri.common.event.Listenable;
 import ceri.common.io.StateChange;
 import ceri.common.util.Enclosure;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
 import ceri.x10.util.X10Controller;
 
 public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, Closeable {
@@ -19,7 +18,7 @@ public interface Cm17a extends X10Controller, Listenable.Indirect<StateChange>, 
 		}
 
 		@Override
-		public Enclosure<CommandListener> listen(CommandListener listener) {
+		public Enclosure<Command.Listener> listen(Command.Listener listener) {
 			return Enclosure.noOp(listener);
 		}
 

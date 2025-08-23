@@ -3,10 +3,9 @@ package ceri.jna.util;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCException;
-import java.util.function.IntPredicate;
-import java.util.function.ToIntFunction;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
+import ceri.common.function.Functions;
 import ceri.jna.clib.jna.CException;
 
 public class CallerBehavior {
@@ -68,7 +67,7 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldVerifyIntResultWithPredicate() throws CException {
-		IntPredicate verifyFn = i -> Math.abs(i) <= 1;
+		Functions.IntPredicate verifyFn = i -> Math.abs(i) <= 1;
 		caller.verifyInt(() -> 0, verifyFn, "test");
 		caller.verifyInt(() -> -1, verifyFn, "test");
 		assertCException(() -> caller.verifyInt(() -> 2, verifyFn, "test"));
@@ -82,7 +81,7 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldVerifyTypeResultWithPredicate() throws CException {
-		ToIntFunction<String> verifyFn = String::length;
+		Functions.ToIntFunction<String> verifyFn = String::length;
 		caller.verifyType(() -> "", verifyFn, "test");
 		assertEquals(CException.capture(() -> caller.verifyType(() -> "abc", verifyFn, "test")), 3);
 	}

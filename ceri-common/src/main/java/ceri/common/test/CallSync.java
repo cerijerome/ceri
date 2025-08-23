@@ -1,24 +1,19 @@
 package ceri.common.test;
 
-import static ceri.common.collection.CollectionUtil.getOrDefault;
-import static ceri.common.concurrent.ConcurrentUtil.getInterruptible;
-import static ceri.common.concurrent.ConcurrentUtil.lockInfo;
-import static ceri.common.concurrent.ConcurrentUtil.lockedGet;
-import static ceri.common.concurrent.ConcurrentUtil.lockedRun;
-import static ceri.common.exception.ExceptionAdapter.runtime;
-import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOrdered;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import ceri.common.collection.Collectable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
+import ceri.common.function.FunctionUtil;
 import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.common.util.Holder;
@@ -35,7 +30,7 @@ public abstract class CallSync<T, R> {
 	public final ErrorGen error = ErrorGen.of();
 	private final ValueCondition<Holder<T>> callSync = ValueCondition.of(lock);
 	private final ValueCondition<Holder<R>> responseSync = ValueCondition.of(lock);
-	private final List<T> values = new ArrayList<>();
+	private final List<T> values = Lists.of();
 	private final T originalValueDef;
 	private final Functions.Supplier<Excepts.Function<?, T, R>> origAutoResponseSupplier;
 	private T valueDef;
@@ -110,7 +105,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValue() {
-			return lastValue(runtime);
+			return lastValue(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -124,7 +119,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValueWithInterrupt() throws InterruptedException {
-			return lastValueWithInterrupt(runtime);
+			return lastValueWithInterrupt(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -186,7 +181,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public R apply(T t) {
-			return apply(t, runtime);
+			return apply(t, ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -202,7 +197,7 @@ public abstract class CallSync<T, R> {
 		 * RuntimeException or InterruptedException if the generator is configured.
 		 */
 		public R applyWithInterrupt(T t) throws InterruptedException {
-			return applyWithInterrupt(t, runtime);
+			return applyWithInterrupt(t, ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -293,7 +288,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValue() {
-			return lastValue(runtime);
+			return lastValue(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -307,7 +302,7 @@ public abstract class CallSync<T, R> {
 		 * Returns the last call value, or default if not set. Checks for exceptions.
 		 */
 		public T lastValueWithInterrupt() throws InterruptedException {
-			return lastValueWithInterrupt(runtime);
+			return lastValueWithInterrupt(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -362,7 +357,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public void accept(T t) {
-			accept(t, runtime);
+			accept(t, ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -378,7 +373,7 @@ public abstract class CallSync<T, R> {
 		 * InterruptedException if the generator is configured.
 		 */
 		public void acceptWithInterrupt(T t) throws InterruptedException {
-			acceptWithInterrupt(t, runtime);
+			acceptWithInterrupt(t, ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -490,7 +485,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public R get() {
-			return get(runtime);
+			return get(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -506,7 +501,7 @@ public abstract class CallSync<T, R> {
 		 * RuntimeException or InterruptedException if the generator is configured.
 		 */
 		public R getWithInterrupt() throws InterruptedException {
-			return getWithInterrupt(runtime);
+			return getWithInterrupt(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -574,7 +569,7 @@ public abstract class CallSync<T, R> {
 		 */
 		@Override
 		public void run() {
-			run(runtime);
+			run(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -590,7 +585,7 @@ public abstract class CallSync<T, R> {
 		 * InterruptedException if the generator is configured.
 		 */
 		public void runWithInterrupt() throws InterruptedException {
-			runWithInterrupt(runtime);
+			runWithInterrupt(ExceptionAdapter.runtime);
 		}
 
 		/**
@@ -642,7 +637,7 @@ public abstract class CallSync<T, R> {
 	 * Reset state, which includes setting the original default value and auto-response.
 	 */
 	public void reset() {
-		lockedRun(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
@@ -656,7 +651,7 @@ public abstract class CallSync<T, R> {
 	 * Clears values and call count.
 	 */
 	public void clearCalls() {
-		lockedRun(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			values.clear();
 			valueDef = originalValueDef;
 			calls = 0;
@@ -667,14 +662,14 @@ public abstract class CallSync<T, R> {
 	 * Returns true if auto-response is enabled.
 	 */
 	public boolean autoResponseEnabled() {
-		return lockedGet(lock, () -> autoResponseFn) != null;
+		return ConcurrentUtil.lockedGet(lock, () -> autoResponseFn) != null;
 	}
 
 	/**
 	 * Thread-safe; get call count since creation or reset.
 	 */
 	public int calls() {
-		return lockedGet(lock, () -> calls);
+		return ConcurrentUtil.lockedGet(lock, () -> calls);
 	}
 
 	/**
@@ -695,7 +690,7 @@ public abstract class CallSync<T, R> {
 	 * Enables/disables saving of values. Clears previous values if disabled. Enabled by default.
 	 */
 	public void saveValues(boolean enabled) {
-		lockedRun(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			saveValues = enabled;
 			if (!enabled && values.size() > 1) setValue(getValue());
 		});
@@ -706,8 +701,8 @@ public abstract class CallSync<T, R> {
 	 */
 	@Override
 	public String toString() {
-		var callLock = lockInfo(callSync.lock);
-		var responseLock = lockInfo(responseSync.lock);
+		var callLock = ConcurrentUtil.lockInfo(callSync.lock);
+		var responseLock = ConcurrentUtil.lockInfo(responseSync.lock);
 		ToString s = ToString.ofClass(this).field("error", error);
 		if (!ConcurrentUtil.tryLockedRun(lock,
 			() -> s.children(String.format("call=%s;%s;%d", callSync.tryValue(), callLock, calls),
@@ -741,14 +736,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets default value.
 	 */
 	private void valueDef(T value) {
-		lockedRun(lock, () -> valueDef = value);
+		ConcurrentUtil.lockedRun(lock, () -> valueDef = value);
 	}
 
 	/**
 	 * Thread-safe; set current value.
 	 */
 	private void setValue(T value) {
-		lockedRun(lock, () -> {
+		ConcurrentUtil.lockedRun(lock, () -> {
 			if (!saveValues) values.clear();
 			values.add(value);
 		});
@@ -775,14 +770,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; get current value or default. Does not check for exceptions.
 	 */
 	private T getValue() {
-		return lockedGet(lock, () -> getOrDefault(values, values.size() - 1, valueDef));
+		return ConcurrentUtil.lockedGet(lock, () -> Lists.last(values, valueDef));
 	}
 
 	/**
 	 * Thread-safe; get all values. Does not check for exceptions.
 	 */
 	private List<T> getValues() {
-		return lockedGet(lock, () -> new ArrayList<>(values));
+		return ConcurrentUtil.lockedGet(lock, () -> Collectable.add(Lists.of(), values));
 	}
 
 	/**
@@ -790,8 +785,8 @@ public abstract class CallSync<T, R> {
 	 */
 	@SafeVarargs
 	private void assertAndClearValues(T... expecteds) {
-		List<T> values = lockedGet(lock, () -> {
-			List<T> list = new ArrayList<>(this.values);
+		List<T> values = ConcurrentUtil.lockedGet(lock, () -> {
+			var list = Lists.of(this.values);
 			this.values.clear();
 			return list;
 		});
@@ -802,7 +797,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
 	private void autoResponseFn(Excepts.Function<?, T, R> autoResponseFn) {
-		lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
+		ConcurrentUtil.lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
 	/**
@@ -846,7 +841,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; checks auto-response is set, and awaits call.
 	 */
 	private T awaitCallWithAutoResponse() {
-		return lockedGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			assertNotNull(autoResponseFn);
 			return awaitCall();
 		});
@@ -857,7 +852,7 @@ public abstract class CallSync<T, R> {
 	 */
 	private <E extends Exception> T awaitCallWithResponse(Excepts.Function<E, T, R> responseFn)
 		throws E {
-		return lockedGet(lock, () -> {
+		return ConcurrentUtil.lockedGet(lock, () -> {
 			var autoResponseFn = this.autoResponseFn;
 			try {
 				// Temporarily removes auto response
@@ -881,14 +876,14 @@ public abstract class CallSync<T, R> {
 	}
 
 	private T awaitCall() {
-		return getInterruptible(callSync::await).value();
+		return ConcurrentUtil.getInterruptible(callSync::await).value();
 	}
 
 	private R sync(T t) throws Exception {
 		callSync.signal(Holder.of(t));
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
-		return getInterruptible(responseSync::await).value();
+		return ConcurrentUtil.getInterruptible(responseSync::await).value();
 	}
 
 	private static <T, R> Excepts.Function<?, T, R>
@@ -913,7 +908,7 @@ public abstract class CallSync<T, R> {
 
 	private static <T, R> Excepts.Function<?, T, R> toAutoResponseFn(R[] responses) {
 		if (responses.length == 0) return null;
-		var supplier = sequentialSupplier(responses);
+		var supplier = FunctionUtil.sequentialSupplier(responses);
 		return _ -> supplier.get();
 	}
 }

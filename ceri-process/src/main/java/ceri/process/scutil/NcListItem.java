@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import ceri.common.text.Patterns;
-import ceri.common.text.Strings;
 
 /**
  * One line from scutil --nc list.
@@ -26,7 +25,8 @@ public class NcListItem {
 	public final String type;
 
 	public static List<NcListItem> fromList(String output) {
-		return Strings.lines(output).map(NcListItem::from).nonNull().toList();
+		return Patterns.Split.stream(Patterns.Split.line, output).map(NcListItem::from).nonNull()
+			.toList();
 	}
 
 	public static NcListItem from(String line) {
@@ -115,8 +115,7 @@ public class NcListItem {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof NcListItem)) return false;
-		NcListItem other = (NcListItem) obj;
+		if (!(obj instanceof NcListItem other)) return false;
 		if (enabled != other.enabled) return false;
 		if (!Objects.equals(state, other.state)) return false;
 		if (!Objects.equals(passwordHash, other.passwordHash)) return false;

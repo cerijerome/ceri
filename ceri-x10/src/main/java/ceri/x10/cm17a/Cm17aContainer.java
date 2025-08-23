@@ -1,12 +1,12 @@
 package ceri.x10.cm17a;
 
-import static ceri.common.util.BasicUtil.def;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
 import ceri.common.io.DeviceMode;
 import ceri.common.io.Fixable;
 import ceri.common.text.ToString;
+import ceri.common.util.BasicUtil;
 import ceri.log.util.LogUtil;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.util.SelfHealingSerial;
@@ -143,9 +143,9 @@ public class Cm17aContainer implements Functions.Closeable {
 			id = config.id;
 			type = config.type(cm17a, serial);
 			createdSerial = createSerial(config.serial);
-			this.serial = def(createdSerial, serial);
+			this.serial = BasicUtil.def(createdSerial, serial);
 			createdCm17a = createCm17a(this.serial, config.device);
-			this.cm17a = def(createdCm17a, cm17a);
+			this.cm17a = BasicUtil.def(createdCm17a, cm17a);
 			logger.info("[%d:%s] started", id, type);
 		} catch (RuntimeException e) {
 			close();

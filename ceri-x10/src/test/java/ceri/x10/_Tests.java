@@ -35,12 +35,10 @@ import ceri.common.test.TestUtil;
 	// command
 	ceri.x10.command.AddressBehavior.class, //
 	ceri.x10.command.CommandBehavior.class, //
-	ceri.x10.command.CommandListenerBehavior.class, //
 	ceri.x10.command.FunctionTypeBehavior.class, //
 	ceri.x10.command.UnitBehavior.class, //
 	// util
 	ceri.x10.util.X10ControllerBehavior.class, //
-	ceri.x10.util.X10ControllerTypeBehavior.class, //
 	ceri.x10.util.X10UtilTest.class, //
 })
 public class _Tests {

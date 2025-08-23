@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +45,7 @@ public class Processor extends LoopingExecutor {
 			sendReset();
 			lastOn = null;
 			while (true) {
-				if (taskQueue.processNext(config.queuePollTimeoutMs, MILLISECONDS))
+				if (taskQueue.processNext(config.queuePollTimeoutMs, TimeUnit.MILLISECONDS))
 					ConcurrentUtil.delayMicros(config.commandIntervalMicros);
 			}
 		} catch (RuntimeInterruptedException e) {
@@ -134,5 +134,4 @@ public class Processor extends LoopingExecutor {
 		connector.rts(true);
 		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
 	}
-
 }

@@ -1,6 +1,5 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.x10.util.X10Controller.verifySupported;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -13,8 +12,8 @@ import ceri.common.util.Enclosure;
 import ceri.log.concurrent.Dispatcher;
 import ceri.log.util.LogUtil;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
 import ceri.x10.command.FunctionGroup;
+import ceri.x10.util.X10Controller;
 
 public class Cm17aDevice implements Cm17a {
 	private static final Logger logger = LogManager.getLogger();
@@ -22,7 +21,7 @@ public class Cm17aDevice implements Cm17a {
 		List.of(FunctionGroup.unit, FunctionGroup.dim);
 	private final Cm17aConnector connector;
 	private final Processor processor;
-	private final Dispatcher<CommandListener, Command> dispatcher;
+	private final Dispatcher<Command.Listener, Command> dispatcher;
 
 	public static class Config {
 		public static final Config NULL = builder().commandIntervalMicros(0).resetIntervalMicros(0)
@@ -125,7 +124,7 @@ public class Cm17aDevice implements Cm17a {
 
 	private Cm17aDevice(Config config, Cm17aConnector connector) {
 		this.connector = connector;
-		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, CommandListener::dispatcher);
+		dispatcher = Dispatcher.of(config.queuePollTimeoutMs, Command.Listener::dispatcher);
 		processor = new Processor(config, connector);
 	}
 
@@ -135,7 +134,7 @@ public class Cm17aDevice implements Cm17a {
 	}
 
 	@Override
-	public Enclosure<CommandListener> listen(CommandListener listener) {
+	public Enclosure<Command.Listener> listen(Command.Listener listener) {
 		return dispatcher.listen(listener);
 	}
 
@@ -146,7 +145,7 @@ public class Cm17aDevice implements Cm17a {
 
 	@Override
 	public void command(Command command) throws IOException {
-		verifySupported(this, command);
+		X10Controller.verifySupported(this, command);
 		logger.info("Command: {}", command);
 		processor.command(command);
 		dispatcher.dispatch(command);

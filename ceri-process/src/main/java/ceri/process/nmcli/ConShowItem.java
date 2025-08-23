@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import ceri.common.collection.Immutable;
 import ceri.common.process.Columns;
-import ceri.common.text.Strings;
+import ceri.common.text.Patterns;
 import ceri.common.text.ToString;
 
 /**
@@ -30,7 +30,7 @@ public class ConShowItem {
 	public final String device;
 
 	public static List<ConShowItem> fromOutput(String output) {
-		var lines = Strings.lines(output).toList();
+		var lines = Patterns.Split.list(Patterns.Split.line, output);
 		if (lines.size() <= 1) return List.of();
 		var columns = Columns.fromFixedWidthHeader(lines.get(0));
 		lines = lines.subList(1, lines.size());

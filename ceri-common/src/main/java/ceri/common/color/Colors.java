@@ -1,461 +1,774 @@
 package ceri.common.color;
 
+import static ceri.common.math.MathUtil.roundDiv;
+import static ceri.common.text.StringUtil.HEX_RADIX;
+import static java.util.stream.Collectors.toList;
 import java.awt.Color;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
-import ceri.common.collection.Enums;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import ceri.common.collection.Maps;
+import ceri.common.comparator.Comparators;
+import ceri.common.math.Bound;
+import ceri.common.math.MathUtil;
+import ceri.common.text.RegexUtil;
+import ceri.common.text.StringUtil;
 
 /**
- * Opaque color presets.
+ * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
-public enum Colors {
+public class Colors {
+	private static final Pattern HEX_REGEX = Pattern.compile("(0x|0X|#)([0-9a-fA-F]{1,8})");
+	public static final Pattern COLOR_REGEX =
+		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
+	public static final Color clear = color(0);
+	private static final Maps.Bi<Integer, String> colors = colors(); // any alpha
+	private static final int HEX_RGB_MAX_LEN = 6;
+	private static final int HEX_ARGB_MAX_LEN = 8;
+	private static final int HEX3_LEN = 3;
+	private static final int HEX3_MASK = 0xf;
+	private static final int HEX3_R_SHIFT = 8;
+	private static final int HEX3_G_SHIFT = 4;
+	private static final double HALF = 0.5;
+	public static final double MAX_RATIO = 1.0;
+	public static final int MAX_VALUE = 0xff;
+	private static final int RND_MAX = MAX_VALUE + 1;
 
-	// java awt colors
-
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#000000;"/> */
-	awtBlack(Color.black.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#0000ff;"/> */
-	awtBlue(Color.blue.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ffff;"/> */
-	awtCyan(Color.cyan.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#404040;"/> */
-	awtDarkGray(Color.darkGray.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#808080;"/> */
-	awtGray(Color.gray.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ff00;"/> */
-	awtGreen(Color.green.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#c0c0c0;"/> */
-	awtLightGray(Color.lightGray.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff00ff;"/> */
-	awtMagenta(Color.magenta.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffc800;"/> */
-	awtOrange(Color.orange.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffafaf;"/> */
-	awtPink(Color.pink.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff0000;"/> */
-	awtRed(Color.red.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffffff;"/> */
-	awtWhite(Color.white.getRGB()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffff00;"/> */
-	awtYellow(Color.yellow.getRGB()),
-
-	// CIE illuminants: https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
-
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffcdd;"/> */
-	cieD50(XyzColor.CIE_D50.argb()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffeea;"/> */
-	cieD55(XyzColor.CIE_D55.argb()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffffff;"/> */
-	cieD65(XyzColor.CIE_D65.argb()),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f7ffff;"/> */
-	cieD75(XyzColor.CIE_D75.argb()),
-
-	// Color temperatures: includes ANSI C78.377 bins (2700K-6500K)
-
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffc100;"/> */
-	white1700K(ColorSpaces.cctToRgb(1700)), // amber
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffcd00;"/> */
-	white1900K(ColorSpaces.cctToRgb(1900)),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffda49;"/> */
-	white2200K(ColorSpaces.cctToRgb(2200)), // ultra-warm
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffe369;"/> */
-	white2500K(ColorSpaces.cctToRgb(2500)),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffe87a;"/> */
-	white2700K(ColorSpaces.cctToRgb(2700)), // soft
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffed8e;"/> */
-	white3000K(ColorSpaces.cctToRgb(3000)),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff3ab;"/> */
-	white3500K(ColorSpaces.cctToRgb(3500)), // warm
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff6c1;"/> */
-	white4000K(ColorSpaces.cctToRgb(4000)),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff9d3;"/> */
-	white4500K(ColorSpaces.cctToRgb(4500)), // neutral
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffbe2;"/> */
-	white5000K(ColorSpaces.cctToRgb(5000)),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffcf3;"/> */
-	white5700K(ColorSpaces.cctToRgb(5700)), // cool
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffdff;"/> */
-	white6500K(ColorSpaces.cctToRgb(6500)), // daylight
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fcfeff;"/> */
-	white7500K(ColorSpaces.cctToRgb(7500)),
-
-	// LED custom colors
-
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffc100;"/> */
-	amber(white1700K.argb), // 1700K
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff3ab;"/> */
-	warmWhite(white3500K.argb), // 3500K
-
-	// X11 colors: https://en.wikipedia.org/wiki/Web_colors#X11_color_names
-
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f0f8ff;"/> */
-	aliceBlue(0xf0f8ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#faebd7;"/> */
-	antiqueWhite(0xfaebd7),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ffff;"/> */
-	aqua(0x00ffff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#7fffd4;"/> */
-	aquamarine(0x7fffd4),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f0ffff;"/> */
-	azure(0xf0ffff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f5f5dc;"/> */
-	beige(0xf5f5dc),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffe4c4;"/> */
-	bisque(0xffe4c4),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#000000;"/> */
-	black(0x000000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffebcd;"/> */
-	blanchedAlmond(0xffebcd),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#0000ff;"/> */
-	blue(0x0000ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#8a2be2;"/> */
-	blueViolet(0x8a2be2),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#a52a2a;"/> */
-	brown(0xa52a2a),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#deb887;"/> */
-	burlyWood(0xdeb887),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#5f9ea0;"/> */
-	cadetBlue(0x5f9ea0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#7fff00;"/> */
-	chartreuse(0x7fff00),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#d2691e;"/> */
-	chocolate(0xd2691e),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff7f50;"/> */
-	coral(0xff7f50),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#6495ed;"/> */
-	cornflowerBlue(0x6495ed),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff8dc;"/> */
-	cornsilk(0xfff8dc),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#dc143c;"/> */
-	crimson(0xdc143c),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ffff;"/> */
-	cyan(0x00ffff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00008b;"/> */
-	darkBlue(0x00008b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#008b8b;"/> */
-	darkCyan(0x008b8b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#b8860b;"/> */
-	darkGoldenRod(0xb8860b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#a9a9a9;"/> */
-	darkGray(0xa9a9a9),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#006400;"/> */
-	darkGreen(0x006400),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#bdb76b;"/> */
-	darkKhaki(0xbdb76b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#8b008b;"/> */
-	darkMagenta(0x8b008b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#556b2f;"/> */
-	darkOliveGreen(0x556b2f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff8c00;"/> */
-	darkOrange(0xff8c00),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#9932cc;"/> */
-	darkOrchid(0x9932cc),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#8b0000;"/> */
-	darkRed(0x8b0000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#e9967a;"/> */
-	darkSalmon(0xe9967a),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#8fbc8f;"/> */
-	darkSeaGreen(0x8fbc8f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#483d8b;"/> */
-	darkSlateBlue(0x483d8b),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#2f4f4f;"/> */
-	darkSlateGray(0x2f4f4f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ced1;"/> */
-	darkTurquoise(0x00ced1),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#9400d3;"/> */
-	darkViolet(0x9400d3),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff1493;"/> */
-	deepPink(0xff1493),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00bfff;"/> */
-	deepSkyBlue(0x00bfff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#696969;"/> */
-	dimGray(0x696969),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#1e90ff;"/> */
-	dodgerBlue(0x1e90ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#b22222;"/> */
-	fireBrick(0xb22222),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffaf0;"/> */
-	floralWhite(0xfffaf0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#228b22;"/> */
-	forestGreen(0x228b22),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff00ff;"/> */
-	fuchsia(0xff00ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#dcdcdc;"/> */
-	gainsboro(0xdcdcdc),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f8f8ff;"/> */
-	ghostWhite(0xf8f8ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffd700;"/> */
-	gold(0xffd700),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#daa520;"/> */
-	goldenRod(0xdaa520),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#808080;"/> */
-	gray(0x808080),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#008000;"/> */
-	green(0x008000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#adff2f;"/> */
-	greenYellow(0xadff2f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f0fff0;"/> */
-	honeyDew(0xf0fff0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff69b4;"/> */
-	hotPink(0xff69b4),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#cd5c5c;"/> */
-	indianRed(0xcd5c5c),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#4b0082;"/> */
-	indigo(0x4b0082),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffff0;"/> */
-	ivory(0xfffff0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f0e68c;"/> */
-	khaki(0xf0e68c),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#e6e6fa;"/> */
-	lavender(0xe6e6fa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff0f5;"/> */
-	lavenderBlush(0xfff0f5),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#7cfc00;"/> */
-	lawnGreen(0x7cfc00),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffacd;"/> */
-	lemonChiffon(0xfffacd),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#add8e6;"/> */
-	lightBlue(0xadd8e6),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f08080;"/> */
-	lightCoral(0xf08080),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#e0ffff;"/> */
-	lightCyan(0xe0ffff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fafad2;"/> */
-	lightGoldenRodYellow(0xfafad2),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#d3d3d3;"/> */
-	lightGray(0xd3d3d3),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#90ee90;"/> */
-	lightGreen(0x90ee90),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffb6c1;"/> */
-	lightPink(0xffb6c1),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffa07a;"/> */
-	lightSalmon(0xffa07a),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#20b2aa;"/> */
-	lightSeaGreen(0x20b2aa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#87cefa;"/> */
-	lightSkyBlue(0x87cefa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#778899;"/> */
-	lightSlateGray(0x778899),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#b0c4de;"/> */
-	lightSteelBlue(0xb0c4de),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffffe0;"/> */
-	lightYellow(0xffffe0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ff00;"/> */
-	lime(0x00ff00),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#32cd32;"/> */
-	limeGreen(0x32cd32),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#faf0e6;"/> */
-	linen(0xfaf0e6),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff00ff;"/> */
-	magenta(0xff00ff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#800000;"/> */
-	maroon(0x800000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#66cdaa;"/> */
-	mediumAquaMarine(0x66cdaa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#0000cd;"/> */
-	mediumBlue(0x0000cd),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ba55d3;"/> */
-	mediumOrchid(0xba55d3),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#9370db;"/> */
-	mediumPurple(0x9370db),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#3cb371;"/> */
-	mediumSeaGreen(0x3cb371),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#7b68ee;"/> */
-	mediumSlateBlue(0x7b68ee),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00fa9a;"/> */
-	mediumSpringGreen(0x00fa9a),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#48d1cc;"/> */
-	mediumTurquoise(0x48d1cc),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#c71585;"/> */
-	mediumVioletRed(0xc71585),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#191970;"/> */
-	midnightBlue(0x191970),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f5fffa;"/> */
-	mintCream(0xf5fffa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffe4e1;"/> */
-	mistyRose(0xffe4e1),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffe4b5;"/> */
-	moccasin(0xffe4b5),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffdead;"/> */
-	navajoWhite(0xffdead),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#000080;"/> */
-	navy(0x000080),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fdf5e6;"/> */
-	oldLace(0xfdf5e6),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#808000;"/> */
-	olive(0x808000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#6b8e23;"/> */
-	oliveDrab(0x6b8e23),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffa500;"/> */
-	orange(0xffa500),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff4500;"/> */
-	orangeRed(0xff4500),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#da70d6;"/> */
-	orchid(0xda70d6),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#eee8aa;"/> */
-	paleGoldenRod(0xeee8aa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#98fb98;"/> */
-	paleGreen(0x98fb98),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#afeeee;"/> */
-	paleTurquoise(0xafeeee),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#db7093;"/> */
-	paleVioletRed(0xdb7093),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffefd5;"/> */
-	papayaWhip(0xffefd5),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffdab9;"/> */
-	peachPuff(0xffdab9),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#cd853f;"/> */
-	peru(0xcd853f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffc0cb;"/> */
-	pink(0xffc0cb),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#dda0dd;"/> */
-	plum(0xdda0dd),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#b0e0e6;"/> */
-	powderBlue(0xb0e0e6),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#800080;"/> */
-	purple(0x800080),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#663399;"/> */
-	rebeccaPurple(0x663399),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff0000;"/> */
-	red(0xff0000),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#bc8f8f;"/> */
-	rosyBrown(0xbc8f8f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#4169e1;"/> */
-	royalBlue(0x4169e1),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#8b4513;"/> */
-	saddleBrown(0x8b4513),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fa8072;"/> */
-	salmon(0xfa8072),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f4a460;"/> */
-	sandyBrown(0xf4a460),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#2e8b57;"/> */
-	seaGreen(0x2e8b57),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fff5ee;"/> */
-	seaShell(0xfff5ee),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#a0522d;"/> */
-	sienna(0xa0522d),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#c0c0c0;"/> */
-	silver(0xc0c0c0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#87ceeb;"/> */
-	skyBlue(0x87ceeb),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#6a5acd;"/> */
-	slateBlue(0x6a5acd),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#708090;"/> */
-	slateGray(0x708090),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffafa;"/> */
-	snow(0xfffafa),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#00ff7f;"/> */
-	springGreen(0x00ff7f),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#4682b4;"/> */
-	steelBlue(0x4682b4),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#d2b48c;"/> */
-	tan(0xd2b48c),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#008080;"/> */
-	teal(0x008080),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#d8bfd8;"/> */
-	thistle(0xd8bfd8),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ff6347;"/> */
-	tomato(0xff6347),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#40e0d0;"/> */
-	turquoise(0x40e0d0),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ee82ee;"/> */
-	violet(0xee82ee),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f5deb3;"/> */
-	wheat(0xf5deb3),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffffff;"/> */
-	white(0xffffff),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f5f5f5;"/> */
-	whiteSmoke(0xf5f5f5),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffff00;"/> */
-	yellow(0xffff00),
-	/** <div style="border:1px solid;width:40px;height:20px;background-color:#9acd32;"/> */
-	yellowGreen(0x9acd32);
-
-	private static final Map<Integer, Colors> argbLookup = Enums.map(c -> c.argb, Colors.class);
-	private static final Map<String, Colors> nameLookup =
-		Enums.map(t -> t.name().toLowerCase(), Colors.class);
-	public final int argb;
+	private Colors() {}
 
 	/**
-	 * Lookup argb int by name. Returns null if not found.
+	 * Comparators for Color.
 	 */
-	public static Integer argb(String name) {
-		Colors c = from(name);
-		return c == null ? null : c.argb;
+	public static class Compare {
+		/** Compare by argb int value. */
+		public static final Comparator<Color> ARGB =
+			Comparators.comparing(Color::getRGB, Comparators.UINT);
+		/** Compare by alpha component. */
+		public static final Comparator<Color> A =
+			Comparators.comparing(Color::getAlpha, Comparators.INT);
+		/** Compare by red component. */
+		public static final Comparator<Color> R =
+			Comparators.comparing(Color::getRed, Comparators.INT);
+		/** Compare by green component. */
+		public static final Comparator<Color> G =
+			Comparators.comparing(Color::getGreen, Comparators.INT);
+		/** Compare by blue component. */
+		public static final Comparator<Color> B =
+			Comparators.comparing(Color::getBlue, Comparators.INT);
+		/** Compare by HSB hue. */
+		public static final Comparator<Color> HUE =
+			Comparators.comparing(c -> toHsb(c)[0], Comparators.FLOAT);
+		/** Compare by HSB saturation. */
+		public static final Comparator<Color> SATURATION =
+			Comparators.comparing(c -> toHsb(c)[1], Comparators.FLOAT);
+		/** Compare by HSB brightness. */
+		public static final Comparator<Color> BRIGHTNESS =
+			Comparators.comparing(c -> toHsb(c)[2], Comparators.FLOAT);
+		/** Compare by hue, saturation, then brightness. */
+		public static final Comparator<Color> HSB =
+			Comparators.comparing(Compare::toHsb, Compare::compareHsb);
+
+		private Compare() {}
+
+		private static float[] toHsb(Color color) {
+			float[] hsb = new float[3];
+			return Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsb);
+		}
+
+		private static int compareHsb(float[] lhs, float[] rhs) {
+			int result = Comparators.FLOAT.compare(lhs[0], rhs[0]);
+			if (result == 0) result = Comparators.FLOAT.compare(lhs[1], rhs[1]);
+			if (result == 0) result = Comparators.FLOAT.compare(lhs[2], rhs[2]);
+			return result;
+		}
+	}
+
+	// argb int methods
+
+	/**
+	 * Removes alpha component from argb int.
+	 */
+	public static int rgb(int argb) {
+		return argb & ~Component.a.intMask;
 	}
 
 	/**
-	 * Lookup color by name. Returns null if not found.
+	 * Extracts rgb int without alpha component.
 	 */
-	public static Color color(String name) {
-		Colors c = from(name);
-		return c == null ? null : c.color();
+	public static int rgb(Color color) {
+		return rgb(argb(color));
 	}
 
 	/**
-	 * Lookup name by rgb int. Returns null if not found.
+	 * Extracts argb int (convenience method to avoid confusion).
 	 */
-	public static String name(int rgb) {
-		Colors c = from(rgb);
-		return c == null ? null : c.name();
+	public static int argb(Color color) {
+		return color.getRGB();
 	}
 
 	/**
-	 * Lookup name by color. Returns null if not found.
+	 * Constructs an opaque argb int from rgb int.
+	 */
+	public static int argb(int rgb) {
+		return rgb | Component.a.intMask;
+	}
+
+	/**
+	 * Constructs an argb int from components.
+	 */
+	public static int argb(int a, int r, int g, int b) {
+		return Component.a.intValue(a) | Component.r.intValue(r) | Component.g.intValue(g)
+			| Component.b.intValue(b);
+	}
+
+	/**
+	 * Constructs an opaque argb int from components.
+	 */
+	public static int argb(int r, int g, int b) {
+		return Component.a.intMask | Component.r.intValue(r) | Component.g.intValue(g)
+			| Component.b.intValue(b);
+	}
+
+	/**
+	 * Returns an argb int from awt name, x11 name, or hex representation. Named colors are opaque,
+	 * hex colors may have alpha components, or be opaque. Returns null if no match.
+	 */
+	public static Integer argb(String text) {
+		Integer argb = namedArgb(text);
+		return argb != null ? argb : hexArgb(text);
+	}
+
+	/**
+	 * Returns an argb int from preset name or hex representation. Throws an exception if unable to
+	 * parse the text.
+	 */
+	public static int validArgb(String text) {
+		Integer argb = argb(text);
+		if (argb != null) return argb;
+		throw new IllegalArgumentException("Invalid color: " + text);
+	}
+
+	/**
+	 * Creates an opaque gray argb int with the same value for all color components.
+	 */
+	public static int grayArgb(int value) {
+		return argb(MAX_VALUE, value, value, value);
+	}
+
+	/**
+	 * Creates an argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int argb) {
+		return maxArgb(a(argb), r(argb), g(argb), b(argb));
+	}
+
+	/**
+	 * Creates an argb int with maximum color components in the same ratio.
+	 */
+	public static int maxArgb(int a, int r, int g, int b) {
+		int max = MathUtil.max(r, g, b);
+		if (max == 0 || max == MAX_VALUE) return argb(a, r, g, b);
+		return argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
+			roundDiv(b * MAX_VALUE, max));
+	}
+
+	/**
+	 * Creates an opaque argb int with random color components.
+	 */
+	public static int randomRgb() {
+		Random rnd = ThreadLocalRandom.current();
+		return argb(MAX_VALUE, rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX));
+	}
+
+	/**
+	 * Creates an argb int with random alpha and color components.
+	 */
+	public static int randomArgb() {
+		Random rnd = ThreadLocalRandom.current();
+		return argb(rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX), rnd.nextInt(RND_MAX),
+			rnd.nextInt(RND_MAX));
+	}
+
+	/**
+	 * Flattens the color by applying alpha channel on opaque black.
+	 */
+	public static int flattenArgb(int argb) {
+		return blendArgbs(argb, Coloring.black.argb);
+	}
+
+	/**
+	 * Create a composite from argbs, with lower indexes on top.
+	 */
+	public static int blendArgbs(int... argbs) {
+		if (argbs.length == 0) return 0;
+		int argb = argbs[0];
+		for (int i = 1; i < argbs.length; i++)
+			argb = blendArgb(argb, argbs[i]);
+		return argb;
+	}
+
+	/**
+	 * Provides a component-scaled argb int from given argb int. Alpha value is maintained.
+	 */
+	public static int dimArgb(int argb, double scale) {
+		if (scale == MAX_RATIO || rgb(argb) == 0) return argb;
+		return Component.a.set(scaleArgb(0, argb, scale), Component.a.get(argb));
+	}
+
+	/**
+	 * Provides a component-scaled argb int from min and max argb int values.
+	 */
+	public static int scaleArgb(int minArgb, int maxArgb, double ratio) {
+		if (ratio <= 0.0) return minArgb;
+		if (ratio >= MAX_RATIO) return maxArgb;
+		int a = scaleValue(a(minArgb), a(maxArgb), ratio);
+		int r = scaleValue(r(minArgb), r(maxArgb), ratio);
+		int g = scaleValue(g(minArgb), g(maxArgb), ratio);
+		int b = scaleValue(b(minArgb), b(maxArgb), ratio);
+		return argb(a, r, g, b);
+	}
+
+	/**
+	 * Provides an hsb component-scaled argb int from min and max argb int values.
+	 */
+	public static int scaleHsbArgb(int minArgb, int maxArgb, double ratio) {
+		if (ratio <= 0.0) return minArgb;
+		if (ratio >= MAX_RATIO) return maxArgb;
+		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).argb();
+	}
+
+	// Color methods
+
+	/**
+	 * Creates a color from argb int.
+	 */
+	public static Color color(int argb) {
+		return new Color(argb, true);
+	}
+
+	/**
+	 * Creates a color from components. Provided for consistency with argb().
+	 */
+	public static Color color(int a, int r, int g, int b) {
+		return color(argb(a, r, g, b));
+	}
+
+	/**
+	 * Returns a color from awt name, x11 name, or hex representation. Returns null if no match.
+	 */
+	public static Color color(String text) {
+		Integer argb = argb(text);
+		return argb == null ? null : color(argb);
+	}
+
+	/**
+	 * Returns a color from awt name, x11 name, or hex representation. Throws an exception if no
+	 * match.
+	 */
+	public static Color validColor(String text) {
+		Color color = color(text);
+		if (color != null) return color;
+		throw new IllegalArgumentException("Invalid color: " + text);
+	}
+
+	/**
+	 * Creates an opaque gray color with the same value for all color components.
+	 */
+	public static Color gray(int value) {
+		return color(grayArgb(value));
+	}
+
+	/**
+	 * Creates a color with maximum color components in the same ratio.
+	 */
+	public static Color max(Color color) {
+		return color(maxArgb(argb(color)));
+	}
+
+	/**
+	 * Provides an opaque Color with random components.
+	 */
+	public static Color random() {
+		return color(randomRgb());
+	}
+
+	/**
+	 * Applies alpha component to create a scaled opaque color on black.
+	 */
+	public static Color flatten(Color color) {
+		return blend(color, Color.black);
+	}
+
+	/**
+	 * Create a composite from colors, with lower indexes on top.
+	 */
+	public static Color blend(Color... colors) {
+		return color(blendArgbs(argbs(colors)));
+	}
+
+	/**
+	 * Provides a component-scaled color from given color. Alpha value is maintained.
+	 */
+	public static Color dim(Color color, double scale) {
+		if (scale == MAX_RATIO || rgb(color) == 0) return color;
+		return color(dimArgb(argb(color), scale));
+	}
+
+	/**
+	 * Provides a component-scaled color from min and max colors.
+	 */
+	public static Color scale(Color min, Color max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= MAX_RATIO) return max;
+		return color(scaleArgb(argb(min), argb(max), ratio));
+	}
+
+	/**
+	 * Provides an hsb component-scaled color from min and max colors.
+	 */
+	public static Color scaleHsb(Color min, Color max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= MAX_RATIO) return max;
+		return scaleHsb(HsbColor.from(min), HsbColor.from(max), ratio).color();
+	}
+
+	// other color types
+
+	/**
+	 * Provides a scaled hsb color from min and max.
+	 */
+	public static HsbColor scaleHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+		if (ratio <= 0.0) return minHsb;
+		if (ratio >= MAX_RATIO) return maxHsb;
+		minHsb = minHsb.normalize();
+		maxHsb = maxHsb.normalize();
+		return scaleNormHsb(minHsb, maxHsb, ratio);
+	}
+
+	// component functions
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int a(int argb) {
+		return Component.a.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int a(int argb, int a) {
+		return Component.a.set(argb, a);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int r(int argb) {
+		return Component.r.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int r(int argb, int r) {
+		return Component.r.set(argb, r);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int g(int argb) {
+		return Component.g.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int g(int argb, int g) {
+		return Component.g.set(argb, g);
+	}
+
+	/**
+	 * Extract component from argb int.
+	 */
+	public static int b(int argb) {
+		return Component.b.get(argb);
+	}
+
+	/**
+	 * Set the argb int component value.
+	 */
+	public static int b(int argb, int b) {
+		return Component.b.set(argb, b);
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int a(Color color) {
+		return color.getAlpha();
+	}
+
+	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color a(Color color, int a) {
+		return a(color) == a ? color : color(a(argb(color), a));
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int r(Color color) {
+		return color.getRed();
+	}
+
+	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color r(Color color, int r) {
+		return r(color) == r ? color : color(r(argb(color), r));
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int g(Color color) {
+		return color.getGreen();
+	}
+
+	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color g(Color color, int g) {
+		return g(color) == g ? color : color(g(argb(color), g));
+	}
+
+	/**
+	 * Extract component from color.
+	 */
+	public static int b(Color color) {
+		return color.getBlue();
+	}
+
+	/**
+	 * Return a color with the component value set.
+	 */
+	public static Color b(Color color, int b) {
+		return b(color) == b ? color : color(b(argb(color), b));
+	}
+
+	/**
+	 * Converts a component value to a 0-1 (inclusive) ratio.
+	 */
+	public static double ratio(int component) {
+		return (double) MathUtil.ubyte(component) / MAX_VALUE;
+	}
+
+	/**
+	 * Converts a 0-1 (inclusive) ratio to a component value.
+	 */
+	public static int value(double ratio) {
+		return MathUtil.limit((int) Math.round(ratio * MAX_VALUE), 0, MAX_VALUE);
+	}
+
+	/**
+	 * Limits a ratio to 0-1 (inclusive).
+	 */
+	public static double limit(double ratio) {
+		return MathUtil.limit(ratio, 0, MAX_RATIO);
+	}
+
+	/**
+	 * Adjust hue to the range 0-1 (inclusive).
+	 */
+	public static double limitHue(double h) {
+		return MathUtil.periodicLimit(h, MAX_RATIO, Bound.Type.inclusive);
+	}
+
+	/**
+	 * Scales a 0-1 (inclusive) hue component, finding the shortest cyclic path.
+	 */
+	public static double scaleHue(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= MAX_RATIO) return max;
+		double diff = max - min;
+		if (Math.abs(diff) > HALF) diff -= Math.signum(diff);
+		return limitHue(min + ratio * diff);
+	}
+
+	/**
+	 * Scales a component value between min and max values.
+	 */
+	public static int scaleValue(int min, int max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= MAX_RATIO) return max;
+		return min + MathUtil.intRoundExact(ratio * (max - min));
+	}
+
+	/**
+	 * Scales a 0-1 component ratio value between min and max values.
+	 */
+	public static double scaleRatio(double min, double max, double ratio) {
+		if (ratio <= 0.0) return min;
+		if (ratio >= MAX_RATIO) return max;
+		return min + (ratio * (max - min));
+	}
+
+	// string methods
+
+	/**
+	 * Returns the hex string, with name if rgb matches an awt or x11 color.
+	 */
+	public static String toString(Color color) {
+		return toString(argb(color));
+	}
+
+	/**
+	 * Returns the hex string, with name if rgb matches an awt or x11 color.
+	 */
+	public static String toString(int argb) {
+		String name = name(argb);
+		String hex = hex(argb);
+		return name == null ? hex : hex + "(" + name + ")";
+	}
+
+	/**
+	 * Looks up the awt or x11 color name for given color, ignoring alpha. Returns null if no match.
 	 */
 	public static String name(Color color) {
-		return name(color.getRGB());
+		return name(argb(color));
 	}
 
 	/**
-	 * Lookup by name.
+	 * Looks up the Colors preset name for given argb int, ignoring alpha. Returns null if no match.
 	 */
-	public static Colors from(String name) {
-		return nameLookup.get(name.toLowerCase());
+	public static String name(int argb) {
+		String name = colors.keys.get(argb);
+		if (name == null) name = Coloring.name(argb);
+		return name;
 	}
 
 	/**
-	 * Lookup by color, ignoring alpha.
+	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
 	 */
-	public static Colors from(Color color) {
-		return from(color.getRGB());
+	public static String hex(Color color) {
+		return hex(argb(color));
 	}
 
 	/**
-	 * Lookup by rgb, ignoring alpha.
+	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
 	 */
-	public static Colors from(int rgb) {
-		return argbLookup.get(ColorUtil.argb(rgb));
+	public static String hex(int argb) {
+		int digits = a(argb) == MAX_VALUE ? HEX_RGB_MAX_LEN : HEX_ARGB_MAX_LEN;
+		return "#" + StringUtil.toHex(argb, digits);
+	}
+
+	// stream methods
+
+	/**
+	 * Convert colors to argb array.
+	 */
+	public static int[] argbs(Color... colors) {
+		return stream(colors).toArray();
 	}
 
 	/**
-	 * Provide a random entry.
+	 * Convert color preset name or hex strings to argb array. Throws an exception if unable to
+	 * parse text.
 	 */
-	public static Colors random() {
-		return Enums.random(Colors.class);
-	}
-
-	Colors(int rgb) {
-		argb = ColorUtil.argb(rgb);
+	public static int[] argbs(String... strings) {
+		return stream(strings).toArray();
 	}
 
 	/**
-	 * Return as xargb long.
+	 * Convert color name/hex strings to color array. Throws an exception if unable to parse text.
 	 */
-	public long xargb() {
-		return ColorxUtil.xargb(argb);
+	public static Color[] colors(String... strings) {
+		return colors(stream(strings));
 	}
 
 	/**
-	 * Return as color object.
+	 * Collect argb int stream as a color array.
 	 */
-	public Color color() {
-		return ColorUtil.color(argb);
+	public static Color[] colors(IntStream argbStream) {
+		return argbStream.mapToObj(Colors::color).toArray(Color[]::new);
 	}
 
 	/**
-	 * Calculate lightness of the color, by converting sRGB to CIELUV L* with D65 illuminant.
+	 * Collect argb int stream as a list.
 	 */
-	public double lightness() {
-		return LuvColor.Ref.CIE_D65.l(argb);
+	public static List<Integer> argbList(IntStream argbStream) {
+		return argbStream.boxed().collect(toList());
+	}
+
+	/**
+	 * Collect argb int stream as a color list.
+	 */
+	public static List<Color> colorList(IntStream argbStream) {
+		return argbStream.mapToObj(Colors::color).collect(toList());
+	}
+
+	/**
+	 * Create a stream of opaque argb ints from rgb ints.
+	 */
+	public static IntStream rgbStream(int... rgbs) {
+		return IntStream.of(rgbs).map(Colors::argb);
+	}
+
+	/**
+	 * Create a stream of argb ints from colors.
+	 */
+	public static IntStream stream(Color... colors) {
+		return Stream.of(colors).mapToInt(Colors::argb);
+	}
+
+	/**
+	 * Create a stream of argb ints from preset name or hex strings. Throws an exception if unable
+	 * to parse the text.
+	 */
+	public static IntStream stream(String... strings) {
+		return Stream.of(strings).mapToInt(Colors::validArgb);
+	}
+
+	/**
+	 * Create a stream of argb ints by fading in steps.
+	 */
+	public static IntStream fadeStream(Color min, Color max, int steps, Bias bias) {
+		return fadeStream(argb(min), argb(max), steps, bias);
+	}
+
+	/**
+	 * Create a stream of argb ints by fading in steps.
+	 */
+	public static IntStream fadeStream(int minArgb, int maxArgb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
+	}
+
+	/**
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
+	 */
+	public static IntStream fadeHsbStream(Color min, Color max, int steps, Bias bias) {
+		return fadeHsbStream(argb(min), argb(max), steps, bias);
+	}
+
+	/**
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
+	 */
+	public static IntStream fadeHsbStream(int minArgb, int maxArgb, int steps, Bias bias) {
+		return fadeHsbStream(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias);
+	}
+
+	/**
+	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
+	 */
+	public static IntStream fadeHsbStream(HsbColor min, HsbColor max, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> scaleNormHsb(min, max, bias.bias((double) i / steps)))
+			.mapToInt(HsbColor::argb);
+	}
+
+	/**
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
+	 */
+	public static IntStream rotateHueStream(Color color, int steps, Bias bias) {
+		return rotateHueStream(argb(color), steps, bias);
+	}
+
+	/**
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
+	 */
+	public static IntStream rotateHueStream(int argb, int steps, Bias bias) {
+		return rotateHueStream(HsbColor.from(argb), steps, bias);
+	}
+
+	/**
+	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
+	 */
+	public static IntStream rotateHueStream(HsbColor hsb, int steps, Bias bias) {
+		return IntStream.rangeClosed(1, steps)
+			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(HsbColor::argb);
+	}
+
+	// support methods
+
+	/**
+	 * Blends argb0 on top of argb1 using alpha values.
+	 */
+	private static int blendArgb(int argb0, int argb1) {
+		int a0 = a(argb0);
+		if (a0 == MAX_VALUE) return argb0;
+		if (a0 == 0) return argb1;
+		int a1 = a(argb1);
+		if (a1 == 0) return argb0;
+		int a = blendAlpha(a0, a1);
+		int argb = Component.a.set(0, a);
+		for (var component : Component.RGB) {
+			int c = blendComponent(a, a0, a1, component.get(argb0), component.get(argb1));
+			argb = component.set(argb, c);
+		}
+		return argb;
+	}
+
+	private static int blendAlpha(int a0, int a1) {
+		return a0 + a1 - roundDiv(a0 * a1, MAX_VALUE);
+	}
+
+	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
+		return roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
+	}
+
+	/**
+	 * Converts hex string to argb int. The value must be prefixed with '#' or '0x', and contain
+	 * 1..8 hex digits. If <= 6 digits, the value is treated as opaque, otherwise the alpha value is
+	 * captured. Triple hex '#rgb' values will be treated as opaque 'rrggbb' hex values. Returns
+	 * null if no match.
+	 */
+	private static Integer hexArgb(String text) {
+		Matcher m = RegexUtil.matched(HEX_REGEX, text);
+		if (m == null) return null;
+		String prefix = m.group(1);
+		String hex = m.group(2);
+		int argb = Integer.parseUnsignedInt(hex, HEX_RADIX);
+		int len = hex.length();
+		return hexArgb(prefix, len, argb);
+	}
+
+	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+		// if (ratio <= 0.0) return minHsb;
+		if (ratio >= MAX_RATIO) return maxHsb;
+		double a = scaleRatio(minHsb.a(), maxHsb.a(), ratio);
+		double h = scaleHue(minHsb.h(), maxHsb.h(), ratio);
+		double s = scaleRatio(minHsb.s(), maxHsb.s(), ratio);
+		double b = scaleRatio(minHsb.b(), maxHsb.b(), ratio);
+		return HsbColor.of(a, h, s, b);
+	}
+
+	private static Integer namedArgb(String name) {
+		Integer argb = colors.values.get(name);
+		if (argb == null) argb = Coloring.argb(name);
+		return argb;
+	}
+
+	private static int hexArgb(String prefix, int len, int argb) {
+		if (len > HEX_RGB_MAX_LEN) return argb; // argb
+		if (!"#".equals(prefix) || len != HEX3_LEN) return argb(argb); // rgb
+		int r = Component.r.intValue((argb >>> HEX3_R_SHIFT) & HEX3_MASK);
+		int g = Component.g.intValue((argb >>> HEX3_G_SHIFT) & HEX3_MASK);
+		int b = (argb) & HEX3_MASK;
+		return argb((r | g | b) * (HEX_RADIX + 1)); // triple-hex #rgb
+	}
+
+	private static Maps.Bi<Integer, String> colors() {
+		// Placeholder for custom colors
+		return Maps.Bi.of(Map.of(argb(clear), "clear"));
 	}
 }

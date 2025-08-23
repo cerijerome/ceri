@@ -3,7 +3,6 @@ package ceri.x10.util;
 import java.io.IOException;
 import ceri.common.util.Enclosure;
 import ceri.x10.command.Command;
-import ceri.x10.command.CommandListener;
 
 /**
  * Interface for X10 controllers.
@@ -11,6 +10,11 @@ import ceri.x10.command.CommandListener;
 public interface X10Controller {
 	X10Controller NULL = new X10Controller() {};
 
+	enum Type {
+		cm11a,
+		cm17a;
+	}
+	
 	/**
 	 * Determines if the controller supports the command.
 	 */
@@ -30,7 +34,7 @@ public interface X10Controller {
 	/**
 	 * Listen to received/sent commands.
 	 */
-	default Enclosure<CommandListener> listen(CommandListener listener) {
+	default Enclosure<Command.Listener> listen(Command.Listener listener) {
 		// Do nothing by default
 		return Enclosure.noOp(listener);
 	}

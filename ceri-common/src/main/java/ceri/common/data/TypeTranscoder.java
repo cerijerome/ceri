@@ -10,6 +10,7 @@ import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
+import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.util.BasicUtil;
@@ -71,8 +72,8 @@ public class TypeTranscoder<T> {
 	protected TypeTranscoder(Functions.ToLongFunction<T> valueFn,
 		Stream<RuntimeException, T> stream) {
 		this.valueFn = valueFn;
-		this.lookup = stream
-			.collect(Stream.Collect.map(Maps.Put.first, Maps::link, valueFn::applyAsLong, t -> t));
+		this.lookup =
+			stream.collect(Collect.map(Maps.Put.first, Maps::link, valueFn::applyAsLong, t -> t));
 	}
 
 	public Collection<T> all() {

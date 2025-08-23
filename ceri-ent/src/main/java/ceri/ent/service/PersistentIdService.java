@@ -1,13 +1,13 @@
 package ceri.ent.service;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Set;
+import ceri.common.function.Functions;
 
 public class PersistentIdService<V> extends PersistentService<Long, V> {
 	private final LocalId localId = new LocalId();
 
-	public PersistentIdService(PersistentStore<Collection<V>> store, Function<V, Long> idFn) {
+	public PersistentIdService(PersistentStore<Set<V>> store, Functions.Function<V, Long> idFn) {
 		super(store, idFn);
 	}
 
@@ -21,5 +21,4 @@ public class PersistentIdService<V> extends PersistentService<Long, V> {
 		for (Long id : map.keySet())
 			localId.taken(id);
 	}
-
 }

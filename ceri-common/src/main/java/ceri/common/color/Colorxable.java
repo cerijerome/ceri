@@ -85,7 +85,7 @@ public interface Colorxable extends Colorable {
 	 * Adapt a type that gets/sets color, by normalizing colorx with given x colors.
 	 */
 	static Colorxable from(Colorable colorable, Color... xs) {
-		return from(colorable, ColorUtil.argbs(xs));
+		return from(colorable, Colors.argbs(xs));
 	}
 
 	/**
@@ -95,12 +95,12 @@ public interface Colorxable extends Colorable {
 		return new Colorxable() {
 			@Override
 			public void xargb(long xargb) {
-				colorable.argb(ColorxUtil.normalizeArgb(xargb, xrgbs));
+				colorable.argb(Colorxs.normalizeArgb(xargb, xrgbs));
 			}
 
 			@Override
 			public long xargb() {
-				return ColorxUtil.denormalizeXargb(colorable.argb(), xrgbs);
+				return Colorxs.denormalizeXargb(colorable.argb(), xrgbs);
 			}
 		};
 	}

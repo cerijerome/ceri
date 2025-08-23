@@ -1,11 +1,10 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.text.StringUtil.toBinary;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import ceri.common.data.ByteArray.Encodable;
-import ceri.common.data.ByteArray.Encoder;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
+import ceri.common.text.StringUtil;
 import ceri.common.time.DateUtil;
 import ceri.x10.command.House;
 
@@ -29,7 +28,7 @@ import ceri.x10.command.House;
  *  15 to 0   Dim status of the monitored devices
  * </pre>
  */
-public class Status implements Encodable {
+public class Status implements ByteArray.Encodable {
 	private static final int SIZE = 2 + Data.DATE_BYTES + 7;
 	private static final int BATTERY_TIMER_RESET = 0xffff;
 	public final int batteryTimer;
@@ -128,7 +127,7 @@ public class Status implements Encodable {
 	}
 
 	@Override
-	public void encode(Encoder encoder) {
+	public void encode(ByteArray.Encoder encoder) {
 		encoder.writeShortMsb(batteryTimer);
 		Data.writeDateTo(date, encoder);
 		encoder.writeByte(Data.encode(house, firmware));
@@ -145,8 +144,7 @@ public class Status implements Encodable {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Status)) return false;
-		Status other = (Status) obj;
+		if (!(obj instanceof Status other)) return false;
 		if (batteryTimer != other.batteryTimer) return false;
 		if (!Objects.equals(date, other.date)) return false;
 		if (house != other.house) return false;
@@ -160,8 +158,7 @@ public class Status implements Encodable {
 	@Override
 	public String toString() {
 		return String.format("%s(0x%x,%s,%s,%d,%s,%s,%s)", getClass().getSimpleName(), batteryTimer,
-			date, house, firmware, toBinary(addressed, Short.SIZE), toBinary(onOff, Short.SIZE),
-			toBinary(dim, Short.SIZE));
+			date, house, firmware, StringUtil.toBinary(addressed, Short.SIZE),
+			StringUtil.toBinary(onOff, Short.SIZE), StringUtil.toBinary(dim, Short.SIZE));
 	}
-
 }

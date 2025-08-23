@@ -1,5 +1,7 @@
 package ceri.common.function;
 
+import ceri.common.util.BasicUtil;
+
 /**
  * Interfaces that throw specific exceptions.
  */
@@ -555,6 +557,13 @@ public class Excepts {
 
 	// Predicates
 
+	public static void main(String[] args) {
+		Excepts.Predicate<RuntimeException, Object> ep = x -> x == null;
+		Functions.Predicate<Object> fp = BasicUtil.unchecked(ep);
+		System.out.println(ep.test(null));
+		System.out.println(fp.test(null));
+	}
+	
 	/**
 	 * Functional interface that throws specific exceptions.
 	 */
@@ -562,6 +571,18 @@ public class Excepts {
 	public interface Predicate<E extends Exception, T> extends Throws.Predicate<T> {
 		@Override
 		boolean test(T t) throws E;
+		
+		default Predicate<E, T> not() {
+			return t -> !test(t);
+		}
+		
+		default Predicate<E, T> and(Predicate<? extends E, ? super T> predicate) {
+			return predicate == null ? this : t -> test(t) && predicate.test(t);
+		}
+		
+		default Predicate<E, T> or(Predicate<? extends E, ? super T> predicate) {
+			return predicate == null ? this : t -> test(t) || predicate.test(t);
+		}
 	}
 
 	/**
@@ -979,39 +1000,5 @@ public class Excepts {
 	public interface Closeable<E extends Exception> extends AutoCloseable {
 		@Override
 		void close() throws E;
-	}
-
-	/**
-	 * Provides an iterator that throws specific exceptions.
-	 */
-	@FunctionalInterface
-	public interface Iterable<E extends Exception, T> {
-		/**
-		 * Returns a new iterator.
-		 */
-		Iterator<E, T> iterator();
-
-		/**
-		 * Iterates over elements, passing each element to the consumer.
-		 */
-		default void forEach(Consumer<? extends E, ? super T> consumer) throws E {
-			for (var i = iterator(); i.hasNext();)
-				consumer.accept(i.next());
-		}
-	}
-
-	/**
-	 * Simplified iterator that throws specific exceptions.
-	 */
-	public interface Iterator<E extends Exception, T> {
-		/**
-		 * Returns true if the iterator has more elements.
-		 */
-		boolean hasNext() throws E;
-
-		/**
-		 * Returns the next element or throws no element exception.
-		 */
-		T next() throws E;
 	}
 }

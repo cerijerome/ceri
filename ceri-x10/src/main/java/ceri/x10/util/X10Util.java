@@ -20,5 +20,4 @@ public class X10Util {
 	public static int octet(int n1, int n0) {
 		return toNybble(n1, 1) | toNybble(n0, 0);
 	}
-
 }

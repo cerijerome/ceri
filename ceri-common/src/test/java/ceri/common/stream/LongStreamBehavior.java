@@ -21,9 +21,9 @@ public class LongStreamBehavior {
 
 	@Test
 	public void testRange() {
-		assertStream(LongStream.range(-1, 0));
-		assertStream(LongStream.range(-1, 1), -1L);
-		assertStream(LongStream.range(-1, 2), -1L, 0L);
+		assertStream(LongStream.slice(-1, 0));
+		assertStream(LongStream.slice(-1, 1), -1L);
+		assertStream(LongStream.slice(-1, 2), -1L, 0L);
 	}
 
 	@Test

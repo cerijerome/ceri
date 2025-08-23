@@ -1,11 +1,11 @@
 package ceri.jna.clib.jna;
 
 import java.io.IOException;
-import java.util.function.IntConsumer;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.exception.ExceptionUtil;
-import ceri.common.function.Excepts.Runnable;
-import ceri.common.text.StringUtil;
+import ceri.common.exception.Exceptions;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
+import ceri.common.text.Strings;
 import ceri.jna.clib.ErrNo;
 
 @SuppressWarnings("serial")
@@ -27,8 +27,8 @@ public class CException extends IOException {
 	/**
 	 * Capture the error code to a consumer and rethrow the error.
 	 */
-	public static <E extends CException> void intercept(Runnable<E> runnable, IntConsumer consumer)
-		throws E {
+	public static <E extends CException> void intercept(Excepts.Runnable<E> runnable,
+		Functions.IntConsumer consumer) throws E {
 		try {
 			runnable.run();
 			consumer.accept(0);
@@ -41,7 +41,7 @@ public class CException extends IOException {
 	/**
 	 * Capture the error code or 0 if successful.
 	 */
-	public static int capture(Runnable<? extends CException> runnable) {
+	public static int capture(Excepts.Runnable<? extends CException> runnable) {
 		try {
 			runnable.run();
 			return 0;
@@ -54,7 +54,7 @@ public class CException extends IOException {
 	 * Create exception with formatted message.
 	 */
 	public static CException of(int code, String format, Object... args) {
-		return new CException(code, StringUtil.format(format, args));
+		return new CException(code, Strings.format(format, args));
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class CException extends IOException {
 	 * Create exception with code prefix and formatted message.
 	 */
 	public static CException full(int code, String format, Object... args) {
-		var message = StringUtil.format(format, args);
+		var message = Strings.format(format, args);
 		var errNo = ErrNo.from(code);
 		if (errNo.defined() && !message.startsWith(errNo.name())) message = errNo + " " + message;
 		return new CException(code, "[" + code + "] " + message);
@@ -89,6 +89,6 @@ public class CException extends IOException {
 	private static CException adapt(Throwable e) {
 		String message = e.getMessage();
 		if (message == null) message = "Error";
-		return ExceptionUtil.initCause(general(message), e);
+		return Exceptions.initCause(general(message), e);
 	}
 }

@@ -1,8 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.ratio;
-import static ceri.common.color.ColorUtil.value;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.ratio;
+import static ceri.common.color.Colors.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import ceri.common.geom.Point2d;
@@ -35,7 +35,7 @@ public record XybColor(double a, double x, double y, double b) {
 	 */
 	public static XybColor from(int argb) {
 		double[] xyb = ColorSpaces.rgbToXyb(argb);
-		return of(ratio(ColorUtil.a(argb)), xyb[0], xyb[1], xyb[2]);
+		return of(ratio(Colors.a(argb)), xyb[0], xyb[1], xyb[2]);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public record XybColor(double a, double x, double y, double b) {
 	 * Convert to sRGB color. Alpha is maintained.
 	 */
 	public Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**
@@ -136,9 +136,9 @@ public record XybColor(double a, double x, double y, double b) {
 	 * Normalizes xy around CIE E, limits alpha and brightness to 0-1.
 	 */
 	public XybColor normalize() {
-		double a = ColorUtil.limit(this.a);
+		double a = Colors.limit(this.a);
 		Point2d xy = normalize(x, y);
-		double b = ColorUtil.limit(this.b);
+		double b = Colors.limit(this.b);
 		if (a == this.a && xy.x == this.x && xy.y == this.y && b == this.b) return this;
 		return of(a, xy.x, xy.y, b);
 	}
@@ -147,10 +147,10 @@ public record XybColor(double a, double x, double y, double b) {
 	 * Limits values 0-1.
 	 */
 	public XybColor limit() {
-		double a = ColorUtil.limit(this.a);
-		double x = ColorUtil.limit(this.x);
-		double y = ColorUtil.limit(this.y);
-		double b = ColorUtil.limit(this.b);
+		double a = Colors.limit(this.a);
+		double x = Colors.limit(this.x);
+		double y = Colors.limit(this.y);
+		double b = Colors.limit(this.b);
 		if (a == this.a && x == this.x && y == this.y && b == this.b) return this;
 		return of(a, x, y, b);
 	}

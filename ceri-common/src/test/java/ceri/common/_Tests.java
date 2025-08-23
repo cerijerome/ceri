@@ -17,7 +17,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.array.TypedArrayBehavior.class, //
 	// collection
 	ceri.common.collection.CollectableTest.class, //
-	ceri.common.collection.CollectionUtilTest.class, //
 	ceri.common.collection.EnumsTest.class, //
 	ceri.common.collection.ImmutableTest.class, //
 	ceri.common.collection.IndexRangesBehavior.class, //
@@ -33,15 +32,13 @@ import ceri.common.test.TestUtil;
 	// color
 	ceri.common.color.BiasTest.class, //
 	ceri.common.color.BlendTypeBehavior.class, //
-	ceri.common.color.ColorComparatorsTest.class, //
 	ceri.common.color.ColorSpacesTest.class, //
-	ceri.common.color.ColorUtilTest.class, //
 	ceri.common.color.ColorableTest.class, //
+	ceri.common.color.ColoringTest.class, //
 	ceri.common.color.ColorsTest.class, //
 	ceri.common.color.ColorxBehavior.class, //
-	ceri.common.color.ColorxComparatorsTest.class, //
-	ceri.common.color.ColorxUtilTest.class, //
 	ceri.common.color.ColorxableTest.class, //
+	ceri.common.color.ColorxsTest.class, //
 	ceri.common.color.ComponentBehavior.class, //
 	ceri.common.color.GrayCharBehavior.class, //
 	ceri.common.color.HsbColorBehavior.class, //
@@ -51,7 +48,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.color.XybColorBehavior.class, //
 	ceri.common.color.XyzColorBehavior.class, //
 	// comparator
-	ceri.common.comparator.ComparatorSequenceBehavior.class, //
 	ceri.common.comparator.ComparatorsTest.class, //
 	// concurrent
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
@@ -109,7 +105,6 @@ import ceri.common.test.TestUtil;
 	// exception
 	ceri.common.exception.ExceptionAdapterBehavior.class, //
 	ceri.common.exception.ExceptionTrackerBehavior.class, //
-	ceri.common.exception.ExceptionUtilTest.class, //
 	ceri.common.exception.ExceptionsTest.class, //
 	// function
 	ceri.common.function.AccessibleBehavior.class, //
@@ -297,12 +292,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.time.TimeSupplierBehavior.class, //
 	ceri.common.time.TimeoutBehavior.class, //
 	ceri.common.time.TimerBehavior.class, //
-	// tree
-	ceri.common.tree.NodeTreeBehavior.class, //
-	ceri.common.tree.TreeIteratorBehavior.class, //
-	ceri.common.tree.TreeNodeBehavior.class, //
-	ceri.common.tree.TreeNodeComparatorsTest.class, //
-	ceri.common.tree.TreeUtilTest.class, //
 	// unit
 	ceri.common.unit.TemperatureBehavior.class, //
 	// util

@@ -6,6 +6,7 @@ import java.util.Objects;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.function.Predicates;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
@@ -43,6 +44,38 @@ public class ArrayUtil {
 		public static final String[] strings = new String[0];
 		public static final Object[] objects = new Object[0];
 		public static final Class<?>[] classes = new Class<?>[0];
+	}
+
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Returns true if any element and index matches the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
+			any(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				for (int i = 0; i < ts.length; i++)
+					if (predicate.test(ts[i], i)) return true;
+				return false;
+			};
+		}
+
+		/**
+		 * Returns true if all elements and indexes match the predicate.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
+			all(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
+			if (predicate == null) return Predicates.no();
+			return ts -> {
+				if (ts == null) return false;
+				for (int i = 0; i < ts.length; i++)
+					if (!predicate.test(ts[i], i)) return false;
+				return true;
+			};
+		}
 	}
 
 	/**

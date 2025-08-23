@@ -1,23 +1,23 @@
 package ceri.x10.command;
 
-import static ceri.common.math.MathUtil.limit;
-import static ceri.common.text.RegexUtil.parse;
-import static ceri.common.util.BasicUtil.def;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateUbyte;
-import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
+import ceri.common.function.Functions;
+import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.RegexUtil;
+import ceri.common.util.BasicUtil;
+import ceri.x10.util.X10Util;
 
 public abstract class Command {
 	private static final Pattern COMMAND_REGEX = Pattern.compile("([A-Pa-p])" + // house
@@ -30,6 +30,46 @@ public abstract class Command {
 	private final FunctionType type;
 	private final int data;
 	private final int command;
+
+	public interface Listener {
+		default void allUnitsOff(@SuppressWarnings("unused") Command command) {}
+
+		default void allLightsOff(@SuppressWarnings("unused") Command command) {}
+
+		default void allLightsOn(@SuppressWarnings("unused") Command command) {}
+
+		default void off(@SuppressWarnings("unused") Command command) {}
+
+		default void on(@SuppressWarnings("unused") Command command) {}
+
+		default void dim(@SuppressWarnings("unused") Command.Dim command) {}
+
+		default void bright(@SuppressWarnings("unused") Command.Dim command) {}
+
+		default void ext(@SuppressWarnings("unused") Command.Ext command) {}
+
+		default Functions.Consumer<Command> asConsumer() {
+			return command -> dispatcher(command).accept(this);
+		}
+
+		/**
+		 * Returns a dispatch consumer that calls the matching CommandListener method for a command.
+		 */
+		static Functions.Consumer<Listener> dispatcher(Command command) {
+			return switch (command.type()) {
+				case allUnitsOff -> listener -> listener.allUnitsOff(command);
+				case allLightsOff -> listener -> listener.allLightsOff(command);
+				case allLightsOn -> listener -> listener.allLightsOn(command);
+				case off -> listener -> listener.off(command);
+				case on -> listener -> listener.on(command);
+				case dim -> listener -> listener.dim((Command.Dim) command);
+				case bright -> listener -> listener.bright((Command.Dim) command);
+				case ext -> listener -> listener.ext((Command.Ext) command);
+				default -> throw new UnsupportedOperationException(
+					"Function type not supported: " + command);
+			};
+		}
+	}
 
 	public static Command from(String s) {
 		Matcher m = RegexUtil.matched(COMMAND_REGEX, s);
@@ -88,7 +128,7 @@ public abstract class Command {
 
 	public static Dim dim(House house, int percent, Collection<Unit> units) {
 		validateNotNull(house);
-		percent = limit(percent, 0, DIM_MAX_PERCENT);
+		percent = MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.dim, percent);
 	}
 
@@ -102,7 +142,7 @@ public abstract class Command {
 
 	public static Dim bright(House house, int percent, Collection<Unit> units) {
 		validateNotNull(house);
-		percent = limit(percent, 0, DIM_MAX_PERCENT);
+		percent = MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.bright, percent);
 	}
 
@@ -200,8 +240,7 @@ public abstract class Command {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Command)) return false;
-		Command other = (Command) obj;
+		if (!(obj instanceof Command other)) return false;
 		if (house != other.house) return false;
 		if (!Objects.equals(units, other.units)) return false;
 		if (type != other.type) return false;
@@ -226,17 +265,17 @@ public abstract class Command {
 	}
 
 	private static Set<Unit> normalize(Collection<Unit> units) {
-		if (units == null || units.isEmpty()) return Set.of();
-		return Immutable.wrap(new TreeSet<>(units));
+		if (units == null || units.isEmpty()) return Immutable.set();
+		return Immutable.set(Sets::tree, units);
 	}
 
 	private static Command from(Matcher m) {
 		int i = 1;
 		House house = House.from(m.group(i++).charAt(0));
-		Set<Unit> units = units(def(m.group(i++), m.group(i++)));
+		Set<Unit> units = units(BasicUtil.def(m.group(i++), m.group(i++)));
 		FunctionType type = FunctionType.from(m.group(i++));
-		int data = def(parse(m, i++).toInt(), parse(m, i++).toInt(0));
-		int command = parse(m, i++).toInt(0);
+		int data = BasicUtil.def(RegexUtil.parse(m, i++).toInt(), RegexUtil.parse(m, i++).toInt(0));
+		int command = RegexUtil.parse(m, i++).toInt(0);
 		return of(house, units, type, data, command);
 	}
 
@@ -260,5 +299,4 @@ public abstract class Command {
 			default -> throw new UnsupportedOperationException("Function not supported: " + type);
 		};
 	}
-
 }

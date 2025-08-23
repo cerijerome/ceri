@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Maps;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
@@ -161,7 +161,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 		this.config = config;
 		this.service = service;
 		this.store = store;
-		cache = CollectionUtil.fixedSizeCache(config.maxEntries);
+		cache = Maps.cache(config.maxEntries);
 	}
 
 	@Override

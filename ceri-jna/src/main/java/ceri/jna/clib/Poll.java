@@ -163,7 +163,7 @@ public class Poll implements Iterable<Poll.Fd> {
 
 	private Poll(CPoll.pollfd[] pollfds) {
 		this.pollfds = pollfds;
-		fds = Streams.range(0, pollfds.length).mapToObj(Fd::new).toList();
+		fds = Streams.slice(0, pollfds.length).mapToObj(Fd::new).toList();
 	}
 
 	/**

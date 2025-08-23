@@ -4,7 +4,7 @@ import ceri.common.concurrent.ValueCondition;
 import ceri.x10.command.Command.Dim;
 import ceri.x10.command.Command.Ext;
 
-public class TestCommandListener implements CommandListener {
+public class TestCommandListener implements Command.Listener {
 	public final ValueCondition<Command> sync = ValueCondition.of();
 
 	public static TestCommandListener of() {

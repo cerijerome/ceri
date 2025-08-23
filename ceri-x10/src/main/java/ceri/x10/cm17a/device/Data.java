@@ -1,13 +1,12 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.collection.CollectionUtil.getOrDefault;
-import static ceri.common.math.MathUtil.limit;
-import static ceri.common.math.MathUtil.roundDiv;
-import static ceri.x10.util.X10Util.DIM_MAX_PERCENT;
 import java.util.List;
+import ceri.common.collection.Lists;
+import ceri.common.math.MathUtil;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
+import ceri.x10.util.X10Util;
 
 /**
  * Creates the transmission sequences for device commands.
@@ -29,11 +28,12 @@ public class Data {
 
 	public static int toDimCount(int percent) {
 		if (percent == 0) return 0;
-		return Math.max(1, roundDiv(limit(percent, 0, DIM_MAX_PERCENT), DIM_PERCENT_PER_SEND));
+		return Math.max(1, MathUtil.roundDiv(MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT),
+			DIM_PERCENT_PER_SEND));
 	}
 
 	public static int fromDimCount(int count) {
-		return limit(count * DIM_PERCENT_PER_SEND, 0, DIM_MAX_PERCENT);
+		return MathUtil.limit(count * DIM_PERCENT_PER_SEND, 0, X10Util.DIM_MAX_PERCENT);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class Data {
 
 	private static int encodeHouse(House house) {
 		if (house == null) return 0;
-		return getOrDefault(houseValues, house.id - 1, 0) << HOUSE_BIT_OFFSET;
+		return Lists.at(houseValues, house.id - 1, 0) << HOUSE_BIT_OFFSET;
 	}
 
 	private static int encodeFunction(FunctionType type) {
@@ -67,8 +67,7 @@ public class Data {
 		if (unit == null) return 0;
 		int encoded = 0;
 		for (int i = 0, value = unit.value - 1; value > 0; i++, value >>>= 1)
-			if ((value & 1) != 0) encoded |= getOrDefault(unitMasks, i, 0);
+			if ((value & 1) != 0) encoded |= Lists.at(unitMasks, i, 0);
 		return encoded;
 	}
-
 }

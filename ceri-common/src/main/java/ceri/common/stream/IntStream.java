@@ -187,7 +187,7 @@ public class IntStream<E extends Exception> {
 	/**
 	 * Streams a range of values.
 	 */
-	public static <E extends Exception> IntStream<E> range(int offset, int length) {
+	public static <E extends Exception> IntStream<E> slice(int offset, int length) {
 		var counter = Counter.ofInt(0);
 		return ofSupplier(c -> {
 			if (counter.count() >= length) return false;
@@ -358,6 +358,16 @@ public class IntStream<E extends Exception> {
 	 */
 	public int next(int def) throws E {
 		return BasicUtil.defInt(next(), def);
+	}
+
+	/**
+	 * Skips up to the given number of elements.
+	 */
+	public IntStream<E> skip(int count) throws E {
+		var receiver = new NextSupplier.Receiver<E>();
+		while (count-- > 0)
+			if (!supplier.next(receiver)) break;
+		return this;
 	}
 
 	/**

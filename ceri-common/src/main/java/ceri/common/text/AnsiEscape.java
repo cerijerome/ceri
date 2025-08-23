@@ -1,9 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.color.ColorUtil.MAX_VALUE;
-import static ceri.common.color.ColorUtil.b;
-import static ceri.common.color.ColorUtil.g;
-import static ceri.common.color.ColorUtil.r;
+import static ceri.common.color.Colors.MAX_VALUE;
+import static ceri.common.color.Colors.b;
+import static ceri.common.color.Colors.g;
+import static ceri.common.color.Colors.r;
 import static ceri.common.text.StringUtil.ESC;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;

@@ -764,7 +764,7 @@ public class Sudoku {
 	/* group support */
 
 	private Set<IntProvider> changedGroups() {
-		var changedGroups = Streams.from(changedIndexes).expand(this::groups).collect(Sets.id());
+		var changedGroups = Streams.from(changedIndexes).expand(this::groups).add(Sets.id());
 		changedIndexes.clear();
 		return changedGroups;
 	}

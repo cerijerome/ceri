@@ -143,43 +143,47 @@ public class Captor<T> implements Functions.Consumer<T> {
 			if (consumer != null) consumer.accept(this);
 			return this;
 		}
-		
+
 		public void verify(List<T> ts, List<U> us) {
 			first.verify(ts);
 			second.verify(us);
 		}
-		
+
+		public void verify() {
+			first.verify();
+			second.verify();
+		}
+
 		public void verify(T t, U u) {
 			first.verify(t);
 			second.verify(u);
 		}
-		
+
 		public void verify(T t0, U u0, T t1, U u1) {
 			first.verify(t0, t1);
 			second.verify(u0, u1);
 		}
-		
+
 		public void verify(T t0, U u0, T t1, U u1, T t2, U u2) {
 			first.verify(t0, t1, t2);
 			second.verify(u0, u1, u2);
 		}
-		
+
 		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3) {
 			first.verify(t0, t1, t2, t3);
 			second.verify(u0, u1, u2, u3);
 		}
-		
+
 		public void verify(T t0, U u0, T t1, U u1, T t2, U u2, T t3, U u3, T t4, U u4) {
 			first.verify(t0, t1, t2, t3, t4);
 			second.verify(u0, u1, u2, u3, u4);
 		}
 	}
-	
+
 	public static class N<T> extends Captor<List<T>> {
 		@SafeVarargs
 		public final void acceptAll(T... ts) {
 			super.accept(Immutable.listOf(ts));
 		}
 	}
-
 }

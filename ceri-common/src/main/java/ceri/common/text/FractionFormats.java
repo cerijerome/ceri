@@ -118,7 +118,7 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return Streams.range(0, 10).map(Superscript::toChar).collect(IntStream.Collect.chars);
+			return Streams.slice(0, 10).map(Superscript::toChar).collect(IntStream.Collect.chars);
 		}
 
 	}
@@ -145,7 +145,7 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return Streams.range(0, 10).map(Subscript::toChar)
+			return Streams.slice(0, 10).map(Subscript::toChar)
 				.collect(ceri.common.stream.IntStream.Collect.chars);
 		}
 	}

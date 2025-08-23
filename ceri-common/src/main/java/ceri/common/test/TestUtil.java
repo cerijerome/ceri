@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class TestUtil {
 	private TestUtil() {}
 
 	/**
-	 * Shortened declaration for test readability. 
+	 * Shortened declaration for test readability.
 	 */
 	@SuppressWarnings("serial")
 	public static class Rte extends RuntimeException {
@@ -64,9 +65,9 @@ public class TestUtil {
 			super(message);
 		}
 	}
-	
+
 	/**
-	 * Shortened declaration for test readability. 
+	 * Shortened declaration for test readability.
 	 */
 	@SuppressWarnings("serial")
 	public static class Ioe extends IOException {
@@ -74,7 +75,7 @@ public class TestUtil {
 			super(message);
 		}
 	}
-	
+
 	/**
 	 * Executes tests and prints names in readable phrases to stdout.
 	 */
@@ -113,8 +114,7 @@ public class TestUtil {
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable,
-		int delayUs) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable, int delayUs) {
 		return runRepeat(_ -> runnable.run(), delayUs);
 	}
 
@@ -283,6 +283,19 @@ public class TestUtil {
 		} catch (Throwable e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Verifies comparator behavior for a range of values.
+	 */
+	public static <T> void exerciseCompare(Comparator<? super T> comparator, T subject, T lessThan,
+		T equal, T greaterThan) {
+		assertEquals(comparator.compare(null, null), 0, "Compare");
+		assertEquals(comparator.compare(subject, null), 1, "Compare");
+		assertEquals(comparator.compare(null, subject), -1, "Compare");
+		assertEquals(comparator.compare(subject, lessThan), 1, "Compare");
+		assertEquals(comparator.compare(subject, equal), 0, "Compare");
+		assertEquals(comparator.compare(subject, greaterThan), -1, "Compare");
 	}
 
 	/**

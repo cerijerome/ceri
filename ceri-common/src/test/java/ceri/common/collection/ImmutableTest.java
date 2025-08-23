@@ -52,24 +52,6 @@ public class ImmutableTest {
 		return null;
 	}
 
-	@Test
-	public void testBiMapFromNull() {
-		var biMap = Immutable.biMap(nullMap);
-		assertMap(biMap.keys);
-		assertMap(biMap.values);
-		assertEquals(biMap.key(null), null);
-		assertEquals(biMap.value(null), null);
-	}
-
-	@Test
-	public void testBiMapFromMap() {
-		var biMap = Immutable.biMap(map);
-		assertMap(biMap.keys, -1, "A", null, "B", 1, null);
-		assertMap(biMap.values, "A", -1, "B", null, null, 1);
-		assertEquals(biMap.key(null), 1);
-		assertEquals(biMap.value(null), "B");
-	}
-
 	// wraps
 
 	@Test
@@ -219,6 +201,7 @@ public class ImmutableTest {
 
 	@Test
 	public void testList() {
+		assertOrdered(Immutable.list());
 		assertOrdered(Immutable.listOf(array()), -1, null, 1);
 		assertOrdered(Immutable.list(array(), 2), 1);
 		assertOrdered(Immutable.list(list), -1, null, 1);
@@ -252,6 +235,7 @@ public class ImmutableTest {
 
 	@Test
 	public void testSet() {
+		assertUnordered(Immutable.set());
 		assertUnordered(Immutable.setOf(array()), -1, null, 1);
 		assertUnordered(Immutable.set(array(), 2), 1);
 		assertUnordered(Immutable.set(set), -1, null, 1);

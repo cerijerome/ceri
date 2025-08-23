@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.function.Excepts;
-import ceri.common.function.Functions;
+import ceri.common.function.Predicates;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
@@ -28,7 +28,7 @@ public class Enums {
 	/**
 	 * Enum comparators.
 	 */
-	public static class Comparators {
+	public static class Compare {
 		/** Name comparator. */
 		public static final Comparator<Enum<?>> name =
 			Comparator.nullsFirst(Comparator.comparing(Enums::name));
@@ -36,7 +36,7 @@ public class Enums {
 		public static final Comparator<Enum<?>> ordinal =
 			Comparator.nullsFirst(Comparator.comparing(Enum::ordinal));
 
-		private Comparators() {}
+		private Compare() {}
 
 		/**
 		 * Typed name comparator, with nulls first.
@@ -61,17 +61,17 @@ public class Enums {
 	}
 
 	/**
-	 * Enum predicates.
+	 * Enum filters.
 	 */
-	public static class Predicates {
-		private Predicates() {}
+	public static class Filter {
+		private Filter() {}
 
 		/**
 		 * Predicate to match enum name.
 		 */
-		public static Functions.Predicate<Enum<?>> name(String name) {
-			if (name == null) return ceri.common.function.Predicates.isNull();
-			return t -> t != null && name.equals(t.name());
+		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
+			name(String name) {
+			return name(Predicates.eq(name));
 		}
 
 		/**
@@ -79,7 +79,7 @@ public class Enums {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
 			name(Excepts.Predicate<? extends E, ? super String> predicate) {
-			return ceri.common.function.Predicates.testing(Enum::name, predicate);
+			return Predicates.testing(Enum::name, predicate);
 		}
 	}
 

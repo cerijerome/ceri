@@ -1,10 +1,6 @@
 package ceri.common.concurrent;
 
-import static ceri.common.math.MathUtil.addLimit;
-import static ceri.common.math.MathUtil.multiplyLimit;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
@@ -19,9 +15,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.collection.CollectionUtil;
+import ceri.common.collection.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.StringUtil;
 import ceri.common.time.Timer;
@@ -83,7 +80,7 @@ public class ConcurrentUtil {
 	 * if interrupted. Checks for interrupted thread even if 0 delay.
 	 */
 	public static void delayMicros(long delayMicros) {
-		delayNanos(multiplyLimit(delayMicros, MICROS_IN_NANOS), MICROS_IN_NANOS);
+		delayNanos(MathUtil.multiplyLimit(delayMicros, MICROS_IN_NANOS), MICROS_IN_NANOS);
 	}
 
 	/**
@@ -150,7 +147,7 @@ public class ConcurrentUtil {
 	public static <T, E extends Exception> T get(Future<T> future,
 		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs) throws E {
 		try {
-			return future.get(timeoutMs, MILLISECONDS);
+			return future.get(timeoutMs, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			throw new RuntimeInterruptedException(e);
 		} catch (TimeoutException e) {
@@ -211,7 +208,7 @@ public class ConcurrentUtil {
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
 		Functions.Function<Throwable, ? extends E> exceptionConstructor,
-		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
+		Iterable<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, null, runnables);
 	}
 
@@ -232,7 +229,7 @@ public class ConcurrentUtil {
 	 */
 	public static <E extends Exception> void invoke(ExecutorService executor,
 		Functions.Function<Throwable, ? extends E> exceptionConstructor, int timeoutMs,
-		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
+		Iterable<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
 		invokeAll(executor, exceptionConstructor, timeoutMs, runnables);
 	}
 
@@ -500,7 +497,7 @@ public class ConcurrentUtil {
 	}
 
 	private static void delayNanos(long delayNanos, long minNanos) {
-		long deadline = addLimit(System.nanoTime(), delayNanos);
+		long deadline = MathUtil.addLimit(System.nanoTime(), delayNanos);
 		while (true) {
 			checkRuntimeInterrupted();
 			long delayNs = deadline - System.nanoTime();
@@ -516,11 +513,11 @@ public class ConcurrentUtil {
 	 */
 	private static <E extends Exception> void invokeAll(ExecutorService executor,
 		Functions.Function<Throwable, ? extends E> exceptionConstructor, Integer timeoutMs,
-		Collection<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
-		var callables = CollectionUtil.toList(ConcurrentUtil::callable, runnables);
+		Iterable<Excepts.Runnable<E>> runnables) throws InterruptedException, E {
+		var callables = Lists.adapt(ConcurrentUtil::callable, runnables);
 		try {
 			var futures = timeoutMs == null ? executor.invokeAll(callables) :
-				executor.invokeAll(callables, timeoutMs, MILLISECONDS);
+				executor.invokeAll(callables, timeoutMs, TimeUnit.MILLISECONDS);
 			for (var future : futures)
 				get(future, exceptionConstructor);
 		} catch (RejectedExecutionException e) {

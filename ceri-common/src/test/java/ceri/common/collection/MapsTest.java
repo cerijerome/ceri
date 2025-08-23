@@ -13,6 +13,7 @@ import org.junit.Test;
 import ceri.common.collection.Immutable.Wrap;
 import ceri.common.collection.Maps.Put;
 import ceri.common.function.Functions;
+import ceri.common.test.Captor;
 import ceri.common.util.BasicUtil;
 
 public class MapsTest {
@@ -29,6 +30,8 @@ public class MapsTest {
 	private static final Functions.Function<Object, Object> fn = String::valueOf;
 	private static final Functions.BiOperator<Object> nullBiFn = null;
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
+	private static final Functions.BiConsumer<Object, Object> nullBiCon = null;
+	private static final Functions.BiOperator<Object> biCon = (l, r) -> l != null ? l : r;
 	private static final Functions.BiPredicate<Object, Object> nullBiPr = null;
 	private static final Functions.BiPredicate<Object, Object> biPr = BasicUtil::noneNull;
 
@@ -56,6 +59,22 @@ public class MapsTest {
 	}
 
 	@Test
+	public void testBiMap() {
+		assertMap(Maps.Bi.of(null).keys);
+		assertMap(Maps.Bi.of(null).values);
+		assertEquals(Maps.Bi.of(null).key(null), null);
+		assertEquals(Maps.Bi.of(null).value(null), null);
+		assertMap(Maps.Bi.of(emptyMap).keys);
+		assertMap(Maps.Bi.of(emptyMap).values);
+		assertEquals(Maps.Bi.of(emptyMap).key(null), null);
+		assertEquals(Maps.Bi.of(emptyMap).value(null), null);
+		assertMap(Maps.Bi.of(map).keys, -1, "A", null, "B", 1, null);
+		assertMap(Maps.Bi.of(map).values, "A", -1, "B", null, null, 1);
+		assertEquals(Maps.Bi.of(map).key(null), 1);
+		assertEquals(Maps.Bi.of(map).value(null), "B");
+	}
+
+	@Test
 	public void testBuilder() {
 		assertMap(Maps.build(-1, "").put(nullMap).get(), -1, "");
 		assertMap(Maps.build(-1, "").put(map).get(), -1, "A", null, "B", 1, null);
@@ -67,6 +86,15 @@ public class MapsTest {
 		assertMap(Maps.build(-1, "").apply(m -> Maps.put(m, map)).wrap(), -1, "A", null, "B", 1,
 			null);
 		assertOrdered(Maps.build(Maps::tree, -1, "").put(null, "B").wrap(), null, "B", -1, "");
+	}
+
+	@Test
+	public void testCache() {
+		assertMap(apply(Maps.cache(0), m -> m.put(-1, "A")));
+		assertMap(apply(Maps.cache(1), m -> m.put(-1, "A")), -1, "A");
+		assertMap(apply(Maps.cache(1), m -> Maps.put(m, map)), 1, null);
+		assertMap(apply(Maps.cache(2), m -> Maps.put(m, map)), -1, "A", 1, null); // nav map order
+		assertMap(apply(Maps.cache(3), m -> Maps.put(m, map)), -1, "A", null, "B", 1, null);
 	}
 
 	@Test
@@ -191,8 +219,19 @@ public class MapsTest {
 	}
 
 	@Test
+	public void testForEach() {
+		Maps.forEach(null, null);
+		Maps.forEach(emptyMap, null);
+		Maps.forEach(map, null);
+		Captor.ofBi().apply(c -> Maps.forEach(null, c)).verify();
+		Captor.ofBi().apply(c -> Maps.forEach(emptyMap, c)).verify();
+		Captor.ofBi().apply(c -> Maps.forEach(map, c)).verify(null, "B", -1, "A", 1, null);
+		Captor.ofBi().apply(c -> Maps.forEach(null, c)).verify();
+	}
+
+	@Test
 	public void testKeys() {
-		assertStream(Maps.keys(nullBiPr, map), null, -1, 1);
+		assertStream(Maps.keys(nullBiPr, map));
 		assertStream(Maps.keys(biPr, nullMap));
 		assertStream(Maps.keys(biPr, emptyMap));
 		assertStream(Maps.keys(biPr, map), -1);
@@ -200,7 +239,7 @@ public class MapsTest {
 
 	@Test
 	public void testValues() {
-		assertStream(Maps.values(nullBiPr, map), "B", "A", null);
+		assertStream(Maps.values(nullBiPr, map));
 		assertStream(Maps.values(biPr, nullMap));
 		assertStream(Maps.values(biPr, emptyMap));
 		assertStream(Maps.values(biPr, map), "A");

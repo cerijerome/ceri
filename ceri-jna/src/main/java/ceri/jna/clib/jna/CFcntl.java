@@ -3,7 +3,7 @@ package ceri.jna.clib.jna;
 import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import java.util.function.IntUnaryOperator;
-import java.util.function.Supplier;
+import ceri.common.function.Functions;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.reflect.CAnnotations.CInclude;
@@ -92,8 +92,8 @@ public class CFcntl {
 	/**
 	 * Performs a fcntl function. Arguments and return value depend on the function.
 	 */
-	public static int fcntl(Supplier<String> errorMsg, int fd, int command, Object... objs)
-		throws CException {
+	public static int fcntl(Functions.Supplier<String> errorMsg, int fd, int command,
+		Object... objs) throws CException {
 		return caller.verifyInt(() -> lib().fcntl(fd, command, objs), errorMsg);
 	}
 

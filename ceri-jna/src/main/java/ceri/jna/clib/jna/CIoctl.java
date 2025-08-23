@@ -6,8 +6,8 @@ import static ceri.jna.clib.jna.CLib.caller;
 import static ceri.jna.clib.jna.CLib.lib;
 import static ceri.jna.util.JnaOs.linux;
 import static ceri.jna.util.JnaOs.mac;
-import java.util.function.Supplier;
 import com.sun.jna.Pointer;
+import ceri.common.function.Functions;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.reflect.CAnnotations.CInclude;
@@ -95,8 +95,8 @@ public class CIoctl {
 	/**
 	 * Performs an ioctl function. Arguments and return value depend on the function.
 	 */
-	public static int ioctl(Supplier<String> errorMsg, int fd, int request, Object... objs)
-		throws CException {
+	public static int ioctl(Functions.Supplier<String> errorMsg, int fd, int request,
+		Object... objs) throws CException {
 		var n = new CUlong(request);
 		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), errorMsg);
 	}

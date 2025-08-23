@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.color;
+import static ceri.common.color.Colors.color;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.awt.Color;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class ColorableTest {
 	@Test
 	public void testMultiSetColorForEmptyCollection() {
 		Colorable c = Colorable.multi();
-		c.color(Colors.chartreuse.color());
+		c.color(Coloring.chartreuse.color());
 		c.color(Color.white);
 	}
 
@@ -44,10 +44,10 @@ public class ColorableTest {
 		Colorable c1 = new TestColorable();
 		Colorable c2 = new TestColorable();
 		Colorable c = Colorable.multi(c0, c1, c2);
-		c.argb(Colors.chartreuse.argb);
-		assertEquals(c0.color(), Colors.chartreuse.color());
-		assertEquals(c1.color(), Colors.chartreuse.color());
-		assertEquals(c2.color(), Colors.chartreuse.color());
+		c.argb(Coloring.chartreuse.argb);
+		assertEquals(c0.color(), Coloring.chartreuse.color());
+		assertEquals(c1.color(), Coloring.chartreuse.color());
+		assertEquals(c2.color(), Coloring.chartreuse.color());
 	}
 
 	@Test

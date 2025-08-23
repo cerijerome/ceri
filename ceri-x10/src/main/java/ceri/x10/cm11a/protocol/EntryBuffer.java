@@ -2,13 +2,13 @@ package ceri.x10.cm11a.protocol;
 
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import ceri.common.collection.Immutable;
-import ceri.common.data.ByteArray.Encoder;
+import ceri.common.collection.Lists;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
@@ -32,11 +32,11 @@ public class EntryBuffer {
 	public static EntryBuffer decode(ByteReader r) {
 		int count = r.readUbyte();
 		validateRange(count, HEADER_SIZE - 1, MAX_BYTES - 1);
-		List<Entry> entries = new ArrayList<>();
+		var entries = Lists.<Entry>of();
 		int bits = r.readUbyte();
 		for (int i = 0; i < count - 1;) {
 			boolean isFunction = ByteUtil.bit(bits, i);
-			Entry entry = Receive.decode(isFunction, r);
+			var entry = Receive.decode(isFunction, r);
 			entries.add(entry);
 			i += Receive.size(entry);
 		}
@@ -56,8 +56,8 @@ public class EntryBuffer {
 	 * EntryBuffer, a new one is created to hold subsequent inputs.
 	 */
 	public static List<EntryBuffer> allFrom(Collection<Entry> entries) {
-		List<EntryBuffer> buffers = new ArrayList<>();
-		List<Entry> bufferEntries = new ArrayList<>();
+		var buffers = Lists.<EntryBuffer>of();
+		var bufferEntries = Lists.<Entry>of();
 		int count = 0;
 		for (Entry entry : entries) {
 			int len = Receive.size(entry);
@@ -84,7 +84,7 @@ public class EntryBuffer {
 	 * Collects all inputs from collection of EntryBuffers.
 	 */
 	public static Collection<Entry> combine(Collection<EntryBuffer> buffers) {
-		List<Entry> inputs = new ArrayList<>();
+		List<Entry> inputs = Lists.of();
 		for (EntryBuffer buffer : buffers)
 			inputs.addAll(buffer.entries);
 		return inputs;
@@ -111,7 +111,7 @@ public class EntryBuffer {
 	 * Creates a byte array from count, bits, and entries.
 	 */
 	public ByteProvider encode() {
-		return Encoder.fixed(size()).apply(encoder -> encode(encoder)).immutable();
+		return ByteArray.Encoder.fixed(size()).apply(encoder -> encode(encoder)).immutable();
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class EntryBuffer {
 	public void encode(ByteWriter<?> w) {
 		int count = 0;
 		int bits = 0;
-		List<ByteProvider> encodeds = new ArrayList<>();
+		List<ByteProvider> encodeds = Lists.of();
 		for (Entry entry : entries) {
 			if (!entry.isAddress()) bits |= 1 << count;
 			count += Receive.size(entry);
@@ -138,10 +138,8 @@ public class EntryBuffer {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof EntryBuffer)) return false;
-		EntryBuffer other = (EntryBuffer) obj;
-		if (!Objects.equals(entries, other.entries)) return false;
-		return true;
+		if (!(obj instanceof EntryBuffer other)) return false;
+		return Objects.equals(entries, other.entries);
 	}
 
 	@Override
@@ -152,5 +150,4 @@ public class EntryBuffer {
 	private static int size(Collection<Entry> entries) {
 		return entries.stream().mapToInt(Receive::size).sum() + HEADER_SIZE;
 	}
-
 }

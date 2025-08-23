@@ -1,6 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_VALUE;
+import static ceri.common.color.Colors.MAX_VALUE;
 import ceri.common.math.Bound.Type;
 import ceri.common.math.MathUtil;
 

@@ -39,5 +39,4 @@ public enum House {
 		value = name().charAt(0);
 		id = value + 1 - 'A';
 	}
-
 }

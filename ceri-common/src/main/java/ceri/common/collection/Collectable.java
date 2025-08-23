@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable.Wrap;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.function.Predicates;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -16,6 +18,37 @@ import ceri.common.util.BasicUtil;
 public class Collectable {
 	private Collectable() {}
 
+	/**
+	 * Collection filters.
+	 */
+	public static class Filter {
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> 
+			has(T value) {
+			return ts -> ts != null && ts.contains(value);
+		}
+
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		@SafeVarargs
+		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> hasAll(T... values) {
+			if (values == null) return Predicates.isNull();
+			return hasAll(Sets.ofAll(values));
+		}
+
+		/**
+		 * Predicate that returns true if a collection contains all the values.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>>
+			hasAll(Collection<? extends T> values) {
+			if (values == null) return Predicates.isNull();
+			return ts -> ts != null && ts.containsAll(values);
+		}		
+	}
+	
 	/**
 	 * Utility for building collections.
 	 */
@@ -124,6 +157,14 @@ public class Collectable {
 	// add
 
 	/**
+	 * Adds a value and returns the collection.
+	 */
+	public static <T, C extends Collection<T>> C addTo(C dest, T value) {
+		if (dest != null) dest.add(value);
+		return dest;
+	}
+
+	/**
 	 * Adds values to the collection.
 	 */
 	@SafeVarargs
@@ -212,5 +253,16 @@ public class Collectable {
 		for (var e : src.entrySet())
 			dest.add(unmapper.apply(e.getKey(), e.getValue()));
 		return dest;
+	}
+	
+	// remove
+	
+	/**
+	 * Removes all the given elements, and returns true if changed.
+	 */
+	@SafeVarargs
+	public static <T> boolean removeAll(Collection<? super T> collection, T... ts) {
+		if (isEmpty(collection) || ArrayUtil.isEmpty(ts)) return false;
+		return collection.removeAll(Arrays.asList(ts));
 	}
 }

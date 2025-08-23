@@ -196,7 +196,7 @@ public class LongStream<E extends Exception> {
 	/**
 	 * Streams a range of values.
 	 */
-	public static <E extends Exception> LongStream<E> range(long offset, long length) {
+	public static <E extends Exception> LongStream<E> slice(long offset, long length) {
 		var counter = Counter.ofLong(0L);
 		return ofSupplier(c -> {
 			if (counter.count() >= length) return false;
@@ -370,6 +370,16 @@ public class LongStream<E extends Exception> {
 	 */
 	public long next(long def) throws E {
 		return BasicUtil.defLong(next(), def);
+	}
+
+	/**
+	 * Skips up to the given number of elements.
+	 */
+	public LongStream<E> skip(int count) throws E {
+		var receiver = new NextSupplier.Receiver<E>();
+		while (count-- > 0)
+			if (!supplier.next(receiver)) break;
+		return this;
 	}
 
 	/**

@@ -3,7 +3,7 @@ package ceri.x10.command;
 import java.util.Map;
 import ceri.common.collection.Enums;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Function type, and its grouping.
@@ -34,7 +34,7 @@ public enum FunctionType {
 	public final int id;
 
 	public static FunctionType from(String name) {
-		FunctionType type = names.get(StringUtil.toLowerCase(name));
+		var type = names.get(Strings.lower(name));
 		if (type != null) return type;
 		throw new IllegalArgumentException("Invalid function type: " + name);
 	}
@@ -47,5 +47,4 @@ public enum FunctionType {
 		this.group = group;
 		this.id = id;
 	}
-
 }

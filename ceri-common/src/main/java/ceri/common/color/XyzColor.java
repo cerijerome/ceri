@@ -1,8 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.ColorUtil.MAX_RATIO;
-import static ceri.common.color.ColorUtil.ratio;
-import static ceri.common.color.ColorUtil.value;
+import static ceri.common.color.Colors.MAX_RATIO;
+import static ceri.common.color.Colors.ratio;
+import static ceri.common.color.Colors.value;
 import java.awt.Color;
 
 /**
@@ -42,7 +42,7 @@ public record XyzColor(double a, double x, double y, double z) {
 	 */
 	public static XyzColor from(int argb) {
 		double[] xyz = ColorSpaces.rgbToXyz(argb);
-		return of(ratio(ColorUtil.a(argb)), xyz[0], xyz[1], xyz[2]);
+		return of(ratio(Colors.a(argb)), xyz[0], xyz[1], xyz[2]);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public record XyzColor(double a, double x, double y, double z) {
 	 * Convert to sRGB color. Alpha is maintained.
 	 */
 	public Color color() {
-		return ColorUtil.color(argb());
+		return Colors.color(argb());
 	}
 
 	/**

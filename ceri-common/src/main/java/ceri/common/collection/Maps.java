@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -10,8 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.array.RawArray;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
+import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Functions;
+import ceri.common.function.Predicates;
 import ceri.common.stream.Stream;
+import ceri.common.util.BasicUtil;
 
 /**
  * Support for mutable maps.
@@ -19,9 +23,59 @@ import ceri.common.stream.Stream;
 public class Maps {
 	private Maps() {}
 
-	// TODO:
-	// - add comparators
-	// - add predicates
+	/**
+	 * Map predicate support.
+	 */
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Transforms a bi-predicate into a map entry predicate.
+		 */
+		public static <E extends Exception, K, V> Excepts.Predicate<E, Map.Entry<K, V>>
+			entry(Excepts.BiPredicate<E, ? super K, ? super V> predicate) {
+			if (predicate == null) return _ -> false;
+			return Predicates.biTesting(Map.Entry::getKey, Map.Entry::getValue, predicate);
+		}
+	}
+
+	/**
+	 * Map comparator support.
+	 */
+	public static class Compare {
+		private static Comparator<Map.Entry<?, ?>> KEY = 
+			BasicUtil.unchecked(key(Comparator.naturalOrder()));
+		private static Comparator<Map.Entry<?, ?>> VALUE = 
+			BasicUtil.unchecked(value(Comparator.naturalOrder()));
+		
+		/**
+		 * Provide a map entry comparator by key.
+		 */
+		public static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K, V>> key() {
+			return BasicUtil.unchecked(KEY);
+		}
+
+		/**
+		 * Provide a map entry comparator by key.
+		 */
+		public static <K, V> Comparator<Map.Entry<K, V>> key(Comparator<? super K> comparator) {
+			return Comparator.comparing(Map.Entry::getKey, comparator);
+		}
+
+		/**
+		 * Provide a map entry comparator by value.
+		 */
+		public static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K, V>> value() {
+			return BasicUtil.unchecked(VALUE);
+		}
+		
+		/**
+		 * Provide a map entry comparator by value.
+		 */
+		public static <K, V> Comparator<Map.Entry<K, V>> value(Comparator<? super V> comparator) {
+			return Comparator.comparing(Map.Entry::getValue, comparator);
+		}
+	}
 
 	/**
 	 * Map key/value put methods.
@@ -58,6 +112,40 @@ public class Maps {
 		private static <K, V> V putUnique(Map<K, V> map, K key, V value) {
 			if (!map.containsKey(key)) return map.put(key, value);
 			throw new IllegalStateException("Key already exists: " + key);
+		}
+	}
+
+	/**
+	 * Two-way unmodifiable map of keys and values.
+	 */
+	public static class Bi<K, V> {
+		private static final Bi<Object, Object> EMPTY = new Bi<>(Immutable.map(), Immutable.map());
+		public final Map<K, V> keys;
+		public final Map<V, K> values;
+
+		public static <K, V> Bi<K, V> empty() {
+			return BasicUtil.unchecked(EMPTY);
+		}
+
+		public static <K, V> Bi<K, V> of(Map<K, V> map) {
+			if (Maps.isEmpty(map)) return empty();
+			return new Bi<>(Immutable.wrap(map), Immutable.wrap(Maps.invert(map)));
+		}
+
+		private Bi(Map<K, V> keys, Map<V, K> values) {
+			this.keys = keys;
+			this.values = values;
+		}
+
+		/**
+		 * Gets the values for the key.
+		 */
+		public V value(K key) {
+			return keys.get(key);
+		}
+
+		public K key(V value) {
+			return values.get(value);
 		}
 	}
 
@@ -173,6 +261,19 @@ public class Maps {
 	}
 
 	/**
+	 * Returns a map that removes older entries to ensure a maximum size.
+	 */
+	@SuppressWarnings("serial")
+	public static <K, V> LinkedHashMap<K, V> cache(int size) {
+		return new LinkedHashMap<>() {
+			@Override
+			protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
+				return size() > size;
+			}
+		};
+	}
+
+	/**
 	 * Creates an empty mutable map.
 	 */
 	public static <K, V> Map<K, V> of() {
@@ -265,6 +366,7 @@ public class Maps {
 		Functions.Supplier<M> supplier,
 		Excepts.Function<? extends E, ? super K, ? extends T> keyMapper,
 		Excepts.Function<? extends E, ? super V, ? extends U> valueMapper, Map<K, V> src) throws E {
+		if (supplier == null) return null;
 		return adaptPut(put, supplier.get(), keyMapper, valueMapper, src);
 	}
 
@@ -306,6 +408,7 @@ public class Maps {
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends T> keyMapper,
 		Excepts.BiFunction<? extends E, ? super K, ? super V, ? extends U> valueMapper,
 		Map<K, V> src) throws E {
+		if (supplier == null) return null;
 		return biAdaptPut(put, supplier.get(), keyMapper, valueMapper, src);
 	}
 
@@ -329,7 +432,18 @@ public class Maps {
 	 */
 	public static <K, V, M extends Map<V, K>> M invert(Put put, Functions.Supplier<M> supplier,
 		Map<? extends K, ? extends V> src) {
+		if (supplier == null) return null;
 		return invertPut(put, supplier.get(), src);
+	}
+
+	/**
+	 * Sorts and copies map entries into a linked hash map.
+	 */
+	public static <K, V> Map<K, V> sort(Comparator<? super Map.Entry<K, V>> comparator,
+		Map<K, V> src) {
+		if (isEmpty(src)) return of();
+		var list = Lists.sort(Collectable.add(Lists.of(), src.entrySet()), comparator);
+		return convert(Maps::link, Map.Entry::getKey, Map.Entry::getValue, list);
 	}
 
 	/**
@@ -407,7 +521,7 @@ public class Maps {
 	 * Returns the mapped value for the key; returns default if no mapping, or the map is null.
 	 */
 	public static <K, V> V get(Map<K, V> map, K key, V def) {
-		return map == null ? def : map.getOrDefault(key, def);
+		return isEmpty(map) ? def : map.getOrDefault(key, def);
 	}
 
 	/**
@@ -439,27 +553,54 @@ public class Maps {
 	}
 
 	/**
+	 * Iterates over map entries, allowing checked exceptions.
+	 */
+	public static <E extends Exception, K, V> void forEach(Map<K, V> map,
+		Excepts.BiConsumer<E, ? super K, ? super V> consumer) throws E {
+		if (isEmpty(map) || consumer == null) return;
+		for (var entry : map.entrySet())
+			consumer.accept(entry.getKey(), entry.getValue());
+	}
+
+	/**
+	 * Removes map entries that match the predicate. Returns the removed entry count.
+	 */
+	public static <E extends Exception, K, V> int removeIf(Map<K, V> map,
+		BiPredicate<? extends E, ? super K, ? super V> predicate) throws E {
+		if (isEmpty(map) || predicate == null) return 0;
+		return Iterables.removeIf(map.entrySet(), Filter.entry(predicate));
+	}
+
+	/**
 	 * Returns a stream of map keys for entries that match the predicate.
 	 */
-	public static <E extends Exception, K, V> Stream<E, K> keys(
-		Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate,
-		Map<? extends K, ? extends V> map) {
-		if (map == null) return Stream.empty();
-		if (predicate == null) return Stream.from(map.keySet());
-		return Stream.<E, Map.Entry<? extends K, ? extends V>>from(map.entrySet())
-			.filter(e -> predicate.test(e.getKey(), e.getValue())).map(e -> e.getKey());
+	public static <E extends Exception, K, V> Stream<E, K>
+		keys(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
+		return Maps.<E, K, V>entries(predicate, map).map(Map.Entry::getKey);
 	}
 
 	/**
 	 * Returns a stream of map values for entries that match the predicate.
 	 */
-	public static <E extends Exception, K, V> Stream<E, V> values(
-		Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate,
-		Map<? extends K, ? extends V> map) {
-		if (map == null) return Stream.empty();
-		if (predicate == null) return Stream.from(map.values());
-		return Stream.<E, Map.Entry<? extends K, ? extends V>>from(map.entrySet())
-			.filter(e -> predicate.test(e.getKey(), e.getValue())).map(e -> e.getValue());
+	public static <E extends Exception, K, V> Stream<E, V>
+		values(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
+		return Maps.<E, K, V>entries(predicate, map).map(Map.Entry::getValue);
+	}
+
+	/**
+	 * Returns a stream of map values for entries that match the predicate.
+	 */
+	public static <E extends Exception, K, V> Stream<E, Map.Entry<K, V>>
+		entries(Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate, Map<K, V> map) {
+		return Maps.<E, K, V>stream(map).filter(Filter.entry(predicate));
+	}
+
+	/**
+	 * Returns a stream of map entries.
+	 */
+	public static <E extends Exception, K, V> Stream<E, Map.Entry<K, V>> stream(Map<K, V> map) {
+		if (isEmpty(map)) return Stream.empty();
+		return Stream.from(map.entrySet());
 	}
 
 	// put

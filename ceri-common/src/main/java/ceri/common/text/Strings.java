@@ -1,8 +1,13 @@
 package ceri.common.text;
 
+import java.util.Arrays;
 import java.util.Formatter;
+import java.util.List;
 import java.util.PrimitiveIterator;
 import java.util.regex.Pattern;
+import ceri.common.array.ArrayUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.Predicates;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
@@ -28,7 +33,7 @@ public class Strings {
 	private Strings() {}
 
 	private static class Escape {
-		private static final Pattern REGEX = 
+		private static final Pattern REGEX =
 			Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|\\\\0[0-3][0-7]{2}"
 				+ "|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
 		private static final String NUL = "\\0";
@@ -47,10 +52,82 @@ public class Strings {
 	}
 
 	public static class Regex {
-		public static final Pattern NEWLINE = Pattern.compile("(\\r\\n|\\n|\\r)");
+		public static final Pattern line = Pattern.compile("(\\r\\n|\\n|\\r)");
+		public static final Pattern comma = Pattern.compile("\\s*,\\s*");
+		public static final Pattern space = Pattern.compile("\\s+");
 
 		private Regex() {}
-		
+	}
+
+	/**
+	 * String-based filters.
+	 */
+	public static class Filter {
+		private Filter() {}
+
+		/**
+		 * Applies comparator to non-null string representation.
+		 */
+		public static <E extends Exception, T> Excepts.Predicate<E, T>
+			of(Excepts.Predicate<E, ? super String> predicate) {
+			if (predicate == null) return Predicates.yes();
+			return t -> t != null && predicate.test(String.valueOf(t));
+		}
+
+		/**
+		 * Returns true if the non-null arg string equals the string, with optional case match.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> eq(boolean matchCase,
+			String s) {
+			if (s == null) return Predicates.isNull();
+			return of(t -> Strings.equals(matchCase, t, s));
+		}
+
+		/**
+		 * Returns true for strings that contain the given substring.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> contains(String s) {
+			return contains(true, s);
+		}
+
+		/**
+		 * Returns true for strings that contain the given substring, with optional case match.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String>
+			contains(boolean matchCase, String s) {
+			if (s == null) return Predicates.isNull();
+			if (s.isEmpty()) return Predicates.yes();
+			return t -> t != null && Strings.contains(matchCase, t, s);
+		}
+	}
+
+	/**
+	 * Splits and trims strings.
+	 */
+	public static class Split {
+		/**
+		 * Split the string into an array of trimmed values.
+		 */
+		public static String[] array(Pattern pattern, CharSequence s) {
+			var split = Patterns.split(pattern, s);
+			for (int i = 0; i < split.length; i++)
+				split[i] = Strings.trim(split[i]);
+			return split;
+		}
+
+		/**
+		 * Split the string into a list of trimmed values.
+		 */
+		public static List<String> list(Pattern pattern, CharSequence s) {
+			return stream(pattern, s).toList();
+		}
+
+		/**
+		 * Split the string into a stream of trimmed values.
+		 */
+		public static Stream<RuntimeException, String> stream(Pattern pattern, CharSequence s) {
+			return Patterns.splitStream(pattern, s).map(Strings::trim);
+		}
 	}
 
 	/**
@@ -103,21 +180,28 @@ public class Strings {
 	}
 
 	/**
+	 * Trims the string; returns empty string if null.
+	 */
+	public static String trim(String s) {
+		return s == null ? "" : s.trim();
+	}
+
+	/**
 	 * Converts to lower case.
 	 */
 	public static String lower(String s) {
-		return s == null ? null : s.toLowerCase();
+		return s == null ? "" : s.toLowerCase();
 	}
-	
+
 	/**
 	 * Converts to lower case.
 	 */
 	public static String upper(String s) {
-		return s == null ? null : s.toUpperCase();
+		return s == null ? "" : s.toUpperCase();
 	}
-	
+
 	/**
-	 * Formats the string; returns unformatted format if no objects are given.
+	 * Returns the formatted string, or unformatted if no args.
 	 */
 	public static String format(String format, Object... objs) {
 		if (format == null) return "";
@@ -126,15 +210,28 @@ public class Strings {
 	}
 
 	/**
-	 * Appends formatted text to string builder; appends unformatted format if no objects are given.
+	 * Returns true if the string contains the given string, ignoring case.
 	 */
-	public static StringBuilder format(StringBuilder sb, String format, Object... objs) {
-		if (format == null) return sb;
-		if (objs == null || objs.length == 0) return sb.append(format);
-		try (var f = new Formatter(sb)) {
-			f.format(format, objs);
-			return sb;
-		}
+	public static boolean equals(boolean matchCase, String s, String other) {
+		if (s == other) return true;
+		if (s == null || other == null) return false;
+		return matchCase ? s.equals(other) : s.equalsIgnoreCase(other);
+	}
+
+	/**
+	 * Returns true if the string contains the given string.
+	 */
+	public static boolean contains(String s, String other) {
+		return contains(true, s, other);
+	}
+
+	/**
+	 * Returns true if the string contains the given string, optionally ignoring case.
+	 */
+	public static boolean contains(boolean matchCase, String s, String other) {
+		if (s == null || other == null) return false;
+		if (s == other) return true;
+		return s.regionMatches(!matchCase, 0, other, 0, s.length());
 	}
 
 	/**
@@ -143,26 +240,6 @@ public class Strings {
 	public static boolean isNameBoundary(CharSequence s, int i) {
 		if (s == null) return false;
 		if (i <= 0 || i >= s.length()) return true;
-		char l = s.charAt(i - 1);
-		char r = s.charAt(i);
-		if (Character.isLetter(l) != Character.isLetter(r)) return true;
-		if (Character.isDigit(l) != Character.isDigit(r)) return true;
-		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
-		return false;
+		return Chars.isNameBoundary(s.charAt(i - 1), s.charAt(i));
 	}
-
-	/**
-	 * Splits a string into lines without trimming.
-	 */
-	public static Stream<RuntimeException, String> lines(CharSequence s) {
-		return Patterns.splitStream(Regex.NEWLINE, s);
-	}
-
-	/**
-	 * Splits a string into lines without trimming.
-	 */
-	public static String[] lineArray(CharSequence s) {
-		return Patterns.split(Regex.NEWLINE, s);
-	}
-
 }

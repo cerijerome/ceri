@@ -4,23 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.ObjIntConsumer;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
-import ceri.common.collection.CollectionUtil;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.concurrent.Locker;
@@ -30,16 +23,18 @@ import ceri.common.data.ByteUtil;
 import ceri.common.event.Listenable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.function.Functions.ObjIntFunction;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Streams;
 import ceri.common.text.AnsiEscape;
-import ceri.common.text.AnsiEscape.Sgr;
-import ceri.common.text.AnsiEscape.Sgr.BasicColor;
+import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
+import ceri.common.text.StringBuilders;
 import ceri.common.text.StringUtil;
+//import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.CloseableUtil;
@@ -52,7 +47,7 @@ import ceri.common.util.CloseableUtil;
 public class ManualTester implements Functions.Closeable {
 	private static final Lazy.Value<RuntimeException, Boolean> fastMode = Lazy.Value.of(false);
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
-	private final Function<Object, String> stringFn;
+	private final Functions.Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
 	private final List<Command<?>> commands;
 	private final StringBuilder binText = new StringBuilder();
@@ -61,15 +56,15 @@ public class ManualTester implements Functions.Closeable {
 	private final PrintStream out;
 	private final PrintStream err;
 	private final List<Object> subjects;
-	private final Predicate<String> historical;
+	private final Functions.Predicate<String> historical;
 	private final int historySize;
 	private final int historyBlock;
 	private final String indent;
-	private final Sgr promptSgr;
+	private final AnsiEscape.Sgr promptSgr;
 	private final int delayMs;
 	private final int errorDelayMs;
 	private final Locker locker = Locker.of();
-	private final List<String> history = new ArrayList<>();
+	private final List<String> history = Lists.of();
 	private CycleRunner cycleRunner = null;
 	private int index = 0;
 	private boolean exit = false;
@@ -94,7 +89,7 @@ public class ManualTester implements Functions.Closeable {
 		 */
 		public static Boolean b(Matcher m, int group) {
 			String s = m.group(group);
-			if (StringUtil.empty(s)) return null;
+			if (Strings.isEmpty(s)) return null;
 			return TRUE.contains(s.charAt(0));
 		}
 
@@ -110,7 +105,7 @@ public class ManualTester implements Functions.Closeable {
 		 */
 		public static Character c(Matcher m, int group) {
 			String s = m.group(group);
-			if (StringUtil.empty(s)) return null;
+			if (Strings.isEmpty(s)) return null;
 			return s.charAt(0);
 		}
 
@@ -126,8 +121,8 @@ public class ManualTester implements Functions.Closeable {
 		 */
 		public static Integer i(Matcher m, int group) {
 			String s = m.group(group);
-			if (StringUtil.empty(s)) return null;
-			return RegexUtil.Common.decodeInt(s);
+			if (Strings.isEmpty(s)) return null;
+			return Patterns.Common.decodeInt(s);
 		}
 
 		/**
@@ -142,8 +137,8 @@ public class ManualTester implements Functions.Closeable {
 		 */
 		public static Long l(Matcher m, int group) {
 			String s = m.group(group);
-			if (StringUtil.empty(s)) return null;
-			return RegexUtil.Common.decodeLong(s);
+			if (Strings.isEmpty(s)) return null;
+			return Patterns.Common.decodeLong(s);
 		}
 
 		/**
@@ -173,13 +168,13 @@ public class ManualTester implements Functions.Closeable {
 		 * Returns group length; 0 if null.
 		 */
 		public static int len(Matcher m, int group) {
-			return StringUtil.len(m.group(group));
+			return Strings.length(m.group(group));
 		}
 
 		/**
 		 * Consumes and returns the first non-null group. Returns null if no match.
 		 */
-		public static String consumeFirst(Matcher m, ObjIntConsumer<String> consumer) {
+		public static String consumeFirst(Matcher m, Functions.ObjIntConsumer<String> consumer) {
 			return consumeFirst(m, 1, consumer);
 		}
 
@@ -187,7 +182,8 @@ public class ManualTester implements Functions.Closeable {
 		 * Consumes and returns the first non-null group starting at the given group index. Returns
 		 * null if no match.
 		 */
-		public static String consumeFirst(Matcher m, int start, ObjIntConsumer<String> consumer) {
+		public static String consumeFirst(Matcher m, int start,
+			Functions.ObjIntConsumer<String> consumer) {
 			return applyFirst(m, start, (s, i) -> {
 				consumer.accept(s, i);
 				return s;
@@ -198,7 +194,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Applies the function to the first non-null group, and returns the result. Returns null if
 		 * no match.
 		 */
-		public static <T> T applyFirst(Matcher m, ObjIntFunction<String, T> function) {
+		public static <T> T applyFirst(Matcher m, Functions.ObjIntFunction<String, T> function) {
 			return applyFirst(m, 1, function);
 		}
 
@@ -206,7 +202,8 @@ public class ManualTester implements Functions.Closeable {
 		 * Applies the function to the first non-null group, starting at the given index, and
 		 * returns the result. Returns null if no match.
 		 */
-		public static <T> T applyFirst(Matcher m, int start, ObjIntFunction<String, T> function) {
+		public static <T> T applyFirst(Matcher m, int start,
+			Functions.ObjIntFunction<String, T> function) {
 			for (int i = start; i <= m.groupCount(); i++) {
 				var s = m.group(i);
 				if (s == null) continue;
@@ -248,8 +245,8 @@ public class ManualTester implements Functions.Closeable {
 	/**
 	 * A pre-processor for capturing and processing events.
 	 */
-	public static class EventCatcher implements Consumer<ManualTester> {
-		private final BiConsumer<Object, ManualTester> processor;
+	public static class EventCatcher implements Functions.Consumer<ManualTester> {
+		private final Functions.BiConsumer<Object, ManualTester> processor;
 		private final Queue<Object> events = new ConcurrentLinkedQueue<>();
 
 		public static EventCatcher of() {
@@ -263,11 +260,11 @@ public class ManualTester implements Functions.Closeable {
 			});
 		}
 
-		public static EventCatcher of(BiConsumer<Object, ManualTester> processor) {
+		public static EventCatcher of(Functions.BiConsumer<Object, ManualTester> processor) {
 			return new EventCatcher(processor);
 		}
 
-		private EventCatcher(BiConsumer<Object, ManualTester> processor) {
+		private EventCatcher(Functions.BiConsumer<Object, ManualTester> processor) {
 			this.processor = processor;
 		}
 
@@ -295,18 +292,19 @@ public class ManualTester implements Functions.Closeable {
 
 	public static class Builder {
 		final List<?> subjects;
-		Function<Object, String> stringFn = String::valueOf;
-		final List<SubjectConsumer<Object>> preProcessors = new ArrayList<>();
-		final List<Command<?>> commands = new ArrayList<>();
+		Functions.Function<Object, String> stringFn = String::valueOf;
+		final List<SubjectConsumer<Object>> preProcessors = Lists.of();
+		final List<Command<?>> commands = Lists.of();
 		int historySize = 100;
 		int historyBlock = 5;
-		Predicate<String> historical = RegexUtil.nonMatcher("[ ?!:<+\\-@].*");
+		Functions.Predicate<String> historical = RegexUtil.nonMatcher("[ ?!:<+\\-@].*");
 		String indent = "    ";
 		LineReader in = null;
 		PrintStream out = System.out;
 		PrintStream err = System.err;
-		Sgr promptSgr = AnsiEscape.csi.sgr().fgColor(BasicColor.green, false);
-		Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
+		AnsiEscape.Sgr promptSgr =
+			AnsiEscape.csi.sgr().fgColor(AnsiEscape.Sgr.BasicColor.green, false);
+		AnsiEscape.Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
 		int delayMs = BasicUtil.ternaryInt(fast(), 0, 100);
 		int errorDelayMs = BasicUtil.ternaryInt(fast(), 0, 1000);
 
@@ -360,7 +358,7 @@ public class ManualTester implements Functions.Closeable {
 			return this;
 		}
 
-		public Builder historical(Predicate<String> historical) {
+		public Builder historical(Functions.Predicate<String> historical) {
 			this.historical = historical;
 			return this;
 		}
@@ -370,17 +368,17 @@ public class ManualTester implements Functions.Closeable {
 			return this;
 		}
 
-		public Builder stringFn(Function<Object, String> stringFn) {
+		public Builder stringFn(Functions.Function<Object, String> stringFn) {
 			this.stringFn = stringFn;
 			return this;
 		}
 
-		public Builder promptSgr(Sgr sgr) {
+		public Builder promptSgr(AnsiEscape.Sgr sgr) {
 			this.promptSgr = sgr;
 			return this;
 		}
 
-		public Builder separatorSgr(Sgr sgr) {
+		public Builder separatorSgr(AnsiEscape.Sgr sgr) {
 			this.separatorSgr = sgr;
 			return this;
 		}
@@ -417,7 +415,7 @@ public class ManualTester implements Functions.Closeable {
 			return preProcessor(typed(cls, preProcessor));
 		}
 
-		public Builder preProcessor(Consumer<ManualTester> preProcessor) {
+		public Builder preProcessor(Functions.Consumer<ManualTester> preProcessor) {
 			return preProcessor((t, _) -> preProcessor.accept(t));
 		}
 
@@ -433,15 +431,15 @@ public class ManualTester implements Functions.Closeable {
 		public <T> Builder command(Class<T> cls, String pattern, Action.Match<T> action,
 			String help) {
 			var p = Pattern.compile(pattern);
-			return command(cls, c -> ManualTester.matches(p, c.input(),
-				m -> action.execute(c.tester(), m, c.subject())), help);
+			return command(cls,
+				c -> Patterns.match(p, c.input(), m -> action.execute(c.tester(), m, c.subject())),
+				help);
 		}
 
 		public <T> Builder command(Class<T> cls, String pattern,
 			Excepts.BiConsumer<?, Action.Context<T>, Matcher> action, String help) {
 			var p = Pattern.compile(pattern);
-			return command(cls, c -> ManualTester.matches(p, c.input(), m -> action.accept(c, m)),
-				help);
+			return command(cls, c -> Patterns.match(p, c.input(), m -> action.accept(c, m)), help);
 		}
 
 		public <T> Builder command(Class<T> cls, Action.Input<T> action, String help) {
@@ -471,7 +469,7 @@ public class ManualTester implements Functions.Closeable {
 		return builderList(Arrays.asList(subject));
 	}
 
-	public static <T> Builder builder(T subject, Function<T, String> stringFn) {
+	public static <T> Builder builder(T subject, Functions.Function<T, String> stringFn) {
 		return builderList(Arrays.asList(subject), stringFn);
 	}
 
@@ -484,7 +482,8 @@ public class ManualTester implements Functions.Closeable {
 		return new Builder(subjects);
 	}
 
-	public static <T> Builder builderList(List<T> subjects, Function<T, String> stringFn) {
+	public static <T> Builder builderList(List<T> subjects,
+		Functions.Function<T, String> stringFn) {
 		return builderList(subjects).stringFn(s -> {
 			return stringFn.apply(BasicUtil.<T>unchecked(s));
 		});
@@ -571,7 +570,7 @@ public class ManualTester implements Functions.Closeable {
 	 * Print to out.
 	 */
 	public void outf(String format, Object... args) {
-		out(StringUtil.format(format, args));
+		out(Strings.format(format, args));
 	}
 
 	/**
@@ -586,7 +585,7 @@ public class ManualTester implements Functions.Closeable {
 	 * Print to err.
 	 */
 	public void errf(String format, Object... args) {
-		err(StringUtil.format(format, args));
+		err(Strings.format(format, args));
 	}
 
 	/**
@@ -724,8 +723,8 @@ public class ManualTester implements Functions.Closeable {
 	}
 
 	private void executeInput(String line) throws Exception {
-		var inputs = Stream.<String>of(COMMAND_SPLIT_REGEX.split(StringUtil.trim(line)))
-			.map(s -> StringUtil.unEscape(s)).toList();
+		var inputs = Streams.of(COMMAND_SPLIT_REGEX.split(StringUtil.trim(line)))
+			.map(StringUtil::unEscape).toList();
 		for (int i = 0; i < inputs.size(); i++)
 			executeInput(inputs, i);
 		addToHistory(line);
@@ -750,16 +749,8 @@ public class ManualTester implements Functions.Closeable {
 		}
 	}
 
-	private static <E extends Exception> boolean matches(Pattern pattern, String input,
-		Excepts.Consumer<E, Matcher> consumer) throws Exception {
-		var m = RegexUtil.matched(pattern, input);
-		if (m == null) return false;
-		consumer.accept(m);
-		return true;
-	}
-
 	private void addToHistory(String input) {
-		if (StringUtil.empty(input) || !historical.test(input)) return;
+		if (Strings.isEmpty(input) || !historical.test(input)) return;
 		while (history.size() >= historySize)
 			history.remove(0);
 		history.add(input);
@@ -771,8 +762,8 @@ public class ManualTester implements Functions.Closeable {
 			for (int i = count; i > 0; i--)
 				outf("%d) %s", i, history.get(history.size() - i));
 		} else {
-			var command = CollectionUtil.getOrDefault(history, history.size() - index, "");
-			if (StringUtil.empty(command)) return;
+			var command = Lists.at(history, history.size() - index, "");
+			if (Strings.isEmpty(command)) return;
 			outf("%d) %s", index, command);
 			executeInput(command);
 		}
@@ -786,7 +777,7 @@ public class ManualTester implements Functions.Closeable {
 	private String string(Object subject, int index) {
 		StringBuilder b = new StringBuilder();
 		if (subjects.size() <= 1) b.append(stringFn.apply(subject));
-		else StringUtil.format(b, "%d) %s", index, stringFn.apply(subject));
+		else StringBuilders.format(b, "%d) %s", index, stringFn.apply(subject));
 		var cycle = activeCycle();
 		if (cycle != null) b.append('[').append(cycle.name()).append(']');
 		return b.toString();
@@ -835,11 +826,11 @@ public class ManualTester implements Functions.Closeable {
 		return subject.getClass();
 	}
 
-	private static String start(Sgr sgr) {
+	private static String start(AnsiEscape.Sgr sgr) {
 		return sgr == null ? "" : sgr.toString();
 	}
 
-	private static String stop(Sgr sgr) {
-		return sgr == null ? "" : Sgr.reset;
+	private static String stop(AnsiEscape.Sgr sgr) {
+		return sgr == null ? "" : AnsiEscape.Sgr.reset;
 	}
 }

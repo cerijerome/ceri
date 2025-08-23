@@ -47,21 +47,21 @@ public class EnumsTest {
 
 	@Test
 	public void testComparators() {
-		assertOrdered(sort(Enums.Comparators.ordinal(), array()), null, E.a, E.B);
-		assertOrdered(sort(Enums.Comparators.name(), array()), null, E.B, E.a);
-		assertOrdered(sort(Enums.Comparators.name(scomp), array()), null, E.a, E.B);
+		assertOrdered(sort(Enums.Compare.ordinal(), array()), null, E.a, E.B);
+		assertOrdered(sort(Enums.Compare.name(), array()), null, E.B, E.a);
+		assertOrdered(sort(Enums.Compare.name(scomp), array()), null, E.a, E.B);
 	}
 
 	@Test
-	public void testPredicates() {
-		assertEquals(Enums.Predicates.name(nullString).test(null), true);
-		assertEquals(Enums.Predicates.name(nullString).test(E.a), false);
-		assertEquals(Enums.Predicates.name("a").test(null), false);
-		assertEquals(Enums.Predicates.name("a").test(E.B), false);
-		assertEquals(Enums.Predicates.name("a").test(E.a), true);
-		assertEquals(Enums.Predicates.name(spred).test(null), false);
-		assertEquals(Enums.Predicates.name(spred).test(E.B), false);
-		assertEquals(Enums.Predicates.name(spred).test(E.a), true);
+	public void testPredicates() throws Exception {
+		assertEquals(Enums.Filter.name(nullString).test(null), false);
+		assertEquals(Enums.Filter.name(nullString).test(E.a), false);
+		assertEquals(Enums.Filter.name("a").test(null), false);
+		assertEquals(Enums.Filter.name("a").test(E.B), false);
+		assertEquals(Enums.Filter.name("a").test(E.a), true);
+		assertEquals(Enums.Filter.name(spred).test(null), false);
+		assertEquals(Enums.Filter.name(spred).test(E.B), false);
+		assertEquals(Enums.Filter.name(spred).test(E.a), true);
 	}
 
 	@SafeVarargs
