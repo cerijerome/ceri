@@ -20,7 +20,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.time.Timer;
 import ceri.common.util.Holder;
 
@@ -423,7 +423,7 @@ public class ConcurrentUtil {
 	 * Returns the thread name, or "null" if null.
 	 */
 	public static String name(Thread thread) {
-		if (thread == null) return StringUtil.NULL;
+		if (thread == null) return Strings.NULL;
 		return thread.getName();
 	}
 

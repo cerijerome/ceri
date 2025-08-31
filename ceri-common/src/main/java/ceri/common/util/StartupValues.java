@@ -6,6 +6,7 @@ import ceri.common.function.Excepts;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /**
@@ -74,12 +75,12 @@ public class StartupValues {
 		}
 
 		private String sys() {
-			if (StringUtil.empty(sysProp())) return null;
+			if (Strings.isEmpty(sysProp())) return null;
 			return SystemVars.sys(sysProp());
 		}
 
 		private String env() {
-			if (StringUtil.empty(envVar())) return null;
+			if (Strings.isEmpty(envVar())) return null;
 			return SystemVars.env(envVar());
 		}
 	}
@@ -319,8 +320,8 @@ public class StartupValues {
 	}
 
 	private static String sysProp(String prefix, String suffix) {
-		suffix = StringUtil.trim(suffix);
-		if (StringUtil.empty(suffix)) return null;
+		suffix = Strings.trim(suffix);
+		if (Strings.isEmpty(suffix)) return null;
 		return Separator.DOT.join(prefix, suffix);
 	}
 
@@ -329,7 +330,7 @@ public class StartupValues {
 	}
 
 	private Source source(Id id, String value, String format, Object... args) {
-		return new Source(id, value, StringUtil.format(format, args));
+		return new Source(id, value, Strings.format(format, args));
 	}
 
 	private Source arg(Id id, String[] args) {

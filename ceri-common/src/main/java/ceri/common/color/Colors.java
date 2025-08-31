@@ -1,8 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.math.MathUtil.roundDiv;
-import static ceri.common.text.StringUtil.HEX_RADIX;
-import static java.util.stream.Collectors.toList;
 import java.awt.Color;
 import java.util.Comparator;
 import java.util.List;
@@ -17,20 +14,22 @@ import ceri.common.collection.Maps;
 import ceri.common.comparator.Comparators;
 import ceri.common.math.Bound;
 import ceri.common.math.MathUtil;
+import ceri.common.math.Radix;
+import ceri.common.text.Format;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 
 /**
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
 public class Colors {
+	private static final Format FORMAT_ARGB = Format.of(Radix.HEX.n, "#", 8);
+	private static final Format FORMAT_RGB = Format.of(Radix.HEX.n, "#", 6);
 	private static final Pattern HEX_REGEX = Pattern.compile("(0x|0X|#)([0-9a-fA-F]{1,8})");
 	public static final Pattern COLOR_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
 	public static final Color clear = color(0);
 	private static final Maps.Bi<Integer, String> colors = colors(); // any alpha
 	private static final int HEX_RGB_MAX_LEN = 6;
-	private static final int HEX_ARGB_MAX_LEN = 8;
 	private static final int HEX3_LEN = 3;
 	private static final int HEX3_MASK = 0xf;
 	private static final int HEX3_R_SHIFT = 8;
@@ -174,8 +173,8 @@ public class Colors {
 	public static int maxArgb(int a, int r, int g, int b) {
 		int max = MathUtil.max(r, g, b);
 		if (max == 0 || max == MAX_VALUE) return argb(a, r, g, b);
-		return argb(a, roundDiv(r * MAX_VALUE, max), roundDiv(g * MAX_VALUE, max),
-			roundDiv(b * MAX_VALUE, max));
+		return argb(a, MathUtil.roundDiv(r * MAX_VALUE, max), MathUtil.roundDiv(g * MAX_VALUE, max),
+			MathUtil.roundDiv(b * MAX_VALUE, max));
 	}
 
 	/**
@@ -567,8 +566,7 @@ public class Colors {
 	 * Creates a hex string from argb int. Uses 6 digits if opaque, otherwise 8.
 	 */
 	public static String hex(int argb) {
-		int digits = a(argb) == MAX_VALUE ? HEX_RGB_MAX_LEN : HEX_ARGB_MAX_LEN;
-		return "#" + StringUtil.toHex(argb, digits);
+		return a(argb) == MAX_VALUE ? FORMAT_RGB.uint(rgb(argb)) : FORMAT_ARGB.uint(argb);
 	}
 
 	// stream methods
@@ -606,14 +604,14 @@ public class Colors {
 	 * Collect argb int stream as a list.
 	 */
 	public static List<Integer> argbList(IntStream argbStream) {
-		return argbStream.boxed().collect(toList());
+		return argbStream.boxed().toList();
 	}
 
 	/**
 	 * Collect argb int stream as a color list.
 	 */
 	public static List<Color> colorList(IntStream argbStream) {
-		return argbStream.mapToObj(Colors::color).collect(toList());
+		return argbStream.mapToObj(Colors::color).toList();
 	}
 
 	/**
@@ -719,11 +717,11 @@ public class Colors {
 	}
 
 	private static int blendAlpha(int a0, int a1) {
-		return a0 + a1 - roundDiv(a0 * a1, MAX_VALUE);
+		return a0 + a1 - MathUtil.roundDiv(a0 * a1, MAX_VALUE);
 	}
 
 	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
-		return roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
+		return MathUtil.roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
 	}
 
 	/**
@@ -737,7 +735,7 @@ public class Colors {
 		if (m == null) return null;
 		String prefix = m.group(1);
 		String hex = m.group(2);
-		int argb = Integer.parseUnsignedInt(hex, HEX_RADIX);
+		int argb = Integer.parseUnsignedInt(hex, Radix.HEX.n);
 		int len = hex.length();
 		return hexArgb(prefix, len, argb);
 	}
@@ -764,7 +762,7 @@ public class Colors {
 		int r = Component.r.intValue((argb >>> HEX3_R_SHIFT) & HEX3_MASK);
 		int g = Component.g.intValue((argb >>> HEX3_G_SHIFT) & HEX3_MASK);
 		int b = (argb) & HEX3_MASK;
-		return argb((r | g | b) * (HEX_RADIX + 1)); // triple-hex #rgb
+		return argb((r | g | b) * (Radix.HEX.n + 1)); // triple-hex #rgb
 	}
 
 	private static Maps.Bi<Integer, String> colors() {

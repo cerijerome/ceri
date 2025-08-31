@@ -11,13 +11,12 @@ import java.io.StringReader;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.io.ConsoleInput.Config;
 import ceri.common.test.TestInputStream;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 import ceri.common.util.CloseableUtil;
 
 public class ConsoleInputBehavior {
-	private static final Config CONF = new Config(0, false, null, null);
+	private static final ConsoleInput.Config CONF = new ConsoleInput.Config(0, false, null, null);
 	private static final String U = "\u001b[A";
 	private static final String D = "\u001b[B";
 	private static final String R = "\u001b[C";
@@ -55,7 +54,7 @@ public class ConsoleInputBehavior {
 		tin.to.writeString("abc\n");
 		var out = IoUtil.nullPrintStream();
 		in = new InputStreamReader(tin);
-		con = ConsoleInput.of(in, out, new Config(0, false, null, 0));
+		con = ConsoleInput.of(in, out, new ConsoleInput.Config(0, false, null, 0));
 		assertEquals(con.readLine(), "abc");
 	}
 
@@ -92,14 +91,14 @@ public class ConsoleInputBehavior {
 
 	@Test
 	public void shouldEditHistory() throws IOException {
-		init(Config.BLOCK, List.of("abc", "d"), U, U, "d", D, "e\n");
+		init(ConsoleInput.Config.BLOCK, List.of("abc", "d"), U, U, "d", D, "e\n");
 		assertEquals(con.readLine(), "de");
 		assertOrdered(con.history(), "abcd", "d", "de");
 	}
 
 	@Test
 	public void shouldAddToHistory() throws IOException {
-		init(Config.BLOCK, List.of(), " abc\n\nabc\n");
+		init(ConsoleInput.Config.BLOCK, List.of(), " abc\n\nabc\n");
 		assertEquals(con.readLine(), " abc"); // not added
 		assertEquals(con.readLine(), ""); // not added
 		assertEquals(con.readLine(), "abc");
@@ -108,7 +107,7 @@ public class ConsoleInputBehavior {
 
 	@Test
 	public void shouldLimitHistorySize() throws IOException {
-		init(new Config(3, false, null, null), List.of(), "a\nb\nc\nd\n");
+		init(new ConsoleInput.Config(3, false, null, null), List.of(), "a\nb\nc\nd\n");
 		assertEquals(con.readLine(), "a");
 		assertEquals(con.readLine(), "b");
 		assertEquals(con.readLine(), "c");
@@ -125,7 +124,7 @@ public class ConsoleInputBehavior {
 	private void init(ConsoleInput.Config config, List<String> history, String... inputs) {
 		in = new StringReader(String.join("", inputs));
 		out = new StringBuilder();
-		ps = StringUtil.asPrintStream(out);
+		ps = StringBuilders.printStream(out);
 		con = ConsoleInput.of(in, ps, config, history);
 	}
 }

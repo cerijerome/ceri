@@ -1,7 +1,7 @@
 package ceri.ent.server;
 
 import ceri.common.property.Parser;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Patterns;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class Request {
@@ -19,7 +19,7 @@ public class Request {
 
 	public String remoteAddress() {
 		String ipAddress = http.getHeader(XFF_HEADER);
-		if (ipAddress != null) ipAddress = StringUtil.commaSplit(ipAddress).get(0);
+		ipAddress = Patterns.Split.COMMA.stream(ipAddress).next();
 		if (ipAddress != null) return ipAddress;
 		return http.getRemoteAddr();
 	}

@@ -179,5 +179,4 @@ public enum Component {
 	public double ratio(long xargb) {
 		return (double) get(xargb) / MAX_VALUE;
 	}
-
 }

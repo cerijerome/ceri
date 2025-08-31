@@ -6,16 +6,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Creates files and dirs under a temp directory, and deletes them on close. Use this to test
@@ -27,8 +27,8 @@ public class FileTestHelper implements Functions.Closeable {
 	public static class Builder {
 		final Path parent;
 		Path root = null; // relative path
-		final List<Path> dirs = new ArrayList<>();
-		final Map<Path, byte[]> files = new LinkedHashMap<>();
+		final List<Path> dirs = Lists.of();
+		final Map<Path, byte[]> files = Maps.link();
 
 		Builder(Path parent) {
 			this.parent = parent;
@@ -97,14 +97,14 @@ public class FileTestHelper implements Functions.Closeable {
 		 * Add a relative file with given content.
 		 */
 		public Builder filef(String content, String format, Object... objs) {
-			return file(StringUtil.format(format, objs), content);
+			return file(Strings.format(format, objs), content);
 		}
 
 		/**
 		 * Add a relative file with given content.
 		 */
 		public Builder filef(byte[] content, String format, Object... objs) {
-			return file(StringUtil.format(format, objs), content);
+			return file(Strings.format(format, objs), content);
 		}
 
 		/**
@@ -167,7 +167,7 @@ public class FileTestHelper implements Functions.Closeable {
 	 * Creates a path relative to the helper root dir from unix format.
 	 */
 	public Path path(String format, Object... objs) {
-		return root.resolve(StringUtil.format(format, objs));
+		return root.resolve(Strings.format(format, objs));
 	}
 
 	/**

@@ -19,6 +19,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.StringUtil;
+import ceri.common.text.TextUtil;
 import ceri.common.util.CloseableUtil;
 
 /**
@@ -38,10 +39,10 @@ public class TestLog implements AutoCloseable {
 			testLogUtil(2);
 			try (var testLog1 = TestLog.of(LogUtil.class)) {
 				testLogUtil(3);
-				System.out.println(StringUtil.prefixLines("[1] ", testLog1.read()));
+				System.out.println(TextUtil.prefixLines("[1] ", testLog1.read()));
 			}
 			testLogUtil(4);
-			System.out.println(StringUtil.prefixLines("[0] ", testLog0.read()));
+			System.out.println(TextUtil.prefixLines("[0] ", testLog0.read()));
 		}
 		testLogUtil(5);
 

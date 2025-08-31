@@ -1,7 +1,7 @@
 package ceri.common.property;
 
 import java.util.Objects;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * A string-based key with separator.
@@ -46,7 +46,7 @@ public record Key(Separator separator, String value) {
 	 * Returns true if the key is empty.
 	 */
 	public boolean isRoot() {
-		return StringUtil.empty(value());
+		return Strings.isEmpty(value());
 	}
 
 	/**

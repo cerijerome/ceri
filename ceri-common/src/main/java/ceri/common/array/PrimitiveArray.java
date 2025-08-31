@@ -6,8 +6,8 @@ import java.util.List;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Functions.ObjBiIntConsumer;
+import ceri.common.text.Format;
 import ceri.common.text.Joiner;
-import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
 
 /**
@@ -199,7 +199,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<char[]> {
 		public final char[] empty = new char[0];
 		public final TypedArray.Type.Integral<Character> box =
-			TypedArray.integral(Character[]::new, ToString::hex);
+			TypedArray.integral(Character[]::new, Format.HEX::apply);
 
 		OfChar() {
 			super(char[]::new);
@@ -349,7 +349,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public String toHex(Joiner joiner, char[] array, int offset, int length) {
-			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+			return toString((a, i) -> Format.HEX.apply(a[i]), joiner, array, offset, length);
 		}
 
 		/**
@@ -389,7 +389,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<byte[]> {
 		public final byte[] empty = new byte[0];
 		public final TypedArray.Type.Integral<Byte> box =
-			TypedArray.integral(Byte[]::new, ToString::hex);
+			TypedArray.integral(Byte[]::new, Format.HEX::ubyte);
 
 		OfByte() {
 			super(byte[]::new);
@@ -560,7 +560,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public String toHex(Joiner joiner, byte[] array, int offset, int length) {
-			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+			return toString((a, i) -> Format.HEX.ubyte(a[i]), joiner, array, offset, length);
 		}
 
 		@Override
@@ -586,7 +586,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<short[]> {
 		public final short[] empty = new short[0];
 		public final TypedArray.Type.Integral<Short> box =
-			TypedArray.integral(Short[]::new, ToString::hex);
+			TypedArray.integral(Short[]::new, Format.HEX::ushort);
 
 		OfShort() {
 			super(short[]::new);
@@ -757,7 +757,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public String toHex(Joiner joiner, short[] array, int offset, int length) {
-			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+			return toString((a, i) -> Format.HEX.ushort(a[i]), joiner, array, offset, length);
 		}
 
 		@Override
@@ -783,7 +783,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<int[]> {
 		public final int[] empty = new int[0];
 		public final TypedArray.Type.Integral<Integer> box =
-			TypedArray.integral(Integer[]::new, ToString::hex);
+			TypedArray.integral(Integer[]::new, Format.HEX::uint);
 
 		OfInt() {
 			super(int[]::new);
@@ -944,7 +944,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public String toHex(Joiner joiner, int[] array, int offset, int length) {
-			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+			return toString((a, i) -> Format.HEX.uint(a[i]), joiner, array, offset, length);
 		}
 
 		@Override
@@ -970,7 +970,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		implements TypedArray.Integral<long[]> {
 		public final long[] empty = new long[0];
 		public final TypedArray.Type.Integral<Long> box =
-			TypedArray.integral(Long[]::new, ToString::hex);
+			TypedArray.integral(Long[]::new, Format.HEX::apply);
 
 		OfLong() {
 			super(long[]::new);
@@ -1131,7 +1131,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 
 		@Override
 		public String toHex(Joiner joiner, long[] array, int offset, int length) {
-			return toString((a, i) -> ToString.hex(a[i]), joiner, array, offset, length);
+			return toString((a, i) -> Format.HEX.apply(a[i]), joiner, array, offset, length);
 		}
 
 		@Override
@@ -1658,7 +1658,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	protected abstract Functions.ObjBiIntConsumer<T> sorter();
 
 	// support
-	
+
 	private static <T, U> boolean equivalent(T lhs, U rhs, Functions.IntPredicate equivalence) {
 		if (lhs == null && rhs == null) return true;
 		if (lhs == null || rhs == null) return false;

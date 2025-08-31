@@ -31,7 +31,7 @@ import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.test.TestProcess;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
@@ -362,8 +362,8 @@ public class LogUtilTest {
 	@Test
 	public void testIntroMessage() {
 		assertFind(LogUtil.introMessage("Test"), " Test ");
-		assertFind(LogUtil.introMessage(StringUtil.repeat("Test", 20)),
-			" " + StringUtil.repeat("Test", 19) + " ");
+		assertFind(LogUtil.introMessage(Strings.repeat("Test", 20)),
+			" " + Strings.repeat("Test", 19) + " ");
 	}
 
 	private static void signalAndSleep(BoolCondition sync, long sleepMs) {

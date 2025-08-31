@@ -1,44 +1,26 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertIterable;
-import static ceri.common.test.AssertUtil.assertIterator;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertNoSuchElement;
-import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertRte;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.fail;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Spliterator;
-import java.util.stream.Collector;
 import org.junit.Test;
 import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
 import ceri.common.collection.Immutable.Wrap;
 import ceri.common.collection.Lists;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
-import ceri.common.test.CallSync;
-import ceri.common.text.Joiner;
 
 public class StreamBehavior {
 	private static final Stream<RuntimeException, Integer> empty = Stream.empty();

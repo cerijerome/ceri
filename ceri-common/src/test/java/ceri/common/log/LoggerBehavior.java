@@ -1,64 +1,48 @@
 package ceri.common.log;
 
-import static ceri.common.log.Logger.FormatFlag.abbreviatePackage;
-import static ceri.common.log.Logger.FormatFlag.noDate;
-import static ceri.common.log.Logger.FormatFlag.noStackTrace;
-import static ceri.common.log.Logger.FormatFlag.noThread;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertValue;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.io.SystemIo;
+import ceri.common.log.Logger.FormatFlag;
 import ceri.common.test.Captor;
-import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Patterns;
+import ceri.common.text.StringBuilders;
+import ceri.common.util.CloseableUtil;
 
 public class LoggerBehavior {
 	private static final Object KEY = "test";
-	private static final SystemIo stdIo = SystemIo.of();
-	private static final StringBuilder out = new StringBuilder();
-	private static final StringBuilder err = new StringBuilder();
-
-	@SuppressWarnings("resource")
-	@BeforeClass
-	public static void beforeClass() {
-		stdIo.out(StringUtil.asPrintStream(out));
-		stdIo.err(StringUtil.asPrintStream(err));
-	}
-
-	@AfterClass
-	public static void afterClass() {
-		stdIo.close();
-	}
-
-	@Before
-	public void before() {
-		StringUtil.clear(out);
-		StringUtil.clear(err);
-	}
+	private Logger logger;
+	private StringBuilder out;
+	private StringBuilder err;
+	private SystemIo sysIo;
 
 	@After
 	public void after() {
 		Logger.removeLogger(KEY);
+		logger = null;
+		CloseableUtil.close(sysIo);
+		sysIo = null;
+		out = null;
+		err = null;
 	}
 
 	@Test
 	public void shouldLogToStdIo() {
-		Logger logger = Logger.logger();
+		init();
+		logger = Logger.logger();
 		logger.error("test: %s", "error");
 		assertAndReset(err, s -> s.endsWith("test: error\n"));
 	}
 
 	@Test
 	public void shouldAllowOutputsToBeSet() {
-		Captor<String> out = Captor.of();
-		Captor<String> err = Captor.of();
-		Logger logger = Logger.builder(KEY).out(out).err(err).build();
+		var out = Captor.<String>of();
+		var err = Captor.<String>of();
+		logger = builder().out(out).err(err).build();
 		logger.info("test: %s", "info");
 		logger.error("test: %s", "error");
 		assertEquals(out.values.size(), 1);
@@ -69,8 +53,8 @@ public class LoggerBehavior {
 
 	@Test
 	public void shouldAllowNullOutputs() {
-		Consumer<String> NULL = null;
-		Logger logger = Logger.builder(KEY).out(NULL).err(NULL).build();
+		Functions.Consumer<String> NULL = null;
+		logger = init().out(NULL).err(NULL).build();
 		logger.error("test: %s", "error");
 		logger.log(Level.ALL, "test: %s", "all");
 		assertAndReset(out, String::isEmpty);
@@ -79,7 +63,7 @@ public class LoggerBehavior {
 
 	@Test
 	public void shouldLogLevels() {
-		Logger logger = Logger.builder(KEY).minLevel(Level.ALL).build();
+		logger = init().minLevel(Level.ALL).build();
 		logger.trace("test: %s", "trace");
 		assertAndReset(out, s -> s.endsWith("test: trace\n"));
 		logger.debug("test: %s", "debug");
@@ -102,7 +86,7 @@ public class LoggerBehavior {
 
 	@Test
 	public void shouldAllowSeparateErrorLog() {
-		Logger logger = Logger.builder(KEY).minLevel(Level.DEBUG).errLevel(Level.INFO).build();
+		logger = init().minLevel(Level.DEBUG).errLevel(Level.INFO).build();
 		logger.debug("test: %s", "debug");
 		assertAndReset(out, s -> s.endsWith("test: debug\n"));
 		logger.info("test: %s", "info");
@@ -111,54 +95,69 @@ public class LoggerBehavior {
 
 	@Test
 	public void shouldLogClassAndLineNumber() {
-		Logger logger = Logger.builder(KEY).build();
+		logger = init().build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, RegexUtil.finder("%s:\\d+", getClass().getName()));
+		assertAndReset(out, Patterns.Filter.find("%s:\\d+", getClass().getName()));
 	}
 
 	@Test
 	public void shouldAllowFormatToBeSet() {
-		Logger logger = Logger.builder(KEY).format("[%5$s]").build();
+		logger = init().format("[%5$s]").build();
 		logger.info("test: %s", "info");
 		assertAndReset(out, s -> s.equals("[test: info]\n"));
 	}
 
 	@Test
 	public void shouldOptimizeOutputWithFlags() {
-		Logger logger = Logger.builder(KEY).flags(noDate, noThread, noStackTrace).build();
+		logger =
+			init().flags(FormatFlag.noDate, FormatFlag.noThread, FormatFlag.noStackTrace).build();
 		logger.info("test: %s", "info");
 		assertAndReset(out, s -> s.equals("1970-01-01 00:00:00.000 [] INFO   - test: info\n"));
 	}
 
 	@Test
 	public void shouldTruncateThreadName() {
-		Logger logger = Logger.builder(KEY).threadMax(0).build();
+		logger = init().threadMax(0).build();
 		logger.info("test: %s", "info");
 		assertAndReset(out, s -> s.contains("[]"));
 		logger = Logger.builder(KEY).threadMax(1).build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, RegexUtil.finder("\\[.\\]"));
+		assertAndReset(out, Patterns.Filter.find("\\[.\\]"));
 		logger = Logger.builder(KEY).threadMax(Integer.MAX_VALUE).build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, RegexUtil.finder("\\[.+\\]"));
+		assertAndReset(out, Patterns.Filter.find("\\[.+\\]"));
 	}
 
 	@Test
 	public void shouldAbbreviatePackageNames() {
-		Logger logger = Logger.builder(KEY).flags(abbreviatePackage).build();
+		logger = init().flags(FormatFlag.abbreviatePackage).build();
 		logger.info("test: %s", "info");
 		assertAndReset(out, s -> s.contains(" c.c.l.LoggerBehavior:"));
 	}
 
 	@Test
 	public void shouldFindLoggerByKey() {
-		Logger logger = Logger.builder(KEY).build();
+		logger = init().build();
 		assertEquals(Logger.logger(KEY), logger);
-		logger = Logger.builder(KEY).build();
+		logger = builder().build();
 		assertEquals(Logger.logger(KEY), logger);
 	}
 
-	private void assertAndReset(StringBuilder b, Predicate<String> test) {
-		assertValue(StringUtil.flush(b), test::test);
+	private Logger.Builder builder() {
+		return Logger.builder(KEY);
+	}
+
+	@SuppressWarnings("resource")
+	private Logger.Builder init() {
+		sysIo = SystemIo.of();
+		out = new StringBuilder();
+		err = new StringBuilder();
+		sysIo.out(StringBuilders.printStream(out));
+		sysIo.err(StringBuilders.printStream(err));
+		return builder();
+	}
+
+	private void assertAndReset(StringBuilder b, Excepts.Predicate<RuntimeException, String> test) {
+		assertValue(StringBuilders.flush(b), test::test);
 	}
 }

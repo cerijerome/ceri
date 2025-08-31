@@ -1,7 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.text.StringUtil.HEX_RADIX;
-import static ceri.common.validation.ValidationUtil.validateMax;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -12,16 +10,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.math.Radix;
+import ceri.common.text.Format;
 import ceri.common.validation.ValidationUtil;
 
 public class ByteUtil {
@@ -54,7 +53,7 @@ public class ByteUtil {
 	 * Iterate bits of bytes. A true highBit iterates each byte from bit 7 to 0.
 	 */
 	public static Iterator<Boolean> bitIterator(boolean highBit, ByteProvider bytes) {
-		IntUnaryOperator bitFn = highBit ? i -> Byte.SIZE - i - 1 : i -> i;
+		Functions.IntOperator bitFn = highBit ? i -> Byte.SIZE - i - 1 : i -> i;
 		return Iterators.indexed(bytes.length() * Byte.SIZE, i -> {
 			int value = bytes.getByte(i / Byte.SIZE);
 			int bit = bitFn.applyAsInt(i % Byte.SIZE);
@@ -66,7 +65,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	public static <E extends Exception> void iterateMask(boolean highBit, int mask,
-		IntConsumer<E> consumer) throws E {
+		Excepts.IntConsumer<E> consumer) throws E {
 		int min = Integer.numberOfTrailingZeros(mask);
 		int max = Integer.SIZE - Integer.numberOfLeadingZeros(mask) - 1;
 		acceptMask(highBit, MathUtil.uint(mask), consumer, min, max);
@@ -76,7 +75,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	public static <E extends Exception> void iterateMask(boolean highBit, long mask,
-		IntConsumer<E> consumer) throws E {
+		Excepts.IntConsumer<E> consumer) throws E {
 		int min = Long.numberOfTrailingZeros(mask);
 		int max = Long.SIZE - Long.numberOfLeadingZeros(mask) - 1;
 		acceptMask(highBit, mask, consumer, min, max);
@@ -105,8 +104,9 @@ public class ByteUtil {
 	public static ByteProvider fromHex(String hex) {
 		if (hex == null) return null;
 		if (hex.isEmpty()) return ByteArray.Immutable.EMPTY;
-		byte[] array = new BigInteger(hex, HEX_RADIX).toByteArray(); // may have extra leading byte
-		return ByteArray.Immutable.wrap(array, array[0] == 0 ? 1 : 0); // remove leading byte
+		// may have extra leading byte
+		byte[] array = new BigInteger(hex, Radix.HEX.n).toByteArray();
+		return ByteArray.Immutable.wrap(array, array[0] == 0 ? 1 : 0);
 	}
 
 	/**
@@ -136,8 +136,7 @@ public class ByteUtil {
 	 * Creates a hex string from bytes, with given delimiter.
 	 */
 	public static String toHex(IntStream stream, String delimiter) {
-		return stream.mapToObj(b -> StringUtil.toHex((byte) b))
-			.collect(Collectors.joining(delimiter));
+		return stream.mapToObj(b -> Format.hex(b, 2)).collect(Collectors.joining(delimiter));
 	}
 
 	/**
@@ -678,7 +677,7 @@ public class ByteUtil {
 	 */
 	public static int writeMsb(long value, byte[] data, int offset, int length) {
 		ValidationUtil.validateSlice(data.length, offset, length);
-		validateMax(length, Long.BYTES);
+		ValidationUtil.validateMax(length, Long.BYTES);
 		while (--length >= 0)
 			data[offset++] = byteAt(value, length);
 		return offset;
@@ -703,7 +702,7 @@ public class ByteUtil {
 	 */
 	public static int writeLsb(long value, byte[] data, int offset, int length) {
 		ValidationUtil.validateSlice(data.length, offset, length);
-		validateMax(length, Long.BYTES);
+		ValidationUtil.validateMax(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset++] = byteAt(value, i);
 		return offset;
@@ -735,7 +734,7 @@ public class ByteUtil {
 	 */
 	public static long fromMsb(byte[] array, int offset, int length) {
 		ValidationUtil.validateSlice(array.length, offset, length);
-		validateMax(length, Long.BYTES);
+		ValidationUtil.validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], length - i - 1);
@@ -768,7 +767,7 @@ public class ByteUtil {
 	 */
 	public static long fromLsb(byte[] array, int offset, int length) {
 		ValidationUtil.validateSlice(array.length, offset, length);
-		validateMax(length, Long.BYTES);
+		ValidationUtil.validateMax(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], i);
@@ -900,7 +899,7 @@ public class ByteUtil {
 	 * Iterate over the set bits of a mask. A true highBit iterates down.
 	 */
 	private static <E extends Exception> void acceptMask(boolean highBit, long mask,
-		IntConsumer<E> consumer, int min, int max) throws E {
+		Excepts.IntConsumer<E> consumer, int min, int max) throws E {
 		if (highBit) {
 			for (int i = max; i >= min; i--)
 				if (bit(mask, i)) consumer.accept(i);

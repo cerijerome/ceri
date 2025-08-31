@@ -1,24 +1,24 @@
 package ceri.common.text;
 
-import static ceri.common.text.StringUtil.DECIMAL_RADIX;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Functions;
+import ceri.common.math.Radix;
 
 /**
  * Utility methods for parsing types, with defaults if invalid.
  */
 public class ParseUtil {
 	// Convenience filters for Parser.String
-	public static final Function<RuntimeException, String, Boolean> BOOL = ParseUtil::parseBool;
-	public static final Function<RuntimeException, String, Byte> BYTE = ParseUtil::parseByte;
-	public static final Function<RuntimeException, String, Byte> DBYTE = ParseUtil::decodeByte;
-	public static final Function<RuntimeException, String, Short> SHORT = ParseUtil::parseShort;
-	public static final Function<RuntimeException, String, Short> DSHORT = ParseUtil::decodeShort;
-	public static final Function<RuntimeException, String, Integer> INT = ParseUtil::parseInt;
-	public static final Function<RuntimeException, String, Integer> DINT = ParseUtil::decodeInt;
-	public static final Function<RuntimeException, String, Long> LONG = ParseUtil::parseLong;
-	public static final Function<RuntimeException, String, Long> DLONG = ParseUtil::decodeLong;
-	public static final Function<RuntimeException, String, Float> FLOAT = ParseUtil::parseFloat;
-	public static final Function<RuntimeException, String, Double> DOUBLE = ParseUtil::parseDouble;
+	public static final Functions.Function<String, Boolean> BOOL = ParseUtil::parseBool;
+	public static final Functions.Function<String, Byte> BYTE = ParseUtil::parseByte;
+	public static final Functions.Function<String, Byte> DBYTE = ParseUtil::decodeByte;
+	public static final Functions.Function<String, Short> SHORT = ParseUtil::parseShort;
+	public static final Functions.Function<String, Short> DSHORT = ParseUtil::decodeShort;
+	public static final Functions.Function<String, Integer> INT = ParseUtil::parseInt;
+	public static final Functions.Function<String, Integer> DINT = ParseUtil::decodeInt;
+	public static final Functions.Function<String, Long> LONG = ParseUtil::parseLong;
+	public static final Functions.Function<String, Long> DLONG = ParseUtil::decodeLong;
+	public static final Functions.Function<String, Float> FLOAT = ParseUtil::parseFloat;
+	public static final Functions.Function<String, Double> DOUBLE = ParseUtil::parseDouble;
 
 	private ParseUtil() {}
 
@@ -33,7 +33,7 @@ public class ParseUtil {
 	 * Parses boolean, or returns default if null or empty.
 	 */
 	public static Boolean parseBool(String value, Boolean def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		return Boolean.parseBoolean(value);
 	}
 
@@ -48,14 +48,14 @@ public class ParseUtil {
 	 * Parses byte, or returns default if null, empty or invalid.
 	 */
 	public static Byte parseByte(String value, Byte def) {
-		return parseByte(value, def, DECIMAL_RADIX);
+		return parseByte(value, def, Radix.DEC.n);
 	}
 
 	/**
 	 * Parses byte with radix, or returns default if null, empty or invalid.
 	 */
 	public static Byte parseByte(String value, Byte def, int radix) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.parseByte(value, radix);
 		} catch (NumberFormatException e) {
@@ -74,14 +74,14 @@ public class ParseUtil {
 	 * Parses short, or returns default if null, empty or invalid.
 	 */
 	public static Short parseShort(String value, Short def) {
-		return parseShort(value, def, DECIMAL_RADIX);
+		return parseShort(value, def, Radix.DEC.n);
 	}
 
 	/**
 	 * Parses short with radix, or returns default if null, empty or invalid.
 	 */
 	public static Short parseShort(String value, Short def, int radix) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.parseShort(value, radix);
 		} catch (NumberFormatException e) {
@@ -100,14 +100,14 @@ public class ParseUtil {
 	 * Parses int, or returns default if null, empty or invalid.
 	 */
 	public static Integer parseInt(String value, Integer def) {
-		return parseInt(value, def, DECIMAL_RADIX);
+		return parseInt(value, def, Radix.DEC.n);
 	}
 
 	/**
 	 * Parses int with radix, or returns default if null, empty or invalid.
 	 */
 	public static Integer parseInt(String value, Integer def, int radix) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.parseInt(value, radix);
 		} catch (NumberFormatException e) {
@@ -126,14 +126,14 @@ public class ParseUtil {
 	 * Parses long, or returns default if null, empty or invalid.
 	 */
 	public static Long parseLong(String value, Long def) {
-		return parseLong(value, def, DECIMAL_RADIX);
+		return parseLong(value, def, Radix.DEC.n);
 	}
 
 	/**
 	 * Parses long with radix, or returns default if null, empty or invalid.
 	 */
 	public static Long parseLong(String value, Long def, int radix) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.parseLong(value, radix);
 		} catch (NumberFormatException e) {
@@ -152,7 +152,7 @@ public class ParseUtil {
 	 * Parses float, or returns default if null, empty or invalid.
 	 */
 	public static Float parseFloat(String value, Float def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return Float.parseFloat(value);
 		} catch (NumberFormatException e) {
@@ -171,7 +171,7 @@ public class ParseUtil {
 	 * Parses double, or returns default if null, empty or invalid.
 	 */
 	public static Double parseDouble(String value, Double def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException e) {
@@ -190,7 +190,7 @@ public class ParseUtil {
 	 * Decodes byte, or returns default if null, empty or invalid.
 	 */
 	public static Byte decodeByte(String value, Byte def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.decodeByte(value);
 		} catch (NumberFormatException e) {
@@ -209,7 +209,7 @@ public class ParseUtil {
 	 * Decodes short, or returns default if null, empty or invalid.
 	 */
 	public static Short decodeShort(String value, Short def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.decodeShort(value);
 		} catch (NumberFormatException e) {
@@ -228,7 +228,7 @@ public class ParseUtil {
 	 * Decodes int, or returns default if null, empty or invalid.
 	 */
 	public static Integer decodeInt(String value, Integer def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.decodeInt(value);
 		} catch (NumberFormatException e) {
@@ -247,7 +247,7 @@ public class ParseUtil {
 	 * Decodes long, or returns default if null, empty or invalid.
 	 */
 	public static Long decodeLong(String value, Long def) {
-		if (StringUtil.empty(value)) return def;
+		if (Strings.isEmpty(value)) return def;
 		try {
 			return NumberParser.decodeLong(value);
 		} catch (NumberFormatException e) {

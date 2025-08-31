@@ -30,7 +30,7 @@ public class ConShowItem {
 	public final String device;
 
 	public static List<ConShowItem> fromOutput(String output) {
-		var lines = Patterns.Split.list(Patterns.Split.line, output);
+		var lines = Patterns.Split.LINE.list(output);
 		if (lines.size() <= 1) return List.of();
 		var columns = Columns.fromFixedWidthHeader(lines.get(0));
 		lines = lines.subList(1, lines.size());

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -42,9 +43,9 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
+import ceri.common.text.Chars;
 import ceri.common.text.Patterns;
-import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.TextUtil;
 import ceri.common.util.BasicUtil;
 
@@ -118,7 +119,13 @@ public class AssertUtil {
 	}
 
 	public static AssertionError failure(Throwable t, String format, Object... args) {
-		return new AssertionError(StringUtil.format(format, args), t);
+		return new AssertionError(Strings.format(format, args), t);
+	}
+
+	public static AssertionError unexpected(Object actual, Object expected, String format,
+		Object... args) {
+		return failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected),
+			str(actual));
 	}
 
 	public static void assertFalse(boolean condition) {
@@ -127,7 +134,7 @@ public class AssertUtil {
 
 	public static void assertFalse(boolean condition, String format, Object... args) {
 		if (!condition) return;
-		String message = StringUtil.format(format, args);
+		String message = Strings.format(format, args);
 		throw failure(message.isEmpty() ? "Expected false" : message);
 	}
 
@@ -137,7 +144,7 @@ public class AssertUtil {
 
 	public static void assertTrue(boolean condition, String format, Object... args) {
 		if (condition) return;
-		String message = StringUtil.format(format, args);
+		String message = Strings.format(format, args);
 		throw failure(message.isEmpty() ? "Expected true" : message);
 	}
 
@@ -180,7 +187,7 @@ public class AssertUtil {
 
 	public static <T> void assertNotNull(T actual, String format, Object... args) {
 		if (actual != null) return;
-		String message = StringUtil.format(format, args);
+		String message = Strings.format(format, args);
 		throw failure(message.isEmpty() ? "Value is null" : message);
 	}
 
@@ -190,7 +197,7 @@ public class AssertUtil {
 
 	public static <T> void assertEquals(T actual, T expected, String format, Object... args) {
 		if (Objects.equals(expected, actual)) return;
-		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected), str(actual));
+		throw unexpected(actual, expected, format, args);
 	}
 
 	public static void assertEquals(double actual, double expected, double diff) {
@@ -1086,7 +1093,7 @@ public class AssertUtil {
 	 * Checks regex not found against the string.
 	 */
 	public static void assertNotFound(Object actual, String pattern, Object... objs) {
-		assertNotFound(actual, RegexUtil.compile(pattern, objs));
+		assertNotFound(actual, Patterns.compile(pattern, objs));
 	}
 
 	/**
@@ -1111,23 +1118,34 @@ public class AssertUtil {
 	/**
 	 * Checks string representation is equal to given formatted string.
 	 */
-	public static void assertString(Object actual, String format, Object... objs) {
-		assertEquals(String.valueOf(actual), StringUtil.format(format, objs));
+	public static void assertString(Object actualObj, String format, Object... objs) {
+		var actual = String.valueOf(actualObj);
+		var expected = Strings.format(format, objs);
+		if (Objects.equals(actual, expected)) return;
+		for (int i = 0;; i++) {
+			if (i >= actual.length())
+				throw unexpected(actual, expected, "Expected [%d]: %s", i, chr(expected, i));
+			if (i >= expected.length())
+				throw unexpected(actual, expected, "Unexpected [%d]: %s", i, chr(actual, i));
+			if (actual.charAt(i) != expected.charAt(i)) throw unexpected(actual, expected,
+				"Expected [%d] %s: %s", i, chr(expected, i), chr(actual, i));
+		}
 	}
 
 	/**
 	 * Checks string representation split into lines.
 	 */
-	public static void assertLines(Object actual, String... expectedLines) {
-		var actualLines = Patterns.Split.array(Patterns.Split.line, String.valueOf(actual));
-		int lines = Math.max(actualLines.length, expectedLines.length);
+	public static void assertLines(Object actual, String... expectedLineArray) {
+		var actualLines = Patterns.Split.LINE.list(String.valueOf(actual));
+		var expectedLines = Arrays.asList(expectedLineArray);
+		int lines = Math.max(actualLines.size(), expectedLines.size());
 		for (int i = 0; i < lines; i++) {
-			var textLine = ArrayUtil.at(actualLines, i, "");
-			var expectedLine = ArrayUtil.at(expectedLines, i, "");
-			if (Objects.equals(textLine, expectedLine)) continue;
+			var actualLine = Lists.at(actualLines, i, "");
+			var expectedLine = Lists.at(expectedLines, i, "");
+			if (Objects.equals(actualLine, expectedLine)) continue;
 			throw failure("Line %d%nExpected: %s%n  actual: %s%n%nExpected:%n%s%n%nActual:%n%s%n",
-				i + 1, expectedLine.trim(), textLine.trim(),
-				TextUtil.prefixLineNumbers(expectedLines), TextUtil.prefixLineNumbers(actualLines));
+				i + 1, expectedLine.trim(), actualLine.trim(),
+				TextUtil.addLineNumbers(expectedLines), TextUtil.addLineNumbers(actualLines));
 		}
 	}
 
@@ -1135,7 +1153,7 @@ public class AssertUtil {
 	 * Checks multi-line text, with line-specific failure info.
 	 */
 	public static void assertText(Object actual, String expected) {
-		assertLines(actual, Patterns.Split.array(Patterns.Split.line, expected));
+		assertLines(actual, Patterns.Split.LINE.array(expected));
 	}
 
 	/**
@@ -1143,7 +1161,7 @@ public class AssertUtil {
 	 */
 	public static void assertContains(Object actual, String format, Object... objs) {
 		var s = String.valueOf(actual);
-		var text = StringUtil.format(format, objs);
+		var text = Strings.format(format, objs);
 		if (s.contains(text)) return;
 		throw failure("%sNot contained in string\nString: %s", nl(text), s);
 	}
@@ -1153,7 +1171,7 @@ public class AssertUtil {
 	 */
 	public static void assertNotContains(Object actual, String format, Object... objs) {
 		var s = String.valueOf(actual);
-		var text = StringUtil.format(format, objs);
+		var text = Strings.format(format, objs);
 		if (!s.contains(text)) return;
 		throw failure("%sContained in string\nString: %s", nl(text), s);
 	}
@@ -1162,7 +1180,7 @@ public class AssertUtil {
 	 * Checks regex find against the string.
 	 */
 	public static void assertFind(Object actual, String pattern, Object... objs) {
-		assertFind(actual, RegexUtil.compile(pattern, objs));
+		assertFind(actual, Patterns.compile(pattern, objs));
 	}
 
 	/**
@@ -1185,7 +1203,7 @@ public class AssertUtil {
 	 * Checks regex does not match against the string.
 	 */
 	public static void assertNoMatch(Object actual, String pattern, Object... objs) {
-		assertNoMatch(actual, RegexUtil.compile(pattern, objs));
+		assertNoMatch(actual, Patterns.compile(pattern, objs));
 	}
 
 	/**
@@ -1210,7 +1228,7 @@ public class AssertUtil {
 	 * Checks regex match against the string.
 	 */
 	public static void assertMatch(Object actual, String pattern, Object... objs) {
-		assertMatch(actual, RegexUtil.compile(pattern, objs));
+		assertMatch(actual, Patterns.compile(pattern, objs));
 	}
 
 	/**
@@ -1354,6 +1372,8 @@ public class AssertUtil {
 		List<Path> expected = Streams.of(paths).map(helper::path).collect(Collectors.toList());
 		assertUnordered(actual, expected);
 	}
+	
+	// support
 
 	private static void assertIsArray(Object array) {
 		assertTrue(array.getClass().isArray(), "Expected an array: %s", array.getClass());
@@ -1399,20 +1419,6 @@ public class AssertUtil {
 		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), str(rhs), str(lhs));
 	}
 
-	private static String nl(String format, Object... args) {
-		String s = StringUtil.format(format, args);
-		return s.isEmpty() ? "" : s + '\n';
-	}
-
-	private static String str(Object obj) {
-		if (obj instanceof Byte) return String.format("%1$d (0x%1$02x)", obj);
-		if (obj instanceof Short) return String.format("%1$d (0x%1$04x)", obj);
-		if (obj instanceof Integer) return String.format("%1$d (0x%1$08x)", obj);
-		if (obj instanceof Long) return String.format("%1$dL (0x%1$016x)", obj);
-		if (obj instanceof Float) return String.format("%sf", obj);
-		return String.valueOf(obj);
-	}
-
 	private static void assertRawArray(Object lhs, Object rhs) {
 		if (rhs == null) assertNull(lhs);
 		else {
@@ -1441,5 +1447,29 @@ public class AssertUtil {
 			Object rhsVal = hasRhs ? RawArray.get(rhs, rhsOffset + i) : null;
 			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
 		}
+	}
+	
+	private static String nl(String format, Object... args) {
+		String s = Strings.format(format, args);
+		return s.isEmpty() ? "" : s + '\n';
+	}
+
+	private static String str(Object obj) {
+		if (obj instanceof Byte) return String.format("%1$d (0x%1$02x)", obj);
+		if (obj instanceof Short) return String.format("%1$d (0x%1$04x)", obj);
+		if (obj instanceof Integer) return String.format("%1$d (0x%1$08x)", obj);
+		if (obj instanceof Long) return String.format("%1$dL (0x%1$016x)", obj);
+		if (obj instanceof Float) return String.format("%sf", obj);
+		return String.valueOf(obj);
+	}
+
+	private static String chr(String s, int index) {
+		return chr(Chars.at(s, index));
+	}
+
+	private static String chr(Character c) {
+		if (c == null) return Strings.NULL;
+		if (Chars.isPrintable(c)) return String.format("%c (\\u%04x)", c, (int) c);
+		return String.format("\\u%04x", (int) c);
 	}
 }

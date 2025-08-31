@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Enums;
+import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
 
 /**
@@ -19,7 +20,7 @@ public enum TestStyle {
 	// List of main class suffixes that are most likely to use test style
 	private static final List<String> testGuessSuffixes = List.of("Util");
 	private static final Pattern REGEX =
-		RegexUtil.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
+		Patterns.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
 	private static final Map<String, TestStyle> lookup = Enums.map(t -> t.suffix, TestStyle.class);
 	private static final int TARGET_INDEX = 1;
 	private static final int STYLE_INDEX = 2;

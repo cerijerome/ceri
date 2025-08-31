@@ -266,21 +266,24 @@ import ceri.common.test.TestUtil;
 	ceri.common.test.TimeCollectorBehavior.class, //
 	// text
 	ceri.common.text.AnsiEscapeBehavior.class, //
+	ceri.common.text.CharsTest.class, //
 	ceri.common.text.DsvCodecBehavior.class, //
 	ceri.common.text.DsvParserBehavior.class, //
+	ceri.common.text.FormatBehavior.class, //
 	ceri.common.text.FractionFormatsTest.class, //
 	ceri.common.text.JoinerBehavior.class, //
 	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchBehavior.class, //
 	ceri.common.text.NumberParserTest.class, //
 	ceri.common.text.ParseUtilTest.class, //
+	ceri.common.text.PatternsTest.class, //
 	ceri.common.text.RegexSequencerBehavior.class, //
 	ceri.common.text.RegexUtilTest.class, //
 	ceri.common.text.SplitterBehavior.class, //
+	ceri.common.text.StringBuildersTest.class, //
 	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringUtilTest.class, //
 	ceri.common.text.StringsTest.class, //
-	ceri.common.text.SubSequenceBehavior.class, //
 	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextUtilTest.class, //
 	ceri.common.text.ToStringBehavior.class, //
@@ -318,6 +321,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.validation.DisplayDoubleBehavior.class, //
 	ceri.common.validation.DisplayLongBehavior.class, //
 	ceri.common.validation.ValidationUtilTest.class, //
+	// web
+	ceri.common.net.UrlsTest.class, //
 	// xml
 	ceri.common.xml.RuntimeXPathExceptionBehavior.class, //
 	ceri.common.xml.XPathUtilTest.class, //

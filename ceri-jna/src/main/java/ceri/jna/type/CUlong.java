@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
-import java.util.function.Supplier;
 import com.sun.jna.Pointer;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 
 /**
@@ -9,13 +9,13 @@ import ceri.common.math.MathUtil;
  */
 @SuppressWarnings("serial")
 public class CUlong extends IntType<CUlong> {
-	private static final Supplier<CUlong> CONSTRUCTOR = CUlong::new;
+	private static final Functions.Supplier<CUlong> CONSTRUCTOR = CUlong::new;
 	public static final int SIZE = JnaSize.LONG.get();
 
 	public static CUlong readFrom(Pointer p, long offset) {
 		return new CUlong().read(p, offset);
 	}
-	
+
 	public static class ByRef extends IntType.ByRef<CUlong> {
 		public ByRef() {
 			this(new CUlong());
@@ -24,11 +24,11 @@ public class CUlong extends IntType<CUlong> {
 		public ByRef(int value) {
 			this(new CUlong(value));
 		}
-		
+
 		public ByRef(long value) {
 			this(new CUlong(value));
 		}
-		
+
 		public ByRef(CUlong value) {
 			super(CONSTRUCTOR, value);
 		}
@@ -47,7 +47,7 @@ public class CUlong extends IntType<CUlong> {
 	public CUlong(int value) {
 		this(MathUtil.uint(value));
 	}
-	
+
 	/**
 	 * Create unsigned with value.
 	 */

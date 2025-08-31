@@ -1,11 +1,11 @@
 package ceri.common.text;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collection.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
@@ -16,7 +16,8 @@ import ceri.common.stream.Streams;
  * Support for regex patterns.
  */
 public class Patterns {
-	private static final Joiner OR_JOINER = Joiner.of("(", "|", ")");
+	public static final Joiner OR_CAPTURE = Joiner.of("(", "|", ")");
+	public static final Joiner OR = Joiner.of("(?:", "|", ")");
 	private static final Pattern GROUP_NAME_REGEX = Pattern.compile("\\(\\?\\<([^>]+)\\>");
 	public static final Pattern ALL = Pattern.compile(".*");
 
@@ -27,46 +28,39 @@ public class Patterns {
 	 */
 	public static class Common {
 		/** Unsigned binary integer with 0b prefix (needs custom parser). */
-		public static final String BIN_UINT = "0[bB][01]+";
+		public static final String binUint = "0[bB][01]+";
 		/** Signed binary integer with 0b prefix (needs custom parser). */
-		public static final String BIN_INT = "[+-]?0[bB][01]+";
+		public static final String binInt = "[+-]?0[bB][01]+";
 		/** Unsigned octal integer with 0 prefix. */
-		public static final String OCT_UINT = "0[0-7]+";
+		public static final String octUint = "0[0-7]+";
 		/** Signed Octal integer with 0 prefix. */
-		public static final String OCT_INT = "[+-]?0[0-7]+";
+		public static final String octInt = "[+-]?0[0-7]+";
 		/** Unsigned decimal integer. */
-		public static final String DEC_UINT = "(?:0|[1-9]\\d*)";
+		public static final String decUint = "(?:0|[1-9]\\d*)";
 		/** Signed decimal integer. */
-		public static final String DEC_INT = "[+-]?" + DEC_UINT;
+		public static final String decInt = "[+-]?" + decUint;
 		/** Single hexadecimal digit. */
-		public static final String HEX_DIGIT = "[a-fA-F0-9]";
+		public static final String hexDigit = "[a-fA-F0-9]";
 		/** Unsigned hexadecimal integer with prefix. */
-		public static final String HEX_UINT = "(?:0x|0X|#)[a-fA-F0-9]+";
+		public static final String hexUint = "(?:0x|0X|#)[a-fA-F0-9]+";
 		/** Signed hexadecimal integer with prefix. */
-		public static final String HEX_INT = "[+-]?" + HEX_UINT;
+		public static final String hexInt = "[+-]?" + hexUint;
 		/** Unsigned binary, octal, decimal, or hexadecimal integer (use decodes below). */
-		public static final String UINT_NUMBER = or(DEC_UINT, HEX_UINT, OCT_UINT, BIN_UINT);
+		public static final String uintNumber = OR.joinAll(decUint, hexUint, octUint, binUint);
 		/** Signed binary, octal, decimal, or hexadecimal integer (use decodes below). */
-		public static final String INT_NUMBER = "[+-]?" + UINT_NUMBER;
+		public static final String intNumber = "[+-]?" + uintNumber;
 		/** Unsigned decimal number; integer or floating point. */
-		public static final String UDEC_NUMBER = "(?:0|[1-9]\\d*|\\d*\\.\\d+)";
+		public static final String udecNumber = "(?:0|[1-9]\\d*|\\d*\\.\\d+)";
 		/** Signed decimal number; integer or floating point. */
-		public static final String DEC_NUMBER = "[+-]?" + UDEC_NUMBER;
+		public static final String decNumber = "[+-]?" + udecNumber;
 		/** Single ASCII letter. */
-		public static final String ALPHABET = "[a-zA-Z]";
+		public static final String alphabet = "[a-zA-Z]";
 		/** Single ASCII letter or number. */
-		public static final String ALPHANUM = "[a-zA-Z0-9]";
+		public static final String alphanum = "[a-zA-Z0-9]";
 		/** Java identifier name. */
-		public static final String JAVA_NAME = "[\\p{L}$_][\\p{L}0-9$_]*";
+		public static final String javaName = "[\\p{L}$_][\\p{L}0-9$_]*";
 
 		private Common() {}
-
-		/**
-		 * Combines patterns as an OR non-capturing group.
-		 */
-		public static String or(String... patterns) {
-			return "(?:" + String.join("|", patterns) + ")";
-		}
 
 		/**
 		 * Use to decode UINT_NUMBER and INT_NUMBER.
@@ -89,49 +83,99 @@ public class Patterns {
 	}
 
 	/**
-	 * Joining patterns.
-	 */
-	public static class Join {
-		public static final Joiner or = Joiner.of("(", "|", ")");
-		public static final Joiner orNoCap = Joiner.of("(?:", "|", ")");
-		
-		private Join() {}
-	}
-	
-	/**
-	 * Split patterns.
+	 * Splits char sequences a pattern and optional modifier.
 	 */
 	public static class Split {
-		public static final Pattern line = Pattern.compile("(\\r\\n|\\n|\\r)");
-		public static final Pattern comma = Pattern.compile("\\s*,\\s*");
-		public static final Pattern space = Pattern.compile("\\s+");
+		public static final Split LINE = of("(?:\\r\\n|\\n|\\r)");
+		public static final Split COMMA = of(Strings::trim, "\\s*,\\s*");
+		public static final Split SPACE = of(Strings::trim, "\\s+");
+		public final Pattern pattern;
+		public final Functions.Function<? super String, String> modifier;
 
-		private Split() {}
-		
 		/**
 		 * Split the string into an array.
 		 */
-		public static String[] array(Pattern pattern, CharSequence s) {
-			if (pattern == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
-			return pattern.split(s);
+		public static String[] array(Pattern p, CharSequence s) {
+			return array(p, s, null);
 		}
 
 		/**
-		 * Split the string into a list.
+		 * Split the string into an array, with item modifier.
 		 */
-		public static List<String> list(Pattern pattern, CharSequence s) {
-			return Arrays.asList(split(pattern, s));
+		public static <E extends Exception> String[] array(Pattern p, CharSequence s,
+			Excepts.Function<? extends E, ? super String, String> modifier) throws E {
+			if (p == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
+			var split = p.split(s);
+			if (modifier != null) for (int i = 0; i < split.length; i++)
+				split[i] = modifier.apply(split[i]);
+			return split;
+		}
+
+		/**
+		 * Split the string into an immutable list.
+		 */
+		public static List<String> list(Pattern p, CharSequence s) {
+			return list(p, s, null);
+		}
+
+		/**
+		 * Split the string into an immutable list, with item modifier.
+		 */
+		public static <E extends Exception> List<String> list(Pattern p, CharSequence s,
+			Excepts.Function<? extends E, ? super String, String> modifier) throws E {
+			return Immutable.wrapListOf(array(p, s, modifier));
 		}
 
 		/**
 		 * Split the string as a stream.
 		 */
-		public static Stream<RuntimeException, String> stream(Pattern pattern, CharSequence s) {
-			if (pattern == null || Strings.isEmpty(s)) return Stream.empty();
-			return Streams.from(pattern.splitAsStream(s));
+		public static Stream<RuntimeException, String> stream(Pattern p, CharSequence s) {
+			return stream(p, s, null);
+		}
+
+		/**
+		 * Split the string as a stream, with item modifier.
+		 */
+		public static <E extends Exception> Stream<E, String> stream(Pattern p, CharSequence s,
+			Excepts.Function<? extends E, ? super String, ? extends String> modifier) {
+			if (p == null || Strings.isEmpty(s)) return Stream.empty();
+			var stream = Stream.<E, String>from(p.splitAsStream(s));
+			if (modifier != null) stream = stream.map(modifier);
+			return stream;
+		}
+
+		public static Split of(String format, Object... args) {
+			return of(null, format, args);
+		}
+
+		public static Split of(Functions.Function<? super String, String> modifier,
+			String format, Object... args) {
+			return of(modifier, compile(format, args));
+		}
+
+		public static Split of(Functions.Function<? super String, String> modifier,
+			Pattern pattern) {
+			return new Split(pattern, modifier);
+		}
+
+		private Split(Pattern pattern, Functions.Function<? super String, String> modifier) {
+			this.pattern = pattern;
+			this.modifier = modifier;
+		}
+
+		public String[] array(CharSequence s) {
+			return array(pattern, s, modifier);
+		}
+
+		public List<String> list(CharSequence s) {
+			return list(pattern, s, modifier);
+		}
+
+		public Stream<RuntimeException, String> stream(CharSequence s) {
+			return stream(pattern, s, modifier);
 		}
 	}
-	
+
 	/**
 	 * Regex filters.
 	 */
@@ -216,7 +260,7 @@ public class Patterns {
 	 * Pattern does not override hashCode(); this method generates a hash code for a Pattern
 	 * instance.
 	 */
-	public static int hashCode(Pattern pattern) {
+	public static int hash(Pattern pattern) {
 		if (pattern == null) return Objects.hash();
 		return Objects.hash(pattern.pattern(), pattern.flags());
 	}
@@ -245,40 +289,17 @@ public class Patterns {
 	}
 
 	/**
-	 * Compiles a pattern with a group OR of string values of given objects.
+	 * Compiles a pattern from joined strings.
 	 */
-	public static Pattern compileOr(Object... objs) {
-		return Pattern.compile(OR_JOINER.joinAll(objs));
+	public static Pattern compile(Joiner joiner, Object... objs) {
+		return Pattern.compile(joiner.joinAll(objs));
 	}
-
+	
 	/**
 	 * Creates a pattern to search for quoted text, ignoring case.
 	 */
 	public static Pattern ignoreCase(String text) {
 		return compile("(?i)\\Q" + text + "\\E");
-	}
-
-	/**
-	 * Split the string into an array.
-	 */
-	public static String[] split(Pattern p, CharSequence s) {
-		if (p == null || Strings.isEmpty(s)) return ArrayUtil.Empty.strings;
-		return p.split(s);
-	}
-
-	/**
-	 * Split the string into a list.
-	 */
-	public static List<String> splitList(Pattern p, CharSequence s) {
-		return Arrays.asList(split(p, s));
-	}
-
-	/**
-	 * Split the string as a stream.
-	 */
-	public static Stream<RuntimeException, String> splitStream(Pattern p, CharSequence s) {
-		if (p == null || Strings.isEmpty(s)) return Stream.empty();
-		return Streams.from(p.splitAsStream(s));
 	}
 
 	/**
@@ -357,4 +378,35 @@ public class Patterns {
 		return Streams.slice(1, count).mapToObj(m::group);
 	}
 
+	/**
+	 * Append chars up to each find match, and call the consumer for the match.
+	 */
+	public static String findAllAccept(Pattern p, CharSequence s,
+		Functions.BiConsumer<StringBuilder, Matcher> consumer) {
+		var b = findAllAppend0(null, p, s, consumer);
+		return b == null ? s.toString() : b.toString();
+	}
+	
+	/**
+	 * Append chars up to each find match, and call the consumer for the match.
+	 */
+	public static StringBuilder findAllAppend(StringBuilder b, Pattern p, CharSequence s,
+		Functions.BiConsumer<StringBuilder, Matcher> consumer) {
+		if (b == null) return null;
+		return findAllAppend0(b, p, s, consumer);
+	}
+	
+	private static StringBuilder findAllAppend0(StringBuilder b, Pattern p, CharSequence s,
+		Functions.BiConsumer<StringBuilder, Matcher> consumer) {
+		if (p == null || Strings.isEmpty(s)) return b;
+		var m = p.matcher(s);
+		int last = 0; // start position of next append
+		while (m.find()) {
+			if (b == null) b = new StringBuilder();
+			StringBuilders.append(b, s, last, m.start() - last);
+			consumer.accept(b, m);
+			last = m.end();
+		}
+		return StringBuilders.append(b, s, last);
+	}
 }

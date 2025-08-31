@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import static ceri.common.text.StringUtil.trim;
+import static ceri.common.text.Strings.trim;
 import java.util.ArrayList;
 import java.util.List;
 import ceri.common.collection.Immutable;
@@ -85,7 +85,7 @@ public class DsvParser {
 
 	private Parser.String parseField(String value) {
 		var trimmed = trim(value);
-		if (StringUtil.empty(trimmed)) trimmed = null;
+		if (Strings.isEmpty(trimmed)) trimmed = null;
 		return Parser.string(trimmed);
 	}
 

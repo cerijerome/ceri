@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 public class TestRunAdapterBehavior {
 
@@ -21,7 +21,7 @@ public class TestRunAdapterBehavior {
 	@Test
 	public void shouldWriteOneLinePerMethod() {
 		StringBuilder b = new StringBuilder();
-		TestRunAdapter p = TestRunAdapter.printer(StringUtil.asPrintStream(b));
+		TestRunAdapter p = TestRunAdapter.printer(StringBuilders.printStream(b));
 		p.testEnded("1");
 		p.testFailed(2, "2.1", "2.2");
 		p.testRunEnded(3);

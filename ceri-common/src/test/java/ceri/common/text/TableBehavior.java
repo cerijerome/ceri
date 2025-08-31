@@ -46,7 +46,7 @@ public class TableBehavior {
 
 	@Test
 	public void shouldPrintToOutputStream() {
-		var table = StringUtil.print(out -> Table.BLANK.print(out, (r, c, lines) -> {
+		var table = Strings.printed(out -> Table.BLANK.print(out, (r, c, lines) -> {
 			if (r < 2 && c < 2) lines.lines("" + (r + c));
 		}));
 		assertMatch(table, "(?s)\\s+0\\s+1\\s+1\\s+2\\s+");

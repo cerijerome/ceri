@@ -5,8 +5,10 @@ import static ceri.common.test.AssertUtil.assertLines;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
+import ceri.common.test.BinaryPrinter;
 
 public class TextUtilTest {
 
@@ -15,12 +17,95 @@ public class TextUtilTest {
 		assertPrivateConstructor(TextUtil.class);
 	}
 
+	public static void main0(String[] args) {
+		int tab = 4;
+		print(tab, "abc abc\tabc  ");
+		print(tab, "abc  abc  abc  abc  abc  ");
+		print(tab, "ab   ab   ab   ab   ab   ");
+		print(tab, "ab \t ab \t ab \t ");
+		print(tab, "\tab   ab   ab\t ");
+	}
+
+	private static void print(int tabSize, String line) {
+		var tabs = TextUtil.lineSpacesToTabs(tabSize, line);
+		var spcs = TextUtil.lineTabsToSpaces(tabSize, line);
+		System.out.println(line + "<");
+		System.out.println(tabs + "<");
+		System.out.println(spcs + "<");
+		BinaryPrinter.ASCII.print(line);
+		BinaryPrinter.ASCII.print(tabs);
+		BinaryPrinter.ASCII.print(spcs);
+		System.out.println();
+	}
+
+	@Test
+	public void testPrefixLines() {
+		assertEquals(TextUtil.prefixLines("xxx", "abc"), "xxxabc");
+		assertEquals(TextUtil.prefixLines("xxx", ""), "");
+		assertEquals(TextUtil.prefixLines("", ""), "");
+		assertEquals(TextUtil.prefixLines("", "abc"), "abc");
+		assertEquals(TextUtil.prefixLines("xxx", "a\r\nb"), "xxxa\r\nxxxb");
+		assertEquals(TextUtil.prefixLines("xxx", "a\r\n"), "xxxa\r\nxxx");
+		assertEquals(TextUtil.prefixLines("xxx", "\r\n"), "xxx\r\nxxx");
+		assertEquals(TextUtil.prefixLines("\t", "\n\r"), "\t\n\t\r\t");
+		assertEquals(TextUtil.prefixLines("\t", "\n\r\n\t"), "\t\n\t\r\n\t\t");
+		assertEquals(TextUtil.prefixLines("x", "a\nb\r\nc\rd"), "xa\nxb\r\nxc\rxd");
+	}
+	
+	@Test
+	public void testSpacesToTabs() {
+		assertString(TextUtil.lineSpacesToTabs(1, null), "");
+		assertString(TextUtil.spacesToTabs(0, "    "), "    ");
+		assertString(TextUtil.spacesToTabs(4, ""), "");
+		assertString(TextUtil.spacesToTabs(4, "a"), "a");
+		assertString(TextUtil.spacesToTabs(4, "ab"), "ab");
+		assertString(TextUtil.spacesToTabs(4, "abc"), "abc");
+		assertString(TextUtil.spacesToTabs(4, "abcd"), "abcd");
+		assertString(TextUtil.spacesToTabs(4, "a "), "a ");
+		assertString(TextUtil.spacesToTabs(4, "ab "), "ab ");
+		assertString(TextUtil.spacesToTabs(4, "abc "), "abc ");
+		assertString(TextUtil.spacesToTabs(4, "abcd "), "abcd ");
+		assertString(TextUtil.spacesToTabs(4, "a  "), "a  ");
+		assertString(TextUtil.spacesToTabs(4, "ab  "), "ab\t");
+		assertString(TextUtil.spacesToTabs(4, "abc  "), "abc  ");
+		assertString(TextUtil.spacesToTabs(4, "abcd  "), "abcd  ");
+		assertString(TextUtil.spacesToTabs(2, "a   "), "a \t");
+		assertString(TextUtil.spacesToTabs(2, "ab   "), "ab\t ");
+		assertString(TextUtil.spacesToTabs(2, "abc   "), "abc \t");
+		assertString(TextUtil.spacesToTabs(2, "abcd   "), "abcd\t ");
+		assertString(TextUtil.spacesToTabs(4, "       ab c   e "), "\t   ab c   e ");
+		assertString(TextUtil.spacesToTabs(4, "abcde   fgh      i"), "abcde\tfgh \t i");
+		assertString(TextUtil.spacesToTabs(4, "a\t b \t c"), "a\t b\t c");
+	}
+
+	@Test
+	public void testTabsToSpaces() {
+		assertString(TextUtil.lineTabsToSpaces(1, null), "");
+		assertString(TextUtil.tabsToSpaces(0, "    "), "    ");
+		assertString(TextUtil.tabsToSpaces(4, ""), "");
+		assertString(TextUtil.tabsToSpaces(4, "a"), "a");
+		assertString(TextUtil.tabsToSpaces(4, "ab"), "ab");
+		assertString(TextUtil.tabsToSpaces(4, "abc"), "abc");
+		assertString(TextUtil.tabsToSpaces(4, "abcd"), "abcd");
+		assertString(TextUtil.tabsToSpaces(4, "\t"), "    ");
+		assertString(TextUtil.tabsToSpaces(4, "a\t"), "a   ");
+		assertString(TextUtil.tabsToSpaces(4, "ab\t"), "ab  ");
+		assertString(TextUtil.tabsToSpaces(4, "abc\t"), "abc ");
+		assertString(TextUtil.tabsToSpaces(4, "abcd\t"), "abcd    ");
+		assertString(TextUtil.tabsToSpaces(2, "\t\t"), "    ");
+		assertString(TextUtil.tabsToSpaces(2, "\t \t"), "    ");
+		assertString(TextUtil.tabsToSpaces(2, " \t \t"), "    ");
+		assertString(TextUtil.tabsToSpaces(2, "\t\t "), "     ");
+		assertString(TextUtil.tabsToSpaces(4, "abc\t\tdef  \tg"), "abc     def     g");
+		assertString(TextUtil.tabsToSpaces(4, "abcde\tfgh\t\ti"), "abcde   fgh     i");
+	}
+
 	@Test
 	public void testMultilineJavadoc() {
 		assertEquals(TextUtil.multilineJavadoc(null), null);
 		assertEquals(TextUtil.multilineJavadoc(""), "");
 		assertLines(TextUtil.multilineJavadoc("a"), "/**", " * a", " */");
-		assertLines(TextUtil.multilineJavadoc("a" + StringUtil.EOL + "b"), "/**", " * a", " * b",
+		assertLines(TextUtil.multilineJavadoc("a" + Strings.EOL + "b"), "/**", " * a", " * b",
 			" */");
 	}
 
@@ -29,7 +114,7 @@ public class TextUtilTest {
 		assertEquals(TextUtil.multilineComment(null), null);
 		assertEquals(TextUtil.multilineComment(""), "");
 		assertLines(TextUtil.multilineComment("a"), "/*", " * a", " */");
-		assertLines(TextUtil.multilineComment("a" + StringUtil.EOL + "b"), "/*", " * a", " * b",
+		assertLines(TextUtil.multilineComment("a" + Strings.EOL + "b"), "/*", " * a", " * b",
 			" */");
 	}
 

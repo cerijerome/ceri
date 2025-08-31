@@ -1,12 +1,9 @@
 package ceri.common.sql;
 
-import static ceri.common.sql.SqlType.sqlClob;
-import static ceri.common.sql.SqlType.sqlNumeric;
-import static ceri.common.sql.SqlType.sqlVarChar;
 import static ceri.common.test.AssertUtil.assertEquals;
 import java.sql.Types;
 import org.junit.Test;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 public class SqlFormatterBehavior {
 	private final SqlFormatter formatter = new SqlFormatter() {
@@ -23,7 +20,7 @@ public class SqlFormatterBehavior {
 
 	@Test
 	public void shouldIgnoreTypeByDefault() {
-		SqlFormatter f = obj -> StringUtil.reverse(String.valueOf(obj));
+		SqlFormatter f = obj -> Strings.reverse(String.valueOf(obj));
 		assertEquals(f.format(null), "llun");
 		assertEquals(f.format(123), "321");
 		assertEquals(f.format(123, Types.DATE), "321");
@@ -38,11 +35,11 @@ public class SqlFormatterBehavior {
 
 	@Test
 	public void shouldFormatBySqlType() {
-		assertEquals(formatter.format(null, sqlVarChar), "VarChar:null");
-		assertEquals(formatter.format(null, sqlClob), "null");
-		assertEquals(formatter.format("test", sqlVarChar), "VarChar:test");
-		assertEquals(formatter.format("test", sqlClob), "test");
-		assertEquals(formatter.format(9, sqlNumeric), "Numeric:9");
+		assertEquals(formatter.format(null, SqlType.sqlVarChar), "VarChar:null");
+		assertEquals(formatter.format(null, SqlType.sqlClob), "null");
+		assertEquals(formatter.format("test", SqlType.sqlVarChar), "VarChar:test");
+		assertEquals(formatter.format("test", SqlType.sqlClob), "test");
+		assertEquals(formatter.format(9, SqlType.sqlNumeric), "Numeric:9");
 	}
 
 	private String formatByClass(Object obj) {
@@ -52,9 +49,8 @@ public class SqlFormatterBehavior {
 	}
 
 	private String formatBySqlType(Object obj, SqlType type) {
-		if (type == sqlVarChar) return "VarChar:" + obj;
-		if (type == sqlNumeric) return "Numeric:" + obj;
+		if (type == SqlType.sqlVarChar) return "VarChar:" + obj;
+		if (type == SqlType.sqlNumeric) return "Numeric:" + obj;
 		return String.valueOf(obj);
 	}
-
 }

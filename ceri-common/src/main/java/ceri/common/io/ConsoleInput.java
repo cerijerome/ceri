@@ -13,8 +13,8 @@ import ceri.common.collection.Maps;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
+import ceri.common.text.Chars;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 
 /**
@@ -26,11 +26,11 @@ public class ConsoleInput implements LineReader {
 	private static final int ESC_END_MAX = 0x7e;
 	private static final int ESC_LEN_MIN = 3;
 	private static final int ESC_LEN_MAX = 4;
-	private static final String DEL = Strings.ESC + "[3~";
-	private static final String UP = Strings.ESC + "[A";
-	private static final String DOWN = Strings.ESC + "[B";
-	private static final String RIGHT = Strings.ESC + "[C";
-	private static final String LEFT = Strings.ESC + "[D";
+	private static final String DEL = Chars.ESC + "[3~";
+	private static final String UP = Chars.ESC + "[A";
+	private static final String DOWN = Chars.ESC + "[B";
+	private static final String RIGHT = Chars.ESC + "[C";
+	private static final String LEFT = Chars.ESC + "[D";
 	private static final char START = 0x01;
 	private static final char END = 0x05;
 	private final Config config;
@@ -136,8 +136,8 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private boolean processEsc(State state, char c) {
-		if (state.esc.isEmpty() && c != Strings.ESC) return false;
-		if (c == Strings.ESC) state.esc.setLength(0);
+		if (state.esc.isEmpty() && c != Chars.ESC) return false;
+		if (c == Chars.ESC) state.esc.setLength(0);
 		state.esc.append(c);
 		int len = state.esc.length();
 		if (len >= ESC_LEN_MAX
@@ -161,10 +161,10 @@ public class ConsoleInput implements LineReader {
 		switch (c) {
 			case START -> moveTo(state, 0);
 			case END -> moveTo(state, state.line.length());
-			case Strings.BS -> moveTo(state, state.pos - 1);
-			case Strings.DEL -> deleteLeft(state, 1);
-			case Strings.NL, Strings.CR -> state.complete = true;
-			default -> result = !StringUtil.isPrintable(c); // drop if non-printable
+			case Chars.BS -> moveTo(state, state.pos - 1);
+			case Chars.DEL -> deleteLeft(state, 1);
+			case Chars.NL, Chars.CR -> state.complete = true;
+			default -> result = !Chars.isPrintable(c); // drop if non-printable
 		}
 		return result;
 	}
@@ -188,7 +188,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private boolean historical(String line) {
-		if (StringUtil.blank(line)) return false;
+		if (Strings.isBlank(line)) return false;
 		return config.historical() == null || config.historical().test(line);
 	}
 
@@ -246,7 +246,7 @@ public class ConsoleInput implements LineReader {
 	private void moveTo(State state, int pos) {
 		pos = MathUtil.limit(pos, 0, state.line.length());
 		if (pos == state.pos) return;
-		if (pos < state.pos) out.print(repeat(Strings.BS, state.pos - pos));
+		if (pos < state.pos) out.print(repeat(Chars.BS, state.pos - pos));
 		else out.print(state.line.substring(state.pos, pos));
 		state.pos = pos;
 	}
@@ -255,7 +255,7 @@ public class ConsoleInput implements LineReader {
 		max = Math.max(state.line.length(), max);
 		out.print(state.line.substring(state.pos));
 		out.print(repeat(' ', max - state.line.length()));
-		out.print(repeat(Strings.BS, max - state.pos));
+		out.print(repeat(Chars.BS, max - state.pos));
 	}
 
 	private static char[] repeat(char c, int n) {

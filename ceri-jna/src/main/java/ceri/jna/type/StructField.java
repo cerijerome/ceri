@@ -1,11 +1,8 @@
 package ceri.jna.type;
 
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import ceri.common.function.Functions.ObjIntFunction;
+import ceri.common.function.Functions;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -62,24 +59,25 @@ public class StructField {
 	/**
 	 * Create for a type pointer. For {@code type*} types.
 	 */
-	public static <T, R> Type<T, R> byVal(Function<T, Pointer> ptrFn,
-		Function<Pointer, R> createFn) {
+	public static <T, R> Type<T, R> byVal(Functions.Function<T, Pointer> ptrFn,
+		Functions.Function<Pointer, R> createFn) {
 		return t -> JnaUtil.type(ptrFn.apply(t), createFn);
 	}
 
 	/**
 	 * Create for a type pointer. For {@code type**} types.
 	 */
-	public static <T, R> Type<T, R> byRef(Function<T, Pointer> ptrFn,
-		Function<Pointer, R> createFn) {
+	public static <T, R> Type<T, R> byRef(Functions.Function<T, Pointer> ptrFn,
+		Functions.Function<Pointer, R> createFn) {
 		return t -> JnaUtil.type(PointerUtil.byRef(ptrFn.apply(t)), createFn);
 	}
 
 	/**
 	 * Create for a pointer to a contiguous type array. For {@code struct*} array types.
 	 */
-	public static <T, R extends Structure> Array<T, R> arrayByVal(Function<T, Pointer> ptrFn,
-		ToIntFunction<T> countFn, Function<Pointer, R> createFn, IntFunction<R[]> arrayFn) {
+	public static <T, R extends Structure> Array<T, R> arrayByVal(
+		Functions.Function<T, Pointer> ptrFn, Functions.ToIntFunction<T> countFn,
+		Functions.Function<Pointer, R> createFn, Functions.IntFunction<R[]> arrayFn) {
 		int size = createFn.apply(null).size();
 		return arrayByVal(ptrFn, countFn, createFn, arrayFn, size);
 	}
@@ -87,9 +85,9 @@ public class StructField {
 	/**
 	 * Create for a pointer to a contiguous array of given type size. For {@code type*} array types.
 	 */
-	public static <T, R> Array<T, R> arrayByVal(Function<T, Pointer> ptrFn,
-		ToIntFunction<T> countFn, Function<Pointer, R> createFn, IntFunction<R[]> arrayFn,
-		int size) {
+	public static <T, R> Array<T, R> arrayByVal(Functions.Function<T, Pointer> ptrFn,
+		Functions.ToIntFunction<T> countFn, Functions.Function<Pointer, R> createFn,
+		Functions.IntFunction<R[]> arrayFn, int size) {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
@@ -106,8 +104,9 @@ public class StructField {
 	 * Create for a pointer to an indirect contiguous type pointer array. For {@code type**} array
 	 * types.
 	 */
-	public static <T, R> Array<T, R> arrayByRef(Function<T, Pointer> ptrFn,
-		ToIntFunction<T> countFn, Function<Pointer, R> createFn, IntFunction<R[]> arrayFn) {
+	public static <T, R> Array<T, R> arrayByRef(Functions.Function<T, Pointer> ptrFn,
+		Functions.ToIntFunction<T> countFn, Functions.Function<Pointer, R> createFn,
+		Functions.IntFunction<R[]> arrayFn) {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
@@ -124,8 +123,8 @@ public class StructField {
 	 * Create for a pointer to an indirect null-terminated contiguous type pointer array. Does not
 	 * validate when accessing by index.
 	 */
-	public static <T, R> Array<T, R> arrayByRef(Function<T, Pointer> ptrFn,
-		Function<Pointer, R> createFn, IntFunction<R[]> arrayFn) {
+	public static <T, R> Array<T, R> arrayByRef(Functions.Function<T, Pointer> ptrFn,
+		Functions.Function<Pointer, R> createFn, Functions.IntFunction<R[]> arrayFn) {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			return JnaUtil.byRef(p, i, createFn);
@@ -135,8 +134,8 @@ public class StructField {
 		});
 	}
 
-	private static <T, R> Array<T, R> array(ObjIntFunction<T, R> getIndexFn,
-		Function<T, R[]> getAllFn) {
+	private static <T, R> Array<T, R> array(Functions.ObjIntFunction<T, R> getIndexFn,
+		Functions.Function<T, R[]> getAllFn) {
 		return new Array<>() {
 			@Override
 			public R get(T t, int i) {

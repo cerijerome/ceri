@@ -1,11 +1,10 @@
 package ceri.jna.type;
 
-import java.util.function.LongUnaryOperator;
-import java.util.function.Supplier;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByReference;
+import ceri.common.function.Functions;
 import ceri.common.util.BasicUtil;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaUtil;
@@ -20,21 +19,21 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	public final boolean unsigned;
 
 	public abstract static class ByRef<T extends IntType<T>> extends ByReference {
-		private final Supplier<T> supplier;
+		private final Functions.Supplier<T> supplier;
 
-		protected ByRef(Supplier<T> supplier) {
+		protected ByRef(Functions.Supplier<T> supplier) {
 			this(supplier, Pointer.NULL);
 		}
 
-		protected ByRef(Supplier<T> supplier, Pointer p) {
+		protected ByRef(Functions.Supplier<T> supplier, Pointer p) {
 			this(supplier, supplier.get(), p);
 		}
 
-		protected ByRef(Supplier<T> supplier, T value) {
+		protected ByRef(Functions.Supplier<T> supplier, T value) {
 			this(supplier, def(value, supplier), null);
 		}
 
-		private ByRef(Supplier<T> supplier, T value, Pointer p) {
+		private ByRef(Functions.Supplier<T> supplier, T value, Pointer p) {
 			super(value.size);
 			this.supplier = supplier;
 			if (p != null) setPointer(p);
@@ -61,10 +60,10 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 
 		@Override
 		public String toString() {
-			return String.valueOf(getValue()) +JnaArgs.string(getPointer());
+			return String.valueOf(getValue()) + JnaArgs.string(getPointer());
 		}
-		
-		private static <T> T def(T value, Supplier<T> supplier) {
+
+		private static <T> T def(T value, Functions.Supplier<T> supplier) {
 			return value != null ? value : supplier.get();
 		}
 	}
@@ -138,7 +137,7 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	/**
 	 * Apply and set the native long value.
 	 */
-	public T apply(LongUnaryOperator operator) {
+	public T apply(Functions.LongOperator operator) {
 		JnaUtil.apply(this, operator);
 		return typedThis();
 	}

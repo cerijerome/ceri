@@ -13,8 +13,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Chars;
 import ceri.common.text.ParseUtil;
-import ceri.common.text.StringUtil;
 
 public class JsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -99,7 +99,7 @@ public class JsonUtil {
 
 	public static Character extractChar(Object gsonObject, String path) {
 		Object obj = extract(gsonObject, path);
-		return StringUtil.charAt(Reflect.castOrNull(String.class, obj), 0, null);
+		return Chars.at(Reflect.castOrNull(String.class, obj), 0);
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {

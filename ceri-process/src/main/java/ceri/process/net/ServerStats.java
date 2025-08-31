@@ -9,11 +9,11 @@ import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.function.Functions;
+import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 import ceri.common.time.DateUtil;
 
@@ -35,15 +35,16 @@ public class ServerStats {
 	public final ZonedDateTime since;
 
 	public static ServerStats from(String output) {
-		List<String> lines = StringUtil.lines(output);
-		Builder b = builder();
+		var lines = Patterns.Split.LINE.list(output);
+		var b = builder();
 		int i = 0;
 		match(lines, i++, COMPUTER_NAME_REGEX, m -> b.computerName(m.group(1)));
 		match(lines, i++, SINCE_REGEX, m -> b.since(LocalDateTime.parse(m.group(1), FORMATTER)));
 		return b.build();
 	}
 
-	private static void match(List<String> lines, int i, Pattern p, Consumer<Matcher> consumer) {
+	private static void match(List<String> lines, int i, Pattern p,
+		Functions.Consumer<Matcher> consumer) {
 		if (i >= lines.size()) return;
 		Matcher m = RegexUtil.found(p, lines.get(i));
 		if (m != null) consumer.accept(m);

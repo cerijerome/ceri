@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -172,6 +173,40 @@ public class Maps {
 		 */
 		public Builder<K, V, M> put(K key, V value) {
 			Put.put(put, map, key, value);
+			return this;
+		}
+
+		/**
+		 * Puts the key and values in the map.
+		 */
+		@SafeVarargs
+		public final Builder<K, V, M> putValues(K key, V... values) {
+			return putValues(key, Arrays.asList(values));
+		}
+
+		/**
+		 * Puts the key and values in the map.
+		 */
+		public final Builder<K, V, M> putValues(K key, Iterable<? extends V> values) {
+			for (var value : values)
+				put(key, value);
+			return this;
+		}
+
+		/**
+		 * Puts the keys and value in the map.
+		 */
+		@SafeVarargs
+		public final Builder<K, V, M> putKeys(V value, K... keys) {
+			return putKeys(value, Arrays.asList(keys));
+		}
+
+		/**
+		 * Puts the keys and value in the map.
+		 */
+		public final Builder<K, V, M> putKeys(V value, Iterable<? extends K> keys) {
+			for (var key : keys)
+				put(key, value);
 			return this;
 		}
 

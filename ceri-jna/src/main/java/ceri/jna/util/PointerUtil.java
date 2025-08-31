@@ -2,13 +2,11 @@ package ceri.jna.util;
 
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import static ceri.common.validation.ValidationUtil.validateMin;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.common.function.Functions;
 import ceri.jna.type.JnaSize;
 
 /**
@@ -120,8 +118,8 @@ public class PointerUtil {
 	/**
 	 * Creates a fixed-length contiguous pointer type array. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T[] mallocArray(Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends PointerType> T[] mallocArray(Functions.Supplier<T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.get()).m, constructor, arrayFn,
 			count);
 	}
@@ -144,8 +142,8 @@ public class PointerUtil {
 	/**
 	 * Creates a zeroed fixed-length contiguous pointer type array. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T[] callocArray(Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends PointerType> T[] callocArray(Functions.Supplier<T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		return arrayByVal(GcMemory.malloc(count * JnaSize.POINTER.get()).clear().m, constructor,
 			arrayFn, count);
 	}
@@ -170,8 +168,8 @@ public class PointerUtil {
 	 * Creates a typed array constructed from a contiguous null-terminated pointer array at the
 	 * given pointer. If the pointer is null, or count is 0, an empty array is returned.
 	 */
-	public static <T extends PointerType> T[] arrayByRef(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayFn) {
+	public static <T extends PointerType> T[] arrayByRef(Pointer p,
+		Functions.Supplier<T> constructor, Functions.IntFunction<T[]> arrayFn) {
 		return JnaUtil.arrayByRef(p, adapt(constructor), arrayFn);
 	}
 
@@ -180,8 +178,8 @@ public class PointerUtil {
 	 * the pointer is null, or count is 0, an empty array is returned. Make sure count is unsigned
 	 * (call JnaUtil.ubyte/ushort if needed).
 	 */
-	public static <T extends PointerType> T[] arrayByRef(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends PointerType> T[] arrayByRef(Pointer p,
+		Functions.Supplier<T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		return JnaUtil.arrayByRef(p, adapt(constructor), arrayFn, count);
 	}
 
@@ -208,8 +206,8 @@ public class PointerUtil {
 	 * Creates a typed array from a fixed-length contiguous pointer type array. Returns an array of
 	 * null pointers if the pointer is null. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T[] arrayByVal(Pointer p, Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends PointerType> T[] arrayByVal(Pointer p,
+		Functions.Supplier<T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(adapt(constructor)))
 			.toArray(arrayFn);
 	}
@@ -248,7 +246,8 @@ public class PointerUtil {
 	 * Creates a type from index i of a contiguous pointer type array. Returns null if the pointer
 	 * is null. For {@code void*} array types.
 	 */
-	public static <T extends PointerType> T byVal(Pointer p, int i, Supplier<T> constructor) {
+	public static <T extends PointerType> T byVal(Pointer p, int i,
+		Functions.Supplier<T> constructor) {
 		return JnaUtil.type(PointerUtil.byVal(p, i), adapt(constructor));
 	}
 
@@ -270,7 +269,8 @@ public class PointerUtil {
 	/**
 	 * Adapts no-arg pointer type constructor to take a pointer argument.
 	 */
-	public static <T extends PointerType> Function<Pointer, T> adapt(Supplier<T> constructor) {
+	public static <T extends PointerType> Functions.Function<Pointer, T>
+		adapt(Functions.Supplier<T> constructor) {
 		return p -> set(constructor.get(), p);
 	}
 

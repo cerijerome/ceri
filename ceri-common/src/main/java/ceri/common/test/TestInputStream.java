@@ -10,7 +10,7 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Fluent;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.PipedStream;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /**
@@ -36,7 +36,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 
 	@SuppressWarnings("resource")
 	public static TestInputStream from(String format, Object... args) {
-		return of().apply(in -> in.to.writeUtf8(StringUtil.format(format, args)));
+		return of().apply(in -> in.to.writeUtf8(Strings.format(format, args)));
 	}
 
 	public static TestInputStream of() {

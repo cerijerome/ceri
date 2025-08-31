@@ -3,7 +3,7 @@ package ceri.common.reflect;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.test.Captor;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 public class ClassReInitializerBehavior {
 	public static Captor<String> captor = null;
@@ -14,7 +14,7 @@ public class ClassReInitializerBehavior {
 
 	public static class S {
 		static {
-			ClassReInitializerBehavior.captor.accept(StringUtil.repeat('s', I.i));
+			ClassReInitializerBehavior.captor.accept(Strings.repeat('s', I.i));
 		}
 	}
 

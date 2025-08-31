@@ -29,11 +29,10 @@ import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.AnsiEscape;
+import ceri.common.text.Chars;
 import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringBuilders;
-import ceri.common.text.StringUtil;
-//import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 import ceri.common.util.BasicUtil;
@@ -88,7 +87,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Parses first char of group as a boolean.
 		 */
 		public static Boolean b(Matcher m, int group) {
-			String s = m.group(group);
+			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
 			return TRUE.contains(s.charAt(0));
 		}
@@ -104,7 +103,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Returns first char of group.
 		 */
 		public static Character c(Matcher m, int group) {
-			String s = m.group(group);
+			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
 			return s.charAt(0);
 		}
@@ -120,7 +119,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Parses group as an integer.
 		 */
 		public static Integer i(Matcher m, int group) {
-			String s = m.group(group);
+			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
 			return Patterns.Common.decodeInt(s);
 		}
@@ -136,7 +135,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Parses group as a long.
 		 */
 		public static Long l(Matcher m, int group) {
-			String s = m.group(group);
+			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
 			return Patterns.Common.decodeLong(s);
 		}
@@ -152,7 +151,7 @@ public class ManualTester implements Functions.Closeable {
 		 * Parses group as a double.
 		 */
 		public static Double d(Matcher m, int group) {
-			String s = m.group(group);
+			var s = m.group(group);
 			if (s.isEmpty()) return null;
 			return Double.parseDouble(s);
 		}
@@ -219,7 +218,7 @@ public class ManualTester implements Functions.Closeable {
 
 	private static record Command<T>(Class<T> cls, Action<T> action, String help) {
 		public boolean assignable(Object subject) {
-			Class<?> cls = subject == null ? Object.class : subject.getClass();
+			var cls = subject == null ? Object.class : subject.getClass();
 			return cls().isAssignableFrom(cls);
 		}
 	}
@@ -723,8 +722,8 @@ public class ManualTester implements Functions.Closeable {
 	}
 
 	private void executeInput(String line) throws Exception {
-		var inputs = Streams.of(COMMAND_SPLIT_REGEX.split(StringUtil.trim(line)))
-			.map(StringUtil::unEscape).toList();
+		var inputs =
+			Streams.of(COMMAND_SPLIT_REGEX.split(Strings.trim(line))).map(Chars::unescape).toList();
 		for (int i = 0; i < inputs.size(); i++)
 			executeInput(inputs, i);
 		addToHistory(line);
@@ -732,7 +731,7 @@ public class ManualTester implements Functions.Closeable {
 
 	private void executeInput(List<String> inputs, int i) throws Exception {
 		var context = new Action.Context<>(this, inputs, i, subject());
-		if (StringUtil.blank(context.input())) return;
+		if (Strings.isBlank(context.input())) return;
 		for (var command : commands) {
 			if (!command.assignable(context.subject())) continue;
 			if (command.action().execute(BasicUtil.unchecked(context))) return;
@@ -775,7 +774,7 @@ public class ManualTester implements Functions.Closeable {
 	}
 
 	private String string(Object subject, int index) {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		if (subjects.size() <= 1) b.append(stringFn.apply(subject));
 		else StringBuilders.format(b, "%d) %s", index, stringFn.apply(subject));
 		var cycle = activeCycle();
@@ -806,15 +805,13 @@ public class ManualTester implements Functions.Closeable {
 
 	private void print(ByteProvider data) {
 		bin.print(data).flush();
-		for (var line : StringUtil.lines(binText))
+		for (var line : Patterns.Split.LINE.array(binText))
 			out(line);
-		StringUtil.clear(binText);
+		StringBuilders.clear(binText);
 	}
 
-	@SuppressWarnings("resource")
 	private BinaryPrinter binaryPrinter() {
-		return BinaryPrinter.builder(BinaryPrinter.STD).out(StringUtil.asPrintStream(binText))
-			.build();
+		return BinaryPrinter.builder(BinaryPrinter.STD).out(binText).build();
 	}
 
 	private static boolean fast() {

@@ -129,7 +129,7 @@ public class TypeValue<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof TypeValue<?> other)) return false;
+		if (!(obj instanceof TypeValue other)) return false;
 		if (value != other.value) return false;
 		if (!Objects.equals(type, other.type)) return false;
 		if (!Objects.equals(sub, other.sub)) return false;

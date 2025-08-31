@@ -4,18 +4,18 @@ import static ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Maps;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.IoUtil;
 import ceri.common.test.TestUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CSignal;
 import ceri.log.test.LogModifier;
 import ceri.log.util.LogUtil;
@@ -43,8 +43,8 @@ public class UsbHotPlugTester {
 	}
 
 	private static void testHotPlugs(Usb usb) throws LibUsbException {
-		List<UsbHotPlug> hotPlugs = new ArrayList<>();
-		Deque<Event> events = new ArrayDeque<>();
+		var hotPlugs = Lists.<UsbHotPlug>of();
+		var events = new ArrayDeque<Event>();
 		try {
 			registerHotPlugs(usb, events, hotPlugs);
 			logger.info("Processing events...");
@@ -93,8 +93,8 @@ public class UsbHotPlugTester {
 		try {
 			var desc = event.device.descriptor();
 			try (UsbDeviceHandle handle = event.device.open()) {
-				logger.info(" => %s : %s", StringUtil.trim(desc.manufacturer(handle)),
-					StringUtil.trim(desc.product(handle)));
+				logger.info(" => %s : %s", Strings.trim(desc.manufacturer(handle)),
+					Strings.trim(desc.product(handle)));
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -110,7 +110,7 @@ public class UsbHotPlugTester {
 	}
 
 	private static Map<String, Object> fields(UsbDevice device) {
-		Map<String, Object> fields = new LinkedHashMap<>();
+		var fields = Maps.<String, Object>link();
 		try {
 			var desc = device.descriptor();
 			fields.put("vendor", String.format("0x%04x", desc.vendorId()));

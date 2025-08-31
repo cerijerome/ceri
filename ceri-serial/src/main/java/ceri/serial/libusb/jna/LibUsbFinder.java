@@ -1,9 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.text.ParseUtil.decodeInt;
-import static ceri.common.text.ParseUtil.parseInt;
 import static ceri.serial.libusb.jna.LibUsb.libusb_close;
 import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
 import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;
@@ -21,8 +17,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import ceri.common.function.Excepts;
+import ceri.common.math.MathUtil;
 import ceri.common.text.DsvParser;
-import ceri.common.text.StringUtil;
+import ceri.common.text.ParseUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.Counter;
 import ceri.jna.type.ArrayPointer;
 import ceri.serial.libusb.jna.LibUsb.libusb_context;
@@ -59,13 +57,13 @@ public class LibUsbFinder {
 		List<String> items = DsvParser.split(descriptor, ':');
 		int size = items.size();
 		int i = 0;
-		if (i < size) b.vendor(decodeInt(items.get(i++), 0));
-		if (i < size) b.product(decodeInt(items.get(i++), 0));
-		if (i < size) b.bus(decodeInt(items.get(i++), 0));
-		if (i < size) b.address(decodeInt(items.get(i++), 0));
+		if (i < size) b.vendor(ParseUtil.decodeInt(items.get(i++), 0));
+		if (i < size) b.product(ParseUtil.decodeInt(items.get(i++), 0));
+		if (i < size) b.bus(ParseUtil.decodeInt(items.get(i++), 0));
+		if (i < size) b.address(ParseUtil.decodeInt(items.get(i++), 0));
 		if (i < size) b.description(items.get(i++));
 		if (i < size) b.serial(items.get(i++));
-		if (i < size) b.index(parseInt(items.get(i++), 0));
+		if (i < size) b.index(ParseUtil.parseInt(items.get(i++), 0));
 		return b.build();
 	}
 
@@ -88,22 +86,22 @@ public class LibUsbFinder {
 		Builder() {}
 
 		public Builder vendor(int vendor) {
-			this.vendor = ushort(vendor);
+			this.vendor = MathUtil.ushort(vendor);
 			return this;
 		}
 
 		public Builder product(int product) {
-			this.product = ushort(product);
+			this.product = MathUtil.ushort(product);
 			return this;
 		}
 
 		public Builder bus(int bus) {
-			this.bus = ubyte(bus);
+			this.bus = MathUtil.ubyte(bus);
 			return this;
 		}
 
 		public Builder address(int address) {
-			this.address = ubyte(address);
+			this.address = MathUtil.ubyte(address);
 			return this;
 		}
 
@@ -324,19 +322,19 @@ public class LibUsbFinder {
 	}
 
 	private static boolean matchesBusNumber(libusb_device dev, int bus) throws LibUsbException {
-		return bus == 0 || bus == ubyte(libusb_get_bus_number(dev));
+		return bus == 0 || bus == MathUtil.ubyte(libusb_get_bus_number(dev));
 	}
 
 	private static boolean matchesDeviceAddress(libusb_device dev, int address)
 		throws LibUsbException {
-		return address == 0 || address == ubyte(libusb_get_device_address(dev));
+		return address == 0 || address == MathUtil.ubyte(libusb_get_device_address(dev));
 	}
 
 	private boolean matchesDescriptor(libusb_device dev) throws LibUsbException {
 		if (!needsDescriptor()) return true;
 		libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-		if (!matches(vendor, ushort(desc.idVendor))) return false;
-		if (!matches(product, ushort(desc.idProduct))) return false;
+		if (!matches(vendor, MathUtil.ushort(desc.idVendor))) return false;
+		if (!matches(product, MathUtil.ushort(desc.idProduct))) return false;
 		return matchesOpenDescriptor(dev, desc);
 	}
 
@@ -358,7 +356,7 @@ public class LibUsbFinder {
 	}
 
 	private boolean needsOpen() {
-		return !StringUtil.blank(description) || !StringUtil.blank(serial);
+		return !Strings.isBlank(description) || !Strings.isBlank(serial);
 	}
 
 	private static boolean matches(int expected, int value) {
@@ -367,17 +365,17 @@ public class LibUsbFinder {
 
 	private static boolean matches(libusb_device_handle usb_dev, String expected, int desc_index)
 		throws LibUsbException {
-		if (StringUtil.empty(expected)) return true;
+		if (Strings.isEmpty(expected)) return true;
 		String descriptor = libusb_get_string_descriptor_ascii(usb_dev, desc_index);
 		return expected.equals(descriptor);
 	}
 
 	private static String desc(String format, int value) {
-		return value == 0 ? "0" : StringUtil.format(format, value);
+		return value == 0 ? "0" : Strings.format(format, value);
 	}
 
 	private static String str(String format, int value) {
-		return value == 0 ? "any" : StringUtil.format(format, value);
+		return value == 0 ? "any" : Strings.format(format, value);
 	}
 
 	private static String str(String value) {

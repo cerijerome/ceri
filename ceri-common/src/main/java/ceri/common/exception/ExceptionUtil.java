@@ -3,8 +3,8 @@ package ceri.common.exception;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.function.Predicate;
-import ceri.common.text.StringUtil;
+import ceri.common.function.Excepts;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -32,7 +32,7 @@ public class ExceptionUtil {
 		Throwable t0 = t;
 		while (t != null) {
 			String message = t.getMessage();
-			if (!StringUtil.blank(message)) return message;
+			if (!Strings.isBlank(message)) return message;
 			t = t.getCause();
 		}
 		return t0 == null ? null : t0.getClass().getSimpleName();
@@ -88,15 +88,16 @@ public class ExceptionUtil {
 	/**
 	 * Returns true if the throwable matches the message predicate.
 	 */
-	public static boolean matches(Throwable t, Predicate<String> msgTest) {
+	public static <E extends Exception> boolean matches(Throwable t,
+		Excepts.Predicate<E, ? super String> msgTest) throws E {
 		return matches(t, null, msgTest);
 	}
 
 	/**
 	 * Returns true if the throwable matches the class and message predicate.
 	 */
-	public static boolean matches(Throwable t, Class<? extends Throwable> cls,
-		Predicate<String> msgTest) {
+	public static <E extends Exception> boolean matches(Throwable t, Class<? extends Throwable> cls,
+		Excepts.Predicate<E, ? super String> msgTest) throws E {
 		if (t == null) return false;
 		if (cls != null && !cls.isInstance(t)) return false;
 		if (msgTest == null) return true;

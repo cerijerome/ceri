@@ -1,12 +1,12 @@
 package ceri.process.pgrep;
 
-import static ceri.common.text.StringUtil.NOT_EMPTY;
 import static ceri.common.text.StringUtil.WHITE_SPACE_REGEX;
 import java.io.IOException;
 import ceri.common.process.Output;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.property.Parser;
+import ceri.common.text.Strings;
 
 public class Pgrep {
 	private static final String PGREP = "pgrep";
@@ -15,7 +15,8 @@ public class Pgrep {
 	private boolean full = false;
 
 	private static int[] pids(String output) {
-		return Parser.string(output).split(WHITE_SPACE_REGEX).filter(NOT_EMPTY).toIntArray();
+		return Parser.string(output).split(WHITE_SPACE_REGEX).filter(Strings.Filter.nonEmpty)
+			.toIntArray();
 	}
 
 	public static Pgrep of() {

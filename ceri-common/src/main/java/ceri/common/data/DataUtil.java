@@ -1,10 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.text.StringUtil.DECIMAL_RADIX;
-import static ceri.common.text.StringUtil.escape;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.array.ArrayUtil;
 import ceri.common.exception.Exceptions;
+import ceri.common.text.Chars;
 import ceri.common.validation.ValidationUtil;
 
 public class DataUtil {
@@ -26,7 +25,8 @@ public class DataUtil {
 		for (int i = 0; i < expected.length; i++) {
 			char c = (char) r.readUbyte();
 			if (c == expected[i]) continue;
-			throw Exceptions.illegalArg("Expected '%s': '%s'", escape(expected[i]), escape(c));
+			throw Exceptions.illegalArg("Expected '%s': '%s'", Chars.escape(expected[i]),
+				Chars.escape(c));
 		}
 	}
 
@@ -38,7 +38,8 @@ public class DataUtil {
 		for (int i = 0; i < expected.length(); i++) {
 			char c = (char) r.readUbyte();
 			if (c == expected.charAt(i)) continue;
-			throw Exceptions.illegalArg("Expected '%s': '%s'", escape(expected.charAt(i)), escape(c));
+			throw Exceptions.illegalArg("Expected '%s': '%s'", Chars.escape(expected.charAt(i)),
+				Chars.escape(c));
 		}
 	}
 
@@ -51,7 +52,8 @@ public class DataUtil {
 			char c = (char) r.readUbyte();
 			if (c == expected[i]) continue;
 			if (i < expected.length - 1) r.skip(expected.length - i - 1);
-			throw Exceptions.illegalArg("Expected '%s': '%s'", escape(expected[i]), escape(c));
+			throw Exceptions.illegalArg("Expected '%s': '%s'", Chars.escape(expected[i]),
+				Chars.escape(c));
 		}
 	}
 
@@ -64,7 +66,8 @@ public class DataUtil {
 			char c = (char) r.readUbyte();
 			if (c == expected.charAt(i)) continue;
 			if (i < expected.length() - 1) r.skip(expected.length() - i - 1);
-			throw Exceptions.illegalArg("Expected '%s': '%s'", escape(expected.charAt(i)), escape(c));
+			throw Exceptions.illegalArg("Expected '%s': '%s'", Chars.escape(expected.charAt(i)),
+				Chars.escape(c));
 		}
 	}
 
@@ -130,7 +133,8 @@ public class DataUtil {
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;
-			throw Exceptions.illegalArg("Expected %1$d (0x%1$x): %2$d (0x%2$x)", bytes.getByte(offset), b);
+			throw Exceptions.illegalArg("Expected %1$d (0x%1$x): %2$d (0x%2$x)",
+				bytes.getByte(offset), b);
 		}
 	}
 
@@ -201,7 +205,8 @@ public class DataUtil {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;
 			if (i < length - 1) r.skip(length - i - 1);
-			throw Exceptions.illegalArg("Expected %1$d (0x%1$x): %2$d (0x%2$x)", bytes.getByte(offset), b);
+			throw Exceptions.illegalArg("Expected %1$d (0x%1$x): %2$d (0x%2$x)",
+				bytes.getByte(offset), b);
 		}
 	}
 
@@ -211,7 +216,7 @@ public class DataUtil {
 	public static int digits(ByteReader r, int length) {
 		int sum = 0;
 		for (int i = 0; i < length; i++)
-			sum = sum * DECIMAL_RADIX + digit(r);
+			sum = sum * 10 + digit(r);
 		return sum;
 	}
 
@@ -227,7 +232,6 @@ public class DataUtil {
 	 */
 	private static int digit(int b) {
 		if (b >= '0' && b <= '9') return b - '0';
-		throw Exceptions.illegalArg("Not a digit: '%s'" + escape((char) b));
+		throw Exceptions.illegalArg("Not a digit: '%s'" + Chars.escape((char) b));
 	}
-
 }

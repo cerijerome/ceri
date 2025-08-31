@@ -1,13 +1,10 @@
 package ceri.jna.type;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
+import ceri.common.function.Functions;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -22,8 +19,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	/**
 	 * Create for a null-terminated array by reference. For {@code type**} array types.
 	 */
-	public static <T> ArrayPointer<T> byRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn) {
+	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn) {
 		return of(p, i -> JnaUtil.byRef(p, i, constructor),
 			() -> JnaUtil.arrayByRef(p, constructor, arrayFn), () -> PointerUtil.count(p));
 	}
@@ -31,8 +28,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	/**
 	 * Create for a fixed-length array by reference. For {@code type**} array types.
 	 */
-	public static <T> ArrayPointer<T> byRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		validateMin(count, 0);
 		return of(p, i -> JnaUtil.byRef(p, valid(i, count), constructor),
 			() -> JnaUtil.arrayByRef(p, constructor, arrayFn, count), () -> count);
@@ -43,15 +40,15 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 * determine the size. For {@code struct*} array types.
 	 */
 	public static <T extends Structure> ArrayPointer<T> byVal(Pointer p,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayFn, int count) {
+		Functions.Function<Pointer, T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		return byVal(p, constructor, arrayFn, count, Struct.size(constructor));
 	}
 
 	/**
 	 * Create for a fixed-length array by value of given type size. For {@code type*} array types.
 	 */
-	public static <T> ArrayPointer<T> byVal(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count, int size) {
+	public static <T> ArrayPointer<T> byVal(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count, int size) {
 		validateMin(count, 0);
 		return of(p, i -> JnaUtil.byVal(p, valid(i, count), constructor, size),
 			() -> JnaUtil.arrayByVal(p, constructor, arrayFn, count, size), () -> count);
@@ -86,8 +83,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 		return i;
 	}
 
-	private static <T> ArrayPointer<T> of(Pointer p, IntFunction<T> getIndexFn,
-		Supplier<T[]> getAllFn, IntSupplier countFn) {
+	private static <T> ArrayPointer<T> of(Pointer p, Functions.IntFunction<T> getIndexFn,
+		Functions.Supplier<T[]> getAllFn, Functions.IntSupplier countFn) {
 		return new ArrayPointer<>(p) {
 			@Override
 			public T get(int i) {

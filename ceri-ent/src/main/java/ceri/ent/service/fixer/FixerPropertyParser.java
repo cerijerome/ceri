@@ -1,14 +1,14 @@
 package ceri.ent.service.fixer;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.text.StringUtil;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
+import ceri.common.text.Strings;
 
 /**
  * Used to create fixers from property files. Add fixer builders for each field, then process the
@@ -18,7 +18,7 @@ public class FixerPropertyParser<K> {
 	private static final Logger logger = LogManager.getLogger();
 	private static final String NO_FIELD = "";
 	private final Function<String, K> keyFn;
-	private final Map<String, Receiver<K, ?>> receivers = new HashMap<>();
+	private final Map<String, Receiver<K, ?>> receivers = Maps.of();
 
 	private static class Receiver<K, V> {
 		public final Fixer.Builder<K, V> builder;
@@ -58,14 +58,14 @@ public class FixerPropertyParser<K> {
 	}
 
 	public FixerPropertyParser<K> process(Properties properties) {
-		Set<String> missedFields = new HashSet<>();
+		var missedFields = Sets.<String>of();
 		for (String name : properties.stringPropertyNames()) {
-			if (name.startsWith("#") || StringUtil.blank(name)) continue;
-			String value = properties.getProperty(name);
+			if (name.startsWith("#") || Strings.isBlank(name)) continue;
+			var value = properties.getProperty(name);
 			int i = name.indexOf('.');
 			K key = key(name, i);
-			String field = field(name, i);
-			Receiver<K, ?> receiver = receivers.get(field);
+			var field = field(name, i);
+			var receiver = receivers.get(field);
 			if (receiver != null) receiver.receive(key, value);
 			else missedField(missedFields, key, field);
 		}
@@ -87,5 +87,4 @@ public class FixerPropertyParser<K> {
 		if (i == -1) return NO_FIELD;
 		return name.substring(i + 1);
 	}
-
 }

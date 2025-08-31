@@ -1,39 +1,39 @@
 package ceri.serial.libusb;
 
-import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.BasicUtil.def;
-import ceri.common.text.StringUtil;
-import ceri.serial.libusb.jna.LibUsb.libusb_version;
+import ceri.common.math.MathUtil;
+import ceri.common.text.Strings;
+import ceri.common.util.BasicUtil;
+import ceri.serial.libusb.jna.LibUsb;
 
 public class UsbLibVersion {
-	private final libusb_version version;
+	private final LibUsb.libusb_version version;
 
-	UsbLibVersion(libusb_version version) {
+	UsbLibVersion(LibUsb.libusb_version version) {
 		this.version = version;
 	}
 
 	public int major() {
-		return ushort(version.major);
+		return MathUtil.ushort(version.major);
 	}
 
 	public int minor() {
-		return ushort(version.minor);
+		return MathUtil.ushort(version.minor);
 	}
 
 	public int micro() {
-		return ushort(version.micro);
+		return MathUtil.ushort(version.micro);
 	}
 
 	public int nano() {
-		return ushort(version.nano);
+		return MathUtil.ushort(version.nano);
 	}
 
 	public String describe() {
-		return def(StringUtil.trim(version.describe), "");
+		return BasicUtil.def(Strings.trim(version.describe), "");
 	}
 
 	public String rcSuffix() {
-		return def(StringUtil.trim(version.rc), "");
+		return BasicUtil.def(Strings.trim(version.rc), "");
 	}
 
 	@Override

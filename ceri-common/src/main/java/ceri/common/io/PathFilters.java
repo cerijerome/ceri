@@ -1,56 +1,69 @@
 package ceri.common.io;
 
-import static ceri.common.function.Predicates.and;
-import static ceri.common.function.Predicates.testing;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
+import ceri.common.util.BasicUtil;
 
 /**
  * Predicates for filtering paths.
  */
 public class PathFilters {
-	/** A filter that accepts no paths. */
-	public static final Predicate<IOException, Path> NONE = _ -> false;
-	/** A filter that accepts all paths. */
-	public static final Predicate<IOException, Path> ALL = _ -> true;
-	/** A filter that only accepts directories. */
-	public static final Predicate<IOException, Path> DIR = Files::isDirectory;
 	/** A filter that only accepts files. */
-	public static final Predicate<IOException, Path> FILE = Files::isRegularFile;
+	public static final Functions.Predicate<Path> FILE = Files::isRegularFile;
+	/** A filter that only accepts directories. */
+	public static final Functions.Predicate<Path> DIR = Files::isDirectory;
 
 	private PathFilters() {}
 
 	/**
+	 * A filter that only accepts files.
+	 */
+	public static <E extends Exception> Excepts.Predicate<E, Path> file() {
+		return BasicUtil.unchecked(FILE);
+	}
+
+	/**
+	 * A filter that only accepts directories.
+	 */
+	public static <E extends Exception> Excepts.Predicate<E, Path> dir() {
+		return BasicUtil.unchecked(DIR);
+	}
+
+	/**
 	 * A filter that applies the text match to a unix path.
 	 */
-	public static Predicate<IOException, Path> byUnixPath(Predicate<IOException, String> filter) {
-		return testing(IoUtil::pathToUnix, filter);
+	public static <E extends Exception> Excepts.Predicate<E, Path>
+		byUnixPath(Excepts.Predicate<? extends E, ? super String> filter) {
+		return Predicates.testing(IoUtil::pathToUnix, filter);
 	}
 
 	/**
 	 * A filter that applies the path filter to the filename path only.
 	 */
-	public static Predicate<IOException, Path> byFileNamePath(Predicate<IOException, Path> filter) {
-		return testing(Path::getFileName, filter::test);
+	public static <E extends Exception> Excepts.Predicate<E, Path>
+		byFileNamePath(Excepts.Predicate<? extends E, Path> filter) {
+		return Predicates.testing(Path::getFileName, filter::test);
 	}
 
 	/**
 	 * A filter that applies the path filter to the filename path only.
 	 */
-	public static Predicate<IOException, Path> byFileName(Predicate<IOException, String> filter) {
-		return testing(IoUtil::filename, filter::test);
+	public static <E extends Exception> Excepts.Predicate<E, Path>
+		byFileName(Excepts.Predicate<? extends E, String> filter) {
+		return Predicates.testing(IoUtil::filename, filter::test);
 	}
 
 	/**
 	 * A filter that applies the string filter to partial path at given index. Returns false if
 	 * index
 	 */
-	public static Predicate<IOException, Path> byIndex(int index,
-		Predicate<IOException, String> test) {
+	public static <E extends Exception> Excepts.Predicate<E, Path> byIndex(int index,
+		Excepts.Predicate<? extends E, String> test) {
 		return path -> {
 			String name = IoUtil.name(path, index);
 			return name == null ? false : test.test(name);
@@ -60,51 +73,53 @@ public class PathFilters {
 	/**
 	 * A filter that applies the text match to filename extension of files only.
 	 */
-	public static Predicate<IOException, Path> byExtension(Predicate<IOException, String> filter) {
-		Predicate<IOException, Path> ext = testing(IoUtil::extension, filter);
-		return and(FILE, ext);
+	public static <E extends Exception> Excepts.Predicate<E, Path>
+		byExtension(Excepts.Predicate<? extends E, String> filter) {
+		return Predicates.and(file(), Predicates.testing(IoUtil::extension, filter));
 	}
 
 	/**
 	 * A filter that applies the text match to the filename extension.
 	 */
-	public static Predicate<IOException, Path> byExtension(String... extensions) {
+	public static <E extends Exception> Excepts.Predicate<E, Path>
+		byExtension(String... extensions) {
 		return byExtension(Predicates.ex(Predicates.eqAny(extensions)));
 	}
 
 	/**
 	 * A filter that applies the time instant match to the path last modified time.
 	 */
-	public static Predicate<IOException, Path>
-		byLastModified(Predicate<IOException, Instant> filter) {
-		return testing(path -> Files.getLastModifiedTime(path).toInstant(), filter::test);
+	public static Excepts.Predicate<IOException, Path>
+		byLastModified(Excepts.Predicate<? extends IOException, ? super Instant> filter) {
+		return Predicates.testing(IoUtil::lastModified, filter::test);
 	}
 
 	/**
 	 * A filter that applies the time instant match to the path last modified time.
 	 */
-	public static Predicate<IOException, Path> byModifiedSince(long epochMs) {
+	public static Excepts.Predicate<IOException, Path> byModifiedSince(long epochMs) {
 		return byLastModified(instant -> instant.toEpochMilli() >= epochMs);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static Predicate<IOException, Path> bySize(Predicate<IOException, Long> filter) {
-		return testing(path -> Files.size(path), filter::test);
+	public static Excepts.Predicate<IOException, Path>
+		bySize(Excepts.Predicate<? extends IOException, ? super Long> filter) {
+		return Predicates.testing(Files::size, filter);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static Predicate<IOException, Path> byMaxSize(long maxSize) {
+	public static Excepts.Predicate<IOException, Path> byMaxSize(long maxSize) {
 		return bySize(size -> size <= maxSize);
 	}
 
 	/**
 	 * A filter that applies the numeric match to the file size.
 	 */
-	public static Predicate<IOException, Path> byMinSize(long minSize) {
+	public static Excepts.Predicate<IOException, Path> byMinSize(long minSize) {
 		return bySize(size -> size >= minSize);
 	}
 }

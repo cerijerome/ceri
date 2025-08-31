@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  */
 public class RegexSequencer {
 	private CharSequence s;
-	private Matcher lastMatcher = null;
+	private Matcher matcher = null;
 
 	public static RegexSequencer of(CharSequence s) {
 		return new RegexSequencer(s);
@@ -23,18 +23,17 @@ public class RegexSequencer {
 	}
 
 	public Matcher matcher(Pattern pattern) {
-		updateString(lastMatcher);
-		lastMatcher = pattern.matcher(s);
-		return lastMatcher;
+		updateString(matcher);
+		matcher = pattern.matcher(s);
+		return matcher;
 	}
 
-	private void updateString(Matcher lastMatcher) {
-		if (lastMatcher == null) return;
+	private void updateString(Matcher matcher) {
+		if (matcher == null) return;
 		try {
-			s = s.subSequence(lastMatcher.end(), s.length());
+			s = s.subSequence(matcher.end(), s.length());
 		} catch (IllegalStateException e) {
 			// ignore
 		}
 	}
-
 }

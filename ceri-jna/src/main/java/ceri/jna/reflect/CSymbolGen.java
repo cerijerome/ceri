@@ -9,25 +9,25 @@ import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
+import ceri.common.collection.Lists;
+import ceri.common.collection.Sets;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Chars;
+import ceri.common.text.Strings;
 import ceri.common.text.TextUtil;
 import ceri.common.time.DateUtil;
 import ceri.common.util.BasicUtil;
@@ -110,10 +110,10 @@ public class CSymbolGen {
 	 */
 	public static class Matcher<T, R> {
 		private final R undefined;
-		private final List<Match<T, R>> matchers = new ArrayList<>();
+		private final List<Match<T, R>> matchers = Lists.of();
 
-		private record Match<T, R>(BiPredicate<? super T, JnaOs> predicate,
-			BiFunction<? super T, JnaOs, R> supplier) {}
+		private record Match<T, R>(Functions.BiPredicate<? super T, JnaOs> predicate,
+			Functions.BiFunction<? super T, JnaOs, R> supplier) {}
 
 		private Matcher(R undefined) {
 			this.undefined = undefined;
@@ -122,22 +122,22 @@ public class CSymbolGen {
 		/**
 		 * Add a match with undefined response.
 		 */
-		public void add(BiPredicate<? super T, JnaOs> predicate) {
+		public void add(Functions.BiPredicate<? super T, JnaOs> predicate) {
 			add(predicate, undefined);
 		}
 
 		/**
 		 * Add a match with fixed response.
 		 */
-		public void add(BiPredicate<? super T, JnaOs> predicate, R value) {
+		public void add(Functions.BiPredicate<? super T, JnaOs> predicate, R value) {
 			add(predicate, (_, _) -> value);
 		}
 
 		/**
 		 * Add a match with dynamic response.
 		 */
-		public void add(BiPredicate<? super T, JnaOs> predicate,
-			BiFunction<? super T, JnaOs, R> supplier) {
+		public void add(Functions.BiPredicate<? super T, JnaOs> predicate,
+			Functions.BiFunction<? super T, JnaOs, R> supplier) {
 			matchers.add(new Match<>(predicate, supplier));
 		}
 
@@ -187,7 +187,7 @@ public class CSymbolGen {
 	 */
 	public class Includes {
 		private static final List<String> TEMPLATE_INCLUDES = List.of("stdio.h", "string.h");
-		private final Set<String> includes = new LinkedHashSet<>();
+		private final Set<String> includes = Sets.link();
 
 		private Includes() {
 			add(TEMPLATE_INCLUDES);
@@ -275,7 +275,7 @@ public class CSymbolGen {
 	 * Generate lines.
 	 */
 	public class Lines {
-		private final List<String> lines = new ArrayList<>();
+		private final List<String> lines = Lists.of();
 
 		private Lines() {}
 
@@ -283,7 +283,7 @@ public class CSymbolGen {
 		 * Add a new line.
 		 */
 		public CSymbolGen add(String format, Object... args) {
-			lines.add(StringUtil.format(format, args));
+			lines.add(Strings.format(format, args));
 			return CSymbolGen.this;
 		}
 
@@ -329,7 +329,7 @@ public class CSymbolGen {
 		 * Add a printf line; special (non-escaped) chars are allowed.
 		 */
 		public CSymbolGen printf(String format, Object... args) {
-			return add("printf(\"%s\");", StringUtil.escape(StringUtil.format(format, args)));
+			return add("printf(\"%s\");", Chars.escape(Strings.format(format, args)));
 		}
 
 		/**
@@ -337,14 +337,14 @@ public class CSymbolGen {
 		 */
 		public CSymbolGen append(String format, Object... args) {
 			var line = lines.isEmpty() ? "" : lines.removeLast();
-			return add(line + StringUtil.format(format, args));
+			return add(line + Strings.format(format, args));
 		}
 
 		/**
 		 * Append comment to the last line.
 		 */
 		public CSymbolGen appendComment(String format, Object... args) {
-			return append(" /* " + StringUtil.format(format, args) + " */");
+			return append(" /* " + Strings.format(format, args) + " */");
 		}
 
 		private String generate(boolean indent) {

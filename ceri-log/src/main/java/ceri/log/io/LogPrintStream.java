@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.io.StringPrintStream;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Collects output, writes compacted lines to logger on flush().
@@ -52,7 +53,6 @@ public class LogPrintStream extends StringPrintStream {
 		String[] lines = StringUtil.NEWLINE_REGEX.split(toString());
 		clear();
 		for (String line : lines)
-			logger.log(level, StringUtil.compact(line));
+			logger.log(level, Strings.compact(line));
 	}
-
 }

@@ -6,10 +6,6 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.util.BasicUtil;
@@ -20,23 +16,23 @@ import ceri.common.util.Holder;
  */
 public class FunctionUtil {
 	private static final int MAX_RECURSIONS_DEF = 20;
-	private static final Predicate<Object> TRUE_PREDICATE = _ -> true;
-	public static final Runnable NULL_RUNNABLE = () -> {};
-	private static final Consumer<Object> NULL_CONSUMER = _ -> {};
+	private static final Functions.Predicate<Object> TRUE_PREDICATE = _ -> true;
+	public static final Functions.Runnable NULL_RUNNABLE = () -> {};
+	private static final Functions.Consumer<Object> NULL_CONSUMER = _ -> {};
 
 	private FunctionUtil() {}
 
 	/**
 	 * Provides a no-op consumer.
 	 */
-	public static <T> Consumer<T> nullConsumer() {
+	public static <T> Functions.Consumer<T> nullConsumer() {
 		return BasicUtil.unchecked(NULL_CONSUMER);
 	}
 
 	/**
 	 * Provides a predicate that is always true.
 	 */
-	public static <T> Predicate<T> truePredicate() {
+	public static <T> Functions.Predicate<T> truePredicate() {
 		return BasicUtil.unchecked(TRUE_PREDICATE);
 	}
 
@@ -73,7 +69,7 @@ public class FunctionUtil {
 	 * given, the supplier will always return null.
 	 */
 	@SafeVarargs
-	public static <T> Supplier<T> sequentialSupplier(T... ts) {
+	public static <T> Functions.Supplier<T> sequentialSupplier(T... ts) {
 		return sequentialSupplier(Arrays.asList(ts));
 	}
 
@@ -81,7 +77,7 @@ public class FunctionUtil {
 	 * Provide sequential access to the given values, repeating the last entry. If no values are
 	 * given, the supplier will always return null.
 	 */
-	public static <T> Supplier<T> sequentialSupplier(Iterable<T> ts) {
+	public static <T> Functions.Supplier<T> sequentialSupplier(Iterable<T> ts) {
 		var i = ts.iterator();
 		var holder = Holder.<T>mutable();
 		return () -> {
@@ -213,14 +209,14 @@ public class FunctionUtil {
 	/**
 	 * Execute the function until no change, or the maximum number of recursions is met.
 	 */
-	public static <T> T recurse(T t, Function<? super T, ? extends T> fn) {
+	public static <T> T recurse(T t, Functions.Function<? super T, ? extends T> fn) {
 		return recurse(t, fn, MAX_RECURSIONS_DEF);
 	}
 
 	/**
 	 * Execute the function recursively until no change, or the max number of recursions is met.
 	 */
-	public static <T> T recurse(T t, Function<? super T, ? extends T> fn, int max) {
+	public static <T> T recurse(T t, Functions.Function<? super T, ? extends T> fn, int max) {
 		while (max-- > 0) {
 			T last = t;
 			t = fn.apply(t);

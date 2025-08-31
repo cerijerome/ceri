@@ -11,7 +11,7 @@ import com.sun.jna.Structure;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.test.FileTestHelper;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.CloseableUtil;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CType;
@@ -159,7 +159,7 @@ public class CSymbolGenBehavior {
 
 	private static void assertSizes(String gen, String... formats) {
 		for (var format : formats) { // don't check size values
-			var line = StringUtil.format("\\Q" + format + "\\E", "\\E\\d+\\Q");
+			var line = Strings.format("\\Q" + format + "\\E", "\\E\\d+\\Q");
 			assertFind(gen, line);
 		}
 	}

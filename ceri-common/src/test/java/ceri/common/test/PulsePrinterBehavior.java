@@ -3,7 +3,7 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 public class PulsePrinterBehavior {
 
@@ -19,7 +19,7 @@ public class PulsePrinterBehavior {
 	@Test
 	public void shouldPrintToGivenPrintStream() {
 		StringBuilder b = new StringBuilder();
-		PulsePrinter p = PulsePrinter.builder().out(StringUtil.asPrintStream(b)).build();
+		PulsePrinter p = PulsePrinter.builder().out(StringBuilders.printStream(b)).build();
 		p.print(true).print(false);
 		assertEquals(b.toString(), "\u2587\u2581");
 	}
@@ -61,7 +61,7 @@ public class PulsePrinterBehavior {
 	private String stdOut(Runnable runnable) {
 		StringBuilder b = new StringBuilder();
 		try (SystemIo sys = SystemIo.of()) {
-			sys.out(StringUtil.asPrintStream(b));
+			sys.out(StringBuilders.printStream(b));
 			runnable.run();
 			return b.toString();
 		}

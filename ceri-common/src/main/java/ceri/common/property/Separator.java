@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import ceri.common.collection.Immutable;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * A key path separator.
@@ -59,14 +60,14 @@ public record Separator(String value) {
 		@Override
 		public void accept(String key, int start, int end) {
 			if (start >= end) return;
-			if (b == null && full == null && StringUtil.full(key, start, end)) full = key;
+			if (b == null && full == null && full(key, start, end)) full = key;
 			else {
 				if (full != null) builder().append(full);
 				builder().append(key, start, end);
 				full = null;
 			}
 		}
-
+		
 		private StringBuilder builder() {
 			if (b == null) b = new StringBuilder();
 			else b.append(separator);
@@ -214,9 +215,9 @@ public record Separator(String value) {
 	 * Calls the collector for the key without any leading and trailing separators.
 	 */
 	private static void chomp(SubstringConsumer consumer, String key, String separator) {
-		if (StringUtil.empty(key)) return;
+		if (Strings.isEmpty(key)) return;
 		int start = 0, end = key.length();
-		if (!StringUtil.empty(separator)) {
+		if (!Strings.isEmpty(separator)) {
 			while (StringUtil.matchAt(key, start, separator))
 				start += separator.length();
 			while (end > start && StringUtil.matchAt(key, end - separator.length(), separator))
@@ -231,8 +232,8 @@ public record Separator(String value) {
 	 */
 	private static void split(SubstringConsumer consumer, String key, String separator,
 		boolean allowSingle) {
-		if (StringUtil.empty(key)) return;
-		if (StringUtil.empty(separator)) consumer.accept(key);
+		if (Strings.isEmpty(key)) return;
+		if (Strings.isEmpty(separator)) consumer.accept(key);
 		else {
 			int i = 0, copyFrom = 0, copyTo = 0, last = 0;
 			while (i < key.length()) {
@@ -251,5 +252,9 @@ public record Separator(String value) {
 			}
 			if (copyFrom < copyTo) consumer.accept(key, copyFrom, copyTo);
 		}
+	}
+	
+	private static boolean full(String key, int start, int end) {
+		return start == 0 && end == Strings.length(key);
 	}
 }

@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.exception.ExceptionAdapter.runtime;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import java.io.ByteArrayInputStream;
@@ -32,6 +31,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
+import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts.BiConsumer;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.IntConsumer;
@@ -43,8 +43,9 @@ import ceri.common.property.PropertyUtil;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.Reflect;
 import ceri.common.reflect.Reflect.ThreadElement;
+import ceri.common.text.Chars;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
 public class TestUtil {
@@ -268,8 +269,8 @@ public class TestUtil {
 	public static <T extends Record> void exerciseRecord(T t,
 		BiConsumer<ReflectiveOperationException, Method, T> invoker) {
 		if (t != null) for (Field field : t.getClass().getDeclaredFields()) {
-			if (field.accessFlags().contains(AccessFlag.STATIC)) continue;
-			runtime.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
+			if (!field.accessFlags().contains(AccessFlag.STATIC)) ExceptionAdapter.runtime
+				.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
 		}
 	}
 
@@ -410,7 +411,7 @@ public class TestUtil {
 	 */
 	public static ByteArrayInputStream inputStream(String format, Object... args) {
 		return new ByteArrayInputStream(
-			StringUtil.format(format, args).getBytes(StandardCharsets.UTF_8));
+			Strings.format(format, args).getBytes(StandardCharsets.UTF_8));
 	}
 
 	/**
@@ -488,10 +489,8 @@ public class TestUtil {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalArgumentException(e);
 		}
-		for (int i = 0; i < b.length(); i++) {
-			if (!StringUtil.isPrintable(b.charAt(i))) b.setCharAt(i, unreadableChar);
-			// if (b.charAt(i) < ' ') b.setCharAt(i, readableChar);
-		}
+		for (int i = 0; i < b.length(); i++)
+			if (!Chars.isPrintable(b, i)) b.setCharAt(i, unreadableChar);
 		return b.toString();
 	}
 }

@@ -11,16 +11,16 @@ import ceri.common.function.Excepts;
 import ceri.common.math.MathUtil;
 import ceri.common.property.Parser;
 import ceri.common.stream.IntStream;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Patterns;
 
 /**
  * Tracks ranges of indexes such as {@code ((-3..0), (2), (4..5))}. Allows adding and removing
  * ranges. Uses linear or binary search depending on the number of index ranges.
  */
 public class IndexRanges implements Iterable<Integer> {
-	private static final Pattern EXTRACT_REGEX = Pattern.compile("(\\d+)(?:\\-(\\d+))?");
+	private static final Pattern EXTRACT_REGEX = Patterns.compile("(\\d+)(?:\\-(\\d+))?");
 	private static final Pattern VALIDATE_REGEX =
-		RegexUtil.compile("\\[\\s*(?:%1$s(?:\\s*,\\s*%1$s)*\\s*)?\\]", "\\d+(?:\\-\\d+)?");
+		Patterns.compile("\\[\\s*(?:%1$s(?:\\s*,\\s*%1$s)*\\s*)?\\]", "\\d+(?:\\-\\d+)?");
 	private static final int SIZE_DEF = 32;
 	private static final int LINEAR_MAX = 256; // roughly when binary search is more efficient
 	private final int linearMax;

@@ -26,7 +26,7 @@ public class ArpEntry {
 	public final String iface;
 
 	public static List<ArpEntry> fromOuput(String output) {
-		return Patterns.Split.stream(Patterns.Split.line, output).map(ArpEntry::fromLine)
+		return Patterns.Split.LINE.stream(output).map(ArpEntry::fromLine)
 			.filter(ArpEntry::nonNull).toList();
 	}
 

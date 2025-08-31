@@ -1,10 +1,10 @@
 package ceri.common.util;
 
 import java.util.Comparator;
-import ceri.common.function.Excepts.Predicate;
+import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Implemented by classes that provide a name.
@@ -31,13 +31,14 @@ public interface Named {
 	 * Provides name or null string.
 	 */
 	static String nameOf(Named named) {
-		return named != null ? named.name() : StringUtil.NULL;
+		return named != null ? named.name() : Strings.NULL;
 	}
 
 	/**
 	 * Predicate by name.
 	 */
-	static <E extends Exception, T extends Named> Predicate<E, T> by(Predicate<E, String> name) {
+	static <E extends Exception, T extends Named> Excepts.Predicate<E, T>
+		by(Excepts.Predicate<E, String> name) {
 		return Predicates.testing(Named::name, name);
 	}
 }

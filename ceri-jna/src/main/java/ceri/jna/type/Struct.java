@@ -8,17 +8,16 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
-import java.util.function.ToIntFunction;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.StringBuilders;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaUtil;
@@ -28,8 +27,8 @@ import ceri.jna.util.PointerUtil;
  * Extends Structure to provide more array and general field support.
  */
 public abstract class Struct extends Structure {
-	private static final Map<Class<?>, Align> align = new ConcurrentHashMap<>();
-	private static final Map<Class<?>, List<String>> fields = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, Align> align = Maps.concurrent();
+	private static final Map<Class<?>, List<String>> fields = Maps.concurrent();
 	private static final JnaArgs ARGS = JnaArgs.builder().addDefault(false).build();
 	private static final String INDENT = "\t";
 
@@ -116,7 +115,7 @@ public abstract class Struct extends Structure {
 	 * Determines the size of a struct using its constructor. Creates an instance from a null
 	 * pointer to determine the size.
 	 */
-	public static <T extends Structure> int size(Function<Pointer, T> constructor) {
+	public static <T extends Structure> int size(Functions.Function<Pointer, T> constructor) {
 		Objects.requireNonNull(constructor);
 		return size(constructor.apply(null));
 	}
@@ -208,7 +207,8 @@ public abstract class Struct extends Structure {
 	 * Adapts one structure to another at the same pointer, and calls autoRead(). The given
 	 * structure must be synchronized with memory before calling this method.
 	 */
-	public static <T extends Structure> T adapt(Structure from, Function<Pointer, T> constructor) {
+	public static <T extends Structure> T adapt(Structure from,
+		Functions.Function<Pointer, T> constructor) {
 		return from == null ? null : readAuto(constructor.apply(from.getPointer()));
 	}
 
@@ -217,7 +217,7 @@ public abstract class Struct extends Structure {
 	 * synchronized with memory before calling this method.
 	 */
 	public static <T extends Structure> T copy(T from, Pointer to,
-		Function<Pointer, T> constructor) {
+		Functions.Function<Pointer, T> constructor) {
 		var t = constructor.apply(to);
 		if (from != null) JnaUtil.memmove(t.getPointer(), 0, from.getPointer(), 0, from.size());
 		return readAuto(t);
@@ -256,8 +256,8 @@ public abstract class Struct extends Structure {
 	 * Creates a typed contiguous array. If count is 0, an empty array is returned. Creates a type
 	 * instance from a null pointer first, to determine size. For {@code struct*} array types.
 	 */
-	public static <T extends Structure> T[] mallocArray(Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] mallocArray(Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
 		return JnaUtil.mallocArray(constructor, arrayFn, count, size(constructor));
 	}
@@ -266,8 +266,8 @@ public abstract class Struct extends Structure {
 	 * Creates a zeroed typed contiguous array. If count is 0, an empty array is returned. Creates a
 	 * type instance from a null pointer first, to determine size. For {@code struct*} array types.
 	 */
-	public static <T extends Structure> T[] callocArray(Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] callocArray(Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
 		return JnaUtil.callocArray(constructor, arrayFn, count, size(constructor));
 	}
@@ -277,8 +277,8 @@ public abstract class Struct extends Structure {
 	 * sure count is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each
 	 * array item. For {@code struct*} array types.
 	 */
-	public static <T extends Structure> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] arrayByVal(Pointer p,
+		Functions.Function<Pointer, T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
 		return arrayOfVal(readAuto(JnaUtil.type(p, constructor)), arrayFn, count);
 	}
@@ -287,8 +287,8 @@ public abstract class Struct extends Structure {
 	 * Creates a typed contiguous array. If count is 0, an empty array is returned. Make sure count
 	 * is unsigned (call ubyte/ushort if needed). {@code autoRead()} is called on each array item.
 	 */
-	public static <T extends Structure> T[] arrayByVal(Supplier<T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] arrayByVal(Functions.Supplier<T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		if (count == 0) return arrayFn.apply(0);
 		return arrayOfVal(readAuto(constructor.get()), arrayFn, count);
 	}
@@ -302,7 +302,8 @@ public abstract class Struct extends Structure {
 	 * If count is 0, an empty array is returned. If the type is null, an array of nulls is
 	 * returned. Make sure count is unsigned (call ubyte/ushort if needed).
 	 */
-	public static <T extends Structure> T[] arrayOfVal(T t, IntFunction<T[]> arrayFn, int count) {
+	public static <T extends Structure> T[] arrayOfVal(T t, Functions.IntFunction<T[]> arrayFn,
+		int count) {
 		if (count == 0 || t == null) return arrayFn.apply(count);
 		return BasicUtil.unchecked(t.toArray(count));
 	}
@@ -313,7 +314,7 @@ public abstract class Struct extends Structure {
 	 * size. For {@code struct*} array types.
 	 */
 	public static <T extends Structure> T byVal(Pointer p, int i,
-		Function<Pointer, T> constructor) {
+		Functions.Function<Pointer, T> constructor) {
 		return readAuto(JnaUtil.byVal(p, i, constructor, size(constructor)));
 	}
 
@@ -359,11 +360,12 @@ public abstract class Struct extends Structure {
 	/**
 	 * Provides an expanded string representation of a structure.
 	 */
-	static String toString(Structure s, List<String> fields, ToIntFunction<String> fieldOffsetFn) {
-		if (s == null) return StringUtil.NULL;
-		Class<?> cls = s.getClass();
-		StringBuilder b = new StringBuilder();
-		StringUtil.format(b, "%s(%s) {%n", Reflect.nestedName(cls), JnaArgs.string(s.getPointer()));
+	static String toString(Structure s, List<String> fields,
+		Functions.ToIntFunction<String> fieldOffsetFn) {
+		if (s == null) return Strings.NULL;
+		var cls = s.getClass();
+		var b = StringBuilders.format("%s(%s) {%n", Reflect.nestedName(cls),
+			JnaArgs.string(s.getPointer()));
 		for (String name : fields) {
 			Field f = Objects.requireNonNull(Reflect.publicField(cls, name));
 			int offset = fieldOffsetFn.applyAsInt(name);
@@ -460,32 +462,32 @@ public abstract class Struct extends Structure {
 	/**
 	 * Returns a typed array from a null-terminated inline pointer array at given field.
 	 */
-	protected <T> T[] arrayByRef(String fieldName, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn) {
+	protected <T> T[] arrayByRef(String fieldName, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn) {
 		return arrayByRef(fieldOffset(fieldName), constructor, arrayFn);
 	}
 
 	/**
 	 * Returns a typed array from a null-terminated inline pointer array at given offset.
 	 */
-	protected <T> T[] arrayByRef(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn) {
+	protected <T> T[] arrayByRef(int offset, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn) {
 		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn);
 	}
 
 	/**
 	 * Returns a typed array from inline pointer array at given field.
 	 */
-	protected <T> T[] arrayByRef(String fieldName, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	protected <T> T[] arrayByRef(String fieldName, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		return arrayByRef(fieldOffset(fieldName), constructor, arrayFn, count);
 	}
 
 	/**
 	 * Returns a typed array from inline pointer array at given offset.
 	 */
-	protected <T> T[] arrayByRef(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	protected <T> T[] arrayByRef(int offset, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		return JnaUtil.arrayByRef(getPointer().share(offset), constructor, arrayFn, count);
 	}
 
@@ -493,15 +495,15 @@ public abstract class Struct extends Structure {
 	 * Returns an inline structure array at given field.
 	 */
 	protected <T extends Structure> T[] arrayByVal(String fieldName,
-		Function<Pointer, T> constructor, IntFunction<T[]> arrayFn, int count) {
+		Functions.Function<Pointer, T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		return arrayByVal(fieldOffset(fieldName), constructor, arrayFn, count);
 	}
 
 	/**
 	 * Returns an inline structure array at given offset.
 	 */
-	protected <T extends Structure> T[] arrayByVal(int offset, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	protected <T extends Structure> T[] arrayByVal(int offset,
+		Functions.Function<Pointer, T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
 		return arrayByVal(getPointer().share(offset), constructor, arrayFn, count);
 	}
 

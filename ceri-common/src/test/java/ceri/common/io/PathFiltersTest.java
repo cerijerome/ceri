@@ -1,7 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.function.Predicates.and;
-import static ceri.common.function.Predicates.not;
 import static ceri.common.test.AssertUtil.assertHelperPaths;
 import static ceri.common.test.AssertUtil.assertPaths;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
@@ -11,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.function.Predicates;
 import ceri.common.test.FileTestHelper;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Patterns;
 
 public class PathFiltersTest {
 	private static FileTestHelper helper = null;
@@ -33,42 +31,28 @@ public class PathFiltersTest {
 	}
 
 	@Test
-	public void testNoneFilter() throws IOException {
-		assertPaths(IoUtil.list(helper.root, PathFilters.NONE::test));
-		assertPaths(IoUtil.paths(helper.root, PathFilters.NONE::test));
-	}
-
-	@Test
-	public void testAllFilter() throws IOException {
-		assertHelperPaths(IoUtil.list(helper.root, PathFilters.ALL::test), helper, "a", "b",
-			"c.txt");
-		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.ALL::test), helper, "", "a", "a/a",
-			"a/a/a.txt", "b", "b/b.txt", "c.txt");
-	}
-
-	@Test
 	public void testDirFilter() throws IOException {
-		assertHelperPaths(IoUtil.list(helper.root, PathFilters.DIR::test), helper, "a", "b");
-		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.DIR::test), helper, "", "a", "a/a",
+		assertHelperPaths(IoUtil.list(helper.root, PathFilters.dir()), helper, "a", "b");
+		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.dir()), helper, "", "a", "a/a",
 			"b");
-		assertHelperPaths(IoUtil.paths(helper.root, Predicates.not(PathFilters.DIR)::test), helper,
+		assertHelperPaths(IoUtil.paths(helper.root, Predicates.not(PathFilters.dir())), helper,
 			"a/a/a.txt", "b/b.txt", "c.txt");
 	}
 
 	@Test
 	public void testFileFilter() throws IOException {
-		assertHelperPaths(IoUtil.list(helper.root, PathFilters.FILE::test), helper, "c.txt");
-		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.FILE::test), helper, "a/a/a.txt",
+		assertHelperPaths(IoUtil.list(helper.root, PathFilters.file()), helper, "c.txt");
+		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.file()), helper, "a/a/a.txt",
 			"b/b.txt", "c.txt");
-		assertHelperPaths(IoUtil.paths(helper.root, not(PathFilters.FILE)), helper, "", "a", "a/a",
-			"b");
+		assertHelperPaths(IoUtil.paths(helper.root, Predicates.not(PathFilters.file())), helper, "",
+			"a", "a/a", "b");
 	}
 
 	@Test
 	public void testByUnixPath() throws IOException {
 		assertHelperPaths(
-			IoUtil.paths(helper.root, PathFilters.byUnixPath(RegexUtil.finder("/a/")::test)),
-			helper, "a/a", "a/a/a.txt");
+			IoUtil.paths(helper.root, PathFilters.byUnixPath(Patterns.Filter.find("/a/"))), helper,
+			"a/a", "a/a/a.txt");
 	}
 
 	@Test
@@ -94,12 +78,12 @@ public class PathFiltersTest {
 
 	@Test
 	public void testByExtension() throws IOException {
-		assertPaths(IoUtil.list(helper.root, PathFilters.byExtension()::test));
-		assertHelperPaths(IoUtil.list(helper.root, PathFilters.byExtension("txt", "jpg")::test),
-			helper, "c.txt");
-		assertPaths(IoUtil.paths(helper.root, PathFilters.byExtension("jpg")::test));
+		assertPaths(IoUtil.list(helper.root, PathFilters.byExtension()));
+		assertHelperPaths(IoUtil.list(helper.root, PathFilters.byExtension("txt", "jpg")), helper,
+			"c.txt");
+		assertPaths(IoUtil.paths(helper.root, PathFilters.byExtension("jpg")));
 		try (FileTestHelper helper = FileTestHelper.builder().file(".txt", "").build()) {
-			assertPaths(IoUtil.list(helper.root, PathFilters.byExtension("txt")::test));
+			assertPaths(IoUtil.list(helper.root, PathFilters.byExtension("txt")));
 		}
 	}
 
@@ -121,8 +105,8 @@ public class PathFiltersTest {
 	public void testMinSize() throws IOException {
 		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.byMinSize(Long.MAX_VALUE)), helper);
 		assertHelperPaths(
-			IoUtil.paths(helper.root, and(PathFilters.FILE, PathFilters.byMinSize(2))), helper,
-			"b/b.txt", "c.txt");
+			IoUtil.paths(helper.root, Predicates.and(PathFilters.file(), PathFilters.byMinSize(2))),
+			helper, "b/b.txt", "c.txt");
 	}
 
 }

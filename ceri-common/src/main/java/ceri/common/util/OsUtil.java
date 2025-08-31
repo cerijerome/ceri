@@ -3,7 +3,7 @@ package ceri.common.util;
 import java.util.regex.Pattern;
 import ceri.common.concurrent.Lazy;
 import ceri.common.function.Functions;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Utility methods and constants to help with OS-specific logic. Provides overrides to help with
@@ -133,6 +133,6 @@ public class OsUtil {
 	 * Determines if context is AWS, based on path system variable.
 	 */
 	public static boolean aws() {
-		return !StringUtil.blank(SystemVars.sys("AWS_PATH"));
+		return !Strings.isBlank(SystemVars.sys("AWS_PATH"));
 	}
 }

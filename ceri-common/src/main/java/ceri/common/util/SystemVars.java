@@ -1,11 +1,11 @@
 package ceri.common.util;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import ceri.common.collection.Maps;
 import ceri.common.function.Functions;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * A wrapper for environment variables and system properties, that allows overriding of values.
@@ -36,7 +36,7 @@ public class SystemVars {
 	 * Gets all environment variables including override values.
 	 */
 	public static Map<String, String> env() {
-		return addVars(new HashMap<>(System.getenv()));
+		return addVars(Maps.copy(System.getenv()));
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class SystemVars {
 	 * Gets all system properties including override values.
 	 */
 	public static Map<String, String> sys() {
-		Map<String, String> sys = new HashMap<>();
+		var sys = Maps.<String, String>of();
 		System.getProperties().forEach((k, v) -> sys.put((String) k, (String) v));
 		return addVars(sys);
 	}
@@ -70,7 +70,7 @@ public class SystemVars {
 	 * passed in will clear the property.
 	 */
 	public static String setProperty(String name, String value) {
-		if (StringUtil.blank(name)) return null;
+		if (Strings.isBlank(name)) return null;
 		return value != null ? System.setProperty(name, value) : System.clearProperty(name);
 	}
 

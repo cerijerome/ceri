@@ -7,19 +7,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
-import ceri.common.reflect.Reflect.ThreadElement;
+import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CErrNo;
@@ -91,7 +89,7 @@ public class TestCLibNative implements CLib.Native {
 	/**
 	 * Fd context info for debugging closed fds.
 	 */
-	public record FdContext(int fd, OpenArgs args, ThreadElement origin) {
+	public record FdContext(int fd, OpenArgs args, Reflect.ThreadElement origin) {
 		public static FdContext of(int fd, OpenArgs args) {
 			return new FdContext(fd, args, TestUtil.findTest());
 		}
@@ -246,15 +244,15 @@ public class TestCLibNative implements CLib.Native {
 	 * Set last error on a call sync, based on predicate.
 	 */
 	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
-		Predicate<T> predicate, String errorMessage, Object... args) {
-		autoError(sync, response, predicate, _ -> StringUtil.format(errorMessage, args));
+		Functions.Predicate<T> predicate, String errorMessage, Object... args) {
+		autoError(sync, response, predicate, _ -> Strings.format(errorMessage, args));
 	}
 
 	/**
 	 * Set last error on a call sync, based on predicate.
 	 */
 	public static <T, R> void autoError(CallSync.Function<T, R> sync, R response,
-		Predicate<T> predicate, Function<T, String> errorMessageFn) {
+		Functions.Predicate<T> predicate, Functions.Function<T, String> errorMessageFn) {
 		sync.autoResponse(t -> {
 			if (predicate.test(t)) return response;
 			throw new LastErrorException(errorMessageFn.apply(t));
@@ -273,7 +271,7 @@ public class TestCLibNative implements CLib.Native {
 	 * Pass poll arguments to a consumer, write structs to memory, and set auto response to the
 	 * number of pollfds with non-zero revents.
 	 */
-	public void pollAuto(Consumer<PollArgs> consumer) {
+	public void pollAuto(Functions.Consumer<PollArgs> consumer) {
 		poll.autoResponse(args -> {
 			consumer.accept(args);
 			return args.write();

@@ -7,14 +7,14 @@ import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.reflect.Caller;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 public class DebuggerBehavior {
 
 	@Test
 	public void shouldAllowLoggingOfNullObjects() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object[]) null);
 			dbg.method((Object[]) null);
@@ -26,7 +26,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldLogMultipleObjects() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test1", "test2");
 			dbg.method("test3", "test4");
@@ -38,7 +38,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldLogFullPackageName() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, true);
 			dbg.log("test");
 		}
@@ -49,7 +49,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldStopLoggingAfterGivenLimit() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 1, false);
 			dbg.log("test1");
 			dbg.log("test2");
@@ -64,7 +64,7 @@ public class DebuggerBehavior {
 	public void shouldWriteToSysErrByDefault() {
 		StringBuilder b = new StringBuilder();
 		try (SystemIo sys = SystemIo.of()) {
-			sys.err(StringUtil.asPrintStream(b));
+			sys.err(StringBuilders.printStream(b));
 			Debugger dbg = Debugger.of();
 			dbg.log("test");
 		}
@@ -74,7 +74,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldLogMethodFileAndMessage() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test");
 		}
@@ -84,7 +84,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldLogMethodFileAndNull() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object) null);
 		}
@@ -94,7 +94,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldLogMethodAndFileOnlyIfEmpty() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log();
 		}
@@ -104,7 +104,7 @@ public class DebuggerBehavior {
 	@Test
 	public void shouldCountAndPrintMethodInvocations() {
 		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringUtil.asPrintStream(b)) {
+		try (PrintStream out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			debugMethod(dbg, "test1");
 			debugMethod(dbg, "test2");
@@ -133,5 +133,4 @@ public class DebuggerBehavior {
 		Caller caller = Reflect.previousCaller(1);
 		return caller.cls + '.' + caller.method + "(" + value + ")";
 	}
-
 }

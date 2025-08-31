@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Format;
 import ceri.common.time.DateUtil;
 import ceri.x10.command.House;
 
@@ -158,7 +158,7 @@ public class Status implements ByteArray.Encodable {
 	@Override
 	public String toString() {
 		return String.format("%s(0x%x,%s,%s,%d,%s,%s,%s)", getClass().getSimpleName(), batteryTimer,
-			date, house, firmware, StringUtil.toBinary(addressed, Short.SIZE),
-			StringUtil.toBinary(onOff, Short.SIZE), StringUtil.toBinary(dim, Short.SIZE));
+			date, house, firmware, Format.BIN16_4.ushort(addressed), Format.BIN16_4.ushort(onOff),
+			Format.BIN16_4.ushort(dim));
 	}
 }

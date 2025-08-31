@@ -8,7 +8,7 @@ import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
 import ceri.common.test.TestPrinterBehavior.MyClass.MySubClass;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 public class TestPrinterBehavior {
 
@@ -71,7 +71,7 @@ public class TestPrinterBehavior {
 		p.testStarted(db);
 		p.testStarted(dt);
 		StringBuilder b = new StringBuilder();
-		p.print(StringUtil.asPrintStream(b));
+		p.print(StringBuilders.printStream(b));
 		String output = b.toString();
 		assertTrue(output.contains("should be\n"));
 		assertTrue(output.contains("test this\n"));

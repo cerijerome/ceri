@@ -78,6 +78,13 @@ public class Stream<E extends Exception, T> {
 	}
 
 	/**
+	 * Adapt stream to allow exceptions.
+	 */
+	public static <E extends Exception, T> Stream<E, T> ex(Stream<RuntimeException, T> stream) {
+		return BasicUtil.unchecked(stream);
+	}
+	
+	/**
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception, T> Stream<E, T> empty() {
@@ -269,7 +276,14 @@ public class Stream<E extends Exception, T> {
 	 * Wraps any unchecked exceptions as runtime.
 	 */
 	public Stream<RuntimeException, T> runtime() {
-		return update(runtimeSupplier(supplier));
+		return ex(ExceptionAdapter.runtime);
+	}
+
+	/**
+	 * Adapts stream exceptions.
+	 */
+	public <F extends Exception> Stream<F, T> ex(ExceptionAdapter<F> adapter) {
+		return update(exSupplier(supplier, adapter));
 	}
 
 	/**
@@ -622,9 +636,14 @@ public class Stream<E extends Exception, T> {
 		};
 	}
 
-	private static <E extends Exception, T> NextSupplier<RuntimeException, T>
-		runtimeSupplier(NextSupplier<E, T> supplier) {
-		return c -> ExceptionAdapter.runtime.getBool(() -> supplier.next(c::accept));
+	private static <E extends Exception, F extends Exception, T> NextSupplier<F, T>
+		exSupplier(NextSupplier<E, T> supplier, ExceptionAdapter<F> adapter) {
+		var receiver = new NextSupplier.Receiver<E, T>();
+		return c -> {
+			if (!adapter.getBool(() -> supplier.next(receiver))) return false;
+			c.accept(receiver.value);
+			return true;
+		};
 	}
 
 	private static <E extends Exception, T> List<T> sortedList(NextSupplier<E, T> supplier,

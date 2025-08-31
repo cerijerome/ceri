@@ -313,15 +313,16 @@ public class PrimitiveArrayBehavior {
 		assertEquals(ArrayUtil.bytes.equals(bytes, Byte.MIN_VALUE, Byte.MAX_VALUE, 1), false);
 		assertEquals(ArrayUtil.shorts.equals(shorts, Short.MIN_VALUE, Short.MAX_VALUE, 1), false);
 		assertEquals(ArrayUtil.floats.equals(floats, Float.MIN_VALUE, Float.MAX_VALUE, .1), false);
-	}	
-	
+	}
+
 	@Test
 	public void shouldProvideHexString() {
 		assertEquals(ArrayUtil.chars.toHex(chars), "[0x61, 0x0, 0x63]");
 		assertEquals(ArrayUtil.bytes.toHex(bytes), "[0x80, 0x7f, 0x0]");
 		assertEquals(ArrayUtil.shorts.toHex(shorts), "[0x8000, 0x7fff, 0x0]");
 		assertEquals(ArrayUtil.ints.toHex(ints), "[0x80000000, 0x7fffffff, 0x0]");
-		assertEquals(ArrayUtil.longs.toHex(longs), "[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
+		assertEquals(ArrayUtil.longs.toHex(longs),
+			"[0x8000000000000000, 0x7fffffffffffffff, 0x0]");
 	}
 
 	@SafeVarargs

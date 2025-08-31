@@ -3,14 +3,13 @@ package ceri.common.test;
 import static ceri.common.function.FunctionUtil.safeApply;
 import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import java.io.IOException;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
 
@@ -22,16 +21,19 @@ public class ErrorGen {
 	private static final Collector<CharSequence, ?, String> JOINER =
 		Collectors.joining(",", "[", "]");
 	public static final String MESSAGE = "generated";
-	public static final Supplier<Exception> RTX = errorFn(RuntimeException::new, "RTX");
-	public static final Supplier<Exception> RIX = errorFn(RuntimeInterruptedException::new, "RIX");
-	public static final Supplier<Exception> INX = errorFn(InterruptedException::new, "INX");
-	public static final Supplier<Exception> IOX = errorFn(IOException::new, "IOX");
-	private volatile Supplier<Exception> errorFn = null;
+	public static final Functions.Supplier<Exception> RTX = errorFn(RuntimeException::new, "RTX");
+	public static final Functions.Supplier<Exception> RIX =
+		errorFn(RuntimeInterruptedException::new, "RIX");
+	public static final Functions.Supplier<Exception> INX =
+		errorFn(InterruptedException::new, "INX");
+	public static final Functions.Supplier<Exception> IOX = errorFn(IOException::new, "IOX");
+	private volatile Functions.Supplier<Exception> errorFn = null;
 
 	/**
 	 * Convert an exception constructor to accept the standard message.
 	 */
-	public static Supplier<Exception> errorFn(Function<String, Exception> errorFn) {
+	public static Functions.Supplier<Exception>
+		errorFn(Functions.Function<String, Exception> errorFn) {
 		return () -> errorFn.apply(MESSAGE);
 	}
 
@@ -39,7 +41,8 @@ public class ErrorGen {
 	 * Convert an exception constructor to accept the standard message, and apply a name for debug
 	 * purposes.
 	 */
-	public static Supplier<Exception> errorFn(Function<String, Exception> errorFn, String name) {
+	public static Functions.Supplier<Exception>
+		errorFn(Functions.Function<String, Exception> errorFn, String name) {
 		return Lambdas.register(errorFn(errorFn), name);
 	}
 
@@ -69,12 +72,13 @@ public class ErrorGen {
 	 * may be used: RTX, RIX, INX, IOX. The generated errors will have a fixed message.
 	 */
 	@SafeVarargs
-	public final void setFrom(Supplier<? extends Exception>... errorFns) {
+	public final void setFrom(Functions.Supplier<? extends Exception>... errorFns) {
 		if (errorFns.length == 0) clear();
 		else {
 			var sequential = sequentialSupplier(errorFns);
 			var name = Stream.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
-			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Supplier::get), name);
+			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Functions.Supplier::get),
+				name);
 		}
 	}
 
@@ -104,7 +108,7 @@ public class ErrorGen {
 	 * Execute the error generator if set. Exceptions are adapted according to the adapter.
 	 */
 	public <E extends Exception> void call(ExceptionAdapter<E> adapter) throws E {
-		Exception ex = safeApply(errorFn, Supplier::get);
+		Exception ex = safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -123,7 +127,7 @@ public class ErrorGen {
 	 */
 	public <E extends Exception> void callWithInterrupt(ExceptionAdapter<E> adapter)
 		throws InterruptedException, E {
-		Exception ex = safeApply(errorFn, Supplier::get);
+		Exception ex = safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -142,11 +146,11 @@ public class ErrorGen {
 		return errorFn == null ? "none" : Lambdas.name(errorFn);
 	}
 
-	private ErrorGen setErrorFn(Supplier<Exception> errorFn, String name) {
+	private ErrorGen setErrorFn(Functions.Supplier<Exception> errorFn, String name) {
 		return setErrorFn(Lambdas.register(errorFn, name));
 	}
 
-	private ErrorGen setErrorFn(Supplier<Exception> errorFn) {
+	private ErrorGen setErrorFn(Functions.Supplier<Exception> errorFn) {
 		this.errorFn = errorFn;
 		return this;
 	}

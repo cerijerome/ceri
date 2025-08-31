@@ -12,7 +12,6 @@ import ceri.common.reflect.Reflect;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
@@ -125,7 +124,7 @@ public class Enums {
 	 * Returns the enum name with common prefix removed, up to the last word boundary.
 	 */
 	public static String shortName(Enum<?> en) {
-		if (en == null) return StringUtil.NULL;
+		if (en == null) return Strings.NULL;
 		var cls = Reflect.getClass(en);
 		int index = namePrefixLens.computeIfAbsent(cls, _ -> prefixLen(of(cls)));
 		return en.name().substring(index);

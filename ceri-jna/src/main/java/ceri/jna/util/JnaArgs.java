@@ -1,10 +1,8 @@
 package ceri.jna.util;
 
-import static ceri.common.text.StringUtil.NULL;
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import com.sun.jna.Callback;
 import com.sun.jna.IntegerType;
 import com.sun.jna.Memory;
@@ -14,11 +12,13 @@ import com.sun.jna.Structure;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Iterators;
+import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
+import ceri.common.text.Chars;
 import ceri.common.text.Joiner;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.jna.type.Struct;
 
 /**
@@ -115,7 +115,7 @@ public class JnaArgs {
 	 * Builder with convenience methods to add transforms.
 	 */
 	public static class Builder {
-		final Collection<Functions.Function<Object, String>> transforms = new LinkedHashSet<>();
+		final Set<Functions.Function<Object, String>> transforms = Sets.link();
 		int arrayMax = 8;
 
 		Builder() {}
@@ -125,7 +125,7 @@ public class JnaArgs {
 		 */
 		public Builder addDefault(boolean compactStruct) {
 			if (compactStruct) add(Structure.class, JnaArgs::string);
-			return add(String.class, StringUtil::escape) //
+			return add(String.class, Chars::escape) //
 				.add(matchInt(), n -> stringInt(n)) //
 				.add(IntegerType.class, n -> stringInt(n)) //
 				.add(Pointer.class, JnaArgs::string) //
@@ -205,7 +205,7 @@ public class JnaArgs {
 	 * Creates a string from given argument.
 	 */
 	public String arg(Object arg) {
-		if (arg == null) return NULL;
+		if (arg == null) return Strings.NULL;
 		for (var transform : transforms) {
 			var result = transform.apply(arg);
 			if (result != null) return result;

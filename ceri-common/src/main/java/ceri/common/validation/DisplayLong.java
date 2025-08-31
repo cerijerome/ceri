@@ -5,18 +5,20 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import ceri.common.collection.Iterables;
+import ceri.common.text.Format;
 import ceri.common.text.Joiner;
-import ceri.common.text.StringUtil;
 
+// Use Format
+@Deprecated
 public enum DisplayLong implements LongFunction<String>, IntFunction<String> {
 	dec(String::valueOf), // decimal
 	udec(Long::toUnsignedString), // unsigned decimal
-	bin(l -> "0b" + Long.toBinaryString(l)), // binary, no leading 0s
-	hex(l -> "0x" + Long.toHexString(l)), // no leading 0s
-	hex2(l -> "0x" + StringUtil.toHex(l, 2)), // exactly 2 digits
-	hex4(l -> "0x" + StringUtil.toHex(l, 4)), // exactly 4 digits
-	hex8(l -> "0x" + StringUtil.toHex(l, 8)), // exactly 8 digits
-	hex16(l -> "0x" + StringUtil.toHex(l, 16)); // exactly 16 digits
+	bin(Format.BIN::apply), // binary, no leading 0s
+	hex(Format.HEX::apply), // no leading 0s
+	hex2(Format.HEX2::ubyte), // exactly 2 digits
+	hex4(Format.HEX4::ushort), // exactly 4 digits
+	hex8(Format.HEX8::uint), // exactly 8 digits
+	hex16(Format.HEX8::apply); // exactly 16 digits
 
 	private final LongFunction<String> formatter;
 

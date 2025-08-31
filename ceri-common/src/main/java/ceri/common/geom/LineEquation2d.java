@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.text.StringUtil.compact;
 import java.util.Objects;
+import ceri.common.text.Strings;
 
 /**
  * Line formula ax + by + c = 0.
@@ -115,8 +115,7 @@ public class LineEquation2d {
 		if (d == 0) return;
 		if (d < 0) b.append(b.length() == 0 ? "-" : " - ");
 		if (d > 0) b.append(b.length() == 0 ? "" : " + ");
-		if (suffix.isEmpty() || (d != 1 && d != -1)) b.append(compact(Math.abs(d)));
+		if (suffix.isEmpty() || (d != 1 && d != -1)) b.append(Strings.compact(Math.abs(d)));
 		b.append(suffix);
 	}
-
 }

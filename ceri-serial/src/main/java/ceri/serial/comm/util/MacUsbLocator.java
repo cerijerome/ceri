@@ -1,19 +1,18 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.xml.XPathUtil.compile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.text.ParseUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.OsUtil;
 import ceri.common.xml.XPathUtil;
 import ceri.common.xml.XmlUtil;
@@ -29,11 +28,12 @@ import ceri.process.ioreg.Ioreg;
  */
 public class MacUsbLocator {
 	private static final XPathExpression USB_XPATH =
-		compile("/plist/array/dict//dict/dict/dict/key[text()='IODialinDevice']");
+		XPathUtil.compile("/plist/array/dict//dict/dict/dict/key[text()='IODialinDevice']");
 	private static final XPathExpression LOCATION_ID_XPATH =
-		compile("parent::dict/parent::dict/parent::dict/"
+		XPathUtil.compile("parent::dict/parent::dict/parent::dict/"
 			+ "key[text()='locationID']/following-sibling::integer");
-	private static final XPathExpression DEVICE_XPATH = compile("following-sibling::string");
+	private static final XPathExpression DEVICE_XPATH =
+		XPathUtil.compile("following-sibling::string");
 	private static final Parameters IOREG_ARGS = Parameters.of("-arltx", "-c", "IOSerialBSDClient");
 	private final Ioreg ioreg;
 
@@ -63,7 +63,7 @@ public class MacUsbLocator {
 	 */
 	public Map<Integer, String> ports() throws IOException {
 		return ExceptionAdapter.io.get(() -> {
-			Map<Integer, String> devices = new TreeMap<>();
+			var devices = Maps.<Integer, String>tree();
 			for (Node usb : usbNodes()) {
 				int id = locationId(usb);
 				if (id == 0) continue;
@@ -101,7 +101,7 @@ public class MacUsbLocator {
 	}
 
 	private static String device(Node usb) throws XPathException {
-		String device = StringUtil.trim(DEVICE_XPATH.evaluate(usb));
-		return StringUtil.empty(device) ? null : device;
+		String device = Strings.trim(DEVICE_XPATH.evaluate(usb));
+		return Strings.isEmpty(device) ? null : device;
 	}
 }

@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.function.Function;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -44,7 +44,7 @@ public class Exceptions {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static <E extends Exception> E from(Function<String, E> fn, String format,
+	public static <E extends Exception> E from(Functions.Function<String, E> fn, String format,
 		Object... args) {
 		return from(fn, null, format, args);
 	}
@@ -52,9 +52,9 @@ public class Exceptions {
 	/**
 	 * Creates an exception with formatted message.
 	 */
-	public static <E extends Exception> E from(Function<String, E> fn, Throwable cause,
+	public static <E extends Exception> E from(Functions.Function<String, E> fn, Throwable cause,
 		String format, Object... args) {
-		String message = StringUtil.format(format, args);
+		String message = Strings.format(format, args);
 		return Exceptions.initCause(fn.apply(message), cause);
 	}
 
@@ -62,14 +62,14 @@ public class Exceptions {
 	 * Creates an exception with formatted message.
 	 */
 	public static IOException io(String format, Object... args) {
-		return new IOException(StringUtil.format(format, args));
+		return new IOException(Strings.format(format, args));
 	}
 
 	/**
 	 * Creates an exception with formatted message.
 	 */
 	public static IOException io(Throwable cause, String format, Object... args) {
-		return new IOException(StringUtil.format(format, args), cause);
+		return new IOException(Strings.format(format, args), cause);
 	}
 
 	/**
@@ -159,7 +159,7 @@ public class Exceptions {
 		Throwable t0 = t;
 		while (t != null) {
 			String message = t.getMessage();
-			if (!StringUtil.blank(message)) return message;
+			if (!Strings.isBlank(message)) return message;
 			t = t.getCause();
 		}
 		return t0 == null ? null : t0.getClass().getSimpleName();

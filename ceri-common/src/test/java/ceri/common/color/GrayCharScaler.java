@@ -1,10 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.text.StringUtil.repeat;
 import java.io.IOException;
 import ceri.common.array.ArrayUtil;
 import ceri.common.io.IoExceptions;
 import ceri.common.io.IoUtil;
+import ceri.common.text.Strings;
 
 /**
  * Tool to manually order characters by gray-level.
@@ -67,8 +67,8 @@ public class GrayCharScaler {
 		String[] cols = new String[(int) Math.ceil(blocks)];
 		for (int j = 0; j < cols.length; j++) {
 			if (i + j >= cs.length) cols[j] = "";
-			else if (j < cols.length - 1) cols[j] = repeat(cs[i + j], size * 2);
-			else cols[j] = repeat(cs[i + j], (int) (size * 2 * (blocks - j)));
+			else if (j < cols.length - 1) cols[j] = Strings.repeat(cs[i + j], size * 2);
+			else cols[j] = Strings.repeat(cs[i + j], (int) (size * 2 * (blocks - j)));
 		}
 		for (int j = 0; j < size; j++) {
 			for (String col : cols)
@@ -84,5 +84,4 @@ public class GrayCharScaler {
 			throw new IoExceptions.Runtime(e);
 		}
 	}
-
 }

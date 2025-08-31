@@ -6,9 +6,7 @@ import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -16,13 +14,13 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.array.ArrayUtil;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.Runnable;
+import ceri.common.collection.Sets;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.type.IntType;
 import ceri.jna.type.Struct;
@@ -35,7 +33,8 @@ import ceri.jna.util.PointerUtil;
  * Supports tests for JNA-based code.
  */
 public class JnaTestUtil {
-	public static final Supplier<Exception> LEX = ErrorGen.errorFn(LastErrorException::new);
+	public static final Functions.Supplier<Exception> LEX =
+		ErrorGen.errorFn(LastErrorException::new);
 
 	private JnaTestUtil() {}
 
@@ -43,7 +42,7 @@ public class JnaTestUtil {
 	 * Provides cached memory allocation to prevent gc in tests.
 	 */
 	public static class MemCache implements Functions.Closeable {
-		private final Set<GcMemory> cache = new HashSet<>();
+		private final Set<GcMemory> cache = Sets.of();
 
 		private MemCache() {}
 
@@ -186,28 +185,28 @@ public class JnaTestUtil {
 	/**
 	 * Assert a LastErrorException was thrown.
 	 */
-	public static void assertLastError(Runnable<Exception> runnable) {
+	public static void assertLastError(Excepts.Runnable<Exception> runnable) {
 		assertThrown(LastErrorException.class, runnable);
 	}
 
 	/**
 	 * Assert a LastErrorException with specific code was thrown.
 	 */
-	public static void assertLastError(int code, Runnable<Exception> runnable) {
+	public static void assertLastError(int code, Excepts.Runnable<Exception> runnable) {
 		assertThrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
 	}
 
 	/**
 	 * Assert a CException was thrown.
 	 */
-	public static void assertCException(Runnable<Exception> runnable) {
+	public static void assertCException(Excepts.Runnable<Exception> runnable) {
 		assertThrown(CException.class, runnable);
 	}
 
 	/**
 	 * Assert a CException with specific code was thrown.
 	 */
-	public static void assertCException(int code, Runnable<Exception> runnable) {
+	public static void assertCException(int code, Excepts.Runnable<Exception> runnable) {
 		assertThrown(CException.class, e -> assertEquals(e.code, code), runnable);
 	}
 
@@ -258,7 +257,7 @@ public class JnaTestUtil {
 	 * Create a LastErrorException from the code and message.
 	 */
 	public static LastErrorException lastError(int code, String message, Object... args) {
-		return new LastErrorException("[" + code + "] " + StringUtil.format(message, args));
+		return new LastErrorException("[" + code + "] " + Strings.format(message, args));
 	}
 
 	/**
@@ -266,7 +265,7 @@ public class JnaTestUtil {
 	 * pointer. Useful for testing when a struct doesn't provide a pointer constructor.
 	 */
 	public static <E extends Exception, T extends Structure> void handleStructRef(Pointer p,
-		T struct, Consumer<E, T> consumer) throws E {
+		T struct, Excepts.Consumer<E, T> consumer) throws E {
 		Struct.copyFrom(p, struct);
 		consumer.accept(struct);
 		Struct.copyTo(struct, p);

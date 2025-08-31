@@ -1,9 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.function.FunctionUtil.safeAccept;
-import static ceri.common.text.StringUtil.EOL;
-import static ceri.common.util.BasicUtil.def;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -14,13 +10,16 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,14 +35,15 @@ import ceri.common.function.FunctionUtil;
 import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
+import ceri.common.util.BasicUtil;
 import ceri.common.util.SystemVars;
 
 /**
  * I/O utility functions.
  */
 public class IoUtil {
+	private static final LinkOption[] NO_LINK_OPTIONS = new LinkOption[0];
 	private static final String TMP_DIR_PROPERTY = "java.io.tmpdir";
 	private static final String USER_HOME_PROPERTY = "user.home";
 	private static final String USER_DIR_PROPERTY = "user.dir";
@@ -57,7 +57,7 @@ public class IoUtil {
 	private static final FileVisitor<Path> DELETING_VISITOR =
 		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
 	private static final Excepts.Predicate<IOException, Path> NULL_FILTER = _ -> true;
-	public static final ByteProvider EOL_BYTES = ByteProvider.of(EOL.getBytes());
+	public static final ByteProvider EOL_BYTES = ByteProvider.of(Strings.EOL.getBytes());
 
 	private IoUtil() {}
 
@@ -66,7 +66,7 @@ public class IoUtil {
 	 */
 	public static ByteProvider eolBytes(Charset charset) {
 		if (charset == null || Charset.defaultCharset().equals(charset)) return EOL_BYTES;
-		return ByteProvider.of(EOL.getBytes(charset));
+		return ByteProvider.of(Strings.EOL.getBytes(charset));
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class IoUtil {
 	 * Join paths using the system path separator.
 	 */
 	public static String pathVariable(String... paths) {
-		return Streams.of(paths).map(String::trim).filter(StringUtil::nonEmpty)
+		return Streams.of(paths).map(String::trim).filter(Strings.Filter.nonEmpty)
 			.collect(Collectors.joining(File.pathSeparator));
 	}
 
@@ -297,6 +297,15 @@ public class IoUtil {
 		if (filename == null) return null;
 		int i = filename.lastIndexOf('.');
 		return i <= 0 ? "" : filename.substring(i + 1);
+	}
+
+	/**
+	 * Returns the last modified time of a file.
+	 */
+	public static Instant lastModified(Path path, LinkOption... options) throws IOException {
+		if (path == null) return null;
+		if (options == null) options = NO_LINK_OPTIONS;
+		return Files.getLastModifiedTime(path, options).toInstant();
 	}
 
 	/**
@@ -473,7 +482,7 @@ public class IoUtil {
 	 * Reads available bytes as a String, blocking until at least one byte is available.
 	 */
 	public static String readNextString(InputStream in) throws IOException {
-		return readNextString(in, UTF_8);
+		return readNextString(in, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -580,7 +589,7 @@ public class IoUtil {
 	 */
 	public static List<Path> pathsRelative(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = BasicUtil.def(filter, NULL_FILTER);
 		int levels = dir.getNameCount();
 		return pathsCollect(dir, path -> test.test(path) ? subpath(path, levels) : null);
 	}
@@ -607,7 +616,7 @@ public class IoUtil {
 	 */
 	public static List<Path> paths(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		Excepts.Predicate<IOException, Path> test = def(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = BasicUtil.def(filter, NULL_FILTER);
 		return pathsCollect(dir, path -> test.test(path) ? path : null);
 	}
 
@@ -631,7 +640,7 @@ public class IoUtil {
 		Objects.requireNonNull(mapper);
 		List<T> list = new ArrayList<>();
 		var visitFn = FileVisitUtil.<Path, BasicFileAttributes>adaptConsumer(
-			path -> safeAccept(mapper.apply(path), list::add));
+			path -> FunctionUtil.safeAccept(mapper.apply(path), list::add));
 		Files.walkFileTree(dir, FileVisitUtil.visitor(visitFn, null, visitFn));
 		return list;
 	}
@@ -735,7 +744,7 @@ public class IoUtil {
 	 * Gets content from input stream as a string.
 	 */
 	public static String readString(InputStream in) throws IOException {
-		return readString(in, UTF_8);
+		return readString(in, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -749,7 +758,7 @@ public class IoUtil {
 	 * Returns a stream of lines lazily read from input stream.
 	 */
 	public static Stream<IOException, String> lines(InputStream in) {
-		return lines(in, UTF_8);
+		return lines(in, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -829,7 +838,7 @@ public class IoUtil {
 	 * Reads content from a resource with paths applied relative to class directory.
 	 */
 	public static String resourceString(Class<?> cls, String... paths) throws IOException {
-		return resourceString(cls, UTF_8, paths);
+		return resourceString(cls, StandardCharsets.UTF_8, paths);
 	}
 
 	/**

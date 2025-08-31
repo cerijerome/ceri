@@ -1,9 +1,9 @@
 package ceri.common.text;
 
 import java.io.PrintStream;
-import java.util.HashMap;
 import java.util.Map;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collection.Maps;
 import ceri.common.stream.Streams;
 
 /**
@@ -70,9 +70,9 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	 * Collects cell content lines, while tracking row and column sizes.
 	 */
 	private static class Cells {
-		private final Map<Coord, String[]> cells = new HashMap<>();
-		private final Map<Integer, Integer> rowSizes = new HashMap<>();
-		private final Map<Integer, Integer> colSizes = new HashMap<>();
+		private final Map<Coord, String[]> cells = Maps.of();
+		private final Map<Integer, Integer> rowSizes = Maps.of();
+		private final Map<Integer, Integer> colSizes = Maps.of();
 		private int cols;
 		private int rows;
 
@@ -95,8 +95,8 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 
 		public String get(int row, int col, int i) {
 			var lines = cells.getOrDefault(new Coord(row, col), ArrayUtil.Empty.strings);
-			if (i >= lines.length) return StringUtil.repeat(' ', colSize(col));
-			return lines[i] + StringUtil.repeat(' ', colSize(col) - lines[i].length());
+			if (i >= lines.length) return Strings.repeat(' ', colSize(col));
+			return lines[i] + Strings.repeat(' ', colSize(col) - lines[i].length());
 		}
 
 		public int rows() {
@@ -137,7 +137,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	 * Provide repeating horizontal char string.
 	 */
 	public String h(int n) {
-		return StringUtil.repeat(h(), n);
+		return Strings.repeat(h(), n);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public record Table(char v, char h, char c, char n, char s, char e, char w, char
 	 * Print the frame and cells using the cell function to populate lines.
 	 */
 	public String print(CellProvider cellFn, Formatter fmt) {
-		return StringUtil.print(out -> print(out, cellFn, fmt));
+		return Strings.printed(out -> print(out, cellFn, fmt));
 	}
 
 	/**

@@ -13,6 +13,7 @@ import ceri.common.concurrent.Lazy;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoExceptions;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
 /**
@@ -355,7 +356,7 @@ public interface PropertySource {
 	 */
 	static Set<String> childrenFromKeys(Separator separator, Iterable<String> paths, String key) {
 		Set<String> children = new LinkedHashSet<>();
-		boolean root = StringUtil.empty(key);
+		boolean root = Strings.isEmpty(key);
 		int prefixLen = root ? 0 : key.length() + separator.value().length();
 		for (var path : paths) {
 			if (!root && (path.length() <= prefixLen || !path.startsWith(key)
@@ -374,7 +375,7 @@ public interface PropertySource {
 	static Set<String> descendantsFromKeys(Separator separator, Iterable<String> paths,
 		String key) {
 		Set<String> descendants = new LinkedHashSet<>();
-		boolean root = StringUtil.empty(key);
+		boolean root = Strings.isEmpty(key);
 		int prefixLen = root ? 0 : key.length() + separator.value().length();
 		for (var path : paths) {
 			if (!root && (path.length() <= prefixLen || !path.startsWith(key)
@@ -389,7 +390,7 @@ public interface PropertySource {
 	 */
 	static Set<String> descendantsFromChildren(PropertySource source, String key) {
 		Set<String> descendants = new LinkedHashSet<>();
-		int preLen = StringUtil.empty(key) ? 0 : key.length() + source.separator().value().length();
+		int preLen = Strings.isEmpty(key) ? 0 : key.length() + source.separator().value().length();
 		appendDescendantsFromChildren(descendants, source, preLen, key);
 		return Immutable.wrap(descendants);
 	}
@@ -419,7 +420,7 @@ public interface PropertySource {
 			Files.writeString(path, value);
 		} catch (IOException e) {
 			throw new IoExceptions.Runtime(
-				String.format("Failed to write: %s > %s", StringUtil.trim(value), path), e);
+				String.format("Failed to write: %s > %s", Strings.trim(value), path), e);
 		}
 	}
 }

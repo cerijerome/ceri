@@ -1,7 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.text.StringUtil.EOL;
-import static ceri.common.text.StringUtil.NULL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import ceri.common.math.MathUtil;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -45,68 +42,12 @@ public class ToString {
 	 * Extends Arrays.deepToString to include any object type.
 	 */
 	public static String deep(Object obj) {
-		if (obj == null) return NULL;
-		Class<?> cls = obj.getClass();
+		if (obj == null) return Strings.NULL;
+		var cls = obj.getClass();
 		if (!cls.isArray()) return String.valueOf(obj);
 		var fn = toStringMap.get(cls);
 		if (fn != null) return fn.apply(obj);
 		return Arrays.deepToString((Object[]) obj);
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(Byte value) {
-		return value == null ? NULL : hex(value.byteValue());
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(Short value) {
-		return value == null ? NULL : hex(value.shortValue());
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(Integer value) {
-		return value == null ? NULL : hex(value.intValue());
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(Long value) {
-		return value == null ? NULL : hex(value.longValue());
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(byte value) {
-		return "0x" + Integer.toHexString(MathUtil.ubyte(value));
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(short value) {
-		return "0x" + Integer.toHexString(MathUtil.ushort(value));
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(int value) {
-		return "0x" + Integer.toHexString(value);
-	}
-
-	/**
-	 * Provide unsigned hex string with prefix.
-	 */
-	public static String hex(long value) {
-		return "0x" + Long.toHexString(value);
 	}
 
 	/**
@@ -178,7 +119,7 @@ public class ToString {
 	 * Adds fields to the string representation. ...[Field1,Field2,...]
 	 */
 	public ToString fields(Object... fields) {
-		for (Object field : fields)
+		for (var field : fields)
 			field((String) null, field);
 		return this;
 	}
@@ -204,7 +145,7 @@ public class ToString {
 	 * as the key. ...[ClassName1=Value1,ClassName2=Value2,...]
 	 */
 	public ToString fieldsByClass(Object... fields) {
-		for (Object field : fields) {
+		for (var field : fields) {
 			if (field == null) fields(field);
 			else field(field.getClass(), field);
 		}
@@ -255,7 +196,7 @@ public class ToString {
 	 */
 	public ToString childrens(Iterable<?> children) {
 		if (this.children.isEmpty()) this.children = new ArrayList<>();
-		for (Object child : children)
+		for (var child : children)
 			this.children.add(child);
 		return this;
 	}
@@ -265,14 +206,14 @@ public class ToString {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder(name);
+		var b = new StringBuilder(name);
 		if (!values.isEmpty()) appendValues(b, values);
 		if (!fields.isEmpty()) appendFields(b, fields);
 		if (children.isEmpty()) return b.toString();
-		b.append(" {").append(EOL);
-		for (Object child : children) {
-			String childStr = StringUtil.prefixLines(childIndent, childStringValue(child));
-			b.append(childStr).append(EOL);
+		b.append(" {").append(Strings.EOL);
+		for (var child : children) {
+			var childStr = TextUtil.prefixLines(childIndent, childStringValue(child));
+			b.append(childStr).append(Strings.EOL);
 		}
 		return b.append('}').toString();
 	}
@@ -289,7 +230,7 @@ public class ToString {
 	}
 
 	private String toString(Date date) {
-		LocalDateTime local = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+		var local = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
 		return local.toString();
 	}
 

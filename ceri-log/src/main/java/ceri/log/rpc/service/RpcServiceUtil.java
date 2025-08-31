@@ -1,6 +1,5 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.text.RegexUtil.finder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -11,6 +10,7 @@ import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionUtil;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
+import ceri.common.text.Patterns;
 import ceri.log.rpc.util.RpcUtil;
 import io.grpc.Server;
 import io.grpc.ServerServiceDefinition;
@@ -34,7 +34,7 @@ public class RpcServiceUtil {
 	 */
 	public static boolean isCancelledBeforeHalfClose(Throwable t) {
 		return ExceptionUtil.matches(t, StatusRuntimeException.class,
-			finder(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
+			Patterns.Filter.find(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
 	}
 
 	/**

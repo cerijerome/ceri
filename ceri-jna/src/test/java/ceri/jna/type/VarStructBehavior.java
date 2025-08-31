@@ -1,13 +1,13 @@
 package ceri.jna.type;
 
-import static ceri.common.math.MathUtil.ubyte;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
+import ceri.common.function.Functions;
+import ceri.common.math.MathUtil;
 import ceri.jna.type.Struct.Fields;
 
 public class VarStructBehavior {
@@ -45,7 +45,7 @@ public class VarStructBehavior {
 
 		@Override
 		protected int varCount() {
-			return ubyte(count);
+			return MathUtil.ubyte(count);
 		}
 	}
 
@@ -69,7 +69,7 @@ public class VarStructBehavior {
 		assertArray(bv.array, bytes);
 	}
 
-	private static <T extends Structure> T deref(T t, Function<Pointer, T> constructor) {
+	private static <T extends Structure> T deref(T t, Functions.Function<Pointer, T> constructor) {
 		return Struct.adapt(Struct.write(t), constructor);
 	}
 }

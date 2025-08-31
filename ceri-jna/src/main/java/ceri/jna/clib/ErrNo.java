@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.data.TypeValue;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CException;
@@ -211,7 +211,7 @@ public enum ErrNo {
 	 * Create a LastErrorException from the code and message.
 	 */
 	public LastErrorException lastError(String message, Object... args) {
-		return new LastErrorException("[" + code + "] " + StringUtil.format(message, args));
+		return new LastErrorException("[" + code + "] " + Strings.format(message, args));
 	}
 
 	/**
@@ -225,7 +225,7 @@ public enum ErrNo {
 	 * Create a CException from the code and message.
 	 */
 	public CException error(String message, Object... args) {
-		return CException.of(code, prefix() + " " + StringUtil.format(message, args));
+		return CException.of(code, prefix() + " " + Strings.format(message, args));
 	}
 
 	public boolean defined() {

@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Utilities for nul-terminated strings.
@@ -20,7 +20,7 @@ public class NulTerm {
 	 * Truncates a string up to the first char 0, if present.
 	 */
 	public static String truncate(String s) {
-		if (StringUtil.empty(s)) return s;
+		if (Strings.isEmpty(s)) return s;
 		return s.substring(0, truncateLen(s, 0, s.length()));
 	}
 
@@ -36,7 +36,7 @@ public class NulTerm {
 	 * Trims any trailing char 0.
 	 */
 	public static String trim(String s) {
-		if (StringUtil.empty(s)) return s;
+		if (Strings.isEmpty(s)) return s;
 		return s.substring(0, trimLen(s, 0, s.length()));
 	}
 

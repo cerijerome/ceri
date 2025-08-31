@@ -3,7 +3,7 @@ package ceri.common.test;
 import java.io.PrintStream;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 /**
  * Utility to write to System.in, and capture System.out, System.err.
@@ -30,8 +30,8 @@ public class SystemIoCaptor implements AutoCloseable {
 		pipe = PipedStream.of(inBufferSize);
 		in = new PrintStream(pipe.out(), true);
 		io.in(pipe.in());
-		io.out(StringUtil.asPrintStream(out));
-		io.err(StringUtil.asPrintStream(err));
+		io.out(StringBuilders.printStream(out));
+		io.err(StringBuilders.printStream(err));
 	}
 
 	@Override

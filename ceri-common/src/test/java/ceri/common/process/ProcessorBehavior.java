@@ -4,9 +4,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorGen.RIX;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestProcess;
 
 public class ProcessorBehavior {
@@ -88,7 +88,7 @@ public class ProcessorBehavior {
 	public void shouldStopOnInterruption() throws IOException {
 		try (TestProcess process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).noTimeout().build();
-			process.alive.error.setFrom(RIX);
+			process.alive.error.setFrom(ErrorGen.RIX);
 			assertThrown(() -> p.exec("test"));
 			process.out.assertAvailable(0);
 		}

@@ -1,9 +1,7 @@
 package ceri.common.text;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
@@ -53,7 +51,7 @@ public class DsvCodec {
 	public String encodeLine(List<String> values) {
 		if (values == null) return null;
 		if (values.isEmpty()) return "";
-		return values.stream().map(this::encodeValue).filter(Objects::nonNull)
+		return Streams.from(values).map(this::encodeValue).nonNull()
 			.collect(Collectors.joining(delimiterStr));
 	}
 
@@ -99,8 +97,8 @@ public class DsvCodec {
 
 	private List<String> splitLine(String line) {
 		if (line.isEmpty()) return List.of();
-		List<String> values = new ArrayList<>();
-		StringBuilder b = new StringBuilder();
+		var values = Lists.<String>of();
+		var b = new StringBuilder();
 		boolean inQuotes = false;
 		int len = line.length();
 		for (int i = 0; i < len; i++) {
@@ -114,6 +112,6 @@ public class DsvCodec {
 	}
 
 	private static String flush(StringBuilder b) {
-		return StringUtil.flush(b).trim();
+		return StringBuilders.flush(b).trim();
 	}
 }

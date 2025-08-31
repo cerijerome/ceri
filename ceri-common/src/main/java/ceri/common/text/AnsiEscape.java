@@ -1,13 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.color.Colors.MAX_VALUE;
-import static ceri.common.color.Colors.b;
-import static ceri.common.color.Colors.g;
-import static ceri.common.color.Colors.r;
-import static ceri.common.text.StringUtil.ESC;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
+import ceri.common.color.Colors;
 
 /**
  * ANSI-escape codes for terminal operations and formatting.
@@ -358,7 +354,7 @@ public class AnsiEscape {
 		 * Set 8-bit color approximation, each component 0-5.
 		 */
 		public Sgr fgColor8(int rgb) {
-			return fgColor8(to8Bit(r(rgb)), to8Bit(g(rgb)), to8Bit(b(rgb)));
+			return fgColor8(to8Bit(Colors.r(rgb)), to8Bit(Colors.g(rgb)), to8Bit(Colors.b(rgb)));
 		}
 
 		/**
@@ -382,16 +378,16 @@ public class AnsiEscape {
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr fgColor24(int rgb) {
-			return fgColor24(r(rgb), g(rgb), b(rgb));
+			return fgColor24(Colors.r(rgb), Colors.g(rgb), Colors.b(rgb));
 		}
 
 		/**
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr fgColor24(int r, int g, int b) {
-			validateRange(r, 0, MAX_VALUE);
-			validateRange(g, 0, MAX_VALUE);
-			validateRange(b, 0, MAX_VALUE);
+			validateRange(r, 0, Colors.MAX_VALUE);
+			validateRange(g, 0, Colors.MAX_VALUE);
+			validateRange(b, 0, Colors.MAX_VALUE);
 			return add(38, 2, r, g, b);
 		}
 
@@ -429,7 +425,7 @@ public class AnsiEscape {
 		 * Set 8-bit color approximation, converting each component from 0-255 to 0-5.
 		 */
 		public Sgr bgColor8(int rgb) {
-			return bgColor8(to8Bit(r(rgb)), to8Bit(g(rgb)), to8Bit(b(rgb)));
+			return bgColor8(to8Bit(Colors.r(rgb)), to8Bit(Colors.g(rgb)), to8Bit(Colors.b(rgb)));
 		}
 
 		/**
@@ -453,16 +449,16 @@ public class AnsiEscape {
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr bgColor24(int rgb) {
-			return bgColor24(r(rgb), g(rgb), b(rgb));
+			return bgColor24(Colors.r(rgb), Colors.g(rgb), Colors.b(rgb));
 		}
 
 		/**
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr bgColor24(int r, int g, int b) {
-			validateRange(r, 0, MAX_VALUE);
-			validateRange(g, 0, MAX_VALUE);
-			validateRange(b, 0, MAX_VALUE);
+			validateRange(r, 0, Colors.MAX_VALUE);
+			validateRange(g, 0, Colors.MAX_VALUE);
+			validateRange(b, 0, Colors.MAX_VALUE);
 			return add(48, 2, r, g, b);
 		}
 
@@ -513,7 +509,7 @@ public class AnsiEscape {
 		private boolean empty = true;
 
 		private static String escape(char prefix) {
-			return Strings.of(ESC, prefix);
+			return Strings.of(Chars.ESC, prefix);
 		}
 
 		private static String escape(char prefix, char suffix, char separator, int blankCode,
@@ -522,7 +518,7 @@ public class AnsiEscape {
 		}
 
 		private Escaper(char prefix, char suffix, Character separator, int blankCode) {
-			b = new StringBuilder().append(ESC).append(prefix);
+			b = new StringBuilder().append(Chars.ESC).append(prefix);
 			this.suffix = suffix;
 			this.separator = separator;
 			this.blankCode = blankCode;

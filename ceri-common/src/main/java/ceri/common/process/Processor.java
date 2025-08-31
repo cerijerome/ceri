@@ -1,21 +1,21 @@
 package ceri.common.process;
 
-import static ceri.common.process.ProcessUtil.stdErr;
-import static ceri.common.time.TimeSupplier.millis;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.function.Function;
 import ceri.common.data.ByteArray;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
+import ceri.common.time.TimeSupplier;
 import ceri.common.time.Timer;
 
 public class Processor {
 	public static final Processor DEFAULT = builder().build();
 	public static final Processor LONG_RUNNING = builder().noTimeout().captureStdOut(false).build();
 	public static final Processor IGNORE_EXIT_VALUE = builder().verifyExitValue(false).build();
-	private final Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter;
+	private final Functions.Function<Parameters, //
+		Excepts.Supplier<IOException, Process>> processStarter;
 	private final int pollMs;
 	private final int timeoutMs;
 	private final boolean captureStdOut;
@@ -24,7 +24,7 @@ public class Processor {
 
 	public static class Builder {
 		// Allows tests to set process without sacrificing code coverage
-		Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter =
+		Functions.Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter =
 			p -> new ProcessBuilder(p.list())::start;
 		int pollMs = 50;
 		int timeoutMs = 5000;
@@ -35,7 +35,7 @@ public class Processor {
 		Builder() {}
 
 		public Builder processStarter(
-			Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter) {
+			Functions.Function<Parameters, Excepts.Supplier<IOException, Process>> processStarter) {
 			this.processStarter = processStarter;
 			return this;
 		}
@@ -127,7 +127,7 @@ public class Processor {
 	}
 
 	private String exec(Process process, Parameters parameters) throws IOException {
-		String stdOut = waitFor(process, parameters);
+		var stdOut = waitFor(process, parameters);
 		verifyErr(process);
 		verifyExitValue(process);
 		return stdOut;
@@ -148,21 +148,21 @@ public class Processor {
 	@SuppressWarnings("resource")
 	private void waitForProcess(Process process, Parameters parameters,
 		Excepts.Consumer<IOException, InputStream> consumer) throws IOException {
-		InputStream in = process.getInputStream();
-		Timer timer = Timer.of(timeoutMs, millis).start();
+		var in = process.getInputStream();
+		var timer = Timer.of(timeoutMs, TimeSupplier.millis).start();
 		while (true) {
 			consumer.accept(in);
 			if (!process.isAlive()) return;
 			if (timer.snapshot().expired())
 				throw new IOException("Failed to complete in " + timeoutMs + "ms: " + parameters);
-			millis.delay(pollMs);
+			TimeSupplier.millis.delay(pollMs);
 		}
 	}
 
 	private void verifyErr(Process process) throws IOException {
 		if (!verifyErr) return;
-		String err = stdErr(process);
-		if (!StringUtil.blank(err)) throw new IOException(err.trim());
+		var err = ProcessUtil.stdErr(process);
+		if (!Strings.isBlank(err)) throw new IOException(err.trim());
 	}
 
 	private void verifyExitValue(Process process) throws IOException {

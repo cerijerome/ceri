@@ -5,9 +5,6 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.LongUnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import com.sun.jna.IntegerType;
@@ -22,6 +19,7 @@ import com.sun.jna.ptr.ShortByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.exception.Exceptions;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.Enclosure;
 import ceri.common.validation.ValidationUtil;
@@ -224,7 +222,7 @@ public class JnaUtil {
 	/**
 	 * Apply and set the native long value.
 	 */
-	public static <T extends IntegerType> T apply(T t, LongUnaryOperator operator) {
+	public static <T extends IntegerType> T apply(T t, Functions.LongOperator operator) {
 		t.setValue(operator.applyAsLong(t.longValue()));
 		return t;
 	}
@@ -359,8 +357,8 @@ public class JnaUtil {
 	 * Creates a fixed-length contiguous array of given type size. For {@code type*} array types.
 	 */
 	@SuppressWarnings("resource")
-	public static <T> T[] mallocArray(Function<Pointer, T> constructor, IntFunction<T[]> arrayFn,
-		int count, int size) {
+	public static <T> T[] mallocArray(Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count, int size) {
 		return arrayByVal(malloc(size * count), constructor, arrayFn, count, size);
 	}
 
@@ -369,8 +367,8 @@ public class JnaUtil {
 	 * types.
 	 */
 	@SuppressWarnings("resource")
-	public static <T> T[] callocArray(Function<Pointer, T> constructor, IntFunction<T[]> arrayFn,
-		int count, int size) {
+	public static <T> T[] callocArray(Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count, int size) {
 		return arrayByVal(calloc(size * count), constructor, arrayFn, count, size);
 	}
 
@@ -378,8 +376,8 @@ public class JnaUtil {
 	 * Creates a typed array from an indirect contiguous null-terminated pointer array. If the
 	 * pointer is null, an empty array is returned. For {@code type**} array types.
 	 */
-	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn) {
+	public static <T> T[] arrayByRef(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn) {
 		return Stream.of(PointerUtil.arrayByRef(p)).map(constructor).toArray(arrayFn);
 	}
 
@@ -388,8 +386,8 @@ public class JnaUtil {
 	 * is null, and for any null indirect pointers, the array will contain null items. Make sure
 	 * count is unsigned (use ubyte/ushort if needed). For {@code type**} array types.
 	 */
-	public static <T> T[] arrayByRef(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count) {
+	public static <T> T[] arrayByRef(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count) {
 		return Stream.of(PointerUtil.arrayByRef(p, count)).map(typeFn(constructor))
 			.toArray(arrayFn);
 	}
@@ -398,7 +396,7 @@ public class JnaUtil {
 	 * Creates a type from index i of an indirect contiguous pointer array. If the pointer or
 	 * indirect pointer is null, null is returned. For {@code type**} array types.
 	 */
-	public static <T> T byRef(Pointer p, int i, Function<Pointer, T> constructor) {
+	public static <T> T byRef(Pointer p, int i, Functions.Function<Pointer, T> constructor) {
 		return type(PointerUtil.byRef(p, i), constructor);
 	}
 
@@ -406,8 +404,8 @@ public class JnaUtil {
 	 * Creates a typed array from a fixed-length contiguous array of given type size. Returns an
 	 * array of null pointers if the pointer is null. For {@code type*} array types.
 	 */
-	public static <T> T[] arrayByVal(Pointer p, Function<Pointer, T> constructor,
-		IntFunction<T[]> arrayFn, int count, int size) {
+	public static <T> T[] arrayByVal(Pointer p, Functions.Function<Pointer, T> constructor,
+		Functions.IntFunction<T[]> arrayFn, int count, int size) {
 		return Stream.of(PointerUtil.arrayByVal(p, count, size)).map(typeFn(constructor))
 			.toArray(arrayFn);
 	}
@@ -416,21 +414,23 @@ public class JnaUtil {
 	 * Creates a type from index i of a contiguous pointer array. Returns null if the pointer is
 	 * null. For {@code type*} array types.
 	 */
-	public static <T> T byVal(Pointer p, int i, Function<Pointer, T> constructor, int size) {
+	public static <T> T byVal(Pointer p, int i, Functions.Function<Pointer, T> constructor,
+		int size) {
 		return type(PointerUtil.byVal(p, i, size), constructor);
 	}
 
 	/**
 	 * Creates a type from a pointer. Returns null if the pointer is null.
 	 */
-	public static <T> T type(Pointer p, Function<Pointer, T> constructor) {
+	public static <T> T type(Pointer p, Functions.Function<Pointer, T> constructor) {
 		return p == null ? null : constructor.apply(p);
 	}
 
 	/**
 	 * Converts a constructor into a null-aware constructor. Useful for streams.
 	 */
-	public static <T> Function<Pointer, T> typeFn(Function<Pointer, T> constructor) {
+	public static <T> Functions.Function<Pointer, T>
+		typeFn(Functions.Function<Pointer, T> constructor) {
 		return p -> type(p, constructor);
 	}
 

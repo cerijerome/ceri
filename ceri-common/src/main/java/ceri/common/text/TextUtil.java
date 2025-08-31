@@ -1,14 +1,15 @@
 package ceri.common.text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collection.Collectable;
 import ceri.common.math.MathUtil;
 
 /**
- * Word-based formatting utilities. Not intended for UI purposes; tailored for ASCII in default
- * Locale only.
+ * Multi-line and word-based formatting utilities.
  */
 public class TextUtil {
 	private static final Pattern CAPITALIZED_WORD_PATTERN = Pattern.compile("^[A-Z]$|^[A-Z][a-z]");
@@ -24,36 +25,142 @@ public class TextUtil {
 
 	private TextUtil() {}
 
+	public static void main(String[] args) {
+		var s = "abc\ndef\r\nghi\rjkl";
+		System.out.println(prefixLines("> ", s));
+	}
+
 	/**
-	 * Prefix lines with line numbers and join the lines into a string.
+	 * Prefixes each line of the text with given prefix.
 	 */
-	public static String prefixLineNumbers(String[] lines) {
-		if (lines == null || lines.length == 0) return "";
-		var fmt = "%" + MathUtil.decimalDigits(lines.length + 1) + "d";
+	public static String prefixLines(CharSequence prefix, CharSequence text) {
+		if (Strings.isEmpty(text)) return "";
+		if (Strings.isEmpty(prefix)) return text.toString();
+		return Patterns.findAllAppend(new StringBuilder(prefix), Patterns.Split.LINE.pattern, text,
+			(b, m) -> b.append(m.group()).append(prefix)).toString();
+	}
+
+	/**
+	 * Replaces spaces with tabs for each line, keeping column alignment.
+	 */
+	public static String spacesToTabs(int tabSize, String text) {
+		return spacesToTabs(tabSize, Patterns.Split.LINE.list(text));
+	}
+
+	/**
+	 * Replaces spaces with tabs for each line, keeping column alignment, and joining the lines.
+	 */
+	public static String spacesToTabs(int tabSize, Iterable<String> lines) {
+		return Joiner.EOL.join(line -> lineSpacesToTabs(tabSize, line), lines);
+	}
+
+	/**
+	 * Replace spaces with tabs for a line, keeping column alignment.
+	 */
+	public static String lineSpacesToTabs(int tabSize, String line) {
+		if (Strings.isEmpty(line)) return "";
+		if (tabSize <= 0) return line;
+		StringBuilder b = null;
+		int spaces = 0;
+		int start = 0;
+		for (int i = 0;; i++) {
+			if (i - start == tabSize) {
+				if (spaces > 1) b = b(b, line, i - spaces).append(Chars.TAB);
+				else if (b != null) StringBuilders.repeat(b, ' ', spaces);
+				spaces = 0;
+				start = i;
+			}
+			if (i >= line.length()) break;
+			char c = line.charAt(i);
+			if (c == Chars.TAB) {
+				if (spaces > 0 || b != null) b = b(b, line, i - spaces).append(Chars.TAB);
+				start = i + 1;
+			} else if (c != ' ' && b != null) StringBuilders.repeat(b, ' ', spaces).append(c);
+			if (c == ' ') spaces++;
+			else spaces = 0;
+		}
+		if (b == null) return line;
+		return StringBuilders.repeat(b, ' ', spaces).toString();
+	}
+
+	/**
+	 * Replaces tabs with spaces for each line, keeping column alignment.
+	 */
+	public static String tabsToSpaces(int tabSize, String text) {
+		return tabsToSpaces(tabSize, Patterns.Split.LINE.list(text));
+	}
+
+	/**
+	 * Replaces tabs with spaces for each line, keeping column alignment, and joining the lines.
+	 */
+	public static String tabsToSpaces(int tabSize, Iterable<String> lines) {
+		return Joiner.EOL.join(line -> lineTabsToSpaces(tabSize, line), lines);
+	}
+
+	/**
+	 * Replaces tabs with spaces for a line, keeping column alignment.
+	 */
+	public static String lineTabsToSpaces(int tabSize, String line) {
+		if (Strings.isEmpty(line)) return "";
+		if (tabSize <= 0) return line;
+		int start = 0;
+		StringBuilder b = null;
+		while (true) {
+			int pos = line.indexOf(Chars.TAB, start);
+			if (pos < 0) break;
+			b = b(b, line, start);
+			StringBuilders.append(b, line, start, pos - start);
+			StringBuilders.repeat(b, ' ', tabSpaces(b.length(), tabSize));
+			start = pos + 1;
+		}
+		if (b == null) return line;
+		return StringBuilders.append(b, line, start).toString();
+	}
+
+	/**
+	 * Adds a line number to the start of each line.
+	 */
+	public static String addLineNumbers(String text) {
+		return addLineNumbers(Patterns.Split.LINE.list(text));
+	}
+
+	/**
+	 * Adds a line number to the start of each line, and joins the lines.
+	 */
+	public static String addLineNumbers(String[] lines) {
+		return addLineNumbers(Arrays.asList(lines));
+	}
+
+	/**
+	 * Adds a line number to the start of each line, and joins the lines.
+	 */
+	public static String addLineNumbers(List<String> lines) {
+		if (Collectable.isEmpty(lines)) return "";
+		var fmt = "%" + MathUtil.decimalDigits(lines.size() + 1) + "d";
 		var b = new StringBuilder();
-		for (int i = 0; i < lines.length; i++) {
+		for (int i = 0; i < lines.size(); i++) {
 			if (i > 0) b.append(Strings.EOL);
-			b.append(String.format(fmt, i + 1)).append(": ").append(lines[i]);
+			b.append(String.format(fmt, i + 1)).append(": ").append(lines.get(i));
 		}
 		return b.toString();
 	}
 
 	/**
-	 * Wrap a multi-line string as a javadoc block.
+	 * Wraps a multi-line string as a javadoc block.
 	 */
 	public static String multilineJavadoc(String s) {
 		return multilineComment("/**", " * ", " */", s);
 	}
 
 	/**
-	 * Wrap a multi-line string as a comment block.
+	 * Wraps a multi-line string as a comment block.
 	 */
 	public static String multilineComment(String s) {
 		return multilineComment("/*", " * ", " */", s);
 	}
 
 	/**
-	 * Split a string into words, based on word boundary of non-letter followed by letter,
+	 * Splits a string into words, based on word boundary of non-letter followed by letter,
 	 * underscores, or whitespace.
 	 */
 	public static List<String> toWords(String str) {
@@ -131,7 +238,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first character upper case.
+	 * Makes the first character upper case.
 	 */
 	public static String firstToUpper(String str) {
 		if (str == null || str.isEmpty()) return str;
@@ -142,7 +249,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first character lower case.
+	 * Makes the first character lower case.
 	 */
 	public static String firstToLower(String str) {
 		if (str == null || str.isEmpty()) return str;
@@ -153,7 +260,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first found letter upper case.
+	 * Makes the first found letter upper case.
 	 */
 	public static String firstLetterToUpper(String str) {
 		if (str == null || str.isEmpty()) return str;
@@ -161,7 +268,7 @@ public class TextUtil {
 	}
 
 	/**
-	 * Make the first found letter lower case.
+	 * Makes the first found letter lower case.
 	 */
 	public static String firstLetterToLower(String str) {
 		if (str == null || str.isEmpty()) return str;
@@ -240,10 +347,19 @@ public class TextUtil {
 		return DOT_PATTERN.matcher(str.toUpperCase()).replaceAll("_");
 	}
 
-	// support methods
+	// support
+
+	private static StringBuilder b(StringBuilder b, CharSequence s, int i) {
+		if (b != null) return b;
+		return new StringBuilder().append(s, 0, i);
+	}
+
+	private static int tabSpaces(int pos, int tabSize) {
+		return ((pos + tabSize) / tabSize) * tabSize - pos;
+	}
 
 	private static String multilineComment(String start, String prefix, String end, String str) {
-		if (StringUtil.empty(str)) return str;
-		return start + StringUtil.EOL + StringUtil.prefixLines(prefix, str) + StringUtil.EOL + end;
+		if (Strings.isEmpty(str)) return str;
+		return start + Strings.EOL + prefixLines(prefix, str) + Strings.EOL + end;
 	}
 }

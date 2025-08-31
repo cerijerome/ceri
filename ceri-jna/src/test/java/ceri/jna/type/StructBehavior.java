@@ -9,10 +9,10 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.List;
-import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.function.Functions;
 import ceri.jna.type.Struct.Align;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.Struct.Packed;
@@ -82,7 +82,7 @@ public class StructBehavior {
 	@Test
 	public void testSize() {
 		assertEquals(Struct.size((TestStruct) null), 0);
-		assertThrown(() -> Struct.size((Function<Pointer, TestStruct>) null));
+		assertThrown(() -> Struct.size((Functions.Function<Pointer, TestStruct>) null));
 	}
 
 	@Test

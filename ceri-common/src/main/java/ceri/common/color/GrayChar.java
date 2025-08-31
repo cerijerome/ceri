@@ -1,7 +1,7 @@
 package ceri.common.color;
 
 import java.awt.Color;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Provides a monochrome character scale, useful for generating gray images in text-only displays.
@@ -41,6 +41,6 @@ public record GrayChar(String grayscale) {
 	 * Create an instance with scale reversed.
 	 */
 	public GrayChar reverse() {
-		return new GrayChar(StringUtil.reverse(grayscale));
+		return new GrayChar(Strings.reverse(grayscale));
 	}
 }

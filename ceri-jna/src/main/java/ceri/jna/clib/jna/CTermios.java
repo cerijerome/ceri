@@ -1,9 +1,6 @@
 package ceri.jna.clib.jna;
 
-import static ceri.jna.clib.jna.CLib.caller;
-import static ceri.jna.clib.jna.CLib.lib;
-import static ceri.jna.util.JnaOs.linux;
-import java.util.function.Supplier;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.util.OsUtil;
 import ceri.jna.reflect.CAnnotations.CInclude;
@@ -54,7 +51,7 @@ public class CTermios {
 	public static final int PARODD;
 	public static final int HUPCL;
 	public static final int CLOCAL;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int CMSPAR;
 	public static final int CRTSCTS;
 	// CSIZE values
@@ -124,29 +121,29 @@ public class CTermios {
 	public static final int B57600;
 	public static final int B115200;
 	public static final int B230400;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B460800;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B500000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B576000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B921600;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B1000000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B1152000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B1500000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B2000000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B2500000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B3000000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B3500000;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int B4000000;
 
 	private CTermios() {}
@@ -166,7 +163,7 @@ public class CTermios {
 
 	@SuppressWarnings("serial")
 	public static class speed_t extends IntType<speed_t> {
-		private static final Supplier<speed_t> CONSTRUCTOR = speed_t::new;
+		private static final Functions.Supplier<speed_t> CONSTRUCTOR = speed_t::new;
 		public static final int SIZE = SPEED_T_SIZE;
 
 		public static class ByRef extends IntType.ByRef<speed_t> {
@@ -186,7 +183,7 @@ public class CTermios {
 		public speed_t(int value) {
 			this(MathUtil.uint(value));
 		}
-		
+
 		public speed_t(long value) {
 			super(SPEED_T_SIZE, value, true);
 		}
@@ -211,7 +208,7 @@ public class CTermios {
 	 */
 	public static <T extends termios> T tcgetattr(int fd, T termios) throws CException {
 		var p = termios.getPointer();
-		caller.verify(() -> lib().tcgetattr(fd, p), "tcgetattr", fd, p);
+		CLib.caller.verify(() -> CLib.lib().tcgetattr(fd, p), "tcgetattr", fd, p);
 		return Struct.read(termios);
 	}
 
@@ -227,21 +224,21 @@ public class CTermios {
 	 */
 	public static void tcsetattr(int fd, int actions, termios termios) throws CException {
 		var p = Struct.write(termios).getPointer();
-		caller.verify(() -> lib().tcsetattr(fd, actions, p), "tcsetattr", fd, actions, p);
+		CLib.caller.verify(() -> CLib.lib().tcsetattr(fd, actions, p), "tcsetattr", fd, actions, p);
 	}
 
 	/**
 	 * Transmits a continuous stream of zero-valued bits.
 	 */
 	public static void tcsendbreak(int fd, int duration) throws CException {
-		caller.verify(() -> lib().tcsendbreak(fd, duration), "tcsendbreak", fd, duration);
+		CLib.caller.verify(() -> CLib.lib().tcsendbreak(fd, duration), "tcsendbreak", fd, duration);
 	}
 
 	/**
 	 * Wait for transmission of output.
 	 */
 	public static void tcdrain(int fd) throws CException {
-		caller.verify(() -> lib().tcdrain(fd), "tcdrain", fd);
+		CLib.caller.verify(() -> CLib.lib().tcdrain(fd), "tcdrain", fd);
 	}
 
 	/**
@@ -249,7 +246,7 @@ public class CTermios {
 	 * queue selector: TCIFLUSH, TCOFLUSH, TCIOFLUSH.
 	 */
 	public static void tcflush(int fd, int queueSelector) throws CException {
-		caller.verify(() -> lib().tcflush(fd, queueSelector), "tcflush", fd);
+		CLib.caller.verify(() -> CLib.lib().tcflush(fd, queueSelector), "tcflush", fd);
 	}
 
 	/**
@@ -257,7 +254,7 @@ public class CTermios {
 	 * TCION
 	 */
 	public static void tcflow(int fd, int action) throws CException {
-		caller.verify(() -> lib().tcflow(fd, action), "tcflow", fd);
+		CLib.caller.verify(() -> CLib.lib().tcflow(fd, action), "tcflow", fd);
 	}
 
 	/**
@@ -266,7 +263,7 @@ public class CTermios {
 	 */
 	public static void cfmakeraw(termios termios) throws CException {
 		var p = termios.getPointer();
-		caller.call(() -> lib().cfmakeraw(p), "cfmakeraw", p);
+		CLib.caller.call(() -> CLib.lib().cfmakeraw(p), "cfmakeraw", p);
 		Struct.read(termios);
 	}
 
@@ -276,7 +273,7 @@ public class CTermios {
 	 */
 	public static int cfgetispeed(termios termios) throws CException {
 		var p = termios.getPointer();
-		return caller.callType(() -> lib().cfgetispeed(p), "cfgetispeed", p).intValue();
+		return CLib.caller.callType(() -> CLib.lib().cfgetispeed(p), "cfgetispeed", p).intValue();
 	}
 
 	/**
@@ -286,7 +283,7 @@ public class CTermios {
 	public static void cfsetispeed(termios termios, int speed) throws CException {
 		var p = termios.getPointer();
 		var n = new speed_t(speed);
-		caller.verify(() -> lib().cfsetispeed(p, n), "cfsetispeed", p, n);
+		CLib.caller.verify(() -> CLib.lib().cfsetispeed(p, n), "cfsetispeed", p, n);
 		Struct.read(termios);
 	}
 
@@ -296,7 +293,7 @@ public class CTermios {
 	 */
 	public static int cfgetospeed(termios termios) throws CException {
 		var p = termios.getPointer();
-		return caller.callType(() -> lib().cfgetospeed(p), "cfgetospeed", p).intValue();
+		return CLib.caller.callType(() -> CLib.lib().cfgetospeed(p), "cfgetospeed", p).intValue();
 	}
 
 	/**
@@ -306,7 +303,7 @@ public class CTermios {
 	public static void cfsetospeed(termios termios, int speed) throws CException {
 		var p = termios.getPointer();
 		var n = new speed_t(speed);
-		caller.verify(() -> lib().cfsetospeed(p, n), "cfsetospeed", p, n);
+		CLib.caller.verify(() -> CLib.lib().cfsetospeed(p, n), "cfsetospeed", p, n);
 		Struct.read(termios);
 	}
 

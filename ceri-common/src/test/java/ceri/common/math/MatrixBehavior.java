@@ -9,9 +9,9 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import java.util.function.DoubleUnaryOperator;
 import org.junit.Test;
+import ceri.common.function.Functions;
+import ceri.common.test.TestUtil;
 
 /**
  * Use https://matrixcalc.org/en/ to test results.
@@ -53,7 +53,7 @@ public class MatrixBehavior {
 		Matrix ne8 = Matrix.ofRow(-1, 1, 0, 1, 0, -1);
 		Matrix ne9 = Matrix.EMPTY;
 		Matrix ne10 = Matrix.I3;
-		exerciseEquals(t, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10);
 	}
 
@@ -233,7 +233,7 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldApplyScalarFunction() {
-		DoubleUnaryOperator fn = d -> MathUtil.simpleRound(1, d);
+		Functions.DoubleOperator fn = d -> MathUtil.simpleRound(1, d);
 		assertMatrix(Matrix.EMPTY.apply(fn));
 		assertMatrix(Matrix.of(r(0.333, 0.651), r(0, 1)).apply(fn), r(0.3, 0.7), r(0, 1));
 	}

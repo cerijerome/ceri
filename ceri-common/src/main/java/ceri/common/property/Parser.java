@@ -15,7 +15,6 @@ import ceri.common.collection.Enums;
 import ceri.common.collection.Immutable;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
-import ceri.common.function.FunctionUtil;
 import ceri.common.function.Functions;
 import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;
@@ -23,7 +22,7 @@ import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.NumberParser;
-import ceri.common.text.Strings.Regex;
+import ceri.common.text.Patterns;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -208,7 +207,19 @@ public class Parser {
 		 */
 		default <E extends Exception> boolean accept(Excepts.Consumer<E, ? super T> consumer)
 			throws E {
-			return FunctionUtil.safeAccept(get(), consumer);
+			var t = get();
+			if (t == null) return false;
+			consumer.accept(t);
+			return true; // FunctionUtil.safeAccept(get(), consumer);
+		}
+
+		/**
+		 * Apply the function if not null, or return default.
+		 */
+		default <E extends Exception, R> R
+			apply(Excepts.Function<E, ? super T, ? extends R> function, R def) throws E {
+			var t = get();
+			return t == null ? def : function.apply(t);
 		}
 	}
 
@@ -261,7 +272,7 @@ public class Parser {
 		 * values in the collection are retained.
 		 */
 		default T[] array(Functions.IntFunction<T[]> arrayFn) {
-			return FunctionUtil.safeApply(get(), values -> values.toArray(arrayFn));
+			return apply(values -> values.toArray(arrayFn), null);
 		}
 
 		/**
@@ -270,7 +281,7 @@ public class Parser {
 		 */
 		default T[] arrayDef(Functions.IntFunction<T[]> arrayFn,
 			@SuppressWarnings("unchecked") T... defs) {
-			return FunctionUtil.safeApply(get(), list -> list.toArray(arrayFn), defs);
+			return apply(list -> list.toArray(arrayFn), defs);
 		}
 
 		/**
@@ -278,7 +289,7 @@ public class Parser {
 		 * values in the collection are retained.
 		 */
 		default Stream<RuntimeException, T> stream() {
-			return FunctionUtil.safeApply(get(), Streams::from, Stream.empty());
+			return apply(Streams::from, Stream.empty());
 		}
 
 		/**
@@ -357,7 +368,7 @@ public class Parser {
 		 * collection is null. Null values in the collection are retained.
 		 */
 		default <C extends Collection<T>> C collect(Functions.Supplier<C> supplier) {
-			return FunctionUtil.safeApply(get(), values -> Collectable.add(supplier.get(), values));
+			return apply(values -> Collectable.add(supplier.get(), values), null);
 		}
 
 		/**
@@ -365,7 +376,7 @@ public class Parser {
 		 * is null. Null values in the collection are retained.
 		 */
 		default List<T> toList() {
-			return FunctionUtil.safeApply(get(), Immutable::list);
+			return apply(Immutable::list, null);
 		}
 
 		/**
@@ -373,7 +384,7 @@ public class Parser {
 		 * is null. Null values in the collection are retained.
 		 */
 		default Set<T> toSet() {
-			return FunctionUtil.safeApply(get(), Immutable::set);
+			return apply(Immutable::set, null);
 		}
 
 		/**
@@ -448,10 +459,9 @@ public class Parser {
 		 * Null values in the collection are passed to the consumer.
 		 */
 		default <E extends Exception> void each(Excepts.Consumer<E, ? super T> consumer) throws E {
-			FunctionUtil.safeAccept(get(), collection -> {
-				for (var t : collection)
-					consumer.accept(t);
-			});
+			var collection = get();
+			if (collection != null) for (var t : collection)
+				consumer.accept(t);
 		}
 	}
 
@@ -480,15 +490,14 @@ public class Parser {
 		 * Returns the accessor for values split by comma.
 		 */
 		default Strings split() {
-			return split(Regex.comma);
+			return split(Patterns.Split.COMMA.pattern);
 		}
 
 		/**
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			var split = FunctionUtil.safeApply(get(),
-				v -> ceri.common.text.Strings.Split.list(splitter, v));
+			var split = apply(v -> Patterns.Split.list(splitter, v, s -> s.trim()), null);
 			return Parser.strings(split);
 		}
 
@@ -496,7 +505,7 @@ public class Parser {
 		 * Returns an accessor for values split by separator.
 		 */
 		default Strings split(Separator separator) {
-			var split = FunctionUtil.safeApply(get(), v -> separator.split(v));
+			var split = apply(v -> separator.split(v), null);
 			return Parser.strings(split);
 		}
 
@@ -596,7 +605,7 @@ public class Parser {
 		 * Converts non-null value to an enum; fails if no match.
 		 */
 		default <T extends Enum<T>> T toEnum(Class<T> cls, T def) {
-			return FunctionUtil.safeApply(get(), s -> Enum.valueOf(cls, s), def);
+			return apply(s -> Enum.valueOf(cls, s), def);
 		}
 
 		/**
@@ -883,7 +892,7 @@ public class Parser {
 	private static <E extends Exception, T, R> R parseValue(T value,
 		Excepts.Function<E, ? super T, ? extends R> constructor, R def) throws E {
 		try {
-			return FunctionUtil.safeApply(value, constructor, def);
+			return value == null ? def : constructor.apply(value);
 		} catch (RuntimeException e) {
 			throw Exceptions.initCause(Exceptions.illegalArg("Failed to transform: %s", value), e);
 		}

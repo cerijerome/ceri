@@ -1,9 +1,9 @@
 package ceri.process.scutil;
 
-import static ceri.common.text.StringUtil.EOL;
 import java.util.Objects;
 import ceri.common.collection.Node;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 public class NcShow {
 	public final NcListItem item;
@@ -11,7 +11,7 @@ public class NcShow {
 
 	public static NcShow from(String output) {
 		String[] split = StringUtil.NEWLINE_REGEX.split(output, 2);
-		NcListItem item = NcListItem.from(split[0]);
+		var item = NcListItem.from(split[0]);
 		if (split.length == 1) return new NcShow(item, Node.of());
 		return of(item, Parser.parse(split[1]));
 	}
@@ -33,8 +33,7 @@ public class NcShow {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof NcShow)) return false;
-		NcShow other = (NcShow) obj;
+		if (!(obj instanceof NcShow other)) return false;
 		if (!Objects.equals(item, other.item)) return false;
 		if (!Objects.equals(data, other.data)) return false;
 		return true;
@@ -42,7 +41,6 @@ public class NcShow {
 
 	@Override
 	public String toString() {
-		return item + EOL + data;
+		return item + Strings.EOL + data;
 	}
-
 }

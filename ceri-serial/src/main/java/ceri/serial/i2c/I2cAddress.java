@@ -6,7 +6,8 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.MathUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.math.Radix;
+import ceri.common.text.Format;
 
 /**
  * Encapsulates an I2C address, allowing for 10-bit addresses, and forcing use of address if
@@ -17,8 +18,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static final I2cAddress GENERAL_CALL = new I2cAddress(0, false);
 	/** Device ID, used with Wr and Rd bits */
 	public static final I2cAddress DEVICE_ID = new I2cAddress(0x7c, false);
-	private static final int HEX_DIGITS_7 = 2;
-	private static final int HEX_DIGITS_10 = 3;
+	private static final Format HEX3 = Format.of(Radix.HEX, 3);
 	public static final int MASK_7BIT = ByteUtil.maskInt(7);
 	public static final int MASK_10BIT = ByteUtil.maskInt(10);
 	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
@@ -93,6 +93,6 @@ public record I2cAddress(int address, boolean tenBit) {
 
 	@Override
 	public String toString() {
-		return "0x" + StringUtil.toHex(address, tenBit ? HEX_DIGITS_10 : HEX_DIGITS_7);
+		return tenBit ? HEX3.ushort(address) : Format.HEX2.ubyte(address);
 	}
 }

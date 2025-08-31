@@ -1,14 +1,14 @@
 package ceri.jna.type;
 
-import java.util.function.Supplier;
 import com.sun.jna.Pointer;
+import ceri.common.function.Functions;
 
 /**
  * Signed native long.
  */
 @SuppressWarnings("serial")
 public class CLong extends IntType<CLong> {
-	private static final Supplier<CLong> CONSTRUCTOR = CLong::new;
+	private static final Functions.Supplier<CLong> CONSTRUCTOR = CLong::new;
 	public static final int SIZE = JnaSize.LONG.get();
 
 	public static CLong readFrom(Pointer p, long offset) {

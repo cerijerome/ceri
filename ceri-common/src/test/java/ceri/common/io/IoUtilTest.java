@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.io.IoUtil.EOL_BYTES;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
@@ -14,11 +13,6 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
-import static ceri.common.test.TestUtil.inputStream;
-import static ceri.common.text.StringUtil.EOL;
-import static java.nio.charset.StandardCharsets.US_ASCII;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,13 +31,13 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
-import ceri.common.io.IoStreamUtil.Read;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.SystemVars;
 
 public class IoUtilTest {
@@ -66,9 +61,10 @@ public class IoUtilTest {
 
 	@Test
 	public void testEolBytes() {
-		assertEquals(IoUtil.eolBytes(null), EOL_BYTES);
-		assertEquals(IoUtil.eolBytes(Charset.defaultCharset()), EOL_BYTES);
-		assertArray(IoUtil.eolBytes(US_ASCII), EOL.getBytes(US_ASCII));
+		assertEquals(IoUtil.eolBytes(null), IoUtil.EOL_BYTES);
+		assertEquals(IoUtil.eolBytes(Charset.defaultCharset()), IoUtil.EOL_BYTES);
+		assertArray(IoUtil.eolBytes(StandardCharsets.US_ASCII),
+			Strings.EOL.getBytes(StandardCharsets.US_ASCII));
 	}
 
 	@Test
@@ -79,7 +75,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testClearReader() throws IOException {
-		assertEquals(IoUtil.clear(new StringReader(StringUtil.repeat('x', 0x41))), 0x41L);
+		assertEquals(IoUtil.clear(new StringReader(Strings.repeat('x', 0x41))), 0x41L);
 	}
 
 	@Test
@@ -129,7 +125,7 @@ public class IoUtilTest {
 	@Test
 	public void testEnvironmentPath() {
 		assertNull(IoUtil.environmentPath("?"));
-		var name = firstEnvironmentVariableName();
+		var name = TestUtil.firstEnvironmentVariableName();
 		assertPath(IoUtil.environmentPath(name), SystemVars.env(name));
 	}
 
@@ -345,7 +341,7 @@ public class IoUtilTest {
 			assertEquals(IoUtil.availableChar(), '\0');
 		}
 		try (var in = TestInputStream.of()) {
-			in.available.error.setFrom(IOX);
+			in.available.error.setFrom(ErrorGen.IOX);
 			assertEquals(IoUtil.availableChar(in), '\0');
 		}
 	}
@@ -362,11 +358,11 @@ public class IoUtilTest {
 	@Test
 	public void testAvailableLine() throws IOException {
 		assertNull(IoUtil.availableLine(null));
-		var s = "te" + EOL + EOL + "s" + EOL + "t";
+		var s = "te" + Strings.EOL + Strings.EOL + "s" + Strings.EOL + "t";
 		try (var in = new ByteArrayInputStream(s.getBytes())) {
-			assertEquals(IoUtil.availableLine(in), "te" + EOL);
-			assertEquals(IoUtil.availableLine(in), EOL);
-			assertEquals(IoUtil.availableLine(in), "s" + EOL);
+			assertEquals(IoUtil.availableLine(in), "te" + Strings.EOL);
+			assertEquals(IoUtil.availableLine(in), Strings.EOL);
+			assertEquals(IoUtil.availableLine(in), "s" + Strings.EOL);
 			assertEquals(IoUtil.availableLine(in), "t");
 		}
 	}
@@ -445,7 +441,7 @@ public class IoUtilTest {
 	@Test
 	public void testPollForData() throws IOException {
 		int[] available = { 0 };
-		try (var in = IoStreamUtil.in((Read) null, () -> available[0])) {
+		try (var in = IoStreamUtil.in((IoStreamUtil.Read) null, () -> available[0])) {
 			assertThrown(IoExceptions.Timeout.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
 			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
@@ -545,13 +541,13 @@ public class IoUtilTest {
 
 	@Test
 	public void testReadString() throws IOException {
-		var in = inputStream("abc\0");
+		var in = TestUtil.inputStream("abc\0");
 		assertEquals(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() throws IOException {
-		var in = inputStream("line0\n\nline2\nend");
+		var in = TestUtil.inputStream("line0\n\nline2\nend");
 		assertStream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}
 

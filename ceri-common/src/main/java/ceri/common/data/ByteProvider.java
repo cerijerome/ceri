@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -11,10 +10,10 @@ import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
-import ceri.common.function.Functions.ByteFunction;
+import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
+import ceri.common.text.Format;
 import ceri.common.text.Joiner;
-import ceri.common.text.StringUtil;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -270,7 +269,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default short getShort(int index) {
-		return (short) getEndian(index, Short.BYTES, IS_BIG_ENDIAN);
+		return (short) getEndian(index, Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -312,7 +311,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default int getInt(int index) {
-		return (int) getEndian(index, Integer.BYTES, IS_BIG_ENDIAN);
+		return (int) getEndian(index, Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -354,7 +353,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the value from native-order bytes at given index.
 	 */
 	default long getLong(int index) {
-		return getEndian(index, Long.BYTES, IS_BIG_ENDIAN);
+		return getEndian(index, Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -846,7 +845,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides a string representation.
 	 */
 	static String toHex(Joiner joiner, ByteProvider provider) {
-		return toString(joiner, b -> "0x" + StringUtil.toHex(b), provider);
+		return toString(joiner, Format.HEX2::ubyte, provider);
 	}
 
 	/**
@@ -866,14 +865,15 @@ public interface ByteProvider extends Iterable<Integer> {
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(ByteFunction<?> stringFn, ByteProvider provider) {
+	static String toString(Functions.ByteFunction<?> stringFn, ByteProvider provider) {
 		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
-	static String toString(Joiner joiner, ByteFunction<?> stringFn, ByteProvider provider) {
+	static String toString(Joiner joiner, Functions.ByteFunction<?> stringFn,
+		ByteProvider provider) {
 		return joiner.joinIndex(i -> stringFn.apply(provider.getByte(i)), provider.length());
 	}
 }

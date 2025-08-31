@@ -9,8 +9,8 @@ import java.util.Objects;
 import org.junit.Test;
 import ceri.common.comparator.Comparators;
 import ceri.common.test.Captor;
+import ceri.common.text.Format;
 import ceri.common.text.Joiner;
-import ceri.common.text.ToString;
 
 public class ArrayUtilTest {
 	private static final Object[] NULL = null;
@@ -282,7 +282,7 @@ public class ArrayUtilTest {
 		assertEquals(ArrayUtil.toString(null, Joiner.OR, NULL), "null");
 		assertEquals(ArrayUtil.toString(null, Joiner.OR, new Object[0]), "null");
 		assertEquals(ArrayUtil.toString(_ -> "!", Joiner.OR, new Object[0]), "");
-		assertEquals(ArrayUtil.toString(ToString::hex, Joiner.OR, ints), "0xffffffff|null|0x1");
+		assertEquals(ArrayUtil.toString(Format.HEX::uint, Joiner.OR, ints), "0xffffffff|null|0x1");
 	}
 
 }

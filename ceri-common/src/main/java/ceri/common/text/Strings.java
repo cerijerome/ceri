@@ -1,16 +1,19 @@
 package ceri.common.text;
 
+import java.io.PrintStream;
+import java.math.RoundingMode;
+import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Formatter;
-import java.util.List;
 import java.util.PrimitiveIterator;
-import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
+import ceri.common.math.MathUtil;
 import ceri.common.stream.IntStream;
-import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
+import ceri.common.util.BasicUtil;
 
 /**
  * String type support.
@@ -19,51 +22,32 @@ public class Strings {
 	public static final String NULL = "null";
 	private static final String INTEGRAL_FLOAT = ".0";
 	private static final char UNPRINTABLE_CHAR = '.';
-	public static final char BACKSLASH = '\\';
-	public static final char NUL = '\0';
-	public static final char BS = '\b';
-	public static final char TAB = '\t';
-	public static final char NL = '\n';
-	public static final char FF = '\f';
-	public static final char CR = '\r';
-	public static final char ESC = '\u001b';
-	public static final char DEL = '\u007f';
 	public static final String EOL = System.lineSeparator();
 
 	private Strings() {}
-
-	private static class Escape {
-		private static final Pattern REGEX =
-			Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|\\\\0[0-3][0-7]{2}"
-				+ "|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
-		private static final String NUL = "\\0";
-		private static final String BACKSLASH = "\\\\";
-		private static final String BS = "\\b";
-		private static final String ESC = "\\e";
-		private static final String TAB = "\\t";
-		private static final String FF = "\\f";
-		private static final String CR = "\\r";
-		private static final String NL = "\\n";
-		private static final String OCTAL = "\\0";
-		private static final String HEX = "\\x";
-		private static final String UTF16 = "\\u";
-
-		private Escape() {}
-	}
-
-	public static class Regex {
-		public static final Pattern line = Pattern.compile("(\\r\\n|\\n|\\r)");
-		public static final Pattern comma = Pattern.compile("\\s*,\\s*");
-		public static final Pattern space = Pattern.compile("\\s+");
-
-		private Regex() {}
-	}
 
 	/**
 	 * String-based filters.
 	 */
 	public static class Filter {
+		public static final Functions.Predicate<String> nonEmpty = Strings::nonEmpty;
+		public static final Functions.Predicate<String> nonBlank = Strings::nonBlank;
+
 		private Filter() {}
+
+		/**
+		 * Returns true if not null and not empty.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> nonEmpty() {
+			return BasicUtil.unchecked(nonEmpty);
+		}
+
+		/**
+		 * Returns true if not null and has a non-whitespace code point.
+		 */
+		public static <E extends Exception> Excepts.Predicate<E, String> nonBlank() {
+			return BasicUtil.unchecked(nonBlank);
+		}
 
 		/**
 		 * Applies comparator to non-null string representation.
@@ -93,40 +77,11 @@ public class Strings {
 		/**
 		 * Returns true for strings that contain the given substring, with optional case match.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String>
-			contains(boolean matchCase, String s) {
+		public static <E extends Exception> Excepts.Predicate<E, String> contains(boolean matchCase,
+			String s) {
 			if (s == null) return Predicates.isNull();
 			if (s.isEmpty()) return Predicates.yes();
 			return t -> t != null && Strings.contains(matchCase, t, s);
-		}
-	}
-
-	/**
-	 * Splits and trims strings.
-	 */
-	public static class Split {
-		/**
-		 * Split the string into an array of trimmed values.
-		 */
-		public static String[] array(Pattern pattern, CharSequence s) {
-			var split = Patterns.split(pattern, s);
-			for (int i = 0; i < split.length; i++)
-				split[i] = Strings.trim(split[i]);
-			return split;
-		}
-
-		/**
-		 * Split the string into a list of trimmed values.
-		 */
-		public static List<String> list(Pattern pattern, CharSequence s) {
-			return stream(pattern, s).toList();
-		}
-
-		/**
-		 * Split the string into a stream of trimmed values.
-		 */
-		public static Stream<RuntimeException, String> stream(Pattern pattern, CharSequence s) {
-			return Patterns.splitStream(pattern, s).map(Strings::trim);
 		}
 	}
 
@@ -159,17 +114,69 @@ public class Strings {
 	}
 
 	/**
-	 * Checks if the given string is null or empty. Can be used as a predicate.
+	 * Returns the formatted string, or unformatted if no args.
+	 */
+	public static String format(String format, Object... objs) {
+		if (format == null) return "";
+		if (ArrayUtil.isEmpty(objs)) return format;
+		return String.format(format, objs);
+	}
+
+	/**
+	 * Creates a decimal formatter with given number of decimal places.
+	 */
+	public static DecimalFormat decimalFormat(int decimalPlaces) {
+		var b = new StringBuilder("0");
+		if (decimalPlaces > 0) StringBuilders.repeat(b.append("."), "#", decimalPlaces);
+		var format = new DecimalFormat(b.toString());
+		format.setRoundingMode(RoundingMode.HALF_UP);
+		return format;
+	}
+
+	/**
+	 * Returns char repeated n times.
+	 */
+	public static String repeat(char c, int n) {
+		if (n <= 0) return "";
+		char[] cs = new char[n];
+		Arrays.fill(cs, c);
+		return new String(cs);
+	}
+
+	/**
+	 * Returns string repeated n times.
+	 */
+	public static String repeat(String s, int n) {
+		if (isEmpty(s)) return "";
+		return s.repeat(n);
+	}
+
+	/**
+	 * Returns true if the char sequence is null or empty.
 	 */
 	public static boolean isEmpty(CharSequence s) {
 		return s == null || s.isEmpty();
 	}
 
 	/**
-	 * Checks if the given string is non-null and not empty. Can be used as a predicate.
+	 * Returns true if the char sequence is non-null and not empty.
 	 */
 	public static boolean nonEmpty(CharSequence s) {
 		return !isEmpty(s);
+	}
+
+	/**
+	 * Returns true if the string is null, empty, or contains only whitespace codepoints.
+	 */
+	public static boolean isBlank(String s) {
+		return s == null || s.isBlank();
+	}
+
+	/**
+	 * Returns true if the string is non-null, and has a non-whitespace codepoint.
+	 */
+	public static boolean nonBlank(String s) {
+		return !isBlank(s);
 	}
 
 	/**
@@ -180,42 +187,32 @@ public class Strings {
 	}
 
 	/**
-	 * Trims the string; returns empty string if null.
-	 */
-	public static String trim(String s) {
-		return s == null ? "" : s.trim();
-	}
-
-	/**
-	 * Converts to lower case.
-	 */
-	public static String lower(String s) {
-		return s == null ? "" : s.toLowerCase();
-	}
-
-	/**
-	 * Converts to lower case.
-	 */
-	public static String upper(String s) {
-		return s == null ? "" : s.toUpperCase();
-	}
-
-	/**
-	 * Returns the formatted string, or unformatted if no args.
-	 */
-	public static String format(String format, Object... objs) {
-		if (format == null) return "";
-		if (objs == null || objs.length == 0) return format;
-		return String.format(format, objs);
-	}
-
-	/**
-	 * Returns true if the string contains the given string, ignoring case.
+	 * Returns true if the string contains the given string, optionally ignoring case.
 	 */
 	public static boolean equals(boolean matchCase, String s, String other) {
 		if (s == other) return true;
 		if (s == null || other == null) return false;
 		return matchCase ? s.equals(other) : s.equalsIgnoreCase(other);
+	}
+
+	/**
+	 * Returns true if the sanitized char ranges match, optionally ignoring case.
+	 */
+	public static boolean equals(boolean matchCase, String s, int offset, String other) {
+		return equals(matchCase, s, offset, other, 0, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns true if the sanitized char ranges match, optionally ignoring case.
+	 */
+	public static boolean equals(boolean matchCase, String s, int offset, String other, int ooffset,
+		int length) {
+		if (s == null || other == null) return s == other;
+		offset = MathUtil.limit(offset, 0, length(s));
+		ooffset = MathUtil.limit(ooffset, 0, length(other));
+		length = MathUtil.limit(length, 0, Math.max(length(s) - offset, length(other) - ooffset));
+		if (length == 0) return true;
+		return s.regionMatches(!matchCase, offset, other, ooffset, length);
 	}
 
 	/**
@@ -241,5 +238,106 @@ public class Strings {
 		if (s == null) return false;
 		if (i <= 0 || i >= s.length()) return true;
 		return Chars.isNameBoundary(s.charAt(i - 1), s.charAt(i));
+	}
+
+	/**
+	 * Trims the string; returns empty string if null.
+	 */
+	public static String trim(String s) {
+		return s == null ? "" : s.trim();
+	}
+
+	/**
+	 * Converts to lower case.
+	 */
+	public static String lower(String s) {
+		return s == null ? "" : s.toLowerCase();
+	}
+
+	/**
+	 * Converts to lower case.
+	 */
+	public static String upper(String s) {
+		return s == null ? "" : s.toUpperCase();
+	}
+
+	/**
+	 * Reverses a string.
+	 */
+	public static String reverse(String s) {
+		if (isEmpty(s)) return "";
+		return new StringBuilder(s).reverse().toString();
+	}
+
+	/**
+	 * Replace multiple whitespaces with a single space, then trim.
+	 */
+	public static String compact(String s) {
+		if (s == null) return "";
+		return Patterns.findAllAccept(Patterns.Split.SPACE.pattern, s, (b, _) -> b.append(' '))
+			.trim();
+	}
+
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(float f) {
+		return compactFp(Float.toString(f));
+	}
+
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(double d) {
+		return compactFp(Double.toString(d));
+	}
+
+	/**
+	 * Compact floating point representation - trailing .0 is removed if present.
+	 */
+	public static String compact(double d, int precision) {
+		return compact(MathUtil.simpleRound(precision, d));
+	}
+
+	/**
+	 * Returns a bounded substring.
+	 */
+	public static String sub(String s, int offset) {
+		return sub(s, offset, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Returns a bounded substring.
+	 */
+	public static String sub(String s, int offset, int length) {
+		if (isEmpty(s)) return "";
+		return ArrayUtil.applySlice(s.length(), offset, length, (o, l) -> s.substring(o, o + l));
+	}
+
+	/**
+	 * Captures the output of a print stream consumer.
+	 */
+	public static <E extends Exception> String printed(Excepts.Consumer<E, PrintStream> consumer)
+		throws E {
+		return printed(consumer, null);
+	}
+
+	/**
+	 * Captures the output of a print stream consumer.
+	 */
+	public static <E extends Exception> String printed(Excepts.Consumer<E, PrintStream> consumer,
+		Charset charset) throws E {
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b, charset)) {
+			consumer.accept(out);
+		}
+		return b.toString();
+	}
+
+	// support
+
+	private static String compactFp(String s) {
+		if (!s.endsWith(INTEGRAL_FLOAT)) return s;
+		return s.substring(0, s.length() - INTEGRAL_FLOAT.length());
 	}
 }

@@ -7,12 +7,10 @@ import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.text.StringUtil.reverse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
@@ -29,67 +27,6 @@ public class RegexUtilTest {
 	private static final Pattern INT_PATTERN = Pattern.compile("(\\d+)");
 	private static final Pattern MULTI_PATTERN =
 		Pattern.compile("(\\w+)\\W+(\\w+)\\W+([\\w\\" + ".]+)");
-
-	@Test
-	public void testPrivateConstructor() {
-		assertPrivateConstructor(RegexUtil.class);
-	}
-
-	@Test
-	public void testCommonDecodeInt() {
-		assertEquals(RegexUtil.Common.decodeInt("0b001001"), 0b001001);
-		assertEquals(RegexUtil.Common.decodeInt("0B111"), 0B111);
-		assertEquals(RegexUtil.Common.decodeInt("0123"), 0123);
-		assertEquals(RegexUtil.Common.decodeInt("0x0123"), 0x123);
-		assertEquals(RegexUtil.Common.decodeInt("0X0123"), 0x123);
-		assertEquals(RegexUtil.Common.decodeInt("#0123"), 0x123);
-		assertEquals(RegexUtil.Common.decodeInt("123"), 123);
-		assertEquals(RegexUtil.Common.decodeInt("0"), 0);
-	}
-
-	@Test
-	public void testCommonDecodeLong() {
-		assertEquals(RegexUtil.Common.decodeLong("0b001001"), 0b001001L);
-		assertEquals(RegexUtil.Common.decodeLong("0B111"), 0B111L);
-		assertEquals(RegexUtil.Common.decodeLong("0123"), 0123L);
-		assertEquals(RegexUtil.Common.decodeLong("0x0123"), 0x123L);
-		assertEquals(RegexUtil.Common.decodeLong("0X0123"), 0x123L);
-		assertEquals(RegexUtil.Common.decodeLong("#0123"), 0x123L);
-		assertEquals(RegexUtil.Common.decodeLong("123"), 123L);
-		assertEquals(RegexUtil.Common.decodeLong("0"), 0L);
-	}
-
-	@Test
-	public void testHashCode() {
-		Pattern p0 = Pattern.compile("(?m).*");
-		Pattern p1 = Pattern.compile("(?m).+");
-		Pattern p2 = Pattern.compile("(?m).*", 1);
-		assertEquals(RegexUtil.hashCode(null), RegexUtil.hashCode(null));
-		assertEquals(RegexUtil.hashCode(p0), RegexUtil.hashCode(p0));
-		assertEquals(RegexUtil.hashCode(p1), RegexUtil.hashCode(p1));
-		assertEquals(RegexUtil.hashCode(p2), RegexUtil.hashCode(p2));
-	}
-
-	@Test
-	public void testEquals() {
-		Pattern p = Pattern.compile("test.*");
-		assertTrue(RegexUtil.equals(null, null));
-		assertFalse(RegexUtil.equals(p, null));
-		assertFalse(RegexUtil.equals(null, p));
-		assertTrue(RegexUtil.equals(p, p));
-		assertTrue(RegexUtil.equals(p, Pattern.compile("test.*")));
-		assertFalse(RegexUtil.equals(p, Pattern.compile("test.+")));
-		assertTrue(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 1)));
-		assertFalse(RegexUtil.equals(Pattern.compile(".*", 1), Pattern.compile(".*", 2)));
-	}
-
-	@Test
-	public void testFinder() {
-		assertFalse(RegexUtil.finder(INT_PATTERN).test(null));
-		assertTrue(RegexUtil.finder("(\\d+)").test("abc123def456"));
-		assertTrue(RegexUtil.finder(LSTRING_PATTERN).test("abc123def456"));
-		assertFalse(RegexUtil.finder(USTRING_PATTERN).test("abc123def456"));
-	}
 
 	@Test
 	public void testMatcher() {
@@ -115,12 +52,6 @@ public class RegexUtilTest {
 	}
 
 	@Test
-	public void testCompileOr() {
-		var p = Patterns.compileOr(INT_PATTERN, LSTRING_PATTERN);
-		assertEquals(p.pattern().toString(), "((\\d+)|([a-z]+))");
-	}
-
-	@Test
 	public void testIgnoreCase() {
 		Pattern ignoreCase = RegexUtil.ignoreCase("t.e.s.t");
 		assertNotNull(RegexUtil.matched(ignoreCase, "T.e.s.T"));
@@ -142,7 +73,7 @@ public class RegexUtilTest {
 		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("\\d+"), "abc123de45f6", "N\\$"),
 			"abcN\\$deN\\$fN\\$");
 		assertEquals(RegexUtil.replaceAllQuoted(Pattern.compile("[\\\\$]+"), "abc$\\def\\$",
-			m -> reverse(m.group())), "abc\\$def$\\");
+			m -> Strings.reverse(m.group())), "abc\\$def$\\");
 	}
 
 	@Test
@@ -319,14 +250,12 @@ public class RegexUtilTest {
 		assertUnordered(
 			RegexUtil.parseFindAll(LSTRING_PATTERN, "abcDEFtrue123TRUE456True").asBools().get(),
 			false, true, false);
-		assertUnordered(
-			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asInts().get(), 123, 456,
-			789);
+		assertUnordered(RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asInts().get(),
+			123, 456, 789);
 		assertUnordered(
 			RegexUtil.parseFindAll(INT_PATTERN, "abc123DEF456ghi789JKL").asDoubles().get(), 123.0,
 			456.0, 789.0);
 		assertThrown(() -> RegexUtil.parseFindAll(LSTRING_PATTERN, "abc123DEF456ghi789JKL")
 			.asDoubles().get());
 	}
-
 }

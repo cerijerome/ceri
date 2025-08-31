@@ -25,7 +25,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.math.Bound;
 import ceri.common.math.Interval;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Common validation methods. IllegalArgumentException is thrown for a failed validation. Specified
@@ -935,7 +935,7 @@ public class ValidationUtil {
 	}
 
 	private static IllegalArgumentException exceptionf(String format, Object... args) {
-		return new IllegalArgumentException(StringUtil.format(format, args));
+		return new IllegalArgumentException(Strings.format(format, args));
 	}
 
 	private static boolean uwithin(long value, Long min, Long max) {
@@ -962,13 +962,13 @@ public class ValidationUtil {
 	}
 
 	private static String format(Interval<Long> interval, DisplayLong... flags) {
-		return StringUtil.format("%s%s, %s%s", interval.lower.type.left,
+		return Strings.format("%s%s, %s%s", interval.lower.type.left,
 			format(interval.lower.value, flags), format(interval.upper.value, flags),
 			interval.upper.type.right);
 	}
 
 	private static String format(Interval<Double> interval, DisplayDouble... flags) {
-		return StringUtil.format("%s%s, %s%s", interval.lower.type.left,
+		return Strings.format("%s%s, %s%s", interval.lower.type.left,
 			format(interval.lower.value, flags), format(interval.upper.value, flags),
 			interval.upper.type.right);
 	}

@@ -12,6 +12,7 @@ import java.util.function.Predicate;
 import ceri.common.array.ArrayUtil;
 import ceri.common.text.RegexUtil;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Class for accessing typed properties with a common key prefix. Useful when sharing one properties
@@ -127,8 +128,8 @@ public class TypedProperties {
 	 * exists for the key.
 	 */
 	public String get(String... keyParts) {
-		String value = StringUtil.trim(properties.property(key(keyParts)));
-		return StringUtil.empty(value) ? null : value;
+		String value = Strings.trim(properties.property(key(keyParts)));
+		return Strings.isEmpty(value) ? null : value;
 	}
 
 	/**

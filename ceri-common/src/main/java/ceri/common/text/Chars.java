@@ -1,8 +1,8 @@
 package ceri.common.text;
 
-import java.awt.event.KeyEvent;
+import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.regex.Pattern;
-import ceri.common.function.Functions;
+import ceri.common.math.Radix;
 
 public class Chars {
 	public static final char NUL = '\0';
@@ -20,49 +20,27 @@ public class Chars {
 	private Chars() {}
 
 	/**
-	 * 
+	 * Char escape support.
 	 */
-	public enum Radix {
-		hex(16, 2, 4, 8, 16),
-		dec(10, 3, 5, 10, 19),
-		oct(8, 3, 6, 11, 21),
-		bin(2, 8, 16, 32, 64);
-		
-		public final int n;
-		public final int byteDigits;
-		public final int shortDigits;
-		public final int intDigits;
-		public final int longDigits;
-		
-		private Radix(int n, int... digits) {
-			this.n = n;
-			int i = 0;
-			byteDigits = digits[i++];
-			shortDigits = digits[i++];
-			intDigits = digits[i++];
-			longDigits = digits[i];
-		}
-	}
-	
 	public static class Escape {
-		private static final Pattern REGEX = 
-			Pattern.compile("\\\\\\\\|\\\\b|\\\\e|\\\\t|\\\\f|\\\\r|\\\\n|\\\\0[0-3][0-7]{2}"
-				+ "|\\\\0[0-7]{2}|\\\\0[0-7]|\\\\0|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
-		private static final String NUL = "\\0";
-		private static final String BS = "\\b";
-		private static final String TAB = "\\t";
-		private static final String NL = "\\n";
-		private static final String FF = "\\f";
-		private static final String CR = "\\r";
-		private static final String ESC = "\\e";
-		private static final String BSLASH = "\\\\";
-		private static final String OCTAL = "\\0";
-		private static final String HEX = "\\x";
-		private static final String UTF16 = "\\u";
+		public static Format UTF16 = Format.of(Radix.HEX.n, "\\u", 4, 4);
+		public static Format OCT = Format.of(Radix.OCT.n, "\\", 1, 3);
+		public static Format HEX = Format.of(Radix.HEX.n, "\\x", 2, 2); // not standard
+		private static final Pattern REGEX = // java literal + regex compile => 4:1 backslashes
+			Pattern.compile("\\\\\\\\|\\\\b|\\\\t|\\\\n|\\\\f|\\\\r|\\\\e"
+				+ "|\\\\[0-3]?[0-7]?[0-7]|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
+		public static final String NUL = "\\0";
+		public static final String BS = "\\b";
+		public static final String TAB = "\\t";
+		public static final String NL = "\\n";
+		public static final String FF = "\\f";
+		public static final String CR = "\\r";
+		public static final String ESC = "\\e"; // not standard
+		public static final String BSLASH = "\\\\";
 
 		private Escape() {}
 	}
-	
+
 	/**
 	 * Returns the char at index, or null if out of range.
 	 */
@@ -80,29 +58,18 @@ public class Chars {
 	}
 
 	/**
-	 * Tries to match a character from its expanded escaped string.
+	 * Simple (non-exhaustive) char printability check.
 	 */
-	public static Character unEscape(String escapedChar) {
-		if (escapedChar == null) return null;
-		return switch (escapedChar) {
-			case Escape.BSLASH -> BSLASH;
-			case Escape.NUL -> NUL;
-			case Escape.BS -> BS;
-			case Escape.TAB -> TAB;
-			case Escape.NL -> NL;
-			case Escape.FF -> FF;
-			case Escape.CR -> CR;
-			case Escape.ESC -> ESC;
-			default -> escapedCode(escapedChar);
-		};
+	public static boolean isPrintable(CharSequence s, int index) {
+		return isPrintable(at(s, index, NUL));
 	}
 	
 	/**
-	 * Checks if a char is printable
+	 * Simple (non-exhaustive) char printability check.
 	 */
 	public static boolean isPrintable(char c) {
-		if (Character.isISOControl(c) || c == KeyEvent.CHAR_UNDEFINED) return false;
-		return Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS;
+		return !Character.isISOControl(c)
+			&& Character.UnicodeBlock.of(c) != Character.UnicodeBlock.SPECIALS;
 	}
 
 	/**
@@ -114,18 +81,74 @@ public class Chars {
 		if (Character.isLowerCase(l) && Character.isUpperCase(r)) return true;
 		return false;
 	}
-	
-	// support
-	
-	private static Character escapedCode(String escapedChar) {
-		var c = escapedCode(escapedChar, Escape.OCTAL, Radix.oct.n);
-		if (c == null) c = escapedCode(escapedChar, Escape.HEX, Radix.hex.n);
-		if (c == null) c = escapedCode(escapedChar, Escape.UTF16, Radix.hex.n);
-		return c;
+
+	/**
+	 * Returns the char as a string if printable, or as an escaped string if non-printable.
+	 */
+	public static String escape(char c) {
+		return appendEscape(new StringBuilder(), c).toString();
 	}
-	
-	private static Character escapedCode(String escapedChar, String prefix, int radix) {
-		if (!escapedChar.startsWith(prefix)) return null;
-		return (char) Integer.parseInt(escapedChar.substring(prefix.length()), radix);
+
+	/**
+	 * Returns the string with each non-printable char replaced by its escaped char sequence.
+	 */
+	public static String escape(CharSequence s) {
+		if (s == null) return "";
+		var b = new StringBuilder();
+		for (int i = 0; i < s.length(); i++)
+			appendEscape(b, s.charAt(i));
+		return b.toString();
+	}
+
+	/**
+	 * Returns the string with each escaped char sequence replaced by its unescaped char.
+	 */
+	public static String unescape(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return Patterns.findAllAccept(Escape.REGEX, s, (b, m) -> appendUnescape(b, m.group()));
+	}
+
+	// support
+
+	private static StringBuilder appendEscape(StringBuilder b, char c) {
+		return switch (c) {
+			case NUL -> b.append(Escape.NUL);
+			case BS -> b.append(Escape.BS);
+			case TAB -> b.append(Escape.TAB);
+			case NL -> b.append(Escape.NL);
+			case FF -> b.append(Escape.FF);
+			case CR -> b.append(Escape.CR);
+			case ESC -> b.append(Escape.ESC);
+			case BSLASH -> b.append(Escape.BSLASH);
+			default -> Chars.isPrintable(c) ? b.append(c) : Escape.UTF16.append(b, c);
+		};
+	}
+
+	private static void appendUnescape(StringBuilder b, String escapedChar) {
+		switch (escapedChar) {
+			case Escape.BSLASH -> b.append(BSLASH);
+			case Escape.BS -> b.append(BS);
+			case Escape.ESC -> b.append(ESC);
+			case Escape.FF -> b.append(FF);
+			case Escape.NL -> b.append(NL);
+			case Escape.CR -> b.append(CR);
+			case Escape.TAB -> b.append(TAB);
+			case Escape.NUL -> b.append(NUL);
+			default -> b.append(decode(escapedChar));
+		}
+	}
+
+	private static char decode(String escapedChar) {
+		int c = decode(escapedChar, Escape.UTF16);
+		if (c == -1) c = decode(escapedChar, Escape.HEX);
+		if (c == -1) c = decode(escapedChar, Escape.OCT);
+		validateMin(c, 0, "Escaped char");
+		return (char) c;
+	}
+
+	private static int decode(String escapedChar, Format format) {
+		if (!escapedChar.startsWith(format.prefix())) return -1;
+		return Integer.parseUnsignedInt(escapedChar, format.prefix().length(), escapedChar.length(),
+			format.radix());
 	}
 }

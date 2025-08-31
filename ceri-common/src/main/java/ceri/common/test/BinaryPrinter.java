@@ -1,16 +1,17 @@
 package ceri.common.test;
 
-import static ceri.common.reflect.Reflect.className;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Supplier;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
+import ceri.common.text.StringBuilders;
 import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 import ceri.common.util.Align;
@@ -30,7 +31,7 @@ public class BinaryPrinter {
 		builder().showBinary(false).bytesPerColumn(16).printableSpace(true).build();
 	private static final int ASCII_MIN = '!';
 	private static final int ASCII_MAX = '~';
-	private final Supplier<PrintStream> outSupplier; // works with SystemIo overrides
+	private final Functions.Supplier<PrintStream> outSupplier; // works with SystemIo overrides
 	private final int bufferSize;
 	private final int bytesPerColumn;
 	private final int columns;
@@ -43,7 +44,7 @@ public class BinaryPrinter {
 	private final char unprintable;
 
 	public static class Builder {
-		Supplier<PrintStream> outSupplier = () -> System.out;
+		Functions.Supplier<PrintStream> outSupplier = () -> System.out;
 		int bufferSize = 32 * 1024;
 		int bytesPerColumn = 8;
 		int columns = 1;
@@ -57,9 +58,14 @@ public class BinaryPrinter {
 
 		Builder() {}
 
-		public Builder out(Supplier<PrintStream> outSupplier) {
+		public Builder out(Functions.Supplier<PrintStream> outSupplier) {
 			this.outSupplier = outSupplier;
 			return this;
+		}
+
+		@SuppressWarnings("resource")
+		public Builder out(StringBuilder b) {
+			return out(StringBuilders.printStream(b));
 		}
 
 		public Builder out(PrintStream out) {
@@ -176,8 +182,9 @@ public class BinaryPrinter {
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.forClass(this, className(out()), bufferSize, bytesPerColumn, columns,
-			columnSpace, showBinary, showHex, showChar, upper, printableSpace, unprintable);
+		return ToString.forClass(this, Reflect.className(out()), bufferSize, bytesPerColumn,
+			columns, columnSpace, showBinary, showHex, showChar, upper, printableSpace,
+			unprintable);
 	}
 
 	/**
@@ -339,9 +346,9 @@ public class BinaryPrinter {
 	}
 
 	private void resetBuffers(StringBuilder binB, StringBuilder hexB, StringBuilder charB) {
-		StringUtil.clear(binB);
-		StringUtil.clear(hexB);
-		StringUtil.clear(charB);
+		StringBuilders.clear(binB);
+		StringBuilders.clear(hexB);
+		StringBuilders.clear(charB);
 	}
 
 	private void appendMissingItemSpace(StringBuilder binB, StringBuilder hexB,

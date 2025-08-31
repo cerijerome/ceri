@@ -3,7 +3,7 @@ package ceri.serial.comm;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 public class SerialParams {
 	public static final Pattern PARSE_REGEX = Pattern.compile("(\\d+)\\,\\s*([5678])\\,\\s*"
@@ -115,7 +115,7 @@ public class SerialParams {
 
 	@Override
 	public String toString() {
-		return String.format("%d,%d,%s,%s", baud, dataBits.bits, StringUtil.compact(stopBits.bits),
+		return String.format("%d,%d,%s,%s", baud, dataBits.bits, Strings.compact(stopBits.bits),
 			parity);
 	}
 }

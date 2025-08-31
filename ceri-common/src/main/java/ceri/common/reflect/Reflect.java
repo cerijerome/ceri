@@ -1,7 +1,5 @@
 package ceri.common.reflect;
 
-import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
-import static ceri.common.text.StringUtil.NULL;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -12,7 +10,6 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +17,7 @@ import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
@@ -27,7 +25,7 @@ import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 
 /**
@@ -54,7 +52,7 @@ public class Reflect {
 
 		@Override
 		public String toString() {
-			if (element() == null) return StringUtil.NULL;
+			if (element() == null) return Strings.NULL;
 			return Reflect.name(element.getClassName()) + "." + element.getMethodName() + ":"
 				+ element.getLineNumber();
 		}
@@ -117,7 +115,7 @@ public class Reflect {
 	 * as a name separator.
 	 */
 	public static String name(Class<?> cls) {
-		if (cls == null) return NULL;
+		if (cls == null) return Strings.NULL;
 		return name(cls.getTypeName());
 	}
 
@@ -126,7 +124,7 @@ public class Reflect {
 	 * as a name separator.
 	 */
 	public static String name(String fullName) {
-		if (fullName == null) return NULL;
+		if (fullName == null) return Strings.NULL;
 		return fullName.substring(fullName.lastIndexOf(".") + 1).replace('$', '.');
 	}
 
@@ -135,7 +133,7 @@ public class Reflect {
 	 * class name without package (same as name()).
 	 */
 	public static String nestedName(Class<?> cls) {
-		if (cls == null) return NULL;
+		if (cls == null) return Strings.NULL;
 		String s = cls.getTypeName();
 		int i = s.indexOf('$');
 		if (i > 0) return s.substring(i + 1).replace('$', '.');
@@ -154,7 +152,7 @@ public class Reflect {
 	 * Returns '&lt;class-name&gt;@&lt;hash&gt;'.
 	 */
 	public static String nameHash(Object obj) {
-		if (obj == null) return NULL;
+		if (obj == null) return Strings.NULL;
 		return className(obj) + hashId(obj);
 	}
 
@@ -337,7 +335,7 @@ public class Reflect {
 	 * Returns a list of the given classes and their declared nested classes.
 	 */
 	public static List<Class<?>> nested(Iterable<Class<?>> classes) {
-		var list = new ArrayList<Class<?>>();
+		var list = Lists.<Class<?>>of();
 		nested(list::add, classes);
 		return Immutable.wrap(list);
 	}
@@ -547,7 +545,7 @@ public class Reflect {
 	 */
 	public static Field enumToField(Enum<?> en) {
 		if (en == null) return null;
-		return shouldNotThrow.get(() -> en.getClass().getField(en.name()));
+		return ExceptionAdapter.shouldNotThrow.get(() -> en.getClass().getField(en.name()));
 	}
 
 	/**

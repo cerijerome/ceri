@@ -26,7 +26,7 @@ import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
 import ceri.common.property.TypedProperties;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 import ceri.common.util.Align;
 
 public class TestUtilTest {
@@ -156,7 +156,7 @@ public class TestUtilTest {
 	public void testExec() {
 		try (var sys = SystemIo.of()) {
 			StringBuilder b = new StringBuilder();
-			sys.out(StringUtil.asPrintStream(b));
+			sys.out(StringBuilders.printStream(b));
 			TestUtil.exec(ExecTest.class);
 			assertTrue(b.toString().contains("Exec should do this"));
 			assertTrue(b.toString().contains("Exec test that"));

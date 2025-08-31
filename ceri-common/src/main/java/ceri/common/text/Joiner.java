@@ -37,6 +37,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	public static final Joiner OR = of("|");
 	/** Colon separator without prefix or suffix. */
 	public static final Joiner COLON = of(":");
+	/** Native line joiner. */
+	public static final Joiner EOL = of(Strings.EOL);
 	public final String prefix;
 	public final String suffix;
 	public final String separator;
@@ -182,7 +184,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		private void appendCount(int count) {
 			if (joiner.showCount.no()) return;
 			if (joiner.showCount.yes() || (joiner.max != null && count > joiner.max))
-				b.append(StringUtil.format(joiner.countFormat, count));
+				b.append(Strings.format(joiner.countFormat, count));
 		}
 	}
 

@@ -116,5 +116,4 @@ public interface StringType extends CharSequence {
 			}
 		};
 	}
-
 }

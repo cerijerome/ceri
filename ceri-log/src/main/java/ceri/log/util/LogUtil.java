@@ -1,6 +1,5 @@
 package ceri.log.util;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,23 +8,22 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.IntFunction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteUtil;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.Function;
-import ceri.common.function.Excepts.Predicate;
-import ceri.common.function.Excepts.Runnable;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
+import ceri.common.text.Chars;
 import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.util.Align;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
@@ -44,9 +42,9 @@ public class LogUtil {
 	 * For lazy string instantiation.
 	 */
 	private static class ToString {
-		private final Supplier<?, String> stringSupplier;
+		private final Excepts.Supplier<?, String> stringSupplier;
 
-		private ToString(Supplier<?, String> stringSupplier) {
+		private ToString(Excepts.Supplier<?, String> stringSupplier) {
 			this.stringSupplier = stringSupplier;
 		}
 
@@ -108,7 +106,7 @@ public class LogUtil {
 	 * occurs, it is logged, and null is returned. Interrupted exceptions will re-interrupt the
 	 * current thread.
 	 */
-	public static <T> T getSilently(Supplier<?, T> supplier) {
+	public static <T> T getSilently(Excepts.Supplier<?, T> supplier) {
 		return getSilently(supplier, null);
 	}
 
@@ -117,7 +115,7 @@ public class LogUtil {
 	 * occurs, it is logged, and the error value is returned. Interrupted exceptions will
 	 * re-interrupt the current thread.
 	 */
-	public static <T> T getSilently(Supplier<?, T> supplier, T errorVal) {
+	public static <T> T getSilently(Excepts.Supplier<?, T> supplier, T errorVal) {
 		return getIt(supplier::get, errorVal);
 	}
 
@@ -125,7 +123,7 @@ public class LogUtil {
 	 * Invokes the runnable and returns true. If an exception is thrown, it will be logged, and
 	 * false is returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	public static boolean runSilently(Runnable<?> runnable) {
+	public static boolean runSilently(Excepts.Runnable<?> runnable) {
 		return runIt(runnable::run);
 	}
 
@@ -134,7 +132,7 @@ public class LogUtil {
 	 * is closed, and the exception re-thrown. Returns the passed-in resource.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T acceptOrClose(T t,
-		Consumer<E, T> consumer) throws E {
+		Excepts.Consumer<E, T> consumer) throws E {
 		return acceptOrClose(t, consumer, LogUtil::close);
 	}
 
@@ -142,8 +140,8 @@ public class LogUtil {
 	 * Invokes the consumer on the given resource if non-null. If an exception occurs, the resource
 	 * is closed, and the exception re-thrown. Returns the passed-in resource.
 	 */
-	public static <E extends Exception, T> T acceptOrClose(T t, Consumer<E, T> consumer,
-		Consumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T> T acceptOrClose(T t, Excepts.Consumer<E, T> consumer,
+		Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			if (t != null) consumer.accept(t);
 			return t;
@@ -159,7 +157,7 @@ public class LogUtil {
 	 * resource is null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrClose(T t,
-		Function<E, T, R> function) throws E {
+		Excepts.Function<E, T, R> function) throws E {
 		return applyOrClose(t, function, null);
 	}
 
@@ -169,7 +167,7 @@ public class LogUtil {
 	 * default value if the resource or function result is null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R applyOrClose(T t,
-		Function<E, T, R> function, R def) throws E {
+		Excepts.Function<E, T, R> function, R def) throws E {
 		return applyOrClose(t, function, def, LogUtil::close);
 	}
 
@@ -178,8 +176,8 @@ public class LogUtil {
 	 * resource is closed, and the exception re-thrown. Returns the function result, or the given
 	 * default value if the resource or function result is null.
 	 */
-	public static <E extends Exception, T, R> R applyOrClose(T t, Function<E, T, R> function, R def,
-		Consumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T, R> R applyOrClose(T t,
+		Excepts.Function<E, T, R> function, R def, Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			if (t == null) return def;
 			var result = function.apply(t);
@@ -195,7 +193,7 @@ public class LogUtil {
 	 * re-thrown. Returns the passed-in resource.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> T runOrClose(T t,
-		Runnable<E> runnable) throws E {
+		Excepts.Runnable<E> runnable) throws E {
 		return runOrClose(t, runnable, LogUtil::close);
 	}
 
@@ -203,8 +201,8 @@ public class LogUtil {
 	 * Invokes the runnable. If an exception occurs, the resource is closed, and the exception
 	 * re-thrown. Returns the passed-in resource.
 	 */
-	public static <E extends Exception, T> T runOrClose(T t, Runnable<E> runnable,
-		Consumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T> T runOrClose(T t, Excepts.Runnable<E> runnable,
+		Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			runnable.run();
 			return t;
@@ -219,7 +217,7 @@ public class LogUtil {
 	 * re-thrown. Returns the function result.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
-		Supplier<E, R> supplier) throws E {
+		Excepts.Supplier<E, R> supplier) throws E {
 		return getOrClose(t, supplier, null);
 	}
 
@@ -229,7 +227,7 @@ public class LogUtil {
 	 * null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R getOrClose(T t,
-		Supplier<E, R> supplier, R def) throws E {
+		Excepts.Supplier<E, R> supplier, R def) throws E {
 		return getOrClose(t, supplier, def, LogUtil::close);
 	}
 
@@ -238,8 +236,8 @@ public class LogUtil {
 	 * re-thrown. Returns the function result, or the given default value if the function result is
 	 * null.
 	 */
-	public static <E extends Exception, T, R> R getOrClose(T t, Supplier<E, R> supplier, R def,
-		Consumer<E, T> closeFn) throws E {
+	public static <E extends Exception, T, R> R getOrClose(T t, Excepts.Supplier<E, R> supplier,
+		R def, Excepts.Consumer<E, T> closeFn) throws E {
 		try {
 			var result = supplier.get();
 			return result == null ? def : result;
@@ -254,7 +252,7 @@ public class LogUtil {
 	 * and the exception re-thrown. Returns the passed-in resources.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> Collection<T>
-		acceptOrCloseAll(Collection<T> ts, Consumer<E, Collection<T>> consumer) throws E {
+		acceptOrCloseAll(Collection<T> ts, Excepts.Consumer<E, Collection<T>> consumer) throws E {
 		return acceptOrClose(ts, consumer, LogUtil::close);
 	}
 
@@ -263,7 +261,7 @@ public class LogUtil {
 	 * closed, and the exception re-thrown. Returns the function result.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R
-		applyOrCloseAll(Collection<T> ts, Function<E, Collection<T>, R> function) throws E {
+		applyOrCloseAll(Collection<T> ts, Excepts.Function<E, Collection<T>, R> function) throws E {
 		return applyOrCloseAll(ts, function, null);
 	}
 
@@ -272,8 +270,8 @@ public class LogUtil {
 	 * closed, and the exception re-thrown. Returns the function result, or the given default value
 	 * if the resources or function result are null.
 	 */
-	public static <E extends Exception, T extends AutoCloseable, R> R
-		applyOrCloseAll(Collection<T> ts, Function<E, Collection<T>, R> function, R def) throws E {
+	public static <E extends Exception, T extends AutoCloseable, R> R applyOrCloseAll(
+		Collection<T> ts, Excepts.Function<E, Collection<T>, R> function, R def) throws E {
 		return applyOrClose(ts, function, def, LogUtil::close);
 	}
 
@@ -282,7 +280,7 @@ public class LogUtil {
 	 * re-thrown. Returns the passed-in resources.
 	 */
 	public static <E extends Exception, T extends AutoCloseable> Collection<T>
-		runOrCloseAll(Collection<T> ts, Runnable<E> runnable) throws E {
+		runOrCloseAll(Collection<T> ts, Excepts.Runnable<E> runnable) throws E {
 		return runOrClose(ts, runnable, LogUtil::close);
 	}
 
@@ -291,7 +289,7 @@ public class LogUtil {
 	 * re-thrown. Returns the function result.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R
-		getOrCloseAll(Collection<T> ts, Supplier<E, R> supplier) throws E {
+		getOrCloseAll(Collection<T> ts, Excepts.Supplier<E, R> supplier) throws E {
 		return getOrCloseAll(ts, supplier, null);
 	}
 
@@ -301,7 +299,7 @@ public class LogUtil {
 	 * null.
 	 */
 	public static <E extends Exception, T extends AutoCloseable, R> R
-		getOrCloseAll(Collection<T> ts, Supplier<E, R> supplier, R def) throws E {
+		getOrCloseAll(Collection<T> ts, Excepts.Supplier<E, R> supplier, R def) throws E {
 		return getOrClose(ts, supplier, def, LogUtil::close);
 	}
 
@@ -329,7 +327,7 @@ public class LogUtil {
 	 * subject is null. Exceptions are logged, and interrupted exceptions will re-interrupt the
 	 * thread. Returns false if any exception occurred.
 	 */
-	public static <T> boolean close(T t, Consumer<?, T> closeFn) {
+	public static <T> boolean close(T t, Excepts.Consumer<?, T> closeFn) {
 		return consumeIt(t, closeFn::accept);
 	}
 
@@ -372,7 +370,7 @@ public class LogUtil {
 		return testIt(executor, _ -> {
 			executor.shutdownNow();
 			return ConcurrentUtil.getWhileInterrupted(executor::awaitTermination, timeoutMs,
-				MILLISECONDS);
+				TimeUnit.MILLISECONDS);
 		});
 	}
 
@@ -427,7 +425,7 @@ public class LogUtil {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
-		create(Function<E, T, R> constructor, T... inputs) throws E {
+		create(Excepts.Function<E, T, R> constructor, T... inputs) throws E {
 		return create(constructor, Arrays.asList(inputs));
 	}
 
@@ -437,8 +435,8 @@ public class LogUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
-		create(Function<E, T, R> constructor, Iterable<T> inputs) throws E {
-		List<R> results = new ArrayList<>();
+		create(Excepts.Function<E, T, R> constructor, Iterable<T> inputs) throws E {
+		var results = Lists.<R>of();
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
@@ -455,8 +453,8 @@ public class LogUtil {
 	 */
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T extends AutoCloseable> List<T>
-		create(Supplier<E, T> constructor, int count) throws E {
-		List<T> results = new ArrayList<>(count);
+		create(Excepts.Supplier<E, T> constructor, int count) throws E {
+		var results = new ArrayList<T>(count);
 		try {
 			for (int i = 0; i < count; i++)
 				results.add(constructor.get());
@@ -472,8 +470,9 @@ public class LogUtil {
 	 * exception occurs the already created instances will be closed.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T, R extends AutoCloseable> R[]
-		createArray(IntFunction<R[]> arrayFn, Function<E, T, R> constructor, T... inputs) throws E {
+	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(
+		Functions.IntFunction<R[]> arrayFn, Excepts.Function<E, T, R> constructor, T... inputs)
+		throws E {
 		return createArray(arrayFn, constructor, Arrays.asList(inputs));
 	}
 
@@ -482,7 +481,8 @@ public class LogUtil {
 	 * exception occurs the already created instances will be closed.
 	 */
 	public static <E extends Exception, T, R extends AutoCloseable> R[] createArray(
-		IntFunction<R[]> arrayFn, Function<E, T, R> constructor, Collection<T> inputs) throws E {
+		Functions.IntFunction<R[]> arrayFn, Excepts.Function<E, T, R> constructor,
+		Collection<T> inputs) throws E {
 		R[] results = arrayFn.apply(inputs.size());
 		int i = 0;
 		try {
@@ -499,8 +499,9 @@ public class LogUtil {
 	 * Constructs an array of closeable instances by calling the constructor the given number of
 	 * times. If any exception occurs the already created instances will be closed.
 	 */
-	public static <E extends Exception, T extends AutoCloseable> T[]
-		createArray(IntFunction<T[]> arrayFn, Supplier<E, T> constructor, int count) throws E {
+	public static <E extends Exception, T extends AutoCloseable> T[] createArray(
+		Functions.IntFunction<T[]> arrayFn, Excepts.Supplier<E, T> constructor, int count)
+		throws E {
 		T[] results = arrayFn.apply(count);
 		try {
 			for (int i = 0; i < count; i++)
@@ -516,7 +517,7 @@ public class LogUtil {
 	 * Returns an object whose toString() executes the supplier method. Used for logging lazy string
 	 * instantiations.
 	 */
-	public static Object toString(Supplier<?, String> stringSupplier) {
+	public static Object toString(Excepts.Supplier<?, String> stringSupplier) {
 		return new ToString(stringSupplier);
 	}
 
@@ -524,7 +525,7 @@ public class LogUtil {
 	 * Returns an object whose toString() executes the conversion method on the given object. Used
 	 * for logging lazy string instantiations.
 	 */
-	public static <T> Object toString(T t, Function<?, T, String> converter) {
+	public static <T> Object toString(T t, Excepts.Function<?, T, String> converter) {
 		return toString(() -> converter.apply(t));
 	}
 
@@ -546,7 +547,7 @@ public class LogUtil {
 	 * Returns an object whose toString() returns the formatted string.
 	 */
 	public static Object toFormat(String format, Object... args) {
-		return toString(() -> StringUtil.format(format, args));
+		return toString(() -> Strings.format(format, args));
 	}
 
 	/**
@@ -554,21 +555,21 @@ public class LogUtil {
 	 * space.
 	 */
 	public static Object compact(Object obj) {
-		return toString(() -> StringUtil.compact(String.valueOf(obj)));
+		return toString(() -> Strings.compact(String.valueOf(obj)));
 	}
 
 	/**
 	 * Returns an object with an escaped toString(), replacing unprintable chars with literals.
 	 */
 	public static Object escaped(Object obj) {
-		return toString(() -> StringUtil.escape(String.valueOf(obj)));
+		return toString(() -> Chars.escape(String.valueOf(obj)));
 	}
 
 	/**
 	 * Returns an object with an escaped toString(), replacing unprintable chars with literals.
 	 */
 	public static Object escapedAscii(byte[] bytes, int offset, int length) {
-		return toString(() -> StringUtil.escape(ByteUtil.fromAscii(bytes, offset, length)));
+		return toString(() -> Chars.escape(ByteUtil.fromAscii(bytes, offset, length)));
 	}
 
 	/**
@@ -589,7 +590,7 @@ public class LogUtil {
 	 * is returned. If an exception is thrown, it will be logged, and false is returned. Interrupted
 	 * exceptions will re-interrupt the thread.
 	 */
-	private static <T> boolean consumeIt(T t, Consumer<Exception, T> consumer) {
+	private static <T> boolean consumeIt(T t, Excepts.Consumer<Exception, T> consumer) {
 		if (t == null) return true;
 		return runIt(() -> consumer.accept(t));
 	}
@@ -598,7 +599,7 @@ public class LogUtil {
 	 * Invokes the runnable and returns true. If an exception is thrown, it will be logged, and
 	 * false is returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static boolean runIt(Runnable<Exception> runnable) {
+	private static boolean runIt(Excepts.Runnable<Exception> runnable) {
 		return getIt(() -> {
 			runnable.run();
 			return true;
@@ -610,7 +611,7 @@ public class LogUtil {
 	 * null, true is returned. If an exception is thrown, it will be logged, and false is returned.
 	 * Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static <T> boolean testIt(T t, Predicate<Exception, T> predicate) {
+	private static <T> boolean testIt(T t, Excepts.Predicate<Exception, T> predicate) {
 		if (t == null) return true;
 		return getIt(() -> predicate.test(t), false);
 	}
@@ -619,7 +620,7 @@ public class LogUtil {
 	 * Invokes the supplier and returns the result. If an exception is thrown, it will be logged,
 	 * and error value returned instead. Interrupted exceptions will re-interrupt the thread.
 	 */
-	private static <T> T getIt(Supplier<Exception, T> supplier, T errorVal) {
+	private static <T> T getIt(Excepts.Supplier<Exception, T> supplier, T errorVal) {
 		try {
 			return supplier.get();
 		} catch (RuntimeInterruptedException | InterruptedException e) {

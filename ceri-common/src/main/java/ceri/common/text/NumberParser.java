@@ -1,12 +1,7 @@
 package ceri.common.text;
 
-import static ceri.common.text.StringUtil.BINARY_RADIX;
-import static ceri.common.text.StringUtil.HEX_RADIX;
-import static ceri.common.text.StringUtil.OCTAL_RADIX;
-import static ceri.common.validation.ValidationUtil.validateRange;
-import java.util.Map;
-import ceri.common.collection.Maps;
 import ceri.common.math.MathUtil;
+import ceri.common.math.Radix;
 
 /**
  * Provides utilities to parse and decode integer values from strings. Expands the range of decoding
@@ -14,9 +9,6 @@ import ceri.common.math.MathUtil;
  * and byte types.
  */
 public class NumberParser {
-	private static final Map<String, Integer> RADIX_MAP =
-		Maps.build(Maps::link, "0x", HEX_RADIX).put("0X", HEX_RADIX).put("#", HEX_RADIX)
-			.put("0b", BINARY_RADIX).put("0B", BINARY_RADIX).put("0", OCTAL_RADIX).wrap();
 	private boolean positive = true;
 	private int radix = 10;
 	private int i = 0;
@@ -59,7 +51,7 @@ public class NumberParser {
 	 * allows -0xff to 0xff range.
 	 */
 	public static byte parseByte(String s) {
-		return parseByte(s, StringUtil.DECIMAL_RADIX);
+		return parseByte(s, Radix.DEC.n);
 	}
 
 	/**
@@ -67,7 +59,7 @@ public class NumberParser {
 	 * but allows -0xffff to 0xffff range.
 	 */
 	public static short parseShort(String s) {
-		return parseShort(s, StringUtil.DECIMAL_RADIX);
+		return parseShort(s, Radix.DEC.n);
 	}
 
 	/**
@@ -75,7 +67,7 @@ public class NumberParser {
 	 * but allows -0xffffffff to 0xffffffff range.
 	 */
 	public static int parseInt(String s) {
-		return parseInt(s, StringUtil.DECIMAL_RADIX);
+		return parseInt(s, Radix.DEC.n);
 	}
 
 	/**
@@ -83,7 +75,7 @@ public class NumberParser {
 	 * allows -0xffffffffffffffff to 0xffffffffffffffff range.
 	 */
 	public static long parseLong(String s) {
-		return parseLong(s, StringUtil.DECIMAL_RADIX);
+		return parseLong(s, Radix.DEC.n);
 	}
 
 	/**
@@ -122,7 +114,7 @@ public class NumberParser {
 	 * allows 0 to 0xff range.
 	 */
 	public static byte parseUbyte(String s) {
-		return parseUbyte(s, StringUtil.DECIMAL_RADIX);
+		return parseUbyte(s, Radix.DEC.n);
 	}
 
 	/**
@@ -130,7 +122,7 @@ public class NumberParser {
 	 * but allows 0 to 0xffff range.
 	 */
 	public static short parseUshort(String s) {
-		return parseUshort(s, StringUtil.DECIMAL_RADIX);
+		return parseUshort(s, Radix.DEC.n);
 	}
 
 	/**
@@ -138,7 +130,7 @@ public class NumberParser {
 	 * {@link Integer#parseUnsignedInt(String)}.
 	 */
 	public static int parseUint(String s) {
-		return parseUint(s, StringUtil.DECIMAL_RADIX);
+		return parseUint(s, Radix.DEC.n);
 	}
 
 	/**
@@ -146,7 +138,7 @@ public class NumberParser {
 	 * {@link Long#parseUnsignedLong(String)}.
 	 */
 	public static long parseUlong(String s) {
-		return parseUlong(s, StringUtil.DECIMAL_RADIX);
+		return parseUlong(s, Radix.DEC.n);
 	}
 
 	/**
@@ -243,13 +235,10 @@ public class NumberParser {
 	 * Parse radix at current position.
 	 */
 	private NumberParser radix() {
-		if (i >= s.length()) return this;
-		for (var entry : RADIX_MAP.entrySet()) {
-			if (!s.startsWith(entry.getKey(), i)) continue;
-			if (i + entry.getKey().length() >= s.length()) continue;
-			i += entry.getKey().length();
-			radix = entry.getValue();
-			break;
+		var prefix = Radix.Prefix.find(s, i);
+		if (prefix.radix().isValid()) {
+			i += prefix.prefix().length();
+			radix = prefix.radix().n;
 		}
 		return this;
 	}
@@ -258,8 +247,7 @@ public class NumberParser {
 	 * Set given radix.
 	 */
 	private NumberParser radix(int radix) {
-		this.radix = radix;
-		validateRange(radix, Character.MIN_RADIX, Character.MAX_RADIX, "Radix");
+		this.radix = Radix.validate(radix);
 		return this;
 	}
 
@@ -315,5 +303,4 @@ public class NumberParser {
 	private static NumberFormatException formatException(String format, Object... args) {
 		return new NumberFormatException(String.format(format, args));
 	}
-
 }

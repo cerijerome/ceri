@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import ceri.common.io.Connector;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * Interface for serial connector functionality.
@@ -76,7 +76,7 @@ public interface Serial extends Connector {
 
 		@Override
 		default String port() {
-			return StringUtil.NULL;
+			return Strings.NULL;
 		}
 
 		@Override

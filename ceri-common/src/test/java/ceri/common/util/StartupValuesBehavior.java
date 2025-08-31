@@ -5,7 +5,7 @@ import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
-import ceri.common.text.StringUtil;
+import ceri.common.text.StringBuilders;
 
 public class StartupValuesBehavior {
 
@@ -30,7 +30,7 @@ public class StartupValuesBehavior {
 	public void shouldRenderParsedValue() {
 		StringBuilder b = new StringBuilder();
 		try (SystemIo sys = SystemIo.of()) {
-			sys.out(StringUtil.asPrintStream(b));
+			sys.out(StringBuilders.printStream(b));
 			StartupValues v = StartupValues.sysOut("a").renderer(obj -> "<" + obj + ">");
 			v.next("param", p -> p.get());
 			assertEquals(b.toString(), "0) param = <a> ('a' from args[0])\n");

@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import java.io.IOException;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 
 /**
  * IO exceptions.
@@ -44,7 +44,7 @@ public class IoExceptions {
 		}
 
 		public static RuntimeEof of(Throwable t, String format, Object... args) {
-			return new RuntimeEof(StringUtil.format(format, args), t);
+			return new RuntimeEof(Strings.format(format, args), t);
 		}
 
 		private RuntimeEof(String message, Throwable e) {

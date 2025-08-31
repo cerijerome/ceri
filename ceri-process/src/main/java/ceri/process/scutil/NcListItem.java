@@ -25,8 +25,7 @@ public class NcListItem {
 	public final String type;
 
 	public static List<NcListItem> fromList(String output) {
-		return Patterns.Split.stream(Patterns.Split.line, output).map(NcListItem::from).nonNull()
-			.toList();
+		return Patterns.Split.LINE.stream(output).map(NcListItem::from).nonNull().toList();
 	}
 
 	public static NcListItem from(String line) {

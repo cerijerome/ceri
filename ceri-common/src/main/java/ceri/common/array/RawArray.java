@@ -9,7 +9,6 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.MathUtil;
 import ceri.common.text.Joiner;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
@@ -440,7 +439,7 @@ public class RawArray {
 	 */
 	public static <T> String toString(Functions.ObjIntFunction<? super T, ? super String> stringFn,
 		Joiner joiner, T array, int offset, int length) {
-		if (stringFn == null || array == null || joiner == null) return StringUtil.NULL;
+		if (stringFn == null || array == null || joiner == null) return Strings.NULL;
 		return applySlice(array, offset, length, (o, l) -> {
 			return joiner.joinIndex((b, i) -> b.append(stringFn.apply(array, i)), o, l);
 		});

@@ -2,18 +2,17 @@ package ceri.common.process;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import java.util.function.Function;
 import org.junit.Test;
-import ceri.common.text.ParseUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.function.Functions;
+import ceri.common.text.NumberParser;
+import ceri.common.text.Patterns;
 
 public class OutputBehavior {
 
 	@Test
 	public void shouldParseOutput() {
-		Function<String, int[]> parser =
-			s -> StringUtil.commaSplit(s).stream().mapToInt(ParseUtil::parseInt).toArray();
+		Functions.Function<String, int[]> parser =
+			s -> Patterns.Split.COMMA.stream(s).mapToInt(NumberParser::parseInt).toArray();
 		Output<int[]> output = Output.of("1, 2, 3", parser);
 		assertEquals(output.out, "1, 2, 3");
 		assertEquals(output.toString(), "1, 2, 3");
@@ -22,8 +21,7 @@ public class OutputBehavior {
 
 	@Test
 	public void shouldHandleNulls() {
-		assertNull(Output.of(null, _ -> "test").parse());
-		assertNull(Output.of("test", null).parse());
+		assertEquals(Output.of(null, _ -> "test").parse(), null);
+		assertEquals(Output.of("test", null).parse(), null);
 	}
-
 }

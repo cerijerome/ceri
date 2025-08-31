@@ -6,11 +6,10 @@ import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateNotNull;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.common.validation.ValidationUtil.validatef;
-import static java.lang.Math.floorMod;
-import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 import ceri.common.exception.Exceptions;
-import ceri.common.text.StringUtil;
+import ceri.common.function.Functions;
+import ceri.common.text.StringBuilders;
 import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
 
@@ -229,8 +228,8 @@ public class Matrix {
 		validateRange(rows, 0, this.rows, "Rows");
 		validateRange(columns, 0, this.columns, "Columns");
 		if (isEmpty() || rows == 0 || columns == 0) return EMPTY;
-		int r0 = floorMod(row, this.rows);
-		int c0 = floorMod(column, this.columns);
+		int r0 = Math.floorMod(row, this.rows);
+		int c0 = Math.floorMod(column, this.columns);
 		if (r0 == 0 && c0 == 0 && rows == this.rows && columns == this.columns) return this;
 		// Use accessor directly if no wrapping
 		if (r0 + rows <= this.rows && c0 + columns <= this.columns)
@@ -295,7 +294,7 @@ public class Matrix {
 	 * Returns a matrix with a scalar operator applied to all values. The operator is only applied
 	 * when a value is accessed.
 	 */
-	public Matrix apply(DoubleUnaryOperator scalarFn) {
+	public Matrix apply(Functions.DoubleOperator scalarFn) {
 		if (isEmpty()) return this;
 		// Add 0.0 to prevent -0.0
 		return new Matrix((r, c) -> 0 + scalarFn.applyAsDouble(accessor.get(r, c)), rows, columns);
@@ -431,7 +430,7 @@ public class Matrix {
 		int nc = columns > max ? max - 1 : columns;
 		StringBuilder b = new StringBuilder();
 		for (int r = 0; r < nr; r++) {
-			StringUtil.clear(b);
+			StringBuilders.clear(b);
 			appendRow(b, r, nc);
 			s.children(b.toString());
 		}

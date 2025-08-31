@@ -1,8 +1,8 @@
 package ceri.serial.libusb.jna;
 
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.exception.ExceptionUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.exception.Exceptions;
+import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;
 
@@ -19,7 +19,7 @@ public class LibUsbException extends CException {
 	 * Create exception without adding the error code to the message.
 	 */
 	public static LibUsbException of(libusb_error error, String format, Object... args) {
-		return new LibUsbException(error, code(error), StringUtil.format(format, args));
+		return new LibUsbException(error, code(error), Strings.format(format, args));
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class LibUsbException extends CException {
 	}
 
 	private static String format(libusb_error error, int code, String message, Object... args) {
-		return "[" + (error == null ? code : error) + "] " + StringUtil.format(message, args);
+		return "[" + (error == null ? code : error) + "] " + Strings.format(message, args);
 	}
 
 	private static LibUsbException adapt(Throwable e) {
@@ -56,6 +56,6 @@ public class LibUsbException extends CException {
 		String message = e.getMessage();
 		if (message == null) message = error.toString();
 		else message += ": " + error;
-		return ExceptionUtil.initCause(of(error, message), e);
+		return Exceptions.initCause(of(error, message), e);
 	}
 }

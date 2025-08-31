@@ -1,12 +1,11 @@
 package ceri.process.nmcli;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collection.Maps;
+import ceri.common.text.Patterns;
 import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
 
 /**
@@ -38,8 +37,8 @@ public class ConShowIdResult {
 
 	public static ConShowIdResult fromOutput(String output) {
 		Builder b = builder();
-		for (String line : StringUtil.lines(output)) {
-			Matcher m = RegexUtil.matched(NAME_VALUE_SPLIT, line);
+		for (String line : Patterns.Split.LINE.array(output)) {
+			var m = RegexUtil.matched(NAME_VALUE_SPLIT, line);
 			if (m != null) b.value(m.group(1), m.group(2));
 		}
 		return b.build();
@@ -50,7 +49,7 @@ public class ConShowIdResult {
 	}
 
 	public static class Builder {
-		final Map<String, String> values = new LinkedHashMap<>();
+		final Map<String, String> values = Maps.link();
 
 		Builder() {}
 
