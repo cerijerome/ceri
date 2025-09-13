@@ -10,7 +10,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Excepts.IntBiConsumer;
 import ceri.common.function.Fluent;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
 
@@ -217,7 +217,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Returns the unsigned int value at given index.
 	 */
 	default long getUint(int index) {
-		return MathUtil.uint(getInt(index));
+		return Maths.uint(getInt(index));
 	}
 
 	/**

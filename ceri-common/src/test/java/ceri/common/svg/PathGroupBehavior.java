@@ -3,11 +3,11 @@ package ceri.common.svg;
 import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.TestUtil;
 
 public class PathGroupBehavior {
 
@@ -21,7 +21,7 @@ public class PathGroupBehavior {
 		PathGroup ne1 = PathGroup.of(l);
 		PathGroup ne2 = PathGroup.of(MoveTo.absolute(1, 1), l);
 		PathGroup ne3 = PathGroup.of(m, LineTo.relative(2, 0));
-		exerciseEquals(g, eq0);
+		TestUtil.exerciseEquals(g, eq0);
 		assertAllNotEqual(g, ne0, ne1, ne2, ne3);
 	}
 

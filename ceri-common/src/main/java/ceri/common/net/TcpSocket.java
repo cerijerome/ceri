@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Objects;
 import ceri.common.io.Connector;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.CloseableUtil;
 
 /**
@@ -159,7 +159,7 @@ public interface TcpSocket extends Connector {
 
 		@Override
 		default <T> T option(TcpSocketOption<T> option) throws IOException {
-			return Objects.requireNonNullElse(option.disableValue, BasicUtil.unchecked(0));
+			return Objects.requireNonNullElse(option.disableValue, Reflect.unchecked(0));
 		}
 	}
 }

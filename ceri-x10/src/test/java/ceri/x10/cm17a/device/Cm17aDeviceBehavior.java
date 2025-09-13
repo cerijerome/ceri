@@ -3,32 +3,21 @@ package ceri.x10.cm17a.device;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.x10.cm17a.device.Data.code;
-import static ceri.x10.command.FunctionType.on;
-import static ceri.x10.command.House.A;
-import static ceri.x10.command.House.C;
-import static ceri.x10.command.House.D;
-import static ceri.x10.command.House.K;
-import static ceri.x10.command.House.L;
-import static ceri.x10.command.Unit._10;
-import static ceri.x10.command.Unit._13;
-import static ceri.x10.command.Unit._14;
-import static ceri.x10.command.Unit._5;
-import static ceri.x10.command.Unit._7;
-import static ceri.x10.command.Unit._9;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
+import ceri.x10.command.FunctionType;
+import ceri.x10.command.House;
 import ceri.x10.command.TestCommandListener;
+import ceri.x10.command.Unit;
 
 public class Cm17aDeviceBehavior {
 	private Cm17aTestConnector con;
@@ -51,7 +40,7 @@ public class Cm17aDeviceBehavior {
 		var ne3 = Cm17aDevice.Config.builder().queueSize(5).queuePollTimeoutMs(33).build();
 		var ne4 = Cm17aDevice.Config.builder().queueSize(5).resetIntervalMicros(44).build();
 		var ne5 = Cm17aDevice.Config.builder().queueSize(5).waitIntervalMicros(55).build();
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
@@ -59,7 +48,7 @@ public class Cm17aDeviceBehavior {
 	public void shouldHandleOnCommands() throws IOException {
 		init();
 		cm17a.command(Command.from("A10:on"));
-		con.assertCodes(code(A, _10, on));
+		con.assertCodes(Data.code(House.A, Unit._10, FunctionType.on));
 		cm17a.command(Command.from("A10:on"));
 		con.assertCodes();
 	}
@@ -68,12 +57,12 @@ public class Cm17aDeviceBehavior {
 	public void shouldResetOnError() throws IOException {
 		init();
 		LogModifier.run(() -> {
-			Command cmd = Command.off(K, _13, _14);
-			con.dtr.error.setFrom(IOX);
+			Command cmd = Command.off(House.K, Unit._13, Unit._14);
+			con.dtr.error.setFrom(ErrorGen.IOX);
 			assertThrown(() -> cm17a.command(cmd));
 			con.dtr.error.clear();
 			cm17a.command(cmd);
-			con.rts.error.setFrom(RTX);
+			con.rts.error.setFrom(ErrorGen.RTX);
 			assertThrown(() -> cm17a.command(cmd));
 			con.rts.error.clear();
 			cm17a.command(cmd);
@@ -83,8 +72,8 @@ public class Cm17aDeviceBehavior {
 	@Test
 	public void shouldFailForUnsupportedCommands() {
 		init();
-		assertThrown(() -> cm17a.command(Command.allLightsOff(C)));
-		assertThrown(() -> cm17a.command(Command.ext(D, 1, 2, _7)));
+		assertThrown(() -> cm17a.command(Command.allLightsOff(House.C)));
+		assertThrown(() -> cm17a.command(Command.ext(House.D, 1, 2, Unit._7)));
 	}
 
 	@Test
@@ -92,8 +81,8 @@ public class Cm17aDeviceBehavior {
 		init();
 		TestCommandListener listener = TestCommandListener.of();
 		try (var _ = cm17a.listen(listener)) {
-			cm17a.command(Command.dim(L, 50, _5, _9));
-			assertEquals(listener.sync.await(), Command.dim(L, 50, _5, _9));
+			cm17a.command(Command.dim(House.L, 50, Unit._5, Unit._9));
+			assertEquals(listener.sync.await(), Command.dim(House.L, 50, Unit._5, Unit._9));
 		}
 	}
 

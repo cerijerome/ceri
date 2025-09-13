@@ -9,9 +9,8 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import java.awt.Color;
 import java.util.Comparator;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import org.junit.Test;
+import ceri.common.stream.Streams;
 import ceri.common.test.TestUtil;
 
 public class ColorxsTest {
@@ -60,8 +59,8 @@ public class ColorxsTest {
 
 	@Test
 	public void testCompareColor() {
-		exerciseCompare(Colorxs.Compare.color(Colors.Compare.HUE), 0xffff808060L,
-			0xffffffff800000L, 0xffffffffff00L, 0xffff0060ffL);
+		exerciseCompare(Colorxs.Compare.color(Colors.Compare.HUE), 0xffff808060L, 0xffffffff800000L,
+			0xffffffffff00L, 0xffff0060ffL);
 	}
 
 	@Test
@@ -266,13 +265,13 @@ public class ColorxsTest {
 
 	@Test
 	public void testXargbList() {
-		assertOrdered(Colorxs.xargbList(LongStream.of(0xffffffffffL, 0x123456789aL)), 0xffffffffffL,
+		assertOrdered(Colorxs.xargbList(Streams.longs(0xffffffffffL, 0x123456789aL)), 0xffffffffffL,
 			0x123456789aL);
 	}
 
 	@Test
 	public void testColorxList() {
-		assertOrdered(Colorxs.colorxList(LongStream.of(0xffffffffffL, 0x123456789aL)),
+		assertOrdered(Colorxs.colorxList(Streams.longs(0xffffffffffL, 0x123456789aL)),
 			Colorx.of(0xffffffffffL), Colorx.of(0x123456789aL));
 	}
 
@@ -284,7 +283,7 @@ public class ColorxsTest {
 
 	@Test
 	public void testStreamArgbsAsXargbs() {
-		assertStream(Colorxs.stream(IntStream.of(0x12345678, 0x87654321), 0x9a, 0xbc, 0xde),
+		assertStream(Colorxs.stream(Streams.ints(0x12345678, 0x87654321), 0x9a, 0xbc, 0xde),
 			0xdebc9a12345678L, 0xdebc9a87654321L);
 	}
 
@@ -349,20 +348,20 @@ public class ColorxsTest {
 
 	@Test
 	public void testDenormalizeStream() {
-		assertStream(Colorxs.denormalize(IntStream.of(0xffffffff, 0xff806040), new Color(0x808080)),
+		assertStream(Colorxs.denormalize(Streams.ints(0xffffffff, 0xff806040), new Color(0x808080)),
 			0xffff7f7f7fL, 0x80ff402000L);
 	}
 
 	@Test
 	public void testNormalizeStream() {
 		assertStream(
-			Colorxs.normalize(LongStream.of(0xffff7f7f7fL, 0x80ff402000L), new Color(0x808080)),
+			Colorxs.normalize(Streams.longs(0xffff7f7f7fL, 0x80ff402000L), new Color(0x808080)),
 			0xffffffff, 0xff806040);
 	}
 
 	@Test
 	public void testApplyArgbFunctionToStream() {
-		assertStream(Colorxs.applyArgb(LongStream.of(0x12345678abcdefL, 0L, -1L), c -> ~c),
+		assertStream(Colorxs.applyArgb(Streams.longs(0x12345678abcdefL, 0L, -1L), c -> ~c),
 			0x12345687543210L, 0xffffffffL, 0xffffffff00000000L);
 	}
 
@@ -380,6 +379,7 @@ public class ColorxsTest {
 
 	private static void exerciseCompare(Comparator<Colorx> comparator, long cx, long lt, long eq,
 		long gt) {
-		TestUtil.exerciseCompare(comparator, Colorx.of(cx), Colorx.of(lt), Colorx.of(eq), Colorx.of(gt));
+		TestUtil.exerciseCompare(comparator, Colorx.of(cx), Colorx.of(lt), Colorx.of(eq),
+			Colorx.of(gt));
 	}
 }

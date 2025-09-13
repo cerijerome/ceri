@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Iterable type support.
@@ -106,7 +106,7 @@ public class Iterables {
 	 * Returns a no-op, stateless iterable.
 	 */
 	public static <T> Iterable<T> ofNull() {
-		return BasicUtil.unchecked(NULL);
+		return Reflect.unchecked(NULL);
 	}
 
 	/**

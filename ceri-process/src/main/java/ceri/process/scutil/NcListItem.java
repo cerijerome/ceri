@@ -3,7 +3,7 @@ package ceri.process.scutil;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 
 /**
  * One line from scutil --nc list.
@@ -25,12 +25,12 @@ public class NcListItem {
 	public final String type;
 
 	public static List<NcListItem> fromList(String output) {
-		return Patterns.Split.LINE.stream(output).map(NcListItem::from).nonNull().toList();
+		return Regex.Split.LINE.stream(output).map(NcListItem::from).nonNull().toList();
 	}
 
 	public static NcListItem from(String line) {
-		var m = Patterns.find(DECODE_REGEX.matcher(line));
-		if (!Patterns.hasMatch(m)) return null;
+		var m = Regex.find(DECODE_REGEX.matcher(line));
+		if (!Regex.hasMatch(m)) return null;
 		int i = 1;
 		return NcListItem.builder().enabled(NcListItem.ENABLED.equals(m.group(i++)))
 			.state(m.group(i++)).passwordHash(m.group(i++)).protocol(m.group(i++))

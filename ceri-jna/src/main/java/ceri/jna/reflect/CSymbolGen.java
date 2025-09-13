@@ -28,9 +28,9 @@ import ceri.common.reflect.ClassReloader;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
-import ceri.common.text.TextUtil;
+import ceri.common.text.Text;
 import ceri.common.time.DateUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.common.util.OsUtil;
 import ceri.jna.type.IntType;
 import ceri.jna.util.JnaArgs;
@@ -165,20 +165,20 @@ public class CSymbolGen {
 			new Matcher<>(CAnnotations.CType.Value.UNDEFINED);
 
 		private Set<String> includes(Class<?> cls, JnaOs os) {
-			return BasicUtil.def(includes.match(cls, os), () -> CAnnotations.cincludes(cls))
+			return Basics.def(includes.match(cls, os), () -> CAnnotations.cincludes(cls))
 				.includes(os);
 		}
 
 		private CAnnotations.CType.Value ctype(Class<?> cls, JnaOs os) {
-			return BasicUtil.def(classes.match(cls, os), () -> CAnnotations.ctype(cls, os));
+			return Basics.def(classes.match(cls, os), () -> CAnnotations.ctype(cls, os));
 		}
 
 		private CAnnotations.CType.Value ctype(Field field, JnaOs os) {
-			return BasicUtil.def(fields.match(field, os), () -> CAnnotations.ctype(field, os));
+			return Basics.def(fields.match(field, os), () -> CAnnotations.ctype(field, os));
 		}
 
 		private CAnnotations.CType.Value ctype(Enum<?> en, JnaOs os) {
-			return BasicUtil.def(enums.match(en, os), () -> CAnnotations.ctype(en, os));
+			return Basics.def(enums.match(en, os), () -> CAnnotations.ctype(en, os));
 		}
 	}
 
@@ -466,10 +466,10 @@ public class CSymbolGen {
 	}
 
 	private boolean addSpecialType(Class<?> cls, CAnnotations.CType.Value ctype) {
-		if (Structure.class.isAssignableFrom(cls)) addStruct(BasicUtil.unchecked(cls), ctype);
+		if (Structure.class.isAssignableFrom(cls)) addStruct(Reflect.unchecked(cls), ctype);
 		else if (Enum.class.isAssignableFrom(cls))
-			addEnums(BasicUtil.unchecked(cls), ctype.valueField());
-		else if (IntType.class.isAssignableFrom(cls)) addIntType(BasicUtil.unchecked(cls), ctype);
+			addEnums(Reflect.unchecked(cls), ctype.valueField());
+		else if (IntType.class.isAssignableFrom(cls)) addIntType(Reflect.unchecked(cls), ctype);
 		else return false;
 		return true;
 	}
@@ -543,7 +543,7 @@ public class CSymbolGen {
 
 	private static Path location(CAnnotations.CGen.Value cgen, Class<?> cls) {
 		var location = cgen.location(LOCATION_DEF);
-		if (location.endsWith("/")) location += TextUtil.camelToHyphenated(cls.getSimpleName());
+		if (location.endsWith("/")) location += Text.camelToHyphenated(cls.getSimpleName());
 		if (!location.endsWith(C_EXT)) location += C_EXT;
 		return Path.of(location);
 	}

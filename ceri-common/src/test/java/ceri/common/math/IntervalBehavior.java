@@ -1,33 +1,68 @@
 package ceri.common.math;
 
-import static ceri.common.math.Bound.exclusive;
-import static ceri.common.math.Bound.inclusive;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Comparator;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class IntervalBehavior {
+	private final Interval<Long> maxLong = Interval.inclusive(Long.MIN_VALUE, Long.MAX_VALUE);
+	private final Interval<Integer> maxInt =
+		Interval.inclusive(Integer.MIN_VALUE, Integer.MAX_VALUE);
 
 	@Test
+	public void testLongMidPoint() {
+		assertEquals(Interval.longMidPoint(Interval.unbound()), 0L);
+		assertNull(Interval.longMidPoint(Interval.lower(Bound.exclusive(1L))));
+		assertEquals(Interval.longMidPoint(Interval.inclusive(1L, 4L)), 3L);
+		assertEquals(Interval.longMidPoint(maxLong), 0L);
+	}
+
+	@Test
+	public void testLongWidth() {
+		assertNull(Interval.longWidth(Interval.unbound()));
+		assertNull(Interval.longWidth(Interval.lower(Bound.exclusive(1L))));
+		assertEquals(Interval.longWidth(Interval.inclusive(1L, 4L)), 3L);
+		assertThrown(() -> Interval.longWidth(maxLong));
+	}
+
+	@Test
+	public void testIntMidPoint() {
+		assertEquals(Interval.intMidPoint(Interval.unbound()), 0);
+		assertNull(Interval.intMidPoint(Interval.lower(Bound.exclusive(1))));
+		assertEquals(Interval.intMidPoint(Interval.inclusive(1, 4)), 3);
+		assertEquals(Interval.intMidPoint(maxInt), 0);
+	}
+
+	@Test
+	public void testIntWidth() {
+		assertNull(Interval.intWidth(Interval.unbound()));
+		assertNull(Interval.intWidth(Interval.lower(Bound.exclusive(1))));
+		assertEquals(Interval.intWidth(Interval.inclusive(1, 4)), 3);
+		assertThrown(() -> Interval.intWidth(maxInt));
+	}
+	
+	@Test
 	public void shouldNotBreachEqualsContract() {
-		Interval<Double> i = Interval.of(exclusive(-10.0), inclusive(-1.5));
-		Interval<Double> eq0 = Interval.of(exclusive(-10.0), inclusive(-1.5));
-		Interval<Double> ne0 = Interval.of(inclusive(-10.0), inclusive(-1.5));
-		Interval<Double> ne1 = Interval.of(exclusive(-10.0), exclusive(-1.5));
-		Interval<Double> ne2 = Interval.of(inclusive(-10.0), exclusive(-1.5));
-		Interval<Double> ne3 = Interval.of(exclusive(-11.0), inclusive(-1.5));
-		Interval<Double> ne4 = Interval.of(exclusive(-10.0), inclusive(-1.0));
-		exerciseEquals(i, eq0);
+		Interval<Double> i = Interval.of(Bound.exclusive(-10.0), Bound.inclusive(-1.5));
+		Interval<Double> eq0 = Interval.of(Bound.exclusive(-10.0), Bound.inclusive(-1.5));
+		Interval<Double> ne0 = Interval.of(Bound.inclusive(-10.0), Bound.inclusive(-1.5));
+		Interval<Double> ne1 = Interval.of(Bound.exclusive(-10.0), Bound.exclusive(-1.5));
+		Interval<Double> ne2 = Interval.of(Bound.inclusive(-10.0), Bound.exclusive(-1.5));
+		Interval<Double> ne3 = Interval.of(Bound.exclusive(-11.0), Bound.inclusive(-1.5));
+		Interval<Double> ne4 = Interval.of(Bound.exclusive(-10.0), Bound.inclusive(-1.0));
+		TestUtil.exerciseEquals(i, eq0);
 		assertAllNotEqual(i, ne0, ne1, ne2, ne3, ne4);
 	}
 
 	@Test
 	public void shouldDetermineInvertedBoundsAreEmpty() {
-		assertTrue(Interval.of(inclusive(1), inclusive(-1)).isEmpty());
+		assertTrue(Interval.of(Bound.inclusive(1), Bound.inclusive(-1)).isEmpty());
 	}
 
 	@Test
@@ -35,14 +70,14 @@ public class IntervalBehavior {
 		Interval<Double> i = Interval.point(-1.0);
 		assertFalse(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), 0.0);
-		assertEquals(IntervalUtil.midPoint(i), -1.0);
+		assertEquals(Interval.width(i), 0.0);
+		assertEquals(Interval.midPoint(i), -1.0);
 		assertFalse(i.contains(-1.001));
 		assertTrue(i.contains(-1.0));
 		assertFalse(i.contains(-0.999));
-		assertTrue(Interval.of(inclusive(0), exclusive(0)).isEmpty());
-		assertTrue(Interval.of(exclusive(0), inclusive(0)).isEmpty());
-		assertTrue(Interval.of(exclusive(0), exclusive(0)).isEmpty());
+		assertTrue(Interval.of(Bound.inclusive(0), Bound.exclusive(0)).isEmpty());
+		assertTrue(Interval.of(Bound.exclusive(0), Bound.inclusive(0)).isEmpty());
+		assertTrue(Interval.of(Bound.exclusive(0), Bound.exclusive(0)).isEmpty());
 	}
 
 	@Test
@@ -50,8 +85,8 @@ public class IntervalBehavior {
 		Interval<Double> i = Interval.unbound();
 		assertTrue(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), Double.POSITIVE_INFINITY);
-		assertEquals(IntervalUtil.midPoint(i), 0.0);
+		assertEquals(Interval.width(i), Double.POSITIVE_INFINITY);
+		assertEquals(Interval.midPoint(i), 0.0);
 		assertTrue(i.contains(0.0));
 		assertTrue(i.contains(Double.MAX_VALUE));
 		assertTrue(i.contains(-Double.MAX_VALUE));
@@ -59,11 +94,11 @@ public class IntervalBehavior {
 
 	@Test
 	public void shouldEncapsulateLowerBoundedIntervals() {
-		Interval<Double> i = Interval.lower(exclusive(1.0));
+		Interval<Double> i = Interval.lower(Bound.exclusive(1.0));
 		assertFalse(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), Double.POSITIVE_INFINITY);
-		assertEquals(IntervalUtil.midPoint(i), Double.POSITIVE_INFINITY);
+		assertEquals(Interval.width(i), Double.POSITIVE_INFINITY);
+		assertEquals(Interval.midPoint(i), Double.POSITIVE_INFINITY);
 		assertFalse(i.contains(0.0));
 		assertFalse(i.contains(1.0));
 		assertTrue(i.contains(1.001));
@@ -73,11 +108,11 @@ public class IntervalBehavior {
 
 	@Test
 	public void shouldEncapsulateUpperBoundedIntervals() {
-		Interval<Double> i = Interval.upper(inclusive(1.0));
+		Interval<Double> i = Interval.upper(Bound.inclusive(1.0));
 		assertFalse(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), Double.POSITIVE_INFINITY);
-		assertEquals(IntervalUtil.midPoint(i), Double.NEGATIVE_INFINITY);
+		assertEquals(Interval.width(i), Double.POSITIVE_INFINITY);
+		assertEquals(Interval.midPoint(i), Double.NEGATIVE_INFINITY);
 		assertTrue(i.contains(0.0));
 		assertTrue(i.contains(1.0));
 		assertFalse(i.contains(1.001));
@@ -90,8 +125,8 @@ public class IntervalBehavior {
 		Interval<Double> i = Interval.inclusive(-10.0, -1.5);
 		assertFalse(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), 8.5);
-		assertEquals(IntervalUtil.midPoint(i), -5.75);
+		assertEquals(Interval.width(i), 8.5);
+		assertEquals(Interval.midPoint(i), -5.75);
 		assertTrue(i.contains(-9.999));
 		assertTrue(i.contains(-10.0));
 		assertFalse(i.contains(-10.001));
@@ -105,8 +140,8 @@ public class IntervalBehavior {
 		Interval<Double> i = Interval.exclusive(-10.0, -1.5);
 		assertFalse(i.isUnbound());
 		assertFalse(i.isEmpty());
-		assertEquals(IntervalUtil.width(i), 8.5);
-		assertEquals(IntervalUtil.midPoint(i), -5.75);
+		assertEquals(Interval.width(i), 8.5);
+		assertEquals(Interval.midPoint(i), -5.75);
 		assertTrue(i.contains(-9.999));
 		assertFalse(i.contains(-10.0));
 		assertFalse(i.contains(-10.001));
@@ -137,5 +172,4 @@ public class IntervalBehavior {
 		assertEquals(Interval.inclusive(-2, -3).toString(), "[-2, -3]");
 		assertEquals(Interval.exclusive(-2, -3).toString(), "(-2, -3)");
 	}
-
 }

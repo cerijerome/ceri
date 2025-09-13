@@ -2,9 +2,9 @@ package ceri.common.geom;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.POSITIVE_INFINITY;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Dimension2dBehavior {
 
@@ -14,7 +14,7 @@ public class Dimension2dBehavior {
 		Dimension2d d1 = Dimension2d.of(5, 10);
 		Dimension2d d2 = Dimension2d.of(4.999, 10);
 		Dimension2d d3 = Dimension2d.of(5, 10.001);
-		exerciseEquals(d0, d1);
+		TestUtil.exerciseEquals(d0, d1);
 		assertNotEquals(d0, d2);
 		assertNotEquals(d0, d3);
 	}

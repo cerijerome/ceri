@@ -371,7 +371,7 @@ public class ManualTesterBehavior {
 	}
 
 	private static Action.Match<Object> exitAfterCount(int count, PrintStream in) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return (_, _, _) -> {
 			if (counter.inc(1) >= count) in.print("!\n");
 		};

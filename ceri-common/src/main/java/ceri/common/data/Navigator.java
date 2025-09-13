@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * For navigating within a range. T must be the sub-class type, enabling fluent method chains.
@@ -97,7 +97,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Returns the typed instance.
 	 */
 	private T typedThis() {
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 }

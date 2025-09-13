@@ -4,7 +4,6 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.time.TimeSupplier.nanos;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -12,6 +11,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import org.junit.Test;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
+import ceri.common.test.TestUtil;
 import ceri.common.time.Timer.State;
 
 public class TimerBehavior {
@@ -27,7 +27,7 @@ public class TimerBehavior {
 		Timer.Snapshot s4 = new Timer.Snapshot(t0, State.started, 101, 101, 99);
 		Timer.Snapshot s5 = new Timer.Snapshot(t0, State.started, 100, 100, 99);
 		Timer.Snapshot s6 = new Timer.Snapshot(t0, State.started, 100, 101, 100);
-		exerciseEquals(s0, s1);
+		TestUtil.exerciseEquals(s0, s1);
 		assertAllNotEqual(s0, s2, s3, s4, s5, s6);
 	}
 

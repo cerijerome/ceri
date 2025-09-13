@@ -18,7 +18,7 @@ import ceri.common.collection.Iterators;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.text.Format;
 import ceri.common.validation.ValidationUtil;
@@ -68,7 +68,7 @@ public class ByteUtil {
 		Excepts.IntConsumer<E> consumer) throws E {
 		int min = Integer.numberOfTrailingZeros(mask);
 		int max = Integer.SIZE - Integer.numberOfLeadingZeros(mask) - 1;
-		acceptMask(highBit, MathUtil.uint(mask), consumer, min, max);
+		acceptMask(highBit, Maths.uint(mask), consumer, min, max);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class ByteUtil {
 	 * Stream array as unsigned bytes.
 	 */
 	public static IntStream ustream(int... array) {
-		return IntStream.range(0, array.length).map(i -> MathUtil.ubyte(array[i]));
+		return IntStream.range(0, array.length).map(i -> Maths.ubyte(array[i]));
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class ByteUtil {
 	 * Stream array as unsigned bytes.
 	 */
 	public static IntStream ustream(byte[] array, int offset, int len) {
-		return IntStream.range(offset, offset + len).map(i -> MathUtil.ubyte(array[i]));
+		return IntStream.range(offset, offset + len).map(i -> Maths.ubyte(array[i]));
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class ByteUtil {
 	 * Extracts a value at bit offset and bit count in current value.
 	 */
 	public static int getValueInt(long current, int bits, int bit) {
-		return (int) getValue(MathUtil.uint(current), bits, bit);
+		return (int) getValue(Maths.uint(current), bits, bit);
 	}
 
 	/**
@@ -433,7 +433,7 @@ public class ByteUtil {
 	 * Applies a value at bit offset and bit count in current value, using a mask.
 	 */
 	public static int setValueInt(int current, int bits, int bit, int value) {
-		return (int) setValue(MathUtil.uint(current), bits, bit, MathUtil.uint(value));
+		return (int) setValue(Maths.uint(current), bits, bit, Maths.uint(value));
 	}
 
 	/**
@@ -577,7 +577,7 @@ public class ByteUtil {
 	 * Returns an array of the bits that are set.
 	 */
 	public static int[] bits(int value) {
-		return bits(MathUtil.uint(value));
+		return bits(Maths.uint(value));
 	}
 
 	/**
@@ -778,7 +778,7 @@ public class ByteUtil {
 	 * Returns an unsigned byte from the given byte offset within a 64-bit value.
 	 */
 	public static short ubyteAt(long value, int byteOffset) {
-		return MathUtil.ubyte(byteAt(value, byteOffset));
+		return Maths.ubyte(byteAt(value, byteOffset));
 	}
 
 	/**

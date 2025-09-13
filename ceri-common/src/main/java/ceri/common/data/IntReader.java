@@ -5,7 +5,7 @@ import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -42,7 +42,7 @@ public interface IntReader {
 	 * Returns the unsigned int value.
 	 */
 	default long readUint() {
-		return MathUtil.uint(readInt());
+		return Maths.uint(readInt());
 	}
 
 	/**

@@ -10,13 +10,11 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.function.Excepts;
 import ceri.common.net.NetUtil;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 /**
  * Provides a path to a resource directory or content file. Can be used to walk/list directories.
@@ -52,9 +50,9 @@ public class ResourcePath implements AutoCloseable {
 		return of(cls, path -> IoUtil.extend(path.getParent(), paths));
 	}
 
-	private static ResourcePath of(Class<?> cls, Function<Path, Path> pathAdjuster)
-		throws IOException {
-		URL url = IoUtil.classUrl(cls);
+	private static ResourcePath of(Class<?> cls,
+		Excepts.Function<IOException, Path, Path> pathAdjuster) throws IOException {
+		var url = IoUtil.classUrl(cls);
 		if (url == null) return null;
 		return switch (url.getProtocol()) {
 			case FILE_PROTOCOL, JRT_PROTOCOL -> ofFile(url, pathAdjuster);
@@ -62,21 +60,21 @@ public class ResourcePath implements AutoCloseable {
 		};
 	}
 
-	private static ResourcePath ofFile(URL url, Function<Path, Path> pathAdjuster) {
-		Path path = Path.of(NetUtil.uri(url));
+	private static ResourcePath ofFile(URL url,
+		Excepts.Function<IOException, Path, Path> pathAdjuster) throws IOException {
+		var path = Path.of(NetUtil.uri(url));
 		return new ResourcePath(null, pathAdjuster.apply(path));
 	}
 
 	@SuppressWarnings("resource")
-	private static ResourcePath ofZip(URL url, Function<Path, Path> pathAdjuster)
-		throws IOException {
-		Matcher m = RegexUtil.matched(ZIP_REGEX, url.toString());
-		Objects.requireNonNull(m);
-		String zipName = m.group(1);
-		String pathName = m.group(2);
-		FileSystem fs = FileSystems.newFileSystem(URI.create(zipName), Map.of());
+	private static ResourcePath ofZip(URL url,
+		Excepts.Function<IOException, Path, Path> pathAdjuster) throws IOException {
+		var m = Regex.matchValid(ZIP_REGEX, url.toString());
+		var zipName = m.group(1);
+		var pathName = m.group(2);
+		var fs = FileSystems.newFileSystem(URI.create(zipName), Map.of());
 		try {
-			Path path = fs.getPath(pathName);
+			var path = fs.getPath(pathName);
 			return new ResourcePath(fs, pathAdjuster.apply(path));
 		} catch (RuntimeException e) {
 			fs.close();

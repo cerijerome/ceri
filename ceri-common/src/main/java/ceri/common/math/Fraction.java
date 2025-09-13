@@ -1,7 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.math.MathUtil.gcd;
-import static ceri.common.math.MathUtil.lcm;
+import static ceri.common.math.Maths.gcd;
+import static ceri.common.math.Maths.lcm;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static java.lang.Math.abs;
 import static java.lang.Math.addExact;

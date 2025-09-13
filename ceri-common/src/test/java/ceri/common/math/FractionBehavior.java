@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class FractionBehavior {
 
@@ -19,7 +19,7 @@ public class FractionBehavior {
 		Fraction eq3 = Fraction.of(13, 41).divide(Fraction.ONE);
 		Fraction ne0 = Fraction.of(12, 41);
 		Fraction ne1 = Fraction.of(13, 42);
-		exerciseEquals(f, eq0, eq1, eq2, eq3);
+		TestUtil.exerciseEquals(f, eq0, eq1, eq2, eq3);
 		assertTrue(f.equals(13, 41));
 		assertFalse(f.equals(12, 41));
 		assertFalse(f.equals(13, 42));

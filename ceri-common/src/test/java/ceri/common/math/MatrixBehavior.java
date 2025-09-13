@@ -233,7 +233,7 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldApplyScalarFunction() {
-		Functions.DoubleOperator fn = d -> MathUtil.simpleRound(1, d);
+		Functions.DoubleOperator fn = d -> Maths.simpleRound(1, d);
 		assertMatrix(Matrix.EMPTY.apply(fn));
 		assertMatrix(Matrix.of(r(0.333, 0.651), r(0, 1)).apply(fn), r(0.3, 0.7), r(0, 1));
 	}

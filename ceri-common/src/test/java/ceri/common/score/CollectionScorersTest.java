@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.collection.Immutable;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 public class CollectionScorersTest {
 
@@ -48,9 +48,9 @@ public class CollectionScorersTest {
 	public void testMapMultiplySum() {
 		var map = Immutable.mapOf(2, 0.1f, 3, 1.1f);
 		Scorer<Map<Integer, Float>> scorer = CollectionScorers.mapMultiplySum(Scorers.value());
-		assertEquals(MathUtil.simpleRound(6, scorer.score(map)), 3.5);
+		assertEquals(Maths.simpleRound(6, scorer.score(map)), 3.5);
 		scorer = CollectionScorers.mapMultiplySum(i -> i / 2.0, f -> f + 1.0);
-		assertEquals(MathUtil.simpleRound(6, scorer.score(map)), 4.25);
+		assertEquals(Maths.simpleRound(6, scorer.score(map)), 4.25);
 		scorer = CollectionScorers.mapMultiplySum(null);
 		assertEquals(scorer.score(map), 0.0);
 		scorer = CollectionScorers.mapMultiplySum(Scorers.value(), null);

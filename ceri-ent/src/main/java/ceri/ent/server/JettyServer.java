@@ -12,7 +12,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.net.NetUtil;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.log.util.LogUtil;
 
 /**
@@ -78,7 +78,7 @@ public class JettyServer implements AutoCloseable {
 		if (connector == null) return null;
 		List<String> protocols = connector.getProtocols();
 		if (protocols.isEmpty()) return null;
-		return RegexUtil.find(PROTOCOL_NAME_REGEX, protocols.get(0));
+		return Regex.findGroup(PROTOCOL_NAME_REGEX, protocols.get(0), 1);
 	}
 
 	private ServerConnector connector() {
@@ -90,5 +90,4 @@ public class JettyServer implements AutoCloseable {
 	private WebAppContext context() {
 		return Reflect.castOrNull(WebAppContext.class, server.getHandler());
 	}
-
 }

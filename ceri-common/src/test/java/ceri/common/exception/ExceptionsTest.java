@@ -6,6 +6,7 @@ import static ceri.common.test.AssertUtil.assertInstance;
 import static ceri.common.test.AssertUtil.assertIoe;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrowable;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
@@ -14,36 +15,57 @@ import org.junit.Test;
 import ceri.common.function.Excepts.Supplier;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.TestUtil.Rte;
+import ceri.common.text.Regex;
+import ceri.common.text.Strings;
 
 public class ExceptionsTest {
+	private static final Exception noMsgEx = new Exception();
+	private static final Exception emptyEx = new Exception("");
+	private static final Exception testEx = new Exception("test");
 
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Exceptions.class);
+		assertPrivateConstructor(Exceptions.Filter.class);
 	}
-	
+
+	@Test
+	public void testFilterMessage() {
+		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(null), false);
+		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(noMsgEx), false);
+		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(emptyEx), false);
+		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(testEx), true);
+	}
+
+	@Test
+	public void testFrom() {
+		assertThrowable(Exceptions.from(IOException::new, "%d", 123), IOException.class, "123");
+	}
+
+	@Test
+	public void testNullPtr() {
+		assertThrowable(Exceptions.nullPtr("%d", 123), NullPointerException.class, "123");
+	}
+
 	@Test
 	public void testIllegalArg() {
-		assertThrowable(Exceptions.illegalArg("test%d", 123), IllegalArgumentException.class,
-			"test123");
+		assertThrowable(Exceptions.illegalArg("%d", 123), IllegalArgumentException.class, "123");
 	}
 
 	@Test
 	public void testIllegalState() {
-		assertThrowable(Exceptions.illegalState("test%d", 123), IllegalStateException.class,
-			"test123");
+		assertThrowable(Exceptions.illegalState("%d", 123), IllegalStateException.class, "123");
 	}
 
 	@Test
 	public void testUnsupportedOp() {
-		assertThrowable(Exceptions.unsupportedOp("test%d", 123),
-			UnsupportedOperationException.class, "test123");
+		assertThrowable(Exceptions.unsupportedOp("%d", 123), UnsupportedOperationException.class,
+			"123");
 	}
 
 	@Test
-	public void testExceptionf() {
-		var e = Exceptions.from(IOException::new, "test%d", 123);
-		assertThrowable(e, IOException.class, "test123");
+	public void testIo() {
+		assertThrowable(Exceptions.io("%d", 123), IOException.class, "123");
 	}
 
 	@Test
@@ -75,9 +97,9 @@ public class ExceptionsTest {
 
 	@Test
 	public void testInitCause() {
-		IllegalStateException e1 = new IllegalStateException();
-		IllegalArgumentException e2 = new IllegalArgumentException();
-		IllegalStateException e = Exceptions.initCause(e1, e2);
+		var e1 = new IllegalStateException();
+		var e2 = new IllegalArgumentException();
+		var e = Exceptions.initCause(e1, e2);
 		assertEquals(e.getCause(), e2);
 		Exceptions.initCause(e1, null);
 		assertEquals(e1.getCause(), e2);
@@ -85,30 +107,30 @@ public class ExceptionsTest {
 
 	@Test
 	public void testMessage() {
-		assertNull(Exceptions.message(null));
-		assertEquals(Exceptions.message(new IOException()), "IOException");
-		assertEquals(Exceptions.message(new Exception("test")), "test");
+		assertString(Exceptions.message(null), "");
+		assertString(Exceptions.message(new IOException()), "IOException");
+		assertString(Exceptions.message(new Exception("test")), "test");
 	}
 
 	@Test
 	public void testStackTrace() {
-		assertNull(Exceptions.stackTrace(null));
-		String stackTrace = Exceptions.stackTrace(new Exception());
-		String[] lines = stackTrace.split("[\\r\\n]+");
+		assertString(Exceptions.stackTrace(null), "");
+		var stackTrace = Exceptions.stackTrace(new Exception());
+		var lines = Regex.Split.LINE.array(stackTrace);
 		assertEquals(lines[0], "java.lang.Exception");
-		String fullClassName = getClass().getName();
-		String className = getClass().getSimpleName();
-		String methodName = Reflect.currentMethodName();
-		String s = String.format("at %s.%s(%s.java:", fullClassName, methodName, className);
+		var fullClassName = getClass().getName();
+		var className = getClass().getSimpleName();
+		var methodName = Reflect.currentMethodName();
+		var s = String.format("at %s.%s(%s.java:", fullClassName, methodName, className);
 		assertTrue(lines[1].trim().startsWith(s));
 	}
 
 	@Test
 	public void testFirstStackElement() {
 		assertNull(Exceptions.firstStackElement(null));
-		StackTraceElement el = Exceptions.firstStackElement(new IOException());
+		var el = Exceptions.firstStackElement(new IOException());
 		assertEquals(el.getMethodName(), Reflect.currentMethodName());
-		TestException e = new TestException();
+		var e = new TestException();
 		assertNull(Exceptions.firstStackElement(e));
 		e.stackTrace = new StackTraceElement[0];
 		assertNull(Exceptions.firstStackElement(e));

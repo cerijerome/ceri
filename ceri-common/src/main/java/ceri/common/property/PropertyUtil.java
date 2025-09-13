@@ -1,6 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -8,7 +7,8 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
-import ceri.common.text.TextUtil;
+import ceri.common.exception.ExceptionAdapter;
+import ceri.common.text.Text;
 
 /**
  * Utility methods for property files.
@@ -24,7 +24,7 @@ public class PropertyUtil {
 	public static java.util.Properties parse(String text) {
 		try (var r = new StringReader(text)) {
 			var properties = properties();
-			shouldNotThrow.run(() -> properties.load(r));
+			ExceptionAdapter.shouldNotThrow.run(() -> properties.load(r));
 			return properties;
 		}
 	}
@@ -48,7 +48,8 @@ public class PropertyUtil {
 	/**
 	 * Stores properties in given file.
 	 */
-	public static void store(java.util.Properties properties, java.nio.file.Path file) throws IOException {
+	public static void store(java.util.Properties properties, java.nio.file.Path file)
+		throws IOException {
 		try (Writer out = Files.newBufferedWriter(file)) {
 			properties.store(out, "Saving state");
 		}
@@ -85,7 +86,7 @@ public class PropertyUtil {
 	 * lower-case simple class name is used if the given name is null.
 	 */
 	public static java.util.Properties load(Class<?> cls, String name) throws IOException {
-		if (name == null) name = TextUtil.camelToHyphenated(cls.getSimpleName()) + PROPERTIES_EXT;
+		if (name == null) name = Text.camelToHyphenated(cls.getSimpleName()) + PROPERTIES_EXT;
 		var properties = properties();
 		try (var in = cls.getResourceAsStream(name)) {
 			if (in == null) throw new FileNotFoundException(cls.getName() + ": " + name);

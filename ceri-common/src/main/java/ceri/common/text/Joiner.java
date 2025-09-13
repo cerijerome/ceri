@@ -8,7 +8,7 @@ import java.util.stream.Collector;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.stream.Collect;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.common.util.Truth;
 
 /**
@@ -37,6 +37,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	public static final Joiner OR = of("|");
 	/** Colon separator without prefix or suffix. */
 	public static final Joiner COLON = of(":");
+	/** Space separator without prefix or suffix. */
+	public static final Joiner SPACE = of(" ");
 	/** Native line joiner. */
 	public static final Joiner EOL = of(Strings.EOL);
 	public final String prefix;
@@ -71,17 +73,17 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		private Builder() {}
 
 		public Builder prefix(String prefix) {
-			this.prefix = BasicUtil.def(prefix, "");
+			this.prefix = Basics.def(prefix, "");
 			return this;
 		}
 
 		public Builder suffix(String suffix) {
-			this.suffix = BasicUtil.def(suffix, "");
+			this.suffix = Basics.def(suffix, "");
 			return this;
 		}
 
 		public Builder separator(String separator) {
-			this.separator = BasicUtil.def(separator, "");
+			this.separator = Basics.def(separator, "");
 			return this;
 		}
 
@@ -91,17 +93,17 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		}
 
 		public Builder remainder(String remainder) {
-			this.remainder = BasicUtil.def(remainder, "");
+			this.remainder = Basics.def(remainder, "");
 			return this;
 		}
 
 		public Builder showCount(Truth showCount) {
-			this.showCount = BasicUtil.def(showCount, Truth.maybe);
+			this.showCount = Basics.def(showCount, Truth.maybe);
 			return this;
 		}
 
 		public Builder countFormat(String countFormat) {
-			this.countFormat = BasicUtil.def(countFormat, "");
+			this.countFormat = Basics.def(countFormat, "");
 			return this;
 		}
 

@@ -4,11 +4,11 @@ import static ceri.common.validation.ValidationUtil.validateMinFp;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import static java.lang.Math.TAU;
 
-public class TrigUtil {
+public class Trig {
 	public static final Interval<Double> INTERVAL =
 		Interval.of(Bound.inclusive(0.0), Bound.exclusive(TAU));
 
-	private TrigUtil() {}
+	private Trig() {}
 
 	/**
 	 * Normalizes given angle in radians to the range [0..2PI).

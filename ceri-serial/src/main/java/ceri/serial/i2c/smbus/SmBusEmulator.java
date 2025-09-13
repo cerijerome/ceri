@@ -1,7 +1,7 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import static ceri.serial.i2c.util.I2cEmulator.ANY_READ_LEN;
 import java.io.IOException;
 import ceri.common.array.ArrayUtil;

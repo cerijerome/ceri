@@ -8,10 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntFunction;
-import ceri.common.function.Excepts.Supplier;
-import ceri.common.text.RegexUtil;
+import ceri.common.function.Excepts;
+import ceri.common.text.Regex;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CUnistd;
@@ -35,14 +33,14 @@ public class CFileDescriptor implements FileDescriptor {
 	public static boolean isBroken(Exception e) {
 		if (!(e instanceof CException ce)) return false;
 		if (BROKEN_ERRORS.contains(ce.code)) return true;
-		return (RegexUtil.found(BROKEN_MESSAGE_REGEX, e.getMessage()) != null);
+		return (Regex.find(BROKEN_MESSAGE_REGEX, e.getMessage()).hasMatch());
 	}
 
 	/**
 	 * Encapsulates open arguments. Use Mode.NONE if mode is unspecified.
 	 */
 	public static record Opener(String path, Mode mode, Collection<Open> flags)
-		implements Supplier<IOException, CFileDescriptor> {
+		implements Excepts.Supplier<IOException, CFileDescriptor> {
 		public Opener(String path, Mode mode, Open... flags) {
 			this(path, mode, List.of(flags));
 		}
@@ -114,12 +112,12 @@ public class CFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public void accept(IntConsumer<IOException> consumer) throws IOException {
+	public void accept(Excepts.IntConsumer<IOException> consumer) throws IOException {
 		consumer.accept(fd());
 	}
 
 	@Override
-	public <T> T apply(IntFunction<IOException, T> function) throws IOException {
+	public <T> T apply(Excepts.IntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
 	}
 

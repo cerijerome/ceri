@@ -1,8 +1,5 @@
 package ceri.ent.mongo;
 
-import static ceri.common.function.FunctionUtil.nullConsumer;
-import static com.mongodb.client.model.Aggregates.out;
-import static java.util.Arrays.asList;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import java.util.Arrays;
@@ -16,13 +13,14 @@ import org.bson.json.JsonWriterSettings;
 import org.bson.types.ObjectId;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.changestream.ChangeStreamDocument;
 import ceri.common.net.NetUtil;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 public class MongoUtil {
 	public static final String MONGODB_PROTOCOL = "mongodb://";
@@ -59,12 +57,12 @@ public class MongoUtil {
 	}
 
 	public static void complete(Iterable<?> iterable) {
-		iterable.forEach(nullConsumer());
+		iterable.forEach(_ -> {});
 	}
 
 	public static void copyCollection(MongoCollection<Document> collection, String name) {
 		// unlike shell, $out needs forEach to copy to the output collection
-		complete(collection.aggregate(asList(out(name))));
+		complete(collection.aggregate(Arrays.asList(Aggregates.out(name))));
 	}
 
 	public static String pretty(Document document) {
@@ -77,8 +75,9 @@ public class MongoUtil {
 
 	public static String compact(String json) {
 		if (json == null) return null;
-		return RegexUtil.replaceAll(QUOTED_OR_WHITESPACE, json,
-			result -> json.charAt(result.start()) == '\"' ? null : ""); // skip quoted matches
+		return Regex.appendAll(QUOTED_OR_WHITESPACE, json, (b, m) -> {
+			if (json.charAt(m.start()) == '\"') b.append(m.group()); // drop non-quoted
+		});
 	}
 
 	public static <T extends Document> Consumer<ChangeStreamDocument<T>>

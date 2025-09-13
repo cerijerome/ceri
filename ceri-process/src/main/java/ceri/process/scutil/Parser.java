@@ -1,10 +1,10 @@
 package ceri.process.scutil;
 
-import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Node;
-import ceri.common.text.StringUtil;
+import ceri.common.function.Functions;
+import ceri.common.text.Regex;
 
 public class Parser {
 	private static final Pattern TEXT_GROUP = Pattern.compile("(.*)<(\\w+)>\\s*\\{");
@@ -24,7 +24,7 @@ public class Parser {
 	}
 
 	private Parser parseOutput(String output) {
-		for (String line : StringUtil.NEWLINE_REGEX.split(output)) {
+		for (String line : Regex.Split.LINE.array(output)) {
 			if (consume(line, TEXT_VALUE_GROUP, tree::startGroup)) continue;
 			if (consume(line, TEXT_GROUP, tree::startGroup)) continue;
 			if (consume(line, TEXT_VALUE, tree::value)) continue;
@@ -37,11 +37,11 @@ public class Parser {
 		return this;
 	}
 
-	private boolean consume(String line, Pattern regex, BiConsumer<String, String> consumer) {
+	private boolean consume(String line, Pattern regex,
+		Functions.BiConsumer<String, String> consumer) {
 		Matcher m = regex.matcher(line);
 		if (!m.find()) return false;
 		consumer.accept(m.group(1).trim(), m.group(2).trim());
 		return true;
 	}
-
 }

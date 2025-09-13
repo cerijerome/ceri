@@ -2,7 +2,7 @@ package ceri.common.stream;
 
 import java.util.Comparator;
 import ceri.common.function.Excepts;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 public class Reduce {
 	private static final Excepts.BinFunction<?, ?, ?> MIN =	min(Comparator.naturalOrder());
@@ -26,7 +26,7 @@ public class Reduce {
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
 		min() {
-		return BasicUtil.unchecked(MIN);
+		return Reflect.unchecked(MIN);
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class Reduce {
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.BinFunction<E, T, T>
 		max() {
-		return BasicUtil.unchecked(MAX);
+		return Reflect.unchecked(MAX);
 	}
 
 	/**

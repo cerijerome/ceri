@@ -1,6 +1,6 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_BITBANG;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_mpsse_mode.BITMODE_RESET;
 import ceri.common.io.Direction;

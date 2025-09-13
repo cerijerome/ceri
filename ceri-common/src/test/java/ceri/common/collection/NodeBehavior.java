@@ -5,9 +5,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Map;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class NodeBehavior {
 	private static final Node<?> NULL = Node.of();
@@ -46,7 +46,7 @@ public class NodeBehavior {
 		Node<?> ne2 = Node.of("name", 8);
 		Node<?> ne3 = Node.builder(9).name("name").add(Node.builder(null)).build();
 		Node<?> ne4 = Node.of(9);
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
 	}
 

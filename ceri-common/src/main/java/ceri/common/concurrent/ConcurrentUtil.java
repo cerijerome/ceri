@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.collection.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.time.Timer;
@@ -80,7 +80,7 @@ public class ConcurrentUtil {
 	 * if interrupted. Checks for interrupted thread even if 0 delay.
 	 */
 	public static void delayMicros(long delayMicros) {
-		delayNanos(MathUtil.multiplyLimit(delayMicros, MICROS_IN_NANOS), MICROS_IN_NANOS);
+		delayNanos(Maths.multiplyLimit(delayMicros, MICROS_IN_NANOS), MICROS_IN_NANOS);
 	}
 
 	/**
@@ -497,7 +497,7 @@ public class ConcurrentUtil {
 	}
 
 	private static void delayNanos(long delayNanos, long minNanos) {
-		long deadline = MathUtil.addLimit(System.nanoTime(), delayNanos);
+		long deadline = Maths.addLimit(System.nanoTime(), delayNanos);
 		while (true) {
 			checkRuntimeInterrupted();
 			long delayNs = deadline - System.nanoTime();

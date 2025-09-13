@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import ceri.common.collection.Enums;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Provide a time supplier by unit. Nanoseconds and microseconds provide elapsed time; all others
@@ -75,7 +75,7 @@ public enum TimeSupplier {
 			case MILLISECONDS -> ConcurrentUtil::delay;
 			default -> {
 				long ms = MILLISECONDS.convert(1, unit);
-				yield n -> ConcurrentUtil.delay(MathUtil.multiplyLimit(n, ms));
+				yield n -> ConcurrentUtil.delay(Maths.multiplyLimit(n, ms));
 			}
 		};
 	}

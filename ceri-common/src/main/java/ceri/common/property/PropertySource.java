@@ -3,16 +3,14 @@ package ceri.common.property;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.TreeSet;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
 import ceri.common.concurrent.Lazy;
 import ceri.common.function.FunctionUtil;
 import ceri.common.io.IoExceptions;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
@@ -253,7 +251,7 @@ public interface PropertySource {
 		@Override
 		public Set<String> children(String key) {
 			var array = path(key).toFile().list();
-			return Immutable.setOfAll(TreeSet::new, array);
+			return Immutable.setOfAll(Sets::tree, array);
 		}
 
 		@Override
@@ -355,12 +353,12 @@ public interface PropertySource {
 	 * Provides child key names from full list of key paths.
 	 */
 	static Set<String> childrenFromKeys(Separator separator, Iterable<String> paths, String key) {
-		Set<String> children = new LinkedHashSet<>();
+		var children = Sets.<String>link();
 		boolean root = Strings.isEmpty(key);
 		int prefixLen = root ? 0 : key.length() + separator.value().length();
 		for (var path : paths) {
 			if (!root && (path.length() <= prefixLen || !path.startsWith(key)
-				|| !StringUtil.matchAt(path, key.length(), separator.value()))) continue;
+				|| !Strings.equalsAt(path, key.length(), separator.value()))) continue;
 			int i = path.indexOf(separator.value(), prefixLen);
 			if (i == prefixLen) continue;
 			if (i < 0) i = path.length();
@@ -374,12 +372,12 @@ public interface PropertySource {
 	 */
 	static Set<String> descendantsFromKeys(Separator separator, Iterable<String> paths,
 		String key) {
-		Set<String> descendants = new LinkedHashSet<>();
+		var descendants = Sets.<String>link();
 		boolean root = Strings.isEmpty(key);
 		int prefixLen = root ? 0 : key.length() + separator.value().length();
 		for (var path : paths) {
 			if (!root && (path.length() <= prefixLen || !path.startsWith(key)
-				|| !StringUtil.matchAt(path, key.length(), separator.value()))) continue;
+				|| !Strings.equalsAt(path, key.length(), separator.value()))) continue;
 			descendants.add(path.substring(prefixLen));
 		}
 		return Immutable.wrap(descendants);
@@ -389,7 +387,7 @@ public interface PropertySource {
 	 * Provides descendants by calling children
 	 */
 	static Set<String> descendantsFromChildren(PropertySource source, String key) {
-		Set<String> descendants = new LinkedHashSet<>();
+		var descendants = Sets.<String>link();
 		int preLen = Strings.isEmpty(key) ? 0 : key.length() + source.separator().value().length();
 		appendDescendantsFromChildren(descendants, source, preLen, key);
 		return Immutable.wrap(descendants);

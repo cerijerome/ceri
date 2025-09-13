@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ushort;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;

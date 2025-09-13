@@ -1,7 +1,7 @@
 package ceri.ent.server;
 
-import static ceri.common.util.BasicUtil.unchecked;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import ceri.common.reflect.Reflect;
 import jakarta.servlet.GenericServlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -22,7 +22,7 @@ public abstract class ServiceServlet<T> extends HttpServlet {
 
 	public static <T> T getService(GenericServlet servlet, Class<T> cls) {
 		String attributeName = cls.getName();
-		return unchecked(servlet.getServletContext().getAttribute(attributeName));
+		return Reflect.unchecked(servlet.getServletContext().getAttribute(attributeName));
 	}
 
 	@Override
@@ -34,5 +34,4 @@ public abstract class ServiceServlet<T> extends HttpServlet {
 	protected T service() {
 		return service;
 	}
-
 }

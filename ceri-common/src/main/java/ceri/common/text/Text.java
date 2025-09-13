@@ -1,17 +1,18 @@
 package ceri.common.text;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Collectable;
-import ceri.common.math.MathUtil;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
+import ceri.common.math.Maths;
 
 /**
  * Multi-line and word-based formatting utilities.
  */
-public class TextUtil {
+public class Text {
 	private static final Pattern CAPITALIZED_WORD_PATTERN = Pattern.compile("^[A-Z]$|^[A-Z][a-z]");
 	private static final Pattern WORD_SPLIT_PATTERN =
 		Pattern.compile("(?<![A-Z])(?=[A-Z0-9])|(?<=[A-Z0-9])(?=[A-Z][a-z])|[\\s_]+");
@@ -23,12 +24,7 @@ public class TextUtil {
 		Pattern.compile("(?i)([a-z0-9])_([a-z])");
 	private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
 
-	private TextUtil() {}
-
-	public static void main(String[] args) {
-		var s = "abc\ndef\r\nghi\rjkl";
-		System.out.println(prefixLines("> ", s));
-	}
+	private Text() {}
 
 	/**
 	 * Prefixes each line of the text with given prefix.
@@ -36,7 +32,7 @@ public class TextUtil {
 	public static String prefixLines(CharSequence prefix, CharSequence text) {
 		if (Strings.isEmpty(text)) return "";
 		if (Strings.isEmpty(prefix)) return text.toString();
-		return Patterns.findAllAppend(new StringBuilder(prefix), Patterns.Split.LINE.pattern, text,
+		return Regex.appendAll(new StringBuilder(prefix), Regex.EOL, text,
 			(b, m) -> b.append(m.group()).append(prefix)).toString();
 	}
 
@@ -44,7 +40,7 @@ public class TextUtil {
 	 * Replaces spaces with tabs for each line, keeping column alignment.
 	 */
 	public static String spacesToTabs(int tabSize, String text) {
-		return spacesToTabs(tabSize, Patterns.Split.LINE.list(text));
+		return spacesToTabs(tabSize, Regex.Split.LINE.list(text));
 	}
 
 	/**
@@ -87,7 +83,7 @@ public class TextUtil {
 	 * Replaces tabs with spaces for each line, keeping column alignment.
 	 */
 	public static String tabsToSpaces(int tabSize, String text) {
-		return tabsToSpaces(tabSize, Patterns.Split.LINE.list(text));
+		return tabsToSpaces(tabSize, Regex.Split.LINE.list(text));
 	}
 
 	/**
@@ -121,13 +117,14 @@ public class TextUtil {
 	 * Adds a line number to the start of each line.
 	 */
 	public static String addLineNumbers(String text) {
-		return addLineNumbers(Patterns.Split.LINE.list(text));
+		return addLineNumbers(Regex.Split.LINE.list(text));
 	}
 
 	/**
 	 * Adds a line number to the start of each line, and joins the lines.
 	 */
 	public static String addLineNumbers(String[] lines) {
+		if (ArrayUtil.isEmpty(lines)) return "";
 		return addLineNumbers(Arrays.asList(lines));
 	}
 
@@ -135,12 +132,20 @@ public class TextUtil {
 	 * Adds a line number to the start of each line, and joins the lines.
 	 */
 	public static String addLineNumbers(List<String> lines) {
+		return addLineNumbers(lines, 1);
+	}
+
+	/**
+	 * Adds a line number to the start of each line, and joins the lines.
+	 */
+	public static String addLineNumbers(List<String> lines, int startLine) {
 		if (Collectable.isEmpty(lines)) return "";
-		var fmt = "%" + MathUtil.decimalDigits(lines.size() + 1) + "d";
+		var fmt = "%" + Maths.decimalDigits(lines.size() + startLine) + "d";
 		var b = new StringBuilder();
 		for (int i = 0; i < lines.size(); i++) {
 			if (i > 0) b.append(Strings.EOL);
-			b.append(String.format(fmt, i + 1)).append(": ").append(lines.get(i));
+			var line = Chars.safe(lines.get(i));
+			b.append(String.format(fmt, i + startLine)).append(": ").append(line);
 		}
 		return b.toString();
 	}
@@ -148,14 +153,14 @@ public class TextUtil {
 	/**
 	 * Wraps a multi-line string as a javadoc block.
 	 */
-	public static String multilineJavadoc(String s) {
+	public static String multilineJavadoc(CharSequence s) {
 		return multilineComment("/**", " * ", " */", s);
 	}
 
 	/**
 	 * Wraps a multi-line string as a comment block.
 	 */
-	public static String multilineComment(String s) {
+	public static String multilineComment(CharSequence s) {
 		return multilineComment("/*", " * ", " */", s);
 	}
 
@@ -163,10 +168,10 @@ public class TextUtil {
 	 * Splits a string into words, based on word boundary of non-letter followed by letter,
 	 * underscores, or whitespace.
 	 */
-	public static List<String> toWords(String str) {
-		if (str == null) return List.of();
-		List<String> words = new ArrayList<>();
-		for (String word : WORD_SPLIT_PATTERN.split(str)) {
+	public static List<String> toWords(CharSequence s) {
+		if (Strings.isEmpty(s)) return Immutable.list();
+		var words = Lists.<String>of();
+		for (String word : WORD_SPLIT_PATTERN.split(s)) {
 			word = word.trim();
 			if (word.length() > 0) words.add(word);
 		}
@@ -179,11 +184,11 @@ public class TextUtil {
 	 * sequence of the words. Sequences of capital letters are preserved. Useful for converting
 	 * method/class names to a phrase.
 	 */
-	public static String toPhrase(String str) {
-		if (str == null || str.isEmpty()) return str;
-		StringBuilder b = new StringBuilder();
+	public static String toPhrase(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		var b = new StringBuilder();
 		boolean first = true;
-		for (String word : toWords(str)) {
+		for (String word : toWords(s)) {
 			if (CAPITALIZED_WORD_PATTERN.matcher(word).find()) word = firstToLower(word);
 			if (!first) b.append(' ');
 			b.append(word);
@@ -197,11 +202,11 @@ public class TextUtil {
 	 * underscores, or whitespace. Then upper-cases the first letter of each word, returning a
 	 * single-space separated sequence of the words.
 	 */
-	public static String toCapitalizedPhrase(String str) {
-		if (str == null || str.isEmpty()) return str;
-		StringBuilder b = new StringBuilder();
+	public static String toCapitalizedPhrase(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		var b = new StringBuilder();
 		boolean first = true;
-		for (String word : toWords(str)) {
+		for (String word : toWords(s)) {
 			word = firstToUpper(word);
 			if (!first) b.append(' ');
 			b.append(word);
@@ -213,138 +218,131 @@ public class TextUtil {
 	/**
 	 * Changes camel case to lower-case hyphenated e.g. _helloThereABC_ => _hello-there-abc_
 	 */
-	public static String camelToHyphenated(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1-$2").toLowerCase();
+	public static String camelToHyphenated(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return CASE_BOUNDARY_PATTERN.matcher(s).replaceAll("$1-$2").toLowerCase();
 	}
 
 	/**
 	 * Changes camel case to Pascal case. e.g. _helloThereABC_ => _HelloThereABC_
 	 */
-	public static String camelToPascal(String str) {
-		if (str == null || str.isEmpty()) return str;
-		Matcher m = WORD_BOUNDARY_PATTERN.matcher(str);
-		StringBuilder sb = new StringBuilder();
+	public static String camelToPascal(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		var m = WORD_BOUNDARY_PATTERN.matcher(s);
+		var sb = new StringBuilder();
 		int last = 0;
 		while (m.find()) {
-			sb.append(str, last, m.start());
-			sb.append(m.group(1));
-			sb.append(m.group(2).toUpperCase());
+			sb.append(s, last, m.start()).append(m.group(1)).append(m.group(2).toUpperCase());
 			last = m.end();
 		}
-		sb.append(str.substring(last));
-		sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+		sb.append(s, last, s.length()).setCharAt(0, Character.toUpperCase(sb.charAt(0)));
 		return sb.toString();
 	}
 
 	/**
 	 * Makes the first character upper case.
 	 */
-	public static String firstToUpper(String str) {
-		if (str == null || str.isEmpty()) return str;
-		char first = str.charAt(0);
+	public static String firstToUpper(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		char first = s.charAt(0);
 		char upper = Character.toUpperCase(first);
-		if (first == upper) return str;
-		return upper + str.substring(1);
+		if (first == upper) return s.toString();
+		return new StringBuilder(s.length()).append(upper).append(s, 1, s.length()).toString();
 	}
 
 	/**
 	 * Makes the first character lower case.
 	 */
-	public static String firstToLower(String str) {
-		if (str == null || str.isEmpty()) return str;
-		char first = str.charAt(0);
+	public static String firstToLower(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		char first = s.charAt(0);
 		char lower = Character.toLowerCase(first);
-		if (first == lower) return str;
-		return lower + str.substring(1);
+		if (first == lower) return s.toString();
+		return new StringBuilder(s.length()).append(lower).append(s, 1, s.length()).toString();
 	}
 
 	/**
 	 * Makes the first found letter upper case.
 	 */
-	public static String firstLetterToUpper(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return LETTER_PATTERN.matcher(str).replaceFirst(m -> m.group(0).toUpperCase());
+	public static String firstLetterToUpper(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return LETTER_PATTERN.matcher(s).replaceFirst(m -> m.group(0).toUpperCase());
 	}
 
 	/**
 	 * Makes the first found letter lower case.
 	 */
-	public static String firstLetterToLower(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return LETTER_PATTERN.matcher(str).replaceFirst(m -> m.group(0).toLowerCase());
+	public static String firstLetterToLower(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return LETTER_PATTERN.matcher(s).replaceFirst(m -> m.group(0).toLowerCase());
 	}
 
 	/**
 	 * Changes Pascal case to underscore-separated upper case. Sequential capital letters are not
 	 * separated. e.g. _HelloThereABC_ => _HELLO_THERE_ABC_
 	 */
-	public static String pascalToUnderscore(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return CASE_BOUNDARY_PATTERN.matcher(str).replaceAll("$1_$2").toUpperCase();
+	public static String pascalToUnderscore(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return CASE_BOUNDARY_PATTERN.matcher(s).replaceAll("$1_$2").toUpperCase();
 	}
 
 	/**
 	 * Changes Pascal case to property name style. e.g. HelloThereABC => hello.there.abc
 	 */
-	public static String pascalToProperty(String str) {
-		return underscoreToProperty(pascalToUnderscore(str));
+	public static String pascalToProperty(CharSequence s) {
+		return underscoreToProperty(pascalToUnderscore(s));
 	}
 
 	/**
 	 * Changes upper case sequential chars to capitalized sequence. e.g. _HELLO_THERE_ABC_ =>
 	 * _Hello_There_Abc_
 	 */
-	public static String upperToCapitalized(String str) {
-		if (str == null || str.isEmpty()) return str;
-		Matcher m = UPPER_CASE_WORD_PATTERN.matcher(str);
-		StringBuilder sb = new StringBuilder();
+	public static String upperToCapitalized(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		var m = UPPER_CASE_WORD_PATTERN.matcher(s);
+		var sb = new StringBuilder();
 		int last = 0;
 		while (m.find()) {
-			sb.append(str, last, m.start());
-			sb.append(m.group(1));
-			sb.append(m.group(2).toLowerCase());
+			sb.append(s, last, m.start()).append(m.group(1)).append(m.group(2).toLowerCase());
 			last = m.end();
 		}
-		sb.append(str.substring(last));
-		return sb.toString();
+		return sb.append(s.subSequence(last, s.length())).toString();
 	}
 
 	/**
 	 * Changes underscore-separated upper case to Pascal case. Only single underscores surrounded by
 	 * letters are removed. e.g. _HELLO_THERE_ABC_ => _HelloThereAbc_
 	 */
-	public static String underscoreToPascal(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(upperToCapitalized(str))
-			.replaceAll("$1$2");
+	public static String underscoreToPascal(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(upperToCapitalized(s)).replaceAll("$1$2");
 	}
 
 	/**
 	 * Changes underscore-separated upper case to camel case. Only single underscores surrounded by
 	 * letters are removed. e.g. _HELLO_THERE_ABC_ => _helloThereAbc_
 	 */
-	public static String underscoreToCamel(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return firstLetterToLower(underscoreToPascal(str));
+	public static String underscoreToCamel(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return firstLetterToLower(underscoreToPascal(s));
 	}
 
 	/**
 	 * Changes underscore-separated upper case to property name style. Only single underscores
 	 * surrounded by letters are converted. e.g. HELLO_THERE_ABC => hello.there.abc
 	 */
-	public static String underscoreToProperty(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(str).replaceAll("$1.$2").toLowerCase();
+	public static String underscoreToProperty(CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return UNDERSCORE_WORD_SEPARATOR_PATTERN.matcher(s).replaceAll("$1.$2").toLowerCase();
 	}
 
 	/**
 	 * Changes underscore-separated upper case to property name style, e.g. hello.there.abc =>
 	 * HELLO_THERE_ABC
 	 */
-	public static String propertyToUnderscore(String str) {
-		if (str == null || str.isEmpty()) return str;
-		return DOT_PATTERN.matcher(str.toUpperCase()).replaceAll("_");
+	public static String propertyToUnderscore(String s) {
+		if (Strings.isEmpty(s)) return "";
+		return DOT_PATTERN.matcher(s.toUpperCase()).replaceAll("_");
 	}
 
 	// support
@@ -358,8 +356,9 @@ public class TextUtil {
 		return ((pos + tabSize) / tabSize) * tabSize - pos;
 	}
 
-	private static String multilineComment(String start, String prefix, String end, String str) {
-		if (Strings.isEmpty(str)) return str;
-		return start + Strings.EOL + prefixLines(prefix, str) + Strings.EOL + end;
+	private static String multilineComment(CharSequence start, CharSequence prefix,
+		CharSequence end, CharSequence s) {
+		if (Strings.isEmpty(s)) return "";
+		return start + Strings.EOL + prefixLines(prefix, s) + Strings.EOL + end;
 	}
 }

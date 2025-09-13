@@ -18,19 +18,15 @@ import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CLib;
 import ceri.jna.clib.jna.CPoll.pollfd;
-import ceri.jna.clib.jna.CSignal.sighandler_t;
+import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.jna.CTermios;
-import ceri.jna.clib.jna.CTermios.speed_t;
 import ceri.jna.clib.jna.CTime;
 import ceri.jna.clib.jna.CUnistd;
-import ceri.jna.clib.jna.CUnistd.size_t;
-import ceri.jna.clib.jna.CUnistd.ssize_t;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.Struct;
@@ -124,7 +120,7 @@ public class TestCLibNative implements CLib.Native {
 	 */
 	public record SignalArgs(int signal, Object handler) {
 		public SignalArgs {
-			assertTrue(handler instanceof sighandler_t || handler instanceof Pointer);
+			assertTrue(handler instanceof CSignal.sighandler_t || handler instanceof Pointer);
 		}
 	}
 
@@ -171,7 +167,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.unchecked(args().get(i));
+			return Reflect.unchecked(args().get(i));
 		}
 	}
 
@@ -187,7 +183,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.unchecked(args().get(i));
+			return Reflect.unchecked(args().get(i));
 		}
 	}
 
@@ -217,7 +213,7 @@ public class TestCLibNative implements CLib.Native {
 		 * Provide vararg argument as a typed object.
 		 */
 		public <T> T arg(int i) {
-			return BasicUtil.unchecked(args().get(i));
+			return Reflect.unchecked(args().get(i));
 		}
 	}
 
@@ -324,20 +320,20 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public ssize_t read(int fd, Pointer buffer, size_t len) {
+	public CUnistd.ssize_t read(int fd, Pointer buffer, CUnistd.size_t len) {
 		ByteProvider data = read.apply(new ReadArgs(fd(fd), len.intValue()));
-		if (data == null || data.length() == 0) return new ssize_t(0);
+		if (data == null || data.length() == 0) return new CUnistd.ssize_t(0);
 		int n = Math.min(data.length(), len.intValue());
 		JnaUtil.write(buffer, data.copy(0), 0, n);
-		return new ssize_t(n);
+		return new CUnistd.ssize_t(n);
 	}
 
 	@Override
-	public ssize_t write(int fd, Pointer buffer, size_t len) {
+	public CUnistd.ssize_t write(int fd, Pointer buffer, CUnistd.size_t len) {
 		byte[] bytes = new byte[len.intValue()];
 		if (buffer != null) JnaUtil.read(buffer, bytes);
 		int n = write.apply(new WriteArgs(fd(fd), ByteProvider.of(bytes)));
-		return new ssize_t(n);
+		return new CUnistd.ssize_t(n);
 	}
 
 	@Override
@@ -351,7 +347,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public Pointer signal(int signum, sighandler_t handler) {
+	public Pointer signal(int signum, CSignal.sighandler_t handler) {
 		return signal.apply(new SignalArgs(signum, handler));
 	}
 
@@ -454,27 +450,27 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public speed_t cfgetispeed(Pointer termios) {
-		return new speed_t(cf.apply(CfArgs.of("cfgetispeed", termios)));
+	public CTermios.speed_t cfgetispeed(Pointer termios) {
+		return new CTermios.speed_t(cf.apply(CfArgs.of("cfgetispeed", termios)));
 	}
 
 	@Override
-	public speed_t cfgetospeed(Pointer termios) {
-		return new speed_t(cf.apply(CfArgs.of("cfgetospeed", termios)));
+	public CTermios.speed_t cfgetospeed(Pointer termios) {
+		return new CTermios.speed_t(cf.apply(CfArgs.of("cfgetospeed", termios)));
 	}
 
 	@Override
-	public int cfsetispeed(Pointer termios, speed_t speed) {
+	public int cfsetispeed(Pointer termios, CTermios.speed_t speed) {
 		return cf.apply(CfArgs.of("cfsetispeed", termios, speed.intValue()));
 	}
 
 	@Override
-	public int cfsetospeed(Pointer termios, speed_t speed) {
+	public int cfsetospeed(Pointer termios, CTermios.speed_t speed) {
 		return cf.apply(CfArgs.of("cfsetospeed", termios, speed.intValue()));
 	}
 
 	@Override
-	public Pointer mmap(Pointer addr, size_t len, int prot, int flags, int fd, int offset)
+	public Pointer mmap(Pointer addr, CUnistd.size_t len, int prot, int flags, int fd, int offset)
 		throws LastErrorException {
 		var presult = mmap.apply(new MmapArgs(addr, len.longValue(), prot, flags, fd, offset));
 		if (presult.p() != null) return presult.p();
@@ -482,7 +478,7 @@ public class TestCLibNative implements CLib.Native {
 	}
 
 	@Override
-	public int munmap(Pointer addr, size_t len) {
+	public int munmap(Pointer addr, CUnistd.size_t len) {
 		return mmap.apply(new MmapArgs(addr, len.longValue(), 0, 0, 0, 0)).result();
 	}
 

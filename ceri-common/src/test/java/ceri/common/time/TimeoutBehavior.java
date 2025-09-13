@@ -6,7 +6,6 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -18,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.test.TestUtil;
 
 public class TimeoutBehavior {
 
@@ -29,7 +29,7 @@ public class TimeoutBehavior {
 		Timeout ne1 = Timeout.of(7, MILLISECONDS);
 		Timeout ne2 = Timeout.NULL;
 		Timeout ne3 = Timeout.ZERO;
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

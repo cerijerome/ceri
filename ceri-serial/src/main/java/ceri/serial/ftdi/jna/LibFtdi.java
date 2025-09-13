@@ -1,6 +1,6 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.DONT_DETACH_SIO_MODULE;

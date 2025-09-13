@@ -7,9 +7,9 @@ import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.util.Enclosure;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.GcMemory;
@@ -32,16 +32,16 @@ public class LibUsbFinderBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		LibUsbFinder t = LibUsbFinder.of(7, 9);
-		LibUsbFinder eq0 = LibUsbFinder.of(7, 9);
-		LibUsbFinder ne0 = LibUsbFinder.of(8, 9);
-		LibUsbFinder ne1 = LibUsbFinder.of(7, 8);
-		LibUsbFinder ne2 = LibUsbFinder.builder().vendor(7).product(9).bus(1).build();
-		LibUsbFinder ne3 = LibUsbFinder.builder().vendor(7).product(9).address(2).build();
-		LibUsbFinder ne4 = LibUsbFinder.builder().vendor(7).product(9).description("x").build();
-		LibUsbFinder ne5 = LibUsbFinder.builder().vendor(7).product(9).serial("x").build();
-		LibUsbFinder ne6 = LibUsbFinder.builder().vendor(7).product(9).index(1).build();
-		exerciseEquals(t, eq0);
+		var t = LibUsbFinder.of(7, 9);
+		var eq0 = LibUsbFinder.of(7, 9);
+		var ne0 = LibUsbFinder.of(8, 9);
+		var ne1 = LibUsbFinder.of(7, 8);
+		var ne2 = LibUsbFinder.builder().vendor(7).product(9).bus(1).build();
+		var ne3 = LibUsbFinder.builder().vendor(7).product(9).address(2).build();
+		var ne4 = LibUsbFinder.builder().vendor(7).product(9).description("x").build();
+		var ne5 = LibUsbFinder.builder().vendor(7).product(9).serial("x").build();
+		var ne6 = LibUsbFinder.builder().vendor(7).product(9).index(1).build();
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 

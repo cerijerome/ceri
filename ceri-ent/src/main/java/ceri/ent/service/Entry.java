@@ -1,7 +1,6 @@
 package ceri.ent.service;
 
 import java.util.Objects;
-import ceri.common.util.BasicUtil;
 
 public class Entry<K, V> {
 	public final K key;
@@ -30,10 +29,8 @@ public class Entry<K, V> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Entry)) return false;
-		Entry<K, V> other = BasicUtil.unchecked(obj);
-		return Objects.equals(key, other.key) && Objects.equals(value, other.value) &&
-			expiration == other.expiration;
+		if (!(obj instanceof Entry other)) return false;
+		return Objects.equals(key, other.key) && Objects.equals(value, other.value)
+			&& expiration == other.expiration;
 	}
-
 }

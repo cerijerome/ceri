@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -451,7 +451,7 @@ public abstract class ByteArray implements ByteProvider {
 			verifyGrowLength(length);
 			if (length <= array.length) return;
 			int newLen = array.length << 1;
-			if (MathUtil.uint(newLen) > max) newLen = max;
+			if (Maths.uint(newLen) > max) newLen = max;
 			if (newLen < SIZE_DEF) newLen = Math.min(SIZE_DEF, max);
 			if (newLen < length) newLen = length;
 			array = Arrays.copyOf(array, newLen);
@@ -459,7 +459,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		private void verifyGrowLength(int length) {
-			if (MathUtil.uint(length) > max) throw new IllegalArgumentException(String
+			if (Maths.uint(length) > max) throw new IllegalArgumentException(String
 				.format("Max allocation size %1$d (0x%1$x) bytes: %2$d (0x%2$x)", max, length));
 		}
 	}

@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import static ceri.common.geom.GeometryUtil.point;
 import static ceri.common.geom.GeometryUtil.vector;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Matrix;
 
 public class LineUtil {
@@ -28,7 +28,7 @@ public class LineUtil {
 		Matrix ab = vector(line.vector);
 		Matrix ap = vector(line.from.to(point));
 		double t = ab.dot(ap) / ab.dot(ab);
-		t = MathUtil.limit(t, 0, 1);
+		t = Maths.limit(t, 0, 1);
 		Matrix c = vector(line.from).add(ab.multiply(t));
 		return point(c).distanceTo(point);
 	}

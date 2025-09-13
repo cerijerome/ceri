@@ -5,14 +5,14 @@ import static ceri.common.test.AssertUtil.assertOrdered;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 import ceri.common.text.Splitter;
 
 public class ColumnsBehavior {
 	private static final String fixed = TestUtil.resource("column-fixed.txt");
-	private static final List<String> fixedLines = Patterns.Split.LINE.list(fixed);
+	private static final List<String> fixedLines = Regex.Split.LINE.list(fixed);
 	private static final String tabs = TestUtil.resource("column-tabs.txt");
-	private static final List<String> tabLines = Patterns.Split.LINE.list(tabs);
+	private static final List<String> tabLines = Regex.Split.LINE.list(tabs);
 
 	@Test
 	public void shouldParseFixedColumns() {

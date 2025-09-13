@@ -5,10 +5,10 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.fail;
 import static ceri.common.test.AssertUtil.throwRuntime;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
+import ceri.common.test.TestUtil;
 
 public class SplitRangeBehavior {
 
@@ -20,7 +20,7 @@ public class SplitRangeBehavior {
 		var eq2 = SplitRange.from(String::length, "a", "bb", "ccc");
 		var ne0 = SplitRange.of(1, 3, 7);
 		var ne1 = SplitRange.of(1, 3, 6, 6);
-		exerciseEquals(t, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1);
 	}
 
@@ -32,7 +32,7 @@ public class SplitRangeBehavior {
 		var ne1 = SplitRange.typed(String::length, "aa", "b", "ddd");
 		var ne2 = SplitRange.typed(String::length, "aa", "b", "cccc");
 		var ne3 = SplitRange.Typed.ofNull();
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

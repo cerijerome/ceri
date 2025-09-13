@@ -3,7 +3,6 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -27,7 +26,7 @@ public class TestPrinterBehavior {
 		TestPrinter.Test test2 = new TestPrinter.Test("testClassName0", "className", "description");
 		TestPrinter.Test test3 = new TestPrinter.Test("testClassName", "className0", "description");
 		TestPrinter.Test test4 = new TestPrinter.Test("testClassName", "className", "description0");
-		exerciseEquals(test, test1);
+		TestUtil.exerciseEquals(test, test1);
 		assertAllNotEqual(test, test2, test3, test4);
 	}
 

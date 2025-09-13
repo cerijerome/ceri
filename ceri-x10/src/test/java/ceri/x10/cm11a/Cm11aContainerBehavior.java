@@ -4,11 +4,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.x10.cm11a.Cm11aContainer.Type.cm11aRef;
-import static ceri.x10.cm11a.Cm11aContainer.Type.connector;
-import static ceri.x10.cm11a.Cm11aContainer.Type.connectorRef;
-import static ceri.x10.cm11a.Cm11aContainer.Type.noOp;
-import static ceri.x10.cm11a.Cm11aContainer.Type.test;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
@@ -28,14 +23,17 @@ public class Cm11aContainerBehavior {
 
 	@Test
 	public void shouldDetermineContainerType() {
-		assertEquals(Cm11aContainer.Config.of("com").type(null, null), connector);
-		assertEquals(Cm11aContainer.Config.of("com").type(null, Serial.NULL), connectorRef);
-		assertEquals(Cm11aContainer.Config.of("com").type(Cm11a.NULL, null), cm11aRef);
+		assertEquals(Cm11aContainer.Config.of("com").type(null, null),
+			Cm11aContainer.Type.connector);
+		assertEquals(Cm11aContainer.Config.of("com").type(null, Serial.NULL),
+			Cm11aContainer.Type.connectorRef);
+		assertEquals(Cm11aContainer.Config.of("com").type(Cm11a.NULL, null),
+			Cm11aContainer.Type.cm11aRef);
 		assertEquals(Cm11aContainer.Config.builder().mode(DeviceMode.test).build().type(null, null),
-			test);
+			Cm11aContainer.Type.test);
 		assertEquals(
 			Cm11aContainer.Config.builder().mode(DeviceMode.disabled).build().type(null, null),
-			noOp);
+			Cm11aContainer.Type.noOp);
 	}
 
 	@Test
@@ -119,5 +117,4 @@ public class Cm11aContainerBehavior {
 		in.available.autoResponses(0, bytes.length, 0);
 		in.to.writeBytes(bytes);
 	}
-
 }

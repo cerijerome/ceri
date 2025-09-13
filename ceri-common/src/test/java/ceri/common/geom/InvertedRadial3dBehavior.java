@@ -3,9 +3,9 @@ package ceri.common.geom;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class InvertedRadial3dBehavior {
 	private final Cone3d c0 = Cone3d.create(1, 4);
@@ -15,7 +15,7 @@ public class InvertedRadial3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(i0, InvertedRadial3d.create(Cone3d.create(1, 4)));
+		TestUtil.exerciseEquals(i0, InvertedRadial3d.create(Cone3d.create(1, 4)));
 		assertNotEquals(i0, InvertedRadial3d.create(Cone3d.create(1.1, 4)));
 		assertNotEquals(i0, InvertedRadial3d.create(Cone3d.create(1, 3.9)));
 	}

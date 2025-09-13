@@ -1,7 +1,7 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.math.MathUtil.lcm;
-import static ceri.common.util.BasicUtil.unused;
+import static ceri.common.math.Maths.lcm;
+import static ceri.common.util.Basics.unused;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.spi.pulse.PulseCycle.Type.nbit;

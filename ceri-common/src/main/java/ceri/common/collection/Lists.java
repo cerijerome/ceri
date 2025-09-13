@@ -11,7 +11,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Support for mutable lists.
@@ -182,6 +182,15 @@ public class Lists {
 	}
 
 	/**
+	 * Returns a bounded sub-list view.
+	 */
+	public static <T> List<T> sub(List<T> list, int offset, int length) {
+		if (list == null) return Immutable.list();
+		return ArrayUtil.applySlice(Collectable.size(list), offset, length,
+			(o, l) -> list.subList(o, o + l));
+	}
+
+	/**
 	 * Sorts the list with natural ordering and nulls first.
 	 */
 	public static <T extends Comparable<? super T>, L extends List<T>> L sort(L list) {
@@ -247,7 +256,7 @@ public class Lists {
 	public static <T> List<T> insert(List<T> dest, int index, T[] src, int offset, int length) {
 		if (src == null || dest == null) return dest;
 		return ArrayUtil.applySlice(src.length, offset, length, (o, l) -> {
-			int i = MathUtil.limit(index, 0, dest.size() - 1);
+			int i = Maths.limit(index, 0, dest.size() - 1);
 			dest.addAll(i, Arrays.asList(src).subList(o, o + l));
 			return dest;
 		});
@@ -258,7 +267,7 @@ public class Lists {
 	 */
 	public static <T> List<T> insert(List<T> dest, int index, Collection<? extends T> src) {
 		if (src == null || dest == null) return dest;
-		int i = MathUtil.limit(index, 0, dest.size() - 1);
+		int i = Maths.limit(index, 0, dest.size() - 1);
 		dest.addAll(i, src);
 		return dest;
 	}

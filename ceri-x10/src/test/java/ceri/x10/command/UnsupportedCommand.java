@@ -1,11 +1,11 @@
 package ceri.x10.command;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
 
 public class UnsupportedCommand extends Command {
 
@@ -14,7 +14,7 @@ public class UnsupportedCommand extends Command {
 	}
 
 	public static UnsupportedCommand hailReq(House house, Collection<Unit> units) {
-		validateNotNull(house);
+		Objects.requireNonNull(house);
 		return new UnsupportedCommand(house, normalize(units), FunctionType.hailReq);
 	}
 
@@ -23,7 +23,7 @@ public class UnsupportedCommand extends Command {
 	}
 
 	public static UnsupportedCommand hailAck(House house, Collection<Unit> units) {
-		validateNotNull(house);
+		Objects.requireNonNull(house);
 		return new UnsupportedCommand(house, normalize(units), FunctionType.hailAck);
 	}
 
@@ -32,7 +32,6 @@ public class UnsupportedCommand extends Command {
 	}
 
 	private static Set<Unit> normalize(Collection<Unit> units) {
-		if (units == null || units.isEmpty()) return Set.of();
-		return Immutable.wrap(new TreeSet<>(units));
+		return Immutable.set(Sets::tree, units);
 	}
 }

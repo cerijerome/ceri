@@ -7,10 +7,10 @@ import java.util.NoSuchElementException;
 import ceri.common.collection.Iterables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Hasher;
 
 /**
@@ -28,8 +28,8 @@ public class RawArray {
 		 */
 		public static <T> Sub<T> of(T array, int offset, int length) {
 			int arrayLen = RawArray.length(array);
-			offset = MathUtil.limit(offset, 0, arrayLen);
-			length = MathUtil.limit(length, 0, arrayLen - offset);
+			offset = Maths.limit(offset, 0, arrayLen);
+			length = Maths.limit(length, 0, arrayLen - offset);
 			return new Sub<>(array, offset, length);
 		}
 
@@ -60,14 +60,14 @@ public class RawArray {
 	 * Returns the array component class, or null.
 	 */
 	public static <T> Class<T> arrayType(Class<?> cls) {
-		return cls == null ? null : BasicUtil.unchecked(ofType(cls, 0).getClass());
+		return cls == null ? null : Reflect.unchecked(ofType(cls, 0).getClass());
 	}
 
 	/**
 	 * Returns the component class of an array type, or null.
 	 */
 	public static <T> Class<T> componentType(Class<?> cls) {
-		return cls == null ? null : BasicUtil.unchecked(cls.getComponentType());
+		return cls == null ? null : Reflect.unchecked(cls.getComponentType());
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class RawArray {
 	 */
 	public static <T> T ofType(Class<?> type, int size) {
 		return type == null ? null :
-			BasicUtil.unchecked(java.lang.reflect.Array.newInstance(type, size));
+			Reflect.unchecked(java.lang.reflect.Array.newInstance(type, size));
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class RawArray {
 	 * Gets the value at index.
 	 */
 	public static <T> T get(Object array, int index) {
-		return BasicUtil.unchecked(java.lang.reflect.Array.get(array, index));
+		return Reflect.unchecked(java.lang.reflect.Array.get(array, index));
 	}
 
 	/**
@@ -130,7 +130,7 @@ public class RawArray {
 
 			@Override
 			public boolean hasNext() {
-				return MathUtil.within(i, 0, l - 1);
+				return Maths.within(i, 0, l - 1);
 			}
 
 			@Override
@@ -160,12 +160,10 @@ public class RawArray {
 	 */
 	public static <T> T copy(T src, int srcOffset, T dest, int destOffset, int length) {
 		if (src == null || dest == null) return dest;
-		int srcLen = length(src);
-		srcOffset = MathUtil.limit(srcOffset, 0, srcLen);
-		int destLen = length(dest);
-		destOffset = MathUtil.limit(destOffset, 0, destLen);
-		length = MathUtil.min(length, srcLen, destLen);
-		if (length > 0) System.arraycopy(src, srcOffset, dest, destOffset, length);
+		acceptBiSlice(src, srcOffset, length, dest, destOffset, length, (lo, ll, ro, rl) -> {
+			int n = Math.min(ll, rl);
+			if (n > 0) System.arraycopy(src, lo, dest, ro, n);
+		});
 		return dest;
 	}
 
@@ -202,18 +200,16 @@ public class RawArray {
 	public static Object arrayCopy(Object src, int srcOffset, Object dest, int destOffset,
 		int length) {
 		if (src == null || dest == null) return dest;
-		int srcLen = length(src);
-		srcOffset = MathUtil.limit(srcOffset, 0, srcLen);
-		int destLen = length(dest);
-		destOffset = MathUtil.limit(destOffset, 0, destLen);
-		length = MathUtil.min(length, srcLen, destLen);
-		while (length-- > 0)
-			set(dest, destOffset++, get(src, srcOffset++));
+		acceptBiSlice(src, srcOffset, length, dest, destOffset, length, (lo, ll, ro, rl) -> {
+			int n = Math.min(ll, rl);
+			while (n-- > 0)
+				set(dest, ro++, get(src, lo++));
+		});
 		return dest;
 	}
 
 	/**
-	 * Passes a validated range to the consumer.
+	 * Passes a bounded range to the consumer.
 	 */
 	public static <E extends Exception, T, R> R applySlice(T array, int offset, int length,
 		Excepts.IntBiFunction<E, R> function) throws E {
@@ -222,7 +218,7 @@ public class RawArray {
 	}
 
 	/**
-	 * Passes a validated range to the consumer.
+	 * Passes a bounded range to the consumer.
 	 */
 	public static <E extends Exception, T> T acceptSlice(T array, int offset, int length,
 		Excepts.IntBiConsumer<E> consumer) throws E {
@@ -243,19 +239,37 @@ public class RawArray {
 	}
 
 	/**
+	 * Passes bounded ranges to the function and returns the result.
+	 */
+	public static <E extends Exception, T, R> R applyBiSlice(T lArray, int lOffset, int lLength,
+		T rArray, int rOffset, int rLength, ArrayUtil.BiSliceFunction<E, R> function) throws E {
+		if (function == null) return null;
+		return ArrayUtil.applyBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset,
+			rLength, function);
+	}
+
+	/**
+	 * Passes bounded ranges to the consumer.
+	 */
+	public static <E extends Exception, T> void acceptBiSlice(T lArray, int lOffset, int lLength,
+		T rArray, int rOffset, int rLength, ArrayUtil.BiSliceConsumer<E> consumer) throws E {
+		if (consumer == null) return;
+		ArrayUtil.acceptBiSlice(length(lArray), lOffset, lLength, length(rArray), rOffset, rLength,
+			consumer);
+	}
+
+	/**
 	 * Insert a bounded array range into an array.
 	 */
-	public static <T> T insert(Functions.IntFunction<T> constructor, T lhs, int lhsOffset, T rhs,
-		int rhsOffset, int length) {
-		if (constructor == null || lhs == null || rhs == null) return lhs;
-		int lhsLen = length(lhs);
-		lhsOffset = MathUtil.limit(lhsOffset, 0, lhsLen);
-		int rhsLen = length(rhs);
-		rhsOffset = MathUtil.limit(rhsOffset, 0, rhsLen);
-		length = MathUtil.limit(length, 0, rhsLen - rhsOffset);
-		var inserted = insert(constructor, lhs, lhsOffset, length);
-		if (length > 0) System.arraycopy(rhs, rhsOffset, inserted, lhsOffset, length);
-		return inserted;
+	public static <T> T insert(Functions.IntFunction<T> constructor, T src, int srcOffset, T dest,
+		int destOffset, int length) {
+		if (constructor == null || dest == null || src == null) return dest;
+		return applyBiSlice(src, srcOffset, length, dest, destOffset, 0, (lo, ll, ro, _) -> {
+			if (length == 0) return dest;
+			var inserted = insert(constructor, dest, ro, ll);
+			System.arraycopy(src, lo, inserted, ro, ll);
+			return inserted;
+		});
 	}
 
 	/**
@@ -265,7 +279,7 @@ public class RawArray {
 		int length) {
 		if (constructor == null || array == null || length <= 0) return array;
 		int arrayLen = length(array);
-		offset = MathUtil.limit(offset, 0, arrayLen);
+		offset = Maths.limit(offset, 0, arrayLen);
 		var inserted = constructor.apply(arrayLen + length);
 		if (offset > 0) System.arraycopy(array, 0, inserted, 0, offset);
 		if (offset < arrayLen)
@@ -292,16 +306,12 @@ public class RawArray {
 	public static <T> int indexOf(Equals<T> equalsFn, T array, int arrayOffset, int arrayLen,
 		T values, int valuesOffset, int valuesLen) {
 		if (array == null || values == null) return -1;
-		int actualArrayLen = length(array);
-		arrayOffset = MathUtil.limit(arrayOffset, 0, actualArrayLen);
-		arrayLen = MathUtil.limit(arrayLen, 0, actualArrayLen - arrayOffset);
-		int actualValuesLen = length(values);
-		valuesOffset = MathUtil.limit(valuesOffset, 0, actualValuesLen);
-		valuesLen = MathUtil.limit(valuesLen, 0, actualValuesLen - valuesOffset);
-		for (int i = 0; i <= arrayLen - valuesLen; i++)
-			if (equalsFn.equals(array, arrayOffset + i, arrayOffset + i + valuesLen, values,
-				valuesOffset, valuesOffset + valuesLen)) return i;
-		return -1;
+		return applyBiSlice(array, arrayOffset, arrayLen, values, valuesOffset, valuesLen,
+			(ao, al, vo, vl) -> {
+				for (int i = 0; i <= al - vl; i++)
+					if (equalsFn.equals(array, ao + i, ao + i + vl, values, vo, vo + vl)) return i;
+				return -1;
+			});
 	}
 
 	/**
@@ -310,16 +320,12 @@ public class RawArray {
 	public static <T> int lastIndexOf(Equals<T> equalsFn, T array, int arrayOffset, int arrayLen,
 		T values, int valuesOffset, int valuesLen) {
 		if (array == null || values == null) return -1;
-		int actualArrayLen = length(array);
-		arrayOffset = MathUtil.limit(arrayOffset, 0, actualArrayLen);
-		arrayLen = MathUtil.limit(arrayLen, 0, actualArrayLen - arrayOffset);
-		int actualValuesLen = length(values);
-		valuesOffset = MathUtil.limit(valuesOffset, 0, actualValuesLen);
-		valuesLen = MathUtil.limit(valuesLen, 0, actualValuesLen - valuesOffset);
-		for (int i = arrayLen - valuesLen; i >= arrayOffset; i--)
-			if (equalsFn.equals(array, i, i + valuesLen, values, valuesOffset,
-				valuesOffset + valuesLen)) return i;
-		return -1;
+		return applyBiSlice(array, arrayOffset, arrayLen, values, valuesOffset, valuesLen,
+			(ao, al, vo, vl) -> {
+				for (int i = al - vl; i >= 0; i--)
+					if (equalsFn.equals(array, ao + i, ao + i + vl, values, vo, vo + vl)) return i;
+				return -1;
+			});
 	}
 
 	/**
@@ -401,14 +407,11 @@ public class RawArray {
 	public static <T> boolean equals(Equals<T> equalsFn, T lhs, int lhsOffset, T rhs, int rhsOffset,
 		int length) {
 		if (equalsFn == null) return false;
-		if (lhs == null && rhs == null) return true;
-		if (lhs == null || rhs == null) return false;
-		int lhsLen = length(lhs);
-		lhsOffset = MathUtil.limit(lhsOffset, 0, lhsLen);
-		int rhsLen = length(rhs);
-		rhsOffset = MathUtil.limit(rhsOffset, 0, rhsLen);
-		return equalsFn.equals(lhs, lhsOffset, Math.min(lhsOffset + length, lhsLen), rhs, rhsOffset,
-			Math.min(rhsOffset + length, rhsLen));
+		if (lhs == null || rhs == null) return lhs == rhs;
+		return applyBiSlice(lhs, lhsOffset, length, rhs, rhsOffset, length, (lo, ll, ro, rl) -> {
+			if (ll != rl) return false;
+			return equalsFn.equals(lhs, lo, lo + ll, rhs, ro, ro + rl);
+		});
 	}
 
 	/**

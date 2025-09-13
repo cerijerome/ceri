@@ -5,11 +5,11 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.TestUtil;
 
 public class CommandBehavior {
 	private static final Command allUnitsOff = Command.allUnitsOff(House.A);
@@ -112,7 +112,7 @@ public class CommandBehavior {
 		Command ne4 = Command.ext(House.O, 10, 20, Unit._11, Unit._13);
 		Command ne5 = Command.ext(House.O, 10, 20, (Collection<Unit>) null);
 		Command ne6 = Command.bright(House.O, 10, Unit._11, Unit._12);
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 

@@ -1,7 +1,7 @@
 package ceri.serial.i2c.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA;
@@ -18,7 +18,7 @@ import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.clib.jna.CException;
@@ -172,12 +172,12 @@ public class I2cDev {
 		public static class ByReference extends i2c_smbus_data implements Structure.ByReference {}
 
 		public void setByte(int value) {
-			byte_ = MathUtil.ubyteExact(value);
+			byte_ = Maths.ubyteExact(value);
 			setType("byte_");
 		}
 
 		public void setWord(int value) {
-			word = MathUtil.ushortExact(value);
+			word = Maths.ushortExact(value);
 			setType("word");
 		}
 
@@ -540,8 +540,8 @@ public class I2cDev {
 	private static int smbusIoctl(int fd, int readWrite, int command,
 		i2c_smbus_transaction_type type, i2c_smbus_data.ByReference data) throws CException {
 		i2c_smbus_ioctl_data smbus = new i2c_smbus_ioctl_data();
-		smbus.read_write = MathUtil.ubyteExact(readWrite);
-		smbus.command = MathUtil.ubyteExact(command);
+		smbus.read_write = Maths.ubyteExact(readWrite);
+		smbus.command = Maths.ubyteExact(command);
 		smbus.size = type.size;
 		smbus.data = data;
 		return CIoctl.ioctl("I2C_SMBUS", fd, I2C_SMBUS, smbus); // smbus.read() if reading?

@@ -3,7 +3,7 @@ package ceri.common.function;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Utilities for functional interfaces.
@@ -28,7 +28,7 @@ public class Lambdas {
 	 * Register a global name supplier for an object; typically used for naming lambdas.
 	 */
 	public static <T> T register(T t, Functions.Function<T, String> namer) {
-		if (t != null) namers.put(t, BasicUtil.unchecked(namer));
+		if (t != null) namers.put(t, Reflect.unchecked(namer));
 		return t;
 	}
 

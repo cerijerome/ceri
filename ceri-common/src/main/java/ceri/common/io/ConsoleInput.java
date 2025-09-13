@@ -6,15 +6,16 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.function.Excepts;
+import ceri.common.math.Maths;
 import ceri.common.text.Chars;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
 /**
@@ -22,6 +23,7 @@ import ceri.common.text.Strings;
  * terminal line-based input, and provides line history recall/editing.
  */
 public class ConsoleInput implements LineReader {
+	private static final Pattern SPACE_REGEX = Pattern.compile("^ ");
 	private static final int ESC_END_MIN = 0x40;
 	private static final int ESC_END_MAX = 0x7e;
 	private static final int ESC_LEN_MIN = 3;
@@ -56,9 +58,10 @@ public class ConsoleInput implements LineReader {
 	 * history. Poll delay determines how long to wait before checking for new input; a null value
 	 * blocks until input is available.
 	 */
-	public record Config(int historySize, boolean historyEdit, Functions.Predicate<String> historical,
-		Integer pollDelayMs) {
-		public static Functions.Predicate<String> NO_SPACE = RegexUtil.nonFinder("^ ");
+	public record Config(int historySize, boolean historyEdit,
+		Excepts.Predicate<RuntimeException, String> historical, Integer pollDelayMs) {
+		public static Excepts.Predicate<RuntimeException, String> NO_SPACE =
+			Regex.Filter.matching(SPACE_REGEX, Regex.Filter.NON_FIND);
 		public static Config POLL = new Config(100, true, NO_SPACE, 20);
 		public static Config BLOCK = new Config(100, true, NO_SPACE, null);
 		public static Config NO_EDIT = new Config(100, false, NO_SPACE, null);
@@ -141,7 +144,7 @@ public class ConsoleInput implements LineReader {
 		state.esc.append(c);
 		int len = state.esc.length();
 		if (len >= ESC_LEN_MAX
-			|| (len >= ESC_LEN_MIN && MathUtil.within(c, ESC_END_MIN, ESC_END_MAX))) {
+			|| (len >= ESC_LEN_MIN && Maths.within(c, ESC_END_MIN, ESC_END_MAX))) {
 			var esc = state.esc.substring(0);
 			switch (esc) {
 				case DEL -> deleteRight(state, 1);
@@ -193,7 +196,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private void history(State state, int index) {
-		index = MathUtil.limit(index, 0, history.size());
+		index = Maths.limit(index, 0, history.size());
 		var current = storeHistory(state);
 		if (index == state.historyIndex) return;
 		recallHistory(state, index);
@@ -244,7 +247,7 @@ public class ConsoleInput implements LineReader {
 	}
 
 	private void moveTo(State state, int pos) {
-		pos = MathUtil.limit(pos, 0, state.line.length());
+		pos = Maths.limit(pos, 0, state.line.length());
 		if (pos == state.pos) return;
 		if (pos < state.pos) out.print(repeat(Chars.BS, state.pos - pos));
 		else out.print(state.line.substring(state.pos, pos));

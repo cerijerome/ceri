@@ -1,35 +1,14 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
-import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
-import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
-import static ceri.serial.libusb.jna.LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL;
 import java.io.PrintStream;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Supplier;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.RegexUtil;
-import ceri.serial.libusb.jna.LibUsb.libusb_bos_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_bos_dev_capability_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_config_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_container_id_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_context;
-import ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type;
-import ceri.serial.libusb.jna.LibUsb.libusb_device;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_interface;
-import ceri.serial.libusb.jna.LibUsb.libusb_interface_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_log_level;
-import ceri.serial.libusb.jna.LibUsb.libusb_ss_endpoint_companion_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_ss_usb_device_capability_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_usb_2_0_extension_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_version;
+import ceri.common.text.Regex;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
 
@@ -40,7 +19,7 @@ public class LibUsbPrinter {
 	private static final Logger logger = LogManager.getLogger();
 	private static final Pattern NAME_REGEX = Pattern.compile("\\.(\\w+)");
 	private final PrintStream out;
-	private final libusb_log_level logLevel;
+	private final LibUsb.libusb_log_level logLevel;
 
 	public static void main(String[] args) throws LibUsbException {
 		var printer = new LibUsbPrinter(System.out, null);
@@ -60,17 +39,18 @@ public class LibUsbPrinter {
 		printer.print();
 	}
 
-	private LibUsbPrinter(PrintStream out, libusb_log_level logLevel) {
+	private LibUsbPrinter(PrintStream out, LibUsb.libusb_log_level logLevel) {
 		this.out = out;
 		this.logLevel = logLevel;
 	}
 
 	public void print() throws LibUsbException {
 		String pre = "";
-		libusb_context ctx = null;
+		LibUsb.libusb_context ctx = null;
 		try {
 			ctx = LibUsb.libusb_init();
-			if (logLevel != null) LibUsb.libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, logLevel);
+			if (logLevel != null) LibUsb.libusb_set_option(ctx,
+				LibUsb.libusb_option.LIBUSB_OPTION_LOG_LEVEL, logLevel);
 			version(pre);
 			devices(pre, ctx);
 		} catch (Exception e) {
@@ -81,7 +61,7 @@ public class LibUsbPrinter {
 	}
 
 	private void version(String pre) throws LibUsbException {
-		libusb_version v = LibUsb.libusb_get_version();
+		var v = LibUsb.libusb_get_version();
 		out.printf("%s: [%s]%n", pre, name(v));
 		out.printf("%s: version=%d.%d.%d.%d%n", pre, v.major, v.minor, v.micro, v.nano);
 		out.printf("%s: describe=%s%n", pre, v.describe);
@@ -89,10 +69,10 @@ public class LibUsbPrinter {
 		out.println();
 	}
 
-	private void devices(String pre0, libusb_context ctx) throws Exception {
+	private void devices(String pre0, LibUsb.libusb_context ctx) throws Exception {
 		var list = LibUsb.libusb_get_device_list(ctx);
 		try {
-			libusb_device[] devices = list.get();
+			var devices = list.get();
 			out.printf("#devices=%d%n", devices.length);
 			for (int i = 0; i < devices.length; i++)
 				device(pre0 + i, ctx, devices[i]);
@@ -101,12 +81,12 @@ public class LibUsbPrinter {
 		}
 	}
 
-	private void device(String pre, libusb_context ctx, libusb_device device)
+	private void device(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device)
 		throws LibUsbException {
 		out.printf("%s:----------------------------------------%n", pre);
 		out.printf("%s: [%s]%n", pre, name(device));
-		libusb_device_descriptor desc = LibUsb.libusb_get_device_descriptor(device);
-		libusb_device_handle handle = LibUsb.libusb_open(device);
+		var desc = LibUsb.libusb_get_device_descriptor(device);
+		var handle = LibUsb.libusb_open(device);
 		try {
 			other(pre, device);
 			desc(pre, handle, desc);
@@ -118,7 +98,7 @@ public class LibUsbPrinter {
 		out.println();
 	}
 
-	private void other(String pre, libusb_device device) throws LibUsbException {
+	private void other(String pre, LibUsb.libusb_device device) throws LibUsbException {
 		out.printf("%s: bus_number()=0x%02x%n", pre, LibUsb.libusb_get_bus_number(device));
 		out.printf("%s: port_number()=0x%02x%n", pre, LibUsb.libusb_get_port_number(device));
 		out.printf("%s: port_numbers()=%s%n", pre, hex(LibUsb.libusb_get_port_numbers(device)));
@@ -126,12 +106,12 @@ public class LibUsbPrinter {
 		out.printf("%s: device_speed()=%s%n", pre, LibUsb.libusb_get_device_speed(device));
 	}
 
-	private void desc(String pre, libusb_device_handle handle, libusb_device_descriptor desc)
-		throws LibUsbException {
+	private void desc(String pre, LibUsb.libusb_device_handle handle,
+		LibUsb.libusb_device_descriptor desc) throws LibUsbException {
 		out.printf("%s: [%s]%n", pre, name(desc));
 		out.printf("%s: bLength=%d%n", pre, desc.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, desc.bDescriptorType,
-			libusb_descriptor_type.xcoder.decode(ubyte(desc.bDescriptorType)));
+			LibUsb.libusb_descriptor_type.xcoder.decode(Maths.ubyte(desc.bDescriptorType)));
 		out.printf("%s: bcdUSB=0x%04x%n", pre, desc.bcdUSB);
 		out.printf("%s: bDeviceClass=0x%02x %s%n", pre, desc.bDeviceClass, desc.bDeviceClass());
 		out.printf("%s: bDeviceSubClass=0x%02x%n", pre, desc.bDeviceSubClass);
@@ -149,11 +129,11 @@ public class LibUsbPrinter {
 		out.printf("%s: bNumConfigurations=%d%n", pre, desc.bNumConfigurations);
 	}
 
-	private void configs(String pre, libusb_context ctx, libusb_device device,
-		libusb_device_handle handle, int configs) throws LibUsbException {
+	private void configs(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device,
+		LibUsb.libusb_device_handle handle, int configs) throws LibUsbException {
 		out.printf("%s: configuration()=%d%n", pre, LibUsb.libusb_get_configuration(handle));
 		for (byte i = 0; i < configs; i++) {
-			libusb_config_descriptor config = LibUsb.libusb_get_config_descriptor(device, i);
+			var config = LibUsb.libusb_get_config_descriptor(device, i);
 			try {
 				config(pre + "." + i, ctx, device, handle, config);
 			} finally {
@@ -162,12 +142,13 @@ public class LibUsbPrinter {
 		}
 	}
 
-	private void config(String pre, libusb_context ctx, libusb_device device,
-		libusb_device_handle handle, libusb_config_descriptor config) throws LibUsbException {
+	private void config(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device,
+		LibUsb.libusb_device_handle handle, LibUsb.libusb_config_descriptor config)
+		throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(config), pre);
 		out.printf("%s: bLength=%d%n", pre, config.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, config.bDescriptorType,
-			libusb_config_descriptor.TYPE);
+			LibUsb.libusb_config_descriptor.TYPE);
 		out.printf("%s: wTotalLength=%d%n", pre, config.wTotalLength);
 		out.printf("%s: bNumInterfaces=%d%n", pre, config.bNumInterfaces);
 		out.printf("%s: bConfigurationValue=%d%n", pre, config.bConfigurationValue);
@@ -176,27 +157,28 @@ public class LibUsbPrinter {
 		out.printf("%s: bmAttributes=0x%02x %s%n", pre, config.bmAttributes, config.bmAttributes());
 		out.printf("%s: bMaxPower=%d%n", pre, config.bMaxPower);
 		out.printf("%s: extra=%s%n", pre, hex(config.extra()));
-		libusb_interface[] interfaces = config.interfaces();
+		var interfaces = config.interfaces();
 		out.printf("%s: #interfaces=%d%n", pre, interfaces.length);
 		for (int i = 0; i < interfaces.length; i++)
 			iface(pre + "." + i, ctx, device, handle, interfaces[i]);
 	}
 
-	private void iface(String pre, libusb_context ctx, libusb_device device,
-		libusb_device_handle handle, libusb_interface iface) throws LibUsbException {
-		libusb_interface_descriptor[] altsettings = iface.altsettings();
+	private void iface(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device,
+		LibUsb.libusb_device_handle handle, LibUsb.libusb_interface iface) throws LibUsbException {
+		var altsettings = iface.altsettings();
 		out.printf("%s: [%s #%s]%n", pre, name(iface), pre);
 		out.printf("%s: #altsettings=%d%n", pre, altsettings.length);
 		for (int i = 0; i < altsettings.length; i++)
 			altsetting(pre + "." + i, ctx, device, handle, altsettings[i]);
 	}
 
-	private void altsetting(String pre, libusb_context ctx, libusb_device device,
-		libusb_device_handle handle, libusb_interface_descriptor alt) throws LibUsbException {
+	private void altsetting(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device,
+		LibUsb.libusb_device_handle handle, LibUsb.libusb_interface_descriptor alt)
+		throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(alt), pre);
 		out.printf("%s: bLength=%d%n", pre, alt.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, alt.bDescriptorType,
-			libusb_interface_descriptor.TYPE);
+			LibUsb.libusb_interface_descriptor.TYPE);
 		out.printf("%s: bInterfaceNumber=%d%n", pre, alt.bInterfaceNumber);
 		out.printf("%s: bAlternateSetting=%d%n", pre, alt.bAlternateSetting);
 		out.printf("%s: bNumEndpoints=%d%n", pre, alt.bNumEndpoints);
@@ -207,18 +189,18 @@ public class LibUsbPrinter {
 		out.printf("%s: iInterface=%d \"%s\"%n", pre, alt.iInterface,
 			descriptor(handle, alt.iInterface));
 		out.printf("%s: extra=%s%n", pre, hex(alt.extra()));
-		libusb_endpoint_descriptor[] endpoints = alt.endpoints();
+		var endpoints = alt.endpoints();
 		out.printf("%s: #endpoints=%d%n", pre, endpoints.length);
 		for (int i = 0; i < endpoints.length; i++)
 			endpoint(pre + "." + i, ctx, device, endpoints[i]);
 	}
 
-	private void endpoint(String pre, libusb_context ctx, libusb_device device,
-		libusb_endpoint_descriptor ep) throws LibUsbException {
+	private void endpoint(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device device,
+		LibUsb.libusb_endpoint_descriptor ep) throws LibUsbException {
 		out.printf("%s: [%s #%s]%n", pre, name(ep), pre);
 		out.printf("%s: bLength=%d%n", pre, ep.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, ep.bDescriptorType,
-			libusb_descriptor_type.xcoder.decode(ubyte(ep.bDescriptorType)));
+			LibUsb.libusb_descriptor_type.xcoder.decode(Maths.ubyte(ep.bDescriptorType)));
 		out.printf("%s: bEndpointAddress=0x%02x%n", pre, ep.bEndpointAddress);
 		out.printf("%s:   Number=%d%n", pre, ep.bEndpointNumber());
 		out.printf("%s:   Direction=%s%n", pre, ep.bEndpointDirection());
@@ -243,12 +225,12 @@ public class LibUsbPrinter {
 		}
 	}
 
-	private void ssEndPoint(String pre, libusb_ss_endpoint_companion_descriptor ss) {
+	private void ssEndPoint(String pre, LibUsb.libusb_ss_endpoint_companion_descriptor ss) {
 		if (ss == null) return;
 		out.printf("%s: [%s]%n", pre, name(ss));
 		out.printf("%s: bLength=%d%n", pre, ss.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, ss.bDescriptorType,
-			libusb_ss_endpoint_companion_descriptor.TYPE);
+			LibUsb.libusb_ss_endpoint_companion_descriptor.TYPE);
 		out.printf("%s: bMaxBurst=%d%n", pre, ss.bMaxBurst);
 		out.printf("%s: bmAttributes=0x%02x%n", pre, ss.bmAttributes);
 		out.printf("%s:   BulkMaxStreams=%d%n", pre, ss.bmAttributesBulkMaxStreams());
@@ -256,7 +238,7 @@ public class LibUsbPrinter {
 		out.printf("%s: wBytesPerInterval=%d%n", pre, ss.wBytesPerInterval);
 	}
 
-	private void bos(String pre, libusb_context ctx, libusb_device_handle handle)
+	private void bos(String pre, LibUsb.libusb_context ctx, LibUsb.libusb_device_handle handle)
 		throws LibUsbException {
 		var bos = LibUsb.libusb_get_bos_descriptor(handle);
 		if (bos == null) return;
@@ -264,14 +246,17 @@ public class LibUsbPrinter {
 			out.printf("%s: [%s]%n", pre, name(bos));
 			out.printf("%s: bLength=%d%n", pre, bos.bLength);
 			out.printf("%s: bDescriptorType=0x%02x %s%n", pre, bos.bDescriptorType,
-				libusb_bos_descriptor.TYPE);
+				LibUsb.libusb_bos_descriptor.TYPE);
 			out.printf("%s: wTotalLength=%d%n", pre, bos.wTotalLength);
 			out.printf("%s: bNumDeviceCaps=%d%n", pre, bos.bNumDeviceCaps);
 			for (var bdc : bos.dev_capability) {
 				var type = bdc.bDevCapabilityType();
-				if (type == LIBUSB_BT_USB_2_0_EXTENSION) bosUsb20Ext(pre, ctx, bdc);
-				else if (type == LIBUSB_BT_SS_USB_DEVICE_CAPABILITY) bosSsUsbDevCap(pre, ctx, bdc);
-				else if (type == LIBUSB_BT_CONTAINER_ID) bosContainerId(pre, ctx, bdc);
+				if (type == LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION)
+					bosUsb20Ext(pre, ctx, bdc);
+				else if (type == LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY)
+					bosSsUsbDevCap(pre, ctx, bdc);
+				else if (type == LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID)
+					bosContainerId(pre, ctx, bdc);
 				else bosDevCap(pre, bdc);
 			}
 		} finally {
@@ -279,42 +264,42 @@ public class LibUsbPrinter {
 		}
 	}
 
-	private void bosDevCap(String pre, libusb_bos_dev_capability_descriptor bdc) {
+	private void bosDevCap(String pre, LibUsb.libusb_bos_dev_capability_descriptor bdc) {
 		out.printf("%s: [%s]%n", pre, name(bdc));
 		out.printf("%s: bLength=%d%n", pre, bdc.bLength);
 		out.printf("%s: bDescriptorType=0x%02x %s%n", pre, bdc.bDescriptorType,
-			libusb_bos_dev_capability_descriptor.TYPE);
+			LibUsb.libusb_bos_dev_capability_descriptor.TYPE);
 		out.printf("%s: bDevCapabilityType=0x%02x %s%n", pre, bdc.bDevCapabilityType,
 			bdc.bDevCapabilityType());
 		out.printf("%s: dev_capability_data[]=%s%n", pre, hex(bdc.dev_capability_data));
 	}
 
-	private void bosUsb20Ext(String pre, libusb_context ctx,
-		libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
+	private void bosUsb20Ext(String pre, LibUsb.libusb_context ctx,
+		LibUsb.libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
 		var usb = LibUsb.libusb_get_usb_2_0_extension_descriptor(ctx, bdc);
 		try {
 			out.printf("%s: [%s]%n", pre, name(usb));
 			out.printf("%s: bLength=%d%n", pre, usb.bLength);
 			out.printf("%s: bDescriptorType=0x%02x %s%n", pre, usb.bDescriptorType,
-				libusb_usb_2_0_extension_descriptor.TYPE);
+				LibUsb.libusb_usb_2_0_extension_descriptor.TYPE);
 			out.printf("%s: bDevCapabilityType=0x%02x %s%n", pre, usb.bDevCapabilityType,
-				libusb_usb_2_0_extension_descriptor.BOS_TYPE);
+				LibUsb.libusb_usb_2_0_extension_descriptor.BOS_TYPE);
 			out.printf("%s: bmAttributes=0x%08x %s%n", pre, usb.bmAttributes, usb.bmAttributes());
 		} finally {
 			LibUsb.libusb_free_usb_2_0_extension_descriptor(usb);
 		}
 	}
 
-	private void bosSsUsbDevCap(String pre, libusb_context ctx,
-		libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
+	private void bosSsUsbDevCap(String pre, LibUsb.libusb_context ctx,
+		LibUsb.libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
 		var ss = LibUsb.libusb_get_ss_usb_device_capability_descriptor(ctx, bdc);
 		try {
 			out.printf("%s: [%s]%n", pre, name(ss));
 			out.printf("%s: bLength=%d%n", pre, ss.bLength);
 			out.printf("%s: bDescriptorType=0x%02x %s%n", pre, ss.bDescriptorType,
-				libusb_ss_usb_device_capability_descriptor.TYPE);
+				LibUsb.libusb_ss_usb_device_capability_descriptor.TYPE);
 			out.printf("%s: bDevCapabilityType=0x%02x %s%n", pre, ss.bDevCapabilityType,
-				libusb_ss_usb_device_capability_descriptor.BOS_TYPE);
+				LibUsb.libusb_ss_usb_device_capability_descriptor.BOS_TYPE);
 			out.printf("%s: bmAttributes=0x%02x %s%n", pre, ss.bmAttributes, ss.bmAttributes());
 			out.printf("%s: wSpeedSupported=0x%04x %s%n", pre, ss.wSpeedSupported,
 				ss.wSpeedSupported());
@@ -326,16 +311,16 @@ public class LibUsbPrinter {
 		}
 	}
 
-	private void bosContainerId(String pre, libusb_context ctx,
-		libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
+	private void bosContainerId(String pre, LibUsb.libusb_context ctx,
+		LibUsb.libusb_bos_dev_capability_descriptor bdc) throws LibUsbException {
 		var con = LibUsb.libusb_get_container_id_descriptor(ctx, bdc);
 		try {
 			out.printf("%s: [%s]%n", pre, name(con));
 			out.printf("%s: bLength=%d%n", pre, con.bLength);
 			out.printf("%s: bDescriptorType=0x%02x %s%n", pre, con.bDescriptorType,
-				libusb_container_id_descriptor.TYPE);
+				LibUsb.libusb_container_id_descriptor.TYPE);
 			out.printf("%s: bDevCapabilityType=0x%02x %s%n", pre, con.bDevCapabilityType,
-				libusb_container_id_descriptor.BOS_TYPE);
+				LibUsb.libusb_container_id_descriptor.BOS_TYPE);
 			out.printf("%s: ContainerID[]=%s%n", pre, hex(con.ContainerID));
 		} finally {
 			LibUsb.libusb_free_container_id_descriptor(con);
@@ -343,10 +328,10 @@ public class LibUsbPrinter {
 	}
 
 	private static String name(Object obj) {
-		return RegexUtil.find(NAME_REGEX, Reflect.name(obj.getClass()));
+		return Regex.findGroup(NAME_REGEX, Reflect.name(obj.getClass()), 1);
 	}
 
-	private static String descriptor(libusb_device_handle handle, byte desc_index)
+	private static String descriptor(LibUsb.libusb_device_handle handle, byte desc_index)
 		throws LibUsbException {
 		return LibUsb.libusb_get_string_descriptor_ascii(handle, desc_index);
 	}

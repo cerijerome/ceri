@@ -4,12 +4,12 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static ceri.common.validation.DisplayLong.dec;
 import static ceri.common.validation.DisplayLong.hex;
 import static ceri.common.validation.DisplayLong.hex2;
 import static ceri.common.validation.DisplayLong.hex4;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class TypeValueBehavior {
 
@@ -32,13 +32,13 @@ public class TypeValueBehavior {
 		TypeValue<?> ne4 = TypeValue.of(1, E.one, null, 0, hex4);
 		TypeValue<?> ne5 = TypeValue.of(1, E.one, null, hex4);
 		TypeValue<?> ne6 = TypeValue.of(1, E.one, null);
-		exerciseEquals(v, eq0, eq1);
+		TestUtil.exerciseEquals(v, eq0, eq1);
 		assertEquals(v, eq2);
 		assertAllNotEqual(v, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 		v = TypeValue.of(1, null, "one", 1, hex4);
 		eq0 = TypeValue.of(1, null, "one", 1, hex4);
 		ne0 = TypeValue.of(1, null, "One", 1, hex4);
-		exerciseEquals(v, eq0);
+		TestUtil.exerciseEquals(v, eq0);
 		assertAllNotEqual(v, ne0, ne1);
 	}
 

@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.function.Predicates;
 import ceri.common.test.FileTestHelper;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 
 public class PathFiltersTest {
 	private static FileTestHelper helper = null;
@@ -51,7 +51,7 @@ public class PathFiltersTest {
 	@Test
 	public void testByUnixPath() throws IOException {
 		assertHelperPaths(
-			IoUtil.paths(helper.root, PathFilters.byUnixPath(Patterns.Filter.find("/a/"))), helper,
+			IoUtil.paths(helper.root, PathFilters.byUnixPath(Regex.Filter.find("/a/"))), helper,
 			"a/a", "a/a/a.txt");
 	}
 

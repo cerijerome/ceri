@@ -13,7 +13,7 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Enum type support.
@@ -41,7 +41,7 @@ public class Enums {
 		 * Typed name comparator, with nulls first.
 		 */
 		public static <T extends Enum<T>> Comparator<T> name() {
-			return BasicUtil.unchecked(name);
+			return Reflect.unchecked(name);
 		}
 
 		/**
@@ -55,7 +55,7 @@ public class Enums {
 		 * Typed ordinal comparator, with nulls first.
 		 */
 		public static <T extends Enum<T>> Comparator<T> ordinal() {
-			return BasicUtil.unchecked(ordinal);
+			return Reflect.unchecked(ordinal);
 		}
 	}
 
@@ -87,7 +87,7 @@ public class Enums {
 	 */
 	public static <T> List<T> of(Class<T> cls) {
 		if (cls == null) return List.of();
-		return BasicUtil
+		return Basics
 			.unchecked(cache.computeIfAbsent(cls, c -> Immutable.wrapListOf(c.getEnumConstants())));
 	}
 
@@ -135,7 +135,7 @@ public class Enums {
 	 */
 	public static <T extends Enum<T>> Class<T> type(T en) {
 		if (en == null) return null;
-		return BasicUtil.<Class<T>>unchecked(en.getClass());
+		return Basics.<Class<T>>unchecked(en.getClass());
 	}
 
 	/**

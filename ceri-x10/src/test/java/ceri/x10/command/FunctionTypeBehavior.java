@@ -15,5 +15,4 @@ public class FunctionTypeBehavior {
 		assertThrown(() -> FunctionType.from(0));
 		assertThrown(() -> FunctionType.from(17));
 	}
-
 }

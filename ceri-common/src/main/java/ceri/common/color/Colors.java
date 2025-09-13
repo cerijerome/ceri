@@ -6,17 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import ceri.common.collection.Maps;
 import ceri.common.comparator.Comparators;
 import ceri.common.math.Bound;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Streams;
 import ceri.common.text.Format;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 /**
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
@@ -171,10 +170,10 @@ public class Colors {
 	 * Creates an argb int with maximum color components in the same ratio.
 	 */
 	public static int maxArgb(int a, int r, int g, int b) {
-		int max = MathUtil.max(r, g, b);
+		int max = Maths.max(r, g, b);
 		if (max == 0 || max == MAX_VALUE) return argb(a, r, g, b);
-		return argb(a, MathUtil.roundDiv(r * MAX_VALUE, max), MathUtil.roundDiv(g * MAX_VALUE, max),
-			MathUtil.roundDiv(b * MAX_VALUE, max));
+		return argb(a, Maths.roundDiv(r * MAX_VALUE, max), Maths.roundDiv(g * MAX_VALUE, max),
+			Maths.roundDiv(b * MAX_VALUE, max));
 	}
 
 	/**
@@ -468,28 +467,28 @@ public class Colors {
 	 * Converts a component value to a 0-1 (inclusive) ratio.
 	 */
 	public static double ratio(int component) {
-		return (double) MathUtil.ubyte(component) / MAX_VALUE;
+		return (double) Maths.ubyte(component) / MAX_VALUE;
 	}
 
 	/**
 	 * Converts a 0-1 (inclusive) ratio to a component value.
 	 */
 	public static int value(double ratio) {
-		return MathUtil.limit((int) Math.round(ratio * MAX_VALUE), 0, MAX_VALUE);
+		return Maths.limit((int) Math.round(ratio * MAX_VALUE), 0, MAX_VALUE);
 	}
 
 	/**
 	 * Limits a ratio to 0-1 (inclusive).
 	 */
 	public static double limit(double ratio) {
-		return MathUtil.limit(ratio, 0, MAX_RATIO);
+		return Maths.limit(ratio, 0, MAX_RATIO);
 	}
 
 	/**
 	 * Adjust hue to the range 0-1 (inclusive).
 	 */
 	public static double limitHue(double h) {
-		return MathUtil.periodicLimit(h, MAX_RATIO, Bound.Type.inclusive);
+		return Maths.periodicLimit(h, MAX_RATIO, Bound.Type.inclusive);
 	}
 
 	/**
@@ -509,7 +508,7 @@ public class Colors {
 	public static int scaleValue(int min, int max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return min + MathUtil.intRoundExact(ratio * (max - min));
+		return min + Maths.intRoundExact(ratio * (max - min));
 	}
 
 	/**
@@ -596,80 +595,85 @@ public class Colors {
 	/**
 	 * Collect argb int stream as a color array.
 	 */
-	public static Color[] colors(IntStream argbStream) {
+	public static Color[] colors(IntStream<RuntimeException> argbStream) {
 		return argbStream.mapToObj(Colors::color).toArray(Color[]::new);
 	}
 
 	/**
 	 * Collect argb int stream as a list.
 	 */
-	public static List<Integer> argbList(IntStream argbStream) {
+	public static List<Integer> argbList(IntStream<RuntimeException> argbStream) {
 		return argbStream.boxed().toList();
 	}
 
 	/**
 	 * Collect argb int stream as a color list.
 	 */
-	public static List<Color> colorList(IntStream argbStream) {
+	public static List<Color> colorList(IntStream<RuntimeException> argbStream) {
 		return argbStream.mapToObj(Colors::color).toList();
 	}
 
 	/**
 	 * Create a stream of opaque argb ints from rgb ints.
 	 */
-	public static IntStream rgbStream(int... rgbs) {
-		return IntStream.of(rgbs).map(Colors::argb);
+	public static IntStream<RuntimeException> rgbStream(int... rgbs) {
+		return Streams.ints(rgbs).map(Colors::argb);
 	}
 
 	/**
 	 * Create a stream of argb ints from colors.
 	 */
-	public static IntStream stream(Color... colors) {
-		return Stream.of(colors).mapToInt(Colors::argb);
+	public static IntStream<RuntimeException> stream(Color... colors) {
+		return Streams.of(colors).mapToInt(Colors::argb);
 	}
 
 	/**
 	 * Create a stream of argb ints from preset name or hex strings. Throws an exception if unable
 	 * to parse the text.
 	 */
-	public static IntStream stream(String... strings) {
-		return Stream.of(strings).mapToInt(Colors::validArgb);
+	public static IntStream<RuntimeException> stream(String... strings) {
+		return Streams.of(strings).mapToInt(Colors::validArgb);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static IntStream fadeStream(Color min, Color max, int steps, Bias bias) {
+	public static IntStream<RuntimeException> fadeStream(Color min, Color max, int steps,
+		Bias bias) {
 		return fadeStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading in steps.
 	 */
-	public static IntStream fadeStream(int minArgb, int maxArgb, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
+	public static IntStream<RuntimeException> fadeStream(int minArgb, int maxArgb, int steps,
+		Bias bias) {
+		return Streams.slice(1, steps)
 			.map(i -> scaleArgb(minArgb, maxArgb, bias.bias((double) i / steps)));
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream fadeHsbStream(Color min, Color max, int steps, Bias bias) {
+	public static IntStream<RuntimeException> fadeHsbStream(Color min, Color max, int steps,
+		Bias bias) {
 		return fadeHsbStream(argb(min), argb(max), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream fadeHsbStream(int minArgb, int maxArgb, int steps, Bias bias) {
+	public static IntStream<RuntimeException> fadeHsbStream(int minArgb, int maxArgb, int steps,
+		Bias bias) {
 		return fadeHsbStream(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream fadeHsbStream(HsbColor min, HsbColor max, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
+	public static IntStream<RuntimeException> fadeHsbStream(HsbColor min, HsbColor max, int steps,
+		Bias bias) {
+		return Streams.slice(1, steps)
 			.mapToObj(i -> scaleNormHsb(min, max, bias.bias((double) i / steps)))
 			.mapToInt(HsbColor::argb);
 	}
@@ -677,23 +681,23 @@ public class Colors {
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream rotateHueStream(Color color, int steps, Bias bias) {
+	public static IntStream<RuntimeException> rotateHueStream(Color color, int steps, Bias bias) {
 		return rotateHueStream(argb(color), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream rotateHueStream(int argb, int steps, Bias bias) {
+	public static IntStream<RuntimeException> rotateHueStream(int argb, int steps, Bias bias) {
 		return rotateHueStream(HsbColor.from(argb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream rotateHueStream(HsbColor hsb, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
-			.mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps))).mapToInt(HsbColor::argb);
+	public static IntStream<RuntimeException> rotateHueStream(HsbColor hsb, int steps, Bias bias) {
+		return Streams.slice(1, steps).mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)))
+			.mapToInt(HsbColor::argb);
 	}
 
 	// support methods
@@ -717,11 +721,11 @@ public class Colors {
 	}
 
 	private static int blendAlpha(int a0, int a1) {
-		return a0 + a1 - MathUtil.roundDiv(a0 * a1, MAX_VALUE);
+		return a0 + a1 - Maths.roundDiv(a0 * a1, MAX_VALUE);
 	}
 
 	private static int blendComponent(int a, int a0, int a1, int c0, int c1) {
-		return MathUtil.roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
+		return Maths.roundDiv(MAX_VALUE * (a0 * c0 + a1 * c1) - (a0 * a1 * c1), MAX_VALUE * a);
 	}
 
 	/**
@@ -731,10 +735,10 @@ public class Colors {
 	 * null if no match.
 	 */
 	private static Integer hexArgb(String text) {
-		Matcher m = RegexUtil.matched(HEX_REGEX, text);
-		if (m == null) return null;
-		String prefix = m.group(1);
-		String hex = m.group(2);
+		var m = Regex.match(HEX_REGEX, text);
+		if (!m.hasMatch()) return null;
+		var prefix = m.group(1);
+		var hex = m.group(2);
 		int argb = Integer.parseUnsignedInt(hex, Radix.HEX.n);
 		int len = hex.length();
 		return hexArgb(prefix, len, argb);

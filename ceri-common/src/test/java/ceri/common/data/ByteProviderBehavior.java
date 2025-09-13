@@ -16,7 +16,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.test.Captor;
 
 public class ByteProviderBehavior {
@@ -52,7 +52,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void testToString() {
 		assertEquals(ByteProvider.toString(bp), "[0,-1,2,-3,4,-5,6,...](10)");
-		assertEquals(ByteProvider.toString(MathUtil::ubyte, bp), "[0,255,2,253,4,251,6,...](10)");
+		assertEquals(ByteProvider.toString(Maths::ubyte, bp), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test

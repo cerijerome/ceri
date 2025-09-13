@@ -1,12 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_VALUE;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertRange;
 import java.awt.Color;
 import ceri.common.text.AnsiEscape;
-import ceri.common.text.AnsiEscape.Sgr;
 
 public class ColorTestUtil {
 	public static final int white = Coloring.white.argb;
@@ -22,7 +20,7 @@ public class ColorTestUtil {
 		int value = component.get(argb);
 		int expectedValue = component.get(expected);
 		int expectedMin = Math.max(0, expectedValue - diff);
-		int expectedMax = Math.min(MAX_VALUE, expectedValue + diff);
+		int expectedMax = Math.min(Colors.MAX_VALUE, expectedValue + diff);
 		assertRange(value, expectedMin, expectedMax,
 			"Component %s is out of range: #%08x / #%08x \u00b1%d", component, argb, expected,
 			diff);
@@ -38,7 +36,7 @@ public class ColorTestUtil {
 		int value = component.get(xargb);
 		int expectedValue = component.get(expected);
 		int expectedMin = Math.max(0, expectedValue - diff);
-		int expectedMax = Math.min(MAX_VALUE, expectedValue + diff);
+		int expectedMax = Math.min(Colors.MAX_VALUE, expectedValue + diff);
 		assertRange(value, expectedMin, expectedMax,
 			"Component %s is out of range: #%016x / #%016x \u00b1%d", component, xargb, expected,
 			diff);
@@ -131,7 +129,7 @@ public class ColorTestUtil {
 		var b = new StringBuilder();
 		for (int argb : argbs)
 			b.append(sgr(argb, bg)).append(space);
-		return b.append(Sgr.reset).toString();
+		return b.append(AnsiEscape.Sgr.reset).toString();
 	}
 
 	public static String sgr(int argb) {

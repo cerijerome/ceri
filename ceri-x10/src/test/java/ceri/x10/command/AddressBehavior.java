@@ -3,21 +3,21 @@ package ceri.x10.command;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class AddressBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		Address t = Address.of(House.E, Unit._13);
-		Address eq0 = Address.of(House.E, Unit._13);
-		Address eq1 = Address.from("E13");
-		Address ne0 = Address.of(House.D, Unit._13);
-		Address ne1 = Address.of(House.E, Unit._14);
-		Address ne2 = Address.from("F13");
-		Address ne3 = Address.from("E12");
-		exerciseEquals(t, eq0, eq1);
+		var t = Address.of(House.E, Unit._13);
+		var eq0 = Address.of(House.E, Unit._13);
+		var eq1 = Address.from("E13");
+		var ne0 = Address.of(House.D, Unit._13);
+		var ne1 = Address.of(House.E, Unit._14);
+		var ne2 = Address.from("F13");
+		var ne3 = Address.from("E12");
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 
@@ -42,5 +42,4 @@ public class AddressBehavior {
 		assertEquals(Address.from("I10").compareTo(Address.from("I9")), 1);
 		assertEquals(Address.from("I10").compareTo(Address.from("H10")), 1);
 	}
-
 }

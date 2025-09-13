@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Point2dBehavior {
 
@@ -24,7 +24,7 @@ public class Point2dBehavior {
 		Point2d p1 = Point2d.of(5, 10);
 		Point2d p2 = Point2d.of(4.999, 10);
 		Point2d p3 = Point2d.of(5, 10.001);
-		exerciseEquals(p0, p1);
+		TestUtil.exerciseEquals(p0, p1);
 		assertNotEquals(p0, p2);
 		assertNotEquals(p0, p3);
 	}

@@ -1,16 +1,13 @@
 package ceri.process.uptime;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import java.io.IOException;
-import java.util.regex.Matcher;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import ceri.common.process.Output;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
-import ceri.common.text.ParseUtil;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Numbers;
+import ceri.common.text.Regex;
 import ceri.common.time.DateUtil;
 import ceri.common.util.OsUtil;
 import ceri.process.net.Net;
@@ -70,14 +67,13 @@ public class Uptime {
 	}
 
 	private static long extractMs(String output) {
-		Matcher m = RegexUtil.found(REGEX, output);
-		if (m == null) throw new IllegalArgumentException("Unexpected output: " + output);
+		var m = Regex.findValid(REGEX, output, "output");
 		int i = 1;
-		int days = ParseUtil.parseInt(m.group(i++), 0);
-		int hours = ParseUtil.parseInt(m.group(i++), 0);
-		int minutes = ParseUtil.parseInt(m.group(i++), 0);
-		minutes += ParseUtil.parseInt(m.group(i++), 0);
-		return DAYS.toMillis(days) + HOURS.toMillis(hours) + MINUTES.toMillis(minutes);
+		int days = Numbers.Parse.toInt(m.group(i++), 0);
+		int hours = Numbers.Parse.toInt(m.group(i++), 0);
+		int minutes = Numbers.Parse.toInt(m.group(i++), 0);
+		minutes += Numbers.Parse.toInt(m.group(i++), 0);
+		return TimeUnit.DAYS.toMillis(days) + TimeUnit.HOURS.toMillis(hours)
+			+ TimeUnit.MINUTES.toMillis(minutes);
 	}
-
 }

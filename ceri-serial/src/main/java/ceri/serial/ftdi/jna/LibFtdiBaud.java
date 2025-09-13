@@ -1,6 +1,6 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ushort;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;

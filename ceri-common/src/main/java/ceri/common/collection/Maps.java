@@ -15,8 +15,8 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
+import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
-import ceri.common.util.BasicUtil;
 
 /**
  * Support for mutable maps.
@@ -45,15 +45,15 @@ public class Maps {
 	 */
 	public static class Compare {
 		private static Comparator<Map.Entry<?, ?>> KEY = 
-			BasicUtil.unchecked(key(Comparator.naturalOrder()));
+			Reflect.unchecked(key(Comparator.naturalOrder()));
 		private static Comparator<Map.Entry<?, ?>> VALUE = 
-			BasicUtil.unchecked(value(Comparator.naturalOrder()));
+			Reflect.unchecked(value(Comparator.naturalOrder()));
 		
 		/**
 		 * Provide a map entry comparator by key.
 		 */
 		public static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K, V>> key() {
-			return BasicUtil.unchecked(KEY);
+			return Reflect.unchecked(KEY);
 		}
 
 		/**
@@ -67,7 +67,7 @@ public class Maps {
 		 * Provide a map entry comparator by value.
 		 */
 		public static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K, V>> value() {
-			return BasicUtil.unchecked(VALUE);
+			return Reflect.unchecked(VALUE);
 		}
 		
 		/**
@@ -125,7 +125,7 @@ public class Maps {
 		public final Map<V, K> values;
 
 		public static <K, V> Bi<K, V> empty() {
-			return BasicUtil.unchecked(EMPTY);
+			return Reflect.unchecked(EMPTY);
 		}
 
 		public static <K, V> Bi<K, V> of(Map<K, V> map) {
@@ -289,7 +289,7 @@ public class Maps {
 	}
 
 	/**
-	 * Creates an empty mutable identity hash map.
+	 * Creates an empty mutable concurrent hash map.
 	 */
 	public static <K, V> Map<K, V> concurrent() {
 		return new ConcurrentHashMap<>();

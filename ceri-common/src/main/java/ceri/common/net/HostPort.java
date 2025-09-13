@@ -1,14 +1,12 @@
 package ceri.common.net;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.property.Parser;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 public class HostPort {
 	public static final int INVALID_PORT = -1;
@@ -19,9 +17,9 @@ public class HostPort {
 	public final int port;
 
 	public static HostPort parse(String value) {
-		Matcher m = RegexUtil.matched(HOST_REGEX, value);
-		if (m == null) return null;
-		String host = m.group(1);
+		var m = Regex.match(HOST_REGEX, value);
+		if (!m.hasMatch()) return null;
+		var host = m.group(1);
 		int port = Parser.string(m.group(2)).toInt(INVALID_PORT);
 		return of(host, port);
 	}
@@ -39,7 +37,7 @@ public class HostPort {
 	}
 
 	public static HostPort of(String host, int port) {
-		validateNotNull(host);
+		Objects.requireNonNull(host);
 		return new HostPort(host, port);
 	}
 
@@ -84,5 +82,4 @@ public class HostPort {
 	public String toString() {
 		return port == INVALID_PORT ? host : host + ":" + port;
 	}
-
 }

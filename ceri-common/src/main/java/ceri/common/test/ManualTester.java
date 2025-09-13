@@ -25,17 +25,16 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.io.LineReader;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.Chars;
-import ceri.common.text.Patterns;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.common.util.CloseableUtil;
 
 /**
@@ -46,6 +45,7 @@ import ceri.common.util.CloseableUtil;
 public class ManualTester implements Functions.Closeable {
 	private static final Lazy.Value<RuntimeException, Boolean> fastMode = Lazy.Value.of(false);
 	private static final Pattern COMMAND_SPLIT_REGEX = Pattern.compile("\\s*;\\s*");
+	private static final Pattern NON_HISTORY_REGEX = Pattern.compile("[ ?!:<+\\-@].*");
 	private final Functions.Function<Object, String> stringFn;
 	private final List<SubjectConsumer<Object>> preProcessors;
 	private final List<Command<?>> commands;
@@ -55,7 +55,7 @@ public class ManualTester implements Functions.Closeable {
 	private final PrintStream out;
 	private final PrintStream err;
 	private final List<Object> subjects;
-	private final Functions.Predicate<String> historical;
+	private final Excepts.Predicate<RuntimeException, String> historical;
 	private final int historySize;
 	private final int historyBlock;
 	private final String indent;
@@ -121,7 +121,7 @@ public class ManualTester implements Functions.Closeable {
 		public static Integer i(Matcher m, int group) {
 			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
-			return Patterns.Common.decodeInt(s);
+			return Regex.Common.decodeInt(s);
 		}
 
 		/**
@@ -137,7 +137,7 @@ public class ManualTester implements Functions.Closeable {
 		public static Long l(Matcher m, int group) {
 			var s = m.group(group);
 			if (Strings.isEmpty(s)) return null;
-			return Patterns.Common.decodeLong(s);
+			return Regex.Common.decodeLong(s);
 		}
 
 		/**
@@ -296,7 +296,8 @@ public class ManualTester implements Functions.Closeable {
 		final List<Command<?>> commands = Lists.of();
 		int historySize = 100;
 		int historyBlock = 5;
-		Functions.Predicate<String> historical = RegexUtil.nonMatcher("[ ?!:<+\\-@].*");
+		Excepts.Predicate<RuntimeException, String> historical =
+			Regex.Filter.matching(NON_HISTORY_REGEX, Regex.Filter.NON_MATCH);
 		String indent = "    ";
 		LineReader in = null;
 		PrintStream out = System.out;
@@ -304,8 +305,8 @@ public class ManualTester implements Functions.Closeable {
 		AnsiEscape.Sgr promptSgr =
 			AnsiEscape.csi.sgr().fgColor(AnsiEscape.Sgr.BasicColor.green, false);
 		AnsiEscape.Sgr separatorSgr = AnsiEscape.csi.sgr().fgColor8(3, 3, 3);
-		int delayMs = BasicUtil.ternaryInt(fast(), 0, 100);
-		int errorDelayMs = BasicUtil.ternaryInt(fast(), 0, 1000);
+		int delayMs = Basics.ternaryInt(fast(), 0, 100);
+		int errorDelayMs = Basics.ternaryInt(fast(), 0, 1000);
 
 		@SuppressWarnings("resource")
 		protected Builder(List<?> subjects) {
@@ -430,15 +431,15 @@ public class ManualTester implements Functions.Closeable {
 		public <T> Builder command(Class<T> cls, String pattern, Action.Match<T> action,
 			String help) {
 			var p = Pattern.compile(pattern);
-			return command(cls,
-				c -> Patterns.match(p, c.input(), m -> action.execute(c.tester(), m, c.subject())),
-				help);
+			return command(cls, c -> Regex.matchAccept(p, c.input(),
+				m -> action.execute(c.tester(), m, c.subject())), help);
 		}
 
 		public <T> Builder command(Class<T> cls, String pattern,
 			Excepts.BiConsumer<?, Action.Context<T>, Matcher> action, String help) {
 			var p = Pattern.compile(pattern);
-			return command(cls, c -> Patterns.match(p, c.input(), m -> action.accept(c, m)), help);
+			return command(cls, c -> Regex.matchAccept(p, c.input(), m -> action.accept(c, m)),
+				help);
 		}
 
 		public <T> Builder command(Class<T> cls, Action.Input<T> action, String help) {
@@ -484,7 +485,7 @@ public class ManualTester implements Functions.Closeable {
 	public static <T> Builder builderList(List<T> subjects,
 		Functions.Function<T, String> stringFn) {
 		return builderList(subjects).stringFn(s -> {
-			return stringFn.apply(BasicUtil.<T>unchecked(s));
+			return stringFn.apply(Basics.<T>unchecked(s));
 		});
 	}
 
@@ -496,7 +497,7 @@ public class ManualTester implements Functions.Closeable {
 	}
 
 	protected ManualTester(Builder builder) {
-		in = BasicUtil.def(builder.in, () -> LineReader.of(System.in));
+		in = Basics.def(builder.in, () -> LineReader.of(System.in));
 		out = builder.out;
 		err = builder.err;
 		historical = builder.historical;
@@ -608,7 +609,7 @@ public class ManualTester implements Functions.Closeable {
 	 * Set the current subject index.
 	 */
 	public void index(int i) {
-		index = MathUtil.limit(i, 0, subjects.size() - 1);
+		index = Maths.limit(i, 0, subjects.size() - 1);
 	}
 
 	/**
@@ -734,7 +735,7 @@ public class ManualTester implements Functions.Closeable {
 		if (Strings.isBlank(context.input())) return;
 		for (var command : commands) {
 			if (!command.assignable(context.subject())) continue;
-			if (command.action().execute(BasicUtil.unchecked(context))) return;
+			if (command.action().execute(Reflect.unchecked(context))) return;
 		}
 		err("Invalid command: " + context.input());
 	}
@@ -789,7 +790,7 @@ public class ManualTester implements Functions.Closeable {
 
 	private static <T> SubjectConsumer<Object> typed(Class<T> cls, SubjectConsumer<T> consumer) {
 		return (t, s) -> {
-			if (cls.isInstance(s)) consumer.accept(t, BasicUtil.<T>unchecked(s));
+			if (cls.isInstance(s)) consumer.accept(t, Basics.<T>unchecked(s));
 		};
 	}
 
@@ -805,7 +806,7 @@ public class ManualTester implements Functions.Closeable {
 
 	private void print(ByteProvider data) {
 		bin.print(data).flush();
-		for (var line : Patterns.Split.LINE.array(binText))
+		for (var line : Regex.Split.LINE.array(binText))
 			out(line);
 		StringBuilders.clear(binText);
 	}

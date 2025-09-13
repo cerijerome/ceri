@@ -1,6 +1,6 @@
 package ceri.serial.libusb;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import java.util.List;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;

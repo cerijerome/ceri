@@ -3,75 +3,72 @@ package ceri.x10.cm11a.protocol;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.x10.command.FunctionType.dim;
-import static ceri.x10.command.FunctionType.off;
-import static ceri.x10.command.FunctionType.on;
-import static ceri.x10.command.House.B;
-import static ceri.x10.command.House.C;
-import static ceri.x10.command.House.E;
-import static ceri.x10.command.Unit._1;
-import static ceri.x10.command.Unit._2;
-import static ceri.x10.command.Unit._3;
-import static ceri.x10.command.Unit._4;
-import static ceri.x10.command.Unit._5;
-import static ceri.x10.command.Unit._6;
-import static ceri.x10.command.Unit._7;
-import static ceri.x10.command.Unit._8;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.x10.command.Command;
+import ceri.x10.command.FunctionType;
+import ceri.x10.command.House;
+import ceri.x10.command.Unit;
 
 public class EntryBufferBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		EntryBuffer t = EntryBuffer.of(Entry.address(E, _8), Entry.function(E, off));
-		EntryBuffer eq0 = EntryBuffer.of(Entry.address(E, _8), Entry.function(E, off));
-		EntryBuffer ne0 = EntryBuffer.of(Entry.address(E, _7), Entry.function(E, off));
-		EntryBuffer ne1 = EntryBuffer.of(Entry.address(E, _8), Entry.function(E, on));
-		EntryBuffer ne2 = EntryBuffer.of(Entry.address(E, _8));
-		exerciseEquals(t, eq0);
+		EntryBuffer t = EntryBuffer.of(Entry.address(House.E, Unit._8),
+			Entry.function(House.E, FunctionType.off));
+		EntryBuffer eq0 = EntryBuffer.of(Entry.address(House.E, Unit._8),
+			Entry.function(House.E, FunctionType.off));
+		EntryBuffer ne0 = EntryBuffer.of(Entry.address(House.E, Unit._7),
+			Entry.function(House.E, FunctionType.off));
+		EntryBuffer ne1 = EntryBuffer.of(Entry.address(House.E, Unit._8),
+			Entry.function(House.E, FunctionType.on));
+		EntryBuffer ne2 = EntryBuffer.of(Entry.address(House.E, Unit._8));
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 
 	@Test
 	public void shouldCreateBuffersFromCommand() {
-		var buffers = EntryBuffer.allFrom(Command.dim(B, 99, _1, _2, _3));
-		assertOrdered(buffers, EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _2),
-			Entry.address(B, _3), Entry.dim(B, dim, 99)));
+		var buffers = EntryBuffer.allFrom(Command.dim(House.B, 99, Unit._1, Unit._2, Unit._3));
+		assertOrdered(buffers,
+			EntryBuffer.of(Entry.address(House.B, Unit._1), Entry.address(House.B, Unit._2),
+				Entry.address(House.B, Unit._3), Entry.dim(House.B, FunctionType.dim, 99)));
 	}
 
 	@Test
 	public void shouldStartNewBufferIfSizeExceeded() {
-		var buffers = EntryBuffer.allFrom(Command.dim(B, 99, _1, _2, _3, _4, _5, _6, _7));
+		var buffers = EntryBuffer.allFrom(Command.dim(House.B, 99, Unit._1, Unit._2, Unit._3,
+			Unit._4, Unit._5, Unit._6, Unit._7));
 		assertOrdered(buffers,
-			EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _2), Entry.address(B, _3),
-				Entry.address(B, _4), Entry.address(B, _5), Entry.address(B, _6),
-				Entry.address(B, _7)),
-			EntryBuffer.of(Entry.dim(B, dim, 99)));
+			EntryBuffer.of(Entry.address(House.B, Unit._1), Entry.address(House.B, Unit._2),
+				Entry.address(House.B, Unit._3), Entry.address(House.B, Unit._4),
+				Entry.address(House.B, Unit._5), Entry.address(House.B, Unit._6),
+				Entry.address(House.B, Unit._7)),
+			EntryBuffer.of(Entry.dim(House.B, FunctionType.dim, 99)));
 	}
 
 	@Test
 	public void shouldNotCreateEmptyBuffer() {
-		var buffers = EntryBuffer.allFrom(Command.on(B));
+		var buffers = EntryBuffer.allFrom(Command.on(House.B));
 		assertOrdered(buffers);
 	}
 
 	@Test
 	public void shouldCombineBuffers() {
-		EntryBuffer buffer0 = EntryBuffer.of(Entry.address(B, _1), Entry.dim(B, dim, 99));
-		EntryBuffer buffer1 =
-			EntryBuffer.of(Entry.address(C, _2), Entry.address(C, _2), Entry.function(C, off));
+		EntryBuffer buffer0 = EntryBuffer.of(Entry.address(House.B, Unit._1),
+			Entry.dim(House.B, FunctionType.dim, 99));
+		EntryBuffer buffer1 = EntryBuffer.of(Entry.address(House.C, Unit._2),
+			Entry.address(House.C, Unit._2), Entry.function(House.C, FunctionType.off));
 		var entries = EntryBuffer.combine(buffer0, buffer1);
-		assertOrdered(entries, Entry.address(B, _1), Entry.dim(B, dim, 99), Entry.address(C, _2),
-			Entry.address(C, _2), Entry.function(C, off));
+		assertOrdered(entries, Entry.address(House.B, Unit._1),
+			Entry.dim(House.B, FunctionType.dim, 99), Entry.address(House.C, Unit._2),
+			Entry.address(House.C, Unit._2), Entry.function(House.C, FunctionType.off));
 	}
 
 	@Test
 	public void shouldEncodeBuffer() {
-		EntryBuffer buffer =
-			EntryBuffer.of(Entry.address(B, _1), Entry.address(B, _5), Entry.dim(B, dim, 99));
+		EntryBuffer buffer = EntryBuffer.of(Entry.address(House.B, Unit._1),
+			Entry.address(House.B, Unit._5), Entry.dim(House.B, FunctionType.dim, 99));
 		assertArray(buffer.encode(), 5, 0x4, 0xe6, 0xe1, 0xe4, 0xd0);
 	}
-
 }

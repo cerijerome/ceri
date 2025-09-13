@@ -9,11 +9,11 @@ import ceri.common.collection.Immutable;
 import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -137,7 +137,7 @@ public class TypeTranscoder<T> {
 	 * found.
 	 */
 	public T decode(long value, T def) {
-		return BasicUtil.def(decode(value), def);
+		return Basics.def(decode(value), def);
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class TypeTranscoder<T> {
 	 * types is in lookup entry order. Any remainder is returned.
 	 */
 	public int decodeRemainderInt(Collection<T> receiver, int value) {
-		return (int) decodeRemainder(receiver, MathUtil.uint(value));
+		return (int) decodeRemainder(receiver, Maths.uint(value));
 	}
 
 	/**

@@ -7,7 +7,7 @@ import java.time.Instant;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Predicates for filtering paths.
@@ -24,14 +24,14 @@ public class PathFilters {
 	 * A filter that only accepts files.
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path> file() {
-		return BasicUtil.unchecked(FILE);
+		return Reflect.unchecked(FILE);
 	}
 
 	/**
 	 * A filter that only accepts directories.
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path> dir() {
-		return BasicUtil.unchecked(DIR);
+		return Reflect.unchecked(DIR);
 	}
 
 	/**

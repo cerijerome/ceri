@@ -1,7 +1,7 @@
 package ceri.common.event;
 
 import java.util.function.IntConsumer;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Enclosure;
 
 /**
@@ -52,7 +52,7 @@ public interface IntListenable {
 	}
 
 	static Null ofNull() {
-		return BasicUtil.unchecked(Null.INSTANCE);
+		return Reflect.unchecked(Null.INSTANCE);
 	}
 
 	interface Null extends IntListenable, IntListenable.Indirect {

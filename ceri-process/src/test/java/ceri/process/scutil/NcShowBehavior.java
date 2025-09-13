@@ -2,9 +2,9 @@ package ceri.process.scutil;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.collection.Node;
+import ceri.common.test.TestUtil;
 
 public class NcShowBehavior {
 
@@ -18,7 +18,7 @@ public class NcShowBehavior {
 		NcShow eq0 = NcShow.of(item0, node0);
 		NcShow ne0 = NcShow.of(item1, node0);
 		NcShow ne1 = NcShow.of(item0, node1);
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1);
 	}
 

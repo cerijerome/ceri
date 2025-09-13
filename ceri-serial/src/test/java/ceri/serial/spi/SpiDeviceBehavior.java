@@ -4,20 +4,6 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.common.test.TestUtil.provider;
-import static ceri.serial.spi.SpiMode.MODE_2;
-import static ceri.serial.spi.SpiMode.MODE_3;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_MESSAGE;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_BITS_PER_WORD;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_LSB_FIRST;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_MAX_SPEED_HZ;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_MODE32;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_BITS_PER_WORD;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_LSB_FIRST;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MAX_SPEED_HZ;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE;
-import static ceri.serial.spi.jna.SpiDev.SPI_IOC_WR_MODE32;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -28,9 +14,8 @@ import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.util.JnaLibrary;
+import ceri.serial.spi.jna.SpiDev;
 import ceri.serial.spi.jna.TestSpiCLibNative;
-import ceri.serial.spi.jna.TestSpiCLibNative.Int;
-import ceri.serial.spi.jna.TestSpiCLibNative.Msg;
 
 public class SpiDeviceBehavior {
 	private final JnaLibrary.Ref<TestSpiCLibNative> ref = TestSpiCLibNative.spiRef();
@@ -52,7 +37,7 @@ public class SpiDeviceBehavior {
 		var ne0 = SpiDevice.Config.of(0, 1);
 		var ne1 = SpiDevice.Config.of(1, 0);
 		var ne2 = SpiDevice.Config.of(1, 1, Direction.in);
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 
@@ -84,36 +69,35 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldSetParameters() throws IOException {
 		var lib = initSpi();
-		spi.mode(MODE_2);
+		spi.mode(SpiMode.MODE_2);
 		spi.mode(new SpiMode(0x123)); // 32-bit
 		spi.lsbFirst(true);
 		spi.lsbFirst(false);
 		spi.bitsPerWord(3);
 		spi.maxSpeedHz(200);
-		lib.ioctlSpiInt.assertValues( //
-			new Int(SPI_IOC_WR_MODE, MODE_2.value()), //
-			new Int(SPI_IOC_WR_MODE32, 0x123), //
-			new Int(SPI_IOC_WR_LSB_FIRST, 1), //
-			new Int(SPI_IOC_WR_LSB_FIRST, 0), //
-			new Int(SPI_IOC_WR_BITS_PER_WORD, 3), //
-			new Int(SPI_IOC_WR_MAX_SPEED_HZ, 200));
+		lib.ioctlSpiInt.assertValues(
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_MODE, SpiMode.MODE_2.value()),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_MODE32, 0x123),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_LSB_FIRST, 1),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_LSB_FIRST, 0),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_BITS_PER_WORD, 3),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_WR_MAX_SPEED_HZ, 200));
 	}
 
 	@Test
 	public void shouldGetParameters() throws IOException {
 		var lib = initSpi();
-		lib.ioctlSpiInt.autoResponses(MODE_3.value(), 1, 0, 3, 200);
-		assertEquals(spi.mode(), MODE_3);
+		lib.ioctlSpiInt.autoResponses(SpiMode.MODE_3.value(), 1, 0, 3, 200);
+		assertEquals(spi.mode(), SpiMode.MODE_3);
 		assertEquals(spi.lsbFirst(), true);
 		assertEquals(spi.lsbFirst(), false);
 		assertEquals(spi.bitsPerWord(), 3);
 		assertEquals(spi.maxSpeedHz(), 200);
-		lib.ioctlSpiInt.assertValues( //
-			new Int(SPI_IOC_RD_MODE32, null), //
-			new Int(SPI_IOC_RD_LSB_FIRST, null), //
-			new Int(SPI_IOC_RD_LSB_FIRST, null), //
-			new Int(SPI_IOC_RD_BITS_PER_WORD, null), //
-			new Int(SPI_IOC_RD_MAX_SPEED_HZ, null));
+		lib.ioctlSpiInt.assertValues(new TestSpiCLibNative.Int(SpiDev.SPI_IOC_RD_MODE32, null),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_RD_LSB_FIRST, null),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_RD_LSB_FIRST, null),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_RD_BITS_PER_WORD, null),
+			new TestSpiCLibNative.Int(SpiDev.SPI_IOC_RD_MAX_SPEED_HZ, null));
 	}
 
 	@Test
@@ -123,31 +107,32 @@ public class SpiDeviceBehavior {
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
 		assertArray(xfer.read());
-		lib.ioctlSpiMsg.assertValues(
-			new Msg(SPI_IOC_MESSAGE(1), provider(1, 2, 3, 4, 5), 5, 0, 0, 0, 0, 0, 0));
+		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),
+			TestUtil.provider(1, 2, 3, 4, 5), 5, 0, 0, 0, 0, 0, 0));
 	}
 
 	@Test
 	public void shouldTransferIn() throws IOException {
 		var lib = initSpi();
-		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
+		lib.ioctlSpiMsg.autoResponses(TestUtil.provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.in, 5);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3)); // ignored
 		xfer.execute();
 		assertArray(xfer.read(), 5, 4, 3, 2, 1);
-		lib.ioctlSpiMsg.assertValues(new Msg(SPI_IOC_MESSAGE(1), null, 5, 0, 0, 0, 0, 0, 0));
+		lib.ioctlSpiMsg.assertValues(
+			new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1), null, 5, 0, 0, 0, 0, 0, 0));
 	}
 
 	@Test
 	public void shouldTransferDuplex() throws IOException {
 		var lib = initSpi();
-		lib.ioctlSpiMsg.autoResponses(provider(5, 4, 3, 2, 1));
+		lib.ioctlSpiMsg.autoResponses(TestUtil.provider(5, 4, 3, 2, 1));
 		var xfer = spi.transfer(Direction.duplex, 5);
 		xfer.write(ArrayUtil.bytes.of(5, 6, 7, 8, 9));
 		xfer.execute();
 		assertArray(xfer.read(), 5, 4, 3, 2, 1);
-		lib.ioctlSpiMsg.assertValues(
-			new Msg(SPI_IOC_MESSAGE(1), provider(5, 6, 7, 8, 9), 5, 0, 0, 0, 0, 0, 0));
+		lib.ioctlSpiMsg.assertValues(new TestSpiCLibNative.Msg(SpiDev.SPI_IOC_MESSAGE(1),
+			TestUtil.provider(5, 6, 7, 8, 9), 5, 0, 0, 0, 0, 0, 0));
 	}
 
 	@Test

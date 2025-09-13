@@ -3,8 +3,8 @@ package ceri.common.data;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class MaskBehavior {
 
@@ -19,7 +19,7 @@ public class MaskBehavior {
 		Mask m6 = Mask.ofBits(0, 16);
 		Mask m7 = Mask.ofInt(13, 0x1ffff000);
 		Mask m8 = Mask.ofInt(12, 0x1fffe000);
-		exerciseEquals(m0, m1, m2, m3);
+		TestUtil.exerciseEquals(m0, m1, m2, m3);
 		assertAllNotEqual(m0, m4, m5, m6, m7, m8);
 	}
 

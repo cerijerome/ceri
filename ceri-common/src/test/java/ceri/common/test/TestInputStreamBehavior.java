@@ -9,7 +9,7 @@ import static ceri.common.test.TestUtil.threadCall;
 import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.text.Utf8Util;
+import ceri.common.text.Utf8;
 
 public class TestInputStreamBehavior {
 
@@ -48,12 +48,12 @@ public class TestInputStreamBehavior {
 	@Test
 	public void shouldMarkAndReset() throws IOException {
 		try (var in = TestInputStream.from("testing")) {
-			assertRead(in, Utf8Util.encode("test"));
+			assertRead(in, Utf8.encode("test"));
 			in.markSupported.autoResponses(true);
 			assertTrue(in.markSupported());
 			in.mark(10);
 			in.mark.assertAuto(10);
-			assertRead(in, Utf8Util.encode("ing"));
+			assertRead(in, Utf8.encode("ing"));
 			in.reset();
 			in.reset.awaitAuto();
 		}

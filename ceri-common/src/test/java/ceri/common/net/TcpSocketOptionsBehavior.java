@@ -5,10 +5,10 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestTcpSocket;
+import ceri.common.test.TestUtil;
 
 public class TcpSocketOptionsBehavior {
 
@@ -20,7 +20,7 @@ public class TcpSocketOptionsBehavior {
 			.set(TcpSocketOption.soReuseAddr, false);
 		var eq1 = t.immutable();
 		TcpSocketOptions ne0 = TcpSocketOptions.of().set(TcpSocketOption.ipTos, 123);
-		exerciseEquals(t);
+		TestUtil.exerciseEquals(t);
 		assertEquals(t, eq0);
 		assertEquals(t, eq1);
 		assertAllNotEqual(t, ne0);

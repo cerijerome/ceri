@@ -2,9 +2,9 @@ package ceri.common.process;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Arrays;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ParametersBehavior {
 
@@ -18,7 +18,7 @@ public class ParametersBehavior {
 		Parameters ne0 = Parameters.of();
 		Parameters ne1 = Parameters.of(1, "a");
 		Parameters ne2 = Parameters.of(1, "b", 0.1);
-		exerciseEquals(t, eq0, eq1, eq2, eq3);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2, eq3);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 

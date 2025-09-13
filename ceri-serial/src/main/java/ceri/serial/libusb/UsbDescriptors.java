@@ -1,7 +1,7 @@
 package ceri.serial.libusb;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import java.util.List;
 import java.util.Set;
 import ceri.common.collection.Immutable;

@@ -11,7 +11,7 @@ import ceri.common.data.ByteProvider;
 /**
  * Utility for fine control over UTF8 manipulation.
  */
-public class Utf8Util {
+public class Utf8 {
 	public static final int MAX_BYTES_PER_CODE_POINT = 4;
 	private static final int ONE_BYTE_START_MASK = 0x80;
 	private static final int ONE_BYTE_START_VALUE = 0x00;
@@ -32,7 +32,7 @@ public class Utf8Util {
 	private static final int SUBSEQUENT_BYTE_MASK_INVERSE = 0xff ^ SUBSEQUENT_BYTE_MASK;
 	private static final int SUBSEQUENT_BYTE_VALUE = 0x80;
 
-	private Utf8Util() {}
+	private Utf8() {}
 
 	/**
 	 * Returns the string as UTF8 bytes.
@@ -186,7 +186,7 @@ public class Utf8Util {
 	 * invalid code points.
 	 */
 	public static int byteCount(CharSequence text) {
-		return text.codePoints().map(Utf8Util::byteCount).sum();
+		return text.codePoints().map(Utf8::byteCount).sum();
 	}
 
 	/**
@@ -303,5 +303,4 @@ public class Utf8Util {
 	private static boolean byteMatch(int mask, int maskedValue, int value) {
 		return (mask & value) == maskedValue;
 	}
-
 }

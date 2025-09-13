@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ceri.common.collection.Maps;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Convenience shortcuts for common java stream methods.
@@ -30,7 +30,7 @@ public class StreamUtil {
 	 * Use when a combiner is required for a Stream method, but should not be invoked.
 	 */
 	public static <T> BiConsumer<T, T> badCombiner() {
-		return BasicUtil.unchecked(BAD_COMBINER);
+		return Reflect.unchecked(BAD_COMBINER);
 	}
 
 	/**
@@ -77,21 +77,21 @@ public class StreamUtil {
 	 * When merging keys, only keep the original key.
 	 */
 	public static <T> BinaryOperator<T> mergeFirst() {
-		return BasicUtil.unchecked(MERGE_FIRST);
+		return Reflect.unchecked(MERGE_FIRST);
 	}
 
 	/**
 	 * When merging keys, only keep the new key.
 	 */
 	public static <T> BinaryOperator<T> mergeSecond() {
-		return BasicUtil.unchecked(MERGE_SECOND);
+		return Reflect.unchecked(MERGE_SECOND);
 	}
 
 	/**
 	 * Throw an IllegalArgumentException for duplicate keys.
 	 */
 	public static <T> BinaryOperator<T> mergeError() {
-		return BasicUtil.unchecked(MERGE_ERROR);
+		return Reflect.unchecked(MERGE_ERROR);
 	}
 
 	/**

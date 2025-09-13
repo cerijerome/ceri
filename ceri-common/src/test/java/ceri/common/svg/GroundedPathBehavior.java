@@ -3,11 +3,11 @@ package ceri.common.svg;
 import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.TestUtil;
 
 public class GroundedPathBehavior {
 
@@ -22,7 +22,7 @@ public class GroundedPathBehavior {
 		GroundedPath<LineTo> ne2 = GroundedPath.of(Position.relative(1, 1), line);
 		GroundedPath<LineTo> ne3 = GroundedPath.of(pos, LineTo.relative(-1, -2));
 		GroundedPath<LineTo> ne4 = GroundedPath.of(pos, LineTo.absolute(-1, -1));
-		exerciseEquals(p, eq0);
+		TestUtil.exerciseEquals(p, eq0);
 		assertAllNotEqual(p, ne0, ne1, ne2, ne3, ne4);
 	}
 

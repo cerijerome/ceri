@@ -20,5 +20,4 @@ public class X10UtilTest {
 		assertEquals(X10Util.toNybble(0xa9, 2), 0x900);
 		assertEquals(X10Util.toNybble(0xa, 3), 0xa000);
 	}
-
 }

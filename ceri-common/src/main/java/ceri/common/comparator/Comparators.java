@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Comparators for primitives and other objects, handling null cases.
@@ -16,16 +16,16 @@ public class Comparators {
 		Comparator.nullsLast(Comparator.naturalOrder());
 	private static final Comparator<Comparable<Comparable<?>>> COMPARABLE =
 		nonNull(Comparable::compareTo);
-	public static final Comparator<Double> DOUBLE = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Float> FLOAT = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Byte> BYTE = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Short> SHORT = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Integer> INT = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Long> LONG = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Boolean> BOOL = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Character> CHAR = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<String> STRING = BasicUtil.unchecked(COMPARABLE);
-	public static final Comparator<Date> DATE = BasicUtil.unchecked(COMPARABLE);
+	public static final Comparator<Double> DOUBLE = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Float> FLOAT = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Byte> BYTE = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Short> SHORT = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Integer> INT = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Long> LONG = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Boolean> BOOL = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Character> CHAR = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<String> STRING = Reflect.unchecked(COMPARABLE);
+	public static final Comparator<Date> DATE = Reflect.unchecked(COMPARABLE);
 	public static final Comparator<Byte> UBYTE = Comparator.nullsFirst(Byte::compareUnsigned);
 	public static final Comparator<Short> USHORT = Comparator.nullsFirst(Short::compareUnsigned);
 	public static final Comparator<Integer> UINT = Comparator.nullsFirst(Integer::compareUnsigned);
@@ -40,21 +40,21 @@ public class Comparators {
 	 * Null comparator treats everything as equal.
 	 */
 	public static <T> Comparator<T> ofNull() {
-		return BasicUtil.unchecked(NULL);
+		return Reflect.unchecked(NULL);
 	}
 
 	/**
 	 * Casts the comparator, with default no-op comparator.
 	 */
 	public static <T> Comparator<T> of(Comparator<? super T> comparator) {
-		return BasicUtil.unchecked(comparator != null ? comparator : NULL);
+		return Reflect.unchecked(comparator != null ? comparator : NULL);
 	}
 
 	/**
 	 * Wraps a comparator, where null values are considered inferior to non-null values.
 	 */
 	public static <T> Comparator<T> nonNull(final Comparator<? super T> comparator) {
-		if (comparator == null) return BasicUtil.unchecked(NULL);
+		if (comparator == null) return Reflect.unchecked(NULL);
 		return ((lhs, rhs) -> {
 			if (lhs == rhs) return 0;
 			if (lhs == null) return -1;
@@ -68,28 +68,28 @@ public class Comparators {
 	 * Nulls first comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> nullsFirst() {
-		return BasicUtil.unchecked(NULLS_FIRST_COMPARABLE);
+		return Reflect.unchecked(NULLS_FIRST_COMPARABLE);
 	}
 
 	/**
 	 * Nulls last comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> nullsLast() {
-		return BasicUtil.unchecked(NULLS_LAST_COMPARABLE);
+		return Reflect.unchecked(NULLS_LAST_COMPARABLE);
 	}
 
 	/**
 	 * Comparator for comparable objects.
 	 */
 	public static <T extends Comparable<? super T>> Comparator<T> comparable() {
-		return BasicUtil.unchecked(COMPARABLE);
+		return Reflect.unchecked(COMPARABLE);
 	}
 
 	/**
 	 * Comparator for string representations of objects.
 	 */
 	public static <T> Comparator<T> string() {
-		return BasicUtil.unchecked(TO_STRING);
+		return Reflect.unchecked(TO_STRING);
 	}
 
 	/**

@@ -2,8 +2,8 @@ package ceri.common.score;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ScoreLookupBehavior {
 
@@ -15,7 +15,7 @@ public class ScoreLookupBehavior {
 		ScoreLookup<String> l3 =
 			ScoreLookup.<String>builder().score(1, "A").score(3, "B").normalize().build();
 		ScoreLookup<String> l4 = ScoreLookup.<String>builder().score(0, "A").normalize().build();
-		exerciseEquals(l0, l1);
+		TestUtil.exerciseEquals(l0, l1);
 		assertNotEquals(l0, l2);
 		assertNotEquals(l0, l3);
 		assertNotEquals(l0, l4);

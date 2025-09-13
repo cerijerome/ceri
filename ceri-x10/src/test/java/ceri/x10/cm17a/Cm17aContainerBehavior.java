@@ -4,11 +4,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFind;
 import static ceri.common.test.AssertUtil.assertMatch;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.x10.cm17a.Cm17aContainer.Type.cm17aRef;
-import static ceri.x10.cm17a.Cm17aContainer.Type.noOp;
-import static ceri.x10.cm17a.Cm17aContainer.Type.serial;
-import static ceri.x10.cm17a.Cm17aContainer.Type.serialRef;
-import static ceri.x10.cm17a.Cm17aContainer.Type.test;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
@@ -26,14 +21,16 @@ public class Cm17aContainerBehavior {
 
 	@Test
 	public void shouldDetermineContainerType() {
-		assertEquals(Cm17aContainer.Config.of("com").type(null, null), serial);
-		assertEquals(Cm17aContainer.Config.of("com").type(null, Serial.NULL), serialRef);
-		assertEquals(Cm17aContainer.Config.of("com").type(Cm17a.NULL, null), cm17aRef);
+		assertEquals(Cm17aContainer.Config.of("com").type(null, null), Cm17aContainer.Type.serial);
+		assertEquals(Cm17aContainer.Config.of("com").type(null, Serial.NULL),
+			Cm17aContainer.Type.serialRef);
+		assertEquals(Cm17aContainer.Config.of("com").type(Cm17a.NULL, null),
+			Cm17aContainer.Type.cm17aRef);
 		assertEquals(Cm17aContainer.Config.builder().mode(DeviceMode.test).build().type(null, null),
-			test);
+			Cm17aContainer.Type.test);
 		assertEquals(
 			Cm17aContainer.Config.builder().mode(DeviceMode.disabled).build().type(null, null),
-			noOp);
+			Cm17aContainer.Type.noOp);
 	}
 
 	@Test
@@ -53,9 +50,8 @@ public class Cm17aContainerBehavior {
 	@Test
 	public void shouldCreateFromSerialConfig() throws IOException {
 		try (var serial = TestSerial.of();
-			var con =
-				Cm17aContainer.of(Cm17aContainer.Config.builder().device(Cm17aDevice.Config.NULL)
-					.serial(serial.selfHealingConfig()).build())) {
+			var con = Cm17aContainer.of(Cm17aContainer.Config.builder()
+				.device(Cm17aDevice.Config.NULL).serial(serial.selfHealingConfig()).build())) {
 			con.cm17a.command(Command.dim(House.A, 50, Unit._1));
 		}
 	}

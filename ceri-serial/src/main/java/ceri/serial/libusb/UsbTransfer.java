@@ -1,7 +1,7 @@
 package ceri.serial.libusb;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_CONTROL_SETUP_SIZE;
@@ -14,7 +14,7 @@ import ceri.common.data.ByteProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.Struct;
 import ceri.jna.util.JnaUtil;
@@ -499,6 +499,6 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	}
 
 	private T typedThis() {
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 }

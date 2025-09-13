@@ -2,7 +2,7 @@ package ceri.x10.cm17a.device;
 
 import java.util.List;
 import ceri.common.collection.Lists;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
@@ -28,12 +28,12 @@ public class Data {
 
 	public static int toDimCount(int percent) {
 		if (percent == 0) return 0;
-		return Math.max(1, MathUtil.roundDiv(MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT),
+		return Math.max(1, Maths.roundDiv(Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT),
 			DIM_PERCENT_PER_SEND));
 	}
 
 	public static int fromDimCount(int count) {
-		return MathUtil.limit(count * DIM_PERCENT_PER_SEND, 0, X10Util.DIM_MAX_PERCENT);
+		return Maths.limit(count * DIM_PERCENT_PER_SEND, 0, X10Util.DIM_MAX_PERCENT);
 	}
 
 	/**

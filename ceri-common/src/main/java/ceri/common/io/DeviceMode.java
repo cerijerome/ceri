@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import ceri.common.data.TypeTranscoder;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * General mode for device construction or state.
@@ -27,7 +27,7 @@ public enum DeviceMode {
 	}
 
 	public static DeviceMode from(Boolean isEnabled) {
-		return BasicUtil.ternary(isEnabled, enabled, disabled, test);
+		return Basics.ternary(isEnabled, enabled, disabled, test);
 	}
 
 	private DeviceMode(int value) {

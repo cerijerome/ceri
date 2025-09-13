@@ -2,9 +2,9 @@ package ceri.common.svg;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
+import ceri.common.test.TestUtil;
 
 public class MoveToBehavior {
 
@@ -15,7 +15,7 @@ public class MoveToBehavior {
 		MoveTo ne0 = MoveTo.absolute(Point2d.X_UNIT);
 		MoveTo ne1 = MoveTo.relative(0, 0);
 		MoveTo ne2 = MoveTo.relative(1, 1);
-		exerciseEquals(m, eq0);
+		TestUtil.exerciseEquals(m, eq0);
 		assertAllNotEqual(m, ne0, ne1, ne2);
 	}
 

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 import io.grpc.StatusRuntimeException;
 
 public class RpcClientUtil {
@@ -16,12 +16,12 @@ public class RpcClientUtil {
 
 	public static boolean isHalfClosedCall(Throwable t) {
 		return Exceptions.matches(t, IllegalStateException.class,
-			Patterns.Filter.find(HALF_CLOSED_MSG_REGEX));
+			Regex.Filter.find(HALF_CLOSED_MSG_REGEX));
 	}
 
 	public static boolean isChannelShutdown(Throwable t) {
 		return Exceptions.matches(t, StatusRuntimeException.class,
-			Patterns.Filter.find(SHUTDOWN_MSG_REGEX));
+			Regex.Filter.find(SHUTDOWN_MSG_REGEX));
 	}
 
 	/**

@@ -212,7 +212,7 @@ public class ToString {
 		if (children.isEmpty()) return b.toString();
 		b.append(" {").append(Strings.EOL);
 		for (var child : children) {
-			var childStr = TextUtil.prefixLines(childIndent, childStringValue(child));
+			var childStr = Text.prefixLines(childIndent, childStringValue(child));
 			b.append(childStr).append(Strings.EOL);
 		}
 		return b.append('}').toString();

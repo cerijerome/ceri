@@ -6,19 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 import ceri.common.collection.Maps;
 import ceri.common.comparator.Comparators;
 import ceri.common.data.IntProvider;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Streams;
 import ceri.common.text.Format;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 public class Colorxs {
 	private static final Pattern HEX_REGEX = Pattern.compile("(?:0x|0X|#)([0-9a-fA-F]{1,16})");
@@ -98,7 +97,7 @@ public class Colorxs {
 	 * Constructs an xargb long from argb and x components.
 	 */
 	public static long xargb(int argb, int... xs) {
-		long xargb = MathUtil.uint(argb);
+		long xargb = Maths.uint(argb);
 		for (int i = 0; i < xs.length; i++)
 			xargb |= Component.x(i).longValue(xs[i]);
 		return xargb;
@@ -146,7 +145,7 @@ public class Colorxs {
 		int r = Colors.r(argb);
 		int g = Colors.g(argb);
 		int b = Colors.b(argb);
-		int max = MathUtil.max(r, g, b, MathUtil.max(xs));
+		int max = Maths.max(r, g, b, Maths.max(xs));
 		if (max == 0 || max == Colors.MAX_VALUE) return xargb(argb, xs);
 		argb = Colors.argb(a, roundDiv(r * Colors.MAX_VALUE, max),
 			roundDiv(g * Colors.MAX_VALUE, max), roundDiv(b * Colors.MAX_VALUE, max));
@@ -171,7 +170,7 @@ public class Colorxs {
 		int max = Colors.MAX_VALUE + 1;
 		int argb =
 			Colors.argb(Colors.MAX_VALUE, rnd.nextInt(max), rnd.nextInt(max), rnd.nextInt(max));
-		int[] xs = IntStream.range(0, nx).map(_ -> rnd.nextInt(max)).toArray();
+		int[] xs = Streams.slice(0, nx).map(_ -> rnd.nextInt(max)).toArray();
 		return xargb(argb, xs);
 	}
 
@@ -358,7 +357,7 @@ public class Colorxs {
 	 * Extract all x components from xargb long.
 	 */
 	public static int[] xs(long xargb) {
-		return IntStream.range(0, Component.X_COUNT).map(i -> x(xargb, i)).toArray();
+		return Streams.slice(0, Component.X_COUNT).map(i -> x(xargb, i)).toArray();
 	}
 
 	/* string methods */
@@ -433,115 +432,125 @@ public class Colorxs {
 	/**
 	 * Collect xargb stream as a colorx array.
 	 */
-	public static Colorx[] colorxs(LongStream xargbStream) {
+	public static Colorx[] colorxs(LongStream<RuntimeException> xargbStream) {
 		return xargbStream.mapToObj(Colorx::of).toArray(Colorx[]::new);
 	}
 
 	/**
 	 * Collect xargb stream as a list.
 	 */
-	public static List<Long> xargbList(LongStream argbStream) {
+	public static List<Long> xargbList(LongStream<RuntimeException> argbStream) {
 		return argbStream.boxed().toList();
 	}
 
 	/**
 	 * Collect xargb stream as a colorx list.
 	 */
-	public static List<Colorx> colorxList(LongStream xargbStream) {
+	public static List<Colorx> colorxList(LongStream<RuntimeException> xargbStream) {
 		return xargbStream.mapToObj(Colorx::of).toList();
 	}
 
 	/**
 	 * Create a stream of xargbs longs, with 0 x components, from argb ints.
 	 */
-	public static LongStream argbStream(int... argbs) {
-		return IntStream.of(argbs).mapToLong(MathUtil::uint);
+	public static LongStream<RuntimeException> argbStream(int... argbs) {
+		return Streams.ints(argbs).mapToLong(Maths::uint);
 	}
 
 	/**
 	 * Create a stream of xargb longs from colorxs.
 	 */
-	public static LongStream stream(Colorx... colorxs) {
-		return Stream.of(colorxs).mapToLong(cx -> cx.xargb());
+	public static LongStream<RuntimeException> stream(Colorx... colorxs) {
+		return Streams.of(colorxs).mapToLong(cx -> cx.xargb());
 	}
 
 	/**
 	 * Create a stream of xargb longs from preset name or hex strings. Throws an exception if unable
 	 * to parse the text.
 	 */
-	public static LongStream stream(String... strings) {
-		return Stream.of(strings).mapToLong(Colorxs::validXargb);
+	public static LongStream<RuntimeException> stream(String... strings) {
+		return Streams.of(strings).mapToLong(Colorxs::validXargb);
 	}
 
 	/**
 	 * Convert argb int stream to xargb long stream, applying x components to all values.
 	 */
-	public static LongStream stream(IntStream argbStream, int... xs) {
+	public static LongStream<RuntimeException> stream(IntStream<RuntimeException> argbStream,
+		int... xs) {
 		long x = xargb(0, xs);
-		return argbStream.mapToLong(argb -> x | MathUtil.uint(argb));
+		return argbStream.mapToLong(argb -> x | Maths.uint(argb));
 	}
 
 	/**
 	 * Extract sequence of rgb values from each argb to determine x components.
 	 */
-	public static LongStream denormalize(IntStream argbStream, Color... xcolors) {
+	public static LongStream<RuntimeException> denormalize(IntStream<RuntimeException> argbStream,
+		Color... xcolors) {
 		return denormalize(argbStream, Colors.argbs(xcolors));
 	}
 
 	/**
 	 * Extract sequence of rgb values from each argb to determine x components.
 	 */
-	public static LongStream denormalize(IntStream argbStream, int... xrgbs) {
+	public static LongStream<RuntimeException> denormalize(IntStream<RuntimeException> argbStream,
+		int... xrgbs) {
 		return denormalize(argbStream, IntProvider.of(xrgbs));
 	}
 
 	/**
 	 * Extract sequence of rgb values from each argb to determine x components.
 	 */
-	public static LongStream denormalize(IntStream argbStream, IntProvider xrgbs) {
+	public static LongStream<RuntimeException> denormalize(IntStream<RuntimeException> argbStream,
+		IntProvider xrgbs) {
 		return argbStream.mapToLong(argb -> denormalizeXargb(argb, xrgbs));
 	}
 
 	/**
 	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
-	public static IntStream normalize(LongStream xargbStream, Color... xcolors) {
+	public static IntStream<RuntimeException> normalize(LongStream<RuntimeException> xargbStream,
+		Color... xcolors) {
 		return normalize(xargbStream, Colors.argbs(xcolors));
 	}
 
 	/**
 	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
-	public static IntStream normalize(LongStream xargbStream, int... xrgbs) {
+	public static IntStream<RuntimeException> normalize(LongStream<RuntimeException> xargbStream,
+		int... xrgbs) {
 		return normalize(xargbStream, IntProvider.of(xrgbs));
 	}
 
 	/**
 	 * For each xargb, combine x-scaled rgb values with argb, scaling to fit within argb bounds.
 	 */
-	public static IntStream normalize(LongStream xargbStream, IntProvider xrgbs) {
+	public static IntStream<RuntimeException> normalize(LongStream<RuntimeException> xargbStream,
+		IntProvider xrgbs) {
 		return xargbStream.mapToInt(xargb -> normalizeArgb(xargb, xrgbs));
 	}
 
 	/**
 	 * Apply an argb int operation to an xargb long.
 	 */
-	public static LongStream applyArgb(LongStream xargbStream, Functions.IntOperator argbFn) {
+	public static LongStream<RuntimeException> applyArgb(LongStream<RuntimeException> xargbStream,
+		Functions.IntOperator argbFn) {
 		return xargbStream.map(xargb -> applyXargb(xargb, argbFn));
 	}
 
 	/**
 	 * Create a stream of xargb longs by fading in steps.
 	 */
-	public static LongStream fadeStream(Colorx min, Colorx max, int steps, Bias bias) {
+	public static LongStream<RuntimeException> fadeStream(Colorx min, Colorx max, int steps,
+		Bias bias) {
 		return fadeStream(min.xargb(), max.xargb(), steps, bias);
 	}
 
 	/**
 	 * Create a stream of xargb longs by fading in steps.
 	 */
-	public static LongStream fadeStream(long minArgbx, long maxArgbx, int steps, Bias bias) {
-		return IntStream.rangeClosed(1, steps)
+	public static LongStream<RuntimeException> fadeStream(long minArgbx, long maxArgbx, int steps,
+		Bias bias) {
+		return Streams.slice(1, steps)
 			.mapToLong(i -> scaleXargb(minArgbx, maxArgbx, bias.bias((double) i / steps)));
 	}
 
@@ -599,7 +608,7 @@ public class Colorxs {
 		int[] rgb = { r(xargb), g(xargb), b(xargb) };
 		for (int i = 0; i < Math.min(Component.X_COUNT, xrgbs.length()); i++)
 			normalize(rgb, xrgbs.getInt(i), x(xargb, i));
-		int max = MathUtil.max(rgb);
+		int max = Maths.max(rgb);
 		if (max <= Colors.MAX_VALUE) return Colors.argb(a(xargb), rgb[0], rgb[1], rgb[2]);
 		return Colors.argb(a(xargb), roundDiv(rgb[0] * Colors.MAX_VALUE, max),
 			roundDiv(rgb[1] * Colors.MAX_VALUE, max), roundDiv(rgb[2] * Colors.MAX_VALUE, max));
@@ -609,7 +618,7 @@ public class Colorxs {
 	 * Apply an argb int operation to an xargb long.
 	 */
 	public static long applyXargb(long xargb, Functions.IntOperator argbFn) {
-		return xargb & Component.X_MASK | MathUtil.uint(argbFn.applyAsInt((int) xargb));
+		return xargb & Component.X_MASK | Maths.uint(argbFn.applyAsInt((int) xargb));
 	}
 
 	/**
@@ -617,7 +626,7 @@ public class Colorxs {
 	 */
 	public static Colorx apply(Colorx colorx, Functions.Operator<Color> colorFn) {
 		int argb = colorFn.apply(colorx.color()).getRGB();
-		return Colorx.of(colorx.xargb() & Component.X_MASK | MathUtil.uint(argb));
+		return Colorx.of(colorx.xargb() & Component.X_MASK | Maths.uint(argb));
 	}
 
 	/* support methods */
@@ -672,19 +681,19 @@ public class Colorxs {
 	}
 
 	private static Long hexXargb(String text) {
-		Matcher m = RegexUtil.matched(HEX_REGEX, text);
-		if (m == null) return null;
+		var m = Regex.match(HEX_REGEX, text);
+		if (!m.hasMatch()) return null;
 		String hex = m.group(1);
 		return Long.parseUnsignedLong(hex, Radix.HEX.n);
 	}
 
 	private static int denormalize(int[] rgb, int r, int g, int b) {
-		double x = MathUtil
-			.limit(MathUtil.min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
+		double x = Maths
+			.limit(Maths.min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
 		if (x == 0) return 0;
-		rgb[0] -= MathUtil.intRound(x * r);
-		rgb[1] -= MathUtil.intRound(x * g);
-		rgb[2] -= MathUtil.intRound(x * b);
+		rgb[0] -= Maths.intRound(x * r);
+		rgb[1] -= Maths.intRound(x * g);
+		rgb[2] -= Maths.intRound(x * b);
 		return Colors.value(x);
 	}
 

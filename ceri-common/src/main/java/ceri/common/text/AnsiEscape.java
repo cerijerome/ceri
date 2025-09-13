@@ -1,9 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import java.awt.Color;
 import ceri.common.color.Colors;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * ANSI-escape codes for terminal operations and formatting.
@@ -129,7 +128,7 @@ public class AnsiEscape {
 		 * CHA: cursor horizontal absolute; moves the cursor to column n.
 		 */
 		public String cursorColumn(int n) {
-			validateMin(n, 1);
+			ValidationUtil.validateMin(n, 1);
 			return escape('G', 1, n);
 		}
 
@@ -137,8 +136,8 @@ public class AnsiEscape {
 		 * CUP: moves the cursor to row n, column m from the top left.
 		 */
 		public String cursorPosition(int row, int col) {
-			validateMin(row, 1);
-			validateMin(col, 1);
+			ValidationUtil.validateMin(row, 1);
+			ValidationUtil.validateMin(col, 1);
 			if (col == 1) return escape('H', 1, row);
 			return escape('H', 1, row, col);
 		}
@@ -148,7 +147,7 @@ public class AnsiEscape {
 		 * = screen and buffer.
 		 */
 		public String eraseInDisplay(int n) {
-			validateMin(n, 0);
+			ValidationUtil.validateMin(n, 0);
 			return escape('J', 0, n);
 		}
 
@@ -156,7 +155,7 @@ public class AnsiEscape {
 		 * EL: clears part of the line: 0 = cursor to end, 1 = beginning to cursor, 2 = all.
 		 */
 		public String eraseInLine(int n) {
-			validateMin(n, 0);
+			ValidationUtil.validateMin(n, 0);
 			return escape('K', 0, n);
 		}
 
@@ -180,8 +179,8 @@ public class AnsiEscape {
 		 * HVP: similar to CUP, but may be handled differently depending on terminal mode.
 		 */
 		public String hvPosition(int row, int col) {
-			validateMin(row, 1);
-			validateMin(col, 1);
+			ValidationUtil.validateMin(row, 1);
+			ValidationUtil.validateMin(col, 1);
 			if (col == 1) return escape('f', 1, row);
 			return escape('f', 1, row, col);
 		}
@@ -255,7 +254,7 @@ public class AnsiEscape {
 		 * Set text intensity: -1 = faint, 0 = off, 1 = bold
 		 */
 		public Sgr intensity(int n) {
-			validateRange(n, -1, 1);
+			ValidationUtil.validateRange(n, -1, 1);
 			if (n == 1) return add(1);
 			if (n == -1) return add(2);
 			return add(22);
@@ -265,7 +264,7 @@ public class AnsiEscape {
 		 * Set italics: 0 = off, 1 = italic, 2 = Fraktur (Gothic)
 		 */
 		public Sgr italic(int n) {
-			validateRange(n, 0, 2);
+			ValidationUtil.validateRange(n, 0, 2);
 			if (n == 1) return add(3);
 			if (n == 2) return add(20);
 			return add(23);
@@ -275,7 +274,7 @@ public class AnsiEscape {
 		 * Set underline: 0 = off, 1 = regular, 2 = double
 		 */
 		public Sgr underline(int n) {
-			validateRange(n, 0, 2);
+			ValidationUtil.validateRange(n, 0, 2);
 			if (n == 1) return add(4);
 			if (n == 2) return add(21);
 			return add(24);
@@ -285,7 +284,7 @@ public class AnsiEscape {
 		 * Set blink: 0 = off, 1 = slow, 2 = rapid
 		 */
 		public Sgr blink(int n) {
-			validateRange(n, 0, 2);
+			ValidationUtil.validateRange(n, 0, 2);
 			if (n == 1) return add(5);
 			if (n == 2) return add(6);
 			return add(25);
@@ -316,7 +315,7 @@ public class AnsiEscape {
 		 * Set font: 0 = primary, 1-9 = alternative.
 		 */
 		public Sgr font(int font) {
-			validateRange(font, 0, 9);
+			ValidationUtil.validateRange(font, 0, 9);
 			return add(10 + font);
 		}
 
@@ -339,7 +338,7 @@ public class AnsiEscape {
 		 * Set gray from 0 (black) to 23 (white).
 		 */
 		public Sgr fgGray(int level) {
-			validateRange(level, 0, 23);
+			ValidationUtil.validateRange(level, 0, 23);
 			return add(38, 5, 232 + level);
 		}
 
@@ -361,9 +360,9 @@ public class AnsiEscape {
 		 * Set 8-bit color, each component 0-5.
 		 */
 		public Sgr fgColor8(int r, int g, int b) {
-			validateRange(r, 0, 5);
-			validateRange(g, 0, 5);
-			validateRange(b, 0, 5);
+			ValidationUtil.validateRange(r, 0, 5);
+			ValidationUtil.validateRange(g, 0, 5);
+			ValidationUtil.validateRange(b, 0, 5);
 			return add(38, 5, 16 + (r * 36) + (g * 6) + b);
 		}
 
@@ -385,9 +384,9 @@ public class AnsiEscape {
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr fgColor24(int r, int g, int b) {
-			validateRange(r, 0, Colors.MAX_VALUE);
-			validateRange(g, 0, Colors.MAX_VALUE);
-			validateRange(b, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(r, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(g, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(b, 0, Colors.MAX_VALUE);
 			return add(38, 2, r, g, b);
 		}
 
@@ -410,7 +409,7 @@ public class AnsiEscape {
 		 * Set grey from 0 (black) to 23 (white).
 		 */
 		public Sgr bgGray(int level) {
-			validateRange(level, 0, 23);
+			ValidationUtil.validateRange(level, 0, 23);
 			return add(48, 5, 232 + level);
 		}
 
@@ -432,9 +431,9 @@ public class AnsiEscape {
 		 * Set 8-bit color, each component 0-5.
 		 */
 		public Sgr bgColor8(int r, int g, int b) {
-			validateRange(r, 0, 5);
-			validateRange(g, 0, 5);
-			validateRange(b, 0, 5);
+			ValidationUtil.validateRange(r, 0, 5);
+			ValidationUtil.validateRange(g, 0, 5);
+			ValidationUtil.validateRange(b, 0, 5);
 			return add(48, 5, 16 + (r * 36) + (g * 6) + b);
 		}
 
@@ -456,9 +455,9 @@ public class AnsiEscape {
 		 * Set 24-bit color, each component 0-255.
 		 */
 		public Sgr bgColor24(int r, int g, int b) {
-			validateRange(r, 0, Colors.MAX_VALUE);
-			validateRange(g, 0, Colors.MAX_VALUE);
-			validateRange(b, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(r, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(g, 0, Colors.MAX_VALUE);
+			ValidationUtil.validateRange(b, 0, Colors.MAX_VALUE);
 			return add(48, 2, r, g, b);
 		}
 
@@ -466,7 +465,7 @@ public class AnsiEscape {
 		 * Set framing: 0 = off, 1 = rectangle, 2 = circle
 		 */
 		public Sgr frame(int n) {
-			validateRange(n, 0, 2);
+			ValidationUtil.validateRange(n, 0, 2);
 			if (n == 1) return add(51);
 			if (n == 2) return add(52);
 			return add(54);
@@ -484,7 +483,7 @@ public class AnsiEscape {
 		 * double overline, 5 = stress marking
 		 */
 		public Sgr ideogram(int n) {
-			validateRange(n, 0, 5);
+			ValidationUtil.validateRange(n, 0, 5);
 			return add(n == 0 ? 65 : 59 + n);
 		}
 

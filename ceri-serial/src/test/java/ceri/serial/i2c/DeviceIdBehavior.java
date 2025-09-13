@@ -3,23 +3,20 @@ package ceri.serial.i2c;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
-import ceri.serial.i2c.DeviceId.Company;
+import ceri.common.test.TestUtil;
 
 public class DeviceIdBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		DeviceId t = DeviceId.of(7, 444, 5);
-		DeviceId eq0 = DeviceId.of(7, 444, 5);
-		DeviceId ne0 = DeviceId.of(6, 444, 5);
-		DeviceId ne1 = DeviceId.of(7, 443, 5);
-		DeviceId ne2 = DeviceId.of(7, 444, 6);
-		exerciseEquals(t, eq0);
+		var t = DeviceId.of(7, 444, 5);
+		var eq0 = DeviceId.of(7, 444, 5);
+		var ne0 = DeviceId.of(6, 444, 5);
+		var ne1 = DeviceId.of(7, 443, 5);
+		var ne2 = DeviceId.of(7, 444, 6);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 
@@ -35,18 +32,19 @@ public class DeviceIdBehavior {
 
 	@Test
 	public void shouldDetermineCompany() {
-		assertEquals(DeviceId.NONE.company(), Company.unknown);
-		assertEquals(DeviceId.of(0x234, 0x111, 0x1).company(), Company.unknown);
-		assertEquals(DeviceId.of(0x0a, 0x111, 0x1).company(), Company.Fujitsu_Semiconductor);
+		assertEquals(DeviceId.NONE.company(), DeviceId.Company.unknown);
+		assertEquals(DeviceId.of(0x234, 0x111, 0x1).company(), DeviceId.Company.unknown);
+		assertEquals(DeviceId.of(0x0a, 0x111, 0x1).company(),
+			DeviceId.Company.Fujitsu_Semiconductor);
 	}
 
 	@Test
 	public void shouldDetermineIfNone() {
-		assertTrue(DeviceId.NONE.isNone());
-		assertTrue(DeviceId.of(0, 0, 0).isNone());
-		assertFalse(DeviceId.of(1, 0, 0).isNone());
-		assertFalse(DeviceId.of(0, 1, 0).isNone());
-		assertFalse(DeviceId.of(0, 0, 1).isNone());
+		assertEquals(DeviceId.NONE.isNone(), true);
+		assertEquals(DeviceId.of(0, 0, 0).isNone(), true);
+		assertEquals(DeviceId.of(1, 0, 0).isNone(), false);
+		assertEquals(DeviceId.of(0, 1, 0).isNone(), false);
+		assertEquals(DeviceId.of(0, 0, 1).isNone(), false);
 	}
 
 	@Test
@@ -54,5 +52,4 @@ public class DeviceIdBehavior {
 		assertFind(DeviceId.NONE.toString(), "\\bnone\\b");
 		assertFind(DeviceId.of(0x234, 0x111, 0x1).toString(), "\\b0x234\\b");
 	}
-
 }

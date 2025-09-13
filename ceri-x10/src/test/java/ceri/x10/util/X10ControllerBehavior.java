@@ -2,9 +2,9 @@ package ceri.x10.util;
 
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEnum;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -14,7 +14,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldEnumerateType() {
-		exerciseEnum(X10Controller.Type.class);
+		TestUtil.exerciseEnum(X10Controller.Type.class);
 	}
 	
 	@Test
@@ -25,7 +25,7 @@ public class X10ControllerBehavior {
 
 	@Test
 	public void shouldFailForUnsupportedCommand() throws IOException {
-		X10Controller x10 = new X10Controller() {
+		var x10 = new X10Controller() {
 			@Override
 			public boolean supports(Command command) {
 				return command.type() == FunctionType.off;
@@ -44,5 +44,4 @@ public class X10ControllerBehavior {
 	public void shouldNotNotifyListenersByDefault() {
 		try (var _ = X10Controller.NULL.listen(null)) {}
 	}
-
 }

@@ -7,7 +7,7 @@ import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 
@@ -26,6 +26,20 @@ public class ArrayUtil {
 	public static final PrimitiveArray.OfLong longs = new PrimitiveArray.OfLong();
 	public static final PrimitiveArray.OfFloat floats = new PrimitiveArray.OfFloat();
 	public static final PrimitiveArray.OfDouble doubles = new PrimitiveArray.OfDouble();
+
+	/**
+	 * Accepts bounded offsets and lengths.
+	 */
+	public interface BiSliceConsumer<E extends Exception> {
+		void accept(int lOffset, int lLength, int rOffset, int rLength) throws E;
+	}
+
+	/**
+	 * Applies bounded offsets and lengths.
+	 */
+	public interface BiSliceFunction<E extends Exception, T> {
+		T apply(int lOffset, int lLength, int rOffset, int rLength) throws E;
+	}
 
 	/**
 	 * Empty array constants.
@@ -287,7 +301,7 @@ public class ArrayUtil {
 	 */
 	public static <T> T[] insert(Functions.IntFunction<T[]> constructor, T[] lhs, int lhsOffset,
 		T[] rhs, int rhsOffset, int length) {
-		return RawArray.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.insert(constructor, rhs, rhsOffset, lhs, lhsOffset, length);
 	}
 
 	/**
@@ -483,11 +497,11 @@ public class ArrayUtil {
 	/**
 	 * Passes a bounded range to the function and returns the result.
 	 */
-	public static <E extends Exception, R> R applySlice(int arrayLen, int offset, int length,
-		Excepts.IntBiFunction<E, R> function) throws E {
+	public static <E extends Exception, T> T applySlice(int arrayLen, int offset, int length,
+		Excepts.IntBiFunction<E, T> function) throws E {
 		if (function == null) return null;
-		offset = MathUtil.limit(offset, 0, arrayLen);
-		length = MathUtil.limit(length, 0, arrayLen - offset);
+		offset = Maths.limit(offset, 0, arrayLen);
+		length = Maths.limit(length, 0, arrayLen - offset);
 		return function.apply(offset, length);
 	}
 
@@ -497,8 +511,8 @@ public class ArrayUtil {
 	public static <E extends Exception> void acceptSlice(int arrayLen, int offset, int length,
 		Excepts.IntBiConsumer<E> consumer) throws E {
 		if (consumer == null) return;
-		offset = MathUtil.limit(offset, 0, arrayLen);
-		length = MathUtil.limit(length, 0, arrayLen - offset);
+		offset = Maths.limit(offset, 0, arrayLen);
+		length = Maths.limit(length, 0, arrayLen - offset);
 		consumer.accept(offset, length);
 	}
 
@@ -508,10 +522,36 @@ public class ArrayUtil {
 	public static <E extends Exception> void acceptIndexes(int arrayLen, int offset, int length,
 		Excepts.IntConsumer<E> consumer) throws E {
 		if (consumer == null) return;
-		offset = MathUtil.limit(offset, 0, arrayLen);
-		length = MathUtil.limit(length, 0, arrayLen - offset);
+		offset = Maths.limit(offset, 0, arrayLen);
+		length = Maths.limit(length, 0, arrayLen - offset);
 		for (int i = 0; i < length; i++)
-			consumer.accept(i);
+			consumer.accept(offset + i);
+	}
+
+	/**
+	 * Passes bounded ranges to the function and returns the result.
+	 */
+	public static <E extends Exception, T> T applyBiSlice(int lArrayLen, int lOffset, int lLength,
+		int rArrayLen, int rOffset, int rLength, BiSliceFunction<E, T> function) throws E {
+		if (function == null) return null;
+		lOffset = Maths.limit(lOffset, 0, lArrayLen);
+		lLength = Maths.limit(lLength, 0, lArrayLen - lOffset);
+		rOffset = Maths.limit(rOffset, 0, rArrayLen);
+		rLength = Maths.limit(rLength, 0, rArrayLen - rOffset);
+		return function.apply(lOffset, lLength, rOffset, rLength);
+	}
+
+	/**
+	 * Passes bounded ranges to the consumer.
+	 */
+	public static <E extends Exception> void acceptBiSlice(int lArrayLen, int lOffset, int lLength,
+		int rArrayLen, int rOffset, int rLength, BiSliceConsumer<E> consumer) throws E {
+		if (consumer == null) return;
+		lOffset = Maths.limit(lOffset, 0, lArrayLen);
+		lLength = Maths.limit(lLength, 0, lArrayLen - lOffset);
+		rOffset = Maths.limit(rOffset, 0, rArrayLen);
+		rLength = Maths.limit(rLength, 0, rArrayLen - rOffset);
+		consumer.accept(lOffset, lLength, rOffset, rLength);
 	}
 
 	/**

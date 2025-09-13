@@ -8,19 +8,19 @@ import java.util.PrimitiveIterator;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.property.Parser;
 import ceri.common.stream.IntStream;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 
 /**
  * Tracks ranges of indexes such as {@code ((-3..0), (2), (4..5))}. Allows adding and removing
  * ranges. Uses linear or binary search depending on the number of index ranges.
  */
 public class IndexRanges implements Iterable<Integer> {
-	private static final Pattern EXTRACT_REGEX = Patterns.compile("(\\d+)(?:\\-(\\d+))?");
+	private static final Pattern EXTRACT_REGEX = Regex.compile("(\\d+)(?:\\-(\\d+))?");
 	private static final Pattern VALIDATE_REGEX =
-		Patterns.compile("\\[\\s*(?:%1$s(?:\\s*,\\s*%1$s)*\\s*)?\\]", "\\d+(?:\\-\\d+)?");
+		Regex.compile("\\[\\s*(?:%1$s(?:\\s*,\\s*%1$s)*\\s*)?\\]", "\\d+(?:\\-\\d+)?");
 	private static final int SIZE_DEF = 32;
 	private static final int LINEAR_MAX = 256; // roughly when binary search is more efficient
 	private final int linearMax;
@@ -350,7 +350,7 @@ public class IndexRanges implements Iterable<Integer> {
 
 	private void ensureSize(int size) {
 		if (starts.length >= size) return;
-		int newSize = MathUtil.multiplyLimit(size, 2);
+		int newSize = Maths.multiplyLimit(size, 2);
 		starts = Arrays.copyOf(starts, newSize);
 		ends = Arrays.copyOf(ends, newSize);
 	}

@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ConShowItemBehavior {
 
@@ -18,7 +18,7 @@ public class ConShowItemBehavior {
 		ConShowItem ne2 = ConShowItem.of("name", "", "type", "device");
 		ConShowItem ne3 = ConShowItem.of("name", "uuid", "types", "device");
 		ConShowItem ne4 = ConShowItem.of("name", "uuid", "type", "dev");
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
 	}
 

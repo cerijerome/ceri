@@ -37,43 +37,87 @@ public class NonMatch {
 	private record Range(CharSequence input, int start, int end) implements Result {
 		@Override
 		public String group() {
-			verifyMatch(start);
-			return input.subSequence(start, end).toString();
+			verifyMatch(start());
+			return input().subSequence(start(), end()).toString();
 		}
 
 		@Override
 		public String toString() {
-			return isValid(start) ? group() : "[No match]";
+			return isValid(start()) ? group() : "[No match]";
 		}
 	}
 
 	/**
-	 * Replaces text that does not match the pattern.
+	 * Appends chars up to, and skips, each non-match, then appends the remaining chars.
 	 */
-	public static String replace(Pattern p, String s, String replacement) {
-		return replace(p, s, (_, _) -> replacement);
+	public static String removeAll(Pattern p, CharSequence s) {
+		return appendAll(p, s, (_, _) -> {});
 	}
 
 	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
+	 * Appends chars up to, and appends the replacement for, each non-match, then appends the
+	 * remaining chars.
 	 */
-	public static String replace(Pattern p, String s,
+	public static String replaceAll(Pattern p, CharSequence s, CharSequence replace) {
+		return appendAll(p, s, (b, _) -> b.append(Chars.safe(replace)));
+	}
+
+	/**
+	 * Appends chars up to, and appends the replacement for, each non-match, then appends the
+	 * remaining chars.
+	 */
+	public static StringBuilder replaceAll(StringBuilder b, Pattern p, CharSequence s,
+		CharSequence replace) {
+		return appendAll(b, p, s, (_, _) -> b.append(Chars.safe(replace)));
+	}
+
+	/**
+	 * Appends chars up to, and calls the consumer for, each non-match, then appends the remaining
+	 * chars. Optimized to only build the string if matches are found.
+	 */
+	public static String appendAll(Pattern p, CharSequence s,
+		Functions.BiConsumer<StringBuilder, NonMatch.Matcher> consumer) {
+		if (s == null || consumer == null) return "";
+		return appendAll(StringBuilders.State.of(s), p,
+			(b, m) -> consumer.accept(b.ensure(m.start()), m)).toString();
+	}
+
+	/**
+	 * Appends chars up to, and calls the consumer for, each non-match, then appends the remaining
+	 * chars. Optimized to only build the string if matches are found.
+	 */
+	public static StringBuilder appendAll(StringBuilder b, Pattern p, CharSequence s,
+		Functions.BiConsumer<StringBuilder, NonMatch.Matcher> consumer) {
+		if (b == null || consumer == null) return b;
+		appendAll(StringBuilders.State.wrap(s, b), p, (_, m) -> consumer.accept(b, m));
+		return b;
+	}
+
+	/**
+	 * Appends chars up to, and calls the consumer for, each non-match, then appends the remaining
+	 * chars. Optimized to only build the string if matches are found.
+	 */
+	public static StringBuilders.State appendAll(StringBuilders.State b, Pattern p,
+		Functions.BiConsumer<StringBuilders.State, NonMatch.Matcher> consumer) {
+		if (p == null || b.isEmpty()) return b;
+		var m = of(p, b.s);
+		int last = 0; // start position of next append
+		while (m.find()) {
+			b.append(last, m.start() - last);
+			consumer.accept(b, m);
+			last = m.end();
+		}
+		b.append(last, b.length());
+		return b;
+	}
+
+	public static String replace0(Pattern p, String s,
 		Functions.Function<Result, ? extends CharSequence> replacer) {
-		return replace(p, s, (t, _) -> replacer.apply(t));
-	}
-
-	/**
-	 * Replaces text that does not match the pattern. Replacer can return null to skip replacement.
-	 * Replacement index is passed to the function.
-	 */
-	public static String replace(Pattern p, CharSequence s,
-		Functions.ObjIntFunction<Result, ? extends CharSequence> replacer) {
 		var m = NonMatch.of(p, s);
 		var b = new StringBuilder();
 		int start = 0; // start position of next append
-		int i = 0;
 		while (m.find()) {
-			var replacement = replacer.apply(m, i++);
+			var replacement = replacer.apply(m);
 			if (replacement == null) continue;
 			// Append from last append to m.start, then append replacement
 			m.appendReplacement(b, replacement);
@@ -87,6 +131,8 @@ public class NonMatch {
 	 * Create a non-matching matcher.
 	 */
 	public static Matcher of(Pattern pattern, CharSequence text) {
+		if (pattern == null) return null;
+		text = Chars.safe(text);
 		return new Matcher(pattern.matcher(text), text);
 	}
 

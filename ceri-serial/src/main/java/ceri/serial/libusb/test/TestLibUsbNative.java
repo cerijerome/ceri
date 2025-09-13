@@ -1,7 +1,7 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;

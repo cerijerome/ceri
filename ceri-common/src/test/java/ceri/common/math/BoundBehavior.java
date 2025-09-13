@@ -6,11 +6,11 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.comparator.Comparators;
 import ceri.common.math.Bound.Type;
+import ceri.common.test.TestUtil;
 
 public class BoundBehavior {
 
@@ -25,7 +25,7 @@ public class BoundBehavior {
 		Bound<Double> ne3 = Bound.unbound();
 		Bound<Double> ne4 = Bound.of(-33.33, Type.inclusive);
 		Bound<Double> ne5 = Bound.of(-33.3, Type.exclusive);
-		exerciseEquals(b, eq0, eq1);
+		TestUtil.exerciseEquals(b, eq0, eq1);
 		assertAllNotEqual(b, ne0, ne1, ne2, ne3, ne4, ne5);
 		exerciseEnum(Bound.Type.class);
 	}

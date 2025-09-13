@@ -22,9 +22,7 @@ import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.text.Chars;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
-import ceri.common.util.Align;
 import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
@@ -580,7 +578,7 @@ public class LogUtil {
 		return "\n"
 			+ "================================================================================\n"
 			+ "|                                                                              |\n"
-			+ "| " + StringUtil.pad(title, TITLE_MAX_WIDTH, Align.H.center) + " |\n"
+			+ "| " + Strings.pad(title, TITLE_MAX_WIDTH, " " , 0.5) + " |\n"
 			+ "|                                                                              |\n"
 			+ "================================================================================";
 	}

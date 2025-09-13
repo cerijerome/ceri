@@ -1,5 +1,6 @@
 package ceri.common.math;
 
+import static java.lang.Math.subtractExact;
 import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.math.Bound.Type;
@@ -9,6 +10,40 @@ public class Interval<T> {
 	public final Bound<T> lower;
 	public final Bound<T> upper;
 
+	public static <T extends Number & Comparable<T>> double midPoint(Interval<T> interval) {
+		if (interval.isUnbound()) return 0.0;
+		if (interval.lower.isUnbound()) return Double.NEGATIVE_INFINITY;
+		if (interval.upper.isUnbound()) return Double.POSITIVE_INFINITY;
+		return (interval.lower.value.doubleValue() + interval.upper.value.doubleValue()) / 2;
+	}
+
+	public static <T extends Number & Comparable<T>> double width(Interval<T> interval) {
+		if (interval.isInfinite()) return Double.POSITIVE_INFINITY;
+		return interval.upper.value.doubleValue() - interval.lower.value.doubleValue();
+	}
+
+	public static Long longMidPoint(Interval<Long> interval) {
+		if (interval.isUnbound()) return 0L;
+		if (interval.isInfinite()) return null;
+		return Math.round((interval.lower.value / 2.0) + (interval.upper.value / 2.0));
+	}
+
+	public static Long longWidth(Interval<Long> interval) {
+		if (interval.isInfinite()) return null;
+		return subtractExact(interval.upper.value, interval.lower.value);
+	}
+
+	public static Integer intMidPoint(Interval<Integer> interval) {
+		if (interval.isUnbound()) return 0;
+		if (interval.isInfinite()) return null;
+		return (int) Math.round((interval.lower.value / 2.0) + (interval.upper.value / 2.0));
+	}
+
+	public static Integer intWidth(Interval<Integer> interval) {
+		if (interval.isInfinite()) return null;
+		return subtractExact(interval.upper.value, interval.lower.value);
+	}
+	
 	public static <T> Interval<T> unbound() {
 		return of(null, null);
 	}

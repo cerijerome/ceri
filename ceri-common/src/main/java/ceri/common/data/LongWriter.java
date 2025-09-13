@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import ceri.common.function.Fluent;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -48,7 +48,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	default T fill(int length, long value) {
 		while (length-- > 0)
 			writeLong(value);
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(array[offset + i]);
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(provider.getLong(offset + i));
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 }

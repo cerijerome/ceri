@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,36 +23,31 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.junit.Assert;
-import org.junit.runner.JUnitCore;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collection.Maps;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.SimpleExecutor;
-import ceri.common.data.ByteArray.Immutable;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.Excepts.BiConsumer;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.property.PropertyUtil;
 import ceri.common.property.TypedProperties;
 import ceri.common.reflect.Reflect;
-import ceri.common.reflect.Reflect.ThreadElement;
 import ceri.common.text.Chars;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 public class TestUtil {
 	private static final Pattern TEST_METHOD_REGEX = Pattern.compile("^(test|should)[A-Z]");
 	private static final int DELAY_MICROS = 1;
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
-	public static final boolean isTest = Reflect.stackHasPackage(Assert.class);
+	public static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
 
 	private TestUtil() {}
 
@@ -88,8 +82,8 @@ public class TestUtil {
 	 * Executes tests and prints test names in readable phrases.
 	 */
 	public static void exec(PrintStream out, Class<?>... classes) {
-		JUnitCore core = new JUnitCore();
-		TestPrinter tp = new TestPrinter();
+		var core = new org.junit.runner.JUnitCore();
+		var tp = new TestPrinter();
 		core.addListener(tp);
 		core.run(classes);
 		tp.print(out);
@@ -104,10 +98,18 @@ public class TestUtil {
 	}
 
 	/**
+	 * Closes the type if non-null and returns null (for assignment).
+	 */
+	public static <T extends AutoCloseable> T close(T t) {
+		if (t != null) ExceptionAdapter.shouldNotThrow.run(t::close);
+		return null;
+	}
+	
+	/**
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.Runnable<?> runnable) {
 		return runRepeat(runnable, DELAY_MICROS);
 	}
 
@@ -115,7 +117,8 @@ public class TestUtil {
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(Runnable<?> runnable, int delayUs) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.Runnable<?> runnable,
+		int delayUs) {
 		return runRepeat(_ -> runnable.run(), delayUs);
 	}
 
@@ -124,7 +127,7 @@ public class TestUtil {
 	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
 	 * that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(IntConsumer<?> action) {
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.IntConsumer<?> action) {
 		return runRepeat(action, DELAY_MICROS);
 	}
 
@@ -133,7 +136,7 @@ public class TestUtil {
 	 * avoid intermittent thread timing issues when waiting on an event, by repeatedly triggering
 	 * that event.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> runRepeat(IntConsumer<?> action,
+	public static SimpleExecutor<RuntimeException, ?> runRepeat(Excepts.IntConsumer<?> action,
 		int delayUs) {
 		return SimpleExecutor.run(() -> {
 			for (int i = 0;; i++) {
@@ -145,7 +148,7 @@ public class TestUtil {
 
 	public static String firstSystemPropertyName() {
 		Set<Object> keys = System.getProperties().keySet();
-		return BasicUtil.ternary(keys.isEmpty(), "", String.valueOf(keys.iterator().next()));
+		return Basics.ternary(keys.isEmpty(), "", String.valueOf(keys.iterator().next()));
 	}
 
 	public static String firstSystemProperty() {
@@ -154,7 +157,7 @@ public class TestUtil {
 
 	public static String firstEnvironmentVariableName() {
 		Set<String> keys = System.getenv().keySet();
-		return BasicUtil.ternary(keys.isEmpty(), "", keys.iterator().next());
+		return Basics.ternary(keys.isEmpty(), "", keys.iterator().next());
 	}
 
 	public static String firstEnvironmentVariable() {
@@ -226,11 +229,11 @@ public class TestUtil {
 	 * Simple map creation with alternating keys and values.
 	 */
 	public static <K, V> Map<K, V> testMap(Object... objs) {
-		Map<K, V> map = new LinkedHashMap<>();
+		var map = Maps.<K, V>link();
 		int i = 0;
 		while (i < objs.length) {
-			K key = BasicUtil.unchecked(objs[i++]);
-			V value = i < objs.length ? BasicUtil.unchecked(objs[i++]) : null;
+			K key = Reflect.unchecked(objs[i++]);
+			V value = i < objs.length ? Reflect.unchecked(objs[i++]) : null;
 			map.put(key, value);
 		}
 		return map;
@@ -267,7 +270,7 @@ public class TestUtil {
 	 * not public.
 	 */
 	public static <T extends Record> void exerciseRecord(T t,
-		BiConsumer<ReflectiveOperationException, Method, T> invoker) {
+		Excepts.BiConsumer<ReflectiveOperationException, Method, T> invoker) {
 		if (t != null) for (Field field : t.getClass().getDeclaredFields()) {
 			if (!field.accessFlags().contains(AccessFlag.STATIC)) ExceptionAdapter.runtime
 				.run(() -> invoker.accept(t.getClass().getMethod(field.getName()), t));
@@ -304,7 +307,7 @@ public class TestUtil {
 	 * the value check is only 1 of 2 branches. The methods calls the code using strings with same
 	 * hashes but different values.
 	 */
-	public static <E extends Exception> void exerciseSwitch(Consumer<E, String> consumer,
+	public static <E extends Exception> void exerciseSwitch(Excepts.Consumer<E, String> consumer,
 		String... strings) throws E {
 		for (String s : strings)
 			consumer.accept("\0" + s);
@@ -334,7 +337,7 @@ public class TestUtil {
 	/**
 	 * Capture and return any thrown exception.
 	 */
-	public static Throwable thrown(Runnable<?> runnable) {
+	public static Throwable thrown(Excepts.Runnable<?> runnable) {
 		try {
 			runnable.run();
 			return null;
@@ -361,7 +364,7 @@ public class TestUtil {
 	 * Returns a ByteProvider wrapper for bytes.
 	 */
 	public static ByteProvider provider(int... bytes) {
-		return Immutable.wrap(bytes);
+		return ByteArray.Immutable.wrap(bytes);
 	}
 
 	/**
@@ -381,7 +384,7 @@ public class TestUtil {
 	public static byte[] randomBytes(int size) {
 		byte[] bytes = new byte[size];
 		for (int i = 0; i < bytes.length; i++)
-			bytes[i] = (byte) MathUtil.random(0, MathUtil.MAX_UBYTE);
+			bytes[i] = (byte) Maths.random(0, Maths.MAX_UBYTE);
 		return bytes;
 	}
 
@@ -396,7 +399,7 @@ public class TestUtil {
 	 * Returns a ByteProvider.Reader<?> wrapper for chars.
 	 */
 	public static ByteProvider.Reader<?> reader(String s) {
-		return Immutable.wrap(s.chars().toArray()).reader(0);
+		return ByteArray.Immutable.wrap(s.chars().toArray()).reader(0);
 	}
 
 	/**
@@ -424,18 +427,18 @@ public class TestUtil {
 	/**
 	 * Execute a closable call in a separate thread. Use get() to wait for completion.
 	 */
-	public static SimpleExecutor<RuntimeException, ?> threadRun(Runnable<?> runnable) {
+	public static SimpleExecutor<RuntimeException, ?> threadRun(Excepts.Runnable<?> runnable) {
 		return SimpleExecutor.run(runnable);
 	}
 
 	/**
 	 * Searches all thread stack traces for a test class and method.
 	 */
-	public static ThreadElement findTest() {
+	public static Reflect.ThreadElement findTest() {
 		return Reflect.findElement(e -> {
 			var style = TestStyle.from(e.getClassName());
-			var m = RegexUtil.found(TEST_METHOD_REGEX, e.getMethodName());
-			return !style.isNone() && m != null;
+			var m = Regex.find(TEST_METHOD_REGEX, e.getMethodName());
+			return !style.isNone() && m.hasMatch();
 		});
 	}
 

@@ -18,5 +18,4 @@ public class TransmitTest {
 		assertEquals(Transmit.decode(reader(0x26, 0x94)), Entry.dim(House.F, FunctionType.dim, 18));
 		assertEquals(Transmit.decode(reader(0x07, 0x97, 0x14, 0x1e)), Entry.ext(House.F, 20, 30));
 	}
-
 }

@@ -1,22 +1,20 @@
 package ceri.x10.command;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.common.validation.ValidationUtil.validateUbyte;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.property.Parser;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
-import ceri.common.text.RegexUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.text.Regex;
+import ceri.common.util.Basics;
+import ceri.common.validation.ValidationUtil;
 import ceri.x10.util.X10Util;
 
 public abstract class Command {
@@ -72,23 +70,29 @@ public abstract class Command {
 	}
 
 	public static Command from(String s) {
-		Matcher m = RegexUtil.matched(COMMAND_REGEX, s);
-		if (m != null) return from(m);
-		throw new IllegalArgumentException("Invalid command: " + s);
+		var m = Regex.matchValid(COMMAND_REGEX, s, "command");
+		int i = 1;
+		var house = House.from(m.group(i++).charAt(0));
+		var units = units(Basics.def(m.group(i++), m.group(i++)));
+		var type = FunctionType.from(m.group(i++));
+		var pc = Parser.string(m, i++).toInt();
+		var data = Parser.string(m, i++).toInt(0);
+		int command = Parser.string(m, i++).toInt(0);
+		return of(house, units, type, Basics.def(pc, data), command);
 	}
 
 	public static General allUnitsOff(House house) {
-		validateNotNull(house);
+		ValidationUtil.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allUnitsOff);
 	}
 
 	public static General allLightsOn(House house) {
-		validateNotNull(house);
+		ValidationUtil.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOn);
 	}
 
 	public static General allLightsOff(House house) {
-		validateNotNull(house);
+		ValidationUtil.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOff);
 	}
 
@@ -101,7 +105,7 @@ public abstract class Command {
 	}
 
 	public static General on(House house, Collection<Unit> units) {
-		validateNotNull(house);
+		ValidationUtil.validateNotNull(house);
 		return new General(house, normalize(units), FunctionType.on);
 	}
 
@@ -114,7 +118,7 @@ public abstract class Command {
 	}
 
 	public static General off(House house, Collection<Unit> units) {
-		validateNotNull(house);
+		ValidationUtil.validateNotNull(house);
 		return new General(house, normalize(units), FunctionType.off);
 	}
 
@@ -127,8 +131,8 @@ public abstract class Command {
 	}
 
 	public static Dim dim(House house, int percent, Collection<Unit> units) {
-		validateNotNull(house);
-		percent = MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
+		ValidationUtil.validateNotNull(house);
+		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.dim, percent);
 	}
 
@@ -141,8 +145,8 @@ public abstract class Command {
 	}
 
 	public static Dim bright(House house, int percent, Collection<Unit> units) {
-		validateNotNull(house);
-		percent = MathUtil.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
+		ValidationUtil.validateNotNull(house);
+		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.bright, percent);
 	}
 
@@ -155,9 +159,9 @@ public abstract class Command {
 	}
 
 	public static Ext ext(House house, int data, int command, Collection<Unit> units) {
-		validateNotNull(house);
-		validateUbyte(data);
-		validateUbyte(command);
+		ValidationUtil.validateNotNull(house);
+		ValidationUtil.validateUbyte(data);
+		ValidationUtil.validateUbyte(command);
 		return new Ext(house, normalize(units), data, command);
 	}
 
@@ -267,16 +271,6 @@ public abstract class Command {
 	private static Set<Unit> normalize(Collection<Unit> units) {
 		if (units == null || units.isEmpty()) return Immutable.set();
 		return Immutable.set(Sets::tree, units);
-	}
-
-	private static Command from(Matcher m) {
-		int i = 1;
-		House house = House.from(m.group(i++).charAt(0));
-		Set<Unit> units = units(BasicUtil.def(m.group(i++), m.group(i++)));
-		FunctionType type = FunctionType.from(m.group(i++));
-		int data = BasicUtil.def(RegexUtil.parse(m, i++).toInt(), RegexUtil.parse(m, i++).toInt(0));
-		int command = RegexUtil.parse(m, i++).toInt(0);
-		return of(house, units, type, data, command);
 	}
 
 	private static Set<Unit> units(String unitStr) {

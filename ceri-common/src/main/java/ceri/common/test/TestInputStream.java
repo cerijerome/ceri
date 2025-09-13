@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.util.BasicUtil.def;
+import static ceri.common.util.Basics.def;
 import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.io.IOException;
 import java.io.InputStream;

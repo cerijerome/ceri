@@ -1,6 +1,6 @@
 package ceri.jna.type;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import java.util.function.Function;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;

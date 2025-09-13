@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.collection.Maps;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.property.TypedProperties;
 import ceri.ent.json.JsonCoder;
 
@@ -220,7 +220,7 @@ public class ServiceCache<K, V> implements Service<K, V>, Persistable {
 
 	private long expiration() {
 		return System.currentTimeMillis() + config.cacheDurationMs
-			+ MathUtil.random(0, config.cacheRandomizeMs);
+			+ Maths.random(0, config.cacheRandomizeMs);
 	}
 
 	private Entry<K, V> readFromCache(K key) {

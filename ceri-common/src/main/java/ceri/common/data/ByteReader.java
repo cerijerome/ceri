@@ -7,7 +7,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -48,7 +48,7 @@ public interface ByteReader {
 	 * Returns the unsigned byte value.
 	 */
 	default short readUbyte() {
-		return MathUtil.ubyte(readByte());
+		return Maths.ubyte(readByte());
 	}
 
 	/**
@@ -83,21 +83,21 @@ public interface ByteReader {
 	 * Returns the unsigned value from native-order bytes.
 	 */
 	default int readUshort() {
-		return MathUtil.ushort(readShort());
+		return Maths.ushort(readShort());
 	}
 
 	/**
 	 * Returns the unsigned value from big-endian bytes.
 	 */
 	default int readUshortMsb() {
-		return MathUtil.ushort(readShortMsb());
+		return Maths.ushort(readShortMsb());
 	}
 
 	/**
 	 * Returns the unsigned value from little-endian bytes.
 	 */
 	default int readUshortLsb() {
-		return MathUtil.ushort(readShortLsb());
+		return Maths.ushort(readShortLsb());
 	}
 
 	/**
@@ -125,21 +125,21 @@ public interface ByteReader {
 	 * Returns the unsigned value from native-order bytes.
 	 */
 	default long readUint() {
-		return MathUtil.uint(readInt());
+		return Maths.uint(readInt());
 	}
 
 	/**
 	 * Returns the unsigned value from big-endian bytes.
 	 */
 	default long readUintMsb() {
-		return MathUtil.uint(readIntMsb());
+		return Maths.uint(readIntMsb());
 	}
 
 	/**
 	 * Returns the unsigned value from little-endian bytes.
 	 */
 	default long readUintLsb() {
-		return MathUtil.uint(readIntLsb());
+		return Maths.uint(readIntLsb());
 	}
 
 	/**

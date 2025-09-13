@@ -9,7 +9,6 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.AssertUtil.throwRuntime;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
@@ -19,6 +18,7 @@ import ceri.common.data.IntArray.Encoder;
 import ceri.common.data.IntArray.Immutable;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.TestUtil;
 
 public class IntArrayBehavior {
 
@@ -42,7 +42,7 @@ public class IntArrayBehavior {
 		Immutable ne0 = Immutable.wrap(1, 2, 4);
 		Immutable ne1 = Immutable.wrap(1, 2, 3, 0);
 		Immutable ne2 = Immutable.wrap();
-		exerciseEquals(t, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 
@@ -85,7 +85,7 @@ public class IntArrayBehavior {
 		Mutable ne0 = Mutable.of(4);
 		Mutable ne1 = Mutable.wrap(0, 0, 1);
 		Mutable ne2 = Mutable.wrap();
-		exerciseEquals(t, eq0, eq1, eq2, eq3);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2, eq3);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 

@@ -7,7 +7,7 @@ import com.sun.jna.LastErrorException;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.data.TypeValue;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.jna.clib.jna.CErrNo;
 import ceri.jna.clib.jna.CException;
 
@@ -193,7 +193,7 @@ public enum ErrNo {
 	 * Returns a matching type, or undefined type if no match.
 	 */
 	public static ErrNo from(int code) {
-		return BasicUtil.def(xcoder.decode(code), UNDEFINED);
+		return Basics.def(xcoder.decode(code), UNDEFINED);
 	}
 
 	private ErrNo(int code) {

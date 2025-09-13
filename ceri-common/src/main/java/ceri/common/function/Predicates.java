@@ -6,7 +6,7 @@ import java.util.Objects;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Collectable;
 import ceri.common.collection.Sets;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Methods for building predicates.
@@ -32,7 +32,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		cast(Excepts.Predicate<? extends E, ? super T> predicate) {
-		return BasicUtil.unchecked(predicate);
+		return Reflect.unchecked(predicate);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class Predicates {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
 		ex(Excepts.Predicate<? extends RuntimeException, ? super T> predicate) {
-		return BasicUtil.unchecked(predicate);
+		return Reflect.unchecked(predicate);
 	}
 
 	// General predicates
@@ -49,28 +49,28 @@ public class Predicates {
 	 * Returns true for all arguments.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> yes() {
-		return BasicUtil.unchecked(yes);
+		return Reflect.unchecked(yes);
 	}
 
 	/**
 	 * Returns false for all arguments.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> no() {
-		return BasicUtil.unchecked(no);
+		return Reflect.unchecked(no);
 	}
 
 	/**
 	 * Returns true if the argument is null.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> isNull() {
-		return BasicUtil.unchecked(isNull);
+		return Reflect.unchecked(isNull);
 	}
 
 	/**
 	 * Returns true if the argument is not null.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> nonNull() {
-		return BasicUtil.unchecked(nonNull);
+		return Reflect.unchecked(nonNull);
 	}
 
 	/**

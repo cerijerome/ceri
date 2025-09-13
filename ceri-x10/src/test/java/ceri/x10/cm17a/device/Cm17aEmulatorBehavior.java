@@ -30,5 +30,4 @@ public class Cm17aEmulatorBehavior {
 			}
 		}
 	}
-
 }

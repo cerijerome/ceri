@@ -1,7 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.math.MathUtil.PI_BY_2;
-import static ceri.common.math.MathUtil.periodicLimit;
+import static ceri.common.math.Maths.PI_BY_2;
+import static ceri.common.math.Maths.periodicLimit;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import static java.lang.Math.PI;
 import java.util.Arrays;

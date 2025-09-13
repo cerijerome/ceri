@@ -7,9 +7,9 @@ import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.net.UnknownHostException;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HostPortBehavior {
 
@@ -34,7 +34,7 @@ public class HostPortBehavior {
 		HostPort ne1 = HostPort.of("test", 776);
 		HostPort ne2 = HostPort.of("test");
 		HostPort ne3 = HostPort.localhost(777);
-		exerciseEquals(obj, eq0, eq1);
+		TestUtil.exerciseEquals(obj, eq0, eq1);
 		assertAllNotEqual(obj, ne0, ne1, ne2, ne3);
 		assertNotEquals(obj.toString(), ne2.toString());
 	}

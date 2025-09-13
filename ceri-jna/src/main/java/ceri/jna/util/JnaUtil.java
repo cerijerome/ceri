@@ -20,7 +20,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.Lazy;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.util.Enclosure;
 import ceri.common.validation.ValidationUtil;
 import ceri.jna.type.CLong;
@@ -231,42 +231,42 @@ public class JnaUtil {
 	 * Get unsigned value from pointer.
 	 */
 	public static short ubyte(Pointer p, long offset) {
-		return MathUtil.ubyte(p.getByte(offset));
+		return Maths.ubyte(p.getByte(offset));
 	}
 
 	/**
 	 * Get unsigned value from reference pointer.
 	 */
 	public static short ubyte(ByteByReference ref) {
-		return MathUtil.ubyte(ref.getValue());
+		return Maths.ubyte(ref.getValue());
 	}
 
 	/**
 	 * Get unsigned value from pointer.
 	 */
 	public static int ushort(Pointer p, int offset) {
-		return MathUtil.ushort(p.getShort(offset));
+		return Maths.ushort(p.getShort(offset));
 	}
 
 	/**
 	 * Get unsigned value from reference pointer.
 	 */
 	public static int ushort(ShortByReference ref) {
-		return MathUtil.ushort(ref.getValue());
+		return Maths.ushort(ref.getValue());
 	}
 
 	/**
 	 * Get unsigned value from pointer.
 	 */
 	public static long uint(Pointer p, int offset) {
-		return MathUtil.uint(p.getInt(offset));
+		return Maths.uint(p.getInt(offset));
 	}
 
 	/**
 	 * Get unsigned value from reference pointer.
 	 */
 	public static long uint(IntByReference ref) {
-		return MathUtil.uint(ref.getValue());
+		return Maths.uint(ref.getValue());
 	}
 
 	/**
@@ -757,9 +757,9 @@ public class JnaUtil {
 	 */
 	public static Long asLong(Object value, boolean signed) {
 		return switch (value) {
-			case Byte b -> (long) (signed ? b : MathUtil.ubyte(b));
-			case Short s -> (long) (signed ? s : MathUtil.ushort(s));
-			case Integer i -> (signed ? i : MathUtil.uint(i));
+			case Byte b -> (long) (signed ? b : Maths.ubyte(b));
+			case Short s -> (long) (signed ? s : Maths.ushort(s));
+			case Integer i -> (signed ? i : Maths.uint(i));
 			case Number n -> n.longValue();
 			default -> null;
 		};

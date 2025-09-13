@@ -1,10 +1,9 @@
 package ceri.common.property;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import ceri.common.collection.Immutable;
-import ceri.common.text.StringUtil;
+import ceri.common.collection.Lists;
 import ceri.common.text.Strings;
 
 /**
@@ -67,7 +66,7 @@ public record Separator(String value) {
 				full = null;
 			}
 		}
-		
+
 		private StringBuilder builder() {
 			if (b == null) b = new StringBuilder();
 			else b.append(separator);
@@ -206,7 +205,7 @@ public record Separator(String value) {
 	 * Splits the key into normalized parts.
 	 */
 	public List<String> split(String key) {
-		var list = new ArrayList<String>();
+		var list = Lists.<String>of();
 		split((_, start, end) -> list.add(key.substring(start, end)), key, value(), false);
 		return Immutable.wrap(list);
 	}
@@ -218,9 +217,9 @@ public record Separator(String value) {
 		if (Strings.isEmpty(key)) return;
 		int start = 0, end = key.length();
 		if (!Strings.isEmpty(separator)) {
-			while (StringUtil.matchAt(key, start, separator))
+			while (Strings.equalsAt(key, start, separator))
 				start += separator.length();
-			while (end > start && StringUtil.matchAt(key, end - separator.length(), separator))
+			while (end > start && Strings.equalsAt(key, end - separator.length(), separator))
 				end -= separator.length();
 		}
 		if (start < end) consumer.accept(key, start, end);
@@ -237,7 +236,7 @@ public record Separator(String value) {
 		else {
 			int i = 0, copyFrom = 0, copyTo = 0, last = 0;
 			while (i < key.length()) {
-				if (!StringUtil.matchAt(key, i, separator)) { // no separator
+				if (!Strings.equalsAt(key, i, separator)) { // no separator
 					i++;
 					copyTo = i;
 				} else if (allowSingle && last < i) { // allow singles && is first separator
@@ -253,7 +252,7 @@ public record Separator(String value) {
 			if (copyFrom < copyTo) consumer.accept(key, copyFrom, copyTo);
 		}
 	}
-	
+
 	private static boolean full(String key, int start, int end) {
 		return start == 0 && end == Strings.length(key);
 	}

@@ -1,8 +1,6 @@
 package ceri.x10.command;
 
 import ceri.common.concurrent.ValueCondition;
-import ceri.x10.command.Command.Dim;
-import ceri.x10.command.Command.Ext;
 
 public class TestCommandListener implements Command.Listener {
 	public final ValueCondition<Command> sync = ValueCondition.of();
@@ -39,17 +37,17 @@ public class TestCommandListener implements Command.Listener {
 	}
 
 	@Override
-	public void dim(Dim command) {
+	public void dim(Command.Dim command) {
 		sync.signal(command);
 	}
 
 	@Override
-	public void bright(Dim command) {
+	public void bright(Command.Dim command) {
 		sync.signal(command);
 	}
 
 	@Override
-	public void ext(Ext command) {
+	public void ext(Command.Ext command) {
 		sync.signal(command);
 	}
 }

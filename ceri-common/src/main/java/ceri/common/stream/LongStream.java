@@ -11,7 +11,8 @@ import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.util.Basics;
 import ceri.common.util.Counter;
 
 /**
@@ -167,7 +168,7 @@ public class LongStream<E extends Exception> {
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception> LongStream<E> empty() {
-		return BasicUtil.unchecked(EMPTY);
+		return Reflect.unchecked(EMPTY);
 	}
 
 	/**
@@ -197,9 +198,9 @@ public class LongStream<E extends Exception> {
 	 * Streams a range of values.
 	 */
 	public static <E extends Exception> LongStream<E> slice(long offset, long length) {
-		var counter = Counter.ofLong(0L);
+		var counter = Counter.of(0L);
 		return ofSupplier(c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(offset + counter.preInc(1));
 			return true;
 		});
@@ -335,9 +336,9 @@ public class LongStream<E extends Exception> {
 	 * Limits the number of elements.
 	 */
 	public LongStream<E> limit(long size) {
-		var counter = Counter.ofLong(size);
+		var counter = Counter.of(size);
 		return update(
-			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.get())) > 0L));
 	}
 
 	/**
@@ -369,7 +370,7 @@ public class LongStream<E extends Exception> {
 	 * Returns the next element or default.
 	 */
 	public long next(long def) throws E {
-		return BasicUtil.defLong(next(), def);
+		return Basics.defLong(next(), def);
 	}
 
 	/**
@@ -473,7 +474,7 @@ public class LongStream<E extends Exception> {
 	 * Reduces stream to a value using an accumulator, or default.
 	 */
 	public long reduce(Excepts.LongBiOperator<? extends E> accumulator, long def) throws E {
-		return BasicUtil.defLong(reduce(accumulator), def);
+		return Basics.defLong(reduce(accumulator), def);
 	}
 
 	// support
@@ -490,7 +491,7 @@ public class LongStream<E extends Exception> {
 	}
 
 	private Excepts.LongConsumer<E> nullConsumer() {
-		return BasicUtil.unchecked(NULL_CONSUMER);
+		return Reflect.unchecked(NULL_CONSUMER);
 	}
 
 	private LongStream<E> update(NextSupplier<E> supplier) {
@@ -500,9 +501,9 @@ public class LongStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> arraySupplier(long[] array, int offset,
 		int length) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(array[offset + counter.preInc(1)]);
 			return true;
 		};

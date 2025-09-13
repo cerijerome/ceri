@@ -3,14 +3,12 @@ package ceri.common.test;
 import static ceri.common.reflect.Reflect.hashId;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,6 +24,7 @@ import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Iterables;
 import ceri.common.collection.Lists;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
@@ -36,7 +35,7 @@ import ceri.common.data.LongProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.DoubleStream;
 import ceri.common.stream.IntStream;
@@ -44,12 +43,12 @@ import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Chars;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
-import ceri.common.text.TextUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.text.Text;
 
 public class AssertUtil {
+	private static final int LINE_COUNT = 10;	
 	public static final int APPROX_PRECISION_DEF = 3;
 
 	private AssertUtil() {}
@@ -149,7 +148,7 @@ public class AssertUtil {
 	}
 
 	public static <T> T assertInstance(Object actual, Class<T> expected) {
-		if (expected.isInstance(actual)) return BasicUtil.unchecked(actual);
+		if (expected.isInstance(actual)) return Reflect.unchecked(actual);
 		throw failure("Expected instance: %s\n           actual: %s", Reflect.name(expected),
 			Reflect.className(actual));
 	}
@@ -224,18 +223,9 @@ public class AssertUtil {
 	/**
 	 * Calls private constructor. Useful for code coverage of utility classes.
 	 */
-	public static void assertPrivateConstructor(Class<?> cls) {
-		try {
-			Constructor<?> constructor = cls.getDeclaredConstructor();
-			assertTrue(Modifier.isPrivate(constructor.getModifiers()),
-				"Constructor is not private: %s()", cls.getSimpleName());
-			constructor.setAccessible(true);
-			constructor.newInstance();
-			constructor.setAccessible(false);
-		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
-			| InstantiationException e) {
-			throw new AssertionError(e);
-		}
+	public static void assertPrivateConstructor(Class<?>... classes) {
+		for (var cls : classes)
+			assertConstructorIsPrivate(cls);
 	}
 
 	/**
@@ -322,8 +312,8 @@ public class AssertUtil {
 		if (!Double.isFinite(expected) || !Double.isFinite(actual)) {
 			assertEquals(actual, expected, format, args);
 		} else {
-			double approxValue = MathUtil.round(precision, actual);
-			double approxExpected = MathUtil.round(precision, expected);
+			double approxValue = Maths.round(precision, actual);
+			double approxExpected = Maths.round(precision, expected);
 			assertEquals(approxValue, approxExpected, format, args);
 		}
 	}
@@ -773,13 +763,9 @@ public class AssertUtil {
 	 * Checks iterator and iterable types have equal elements in order.
 	 */
 	public static <T> void assertIterator(Iterator<T> lhs, Iterable<T> rhs) {
-		List<T> lhsC = new ArrayList<>();
-		while (lhs.hasNext())
-			lhsC.add(lhs.next());
-		List<T> rhsC = new ArrayList<>();
-		for (T t : rhs)
-			rhsC.add(t);
-		assertList(lhsC, rhsC);
+		var lhsList = Immutable.list(Iterables.of(lhs));
+		var rhsList = Immutable.list(rhs);
+		assertList(lhsList, rhsList);
 		assertFalse(lhs.hasNext(), "Has more elements");
 		assertNoSuchElement(lhs::next);
 	}
@@ -792,8 +778,7 @@ public class AssertUtil {
 	public static <E extends Exception, T> void assertConsume(Iterable<T> iterable,
 		Excepts.Consumer<E, T>... consumers) throws E {
 		int i = 0;
-		var iter = iterable.iterator();
-		while (iter.hasNext()) {
+		for (var iter = iterable.iterator(); iter.hasNext(); ) {
 			if (i >= consumers.length) throw failure("No consumers from index %d", i);
 			consumers[i++].accept(iter.next());
 		}
@@ -955,7 +940,7 @@ public class AssertUtil {
 		assertNotNull(t);
 		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
 			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
-		if (test != null) test.accept(BasicUtil.unchecked(t));
+		if (test != null) test.accept(Reflect.unchecked(t));
 	}
 
 	/**
@@ -1093,7 +1078,7 @@ public class AssertUtil {
 	 * Checks regex not found against the string.
 	 */
 	public static void assertNotFound(Object actual, String pattern, Object... objs) {
-		assertNotFound(actual, Patterns.compile(pattern, objs));
+		assertNotFound(actual, Regex.compile(pattern, objs));
 	}
 
 	/**
@@ -1118,25 +1103,16 @@ public class AssertUtil {
 	/**
 	 * Checks string representation is equal to given formatted string.
 	 */
-	public static void assertString(Object actualObj, String format, Object... objs) {
-		var actual = String.valueOf(actualObj);
-		var expected = Strings.format(format, objs);
-		if (Objects.equals(actual, expected)) return;
-		for (int i = 0;; i++) {
-			if (i >= actual.length())
-				throw unexpected(actual, expected, "Expected [%d]: %s", i, chr(expected, i));
-			if (i >= expected.length())
-				throw unexpected(actual, expected, "Unexpected [%d]: %s", i, chr(actual, i));
-			if (actual.charAt(i) != expected.charAt(i)) throw unexpected(actual, expected,
-				"Expected [%d] %s: %s", i, chr(expected, i), chr(actual, i));
-		}
+	public static void assertString(Object actual, String format, Object... objs) {
+		if (format == null) assertEquals(actual, null);
+		else assertString(String.valueOf(actual), Strings.format(format, objs));
 	}
 
 	/**
 	 * Checks string representation split into lines.
 	 */
 	public static void assertLines(Object actual, String... expectedLineArray) {
-		var actualLines = Patterns.Split.LINE.list(String.valueOf(actual));
+		var actualLines = Regex.Split.LINE.list(String.valueOf(actual));
 		var expectedLines = Arrays.asList(expectedLineArray);
 		int lines = Math.max(actualLines.size(), expectedLines.size());
 		for (int i = 0; i < lines; i++) {
@@ -1145,15 +1121,21 @@ public class AssertUtil {
 			if (Objects.equals(actualLine, expectedLine)) continue;
 			throw failure("Line %d%nExpected: %s%n  actual: %s%n%nExpected:%n%s%n%nActual:%n%s%n",
 				i + 1, expectedLine.trim(), actualLine.trim(),
-				TextUtil.addLineNumbers(expectedLines), TextUtil.addLineNumbers(actualLines));
+				limitedLines(expectedLines, i), limitedLines(actualLines, i));
 		}
 	}
 
+	private static String limitedLines(List<String> lines, int index) {
+		int start = Math.max(0, index - LINE_COUNT);
+		int end = Math.min(lines.size(), index + LINE_COUNT + 1);
+		return Text.addLineNumbers(Lists.sub(lines, start, end - start), start + 1);
+	}
+	
 	/**
 	 * Checks multi-line text, with line-specific failure info.
 	 */
 	public static void assertText(Object actual, String expected) {
-		assertLines(actual, Patterns.Split.LINE.array(expected));
+		assertLines(actual, Regex.Split.LINE.array(expected));
 	}
 
 	/**
@@ -1180,7 +1162,7 @@ public class AssertUtil {
 	 * Checks regex find against the string.
 	 */
 	public static void assertFind(Object actual, String pattern, Object... objs) {
-		assertFind(actual, Patterns.compile(pattern, objs));
+		assertFind(actual, Regex.compile(pattern, objs));
 	}
 
 	/**
@@ -1203,7 +1185,7 @@ public class AssertUtil {
 	 * Checks regex does not match against the string.
 	 */
 	public static void assertNoMatch(Object actual, String pattern, Object... objs) {
-		assertNoMatch(actual, Patterns.compile(pattern, objs));
+		assertNoMatch(actual, Regex.compile(pattern, objs));
 	}
 
 	/**
@@ -1228,7 +1210,7 @@ public class AssertUtil {
 	 * Checks regex match against the string.
 	 */
 	public static void assertMatch(Object actual, String pattern, Object... objs) {
-		assertMatch(actual, Patterns.compile(pattern, objs));
+		assertMatch(actual, Regex.compile(pattern, objs));
 	}
 
 	/**
@@ -1346,8 +1328,8 @@ public class AssertUtil {
 	 * Checks the paths are the same.
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
-		Path expectedPath = IoUtil.newPath(actual, expected, more);
-		assertEquals(actual, expectedPath);
+		if (expected == null) assertEquals(actual, null);
+		else assertEquals(actual, IoUtil.newPath(actual, expected, more));
 	}
 
 	/**
@@ -1374,6 +1356,20 @@ public class AssertUtil {
 	}
 	
 	// support
+
+	private static void assertConstructorIsPrivate(Class<?> cls) {
+		try {
+			var constructor = cls.getDeclaredConstructor();
+			assertTrue(Modifier.isPrivate(constructor.getModifiers()),
+				"Constructor is not private: %s()", cls.getSimpleName());
+			constructor.setAccessible(true);
+			constructor.newInstance();
+			constructor.setAccessible(false);
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException
+			| InstantiationException e) {
+			throw new AssertionError(e);
+		}
+	}
 
 	private static void assertIsArray(Object array) {
 		assertTrue(array.getClass().isArray(), "Expected an array: %s", array.getClass());
@@ -1449,6 +1445,18 @@ public class AssertUtil {
 		}
 	}
 	
+	private static void assertString(String actual, String expected) {
+		if (Objects.equals(actual, expected)) return;
+		for (int i = 0;; i++) {
+			if (i >= actual.length())
+				throw unexpected(actual, expected, "Expected [%d]: %s", i, chr(expected, i));
+			if (i >= expected.length())
+				throw unexpected(actual, expected, "Unexpected [%d]: %s", i, chr(actual, i));
+			if (actual.charAt(i) != expected.charAt(i)) throw unexpected(actual, expected,
+				"Expected [%d] %s: %s", i, chr(expected, i), chr(actual, i));
+		}
+	}
+
 	private static String nl(String format, Object... args) {
 		String s = Strings.format(format, args);
 		return s.isEmpty() ? "" : s + '\n';

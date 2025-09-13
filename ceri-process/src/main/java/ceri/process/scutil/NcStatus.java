@@ -2,15 +2,15 @@ package ceri.process.scutil;
 
 import java.util.Objects;
 import ceri.common.collection.Node;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Regex;
 
 public class NcStatus {
 	public final NcServiceState state;
 	public final Node<Void> data;
 
 	public static NcStatus from(String output) {
-		String[] split = StringUtil.NEWLINE_REGEX.split(output, 2);
-		NcServiceState state = NcServiceState.from(split[0]);
+		var split = Regex.Split.LINE.array(output, 2);
+		var state = NcServiceState.from(split[0]);
 		if (split.length == 1) return new NcStatus(state, Node.of());
 		return of(state, Parser.parse(split[1]));
 	}
@@ -32,8 +32,7 @@ public class NcStatus {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof NcStatus)) return false;
-		NcStatus other = (NcStatus) obj;
+		if (!(obj instanceof NcStatus other)) return false;
 		if (!Objects.equals(state, other.state)) return false;
 		if (!Objects.equals(data, other.data)) return false;
 		return true;
@@ -43,5 +42,4 @@ public class NcStatus {
 	public String toString() {
 		return state + ": " + data;
 	}
-
 }

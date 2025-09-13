@@ -1,7 +1,7 @@
 package ceri.common.color;
 
 import static ceri.common.color.Colors.MAX_VALUE;
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import java.util.List;
 import ceri.common.data.TypeTranscoder;
 

@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Utility for lazily instantiation. Instantiation may use a lock to ensure computation occurs once
@@ -109,7 +109,7 @@ public class Lazy<T> {
 		 */
 		@Override
 		public T get() throws E {
-			return BasicUtil.def(override, this::value);
+			return Basics.def(override, this::value);
 		}
 
 		/**
@@ -220,7 +220,7 @@ public class Lazy<T> {
 
 	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
 		if (value == null) try (var _ = ConcurrentUtil.locker(lock)) { // double-checked locking
-			value = BasicUtil.def(value, supplier);
+			value = Basics.def(value, supplier);
 		}
 		return value;
 	}

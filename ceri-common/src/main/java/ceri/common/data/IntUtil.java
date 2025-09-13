@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.validation.ValidationUtil;
 
 public class IntUtil {
@@ -22,7 +22,7 @@ public class IntUtil {
 
 	public static long longFromMsb(int[] array, int offset) {
 		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
-		return (MathUtil.uint(array[offset]) << Integer.SIZE) | MathUtil.uint(array[offset + 1]);
+		return (Maths.uint(array[offset]) << Integer.SIZE) | Maths.uint(array[offset + 1]);
 	}
 
 	public static long longFromLsb(int... array) {
@@ -31,7 +31,7 @@ public class IntUtil {
 
 	public static long longFromLsb(int[] array, int offset) {
 		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
-		return (MathUtil.uint(array[offset + 1]) << Integer.SIZE) | MathUtil.uint(array[offset]);
+		return (Maths.uint(array[offset + 1]) << Integer.SIZE) | Maths.uint(array[offset]);
 	}
 
 	public static int[] longToMsb(long value) {

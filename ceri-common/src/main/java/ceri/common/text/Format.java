@@ -2,9 +2,9 @@ package ceri.common.text;
 
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Number formatting support.
@@ -62,6 +62,13 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	}
 
 	/**
+	 * Returns the formatted number with no prefix and the exact number of byte digits.
+	 */
+	public static String hexBytes(long value, int bytes) {
+		return hex(value, Radix.HEX.digits.ubyte() * bytes);
+	}
+
+	/**
 	 * Returns the formatted number with no prefix.
 	 */
 	public static String bin(long value) {
@@ -73,6 +80,13 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 */
 	public static String bin(long value, int digits) {
 		return apply(value, Radix.BIN.n, digits, digits);
+	}
+
+	/**
+	 * Returns the formatted number with no prefix and the exact number of byte digits.
+	 */
+	public static String binBytes(long value, int bytes) {
+		return bin(value, Radix.BIN.digits.ubyte() * bytes);
 	}
 
 	/**
@@ -97,7 +111,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	public static StringBuilder append(StringBuilder b, long value, int radix, int minDigits,
 		int maxDigits, Separation separation) {
 		if (b == null) return b;
-		separation = BasicUtil.def(separation, Separation.NONE);
+		separation = Basics.def(separation, Separation.NONE);
 		var s = Long.toUnsignedString(value, radix);
 		int len = s.length();
 		int n = n(len, minDigits, maxDigits);
@@ -147,7 +161,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 * Returns the formatted unsigned number.
 	 */
 	public String ubyte(long value) {
-		return apply(MathUtil.ubyte(value));
+		return apply(Maths.ubyte(value));
 	}
 
 	/**
@@ -162,7 +176,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 * Returns the formatted unsigned number.
 	 */
 	public String ushort(long value) {
-		return apply(MathUtil.ushort(value));
+		return apply(Maths.ushort(value));
 	}
 
 	/**
@@ -177,7 +191,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 * Returns the formatted unsigned number.
 	 */
 	public String uint(long value) {
-		return apply(MathUtil.uint(value));
+		return apply(Maths.uint(value));
 	}
 
 	/**
@@ -209,7 +223,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	public StringBuilder append(StringBuilder b, long value) {
 		if (b == null) return b;
 		b.append(prefix());
-		var separation = BasicUtil.def(separation(), Separation.NONE);
+		var separation = Basics.def(separation(), Separation.NONE);
 		var s = Long.toUnsignedString(value, radix());
 		int len = s.length();
 		int n = n(len, minDigits(), maxDigits());
@@ -232,7 +246,7 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 * Return the prefix or empty string.
 	 */
 	public String prefix() {
-		return BasicUtil.def(prefix, "");
+		return Basics.def(prefix, "");
 	}
 
 	@Override

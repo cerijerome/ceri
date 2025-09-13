@@ -8,9 +8,9 @@ import static ceri.common.color.Component.x0;
 import static ceri.common.color.Component.x1;
 import static ceri.common.color.Component.x2;
 import static ceri.common.color.Component.x3;
-import static ceri.common.math.MathUtil.roundDiv;
 import java.util.List;
-import java.util.function.LongBinaryOperator;
+import ceri.common.function.Functions;
+import ceri.common.math.Maths;
 
 /**
  * Algorithms to blend a foreground xargb onto a background opaque xrgb.
@@ -23,7 +23,7 @@ public enum BlendType {
 
 	public static final BlendType DEFAULT = alpha;
 	private static final List<Component> BLEND_COMPONENTS = List.of(b, g, r, x0, x1, x2, x3);
-	private final LongBinaryOperator mergeFn;
+	private final Functions.LongBiOperator mergeFn;
 
 	private static interface ComponentBlender {
 		int blend(int a, int fg, int bg);
@@ -33,7 +33,7 @@ public enum BlendType {
 		this((fg, bg) -> blend(fg, bg, blender));
 	}
 
-	private BlendType(LongBinaryOperator mergeFn) {
+	private BlendType(Functions.LongBiOperator mergeFn) {
 		this.mergeFn = mergeFn;
 	}
 
@@ -45,19 +45,19 @@ public enum BlendType {
 	}
 
 	private static int alphaBlend(int a, int fg, int bg) {
-		return roundDiv(a * (fg - bg), MAX_VALUE) + bg;
+		return Maths.roundDiv(a * (fg - bg), MAX_VALUE) + bg;
 	}
 
 	private static int addBlend(int a, int fg, int bg) {
-		return Math.min(roundDiv(a * fg, MAX_VALUE) + bg, MAX_VALUE);
+		return Math.min(Maths.roundDiv(a * fg, MAX_VALUE) + bg, MAX_VALUE);
 	}
 
 	private static int maxBlend(int a, int fg, int bg) {
-		return Math.max(roundDiv(a * fg, MAX_VALUE), bg);
+		return Math.max(Maths.roundDiv(a * fg, MAX_VALUE), bg);
 	}
 
 	private static int diffBlend(int a, int fg, int bg) {
-		return Math.abs(roundDiv(a * fg, MAX_VALUE) - bg);
+		return Math.abs(Maths.roundDiv(a * fg, MAX_VALUE) - bg);
 	}
 
 	private static long blend(long fg, long bg, ComponentBlender blender) {

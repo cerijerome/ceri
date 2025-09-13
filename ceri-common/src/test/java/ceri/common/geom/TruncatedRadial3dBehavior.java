@@ -3,10 +3,10 @@ package ceri.common.geom;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class TruncatedRadial3dBehavior {
 	private final Cone3d c0 = Cone3d.create(1, 4);
@@ -16,7 +16,7 @@ public class TruncatedRadial3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 1, 2));
+		TestUtil.exerciseEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 1, 2));
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1.1, 4), 1, 2));
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 3.9), 1, 2));
 		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 0.9, 2));

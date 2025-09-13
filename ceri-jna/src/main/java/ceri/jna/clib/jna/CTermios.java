@@ -1,7 +1,7 @@
 package ceri.jna.clib.jna;
 
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.util.OsUtil;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
@@ -181,7 +181,7 @@ public class CTermios {
 		}
 
 		public speed_t(int value) {
-			this(MathUtil.uint(value));
+			this(Maths.uint(value));
 		}
 
 		public speed_t(long value) {

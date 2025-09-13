@@ -3,9 +3,9 @@ package ceri.common.process;
 import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import ceri.common.io.IoUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Joiner;
+import ceri.common.text.Regex;
 
 public class ProcessUtil {
 	private static final Pattern DOUBLE_QUOTES = Pattern.compile("\"");
@@ -38,11 +38,11 @@ public class ProcessUtil {
 	}
 
 	public static String toString(List<String> command) {
-		return command.stream().map(ProcessUtil::quoteWhiteSpace).collect(Collectors.joining(" "));
+		return Joiner.SPACE.join(ProcessUtil::quoteWhiteSpace, command);
 	}
 
 	private static String quoteWhiteSpace(String s) {
-		if (!StringUtil.WHITE_SPACE_REGEX.matcher(s).find()) return s;
+		if (!Regex.SPACE.matcher(s).find()) return s;
 		return "\"" + DOUBLE_QUOTES.matcher(s).replaceAll("\\\"") + "\"";
 	}
 }

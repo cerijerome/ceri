@@ -10,7 +10,7 @@ import ceri.common.collection.Immutable.Wrap;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Collection type support.
@@ -118,7 +118,7 @@ public class Collectable {
 		}
 
 		private B typedThis() {
-			return BasicUtil.unchecked(this);
+			return Reflect.unchecked(this);
 		}
 	}
 

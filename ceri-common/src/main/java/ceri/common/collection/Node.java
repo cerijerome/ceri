@@ -15,9 +15,8 @@ import ceri.common.reflect.Reflect;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.ParseUtil;
+import ceri.common.text.Numbers;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
 
 /**
  * Encapsulates a tree node with name, value, and child nodes. Node structure and value references
@@ -75,7 +74,7 @@ public class Node<T> {
 	 * Returns an empty node.
 	 */
 	public static <T> Node<T> of() {
-		return BasicUtil.unchecked(NULL);
+		return Reflect.unchecked(NULL);
 	}
 
 	/**
@@ -249,7 +248,7 @@ public class Node<T> {
 	private Node<?> childFromPart(String part) {
 		var child = lookup.get(part);
 		if (child != null) return child;
-		var i = ParseUtil.parseInt(part);
+		var i = Numbers.Parse.toInt(part, null);
 		if (i != null && hasChild(i)) return children.get(i);
 		return null;
 	}

@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class CallerBehavior {
 
@@ -25,7 +25,7 @@ public class CallerBehavior {
 		Caller caller3 = new Caller(caller.fullCls, caller.line, "", caller.file);
 		Caller caller4 = new Caller(caller.fullCls, caller.line, caller.method, "");
 		Caller caller5 = new Caller("", caller.line, caller.method, caller.file);
-		exerciseEquals(caller, caller1);
+		TestUtil.exerciseEquals(caller, caller1);
 		assertAllNotEqual(caller, caller2, caller3, caller4, caller5);
 	}
 

@@ -7,12 +7,12 @@ import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.svg.SweepFlag.negative;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.TestUtil;
 
 public class EllipticalArcBehavior {
 
@@ -29,7 +29,7 @@ public class EllipticalArcBehavior {
 		EllipticalArc ne4 = EllipticalArc.of(ABSOLUTE_ZERO, Dimension2d.of(1, 2)).flag(large);
 		EllipticalArc ne5 = EllipticalArc.of(ABSOLUTE_ZERO, Dimension2d.of(1, 2)).flag(negative);
 		EllipticalArc ne6 = EllipticalArc.circular(ABSOLUTE_ZERO, 1);
-		exerciseEquals(e, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(e, eq0, eq1, eq2);
 		assertAllNotEqual(e, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 

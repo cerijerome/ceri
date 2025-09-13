@@ -2,7 +2,7 @@ package ceri.common.util;
 
 import java.util.Comparator;
 import ceri.common.comparator.Comparators;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Represents a multi-level version.
@@ -26,9 +26,9 @@ public record Version(int version, Integer major, Integer minor, String rev)
 	 * Decodes a 32-bit kernel version value into version, major and minor (16-8-8 bits).
 	 */
 	public static Version kernel(int value) {
-		int minor = MathUtil.ubyte(value);
-		int major = MathUtil.ubyte(value >> Byte.SIZE);
-		int ver = MathUtil.ushort(value >> Short.SIZE);
+		int minor = Maths.ubyte(value);
+		int major = Maths.ubyte(value >> Byte.SIZE);
+		int ver = Maths.ushort(value >> Short.SIZE);
 		return of(ver, major, minor);
 	}
 
@@ -36,9 +36,9 @@ public record Version(int version, Integer major, Integer minor, String rev)
 	 * Encodes version, major and minor into a 32-bit kernel version value (16-8-8 bits).
 	 */
 	public int kernel() {
-		int version = MathUtil.ushort(version());
-		int major = major() == null ? 0 : MathUtil.ubyte(major());
-		int minor = minor() == null ? 0 : MathUtil.ubyte(minor());
+		int version = Maths.ushort(version());
+		int major = major() == null ? 0 : Maths.ubyte(major());
+		int minor = minor() == null ? 0 : Maths.ubyte(minor());
 		return (version << Short.SIZE) | (major << Byte.SIZE) | minor;
 	}
 

@@ -314,7 +314,7 @@ public abstract class TypedArray<T> {
 	 * Copies a bounded array into the array.
 	 */
 	public T insert(T lhs, int lhsOffset, T rhs, int rhsOffset, int length) {
-		return RawArray.insert(constructor, lhs, lhsOffset, rhs, rhsOffset, length);
+		return RawArray.insert(constructor, rhs, rhsOffset, lhs, lhsOffset, length);
 	}
 
 	/**

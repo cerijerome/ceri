@@ -5,7 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.util.Basics;
 import ceri.common.util.Enclosure;
 
 /**
@@ -106,21 +107,21 @@ public interface Listenable<T> {
 	 * Provides a no-op listenable type if null.
 	 */
 	static <T> Indirect<T> safe(Indirect<T> indirect) {
-		return BasicUtil.def(indirect, Listenable::ofNull);
+		return Basics.def(indirect, Listenable::ofNull);
 	}
 
 	/**
 	 * Provides a no-op listenable type if null.
 	 */
 	static <T> Listenable<T> safe(Listenable<T> listenable) {
-		return BasicUtil.def(listenable, Listenable::ofNull);
+		return Basics.def(listenable, Listenable::ofNull);
 	}
 
 	/**
 	 * Returns a typed, stateless, no-op listenable.
 	 */
 	static <T> Null<T> ofNull() {
-		return BasicUtil.unchecked(Null.INSTANCE);
+		return Reflect.unchecked(Null.INSTANCE);
 	}
 
 	/**

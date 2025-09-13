@@ -2,8 +2,6 @@ package ceri.ent.json;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -11,10 +9,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.reflect.TypeToken;
+import ceri.common.function.Functions;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
-import ceri.common.text.ParseUtil;
+import ceri.common.text.Numbers;
 
 public class JsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -33,7 +32,7 @@ public class JsonUtil {
 	 * Convenience method to match mechanics of JsonElement getAs...
 	 */
 	public static JsonObject getAsJsonObject(JsonObject json, String memberName) {
-		JsonObject obj = json.getAsJsonObject(memberName);
+		var obj = json.getAsJsonObject(memberName);
 		if (obj != null) return obj;
 		throw new IllegalStateException("No json object named " + memberName + ": " + json);
 	}
@@ -42,8 +41,8 @@ public class JsonUtil {
 	 * Iterates over names and elements of a json object.
 	 */
 	public static void forEach(JsonObject obj,
-		BiConsumer<? super String, ? super JsonElement> action) {
-		for (Map.Entry<String, JsonElement> entry : obj.entrySet())
+		Functions.BiConsumer<? super String, ? super JsonElement> action) {
+		for (var entry : obj.entrySet())
 			action.accept(entry.getKey(), entry.getValue());
 	}
 
@@ -53,7 +52,7 @@ public class JsonUtil {
 	public static JsonElement addTo(JsonObject obj, JsonSerializationContext context, String name,
 		Object value) {
 		if (obj == null || context == null || name == null || value == null) return null;
-		JsonElement element = context.serialize(value);
+		var element = context.serialize(value);
 		obj.add(name, element);
 		return element;
 	}
@@ -62,11 +61,11 @@ public class JsonUtil {
 		return JsonCoder.create(GSON, typeToken);
 	}
 
-	public static <T> JsonDeserializer<T> stringDeserializer(Function<String, T> constructor) {
+	public static <T> JsonDeserializer<T> stringDeserializer(Functions.Function<String, T> constructor) {
 		return (json, _, _) -> constructor.apply(json.getAsString());
 	}
 
-	public static <T> JsonDeserializer<T> deserializer(Function<JsonElement, T> constructor) {
+	public static <T> JsonDeserializer<T> deserializer(Functions.Function<JsonElement, T> constructor) {
 		return (json, _, _) -> constructor.apply(json);
 	}
 
@@ -77,15 +76,14 @@ public class JsonUtil {
 	 * such as "abc.def.1.ghi".
 	 */
 	public static Object extract(Object gsonObject, String path) {
-		List<String> parts = Separator.DOT.split(path);
-		Object value = gsonObject;
-		for (String part : parts) {
-			Map<?, ?> map = Reflect.castOrNull(Map.class, value);
+		var value = gsonObject;
+		for (var part : Separator.DOT.split(path)) {
+			var map = Reflect.castOrNull(Map.class, value);
 			if (map != null) value = map.get(part);
 			else {
-				List<?> list = Reflect.castOrNull(List.class, value);
+				var list = Reflect.castOrNull(List.class, value);
 				if (list == null) return null;
-				Integer index = ParseUtil.parseInt(part);
+				var index = Numbers.Parse.toInt(part, null);
 				if (index == null || list.size() <= index) return null;
 				value = list.get(index);
 			}
@@ -98,49 +96,48 @@ public class JsonUtil {
 	}
 
 	public static Character extractChar(Object gsonObject, String path) {
-		Object obj = extract(gsonObject, path);
+		var obj = extract(gsonObject, path);
 		return Chars.at(Reflect.castOrNull(String.class, obj), 0);
 	}
 
 	public static Boolean extractBoolean(Object gsonObject, String path) {
-		Object obj = extract(gsonObject, path);
+		var obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Boolean b = Reflect.castOrNull(Boolean.class, obj);
+		var b = Reflect.castOrNull(Boolean.class, obj);
 		if (b != null) return b;
-		return ParseUtil.parseBool(Reflect.castOrNull(String.class, obj));
+		return Numbers.Parse.toBool(Reflect.castOrNull(String.class, obj), null);
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::byteValue, ParseUtil::parseByte);
+		return extractNumber(gsonObject, path, Number::byteValue, Numbers.Parse.BYTE);
 	}
 
 	public static Short extractShort(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::shortValue, ParseUtil::parseShort);
+		return extractNumber(gsonObject, path, Number::shortValue, Numbers.Parse.SHORT);
 	}
 
 	public static Integer extractInt(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::intValue, ParseUtil::parseInt);
+		return extractNumber(gsonObject, path, Number::intValue, Numbers.Parse.INT);
 	}
 
 	public static Long extractLong(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::longValue, ParseUtil::parseLong);
+		return extractNumber(gsonObject, path, Number::longValue, Numbers.Parse.LONG);
 	}
 
 	public static Float extractFloat(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::floatValue, ParseUtil::parseFloat);
+		return extractNumber(gsonObject, path, Number::floatValue, Numbers.Parse.FLOAT);
 	}
 
 	public static Double extractDouble(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::doubleValue, ParseUtil::parseDouble);
+		return extractNumber(gsonObject, path, Number::doubleValue, Numbers.Parse.DOUBLE);
 	}
 
 	private static <T extends Number> T extractNumber(Object gsonObject, String path,
-		Function<Number, T> nFn, Function<String, T> sFn) {
-		Object obj = extract(gsonObject, path);
+		Functions.Function<? super  Number, T> nFn, Functions.Function<? super String, T> sFn) {
+		var obj = extract(gsonObject, path);
 		if (obj == null) return null;
-		Number n = Reflect.castOrNull(Number.class, obj);
+		var n = Reflect.castOrNull(Number.class, obj);
 		if (n != null) return nFn.apply(n);
 		return sFn.apply(Reflect.castOrNull(String.class, obj));
 	}
-
 }

@@ -4,8 +4,8 @@ import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.comparator.Comparators;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Align;
-import ceri.common.util.BasicUtil;
 
 public class Bound<T> {
 	private static final Bound<?> UNBOUND = new Bound<>(null, Type.exclusive, null);
@@ -65,7 +65,7 @@ public class Bound<T> {
 	}
 
 	public static <T> Bound<T> unbound() {
-		return BasicUtil.unchecked(UNBOUND);
+		return Reflect.unchecked(UNBOUND);
 	}
 
 	public static <T extends Comparable<T>> Bound<T> inclusive(T value) {

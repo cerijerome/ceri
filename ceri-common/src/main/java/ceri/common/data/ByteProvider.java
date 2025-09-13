@@ -11,7 +11,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.validation.ValidationUtil;
@@ -255,7 +255,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the unsigned byte value at given index.
 	 */
 	default short getUbyte(int index) {
-		return MathUtil.ubyte(getByte(index));
+		return Maths.ubyte(getByte(index));
 	}
 
 	/**
@@ -290,21 +290,21 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the unsigned value from native-order bytes at given index.
 	 */
 	default int getUshort(int index) {
-		return MathUtil.ushort(getShort(index));
+		return Maths.ushort(getShort(index));
 	}
 
 	/**
 	 * Returns the unsigned value from big-endian bytes at given index.
 	 */
 	default int getUshortMsb(int index) {
-		return MathUtil.ushort(getShortMsb(index));
+		return Maths.ushort(getShortMsb(index));
 	}
 
 	/**
 	 * Returns the unsigned value from little-endian bytes at given index.
 	 */
 	default int getUshortLsb(int index) {
-		return MathUtil.ushort(getShortLsb(index));
+		return Maths.ushort(getShortLsb(index));
 	}
 
 	/**
@@ -332,21 +332,21 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Returns the unsigned value from native-order bytes at given index.
 	 */
 	default long getUint(int index) {
-		return MathUtil.uint(getInt(index));
+		return Maths.uint(getInt(index));
 	}
 
 	/**
 	 * Returns the unsigned value from big-endian bytes at given index.
 	 */
 	default long getUintMsb(int index) {
-		return MathUtil.uint(getIntMsb(index));
+		return Maths.uint(getIntMsb(index));
 	}
 
 	/**
 	 * Returns the unsigned value from little-endian bytes at given index.
 	 */
 	default long getUintLsb(int index) {
-		return MathUtil.uint(getIntLsb(index));
+		return Maths.uint(getIntLsb(index));
 	}
 
 	/**

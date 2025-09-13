@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMaxFp;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Matrix;
 
 /**
@@ -39,8 +39,8 @@ public class GeometryUtil {
 	public static double angleFromGradient(double m) {
 		if (Double.isNaN(m)) return Double.NaN;
 		if (m == 0) return 0;
-		if (m == Double.POSITIVE_INFINITY) return MathUtil.PI_BY_2;
-		if (m == Double.NEGATIVE_INFINITY) return -MathUtil.PI_BY_2;
+		if (m == Double.POSITIVE_INFINITY) return Maths.PI_BY_2;
+		if (m == Double.NEGATIVE_INFINITY) return -Maths.PI_BY_2;
 		return Math.atan(m);
 	}
 

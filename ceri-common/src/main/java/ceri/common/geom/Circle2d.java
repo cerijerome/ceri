@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.ToString;
 
 public class Circle2d {
@@ -140,7 +140,7 @@ public class Circle2d {
 	}
 
 	private static double integral(double x, double r) {
-		x = MathUtil.limit(x, -r, r);
+		x = Maths.limit(x, -r, r);
 		double sqrt = Math.sqrt((r * r) - (x * x));
 		return (x * sqrt) + (r * r * Math.atan(x / sqrt));
 	}

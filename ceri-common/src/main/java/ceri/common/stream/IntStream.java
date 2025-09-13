@@ -11,8 +11,9 @@ import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.math.Maths;
+import ceri.common.reflect.Reflect;
+import ceri.common.util.Basics;
 import ceri.common.util.Counter;
 
 /**
@@ -158,7 +159,7 @@ public class IntStream<E extends Exception> {
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception> IntStream<E> empty() {
-		return BasicUtil.unchecked(EMPTY);
+		return Reflect.unchecked(EMPTY);
 	}
 
 	/**
@@ -188,9 +189,9 @@ public class IntStream<E extends Exception> {
 	 * Streams a range of values.
 	 */
 	public static <E extends Exception> IntStream<E> slice(int offset, int length) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return ofSupplier(c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(offset + counter.preInc(1));
 			return true;
 		});
@@ -274,7 +275,7 @@ public class IntStream<E extends Exception> {
 	 * Maps stream elements to unsigned ints.
 	 */
 	public LongStream<E> unsigned() {
-		return mapToLong(MathUtil::uint);
+		return mapToLong(Maths::uint);
 	}
 
 	/**
@@ -323,9 +324,9 @@ public class IntStream<E extends Exception> {
 	 * Limits the number of elements.
 	 */
 	public IntStream<E> limit(long size) {
-		var counter = Counter.ofLong(size);
+		var counter = Counter.of(size);
 		return update(
-			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.get())) > 0L));
 	}
 
 	/**
@@ -357,7 +358,7 @@ public class IntStream<E extends Exception> {
 	 * Returns the next element or default.
 	 */
 	public int next(int def) throws E {
-		return BasicUtil.defInt(next(), def);
+		return Basics.defInt(next(), def);
 	}
 
 	/**
@@ -461,7 +462,7 @@ public class IntStream<E extends Exception> {
 	 * Reduces stream to a value using an accumulator, or default.
 	 */
 	public int reduce(Excepts.IntBiOperator<? extends E> accumulator, int def) throws E {
-		return BasicUtil.defInt(reduce(accumulator), def);
+		return Basics.defInt(reduce(accumulator), def);
 	}
 
 	// support
@@ -478,7 +479,7 @@ public class IntStream<E extends Exception> {
 	}
 
 	private Excepts.IntConsumer<E> nullConsumer() {
-		return BasicUtil.unchecked(NULL_CONSUMER);
+		return Reflect.unchecked(NULL_CONSUMER);
 	}
 
 	private IntStream<E> update(NextSupplier<E> supplier) {
@@ -488,9 +489,9 @@ public class IntStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> arraySupplier(int[] array, int offset,
 		int length) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(array[offset + counter.preInc(1)]);
 			return true;
 		};

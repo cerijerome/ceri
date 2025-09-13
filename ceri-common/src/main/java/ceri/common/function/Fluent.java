@@ -4,7 +4,7 @@ import java.util.Objects;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.ToIntFunction;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Provides fluent chaining methods. T must be declared as the correct 'this' sub-class.
@@ -17,16 +17,16 @@ public interface Fluent<T> {
 	}
 
 	default <E extends Exception> T apply(Consumer<E, ? super T> consumer) throws E {
-		return apply(BasicUtil.unchecked(this), consumer);
+		return apply(Reflect.unchecked(this), consumer);
 	}
 
 	default <E extends Exception, U> U map(Function<E, ? super T, U> fn) throws E {
 		Objects.requireNonNull(fn);
-		return fn.apply(BasicUtil.unchecked(this));
+		return fn.apply(Reflect.unchecked(this));
 	}
 
 	default <E extends Exception> int mapToInt(ToIntFunction<E, ? super T> fn) throws E {
 		Objects.requireNonNull(fn);
-		return fn.applyAsInt(BasicUtil.unchecked(this));
+		return fn.applyAsInt(Reflect.unchecked(this));
 	}
 }

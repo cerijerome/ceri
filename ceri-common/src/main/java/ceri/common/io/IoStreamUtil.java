@@ -12,7 +12,7 @@ import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntSupplier;
 import ceri.common.function.Excepts.ObjIntPredicate;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Utilities for creating input and output streams.
@@ -312,7 +312,7 @@ public class IoStreamUtil {
 		if (readFn == null) return 0;
 		byte[] b = new byte[1];
 		int n = readFn.read(b, 0, 1);
-		return n == -1 ? n : MathUtil.ubyte(b[0]);
+		return n == -1 ? n : Maths.ubyte(b[0]);
 	}
 
 	private static int read(Read readFn, byte b[], int off, int len) throws IOException {
@@ -369,7 +369,7 @@ public class IoStreamUtil {
 		if (readFn == null) return in.read();
 		byte[] b = new byte[1];
 		int n = read(in, readFn, b, 0, 1);
-		return n == -1 ? n : MathUtil.ubyte(b[0]);
+		return n == -1 ? n : Maths.ubyte(b[0]);
 	}
 
 	private static int read(InputStream in, FilterRead readFn, byte b[], int off, int len)

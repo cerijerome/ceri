@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 import ceri.common.text.Splitter.Extraction;
 import ceri.common.text.Splitter.Extractor;
 
@@ -19,7 +19,7 @@ public class SplitterBehavior {
 		Extraction ne0 = Extraction.NULL;
 		Extraction ne1 = Extraction.of("Test", 7);
 		Extraction ne2 = Extraction.of("test", 0);
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2);
 	}
 

@@ -17,7 +17,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Sets;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.reflect.ClassReInitializer;
 import ceri.common.test.ErrorGen;
 import ceri.common.text.Strings;
@@ -241,7 +241,7 @@ public class JnaTestUtil {
 		System.gc();
 		Memory[] m = new Memory[n];
 		for (int i = 0; i < n; i++)
-			m[i] = JnaUtil.calloc(MathUtil.random(min, max));
+			m[i] = JnaUtil.calloc(Maths.random(min, max));
 		System.gc();
 		return m;
 	}

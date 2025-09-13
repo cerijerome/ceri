@@ -2,9 +2,9 @@ package ceri.common.math;
 
 import ceri.common.array.ArrayUtil;
 
-public class AlgebraUtil {
+public class Algebra {
 
-	private AlgebraUtil() {}
+	private Algebra() {}
 
 	/**
 	 * Factorial value (value!). Double is used as values may be larger than long can handle.

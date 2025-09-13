@@ -1,11 +1,9 @@
 package ceri.common.util;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.property.Parser;
 import ceri.common.property.Separator;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 
@@ -16,8 +14,8 @@ public class StartupValues {
 	private final String[] args;
 	private String prefix = null;
 	private int index = 0;
-	private Consumer<String> notifier = _ -> {};
-	private Function<Object, String> renderer = ToString::deep;
+	private Functions.Consumer<String> notifier = _ -> {};
+	private Functions.Function<Object, String> renderer = ToString::deep;
 
 	/**
 	 * Parse system property or environment variable by name, without notification.
@@ -112,7 +110,7 @@ public class StartupValues {
 
 		private String desc(String value) {
 			var desc =
-				String.format("%s = %s (%s)", BasicUtil.def(id.name(), "value"), value, this.desc);
+				String.format("%s = %s (%s)", Basics.def(id.name(), "value"), value, this.desc);
 			return id.argIndex == null ? desc : id.argIndex + ") " + desc;
 		}
 	}
@@ -124,7 +122,7 @@ public class StartupValues {
 	/**
 	 * Set a notifier to receive value assignment messages.
 	 */
-	public StartupValues notifier(Consumer<String> notifier) {
+	public StartupValues notifier(Functions.Consumer<String> notifier) {
 		this.notifier = notifier;
 		return this;
 	}
@@ -147,7 +145,7 @@ public class StartupValues {
 	/**
 	 * Specify the value renderer.
 	 */
-	public StartupValues renderer(Function<Object, String> renderer) {
+	public StartupValues renderer(Functions.Function<Object, String> renderer) {
 		this.renderer = renderer;
 		return this;
 	}

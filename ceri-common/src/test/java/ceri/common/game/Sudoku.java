@@ -7,28 +7,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
 import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.AnsiEscape;
-import ceri.common.text.AnsiEscape.Sgr;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Strings;
 import ceri.common.text.Table;
 import ceri.common.text.Table.Orientation;
-import ceri.common.util.Align;
 import ceri.common.util.Counter;
 
 public class Sudoku {
@@ -51,7 +47,7 @@ public class Sudoku {
 	private final Map<IntProvider, State> groupStates = Maps.id();
 	private final int[] masks;
 	private final Set<Integer> changedIndexes = Sets.of();
-	private final Counter.OfInt trialCount = Counter.ofInt(0);
+	private final Counter.OfInt trialCount = Counter.of(0);
 	private long timeMs = -1;
 
 	public static Sudoku easy9x9() {
@@ -420,7 +416,7 @@ public class Sudoku {
 		if (!solved) return false; // unsolvable
 		if (trials.isEmpty()) return true; // no trials
 		trials.forEach(t -> setMask(t.index(), mask(t.number())));
-		return solve(new ArrayDeque<>(), Counter.ofInt(0));
+		return solve(new ArrayDeque<>(), Counter.of(0));
 	}
 
 	private void fixed(String line, int r) {
@@ -550,7 +546,7 @@ public class Sudoku {
 			for (int i : group)
 				if (i != index) low = Math.min(low, lowest(masks[i]));
 			int min = lowUniqueSum(low, group.length() - 1);
-			int rem = MathUtil.limit(sum - min, 0, size);
+			int rem = Maths.limit(sum - min, 0, size);
 			setMask(index, masks[index] & (mask(rem + 1) - 1));
 		}
 	}
@@ -561,7 +557,7 @@ public class Sudoku {
 			for (int i : group)
 				if (i != index) high = Math.max(high, highest(masks[i]));
 			int max = highUniqueSum(high, group.length() - 1);
-			int rem = MathUtil.limit(sum - max, 1, size + 1);
+			int rem = Maths.limit(sum - max, 1, size + 1);
 			setMask(index, masks[index] & ~(mask(rem) - 1));
 		}
 	}
@@ -584,7 +580,7 @@ public class Sudoku {
 				return;
 			}
 		}
-		var cage = new HashSet<Integer>();
+		var cage = Sets.<Integer>of();
 		cage.add(index);
 		cages.add(cage);
 	}
@@ -880,7 +876,7 @@ public class Sudoku {
 	/* printing */
 
 	public void print(PrintStream out, Table frame) {
-		int w = Math.max(IntStream.of(masks).map(m -> numbers(m)).max().orElse(1), 3);
+		int w = Math.max(Streams.ints(masks).map(m -> numbers(m)).max(1), 3);
 		frame.print(out, (r, c, cell) -> {
 			if (r < size && c < size) cell.lines(nums(masks[index(r, c)], w));
 		}, this::format);
@@ -892,7 +888,7 @@ public class Sudoku {
 		out.print(name + " = ");
 		if (complete) out.println("solved");
 		else out.printf("incomplete (%s combos)%n", combos());
-		if (trialCount.count() > 0) out.printf("tries = %d%n", trialCount.count());
+		if (trialCount.get() > 0) out.printf("tries = %d%n", trialCount.get());
 		if (timeMs >= 0) out.printf("time = %dms%n%n", timeMs);
 	}
 
@@ -902,10 +898,10 @@ public class Sudoku {
 		formatCage(sgr, or, r, c);
 		s = formatBox(f, sgr, or, s, r, c);
 		s = formatFuto(sgr, or, s, r, c);
-		return sgr + s + Sgr.reset;
+		return sgr + s + AnsiEscape.Sgr.reset;
 	}
 
-	private void formatDigits(Sgr sgr, Orientation or, int r, int c) {
+	private void formatDigits(AnsiEscape.Sgr sgr, Orientation or, int r, int c) {
 		if (or != Orientation.c) return;
 		int index = index(r, c);
 		if (display.fixed.contains(index)) return;
@@ -913,7 +909,7 @@ public class Sudoku {
 		else sgr.fgColor24(GRAY).italic(1);
 	}
 
-	private void formatCage(Sgr sgr, Orientation or, int r, int c) {
+	private void formatCage(AnsiEscape.Sgr sgr, Orientation or, int r, int c) {
 		var cage = cage(r, c);
 		if (cage == null) return;
 		if (switch (or) {
@@ -932,19 +928,18 @@ public class Sudoku {
 		return null;
 	}
 
-	private String formatFuto(Sgr sgr, Orientation or, String s, int r, int c) {
+	private String formatFuto(AnsiEscape.Sgr sgr, Orientation or, String s, int r, int c) {
 		int index = index(r, c);
 		var fmt = sgr.toString();
 		if (or == Orientation.n) {
 			var futo = futo(index - size, index);
-			if (futo != null)
-				s = StringUtil.pad("\0", s.length(), s.substring(0, 1), Align.H.center)
-					.replace("\0", (futo ? "^" : "v"));
+			if (futo != null) s = Strings.pad("\0", s.length(), s.substring(0, 1), 0.5)
+				.replace("\0", (futo ? "^" : "v"));
 		} else if (or == Orientation.w) {
 			var futo = futo(index - 1, index);
 			if (futo != null) return (futo ? "<" : ">");
 		}
-		return fmt + s + Sgr.reset;
+		return fmt + s + AnsiEscape.Sgr.reset;
 	}
 
 	private Boolean futo(int index0, int index1) {
@@ -955,7 +950,7 @@ public class Sudoku {
 		return null;
 	}
 
-	private String formatBox(Table f, Sgr sgr, Orientation or, String s, int r, int c) {
+	private String formatBox(Table f, AnsiEscape.Sgr sgr, Orientation or, String s, int r, int c) {
 		boolean border = border(or, r, c);
 		if (border) s = borderEdge(f, or, s, r, c);
 		else if (or != Orientation.c) sgr.fgColor24(GRAY);
@@ -1034,7 +1029,7 @@ public class Sudoku {
 		var b = new StringBuilder();
 		for (int i = 1; i <= size; i++)
 			if (overlap(mask, mask(i))) b.append(i);
-		return StringUtil.pad(b, w, Align.H.center);
+		return Strings.pad(b, w, " ", 0.5);
 	}
 
 	private BigDecimal combos() {

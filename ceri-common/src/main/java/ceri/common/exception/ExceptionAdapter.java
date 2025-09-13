@@ -1,7 +1,6 @@
 package ceri.common.exception;
 
 import java.io.IOException;
-import java.util.function.Function;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.common.function.Throws;
@@ -29,7 +28,7 @@ public class ExceptionAdapter<E extends Exception> implements Functions.Function
 	public static final ExceptionAdapter<IoExceptions.Runtime> runtimeIo =
 		of(IoExceptions.Runtime.class, IoExceptions.Runtime::new);
 	private final Class<E> cls;
-	private final Function<Throwable, E> fn;
+	private final Functions.Function<Throwable, E> fn;
 
 	public static <E extends Exception> ExceptionAdapter<E> of(Class<E> cls) {
 		var constructor = Reflect.validConstructor(cls, Throwable.class);

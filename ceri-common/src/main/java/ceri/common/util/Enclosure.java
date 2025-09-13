@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
 
 /**
  * Provides a reference enclosed in a closeable wrapper.
@@ -152,7 +153,7 @@ public class Enclosure<T> implements Functions.Closeable {
 	 */
 	public static <T, U extends T> Enclosure<T> of(U subject,
 		Functions.Consumer<? super U> closer) {
-		if (subject == null) return BasicUtil.unchecked(EMPTY);
+		if (subject == null) return Reflect.unchecked(EMPTY);
 		if (closer == null) return new Enclosure<>(subject, null);
 		return new Enclosure<>(subject, () -> closer.accept(subject));
 	}

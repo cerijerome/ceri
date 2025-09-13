@@ -3,7 +3,7 @@ package ceri.common.geom;
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import java.util.stream.DoubleStream;
-import ceri.common.math.AlgebraUtil;
+import ceri.common.math.Algebra;
 import ceri.common.text.ToString;
 
 public class Ellipsoid3d {
@@ -139,7 +139,7 @@ public class Ellipsoid3d {
 	private double root(double v, double a, double b, double c) {
 		double a1 = -3.0 * a * a;
 		double a0 = (3.0 * a * a * v / (Math.PI * b * c)) - (2.0 * a * a * a);
-		return validRoot(AlgebraUtil.cubicRealRoots(0, a1, a0), a);
+		return validRoot(Algebra.cubicRealRoots(0, a1, a0), a);
 	}
 
 	/**

@@ -7,8 +7,8 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertApproxArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HsbColorBehavior {
 
@@ -21,7 +21,7 @@ public class HsbColorBehavior {
 		HsbColor ne1 = HsbColor.of(1.0, 0.6, 0.8, 0.6);
 		HsbColor ne2 = HsbColor.of(1.0, 0.5, 0.9, 0.6);
 		HsbColor ne3 = HsbColor.of(1.0, 0.5, 0.8, 0.8);
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

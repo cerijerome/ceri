@@ -1,0 +1,214 @@
+package ceri.common.text;
+
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.text.Dsv.Codec.CSV;
+import static ceri.common.text.Dsv.Codec.TSV;
+import static java.util.Arrays.asList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.After;
+import org.junit.Test;
+import ceri.common.io.ResourcePath;
+
+public class DsvBehavior {
+	private Dsv parser;
+	private Iterator<String> lines;
+
+	@After
+	public void after() {
+		parser = null;
+		lines = null;
+	}
+	
+	@Test
+	public void shouldCreateCodecFromDelimiter() {
+		assertEquals(Dsv.codec('\t'), Dsv.Codec.TSV);
+		assertEquals(Dsv.codec(','), Dsv.Codec.CSV);
+		Dsv.Codec psv = Dsv.codec('|');
+		assertEquals(psv.encodeLine("a", "b", "c"), "a|b|c");
+	}
+
+	@Test
+	public void shouldEncodeTsv() {
+		assertNull(TSV.encodeValue(null));
+		assertEquals(TSV.encodeValue(""), "");
+		assertEquals(TSV.encodeValue("\t"), "\"\t\"");
+	}
+
+	@Test
+	public void shouldEncodeDocument() {
+		assertNull(CSV.encode((String[][]) null));
+		assertNull(CSV.encode((List<List<String>>) null));
+		assertEquals(CSV.encode(new String[][] {}), "");
+		assertEquals(CSV.encode(new String[][] { {} }), "");
+		assertEquals(CSV.encode(new String[][] { {}, {} }), "\r\n");
+		assertEquals(CSV.encode(Arrays.asList(Arrays.asList(",", ""), Arrays.asList("\""))),
+			"\",\",\r\n\"\"");
+	}
+
+	@Test
+	public void shouldEncodeLines() {
+		assertNull(CSV.encodeLine((List<String>) null));
+		assertNull(CSV.encodeLine((String[]) null));
+		assertEquals(CSV.encodeLine((String) null), "");
+		assertEquals(CSV.encodeLine(""), "");
+		assertEquals(CSV.encodeLine("", ""), ",");
+		assertEquals(CSV.encodeLine("", "", ""), ",,");
+		assertEquals(CSV.encodeLine(" "), " ");
+		assertEquals(CSV.encodeLine(" ", " "), " , ");
+		assertEquals(CSV.encodeLine(" ", " ", ""), " , ,");
+		assertEquals(CSV.encodeLine("\"", ",", ",\"", "\",\""),
+			"\"\",\",\",\",\"\"\",\"\"\",\"\"\"");
+	}
+
+	@Test
+	public void shouldEncodeValues() {
+		assertNull(CSV.encodeValue(null));
+		assertEquals(CSV.encodeValue(""), "");
+		assertEquals(CSV.encodeValue(" "), " ");
+		assertEquals(CSV.encodeValue("\""), "\"\"");
+		assertEquals(CSV.encodeValue("\"\""), "\"\"\"\"");
+		assertEquals(CSV.encodeValue(","), "\",\"");
+		assertEquals(CSV.encodeValue(" , "), "\" , \"");
+		assertEquals(CSV.encodeValue("\",\""), "\"\"\",\"\"\"");
+	}
+
+	@Test
+	public void shouldDecodeDocument() {
+		assertNull(CSV.decode(null));
+		assertOrdered(CSV.decode(""));
+		assertOrdered(CSV.decode(" "), asList(""));
+		assertOrdered(CSV.decode(","), asList("", ""));
+		assertOrdered(CSV.decode(",,\r\n\",\"\n\n"), asList("", "", ""), asList(","));
+		assertOrdered(CSV.decode(",,\r\n\",\"\n\n "), asList("", "", ""), asList(","), asList(),
+			asList(""));
+	}
+
+	@Test
+	public void shouldDecodeLines() {
+		assertNull(CSV.decodeLine(null));
+		assertOrdered(CSV.decodeLine(""));
+		assertOrdered(CSV.decodeLine(" "), "");
+		assertOrdered(CSV.decodeLine(","), "", "");
+		assertOrdered(CSV.decodeLine(",,"), "", "", "");
+		assertOrdered(CSV.decodeLine(" , ,"), "", "", "");
+		assertOrdered(CSV.decodeLine(", \",\"\" ,\",\" , \""), "", ",\" ,", " , ");
+	}
+
+	@Test
+	public void shouldDecodeValues() {
+		assertNull(Dsv.Codec.decodeValue(null));
+		assertEquals(Dsv.Codec.decodeValue(""), "");
+		assertEquals(Dsv.Codec.decodeValue(" "), " ");
+		assertEquals(Dsv.Codec.decodeValue("\""), "");
+		assertEquals(Dsv.Codec.decodeValue("\"\""), "");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\""), "\"");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\"\""), "\"\"");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\"\"\""), "\"\"");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\"\"\"\""), "\"\"");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\"\"\"\"\""), "\"\"\"");
+		assertEquals(Dsv.Codec.decodeValue("\"\"\"\"\"\"\"\""), "\"\"\"\"");
+		assertEquals(Dsv.Codec.decodeValue(" \"\" "), "");
+		assertEquals(Dsv.Codec.decodeValue(" \",\" "), ",");
+		assertEquals(Dsv.Codec.decodeValue(" \"\",\" "), " \",\" ");
+		assertEquals(Dsv.Codec.decodeValue(","), ",");
+		assertEquals(Dsv.Codec.decodeValue(" , "), " , ");
+		assertEquals(Dsv.Codec.decodeValue("\t"), "\t");
+	}
+	
+	@Test
+	public void testSplit() {
+		assertOrdered(Dsv.split(null, '|'));
+		assertOrdered(Dsv.split("abc||de|f|", '|'), "abc", "", "de", "f", "");
+	}
+
+	@Test
+	public void shouldReadFieldsByName() throws IOException {
+		init();
+		assertTrue(parser.hasHeaderValue("field1"));
+		assertFalse(parser.hasHeaderValue("field4"));
+		assertOrdered(parser.header(), "field1", "field2", "field3");
+		assertTrue(parser.hasFields());
+		assertEquals(parser.field("field1"), "this");
+		assertEquals(parser.field("field2"), "is");
+		assertEquals(parser.field("field3", "not"), "a");
+		assertEquals(parser.field("field4", "test"), "test");
+		next();
+		assertEquals(parser.field("field1"), "test");
+		assertNull(parser.field("field2"));
+		assertNull(parser.field("field3"));
+		next();
+		assertFalse(parser.hasFields());
+	}
+
+	@Test
+	public void shouldReadFieldsByIndex() throws IOException {
+		init();
+		skip(2);
+		assertNull(parser.field(-1));
+		assertNull(parser.field(0));
+		assertNull(parser.field(1));
+		next();
+		assertNull(parser.field(-1));
+		assertEquals(parser.field(0), "1");
+		assertEquals(parser.field(1), "2");
+		assertEquals(parser.field(2), "3");
+		assertNull(parser.field(3));
+	}
+
+	@Test
+	public void shouldParseTypedFields() throws IOException {
+		init();
+		skip(3);
+		assertEquals(parser.parse("field1").toInt(), 1);
+		assertEquals(parser.parse("field2").toInt(), 2);
+		assertEquals(parser.parse("field3").toInt(), 3);
+		next();
+		assertEquals(parser.parse(0).toDouble(), 1.0);
+		assertEquals(parser.parse(1).toDouble(), null);
+		assertEquals(parser.parse(2).toDouble(), 2.0);
+		next();
+		assertEquals(parser.parse("field1").toBool(), null);
+		assertEquals(parser.parse("field2").toBool(), true);
+		assertEquals(parser.parse("field3").toBool(), false);
+		next();
+		assertEquals(parser.parse(0).toLong(), 1000000000000000000L);
+		assertEquals(parser.parse(1).toLong(), -1L);
+		assertEquals(parser.parse(2).toLong(), null);
+	}
+
+	private void init() throws IOException {
+		parser = Dsv.of(Dsv.Codec.CSV);
+		lines = lines("dsv-parser-test.csv");
+		next();
+		assertFalse(parser.hasHeader());
+		parser.applyHeader();
+		assertTrue(parser.hasHeader());
+		next();
+	}
+	
+	private void next() {
+		parser.parseLine(lines.next());
+	}
+
+	private void skip(int count) {
+		while (count-- > 0)
+			next();
+	}
+
+	private Iterator<String> lines(String resource) throws IOException {
+		try (ResourcePath rp = ResourcePath.of(getClass(), resource);
+			Stream<String> stream = Files.lines(rp.path())) {
+			return stream.collect(Collectors.toList()).iterator();
+		}
+	}
+}

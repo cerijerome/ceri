@@ -12,7 +12,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
@@ -48,7 +48,7 @@ public class IntProviderBehavior {
 	@Test
 	public void testToString() {
 		assertEquals(IntProvider.toString(ip), "[0,-1,2,-3,4,-5,6,...](10)");
-		assertEquals(IntProvider.toString(MathUtil::ubyte, ip), "[0,255,2,253,4,251,6,...](10)");
+		assertEquals(IntProvider.toString(Maths::ubyte, ip), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test

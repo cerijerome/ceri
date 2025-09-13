@@ -4,17 +4,17 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ConcaveSpheroidBehavior {
 	private final ConcaveSpheroid3d s0 = ConcaveSpheroid3d.create(3, 1, 2);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(s0, ConcaveSpheroid3d.create(3, 1, 2));
+		TestUtil.exerciseEquals(s0, ConcaveSpheroid3d.create(3, 1, 2));
 		assertNotEquals(s0, ConcaveSpheroid3d.create(3.1, 1, 2));
 		assertNotEquals(s0, ConcaveSpheroid3d.create(3, 0.9, 2));
 		assertNotEquals(s0, ConcaveSpheroid3d.create(3, 1, 1.9));

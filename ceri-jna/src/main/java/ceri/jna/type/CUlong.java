@@ -2,7 +2,7 @@ package ceri.jna.type;
 
 import com.sun.jna.Pointer;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Unsigned native long.
@@ -45,7 +45,7 @@ public class CUlong extends IntType<CUlong> {
 	 * Create unsigned with value. Required if value is negative, but represents an unsigned int.
 	 */
 	public CUlong(int value) {
-		this(MathUtil.uint(value));
+		this(Maths.uint(value));
 	}
 
 	/**

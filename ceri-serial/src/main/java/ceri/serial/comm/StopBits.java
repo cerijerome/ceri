@@ -2,7 +2,7 @@ package ceri.serial.comm;
 
 import ceri.common.collection.Enums;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.serial.comm.jna.CSerial;
 
 public enum StopBits {
@@ -21,7 +21,7 @@ public enum StopBits {
 	}
 
 	public static StopBits fromBits(double bits) {
-		return Enums.find(StopBits.class, t -> MathUtil.approxEqual(t.bits, bits, PRECISION));
+		return Enums.find(StopBits.class, t -> Maths.approxEqual(t.bits, bits, PRECISION));
 	}
 
 	private StopBits(int value, double bits) {

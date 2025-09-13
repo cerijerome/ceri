@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import ceri.common.io.IoUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Provides the name of the serial port dynamically.
@@ -34,7 +34,7 @@ public interface PortSupplier {
 	}
 
 	static Locator locator(Path dir) {
-		dir = BasicUtil.def(dir, () -> Path.of(Locator.DEV_PATH));
+		dir = Basics.def(dir, () -> Path.of(Locator.DEV_PATH));
 		return new Locator(dir);
 	}
 

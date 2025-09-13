@@ -4,9 +4,9 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Ellipsoid3dBehavior {
 	private final Ellipsoid3d e0 = Ellipsoid3d.create(4, 2, 1);
@@ -14,7 +14,7 @@ public class Ellipsoid3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(e0, Ellipsoid3d.create(4, 2, 1));
+		TestUtil.exerciseEquals(e0, Ellipsoid3d.create(4, 2, 1));
 		assertNotEquals(e0, Ellipsoid3d.create(4.1, 2, 1));
 		assertNotEquals(e0, Ellipsoid3d.create(4, 1.9, 1));
 		assertNotEquals(e0, Ellipsoid3d.create(4, 2, 1.1));

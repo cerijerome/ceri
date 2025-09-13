@@ -7,10 +7,10 @@ import java.util.List;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
+import ceri.common.reflect.Reflect;
 import ceri.common.score.Scorer.Result;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Streams;
-import ceri.common.util.BasicUtil;
 
 /**
  * Basic scores and score utilities.
@@ -68,14 +68,14 @@ public class Scorers {
 	 * A score that returns 1.0 for all conditions.
 	 */
 	public static <T> Scorer<T> one() {
-		return BasicUtil.unchecked(ONE);
+		return Reflect.unchecked(ONE);
 	}
 
 	/**
 	 * A score that returns 0.0 for all conditions.
 	 */
 	public static <T> Scorer<T> zero() {
-		return BasicUtil.unchecked(ZERO);
+		return Reflect.unchecked(ZERO);
 	}
 
 	/**

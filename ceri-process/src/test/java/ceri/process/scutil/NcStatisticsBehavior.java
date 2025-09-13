@@ -3,7 +3,6 @@ package ceri.process.scutil;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -18,7 +17,7 @@ public class NcStatisticsBehavior {
 		NcStatistics eq1 = NcStatistics.builder().add("BytesIn", 100).build();
 		NcStatistics ne0 = NcStatistics.builder().add(Map.of("BytesOut", 100)).build();
 		NcStatistics ne1 = NcStatistics.builder().add(Map.of("BytesIn", 99)).build();
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1);
 	}
 

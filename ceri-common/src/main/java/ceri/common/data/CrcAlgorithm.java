@@ -4,7 +4,7 @@ import static ceri.common.data.ByteUtil.BYTE_MASK;
 import static ceri.common.data.ByteUtil.INT_MASK;
 import static ceri.common.data.ByteUtil.maskOfBits;
 import static ceri.common.data.ByteUtil.shiftBits;
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;

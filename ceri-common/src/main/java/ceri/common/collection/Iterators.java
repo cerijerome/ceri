@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Iterator support.
@@ -25,7 +25,7 @@ public class Iterators {
 	 * Returns a no-op, stateless iterator.
 	 */
 	public static <T> Iterator<T> ofNull() {
-		return BasicUtil.unchecked(NULL);
+		return Reflect.unchecked(NULL);
 	}
 
 	/**

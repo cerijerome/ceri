@@ -3,7 +3,7 @@ package ceri.common.test;
 import java.io.PrintStream;
 import java.util.concurrent.TimeUnit;
 import ceri.common.array.ArrayUtil;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.time.TimeSupplier;
 
 /**
@@ -109,8 +109,8 @@ public class TimeCollector {
 		long t = end[i - 1] - start[0];
 		out.printf("total = %d [%d = %d x %d]\n", t, total, period, n);
 		out.printf("mean = %.01f, median = %.01f, range = [%d..%d], [0] = %d, [%d] = %d\n",
-			MathUtil.mean(diff, 0, i), MathUtil.median(diff.clone(), 0, i),
-			MathUtil.min(diff, 0, i), MathUtil.max(diff, 0, i), diff[0], i - 1, diff[i - 1]);
+			Maths.mean(diff, 0, i), Maths.median(diff.clone(), 0, i),
+			Maths.min(diff, 0, i), Maths.max(diff, 0, i), diff[0], i - 1, diff[i - 1]);
 		if (full) out.println(ArrayUtil.longs.toString(diff, 0, i));
 	}
 }

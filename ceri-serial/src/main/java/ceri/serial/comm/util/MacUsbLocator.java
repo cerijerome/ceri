@@ -11,7 +11,7 @@ import ceri.common.collection.Immutable;
 import ceri.common.collection.Maps;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.process.Parameters;
-import ceri.common.text.ParseUtil;
+import ceri.common.text.Numbers;
 import ceri.common.text.Strings;
 import ceri.common.util.OsUtil;
 import ceri.common.xml.XPathUtil;
@@ -97,7 +97,7 @@ public class MacUsbLocator {
 	}
 
 	private static int locationId(Node usb) throws XPathException {
-		return ParseUtil.parseInt(LOCATION_ID_XPATH.evaluate(usb), 0);
+		return Numbers.Parse.toInt(LOCATION_ID_XPATH.evaluate(usb), 0);
 	}
 
 	private static String device(Node usb) throws XPathException {

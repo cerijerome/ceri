@@ -6,8 +6,8 @@ import static ceri.common.color.Colors.color;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ColorxBehavior {
 
@@ -21,7 +21,7 @@ public class ColorxBehavior {
 		Colorx ne1 = Colorx.of(color(0x886644), 0x11, 0x22, 0x33, 0x44);
 		Colorx ne2 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33);
 		Colorx ne3 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33, 0x55);
-		exerciseEquals(t, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Interfaces that do not throw checked exceptions.
@@ -535,7 +535,7 @@ public class Functions {
 		extends Excepts.Consumer<RuntimeException, T>, java.util.function.Consumer<T> {
 		/** Casts to given exception type. */
 		static <E extends Exception, T> Excepts.Consumer<E, T> except(Consumer<T> consumer) {
-			return BasicUtil.unchecked(consumer);
+			return Reflect.unchecked(consumer);
 		}
 	}
 
@@ -559,7 +559,7 @@ public class Functions {
 		extends Excepts.IntConsumer<RuntimeException>, java.util.function.IntConsumer {
 		/** Casts to given exception type. */
 		static <E extends Exception> Excepts.IntConsumer<E> except(IntConsumer consumer) {
-			return BasicUtil.unchecked(consumer);
+			return Reflect.unchecked(consumer);
 		}
 	}
 
@@ -571,7 +571,7 @@ public class Functions {
 		extends Excepts.LongConsumer<RuntimeException>, java.util.function.LongConsumer {
 		/** Casts to given exception type. */
 		static <E extends Exception> Excepts.LongConsumer<E> except(LongConsumer consumer) {
-			return BasicUtil.unchecked(consumer);
+			return Reflect.unchecked(consumer);
 		}
 	}
 
@@ -583,7 +583,7 @@ public class Functions {
 		extends Excepts.DoubleConsumer<RuntimeException>, java.util.function.DoubleConsumer {
 		/** Casts to given exception type. */
 		static <E extends Exception> Excepts.DoubleConsumer<E> except(DoubleConsumer consumer) {
-			return BasicUtil.unchecked(consumer);
+			return Reflect.unchecked(consumer);
 		}
 	}
 

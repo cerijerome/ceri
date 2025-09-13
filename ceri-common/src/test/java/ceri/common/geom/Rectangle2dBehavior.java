@@ -2,8 +2,8 @@ package ceri.common.geom;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Rectangle2dBehavior {
 
@@ -16,7 +16,7 @@ public class Rectangle2dBehavior {
 		Rectangle2d ne2 = Rectangle2d.of(0, 0, 19, 40);
 		Rectangle2d ne3 = Rectangle2d.of(0, 0, 20, 41);
 		Rectangle2d ne4 = Rectangle2d.of(0, 0, 0, 0);
-		exerciseEquals(r, eq0);
+		TestUtil.exerciseEquals(r, eq0);
 		assertAllNotEqual(r, ne0, ne1, ne2, ne3, ne4);
 	}
 

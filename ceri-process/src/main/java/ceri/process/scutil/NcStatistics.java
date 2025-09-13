@@ -1,8 +1,8 @@
 package ceri.process.scutil;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import ceri.common.collection.Maps;
 import ceri.common.collection.Node;
 
 /**
@@ -39,7 +39,7 @@ public class NcStatistics {
 	}
 
 	public static class Builder {
-		final Map<String, Integer> values = new LinkedHashMap<>();
+		final Map<String, Integer> values = Maps.link();
 
 		Builder() {}
 
@@ -114,15 +114,12 @@ public class NcStatistics {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof NcStatistics)) return false;
-		NcStatistics other = (NcStatistics) obj;
-		if (!Objects.equals(values, other.values)) return false;
-		return true;
+		if (!(obj instanceof NcStatistics other)) return false;
+		return Objects.equals(values, other.values);
 	}
 
 	@Override
 	public String toString() {
 		return String.valueOf(values);
 	}
-
 }

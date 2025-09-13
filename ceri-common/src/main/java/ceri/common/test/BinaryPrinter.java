@@ -11,10 +11,9 @@ import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Format;
 import ceri.common.text.StringBuilders;
-import ceri.common.text.StringUtil;
 import ceri.common.text.ToString;
-import ceri.common.util.Align;
 
 /**
  * Pretty-prints data in binary, hex and/or char format. e.g.
@@ -198,7 +197,7 @@ public class BinaryPrinter {
 	 * Print string as unicode code points.
 	 */
 	public BinaryPrinter printCodePoints(String s) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		var out = new ByteArrayOutputStream();
 		s.codePoints().forEach(cp -> ByteUtil.writeTo(out, ByteUtil.toMsb((short) cp)));
 		return print(out.toByteArray());
 	}
@@ -296,9 +295,9 @@ public class BinaryPrinter {
 	@SuppressWarnings("resource")
 	public BinaryPrinter print(byte[] bytes, int offset, int length) {
 		var out = out();
-		StringBuilder binB = new StringBuilder();
-		StringBuilder hexB = new StringBuilder();
-		StringBuilder charB = new StringBuilder();
+		var binB = new StringBuilder();
+		var hexB = new StringBuilder();
+		var charB = new StringBuilder();
 		int rowLen = bytesPerColumn * columns;
 		for (int i = 0; i < length; i += rowLen) {
 			resetBuffers(binB, hexB, charB);
@@ -336,10 +335,8 @@ public class BinaryPrinter {
 	}
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
-		String s = StringUtil.pad(Integer.toBinaryString(b), Byte.SIZE, "0", Align.H.right);
-		binB.append(s);
-		s = Integer.toHexString(b);
-		if (s.length() == 1) hexB.append('0');
+		binB.append(Format.binBytes(b, 1));
+		var s = Format.hexBytes(b, 1);
 		hexB.append(upper ? s.toUpperCase() : s);
 		boolean printable = (b >= ASCII_MIN && b <= ASCII_MAX) || (printableSpace && b == ' ');
 		charB.append(printable ? (char) b : unprintable);
@@ -363,5 +360,4 @@ public class BinaryPrinter {
 		hexB.append(' ');
 		charB.append(' ');
 	}
-
 }

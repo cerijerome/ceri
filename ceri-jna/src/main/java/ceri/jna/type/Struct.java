@@ -15,10 +15,9 @@ import ceri.common.collection.Maps;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
-import ceri.common.text.StringUtil;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -77,7 +76,7 @@ public abstract class Struct extends Structure {
 	 */
 	public static <T> T readField(Structure struct, String name) {
 		if (struct == null) return null;
-		return BasicUtil.unchecked(struct.readField(name));
+		return Reflect.unchecked(struct.readField(name));
 	}
 
 	/**
@@ -305,7 +304,7 @@ public abstract class Struct extends Structure {
 	public static <T extends Structure> T[] arrayOfVal(T t, Functions.IntFunction<T[]> arrayFn,
 		int count) {
 		if (count == 0 || t == null) return arrayFn.apply(count);
-		return BasicUtil.unchecked(t.toArray(count));
+		return Reflect.unchecked(t.toArray(count));
 	}
 
 	/**
@@ -511,7 +510,7 @@ public abstract class Struct extends Structure {
 	 * Convenience method to get the last field name.
 	 */
 	protected String lastName() {
-		List<String> fieldNames = BasicUtil.unchecked(getFieldOrder());
+		List<String> fieldNames = Reflect.unchecked(getFieldOrder());
 		return fieldNames.get(fieldNames.size() - 1);
 	}
 
@@ -538,12 +537,12 @@ public abstract class Struct extends Structure {
 
 	@Override
 	protected List<Field> getFieldList() {
-		return BasicUtil.unchecked(super.getFieldList());
+		return Reflect.unchecked(super.getFieldList());
 	}
 
 	@Override
 	protected List<Field> getFields(boolean force) {
-		return BasicUtil.unchecked(super.getFields(force));
+		return Reflect.unchecked(super.getFields(force));
 	}
 
 	@Override
@@ -565,7 +564,7 @@ public abstract class Struct extends Structure {
 	}
 
 	private static String prefix(String s) {
-		return StringUtil.NEWLINE_REGEX.matcher(s).replaceAll("$1" + INDENT);
+		return Regex.EOL.matcher(s).replaceAll(Strings.EOL + INDENT);
 	}
 
 	private static List<String> annotatedFields(Class<?> cls) {

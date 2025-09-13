@@ -6,8 +6,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Ellipse2dBehavior {
 	private final Ellipse2d e0 = Ellipse2d.create(4, 2);
@@ -15,7 +15,7 @@ public class Ellipse2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(e0, Ellipse2d.create(4, 2));
+		TestUtil.exerciseEquals(e0, Ellipse2d.create(4, 2));
 		assertNotEquals(e0, Ellipse2d.create(4.1, 2));
 		assertNotEquals(e0, Ellipse2d.create(4, 1.9));
 	}

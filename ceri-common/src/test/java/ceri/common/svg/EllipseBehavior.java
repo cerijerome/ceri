@@ -5,12 +5,12 @@ import static ceri.common.svg.Position.RELATIVE_ZERO;
 import static ceri.common.svg.SvgTestUtil.assertPath;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.TestUtil;
 
 public class EllipseBehavior {
 
@@ -25,7 +25,7 @@ public class EllipseBehavior {
 		Ellipse ne2 = Ellipse.builder(ABSOLUTE_ZERO, Dimension2d.of(1, 1)).build();
 		Ellipse ne3 = Ellipse.builder(ABSOLUTE_ZERO, Dimension2d.of(1, 2)).rotation(0.1).build();
 		Ellipse ne4 = Ellipse.circle(ABSOLUTE_ZERO, 1);
-		exerciseEquals(e, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(e, eq0, eq1, eq2);
 		assertAllNotEqual(e, ne0, ne1, ne2, ne3, ne4);
 	}
 

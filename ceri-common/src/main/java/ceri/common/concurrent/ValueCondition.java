@@ -11,8 +11,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import ceri.common.concurrent.ConcurrentUtil.LockInfo;
+import ceri.common.reflect.Reflect;
 import ceri.common.time.Timer;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Holder;
 
 /**
@@ -36,7 +36,7 @@ public class ValueCondition<T> {
 	 * Creates an instance with the given lock. A new signal value overwrites an existing value.
 	 */
 	public static <T> ValueCondition<T> of(Lock lock) {
-		return of(lock, BasicUtil.unchecked(REPLACER));
+		return of(lock, Reflect.unchecked(REPLACER));
 	}
 
 	/**

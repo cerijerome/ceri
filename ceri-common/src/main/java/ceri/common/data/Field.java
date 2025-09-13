@@ -1,7 +1,7 @@
 package ceri.common.data;
 
-import static ceri.common.math.MathUtil.uint;
-import static ceri.common.math.MathUtil.uintExact;
+import static ceri.common.math.Maths.uint;
+import static ceri.common.math.Maths.uintExact;
 import static ceri.common.validation.ValidationUtil.validateSupported;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import ceri.common.function.Excepts.ObjIntConsumer;
 import ceri.common.function.Excepts.ObjLongConsumer;
 import ceri.common.function.Excepts.ToIntFunction;
 import ceri.common.function.Excepts.ToLongFunction;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Provides access to a field.
@@ -171,7 +171,7 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 		 * Set unsigned int source value.
 		 */
 		public Long<E, T> setUint(T source, long value) throws E {
-			return set(source, MathUtil.uint(value));
+			return set(source, Maths.uint(value));
 		}
 
 		/**

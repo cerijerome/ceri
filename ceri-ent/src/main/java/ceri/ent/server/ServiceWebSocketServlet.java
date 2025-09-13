@@ -5,7 +5,7 @@ import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServlet;
 import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import jakarta.servlet.ServletException;
 
 public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
@@ -34,7 +34,7 @@ public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
 		JettyServerUpgradeResponse resp, T service);
 
 	protected void configure(JettyWebSocketServletFactory factory, T service) {
-		BasicUtil.unused(factory, service);
+		Basics.unused(factory, service);
 	}
 
 	private T service() {

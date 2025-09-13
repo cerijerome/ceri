@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.util.BasicUtil.def;
+import static ceri.common.util.Basics.def;
 import static ceri.common.validation.DisplayLong.dec;
 import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
 import static ceri.common.validation.ValidationUtil.validateNotNull;

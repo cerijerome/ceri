@@ -261,21 +261,21 @@ public class ParserBehavior {
 	@Test
 	public void shouldProvideBooleanConditionals() {
 		assertEquals(string("True").toBool(1, 0), 1);
-		assertEquals(string("").toBool(1, 0), 0);
+		assertEquals(string("0").toBool(1, 0), 0);
 		assertEquals(string(null).toBool(1, 0), null);
 	}
 
 	@Test
 	public void shouldProvideBooleanConditionalType() {
 		assertEquals(string("True").asBool(1, 0).get(), 1);
-		assertEquals(string("").asBool(1, 0).get(), 0);
+		assertEquals(string("0").asBool(1, 0).get(), 0);
 		assertEquals(string(null).asBool(1, 0).get(), null);
 	}
 
 	@Test
 	public void shouldProvideBooleanConditionalTypes() {
-		assertOrdered(strings("True, x, false").asBools(1, 0).get(), 1, 0, 0);
-		assertOrdered(Parser.strings("True", null, "x").asBools(1, 0).get(), 1, null, 0);
+		assertOrdered(strings("True, 1, false").asBools(1, 0).get(), 1, 1, 0);
+		assertOrdered(Parser.strings("True", null, "0").asBools(1, 0).get(), 1, null, 0);
 	}
 
 	@Test

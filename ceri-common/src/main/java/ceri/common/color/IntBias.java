@@ -2,7 +2,7 @@ package ceri.common.color;
 
 import static ceri.common.color.Colors.MAX_VALUE;
 import ceri.common.math.Bound.Type;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Used to adjust fades between two values. Should return a biased value 0 to 255 from a given value
@@ -80,16 +80,16 @@ public interface IntBias {
 	static IntBias from(Bias bias) {
 		int[] lookup = new int[MAX_VALUE + 1];
 		for (int i = 0; i < lookup.length; i++)
-			lookup[i] = MathUtil.limit(
-				MathUtil.intRound(bias.bias((double) i / MAX_VALUE) * MAX_VALUE), 0, MAX_VALUE);
-		return v -> lookup[MathUtil.limit(v, 0, MAX_VALUE)];
+			lookup[i] = Maths.limit(
+				Maths.intRound(bias.bias((double) i / MAX_VALUE) * MAX_VALUE), 0, MAX_VALUE);
+		return v -> lookup[Maths.limit(v, 0, MAX_VALUE)];
 	}
 
 	/**
 	 * Makes sure biased ratios within bounds.
 	 */
 	private static IntBias limiter(IntBias bias) {
-		return v -> MathUtil.limit(bias.bias(MathUtil.limit(v, 0, MAX_VALUE)), 0, MAX_VALUE);
+		return v -> Maths.limit(bias.bias(Maths.limit(v, 0, MAX_VALUE)), 0, MAX_VALUE);
 	}
 
 	/**
@@ -108,6 +108,6 @@ public interface IntBias {
 	}
 
 	private static int offset(int value, int offset) {
-		return MathUtil.periodicLimit(value + offset, MAX_VALUE + 1, Type.exclusive);
+		return Maths.periodicLimit(value + offset, MAX_VALUE + 1, Type.exclusive);
 	}
 }

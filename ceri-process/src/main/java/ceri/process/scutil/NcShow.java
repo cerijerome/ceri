@@ -2,7 +2,7 @@ package ceri.process.scutil;
 
 import java.util.Objects;
 import ceri.common.collection.Node;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
 public class NcShow {
@@ -10,7 +10,7 @@ public class NcShow {
 	public final Node<Void> data;
 
 	public static NcShow from(String output) {
-		String[] split = StringUtil.NEWLINE_REGEX.split(output, 2);
+		var split = Regex.Split.LINE.array(output, 2);
 		var item = NcListItem.from(split[0]);
 		if (split.length == 1) return new NcShow(item, Node.of());
 		return of(item, Parser.parse(split[1]));

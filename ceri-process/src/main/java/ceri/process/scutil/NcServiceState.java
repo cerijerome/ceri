@@ -22,5 +22,4 @@ public enum NcServiceState {
 		}
 		return NcServiceState.unknown;
 	}
-
 }

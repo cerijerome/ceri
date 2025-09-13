@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.io.StringPrintStream;
-import ceri.common.text.StringUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
 /**
@@ -50,7 +50,7 @@ public class LogPrintStream extends StringPrintStream {
 	}
 
 	public void log() {
-		String[] lines = StringUtil.NEWLINE_REGEX.split(toString());
+		var lines = Regex.Split.LINE.array(toString());
 		clear();
 		for (String line : lines)
 			logger.log(level, Strings.compact(line));

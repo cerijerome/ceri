@@ -3,7 +3,7 @@ package ceri.common.color;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Interface to set and get colorx.
@@ -65,7 +65,7 @@ public interface Colorxable extends Colorable {
 	 */
 	@Override
 	default void argb(int argb) {
-		xargb(MathUtil.uint(argb));
+		xargb(Maths.uint(argb));
 	}
 
 	/**

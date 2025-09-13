@@ -10,8 +10,8 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertApproxArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class RgbColorBehavior {
 
@@ -24,7 +24,7 @@ public class RgbColorBehavior {
 		RgbColor ne1 = RgbColor.of(1.0, 0.4, 0.1, 0.2);
 		RgbColor ne2 = RgbColor.of(1.0, 0.5, 0.2, 0.2);
 		RgbColor ne3 = RgbColor.of(1.0, 0.5, 0.1, 0.1);
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

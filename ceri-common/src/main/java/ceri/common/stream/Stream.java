@@ -24,7 +24,6 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.BasicUtil;
 import ceri.common.util.Counter;
 
 /**
@@ -81,14 +80,14 @@ public class Stream<E extends Exception, T> {
 	 * Adapt stream to allow exceptions.
 	 */
 	public static <E extends Exception, T> Stream<E, T> ex(Stream<RuntimeException, T> stream) {
-		return BasicUtil.unchecked(stream);
+		return Reflect.unchecked(stream);
 	}
 	
 	/**
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception, T> Stream<E, T> empty() {
-		return BasicUtil.unchecked(EMPTY);
+		return Reflect.unchecked(EMPTY);
 	}
 
 	/**
@@ -291,9 +290,9 @@ public class Stream<E extends Exception, T> {
 	 */
 	public Stream<E, T> limit(long size) {
 		if (emptyInstance()) return this;
-		var counter = Counter.ofLong(size);
+		var counter = Counter.of(size);
 		return update(
-			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.get())) > 0L));
 	}
 
 	/**
@@ -517,7 +516,7 @@ public class Stream<E extends Exception, T> {
 	}
 
 	private Excepts.Consumer<E, T> nullConsumer() {
-		return BasicUtil.unchecked(NULL_CONSUMER);
+		return Reflect.unchecked(NULL_CONSUMER);
 	}
 
 	private <F extends Exception, R> Stream<F, R> update(NextSupplier<F, ? extends R> supplier) {
@@ -527,9 +526,9 @@ public class Stream<E extends Exception, T> {
 
 	private static <E extends Exception, T> NextSupplier<E, T> arraySupplier(T[] array, int offset,
 		int length) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(array[offset + counter.preInc(1)]);
 			return true;
 		};

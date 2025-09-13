@@ -36,7 +36,7 @@ import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.common.util.SystemVars;
 
 /**
@@ -143,7 +143,7 @@ public class IoUtil {
 	 * Join paths using the system path separator.
 	 */
 	public static String pathVariable(String... paths) {
-		return Streams.of(paths).map(String::trim).filter(Strings.Filter.nonEmpty)
+		return Streams.of(paths).map(String::trim).filter(Strings.Filter.NON_EMPTY)
 			.collect(Collectors.joining(File.pathSeparator));
 	}
 
@@ -589,7 +589,7 @@ public class IoUtil {
 	 */
 	public static List<Path> pathsRelative(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		Excepts.Predicate<IOException, Path> test = BasicUtil.def(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = Basics.def(filter, NULL_FILTER);
 		int levels = dir.getNameCount();
 		return pathsCollect(dir, path -> test.test(path) ? subpath(path, levels) : null);
 	}
@@ -616,7 +616,7 @@ public class IoUtil {
 	 */
 	public static List<Path> paths(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		Excepts.Predicate<IOException, Path> test = BasicUtil.def(filter, NULL_FILTER);
+		Excepts.Predicate<IOException, Path> test = Basics.def(filter, NULL_FILTER);
 		return pathsCollect(dir, path -> test.test(path) ? path : null);
 	}
 

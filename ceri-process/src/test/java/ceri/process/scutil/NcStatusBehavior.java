@@ -2,9 +2,9 @@ package ceri.process.scutil;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
 import ceri.common.collection.Node;
+import ceri.common.test.TestUtil;
 
 public class NcStatusBehavior {
 
@@ -16,7 +16,7 @@ public class NcStatusBehavior {
 		NcStatus eq0 = NcStatus.of(NcServiceState.connecting, node0);
 		NcStatus ne0 = NcStatus.of(NcServiceState.unknown, node0);
 		NcStatus ne1 = NcStatus.of(NcServiceState.connecting, node1);
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1);
 	}
 

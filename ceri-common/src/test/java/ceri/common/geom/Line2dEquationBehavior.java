@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNaN;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Line2dEquationBehavior {
 	private final LineEquation2d l0 = LineEquation2d.of(4, -1, 3);
@@ -24,7 +24,7 @@ public class Line2dEquationBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(l0, LineEquation2d.of(4, -1, 3));
+		TestUtil.exerciseEquals(l0, LineEquation2d.of(4, -1, 3));
 		assertNotEquals(l0, LineEquation2d.of(3.9, -1, 3));
 		assertNotEquals(l0, LineEquation2d.of(4, -0.9, 3));
 		assertNotEquals(l0, LineEquation2d.of(4, -1, 3.1));

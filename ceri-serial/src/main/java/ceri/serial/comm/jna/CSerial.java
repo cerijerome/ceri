@@ -29,7 +29,7 @@ import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.IntegerType;
 import ceri.common.collection.Maps;
 import ceri.common.exception.Exceptions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
@@ -323,7 +323,7 @@ public class CSerial {
 			double diff = Math.abs(((double) (actual - baud)) / baud);
 			if (diff > maxDiff) throw CException.general(
 				"Failed to set custom baud: %d (closest %d, error %.01f%%)", baud, actual,
-				MathUtil.toPercent(diff));
+				Maths.toPercent(diff));
 		}
 	}
 }

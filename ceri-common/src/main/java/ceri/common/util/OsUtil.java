@@ -59,35 +59,35 @@ public class OsUtil {
 		 * Convenience conditional.
 		 */
 		public <T> T mac(T trueVal, T falseVal) {
-			return BasicUtil.ternary(mac, trueVal, falseVal);
+			return Basics.ternary(mac, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T linux(T trueVal, T falseVal) {
-			return BasicUtil.ternary(linux, trueVal, falseVal);
+			return Basics.ternary(linux, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T x86(T trueVal, T falseVal) {
-			return BasicUtil.ternary(x86, trueVal, falseVal);
+			return Basics.ternary(x86, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T arm(T trueVal, T falseVal) {
-			return BasicUtil.ternary(arm, trueVal, falseVal);
+			return Basics.ternary(arm, trueVal, falseVal);
 		}
 
 		/**
 		 * Convenience conditional.
 		 */
 		public <T> T bit64(T trueVal, T falseVal) {
-			return BasicUtil.ternary(bit64, trueVal, falseVal);
+			return Basics.ternary(bit64, trueVal, falseVal);
 		}
 
 		/**

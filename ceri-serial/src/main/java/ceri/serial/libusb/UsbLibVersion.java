@@ -1,8 +1,8 @@
 package ceri.serial.libusb;
 
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.serial.libusb.jna.LibUsb;
 
 public class UsbLibVersion {
@@ -13,27 +13,27 @@ public class UsbLibVersion {
 	}
 
 	public int major() {
-		return MathUtil.ushort(version.major);
+		return Maths.ushort(version.major);
 	}
 
 	public int minor() {
-		return MathUtil.ushort(version.minor);
+		return Maths.ushort(version.minor);
 	}
 
 	public int micro() {
-		return MathUtil.ushort(version.micro);
+		return Maths.ushort(version.micro);
 	}
 
 	public int nano() {
-		return MathUtil.ushort(version.nano);
+		return Maths.ushort(version.nano);
 	}
 
 	public String describe() {
-		return BasicUtil.def(Strings.trim(version.describe), "");
+		return Basics.def(Strings.trim(version.describe), "");
 	}
 
 	public String rcSuffix() {
-		return BasicUtil.def(Strings.trim(version.rc), "");
+		return Basics.def(Strings.trim(version.rc), "");
 	}
 
 	@Override

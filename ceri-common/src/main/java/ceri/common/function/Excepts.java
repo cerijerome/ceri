@@ -1,6 +1,6 @@
 package ceri.common.function;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Interfaces that throw specific exceptions.
@@ -559,7 +559,7 @@ public class Excepts {
 
 	public static void main(String[] args) {
 		Excepts.Predicate<RuntimeException, Object> ep = x -> x == null;
-		Functions.Predicate<Object> fp = BasicUtil.unchecked(ep);
+		Functions.Predicate<Object> fp = Reflect.unchecked(ep);
 		System.out.println(ep.test(null));
 		System.out.println(fp.test(null));
 	}

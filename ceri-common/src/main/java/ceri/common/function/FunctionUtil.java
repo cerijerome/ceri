@@ -8,7 +8,7 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.util.Holder;
 
 /**
@@ -26,14 +26,14 @@ public class FunctionUtil {
 	 * Provides a no-op consumer.
 	 */
 	public static <T> Functions.Consumer<T> nullConsumer() {
-		return BasicUtil.unchecked(NULL_CONSUMER);
+		return Reflect.unchecked(NULL_CONSUMER);
 	}
 
 	/**
 	 * Provides a predicate that is always true.
 	 */
 	public static <T> Functions.Predicate<T> truePredicate() {
-		return BasicUtil.unchecked(TRUE_PREDICATE);
+		return Reflect.unchecked(TRUE_PREDICATE);
 	}
 
 	/**

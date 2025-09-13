@@ -10,8 +10,8 @@ import com.google.protobuf.Int64Value;
 import com.google.protobuf.StringValue;
 import com.google.protobuf.UInt32Value;
 import com.google.protobuf.UInt64Value;
-import ceri.common.function.Excepts.Function;
-import ceri.common.util.BasicUtil;
+import ceri.common.function.Excepts;
+import ceri.common.reflect.Reflect;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
@@ -132,11 +132,11 @@ public class RpcUtil {
 	 * Transforms a steam observer type.
 	 */
 	public static <E extends Exception, T, U> StreamObserver<T>
-		transformObserver(Function<E, T, U> fn, StreamObserver<U> observer) {
+		transformObserver(Excepts.Function<E, T, U> fn, StreamObserver<U> observer) {
 		return observer(t -> onNext(t, fn, observer), observer::onCompleted, observer::onError);
 	}
 
-	private static <E extends Exception, T, U> void onNext(T t, Function<E, T, U> fn,
+	private static <E extends Exception, T, U> void onNext(T t, Excepts.Function<E, T, U> fn,
 		StreamObserver<U> observer) {
 		try {
 			observer.onNext(t == null ? null : fn.apply(t));
@@ -149,7 +149,7 @@ public class RpcUtil {
 	 * A no-op observer.
 	 */
 	public static <T> StreamObserver<T> nullObserver() {
-		return BasicUtil.unchecked(NULL_OBSERVER);
+		return Reflect.unchecked(NULL_OBSERVER);
 	}
 
 	/**

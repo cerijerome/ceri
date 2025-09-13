@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Circle2dBehavior {
 	private final Circle2d c0 = Circle2d.of(4);
@@ -14,7 +14,7 @@ public class Circle2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(c0, Circle2d.of(4));
+		TestUtil.exerciseEquals(c0, Circle2d.of(4));
 		assertNotEquals(c0, Circle2d.of(4.1));
 	}
 

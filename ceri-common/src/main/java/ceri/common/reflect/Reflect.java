@@ -26,7 +26,7 @@ import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Utility methods related to reflection
@@ -84,7 +84,7 @@ public class Reflect {
 	 * Get the typed class of an object.
 	 */
 	public static <T> Class<? extends T> getClass(T t) {
-		return t == null ? null : BasicUtil.unchecked(t.getClass());
+		return t == null ? null : Reflect.unchecked(t.getClass());
 	}
 
 	/**
@@ -415,7 +415,7 @@ public class Reflect {
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
 			t = e;
 		} catch (InvocationTargetException e) {
-			t = BasicUtil.def(e.getCause(), e);
+			t = Basics.def(e.getCause(), e);
 		}
 		throw new RuntimeInvocationException(String.format("new %s(%s) failed with args %s",
 			constructor.getDeclaringClass().getSimpleName(), types(constructor.getParameterTypes()),
@@ -428,9 +428,9 @@ public class Reflect {
 	public static <T> T invoke(Method method, Object subject, Object... args) {
 		Throwable t = null;
 		try {
-			return BasicUtil.unchecked(method.invoke(subject, args));
+			return Reflect.unchecked(method.invoke(subject, args));
 		} catch (InvocationTargetException e) {
-			t = BasicUtil.def(e.getCause(), e);
+			t = Basics.def(e.getCause(), e);
 		} catch (ReflectiveOperationException | IllegalArgumentException e) {
 			t = e;
 		}
@@ -472,7 +472,7 @@ public class Reflect {
 		if (field == null) return def;
 		if (obj == null && !isStatic(field)) return def;
 		try {
-			return BasicUtil.unchecked(field.get(obj));
+			return Reflect.unchecked(field.get(obj));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return def;
 		}
@@ -553,7 +553,18 @@ public class Reflect {
 	 */
 	public static <T extends Enum<?>> T fieldToEnum(Field field) {
 		if (field == null || !field.isEnumConstant()) return null;
-		return BasicUtil.unchecked(Reflect.publicFieldValue(null, field));
+		return Reflect.unchecked(Reflect.publicFieldValue(null, field));
+	}
+
+	/**
+	 * Are you really sure you need to call this? If you're not sure why you need to call this
+	 * method you may be hiding a coding error. Performs an unchecked cast from an object to the
+	 * given type, preventing a warning. Sometimes necessary for collections, etc. Will not prevent
+	 * a runtime cast exception.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T unchecked(Object o) {
+		return (T) o;
 	}
 
 	/**
@@ -598,7 +609,7 @@ public class Reflect {
 	private static <T> T methodInterceptor(T delegate,
 		Functions.BiConsumer<Method, Object[]> consumer, Class<?>... ifaces) {
 		var cls = delegate.getClass();
-		return BasicUtil
+		return Basics
 			.unchecked(Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);

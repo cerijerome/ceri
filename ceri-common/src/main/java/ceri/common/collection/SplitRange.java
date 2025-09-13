@@ -7,9 +7,9 @@ import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
 import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
-import ceri.common.util.BasicUtil;
 
 /**
  * Splits a range into indexed sections such as {@code 0001222233}. Index lookup may Use linear or
@@ -65,7 +65,7 @@ public class SplitRange {
 		public final SplitRange range;
 
 		public static <T> Typed<T> ofNull() {
-			return BasicUtil.unchecked(NULL);
+			return Reflect.unchecked(NULL);
 		}
 
 		private Typed(List<T> list, SplitRange range) {

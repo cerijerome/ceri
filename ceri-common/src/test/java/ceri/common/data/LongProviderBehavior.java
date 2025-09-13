@@ -11,7 +11,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongProvider.Reader;
 import ceri.common.data.LongReceiverBehavior.Holder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.test.Captor;
 
 public class LongProviderBehavior {
@@ -44,7 +44,7 @@ public class LongProviderBehavior {
 	@Test
 	public void testToString() {
 		assertEquals(LongProvider.toString(lp), "[0,-1,2,-3,4,-5,6,...](10)");
-		assertEquals(LongProvider.toString(MathUtil::ubyte, lp), "[0,255,2,253,4,251,6,...](10)");
+		assertEquals(LongProvider.toString(Maths::ubyte, lp), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test

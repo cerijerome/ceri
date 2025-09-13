@@ -9,7 +9,7 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Json adapter that can override and/or use the default serialization adapter. Useful? for
@@ -54,9 +54,9 @@ public class JsonOverrideAdapter<T> {
 
 	private <U> TypeAdapter<U> factoryCreate(Gson gson, TypeToken<U> type) {
 		if (type.getType() != this.type) return null;
-		TypeAdapter<T> delegate = BasicUtil.unchecked(gson.getDelegateAdapter(factory, type));
+		TypeAdapter<T> delegate = Reflect.unchecked(gson.getDelegateAdapter(factory, type));
 		if (delegate == null) throw new IllegalStateException("No delegate registered for " + type);
-		return BasicUtil.unchecked(createAdapter(delegate));
+		return Reflect.unchecked(createAdapter(delegate));
 	}
 
 	private TypeAdapter<T> createAdapter(TypeAdapter<T> delegate) {
@@ -74,5 +74,4 @@ public class JsonOverrideAdapter<T> {
 			}
 		};
 	}
-
 }

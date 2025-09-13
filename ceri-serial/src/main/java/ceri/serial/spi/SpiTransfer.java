@@ -1,7 +1,7 @@
 package ceri.serial.spi;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.util.JnaUtil.buffer;
 import static com.sun.jna.Pointer.nativeValue;
@@ -11,7 +11,7 @@ import com.sun.jna.Memory;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.jna.util.GcMemory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -28,7 +28,7 @@ public class SpiTransfer {
 
 	public static SpiTransfer of(Consumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
-		BasicUtil.requireNot(direction, null, Direction.none);
+		Basics.requireNot(direction, null, Direction.none);
 		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
 		var inMem = direction == Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
 		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);

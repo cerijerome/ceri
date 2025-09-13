@@ -2,7 +2,7 @@ package ceri.serial.libusb.jna;
 
 import java.nio.ByteBuffer;
 import ceri.common.data.ByteUtil;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.test.BinaryPrinter;
 import ceri.jna.util.JnaUtil;
 
@@ -59,7 +59,7 @@ public class ByteBufferTester {
 	private static byte x = 0x10;
 
 	private static int bulkTransfer(ByteBuffer readBuffer, int len) {
-		int n = MathUtil.random(0, 2) > 0 ? len : MathUtil.random(len / 2, len);
+		int n = Maths.random(0, 2) > 0 ? len : Maths.random(len / 2, len);
 		byte[] b = new byte[n];
 		int packets = 0;
 		for (int i = 0; i < b.length; i++) {
@@ -137,7 +137,7 @@ public class ByteBufferTester {
 	}
 
 	private static int read0(ByteBuffer buffer, int size) {
-		int n = MathUtil.random(0, size);
+		int n = Maths.random(0, size);
 		System.out.println("n=" + n);
 		for (int i = 0; i < n; i++)
 			buffer.put((byte) ('A' + i));

@@ -9,9 +9,9 @@ import ceri.common.reflect.Reflect;
 /**
  * Basic utility methods.
  */
-public class BasicUtil {
+public class Basics {
 
-	private BasicUtil() {}
+	private Basics() {}
 
 	/**
 	 * Stops the warning for an unused parameter. Use only when absolutely necessary.

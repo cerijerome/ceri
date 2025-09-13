@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestStyle.behavior;
 import static ceri.common.test.TestStyle.none;
@@ -25,36 +25,36 @@ public class TestStyleBehavior {
 
 	@Test
 	public void shouldConvertToTest() {
-		assertNull(test.test(null));
-		assertEquals(test.test(""), "Test");
-		assertEquals(test.test("My\n"), "My\n");
-		assertEquals(test.test("My"), "MyTest");
-		assertEquals(test.test("ceri.common.My"), "ceri.common.MyTest");
-		assertEquals(test.test("/My.class"), "/MyTest.class");
-		assertEquals(behavior.test(""), "Behavior");
-		assertEquals(behavior.test("My.java"), "MyBehavior.java");
-		assertEquals(behavior.test("ceri/common/My.java"), "ceri/common/MyBehavior.java");
-		assertEquals(none.test("My\n"), "My\n");
-		assertEquals(none.test(""), "");
-		assertEquals(none.test("My"), "My");
-		assertEquals(none.test("ceri.common.My"), "ceri.common.My");
-		assertEquals(none.test("My.java"), "My.java");
-		assertEquals(none.test("/My.class"), "/My.class");
-		assertEquals(none.test("ceri/common/My.java"), "ceri/common/My.java");
+		assertString(test.test(null), "Test");
+		assertString(test.test(""), "Test");
+		assertString(test.test("My\n"), "My\n");
+		assertString(test.test("My"), "MyTest");
+		assertString(test.test("ceri.common.My"), "ceri.common.MyTest");
+		assertString(test.test("/My.class"), "/MyTest.class");
+		assertString(behavior.test(""), "Behavior");
+		assertString(behavior.test("My.java"), "MyBehavior.java");
+		assertString(behavior.test("ceri/common/My.java"), "ceri/common/MyBehavior.java");
+		assertString(none.test("My\n"), "My\n");
+		assertString(none.test(""), "");
+		assertString(none.test("My"), "My");
+		assertString(none.test("ceri.common.My"), "ceri.common.My");
+		assertString(none.test("My.java"), "My.java");
+		assertString(none.test("/My.class"), "/My.class");
+		assertString(none.test("ceri/common/My.java"), "ceri/common/My.java");
 	}
 
 	@Test
 	public void shouldExtractTarget() {
-		assertNull(TestStyle.target(null));
-		assertEquals(TestStyle.target(""), "");
-		assertEquals(TestStyle.target("Test\n"), "Test\n");
-		assertEquals(TestStyle.target("Test"), "");
-		assertEquals(TestStyle.target("Behavior.class"), ".class");
-		assertEquals(TestStyle.target("MyTest"), "My");
-		assertEquals(TestStyle.target("MyClass"), "MyClass");
-		assertEquals(TestStyle.target("MyBehavior.java"), "My.java");
-		assertEquals(TestStyle.target("ceri.common.MyTest"), "ceri.common.My");
-		assertEquals(TestStyle.target("ceri/common/MyBehavior.class"), "ceri/common/My.class");
+		assertString(TestStyle.target(null), "");
+		assertString(TestStyle.target(""), "");
+		assertString(TestStyle.target("Test\n"), "Test\n");
+		assertString(TestStyle.target("Test"), "");
+		assertString(TestStyle.target("Behavior.class"), ".class");
+		assertString(TestStyle.target("MyTest"), "My");
+		assertString(TestStyle.target("MyClass"), "MyClass");
+		assertString(TestStyle.target("MyBehavior.java"), "My.java");
+		assertString(TestStyle.target("ceri.common.MyTest"), "ceri.common.My");
+		assertString(TestStyle.target("ceri/common/MyBehavior.class"), "ceri/common/My.class");
 	}
 
 	@Test
@@ -118,5 +118,4 @@ public class TestStyleBehavior {
 		assertEquals(TestStyle.fromSuffix("Test"), test);
 		assertEquals(TestStyle.fromSuffix("Behavior"), behavior);
 	}
-
 }

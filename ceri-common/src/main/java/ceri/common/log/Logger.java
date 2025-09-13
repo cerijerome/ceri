@@ -25,7 +25,7 @@ import ceri.common.exception.Exceptions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.time.DateUtil;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Simple logger for when a logging framework cannot be used. A logger is built with a global lookup
@@ -172,7 +172,7 @@ public class Logger {
 
 	Logger(Builder builder) {
 		out = builder.out;
-		err = BasicUtil.def(builder.err, out);
+		err = Basics.def(builder.err, out);
 		minLevel = builder.minLevel;
 		errLevel = builder.errLevel;
 		format = builder.format;

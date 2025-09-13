@@ -15,7 +15,7 @@ import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 public class Collect {
 	private static final Functions.BiOperator<Object> NO_COMBINER = (_, _) -> unsupported(
@@ -24,7 +24,7 @@ public class Collect {
 	private static final Collector<?, List<Object>, List<Object>> LIST =
 		of(Lists::of, Collection::add, Immutable::wrap);
 	private static final Collector<?, ?, List<?>> SORTED_LIST =
-		BasicUtil.unchecked(sortedList(Comparator.naturalOrder()));
+		Reflect.unchecked(sortedList(Comparator.naturalOrder()));
 	private static final Collector<?, Set<Object>, Set<Object>> SET =
 		of(Sets::of, Collection::add, Immutable::wrap);
 
@@ -79,14 +79,14 @@ public class Collect {
 	 * A combiner that throws unsupported exception.
 	 */
 	public static <T> Functions.BiOperator<T> noCombiner() {
-		return BasicUtil.unchecked(NO_COMBINER);
+		return Reflect.unchecked(NO_COMBINER);
 	}
 
 	/**
 	 * Collects elements into an object array.
 	 */
 	public static <T> Collector<T, ?, Object[]> array() {
-		return BasicUtil.unchecked(ARRAY);
+		return Reflect.unchecked(ARRAY);
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class Collect {
 	 * Collects elements into an immutable list.
 	 */
 	public static <T> Collector<T, ?, List<T>> list() {
-		return BasicUtil.unchecked(LIST);
+		return Reflect.unchecked(LIST);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class Collect {
 	 */
 	public static <R extends Comparable<? super R>, T extends R> Collector<T, ?, List<R>>
 		sortedList() {
-		return BasicUtil.unchecked(SORTED_LIST);
+		return Reflect.unchecked(SORTED_LIST);
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class Collect {
 	 * Collects elements into an immutable set.
 	 */
 	public static <T> Collector<T, ?, Set<T>> set() {
-		return BasicUtil.unchecked(SET);
+		return Reflect.unchecked(SET);
 	}
 
 	/**

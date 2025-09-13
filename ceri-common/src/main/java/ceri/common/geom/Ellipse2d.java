@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.ToString;
 
 public class Ellipse2d {
@@ -151,7 +151,7 @@ public class Ellipse2d {
 
 	private static double integral(double r, double a, double b) {
 		if (a == 0 || b == 0) return 0;
-		r = MathUtil.limit(r, -a, a);
+		r = Maths.limit(r, -a, a);
 		double sqrt = Math.sqrt((a * a) - (r * r));
 		return (b * r * sqrt / a) + (b * a * Math.atan(r / sqrt));
 	}

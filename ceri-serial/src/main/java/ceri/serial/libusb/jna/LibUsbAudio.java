@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import static java.lang.Math.max;
 import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;

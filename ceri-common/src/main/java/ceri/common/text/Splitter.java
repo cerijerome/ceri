@@ -92,7 +92,7 @@ public class Splitter {
 		 * group 0, the full match.
 		 */
 		static Extractor byRegex(String format, Object... args) {
-			return byRegex(Patterns.compile(format, args));
+			return byRegex(Regex.compile(format, args));
 		}
 
 		/**

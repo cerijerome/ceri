@@ -4,7 +4,7 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -42,8 +42,8 @@ public class Transmit {
 	}
 
 	private static int dimPercent(int header) {
-		int value = MathUtil.limit((header >>> DIM_START_BIT) & DIM_MASK, 0, DIM_MAX);
-		return MathUtil.roundDiv(value * X10Util.DIM_MAX_PERCENT, DIM_MAX);
+		int value = Maths.limit((header >>> DIM_START_BIT) & DIM_MASK, 0, DIM_MAX);
+		return Maths.roundDiv(value * X10Util.DIM_MAX_PERCENT, DIM_MAX);
 	}
 
 	private static boolean function(int header) {
@@ -70,7 +70,7 @@ public class Transmit {
 	}
 
 	private static int header(int dimPercent, boolean function, boolean extended) {
-		int dim = MathUtil.limit(MathUtil.roundDiv(dimPercent * DIM_MAX, X10Util.DIM_MAX_PERCENT),
+		int dim = Maths.limit(Maths.roundDiv(dimPercent * DIM_MAX, X10Util.DIM_MAX_PERCENT),
 			0, DIM_MAX);
 		return (dim << DIM_START_BIT) | HEADER_MASK | (function ? FUNCTION_MASK : 0)
 			| (extended ? EXTENDED_MASK : 0);

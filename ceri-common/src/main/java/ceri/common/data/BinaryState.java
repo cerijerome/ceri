@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * Encapsulates on/off or unknown states.
@@ -28,7 +28,7 @@ public enum BinaryState {
 	}
 
 	public static BinaryState from(Boolean isOn) {
-		return BasicUtil.ternary(isOn, on, off, unknown);
+		return Basics.ternary(isOn, on, off, unknown);
 	}
 
 	private BinaryState(int value, char symbol) {

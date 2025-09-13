@@ -9,7 +9,7 @@ import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.log.util.LogUtil;
 
 /**
@@ -35,7 +35,7 @@ public class ContainerTestHelper implements Functions.Closeable {
 	protected <T extends AutoCloseable> T get(Object id,
 		Excepts.Function<IOException, TypedProperties, T> supplier) {
 		var name = name(id);
-		return BasicUtil.unchecked(cache.computeIfAbsent(name, _ -> {
+		return Reflect.unchecked(cache.computeIfAbsent(name, _ -> {
 			logger.info("Creating container: {}", name);
 			return ExceptionAdapter.runtimeIo.get(() -> supplier.apply(properties(name)));
 		}));
@@ -49,5 +49,4 @@ public class ContainerTestHelper implements Functions.Closeable {
 	public void close() {
 		LogUtil.close(cache.values());
 	}
-
 }

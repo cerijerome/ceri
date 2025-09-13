@@ -152,7 +152,7 @@ public class FractionFormats {
 
 	static class Parser {
 		private static final Map<Character, String> EXPANSIONS = expansions();
-		private static final Pattern EXPAND_REGEX = Patterns.compile("[%s]", expandables());
+		private static final Pattern EXPAND_REGEX = Regex.compile("[%s]", expandables());
 		private static final String INTEGERS = "[+-]?[0-9]+";
 		private static final String GLYPHS =
 			String.format("[+-%s%s]?[%s]", Superscript.PLUS, Superscript.MINUS, Glyph.all());
@@ -165,7 +165,7 @@ public class FractionFormats {
 			String.format("[+-%s%s]?[%s]+", Subscript.PLUS, Subscript.MINUS, Subscript.digits());
 		private static final Pattern PATTERN = Pattern.compile(pattern());
 		private static final Pattern EXPANDED_REGEX =
-			Patterns.compile("(%s)/(%s)", INTEGERS, INTEGERS);
+			Regex.compile("(%s)/(%s)", INTEGERS, INTEGERS);
 
 		private Parser() {}
 

@@ -2,11 +2,9 @@ package ceri.common.test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Enums;
-import ceri.common.text.Patterns;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 
 /**
  * The test class naming conventions used. Use to identify tests, and convert between target and
@@ -20,7 +18,7 @@ public enum TestStyle {
 	// List of main class suffixes that are most likely to use test style
 	private static final List<String> testGuessSuffixes = List.of("Util");
 	private static final Pattern REGEX =
-		Patterns.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
+		Regex.compile("^(.*?)(%s|%s|)(\\.java|\\.class|)$", test.suffix, behavior.suffix);
 	private static final Map<String, TestStyle> lookup = Enums.map(t -> t.suffix, TestStyle.class);
 	private static final int TARGET_INDEX = 1;
 	private static final int STYLE_INDEX = 2;
@@ -40,11 +38,11 @@ public enum TestStyle {
 	 * Guess from class - can be target or test class.
 	 */
 	public static TestStyle guessFrom(String name) {
-		Matcher m = RegexUtil.matched(REGEX, name);
-		if (m == null) return none;
-		TestStyle style = fromSuffix(m.group(STYLE_INDEX));
+		var m = Regex.match(REGEX, name);
+		if (!m.hasMatch()) return none;
+		var style = fromSuffix(m.group(STYLE_INDEX));
 		if (!style.isNone()) return style;
-		String target = m.group(TARGET_INDEX);
+		var target = m.group(TARGET_INDEX);
 		if (target.isEmpty()) return none;
 		return testGuessSuffixes.stream().anyMatch(s -> target.endsWith(s)) ? test : behavior;
 	}
@@ -70,8 +68,8 @@ public enum TestStyle {
 	 * null if the given string does not match a test style.
 	 */
 	public static TestStyle from(String test) {
-		Matcher m = RegexUtil.matched(REGEX, test);
-		if (m == null) return none;
+		var m = Regex.match(REGEX, test);
+		if (!m.hasMatch()) return none;
 		return fromSuffix(m.group(STYLE_INDEX));
 	}
 
@@ -99,9 +97,8 @@ public enum TestStyle {
 	 * and paths are permitted.
 	 */
 	public String test(String target) {
-		Matcher matcher = RegexUtil.matched(REGEX, target);
-		if (matcher == null) return target;
-		return matcher.group(TARGET_INDEX) + suffix + matcher.group(FILE_TYPE_INDEX);
+		var m = Regex.match(REGEX, target);
+		if (!m.hasMatch()) return target;
+		return m.group(TARGET_INDEX) + suffix + m.group(FILE_TYPE_INDEX);
 	}
-
 }

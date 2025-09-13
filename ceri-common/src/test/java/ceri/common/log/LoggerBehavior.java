@@ -9,7 +9,7 @@ import ceri.common.function.Functions;
 import ceri.common.io.SystemIo;
 import ceri.common.log.Logger.FormatFlag;
 import ceri.common.test.Captor;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
 import ceri.common.util.CloseableUtil;
 
@@ -97,7 +97,7 @@ public class LoggerBehavior {
 	public void shouldLogClassAndLineNumber() {
 		logger = init().build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, Patterns.Filter.find("%s:\\d+", getClass().getName()));
+		assertAndReset(out, Regex.Filter.find("%s:\\d+", getClass().getName()));
 	}
 
 	@Test
@@ -122,10 +122,10 @@ public class LoggerBehavior {
 		assertAndReset(out, s -> s.contains("[]"));
 		logger = Logger.builder(KEY).threadMax(1).build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, Patterns.Filter.find("\\[.\\]"));
+		assertAndReset(out, Regex.Filter.find("\\[.\\]"));
 		logger = Logger.builder(KEY).threadMax(Integer.MAX_VALUE).build();
 		logger.info("test: %s", "info");
-		assertAndReset(out, Patterns.Filter.find("\\[.+\\]"));
+		assertAndReset(out, Regex.Filter.find("\\[.+\\]"));
 	}
 
 	@Test

@@ -3,8 +3,8 @@ package ceri.process.scutil;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class NcListItemBehavior {
 
@@ -21,7 +21,7 @@ public class NcListItemBehavior {
 		NcListItem ne4 = NcListItem.from("* (Connected)  X P --> E \"N\" [P:T]");
 		NcListItem ne5 = NcListItem.from("* (Connected)  X P --> D \"O\" [P:T]");
 		NcListItem ne6 = NcListItem.from("* (Connected)  X P --> D \"N\" [P:U]");
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 

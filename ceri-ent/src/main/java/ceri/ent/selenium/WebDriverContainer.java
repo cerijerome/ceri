@@ -17,7 +17,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import ceri.common.function.Excepts.Supplier;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * A container and support methods for Selenium web drivers. Supports lifecycle management with
@@ -53,7 +53,7 @@ public class WebDriverContainer implements Functions.Closeable {
 		boolean canReset) throws IOException {
 		logger.info("{} started", getClass().getSimpleName());
 		this.constructor = constructor;
-		this.timeoutSec = (int) MathUtil.roundDiv(timeoutMs, 1000);
+		this.timeoutSec = (int) Maths.roundDiv(timeoutMs, 1000);
 		this.canReset = canReset;
 		driver = create(constructor);
 	}

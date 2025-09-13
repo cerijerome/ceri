@@ -2,8 +2,8 @@ package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HasherBehavior {
 
@@ -23,7 +23,7 @@ public class HasherBehavior {
 		Hasher ne2 = Hasher.of().hash(1.1).hash(true).hash(-2L);
 		Hasher ne3 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash(null);
 		Hasher ne4 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash("");
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
 	}
 

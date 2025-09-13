@@ -6,22 +6,6 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.ErrorGen.RIX;
-import static ceri.common.test.TestUtil.exerciseEquals;
-import static ceri.x10.cm11a.protocol.Protocol.READY;
-import static ceri.x10.cm11a.protocol.Protocol.RING_ENABLE;
-import static ceri.x10.command.House.A;
-import static ceri.x10.command.House.B;
-import static ceri.x10.command.House.G;
-import static ceri.x10.command.House.H;
-import static ceri.x10.command.House.I;
-import static ceri.x10.command.House.L;
-import static ceri.x10.command.Unit._1;
-import static ceri.x10.command.Unit._10;
-import static ceri.x10.command.Unit._16;
-import static ceri.x10.command.Unit._6;
-import static ceri.x10.command.Unit._7;
-import static ceri.x10.command.Unit._9;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -32,13 +16,18 @@ import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
+import ceri.common.test.TestUtil;
 import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.x10.cm11a.protocol.Clock;
+import ceri.x10.cm11a.protocol.Protocol;
 import ceri.x10.cm11a.protocol.Status;
 import ceri.x10.command.Command;
+import ceri.x10.command.House;
 import ceri.x10.command.TestCommandListener;
+import ceri.x10.command.Unit;
 import ceri.x10.command.UnsupportedCommand;
 
 public class Cm11aDeviceBehavior {
@@ -64,7 +53,7 @@ public class Cm11aDeviceBehavior {
 		var ne3 = Cm11aDevice.Config.builder().queueSize(5).readPollMs(1).build();
 		var ne4 = Cm11aDevice.Config.builder().queueSize(5).readTimeoutMs(1).build();
 		var ne5 = Cm11aDevice.Config.builder().queueSize(5).errorDelayMs(1).build();
-		exerciseEquals(t, eq0);
+		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
@@ -82,7 +71,7 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldSendUnitCommand() throws IOException {
 		init();
-		try (var exec = SimpleExecutor.run(() -> cm11a.command(Command.on(H, _10)))) {
+		try (var exec = SimpleExecutor.run(() -> cm11a.command(Command.on(House.H, Unit._10)))) {
 			assertArray(con.out.from.readBytes(2), 0x4, 0xdf);
 			con.in.to.writeBytes(0xe3).flush();
 			assertArray(con.out.from.readBytes(1), 0);
@@ -99,7 +88,8 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldSendDimCommand() throws IOException {
 		init();
-		try (var exec = SimpleExecutor.run(() -> cm11a.command(Command.dim(L, 50, _7, _9)))) {
+		try (var exec =
+			SimpleExecutor.run(() -> cm11a.command(Command.dim(House.L, 50, Unit._7, Unit._9)))) {
 			assertArray(con.out.from.readBytes(2), 0x4, 0xb5);
 			con.in.to.writeBytes(0xb9).flush();
 			assertArray(con.out.from.readBytes(1), 0);
@@ -120,7 +110,8 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldSendExtCommand() throws IOException {
 		init();
-		try (var exec = SimpleExecutor.run(() -> cm11a.command(Command.ext(G, 0xaa, 0xbb, _16)))) {
+		try (var exec =
+			SimpleExecutor.run(() -> cm11a.command(Command.ext(House.G, 0xaa, 0xbb, Unit._16)))) {
 			assertArray(con.out.from.readBytes(2), 0x4, 0x5c);
 			con.in.to.writeBytes(0x60).flush();
 			assertArray(con.out.from.readBytes(1), 0);
@@ -136,7 +127,7 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldFailForUnsupportedcommand() throws IOException {
 		init();
-		assertThrown(() -> cm11a.command(UnsupportedCommand.hailReq(I, _1)));
+		assertThrown(() -> cm11a.command(UnsupportedCommand.hailReq(House.I, Unit._1)));
 	}
 
 	@SuppressWarnings("resource")
@@ -149,7 +140,7 @@ public class Cm11aDeviceBehavior {
 				.flush();
 			Status status = exec.get();
 			assertEquals(status.batteryTimer, 0xffff);
-			assertEquals(status.house, A);
+			assertEquals(status.house, House.A);
 			assertEquals(status.addressed, 0x000f);
 			assertEquals(status.onOff, 0x000a);
 			assertEquals(status.dim, 0x0003);
@@ -166,7 +157,7 @@ public class Cm11aDeviceBehavior {
 		init();
 		con.in.to.writeByte(0xa5).flush();
 		Clock clock = Clock.decode(con.out.from);
-		assertEquals(clock.house, A);
+		assertEquals(clock.house, House.A);
 		assertFalse(clock.clearBatteryTimer);
 		assertFalse(clock.clearMonitoredStatus);
 		assertFalse(clock.purgeTimer);
@@ -183,7 +174,7 @@ public class Cm11aDeviceBehavior {
 			con.in.to.writeByte(0x5a).flush();
 			assertArray(con.out.from.readBytes(1), 0xc3);
 			con.in.to.writeBytes(5, 0x04, 0xe9, 0xe5, 0xe5, 0x58);
-			listener.sync.await(Command.bright(B, 42, _6, _7));
+			listener.sync.await(Command.bright(House.B, 42, Unit._6, Unit._7));
 		}
 	}
 
@@ -192,7 +183,9 @@ public class Cm11aDeviceBehavior {
 	public void shouldIgnoreUnsupportedDataFromDevice() throws IOException {
 		init();
 		LogModifier.run(() -> {
-			con.in.to.writeBytes(READY.value, RING_ENABLE.value, READY.value).flush();
+			con.in.to
+				.writeBytes(Protocol.READY.value, Protocol.RING_ENABLE.value, Protocol.READY.value)
+				.flush();
 			con.in.awaitFeed();
 		}, Level.ERROR, Processor.class);
 	}
@@ -203,16 +196,20 @@ public class Cm11aDeviceBehavior {
 		init();
 		LogModifier.run(() -> {
 			// Run twice to check logging logic
-			Command cmd = Command.on(H, _10);
+			Command cmd = Command.on(House.H, Unit._10);
 			try (var exec = SimpleExecutor.run(() -> cm11a.command(cmd))) {
 				assertArray(con.out.from.readBytes(2), 0x4, 0xdf);
-				con.in.to.writeBytes(READY.value, READY.value, READY.value).flush();
+				con.in.to
+					.writeBytes(Protocol.READY.value, Protocol.READY.value, Protocol.READY.value)
+					.flush();
 				con.in.awaitFeed();
 				assertThrown(() -> exec.get());
 			}
 			try (var exec = SimpleExecutor.run(() -> cm11a.command(cmd))) {
 				assertArray(con.out.from.readBytes(2), 0x4, 0xdf);
-				con.in.to.writeBytes(READY.value, READY.value, READY.value).flush();
+				con.in.to
+					.writeBytes(Protocol.READY.value, Protocol.READY.value, Protocol.READY.value)
+					.flush();
 				con.in.awaitFeed();
 				assertThrown(() -> exec.get());
 			}
@@ -225,7 +222,7 @@ public class Cm11aDeviceBehavior {
 		try (TestConnector con = TestConnector.of()) {
 			con.open();
 			try (Cm11aDevice _ = Cm11aDevice.of(config, con)) {
-				con.in.read.error.setFrom(RIX);
+				con.in.read.error.setFrom(ErrorGen.RIX);
 				con.in.to.writeByte(0).flush();
 				con.in.awaitFeed();
 			}

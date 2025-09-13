@@ -3,8 +3,7 @@ package ceri.process.arp;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.text.Patterns;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.ToString;
 
 /*
@@ -26,14 +25,14 @@ public class ArpEntry {
 	public final String iface;
 
 	public static List<ArpEntry> fromOuput(String output) {
-		return Patterns.Split.LINE.stream(output).map(ArpEntry::fromLine)
-			.filter(ArpEntry::nonNull).toList();
+		return Regex.Split.LINE.stream(output).map(ArpEntry::fromLine).filter(ArpEntry::nonNull)
+			.toList();
 	}
 
 	public static ArpEntry fromLine(String line) {
-		String ip = RegexUtil.find(IP_REGEX, line);
-		String mac = RegexUtil.find(MAC_REGEX, line);
-		String iface = RegexUtil.find(IFACE_REGEX, line);
+		var ip = Regex.findGroup(IP_REGEX, line, 1);
+		var mac = Regex.findGroup(MAC_REGEX, line, 1);
+		var iface = Regex.findGroup(IFACE_REGEX, line, 1);
 		return create(ip, mac, iface);
 	}
 
@@ -65,8 +64,7 @@ public class ArpEntry {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof ArpEntry)) return false;
-		ArpEntry other = (ArpEntry) obj;
+		if (!(obj instanceof ArpEntry other)) return false;
 		if (!Objects.equals(ip, other.ip)) return false;
 		if (!Objects.equals(mac, other.mac)) return false;
 		if (!Objects.equals(iface, other.iface)) return false;

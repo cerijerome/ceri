@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import ceri.common.collection.Enums;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
 
 public class Mode {
@@ -65,7 +65,7 @@ public class Mode {
 	}
 
 	public static Mode of(int mode) {
-		return new Mode(MathUtil.ushortExact(mode));
+		return new Mode(Maths.ushortExact(mode));
 	}
 
 	public static Mode of(Mask... masks) {

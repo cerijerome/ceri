@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import static ceri.common.validation.ValidationUtil.validateMin;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Extracts and calculates masked values within a long value. The specified mask is absolute.
@@ -13,7 +13,7 @@ public record Mask(int shift, long mask) {
 	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
 	public static Mask ofInt(int shiftBits, int mask) {
-		return of(shiftBits, MathUtil.uint(mask));
+		return of(shiftBits, Maths.uint(mask));
 	}
 
 	/**

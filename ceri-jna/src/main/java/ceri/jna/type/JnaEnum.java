@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.collection.Immutable;
 import ceri.common.reflect.Annotations;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Utilities for c-style enums.
@@ -32,7 +32,7 @@ public class JnaEnum {
 		default int value() {
 			var cls = getClass();
 			if (!cls.isEnum()) return 0;
-			if (!initialized(cls)) initFromAnnotations(BasicUtil.unchecked(cls));
+			if (!initialized(cls)) initFromAnnotations(Reflect.unchecked(cls));
 			return JnaEnum.enumValue((Enum<?>) this);
 		}
 	}
@@ -53,7 +53,7 @@ public class JnaEnum {
 	public static <T extends Enum<T> & Valued> T from(Class<T> cls, int value) {
 		init(cls);
 		var en = valueToEnumMap.get(cls).get(value);
-		if (en != null) return BasicUtil.unchecked(en);
+		if (en != null) return Reflect.unchecked(en);
 		var t = fromOrdinal(cls, value);
 		return t != null && t.value() == value ? t : null;
 	}
@@ -65,7 +65,7 @@ public class JnaEnum {
 	public static <T extends Enum<T>> T fromOrdinal(Class<T> cls, int ordinal) {
 		Object[] objs = cachedEnums.computeIfAbsent(cls, Class::getEnumConstants);
 		if (ordinal < 0 || ordinal >= objs.length) return null;
-		return BasicUtil.unchecked(objs[ordinal]);
+		return Reflect.unchecked(objs[ordinal]);
 	}
 
 	/* private */

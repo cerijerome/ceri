@@ -27,7 +27,7 @@ public enum Truth {
 	}
 
 	public static Truth from(Boolean isYes) {
-		return BasicUtil.ternary(isYes, yes, no, maybe);
+		return Basics.ternary(isYes, yes, no, maybe);
 	}
 
 	private Truth(int value, char symbol) {

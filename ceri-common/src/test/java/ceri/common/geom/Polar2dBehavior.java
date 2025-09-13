@@ -2,14 +2,14 @@ package ceri.common.geom;
 
 import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
-import static ceri.common.math.MathUtil.PI_BY_2;
+import static ceri.common.math.Maths.PI_BY_2;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Math.PI;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Polar2dBehavior {
 	private final Polar2d p0 = Polar2d.of(2, PI / 3);
@@ -17,7 +17,7 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(p0, Polar2d.of(2, PI / 3));
+		TestUtil.exerciseEquals(p0, Polar2d.of(2, PI / 3));
 		assertNotEquals(p0, Polar2d.of(2.1, PI / 3));
 		assertNotEquals(p0, Polar2d.of(2, PI / 3.1));
 	}

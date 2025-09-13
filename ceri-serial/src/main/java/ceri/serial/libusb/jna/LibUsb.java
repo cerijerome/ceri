@@ -1,8 +1,8 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
-import static ceri.common.math.MathUtil.ushort;
-import static ceri.common.util.BasicUtil.ternary;
+import static ceri.common.math.Maths.ubyte;
+import static ceri.common.math.Maths.ushort;
+import static ceri.common.util.Basics.ternary;
 import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.type.Struct;
@@ -2209,7 +2209,7 @@ public class LibUsb {
 	}
 
 	public static short libusb_cpu_to_le16(short x) {
-		return (short) BasicUtil.ternaryInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
+		return (short) Basics.ternaryInt(ByteUtil.IS_BIG_ENDIAN, Short.reverseBytes(x), x);
 	}
 
 	public static short libusb_le16_to_cpu(short x) {

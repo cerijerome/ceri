@@ -14,5 +14,4 @@ public class UnitBehavior {
 		assertThrown(() -> Unit.from(0));
 		assertThrown(() -> Unit.from(17));
 	}
-
 }

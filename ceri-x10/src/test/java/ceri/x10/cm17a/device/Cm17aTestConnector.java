@@ -3,7 +3,7 @@ package ceri.x10.cm17a.device;
 import static ceri.common.test.AssertUtil.assertRead;
 import java.io.IOException;
 import ceri.common.data.ByteUtil;
-import ceri.common.data.IntArray.Encoder;
+import ceri.common.data.IntArray;
 import ceri.common.event.Listenable;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.io.StateChange;
@@ -42,7 +42,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 	}
 
 	public void assertCodes(int... codes) throws IOException {
-		Encoder enc = Encoder.of();
+		var enc = IntArray.Encoder.of();
 		for (int code : codes)
 			enc.writeInts(0xd5, 0xaa, code >>> 8, code & 0xff, 0xad);
 		assertRead(out.from, enc.ints());

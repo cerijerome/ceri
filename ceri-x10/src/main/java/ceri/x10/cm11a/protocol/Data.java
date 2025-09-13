@@ -12,7 +12,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
 import ceri.common.data.IntArray;
 import ceri.common.data.IntProvider;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
@@ -95,7 +95,7 @@ public class Data {
 	}
 
 	public static int checksum(ByteProvider bytes) {
-		return MathUtil.ubyte(bytes.ustream(0).sum());
+		return Maths.ubyte(bytes.ustream(0).sum());
 	}
 
 	/**

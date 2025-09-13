@@ -1,6 +1,6 @@
 package ceri.common.text;
 
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 
 /**
@@ -252,7 +252,7 @@ public class NumberParser {
 	}
 
 	/**
-	 * Verify that +/- sign is not at the current position, before calling paseXxx method.
+	 * Verify that +/- sign is not at the current position, before calling parseXxx method.
 	 */
 	private NumberParser noSign() {
 		if (i >= s.length()) return this;
@@ -267,7 +267,7 @@ public class NumberParser {
 	 */
 	private byte parseByte() {
 		int ivalue = Integer.parseUnsignedInt(s, i, s.length(), radix);
-		if (ivalue < 0 || ivalue > MathUtil.MAX_UBYTE)
+		if (ivalue < 0 || ivalue > Maths.MAX_UBYTE)
 			throw formatException("Number out of byte range -0xff to 0xff: \"%s\"", s);
 		byte value = (byte) ivalue;
 		return (positive || value == Byte.MIN_VALUE) ? value : (byte) -value;
@@ -278,7 +278,7 @@ public class NumberParser {
 	 */
 	private short parseShort() {
 		int ivalue = Integer.parseUnsignedInt(s, i, s.length(), radix);
-		if (ivalue < 0 || ivalue > MathUtil.MAX_USHORT)
+		if (ivalue < 0 || ivalue > Maths.MAX_USHORT)
 			throw formatException("Number out of short range -0xffff to 0xffff: \"%s\"", s);
 		short value = (short) ivalue;
 		return (positive || value == Short.MIN_VALUE) ? value : (short) -value;

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.Level;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.io.Direction;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.util.StartupValues;
 import ceri.log.util.LogUtil;
 import ceri.serial.spi.Spi;
@@ -93,7 +93,7 @@ public class SpiPulseTester {
 	private static byte[] rnd(int size) {
 		byte[] rnd = new byte[size];
 		for (int i = 0; i < rnd.length; i++)
-			rnd[i] = (byte) MathUtil.random(0, 0xff);
+			rnd[i] = (byte) Maths.random(0, 0xff);
 		return rnd;
 	}
 

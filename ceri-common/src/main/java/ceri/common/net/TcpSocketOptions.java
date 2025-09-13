@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import ceri.common.collection.Immutable;
 import ceri.common.function.Excepts;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 
 /**
  * Type-safe map of socket options and values.
@@ -23,7 +23,7 @@ public class TcpSocketOptions {
 		var options = of();
 		for (var option : TcpSocketOption.all) {
 			Object value = socket.option(option);
-			if (value != null) options.set(option, BasicUtil.unchecked(value));
+			if (value != null) options.set(option, Reflect.unchecked(value));
 		}
 		return options.immutable();
 	}
@@ -97,7 +97,7 @@ public class TcpSocketOptions {
 	 * Returns the option value, or null if unset.
 	 */
 	public <T> T get(TcpSocketOption<T> option) {
-		return BasicUtil.unchecked(map.get(option));
+		return Reflect.unchecked(map.get(option));
 	}
 
 	/**

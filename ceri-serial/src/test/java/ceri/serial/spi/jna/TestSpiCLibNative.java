@@ -1,6 +1,6 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ushort;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_MESSAGE;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_BITS_PER_WORD;
 import static ceri.serial.spi.jna.SpiDev.SPI_IOC_RD_LSB_FIRST;

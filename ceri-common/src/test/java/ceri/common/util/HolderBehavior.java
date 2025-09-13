@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class HolderBehavior {
 
@@ -26,7 +26,7 @@ public class HolderBehavior {
 		Holder<?> ne1 = Holder.mutable("Test");
 		Holder<?> ne2 = Holder.of();
 		Holder<?> ne3 = Holder.mutable();
-		exerciseEquals(t, eq0, eq1);
+		TestUtil.exerciseEquals(t, eq0, eq1);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
 	}
 

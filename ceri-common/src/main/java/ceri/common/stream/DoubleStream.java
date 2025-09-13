@@ -11,7 +11,8 @@ import ceri.common.array.RawArray;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.util.Basics;
 import ceri.common.util.Counter;
 
 /**
@@ -146,7 +147,7 @@ public class DoubleStream<E extends Exception> {
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception> DoubleStream<E> empty() {
-		return BasicUtil.unchecked(EMPTY);
+		return Reflect.unchecked(EMPTY);
 	}
 
 	/**
@@ -301,9 +302,9 @@ public class DoubleStream<E extends Exception> {
 	 * Limits the number of elements.
 	 */
 	public DoubleStream<E> limit(long size) {
-		var counter = Counter.ofLong(size);
+		var counter = Counter.of(size);
 		return update(
-			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.count())) > 0L));
+			preSupplier(supplier, () -> counter.preInc(-Long.signum(counter.get())) > 0L));
 	}
 
 	/**
@@ -335,7 +336,7 @@ public class DoubleStream<E extends Exception> {
 	 * Returns the next element or default.
 	 */
 	public double next(double def) throws E {
-		return BasicUtil.defDouble(next(), def);
+		return Basics.defDouble(next(), def);
 	}
 
 	/**
@@ -439,7 +440,7 @@ public class DoubleStream<E extends Exception> {
 	 * Reduces stream to a value using an accumulator, or default.
 	 */
 	public double reduce(Excepts.DoubleBiOperator<? extends E> accumulator, double def) throws E {
-		return BasicUtil.defDouble(reduce(accumulator), def);
+		return Basics.defDouble(reduce(accumulator), def);
 	}
 
 	// support
@@ -456,7 +457,7 @@ public class DoubleStream<E extends Exception> {
 	}
 
 	private Excepts.DoubleConsumer<E> nullConsumer() {
-		return BasicUtil.unchecked(NULL_CONSUMER);
+		return Reflect.unchecked(NULL_CONSUMER);
 	}
 
 	private DoubleStream<E> update(NextSupplier<E> supplier) {
@@ -466,9 +467,9 @@ public class DoubleStream<E extends Exception> {
 
 	private static <E extends Exception> NextSupplier<E> arraySupplier(double[] array, int offset,
 		int length) {
-		var counter = Counter.ofInt(0);
+		var counter = Counter.of(0);
 		return c -> {
-			if (counter.count() >= length) return false;
+			if (counter.get() >= length) return false;
 			c.accept(array[offset + counter.preInc(1)]);
 			return true;
 		};

@@ -1,11 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
+import static ceri.common.test.AssertUtil.assertString;
 import org.junit.Test;
-import ceri.common.math.MathUtil;
-import ceri.common.test.CallSync;
+import ceri.common.math.Maths;
 import ceri.common.text.Format.Separation;
 
 public class FormatBehavior {
@@ -45,9 +42,9 @@ public class FormatBehavior {
 
 	private static void print(Format fmt, long value, String desc) {
 		p(fmt, value, desc);
-		p(fmt, MathUtil.ubyte(value), "ubyte");
-		p(fmt, MathUtil.ushort(value), "ushort");
-		p(fmt, MathUtil.uint(value), "uint");
+		p(fmt, Maths.ubyte(value), "ubyte");
+		p(fmt, Maths.ushort(value), "ushort");
+		p(fmt, Maths.uint(value), "uint");
 		System.out.println();
 	}
 

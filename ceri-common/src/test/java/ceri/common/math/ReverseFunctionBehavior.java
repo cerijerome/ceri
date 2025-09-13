@@ -3,9 +3,9 @@ package ceri.common.math;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class ReverseFunctionBehavior {
 	private static final ReverseFunction f0 =
@@ -15,7 +15,7 @@ public class ReverseFunctionBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(f0, ReverseFunction.create(0, Math.PI / 2, 100, Math::sin));
+		TestUtil.exerciseEquals(f0, ReverseFunction.create(0, Math.PI / 2, 100, Math::sin));
 		assertEquals(f0, ReverseFunction.builder().add(f0.values).build());
 		assertNotEquals(f0, ReverseFunction.create(0.1, Math.PI / 2, 100, Math::sin));
 		assertNotEquals(f0, ReverseFunction.create(0, Math.PI / 1.9, 100, Math::sin));

@@ -2,6 +2,7 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertString;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,6 +16,7 @@ import ceri.common.stream.Streams;
 import ceri.common.util.CloseableUtil;
 
 public class StringBuildersTest {
+	private static final String nullString = null;
 	private static final IntStream<RuntimeException> nullIntStream = null;
 	private static final PrimitiveIterator.OfInt nullIntIterator = null;
 	private static final int _1B = 'A';
@@ -40,6 +42,33 @@ public class StringBuildersTest {
 	}
 
 	@Test
+	public void testStateUnchanged() {
+		var s = "abc";
+		assertSame(state(s, null).toString(), s);
+		assertSame(state(s, null).append(2, 'c').toString(), s);
+		assertSame(state(s, null).append(3, "").toString(), s);
+		assertSame(state(s, null).append(0, "abc").toString(), s);
+		assertSame(state(s, null).append(1, "bc").toString(), s);
+		assertSame(state(s, null).append(2, 2).toString(), s);
+		assertSame(state(s, null).append(2, 2).append(2, 'c').toString(), s);
+	}
+
+	@Test
+	public void testStateAppend() {
+		var s = "abc";
+		assertString(state(s, null).append(1, 'B'), "aB");
+		assertString(state(s, null).append(3, "d"), "abcd");
+		assertString(state(s, null).append(1, "Bc"), "aBc");
+	}
+
+	@Test
+	public void testStateWrapped() {
+		var s = "abc";
+		assertString(state(s, ""), "");
+		assertString(state(s, "").append(0, "abc"), "abc");
+	}
+
+	@Test
 	public void testClear() {
 		assertEquals(StringBuilders.clear(null), null);
 		assertString(StringBuilders.clear(b(S)), "");
@@ -62,6 +91,14 @@ public class StringBuildersTest {
 	}
 
 	@Test
+	public void testAppendCharSequence() {
+		assertEquals(StringBuilders.append(null, ""), null);
+		assertString(StringBuilders.append(b(), nullString), "");
+		assertString(StringBuilders.append(b(), "abc"), "abc");
+		assertString(StringBuilders.append(b(), "abc", 2), "c");
+	}
+
+	@Test
 	public void testFormat() {
 		b = StringBuilders.format(null);
 		b = StringBuilders.format("", (Object[]) null);
@@ -80,6 +117,16 @@ public class StringBuildersTest {
 		assertString(StringBuilders.repeat(b(), "abc", -1), "");
 		assertString(StringBuilders.repeat(b(), "abc", 1), "abc");
 		assertString(StringBuilders.repeat(b(), "abc", 3), "abcabcabc");
+	}
+
+	@Test
+	public void testTrim() {
+		assertEquals(StringBuilders.trim(null), null);
+		assertString(StringBuilders.trim(b()), "");
+		assertString(StringBuilders.trim(b("\0\n\r \t")), "");
+		assertString(StringBuilders.trim(b("\0\na b\nc")), "a b\nc");
+		assertString(StringBuilders.trim(b("a b\nc\r \t")), "a b\nc");
+		assertString(StringBuilders.trim(b("\0\na b\nc\r \t")), "a b\nc");
 	}
 
 	@Test
@@ -121,5 +168,9 @@ public class StringBuildersTest {
 	private StringBuilder b() {
 		b = new StringBuilder();
 		return b;
+	}
+
+	private StringBuilders.State state(String s, String b) {
+		return StringBuilders.State.wrap(s, b == null ? null : b(b));
 	}
 }

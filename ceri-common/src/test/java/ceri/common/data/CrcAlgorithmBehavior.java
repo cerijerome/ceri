@@ -5,8 +5,8 @@ import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class CrcAlgorithmBehavior {
 
@@ -24,7 +24,7 @@ public class CrcAlgorithmBehavior {
 		CrcAlgorithm ne5 = CrcAlgorithm.builder(8).poly(0x7).ref(true, false).build();
 		CrcAlgorithm ne6 = CrcAlgorithm.builder(8).poly(0x7).ref(false, true).build();
 		CrcAlgorithm ne7 = CrcAlgorithm.builder(8).poly(0x7).xorOut(0xff).build();
-		exerciseEquals(t, eq0, eq1, eq2);
+		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 

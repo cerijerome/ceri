@@ -1,7 +1,7 @@
 package ceri.common.io;
 
 import ceri.common.data.TypeTranscoder;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 /**
  * I/O direction; used for in/out or read/write.
@@ -20,7 +20,7 @@ public enum Direction {
 	public final int value;
 
 	public static Direction from(Boolean isOut) {
-		return BasicUtil.ternary(isOut, out, in, none);
+		return Basics.ternary(isOut, out, in, none);
 	}
 
 	public static boolean in(Direction direction) {

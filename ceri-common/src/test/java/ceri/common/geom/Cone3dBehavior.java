@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Cone3dBehavior {
 	private final Cone3d c0 = Cone3d.create(2, 8);
@@ -13,7 +13,7 @@ public class Cone3dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(c0, Cone3d.create(2, 8));
+		TestUtil.exerciseEquals(c0, Cone3d.create(2, 8));
 		assertNotEquals(c0, Cone3d.create(1.9, 8));
 		assertNotEquals(c0, Cone3d.create(2, 8.1));
 	}

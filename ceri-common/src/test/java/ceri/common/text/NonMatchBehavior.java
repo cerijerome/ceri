@@ -3,6 +3,7 @@ package ceri.common.text;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.NoSuchElementException;
@@ -12,24 +13,37 @@ import org.junit.Test;
 public class NonMatchBehavior {
 
 	@Test
-	public void testReplaceExcept() {
-		assertEquals(NonMatch.replace(Pattern.compile(""), "", ""), "");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "AaBbCcDd", "x"), "xaxbxcx");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "abc", "x"), "abc");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", "x"), "x");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", ""), "");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "def", (String) null),
-			"def");
-		assertEquals(NonMatch.replace(Pattern.compile("^"), "abc", "x"), "x");
-		assertEquals(NonMatch.replace(Pattern.compile("$"), "abc", "x"), "x");
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]+"), "abcdefbca",
-			m -> m.group().toUpperCase()), "abcDEFbca");
+	public void testRemoveAll() {
+		assertString(NonMatch.removeAll(Regex.EMPTY, ""), "");
+		assertString(NonMatch.removeAll(Pattern.compile("[a-c]"), "AaBbCcDd"), "abc");
+		assertString(NonMatch.removeAll(Pattern.compile("[a-c]"), "abc"), "abc");
+		assertString(NonMatch.removeAll(Pattern.compile("[a-c]"), "def"), "");
+		assertString(NonMatch.removeAll(Pattern.compile("^"), "abc"), "");
+		assertString(NonMatch.removeAll(Pattern.compile("$"), "abc"), "");
 	}
 
 	@Test
-	public void testReplaceExceptWithIndex() {
-		assertEquals(NonMatch.replace(Pattern.compile("[a-c]"), "AaBbCcDd",
-			(_, i) -> String.valueOf(i)), "0a1b2c3");
+	public void testReplaceAll() {
+		assertString(NonMatch.replaceAll(null, "abc", "d"), "abc");
+		assertString(NonMatch.replaceAll(Regex.EMPTY, null, "d"), "");
+		assertString(NonMatch.replaceAll(Regex.EMPTY, "abc", null), "");
+		assertString(NonMatch.replaceAll(Regex.EMPTY, "", ""), "");
+		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "AaBbCcDd", "x"), "xaxbxcx");
+		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "abc", "x"), "abc");
+		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "def", "x"), "x");
+		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "def", ""), "");
+		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "def", null), "");
+		assertString(NonMatch.replaceAll(Pattern.compile("^"), "abc", "x"), "x");
+		assertString(NonMatch.replaceAll(Pattern.compile("$"), "abc", "x"), "x");
+	}
+
+	@Test
+	public void testAppendAll() {
+		assertString(NonMatch.appendAll(null, "abc", (b, _) -> b.append('x')), "abc");
+		assertString(NonMatch.appendAll(Regex.EMPTY, null, (b, _) -> b.append('x')), "");
+		assertString(NonMatch.appendAll(Regex.EMPTY, "abc", null), "");
+		assertString(NonMatch.appendAll(Pattern.compile("[a-c]+"), "abcdefbca",
+			(b, m) -> b.append(m.group().toUpperCase())), "abcDEFbca");
 	}
 
 	@Test

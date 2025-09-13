@@ -3,8 +3,8 @@ package ceri.common.geom;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class Line2dBehavior {
 	private final Line2d l0 = Line2d.of(Point2d.of(-1, 2), Point2d.of(2, -1));
@@ -12,13 +12,13 @@ public class Line2dBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseEquals(l0, Line2d.of(-1, 2, 2, -1));
+		TestUtil.exerciseEquals(l0, Line2d.of(-1, 2, 2, -1));
 		assertNotEquals(l0, Line2d.of(-1.1, 2, 2, -1));
 		assertNotEquals(l0, Line2d.of(-1, 1.9, 2, -1));
 		assertNotEquals(l0, Line2d.of(-1, 2, 2.1, -1));
 		assertNotEquals(l0, Line2d.of(-1, 2, 2, -0.9));
 		assertNotEquals(l0, Line2d.of(Point2d.ZERO, Point2d.ZERO));
-		exerciseEquals(l1, Line2d.of(1, 3));
+		TestUtil.exerciseEquals(l1, Line2d.of(1, 3));
 	}
 
 	@Test

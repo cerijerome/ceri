@@ -9,7 +9,7 @@ public class Counter {
 	/**
 	 * Returns an int counter.
 	 */
-	public static Counter.OfInt ofInt(int value) {
+	public static Counter.OfInt of(int value) {
 		var counter = new Counter.OfInt();
 		counter.set(value);
 		return counter;
@@ -18,7 +18,7 @@ public class Counter {
 	/**
 	 * Returns a long counter.
 	 */
-	public static Counter.OfLong ofLong(long value) {
+	public static Counter.OfLong of(long value) {
 		var counter = new Counter.OfLong();
 		counter.set(value);
 		return counter;
@@ -33,7 +33,7 @@ public class Counter {
 		/**
 		 * Returns the current count.
 		 */
-		public int count() {
+		public int get() {
 			return count;
 		}
 
@@ -76,7 +76,7 @@ public class Counter {
 		/**
 		 * Returns the current count.
 		 */
-		public long count() {
+		public long get() {
 			return count;
 		}
 

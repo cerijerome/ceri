@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import ceri.common.collection.Collectable;
 import ceri.common.collection.Lists;
 import ceri.common.exception.ExceptionAdapter;
-import ceri.common.util.BasicUtil;
 
 /**
  * ClassLoader that reloads from class files.
@@ -30,7 +29,7 @@ public class ClassReloader extends ClassLoader {
 		var classes = Lists.<Class<?>>of();
 		Collectable.addTo(classes, cls);
 		Collectable.add(classes, supportClasses);
-		return BasicUtil.unchecked(Reflect.forName(cls.getName(), true, of(classes)));
+		return Reflect.unchecked(Reflect.forName(cls.getName(), true, of(classes)));
 	}
 
 	/**
@@ -106,6 +105,6 @@ public class ClassReloader extends ClassLoader {
 	 * ClassLoader logic is applied.
 	 */
 	public <T> Class<T> forName(Class<T> cls, boolean init) {
-		return BasicUtil.unchecked(forName(cls.getName(), init));
+		return Reflect.unchecked(forName(cls.getName(), init));
 	}
 }

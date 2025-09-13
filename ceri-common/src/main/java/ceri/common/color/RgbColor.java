@@ -5,7 +5,7 @@ import static ceri.common.color.Colors.ratio;
 import static ceri.common.color.Colors.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Encapsulates an unscaled (0-1 inclusive) RGB color with alpha. Provides higher precision for
@@ -161,8 +161,8 @@ public record RgbColor(double a, double r, double g, double b) {
 	 */
 	public RgbColor normalize() {
 		double a = Colors.limit(this.a);
-		double min = MathUtil.min(r, g, b, 0);
-		double d = MathUtil.max(r, g, b, 1) - min;
+		double min = Maths.min(r, g, b, 0);
+		double d = Maths.max(r, g, b, 1) - min;
 		if (min == 0 && d == 1 && a == this.a) return this;
 		return of(a, (this.r - min) / d, (this.g - min) / d, (this.b - min) / d);
 	}

@@ -164,17 +164,15 @@ import ceri.common.test.TestUtil;
 	ceri.common.log.LevelBehavior.class, //
 	ceri.common.log.LoggerBehavior.class, //
 	// math
-	ceri.common.math.AlgebraUtilTest.class, //
+	ceri.common.math.AlgebraTest.class, //
 	ceri.common.math.BoundBehavior.class, //
 	ceri.common.math.FractionBehavior.class, //
 	ceri.common.math.IntervalBehavior.class, //
-	ceri.common.math.IntervalUtilTest.class, //
-	ceri.common.math.MathUtilTest.class, //
+	ceri.common.math.MathsTest.class, //
 	ceri.common.math.MatrixBehavior.class, //
 	ceri.common.math.MixedFractionBehavior.class, //
-	ceri.common.math.NumberPatternsBehavior.class, //
 	ceri.common.math.ReverseFunctionBehavior.class, //
-	ceri.common.math.TrigUtilTest.class, //
+	ceri.common.math.TrigTest.class, //
 	// net
 	ceri.common.net.AddressTypeBehavior.class, //
 	ceri.common.net.EmailUtilTest.class, //
@@ -187,6 +185,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.net.TcpSocketOptionsBehavior.class, //
 	ceri.common.net.UdpChannelBehavior.class, //
 	ceri.common.net.UdpUtilTest.class, //
+	ceri.common.net.UrlsTest.class, //
 	// process
 	ceri.common.process.ColumnsBehavior.class, //
 	ceri.common.process.NullProcessBehavior.class, //
@@ -207,7 +206,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.reflect.ClassReInitializerBehavior.class, //
 	ceri.common.reflect.ClassReloaderBehavior.class, //
 	ceri.common.reflect.CreateExceptionBehavior.class, //
-	ceri.common.reflect.ReflectUtilTest.class, //
+	ceri.common.reflect.ReflectTest.class, //
 	// score
 	ceri.common.score.CollectionScorersTest.class, //
 	ceri.common.score.ScoreLookupBehavior.class, //
@@ -267,27 +266,23 @@ import ceri.common.test.TestUtil;
 	// text
 	ceri.common.text.AnsiEscapeBehavior.class, //
 	ceri.common.text.CharsTest.class, //
-	ceri.common.text.DsvCodecBehavior.class, //
-	ceri.common.text.DsvParserBehavior.class, //
+	ceri.common.text.DsvBehavior.class, //
 	ceri.common.text.FormatBehavior.class, //
 	ceri.common.text.FractionFormatsTest.class, //
 	ceri.common.text.JoinerBehavior.class, //
-	ceri.common.text.MultiPatternBehavior.class, //
 	ceri.common.text.NonMatchBehavior.class, //
 	ceri.common.text.NumberParserTest.class, //
+	ceri.common.text.NumbersTest.class, //
 	ceri.common.text.ParseUtilTest.class, //
-	ceri.common.text.PatternsTest.class, //
-	ceri.common.text.RegexSequencerBehavior.class, //
-	ceri.common.text.RegexUtilTest.class, //
+	ceri.common.text.RegexTest.class, //
 	ceri.common.text.SplitterBehavior.class, //
 	ceri.common.text.StringBuildersTest.class, //
 	ceri.common.text.StringTypeBehavior.class, //
-	ceri.common.text.StringUtilTest.class, //
 	ceri.common.text.StringsTest.class, //
 	ceri.common.text.TableBehavior.class, //
-	ceri.common.text.TextUtilTest.class, //
+	ceri.common.text.TextTest.class, //
 	ceri.common.text.ToStringBehavior.class, //
-	ceri.common.text.Utf8UtilTest.class, //
+	ceri.common.text.Utf8Test.class, //
 	// time
 	ceri.common.time.DateUtilTest.class, //
 	ceri.common.time.HolidayBehavior.class, //
@@ -299,7 +294,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.unit.TemperatureBehavior.class, //
 	// util
 	ceri.common.util.AlignBehavior.class, //
-	ceri.common.util.BasicUtilTest.class, //
+	ceri.common.util.BasicsTest.class, //
 	ceri.common.util.CloseableUtilTest.class, //
 	ceri.common.util.CounterBehavior.class, //
 	ceri.common.util.EnablableBehavior.class, //
@@ -321,8 +316,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.validation.DisplayDoubleBehavior.class, //
 	ceri.common.validation.DisplayLongBehavior.class, //
 	ceri.common.validation.ValidationUtilTest.class, //
-	// web
-	ceri.common.net.UrlsTest.class, //
 	// xml
 	ceri.common.xml.RuntimeXPathExceptionBehavior.class, //
 	ceri.common.xml.XPathUtilTest.class, //

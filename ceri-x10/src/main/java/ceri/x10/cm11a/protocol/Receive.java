@@ -4,7 +4,7 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteWriter;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.x10.command.FunctionGroup;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;
@@ -38,7 +38,7 @@ public class Receive {
 	}
 
 	private static int toDimPercent(int data) {
-		return MathUtil.limit(MathUtil.roundDiv(data * X10Util.DIM_MAX_PERCENT, DIM_MAX), 0,
+		return Maths.limit(Maths.roundDiv(data * X10Util.DIM_MAX_PERCENT, DIM_MAX), 0,
 			X10Util.DIM_MAX_PERCENT);
 	}
 
@@ -59,7 +59,7 @@ public class Receive {
 	}
 
 	private static int fromDimPercent(int percent) {
-		return MathUtil.limit(MathUtil.roundDiv(percent * DIM_MAX, X10Util.DIM_MAX_PERCENT), 0,
+		return Maths.limit(Maths.roundDiv(percent * DIM_MAX, X10Util.DIM_MAX_PERCENT), 0,
 			DIM_MAX);
 	}
 }

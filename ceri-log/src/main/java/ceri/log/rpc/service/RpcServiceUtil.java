@@ -7,10 +7,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
 import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.exception.ExceptionUtil;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.text.Patterns;
+import ceri.common.text.Regex;
 import ceri.log.rpc.util.RpcUtil;
 import io.grpc.Server;
 import io.grpc.ServerServiceDefinition;
@@ -33,8 +33,8 @@ public class RpcServiceUtil {
 	 * Check to avoid logging common trivial errors.
 	 */
 	public static boolean isCancelledBeforeHalfClose(Throwable t) {
-		return ExceptionUtil.matches(t, StatusRuntimeException.class,
-			Patterns.Filter.find(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
+		return Exceptions.matches(t, StatusRuntimeException.class,
+			Regex.Filter.find(CANCELLED_BEFORE_HALF_CLOSE_MSG_REGEX));
 	}
 
 	/**

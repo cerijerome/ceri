@@ -3,10 +3,10 @@ package ceri.common.io;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.TestUtil.exerciseEquals;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import org.junit.Test;
+import ceri.common.test.TestUtil;
 
 public class PathPatternBehavior {
 
@@ -18,7 +18,7 @@ public class PathPatternBehavior {
 		PathPattern ne0 = PathPattern.glob("*.javax");
 		PathPattern ne1 = PathPattern.of("*.java");
 		PathPattern ne2 = PathPattern.regex("*.java");
-		exerciseEquals(p, eq0, eq1);
+		TestUtil.exerciseEquals(p, eq0, eq1);
 		assertAllNotEqual(p, ne0, ne1, ne2);
 	}
 

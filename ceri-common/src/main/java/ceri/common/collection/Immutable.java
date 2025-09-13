@@ -20,7 +20,8 @@ import ceri.common.array.RawArray;
 import ceri.common.comparator.Comparators;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
+import ceri.common.util.Basics;
 
 /**
  * Support for immutable types.
@@ -65,56 +66,56 @@ public class Immutable {
 		 * Provides an immutable collection wrapper, using an underlying array list.
 		 */
 		public static <T> Wrap<Collection<T>> collect() {
-			return BasicUtil.unchecked(COLLECT);
+			return Reflect.unchecked(COLLECT);
 		}
 
 		/**
 		 * Provides an immutable sequenced collection wrapper, using an underlying array list.
 		 */
 		public static <T> Wrap<SequencedCollection<T>> seqCollect() {
-			return BasicUtil.unchecked(SEQ_COLLECT);
+			return Reflect.unchecked(SEQ_COLLECT);
 		}
 
 		/**
 		 * Provides an immutable list wrapper, using an underlying array list.
 		 */
 		public static <T> Wrap<List<T>> list() {
-			return BasicUtil.unchecked(LIST);
+			return Reflect.unchecked(LIST);
 		}
 
 		/**
 		 * Provides an immutable list wrapper, using an underlying linked list.
 		 */
 		public static <T> Wrap<List<T>> linkList() {
-			return BasicUtil.unchecked(LINK_LIST);
+			return Reflect.unchecked(LINK_LIST);
 		}
 
 		/**
 		 * Provides an immutable set wrapper, using an underlying hash set.
 		 */
 		public static <T> Wrap<Set<T>> set() {
-			return BasicUtil.unchecked(SET);
+			return Reflect.unchecked(SET);
 		}
 
 		/**
 		 * Provides an immutable sequenced set wrapper, using an underlying linked hash set.
 		 */
 		public static <T> Wrap<SequencedSet<T>> seqSet() {
-			return BasicUtil.unchecked(SEQ_SET);
+			return Reflect.unchecked(SEQ_SET);
 		}
 
 		/**
 		 * Provides an immutable sorted set wrapper, using an underlying tree set.
 		 */
 		public static <T extends Comparable<? super T>> Wrap<SortedSet<T>> sortSet() {
-			return BasicUtil.unchecked(SORT_SET);
+			return Reflect.unchecked(SORT_SET);
 		}
 
 		/**
 		 * Provides an immutable sorted set wrapper, using an underlying tree set.
 		 */
 		public static <T> Wrap<SortedSet<T>> sortSet(Comparator<? super T> comparator) {
-			return BasicUtil
+			return Basics
 				.unchecked(SORT_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
 		}
 
@@ -122,49 +123,49 @@ public class Immutable {
 		 * Provides an immutable navigable set wrapper, using an underlying tree set.
 		 */
 		public static <T extends Comparable<? super T>> Wrap<NavigableSet<T>> navSet() {
-			return BasicUtil.unchecked(NAV_SET);
+			return Reflect.unchecked(NAV_SET);
 		}
 
 		/**
 		 * Provides an immutable navigable set wrapper, using an underlying tree set.
 		 */
 		public static <T> Wrap<NavigableSet<T>> navSet(Comparator<? super T> comparator) {
-			return BasicUtil.unchecked(NAV_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
+			return Reflect.unchecked(NAV_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
 		}
 
 		/**
 		 * Provides an immutable set wrapper, using an underlying identity hash set.
 		 */
 		public static <T> Wrap<Set<T>> idSet() {
-			return BasicUtil.unchecked(ID_SET);
+			return Reflect.unchecked(ID_SET);
 		}
 
 		/**
 		 * Provides an immutable map wrapper, using an underlying hash map.
 		 */
 		public static <K, V> Wrap<Map<K, V>> map() {
-			return BasicUtil.unchecked(MAP);
+			return Reflect.unchecked(MAP);
 		}
 
 		/**
 		 * Provides an immutable sequenced map wrapper, using an underlying linked hash map.
 		 */
 		public static <K, V> Wrap<SequencedMap<K, V>> seqMap() {
-			return BasicUtil.unchecked(SEQ_MAP);
+			return Reflect.unchecked(SEQ_MAP);
 		}
 
 		/**
 		 * Provides an immutable sorted map wrapper, using an underlying tree map.
 		 */
 		public static <K extends Comparable<? super K>, V> Wrap<SortedMap<K, V>> sortMap() {
-			return BasicUtil.unchecked(SORT_MAP);
+			return Reflect.unchecked(SORT_MAP);
 		}
 
 		/**
 		 * Provides an immutable sorted map wrapper, using an underlying tree map.
 		 */
 		public static <K, V> Wrap<SortedMap<K, V>> sortMap(Comparator<? super K> comparator) {
-			return BasicUtil
+			return Basics
 				.unchecked(SORT_MAP.to(() -> new TreeMap<>(Comparators.of(comparator))));
 		}
 
@@ -172,21 +173,21 @@ public class Immutable {
 		 * Provides an immutable navigable map wrapper, using an underlying tree map.
 		 */
 		public static <K extends Comparable<? super K>, V> Wrap<NavigableMap<K, V>> navMap() {
-			return BasicUtil.unchecked(NAV_MAP);
+			return Reflect.unchecked(NAV_MAP);
 		}
 
 		/**
 		 * Provides an immutable navigable map wrapper, using an underlying tree map.
 		 */
 		public static <K, V> Wrap<NavigableMap<K, V>> navMap(Comparator<? super K> comparator) {
-			return BasicUtil.unchecked(NAV_MAP.to(() -> new TreeMap<>(Comparators.of(comparator))));
+			return Reflect.unchecked(NAV_MAP.to(() -> new TreeMap<>(Comparators.of(comparator))));
 		}
 
 		/**
 		 * Provides an immutable map wrapper, using an underlying identity hash map.
 		 */
 		public static <K, V> Wrap<Map<K, V>> idMap() {
-			return BasicUtil.unchecked(ID_MAP);
+			return Reflect.unchecked(ID_MAP);
 		}
 
 		private Wrap(Functions.Operator<T> wrapper, Functions.Supplier<? extends T> emptySupplier,
@@ -1008,7 +1009,17 @@ public class Immutable {
 	 * Create an immutable map copy by copying the value sets.
 	 */
 	public static <K, T> Map<K, Set<T>> mapOfSets(Map<? extends K, ? extends Set<T>> mapOfSets) {
-		return adaptMap(t -> t, Immutable::set, mapOfSets);
+		return mapOfSets(Maps::of, Sets::of, mapOfSets);
+	}
+
+	/**
+	 * Create an immutable map copy by copying the value sets.
+	 */
+	public static <K, T> Map<K, Set<T>> mapOfSets(
+		Functions.Supplier<? extends Map<K, Set<T>>> supplier,
+		Functions.Supplier<? extends Set<T>> valueSetSupplier,
+		Map<? extends K, ? extends Set<T>> mapOfSets) {
+		return adaptMap(supplier, t -> t, s -> set(valueSetSupplier, s), mapOfSets);
 	}
 
 	/**
@@ -1016,7 +1027,17 @@ public class Immutable {
 	 */
 	public static <K, T, U> Map<K, Map<T, U>>
 		mapOfMaps(Map<? extends K, ? extends Map<T, U>> mapOfMaps) {
-		return adaptMap(k -> k, Immutable::map, mapOfMaps);
+		return mapOfMaps(Maps::of, Maps::of, mapOfMaps);
+	}
+
+	/**
+	 * Create an immutable map copy by copying the value maps.
+	 */
+	public static <K, T, U> Map<K, Map<T, U>> mapOfMaps(
+		Functions.Supplier<? extends Map<K, Map<T, U>>> supplier,
+		Functions.Supplier<? extends Map<T, U>> valueMapSupplier,
+		Map<? extends K, ? extends Map<T, U>> mapOfMaps) {
+		return adaptMap(supplier, k -> k, m -> map(valueMapSupplier, m), mapOfMaps);
 	}
 
 	/**
@@ -1098,11 +1119,11 @@ public class Immutable {
 	/**
 	 * Creates an immutable linked hash map by sorting and copying entries.
 	 */
-	public static <K, V> Map<K, V> sortMap( 
-		Comparator<? super Map.Entry<K, V>> comparator, Map<K, V> map) {
+	public static <K, V> Map<K, V> sortMap(Comparator<? super Map.Entry<K, V>> comparator,
+		Map<K, V> map) {
 		return wrap(Maps.sort(comparator, map));
 	}
-	
+
 	/**
 	 * Creates an immutable map by mapping each element to a key and value.
 	 */

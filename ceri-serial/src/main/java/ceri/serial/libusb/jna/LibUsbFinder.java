@@ -1,35 +1,20 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.serial.libusb.jna.LibUsb.libusb_close;
-import static ceri.serial.libusb.jna.LibUsb.libusb_free_device_list;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_bus_number;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_address;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_descriptor;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_device_list;
-import static ceri.serial.libusb.jna.LibUsb.libusb_get_string_descriptor_ascii;
-import static ceri.serial.libusb.jna.LibUsb.libusb_open;
-import static ceri.serial.libusb.jna.LibUsb.libusb_ref_device;
-import static ceri.serial.libusb.jna.LibUsb.libusb_unref_devices;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
-import static ceri.serial.libusb.jna.LibUsbUtil.require;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
+import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.function.Excepts;
-import ceri.common.math.MathUtil;
-import ceri.common.text.DsvParser;
-import ceri.common.text.ParseUtil;
+import ceri.common.function.Functions;
+import ceri.common.math.Maths;
+import ceri.common.text.Dsv;
+import ceri.common.text.Numbers;
 import ceri.common.text.Strings;
 import ceri.common.util.Counter;
 import ceri.jna.type.ArrayPointer;
-import ceri.serial.libusb.jna.LibUsb.libusb_context;
-import ceri.serial.libusb.jna.LibUsb.libusb_device;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_descriptor;
-import ceri.serial.libusb.jna.LibUsb.libusb_device_handle;
 
 public class LibUsbFinder {
-	private static final List<Predicate<LibUsbFinder>> fieldPredicates = fieldPredicates();
+	private static final List<Functions.Predicate<LibUsbFinder>> predicates = predicates();
 	public static final LibUsbFinder FIRST = builder().build();
 	public final int vendor;
 	public final int product;
@@ -53,17 +38,17 @@ public class LibUsbFinder {
 	 * decimal field.
 	 */
 	public static LibUsbFinder from(String descriptor) {
-		Builder b = new Builder();
-		List<String> items = DsvParser.split(descriptor, ':');
+		var b = new Builder();
+		var items = Dsv.split(descriptor, ':');
 		int size = items.size();
 		int i = 0;
-		if (i < size) b.vendor(ParseUtil.decodeInt(items.get(i++), 0));
-		if (i < size) b.product(ParseUtil.decodeInt(items.get(i++), 0));
-		if (i < size) b.bus(ParseUtil.decodeInt(items.get(i++), 0));
-		if (i < size) b.address(ParseUtil.decodeInt(items.get(i++), 0));
+		if (i < size) b.vendor(Numbers.Decode.toInt(items.get(i++), 0));
+		if (i < size) b.product(Numbers.Decode.toInt(items.get(i++), 0));
+		if (i < size) b.bus(Numbers.Decode.toInt(items.get(i++), 0));
+		if (i < size) b.address(Numbers.Decode.toInt(items.get(i++), 0));
 		if (i < size) b.description(items.get(i++));
 		if (i < size) b.serial(items.get(i++));
-		if (i < size) b.index(ParseUtil.parseInt(items.get(i++), 0));
+		if (i < size) b.index(Numbers.Parse.toInt(items.get(i++), 0));
 		return b.build();
 	}
 
@@ -86,22 +71,22 @@ public class LibUsbFinder {
 		Builder() {}
 
 		public Builder vendor(int vendor) {
-			this.vendor = MathUtil.ushort(vendor);
+			this.vendor = Maths.ushort(vendor);
 			return this;
 		}
 
 		public Builder product(int product) {
-			this.product = MathUtil.ushort(product);
+			this.product = Maths.ushort(product);
 			return this;
 		}
 
 		public Builder bus(int bus) {
-			this.bus = MathUtil.ubyte(bus);
+			this.bus = Maths.ubyte(bus);
 			return this;
 		}
 
 		public Builder address(int address) {
-			this.address = MathUtil.ubyte(address);
+			this.address = Maths.ubyte(address);
 			return this;
 		}
 
@@ -162,7 +147,7 @@ public class LibUsbFinder {
 	 * Returns true if the finder matches a device, using the given context. Does not open or
 	 * reference any matching device.
 	 */
-	public boolean matches(libusb_context ctx) throws LibUsbException {
+	public boolean matches(LibUsb.libusb_context ctx) throws LibUsbException {
 		return findWithCallback(ctx, _ -> true);
 	}
 
@@ -183,13 +168,13 @@ public class LibUsbFinder {
 	 * Returns the number of matching devices, using the given context. Does not open or reference
 	 * any matching device.
 	 */
-	public int matchCount(libusb_context ctx) throws LibUsbException {
-		var counter = Counter.ofInt(0);
+	public int matchCount(LibUsb.libusb_context ctx) throws LibUsbException {
+		var counter = Counter.of(0);
 		findWithCallback(ctx, _ -> {
 			counter.inc(1);
 			return false;
 		});
-		return counter.count();
+		return counter.get();
 	}
 
 	/**
@@ -197,12 +182,12 @@ public class LibUsbFinder {
 	 * true if the device is accepted, to stop further iteration. This method returns true if a
 	 * match is found and the callback is made.
 	 */
-	public boolean findWithCallback(ArrayPointer<libusb_device> devs,
-		Excepts.Predicate<LibUsbException, libusb_device> callback) throws LibUsbException {
-		require(devs, "Device list");
-		require(callback, "Callback");
+	public boolean findWithCallback(ArrayPointer<LibUsb.libusb_device> devs,
+		Excepts.Predicate<LibUsbException, LibUsb.libusb_device> callback) throws LibUsbException {
+		LibUsbUtil.require(devs, "Device list");
+		LibUsbUtil.require(callback, "Callback");
 		int index = this.index;
-		for (libusb_device dev : devs.get()) {
+		for (var dev : devs.get()) {
 			if (!matchesBusNumber(dev, bus)) continue;
 			if (!matchesDeviceAddress(dev, address)) continue;
 			if (!matchesDescriptor(dev)) continue;
@@ -218,14 +203,14 @@ public class LibUsbFinder {
 	 * device is accepted, to stop further iteration. This method returns true if a match is found
 	 * and the callback is made.
 	 */
-	public boolean findWithCallback(libusb_context ctx,
-		Excepts.Predicate<LibUsbException, libusb_device> callback) throws LibUsbException {
-		require(callback, "Callback");
-		var devs = libusb_get_device_list(ctx);
+	public boolean findWithCallback(LibUsb.libusb_context ctx,
+		Excepts.Predicate<LibUsbException, LibUsb.libusb_device> callback) throws LibUsbException {
+		LibUsbUtil.require(callback, "Callback");
+		var devs = LibUsb.libusb_get_device_list(ctx);
 		try {
 			return findWithCallback(devs, callback);
 		} finally {
-			libusb_free_device_list(devs);
+			LibUsb.libusb_free_device_list(devs);
 		}
 	}
 
@@ -233,25 +218,28 @@ public class LibUsbFinder {
 	 * Finds a device based on criteria. The device should be unreferenced after use. Throws
 	 * exception if not found.
 	 */
-	public libusb_device findAndRef(libusb_context ctx) throws LibUsbException {
-		libusb_device[] devs = new libusb_device[1];
+	public LibUsb.libusb_device findAndRef(LibUsb.libusb_context ctx) throws LibUsbException {
+		var devs = new LibUsb.libusb_device[1];
 		if (!findWithCallback(ctx, dev -> {
-			libusb_ref_device(dev);
+			LibUsb.libusb_ref_device(dev);
 			devs[0] = dev;
 			return true;
-		})) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Device not found: " + this);
+		})) throw LibUsbException.of(LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM,
+			"Device not found: " + this);
 		return devs[0];
 	}
 
 	/**
 	 * Finds a device and opens it, based on criteria. Throws exception if not found.
 	 */
-	public libusb_device_handle findAndOpen(libusb_context ctx) throws LibUsbException {
-		libusb_device_handle[] handles = new libusb_device_handle[1];
+	public LibUsb.libusb_device_handle findAndOpen(LibUsb.libusb_context ctx)
+		throws LibUsbException {
+		var handles = new LibUsb.libusb_device_handle[1];
 		if (!findWithCallback(ctx, dev -> {
-			handles[0] = libusb_open(dev);
+			handles[0] = LibUsb.libusb_open(dev);
 			return true;
-		})) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Device not found: " + this);
+		})) throw LibUsbException.of(LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM,
+			"Device not found: " + this);
 		return handles[0];
 	}
 
@@ -259,17 +247,18 @@ public class LibUsbFinder {
 	 * Finds devices based on criteria, starting from criteria index up to the specified max number.
 	 * The devices should be unreferenced after use. Use max of 0 for unlimited devices.
 	 */
-	public List<libusb_device> findAndRef(libusb_context ctx, int max) throws LibUsbException {
-		List<libusb_device> devs = new ArrayList<>();
+	public List<LibUsb.libusb_device> findAndRef(LibUsb.libusb_context ctx, int max)
+		throws LibUsbException {
+		var devs = Lists.<LibUsb.libusb_device>of();
 		try {
 			findWithCallback(ctx, dev -> {
-				libusb_ref_device(dev);
+				LibUsb.libusb_ref_device(dev);
 				devs.add(dev);
 				return max != 0 && devs.size() >= max;
 			});
 			return devs;
 		} catch (LibUsbException | RuntimeException e) {
-			libusb_unref_devices(devs);
+			LibUsb.libusb_unref_devices(devs);
 			throw e;
 		}
 	}
@@ -277,7 +266,7 @@ public class LibUsbFinder {
 	public String asDescriptor() {
 		int n = lastIndex();
 		int i = 0;
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		if (i++ <= n) b.append(desc("0x%04x", vendor));
 		if (i++ <= n) b.append(":").append(desc("0x%04x", product));
 		if (i++ <= n) b.append(":").append(desc("0x%02x", bus));
@@ -316,38 +305,39 @@ public class LibUsbFinder {
 	}
 
 	private int lastIndex() {
-		for (int i = fieldPredicates.size(); i > 0; i--)
-			if (fieldPredicates.get(i - 1).test(this)) return i;
+		for (int i = predicates.size(); i > 0; i--)
+			if (predicates.get(i - 1).test(this)) return i;
 		return 0;
 	}
 
-	private static boolean matchesBusNumber(libusb_device dev, int bus) throws LibUsbException {
-		return bus == 0 || bus == MathUtil.ubyte(libusb_get_bus_number(dev));
-	}
-
-	private static boolean matchesDeviceAddress(libusb_device dev, int address)
+	private static boolean matchesBusNumber(LibUsb.libusb_device dev, int bus)
 		throws LibUsbException {
-		return address == 0 || address == MathUtil.ubyte(libusb_get_device_address(dev));
+		return bus == 0 || bus == Maths.ubyte(LibUsb.libusb_get_bus_number(dev));
 	}
 
-	private boolean matchesDescriptor(libusb_device dev) throws LibUsbException {
+	private static boolean matchesDeviceAddress(LibUsb.libusb_device dev, int address)
+		throws LibUsbException {
+		return address == 0 || address == Maths.ubyte(LibUsb.libusb_get_device_address(dev));
+	}
+
+	private boolean matchesDescriptor(LibUsb.libusb_device dev) throws LibUsbException {
 		if (!needsDescriptor()) return true;
-		libusb_device_descriptor desc = libusb_get_device_descriptor(dev);
-		if (!matches(vendor, MathUtil.ushort(desc.idVendor))) return false;
-		if (!matches(product, MathUtil.ushort(desc.idProduct))) return false;
+		var desc = LibUsb.libusb_get_device_descriptor(dev);
+		if (!matches(vendor, Maths.ushort(desc.idVendor))) return false;
+		if (!matches(product, Maths.ushort(desc.idProduct))) return false;
 		return matchesOpenDescriptor(dev, desc);
 	}
 
-	private boolean matchesOpenDescriptor(libusb_device dev, libusb_device_descriptor desc)
-		throws LibUsbException {
+	private boolean matchesOpenDescriptor(LibUsb.libusb_device dev,
+		LibUsb.libusb_device_descriptor desc) throws LibUsbException {
 		if (!needsOpen()) return true;
-		libusb_device_handle usb_dev = libusb_open(dev);
+		var usb_dev = LibUsb.libusb_open(dev);
 		try {
 			if (!matches(usb_dev, description, desc.iProduct)) return false;
 			if (!matches(usb_dev, serial, desc.iSerialNumber)) return false;
 			return true;
 		} finally {
-			libusb_close(usb_dev);
+			LibUsb.libusb_close(usb_dev);
 		}
 	}
 
@@ -363,10 +353,10 @@ public class LibUsbFinder {
 		return expected == 0 || expected == value;
 	}
 
-	private static boolean matches(libusb_device_handle usb_dev, String expected, int desc_index)
-		throws LibUsbException {
+	private static boolean matches(LibUsb.libusb_device_handle usb_dev, String expected,
+		int desc_index) throws LibUsbException {
 		if (Strings.isEmpty(expected)) return true;
-		String descriptor = libusb_get_string_descriptor_ascii(usb_dev, desc_index);
+		var descriptor = LibUsb.libusb_get_string_descriptor_ascii(usb_dev, desc_index);
 		return expected.equals(descriptor);
 	}
 
@@ -382,8 +372,8 @@ public class LibUsbFinder {
 		return value.length() == 0 ? "any" : "\"" + value + "\"";
 	}
 
-	private static List<Predicate<LibUsbFinder>> fieldPredicates() {
-		return List.of(finder -> finder.product != 0, finder -> finder.bus != 0,
+	private static List<Functions.Predicate<LibUsbFinder>> predicates() {
+		return Immutable.listOf(finder -> finder.product != 0, finder -> finder.bus != 0,
 			finder -> finder.address != 0, finder -> !finder.description.isBlank(),
 			finder -> !finder.serial.isBlank(), finder -> finder.index != 0);
 	}

@@ -1,6 +1,6 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.math.MathUtil.ushortExact;
+import static ceri.common.math.Maths.ushortExact;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_TEN;
 import java.util.concurrent.TimeUnit;
 import com.sun.jna.Memory;

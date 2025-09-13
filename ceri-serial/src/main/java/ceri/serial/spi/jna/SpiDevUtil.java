@@ -1,6 +1,6 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.math.MathUtil.ushort;
+import static ceri.common.math.Maths.ushort;
 import java.util.concurrent.TimeUnit;
 import ceri.common.io.Direction;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;

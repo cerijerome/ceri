@@ -1,7 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -9,10 +7,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Collectable;
 import ceri.common.collection.Enums;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -21,22 +21,23 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.NumberParser;
-import ceri.common.text.Patterns;
-import ceri.common.util.BasicUtil;
+import ceri.common.text.Numbers;
+import ceri.common.text.Regex;
+import ceri.common.util.Basics;
+import ceri.common.validation.ValidationUtil;
 
 /**
  * Encapsulates conversion between types.
  */
 public class Parser {
 	private static final Excepts.Function<RuntimeException, java.lang.String, Boolean> BOOL =
-		Boolean::parseBoolean;
+		Numbers.Parse::toBool;
 	private static final Excepts.Function<RuntimeException, java.lang.String, Integer> DINT =
-		NumberParser::decodeInt;
+		Numbers.Decode::toInt;
 	private static final Excepts.Function<RuntimeException, java.lang.String, Long> DLONG =
-		NumberParser::decodeLong;
+		Numbers.Decode::toLong;
 	private static final Excepts.Function<RuntimeException, java.lang.String, Double> DOUBLE =
-		Double::parseDouble;
+		Numbers.Parse::toDouble;
 
 	private Parser() {}
 
@@ -48,7 +49,7 @@ public class Parser {
 	}
 
 	/**
-	 * Creates an instance using the fixed values.
+	 * Returns an instance using the fixed values.
 	 */
 	@SafeVarargs
 	public static <T> Types<T> types(T... values) {
@@ -56,7 +57,7 @@ public class Parser {
 	}
 
 	/**
-	 * Creates an instance using the value collection.
+	 * Returns an instance using the value collection.
 	 */
 	public static <T> Types<T> types(Collection<T> values) {
 		return () -> values;
@@ -70,7 +71,21 @@ public class Parser {
 	}
 
 	/**
-	 * Creates a string collection parser for the values.
+	 * Returns a string parser for the regex group.
+	 */
+	public static Parser.String string(Matcher m, int group) {
+		return string(Regex.group(m, group));
+	}
+
+	/**
+	 * Returns a string parser for the regex find group.
+	 */
+	public static Parser.String findString(Pattern regex, java.lang.String s, int group) {
+		return string(Regex.find(regex, s), group);
+	}
+
+	/**
+	 * Returns a string collection parser for the values.
 	 */
 	@SafeVarargs
 	public static Strings strings(java.lang.String... values) {
@@ -78,12 +93,19 @@ public class Parser {
 	}
 
 	/**
-	 * Creates a string collection parser for the values.
+	 * Returns a string collection parser for the values.
 	 */
 	public static Strings strings(Collection<java.lang.String> values) {
 		return () -> values;
 	}
 
+	/**
+	 * Returns a string collection parser from regex find groups.
+	 */
+	public static Parser.Strings findStrings(Pattern regex, java.lang.String s, int group) {
+		return strings(Regex.finds(regex, s, group).toList());
+	}
+	
 	/**
 	 * Interface for setting primitive array values.
 	 */
@@ -107,14 +129,14 @@ public class Parser {
 		 * Access the value or use default supplier if null.
 		 */
 		default T get(T def) {
-			return BasicUtil.def(get(), def);
+			return Basics.def(get(), def);
 		}
 
 		/**
 		 * Access the value or use default supplier if null.
 		 */
 		default <E extends Exception> T get(Excepts.Supplier<E, ? extends T> defSupplier) throws E {
-			return BasicUtil.def(get(), defSupplier);
+			return Basics.def(get(), defSupplier);
 		}
 
 		/**
@@ -128,7 +150,7 @@ public class Parser {
 		 * Access the value, or throw named validation exception if null.
 		 */
 		default T getValid(java.lang.String name) {
-			return validateNotNull(get(), name);
+			return ValidationUtil.validateNotNull(get(), name);
 		}
 
 		/**
@@ -490,14 +512,14 @@ public class Parser {
 		 * Returns the accessor for values split by comma.
 		 */
 		default Strings split() {
-			return split(Patterns.Split.COMMA.pattern);
+			return split(Regex.COMMA);
 		}
 
 		/**
 		 * Returns an accessor for values split by regex.
 		 */
 		default Strings split(Pattern splitter) {
-			var split = apply(v -> Patterns.Split.list(splitter, v, s -> s.trim()), null);
+			var split = apply(v -> Regex.Split.list(splitter, v, 0, s -> s.trim()), null);
 			return Parser.strings(split);
 		}
 
@@ -538,7 +560,7 @@ public class Parser {
 		 * if the original value is null.
 		 */
 		default <U> U toBool(U trueVal, U falseVal, U nullVal) {
-			return BasicUtil.ternary(toBool(), trueVal, falseVal, nullVal);
+			return Basics.ternary(toBool(), trueVal, falseVal, nullVal);
 		}
 
 		/**
@@ -836,7 +858,7 @@ public class Parser {
 		 * corresponding true, false, or null value.
 		 */
 		default <U> Types<U> asBools(U trueVal, U falseVal, U nullVal) {
-			return asEach(s -> BasicUtil.ternary(BOOL.apply(s), trueVal, falseVal, nullVal));
+			return asEach(s -> Basics.ternary(BOOL.apply(s), trueVal, falseVal, nullVal));
 		}
 
 		/**
@@ -902,7 +924,9 @@ public class Parser {
 		List<R> def, Excepts.Function<E, ? super T, ? extends R> constructor) throws E {
 		if (values == null) return def;
 		if (values.isEmpty()) return List.of();
-		var list = new ArrayList<R>();
+		
+		
+		var list = Lists.<R>of();
 		for (var value : values) {
 			if (value == null) list.add(null);
 			else list.add(parseValue(value, constructor, null));
@@ -914,7 +938,7 @@ public class Parser {
 		Excepts.Predicate<E, ? super T> filter) throws E {
 		if (values == null) return null;
 		if (values.isEmpty()) return List.of();
-		var list = new ArrayList<T>();
+		var list = Lists.<T>of();
 		for (var value : values)
 			if (value != null && filter.test(value)) list.add(value);
 		return Immutable.wrap(list);
@@ -933,7 +957,7 @@ public class Parser {
 	private static <T> List<T> sortValues(Collection<T> collection,
 		Comparator<? super T> comparator) {
 		if (collection == null) return null;
-		var list = new ArrayList<>(collection);
+		var list = Lists.of(collection);
 		list.sort(comparator);
 		return Immutable.wrap(list);
 	}

@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import ceri.common.function.Fluent;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.common.validation.ValidationUtil;
 
 /**
@@ -93,7 +93,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	default T fill(int length, int value) {
 		while (length-- > 0)
 			writeInt(value);
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 	/**
@@ -118,7 +118,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(array[offset + i]);
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 		ValidationUtil.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(provider.getInt(offset + i));
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 
 }

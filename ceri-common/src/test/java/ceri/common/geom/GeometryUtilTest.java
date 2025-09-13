@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static java.lang.Double.MAX_VALUE;
 import static java.lang.Double.NaN;
 import org.junit.Test;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 public class GeometryUtilTest {
 	private final Dimension2d d0 = Dimension2d.of(400, 100);
@@ -36,8 +36,8 @@ public class GeometryUtilTest {
 	public void testAngleFromGradient() {
 		assertApprox(GeometryUtil.angleFromGradient(NaN), NaN);
 		assertApprox(GeometryUtil.angleFromGradient(0), 0);
-		assertApprox(GeometryUtil.angleFromGradient(Double.POSITIVE_INFINITY), MathUtil.PI_BY_2);
-		assertApprox(GeometryUtil.angleFromGradient(Double.NEGATIVE_INFINITY), -MathUtil.PI_BY_2);
+		assertApprox(GeometryUtil.angleFromGradient(Double.POSITIVE_INFINITY), Maths.PI_BY_2);
+		assertApprox(GeometryUtil.angleFromGradient(Double.NEGATIVE_INFINITY), -Maths.PI_BY_2);
 		assertApprox(GeometryUtil.angleFromGradient(1), Math.PI / 4);
 		assertApprox(GeometryUtil.angleFromGradient(-1), -Math.PI / 4);
 	}

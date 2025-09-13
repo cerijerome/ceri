@@ -2,15 +2,35 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertString;
+import org.junit.After;
 import org.junit.Test;
 
 public class CharsTest {
 	private static final char ch0 = 0;
+	private StringBuilder b;
 
+	private StringBuilder b(String s) {
+		b = new StringBuilder(s);
+		return b;
+	}
+	
+	@After
+	public void after() {
+		b = null;
+	}
+	
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Chars.class);
+		assertPrivateConstructor(Chars.Escape.class);
+	}
+
+	@Test
+	public void testSafe() {
+		assertString(Chars.safe(null), "");
+		assertSame(Chars.safe(b("")), b);
 	}
 
 	@Test
@@ -25,6 +45,20 @@ public class CharsTest {
 		assertEquals(Chars.at("test", -1, 'x'), 'x');
 		assertEquals(Chars.at("test", 4, 'x'), 'x');
 		assertEquals(Chars.at("test", 2, 'x'), 's');
+	}
+
+	@Test
+	public void testEquals() {
+		assertEquals(Chars.equals(null, 0, null, 0), false);
+		assertEquals(Chars.equals(null, 0, "", 0), false);
+		assertEquals(Chars.equals("", 0, null, 0), false);
+		assertEquals(Chars.equals("", 0, "", 0), false);
+		assertEquals(Chars.equals("a", -1, "a", 0), false);
+		assertEquals(Chars.equals("a", 1, "a", 0), false);
+		assertEquals(Chars.equals("a", 0, "a", -1), false);
+		assertEquals(Chars.equals("a", 0, "a", 1), false);
+		assertEquals(Chars.equals("abc", 1, "abc", 1), true);
+		assertEquals(Chars.equals("abc", 1, "aBc", 1), false);
 	}
 
 	@Test
@@ -77,6 +111,8 @@ public class CharsTest {
 		assertString(Chars.escape(null), "");
 		assertString(Chars.escape("\\ \b \u001b \f \r \n \t \0 \1 \177 \377 a"),
 			"\\\\ \\b \\e \\f \\r \\n \\t \\0 \\u0001 \\u007f \377 a");
+		var s = "abc ";
+		assertSame(Chars.escape(s), s);
 	}
 
 	@Test
@@ -87,10 +123,10 @@ public class CharsTest {
 			"\\ \b \u001b \f \r \n \t \0 \0 \1 \177 \377 a \0 \377");
 		assertString(Chars.unescape("\\\\\\b\\e\\f\\r\\n\\t\\0\\000\\u0001\\u007f\377a\\x00\\xff"),
 			"\\\b\u001b\f\r\n\t\0\0\1\177\377a\0\377");
-		// non-matching formats
 		assertString(Chars.unescape("\\x\\x0"), "\\x\\x0");
 		assertString(Chars.unescape("\\8\\18\\378\\477"), "\\8\u00018\u001f8\u00277");
 		assertString(Chars.unescape("\\u\\u0\\u00\\u000"), "\\u\\u0\\u00\\u000");
+		var s = "abc ";
+		assertSame(Chars.unescape(s), s);
 	}
-
 }

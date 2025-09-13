@@ -2,7 +2,7 @@ package ceri.serial.i2c.smbus;
 
 import static ceri.common.data.ByteUtil.byteAt;
 import static ceri.common.data.CrcAlgorithm.Std.crc8Smbus;
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import static ceri.common.validation.ValidationUtil.validateMax;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.i2c.jna.I2cDev.I2C_SMBUS_BLOCK_MAX;

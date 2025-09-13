@@ -6,7 +6,7 @@ import static ceri.common.color.Colors.value;
 import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import ceri.common.geom.Point2d;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 /**
  * Represents CIE xyY color, Y = brightness (b). All values approximately 0-1.
@@ -176,7 +176,7 @@ public record XybColor(double a, double x, double y, double b) {
 
 	private Point2d normalize(double x, double y) {
 		// normalize around CIE_E
-		double factor = MathUtil.max(MAX_RATIO, //
+		double factor = Maths.max(MAX_RATIO, //
 			(x - CENTER.x) / (MAX_RATIO - CENTER.x), (CENTER.x - x) / CENTER.x,
 			(y - CENTER.y) / (MAX_RATIO - CENTER.y), (CENTER.y - y) / CENTER.y);
 		if (factor == MAX_RATIO) return Point2d.of(x, y);

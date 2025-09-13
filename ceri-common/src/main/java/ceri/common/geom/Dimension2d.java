@@ -2,7 +2,7 @@ package ceri.common.geom;
 
 import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 
 public class Dimension2d {
 	public static final Dimension2d ZERO = new Dimension2d(0, 0);
@@ -48,8 +48,8 @@ public class Dimension2d {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		return (obj instanceof Dimension2d other) && MathUtil.equals(w, other.w)
-			&& MathUtil.equals(h, other.h);
+		return (obj instanceof Dimension2d other) && Maths.equals(w, other.w)
+			&& Maths.equals(h, other.h);
 	}
 
 	@Override

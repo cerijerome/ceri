@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.collection.Iterators;
 import ceri.common.validation.ValidationUtil;
 
-public class MathUtil {
+public class Maths {
 	private static final long ZERO10 = 10000000000L;
 	// PI approximations: 22/7, 355/113
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
@@ -35,7 +35,7 @@ public class MathUtil {
 	private static final long LONG_SIN_QUARTER = LONG_SIN_HALF >> 1;
 	private static final long LONG_SIN_MAGIC = 40500L * LONG_SIN_MULTIPLIER * LONG_SIN_MULTIPLIER;
 
-	private MathUtil() {}
+	private Maths() {}
 
 	/**
 	 * Returns the number of decimal digits, not including sign.

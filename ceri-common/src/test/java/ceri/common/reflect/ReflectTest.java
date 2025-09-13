@@ -23,10 +23,11 @@ import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect.ThreadElement;
 import ceri.common.test.Captor;
+import ceri.common.util.Basics;
 import ceri.common.util.Counter;
 
-public class ReflectUtilTest {
-	private static final Counter.OfInt counter = Counter.ofInt(0);
+public class ReflectTest {
+	private static final Counter.OfInt counter = Counter.of(0);
 
 	private static abstract class Abstract {
 		@SuppressWarnings("unused")
@@ -71,7 +72,7 @@ public class ReflectUtilTest {
 
 	public static class Init {
 		static {
-			ReflectUtilTest.counter.inc(1);
+			ReflectTest.counter.inc(1);
 		}
 	}
 
@@ -145,8 +146,8 @@ public class ReflectUtilTest {
 	@Test
 	public void testNested() {
 		assertOrdered(Reflect.nested());
-		assertOrdered(Reflect.nested(Nested.class), Nested.class, Nested.A.class,
-			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
+		assertOrdered(Reflect.nested(Nested.class), Nested.class, Nested.A.class, Nested.A.AA.class,
+			Nested.A.AB.class, Nested.B.class);
 		assertOrdered(Reflect.nested(Nested.A.class, Nested.B.class), Nested.A.class,
 			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
 	}
@@ -192,8 +193,7 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testPublicFieldValue() {
-		assertNull(
-			Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
+		assertNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
 		assertNull(Reflect.publicFieldValue(new Fields().apply(f -> f.l = 100),
 			Reflect.publicField(Fields.class, "l")));
 		assertNull(Reflect.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
@@ -250,12 +250,12 @@ public class ReflectUtilTest {
 	@Test
 	public void testInit() {
 		var cls = Init.class;
-		assertEquals(counter.count(), 0);
+		assertEquals(counter.get(), 0);
 		assertEquals(Reflect.init(null), null);
 		assertEquals(Reflect.init(cls), cls);
-		assertEquals(counter.count(), 1);
+		assertEquals(counter.get(), 1);
 		assertEquals(Reflect.init(cls), cls);
-		assertEquals(counter.count(), 1);
+		assertEquals(counter.get(), 1);
 	}
 
 	@Test
@@ -285,8 +285,7 @@ public class ReflectUtilTest {
 		assertEquals(Reflect.nestedName(int.class), "int");
 		assertEquals(Reflect.nestedName(byte[].class), "byte[]");
 		assertEquals(Reflect.nestedName(Abstract.class), Abstract.class.getSimpleName());
-		assertEquals(Reflect.nestedName(Abstract[].class),
-			Abstract.class.getSimpleName() + "[]");
+		assertEquals(Reflect.nestedName(Abstract[].class), Abstract.class.getSimpleName() + "[]");
 	}
 
 	@Test
@@ -324,8 +323,7 @@ public class ReflectUtilTest {
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
 		assertEquals(Reflect.create(Date.class, argTypes, args), new Date(0));
-		assertEquals(Reflect.create(String.class, byte[].class, ArrayUtil.bytes.of(0, 0)),
-			"\0\0");
+		assertEquals(Reflect.create(String.class, byte[].class, ArrayUtil.bytes.of(0, 0)), "\0\0");
 	}
 
 	@Test
@@ -379,17 +377,17 @@ public class ReflectUtilTest {
 	public void testCurrentStackTraceElement() {
 		StackTraceElement element = Reflect.currentElement();
 		assertEquals(element.getMethodName(), "testCurrentStackTraceElement");
-		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
+		assertEquals(element.getClassName(), ReflectTest.class.getName());
 	}
 
 	@Test
 	public void testPreviousStackTraceElement() {
 		StackTraceElement element = getPreviousStackTraceElement(0);
 		assertEquals(element.getMethodName(), "getPreviousStackTraceElement");
-		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
+		assertEquals(element.getClassName(), ReflectTest.class.getName());
 		element = getPreviousStackTraceElement(1);
 		assertEquals(element.getMethodName(), "testPreviousStackTraceElement");
-		assertEquals(element.getClassName(), ReflectUtilTest.class.getName());
+		assertEquals(element.getClassName(), ReflectTest.class.getName());
 	}
 
 	private StackTraceElement getPreviousStackTraceElement(int countBack) {
@@ -412,14 +410,13 @@ public class ReflectUtilTest {
 
 	@Test
 	public void testCurrentClassLine() {
-		assertMatch(Reflect.currentClassLine(),
-			"\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+		assertMatch(Reflect.currentClassLine(), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
 	}
 
 	@Test
 	public void testPreviousClassLine() {
-		assertMatch(getPreviousClassLine(0), "\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
-		assertMatch(getPreviousClassLine(1), "\\Q" + ReflectUtilTest.class.getName() + "\\E:\\d+");
+		assertMatch(getPreviousClassLine(0), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
+		assertMatch(getPreviousClassLine(1), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
 	}
 
 	private String getPreviousClassLine(int countBack) {
@@ -462,6 +459,13 @@ public class ReflectUtilTest {
 		delegate.verify(3, -1);
 		captor.first.verify(method, method);
 		captor.second.verify(new Object[] { 3 }, new Object[] { -1 });
+	}
+
+	@Test
+	public void testUnchecked() {
+		Object[] array = new String[3];
+		String[] castArray = Reflect.unchecked(array);
+		Basics.unused((Object) castArray);
 	}
 
 	@Test

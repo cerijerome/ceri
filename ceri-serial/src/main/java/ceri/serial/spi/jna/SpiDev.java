@@ -1,6 +1,6 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.ptr.ByteByReference;

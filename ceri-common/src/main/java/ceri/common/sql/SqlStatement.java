@@ -11,8 +11,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.regex.Pattern;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
+import ceri.common.util.Counter;
 
 public class SqlStatement implements AutoCloseable {
 	private static final Pattern Q_REGEX = Pattern.compile("\\?");
@@ -182,6 +183,8 @@ public class SqlStatement implements AutoCloseable {
 	@Override
 	public String toString() {
 		if (values == null) return sql;
-		return RegexUtil.replaceAll(Q_REGEX, sql, (_, i) -> formatter.format(values[i]));
+		var counter = Counter.of(0);
+		return Regex.appendAll(Q_REGEX, sql, (b, _) -> 
+			b.append(formatter.format(values[counter.preInc(1)])));
 	}
 }

@@ -9,7 +9,7 @@ import org.junit.runner.notification.RunListener;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Sets;
 import ceri.common.comparator.Comparators;
-import ceri.common.text.TextUtil;
+import ceri.common.text.Text;
 
 /**
  * Prints out tests (traditionl unit tests) and behaviors (BDD-style) in readable phrases. Works
@@ -119,11 +119,11 @@ public class TestPrinter extends RunListener {
 	}
 
 	private static String getBehaviorDescription(String methodName) {
-		return TextUtil.toPhrase(methodName);
+		return Text.toPhrase(methodName);
 	}
 
 	private static String getTestDescription(String methodName) {
-		return "test " + TextUtil.firstToLower(methodName);
+		return "test " + Text.firstToLower(methodName);
 	}
 
 }

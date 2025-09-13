@@ -37,5 +37,4 @@ public class UptimeBehavior {
 	private static Uptime uptime(String output) {
 		return Uptime.of(TestProcess.processor(output));
 	}
-
 }

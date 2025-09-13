@@ -20,6 +20,14 @@ public class Chars {
 	private Chars() {}
 
 	/**
+	 * Operates on a char and returns a char.
+	 */
+	@FunctionalInterface
+	public interface Operator<E extends Exception> {
+		char applyAsChar(char c) throws E;
+	}
+
+	/**
 	 * Char escape support.
 	 */
 	public static class Escape {
@@ -42,6 +50,13 @@ public class Chars {
 	}
 
 	/**
+	 * Returns empty string if null.
+	 */
+	public static CharSequence safe(CharSequence s) {
+		return s == null ? "" : s;
+	}
+
+	/**
 	 * Returns the char at index, or null if out of range.
 	 */
 	public static Character at(CharSequence s, int index) {
@@ -58,12 +73,41 @@ public class Chars {
 	}
 
 	/**
+	 * Converts each char to lower case.
+	 */
+	public static CharSequence lower(CharSequence s) {
+		var b = StringBuilders.State.of(s);
+		for (int i = 0; i < b.length(); i++)
+			b.append(i, Character.toLowerCase(b.at(i)));
+		return b.get();
+	}
+
+	/**
+	 * Converts each char to upper case.
+	 */
+	public static CharSequence upper(CharSequence s) {
+		var b = StringBuilders.State.of(s);
+		for (int i = 0; i < b.length(); i++)
+			b.append(i, Character.toLowerCase(b.at(i)));
+		return b.get();
+	}
+
+	/**
+	 * Returns true if the chars at each index are in range and the same value.
+	 */
+	public static boolean equals(CharSequence ls, int li, CharSequence rs, int ri) {
+		if (ls == null || rs == null || li < 0 || li >= ls.length() || ri < 0 || ri >= rs.length())
+			return false;
+		return ls.charAt(li) == rs.charAt(ri);
+	}
+
+	/**
 	 * Simple (non-exhaustive) char printability check.
 	 */
 	public static boolean isPrintable(CharSequence s, int index) {
 		return isPrintable(at(s, index, NUL));
 	}
-	
+
 	/**
 	 * Simple (non-exhaustive) char printability check.
 	 */
@@ -86,7 +130,7 @@ public class Chars {
 	 * Returns the char as a string if printable, or as an escaped string if non-printable.
 	 */
 	public static String escape(char c) {
-		return appendEscape(new StringBuilder(), c).toString();
+		return appendEscape(StringBuilders.State.of(""), 0, c).toString();
 	}
 
 	/**
@@ -94,9 +138,9 @@ public class Chars {
 	 */
 	public static String escape(CharSequence s) {
 		if (s == null) return "";
-		var b = new StringBuilder();
-		for (int i = 0; i < s.length(); i++)
-			appendEscape(b, s.charAt(i));
+		var b = StringBuilders.State.of(s);
+		for (int i = 0; i < b.length(); i++)
+			appendEscape(b, i, b.at(i));
 		return b.toString();
 	}
 
@@ -105,37 +149,44 @@ public class Chars {
 	 */
 	public static String unescape(CharSequence s) {
 		if (Strings.isEmpty(s)) return "";
-		return Patterns.findAllAccept(Escape.REGEX, s, (b, m) -> appendUnescape(b, m.group()));
+		return Regex.appendAll(StringBuilders.State.of(s), Escape.REGEX,
+			(b, m) -> appendUnescape(b, m.start(), m.group())).toString();
 	}
 
 	// support
 
-	private static StringBuilder appendEscape(StringBuilder b, char c) {
-		return switch (c) {
-			case NUL -> b.append(Escape.NUL);
-			case BS -> b.append(Escape.BS);
-			case TAB -> b.append(Escape.TAB);
-			case NL -> b.append(Escape.NL);
-			case FF -> b.append(Escape.FF);
-			case CR -> b.append(Escape.CR);
-			case ESC -> b.append(Escape.ESC);
-			case BSLASH -> b.append(Escape.BSLASH);
-			default -> Chars.isPrintable(c) ? b.append(c) : Escape.UTF16.append(b, c);
-		};
+	private static StringBuilders.State appendEscape(StringBuilders.State b, int i, char c) {
+		switch (c) {
+			case NUL -> b.ensure(i, Escape.NUL);
+			case BS -> b.ensure(i, Escape.BS);
+			case TAB -> b.ensure(i, Escape.TAB);
+			case NL -> b.ensure(i, Escape.NL);
+			case FF -> b.ensure(i, Escape.FF);
+			case CR -> b.ensure(i, Escape.CR);
+			case ESC -> b.ensure(i, Escape.ESC);
+			case BSLASH -> b.ensure(i, Escape.BSLASH);
+			default -> {
+				if (Chars.isPrintable(c)) b.append(i, c);
+				else Escape.UTF16.append(b.ensure(i), c);
+			}
+		}
+		return b;
 	}
 
-	private static void appendUnescape(StringBuilder b, String escapedChar) {
+	private static StringBuilders.State appendUnescape(StringBuilders.State b, int i,
+		String escapedChar) {
 		switch (escapedChar) {
-			case Escape.BSLASH -> b.append(BSLASH);
-			case Escape.BS -> b.append(BS);
-			case Escape.ESC -> b.append(ESC);
-			case Escape.FF -> b.append(FF);
-			case Escape.NL -> b.append(NL);
-			case Escape.CR -> b.append(CR);
-			case Escape.TAB -> b.append(TAB);
-			case Escape.NUL -> b.append(NUL);
-			default -> b.append(decode(escapedChar));
+			case Escape.BSLASH -> b.ensure(i, BSLASH);
+			case Escape.BS -> b.ensure(i, BS);
+			case Escape.ESC -> b.ensure(i, ESC);
+			case Escape.FF -> b.ensure(i, FF);
+			case Escape.NL -> b.ensure(i, NL);
+			case Escape.CR -> b.ensure(i, CR);
+			case Escape.TAB -> b.ensure(i, TAB);
+			case Escape.NUL -> b.ensure(i, NUL);
+			default -> b.append(i, decode(escapedChar));
 		}
+		return b;
 	}
 
 	private static char decode(String escapedChar) {

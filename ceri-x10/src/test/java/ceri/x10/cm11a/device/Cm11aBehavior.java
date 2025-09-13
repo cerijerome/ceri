@@ -11,12 +11,11 @@ public class Cm11aBehavior {
 	@Test
 	public void shouldProvideNullDevice() throws IOException {
 		try (var _ = Cm11a.NULL.listeners().enclose(_ -> {})) {
-			TestCommandListener cl = TestCommandListener.of();
+			var cl = TestCommandListener.of();
 			try (var _ = Cm11a.NULL.listen(cl)) {
 				Cm11a.NULL.command(Command.allUnitsOff(House.J));
 				Cm11a.NULL.close();
 			}
 		}
 	}
-
 }

@@ -1,11 +1,11 @@
 package ceri.serial.i2c;
 
-import static ceri.common.math.MathUtil.ubyte;
+import static ceri.common.math.Maths.ubyte;
 import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.exception.Exceptions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.text.Format;
 
@@ -30,7 +30,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	 */
 	public static I2cAddress fromFrames(byte[] frames) {
 		validateRange(frames.length, 1, 2);
-		if (frames.length == 1) return of7Bit(MathUtil.ubyte(frames[0]) >>> 1);
+		if (frames.length == 1) return of7Bit(Maths.ubyte(frames[0]) >>> 1);
 		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX)
 			throw Exceptions.illegalArg("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
 		int address =

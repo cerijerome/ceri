@@ -7,7 +7,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.jna.type.Struct.Fields;
 
 public class VarStructBehavior {
@@ -45,7 +45,7 @@ public class VarStructBehavior {
 
 		@Override
 		protected int varCount() {
-			return MathUtil.ubyte(count);
+			return Maths.ubyte(count);
 		}
 	}
 

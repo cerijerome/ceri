@@ -14,7 +14,7 @@ import ceri.common.collection.Immutable.Wrap;
 import ceri.common.collection.Maps.Put;
 import ceri.common.function.Functions;
 import ceri.common.test.Captor;
-import ceri.common.util.BasicUtil;
+import ceri.common.util.Basics;
 
 public class MapsTest {
 	private static final List<Integer> nullList = null;
@@ -33,7 +33,7 @@ public class MapsTest {
 	private static final Functions.BiConsumer<Object, Object> nullBiCon = null;
 	private static final Functions.BiOperator<Object> biCon = (l, r) -> l != null ? l : r;
 	private static final Functions.BiPredicate<Object, Object> nullBiPr = null;
-	private static final Functions.BiPredicate<Object, Object> biPr = BasicUtil::noneNull;
+	private static final Functions.BiPredicate<Object, Object> biPr = Basics::noneNull;
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);

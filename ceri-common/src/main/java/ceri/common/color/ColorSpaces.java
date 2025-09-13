@@ -1,8 +1,6 @@
 package ceri.common.color;
 
-//import static ceri.common.color.ColorUtil.value;
-import static java.lang.Math.pow;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.math.Matrix;
 
 /**
@@ -73,14 +71,14 @@ public class ColorSpaces {
 		 * Execute the split gamma compress function on the value.
 		 */
 		public double compress(double u) {
-			return u <= low ? aLow * u : (1 + aHigh) * pow(u, 1 / p) - aHigh;
+			return u <= low ? aLow * u : (1 + aHigh) * Math.pow(u, 1 / p) - aHigh;
 		}
 
 		/**
 		 * Execute the split gamma expand function on the value.
 		 */
 		public double expand(double u) {
-			return u <= lowExp ? u / aLow : pow((u + aHigh) / (1 + aHigh), p);
+			return u <= lowExp ? u / aLow : Math.pow((u + aHigh) / (1 + aHigh), p);
 		}
 	}
 
@@ -89,7 +87,7 @@ public class ColorSpaces {
 	 */
 	public static double[] limit(double... values) {
 		for (int i = 0; i < values.length; i++)
-			values[i] = MathUtil.limit(values[i], 0, 1);
+			values[i] = Maths.limit(values[i], 0, 1);
 		return values;
 	}
 
@@ -97,8 +95,8 @@ public class ColorSpaces {
 	 * Scale values to 0-1, modifying values in place.
 	 */
 	public static double[] scale(double... values) {
-		double min = Math.min(MathUtil.min(values), 0);
-		double d = Math.max(MathUtil.max(values), 1) - min;
+		double min = Math.min(Maths.min(values), 0);
+		double d = Math.max(Maths.max(values), 1) - min;
 		if (min < 0 || d > 1) for (int i = 0; i < values.length; i++)
 			values[i] = (values[i] - min) / d;
 		return values;
@@ -129,7 +127,7 @@ public class ColorSpaces {
 	 * Convert CIE daylight illuminant (Dxx) at max brightness to CIE xyY 0-1 values.
 	 */
 	public static double[] dToXyb(int d) {
-		int k = MathUtil.limit(d * 100, K_MIN, K_MAX);
+		int k = Maths.limit(d * 100, K_MIN, K_MAX);
 		double x = polynomial(CCT_TO_XYB_D_X, k <= K_MIN_D_X ? 0 : 1, RKK / k);
 		double y = polynomial(CCT_TO_XYB_D_Y, 0, x);
 		return new double[] { x, y, 1 };
@@ -161,7 +159,7 @@ public class ColorSpaces {
 	 * https://en.wikipedia.org/wiki/Planckian_locus#Approximation
 	 */
 	public static double[] cctToXyb(int k) {
-		k = MathUtil.limit(k, K_MIN, K_MAX);
+		k = Maths.limit(k, K_MIN, K_MAX);
 		double x = polynomial(CCT_TO_XYB_X, k <= K_MIN_X ? 0 : 1, RKK / k);
 		double y = polynomial(CCT_TO_XYB_Y, k <= K_MIN_Y0 ? 0 : k <= K_MIN_Y1 ? 1 : 2, x);
 		return new double[] { x, y, 1 };
@@ -178,8 +176,8 @@ public class ColorSpaces {
 	 * Convert RGB 0-1 values to HSB 0-1 values. Double version of Color.RGBtoHSB().
 	 */
 	public static double[] srgbToHsb(double... rgb) {
-		double max = MathUtil.max(rgb);
-		double diff = max - MathUtil.min(rgb);
+		double max = Maths.max(rgb);
+		double diff = max - Maths.min(rgb);
 		double b = max;
 		double s = max == 0 ? 0 : diff / max;
 		double h = s == 0 ? 0 : hue(max, diff, rgb);

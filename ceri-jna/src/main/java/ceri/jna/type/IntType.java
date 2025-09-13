@@ -5,7 +5,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.ByReference;
 import ceri.common.function.Functions;
-import ceri.common.util.BasicUtil;
+import ceri.common.reflect.Reflect;
 import ceri.jna.util.JnaArgs;
 import ceri.jna.util.JnaUtil;
 
@@ -188,6 +188,6 @@ public abstract class IntType<T extends IntType<T>> extends IntegerType {
 	}
 
 	protected T typedThis() {
-		return BasicUtil.unchecked(this);
+		return Reflect.unchecked(this);
 	}
 }

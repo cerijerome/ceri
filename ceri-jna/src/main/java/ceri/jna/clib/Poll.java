@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import ceri.common.data.TypeTranscoder;
-import ceri.common.math.MathUtil;
+import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
 import ceri.common.time.TimeSpec;
 import ceri.common.util.OsUtil;
@@ -137,7 +137,7 @@ public class Poll implements Iterable<Poll.Fd> {
 		 * Returns the raw response value, including events and errors.
 		 */
 		public int revents() {
-			return MathUtil.ushort(pollfd().revents);
+			return Maths.ushort(pollfd().revents);
 		}
 
 		private CPoll.pollfd pollfd() {

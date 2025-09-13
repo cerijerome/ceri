@@ -1,6 +1,7 @@
 package ceri.common.util;
 
 import java.util.Objects;
+import ceri.common.reflect.Reflect;
 
 /**
  * Holder for a value, and flag to indicate if the value is empty. Provides mutable and immutable
@@ -23,7 +24,7 @@ public abstract class Holder<T> {
 	 * Returns an immutable empty holder.
 	 */
 	public static <T> Holder<T> of() {
-		return BasicUtil.unchecked(EMPTY);
+		return Reflect.unchecked(EMPTY);
 	}
 
 	/**

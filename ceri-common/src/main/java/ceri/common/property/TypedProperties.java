@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.function.Predicate;
 import ceri.common.array.ArrayUtil;
-import ceri.common.text.RegexUtil;
-import ceri.common.text.StringUtil;
+import ceri.common.collection.Sets;
+import ceri.common.function.Excepts;
+import ceri.common.stream.Collect;
+import ceri.common.stream.Streams;
+import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
 /**
@@ -21,7 +22,8 @@ import ceri.common.text.Strings;
 public class TypedProperties {
 	/** A no-op, stateless instance. */
 	public static final TypedProperties NULL = new TypedProperties(PropertySource.NULL) {};
-	private static final Predicate<String> BY_ID = RegexUtil.matcher("\\d+");
+	private static final Excepts.Predicate<RuntimeException, String> BY_ID =
+		Regex.Filter.match("\\d+");
 	public final String prefix;
 	private final PropertySource properties;
 
@@ -178,10 +180,11 @@ public class TypedProperties {
 	}
 
 	/**
-	 * Returns all the integer ids that are children of the given key.
+	 * Returns all the integer ids that are children of the given key, as an immutable sorted set.
 	 */
-	public List<Integer> childIds(String... keyParts) {
-		return children(keyParts).stream().filter(BY_ID).map(Integer::parseInt).sorted().toList();
+	public Set<Integer> childIds(String... keyParts) {
+		return Streams.from(children(keyParts)).filter(BY_ID).map(Integer::parseInt)
+			.collect(Collect.set(Sets::tree));
 	}
 
 	@Override

@@ -12,8 +12,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.function.Functions;
-import ceri.common.text.Patterns;
-import ceri.common.text.RegexUtil;
+import ceri.common.text.Regex;
 import ceri.common.text.ToString;
 import ceri.common.time.DateUtil;
 
@@ -35,7 +34,7 @@ public class ServerStats {
 	public final ZonedDateTime since;
 
 	public static ServerStats from(String output) {
-		var lines = Patterns.Split.LINE.list(output);
+		var lines = Regex.Split.LINE.list(output);
 		var b = builder();
 		int i = 0;
 		match(lines, i++, COMPUTER_NAME_REGEX, m -> b.computerName(m.group(1)));
@@ -46,8 +45,7 @@ public class ServerStats {
 	private static void match(List<String> lines, int i, Pattern p,
 		Functions.Consumer<Matcher> consumer) {
 		if (i >= lines.size()) return;
-		Matcher m = RegexUtil.found(p, lines.get(i));
-		if (m != null) consumer.accept(m);
+		Regex.findAccept(p, lines.get(i), consumer);
 	}
 
 	public static class Builder {
@@ -92,8 +90,7 @@ public class ServerStats {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof ServerStats)) return false;
-		ServerStats other = (ServerStats) obj;
+		if (!(obj instanceof ServerStats other)) return false;
 		if (!Objects.equals(computerName, other.computerName)) return false;
 		if (!Objects.equals(since, other.since)) return false;
 		return true;
@@ -115,5 +112,4 @@ public class ServerStats {
 		return new DateTimeFormatterBuilder().parseCaseInsensitive()
 			.appendPattern(datePattern + TIME_PATTERN).toFormatter(locale);
 	}
-
 }
