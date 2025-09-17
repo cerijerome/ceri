@@ -1,13 +1,12 @@
 package ceri.common.stream;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
+import ceri.common.collection.Sets;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -43,75 +42,6 @@ public class IntStream<E extends Exception> {
 		 * Provides a finisher to complete the container.
 		 */
 		Functions.Function<A, R> finisher();
-	}
-
-	/**
-	 * Collector support.
-	 */
-	public static class Collect {
-		/** Collects elements into a primitive array. */
-		public static final Collector<?, int[]> array =
-			new Composed<>(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
-		/** Collects elements into a sorted primitive array. */
-		public static final Collector<?, int[]> sortedArray = new Composed<>(DynamicArray::ints,
-			DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
-		/** Collects chars into a string. */
-		public static final Collector<?, String> chars = new Composed<>(StringBuilder::new,
-			(b, i) -> b.append((char) i), StringBuilder::toString);
-		/** Collects code points into a string. */
-		public static final Collector<?, String> codePoints = new Composed<>(StringBuilder::new,
-			StringBuilder::appendCodePoint, StringBuilder::toString);
-
-		private Collect() {}
-
-		/**
-		 * A collector instance composed from its functions.
-		 */
-		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjIntConsumer<A> accumulator, Functions.Function<A, R> finisher)
-			implements Collector<A, R> {}
-	}
-
-	/**
-	 * Reduction operators.
-	 */
-	public static class Reduce {
-		private Reduce() {}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.IntBiOperator<E> min() {
-			return (l, r) -> Integer.compare(l, r) <= 0 ? l : r;
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.IntBiOperator<E> max() {
-			return (l, r) -> Integer.compare(l, r) >= 0 ? l : r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.IntBiOperator<E> and() {
-			return (l, r) -> l & r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.IntBiOperator<E> or() {
-			return (l, r) -> l | r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.IntBiOperator<E> xor() {
-			return (l, r) -> l ^ r;
-		}
 	}
 
 	/**
@@ -333,7 +263,7 @@ public class IntStream<E extends Exception> {
 	 * IntStreams distinct elements.
 	 */
 	public IntStream<E> distinct() {
-		return filter(new HashSet<Integer>()::add);
+		return filter(Sets.of()::add);
 	}
 
 	/**
@@ -408,7 +338,7 @@ public class IntStream<E extends Exception> {
 	 * Collects elements into an array.
 	 */
 	public int[] toArray() throws E {
-		return collect(Collect.array);
+		return collect(Collect.Ints.array);
 	}
 
 	/**
@@ -441,14 +371,21 @@ public class IntStream<E extends Exception> {
 	 * Returns the min value, or default.
 	 */
 	public int min(int def) throws E {
-		return reduce(Reduce.min(), def);
+		return reduce(Reduce.Ints.min(), def);
 	}
 
 	/**
 	 * Returns the max value, or default.
 	 */
 	public int max(int def) throws E {
-		return reduce(Reduce.max(), def);
+		return reduce(Reduce.Ints.max(), def);
+	}
+
+	/**
+	 * Returns the summation value, allowing overflows, or default.
+	 */
+	public int sum() throws E {
+		return reduce(Reduce.Ints.sum(), 0);
 	}
 
 	/**

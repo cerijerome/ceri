@@ -1,7 +1,5 @@
 package ceri.common.collection;
 
-import static ceri.common.validation.ValidationUtil.validateMatch;
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
@@ -12,6 +10,7 @@ import ceri.common.math.Maths;
 import ceri.common.property.Parser;
 import ceri.common.stream.IntStream;
 import ceri.common.text.Regex;
+import ceri.common.util.Validate;
 
 /**
  * Tracks ranges of indexes such as {@code ((-3..0), (2), (4..5))}. Allows adding and removing
@@ -32,7 +31,7 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Parse string to extract ranges.
 	 */
 	public static IndexRanges from(String s) {
-		validateMatch(s, VALIDATE_REGEX);
+		Validate.validateMatch(s, VALIDATE_REGEX);
 		var ranges = of();
 		var m = EXTRACT_REGEX.matcher(s);
 		while (m.find()) {
@@ -54,8 +53,8 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Create an instance with linear algorithm threshold, and initial index storage array size.
 	 */
 	public static IndexRanges of(int linearMax, int size) {
-		validateMin(linearMax, 0);
-		validateMin(size, 1);
+		Validate.validateMin(linearMax, 0);
+		Validate.validateMin(size, 1);
 		return new IndexRanges(linearMax, size);
 	}
 
@@ -123,8 +122,8 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Adds a new range. Merges with existing ranges.
 	 */
 	public IndexRanges add(int start, int end) {
-		validateMin(start, 0);
-		validateMin(end, start);
+		Validate.validateMin(start, 0);
+		Validate.validateMin(end, start);
 		if (n == 0) return insert(0, start, end);
 		int iS = startIndex(start); // -1..n-1
 		if (iS >= 0 && start > ends[iS] + 1) iS++; // -1..n
@@ -153,8 +152,8 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Removes a new range. Splits and crops existing ranges.
 	 */
 	public IndexRanges remove(int start, int end) {
-		validateMin(start, 0);
-		validateMin(end, start);
+		Validate.validateMin(start, 0);
+		Validate.validateMin(end, start);
 		if (n == 0) return this;
 		int iS = startIndex(start); // -1..n-1
 		if (iS >= 0 && start == starts[iS]) iS--; // -1..n-1
@@ -208,7 +207,7 @@ public class IndexRanges implements Iterable<Integer> {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder().append('[');
+		var b = new StringBuilder().append('[');
 		for (int i = 0; i < n; i++) {
 			if (i > 0) b.append(',');
 			int diff = ends[i] - starts[i];

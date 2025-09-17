@@ -1,13 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.util.Arrays;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.Maths;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.util.Validate;
 
 /**
  * Base wrapper for an int array, implementing the IntProvider interface. The Immutable sub-class
@@ -54,7 +53,7 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		public static Immutable wrap(int[] array, int offset, int length) {
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -114,7 +113,7 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		public static Mutable wrap(int[] array, int offset, int length) {
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -169,7 +168,7 @@ public abstract class IntArray implements IntProvider {
 		@Override
 		public int copyFrom(int index, int[] array, int offset, int length) {
 			validateSlice(index, length);
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
@@ -247,7 +246,7 @@ public abstract class IntArray implements IntProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(int[] array, int max) {
-			ValidationUtil.validateSubRange(array.length, 0, max);
+			Validate.validateSubRange(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -310,12 +309,12 @@ public abstract class IntArray implements IntProvider {
 		}
 
 		@Override
-		public IntStream stream(int length) {
+		public IntStream<RuntimeException> stream(int length) {
 			return mutable.stream(readInc(length), length);
 		}
 
 		@Override
-		public LongStream ustream(int length) {
+		public LongStream<RuntimeException> ustream(int length) {
 			return mutable.ustream(readInc(length), length);
 		}
 
@@ -408,7 +407,7 @@ public abstract class IntArray implements IntProvider {
 			int size = size();
 			if (size == 0) return Immutable.EMPTY;
 			Encoder encoder = Encoder.fixed(size).apply(this::encode);
-			validateEqual(encoder.remaining(), 0, "Remaining ints");
+			Validate.validateEqual(encoder.remaining(), 0, "Remaining ints");
 			return encoder.immutable();
 		}
 	}
@@ -447,7 +446,7 @@ public abstract class IntArray implements IntProvider {
 	@Override
 	public int copyTo(int index, int[] dest, int offset, int length) {
 		validateSlice(index, length);
-		ValidationUtil.validateSlice(dest.length, offset, length);
+		Validate.validateSlice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
@@ -495,7 +494,7 @@ public abstract class IntArray implements IntProvider {
 	}
 
 	void validateSlice(int index, int length) {
-		ValidationUtil.validateSlice(this.length, index, length);
+		Validate.validateSlice(this.length, index, length);
 	}
 
 	int offset(int index) {

@@ -18,6 +18,10 @@ public class XmlUtil {
 
 	private XmlUtil() {}
 
+	interface DocumentSupplier {
+		Document document() throws IOException, SAXException, ParserConfigurationException;
+	}
+	
 	public static InputSource input(String s) {
 		return new InputSource(new StringReader(s));
 	}
@@ -27,8 +31,8 @@ public class XmlUtil {
 	 */
 	public static Document document(String s) throws SAXException {
 		return execute(() -> {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = dbf.newDocumentBuilder();
+			var dbf = DocumentBuilderFactory.newInstance();
+			var builder = dbf.newDocumentBuilder();
 			return builder.parse(input(s));
 		});
 	}
@@ -38,7 +42,7 @@ public class XmlUtil {
 	 */
 	public static Document unvalidatedDocument(String s) throws SAXException {
 		return execute(() -> {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			var dbf = DocumentBuilderFactory.newInstance();
 			dbf.setValidating(false);
 			dbf.setNamespaceAware(true);
 			dbf.setFeature(XERCES_LOAD_DTD_GRAMMAR_FEATURE, false);
@@ -55,9 +59,4 @@ public class XmlUtil {
 			throw new IllegalStateException("Should not happen", e);
 		}
 	}
-
-	interface DocumentSupplier {
-		Document document() throws IOException, SAXException, ParserConfigurationException;
-	}
-
 }

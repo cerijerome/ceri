@@ -2,8 +2,7 @@ package ceri.x10.cm11a.protocol;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
-import ceri.common.data.ByteArray.Encodable;
-import ceri.common.data.ByteArray.Encoder;
+import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
 import ceri.common.data.DataUtil;
 import ceri.common.text.ToString;
@@ -31,7 +30,7 @@ import ceri.x10.command.House;
  * 	0    		Timer purge flag
  * </pre>
  */
-public class Clock implements Encodable {
+public class Clock implements ByteArray.Encodable {
 	private static final int SIZE = 1 + Data.DATE_BYTES + 1;
 	private static final int CLEAR_BATTERY_TIMER_FLAG = 0x4;
 	private static final int CLEAR_MONITORED_STATUS_FLAG = 0x2;
@@ -44,7 +43,7 @@ public class Clock implements Encodable {
 
 	public static Clock decode(ByteReader r) {
 		DataUtil.expect(r, Protocol.TIME.value);
-		Builder builder = new Builder();
+		var builder = new Builder();
 		builder.date(Data.readDateFrom(r));
 		int code = r.readUbyte();
 		builder.house(Data.decodeHouse(code));
@@ -119,7 +118,7 @@ public class Clock implements Encodable {
 	}
 
 	@Override
-	public void encode(Encoder encoder) {
+	public void encode(ByteArray.Encoder encoder) {
 		encoder.writeByte(Protocol.TIME.value);
 		Data.writeDateTo(date, encoder);
 		int code = Data.encode(house, flags(clearBatteryTimer, clearMonitoredStatus, purgeTimer));
@@ -134,8 +133,7 @@ public class Clock implements Encodable {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Clock)) return false;
-		Clock other = (Clock) obj;
+		if (!(obj instanceof Clock other)) return false;
 		if (!Objects.equals(date, other.date)) return false;
 		if (house != other.house) return false;
 		if (clearBatteryTimer != other.clearBatteryTimer) return false;
@@ -168,5 +166,4 @@ public class Clock implements Encodable {
 			(clearMonitoredStatus ? CLEAR_MONITORED_STATUS_FLAG : 0) |
 			(purgeTimer ? PURGE_TIMER_FLAG : 0);
 	}
-
 }

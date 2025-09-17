@@ -1,6 +1,5 @@
 package ceri.common.sql;
 
-import static java.util.stream.Collectors.toList;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,9 +30,8 @@ public class SqlUtil {
 
 	public static List<String> tableNames(Connection con, String catalog, String schemaPattern,
 		String namePattern, String... types) throws SQLException {
-		try (ResultSet rs =
-			con.getMetaData().getTables(catalog, schemaPattern, namePattern, types)) {
-			return stream(rs).map(r -> r.getString(TABLE_NAME_INDEX)).collect(toList());
+		try (var rs = con.getMetaData().getTables(catalog, schemaPattern, namePattern, types)) {
+			return stream(rs).map(r -> r.getString(TABLE_NAME_INDEX)).toList();
 		}
 	}
 

@@ -1,13 +1,12 @@
 package ceri.serial.i2c;
 
-import static ceri.common.math.Maths.ubyte;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
-import ceri.common.text.Format;
+import ceri.common.text.Formats;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates an I2C address, allowing for 10-bit addresses, and forcing use of address if
@@ -18,7 +17,7 @@ public record I2cAddress(int address, boolean tenBit) {
 	public static final I2cAddress GENERAL_CALL = new I2cAddress(0, false);
 	/** Device ID, used with Wr and Rd bits */
 	public static final I2cAddress DEVICE_ID = new I2cAddress(0x7c, false);
-	private static final Format HEX3 = Format.of(Radix.HEX, 3);
+	private static final Formats.OfLong HEX3 = Formats.ofLong(Radix.HEX, 3, 3);
 	public static final int MASK_7BIT = ByteUtil.maskInt(7);
 	public static final int MASK_10BIT = ByteUtil.maskInt(10);
 	private static final int FRAME0_10BIT_PREFIX = 0xf0; // frame[0] prefix of 10-bit address
@@ -29,12 +28,12 @@ public record I2cAddress(int address, boolean tenBit) {
 	 * Extracts address from frame bytes. 2 bytes for a 10-bit address, 1 byte for 7-bit.
 	 */
 	public static I2cAddress fromFrames(byte[] frames) {
-		validateRange(frames.length, 1, 2);
+		Validate.validateRange(frames.length, 1, 2);
 		if (frames.length == 1) return of7Bit(Maths.ubyte(frames[0]) >>> 1);
-		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX)
-			throw Exceptions.illegalArg("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
-		int address =
-			(int) ByteUtil.fromMsb((~FRAME0_10BIT_PREFIX & ubyte(frames[0])) >>> 1, frames[1]);
+		if ((FRAME0_10BIT_PREFIX & frames[0]) != FRAME0_10BIT_PREFIX) throw Exceptions
+			.illegalArg("Invalid 10-bit frames: 0x%02x, 0x%02x", frames[0], frames[1]);
+		int address = (int) ByteUtil.fromMsb((~FRAME0_10BIT_PREFIX & Maths.ubyte(frames[0])) >>> 1,
+			frames[1]);
 		return of10Bit(address);
 	}
 
@@ -93,6 +92,6 @@ public record I2cAddress(int address, boolean tenBit) {
 
 	@Override
 	public String toString() {
-		return tenBit ? HEX3.ushort(address) : Format.HEX2.ubyte(address);
+		return tenBit ? HEX3.ushort(address) : Formats.HEX_BYTE.apply(address);
 	}
 }

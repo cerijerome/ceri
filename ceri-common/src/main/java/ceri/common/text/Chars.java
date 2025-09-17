@@ -1,8 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.regex.Pattern;
 import ceri.common.math.Radix;
+import ceri.common.util.Validate;
 
 public class Chars {
 	public static final char NUL = '\0';
@@ -31,9 +31,9 @@ public class Chars {
 	 * Char escape support.
 	 */
 	public static class Escape {
-		public static Format UTF16 = Format.of(Radix.HEX.n, "\\u", 4, 4);
-		public static Format OCT = Format.of(Radix.OCT.n, "\\", 1, 3);
-		public static Format HEX = Format.of(Radix.HEX.n, "\\x", 2, 2); // not standard
+		public static Formats.OfLong UTF16 = Formats.ofLong("\\u", Radix.HEX.n, 4, 4);
+		public static Formats.OfLong OCT = Formats.ofLong("\\", Radix.OCT.n, 1, 3);
+		public static Formats.OfLong HEX = Formats.ofLong("\\x", Radix.HEX.n, 2, 2); // not standard
 		private static final Pattern REGEX = // java literal + regex compile => 4:1 backslashes
 			Pattern.compile("\\\\\\\\|\\\\b|\\\\t|\\\\n|\\\\f|\\\\r|\\\\e"
 				+ "|\\\\[0-3]?[0-7]?[0-7]|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
@@ -78,7 +78,7 @@ public class Chars {
 	public static CharSequence lower(CharSequence s) {
 		var b = StringBuilders.State.of(s);
 		for (int i = 0; i < b.length(); i++)
-			b.append(i, Character.toLowerCase(b.at(i)));
+			b.append(Character.toLowerCase(b.at(i)));
 		return b.get();
 	}
 
@@ -88,7 +88,7 @@ public class Chars {
 	public static CharSequence upper(CharSequence s) {
 		var b = StringBuilders.State.of(s);
 		for (int i = 0; i < b.length(); i++)
-			b.append(i, Character.toLowerCase(b.at(i)));
+			b.append(Character.toLowerCase(b.at(i)));
 		return b.get();
 	}
 
@@ -157,17 +157,17 @@ public class Chars {
 
 	private static StringBuilders.State appendEscape(StringBuilders.State b, int i, char c) {
 		switch (c) {
-			case NUL -> b.ensure(i, Escape.NUL);
-			case BS -> b.ensure(i, Escape.BS);
-			case TAB -> b.ensure(i, Escape.TAB);
-			case NL -> b.ensure(i, Escape.NL);
-			case FF -> b.ensure(i, Escape.FF);
-			case CR -> b.ensure(i, Escape.CR);
-			case ESC -> b.ensure(i, Escape.ESC);
-			case BSLASH -> b.ensure(i, Escape.BSLASH);
+			case NUL -> b.ensure(i).append(Escape.NUL);
+			case BS -> b.ensure(i).append(Escape.BS);
+			case TAB -> b.ensure(i).append(Escape.TAB);
+			case NL -> b.ensure(i).append(Escape.NL);
+			case FF -> b.ensure(i).append(Escape.FF);
+			case CR -> b.ensure(i).append(Escape.CR);
+			case ESC -> b.ensure(i).append(Escape.ESC);
+			case BSLASH -> b.ensure(i).append(Escape.BSLASH);
 			default -> {
 				if (Chars.isPrintable(c)) b.append(i, c);
-				else Escape.UTF16.append(b.ensure(i), c);
+				else b.append(i, Escape.UTF16.apply(c));
 			}
 		}
 		return b;
@@ -176,14 +176,14 @@ public class Chars {
 	private static StringBuilders.State appendUnescape(StringBuilders.State b, int i,
 		String escapedChar) {
 		switch (escapedChar) {
-			case Escape.BSLASH -> b.ensure(i, BSLASH);
-			case Escape.BS -> b.ensure(i, BS);
-			case Escape.ESC -> b.ensure(i, ESC);
-			case Escape.FF -> b.ensure(i, FF);
-			case Escape.NL -> b.ensure(i, NL);
-			case Escape.CR -> b.ensure(i, CR);
-			case Escape.TAB -> b.ensure(i, TAB);
-			case Escape.NUL -> b.ensure(i, NUL);
+			case Escape.BSLASH -> b.ensure(i).append(BSLASH);
+			case Escape.BS -> b.ensure(i).append(BS);
+			case Escape.ESC -> b.ensure(i).append(ESC);
+			case Escape.FF -> b.ensure(i).append(FF);
+			case Escape.NL -> b.ensure(i).append(NL);
+			case Escape.CR -> b.ensure(i).append(CR);
+			case Escape.TAB -> b.ensure(i).append(TAB);
+			case Escape.NUL -> b.ensure(i).append(NUL);
 			default -> b.append(i, decode(escapedChar));
 		}
 		return b;
@@ -193,11 +193,11 @@ public class Chars {
 		int c = decode(escapedChar, Escape.UTF16);
 		if (c == -1) c = decode(escapedChar, Escape.HEX);
 		if (c == -1) c = decode(escapedChar, Escape.OCT);
-		validateMin(c, 0, "Escaped char");
+		Validate.validateMin(c, 0, "Escaped char");
 		return (char) c;
 	}
 
-	private static int decode(String escapedChar, Format format) {
+	private static int decode(String escapedChar, Formats.OfLong format) {
 		if (!escapedChar.startsWith(format.prefix())) return -1;
 		return Integer.parseUnsignedInt(escapedChar, format.prefix().length(), escapedChar.length(),
 			format.radix());

@@ -9,7 +9,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static java.lang.Integer.MIN_VALUE;
 import org.junit.Test;
 import ceri.common.data.IntArray.Mutable;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class IntReaderBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -109,7 +109,7 @@ public class IntReaderBehavior {
 
 			@Override
 			public int readInt() {
-				ValidationUtil.validateIndex(length, pos);
+				Validate.validateIndex(length, pos);
 				return ints[offset + pos++];
 			}
 		};

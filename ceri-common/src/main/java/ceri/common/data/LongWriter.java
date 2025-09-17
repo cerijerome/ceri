@@ -2,7 +2,7 @@ package ceri.common.data;
 
 import ceri.common.function.Fluent;
 import ceri.common.reflect.Reflect;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that writes longs sequentially. Type T must be the sub-class type; this allows fluent
@@ -70,7 +70,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(long[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -95,7 +95,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(LongProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(provider.getLong(offset + i));
 		return Reflect.unchecked(this);

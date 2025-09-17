@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import java.util.Set;
-import java.util.TreeSet;
+import ceri.common.collection.Sets;
 import ceri.common.data.ByteUtil;
 
 /**
@@ -11,11 +11,11 @@ import ceri.common.data.ByteUtil;
 public class BranchCaptor {
 	private static final String TRUE_SYMBOL = "+ ";
 	private static final String FALSE_SYMBOL = "- ";
-	private final Set<String> branches = new TreeSet<>();
+	private final Set<String> branches = Sets.tree();
 	private int size = 0;
 
 	public static String string(boolean... exprs) {
-		StringBuilder b = new StringBuilder();
+		var b = new StringBuilder();
 		for (boolean expr : exprs)
 			b.append(symbol(expr));
 		return b.toString();
@@ -30,7 +30,7 @@ public class BranchCaptor {
 		System.out.println(branches() + " branches:");
 		for (var branch : branches)
 			System.out.println("  " + branch);
-		Set<String> missing = missing();
+		var missing = missing();
 		if (missing.isEmpty()) return;
 		System.out.println(missing.size() + " missing:");
 		for (var branch : missing)
@@ -42,12 +42,12 @@ public class BranchCaptor {
 	}
 
 	public Set<String> missing() {
-		Set<String> missing = new TreeSet<>();
+		var missing = Sets.<String>tree();
 		if (size > 0) for (int i = 0; i < 1 << size; i++) {
-			StringBuilder b = new StringBuilder();
+			var b = new StringBuilder();
 			for (int j = 0; j < size; j++)
 				b.append(symbol(ByteUtil.bit(i, j)));
-			String s = b.toString();
+			var s = b.toString();
 			if (!branches.contains(s)) missing.add(s);
 		}
 		return missing;

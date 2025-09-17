@@ -1,9 +1,9 @@
 package ceri.common.test;
 
 import java.util.Collection;
-import java.util.function.Consumer;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.event.Listeners;
+import ceri.common.function.Functions;
 
 /**
  * Extends Listeners to notify when listeners are added or removed.
@@ -24,21 +24,21 @@ public class TestListeners<T> extends Listeners<T> {
 	}
 
 	@Override
-	public boolean listen(Consumer<? super T> listener) {
+	public boolean listen(Functions.Consumer<? super T> listener) {
 		boolean result = super.listen(listener);
 		sync.signal(listeners().size());
 		return result;
 	}
 
 	@Override
-	public boolean unlisten(Consumer<? super T> listener) {
+	public boolean unlisten(Functions.Consumer<? super T> listener) {
 		boolean result = super.unlisten(listener);
 		sync.signal(listeners().size());
 		return result;
 	}
 
 	@Override
-	public Collection<Consumer<? super T>> listeners() {
+	public Collection<Functions.Consumer<? super T>> listeners() {
 		return super.listeners();
 	}
 
@@ -49,5 +49,4 @@ public class TestListeners<T> extends Listeners<T> {
 		if (clear) sync.clear();
 		sync.await();
 	}
-
 }

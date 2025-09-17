@@ -1,16 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.BYTE_MASK;
-import static ceri.common.data.ByteUtil.INT_MASK;
-import static ceri.common.data.ByteUtil.maskOfBits;
-import static ceri.common.data.ByteUtil.shiftBits;
-import static ceri.common.math.Maths.ubyte;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import ceri.common.collection.Enums;
+import ceri.common.collection.Maps;
+import ceri.common.math.Maths;
 
 /**
  * Encapsulates the algorithm used to generate CRC values. Generates an entry cache on creation.
@@ -71,7 +67,7 @@ public class CrcAlgorithm {
 		crc64Xz(() -> of(64, 0x42f0e1eba9ea3693L, -1, true, true, -1), //
 			"CRC-64/XZ");
 
-		private static final Map<Std, CrcAlgorithm> cache = new ConcurrentHashMap<>();
+		private static final Map<Std, CrcAlgorithm> cache = Maps.concurrent();
 		private static final Map<String, Std> nameLookup =
 			Enums.inverseMap(t -> t.names, Std.class);
 		private final Supplier<CrcAlgorithm> supplier;
@@ -185,7 +181,7 @@ public class CrcAlgorithm {
 		refIn = builder.refIn;
 		refOut = builder.refOut;
 		mask = ByteUtil.mask(width);
-		poly = (builder.powers != null ? maskOfBits(builder.powers) : builder.poly) & mask;
+		poly = (builder.powers != null ? ByteUtil.maskOfBits(builder.powers) : builder.poly) & mask;
 		xorOut = builder.xorOut & mask;
 		init = reverse(refOut, builder.init);
 		lastBit = 1L << (width - 1);
@@ -234,7 +230,7 @@ public class CrcAlgorithm {
 	 * Used by Crc object to process one byte.
 	 */
 	long apply(long crc, byte val) {
-		return mask(entry(shiftBits(crc, shift1) ^ val) ^ shiftBits(crc, shift2));
+		return mask(entry(ByteUtil.shiftBits(crc, shift1) ^ val) ^ ByteUtil.shiftBits(crc, shift2));
 	}
 
 	@Override
@@ -279,21 +275,21 @@ public class CrcAlgorithm {
 		byte[] entries = new byte[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (byte) createEntry(i);
-		return i -> entries[ubyte(i)] & BYTE_MASK;
+		return i -> entries[Maths.ubyte(i)] & ByteUtil.BYTE_MASK;
 	}
 
 	private EntryAccessor intCache() {
 		int[] entries = new int[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = (int) createEntry(i);
-		return i -> entries[ubyte(i)] & INT_MASK;
+		return i -> entries[Maths.ubyte(i)] & ByteUtil.INT_MASK;
 	}
 
 	private EntryAccessor longCache() {
 		long[] entries = new long[CACHE_SIZE];
 		for (int i = 0; i < entries.length; i++)
 			entries[i] = createEntry(i);
-		return i -> entries[ubyte(i)];
+		return i -> entries[Maths.ubyte(i)];
 	}
 
 	private long entry(long i) {
@@ -301,7 +297,7 @@ public class CrcAlgorithm {
 	}
 
 	private long createEntry(long r) {
-		r = shiftBits(reverse(refIn, r), shift0);
+		r = ByteUtil.shiftBits(reverse(refIn, r), shift0);
 		for (int i = 0; i < Byte.SIZE; i++)
 			r = (r & lastBit) != 0 ? r = (r << 1) ^ poly : r << 1;
 		return mask(reverse(refOut, r));
@@ -310,5 +306,4 @@ public class CrcAlgorithm {
 	private long reverse(boolean reverse, long value) {
 		return reverse ? ByteUtil.reverse(value, width) : value;
 	}
-
 }

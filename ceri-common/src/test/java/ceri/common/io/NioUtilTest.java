@@ -29,9 +29,9 @@ public class NioUtilTest {
 
 	@Test
 	public void testSelectKeys() throws IOException, InterruptedException {
-		TestKeySet keys = new TestKeySet(key0, key1, key2);
+		var keys = new TestKeySet(key0, key1, key2);
 		selector.selectedKeys.autoResponses(keys);
-		CallSync.Consumer<SelectionKey> consumer = CallSync.consumer(null, true);
+		var consumer = CallSync.<SelectionKey>consumer(null, true);
 		NioUtil.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
 		consumer.assertValues(key0, key1, key2);
 		assertEquals(keys.isEmpty(), true);
@@ -39,12 +39,12 @@ public class NioUtilTest {
 
 	@Test
 	public void testClearKeys() {
-		TestKeySet keys = new TestKeySet(key0, key1, key2);
+		var keys = new TestKeySet(key0, key1, key2);
 		NioUtil.clearKeys(keys);
 	}
 
+	@SuppressWarnings("serial")
 	public static class TestKeySet extends LinkedHashSet<SelectionKey> {
-		private static final long serialVersionUID = 1L;
 
 		@SafeVarargs
 		public TestKeySet(SelectionKey... keys) {

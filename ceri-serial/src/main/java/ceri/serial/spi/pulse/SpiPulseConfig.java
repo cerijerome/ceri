@@ -1,8 +1,8 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import ceri.common.function.FunctionUtil;
 import ceri.common.property.TypedProperties;
+import ceri.common.util.Validate;
 
 public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int resetDelayMs) {
 
@@ -85,7 +85,7 @@ public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int re
 	}
 
 	public static Builder builder(int size) {
-		validateMin(size, 0);
+		Validate.validateMin(size, 0);
 		return new Builder(size);
 	}
 

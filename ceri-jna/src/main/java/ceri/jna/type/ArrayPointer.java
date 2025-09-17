@@ -1,11 +1,10 @@
 package ceri.jna.type;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import ceri.common.function.Functions;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 
@@ -30,7 +29,7 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 */
 	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
-		validateMin(count, 0);
+		Validate.validateMin(count, 0);
 		return of(p, i -> JnaUtil.byRef(p, valid(i, count), constructor),
 			() -> JnaUtil.arrayByRef(p, constructor, arrayFn, count), () -> count);
 	}
@@ -49,7 +48,7 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 */
 	public static <T> ArrayPointer<T> byVal(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count, int size) {
-		validateMin(count, 0);
+		Validate.validateMin(count, 0);
 		return of(p, i -> JnaUtil.byVal(p, valid(i, count), constructor, size),
 			() -> JnaUtil.arrayByVal(p, constructor, arrayFn, count, size), () -> count);
 	}
@@ -79,7 +78,7 @@ public abstract class ArrayPointer<T> extends PointerType {
 	}
 
 	private static int valid(int i, int count) {
-		ValidationUtil.validateIndex(count, i);
+		Validate.validateIndex(count, i);
 		return i;
 	}
 

@@ -44,7 +44,7 @@ public class StringBuildersTest {
 	@Test
 	public void testStateUnchanged() {
 		var s = "abc";
-		assertSame(state(s, null).toString(), s);
+		assertSame(state(s, null).toString(), "");
 		assertSame(state(s, null).append(2, 'c').toString(), s);
 		assertSame(state(s, null).append(3, "").toString(), s);
 		assertSame(state(s, null).append(0, "abc").toString(), s);

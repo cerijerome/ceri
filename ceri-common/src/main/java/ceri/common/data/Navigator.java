@@ -1,8 +1,7 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import ceri.common.reflect.Reflect;
+import ceri.common.util.Validate;
 
 /**
  * For navigating within a range. T must be the sub-class type, enabling fluent method chains.
@@ -13,7 +12,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	private int mark = 0;
 
 	protected Navigator(int length) {
-		validateMin(length, 0);
+		Validate.validateMin(length, 0);
 		this.length = length;
 	}
 
@@ -28,7 +27,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Validates and sets the offset.
 	 */
 	public T offset(int offset) {
-		validateRange(offset, 0, length);
+		Validate.validateRange(offset, 0, length);
 		this.offset = offset;
 		return typedThis();
 	}
@@ -87,7 +86,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Updates the length. Available for subclasses if needed.
 	 */
 	protected T length(int length) {
-		validateMin(length, 0);
+		Validate.validateMin(length, 0);
 		this.length = length;
 		if (offset() > length) return offset(length);
 		return typedThis();

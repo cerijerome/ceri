@@ -1,16 +1,14 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.common.validation.ValidationUtil.validatef;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collection.Enums;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
 import ceri.common.math.Fraction;
-import ceri.common.stream.IntStream;
+import ceri.common.stream.Collect;
 import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Provides parsing and formatting of fractions.
@@ -71,7 +69,7 @@ public class FractionFormats {
 		}
 
 		static String all() {
-			return Enums.stream(Glyph.class).mapToInt(g -> g.code).collect(IntStream.Collect.chars);
+			return Enums.stream(Glyph.class).mapToInt(g -> g.code).collect(Collect.Ints.chars);
 		}
 	}
 
@@ -88,7 +86,7 @@ public class FractionFormats {
 		}
 
 		static String all() {
-			return Enums.stream(Slash.class).mapToInt(g -> g.code).collect(IntStream.Collect.chars);
+			return Enums.stream(Slash.class).mapToInt(g -> g.code).collect(Collect.Ints.chars);
 		}
 	}
 
@@ -110,7 +108,7 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			validateRange(digit, 0, 9);
+			Validate.validateRange(digit, 0, 9);
 			if (digit == 1) return '\u00b9';
 			if (digit == 2) return '\u00b2';
 			if (digit == 3) return '\u00b3';
@@ -118,7 +116,7 @@ public class FractionFormats {
 		}
 
 		static String digits() {
-			return Streams.slice(0, 10).map(Superscript::toChar).collect(IntStream.Collect.chars);
+			return Streams.slice(0, 10).map(Superscript::toChar).collect(Collect.Ints.chars);
 		}
 
 	}
@@ -140,13 +138,12 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			validateRange(digit, 0, 9);
+			Validate.validateRange(digit, 0, 9);
 			return (char) ('\u2080' + digit);
 		}
 
 		static String digits() {
-			return Streams.slice(0, 10).map(Subscript::toChar)
-				.collect(ceri.common.stream.IntStream.Collect.chars);
+			return Streams.slice(0, 10).map(Subscript::toChar).collect(Collect.Ints.chars);
 		}
 	}
 
@@ -171,9 +168,9 @@ public class FractionFormats {
 
 		public static Fraction parse(String s) {
 			if (!PATTERN.matcher(s).matches()) return null;
-			String expanded = expand(s);
-			Matcher m = EXPANDED_REGEX.matcher(expanded);
-			validatef(m.matches(), "Expansion failed: %s", expanded);
+			var expanded = expand(s);
+			var m = EXPANDED_REGEX.matcher(expanded);
+			Validate.validatef(m.matches(), "Expansion failed: %s", expanded);
 			return Fraction.of(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
 		}
 
@@ -189,12 +186,12 @@ public class FractionFormats {
 
 		private static String expandables() {
 			return Streams.from(EXPANSIONS.keySet()).mapToInt(c -> (int) c)
-				.collect(IntStream.Collect.chars);
+				.collect(Collect.Ints.chars);
 		}
 
 		private static Map<Character, String> expansions() {
-			var expansions = new LinkedHashMap<Character, String>();
-			for (Glyph g : Glyph.values())
+			var expansions = Maps.<Character, String>link();
+			for (var g : Glyph.values())
 				expansions.put(g.code, g.fraction.toString());
 			expansions.put(Superscript.PLUS, "+");
 			expansions.put(Superscript.MINUS, "-");
@@ -216,7 +213,7 @@ public class FractionFormats {
 		private Formatter() {}
 
 		public static String format(Fraction fraction) {
-			Glyph glyph = Glyph.of(fraction);
+			var glyph = Glyph.of(fraction);
 			if (glyph != null) return String.valueOf(glyph.code);
 			if (fraction.numerator() == 1) return toOneOverString(fraction.denominator());
 			return toSuperSlashSubString(fraction);

@@ -8,12 +8,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.exception.Exceptions;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
@@ -180,7 +180,7 @@ public class CAnnotations {
 			 * Builder for includes by OS.
 			 */
 			public static class Builder {
-				private final Map<JnaOs, Set<String>> map = new TreeMap<>();
+				private final Map<JnaOs, Set<String>> map = Maps.tree();
 
 				private Builder() {}
 
@@ -212,7 +212,7 @@ public class CAnnotations {
 				 */
 				public Builder add(JnaOs os, Collection<String> includes) {
 					if (!includes.isEmpty())
-						map.computeIfAbsent(os, _ -> new LinkedHashSet<>()).addAll(includes);
+						map.computeIfAbsent(os, _ -> Sets.link()).addAll(includes);
 					return this;
 				}
 

@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
+import ceri.common.util.Validate;
 
 public class Ratio2d {
 	public static final Ratio2d ZERO = new Ratio2d(0, 0);
@@ -16,8 +16,8 @@ public class Ratio2d {
 	public static Ratio2d of(double x, double y) {
 		if (x == 0 && y == 0) return ZERO;
 		if (x == 1 && y == 1) return ONE;
-		validateMinFp(x, 0, "X ratio");
-		validateMinFp(y, 0, "Y ratio");
+		Validate.validateMinFp(x, 0, "X ratio");
+		Validate.validateMinFp(y, 0, "Y ratio");
 		return new Ratio2d(x + .0, y + .0);
 	}
 

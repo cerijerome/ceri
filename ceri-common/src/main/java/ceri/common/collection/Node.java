@@ -3,8 +3,6 @@ package ceri.common.collection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +13,7 @@ import ceri.common.reflect.Reflect;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 import ceri.common.text.ToString;
 
 /**
@@ -41,7 +39,7 @@ public class Node<T> {
 	 */
 	public static class Tree<T> {
 		private final Node.Builder<T> root;
-		private final Deque<Node.Builder<?>> stack = new LinkedList<>();
+		private final Deque<Node.Builder<?>> stack = Lists.link();
 
 		private Tree() {
 			root = Node.builder(null);
@@ -112,7 +110,7 @@ public class Node<T> {
 		 * Adds a child.
 		 */
 		public Builder<T> add(Node.Builder<?> child) {
-			if (children.isEmpty()) children = new LinkedHashSet<>();
+			if (children.isEmpty()) children = Sets.link();
 			children.add(child);
 			return this;
 		}
@@ -248,7 +246,7 @@ public class Node<T> {
 	private Node<?> childFromPart(String part) {
 		var child = lookup.get(part);
 		if (child != null) return child;
-		var i = Numbers.Parse.toInt(part, null);
+		var i = Parse.parseInt(part, null);
 		if (i != null && hasChild(i)) return children.get(i);
 		return null;
 	}

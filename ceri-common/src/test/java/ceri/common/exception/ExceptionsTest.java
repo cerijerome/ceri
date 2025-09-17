@@ -12,9 +12,9 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
-import ceri.common.test.TestUtil.Rte;
+import ceri.common.test.TestUtil;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 
@@ -70,17 +70,17 @@ public class ExceptionsTest {
 
 	@Test
 	public void testRteStub() {
-		assertInstance(new Rte("test"), RuntimeException.class);
-		Supplier<Rte, String> supplier = () -> "test";
+		assertInstance(new TestUtil.Rte("test"), RuntimeException.class);
+		Excepts.Supplier<TestUtil.Rte, String> supplier = () -> "test";
 		assertEquals(supplier.get(), "test");
 	}
 
 	@Test
 	public void testRootCause() {
 		assertNull(Exceptions.rootCause(null));
-		IOException io = new IOException();
+		var io = new IOException();
 		assertEquals(Exceptions.rootCause(io), io);
-		RuntimeException r = new RuntimeException(io);
+		var r = new RuntimeException(io);
 		assertEquals(Exceptions.rootCause(r), io);
 	}
 
@@ -153,8 +153,8 @@ public class ExceptionsTest {
 		assertIoe(() -> Exceptions.throwIfType(IOException.class, new EOFException()));
 	}
 
+	@SuppressWarnings("serial")
 	private static class TestException extends Exception {
-		private static final long serialVersionUID = 1L;
 		public StackTraceElement[] stackTrace = null;
 
 		@Override

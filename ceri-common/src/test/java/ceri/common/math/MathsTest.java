@@ -1,7 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.math.Bound.Type.exclusive;
-import static ceri.common.math.Bound.Type.inclusive;
+import static ceri.common.math.Bound.Type.exc;
+import static ceri.common.math.Bound.Type.inc;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNaN;
@@ -937,78 +937,78 @@ public class MathsTest {
 
 	@Test
 	public void testPeriodicLimitInt() {
-		assertEquals(Maths.periodicLimit(100, 10, inclusive), 10);
-		assertEquals(Maths.periodicLimit(100, 10, exclusive), 0);
-		assertEquals(Maths.periodicLimit(-100, 10, inclusive), 0);
-		assertEquals(Maths.periodicLimit(-100, 10, exclusive), 0);
-		assertEquals(Maths.periodicLimit(7, 10, inclusive), 7);
-		assertEquals(Maths.periodicLimit(-7, 10, inclusive), 3);
-		assertEquals(Maths.periodicLimit(0, IMAX, inclusive), 0);
-		assertEquals(Maths.periodicLimit(0, IMAX, exclusive), 0);
-		assertEquals(Maths.periodicLimit(IMAX, IMAX, inclusive), IMAX);
-		assertEquals(Maths.periodicLimit(IMAX, IMAX, exclusive), 0);
-		assertEquals(Maths.periodicLimit(IMIN, IMAX, inclusive), IMAX - 1);
-		assertEquals(Maths.periodicLimit(IMIN, IMAX, exclusive), IMAX - 1);
+		assertEquals(Maths.periodicLimit(100, 10, inc), 10);
+		assertEquals(Maths.periodicLimit(100, 10, exc), 0);
+		assertEquals(Maths.periodicLimit(-100, 10, inc), 0);
+		assertEquals(Maths.periodicLimit(-100, 10, exc), 0);
+		assertEquals(Maths.periodicLimit(7, 10, inc), 7);
+		assertEquals(Maths.periodicLimit(-7, 10, inc), 3);
+		assertEquals(Maths.periodicLimit(0, IMAX, inc), 0);
+		assertEquals(Maths.periodicLimit(0, IMAX, exc), 0);
+		assertEquals(Maths.periodicLimit(IMAX, IMAX, inc), IMAX);
+		assertEquals(Maths.periodicLimit(IMAX, IMAX, exc), 0);
+		assertEquals(Maths.periodicLimit(IMIN, IMAX, inc), IMAX - 1);
+		assertEquals(Maths.periodicLimit(IMIN, IMAX, exc), IMAX - 1);
 		assertThrown(() -> Maths.periodicLimit(100, 10, null));
-		assertThrown(() -> Maths.periodicLimit(100, 0, inclusive));
-		assertThrown(() -> Maths.periodicLimit(100, -10, inclusive));
+		assertThrown(() -> Maths.periodicLimit(100, 0, inc));
+		assertThrown(() -> Maths.periodicLimit(100, -10, inc));
 	}
 
 	@Test
 	public void testPeriodicLimitLong() {
-		assertEquals(Maths.periodicLimit(100L, 10L, inclusive), 10L);
-		assertEquals(Maths.periodicLimit(100L, 10L, exclusive), 0L);
-		assertEquals(Maths.periodicLimit(-100L, 10L, inclusive), 0L);
-		assertEquals(Maths.periodicLimit(-100L, 10L, exclusive), 0L);
-		assertEquals(Maths.periodicLimit(7L, 10L, inclusive), 7L);
-		assertEquals(Maths.periodicLimit(-7L, 10L, inclusive), 3L);
-		assertEquals(Maths.periodicLimit(0L, LMAX, inclusive), 0L);
-		assertEquals(Maths.periodicLimit(0L, LMAX, exclusive), 0L);
-		assertEquals(Maths.periodicLimit(LMAX, LMAX, inclusive), LMAX);
-		assertEquals(Maths.periodicLimit(LMAX, LMAX, exclusive), 0L);
-		assertEquals(Maths.periodicLimit(LMIN, LMAX, inclusive), LMAX - 1);
-		assertEquals(Maths.periodicLimit(LMIN, LMAX, exclusive), LMAX - 1);
+		assertEquals(Maths.periodicLimit(100L, 10L, inc), 10L);
+		assertEquals(Maths.periodicLimit(100L, 10L, exc), 0L);
+		assertEquals(Maths.periodicLimit(-100L, 10L, inc), 0L);
+		assertEquals(Maths.periodicLimit(-100L, 10L, exc), 0L);
+		assertEquals(Maths.periodicLimit(7L, 10L, inc), 7L);
+		assertEquals(Maths.periodicLimit(-7L, 10L, inc), 3L);
+		assertEquals(Maths.periodicLimit(0L, LMAX, inc), 0L);
+		assertEquals(Maths.periodicLimit(0L, LMAX, exc), 0L);
+		assertEquals(Maths.periodicLimit(LMAX, LMAX, inc), LMAX);
+		assertEquals(Maths.periodicLimit(LMAX, LMAX, exc), 0L);
+		assertEquals(Maths.periodicLimit(LMIN, LMAX, inc), LMAX - 1);
+		assertEquals(Maths.periodicLimit(LMIN, LMAX, exc), LMAX - 1);
 		assertThrown(() -> Maths.periodicLimit(100L, 10L, null));
-		assertThrown(() -> Maths.periodicLimit(100L, 0L, inclusive));
-		assertThrown(() -> Maths.periodicLimit(100L, -10L, inclusive));
+		assertThrown(() -> Maths.periodicLimit(100L, 0L, inc));
+		assertThrown(() -> Maths.periodicLimit(100L, -10L, inc));
 	}
 
 	@Test
 	public void testPeriodicLimitFloat() {
-		assertEquals(Maths.periodicLimit(100.0f, 10.0f, inclusive), 10.0f);
-		assertEquals(Maths.periodicLimit(100.0f, 10.0f, exclusive), 0.0f);
-		assertEquals(Maths.periodicLimit(-100.0f, 10.0f, inclusive), 0.0f);
-		assertEquals(Maths.periodicLimit(-100.0f, 10.0f, exclusive), 0.0f);
-		assertEquals(Maths.periodicLimit(7.0f, 10.0f, inclusive), 7.0f);
-		assertEquals(Maths.periodicLimit(-7.0f, 10.0f, inclusive), 3.0f);
-		assertEquals(Maths.periodicLimit(0.0f, FPINF, inclusive), 0.0f);
-		assertEquals(Maths.periodicLimit(0.0f, FPINF, exclusive), 0.0f);
-		assertEquals(Maths.periodicLimit(FPINF, FPINF, inclusive), FPINF);
-		assertEquals(Maths.periodicLimit(FPINF, FPINF, exclusive), Float.NaN);
-		assertEquals(Maths.periodicLimit(FNINF, FPINF, inclusive), Float.NaN);
-		assertEquals(Maths.periodicLimit(FNINF, FPINF, exclusive), Float.NaN);
+		assertEquals(Maths.periodicLimit(100.0f, 10.0f, inc), 10.0f);
+		assertEquals(Maths.periodicLimit(100.0f, 10.0f, exc), 0.0f);
+		assertEquals(Maths.periodicLimit(-100.0f, 10.0f, inc), 0.0f);
+		assertEquals(Maths.periodicLimit(-100.0f, 10.0f, exc), 0.0f);
+		assertEquals(Maths.periodicLimit(7.0f, 10.0f, inc), 7.0f);
+		assertEquals(Maths.periodicLimit(-7.0f, 10.0f, inc), 3.0f);
+		assertEquals(Maths.periodicLimit(0.0f, FPINF, inc), 0.0f);
+		assertEquals(Maths.periodicLimit(0.0f, FPINF, exc), 0.0f);
+		assertEquals(Maths.periodicLimit(FPINF, FPINF, inc), FPINF);
+		assertEquals(Maths.periodicLimit(FPINF, FPINF, exc), Float.NaN);
+		assertEquals(Maths.periodicLimit(FNINF, FPINF, inc), Float.NaN);
+		assertEquals(Maths.periodicLimit(FNINF, FPINF, exc), Float.NaN);
 		assertThrown(() -> Maths.periodicLimit(100.0f, 10.0f, null));
-		assertThrown(() -> Maths.periodicLimit(100.0f, 0.0f, inclusive));
-		assertThrown(() -> Maths.periodicLimit(100.0f, -10.0f, inclusive));
+		assertThrown(() -> Maths.periodicLimit(100.0f, 0.0f, inc));
+		assertThrown(() -> Maths.periodicLimit(100.0f, -10.0f, inc));
 	}
 
 	@Test
 	public void testPeriodicLimitDouble() {
-		assertEquals(Maths.periodicLimit(100.0, 10.0, inclusive), 10.0);
-		assertEquals(Maths.periodicLimit(100.0, 10.0, exclusive), 0.0);
-		assertEquals(Maths.periodicLimit(-100.0, 10.0, inclusive), 0.0);
-		assertEquals(Maths.periodicLimit(-100.0, 10.0, exclusive), 0.0);
-		assertEquals(Maths.periodicLimit(7.0, 10.0, inclusive), 7.0);
-		assertEquals(Maths.periodicLimit(-7.0, 10.0, inclusive), 3.0);
-		assertEquals(Maths.periodicLimit(0.0, DPINF, inclusive), 0.0);
-		assertEquals(Maths.periodicLimit(0.0, DPINF, exclusive), 0.0);
-		assertEquals(Maths.periodicLimit(DPINF, DPINF, inclusive), DPINF);
-		assertNaN(Maths.periodicLimit(DPINF, DPINF, exclusive));
-		assertNaN(Maths.periodicLimit(DNINF, DPINF, inclusive));
-		assertNaN(Maths.periodicLimit(DNINF, DPINF, exclusive));
+		assertEquals(Maths.periodicLimit(100.0, 10.0, inc), 10.0);
+		assertEquals(Maths.periodicLimit(100.0, 10.0, exc), 0.0);
+		assertEquals(Maths.periodicLimit(-100.0, 10.0, inc), 0.0);
+		assertEquals(Maths.periodicLimit(-100.0, 10.0, exc), 0.0);
+		assertEquals(Maths.periodicLimit(7.0, 10.0, inc), 7.0);
+		assertEquals(Maths.periodicLimit(-7.0, 10.0, inc), 3.0);
+		assertEquals(Maths.periodicLimit(0.0, DPINF, inc), 0.0);
+		assertEquals(Maths.periodicLimit(0.0, DPINF, exc), 0.0);
+		assertEquals(Maths.periodicLimit(DPINF, DPINF, inc), DPINF);
+		assertNaN(Maths.periodicLimit(DPINF, DPINF, exc));
+		assertNaN(Maths.periodicLimit(DNINF, DPINF, inc));
+		assertNaN(Maths.periodicLimit(DNINF, DPINF, exc));
 		assertThrown(() -> Maths.periodicLimit(100.0, 10.0, null));
-		assertThrown(() -> Maths.periodicLimit(100.0, 0.0, inclusive));
-		assertThrown(() -> Maths.periodicLimit(100.0, -10.0, inclusive));
+		assertThrown(() -> Maths.periodicLimit(100.0, 0.0, inc));
+		assertThrown(() -> Maths.periodicLimit(100.0, -10.0, inc));
 	}
 
 	@Test

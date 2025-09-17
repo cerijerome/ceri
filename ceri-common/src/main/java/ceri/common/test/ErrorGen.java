@@ -1,17 +1,15 @@
 package ceri.common.test;
 
-import static ceri.common.function.FunctionUtil.safeApply;
-import static ceri.common.function.FunctionUtil.sequentialSupplier;
 import java.io.IOException;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.FunctionUtil;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
+import ceri.common.stream.Streams;
 
 /**
  * Utility for generating errors during tests.
@@ -61,8 +59,8 @@ public class ErrorGen {
 	public void set(Exception... errors) {
 		if (errors.length == 0) clear();
 		else {
-			var sequential = sequentialSupplier(errors);
-			var name = Stream.of(errors).map(e -> name(e)).collect(JOINER);
+			var sequential = FunctionUtil.sequentialSupplier(errors);
+			var name = Streams.of(errors).map(e -> name(e)).collect(JOINER);
 			setErrorFn(sequential, name);
 		}
 	}
@@ -75,8 +73,8 @@ public class ErrorGen {
 	public final void setFrom(Functions.Supplier<? extends Exception>... errorFns) {
 		if (errorFns.length == 0) clear();
 		else {
-			var sequential = sequentialSupplier(errorFns);
-			var name = Stream.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
+			var sequential = FunctionUtil.sequentialSupplier(errorFns);
+			var name = Streams.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
 			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Functions.Supplier::get),
 				name);
 		}
@@ -108,7 +106,7 @@ public class ErrorGen {
 	 * Execute the error generator if set. Exceptions are adapted according to the adapter.
 	 */
 	public <E extends Exception> void call(ExceptionAdapter<E> adapter) throws E {
-		Exception ex = safeApply(errorFn, Functions.Supplier::get);
+		var ex = FunctionUtil.safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -127,7 +125,7 @@ public class ErrorGen {
 	 */
 	public <E extends Exception> void callWithInterrupt(ExceptionAdapter<E> adapter)
 		throws InterruptedException, E {
-		Exception ex = safeApply(errorFn, Functions.Supplier::get);
+		var ex = FunctionUtil.safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -156,7 +154,7 @@ public class ErrorGen {
 	}
 
 	private static String name(Exception e) {
-		String s = Reflect.className(e);
+		var s = Reflect.className(e);
 		return !s.endsWith(EXCEPTION) ? s : s.substring(0, s.length() - EXCEPTION.length());
 	}
 }

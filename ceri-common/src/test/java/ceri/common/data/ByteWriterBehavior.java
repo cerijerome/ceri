@@ -13,7 +13,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.test.TestUtil;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class ByteWriterBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -183,7 +183,7 @@ public class ByteWriterBehavior {
 
 		@Override
 		public SimpleByteWriter writeByte(int value) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			bytes[offset + index++] = (byte) value;
 			return this;
 		}

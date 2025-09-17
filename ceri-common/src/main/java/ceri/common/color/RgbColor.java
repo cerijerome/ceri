@@ -1,11 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_RATIO;
-import static ceri.common.color.Colors.ratio;
-import static ceri.common.color.Colors.value;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates an unscaled (0-1 inclusive) RGB color with alpha. Provides higher precision for
@@ -16,7 +13,8 @@ public record RgbColor(double a, double r, double g, double b) {
 
 	public static final RgbColor clear = RgbColor.of(0, 0, 0, 0);
 	public static final RgbColor black = RgbColor.of(0, 0, 0);
-	public static final RgbColor white = RgbColor.of(MAX_RATIO, MAX_RATIO, MAX_RATIO);
+	public static final RgbColor white =
+		RgbColor.of(Colors.MAX_RATIO, Colors.MAX_RATIO, Colors.MAX_RATIO);
 
 	/**
 	 * Construct from color.
@@ -43,21 +41,21 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Construct an opaque instance from rgb 0-255 component values.
 	 */
 	public static RgbColor from(int r, int g, int b) {
-		return of(ratio(r), ratio(g), ratio(b));
+		return of(Colors.ratio(r), Colors.ratio(g), Colors.ratio(b));
 	}
 
 	/**
 	 * Construct from argb 0-255 component values.
 	 */
 	public static RgbColor from(int a, int r, int g, int b) {
-		return of(ratio(a), ratio(r), ratio(g), ratio(b));
+		return of(Colors.ratio(a), Colors.ratio(r), Colors.ratio(g), Colors.ratio(b));
 	}
 
 	/**
 	 * Construct an opaque instance from rgb 0-1 component values.
 	 */
 	public static RgbColor of(double r, double g, double b) {
-		return of(MAX_RATIO, r, g, b);
+		return of(Colors.MAX_RATIO, r, g, b);
 	}
 
 	/**
@@ -78,7 +76,7 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Convert to argb int. Alpha is maintained.
 	 */
 	public int argb() {
-		return Colors.argb(value(a), value(r), value(g), value(b));
+		return Colors.argb(Colors.value(a), Colors.value(r), Colors.value(g), Colors.value(b));
 	}
 
 	/**
@@ -137,7 +135,7 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Apply alpha to convert to an opaque color.
 	 */
 	public RgbColor applyAlpha() {
-		if (a == MAX_RATIO) return this;
+		if (a == Colors.MAX_RATIO) return this;
 		return of(r * a, g * a, b * a);
 	}
 
@@ -145,7 +143,7 @@ public record RgbColor(double a, double r, double g, double b) {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_RATIO;
+		return a < Colors.MAX_RATIO;
 	}
 
 	/**
@@ -195,6 +193,6 @@ public record RgbColor(double a, double r, double g, double b) {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_RATIO, name);
+		Validate.validateRangeFp(value, 0, Colors.MAX_RATIO, name);
 	}
 }

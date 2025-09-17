@@ -1,7 +1,6 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.math.Maths.ubyte;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.AUTO_DETACH_SIO_MODULE;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_module_detach_mode.DONT_DETACH_SIO_MODULE;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_request_type.SIO_GET_LATENCY_TIMER_REQUEST;
@@ -42,6 +41,7 @@ import ceri.common.collection.Enums;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.util.OsUtil;
+import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
@@ -944,7 +944,7 @@ public class LibFtdi {
 	 */
 	public static void ftdi_set_latency_timer(ftdi_context ftdi, int latency)
 		throws LibUsbException {
-		validateRange(latency, 1, 255, "latency");
+		Validate.validateRange(latency, 1, 255, "latency");
 		requireDev(ftdi);
 		controlTransferOut(ftdi, SIO_SET_LATENCY_TIMER_REQUEST, latency, ftdi.index);
 	}

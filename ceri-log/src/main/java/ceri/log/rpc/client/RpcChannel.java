@@ -1,6 +1,5 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.net.NetUtil.LOCALHOST;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +27,7 @@ public class RpcChannel implements Functions.Closeable {
 		public static final Config NULL = new Config(null, null);
 
 		public static Config localhost(int port) {
-			return new Config(LOCALHOST, port);
+			return new Config(NetUtil.LOCALHOST, port);
 		}
 
 		public boolean enabled() {
@@ -60,7 +59,7 @@ public class RpcChannel implements Functions.Closeable {
 	}
 
 	public static RpcChannel localhost(int port) {
-		return plaintext(LOCALHOST, port);
+		return plaintext(NetUtil.LOCALHOST, port);
 	}
 
 	public static RpcChannel plaintext(String host, int port) {

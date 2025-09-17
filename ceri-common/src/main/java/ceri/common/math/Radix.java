@@ -9,7 +9,7 @@ import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Radix support.
@@ -79,7 +79,7 @@ public enum Radix {
 	 * Validate radix is within java supported range.
 	 */
 	public static int validate(int radix) {
-		ValidationUtil.validateRange(radix, MIN, MAX, "Radix");
+		Validate.validateRange(radix, MIN, MAX, "Radix");
 		return radix;
 	}
 

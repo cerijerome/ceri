@@ -1,6 +1,5 @@
 package ceri.common.svg;
 
-import static ceri.common.svg.SvgUtil.string;
 import java.util.Objects;
 import ceri.common.geom.Dimension2d;
 import ceri.common.geom.Line2d;
@@ -122,9 +121,9 @@ public class EllipticalArc implements Path<EllipticalArc> {
 
 	@Override
 	public String path() {
-		return String.format("%s%s,%s %s %d,%d %s,%s", end.absolute() ? "A" : "a", string(radii.w),
-			string(radii.h), string(rotation), size.value, sweep.value, string(end.x),
-			string(end.y));
+		return String.format("%s%s,%s %s %d,%d %s,%s", end.absolute() ? "A" : "a",
+			SvgUtil.string(radii.w), SvgUtil.string(radii.h), SvgUtil.string(rotation), size.value,
+			sweep.value, SvgUtil.string(end.x), SvgUtil.string(end.y));
 	}
 
 	@Override
@@ -148,5 +147,4 @@ public class EllipticalArc implements Path<EllipticalArc> {
 	public String toString() {
 		return ToString.forClass(this, end, radii, rotation, size, sweep);
 	}
-
 }

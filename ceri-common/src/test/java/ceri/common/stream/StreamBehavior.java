@@ -19,7 +19,7 @@ import org.junit.Test;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Immutable.Wrap;
 import ceri.common.collection.Lists;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Functions;
 
 public class StreamBehavior {
@@ -53,10 +53,9 @@ public class StreamBehavior {
 		i -> i == null ? null : Lists.ofAll(-i, null, i);
 	private static final Functions.Function<Integer, Stream<RuntimeException, Integer>> flatFn =
 			i -> i == null ? null : Streams.of(-i, null, i);
-	
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
 	private static final Functions.Predicate<Integer> nullPred = null;
-	private static final Comparator<Integer> comp = Comparators.nullsLast();
+	private static final Comparator<Integer> comp = Compares.nullsLast();
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);

@@ -1,22 +1,22 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Comparator;
 import java.util.Objects;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Align;
+import ceri.common.util.Validate;
 
 public class Bound<T> {
-	private static final Bound<?> UNBOUND = new Bound<>(null, Type.exclusive, null);
+	private static final Bound<?> UNBOUND = new Bound<>(null, Type.exc, null);
 	private static final String INFINITY = "\u221e";
 	public final T value;
 	public final Type type;
 	private final Comparator<T> comparator;
 
 	public enum Type {
-		inclusive("[", "]", "<=", ">="),
-		exclusive("(", ")", "<", ">");
+		inc("[", "]", "<=", ">="),
+		exc("(", ")", "<", ">");
 
 		public final String left;
 		public final String right;
@@ -31,35 +31,35 @@ public class Bound<T> {
 		}
 
 		public boolean isUpper(int value, int limit) {
-			return this == inclusive ? value <= limit : value < limit;
+			return this == inc ? value <= limit : value < limit;
 		}
 
 		public boolean isUpper(long value, long limit) {
-			return this == inclusive ? value <= limit : value < limit;
+			return this == inc ? value <= limit : value < limit;
 		}
 
 		public boolean isUpper(float value, float limit) {
-			return this == inclusive ? value <= limit : value < limit;
+			return this == inc ? value <= limit : value < limit;
 		}
 
 		public boolean isUpper(double value, double limit) {
-			return this == inclusive ? value <= limit : value < limit;
+			return this == inc ? value <= limit : value < limit;
 		}
 
 		public boolean isLower(int value, int limit) {
-			return this == inclusive ? limit <= value : limit < value;
+			return this == inc ? limit <= value : limit < value;
 		}
 
 		public boolean isLower(long value, long limit) {
-			return this == inclusive ? limit <= value : limit < value;
+			return this == inc ? limit <= value : limit < value;
 		}
 
 		public boolean isLower(float value, float limit) {
-			return this == inclusive ? limit <= value : limit < value;
+			return this == inc ? limit <= value : limit < value;
 		}
 
 		public boolean isLower(double value, double limit) {
-			return this == inclusive ? limit <= value : limit < value;
+			return this == inc ? limit <= value : limit < value;
 		}
 
 	}
@@ -69,28 +69,28 @@ public class Bound<T> {
 	}
 
 	public static <T extends Comparable<T>> Bound<T> inclusive(T value) {
-		return inclusive(value, Comparators.comparable());
+		return inclusive(value, Compares.comparable());
 	}
 
 	public static <T> Bound<T> inclusive(T value, Comparator<T> comparator) {
-		return of(value, Type.inclusive, comparator);
+		return of(value, Type.inc, comparator);
 	}
 
 	public static <T extends Comparable<T>> Bound<T> exclusive(T value) {
-		return exclusive(value, Comparators.comparable());
+		return exclusive(value, Compares.comparable());
 	}
 
 	public static <T> Bound<T> exclusive(T value, Comparator<T> comparator) {
-		return of(value, Type.exclusive, comparator);
+		return of(value, Type.exc, comparator);
 	}
 
 	public static <T extends Comparable<T>> Bound<T> of(T value, Type type) {
-		return of(value, type, Comparators.comparable());
+		return of(value, type, Compares.comparable());
 	}
 
 	public static <T> Bound<T> of(T value, Type type, Comparator<T> comparator) {
 		if (value == null) return unbound();
-		validateNotNull(comparator, "Comparator");
+		Validate.validateNotNull(comparator, "Comparator");
 		return new Bound<>(value, type, comparator);
 	}
 
@@ -108,14 +108,14 @@ public class Bound<T> {
 		if (value == null) return false;
 		if (isUnbound()) return true;
 		int compare = comparator.compare(this.value, value);
-		return compare > 0 || (compare == 0 && type == Type.inclusive);
+		return compare > 0 || (compare == 0 && type == Type.inc);
 	}
 
 	public boolean lowerFor(T value) {
 		if (value == null) return false;
 		if (isUnbound()) return true;
 		int compare = comparator.compare(this.value, value);
-		return compare < 0 || (compare == 0 && type == Type.inclusive);
+		return compare < 0 || (compare == 0 && type == Type.inc);
 	}
 
 	public Integer valueCompare(T value) {
@@ -137,7 +137,7 @@ public class Bound<T> {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof Bound<?> other)) return false;
+		if (!(obj instanceof Bound other)) return false;
 		if (!Objects.equals(value, other.value)) return false;
 		if (!Objects.equals(type, other.type)) return false;
 		return true;

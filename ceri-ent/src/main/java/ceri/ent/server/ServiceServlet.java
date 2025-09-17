@@ -6,8 +6,8 @@ import jakarta.servlet.GenericServlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 
+@SuppressWarnings("serial")
 public abstract class ServiceServlet<T> extends HttpServlet {
-	private static final long serialVersionUID = 2677745336504034559L;
 	private final Class<T> cls;
 	private T service;
 
@@ -16,12 +16,12 @@ public abstract class ServiceServlet<T> extends HttpServlet {
 	}
 
 	public static <T> void setService(ContextHandler context, T service) {
-		String attributeName = service.getClass().getName();
+		var attributeName = service.getClass().getName();
 		context.setAttribute(attributeName, service);
 	}
 
 	public static <T> T getService(GenericServlet servlet, Class<T> cls) {
-		String attributeName = cls.getName();
+		var attributeName = cls.getName();
 		return Reflect.unchecked(servlet.getServletContext().getAttribute(attributeName));
 	}
 

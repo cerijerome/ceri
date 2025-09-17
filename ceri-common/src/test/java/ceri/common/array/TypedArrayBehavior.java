@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertSame;
 import java.util.Objects;
 import org.junit.Test;
-import ceri.common.text.Format;
+import ceri.common.text.Formats;
 import ceri.common.text.Joiner;
 
 public class TypedArrayBehavior {
@@ -147,9 +147,9 @@ public class TypedArrayBehavior {
 
 	@Test
 	public void shouldProvideCustomStringWithJoiner() {
-		assertEquals(typed.toString((t, i) -> Format.HEX.uint(t[i]), Joiner.OR, NULL), "null");
-		assertEquals(typed.toString((t, i) -> Format.HEX.uint(t[i]), Joiner.OR, EMPTY), "");
-		assertEquals(typed.toString((t, i) -> Format.HEX.uint(t[i]), Joiner.OR, ints),
+		assertEquals(typed.toString((t, i) -> Formats.HEX.uint(t[i]), Joiner.OR, NULL), "null");
+		assertEquals(typed.toString((t, i) -> Formats.HEX.uint(t[i]), Joiner.OR, EMPTY), "");
+		assertEquals(typed.toString((t, i) -> Formats.HEX.uint(t[i]), Joiner.OR, ints),
 			"0xffffffff|null|0x1|null|0x1");
 	}
 

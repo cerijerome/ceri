@@ -1,7 +1,7 @@
 package ceri.common.unit;
 
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.function.DoubleUnaryOperator;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates a temperature with scale and value.
@@ -79,7 +79,7 @@ public record Temperature(Scale scale, double value) {
 		}
 
 		public double to(Scale scale, double t) {
-			validateNotNull(scale);
+			Validate.validateNotNull(scale);
 			return switch (scale) {
 				case kelvin -> toK(t);
 				case rankine -> toR(t);

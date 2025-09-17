@@ -1,12 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.util.Basics.def;
-import static ceri.common.validation.DisplayLong.dec;
-import static ceri.common.validation.ValidationUtil.validateNotEqualObj;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.Objects;
-import java.util.function.LongFunction;
-import ceri.common.validation.DisplayLong;
+import ceri.common.text.Formats;
+import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 
 /**
  * Used to hold values that may have a type value, such as an enum. If no type maps to the value,
@@ -18,7 +15,7 @@ public class TypeValue<T> {
 	private final long value;
 	private final Long sub;
 	private final String name;
-	private transient final LongFunction<String> formatter;
+	private transient final Formats.LongFunction formatter;
 
 	/**
 	 * Validates value to make sure type is set.
@@ -45,30 +42,30 @@ public class TypeValue<T> {
 	 * Validates value to make sure type is set and not equals to the invalid value.
 	 */
 	public static <T> void validateExcept(TypeValue<T> value, T invalid, String name) {
-		validateNotNull(value, name);
-		validateNotNull(value.type(), name);
-		if (invalid != null) validateNotEqualObj(value.type(), invalid, name);
+		Validate.validateNotNull(value, name);
+		Validate.validateNotNull(value.type(), name);
+		if (invalid != null) Validate.validateNotEqualObj(value.type(), invalid, name);
 	}
 
 	/**
 	 * Create type with optional sub-value and decimal formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name) {
-		return of(value, type, name, DisplayLong.dec);
+		return of(value, type, name, null);
 	}
 
 	/**
 	 * Create type with optional sub-value and decimal formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name, long sub) {
-		return of(value, type, name, sub, DisplayLong.dec);
+		return of(value, type, name, sub, null);
 	}
 
 	/**
 	 * Create type with optional sub-value and custom formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name, long sub,
-		LongFunction<String> formatter) {
+		Formats.LongFunction formatter) {
 		return new TypeValue<>(value, type, name, sub, formatter);
 	}
 
@@ -76,16 +73,16 @@ public class TypeValue<T> {
 	 * Create type with optional sub-value and custom formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name,
-		LongFunction<String> formatter) {
+		Formats.LongFunction formatter) {
 		return new TypeValue<>(value, type, name, null, formatter);
 	}
 
-	protected TypeValue(long value, T type, String name, Long sub, LongFunction<String> formatter) {
+	protected TypeValue(long value, T type, String name, Long sub, Formats.LongFunction formatter) {
 		this.type = type;
 		this.value = value;
 		this.sub = sub;
 		this.name = type != null ? null : name; // ignore if has type
-		this.formatter = def(formatter, dec);
+		this.formatter = Basics.def(formatter, Formats.DEC);
 	}
 
 	public T type() {

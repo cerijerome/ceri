@@ -1,9 +1,7 @@
 package ceri.common.math;
 
-import static java.lang.Math.subtractExact;
 import java.util.Comparator;
 import java.util.Objects;
-import ceri.common.math.Bound.Type;
 import ceri.common.util.Align;
 
 public class Interval<T> {
@@ -30,7 +28,7 @@ public class Interval<T> {
 
 	public static Long longWidth(Interval<Long> interval) {
 		if (interval.isInfinite()) return null;
-		return subtractExact(interval.upper.value, interval.lower.value);
+		return Math.subtractExact(interval.upper.value, interval.lower.value);
 	}
 
 	public static Integer intMidPoint(Interval<Integer> interval) {
@@ -41,9 +39,9 @@ public class Interval<T> {
 
 	public static Integer intWidth(Interval<Integer> interval) {
 		if (interval.isInfinite()) return null;
-		return subtractExact(interval.upper.value, interval.lower.value);
+		return Math.subtractExact(interval.upper.value, interval.lower.value);
 	}
-	
+
 	public static <T> Interval<T> unbound() {
 		return of(null, null);
 	}
@@ -112,7 +110,7 @@ public class Interval<T> {
 		int compare = lower.valueCompare(upper.value);
 		if (compare < 0) return false;
 		if (compare > 0) return true;
-		return lower.type != Type.inclusive || upper.type != Type.inclusive;
+		return lower.type != Bound.Type.inc || upper.type != Bound.Type.inc;
 	}
 
 	@Override

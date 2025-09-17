@@ -8,6 +8,7 @@ import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
 import ceri.common.io.IoStreamUtil;
+import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.util.Basics;
 
@@ -19,6 +20,7 @@ public class StringBuilders {
 	 */
 	public static class State {
 		public final CharSequence s;
+		private int index = 0; // the current index if b is null; may be > length
 		private StringBuilder b = null;
 
 		public static State of(CharSequence s) {
@@ -63,71 +65,97 @@ public class StringBuilders {
 		}
 
 		/**
-		 * Ensures the builder is populated up to index i.
+		 * Ensures the builder is populated up to index i if not modified.
 		 */
 		public StringBuilder ensure(int i) {
-			if (b == null) b = StringBuilders.append(new StringBuilder(), s, 0, i);
+			if (b != null) return b;
+			b = new StringBuilder().append(s, 0, Maths.limit(i, 0, length()));
+			index = b.length();
 			return b;
 		}
 
 		/**
-		 * Ensures the builder is populated up to index i, and append the char.
-		 */
-		public StringBuilder ensure(int i, char c) {
-			return ensure(i).append(c);
-		}
-
-		/**
-		 * Ensures the builder is populated up to index i, and append the char sequence.
-		 */
-		public StringBuilder ensure(int i, CharSequence s) {
-			return ensure(i).append(s);
-		}
-
-		/**
-		 * Does nothing if the builder is not modified. Otherwise, ensures the builder is populated
-		 * up to index i + length.
+		 * If modified, ensures the builder is populated up to index, and appends the range.
+		 * Otherwise only the index is updated.
 		 */
 		public State append(int i, int length) {
-			if (modified()) StringBuilders.append(b, s, i, length);
-			return this;
+			return ArrayUtil.applySlice(length(), i, length, (o, l) -> {
+				if (l > 0 && modified()) b.append(s, o, o + l);
+				index = Math.max(o, index) + l;
+				return this;
+			});
 		}
 
 		/**
-		 * Does nothing if the builder is not modified, and the char matches the char sequence at
-		 * index. Otherwise, ensures the builder is populated up to index i, and appends the char.
+		 * If modified, ensures the builder is populated up to index, and appends the char.
+		 * Otherwise only the index is updated.
 		 */
 		public State append(int i, char c) {
+			i = Maths.limit(i, 0, length());
 			if (modified() || i >= length() || at(i) != c) ensure(i).append(c);
+			index = Math.max(i, index) + 1;
 			return this;
 		}
 
 		/**
-		 * Does nothing if the builder is not modified, and the char sequence matches the original
-		 * char sequence at index. Otherwise, ensures the builder is populated up to index i, and
-		 * appends the char.
+		 * If modified, ensures the builder is populated up to index, and appends the char sequence.
+		 * Otherwise only the index is updated.
 		 */
 		public State append(int i, CharSequence s) {
-			if (Strings.isEmpty(s)) return this;
-			if (modified() || i >= length() || !Strings.equals(this.s, i, s, 0))
-				ensure(i).append(s);
-			return this;
+			return append(i, s, 0, Integer.MAX_VALUE);
+		}
+
+		/**
+		 * If modified, ensures the builder is populated up to index, and appends the char sequence.
+		 * Otherwise only the index is updated.
+		 */
+		public State append(int j, CharSequence s, int offset, int length) {
+			return ArrayUtil.applySlice(Strings.length(s), offset, length, (o, l) -> {
+				int i = Maths.limit(j, 0, length());
+				if (l > 0 && (modified() || i >= length() || !Strings.equals(this.s, i, s, o, l)))
+					ensure(i).append(s, o, o + l);
+				index = Math.max(i, index) + l;
+				return this;
+			});
+		}
+
+		/**
+		 * If modified, appends the char. Otherwise only the index is updated.
+		 */
+		public State append(char c) {
+			return append(index, c);
+		}
+
+		/**
+		 * If modified, appends the char sequence. Otherwise only the index is updated.
+		 */
+		public State append(CharSequence s) {
+			return append(s, 0, Integer.MAX_VALUE);
+		}
+
+		/**
+		 * If modified, appends the char sequence. Otherwise only the index is updated.
+		 */
+		public State append(CharSequence s, int offset, int length) {
+			return append(index, s, offset, length);
 		}
 
 		/**
 		 * Returns the builder if modified, otherwise the char sequence.
 		 */
 		public CharSequence get() {
-			return modified() ? b : s;
+			if (modified()) return b;
+			if (s.length() > index) return s.subSequence(0, index);
+			return s; // return original char sequence
 		}
-		
+
 		/**
 		 * Returns the builder string if modified, otherwise the char sequence.
 		 */
 		@Override
 		public String toString() {
 			return get().toString();
-		}		
+		}
 	}
 
 	/**

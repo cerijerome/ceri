@@ -1,8 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 /**
  * Describes an ellipsoid with equal radii on at least the non-vertical axes. A simplified rugby
@@ -18,8 +18,8 @@ public class Spheroid3d implements Radial3d {
 
 	public static Spheroid3d create(double r, double c) {
 		if (r == 0 && c == 0) return NULL;
-		validateMinFp(r, 0, "Radius");
-		validateMinFp(c, 0, "Axis c");
+		Validate.validateMinFp(r, 0, "Radius");
+		Validate.validateMinFp(c, 0, "Axis c");
 		return new Spheroid3d(r + .0, c + .0);
 	}
 

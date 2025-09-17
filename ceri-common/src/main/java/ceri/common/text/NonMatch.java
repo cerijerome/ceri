@@ -1,8 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.exception.Exceptions.indexOob;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 
@@ -99,7 +99,7 @@ public class NonMatch {
 	 */
 	public static StringBuilders.State appendAll(StringBuilders.State b, Pattern p,
 		Functions.BiConsumer<StringBuilders.State, NonMatch.Matcher> consumer) {
-		if (p == null || b.isEmpty()) return b;
+		if (p == null || b.isEmpty()) return b.append(0, Integer.MAX_VALUE);
 		var m = of(p, b.s);
 		int last = 0; // start position of next append
 		while (m.find()) {
@@ -109,22 +109,6 @@ public class NonMatch {
 		}
 		b.append(last, b.length());
 		return b;
-	}
-
-	public static String replace0(Pattern p, String s,
-		Functions.Function<Result, ? extends CharSequence> replacer) {
-		var m = NonMatch.of(p, s);
-		var b = new StringBuilder();
-		int start = 0; // start position of next append
-		while (m.find()) {
-			var replacement = replacer.apply(m);
-			if (replacement == null) continue;
-			// Append from last append to m.start, then append replacement
-			m.appendReplacement(b, replacement);
-			start = m.end();
-		}
-		if (start == 0 && b.length() == 0) return s.toString();
-		return m.appendTail(b).toString();
 	}
 
 	/**
@@ -185,7 +169,7 @@ public class NonMatch {
 		public String replaceAll(Function<NonMatch.Result, ? extends CharSequence> replacer) {
 			reset();
 			if (!find()) return text.toString();
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			do {
 				appendReplacement(sb, replacer.apply(this));
 			} while (find());
@@ -358,6 +342,7 @@ public class NonMatch {
 	}
 
 	private static void verifyBounds(int start, CharSequence text) {
-		if (start < 0 || start > text.length()) throw indexOob("start", start, 0, text.length());
+		if (start < 0 || start > text.length())
+			throw Exceptions.indexOob("start", start, 0, text.length());
 	}
 }

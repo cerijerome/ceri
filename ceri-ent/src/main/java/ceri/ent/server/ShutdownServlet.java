@@ -8,9 +8,9 @@ import jakarta.servlet.Servlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@SuppressWarnings("serial")
 public class ShutdownServlet extends ServiceServlet<ShutdownSync> {
 	private static final Logger logger = LogManager.getLogger();
-	private static final long serialVersionUID = 2677745336504034559L;
 	private static final String PATH_DEF = "/shutdown";
 
 	public ShutdownServlet() {

@@ -1,14 +1,14 @@
 package ceri.log.test;
 
-import static ceri.log.util.LogUtil.loggerName;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
 import ceri.common.collection.Immutable;
-import ceri.common.function.Excepts.Runnable;
+import ceri.common.collection.Maps;
+import ceri.common.function.Excepts;
+import ceri.log.util.LogUtil;
 
 /**
  * Use to temporarily change log level during tests, to prevent noise.
@@ -27,7 +27,7 @@ public class LogModifier implements AutoCloseable {
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(Runnable<E> runnable, Level level,
+	public static <E extends Exception> void run(Excepts.Runnable<E> runnable, Level level,
 		Class<?>... loggers) throws E {
 		try (var _ = of(level, loggers)) {
 			runnable.run();
@@ -37,7 +37,7 @@ public class LogModifier implements AutoCloseable {
 	/**
 	 * Sets logger level, execute runnable, then resets level.
 	 */
-	public static <E extends Exception> void run(Runnable<E> runnable, Level level,
+	public static <E extends Exception> void run(Excepts.Runnable<E> runnable, Level level,
 		String... loggers) throws E {
 		try (var _ = of(level, loggers)) {
 			runnable.run();
@@ -59,13 +59,13 @@ public class LogModifier implements AutoCloseable {
 	}
 
 	public static class Builder {
-		final Map<String, Level> levels = new LinkedHashMap<>();
+		final Map<String, Level> levels = Maps.link();
 
 		Builder() {}
 
 		public Builder set(Level level, Class<?>... classes) {
 			for (Class<?> cls : classes)
-				set(level, loggerName(cls));
+				set(level, LogUtil.loggerName(cls));
 			return this;
 		}
 

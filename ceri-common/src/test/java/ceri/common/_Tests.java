@@ -47,8 +47,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.color.RgbColorBehavior.class, //
 	ceri.common.color.XybColorBehavior.class, //
 	ceri.common.color.XyzColorBehavior.class, //
-	// comparator
-	ceri.common.comparator.ComparatorsTest.class, //
 	// concurrent
 	ceri.common.concurrent.BinarySemaphoreBehavior.class, //
 	ceri.common.concurrent.BoolConditionBehavior.class, //
@@ -108,6 +106,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.exception.ExceptionsTest.class, //
 	// function
 	ceri.common.function.AccessibleBehavior.class, //
+	ceri.common.function.ComparesTest.class, //
 	ceri.common.function.FluentBehavior.class, //
 	ceri.common.function.FunctionUtilTest.class, //
 	ceri.common.function.LambdasTest.class, //
@@ -205,8 +204,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.reflect.CallerBehavior.class, //
 	ceri.common.reflect.ClassReInitializerBehavior.class, //
 	ceri.common.reflect.ClassReloaderBehavior.class, //
-	ceri.common.reflect.CreateExceptionBehavior.class, //
 	ceri.common.reflect.ReflectTest.class, //
+	ceri.common.reflect.RuntimeInvocationExceptionBehavior.class, //
 	// score
 	ceri.common.score.CollectionScorersTest.class, //
 	ceri.common.score.ScoreLookupBehavior.class, //
@@ -217,11 +216,12 @@ import ceri.common.test.TestUtil;
 	ceri.common.sql.SqlStatementBehavior.class, //
 	ceri.common.sql.SqlUtilTest.class, //
 	// stream
+	ceri.common.stream.CollectTest.class, //
 	ceri.common.stream.DoubleStreamBehavior.class, //
 	ceri.common.stream.IntStreamBehavior.class, //
 	ceri.common.stream.LongStreamBehavior.class, //
+	ceri.common.stream.ReduceTest.class, //
 	ceri.common.stream.StreamBehavior.class, //
-	ceri.common.stream.StreamUtilTest.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //
@@ -271,13 +271,10 @@ import ceri.common.test.TestUtil;
 	ceri.common.text.FractionFormatsTest.class, //
 	ceri.common.text.JoinerBehavior.class, //
 	ceri.common.text.NonMatchBehavior.class, //
-	ceri.common.text.NumberParserTest.class, //
-	ceri.common.text.NumbersTest.class, //
-	ceri.common.text.ParseUtilTest.class, //
+	ceri.common.text.ParseTest.class, //
 	ceri.common.text.RegexTest.class, //
 	ceri.common.text.SplitterBehavior.class, //
 	ceri.common.text.StringBuildersTest.class, //
-	ceri.common.text.StringTypeBehavior.class, //
 	ceri.common.text.StringsTest.class, //
 	ceri.common.text.TableBehavior.class, //
 	ceri.common.text.TextTest.class, //
@@ -311,11 +308,8 @@ import ceri.common.test.TestUtil;
 	ceri.common.util.StartupValuesBehavior.class, //
 	ceri.common.util.SystemVarsTest.class, //
 	ceri.common.util.TruthBehavior.class, //
+	ceri.common.util.ValidateTest.class, //
 	ceri.common.util.VersionBehavior.class, //
-	// validation
-	ceri.common.validation.DisplayDoubleBehavior.class, //
-	ceri.common.validation.DisplayLongBehavior.class, //
-	ceri.common.validation.ValidationUtilTest.class, //
 	// xml
 	ceri.common.xml.RuntimeXPathExceptionBehavior.class, //
 	ceri.common.xml.XPathUtilTest.class, //

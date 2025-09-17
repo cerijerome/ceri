@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
+import ceri.common.util.Validate;
 
 public class Rectangle2d {
 	public static final Rectangle2d ZERO = new Rectangle2d(0, 0, 0, 0);
@@ -15,8 +15,8 @@ public class Rectangle2d {
 	}
 
 	public static Rectangle2d of(double x, double y, double w, double h) {
-		validateMinFp(w, 0, "Width");
-		validateMinFp(h, 0, "Height");
+		Validate.validateMinFp(w, 0, "Width");
+		Validate.validateMinFp(h, 0, "Height");
 		if (ZERO.equals(x, y, w, h)) return null;
 		return new Rectangle2d(x + .0, y + .0, w + .0, h + .0);
 	}

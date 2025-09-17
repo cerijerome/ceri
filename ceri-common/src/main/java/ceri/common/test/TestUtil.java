@@ -48,6 +48,14 @@ public class TestUtil {
 	private static final int SMALL_BUFFER_SIZE = 1024;
 	private static final Random RND = new Random();
 	public static final boolean isTest = Reflect.stackHasPackage(org.junit.Assert.class);
+	public static final byte BMIN = Byte.MIN_VALUE;
+	public static final byte BMAX = Byte.MAX_VALUE;
+	public static final short SMIN = Short.MIN_VALUE;
+	public static final short SMAX = Short.MAX_VALUE;
+	public static final int IMIN = Integer.MIN_VALUE;
+	public static final int IMAX = Integer.MAX_VALUE;
+	public static final long LMIN = Long.MIN_VALUE;
+	public static final long LMAX = Long.MAX_VALUE;
 
 	private TestUtil() {}
 

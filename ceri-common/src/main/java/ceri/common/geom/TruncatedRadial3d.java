@@ -1,9 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.util.Objects;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final T radial;
@@ -13,8 +12,8 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final double v;
 
 	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
-		validateMinFp(h0, 0, "Height offset");
-		validateRangeFp(h, 0, radial.height() - h0, "Height");
+		Validate.validateMinFp(h0, 0, "Height offset");
+		Validate.validateRangeFp(h, 0, radial.height() - h0, "Height");
 		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 

@@ -1,22 +1,15 @@
 package ceri.serial.libusb;
 
-import static ceri.serial.libusb.jna.LibUsb.LIBUSB_HOTPLUG_MATCH_ANY;
-import static ceri.serial.libusb.jna.LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.Sets;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
-import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_fn;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_callback_handle;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
-import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_flag;
 import ceri.serial.libusb.jna.LibUsbException;
 
 /**
@@ -29,13 +22,13 @@ import ceri.serial.libusb.jna.LibUsbException;
 public class UsbHotPlug implements Functions.Closeable {
 	private static final Logger logger = LogManager.getFormatterLogger();
 	private final Usb usb;
-	private final libusb_hotplug_callback_handle handle;
-	private final libusb_hotplug_callback_fn jnaCallback;
-	public final Collection<libusb_hotplug_event> events;
-	public final Collection<libusb_hotplug_flag> flags;
+	private final LibUsb.libusb_hotplug_callback_handle handle;
+	private final LibUsb.libusb_hotplug_callback_fn jnaCallback;
+	public final Collection<LibUsb.libusb_hotplug_event> events;
+	public final Collection<LibUsb.libusb_hotplug_flag> flags;
 	public final int vendor;
 	public final int product;
-	public final libusb_class_code deviceClass;
+	public final LibUsb.libusb_class_code deviceClass;
 
 	/**
 	 * Callback for hot plug events.
@@ -44,7 +37,7 @@ public class UsbHotPlug implements Functions.Closeable {
 		/**
 		 * Invoked on matching event, return true if finished processing events.
 		 */
-		boolean event(UsbDevice device, libusb_hotplug_event event) throws IOException;
+		boolean event(UsbDevice device, LibUsb.libusb_hotplug_event event) throws IOException;
 	}
 
 	/**
@@ -53,11 +46,11 @@ public class UsbHotPlug implements Functions.Closeable {
 	public static class Builder {
 		private final Usb usb;
 		private final Callback callback;
-		private final Collection<libusb_hotplug_event> events = new LinkedHashSet<>();
-		private final Collection<libusb_hotplug_flag> flags = new LinkedHashSet<>();
+		private final Collection<LibUsb.libusb_hotplug_event> events = Sets.link();
+		private final Collection<LibUsb.libusb_hotplug_flag> flags = Sets.link();
 		int vendor = 0;
 		int product = 0;
-		libusb_class_code deviceClass = null;
+		LibUsb.libusb_class_code deviceClass = null;
 
 		Builder(Usb usb, Callback callback) {
 			this.usb = usb;
@@ -68,7 +61,7 @@ public class UsbHotPlug implements Functions.Closeable {
 		 * Register for arrive events.
 		 */
 		public Builder arrived() {
-			events.add(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED);
+			events.add(LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED);
 			return this;
 		}
 
@@ -76,7 +69,7 @@ public class UsbHotPlug implements Functions.Closeable {
 		 * Register for leave events.
 		 */
 		public Builder left() {
-			events.add(libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
+			events.add(LibUsb.libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
 			return this;
 		}
 
@@ -84,7 +77,7 @@ public class UsbHotPlug implements Functions.Closeable {
 		 * Enable enumerate option.
 		 */
 		public Builder enumerate() {
-			flags.add(libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE);
+			flags.add(LibUsb.libusb_hotplug_flag.LIBUSB_HOTPLUG_ENUMERATE);
 			return this;
 		}
 
@@ -107,7 +100,7 @@ public class UsbHotPlug implements Functions.Closeable {
 		/**
 		 * Set device class match, null for any match.
 		 */
-		public Builder deviceClass(libusb_class_code deviceClass) {
+		public Builder deviceClass(LibUsb.libusb_class_code deviceClass) {
 			this.deviceClass = deviceClass;
 			return this;
 		}
@@ -116,28 +109,28 @@ public class UsbHotPlug implements Functions.Closeable {
 		 * Register the callback and return a closeable holder.
 		 */
 		public UsbHotPlug register() throws LibUsbException {
-			libusb_hotplug_callback_fn jnaCallback = jnaCallback(usb, callback);
-			libusb_hotplug_callback_handle handle = LibUsb.libusb_hotplug_register_callback(
-				usb.context(), events(), flags(), valueOrAny(vendor), valueOrAny(product),
-				valueOrAny(deviceClass), jnaCallback, null);
+			var jnaCallback = jnaCallback(usb, callback);
+			var handle = LibUsb.libusb_hotplug_register_callback(usb.context(), events(), flags(),
+				valueOrAny(vendor), valueOrAny(product), valueOrAny(deviceClass), jnaCallback,
+				null);
 			return new UsbHotPlug(this, handle, jnaCallback);
 		}
 
 		private int events() {
-			return libusb_hotplug_event.xcoder.encodeInt(events);
+			return LibUsb.libusb_hotplug_event.xcoder.encodeInt(events);
 		}
 
 		private int flags() {
-			return libusb_hotplug_flag.xcoder.encodeInt(flags);
+			return LibUsb.libusb_hotplug_flag.xcoder.encodeInt(flags);
 		}
 	}
 
 	public static boolean hasCapability() throws LibUsbException {
-		return LibUsb.libusb_has_capability(LIBUSB_CAP_HAS_HOTPLUG);
+		return LibUsb.libusb_has_capability(LibUsb.libusb_capability.LIBUSB_CAP_HAS_HOTPLUG);
 	}
 
-	UsbHotPlug(Builder builder, libusb_hotplug_callback_handle handle,
-		libusb_hotplug_callback_fn jnaCallback) {
+	UsbHotPlug(Builder builder, LibUsb.libusb_hotplug_callback_handle handle,
+		LibUsb.libusb_hotplug_callback_fn jnaCallback) {
 		this.usb = builder.usb;
 		this.handle = handle;
 		this.jnaCallback = jnaCallback;
@@ -159,11 +152,11 @@ public class UsbHotPlug implements Functions.Closeable {
 	}
 
 	@SuppressWarnings("resource")
-	private static libusb_hotplug_callback_fn jnaCallback(Usb usb, Callback callback) {
+	private static LibUsb.libusb_hotplug_callback_fn jnaCallback(Usb usb, Callback callback) {
 		return (_, dev, evt, _) -> {
 			try {
-				UsbDevice device = new UsbDevice(usb, dev);
-				libusb_hotplug_event event = libusb_hotplug_event.xcoder.decode(evt);
+				var device = new UsbDevice(usb, dev);
+				var event = LibUsb.libusb_hotplug_event.xcoder.decode(evt);
 				return callback.event(device, event) ? 1 : 0;
 			} catch (IOException | RuntimeException e) {
 				logger.catching(e);
@@ -173,10 +166,10 @@ public class UsbHotPlug implements Functions.Closeable {
 	}
 
 	private static int valueOrAny(int value) {
-		return value == 0 ? LIBUSB_HOTPLUG_MATCH_ANY : value;
+		return value == 0 ? LibUsb.LIBUSB_HOTPLUG_MATCH_ANY : value;
 	}
 
-	private static int valueOrAny(libusb_class_code dev) {
-		return dev == null ? LIBUSB_HOTPLUG_MATCH_ANY : dev.value;
+	private static int valueOrAny(LibUsb.libusb_class_code dev) {
+		return dev == null ? LibUsb.LIBUSB_HOTPLUG_MATCH_ANY : dev.value;
 	}
 }

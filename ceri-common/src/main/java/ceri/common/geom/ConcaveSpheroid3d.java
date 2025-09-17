@@ -1,10 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.util.Objects;
 import ceri.common.math.ReverseFunction;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 /**
  * The hole inside an elliptical torus.
@@ -23,9 +22,9 @@ public class ConcaveSpheroid3d implements Radial3d {
 
 	public static ConcaveSpheroid3d create(double r, double a, double c) {
 		if (r == 0 && a == 0 && c == 0) return NULL;
-		validateMinFp(r, 0, "Radius");
-		validateRangeFp(a, 0, r, "Axis a");
-		validateMinFp(c, 0, "Axis c");
+		Validate.validateMinFp(r, 0, "Radius");
+		Validate.validateRangeFp(a, 0, r, "Axis a");
+		Validate.validateMinFp(c, 0, "Axis c");
 		return new ConcaveSpheroid3d(r + .0, a + .0, c + .0, REVERSE_STEPS_DEF);
 	}
 

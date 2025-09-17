@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -8,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.reflect.Reflect;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that writes bytes sequentially. Type T must be the sub-class type; this allows fluent
@@ -55,7 +54,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeShort(int value) {
-		return writeEndian(value, Short.BYTES, IS_BIG_ENDIAN);
+		return writeEndian(value, Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -76,7 +75,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeInt(int value) {
-		return writeEndian(value, Integer.BYTES, IS_BIG_ENDIAN);
+		return writeEndian(value, Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -97,7 +96,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * Writes native-order bytes.
 	 */
 	default T writeLong(long value) {
-		return writeEndian(value, Long.BYTES, IS_BIG_ENDIAN);
+		return writeEndian(value, Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -231,7 +230,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -256,7 +255,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(ByteProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(provider.getByte(offset + i));
 		return Reflect.unchecked(this);

@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.ManualTester.Parse.b;
-import static ceri.common.test.ManualTester.Parse.i;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +8,7 @@ import ceri.common.net.ReplaceableTcpSocket;
 import ceri.common.net.TcpServerSocket;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;
+import ceri.common.test.ManualTester.Parse;
 
 /**
  * Utilities to manually test serial ports.
@@ -94,31 +93,31 @@ public class TcpSocketTester {
 	private static void buildCommands(ManualTester.Builder b) {
 		b.command(TcpSocket.class, "O", (t, _, s) -> options(s, t), "O = show all options");
 		b.command(TcpSocket.class, "Ot(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soTimeout, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soTimeout, Parse.i(m)),
 			"Ot[N] = SO_TIMEOUT: timeout in milliseconds");
 		b.command(TcpSocket.class, "Ol(\\-1|\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soLinger, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soLinger, Parse.i(m)),
 			"Ol[N] = SO_LINGER: linger-on-close in seconds; -1 to disable");
 		b.command(TcpSocket.class, "Oc(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.ipTos, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.ipTos, Parse.i(m)),
 			"Oc[N] = IP_TOS: traffic class");
 		b.command(TcpSocket.class, "Os(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soSndBuf, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soSndBuf, Parse.i(m)),
 			"Os[N] = SO_SNDBUF: send buffer size");
 		b.command(TcpSocket.class, "Or(\\d*)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soRcvBuf, i(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soRcvBuf, Parse.i(m)),
 			"Or[N] = SO_RCVBUF: receive buffer size");
 		b.command(TcpSocket.class, "Ok(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soKeepAlive, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soKeepAlive, Parse.b(m)),
 			"Ok[0|1] = SO_KEEPALIVE: keep-alive off/on");
 		b.command(TcpSocket.class, "Oa(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soReuseAddr, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soReuseAddr, Parse.b(m)),
 			"Oa[0|1] = SO_REUSEADDR: re-use address off/on");
 		b.command(TcpSocket.class, "Ou(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.soOobInline, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.soOobInline, Parse.b(m)),
 			"Ou[0|1] = SO_OOBINLINE: inline urgent data off/on");
 		b.command(TcpSocket.class, "Od(0|1|)",
-			(t, m, s) -> option(s, t, TcpSocketOption.tcpNoDelay, b(m)),
+			(t, m, s) -> option(s, t, TcpSocketOption.tcpNoDelay, Parse.b(m)),
 			"Od[0|1] = TCP_NODELAY: no-delay off/on");
 	}
 

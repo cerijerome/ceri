@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.util.Basics.def;
-import static ceri.common.validation.ValidationUtil.validateEqual;
 import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.array.RawArray;
@@ -12,6 +10,8 @@ import ceri.common.function.FunctionUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
+import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 
 /**
  * An InputStream that wraps a PipedStream for testing. Read calls read from the pipe. CallSync
@@ -79,7 +79,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 		byte[] bytes = new byte[1];
 		int n = read(bytes);
 		if (n < 0) return n;
-		validateEqual(n, 1);
+		Validate.validateEqual(n, 1);
 		return bytes[0] & 0xff;
 	}
 
@@ -87,14 +87,14 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		int n = piped.in().read(b, off, len);
-		return def(read.apply(RawArray.Sub.of(b, off, len), ExceptionAdapter.io), n);
+		return Basics.def(read.apply(RawArray.Sub.of(b, off, len), ExceptionAdapter.io), n);
 	}
 
 	@SuppressWarnings("resource")
 	@Override
 	public int available() throws IOException {
 		int n = piped.in().available();
-		return def(available.get(ExceptionAdapter.io), n);
+		return Basics.def(available.get(ExceptionAdapter.io), n);
 	}
 
 	@Override

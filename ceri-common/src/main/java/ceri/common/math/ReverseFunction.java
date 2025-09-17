@@ -1,10 +1,10 @@
 package ceri.common.math;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
-import java.util.TreeMap;
-import java.util.function.DoubleUnaryOperator;
+import ceri.common.collection.Maps;
+import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 
 /**
@@ -12,10 +12,11 @@ import ceri.common.text.ToString;
  * based on range and number of steps. Values between points will be linearly approximated.
  */
 public class ReverseFunction {
-	public final TreeMap<Double, Double> values;
+	public final NavigableMap<Double, Double> values;
 
-	public static ReverseFunction create(double x0, double x1, int steps, DoubleUnaryOperator fn) {
-		Builder b = builder();
+	public static ReverseFunction create(double x0, double x1, int steps,
+		Functions.DoubleOperator fn) {
+		var b = builder();
 		for (int i = 0; i <= steps; i++) {
 			double x = steps == 0 ? x0 : x0 + (i * (x1 - x0) / steps);
 			double y = fn.applyAsDouble(x);
@@ -25,7 +26,7 @@ public class ReverseFunction {
 	}
 
 	public static class Builder {
-		final Map<Double, Double> values = new LinkedHashMap<>();
+		final Map<Double, Double> values = Maps.link();
 
 		Builder() {}
 
@@ -49,12 +50,12 @@ public class ReverseFunction {
 	}
 
 	ReverseFunction(Builder builder) {
-		values = new TreeMap<>(builder.values);
+		values = Maps.tree(builder.values);
 	}
 
 	public double x(double y) {
-		Map.Entry<Double, Double> floor = values.floorEntry(y);
-		Map.Entry<Double, Double> ceiling = values.ceilingEntry(y);
+		var floor = values.floorEntry(y);
+		var ceiling = values.ceilingEntry(y);
 		if (floor == null && ceiling != null) {
 			floor = ceiling;
 			ceiling = values.higherEntry(ceiling.getKey());

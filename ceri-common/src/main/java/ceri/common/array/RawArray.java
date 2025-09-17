@@ -288,16 +288,33 @@ public class RawArray {
 	}
 
 	/**
-	 * Copy values using a consumer for each index.
+	 * Adapt values into a new array using a consumer for each index.
 	 */
-	public static <T, U> T copyValues(Functions.IntFunction<T> constructor, U values,
-		Functions.ObjIntConsumer<T> indexConsumer) {
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values,
+		Functions.BiObjIntConsumer<T, U> indexConsumer) {
+		return adaptValues(constructor, values, 0, indexConsumer);
+	}
+
+	/**
+	 * Adapt values into a new array using a consumer for each index.
+	 */
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
+		Functions.BiObjIntConsumer<T, U> indexConsumer) {
+		return adaptValues(constructor, values, offset, Integer.MAX_VALUE, indexConsumer);
+	}
+
+	/**
+	 * Adapt values into a new array using a consumer for each index.
+	 */
+	public static <T, U> T adaptValues(Functions.IntFunction<T> constructor, U values, int offset,
+		int length, Functions.BiObjIntConsumer<T, U> indexConsumer) {
 		if (constructor == null || values == null || indexConsumer == null) return null;
-		int length = length(values);
-		var array = constructor.apply(length);
-		for (int i = 0; i < length; i++)
-			indexConsumer.accept(array, i);
-		return array;
+		return applySlice(values, offset, length, (o, l) -> {
+			var array = constructor.apply(l);
+			for (int i = 0; i < l; i++)
+				indexConsumer.accept(array, values, o + i);
+			return array;
+		});
 	}
 
 	/**

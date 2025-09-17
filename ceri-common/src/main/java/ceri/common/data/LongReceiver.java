@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface for receiving longs into an array. For bulk efficiency, consider overriding the
@@ -101,7 +101,7 @@ public interface LongReceiver {
 		public Writer slice(int length) {
 			int offset = length < 0 ? offset() + length : offset();
 			length = Math.abs(length);
-			ValidationUtil.validateSlice(length(), offset, length);
+			Validate.validateSlice(length(), offset, length);
 			return new Writer(receiver, start + offset, length);
 		}
 
@@ -182,7 +182,7 @@ public interface LongReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, long value) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setLong(index++, value);
 		return index;
@@ -208,8 +208,8 @@ public interface LongReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, long[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setLong(index++, array[offset++]);
 		return index;
@@ -235,8 +235,8 @@ public interface LongReceiver {
 	 * this method.
 	 */
 	default int copyFrom(int index, LongProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		while (length-- > 0)
 			setLong(index++, provider.getLong(offset++));
 		return index;
@@ -253,7 +253,7 @@ public interface LongReceiver {
 	 * Provides sequential long access.
 	 */
 	default Writer writer(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Writer(this, index, length);
 	}
 

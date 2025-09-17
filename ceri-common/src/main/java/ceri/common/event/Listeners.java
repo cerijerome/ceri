@@ -3,15 +3,16 @@ package ceri.common.event;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
+import ceri.common.function.Functions;
 
 /**
  * Convenience class to track listeners and send notifications. There is no ConcurrentLinkedHashSet,
  * so choosing multiple ordered entries (list) over over single unordered entries (set). This means
  * listeners may register multiple times, and be notified multiple times. Thread safe.
  */
-public class Listeners<T> implements Consumer<T>, Listenable<T> {
-	private final Collection<Consumer<? super T>> listeners = new ConcurrentLinkedQueue<>();
+public class Listeners<T> implements Functions.Consumer<T>, Listenable<T> {
+	private final Collection<Functions.Consumer<? super T>> listeners =
+		new ConcurrentLinkedQueue<>();
 
 	public static <T> Listeners<T> of() {
 		return new Listeners<>();
@@ -32,12 +33,12 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 	}
 
 	@Override
-	public boolean listen(Consumer<? super T> listener) {
+	public boolean listen(Functions.Consumer<? super T> listener) {
 		return listeners().add(listener);
 	}
 
 	@Override
-	public boolean unlisten(Consumer<? super T> listener) {
+	public boolean unlisten(Functions.Consumer<? super T> listener) {
 		return listeners().remove(listener);
 	}
 
@@ -65,7 +66,7 @@ public class Listeners<T> implements Consumer<T>, Listenable<T> {
 			accept(event);
 	}
 
-	protected Collection<Consumer<? super T>> listeners() {
+	protected Collection<Functions.Consumer<? super T>> listeners() {
 		return listeners;
 	}
 }

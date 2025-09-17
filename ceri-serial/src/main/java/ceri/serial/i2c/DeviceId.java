@@ -1,10 +1,10 @@
 package ceri.serial.i2c;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import ceri.common.collection.Immutable;
 import ceri.common.data.ByteUtil;
+import ceri.common.util.Validate;
 
 public record DeviceId(int manufacturer, int part, int revision) {
 
@@ -43,9 +43,9 @@ public record DeviceId(int manufacturer, int part, int revision) {
 	}
 
 	public static DeviceId of(int manufacturer, int part, int revision) {
-		validateRange(manufacturer, 0, MANUFACTURER_MASK);
-		validateRange(part, 0, PART_MASK);
-		validateRange(revision, 0, REVISION_MASK);
+		Validate.validateRange(manufacturer, 0, MANUFACTURER_MASK);
+		Validate.validateRange(part, 0, PART_MASK);
+		Validate.validateRange(revision, 0, REVISION_MASK);
 		return new DeviceId(manufacturer, part, revision);
 	}
 

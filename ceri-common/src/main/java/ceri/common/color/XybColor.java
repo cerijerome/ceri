@@ -1,12 +1,9 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_RATIO;
-import static ceri.common.color.Colors.ratio;
-import static ceri.common.color.Colors.value;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
 import ceri.common.geom.Point2d;
 import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 
 /**
  * Represents CIE xyY color, Y = brightness (b). All values approximately 0-1.
@@ -35,21 +32,21 @@ public record XybColor(double a, double x, double y, double b) {
 	 */
 	public static XybColor from(int argb) {
 		double[] xyb = ColorSpaces.rgbToXyb(argb);
-		return of(ratio(Colors.a(argb)), xyb[0], xyb[1], xyb[2]);
+		return of(Colors.ratio(Colors.a(argb)), xyb[0], xyb[1], xyb[2]);
 	}
 
 	/**
 	 * Construct an opaque instance from CIE xy 0-1 values, with full brightness.
 	 */
 	public static XybColor full(double x, double y) {
-		return of(x, y, MAX_RATIO);
+		return of(x, y, Colors.MAX_RATIO);
 	}
 
 	/**
 	 * Construct an opaque instance from CIE xyY 0-1 values.
 	 */
 	public static XybColor of(double x, double y, double b) {
-		return of(MAX_RATIO, x, y, b);
+		return of(Colors.MAX_RATIO, x, y, b);
 	}
 
 	/**
@@ -77,7 +74,7 @@ public record XybColor(double a, double x, double y, double b) {
 	 * Convert to sRGB int. Alpha is maintained.
 	 */
 	public int argb() {
-		return Component.a.set(ColorSpaces.xybToRgb(x, y, b), value(a));
+		return Component.a.set(ColorSpaces.xybToRgb(x, y, b), Colors.value(a));
 	}
 
 	/**
@@ -121,7 +118,7 @@ public record XybColor(double a, double x, double y, double b) {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_RATIO;
+		return a < Colors.MAX_RATIO;
 	}
 
 	/**
@@ -137,7 +134,7 @@ public record XybColor(double a, double x, double y, double b) {
 	 */
 	public XybColor normalize() {
 		double a = Colors.limit(this.a);
-		Point2d xy = normalize(x, y);
+		var xy = normalize(x, y);
 		double b = Colors.limit(this.b);
 		if (a == this.a && xy.x == this.x && xy.y == this.y && b == this.b) return this;
 		return of(a, xy.x, xy.y, b);
@@ -171,15 +168,15 @@ public record XybColor(double a, double x, double y, double b) {
 	}
 
 	private void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_RATIO, name);
+		Validate.validateRangeFp(value, 0, Colors.MAX_RATIO, name);
 	}
 
 	private Point2d normalize(double x, double y) {
 		// normalize around CIE_E
-		double factor = Maths.max(MAX_RATIO, //
-			(x - CENTER.x) / (MAX_RATIO - CENTER.x), (CENTER.x - x) / CENTER.x,
-			(y - CENTER.y) / (MAX_RATIO - CENTER.y), (CENTER.y - y) / CENTER.y);
-		if (factor == MAX_RATIO) return Point2d.of(x, y);
+		double factor = Maths.max(Colors.MAX_RATIO, //
+			(x - CENTER.x) / (Colors.MAX_RATIO - CENTER.x), (CENTER.x - x) / CENTER.x,
+			(y - CENTER.y) / (Colors.MAX_RATIO - CENTER.y), (CENTER.y - y) / CENTER.y);
+		if (factor == Colors.MAX_RATIO) return Point2d.of(x, y);
 		x = ((x - CENTER.x) / factor) + CENTER.x;
 		y = ((y - CENTER.y) / factor) + CENTER.y;
 		return Point2d.of(x, y);

@@ -1,10 +1,9 @@
 package ceri.common.text;
 
-import static java.nio.charset.CodingErrorAction.REPLACE;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.util.PrimitiveIterator.OfInt;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 
@@ -94,7 +93,8 @@ public class Utf8 {
 	 * Returns a configured UTF8 encoder.
 	 */
 	public static CharsetEncoder encoder() {
-		return charset().newEncoder().onMalformedInput(REPLACE).onUnmappableCharacter(REPLACE);
+		return charset().newEncoder().onMalformedInput(CodingErrorAction.REPLACE)
+			.onUnmappableCharacter(CodingErrorAction.REPLACE);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class Utf8 {
 	 * array. Returns the index in the array after writing is complete.
 	 */
 	public static int encodeTo(CharSequence text, byte[] array, int offset) {
-		OfInt i = text.codePoints().iterator();
+		var i = text.codePoints().iterator();
 		while (i.hasNext())
 			offset = encodeTo(i.nextInt(), array, offset);
 		return offset;

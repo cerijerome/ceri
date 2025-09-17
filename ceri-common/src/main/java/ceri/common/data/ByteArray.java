@@ -1,18 +1,16 @@
 package ceri.common.data;
 
-import static ceri.common.validation.ValidationUtil.validateEqual;
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.math.Maths;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.stream.IntStream;
+import ceri.common.util.Validate;
 
 /**
  * Base wrapper for a byte array, implementing the ByteProvider interface. The Immutable sub-class
@@ -63,7 +61,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(byte[] array, int offset, int length) {
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -140,7 +138,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(byte[] array, int offset, int length) {
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -202,7 +200,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int copyFrom(int index, byte[] array, int offset, int length) {
 			validateSlice(index, length);
-			ValidationUtil.validateSlice(array.length, offset, length);
+			Validate.validateSlice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
@@ -287,7 +285,7 @@ public abstract class ByteArray implements ByteProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(byte[] array, int max) {
-			ValidationUtil.validateSubRange(array.length, 0, max);
+			Validate.validateSubRange(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -353,13 +351,13 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int transferTo(OutputStream out, int length) throws IOException {
 			int current = offset();
-			ValidationUtil.validateSlice(length(), current, length);
+			Validate.validateSlice(length(), current, length);
 			offset(mutable.writeTo(current, out, length));
 			return offset() - current;
 		}
 
 		@Override
-		public IntStream ustream(int length) {
+		public IntStream<RuntimeException> ustream(int length) {
 			return mutable.ustream(readInc(length), length);
 		}
 
@@ -416,7 +414,7 @@ public abstract class ByteArray implements ByteProvider {
 
 		@Override
 		public int transferFrom(InputStream in, int length) throws IOException {
-			validateMin(length, 0);
+			Validate.validateMin(length, 0);
 			int current = offset();
 			grow(current + length);
 			writeInc(mutable.readFrom(current, in, length) - current);
@@ -476,7 +474,7 @@ public abstract class ByteArray implements ByteProvider {
 			int size = size();
 			if (size == 0) return Immutable.EMPTY;
 			Encoder encoder = Encoder.fixed(size).apply(this::encode);
-			validateEqual(encoder.remaining(), 0, "Remaining bytes");
+			Validate.validateEqual(encoder.remaining(), 0, "Remaining bytes");
 			return encoder.immutable();
 		}
 	}
@@ -522,7 +520,7 @@ public abstract class ByteArray implements ByteProvider {
 	@Override
 	public int copyTo(int index, byte[] dest, int offset, int length) {
 		validateSlice(index, length);
-		ValidationUtil.validateSlice(dest.length, offset, length);
+		Validate.validateSlice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
@@ -582,7 +580,7 @@ public abstract class ByteArray implements ByteProvider {
 	}
 
 	void validateSlice(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 	}
 
 	int offset(int index) {

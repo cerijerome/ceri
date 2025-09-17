@@ -8,7 +8,7 @@ import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
 import ceri.common.collection.Immutable;
 import ceri.common.collection.Sets;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.text.Text;
 
 /**
@@ -38,7 +38,7 @@ public class TestPrinter extends RunListener {
 
 		@Override
 		public int compareTo(Test test) {
-			return Comparators.STRING.compare(toString(), test.toString());
+			return Compares.STRING.compare(toString(), test.toString());
 		}
 
 		@Override

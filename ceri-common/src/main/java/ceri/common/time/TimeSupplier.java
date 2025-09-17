@@ -1,12 +1,5 @@
 package ceri.common.time;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import ceri.common.collection.Enums;
@@ -19,13 +12,13 @@ import ceri.common.math.Maths;
  * provide absolute times.
  */
 public enum TimeSupplier {
-	nanos(NANOSECONDS), // elapsed time
-	micros(MICROSECONDS), // elapsed time
-	millis(MILLISECONDS), // absolute time
-	seconds(SECONDS), // absolute time
-	minutes(MINUTES), // absolute time
-	hours(HOURS), // absolute time
-	days(DAYS); // absolute time
+	nanos(TimeUnit.NANOSECONDS), // elapsed time
+	micros(TimeUnit.MICROSECONDS), // elapsed time
+	millis(TimeUnit.MILLISECONDS), // absolute time
+	seconds(TimeUnit.SECONDS), // absolute time
+	minutes(TimeUnit.MINUTES), // absolute time
+	hours(TimeUnit.HOURS), // absolute time
+	days(TimeUnit.DAYS); // absolute time
 
 	private static final long MICRO_IN_NANOS = 1000;
 	private static final Map<TimeUnit, TimeSupplier> map =
@@ -62,7 +55,7 @@ public enum TimeSupplier {
 			case MICROSECONDS -> () -> System.nanoTime() / MICRO_IN_NANOS;
 			case MILLISECONDS -> System::currentTimeMillis;
 			default -> {
-				long ms = MILLISECONDS.convert(1, unit);
+				long ms = TimeUnit.MILLISECONDS.convert(1, unit);
 				yield () -> System.currentTimeMillis() / ms;
 			}
 		};
@@ -74,7 +67,7 @@ public enum TimeSupplier {
 			case MICROSECONDS -> ConcurrentUtil::delayMicros;
 			case MILLISECONDS -> ConcurrentUtil::delay;
 			default -> {
-				long ms = MILLISECONDS.convert(1, unit);
+				long ms = TimeUnit.MILLISECONDS.convert(1, unit);
 				yield n -> ConcurrentUtil.delay(Maths.multiplyLimit(n, ms));
 			}
 		};

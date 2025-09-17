@@ -2,8 +2,6 @@ package ceri.serial.libusb;
 
 import static ceri.common.math.Maths.ubyte;
 import static ceri.common.math.Maths.ushort;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.libusb.jna.LibUsb.LIBUSB_CONTROL_SETUP_SIZE;
 import java.nio.ByteBuffer;
 import java.util.Objects;
@@ -15,7 +13,7 @@ import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.type.Struct;
 import ceri.jna.util.JnaUtil;
 import ceri.log.util.LogUtil;
@@ -118,7 +116,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public ControlSetup length(int length) {
-			validateMin(length, 0);
+			Validate.validateMin(length, 0);
 			cs.wLength = LibUsb.libusb_cpu_to_le16((short) length);
 			return this;
 		}
@@ -150,7 +148,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		@Override
 		public void submit() throws LibUsbException {
 			Objects.requireNonNull(buffer());
-			validateRange(setup.length(), 0, buffer().capacity() - ControlSetup.SIZE);
+			Validate.validateRange(setup.length(), 0, buffer().capacity() - ControlSetup.SIZE);
 			transfer().length = length();
 			Struct.write(setup.cs);
 			super.submit();
@@ -162,7 +160,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Control length(int length) {
-			validateMin(length, ControlSetup.SIZE);
+			Validate.validateMin(length, ControlSetup.SIZE);
 			setup().length(length - ControlSetup.SIZE);
 			return this;
 		}
@@ -177,7 +175,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		@Override
 		public Control buffer(ByteBuffer buffer) {
 			Objects.requireNonNull(buffer);
-			validateMin(buffer.capacity(), ControlSetup.SIZE);
+			Validate.validateMin(buffer.capacity(), ControlSetup.SIZE);
 			super.buffer(buffer);
 			setup = copy(setup, transfer().buffer); // relocate setup to new buffer
 			return this;
@@ -205,7 +203,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		 */
 		public BulkStream bulkTransfer(int endPoint, int streamId,
 			Consumer<? super BulkStream> callback) throws LibUsbException {
-			validateRange(streamId, 1, count, "Stream id");
+			Validate.validateRange(streamId, 1, count, "Stream id");
 			validateEndPoint(endPoint);
 			return BulkStream.alloc(handle, endPoint, streamId, callback);
 		}
@@ -324,7 +322,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Iso packets(int packets) {
-			validateRange(packets, 0, maxPackets());
+			Validate.validateRange(packets, 0, maxPackets());
 			var transfer = transfer();
 			transfer.length = offset(packets);
 			transfer.num_iso_packets = packets;
@@ -332,7 +330,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Iso packetLength(int packet, int length) {
-			ValidationUtil.validateIndex(packets(), packet);
+			Validate.validateIndex(packets(), packet);
 			var transfer = transfer();
 			transfer.length += length - transfer.iso_packet_desc[packet].length;
 			transfer.iso_packet_desc[packet].length = length;
@@ -347,12 +345,12 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public ByteBuffer packetBuffer(int packet) {
-			ValidationUtil.validateIndex(packets(), packet);
+			Validate.validateIndex(packets(), packet);
 			return packetBuffer(packet, offset(packet));
 		}
 
 		public ByteBuffer packetBufferSimple(int packet) {
-			ValidationUtil.validateIndex(packets(), packet);
+			Validate.validateIndex(packets(), packet);
 			return packetBuffer(packet, packet * transfer().iso_packet_desc[0].length);
 		}
 
@@ -384,7 +382,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 
 	public void submit() throws LibUsbException {
 		var transfer = transfer();
-		validateRange(transfer.length, 0, buffer == null ? 0 : buffer.capacity());
+		Validate.validateRange(transfer.length, 0, buffer == null ? 0 : buffer.capacity());
 		LibUsb.libusb_submit_transfer(Struct.write(transfer));
 	}
 
@@ -463,7 +461,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	}
 
 	private T length(int length) {
-		validateMin(length, 0);
+		Validate.validateMin(length, 0);
 		transfer().length = length;
 		return typedThis();
 	}

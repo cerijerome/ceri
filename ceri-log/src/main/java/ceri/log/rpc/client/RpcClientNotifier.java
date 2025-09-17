@@ -1,20 +1,16 @@
 package ceri.log.rpc.client;
 
-import static ceri.log.rpc.client.RpcClientUtil.ignorable;
-import static ceri.log.rpc.util.RpcUtil.EMPTY;
-import static ceri.log.util.LogUtil.compact;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
+import ceri.common.collection.Sets;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.event.Listenable;
+import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.rpc.util.RpcStreamer;
@@ -40,12 +36,13 @@ import io.grpc.stub.StreamObserver;
  */
 public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenable<T> {
 	private static final Logger logger = LogManager.getLogger();
-	private final Function<StreamObserver<V>, StreamObserver<Empty>> call; // rpc stub call
-	private final Function<V, T> transform;
+	private final Functions.Function<StreamObserver<V>, StreamObserver<Empty>> call; // rpc stub
+																						// call
+	private final Functions.Function<V, T> transform;
 	private final StreamObserver<V> callback; // handles notifications from service
 	private final Lock lock = new ReentrantLock();
 	private final BoolCondition sync = BoolCondition.of(lock);
-	private final Set<Consumer<? super T>> listeners = new LinkedHashSet<>();
+	private final Set<Functions.Consumer<? super T>> listeners = Sets.link();
 	private final Config config;
 	private boolean reset = false;
 	private RpcStreamer<Empty> caller = null; //
@@ -74,13 +71,13 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	public static <T, V> RpcClientNotifier<T, V> of(
-		Function<StreamObserver<V>, StreamObserver<Empty>> call, Function<V, T> transform,
-		Config config) {
+		Functions.Function<StreamObserver<V>, StreamObserver<Empty>> call,
+		Functions.Function<V, T> transform, Config config) {
 		return new RpcClientNotifier<>(call, transform, config);
 	}
 
-	RpcClientNotifier(Function<StreamObserver<V>, StreamObserver<Empty>> call,
-		Function<V, T> transform, Config config) {
+	RpcClientNotifier(Functions.Function<StreamObserver<V>, StreamObserver<Empty>> call,
+		Functions.Function<V, T> transform, Config config) {
 		this.call = call;
 		this.transform = transform;
 		this.config = config;
@@ -97,7 +94,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	@Override
-	public boolean listen(Consumer<? super T> listener) {
+	public boolean listen(Functions.Consumer<? super T> listener) {
 		return ConcurrentUtil.lockedGet(lock, () -> {
 			boolean result = listeners.add(listener);
 			if (result && listeners.size() == 1) sync.signal(); // signal to start listening
@@ -106,7 +103,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	@Override
-	public boolean unlisten(Consumer<? super T> listener) {
+	public boolean unlisten(Functions.Consumer<? super T> listener) {
 		return ConcurrentUtil.lockedGet(lock, () -> {
 			boolean result = listeners.remove(listener);
 			if (result && listeners.isEmpty()) sync.signal(); // signal to stop listening
@@ -148,7 +145,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		// if (caller != null && !caller.closed()) return; // already receiving (not possible?)
 		logger.debug("Waiting for notifications");
 		caller = RpcStreamer.of(call.apply(callback)); // wrap observer as new closable instance
-		caller.next(EMPTY); // start receiving; close() to stop
+		caller.next(RpcUtil.EMPTY); // start receiving; close() to stop
 	}
 
 	private void stopReceiving() {
@@ -157,14 +154,13 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void onNotify(V v) {
-		logger.trace("Notification: {}", compact(v));
+		logger.trace("Notification: {}", LogUtil.compact(v));
 		T t = transform.apply(v);
-		Set<Consumer<? super T>> listeners =
-			ConcurrentUtil.lockedGet(lock, () -> new LinkedHashSet<>(this.listeners));
+		var listeners = ConcurrentUtil.lockedGet(lock, () -> Sets.link(this.listeners));
 		notifyListeners(listeners, t);
 	}
 
-	private void notifyListeners(Set<Consumer<? super T>> listeners, T t) {
+	private void notifyListeners(Set<Functions.Consumer<? super T>> listeners, T t) {
 		listeners.forEach(listener -> listener.accept(t));
 	}
 
@@ -174,7 +170,8 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void onError(Throwable t) {
-		if (!ignorable(t)) logger.warn("Streaming error: {}", RpcUtil.cause(t).getMessage());
+		if (!RpcClientUtil.ignorable(t))
+			logger.warn("Streaming error: {}", RpcUtil.cause(t).getMessage());
 		signalReset();
 	}
 
@@ -184,5 +181,4 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 			sync.signal();
 		});
 	}
-
 }

@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import org.junit.Test;
+import ceri.common.collection.Maps;
 import ceri.common.reflect.Reflect;
 
 public class ToStringBehavior {
@@ -36,7 +36,7 @@ public class ToStringBehavior {
 	@Test
 	public void shouldConvertRecordFormat() {
 		assertEquals(ToString.forRecord(null), "null");
-		var r = new Rec(123, "test = , 1, 2", new TreeMap<>(Map.of("1, 0", 1.0, "2, 0", 2.0)));
+		var r = new Rec(123, "test = , 1, 2", Maps.tree(Map.of("1, 0", 1.0, "2, 0", 2.0)));
 		assertString(ToString.forRecord(r), "%s(123,test = , 1, 2,{1, 0=1.0, 2, 0=2.0})",
 			Reflect.name(Rec.class));
 	}

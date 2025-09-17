@@ -1,6 +1,5 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.clib.jna.CFcntl.O_NOCTTY;
 import static ceri.jna.clib.jna.CFcntl.O_NONBLOCK;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
@@ -31,6 +30,7 @@ import ceri.common.collection.Maps;
 import ceri.common.exception.Exceptions;
 import ceri.common.math.Maths;
 import ceri.common.util.OsUtil;
+import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -115,8 +115,8 @@ public class CSerial {
 	 * </pre>
 	 */
 	public static void setReadParams(int fd, int vmin, int vtime) throws CException {
-		validateRange(vmin, 0, 0xff);
-		validateRange(vtime, 0, 0xff);
+		Validate.validateRange(vmin, 0, 0xff);
+		Validate.validateRange(vtime, 0, 0xff);
 		var tty = CTermios.tcgetattr(fd);
 		tty.c_cc[VMIN] = (byte) vmin;
 		tty.c_cc[VTIME] = (byte) vtime;

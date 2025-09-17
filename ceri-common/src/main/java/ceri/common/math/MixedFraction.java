@@ -1,8 +1,5 @@
 package ceri.common.math;
 
-import static java.lang.Math.addExact;
-import static java.lang.Math.multiplyExact;
-import static java.lang.Math.negateExact;
 import ceri.common.exception.Exceptions;
 
 public record MixedFraction(long whole, Fraction fraction) {
@@ -23,7 +20,7 @@ public record MixedFraction(long whole, Fraction fraction) {
 
 	public static MixedFraction of(Fraction fraction) {
 		long whole = fraction.whole();
-		Fraction proper = fraction.proper();
+		var proper = fraction.proper();
 		if (whole == 0 && proper.isZero()) return ZERO;
 		if (whole == 1 && proper.isZero()) return ONE;
 		return new MixedFraction(whole, proper);
@@ -32,8 +29,8 @@ public record MixedFraction(long whole, Fraction fraction) {
 	public MixedFraction {
 		int wholeSgn = Long.signum(whole);
 		int fractionSgn = Long.signum(fraction.numerator());
-		if (wholeSgn != 0 && fractionSgn != 0 && wholeSgn == -fractionSgn)
-			throw Exceptions.illegalArg("Whole and fraction must be the same sign: %s, %s", whole, fraction);
+		if (wholeSgn != 0 && fractionSgn != 0 && wholeSgn == -fractionSgn) throw Exceptions
+			.illegalArg("Whole and fraction must be the same sign: %s, %s", whole, fraction);
 	}
 
 	public double value() {
@@ -42,8 +39,8 @@ public record MixedFraction(long whole, Fraction fraction) {
 
 	public Fraction asFraction() {
 		if (whole() == 0) return fraction();
-		long numerator =
-			addExact(multiplyExact(whole(), fraction().denominator()), fraction().numerator());
+		long numerator = Math.addExact(Math.multiplyExact(whole(), fraction().denominator()),
+			fraction().numerator());
 		return Fraction.of(numerator, fraction().denominator());
 	}
 
@@ -65,13 +62,13 @@ public record MixedFraction(long whole, Fraction fraction) {
 
 	public MixedFraction negate() {
 		if (this == ZERO) return this;
-		return of(negateExact(whole), fraction.negate());
+		return of(Math.negateExact(whole), fraction.negate());
 	}
 
 	public MixedFraction add(MixedFraction other) {
 		if (other.isZero()) return this;
 		if (isZero()) return other;
-		return of(addExact(whole, other.whole), fraction.add(other.fraction));
+		return of(Math.addExact(whole, other.whole), fraction.add(other.fraction));
 	}
 
 	public MixedFraction multiply(MixedFraction other) {

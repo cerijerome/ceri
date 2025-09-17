@@ -8,7 +8,7 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import java.util.Comparator;
 import org.junit.Test;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.math.Bound.Type;
 import ceri.common.test.TestUtil;
 
@@ -18,13 +18,13 @@ public class BoundBehavior {
 	public void shouldNotBreachEqualsContract() {
 		Bound<Double> b = Bound.exclusive(-33.33);
 		Bound<Double> eq0 = Bound.exclusive(-33.33);
-		Bound<Double> eq1 = Bound.of(-33.33, Type.exclusive);
+		Bound<Double> eq1 = Bound.of(-33.33, Type.exc);
 		Bound<Double> ne0 = Bound.inclusive(-33.33);
 		Bound<Double> ne1 = Bound.exclusive(-33.3);
 		Bound<Double> ne2 = Bound.exclusive(33.33);
 		Bound<Double> ne3 = Bound.unbound();
-		Bound<Double> ne4 = Bound.of(-33.33, Type.inclusive);
-		Bound<Double> ne5 = Bound.of(-33.3, Type.exclusive);
+		Bound<Double> ne4 = Bound.of(-33.33, Type.inc);
+		Bound<Double> ne5 = Bound.of(-33.3, Type.exc);
 		TestUtil.exerciseEquals(b, eq0, eq1);
 		assertAllNotEqual(b, ne0, ne1, ne2, ne3, ne4, ne5);
 		exerciseEnum(Bound.Type.class);
@@ -32,47 +32,47 @@ public class BoundBehavior {
 
 	@Test
 	public void shouldDetermineTypeLowerLimit() {
-		assertTrue(Bound.Type.exclusive.isLower(Integer.MAX_VALUE, Integer.MIN_VALUE));
-		assertFalse(Bound.Type.exclusive.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertFalse(Bound.Type.inclusive.isLower(Integer.MIN_VALUE, Integer.MAX_VALUE));
-		assertTrue(Bound.Type.inclusive.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertTrue(Bound.Type.exclusive.isLower(Long.MAX_VALUE, Long.MIN_VALUE));
-		assertFalse(Bound.Type.exclusive.isLower(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertFalse(Bound.Type.inclusive.isLower(Long.MIN_VALUE, Long.MAX_VALUE));
-		assertTrue(Bound.Type.inclusive.isLower(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertTrue(Bound.Type.exclusive.isLower(0.1f, 0.0f));
-		assertFalse(Bound.Type.exclusive.isLower(0.0f, 0.0f));
-		assertFalse(Bound.Type.inclusive.isLower(0.0f, 0.1f));
-		assertTrue(Bound.Type.inclusive.isLower(0.0f, 0.0f));
-		assertTrue(Bound.Type.exclusive.isLower(0.1, 0.0));
-		assertFalse(Bound.Type.exclusive.isLower(0.0, 0.0));
-		assertFalse(Bound.Type.inclusive.isLower(0.0, 0.1));
-		assertTrue(Bound.Type.inclusive.isLower(0.0, 0.0));
+		assertTrue(Bound.Type.exc.isLower(Integer.MAX_VALUE, Integer.MIN_VALUE));
+		assertFalse(Bound.Type.exc.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertFalse(Bound.Type.inc.isLower(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		assertTrue(Bound.Type.inc.isLower(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertTrue(Bound.Type.exc.isLower(Long.MAX_VALUE, Long.MIN_VALUE));
+		assertFalse(Bound.Type.exc.isLower(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertFalse(Bound.Type.inc.isLower(Long.MIN_VALUE, Long.MAX_VALUE));
+		assertTrue(Bound.Type.inc.isLower(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertTrue(Bound.Type.exc.isLower(0.1f, 0.0f));
+		assertFalse(Bound.Type.exc.isLower(0.0f, 0.0f));
+		assertFalse(Bound.Type.inc.isLower(0.0f, 0.1f));
+		assertTrue(Bound.Type.inc.isLower(0.0f, 0.0f));
+		assertTrue(Bound.Type.exc.isLower(0.1, 0.0));
+		assertFalse(Bound.Type.exc.isLower(0.0, 0.0));
+		assertFalse(Bound.Type.inc.isLower(0.0, 0.1));
+		assertTrue(Bound.Type.inc.isLower(0.0, 0.0));
 	}
 
 	@Test
 	public void shouldDetermineTypeUpperLimit() {
-		assertTrue(Bound.Type.exclusive.isUpper(Integer.MIN_VALUE, Integer.MAX_VALUE));
-		assertFalse(Bound.Type.exclusive.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertFalse(Bound.Type.inclusive.isUpper(Integer.MAX_VALUE, Integer.MIN_VALUE));
-		assertTrue(Bound.Type.inclusive.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE));
-		assertTrue(Bound.Type.exclusive.isUpper(Long.MIN_VALUE, Long.MAX_VALUE));
-		assertFalse(Bound.Type.exclusive.isUpper(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertFalse(Bound.Type.inclusive.isUpper(Long.MAX_VALUE, Long.MIN_VALUE));
-		assertTrue(Bound.Type.inclusive.isUpper(Long.MIN_VALUE, Long.MIN_VALUE));
-		assertTrue(Bound.Type.exclusive.isUpper(0.0f, 0.1f));
-		assertFalse(Bound.Type.exclusive.isUpper(0.0f, 0.0f));
-		assertFalse(Bound.Type.inclusive.isUpper(0.1f, 0.0f));
-		assertTrue(Bound.Type.inclusive.isUpper(0.0f, 0.0f));
-		assertTrue(Bound.Type.exclusive.isUpper(0.0, 0.1));
-		assertFalse(Bound.Type.exclusive.isUpper(0.0, 0.0));
-		assertFalse(Bound.Type.inclusive.isUpper(0.1, 0.0));
-		assertTrue(Bound.Type.inclusive.isUpper(0.0, 0.0));
+		assertTrue(Bound.Type.exc.isUpper(Integer.MIN_VALUE, Integer.MAX_VALUE));
+		assertFalse(Bound.Type.exc.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertFalse(Bound.Type.inc.isUpper(Integer.MAX_VALUE, Integer.MIN_VALUE));
+		assertTrue(Bound.Type.inc.isUpper(Integer.MIN_VALUE, Integer.MIN_VALUE));
+		assertTrue(Bound.Type.exc.isUpper(Long.MIN_VALUE, Long.MAX_VALUE));
+		assertFalse(Bound.Type.exc.isUpper(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertFalse(Bound.Type.inc.isUpper(Long.MAX_VALUE, Long.MIN_VALUE));
+		assertTrue(Bound.Type.inc.isUpper(Long.MIN_VALUE, Long.MIN_VALUE));
+		assertTrue(Bound.Type.exc.isUpper(0.0f, 0.1f));
+		assertFalse(Bound.Type.exc.isUpper(0.0f, 0.0f));
+		assertFalse(Bound.Type.inc.isUpper(0.1f, 0.0f));
+		assertTrue(Bound.Type.inc.isUpper(0.0f, 0.0f));
+		assertTrue(Bound.Type.exc.isUpper(0.0, 0.1));
+		assertFalse(Bound.Type.exc.isUpper(0.0, 0.0));
+		assertFalse(Bound.Type.inc.isUpper(0.1, 0.0));
+		assertTrue(Bound.Type.inc.isUpper(0.0, 0.0));
 	}
 
 	@Test
 	public void shouldBeUnboundForNullValue() {
-		assertEquals(Bound.of((String) null, Type.exclusive), Bound.unbound());
+		assertEquals(Bound.of((String) null, Type.exc), Bound.unbound());
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class BoundBehavior {
 		assertEquals(Bound.exclusive(0).valueCompare(0), 0);
 		assertEquals(Bound.exclusive(-1).valueCompare(0), -1);
 		assertEquals(Bound.exclusive(1).valueCompare(0), 1);
-		Comparator<String> comparator = Comparators.STRING.reversed();
+		Comparator<String> comparator = Compares.STRING.reversed();
 		assertEquals(Bound.inclusive("abc", comparator).valueCompare("abc"), 0);
 		assertEquals(Bound.inclusive("abc", comparator).valueCompare("abd"), 1);
 		assertEquals(Bound.inclusive("abc", comparator).valueCompare("abb"), -1);

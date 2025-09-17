@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import com.sun.jna.Memory;
 import ceri.common.io.IoExceptions;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
 
@@ -35,7 +35,7 @@ public abstract class JnaOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		ValidationUtil.validateSlice(b.length, off, len);
+		Validate.validateSlice(b.length, off, len);
 		ensureOpen();
 		verifyWrite(writeAll(buffers.get(), b, off, len), len);
 	}

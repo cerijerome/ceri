@@ -2,7 +2,7 @@ package ceri.serial.ftdi.jna;
 
 import java.util.regex.Pattern;
 import ceri.common.math.Maths;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -67,7 +67,7 @@ public class LibFtdiUtil {
 			.address(Integer.decode(m.group(2))).build();
 		m = Regex.match(FIND_BY_VENDOR_INDEX, descriptor);
 		if (m.hasMatch()) return LibUsbFinder.builder().vendor(Integer.decode(m.group(1)))
-			.product(Integer.decode(m.group(2))).index(Numbers.Parse.toInt(m.group(3), 0)).build();
+			.product(Integer.decode(m.group(2))).index(Parse.parseInt(m.group(3), 0)).build();
 		m = Regex.match(FIND_BY_VENDOR_SERIAL, descriptor);
 		if (m.hasMatch()) return LibUsbFinder.builder().vendor(Integer.decode(m.group(1)))
 			.product(Integer.decode(m.group(2))).serial(m.group(3)).build();

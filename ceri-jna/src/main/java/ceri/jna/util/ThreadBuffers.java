@@ -1,12 +1,12 @@
 package ceri.jna.util;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import com.sun.jna.Memory;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.function.Functions;
+import ceri.common.util.Validate;
 
 /**
  * A class that provides resizable thread-local buffers.
@@ -45,7 +45,7 @@ public class ThreadBuffers implements Functions.Closeable {
 	 * Set future buffer sizes.
 	 */
 	public void size(long size) {
-		validateMin(size, 1);
+		Validate.validateMin(size, 1);
 		this.size = size;
 	}
 

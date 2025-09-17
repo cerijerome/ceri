@@ -7,7 +7,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.data.LongArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class LongWriterBehavior {
 
@@ -112,7 +112,7 @@ public class LongWriterBehavior {
 
 		@Override
 		public SimpleLongWriter writeLong(long value) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			longs[offset + index++] = value;
 			return this;
 		}

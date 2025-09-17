@@ -1,6 +1,5 @@
 package ceri.serial.spi;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.function.Excepts.Function;
@@ -8,6 +7,7 @@ import ceri.common.io.Direction;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
 import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -52,13 +52,13 @@ public class SpiDevice implements Spi {
 			}
 
 			public Builder bus(int bus) {
-				validateMin(bus, 0);
+				Validate.validateMin(bus, 0);
 				this.bus = bus;
 				return this;
 			}
 
 			public Builder chip(int chip) {
-				validateMin(chip, 0);
+				Validate.validateMin(chip, 0);
 				this.chip = chip;
 				return this;
 			}
@@ -143,8 +143,8 @@ public class SpiDevice implements Spi {
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
 		Basics.requireNot(direction, null, Direction.none);
-		validateMin(bus, 0, "Bus number");
-		validateMin(chip, 0, "Chip number");
+		Validate.validateMin(bus, 0, "Bus number");
+		Validate.validateMin(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
 	}
 
@@ -205,7 +205,7 @@ public class SpiDevice implements Spi {
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
 		Basics.requireNot(direction, null, Direction.none);
-		validateMin(size, 0, "Size");
+		Validate.validateMin(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}
 

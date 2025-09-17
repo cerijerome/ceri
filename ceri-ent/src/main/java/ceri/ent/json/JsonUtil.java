@@ -13,7 +13,7 @@ import ceri.common.function.Functions;
 import ceri.common.property.Separator;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 
 public class JsonUtil {
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -61,11 +61,13 @@ public class JsonUtil {
 		return JsonCoder.create(GSON, typeToken);
 	}
 
-	public static <T> JsonDeserializer<T> stringDeserializer(Functions.Function<String, T> constructor) {
+	public static <T> JsonDeserializer<T>
+		stringDeserializer(Functions.Function<String, T> constructor) {
 		return (json, _, _) -> constructor.apply(json.getAsString());
 	}
 
-	public static <T> JsonDeserializer<T> deserializer(Functions.Function<JsonElement, T> constructor) {
+	public static <T> JsonDeserializer<T>
+		deserializer(Functions.Function<JsonElement, T> constructor) {
 		return (json, _, _) -> constructor.apply(json);
 	}
 
@@ -83,7 +85,7 @@ public class JsonUtil {
 			else {
 				var list = Reflect.castOrNull(List.class, value);
 				if (list == null) return null;
-				var index = Numbers.Parse.toInt(part, null);
+				var index = Parse.parseInt(part, null);
 				if (index == null || list.size() <= index) return null;
 				value = list.get(index);
 			}
@@ -105,35 +107,35 @@ public class JsonUtil {
 		if (obj == null) return null;
 		var b = Reflect.castOrNull(Boolean.class, obj);
 		if (b != null) return b;
-		return Numbers.Parse.toBool(Reflect.castOrNull(String.class, obj), null);
+		return Parse.parseBool(Reflect.castOrNull(String.class, obj), null);
 	}
 
 	public static Byte extractByte(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::byteValue, Numbers.Parse.BYTE);
+		return extractNumber(gsonObject, path, Number::byteValue, Parse.BYTE);
 	}
 
 	public static Short extractShort(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::shortValue, Numbers.Parse.SHORT);
+		return extractNumber(gsonObject, path, Number::shortValue, Parse.SHORT);
 	}
 
 	public static Integer extractInt(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::intValue, Numbers.Parse.INT);
+		return extractNumber(gsonObject, path, Number::intValue, Parse.INT);
 	}
 
 	public static Long extractLong(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::longValue, Numbers.Parse.LONG);
+		return extractNumber(gsonObject, path, Number::longValue, Parse.LONG);
 	}
 
 	public static Float extractFloat(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::floatValue, Numbers.Parse.FLOAT);
+		return extractNumber(gsonObject, path, Number::floatValue, Parse.FLOAT);
 	}
 
 	public static Double extractDouble(Object gsonObject, String path) {
-		return extractNumber(gsonObject, path, Number::doubleValue, Numbers.Parse.DOUBLE);
+		return extractNumber(gsonObject, path, Number::doubleValue, Parse.DOUBLE);
 	}
 
 	private static <T extends Number> T extractNumber(Object gsonObject, String path,
-		Functions.Function<? super  Number, T> nFn, Functions.Function<? super String, T> sFn) {
+		Functions.Function<? super Number, T> nFn, Functions.Function<? super String, T> sFn) {
 		var obj = extract(gsonObject, path);
 		if (obj == null) return null;
 		var n = Reflect.castOrNull(Number.class, obj);

@@ -1,17 +1,12 @@
 package ceri.common.math;
 
-import static ceri.common.validation.ValidationUtil.validate;
-import static ceri.common.validation.ValidationUtil.validateEqual;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
-import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.common.validation.ValidationUtil.validatef;
 import java.util.stream.Stream;
 import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.ToString;
 import ceri.common.util.Hasher;
+import ceri.common.util.Validate;
 
 /**
  * An immutable virtual matrix of (rows x columns) double values. Internally, the class uses a value
@@ -115,10 +110,10 @@ public class Matrix {
 	 * Creates a matrix of given size with virtual value accessor.
 	 */
 	public static Matrix of(Accessor accessor, int rows, int columns) {
-		validateMin(rows, 0, "Rows");
-		validateMin(columns, 0, "Columns");
+		Validate.validateMin(rows, 0, "Rows");
+		Validate.validateMin(columns, 0, "Columns");
 		if (rows == 0 || columns == 0) return EMPTY;
-		validateNotNull(accessor);
+		Validate.validateNotNull(accessor);
 		return new Matrix(accessor, rows, columns);
 	}
 
@@ -171,7 +166,7 @@ public class Matrix {
 	 */
 	public Matrix vector(int size) {
 		Matrix m = vector();
-		validateEqual(m.rows, size, "Size");
+		Validate.validateEqual(m.rows, size, "Size");
 		return m;
 	}
 
@@ -225,8 +220,8 @@ public class Matrix {
 	 * column counts cannot exceed current counts.
 	 */
 	public Matrix sub(int row, int column, int rows, int columns) {
-		validateRange(rows, 0, this.rows, "Rows");
-		validateRange(columns, 0, this.columns, "Columns");
+		Validate.validateRange(rows, 0, this.rows, "Rows");
+		Validate.validateRange(columns, 0, this.columns, "Columns");
 		if (isEmpty() || rows == 0 || columns == 0) return EMPTY;
 		int r0 = Math.floorMod(row, this.rows);
 		int c0 = Math.floorMod(column, this.columns);
@@ -269,8 +264,8 @@ public class Matrix {
 	 * Returns the sum of this and the given matrix.
 	 */
 	public Matrix add(Matrix m) {
-		validateEqual(m.rows, rows, "Rows");
-		validateEqual(m.columns, columns, "Columns");
+		Validate.validateEqual(m.rows, rows, "Rows");
+		Validate.validateEqual(m.columns, columns, "Columns");
 		if (isEmpty()) return this;
 		return new Matrix((r, c) -> get(r, c) + m.get(r, c), rows, columns);
 	}
@@ -305,7 +300,7 @@ public class Matrix {
 	 * row count does not match this matrix column count.
 	 */
 	public Matrix multiply(Matrix m) {
-		validateEqual(m.rows, columns, "Rows");
+		Validate.validateEqual(m.rows, columns, "Rows");
 		if (isEmpty()) return this;
 		double[][] values = new double[rows][m.columns];
 		for (int r = 0; r < rows; r++)
@@ -352,7 +347,7 @@ public class Matrix {
 	 * vector.
 	 */
 	public double quadrance() {
-		validatef(isColumn() || isRow(), "Matrix is not a vector: %dx%d", rows, columns);
+		Validate.validatef(isColumn() || isRow(), "Matrix is not a vector: %dx%d", rows, columns);
 		double sum = 0;
 		for (int r = 0; r < rows; r++)
 			for (int c = 0; c < columns; c++)
@@ -495,15 +490,15 @@ public class Matrix {
 	}
 
 	private void validateRow(int r) {
-		validateRange(r, 0, rows - 1, "Row");
+		Validate.validateRange(r, 0, rows - 1, "Row");
 	}
 
 	private void validateColumn(int c) {
-		validateRange(c, 0, columns - 1, "Column");
+		Validate.validateRange(c, 0, columns - 1, "Column");
 	}
 
 	private void validateSquare() {
-		validatef(isSquare(), "Matrix is not square: %dx%d", rows, columns);
+		Validate.validatef(isSquare(), "Matrix is not square: %dx%d", rows, columns);
 	}
 
 	private static Matrix validateRowVector(Matrix m) {
@@ -521,7 +516,7 @@ public class Matrix {
 	private static double dot(Matrix rv, Matrix cv) {
 		rv = validateRowVector(rv);
 		cv = validateColumnVector(cv);
-		validateEqual(cv.rows, rv.columns, "Rows");
+		Validate.validateEqual(cv.rows, rv.columns, "Rows");
 		double sum = 0;
 		for (int i = 0; i < rv.columns; i++)
 			sum += rv.get(0, i) * cv.get(i, 0);
@@ -531,17 +526,17 @@ public class Matrix {
 	private static double cross2d(Matrix u, Matrix v) {
 		u = validateColumnVector(u);
 		v = validateColumnVector(v);
-		validateEqual(u.rows, 2, "Size");
-		validateEqual(v.rows, 2, "Size");
+		Validate.validateEqual(u.rows, 2, "Size");
+		Validate.validateEqual(v.rows, 2, "Size");
 		return u.get(0, 0) * v.get(1, 0) - u.get(1, 0) * v.get(0, 0);
 	}
 
 	private static Matrix cross(Matrix u, Matrix v) {
 		u = validateColumnVector(u);
 		v = validateColumnVector(v);
-		validateEqual(v.rows, u.rows, "Size");
-		validate(u.rows != 7, "Cross product exists for size 7, but is unsupported");
-		validatef(u.rows == 3, "Cross product only supported for size 3: %d", u.columns);
+		Validate.validateEqual(v.rows, u.rows, "Size");
+		Validate.validate(u.rows != 7, "Cross product exists for size 7, but is unsupported");
+		Validate.validatef(u.rows == 3, "Cross product only supported for size 3: %d", u.columns);
 		return Matrix.vector( //
 			u.get(1, 0) * v.get(2, 0) - u.get(2, 0) * v.get(1, 0),
 			u.get(2, 0) * v.get(0, 0) - u.get(0, 0) * v.get(2, 0),

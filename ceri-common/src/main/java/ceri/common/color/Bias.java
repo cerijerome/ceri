@@ -1,12 +1,10 @@
 package ceri.common.color;
 
-import static ceri.common.math.Maths.PI_BY_2;
-import static ceri.common.math.Maths.periodicLimit;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
-import static java.lang.Math.PI;
 import java.util.Arrays;
 import java.util.List;
-import ceri.common.math.Bound.Type;
+import ceri.common.math.Bound;
+import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 
 /**
  * Used to adjust fades between two values. Should return a biased ratio value 0.0 to 1.0 from a
@@ -24,13 +22,13 @@ public interface Bias {
 		/** Moves any value except max to min. */
 		down(r -> r < MAX_RATIO ? 0 : MAX_RATIO),
 		/** Sine curve from 0 to +PI/2. */
-		q1Sine(r -> Math.sin(r * PI_BY_2)),
+		q1Sine(r -> Math.sin(r * Maths.PI_BY_2)),
 		/** Transposed sine curve from -PI/2 to 0. */
 		q4Sine(Bias.inverse(q1Sine)),
 		/** Transposed sine curve from 0 to PI/2 followed by -PI/2 to 0. */
 		q1q4Sine(Bias.sequence(q1Sine, q4Sine)),
 		/** Transposed sine curve from -PI/2 to +PI/2. */
-		q4q1Sine(r -> (1.0 + Math.sin((r * PI) - PI_BY_2)) / 2.0),
+		q4q1Sine(r -> (1.0 + Math.sin((r * Math.PI) - Maths.PI_BY_2)) / 2.0),
 		/** Transposed circle arc for x > 0, y < 0. */
 		q2Circle(r -> MAX_RATIO - Math.sqrt(MAX_RATIO - (r * r))),
 		/** Transposed circle arc for x < 0, y > 0. */
@@ -106,7 +104,7 @@ public interface Bias {
 	 * may be clipped.
 	 */
 	static Bias partial(Bias bias, double len) {
-		validateRangeFp(len, 0, MAX_RATIO);
+		Validate.validateRangeFp(len, 0, MAX_RATIO);
 		if (len == 0) return Std.down;
 		double max = bias.bias(len);
 		if (max == 0) return Std.up;
@@ -150,6 +148,6 @@ public interface Bias {
 	}
 
 	private static double offset(double ratio, double offset) {
-		return periodicLimit(ratio + offset, MAX_RATIO, Type.inclusive);
+		return Maths.periodicLimit(ratio + offset, MAX_RATIO, Bound.Type.inc);
 	}
 }

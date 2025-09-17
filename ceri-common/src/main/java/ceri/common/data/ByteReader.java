@@ -1,14 +1,14 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.math.Maths;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides sequential access to bytes. Reads are of known length, or require a given
@@ -62,7 +62,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default short readShort() {
-		return (short) readEndian(Short.BYTES, IS_BIG_ENDIAN);
+		return (short) readEndian(Short.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default int readInt() {
-		return (int) readEndian(Integer.BYTES, IS_BIG_ENDIAN);
+		return (int) readEndian(Integer.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -146,7 +146,7 @@ public interface ByteReader {
 	 * Returns the value from native-order bytes.
 	 */
 	default long readLong() {
-		return readEndian(Long.BYTES, IS_BIG_ENDIAN);
+		return readEndian(Long.BYTES, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -273,7 +273,7 @@ public interface ByteReader {
 	 * one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readByte();
 		return offset;
@@ -298,7 +298,7 @@ public interface ByteReader {
 	 * implementation reads one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(ByteReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, readByte());
 		return offset;
@@ -334,8 +334,7 @@ public interface ByteReader {
 	/**
 	 * Provides unsigned bytes as a stream, starting at offset, for given length.
 	 */
-	default IntStream ustream(int length) {
-		return IntStream.range(0, length).map(_ -> readUbyte());
+	default IntStream<RuntimeException> ustream(int length) {
+		return Streams.slice(0, length).map(_ -> readUbyte());
 	}
-
 }

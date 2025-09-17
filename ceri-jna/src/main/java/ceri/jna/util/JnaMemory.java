@@ -10,7 +10,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
 import ceri.jna.type.IntType;
@@ -146,7 +146,7 @@ public class JnaMemory implements ByteAccessor {
 		 */
 		@Override
 		public Reader slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Reader(m, position(), length);
 		}
 	}
@@ -212,7 +212,7 @@ public class JnaMemory implements ByteAccessor {
 
 		@Override
 		public Writer slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Writer(m, position(), length);
 		}
 	}
@@ -232,7 +232,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public byte getByte(int index) {
-		ValidationUtil.validateIndex(length(), index);
+		Validate.validateIndex(length(), index);
 		return p.getByte(offset(index));
 	}
 
@@ -306,7 +306,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		if (receiver instanceof JnaMemory m) m.copyFrom(offset, p, offset(index), length);
 		else receiver.copyFrom(offset, copy(index, length));
 		return index + length;
@@ -331,7 +331,7 @@ public class JnaMemory implements ByteAccessor {
 	 * Copies bytes from memory at index to the memory pointer. Returns the index after copying.
 	 */
 	public int copyTo(int index, Pointer p, long offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		JnaUtil.memcpy(p, offset, this.p, offset(index), length);
 		return index + length;
 	}
@@ -348,7 +348,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public Reader reader(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 
@@ -356,7 +356,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int setByte(int index, int b) {
-		ValidationUtil.validateIndex(length(), index);
+		Validate.validateIndex(length(), index);
 		p.setByte(offset(index), (byte) b);
 		return index + 1;
 	}
@@ -385,21 +385,21 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public int fill(int index, int length, int value) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		JnaUtil.fill(p, offset(index), length, value);
 		return index + length;
 	}
 
 	@Override
 	public int copyFrom(int index, byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		p.write(offset(index), array, offset, length);
 		return index + length;
 	}
 
 	@Override
 	public int copyFrom(int index, ByteProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		if (provider instanceof JnaMemory m) m.copyTo(offset, p, offset(index), length);
 		else copyFrom(index, provider.copy(offset, length));
 		return index + length;
@@ -426,7 +426,7 @@ public class JnaMemory implements ByteAccessor {
 	 * bytes.
 	 */
 	public int copyFrom(int index, Pointer p, long offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		JnaUtil.memcpy(this.p, offset(index), p, offset, length);
 		return index + length;
 	}
@@ -443,7 +443,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public Writer writer(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Writer(this, index, length);
 	}
 
@@ -456,7 +456,7 @@ public class JnaMemory implements ByteAccessor {
 
 	@Override
 	public JnaMemory slice(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return JnaMemory.of(p, offset(index), length);
 	}
 

@@ -1,14 +1,14 @@
 package ceri.common.data;
 
 import java.util.PrimitiveIterator;
-import java.util.function.LongFunction;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
+import ceri.common.function.Functions;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides positional access to longs. For bulk efficiency, consider overriding the
@@ -99,12 +99,12 @@ public interface LongProvider extends Iterable<Long> {
 		/**
 		 * Provides longs as a stream.
 		 */
-		public LongStream stream() {
+		public LongStream<RuntimeException> stream() {
 			return stream(remaining());
 		}
 
 		@Override
-		public LongStream stream(int length) {
+		public LongStream<RuntimeException> stream(int length) {
 			return provider.stream(inc(length), length);
 		}
 
@@ -142,7 +142,7 @@ public interface LongProvider extends Iterable<Long> {
 		 * Creates a new reader for subsequent longs without incrementing the offset.
 		 */
 		public Reader slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Reader(provider, start + offset(), length);
 		}
 
@@ -219,7 +219,7 @@ public interface LongProvider extends Iterable<Long> {
 	 */
 	default long[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.longs.empty;
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		long[] copy = new long[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -244,8 +244,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * writes one long at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, long[] array, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getLong(index++);
 		return index;
@@ -271,8 +271,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * method.
 	 */
 	default int copyTo(int index, LongReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setLong(offset++, getLong(index++));
 		return index;
@@ -281,16 +281,16 @@ public interface LongProvider extends Iterable<Long> {
 	/**
 	 * Provides signed longs from index as a stream.
 	 */
-	default LongStream stream(int index) {
+	default LongStream<RuntimeException> stream(int index) {
 		return stream(index, length() - index);
 	}
 
 	/**
 	 * Provides signed longs from index as a stream.
 	 */
-	default LongStream stream(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		return IntStream.range(index, index + length).mapToLong(i -> getLong(i));
+	default LongStream<RuntimeException> stream(int index, int length) {
+		Validate.validateSlice(length(), index, length);
+		return Streams.slice(index, length).mapToLong(i -> getLong(i));
 	}
 
 	/**
@@ -461,7 +461,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Provides sequential long access.
 	 */
 	default Reader reader(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 
@@ -496,14 +496,14 @@ public interface LongProvider extends Iterable<Long> {
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(LongFunction<?> stringFn, LongProvider provider) {
+	static String toString(Functions.LongFunction<?> stringFn, LongProvider provider) {
 		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
-	static String toString(Joiner joiner, LongFunction<?> stringFn, LongProvider provider) {
+	static String toString(Joiner joiner, Functions.LongFunction<?> stringFn, LongProvider provider) {
 		return joiner.joinIndex(i -> stringFn.apply(provider.getLong(i)), provider.length());
 	}
 }

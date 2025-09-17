@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 
@@ -15,11 +15,9 @@ import ceri.common.reflect.Reflect;
  * Utilities for c-style enums.
  */
 public class JnaEnum {
-	private static final Map<Class<?>, Object[]> cachedEnums = new ConcurrentHashMap<>();
-	private static final Map<Class<?>, Map<Integer, Enum<?>>> valueToEnumMap =
-		new ConcurrentHashMap<>();
-	private static final Map<Class<?>, Map<Enum<?>, Integer>> enumToValueMap =
-		new ConcurrentHashMap<>();
+	private static final Map<Class<?>, Object[]> cachedEnums = Maps.concurrent();
+	private static final Map<Class<?>, Map<Integer, Enum<?>>> valueToEnumMap = Maps.concurrent();
+	private static final Map<Class<?>, Map<Enum<?>, Integer>> enumToValueMap = Maps.concurrent();
 
 	private JnaEnum() {}
 
@@ -88,8 +86,8 @@ public class JnaEnum {
 	}
 
 	private static <T extends Enum<T> & Valued> void initFromValues(Class<T> cls) {
-		Map<Integer, Enum<?>> valueMap = new TreeMap<>();
-		Map<Enum<?>, Integer> enumMap = new TreeMap<>();
+		var valueMap = new TreeMap<Integer, Enum<?>>();
+		var enumMap = new TreeMap<Enum<?>, Integer>();
 		for (var t : cls.getEnumConstants()) {
 			int value = t.value();
 			if (value == t.ordinal()) continue; // no need to map ordinals
@@ -101,8 +99,8 @@ public class JnaEnum {
 	}
 
 	private static <T extends Enum<T> & Valued> void initFromAnnotations(Class<T> cls) {
-		Map<Integer, Enum<?>> valueMap = new TreeMap<>();
-		Map<Enum<?>, Integer> enumMap = new TreeMap<>();
+		var valueMap = new TreeMap<Integer, Enum<?>>();
+		var enumMap = new TreeMap<Enum<?>, Integer>();
 		int value = Annotations.value(cls, Value.class, Value::value, 0);
 		for (var t : cls.getEnumConstants()) {
 			value = Annotations.value(t, Value.class, Value::value, value);

@@ -9,9 +9,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+@SuppressWarnings("serial")
 public class JspTestServlet extends ServiceServlet<JspTestService> {
 	private static final Logger logger = LogManager.getLogger();
-	private static final long serialVersionUID = -2571110065755253481L;
 	private static final String JSP = "jsp/jsp-test.jsp";
 
 	public JspTestServlet() {
@@ -24,5 +24,4 @@ public class JspTestServlet extends ServiceServlet<JspTestService> {
 		ServletUtil.log(logger, request);
 		ServletUtil.dispatchJsp(request, response, JSP, null);
 	}
-
 }

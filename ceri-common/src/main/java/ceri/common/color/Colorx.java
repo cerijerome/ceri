@@ -1,10 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.argbs;
-import static ceri.common.color.Component.x0;
-import static ceri.common.color.Component.x1;
-import static ceri.common.color.Component.x2;
-import static ceri.common.color.Component.x3;
 import java.awt.Color;
 import java.util.Arrays;
 
@@ -26,7 +21,7 @@ public record Colorx(long xargb) {
 	 * Construct by extracting x-color components from argb.
 	 */
 	public static Colorx from(Color argb, Color... xcolors) {
-		return from(argb.getRGB(), argbs(xcolors));
+		return from(argb.getRGB(), Colors.argbs(xcolors));
 	}
 
 	/**
@@ -138,7 +133,7 @@ public record Colorx(long xargb) {
 	 * Extract all x components.
 	 */
 	public int[] xs() {
-		return Component.getAll(xargb, x0, x1, x2, x3);
+		return Component.getAll(xargb, Component.x0, Component.x1, Component.x2, Component.x3);
 	}
 
 	/**
@@ -167,7 +162,7 @@ public record Colorx(long xargb) {
 	 */
 	public Color normalize(Color... xrgbs) {
 		if (xrgbs.length == 0) return color();
-		return Colors.color(normalizeArgb(argbs(xrgbs)));
+		return Colors.color(normalizeArgb(Colors.argbs(xrgbs)));
 	}
 
 	/**

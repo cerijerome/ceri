@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import ceri.common.math.Maths;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class IntUtil {
 	public static final int LONG_INTS = Long.BYTES / Integer.BYTES;
@@ -21,7 +21,7 @@ public class IntUtil {
 	}
 
 	public static long longFromMsb(int[] array, int offset) {
-		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
+		Validate.validateSlice(array.length, offset, LONG_INTS);
 		return (Maths.uint(array[offset]) << Integer.SIZE) | Maths.uint(array[offset + 1]);
 	}
 
@@ -30,7 +30,7 @@ public class IntUtil {
 	}
 
 	public static long longFromLsb(int[] array, int offset) {
-		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
+		Validate.validateSlice(array.length, offset, LONG_INTS);
 		return (Maths.uint(array[offset + 1]) << Integer.SIZE) | Maths.uint(array[offset]);
 	}
 
@@ -51,7 +51,7 @@ public class IntUtil {
 	}
 
 	public static int writeLongMsb(long value, int[] array, int offset) {
-		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
+		Validate.validateSlice(array.length, offset, LONG_INTS);
 		array[offset++] = high(value);
 		array[offset++] = low(value);
 		return offset;
@@ -62,7 +62,7 @@ public class IntUtil {
 	}
 
 	public static int writeLongLsb(long value, int[] array, int offset) {
-		ValidationUtil.validateSlice(array.length, offset, LONG_INTS);
+		Validate.validateSlice(array.length, offset, LONG_INTS);
 		array[offset++] = low(value);
 		array[offset++] = high(value);
 		return offset;

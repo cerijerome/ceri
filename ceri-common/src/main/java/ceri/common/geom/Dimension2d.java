@@ -1,8 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 
 public class Dimension2d {
 	public static final Dimension2d ZERO = new Dimension2d(0, 0);
@@ -10,8 +10,8 @@ public class Dimension2d {
 	public final double h;
 
 	public static Dimension2d of(double w, double h) {
-		validateMinFp(w, 0, "Width");
-		validateMinFp(h, 0, "Height");
+		Validate.validateMinFp(w, 0, "Width");
+		Validate.validateMinFp(h, 0, "Height");
 		if (w == 0 && h == 0) return ZERO;
 		return new Dimension2d(w + .0, h + .0);
 	}

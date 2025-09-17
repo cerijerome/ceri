@@ -95,7 +95,7 @@ public class IntStreamBehavior {
 		assertStream(IntStream.empty().mapToDouble(null));
 		assertStream(testStream().mapToDouble(i -> i), -1.0, 0.0, 1.0, 0.0);
 	}
-	
+
 	@Test
 	public void shouldFlatMapElements() throws Exception {
 		assertStream(IntStream.empty().flatMap(null));
@@ -159,7 +159,7 @@ public class IntStreamBehavior {
 		assertIterator(IntStream.empty().iterator());
 		assertIterator(testStream().iterator(), -1, 0, 1, 0);
 	}
-	
+
 	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
@@ -179,9 +179,9 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldUseCollectors() throws Exception {
-		assertArray(testStream().collect(IntStream.Collect.sortedArray), -1, 0, 0, 1);
+		assertArray(testStream().collect(Collect.Ints.sortedArray), -1, 0, 0, 1);
 	}
-	
+
 	@Test
 	public void shouldReduceElements() throws Exception {
 		assertEquals(IntStream.empty().reduce((_, _) -> 0), null);
@@ -193,11 +193,11 @@ public class IntStreamBehavior {
 
 	@Test
 	public void shouldUseReducers() {
-		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.and()), 6);
-		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.or()), 15);
-		assertEquals(Streams.ints(7, 14).reduce(IntStream.Reduce.xor()), 9);
+		assertEquals(Streams.ints(7, 14).reduce(Reduce.Ints.and()), 6);
+		assertEquals(Streams.ints(7, 14).reduce(Reduce.Ints.or()), 15);
+		assertEquals(Streams.ints(7, 14).reduce(Reduce.Ints.xor()), 9);
 	}
-	
+
 	private static IntStream<RuntimeException> testStream() {
 		return IntStream.of(-1, 0, 1, 0);
 	}

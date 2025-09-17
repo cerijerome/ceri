@@ -6,7 +6,7 @@ import java.util.Arrays;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntAccessor;
 import ceri.common.data.IntProvider;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Fixed-size int array with volatile values.
@@ -67,7 +67,7 @@ public class VolatileIntArray implements IntAccessor {
 
 	@Override
 	public VolatileIntArray slice(int offset, int length) {
-		ValidationUtil.validateSlice(length(), offset, length);
+		Validate.validateSlice(length(), offset, length);
 		return new VolatileIntArray(array, this.offset + offset, length);
 	}
 

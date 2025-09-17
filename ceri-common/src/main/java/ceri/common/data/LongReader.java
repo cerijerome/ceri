@@ -1,9 +1,9 @@
 package ceri.common.data;
 
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides sequential access to longs. Reads are of known length, or require a given
@@ -71,7 +71,7 @@ public interface LongReader {
 	 * one long at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(long[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readLong();
 		return offset;
@@ -96,7 +96,7 @@ public interface LongReader {
 	 * implementation reads one long at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(LongReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setLong(offset++, readLong());
 		return offset;
@@ -105,8 +105,7 @@ public interface LongReader {
 	/**
 	 * Provides longs as a stream, starting at offset, for given length.
 	 */
-	default LongStream stream(int length) {
-		return IntStream.range(0, length).mapToLong(_ -> readLong());
+	default LongStream<RuntimeException> stream(int length) {
+		return Streams.slice(0, length).mapToLong(_ -> readLong());
 	}
-
 }

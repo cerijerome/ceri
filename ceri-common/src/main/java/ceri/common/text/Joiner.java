@@ -1,6 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
@@ -10,6 +9,7 @@ import ceri.common.function.Functions;
 import ceri.common.stream.Collect;
 import ceri.common.util.Basics;
 import ceri.common.util.Truth;
+import ceri.common.util.Validate;
 
 /**
  * Utility for joining a sequence of objects as a string.
@@ -399,8 +399,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	public <E extends Exception> StringBuilder appendWithIndex(StringBuilder sb,
 		Excepts.ObjIntConsumer<E, StringBuilder> indexAppender, int offset, int count) throws E {
 		if (sb == null || indexAppender == null) return sb;
-		validateMin(offset, 0, "offset");
-		validateMin(count, 0, "count");
+		Validate.validateMin(offset, 0, "offset");
+		Validate.validateMin(count, 0, "count");
 		var composer =
 			new Composer<>(this, sb, (b, _, i) -> indexAppender.accept(b, offset + i), count);
 		for (int i = 0; i < count; i++)

@@ -2,8 +2,6 @@ package ceri.serial.i2c.jna;
 
 import static ceri.common.math.Maths.ubyte;
 import static ceri.common.math.Maths.ushort;
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL;
 import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE;
@@ -20,7 +18,7 @@ import ceri.common.data.Field;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -182,7 +180,7 @@ public class I2cDev {
 		}
 
 		public void setBlockLength(int length) {
-			validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
+			Validate.validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
 			block[0] = (byte) length;
 			setType("block");
 		}
@@ -196,8 +194,8 @@ public class I2cDev {
 		}
 
 		public void setBlock(byte[] data, int offset, int length) {
-			ValidationUtil.validateSlice(data.length, offset, length);
-			validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
+			Validate.validateSlice(data.length, offset, length);
+			Validate.validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
 			ArrayUtil.bytes.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
@@ -348,7 +346,7 @@ public class I2cDev {
 	 * i2c_msg.array(n).
 	 */
 	public static void i2c_rdwr(int fd, i2c_msg.ByReference... msgs) throws CException {
-		validateMax(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
+		Validate.validateMax(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
 		i2c_rdwr_ioctl_data data = new i2c_rdwr_ioctl_data();
 		data.msgs = msgs[0];
 		data.nmsgs = msgs.length;

@@ -1,15 +1,10 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.math.Maths.lcm;
-import static ceri.common.util.Basics.unused;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.serial.spi.pulse.PulseCycle.Type.nbit;
-import static ceri.serial.spi.pulse.PulseCycle.Type.nbit27;
-import static ceri.serial.spi.pulse.PulseCycle.Type.nbit9;
-import static java.lang.Math.min;
 import java.util.Objects;
 import ceri.common.exception.Exceptions;
+import ceri.common.math.Maths;
+import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates mapping logic to create pulse shapes from high and low bits, such as driving WS2812
@@ -42,26 +37,26 @@ public class PulseCycle {
 	 * Standard pulse mappings.
 	 */
 	public static enum Std {
-		_3(nbit, 3, 0, 1, 2),
-		_3_9(nbit9, 3, 0, 1, 2),
-		_4(nbit, 4, 0, 1, 2),
-		_4_9(nbit9, 4, 0, 1, 2),
-		_4_27(nbit27, 4, 2, 1, 2),
-		_5(nbit, 5, 0, 1, 3),
-		_5_9(nbit9, 5, 0, 1, 3),
-		_5_27(nbit27, 5, 2, 1, 3),
-		_6(nbit, 6, 0, 1, 3),
-		_6_9(nbit9, 6, 0, 1, 2),
-		_6_27(nbit27, 6, 2, 1, 3),
-		_7(nbit, 7, 0, 2, 4),
-		_7_9(nbit9, 7, 0, 2, 4),
-		_7_27(nbit27, 7, 0, 2, 4),
-		_8(nbit, 8, 0, 2, 4),
-		_8_9(nbit9, 8, 0, 2, 4),
-		_8_27(nbit27, 8, 0, 2, 4),
-		_9(nbit, 9, 0, 2, 5),
-		_9_9(nbit9, 9, 0, 2, 5),
-		_9_27(nbit27, 9, 2, 2, 5);
+		_3(PulseCycle.Type.nbit, 3, 0, 1, 2),
+		_3_9(PulseCycle.Type.nbit9, 3, 0, 1, 2),
+		_4(PulseCycle.Type.nbit, 4, 0, 1, 2),
+		_4_9(PulseCycle.Type.nbit9, 4, 0, 1, 2),
+		_4_27(PulseCycle.Type.nbit27, 4, 2, 1, 2),
+		_5(PulseCycle.Type.nbit, 5, 0, 1, 3),
+		_5_9(PulseCycle.Type.nbit9, 5, 0, 1, 3),
+		_5_27(PulseCycle.Type.nbit27, 5, 2, 1, 3),
+		_6(PulseCycle.Type.nbit, 6, 0, 1, 3),
+		_6_9(PulseCycle.Type.nbit9, 6, 0, 1, 2),
+		_6_27(PulseCycle.Type.nbit27, 6, 2, 1, 3),
+		_7(PulseCycle.Type.nbit, 7, 0, 2, 4),
+		_7_9(PulseCycle.Type.nbit9, 7, 0, 2, 4),
+		_7_27(PulseCycle.Type.nbit27, 7, 0, 2, 4),
+		_8(PulseCycle.Type.nbit, 8, 0, 2, 4),
+		_8_9(PulseCycle.Type.nbit9, 8, 0, 2, 4),
+		_8_27(PulseCycle.Type.nbit27, 8, 0, 2, 4),
+		_9(PulseCycle.Type.nbit, 9, 0, 2, 5),
+		_9_9(PulseCycle.Type.nbit9, 9, 0, 2, 5),
+		_9_27(PulseCycle.Type.nbit27, 9, 2, 2, 5);
 
 		public final PulseCycle cycle;
 
@@ -114,23 +109,23 @@ public class PulseCycle {
 	 * General pulse cycle constructor.
 	 */
 	public static PulseCycle of(Type type, int n, int offset, int t0Bits, int t1Bits) {
-		if (type == nbit27) return nbit27(n, offset, t0Bits, t1Bits);
-		if (type == nbit9) return nbit9(n, offset, t0Bits, t1Bits);
-		if (type == nbit) return nbit(n, offset, t0Bits, t1Bits);
-		throw Exceptions.illegalArg("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d", type, n,
-			offset, t0Bits, t1Bits);
+		if (type == PulseCycle.Type.nbit27) return nbit27(n, offset, t0Bits, t1Bits);
+		if (type == PulseCycle.Type.nbit9) return nbit9(n, offset, t0Bits, t1Bits);
+		if (type == PulseCycle.Type.nbit) return nbit(n, offset, t0Bits, t1Bits);
+		throw Exceptions.illegalArg("Unsupported pulse cycle: type=%s n=%d, off=%d, t0=%d t1=%d",
+			type, n, offset, t0Bits, t1Bits);
 	}
 
 	/**
 	 * Pulse cycle for a signal with no padding between bytes.
 	 */
 	private static PulseCycle nbit(int n, int offset, int t0Bits, int t1Bits) {
-		validateMin(n, MIN_T1 + 1, "Len");
-		validateRange(offset, 0, n - MIN_T1, "Offset");
+		Validate.validateMin(n, MIN_T1 + 1, "Len");
+		Validate.validateRange(offset, 0, n - MIN_T1, "Offset");
 		// Min 1 more bit for t1, 1 bit for padding between pulses
-		validateRange(t0Bits, MIN_T0, min(n - 1 - 1, n - 1 - offset), "t0 len");
-		validateRange(t1Bits, t0Bits + 1, min(n - 1, n - offset), "t1 len");
-		return new PulseCycle(lcm(n, Byte.SIZE), n, offset, t0Bits, t1Bits, Type.nbit);
+		Validate.validateRange(t0Bits, MIN_T0, Math.min(n - 1 - 1, n - 1 - offset), "t0 len");
+		Validate.validateRange(t1Bits, t0Bits + 1, Math.min(n - 1, n - offset), "t1 len");
+		return new PulseCycle(Maths.lcm(n, Byte.SIZE), n, offset, t0Bits, t1Bits, Type.nbit);
 	}
 
 	/**
@@ -138,15 +133,15 @@ public class PulseCycle {
 	 * output for Raspberry Pi 3B.
 	 */
 	private static PulseCycle nbit9(int n, int offset, int t0Bits, int t1Bits) {
-		validateMin(n, MIN_T1 + 1, "Len");
+		Validate.validateMin(n, MIN_T1 + 1, "Len");
 		int count = Math.ceilDiv(Byte.SIZE - 1, n);
 		int spareBits = Byte.SIZE - MIN_T1 - ((count - 1) * n);
-		validateRange(offset, 0, spareBits, "Offset");
+		Validate.validateRange(offset, 0, spareBits, "Offset");
 		// Min 1 more bit for t1, 1 bit for padding between pulses
-		int maxT0Bits = min(n - 1 - 1, MIN_T0 + spareBits - offset);
-		int maxT1Bits = min(n - 1, MIN_T1 + spareBits - offset);
-		validateRange(t0Bits, MIN_T0, maxT0Bits, "t0Bits");
-		validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
+		int maxT0Bits = Math.min(n - 1 - 1, MIN_T0 + spareBits - offset);
+		int maxT1Bits = Math.min(n - 1, MIN_T1 + spareBits - offset);
+		Validate.validateRange(t0Bits, MIN_T0, maxT0Bits, "t0Bits");
+		Validate.validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
 		return new PulseCycle(Byte.SIZE, n, offset, t0Bits, t1Bits, Type.nbit9) {
 			@Override
 			public int cycleSignalBits() {
@@ -160,18 +155,18 @@ public class PulseCycle {
 	 * elongated first data bit. As seen on SPI1 output for Raspberry Pi 3B.
 	 */
 	private static PulseCycle nbit27(int n, int offset, int t0Bits, int t1Bits) {
-		validateMin(n, MIN_T1 + 2, "Len");
+		Validate.validateMin(n, MIN_T1 + 2, "Len");
 		int minT0 = offset == 0 ? MIN_T0 + 1 : MIN_T0;
 		int minT1 = minT0 + 1;
 		int count = Math.ceilDiv(25 - 1, n);
 		int cycleStorageBits = (3 * Byte.SIZE) + 1; // double-size fake bit 0
 		int cycleSignalBits = cycleStorageBits + 2;
 		int spareBits = cycleStorageBits - minT1 - ((count - 1) * n);
-		if (offset != 0) validateRange(offset, 2, spareBits, "Offset");
-		int maxT0Bits = min(n - 1 - 1, minT0 + spareBits - offset);
-		int maxT1Bits = min(n - 1, minT1 + spareBits - offset);
-		validateRange(t0Bits, minT0, maxT0Bits, "t0Bits");
-		validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
+		if (offset != 0) Validate.validateRange(offset, 2, spareBits, "Offset");
+		int maxT0Bits = Math.min(n - 1 - 1, minT0 + spareBits - offset);
+		int maxT1Bits = Math.min(n - 1, minT1 + spareBits - offset);
+		Validate.validateRange(t0Bits, minT0, maxT0Bits, "t0Bits");
+		Validate.validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
 		return new PulseCycle(cycleStorageBits, n, offset, t0Bits, t1Bits, Type.nbit27) {
 			@Override
 			public int cycleSignalBits() {
@@ -261,7 +256,7 @@ public class PulseCycle {
 	 * Returns the number of bits in the off pulse.
 	 */
 	public int t0Bits(int dataBit) {
-		unused(dataBit);
+		Basics.unused(dataBit);
 		return t0Bits;
 	}
 
@@ -269,7 +264,7 @@ public class PulseCycle {
 	 * Returns the number of bits in the on pulse.
 	 */
 	public int t1Bits(int dataBit) {
-		unused(dataBit);
+		Basics.unused(dataBit);
 		return t1Bits;
 	}
 

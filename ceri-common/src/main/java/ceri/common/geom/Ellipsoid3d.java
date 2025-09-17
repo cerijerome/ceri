@@ -1,10 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import java.util.stream.DoubleStream;
 import ceri.common.math.Algebra;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 public class Ellipsoid3d {
 	public static final Ellipsoid3d NULL = new Ellipsoid3d(0, 0, 0);
@@ -15,9 +15,9 @@ public class Ellipsoid3d {
 
 	public static Ellipsoid3d create(double a, double b, double c) {
 		if (a == 0 && b == 0 && c == 0) return NULL;
-		validateMinFp(a, 0, "Axis a");
-		validateMinFp(b, 0, "Axis b");
-		validateMinFp(c, 0, "Axis c");
+		Validate.validateMinFp(a, 0, "Axis a");
+		Validate.validateMinFp(b, 0, "Axis b");
+		Validate.validateMinFp(c, 0, "Axis c");
 		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 

@@ -1,9 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import ceri.common.util.Validate;
 
 /**
  * A buffered output stream. The same as java.io.BufferedOutputStream, except the buffer will be
@@ -21,7 +21,7 @@ public class BufferedOutputStream extends FilterOutputStream {
 
 	public BufferedOutputStream(OutputStream out, int size) {
 		super(out);
-		validateMin(size, 0);
+		Validate.validateMin(size, 0);
 		buffer = new byte[size];
 	}
 

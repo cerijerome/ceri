@@ -10,7 +10,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.array.RawArray;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Functions;
@@ -44,11 +44,11 @@ public class Maps {
 	 * Map comparator support.
 	 */
 	public static class Compare {
-		private static Comparator<Map.Entry<?, ?>> KEY = 
+		private static Comparator<Map.Entry<?, ?>> KEY =
 			Reflect.unchecked(key(Comparator.naturalOrder()));
-		private static Comparator<Map.Entry<?, ?>> VALUE = 
+		private static Comparator<Map.Entry<?, ?>> VALUE =
 			Reflect.unchecked(value(Comparator.naturalOrder()));
-		
+
 		/**
 		 * Provide a map entry comparator by key.
 		 */
@@ -69,7 +69,7 @@ public class Maps {
 		public static <K, V extends Comparable<? super V>> Comparator<Map.Entry<K, V>> value() {
 			return Reflect.unchecked(VALUE);
 		}
-		
+
 		/**
 		 * Provide a map entry comparator by value.
 		 */
@@ -278,7 +278,17 @@ public class Maps {
 	 * Creates an empty mutable tree map with null-first natural comparator.
 	 */
 	public static <K extends Comparable<? super K>, V> TreeMap<K, V> tree() {
-		return new TreeMap<>(Comparators.nullsFirst());
+		return new TreeMap<>(Compares.nullsFirst());
+	}
+
+	/**
+	 * Creates a mutable tree map with null-first natural comparator from map.
+	 */
+	public static <K extends Comparable<? super K>, V> TreeMap<K, V>
+		tree(Map<? extends K, ? extends V> map) {
+		var tree = Maps.<K, V>tree();
+		tree.putAll(map);
+		return tree;
 	}
 
 	/**

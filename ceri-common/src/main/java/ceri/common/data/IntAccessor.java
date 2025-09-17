@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Combines IntProvider and IntReceiver interfaces.
@@ -55,19 +55,19 @@ public interface IntAccessor extends IntProvider, IntReceiver {
 
 		@Override
 		public int getInt(int index) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			return 0;
 		}
 
 		@Override
 		public int setInt(int index, int value) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			return index + 1;
 		}
 
 		@Override
 		public IntAccessor slice(int index, int length) {
-			ValidationUtil.validateSlice(length(), index, length);
+			Validate.validateSlice(length(), index, length);
 			if (length == 0) return EMPTY;
 			if (length == length()) return this;
 			return new Null(length);

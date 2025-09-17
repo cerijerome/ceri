@@ -90,11 +90,11 @@ public class RawArrayTest {
 	}
 
 	@Test
-	public void testCopyValues() {
-		assertEquals(RawArray.copyValues(null, ints, (_, _) -> {}), null);
-		assertEquals(RawArray.copyValues(byte[]::new, null, (_, _) -> {}), null);
-		assertEquals(RawArray.copyValues(byte[]::new, ints, null), null);
-		assertArray(RawArray.copyValues(byte[]::new, ints, (a, i) -> a[i] = (byte) ints[i]),
+	public void testAdaptValues() {
+		assertEquals(RawArray.adaptValues(null, ints, (_, _, _) -> {}), null);
+		assertEquals(RawArray.adaptValues(byte[]::new, null, (_, _, _) -> {}), null);
+		assertEquals(RawArray.adaptValues(byte[]::new, ints, null), null);
+		assertArray(RawArray.adaptValues(byte[]::new, ints, (a, v, i) -> a[i] = (byte) v[i]),
 			new byte[] { -1, 1, 0 });
 	}
 

@@ -9,7 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
 import ceri.common.reflect.Reflect;
-import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
@@ -68,8 +67,7 @@ public class Enums {
 		/**
 		 * Predicate to match enum name.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
-			name(String name) {
+		public static <E extends Exception> Excepts.Predicate<E, Enum<?>> name(String name) {
 			return name(Predicates.eq(name));
 		}
 
@@ -224,8 +222,7 @@ public class Enums {
 	// support methods
 
 	private static Integer prefixLen(List<? extends Enum<?>> enums) {
-		int min =
-			Streams.from(enums).mapToInt(e -> e.name().length()).reduce(IntStream.Reduce.min());
+		int min = Streams.from(enums).mapToInt(e -> e.name().length()).min(0);
 		int i = commonPrefixLen(min, enums);
 		if (i == min) i--;
 		var name = enums.get(0).name();

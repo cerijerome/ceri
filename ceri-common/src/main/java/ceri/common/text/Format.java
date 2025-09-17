@@ -7,21 +7,42 @@ import ceri.common.math.Radix;
 import ceri.common.util.Basics;
 
 /**
- * Number formatting support.
+ * Formatting for integral numbers.
  */
 public record Format(int radix, String prefix, int minDigits, int maxDigits,
-	Functions.ObjIntConsumer<StringBuilder> separation) {
+	Separation separation) {
 
+	public static final Format DEC = of(Radix.DEC, 0);
 	public static final Format HEX = of(Radix.HEX, 0);
 	public static final Format HEX2 = of(Radix.HEX, 2);
 	public static final Format HEX4 = of(Radix.HEX, 4);
 	public static final Format HEX8 = of(Radix.HEX, 8);
 	public static final Format HEX16 = of(Radix.HEX, 16);
+	public static final Format HEX_BYTE = of(Radix.HEX, 2, 2);
+	public static final Format HEX_SHORT = of(Radix.HEX, 4, 4);
+	public static final Format HEX_INT = of(Radix.HEX, 8, 8);
+	public static final Format HEX_LONG = of(Radix.HEX, 16, 16);
 	public static final Format OCT = of(Radix.OCT, 0);
 	public static final Format BIN = of(Radix.BIN, 0);
 	public static final Format BIN4_4 = of(Radix.BIN, 4, 0, Separation._4);
 	public static final Format BIN8_4 = of(Radix.BIN, 4, 0, Separation._4);
 	public static final Format BIN16_4 = of(Radix.BIN, 4, 0, Separation._4);
+
+	/**
+	 * Formatting for floating point numbers.
+	 */
+	public record Fp(int minDec, int maxDec) {
+		// std(String::valueOf), // standard view
+		// round(d -> String.valueOf(Math.round(d))), // rounded to long
+		// round1(d -> String.valueOf(Maths.round(1, d))), // 1 decimal place
+		// round2(d -> String.valueOf(Maths.round(2, d))), // 2 decimal places
+		// round3(d -> String.valueOf(Maths.round(3, d))); // 3 decimal places
+
+		@Override
+		public final String toString() {
+			return ToString.forClass(this, minDec(), maxDec());
+		}
+	}
 
 	/**
 	 * Logic for adding separators between digits.
@@ -119,6 +140,40 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 			separation.accept(b.append('0'), --n);
 		while (n > 0)
 			separation.accept(b.append(s.charAt(len - n)), --n);
+		return b;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(applyTrunc(123.456789, 0, 0));
+		System.out.println(applyTrunc(123.456789, 0, 3));
+		System.out.println(applyTrunc(123.45, 3, 5));
+	}
+
+	/**
+	 * Returns the formatted number, with decimal places truncated within range.
+	 */
+	public static String applyTrunc(double value, int minDec, int maxDec) {
+		var s = Double.toString(value);
+		if (!Double.isFinite(maxDec) || (minDec == 0 && maxDec == 0)) return s;
+		int len = s.length();
+		int dec = len - s.indexOf('.') - 1;
+		if (maxDec > 0 && dec > maxDec) s = s.substring(0, len - dec + maxDec);
+		if (minDec > 0 && dec < minDec) s += Strings.repeat('0', minDec - dec);
+		return s;
+	}
+
+	/**
+	 * Appends the formatted number, with decimal places truncated within range.
+	 */
+	public static StringBuilder appendTrunc(StringBuilder b, double value, int minDec, int maxDec) {
+		if (b == null) return b;
+		var s = Double.toString(value);
+		if (!Double.isFinite(maxDec) || (minDec == 0 && maxDec == 0)) return b.append(s);
+		int len = s.length();
+		int dec = len - s.indexOf('.') - 1;
+		if (maxDec > 0 && dec > maxDec) b.append(s, 0, len - dec + maxDec);
+		else b.append(s);
+		if (minDec > 0 && dec < minDec) StringBuilders.repeat(b, '0', minDec - dec);
 		return b;
 	}
 
@@ -221,17 +276,8 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 	 * Appends the formatted number.
 	 */
 	public StringBuilder append(StringBuilder b, long value) {
-		if (b == null) return b;
-		b.append(prefix());
-		var separation = Basics.def(separation(), Separation.NONE);
-		var s = Long.toUnsignedString(value, radix());
-		int len = s.length();
-		int n = n(len, minDigits(), maxDigits());
-		while (n > len)
-			separation.accept(b.append('0'), --n);
-		while (n > 0)
-			separation.accept(b.append(s.charAt(len - n)), --n);
-		return b;
+		StringBuilders.append(b, prefix());
+		return Format.append(b, value, radix(), minDigits(), maxDigits(), separation());
 	}
 
 	/**

@@ -22,7 +22,7 @@ import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.util.Enclosure;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
 
@@ -104,7 +104,7 @@ public class JnaUtil {
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory mallocBytes(byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		if (length == 0) return null;
 		Memory m = new Memory(length);
 		m.write(0, array, offset, length);
@@ -671,7 +671,7 @@ public class JnaUtil {
 	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
 	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
-		ValidationUtil.validateSlice(buffer, index, length);
+		Validate.validateSlice(buffer, index, length);
 		PointerUtil.validate(p, offset, length);
 		if (length > 0) p.read(offset, buffer, index, length);
 		return index + length;
@@ -723,7 +723,7 @@ public class JnaUtil {
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
-		ValidationUtil.validateSlice(buffer.length, index, length);
+		Validate.validateSlice(buffer.length, index, length);
 		if (PointerUtil.validate(p, offset, length) != null) p.write(offset, buffer, index, length);
 		return offset + length;
 	}

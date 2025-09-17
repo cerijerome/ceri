@@ -6,15 +6,16 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
-import java.util.stream.IntStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
-import ceri.common.text.Format;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.Streams;
+import ceri.common.text.Formats;
 import ceri.common.text.Joiner;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides positional access to bytes. For bulk efficiency, consider overriding the
@@ -167,12 +168,12 @@ public interface ByteProvider extends Iterable<Integer> {
 		/**
 		 * Provides remaining unsigned bytes as a stream.
 		 */
-		public IntStream ustream() {
+		public IntStream<RuntimeException> ustream() {
 			return ustream(remaining());
 		}
 
 		@Override
-		public IntStream ustream(int length) {
+		public IntStream<RuntimeException> ustream(int length) {
 			return provider.ustream(inc(length), length);
 		}
 
@@ -205,7 +206,7 @@ public interface ByteProvider extends Iterable<Integer> {
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
 		public Reader<T> slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Reader<>(provider, position(), length);
 		}
 
@@ -525,7 +526,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	default byte[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.bytes.empty;
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -550,8 +551,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * writes one byte at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getByte(index++);
 		return index;
@@ -577,8 +578,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * method.
 	 */
 	default int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, getByte(index++));
 		return index;
@@ -601,7 +602,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * </pre>
 	 */
 	default int writeTo(int index, OutputStream out, int length) throws IOException {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			out.write(getByte(index++));
 		return index;
@@ -622,16 +623,16 @@ public interface ByteProvider extends Iterable<Integer> {
 	/**
 	 * Provides unsigned bytes from index as a stream.
 	 */
-	default IntStream ustream(int index) {
+	default IntStream<RuntimeException> ustream(int index) {
 		return ustream(index, length() - index);
 	}
 
 	/**
 	 * Provides unsigned bytes from index as a stream.
 	 */
-	default IntStream ustream(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		return IntStream.range(index, index + length).map(i -> getUbyte(i));
+	default IntStream<RuntimeException> ustream(int index, int length) {
+		Validate.validateSlice(length(), index, length);
+		return Streams.slice(index, length).map(i -> getUbyte(i));
 	}
 
 	/**
@@ -830,7 +831,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides sequential byte access.
 	 */
 	default Reader<?> reader(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Reader<>(this, index, length);
 	}
 
@@ -845,7 +846,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides a string representation.
 	 */
 	static String toHex(Joiner joiner, ByteProvider provider) {
-		return toString(joiner, Format.HEX2::ubyte, provider);
+		return toString(joiner, Formats.HEX_BYTE::apply, provider);
 	}
 
 	/**

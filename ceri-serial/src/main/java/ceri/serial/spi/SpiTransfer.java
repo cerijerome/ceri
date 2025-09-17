@@ -2,7 +2,6 @@ package ceri.serial.spi;
 
 import static ceri.common.math.Maths.ubyte;
 import static ceri.common.math.Maths.ushort;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import static ceri.jna.util.JnaUtil.buffer;
 import static com.sun.jna.Pointer.nativeValue;
 import java.io.IOException;
@@ -12,6 +11,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
 import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 import ceri.jna.util.GcMemory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
 
@@ -86,7 +86,7 @@ public class SpiTransfer {
 	}
 
 	public SpiTransfer limit(int size) {
-		validateRange(size, 0, sizeMax);
+		Validate.validateRange(size, 0, sizeMax);
 		transfer.len = size;
 		return this;
 	}

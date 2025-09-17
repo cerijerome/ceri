@@ -51,14 +51,10 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
@@ -102,8 +98,8 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertSame() {
-		Integer i0 = Integer.valueOf(12345678);
-		Integer i1 = Integer.valueOf(12345678);
+		var i0 = Integer.valueOf(12345678);
+		var i1 = Integer.valueOf(12345678);
 		assertSame(i0, i0);
 		assertSame(i1, i1);
 		assertAssertion(() -> assertSame(i0, i1));
@@ -128,7 +124,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertNotSame() {
-		Object obj = new Object();
+		var obj = new Object();
 		assertNotSame(obj, new Object());
 		assertAssertion(() -> assertNotSame(obj, obj));
 	}
@@ -185,7 +181,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertAscii() {
-		ByteProvider.Reader<?> r = ByteUtil.toAscii("tests").reader(0);
+		var r = ByteUtil.toAscii("tests").reader(0);
 		assertAscii(r, "test");
 		r.reset();
 		assertAssertion(() -> assertAscii(r, "test0"));
@@ -193,7 +189,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertRead() throws IOException {
-		ByteArrayInputStream in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
+		var in = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
 		assertRead(in, 1, 2, 3);
 		in.reset();
 		assertRead(in, ByteProvider.of(1, 2));
@@ -205,7 +201,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertExists() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().root("a").file("b", "bbb").build()) {
+		try (var helper = FileTestHelper.builder().root("a").file("b", "bbb").build()) {
 			assertExists(helper.root, true);
 			assertExists(helper.path("b"), true);
 			assertExists(helper.path("c"), false);
@@ -221,7 +217,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertDir() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().root("a") //
+		try (var helper = FileTestHelper.builder().root("a") //
 			.dir("a/0/d0").file("a/0/f0", "xxxxxx").file("a/0/f1", "") //
 			.dir("a/1/d0").file("a/1/f0", "xxxxxx").file("a/1/f1", "") //
 			.dir("a/2/d0").file("a/2/f", "xxxxxx").file("a/2/f1", "") //
@@ -239,8 +235,8 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertFile() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().dir("a").dir("b").file("c", "")
-			.file("d", "D").file("e", "E").build()) {
+		try (var helper = FileTestHelper.builder().dir("a").dir("b").file("c", "").file("d", "D")
+			.file("e", "E").build()) {
 			assertAssertion(() -> assertFile(helper.path("a"), helper.path("c")));
 			assertAssertion(() -> assertFile(helper.path("c"), helper.path("a")));
 			assertFile(helper.path("c"), helper.path("c"));
@@ -254,7 +250,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertFileBytes() throws IOException {
-		try (FileTestHelper helper = FileTestHelper.builder().file("test", "abc").build()) {
+		try (var helper = FileTestHelper.builder().file("test", "abc").build()) {
 			assertFile(helper.path("test"), "abc".getBytes());
 			assertAssertion(() -> assertFile(helper.path("test"), "abd".getBytes()));
 		}
@@ -441,7 +437,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertUnordered() {
-		List<Integer> list = ArrayUtil.ints.list(5, 1, 4, 2, 3);
+		var list = ArrayUtil.ints.list(5, 1, 4, 2, 3);
 		assertUnordered(list, 1, 2, 3, 4, 5);
 		assertAssertion(() -> assertUnordered(list, 1, 2, 4, 5));
 		assertAssertion(() -> assertUnordered(list, 1, 2, 3, 4, 5, 6));
@@ -481,15 +477,15 @@ public class AssertUtilTest {
 		assertImmutable(Map.of());
 		assertImmutable(Immutable.wrap(Maps.of()));
 		assertImmutable(Map.of(1, "A"));
-		assertImmutable(Immutable.wrap(new HashMap<>(Map.of(1, "A"))));
+		assertImmutable(Immutable.wrap(Maps.copy(Map.of(1, "A"))));
 		assertImmutable(List.of());
 		assertImmutable(Immutable.wrap(Lists.of()));
 		assertImmutable(List.of(1));
-		assertImmutable(Immutable.wrap(new ArrayList<>(Set.of(1))));
+		assertImmutable(Immutable.wrap(Lists.of(Set.of(1))));
 		assertImmutable(Set.of());
 		assertImmutable(Immutable.wrap(Sets.of()));
 		assertImmutable(Set.of(1));
-		assertImmutable(Immutable.wrap(new HashSet<>(Set.of(1))));
+		assertImmutable(Immutable.wrap(Sets.of(Set.of(1))));
 		assertAssertion(() -> assertImmutable(Maps.of()));
 		assertAssertion(() -> assertImmutable(Lists.of()));
 		assertAssertion(() -> assertImmutable(Sets.of()));
@@ -529,7 +525,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertFind() {
-		Pattern p = Pattern.compile("[a-z]+");
+		var p = Pattern.compile("[a-z]+");
 		assertFind("123abc456", p);
 		assertFind("123test456", "%1$s..%1$s", "t");
 		assertAssertion(() -> assertFind("test", "%1$s..%1$s", "T"));
@@ -538,7 +534,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertNoMatch() {
-		Pattern p = Pattern.compile("[a-z]+");
+		var p = Pattern.compile("[a-z]+");
 		assertNoMatch("123", p);
 		assertNoMatch("123", "%1$s..%1$s", "\\d");
 		assertAssertion(() -> assertNoMatch("test", "%1$s..%1$s", "t"));
@@ -547,7 +543,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertMatch() {
-		Pattern p = Pattern.compile("[a-z]+");
+		var p = Pattern.compile("[a-z]+");
 		assertMatch("abc", p);
 		assertMatch("test", "%1$s..%1$s", "t");
 		assertAssertion(() -> assertMatch("test", "%1$s..%1$s", "T"));
@@ -555,7 +551,7 @@ public class AssertUtilTest {
 
 	@Test
 	public void testAssertIterable() {
-		final Set<Integer> set = new TreeSet<>();
+		var set = Sets.<Integer>tree();
 		assertOrdered(set);
 		Collections.addAll(set, Integer.MAX_VALUE, Integer.MIN_VALUE, 0);
 		assertOrdered(set, Integer.MIN_VALUE, 0, Integer.MAX_VALUE);
@@ -579,5 +575,4 @@ public class AssertUtilTest {
 		assertAssertion(() -> assertConsume(List.of(Integer.MAX_VALUE, Integer.MIN_VALUE, 0),
 			_ -> {}, _ -> {}, _ -> {}, _ -> {}));
 	}
-
 }

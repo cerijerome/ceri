@@ -3,9 +3,9 @@ package ceri.common.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.function.Consumer;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
+import ceri.common.function.Functions;
 
 /**
  * A connector pass-through that allows the underlying connector to be replaced. Calling replace()
@@ -19,7 +19,7 @@ public class ReplaceableConnector<T extends Connector> extends Replaceable<T> im
 	public static class Fixable<T extends Connector.Fixable> extends ReplaceableConnector<T>
 		implements Connector.Fixable {
 		private final Listeners<StateChange> listeners = Listeners.of();
-		private final Consumer<StateChange> listener = this::stateChange;
+		private final Functions.Consumer<StateChange> listener = this::stateChange;
 
 		public Fixable() {}
 

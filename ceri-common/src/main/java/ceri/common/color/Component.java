@@ -1,9 +1,8 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_VALUE;
-import static ceri.common.math.Maths.ubyte;
 import java.util.List;
 import ceri.common.data.TypeTranscoder;
+import ceri.common.math.Maths;
 
 /**
  * Color components. Provides logic to get and set components from argb and xargb colors.
@@ -92,7 +91,7 @@ public enum Component {
 	 */
 	public static int limit(int value) {
 		if (value < 0) return 0;
-		if (value > MAX_VALUE) return MAX_VALUE;
+		if (value > Colors.MAX_VALUE) return Colors.MAX_VALUE;
 		return value;
 	}
 
@@ -114,14 +113,14 @@ public enum Component {
 	 * Extract component value from argb int.
 	 */
 	public int get(int argb) {
-		return isInt() ? ubyte(argb >>> shift) : 0;
+		return isInt() ? Maths.ubyte(argb >>> shift) : 0;
 	}
 
 	/**
 	 * Extract component value from xargb long.
 	 */
 	public int get(long xargb) {
-		return ubyte(xargb >>> shift);
+		return Maths.ubyte(xargb >>> shift);
 	}
 
 	/**
@@ -142,14 +141,14 @@ public enum Component {
 	 * Shift value to its position in argb int.
 	 */
 	public int intValue(int value) {
-		return isInt() ? ubyte(value) << shift : 0;
+		return isInt() ? Maths.ubyte(value) << shift : 0;
 	}
 
 	/**
 	 * Shift value to its position in xargb long.
 	 */
 	public long longValue(int value) {
-		return (long) ubyte(value) << shift;
+		return (long) Maths.ubyte(value) << shift;
 	}
 
 	/**
@@ -170,13 +169,13 @@ public enum Component {
 	 * Extract component value as a ratio.
 	 */
 	public double ratio(int argb) {
-		return (double) get(argb) / MAX_VALUE;
+		return (double) get(argb) / Colors.MAX_VALUE;
 	}
 
 	/**
 	 * Extract component value as a ratio.
 	 */
 	public double ratio(long xargb) {
-		return (double) get(xargb) / MAX_VALUE;
+		return (double) get(xargb) / Colors.MAX_VALUE;
 	}
 }

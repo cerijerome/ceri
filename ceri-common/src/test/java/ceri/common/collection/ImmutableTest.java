@@ -16,7 +16,7 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import org.junit.Test;
 import ceri.common.collection.Immutable.Wrap;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Functions;
 import ceri.common.test.AssertUtil;
 
@@ -42,7 +42,7 @@ public class ImmutableTest {
 	private static final Integer[] emptyArray = new Integer[0];
 	private static final Functions.Function<Object, Object> fn = String::valueOf;
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
-	private static final Comparator<Integer> comp = Comparators.nullsLast();
+	private static final Comparator<Integer> comp = Compares.nullsLast();
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);

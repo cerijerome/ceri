@@ -2,10 +2,10 @@ package ceri.ent.mongo;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
 import ceri.common.net.HostPort;
 import ceri.common.net.NetUtil;
 import ceri.common.text.Joiner;
@@ -31,7 +31,7 @@ public class HostList {
 	}
 
 	public static class Builder {
-		final Collection<HostPort> hosts = new LinkedHashSet<>();
+		final Collection<HostPort> hosts = Sets.link();
 
 		Builder() {}
 
@@ -74,15 +74,12 @@ public class HostList {
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
-		if (!(obj instanceof HostList)) return false;
-		HostList other = (HostList) obj;
-		if (!Objects.equals(hosts, other.hosts)) return false;
-		return true;
+		if (!(obj instanceof HostList other)) return false;
+		return Objects.equals(hosts, other.hosts);
 	}
 
 	@Override
 	public String toString() {
 		return Joiner.COMMA.join(hosts);
 	}
-
 }

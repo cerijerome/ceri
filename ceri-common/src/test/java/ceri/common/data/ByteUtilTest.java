@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterables;
+import ceri.common.stream.Streams;
 import ceri.common.test.Captor;
 
 public class ByteUtilTest {
@@ -108,7 +109,7 @@ public class ByteUtilTest {
 	@Test
 	public void testToByteArray() {
 		assertArray(ByteUtil.bytes(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
-		assertArray(ByteUtil.bytes(IntStream.of(-1, 0, 127, 128)), -1, 0, 127, 128);
+		assertArray(ByteUtil.bytes(Streams.ints(-1, 0, 127, 128)), -1, 0, 127, 128);
 	}
 
 	@Test

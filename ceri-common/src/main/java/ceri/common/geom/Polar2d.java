@@ -1,8 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 public class Polar2d {
 	public static final Polar2d ZERO = new Polar2d(0, 0);
@@ -17,7 +17,7 @@ public class Polar2d {
 
 	public static Polar2d of(double r, double phi) {
 		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
-		validateMinFp(r, 0, "Radius");
+		Validate.validateMinFp(r, 0, "Radius");
 		return new Polar2d(r + .0, phi + .0);
 	}
 

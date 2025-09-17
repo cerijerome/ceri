@@ -1,9 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import ceri.common.function.Fluent;
 import ceri.common.reflect.Reflect;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that writes ints sequentially. Type T must be the sub-class type; this allows fluent
@@ -46,7 +45,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * Writes native-order ints.
 	 */
 	default T writeLong(long value) {
-		return writeLong(value, IS_BIG_ENDIAN);
+		return writeLong(value, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -115,7 +114,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(int[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -140,10 +139,9 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(IntProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(provider.getInt(offset + i));
 		return Reflect.unchecked(this);
 	}
-
 }

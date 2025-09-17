@@ -497,8 +497,8 @@ public abstract class TypedArray<T> {
 	/**
 	 * Simple array creation.
 	 */
-	protected <U> T copyValues(U values, Functions.ObjIntConsumer<T> consumer) {
-		return RawArray.copyValues(constructor, values, consumer);
+	protected <U> T copyValues(U values, Functions.BiObjIntConsumer<T, U> consumer) {
+		return RawArray.adaptValues(constructor, values, consumer);
 	}
 
 	/**

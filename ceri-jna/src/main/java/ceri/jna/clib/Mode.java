@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import ceri.common.collection.Enums;
+import ceri.common.collection.Sets;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
@@ -77,7 +77,7 @@ public class Mode {
 	}
 
 	public static class Builder {
-		final Set<Mask> masks = new TreeSet<>();
+		final Set<Mask> masks = Sets.tree();
 
 		Builder() {}
 

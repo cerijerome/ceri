@@ -1,27 +1,16 @@
 package ceri.common.log;
 
-import static ceri.common.log.Level.ALL;
-import static ceri.common.log.Level.DEBUG;
-import static ceri.common.log.Level.ERROR;
-import static ceri.common.log.Level.INFO;
-import static ceri.common.log.Level.TRACE;
-import static ceri.common.log.Level.WARN;
-import static ceri.common.log.Logger.FormatFlag.abbreviatePackage;
-import static ceri.common.log.Logger.FormatFlag.noDate;
-import static ceri.common.log.Logger.FormatFlag.noStackTrace;
-import static ceri.common.log.Logger.FormatFlag.noThread;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Maps;
+import ceri.common.collection.Sets;
 import ceri.common.exception.Exceptions;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.time.DateUtil;
@@ -49,12 +38,12 @@ public class Logger {
 	private static final int STACK_OFFSET = 5;
 	private static final LocalDateTime NULL_DATE = DateUtil.UTC_EPOCH;
 	public static final String FORMAT = "%1$tF %1$tT.%1$tL [%2$s] %3$-5s %4$s - %5$s";
-	public static final Consumer<String> STDOUT = s -> System.out.println(s); // allow for stdio
-	public static final Consumer<String> STDERR = s -> System.err.println(s); // replacement
-	private static final Map<Object, Logger> loggers = new ConcurrentHashMap<>();
+	public static final Functions.Consumer<String> STDOUT = s -> System.out.println(s);
+	public static final Functions.Consumer<String> STDERR = s -> System.err.println(s);
+	private static final Map<Object, Logger> loggers = Maps.concurrent();
 	private static final Logger DEFAULT = new Builder(null).build();
-	public final BiConsumer<Level, String> err;
-	public final BiConsumer<Level, String> out;
+	public final Functions.BiConsumer<Level, String> err;
+	public final Functions.BiConsumer<Level, String> out;
 	public final Level minLevel;
 	public final Level errLevel;
 	public final String format;
@@ -73,32 +62,32 @@ public class Logger {
 
 	public static class Builder {
 		Object key;
-		BiConsumer<Level, String> err = bi(STDERR);
-		BiConsumer<Level, String> out = bi(STDOUT);
+		Functions.BiConsumer<Level, String> err = bi(STDERR);
+		Functions.BiConsumer<Level, String> out = bi(STDOUT);
 		Level minLevel = Level.INFO;
 		Level errLevel = Level.ERROR;
 		String format = FORMAT;
 		int threadMax = -1;
-		final Collection<FormatFlag> flags = new LinkedHashSet<>();
+		final Collection<FormatFlag> flags = Sets.link();
 
 		Builder(Object key) {
 			this.key = key;
 		}
 
-		public Builder err(Consumer<String> err) {
+		public Builder err(Functions.Consumer<String> err) {
 			return err(bi(err));
 		}
 
-		public Builder err(BiConsumer<Level, String> err) {
+		public Builder err(Functions.BiConsumer<Level, String> err) {
 			this.err = err;
 			return this;
 		}
 
-		public Builder out(Consumer<String> out) {
+		public Builder out(Functions.Consumer<String> out) {
 			return out(bi(out));
 		}
 
-		public Builder out(BiConsumer<Level, String> out) {
+		public Builder out(Functions.BiConsumer<Level, String> out) {
 			this.out = out;
 			return this;
 		}
@@ -181,23 +170,23 @@ public class Logger {
 	}
 
 	public <T> T trace(String format, Object... args) {
-		return log(TRACE, null, format, args);
+		return log(Level.TRACE, null, format, args);
 	}
 
 	public <T> T debug(String format, Object... args) {
-		return log(DEBUG, null, format, args);
+		return log(Level.DEBUG, null, format, args);
 	}
 
 	public <T> T info(String format, Object... args) {
-		return log(INFO, null, format, args);
+		return log(Level.INFO, null, format, args);
 	}
 
 	public <T> T warn(String format, Object... args) {
-		return log(WARN, null, format, args);
+		return log(Level.WARN, null, format, args);
 	}
 
 	public <T> T error(String format, Object... args) {
-		return log(ERROR, null, format, args);
+		return log(Level.ERROR, null, format, args);
 	}
 
 	public <T> T log(Level level, String format, Object... args) {
@@ -205,7 +194,7 @@ public class Logger {
 	}
 
 	public <T> T catching(Throwable t) {
-		return log(ERROR, t, null);
+		return log(Level.ERROR, t, null);
 	}
 
 	public <T> T log(Level level, Throwable t) {
@@ -218,9 +207,9 @@ public class Logger {
 		return null;
 	}
 
-	private void apply(Level level, String message, BiConsumer<Level, String> consumer) {
+	private void apply(Level level, String message, Functions.BiConsumer<Level, String> consumer) {
 		if (consumer == null) return;
-		String line = formatLine(format, level, message);
+		var line = formatLine(format, level, message);
 		consumer.accept(level, line);
 	}
 
@@ -228,27 +217,28 @@ public class Logger {
 		return String.format(format, date(), thread(), level, classLine(), message);
 	}
 
-	private BiConsumer<Level, String> consumer(Level level) {
-		if (level == ALL) return out;
+	private Functions.BiConsumer<Level, String> consumer(Level level) {
+		if (level == Level.ALL) return out;
 		return errLevel.valid(level) ? err : out;
 	}
 
 	private LocalDateTime date() {
-		if (flag(noDate)) return NULL_DATE;
+		if (flag(Logger.FormatFlag.noDate)) return NULL_DATE;
 		return LocalDateTime.now();
 	}
 
 	private String thread() {
-		if (flag(noThread) || threadMax == 0) return "";
-		String s = Thread.currentThread().getName();
+		if (flag(Logger.FormatFlag.noThread) || threadMax == 0) return "";
+		var s = Thread.currentThread().getName();
 		if (threadMax > 0 && s.length() > threadMax) s = s.substring(0, threadMax);
 		return s;
 	}
 
 	private String classLine() {
-		if (flag(noStackTrace)) return "";
-		String classLine = Reflect.previousClassLine(STACK_OFFSET);
-		if (flag(abbreviatePackage)) classLine = Reflect.abbreviatePackages(classLine);
+		if (flag(Logger.FormatFlag.noStackTrace)) return "";
+		var classLine = Reflect.previousClassLine(STACK_OFFSET);
+		if (flag(Logger.FormatFlag.abbreviatePackage))
+			classLine = Reflect.abbreviatePackages(classLine);
 		return classLine;
 	}
 
@@ -261,8 +251,7 @@ public class Logger {
 		return flags.contains(flag);
 	}
 
-	private static BiConsumer<Level, String> bi(Consumer<String> consumer) {
+	private static Functions.BiConsumer<Level, String> bi(Functions.Consumer<String> consumer) {
 		return consumer == null ? null : (_, s) -> consumer.accept(s);
 	}
-
 }

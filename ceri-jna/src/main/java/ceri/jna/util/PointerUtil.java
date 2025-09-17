@@ -1,12 +1,11 @@
 package ceri.jna.util;
 
-import static ceri.common.validation.ValidationUtil.validateEqual;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import java.util.stream.Stream;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.function.Functions;
+import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 import ceri.jna.type.JnaSize;
 
 /**
@@ -22,8 +21,8 @@ public class PointerUtil {
 	 */
 	public static Pointer validate(Pointer p, long offset, long len) {
 		if (p == null) JnaUtil.validateSlice(0, offset, len);
-		else validateMin(len, 0);
-		validateMin(offset, 0);
+		else Validate.validateMin(len, 0);
+		Validate.validateMin(offset, 0);
 		return p;
 	}
 
@@ -32,7 +31,7 @@ public class PointerUtil {
 	 * size is allowed.
 	 */
 	public static Pointer validate(Pointer p, long size, long offset, long len) {
-		if (p == null) validateEqual(size, 0);
+		if (p == null) Validate.validateEqual(size, 0);
 		JnaUtil.validateSlice(size, offset, len);
 		return p;
 	}
@@ -208,7 +207,7 @@ public class PointerUtil {
 	 */
 	public static <T extends PointerType> T[] arrayByVal(Pointer p,
 		Functions.Supplier<T> constructor, Functions.IntFunction<T[]> arrayFn, int count) {
-		return Stream.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(adapt(constructor)))
+		return Streams.of(PointerUtil.arrayByVal(p, count)).map(JnaUtil.typeFn(adapt(constructor)))
 			.toArray(arrayFn);
 	}
 
@@ -273,5 +272,4 @@ public class PointerUtil {
 		adapt(Functions.Supplier<T> constructor) {
 		return p -> set(constructor.get(), p);
 	}
-
 }

@@ -1,6 +1,5 @@
 package ceri.common.stream;
 
-import static ceri.common.exception.Exceptions.unsupportedOp;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,12 +13,16 @@ import ceri.common.collection.Immutable;
 import ceri.common.collection.Lists;
 import ceri.common.collection.Maps;
 import ceri.common.collection.Sets;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 
+/**
+ * Stream collectors.
+ */
 public class Collect {
-	private static final Functions.BiOperator<Object> NO_COMBINER = (_, _) -> unsupported(
-		"Combining is not supported");
+	private static final Functions.BiOperator<Object> NO_COMBINER =
+		(_, _) -> unsupported("Combining is not supported");
 	private static final Collector<?, ?, Object[]> ARRAY = array(Object[]::new);
 	private static final Collector<?, List<Object>, List<Object>> LIST =
 		of(Lists::of, Collection::add, Immutable::wrap);
@@ -34,21 +37,73 @@ public class Collect {
 	 * Int stream collectors.
 	 */
 	public static class Ints {
+		/** Collects elements into a primitive array. */
+		public static final IntStream.Collector<?, int[]> array =
+			new Composed<>(DynamicArray::ints, DynamicArray.OfInt::accept, DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		public static final IntStream.Collector<?, int[]> sortedArray = new Composed<>(
+			DynamicArray::ints, DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
+		/** Collects chars into a string. */
+		public static final IntStream.Collector<?, String> chars = new Composed<>(
+			StringBuilder::new, (b, i) -> b.append((char) i), StringBuilder::toString);
+		/** Collects code points into a string. */
+		public static final IntStream.Collector<?, String> codePoints = new Composed<>(
+			StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::toString);
+
 		private Ints() {}
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjIntConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements IntStream.Collector<A, R> {}
 	}
 
 	/**
 	 * Long stream collectors.
 	 */
 	public static class Longs {
+		/** Collects elements into a primitive array. */
+		public static final LongStream.Collector<DynamicArray.OfLong, long[]> array =
+			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
+				DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		public static final LongStream.Collector<DynamicArray.OfLong, long[]> sortedArray =
+			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
+				a -> ArrayUtil.longs.sort(a.truncate()));
+
 		private Longs() {}
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements LongStream.Collector<A, R> {}
 	}
 
 	/**
 	 * Double stream collectors.
 	 */
 	public static class Doubles {
+		/** Collects elements into a primitive array. */
+		public static final DoubleStream.Collector<DynamicArray.OfDouble, double[]> array =
+			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
+				DynamicArray::truncate);
+		/** Collects elements into a sorted primitive array. */
+		public static final DoubleStream.Collector<DynamicArray.OfDouble, double[]> sortedArray =
+			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
+				a -> ArrayUtil.doubles.sort(a.truncate()));
+
 		private Doubles() {}
+
+		/**
+		 * A collector instance composed from its functions.
+		 */
+		record Composed<A, R>(Functions.Supplier<A> supplier,
+			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher)
+			implements DoubleStream.Collector<A, R> {}
 	}
 
 	/**
@@ -249,6 +304,6 @@ public class Collect {
 	}
 
 	private static Object unsupported(String message) {
-		throw unsupportedOp(message);
+		throw Exceptions.unsupportedOp(message);
 	}
 }

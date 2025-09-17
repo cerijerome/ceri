@@ -1,8 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_RATIO;
-import static ceri.common.color.Colors.ratio;
-import static ceri.common.color.Colors.value;
 import java.awt.Color;
 
 /**
@@ -52,7 +49,7 @@ public record LuvColor(double a, double l, double u, double v) {
 		 */
 		public LuvColor luv(int argb) {
 			double[] luv = ColorSpaces.rgbToLuv(yn, un, vn, argb);
-			return LuvColor.of(ratio(Colors.a(argb)), luv[0], luv[1], luv[2]);
+			return LuvColor.of(Colors.ratio(Colors.a(argb)), luv[0], luv[1], luv[2]);
 		}
 
 		/**
@@ -91,7 +88,7 @@ public record LuvColor(double a, double l, double u, double v) {
 		 */
 		public int argb(LuvColor luv) {
 			return Component.a.set(ColorSpaces.luvToRgb(yn, un, vn, luv.l, luv.u, luv.v),
-				value(luv.a));
+				Colors.value(luv.a));
 		}
 
 		/**
@@ -130,7 +127,7 @@ public record LuvColor(double a, double l, double u, double v) {
 	 * Construct opaque instance from CIE L*u*v*.
 	 */
 	public static LuvColor of(double l, double u, double v) {
-		return new LuvColor(MAX_RATIO, l, u, v);
+		return new LuvColor(Colors.MAX_RATIO, l, u, v);
 	}
 
 	/**
@@ -151,7 +148,7 @@ public record LuvColor(double a, double l, double u, double v) {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_RATIO;
+		return a < Colors.MAX_RATIO;
 	}
 
 	@Override

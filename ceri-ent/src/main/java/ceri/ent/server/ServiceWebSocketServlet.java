@@ -8,8 +8,8 @@ import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory;
 import ceri.common.util.Basics;
 import jakarta.servlet.ServletException;
 
+@SuppressWarnings("serial")
 public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
-	private static final long serialVersionUID = 2677745336504034559L;
 	private final Class<T> cls;
 	private T service;
 
@@ -40,5 +40,4 @@ public abstract class ServiceWebSocketServlet<T> extends JettyWebSocketServlet {
 	private T service() {
 		return service;
 	}
-
 }

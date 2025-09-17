@@ -2,10 +2,10 @@ package ceri.common.reflect;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Sets;
 
 /**
  * Reloads and re-initializes classes; additional support classes are reloaded if accessed.
@@ -29,8 +29,8 @@ public class ClassReInitializer {
 	}
 
 	public static class Builder {
-		private final Set<Class<?>> inits = new LinkedHashSet<>();
-		private final Set<Class<?>> reloads = new LinkedHashSet<>();
+		private final Set<Class<?>> inits = Sets.link();
+		private final Set<Class<?>> reloads = Sets.link();
 
 		private Builder() {}
 

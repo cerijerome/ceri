@@ -10,8 +10,8 @@ import java.util.Properties;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
+@SuppressWarnings("serial")
 public class TestProperties extends Properties {
-	private static final long serialVersionUID = 1L;
 	public final CallSync.Consumer<Object> load = CallSync.consumer(null, true);
 	public final CallSync.Consumer<List<?>> store = CallSync.consumer(null, true);
 

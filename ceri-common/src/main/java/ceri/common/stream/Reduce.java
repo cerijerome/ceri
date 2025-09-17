@@ -11,14 +11,133 @@ public class Reduce {
 
 	public static class Ints {
 		private Ints() {}
+		
+		/**
+		 * Minimum reduction.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> min() {
+			return (l, r) -> Integer.compare(l, r) <= 0 ? l : r;
+		}
+
+		/**
+		 * Maximum reduction.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> max() {
+			return (l, r) -> Integer.compare(l, r) >= 0 ? l : r;
+		}
+
+		/**
+		 * Summation, allowing overflow.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> sum() {
+			return (l, r) -> l + r;
+		}
+
+		/**
+		 * Summation, with failure for overflow.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> sumExact() {
+			return (l, r) -> Math.addExact(l, r);
+		}
+
+		/**
+		 * Bitwise and.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> and() {
+			return (l, r) -> l & r;
+		}
+
+		/**
+		 * Bitwise or.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> or() {
+			return (l, r) -> l | r;
+		}
+
+		/**
+		 * Bitwise xor.
+		 */
+		public static <E extends Exception> Excepts.IntBiOperator<E> xor() {
+			return (l, r) -> l ^ r;
+		}
 	}
 
 	public static class Longs {
 		private Longs() {}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> min() {
+			return (l, r) -> Long.compare(l, r) <= 0 ? l : r;
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> max() {
+			return (l, r) -> Long.compare(l, r) >= 0 ? l : r;
+		}
+
+		/**
+		 * Summation, allowing overflow.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> sum() {
+			return (l, r) -> l + r;
+		}
+
+		/**
+		 * Summation, with failure for overflow.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> sumExact() {
+			return (l, r) -> Math.addExact(l, r);
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> and() {
+			return (l, r) -> l & r;
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> or() {
+			return (l, r) -> l | r;
+		}
+
+		/**
+		 * Bitwise reduction operation.
+		 */
+		public static <E extends Exception> Excepts.LongBiOperator<E> xor() {
+			return (l, r) -> l ^ r;
+		}
 	}
 
 	public static class Doubles {
 		private Doubles() {}
+		
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.DoubleBiOperator<E> min() {
+			return (l, r) -> Double.compare(l, r) <= 0 ? l : r;
+		}
+
+		/**
+		 * Comparator reduction.
+		 */
+		public static <E extends Exception> Excepts.DoubleBiOperator<E> max() {
+			return (l, r) -> Double.compare(l, r) >= 0 ? l : r;
+		}
+		
+		/**
+		 * Summation, allowing overflow.
+		 */
+		public static <E extends Exception> Excepts.DoubleBiOperator<E> sum() {
+			return (l, r) -> l + r;
+		}
 	}
 
 	/**

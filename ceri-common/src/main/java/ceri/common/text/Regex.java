@@ -1,6 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.exception.Exceptions.illegalArg;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.MatchResult;
@@ -8,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Immutable;
+import ceri.common.exception.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
@@ -446,7 +446,7 @@ public class Regex {
 	public static Matcher matchValid(Pattern pattern, CharSequence s, String name) {
 		var m = match(pattern, s);
 		if (hasMatch(m)) return m;
-		throw illegalArg("Invalid %s: %s", name, s);
+		throw Exceptions.illegalArg("Invalid %s: %s", name, s);
 	}
 
 	/**
@@ -484,7 +484,7 @@ public class Regex {
 	public static Matcher findValid(Pattern pattern, CharSequence s, String name) {
 		var m = find(pattern, s);
 		if (hasMatch(m)) return m;
-		throw illegalArg("Invalid %s: %s", name, s);
+		throw Exceptions.illegalArg("Invalid %s: %s", name, s);
 	}
 
 	/**

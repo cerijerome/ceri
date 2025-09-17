@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class ByteReaderBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -146,7 +146,7 @@ public class ByteReaderBehavior {
 
 			@Override
 			public byte readByte() {
-				ValidationUtil.validateIndex(length, pos);
+				Validate.validateIndex(length, pos);
 				return bytes[offset + pos++];
 			}
 		};

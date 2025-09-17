@@ -1,13 +1,12 @@
 package ceri.common.stream;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
+import ceri.common.collection.Sets;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -42,64 +41,6 @@ public class DoubleStream<E extends Exception> {
 		 * Provides a finisher to complete the container.
 		 */
 		Functions.Function<A, R> finisher();
-	}
-
-	/**
-	 * Collector support.
-	 */
-	public static class Collect {
-		/** Collects elements into a primitive array. */
-		public static final Collector<DynamicArray.OfDouble, double[]> array =
-			of(DynamicArray::doubles, DynamicArray.OfDouble::accept, DynamicArray::truncate);
-		/** Collects elements into a sorted primitive array. */
-		Collector<DynamicArray.OfDouble, double[]> sortedArray = of(DynamicArray::doubles,
-			DynamicArray.OfDouble::accept, a -> ArrayUtil.doubles.sort(a.truncate()));
-
-		private Collect() {}
-
-		/**
-		 * A collector instance composed from its functions.
-		 */
-		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher)
-			implements Collector<A, R> {}
-
-		/**
-		 * Composes a collector without a finisher.
-		 */
-		static <A> Collector<A, A> of(Functions.Supplier<A> supplier,
-			Functions.ObjDoubleConsumer<A> accumulator) {
-			return new Composed<>(supplier, accumulator, t -> t);
-		}
-
-		/**
-		 * Composes a collector from functions.
-		 */
-		static <A, R> Collector<A, R> of(Functions.Supplier<A> supplier,
-			Functions.ObjDoubleConsumer<A> accumulator, Functions.Function<A, R> finisher) {
-			return new Composed<>(supplier, accumulator, finisher);
-		}
-	}
-
-	/**
-	 * Reduction operators.
-	 */
-	public static class Reduce {
-		private Reduce() {}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.DoubleBiOperator<E> min() {
-			return (l, r) -> Double.compare(l, r) <= 0 ? l : r;
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.DoubleBiOperator<E> max() {
-			return (l, r) -> Double.compare(l, r) >= 0 ? l : r;
-		}
 	}
 
 	/**
@@ -311,7 +252,7 @@ public class DoubleStream<E extends Exception> {
 	 * IntStreams distinct elements.
 	 */
 	public DoubleStream<E> distinct() {
-		return filter(new HashSet<Double>()::add);
+		return filter(Sets.of()::add);
 	}
 
 	/**
@@ -386,7 +327,7 @@ public class DoubleStream<E extends Exception> {
 	 * Collects elements into an array.
 	 */
 	public double[] toArray() throws E {
-		return collect(Collect.array);
+		return collect(Collect.Doubles.array);
 	}
 
 	/**
@@ -419,14 +360,21 @@ public class DoubleStream<E extends Exception> {
 	 * Return the min value, or default.
 	 */
 	public double min(double def) throws E {
-		return reduce(Reduce.min(), def);
+		return reduce(Reduce.Doubles.min(), def);
 	}
 
 	/**
 	 * Return the max value, or default.
 	 */
 	public double max(double def) throws E {
-		return reduce(Reduce.max(), def);
+		return reduce(Reduce.Doubles.max(), def);
+	}
+
+	/**
+	 * Returns the summation value, allowing overflows, or default.
+	 */
+	public double sum(double def) throws E {
+		return reduce(Reduce.Doubles.sum(), def);
 	}
 
 	/**

@@ -1,13 +1,12 @@
 package ceri.common.stream;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
-import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
+import ceri.common.collection.Sets;
 import ceri.common.exception.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
@@ -42,85 +41,6 @@ public class LongStream<E extends Exception> {
 		 * Provides a finisher to complete the container.
 		 */
 		Functions.Function<A, R> finisher();
-	}
-
-	/**
-	 * Collector support.
-	 */
-	public static class Collect {
-		/** Collects elements into a primitive array. */
-		public static final Collector<DynamicArray.OfLong, long[]> array =
-			of(DynamicArray::longs, DynamicArray.OfLong::accept, DynamicArray::truncate);
-		/** Collects elements into a sorted primitive array. */
-		Collector<DynamicArray.OfLong, long[]> sortedArray = of(DynamicArray::longs,
-			DynamicArray.OfLong::accept, a -> ArrayUtil.longs.sort(a.truncate()));
-
-		private Collect() {}
-
-		/**
-		 * A collector instance composed from its functions.
-		 */
-		record Composed<A, R>(Functions.Supplier<A> supplier,
-			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher)
-			implements Collector<A, R> {}
-
-		/**
-		 * Composes a collector without a finisher.
-		 */
-		static <A> Collector<A, A> of(Functions.Supplier<A> supplier,
-			Functions.ObjLongConsumer<A> accumulator) {
-			return new Composed<>(supplier, accumulator, t -> t);
-		}
-
-		/**
-		 * Composes a collector from functions.
-		 */
-		static <A, R> Collector<A, R> of(Functions.Supplier<A> supplier,
-			Functions.ObjLongConsumer<A> accumulator, Functions.Function<A, R> finisher) {
-			return new Composed<>(supplier, accumulator, finisher);
-		}
-	}
-
-	/**
-	 * Reduction operators.
-	 */
-	public static class Reduce {
-		private Reduce() {}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.LongBiOperator<E> min() {
-			return (l, r) -> Long.compare(l, r) <= 0 ? l : r;
-		}
-
-		/**
-		 * Comparator reduction.
-		 */
-		public static <E extends Exception> Excepts.LongBiOperator<E> max() {
-			return (l, r) -> Long.compare(l, r) >= 0 ? l : r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.LongBiOperator<E> and() {
-			return (l, r) -> l & r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.LongBiOperator<E> or() {
-			return (l, r) -> l | r;
-		}
-
-		/**
-		 * Bitwise reduction operation.
-		 */
-		public static <E extends Exception> Excepts.LongBiOperator<E> xor() {
-			return (l, r) -> l ^ r;
-		}
 	}
 
 	/**
@@ -345,7 +265,7 @@ public class LongStream<E extends Exception> {
 	 * IntStreams distinct elements.
 	 */
 	public LongStream<E> distinct() {
-		return filter(new HashSet<Long>()::add);
+		return filter(Sets.of()::add);
 	}
 
 	/**
@@ -420,7 +340,7 @@ public class LongStream<E extends Exception> {
 	 * Collects elements into an array.
 	 */
 	public long[] toArray() throws E {
-		return collect(Collect.array);
+		return collect(Collect.Longs.array);
 	}
 
 	/**
@@ -453,14 +373,21 @@ public class LongStream<E extends Exception> {
 	 * Return the min value, or default.
 	 */
 	public long min(long def) throws E {
-		return reduce(Reduce.min(), def);
+		return reduce(Reduce.Longs.min(), def);
 	}
 
 	/**
 	 * Return the max value, or default.
 	 */
 	public long max(long def) throws E {
-		return reduce(Reduce.max(), def);
+		return reduce(Reduce.Longs.max(), def);
+	}
+
+	/**
+	 * Returns the summation value, allowing overflows, or default.
+	 */
+	public long sum(long def) throws E {
+		return reduce(Reduce.Longs.sum(), def);
 	}
 
 	/**

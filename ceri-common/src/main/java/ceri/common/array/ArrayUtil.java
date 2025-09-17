@@ -3,7 +3,7 @@ package ceri.common.array;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Predicates;
@@ -572,7 +572,7 @@ public class ArrayUtil {
 	 * Sort the array range in place and return the array.
 	 */
 	public static <T extends Comparable<? super T>> T[] sort(T[] array, int offset, int length) {
-		return sort(array, offset, length, Comparators.nullsFirst());
+		return sort(array, offset, length, Compares.nullsFirst());
 	}
 
 	/**

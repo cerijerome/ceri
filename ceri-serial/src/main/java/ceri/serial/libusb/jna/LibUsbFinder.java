@@ -8,7 +8,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.text.Dsv;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 import ceri.common.text.Strings;
 import ceri.common.util.Counter;
 import ceri.jna.type.ArrayPointer;
@@ -42,13 +42,13 @@ public class LibUsbFinder {
 		var items = Dsv.split(descriptor, ':');
 		int size = items.size();
 		int i = 0;
-		if (i < size) b.vendor(Numbers.Decode.toInt(items.get(i++), 0));
-		if (i < size) b.product(Numbers.Decode.toInt(items.get(i++), 0));
-		if (i < size) b.bus(Numbers.Decode.toInt(items.get(i++), 0));
-		if (i < size) b.address(Numbers.Decode.toInt(items.get(i++), 0));
+		if (i < size) b.vendor(Parse.decodeInt(items.get(i++), 0));
+		if (i < size) b.product(Parse.decodeInt(items.get(i++), 0));
+		if (i < size) b.bus(Parse.decodeInt(items.get(i++), 0));
+		if (i < size) b.address(Parse.decodeInt(items.get(i++), 0));
 		if (i < size) b.description(items.get(i++));
 		if (i < size) b.serial(items.get(i++));
-		if (i < size) b.index(Numbers.Parse.toInt(items.get(i++), 0));
+		if (i < size) b.index(Parse.parseInt(items.get(i++), 0));
 		return b.build();
 	}
 

@@ -1,6 +1,5 @@
 package ceri.common.svg;
 
-import static ceri.common.svg.SvgUtil.string;
 import java.util.Objects;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
@@ -63,8 +62,8 @@ public class LineTo implements Path<LineTo> {
 
 	@Override
 	public String path() {
-		return String.format("%s%s,%s", position.absolute() ? "L" : "l", string(position.x),
-			string(position.y));
+		return String.format("%s%s,%s", position.absolute() ? "L" : "l", SvgUtil.string(position.x),
+			SvgUtil.string(position.y));
 	}
 
 	@Override
@@ -82,5 +81,4 @@ public class LineTo implements Path<LineTo> {
 	public String toString() {
 		return ToString.forClass(this, position);
 	}
-
 }

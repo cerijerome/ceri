@@ -1,5 +1,6 @@
 package ceri.common.collection;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -7,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
@@ -62,10 +63,27 @@ public class Sets {
 	}
 
 	/**
+	 * Creates a mutable linked hash set from the collection.
+	 */
+	public static <T> LinkedHashSet<T> link(Collection<? extends T> collection) {
+		return new LinkedHashSet<>(collection);
+	}
+
+	/**
 	 * Creates an empty mutable tree set.
 	 */
 	public static <T extends Comparable<? super T>> TreeSet<T> tree() {
-		return new TreeSet<>(Comparators.nullsFirst());
+		return new TreeSet<>(Compares.nullsFirst());
+	}
+
+	/**
+	 * Creates a mutable tree set from the collection.
+	 */
+	public static <T extends Comparable<? super T>> TreeSet<T>
+		tree(Collection<? extends T> collection) {
+		var set = Sets.<T>tree();
+		if (collection != null) set.addAll(collection);
+		return set;
 	}
 
 	/**

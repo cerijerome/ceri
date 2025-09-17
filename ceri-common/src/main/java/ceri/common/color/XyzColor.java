@@ -1,8 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_RATIO;
-import static ceri.common.color.Colors.ratio;
-import static ceri.common.color.Colors.value;
 import java.awt.Color;
 
 /**
@@ -42,14 +39,14 @@ public record XyzColor(double a, double x, double y, double z) {
 	 */
 	public static XyzColor from(int argb) {
 		double[] xyz = ColorSpaces.rgbToXyz(argb);
-		return of(ratio(Colors.a(argb)), xyz[0], xyz[1], xyz[2]);
+		return of(Colors.ratio(Colors.a(argb)), xyz[0], xyz[1], xyz[2]);
 	}
 
 	/**
 	 * Construct opaque instance from CIE XYZ 0-1 values.
 	 */
 	public static XyzColor of(double x, double y, double z) {
-		return new XyzColor(MAX_RATIO, x, y, z);
+		return new XyzColor(Colors.MAX_RATIO, x, y, z);
 	}
 
 	/**
@@ -70,7 +67,7 @@ public record XyzColor(double a, double x, double y, double z) {
 	 * Convert to sRGB int. Alpha is maintained.
 	 */
 	public int argb() {
-		return Component.a.set(ColorSpaces.xyzToRgb(x, y, z), value(a));
+		return Component.a.set(ColorSpaces.xyzToRgb(x, y, z), Colors.value(a));
 	}
 
 	/**
@@ -121,15 +118,15 @@ public record XyzColor(double a, double x, double y, double z) {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_RATIO;
+		return a < Colors.MAX_RATIO;
 	}
 
 	/**
 	 * Normalizes values by first converting to CIE xyY.
 	 */
 	public XyzColor normalize() {
-		XybColor xyb = xyb();
-		XybColor normalXyb = xyb.normalize();
+		var xyb = xyb();
+		var normalXyb = xyb.normalize();
 		return xyb == normalXyb ? this : normalXyb.xyz();
 	}
 

@@ -1,12 +1,9 @@
 package ceri.common.time;
 
-import static ceri.common.time.TimeSupplier.millis;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.concurrent.TimeUnit;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.LongConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 /**
  * Timer to keep track of elapsed and remaining time. Must call start() to start the timer. Can be
@@ -14,8 +11,8 @@ import ceri.common.text.ToString;
  */
 public class Timer {
 	private static final long INFINITE_PERIOD = -1L;
-	public static final Timer INFINITE = infinite(millis);
-	public static final Timer ZERO = of(0, millis);
+	public static final Timer INFINITE = infinite(TimeSupplier.millis);
+	public static final Timer ZERO = of(0, TimeSupplier.millis);
 	public final long period;
 	public final TimeSupplier timeSupplier;
 	private State state = State.notStarted;
@@ -68,13 +65,15 @@ public class Timer {
 			return timer.isInfinite();
 		}
 
-		public <E extends Exception> Snapshot applyRemaining(LongConsumer<E> consumer) throws E {
+		public <E extends Exception> Snapshot applyRemaining(Excepts.LongConsumer<E> consumer)
+			throws E {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remaining);
 			return this;
 		}
 
-		public <E extends Exception> Snapshot applyRemainingInt(IntConsumer<E> consumer) throws E {
+		public <E extends Exception> Snapshot applyRemainingInt(Excepts.IntConsumer<E> consumer)
+			throws E {
 			if (infinite() || remaining <= 0) return this;
 			consumer.accept(remainingInt());
 			return this;
@@ -140,8 +139,8 @@ public class Timer {
 	 * Creates a timer with granularity of the given time unit.
 	 */
 	public static Timer of(long period, TimeSupplier timeSupplier) {
-		validateMin(period, INFINITE_PERIOD);
-		validateNotNull(timeSupplier);
+		Validate.validateMin(period, INFINITE_PERIOD);
+		Validate.validateNotNull(timeSupplier);
 		return new Timer(period, timeSupplier);
 	}
 
@@ -186,11 +185,13 @@ public class Timer {
 		return period == INFINITE_PERIOD;
 	}
 
-	public <E extends Exception> Snapshot applyRemaining(LongConsumer<E> consumer) throws E {
+	public <E extends Exception> Snapshot applyRemaining(Excepts.LongConsumer<E> consumer)
+		throws E {
 		return snapshot().applyRemaining(consumer);
 	}
 
-	public <E extends Exception> Snapshot applyRemainingInt(IntConsumer<E> consumer) throws E {
+	public <E extends Exception> Snapshot applyRemainingInt(Excepts.IntConsumer<E> consumer)
+		throws E {
 		return snapshot().applyRemainingInt(consumer);
 	}
 

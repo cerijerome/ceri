@@ -17,8 +17,7 @@ public class XPathUtil {
 	private XPathUtil() {}
 
 	/**
-	 * Compiles an xpath expression, throwing a runtime RuntimeXPathException if an exception
-	 * occurs.
+	 * Compiles an xpath expression, throwing RuntimeXPathException if an exception occurs.
 	 */
 	public static XPathExpression compile(String expression) {
 		try {
@@ -38,14 +37,14 @@ public class XPathUtil {
 
 	public static Node node(XPathExpression expression, InputSource in)
 		throws XPathExpressionException {
-		List<Node> nodes = nodeList(expression, in);
+		var nodes = nodeList(expression, in);
 		if (nodes.isEmpty()) return null;
 		return nodes.get(0);
 	}
 
 	public static Node node(XPathExpression expression, Object dom)
 		throws XPathExpressionException {
-		List<Node> nodes = nodeList(expression, dom);
+		var nodes = nodeList(expression, dom);
 		if (nodes.isEmpty()) return null;
 		return nodes.get(0);
 	}
@@ -72,10 +71,9 @@ public class XPathUtil {
 
 	private static List<Node> nodeList(NodeList nodeList) {
 		int length = nodeList.getLength();
-		List<Node> nodes = new ArrayList<>(length);
+		var nodes = new ArrayList<Node>(length);
 		for (int i = 0; i < length; i++)
 			nodes.add(nodeList.item(i));
 		return nodes;
 	}
-
 }

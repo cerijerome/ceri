@@ -3,20 +3,19 @@ package ceri.common.text;
 import static ceri.common.test.AssertUtil.assertString;
 import org.junit.Test;
 import ceri.common.math.Maths;
-import ceri.common.text.Format.Separation;
 
 public class FormatBehavior {
 
 	@Test
 	public void testHex() {
-		assertString(Format.HEX.ubyte(Byte.MIN_VALUE), "0x80");
-		assertString(Format.HEX.ushort(Short.MIN_VALUE), "0x8000");
-		assertString(Format.HEX.uint(Integer.MIN_VALUE), "0x80000000");
-		assertString(Format.HEX.apply(Long.MIN_VALUE), "0x8000000000000000");
+		assertString(Formats.HEX.ubyte(Byte.MIN_VALUE), "0x80");
+		assertString(Formats.HEX.ushort(Short.MIN_VALUE), "0x8000");
+		assertString(Formats.HEX.uint(Integer.MIN_VALUE), "0x80000000");
+		assertString(Formats.HEX.apply(Long.MIN_VALUE), "0x8000000000000000");
 	}
-	
+
 	public static void main(String[] args) {
-		var fmt = new Format(16, "#", 0, 8, Separation._4);
+		var fmt = new Formats.OfLong(true, "#", 16, 0, 8, Formats.Separator._4);
 		System.out.println(fmt);
 		System.out.println();
 		print(fmt, Long.MIN_VALUE, "Long.MIN_VALUE");
@@ -40,7 +39,7 @@ public class FormatBehavior {
 		print(fmt, Long.MAX_VALUE, "Long.MAX_VALUE");
 	}
 
-	private static void print(Format fmt, long value, String desc) {
+	private static void print(Formats.OfLong fmt, long value, String desc) {
 		p(fmt, value, desc);
 		p(fmt, Maths.ubyte(value), "ubyte");
 		p(fmt, Maths.ushort(value), "ushort");
@@ -48,8 +47,7 @@ public class FormatBehavior {
 		System.out.println();
 	}
 
-	private static void p(Format fmt, long value, String desc) {
+	private static void p(Formats.OfLong fmt, long value, String desc) {
 		System.out.println(fmt.apply(value) + " \t" + desc + " \t" + value);
 	}
-
 }

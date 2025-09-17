@@ -1,18 +1,17 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
-import static ceri.common.data.IntUtil.LONG_INTS;
 import java.util.PrimitiveIterator;
-import java.util.function.IntFunction;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collection.Iterators;
-import ceri.common.function.Excepts.IntBiConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.function.Fluent;
+import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides positional access to ints. For bulk efficiency, consider overriding the
@@ -111,24 +110,24 @@ public interface IntProvider extends Iterable<Integer> {
 		/**
 		 * Provides unsigned ints as a stream.
 		 */
-		public IntStream stream() {
+		public IntStream<RuntimeException> stream() {
 			return stream(remaining());
 		}
 
 		@Override
-		public IntStream stream(int length) {
+		public IntStream<RuntimeException> stream(int length) {
 			return provider.stream(inc(length), length);
 		}
 
 		/**
 		 * Provides unsigned ints as a stream.
 		 */
-		public LongStream ustream() {
+		public LongStream<RuntimeException> ustream() {
 			return ustream(remaining());
 		}
 
 		@Override
-		public LongStream ustream(int length) {
+		public LongStream<RuntimeException> ustream(int length) {
 			return provider.ustream(inc(length), length);
 		}
 
@@ -166,7 +165,7 @@ public interface IntProvider extends Iterable<Integer> {
 		 * Creates a new reader for subsequent ints without incrementing the offset.
 		 */
 		public Reader slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Reader(provider, start + offset(), length);
 		}
 
@@ -191,7 +190,7 @@ public interface IntProvider extends Iterable<Integer> {
 	/**
 	 * Iterates over each index and value.
 	 */
-	default <E extends Exception> void getEachInt(IntBiConsumer<E> consumer) throws E {
+	default <E extends Exception> void getEachInt(Excepts.IntBiConsumer<E> consumer) throws E {
 		for (int i = 0; i < length(); i++)
 			consumer.accept(i, getInt(i));
 	}
@@ -231,14 +230,14 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Returns the value from native-order ints at given index.
 	 */
 	default long getLong(int index) {
-		return getLong(index, IS_BIG_ENDIAN);
+		return getLong(index, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the value from little-endian ints at given index.
 	 */
 	default long getLong(int index, boolean msb) {
-		int[] ints = copy(index, LONG_INTS);
+		int[] ints = copy(index, IntUtil.LONG_INTS);
 		return msb ? IntUtil.longFromMsb(ints) : IntUtil.longFromLsb(ints);
 	}
 
@@ -309,7 +308,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 */
 	default int[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.ints.empty;
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		int[] copy = new int[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -334,8 +333,8 @@ public interface IntProvider extends Iterable<Integer> {
 	 * writes one int at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, int[] array, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getInt(index++);
 		return index;
@@ -361,8 +360,8 @@ public interface IntProvider extends Iterable<Integer> {
 	 * method.
 	 */
 	default int copyTo(int index, IntReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setInt(offset++, getInt(index++));
 		return index;
@@ -371,31 +370,31 @@ public interface IntProvider extends Iterable<Integer> {
 	/**
 	 * Provides signed ints from index as a stream.
 	 */
-	default IntStream stream(int index) {
+	default IntStream<RuntimeException> stream(int index) {
 		return stream(index, length() - index);
 	}
 
 	/**
 	 * Provides signed ints from index as a stream.
 	 */
-	default IntStream stream(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		return IntStream.range(index, index + length).map(i -> getInt(i));
+	default IntStream<RuntimeException> stream(int index, int length) {
+		Validate.validateSlice(length(), index, length);
+		return Streams.slice(index, length).map(i -> getInt(i));
 	}
 
 	/**
 	 * Provides unsigned ints from index as a stream.
 	 */
-	default LongStream ustream(int index) {
+	default LongStream<RuntimeException> ustream(int index) {
 		return ustream(index, length() - index);
 	}
 
 	/**
 	 * Provides unsigned ints from index as a stream.
 	 */
-	default LongStream ustream(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		return IntStream.range(index, index + length).mapToLong(i -> getUint(i));
+	default LongStream<RuntimeException> ustream(int index, int length) {
+		Validate.validateSlice(length(), index, length);
+		return Streams.slice(index, length).mapToLong(i -> getUint(i));
 	}
 
 	/**
@@ -566,7 +565,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Provides sequential int access.
 	 */
 	default Reader reader(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 
@@ -601,14 +600,14 @@ public interface IntProvider extends Iterable<Integer> {
 	/**
 	 * Provides a limited string representation.
 	 */
-	static String toString(IntFunction<?> stringFn, IntProvider provider) {
+	static String toString(Functions.IntFunction<?> stringFn, IntProvider provider) {
 		return toString(JOINER, stringFn, provider);
 	}
 
 	/**
 	 * Provides a string representation.
 	 */
-	static String toString(Joiner joiner, IntFunction<?> stringFn, IntProvider provider) {
+	static String toString(Joiner joiner, Functions.IntFunction<?> stringFn, IntProvider provider) {
 		return joiner.joinIndex(i -> stringFn.apply(provider.getInt(i)), provider.length());
 	}
 }

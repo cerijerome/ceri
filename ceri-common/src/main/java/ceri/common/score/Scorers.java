@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Predicates;
 import ceri.common.reflect.Reflect;
@@ -27,7 +27,7 @@ public class Scorers {
 	}
 
 	public static <T> Comparator<T> comparator(Scorer<T> scorer) {
-		return ((lhs, rhs) -> -Comparators.DOUBLE.compare(scorer.score(lhs), scorer.score(rhs)));
+		return ((lhs, rhs) -> -Compares.DOUBLE.compare(scorer.score(lhs), scorer.score(rhs)));
 	}
 
 	public static <T> void sort(List<T> ts, Scorer<? super T> scorer) {

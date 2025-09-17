@@ -1,7 +1,5 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.validation.ValidationUtil.validateMax;
-import static ceri.common.validation.ValidationUtil.validateRange;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -14,6 +12,7 @@ import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 import ceri.x10.command.Command;
 
 /**
@@ -31,7 +30,7 @@ public class EntryBuffer {
 	 */
 	public static EntryBuffer decode(ByteReader r) {
 		int count = r.readUbyte();
-		validateRange(count, HEADER_SIZE - 1, MAX_BYTES - 1);
+		Validate.validateRange(count, HEADER_SIZE - 1, MAX_BYTES - 1);
 		var entries = Lists.<Entry>of();
 		int bits = r.readUbyte();
 		for (int i = 0; i < count - 1;) {
@@ -47,7 +46,7 @@ public class EntryBuffer {
 	 * Creates an EntryBuffer from given command.
 	 */
 	public static List<EntryBuffer> allFrom(Command command) {
-		List<Entry> entries = Entry.allFrom(command);
+		var entries = Entry.allFrom(command);
 		return allFrom(entries);
 	}
 
@@ -59,7 +58,7 @@ public class EntryBuffer {
 		var buffers = Lists.<EntryBuffer>of();
 		var bufferEntries = Lists.<Entry>of();
 		int count = 0;
-		for (Entry entry : entries) {
+		for (var entry : entries) {
 			int len = Receive.size(entry);
 			if (count + len > MAX_DATA_BYTES) {
 				buffers.add(EntryBuffer.of(bufferEntries));
@@ -84,8 +83,8 @@ public class EntryBuffer {
 	 * Collects all inputs from collection of EntryBuffers.
 	 */
 	public static Collection<Entry> combine(Collection<EntryBuffer> buffers) {
-		List<Entry> inputs = Lists.of();
-		for (EntryBuffer buffer : buffers)
+		var inputs = Lists.<Entry>of();
+		for (var buffer : buffers)
 			inputs.addAll(buffer.entries);
 		return inputs;
 	}
@@ -95,7 +94,7 @@ public class EntryBuffer {
 	}
 
 	public static EntryBuffer of(Collection<Entry> entries) {
-		validateMax(size(entries), MAX_BYTES, "Total entry size");
+		Validate.validateMax(size(entries), MAX_BYTES, "Total entry size");
 		return new EntryBuffer(Immutable.list(entries));
 	}
 
@@ -120,8 +119,8 @@ public class EntryBuffer {
 	public void encode(ByteWriter<?> w) {
 		int count = 0;
 		int bits = 0;
-		List<ByteProvider> encodeds = Lists.of();
-		for (Entry entry : entries) {
+		var encodeds = Lists.<ByteProvider>of();
+		for (var entry : entries) {
 			if (!entry.isAddress()) bits |= 1 << count;
 			count += Receive.size(entry);
 			encodeds.add(Receive.encode(entry));

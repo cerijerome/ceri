@@ -1,12 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
-import static ceri.common.data.IntUtil.LONG_INTS;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import ceri.common.array.ArrayUtil;
 import ceri.common.math.Maths;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.stream.IntStream;
+import ceri.common.stream.LongStream;
+import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Interface that provides sequential access to ints. Reads are of known length, or require a given
@@ -56,14 +55,14 @@ public interface IntReader {
 	 * Returns the value from native-order ints.
 	 */
 	default long readLong() {
-		return readLong(IS_BIG_ENDIAN);
+		return readLong(ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
 	 * Returns the value from endian ints.
 	 */
 	default long readLong(boolean msb) {
-		int[] ints = readInts(LONG_INTS);
+		int[] ints = readInts(IntUtil.LONG_INTS);
 		return msb ? IntUtil.longFromMsb(ints) : IntUtil.longFromLsb(ints);
 	}
 
@@ -125,7 +124,7 @@ public interface IntReader {
 	 * one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(int[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
+		Validate.validateSlice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readInt();
 		return offset;
@@ -150,7 +149,7 @@ public interface IntReader {
 	 * implementation reads one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(IntReceiver receiver, int offset, int length) {
-		ValidationUtil.validateSlice(receiver.length(), offset, length);
+		Validate.validateSlice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setInt(offset++, readInt());
 		return offset;
@@ -159,15 +158,14 @@ public interface IntReader {
 	/**
 	 * Provides ints as a stream, starting at offset, for given length.
 	 */
-	default IntStream stream(int length) {
-		return IntStream.range(0, length).map(_ -> readInt());
+	default IntStream<RuntimeException> stream(int length) {
+		return Streams.slice(0, length).map(_ -> readInt());
 	}
 
 	/**
 	 * Provides unsigned ints as a stream, starting at offset, for given length.
 	 */
-	default LongStream ustream(int length) {
-		return IntStream.range(0, length).mapToLong(_ -> readUint());
+	default LongStream<RuntimeException> ustream(int length) {
+		return Streams.slice(0, length).mapToLong(_ -> readUint());
 	}
-
 }

@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import ceri.common.data.LongArray.Mutable;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class LongReaderBehavior {
 
@@ -69,7 +69,7 @@ public class LongReaderBehavior {
 
 			@Override
 			public long readLong() {
-				ValidationUtil.validateIndex(length, pos);
+				Validate.validateIndex(length, pos);
 				return longs[offset + pos++];
 			}
 		};

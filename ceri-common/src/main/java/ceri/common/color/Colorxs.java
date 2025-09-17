@@ -8,15 +8,15 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import ceri.common.collection.Maps;
-import ceri.common.comparator.Comparators;
 import ceri.common.data.IntProvider;
+import ceri.common.function.Compares;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Format;
+import ceri.common.text.Formats;
 import ceri.common.text.Regex;
 
 public class Colorxs {
@@ -33,25 +33,25 @@ public class Colorxs {
 	public static class Compare {
 		/** Compare by xargb long. */
 		public static final Comparator<Colorx> XARGB =
-			Comparators.comparing(Colorx::xargb, Comparators.ULONG);
+			Compares.comparing(Colorx::xargb, Compares.ULONG);
 		/** Compare by xrgb long value without alpha. */
 		public static final Comparator<Colorx> XRGB =
-			Comparators.comparing(cx -> Colorxs.xrgb(cx.xargb()), Comparators.ULONG);
+			Compares.comparing(cx -> Colorxs.xrgb(cx.xargb()), Compares.ULONG);
 		/** Compare by argb int value. */
 		public static final Comparator<Colorx> ARGB =
-			Comparators.comparing(Colorx::argb, Comparators.UINT);
+			Compares.comparing(Colorx::argb, Compares.UINT);
 		/** Compare by alpha component. */
 		public static final Comparator<Colorx> A =
-			Comparators.comparingInt(cx -> Colorxs.a(cx.xargb()));
+			Compares.comparingInt(cx -> Colorxs.a(cx.xargb()));
 		/** Compare by red component. */
 		public static final Comparator<Colorx> R =
-			Comparators.comparingInt(cx -> Colorxs.r(cx.xargb()));
+			Compares.comparingInt(cx -> Colorxs.r(cx.xargb()));
 		/** Compare by green component. */
 		public static final Comparator<Colorx> G =
-			Comparators.comparingInt(cx -> Colorxs.g(cx.xargb()));
+			Compares.comparingInt(cx -> Colorxs.g(cx.xargb()));
 		/** Compare by blue component. */
 		public static final Comparator<Colorx> B =
-			Comparators.comparingInt(cx -> Colorxs.b(cx.xargb()));
+			Compares.comparingInt(cx -> Colorxs.b(cx.xargb()));
 
 		private Compare() {}
 
@@ -59,14 +59,14 @@ public class Colorxs {
 		 * Compare by x[i].
 		 */
 		public static Comparator<Colorx> x(int i) {
-			return Comparators.comparingInt(cx -> Colorxs.x(cx.xargb(), i));
+			return Compares.comparingInt(cx -> Colorxs.x(cx.xargb(), i));
 		}
 
 		/**
 		 * Compare using color comparator, ignoring x.
 		 */
 		public static Comparator<Colorx> color(Comparator<Color> comparator) {
-			return Comparators.comparing(t -> t.color(), comparator);
+			return Compares.comparing(t -> t.color(), comparator);
 		}
 	}
 
@@ -673,7 +673,8 @@ public class Colorxs {
 	}
 
 	private static String hexX(long xargb) {
-		return "#" + Format.hex(xargb, Component.count(xargb) << 1);
+		int digits = Component.count(xargb) << 1;
+		return Formats.hex(xargb, "#", digits);
 	}
 
 	private static Long namedArgbx(String name) {
@@ -688,8 +689,8 @@ public class Colorxs {
 	}
 
 	private static int denormalize(int[] rgb, int r, int g, int b) {
-		double x = Maths
-			.limit(Maths.min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
+		double x =
+			Maths.limit(Maths.min(ratio(rgb[0], r), ratio(rgb[1], g), ratio(rgb[2], b)), 0, 1);
 		if (x == 0) return 0;
 		rgb[0] -= Maths.intRound(x * r);
 		rgb[1] -= Maths.intRound(x * g);

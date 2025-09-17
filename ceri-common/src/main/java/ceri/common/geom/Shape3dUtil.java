@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
+import ceri.common.util.Validate;
 
 public class Shape3dUtil {
 
@@ -16,9 +16,9 @@ public class Shape3dUtil {
 	}
 
 	public static Radial3d conicalFrustum(double r0, double r1, double h) {
-		validateMinFp(r0, 0);
-		validateMinFp(r1, 0);
-		validateMinFp(h, 0);
+		Validate.validateMinFp(r0, 0);
+		Validate.validateMinFp(r1, 0);
+		Validate.validateMinFp(h, 0);
 		if (r0 == r1) return Cylinder3d.create(r0, h);
 		if (r0 == 0) return Cone3d.create(r1, h);
 		if (r1 == 0) return invert(Cone3d.create(r0, h));
@@ -46,7 +46,7 @@ public class Shape3dUtil {
 	 */
 	public static TruncatedRadial3d<ConcaveSpheroid3d>
 		truncatedConcaveSemiSpheroidFromGradient(double r0, double r1, double h, double m) {
-		validateMinFp(r0, 0, "Minimum radius r0");
+		Validate.validateMinFp(r0, 0, "Minimum radius r0");
 		if (r1 <= r0)
 			throw new IllegalArgumentException("Large radius r1 must be > " + r0 + ": " + r1);
 		if (m == 0) throw new IllegalArgumentException("Gradient m cannot be 0: " + m);
@@ -58,7 +58,7 @@ public class Shape3dUtil {
 		truncatedConcaveSemiSpheroidFromPositiveGradient(double r0, double r1, double h, double m) {
 		double rd = r1 - r0;
 		double d = 2.0 * m * rd;
-		validateMinFp(h, d, "Height");
+		Validate.validateMinFp(h, d, "Height");
 		double a = rd * (h - (m * rd)) / (h - d);
 		double c = a * Math.sqrt(m * h / (a - rd));
 		double r = r0 + a;
@@ -69,7 +69,7 @@ public class Shape3dUtil {
 		truncatedConcaveSemiSpheroidFromNegativeGradient(double r0, double r1, double h, double m) {
 		double rd = r1 - r0;
 		double d = 2.0 * -m * rd;
-		validateMinFp(h, d, "Height");
+		Validate.validateMinFp(h, d, "Height");
 		double a = rd * (h - (-m * rd)) / (h - d);
 		double c = a * Math.sqrt(-m * h / (a - rd));
 		double r = r0 + a;

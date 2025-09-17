@@ -17,7 +17,7 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import ceri.common.array.RawArray;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -116,7 +116,7 @@ public class Immutable {
 		 */
 		public static <T> Wrap<SortedSet<T>> sortSet(Comparator<? super T> comparator) {
 			return Basics
-				.unchecked(SORT_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
+				.unchecked(SORT_SET.to(() -> new TreeSet<>(Compares.of(comparator))));
 		}
 
 		/**
@@ -130,7 +130,7 @@ public class Immutable {
 		 * Provides an immutable navigable set wrapper, using an underlying tree set.
 		 */
 		public static <T> Wrap<NavigableSet<T>> navSet(Comparator<? super T> comparator) {
-			return Reflect.unchecked(NAV_SET.to(() -> new TreeSet<>(Comparators.of(comparator))));
+			return Reflect.unchecked(NAV_SET.to(() -> new TreeSet<>(Compares.of(comparator))));
 		}
 
 		/**
@@ -166,7 +166,7 @@ public class Immutable {
 		 */
 		public static <K, V> Wrap<SortedMap<K, V>> sortMap(Comparator<? super K> comparator) {
 			return Basics
-				.unchecked(SORT_MAP.to(() -> new TreeMap<>(Comparators.of(comparator))));
+				.unchecked(SORT_MAP.to(() -> new TreeMap<>(Compares.of(comparator))));
 		}
 
 		/**
@@ -180,7 +180,7 @@ public class Immutable {
 		 * Provides an immutable navigable map wrapper, using an underlying tree map.
 		 */
 		public static <K, V> Wrap<NavigableMap<K, V>> navMap(Comparator<? super K> comparator) {
-			return Reflect.unchecked(NAV_MAP.to(() -> new TreeMap<>(Comparators.of(comparator))));
+			return Reflect.unchecked(NAV_MAP.to(() -> new TreeMap<>(Compares.of(comparator))));
 		}
 
 		/**

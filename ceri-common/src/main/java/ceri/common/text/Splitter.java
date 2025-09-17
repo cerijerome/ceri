@@ -1,7 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static ceri.common.validation.ValidationUtil.validateNotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.function.Functions;
 import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Utility for extracting text sequentially.
@@ -25,8 +24,8 @@ public class Splitter {
 		public static final Extraction NULL = of("", 0);
 
 		public static Extraction of(String text, int size) {
-			validateNotNull(text);
-			validateMin(size, 0);
+			Validate.validateNotNull(text);
+			Validate.validateMin(size, 0);
 			return new Extraction(text, size);
 		}
 

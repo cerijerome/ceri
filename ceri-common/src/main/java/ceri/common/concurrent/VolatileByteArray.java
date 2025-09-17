@@ -6,7 +6,7 @@ import java.util.Arrays;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteAccessor;
 import ceri.common.data.ByteProvider;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Fixed-size byte array with volatile values.
@@ -71,7 +71,7 @@ public class VolatileByteArray implements ByteAccessor {
 
 	@Override
 	public VolatileByteArray slice(int offset, int length) {
-		ValidationUtil.validateSlice(length(), offset, length);
+		Validate.validateSlice(length(), offset, length);
 		return new VolatileByteArray(array, this.offset + offset, length);
 	}
 

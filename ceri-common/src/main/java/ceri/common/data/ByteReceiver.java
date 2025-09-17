@@ -1,12 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.array.ArrayUtil;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Interface for receiving bytes into an array. For bulk efficiency, consider overriding the
@@ -125,7 +124,7 @@ public interface ByteReceiver {
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
 		public Writer<T> slice(int length) {
-			ValidationUtil.validateSlice(length(), offset(), length);
+			Validate.validateSlice(length(), offset(), length);
 			return new Writer<>(receiver, position(), length);
 		}
 
@@ -179,7 +178,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setShort(int index, int value) {
-		return setEndian(index, Short.BYTES, value, IS_BIG_ENDIAN);
+		return setEndian(index, Short.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -201,7 +200,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setInt(int index, int value) {
-		return setEndian(index, Integer.BYTES, value, IS_BIG_ENDIAN);
+		return setEndian(index, Integer.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -223,7 +222,7 @@ public interface ByteReceiver {
 	 * Sets the value in native-order bytes at the index. Returns the index after the written bytes.
 	 */
 	default int setLong(int index, long value) {
-		return setEndian(index, Long.BYTES, value, IS_BIG_ENDIAN);
+		return setEndian(index, Long.BYTES, value, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -357,7 +356,7 @@ public interface ByteReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, int value) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setByte(index++, value);
 		return index;
@@ -383,8 +382,8 @@ public interface ByteReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, byte[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setByte(index++, array[offset++]);
 		return index;
@@ -410,8 +409,8 @@ public interface ByteReceiver {
 	 * this method.
 	 */
 	default int copyFrom(int index, ByteProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		while (length-- > 0)
 			setByte(index++, provider.getByte(offset++));
 		return index;
@@ -437,7 +436,7 @@ public interface ByteReceiver {
 	 * </pre>
 	 */
 	default int readFrom(int index, InputStream in, int length) throws IOException {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0) {
 			int value = in.read();
 			if (value < 0) break; // EOF
@@ -453,7 +452,7 @@ public interface ByteReceiver {
 	 */
 	static int readBufferFrom(ByteReceiver receiver, int index, InputStream in, int length)
 		throws IOException {
-		ValidationUtil.validateSlice(receiver.length(), index, length);
+		Validate.validateSlice(receiver.length(), index, length);
 		byte[] buffer = in.readNBytes(length); // < length if EOF
 		return receiver.copyFrom(index, buffer);
 	}
@@ -469,8 +468,7 @@ public interface ByteReceiver {
 	 * Provides sequential byte access.
 	 */
 	default Writer<?> writer(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Writer<>(this, index, length);
 	}
-
 }

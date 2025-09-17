@@ -1,15 +1,9 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
-import static ceri.common.validation.ValidationUtil.validateUbyte;
-import static ceri.jna.clib.jna.CLib.caller;
-import static ceri.jna.clib.jna.CLib.lib;
-import static ceri.jna.util.JnaOs.linux;
-import static ceri.jna.util.JnaOs.mac;
 import com.sun.jna.Pointer;
 import ceri.common.function.Functions;
 import ceri.common.util.OsUtil;
-import ceri.jna.clib.jna.CTermios.speed_t;
+import ceri.common.util.Validate;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.type.CUlong;
@@ -23,12 +17,12 @@ import ceri.jna.util.JnaUtil;
  */
 @CInclude("sys/ioctl.h")
 public class CIoctl {
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int _IOC_SIZEBITS;
-	@CType(os = linux)
+	@CType(os = JnaOs.linux)
 	public static final int _IOC_SIZEMASK;
-	@CType(os = mac, name = "IOC_VOID")
-	@CType(os = linux)
+	@CType(os = JnaOs.mac, name = "IOC_VOID")
+	@CType(os = JnaOs.linux)
 	public static final int _IOC_NONE;
 	public static final int IOC_OUT;
 	public static final int IOC_IN;
@@ -62,9 +56,9 @@ public class CIoctl {
 	 * </pre>
 	 */
 	public static int _IOC(int inOut, int group, int num, int size) {
-		validateUbyte(group, "Group");
-		validateUbyte(num, "Num");
-		validateRange(size, 0, _IOC_SIZEMASK, "Size");
+		Validate.validateUbyte(group, "Group");
+		Validate.validateUbyte(num, "Num");
+		Validate.validateRange(size, 0, _IOC_SIZEMASK, "Size");
 		return inOut | ((size & _IOC_SIZEMASK) << Short.SIZE) | (group << Byte.SIZE) | num;
 	}
 
@@ -89,7 +83,7 @@ public class CIoctl {
 	 */
 	public static int ioctl(String name, int fd, int request, Object... objs) throws CException {
 		var n = new CUlong(request);
-		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
+		return CLib.caller.verifyInt(() -> CLib.lib().ioctl(fd, n, objs), "ioctl:" + name, fd, request, objs);
 	}
 
 	/**
@@ -98,7 +92,7 @@ public class CIoctl {
 	public static int ioctl(Functions.Supplier<String> errorMsg, int fd, int request,
 		Object... objs) throws CException {
 		var n = new CUlong(request);
-		return caller.verifyInt(() -> lib().ioctl(fd, n, objs), errorMsg);
+		return CLib.caller.verifyInt(() -> CLib.lib().ioctl(fd, n, objs), errorMsg);
 	}
 
 	/**
@@ -199,14 +193,14 @@ public class CIoctl {
 
 		/* <IOKit/serial/ioss.h> */
 
-		public static final int IOSSIOSPEED = _IOW('T', 2, speed_t.SIZE); // 0x80085402
+		public static final int IOSSIOSPEED = _IOW('T', 2, CTermios.speed_t.SIZE); // 0x80085402
 
 		/**
 		 * Sets input and output speeds to a non-traditional baud rate. Value is not represented in
 		 * struct termios.
 		 */
 		public static void iossiospeed(int fd, int speed) throws CException {
-			var ref = new speed_t.ByRef(new speed_t(speed));
+			var ref = new CTermios.speed_t.ByRef(new CTermios.speed_t(speed));
 			ioctl("IOSSIOSPEED", fd, IOSSIOSPEED, ref.getPointer());
 		}
 	}
@@ -302,5 +296,4 @@ public class CIoctl {
 			TIOCMSET = 0x5418;
 		}
 	}
-
 }

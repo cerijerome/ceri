@@ -8,21 +8,21 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import ceri.common.collection.Maps;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.math.Bound;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Format;
+import ceri.common.text.Formats;
 import ceri.common.text.Regex;
 
 /**
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
 public class Colors {
-	private static final Format FORMAT_ARGB = Format.of(Radix.HEX.n, "#", 8);
-	private static final Format FORMAT_RGB = Format.of(Radix.HEX.n, "#", 6);
+	private static final Formats.OfLong FORMAT_ARGB = Formats.ofLong("#", Radix.HEX.n, 8, 8);
+	private static final Formats.OfLong FORMAT_RGB = Formats.ofLong("#", Radix.HEX.n, 6, 6);
 	private static final Pattern HEX_REGEX = Pattern.compile("(0x|0X|#)([0-9a-fA-F]{1,8})");
 	public static final Pattern COLOR_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
@@ -46,31 +46,31 @@ public class Colors {
 	public static class Compare {
 		/** Compare by argb int value. */
 		public static final Comparator<Color> ARGB =
-			Comparators.comparing(Color::getRGB, Comparators.UINT);
+			Compares.comparing(Color::getRGB, Compares.UINT);
 		/** Compare by alpha component. */
 		public static final Comparator<Color> A =
-			Comparators.comparing(Color::getAlpha, Comparators.INT);
+			Compares.comparing(Color::getAlpha, Compares.INT);
 		/** Compare by red component. */
 		public static final Comparator<Color> R =
-			Comparators.comparing(Color::getRed, Comparators.INT);
+			Compares.comparing(Color::getRed, Compares.INT);
 		/** Compare by green component. */
 		public static final Comparator<Color> G =
-			Comparators.comparing(Color::getGreen, Comparators.INT);
+			Compares.comparing(Color::getGreen, Compares.INT);
 		/** Compare by blue component. */
 		public static final Comparator<Color> B =
-			Comparators.comparing(Color::getBlue, Comparators.INT);
+			Compares.comparing(Color::getBlue, Compares.INT);
 		/** Compare by HSB hue. */
 		public static final Comparator<Color> HUE =
-			Comparators.comparing(c -> toHsb(c)[0], Comparators.FLOAT);
+			Compares.comparing(c -> toHsb(c)[0], Compares.FLOAT);
 		/** Compare by HSB saturation. */
 		public static final Comparator<Color> SATURATION =
-			Comparators.comparing(c -> toHsb(c)[1], Comparators.FLOAT);
+			Compares.comparing(c -> toHsb(c)[1], Compares.FLOAT);
 		/** Compare by HSB brightness. */
 		public static final Comparator<Color> BRIGHTNESS =
-			Comparators.comparing(c -> toHsb(c)[2], Comparators.FLOAT);
+			Compares.comparing(c -> toHsb(c)[2], Compares.FLOAT);
 		/** Compare by hue, saturation, then brightness. */
 		public static final Comparator<Color> HSB =
-			Comparators.comparing(Compare::toHsb, Compare::compareHsb);
+			Compares.comparing(Compare::toHsb, Compare::compareHsb);
 
 		private Compare() {}
 
@@ -80,9 +80,9 @@ public class Colors {
 		}
 
 		private static int compareHsb(float[] lhs, float[] rhs) {
-			int result = Comparators.FLOAT.compare(lhs[0], rhs[0]);
-			if (result == 0) result = Comparators.FLOAT.compare(lhs[1], rhs[1]);
-			if (result == 0) result = Comparators.FLOAT.compare(lhs[2], rhs[2]);
+			int result = Compares.FLOAT.compare(lhs[0], rhs[0]);
+			if (result == 0) result = Compares.FLOAT.compare(lhs[1], rhs[1]);
+			if (result == 0) result = Compares.FLOAT.compare(lhs[2], rhs[2]);
 			return result;
 		}
 	}
@@ -488,7 +488,7 @@ public class Colors {
 	 * Adjust hue to the range 0-1 (inclusive).
 	 */
 	public static double limitHue(double h) {
-		return Maths.periodicLimit(h, MAX_RATIO, Bound.Type.inclusive);
+		return Maths.periodicLimit(h, MAX_RATIO, Bound.Type.inc);
 	}
 
 	/**

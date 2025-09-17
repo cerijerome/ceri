@@ -1,6 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.validation.ValidationUtil.validateRange;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.TypeTranscoder;
 import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
+import ceri.common.util.Validate;
 import ceri.jna.clib.jna.CMman;
 import ceri.jna.clib.jna.CUnistd;
 
@@ -131,7 +131,7 @@ public class Mmap implements Excepts.Closeable<IOException> {
 	}
 
 	public Pointer address(long offset) {
-		validateRange(offset, 0, this.length - 1);
+		Validate.validateRange(offset, 0, this.length - 1);
 		return address.share(offset);
 	}
 

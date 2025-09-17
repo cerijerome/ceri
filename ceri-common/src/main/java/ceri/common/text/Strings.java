@@ -263,7 +263,7 @@ public class Strings {
 	public static String sub(CharSequence s, int offset, int length) {
 		if (isEmpty(s)) return "";
 		return ArrayUtil.applySlice(s.length(), offset, length,
-			(o, l) -> s.subSequence(o, o + l).toString());
+			(o, l) -> l == 0 ? "" : s.subSequence(o, o + l).toString());
 	}
 
 	/**

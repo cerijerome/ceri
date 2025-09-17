@@ -21,23 +21,19 @@ import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 import ceri.common.util.Basics;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates conversion between types.
  */
 public class Parser {
-	private static final Excepts.Function<RuntimeException, java.lang.String, Boolean> BOOL =
-		Numbers.Parse::toBool;
-	private static final Excepts.Function<RuntimeException, java.lang.String, Integer> DINT =
-		Numbers.Decode::toInt;
-	private static final Excepts.Function<RuntimeException, java.lang.String, Long> DLONG =
-		Numbers.Decode::toLong;
-	private static final Excepts.Function<RuntimeException, java.lang.String, Double> DOUBLE =
-		Numbers.Parse::toDouble;
+	private static final Parse.Function<Boolean> BOOL = Parse::parseBool;
+	private static final Parse.Function<Integer> DINT = Parse::decodeInt;
+	private static final Parse.Function<Long> DLONG = Parse::decodeLong;
+	private static final Parse.Function<Double> DOUBLE = Parse::parseDouble;
 
 	private Parser() {}
 
@@ -105,7 +101,7 @@ public class Parser {
 	public static Parser.Strings findStrings(Pattern regex, java.lang.String s, int group) {
 		return strings(Regex.finds(regex, s, group).toList());
 	}
-	
+
 	/**
 	 * Interface for setting primitive array values.
 	 */
@@ -150,7 +146,7 @@ public class Parser {
 		 * Access the value, or throw named validation exception if null.
 		 */
 		default T getValid(java.lang.String name) {
-			return ValidationUtil.validateNotNull(get(), name);
+			return Validate.validateNotNull(get(), name);
 		}
 
 		/**
@@ -924,8 +920,7 @@ public class Parser {
 		List<R> def, Excepts.Function<E, ? super T, ? extends R> constructor) throws E {
 		if (values == null) return def;
 		if (values.isEmpty()) return List.of();
-		
-		
+
 		var list = Lists.<R>of();
 		for (var value : values) {
 			if (value == null) list.add(null);

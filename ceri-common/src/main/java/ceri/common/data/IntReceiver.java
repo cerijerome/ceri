@@ -1,8 +1,7 @@
 package ceri.common.data;
 
-import static ceri.common.data.ByteUtil.IS_BIG_ENDIAN;
-import ceri.common.function.Excepts.IntOperator;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.function.Excepts;
+import ceri.common.util.Validate;
 
 /**
  * Interface for receiving ints into an array. For bulk efficiency, consider overriding the
@@ -103,7 +102,7 @@ public interface IntReceiver {
 		public Writer slice(int length) {
 			int offset = length < 0 ? offset() + length : offset();
 			length = Math.abs(length);
-			ValidationUtil.validateSlice(length(), offset, length);
+			Validate.validateSlice(length(), offset, length);
 			return new Writer(receiver, start + offset, length);
 		}
 
@@ -157,7 +156,7 @@ public interface IntReceiver {
 	 * Sets the value in native-order ints at the index. Returns the index after the written ints.
 	 */
 	default int setLong(int index, long value) {
-		return setLong(index, value, IS_BIG_ENDIAN);
+		return setLong(index, value, ByteUtil.IS_BIG_ENDIAN);
 	}
 
 	/**
@@ -200,7 +199,7 @@ public interface IntReceiver {
 	/**
 	 * Iterates over each index to set the int value. Returns the index after writing.
 	 */
-	default <E extends Exception> int setEachInt(IntOperator<E> supplier) throws E {
+	default <E extends Exception> int setEachInt(Excepts.IntOperator<E> supplier) throws E {
 		int i = 0;
 		for (; i < length(); i++)
 			setInt(i, supplier.applyAsInt(i));
@@ -238,7 +237,7 @@ public interface IntReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, int value) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, value);
 		return index;
@@ -264,8 +263,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, int[] array, int offset, int length) {
-		ValidationUtil.validateSlice(array.length, offset, length);
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(array.length, offset, length);
+		Validate.validateSlice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, array[offset++]);
 		return index;
@@ -291,8 +290,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, IntProvider provider, int offset, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
-		ValidationUtil.validateSlice(provider.length(), offset, length);
+		Validate.validateSlice(length(), index, length);
+		Validate.validateSlice(provider.length(), offset, length);
 		while (length-- > 0)
 			setInt(index++, provider.getInt(offset++));
 		return index;
@@ -309,8 +308,7 @@ public interface IntReceiver {
 	 * Provides sequential int access.
 	 */
 	default Writer writer(int index, int length) {
-		ValidationUtil.validateSlice(length(), index, length);
+		Validate.validateSlice(length(), index, length);
 		return new Writer(this, index, length);
 	}
-
 }

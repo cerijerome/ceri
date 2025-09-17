@@ -1,13 +1,6 @@
 package ceri.common.math;
 
-import static ceri.common.math.Maths.gcd;
-import static ceri.common.math.Maths.lcm;
-import static ceri.common.validation.ValidationUtil.validateMin;
-import static java.lang.Math.abs;
-import static java.lang.Math.addExact;
-import static java.lang.Math.multiplyExact;
-import static java.lang.Math.negateExact;
-import static java.lang.Math.subtractExact;
+import ceri.common.util.Validate;
 
 /**
  * Holds a numerator and denominator. This is a visual representation, so reduction is not
@@ -18,7 +11,7 @@ public record Fraction(long numerator, long denominator) {
 	public static final Fraction ONE = new Fraction(1, 1);
 
 	public Fraction {
-		validateMin(denominator, 1);
+		Validate.validateMin(denominator, 1);
 	}
 
 	public static Fraction of(long numerator) {
@@ -33,7 +26,7 @@ public record Fraction(long numerator, long denominator) {
 			numerator = Math.negateExact(numerator);
 			denominator = Math.negateExact(denominator);
 		}
-		long gcd = gcd(numerator, denominator);
+		long gcd = Maths.gcd(numerator, denominator);
 		return new Fraction(numerator / gcd, denominator / gcd);
 	}
 
@@ -54,12 +47,12 @@ public record Fraction(long numerator, long denominator) {
 	}
 
 	public boolean isProper() {
-		return numerator() != Long.MIN_VALUE && abs(numerator()) < denominator();
+		return numerator() != Long.MIN_VALUE && Math.abs(numerator()) < denominator();
 	}
 
 	public Fraction negate() {
 		if (numerator() == 0) return this;
-		return of(negateExact(numerator()), denominator());
+		return of(Math.negateExact(numerator()), denominator());
 	}
 
 	public Fraction invert() {
@@ -72,26 +65,27 @@ public record Fraction(long numerator, long denominator) {
 
 	public Fraction proper() {
 		if (isProper()) return this;
-		return of(subtractExact(numerator(), multiplyExact(whole(), denominator())), denominator());
+		return of(Math.subtractExact(numerator(), Math.multiplyExact(whole(), denominator())),
+			denominator());
 	}
 
 	public Fraction add(Fraction fraction) {
 		if (fraction.isZero()) return this;
 		if (isZero()) return fraction;
 		if (denominator() == fraction.denominator())
-			return of(addExact(numerator(), fraction.numerator()), denominator());
-		long lcm = lcm(denominator(), fraction.denominator());
-		long lhs = multiplyExact(numerator(), lcm / denominator());
-		long rhs = multiplyExact(fraction.numerator(), lcm / fraction.denominator());
-		return of(addExact(lhs, rhs), lcm);
+			return of(Math.addExact(numerator(), fraction.numerator()), denominator());
+		long lcm = Maths.lcm(denominator(), fraction.denominator());
+		long lhs = Math.multiplyExact(numerator(), lcm / denominator());
+		long rhs = Math.multiplyExact(fraction.numerator(), lcm / fraction.denominator());
+		return of(Math.addExact(lhs, rhs), lcm);
 	}
 
 	public Fraction multiply(Fraction fraction) {
 		if (this == ZERO || fraction == ZERO) return ZERO;
 		if (this == ONE) return fraction;
 		if (fraction == ONE) return this;
-		long numerator = multiplyExact(this.numerator(), fraction.numerator());
-		long denominator = multiplyExact(this.denominator(), fraction.denominator());
+		long numerator = Math.multiplyExact(this.numerator(), fraction.numerator());
+		long denominator = Math.multiplyExact(this.denominator(), fraction.denominator());
 		return of(numerator, denominator);
 	}
 

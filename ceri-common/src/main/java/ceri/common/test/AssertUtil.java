@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.reflect.Reflect.hashId;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -48,7 +47,7 @@ import ceri.common.text.Strings;
 import ceri.common.text.Text;
 
 public class AssertUtil {
-	private static final int LINE_COUNT = 10;	
+	private static final int LINE_COUNT = 10;
 	public static final int APPROX_PRECISION_DEF = 3;
 
 	private AssertUtil() {}
@@ -160,7 +159,7 @@ public class AssertUtil {
 	public static <T> void assertSame(T actual, T expected, String format, Object... args) {
 		if (expected == actual) return;
 		throw failure("%sExpected same: %s (%s)\n       actual: %s (%s)", nl(format, args),
-			expected, hashId(expected), actual, hashId(actual));
+			expected, Reflect.hashId(expected), actual, Reflect.hashId(actual));
 	}
 
 	public static <T> void assertNotSame(T actual, T unexpected) {
@@ -169,7 +168,8 @@ public class AssertUtil {
 
 	public static <T> void assertNotSame(T actual, T unexpected, String format, Object... args) {
 		if (unexpected != actual) return;
-		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual, hashId(actual));
+		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual,
+			Reflect.hashId(actual));
 	}
 
 	public static <T> void assertNull(T actual) {
@@ -778,7 +778,7 @@ public class AssertUtil {
 	public static <E extends Exception, T> void assertConsume(Iterable<T> iterable,
 		Excepts.Consumer<E, T>... consumers) throws E {
 		int i = 0;
-		for (var iter = iterable.iterator(); iter.hasNext(); ) {
+		for (var iter = iterable.iterator(); iter.hasNext();) {
 			if (i >= consumers.length) throw failure("No consumers from index %d", i);
 			consumers[i++].accept(iter.next());
 		}
@@ -1120,8 +1120,8 @@ public class AssertUtil {
 			var expectedLine = Lists.at(expectedLines, i, "");
 			if (Objects.equals(actualLine, expectedLine)) continue;
 			throw failure("Line %d%nExpected: %s%n  actual: %s%n%nExpected:%n%s%n%nActual:%n%s%n",
-				i + 1, expectedLine.trim(), actualLine.trim(),
-				limitedLines(expectedLines, i), limitedLines(actualLines, i));
+				i + 1, expectedLine.trim(), actualLine.trim(), limitedLines(expectedLines, i),
+				limitedLines(actualLines, i));
 		}
 	}
 
@@ -1130,7 +1130,7 @@ public class AssertUtil {
 		int end = Math.min(lines.size(), index + LINE_COUNT + 1);
 		return Text.addLineNumbers(Lists.sub(lines, start, end - start), start + 1);
 	}
-	
+
 	/**
 	 * Checks multi-line text, with line-specific failure info.
 	 */
@@ -1354,7 +1354,7 @@ public class AssertUtil {
 		List<Path> expected = Streams.of(paths).map(helper::path).collect(Collectors.toList());
 		assertUnordered(actual, expected);
 	}
-	
+
 	// support
 
 	private static void assertConstructorIsPrivate(Class<?> cls) {
@@ -1444,7 +1444,7 @@ public class AssertUtil {
 			assertIndex(lhsOffset + i, lhsVal, hasLhs, rhsVal, hasRhs, itemAssert);
 		}
 	}
-	
+
 	private static void assertString(String actual, String expected) {
 		if (Objects.equals(actual, expected)) return;
 		for (int i = 0;; i++) {

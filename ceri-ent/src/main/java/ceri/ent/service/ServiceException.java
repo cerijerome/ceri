@@ -1,7 +1,7 @@
 package ceri.ent.service;
 
+@SuppressWarnings("serial")
 public class ServiceException extends Exception {
-	private static final long serialVersionUID = -6146242300068417264L;
 
 	public ServiceException() {
 		super();
@@ -18,5 +18,4 @@ public class ServiceException extends Exception {
 	public ServiceException(Throwable cause) {
 		super(cause);
 	}
-
 }

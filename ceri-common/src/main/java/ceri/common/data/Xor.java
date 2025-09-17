@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import ceri.common.array.ArrayUtil;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class Xor {
 	private int value = 0;
@@ -23,7 +23,7 @@ public class Xor {
 	}
 
 	public Xor add(byte[] bytes, int offset, int length) {
-		ValidationUtil.validateSlice(bytes.length, offset, length);
+		Validate.validateSlice(bytes.length, offset, length);
 		for (int i = 0; i < length; i++)
 			xor(bytes[offset + i]);
 		return this;
@@ -38,7 +38,7 @@ public class Xor {
 	}
 
 	public Xor add(ByteProvider bytes, int offset, int length) {
-		ValidationUtil.validateSlice(bytes.length(), offset, length);
+		Validate.validateSlice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			xor(bytes.getByte(offset + i));
 		return this;

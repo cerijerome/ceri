@@ -1,12 +1,5 @@
 package ceri.common.time;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,8 +30,9 @@ public class DateUtil {
 	public static final int SEC_MICROS = 1000000;
 	public static final int SEC_NANOS = 1000000000;
 	public static final LocalDateTime UTC_EPOCH = utcDateTime(0);
-	private static final Map<TimeUnit, String> TIME_SYMBOLS = Map.of(DAYS, "d", HOURS, "h", MINUTES,
-		"m", SECONDS, "s", MILLISECONDS, "ms", MICROSECONDS, "\u00b5s", NANOSECONDS, "ns");
+	private static final Map<TimeUnit, String> TIME_SYMBOLS = Map.of(TimeUnit.DAYS, "d",
+		TimeUnit.HOURS, "h", TimeUnit.MINUTES, "m", TimeUnit.SECONDS, "s", TimeUnit.MILLISECONDS,
+		"ms", TimeUnit.MICROSECONDS, "\u00b5s", TimeUnit.NANOSECONDS, "ns");
 	private static final Map<String, TimeUnit> SYMBOL_TIMES = symbolTimes();
 
 	private DateUtil() {}
@@ -265,7 +259,7 @@ public class DateUtil {
 	private static Map<String, TimeUnit> symbolTimes() {
 		var map = Maps.<String, TimeUnit>of();
 		TIME_SYMBOLS.forEach((u, s) -> map.put(s, u));
-		map.put("us", MICROSECONDS);
+		map.put("us", TimeUnit.MICROSECONDS);
 		return Immutable.wrap(map);
 	}
 }

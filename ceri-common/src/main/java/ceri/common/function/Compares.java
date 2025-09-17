@@ -1,15 +1,14 @@
-package ceri.common.comparator;
+package ceri.common.function;
 
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 
 /**
  * Comparators for primitives and other objects, handling null cases.
  */
-public class Comparators {
+public class Compares {
 	private static final Comparator<Comparable<Comparable<?>>> NULLS_FIRST_COMPARABLE =
 		Comparator.nullsFirst(Comparator.naturalOrder());
 	private static final Comparator<Comparable<Comparable<?>>> NULLS_LAST_COMPARABLE =
@@ -34,7 +33,7 @@ public class Comparators {
 	public static final Comparator<Object> TO_STRING = comparing(String::valueOf, STRING);
 	private static final Comparator<Object> NULL = ((_, _) -> 0);
 
-	private Comparators() {}
+	private Compares() {}
 
 	/**
 	 * Null comparator treats everything as equal.

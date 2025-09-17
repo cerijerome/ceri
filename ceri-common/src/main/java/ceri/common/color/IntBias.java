@@ -1,7 +1,6 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_VALUE;
-import ceri.common.math.Bound.Type;
+import ceri.common.math.Bound;
 import ceri.common.math.Maths;
 
 /**
@@ -15,9 +14,9 @@ public interface IntBias {
 	enum Std implements IntBias {
 		none(NONE),
 		/** Moves any value except min to max. */
-		up(v -> v > 0 ? MAX_VALUE : 0),
+		up(v -> v > 0 ? Colors.MAX_VALUE : 0),
 		/** Moves any value except max to min. */
-		down(v -> v < MAX_VALUE ? 0 : MAX_VALUE),
+		down(v -> v < Colors.MAX_VALUE ? 0 : Colors.MAX_VALUE),
 		/** Sine curve from 0 to +PI/2. */
 		q1Sine(IntBias.from(Bias.Std.q1Sine)),
 		/** Transposed sine curve from -PI/2 to 0. */
@@ -78,18 +77,20 @@ public interface IntBias {
 	 * Converts a bias into a lookup table int bias.
 	 */
 	static IntBias from(Bias bias) {
-		int[] lookup = new int[MAX_VALUE + 1];
+		int[] lookup = new int[Colors.MAX_VALUE + 1];
 		for (int i = 0; i < lookup.length; i++)
 			lookup[i] = Maths.limit(
-				Maths.intRound(bias.bias((double) i / MAX_VALUE) * MAX_VALUE), 0, MAX_VALUE);
-		return v -> lookup[Maths.limit(v, 0, MAX_VALUE)];
+				Maths.intRound(bias.bias((double) i / Colors.MAX_VALUE) * Colors.MAX_VALUE), 0,
+				Colors.MAX_VALUE);
+		return v -> lookup[Maths.limit(v, 0, Colors.MAX_VALUE)];
 	}
 
 	/**
 	 * Makes sure biased ratios within bounds.
 	 */
 	private static IntBias limiter(IntBias bias) {
-		return v -> Maths.limit(bias.bias(Maths.limit(v, 0, MAX_VALUE)), 0, MAX_VALUE);
+		return v -> Maths.limit(bias.bias(Maths.limit(v, 0, Colors.MAX_VALUE)), 0,
+			Colors.MAX_VALUE);
 	}
 
 	/**
@@ -104,10 +105,10 @@ public interface IntBias {
 	 * Inverts the bias by flipping both axes.
 	 */
 	private static IntBias inverse(IntBias bias) {
-		return v -> MAX_VALUE - bias.bias(MAX_VALUE - v);
+		return v -> Colors.MAX_VALUE - bias.bias(Colors.MAX_VALUE - v);
 	}
 
 	private static int offset(int value, int offset) {
-		return Maths.periodicLimit(value + offset, MAX_VALUE + 1, Type.exclusive);
+		return Maths.periodicLimit(value + offset, Colors.MAX_VALUE + 1, Bound.Type.exc);
 	}
 }

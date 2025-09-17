@@ -1,6 +1,5 @@
 package ceri.log.rpc.service;
 
-import static ceri.log.rpc.service.RpcServiceUtil.NULL_SERVER;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,7 @@ import io.grpc.ServerBuilder;
 
 public class RpcServer implements Functions.Closeable, Enablable {
 	private static final Logger logger = LogManager.getLogger();
-	public static final RpcServer NULL = new RpcServer(NULL_SERVER, Config.NULL);
+	public static final RpcServer NULL = new RpcServer(RpcServiceUtil.NULL_SERVER, Config.NULL);
 	private final Config config;
 	private final Server server;
 

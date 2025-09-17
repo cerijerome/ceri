@@ -1,9 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.math.Maths;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 public class Circle2d {
 	public static final Circle2d NULL = new Circle2d(0);
@@ -11,7 +11,7 @@ public class Circle2d {
 
 	public static Circle2d of(double r) {
 		if (r == 0) return NULL;
-		validateMinFp(r, 0, "Radius");
+		Validate.validateMinFp(r, 0, "Radius");
 		return new Circle2d(r + .0);
 	}
 

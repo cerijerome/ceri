@@ -1,16 +1,11 @@
 package ceri.log.rpc.client;
 
-import static ceri.log.rpc.client.RpcClientUtil.wrap;
-import static ceri.log.rpc.client.RpcClientUtil.wrapReturn;
-import static ceri.log.rpc.util.RpcUtil.EMPTY;
-import static ceri.log.rpc.util.RpcUtil.uint32;
 import java.io.IOException;
-import java.util.function.Consumer;
 import com.google.protobuf.UInt32Value;
 import ceri.common.function.Functions;
 import ceri.common.util.Enclosure;
 import ceri.log.rpc.TestGrpc;
-import ceri.log.rpc.TestGrpc.TestStub;
+import ceri.log.rpc.util.RpcUtil;
 
 /**
  * Client for the Test service.
@@ -26,20 +21,20 @@ public class TestRpcClient implements Functions.Closeable {
 		notifier = createNotifier(channel, notifierResetDelayMs);
 	}
 
-	public Enclosure<?> listen(Consumer<Integer> consumer) {
+	public Enclosure<?> listen(Functions.Consumer<Integer> consumer) {
 		return notifier.enclose(consumer);
 	}
 
 	public void run() throws IOException {
-		wrap(() -> stub.run(EMPTY));
+		RpcClientUtil.wrap(() -> stub.run(RpcUtil.EMPTY));
 	}
 
 	public void set(int value) throws IOException {
-		wrap(() -> stub.set(uint32(value)));
+		RpcClientUtil.wrap(() -> stub.set(RpcUtil.uint32(value)));
 	}
 
 	public int get() throws IOException {
-		return wrapReturn(() -> stub.get(EMPTY)).getValue();
+		return RpcClientUtil.wrapReturn(() -> stub.get(RpcUtil.EMPTY)).getValue();
 	}
 
 	@Override
@@ -50,9 +45,8 @@ public class TestRpcClient implements Functions.Closeable {
 
 	private RpcClientNotifier<Integer, UInt32Value> createNotifier(RpcChannel channel,
 		int notifierResetDelayMs) {
-		TestStub stub = TestGrpc.newStub(channel.channel);
+		var stub = TestGrpc.newStub(channel.channel);
 		var config = new RpcClientNotifier.Config(notifierResetDelayMs);
 		return RpcClientNotifier.of(stub::notify, UInt32Value::getValue, config);
 	}
-
 }

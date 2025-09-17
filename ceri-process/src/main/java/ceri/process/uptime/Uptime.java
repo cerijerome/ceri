@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import ceri.common.process.Output;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
-import ceri.common.text.Numbers;
+import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 import ceri.common.time.DateUtil;
 import ceri.common.util.OsUtil;
@@ -69,10 +69,10 @@ public class Uptime {
 	private static long extractMs(String output) {
 		var m = Regex.findValid(REGEX, output, "output");
 		int i = 1;
-		int days = Numbers.Parse.toInt(m.group(i++), 0);
-		int hours = Numbers.Parse.toInt(m.group(i++), 0);
-		int minutes = Numbers.Parse.toInt(m.group(i++), 0);
-		minutes += Numbers.Parse.toInt(m.group(i++), 0);
+		int days = Parse.parseInt(m.group(i++), 0);
+		int hours = Parse.parseInt(m.group(i++), 0);
+		int minutes = Parse.parseInt(m.group(i++), 0);
+		minutes += Parse.parseInt(m.group(i++), 0);
 		return TimeUnit.DAYS.toMillis(days) + TimeUnit.HOURS.toMillis(hours)
 			+ TimeUnit.MINUTES.toMillis(minutes);
 	}

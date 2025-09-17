@@ -1,6 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_RD;
 import java.io.IOException;
 import java.util.Set;
@@ -8,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -48,7 +48,7 @@ public class I2cDevice implements I2c {
 	 * Open a file descriptor to the I2C bus. Can be used as the open function for a SelfHealingFd.
 	 */
 	public static CFileDescriptor open(int bus) throws IOException {
-		validateMin(bus, 0, "Bus number");
+		Validate.validateMin(bus, 0, "Bus number");
 		return CFileDescriptor.of(I2cDev.i2c_open(bus, Open.RDWR.value));
 	}
 

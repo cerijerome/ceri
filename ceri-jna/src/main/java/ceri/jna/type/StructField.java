@@ -3,7 +3,7 @@ package ceri.jna.type;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.function.Functions;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
 
@@ -91,7 +91,7 @@ public class StructField {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			ValidationUtil.validateIndex(n, i);
+			Validate.validateIndex(n, i);
 			return JnaUtil.byVal(p, i, createFn, size);
 		}, t -> {
 			Pointer p = ptrFn.apply(t);
@@ -110,7 +110,7 @@ public class StructField {
 		return array((t, i) -> {
 			Pointer p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			ValidationUtil.validateIndex(n, i);
+			Validate.validateIndex(n, i);
 			return JnaUtil.byRef(p, i, createFn);
 		}, t -> {
 			Pointer p = ptrFn.apply(t);

@@ -10,8 +10,9 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Functions;
+import ceri.common.math.Radix;
 import ceri.common.reflect.Reflect;
-import ceri.common.text.Format;
+import ceri.common.text.Formats;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.ToString;
 
@@ -335,8 +336,8 @@ public class BinaryPrinter {
 	}
 
 	private void appendByte(StringBuilder binB, StringBuilder hexB, StringBuilder charB, int b) {
-		binB.append(Format.binBytes(b, 1));
-		var s = Format.hexBytes(b, 1);
+		binB.append(Formats.bin(b, "", Radix.BIN.digits.ubyte()));
+		var s = Formats.hex(b, "", Radix.HEX.digits.ubyte());
 		hexB.append(upper ? s.toUpperCase() : s);
 		boolean printable = (b >= ASCII_MIN && b <= ASCII_MAX) || (printableSpace && b == ' ');
 		charB.append(printable ? (char) b : unprintable);

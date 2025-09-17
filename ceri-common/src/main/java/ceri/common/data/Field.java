@@ -1,25 +1,17 @@
 package ceri.common.data;
 
-import static ceri.common.math.Maths.uint;
-import static ceri.common.math.Maths.uintExact;
-import static ceri.common.validation.ValidationUtil.validateSupported;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.function.Excepts.BiConsumer;
-import ceri.common.function.Excepts.Function;
-import ceri.common.function.Excepts.LongOperator;
-import ceri.common.function.Excepts.ObjIntConsumer;
-import ceri.common.function.Excepts.ObjLongConsumer;
-import ceri.common.function.Excepts.ToIntFunction;
-import ceri.common.function.Excepts.ToLongFunction;
+import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
+import ceri.common.util.Validate;
 
 /**
  * Provides access to a field.
  */
-public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
-	BiConsumer<E, T, U> setter) {
+public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
+	Excepts.BiConsumer<E, T, U> setter) {
 
 	/**
 	 * Create a no-op, stateless instance.
@@ -31,25 +23,25 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 	/**
 	 * Create an instance with getter and setter for a long field.
 	 */
-	public static <E extends Exception, T, U> Field<E, T, U> of(Function<E, T, U> getter,
-		BiConsumer<E, T, U> setter) {
+	public static <E extends Exception, T, U> Field<E, T, U> of(Excepts.Function<E, T, U> getter,
+		Excepts.BiConsumer<E, T, U> setter) {
 		return new Field<>(getter, setter);
 	}
 
 	/**
 	 * Create an instance with getter and setter for an unsigned int field.
 	 */
-	public static <E extends Exception, T> Long<E, T> ofUint(ToIntFunction<E, T> getter,
-		ObjIntConsumer<E, T> setter) {
-		return ofLong(getter == null ? null : t -> uint(getter.applyAsInt(t)),
+	public static <E extends Exception, T> Long<E, T> ofUint(Excepts.ToIntFunction<E, T> getter,
+		Excepts.ObjIntConsumer<E, T> setter) {
+		return ofLong(getter == null ? null : t -> Maths.uint(getter.applyAsInt(t)),
 			setter == null ? null : (t, v) -> setter.accept(t, (int) v));
 	}
 
 	/**
 	 * Create an instance with getter and setter for a long field.
 	 */
-	public static <E extends Exception, T> Long<E, T> ofLong(ToLongFunction<E, T> getter,
-		ObjLongConsumer<E, T> setter) {
+	public static <E extends Exception, T> Long<E, T> ofLong(Excepts.ToLongFunction<E, T> getter,
+		Excepts.ObjLongConsumer<E, T> setter) {
 		return new Long<>(getter, setter);
 	}
 
@@ -57,22 +49,22 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 	 * Get source value.
 	 */
 	public U get(T source) throws E {
-		return validateSupported(getter, "Get").apply(source);
+		return Validate.validateSupported(getter, "Get").apply(source);
 	}
 
 	/**
 	 * Set source value.
 	 */
 	public Field<E, T, U> set(T source, U value) throws E {
-		validateSupported(setter(), "Set").accept(source, value);
+		Validate.validateSupported(setter(), "Set").accept(source, value);
 		return this;
 	}
 
 	/**
 	 * A long field accessor. Covers all integral types.
 	 */
-	public record Long<E extends Exception, T>(ToLongFunction<E, T> getter,
-		ObjLongConsumer<E, T> setter) {
+	public record Long<E extends Exception, T>(Excepts.ToLongFunction<E, T> getter,
+		Excepts.ObjLongConsumer<E, T> setter) {
 
 		/**
 		 * Create a no-op, stateless instance.
@@ -121,7 +113,7 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 		 * Get source value.
 		 */
 		public long get(T source) throws E {
-			return validateSupported(getter, "Get").applyAsLong(source);
+			return Validate.validateSupported(getter, "Get").applyAsLong(source);
 		}
 
 		/**
@@ -142,21 +134,21 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 		 * Get unsigned int source value.
 		 */
 		public long getUint(T source) throws E {
-			return uint(get(source));
+			return Maths.uint(get(source));
 		}
 
 		/**
 		 * Get unsigned int source value; throws exception if out of range.
 		 */
 		public int getUintExact(T source) throws E {
-			return uintExact(get(source));
+			return Maths.uintExact(get(source));
 		}
 
 		/**
 		 * Set source value.
 		 */
 		public Long<E, T> set(T source, long value) throws E {
-			validateSupported(setter(), "Set").accept(source, value);
+			Validate.validateSupported(setter(), "Set").accept(source, value);
 			return this;
 		}
 
@@ -191,7 +183,7 @@ public record Field<E extends Exception, T, U>(Function<E, T, U> getter,
 		/**
 		 * Apply the operator to the source value.
 		 */
-		public Long<E, T> apply(T source, LongOperator<E> operator) throws E {
+		public Long<E, T> apply(T source, Excepts.LongOperator<E> operator) throws E {
 			long value = get(source);
 			long modified = operator.applyAsLong(value);
 			if (modified != value) set(source, modified);

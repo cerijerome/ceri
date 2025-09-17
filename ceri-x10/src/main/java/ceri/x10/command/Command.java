@@ -14,7 +14,7 @@ import ceri.common.stream.Streams;
 import ceri.common.text.Joiner;
 import ceri.common.text.Regex;
 import ceri.common.util.Basics;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.x10.util.X10Util;
 
 public abstract class Command {
@@ -82,17 +82,17 @@ public abstract class Command {
 	}
 
 	public static General allUnitsOff(House house) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allUnitsOff);
 	}
 
 	public static General allLightsOn(House house) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOn);
 	}
 
 	public static General allLightsOff(House house) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOff);
 	}
 
@@ -105,7 +105,7 @@ public abstract class Command {
 	}
 
 	public static General on(House house, Collection<Unit> units) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		return new General(house, normalize(units), FunctionType.on);
 	}
 
@@ -118,7 +118,7 @@ public abstract class Command {
 	}
 
 	public static General off(House house, Collection<Unit> units) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		return new General(house, normalize(units), FunctionType.off);
 	}
 
@@ -131,7 +131,7 @@ public abstract class Command {
 	}
 
 	public static Dim dim(House house, int percent, Collection<Unit> units) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.dim, percent);
 	}
@@ -145,7 +145,7 @@ public abstract class Command {
 	}
 
 	public static Dim bright(House house, int percent, Collection<Unit> units) {
-		ValidationUtil.validateNotNull(house);
+		Validate.validateNotNull(house);
 		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.bright, percent);
 	}
@@ -159,9 +159,9 @@ public abstract class Command {
 	}
 
 	public static Ext ext(House house, int data, int command, Collection<Unit> units) {
-		ValidationUtil.validateNotNull(house);
-		ValidationUtil.validateUbyte(data);
-		ValidationUtil.validateUbyte(command);
+		Validate.validateNotNull(house);
+		Validate.validateUbyte(data);
+		Validate.validateUbyte(command);
 		return new Ext(house, normalize(units), data, command);
 	}
 

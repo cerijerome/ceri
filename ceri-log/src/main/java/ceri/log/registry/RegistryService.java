@@ -1,18 +1,14 @@
 package ceri.log.registry;
 
-import static ceri.common.time.TimeSupplier.millis;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
+import java.nio.file.StandardOpenOption;
 import java.util.SequencedMap;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ceri.common.collection.Maps;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
@@ -21,6 +17,7 @@ import ceri.common.function.Excepts;
 import ceri.common.property.PropertySource;
 import ceri.common.property.TypedProperties;
 import ceri.common.time.DateUtil;
+import ceri.common.time.TimeSupplier;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 
@@ -35,7 +32,7 @@ public class RegistryService extends LoopingExecutor {
 	private final Excepts.Consumer<IOException, java.util.Properties> saveFn;
 	private final int delayMs;
 	private final int errorDelayMs;
-	private final SequencedMap<Object, Runnable> updates = new LinkedHashMap<>();
+	private final SequencedMap<Object, Runnable> updates = Maps.link();
 	private final ExceptionTracker exceptions = ExceptionTracker.of();
 	private final java.util.Properties properties = new java.util.Properties();
 	private final PropertySource source = PropertySource.Properties.of(properties);
@@ -119,7 +116,7 @@ public class RegistryService extends LoopingExecutor {
 			throw e;
 		} catch (Exception e) {
 			if (exceptions.add(e)) logger.catching(e);
-			millis.delay(errorDelayMs);
+			TimeSupplier.millis.delay(errorDelayMs);
 		}
 	}
 
@@ -168,7 +165,7 @@ public class RegistryService extends LoopingExecutor {
 
 	private static void loadPath(java.util.Properties properties, Path path) throws IOException {
 		if (path == null || !Files.exists(path)) return;
-		try (InputStream in = Files.newInputStream(path)) {
+		try (var in = Files.newInputStream(path)) {
 			properties.load(in);
 		}
 	}
@@ -178,7 +175,8 @@ public class RegistryService extends LoopingExecutor {
 		if (path == null || properties.isEmpty()) return;
 		var comment = String.format("# Written by %s %s", name, DateUtil.nowSec());
 		Files.createDirectories(path.getParent());
-		try (OutputStream out = Files.newOutputStream(path, CREATE, WRITE)) {
+		try (var out =
+			Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
 			properties.store(out, comment);
 		}
 	}

@@ -1,17 +1,5 @@
 package ceri.common.time;
 
-import static java.time.DayOfWeek.MONDAY;
-import static java.time.DayOfWeek.SATURDAY;
-import static java.time.DayOfWeek.SUNDAY;
-import static java.time.DayOfWeek.THURSDAY;
-import static java.time.Month.DECEMBER;
-import static java.time.Month.FEBRUARY;
-import static java.time.Month.JANUARY;
-import static java.time.Month.JULY;
-import static java.time.Month.MAY;
-import static java.time.Month.NOVEMBER;
-import static java.time.Month.OCTOBER;
-import static java.time.Month.SEPTEMBER;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -44,8 +32,8 @@ public interface Holiday {
 		return year -> {
 			LocalDate date = holiday.date(year);
 			DayOfWeek day = date.getDayOfWeek();
-			if (day == SATURDAY) return date.minusDays(1);
-			if (day == SUNDAY) return date.plusDays(1);
+			if (day == DayOfWeek.SATURDAY) return date.minusDays(1);
+			if (day == DayOfWeek.SUNDAY) return date.plusDays(1);
 			return date;
 		};
 	}
@@ -54,15 +42,15 @@ public interface Holiday {
 	 * Common US holidays.
 	 */
 	public enum Us {
-		mlkJrDay(nthDayInMonth(3, MONDAY, JANUARY), false),
-		presidentsDay(nthDayInMonth(3, MONDAY, FEBRUARY), false),
-		memorialDay(lastDayInMonth(MONDAY, MAY), false),
-		independenceDay(year -> LocalDate.of(year, JULY, 4), true),
-		laborDay(nthDayInMonth(1, MONDAY, SEPTEMBER), false),
-		columbusDay(nthDayInMonth(2, MONDAY, OCTOBER), false),
-		veteransDay(year -> LocalDate.of(year, NOVEMBER, 11), true),
-		thanksgivingDay(nthDayInMonth(4, THURSDAY, NOVEMBER), false),
-		christmasDay(year -> LocalDate.of(year, DECEMBER, 25), true);
+		mlkJrDay(nthDayInMonth(3, DayOfWeek.MONDAY, Month.JANUARY), false),
+		presidentsDay(nthDayInMonth(3, DayOfWeek.MONDAY, Month.FEBRUARY), false),
+		memorialDay(lastDayInMonth(DayOfWeek.MONDAY, Month.MAY), false),
+		independenceDay(year -> LocalDate.of(year, Month.JULY, 4), true),
+		laborDay(nthDayInMonth(1, DayOfWeek.MONDAY, Month.SEPTEMBER), false),
+		columbusDay(nthDayInMonth(2, DayOfWeek.MONDAY, Month.OCTOBER), false),
+		veteransDay(year -> LocalDate.of(year, Month.NOVEMBER, 11), true),
+		thanksgivingDay(nthDayInMonth(4, DayOfWeek.THURSDAY, Month.NOVEMBER), false),
+		christmasDay(year -> LocalDate.of(year, Month.DECEMBER, 25), true);
 
 		public final Holiday day;
 		public final Holiday observed;

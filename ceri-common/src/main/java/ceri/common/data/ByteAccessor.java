@@ -1,6 +1,6 @@
 package ceri.common.data;
 
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Combines ByteProvider and ByteReceiver interfaces.
@@ -55,19 +55,19 @@ public interface ByteAccessor extends ByteProvider, ByteReceiver {
 
 		@Override
 		public byte getByte(int index) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			return 0;
 		}
 
 		@Override
 		public int setByte(int index, int value) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			return index + 1;
 		}
 
 		@Override
 		public ByteAccessor slice(int index, int length) {
-			if (ValidationUtil.validateFullSlice(length(), index, length)) return this;
+			if (Validate.validateFullSlice(length(), index, length)) return this;
 			return ByteAccessor.ofNull(length);
 		}
 	}

@@ -1,8 +1,8 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 /**
  * A cone with its apex at h = 0.
@@ -15,8 +15,8 @@ public class Cone3d implements Radial3d {
 
 	public static Cone3d create(double r, double h) {
 		if (r == 0 && h == 0) return NULL;
-		validateMinFp(r, 0, "Radius");
-		validateMinFp(h, 0, "Height");
+		Validate.validateMinFp(r, 0, "Radius");
+		Validate.validateMinFp(h, 0, "Height");
 		return new Cone3d(r + .0, h + .0);
 	}
 

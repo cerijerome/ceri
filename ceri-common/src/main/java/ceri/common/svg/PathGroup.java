@@ -10,7 +10,7 @@ import ceri.common.collection.Immutable;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.stream.StreamUtil;
+import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
 
 public class PathGroup implements Path<PathGroup> {
@@ -21,35 +21,35 @@ public class PathGroup implements Path<PathGroup> {
 		return of(Arrays.asList(paths));
 	}
 
-	public static PathGroup of(Collection<Path<?>> paths) {
+	public static PathGroup of(Collection<? extends Path<?>> paths) {
 		return new PathGroup(paths);
 	}
 
-	private PathGroup(Collection<Path<?>> paths) {
+	private PathGroup(Collection<? extends Path<?>> paths) {
 		this.paths = Immutable.list(paths);
-		end = SvgUtil.combinedEnd(paths);
+		end = SvgUtil.combinedEnd(this.paths);
 	}
 
 	@Override
 	public PathGroup reverse() {
-		List<Path<?>> list = new ArrayList<>(paths);
+		var list = new ArrayList<>(paths);
 		Collections.reverse(list);
-		return of(StreamUtil.toList(list.stream().map(Path::reverse)));
+		return of(Streams.from(list).map(Path::reverse).toList());
 	}
 
 	@Override
 	public PathGroup reflect(Line2d line) {
-		return of(StreamUtil.toList(paths.stream().map(path -> path.reflect(line))));
+		return of(Streams.from(paths).map(path -> path.reflect(line)).toList());
 	}
 
 	@Override
 	public PathGroup scale(Ratio2d scale) {
-		return of(StreamUtil.toList(paths.stream().map(path -> path.scale(scale))));
+		return of(Streams.from(paths).map(path -> path.scale(scale)).toList());
 	}
 
 	@Override
 	public PathGroup translate(Point2d offset) {
-		return of(StreamUtil.toList(paths.stream().map(path -> path.translate(offset))));
+		return of(Streams.from(paths).map(path -> path.translate(offset)).toList());
 	}
 
 	@Override
@@ -77,5 +77,4 @@ public class PathGroup implements Path<PathGroup> {
 	public String toString() {
 		return ToString.ofClass(this, end).childrens(paths).toString();
 	}
-
 }

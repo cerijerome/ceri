@@ -4,7 +4,7 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import ceri.common.text.Regex;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Device address, made up of house and unit codes.
@@ -27,7 +27,7 @@ public class Address implements Comparable<Address> {
 	}
 
 	public static Address of(House house, Unit unit) {
-		ValidationUtil.validateAllNotNull(house, unit);
+		Validate.validateAllNotNull(house, unit);
 		return new Address(house, unit);
 	}
 

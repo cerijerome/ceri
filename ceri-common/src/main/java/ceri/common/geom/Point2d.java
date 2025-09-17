@@ -1,7 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validate;
 import java.util.Objects;
+import ceri.common.util.Validate;
 
 public class Point2d {
 	public static final Point2d NULL = new Point2d(Double.NaN, Double.NaN);
@@ -12,8 +12,8 @@ public class Point2d {
 	public final double y;
 
 	public static Point2d of(double x, double y) {
-		validate(!Double.isNaN(x), "x");
-		validate(!Double.isNaN(y), "y");
+		Validate.validate(!Double.isNaN(x), "x");
+		Validate.validate(!Double.isNaN(y), "y");
 		if (ZERO.equals(x, y)) return ZERO;
 		if (X_UNIT.equals(x, y)) return X_UNIT;
 		if (Y_UNIT.equals(x, y)) return Y_UNIT;
@@ -88,5 +88,4 @@ public class Point2d {
 	public String toString() {
 		return "(" + x + ", " + y + ")";
 	}
-
 }

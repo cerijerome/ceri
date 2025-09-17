@@ -6,7 +6,7 @@ import java.util.Arrays;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongAccessor;
 import ceri.common.data.LongProvider;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Fixed-size long array with volatile values.
@@ -67,7 +67,7 @@ public class VolatileLongArray implements LongAccessor {
 
 	@Override
 	public VolatileLongArray slice(int offset, int length) {
-		ValidationUtil.validateSlice(length(), offset, length);
+		Validate.validateSlice(length(), offset, length);
 		return new VolatileLongArray(array, this.offset + offset, length);
 	}
 

@@ -1,11 +1,11 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.validation.ValidationUtil.validateMin;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import ceri.common.io.IoUtil;
 import ceri.common.util.Basics;
+import ceri.common.util.Validate;
 
 /**
  * Provides the name of the serial port dynamically.
@@ -76,7 +76,7 @@ public interface PortSupplier {
 		}
 
 		private static String index(List<String> ports, int index, String pattern) {
-			validateMin(index, 0);
+			Validate.validateMin(index, 0);
 			if (ports.isEmpty())
 				throw new IndexOutOfBoundsException("No ports available: " + pattern);
 			if (index >= ports.size()) throw new IndexOutOfBoundsException(

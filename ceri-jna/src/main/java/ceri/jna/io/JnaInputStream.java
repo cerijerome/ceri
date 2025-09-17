@@ -3,7 +3,7 @@ package ceri.jna.io;
 import java.io.IOException;
 import java.io.InputStream;
 import com.sun.jna.Memory;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.ThreadBuffers;
 
@@ -46,7 +46,7 @@ public abstract class JnaInputStream extends InputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		ValidationUtil.validateSlice(b.length, off, len);
+		Validate.validateSlice(b.length, off, len);
 		ensureOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();

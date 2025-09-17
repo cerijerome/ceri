@@ -2,10 +2,10 @@ package ceri.common.event;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import org.junit.Test;
+import ceri.common.collection.Sets;
+import ceri.common.function.Functions;
 import ceri.common.test.Captor;
 import ceri.common.test.TestListeners;
 import ceri.common.util.Enclosure;
@@ -91,23 +91,23 @@ public class ListenableBehavior {
 	@Test
 	public void shouldProvideSafeAccess() {
 		var listen = TestListeners.<String>of();
-		Consumer<String> consumer = _ -> {};
+		Functions.Consumer<String> consumer = _ -> {};
 		listen.listen(consumer);
 		Listenable.safe((Listenable<String>) null).unlisten(consumer);
 		Listenable.safe((Listenable.Indirect<String>) null).listeners().unlisten(consumer);
 		assertEquals(Listenable.safe((Listenable<String>) listen).unlisten(consumer), true);
 	}
 
-	private static class TestListenable implements Consumer<String>, Listenable<String> {
-		private final Set<Consumer<? super String>> listeners = new HashSet<>();
+	private static class TestListenable implements Functions.Consumer<String>, Listenable<String> {
+		private final Set<Functions.Consumer<? super String>> listeners = Sets.of();
 
 		@Override
-		public boolean listen(Consumer<? super String> listener) {
+		public boolean listen(Functions.Consumer<? super String> listener) {
 			return listeners.add(listener);
 		}
 
 		@Override
-		public boolean unlisten(Consumer<? super String> listener) {
+		public boolean unlisten(Functions.Consumer<? super String> listener) {
 			return listeners.remove(listener);
 		}
 

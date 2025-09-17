@@ -9,7 +9,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 public class IntWriterBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -138,7 +138,7 @@ public class IntWriterBehavior {
 
 		@Override
 		public SimpleIntWriter writeInt(int value) {
-			ValidationUtil.validateIndex(length, index);
+			Validate.validateIndex(length, index);
 			ints[offset + index++] = value;
 			return this;
 		}

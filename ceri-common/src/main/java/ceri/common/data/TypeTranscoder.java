@@ -14,7 +14,7 @@ import ceri.common.stream.Collect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.util.Basics;
-import ceri.common.validation.ValidationUtil;
+import ceri.common.util.Validate;
 
 /**
  * Helper to convert between object types and long values. Longs can map to a single instance or to
@@ -155,7 +155,7 @@ public class TypeTranscoder<T> {
 	 * IllegalArgumentException if not found.
 	 */
 	public T decodeValid(long value) {
-		return decodeValid(value, ValidationUtil.VALUE);
+		return decodeValid(value, Validate.VALUE);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class TypeTranscoder<T> {
 	 * IllegalArgumentException if not found.
 	 */
 	public T decodeValid(long value, String name) {
-		return ValidationUtil.<T>validateLongLookup(this::decode, value, name);
+		return Validate.<T>validateLongLookup(this::decode, value, name);
 	}
 
 	/**

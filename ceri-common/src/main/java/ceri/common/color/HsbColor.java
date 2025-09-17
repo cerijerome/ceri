@@ -1,9 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.color.Colors.MAX_RATIO;
-import static ceri.common.color.Colors.ratio;
-import static ceri.common.validation.ValidationUtil.validateRangeFp;
 import java.awt.Color;
+import ceri.common.util.Validate;
 
 /**
  * Encapsulates an HSB color with alpha, all values 0-1 inclusive.
@@ -12,7 +10,7 @@ public record HsbColor(double a, double h, double s, double b) {
 
 	public static final HsbColor clear = HsbColor.of(0, 0, 0, 0);
 	public static final HsbColor black = HsbColor.of(0, 0, 0);
-	public static final HsbColor white = HsbColor.of(0, 0, MAX_RATIO);
+	public static final HsbColor white = HsbColor.of(0, 0, Colors.MAX_RATIO);
 
 	/**
 	 * Construct from color.
@@ -34,14 +32,14 @@ public record HsbColor(double a, double h, double s, double b) {
 	 */
 	public static HsbColor from(int argb) {
 		double[] hsb = ColorSpaces.rgbToHsb(argb);
-		return of(ratio(Colors.a(argb)), hsb[0], hsb[1], hsb[2]);
+		return of(Colors.ratio(Colors.a(argb)), hsb[0], hsb[1], hsb[2]);
 	}
 
 	/**
 	 * Construct an opaque instance from HSB 0-1 values.
 	 */
 	public static HsbColor of(double h, double s, double b) {
-		return of(MAX_RATIO, h, s, b);
+		return of(Colors.MAX_RATIO, h, s, b);
 	}
 
 	/**
@@ -55,7 +53,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Construct maximized instance for given hue 0-1 value.
 	 */
 	public static HsbColor max(double h) {
-		return of(h, MAX_RATIO, MAX_RATIO);
+		return of(h, Colors.MAX_RATIO, Colors.MAX_RATIO);
 	}
 
 	/**
@@ -105,7 +103,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Return true if this color represents white.
 	 */
 	public boolean isWhite() {
-		return s <= 0 && b >= MAX_RATIO;
+		return s <= 0 && b >= Colors.MAX_RATIO;
 	}
 
 	/**
@@ -120,7 +118,7 @@ public record HsbColor(double a, double h, double s, double b) {
 	 * Returns true if not opaque.
 	 */
 	public boolean hasAlpha() {
-		return a < MAX_RATIO;
+		return a < Colors.MAX_RATIO;
 	}
 
 	/**
@@ -167,6 +165,6 @@ public record HsbColor(double a, double h, double s, double b) {
 	}
 
 	private static void validate(double value, String name) {
-		validateRangeFp(value, 0, MAX_RATIO, name);
+		Validate.validateRangeFp(value, 0, Colors.MAX_RATIO, name);
 	}
 }

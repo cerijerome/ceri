@@ -1,9 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.validation.ValidationUtil.validateMinFp;
 import java.util.Objects;
 import ceri.common.math.Maths;
 import ceri.common.text.ToString;
+import ceri.common.util.Validate;
 
 public class Ellipse2d {
 	public static final Ellipse2d NULL = new Ellipse2d(0, 0);
@@ -12,8 +12,8 @@ public class Ellipse2d {
 
 	public static Ellipse2d create(double a, double b) {
 		if (a == 0 && b == 0) return NULL;
-		validateMinFp(a, 0, "Axis a");
-		validateMinFp(b, 0, "Axis b");
+		Validate.validateMinFp(a, 0, "Axis a");
+		Validate.validateMinFp(b, 0, "Axis b");
 		return new Ellipse2d(a + .0, b + .0);
 	}
 

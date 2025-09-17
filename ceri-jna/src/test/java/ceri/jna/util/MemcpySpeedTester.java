@@ -1,8 +1,8 @@
 package ceri.jna.util;
 
-import java.util.stream.IntStream;
 import com.sun.jna.Memory;
 import ceri.common.data.ByteUtil;
+import ceri.common.stream.Streams;
 
 /**
  * Tests the speed of copying chunks back by a number of bytes within a block of allocated memory.
@@ -31,7 +31,7 @@ public class MemcpySpeedTester {
 	}
 
 	private static long testMemcpySpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
 		try (Memory m0 = JnaUtil.mallocBytes(b)) {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < size - chunk; i += inc)
@@ -41,7 +41,7 @@ public class MemcpySpeedTester {
 	}
 
 	private static long testMemmoveSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
 		try (Memory m0 = JnaUtil.mallocBytes(b)) {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < size - chunk; i += inc)
@@ -51,7 +51,7 @@ public class MemcpySpeedTester {
 	}
 
 	private static long testReuseBufferSpeed(int size, int chunk, int inc) {
-		byte[] b = ByteUtil.bytes(IntStream.range(0, size));
+		byte[] b = ByteUtil.bytes(Streams.slice(0, size));
 		try (Memory m0 = JnaUtil.mallocBytes(b)) {
 			byte[] buffer = new byte[chunk];
 			long t0 = System.currentTimeMillis();
@@ -62,5 +62,4 @@ public class MemcpySpeedTester {
 			return System.currentTimeMillis() - t0;
 		}
 	}
-
 }

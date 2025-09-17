@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
-import ceri.common.text.Format;
+import ceri.common.math.Radix;
+import ceri.common.text.Formats;
 import ceri.common.time.DateUtil;
 import ceri.x10.command.House;
 
@@ -29,6 +30,8 @@ import ceri.x10.command.House;
  * </pre>
  */
 public class Status implements ByteArray.Encodable {
+	private static final Formats.OfLong BIN =
+		new Formats.OfLong(true, Radix.BIN.prefix(), Radix.BIN.n, 4, 0, Formats.Separator._4);
 	private static final int SIZE = 2 + Data.DATE_BYTES + 7;
 	private static final int BATTERY_TIMER_RESET = 0xffff;
 	public final int batteryTimer;
@@ -40,7 +43,7 @@ public class Status implements ByteArray.Encodable {
 	public final int dim;
 
 	public static Status decode(ByteReader r) {
-		Builder builder = new Builder();
+		var builder = new Builder();
 		builder.batteryTimer(r.readUshortMsb());
 		builder.date(Data.readDateFrom(r));
 		int code = r.readUbyte();
@@ -158,7 +161,6 @@ public class Status implements ByteArray.Encodable {
 	@Override
 	public String toString() {
 		return String.format("%s(0x%x,%s,%s,%d,%s,%s,%s)", getClass().getSimpleName(), batteryTimer,
-			date, house, firmware, Format.BIN16_4.ushort(addressed), Format.BIN16_4.ushort(onOff),
-			Format.BIN16_4.ushort(dim));
+			date, house, firmware, BIN.ushort(addressed), BIN.ushort(onOff), BIN.ushort(dim));
 	}
 }

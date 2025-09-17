@@ -13,8 +13,8 @@ public class IoExceptions {
 	/**
 	 * A runtime general IO exception.
 	 */
+	@SuppressWarnings("serial")
 	public static class Runtime extends RuntimeException {
-		private static final long serialVersionUID = 3922679551995652749L;
 
 		public Runtime(String message, Throwable e) {
 			super(message, e);

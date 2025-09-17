@@ -1,7 +1,7 @@
 package ceri.common.util;
 
 import java.util.Comparator;
-import ceri.common.comparator.Comparators;
+import ceri.common.function.Compares;
 import ceri.common.math.Maths;
 
 /**
@@ -11,9 +11,9 @@ public record Version(int version, Integer major, Integer minor, String rev)
 	implements Comparable<Version> {
 
 	public static final Comparator<Version> COMPARATOR = Comparator.comparingInt(Version::version)
-		.thenComparing(Comparator.comparing(Version::major, Comparators.INT))
-		.thenComparing(Comparator.comparing(Version::minor, Comparators.INT))
-		.thenComparing(Comparator.comparing(Version::rev, Comparators.STRING));
+		.thenComparing(Comparator.comparing(Version::major, Compares.INT))
+		.thenComparing(Comparator.comparing(Version::minor, Compares.INT))
+		.thenComparing(Comparator.comparing(Version::rev, Compares.STRING));
 
 	/**
 	 * Creates an instance without revision string.

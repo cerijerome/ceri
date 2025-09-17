@@ -1,6 +1,5 @@
 package ceri.common.util;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 import ceri.common.collection.Immutable;
+import ceri.common.collection.Lists;
 import ceri.common.concurrent.ConcurrentUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Excepts;
@@ -284,7 +284,7 @@ public class CloseableUtil {
 		return testIt(executor, _ -> {
 			executor.shutdownNow();
 			return ConcurrentUtil.getWhileInterrupted(executor::awaitTermination, timeoutMs,
-				MILLISECONDS);
+				TimeUnit.MILLISECONDS);
 		});
 	}
 
@@ -350,7 +350,7 @@ public class CloseableUtil {
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T, R extends AutoCloseable> List<R>
 		createFrom(Excepts.Function<E, T, R> constructor, Iterable<T> inputs) throws E {
-		List<R> results = new ArrayList<>();
+		var results = Lists.<R>of();
 		try {
 			for (T input : inputs)
 				results.add(constructor.apply(input));
@@ -368,7 +368,7 @@ public class CloseableUtil {
 	@SuppressWarnings("resource")
 	public static <E extends Exception, T extends AutoCloseable> List<T>
 		create(Excepts.Supplier<E, T> constructor, int count) throws E {
-		List<T> results = new ArrayList<>(count);
+		var results = new ArrayList<T>(count);
 		try {
 			for (int i = 0; i < count; i++)
 				results.add(constructor.get());
