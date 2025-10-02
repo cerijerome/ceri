@@ -3,7 +3,7 @@ package ceri.common.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.io.Connector;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.IoStreamUtil.Write;
@@ -142,7 +142,7 @@ public class TestConnector extends TestFixable implements Connector.Fixable {
 	 */
 	private void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
 		verifyConnected();
-		if (!FunctionUtil.safeAccept(writeOverride, w -> w.write(b, offset, length)))
+		if (!Functional.safeAccept(writeOverride, w -> w.write(b, offset, length)))
 			out.write(b, offset, length);
 	}
 

@@ -7,22 +7,23 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.function.Compares;
 import ceri.common.math.Bound;
 import ceri.common.math.Maths;
 import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Formats;
+import ceri.common.text.Format;
 import ceri.common.text.Regex;
+import ceri.common.util.Validate;
 
 /**
  * Utilities for handling colors, including 4-byte argb ints, 3-byte rgb ints and Color objects.
  */
 public class Colors {
-	private static final Formats.OfLong FORMAT_ARGB = Formats.ofLong("#", Radix.HEX.n, 8, 8);
-	private static final Formats.OfLong FORMAT_RGB = Formats.ofLong("#", Radix.HEX.n, 6, 6);
+	private static final Format.OfLong FORMAT_ARGB = Format.ofLong("#", Radix.HEX.n, 8, 8);
+	private static final Format.OfLong FORMAT_RGB = Format.ofLong("#", Radix.HEX.n, 6, 6);
 	private static final Pattern HEX_REGEX = Pattern.compile("(0x|0X|#)([0-9a-fA-F]{1,8})");
 	public static final Pattern COLOR_REGEX =
 		Pattern.compile("(?:[a-zA-Z_][a-zA-Z0-9_]*|(?:0x|0X|#)[0-9a-fA-F]{1,8})");
@@ -238,7 +239,7 @@ public class Colors {
 	public static int scaleHsbArgb(int minArgb, int maxArgb, double ratio) {
 		if (ratio <= 0.0) return minArgb;
 		if (ratio >= MAX_RATIO) return maxArgb;
-		return scaleHsb(HsbColor.from(minArgb), HsbColor.from(maxArgb), ratio).argb();
+		return scaleHsb(Hsb.from(minArgb), Hsb.from(maxArgb), ratio).argb();
 	}
 
 	// Color methods
@@ -333,7 +334,7 @@ public class Colors {
 	public static Color scaleHsb(Color min, Color max, double ratio) {
 		if (ratio <= 0.0) return min;
 		if (ratio >= MAX_RATIO) return max;
-		return scaleHsb(HsbColor.from(min), HsbColor.from(max), ratio).color();
+		return scaleHsb(Hsb.from(min), Hsb.from(max), ratio).color();
 	}
 
 	// other color types
@@ -341,7 +342,7 @@ public class Colors {
 	/**
 	 * Provides a scaled hsb color from min and max.
 	 */
-	public static HsbColor scaleHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+	public static Hsb scaleHsb(Hsb minHsb, Hsb maxHsb, double ratio) {
 		if (ratio <= 0.0) return minHsb;
 		if (ratio >= MAX_RATIO) return maxHsb;
 		minHsb = minHsb.normalize();
@@ -489,6 +490,20 @@ public class Colors {
 	 */
 	public static double limitHue(double h) {
 		return Maths.periodicLimit(h, MAX_RATIO, Bound.Type.inc);
+	}
+
+	/**
+	 * Fails if the component value is not 0-255.
+	 */
+	public static int validateValue(int component, String name) {
+		return Validate.range(component, 0, MAX_VALUE, name);
+	}
+
+	/**
+	 * Fails if the ratio is not from 0-1.
+	 */
+	public static double validateRatio(double ratio, String name) {
+		return Validate.range(ratio, 0, Colors.MAX_RATIO, name);
 	}
 
 	/**
@@ -665,17 +680,17 @@ public class Colors {
 	 */
 	public static IntStream<RuntimeException> fadeHsbStream(int minArgb, int maxArgb, int steps,
 		Bias bias) {
-		return fadeHsbStream(HsbColor.from(minArgb), HsbColor.from(maxArgb), steps, bias);
+		return fadeHsbStream(Hsb.from(minArgb), Hsb.from(maxArgb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by fading hue/saturation/brightness in steps.
 	 */
-	public static IntStream<RuntimeException> fadeHsbStream(HsbColor min, HsbColor max, int steps,
+	public static IntStream<RuntimeException> fadeHsbStream(Hsb min, Hsb max, int steps,
 		Bias bias) {
 		return Streams.slice(1, steps)
 			.mapToObj(i -> scaleNormHsb(min, max, bias.bias((double) i / steps)))
-			.mapToInt(HsbColor::argb);
+			.mapToInt(Hsb::argb);
 	}
 
 	/**
@@ -689,15 +704,15 @@ public class Colors {
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
 	public static IntStream<RuntimeException> rotateHueStream(int argb, int steps, Bias bias) {
-		return rotateHueStream(HsbColor.from(argb), steps, bias);
+		return rotateHueStream(Hsb.from(argb), steps, bias);
 	}
 
 	/**
 	 * Create a stream of argb ints by rotating hue 360 degrees in steps.
 	 */
-	public static IntStream<RuntimeException> rotateHueStream(HsbColor hsb, int steps, Bias bias) {
+	public static IntStream<RuntimeException> rotateHueStream(Hsb hsb, int steps, Bias bias) {
 		return Streams.slice(1, steps).mapToObj(i -> hsb.shiftHue(bias.bias((double) i / steps)))
-			.mapToInt(HsbColor::argb);
+			.mapToInt(Hsb::argb);
 	}
 
 	// support methods
@@ -744,14 +759,14 @@ public class Colors {
 		return hexArgb(prefix, len, argb);
 	}
 
-	private static HsbColor scaleNormHsb(HsbColor minHsb, HsbColor maxHsb, double ratio) {
+	private static Hsb scaleNormHsb(Hsb minHsb, Hsb maxHsb, double ratio) {
 		// if (ratio <= 0.0) return minHsb;
 		if (ratio >= MAX_RATIO) return maxHsb;
 		double a = scaleRatio(minHsb.a(), maxHsb.a(), ratio);
 		double h = scaleHue(minHsb.h(), maxHsb.h(), ratio);
 		double s = scaleRatio(minHsb.s(), maxHsb.s(), ratio);
 		double b = scaleRatio(minHsb.b(), maxHsb.b(), ratio);
-		return HsbColor.of(a, h, s, b);
+		return Hsb.of(a, h, s, b);
 	}
 
 	private static Integer namedArgb(String name) {

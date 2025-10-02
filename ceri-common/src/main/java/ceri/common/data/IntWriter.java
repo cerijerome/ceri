@@ -114,7 +114,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(int[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -139,7 +139,7 @@ public interface IntWriter<T extends IntWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(IntProvider provider, int offset, int length) {
-		Validate.validateSlice(provider.length(), offset, length);
+		Validate.slice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeInt(provider.getInt(offset + i));
 		return Reflect.unchecked(this);

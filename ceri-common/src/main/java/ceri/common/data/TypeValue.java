@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import java.util.Objects;
-import ceri.common.text.Formats;
+import ceri.common.text.Format;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 
@@ -15,7 +15,7 @@ public class TypeValue<T> {
 	private final long value;
 	private final Long sub;
 	private final String name;
-	private transient final Formats.LongFunction formatter;
+	private transient final Format.LongFunction formatter;
 
 	/**
 	 * Validates value to make sure type is set.
@@ -65,7 +65,7 @@ public class TypeValue<T> {
 	 * Create type with optional sub-value and custom formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name, long sub,
-		Formats.LongFunction formatter) {
+		Format.LongFunction formatter) {
 		return new TypeValue<>(value, type, name, sub, formatter);
 	}
 
@@ -73,16 +73,16 @@ public class TypeValue<T> {
 	 * Create type with optional sub-value and custom formatter.
 	 */
 	public static <T> TypeValue<T> of(long value, T type, String name,
-		Formats.LongFunction formatter) {
+		Format.LongFunction formatter) {
 		return new TypeValue<>(value, type, name, null, formatter);
 	}
 
-	protected TypeValue(long value, T type, String name, Long sub, Formats.LongFunction formatter) {
+	protected TypeValue(long value, T type, String name, Long sub, Format.LongFunction formatter) {
 		this.type = type;
 		this.value = value;
 		this.sub = sub;
 		this.name = type != null ? null : name; // ignore if has type
-		this.formatter = Basics.def(formatter, Formats.DEC);
+		this.formatter = Basics.def(formatter, Format.DEC);
 	}
 
 	public T type() {

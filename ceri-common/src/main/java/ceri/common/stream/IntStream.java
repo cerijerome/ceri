@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
-import ceri.common.collection.Sets;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Sets;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -382,10 +382,17 @@ public class IntStream<E extends Exception> {
 	}
 
 	/**
-	 * Returns the summation value, allowing overflows, or default.
+	 * Returns the sum value, allowing overflows, or 0.
 	 */
 	public int sum() throws E {
 		return reduce(Reduce.Ints.sum(), 0);
+	}
+
+	/**
+	 * Returns the average value, or 0.
+	 */
+	public double average() throws E {
+		return collect(Collect.Ints.average);
 	}
 
 	/**

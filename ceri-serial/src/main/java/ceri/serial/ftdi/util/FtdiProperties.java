@@ -1,7 +1,7 @@
 package ceri.serial.ftdi.util;
 
 import static ceri.common.math.Maths.approxEqual;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.property.Parser;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Basics;
@@ -51,7 +51,7 @@ public class FtdiProperties extends TypedProperties.Ref {
 		var b = FtdiConfig.builder();
 		bitMode().accept(b::bitMode);
 		parse(BAUD_KEY).asInt().accept(b::baud);
-		FunctionUtil.safeAccept(params(), b::params);
+		Functional.safeAccept(params(), b::params);
 		parse(FLOW_CONTROL_KEY).asEnum(FtdiFlowControl.class).accept(b::flowControl);
 		parse(LATENCY_TIMER_MS_KEY).asInt().accept(b::latencyTimer);
 		parse(READ_CHUNK_SIZE_KEY).asInt().accept(b::readChunkSize);

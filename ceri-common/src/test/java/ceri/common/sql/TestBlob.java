@@ -63,5 +63,4 @@ public class TestBlob implements Blob {
 	public InputStream getBinaryStream(long pos, long length) throws SQLException {
 		return null;
 	}
-
 }

@@ -18,10 +18,10 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.ShortByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.Lazy;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
-import ceri.common.util.Enclosure;
 import ceri.common.util.Validate;
 import ceri.jna.type.CLong;
 import ceri.jna.type.CUlong;
@@ -57,7 +57,7 @@ public class JnaUtil {
 	 */
 	public static String message(LastErrorException e) {
 		if (e == null) return "";
-		String message = e.getMessage();
+		var message = e.getMessage();
 		if (message == null) return "";
 		// if (message == null || LAST_ERROR_PLAIN_MSG_REGEX.matcher(message).matches()) return "";
 		return LAST_ERROR_REGEX.matcher(e.getMessage()).replaceFirst("").trim();
@@ -74,7 +74,7 @@ public class JnaUtil {
 	 * Allocates and zeroes new memory, or returns null if size is 0.
 	 */
 	public static Memory calloc(int size) {
-		Memory m = malloc(size);
+		var m = malloc(size);
 		if (m != null) m.clear();
 		return m;
 	}
@@ -104,9 +104,9 @@ public class JnaUtil {
 	 * Allocate native memory and copy array.
 	 */
 	public static Memory mallocBytes(byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		if (length == 0) return null;
-		Memory m = new Memory(length);
+		var m = new Memory(length);
 		m.write(0, array, offset, length);
 		return m;
 	}
@@ -128,8 +128,8 @@ public class JnaUtil {
 		if (size < MEMCPY_OPTIMAL_MIN_SIZE
 			|| PointerUtil.overlap(to, toOffset, from, fromOffset, size))
 			return memmove(to, toOffset, from, fromOffset, size);
-		ByteBuffer toBuffer = to.getByteBuffer(toOffset, size);
-		ByteBuffer fromBuffer = from.getByteBuffer(fromOffset, size);
+		var toBuffer = to.getByteBuffer(toOffset, size);
+		var fromBuffer = from.getByteBuffer(fromOffset, size);
 		toBuffer.put(fromBuffer);
 		return size;
 	}
@@ -671,7 +671,7 @@ public class JnaUtil {
 	 * Copies bytes from the pointer to the byte array. Returns the array index after reading.
 	 */
 	public static int read(Pointer p, long offset, byte[] buffer, int index, int length) {
-		Validate.validateSlice(buffer, index, length);
+		Validate.slice(buffer.length, index, length);
 		PointerUtil.validate(p, offset, length);
 		if (length > 0) p.read(offset, buffer, index, length);
 		return index + length;
@@ -723,7 +723,7 @@ public class JnaUtil {
 	 * Copies bytes from the array to the pointer. Returns the pointer offset after writing.
 	 */
 	public static long write(Pointer p, long offset, byte[] buffer, int index, int length) {
-		Validate.validateSlice(buffer.length, index, length);
+		Validate.slice(buffer.length, index, length);
 		if (PointerUtil.validate(p, offset, length) != null) p.write(offset, buffer, index, length);
 		return offset + length;
 	}
@@ -768,7 +768,7 @@ public class JnaUtil {
 	/* Support methods */
 
 	private static Charset defaultCharset() {
-		String encoding = Native.getDefaultStringEncoding();
+		var encoding = Native.getDefaultStringEncoding();
 		if (!Charset.isSupported(encoding)) return Charset.defaultCharset();
 		return Charset.forName(encoding);
 	}

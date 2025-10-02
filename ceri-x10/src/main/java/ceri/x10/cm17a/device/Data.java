@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
 import java.util.List;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Lists;
 import ceri.common.math.Maths;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;

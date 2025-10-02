@@ -399,8 +399,8 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 	public <E extends Exception> StringBuilder appendWithIndex(StringBuilder sb,
 		Excepts.ObjIntConsumer<E, StringBuilder> indexAppender, int offset, int count) throws E {
 		if (sb == null || indexAppender == null) return sb;
-		Validate.validateMin(offset, 0, "offset");
-		Validate.validateMin(count, 0, "count");
+		Validate.min(offset, 0, "offset");
+		Validate.min(count, 0, "count");
 		var composer =
 			new Composer<>(this, sb, (b, _, i) -> indexAppender.accept(b, offset + i), count);
 		for (int i = 0; i < count; i++)

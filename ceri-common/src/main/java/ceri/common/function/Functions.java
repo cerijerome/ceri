@@ -406,6 +406,38 @@ public class Functions {
 	public interface DoubleBiOperator extends Excepts.DoubleBiOperator<RuntimeException>,
 		java.util.function.DoubleBinaryOperator {}
 
+	// Object + operators
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjBoolOperator<T> extends Excepts.ObjBoolOperator<RuntimeException, T> {}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjByteOperator<T> extends Excepts.ObjByteOperator<RuntimeException, T> {}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjIntOperator<T> extends Excepts.ObjIntOperator<RuntimeException, T> {}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjLongOperator<T> extends Excepts.ObjLongOperator<RuntimeException, T> {}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjDoubleOperator<T> extends Excepts.ObjDoubleOperator<RuntimeException, T> {}
+
 	// Predicates
 
 	/**

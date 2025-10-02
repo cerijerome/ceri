@@ -6,14 +6,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
-import ceri.common.collection.Sets;
-import ceri.common.exception.Exceptions;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
+import ceri.common.collect.Sets;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.common.util.Basics;
 
 /**
@@ -36,7 +36,7 @@ import ceri.common.util.Basics;
  */
 public class Logger {
 	private static final int STACK_OFFSET = 5;
-	private static final LocalDateTime NULL_DATE = DateUtil.UTC_EPOCH;
+	private static final LocalDateTime NULL_DATE = Dates.UTC_EPOCH;
 	public static final String FORMAT = "%1$tF %1$tT.%1$tL [%2$s] %3$-5s %4$s - %5$s";
 	public static final Functions.Consumer<String> STDOUT = s -> System.out.println(s);
 	public static final Functions.Consumer<String> STDERR = s -> System.err.println(s);

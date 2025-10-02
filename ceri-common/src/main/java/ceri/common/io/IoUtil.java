@@ -27,11 +27,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.property.Parser;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
@@ -102,7 +102,7 @@ public class IoUtil {
 	 */
 	public static Path systemTempDir() {
 		String property = SystemVars.sys(TMP_DIR_PROPERTY);
-		return FunctionUtil.safeApply(property, Path::of);
+		return Functional.safeApply(property, Path::of);
 	}
 
 	/**
@@ -517,7 +517,7 @@ public class IoUtil {
 			if (n >= count) return n;
 			if (timeoutMs != 0 && (System.currentTimeMillis() > t)) throw new IoExceptions.Timeout(
 				"Bytes not available within " + timeoutMs + "ms: " + n + "/" + count);
-			ConcurrentUtil.delay(pollMs);
+			Concurrent.delay(pollMs);
 		}
 	}
 
@@ -538,11 +538,11 @@ public class IoUtil {
 		throws IOException {
 		long total = 0;
 		while (true) {
-			ConcurrentUtil.checkRuntimeInterrupted();
+			Concurrent.checkRuntimeInterrupted();
 			int n = in.read(buffer);
 			if (n < 0) break;
 			if (n > 0) out.write(buffer, 0, n);
-			else ConcurrentUtil.delay(delayMs);
+			else Concurrent.delay(delayMs);
 			total += n;
 		}
 		return total;
@@ -640,7 +640,7 @@ public class IoUtil {
 		Objects.requireNonNull(mapper);
 		List<T> list = new ArrayList<>();
 		var visitFn = FileVisitUtil.<Path, BasicFileAttributes>adaptConsumer(
-			path -> FunctionUtil.safeAccept(mapper.apply(path), list::add));
+			path -> Functional.safeAccept(mapper.apply(path), list::add));
 		Files.walkFileTree(dir, FileVisitUtil.visitor(visitFn, null, visitFn));
 		return list;
 	}

@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ceri.common.function.Predicates;
+import ceri.common.function.Filters;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Regex;
 
@@ -35,7 +35,7 @@ public class PathFiltersTest {
 		assertHelperPaths(IoUtil.list(helper.root, PathFilters.dir()), helper, "a", "b");
 		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.dir()), helper, "", "a", "a/a",
 			"b");
-		assertHelperPaths(IoUtil.paths(helper.root, Predicates.not(PathFilters.dir())), helper,
+		assertHelperPaths(IoUtil.paths(helper.root, Filters.not(PathFilters.dir())), helper,
 			"a/a/a.txt", "b/b.txt", "c.txt");
 	}
 
@@ -44,7 +44,7 @@ public class PathFiltersTest {
 		assertHelperPaths(IoUtil.list(helper.root, PathFilters.file()), helper, "c.txt");
 		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.file()), helper, "a/a/a.txt",
 			"b/b.txt", "c.txt");
-		assertHelperPaths(IoUtil.paths(helper.root, Predicates.not(PathFilters.file())), helper, "",
+		assertHelperPaths(IoUtil.paths(helper.root, Filters.not(PathFilters.file())), helper, "",
 			"a", "a/a", "b");
 	}
 
@@ -105,7 +105,7 @@ public class PathFiltersTest {
 	public void testMinSize() throws IOException {
 		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.byMinSize(Long.MAX_VALUE)), helper);
 		assertHelperPaths(
-			IoUtil.paths(helper.root, Predicates.and(PathFilters.file(), PathFilters.byMinSize(2))),
+			IoUtil.paths(helper.root, Filters.and(PathFilters.file(), PathFilters.byMinSize(2))),
 			helper, "b/b.txt", "c.txt");
 	}
 

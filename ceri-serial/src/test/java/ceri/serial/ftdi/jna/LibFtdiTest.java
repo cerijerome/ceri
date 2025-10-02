@@ -12,7 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;

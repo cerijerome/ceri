@@ -8,12 +8,13 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Streams;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
+import ceri.common.util.Basics;
 
 /**
  * Class for accessing typed properties with a common key prefix. Useful when sharing one properties
@@ -30,7 +31,7 @@ public class TypedProperties {
 	/**
 	 * Base ref class.
 	 */
-	public static class Ref extends ceri.common.util.Ref<TypedProperties> {
+	public static class Ref extends Basics.Ref<TypedProperties> {
 		protected Ref(TypedProperties ref, String... groups) {
 			super(ref.sub(groups));
 		}

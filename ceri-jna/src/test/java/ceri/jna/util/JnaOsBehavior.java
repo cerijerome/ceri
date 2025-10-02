@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
 import ceri.common.util.OsUtil;
 
 public class JnaOsBehavior {
@@ -13,7 +13,7 @@ public class JnaOsBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(override);
+		Closeables.close(override);
 		override = null;
 	}
 

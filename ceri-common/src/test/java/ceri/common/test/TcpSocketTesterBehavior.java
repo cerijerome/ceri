@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
 
 public class TcpSocketTesterBehavior {
 	private Functions.Closeable fastMode;
@@ -18,7 +18,7 @@ public class TcpSocketTesterBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fastMode);
+		Closeables.close(fastMode);
 	}
 
 	@Test

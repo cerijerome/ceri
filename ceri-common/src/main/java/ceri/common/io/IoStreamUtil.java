@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.Objects;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.math.Maths;
 
 /**
@@ -314,7 +314,7 @@ public class IoStreamUtil {
 
 	private static int read(Read readFn, byte b[], int off, int len) throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		return FunctionUtil.safeApply(readFn, r -> r.read(b, off, len), len);
+		return Functional.safeApply(readFn, r -> r.read(b, off, len), len);
 	}
 
 	/* FilterInputStream methods */
@@ -333,13 +333,13 @@ public class IoStreamUtil {
 
 	private static int available(InputStream in,
 		Excepts.Function<IOException, InputStream, Integer> availableFn) throws IOException {
-		Integer n = FunctionUtil.safeApply(availableFn, a -> a.apply(in));
+		Integer n = Functional.safeApply(availableFn, a -> a.apply(in));
 		return n != null ? n : in.available();
 	}
 
 	private static int read(InputStream in,
 		Excepts.Function<IOException, InputStream, Integer> readFn) throws IOException {
-		Integer n = FunctionUtil.safeApply(readFn, r -> r.apply(in));
+		Integer n = Functional.safeApply(readFn, r -> r.apply(in));
 		return n != null ? n : in.read();
 	}
 
@@ -373,7 +373,7 @@ public class IoStreamUtil {
 	private static int read(InputStream in, FilterRead readFn, byte b[], int off, int len)
 		throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		Integer n = FunctionUtil.safeApply(readFn, r -> r.read(in, b, off, len));
+		Integer n = Functional.safeApply(readFn, r -> r.read(in, b, off, len));
 		return n != null ? n : in.read(b, off, len);
 	}
 
@@ -381,7 +381,7 @@ public class IoStreamUtil {
 
 	private static void write(OutputStream out,
 		Excepts.ObjIntPredicate<IOException, OutputStream> writeFn, int b) throws IOException {
-		if (!FunctionUtil.safeApply(writeFn, w -> w.test(out, b), false)) out.write(b);
+		if (!Functional.safeApply(writeFn, w -> w.test(out, b), false)) out.write(b);
 	}
 
 	private static void write(OutputStream out,
@@ -403,7 +403,7 @@ public class IoStreamUtil {
 	private static void write(OutputStream out, FilterWrite writeFn, byte[] b, int off, int len)
 		throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		if (!FunctionUtil.safeApply(writeFn, w -> w.write(out, b, off, len), false))
+		if (!Functional.safeApply(writeFn, w -> w.write(out, b, off, len), false))
 			out.write(b, off, len);
 	}
 

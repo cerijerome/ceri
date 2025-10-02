@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.IntStream;
 import ceri.common.data.ByteUtil;
+import ceri.common.function.Closeables;
+import ceri.common.function.Enclosure;
 import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
-import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosure;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.FtdiFlowControl;
 import ceri.serial.ftdi.FtdiLineParams;
@@ -70,7 +70,7 @@ public class FtdiTester {
 		try {
 			test(ftdis);
 		} finally {
-			CloseableUtil.close(ftdis);
+			Closeables.close(ftdis);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class FtdiTester {
 		var configs = IntStream.range(0, count)
 			.mapToObj(i -> LibUsbFinder.builder().vendor(LibFtdi.FTDI_VENDOR_ID).index(i).build())
 			.map(SelfHealingFtdi.Config::of).toList();
-		return CloseableUtil.createFrom(SelfHealingFtdi.Config::ftdi, configs);
+		return Closeables.createFrom(SelfHealingFtdi.Config::ftdi, configs);
 	}
 
 	/**

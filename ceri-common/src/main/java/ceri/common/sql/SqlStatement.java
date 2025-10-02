@@ -18,38 +18,38 @@ import ceri.common.util.Counter;
 public class SqlStatement implements AutoCloseable {
 	private static final Pattern Q_REGEX = Pattern.compile("\\?");
 	public final String sql;
-	public final SqlFormatter formatter;
+	public final Sql.Formatter formatter;
 	private final Object[] values;
 	private final PreparedStatement ps;
 	private int index = 1;
 
 	public static SqlStatement track(Connection con, String sqlFormat, Object... args)
 		throws SQLException {
-		return track(SqlFormatter.DEFAULT, con, sqlFormat, args);
+		return track(Sql.Formatter.DEFAULT, con, sqlFormat, args);
 	}
 
 	@SuppressWarnings("resource")
-	public static SqlStatement track(SqlFormatter formatter, Connection con, String sqlFormat,
+	public static SqlStatement track(Sql.Formatter formatter, Connection con, String sqlFormat,
 		Object... args) throws SQLException {
-		String sql = Strings.format(sqlFormat, args);
+		var sql = Strings.format(sqlFormat, args);
 		return new SqlStatement(con.prepareStatement(sql), sql, formatter);
 	}
 
 	@SuppressWarnings("resource")
 	public static SqlStatement of(Connection con, String sqlFormat, Object... args)
 		throws SQLException {
-		String sql = Strings.format(sqlFormat, args);
+		var sql = Strings.format(sqlFormat, args);
 		return new SqlStatement(con.prepareStatement(sql), sql, null);
 	}
 
-	private SqlStatement(PreparedStatement ps, String sql, SqlFormatter formatter) {
+	private SqlStatement(PreparedStatement ps, String sql, Sql.Formatter formatter) {
 		this.sql = sql;
 		this.ps = ps;
 		this.formatter = formatter;
 		values = formatter == null ? null : new Object[fields()];
 	}
 
-	public SqlStatement with(SqlFormatter formatter) {
+	public SqlStatement with(Sql.Formatter formatter) {
 		return new SqlStatement(ps, sql, formatter);
 	}
 
@@ -143,12 +143,12 @@ public class SqlStatement implements AutoCloseable {
 	@SuppressWarnings("resource")
 	public SqlStatement set(Object... xs) throws SQLException {
 		for (Object x : xs)
-			if (x instanceof SqlNull n) setNull(n);
+			if (x instanceof Sql.Null n) setNull(n);
 			else setWithoutType(x);
 		return this;
 	}
 
-	private SqlStatement setNull(SqlNull value) throws SQLException {
+	private SqlStatement setNull(Sql.Null value) throws SQLException {
 		return setWithType(null, value.sqlType.value);
 	}
 

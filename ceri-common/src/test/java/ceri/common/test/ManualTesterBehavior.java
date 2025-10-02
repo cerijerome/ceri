@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
@@ -35,7 +36,6 @@ import ceri.common.test.ManualTester.Action;
 import ceri.common.test.ManualTester.Parse;
 import ceri.common.text.AnsiEscape;
 import ceri.common.text.AnsiEscape.Sgr.BasicColor;
-import ceri.common.util.CloseableUtil;
 import ceri.common.util.Counter;
 
 public class ManualTesterBehavior {
@@ -48,7 +48,7 @@ public class ManualTesterBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fastMode);
+		Closeables.close(fastMode);
 	}
 
 	@Test

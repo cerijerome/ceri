@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.util.JnaLibrary;
@@ -20,7 +20,7 @@ public class CInputStreamBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(in, ref);
+		Closeables.close(in, ref);
 		fd = -1;
 		in = null;
 	}

@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.I2cAddress;
@@ -28,7 +28,7 @@ public class SmBusDeviceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 	}
 

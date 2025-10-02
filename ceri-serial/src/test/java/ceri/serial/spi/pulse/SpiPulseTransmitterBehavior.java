@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Closeables;
 import ceri.common.test.CallSync;
-import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.serial.spi.util.SpiEmulator;
 import ceri.serial.spi.util.SpiEmulator.Responder;
@@ -26,7 +26,7 @@ public class SpiPulseTransmitterBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(spix);
+		Closeables.close(spix);
 		spix = null;
 	}
 

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import com.sun.jna.Pointer;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Validate;
@@ -23,8 +23,7 @@ public class Mmap implements Excepts.Closeable<IOException> {
 		WRITE(CMman.PROT_WRITE),
 		EXEC(CMman.PROT_EXEC);
 
-		private static final TypeTranscoder<Protection> xcoder =
-			TypeTranscoder.of(t -> t.value, Protection.class);
+		private static final Xcoder.Types<Protection> xcoder = Xcoder.types(Protection.class);
 		public static final List<Protection> RW = List.of(READ, WRITE);
 		public final int value;
 
@@ -49,8 +48,7 @@ public class Mmap implements Excepts.Closeable<IOException> {
 		ANONYMOUS(CMman.MAP_ANONYMOUS),
 		NO_RESERVE(CMman.MAP_NORESERVE);
 
-		private static final TypeTranscoder<Option> xcoder =
-			TypeTranscoder.of(t -> t.value, Option.class);
+		private static final Xcoder.Types<Option> xcoder = Xcoder.types(Option.class);
 		public final int value;
 
 		private Option(int value) {
@@ -131,7 +129,7 @@ public class Mmap implements Excepts.Closeable<IOException> {
 	}
 
 	public Pointer address(long offset) {
-		Validate.validateRange(offset, 0, this.length - 1);
+		Validate.range(offset, 0, this.length - 1);
 		return address.share(offset);
 	}
 

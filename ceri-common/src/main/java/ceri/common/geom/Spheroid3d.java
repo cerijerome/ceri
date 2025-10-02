@@ -11,21 +11,21 @@ import ceri.common.util.Validate;
 public class Spheroid3d implements Radial3d {
 	public static final Spheroid3d NULL = new Spheroid3d(0, 0);
 	private final Ellipsoid3d ellipsoid;
-	private final Ellipse2d ellipse;
+	private final Ellipse ellipse;
 	public final double c;
 	public final double r;
 	private final double v;
 
 	public static Spheroid3d create(double r, double c) {
-		if (r == 0 && c == 0) return NULL;
-		Validate.validateMinFp(r, 0, "Radius");
-		Validate.validateMinFp(c, 0, "Axis c");
-		return new Spheroid3d(r + .0, c + .0);
+		if (r == 0.0 && c == 0.0) return NULL;
+		Validate.finiteMin(r, 0.0);
+		Validate.finiteMin(c, 0.0);
+		return new Spheroid3d(r + 0.0, c + 0.0);
 	}
 
 	private Spheroid3d(double r, double c) {
 		ellipsoid = Ellipsoid3d.create(r, r, c);
-		ellipse = Ellipse2d.create(r, c);
+		ellipse = Ellipse.of(r, c);
 		v = ellipsoid.volume();
 		this.r = r;
 		this.c = c;

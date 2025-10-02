@@ -3,7 +3,7 @@ package ceri.common.util;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.text.Strings;
 

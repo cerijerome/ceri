@@ -16,7 +16,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.test.TestUtil;
 
 public class TimeoutBehavior {
@@ -46,7 +46,7 @@ public class TimeoutBehavior {
 	public void shouldApply() throws InterruptedException {
 		Timeout t = Timeout.millis(1);
 		Lock lock = new ReentrantLock();
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			Condition c = lock.newCondition();
 			assertFalse(t.applyTo(c::await));
 			assertNull(Timeout.NULL.applyTo(c::await));

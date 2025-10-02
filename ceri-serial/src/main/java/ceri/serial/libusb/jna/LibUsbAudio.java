@@ -1,9 +1,8 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.Maths.ubyte;
-import static java.lang.Math.max;
 import com.sun.jna.Pointer;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
+import ceri.common.math.Maths;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.VarStruct;
@@ -27,8 +26,8 @@ public class LibUsbAudio {
 		AUDIOSTREAMING(0x02),
 		MIDISTREAMING(0x03);
 
-		public static final TypeTranscoder<audio_interface_subclass_code> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_interface_subclass_code.class);
+		public static final Xcoder.Type<audio_interface_subclass_code> xcoder =
+			Xcoder.type(audio_interface_subclass_code.class);
 		public final int value;
 
 		private audio_interface_subclass_code(int value) {
@@ -48,8 +47,8 @@ public class LibUsbAudio {
 		CS_ENDPOINT(0x25),
 		CS_CLUSTER(0x26);
 
-		public static final TypeTranscoder<audio_descriptor_type> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_descriptor_type.class);
+		public static final Xcoder.Type<audio_descriptor_type> xcoder =
+			Xcoder.type(audio_descriptor_type.class);
 		public final int value;
 
 		private audio_descriptor_type(int value) {
@@ -72,8 +71,8 @@ public class LibUsbAudio {
 		EXTENSION_UNIT(0x08),
 		ASSOC_INTERFACE(0x09); // not documented?
 
-		public static final TypeTranscoder<audio_control_interface_desc_subtype> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_control_interface_desc_subtype.class);
+		public static final Xcoder.Type<audio_control_interface_desc_subtype> xcoder =
+			Xcoder.type(audio_control_interface_desc_subtype.class);
 		public final int value;
 
 		private audio_control_interface_desc_subtype(int value) {
@@ -90,8 +89,8 @@ public class LibUsbAudio {
 		FORMAT_TYPE(0x02),
 		FORMAT_SPECIFIC(0x03);
 
-		public static final TypeTranscoder<audio_streaming_interface_desc_subtype> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_streaming_interface_desc_subtype.class);
+		public static final Xcoder.Type<audio_streaming_interface_desc_subtype> xcoder =
+			Xcoder.type(audio_streaming_interface_desc_subtype.class);
 		public final int value;
 
 		private audio_streaming_interface_desc_subtype(int value) {
@@ -111,8 +110,8 @@ public class LibUsbAudio {
 		CHORUS_PROCESS(0x05),
 		DYN_RANGE_COMP_PROCESS(0x06);
 
-		public static final TypeTranscoder<audio_proc_unit_process_type> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_proc_unit_process_type.class);
+		public static final Xcoder.Type<audio_proc_unit_process_type> xcoder =
+			Xcoder.type(audio_proc_unit_process_type.class);
 		public final int value;
 
 		private audio_proc_unit_process_type(int value) {
@@ -127,8 +126,8 @@ public class LibUsbAudio {
 		DESCRIPTOR_UNDEFINED(0x00),
 		EP_GENERAL(0x01);
 
-		public static final TypeTranscoder<audio_endpoint_desc_subtype> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_endpoint_desc_subtype.class);
+		public static final Xcoder.Type<audio_endpoint_desc_subtype> xcoder =
+			Xcoder.type(audio_endpoint_desc_subtype.class);
 		public final int value;
 
 		private audio_endpoint_desc_subtype(int value) {
@@ -153,8 +152,8 @@ public class LibUsbAudio {
 		GET_MEM(0x85),
 		GET_STAT(0xff);
 
-		public static final TypeTranscoder<audio_request_code> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_request_code.class);
+		public static final Xcoder.Type<audio_request_code> xcoder =
+			Xcoder.type(audio_request_code.class);
 		public final int value;
 
 		private audio_request_code(int value) {
@@ -169,8 +168,8 @@ public class LibUsbAudio {
 		TE_CONTROL_UNDEFINED(0x00),
 		COPY_PROTECT_CONTROL(0x01);
 
-		public static final TypeTranscoder<audio_term_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_term_control_selector.class);
+		public static final Xcoder.Type<audio_term_control_selector> xcoder =
+			Xcoder.type(audio_term_control_selector.class);
 		public final int value;
 
 		private audio_term_control_selector(int value) {
@@ -194,8 +193,8 @@ public class LibUsbAudio {
 		BASS_BOOST_CONTROL(0x09),
 		LOUDNESS_CONTROL(0x0a);
 
-		public static final TypeTranscoder<audio_feat_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_feat_unit_control_selector.class);
+		public static final Xcoder.Type<audio_feat_unit_control_selector> xcoder =
+			Xcoder.type(audio_feat_unit_control_selector.class);
 		public final int value;
 
 		private audio_feat_unit_control_selector(int value) {
@@ -211,8 +210,8 @@ public class LibUsbAudio {
 		UD_ENABLE_CONTROL(0x01),
 		UD_MODE_SELECT_CONTROL(0x02);
 
-		public static final TypeTranscoder<audio_updownmix_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_updownmix_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_updownmix_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_updownmix_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_updownmix_proc_unit_control_selector(int value) {
@@ -228,8 +227,8 @@ public class LibUsbAudio {
 		DP_ENABLE_CONTROL(0x01),
 		DP_MODE_SELECT_CONTROL(0x02);
 
-		public static final TypeTranscoder<audio_dolbypl_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_dolbypl_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_dolbypl_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_dolbypl_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_dolbypl_proc_unit_control_selector(int value) {
@@ -245,8 +244,8 @@ public class LibUsbAudio {
 		S3D_ENABLE_CONTROL(0x01),
 		SPACIOUSNESS_CONTROL(0x03);
 
-		public static final TypeTranscoder<audio_stereo3d_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_stereo3d_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_stereo3d_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_stereo3d_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_stereo3d_proc_unit_control_selector(int value) {
@@ -264,8 +263,8 @@ public class LibUsbAudio {
 		REVERB_TIME_CONTROL(0x03),
 		REVERB_FEEDBACK_CONTROL(0x04);
 
-		public static final TypeTranscoder<audio_reverb_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_reverb_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_reverb_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_reverb_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_reverb_proc_unit_control_selector(int value) {
@@ -283,8 +282,8 @@ public class LibUsbAudio {
 		CHORUS_RATE_CONTROL(0x03),
 		CHORUS_DEPTH_CONTROL(0x04);
 
-		public static final TypeTranscoder<audio_chorus_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_chorus_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_chorus_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_chorus_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_chorus_proc_unit_control_selector(int value) {
@@ -304,8 +303,8 @@ public class LibUsbAudio {
 		ATTACK_TIME(0x05),
 		RELEASE_TIME(0x06);
 
-		public static final TypeTranscoder<audio_drcomp_proc_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_drcomp_proc_unit_control_selector.class);
+		public static final Xcoder.Type<audio_drcomp_proc_unit_control_selector> xcoder =
+			Xcoder.type(audio_drcomp_proc_unit_control_selector.class);
 		public final int value;
 
 		private audio_drcomp_proc_unit_control_selector(int value) {
@@ -320,8 +319,8 @@ public class LibUsbAudio {
 		XU_CONTROL_UNDEFINED(0x00),
 		XU_ENABLE_CONTROL(0x01);
 
-		public static final TypeTranscoder<audio_ext_unit_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_ext_unit_control_selector.class);
+		public static final Xcoder.Type<audio_ext_unit_control_selector> xcoder =
+			Xcoder.type(audio_ext_unit_control_selector.class);
 		public final int value;
 
 		private audio_ext_unit_control_selector(int value) {
@@ -337,8 +336,8 @@ public class LibUsbAudio {
 		SAMPLING_FREQ_CONTROL(0x01),
 		PITCH_CONTROL(0x02);
 
-		public static final TypeTranscoder<audio_endpoint_control_selector> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_endpoint_control_selector.class);
+		public static final Xcoder.Type<audio_endpoint_control_selector> xcoder =
+			Xcoder.type(audio_endpoint_control_selector.class);
 		public final int value;
 
 		private audio_endpoint_control_selector(int value) {
@@ -355,8 +354,8 @@ public class LibUsbAudio {
 		AUDIOSTREAMING_INTERFACE(1),
 		AUDIOSTREAMING_ENDPOINT(2);
 
-		public static final TypeTranscoder<audio_originator> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_originator.class);
+		public static final Xcoder.Type<audio_originator> xcoder =
+			Xcoder.type(audio_originator.class);
 		public final int value;
 
 		private audio_originator(int value) {
@@ -409,8 +408,8 @@ public class LibUsbAudio {
 		SIDE_RIGHT(1 << 10), // SR
 		TOP(1 << 11); // T
 
-		public static final TypeTranscoder<audio_spatial_location> xcoder =
-			TypeTranscoder.of(t -> t.value, audio_spatial_location.class);
+		public static final Xcoder.Types<audio_spatial_location> xcoder =
+			Xcoder.types(audio_spatial_location.class);
 		public final int value;
 
 		private audio_spatial_location(int value) {
@@ -447,7 +446,7 @@ public class LibUsbAudio {
 
 		@Override
 		protected int varCount() {
-			return ubyte(bInCollection);
+			return Maths.ubyte(bInCollection);
 		}
 	}
 
@@ -518,17 +517,17 @@ public class LibUsbAudio {
 		public byte iMixer;
 
 		// TODO: cannot map this to a struct, access dynamically instead
-		
+
 		public audio_mixer_unit_descriptor(Pointer p) {
 			super(p);
 		}
 
 		public int p() {
-			return ubyte(bNrInPins);
+			return Maths.ubyte(bNrInPins);
 		}
 
 		public int n() {
-			return max(ubyte(bLength) - BASE_LENGTH - p(), 0);
+			return Math.max(Maths.ubyte(bLength) - BASE_LENGTH - p(), 0);
 		}
 	}
 
@@ -549,13 +548,13 @@ public class LibUsbAudio {
 		public byte iSelector;
 
 		// TODO: cannot map this to a struct, access dynamically instead
-		
+
 		public audio_selector_unit_descriptor(Pointer p) {
 			super(p);
 		}
 
 		public int p() {
-			return ubyte(bNrInPins);
+			return Maths.ubyte(bNrInPins);
 		}
 	}
 
@@ -577,18 +576,18 @@ public class LibUsbAudio {
 		public byte iFeature;
 
 		// TODO: cannot map this to a struct, access dynamically instead
-		
+
 		public audio_feat_unit_descriptor(Pointer p) {
 			super(p);
 		}
 
 		public int channels() { // ch
 			int n = n();
-			return n == 0 ? 0 : Math.max(0, ((ubyte(bLength) - BASE_LENGTH) / n) - 1);
+			return n == 0 ? 0 : Math.max(0, ((Maths.ubyte(bLength) - BASE_LENGTH) / n) - 1);
 		}
 
 		public int n() {
-			return ubyte(bControlSize);
+			return Maths.ubyte(bControlSize);
 		}
 	}
 
@@ -618,21 +617,21 @@ public class LibUsbAudio {
 		public byte[] extra; // [x] >= 0
 
 		// TODO: cannot map this to a struct, access dynamically instead
-		
+
 		public audio_proc_unit_descriptor(Pointer p) {
 			super(p);
 		}
 
 		public int p() {
-			return ubyte(bNrInPins);
+			return Maths.ubyte(bNrInPins);
 		}
 
 		public int n() {
-			return ubyte(bControlSize);
+			return Maths.ubyte(bControlSize);
 		}
 
 		public int x() {
-			return ubyte(bLength) - BASE_LENGTH - p() - n();
+			return Maths.ubyte(bLength) - BASE_LENGTH - p() - n();
 		}
 	}
 
@@ -668,11 +667,11 @@ public class LibUsbAudio {
 		}
 
 		public int n() {
-			return ubyte(bControlSize);
+			return Maths.ubyte(bControlSize);
 		}
 
 		public int m() {
-			return ubyte(bNrModes);
+			return Maths.ubyte(bNrModes);
 		}
 	}
 
@@ -706,11 +705,11 @@ public class LibUsbAudio {
 		}
 
 		public int p() {
-			return ubyte(bNrInPins);
+			return Maths.ubyte(bNrInPins);
 		}
 
 		public int n() {
-			return ubyte(bControlSize);
+			return Maths.ubyte(bControlSize);
 		}
 	}
 
@@ -735,10 +734,10 @@ public class LibUsbAudio {
 		protected void setVarArray(int count) {
 			extra = new byte[count];
 		}
-		
+
 		@Override
 		protected int varCount() {
-			return ubyte(bLength) - BASE_LENGTH;
+			return Maths.ubyte(bLength) - BASE_LENGTH;
 		}
 	}
 

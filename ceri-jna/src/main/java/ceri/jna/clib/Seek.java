@@ -1,6 +1,6 @@
 package ceri.jna.clib;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.jna.clib.jna.CUnistd;
 
 /**
@@ -11,7 +11,7 @@ public enum Seek {
 	CUR(CUnistd.SEEK_CUR),
 	END(CUnistd.SEEK_END);
 
-	private static final TypeTranscoder<Seek> xcoder = TypeTranscoder.of(t -> t.value, Seek.class);
+	private static final Xcoder.Type<Seek> xcoder = Xcoder.type(Seek.class);
 	public final int value;
 
 	public static Seek from(int value) {

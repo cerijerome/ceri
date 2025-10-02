@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.concurrent.Concurrent;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
 
 /**
  * Creates a paired PipedInputStream and PipedOutputStream.
@@ -94,7 +94,7 @@ public class PipedStream implements Functions.Closeable {
 	 */
 	public void awaitRead(int pollMs) throws IOException {
 		while (in.available() > 0)
-			ConcurrentUtil.delay(pollMs);
+			Concurrent.delay(pollMs);
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class PipedStream implements Functions.Closeable {
 		while (true) {
 			if (in.available() == 0) return true;
 			if (System.currentTimeMillis() >= t) return false;
-			ConcurrentUtil.delay(pollMs);
+			Concurrent.delay(pollMs);
 		}
 	}
 
@@ -119,6 +119,6 @@ public class PipedStream implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(in, out);
+		Closeables.close(in, out);
 	}
 }

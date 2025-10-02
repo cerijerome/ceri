@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.function.Functions.ToBoolFunction;
 
 /**

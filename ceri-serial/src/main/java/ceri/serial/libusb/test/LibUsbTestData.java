@@ -11,8 +11,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Fluent;
@@ -249,7 +249,7 @@ public class LibUsbTestData {
 		}
 
 		private Pointer p(int i) {
-			Validate.validateIndex(size, i);
+			Validate.index(size, i);
 			return p.share(i * JnaSize.POINTER.get());
 		}
 	}

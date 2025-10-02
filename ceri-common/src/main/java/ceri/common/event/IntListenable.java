@@ -1,8 +1,8 @@
 package ceri.common.event;
 
-import java.util.function.IntConsumer;
+import ceri.common.function.Enclosure;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.Enclosure;
 
 /**
  * Interface to add/remove notification listeners.
@@ -13,7 +13,7 @@ public interface IntListenable {
 	 * Attempts to listen, and returns a closable wrapper that unlistens on close. If the call to
 	 * listen returns false, close() will do nothing.
 	 */
-	default <T extends IntConsumer> Enclosure<T> enclose(T listener) {
+	default <T extends Functions.IntConsumer> Enclosure<T> enclose(T listener) {
 		boolean added = listen(listener);
 		if (!added) return Enclosure.noOp(listener); // no unlisten on close
 		return Enclosure.of(listener, this::unlisten); // unlistens on close
@@ -22,12 +22,12 @@ public interface IntListenable {
 	/**
 	 * Adds a listener to receive notifications. Returns true if added.
 	 */
-	boolean listen(IntConsumer listener);
+	boolean listen(Functions.IntConsumer listener);
 
 	/**
 	 * Removes a listener from receiving notifications. Returns true if removed.
 	 */
-	boolean unlisten(IntConsumer listener);
+	boolean unlisten(Functions.IntConsumer listener);
 
 	/**
 	 * Converts into an indirect listenable type.
@@ -64,12 +64,12 @@ public interface IntListenable {
 		}
 
 		@Override
-		default boolean listen(IntConsumer listener) {
+		default boolean listen(Functions.IntConsumer listener) {
 			return false;
 		}
 
 		@Override
-		default boolean unlisten(IntConsumer listener) {
+		default boolean unlisten(Functions.IntConsumer listener) {
 			return false;
 		}
 	}

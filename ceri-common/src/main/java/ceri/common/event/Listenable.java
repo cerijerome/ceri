@@ -1,11 +1,11 @@
 package ceri.common.event;
 
 import java.util.Map;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Basics;
-import ceri.common.util.Enclosure;
 
 /**
  * Interface to add/remove notification listeners.

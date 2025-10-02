@@ -1,10 +1,11 @@
 package ceri.common.data;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertUnordered;
 import static ceri.common.test.AssertUtil.assertUnsupported;
-import java.util.HashSet;
 import org.junit.Test;
 import ceri.common.test.TestUtil.Rte;
 
@@ -19,7 +20,7 @@ public class FieldBehavior {
 		_31,
 		_63;
 
-		static final TypeTranscoder<Bit> xcoder = TypeTranscoder.of(t -> t.mask, Bit.class);
+		static final Xcoder.Types<Bit> xcoder = Xcoder.types(Bit.class, t -> t.mask);
 		long mask;
 
 		Bit() {
@@ -95,6 +96,15 @@ public class FieldBehavior {
 	}
 
 	@Test
+	public void shouldApplyOperator() {
+		var type = new Type(null, -1, -1L);
+		Type.I.apply(type, l -> l - 1);
+		assertEquals(type.i, 0xfffffffe);
+		Type.I.apply(type, l -> l);
+		assertEquals(type.i, 0xfffffffe);
+	}
+	
+	@Test
 	public void shouldSetMaskedUintValues() {
 		var type = new Type(null, -1, 0);
 		assertEquals(Type.IM.get(type), 0xffffL);
@@ -160,18 +170,25 @@ public class FieldBehavior {
 	@Test
 	public void shouldGetMaskedTypedFieldValues() {
 		var type = new Type(null, 0xfff0f1f0, 0L);
-		assertUnordered(Type.IMT.get(type), Bit._15, Bit._7, Bit._0);
-		assertEquals(Type.IMT.has(type, Bit._7, Bit._0), true);
-		assertEquals(Type.IMT.has(type, Bit._7, Bit._1), false);
+		assertUnordered(Type.IMT.getAll(type), Bit._15, Bit._7, Bit._0);
+		assertEquals(Type.IMT.hasAll(type, Bit._7, Bit._0), true);
+		assertEquals(Type.IMT.hasAll(type, Bit._7, Bit._1), false);
 	}
 
 	@Test
-	public void shouldCollectTypedFieldValues() {
-		var type = new Type(null, 0, 0xfL);
-		var set = new HashSet<Bit>();
-		assertEquals(Type.LT.get(type, set), 4L);
-		assertEquals(Type.LT.getInt(type, set), 4);
-		assertUnordered(set, Bit._3, Bit._1, Bit._0);
+	public void shouldGetValidTypes() {
+		var type = new Type(null, 0x80, 0x81L);
+		assertEquals(Type.IT.getValid(type), Bit._7);
+		assertOrdered(Type.LT.getAllValid(type), Bit._0, Bit._7);
+		type.i = 0x81;
+		assertIllegalArg(() -> Type.IT.getValid(type));
+	}
+
+	@Test
+	public void shouldDetermineIfFieldHasTypes() {
+		var type = new Type(null, 0x80, 0x81L);
+		assertEquals(Type.IT.has(type, Bit._3), false);
+		assertEquals(Type.IT.has(type, Bit._7), true);
 	}
 
 	@Test
@@ -184,5 +201,4 @@ public class FieldBehavior {
 		set.set(type, 0);
 		assertUnsupported(() -> set.get(type));
 	}
-
 }

@@ -7,9 +7,9 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Objects;
+import ceri.common.function.Closeables;
 import ceri.common.io.Connector;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.CloseableUtil;
 
 /**
  * A TCP socket connector interface.
@@ -74,7 +74,7 @@ public interface TcpSocket extends Connector {
 	 */
 	@SuppressWarnings("resource")
 	static Wrapper connect(HostPort hostPort) throws IOException {
-		return CloseableUtil.applyOrClose(new Socket(hostPort.host, hostPort.port),
+		return Closeables.applyOrClose(new Socket(hostPort.host, hostPort.port),
 			TcpSocket::wrap);
 	}
 

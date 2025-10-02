@@ -67,7 +67,7 @@ public class VolatileIntArray implements IntAccessor {
 
 	@Override
 	public VolatileIntArray slice(int offset, int length) {
-		Validate.validateSlice(length(), offset, length);
+		Validate.slice(length(), offset, length);
 		return new VolatileIntArray(array, this.offset + offset, length);
 	}
 

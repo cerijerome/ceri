@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.time.Timeout;

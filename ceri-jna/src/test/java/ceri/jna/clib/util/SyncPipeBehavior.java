@@ -9,8 +9,8 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.concurrent.SimpleExecutor;
+import ceri.common.function.Closeables;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.Poll;
@@ -29,7 +29,7 @@ public class SyncPipeBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(thread, sync, pipe, fd, ref);
+		Closeables.close(thread, sync, pipe, fd, ref);
 		poll = null;
 		pipe = null;
 		sync = null;

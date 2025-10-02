@@ -3,7 +3,7 @@ package ceri.common.text;
 import java.io.PrintStream;
 import java.util.Map;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.stream.Streams;
 
 /**

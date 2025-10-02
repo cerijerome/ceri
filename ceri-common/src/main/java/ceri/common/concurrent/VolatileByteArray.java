@@ -71,7 +71,7 @@ public class VolatileByteArray implements ByteAccessor {
 
 	@Override
 	public VolatileByteArray slice(int offset, int length) {
-		Validate.validateSlice(length(), offset, length);
+		Validate.slice(length(), offset, length);
 		return new VolatileByteArray(array, this.offset + offset, length);
 	}
 

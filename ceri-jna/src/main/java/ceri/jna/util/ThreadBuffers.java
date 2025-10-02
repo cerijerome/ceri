@@ -4,7 +4,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import com.sun.jna.Memory;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Functions;
 import ceri.common.util.Validate;
 
@@ -45,7 +45,7 @@ public class ThreadBuffers implements Functions.Closeable {
 	 * Set future buffer sizes.
 	 */
 	public void size(long size) {
-		Validate.validateMin(size, 1);
+		Validate.min(size, 1);
 		this.size = size;
 	}
 
@@ -55,7 +55,7 @@ public class ThreadBuffers implements Functions.Closeable {
 	@SuppressWarnings("resource")
 	public Memory get() {
 		var size = this.size;
-		return ConcurrentUtil.lockedGet(lock, () -> buffers.compute(Thread.currentThread(),
+		return Concurrent.lockedGet(lock, () -> buffers.compute(Thread.currentThread(),
 			(_, m) -> (m != null && m.size() == size && m.valid()) ? m : new Memory(size)));
 	}
 
@@ -64,7 +64,7 @@ public class ThreadBuffers implements Functions.Closeable {
 	 */
 	public void remove() {
 		@SuppressWarnings("resource")
-		var m = ConcurrentUtil.lockedGet(lock, () -> buffers.remove(Thread.currentThread()));
+		var m = Concurrent.lockedGet(lock, () -> buffers.remove(Thread.currentThread()));
 		JnaUtil.close(m);
 	}
 
@@ -73,6 +73,6 @@ public class ThreadBuffers implements Functions.Closeable {
 	 */
 	@Override
 	public void close() {
-		ConcurrentUtil.lockedRun(lock, buffers::clear);
+		Concurrent.lockedRun(lock, buffers::clear);
 	}
 }

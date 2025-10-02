@@ -1,13 +1,13 @@
 package ceri.common.net;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
 import ceri.common.function.Excepts;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -32,14 +32,14 @@ public class TcpSocketOptions {
 	 * Creates a mutable option container.
 	 */
 	public static TcpSocketOptions.Mutable of() {
-		return of(LinkedHashMap::new);
+		return of(Maps::link);
 	}
 
 	/**
 	 * Creates a mutable option container using the given map constructor.
 	 */
 	public static TcpSocketOptions.Mutable
-		of(Supplier<Map<TcpSocketOption<?>, Object>> mapSupplier) {
+		of(Functions.Supplier<Map<TcpSocketOption<?>, Object>> mapSupplier) {
 		return new Mutable(mapSupplier.get());
 	}
 

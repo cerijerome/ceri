@@ -9,13 +9,13 @@ import java.util.Properties;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 
 public class RegistryServiceBehavior {
@@ -26,7 +26,7 @@ public class RegistryServiceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(service, files);
+		Closeables.close(service, files);
 		service = null;
 		files = null;
 	}

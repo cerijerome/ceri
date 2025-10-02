@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.time.Timeout;
 
 public class TestFuture<T> extends FutureTask<T> {

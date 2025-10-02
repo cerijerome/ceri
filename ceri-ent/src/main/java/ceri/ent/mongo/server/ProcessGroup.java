@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 

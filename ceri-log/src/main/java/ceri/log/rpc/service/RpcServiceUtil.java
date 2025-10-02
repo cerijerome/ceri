@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
-import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.exception.Exceptions;
+import ceri.common.concurrent.Concurrent;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
 import ceri.common.text.Regex;
@@ -74,7 +74,7 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			ConcurrentUtil.interrupt(e);
+			Concurrent.interrupt(e);
 			logger.catching(e);
 			observer.onError(statusException(e));
 		}
@@ -90,7 +90,7 @@ public class RpcServiceUtil {
 			observer.onNext(t);
 			observer.onCompleted();
 		} catch (Exception e) {
-			ConcurrentUtil.interrupt(e);
+			Concurrent.interrupt(e);
 			logger.catching(e);
 			observer.onError(statusException(e));
 		}

@@ -5,8 +5,8 @@ import java.util.Objects;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
 import ceri.common.math.Radix;
-import ceri.common.text.Formats;
-import ceri.common.time.DateUtil;
+import ceri.common.text.Format;
+import ceri.common.time.Dates;
 import ceri.x10.command.House;
 
 /**
@@ -30,8 +30,8 @@ import ceri.x10.command.House;
  * </pre>
  */
 public class Status implements ByteArray.Encodable {
-	private static final Formats.OfLong BIN =
-		new Formats.OfLong(true, Radix.BIN.prefix(), Radix.BIN.n, 4, 0, Formats.Separator._4);
+	private static final Format.OfLong BIN =
+		new Format.OfLong(true, Radix.BIN.prefix(), Radix.BIN.n, 4, 0, Format.Separator._4);
 	private static final int SIZE = 2 + Data.DATE_BYTES + 7;
 	private static final int BATTERY_TIMER_RESET = 0xffff;
 	public final int batteryTimer;
@@ -57,7 +57,7 @@ public class Status implements ByteArray.Encodable {
 
 	public static class Builder {
 		int batteryTimer = 0;
-		LocalDateTime date = DateUtil.nowSec();
+		LocalDateTime date = Dates.nowSec();
 		House house = House.M;
 		int firmware = 1;
 		int addressed = 0;

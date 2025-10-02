@@ -10,7 +10,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteUtil;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CSignal.sigset_t;
@@ -24,7 +24,7 @@ public class CSignalTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

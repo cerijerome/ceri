@@ -1,60 +1,85 @@
 package ceri.common.geom;
 
-import java.util.Objects;
-import ceri.common.text.ToString;
 import ceri.common.util.Validate;
 
-public class Polar2d {
+/**
+ * A 2d point in polar coordinates using radians.
+ */
+public record Polar2d(double r, double phi) {
 	public static final Polar2d ZERO = new Polar2d(0, 0);
-	public final double r;
-	public final double phi;
 
+	/**
+	 * Normalizes a polar coordinate angle from 0 to 2PI.
+	 */
+	public static double normalize(double phi) {
+		phi %= Math.TAU;
+		return phi >= 0.0 ? phi : phi + Math.TAU;
+	}
+	
+	/**
+	 * Returns an instance calculated from x,y coordinates.
+	 */
 	public static Polar2d from(Point2d point) {
-		if (point == Point2d.ZERO) return ZERO;
-		Line2d line = Line2d.of(Point2d.ZERO, point);
-		return of(line.length(), line.angle());
+		return from(point.x(), point.y());
 	}
 
+	/**
+	 * Returns an instance calculated from x,y coordinates.
+	 */
+	public static Polar2d from(double x, double y) {
+		Validate.finite(x);
+		Validate.finite(y);
+		if (x == 0.0 && y == 0.0) return ZERO;
+		return of(Point2d.distance(x, y), Point2d.angle(x, y));
+	}
+
+	/**
+	 * Returns a validated instance.
+	 */
 	public static Polar2d of(double r, double phi) {
-		if (r == ZERO.r && phi == ZERO.phi) return ZERO;
-		Validate.validateMinFp(r, 0, "Radius");
-		return new Polar2d(r + .0, phi + .0);
+		Validate.finiteMin(r, 0.0);
+		Validate.finite(phi);
+		if (r == 0.0 && phi == 0.0) return ZERO;
+		return new Polar2d(r + 0.0, phi + 0.0);
 	}
 
-	private Polar2d(double r, double phi) {
-		this.r = r;
-		this.phi = phi;
+	/**
+	 * Normalizes the angle between 0 and 2PI.
+	 */
+	public Polar2d normalize() {
+		var phi = phi() % Math.TAU;
+		if (phi < 0.0) phi += Math.TAU;
+		return create(r(), normalize(phi()));
 	}
 
-	public Point2d asPoint() {
-		return GeometryUtil.offset(r, phi);
+	/**
+	 * Converts to x,y coordinates.
+	 */
+	public Point2d point() {
+		return Point2d.fromPolar(r(), phi());
 	}
 
+	/**
+	 * Rotates by the given angle around the origin.
+	 */
 	public Polar2d rotate(double angle) {
-		return of(r, phi + angle);
+		return create(r(), phi() + angle);
 	}
 
+	/**
+	 * Reverses the coordinates about the origin.
+	 */
 	public Polar2d reverse() {
-		return of(r, -phi);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(r, phi);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Polar2d other)) return false;
-		if (!Objects.equals(r, other.r)) return false;
-		if (!Objects.equals(phi, other.phi)) return false;
-		return true;
+		return create(r(), -phi());
 	}
 
 	@Override
 	public String toString() {
-		return ToString.forClass(this, r, phi);
+		return "(" + r() + ", " + phi() + ")";
 	}
-
+	
+	private Polar2d create(double r, double phi) {
+		if (r == r() && phi == phi()) return this;
+		return of(r, phi);
+	}
 }

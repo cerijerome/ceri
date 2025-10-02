@@ -6,9 +6,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.concurrent.BoolCondition;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.event.Listenable;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
@@ -86,7 +86,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	public void clear() {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			if (listeners.isEmpty()) return;
 			listeners.clear();
 			sync.signal(); // signal to stop listening
@@ -95,7 +95,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public boolean listen(Functions.Consumer<? super T> listener) {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			boolean result = listeners.add(listener);
 			if (result && listeners.size() == 1) sync.signal(); // signal to start listening
 			return result;
@@ -104,7 +104,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 
 	@Override
 	public boolean unlisten(Functions.Consumer<? super T> listener) {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			boolean result = listeners.remove(listener);
 			if (result && listeners.isEmpty()) sync.signal(); // signal to stop listening
 			return result;
@@ -123,11 +123,11 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 		logger.trace("Action: {}", action);
 		if (action != Action.receive) stopReceiving();
 		if (action != Action.stop) startReceiving();
-		if (action == Action.resetAndReceive) ConcurrentUtil.delay(config.resetDelayMs);
+		if (action == Action.resetAndReceive) Concurrent.delay(config.resetDelayMs);
 	}
 
 	private Action waitForAction() throws InterruptedException {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			sync.await();
 			Action action = action(this.reset);
 			this.reset = false;
@@ -156,7 +156,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	private void onNotify(V v) {
 		logger.trace("Notification: {}", LogUtil.compact(v));
 		T t = transform.apply(v);
-		var listeners = ConcurrentUtil.lockedGet(lock, () -> Sets.link(this.listeners));
+		var listeners = Concurrent.lockedGet(lock, () -> Sets.link(this.listeners));
 		notifyListeners(listeners, t);
 	}
 
@@ -176,7 +176,7 @@ public class RpcClientNotifier<T, V> extends LoopingExecutor implements Listenab
 	}
 
 	private void signalReset() {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			reset = true;
 			sync.signal();
 		});

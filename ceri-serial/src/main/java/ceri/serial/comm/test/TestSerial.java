@@ -3,7 +3,7 @@ package ceri.serial.comm.test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestConnector;

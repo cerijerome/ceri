@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.serial.comm.DataBits;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Parity;
@@ -22,7 +22,7 @@ public class SerialConfigBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(helper);
+		Closeables.close(helper);
 		helper = null;
 	}
 

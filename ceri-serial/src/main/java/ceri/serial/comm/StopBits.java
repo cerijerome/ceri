@@ -1,7 +1,7 @@
 package ceri.serial.comm;
 
-import ceri.common.collection.Enums;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.collect.Enums;
+import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.serial.comm.jna.CSerial;
 
@@ -10,8 +10,7 @@ public enum StopBits {
 	_2(CSerial.STOPBITS_2, 2.0),
 	_1_5(CSerial.STOPBITS_1_5, 1.5);
 
-	private static final TypeTranscoder<StopBits> xcoder =
-		TypeTranscoder.of(t -> t.value, StopBits.class);
+	private static final Xcoder.Type<StopBits> xcoder = Xcoder.type(StopBits.class);
 	private static final double PRECISION = 0.1;
 	public final int value;
 	public final double bits;

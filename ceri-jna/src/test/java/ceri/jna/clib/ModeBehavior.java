@@ -25,11 +25,11 @@ public class ModeBehavior {
 
 	@Test
 	public void shouldEncodeMask() {
-		assertEquals(Mask.encode(Mask.rwxu, Mask.rwxg, Mask.rwxo), 0777);
-		assertEquals(Mask.encode(Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp, Mask.roth, Mask.woth),
+		assertEquals(Mask.xcoder.encodeInt(Mask.rwxu, Mask.rwxg, Mask.rwxo), 0777);
+		assertEquals(Mask.xcoder.encodeInt(Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp, Mask.roth, Mask.woth),
 			0666);
-		assertEquals(Mask.encode(Mask.fmt), 0170000);
-		assertEquals(Mask.encode(Mask.fmt, Mask.fsock, Mask.flnk), 0170000);
+		assertEquals(Mask.xcoder.encodeInt(Mask.fmt), 0170000);
+		assertEquals(Mask.xcoder.encodeInt(Mask.fmt, Mask.fsock, Mask.flnk), 0170000);
 	}
 
 	@Test
@@ -37,9 +37,9 @@ public class ModeBehavior {
 		assertUnordered(Mode.of(0777).masks(), Mask.rwxu, Mask.rwxg, Mask.rwxo);
 		assertUnordered(Mode.of(0666).masks(), Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp,
 			Mask.roth, Mask.woth);
-		assertUnordered(Mask.decode(0170000), Mask.fmt);
-		assertUnordered(Mask.decode(0140000), Mask.fsock);
-		assertUnordered(Mask.decode(0120000), Mask.flnk);
+		assertUnordered(Mask.xcoder.decodeAll(0170000), Mask.fmt);
+		assertUnordered(Mask.xcoder.decodeAll(0140000), Mask.fsock);
+		assertUnordered(Mask.xcoder.decodeAll(0120000), Mask.flnk);
 	}
 
 	@Test

@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteStream;
-import ceri.common.exception.ExceptionTracker;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.ExceptionTracker;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.io.Connector;
 import ceri.common.io.PollingInputStream;
@@ -71,7 +71,7 @@ public class Processor extends LoopingExecutor {
 	@Override
 	protected void loop() throws InterruptedException {
 		try {
-			ConcurrentUtil.checkInterrupted();
+			Concurrent.checkInterrupted();
 			if (in.available() > 0) processInput(in.readUbyte());
 			else taskQueue.processNext(config.queuePollTimeoutMs, TimeUnit.MILLISECONDS);
 			exceptions.clear();

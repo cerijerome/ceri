@@ -655,6 +655,63 @@ public class Throws {
 		double applyAsDouble(double l, double r) throws Throwable;
 	}
 
+	// Object + operators
+	
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjBoolOperator<T> {
+		/**
+		 * Accepts the types and returns the result, with possible throwable.
+		 */
+		boolean applyAsBool(T t, boolean b) throws Throwable;
+	}
+	
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjByteOperator<T> {
+		/**
+		 * Accepts the types and returns the result, with possible throwable.
+		 */
+		byte applyAsByte(T t, byte b) throws Throwable;
+	}
+	
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjIntOperator<T> {
+		/**
+		 * Accepts the types and returns the result, with possible throwable.
+		 */
+		int applyAsInt(T t, int i) throws Throwable;
+	}
+	
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjLongOperator<T> {
+		/**
+		 * Accepts the types and returns the result, with possible throwable.
+		 */
+		long applyAsLong(T t, long l) throws Throwable;
+	}
+	
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjDoubleOperator<T> {
+		/**
+		 * Accepts the types and returns the result, with possible throwable.
+		 */
+		double applyAsDouble(T t, double d) throws Throwable;
+	}
+	
 	// Predicates
 
 	/**

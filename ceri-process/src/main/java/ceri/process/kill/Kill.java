@@ -10,6 +10,22 @@ public class Kill {
 	private final Processor processor;
 	private Signal signal = null;
 
+	public enum Signal {
+		HUP(1), // hang up
+		INT(2), // interrupt
+		QUIT(3), // quit
+		ABRT(6), // abort
+		KILL(9), // non-catchable, non-ignorable kill
+		ALRM(14), // alarm clock
+		TERM(15); // software termination signal (default)
+
+		public final int number;
+
+		Signal(int number) {
+			this.number = number;
+		}
+	
+	}
 	public static Kill of() {
 		return of(Processor.DEFAULT);
 	}
@@ -28,7 +44,7 @@ public class Kill {
 	}
 
 	public String kill(int... pids) throws IOException {
-		Parameters params = Parameters.of();
+		var params = Parameters.of();
 		if (signal != null) params.add("-" + signal.number);
 		IntStream.of(pids).forEach(params::add);
 		return exec(params);
@@ -37,5 +53,4 @@ public class Kill {
 	private String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(KILL).addAll(params));
 	}
-
 }

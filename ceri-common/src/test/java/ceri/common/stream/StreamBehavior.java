@@ -16,9 +16,9 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Spliterator;
 import org.junit.Test;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Immutable.Wrap;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Immutable.Wrap;
+import ceri.common.collect.Lists;
 import ceri.common.function.Compares;
 import ceri.common.function.Functions;
 

@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertValue;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.SystemIo;
@@ -11,7 +12,6 @@ import ceri.common.log.Logger.FormatFlag;
 import ceri.common.test.Captor;
 import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
-import ceri.common.util.CloseableUtil;
 
 public class LoggerBehavior {
 	private static final Object KEY = "test";
@@ -24,7 +24,7 @@ public class LoggerBehavior {
 	public void after() {
 		Logger.removeLogger(KEY);
 		logger = null;
-		CloseableUtil.close(sysIo);
+		Closeables.close(sysIo);
 		sysIo = null;
 		out = null;
 		err = null;

@@ -5,8 +5,8 @@ import static ceri.common.test.AssertUtil.assertFind;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.test.SystemIoCaptor;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.util.JnaLibrary;
@@ -17,7 +17,7 @@ public class CLibVerifierBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

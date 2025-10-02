@@ -19,7 +19,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteArray.Mutable;
 import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.IoExceptions;
 import ceri.common.io.IoStreamUtil;
 import ceri.common.io.PipedStream;

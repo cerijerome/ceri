@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.function.BiConsumer;
+import ceri.common.function.Functions;
 
 /**
  * Used for creating dirs and files, and keeping track of which ones were created. Useful if an
@@ -49,7 +49,7 @@ public class FileTracker {
 	 * Delete all tracked files and dirs. Caller can receive errors via onError callback. Returns
 	 * true only if all tracked paths are deleted.
 	 */
-	public boolean delete(BiConsumer<IOException, Path> onError) {
+	public boolean delete(Functions.BiConsumer<IOException, Path> onError) {
 		boolean success = true;
 		for (Iterator<Path> i = createdFiles.iterator(); i.hasNext();) {
 			Path file = i.next();

@@ -2,7 +2,7 @@ package ceri.log.rpc.service;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.CallSync;
 import ceri.common.time.Timeout;
 import io.grpc.Server;

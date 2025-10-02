@@ -3,7 +3,7 @@ package ceri.serial.spi.test;
 import java.io.IOException;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.Direction;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;

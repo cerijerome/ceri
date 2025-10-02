@@ -18,13 +18,13 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestTcpSocket;
-import ceri.common.util.CloseableUtil;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
 
@@ -37,7 +37,7 @@ public class SelfHealingTcpSocketBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(shs);
+		Closeables.close(shs);
 		shs = null;
 		socket = null;
 		config = null;

@@ -5,13 +5,13 @@ import java.io.IOException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
 import ceri.common.function.Excepts;
-import ceri.common.util.Named;
+import ceri.common.util.Capability;
 
 /**
  * A delegate pass-through that allows the underlying delegate to be replaced. Calling replace()
  * closes the current delegate, whereas set() requires the caller to manage delegate lifecycle.
  */
-public abstract class Replaceable<T extends Closeable> implements Closeable, Named {
+public abstract class Replaceable<T extends Closeable> implements Closeable, Capability.Name {
 	private static final String NAME = "delegate";
 	protected final Listeners<Exception> errorListeners = Listeners.of();
 	private final String delegateName;

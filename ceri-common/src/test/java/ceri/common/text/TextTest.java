@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertString;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 
 public class TextTest {
 

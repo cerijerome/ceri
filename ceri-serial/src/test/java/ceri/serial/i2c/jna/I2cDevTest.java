@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
@@ -21,7 +21,7 @@ public class I2cDevTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

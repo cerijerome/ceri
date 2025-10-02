@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Sets;
 
 public class UnsupportedCommand extends Command {
 

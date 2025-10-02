@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_attributes;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;

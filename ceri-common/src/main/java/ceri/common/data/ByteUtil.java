@@ -12,8 +12,8 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Iterators;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Iterators;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -21,7 +21,7 @@ import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Formats;
+import ceri.common.text.Format;
 import ceri.common.util.Validate;
 
 public class ByteUtil {
@@ -137,7 +137,7 @@ public class ByteUtil {
 	 * Creates a hex string from bytes, with given delimiter.
 	 */
 	public static <E extends Exception> String toHex(IntStream<E> stream, String delimiter) throws E {
-		return stream.mapToObj(b -> Formats.hex(b, "", Radix.HEX.digits.ubyte()))
+		return stream.mapToObj(b -> Format.hex(b, "", Radix.HEX.digits.ubyte()))
 			.collect(Collectors.joining(delimiter));
 	}
 
@@ -189,7 +189,7 @@ public class ByteUtil {
 	 * @throws E 
 	 */
 	public static <E extends Exception> byte[] bytes(IntStream<E> stream) throws E {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		var out = new ByteArrayOutputStream();
 		stream.forEach(out::write);
 		return out.toByteArray();
 	}
@@ -405,7 +405,7 @@ public class ByteUtil {
 	 * length string is returned.
 	 */
 	public static String fromNullTerm(ByteProvider data, int offset, int maxLen, Charset charset) {
-		Validate.validateSlice(data.length(), offset, maxLen);
+		Validate.slice(data.length(), offset, maxLen);
 		for (int i = 0; i < maxLen; i++)
 			if (data.getByte(offset + i) == 0) return data.getString(offset, i, charset);
 		return data.getString(offset, maxLen, charset);
@@ -680,8 +680,8 @@ public class ByteUtil {
 	 * Writes converted value to byte array, msb first.
 	 */
 	public static int writeMsb(long value, byte[] data, int offset, int length) {
-		Validate.validateSlice(data.length, offset, length);
-		Validate.validateMax(length, Long.BYTES);
+		Validate.slice(data.length, offset, length);
+		Validate.max(length, Long.BYTES);
 		while (--length >= 0)
 			data[offset++] = byteAt(value, length);
 		return offset;
@@ -705,8 +705,8 @@ public class ByteUtil {
 	 * Writes converted value to byte array, lsb first.
 	 */
 	public static int writeLsb(long value, byte[] data, int offset, int length) {
-		Validate.validateSlice(data.length, offset, length);
-		Validate.validateMax(length, Long.BYTES);
+		Validate.slice(data.length, offset, length);
+		Validate.max(length, Long.BYTES);
 		for (int i = 0; i < length; i++)
 			data[offset++] = byteAt(value, i);
 		return offset;
@@ -737,8 +737,8 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromMsb(byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMax(length, Long.BYTES);
+		Validate.slice(array.length, offset, length);
+		Validate.max(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], length - i - 1);
@@ -770,8 +770,8 @@ public class ByteUtil {
 	 * Creates a byte-ordered value from byte array.
 	 */
 	public static long fromLsb(byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMax(length, Long.BYTES);
+		Validate.slice(array.length, offset, length);
+		Validate.max(length, Long.BYTES);
 		long value = 0;
 		for (int i = 0; i < length; i++)
 			value |= shiftByteLeft(array[offset + i], i);
@@ -946,5 +946,4 @@ public class ByteUtil {
 		}
 		return value;
 	}
-
 }

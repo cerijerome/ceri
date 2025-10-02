@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
-import ceri.common.collection.Sets;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Sets;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -388,6 +388,13 @@ public class LongStream<E extends Exception> {
 	 */
 	public long sum(long def) throws E {
 		return reduce(Reduce.Longs.sum(), def);
+	}
+
+	/**
+	 * Returns the average value, or 0.
+	 */
+	public double average() throws E {
+		return collect(Collect.Longs.average);
 	}
 
 	/**

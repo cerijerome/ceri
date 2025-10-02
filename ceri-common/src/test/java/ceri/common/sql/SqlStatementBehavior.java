@@ -109,7 +109,7 @@ public class SqlStatementBehavior {
 	public void shouldSetNullParameters() throws SQLException {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ?, ?, ? from table1"); // 5
-		stmt.set(1, SqlNull.nullClob, "x", SqlNull.nullDate, SqlNull.nullInt);
+		stmt.set(1, Sql.Null.Clob, "x", Sql.Null.Date, Sql.Null.Int);
 		assertOrdered(ps.setObject.values(), //
 			Arrays.asList(1, 1), //
 			Arrays.asList(2, null, Types.CLOB), //
@@ -123,7 +123,7 @@ public class SqlStatementBehavior {
 	public void shouldTrackParameters() throws SQLException {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ? from table1");
-		stmt.set(1, "x", SqlNull.nullClob);
+		stmt.set(1, "x", Sql.Null.Clob);
 		assertString(stmt, "select 1, x, null from table1");
 	}
 
@@ -131,8 +131,8 @@ public class SqlStatementBehavior {
 	@Test
 	public void shouldAllowFormatterToBeAdded() throws SQLException {
 		init();
-		stmt = SqlStatement.of(con, "select ?, ?, ? from table1").with(SqlFormatter.DEFAULT);
-		stmt.set(1, "x", SqlNull.nullClob);
+		stmt = SqlStatement.of(con, "select ?, ?, ? from table1").with(Sql.Formatter.DEFAULT);
+		stmt.set(1, "x", Sql.Null.Clob);
 		assertString(stmt, "select 1, x, null from table1");
 	}
 
@@ -141,7 +141,7 @@ public class SqlStatementBehavior {
 	public void shouldSupportBatchetNullParameters() throws SQLException {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ? from table1");
-		stmt.set(1, SqlNull.nullDate, "x").batch();
+		stmt.set(1, Sql.Null.Date, "x").batch();
 		assertString(stmt, "select 1, null, x from table1");
 		stmt.set(2).batch();
 		assertString(stmt, "select 2, null, x from table1");

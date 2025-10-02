@@ -2,17 +2,27 @@ package ceri.common.util;
 
 import java.util.Arrays;
 import java.util.Objects;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 
 /**
- * Basic utility methods.
+ * Basic utility methods and types.
  */
 public class Basics {
-
 	private Basics() {}
 
+	/**
+	 * Base class for keeping an object reference field. Useful to avoid resource warnings.
+	 */
+	public static class Ref<T> {
+		protected final T ref;
+
+		protected Ref(T ref) {
+			this.ref = ref;
+		}
+	}
+	
 	/**
 	 * Stops the warning for an unused parameter. Use only when absolutely necessary.
 	 */

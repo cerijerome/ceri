@@ -219,7 +219,7 @@ public class Lazy<T> {
 	}
 
 	private <E extends Exception> T get(Excepts.Supplier<E, T> supplier) throws E {
-		if (value == null) try (var _ = ConcurrentUtil.locker(lock)) { // double-checked locking
+		if (value == null) try (var _ = Concurrent.locker(lock)) { // double-checked locking
 			value = Basics.def(value, supplier);
 		}
 		return value;

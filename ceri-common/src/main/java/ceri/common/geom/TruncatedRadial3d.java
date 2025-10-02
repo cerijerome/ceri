@@ -6,14 +6,14 @@ import ceri.common.util.Validate;
 
 public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final T radial;
-	private final double h0;
-	private final double h;
-	private final double v0;
-	private final double v;
+	private final double h0; // height offset
+	private final double h; // height
+	private final double v0; // volume offset
+	private final double v; // volume
 
 	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
-		Validate.validateMinFp(h0, 0, "Height offset");
-		Validate.validateRangeFp(h, 0, radial.height() - h0, "Height");
+		Validate.finiteMin(h0, 0);
+		Validate.range(h, 0, radial.height() - h0);
 		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 

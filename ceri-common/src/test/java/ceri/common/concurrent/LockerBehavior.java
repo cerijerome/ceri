@@ -78,7 +78,7 @@ public class LockerBehavior {
 
 	private static void signalLoop(Locker locker, Condition condition) throws InterruptedException {
 		while (true) {
-			ConcurrentUtil.checkInterrupted();
+			Concurrent.checkInterrupted();
 			try (var _ = locker.lock()) {
 				condition.signal();
 			}

@@ -37,7 +37,7 @@ public class TaskQueueBehavior {
 	public void shouldReturnNullOnTimeout() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(1);
 		assertNull(queue.executeGet(() -> {
-			ConcurrentUtil.delay(100000);
+			Concurrent.delay(100000);
 			return 0;
 		}, 1, MICROSECONDS));
 	}
@@ -75,7 +75,7 @@ public class TaskQueueBehavior {
 	private Runnable<?> task(TaskQueue<?> queue, BoolCondition error) {
 		return () -> {
 			try {
-				queue.execute(() -> ConcurrentUtil.delay(100000));
+				queue.execute(() -> Concurrent.delay(100000));
 			} finally {
 				error.signal();
 			}

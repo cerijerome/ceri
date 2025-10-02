@@ -6,20 +6,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.event.Listenable;
 import ceri.common.event.Listeners;
-import ceri.common.exception.ExceptionTracker;
+import ceri.common.except.ExceptionTracker;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
-import ceri.common.function.Predicates;
 import ceri.common.io.Fixable;
 import ceri.common.io.Replaceable;
 import ceri.common.io.StateChange;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
-import ceri.common.util.Named;
+import ceri.common.util.Capability;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.log.util.LogUtil;
 
@@ -27,7 +27,7 @@ import ceri.log.util.LogUtil;
  * The base logic for self-healing devices. It will automatically reconnect if the device is fatally
  * broken, as determined by the config broken predicate.
  */
-public abstract class SelfHealing<T extends Named & Closeable> extends LoopingExecutor
+public abstract class SelfHealing<T extends Capability.Name & Closeable> extends LoopingExecutor
 	implements Fixable {
 	protected static final Logger logger = LogManager.getFormatterLogger();
 	private final Config config;
@@ -37,7 +37,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 	protected final Replaceable.Field<T> device = Replaceable.field("device");
 
 	public static class Config {
-		public static final Functions.Predicate<? super Exception> NULL_PREDICATE = Predicates.no;
+		public static final Functions.Predicate<? super Exception> NULL_PREDICATE = Filters.no;
 		public static final Config DEFAULT = new Builder().build();
 		public static final Config NULL = of(0, 0, NULL_PREDICATE);
 		public final int fixRetryDelayMs;
@@ -176,7 +176,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 		fixDevice();
 		logger.info("Connector is now fixed");
 		// wait for streams to recover before clearing
-		ConcurrentUtil.delay(config.recoveryDelayMs);
+		Concurrent.delay(config.recoveryDelayMs);
 		sync.clear();
 		notifyListeners(StateChange.fixed);
 	}
@@ -189,7 +189,7 @@ public abstract class SelfHealing<T extends Named & Closeable> extends LoopingEx
 				break;
 			} catch (IOException e) {
 				if (exceptions.add(e)) logger.error("Failed to fix, retrying: %s", e);
-				ConcurrentUtil.delay(config.fixRetryDelayMs);
+				Concurrent.delay(config.fixRetryDelayMs);
 			}
 		}
 	}

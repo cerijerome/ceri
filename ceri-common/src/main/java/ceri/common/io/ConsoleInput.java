@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
 import ceri.common.text.Chars;
@@ -128,7 +128,7 @@ public class ConsoleInput implements LineReader {
 	private int read() throws IOException {
 		while (true) {
 			if (config.pollDelayMs() == null || in.ready()) return in.read();
-			ConcurrentUtil.delay(config.pollDelayMs()); // poll delay if no input
+			Concurrent.delay(config.pollDelayMs()); // poll delay if no input
 		}
 	}
 

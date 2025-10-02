@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.io.IoUtil;
 import ceri.common.test.TestUtil;
 import ceri.common.text.Strings;
@@ -51,7 +51,7 @@ public class UsbHotPlugTester {
 			while (IoUtil.availableChar() == 0) {
 				showEvents(events);
 				usb.events().handleTimeoutCompleted(Duration.ZERO, null);
-				ConcurrentUtil.delay(POLL_MS);
+				Concurrent.delay(POLL_MS);
 				showEvents(events);
 				TestUtil.gc();
 			}

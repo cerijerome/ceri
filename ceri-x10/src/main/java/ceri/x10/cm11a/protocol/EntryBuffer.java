@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -30,7 +30,7 @@ public class EntryBuffer {
 	 */
 	public static EntryBuffer decode(ByteReader r) {
 		int count = r.readUbyte();
-		Validate.validateRange(count, HEADER_SIZE - 1, MAX_BYTES - 1);
+		Validate.range(count, HEADER_SIZE - 1, MAX_BYTES - 1);
 		var entries = Lists.<Entry>of();
 		int bits = r.readUbyte();
 		for (int i = 0; i < count - 1;) {
@@ -94,7 +94,7 @@ public class EntryBuffer {
 	}
 
 	public static EntryBuffer of(Collection<Entry> entries) {
-		Validate.validateMax(size(entries), MAX_BYTES, "Total entry size");
+		Validate.max(size(entries), MAX_BYTES, "Total entry size");
 		return new EntryBuffer(Immutable.list(entries));
 	}
 

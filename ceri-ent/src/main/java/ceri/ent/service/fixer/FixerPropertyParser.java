@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.function.Function;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Maps;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Maps;
+import ceri.common.collect.Sets;
 import ceri.common.text.Strings;
 
 /**

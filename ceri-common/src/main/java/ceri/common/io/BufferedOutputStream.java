@@ -21,7 +21,7 @@ public class BufferedOutputStream extends FilterOutputStream {
 
 	public BufferedOutputStream(OutputStream out, int size) {
 		super(out);
-		Validate.validateMin(size, 0);
+		Validate.min(size, 0);
 		buffer = new byte[size];
 	}
 
@@ -54,5 +54,4 @@ public class BufferedOutputStream extends FilterOutputStream {
 		count = 0; // buffer always emptied, even if exception on write
 		if (n > 0) out.write(buffer, 0, n);
 	}
-
 }

@@ -5,15 +5,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.array.ArrayUtil;
-import ceri.common.array.RawArray;
-import ceri.common.data.ByteUtil;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
-import ceri.common.math.Bound;
-import ceri.common.math.Interval;
 import ceri.common.math.Maths;
-import ceri.common.text.Formats;
-import ceri.common.text.Joiner;
+import ceri.common.text.Format;
 import ceri.common.text.Strings;
 
 /**
@@ -24,8 +19,572 @@ import ceri.common.text.Strings;
 public class Validate {
 	public static final String VALUE = "Value";
 	private static final String EXPRESSION = "Expression";
+	private static final int PRECISION_DEF = 3;
 
 	private Validate() {}
+
+	// general
+
+	/**
+	 * Returns a runtime exception with failure message. 
+	 */
+	public static RuntimeException failed(String format, Object... args) {
+		return Exceptions.illegalArg(format, args);
+	}
+
+	/**
+	 * Fails if the condition is false.
+	 */
+	public static boolean condition(boolean condition, String format, Object... args) {
+		if (condition) return condition;
+		throw failed("%s is false", f(format, args));
+	}
+	
+	// objects
+	
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static <T> T equal(T actual, T expected) {
+		return equal(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static <T> T equal(T actual, T expected, String format, Object... args) {
+		if (Objects.equals(actual, expected)) return actual;
+		throw failed("%s must equal %s: %s", f(format, args), expected, actual);
+	}
+	
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static <T> T notEqual(T actual, T unexpected) {
+		return notEqual(actual, unexpected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static <T> T notEqual(T actual, T unexpected, String format, Object... args) {
+		if (!Objects.equals(actual, unexpected)) return actual;
+		throw failed("%s must not equal %s", f(format, args), unexpected);
+	}
+	
+	/**
+	 * Fails if the value is null.
+	 */
+	public static <T> T nonNull(T actual) {
+		return nonNull(actual, "");
+	}
+	
+	/**
+	 * Fails if the value is null.
+	 */
+	public static <T> T nonNull(T actual, String format, Object... args) {
+		return notEqual(actual, null, format, args);
+	}
+	
+	// arrays
+
+	/**
+	 * Fails if any value is null.
+	 */
+	public static void allNonNull(Object... actuals) {
+		for (int i = 0; i < actuals.length; i++)
+			nonNull(actuals[i], VALUE + " " + i);
+	}
+	
+	/**
+	 * Fails if the index is out of range for the size.
+	 */
+	public static int index(int size, int index) {
+		min(size, 0, "size");
+		return range(index, 0, size - 1, "index");
+	}
+
+	/**
+	 * Fails if the slice offset or length are out of range for the size. Returns true if the slice
+	 * is the full range.
+	 */
+	public static boolean slice(int size, int offset, int length) {
+		min(size, 0, "size");
+		range(offset, 0, size, "offset");
+		range(length, 0, size - offset, "length");
+		return offset == 0 && length == size;
+	}
+
+	// integers
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static int equal(int actual, int expected) {
+		return equal(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static int equal(int actual, int expected, String format, Object... args) {
+		if (actual == expected) return actual;
+		throw failed("%s must equal %s: %s", f(format, args), n(expected), n(actual));
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static long equal(long actual, long expected) {
+		return equal(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value.
+	 */
+	public static long equal(long actual, long expected, String format, Object... args) {
+		if (actual == expected) return actual;
+		throw failed("%s must equal %s: %s", f(format, args), n(expected), n(actual));
+	}
+
+	/**
+	 * Fails if the value equals the expected value.
+	 */
+	public static int notEqual(int actual, int unexpected) {
+		return notEqual(actual, unexpected, "");
+	}
+
+	/**
+	 * Fails if the value equals the expected value.
+	 */
+	public static int notEqual(int actual, int unexpected, String format, Object... args) {
+		if (actual != unexpected) return actual;
+		throw failed("%s must not equal %s", f(format, args), n(unexpected));
+	}
+
+	/**
+	 * Fails if the value equals the expected value.
+	 */
+	public static long notEqual(long actual, long unexpected) {
+		return notEqual(actual, unexpected, "");
+	}
+
+	/**
+	 * Fails if the value equals the expected value.
+	 */
+	public static long notEqual(long actual, long unexpected, String format, Object... args) {
+		if (actual != unexpected) return actual;
+		throw failed("%s must not equal %s", f(format, args), n(unexpected));
+	}
+
+	/**
+	 * Fails if the value is less than min.
+	 */
+	public static int min(int actual, int min) {
+		return min(actual, min, "");
+	}
+
+	/**
+	 * Fails if the value is less than min.
+	 */
+	public static int min(int actual, int min, String format, Object... args) {
+		if (actual >= min) return actual;
+		throw failed("%s must be >= %s: %s", f(format, args), n(min), n(actual));
+	}
+
+	/**
+	 * Fails if the value is less than min.
+	 */
+	public static long min(long actual, long min) {
+		return min(actual, min, "");
+	}
+
+	/**
+	 * Fails if the value is less than min.
+	 */
+	public static long min(long actual, long min, String format, Object... args) {
+		if (actual >= min) return actual;
+		throw failed("%s must be >= %s: %s", f(format, args), n(min), n(actual));
+	}
+
+	/**
+	 * Fails if the value is greater than max.
+	 */
+	public static int max(int actual, int max) {
+		return max(actual, max, "");
+	}
+
+	/**
+	 * Fails if the value is greater than max.
+	 */
+	public static int max(int actual, int max, String format, Object... args) {
+		if (actual <= max) return actual;
+		throw failed("%s must be <= %s: %s", f(format, args), n(max), n(actual));
+	}
+
+	/**
+	 * Fails if the value is greater than max.
+	 */
+	public static long max(long actual, long max) {
+		return max(actual, max, "");
+	}
+
+	/**
+	 * Fails if the value is greater than max.
+	 */
+	public static long max(long actual, long max, String format, Object... args) {
+		if (actual <= max) return actual;
+		throw failed("%s must be <= %s: %s", f(format, args), n(max), n(actual));
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values.
+	 */
+	public static int range(int actual, int min, int max) {
+		return range(actual, min, max, "");
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values.
+	 */
+	public static int range(int actual, int min, int max, String format, Object... args) {
+		min(actual, min, format, args);
+		return max(actual, max, format, args);
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values.
+	 */
+	public static long range(long actual, long min, long max) {
+		return range(actual, min, max, "");
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values.
+	 */
+	public static long range(long actual, long min, long max, String format, Object... args) {
+		min(actual, min, format, args);
+		return max(actual, max, format, args);
+	}
+
+	// unsigned integers
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static int ubyte(long actual) {
+		return ubyte(actual, "");
+	}
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static int ubyte(long actual, String format, Object... args) {
+		return (int) range(actual, 0, Maths.MAX_UBYTE, format, args);
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static byte ubyte(long actual, long expected) {
+		return ubyte(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static byte ubyte(long actual, long expected, String format, Object... args) {
+		return (byte) equal(Maths.ubyte(actual), Maths.ubyte(expected), format, args);
+	}
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static int ushort(long actual) {
+		return ushort(actual, "");
+	}
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static int ushort(long actual, String format, Object... args) {
+		return (int) range(actual, 0, Maths.MAX_USHORT, format, args);
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static short ushort(long actual, long expected) {
+		return ushort(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static short ushort(long actual, long expected, String format, Object... args) {
+		return (short) equal(Maths.ushort(actual), Maths.ushort(expected), format, args);
+	}
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static long uint(int actual) {
+		return uint(actual, "");
+	}
+
+	/**
+	 * Fails if the value is outside the unsigned range.
+	 */
+	public static long uint(long actual, String format, Object... args) {
+		return range(actual, 0L, Maths.MAX_UINT, format, args);
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static int uint(int actual, long expected) {
+		return uint(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the unsigned value does not equal the expected value.
+	 */
+	public static int uint(int actual, long expected, String format, Object... args) {
+		return (int) equal(Maths.uint(actual), Maths.uint(expected), format, args);
+	}
+
+	/**
+	 * Fails if the unsigned value is less than min.
+	 */
+	public static long umin(long actual, long min) {
+		return umin(actual, min, "");
+	}
+
+	/**
+	 * Fails if the unsigned value is less than min.
+	 */
+	public static long umin(long actual, long min, String format, Object... args) {
+		if (Long.compareUnsigned(actual, min) >= 0) return actual;
+		throw failed("%s must be >= %s: %s", f(format, args), u(min), u(actual));
+	}
+
+	/**
+	 * Fails if the unsigned value is greater than max.
+	 */
+	public static long umax(long actual, long max) {
+		return umax(actual, max, "");
+	}
+
+	/**
+	 * Fails if the unsigned value is greater than max.
+	 */
+	public static long umax(long actual, long max, String format, Object... args) {
+		if (Long.compareUnsigned(actual, max) <= 0) return actual;
+		throw failed("%s must be <= %s: %s", f(format, args), u(max), u(actual));
+	}
+
+	/**
+	 * Fails if the unsigned value is not between inclusive min and max values.
+	 */
+	public static long urange(long actual, long min, long max) {
+		return urange(actual, min, max, "");
+	}
+
+	/**
+	 * Fails if the unsigned value is not between inclusive min and max values.
+	 */
+	public static long urange(long actual, long min, long max, String format, Object... args) {
+		umin(actual, min, format, args);
+		return umax(actual, max, format, args);
+	}
+
+	// floating point
+
+	/**
+	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 */
+	public static double equal(double actual, double expected) {
+		return equal(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 */
+	public static double equal(double actual, double expected, String format, Object... args) {
+		if (doubleEqual(actual, expected)) return actual;
+		throw failed("%s must equal %s: %s", f(format, args), expected, actual);
+	}
+
+	/**
+	 * Fails if the value equals the expected value. Equality includes infinity and NaN.
+	 */
+	public static double notEqual(double actual, double unexpected) {
+		return notEqual(actual, unexpected, "");
+	}
+
+	/**
+	 * Fails if the value equals the expected value. Equality includes infinity and NaN.
+	 */
+	public static double notEqual(double actual, double unexpected, String format, Object... args) {
+		if (!doubleEqual(actual, unexpected)) return actual;
+		throw failed("%s must not equal %s", f(format, args), unexpected);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected) {
+		return approx(actual, expected, PRECISION_DEF);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected, int precision) {
+		return approx(actual, expected, precision, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected, int precision, String format,
+		Object... args) {
+		if (!Double.isFinite(expected)) return equal(actual, expected, format, args);
+		return equal(Maths.round(precision, actual), Maths.round(precision, expected), format,
+			args);
+	}
+
+	/**
+	 * Fails if the value is less than min. Infinity is permitted.
+	 */
+	public static double min(double actual, double min) {
+		return min(actual, min, "");
+	}
+
+	/**
+	 * Fails if the value is less than min. Infinity is permitted.
+	 */
+	public static double min(double actual, double min, String format, Object... args) {
+		if (doubleEqual(actual, min) || actual >= min) return actual;
+		throw failed("%s must be >= %s: %s", f(format, args), min, actual);
+	}
+
+	/**
+	 * Fails if the value is greater than max. -Infinity is permitted.
+	 */
+	public static double max(double actual, double max) {
+		return max(actual, max, "");
+	}
+
+	/**
+	 * Fails if the value is greater than max. -Infinity is permitted.
+	 */
+	public static double max(double actual, double max, String format, Object... args) {
+		if (doubleEqual(actual, max) || actual <= max) return actual;
+		throw failed("%s must be <= %s: %s", f(format, args), max, actual);
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values. Infinity is permitted.
+	 */
+	public static double range(double actual, double min, double max) {
+		return range(actual, min, max, "");
+	}
+
+	/**
+	 * Fails if the value is not between inclusive min and max values. Infinity is permitted.
+	 */
+	public static double range(double actual, double min, double max, String format,
+		Object... args) {
+		min(actual, min, format, args);
+		return max(actual, max, format, args);
+	}
+
+	/**
+	 * Fails if the actual is NaN.
+	 */
+	public static double nonNaN(double actual) {
+		return nonNaN(actual, "");
+	}
+
+	/**
+	 * Fails if the actual is NaN.
+	 */
+	public static double nonNaN(double actual, String format, Object... args) {
+		return notEqual(actual, Double.NaN, format, args);
+	}
+
+	/**
+	 * Fails if the actual is infinite or NaN.
+	 */
+	public static double finite(double actual) {
+		return finite(actual, "");
+	}
+
+	/**
+	 * Fails if the actual is infinite or NaN.
+	 */
+	public static double finite(double actual, String format, Object... args) {
+		if (Double.isFinite(actual)) return actual;
+		throw failed("%s must be finite: %s", f(format, args), actual);
+	}
+
+	/**
+	 * Fails if the actual is infinite, NaN, or less then min.
+	 */
+	public static double finiteMin(double actual, double min) {
+		return finiteMin(actual, min, "");
+	}
+
+	/**
+	 * Fails if the actual is infinite, NaN, or less then min.
+	 */
+	public static double finiteMin(double actual, double min, String format, Object... args) {
+		finite(actual);
+		return min(actual, min, format, args);
+	}
+
+	/**
+	 * Fails if the actual is greater than max. -Infinity is not permitted.
+	 */
+	public static double finiteMax(double actual, double max) {
+		return finiteMax(actual, max, "");
+	}
+
+	/**
+	 * Fails if the actual is greater than max. -Infinity is not permitted.
+	 */
+	public static double finiteMax(double actual, double max, String format, Object... args) {
+		finite(actual, format, args);
+		return max(actual, max, format, args);
+	}
+
+	// support
+
+	private static String f(String format, Object... args) {
+		if (Strings.isEmpty(format)) return VALUE;
+		return Strings.format(format, args);
+	}
+
+	private static String n(int value) {
+		return value + "|" + Format.hex(value);
+	}
+
+	private static String n(long value) {
+		return value + "|" + Format.hex(value);
+	}
+
+	private static String u(long value) {
+		return Long.toUnsignedString(value) + "|" + Format.hex(value);
+	}
+
+	private static boolean doubleEqual(double value, double other) {
+		return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other);
+	}
+
+	// ---------------------------------------------------------------------------------
+	// Original methods start here:
+	// ---------------------------------------------------------------------------------
 
 	/* Expression validation */
 
@@ -63,91 +622,6 @@ public class Validate {
 	 */
 	public static void validatef(boolean expr, String format, Object... args) {
 		if (!expr) throw exceptionf(format, args);
-	}
-
-	/* Lookup validation */
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, R> R validateLookup(Functions.Function<T, R> lookup, T value) {
-		return validateLookup(lookup, value, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, R> R validateLookup(Functions.Function<T, R> lookup, T value, String name) {
-		R r = lookup.apply(value);
-		if (r != null) return r;
-		throw exceptionf("%s is invalid: %s", name, value, value);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateIntLookup(Functions.IntFunction<T> lookup, int value) {
-		return validateIntLookup(lookup, value, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateIntLookup(Functions.IntFunction<T> lookup, int value, String name) {
-		T t = lookup.apply(value);
-		if (t != null) return t;
-		throw exceptionf("%s is invalid: %d (0x%x)", name, value, value);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateLongLookup(Functions.LongFunction<T> lookup, long value) {
-		return validateLongLookup(lookup, value, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateLongLookup(Functions.LongFunction<T> lookup, long value,
-		String name) {
-		T t = lookup.apply(value);
-		if (t != null) return t;
-		throw exceptionf("%s is invalid: %d (0x%x)", name, value, value);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, R> R validateLookupEquals(Functions.Function<T, R> lookup, T value,
-		R expected) {
-		return validateLookupEquals(lookup, value, expected, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T, R> R validateLookupEquals(Functions.Function<T, R> lookup, T value,
-		R expected, String name) {
-		R r = validateLookup(lookup, value, name);
-		return validateEqualObj(r, expected);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateIntLookupEquals(Functions.IntFunction<T> lookup, int value,
-		T expected) {
-		return validateIntLookupEquals(lookup, value, expected, VALUE);
-	}
-
-	/**
-	 * Validates and returns a value found by lookup function.
-	 */
-	public static <T> T validateIntLookupEquals(Functions.IntFunction<T> lookup, int value,
-		T expected, String name) {
-		T t = validateIntLookup(lookup, value, name);
-		return validateEqualObj(t, expected);
 	}
 
 	/* (Not) null validation */
@@ -232,636 +706,6 @@ public class Validate {
 		return value;
 	}
 
-	/* Number (in-)equality validation */
-
-	/**
-	 * Validates that the integer values are equal.
-	 */
-	public static long validateEqual(long value, long expected, Formats.LongFunction... flags) {
-		return validateEqual(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the integer values are equal.
-	 */
-	public static long validateEqual(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
-			format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the integer values are not equal.
-	 */
-	public static long validateNotEqual(long value, long expected, Formats.LongFunction... flags) {
-		return validateNotEqual(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the integer values are not equal.
-	 */
-	public static long validateNotEqual(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the floating point values are equal.
-	 */
-	public static double validateEqualFp(double value, double expected,
-		Formats.DoubleFunction... flags) {
-		return validateEqualFp(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the floating point values are equal.
-	 */
-	public static double validateEqualFp(double value, double expected, String name,
-		Formats.DoubleFunction... flags) {
-		if (value != expected) throw exceptionf("%s != %s: %s", name(name), format(expected, flags),
-			format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the floating point values are not equal.
-	 */
-	public static double validateNotEqualFp(double value, double expected,
-		Formats.DoubleFunction... flags) {
-		return validateNotEqualFp(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the floating point values are not equal.
-	 */
-	public static double validateNotEqualFp(double value, double expected, String name,
-		Formats.DoubleFunction... flags) {
-		if (value == expected) throw exceptionf("%s = %s", name(name), format(value, flags));
-		return value;
-	}
-
-	/* Unsigned equality validation */
-
-	/**
-	 * Validates that unsigned byte values are equal.
-	 */
-	public static short validateUbyte(long value, long expected, Formats.LongFunction... flags) {
-		return validateUbyte(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned byte values are equal.
-	 */
-	public static short validateUbyte(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		short ubyte = Maths.ubyte(value);
-		Validate.validateEqual(ubyte, Maths.ubyte(expected), name(name),
-			def(flags, Formats.HEX, Formats.DEC_UBYTE));
-		return ubyte;
-	}
-
-	/**
-	 * Validates that unsigned short values are equal.
-	 */
-	public static int validateUshort(long value, long expected, Formats.LongFunction... flags) {
-		return validateUshort(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned short values are equal.
-	 */
-	public static int validateUshort(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		int ushort = Maths.ushort(value);
-		Validate.validateEqual(ushort, Maths.ushort(expected), name(name),
-			def(flags, Formats.HEX, Formats.DEC_USHORT));
-		return ushort;
-	}
-
-	/**
-	 * Validates that unsigned int values are equal.
-	 */
-	public static long validateUint(long value, long expected, Formats.LongFunction... flags) {
-		return validateUint(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned int values are equal.
-	 */
-	public static long validateUint(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		return validateEqual(Maths.uint(value), Maths.uint(expected), name(name),
-			def(flags, Formats.HEX, Formats.DEC_UINT));
-	}
-
-	/**
-	 * Validates that unsigned long values are equal.
-	 */
-	public static long validateUlong(long value, long expected, Formats.LongFunction... flags) {
-		return validateUlong(value, expected, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned long values are equal.
-	 */
-	public static long validateUlong(long value, long expected, String name,
-		Formats.LongFunction... flags) {
-		return validateEqual(value, expected, name(name), def(flags, Formats.HEX, Formats.UDEC));
-	}
-
-	/* Interval validation */
-
-	/**
-	 * Validates that the value is within the interval.
-	 */
-	public static <T> T validateWithinObj(T value, Interval<T> interval) {
-		return validateWithinObj(value, interval, VALUE);
-	}
-
-	/**
-	 * Validates that the value is within the interval.
-	 */
-	public static <T> T validateWithinObj(T value, Interval<T> interval, String name) {
-		if (interval.contains(value)) return value;
-		throw exceptionf("%s is not within %s: %s", name(name), interval, value);
-	}
-
-	/**
-	 * Validates that the value is not within the interval.
-	 */
-	public static <T> T validateWithoutObj(T value, Interval<T> interval) {
-		return validateWithoutObj(value, interval, VALUE);
-	}
-
-	/**
-	 * Validates that the value is not within the interval.
-	 */
-	public static <T> T validateWithoutObj(T value, Interval<T> interval, String name) {
-		if (interval.contains(value))
-			throw exceptionf("%s is within %s: %s", name(name), interval, value);
-		return value;
-	}
-
-	/**
-	 * Validates that the integer value is within the interval.
-	 */
-	public static long validateWithin(long value, Interval<Long> interval,
-		Formats.LongFunction... flags) {
-		return validateWithin(value, interval, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the integer value is within the interval.
-	 */
-	public static long validateWithin(long value, Interval<Long> interval, String name,
-		Formats.LongFunction... flags) {
-		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
-			format(interval, flags), format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the integer value is not within the interval.
-	 */
-	public static long validateWithout(long value, Interval<Long> interval,
-		Formats.LongFunction... flags) {
-		return validateWithout(value, interval, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the integer value is not within the interval.
-	 */
-	public static long validateWithout(long value, Interval<Long> interval, String name,
-		Formats.LongFunction... flags) {
-		if (interval.contains(value)) throw exceptionf("%s is within %s: %s", name(name),
-			format(interval, flags), format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the floating point value is within the interval.
-	 */
-	public static double validateWithinFp(double value, Interval<Double> interval,
-		Formats.DoubleFunction... flags) {
-		return validateWithinFp(value, interval, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the floating point value is within the interval.
-	 */
-	public static double validateWithinFp(double value, Interval<Double> interval, String name,
-		Formats.DoubleFunction... flags) {
-		if (!interval.contains(value)) throw exceptionf("%s is not within %s: %s", name(name),
-			format(interval, flags), format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that the floating point value is not within the interval.
-	 */
-	public static double validateWithoutFp(double value, Interval<Double> interval,
-		Formats.DoubleFunction... flags) {
-		return validateWithoutFp(value, interval, VALUE, flags);
-	}
-
-	/**
-	 * Validates that the floating point value is not within the interval.
-	 */
-	public static double validateWithoutFp(double value, Interval<Double> interval, String name,
-		Formats.DoubleFunction... flags) {
-		if (interval.contains(value)) throw exceptionf("%s is within %s: %s", name(name),
-			format(interval, flags), format(value, flags));
-		return value;
-	}
-
-	/* Number min/max/range validation */
-
-	/**
-	 * Validates an index against a range of given size.
-	 */
-	public static int validateIndex(int size, int index) {
-		if (size == 0) throw new IndexOutOfBoundsException("Empty");
-		if (index >= 0 && index < size) return index;
-		throw new IndexOutOfBoundsException("Index must be 0.." + (size - 1) + ": " + index);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static boolean[] validateSlice(boolean[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static char[] validateSlice(char[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static byte[] validateSlice(byte[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static short[] validateSlice(short[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static int[] validateSlice(int[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static long[] validateSlice(long[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static float[] validateSlice(float[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice an array range by offset and length. If the array is null, only
-	 * 0 offset and 0 length is allowed.
-	 */
-	public static double[] validateSlice(double[] array, int offset, int length) {
-		return validateArraySlice(array, offset, length);
-	}
-
-	/**
-	 * Validates parameters to slice a range by offset and length.
-	 */
-	public static void validateSlice(int size, int offset, int length) {
-		if (offset < 0 || offset > size)
-			throw new IndexOutOfBoundsException("Offset must be 0.." + size + ": " + offset);
-		if (length < 0 || offset + length > size) throw new IndexOutOfBoundsException(
-			"Length must be 0.." + (size - offset) + ": " + length);
-	}
-
-	/**
-	 * Validates parameters to slice a range by offset and length. Returns true if the slice is the
-	 * full range.
-	 */
-	public static boolean validateFullSlice(int size, int offset, int length) {
-		validateSlice(size, offset, length);
-		return ArrayUtil.isFullSlice(size, offset, length);
-	}
-
-	/**
-	 * Validates a sub-range by start and end indexes.
-	 */
-	public static void validateSubRange(int size, int start, int end) {
-		if (start < 0 || start > size)
-			throw new IndexOutOfBoundsException("Start must be 0.." + size + ": " + start);
-		if (end < start || end > size)
-			throw new IndexOutOfBoundsException("End must be " + start + ".." + size + ": " + end);
-	}
-
-	/**
-	 * Validates a sub-range by start and end indexes. Returns true if the sub-range is the full
-	 * range.
-	 */
-	public static boolean validateFullSubRange(int size, int offset, int length) {
-		validateSubRange(size, offset, length);
-		return ArrayUtil.isFullSlice(size, offset, length);
-	}
-
-	/**
-	 * Validates that integer value is >= minimum.
-	 */
-	public static long validateMin(long value, long min, Formats.LongFunction... flags) {
-		return validateMin(value, min, VALUE, flags);
-	}
-
-	/**
-	 * Validates that integer value is >= minimum.
-	 */
-	public static long validateMin(long value, long min, String name,
-		Formats.LongFunction... flags) {
-		return validateMin(value, min, name, null, flags);
-	}
-
-	/**
-	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
-	 */
-	public static long validateMin(long value, long min, Bound.Type bound,
-		Formats.LongFunction... flags) {
-		return validateMin(value, min, VALUE, bound, flags);
-	}
-
-	/**
-	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
-	 */
-	public static long validateMin(long value, long min, String name, Bound.Type bound,
-		Formats.LongFunction... flags) {
-		if (bound == null) bound = Bound.Type.inc;
-		if (bound.isLower(value, min)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(min, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that floating point value is >= minimum.
-	 */
-	public static double validateMinFp(double value, double min, Formats.DoubleFunction... flags) {
-		return validateMinFp(value, min, VALUE, flags);
-	}
-
-	/**
-	 * Validates that floating point value is >= minimum.
-	 */
-	public static double validateMinFp(double value, double min, String name,
-		Formats.DoubleFunction... flags) {
-		return validateMinFp(value, min, name, null, flags);
-	}
-
-	/**
-	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
-	 */
-	public static double validateMinFp(double value, double min, Bound.Type bound,
-		Formats.DoubleFunction... flags) {
-		return validateMinFp(value, min, VALUE, bound, flags);
-	}
-
-	/**
-	 * Validates value is > or >= minimum. A null bound is treated as inclusive.
-	 */
-	public static double validateMinFp(double value, double min, String name, Bound.Type bound,
-		Formats.DoubleFunction... flags) {
-		if (bound == null) bound = Bound.Type.inc;
-		if (bound.isLower(value, min)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.lower, format(min, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that integer value is <= maximum.
-	 */
-	public static long validateMax(long value, long max, Formats.LongFunction... flags) {
-		return validateMax(value, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that integer value is <= maximum.
-	 */
-	public static long validateMax(long value, long max, String name,
-		Formats.LongFunction... flags) {
-		return validateMax(value, max, name, null, flags);
-	}
-
-	/**
-	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
-	 */
-	public static double validateMax(long value, long max, Bound.Type bound,
-		Formats.LongFunction... flags) {
-		return validateMax(value, max, VALUE, bound, flags);
-	}
-
-	/**
-	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
-	 */
-	public static long validateMax(long value, long max, String name, Bound.Type bound,
-		Formats.LongFunction... flags) {
-		if (bound == null) bound = Bound.Type.inc;
-		if (bound.isUpper(value, max)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.upper, format(max, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that floating point value is <= maximum.
-	 */
-	public static double validateMaxFp(double value, double max, Formats.DoubleFunction... flags) {
-		return validateMaxFp(value, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that floating point value is <= maximum.
-	 */
-	public static double validateMaxFp(double value, double max, String name,
-		Formats.DoubleFunction... flags) {
-		return validateMaxFp(value, max, name, null, flags);
-	}
-
-	/**
-	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
-	 */
-	public static double validateMaxFp(double value, double max, Bound.Type bound,
-		Formats.DoubleFunction... flags) {
-		return validateMaxFp(value, max, VALUE, bound, flags);
-	}
-
-	/**
-	 * Validates value is < or <= maximum. A null bound is treated as inclusive.
-	 */
-	public static double validateMaxFp(double value, double max, String name, Bound.Type bound,
-		Formats.DoubleFunction... flags) {
-		if (bound == null) bound = Bound.Type.inc;
-		if (bound.isUpper(value, max)) return value;
-		throw exceptionf("%s must be %s %s: %s", name(name), bound.upper, format(max, flags),
-			format(value, flags));
-	}
-
-	/**
-	 * Validates that integer value is inclusively between minimum and maximum.
-	 */
-	public static long validateRange(long value, long min, long max,
-		Formats.LongFunction... flags) {
-		return validateRange(value, min, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that integer value is inclusively between minimum and maximum.
-	 */
-	public static long validateRange(long value, long min, long max, String name,
-		Formats.LongFunction... flags) {
-		if (value < min || value > max) throw exceptionf("%s is not within [%s, %s]: %s",
-			name(name), format(min, flags), format(max, flags), format(value, flags));
-		return value;
-	}
-
-	/**
-	 * Validates that floating point value is inclusively between minimum and maximum.
-	 */
-	public static double validateRangeFp(double value, double min, double max,
-		Formats.DoubleFunction... flags) {
-		return validateRangeFp(value, min, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that floating point value is inclusively between minimum and maximum.
-	 */
-	public static double validateRangeFp(double value, double min, double max, String name,
-		Formats.DoubleFunction... flags) {
-		if (value < min || value > max) throw exceptionf("%s is not within [%s, %s]: %s",
-			name(name), format(min, flags), format(max, flags), format(value, flags));
-		return value;
-	}
-
-	/* Unsigned long min/max/range validation */
-
-	/**
-	 * Validates that unsigned integer value >= minimum.
-	 */
-	public static long validateUmin(long value, long min, Formats.LongFunction... flags) {
-		return validateUmin(value, min, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned integer value >= minimum.
-	 */
-	public static long validateUmin(long value, long min, String name,
-		Formats.LongFunction... flags) {
-		if (uwithin(value, min, null)) return value;
-		flags = def(flags, Formats.HEX);
-		throw exceptionf("%s < %s: %s", name(name), format(min, flags), format(value, flags));
-	}
-
-	/**
-	 * Validates that unsigned integer value <= maximum.
-	 */
-	public static long validateUmax(long value, long max, Formats.LongFunction... flags) {
-		return validateUmax(value, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned integer value <= maximum.
-	 */
-	public static long validateUmax(long value, long max, String name,
-		Formats.LongFunction... flags) {
-		if (uwithin(value, null, max)) return value;
-		flags = def(flags, Formats.HEX);
-		throw exceptionf("%s > %s: %s", name(name), format(max, flags), format(value, flags));
-	}
-
-	/**
-	 * Validates that unsigned integer value is inclusively between minimum and maximum.
-	 */
-	public static long validateUrange(long value, long min, long max,
-		Formats.LongFunction... flags) {
-		return validateUrange(value, min, max, VALUE, flags);
-	}
-
-	/**
-	 * Validates that unsigned integer value is inclusively between minimum and maximum.
-	 */
-	public static long validateUrange(long value, long min, long max, String name,
-		Formats.LongFunction... flags) {
-		if (uwithin(value, min, max)) return value;
-		flags = def(flags, Formats.HEX);
-		throw exceptionf("%s is not within [%s, %s]: %s", name(name), format(min, flags),
-			format(max, flags), format(value, flags));
-	}
-
-	/* Unsigned type range validation */
-
-	/**
-	 * Validates value is within unsigned byte range.
-	 */
-	public static short validateUbyte(long value, Formats.LongFunction... flags) {
-		return validateUbyte(value, VALUE, flags);
-	}
-
-	/**
-	 * Validates value is within unsigned byte range.
-	 */
-	public static short validateUbyte(long value, String name, Formats.LongFunction... flags) {
-		return Maths.ubyte(
-			Validate.validateRange(value, 0, ByteUtil.BYTE_MASK, name(name), def(flags, Formats.HEX)));
-	}
-
-	/**
-	 * Validates value is within unsigned short range.
-	 */
-	public static int validateUshort(long value, Formats.LongFunction... flags) {
-		return validateUshort(value, VALUE, flags);
-	}
-
-	/**
-	 * Validates value is within unsigned short range.
-	 */
-	public static int validateUshort(long value, String name, Formats.LongFunction... flags) {
-		return Maths.ushort(
-			Validate.validateRange(value, 0, ByteUtil.SHORT_MASK, name(name), def(flags, Formats.HEX)));
-	}
-
-	/**
-	 * Validates value is within unsigned int range.
-	 */
-	public static long validateUint(long value, Formats.LongFunction... flags) {
-		return validateUint(value, VALUE, flags);
-	}
-
-	/**
-	 * Validates value is within unsigned int range.
-	 */
-	public static long validateUint(long value, String name, Formats.LongFunction... flags) {
-		return validateRange(value, 0, ByteUtil.INT_MASK, name(name), def(flags, Formats.HEX));
-	}
-
 	/* Text validation */
 
 	/**
@@ -942,51 +786,11 @@ public class Validate {
 
 	/* Support methods */
 
-	private static <T> T validateArraySlice(T array, int offset, int length) {
-		validateSlice(RawArray.length(array), offset, length);
-		return array;
-	}
-
 	private static IllegalArgumentException exceptionf(String format, Object... args) {
 		return new IllegalArgumentException(Strings.format(format, args));
 	}
 
-	private static boolean uwithin(long value, Long min, Long max) {
-		if (min != null && Long.compareUnsigned(value, min) < 0) return false;
-		if (max != null && Long.compareUnsigned(value, max) > 0) return false;
-		return true;
-	}
-
-	@SafeVarargs
-	private static <T> T[] def(T[] values, T... def) {
-		return values.length > 0 ? values : def;
-	}
-
 	private static String name(String name) {
 		return name == null ? VALUE : name;
-	}
-
-	private static String format(long value, Formats.LongFunction... formats) {
-		if (ArrayUtil.isEmpty(formats)) return Formats.DEC.apply(value);
-		if (formats.length == 1) return formats[0].apply(value);
-		return Joiner.PARAM.joinAll(f -> f.apply(value), formats);
-	}
-
-	private static String format(double value, Formats.DoubleFunction... flags) {
-		if (ArrayUtil.isEmpty(flags)) return Formats.FP.apply(value);
-		if (flags.length == 1) return flags[0].apply(value);
-		return Joiner.PARAM.joinAll(f -> f.apply(value), flags);
-	}
-
-	private static String format(Interval<Long> interval, Formats.LongFunction... flags) {
-		return Strings.format("%s%s, %s%s", interval.lower.type.left,
-			format(interval.lower.value, flags), format(interval.upper.value, flags),
-			interval.upper.type.right);
-	}
-
-	private static String format(Interval<Double> interval, Formats.DoubleFunction... flags) {
-		return Strings.format("%s%s, %s%s", interval.lower.type.left,
-			format(interval.lower.value, flags), format(interval.upper.value, flags),
-			interval.upper.type.right);
 	}
 }

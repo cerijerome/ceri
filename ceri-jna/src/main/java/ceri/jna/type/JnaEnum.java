@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
 import java.util.TreeMap;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
 import ceri.common.reflect.Annotations;
 import ceri.common.reflect.Reflect;
 

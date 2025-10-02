@@ -1,13 +1,13 @@
 package ceri.common.test;
 
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
-import ceri.common.util.Named;
+import ceri.common.util.Capability;
 
 /**
  * Stops and starts cycles in a separate thread. Primarily used for manual testing.
@@ -18,7 +18,7 @@ public class CycleRunner implements Functions.Closeable {
 	private final ValueCondition<Action> sync;
 	private Cycle cycle;
 
-	public static interface Cycle extends Named {
+	public static interface Cycle extends Capability.Name {
 		/**
 		 * Process the sequence number, and return milliseconds to delay before the next sequence
 		 * number. Return -1 to finish. Each call should return as quickly as possible, no sleep or
@@ -80,7 +80,7 @@ public class CycleRunner implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(exec);
+		Closeables.close(exec);
 	}
 
 	private void loop(int max) throws InterruptedException {
@@ -99,7 +99,7 @@ public class CycleRunner implements Functions.Closeable {
 	private void loops(int max) {
 		try {
 			while (true) {
-				ConcurrentUtil.checkInterrupted();
+				Concurrent.checkInterrupted();
 				loop(max);
 			}
 		} catch (InterruptedException | RuntimeInterruptedException e) {

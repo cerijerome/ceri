@@ -52,13 +52,13 @@ public class SpiDevice implements Spi {
 			}
 
 			public Builder bus(int bus) {
-				Validate.validateMin(bus, 0);
+				Validate.min(bus, 0);
 				this.bus = bus;
 				return this;
 			}
 
 			public Builder chip(int chip) {
-				Validate.validateMin(chip, 0);
+				Validate.min(chip, 0);
 				this.chip = chip;
 				return this;
 			}
@@ -143,8 +143,8 @@ public class SpiDevice implements Spi {
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
 		Basics.requireNot(direction, null, Direction.none);
-		Validate.validateMin(bus, 0, "Bus number");
-		Validate.validateMin(chip, 0, "Chip number");
+		Validate.min(bus, 0, "Bus number");
+		Validate.min(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
 	}
 
@@ -205,7 +205,7 @@ public class SpiDevice implements Spi {
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
 		Basics.requireNot(direction, null, Direction.none);
-		Validate.validateMin(size, 0, "Size");
+		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}
 

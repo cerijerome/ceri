@@ -5,8 +5,8 @@ import java.util.Set;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Configurator;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
 import ceri.common.function.Excepts;
 import ceri.log.util.LogUtil;
 

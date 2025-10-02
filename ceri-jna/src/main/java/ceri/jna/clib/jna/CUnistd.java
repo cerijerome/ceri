@@ -264,7 +264,7 @@ public class CUnistd {
 	 * number of bytes read.
 	 */
 	public static int readAll(int fd, byte[] bytes, int offset, int length) throws CException {
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		try (Memory m = JnaUtil.malloc(length)) {
 			return readAll(fd, m, length, bytes, offset, length);
 		}
@@ -324,7 +324,7 @@ public class CUnistd {
 	 */
 	public static int readAll(int fd, Pointer buffer, int size, byte[] bytes, int offset,
 		int length) throws CException {
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		int rem = length;
 		while (rem > 0) {
 			int n = Math.min(rem, size);
@@ -464,7 +464,7 @@ public class CUnistd {
 	 * the total number of bytes written.
 	 */
 	public static int writeAll(int fd, byte[] bytes, int offset, int length) throws CException {
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		try (Memory m = JnaUtil.mallocBytes(bytes, offset, length)) {
 			return writeAll(fd, m, length);
 		}
@@ -524,7 +524,7 @@ public class CUnistd {
 	 */
 	public static int writeAll(int fd, Pointer buffer, int size, byte[] bytes, int offset,
 		int length) throws CException {
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		int rem = length;
 		while (rem > 0) {
 			int n = Math.min(rem, size);

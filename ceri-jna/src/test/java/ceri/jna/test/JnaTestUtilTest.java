@@ -17,7 +17,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.test.JnaTestUtil.MemCache;
 import ceri.jna.type.CLong;
@@ -33,7 +33,7 @@ public class JnaTestUtilTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(m, mc);
+		Closeables.close(m, mc);
 		m = null;
 		mc = null;
 	}

@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import java.time.LocalDate;
 import org.junit.Test;
 import ceri.common.data.ByteArray;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.x10.command.House;
 import ceri.x10.command.Unit;
 
@@ -28,13 +28,13 @@ public class DataBehavior {
 	@Test
 	public void testWriteDateTo() {
 		var enc = ByteArray.Encoder.of();
-		Data.writeDateTo(DateUtil.UTC_EPOCH, enc);
+		Data.writeDateTo(Dates.UTC_EPOCH, enc);
 		assertArray(enc.bytes(), 0, 0, 0, 1, 4);
 		enc.reset();
-		Data.writeDateTo(DateUtil.UTC_EPOCH.plusHours(1), enc);
+		Data.writeDateTo(Dates.UTC_EPOCH.plusHours(1), enc);
 		assertArray(enc.bytes(), 0, 60, 0, 1, 4);
 		enc.reset();
-		Data.writeDateTo(DateUtil.UTC_EPOCH.plusDays(3), enc);
+		Data.writeDateTo(Dates.UTC_EPOCH.plusDays(3), enc);
 		assertArray(enc.bytes(), 0, 0, 0, 4, 0x40);
 	}
 

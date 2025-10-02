@@ -25,7 +25,7 @@ public record GrayChar(String grayscale) {
 	 * Look up grayscale char by lightness of rgb int.
 	 */
 	public char charOf(int rgb) {
-		return charOf(LuvColor.Ref.CIE_D65.l(rgb));
+		return charOf(Luv.Ref.CIE_D65.l(rgb));
 	}
 
 	/**

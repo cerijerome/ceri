@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.Mmap.Option;
 import ceri.jna.clib.Mmap.Protection;
 import ceri.jna.clib.Mmap.Visibility;
@@ -23,7 +23,7 @@ public class MmapBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(mmap, fd, mem, ref);
+		Closeables.close(mmap, fd, mem, ref);
 		mem = null;
 		fd = null;
 		mmap = null;

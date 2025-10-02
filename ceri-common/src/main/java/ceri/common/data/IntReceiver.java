@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.util.Validate;
 
@@ -83,7 +84,7 @@ public interface IntReceiver {
 		}
 
 		public IntReceiver receiver(int length) {
-			IntReceiver receiver = this.receiver.slice(position(), length);
+			var receiver = this.receiver.slice(position(), length);
 			position(position() + length);
 			return receiver;
 		}
@@ -102,7 +103,7 @@ public interface IntReceiver {
 		public Writer slice(int length) {
 			int offset = length < 0 ? offset() + length : offset();
 			length = Math.abs(length);
-			Validate.validateSlice(length(), offset, length);
+			Validate.slice(length(), offset, length);
 			return new Writer(receiver, start + offset, length);
 		}
 
@@ -220,8 +221,7 @@ public interface IntReceiver {
 	default IntReceiver slice(int index, int length) {
 		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	/**
@@ -237,7 +237,7 @@ public interface IntReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, int value) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, value);
 		return index;
@@ -263,8 +263,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, int[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(array.length, offset, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0)
 			setInt(index++, array[offset++]);
 		return index;
@@ -290,8 +290,8 @@ public interface IntReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, IntProvider provider, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(provider.length(), offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(provider.length(), offset, length);
 		while (length-- > 0)
 			setInt(index++, provider.getInt(offset++));
 		return index;
@@ -308,7 +308,7 @@ public interface IntReceiver {
 	 * Provides sequential int access.
 	 */
 	default Writer writer(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return new Writer(this, index, length);
 	}
 }

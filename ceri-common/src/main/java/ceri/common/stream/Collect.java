@@ -9,11 +9,11 @@ import java.util.Set;
 import java.util.stream.Collector;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.DynamicArray;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
-import ceri.common.collection.Sets;
-import ceri.common.exception.Exceptions;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
+import ceri.common.collect.Sets;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 
@@ -43,6 +43,9 @@ public class Collect {
 		/** Collects elements into a sorted primitive array. */
 		public static final IntStream.Collector<?, int[]> sortedArray = new Composed<>(
 			DynamicArray::ints, DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
+		/** Calculates the average value of elements. */
+		public static final IntStream.Collector<?, Double> average = new Composed<>(
+			Sum::new, Sum::add, Sum::average);
 		/** Collects chars into a string. */
 		public static final IntStream.Collector<?, String> chars = new Composed<>(
 			StringBuilder::new, (b, i) -> b.append((char) i), StringBuilder::toString);
@@ -72,6 +75,9 @@ public class Collect {
 		public static final LongStream.Collector<DynamicArray.OfLong, long[]> sortedArray =
 			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
 				a -> ArrayUtil.longs.sort(a.truncate()));
+		/** Calculates the average value of elements. */
+		public static final LongStream.Collector<?, Double> average = new Composed<>(
+			Sum::new, Sum::add, Sum::average);
 
 		private Longs() {}
 
@@ -95,6 +101,9 @@ public class Collect {
 		public static final DoubleStream.Collector<DynamicArray.OfDouble, double[]> sortedArray =
 			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
 				a -> ArrayUtil.doubles.sort(a.truncate()));
+		/** Calculates the average value of elements. */
+		public static final DoubleStream.Collector<?, Double> average = new Composed<>(
+			Sum::new, Sum::add, Sum::average);
 
 		private Doubles() {}
 
@@ -106,6 +115,23 @@ public class Collect {
 			implements DoubleStream.Collector<A, R> {}
 	}
 
+	/**
+	 * Simple holder of sum and element count.
+	 */
+	private static class Sum {
+		private double sum = 0L;
+		private int count = 0;
+		
+		public void add(double value) {
+			sum += value;
+			count = Math.addExact(count, 1);
+		}
+		
+		public double average() {
+			return count == 0.0 ? 0.0 : sum / count; 
+		}
+	}		
+	
 	/**
 	 * A collector composed of method responses.
 	 */

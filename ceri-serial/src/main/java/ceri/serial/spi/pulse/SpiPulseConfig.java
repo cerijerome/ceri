@@ -1,6 +1,6 @@
 package ceri.serial.spi.pulse;
 
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.property.TypedProperties;
 import ceri.common.util.Validate;
 
@@ -34,8 +34,8 @@ public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int re
 
 		public SpiPulseConfig config() {
 			int size = parse(SIZE_KEY).asInt().getValid();
-			SpiPulseConfig.Builder b = SpiPulseConfig.builder(size);
-			FunctionUtil.safeAccept(cycle(), b::cycle);
+			var b = SpiPulseConfig.builder(size);
+			Functional.safeAccept(cycle(), b::cycle);
 			parse(DELAY_MICROS_KEY).asInt().accept(b::delayMicros);
 			parse(RESET_DELAY_MS_KEY).asInt().accept(b::resetDelayMs);
 			return b.build();
@@ -85,7 +85,7 @@ public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int re
 	}
 
 	public static Builder builder(int size) {
-		Validate.validateMin(size, 0);
+		Validate.min(size, 0);
 		return new Builder(size);
 	}
 

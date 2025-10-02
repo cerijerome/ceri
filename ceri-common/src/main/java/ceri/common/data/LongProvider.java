@@ -2,7 +2,8 @@ package ceri.common.data;
 
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Iterators;
+import ceri.common.collect.Iterators;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.stream.LongStream;
@@ -142,7 +143,7 @@ public interface LongProvider extends Iterable<Long> {
 		 * Creates a new reader for subsequent longs without incrementing the offset.
 		 */
 		public Reader slice(int length) {
-			Validate.validateSlice(length(), offset(), length);
+			Validate.slice(length(), offset(), length);
 			return new Reader(provider, start + offset(), length);
 		}
 
@@ -203,8 +204,7 @@ public interface LongProvider extends Iterable<Long> {
 	default LongProvider slice(int index, int length) {
 		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public interface LongProvider extends Iterable<Long> {
 	 */
 	default long[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.longs.empty;
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		long[] copy = new long[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -244,8 +244,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * writes one long at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, long[] array, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getLong(index++);
 		return index;
@@ -271,8 +271,8 @@ public interface LongProvider extends Iterable<Long> {
 	 * method.
 	 */
 	default int copyTo(int index, LongReceiver receiver, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setLong(offset++, getLong(index++));
 		return index;
@@ -289,7 +289,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Provides signed longs from index as a stream.
 	 */
 	default LongStream<RuntimeException> stream(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return Streams.slice(index, length).mapToLong(i -> getLong(i));
 	}
 
@@ -461,7 +461,7 @@ public interface LongProvider extends Iterable<Long> {
 	 * Provides sequential long access.
 	 */
 	default Reader reader(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 
@@ -503,7 +503,8 @@ public interface LongProvider extends Iterable<Long> {
 	/**
 	 * Provides a string representation.
 	 */
-	static String toString(Joiner joiner, Functions.LongFunction<?> stringFn, LongProvider provider) {
+	static String toString(Joiner joiner, Functions.LongFunction<?> stringFn,
+		LongProvider provider) {
 		return joiner.joinIndex(i -> stringFn.apply(provider.getLong(i)), provider.length());
 	}
 }

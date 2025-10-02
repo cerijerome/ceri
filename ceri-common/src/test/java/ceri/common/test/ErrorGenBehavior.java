@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 
 public class ErrorGenBehavior {
 	private final Exception rtx = new RuntimeException("test");

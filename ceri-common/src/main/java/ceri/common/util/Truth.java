@@ -1,6 +1,6 @@
 package ceri.common.util;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 /**
  * Encapsulates a yes/no/maybe response.
@@ -10,7 +10,7 @@ public enum Truth {
 	no(0, 'N'),
 	yes(1, 'Y');
 
-	public static final TypeTranscoder<Truth> xcoder = TypeTranscoder.of(t -> t.value, Truth.class);
+	public static final Xcoder.Type<Truth> xcoder = Xcoder.type(Truth.class);
 	public final int value;
 	public final char symbol;
 

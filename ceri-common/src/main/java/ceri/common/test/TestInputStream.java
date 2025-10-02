@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import ceri.common.array.RawArray;
 import ceri.common.data.ByteStream;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Fluent;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.io.PipedStream;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
@@ -55,7 +55,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 
 	public void resetState() {
 		CallSync.resetAll(read, available, mark, reset, close);
-		FunctionUtil.runSilently(piped::clear);
+		Functional.runSilently(piped::clear);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 		byte[] bytes = new byte[1];
 		int n = read(bytes);
 		if (n < 0) return n;
-		Validate.validateEqual(n, 1);
+		Validate.equal(n, 1);
 		return bytes[0] & 0xff;
 	}
 
@@ -127,7 +127,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public String toString() {
 		return ToString
-			.ofClass(this, FunctionUtil.getSilently(piped.in()::available)).children("read=" + read,
+			.ofClass(this, Functional.getSilently(piped.in()::available)).children("read=" + read,
 				"available=" + available, "mark=" + mark, "reset=" + reset, "close=" + close)
 			.toString();
 	}

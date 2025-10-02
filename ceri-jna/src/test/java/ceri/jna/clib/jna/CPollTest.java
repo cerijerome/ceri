@@ -8,8 +8,8 @@ import static ceri.jna.clib.jna.CPoll.POLLOUT;
 import static ceri.jna.clib.jna.CPoll.POLLPRI;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.time.TimeSpec;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.PollArgs;
@@ -20,7 +20,7 @@ public class CPollTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

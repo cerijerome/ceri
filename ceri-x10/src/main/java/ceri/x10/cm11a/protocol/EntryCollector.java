@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
 import ceri.x10.command.Command;
 import ceri.x10.command.House;

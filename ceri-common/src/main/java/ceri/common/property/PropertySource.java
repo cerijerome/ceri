@@ -6,10 +6,10 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Set;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Sets;
 import ceri.common.concurrent.Lazy;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.io.IoExceptions;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
@@ -198,7 +198,7 @@ public interface PropertySource {
 
 		@Override
 		public String property(String key) {
-			return FunctionUtil.getSilently(() -> bundle.getString(key));
+			return Functional.getSilently(() -> bundle.getString(key));
 		}
 
 		@Override

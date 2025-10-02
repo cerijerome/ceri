@@ -10,8 +10,7 @@ public enum BinaryState {
 	off(0, '0'),
 	on(1, '1');
 
-	public static final TypeTranscoder<BinaryState> xcoder =
-		TypeTranscoder.of(t -> t.value, BinaryState.class);
+	public static final Xcoder.Type<BinaryState> xcoder = Xcoder.type(BinaryState.class);
 	public final int value;
 	public final char symbol;
 

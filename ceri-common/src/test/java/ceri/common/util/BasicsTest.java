@@ -9,9 +9,23 @@ import ceri.common.function.Excepts;
 
 public class BasicsTest {
 
+	private static class TestRef extends Basics.Ref<AutoCloseable> {
+		private TestRef(AutoCloseable c) {
+			super(c);
+		}
+	}
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Basics.class);
+	}
+
+	@Test
+	public void shouldProvideRefAccess() throws Exception {
+		try (AutoCloseable c = () -> {}) {
+			var r = new TestRef(c);
+			assertEquals(r.ref, c);
+		}
 	}
 
 	@Test

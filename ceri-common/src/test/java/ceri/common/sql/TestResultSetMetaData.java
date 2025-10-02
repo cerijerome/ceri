@@ -1,6 +1,6 @@
 package ceri.common.sql;
 
-import static ceri.common.sql.SqlUtil.SQL_ADAPTER;
+import static ceri.common.sql.Sql.SQL_ADAPTER;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import ceri.common.test.CallSync;

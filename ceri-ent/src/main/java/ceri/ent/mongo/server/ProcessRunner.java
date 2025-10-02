@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.common.process.Parameters;
-import ceri.common.process.ProcessUtil;
+import ceri.common.process.Processes;
 import ceri.log.util.LogUtil;
 
 public class ProcessRunner implements Functions.Closeable {
@@ -28,7 +28,7 @@ public class ProcessRunner implements Functions.Closeable {
 
 	public String stdOut() {
 		try {
-			return ProcessUtil.stdOut(process);
+			return Processes.stdOut(process);
 		} catch (IOException e) {
 			return "";
 		}
@@ -36,7 +36,7 @@ public class ProcessRunner implements Functions.Closeable {
 
 	public String stdErr() {
 		try {
-			return ProcessUtil.stdErr(process);
+			return Processes.stdErr(process);
 		} catch (IOException e) {
 			return "";
 		}

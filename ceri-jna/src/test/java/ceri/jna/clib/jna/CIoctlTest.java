@@ -7,7 +7,7 @@ import static ceri.jna.test.JnaTestUtil.assertRef;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.jna.CIoctl.Linux.serial_struct;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
@@ -21,7 +21,7 @@ public class CIoctlTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 		fd = -1;
 	}
 

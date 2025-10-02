@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.data.IntProvider;
 import ceri.common.function.Compares;
 import ceri.common.function.Functions;
@@ -16,7 +16,7 @@ import ceri.common.math.Radix;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.LongStream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Formats;
+import ceri.common.text.Format;
 import ceri.common.text.Regex;
 
 public class Colorxs {
@@ -674,7 +674,7 @@ public class Colorxs {
 
 	private static String hexX(long xargb) {
 		int digits = Component.count(xargb) << 1;
-		return Formats.hex(xargb, "#", digits);
+		return Format.hex(xargb, "#", digits);
 	}
 
 	private static Long namedArgbx(String name) {

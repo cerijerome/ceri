@@ -46,7 +46,7 @@ public abstract class JnaInputStream extends InputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
-		Validate.validateSlice(b.length, off, len);
+		Validate.slice(b.length, off, len);
 		ensureOpen();
 		if (len == 0) return 0;
 		var buffer = buffers.get();

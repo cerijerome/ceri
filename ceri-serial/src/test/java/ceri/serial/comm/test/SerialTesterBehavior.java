@@ -8,11 +8,11 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.ManualTester;
 import ceri.common.test.SystemIoCaptor;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.comm.DataBits;
@@ -35,7 +35,7 @@ public class SerialTesterBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(serial, sys, ref, files, fastMode);
+		Closeables.close(serial, sys, ref, files, fastMode);
 		fastMode = null;
 		files = null;
 		sys = null;

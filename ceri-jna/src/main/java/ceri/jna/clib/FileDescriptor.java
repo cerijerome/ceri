@@ -2,11 +2,11 @@ package ceri.jna.clib;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
-import ceri.common.collection.Enums;
+import ceri.common.collect.Enums;
+import ceri.common.collect.Maps;
 import ceri.common.data.Field;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.io.Connector;
@@ -47,15 +47,15 @@ public interface FileDescriptor extends Connector {
 		CLOEXEC(CFcntl.O_CLOEXEC),
 		SYNC(CFcntl.O_SYNC);
 
-		private static final TypeTranscoder<Open> xcoder =
-			new TypeTranscoder<>(t -> t.value, Enums.stream(Open.class)) {
-				@Override
-				public long decodeRemainder(Collection<Open> receiver, long value) {
-					var rem = super.decodeRemainder(receiver, value);
-					if ((value & CFcntl.O_ACCMODE) != 0) receiver.remove(RDONLY);
-					return rem;
-				}
-			};
+		public static final Xcoder.Types<Open> xcoder = new Xcoder.Types<>(
+			Maps.convert(Maps::link, t -> (long) t.value, t -> t, Enums.of(Open.class))) {
+			@Override
+			protected Xcoder.Rem<Open> rem(Set<Open> types, long diff) {
+				if (types.contains(RDWR) || types.contains(WRONLY)) types.remove(RDONLY);
+				else types.add(RDONLY);
+				return super.rem(types, diff);
+			}
+		};
 		public final int value;
 
 		public static int encode(Open... flags) {

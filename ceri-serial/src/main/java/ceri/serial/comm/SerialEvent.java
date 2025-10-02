@@ -1,6 +1,6 @@
 package ceri.serial.comm;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 /**
  * Serial events from JavaComm API; currently unused.
@@ -17,8 +17,7 @@ public enum SerialEvent {
 	framingError(9), // FE
 	breakInterrupt(10); // BI
 
-	private static final TypeTranscoder<SerialEvent> xcoder =
-		TypeTranscoder.of(t -> t.value, SerialEvent.class);
+	private static final Xcoder.Type<SerialEvent> xcoder = Xcoder.type(SerialEvent.class);
 	public final int value;
 
 	public static SerialEvent from(int value) {

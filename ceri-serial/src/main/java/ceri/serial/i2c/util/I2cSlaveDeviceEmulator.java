@@ -4,7 +4,7 @@ import static ceri.serial.i2c.I2cAddress.DEVICE_ID;
 import static ceri.serial.i2c.I2cAddress.GENERAL_CALL;
 import java.io.IOException;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.CallSync;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;

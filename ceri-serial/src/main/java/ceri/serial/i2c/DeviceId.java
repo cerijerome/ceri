@@ -1,8 +1,8 @@
 package ceri.serial.i2c;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
 import ceri.common.data.ByteUtil;
 import ceri.common.util.Validate;
 
@@ -43,9 +43,9 @@ public record DeviceId(int manufacturer, int part, int revision) {
 	}
 
 	public static DeviceId of(int manufacturer, int part, int revision) {
-		Validate.validateRange(manufacturer, 0, MANUFACTURER_MASK);
-		Validate.validateRange(part, 0, PART_MASK);
-		Validate.validateRange(revision, 0, REVISION_MASK);
+		Validate.range(manufacturer, 0, MANUFACTURER_MASK);
+		Validate.range(part, 0, PART_MASK);
+		Validate.range(revision, 0, REVISION_MASK);
 		return new DeviceId(manufacturer, part, revision);
 	}
 
@@ -68,16 +68,16 @@ public record DeviceId(int manufacturer, int part, int revision) {
 
 	@Override
 	public String toString() {
-		String name = getClass().getSimpleName();
+		var name = getClass().getSimpleName();
 		if (isNone()) return name + "(none)";
-		Company company = company();
+		var company = company();
 		return company == Company.unknown ?
 			String.format("%s(0x%x,0x%x,0x%x)", name, manufacturer, part, revision) :
 			String.format("%s(%s,0x%x,0x%x)", name, company, part, revision);
 	}
 
 	private static Map<Integer, Company> assignedManufacturerIds() {
-		Map<Integer, Company> map = new LinkedHashMap<>();
+		var map = Maps.<Integer, Company>link();
 		int i = 0;
 		map.put(i++, Company.NXP_Semiconductor); // 0
 		map.put(i++, Company.NXP_Semiconductor);

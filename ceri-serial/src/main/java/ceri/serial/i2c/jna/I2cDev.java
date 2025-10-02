@@ -1,21 +1,11 @@
 package ceri.serial.i2c.jna;
 
-import static ceri.common.math.Maths.ubyte;
-import static ceri.common.math.Maths.ushort;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_BYTE_DATA;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_I2C_BLOCK_DATA;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_PROC_CALL;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_QUICK;
-import static ceri.serial.i2c.jna.I2cDev.i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA;
 import java.util.Set;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.Field;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
@@ -52,10 +42,8 @@ public class I2cDev {
 		I2C_M_NOSTART(0x4000),
 		I2C_M_STOP(0x8000);
 
+		public static final Xcoder.Types<i2c_msg_flag> xcoder = Xcoder.types(i2c_msg_flag.class);
 		public final int value;
-
-		public static final TypeTranscoder<i2c_msg_flag> xcoder =
-			TypeTranscoder.of(t -> t.value, i2c_msg_flag.class);
 
 		private i2c_msg_flag(int value) {
 			this.value = value;
@@ -70,18 +58,14 @@ public class I2cDev {
 
 	@Fields({ "addr", "flags", "len", "buf" })
 	public static class i2c_msg extends Struct {
-		/** Field to get/set typed flags. */
-		public static final Field.Types<RuntimeException, i2c_msg, i2c_msg_flag> FLAGS;
+		/** Field to get/set flags. */
+		public static final Field.Types<RuntimeException, i2c_msg, i2c_msg_flag> FLAGS =
+			Field.<RuntimeException, i2c_msg>ofLong(m -> Maths.ushort(m.flags),
+				(m, l) -> m.flags = (short) l).types(i2c_msg_flag.xcoder);
 		public short addr;
 		public short flags;
 		public short len;
 		public Pointer buf;
-
-		static {
-			var f = Field.<RuntimeException, i2c_msg>ofLong(m -> ushort(m.flags),
-				(m, l) -> m.flags = (short) l);
-			FLAGS = f.types(i2c_msg_flag.xcoder);
-		}
 
 		public static class ByReference extends i2c_msg implements Structure.ByReference {}
 
@@ -149,8 +133,7 @@ public class I2cDev {
 				I2C_FUNC_SMBUS_BLOCK_DATA, I2C_FUNC_SMBUS_I2C_BLOCK).expand(t -> t).toSet();
 		public final int value;
 
-		public static final TypeTranscoder<i2c_func> xcoder =
-			TypeTranscoder.of(t -> t.value, i2c_func.class);
+		public static final Xcoder.Types<i2c_func> xcoder = Xcoder.types(i2c_func.class);
 
 		private i2c_func(int value) {
 			this.value = value;
@@ -180,7 +163,7 @@ public class I2cDev {
 		}
 
 		public void setBlockLength(int length) {
-			Validate.validateRange(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
+			Validate.range(length, 1, I2C_SMBUS_BLOCK_MAX, "Length");
 			block[0] = (byte) length;
 			setType("block");
 		}
@@ -194,14 +177,14 @@ public class I2cDev {
 		}
 
 		public void setBlock(byte[] data, int offset, int length) {
-			Validate.validateSlice(data.length, offset, length);
-			Validate.validateMax(length, I2C_SMBUS_BLOCK_MAX, "Data length");
+			Validate.slice(data.length, offset, length);
+			Validate.max(length, I2C_SMBUS_BLOCK_MAX, "Data length");
 			ArrayUtil.bytes.copy(data, offset, block, 1, length);
 			setBlockLength(length);
 		}
 
 		public byte[] getBlock() {
-			int length = Math.min(ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
+			int length = Math.min(Maths.ubyte(block[0]), I2C_SMBUS_BLOCK_MAX);
 			return ArrayUtil.bytes.copyOf(block, 1, length);
 		}
 	}
@@ -227,10 +210,9 @@ public class I2cDev {
 		I2C_SMBUS_BLOCK_PROC_CALL(7),
 		I2C_SMBUS_I2C_BLOCK_DATA(8); // replaces I2C_SMBUS_BLOCK_DATA?
 
+		public static final Xcoder.Type<i2c_smbus_transaction_type> xcoder =
+			Xcoder.type(i2c_smbus_transaction_type.class, t -> t.size);
 		public final int size;
-
-		public static final TypeTranscoder<i2c_smbus_transaction_type> xcoder =
-			TypeTranscoder.of(t -> t.size, i2c_smbus_transaction_type.class);
 
 		private i2c_smbus_transaction_type(int size) {
 			this.size = size;
@@ -293,7 +275,7 @@ public class I2cDev {
 	 * Open an I2C device and return a file descriptor.
 	 */
 	public static int i2c_open(int bus, int flags) throws CException {
-		String path = i2c_path(bus);
+		var path = i2c_path(bus);
 		return CFcntl.open(path, flags);
 	}
 
@@ -346,8 +328,8 @@ public class I2cDev {
 	 * i2c_msg.array(n).
 	 */
 	public static void i2c_rdwr(int fd, i2c_msg.ByReference... msgs) throws CException {
-		Validate.validateMax(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
-		i2c_rdwr_ioctl_data data = new i2c_rdwr_ioctl_data();
+		Validate.max(msgs.length, I2C_RDWR_IOCTL_MAX_MSGS, "Message count");
+		var data = new i2c_rdwr_ioctl_data();
 		data.msgs = msgs[0];
 		data.nmsgs = msgs.length;
 		CIoctl.ioctl("I2C_RDWR", fd, I2C_RDWR, data);
@@ -364,77 +346,84 @@ public class I2cDev {
 	 * SMBus: quick write, using address read/write bit for on/off.
 	 */
 	public static void i2c_smbus_write_quick(int fd, boolean on) throws CException {
-		smbusIoctl(fd, on ? I2C_SMBUS_READ : I2C_SMBUS_WRITE, 0, I2C_SMBUS_QUICK, null);
+		smbusIoctl(fd, on ? I2C_SMBUS_READ : I2C_SMBUS_WRITE, 0,
+			i2c_smbus_transaction_type.I2C_SMBUS_QUICK, null);
 	}
 
 	/**
 	 * SMBus: read 1 byte, with PEC if enabled.
 	 */
 	public static int i2c_smbus_read_byte(int fd) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		smbusIoctl(fd, I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, data);
-		return ubyte(data.byte_);
+		var data = new i2c_smbus_data.ByReference();
+		smbusIoctl(fd, I2C_SMBUS_READ, 0, i2c_smbus_transaction_type.I2C_SMBUS_BYTE, data);
+		return Maths.ubyte(data.byte_);
 	}
 
 	/**
 	 * SMBus: write 1 byte, with PEC if enabled.
 	 */
 	public static void i2c_smbus_write_byte(int fd, int value) throws CException {
-		smbusIoctl(fd, I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, null);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, value, i2c_smbus_transaction_type.I2C_SMBUS_BYTE, null);
 	}
 
 	/**
 	 * SMBus: send 1-byte command, and read 1-byte data, with PEC if enabled.
 	 */
 	public static int i2c_smbus_read_byte_data(int fd, int command) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BYTE_DATA, data);
-		return ubyte(data.byte_);
+		var data = new i2c_smbus_data.ByReference();
+		smbusIoctl(fd, I2C_SMBUS_READ, command, i2c_smbus_transaction_type.I2C_SMBUS_BYTE_DATA,
+			data);
+		return Maths.ubyte(data.byte_);
 	}
 
 	/**
 	 * SMBus: send 1-byte command and 1-byte data, with PEC if enabled.
 	 */
 	public static void i2c_smbus_write_byte_data(int fd, int command, int value) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setByte(value);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BYTE_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, i2c_smbus_transaction_type.I2C_SMBUS_BYTE_DATA,
+			data);
 	}
 
 	/**
 	 * SMBus: send 1-byte command, and read 2-byte data, with PEC if enabled.
 	 */
 	public static int i2c_smbus_read_word_data(int fd, int command) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_WORD_DATA, data);
-		return ushort(data.word);
+		var data = new i2c_smbus_data.ByReference();
+		smbusIoctl(fd, I2C_SMBUS_READ, command, i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA,
+			data);
+		return Maths.ushort(data.word);
 	}
 
 	/**
 	 * SMBus: send 1-byte command and 2-byte data, with PEC if enabled.
 	 */
 	public static void i2c_smbus_write_word_data(int fd, int command, int value) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setWord(value);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_WORD_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, i2c_smbus_transaction_type.I2C_SMBUS_WORD_DATA,
+			data);
 	}
 
 	/**
 	 * SMBus: send 1-byte command and 2-byte data, and read 2-byte data, with PEC if enabled.
 	 */
 	public static int i2c_smbus_process_call(int fd, int command, int value) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setWord(value);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_PROC_CALL, data);
-		return ushort(data.word);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, i2c_smbus_transaction_type.I2C_SMBUS_PROC_CALL,
+			data);
+		return Maths.ushort(data.word);
 	}
 
 	/**
 	 * SMBus: send 1-byte command, and read 1-byte N, N-byte data, with PEC if enabled.
 	 */
 	public static byte[] i2c_smbus_read_block_data(int fd, int command) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
-		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_BLOCK_DATA, data);
+		var data = new i2c_smbus_data.ByReference();
+		smbusIoctl(fd, I2C_SMBUS_READ, command, i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA,
+			data);
 		return data.getBlock();
 	}
 
@@ -459,9 +448,10 @@ public class I2cDev {
 	 */
 	public static void i2c_smbus_write_block_data(int fd, int command, byte[] values, int offset,
 		int length) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setBlock(values, offset, length);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command, i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_DATA,
+			data);
 	}
 
 	/**
@@ -488,9 +478,10 @@ public class I2cDev {
 	 */
 	public static byte[] i2c_smbus_block_process_call(int fd, int command, byte[] values,
 		int offset, int length) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setBlock(values, offset, length);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_BLOCK_PROC_CALL, data);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command,
+			i2c_smbus_transaction_type.I2C_SMBUS_BLOCK_PROC_CALL, data);
 		return data.getBlock();
 	}
 
@@ -499,9 +490,10 @@ public class I2cDev {
 	 */
 	public static byte[] i2c_smbus_read_i2c_block_data(int fd, int command, int length)
 		throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setBlockLength(length);
-		smbusIoctl(fd, I2C_SMBUS_READ, command, I2C_SMBUS_I2C_BLOCK_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_READ, command, i2c_smbus_transaction_type.I2C_SMBUS_I2C_BLOCK_DATA,
+			data);
 		return data.getBlock();
 	}
 
@@ -526,9 +518,10 @@ public class I2cDev {
 	 */
 	public static void i2c_smbus_write_i2c_block_data(int fd, int command, byte[] values,
 		int offset, int length) throws CException {
-		i2c_smbus_data.ByReference data = new i2c_smbus_data.ByReference();
+		var data = new i2c_smbus_data.ByReference();
 		data.setBlock(values, offset, length);
-		smbusIoctl(fd, I2C_SMBUS_WRITE, command, I2C_SMBUS_I2C_BLOCK_DATA, data);
+		smbusIoctl(fd, I2C_SMBUS_WRITE, command,
+			i2c_smbus_transaction_type.I2C_SMBUS_I2C_BLOCK_DATA, data);
 	}
 
 	private static void ioctl(String name, int fd, int request, long value) throws CException {
@@ -537,12 +530,11 @@ public class I2cDev {
 
 	private static int smbusIoctl(int fd, int readWrite, int command,
 		i2c_smbus_transaction_type type, i2c_smbus_data.ByReference data) throws CException {
-		i2c_smbus_ioctl_data smbus = new i2c_smbus_ioctl_data();
+		var smbus = new i2c_smbus_ioctl_data();
 		smbus.read_write = Maths.ubyteExact(readWrite);
 		smbus.command = Maths.ubyteExact(command);
 		smbus.size = type.size;
 		smbus.data = data;
 		return CIoctl.ioctl("I2C_SMBUS", fd, I2C_SMBUS, smbus); // smbus.read() if reading?
 	}
-
 }

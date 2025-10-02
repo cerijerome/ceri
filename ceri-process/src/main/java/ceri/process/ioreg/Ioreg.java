@@ -27,5 +27,4 @@ public class Ioreg {
 	public String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(IOREG).addAll(params));
 	}
-
 }

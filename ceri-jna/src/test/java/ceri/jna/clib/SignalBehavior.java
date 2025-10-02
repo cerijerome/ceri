@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.function.Closeables;
 import ceri.common.test.CallSync;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
@@ -18,7 +18,7 @@ public class SignalBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

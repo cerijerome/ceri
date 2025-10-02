@@ -1,6 +1,6 @@
 package ceri.x10.command;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 /**
  * The house code.
@@ -23,7 +23,7 @@ public enum House {
 	O,
 	P;
 
-	private static final TypeTranscoder<House> xcoder = TypeTranscoder.of(t -> t.id, House.class);
+	public static final Xcoder.Type<House> xcoder = Xcoder.type(House.class, t -> t.id);
 	public final char value;
 	public final int id;
 

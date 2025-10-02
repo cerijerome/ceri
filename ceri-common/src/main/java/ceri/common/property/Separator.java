@@ -2,8 +2,8 @@ package ceri.common.property;
 
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.text.Strings;
 
 /**

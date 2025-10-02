@@ -7,10 +7,10 @@ import java.util.stream.IntStream;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.SimpleExecutor;
+import ceri.common.function.Enclosure;
 import ceri.common.test.TestUtil;
-import ceri.common.util.Enclosure;
 import ceri.jna.clib.Poll;
 import ceri.log.test.LogModifier;
 
@@ -39,16 +39,16 @@ public class SyncPipeTester {
 	}
 
 	private static void runPoll(Poll poll, int i) throws IOException {
-		ConcurrentUtil.delay(DELAY_MS * i);
+		Concurrent.delay(DELAY_MS * i);
 		logger.info("[%d] poll start", i);
 		poll.poll(DELAY_MS * THREADS); // don't clear sync pipe
 		logger.info("[%d] poll complete", i);
 	}
 
 	private static void runClose(SyncPipe.Fixed pipe) throws IOException {
-		ConcurrentUtil.delay(DELAY_MS * THREADS / 2);
+		Concurrent.delay(DELAY_MS * THREADS / 2);
 		logger.info("signal");
 		pipe.signal();
-		ConcurrentUtil.delay(DELAY_MS);
+		Concurrent.delay(DELAY_MS);
 	}
 }

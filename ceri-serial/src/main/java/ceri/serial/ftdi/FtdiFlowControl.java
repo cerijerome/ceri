@@ -1,6 +1,6 @@
 package ceri.serial.ftdi;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.serial.ftdi.jna.LibFtdi;
 
 public enum FtdiFlowControl {
@@ -9,8 +9,7 @@ public enum FtdiFlowControl {
 	dtrDsr(LibFtdi.SIO_DTR_DSR_HS),
 	xonXoff(LibFtdi.SIO_XON_XOFF_HS);
 
-	public static final TypeTranscoder<FtdiFlowControl> xcoder =
-		TypeTranscoder.of(t -> t.value, FtdiFlowControl.class);
+	public static final Xcoder.Types<FtdiFlowControl> xcoder = Xcoder.types(FtdiFlowControl.class);
 	public final int value;
 
 	private FtdiFlowControl(int value) {

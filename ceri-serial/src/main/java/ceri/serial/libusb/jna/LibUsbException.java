@@ -1,7 +1,7 @@
 package ceri.serial.libusb.jna;
 
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.except.Exceptions;
 import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CException;
 import ceri.serial.libusb.jna.LibUsb.libusb_error;

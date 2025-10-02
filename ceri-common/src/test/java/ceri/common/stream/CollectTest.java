@@ -1,10 +1,7 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.*;
-import static ceri.common.test.ErrorGen.*;
-import static ceri.common.test.TestUtil.*;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.Test;
-import ceri.common.test.CallSync;
 
 public class CollectTest {
 

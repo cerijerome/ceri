@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Iterables;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Iterables;
+import ceri.common.collect.Lists;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
@@ -49,8 +49,50 @@ import ceri.common.text.Text;
 public class AssertUtil {
 	private static final int LINE_COUNT = 10;
 	public static final int APPROX_PRECISION_DEF = 3;
+	private static final int PRECISION_DEF = 3;
 
 	private AssertUtil() {}
+
+	/**
+	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 */
+	public static double equal(double actual, double expected, String format, Object... args) {
+		if (doubleEqual(actual, expected)) return actual;
+		throw failure("%sExpected: %s\n  actual: %s", nl(format, args), expected, actual);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected) {
+		return approx(actual, expected, PRECISION_DEF);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected, int precision) {
+		return approx(actual, expected, precision, null);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected, int precision, String format,
+		Object... args) {
+		if (!Double.isFinite(expected)) return equal(actual, expected, format, args);
+		double approxValue = Maths.round(precision, actual);
+		double approxOther = Maths.round(precision, expected);
+		return equal(approxValue, approxOther, format, args);
+	}
+
+	private static boolean doubleEqual(double value, double other) {
+		return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other);
+	}
+
+	// ------------------------------------------------------------------------
+	// Original
+	// ------------------------------------------------------------------------
 
 	private static interface ItemAssert {
 		static ItemAssert DEEP_EQUALS = AssertUtil::assertDeepEquals;

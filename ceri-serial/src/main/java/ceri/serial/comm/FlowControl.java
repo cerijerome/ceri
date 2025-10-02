@@ -1,7 +1,7 @@
 package ceri.serial.comm;
 
 import java.util.Set;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.serial.comm.jna.CSerial;
 
 public enum FlowControl {
@@ -10,8 +10,7 @@ public enum FlowControl {
 	xonXoffIn(CSerial.FLOWCONTROL_XONXOFF_IN),
 	xonXoffOut(CSerial.FLOWCONTROL_XONXOFF_OUT);
 
-	public static final TypeTranscoder<FlowControl> xcoder =
-		TypeTranscoder.of(t -> t.value, FlowControl.class);
+	public static final Xcoder.Types<FlowControl> xcoder = Xcoder.types(FlowControl.class);
 	public static final Set<FlowControl> NONE = Set.of();
 	public final int value;
 

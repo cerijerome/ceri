@@ -1,6 +1,6 @@
 package ceri.common.sql;
 
-import static ceri.common.sql.SqlUtil.SQL_ADAPTER;
+import static ceri.common.sql.Sql.SQL_ADAPTER;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

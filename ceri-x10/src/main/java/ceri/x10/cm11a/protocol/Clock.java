@@ -6,7 +6,7 @@ import ceri.common.data.ByteArray;
 import ceri.common.data.ByteReader;
 import ceri.common.data.DataUtil;
 import ceri.common.text.ToString;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.x10.command.House;
 
 /**
@@ -62,7 +62,7 @@ public class Clock implements ByteArray.Encodable {
 	}
 
 	public static class Builder {
-		LocalDateTime date = DateUtil.nowSec();
+		LocalDateTime date = Dates.nowSec();
 		House house = House.A;
 		boolean clearBatteryTimer = false;
 		boolean clearMonitoredStatus = false;

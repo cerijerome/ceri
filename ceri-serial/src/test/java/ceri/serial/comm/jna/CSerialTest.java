@@ -22,7 +22,7 @@ import static ceri.serial.comm.jna.CSerial.STOPBITS_1_5;
 import static ceri.serial.comm.jna.CSerial.STOPBITS_2;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -39,7 +39,7 @@ public class CSerialTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 	}
 
 	@Test

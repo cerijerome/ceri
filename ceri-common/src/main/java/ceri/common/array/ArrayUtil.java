@@ -5,8 +5,8 @@ import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
 import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
@@ -68,7 +68,7 @@ public class ArrayUtil {
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
 			any(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Predicates.no();
+			if (predicate == null) return Filters.no();
 			return ts -> {
 				if (ts == null) return false;
 				for (int i = 0; i < ts.length; i++)
@@ -82,7 +82,7 @@ public class ArrayUtil {
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T[]>
 			all(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
-			if (predicate == null) return Predicates.no();
+			if (predicate == null) return Filters.no();
 			return ts -> {
 				if (ts == null) return false;
 				for (int i = 0; i < ts.length; i++)

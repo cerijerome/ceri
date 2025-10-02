@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import ceri.common.math.Bound;
 import ceri.common.math.Maths;
-import ceri.common.util.Validate;
 
 /**
  * Used to adjust fades between two values. Should return a biased ratio value 0.0 to 1.0 from a
@@ -15,6 +14,9 @@ public interface Bias {
 	/** No bias. */
 	Bias NONE = r -> r;
 
+	/**
+	 * Common biases.
+	 */
 	enum Std implements Bias {
 		none(NONE),
 		/** Moves any value except min to max. */
@@ -50,6 +52,115 @@ public interface Bias {
 		}
 	}
 
+	/**
+	 * Integer bias, returning a value 0 to 255 from a given value 0 to 255.
+	 */
+	public interface Int {
+		/** No bias. */
+		Int NONE = v -> v;
+
+		enum Std implements Int {
+			none(NONE),
+			/** Moves any value except min to max. */
+			up(v -> v > 0 ? Colors.MAX_VALUE : 0),
+			/** Moves any value except max to min. */
+			down(v -> v < Colors.MAX_VALUE ? 0 : Colors.MAX_VALUE),
+			/** Sine curve from 0 to +PI/2. */
+			q1Sine(Int.from(Bias.Std.q1Sine)),
+			/** Transposed sine curve from -PI/2 to 0. */
+			q4Sine(Int.inverse(q1Sine)),
+			/** Transposed sine curve from 0 to PI/2 followed by -PI/2 to 0. */
+			q1q4Sine(Int.from(Bias.Std.q1q4Sine)), // more time spent in the middle
+			/** Transposed sine curve from -PI/2 to +PI/2. */
+			q4q1Sine(Int.from(Bias.Std.q4q1Sine)), // more time spent at the edges
+			/** Transposed circle arc for x > 0, y < 0. */
+			q2Circle(Int.from(Bias.Std.q2Circle)),
+			/** Transposed circle arc for x < 0, y > 0. */
+			q4Circle(Int.inverse(q2Circle)),
+			/** Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0. */
+			q2q4Circle(Int.from(Bias.Std.q2q4Circle)),
+			/** Transposed circle arcs for x > 0, y < 0, followed by x < 0, y > 0. */
+			q4q2Circle(Int.from(Bias.Std.q4q2Circle));
+
+			private final Int bias;
+
+			private Std(Int bias) {
+				this.bias = bias;
+			}
+
+			@Override
+			public int bias(int value) {
+				return bias.bias(value);
+			}
+		}
+
+		/**
+		 * Provides a biased value of the given ratio.
+		 */
+		int bias(int value);
+
+		/**
+		 * Limits bias between 0 and MAX_VALUE (255).
+		 */
+		default Int limit() {
+			return limiter(this);
+		}
+
+		/**
+		 * Shifts the bias by an offset 0 to MAX_VALUE. Smoother if start and end gradients of the given
+		 * bias are equal.
+		 */
+		default Int offset(int offset) {
+			return offset(this, offset);
+		}
+
+		/**
+		 * Inverts the bias by flipping both axes.
+		 */
+		default Int invert() {
+			return inverse(this);
+		}
+
+		/**
+		 * Converts a bias into a lookup table int bias.
+		 */
+		static Int from(Bias bias) {
+			int[] lookup = new int[Colors.MAX_VALUE + 1];
+			for (int i = 0; i < lookup.length; i++)
+				lookup[i] = Maths.limit(
+					Maths.intRound(bias.bias((double) i / Colors.MAX_VALUE) * Colors.MAX_VALUE), 0,
+					Colors.MAX_VALUE);
+			return v -> lookup[Maths.limit(v, 0, Colors.MAX_VALUE)];
+		}
+
+		/**
+		 * Makes sure biased ratios within bounds.
+		 */
+		private static Int limiter(Int bias) {
+			return v -> Maths.limit(bias.bias(Maths.limit(v, 0, Colors.MAX_VALUE)), 0,
+				Colors.MAX_VALUE);
+		}
+
+		/**
+		 * Wrapping bias offset. Smoother if start and end gradients of the given bias are equal.
+		 */
+		private static Int offset(Int bias, int offset) {
+			int start = bias.bias(offset);
+			return limiter(v -> offset(bias.bias(offset(v, offset)), -start));
+		}
+
+		/**
+		 * Inverts the bias by flipping both axes.
+		 */
+		private static Int inverse(Int bias) {
+			return v -> Colors.MAX_VALUE - bias.bias(Colors.MAX_VALUE - v);
+		}
+
+		private static int offset(int value, int offset) {
+			return Maths.periodicLimit(value + offset, Colors.MAX_VALUE + 1, Bound.Type.exc);
+		}
+	}
+	
 	/**
 	 * Provides a biased value of the given ratio.
 	 */
@@ -104,7 +215,7 @@ public interface Bias {
 	 * may be clipped.
 	 */
 	static Bias partial(Bias bias, double len) {
-		Validate.validateRangeFp(len, 0, MAX_RATIO);
+		Colors.validateRatio(len, "len");
 		if (len == 0) return Std.down;
 		double max = bias.bias(len);
 		if (max == 0) return Std.up;

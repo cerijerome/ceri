@@ -15,8 +15,8 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.function.Closeables;
 import ceri.common.test.FileTestHelper;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Seek;
@@ -34,7 +34,7 @@ public class CUnistdTest {
 	@After
 	public void after() {
 		if (fd != -1) CUnistd.closeSilently(fd);
-		CloseableUtil.close(m, ref, helper);
+		Closeables.close(m, ref, helper);
 		helper = null;
 		fd = -1;
 		m = null;

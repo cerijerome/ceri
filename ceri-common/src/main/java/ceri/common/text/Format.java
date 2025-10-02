@@ -1,5 +1,7 @@
 package ceri.common.text;
 
+import java.util.List;
+import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.math.Maths;
@@ -7,52 +9,123 @@ import ceri.common.math.Radix;
 import ceri.common.util.Basics;
 
 /**
- * Formatting for integral numbers.
+ * Number formatting.
  */
-public record Format(int radix, String prefix, int minDigits, int maxDigits,
-	Separation separation) {
-
-	public static final Format DEC = of(Radix.DEC, 0);
-	public static final Format HEX = of(Radix.HEX, 0);
-	public static final Format HEX2 = of(Radix.HEX, 2);
-	public static final Format HEX4 = of(Radix.HEX, 4);
-	public static final Format HEX8 = of(Radix.HEX, 8);
-	public static final Format HEX16 = of(Radix.HEX, 16);
-	public static final Format HEX_BYTE = of(Radix.HEX, 2, 2);
-	public static final Format HEX_SHORT = of(Radix.HEX, 4, 4);
-	public static final Format HEX_INT = of(Radix.HEX, 8, 8);
-	public static final Format HEX_LONG = of(Radix.HEX, 16, 16);
-	public static final Format OCT = of(Radix.OCT, 0);
-	public static final Format BIN = of(Radix.BIN, 0);
-	public static final Format BIN4_4 = of(Radix.BIN, 4, 0, Separation._4);
-	public static final Format BIN8_4 = of(Radix.BIN, 4, 0, Separation._4);
-	public static final Format BIN16_4 = of(Radix.BIN, 4, 0, Separation._4);
+public class Format {
+	public static final OfLong HEX = ofLong(Radix.HEX, 0, 0);
+	public static final OfLong HEX_BYTE = ofLong(Radix.HEX, 2, 2);
+	public static final OfLong HEX_SHORT = ofLong(Radix.HEX, 4, 4);
+	public static final OfLong HEX_INT = ofLong(Radix.HEX, 8, 8);
+	public static final OfLong DEC = new OfLong(false, "", Radix.DEC.n, 0, 0, null);
+	public static final OfLong UDEC = new OfLong(true, "", Radix.DEC.n, 0, 0, null);
+	public static final LongFunction DEC_UBYTE = DEC::ubyte;
+	public static final LongFunction DEC_USHORT = DEC::ushort;
+	public static final LongFunction DEC_UINT = DEC::uint;
+	public static final LongFunction UDEC_HEX = Format::udecHex;
+	public static final LongFunction UDEC_OR_HEX = Format::udecOrHex;
+	public static final OfLong BIN =
+		new OfLong(true, Radix.BIN.prefix(), Radix.BIN.n, 0, 0, Separator._8);
+	public static final OfDouble FP = new OfDouble(0, 0);
+	public static final OfDouble FP1 = new OfDouble(1, 1);
+	public static final OfDouble FP3 = new OfDouble(3, 3);
+	public static final OfDouble FP03 = new OfDouble(0, 3);
+	public static final DoubleFunction ROUND = d -> DEC.apply(Math.round(d));
 
 	/**
-	 * Formatting for floating point numbers.
+	 * Long formatter interface.
 	 */
-	public record Fp(int minDec, int maxDec) {
-		// std(String::valueOf), // standard view
-		// round(d -> String.valueOf(Math.round(d))), // rounded to long
-		// round1(d -> String.valueOf(Maths.round(1, d))), // 1 decimal place
-		// round2(d -> String.valueOf(Maths.round(2, d))), // 2 decimal places
-		// round3(d -> String.valueOf(Maths.round(3, d))); // 3 decimal places
-
+	public interface LongFunction
+		extends Functions.LongFunction<String>, Functions.IntFunction<String> {
 		@Override
-		public final String toString() {
-			return ToString.forClass(this, minDec(), maxDec());
+		default String apply(int i) {
+			return apply((long) i);
+		}
+
+		/**
+		 * Returns the formatted unsigned number.
+		 */
+		default String ubyte(long value) {
+			return apply(Maths.ubyte(value));
+		}
+
+		/**
+		 * Returns the formatted unsigned number, or null string.
+		 */
+		default String ubyte(Number value) {
+			return value == null ? Strings.NULL : ubyte(value.longValue());
+		}
+
+		/**
+		 * Returns the formatted unsigned number.
+		 */
+		default String ushort(long value) {
+			return apply(Maths.ushort(value));
+		}
+
+		/**
+		 * Returns the formatted unsigned number, or null string.
+		 */
+		default String ushort(Number value) {
+			return value == null ? Strings.NULL : ushort(value.longValue());
+		}
+
+		/**
+		 * Returns the formatted unsigned number.
+		 */
+		default String uint(long value) {
+			return apply(Maths.uint(value));
+		}
+
+		/**
+		 * Returns the formatted unsigned number, or null string.
+		 */
+		default String uint(Number value) {
+			return value == null ? Strings.NULL : uint(value.longValue());
+		}
+
+		/**
+		 * Returns the formatted number, or null string.
+		 */
+		default String apply(Number value) {
+			return value == null ? Strings.NULL : apply(value.longValue());
 		}
 	}
 
 	/**
-	 * Logic for adding separators between digits.
+	 * Double formatter interface.
 	 */
-	public interface Separation extends Functions.ObjIntConsumer<StringBuilder> {
-		public static final Separation NONE = Lambdas.register((_, _) -> {}, "none");
-		public static final Separation _8 = Lambdas.register(of(8, "_"), "_8");
-		public static final Separation _4 = Lambdas.register(of(4, "_"), "_4");
+	public interface DoubleFunction extends Functions.DoubleFunction<String> {}
 
-		public static Separation of(int count, String separator) {
+	/**
+	 * Integral formatter with accessible arguments.
+	 */
+	public record OfLong(boolean unsigned, String prefix, int radix, int minDigits, int maxDigits,
+		Separator separator) implements LongFunction {
+		@Override
+		public String apply(long l) {
+			return format(l, unsigned(), prefix(), radix(), minDigits(), maxDigits(), separator());
+		}
+	}
+
+	/**
+	 * Floating point formatter with accessible arguments.
+	 */
+	public record OfDouble(int minDec, int maxDec) implements DoubleFunction {
+		@Override
+		public String apply(double d) {
+			return Format.format(d, minDec(), maxDec());
+		}
+	}
+
+	/**
+	 * Logic for adding separators during formatting, based on significant digit index.
+	 */
+	public interface Separator {
+		public static final Separator NONE = Lambdas.register((_, _) -> null, "none");
+		public static final Separator _8 = Lambdas.register(of(8, "_"), "_8");
+		public static final Separator _4 = Lambdas.register(of(4, "_"), "_4");
+
+		public static Separator of(int count, String separator) {
 			if (count <= 0) return NONE;
 			return of(i -> (i % count) == 0, separator);
 		}
@@ -60,245 +133,247 @@ public record Format(int radix, String prefix, int minDigits, int maxDigits,
 		/**
 		 * Creates an instance based on predicate
 		 */
-		public static Separation of(Functions.IntPredicate predicate, String separator) {
+		public static Separator of(Functions.IntPredicate predicate, String separator) {
 			if (predicate == null || separator == null) return NONE;
-			return (b, i) -> {
-				if (i > 0 && predicate.test(i)) b.append(separator);
-			};
+			return (i, n) -> (i > 0 && i < n && predicate.test(i)) ? separator : null;
+		}
+
+		/**
+		 * Provide separator for current digit out of total digits, or null if none.
+		 */
+		String accept(int digit, int digits);
+	}
+
+	/**
+	 * Utility to modify a string, optimized to only build if changes are made.
+	 */
+	private static class Appender {
+		private final Separator sep;
+		private final int digits;
+		private final StringBuilders.State b;
+		private int digit;
+
+		private Appender(CharSequence s, int digits, Separator sep) {
+			this.digits = digits;
+			this.sep = Basics.def(sep, Separator.NONE);
+			b = StringBuilders.State.of(s);
+			digit = digits;
+		}
+
+		private Appender neg() {
+			b.append('-');
+			return this;
+		}
+
+		private Appender append(CharSequence s) {
+			b.append(s);
+			return this;
+		}
+
+		private Appender zeros(int n) {
+			while (n-- > 0)
+				digit('0');
+			return this;
+		}
+
+		private Appender digits(CharSequence s) {
+			return digits(s, 0, Integer.MAX_VALUE);
+		}
+
+		private Appender digits(CharSequence s, int offset, int length) {
+			return ArrayUtil.applySlice(Strings.length(s), offset, length, (o, l) -> {
+				for (int i = 0; i < l; i++)
+					digit(s.charAt(o + i));
+				return this;
+			});
+		}
+
+		private Appender digit(char c) {
+			b.append(sep.accept(digit--, digits)).append(c);
+			return this;
+		}
+
+		@Override
+		public String toString() {
+			return b.toString();
 		}
 	}
 
 	/**
-	 * Returns the formatted number with no prefix.
+	 * Returns a formatter with prefix, radix, and digit padding/truncation.
+	 */
+	public static OfLong ofLong(Radix radix, int minDigits, int maxDigits) {
+		return new OfLong(true, radix.prefix(), radix.n, minDigits, maxDigits, null);
+	}
+
+	/**
+	 * Returns a formatter with prefix, radix, and digit padding/truncation.
+	 */
+	public static OfLong ofLong(String prefix, int radix, int minDigits, int maxDigits) {
+		return new OfLong(true, prefix, radix, minDigits, maxDigits, null);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix.
 	 */
 	public static String hex(long value) {
-		return hex(value, 0);
+		return hex(value, 0, 0);
 	}
 
 	/**
-	 * Returns the formatted number with no prefix and the exact number of digits.
+	 * Returns the unsigned formatted number with prefix and exact digits.
 	 */
 	public static String hex(long value, int digits) {
-		return apply(value, Radix.HEX.n, digits, digits);
+		return hex(value, digits, digits);
 	}
 
 	/**
-	 * Returns the formatted number with no prefix and the exact number of byte digits.
+	 * Returns the unsigned formatted number with prefix and digit padding/truncation.
 	 */
-	public static String hexBytes(long value, int bytes) {
-		return hex(value, Radix.HEX.digits.ubyte() * bytes);
+	public static String hex(long value, int minDigits, int maxDigits) {
+		return format(value, Radix.HEX, minDigits, maxDigits);
 	}
 
 	/**
-	 * Returns the formatted number with no prefix.
+	 * Returns the unsigned formatted number with prefix and exact digits.
 	 */
-	public static String bin(long value) {
-		return bin(value, 0);
+	public static String hex(long value, String prefix, int digits) {
+		return hex(value, prefix, digits, digits);
 	}
 
 	/**
-	 * Returns the formatted number with no prefix and the exact number of digits.
+	 * Returns the unsigned formatted number with prefix and digit padding/truncation.
 	 */
-	public static String bin(long value, int digits) {
-		return apply(value, Radix.BIN.n, digits, digits);
-	}
-
-	/**
-	 * Returns the formatted number with no prefix and the exact number of byte digits.
-	 */
-	public static String binBytes(long value, int bytes) {
-		return bin(value, Radix.BIN.digits.ubyte() * bytes);
-	}
-
-	/**
-	 * Returns the formatted number.
-	 */
-	public static String apply(long value, int radix, int minDigits, int maxDigits) {
-		return apply(value, radix, minDigits, maxDigits, Separation.NONE);
-	}
-
-	/**
-	 * Returns the formatted number.
-	 */
-	public static String apply(long value, int radix, int minDigits, int maxDigits,
-		Separation separation) {
-		return append(new StringBuilder(), value, radix, minDigits, maxDigits, separation)
-			.toString();
-	}
-
-	/**
-	 * Appends the formatted number.
-	 */
-	public static StringBuilder append(StringBuilder b, long value, int radix, int minDigits,
-		int maxDigits, Separation separation) {
-		if (b == null) return b;
-		separation = Basics.def(separation, Separation.NONE);
-		var s = Long.toUnsignedString(value, radix);
-		int len = s.length();
-		int n = n(len, minDigits, maxDigits);
-		while (n > len)
-			separation.accept(b.append('0'), --n);
-		while (n > 0)
-			separation.accept(b.append(s.charAt(len - n)), --n);
-		return b;
+	public static String hex(long value, String prefix, int minDigits, int maxDigits) {
+		return format(value, true, prefix, Radix.HEX.n, minDigits, maxDigits);
 	}
 
 	public static void main(String[] args) {
-		System.out.println(applyTrunc(123.456789, 0, 0));
-		System.out.println(applyTrunc(123.456789, 0, 3));
-		System.out.println(applyTrunc(123.45, 3, 5));
+		for (var l : List.of(-1L, 0L, 1L, 9L, 10L, -2L, Long.MIN_VALUE, Long.MAX_VALUE))
+			System.out.println(l + " -> " + UDEC_HEX.uint(l));
 	}
 
 	/**
-	 * Returns the formatted number, with decimal places truncated within range.
+	 * Returns the unsigned decimal number and hex if not from 0 to 9.
 	 */
-	public static String applyTrunc(double value, int minDec, int maxDec) {
-		var s = Double.toString(value);
-		if (!Double.isFinite(maxDec) || (minDec == 0 && maxDec == 0)) return s;
+	public static String udecHex(long value) {
+		if (value >= 0L && value <= 9L) return Long.toUnsignedString(value);
+		return Long.toUnsignedString(value) + "|" + hex(value);
+	}
+
+	/**
+	 * Returns the unsigned decimal number and hex if not from 0 to 9.
+	 */
+	public static String udecOrHex(long value) {
+		if (value >= 0L && value <= 9L) return Long.toUnsignedString(value);
+		return hex(value);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix.
+	 */
+	public static String bin(long value) {
+		return bin(value, 0, 0);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix and exact digits.
+	 */
+	public static String bin(long value, int digits) {
+		return bin(value, digits, digits);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix and digit padding/truncation.
+	 */
+	public static String bin(long value, int minDigits, int maxDigits) {
+		return format(value, Radix.BIN, minDigits, maxDigits);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix and exact digits.
+	 */
+	public static String bin(long value, String prefix, int digits) {
+		return bin(value, prefix, digits, digits);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix and digit padding/truncation.
+	 */
+	public static String bin(long value, String prefix, int minDigits, int maxDigits) {
+		return format(value, true, prefix, Radix.BIN.n, minDigits, maxDigits);
+	}
+
+	/**
+	 * Returns the formatted number with prefix, radix, and digit padding/truncation.
+	 */
+	public static String format(long value, boolean unsigned, String prefix, int radix,
+		int minDigits, int maxDigits) {
+		return format(value, unsigned, prefix, radix, minDigits, maxDigits, null);
+	}
+
+	/**
+	 * Returns the formatted number with prefix, radix, digit padding/truncation, and separation.
+	 */
+	public static String format(long value, boolean unsigned, String prefix, int radix,
+		int minDigits, int maxDigits, Separator sep) {
+		if (unsigned || value >= 0) return formatPositive(Long.toUnsignedString(value, radix),
+			prefix, minDigits, maxDigits, sep);
+		return formatNegative(Long.toString(value, radix), prefix, minDigits, maxDigits, sep);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix, radix, and digit padding/truncation.
+	 */
+	public static String format(long value, Radix radix, int minDigits, int maxDigits) {
+		return format(value, radix, minDigits, maxDigits, null);
+	}
+
+	/**
+	 * Returns the unsigned formatted number with prefix, radix, digit padding/truncation, and
+	 * separation.
+	 */
+	public static String format(long value, Radix radix, int minDigits, int maxDigits,
+		Separator sep) {
+		return format(value, true, radix.prefix(), radix.n, minDigits, maxDigits, sep);
+	}
+
+	/**
+	 * Returns the formatted number, with decimal places rounded within range.
+	 */
+	public static String format(double value, int minDec, int maxDec) {
+		if (!Double.isFinite(maxDec)) return Double.toString(value);
+		var s = maxDec <= 0 ? Double.toString(value) : String.format("%." + maxDec + "f", value);
 		int len = s.length();
-		int dec = len - s.indexOf('.') - 1;
-		if (maxDec > 0 && dec > maxDec) s = s.substring(0, len - dec + maxDec);
-		if (minDec > 0 && dec < minDec) s += Strings.repeat('0', minDec - dec);
+		int p = s.indexOf('.');
+		while (len - p - 1 > minDec && Chars.at(s, len - 1) == '0')
+			len--;
+		if (Chars.at(s, len - 1) == '.') return s.substring(0, len - 1);
+		if (len != s.length()) s = s.substring(0, len);
+		if (len - p - 1 < minDec) s += Strings.repeat('0', minDec + p + 1 - len);
 		return s;
 	}
 
-	/**
-	 * Appends the formatted number, with decimal places truncated within range.
-	 */
-	public static StringBuilder appendTrunc(StringBuilder b, double value, int minDec, int maxDec) {
-		if (b == null) return b;
-		var s = Double.toString(value);
-		if (!Double.isFinite(maxDec) || (minDec == 0 && maxDec == 0)) return b.append(s);
+	// support
+
+	private static String formatNegative(String s, String prefix, int min, int max, Separator sep) {
+		int len = s.length() - 1;
+		int n = n(len, min, max);
+		var b = new Appender(s, n, sep).neg().append(prefix);
+		if (n == len) b.digits(s, 1, len);
+		else if (n < len) b.digits(s, len + 1 - n, n);
+		else b.zeros(n - len).digits(s, 1, len);
+		return b.toString();
+	}
+
+	private static String formatPositive(String s, String prefix, int min, int max, Separator sep) {
 		int len = s.length();
-		int dec = len - s.indexOf('.') - 1;
-		if (maxDec > 0 && dec > maxDec) b.append(s, 0, len - dec + maxDec);
-		else b.append(s);
-		if (minDec > 0 && dec < minDec) StringBuilders.repeat(b, '0', minDec - dec);
-		return b;
-	}
-
-	/**
-	 * Creates an unsigned instance with no separation.
-	 */
-	public static Format of(Radix radix, int minDigits) {
-		return of(radix, minDigits, 0);
-	}
-
-	/**
-	 * Creates an unsigned instance with no separation.
-	 */
-	public static Format of(Radix radix, int minDigits, int maxDigits) {
-		return of(radix, minDigits, maxDigits, Separation.NONE);
-	}
-
-	/**
-	 * Creates an unsigned instance with no separation.
-	 */
-	public static Format of(Radix radix, int minDigits, int maxDigits, Separation separation) {
-		return new Format(radix.n, radix.prefix(), minDigits, maxDigits, separation);
-	}
-
-	/**
-	 * Creates an unsigned instance with no separation.
-	 */
-	public static Format of(int radix, String prefix, int minDigits) {
-		return of(radix, prefix, minDigits, 0);
-	}
-
-	/**
-	 * Creates an unsigned instance.
-	 */
-	public static Format of(int radix, String prefix, int minDigits, int maxDigits) {
-		return new Format(radix, prefix, minDigits, maxDigits, Separation.NONE);
-	}
-
-	/**
-	 * Returns the formatted unsigned number.
-	 */
-	public String ubyte(long value) {
-		return apply(Maths.ubyte(value));
-	}
-
-	/**
-	 * Returns the formatted unsigned number, or null string.
-	 */
-	public String ubyte(Number value) {
-		if (value == null) return Strings.NULL;
-		return ubyte(value.longValue());
-	}
-
-	/**
-	 * Returns the formatted unsigned number.
-	 */
-	public String ushort(long value) {
-		return apply(Maths.ushort(value));
-	}
-
-	/**
-	 * Returns the formatted unsigned number, or null string.
-	 */
-	public String ushort(Number value) {
-		if (value == null) return Strings.NULL;
-		return ushort(value.longValue());
-	}
-
-	/**
-	 * Returns the formatted unsigned number.
-	 */
-	public String uint(long value) {
-		return apply(Maths.uint(value));
-	}
-
-	/**
-	 * Returns the formatted unsigned number, or null string.
-	 */
-	public String uint(Number value) {
-		if (value == null) return Strings.NULL;
-		return uint(value.longValue());
-	}
-
-	/**
-	 * Returns the formatted number.
-	 */
-	public String apply(long value) {
-		return append(new StringBuilder(), value).toString();
-	}
-
-	/**
-	 * Returns the formatted number, or null string.
-	 */
-	public String apply(Number value) {
-		if (value == null) return Strings.NULL;
-		return apply(value.longValue());
-	}
-
-	/**
-	 * Appends the formatted number.
-	 */
-	public StringBuilder append(StringBuilder b, long value) {
-		StringBuilders.append(b, prefix());
-		return Format.append(b, value, radix(), minDigits(), maxDigits(), separation());
-	}
-
-	/**
-	 * Appends the formatted number if not null.
-	 */
-	public StringBuilder append(StringBuilder b, Number value) {
-		if (value == null) return b;
-		return append(b, value.longValue());
-	}
-
-	/**
-	 * Return the prefix or empty string.
-	 */
-	public String prefix() {
-		return Basics.def(prefix, "");
-	}
-
-	@Override
-	public final String toString() {
-		return ToString.forClass(this, radix(), prefix(), minDigits(), maxDigits(),
-			Lambdas.name(separation()));
+		int n = n(len, min, max);
+		var b = new Appender(s, n, sep).append(prefix);
+		if (n == len) b.digits(s);
+		else if (n < len) b.digits(s, len - n, n);
+		else b.zeros(n - len).digits(s);
+		return b.toString();
 	}
 
 	private static int n(int len, int min, int max) {

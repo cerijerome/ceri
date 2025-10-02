@@ -1,13 +1,12 @@
 package ceri.common.unit;
 
-import java.util.function.DoubleUnaryOperator;
-import ceri.common.util.Validate;
+import java.util.Objects;
+import ceri.common.function.Functions;
 
 /**
  * Encapsulates a temperature with scale and value.
  */
 public record Temperature(Scale scale, double value) {
-
 	public static final Temperature ZERO_C = Scale.celsius.temperature(0);
 	public static final Temperature ZERO_K = Scale.kelvin.temperature(0);
 	public static final Temperature ZERO_F = Scale.fahrenheit.temperature(0);
@@ -23,34 +22,39 @@ public record Temperature(Scale scale, double value) {
 		fahrenheit("\u00b0F", Conversion.fToK, Conversion.fToC, Conversion.fToR, f -> f);
 
 		public final String symbol;
-		private final DoubleUnaryOperator toK;
-		private final DoubleUnaryOperator toC;
-		private final DoubleUnaryOperator toF;
-		private final DoubleUnaryOperator toR;
+		private final Functions.DoubleOperator toK;
+		private final Functions.DoubleOperator toC;
+		private final Functions.DoubleOperator toF;
+		private final Functions.DoubleOperator toR;
 
 		private static class Conversion {
 			private static final double c0ToK = 273.15;
 			private static final double f0ToR = 459.67;
 			private static final double c0ToF = 32.0;
 			private static final double cfRatio = 1.8;
-			public static final DoubleUnaryOperator cToK = c -> c + c0ToK;
-			public static final DoubleUnaryOperator cToF = c -> c0ToF + (c * cfRatio);
-			public static final DoubleUnaryOperator fToC = f -> (f - c0ToF) / cfRatio;
-			public static final DoubleUnaryOperator fToR = f -> f + f0ToR;
-			public static final DoubleUnaryOperator fToK = fToC.andThen(cToK);
-			public static final DoubleUnaryOperator cToR = cToF.andThen(fToR);
-			public static final DoubleUnaryOperator kToC = k -> k - c0ToK;
-			public static final DoubleUnaryOperator kToF = kToC.andThen(cToF);
-			public static final DoubleUnaryOperator kToR = kToF.andThen(fToR);
-			public static final DoubleUnaryOperator rToF = r -> r - f0ToR;
-			public static final DoubleUnaryOperator rToC = rToF.andThen(fToC);
-			public static final DoubleUnaryOperator rToK = rToC.andThen(cToK);
+			public static final Functions.DoubleOperator cToK = c -> c + c0ToK;
+			public static final Functions.DoubleOperator cToF = c -> c0ToF + (c * cfRatio);
+			public static final Functions.DoubleOperator fToC = f -> (f - c0ToF) / cfRatio;
+			public static final Functions.DoubleOperator fToR = f -> f + f0ToR;
+			public static final Functions.DoubleOperator fToK = and(fToC, cToK);
+			public static final Functions.DoubleOperator cToR = and(cToF, fToR);
+			public static final Functions.DoubleOperator kToC = k -> k - c0ToK;
+			public static final Functions.DoubleOperator kToF = and(kToC, cToF);
+			public static final Functions.DoubleOperator kToR = and(kToF, fToR);
+			public static final Functions.DoubleOperator rToF = r -> r - f0ToR;
+			public static final Functions.DoubleOperator rToC = and(rToF, fToC);
+			public static final Functions.DoubleOperator rToK = and(rToC, cToK);
 
 			private Conversion() {}
+
+			private static Functions.DoubleOperator and(Functions.DoubleOperator first,
+				Functions.DoubleOperator second) {
+				return f -> second.applyAsDouble(first.applyAsDouble(f));
+			}
 		}
 
-		private Scale(String symbol, DoubleUnaryOperator toK, DoubleUnaryOperator toC,
-			DoubleUnaryOperator toR, DoubleUnaryOperator toF) {
+		private Scale(String symbol, Functions.DoubleOperator toK, Functions.DoubleOperator toC,
+			Functions.DoubleOperator toR, Functions.DoubleOperator toF) {
 			this.symbol = symbol;
 			this.toK = toK;
 			this.toC = toC;
@@ -79,7 +83,7 @@ public record Temperature(Scale scale, double value) {
 		}
 
 		public double to(Scale scale, double t) {
-			Validate.validateNotNull(scale);
+			Objects.requireNonNull(scale);
 			return switch (scale) {
 				case kelvin -> toK(t);
 				case rankine -> toR(t);

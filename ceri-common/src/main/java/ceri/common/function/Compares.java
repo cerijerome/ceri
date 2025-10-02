@@ -92,6 +92,13 @@ public class Compares {
 	}
 
 	/**
+	 * Reverses a comparator.
+	 */
+	public static <T> Comparator<T> not(Comparator<? super T> comparator) {
+		return (l, r) -> comparator.compare(r, l);
+	}
+
+	/**
 	 * Nulls first, field access and comparison.
 	 */
 	public static <T, U> Comparator<T> comparing(

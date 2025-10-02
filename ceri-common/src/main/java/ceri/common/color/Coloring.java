@@ -2,7 +2,7 @@ package ceri.common.color;
 
 import java.awt.Color;
 import java.util.Map;
-import ceri.common.collection.Enums;
+import ceri.common.collect.Enums;
 
 /**
  * Opaque color presets.
@@ -41,13 +41,13 @@ public enum Coloring {
 	// CIE illuminants: https://en.wikipedia.org/wiki/Standard_illuminant#Illuminant_series_D
 
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffcdd;"/> */
-	cieD50(XyzColor.CIE_D50.argb()),
+	cieD50(Xyz.CIE_D50.argb()),
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#fffeea;"/> */
-	cieD55(XyzColor.CIE_D55.argb()),
+	cieD55(Xyz.CIE_D55.argb()),
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#ffffff;"/> */
-	cieD65(XyzColor.CIE_D65.argb()),
+	cieD65(Xyz.CIE_D65.argb()),
 	/** <div style="border:1px solid;width:40px;height:20px;background-color:#f7ffff;"/> */
-	cieD75(XyzColor.CIE_D75.argb()),
+	cieD75(Xyz.CIE_D75.argb()),
 
 	// Color temperatures: includes ANSI C78.377 bins (2700K-6500K)
 
@@ -456,6 +456,6 @@ public enum Coloring {
 	 * Calculate lightness of the color, by converting sRGB to CIELUV L* with D65 illuminant.
 	 */
 	public double lightness() {
-		return LuvColor.Ref.CIE_D65.l(argb);
+		return Luv.Ref.CIE_D65.l(argb);
 	}
 }

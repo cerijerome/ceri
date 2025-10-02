@@ -14,7 +14,7 @@ import com.sun.jna.PointerType;
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;

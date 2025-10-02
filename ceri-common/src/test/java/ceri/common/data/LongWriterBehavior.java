@@ -48,7 +48,7 @@ public class LongWriterBehavior {
 	 */
 	private static <E extends Exception> void assertLongs(int size,
 		Consumer<E, LongWriter<?>> action, long... longs) throws E {
-		Holder holder = Holder.of(size);
+		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		assertArray(holder.longs, longs);
 	}
@@ -112,7 +112,7 @@ public class LongWriterBehavior {
 
 		@Override
 		public SimpleLongWriter writeLong(long value) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			longs[offset + index++] = value;
 			return this;
 		}
@@ -122,5 +122,4 @@ public class LongWriterBehavior {
 			return this;
 		}
 	}
-
 }

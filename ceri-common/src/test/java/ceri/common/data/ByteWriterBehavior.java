@@ -119,7 +119,7 @@ public class ByteWriterBehavior {
 	 */
 	private static <E extends Exception> void assertBytes(int size,
 		Consumer<E, ByteWriter<?>> action, byte[] bytes) throws E {
-		Holder holder = Holder.of(size);
+		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		assertArray(holder.bytes, bytes);
 	}
@@ -183,7 +183,7 @@ public class ByteWriterBehavior {
 
 		@Override
 		public SimpleByteWriter writeByte(int value) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			bytes[offset + index++] = (byte) value;
 			return this;
 		}
@@ -193,5 +193,4 @@ public class ByteWriterBehavior {
 			return this;
 		}
 	}
-
 }

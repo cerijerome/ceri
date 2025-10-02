@@ -56,9 +56,9 @@ public class CIoctl {
 	 * </pre>
 	 */
 	public static int _IOC(int inOut, int group, int num, int size) {
-		Validate.validateUbyte(group, "Group");
-		Validate.validateUbyte(num, "Num");
-		Validate.validateRange(size, 0, _IOC_SIZEMASK, "Size");
+		Validate.ubyte(group, "Group");
+		Validate.ubyte(num, "Num");
+		Validate.range(size, 0, _IOC_SIZEMASK, "Size");
 		return inOut | ((size & _IOC_SIZEMASK) << Short.SIZE) | (group << Byte.SIZE) | num;
 	}
 

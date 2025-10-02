@@ -3,16 +3,16 @@ package ceri.common.event;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertTrue;
-import java.util.function.IntConsumer;
 import org.junit.Test;
+import ceri.common.function.Functions;
 
 public class IntListenersBehavior {
 
 	@Test
 	public void shouldAddAndRemoveIntListeners() {
 		int[] count = new int[1];
-		IntConsumer l0 = i -> count[0] += i;
-		IntConsumer l1 = i -> count[0] += (i * 100);
+		Functions.IntConsumer l0 = i -> count[0] += i;
+		Functions.IntConsumer l1 = i -> count[0] += (i * 100);
 		IntListeners ls = IntListeners.of();
 		assertTrue(ls.isEmpty());
 		ls.listen(l0);
@@ -35,8 +35,8 @@ public class IntListenersBehavior {
 	@Test
 	public void shouldDuplicateIntListeners() {
 		IntListeners ls = IntListeners.of();
-		IntConsumer l0 = _ -> {};
-		IntConsumer l1 = _ -> {};
+		Functions.IntConsumer l0 = _ -> {};
+		Functions.IntConsumer l1 = _ -> {};
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l0));
 		assertTrue(ls.listen(l1));
@@ -50,5 +50,4 @@ public class IntListenersBehavior {
 		assertTrue(ls.unlisten(l1));
 		assertFalse(ls.unlisten(l1));
 	}
-
 }

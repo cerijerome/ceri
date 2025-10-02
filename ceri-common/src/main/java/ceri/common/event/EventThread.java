@@ -5,8 +5,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
 
 /**
  * A utility to propagate events to listeners in a separate thread.
@@ -44,7 +44,7 @@ public class EventThread<T>
 
 	@Override
 	public void close() {
-		CloseableUtil.close(executor);
+		Closeables.close(executor);
 	}
 
 	private void loop() {

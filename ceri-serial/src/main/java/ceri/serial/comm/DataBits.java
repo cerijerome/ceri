@@ -1,6 +1,6 @@
 package ceri.serial.comm;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.serial.comm.jna.CSerial;
 
 public enum DataBits {
@@ -9,7 +9,7 @@ public enum DataBits {
 	_7(CSerial.DATABITS_7),
 	_8(CSerial.DATABITS_8);
 
-	private static final TypeTranscoder<DataBits> xcoder = TypeTranscoder.of(t -> t.bits, DataBits.class);
+	private static final Xcoder.Type<DataBits> xcoder = Xcoder.type(DataBits.class, t -> t.bits);
 	public final int bits;
 
 	public static DataBits from(int bits) {

@@ -59,7 +59,7 @@ public class ValueConditionBehavior {
 	public void shouldProvideStringRepresentation() {
 		ValueCondition<Integer> flag = ValueCondition.of();
 		assertEquals(flag.toString(), "[null];hold=0;queue=0");
-		ConcurrentUtil.lockedRun(flag.lock, () -> {
+		Concurrent.lockedRun(flag.lock, () -> {
 			assertEquals(flag.toString(), "[null];hold=1;queue=0");
 			try (var exec = threadCall(() -> flag.toString())) {
 				assertEquals(exec.get(), "empty;hold=0;queue=0");

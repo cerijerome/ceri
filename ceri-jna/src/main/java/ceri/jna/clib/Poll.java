@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.common.stream.Streams;
 import ceri.common.time.TimeSpec;
@@ -27,9 +27,8 @@ public class Poll implements Iterable<Poll.Fd> {
 		POLLPRI(CPoll.POLLPRI),
 		POLLOUT(CPoll.POLLOUT);
 
-		private static final TypeTranscoder<Event> xcoder =
-			TypeTranscoder.of(t -> t.value, Event.class);
-		public static final int MASK = xcoder.encodeAllInt();
+		private static final Xcoder.Types<Event> xcoder = Xcoder.types(Event.class);
+		public static final int MASK = xcoder.maskInt();
 		public final int value;
 
 		private Event(int value) {
@@ -45,9 +44,8 @@ public class Poll implements Iterable<Poll.Fd> {
 		POLLHUP(CPoll.POLLHUP),
 		POLLNVAL(CPoll.POLLNVAL);
 
-		private static final TypeTranscoder<Error> xcoder =
-			TypeTranscoder.of(t -> t.value, Error.class);
-		public static final int MASK = xcoder.encodeAllInt();
+		private static final Xcoder.Types<Error> xcoder = Xcoder.types(Error.class);
+		public static final int MASK = xcoder.maskInt();
 		public final int value;
 
 		private Error(int value) {

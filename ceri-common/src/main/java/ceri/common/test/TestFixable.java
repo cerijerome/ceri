@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import ceri.common.event.Listenable;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.Fixable;
 import ceri.common.io.StateChange;
 import ceri.common.text.ToString;

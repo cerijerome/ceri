@@ -1,84 +1,56 @@
 package ceri.common.svg;
 
-import java.util.Objects;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
-import ceri.common.text.ToString;
 
-public class LineTo implements Path<LineTo> {
-	public final Position position;
+public record LineTo(Position position) implements Path<LineTo> {
 
 	public static LineTo absolute(Point2d p) {
-		return absolute(p.x, p.y);
+		return absolute(p.x(), p.y());
 	}
 
 	public static LineTo absolute(double x, double y) {
-		return create(Position.absolute(x, y));
+		return new LineTo(Position.absolute(x, y));
 	}
 
 	public static LineTo relative(Point2d p) {
-		return relative(p.x, p.y);
+		return relative(p.x(), p.y());
 	}
 
 	public static LineTo relative(double x, double y) {
-		return create(Position.relative(x, y));
-	}
-
-	public static LineTo create(Position position) {
-		return new LineTo(position);
-	}
-
-	private LineTo(Position position) {
-		this.position = position;
+		return new LineTo(Position.relative(x, y));
 	}
 
 	@Override
 	public LineTo reverse() {
-		return new LineTo(position.reverse());
+		return new LineTo(position().reverse());
 	}
 
 	@Override
 	public LineTo reflect(Line2d line) {
-		return new LineTo(position.reflect(line));
+		return new LineTo(position().reflect(line));
 	}
 
 	@Override
 	public LineTo scale(Ratio2d scale) {
-		return new LineTo(position.scale(scale));
+		return new LineTo(position().scale(scale));
 	}
 
 	@Override
 	public LineTo translate(Point2d offset) {
-		Position position = this.position.translate(offset);
-		if (position == this.position) return this;
-		return new LineTo(position);
+		var position = position().translate(offset);
+		return position == position() ? this : new LineTo(position);
 	}
 
 	@Override
 	public Position end() {
-		return position;
+		return position();
 	}
 
 	@Override
-	public String path() {
-		return String.format("%s%s,%s", position.absolute() ? "L" : "l", SvgUtil.string(position.x),
-			SvgUtil.string(position.y));
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(position);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		return (obj instanceof LineTo other) && Objects.equals(position, other.position);
-	}
-
-	@Override
-	public String toString() {
-		return ToString.forClass(this, position);
+	public String d() {
+		return String.format("%s%s,%s", position().absolute() ? "L" : "l",
+			Svg.string(position().x()), Svg.string(position().y()));
 	}
 }

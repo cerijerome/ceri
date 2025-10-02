@@ -8,8 +8,8 @@ import static ceri.common.test.AssertUtil.fail;
 import java.util.List;
 import java.util.PrimitiveIterator;
 import org.junit.Test;
-import ceri.common.collection.Iterables;
-import ceri.common.collection.Iterators;
+import ceri.common.collect.Iterables;
+import ceri.common.collect.Iterators;
 import ceri.common.test.Captor;
 
 public class IntStreamBehavior {

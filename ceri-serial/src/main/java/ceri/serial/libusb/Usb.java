@@ -3,7 +3,7 @@ package ceri.serial.libusb;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.Level;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.UsbDevice.Devices;

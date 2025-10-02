@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.throwIt;
 import static ceri.common.test.ErrorGen.RIX;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.Functions;
 import ceri.common.test.CallSync;
@@ -20,10 +20,10 @@ public class DispatcherBehavior {
 			try (var _ = disp.listen(sync::signal)) {
 				disp.dispatch("test");
 				assertEquals(sync.await(), "test");
-				ConcurrentUtil.delay(1); // to cover null queue poll
+				Concurrent.delay(1); // to cover null queue poll
 			}
 			disp.dispatch("test");
-			ConcurrentUtil.delay(1); // to cover dispatch with no listeners
+			Concurrent.delay(1); // to cover dispatch with no listeners
 		}
 	}
 

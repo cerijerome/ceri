@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.FunctionUtil;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.reflect.Reflect;
@@ -59,7 +59,7 @@ public class ErrorGen {
 	public void set(Exception... errors) {
 		if (errors.length == 0) clear();
 		else {
-			var sequential = FunctionUtil.sequentialSupplier(errors);
+			var sequential = Functional.sequentialSupplier(errors);
 			var name = Streams.of(errors).map(e -> name(e)).collect(JOINER);
 			setErrorFn(sequential, name);
 		}
@@ -73,9 +73,9 @@ public class ErrorGen {
 	public final void setFrom(Functions.Supplier<? extends Exception>... errorFns) {
 		if (errorFns.length == 0) clear();
 		else {
-			var sequential = FunctionUtil.sequentialSupplier(errorFns);
+			var sequential = Functional.sequentialSupplier(errorFns);
 			var name = Streams.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
-			setErrorFn(() -> FunctionUtil.safeApply(sequential.get(), Functions.Supplier::get),
+			setErrorFn(() -> Functional.safeApply(sequential.get(), Functions.Supplier::get),
 				name);
 		}
 	}
@@ -106,7 +106,7 @@ public class ErrorGen {
 	 * Execute the error generator if set. Exceptions are adapted according to the adapter.
 	 */
 	public <E extends Exception> void call(ExceptionAdapter<E> adapter) throws E {
-		var ex = FunctionUtil.safeApply(errorFn, Functions.Supplier::get);
+		var ex = Functional.safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -125,7 +125,7 @@ public class ErrorGen {
 	 */
 	public <E extends Exception> void callWithInterrupt(ExceptionAdapter<E> adapter)
 		throws InterruptedException, E {
-		var ex = FunctionUtil.safeApply(errorFn, Functions.Supplier::get);
+		var ex = Functional.safeApply(errorFn, Functions.Supplier::get);
 		if (ex == null) return;
 		try {
 			throw ex;

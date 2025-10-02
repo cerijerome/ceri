@@ -12,8 +12,8 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.test.TestFixable;
-import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingBehavior {
@@ -40,7 +40,7 @@ public class SelfHealingBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(device, fixable);
+		Closeables.close(device, fixable);
 		device = null;
 		fixable = null;
 	}

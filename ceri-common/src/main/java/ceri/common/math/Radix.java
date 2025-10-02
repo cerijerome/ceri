@@ -3,10 +3,10 @@ package ceri.common.math;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import ceri.common.collection.Enums;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Enums;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 import ceri.common.util.Validate;
@@ -79,7 +79,7 @@ public enum Radix {
 	 * Validate radix is within java supported range.
 	 */
 	public static int validate(int radix) {
-		Validate.validateRange(radix, MIN, MAX, "Radix");
+		Validate.range(radix, MIN, MAX, "Radix");
 		return radix;
 	}
 

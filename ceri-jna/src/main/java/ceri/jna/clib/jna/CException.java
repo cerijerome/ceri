@@ -1,8 +1,8 @@
 package ceri.jna.clib.jna;
 
 import java.io.IOException;
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.text.Strings;

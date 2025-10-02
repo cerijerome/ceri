@@ -6,7 +6,6 @@ import static ceri.common.math.Maths.PI_BY_2;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
 import static java.lang.Math.PI;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -39,17 +38,14 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldOnlyAllowPositiveRadius() {
-		assertThrown(() -> Cone3d.create(-0.1, 2));
 		assertEquals(Polar2d.from(Point2d.ZERO), Polar2d.ZERO);
 	}
 
 	@Test
 	public void shouldConvertPoints() {
-		assertApprox(p0.asPoint().x, 1);
-		assertApprox(p0.asPoint().y, 1.732);
-		assertEquals(p1.r, 5.0);
-		assertEquals(p1.asPoint(), Point2d.of(4, 3));
-
+		assertApprox(p0.point().x(), 1);
+		assertApprox(p0.point().y(), 1.732);
+		assertEquals(p1.r(), 5.0);
+		assertEquals(p1.point(), Point2d.of(4, 3));
 	}
-
 }

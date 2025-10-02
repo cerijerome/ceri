@@ -6,7 +6,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.util.GcMemory;
 
 public class IntTypeBehavior {
@@ -60,7 +60,7 @@ public class IntTypeBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(m);
+		Closeables.close(m);
 		m = null;
 	}
 

@@ -3,7 +3,7 @@ package ceri.common.math;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 

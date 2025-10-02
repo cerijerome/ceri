@@ -31,9 +31,9 @@ public class Chars {
 	 * Char escape support.
 	 */
 	public static class Escape {
-		public static Formats.OfLong UTF16 = Formats.ofLong("\\u", Radix.HEX.n, 4, 4);
-		public static Formats.OfLong OCT = Formats.ofLong("\\", Radix.OCT.n, 1, 3);
-		public static Formats.OfLong HEX = Formats.ofLong("\\x", Radix.HEX.n, 2, 2); // not standard
+		public static Format.OfLong UTF16 = Format.ofLong("\\u", Radix.HEX.n, 4, 4);
+		public static Format.OfLong OCT = Format.ofLong("\\", Radix.OCT.n, 1, 3);
+		public static Format.OfLong HEX = Format.ofLong("\\x", Radix.HEX.n, 2, 2); // not standard
 		private static final Pattern REGEX = // java literal + regex compile => 4:1 backslashes
 			Pattern.compile("\\\\\\\\|\\\\b|\\\\t|\\\\n|\\\\f|\\\\r|\\\\e"
 				+ "|\\\\[0-3]?[0-7]?[0-7]|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}");
@@ -193,11 +193,11 @@ public class Chars {
 		int c = decode(escapedChar, Escape.UTF16);
 		if (c == -1) c = decode(escapedChar, Escape.HEX);
 		if (c == -1) c = decode(escapedChar, Escape.OCT);
-		Validate.validateMin(c, 0, "Escaped char");
+		Validate.min(c, 0, "Escaped char");
 		return (char) c;
 	}
 
-	private static int decode(String escapedChar, Formats.OfLong format) {
+	private static int decode(String escapedChar, Format.OfLong format) {
 		if (!escapedChar.startsWith(format.prefix())) return -1;
 		return Integer.parseUnsignedInt(escapedChar, format.prefix().length(), escapedChar.length(),
 			format.radix());

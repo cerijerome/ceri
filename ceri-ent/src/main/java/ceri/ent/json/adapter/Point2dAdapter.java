@@ -19,7 +19,6 @@ public class Point2dAdapter {
 	}
 
 	private static JsonElement serialize(Point2d value, JsonSerializationContext context) {
-		return context.serialize(new double[] { value.x, value.y });
+		return context.serialize(new double[] { value.x(), value.y() });
 	}
-
 }

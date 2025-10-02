@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import ceri.common.except.Exceptions;
 import ceri.common.util.Validate;
 
 /**
@@ -36,8 +37,7 @@ public interface ByteAccessor extends ByteProvider, ByteReceiver {
 	default ByteAccessor slice(int index, int length) {
 		if (length == 0) return Null.EMPTY;
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	static class Null implements ByteAccessor {
@@ -55,19 +55,19 @@ public interface ByteAccessor extends ByteProvider, ByteReceiver {
 
 		@Override
 		public byte getByte(int index) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			return 0;
 		}
 
 		@Override
 		public int setByte(int index, int value) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			return index + 1;
 		}
 
 		@Override
 		public ByteAccessor slice(int index, int length) {
-			if (Validate.validateFullSlice(length(), index, length)) return this;
+			if (Validate.slice(length(), index, length)) return this;
 			return ByteAccessor.ofNull(length);
 		}
 	}

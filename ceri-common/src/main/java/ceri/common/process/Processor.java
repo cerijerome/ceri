@@ -161,7 +161,7 @@ public class Processor {
 
 	private void verifyErr(Process process) throws IOException {
 		if (!verifyErr) return;
-		var err = ProcessUtil.stdErr(process);
+		var err = Processes.stdErr(process);
 		if (!Strings.isBlank(err)) throw new IOException(err.trim());
 	}
 

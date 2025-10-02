@@ -9,18 +9,18 @@ import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class TruncatedRadial3dBehavior {
-	private final Cone3d c0 = Cone3d.create(1, 4);
+	private final Cone c0 = Cone.of(1, 4);
 	private final Spheroid3d s0 = Spheroid3d.create(4, 2);
-	private final TruncatedRadial3d<Cone3d> t0 = TruncatedRadial3d.create(c0, 1, 2);
+	private final TruncatedRadial3d<Cone> t0 = TruncatedRadial3d.create(c0, 1, 2);
 	private final TruncatedRadial3d<Spheroid3d> t1 = TruncatedRadial3d.create(s0, 0, 2);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1.1, 4), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 3.9), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 0.9, 2));
-		assertNotEquals(t0, TruncatedRadial3d.create(Cone3d.create(1, 4), 1, 2.1));
+		TestUtil.exerciseEquals(t0, TruncatedRadial3d.create(Cone.of(1, 4), 1, 2));
+		assertNotEquals(t0, TruncatedRadial3d.create(Cone.of(1.1, 4), 1, 2));
+		assertNotEquals(t0, TruncatedRadial3d.create(Cone.of(1, 3.9), 1, 2));
+		assertNotEquals(t0, TruncatedRadial3d.create(Cone.of(1, 4), 0.9, 2));
+		assertNotEquals(t0, TruncatedRadial3d.create(Cone.of(1, 4), 1, 2.1));
 	}
 
 	@Test
@@ -97,5 +97,4 @@ public class TruncatedRadial3dBehavior {
 		assertApprox(t0.volume(), 1.702);
 		assertApprox(t1.volume(), 67.021);
 	}
-
 }

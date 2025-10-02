@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Collectable;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Collectable;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.math.Maths;
 
 /**

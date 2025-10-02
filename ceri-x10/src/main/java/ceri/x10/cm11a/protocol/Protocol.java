@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 public enum Protocol {
 	OK(0x00),
@@ -13,7 +13,7 @@ public enum Protocol {
 	RING_DISABLE(0xdb),
 	RING_ENABLE(0xeb);
 
-	private static final TypeTranscoder<Protocol> xcoder = TypeTranscoder.of(t -> t.value, Protocol.class);
+	public static final Xcoder.Type<Protocol> xcoder = Xcoder.type(Protocol.class);
 	public final int value;
 
 	public static Protocol from(int value) {

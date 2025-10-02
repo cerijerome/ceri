@@ -15,9 +15,9 @@ public class Ellipsoid3d {
 
 	public static Ellipsoid3d create(double a, double b, double c) {
 		if (a == 0 && b == 0 && c == 0) return NULL;
-		Validate.validateMinFp(a, 0, "Axis a");
-		Validate.validateMinFp(b, 0, "Axis b");
-		Validate.validateMinFp(c, 0, "Axis c");
+		Validate.finiteMin(a, 0);
+		Validate.finiteMin(b, 0);
+		Validate.finiteMin(c, 0);
 		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 

@@ -44,7 +44,7 @@ public class BinarySemaphoreBehavior {
 			assertThrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)
-				ConcurrentUtil.delay(1);
+				Concurrent.delay(1);
 			bs.close();
 			x.get();
 		}
@@ -57,7 +57,7 @@ public class BinarySemaphoreBehavior {
 			assertThrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)
-				ConcurrentUtil.delay(1);
+				Concurrent.delay(1);
 		}
 	}
 

@@ -12,7 +12,7 @@ import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;

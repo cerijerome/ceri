@@ -4,7 +4,7 @@ import static ceri.common.net.NetUtil.LOCALHOST;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.net.HostPort;
 import ceri.common.process.Parameters;
 import ceri.ent.mongo.MongoUtil;

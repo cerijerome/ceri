@@ -15,7 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
@@ -269,6 +269,6 @@ public class LibFtdiStream {
 	}
 
 	private static double secDiff(Instant instant1, Instant instant2) {
-		return DateUtil.seconds(Duration.between(instant1, instant2));
+		return Dates.seconds(Duration.between(instant1, instant2));
 	}
 }

@@ -7,21 +7,21 @@ import static ceri.common.test.AssertUtil.assertTrue;
 import java.time.Month;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.x10.command.House;
 
 public class ClockBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		var t = Clock.builder().date(DateUtil.UTC_EPOCH).build();
-		var eq0 = Clock.builder().date(DateUtil.UTC_EPOCH).build();
+		var t = Clock.builder().date(Dates.UTC_EPOCH).build();
+		var eq0 = Clock.builder().date(Dates.UTC_EPOCH).build();
 		var ne0 = Clock.of();
 		var ne1 = Clock.of(House.B);
-		var ne2 = Clock.builder().date(DateUtil.UTC_EPOCH).house(House.C).build();
-		var ne3 = Clock.builder().date(DateUtil.UTC_EPOCH).clearBatteryTimer(true).build();
-		var ne4 = Clock.builder().date(DateUtil.UTC_EPOCH).clearMonitoredStatus(true).build();
-		var ne5 = Clock.builder().date(DateUtil.UTC_EPOCH).purgeTimer(true).build();
+		var ne2 = Clock.builder().date(Dates.UTC_EPOCH).house(House.C).build();
+		var ne3 = Clock.builder().date(Dates.UTC_EPOCH).clearBatteryTimer(true).build();
+		var ne4 = Clock.builder().date(Dates.UTC_EPOCH).clearMonitoredStatus(true).build();
+		var ne5 = Clock.builder().date(Dates.UTC_EPOCH).purgeTimer(true).build();
 		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
@@ -42,7 +42,7 @@ public class ClockBehavior {
 
 	@Test
 	public void shouldEncode() {
-		Clock clock = Clock.builder().date(DateUtil.UTC_EPOCH).house(House.E)
+		Clock clock = Clock.builder().date(Dates.UTC_EPOCH).house(House.E)
 			.clearBatteryTimer(true).clearMonitoredStatus(true).purgeTimer(true).build();
 		assertArray(clock.encode(), 0x9b, 0, 0, 0, 1, 0x4, 0x17);
 	}

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 
 /**
  * Utility to send and receive datagrams.
@@ -128,7 +128,7 @@ public class UdpChannel implements AutoCloseable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(channel);
+		Closeables.close(channel);
 	}
 
 	private void send(InetSocketAddress address, ByteProvider bytes) throws IOException {

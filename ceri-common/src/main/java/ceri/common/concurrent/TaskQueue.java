@@ -52,7 +52,7 @@ public class TaskQueue<E extends Exception> {
 		}
 
 		private T set(T result, Exception ex) {
-			return ConcurrentUtil.lockedGet(queue.lock, () -> {
+			return Concurrent.lockedGet(queue.lock, () -> {
 				this.result = result;
 				this.ex = ex;
 				sync.signalAll();
@@ -61,8 +61,8 @@ public class TaskQueue<E extends Exception> {
 		}
 
 		private T get(Integer timeout, TimeUnit unit) throws E {
-			return ConcurrentUtil.lockedGet(queue.lock, () -> {
-				if (!ConcurrentUtil.await(sync, timeout, unit)) return null;
+			return Concurrent.lockedGet(queue.lock, () -> {
+				if (!Concurrent.await(sync, timeout, unit)) return null;
 				return result();
 			});
 		}
@@ -112,14 +112,14 @@ public class TaskQueue<E extends Exception> {
 	 * Executes the action, waits for it to complete, and returns the result.
 	 */
 	public <T> T executeGet(Supplier<E, T> action) throws E {
-		return ConcurrentUtil.lockedGet(lock, () -> add(action).get(null, null));
+		return Concurrent.lockedGet(lock, () -> add(action).get(null, null));
 	}
 
 	/**
 	 * Executes the action, waits for it to complete, and returns the result.
 	 */
 	public <T> T executeGet(Supplier<E, T> action, int timeout, TimeUnit unit) throws E {
-		return ConcurrentUtil.lockedGet(lock, () -> add(action).get(timeout, unit));
+		return Concurrent.lockedGet(lock, () -> add(action).get(timeout, unit));
 	}
 
 	/**
@@ -137,8 +137,8 @@ public class TaskQueue<E extends Exception> {
 	}
 
 	private boolean processNextTask(Integer timeout, TimeUnit unit) throws E {
-		Task<E, ?> task = ConcurrentUtil.lockedGet(lock, () -> {
-			if (queue.isEmpty()) ConcurrentUtil.await(sync, timeout, unit);
+		Task<E, ?> task = Concurrent.lockedGet(lock, () -> {
+			if (queue.isEmpty()) Concurrent.await(sync, timeout, unit);
 			return queue.poll();
 		});
 		if (task == null) return false;

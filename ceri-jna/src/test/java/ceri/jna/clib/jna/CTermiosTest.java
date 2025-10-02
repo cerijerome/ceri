@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.test.TestCLibNative;
@@ -20,7 +20,7 @@ public class CTermiosTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 		fd = -1;
 	}
 

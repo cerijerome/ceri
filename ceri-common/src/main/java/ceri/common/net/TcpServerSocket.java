@@ -8,9 +8,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts.Consumer;
-import ceri.common.util.CloseableUtil;
 
 /**
  * A server socket that passes newly connected sockets to a listener.
@@ -40,7 +40,7 @@ public class TcpServerSocket implements Closeable {
 	 * returning from the listener callback. The returned future can be used to interrupt listening.
 	 */
 	public Future<?> listenAndClose(Consumer<IOException, TcpSocket> listener) {
-		return listen(socket -> CloseableUtil.acceptOrClose(socket, listener));
+		return listen(socket -> Closeables.acceptOrClose(socket, listener));
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class TcpServerSocket implements Closeable {
 	 * listening.
 	 */
 	public Future<?> listen(Consumer<IOException, TcpSocket> listener) {
-		return ConcurrentUtil.submit(exec, () -> listenAndNotify(listener));
+		return Concurrent.submit(exec, () -> listenAndNotify(listener));
 	}
 
 	public HostPort hostPort() {
@@ -63,7 +63,7 @@ public class TcpServerSocket implements Closeable {
 	@Override
 	public void close() {
 		if (closed.getAndSet(true)) return;
-		CloseableUtil.close(serverSocket, exec); // must shut down socket first
+		Closeables.close(serverSocket, exec); // must shut down socket first
 	}
 
 	@SuppressWarnings("resource")
@@ -71,12 +71,12 @@ public class TcpServerSocket implements Closeable {
 		Socket socket = null;
 		try {
 			while (!closed.get()) {
-				ConcurrentUtil.checkRuntimeInterrupted();
+				Concurrent.checkRuntimeInterrupted();
 				socket = serverSocket.accept();
 				listener.accept(TcpSocket.wrap(socket));
 			}
 		} catch (RuntimeException | IOException e) {
-			CloseableUtil.close(socket);
+			Closeables.close(socket);
 			if (!closed.get()) throw e;
 		}
 	}

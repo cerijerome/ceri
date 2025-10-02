@@ -1,7 +1,7 @@
 package ceri.common.data;
 
 import ceri.common.array.ArrayUtil;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.text.Chars;
 import ceri.common.util.Validate;
 
@@ -13,7 +13,7 @@ public class DataUtil {
 	 * Validate minimum data size.
 	 */
 	public static void requireMin(ByteProvider.Reader<?> r, int size) {
-		Validate.validateMin(r.remaining(), size, "Remaining bytes");
+		Validate.min(r.remaining(), size, "Remaining bytes");
 	}
 
 	/**
@@ -98,8 +98,8 @@ public class DataUtil {
 	 * If the array is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, byte[] bytes, int offset, int length) {
-		Validate.validateSlice(bytes.length, offset, length);
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes[offset]) continue;
@@ -128,7 +128,7 @@ public class DataUtil {
 	 * If the byte provider is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expect(ByteReader r, ByteProvider bytes, int offset, int length) {
-		Validate.validateSlice(bytes.length(), offset, length);
+		Validate.slice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;
@@ -166,7 +166,7 @@ public class DataUtil {
 	 * length bytes. If the array is invalid, reading does not start, and an exception is thrown.
 	 */
 	public static void expectAll(ByteReader r, byte[] bytes, int offset, int length) {
-		Validate.validateSlice(bytes.length, offset, length);
+		Validate.slice(bytes.length, offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes[offset]) continue;
@@ -199,7 +199,7 @@ public class DataUtil {
 	 * thrown.
 	 */
 	public static void expectAll(ByteReader r, ByteProvider bytes, int offset, int length) {
-		Validate.validateSlice(bytes.length(), offset, length);
+		Validate.slice(bytes.length(), offset, length);
 		for (int i = 0; i < length; i++, offset++) {
 			byte b = r.readByte();
 			if (b == bytes.getByte(offset)) continue;

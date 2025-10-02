@@ -298,11 +298,11 @@ public class ColorsTest {
 
 	@Test
 	public void testScaleHsbColors() {
-		assertHsb(Colors.scaleHsb(HsbColor.of(0.5, 0.8, 0.4), HsbColor.of(0.9, 0.4, 0.6), 0.0), 0.5,
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.0), 0.5,
 			0.8, 0.4);
-		assertHsb(Colors.scaleHsb(HsbColor.of(0.5, 0.8, 0.4), HsbColor.of(0.9, 0.4, 0.6), 0.5), 0.7,
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.5), 0.7,
 			0.6, 0.5);
-		assertHsb(Colors.scaleHsb(HsbColor.of(0.5, 0.8, 0.4), HsbColor.of(0.9, 0.4, 0.6), 1.0), 0.9,
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 1.0), 0.9,
 			0.4, 0.6);
 	}
 

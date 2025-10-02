@@ -1,6 +1,6 @@
 package ceri.log.concurrent;
 
-import static ceri.common.concurrent.ConcurrentUtil.delayMicros;
+import static ceri.common.concurrent.Concurrent.delayMicros;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;

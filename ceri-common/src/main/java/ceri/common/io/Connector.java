@@ -4,12 +4,12 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.util.Named;
+import ceri.common.util.Capability;
 
 /**
  * A general hardware connector that provides input and output data streams.
  */
-public interface Connector extends Closeable, Named {
+public interface Connector extends Closeable, Capability.Name {
 	/**
 	 * The hardware input stream.
 	 */

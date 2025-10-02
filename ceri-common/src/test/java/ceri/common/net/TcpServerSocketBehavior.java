@@ -4,7 +4,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.test.CallSync;
 
 public class TcpServerSocketBehavior {
@@ -24,7 +24,7 @@ public class TcpServerSocketBehavior {
 	@Test
 	public void shouldStopListeningOnInterrupt() throws IOException {
 		try (var ss = TcpServerSocket.of()) {
-			ConcurrentUtil.interrupt();
+			Concurrent.interrupt();
 			ss.listenAndClose(_ -> {});
 		}
 	}

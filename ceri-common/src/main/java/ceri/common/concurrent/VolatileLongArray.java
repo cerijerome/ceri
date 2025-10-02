@@ -67,7 +67,7 @@ public class VolatileLongArray implements LongAccessor {
 
 	@Override
 	public VolatileLongArray slice(int offset, int length) {
-		Validate.validateSlice(length(), offset, length);
+		Validate.slice(length(), offset, length);
 		return new VolatileLongArray(array, this.offset + offset, length);
 	}
 

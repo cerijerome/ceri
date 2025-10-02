@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.util.Basics;
 
 /**
@@ -14,8 +14,7 @@ public enum DeviceMode {
 	/** Use a test device or emulator / device is in test mode. */
 	test(2);
 
-	public static final TypeTranscoder<DeviceMode> xcoder =
-		TypeTranscoder.of(t -> t.value, DeviceMode.class);
+	public static final Xcoder.Type<DeviceMode> xcoder = Xcoder.type(DeviceMode.class);
 	public final int value;
 
 	public static boolean enabled(DeviceMode mode) {

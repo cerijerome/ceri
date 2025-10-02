@@ -70,7 +70,7 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(long[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -95,10 +95,9 @@ public interface LongWriter<T extends LongWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(LongProvider provider, int offset, int length) {
-		Validate.validateSlice(provider.length(), offset, length);
+		Validate.slice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeLong(provider.getLong(offset + i));
 		return Reflect.unchecked(this);
 	}
-
 }

@@ -1,9 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.math.Maths.ubyte;
-import static ceri.common.math.Maths.ushort;
-import static ceri.common.util.Basics.ternary;
-import static ceri.serial.libusb.jna.LibUsbUtil.require;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -18,9 +14,10 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
+import ceri.common.math.Maths;
 import ceri.common.util.Basics;
-import ceri.jna.clib.jna.CTime.timeval;
+import ceri.jna.clib.jna.CTime;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.type.Struct;
 import ceri.jna.type.Struct.Fields;
@@ -99,8 +96,8 @@ public class LibUsb {
 		LIBUSB_CLASS_APPLICATION(0xfe),
 		LIBUSB_CLASS_VENDOR_SPEC(0xff);
 
-		public static final TypeTranscoder<libusb_class_code> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_class_code.class);
+		public static final Xcoder.Type<libusb_class_code> xcoder =
+			Xcoder.type(libusb_class_code.class);
 		public final int value;
 
 		libusb_class_code(int value) {
@@ -126,8 +123,8 @@ public class LibUsb {
 		LIBUSB_DT_SUPERSPEED_HUB(0x2a),
 		LIBUSB_DT_SS_ENDPOINT_COMPANION(0x30);
 
-		public static final TypeTranscoder<libusb_descriptor_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_descriptor_type.class);
+		public static final Xcoder.Type<libusb_descriptor_type> xcoder =
+			Xcoder.type(libusb_descriptor_type.class);
 		public final int value;
 
 		libusb_descriptor_type(int value) {
@@ -145,8 +142,8 @@ public class LibUsb {
 		/** device-to-host */
 		LIBUSB_ENDPOINT_IN(0x80);
 
-		public static final TypeTranscoder<libusb_endpoint_direction> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_endpoint_direction.class);
+		public static final Xcoder.Type<libusb_endpoint_direction> xcoder =
+			Xcoder.type(libusb_endpoint_direction.class);
 		public final int value;
 
 		libusb_endpoint_direction(int value) {
@@ -164,8 +161,8 @@ public class LibUsb {
 		LIBUSB_ENDPOINT_TRANSFER_TYPE_BULK(2),
 		LIBUSB_ENDPOINT_TRANSFER_TYPE_INTERRUPT(3);
 
-		public static final TypeTranscoder<libusb_endpoint_transfer_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_endpoint_transfer_type.class);
+		public static final Xcoder.Type<libusb_endpoint_transfer_type> xcoder =
+			Xcoder.type(libusb_endpoint_transfer_type.class);
 		public final int value;
 
 		libusb_endpoint_transfer_type(int value) {
@@ -193,8 +190,8 @@ public class LibUsb {
 		LIBUSB_REQUEST_SET_SEL(0x30),
 		LIBUSB_REQUEST_SET_ISOCH_DELAY(0x31); // LIBUSB_SET_ISOCH_DELAY
 
-		public static final TypeTranscoder<libusb_standard_request> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_standard_request.class);
+		public static final Xcoder.Type<libusb_standard_request> xcoder =
+			Xcoder.type(libusb_standard_request.class);
 		public final int value;
 
 		libusb_standard_request(int value) {
@@ -212,8 +209,8 @@ public class LibUsb {
 		LIBUSB_REQUEST_TYPE_VENDOR(0x02 << 5),
 		LIBUSB_REQUEST_TYPE_RESERVED(0x03 << 5);
 
-		public static final TypeTranscoder<libusb_request_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_request_type.class);
+		public static final Xcoder.Type<libusb_request_type> xcoder =
+			Xcoder.type(libusb_request_type.class);
 		public final int value;
 
 		libusb_request_type(int value) {
@@ -231,8 +228,8 @@ public class LibUsb {
 		LIBUSB_RECIPIENT_ENDPOINT(0x02),
 		LIBUSB_RECIPIENT_OTHER(0x03);
 
-		public static final TypeTranscoder<libusb_request_recipient> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_request_recipient.class);
+		public static final Xcoder.Type<libusb_request_recipient> xcoder =
+			Xcoder.type(libusb_request_recipient.class);
 		public final int value;
 
 		libusb_request_recipient(int value) {
@@ -250,8 +247,8 @@ public class LibUsb {
 		LIBUSB_ISO_SYNC_TYPE_ADAPTIVE(2),
 		LIBUSB_ISO_SYNC_TYPE_SYNC(3);
 
-		public static final TypeTranscoder<libusb_iso_sync_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_iso_sync_type.class);
+		public static final Xcoder.Type<libusb_iso_sync_type> xcoder =
+			Xcoder.type(libusb_iso_sync_type.class);
 		public final int value;
 
 		libusb_iso_sync_type(int value) {
@@ -268,8 +265,8 @@ public class LibUsb {
 		LIBUSB_ISO_USAGE_TYPE_FEEDBACK(1),
 		LIBUSB_ISO_USAGE_TYPE_IMPLICIT(2);
 
-		public static final TypeTranscoder<libusb_iso_usage_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_iso_usage_type.class);
+		public static final Xcoder.Type<libusb_iso_usage_type> xcoder =
+			Xcoder.type(libusb_iso_usage_type.class);
 		public final int value;
 
 		libusb_iso_usage_type(int value) {
@@ -286,8 +283,8 @@ public class LibUsb {
 		LIBUSB_HIGH_SPEED_OPERATION(1 << 2), // 480 Mbit/s
 		LIBUSB_SUPER_SPEED_OPERATION(1 << 3); // 5000 Mbit/s
 
-		public static final TypeTranscoder<libusb_supported_speed> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_supported_speed.class);
+		public static final Xcoder.Types<libusb_supported_speed> xcoder =
+			Xcoder.types(libusb_supported_speed.class);
 		public final int value;
 
 		libusb_supported_speed(int value) {
@@ -302,8 +299,8 @@ public class LibUsb {
 	public static enum libusb_usb_2_0_extension_attributes {
 		LIBUSB_BM_LPM_SUPPORT(1 << 1);
 
-		public static final TypeTranscoder<libusb_usb_2_0_extension_attributes> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_usb_2_0_extension_attributes.class);
+		public static final Xcoder.Types<libusb_usb_2_0_extension_attributes> xcoder =
+			Xcoder.types(libusb_usb_2_0_extension_attributes.class);
 		public final int value;
 
 		libusb_usb_2_0_extension_attributes(int value) {
@@ -318,8 +315,8 @@ public class LibUsb {
 	public static enum libusb_ss_usb_device_capability_attributes {
 		LIBUSB_BM_LTM_SUPPORT(1 << 1);
 
-		public static final TypeTranscoder<libusb_ss_usb_device_capability_attributes> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_ss_usb_device_capability_attributes.class);
+		public static final Xcoder.Types<libusb_ss_usb_device_capability_attributes> xcoder =
+			Xcoder.types(libusb_ss_usb_device_capability_attributes.class);
 		public final int value;
 
 		libusb_ss_usb_device_capability_attributes(int value) {
@@ -336,8 +333,8 @@ public class LibUsb {
 		LIBUSB_BT_SS_USB_DEVICE_CAPABILITY(3),
 		LIBUSB_BT_CONTAINER_ID(4);
 
-		public static final TypeTranscoder<libusb_bos_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_bos_type.class);
+		public static final Xcoder.Type<libusb_bos_type> xcoder =
+			Xcoder.type(libusb_bos_type.class);
 		public final int value;
 
 		libusb_bos_type(int value) {
@@ -356,8 +353,7 @@ public class LibUsb {
 		LIBUSB_SPEED_SUPER(4), // 5000 Mbit/s
 		LIBUSB_SPEED_SUPER_PLUS(5); // 10000 Mbit/s
 
-		public static final TypeTranscoder<libusb_speed> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_speed.class);
+		public static final Xcoder.Type<libusb_speed> xcoder = Xcoder.type(libusb_speed.class);
 		public final int value;
 
 		libusb_speed(int value) {
@@ -386,8 +382,7 @@ public class LibUsb {
 		LIBUSB_ERROR_NOT_SUPPORTED(-12),
 		LIBUSB_ERROR_OTHER(-99);
 
-		public static final TypeTranscoder<libusb_error> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_error.class);
+		public static final Xcoder.Type<libusb_error> xcoder = Xcoder.type(libusb_error.class);
 		public final int value;
 
 		libusb_error(int value) {
@@ -405,8 +400,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_TYPE_INTERRUPT(3),
 		LIBUSB_TRANSFER_TYPE_BULK_STREAM(4);
 
-		public static final TypeTranscoder<libusb_transfer_type> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_type.class);
+		public static final Xcoder.Type<libusb_transfer_type> xcoder =
+			Xcoder.type(libusb_transfer_type.class);
 		public final int value;
 
 		libusb_transfer_type(int value) {
@@ -426,8 +421,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_NO_DEVICE(5),
 		LIBUSB_TRANSFER_OVERFLOW(6);
 
-		public static final TypeTranscoder<libusb_transfer_status> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_status.class);
+		public static final Xcoder.Type<libusb_transfer_status> xcoder =
+			Xcoder.type(libusb_transfer_status.class);
 		public final int value;
 
 		libusb_transfer_status(int value) {
@@ -444,8 +439,8 @@ public class LibUsb {
 		LIBUSB_TRANSFER_FREE_TRANSFER(1 << 2),
 		LIBUSB_TRANSFER_ADD_ZERO_PACKET(1 << 3);
 
-		public static final TypeTranscoder<libusb_transfer_flags> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_transfer_flags.class);
+		public static final Xcoder.Types<libusb_transfer_flags> xcoder =
+			Xcoder.types(libusb_transfer_flags.class);
 		public final int value;
 
 		libusb_transfer_flags(int value) {
@@ -463,8 +458,8 @@ public class LibUsb {
 		LIBUSB_CAP_HAS_HID_ACCESS(0x0100),
 		LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER(0x0101);
 
-		public static final TypeTranscoder<libusb_capability> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_capability.class);
+		public static final Xcoder.Types<libusb_capability> xcoder =
+			Xcoder.types(libusb_capability.class);
 		public final int value;
 
 		libusb_capability(int value) {
@@ -482,8 +477,8 @@ public class LibUsb {
 		LIBUSB_LOG_LEVEL_INFO(3),
 		LIBUSB_LOG_LEVEL_DEBUG(4);
 
-		public static final TypeTranscoder<libusb_log_level> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_log_level.class);
+		public static final Xcoder.Type<libusb_log_level> xcoder =
+			Xcoder.type(libusb_log_level.class);
 		public final int value;
 
 		libusb_log_level(int value) {
@@ -500,8 +495,8 @@ public class LibUsb {
 		/** Callback function handling context related log mesages. */
 		LIBUSB_LOG_CB_CONTEXT(1 << 1);
 
-		public static final TypeTranscoder<libusb_log_cb_mode> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_log_cb_mode.class);
+		public static final Xcoder.Types<libusb_log_cb_mode> xcoder =
+			Xcoder.types(libusb_log_cb_mode.class);
 		public final int value;
 
 		libusb_log_cb_mode(int value) {
@@ -516,8 +511,8 @@ public class LibUsb {
 		LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED(1 << 0),
 		LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT(1 << 1);
 
-		public static final TypeTranscoder<libusb_hotplug_event> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_hotplug_event.class);
+		public static final Xcoder.Types<libusb_hotplug_event> xcoder =
+			Xcoder.types(libusb_hotplug_event.class);
 		public final int value;
 
 		libusb_hotplug_event(int value) {
@@ -531,8 +526,8 @@ public class LibUsb {
 	public static enum libusb_hotplug_flag {
 		LIBUSB_HOTPLUG_ENUMERATE(1 << 0);
 
-		public static final TypeTranscoder<libusb_hotplug_flag> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_hotplug_flag.class);
+		public static final Xcoder.Types<libusb_hotplug_flag> xcoder =
+			Xcoder.types(libusb_hotplug_flag.class);
 		public final int value;
 
 		libusb_hotplug_flag(int value) {
@@ -551,8 +546,7 @@ public class LibUsb {
 		/** Skip scan devices in libusb_init; valid for Linux/Android */
 		LIBUSB_OPTION_WEAK_AUTHORITY(2);
 
-		public static final TypeTranscoder<libusb_option> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_option.class);
+		public static final Xcoder.Type<libusb_option> xcoder = Xcoder.type(libusb_option.class);
 		public final int value;
 
 		libusb_option(int value) {
@@ -568,8 +562,8 @@ public class LibUsb {
 		LIBUSB_CA_SELF_POWERED(0x40),
 		LIBUSB_CA_RESERVED1(0x80);
 
-		public static final TypeTranscoder<libusb_config_attributes> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_config_attributes.class);
+		public static final Xcoder.Types<libusb_config_attributes> xcoder =
+			Xcoder.types(libusb_config_attributes.class);
 		public final int value;
 
 		libusb_config_attributes(int value) {
@@ -607,7 +601,7 @@ public class LibUsb {
 		}
 
 		public libusb_class_code bDeviceClass() {
-			return libusb_class_code.xcoder.decode(ubyte(bDeviceClass));
+			return libusb_class_code.xcoder.decode(Maths.ubyte(bDeviceClass));
 		}
 	}
 
@@ -693,11 +687,12 @@ public class LibUsb {
 			implements Structure.ByReference {}
 
 		public libusb_class_code bInterfaceClass() {
-			return libusb_class_code.xcoder.decode(ubyte(bInterfaceClass));
+			return libusb_class_code.xcoder.decode(Maths.ubyte(bInterfaceClass));
 		}
 
 		public libusb_endpoint_descriptor[] endpoints() {
-			return arrayOfVal(endpoint, libusb_endpoint_descriptor[]::new, ubyte(bNumEndpoints));
+			return arrayOfVal(endpoint, libusb_endpoint_descriptor[]::new,
+				Maths.ubyte(bNumEndpoints));
 		}
 
 		public byte[] extra() {
@@ -747,11 +742,11 @@ public class LibUsb {
 
 		public Set<libusb_config_attributes> bmAttributes() {
 			return libusb_config_attributes.xcoder.decodeAll(
-				ubyte(bmAttributes) & ~libusb_config_attributes.LIBUSB_CA_RESERVED1.value);
+				Maths.ubyte(bmAttributes) & ~libusb_config_attributes.LIBUSB_CA_RESERVED1.value);
 		}
 
 		public libusb_interface[] interfaces() {
-			return arrayOfVal(interfaces, libusb_interface[]::new, ubyte(bNumInterfaces));
+			return arrayOfVal(interfaces, libusb_interface[]::new, Maths.ubyte(bNumInterfaces));
 		}
 
 		public byte[] extra() {
@@ -813,7 +808,7 @@ public class LibUsb {
 		}
 
 		public libusb_bos_type bDevCapabilityType() {
-			return libusb_bos_type.xcoder.decode(ubyte(bDevCapabilityType));
+			return libusb_bos_type.xcoder.decode(Maths.ubyte(bDevCapabilityType));
 		}
 
 		@Override
@@ -823,7 +818,7 @@ public class LibUsb {
 
 		@Override
 		protected int varCount() {
-			return ubyte(bLength) - LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
+			return Maths.ubyte(bLength) - LIBUSB_DT_DEVICE_CAPABILITY_SIZE;
 		}
 	}
 
@@ -853,7 +848,7 @@ public class LibUsb {
 
 		@Override
 		protected int varCount() {
-			return ubyte(bNumDeviceCaps);
+			return Maths.ubyte(bNumDeviceCaps);
 		}
 	}
 
@@ -907,11 +902,12 @@ public class LibUsb {
 		}
 
 		public Set<libusb_ss_usb_device_capability_attributes> bmAttributes() {
-			return libusb_ss_usb_device_capability_attributes.xcoder.decodeAll(ubyte(bmAttributes));
+			return libusb_ss_usb_device_capability_attributes.xcoder
+				.decodeAll(Maths.ubyte(bmAttributes));
 		}
 
 		public Set<libusb_supported_speed> wSpeedSupported() {
-			return libusb_supported_speed.xcoder.decodeAll(ushort(wSpeedSupported));
+			return libusb_supported_speed.xcoder.decodeAll(Maths.ushort(wSpeedSupported));
 		}
 	}
 
@@ -953,7 +949,7 @@ public class LibUsb {
 		public short wLength; // always little-endian, use libusb_cpu_to_le16/libusb_le16_to_cpu
 
 		public libusb_control_setup(Pointer p) {
-			super(p, ternary(Platform.isWindows(), Align.none, Align.platform));
+			super(p, Basics.ternary(Platform.isWindows(), Align.none, Align.platform));
 		}
 	}
 
@@ -1072,11 +1068,11 @@ public class LibUsb {
 		}
 
 		public Set<libusb_transfer_flags> flags() {
-			return libusb_transfer_flags.xcoder.decodeAll(ubyte(flags));
+			return libusb_transfer_flags.xcoder.decodeAll(Maths.ubyte(flags));
 		}
 
 		public libusb_transfer_type type() {
-			return libusb_transfer_type.xcoder.decode(ubyte(type));
+			return libusb_transfer_type.xcoder.decode(Maths.ubyte(type));
 		}
 
 		public libusb_transfer_status status() {
@@ -1416,8 +1412,8 @@ public class LibUsb {
 		POLLIN(0x0001),
 		POLLOUT(0x0004);
 
-		public static final TypeTranscoder<libusb_poll_event> xcoder =
-			TypeTranscoder.of(t -> t.value, libusb_poll_event.class);
+		public static final Xcoder.Types<libusb_poll_event> xcoder =
+			Xcoder.types(libusb_poll_event.class);
 		public final int value;
 
 		private libusb_poll_event(int value) {
@@ -1438,7 +1434,7 @@ public class LibUsb {
 		}
 
 		public Set<libusb_poll_event> events() {
-			return libusb_poll_event.xcoder.decodeAll(ushort(events));
+			return libusb_poll_event.xcoder.decodeAll(Maths.ushort(events));
 		}
 	}
 
@@ -1581,7 +1577,7 @@ public class LibUsb {
 	}
 
 	public static libusb_device libusb_ref_device(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.verifyType(() -> lib().libusb_ref_device(dev),
 			libusb_error.LIBUSB_ERROR_NOT_FOUND.value, "libusb_ref_device", dev);
 	}
@@ -1592,13 +1588,13 @@ public class LibUsb {
 	}
 
 	public static void libusb_unref_devices(Collection<libusb_device> devs) throws LibUsbException {
-		require(devs, "Devices");
+		LibUsbUtil.require(devs, "Devices");
 		for (var dev : devs)
 			libusb_unref_device(dev);
 	}
 
 	public static int libusb_get_configuration(libusb_device_handle dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		IntByReference config = new IntByReference();
 		caller.verify(() -> lib().libusb_get_configuration(dev, config), "libusb_get_configuration",
 			dev, config);
@@ -1607,7 +1603,7 @@ public class LibUsb {
 
 	public static libusb_device_descriptor libusb_get_device_descriptor(libusb_device dev)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		libusb_device_descriptor descriptor = new libusb_device_descriptor(null);
 		Pointer p = descriptor.getPointer();
 		caller.verify(() -> lib().libusb_get_device_descriptor(dev, p),
@@ -1617,7 +1613,7 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_active_config_descriptor(libusb_device dev)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		PointerByReference config = new PointerByReference();
 		caller.verify(() -> lib().libusb_get_active_config_descriptor(dev, config),
 			"libusb_get_active_config_descriptor", dev, config);
@@ -1626,7 +1622,7 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_config_descriptor(libusb_device dev,
 		int config_index) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		PointerByReference config = new PointerByReference();
 		caller.verify(() -> lib().libusb_get_config_descriptor(dev, (byte) config_index, config),
 			"libusb_get_config_descriptor", dev, config_index, config);
@@ -1635,7 +1631,7 @@ public class LibUsb {
 
 	public static libusb_config_descriptor libusb_get_config_descriptor_by_value(libusb_device dev,
 		int bConfigurationValue) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		PointerByReference config = new PointerByReference();
 		caller
 			.verify(
@@ -1655,7 +1651,7 @@ public class LibUsb {
 	public static libusb_ss_endpoint_companion_descriptor
 		libusb_get_ss_endpoint_companion_descriptor(libusb_context ctx,
 			libusb_endpoint_descriptor endpoint) throws LibUsbException {
-		require(endpoint, "Endpoint");
+		LibUsbUtil.require(endpoint, "Endpoint");
 		Pointer p = endpoint.getPointer();
 		PointerByReference ep_comp = new PointerByReference();
 		int result = caller.verifyInt(
@@ -1675,7 +1671,7 @@ public class LibUsb {
 
 	public static libusb_bos_descriptor libusb_get_bos_descriptor(libusb_device_handle handle)
 		throws LibUsbException {
-		require(handle);
+		LibUsbUtil.require(handle);
 		PointerByReference bos = new PointerByReference();
 		int result = caller.verifyInt(() -> lib().libusb_get_bos_descriptor(handle, bos),
 			r -> r >= 0 || r == libusb_error.LIBUSB_ERROR_NOT_FOUND.value
@@ -1693,7 +1689,7 @@ public class LibUsb {
 
 	public static libusb_usb_2_0_extension_descriptor libusb_get_usb_2_0_extension_descriptor(
 		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		require(dev_cap, "Descriptor");
+		LibUsbUtil.require(dev_cap, "Descriptor");
 		Pointer p = dev_cap.getPointer();
 		PointerByReference usb_2_0_extension = new PointerByReference();
 		caller.verify(
@@ -1712,7 +1708,7 @@ public class LibUsb {
 	public static libusb_ss_usb_device_capability_descriptor
 		libusb_get_ss_usb_device_capability_descriptor(libusb_context ctx,
 			libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		require(dev_cap, "Descriptor");
+		LibUsbUtil.require(dev_cap, "Descriptor");
 		Pointer p = dev_cap.getPointer();
 		PointerByReference ss_usb_device_cap = new PointerByReference();
 		caller.verify(
@@ -1731,7 +1727,7 @@ public class LibUsb {
 
 	public static libusb_container_id_descriptor libusb_get_container_id_descriptor(
 		libusb_context ctx, libusb_bos_dev_capability_descriptor dev_cap) throws LibUsbException {
-		require(dev_cap, "Descriptor");
+		LibUsbUtil.require(dev_cap, "Descriptor");
 		Pointer p = dev_cap.getPointer();
 		PointerByReference container_id = new PointerByReference();
 		caller.verify(() -> lib().libusb_get_container_id_descriptor(ctx, p, container_id),
@@ -1747,19 +1743,19 @@ public class LibUsb {
 	}
 
 	public static int libusb_get_bus_number(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.callInt(() -> lib().libusb_get_bus_number(dev), "libusb_get_bus_number", dev)
 			& 0xff;
 	}
 
 	public static int libusb_get_port_number(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.callInt(() -> lib().libusb_get_port_number(dev), "libusb_get_port_number",
 			dev) & 0xff;
 	}
 
 	public static byte[] libusb_get_port_numbers(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		try (Memory m = new Memory(MAX_PORT_NUMBERS)) {
 			int size = caller.verifyInt(() -> lib().libusb_get_port_numbers(dev, m, (int) m.size()),
 				"libusb_get_port_numbers", dev, m, m.size());
@@ -1768,18 +1764,18 @@ public class LibUsb {
 	}
 
 	public static libusb_device libusb_get_parent(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.callType(() -> lib().libusb_get_parent(dev), "libusb_get_parent", dev);
 	}
 
 	public static byte libusb_get_device_address(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.callType(() -> lib().libusb_get_device_address(dev),
 			"libusb_get_device_address", dev);
 	}
 
 	public static libusb_speed libusb_get_device_speed(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		int speed = caller.verifyInt(() -> lib().libusb_get_device_speed(dev),
 			"libusb_get_device_speed", dev);
 		return libusb_speed.xcoder.decode(speed);
@@ -1787,20 +1783,20 @@ public class LibUsb {
 
 	public static int libusb_get_max_packet_size(libusb_device dev, int endpoint)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.verifyInt(() -> lib().libusb_get_max_packet_size(dev, (byte) endpoint),
 			"libusb_get_max_packet_size", dev, endpoint);
 	}
 
 	public static int libusb_get_max_iso_packet_size(libusb_device dev, int endpoint)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.verifyInt(() -> lib().libusb_get_max_iso_packet_size(dev, (byte) endpoint),
 			"libusb_get_max_iso_packet_size", dev, endpoint);
 	}
 
 	public static libusb_device_handle libusb_open(libusb_device dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		PointerByReference handle = new PointerByReference();
 		caller.verify(() -> lib().libusb_open(dev, handle), "libusb_open", dev, handle);
 		return PointerUtil.set(new libusb_device_handle(), handle.getValue());
@@ -1820,14 +1816,14 @@ public class LibUsb {
 
 	public static void libusb_set_configuration(libusb_device_handle dev, int configuration)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_set_configuration(dev, configuration),
 			"libusb_set_configuration", dev, configuration);
 	}
 
 	public static void libusb_claim_interface(libusb_device_handle dev, int interface_number)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_claim_interface(dev, interface_number),
 			"libusb_claim_interface", dev, interface_number);
 	}
@@ -1848,7 +1844,7 @@ public class LibUsb {
 
 	public static void libusb_set_interface_alt_setting(libusb_device_handle dev,
 		int interface_number, int alternate_setting) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(
 			() -> lib().libusb_set_interface_alt_setting(dev, interface_number, alternate_setting),
 			"libusb_set_interface_alt_setting", dev, interface_number, alternate_setting);
@@ -1856,13 +1852,13 @@ public class LibUsb {
 
 	public static void libusb_clear_halt(libusb_device_handle dev, int endpoint)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_clear_halt(dev, (byte) endpoint), "libusb_clear_halt", dev,
 			endpoint);
 	}
 
 	public static void libusb_reset_device(libusb_device_handle dev) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_reset_device(dev), "libusb_reset_device", dev);
 	}
 
@@ -1873,7 +1869,7 @@ public class LibUsb {
 
 	public static int libusb_alloc_streams(libusb_device_handle dev, int num_streams,
 		byte[] endpoints) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		try (Memory m = JnaUtil.mallocBytes(endpoints)) {
 			return caller.verifyInt(
 				() -> lib().libusb_alloc_streams(dev, num_streams, m, endpoints.length),
@@ -1897,28 +1893,28 @@ public class LibUsb {
 
 	public static boolean libusb_kernel_driver_active(libusb_device_handle dev,
 		int interface_number) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		return caller.verifyInt(() -> lib().libusb_kernel_driver_active(dev, interface_number),
 			"libusb_kernel_driver_active", dev, interface_number) != 0;
 	}
 
 	public static void libusb_detach_kernel_driver(libusb_device_handle dev, int interface_number)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_detach_kernel_driver(dev, interface_number),
 			"libusb_detach_kernel_driver", dev, interface_number);
 	}
 
 	public static void libusb_attach_kernel_driver(libusb_device_handle dev, int interface_number)
 		throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_attach_kernel_driver(dev, interface_number),
 			"libusb_attach_kernel_driver", dev, interface_number);
 	}
 
 	public static void libusb_set_auto_detach_kernel_driver(libusb_device_handle dev,
 		boolean enable) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		caller.verify(() -> lib().libusb_set_auto_detach_kernel_driver(dev, enable ? 1 : 0),
 			"libusb_set_auto_detach_kernel_driver", dev, enable ? 1 : 0);
 	}
@@ -1938,7 +1934,7 @@ public class LibUsb {
 	 * Submits asynchronous transfer. Caller must sync transfer struct fields before calling.
 	 */
 	public static void libusb_submit_transfer(libusb_transfer transfer) throws LibUsbException {
-		require(transfer);
+		LibUsbUtil.require(transfer);
 		Pointer p = Struct.pointer(transfer);
 		caller.verify(() -> lib().libusb_submit_transfer(p), "libusb_submit_transfer", p);
 	}
@@ -1958,7 +1954,7 @@ public class LibUsb {
 
 	public static void libusb_transfer_set_stream_id(libusb_transfer transfer, int stream_id)
 		throws LibUsbException {
-		require(transfer);
+		LibUsbUtil.require(transfer);
 		Pointer p = Struct.pointer(transfer);
 		caller.call(() -> lib().libusb_transfer_set_stream_id(p, stream_id),
 			"libusb_transfer_set_stream_id", p, stream_id);
@@ -1966,7 +1962,7 @@ public class LibUsb {
 
 	public static int libusb_transfer_get_stream_id(libusb_transfer transfer)
 		throws LibUsbException {
-		require(transfer);
+		LibUsbUtil.require(transfer);
 		Pointer p = Struct.pointer(transfer);
 		return caller.verifyInt(() -> lib().libusb_transfer_get_stream_id(p),
 			"libusb_transfer_get_stream_id", p);
@@ -1996,8 +1992,8 @@ public class LibUsb {
 	public static int libusb_control_transfer(libusb_device_handle dev_handle, int request_type,
 		int bRequest, int wValue, int wIndex, ByteBuffer data, int wLength, int timeout)
 		throws LibUsbException {
-		require(dev_handle);
-		require(data, wLength);
+		LibUsbUtil.require(dev_handle);
+		LibUsbUtil.require(data, wLength);
 		int n = caller.verifyInt(
 			() -> lib().libusb_control_transfer(dev_handle, (byte) request_type, (byte) bRequest,
 				(short) wValue, (short) wIndex, data, (short) wLength, timeout),
@@ -2026,8 +2022,8 @@ public class LibUsb {
 
 	public static int libusb_bulk_transfer(libusb_device_handle dev_handle, int endpoint,
 		ByteBuffer data, int length, int timeout) throws LibUsbException {
-		require(dev_handle);
-		require(data, length);
+		LibUsbUtil.require(dev_handle);
+		LibUsbUtil.require(data, length);
 		IntByReference actual_length = new IntByReference();
 		caller.verify(
 			() -> lib().libusb_bulk_transfer(dev_handle, (byte) endpoint, data, length,
@@ -2056,8 +2052,8 @@ public class LibUsb {
 
 	public static int libusb_interrupt_transfer(libusb_device_handle dev_handle, int endpoint,
 		ByteBuffer data, int length, int timeout) throws LibUsbException {
-		require(dev_handle);
-		require(data, length);
+		LibUsbUtil.require(dev_handle);
+		LibUsbUtil.require(data, length);
 		IntByReference actual_length = new IntByReference();
 		caller.verify(
 			() -> lib().libusb_interrupt_transfer(dev_handle, (byte) endpoint, data, length,
@@ -2069,7 +2065,7 @@ public class LibUsb {
 
 	public static String libusb_get_string_descriptor_ascii(libusb_device_handle dev,
 		int desc_index) throws LibUsbException {
-		require(dev);
+		LibUsbUtil.require(dev);
 		if (desc_index == 0) return null;
 		ByteBuffer buffer = ByteBuffer.allocate(MAX_DESCRIPTOR_SIZE);
 		int size = caller.verifyInt(
@@ -2113,7 +2109,7 @@ public class LibUsb {
 			ctx);
 	}
 
-	public static void libusb_wait_for_event(libusb_context ctx, timeval tv)
+	public static void libusb_wait_for_event(libusb_context ctx, CTime.timeval tv)
 		throws LibUsbException {
 		caller.verify(() -> lib().libusb_wait_for_event(ctx, tv.getPointer()),
 			"libusb_wait_for_event", ctx, tv);
@@ -2124,13 +2120,13 @@ public class LibUsb {
 			"libusb_interrupt_event_handler", ctx);
 	}
 
-	public static void libusb_handle_events_timeout(libusb_context ctx, timeval tv)
+	public static void libusb_handle_events_timeout(libusb_context ctx, CTime.timeval tv)
 		throws LibUsbException {
 		caller.verify(() -> lib().libusb_handle_events_timeout(ctx, tv.getPointer()),
 			"libusb_handle_events_timeout", ctx, tv);
 	}
 
-	public static int libusb_handle_events_timeout_completed(libusb_context ctx, timeval tv,
+	public static int libusb_handle_events_timeout_completed(libusb_context ctx, CTime.timeval tv,
 		IntByReference completed) throws LibUsbException {
 		caller.verify(
 			() -> lib().libusb_handle_events_timeout_completed(ctx, tv.getPointer(), completed),
@@ -2149,7 +2145,7 @@ public class LibUsb {
 		return completed == null ? 0 : completed.getValue();
 	}
 
-	public static void libusb_handle_events_locked(libusb_context ctx, timeval tv)
+	public static void libusb_handle_events_locked(libusb_context ctx, CTime.timeval tv)
 		throws LibUsbException {
 		caller.verify(() -> lib().libusb_handle_events_locked(ctx, tv.getPointer()),
 			"libusb_handle_events_locked", ctx, tv);
@@ -2161,8 +2157,8 @@ public class LibUsb {
 			"libusb_pollfds_handle_timeouts", ctx) != 0;
 	}
 
-	public static timeval libusb_get_next_timeout(libusb_context ctx) throws LibUsbException {
-		timeval tv = new timeval();
+	public static CTime.timeval libusb_get_next_timeout(libusb_context ctx) throws LibUsbException {
+		var tv = new CTime.timeval();
 		caller.verify(() -> lib().libusb_get_next_timeout(ctx, tv.getPointer()),
 			"libusb_get_next_timeout", ctx, tv);
 		return Struct.read(tv);

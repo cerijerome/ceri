@@ -1,6 +1,6 @@
 package ceri.jna.reflect;
 
-import static ceri.common.exception.ExceptionAdapter.shouldNotThrow;
+import static ceri.common.except.ExceptionAdapter.shouldNotThrow;
 import static java.lang.reflect.AccessFlag.FINAL;
 import static java.lang.reflect.AccessFlag.PUBLIC;
 import static java.lang.reflect.AccessFlag.STATIC;
@@ -18,9 +18,9 @@ import com.sun.jna.NativeMapped;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Union;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Sets;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Sets;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
@@ -29,7 +29,7 @@ import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
 import ceri.common.text.Strings;
 import ceri.common.text.Text;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.common.util.Basics;
 import ceri.common.util.OsUtil;
 import ceri.jna.type.IntType;
@@ -556,7 +556,7 @@ public class CSymbolGen {
 			 * Build:  gcc %s.c -o %s; chmod a+x ./%s
 			 *  Run:  ./%s
 			 */
-			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), DateUtil.nowSec(),
+			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), Dates.nowSec(),
 			filename, filename, filename, filename);
 	}
 }

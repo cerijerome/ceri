@@ -4,8 +4,8 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
@@ -22,7 +22,7 @@ public class TermiosBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 		termios = null;
 		tm = null;

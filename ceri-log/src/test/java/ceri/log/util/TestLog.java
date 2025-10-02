@@ -15,12 +15,12 @@ import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
+import ceri.common.function.Closeables;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Regex;
 import ceri.common.text.Text;
-import ceri.common.util.CloseableUtil;
 
 /**
  * Used to capture logging output to a file, and check the contents. Can override an existing class
@@ -116,7 +116,7 @@ public class TestLog implements AutoCloseable {
 		try {
 			boolean interrupted = Thread.interrupted();
 			FileChannel.open(logFile, StandardOpenOption.WRITE).truncate(0).close();
-			if (interrupted) ConcurrentUtil.interrupt();
+			if (interrupted) Concurrent.interrupt();
 		} catch (Exception e) {
 			throw new AssertionError("Unexpected error", e);
 		}
@@ -124,7 +124,7 @@ public class TestLog implements AutoCloseable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(loggerOverride, helper);
+		Closeables.close(loggerOverride, helper);
 	}
 
 	@SuppressWarnings("resource")

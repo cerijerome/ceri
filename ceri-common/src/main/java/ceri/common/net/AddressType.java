@@ -2,7 +2,7 @@ package ceri.common.net;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.function.Predicate;
+import ceri.common.function.Functions;
 
 /**
  * Encapsulation of InetAddress types.
@@ -20,7 +20,7 @@ public enum AddressType {
 	mcSiteLocal(InetAddress::isMCSiteLocal);
 
 	private static List<AddressType> special = List.of(anyLocal, linkLocal, loopback, multicast);
-	private final Predicate<InetAddress> predicate;
+	private final Functions.Predicate<InetAddress> predicate;
 
 	/**
 	 * Returns true if the address has a special meaning.
@@ -29,7 +29,7 @@ public enum AddressType {
 		return special.stream().anyMatch(t -> t.appliesTo(address));
 	}
 
-	AddressType(Predicate<InetAddress> predicate) {
+	AddressType(Functions.Predicate<InetAddress> predicate) {
 		this.predicate = predicate;
 	}
 

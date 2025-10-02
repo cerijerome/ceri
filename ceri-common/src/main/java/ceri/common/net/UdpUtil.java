@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 
 public class UdpUtil {
 	public static final int MAX_PACKET_DATA = 65507; // = 65535 - 8(udp) - 20(ip)
@@ -16,7 +16,7 @@ public class UdpUtil {
 
 	public static HostPort hostPort(DatagramSocket socket) {
 		if (socket == null) return null;
-		var host = FunctionUtil.safeApply(socket.getInetAddress(), InetAddress::getHostAddress);
+		var host = Functional.safeApply(socket.getInetAddress(), InetAddress::getHostAddress);
 		return HostPort.of(host, socket.getPort());
 	}
 

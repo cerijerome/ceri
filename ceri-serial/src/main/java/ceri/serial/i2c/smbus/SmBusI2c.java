@@ -95,8 +95,8 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public void writeBlockData(int command, byte[] values, int offset, int length)
 		throws IOException {
-		Validate.validateSlice(values.length, offset, length);
-		Validate.validateMax(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
+		Validate.slice(values.length, offset, length);
+		Validate.max(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.Encoder.of(1 + 1 + length + 1).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
 		write(send);
@@ -105,8 +105,8 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public byte[] blockProcessCall(int command, byte[] values, int offset, int length)
 		throws IOException {
-		Validate.validateSlice(values.length, offset, length);
-		Validate.validateMax(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
+		Validate.slice(values.length, offset, length);
+		Validate.max(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.Encoder.of(1 + 1 + length).writeBytes(command, length)
 			.writeFrom(values, offset, length).bytes();
 		return writeReadBlock(send);
@@ -114,7 +114,7 @@ public class SmBusI2c implements SmBus {
 
 	@Override
 	public byte[] readI2cBlockData(int command, int length) throws IOException {
-		Validate.validateRange(length, 0, I2cDev.I2C_SMBUS_BLOCK_MAX, "Read block size");
+		Validate.range(length, 0, I2cDev.I2C_SMBUS_BLOCK_MAX, "Read block size");
 		byte[] send = { (byte) command };
 		return writeRead(send, length).copy(0);
 	}
@@ -122,8 +122,8 @@ public class SmBusI2c implements SmBus {
 	@Override
 	public void writeI2cBlockData(int command, byte[] values, int offset, int length)
 		throws IOException {
-		Validate.validateSlice(values.length, offset, length);
-		Validate.validateMax(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
+		Validate.slice(values.length, offset, length);
+		Validate.max(length, I2cDev.I2C_SMBUS_BLOCK_MAX, "Write block size");
 		byte[] send = ByteArray.Encoder.of(1 + length + 1).writeByte(command)
 			.writeFrom(values, offset, length).bytes();
 		write(send);

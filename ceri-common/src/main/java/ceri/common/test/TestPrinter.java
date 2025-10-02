@@ -6,8 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Sets;
 import ceri.common.function.Compares;
 import ceri.common.text.Text;
 

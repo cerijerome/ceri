@@ -19,8 +19,8 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.function.Closeables;
 import ceri.common.stream.Streams;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.test.JnaTestUtil;
@@ -37,7 +37,7 @@ public class I2cDeviceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 	}
 

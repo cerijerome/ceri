@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -116,7 +116,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public ControlSetup length(int length) {
-			Validate.validateMin(length, 0);
+			Validate.min(length, 0);
 			cs.wLength = LibUsb.libusb_cpu_to_le16((short) length);
 			return this;
 		}
@@ -148,7 +148,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		@Override
 		public void submit() throws LibUsbException {
 			Objects.requireNonNull(buffer());
-			Validate.validateRange(setup.length(), 0, buffer().capacity() - ControlSetup.SIZE);
+			Validate.range(setup.length(), 0, buffer().capacity() - ControlSetup.SIZE);
 			transfer().length = length();
 			Struct.write(setup.cs);
 			super.submit();
@@ -160,7 +160,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Control length(int length) {
-			Validate.validateMin(length, ControlSetup.SIZE);
+			Validate.min(length, ControlSetup.SIZE);
 			setup().length(length - ControlSetup.SIZE);
 			return this;
 		}
@@ -175,7 +175,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		@Override
 		public Control buffer(ByteBuffer buffer) {
 			Objects.requireNonNull(buffer);
-			Validate.validateMin(buffer.capacity(), ControlSetup.SIZE);
+			Validate.min(buffer.capacity(), ControlSetup.SIZE);
 			super.buffer(buffer);
 			setup = copy(setup, transfer().buffer); // relocate setup to new buffer
 			return this;
@@ -203,7 +203,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		 */
 		public BulkStream bulkTransfer(int endPoint, int streamId,
 			Consumer<? super BulkStream> callback) throws LibUsbException {
-			Validate.validateRange(streamId, 1, count, "Stream id");
+			Validate.range(streamId, 1, count, "Stream id");
 			validateEndPoint(endPoint);
 			return BulkStream.alloc(handle, endPoint, streamId, callback);
 		}
@@ -322,7 +322,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Iso packets(int packets) {
-			Validate.validateRange(packets, 0, maxPackets());
+			Validate.range(packets, 0, maxPackets());
 			var transfer = transfer();
 			transfer.length = offset(packets);
 			transfer.num_iso_packets = packets;
@@ -330,7 +330,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public Iso packetLength(int packet, int length) {
-			Validate.validateIndex(packets(), packet);
+			Validate.index(packets(), packet);
 			var transfer = transfer();
 			transfer.length += length - transfer.iso_packet_desc[packet].length;
 			transfer.iso_packet_desc[packet].length = length;
@@ -345,12 +345,12 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		}
 
 		public ByteBuffer packetBuffer(int packet) {
-			Validate.validateIndex(packets(), packet);
+			Validate.index(packets(), packet);
 			return packetBuffer(packet, offset(packet));
 		}
 
 		public ByteBuffer packetBufferSimple(int packet) {
-			Validate.validateIndex(packets(), packet);
+			Validate.index(packets(), packet);
 			return packetBuffer(packet, packet * transfer().iso_packet_desc[0].length);
 		}
 
@@ -382,7 +382,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 
 	public void submit() throws LibUsbException {
 		var transfer = transfer();
-		Validate.validateRange(transfer.length, 0, buffer == null ? 0 : buffer.capacity());
+		Validate.range(transfer.length, 0, buffer == null ? 0 : buffer.capacity());
 		LibUsb.libusb_submit_transfer(Struct.write(transfer));
 	}
 
@@ -461,7 +461,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	}
 
 	private T length(int length) {
-		Validate.validateMin(length, 0);
+		Validate.min(length, 0);
 		transfer().length = length;
 		return typedThis();
 	}

@@ -5,13 +5,14 @@ import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
 
 public class Reduce {
-	private static final Excepts.BinFunction<?, ?, ?> MIN =	min(Comparator.naturalOrder());
-	private static final Excepts.BinFunction<?, ?, ?> MAX =	max(Comparator.naturalOrder());
+	private static final Excepts.BinFunction<?, ?, ?> MIN = min(Comparator.naturalOrder());
+	private static final Excepts.BinFunction<?, ?, ?> MAX = max(Comparator.naturalOrder());
+
 	private Reduce() {}
 
 	public static class Ints {
 		private Ints() {}
-		
+
 		/**
 		 * Minimum reduction.
 		 */
@@ -64,7 +65,7 @@ public class Reduce {
 
 	public static class Longs {
 		private Longs() {}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
@@ -117,7 +118,7 @@ public class Reduce {
 
 	public static class Doubles {
 		private Doubles() {}
-		
+
 		/**
 		 * Comparator reduction.
 		 */
@@ -131,7 +132,7 @@ public class Reduce {
 		public static <E extends Exception> Excepts.DoubleBiOperator<E> max() {
 			return (l, r) -> Double.compare(l, r) >= 0 ? l : r;
 		}
-		
+
 		/**
 		 * Summation, allowing overflow.
 		 */

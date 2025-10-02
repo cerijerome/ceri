@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.Closeables;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.CFileDescriptor.Opener;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.Mode.Mask;
@@ -27,7 +27,7 @@ public class CFileDescriptorBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 	}
 

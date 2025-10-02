@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
 
 public class ListenersBehavior {

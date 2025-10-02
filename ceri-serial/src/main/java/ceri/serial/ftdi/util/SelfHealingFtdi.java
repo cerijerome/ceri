@@ -3,7 +3,7 @@ package ceri.serial.ftdi.util;
 import java.io.IOException;
 import java.util.function.Function;
 import com.sun.jna.Pointer;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.property.TypedProperties;
@@ -153,8 +153,8 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 
 		public Config config() {
 			var b = Config.builder();
-			FunctionUtil.safeAccept(ftdi.finder(), b::finder);
-			FunctionUtil.safeAccept(ftdi.iface(), b::iface);
+			Functional.safeAccept(ftdi.finder(), b::finder);
+			Functional.safeAccept(ftdi.iface(), b::iface);
 			return b.ftdi(ftdi.config()).selfHealing(selfHealing.config()).build();
 		}
 	}

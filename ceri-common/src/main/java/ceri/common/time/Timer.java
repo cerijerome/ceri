@@ -81,7 +81,7 @@ public class Timer {
 
 		@Override
 		public String toString() {
-			return ToString.forClass(this, timer.period, DateUtil.symbol(unit()), state, started,
+			return ToString.forClass(this, timer.period, Dates.symbol(unit()), state, started,
 				current, remaining);
 		}
 	}
@@ -139,7 +139,7 @@ public class Timer {
 	 * Creates a timer with granularity of the given time unit.
 	 */
 	public static Timer of(long period, TimeSupplier timeSupplier) {
-		Validate.validateMin(period, INFINITE_PERIOD);
+		Validate.min(period, INFINITE_PERIOD);
 		Validate.validateNotNull(timeSupplier);
 		return new Timer(period, timeSupplier);
 	}

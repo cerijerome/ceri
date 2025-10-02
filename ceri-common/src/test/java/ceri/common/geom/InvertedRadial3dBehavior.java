@@ -8,16 +8,16 @@ import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class InvertedRadial3dBehavior {
-	private final Cone3d c0 = Cone3d.create(1, 4);
+	private final Cone c0 = Cone.of(1, 4);
 	private final Spheroid3d s0 = Spheroid3d.create(4, 2);
-	private final InvertedRadial3d<Cone3d> i0 = InvertedRadial3d.create(c0);
+	private final InvertedRadial3d<Cone> i0 = InvertedRadial3d.create(c0);
 	private final InvertedRadial3d<Spheroid3d> i1 = InvertedRadial3d.create(s0);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(i0, InvertedRadial3d.create(Cone3d.create(1, 4)));
-		assertNotEquals(i0, InvertedRadial3d.create(Cone3d.create(1.1, 4)));
-		assertNotEquals(i0, InvertedRadial3d.create(Cone3d.create(1, 3.9)));
+		TestUtil.exerciseEquals(i0, InvertedRadial3d.create(Cone.of(1, 4)));
+		assertNotEquals(i0, InvertedRadial3d.create(Cone.of(1.1, 4)));
+		assertNotEquals(i0, InvertedRadial3d.create(Cone.of(1, 3.9)));
 	}
 
 	@Test

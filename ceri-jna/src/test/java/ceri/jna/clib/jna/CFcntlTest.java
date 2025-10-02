@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.jna.test.JnaTestUtil.LEX;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
@@ -18,7 +18,7 @@ public class CFcntlTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 		fd = -1;
 	}
 

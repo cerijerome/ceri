@@ -1,8 +1,7 @@
 package ceri.process.scutil;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.Node;
+import ceri.common.collect.Node;
 import ceri.common.function.Functions;
 import ceri.common.text.Regex;
 
@@ -24,7 +23,7 @@ public class Parser {
 	}
 
 	private Parser parseOutput(String output) {
-		for (String line : Regex.Split.LINE.array(output)) {
+		for (var line : Regex.Split.LINE.array(output)) {
 			if (consume(line, TEXT_VALUE_GROUP, tree::startGroup)) continue;
 			if (consume(line, TEXT_GROUP, tree::startGroup)) continue;
 			if (consume(line, TEXT_VALUE, tree::value)) continue;
@@ -39,9 +38,7 @@ public class Parser {
 
 	private boolean consume(String line, Pattern regex,
 		Functions.BiConsumer<String, String> consumer) {
-		Matcher m = regex.matcher(line);
-		if (!m.find()) return false;
-		consumer.accept(m.group(1).trim(), m.group(2).trim());
-		return true;
+		return Regex.findAccept(regex, line,
+			m -> consumer.accept(m.group(1).trim(), m.group(2).trim()));
 	}
 }

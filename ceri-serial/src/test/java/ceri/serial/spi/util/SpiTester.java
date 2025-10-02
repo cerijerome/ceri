@@ -4,7 +4,7 @@ import static ceri.log.util.LogUtil.startupValues;
 import java.io.IOException;
 import java.util.Arrays;
 import org.apache.logging.log4j.Level;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.io.Direction;
 import ceri.common.util.StartupValues;
 import ceri.serial.spi.Spi;
@@ -41,7 +41,7 @@ public class SpiTester {
 			long t0 = System.currentTimeMillis();
 			for (int i = 0; i < repeat; i++) {
 				xfer.execute();
-				ConcurrentUtil.delay(repeatDelayMs);
+				Concurrent.delay(repeatDelayMs);
 			}
 			long t1 = System.currentTimeMillis();
 			System.out.printf("Time taken: %.2fs%n", (t1 - t0) / 1000.0);

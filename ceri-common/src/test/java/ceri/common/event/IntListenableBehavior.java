@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;
 import org.junit.Test;
+import ceri.common.function.Enclosure;
+import ceri.common.function.Functions;
 import ceri.common.test.Captor;
-import ceri.common.util.Enclosure;
 
 public class IntListenableBehavior {
 
@@ -62,12 +63,12 @@ public class IntListenableBehavior {
 		private final Set<IntConsumer> listeners = new HashSet<>();
 
 		@Override
-		public boolean listen(IntConsumer listener) {
+		public boolean listen(Functions.IntConsumer listener) {
 			return listeners.add(listener);
 		}
 
 		@Override
-		public boolean unlisten(IntConsumer listener) {
+		public boolean unlisten(Functions.IntConsumer listener) {
 			return listeners.remove(listener);
 		}
 

@@ -8,11 +8,11 @@ import java.io.PrintStream;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Structure;
+import ceri.common.function.Closeables;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CType;
 import ceri.jna.reflect.CAnnotations.CUndefined;
@@ -64,7 +64,7 @@ public class CSymbolGenBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(sys, files);
+		Closeables.close(sys, files);
 		files = null;
 		sys = null;
 	}

@@ -28,7 +28,7 @@ public class FileDescriptorBehavior {
 		assertEquals(FileDescriptor.NULL.in().read(), 0);
 		FileDescriptor.NULL.out().write(0);
 		FileDescriptor.NULL.blocking(false);
-		assertUnordered(FLAGS.get(FileDescriptor.NULL), RDONLY);
+		assertUnordered(FLAGS.getAll(FileDescriptor.NULL), RDONLY);
 		FileDescriptor.NULL.close();
 		assertFind(FileDescriptor.NULL, ".*NULL$");
 		captor.verifyInt(); // no calls

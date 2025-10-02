@@ -7,11 +7,11 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
@@ -25,7 +25,7 @@ public class Cm17aDeviceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(cm17a, con);
+		Closeables.close(cm17a, con);
 		cm17a = null;
 		con = null;
 	}

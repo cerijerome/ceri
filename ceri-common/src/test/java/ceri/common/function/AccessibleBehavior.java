@@ -18,7 +18,7 @@ public class AccessibleBehavior {
 		}
 
 		@Override
-		public <E extends Exception, R> R apply(Function<E, String, R> function) throws E {
+		public <E extends Exception, R> R apply(Function<E, ? super String, R> function) throws E {
 			calls++;
 			return function.apply(s);
 		}

@@ -1,7 +1,7 @@
 package ceri.x10.util;
 
 import java.io.IOException;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.x10.command.Command;
 
 /**

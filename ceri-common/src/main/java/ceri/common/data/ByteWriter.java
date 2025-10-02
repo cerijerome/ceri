@@ -230,7 +230,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * improved by overriding.
 	 */
 	default T writeFrom(byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(array[offset + i]);
 		return Reflect.unchecked(this);
@@ -255,7 +255,7 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 	 * may be improved by overriding.
 	 */
 	default T writeFrom(ByteProvider provider, int offset, int length) {
-		Validate.validateSlice(provider.length(), offset, length);
+		Validate.slice(provider.length(), offset, length);
 		for (int i = 0; i < length; i++)
 			writeByte(provider.getByte(offset + i));
 		return Reflect.unchecked(this);
@@ -298,5 +298,4 @@ public interface ByteWriter<T extends ByteWriter<T>> extends Fluent<T> {
 		writer.writeFrom(buffer);
 		return buffer.length;
 	}
-
 }

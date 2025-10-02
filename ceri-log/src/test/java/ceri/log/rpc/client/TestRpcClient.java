@@ -2,8 +2,8 @@ package ceri.log.rpc.client;
 
 import java.io.IOException;
 import com.google.protobuf.UInt32Value;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
-import ceri.common.util.Enclosure;
 import ceri.log.rpc.TestGrpc;
 import ceri.log.rpc.util.RpcUtil;
 

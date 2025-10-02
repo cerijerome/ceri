@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
-import ceri.common.collection.Collectable;
-import ceri.common.collection.Lists;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Collectable;
+import ceri.common.collect.Lists;
+import ceri.common.except.ExceptionAdapter;
 
 /**
  * ClassLoader that reloads from class files.

@@ -52,7 +52,7 @@ public abstract class LongArray implements LongProvider {
 		}
 
 		public static Immutable wrap(long[] array, int offset, int length) {
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -72,7 +72,7 @@ public abstract class LongArray implements LongProvider {
 		public Immutable slice(int index, int length) {
 			if (length == 0) return EMPTY;
 			if (length < 0) return slice(index + length, -length);
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			if (index == 0 && length == length()) return this;
 			return wrap(array, offset(index), length);
 		}
@@ -112,7 +112,7 @@ public abstract class LongArray implements LongProvider {
 		}
 
 		public static Mutable wrap(long[] array, int offset, int length) {
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -144,7 +144,7 @@ public abstract class LongArray implements LongProvider {
 		public Mutable slice(int index, int length) {
 			if (length == 0) return Mutable.EMPTY;
 			if (length < 0) return slice(index + length, -length);
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			if (index == 0 && length == length()) return this;
 			return Mutable.wrap(array, offset(index), length);
 		}
@@ -159,22 +159,22 @@ public abstract class LongArray implements LongProvider {
 
 		@Override
 		public int fill(int index, int length, long value) {
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			Arrays.fill(array, offset(index), offset(index + length), value);
 			return index + length;
 		}
 
 		@Override
 		public int copyFrom(int index, long[] array, int offset, int length) {
-			validateSlice(index, length);
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(length(), index, length);
+			Validate.slice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
 
 		@Override
 		public int copyFrom(int index, LongProvider provider, int offset, int length) {
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			provider.copyTo(offset, array, offset(index), length);
 			return index + length;
 		}
@@ -245,7 +245,7 @@ public abstract class LongArray implements LongProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(long[] array, int max) {
-			Validate.validateSubRange(array.length, 0, max);
+			Validate.slice(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -400,8 +400,8 @@ public abstract class LongArray implements LongProvider {
 		default LongProvider encode() {
 			int size = size();
 			if (size == 0) return Immutable.EMPTY;
-			Encoder encoder = Encoder.fixed(size).apply(this::encode);
-			Validate.validateEqual(encoder.remaining(), 0, "Remaining longs");
+			var encoder = Encoder.fixed(size).apply(this::encode);
+			Validate.equal(encoder.remaining(), 0, "Remaining longs");
 			return encoder.immutable();
 		}
 	}
@@ -427,35 +427,35 @@ public abstract class LongArray implements LongProvider {
 	@Override
 	public long[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.longs.empty;
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
 
 	@Override
 	public int copyTo(int index, long[] dest, int offset, int length) {
-		validateSlice(index, length);
-		Validate.validateSlice(dest.length, offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
 
 	@Override
 	public int copyTo(int index, LongReceiver receiver, int offset, int length) {
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		receiver.copyFrom(offset, array, offset(index), length);
 		return index + length;
 	}
 
 	@Override
 	public boolean isEqualTo(int index, long[] array, int offset, int length) {
-		if (!isValidSlice(index, length)) return false;
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
 		return ArrayUtil.longs.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
 	public boolean isEqualTo(int index, LongProvider provider, int offset, int length) {
-		if (!isValidSlice(index, length)) return false;
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		return provider.isEqualTo(offset, array, offset(index), length);
 	}
 
@@ -475,14 +475,6 @@ public abstract class LongArray implements LongProvider {
 
 	int hash() {
 		return ArrayUtil.longs.hash(array, offset, length);
-	}
-
-	boolean isValidSlice(int index, int length) {
-		return ArrayUtil.isValidSlice(this.length, index, length);
-	}
-
-	void validateSlice(int index, int length) {
-		Validate.validateSlice(this.length, index, length);
 	}
 
 	int offset(int index) {

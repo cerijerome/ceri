@@ -1,5 +1,6 @@
 package ceri.common.data;
 
+import ceri.common.except.Exceptions;
 import ceri.common.util.Validate;
 
 /**
@@ -36,8 +37,7 @@ public interface IntAccessor extends IntProvider, IntReceiver {
 	default IntAccessor slice(int index, int length) {
 		if (length == 0) return Null.EMPTY;
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	static class Null implements IntAccessor {
@@ -55,19 +55,19 @@ public interface IntAccessor extends IntProvider, IntReceiver {
 
 		@Override
 		public int getInt(int index) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			return 0;
 		}
 
 		@Override
 		public int setInt(int index, int value) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			return index + 1;
 		}
 
 		@Override
 		public IntAccessor slice(int index, int length) {
-			Validate.validateSlice(length(), index, length);
+			Validate.slice(length(), index, length);
 			if (length == 0) return EMPTY;
 			if (length == length()) return this;
 			return new Null(length);

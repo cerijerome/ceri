@@ -15,11 +15,11 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.log.test.LogModifier;
 import ceri.x10.cm11a.protocol.Clock;
 import ceri.x10.cm11a.protocol.Protocol;
@@ -38,7 +38,7 @@ public class Cm11aDeviceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(cm11a, con);
+		Closeables.close(cm11a, con);
 		cm11a = null;
 		con = null;
 	}

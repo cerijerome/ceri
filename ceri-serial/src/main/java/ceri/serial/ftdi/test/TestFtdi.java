@@ -2,7 +2,7 @@ package ceri.serial.ftdi.test;
 
 import java.io.IOException;
 import com.sun.jna.Pointer;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.Direction;
 import ceri.common.reflect.Reflect;
 import ceri.common.test.CallSync;

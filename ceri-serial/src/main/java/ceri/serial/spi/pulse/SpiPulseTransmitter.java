@@ -5,12 +5,12 @@ import java.io.InputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReceiver;
-import ceri.common.exception.ExceptionTracker;
+import ceri.common.except.ExceptionTracker;
 import ceri.common.io.Direction;
 import ceri.common.text.ToString;
 import ceri.log.concurrent.LoopingExecutor;
@@ -114,7 +114,7 @@ public class SpiPulseTransmitter extends LoopingExecutor implements ByteReceiver
 			throw e;
 		} catch (Exception e) {
 			if (exceptions.add(e)) logger.catching(e);
-			ConcurrentUtil.delay(config.resetDelayMs());
+			Concurrent.delay(config.resetDelayMs());
 		}
 	}
 

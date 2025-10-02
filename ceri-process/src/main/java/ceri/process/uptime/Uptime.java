@@ -8,7 +8,7 @@ import ceri.common.process.Parameters;
 import ceri.common.process.Processor;
 import ceri.common.text.Parse;
 import ceri.common.text.Regex;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.common.util.OsUtil;
 import ceri.process.net.Net;
 
@@ -38,12 +38,12 @@ public class Uptime {
 			var os = OsUtil.os();
 			if (os.linux || os.mac) return of(processor).uptimeMs().parse();
 			long startTime =
-				Net.of(processor).stats.server().parse().since.toInstant().toEpochMilli();
+				Net.of(processor).stats.server().parse().since().toInstant().toEpochMilli();
 			return System.currentTimeMillis() - startTime;
 		} catch (IOException | RuntimeException e) {
 			// Uptime not available
 		}
-		return DateUtil.jvmUptimeMs(); // Use JVM uptime by default
+		return Dates.jvmUptimeMs(); // Use JVM uptime by default
 	}
 
 	public static Uptime of() {

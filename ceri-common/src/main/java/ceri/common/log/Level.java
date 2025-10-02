@@ -1,9 +1,13 @@
 package ceri.common.log;
 
 import java.util.Comparator;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
+/**
+ * Priority level.
+ */
 public enum Level {
+	// Keep in reverse order for priority iteration
 	ALL(6),
 	ERROR(5),
 	WARN(4),
@@ -13,7 +17,7 @@ public enum Level {
 	NONE(0);
 
 	public static final Comparator<Level> COMPARATOR = Comparator.comparingInt(l -> l.value);
-	public static final TypeTranscoder<Level> xcoder = TypeTranscoder.of(t -> t.value, Level.class);
+	public static final Xcoder.Type<Level> xcoder = Xcoder.type(Level.class);
 	public final int value;
 
 	private Level(int value) {

@@ -76,7 +76,7 @@ public interface PortSupplier {
 		}
 
 		private static String index(List<String> ports, int index, String pattern) {
-			Validate.validateMin(index, 0);
+			Validate.min(index, 0);
 			if (ports.isEmpty())
 				throw new IndexOutOfBoundsException("No ports available: " + pattern);
 			if (index >= ports.size()) throw new IndexOutOfBoundsException(
@@ -85,5 +85,4 @@ public interface PortSupplier {
 			return ports.get(index);
 		}
 	}
-
 }

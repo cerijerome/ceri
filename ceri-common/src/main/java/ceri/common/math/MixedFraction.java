@@ -1,6 +1,6 @@
 package ceri.common.math;
 
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 
 public record MixedFraction(long whole, Fraction fraction) {
 	public static final MixedFraction ZERO = new MixedFraction(0, Fraction.ZERO);

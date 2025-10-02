@@ -1,6 +1,6 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.time.DateUtil.microsExact;
+import static ceri.common.time.Dates.microsExact;
 import java.time.Duration;
 import java.time.Instant;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;

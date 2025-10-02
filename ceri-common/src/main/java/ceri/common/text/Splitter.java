@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
 import ceri.common.stream.Streams;
 import ceri.common.util.Validate;
@@ -25,7 +25,7 @@ public class Splitter {
 
 		public static Extraction of(String text, int size) {
 			Validate.validateNotNull(text);
-			Validate.validateMin(size, 0);
+			Validate.min(size, 0);
 			return new Extraction(text, size);
 		}
 
@@ -156,8 +156,8 @@ public class Splitter {
 	 * Run extractors from the current position.
 	 */
 	public List<Extraction> extractAll(Collection<Extractor> extractors) {
-		List<Extraction> list = new ArrayList<>();
-		for (Extractor extractor : extractors)
+		var list = Lists.<Extraction>of();
+		for (var extractor : extractors)
 			list.add(extract(extractor));
 		return list;
 	}
@@ -167,14 +167,14 @@ public class Splitter {
 	 */
 	public Extraction extract(Extractor extractor) {
 		if (pos >= text.length()) return Extraction.NULL;
-		Extraction extraction = extractor.apply(text, pos);
+		var extraction = extractor.apply(text, pos);
 		pos += extraction.size;
 		return extraction;
 	}
 
 	private void repeatExtraction(List<Extraction> list, Extractor extractor) {
 		while (pos < text.length()) {
-			Extraction extraction = extractor.apply(text, pos);
+			var extraction = extractor.apply(text, pos);
 			if (extraction.size == 0) return;
 			list.add(extraction);
 			pos += extraction.size;
@@ -197,9 +197,9 @@ public class Splitter {
 
 	private static Extractor regexGroupExtractor(Pattern pattern) {
 		return (text, pos) -> {
-			Matcher m = pattern.matcher(text);
+			var m = pattern.matcher(text);
 			if (!m.find(pos)) return Extraction.NULL;
-			String s = m.groupCount() >= 1 ? m.group(1) : null;
+			var s = m.groupCount() >= 1 ? m.group(1) : null;
 			if (s == null) s = m.group();
 			return Extraction.of(s, m.end() - pos);
 		};

@@ -9,8 +9,8 @@ public class Pkill {
 	private static final String FULL_OPTION = "-f";
 	private final Processor processor;
 	private boolean full = false;
-	private Signal signal = null;
-
+	private Kill.Signal signal = null;
+	
 	public static Pkill of() {
 		return of(Processor.DEFAULT);
 	}
@@ -28,13 +28,13 @@ public class Pkill {
 		return this;
 	}
 
-	public Pkill signal(Signal signal) {
+	public Pkill signal(Kill.Signal signal) {
 		this.signal = signal;
 		return this;
 	}
 
 	public String pkill(String pattern) throws IOException {
-		Parameters params = Parameters.of();
+		var params = Parameters.of();
 		if (full) params.add(FULL_OPTION);
 		if (signal != null) params.add("-" + signal.number);
 		return exec(params.add(pattern));
@@ -43,5 +43,4 @@ public class Pkill {
 	private String exec(Parameters params) throws IOException {
 		return processor.exec(Parameters.of(PKILL).addAll(params));
 	}
-
 }

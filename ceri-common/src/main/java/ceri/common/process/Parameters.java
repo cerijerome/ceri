@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 
 /**
  * Convenience class for collecting command string parameters.
@@ -95,7 +95,6 @@ public class Parameters {
 
 	@Override
 	public String toString() {
-		return ProcessUtil.toString(list);
+		return Processes.toString(list);
 	}
-
 }

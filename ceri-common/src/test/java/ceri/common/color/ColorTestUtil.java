@@ -58,11 +58,11 @@ public class ColorTestUtil {
 		assertEquals(xargb(colorx), xargb);
 	}
 
-	public static void assertRgb(RgbColor color, double r, double g, double b) {
+	public static void assertRgb(Rgb color, double r, double g, double b) {
 		assertRgb(color, 1.0, r, g, b);
 	}
 
-	public static void assertRgb(RgbColor color, double a, double r, double g, double b) {
+	public static void assertRgb(Rgb color, double a, double r, double g, double b) {
 		assertApprox(color.a(), a, "a");
 		assertApprox(color.r(), r, "r");
 		assertApprox(color.g(), g, "g");
@@ -74,47 +74,47 @@ public class ColorTestUtil {
 	}
 
 	public static void assertHsb(Color color, double a, double h, double s, double b) {
-		assertHsb(HsbColor.from(color), a, h, s, b);
+		assertHsb(Hsb.from(color), a, h, s, b);
 	}
 
-	public static void assertHsb(HsbColor color, double h, double s, double b) {
+	public static void assertHsb(Hsb color, double h, double s, double b) {
 		assertHsb(color, 1.0, h, s, b);
 	}
 
-	public static void assertHsb(HsbColor color, double a, double h, double s, double b) {
+	public static void assertHsb(Hsb color, double a, double h, double s, double b) {
 		assertApprox(color.a(), a, "a");
 		assertApprox(color.h(), h, "h");
 		assertApprox(color.s(), s, "s");
 		assertApprox(color.b(), b, "b");
 	}
 
-	public static void assertXyb(XybColor color, double x, double y, double b) {
+	public static void assertXyb(Xyb color, double x, double y, double b) {
 		assertXyb(color, 1.0, x, y, b);
 	}
 
-	public static void assertXyb(XybColor color, double a, double x, double y, double b) {
+	public static void assertXyb(Xyb color, double a, double x, double y, double b) {
 		assertApprox(color.a(), a, "a");
 		assertApprox(color.x(), x, "x");
 		assertApprox(color.y(), y, "y");
 		assertApprox(color.b(), b, "b");
 	}
 
-	public static void assertXyz(XyzColor color, double x, double y, double z) {
+	public static void assertXyz(Xyz color, double x, double y, double z) {
 		assertXyz(color, 1.0, x, y, z);
 	}
 
-	public static void assertXyz(XyzColor color, double a, double x, double y, double z) {
+	public static void assertXyz(Xyz color, double a, double x, double y, double z) {
 		assertApprox(color.a(), a, "a");
 		assertApprox(color.x(), x, "x");
 		assertApprox(color.y(), y, "y");
 		assertApprox(color.z(), z, "z");
 	}
 
-	public static void assertLuv(LuvColor color, double l, double u, double v) {
+	public static void assertLuv(Luv color, double l, double u, double v) {
 		assertLuv(color, 1.0, l, u, v);
 	}
 
-	public static void assertLuv(LuvColor color, double a, double l, double u, double v) {
+	public static void assertLuv(Luv color, double a, double l, double u, double v) {
 		assertApprox(color.a(), a, "a");
 		assertApprox(color.l(), l, "l");
 		assertApprox(color.u(), u, "u");

@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.util.Basics;
 
 /**
@@ -15,8 +15,7 @@ public enum Direction {
 	/** Input and output, or read and write. */
 	duplex(3);
 
-	public static final TypeTranscoder<Direction> xcoder =
-		TypeTranscoder.of(t -> t.value, Direction.class);
+	public static final Xcoder.Type<Direction> xcoder = Xcoder.type(Direction.class);
 	public final int value;
 
 	public static Direction from(Boolean isOut) {

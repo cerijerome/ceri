@@ -35,7 +35,7 @@ public abstract class JnaOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
-		Validate.validateSlice(b.length, off, len);
+		Validate.slice(b.length, off, len);
 		ensureOpen();
 		verifyWrite(writeAll(buffers.get(), b, off, len), len);
 	}

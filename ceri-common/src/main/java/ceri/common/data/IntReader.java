@@ -124,7 +124,7 @@ public interface IntReader {
 	 * one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(int[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readInt();
 		return offset;
@@ -149,7 +149,7 @@ public interface IntReader {
 	 * implementation reads one int at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(IntReceiver receiver, int offset, int length) {
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setInt(offset++, readInt());
 		return offset;

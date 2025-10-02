@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Excepts.Consumer;
 
 public class NioUtil {
@@ -13,7 +13,7 @@ public class NioUtil {
 
 	public static void selectKeys(Selector selector, Consumer<IOException, SelectionKey> consumer)
 		throws IOException, InterruptedException {
-		ConcurrentUtil.checkInterrupted();
+		Concurrent.checkInterrupted();
 		for (var i = selector.selectedKeys().iterator(); i.hasNext(); i.remove())
 			consumer.accept(i.next());
 	}

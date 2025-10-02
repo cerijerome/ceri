@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Iterables;
+import ceri.common.collect.Iterables;
 import ceri.common.stream.Streams;
 import ceri.common.test.Captor;
 

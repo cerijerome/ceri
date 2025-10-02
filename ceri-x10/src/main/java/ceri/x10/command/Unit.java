@@ -1,6 +1,6 @@
 package ceri.x10.command;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 /**
  * The device unit code. Use level for the integer value.
@@ -23,7 +23,7 @@ public enum Unit {
 	_15,
 	_16;
 
-	private static final TypeTranscoder<Unit> xcoder = TypeTranscoder.of(t -> t.value, Unit.class);
+	public static final Xcoder.Type<Unit> xcoder = Xcoder.type(Unit.class);
 	public final int value;
 
 	public static Unit from(int value) {

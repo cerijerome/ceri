@@ -24,12 +24,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Maps;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Maps;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
@@ -149,7 +149,7 @@ public class TestUtil {
 		return SimpleExecutor.run(() -> {
 			for (int i = 0;; i++) {
 				action.accept(i);
-				ConcurrentUtil.delayMicros(delayUs);
+				Concurrent.delayMicros(delayUs);
 			}
 		});
 	}

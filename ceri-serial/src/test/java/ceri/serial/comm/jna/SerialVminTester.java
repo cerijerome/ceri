@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CPoll;
@@ -43,7 +43,7 @@ public class SerialVminTester {
 		pfds[0].fd = fd;
 		pfds[0].events = CPoll.POLLIN;
 		CSerial.setReadParams(fd, vmin, vtime);
-		ConcurrentUtil.delay(100);
+		Concurrent.delay(100);
 		logger.info("poll: start");
 		var b = CPoll.poll(pfds, 20000);
 		logger.info("poll: %s revents=0x%x", b, pfds[0].revents);
@@ -52,10 +52,10 @@ public class SerialVminTester {
 	private static void runAvailable(int fd, int vmin, int vtime) throws IOException {
 		SerialTestUtil.clear(fd);
 		CSerial.setReadParams(fd, vmin, vtime);
-		ConcurrentUtil.delay(100);
+		Concurrent.delay(100);
 		int n = 20;
 		for (int i = 1; i <= n; i++) {
-			ConcurrentUtil.delay(500);
+			Concurrent.delay(500);
 			logger.info("available: %d", CIoctl.fionread(fd));
 		}
 		logger.info("available: done");
@@ -64,7 +64,7 @@ public class SerialVminTester {
 	private static void runWrite(int fd) throws IOException {
 		int n = 20;
 		for (int i = 1; i <= n; i++) {
-			ConcurrentUtil.delay(500);
+			Concurrent.delay(500);
 			logger.info("write: %d/%d", i, n);
 			CUnistd.write(fd, 0x77);
 		}

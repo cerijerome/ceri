@@ -1,6 +1,6 @@
 package ceri.common.concurrent;
 
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 
 @SuppressWarnings("serial")
 public class RuntimeInterruptedException extends RuntimeException {

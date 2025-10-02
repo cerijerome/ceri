@@ -12,15 +12,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.Lazy;
 import ceri.common.concurrent.Locker;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.event.Listenable;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
@@ -35,7 +36,6 @@ import ceri.common.text.StringBuilders;
 import ceri.common.text.Strings;
 import ceri.common.text.ToString;
 import ceri.common.util.Basics;
-import ceri.common.util.CloseableUtil;
 
 /**
  * A tool for parsing keyboard input, and running commands against 1 or more subjects. Allows
@@ -317,7 +317,7 @@ public class ManualTester implements Functions.Closeable {
 			command(":", (t, _, s) -> t.out(Reflect.nameHash(s)), ": = subject type");
 			command("(?:(<+)|<(\\d+))", (t, m, _) -> t.history(Parse.len(m), Parse.i(m, 2)),
 				"<N = execute Nth previous command");
-			command("~(\\d+)", (_, m, _) -> ConcurrentUtil.delay(Parse.i(m)),
+			command("~(\\d+)", (_, m, _) -> Concurrent.delay(Parse.i(m)),
 				"~N = sleep for N ms");
 			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
 				"^N;... = repeat subsequent commands N times");
@@ -521,7 +521,7 @@ public class ManualTester implements Functions.Closeable {
 		exit = false;
 		showHelp();
 		while (!exit) {
-			ConcurrentUtil.delay(delayMs); // try to avoid err/out print conflict
+			Concurrent.delay(delayMs); // try to avoid err/out print conflict
 			preProcess();
 			print(start(promptSgr) + prompt());
 			execute(() -> {
@@ -671,7 +671,7 @@ public class ManualTester implements Functions.Closeable {
 
 	@Override
 	public void close() {
-		CloseableUtil.close(cycleRunner);
+		Closeables.close(cycleRunner);
 	}
 
 	@Override
@@ -718,7 +718,7 @@ public class ManualTester implements Functions.Closeable {
 			throw new RuntimeInterruptedException(e);
 		} catch (Exception e) {
 			err(e, stackTrace);
-			ConcurrentUtil.delay(errorDelayMs); // slow down errors
+			Concurrent.delay(errorDelayMs); // slow down errors
 		}
 	}
 

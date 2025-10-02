@@ -3,7 +3,7 @@ package ceri.jna.clib.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts.IntConsumer;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.test.CallSync;

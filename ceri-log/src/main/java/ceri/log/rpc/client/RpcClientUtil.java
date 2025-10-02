@@ -2,7 +2,7 @@ package ceri.log.rpc.client;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.text.Regex;

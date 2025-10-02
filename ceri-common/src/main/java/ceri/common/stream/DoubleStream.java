@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import ceri.common.array.DynamicArray;
 import ceri.common.array.RawArray;
-import ceri.common.collection.Sets;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Sets;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -373,8 +373,15 @@ public class DoubleStream<E extends Exception> {
 	/**
 	 * Returns the summation value, allowing overflows, or default.
 	 */
-	public double sum(double def) throws E {
-		return reduce(Reduce.Doubles.sum(), def);
+	public double sum() throws E {
+		return reduce(Reduce.Doubles.sum(), 0.0);
+	}
+
+	/**
+	 * Returns the average value, or 0.
+	 */
+	public double average() throws E {
+		return collect(Collect.Doubles.average);
 	}
 
 	/**

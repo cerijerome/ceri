@@ -48,7 +48,7 @@ public class I2cDevice implements I2c {
 	 * Open a file descriptor to the I2C bus. Can be used as the open function for a SelfHealingFd.
 	 */
 	public static CFileDescriptor open(int bus) throws IOException {
-		Validate.validateMin(bus, 0, "Bus number");
+		Validate.min(bus, 0, "Bus number");
 		return CFileDescriptor.of(I2cDev.i2c_open(bus, Open.RDWR.value));
 	}
 
@@ -111,7 +111,7 @@ public class I2cDevice implements I2c {
 
 	@Override
 	public void write(I2cAddress address, int writeLen, Pointer writeBuf) throws IOException {
-		i2c_msg.ByReference msg = new i2c_msg.ByReference();
+		var msg = new i2c_msg.ByReference();
 		I2cUtil.populate(msg, address, writeLen, writeBuf);
 		transfer(msg);
 	}
@@ -119,7 +119,7 @@ public class I2cDevice implements I2c {
 	@Override
 	public void writeRead(I2cAddress address, Pointer writeBuf, int writeLen, Pointer readBuf,
 		int readLen) throws IOException {
-		i2c_msg.ByReference[] msgs = i2c_msg.array(2);
+		var msgs = i2c_msg.array(2);
 		I2cUtil.populate(msgs[0], address, writeLen, writeBuf);
 		I2cUtil.populate(msgs[1], address, readLen, readBuf, I2C_M_RD);
 		transfer(msgs);
@@ -174,5 +174,4 @@ public class I2cDevice implements I2c {
 		state.address = null;
 		state.tenBit = tenBit;
 	}
-
 }

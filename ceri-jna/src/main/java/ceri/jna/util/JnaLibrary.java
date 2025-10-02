@@ -7,10 +7,10 @@ import org.apache.logging.log4j.Logger;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.Enclosure;
 import ceri.common.util.OsUtil;
 import ceri.common.util.SystemVars;
 

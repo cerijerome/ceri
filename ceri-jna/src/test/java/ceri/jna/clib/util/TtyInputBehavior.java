@@ -7,11 +7,11 @@ import static ceri.jna.clib.jna.CTermios.ICANON;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.LineReader;
 import ceri.common.test.SystemIoCaptor;
-import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosure;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
@@ -28,7 +28,7 @@ public class TtyInputBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ttyRef, sys, ref);
+		Closeables.close(ttyRef, sys, ref);
 		termios = null;
 		sys = null;
 		ttyRef = null;

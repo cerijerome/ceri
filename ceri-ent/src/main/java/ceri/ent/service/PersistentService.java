@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import ceri.common.collection.Maps;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Maps;
+import ceri.common.collect.Sets;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
+import ceri.common.function.Filters;
 
 /**
  * An in-memory data service with persistence.
@@ -32,7 +32,7 @@ public class PersistentService<K extends Comparable<K>, V> implements Persistabl
 	}
 
 	protected Set<V> findAll() {
-		return find(Predicates.yes());
+		return find(Filters.yes());
 	}
 
 	public <E extends Exception> V findFirst(Excepts.Predicate<E, V> filter) throws E {

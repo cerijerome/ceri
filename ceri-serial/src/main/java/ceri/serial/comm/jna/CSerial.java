@@ -26,8 +26,8 @@ import static ceri.jna.clib.jna.CTermios.VSTART;
 import static ceri.jna.clib.jna.CTermios.VSTOP;
 import static ceri.jna.clib.jna.CTermios.VTIME;
 import com.sun.jna.IntegerType;
-import ceri.common.collection.Maps;
-import ceri.common.exception.Exceptions;
+import ceri.common.collect.Maps;
+import ceri.common.except.Exceptions;
 import ceri.common.math.Maths;
 import ceri.common.util.OsUtil;
 import ceri.common.util.Validate;
@@ -115,8 +115,8 @@ public class CSerial {
 	 * </pre>
 	 */
 	public static void setReadParams(int fd, int vmin, int vtime) throws CException {
-		Validate.validateRange(vmin, 0, 0xff);
-		Validate.validateRange(vtime, 0, 0xff);
+		Validate.range(vmin, 0, 0xff);
+		Validate.range(vtime, 0, 0xff);
 		var tty = CTermios.tcgetattr(fd);
 		tty.c_cc[VMIN] = (byte) vmin;
 		tty.c_cc[VTIME] = (byte) vtime;

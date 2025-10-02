@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import org.junit.Test;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 
 public class ShutdownListenerBehavior {
 
@@ -29,7 +29,7 @@ public class ShutdownListenerBehavior {
 	@Test
 	public void shouldThrowErrorIfInterrupted() throws IOException {
 		try (ShutdownListener shutdown = ShutdownListener.of()) {
-			ConcurrentUtil.interrupt();
+			Concurrent.interrupt();
 			assertThrown(() -> shutdown.await());
 		}
 	}

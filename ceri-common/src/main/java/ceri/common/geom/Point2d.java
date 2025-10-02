@@ -1,91 +1,163 @@
 package ceri.common.geom;
 
-import java.util.Objects;
 import ceri.common.util.Validate;
 
-public class Point2d {
+/**
+ * A 2d point.
+ */
+public record Point2d(double x, double y) {
 	public static final Point2d NULL = new Point2d(Double.NaN, Double.NaN);
 	public static final Point2d ZERO = new Point2d(0, 0);
 	public static final Point2d X_UNIT = new Point2d(1, 0);
 	public static final Point2d Y_UNIT = new Point2d(0, 1);
-	public final double x;
-	public final double y;
 
+	/**
+	 * Calculates the angle of the coordinates from the origin, relative to the x-axis.
+	 */
+	public static double angle(double x, double y) {
+		return Math.atan2(y, x);
+	}
+	
+	/**
+	 * Calculates the distance from the origin to the coordinates.
+	 */
+	public static double distance(double x, double y) {
+		return Math.hypot(x, y);
+	}
+
+	/**
+	 * Returns an instance calculated from polar coordinates.
+	 */
+	public static Point2d fromPolar(double radius, double angle) {
+		return of(radius * Math.cos(angle), radius * Math.sin(angle));
+	}
+	
+	/**
+	 * Returns a validated instance.
+	 */
 	public static Point2d of(double x, double y) {
-		Validate.validate(!Double.isNaN(x), "x");
-		Validate.validate(!Double.isNaN(y), "y");
+		Validate.finite(x);
+		Validate.finite(y);
 		if (ZERO.equals(x, y)) return ZERO;
 		if (X_UNIT.equals(x, y)) return X_UNIT;
 		if (Y_UNIT.equals(x, y)) return Y_UNIT;
-		return new Point2d(x + .0, y + .0);
+		return new Point2d(x + 0.0, y + 0.0);
 	}
 
-	private Point2d(double x, double y) {
-		this.x = x;
-		this.y = y;
-	}
-
+	/**
+	 * Returns true if the coordinates are NaN.
+	 */
 	public boolean isNull() {
-		return Double.isNaN(x);
+		return Double.isNaN(x()) && Double.isNaN(y());
 	}
 
+	/**
+	 * Returns true if the coordinates are 0.
+	 */
+	public boolean isZero() {
+		return equals(ZERO);
+	}
+
+	/**
+	 * Rotates the coordinates by 180 degrees.
+	 */
 	public Point2d reverse() {
-		return Point2d.of(-x, -y);
+		return create(-x(), -y());
 	}
 
+	/**
+	 * Moves the coordinates by given offset.
+	 */
 	public Point2d translate(Point2d offset) {
-		return translate(offset.x, offset.y);
+		return translate(offset.x(), offset.y());
 	}
 
+	/**
+	 * Moves the coordinates by given offset.
+	 */
 	public Point2d translate(double x, double y) {
-		return Point2d.of(this.x + x, this.y + y);
+		return create(x() + x, y() + y);
 	}
 
+	/**
+	 * Returns vector coordinates to the given point from this point .
+	 */
 	public Point2d to(Point2d end) {
-		return Point2d.of(end.x - x, end.y - y);
+		return to(end.x(), end.y());
 	}
 
+	/**
+	 * Returns vector coordinates to the given point from this point .
+	 */
+	public Point2d to(double x, double y) {
+		return create(x - x(), y - y());
+	}
+
+	/**
+	 * Returns vector coordinates from the given point to this point .
+	 */
 	public Point2d from(Point2d start) {
-		return start.to(this);
+		return from(start.x(), start.y());
 	}
 
+	/**
+	 * Returns vector coordinates from the given point to this point .
+	 */
+	public Point2d from(double x, double y) {
+		return create(x() - x, y() - y);
+	}
+
+	/**
+	 * Scales the coordinates by the given ratios.
+	 */
 	public Point2d scale(Ratio2d scale) {
-		// +0.0 converts any -0.0 to 0.0
-		return Point2d.of(x * scale.x + 0.0, y * scale.y + 0.0);
+		return scale(scale.x(), scale.y());
 	}
 
+	/**
+	 * Scales the coordinates by the given ratios.
+	 */
+	public Point2d scale(double x, double y) {
+		if (Ratio2d.ZERO.equals(x, y)) return ZERO;
+		if (Ratio2d.UNIT.equals(x, y)) return this;
+		return of(x() * x + 0.0, y() * y + 0.0);
+	}
+
+	/**
+	 * Calculates the angle of the coordinates from the origin, relative to the x-axis.
+	 */
+	public double angle() {
+		return angle(x(), y());
+	}
+	
+	/**
+	 * Calculates the distance from the origin to the coordinates.
+	 */
 	public double distance() {
-		return Math.sqrt(quadrance());
+		return distance(x(), y());
 	}
 
+	/**
+	 * Calculates the squared distance from the origin to the coordinates.
+	 */
 	public double quadrance() {
-		return x * x + y * y;
+		return x() * x() + y() * y();
 	}
 
-	public double distanceTo(Point2d end) {
-		return to(end).distance();
-	}
-
-	private boolean equals(double x, double y) {
-		return this.x == x && this.y == y;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(x, y);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Point2d other)) return false;
-		if (!Objects.equals(x, other.x)) return false;
-		if (!Objects.equals(y, other.y)) return false;
-		return true;
+	/**
+	 * Returns true if this point has the given coordinates.
+	 */
+	public boolean equals(double x, double y) {
+		return this.x() == x && this.y() == y;
 	}
 
 	@Override
 	public String toString() {
-		return "(" + x + ", " + y + ")";
+		return "(" + x() + ", " + y() + ")";
+	}
+	
+	private Point2d create(double x, double y) {
+		if (equals(x, y)) return this;
+		return of(x, y);
 	}
 }

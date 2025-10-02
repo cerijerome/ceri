@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import com.sun.jna.LastErrorException;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
@@ -232,7 +232,7 @@ public class Caller<E extends Exception> {
 
 	private E lastError(LastErrorException e, String message) {
 		int code = e.getErrorCode();
-		String lastErrorMsg = JnaUtil.message(e);
+		var lastErrorMsg = JnaUtil.message(e);
 		if (!lastErrorMsg.isEmpty()) message = lastErrorMsg + ": " + message;
 		return Exceptions.initCause(exceptionFn.apply(code, message), e);
 	}

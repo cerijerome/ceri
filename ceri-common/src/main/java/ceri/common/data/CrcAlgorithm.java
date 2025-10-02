@@ -3,9 +3,9 @@ package ceri.common.data;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
-import ceri.common.collection.Enums;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Enums;
+import ceri.common.collect.Maps;
+import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 
 /**
@@ -70,14 +70,14 @@ public class CrcAlgorithm {
 		private static final Map<Std, CrcAlgorithm> cache = Maps.concurrent();
 		private static final Map<String, Std> nameLookup =
 			Enums.inverseMap(t -> t.names, Std.class);
-		private final Supplier<CrcAlgorithm> supplier;
+		private final Functions.Supplier<CrcAlgorithm> supplier;
 		public final Set<String> names;
 
 		public static Std from(String name) {
 			return nameLookup.get(name.toUpperCase());
 		}
 
-		private Std(Supplier<CrcAlgorithm> supplier, String... names) {
+		private Std(Functions.Supplier<CrcAlgorithm> supplier, String... names) {
 			this.supplier = supplier;
 			this.names = Set.of(names);
 		}

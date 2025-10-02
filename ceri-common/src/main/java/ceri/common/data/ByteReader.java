@@ -273,7 +273,7 @@ public interface ByteReader {
 	 * one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readByte();
 		return offset;
@@ -298,7 +298,7 @@ public interface ByteReader {
 	 * implementation reads one byte at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(ByteReceiver receiver, int offset, int length) {
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, readByte());
 		return offset;

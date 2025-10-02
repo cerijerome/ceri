@@ -1,7 +1,7 @@
 package ceri.common.test;
 
 import java.util.Set;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.data.ByteUtil;
 
 /**

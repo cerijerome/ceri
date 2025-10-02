@@ -12,10 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import ceri.common.function.Closeables;
+import ceri.common.function.Enclosure;
 import ceri.common.test.ConnectorTester;
 import ceri.common.test.ManualTester;
-import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosure;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
@@ -66,11 +66,11 @@ public class SerialTester {
 	 */
 	public static void testPorts(Collection<String> ports) throws IOException {
 		var serials =
-			CloseableUtil.createFrom(port -> SelfHealingSerial.Config.of(port).serial(), ports);
+			Closeables.createFrom(port -> SelfHealingSerial.Config.of(port).serial(), ports);
 		try {
 			test(serials);
 		} finally {
-			CloseableUtil.close(serials);
+			Closeables.close(serials);
 		}
 	}
 

@@ -5,11 +5,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.concurrent.TaskQueue;
 import ceri.common.data.ByteUtil;
-import ceri.common.exception.ExceptionTracker;
+import ceri.common.except.ExceptionTracker;
 import ceri.log.concurrent.LoopingExecutor;
 import ceri.x10.command.Address;
 import ceri.x10.command.Command;
@@ -46,13 +46,13 @@ public class Processor extends LoopingExecutor {
 			lastOn = null;
 			while (true) {
 				if (taskQueue.processNext(config.queuePollTimeoutMs, TimeUnit.MILLISECONDS))
-					ConcurrentUtil.delayMicros(config.commandIntervalMicros);
+					Concurrent.delayMicros(config.commandIntervalMicros);
 			}
 		} catch (RuntimeInterruptedException e) {
 			throw e;
 		} catch (RuntimeException | IOException e) {
 			if (exceptions.add(e)) logger.catching(Level.WARN, e);
-			ConcurrentUtil.delay(config.errorDelayMs);
+			Concurrent.delay(config.errorDelayMs);
 		}
 	}
 
@@ -110,14 +110,14 @@ public class Processor extends LoopingExecutor {
 		for (int i = Byte.SIZE - 1; i >= 0; i--) {
 			if (ByteUtil.bit(b, i)) {
 				connector.dtr(false);
-				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
+				Concurrent.delayMicros(config.waitIntervalMicros);
 				connector.dtr(true);
-				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
+				Concurrent.delayMicros(config.waitIntervalMicros);
 			} else {
 				connector.rts(false);
-				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
+				Concurrent.delayMicros(config.waitIntervalMicros);
 				connector.rts(true);
-				ConcurrentUtil.delayMicros(config.waitIntervalMicros);
+				Concurrent.delayMicros(config.waitIntervalMicros);
 			}
 		}
 	}
@@ -129,9 +129,9 @@ public class Processor extends LoopingExecutor {
 		logger.debug("Sending reset");
 		connector.dtr(false);
 		connector.rts(false);
-		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
+		Concurrent.delayMicros(config.resetIntervalMicros);
 		connector.dtr(true);
 		connector.rts(true);
-		ConcurrentUtil.delayMicros(config.resetIntervalMicros);
+		Concurrent.delayMicros(config.resetIntervalMicros);
 	}
 }

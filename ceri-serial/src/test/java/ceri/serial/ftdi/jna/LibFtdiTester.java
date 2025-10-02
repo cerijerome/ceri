@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.array.ArrayUtil;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.log.util.LogUtil;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -35,12 +35,12 @@ public class LibFtdiTester {
 	private static void process(ftdi_context ftdi) throws LibUsbException {
 		int delayMs = 1000;
 		read(ftdi);
-		ConcurrentUtil.delay(delayMs);
+		Concurrent.delay(delayMs);
 		for (int i = 0; i < 16; i++) {
 			write(ftdi, i);
-			ConcurrentUtil.delay(delayMs);
+			Concurrent.delay(delayMs);
 			read(ftdi);
-			ConcurrentUtil.delay(delayMs);
+			Concurrent.delay(delayMs);
 		}
 		logger.info("Done");
 	}

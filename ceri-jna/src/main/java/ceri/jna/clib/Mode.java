@@ -2,17 +2,15 @@ package ceri.jna.clib;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Set;
-import ceri.common.collection.Enums;
-import ceri.common.collection.Sets;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.collect.Enums;
+import ceri.common.collect.Sets;
+import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 import ceri.common.text.Joiner;
 
-public class Mode {
+public record Mode(int value) {
 	public static final Mode NONE = new Mode(0);
-	private final int mode;
 
 	public static enum Mask {
 		xoth(0001),
@@ -39,25 +37,9 @@ public class Mode {
 		fsock(0140000),
 		fmt(0170000);
 
-		private static final TypeTranscoder<Mask> xcoder =
-			TypeTranscoder.of(t -> t.value, Enums.of(Mask.class).reversed());
+		public static final Xcoder.Types<Mask> xcoder =
+			Xcoder.types(Enums.of(Mask.class).reversed(), t -> t.value);
 		public final int value;
-
-		public static int encode(Mask... masks) {
-			return encode(Arrays.asList(masks));
-		}
-
-		public static int encode(Collection<Mask> masks) {
-			return xcoder.encodeInt(masks);
-		}
-
-		public static Set<Mask> decode(int value) {
-			return xcoder.decodeAll(value);
-		}
-
-		public static String string(int value) {
-			return Joiner.OR.join(decode(value));
-		}
 
 		private Mask(int value) {
 			this.value = value;
@@ -73,7 +55,7 @@ public class Mode {
 	}
 
 	public static Mode of(Collection<Mask> masks) {
-		return of(Mask.encode(masks));
+		return of(Mask.xcoder.encodeInt(masks));
 	}
 
 	public static class Builder {
@@ -91,7 +73,7 @@ public class Mode {
 		}
 
 		public Mode build() {
-			return new Mode(Mask.encode(masks));
+			return new Mode(Mask.xcoder.encodeInt(masks));
 		}
 	}
 
@@ -99,46 +81,24 @@ public class Mode {
 		return new Builder();
 	}
 
-	Mode(int mode) {
-		this.mode = mode;
-	}
-
-	public int value() {
-		return mode;
-	}
-
 	public boolean has(Mask... masks) {
 		return has(Arrays.asList(masks));
 	}
 
 	public boolean has(Collection<Mask> masks) {
-		int value = Mask.encode(masks);
-		return (mode & value) == value;
+		return Mask.xcoder.hasAll(value(), masks);
 	}
 
 	public Set<Mask> masks() {
-		return Mask.decode(mode);
+		return Mask.xcoder.decodeAll(value());
 	}
 
 	public String maskString() {
-		return Mask.string(mode);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(mode);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!(obj instanceof Mode other)) return false;
-		if (mode != other.mode) return false;
-		return true;
+		return Joiner.OR.join(Mask.xcoder.decodeAll(value()));
 	}
 
 	@Override
 	public String toString() {
-		return "mode:0" + Integer.toOctalString(mode);
+		return "mode:0" + Integer.toOctalString(value());
 	}
 }

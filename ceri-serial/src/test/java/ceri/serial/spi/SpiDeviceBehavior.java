@@ -8,9 +8,9 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.util.JnaLibrary;
@@ -24,7 +24,7 @@ public class SpiDeviceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 		spi = null;
 	}

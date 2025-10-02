@@ -1,8 +1,7 @@
 package ceri.common.data;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Set;
+import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
 import ceri.common.util.Validate;
@@ -98,15 +97,15 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 		/**
 		 * Provide a source transcoder for a single typed value.
 		 */
-		public <U> Type<E, T, U> type(TypeTranscoder<U> xcoder) {
-			return new Type<>(this, xcoder);
+		public <U> Type<E, T, U> type(Xcoder.Type<U> xcoder) {
+			return new Type<>(this::get, this::set, xcoder);
 		}
 
 		/**
-		 * Provide a source transcoder for multiple typed values.
+		 * Provide a source transcoder for a single typed value.
 		 */
-		public <U> Types<E, T, U> types(TypeTranscoder<U> xcoder) {
-			return new Types<>(this, xcoder);
+		public <U> Types<E, T, U> types(Xcoder.Types<U> xcoder) {
+			return new Types<>(this::get, this::set, xcoder);
 		}
 
 		/**
@@ -167,20 +166,6 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 		}
 
 		/**
-		 * Apply the bitwise operator to the source value.
-		 */
-		public Long<E, T> or(T source, long value) throws E {
-			return apply(source, n -> n | value);
-		}
-
-		/**
-		 * Apply the bitwise operator to the source value.
-		 */
-		public Long<E, T> and(T source, long value) throws E {
-			return apply(source, n -> n & value);
-		}
-
-		/**
 		 * Apply the operator to the source value.
 		 */
 		public Long<E, T> apply(T source, Excepts.LongOperator<E> operator) throws E {
@@ -192,116 +177,170 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 	}
 
 	/**
-	 * A field transcoder for multiple typed values.
+	 * A single type field transcoder.
 	 */
-	public record Type<E extends Exception, T, U>(Long<E, T> field, TypeTranscoder<U> xcoder) {
+	public static class Type<E extends Exception, S, T> {
+		private final Excepts.ToLongFunction<E, S> getter;
+		private final Excepts.ObjLongConsumer<E, S> setter;
+		private final Xcoder.Type<T> xcoder;
+
+		private Type(Excepts.ToLongFunction<E, S> getter, Excepts.ObjLongConsumer<E, S> setter,
+			Xcoder.Type<T> xcoder) {
+			this.getter = getter;
+			this.setter = setter;
+			this.xcoder = xcoder;
+		}
+
+		/**
+		 * Provides access to the type transcoder.
+		 */
+		public Xcoder.Type<T> xcoder() {
+			return xcoder;
+		}
+
+		/**
+		 * Returns the field int value.
+		 */
+		public long getValue(S source) throws E {
+			return getter.applyAsLong(source);
+		}
+
+		/**
+		 * Sets the field int value.
+		 */
+		public void setValue(S source, long value) throws E {
+			setter.accept(source, value);
+		}
 
 		/**
 		 * Sets the encoded type as the field value.
 		 */
-		public Type<E, T, U> set(T source, U type) throws E {
-			field().set(source, xcoder().encode(type));
-			return this;
+		public void set(S source, T t) throws E {
+			setValue(source, xcoder().encode(t));
 		}
 
 		/**
-		 * Decode the field value into a type. Any remainder is discarded.
+		 * Returns the decoded type from the field value.
 		 */
-		public U get(T source) throws E {
-			return xcoder().decode(field.get(source));
+		public T get(S source) throws E {
+			return xcoder().decode(getValue(source));
+		}
+
+		/**
+		 * Returns the decoded type from the field value; fails if not exact.
+		 */
+		public T getValid(S source) throws E {
+			return getValid(source, "");
+		}
+
+		/**
+		 * Returns the decoded type from the field value; fails if not exact.
+		 */
+		public T getValid(S source, String format, Object... args) throws E {
+			return xcoder().decodeValid(getValue(source), format, args);
+		}
+
+		/**
+		 * Returns true if the type has all bits within the value.
+		 */
+		public boolean has(S source, T t) throws E {
+			return xcoder().has(getValue(source), t);
 		}
 	}
 
 	/**
-	 * A field transcoder for multiple typed values.
+	 * A multiple type field transcoder.
 	 */
-	public record Types<E extends Exception, T, U>(Long<E, T> field, TypeTranscoder<U> xcoder) {
+	public static class Types<E extends Exception, S, T> extends Type<E, S, T> {
+		private Types(Excepts.ToLongFunction<E, S> getter, Excepts.ObjLongConsumer<E, S> setter,
+			Xcoder.Types<T> xcoder) {
+			super(getter, setter, xcoder);
+		}
+
+		@Override
+		public Xcoder.Types<T> xcoder() {
+			return (Xcoder.Types<T>) super.xcoder();
+		}
+
+		/**
+		 * Adds encoded types to the field value.
+		 */
+		@SafeVarargs
+		public final void add(S source, T... ts) throws E {
+			add(source, Lists.wrap(ts));
+		}
+
+		/**
+		 * Adds encoded types to the field value.
+		 */
+		public void add(S source, Iterable<T> ts) throws E {
+			setValue(source, xcoder().add(getValue(source), ts));
+		}
+
+		/**
+		 * Removes encoded types from the field value.
+		 */
+		@SafeVarargs
+		public final void remove(S source, T... ts) throws E {
+			remove(source, Lists.wrap(ts));
+		}
+
+		/**
+		 * Removes encoded types from the field value.
+		 */
+		public void remove(S source, Iterable<T> ts) throws E {
+			setValue(source, xcoder().remove(getValue(source), ts));
+		}
 
 		/**
 		 * Sets the encoded types as the field value.
 		 */
 		@SafeVarargs
-		public final Types<E, T, U> set(T source, U... types) throws E {
-			return set(source, Arrays.asList(types));
+		public final void set(S source, T... ts) throws E {
+			set(source, Lists.wrap(ts));
 		}
 
 		/**
 		 * Sets the encoded types as the field value.
 		 */
-		public Types<E, T, U> set(T source, Iterable<U> types) throws E {
-			field().set(source, xcoder().encode(types));
-			return this;
+		public void set(S source, Iterable<T> ts) throws E {
+			setValue(source, xcoder().encode(ts));
 		}
 
 		/**
-		 * Adds the encoded types to the field value.
+		 * Gets the decoded types from the field value.
+		 */
+		public Set<T> getAll(S source) throws E {
+			return xcoder().decodeAll(getValue(source));
+		}
+
+		/**
+		 * Gets the decoded types from the field value; fails if not exact.
+		 */
+		public Set<T> getAllValid(S source) throws E {
+			return getAllValid(source, "");
+		}
+
+		/**
+		 * Gets the decoded types from the field value; fails if not exact.
+		 */
+		public Set<T> getAllValid(S source, String format, Object... args) throws E {
+			return xcoder().decodeAllValid(getValue(source), format, args);
+		}
+
+		/**
+		 * Returns true if the type bits are within the value, with possible remainder.
 		 */
 		@SafeVarargs
-		public final Types<E, T, U> add(T source, U... types) throws E {
-			return add(source, Arrays.asList(types));
+		public final boolean hasAll(S source, T... ts) throws E {
+			return hasAll(source, Lists.wrap(ts));
 		}
 
 		/**
-		 * Adds the encoded types to the field value.
+		 * Returns true if the type bits are within the value, with possible remainder.
 		 */
-		public Types<E, T, U> add(T source, Iterable<U> types) throws E {
-			field().or(source, xcoder().encode(types));
-			return this;
-		}
-
-		/**
-		 * Removes the encoded types from the field value.
-		 */
-		@SafeVarargs
-		public final Types<E, T, U> remove(T source, U... types) throws E {
-			return remove(source, Arrays.asList(types));
-		}
-
-		/**
-		 * Removes the encoded types from the field value.
-		 */
-		public Types<E, T, U> remove(T source, Iterable<U> types) throws E {
-			field().and(source, ~xcoder().encode(types));
-			return this;
-		}
-
-		/**
-		 * Decode the field value into multiple types. Iteration over the types is in lookup entry
-		 * order. Any remainder is discarded.
-		 */
-		public Set<U> get(T source) throws E {
-			return xcoder().decodeAll(field.get(source));
-		}
-
-		/**
-		 * Decode the field value into multiple types, and add to the given collection. Iteration
-		 * over the types is in lookup entry order. Any remainder is returned.
-		 */
-		public <C extends Collection<U>> long get(T source, C collection) throws E {
-			return xcoder().decodeRemainder(collection, field.get(source));
-		}
-
-		/**
-		 * Decode the field value into multiple types, and add to the given collection. Iteration
-		 * over the types is in lookup entry order. Any remainder is returned.
-		 */
-		public <C extends Collection<U>> int getInt(T source, C collection) throws E {
-			return (int) get(source, collection);
-		}
-
-		/**
-		 * Returns true if the field value has all the encoded types.
-		 */
-		@SafeVarargs
-		public final boolean has(T source, U... types) throws E {
-			return has(source, Arrays.asList(types));
-		}
-
-		/**
-		 * Returns true if the field value has all the encoded types.
-		 */
-		public boolean has(T source, Iterable<U> types) throws E {
-			return xcoder().hasAll(field.get(source), types);
+		public boolean hasAll(S source, Iterable<T> ts) throws E {
+			return xcoder().hasAll(getValue(source), ts);
 		}
 	}
 }

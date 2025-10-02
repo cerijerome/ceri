@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.function.Functions;
 
 public class Persistables implements Functions.Closeable, Persistable {

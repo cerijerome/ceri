@@ -4,8 +4,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.sun.jna.LastErrorException;
-import ceri.common.data.TypeTranscoder;
 import ceri.common.data.TypeValue;
+import ceri.common.data.Xcoder;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 import ceri.jna.clib.jna.CErrNo;
@@ -163,7 +163,7 @@ public enum ErrNo {
 	EPROGUNAVAIL(CErrNo.EPROGUNAVAIL),
 	ERPCMISMATCH(CErrNo.ERPCMISMATCH);
 
-	private static final TypeTranscoder<ErrNo> xcoder = TypeTranscoder.of(t -> t.code, ErrNo.class);
+	public static final Xcoder.Type<ErrNo> xcoder = Xcoder.type(ErrNo.class, t -> t.code);
 	public final int code;
 
 	/**

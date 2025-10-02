@@ -1,7 +1,7 @@
 package ceri.serial.spi.pulse;
 
 import java.util.Objects;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.math.Maths;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
@@ -120,11 +120,11 @@ public class PulseCycle {
 	 * Pulse cycle for a signal with no padding between bytes.
 	 */
 	private static PulseCycle nbit(int n, int offset, int t0Bits, int t1Bits) {
-		Validate.validateMin(n, MIN_T1 + 1, "Len");
-		Validate.validateRange(offset, 0, n - MIN_T1, "Offset");
+		Validate.min(n, MIN_T1 + 1, "Len");
+		Validate.range(offset, 0, n - MIN_T1, "Offset");
 		// Min 1 more bit for t1, 1 bit for padding between pulses
-		Validate.validateRange(t0Bits, MIN_T0, Math.min(n - 1 - 1, n - 1 - offset), "t0 len");
-		Validate.validateRange(t1Bits, t0Bits + 1, Math.min(n - 1, n - offset), "t1 len");
+		Validate.range(t0Bits, MIN_T0, Math.min(n - 1 - 1, n - 1 - offset), "t0 len");
+		Validate.range(t1Bits, t0Bits + 1, Math.min(n - 1, n - offset), "t1 len");
 		return new PulseCycle(Maths.lcm(n, Byte.SIZE), n, offset, t0Bits, t1Bits, Type.nbit);
 	}
 
@@ -133,15 +133,15 @@ public class PulseCycle {
 	 * output for Raspberry Pi 3B.
 	 */
 	private static PulseCycle nbit9(int n, int offset, int t0Bits, int t1Bits) {
-		Validate.validateMin(n, MIN_T1 + 1, "Len");
+		Validate.min(n, MIN_T1 + 1, "Len");
 		int count = Math.ceilDiv(Byte.SIZE - 1, n);
 		int spareBits = Byte.SIZE - MIN_T1 - ((count - 1) * n);
-		Validate.validateRange(offset, 0, spareBits, "Offset");
+		Validate.range(offset, 0, spareBits, "Offset");
 		// Min 1 more bit for t1, 1 bit for padding between pulses
 		int maxT0Bits = Math.min(n - 1 - 1, MIN_T0 + spareBits - offset);
 		int maxT1Bits = Math.min(n - 1, MIN_T1 + spareBits - offset);
-		Validate.validateRange(t0Bits, MIN_T0, maxT0Bits, "t0Bits");
-		Validate.validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
+		Validate.range(t0Bits, MIN_T0, maxT0Bits, "t0Bits");
+		Validate.range(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
 		return new PulseCycle(Byte.SIZE, n, offset, t0Bits, t1Bits, Type.nbit9) {
 			@Override
 			public int cycleSignalBits() {
@@ -155,18 +155,18 @@ public class PulseCycle {
 	 * elongated first data bit. As seen on SPI1 output for Raspberry Pi 3B.
 	 */
 	private static PulseCycle nbit27(int n, int offset, int t0Bits, int t1Bits) {
-		Validate.validateMin(n, MIN_T1 + 2, "Len");
+		Validate.min(n, MIN_T1 + 2, "Len");
 		int minT0 = offset == 0 ? MIN_T0 + 1 : MIN_T0;
 		int minT1 = minT0 + 1;
 		int count = Math.ceilDiv(25 - 1, n);
 		int cycleStorageBits = (3 * Byte.SIZE) + 1; // double-size fake bit 0
 		int cycleSignalBits = cycleStorageBits + 2;
 		int spareBits = cycleStorageBits - minT1 - ((count - 1) * n);
-		if (offset != 0) Validate.validateRange(offset, 2, spareBits, "Offset");
+		if (offset != 0) Validate.range(offset, 2, spareBits, "Offset");
 		int maxT0Bits = Math.min(n - 1 - 1, minT0 + spareBits - offset);
 		int maxT1Bits = Math.min(n - 1, minT1 + spareBits - offset);
-		Validate.validateRange(t0Bits, minT0, maxT0Bits, "t0Bits");
-		Validate.validateRange(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
+		Validate.range(t0Bits, minT0, maxT0Bits, "t0Bits");
+		Validate.range(t1Bits, t0Bits + 1, maxT1Bits, "t1Bits");
 		return new PulseCycle(cycleStorageBits, n, offset, t0Bits, t1Bits, Type.nbit27) {
 			@Override
 			public int cycleSignalBits() {

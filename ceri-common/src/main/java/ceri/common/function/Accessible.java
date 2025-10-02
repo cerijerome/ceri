@@ -15,12 +15,12 @@ public interface Accessible<T> {
 	/**
 	 * Applies the function.
 	 */
-	<E extends Exception, R> R apply(Function<E, T, R> function) throws E;
+	<E extends Exception, R> R apply(Function<E, ? super T, R> function) throws E;
 
 	/**
 	 * Accepts the consumer.
 	 */
-	default <E extends Exception> void accept(Consumer<E, T> consumer) throws E {
+	default <E extends Exception> void accept(Consumer<E, ? super T> consumer) throws E {
 		apply(t -> {
 			consumer.accept(t);
 			return null;
@@ -34,7 +34,7 @@ public interface Accessible<T> {
 		// why is f -> f.apply(t) not working?
 		return new Accessible<>() {
 			@Override
-			public <E extends Exception, R> R apply(Function<E, T, R> function) throws E {
+			public <E extends Exception, R> R apply(Function<E, ? super T, R> function) throws E {
 				return function.apply(t);
 			}
 		};

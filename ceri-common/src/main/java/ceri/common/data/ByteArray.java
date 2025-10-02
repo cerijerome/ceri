@@ -61,7 +61,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Immutable wrap(byte[] array, int offset, int length) {
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Immutable(array, offset, length);
 		}
@@ -81,7 +81,7 @@ public abstract class ByteArray implements ByteProvider {
 		public Immutable slice(int index, int length) {
 			if (length == 0) return EMPTY;
 			if (length < 0) return slice(index + length, -length);
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			if (index == 0 && length == length()) return this;
 			return wrap(array, offset(index), length);
 		}
@@ -138,7 +138,7 @@ public abstract class ByteArray implements ByteProvider {
 		}
 
 		public static Mutable wrap(byte[] array, int offset, int length) {
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(array.length, offset, length);
 			if (length == 0) return EMPTY;
 			return new Mutable(array, offset, length);
 		}
@@ -165,7 +165,7 @@ public abstract class ByteArray implements ByteProvider {
 		public Mutable slice(int index, int length) {
 			if (length == 0) return Mutable.EMPTY;
 			if (length < 0) return slice(index + length, -length);
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			if (index == 0 && length == length()) return this;
 			return Mutable.wrap(array, offset(index), length);
 		}
@@ -185,36 +185,36 @@ public abstract class ByteArray implements ByteProvider {
 
 		@Override
 		public int setEndian(int index, int size, long value, boolean msb) {
-			validateSlice(index, size);
+			Validate.slice(length(), index, size);
 			return msb ? ByteUtil.writeMsb(value, array, offset(index), size) :
 				ByteUtil.writeLsb(value, array, offset(index), size);
 		}
 
 		@Override
 		public int fill(int index, int length, int value) {
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			Arrays.fill(array, offset(index), offset(index + length), (byte) value);
 			return index + length;
 		}
 
 		@Override
 		public int copyFrom(int index, byte[] array, int offset, int length) {
-			validateSlice(index, length);
-			Validate.validateSlice(array.length, offset, length);
+			Validate.slice(length(), index, length);
+			Validate.slice(array.length, offset, length);
 			System.arraycopy(array, offset, this.array, offset(index), length);
 			return index + length;
 		}
 
 		@Override
 		public int copyFrom(int index, ByteProvider provider, int offset, int length) {
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			provider.copyTo(offset, array, offset(index), length);
 			return index + length;
 		}
 
 		@Override
 		public int readFrom(int index, InputStream in, int length) throws IOException {
-			validateSlice(index, length);
+			Validate.slice(length(), index, length);
 			int n = in.readNBytes(array, offset(index), length);
 			return index + n;
 		}
@@ -285,7 +285,7 @@ public abstract class ByteArray implements ByteProvider {
 		 * Create an encoder that only writes to the array.
 		 */
 		public static Encoder of(byte[] array, int max) {
-			Validate.validateSubRange(array.length, 0, max);
+			Validate.slice(array.length, 0, max);
 			return new Encoder(array, 0, array.length);
 		}
 
@@ -351,7 +351,7 @@ public abstract class ByteArray implements ByteProvider {
 		@Override
 		public int transferTo(OutputStream out, int length) throws IOException {
 			int current = offset();
-			Validate.validateSlice(length(), current, length);
+			Validate.slice(length(), current, length);
 			offset(mutable.writeTo(current, out, length));
 			return offset() - current;
 		}
@@ -414,7 +414,7 @@ public abstract class ByteArray implements ByteProvider {
 
 		@Override
 		public int transferFrom(InputStream in, int length) throws IOException {
-			Validate.validateMin(length, 0);
+			Validate.min(length, 0);
 			int current = offset();
 			grow(current + length);
 			writeInc(mutable.readFrom(current, in, length) - current);
@@ -473,8 +473,8 @@ public abstract class ByteArray implements ByteProvider {
 		default ByteProvider encode() {
 			int size = size();
 			if (size == 0) return Immutable.EMPTY;
-			Encoder encoder = Encoder.fixed(size).apply(this::encode);
-			Validate.validateEqual(encoder.remaining(), 0, "Remaining bytes");
+			var encoder = Encoder.fixed(size).apply(this::encode);
+			Validate.equal(encoder.remaining(), 0, "Remaining bytes");
 			return encoder.immutable();
 		}
 	}
@@ -499,42 +499,42 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public long getEndian(int index, int size, boolean msb) {
-		validateSlice(index, size);
+		Validate.slice(length(), index, size);
 		return msb ? ByteUtil.fromMsb(array, offset(index), size) :
 			ByteUtil.fromLsb(array, offset(index), size);
 	}
 
 	@Override
 	public String getString(int index, int length, Charset charset) {
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		return new String(array, offset(index), length, charset);
 	}
 
 	@Override
 	public byte[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.bytes.empty;
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		return Arrays.copyOfRange(array, offset(index), offset(index + length));
 	}
 
 	@Override
 	public int copyTo(int index, byte[] dest, int offset, int length) {
-		validateSlice(index, length);
-		Validate.validateSlice(dest.length, offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(dest.length, offset, length);
 		System.arraycopy(array, offset(index), dest, offset, length);
 		return offset + length;
 	}
 
 	@Override
 	public int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		receiver.copyFrom(offset, array, offset(index), length);
 		return index + length;
 	}
 
 	@Override
 	public int writeTo(int index, OutputStream out, int length) throws IOException {
-		validateSlice(index, length);
+		Validate.slice(length(), index, length);
 		if (length > 0) out.write(array, offset(index), length);
 		return index + length;
 	}
@@ -546,14 +546,14 @@ public abstract class ByteArray implements ByteProvider {
 
 	@Override
 	public boolean isEqualTo(int index, byte[] array, int offset, int length) {
-		if (!isValidSlice(index, length)) return false;
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		if (!ArrayUtil.isValidSlice(array.length, offset, length)) return false;
 		return ArrayUtil.bytes.equals(this.array, offset(index), array, offset, length);
 	}
 
 	@Override
 	public boolean isEqualTo(int index, ByteProvider provider, int offset, int length) {
-		if (!isValidSlice(index, length)) return false;
+		if (!ArrayUtil.isValidSlice(length(), index, length)) return false;
 		return provider.isEqualTo(offset, array, offset(index), length);
 	}
 
@@ -573,14 +573,6 @@ public abstract class ByteArray implements ByteProvider {
 
 	int hash() {
 		return ArrayUtil.bytes.hash(array, offset, length());
-	}
-
-	boolean isValidSlice(int index, int length) {
-		return ArrayUtil.isValidSlice(length(), index, length);
-	}
-
-	void validateSlice(int index, int length) {
-		Validate.validateSlice(length(), index, length);
 	}
 
 	int offset(int index) {

@@ -34,15 +34,15 @@ public record TimeSpec(long seconds, long nanos) {
 	 * Creates from milliseconds (normalized).
 	 */
 	public static TimeSpec fromMillis(long millis) {
-		return new TimeSpec(millis / DateUtil.SEC_MILLIS,
-			(millis % DateUtil.SEC_MILLIS) * DateUtil.MILLI_NANOS);
+		return new TimeSpec(millis / Dates.SEC_MILLIS,
+			(millis % Dates.SEC_MILLIS) * Dates.MILLI_NANOS);
 	}
 
 	/**
 	 * Creates from nanoseconds (normalized).
 	 */
 	public static TimeSpec fromNanos(long nanos) {
-		return new TimeSpec(nanos / DateUtil.SEC_NANOS, nanos % DateUtil.SEC_NANOS);
+		return new TimeSpec(nanos / Dates.SEC_NANOS, nanos % Dates.SEC_NANOS);
 	}
 
 	/**
@@ -63,28 +63,28 @@ public record TimeSpec(long seconds, long nanos) {
 	 * Creates from seconds and converts microsecond offset to nanoseconds (not normalized).
 	 */
 	public static TimeSpec ofMicros(long seconds, long micros) {
-		return new TimeSpec(seconds, Math.multiplyExact(micros, DateUtil.MICRO_NANOS));
+		return new TimeSpec(seconds, Math.multiplyExact(micros, Dates.MICRO_NANOS));
 	}
 
 	/**
 	 * Creates from seconds and converts millisecond offset to nanoseconds (not normalized).
 	 */
 	public static TimeSpec ofMillis(long seconds, long millis) {
-		return new TimeSpec(seconds, Math.multiplyExact(millis, DateUtil.MILLI_NANOS));
+		return new TimeSpec(seconds, Math.multiplyExact(millis, Dates.MILLI_NANOS));
 	}
 
 	/**
 	 * Returns the nanosecond offset as microseconds, rounded down.
 	 */
 	public long micros() {
-		return Math.floorDiv(nanos(), DateUtil.MICRO_NANOS);
+		return Math.floorDiv(nanos(), Dates.MICRO_NANOS);
 	}
 
 	/**
 	 * Returns the nanosecond offset as milliseconds, rounded down.
 	 */
 	public long millis() {
-		return Math.floorDiv(nanos(), DateUtil.MILLI_NANOS);
+		return Math.floorDiv(nanos(), Dates.MILLI_NANOS);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public record TimeSpec(long seconds, long nanos) {
 	 * out of range.
 	 */
 	public long totalNanos() {
-		return Math.addExact(Math.multiplyExact(seconds(), DateUtil.SEC_NANOS), nanos());
+		return Math.addExact(Math.multiplyExact(seconds(), Dates.SEC_NANOS), nanos());
 	}
 
 	/**
@@ -130,8 +130,8 @@ public record TimeSpec(long seconds, long nanos) {
 	 * out of range.
 	 */
 	public long totalMicros() {
-		return Math.addExact(Math.multiplyExact(seconds(), DateUtil.SEC_MICROS),
-			Math.floorDiv(nanos(), DateUtil.MICRO_NANOS));
+		return Math.addExact(Math.multiplyExact(seconds(), Dates.SEC_MICROS),
+			Math.floorDiv(nanos(), Dates.MICRO_NANOS));
 	}
 
 	/**
@@ -139,8 +139,8 @@ public record TimeSpec(long seconds, long nanos) {
 	 * out of range.
 	 */
 	public long totalMillis() {
-		return Math.addExact(Math.multiplyExact(seconds(), DateUtil.SEC_MILLIS),
-			Math.floorDiv(nanos(), DateUtil.MILLI_NANOS));
+		return Math.addExact(Math.multiplyExact(seconds(), Dates.SEC_MILLIS),
+			Math.floorDiv(nanos(), Dates.MILLI_NANOS));
 	}
 
 	/**
@@ -161,10 +161,10 @@ public record TimeSpec(long seconds, long nanos) {
 	 * Normalizes nanoseconds to be within 1 second, and adjusts seconds with the difference.
 	 */
 	public TimeSpec normalize() {
-		long sec = Math.floorDiv(nanos(), DateUtil.SEC_NANOS);
+		long sec = Math.floorDiv(nanos(), Dates.SEC_NANOS);
 		if (sec == 0) return this;
 		return new TimeSpec(Math.addExact(seconds, sec),
-			Math.floorMod(nanos(), DateUtil.SEC_NANOS));
+			Math.floorMod(nanos(), Dates.SEC_NANOS));
 	}
 
 	@Override

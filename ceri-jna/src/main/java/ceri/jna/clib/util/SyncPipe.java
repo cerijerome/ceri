@@ -3,10 +3,10 @@ package ceri.jna.clib.util;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Closeables;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.io.IoUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Pipe;
 import ceri.jna.clib.Poll;
@@ -165,14 +165,14 @@ public class SyncPipe implements Functions.Closeable {
 	 * Clear any tokens written to the pipe.
 	 */
 	public void clear() {
-		if (!closed.get()) FunctionUtil.runSilently(() -> IoUtil.clear(pipe.in()));
+		if (!closed.get()) Functional.runSilently(() -> IoUtil.clear(pipe.in()));
 		sync.set(false);
 	}
 
 	@Override
 	public void close() {
 		if (closed.getAndSet(true)) return;
-		CloseableUtil.close(this::write); // ignore failure
+		Closeables.close(this::write); // ignore failure
 		LogUtil.close(pipe); // log failure
 	}
 

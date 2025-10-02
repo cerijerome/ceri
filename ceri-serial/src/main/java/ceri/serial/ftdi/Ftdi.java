@@ -166,7 +166,7 @@ public interface Ftdi extends Connector {
 	 */
 	@SuppressWarnings("resource")
 	default FtdiTransferControl writeSubmit(byte[] data, int offset, int len) throws IOException {
-		Validate.validateSlice(data.length, offset, len);
+		Validate.slice(data.length, offset, len);
 		var m = JnaUtil.mallocBytes(data, offset, len);
 		return writeSubmit(m, len);
 	}

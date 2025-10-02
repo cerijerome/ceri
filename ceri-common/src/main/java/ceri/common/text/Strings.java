@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.IntStream;
@@ -54,7 +54,7 @@ public class Strings {
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, T>
 			of(Excepts.Predicate<E, ? super String> predicate) {
-			if (predicate == null) return Predicates.yes();
+			if (predicate == null) return Filters.yes();
 			return t -> t != null && predicate.test(String.valueOf(t));
 		}
 
@@ -63,7 +63,7 @@ public class Strings {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, String> eq(boolean matchCase,
 			String s) {
-			if (s == null) return Predicates.isNull();
+			if (s == null) return Filters.isNull();
 			return of(t -> Strings.equals(matchCase, t, s));
 		}
 
@@ -72,7 +72,7 @@ public class Strings {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, CharSequence>
 			contains(CharSequence s) {
-			if (s == null) return Predicates.isNull();
+			if (s == null) return Filters.isNull();
 			return t -> t != null && Strings.contains(t, s);
 		}
 
@@ -81,16 +81,16 @@ public class Strings {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, String> contains(boolean matchCase,
 			String s) {
-			if (s == null) return Predicates.isNull();
+			if (s == null) return Filters.isNull();
 			return t -> t != null && Strings.contains(matchCase, t, s);
 		}
 	}
 
 	/**
-	 * Returns empty string if null.
+	 * Returns object string, or empty string if null.
 	 */
-	public static String safe(CharSequence s) {
-		return s == null ? "" : s.toString();
+	public static String safe(Object obj) {
+		return obj == null ? "" : obj.toString();
 	}
 
 	/**

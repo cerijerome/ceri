@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.io.IoUtil;
 import ceri.common.math.Maths;
 import ceri.log.test.LogModifier;
@@ -34,7 +34,7 @@ public class SerialReadWriteTester {
 	public static void main(String[] args) throws Exception {
 		var ports = SerialTestUtil.usbPorts(2);
 		try (var x1 = SerialTestUtil.execSelfHealing(ports[0], BAUD1, s -> readWrite(s))) {
-			ConcurrentUtil.delay(CYCLE_DIFF_MS);
+			Concurrent.delay(CYCLE_DIFF_MS);
 			try (var x2 = SerialTestUtil.execSelfHealing(ports[1], BAUD1, s -> readWrite(s))) {
 				x2.get();
 				x1.get();
@@ -48,10 +48,10 @@ public class SerialReadWriteTester {
 				if (i == CYCLES / 2) changeBaud(serial, BAUD2);
 				writeString(serial);
 				readString(serial);
-				ConcurrentUtil.delay(CYCLE_DELAY_MS);
+				Concurrent.delay(CYCLE_DELAY_MS);
 			} catch (IOException e) {
 				logger.warn(e);
-				ConcurrentUtil.delay(CYCLE_DELAY_MS);
+				Concurrent.delay(CYCLE_DELAY_MS);
 			}
 		}
 	}

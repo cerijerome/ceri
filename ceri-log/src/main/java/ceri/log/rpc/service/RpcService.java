@@ -3,8 +3,7 @@ package ceri.log.rpc.service;
 import java.io.IOException;
 import java.util.function.Supplier;
 import ceri.common.function.Functions;
-import ceri.common.util.Enablable;
-import ceri.common.util.Named;
+import ceri.common.util.Capability;
 import ceri.log.util.LogUtil;
 import io.grpc.BindableService;
 import io.grpc.ServerServiceDefinition;
@@ -12,7 +11,7 @@ import io.grpc.ServerServiceDefinition;
 /**
  * Extends a BindableService to be AutoCloseable, and to have a name.
  */
-public interface RpcService extends BindableService, Named, AutoCloseable {
+public interface RpcService extends BindableService, Capability.Name, AutoCloseable {
 	/** A stateless, no-op instance. */
 	static RpcService NULL = new Null() {};
 
@@ -30,7 +29,7 @@ public interface RpcService extends BindableService, Named, AutoCloseable {
 	/**
 	 * A container for an optional service and a server.
 	 */
-	class Container implements Functions.Closeable, Enablable {
+	class Container implements Functions.Closeable, Capability.Enabled {
 		private final RpcService service;
 		private final RpcServer server;
 

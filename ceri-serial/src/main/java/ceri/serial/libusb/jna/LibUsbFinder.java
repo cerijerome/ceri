@@ -2,8 +2,8 @@ package ceri.serial.libusb.jna;
 
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;

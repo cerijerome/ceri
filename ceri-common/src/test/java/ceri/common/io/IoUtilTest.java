@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.CallSync;

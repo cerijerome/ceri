@@ -86,7 +86,7 @@ public class SpiTransfer {
 	}
 
 	public SpiTransfer limit(int size) {
-		Validate.validateRange(size, 0, sizeMax);
+		Validate.range(size, 0, sizeMax);
 		transfer.len = size;
 		return this;
 	}

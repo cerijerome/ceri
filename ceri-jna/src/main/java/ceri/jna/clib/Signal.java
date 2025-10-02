@@ -3,7 +3,7 @@ package ceri.jna.clib;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.function.Consumer;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.function.Excepts.Closeable;
 import ceri.jna.clib.jna.CSignal;
 
@@ -39,8 +39,7 @@ public enum Signal {
 	SIGIO(CSignal.SIGIO),
 	SIGSYS(CSignal.SIGSYS);
 
-	private static final TypeTranscoder<Signal> xcoder =
-		TypeTranscoder.of(t -> t.signal, Signal.class);
+	private static final Xcoder.Type<Signal> xcoder = Xcoder.type(Signal.class, t -> t.signal);
 	public final int signal;
 
 	public static Signal from(int signal) {

@@ -109,7 +109,7 @@ public class IntReaderBehavior {
 
 			@Override
 			public int readInt() {
-				Validate.validateIndex(length, pos);
+				Validate.index(length, pos);
 				return ints[offset + pos++];
 			}
 		};

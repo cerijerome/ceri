@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import com.sun.jna.Pointer;
-import ceri.common.collection.Iterables;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Iterables;
+import ceri.common.concurrent.Concurrent;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2c;
 import ceri.serial.i2c.I2cAddress;
@@ -137,6 +137,6 @@ public class I2cEmulator implements I2c.Null {
 
 	private void delay(I2cAddress address, int bytes) {
 		long micros = I2cUtil.micros(hz, address, bytes);
-		ConcurrentUtil.delayMicros(micros);
+		Concurrent.delayMicros(micros);
 	}
 }

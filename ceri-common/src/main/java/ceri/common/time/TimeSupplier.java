@@ -2,8 +2,8 @@ package ceri.common.time;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import ceri.common.collection.Enums;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Enums;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 
@@ -46,7 +46,7 @@ public enum TimeSupplier {
 	}
 
 	public String symbol() {
-		return DateUtil.symbol(unit);
+		return Dates.symbol(unit);
 	}
 
 	private static Functions.LongSupplier supplier(TimeUnit unit) {
@@ -63,12 +63,12 @@ public enum TimeSupplier {
 
 	private static Functions.LongConsumer delayFn(TimeUnit unit) {
 		return switch (unit) {
-			case NANOSECONDS -> ConcurrentUtil::delayNanos;
-			case MICROSECONDS -> ConcurrentUtil::delayMicros;
-			case MILLISECONDS -> ConcurrentUtil::delay;
+			case NANOSECONDS -> Concurrent::delayNanos;
+			case MICROSECONDS -> Concurrent::delayMicros;
+			case MILLISECONDS -> Concurrent::delay;
 			default -> {
 				long ms = TimeUnit.MILLISECONDS.convert(1, unit);
-				yield n -> ConcurrentUtil.delay(Maths.multiplyLimit(n, ms));
+				yield n -> Concurrent.delay(Maths.multiplyLimit(n, ms));
 			}
 		};
 	}

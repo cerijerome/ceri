@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.exception.ExceptionTracker;
+import ceri.common.except.ExceptionTracker;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
-import ceri.common.util.Enclosure;
 
 /**
  * A dispatcher thread for notifying listeners of events. Useful to prevent a misbehaving listener

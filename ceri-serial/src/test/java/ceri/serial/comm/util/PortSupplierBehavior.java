@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.test.FileTestHelper;
-import ceri.common.util.CloseableUtil;
 
 public class PortSupplierBehavior {
 	private FileTestHelper helper;
@@ -16,7 +16,7 @@ public class PortSupplierBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(helper);
+		Closeables.close(helper);
 		helper = null;
 		locator = null;
 	}

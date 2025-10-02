@@ -4,7 +4,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.function.Predicate;
+import ceri.common.function.Functions;
 
 /**
  * A path filter for glob and regex patterns, using a FileSystem matcher.
@@ -38,7 +38,7 @@ public record PathPattern(String pattern) {
 	 * Matcher using the default file system.
 	 */
 	@SuppressWarnings("resource")
-	public Predicate<Path> matcher() {
+	public Functions.Predicate<Path> matcher() {
 		return matcher(FileSystems.getDefault());
 	}
 
@@ -46,14 +46,14 @@ public record PathPattern(String pattern) {
 	 * Matcher for the given path file system.
 	 */
 	@SuppressWarnings("resource")
-	public Predicate<Path> matcher(Path path) {
+	public Functions.Predicate<Path> matcher(Path path) {
 		return matcher(path.getFileSystem());
 	}
 
 	/**
 	 * Matcher for the given file system.
 	 */
-	public Predicate<Path> matcher(FileSystem fs) {
+	public Functions.Predicate<Path> matcher(FileSystem fs) {
 		PathMatcher matcher = fs.getPathMatcher(pattern);
 		return matcher::matches;
 	}

@@ -4,9 +4,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BinaryOperator;
-import java.util.function.Predicate;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
+import ceri.common.function.Functional;
+import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.time.TimeSupplier;
 import ceri.common.time.Timer;
@@ -16,10 +17,10 @@ import ceri.common.util.Holder;
  * Simple condition to signal and wait for a value change.
  */
 public class ValueCondition<T> {
-	private static final BinaryOperator<Object> REPLACER = (latest, _) -> latest;
+	private static final Functions.BiOperator<Object> REPLACER = (latest, _) -> latest;
 	public final Lock lock;
 	private final Condition condition;
-	private final BinaryOperator<T> merger;
+	private final Excepts.BiOperator<RuntimeException, T> merger;
 	private T value = null;
 
 	/**
@@ -40,7 +41,7 @@ public class ValueCondition<T> {
 	 * Creates an instance with its own lock and a function that merges a new signal value to its
 	 * existing value (either of which may be null).
 	 */
-	public static <T> ValueCondition<T> of(BinaryOperator<T> merger) {
+	public static <T> ValueCondition<T> of(Excepts.BiOperator<RuntimeException, T> merger) {
 		return of(new ReentrantLock(), merger);
 	}
 
@@ -48,11 +49,12 @@ public class ValueCondition<T> {
 	 * Creates an instance with the given lock and a function that merges a new signal value to its
 	 * existing value (either of which may be null).
 	 */
-	public static <T> ValueCondition<T> of(Lock lock, BinaryOperator<T> merger) {
+	public static <T> ValueCondition<T> of(Lock lock,
+		Excepts.BiOperator<RuntimeException, T> merger) {
 		return new ValueCondition<>(lock, merger);
 	}
 
-	private ValueCondition(Lock lock, BinaryOperator<T> merger) {
+	private ValueCondition(Lock lock, Excepts.BiOperator<RuntimeException, T> merger) {
 		this.lock = lock;
 		this.merger = merger;
 		condition = lock.newCondition();
@@ -62,7 +64,7 @@ public class ValueCondition<T> {
 	 * Set value without signaling waiting threads. Returns the previous value.
 	 */
 	public T set(T value) {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			T old = this.value;
 			this.value = value;
 			return old;
@@ -73,7 +75,7 @@ public class ValueCondition<T> {
 	 * Set/merge current value and signal waiting threads. Returns the previous value.
 	 */
 	public T signal(T value) {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			T old = this.value;
 			this.value = merger.apply(value, old);
 			condition.signalAll();
@@ -85,20 +87,21 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null. Current value is cleared.
 	 */
 	public T await() throws InterruptedException {
-		return await(FunctionUtil.truePredicate());
+		return await(Functional.truePredicate());
 	}
 
 	/**
 	 * Waits indefinitely for current value to equal given value. Current value is cleared.
 	 */
 	public T await(T value) throws InterruptedException {
-		return await(Predicate.isEqual(value));
+		return await(Filters.eq(value));
 	}
 
 	/**
 	 * Waits indefinitely for predicate to be true. Current value is cleared.
 	 */
-	public T await(Predicate<T> predicate) throws InterruptedException {
+	public T await(Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
 		return await(Timer.INFINITE, predicate);
 	}
 
@@ -106,25 +109,27 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs) throws InterruptedException {
-		return awaitTimeout(timeoutMs, FunctionUtil.truePredicate());
+		return awaitTimeout(timeoutMs, Functional.truePredicate());
 	}
 
 	/**
 	 * Waits for current value to equal given value, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs, T value) throws InterruptedException {
-		return awaitTimeout(timeoutMs, Predicate.isEqual(value));
+		return awaitTimeout(timeoutMs, Filters.eq(value));
 	}
 
 	/**
 	 * Waits for predicate to be true, or timer to expire. Current value is cleared.
 	 */
-	public T awaitTimeout(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
+	public T awaitTimeout(long timeoutMs, Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
 		return await(Timer.of(timeoutMs, TimeSupplier.millis), predicate);
 	}
 
-	private T await(Timer timer, Predicate<T> predicate) throws InterruptedException {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+	private T await(Timer timer, Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
+		return Concurrent.lockedGet(lock, () -> {
 			T returnValue = awaitValue(timer, predicate);
 			value = null;
 			return returnValue;
@@ -142,20 +147,21 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null.
 	 */
 	public T awaitPeek() throws InterruptedException {
-		return awaitPeek(FunctionUtil.truePredicate());
+		return awaitPeek(Functional.truePredicate());
 	}
 
 	/**
 	 * Waits indefinitely for current value to equal given value.
 	 */
 	public T awaitPeek(T value) throws InterruptedException {
-		return awaitPeek(Predicate.isEqual(value));
+		return awaitPeek(Filters.eq(value));
 	}
 
 	/**
 	 * Waits indefinitely for predicate to be true.
 	 */
-	public T awaitPeek(Predicate<T> predicate) throws InterruptedException {
+	public T awaitPeek(Excepts.Predicate<RuntimeException, T> predicate)
+		throws InterruptedException {
 		return awaitPeek(Timer.INFINITE, predicate);
 	}
 
@@ -163,32 +169,34 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs) throws InterruptedException {
-		return awaitPeek(timeoutMs, FunctionUtil.truePredicate());
+		return awaitPeek(timeoutMs, Filters.yes);
 	}
 
 	/**
 	 * Waits for current value to equal given value, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs, T value) throws InterruptedException {
-		return awaitPeek(timeoutMs, Predicate.isEqual(value));
+		return awaitPeek(timeoutMs, Filters.eq(value));
 	}
 
 	/**
 	 * Waits for predicate to be true, or timer to expire.
 	 */
-	public T awaitPeek(long timeoutMs, Predicate<T> predicate) throws InterruptedException {
+	public T awaitPeek(long timeoutMs, Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
 		return awaitPeek(Timer.of(timeoutMs, TimeUnit.MILLISECONDS), predicate);
 	}
 
-	private T awaitPeek(Timer timer, Predicate<T> predicate) throws InterruptedException {
-		return ConcurrentUtil.lockedGet(lock, () -> awaitValue(timer, predicate));
+	private T awaitPeek(Timer timer, Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
+		return Concurrent.lockedGet(lock, () -> awaitValue(timer, predicate));
 	}
 
 	/**
 	 * Returns the current value.
 	 */
 	public T value() {
-		return ConcurrentUtil.lockedGet(lock, () -> value);
+		return Concurrent.lockedGet(lock, () -> value);
 	}
 
 	/**
@@ -196,7 +204,7 @@ public class ValueCondition<T> {
 	 * unavailable.
 	 */
 	public Holder<T> tryValue() {
-		return ConcurrentUtil.tryLockedGet(lock, () -> value);
+		return Concurrent.tryLockedGet(lock, () -> value);
 	}
 
 	/**
@@ -204,14 +212,15 @@ public class ValueCondition<T> {
 	 */
 	@Override
 	public String toString() {
-		var info = ConcurrentUtil.lockInfo(lock);
+		var info = Concurrent.lockInfo(lock);
 		return String.format("%s;hold=%d;queue=%d", tryValue(), info.holdCount, info.queueLength);
 	}
 
 	/**
 	 * Waits for predicate to be true (on entry, or after signal) or timer to expire.
 	 */
-	private T awaitValue(Timer timer, Predicate<T> predicate) throws InterruptedException {
+	private T awaitValue(Timer timer, Excepts.Predicate<RuntimeException, ? super T> predicate)
+		throws InterruptedException {
 		timer.start();
 		while (value == null || !predicate.test(value)) {
 			var snapshot = timer.snapshot();

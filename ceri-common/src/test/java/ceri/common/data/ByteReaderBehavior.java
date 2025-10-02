@@ -112,7 +112,7 @@ public class ByteReaderBehavior {
 
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		var out = new ByteArrayOutputStream();
 		assertEquals(reader(0, -1, 2, -3, 4).transferTo(out, 3), 3);
 		assertArray(out.toByteArray(), 0, -1, 2);
 		out.reset();
@@ -146,7 +146,7 @@ public class ByteReaderBehavior {
 
 			@Override
 			public byte readByte() {
-				Validate.validateIndex(length, pos);
+				Validate.index(length, pos);
 				return bytes[offset + pos++];
 			}
 		};

@@ -16,7 +16,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CTermios;
@@ -40,7 +40,7 @@ public class TestCLibNativeBehavior {
 	@After
 	public void after() {
 		if (fd >= 0) ref.lib().close(fd);
-		CloseableUtil.close(ref);
+		Closeables.close(ref);
 		fd = -1;
 	}
 

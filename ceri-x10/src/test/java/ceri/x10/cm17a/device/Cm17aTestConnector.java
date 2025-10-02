@@ -5,7 +5,7 @@ import java.io.IOException;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray;
 import ceri.common.event.Listenable;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestFixable;

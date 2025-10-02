@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.reflect.Reflect;
 
 public class ToStringBehavior {

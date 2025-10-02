@@ -11,15 +11,15 @@ import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.function.Closeables;
 import ceri.common.io.TestPath;
-import ceri.common.util.CloseableUtil;
 
 public class FileTestHelperBehavior {
 	private FileTestHelper files;
 
 	@After
 	public void after() {
-		CloseableUtil.close(files);
+		Closeables.close(files);
 		files = null;
 	}
 

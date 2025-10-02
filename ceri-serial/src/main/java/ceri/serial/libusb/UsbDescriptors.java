@@ -4,7 +4,7 @@ import static ceri.common.math.Maths.ubyte;
 import static ceri.common.math.Maths.ushort;
 import java.util.List;
 import java.util.Set;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;

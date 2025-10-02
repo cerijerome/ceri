@@ -3,12 +3,15 @@ package ceri.common.process;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.collect.Maps;
 import ceri.common.stream.Streams;
 import ceri.common.text.Splitter;
 
+/**
+ * Support for parsing process text output.
+ */
 public class Columns {
 	public final List<String> names;
 	public final List<Splitter.Extractor> extractors;

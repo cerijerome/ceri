@@ -9,9 +9,16 @@ public class Trig {
 	private Trig() {}
 
 	/**
-	 * Normalizes given angle in radians to the range [0..2PI).
+	 * Normalizes the angle in radians from 0 to 2PI inclusive.
 	 */
 	public static double normalize(double angle) {
+		return angle == Math.TAU ? angle : normalizeStrict(angle);
+	}
+
+	/**
+	 * Normalizes the angle in radians from 0 to 2PI exclusive.
+	 */
+	public static double normalizeStrict(double angle) {
 		angle = angle % Math.TAU;
 		return angle >= 0 ? angle : angle + Math.TAU;
 	}
@@ -27,10 +34,11 @@ public class Trig {
 	}
 
 	/**
-	 * Finds the area of a segment of a circle with given radius and segment angle in radians.
+	 * Finds the area of a segment of a circle with given radius and normalized segment angle in
+	 * radians.
 	 */
 	public static double segmentArea(double radius, double angle) {
-		Validate.validateRangeFp(angle, 0, Math.TAU, "angle");
+		angle = normalize(angle);
 		return 0.5 * (angle - Math.sin(angle)) * radius * radius;
 	}
 
@@ -39,7 +47,7 @@ public class Trig {
 	 * the circle starting at the same point at given distance away from the center.
 	 */
 	public static double tangentAngle(double radius, double distance) {
-		Validate.validateMinFp(distance, radius, "distance");
+		Validate.finiteMin(distance, radius, "distance");
 		return Math.asin(radius / distance);
 	}
 

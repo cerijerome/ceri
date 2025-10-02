@@ -71,7 +71,7 @@ public interface LongReader {
 	 * one long at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(long[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = readLong();
 		return offset;
@@ -96,7 +96,7 @@ public interface LongReader {
 	 * implementation reads one long at a time; efficiency may be improved by overriding.
 	 */
 	default int readInto(LongReceiver receiver, int offset, int length) {
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setLong(offset++, readLong());
 		return offset;

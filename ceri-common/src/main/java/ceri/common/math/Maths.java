@@ -4,13 +4,17 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import ceri.common.collection.Iterators;
+import ceri.common.collect.Iterators;
+import ceri.common.function.Functions;
 import ceri.common.util.Validate;
 
 public class Maths {
+	private static Map<Class<?>, Functions.LongOperator> UNSIGNED_OPS =
+		Map.of(Byte.class, Maths::ubyte, Short.class, Maths::ushort, Integer.class, Maths::uint);
 	private static final long ZERO10 = 10000000000L;
 	// PI approximations: 22/7, 355/113
 	public static final double PI_BY_2 = Math.PI / 2; // common calculation
@@ -35,17 +39,17 @@ public class Maths {
 	 * Returns the number of decimal digits, not including sign.
 	 */
 	public static int decimalDigits(long n) {
-		if (n == Long.MIN_VALUE) return decimalDigits(Long.MAX_VALUE); 
-		if (n < 0) return decimalDigits(-n); 
+		if (n == Long.MIN_VALUE) return decimalDigits(Long.MAX_VALUE);
+		if (n < 0) return decimalDigits(-n);
 		if (n >= ZERO10) return 10 + decimalDigits(n / ZERO10);
 		return (int) Math.round(Math.log10(n) + 0.5); // not accurate for high n
 	}
-	
+
 	/**
 	 * Returns the approximate sine value of pi * n/d radians multiplied by the given max.
 	 */
 	public static int intSinFromRatio(int n, int d, int max) {
-		Validate.validateMin(d, 1);
+		Validate.min(d, 1);
 		return (int) longSin(roundDiv(n * LONG_SIN_HALF, d), max);
 	}
 
@@ -53,7 +57,7 @@ public class Maths {
 	 * Returns the approximate cosine value of pi * n/d radians multiplied by the given max.
 	 */
 	public static int intCosFromRatio(int n, int d, int max) {
-		Validate.validateMin(d, 1);
+		Validate.min(d, 1);
 		return (int) longSin(roundDiv(n * LONG_SIN_HALF, d) + LONG_SIN_QUARTER, max);
 	}
 
@@ -347,6 +351,16 @@ public class Maths {
 	}
 
 	/**
+	 * Return the unsigned value based on type; long values are unchanged.
+	 */
+	public static Long unsigned(Number n) {
+		if (n == null) return null;
+		var unsignedOp = UNSIGNED_OPS.get(n.getClass());
+		if (unsignedOp == null) return n.longValue();
+		return unsignedOp.applyAsLong(n.longValue());
+	}
+
+	/**
 	 * Rounds a double value to an int.
 	 */
 	public static int intRound(double value) {
@@ -429,7 +443,7 @@ public class Maths {
 	 */
 	public static double round(int places, double value) {
 		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
-		Validate.validateMin(places, 0, "places");
+		Validate.min(places, 0, "places");
 		// BigDecimal double constructor is unpredictable (see javadoc)
 		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
 			.doubleValue();
@@ -441,7 +455,7 @@ public class Maths {
 	 */
 	public static double simpleRound(int places, double value) {
 		if (Double.isNaN(value)) return Double.NaN;
-		Validate.validateRange(places, 0, MAX_ROUND_PLACES);
+		Validate.range(places, 0, MAX_ROUND_PLACES);
 		if (value > MAX_ROUND || value < -MAX_ROUND) return value;
 		long factor = (long) Math.pow(10, places);
 		value = value * factor;
@@ -596,7 +610,7 @@ public class Maths {
 	 * Calculates the greatest common divisor of two numbers.
 	 */
 	public static int gcd(int... nums) {
-		Validate.validateMin(nums.length, 1);
+		Validate.min(nums.length, 1);
 		int gcd = nums[0];
 		for (int i = 1; i < nums.length; i++)
 			gcd = Math.toIntExact(calculateGcd(gcd, nums[i]));
@@ -607,7 +621,7 @@ public class Maths {
 	 * Calculates the greatest common divisor of given numbers.
 	 */
 	public static long gcd(long... nums) {
-		Validate.validateMin(nums.length, 1);
+		Validate.min(nums.length, 1);
 		long gcd = nums[0];
 		for (int i = 1; i < nums.length; i++)
 			gcd = calculateGcd(gcd, nums[i]);
@@ -618,7 +632,7 @@ public class Maths {
 	 * Calculates the lowest common multiple of given numbers.
 	 */
 	public static int lcm(int... nums) {
-		Validate.validateMin(nums.length, 1);
+		Validate.min(nums.length, 1);
 		int lcm = nums[0];
 		for (int i = 1; i < nums.length; i++)
 			lcm = Math.toIntExact(calculateLcm(lcm, nums[i]));
@@ -629,7 +643,7 @@ public class Maths {
 	 * Calculates the lowest common multiple of given numbers.
 	 */
 	public static long lcm(long... nums) {
-		Validate.validateMin(nums.length, 1);
+		Validate.min(nums.length, 1);
 		long lcm = nums[0];
 		for (int i = 1; i < nums.length; i++)
 			lcm = calculateLcm(lcm, nums[i]);
@@ -655,8 +669,8 @@ public class Maths {
 	 */
 	public static double mean(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		long sum = 0;
 		for (int i = 0; i < length; i++, offset++)
@@ -683,8 +697,8 @@ public class Maths {
 	 */
 	public static double mean(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		long div = 0;
 		long rem = 0;
 		for (int i = 0; i < length; i++, offset++) {
@@ -713,8 +727,8 @@ public class Maths {
 	 */
 	public static float mean(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		float sum = 0;
 		for (int i = 0; i < length; i++, offset++)
@@ -741,8 +755,8 @@ public class Maths {
 	 */
 	public static double mean(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		double sum = 0;
 		for (int i = 0; i < length; i++, offset++)
@@ -772,8 +786,8 @@ public class Maths {
 	 */
 	public static double median(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
 		int i = offset + (length >>> 1);
@@ -802,8 +816,8 @@ public class Maths {
 	 */
 	public static double median(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
 		int i = offset + (length >>> 1);
@@ -832,8 +846,8 @@ public class Maths {
 	 */
 	public static float median(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
 		int i = offset + (length >>> 1);
@@ -862,8 +876,8 @@ public class Maths {
 	 */
 	public static double median(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		if (length == 1) return array[offset];
 		Arrays.sort(array, offset, offset + length);
 		int i = offset + (length >>> 1);
@@ -888,7 +902,7 @@ public class Maths {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static int limit(int value, int min, int max) {
-		Validate.validateMin(max, min);
+		Validate.min(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -898,7 +912,7 @@ public class Maths {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static long limit(long value, long min, long max) {
-		Validate.validateMin(max, min);
+		Validate.min(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -908,7 +922,7 @@ public class Maths {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static float limit(float value, float min, float max) {
-		Validate.validateMinFp(max, min);
+		Validate.min(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -918,7 +932,7 @@ public class Maths {
 	 * Limits the value to be within the min and max inclusive.
 	 */
 	public static double limit(double value, double min, double max) {
-		Validate.validateMinFp(max, min);
+		Validate.min(max, min);
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
@@ -929,7 +943,7 @@ public class Maths {
 	 */
 	public static int periodicLimit(int value, int period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		Validate.validateMin(period, 1);
+		Validate.min(period, 1);
 		int rem = value % period;
 		if (rem < 0) return rem + period;
 		if (type == Bound.Type.inc && rem == 0 && value >= period) return period;
@@ -941,7 +955,7 @@ public class Maths {
 	 */
 	public static long periodicLimit(long value, long period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		Validate.validateMin(period, 1);
+		Validate.min(period, 1);
 		long rem = value % period;
 		if (rem < 0) return rem + period;
 		if (type == Bound.Type.inc && rem == 0 && value >= period) return period;
@@ -953,7 +967,7 @@ public class Maths {
 	 */
 	public static float periodicLimit(float value, float period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		Validate.validateMinFp(period, 0.0, Bound.Type.exc);
+		Validate.min(Validate.notEqual(period, 0.0), 0.0);
 		if (value == period && type == Bound.Type.inc) return period;
 		float rem = value % period;
 		if (rem < 0.0f) return rem + period;
@@ -966,7 +980,7 @@ public class Maths {
 	 */
 	public static double periodicLimit(double value, double period, Bound.Type type) {
 		Objects.requireNonNull(type);
-		Validate.validateMinFp(period, 0.0, Bound.Type.exc);
+		Validate.min(Validate.notEqual(period, 0.0), 0.0);
 		if (value == period && type == Bound.Type.inc) return period;
 		double rem = value % period;
 		if (rem < 0.0) return rem + period;
@@ -993,8 +1007,8 @@ public class Maths {
 	 */
 	public static byte min(byte[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		byte min = Byte.MAX_VALUE;
 		for (; length > 0; length--, offset++)
 			min = min <= array[offset] ? min : array[offset];
@@ -1020,8 +1034,8 @@ public class Maths {
 	 */
 	public static short min(short[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		short min = Short.MAX_VALUE;
 		for (; length > 0; length--, offset++)
 			min = min <= array[offset] ? min : array[offset];
@@ -1047,8 +1061,8 @@ public class Maths {
 	 */
 	public static int min(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		int min = Integer.MAX_VALUE;
 		for (; length > 0; length--, offset++)
 			min = Integer.min(min, array[offset]);
@@ -1074,8 +1088,8 @@ public class Maths {
 	 */
 	public static long min(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		long min = Long.MAX_VALUE;
 		for (; length > 0; length--, offset++)
 			min = Long.min(min, array[offset]);
@@ -1101,8 +1115,8 @@ public class Maths {
 	 */
 	public static float min(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		float min = Float.POSITIVE_INFINITY;
 		for (; length > 0; length--, offset++)
 			min = Float.min(min, array[offset]);
@@ -1128,8 +1142,8 @@ public class Maths {
 	 */
 	public static double min(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		double min = Double.POSITIVE_INFINITY;
 		for (; length > 0; length--, offset++)
 			min = Double.min(min, array[offset]);
@@ -1155,8 +1169,8 @@ public class Maths {
 	 */
 	public static byte max(byte[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		byte max = Byte.MIN_VALUE;
 		for (; length > 0; length--, offset++)
 			max = max >= array[offset] ? max : array[offset];
@@ -1182,8 +1196,8 @@ public class Maths {
 	 */
 	public static short max(short[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		short max = Short.MIN_VALUE;
 		for (; length > 0; length--, offset++)
 			max = max >= array[offset] ? max : array[offset];
@@ -1209,8 +1223,8 @@ public class Maths {
 	 */
 	public static int max(int[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		int max = Integer.MIN_VALUE;
 		for (; length > 0; length--, offset++)
 			max = Integer.max(max, array[offset]);
@@ -1236,8 +1250,8 @@ public class Maths {
 	 */
 	public static long max(long[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		long max = Long.MIN_VALUE;
 		for (; length > 0; length--, offset++)
 			max = Long.max(max, array[offset]);
@@ -1263,8 +1277,8 @@ public class Maths {
 	 */
 	public static float max(float[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		float max = Float.NEGATIVE_INFINITY;
 		for (; length > 0; length--, offset++)
 			max = Float.max(max, array[offset]);
@@ -1290,15 +1304,15 @@ public class Maths {
 	 */
 	public static double max(double[] array, int offset, int length) {
 		Objects.requireNonNull(array);
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateMin(length, 1);
+		Validate.slice(array.length, offset, length);
+		Validate.min(length, 1);
 		double max = Double.NEGATIVE_INFINITY;
 		for (; length > 0; length--, offset++)
 			max = Double.max(max, array[offset]);
 		return max;
 	}
 
-	/* support methods */
+	// support
 
 	/**
 	 * Calculates the greatest common divisor of two numbers.

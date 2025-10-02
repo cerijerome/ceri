@@ -21,8 +21,8 @@ public class PointerUtil {
 	 */
 	public static Pointer validate(Pointer p, long offset, long len) {
 		if (p == null) JnaUtil.validateSlice(0, offset, len);
-		else Validate.validateMin(len, 0);
-		Validate.validateMin(offset, 0);
+		else Validate.min(len, 0);
+		Validate.min(offset, 0);
 		return p;
 	}
 
@@ -31,7 +31,7 @@ public class PointerUtil {
 	 * size is allowed.
 	 */
 	public static Pointer validate(Pointer p, long size, long offset, long len) {
-		if (p == null) Validate.validateEqual(size, 0);
+		if (p == null) Validate.equal(size, 0);
 		JnaUtil.validateSlice(size, offset, len);
 		return p;
 	}

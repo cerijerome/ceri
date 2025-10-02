@@ -20,7 +20,7 @@ public record Mask(int shift, long mask) {
 	 * Absolute mask bits and bit shift. Masked value is right-shifted the given number of bits.
 	 */
 	public static Mask of(int shiftBits, long mask) {
-		Validate.validateMin(shiftBits, 0);
+		Validate.min(shiftBits, 0);
 		return new Mask(shiftBits, mask);
 	}
 
@@ -28,7 +28,7 @@ public record Mask(int shift, long mask) {
 	 * Mask bits and shift. Masked value is right-shifted given number of bits.
 	 */
 	public static Mask ofBits(int shift, int count) {
-		Validate.validateMin(count, 1);
+		Validate.min(count, 1);
 		return of(shift, ByteUtil.mask(shift, count));
 	}
 

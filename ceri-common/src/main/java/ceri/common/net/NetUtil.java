@@ -12,7 +12,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;

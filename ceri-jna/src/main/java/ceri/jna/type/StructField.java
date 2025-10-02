@@ -89,12 +89,12 @@ public class StructField {
 		Functions.ToIntFunction<T> countFn, Functions.Function<Pointer, R> createFn,
 		Functions.IntFunction<R[]> arrayFn, int size) {
 		return array((t, i) -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			Validate.validateIndex(n, i);
+			Validate.index(n, i);
 			return JnaUtil.byVal(p, i, createFn, size);
 		}, t -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
 			return JnaUtil.arrayByVal(p, createFn, arrayFn, n, size);
 		});
@@ -108,12 +108,12 @@ public class StructField {
 		Functions.ToIntFunction<T> countFn, Functions.Function<Pointer, R> createFn,
 		Functions.IntFunction<R[]> arrayFn) {
 		return array((t, i) -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
-			Validate.validateIndex(n, i);
+			Validate.index(n, i);
 			return JnaUtil.byRef(p, i, createFn);
 		}, t -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			int n = countFn.applyAsInt(t);
 			return JnaUtil.arrayByRef(p, createFn, arrayFn, n);
 		});
@@ -126,10 +126,10 @@ public class StructField {
 	public static <T, R> Array<T, R> arrayByRef(Functions.Function<T, Pointer> ptrFn,
 		Functions.Function<Pointer, R> createFn, Functions.IntFunction<R[]> arrayFn) {
 		return array((t, i) -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			return JnaUtil.byRef(p, i, createFn);
 		}, t -> {
-			Pointer p = ptrFn.apply(t);
+			var p = ptrFn.apply(t);
 			return JnaUtil.arrayByRef(p, createFn, arrayFn);
 		});
 	}

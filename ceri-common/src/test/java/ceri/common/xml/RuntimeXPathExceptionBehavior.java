@@ -7,9 +7,8 @@ public class RuntimeXPathExceptionBehavior {
 
 	@Test
 	public void codeCoverage() {
-		RuntimeXPathException e = new RuntimeXPathException("test");
+		var e = new RuntimeXPathException("test");
 		e = new RuntimeXPathException("test", e);
 		assertNotNull(e);
 	}
-
 }

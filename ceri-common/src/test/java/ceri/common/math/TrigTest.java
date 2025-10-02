@@ -47,9 +47,9 @@ public class TrigTest {
 
 	@Test
 	public void testSegmentArea() {
-		assertThrown(() -> Trig.segmentArea(1, -1));
-		assertThrown(() -> Trig.segmentArea(1, TAU + 0.00001));
-		assertApprox(Trig.segmentArea(2, TAU), 2 * 2 * PI);
+		assertApprox(Trig.segmentArea(1, -Math.PI), Math.PI / 2);
+		assertApprox(Trig.segmentArea(1, Math.TAU + 0.00001), 0.0);
+		assertApprox(Trig.segmentArea(2, Math.TAU), 2 * 2 * PI);
 		assertApprox(Trig.segmentArea(2, PI), 2 * PI);
 		assertApprox(Trig.segmentArea(2, PI_BY_2), PI - 2);
 	}

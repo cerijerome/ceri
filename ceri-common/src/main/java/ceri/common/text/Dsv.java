@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.property.Parser;
 import ceri.common.stream.Streams;
 

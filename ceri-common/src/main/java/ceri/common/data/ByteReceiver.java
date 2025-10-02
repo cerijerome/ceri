@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import ceri.common.array.ArrayUtil;
+import ceri.common.except.Exceptions;
 import ceri.common.util.Validate;
 
 /**
@@ -108,7 +109,7 @@ public interface ByteReceiver {
 		}
 
 		public ByteReceiver receiver(int length) {
-			ByteReceiver receiver = this.receiver.slice(position(), length);
+			var receiver = this.receiver.slice(position(), length);
 			position(position() + length);
 			return receiver;
 		}
@@ -124,7 +125,7 @@ public interface ByteReceiver {
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
 		public Writer<T> slice(int length) {
-			Validate.validateSlice(length(), offset(), length);
+			Validate.slice(length(), offset(), length);
 			return new Writer<>(receiver, position(), length);
 		}
 
@@ -339,8 +340,7 @@ public interface ByteReceiver {
 	default ByteReceiver slice(int index, int length) {
 		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	/**
@@ -356,7 +356,7 @@ public interface ByteReceiver {
 	 * this method.
 	 */
 	default int fill(int index, int length, int value) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0)
 			setByte(index++, value);
 		return index;
@@ -382,8 +382,8 @@ public interface ByteReceiver {
 	 * method.
 	 */
 	default int copyFrom(int index, byte[] array, int offset, int length) {
-		Validate.validateSlice(array.length, offset, length);
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(array.length, offset, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0)
 			setByte(index++, array[offset++]);
 		return index;
@@ -409,8 +409,8 @@ public interface ByteReceiver {
 	 * this method.
 	 */
 	default int copyFrom(int index, ByteProvider provider, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(provider.length(), offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(provider.length(), offset, length);
 		while (length-- > 0)
 			setByte(index++, provider.getByte(offset++));
 		return index;
@@ -436,7 +436,7 @@ public interface ByteReceiver {
 	 * </pre>
 	 */
 	default int readFrom(int index, InputStream in, int length) throws IOException {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0) {
 			int value = in.read();
 			if (value < 0) break; // EOF
@@ -452,7 +452,7 @@ public interface ByteReceiver {
 	 */
 	static int readBufferFrom(ByteReceiver receiver, int index, InputStream in, int length)
 		throws IOException {
-		Validate.validateSlice(receiver.length(), index, length);
+		Validate.slice(receiver.length(), index, length);
 		byte[] buffer = in.readNBytes(length); // < length if EOF
 		return receiver.copyFrom(index, buffer);
 	}
@@ -468,7 +468,7 @@ public interface ByteReceiver {
 	 * Provides sequential byte access.
 	 */
 	default Writer<?> writer(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return new Writer<>(this, index, length);
 	}
 }

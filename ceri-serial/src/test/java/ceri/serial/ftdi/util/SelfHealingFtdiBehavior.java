@@ -20,13 +20,13 @@ import com.sun.jna.Memory;
 import ceri.common.array.ArrayUtil;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Closeables;
+import ceri.common.function.Enclosure;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.io.StateChange;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
-import ceri.common.util.Enclosure;
 import ceri.jna.test.JnaTestUtil;
 import ceri.log.io.SelfHealing;
 import ceri.log.test.LogModifier;
@@ -52,7 +52,7 @@ public class SelfHealingFtdiBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(con, enc);
+		Closeables.close(con, enc);
 		con = null;
 		enc = null;
 		sampleConfig = null;
@@ -284,8 +284,8 @@ public class SelfHealingFtdiBehavior {
 	public void shouldFailIfNotConnected() {
 		init();
 		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
-		FunctionUtil.runSilently(() -> con.in().read()); // may have been fixed
-		FunctionUtil.runSilently(() -> con.readPins()); // may have been fixed
+		Functional.runSilently(() -> con.in().read()); // may have been fixed
+		Functional.runSilently(() -> con.readPins()); // may have been fixed
 	}
 
 	@SuppressWarnings("resource")

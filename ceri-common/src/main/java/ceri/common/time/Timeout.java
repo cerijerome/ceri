@@ -50,7 +50,7 @@ public record Timeout(long timeout, TimeUnit unit) {
 
 	@Override
 	public String toString() {
-		return isNull() ? "[null]" : timeout + DateUtil.symbol(unit);
+		return isNull() ? "[null]" : timeout + Dates.symbol(unit);
 	}
 
 }

@@ -4,30 +4,30 @@ import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertArray;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
-import ceri.common.time.DateUtil;
+import ceri.common.time.Dates;
 import ceri.x10.command.House;
 
 public class StatusBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		var t = Status.builder().date(DateUtil.UTC_EPOCH).build();
-		var eq0 = Status.builder().date(DateUtil.UTC_EPOCH).build();
+		var t = Status.builder().date(Dates.UTC_EPOCH).build();
+		var eq0 = Status.builder().date(Dates.UTC_EPOCH).build();
 		var ne0 = Status.builder().build();
-		var ne1 = Status.builder().date(DateUtil.UTC_EPOCH).batteryTimerReset().build();
-		var ne2 = Status.builder().date(DateUtil.UTC_EPOCH).batteryTimer(1).build();
-		var ne3 = Status.builder().date(DateUtil.UTC_EPOCH).house(House.D).build();
-		var ne4 = Status.builder().date(DateUtil.UTC_EPOCH).firmware(2).build();
-		var ne5 = Status.builder().date(DateUtil.UTC_EPOCH).addressed(0xff).build();
-		var ne6 = Status.builder().date(DateUtil.UTC_EPOCH).onOff(0x7f).build();
-		var ne7 = Status.builder().date(DateUtil.UTC_EPOCH).dim(0x3f).build();
+		var ne1 = Status.builder().date(Dates.UTC_EPOCH).batteryTimerReset().build();
+		var ne2 = Status.builder().date(Dates.UTC_EPOCH).batteryTimer(1).build();
+		var ne3 = Status.builder().date(Dates.UTC_EPOCH).house(House.D).build();
+		var ne4 = Status.builder().date(Dates.UTC_EPOCH).firmware(2).build();
+		var ne5 = Status.builder().date(Dates.UTC_EPOCH).addressed(0xff).build();
+		var ne6 = Status.builder().date(Dates.UTC_EPOCH).onOff(0x7f).build();
+		var ne7 = Status.builder().date(Dates.UTC_EPOCH).dim(0x3f).build();
 		TestUtil.exerciseEquals(t, eq0);
 		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 
 	@Test
 	public void shouldEncode() {
-		var status = Status.builder().date(DateUtil.UTC_EPOCH).build();
+		var status = Status.builder().date(Dates.UTC_EPOCH).build();
 		assertArray(status.encode(), 0, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 0, 0);
 	}
 }

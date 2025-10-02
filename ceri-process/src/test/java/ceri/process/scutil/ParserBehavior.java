@@ -2,7 +2,7 @@ package ceri.process.scutil;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
-import ceri.common.collection.Node;
+import ceri.common.collect.Node;
 
 public class ParserBehavior {
 

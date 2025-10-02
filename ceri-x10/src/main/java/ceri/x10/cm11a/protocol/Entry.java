@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import ceri.common.collection.Lists;
+import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.x10.command.Command;

@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
 import ceri.log.io.SelfHealing;
@@ -32,7 +32,7 @@ public class SelfHealingSerialBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(serial, ref);
+		Closeables.close(serial, ref);
 		serial = null;
 		testSerial = null; // sometimes log error if closed
 	}

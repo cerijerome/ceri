@@ -10,36 +10,36 @@ import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class ConcaveSpheroidBehavior {
-	private final ConcaveSpheroid3d s0 = ConcaveSpheroid3d.create(3, 1, 2);
+	private final ConcaveSpheroid s0 = ConcaveSpheroid.create(3, 1, 2);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(s0, ConcaveSpheroid3d.create(3, 1, 2));
-		assertNotEquals(s0, ConcaveSpheroid3d.create(3.1, 1, 2));
-		assertNotEquals(s0, ConcaveSpheroid3d.create(3, 0.9, 2));
-		assertNotEquals(s0, ConcaveSpheroid3d.create(3, 1, 1.9));
+		TestUtil.exerciseEquals(s0, ConcaveSpheroid.create(3, 1, 2));
+		assertNotEquals(s0, ConcaveSpheroid.create(3.1, 1, 2));
+		assertNotEquals(s0, ConcaveSpheroid.create(3, 0.9, 2));
+		assertNotEquals(s0, ConcaveSpheroid.create(3, 1, 1.9));
 	}
 
 	@Test
 	public void shouldFailForInvalidAxes() {
-		assertThrown(() -> ConcaveSpheroid3d.create(-0.1, 1, 1));
-		assertThrown(() -> ConcaveSpheroid3d.create(0, 1, 1));
-		assertThrown(() -> ConcaveSpheroid3d.create(2, -0.1, 1));
-		assertThrown(() -> ConcaveSpheroid3d.create(2, 2.1, 1));
-		assertThrown(() -> ConcaveSpheroid3d.create(2, 2, -1));
+		assertThrown(() -> ConcaveSpheroid.create(-0.1, 1, 1));
+		assertThrown(() -> ConcaveSpheroid.create(0, 1, 1));
+		assertThrown(() -> ConcaveSpheroid.create(2, -0.1, 1));
+		assertThrown(() -> ConcaveSpheroid.create(2, 2.1, 1));
+		assertThrown(() -> ConcaveSpheroid.create(2, 2, -1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(ConcaveSpheroid3d.create(0, 0, 0), ConcaveSpheroid3d.NULL);
-		assertApprox(ConcaveSpheroid3d.NULL.height(), 0);
-		assertApprox(ConcaveSpheroid3d.NULL.r, 0);
-		assertApprox(ConcaveSpheroid3d.NULL.c, 0);
-		assertApprox(ConcaveSpheroid3d.NULL.volume(), 0);
-		assertNotEquals(ConcaveSpheroid3d.NULL, ConcaveSpheroid3d.create(0, 0, 1));
-		assertNotEquals(ConcaveSpheroid3d.NULL, ConcaveSpheroid3d.create(1, 0, 0));
-		assertNotEquals(ConcaveSpheroid3d.NULL, ConcaveSpheroid3d.create(1, 1, 0));
-		assertNotEquals(ConcaveSpheroid3d.NULL, ConcaveSpheroid3d.create(1, 0, 1));
+		assertEquals(ConcaveSpheroid.create(0, 0, 0), ConcaveSpheroid.NULL);
+		assertApprox(ConcaveSpheroid.NULL.height(), 0);
+		assertApprox(ConcaveSpheroid.NULL.r, 0);
+		assertApprox(ConcaveSpheroid.NULL.c, 0);
+		assertApprox(ConcaveSpheroid.NULL.volume(), 0);
+		assertNotEquals(ConcaveSpheroid.NULL, ConcaveSpheroid.create(0, 0, 1));
+		assertNotEquals(ConcaveSpheroid.NULL, ConcaveSpheroid.create(1, 0, 0));
+		assertNotEquals(ConcaveSpheroid.NULL, ConcaveSpheroid.create(1, 1, 0));
+		assertNotEquals(ConcaveSpheroid.NULL, ConcaveSpheroid.create(1, 0, 1));
 	}
 
 	@Test
@@ -51,19 +51,19 @@ public class ConcaveSpheroidBehavior {
 		assertApprox(s0.gradientAtHeight(3), 3.464);
 		assertApprox(s0.gradientAtHeight(4), 0);
 		assertApprox(s0.gradientAtHeight(5), NaN);
-		assertApprox(ConcaveSpheroid3d.create(0, 0, 1).gradientAtHeight(0), 0);
-		assertApprox(ConcaveSpheroid3d.create(0, 0, 1).gradientAtHeight(1), POSITIVE_INFINITY);
-		assertApprox(ConcaveSpheroid3d.create(0, 0, 1).gradientAtHeight(2), 0);
-		assertApprox(ConcaveSpheroid3d.create(1, 0, 0).gradientAtHeight(0), NaN);
-		assertApprox(ConcaveSpheroid3d.create(1, 1, 0).gradientAtHeight(0), 0);
-		assertApprox(ConcaveSpheroid3d.create(1, 0, 1).gradientAtHeight(0), 0);
-		assertApprox(ConcaveSpheroid3d.create(1, 0, 1).gradientAtHeight(1), POSITIVE_INFINITY);
+		assertApprox(ConcaveSpheroid.create(0, 0, 1).gradientAtHeight(0), 0);
+		assertApprox(ConcaveSpheroid.create(0, 0, 1).gradientAtHeight(1), POSITIVE_INFINITY);
+		assertApprox(ConcaveSpheroid.create(0, 0, 1).gradientAtHeight(2), 0);
+		assertApprox(ConcaveSpheroid.create(1, 0, 0).gradientAtHeight(0), NaN);
+		assertApprox(ConcaveSpheroid.create(1, 1, 0).gradientAtHeight(0), 0);
+		assertApprox(ConcaveSpheroid.create(1, 0, 1).gradientAtHeight(0), 0);
+		assertApprox(ConcaveSpheroid.create(1, 0, 1).gradientAtHeight(1), POSITIVE_INFINITY);
 	}
 
 	@Test
 	public void shouldCalculateVolume() {
 		assertApprox(s0.volume(), 62.257);
-		assertApprox(ConcaveSpheroid3d.volume(3, 1, 2), 62.257);
+		assertApprox(ConcaveSpheroid.volume(3, 1, 2), 62.257);
 	}
 
 	@Test

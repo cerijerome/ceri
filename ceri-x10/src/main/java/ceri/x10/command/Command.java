@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Sets;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.property.Parser;
@@ -160,8 +160,8 @@ public abstract class Command {
 
 	public static Ext ext(House house, int data, int command, Collection<Unit> units) {
 		Validate.validateNotNull(house);
-		Validate.validateUbyte(data);
-		Validate.validateUbyte(command);
+		Validate.ubyte(data);
+		Validate.ubyte(command);
 		return new Ext(house, normalize(units), data, command);
 	}
 

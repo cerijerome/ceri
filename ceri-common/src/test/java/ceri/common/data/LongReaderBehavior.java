@@ -69,7 +69,7 @@ public class LongReaderBehavior {
 
 			@Override
 			public long readLong() {
-				Validate.validateIndex(length, pos);
+				Validate.index(length, pos);
 				return longs[offset + pos++];
 			}
 		};

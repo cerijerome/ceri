@@ -6,11 +6,11 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Immutable;
-import ceri.common.exception.Exceptions;
+import ceri.common.collect.Immutable;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 
@@ -145,7 +145,7 @@ public class Regex {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, String> matching(Pattern pattern,
 			Excepts.Predicate<? extends E, ? super Matcher> predicate) {
-			if (pattern == null || predicate == null) return Predicates.no();
+			if (pattern == null || predicate == null) return Filters.no();
 			return t -> t != null && predicate.test(pattern.matcher(t));
 		}
 	}

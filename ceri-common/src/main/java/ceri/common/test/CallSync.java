@@ -7,13 +7,13 @@ import static ceri.common.test.AssertUtil.assertOrdered;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.collection.Collectable;
-import ceri.common.collection.Lists;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.collect.Collectable;
+import ceri.common.collect.Lists;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.ValueCondition;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.text.ToString;
 import ceri.common.util.Holder;
@@ -637,7 +637,7 @@ public abstract class CallSync<T, R> {
 	 * Reset state, which includes setting the original default value and auto-response.
 	 */
 	public void reset() {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			error.clear();
 			callSync.clear();
 			responseSync.clear();
@@ -651,7 +651,7 @@ public abstract class CallSync<T, R> {
 	 * Clears values and call count.
 	 */
 	public void clearCalls() {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			values.clear();
 			valueDef = originalValueDef;
 			calls = 0;
@@ -662,14 +662,14 @@ public abstract class CallSync<T, R> {
 	 * Returns true if auto-response is enabled.
 	 */
 	public boolean autoResponseEnabled() {
-		return ConcurrentUtil.lockedGet(lock, () -> autoResponseFn) != null;
+		return Concurrent.lockedGet(lock, () -> autoResponseFn) != null;
 	}
 
 	/**
 	 * Thread-safe; get call count since creation or reset.
 	 */
 	public int calls() {
-		return ConcurrentUtil.lockedGet(lock, () -> calls);
+		return Concurrent.lockedGet(lock, () -> calls);
 	}
 
 	/**
@@ -690,7 +690,7 @@ public abstract class CallSync<T, R> {
 	 * Enables/disables saving of values. Clears previous values if disabled. Enabled by default.
 	 */
 	public void saveValues(boolean enabled) {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			saveValues = enabled;
 			if (!enabled && values.size() > 1) setValue(getValue());
 		});
@@ -701,10 +701,10 @@ public abstract class CallSync<T, R> {
 	 */
 	@Override
 	public String toString() {
-		var callLock = ConcurrentUtil.lockInfo(callSync.lock);
-		var responseLock = ConcurrentUtil.lockInfo(responseSync.lock);
+		var callLock = Concurrent.lockInfo(callSync.lock);
+		var responseLock = Concurrent.lockInfo(responseSync.lock);
 		ToString s = ToString.ofClass(this).field("error", error);
-		if (!ConcurrentUtil.tryLockedRun(lock,
+		if (!Concurrent.tryLockedRun(lock,
 			() -> s.children(String.format("call=%s;%s;%d", callSync.tryValue(), callLock, calls),
 				String.format("response=%s;%s;%s", responseSync.tryValue(), responseLock,
 					responseString()),
@@ -721,7 +721,7 @@ public abstract class CallSync<T, R> {
 	 */
 	public String compactString() {
 		ToString s = ToString.ofClass(this).field("error", error);
-		if (!ConcurrentUtil.tryLockedRun(lock,
+		if (!Concurrent.tryLockedRun(lock,
 			() -> s.fields("calls", calls, "response", responseString(), "values",
 				values + ";" + valueDef)))
 			s.fields("calls", "[locked]", "response", "[locked]", "values", "[locked]");
@@ -736,14 +736,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets default value.
 	 */
 	private void valueDef(T value) {
-		ConcurrentUtil.lockedRun(lock, () -> valueDef = value);
+		Concurrent.lockedRun(lock, () -> valueDef = value);
 	}
 
 	/**
 	 * Thread-safe; set current value.
 	 */
 	private void setValue(T value) {
-		ConcurrentUtil.lockedRun(lock, () -> {
+		Concurrent.lockedRun(lock, () -> {
 			if (!saveValues) values.clear();
 			values.add(value);
 		});
@@ -770,14 +770,14 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; get current value or default. Does not check for exceptions.
 	 */
 	private T getValue() {
-		return ConcurrentUtil.lockedGet(lock, () -> Lists.last(values, valueDef));
+		return Concurrent.lockedGet(lock, () -> Lists.last(values, valueDef));
 	}
 
 	/**
 	 * Thread-safe; get all values. Does not check for exceptions.
 	 */
 	private List<T> getValues() {
-		return ConcurrentUtil.lockedGet(lock, () -> Collectable.add(Lists.of(), values));
+		return Concurrent.lockedGet(lock, () -> Collectable.add(Lists.of(), values));
 	}
 
 	/**
@@ -785,7 +785,7 @@ public abstract class CallSync<T, R> {
 	 */
 	@SafeVarargs
 	private void assertAndClearValues(T... expecteds) {
-		List<T> values = ConcurrentUtil.lockedGet(lock, () -> {
+		List<T> values = Concurrent.lockedGet(lock, () -> {
 			var list = Lists.of(this.values);
 			this.values.clear();
 			return list;
@@ -797,7 +797,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; sets auto-response function. Null to disable.
 	 */
 	private void autoResponseFn(Excepts.Function<?, T, R> autoResponseFn) {
-		ConcurrentUtil.lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
+		Concurrent.lockedRun(lock, () -> this.autoResponseFn = autoResponseFn);
 	}
 
 	/**
@@ -841,7 +841,7 @@ public abstract class CallSync<T, R> {
 	 * Thread-safe; checks auto-response is set, and awaits call.
 	 */
 	private T awaitCallWithAutoResponse() {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			assertNotNull(autoResponseFn);
 			return awaitCall();
 		});
@@ -852,7 +852,7 @@ public abstract class CallSync<T, R> {
 	 */
 	private <E extends Exception> T awaitCallWithResponse(Excepts.Function<E, T, R> responseFn)
 		throws E {
-		return ConcurrentUtil.lockedGet(lock, () -> {
+		return Concurrent.lockedGet(lock, () -> {
 			var autoResponseFn = this.autoResponseFn;
 			try {
 				// Temporarily removes auto response
@@ -876,14 +876,14 @@ public abstract class CallSync<T, R> {
 	}
 
 	private T awaitCall() {
-		return ConcurrentUtil.getInterruptible(callSync::await).value();
+		return Concurrent.getInterruptible(callSync::await).value();
 	}
 
 	private R sync(T t) throws Exception {
 		callSync.signal(Holder.of(t));
 		var autoResponseFn = this.autoResponseFn;
 		if (autoResponseFn != null) return autoResponseFn.apply(t);
-		return ConcurrentUtil.getInterruptible(responseSync::await).value();
+		return Concurrent.getInterruptible(responseSync::await).value();
 	}
 
 	private static <T, R> Excepts.Function<?, T, R>
@@ -908,7 +908,7 @@ public abstract class CallSync<T, R> {
 
 	private static <T, R> Excepts.Function<?, T, R> toAutoResponseFn(R[] responses) {
 		if (responses.length == 0) return null;
-		var supplier = FunctionUtil.sequentialSupplier(responses);
+		var supplier = Functional.sequentialSupplier(responses);
 		return _ -> supplier.get();
 	}
 }

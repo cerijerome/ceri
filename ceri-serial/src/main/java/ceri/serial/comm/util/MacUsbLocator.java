@@ -7,15 +7,15 @@ import javax.xml.xpath.XPathException;
 import javax.xml.xpath.XPathExpression;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.process.Parameters;
 import ceri.common.text.Parse;
 import ceri.common.text.Strings;
 import ceri.common.util.OsUtil;
-import ceri.common.xml.XPathUtil;
-import ceri.common.xml.XmlUtil;
+import ceri.common.xml.XPaths;
+import ceri.common.xml.Xml;
 import ceri.process.ioreg.Ioreg;
 
 /**
@@ -28,12 +28,12 @@ import ceri.process.ioreg.Ioreg;
  */
 public class MacUsbLocator {
 	private static final XPathExpression USB_XPATH =
-		XPathUtil.compile("/plist/array/dict//dict/dict/dict/key[text()='IODialinDevice']");
+		XPaths.compile("/plist/array/dict//dict/dict/dict/key[text()='IODialinDevice']");
 	private static final XPathExpression LOCATION_ID_XPATH =
-		XPathUtil.compile("parent::dict/parent::dict/parent::dict/"
+		XPaths.compile("parent::dict/parent::dict/parent::dict/"
 			+ "key[text()='locationID']/following-sibling::integer");
 	private static final XPathExpression DEVICE_XPATH =
-		XPathUtil.compile("following-sibling::string");
+		XPaths.compile("following-sibling::string");
 	private static final Parameters IOREG_ARGS = Parameters.of("-arltx", "-c", "IOSerialBSDClient");
 	private final Ioreg ioreg;
 
@@ -93,7 +93,7 @@ public class MacUsbLocator {
 
 	private List<Node> usbNodes() throws XPathException, SAXException, IOException {
 		String ioregXml = ioreg.exec(IOREG_ARGS);
-		return XPathUtil.nodeList(USB_XPATH, XmlUtil.unvalidatedDocument(ioregXml));
+		return XPaths.nodeList(USB_XPATH, Xml.unvalidatedDocument(ioregXml));
 	}
 
 	private static int locationId(Node usb) throws XPathException {

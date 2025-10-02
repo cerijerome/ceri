@@ -74,7 +74,7 @@ public class IntWriterBehavior {
 	 */
 	private static <E extends Exception> void assertInts(int size, Consumer<E, IntWriter<?>> action,
 		int... ints) throws E {
-		Holder holder = Holder.of(size);
+		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		assertArray(holder.ints, ints);
 	}
@@ -138,7 +138,7 @@ public class IntWriterBehavior {
 
 		@Override
 		public SimpleIntWriter writeInt(int value) {
-			Validate.validateIndex(length, index);
+			Validate.index(length, index);
 			ints[offset + index++] = value;
 			return this;
 		}
@@ -148,5 +148,4 @@ public class IntWriterBehavior {
 			return this;
 		}
 	}
-
 }

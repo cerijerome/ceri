@@ -555,6 +555,53 @@ public class Excepts {
 		double applyAsDouble(double l, double r) throws E;
 	}
 
+	// Object + operators
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjBoolOperator<E extends Exception, T> extends Throws.ObjBoolOperator<T> {
+		@Override
+		boolean applyAsBool(T t, boolean b) throws E;
+	}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjByteOperator<E extends Exception, T> extends Throws.ObjByteOperator<T> {
+		@Override
+		byte applyAsByte(T t, byte b) throws E;
+	}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjIntOperator<E extends Exception, T> extends Throws.ObjIntOperator<T> {
+		@Override
+		int applyAsInt(T t, int i) throws E;
+	}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjLongOperator<E extends Exception, T> extends Throws.ObjLongOperator<T> {
+		@Override
+		long applyAsLong(T t, long l) throws E;
+	}
+
+	/**
+	 * Functional interface that throws specific exceptions.
+	 */
+	@FunctionalInterface
+	public interface ObjDoubleOperator<E extends Exception, T> extends Throws.ObjDoubleOperator<T> {
+		@Override
+		double applyAsDouble(T t, double d) throws E;
+	}
+
 	// Predicates
 
 	public static void main(String[] args) {

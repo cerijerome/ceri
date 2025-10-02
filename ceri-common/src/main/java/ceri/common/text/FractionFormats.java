@@ -2,9 +2,9 @@ package ceri.common.text;
 
 import java.util.Map;
 import java.util.regex.Pattern;
-import ceri.common.collection.Enums;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Enums;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Maps;
 import ceri.common.math.Fraction;
 import ceri.common.stream.Collect;
 import ceri.common.stream.Streams;
@@ -108,7 +108,7 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			Validate.validateRange(digit, 0, 9);
+			Validate.range(digit, 0, 9);
 			if (digit == 1) return '\u00b9';
 			if (digit == 2) return '\u00b2';
 			if (digit == 3) return '\u00b3';
@@ -138,7 +138,7 @@ public class FractionFormats {
 		}
 
 		public static char toChar(long digit) {
-			Validate.validateRange(digit, 0, 9);
+			Validate.range(digit, 0, 9);
 			return (char) ('\u2080' + digit);
 		}
 

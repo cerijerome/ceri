@@ -4,11 +4,11 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.util.Set;
 import org.junit.Test;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
+import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.test.Captor;
 import ceri.common.test.TestListeners;
-import ceri.common.util.Enclosure;
 
 public class ListenableBehavior {
 

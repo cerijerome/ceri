@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 

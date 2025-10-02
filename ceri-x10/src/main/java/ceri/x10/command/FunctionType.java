@@ -1,8 +1,8 @@
 package ceri.x10.command;
 
 import java.util.Map;
-import ceri.common.collection.Enums;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.collect.Enums;
+import ceri.common.data.Xcoder;
 import ceri.common.text.Strings;
 
 /**
@@ -28,8 +28,8 @@ public enum FunctionType {
 
 	private static final Map<String, FunctionType> names =
 		Enums.map(f -> f.name().toLowerCase(), FunctionType.class);
-	private static final TypeTranscoder<FunctionType> xcoder =
-		TypeTranscoder.of(t -> t.id, FunctionType.class);
+	private static final Xcoder.Type<FunctionType> xcoder =
+		Xcoder.type(FunctionType.class, t -> t.id);
 	public final FunctionGroup group;
 	public final int id;
 

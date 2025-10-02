@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
 import ceri.common.data.ByteStream;
-import ceri.common.exception.ExceptionAdapter;
-import ceri.common.function.FunctionUtil;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Functional;
 import ceri.common.io.IoUtil;
 import ceri.common.io.PipedStream;
 import ceri.common.text.ToString;
@@ -42,7 +42,7 @@ public class TestOutputStream extends OutputStream {
 
 	public void resetState() {
 		CallSync.resetAll(write, flush, close);
-		FunctionUtil.runSilently(piped::clear);
+		Functional.runSilently(piped::clear);
 	}
 
 	public void assertAvailable(int n) throws IOException {
@@ -80,7 +80,7 @@ public class TestOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, FunctionUtil.getSilently(piped.in()::available))
+		return ToString.ofClass(this, Functional.getSilently(piped.in()::available))
 			.children("write=" + write, "flush=" + flush, "close=" + close).toString();
 	}
 

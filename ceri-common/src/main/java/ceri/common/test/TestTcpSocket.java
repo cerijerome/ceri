@@ -2,7 +2,7 @@ package ceri.common.test;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocket;
 import ceri.common.net.TcpSocketOption;

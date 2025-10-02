@@ -2,7 +2,8 @@ package ceri.common.data;
 
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Iterators;
+import ceri.common.collect.Iterators;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
@@ -165,7 +166,7 @@ public interface IntProvider extends Iterable<Integer> {
 		 * Creates a new reader for subsequent ints without incrementing the offset.
 		 */
 		public Reader slice(int length) {
-			Validate.validateSlice(length(), offset(), length);
+			Validate.slice(length(), offset(), length);
 			return new Reader(provider, start + offset(), length);
 		}
 
@@ -292,8 +293,7 @@ public interface IntProvider extends Iterable<Integer> {
 	default IntProvider slice(int index, int length) {
 		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 */
 	default int[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.ints.empty;
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		int[] copy = new int[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -333,8 +333,8 @@ public interface IntProvider extends Iterable<Integer> {
 	 * writes one int at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, int[] array, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getInt(index++);
 		return index;
@@ -360,8 +360,8 @@ public interface IntProvider extends Iterable<Integer> {
 	 * method.
 	 */
 	default int copyTo(int index, IntReceiver receiver, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setInt(offset++, getInt(index++));
 		return index;
@@ -378,7 +378,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Provides signed ints from index as a stream.
 	 */
 	default IntStream<RuntimeException> stream(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return Streams.slice(index, length).map(i -> getInt(i));
 	}
 
@@ -393,7 +393,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Provides unsigned ints from index as a stream.
 	 */
 	default LongStream<RuntimeException> ustream(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return Streams.slice(index, length).mapToLong(i -> getUint(i));
 	}
 
@@ -565,7 +565,7 @@ public interface IntProvider extends Iterable<Integer> {
 	 * Provides sequential int access.
 	 */
 	default Reader reader(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return new Reader(this, index, length);
 	}
 

@@ -11,9 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
-import ceri.common.util.CloseableUtil;
 
 public class StringBuildersTest {
 	private static final String nullString = null;
@@ -30,7 +30,7 @@ public class StringBuildersTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(p, o);
+		Closeables.close(p, o);
 		b = null;
 		p = null;
 		o = null;

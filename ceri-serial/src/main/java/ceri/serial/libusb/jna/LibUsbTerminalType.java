@@ -1,6 +1,6 @@
 package ceri.serial.libusb.jna;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 
 /**
  * From document "USB Device Class Definition for Terminal Types Release 3.0". Not part of libusb
@@ -78,8 +78,8 @@ public enum LibUsbTerminalType {
 	drums_rhythm(0x0716), // I/O
 	other_musical_instrument(0x0717); // I/O
 
-	public static final TypeTranscoder<LibUsbTerminalType> xcoder =
-		TypeTranscoder.of(t -> t.value, LibUsbTerminalType.class);
+	public static final Xcoder.Type<LibUsbTerminalType> xcoder =
+		Xcoder.type(LibUsbTerminalType.class);
 	public final int value;
 
 	private LibUsbTerminalType(int value) {

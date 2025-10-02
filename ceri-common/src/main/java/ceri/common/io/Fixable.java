@@ -3,13 +3,13 @@ package ceri.common.io;
 import java.io.Closeable;
 import java.io.IOException;
 import ceri.common.event.Listenable;
-import ceri.common.function.FunctionUtil;
-import ceri.common.util.Named;
+import ceri.common.function.Functional;
+import ceri.common.util.Capability;
 
 /**
  * A general fixable hardware device.
  */
-public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChange> {
+public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect<StateChange> {
 
 	/**
 	 * Notify the device that it is broken. For when the device itself cannot determine it is
@@ -26,7 +26,7 @@ public interface Fixable extends Closeable, Named, Listenable.Indirect<StateChan
 	 * Open without throwing an exception. Returns false if open failed.
 	 */
 	default boolean openSilently() {
-		return FunctionUtil.runSilently(this::open);
+		return Functional.runSilently(this::open);
 	}
 
 	/**

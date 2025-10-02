@@ -29,8 +29,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 */
 	public static <T> ArrayPointer<T> byRef(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count) {
-		Validate.validateMin(count, 0);
-		return of(p, i -> JnaUtil.byRef(p, valid(i, count), constructor),
+		Validate.min(count, 0);
+		return of(p, i -> JnaUtil.byRef(p, Validate.index(count, i), constructor),
 			() -> JnaUtil.arrayByRef(p, constructor, arrayFn, count), () -> count);
 	}
 
@@ -48,8 +48,8 @@ public abstract class ArrayPointer<T> extends PointerType {
 	 */
 	public static <T> ArrayPointer<T> byVal(Pointer p, Functions.Function<Pointer, T> constructor,
 		Functions.IntFunction<T[]> arrayFn, int count, int size) {
-		Validate.validateMin(count, 0);
-		return of(p, i -> JnaUtil.byVal(p, valid(i, count), constructor, size),
+		Validate.min(count, 0);
+		return of(p, i -> JnaUtil.byVal(p, Validate.index(count, i), constructor, size),
 			() -> JnaUtil.arrayByVal(p, constructor, arrayFn, count, size), () -> count);
 	}
 
@@ -75,11 +75,6 @@ public abstract class ArrayPointer<T> extends PointerType {
 	@Override
 	public void setPointer(Pointer p) {
 		throw new UnsupportedOperationException("Pointer cannot be moved");
-	}
-
-	private static int valid(int i, int count) {
-		Validate.validateIndex(count, i);
-		return i;
 	}
 
 	private static <T> ArrayPointer<T> of(Pointer p, Functions.IntFunction<T> getIndexFn,

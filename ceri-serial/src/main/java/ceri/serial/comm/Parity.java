@@ -1,6 +1,6 @@
 package ceri.serial.comm;
 
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.serial.comm.jna.CSerial;
 
 public enum Parity {
@@ -10,7 +10,7 @@ public enum Parity {
 	mark(CSerial.PARITY_MARK),
 	space(CSerial.PARITY_SPACE);
 
-	private static final TypeTranscoder<Parity> xcoder = TypeTranscoder.of(t -> t.value, Parity.class);
+	private static final Xcoder.Type<Parity> xcoder = Xcoder.type(Parity.class);
 	public final int value;
 
 	public static Parity from(char c) {

@@ -4,9 +4,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.util.CloseableUtil;
 
 /**
  * A single-threaded execution of callable or runnable.
@@ -68,7 +68,7 @@ public class SimpleExecutor<E extends Exception, T> implements Functions.Closeab
 			Future<T> future = exec.submit(callable);
 			return new SimpleExecutor<>(exec, future, exceptionConstructor, closeTimeoutMs);
 		} catch (RuntimeException e) {
-			CloseableUtil.close(exec, closeTimeoutMs);
+			Closeables.close(exec, closeTimeoutMs);
 			throw e;
 		}
 	}
@@ -82,11 +82,11 @@ public class SimpleExecutor<E extends Exception, T> implements Functions.Closeab
 	}
 
 	public T get() throws E {
-		return ConcurrentUtil.get(future, exceptionConstructor);
+		return Concurrent.get(future, exceptionConstructor);
 	}
 
 	public T get(int timeoutMs) throws E {
-		return ConcurrentUtil.get(future, exceptionConstructor, timeoutMs);
+		return Concurrent.get(future, exceptionConstructor, timeoutMs);
 	}
 
 	public boolean cancel() {
@@ -95,6 +95,6 @@ public class SimpleExecutor<E extends Exception, T> implements Functions.Closeab
 
 	@Override
 	public void close() {
-		CloseableUtil.close(exec, closeTimeoutMs);
+		Closeables.close(exec, closeTimeoutMs);
 	}
 }

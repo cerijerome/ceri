@@ -12,7 +12,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	private int mark = 0;
 
 	protected Navigator(int length) {
-		Validate.validateMin(length, 0);
+		Validate.min(length, 0);
 		this.length = length;
 	}
 
@@ -27,7 +27,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Validates and sets the offset.
 	 */
 	public T offset(int offset) {
-		Validate.validateRange(offset, 0, length);
+		Validate.range(offset, 0, length);
 		this.offset = offset;
 		return typedThis();
 	}
@@ -86,7 +86,7 @@ public abstract class Navigator<T extends Navigator<T>> {
 	 * Updates the length. Available for subclasses if needed.
 	 */
 	protected T length(int length) {
-		Validate.validateMin(length, 0);
+		Validate.min(length, 0);
 		this.length = length;
 		if (offset() > length) return offset(length);
 		return typedThis();
@@ -98,5 +98,4 @@ public abstract class Navigator<T extends Navigator<T>> {
 	private T typedThis() {
 		return Reflect.unchecked(this);
 	}
-
 }

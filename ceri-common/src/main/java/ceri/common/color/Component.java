@@ -1,7 +1,7 @@
 package ceri.common.color;
 
 import java.util.List;
-import ceri.common.data.TypeTranscoder;
+import ceri.common.data.Xcoder;
 import ceri.common.math.Maths;
 
 /**
@@ -28,8 +28,7 @@ public enum Component {
 	public static final List<Component> XS = List.of(x0, x1, x2, x3);
 	public static final long X_MASK = 0xffffffff00000000L;
 	public static final int X_COUNT = 4;
-	private static final TypeTranscoder<Component> xcoder =
-		TypeTranscoder.of(t -> t.index, Component.class);
+	private static final Xcoder.Type<Component> xcoder = Xcoder.type(Component.class, t -> t.index);
 	public final int index;
 	public final int shift;
 	public final long mask;

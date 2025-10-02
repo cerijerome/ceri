@@ -5,7 +5,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.spi.SpiDevice;
@@ -16,7 +16,7 @@ public class SpiDevTest {
 
 	@After
 	public void after() {
-		CloseableUtil.close(fd, ref);
+		Closeables.close(fd, ref);
 		fd = null;
 	}
 

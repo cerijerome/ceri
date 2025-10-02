@@ -11,9 +11,9 @@ import java.io.StringReader;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.test.TestInputStream;
 import ceri.common.text.StringBuilders;
-import ceri.common.util.CloseableUtil;
 
 public class ConsoleInputBehavior {
 	private static final ConsoleInput.Config CONF = new ConsoleInput.Config(0, false, null, null);
@@ -32,7 +32,7 @@ public class ConsoleInputBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(ps, in);
+		Closeables.close(ps, in);
 		in = null;
 		ps = null;
 		con = null;

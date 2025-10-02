@@ -13,6 +13,9 @@ import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.Serializable;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -295,11 +298,11 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testSame() {
-		assertEquals(Reflect.same(null, null), true);
-		assertEquals(Reflect.same(E.class, E.class), true);
-		assertEquals(Reflect.same(E.class, null), false);
+	public void testSameClass() {
+		assertEquals(Reflect.same((Class<?>) null, null), true);
 		assertEquals(Reflect.same(null, E.class), false);
+		assertEquals(Reflect.same(E.class, null), false);
+		assertEquals(Reflect.same(E.class, E.class), true);
 		class TestSame {
 			static {
 				assertEquals(E_CLASS.equals(E.class), false);
@@ -307,6 +310,25 @@ public class ReflectTest {
 			}
 		}
 		ClassReInitializer.of(TestSame.class, E.class).reinit();
+	}
+
+	@Test
+	public void testSameRef() {
+		var o0 = new Object();
+		var o1 = new Object();
+		var wrn = new WeakReference<>(null);
+		var wr0 = new WeakReference<>(o0);
+		var wr1 = new WeakReference<>(o1);
+		var srn = new SoftReference<>(null);
+		var sr0 = new SoftReference<>(o0);
+		assertEquals(Reflect.same((Reference<?>) null, null), true);
+		assertEquals(Reflect.same(null, wrn), false);
+		assertEquals(Reflect.same(wrn, null), false);
+		assertEquals(Reflect.same(wrn, srn), true);
+		assertEquals(Reflect.same(wr0, wrn), false);
+		assertEquals(Reflect.same(wr0, wr1), false);
+		assertEquals(Reflect.same(wr0, wr0), true);
+		assertEquals(Reflect.same(wr0, sr0), true);
 	}
 
 	@Test

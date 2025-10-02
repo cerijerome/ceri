@@ -29,7 +29,7 @@ public class SimpleExecutorBehavior {
 
 	@Test
 	public void shouldCancel() {
-		try (var exec = SimpleExecutor.run(() -> ConcurrentUtil.delay(10000))) {
+		try (var exec = SimpleExecutor.run(() -> Concurrent.delay(10000))) {
 			exec.cancel();
 		}
 	}

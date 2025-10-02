@@ -11,7 +11,7 @@ import static ceri.common.test.AssertUtil.throwRuntime;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.Test;
-import ceri.common.collection.Sets;
+import ceri.common.collect.Sets;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Excepts;
 import ceri.common.stream.Streams;

@@ -3,7 +3,7 @@ package ceri.common.test;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import ceri.common.collection.Enums;
+import ceri.common.collect.Enums;
 import ceri.common.text.Regex;
 
 /**

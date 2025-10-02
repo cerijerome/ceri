@@ -9,14 +9,14 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
-import ceri.common.util.Enablable;
+import ceri.common.util.Capability;
 import ceri.log.rpc.client.RpcChannel;
 import ceri.log.util.LogUtil;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
-public class RpcServer implements Functions.Closeable, Enablable {
+public class RpcServer implements Functions.Closeable, Capability.Enabled {
 	private static final Logger logger = LogManager.getLogger();
 	public static final RpcServer NULL = new RpcServer(RpcServiceUtil.NULL_SERVER, Config.NULL);
 	private final Config config;

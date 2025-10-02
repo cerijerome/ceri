@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;

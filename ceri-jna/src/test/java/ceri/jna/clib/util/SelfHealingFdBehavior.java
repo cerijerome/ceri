@@ -10,7 +10,6 @@ import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.typedProperties;
-import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.jna.CFcntl.O_APPEND;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
@@ -18,12 +17,12 @@ import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Closeables;
 import ceri.common.function.Lambdas;
 import ceri.common.io.StateChange;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
-import ceri.common.util.CloseableUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -42,7 +41,7 @@ public class SelfHealingFdBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(shf, fd);
+		Closeables.close(shf, fd);
 		shf = null;
 		fd = null;
 		open = null;
@@ -174,7 +173,7 @@ public class SelfHealingFdBehavior {
 	public void shouldSetDelegateFlags() throws IOException {
 		init();
 		shf.open();
-		FLAGS.set(shf, Open.RDWR, Open.APPEND);
+		FileDescriptor.FLAGS.set(shf, Open.RDWR, Open.APPEND);
 		assertEquals(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
 	}
 

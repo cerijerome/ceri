@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ceri.common.collection.Maps;
+import ceri.common.collect.Maps;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;

@@ -7,13 +7,14 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collection.Iterators;
+import ceri.common.collect.Iterators;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
-import ceri.common.text.Formats;
+import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.util.Validate;
 
@@ -206,7 +207,7 @@ public interface ByteProvider extends Iterable<Integer> {
 		 * Creates a new reader for subsequent bytes without incrementing the offset.
 		 */
 		public Reader<T> slice(int length) {
-			Validate.validateSlice(length(), offset(), length);
+			Validate.slice(length(), offset(), length);
 			return new Reader<>(provider, position(), length);
 		}
 
@@ -495,8 +496,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	default ByteProvider slice(int index, int length) {
 		if (length == 0) return empty();
 		if (index == 0 && length == length()) return this;
-		throw new UnsupportedOperationException(
-			String.format("slice(%d, %d) is not supported", index, length));
+		throw Exceptions.unsupportedOp("slice(%d, %d) is not supported", index, length);
 	}
 
 	/**
@@ -526,7 +526,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 */
 	default byte[] copy(int index, int length) {
 		if (length == 0) return ArrayUtil.bytes.empty;
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		byte[] copy = new byte[length];
 		copyTo(index, copy, 0, length);
 		return copy;
@@ -551,8 +551,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * writes one byte at a time; efficiency may be improved by overriding this method.
 	 */
 	default int copyTo(int index, byte[] array, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(array.length, offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(array.length, offset, length);
 		while (length-- > 0)
 			array[offset++] = getByte(index++);
 		return index;
@@ -578,8 +578,8 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * method.
 	 */
 	default int copyTo(int index, ByteReceiver receiver, int offset, int length) {
-		Validate.validateSlice(length(), index, length);
-		Validate.validateSlice(receiver.length(), offset, length);
+		Validate.slice(length(), index, length);
+		Validate.slice(receiver.length(), offset, length);
 		while (length-- > 0)
 			receiver.setByte(offset++, getByte(index++));
 		return index;
@@ -602,7 +602,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * </pre>
 	 */
 	default int writeTo(int index, OutputStream out, int length) throws IOException {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		while (length-- > 0)
 			out.write(getByte(index++));
 		return index;
@@ -631,7 +631,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides unsigned bytes from index as a stream.
 	 */
 	default IntStream<RuntimeException> ustream(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return Streams.slice(index, length).map(i -> getUbyte(i));
 	}
 
@@ -831,7 +831,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides sequential byte access.
 	 */
 	default Reader<?> reader(int index, int length) {
-		Validate.validateSlice(length(), index, length);
+		Validate.slice(length(), index, length);
 		return new Reader<>(this, index, length);
 	}
 
@@ -846,7 +846,7 @@ public interface ByteProvider extends Iterable<Integer> {
 	 * Provides a string representation.
 	 */
 	static String toHex(Joiner joiner, ByteProvider provider) {
-		return toString(joiner, Formats.HEX_BYTE::apply, provider);
+		return toString(joiner, Format.HEX_BYTE::apply, provider);
 	}
 
 	/**

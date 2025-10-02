@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
@@ -27,7 +27,7 @@ public class PathGroup implements Path<PathGroup> {
 
 	private PathGroup(Collection<? extends Path<?>> paths) {
 		this.paths = Immutable.list(paths);
-		end = SvgUtil.combinedEnd(this.paths);
+		end = Svg.combinedEnd(this.paths);
 	}
 
 	@Override
@@ -58,8 +58,8 @@ public class PathGroup implements Path<PathGroup> {
 	}
 
 	@Override
-	public String path() {
-		return SvgUtil.combinedPath(paths);
+	public String d() {
+		return Svg.combinedPath(paths);
 	}
 
 	@Override

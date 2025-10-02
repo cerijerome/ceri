@@ -2,7 +2,7 @@ package ceri.log.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import ceri.common.collection.Immutable;
+import ceri.common.collect.Immutable;
 
 /**
  * Use to keep track of closeable objects during construction. If an exception occurs, all the

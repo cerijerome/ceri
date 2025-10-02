@@ -11,7 +11,7 @@ public record Fraction(long numerator, long denominator) {
 	public static final Fraction ONE = new Fraction(1, 1);
 
 	public Fraction {
-		Validate.validateMin(denominator, 1);
+		Validate.min(denominator, 1);
 	}
 
 	public static Fraction of(long numerator) {

@@ -13,9 +13,9 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.function.Closeables;
 import ceri.common.io.IoExceptions;
 import ceri.common.test.FileTestHelper;
-import ceri.common.util.CloseableUtil;
 
 public class PropertySourceBehavior {
 	private final ResourceBundle r =
@@ -26,7 +26,7 @@ public class PropertySourceBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(files);
+		Closeables.close(files);
 		files = null;
 	}
 

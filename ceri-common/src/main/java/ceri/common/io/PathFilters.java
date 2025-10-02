@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
-import ceri.common.function.Predicates;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -39,7 +39,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byUnixPath(Excepts.Predicate<? extends E, ? super String> filter) {
-		return Predicates.testing(IoUtil::pathToUnix, filter);
+		return Filters.testing(IoUtil::pathToUnix, filter);
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byFileNamePath(Excepts.Predicate<? extends E, Path> filter) {
-		return Predicates.testing(Path::getFileName, filter::test);
+		return Filters.testing(Path::getFileName, filter::test);
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byFileName(Excepts.Predicate<? extends E, String> filter) {
-		return Predicates.testing(IoUtil::filename, filter::test);
+		return Filters.testing(IoUtil::filename, filter::test);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byExtension(Excepts.Predicate<? extends E, String> filter) {
-		return Predicates.and(file(), Predicates.testing(IoUtil::extension, filter));
+		return Filters.and(file(), Filters.testing(IoUtil::extension, filter));
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byExtension(String... extensions) {
-		return byExtension(Predicates.ex(Predicates.eqAny(extensions)));
+		return byExtension(Filters.ex(Filters.eqAny(extensions)));
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class PathFilters {
 	 */
 	public static Excepts.Predicate<IOException, Path>
 		byLastModified(Excepts.Predicate<? extends IOException, ? super Instant> filter) {
-		return Predicates.testing(IoUtil::lastModified, filter::test);
+		return Filters.testing(IoUtil::lastModified, filter::test);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class PathFilters {
 	 */
 	public static Excepts.Predicate<IOException, Path>
 		bySize(Excepts.Predicate<? extends IOException, ? super Long> filter) {
-		return Predicates.testing(Files::size, filter);
+		return Filters.testing(Files::size, filter);
 	}
 
 	/**

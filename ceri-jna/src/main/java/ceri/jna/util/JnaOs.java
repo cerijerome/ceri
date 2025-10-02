@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
 import java.util.List;
-import ceri.common.collection.Iterables;
+import ceri.common.collect.Iterables;
 import ceri.common.function.Accessible;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
@@ -102,7 +102,7 @@ public enum JnaOs implements Accessible<JnaOs> {
 	 * Overrides the current OS to execute the function, passing in this OS type.
 	 */
 	@Override
-	public <E extends Exception, T> T apply(Function<E, JnaOs, T> function) throws E {
+	public <E extends Exception, T> T apply(Function<E, ? super JnaOs, T> function) throws E {
 		try (var _ = override()) {
 			return function.apply(this);
 		}

@@ -3,6 +3,7 @@ package ceri.common.reflect;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,13 +14,14 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.array.RawArray;
-import ceri.common.collection.Immutable;
-import ceri.common.collection.Lists;
-import ceri.common.concurrent.ConcurrentUtil;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
+import ceri.common.concurrent.Concurrent;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
@@ -32,6 +34,12 @@ import ceri.common.util.Basics;
  * Utility methods related to reflection
  */
 public class Reflect {
+	private static final Set<Class<?>> PRIMITIVES = Set.of(boolean.class, char.class, byte.class,
+		short.class, int.class, long.class, float.class, double.class);
+	private static final Set<Class<?>> PRIMITIVE_NUMBERS =
+		Set.of(byte.class, short.class, int.class, long.class, float.class, double.class);
+	private static final Set<Class<?>> PRIMITIVE_INTS =
+		Set.of(byte.class, short.class, int.class, long.class);
 	public static final Pattern PACKAGE_REGEX =
 		Pattern.compile("(?<![\\w$])([a-z$])[a-z0-9_$]+\\.");
 
@@ -47,7 +55,7 @@ public class Reflect {
 		 * Detailed descriptor.
 		 */
 		public String full() {
-			return String.format("[%s] %s", ConcurrentUtil.name(thread()), element());
+			return String.format("[%s] %s", Concurrent.name(thread()), element());
 		}
 
 		@Override
@@ -166,6 +174,15 @@ public class Reflect {
 	}
 
 	/**
+	 * Returns true if the references refer to the same instance.
+	 */
+	public static boolean same(Reference<?> l, Reference<?> r) {
+		if (l == r) return true;
+		if (l == null || r == null) return false;
+		return l.get() == r.get();
+	}
+
+	/**
 	 * Applies the consumer only to instances of the given type.
 	 */
 	public static <E extends Exception, T> void acceptInstances(Class<T> cls,
@@ -210,6 +227,35 @@ public class Reflect {
 		for (Class<?> c : classes)
 			if (c.isAssignableFrom(cls)) return true;
 		return false;
+	}
+
+	/**
+	 * Returns true if the type is a primitive type.
+	 */
+	public static boolean isPrimitive(Class<?> cls) {
+		return cls != null && PRIMITIVES.contains(cls);
+	}
+
+	/**
+	 * Returns true if the type is a primitive int type.
+	 */
+	public static boolean isPrimitiveInt(Class<?> cls) {
+		return cls != null && PRIMITIVE_INTS.contains(cls);
+	}
+
+	/**
+	 * Returns true if the type is a primitive number type.
+	 */
+	public static boolean isPrimitiveNumber(Class<?> cls) {
+		return cls != null && PRIMITIVE_NUMBERS.contains(cls);
+	}
+
+	/**
+	 * Returns true if the type is a primitive number type.
+	 */
+	public static boolean isNumber(Class<?> cls) {
+		if (cls == null) return false;
+		return isPrimitiveNumber(cls) || Number.class.isAssignableFrom(cls);
 	}
 
 	/**
@@ -473,6 +519,32 @@ public class Reflect {
 		if (obj == null && !isStatic(field)) return def;
 		try {
 			return Reflect.unchecked(field.get(obj));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return def;
+		}
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns default if not found.
+	 */
+	public static int publicFieldInt(Object obj, Field field, int def) {
+		if (field == null) return def;
+		if (obj == null && !isStatic(field)) return def;
+		try {
+			return field.getInt(obj);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			return def;
+		}
+	}
+
+	/**
+	 * Returns the public field value from the instance. Returns default if not found.
+	 */
+	public static long publicFieldLong(Object obj, Field field, long def) {
+		if (field == null) return def;
+		if (obj == null && !isStatic(field)) return def;
+		try {
+			return field.getLong(obj);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return def;
 		}

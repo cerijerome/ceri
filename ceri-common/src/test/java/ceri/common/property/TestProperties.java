@@ -7,7 +7,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 import java.util.Properties;
-import ceri.common.exception.ExceptionAdapter;
+import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
 @SuppressWarnings("serial")

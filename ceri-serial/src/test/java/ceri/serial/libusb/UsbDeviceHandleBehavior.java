@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.jna.test.JnaTestUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsbException;

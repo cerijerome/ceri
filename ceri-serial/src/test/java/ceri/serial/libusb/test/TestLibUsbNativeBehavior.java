@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
-import ceri.common.util.Enclosure;
+import ceri.common.function.Enclosure;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;

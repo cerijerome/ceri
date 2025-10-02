@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.BoolCondition;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Functions;
 import ceri.log.util.LogUtil;
@@ -86,7 +86,7 @@ public abstract class LoopingExecutor implements Functions.Closeable {
 		logger.info("{} started", logName);
 		try {
 			while (true) {
-				ConcurrentUtil.checkInterrupted();
+				Concurrent.checkInterrupted();
 				loop();
 			}
 		} catch (InterruptedException | RuntimeInterruptedException e) {

@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
-import ceri.common.util.CloseableUtil;
+import ceri.common.function.Closeables;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CIoctl;
@@ -24,7 +24,7 @@ public class SerialPortBehavior {
 
 	@After
 	public void after() {
-		CloseableUtil.close(serial, ref);
+		Closeables.close(serial, ref);
 		serial = null;
 	}
 

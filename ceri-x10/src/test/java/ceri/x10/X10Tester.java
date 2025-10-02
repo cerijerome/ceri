@@ -1,7 +1,7 @@
 package ceri.x10;
 
 import java.io.IOException;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.x10.cm17a.Cm17aContainer;
 import ceri.x10.command.Command;
 
@@ -15,9 +15,9 @@ public class X10Tester {
 		var config = Cm17aContainer.Config.of(commPort);
 		try (var con = Cm17aContainer.of(config)) {
 			con.cm17a.command(Command.from("A1:on"));
-			ConcurrentUtil.delay(3000);
+			Concurrent.delay(3000);
 			con.cm17a.command(Command.from("A1:off"));
-			ConcurrentUtil.delay(3000);
+			Concurrent.delay(3000);
 		}
 	}
 }

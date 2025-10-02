@@ -2,7 +2,7 @@ package ceri.common.text;
 
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import ceri.common.exception.Exceptions;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.stream.Stream;
 

@@ -5,7 +5,7 @@ import static ceri.serial.spi.jna.SpiDevUtil.transferTimeMicros;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import ceri.common.concurrent.ConcurrentUtil;
+import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteUtil;
 import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
@@ -55,7 +55,7 @@ public class SpiEmulator implements Spi {
 	 * Prints output data as pulses with byte separator according to cycle.
 	 */
 	public static SpiEmulator pulsePrinter(PrintStream out, PulseCycle cycle) {
-		PulsePrinter pp = PulsePrinter.builder().out(out).build();
+		var pp = PulsePrinter.builder().out(out).build();
 		return of(new Responder() {
 			@Override
 			public void out(byte[] data) throws IOException {
@@ -132,19 +132,19 @@ public class SpiEmulator implements Spi {
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
 		Basics.requireNot(direction, null, Direction.none);
-		Validate.validateMin(size, 0, "Size");
+		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}
 
 	private void execute(spi_ioc_transfer xfer) throws IOException {
-		ByteBuffer out = buffer(xfer.tx_buf, xfer.len);
-		ByteBuffer in = buffer(xfer.rx_buf, xfer.len);
+		var out = buffer(xfer.tx_buf, xfer.len);
+		var in = buffer(xfer.rx_buf, xfer.len);
 		switch (direction(xfer)) {
 			case out -> responder.out(read(out));
 			case in -> write(in, responder.in(xfer.size()));
 			default -> write(in, responder.duplex(read(out)));
 		}
-		ConcurrentUtil.delayMicros(delay ? transferTimeMicros(xfer) : 0L);
+		Concurrent.delayMicros(delay ? transferTimeMicros(xfer) : 0L);
 	}
 
 	private ByteBuffer buffer(long peer, int len) {
@@ -159,5 +159,4 @@ public class SpiEmulator implements Spi {
 	private void write(ByteBuffer out, byte[] data) {
 		ByteUtil.writeTo(out, 0, data, 0, Math.min(data.length, out.capacity()));
 	}
-
 }

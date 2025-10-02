@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
-import ceri.common.function.FunctionUtil;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.io.IoUtil;
@@ -173,7 +173,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	@Override
 	public String port() {
 		String port = device.applyIfSet(Serial::port, null);
-		if (port == null) port = FunctionUtil.getSilently(config.portSupplier::get, null);
+		if (port == null) port = Functional.getSilently(config.portSupplier::get, null);
 		return port;
 	}
 
