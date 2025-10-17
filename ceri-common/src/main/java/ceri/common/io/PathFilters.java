@@ -75,7 +75,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byExtension(Excepts.Predicate<? extends E, String> filter) {
-		return Filters.and(file(), Filters.testing(IoUtil::extension, filter));
+		return Filters.andOf(file(), Filters.testing(IoUtil::extension, filter));
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byExtension(String... extensions) {
-		return byExtension(Filters.ex(Filters.eqAny(extensions)));
+		return byExtension(Filters.ex(Filters.equalAnyOf(extensions)));
 	}
 
 	/**

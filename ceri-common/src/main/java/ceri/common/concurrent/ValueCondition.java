@@ -6,7 +6,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
-import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.time.TimeSupplier;
@@ -87,14 +86,14 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null. Current value is cleared.
 	 */
 	public T await() throws InterruptedException {
-		return await(Functional.truePredicate());
+		return await(Filters.yes());
 	}
 
 	/**
 	 * Waits indefinitely for current value to equal given value. Current value is cleared.
 	 */
 	public T await(T value) throws InterruptedException {
-		return await(Filters.eq(value));
+		return await(Filters.equal(value));
 	}
 
 	/**
@@ -109,14 +108,14 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs) throws InterruptedException {
-		return awaitTimeout(timeoutMs, Functional.truePredicate());
+		return awaitTimeout(timeoutMs, Filters.yes());
 	}
 
 	/**
 	 * Waits for current value to equal given value, or timer to expire. Current value is cleared.
 	 */
 	public T awaitTimeout(long timeoutMs, T value) throws InterruptedException {
-		return awaitTimeout(timeoutMs, Filters.eq(value));
+		return awaitTimeout(timeoutMs, Filters.equal(value));
 	}
 
 	/**
@@ -147,14 +146,14 @@ public class ValueCondition<T> {
 	 * Waits indefinitely for current value to be non-null.
 	 */
 	public T awaitPeek() throws InterruptedException {
-		return awaitPeek(Functional.truePredicate());
+		return awaitPeek(Filters.yes());
 	}
 
 	/**
 	 * Waits indefinitely for current value to equal given value.
 	 */
 	public T awaitPeek(T value) throws InterruptedException {
-		return awaitPeek(Filters.eq(value));
+		return awaitPeek(Filters.equal(value));
 	}
 
 	/**
@@ -176,7 +175,7 @@ public class ValueCondition<T> {
 	 * Waits for current value to equal given value, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs, T value) throws InterruptedException {
-		return awaitPeek(timeoutMs, Filters.eq(value));
+		return awaitPeek(timeoutMs, Filters.equal(value));
 	}
 
 	/**

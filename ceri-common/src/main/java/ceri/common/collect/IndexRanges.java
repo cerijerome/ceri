@@ -31,7 +31,7 @@ public class IndexRanges implements Iterable<Integer> {
 	 * Parse string to extract ranges.
 	 */
 	public static IndexRanges from(String s) {
-		Validate.validateMatch(s, VALIDATE_REGEX);
+		Regex.validMatch(VALIDATE_REGEX, s);
 		var ranges = of();
 		var m = EXTRACT_REGEX.matcher(s);
 		while (m.find()) {

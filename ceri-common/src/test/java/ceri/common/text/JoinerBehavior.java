@@ -2,6 +2,8 @@ package ceri.common.text;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.AssertUtil.assertUnsupported;
 import static ceri.common.text.Joiner.COLON;
 import static ceri.common.text.Joiner.LIST;
 import static ceri.common.text.Joiner.OR;
@@ -12,6 +14,7 @@ import ceri.common.function.Excepts.BiConsumer;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.function.Excepts.ObjIntConsumer;
+import ceri.common.stream.Streams;
 import ceri.common.util.Truth;
 
 public class JoinerBehavior {
@@ -37,6 +40,49 @@ public class JoinerBehavior {
 		var b = Joiner.builder().separator("/").max(2).showCount(Truth.no);
 		assertString(b.remainder(".").build().joinAll(1, 2, 3), "1/.");
 		assertString(b.remainder(null).build().joinAll(1, 2, 3), "1/");
+	}
+
+	@Test
+	public void shouldActAsStreamCollector() {
+		var joiner = Joiner.ARRAY_COMPACT;
+		assertUnordered(joiner.characteristics());
+		var c = joiner.supplier().get();
+		joiner.accumulator().accept(c, "a");
+		joiner.accumulator().accept(c, "b");
+		assertString(joiner.finisher().apply(c), "[a,b]");
+		joiner.accumulator().accept(c, "c"); // ignored
+		assertString(joiner.finisher().apply(c), "[a,b]");
+	}
+
+	@Test
+	public void shouldHandleMaxItems() {
+		var b = Joiner.ARRAY.edit().separator(":");
+		var j0 = b.max(0).build();
+		var j1 = b.max(1).build();
+		var j2 = b.max(2).build();
+		assertString(Streams.of().collect(j0), "[]");
+		assertString(Streams.of().collect(j1), "[]");
+		assertString(Streams.of().collect(j2), "[]");
+		assertString(Streams.of("a").collect(j0), "[](1)");
+		assertString(Streams.of("a").collect(j1), "[a]");
+		assertString(Streams.of("a").collect(j2), "[a]");
+		assertString(Streams.of("a", "b").collect(j0), "[](2)");
+		assertString(Streams.of("a", "b").collect(j1), "[...](2)");
+		assertString(Streams.of("a", "b").collect(j2), "[a:b]");
+		assertString(Streams.of("a", "b", "c").collect(j0), "[](3)");
+		assertString(Streams.of("a", "b", "c").collect(j1), "[...](3)");
+		assertString(Streams.of("a", "b", "c").collect(j2), "[a:...](3)");
+	}
+
+	@Test
+	public void shouldHandleZeroMax() {
+		var joiner = Joiner.ARRAY.edit().separator(":").max(0).build();
+		assertString(Streams.of("a", "b").collect(joiner), "[](2)");
+	}
+
+	@Test
+	public void shouldFailToCollectParallelStreams() {
+		assertUnsupported(() -> List.of("a", "b").stream().parallel().collect(Joiner.ARRAY));
 	}
 
 	@Test

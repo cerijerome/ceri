@@ -1,12 +1,12 @@
 package ceri.common.geom;
 
+import ceri.common.math.Matrix;
 import ceri.common.util.Validate;
 
 /**
  * A 2d point.
  */
 public record Point2d(double x, double y) {
-	public static final Point2d NULL = new Point2d(Double.NaN, Double.NaN);
 	public static final Point2d ZERO = new Point2d(0, 0);
 	public static final Point2d X_UNIT = new Point2d(1, 0);
 	public static final Point2d Y_UNIT = new Point2d(0, 1);
@@ -15,9 +15,10 @@ public record Point2d(double x, double y) {
 	 * Calculates the angle of the coordinates from the origin, relative to the x-axis.
 	 */
 	public static double angle(double x, double y) {
+		if (x == 0.0 && y == 0.0) return Double.NaN;
 		return Math.atan2(y, x);
 	}
-	
+
 	/**
 	 * Calculates the distance from the origin to the coordinates.
 	 */
@@ -31,13 +32,19 @@ public record Point2d(double x, double y) {
 	public static Point2d fromPolar(double radius, double angle) {
 		return of(radius * Math.cos(angle), radius * Math.sin(angle));
 	}
-	
+
+	/**
+	 * Returns a point from column vector. Vector is validated for size.
+	 */
+	public static Point2d from(Matrix vector) {
+		vector = vector.vector(2);
+		return of(vector.at(0, 0), vector.at(1, 0));
+	}
+
 	/**
 	 * Returns a validated instance.
 	 */
 	public static Point2d of(double x, double y) {
-		Validate.finite(x);
-		Validate.finite(y);
 		if (ZERO.equals(x, y)) return ZERO;
 		if (X_UNIT.equals(x, y)) return X_UNIT;
 		if (Y_UNIT.equals(x, y)) return Y_UNIT;
@@ -45,10 +52,11 @@ public record Point2d(double x, double y) {
 	}
 
 	/**
-	 * Returns true if the coordinates are NaN.
+	 * Constructor validation.
 	 */
-	public boolean isNull() {
-		return Double.isNaN(x()) && Double.isNaN(y());
+	public Point2d {
+		Validate.finite(x);
+		Validate.finite(y);
 	}
 
 	/**
@@ -129,7 +137,7 @@ public record Point2d(double x, double y) {
 	public double angle() {
 		return angle(x(), y());
 	}
-	
+
 	/**
 	 * Calculates the distance from the origin to the coordinates.
 	 */
@@ -151,11 +159,18 @@ public record Point2d(double x, double y) {
 		return this.x() == x && this.y() == y;
 	}
 
+	/**
+	 * Returns this point as a column vector.
+	 */
+	public Matrix vector() {
+		return Matrix.vector(x(), y());
+	}
+
 	@Override
 	public String toString() {
 		return "(" + x() + ", " + y() + ")";
 	}
-	
+
 	private Point2d create(double x, double y) {
 		if (equals(x, y)) return this;
 		return of(x, y);

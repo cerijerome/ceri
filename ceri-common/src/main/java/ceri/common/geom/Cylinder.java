@@ -2,8 +2,11 @@ package ceri.common.geom;
 
 import ceri.common.util.Validate;
 
-public record Cylinder(double radius, double height) implements Radial3d {
-	public static final Cylinder NULL = new Cylinder(0.0, 0.0);
+/**
+ * A cylinder with vertical axis.
+ */
+public record Cylinder(double r, double h) implements Radial3d {
+	public static final Cylinder ZERO = new Cylinder(0.0, 0.0);
 
 	/**
 	 * Calculates the volume of a cylinder.
@@ -16,43 +19,49 @@ public record Cylinder(double radius, double height) implements Radial3d {
 	 * Returns a validated instance.
 	 */
 	public static Cylinder of(double r, double h) {
-		Validate.finiteMin(r, 0.0);
-		Validate.finiteMin(h, 0.0);
-		if (r == 0.0 && h == 0.0) return NULL;
+		if (r == 0.0 && h == 0.0) return ZERO;
 		return new Cylinder(r + 0.0, h + 0.0);
 	}
 
+	/**
+	 * Constructor validation.
+	 */
+	public Cylinder {
+		Validate.finiteMin(r, 0.0);
+		Validate.finiteMin(h, 0.0);
+	}
+	
 	@Override
 	public double volume() {
-		return volume(radius(), height());
+		return volume(r(), h());
 	}
 
 	@Override
-	public double volumeFromHeight(double h) {
+	public double volumeFromH(double h) {
 		if (h <= 0.0) return 0.0;
-		if (h >= height()) return volume();
-		return volume(radius(), h);
+		if (h >= h()) return volume();
+		return volume(r(), h);
 	}
 
 	@Override
-	public double gradientAtHeight(double h) {
-		if (h < 0.0 || h > height()) return Double.NaN;
+	public double gradientAtH(double h) {
+		if (h < 0.0 || h > h()) return Double.NaN;
 		return Double.NEGATIVE_INFINITY;
 	}
 
 	@Override
-	public double heightFromVolume(double v) {
+	public double hFromVolume(double v) {
 		if (v == 0.0) return 0.0;
 		if (v < 0.0) return Double.NaN;
 		double volume = volume();
 		if (v > volume) return Double.NaN;
-		if (v == volume) return height();
-		return Math.min(height(), v / (Math.PI * radius() * radius()));
+		if (v == volume) return h();
+		return Math.min(h(), v / (Math.PI * r() * r()));
 	}
 
 	@Override
-	public double radiusFromHeight(double h) {
-		if (h < 0.0 || h > height()) return Double.NaN;
-		return radius();
+	public double radiusFromH(double h) {
+		if (h < 0.0 || h > h()) return Double.NaN;
+		return r();
 	}
 }

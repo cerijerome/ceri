@@ -8,6 +8,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
+import ceri.common.reflect.Reflect;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 
@@ -228,6 +229,6 @@ public class Exceptions {
 	 */
 	public static <E extends Exception> void throwIfType(Class<E> exceptionCls, Throwable t)
 		throws E {
-		if (exceptionCls.isInstance(t)) throw Basics.<E>unchecked(t);
+		if (exceptionCls.isInstance(t)) throw Reflect.<E>unchecked(t);
 	}
 }

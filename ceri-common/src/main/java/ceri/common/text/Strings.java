@@ -288,7 +288,6 @@ public class Strings {
 		return StringBuilders.repeat(b, pad, pads - left).toString();
 	}
 
-
 	/**
 	 * Returns the hash code of the char sequence.
 	 */

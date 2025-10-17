@@ -8,41 +8,41 @@ public interface Radial3d {
 	/**
 	 * Returns the height of the shape.
 	 */
-	double height();
+	double h();
 
 	/**
 	 * Calculates the volume from the height within the shape.
 	 */
-	double volumeFromHeight(double h);
+	double volumeFromH(double h);
 
 	/**
 	 * Calculates the height within the shape that matches the given volume.
 	 */
-	double heightFromVolume(double v);
+	double hFromVolume(double v);
 
 	/**
 	 * Calculates the radius from the given height within the shape.
 	 */
-	double radiusFromHeight(double h);
+	double radiusFromH(double h);
 
 	/**
 	 * Calculates the gradient at the given height within the shape.
 	 */
-	double gradientAtHeight(double h);
+	double gradientAtH(double h);
 
 	/**
 	 * Calculates the volume of the shape.
 	 */
 	default double volume() {
-		return volumeFromHeight(height());
+		return volumeFromH(h());
 	}
 
 	/**
 	 * Constrains the height within the shape limits.
 	 */
-	default double constrainHeight(double h) {
+	default double constrainH(double h) {
 		if (h <= 0.0) return 0.0;
-		return Math.min(h, height());
+		return Math.min(h, h());
 	}
 
 	/**

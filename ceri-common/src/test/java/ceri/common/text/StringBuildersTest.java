@@ -69,6 +69,12 @@ public class StringBuildersTest {
 	}
 
 	@Test
+	public void testSafe() {
+		assertString(StringBuilders.safe(null), "");
+		assertString(StringBuilders.safe(new StringBuilder("abc")), "abc");
+	}
+
+	@Test
 	public void testClear() {
 		assertEquals(StringBuilders.clear(null), null);
 		assertString(StringBuilders.clear(b(S)), "");

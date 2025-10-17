@@ -144,6 +144,7 @@ public class StringsTest {
 		assertString(Strings.sub(null, 0), "");
 		assertString(Strings.sub("", 1), "");
 		assertSame(Strings.sub(S, 0), S);
+		assertString(Strings.sub(S, 0, 0), "");
 		assertString(Strings.sub(S, 2, 3), "\u00a9\u2103\ud835");
 	}
 
@@ -172,7 +173,14 @@ public class StringsTest {
 		assertEquals(Strings.pad(s, 12, "<>", 0.5), "<><>" + s + "<>");
 		assertEquals(Strings.pad(s, 12, "<>", 0.4), "<>" + s + "<><>");
 	}
-	
+
+	@Test
+	public void testHash() {
+		assertEquals(Strings.hash(null), 0);
+		assertEquals(Strings.hash(""), 0);
+		assertEquals(Strings.hash("abc"), 0x1ecc1);
+	}
+
 	@Test
 	public void testEquals() {
 		assertEquals(Strings.equals(null, null), true);
@@ -220,7 +228,7 @@ public class StringsTest {
 		assertEquals(Strings.equalsAt(b("abcde"), 1, "bCd"), false);
 		assertEquals(Strings.equalsAt(b("abcde"), 0, "bcd"), false);
 	}
-	
+
 	@Test
 	public void testEqualsAtWithCase() {
 		assertEquals(Strings.equalsAt(false, null, 0, null, 0), true);
@@ -232,7 +240,7 @@ public class StringsTest {
 		assertEquals(Strings.equalsAt(true, "abcde", 1, "bCd"), false);
 		assertEquals(Strings.equalsAt(false, "abcde", 0, "bcd"), false);
 	}
-	
+
 	@Test
 	public void testStartsWith() {
 		assertEquals(Strings.startsWith(null, ""), false);

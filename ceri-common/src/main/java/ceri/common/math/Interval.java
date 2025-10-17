@@ -2,7 +2,6 @@ package ceri.common.math;
 
 import java.util.Comparator;
 import java.util.Objects;
-import ceri.common.util.Align;
 
 public class Interval<T> {
 	public final Bound<T> lower;
@@ -130,7 +129,7 @@ public class Interval<T> {
 	@Override
 	public String toString() {
 		if (isUnbound()) return lower.toString();
-		if (isPoint()) return lower.toString(Align.H.left) + upper.type.right;
-		return lower.toString(Align.H.left) + ", " + upper.toString(Align.H.right);
+		if (isPoint()) return lower.toString(-1) + upper.type.right;
+		return lower.toString(-1) + ", " + upper.toString(1);
 	}
 }

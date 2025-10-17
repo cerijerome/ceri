@@ -97,7 +97,6 @@ public class WebClientHelper implements Functions.Closeable {
 		return getPage(file.toUri().toString(), file);
 	}
 
-	@SuppressWarnings("serial")
 	public HtmlPage getPage(String url, Path file) throws IOException {
 		String content = Files.readString(file);
 		StringWebResponse response = new StringWebResponse(content, NetUtil.url(url));

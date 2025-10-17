@@ -4,7 +4,9 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalState;
 import static ceri.common.test.AssertUtil.assertMap;
 import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertStream;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -30,8 +32,6 @@ public class MapsTest {
 	private static final Functions.Function<Object, Object> fn = String::valueOf;
 	private static final Functions.BiOperator<Object> nullBiFn = null;
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
-	private static final Functions.BiConsumer<Object, Object> nullBiCon = null;
-	private static final Functions.BiOperator<Object> biCon = (l, r) -> l != null ? l : r;
 	private static final Functions.BiPredicate<Object, Object> nullBiPr = null;
 	private static final Functions.BiPredicate<Object, Object> biPr = Basics::noneNull;
 
@@ -41,6 +41,18 @@ public class MapsTest {
 
 	private static <K, V> Map<K, V> map(K k, V v) {
 		return Maps.of(k, v);
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Maps.class, Maps.Filter.class, Maps.Compare.class);
+	}
+
+	@Test
+	public void testCompare() {
+		var map = Maps.of(1, "B", -1, "C", 0, "A");
+		assertOrdered(Maps.sort(Maps.Compare.key(), map), -1, "C", 0, "A", 1, "B");
+		assertOrdered(Maps.sort(Maps.Compare.value(), map), 0, "A", 1, "B", -1, "C");
 	}
 
 	@Test
@@ -86,6 +98,8 @@ public class MapsTest {
 		assertMap(Maps.build(-1, "").apply(m -> Maps.put(m, map)).wrap(), -1, "A", null, "B", 1,
 			null);
 		assertOrdered(Maps.build(Maps::tree, -1, "").put(null, "B").wrap(), null, "B", -1, "");
+		assertMap(Maps.build(Maps::syncWeak, 1, "A").putKeys("B", 2, 3).get(), 1, "A", 2, "B", 3,
+			"B");
 	}
 
 	@Test
@@ -143,6 +157,7 @@ public class MapsTest {
 		assertMap(Maps.adapt(fn, fn, nullMap));
 		assertMap(Maps.adapt(fn, fn, emptyMap));
 		assertMap(Maps.adapt(fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		assertEquals(Maps.adapt(Maps.Put.first, null, fn, fn, emptyMap), null);
 	}
 
 	@Test
@@ -156,6 +171,7 @@ public class MapsTest {
 		assertMap(Maps.biAdapt(biFn, biFn, nullMap));
 		assertMap(Maps.biAdapt(biFn, biFn, emptyMap));
 		assertMap(Maps.biAdapt(biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		assertEquals(Maps.biAdapt(Maps.Put.first, null, biFn, biFn, emptyMap), null);
 	}
 
 	@Test
@@ -163,6 +179,15 @@ public class MapsTest {
 		assertMap(Maps.invert(nullMap));
 		assertMap(Maps.invert(emptyMap));
 		assertMap(Maps.invert(map), "A", -1, "B", null, null, 1);
+		assertEquals(Maps.invert(null, emptyMap), null);
+	}
+
+	@Test
+	public void testSort() {
+		assertMap(Maps.sort(null, null));
+		assertOrdered(
+			Maps.sort(Comparator.comparing(Map.Entry::getValue), Maps.of(1, "C", 2, "A", 3, "B")),
+			2, "A", 3, "B", 1, "C");
 	}
 
 	@Test
@@ -227,6 +252,13 @@ public class MapsTest {
 		Captor.ofBi().apply(c -> Maps.forEach(emptyMap, c)).verify();
 		Captor.ofBi().apply(c -> Maps.forEach(map, c)).verify(null, "B", -1, "A", 1, null);
 		Captor.ofBi().apply(c -> Maps.forEach(null, c)).verify();
+	}
+
+	@Test
+	public void testRemoveIf() throws Exception {
+		assertEquals(Maps.removeIf(null, (_, _) -> false), null);
+		assertMap(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), null), 1, "C", -1, "B", 0, "A");
+		assertMap(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), (k, _) -> k >= 0), -1, "B");
 	}
 
 	@Test

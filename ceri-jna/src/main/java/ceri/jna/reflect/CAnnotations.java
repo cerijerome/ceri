@@ -363,6 +363,7 @@ public class CAnnotations {
 			/**
 			 * Returns the enum value field name, or default.
 			 */
+			@Override
 			public String valueField() {
 				return valueField.isEmpty() ? VALUE_FIELD : valueField;
 			}

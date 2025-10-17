@@ -1,22 +1,12 @@
 package ceri.common.geom;
 
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class Point2dBehavior {
-
-	@Test
-	public void shouldNotAllowNaN() {
-		assertTrue(Point2d.NULL.isNull());
-		assertThrown(() -> Point2d.of(Double.NaN, 0));
-		assertThrown(() -> Point2d.of(0, Double.NaN));
-		assertFalse(Point2d.X_UNIT.isNull());
-	}
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
@@ -60,5 +50,21 @@ public class Point2dBehavior {
 		assertEquals(p0.scale(r1), Point2d.of(-0.5, 1));
 		assertEquals(p0.scale(Ratio2d.UNIT), p0);
 		assertEquals(p0.scale(Ratio2d.ZERO), Point2d.ZERO);
+	}
+
+	@Test
+	public void shouldCalculateAngle() {
+		assertEquals(Point2d.ZERO.angle(), Double.NaN);
+		assertEquals(Point2d.X_UNIT.angle(), 0.0);
+		assertApprox(Point2d.Y_UNIT.angle(), Math.PI / 2);
+		assertApprox(Point2d.of(1, 1).angle(), Math.PI / 4);
+	}
+
+	@Test
+	public void shouldCalculateQuadrance() {
+		assertEquals(Point2d.ZERO.quadrance(), 0.0);
+		assertEquals(Point2d.X_UNIT.quadrance(), 1.0);
+		assertEquals(Point2d.Y_UNIT.quadrance(), 1.0);
+		assertEquals(Point2d.of(1, 1).quadrance(), 2.0);
 	}
 }

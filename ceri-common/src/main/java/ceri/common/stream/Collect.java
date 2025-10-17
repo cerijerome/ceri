@@ -21,8 +21,9 @@ import ceri.common.reflect.Reflect;
  * Stream collectors.
  */
 public class Collect {
-	private static final Functions.BiOperator<Object> NO_COMBINER =
-		(_, _) -> unsupported("Combining is not supported");
+	private static final Functions.BiOperator<Object> NO_COMBINER = (_, _) -> {
+		throw Exceptions.unsupportedOp("Combining is not supported");
+	};
 	private static final Collector<?, ?, Object[]> ARRAY = array(Object[]::new);
 	private static final Collector<?, List<Object>, List<Object>> LIST =
 		of(Lists::of, Collection::add, Immutable::wrap);
@@ -44,8 +45,8 @@ public class Collect {
 		public static final IntStream.Collector<?, int[]> sortedArray = new Composed<>(
 			DynamicArray::ints, DynamicArray.OfInt::accept, a -> ArrayUtil.ints.sort(a.truncate()));
 		/** Calculates the average value of elements. */
-		public static final IntStream.Collector<?, Double> average = new Composed<>(
-			Sum::new, Sum::add, Sum::average);
+		public static final IntStream.Collector<?, Double> average =
+			new Composed<>(Sum::new, Sum::add, Sum::average);
 		/** Collects chars into a string. */
 		public static final IntStream.Collector<?, String> chars = new Composed<>(
 			StringBuilder::new, (b, i) -> b.append((char) i), StringBuilder::toString);
@@ -76,8 +77,8 @@ public class Collect {
 			new Composed<>(DynamicArray::longs, DynamicArray.OfLong::accept,
 				a -> ArrayUtil.longs.sort(a.truncate()));
 		/** Calculates the average value of elements. */
-		public static final LongStream.Collector<?, Double> average = new Composed<>(
-			Sum::new, Sum::add, Sum::average);
+		public static final LongStream.Collector<?, Double> average =
+			new Composed<>(Sum::new, Sum::add, Sum::average);
 
 		private Longs() {}
 
@@ -102,8 +103,8 @@ public class Collect {
 			new Composed<>(DynamicArray::doubles, DynamicArray.OfDouble::accept,
 				a -> ArrayUtil.doubles.sort(a.truncate()));
 		/** Calculates the average value of elements. */
-		public static final DoubleStream.Collector<?, Double> average = new Composed<>(
-			Sum::new, Sum::add, Sum::average);
+		public static final DoubleStream.Collector<?, Double> average =
+			new Composed<>(Sum::new, Sum::add, Sum::average);
 
 		private Doubles() {}
 
@@ -121,17 +122,17 @@ public class Collect {
 	private static class Sum {
 		private double sum = 0L;
 		private int count = 0;
-		
+
 		public void add(double value) {
 			sum += value;
 			count = Math.addExact(count, 1);
 		}
-		
+
 		public double average() {
-			return count == 0.0 ? 0.0 : sum / count; 
+			return count == 0.0 ? 0.0 : sum / count;
 		}
-	}		
-	
+	}
+
 	/**
 	 * A collector composed of method responses.
 	 */
@@ -327,9 +328,5 @@ public class Collect {
 		return of(mapSupplier,
 			(m, t) -> m.computeIfAbsent(keyMapper.apply(t), _ -> setSupplier.get()).add(t),
 			Collections::unmodifiableMap);
-	}
-
-	private static Object unsupported(String message) {
-		throw Exceptions.unsupportedOp(message);
 	}
 }

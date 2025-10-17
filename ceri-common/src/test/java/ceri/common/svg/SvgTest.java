@@ -2,26 +2,11 @@ package ceri.common.svg;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.TestUtil.exerciseEnum;
-import java.util.regex.Pattern;
 import org.junit.Test;
-import ceri.common.text.Regex;
 
 public class SvgTest {
-	private static final Pattern FLOATING_POINT = Pattern.compile("([0-9]+\\.[0-9]{3})[0-9]+");
-
-	public static void assertD(Path<?> path, String expected) {
-		assertD(path.d(), expected);
-	}
-
-	public static void assertD(String d, String expected) {
-		var simplePath = narrow(d);
-		assertEquals(simplePath, expected);
-	}
-
-	public static String narrow(String d) {
-		return Regex.appendAll(FLOATING_POINT, d, (b, m) -> b.append(m.group(1)));
-	}
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -44,20 +29,20 @@ public class SvgTest {
 
 	@Test
 	public void testDoubleString() {
-		assertEquals(Svg.string(10.0), "10");
-		assertEquals(Svg.string(0.1234567891), "0.12345679");
+		assertString(Svg.string(10.0), "10");
+		assertString(Svg.string(0.1234567891), "0.12345679");
 	}
 
 	@Test
 	public void testString() {
-		assertEquals(Svg.string(null), "");
-		assertEquals(Svg.string("test"), "test");
+		assertString(Svg.string(null), "");
+		assertString(Svg.string("test"), "test");
 	}
 
 	@Test
 	public void testStringPc() {
-		assertEquals(Svg.stringPc(null), "");
-		assertEquals(Svg.stringPc(1), "1%");
-		assertEquals(Svg.stringPc(0.00001), "0.00001%");
+		assertString(Svg.stringPc(null), "");
+		assertString(Svg.stringPc(1), "1%");
+		assertString(Svg.stringPc(0.00001), "0.00001%");
 	}
 }

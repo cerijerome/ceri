@@ -57,6 +57,12 @@ public class TypedPropertiesBehavior {
 	}
 
 	@Test
+	public void shouldLoadFromClass() throws IOException {
+		// loads typed-properties.properties
+		assertEquals(TypedProperties.load(TypedProperties.class).parse("abc").toInt(), 123);
+	}
+
+	@Test
 	public void shouldMerge() throws IOException {
 		var tp = TypedProperties.merge(
 			TypedProperties.load(getClass(), "property-test-a-b-c.properties"),
@@ -178,5 +184,4 @@ public class TypedPropertiesBehavior {
 		var tp = TypedProperties.from(properties, "a", "b", "c");
 		assertString(tp, "Properties[a.b.c]");
 	}
-
 }

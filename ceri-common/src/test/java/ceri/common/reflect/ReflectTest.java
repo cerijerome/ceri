@@ -17,6 +17,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -179,10 +180,24 @@ public class ReflectTest {
 	}
 
 	@Test
-	public void testIsStatic() {
-		assertEquals(Reflect.isStatic(null), false);
+	public void testIsStaticMember() {
+		assertEquals(Reflect.isStatic((Member) null), false);
 		assertEquals(Reflect.isStatic(Reflect.publicField(Fields.class, "s")), false);
 		assertEquals(Reflect.isStatic(Reflect.publicField(E.class, "a")), true);
+	}
+
+	@Test
+	public void testIsStaticClass() {
+		assertEquals(Reflect.isStatic((Class<?>) null), false);
+		assertEquals(Reflect.isStatic(String.class), false);
+		assertEquals(Reflect.isStatic(E_CLASS), true);
+	}
+
+	@Test
+	public void testIsPublicClass() {
+		assertEquals(Reflect.isPublic((Class<?>) null), false);
+		assertEquals(Reflect.isPublic(String.class), true);
+		assertEquals(Reflect.isPublic(Fields.class), false);
 	}
 
 	@Test
@@ -380,6 +395,40 @@ public class ReflectTest {
 		assertFalse(Reflect.assignableFromAny(Number.class, Long.class));
 		assertTrue(Reflect.assignableFromAny(Number.class, Long.class, Serializable.class));
 		assertFalse(Reflect.assignableFromAny(Serializable.class, Number.class, Long.class));
+	}
+
+	@Test
+	public void testIsPrimitive() {
+		assertEquals(Reflect.isPrimitive(null), false);
+		assertEquals(Reflect.isPrimitive(boolean.class), true);
+		assertEquals(Reflect.isPrimitive(char.class), true);
+		assertEquals(Reflect.isPrimitive(Integer.class), false);
+	}
+
+	@Test
+	public void testIsPrimitiveInt() {
+		assertEquals(Reflect.isPrimitiveInt(null), false);
+		assertEquals(Reflect.isPrimitiveInt(char.class), false);
+		assertEquals(Reflect.isPrimitiveInt(long.class), true);
+		assertEquals(Reflect.isPrimitiveInt(Integer.class), false);
+	}
+
+	@Test
+	public void testIsPrimitiveNumber() {
+		assertEquals(Reflect.isPrimitiveNumber(null), false);
+		assertEquals(Reflect.isPrimitiveNumber(char.class), false);
+		assertEquals(Reflect.isPrimitiveNumber(double.class), true);
+		assertEquals(Reflect.isPrimitiveNumber(Integer.class), false);
+	}
+
+	@Test
+	public void testIsNumber() {
+		assertEquals(Reflect.isNumber(null), false);
+		assertEquals(Reflect.isNumber(char.class), false);
+		assertEquals(Reflect.isNumber(double.class), true);
+		assertEquals(Reflect.isNumber(Integer.class), true);
+		assertEquals(Reflect.isNumber(Float.class), true);
+		assertEquals(Reflect.isNumber(String.class), false);
 	}
 
 	@Test

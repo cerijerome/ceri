@@ -33,7 +33,7 @@ public class IdentityCache<K, V> {
 
 		@Override
 		public boolean equals(Object obj) {
-			return this == obj || ((obj instanceof Key other) && Reflect.same(ref, other.ref));
+			return Reflect.same(ref, ((Key<?>) obj).ref);
 		}
 	}
 

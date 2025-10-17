@@ -25,9 +25,9 @@ import org.junit.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
+import ceri.common.log.Level;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.StringBuilders;
-import ceri.common.util.Align;
 
 public class TestUtilTest {
 
@@ -80,7 +80,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testExerciseEnum() {
-		TestUtil.exerciseEnum(Align.H.class);
+		TestUtil.exerciseEnum(Level.class);
 		assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
 

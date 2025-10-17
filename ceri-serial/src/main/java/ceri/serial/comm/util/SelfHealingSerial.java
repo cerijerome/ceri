@@ -173,7 +173,7 @@ public class SelfHealingSerial extends SelfHealingConnector<Serial> implements S
 	@Override
 	public String port() {
 		String port = device.applyIfSet(Serial::port, null);
-		if (port == null) port = Functional.getSilently(config.portSupplier::get, null);
+		if (port == null) port = Functional.muteGet(config.portSupplier::get, null);
 		return port;
 	}
 

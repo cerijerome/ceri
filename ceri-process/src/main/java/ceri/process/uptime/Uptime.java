@@ -67,7 +67,7 @@ public class Uptime {
 	}
 
 	private static long extractMs(String output) {
-		var m = Regex.findValid(REGEX, output, "output");
+		var m = Regex.validFind(REGEX, output, "output");
 		int i = 1;
 		int days = Parse.parseInt(m.group(i++), 0);
 		int hours = Parse.parseInt(m.group(i++), 0);

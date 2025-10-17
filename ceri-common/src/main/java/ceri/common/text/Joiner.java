@@ -171,6 +171,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		 * Complete the join. No more additions are allowed.
 		 */
 		public StringBuilder complete() throws E {
+			if (complete) return b;
 			if (joiner.max != null && joiner.max > 0 && i == joiner.max - 1) append(last);
 			b.append(joiner.suffix);
 			appendCount(count != null ? count : i + 1);
@@ -404,7 +405,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		var composer =
 			new Composer<>(this, sb, (b, _, i) -> indexAppender.accept(b, offset + i), count);
 		for (int i = 0; i < count; i++)
-			if (!composer.add(null)) break;
+			if (!composer.add()) break;
 		composer.complete();
 		return sb;
 	}
@@ -511,7 +512,7 @@ public class Joiner implements Collector<Object, Joiner.Composer.Collecting, Str
 		return appendTo(sb, appender, iterator, count);
 	}
 
-	// Support methods
+	// support
 
 	private <E extends Exception, T> StringBuilder appendTo(StringBuilder sb,
 		Excepts.BiConsumer<E, StringBuilder, T> appender, Iterator<T> iterator, Integer count)

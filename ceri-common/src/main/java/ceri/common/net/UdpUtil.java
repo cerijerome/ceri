@@ -16,7 +16,7 @@ public class UdpUtil {
 
 	public static HostPort hostPort(DatagramSocket socket) {
 		if (socket == null) return null;
-		var host = Functional.safeApply(socket.getInetAddress(), InetAddress::getHostAddress);
+		var host = Functional.apply(InetAddress::getHostAddress, socket.getInetAddress());
 		return HostPort.of(host, socket.getPort());
 	}
 

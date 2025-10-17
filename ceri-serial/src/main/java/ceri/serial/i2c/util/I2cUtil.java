@@ -5,6 +5,7 @@ import static ceri.serial.i2c.jna.I2cDev.i2c_msg_flag.I2C_M_TEN;
 import java.util.concurrent.TimeUnit;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
@@ -44,9 +45,10 @@ public class I2cUtil {
 		return bit10 ? I2cAddress.of10Bit(address) : I2cAddress.of7Bit(address);
 	}
 
-	public static void validate7Bit(I2cAddress address) {
-		if (address.tenBit()) throw new UnsupportedOperationException(
-			"Only 7-bit addresses are supported: " + address);
+	public static I2cAddress valid7Bit(I2cAddress address) {
+		Validate.nonNull(address);
+		if (!address.tenBit()) return address;
+		throw new UnsupportedOperationException("Only 7-bit addresses are supported: " + address);
 	}
 
 	public static i2c_msg.ByReference populate(i2c_msg.ByReference msg, I2cAddress address,
@@ -64,5 +66,4 @@ public class I2cUtil {
 		if (address.tenBit()) i2c_msg.FLAGS.add(msg, I2C_M_TEN);
 		return msg;
 	}
-
 }

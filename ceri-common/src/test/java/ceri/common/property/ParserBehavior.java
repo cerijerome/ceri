@@ -14,9 +14,9 @@ import org.junit.Test;
 import ceri.common.collect.Sets;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Excepts;
+import ceri.common.log.Level;
 import ceri.common.stream.Streams;
 import ceri.common.test.Captor;
-import ceri.common.util.Align;
 
 public class ParserBehavior {
 	private static final Excepts.Function<RuntimeException, Integer, List<Integer>> BIT_LIST =
@@ -213,8 +213,7 @@ public class ParserBehavior {
 		assertOrdered(strings("-0xffffffff,0xffffffff").asInts().get(), 1, -1);
 		assertOrdered(strings("-0xffffffffffffffff,0xffffffffffffffff").asLongs().get(), 1L, -1L);
 		assertOrdered(strings("-1,NaN,1").asDoubles().get(), -1.0, Double.NaN, 1.0);
-		assertOrdered(strings("left,right").asEnums(Align.H.class).get(), Align.H.left,
-			Align.H.right);
+		assertOrdered(strings("WARN,INFO").asEnums(Level.class).get(), Level.WARN, Level.INFO);
 	}
 
 	@Test
@@ -249,13 +248,14 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldParseEnums() {
-		assertEquals(Parser.string(null).toEnum(Align.H.class), null);
-		assertEquals(Parser.string(null).toEnum(Align.H.left), Align.H.left);
-		assertEquals(Parser.string(null).asEnum(Align.H.class).get(), null);
-		assertEquals(Parser.string(null).asEnum(Align.H.class).get(Align.H.left), Align.H.left);
-		assertEquals(Parser.string("right").toEnum(Align.H.left), Align.H.right);
-		assertEquals(Parser.string("right").toEnum(Align.H.class), Align.H.right);
-		assertEquals(Parser.string("right").asEnum(Align.H.class).get(), Align.H.right);
+		assertEquals(Parser.string(null).toEnum(Level.class), null);
+		assertEquals(Parser.string(null).toEnum(Level.TRACE), Level.TRACE);
+		assertEquals(Parser.string(null).asEnum(Level.class).get(), null);
+		assertEquals(Parser.string(null).asEnum(Level.class).get(Level.WARN), Level.WARN);
+		assertEquals(Parser.string("WARN").toEnum(Level.ALL), Level.WARN);
+		assertIllegalArg(() -> Parser.string("warn").toEnum(Level.class));
+		assertEquals(Parser.string("WARN").toEnum(Level.class), Level.WARN);
+		assertEquals(Parser.string("WARN").asEnum(Level.class).get(), Level.WARN);
 	}
 
 	@Test

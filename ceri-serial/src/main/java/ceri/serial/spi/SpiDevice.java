@@ -6,7 +6,6 @@ import ceri.common.function.Excepts.Function;
 import ceri.common.io.Direction;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
-import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
@@ -64,7 +63,7 @@ public class SpiDevice implements Spi {
 			}
 
 			public Builder direction(Direction direction) {
-				Basics.requireNot(direction, null, Direction.none);
+				Validate.equalNoneOf(direction, null, Direction.none);
 				this.direction = direction;
 				return this;
 			}
@@ -142,7 +141,7 @@ public class SpiDevice implements Spi {
 	 * Opens the SPI file descriptor.
 	 */
 	public static CFileDescriptor open(int bus, int chip, Direction direction) throws IOException {
-		Basics.requireNot(direction, null, Direction.none);
+		Validate.equalNoneOf(direction, null, Direction.none);
 		Validate.min(bus, 0, "Bus number");
 		Validate.min(chip, 0, "Chip number");
 		return CFileDescriptor.of(SpiDev.open(bus, chip, openFlag(direction).value));
@@ -204,7 +203,7 @@ public class SpiDevice implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		Basics.requireNot(direction, null, Direction.none);
+		Validate.equalNoneOf(direction, null, Direction.none);
 		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

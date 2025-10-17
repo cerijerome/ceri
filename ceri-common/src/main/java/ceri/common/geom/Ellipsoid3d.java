@@ -1,27 +1,33 @@
 package ceri.common.geom;
 
 import java.util.Objects;
-import java.util.stream.DoubleStream;
 import ceri.common.math.Algebra;
+import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
 import ceri.common.util.Validate;
 
+/**
+ * A 3d sphere stretched in each dimension.
+ */
 public class Ellipsoid3d {
-	public static final Ellipsoid3d NULL = new Ellipsoid3d(0, 0, 0);
+	public static final Ellipsoid3d ZERO = new Ellipsoid3d(0, 0, 0);
 	public final double a;
 	public final double b;
 	public final double c;
 	private final double v;
 
-	public static Ellipsoid3d create(double a, double b, double c) {
-		if (a == 0 && b == 0 && c == 0) return NULL;
+	/**
+	 * Returns an instance with given x, y, and z radii.
+	 */
+	public static Ellipsoid3d of(double a, double b, double c) {
+		if (a == 0 && b == 0 && c == 0) return ZERO;
 		Validate.finiteMin(a, 0);
 		Validate.finiteMin(b, 0);
 		Validate.finiteMin(c, 0);
 		return new Ellipsoid3d(a + .0, b + .0, c + .0);
 	}
 
-	protected Ellipsoid3d(double a, double b, double c) {
+	private Ellipsoid3d(double a, double b, double c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
@@ -60,7 +66,6 @@ public class Ellipsoid3d {
 	 * Returns the volume between planes perpendicular to the y-axis at -b and y.
 	 */
 	public double volumeToY(double y) {
-		// noinspection SuspiciousNameCombination
 		return volumeToX(y, b, c, a);
 	}
 
@@ -131,7 +136,7 @@ public class Ellipsoid3d {
 
 	/**
 	 * Solution of volume formula where x is known:
-	 *
+	 * 
 	 * <pre>
 	 * x^3 - 3.a^2.x + (3.a^2.v / pi.b.c) - 2.a^3
 	 * </pre>
@@ -146,8 +151,7 @@ public class Ellipsoid3d {
 	 * Finds the first cubic root that is within range.
 	 */
 	private double validRoot(double[] roots, double max) {
-		return DoubleStream.of(roots).filter(root -> root >= -max && root <= max).findFirst()
-			.orElse(Double.NaN);
+		return Streams.doubles(roots).filter(root -> root >= -max && root <= max).next(Double.NaN)
+			+ 0.0;
 	}
-
 }

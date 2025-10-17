@@ -495,14 +495,28 @@ public class Colors {
 	/**
 	 * Fails if the component value is not 0-255.
 	 */
-	public static int validateValue(int component, String name) {
+	public static int validValue(int component) {
+		return validValue(component, "Value");
+	}
+
+	/**
+	 * Fails if the component value is not 0-255.
+	 */
+	public static int validValue(int component, String name) {
 		return Validate.range(component, 0, MAX_VALUE, name);
 	}
 
 	/**
 	 * Fails if the ratio is not from 0-1.
 	 */
-	public static double validateRatio(double ratio, String name) {
+	public static double validRatio(double ratio) {
+		return validRatio(ratio, "Ratio");
+	}
+
+	/**
+	 * Fails if the ratio is not from 0-1.
+	 */
+	public static double validRatio(double ratio, String name) {
 		return Validate.range(ratio, 0, Colors.MAX_RATIO, name);
 	}
 

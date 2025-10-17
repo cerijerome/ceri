@@ -9,30 +9,30 @@ import org.junit.Test;
 import ceri.common.test.TestUtil;
 
 public class Ellipsoid3dBehavior {
-	private final Ellipsoid3d e0 = Ellipsoid3d.create(4, 2, 1);
-	private final Ellipsoid3d e1 = Ellipsoid3d.create(1, 2, 4);
+	private final Ellipsoid3d e0 = Ellipsoid3d.of(4, 2, 1);
+	private final Ellipsoid3d e1 = Ellipsoid3d.of(1, 2, 4);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(e0, Ellipsoid3d.create(4, 2, 1));
-		assertNotEquals(e0, Ellipsoid3d.create(4.1, 2, 1));
-		assertNotEquals(e0, Ellipsoid3d.create(4, 1.9, 1));
-		assertNotEquals(e0, Ellipsoid3d.create(4, 2, 1.1));
+		TestUtil.exerciseEquals(e0, Ellipsoid3d.of(4, 2, 1));
+		assertNotEquals(e0, Ellipsoid3d.of(4.1, 2, 1));
+		assertNotEquals(e0, Ellipsoid3d.of(4, 1.9, 1));
+		assertNotEquals(e0, Ellipsoid3d.of(4, 2, 1.1));
 	}
 
 	@Test
 	public void shouldAllowOnlyNonNegativeAxes() {
-		assertThrown(() -> Ellipsoid3d.create(-0.1, 2, 1));
-		assertThrown(() -> Ellipsoid3d.create(4, -0.1, 1));
-		assertThrown(() -> Ellipsoid3d.create(4, 2, -0.1));
+		assertThrown(() -> Ellipsoid3d.of(-0.1, 2, 1));
+		assertThrown(() -> Ellipsoid3d.of(4, -0.1, 1));
+		assertThrown(() -> Ellipsoid3d.of(4, 2, -0.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Ellipsoid3d.create(0, 0, 0), Ellipsoid3d.NULL);
-		assertNotEquals(Ellipsoid3d.create(1, 0, 0), is(Ellipsoid3d.NULL));
-		assertNotEquals(Ellipsoid3d.create(0, 1, 0), is(Ellipsoid3d.NULL));
-		assertNotEquals(Ellipsoid3d.create(0, 0, 1), is(Ellipsoid3d.NULL));
+		assertEquals(Ellipsoid3d.of(0, 0, 0), Ellipsoid3d.ZERO);
+		assertNotEquals(Ellipsoid3d.of(1, 0, 0), is(Ellipsoid3d.ZERO));
+		assertNotEquals(Ellipsoid3d.of(0, 1, 0), is(Ellipsoid3d.ZERO));
+		assertNotEquals(Ellipsoid3d.of(0, 0, 1), is(Ellipsoid3d.ZERO));
 	}
 
 	@Test
@@ -51,10 +51,10 @@ public class Ellipsoid3dBehavior {
 			double v = e0.volumeToZ(z);
 			assertApprox(e0.zFromVolume(v), z);
 		}
-		assertApprox(Ellipsoid3d.NULL.xFromVolume(0), 0);
-		assertApprox(Ellipsoid3d.NULL.xFromVolume(1), Double.NaN);
-		assertApprox(Ellipsoid3d.NULL.yFromVolume(0), 0);
-		assertApprox(Ellipsoid3d.NULL.zFromVolume(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.xFromVolume(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.xFromVolume(1), Double.NaN);
+		assertApprox(Ellipsoid3d.ZERO.yFromVolume(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.zFromVolume(0), 0);
 	}
 
 	@Test
@@ -68,12 +68,12 @@ public class Ellipsoid3dBehavior {
 		assertApprox(e0.volumeToX(4.1), 33.510);
 		assertApprox(e0.volumeToY(2), 33.51);
 		assertApprox(e0.volumeToZ(1), 33.51);
-		assertApprox(Ellipsoid3d.NULL.volumeToX(0), 0);
-		assertApprox(Ellipsoid3d.NULL.volumeToX(1), 0);
-		assertApprox(Ellipsoid3d.NULL.volumeToY(0), 0);
-		assertApprox(Ellipsoid3d.NULL.volumeToY(1), 0);
-		assertApprox(Ellipsoid3d.NULL.volumeToZ(0), 0);
-		assertApprox(Ellipsoid3d.NULL.volumeToZ(1), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToX(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToX(1), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToY(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToY(1), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToZ(0), 0);
+		assertApprox(Ellipsoid3d.ZERO.volumeToZ(1), 0);
 	}
 
 	@Test

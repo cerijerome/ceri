@@ -44,7 +44,6 @@ public class CounterBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		assertString(Counter.of(777), "777");
-		assertString(Counter.of(777), "777");
+		assertString(Counter.of(777L), "777");
 	}
-
 }

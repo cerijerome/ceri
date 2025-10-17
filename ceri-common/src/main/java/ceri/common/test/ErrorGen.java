@@ -75,8 +75,7 @@ public class ErrorGen {
 		else {
 			var sequential = Functional.sequentialSupplier(errorFns);
 			var name = Streams.of(errorFns).map(Lambdas::nameOrSymbol).collect(JOINER);
-			setErrorFn(() -> Functional.safeApply(sequential.get(), Functions.Supplier::get),
-				name);
+			setErrorFn(() -> Functional.apply(Functions.Supplier::get, sequential.get()), name);
 		}
 	}
 
@@ -106,7 +105,7 @@ public class ErrorGen {
 	 * Execute the error generator if set. Exceptions are adapted according to the adapter.
 	 */
 	public <E extends Exception> void call(ExceptionAdapter<E> adapter) throws E {
-		var ex = Functional.safeApply(errorFn, Functions.Supplier::get);
+		var ex = Functional.apply(Functions.Supplier::get, errorFn);
 		if (ex == null) return;
 		try {
 			throw ex;
@@ -125,7 +124,7 @@ public class ErrorGen {
 	 */
 	public <E extends Exception> void callWithInterrupt(ExceptionAdapter<E> adapter)
 		throws InterruptedException, E {
-		var ex = Functional.safeApply(errorFn, Functions.Supplier::get);
+		var ex = Functional.apply(Functions.Supplier::get, errorFn);
 		if (ex == null) return;
 		try {
 			throw ex;

@@ -97,7 +97,7 @@ public class I2cDevice implements I2c {
 	 */
 	@Override
 	public SmBus smBus(I2cAddress address) throws IOException {
-		I2cUtil.validate7Bit(address);
+		I2cUtil.valid7Bit(address);
 		return SmBusDevice.of(fd, this::selectDevice, address);
 	}
 

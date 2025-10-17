@@ -4,6 +4,9 @@ import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 
+/**
+ * A general path.
+ */
 public interface Path<T extends Path<T>> {
 
 	/**

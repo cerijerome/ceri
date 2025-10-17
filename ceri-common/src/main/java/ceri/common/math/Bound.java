@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import ceri.common.function.Compares;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.Align;
 import ceri.common.util.Validate;
 
 public class Bound<T> {
@@ -90,7 +89,7 @@ public class Bound<T> {
 
 	public static <T> Bound<T> of(T value, Type type, Comparator<T> comparator) {
 		if (value == null) return unbound();
-		Validate.validateNotNull(comparator, "Comparator");
+		Validate.nonNull(comparator, "Comparator");
 		return new Bound<>(value, type, comparator);
 	}
 
@@ -143,24 +142,24 @@ public class Bound<T> {
 		return true;
 	}
 
-	public String toString(Align.H align) {
+	public String toString(int align) {
 		return isUnbound() ? unbound(align) : value(align);
 	}
 
 	@Override
 	public String toString() {
-		return toString(null);
+		return toString(0);
 	}
 
-	private String value(Align.H align) {
-		if (align == Align.H.left) return type.left + value;
-		if (align == Align.H.right) return value + type.right;
+	private String value(int align) {
+		if (align < 0) return type.left + value;
+		if (align > 0) return value + type.right;
 		return type.left + value + type.right;
 	}
 
-	private String unbound(Align.H align) {
-		if (align == Align.H.left) return type.left + "-" + INFINITY;
-		if (align == Align.H.right) return INFINITY + type.right;
+	private String unbound(int align) {
+		if (align < 0) return type.left + "-" + INFINITY;
+		if (align > 0) return INFINITY + type.right;
 		return type.left + INFINITY + type.right;
 	}
 }

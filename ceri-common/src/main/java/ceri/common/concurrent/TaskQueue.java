@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.function.Adapters;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
-import ceri.common.util.Basics;
+import ceri.common.reflect.Reflect;
 
 /**
  * A simple queue for processing tasks. Calls to execute a task wait until the task is complete,
@@ -47,7 +47,7 @@ public class TaskQueue<E extends Exception> {
 				throw e;
 			} catch (Exception e) {
 				set(null, e);
-				throw Basics.<E>unchecked(e);
+				throw Reflect.<E>unchecked(e);
 			}
 		}
 
@@ -70,7 +70,7 @@ public class TaskQueue<E extends Exception> {
 		private T result() throws E {
 			if (ex == null) return result;
 			if (ex instanceof RuntimeException e) throw e;
-			throw Basics.<E>unchecked(ex);
+			throw Reflect.<E>unchecked(ex);
 		}
 	}
 

@@ -57,7 +57,7 @@ public class LibUsbTestData {
 		}
 
 		public static byte string(DeviceConfig dc, int i, String s) {
-			Validate.validateNull(dc.descriptorStrings.put(i, s));
+			Validate.equals(dc.descriptorStrings.put(i, s), null);
 			return (byte) i;
 		}
 

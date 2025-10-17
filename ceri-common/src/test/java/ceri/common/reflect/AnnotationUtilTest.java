@@ -10,7 +10,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.junit.Test;
-import ceri.common.util.Align;
+import ceri.common.log.Level;
 
 public class AnnotationUtilTest {
 
@@ -56,7 +56,7 @@ public class AnnotationUtilTest {
 	@Test
 	public void testEnumAnnotation() {
 		assertNull(Annotations.annotation((Enum<?>) null, A.class));
-		assertNull(Annotations.annotation(Align.H.left, A.class));
+		assertNull(Annotations.annotation(Level.WARN, A.class));
 		assertNull(Annotations.annotation(E.a, A.class));
 		assertA(Annotations.annotation(E.b, A.class), "b", -1);
 	}
@@ -64,7 +64,7 @@ public class AnnotationUtilTest {
 	@Test
 	public void testEnumAnnotations() {
 		assertOrdered(Annotations.annotations((Enum<?>) null, A.class));
-		assertOrdered(Annotations.annotations(Align.H.left, A.class));
+		assertOrdered(Annotations.annotations(Level.ALL, A.class));
 		assertOrdered(Annotations.annotations(E.a, A.class));
 		var annos = Annotations.annotations(E.b, A.class);
 		assertEquals(annos.size(), 1);

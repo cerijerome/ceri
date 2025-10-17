@@ -179,10 +179,10 @@ public record Rgb(double a, double r, double g, double b) {
 	 * Validates all components are 0-1. Throws an exception if not.
 	 */
 	public void verify() {
-		Colors.validateRatio(a(), "alpha");
-		Colors.validateRatio(r(), "red");
-		Colors.validateRatio(g(), "green");
-		Colors.validateRatio(b(), "blue");
+		Colors.validRatio(a(), "alpha");
+		Colors.validRatio(r(), "red");
+		Colors.validRatio(g(), "green");
+		Colors.validRatio(b(), "blue");
 	}
 
 	@Override

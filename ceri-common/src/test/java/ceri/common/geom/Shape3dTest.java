@@ -6,7 +6,7 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 
-public class Shape3dUtilTest {
+public class Shape3dTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -68,11 +68,10 @@ public class Shape3dUtilTest {
 		r = Shape3d.conicalFrustum(0, 1, 1);
 		assertEquals(r, Cone.of(1, 1));
 		r = Shape3d.conicalFrustum(1, 0, 1);
-		assertEquals(r, InvertedRadial3d.create(Cone.of(1, 1)));
+		assertEquals(r, InvertedRadial3d.of(Cone.of(1, 1)));
 		r = Shape3d.conicalFrustum(1, 2, 1);
-		assertEquals(r, TruncatedRadial3d.create(Cone.of(2, 2), 1, 1));
+		assertEquals(r, TruncatedRadial3d.of(Cone.of(2, 2), 1, 1));
 		r = Shape3d.conicalFrustum(2, 1, 1);
-		assertEquals(r, InvertedRadial3d.create(TruncatedRadial3d.create(Cone.of(2, 2), 1, 1)));
+		assertEquals(r, InvertedRadial3d.of(TruncatedRadial3d.of(Cone.of(2, 2), 1, 1)));
 	}
-
 }

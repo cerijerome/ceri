@@ -1,6 +1,5 @@
 package ceri.common.svg;
 
-import static ceri.common.svg.SvgTest.assertD;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
@@ -29,8 +28,8 @@ public class GroundedPathBehavior {
 	@Test
 	public void shouldMove() {
 		var p = GroundedPath.of(Position.relative(1, 1), MoveTo.relative(2, -2));
-		assertD(p, "m1,1 m2,-2");
-		assertD(p.move(Position.absolute(-1, -1)), "M0,0 m2,-2");
+		SvgAssert.d(p, "m1,1 m2,-2");
+		SvgAssert.d(p.move(Position.absolute(-1, -1)), "M0,0 m2,-2");
 	}
 
 	@Test
@@ -43,28 +42,28 @@ public class GroundedPathBehavior {
 	public void shouldReflect() {
 		var p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
 		var line = Line2d.of(-1, 0, 1, 0);
-		assertD(p, "M1,1 m2,-2");
-		assertD(p.reflect(line), "M1,-1 m2,2");
+		SvgAssert.d(p, "M1,1 m2,-2");
+		SvgAssert.d(p.reflect(line), "M1,-1 m2,2");
 	}
 
 	@Test
 	public void shouldScale() {
 		var p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
-		assertD(p, "M1,1 m2,-2");
-		assertD(p.scale(Ratio2d.uniform(0.5)), "M0.5,0.5 m1,-1");
+		SvgAssert.d(p, "M1,1 m2,-2");
+		SvgAssert.d(p.scale(Ratio2d.uniform(0.5)), "M0.5,0.5 m1,-1");
 	}
 
 	@Test
 	public void shouldTranslate() {
 		var p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
-		assertD(p, "M1,1 m2,-2");
-		assertD(p.translate(Point2d.of(-1, -1)), "M0,0 m2,-2");
+		SvgAssert.d(p, "M1,1 m2,-2");
+		SvgAssert.d(p.translate(Point2d.of(-1, -1)), "M0,0 m2,-2");
 	}
 
 	@Test
 	public void shouldReverse() {
 		var p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
-		assertD(p, "M1,1 m2,-2");
-		assertD(p.reverse(), "M3,-1 m-2,2");
+		SvgAssert.d(p, "M1,1 m2,-2");
+		SvgAssert.d(p.reverse(), "M3,-1 m-2,2");
 	}
 }

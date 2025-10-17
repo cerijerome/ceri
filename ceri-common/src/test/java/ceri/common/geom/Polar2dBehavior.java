@@ -19,6 +19,18 @@ public class Polar2dBehavior {
 		TestUtil.exerciseEquals(p0, Polar2d.of(2, PI / 3));
 		assertNotEquals(p0, Polar2d.of(2.1, PI / 3));
 		assertNotEquals(p0, Polar2d.of(2, PI / 3.1));
+		assertNotEquals(p0, Polar2d.of(0, PI / 3));
+		assertNotEquals(p0, Polar2d.of(2, 0));
+		assertNotEquals(p0, Polar2d.of(0, 0));
+	}
+
+	@Test
+	public void shouldNormalize() {
+		GeomAssert.approx(Polar2d.ZERO.normalize(), 0, 0);
+		GeomAssert.approx(Polar2d.of(1, Math.PI).normalize(), 1, Math.PI);
+		GeomAssert.approx(Polar2d.of(1, -Math.PI).normalize(), 1, Math.PI);
+		GeomAssert.approx(Polar2d.of(1, Math.PI * 2.5).normalize(), 1, Math.PI * 0.5);
+		GeomAssert.approx(Polar2d.of(1, -Math.PI * 2.5).normalize(), 1, Math.PI * 1.5);
 	}
 
 	@Test

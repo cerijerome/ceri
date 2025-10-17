@@ -88,7 +88,7 @@ public class Chars {
 	public static CharSequence upper(CharSequence s) {
 		var b = StringBuilders.State.of(s);
 		for (int i = 0; i < b.length(); i++)
-			b.append(Character.toLowerCase(b.at(i)));
+			b.append(Character.toUpperCase(b.at(i)));
 		return b.get();
 	}
 

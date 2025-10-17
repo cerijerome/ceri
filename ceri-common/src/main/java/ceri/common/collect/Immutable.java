@@ -21,7 +21,6 @@ import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
-import ceri.common.util.Basics;
 
 /**
  * Support for immutable types.
@@ -115,8 +114,7 @@ public class Immutable {
 		 * Provides an immutable sorted set wrapper, using an underlying tree set.
 		 */
 		public static <T> Wrap<SortedSet<T>> sortSet(Comparator<? super T> comparator) {
-			return Basics
-				.unchecked(SORT_SET.to(() -> new TreeSet<>(Compares.of(comparator))));
+			return Reflect.unchecked(SORT_SET.to(() -> new TreeSet<>(Compares.of(comparator))));
 		}
 
 		/**
@@ -165,8 +163,7 @@ public class Immutable {
 		 * Provides an immutable sorted map wrapper, using an underlying tree map.
 		 */
 		public static <K, V> Wrap<SortedMap<K, V>> sortMap(Comparator<? super K> comparator) {
-			return Basics
-				.unchecked(SORT_MAP.to(() -> new TreeMap<>(Compares.of(comparator))));
+			return Reflect.unchecked(SORT_MAP.to(() -> new TreeMap<>(Compares.of(comparator))));
 		}
 
 		/**
@@ -1114,14 +1111,6 @@ public class Immutable {
 		Map<? extends K, ? extends V> map) {
 		if (supplier == null) return invertMap(map);
 		return wrap(Maps.invertPut(supplier.get(), map));
-	}
-
-	/**
-	 * Creates an immutable linked hash map by sorting and copying entries.
-	 */
-	public static <K, V> Map<K, V> sortMap(Comparator<? super Map.Entry<K, V>> comparator,
-		Map<K, V> map) {
-		return wrap(Maps.sort(comparator, map));
 	}
 
 	/**

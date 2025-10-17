@@ -215,7 +215,7 @@ public interface Bias {
 	 * may be clipped.
 	 */
 	static Bias partial(Bias bias, double len) {
-		Colors.validateRatio(len, "len");
+		Colors.validRatio(len, "len");
 		if (len == 0) return Std.down;
 		double max = bias.bias(len);
 		if (max == 0) return Std.up;

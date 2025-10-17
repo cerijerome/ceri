@@ -1,6 +1,5 @@
 package ceri.common.text;
 
-import java.util.List;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
@@ -30,6 +29,8 @@ public class Format {
 	public static final OfDouble FP3 = new OfDouble(3, 3);
 	public static final OfDouble FP03 = new OfDouble(0, 3);
 	public static final DoubleFunction ROUND = d -> DEC.apply(Math.round(d));
+
+	private Format() {}
 
 	/**
 	 * Long formatter interface.
@@ -248,11 +249,6 @@ public class Format {
 		return format(value, true, prefix, Radix.HEX.n, minDigits, maxDigits);
 	}
 
-	public static void main(String[] args) {
-		for (var l : List.of(-1L, 0L, 1L, 9L, 10L, -2L, Long.MIN_VALUE, Long.MAX_VALUE))
-			System.out.println(l + " -> " + UDEC_HEX.uint(l));
-	}
-
 	/**
 	 * Returns the unsigned decimal number and hex if not from 0 to 9.
 	 */
@@ -342,7 +338,7 @@ public class Format {
 	 * Returns the formatted number, with decimal places rounded within range.
 	 */
 	public static String format(double value, int minDec, int maxDec) {
-		if (!Double.isFinite(maxDec)) return Double.toString(value);
+		if (!Double.isFinite(value)) return Double.toString(value);
 		var s = maxDec <= 0 ? Double.toString(value) : String.format("%." + maxDec + "f", value);
 		int len = s.length();
 		int p = s.indexOf('.');

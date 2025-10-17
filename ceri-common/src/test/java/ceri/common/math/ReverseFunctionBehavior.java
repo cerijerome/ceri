@@ -9,18 +9,18 @@ import ceri.common.test.TestUtil;
 
 public class ReverseFunctionBehavior {
 	private static final ReverseFunction f0 =
-		ReverseFunction.create(0, Math.PI / 2, 100, Math::sin);
+		ReverseFunction.from(0, Math.PI / 2, 100, Math::sin);
 	private static final ReverseFunction f1 =
-		ReverseFunction.create(-0.99, 0.99, 100, x -> x * x * x);
+		ReverseFunction.from(-0.99, 0.99, 100, x -> x * x * x);
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		TestUtil.exerciseEquals(f0, ReverseFunction.create(0, Math.PI / 2, 100, Math::sin));
+		TestUtil.exerciseEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sin));
 		assertEquals(f0, ReverseFunction.builder().add(f0.values).build());
-		assertNotEquals(f0, ReverseFunction.create(0.1, Math.PI / 2, 100, Math::sin));
-		assertNotEquals(f0, ReverseFunction.create(0, Math.PI / 1.9, 100, Math::sin));
-		assertNotEquals(f0, ReverseFunction.create(0, Math.PI / 2, 101, Math::sin));
-		assertNotEquals(f0, ReverseFunction.create(0, Math.PI / 2, 100, Math::sinh));
+		assertNotEquals(f0, ReverseFunction.from(0.1, Math.PI / 2, 100, Math::sin));
+		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 1.9, 100, Math::sin));
+		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 2, 101, Math::sin));
+		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sinh));
 	}
 
 	@Test

@@ -1,10 +1,8 @@
 package ceri.common.function;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-import ceri.common.array.ArrayUtil;
-import ceri.common.collect.Collectable;
+import ceri.common.collect.Lists;
 import ceri.common.collect.Sets;
 import ceri.common.reflect.Reflect;
 
@@ -12,18 +10,12 @@ import ceri.common.reflect.Reflect;
  * Methods for building predicates.
  */
 public class Filters {
-	public static final Functions.Predicate<Object> yes = (_ -> true);
-	public static final Functions.Predicate<Object> no = (_ -> false);
+	public static final Functions.Predicate<Object> yes = _ -> true;
+	public static final Functions.Predicate<Object> no = _ -> false;
 	public static final Functions.Predicate<Object> isNull = (t -> t == null);
 	public static final Functions.Predicate<Object> nonNull = (t -> t != null);
 
 	private Filters() {}
-
-	// Principles:
-	// - flexible return type, remove need for caller to cast
-	// - but caller needs to store Excepts.Predicate
-	// - null predicate == no
-	// - filters usually static final; don't worry too much about optimization
 
 	// Casting
 
@@ -76,7 +68,7 @@ public class Filters {
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static <E extends Exception, T> Excepts.Predicate<E, T> eq(T value) {
+	public static <E extends Exception, T> Excepts.Predicate<E, T> equal(T value) {
 		return t -> Objects.equals(t, value);
 	}
 
@@ -84,16 +76,16 @@ public class Filters {
 	 * Returns true if the argument equals any of the values.
 	 */
 	@SafeVarargs
-	public static <E extends Exception, T> Excepts.Predicate<E, T> eqAny(T... values) {
+	public static <E extends Exception, T> Excepts.Predicate<E, T> equalAnyOf(T... values) {
 		if (values == null) return no();
-		return eqAny(Sets.ofAll(values));
+		return equalAny(Sets.ofAll(values));
 	}
 
 	/**
 	 * Returns true if the argument equals any of the values. The collection is not copied.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
-		eqAny(Collection<? extends T> values) {
+		equalAny(Collection<? extends T> values) {
 		if (values == null) return no();
 		return values::contains;
 	}
@@ -101,21 +93,21 @@ public class Filters {
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static <E extends Exception> Excepts.IntPredicate<E> eqInt(int value) {
+	public static <E extends Exception> Excepts.IntPredicate<E> equal(int value) {
 		return t -> t == value;
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static <E extends Exception> Excepts.LongPredicate<E> eqLong(long value) {
+	public static <E extends Exception> Excepts.LongPredicate<E> equal(long value) {
 		return t -> t == value;
 	}
 
 	/**
 	 * Returns true if the argument equals the value.
 	 */
-	public static <E extends Exception> Excepts.DoublePredicate<E> eqDouble(double value) {
+	public static <E extends Exception> Excepts.DoublePredicate<E> equal(double value) {
 		return t -> t == value;
 	}
 
@@ -149,7 +141,7 @@ public class Filters {
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T> nullAs(boolean nullResult,
 		Excepts.Predicate<? extends E, ? super T> predicate) {
-		if (predicate == null) return no();
+		if (predicate == null) return nullAs(nullResult, no());
 		return t -> (t == null ? nullResult : predicate.test(t));
 	}
 
@@ -220,20 +212,19 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
-		and(Excepts.Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.isEmpty(predicates)) return yes();
-		return and(Arrays.asList(predicates));
+		andOf(Excepts.Predicate<? extends E, ? super T>... predicates) {
+		return and(Lists.wrap(predicates));
 	}
 
 	/**
 	 * Returns true if all the predicates return true. The collection is not copied.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
-		and(Collection<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
-		if (Collectable.isEmpty(predicates)) return yes();
+		and(Iterable<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
 		return t -> {
+			if (t == null) return false;
 			for (var predicate : predicates)
-				if (predicate != null && !predicate.test(t)) return false;
+				if (predicate == null || !predicate.test(t)) return false;
 			return true;
 		};
 	}
@@ -243,19 +234,17 @@ public class Filters {
 	 */
 	@SafeVarargs
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
-		or(Excepts.Predicate<? extends E, ? super T>... predicates) {
-		if (ArrayUtil.isEmpty(predicates)) return ex(no);
-		return or(Arrays.asList(predicates));
+		orOf(Excepts.Predicate<? extends E, ? super T>... predicates) {
+		return or(Lists.wrap(predicates));
 	}
 
 	/**
 	 * Returns true if any of the predicates return true. The collection is not copied.
 	 */
 	public static <E extends Exception, T> Excepts.Predicate<E, T>
-		or(Collection<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
-		if (Collectable.isEmpty(predicates)) return ex(no);
+		or(Iterable<? extends Excepts.Predicate<? extends E, ? super T>> predicates) {
 		return t -> {
-			for (var predicate : predicates)
+			if (t != null) for (var predicate : predicates)
 				if (predicate != null && predicate.test(t)) return true;
 			return false;
 		};
@@ -268,16 +257,14 @@ public class Filters {
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
 		gte(T min) {
-		if (min == null) return yes();
-		return t -> t != null && t.compareTo(min) >= 0;
+		return t -> t != null && (min == null || t.compareTo(min) >= 0);
 	}
 
 	/**
 	 * Returns true if the argument > min and not null.
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T> gt(T min) {
-		if (min == null) return yes();
-		return t -> t != null && t.compareTo(min) > 0;
+		return t -> t != null && (min == null || t.compareTo(min) > 0);
 	}
 
 	/**
@@ -285,16 +272,14 @@ public class Filters {
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
 		lte(T max) {
-		if (max == null) return yes();
-		return t -> t != null && t.compareTo(max) <= 0;
+		return t -> t != null && (max == null || t.compareTo(max) <= 0);
 	}
 
 	/**
 	 * Returns true if the argument < max and not null.
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T> lt(T max) {
-		if (max == null) return yes();
-		return t -> t != null && t.compareTo(max) < 0;
+		return t -> t != null && (max == null || t.compareTo(max) < 0);
 	}
 
 	/**
@@ -302,56 +287,6 @@ public class Filters {
 	 */
 	public static <E extends Exception, T extends Comparable<T>> Excepts.Predicate<E, T>
 		range(T min, T max) {
-		return and(gte(min), lte(max));
-	}
-
-	// Bi-predicates
-
-	/**
-	 * Returns true if the predicate applies for all values.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
-		applyAllOf(Excepts.BiPredicate<? extends E, T, U> predicate, U... values) {
-		if (values == null) return ex(yes);
-		return applyAll(predicate, Arrays.asList(values));
-	}
-
-	/**
-	 * Returns true if the predicate applies for all values.
-	 */
-	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
-		applyAll(Excepts.BiPredicate<? extends E, T, U> predicate, Iterable<U> values) {
-		if (values == null) return ex(yes);
-		return t -> {
-			if (t == null) return false;
-			for (var value : values)
-				if (!predicate.test(t, value)) return false;
-			return true;
-		};
-	}
-
-	/**
-	 * Returns true if the predicate applies for any value.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
-		applyAnyOf(Excepts.BiPredicate<? extends E, T, U> predicate, U... values) {
-		if (values == null) return ex(no);
-		return applyAny(predicate, Arrays.asList(values));
-	}
-
-	/**
-	 * Returns true if the predicate applies for any value.
-	 */
-	public static <E extends Exception, T, U> Excepts.Predicate<E, T>
-		applyAny(Excepts.BiPredicate<? extends E, T, U> predicate, Iterable<U> values) {
-		if (values == null) return ex(no);
-		return t -> {
-			if (t == null) return false;
-			for (var value : values)
-				if (predicate.test(t, value)) return true;
-			return false;
-		};
+		return andOf(gte(min), lte(max));
 	}
 }

@@ -69,7 +69,7 @@ public class ResourcePath implements AutoCloseable {
 	@SuppressWarnings("resource")
 	private static ResourcePath ofZip(URL url,
 		Excepts.Function<IOException, Path, Path> pathAdjuster) throws IOException {
-		var m = Regex.matchValid(ZIP_REGEX, url.toString());
+		var m = Regex.validMatch(ZIP_REGEX, url.toString());
 		var zipName = m.group(1);
 		var pathName = m.group(2);
 		var fs = FileSystems.newFileSystem(URI.create(zipName), Map.of());

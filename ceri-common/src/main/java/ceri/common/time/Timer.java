@@ -140,7 +140,7 @@ public class Timer {
 	 */
 	public static Timer of(long period, TimeSupplier timeSupplier) {
 		Validate.min(period, INFINITE_PERIOD);
-		Validate.validateNotNull(timeSupplier);
+		Validate.nonNull(timeSupplier);
 		return new Timer(period, timeSupplier);
 	}
 

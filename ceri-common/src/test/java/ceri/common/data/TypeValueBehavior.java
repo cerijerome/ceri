@@ -81,8 +81,7 @@ public class TypeValueBehavior {
 	public void shouldValidateValue() {
 		TypeValue.validate(TypeValue.of(1, E.one, "one", Format.DEC));
 		assertThrown(() -> TypeValue.validate(TypeValue.of(1, null, "one", Format.DEC)));
-		TypeValue.validateExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.two);
-		assertThrown(
-			() -> TypeValue.validateExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.one));
+		TypeValue.validExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.two);
+		assertThrown(() -> TypeValue.validExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.one));
 	}
 }

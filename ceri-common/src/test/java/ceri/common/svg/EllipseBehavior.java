@@ -1,13 +1,12 @@
 package ceri.common.svg;
 
-import static ceri.common.svg.SvgTest.assertD;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
-import ceri.common.geom.Size2d;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.geom.Size2d;
 import ceri.common.test.TestUtil;
 
 public class EllipseBehavior {
@@ -35,37 +34,37 @@ public class EllipseBehavior {
 	public void shouldReflect() {
 		var e = Ellipse.of(Position.absolute(1, 1), Size2d.of(4, 1));
 		var line = Line2d.of(-1, 0, 1, 0);
-		assertD(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
-		assertD(e.reflect(line), "M-3,-1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e.reflect(line), "M-3,-1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
 	}
 
 	@Test
 	public void shouldScale() {
 		var e = Ellipse.of(Position.absolute(1, 1), Size2d.of(4, 1));
-		assertD(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
-		assertD(e.scale(Ratio2d.uniform(0.5)),
+		SvgAssert.d(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e.scale(Ratio2d.uniform(0.5)),
 			"M-1.5,0.5 a2,0.5 0 0,1 4,0 a2,0.5 0 0,1 -4,0 m2,0");
 	}
 
 	@Test
 	public void shouldTranslate() {
 		var e = Ellipse.of(Position.absolute(1, 1), Size2d.of(4, 1));
-		assertD(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
-		assertD(e.translate(Point2d.of(-1, -1)), "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e, "M-3,1 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e.translate(Point2d.of(-1, -1)), "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
 	}
 
 	@Test
 	public void shouldRotate() {
 		var e = Ellipse.of(Position.ABSOLUTE_ZERO, Size2d.of(4, 1));
-		assertD(e, "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
-		assertD(e.rotate(0), "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
-		assertD(e.rotate(90), "M-0,-4 a4,1 0 0,1 0,8 a4,1 0 0,1 -0,-8 m0,4");
-		assertD(e.rotate(-60), "M-2,3.464 a4,1 0 0,1 4,-6.928 a4,1 0 0,1 -4,6.928 m2,-3.464");
+		SvgAssert.d(e, "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e.rotate(0), "M-4,0 a4,1 0 0,1 8,0 a4,1 0 0,1 -8,0 m4,0");
+		SvgAssert.d(e.rotate(90), "M-0,-4 a4,1 0 0,1 0,8 a4,1 0 0,1 -0,-8 m0,4");
+		SvgAssert.d(e.rotate(-60), "M-2,3.464 a4,1 0 0,1 4,-6.928 a4,1 0 0,1 -4,6.928 m2,-3.464");
 	}
 
 	@Test
 	public void shouldReverse() {
-		assertD(Ellipse.of(Position.relative(0, 1), Size2d.of(2, 1)).reverse(),
+		SvgAssert.d(Ellipse.of(Position.relative(0, 1), Size2d.of(2, 1)).reverse(),
 			"m-2,-1 a2,1 0 0,1 4,0 a2,1 0 0,1 -4,0 m2,0");
 	}
 }

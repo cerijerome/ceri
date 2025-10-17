@@ -70,29 +70,29 @@ public abstract class Command {
 	}
 
 	public static Command from(String s) {
-		var m = Regex.matchValid(COMMAND_REGEX, s, "command");
+		var m = Regex.validMatch(COMMAND_REGEX, s, "command");
 		int i = 1;
 		var house = House.from(m.group(i++).charAt(0));
 		var units = units(Basics.def(m.group(i++), m.group(i++)));
 		var type = FunctionType.from(m.group(i++));
-		var pc = Parser.string(m, i++).toInt();
-		var data = Parser.string(m, i++).toInt(0);
-		int command = Parser.string(m, i++).toInt(0);
+		var pc = Parser.string(Regex.group(m, i++)).toInt();
+		var data = Parser.string(Regex.group(m, i++)).toInt(0);
+		int command = Parser.string(Regex.group(m, i++)).toInt(0);
 		return of(house, units, type, Basics.def(pc, data), command);
 	}
 
 	public static General allUnitsOff(House house) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		return new General(house, Set.of(), FunctionType.allUnitsOff);
 	}
 
 	public static General allLightsOn(House house) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOn);
 	}
 
 	public static General allLightsOff(House house) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		return new General(house, Set.of(), FunctionType.allLightsOff);
 	}
 
@@ -105,7 +105,7 @@ public abstract class Command {
 	}
 
 	public static General on(House house, Collection<Unit> units) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		return new General(house, normalize(units), FunctionType.on);
 	}
 
@@ -118,7 +118,7 @@ public abstract class Command {
 	}
 
 	public static General off(House house, Collection<Unit> units) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		return new General(house, normalize(units), FunctionType.off);
 	}
 
@@ -131,7 +131,7 @@ public abstract class Command {
 	}
 
 	public static Dim dim(House house, int percent, Collection<Unit> units) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.dim, percent);
 	}
@@ -145,7 +145,7 @@ public abstract class Command {
 	}
 
 	public static Dim bright(House house, int percent, Collection<Unit> units) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		percent = Maths.limit(percent, 0, X10Util.DIM_MAX_PERCENT);
 		return new Dim(house, normalize(units), FunctionType.bright, percent);
 	}
@@ -159,7 +159,7 @@ public abstract class Command {
 	}
 
 	public static Ext ext(House house, int data, int command, Collection<Unit> units) {
-		Validate.validateNotNull(house);
+		Validate.nonNull(house);
 		Validate.ubyte(data);
 		Validate.ubyte(command);
 		return new Ext(house, normalize(units), data, command);

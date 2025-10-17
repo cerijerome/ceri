@@ -1,6 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.geom.GeometryAssert.approx;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
@@ -19,17 +18,17 @@ public class CircleBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Circle.of(0), Circle.NULL);
+		assertEquals(Circle.of(0), Circle.ZERO);
 	}
 
 	@Test
 	public void shouldPointFromGradient() {
-		approx(c0.pointFromGradient(0), 0, 4);
-		approx(c0.pointFromGradient(Double.POSITIVE_INFINITY), -4, 0);
-		approx(c0.pointFromGradient(Double.NEGATIVE_INFINITY), 4, 0);
-		approx(c0.pointFromGradient(1), -2.828, 2.828);
-		approx(c0.pointFromGradient(-2), 3.578, 1.789);
-		assertEquals(Circle.NULL.pointFromGradient(0), Point2d.ZERO);
+		GeomAssert.approx(c0.pointFromGradient(0), 0, 4);
+		GeomAssert.approx(c0.pointFromGradient(Double.POSITIVE_INFINITY), -4, 0);
+		GeomAssert.approx(c0.pointFromGradient(Double.NEGATIVE_INFINITY), 4, 0);
+		GeomAssert.approx(c0.pointFromGradient(1), -2.828, 2.828);
+		GeomAssert.approx(c0.pointFromGradient(-2), 3.578, 1.789);
+		assertEquals(Circle.ZERO.pointFromGradient(0), Point2d.ZERO);
 	}
 
 	@Test
@@ -41,8 +40,8 @@ public class CircleBehavior {
 		assertEquals(c0.gradientAtX(4), Double.NEGATIVE_INFINITY);
 		assertEquals(c0.gradientAtX(5), Double.NaN);
 		assertEquals(c0.gradientAtX(-5), Double.NaN);
-		assertEquals(Circle.NULL.gradientAtX(0), Double.NaN);
-		assertEquals(Circle.NULL.gradientAtX(1), Double.NaN);
+		assertEquals(Circle.ZERO.gradientAtX(0), Double.NaN);
+		assertEquals(Circle.ZERO.gradientAtX(1), Double.NaN);
 	}
 
 	@Test
@@ -54,8 +53,8 @@ public class CircleBehavior {
 		assertApprox(c0.gradientAtY(4), 0);
 		assertEquals(c0.gradientAtY(5), Double.NaN);
 		assertEquals(c0.gradientAtY(-5), Double.NaN);
-		assertEquals(Circle.NULL.gradientAtY(0), Double.NaN);
-		assertEquals(Circle.NULL.gradientAtY(1), Double.NaN);
+		assertEquals(Circle.ZERO.gradientAtY(0), Double.NaN);
+		assertEquals(Circle.ZERO.gradientAtY(1), Double.NaN);
 	}
 
 	@Test
@@ -68,8 +67,8 @@ public class CircleBehavior {
 		assertApprox(c0.xFromY(3.464), 2);
 		assertEquals(c0.xFromY(5), Double.NaN);
 		assertEquals(c0.xFromY(-5), Double.NaN);
-		assertEquals(Circle.NULL.xFromY(0), 0.0);
-		assertEquals(Circle.NULL.xFromY(1), Double.NaN);
+		assertEquals(Circle.ZERO.xFromY(0), 0.0);
+		assertEquals(Circle.ZERO.xFromY(1), Double.NaN);
 	}
 
 	@Test
@@ -82,8 +81,8 @@ public class CircleBehavior {
 		assertApprox(c0.yFromX(3.464), 2);
 		assertEquals(c0.yFromX(5), Double.NaN);
 		assertEquals(c0.yFromX(-5), Double.NaN);
-		assertEquals(Circle.NULL.yFromX(0), 0.0);
-		assertEquals(Circle.NULL.yFromX(1), Double.NaN);
+		assertEquals(Circle.ZERO.yFromX(0), 0.0);
+		assertEquals(Circle.ZERO.yFromX(1), Double.NaN);
 	}
 
 	@Test
@@ -117,8 +116,8 @@ public class CircleBehavior {
 		assertApprox(c0.areaToX(2), 40.439);
 		assertApprox(c0.areaToX(4), 50.265);
 		assertApprox(c0.areaToX(5), 50.265);
-		assertApprox(Circle.NULL.areaToX(0), 0);
-		assertApprox(Circle.NULL.areaToX(1), 0);
+		assertApprox(Circle.ZERO.areaToX(0), 0);
+		assertApprox(Circle.ZERO.areaToX(1), 0);
 	}
 
 	@Test
@@ -130,7 +129,7 @@ public class CircleBehavior {
 		assertApprox(c0.areaToY(2), 40.439);
 		assertApprox(c0.areaToY(4), 50.265);
 		assertApprox(c0.areaToY(5), 50.265);
-		assertApprox(Circle.NULL.areaToY(0), 0);
-		assertApprox(Circle.NULL.areaToY(1), 0);
+		assertApprox(Circle.ZERO.areaToY(0), 0);
+		assertApprox(Circle.ZERO.areaToY(1), 0);
 	}
 }

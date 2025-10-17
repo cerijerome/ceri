@@ -1,5 +1,6 @@
 package ceri.common.collect;
 
+import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertUnordered;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,14 @@ public class SetsTest {
 		assertUnordered(Sets.build(-1, 0).apply(null).wrap(), -1, 0);
 		assertUnordered(Sets.build(-1, 0).apply(l -> Collectable.addAll(l, 1)).wrap(), -1, 0, 1);
 		assertUnordered(Sets.build(Sets::link, -1, null, 1).wrap(), -1, null, 1);
+	}
+
+	@Test
+	public void testCreate() {
+		assertOrdered(Sets.link(nullSet));
+		assertOrdered(Sets.link(set), -1, null, 1);
+		assertOrdered(Sets.tree(nullSet));
+		assertOrdered(Sets.tree(set), null, -1, 1);
 	}
 
 	@Test

@@ -44,6 +44,7 @@ public class FractionFormatsTest {
 	@Test
 	public void shouldParseGlyphs() {
 		assertNull(Glyph.of(null));
+		assertEquals(Glyph.of(3, 4), Glyph.threeQuarters);
 		assertEquals(Glyph.from('\u2155'), Glyph.oneFifth);
 	}
 
@@ -58,5 +59,4 @@ public class FractionFormatsTest {
 		assertEquals(Subscript.format(-309), "\u208b\u2083\u2080\u2089");
 		assertEquals(Subscript.format(44), "\u2084\u2084");
 	}
-
 }

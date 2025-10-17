@@ -198,7 +198,7 @@ public interface PropertySource {
 
 		@Override
 		public String property(String key) {
-			return Functional.getSilently(() -> bundle.getString(key));
+			return Functional.muteGet(() -> bundle.getString(key));
 		}
 
 		@Override

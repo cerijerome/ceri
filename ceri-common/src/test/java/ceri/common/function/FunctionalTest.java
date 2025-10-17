@@ -1,24 +1,24 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertAssertion;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOptional;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.fail;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.junit.Test;
+import ceri.common.test.AssertUtil;
 import ceri.common.test.Captor;
 
 public class FunctionalTest {
+	private static final Functions.Function<String, Integer> fn = String::length;
+	private static final Functions.Supplier<Integer> sp = () -> 1;
+	private static final Throws.Supplier<Integer> esp = () -> AssertUtil.throwIo();
+	private static final Throws.Supplier<Integer> isp = () -> AssertUtil.throwInterrupted();
+	private static final Throws.Supplier<Integer> fsp = () -> AssertUtil.fail();
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -26,54 +26,151 @@ public class FunctionalTest {
 	}
 
 	@Test
-	public void testNullRunnable() {
-		Functional.NULL_RUNNABLE.run();
+	public void testApply() throws Exception {
+		assertEquals(Functional.apply(null, ""), null);
+		assertEquals(Functional.apply(fn, null), null);
+		assertEquals(Functional.apply(fn, "abc"), 3);
+		assertEquals(Functional.apply(null, "", 0), 0);
+		assertEquals(Functional.apply(fn, null, 0), 0);
+		assertEquals(Functional.apply(fn, "abc", 0), 3);
 	}
 
 	@Test
-	public void testNullConsumer() {
-		Functional.nullConsumer().accept(null);
-		Functional.nullConsumer().accept("test");
+	public void testApplyGet() throws Exception {
+		assertEquals(Functional.applyGet(null, "", null), null);
+		assertEquals(Functional.applyGet(fn, null, null), null);
+		assertEquals(Functional.applyGet(fn, "abc", null), 3);
+		assertEquals(Functional.applyGet(null, "", () -> 0), 0);
+		assertEquals(Functional.applyGet(fn, null, () -> 0), 0);
+		assertEquals(Functional.applyGet(fn, "abc", () -> 0), 3);
 	}
 
 	@Test
-	public void testTruePredicate() {
-		assertTrue(Functional.truePredicate().test(null));
-		assertTrue(Functional.truePredicate().test("test"));
+	public void testApplyAsInt() {
+		assertEquals(Functional.applyAsInt(null, "", 0), 0);
+		assertEquals(Functional.applyAsInt(fn::apply, null, 0), 0);
+		assertEquals(Functional.applyAsInt(fn::apply, "abc", 0), 3);
 	}
 
 	@Test
-	public void testGetSilently() {
-		assertEquals(Functional.getSilently(() -> "test"), "test");
-		assertEquals(Functional.getSilently(() -> "test", "x"), "test");
-		assertAssertion(() -> Functional.getSilently(() -> fail(), "x"));
-		assertEquals(Functional.getSilently(() -> {
-			throw new IOException();
-		}, "test"), "test");
-		assertNull(Functional.getSilently(() -> {
-			throw new RuntimeException();
-		}));
-		assertFalse(Thread.interrupted());
-		assertNull(Functional.getSilently(() -> {
-			throw new InterruptedException();
-		}));
-		assertTrue(Thread.interrupted());
+	public void testApplyAsLong() {
+		assertEquals(Functional.applyAsLong(null, "", 0), 0L);
+		assertEquals(Functional.applyAsLong(fn::apply, null, 0), 0L);
+		assertEquals(Functional.applyAsLong(fn::apply, "abc", 0), 3L);
 	}
 
 	@Test
-	public void testRunSilently() {
-		assertTrue(Functional.runSilently(() -> {}));
-		assertFalse(Functional.runSilently(() -> {
-			throw new IOException();
-		}));
-		assertFalse(Functional.runSilently(() -> {
-			throw new RuntimeException();
-		}));
-		assertFalse(Thread.interrupted());
-		assertFalse(Functional.runSilently(() -> {
-			throw new InterruptedException();
-		}));
-		assertTrue(Thread.interrupted());
+	public void testApplyAsDouble() {
+		assertEquals(Functional.applyAsDouble(null, "", 0), 0.0);
+		assertEquals(Functional.applyAsDouble(fn::apply, null, 0), 0.0);
+		assertEquals(Functional.applyAsDouble(fn::apply, "abc", 0), 3.0);
+	}
+
+	@Test
+	public void testAccept() {
+		assertEquals(Functional.accept(null, ""), false);
+		assertCaptor(c -> Functional.accept(c, null), false);
+		assertCaptor(c -> Functional.accept(c, "abc"), true, "abc");
+	}
+
+	@Test
+	public void testAcceptInt() {
+		assertEquals(Functional.acceptInt(null, 1), false);
+		assertCaptor(c -> Functional.acceptInt(c::accept, 1), true, 1);
+	}
+
+	@Test
+	public void testAcceptLong() {
+		assertEquals(Functional.acceptLong(null, 1), false);
+		assertCaptor(c -> Functional.acceptLong(c::accept, 1), true, 1L);
+	}
+
+	@Test
+	public void testAcceptDouble() {
+		assertEquals(Functional.acceptDouble(null, 1), false);
+		assertCaptor(c -> Functional.acceptDouble(c::accept, 1), true, 1.0);
+	}
+
+	@Test
+	public void testGet() throws Exception {
+		assertEquals(Functional.get(null), null);
+		assertEquals(Functional.get(sp), 1);
+		assertEquals(Functional.get(null, 0), 0);
+		assertEquals(Functional.get(sp, 0), 1);
+	}
+
+	@Test
+	public void testGetAsInt() throws Exception {
+		assertEquals(Functional.getAsInt(null, 0), 0);
+		assertEquals(Functional.getAsInt(sp::get, 0), 1);
+	}
+
+	@Test
+	public void testGetAsLong() throws Exception {
+		assertEquals(Functional.getAsLong(null, 0), 0L);
+		assertEquals(Functional.getAsLong(sp::get, 0), 1L);
+	}
+
+	@Test
+	public void testGetAsDouble() throws Exception {
+		assertEquals(Functional.getAsDouble(null, 0), 0.0);
+		assertEquals(Functional.getAsDouble(sp::get, 0), 1.0);
+	}
+
+	@Test
+	public void testRun() throws Exception {
+		assertEquals(Functional.run(null), false);
+		assertCaptor(c -> Functional.run(() -> c.accept(1)), true, 1);
+	}
+
+	@Test
+	public void testMuteGet() {
+		assertEquals(Functional.muteGet(null), null);
+		assertEquals(Functional.muteGet(esp), null);
+		assertInterrupted(Functional.muteGet(isp), null);
+		assertEquals(Functional.muteGet(sp), 1);
+		assertAssertion(() -> Functional.muteGet(fsp));
+		assertEquals(Functional.muteGet(null, 0), 0);
+		assertEquals(Functional.muteGet(esp, 0), 0);
+		assertInterrupted(Functional.muteGet(isp, 0), 0);
+		assertEquals(Functional.muteGet(sp, 0), 1);
+		assertAssertion(() -> Functional.muteGet(fsp, 0));
+	}
+
+	@Test
+	public void testMuteGetInt() {
+		assertEquals(Functional.muteGetInt(null, 0), 0);
+		assertEquals(Functional.muteGetInt(esp::get, 0), 0);
+		assertInterrupted(Functional.muteGetInt(isp::get, 0), 0);
+		assertEquals(Functional.muteGetInt(sp::get, 0), 1);
+		assertAssertion(() -> Functional.muteGetInt(fsp::get, 0));
+	}
+
+	@Test
+	public void testMuteGetLong() {
+		assertEquals(Functional.muteGetLong(null, 0), 0L);
+		assertEquals(Functional.muteGetLong(esp::get, 0), 0L);
+		assertInterrupted(Functional.muteGetLong(isp::get, 0), 0L);
+		assertEquals(Functional.muteGetLong(sp::get, 0), 1L);
+		assertAssertion(() -> Functional.muteGetLong(fsp::get, 0));
+	}
+
+	@Test
+	public void testMuteGetDouble() {
+		assertEquals(Functional.muteGetDouble(null, 0), 0.0);
+		assertEquals(Functional.muteGetDouble(esp::get, 0), 0.0);
+		assertInterrupted(Functional.muteGetDouble(isp::get, 0), 0.0);
+		assertEquals(Functional.muteGetDouble(sp::get, 0), 1.0);
+		assertAssertion(() -> Functional.muteGetDouble(fsp::get, 0));
+	}
+
+	@Test
+	public void testMuteRun() {
+		assertEquals(Functional.muteRun(null), false);
+		assertEquals(Functional.muteRun(esp::get), false);
+		assertInterrupted(Functional.muteRun(isp::get), false);
+		assertCaptor(c -> Functional.muteRun(() -> c.accept(1)), true, 1);
+		assertAssertion(() -> Functional.muteRun(fsp::get));
 	}
 
 	@Test
@@ -90,11 +187,10 @@ public class FunctionalTest {
 	}
 
 	@Test
-	public void testForEach() {
-		var iterator = Arrays.asList("1", "2", null).iterator();
-		var captor = Captor.of();
-		Functional.forEach(iterator::next, captor::accept);
-		captor.verify("1", "2");
+	public void testRecurse() {
+		assertEquals(Functional.recurse(s -> s.replaceFirst("[a-z]", "X"), "test"), "XXXX");
+		assertEquals(Functional.recurse(s -> s.substring(1), "hello", 3), "lo");
+		assertThrown(() -> Functional.recurse(s -> s.substring(1), "hello"));
 	}
 
 	@Test
@@ -119,58 +215,16 @@ public class FunctionalTest {
 		assertEquals(Functional.value(OptionalDouble.of(123)), 123.0);
 	}
 
-	@Test
-	public void testSafeAccept() throws IOException {
-		String[] store = { "" };
-		Excepts.Consumer<IOException, String> consumer = s -> store[0] = s;
-		Functional.safeAccept("test", consumer);
-		assertArray(store, "test");
-		Functional.safeAccept(null, consumer);
-		assertArray(store, "test");
-		Functional.safeAccept("abc", s -> s.length() <= 3, consumer);
-		assertArray(store, "abc");
-		Functional.safeAccept(null, s -> s.length() <= 3, consumer);
-		assertArray(store, "abc");
-		Functional.safeAccept("abcd", s -> s.length() <= 3, consumer);
-		assertArray(store, "abc");
+	@SafeVarargs
+	private static <T, R> void assertCaptor(Functions.Function<Captor<T>, R> action, R expected,
+		T... values) {
+		var captor = Captor.<T>of();
+		assertEquals(action.apply(captor), expected);
+		captor.verify(values);
 	}
 
-	@Test
-	public void testSafeApply() {
-		assertNull(Functional.safeApply(null, String::length));
-		assertEquals(Functional.safeApply("test", String::length), 4);
-		assertEquals(Functional.safeApply(null, String::length, 3), 3);
-		assertEquals(Functional.safeApply("test", String::length, 3), 4);
-		assertEquals(Functional.safeApplyGet(null, String::length, () -> 2), 2);
-		assertEquals(Functional.safeApplyGet("test", String::length, () -> 2), 4);
-	}
-
-	@Test
-	public void testSafeApplyAsInt() {
-		assertEquals(Functional.safeApplyAsInt(null, String::length, 3), 3);
-		assertEquals(Functional.safeApplyAsInt("test", String::length, 3), 4);
-		assertEquals(Functional.safeApplyGetAsInt(null, String::length, () -> 2), 2);
-		assertEquals(Functional.safeApplyGetAsInt("test", String::length, () -> 2), 4);
-	}
-
-	@Test
-	public void testRecurse() {
-		assertEquals(Functional.recurse("test", s -> s.replaceFirst("[a-z]", "X")), "XXXX");
-		assertEquals(Functional.recurse("hello", s -> s.substring(1), 3), "lo");
-		assertThrown(() -> Functional.recurse("hello", s -> s.substring(1)));
-	}
-
-	@Test
-	public void testAny() {
-		assertTrue(Functional.any(String::isBlank, "a", "b", " ", "c"));
-		assertFalse(Functional.any(String::isBlank, "a", "b", "c"));
-		assertFalse(Functional.any(String::isBlank));
-	}
-
-	@Test
-	public void testAll() {
-		assertTrue(Functional.all(String::isBlank, "", " ", "\t"));
-		assertFalse(Functional.all(String::isBlank, "a", " ", "\t"));
-		assertTrue(Functional.all(String::isBlank));
+	private static <R> void assertInterrupted(R result, R expected) {
+		assertEquals(result, expected);
+		assertEquals(Thread.interrupted(), true);
 	}
 }

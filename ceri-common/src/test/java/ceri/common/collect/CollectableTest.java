@@ -2,6 +2,7 @@ package ceri.common.collect;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertUnordered;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +30,29 @@ public class CollectableTest {
 
 	private static Integer[] array() {
 		return set.toArray(Integer[]::new);
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Collectable.class, Collectable.Filter.class);
+	}
+
+	@Test
+	public void testFilterHas() throws Exception {
+		var filter = Collectable.Filter.has(null);
+		assertEquals(filter.test(null), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1)), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1, null)), true);
+	}
+
+	@Test
+	public void testFilterHasAll() throws Exception {
+		assertEquals(Collectable.Filter.hasAll(nullArray).test(null), true);
+		assertEquals(Collectable.Filter.hasAll(nullList).test(null), true);
+		var filter = Collectable.Filter.hasAll(null, 1);
+		assertEquals(filter.test(null), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1)), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1, null)), true);
 	}
 
 	@Test
@@ -62,6 +86,12 @@ public class CollectableTest {
 		assertEquals(Collectable.size(null), 0);
 		assertEquals(Collectable.size(emptyList), 0);
 		assertEquals(Collectable.size(list), 3);
+	}
+
+	@Test
+	public void testAddTo() {
+		assertEquals(Collectable.addTo(null, 1), null);
+		assertOrdered(Collectable.addTo(Lists.ofAll(-1), 1), -1, 1);
 	}
 
 	@Test
@@ -108,5 +138,12 @@ public class CollectableTest {
 		assertOrdered(Collectable.convertAdd(Lists.of(), biFn, nullMap));
 		assertOrdered(Collectable.convertAdd(Lists.of(), biFn, emptyMap));
 		assertUnordered(Collectable.convertAdd(Lists.of(), biFn, map), -1, "B", 1);
+	}
+
+	@Test
+	public void testRemoveAll() {
+		assertEquals(Collectable.removeAll(null, nullArray), null);
+		assertOrdered(Collectable.removeAll(Lists.ofAll(1, -1), nullArray), 1, -1);
+		assertOrdered(Collectable.removeAll(Lists.ofAll(1, null), -1, null), 1);
 	}
 }

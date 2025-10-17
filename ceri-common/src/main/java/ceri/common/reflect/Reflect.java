@@ -493,6 +493,20 @@ public class Reflect {
 	}
 
 	/**
+	 * Determines if the class is static.
+	 */
+	public static boolean isStatic(Class<?> cls) {
+		return cls != null && Modifier.isStatic(cls.getModifiers());
+	}
+
+	/**
+	 * Determines if the class is public.
+	 */
+	public static boolean isPublic(Class<?> cls) {
+		return cls != null && Modifier.isPublic(cls.getModifiers());
+	}
+
+	/**
 	 * Returns the public field from the class, including super-types. Returns null if not found.
 	 */
 	public static Field publicField(Class<?> cls, String name) {
@@ -519,32 +533,6 @@ public class Reflect {
 		if (obj == null && !isStatic(field)) return def;
 		try {
 			return Reflect.unchecked(field.get(obj));
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			return def;
-		}
-	}
-
-	/**
-	 * Returns the public field value from the instance. Returns default if not found.
-	 */
-	public static int publicFieldInt(Object obj, Field field, int def) {
-		if (field == null) return def;
-		if (obj == null && !isStatic(field)) return def;
-		try {
-			return field.getInt(obj);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			return def;
-		}
-	}
-
-	/**
-	 * Returns the public field value from the instance. Returns default if not found.
-	 */
-	public static long publicFieldLong(Object obj, Field field, long def) {
-		if (field == null) return def;
-		if (obj == null && !isStatic(field)) return def;
-		try {
-			return field.getLong(obj);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			return def;
 		}
@@ -681,7 +669,7 @@ public class Reflect {
 	private static <T> T methodInterceptor(T delegate,
 		Functions.BiConsumer<Method, Object[]> consumer, Class<?>... ifaces) {
 		var cls = delegate.getClass();
-		return Basics
+		return Reflect
 			.unchecked(Proxy.newProxyInstance(cls.getClassLoader(), ifaces, (_, method, args) -> {
 				consumer.accept(method, args);
 				return method.invoke(delegate, args);

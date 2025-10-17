@@ -15,7 +15,7 @@ public record Polar2d(double r, double phi) {
 		phi %= Math.TAU;
 		return phi >= 0.0 ? phi : phi + Math.TAU;
 	}
-	
+
 	/**
 	 * Returns an instance calculated from x,y coordinates.
 	 */
@@ -37,10 +37,16 @@ public record Polar2d(double r, double phi) {
 	 * Returns a validated instance.
 	 */
 	public static Polar2d of(double r, double phi) {
-		Validate.finiteMin(r, 0.0);
-		Validate.finite(phi);
 		if (r == 0.0 && phi == 0.0) return ZERO;
 		return new Polar2d(r + 0.0, phi + 0.0);
+	}
+
+	/**
+	 * Constructor validation.
+	 */
+	public Polar2d {
+		Validate.finiteMin(r, 0.0);
+		Validate.finite(phi);
 	}
 
 	/**
@@ -77,7 +83,7 @@ public record Polar2d(double r, double phi) {
 	public String toString() {
 		return "(" + r() + ", " + phi() + ")";
 	}
-	
+
 	private Polar2d create(double r, double phi) {
 		if (r == r() && phi == phi()) return this;
 		return of(r, phi);

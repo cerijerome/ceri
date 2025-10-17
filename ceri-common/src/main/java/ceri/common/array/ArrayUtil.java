@@ -70,8 +70,7 @@ public class ArrayUtil {
 			any(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
 			if (predicate == null) return Filters.no();
 			return ts -> {
-				if (ts == null) return false;
-				for (int i = 0; i < ts.length; i++)
+				if (ts != null) for (int i = 0; i < ts.length; i++)
 					if (predicate.test(ts[i], i)) return true;
 				return false;
 			};
@@ -84,8 +83,7 @@ public class ArrayUtil {
 			all(Excepts.ObjIntPredicate<? extends E, ? super T> predicate) {
 			if (predicate == null) return Filters.no();
 			return ts -> {
-				if (ts == null) return false;
-				for (int i = 0; i < ts.length; i++)
+				if (ts != null) for (int i = 0; i < ts.length; i++)
 					if (!predicate.test(ts[i], i)) return false;
 				return true;
 			};
@@ -139,13 +137,6 @@ public class ArrayUtil {
 		if (start < 0 || start > arrayLength) return false;
 		if (end < start || end > arrayLength) return false;
 		return true;
-	}
-
-	/**
-	 * Returns true if the slice/range is the same as the whole.
-	 */
-	public static boolean isFullSlice(int arrayLength, int offset, int length) {
-		return offset == 0 && length == arrayLength;
 	}
 
 	/**

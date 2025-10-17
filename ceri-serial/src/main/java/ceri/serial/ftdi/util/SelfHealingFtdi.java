@@ -153,8 +153,8 @@ public class SelfHealingFtdi extends SelfHealingConnector<Ftdi> implements Ftdi.
 
 		public Config config() {
 			var b = Config.builder();
-			Functional.safeAccept(ftdi.finder(), b::finder);
-			Functional.safeAccept(ftdi.iface(), b::iface);
+			Functional.accept(b::finder, ftdi.finder());
+			Functional.accept(b::iface, ftdi.iface());
 			return b.ftdi(ftdi.config()).selfHealing(selfHealing.config()).build();
 		}
 	}

@@ -20,31 +20,32 @@ public class TypeValue<T> {
 	/**
 	 * Validates value to make sure type is set.
 	 */
-	public static void validate(TypeValue<?> value) {
-		validate(value, (String) null);
+	public static <T, V extends TypeValue<T>> V validate(V value) {
+		return valid(value, (String) null);
 	}
 
 	/**
 	 * Validates value to make sure type is set.
 	 */
-	public static void validate(TypeValue<?> value, String name) {
-		validateExcept(value, null, name);
+	public static <T, V extends TypeValue<T>> V valid(V value, String name) {
+		return validExcept(value, null, name);
 	}
 
 	/**
 	 * Validates value to make sure type is set and not equals to the invalid value.
 	 */
-	public static <T> void validateExcept(TypeValue<T> value, T invalid) {
-		validateExcept(value, invalid, null);
+	public static <T, V extends TypeValue<T>> V validExcept(V value, T invalid) {
+		return validExcept(value, invalid, null);
 	}
 
 	/**
 	 * Validates value to make sure type is set and not equals to the invalid value.
 	 */
-	public static <T> void validateExcept(TypeValue<T> value, T invalid, String name) {
-		Validate.validateNotNull(value, name);
-		Validate.validateNotNull(value.type(), name);
-		if (invalid != null) Validate.validateNotEqualObj(value.type(), invalid, name);
+	public static <T, V extends TypeValue<T>> V validExcept(V value, T invalid, String name) {
+		Validate.nonNull(value, name);
+		Validate.nonNull(value.type(), name);
+		if (invalid != null) Validate.notEqual(value.type(), invalid, name);
+		return value;
 	}
 
 	/**

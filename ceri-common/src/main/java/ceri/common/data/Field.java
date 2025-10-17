@@ -2,9 +2,9 @@ package ceri.common.data;
 
 import java.util.Set;
 import ceri.common.collect.Lists;
+import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.math.Maths;
-import ceri.common.util.Validate;
 
 /**
  * Provides access to a field.
@@ -48,14 +48,14 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 	 * Get source value.
 	 */
 	public U get(T source) throws E {
-		return Validate.validateSupported(getter, "Get").apply(source);
+		return valid(getter, "Get").apply(source);
 	}
 
 	/**
 	 * Set source value.
 	 */
 	public Field<E, T, U> set(T source, U value) throws E {
-		Validate.validateSupported(setter(), "Set").accept(source, value);
+		valid(setter(), "Set").accept(source, value);
 		return this;
 	}
 
@@ -112,7 +112,7 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 		 * Get source value.
 		 */
 		public long get(T source) throws E {
-			return Validate.validateSupported(getter, "Get").applyAsLong(source);
+			return valid(getter, "Get").applyAsLong(source);
 		}
 
 		/**
@@ -147,7 +147,7 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 		 * Set source value.
 		 */
 		public Long<E, T> set(T source, long value) throws E {
-			Validate.validateSupported(setter(), "Set").accept(source, value);
+			valid(setter(), "Set").accept(source, value);
 			return this;
 		}
 
@@ -342,5 +342,10 @@ public record Field<E extends Exception, T, U>(Excepts.Function<E, T, U> getter,
 		public boolean hasAll(S source, Iterable<T> ts) throws E {
 			return xcoder().hasAll(getValue(source), ts);
 		}
+	}
+
+	private static <T> T valid(T value, String name) {
+		if (value != null) return value;
+		throw Exceptions.unsupportedOp("%s is not supported", name);
 	}
 }

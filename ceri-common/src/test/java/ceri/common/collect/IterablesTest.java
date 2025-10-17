@@ -3,10 +3,12 @@ package ceri.common.collect;
 import static ceri.common.collect.Iterables.ofNull;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.function.Excepts;
+import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.test.Captor;
 
@@ -14,6 +16,8 @@ public class IterablesTest {
 	private static final List<Integer> list = Lists.ofAll(-1, null, 1);
 	private static final Iterable<Integer> nullIterable = () -> null;
 	private static final Iterator<Integer> nullIterator = null;
+	private static final List<Integer> nullList = null;
+	private static final Integer[] nullArray = null;
 	private static final Functions.Consumer<Object> nullConsumer = null;
 	private static final Functions.Consumer<Object> emptyConsumer = _ -> {};
 	private static final Functions.Predicate<Object> nullPredicate = null;
@@ -21,6 +25,53 @@ public class IterablesTest {
 
 	private static Iterator<Integer> iter() {
 		return list.iterator();
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Iterables.class, Iterables.Filter.class);
+	}
+
+	@Test
+	public void testFilterHas() throws Exception {
+		var filter = Iterables.Filter.has(null);
+		assertEquals(filter.test(null), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1)), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1, null)), true);
+	}
+
+	@Test
+	public void testFilterHasAny() throws Exception {
+		assertEquals(Iterables.Filter.hasAny(nullArray).test(null), false);
+		assertEquals(Iterables.Filter.hasAny(nullList).test(null), false);
+		var filter = Iterables.Filter.hasAny(null, 1);
+		assertEquals(filter.test(null), false);
+		assertEquals(filter.test(Lists.ofAll(-1)), false);
+		assertEquals(filter.test(Lists.ofAll(1, -1, null)), true);
+	}
+
+	@Test
+	public void testFilterAll() throws Exception {
+		assertEquals(Iterables.Filter.all(null).test(null), false);
+		assertEquals(Iterables.Filter.all(Filters.nonNull()).test(null), false);
+		assertEquals(Iterables.Filter.all(Filters.nonNull()).test(Lists.ofAll(1, null)), false);
+		assertEquals(Iterables.Filter.all(Filters.nonNull()).test(Lists.ofAll(1, -1)), true);
+	}
+
+	@Test
+	public void testFilterAnyIndex() throws Exception {
+		assertEquals(Iterables.Filter.anyIndex(null).test(null), false);
+		assertEquals(Iterables.Filter.anyIndex((_, i) -> i > 0).test(null), false);
+		assertEquals(Iterables.Filter.anyIndex((_, i) -> i > 0).test(Lists.ofAll(1)), false);
+		assertEquals(Iterables.Filter.anyIndex((_, i) -> i > 0).test(Lists.ofAll(1, -1)), true);
+	}
+
+	@Test
+	public void testFilterAllIndex() throws Exception {
+		assertEquals(Iterables.Filter.allIndex(null).test(null), false);
+		assertEquals(Iterables.Filter.allIndex((_, i) -> i < 1).test(null), false);
+		assertEquals(Iterables.Filter.allIndex((_, i) -> i < 1).test(Lists.ofAll(1)), true);
+		assertEquals(Iterables.Filter.allIndex((_, i) -> i < 1).test(Lists.ofAll(1, -1)), false);
 	}
 
 	@Test

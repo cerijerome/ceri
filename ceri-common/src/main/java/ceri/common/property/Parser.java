@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.collect.Collectable;
 import ceri.common.collect.Enums;
@@ -67,20 +66,6 @@ public class Parser {
 	}
 
 	/**
-	 * Returns a string parser for the regex group.
-	 */
-	public static Parser.String string(Matcher m, int group) {
-		return string(Regex.group(m, group));
-	}
-
-	/**
-	 * Returns a string parser for the regex find group.
-	 */
-	public static Parser.String findString(Pattern regex, java.lang.String s, int group) {
-		return string(Regex.find(regex, s), group);
-	}
-
-	/**
 	 * Returns a string collection parser for the values.
 	 */
 	@SafeVarargs
@@ -93,13 +78,6 @@ public class Parser {
 	 */
 	public static Strings strings(Collection<java.lang.String> values) {
 		return () -> values;
-	}
-
-	/**
-	 * Returns a string collection parser from regex find groups.
-	 */
-	public static Parser.Strings findStrings(Pattern regex, java.lang.String s, int group) {
-		return strings(Regex.finds(regex, s, group).toList());
 	}
 
 	/**
@@ -146,7 +124,7 @@ public class Parser {
 		 * Access the value, or throw named validation exception if null.
 		 */
 		default T getValid(java.lang.String name) {
-			return Validate.validateNotNull(get(), name);
+			return Validate.nonNull(get(), name);
 		}
 
 		/**

@@ -20,14 +20,14 @@ public class Address implements Comparable<Address> {
 	 * Creates an address object from the string address such as "P13"
 	 */
 	public static Address from(String address) {
-		var m = Regex.matchValid(ADDRESS_REGEX, address, "address");
+		var m = Regex.validMatch(ADDRESS_REGEX, address, "address");
 		var house = House.from(m.group(1).charAt(0));
 		var unit = Unit.from(Integer.parseInt(m.group(2)));
 		return new Address(house, unit);
 	}
 
 	public static Address of(House house, Unit unit) {
-		Validate.validateAllNotNull(house, unit);
+		Validate.allNonNull(house, unit);
 		return new Address(house, unit);
 	}
 

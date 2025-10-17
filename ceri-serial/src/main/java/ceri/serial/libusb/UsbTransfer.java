@@ -204,7 +204,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 		public BulkStream bulkTransfer(int endPoint, int streamId,
 			Consumer<? super BulkStream> callback) throws LibUsbException {
 			Validate.range(streamId, 1, count, "Stream id");
-			validateEndPoint(endPoint);
+			validEndPoint(endPoint);
 			return BulkStream.alloc(handle, endPoint, streamId, callback);
 		}
 
@@ -213,8 +213,8 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 			LogUtil.close(() -> LibUsb.libusb_free_streams(handle.handle(), endPointBytes));
 		}
 
-		private void validateEndPoint(int endPoint) {
-			if (endPoints.indexOf(0, endPoint) >= 0) return;
+		private int validEndPoint(int endPoint) {
+			if (endPoints.indexOf(0, endPoint) >= 0) return endPoint;
 			throw Exceptions.illegalArg("End point not in %s: %d", endPoints, endPoint);
 		}
 	}

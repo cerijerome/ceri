@@ -35,6 +35,8 @@ public class NonMatchBehavior {
 		assertString(NonMatch.replaceAll(Pattern.compile("[a-c]"), "def", null), "");
 		assertString(NonMatch.replaceAll(Pattern.compile("^"), "abc", "x"), "x");
 		assertString(NonMatch.replaceAll(Pattern.compile("$"), "abc", "x"), "x");
+		assertString(NonMatch.replaceAll(Pattern.compile("$"), "abc", "x"), "x");
+		assertString(NonMatch.replaceAll(b("_"), Pattern.compile("$"), "abc", "x"), "_x");
 	}
 
 	@Test
@@ -44,6 +46,13 @@ public class NonMatchBehavior {
 		assertString(NonMatch.appendAll(Regex.EMPTY, "abc", null), "");
 		assertString(NonMatch.appendAll(Pattern.compile("[a-c]+"), "abcdefbca",
 			(b, m) -> b.append(m.group().toUpperCase())), "abcDEFbca");
+		assertString(NonMatch.appendAll(null, Regex.EMPTY, "abc", null), null);
+		assertString(NonMatch.appendAll(b("_"), Regex.EMPTY, "abc", null), "_");
+	}
+
+	@Test
+	public void testOf() {
+		assertEquals(NonMatch.of(null, ""), null);
 	}
 
 	@Test
@@ -244,5 +253,9 @@ public class NonMatchBehavior {
 
 	private static NonMatch.Matcher nonMatcher(String pattern, String text) {
 		return NonMatch.of(Pattern.compile(pattern), text);
+	}
+
+	private static StringBuilder b(String s) {
+		return new StringBuilder(s);
 	}
 }

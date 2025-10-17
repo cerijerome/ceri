@@ -1,0 +1,27 @@
+
+
+Arena
+- allocates memory segments
+- determines lifecycle of memory segments
+- global: never deallocated, available to any thread (close() => exception)
+- automatic: managed by gc, available to any thread (close() => exception)
+  - segments deallocated after arena is unreachable
+- confined: manually closed, available to single thread
+- shared: manually closed, available to any thread
+
+MemorySegment
+- contiguous region of memory
+- inside or outside java heap
+- cannot be manually deallocated
+  - set to null for automatic arena GC
+- reinterpret
+
+
+MemoryLayout
+- query sizes, offsets, alignment
+- access memory segments with var handles, layout paths
+
+Linker
+SymbolLookup
+FunctionDescriptor
+MethodHandle

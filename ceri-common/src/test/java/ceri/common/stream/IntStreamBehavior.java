@@ -136,7 +136,12 @@ public class IntStreamBehavior {
 		assertEquals(stream.next(3), 0);
 		assertEquals(stream.next(), null);
 		assertEquals(stream.next(3), 3);
+	}
 
+	@Test
+	public void shouldSkipElements() {
+		assertStream(testStream().skip(2), 1, 0);
+		assertStream(testStream().skip(5));
 	}
 
 	@Test
@@ -172,14 +177,35 @@ public class IntStreamBehavior {
 	@Test
 	public void shouldCollectElements() throws Exception {
 		IntStream.empty().collect(Captor::of, Captor::accept).verify();
+		assertEquals(testStream().collect(null), null);
 		assertEquals(testStream().collect(null, (_, _) -> {}), null);
 		assertEquals(testStream().collect(() -> null, (_, _) -> {}), null);
 		testStream().collect(Captor::of, Captor::accept).verify(-1, 0, 1, 0);
+		assertArray(testStream().collect(Collect.Ints.sortedArray), -1, 0, 0, 1);
 	}
 
 	@Test
-	public void shouldUseCollectors() throws Exception {
-		assertArray(testStream().collect(Collect.Ints.sortedArray), -1, 0, 0, 1);
+	public void shouldDetermineMin() throws Exception {
+		assertEquals(IntStream.empty().min(0), 0);
+		assertEquals(testStream().min(0), -1);
+	}
+
+	@Test
+	public void shouldDetermineMax() throws Exception {
+		assertEquals(IntStream.empty().max(0), 0);
+		assertEquals(testStream().max(0), 1);
+	}
+
+	@Test
+	public void shouldDetermineSum() {
+		assertEquals(testStream().sum(), 0);
+		assertEquals(testStream().skip(2).sum(), 1);
+	}
+
+	@Test
+	public void shouldDetermineAverage() {
+		assertEquals(testStream().average(), 0.0);
+		assertEquals(testStream().skip(2).average(), 0.5);
 	}
 
 	@Test

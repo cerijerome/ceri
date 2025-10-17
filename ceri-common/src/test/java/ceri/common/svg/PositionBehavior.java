@@ -13,11 +13,12 @@ public class PositionBehavior {
 		var p = Position.absolute(1, -1);
 		var eq0 = Position.absolute(1, -1);
 		var eq1 = Position.absolute(Point2d.of(1, -1));
+		var eq2 = Position.of(Position.Type.absolute, Point2d.of(1, -1));
 		var ne0 = Position.relative(1, -1);
 		var ne1 = Position.relative(Point2d.of(1, -1));
 		var ne2 = Position.absolute(1.1, -1);
 		var ne3 = Position.absolute(1, 1);
-		TestUtil.exerciseEquals(p, eq0, eq1);
+		TestUtil.exerciseEquals(p, eq0, eq1, eq2);
 		assertAllNotEqual(p, ne0, ne1, ne2, ne3);
 	}
 
@@ -35,6 +36,6 @@ public class PositionBehavior {
 	@Test
 	public void shouldCalculateVector() {
 		var p = Position.relative(-10, 100);
-		assertEquals(p.vector(), Point2d.of(-10, 100));
+		assertEquals(p.offset(), Point2d.of(-10, 100));
 	}
 }

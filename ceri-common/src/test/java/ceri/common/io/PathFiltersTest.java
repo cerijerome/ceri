@@ -105,7 +105,7 @@ public class PathFiltersTest {
 	public void testMinSize() throws IOException {
 		assertHelperPaths(IoUtil.paths(helper.root, PathFilters.byMinSize(Long.MAX_VALUE)), helper);
 		assertHelperPaths(
-			IoUtil.paths(helper.root, Filters.and(PathFilters.file(), PathFilters.byMinSize(2))),
+			IoUtil.paths(helper.root, Filters.andOf(PathFilters.file(), PathFilters.byMinSize(2))),
 			helper, "b/b.txt", "c.txt");
 	}
 

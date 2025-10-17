@@ -1,14 +1,12 @@
 package ceri.common.util;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import ceri.common.collect.Lists;
 import ceri.common.except.Exceptions;
-import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.text.Format;
+import ceri.common.text.Joiner;
 import ceri.common.text.Strings;
 
 /**
@@ -17,8 +15,6 @@ import ceri.common.text.Strings;
  * letter.
  */
 public class Validate {
-	public static final String VALUE = "Value";
-	private static final String EXPRESSION = "Expression";
 	private static final int PRECISION_DEF = 3;
 
 	private Validate() {}
@@ -26,7 +22,7 @@ public class Validate {
 	// general
 
 	/**
-	 * Returns a runtime exception with failure message. 
+	 * Returns a runtime exception with failure message.
 	 */
 	public static RuntimeException failed(String format, Object... args) {
 		return Exceptions.illegalArg(format, args);
@@ -35,28 +31,35 @@ public class Validate {
 	/**
 	 * Fails if the condition is false.
 	 */
+	public static boolean condition(boolean condition) {
+		return condition(condition, "Condition failed");
+	}
+
+	/**
+	 * Fails if the condition is false.
+	 */
 	public static boolean condition(boolean condition, String format, Object... args) {
 		if (condition) return condition;
-		throw failed("%s is false", f(format, args));
+		throw failed(format, args);
 	}
-	
+
 	// objects
-	
+
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
-	public static <T> T equal(T actual, T expected) {
-		return equal(actual, expected, "");
+	public static <T> T equals(T actual, T expected) {
+		return equals(actual, expected, "");
 	}
 
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
-	public static <T> T equal(T actual, T expected, String format, Object... args) {
+	public static <T> T equals(T actual, T expected, String format, Object... args) {
 		if (Objects.equals(actual, expected)) return actual;
 		throw failed("%s must equal %s: %s", f(format, args), expected, actual);
 	}
-	
+
 	/**
 	 * Fails if the value does not equal the expected value.
 	 */
@@ -71,31 +74,83 @@ public class Validate {
 		if (!Objects.equals(actual, unexpected)) return actual;
 		throw failed("%s must not equal %s", f(format, args), unexpected);
 	}
-	
+
 	/**
 	 * Fails if the value is null.
 	 */
 	public static <T> T nonNull(T actual) {
 		return nonNull(actual, "");
 	}
-	
+
 	/**
 	 * Fails if the value is null.
 	 */
 	public static <T> T nonNull(T actual, String format, Object... args) {
 		return notEqual(actual, null, format, args);
 	}
-	
+
+	/**
+	 * Fails if the value does not equal any of the given values.
+	 */
+	@SafeVarargs
+	public static <T> T equalAnyOf(T actual, T... values) {
+		return equalAny(actual, Lists.wrap(values));
+	}
+
+	/**
+	 * Fails if the value does not equal any of the given values.
+	 */
+	public static <T> T equalAny(T actual, Iterable<? extends T> values) {
+		return equalAny(actual, values, "");
+	}
+
+	/**
+	 * Fails if the value does not equal any of the given values.
+	 */
+	public static <T> T equalAny(T actual, Iterable<? extends T> values, String format,
+		Object... args) {
+		for (var value : values)
+			if (Objects.equals(actual, value)) return actual;
+		throw failed("%s must equal one of %s: %s", f(format, args), join(values), actual);
+	}
+
+	/**
+	 * Fails if the value equals any of the given values.
+	 */
+	@SafeVarargs
+	public static <T> T equalNoneOf(T actual, T... values) {
+		return equalNone(actual, Lists.wrap(values));
+	}
+
+	/**
+	 * Fails if the value equals any of the given values.
+	 */
+	public static <T> T equalNone(T actual, Iterable<? extends T> values) {
+		return equalNone(actual, values, "");
+	}
+
+	/**
+	 * Fails if the value equals any of the given values.
+	 */
+	public static <T> T equalNone(T actual, Iterable<? extends T> values, String format,
+		Object... args) {
+		for (var value : values)
+			if (Objects.equals(actual, value)) throw failed("%s must not equal any of %s: %s",
+				f(format, args), join(values), actual);
+		return actual;
+	}
+
 	// arrays
 
 	/**
 	 * Fails if any value is null.
 	 */
 	public static void allNonNull(Object... actuals) {
+		nonNull(actuals, "Values");
 		for (int i = 0; i < actuals.length; i++)
-			nonNull(actuals[i], VALUE + " " + i);
+			nonNull(actuals[i], "Value %d", i);
 	}
-	
+
 	/**
 	 * Fails if the index is out of range for the size.
 	 */
@@ -113,6 +168,25 @@ public class Validate {
 		range(offset, 0, size, "offset");
 		range(length, 0, size - offset, "length");
 		return offset == 0 && length == size;
+	}
+
+	// collections
+
+	/**
+	 * Fails if the collection is null or empty.
+	 */
+	public static <T, C extends Collection<T>> C nonEmpty(C collection) {
+		return nonEmpty(collection, "");
+	}
+
+	/**
+	 * Fails if the collection is null or empty.
+	 */
+	public static <T, C extends Collection<T>> C nonEmpty(C collection, String format,
+		Object... args) {
+		nonNull(collection, format, args);
+		if (!collection.isEmpty()) return collection;
+		throw failed("%s is empty", f(format, args));
 	}
 
 	// integers
@@ -286,15 +360,15 @@ public class Validate {
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static byte ubyte(long actual, long expected) {
+	public static int ubyte(long actual, long expected) {
 		return ubyte(actual, expected, "");
 	}
 
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static byte ubyte(long actual, long expected, String format, Object... args) {
-		return (byte) equal(Maths.ubyte(actual), Maths.ubyte(expected), format, args);
+	public static int ubyte(long actual, long expected, String format, Object... args) {
+		return equal(Maths.ubyte(actual), Maths.ubyte(expected), format, args);
 	}
 
 	/**
@@ -314,21 +388,21 @@ public class Validate {
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static short ushort(long actual, long expected) {
+	public static int ushort(long actual, long expected) {
 		return ushort(actual, expected, "");
 	}
 
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static short ushort(long actual, long expected, String format, Object... args) {
-		return (short) equal(Maths.ushort(actual), Maths.ushort(expected), format, args);
+	public static int ushort(long actual, long expected, String format, Object... args) {
+		return equal(Maths.ushort(actual), Maths.ushort(expected), format, args);
 	}
 
 	/**
 	 * Fails if the value is outside the unsigned range.
 	 */
-	public static long uint(int actual) {
+	public static long uint(long actual) {
 		return uint(actual, "");
 	}
 
@@ -342,15 +416,15 @@ public class Validate {
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static int uint(int actual, long expected) {
+	public static long uint(long actual, long expected) {
 		return uint(actual, expected, "");
 	}
 
 	/**
 	 * Fails if the unsigned value does not equal the expected value.
 	 */
-	public static int uint(int actual, long expected, String format, Object... args) {
-		return (int) equal(Maths.uint(actual), Maths.uint(expected), format, args);
+	public static long uint(long actual, long expected, String format, Object... args) {
+		return equal(Maths.uint(actual), Maths.uint(expected), format, args);
 	}
 
 	/**
@@ -401,17 +475,19 @@ public class Validate {
 	// floating point
 
 	/**
-	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 * Fails if the value does not equal the expected value. Equality includes infinity, NaN, and
+	 * +/-0.0.
 	 */
 	public static double equal(double actual, double expected) {
 		return equal(actual, expected, "");
 	}
 
 	/**
-	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 * Fails if the value does not equal the expected value. Equality includes infinity, NaN, and
+	 * +/-0.0.
 	 */
 	public static double equal(double actual, double expected, String format, Object... args) {
-		if (doubleEqual(actual, expected)) return actual;
+		if (doubleEqual(actual, expected)) return actual + 0.0;
 		throw failed("%s must equal %s: %s", f(format, args), expected, actual);
 	}
 
@@ -431,27 +507,28 @@ public class Validate {
 	}
 
 	/**
-	 * Fails if the value does not equal the expected value within precision decimal places.
+	 * Fails if the value does not equal the expected value within simple precision decimal places.
 	 */
 	public static double approx(double actual, double expected) {
 		return approx(actual, expected, PRECISION_DEF);
 	}
 
 	/**
-	 * Fails if the value does not equal the expected value within precision decimal places.
+	 * Fails if the value does not equal the expected value within simple precision decimal places.
 	 */
 	public static double approx(double actual, double expected, int precision) {
 		return approx(actual, expected, precision, "");
 	}
 
 	/**
-	 * Fails if the value does not equal the expected value within precision decimal places.
+	 * Fails if the value does not equal the expected value within simple precision decimal places.
 	 */
 	public static double approx(double actual, double expected, int precision, String format,
 		Object... args) {
 		if (!Double.isFinite(expected)) return equal(actual, expected, format, args);
-		return equal(Maths.round(precision, actual), Maths.round(precision, expected), format,
+		equal(Maths.simpleRound(precision, actual), Maths.simpleRound(precision, expected), format,
 			args);
+		return actual;
 	}
 
 	/**
@@ -503,14 +580,14 @@ public class Validate {
 	/**
 	 * Fails if the actual is NaN.
 	 */
-	public static double nonNaN(double actual) {
-		return nonNaN(actual, "");
+	public static double notNaN(double actual) {
+		return notNaN(actual, "");
 	}
 
 	/**
 	 * Fails if the actual is NaN.
 	 */
-	public static double nonNaN(double actual, String format, Object... args) {
+	public static double notNaN(double actual, String format, Object... args) {
 		return notEqual(actual, Double.NaN, format, args);
 	}
 
@@ -562,8 +639,16 @@ public class Validate {
 	// support
 
 	private static String f(String format, Object... args) {
-		if (Strings.isEmpty(format)) return VALUE;
+		return f("Value", format, args);
+	}
+
+	private static String f(String def, String format, Object... args) {
+		if (Strings.isEmpty(format)) return def;
 		return Strings.format(format, args);
+	}
+
+	private static String join(Iterable<?> values) {
+		return Joiner.LIST.join(values);
 	}
 
 	private static String n(int value) {
@@ -579,218 +664,6 @@ public class Validate {
 	}
 
 	private static boolean doubleEqual(double value, double other) {
-		return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other);
-	}
-
-	// ---------------------------------------------------------------------------------
-	// Original methods start here:
-	// ---------------------------------------------------------------------------------
-
-	/* Expression validation */
-
-	/**
-	 * Validates that the predicate is true for the value.
-	 */
-	public static <T> T validate(Functions.Predicate<T> predicate, T value) {
-		return validate(predicate, value, VALUE);
-	}
-
-	/**
-	 * Validates that the predicate is true for the value.
-	 */
-	public static <T> T validate(Functions.Predicate<T> predicate, T value, String name) {
-		if (!predicate.test(value)) throw exceptionf("%s is invalid: %s", name(name), value);
-		return value;
-	}
-
-	/**
-	 * Validates that the expression is true.
-	 */
-	public static void validate(boolean expr) {
-		validate(expr, EXPRESSION);
-	}
-
-	/**
-	 * Validates that the expression is true.
-	 */
-	public static void validate(boolean expr, String name) {
-		if (!expr) throw exceptionf("%s failed", name == null ? EXPRESSION : name);
-	}
-
-	/**
-	 * Validates that the expression is true, with formatted exception text if not.
-	 */
-	public static void validatef(boolean expr, String format, Object... args) {
-		if (!expr) throw exceptionf(format, args);
-	}
-
-	/* (Not) null validation */
-
-	/**
-	 * Validates that the object is not null.
-	 */
-	public static <T> T validateSupported(T value, String name) {
-		if (value != null) return value;
-		throw new UnsupportedOperationException(name + " is not supported");
-	}
-
-	/**
-	 * Validates that the object is not null.
-	 */
-	public static <T> T validateNotNull(T value) {
-		return validateNotNull(value, VALUE);
-	}
-
-	/**
-	 * Validates that the object is not null.
-	 */
-	public static <T> T validateNotNull(T value, String name) {
-		if (value == null) throw exceptionf("%s == null", name);
-		return value;
-	}
-
-	/**
-	 * Validates that the objects are not null.
-	 */
-	public static void validateAllNotNull(Object... values) {
-		Validate.validateNotNull(values);
-		for (int i = 0; i < values.length; i++)
-			if (values[i] == null) throw exceptionf("Value [%d] == null", i);
-	}
-
-	/**
-	 * Validates that the object is null.
-	 */
-	public static <T> T validateNull(T value) {
-		return validateNull(value, VALUE);
-	}
-
-	/**
-	 * Validates that the object is null.
-	 */
-	public static <T> T validateNull(T value, String name) {
-		if (value != null) throw exceptionf("%s != null: %s", name(name), value);
-		return value;
-	}
-
-	/* Object (in-)equality validation */
-
-	/**
-	 * Validates that the objects are equal.
-	 */
-	public static <T> T validateEqualObj(T value, Object expected) {
-		return validateEqualObj(value, expected, VALUE);
-	}
-
-	/**
-	 * Validates that the objects are equal.
-	 */
-	public static <T> T validateEqualObj(T value, Object expected, String name) {
-		if (!Objects.equals(value, expected))
-			throw exceptionf("%s != %s: %s", name(name), expected, value);
-		return value;
-	}
-
-	/**
-	 * Validates that the objects are not equal.
-	 */
-	public static <T> T validateNotEqualObj(T value, Object unexpected) {
-		return validateNotEqualObj(value, unexpected, VALUE);
-	}
-
-	/**
-	 * Validates that the objects are not equal.
-	 */
-	public static <T> T validateNotEqualObj(T value, Object unexpected, String name) {
-		if (Objects.equals(value, unexpected)) throw exceptionf("%s = %s", name(name), value);
-		return value;
-	}
-
-	/* Text validation */
-
-	/**
-	 * Validate the string matches the pattern.
-	 */
-	public static Matcher validateMatch(String value, Pattern pattern) {
-		var m = pattern.matcher(value);
-		if (m.matches()) return m;
-		throw exceptionf("Regex did not match \"%s\": %s", pattern.pattern(), value);
-	}
-
-	/**
-	 * Validate the string contains the pattern.
-	 */
-	public static Matcher validateFind(String value, Pattern pattern) {
-		var m = pattern.matcher(value);
-		if (m.find()) return m;
-		throw exceptionf("Regex not found \"%s\": %s", pattern.pattern(), value);
-	}
-
-	/* Collection validation */
-
-	/**
-	 * Validate the collection is empty.
-	 */
-	public static <T extends Collection<?>> T validateEmpty(T collection) {
-		if (collection.isEmpty()) return collection;
-		throw exceptionf("Collection is not empty");
-	}
-
-	/**
-	 * Validate the map is empty.
-	 */
-	public static <T extends Map<?, ?>> T validateEmpty(T map) {
-		if (map.isEmpty()) return map;
-		throw exceptionf("Map is not empty");
-	}
-
-	/**
-	 * Validate the collection is not empty.
-	 */
-	public static <T extends Collection<?>> T validateNotEmpty(T collection) {
-		if (!collection.isEmpty()) return collection;
-		throw exceptionf("Collection is empty");
-	}
-
-	/**
-	 * Validate the map is not empty.
-	 */
-	public static <T extends Map<?, ?>> T validateNotEmpty(T map) {
-		if (!map.isEmpty()) return map;
-		throw exceptionf("Map is empty");
-	}
-
-	/**
-	 * Validate the collection contains the value.
-	 */
-	public static <T, C extends Collection<T>> C validateContains(C collection, T value) {
-		if (collection.contains(value)) return collection;
-		throw exceptionf("Collection does not contain %s", value);
-	}
-
-	/**
-	 * Validate the map contains the key.
-	 */
-	public static <K, M extends Map<K, ?>> M validateContainsKey(M map, K key) {
-		if (map.containsKey(key)) return map;
-		throw exceptionf("Map does not contain key %s", key);
-	}
-
-	/**
-	 * Validate the map contains the key.
-	 */
-	public static <V, M extends Map<?, V>> M validateContainsValue(M map, V value) {
-		if (map.containsValue(value)) return map;
-		throw exceptionf("Map does not contain value %s", value);
-	}
-
-	/* Support methods */
-
-	private static IllegalArgumentException exceptionf(String format, Object... args) {
-		return new IllegalArgumentException(Strings.format(format, args));
-	}
-
-	private static String name(String name) {
-		return name == null ? VALUE : name;
+		return Double.doubleToRawLongBits(value + 0.0) == Double.doubleToRawLongBits(other + 0.0);
 	}
 }

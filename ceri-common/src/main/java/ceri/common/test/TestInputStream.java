@@ -55,7 +55,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 
 	public void resetState() {
 		CallSync.resetAll(read, available, mark, reset, close);
-		Functional.runSilently(piped::clear);
+		Functional.muteRun(piped::clear);
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class TestInputStream extends InputStream implements Fluent<TestInputStre
 	@Override
 	public String toString() {
 		return ToString
-			.ofClass(this, Functional.getSilently(piped.in()::available)).children("read=" + read,
+			.ofClass(this, Functional.muteGet(piped.in()::available)).children("read=" + read,
 				"available=" + available, "mark=" + mark, "reset=" + reset, "close=" + close)
 			.toString();
 	}

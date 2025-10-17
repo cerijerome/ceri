@@ -18,10 +18,25 @@ public class Size2dBehavior {
 	}
 
 	@Test
+	public void shouldDetermineIfZero() {
+		assertEquals(Size2d.ZERO.isZero(), true);
+		assertEquals(Size2d.of(0, 1).isZero(), false);
+	}
+
+	@Test
+	public void shouldCalculateArea() {
+		assertEquals(Size2d.ZERO.area(), 0.0);
+		assertEquals(Size2d.of(2, 4).area(), 8.0);
+	}
+
+	@Test
 	public void shouldResize() {
 		var d = Size2d.of(5, 10);
-		assertEquals(d.resize(0.1), Size2d.of(0.5, 1));
-		assertEquals(d.resize(Ratio2d.of(2, 0.5)), Size2d.of(10, 5));
+		GeomAssert.approx(d.resize(1), 5, 10);
+		GeomAssert.approx(d.resize(1, 0.5), 5, 5);
+		GeomAssert.approx(d.resize(0.5, 1), 2.5, 10);
+		GeomAssert.approx(d.resize(0.1), 0.5, 1);
+		GeomAssert.approx(d.resize(Ratio2d.of(2, 0.5)), 10, 5);
 	}
 
 	@Test
@@ -29,8 +44,6 @@ public class Size2dBehavior {
 		assertEquals(Size2d.of(100, 20).aspectRatio(), 5.0);
 		assertEquals(Size2d.of(20, 100).aspectRatio(), 0.2);
 		assertEquals(Size2d.of(0, 0).aspectRatio(), 1.0);
-		assertEquals(
-			Size2d.of(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY).aspectRatio(), 1.0);
 		assertEquals(Size2d.of(1, 0).aspectRatio(), Double.POSITIVE_INFINITY);
 		assertEquals(Size2d.of(0, 1).aspectRatio(), 0.0);
 	}

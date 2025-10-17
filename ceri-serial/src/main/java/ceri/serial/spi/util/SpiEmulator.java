@@ -9,7 +9,6 @@ import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteUtil;
 import ceri.common.io.Direction;
 import ceri.common.test.PulsePrinter;
-import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -131,7 +130,7 @@ public class SpiEmulator implements Spi {
 
 	@Override
 	public SpiTransfer transfer(Direction direction, int size) {
-		Basics.requireNot(direction, null, Direction.none);
+		Validate.equalNoneOf(direction, null, Direction.none);
 		Validate.min(size, 0, "Size");
 		return SpiTransfer.of(this::execute, direction, size);
 	}

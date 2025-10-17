@@ -14,7 +14,10 @@ import ceri.common.text.ToString;
 public class ReverseFunction {
 	public final NavigableMap<Double, Double> values;
 
-	public static ReverseFunction create(double x0, double x1, int steps,
+	/**
+	 * Returns a new instance from x range, steps, and function.
+	 */
+	public static ReverseFunction from(double x0, double x1, int steps,
 		Functions.DoubleOperator fn) {
 		var b = builder();
 		for (int i = 0; i <= steps; i++) {
@@ -25,34 +28,52 @@ public class ReverseFunction {
 		return b.build();
 	}
 
+	/**
+	 * A builder to constructor the reverse function.
+	 */
 	public static class Builder {
 		final Map<Double, Double> values = Maps.link();
 
 		Builder() {}
 
+		/**
+		 * Add a data point.
+		 */
 		public Builder add(double x, double y) {
 			values.put(x, y);
 			return this;
 		}
 
+		/**
+		 * Add a data points.
+		 */
 		public Builder add(Map<Double, Double> values) {
 			this.values.putAll(values);
 			return this;
 		}
 
+		/**
+		 * Builds the instance from data points.
+		 */
 		public ReverseFunction build() {
 			return new ReverseFunction(this);
 		}
 	}
 
+	/**
+	 * Returns an instance builder.
+	 */
 	public static Builder builder() {
 		return new Builder();
 	}
 
-	ReverseFunction(Builder builder) {
+	private ReverseFunction(Builder builder) {
 		values = Maps.tree(builder.values);
 	}
 
+	/**
+	 * Determines the approximate value of x from y.
+	 */
 	public double x(double y) {
 		var floor = values.floorEntry(y);
 		var ceiling = values.ceilingEntry(y);

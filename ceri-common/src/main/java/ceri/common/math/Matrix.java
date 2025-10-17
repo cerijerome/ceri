@@ -1,7 +1,6 @@
 package ceri.common.math;
 
 import java.util.stream.Stream;
-import ceri.common.except.Exceptions;
 import ceri.common.function.Functions;
 import ceri.common.text.StringBuilders;
 import ceri.common.text.ToString;
@@ -113,7 +112,7 @@ public class Matrix {
 		Validate.min(rows, 0, "Rows");
 		Validate.min(columns, 0, "Columns");
 		if (rows == 0 || columns == 0) return EMPTY;
-		Validate.validateNotNull(accessor);
+		Validate.nonNull(accessor);
 		return new Matrix(accessor, rows, columns);
 	}
 
@@ -156,7 +155,7 @@ public class Matrix {
 	 * exception if this matrix is not a row or column vector.
 	 */
 	public Matrix vector() {
-		return validateColumnVector(this);
+		return validColumnVector(this);
 	}
 
 	/**
@@ -181,7 +180,7 @@ public class Matrix {
 	 * Returns a row vector view.
 	 */
 	public Matrix row(int row) {
-		validateRow(row);
+		validRow(row);
 		return new Matrix((r, c) -> get(row + r, c), 1, columns);
 	}
 
@@ -189,7 +188,7 @@ public class Matrix {
 	 * Returns a column vector view.
 	 */
 	public Matrix column(int column) {
-		validateColumn(column);
+		validColumn(column);
 		return new Matrix((r, c) -> get(r, column + c), rows, 1);
 	}
 
@@ -197,7 +196,7 @@ public class Matrix {
 	 * Copies the row values as a double array.
 	 */
 	public double[] rowValues(int row) {
-		validateRow(row);
+		validRow(row);
 		double[] copy = new double[columns];
 		for (int c = 0; c < columns; c++)
 			copy[c] = get(row, c);
@@ -208,7 +207,7 @@ public class Matrix {
 	 * Copies the column values as a double array.
 	 */
 	public double[] columnValues(int column) {
-		validateColumn(column);
+		validColumn(column);
 		double[] copy = new double[rows];
 		for (int r = 0; r < rows; r++)
 			copy[r] = get(r, column);
@@ -236,8 +235,8 @@ public class Matrix {
 	 * Returns the value at given row and column. Throws an exception if outside bounds.
 	 */
 	public double at(int row, int column) {
-		validateRow(row);
-		validateColumn(column);
+		validRow(row);
+		validColumn(column);
 		return get(row, column);
 	}
 
@@ -347,7 +346,7 @@ public class Matrix {
 	 * vector.
 	 */
 	public double quadrance() {
-		Validate.validatef(isColumn() || isRow(), "Matrix is not a vector: %dx%d", rows, columns);
+		Validate.condition(isColumn() || isRow(), "Matrix is not a vector: %dx%d", rows, columns);
 		double sum = 0;
 		for (int r = 0; r < rows; r++)
 			for (int c = 0; c < columns; c++)
@@ -359,7 +358,7 @@ public class Matrix {
 	 * Returns the determinant of this matrix. Throws an exception if not square.
 	 */
 	public double determinant() {
-		validateSquare();
+		validSquare();
 		if (rows == 0) return 0.0;
 		if (rows == 1) return get(0, 0);
 		if (rows == 2) return get(0, 0) * get(1, 1) - get(0, 1) * get(1, 0);
@@ -375,7 +374,7 @@ public class Matrix {
 	 * square.
 	 */
 	public Matrix invert() {
-		validateSquare();
+		validSquare();
 		if (rows == 0) return this;
 		if (rows > 2) return invertNxN();
 		double d = determinant();
@@ -489,33 +488,33 @@ public class Matrix {
 		return accessor.get(r % rows, c % columns);
 	}
 
-	private void validateRow(int r) {
-		Validate.range(r, 0, rows - 1, "Row");
+	private int validRow(int r) {
+		return Validate.range(r, 0, rows - 1, "Row");
 	}
 
-	private void validateColumn(int c) {
-		Validate.range(c, 0, columns - 1, "Column");
+	private int validColumn(int c) {
+		return Validate.range(c, 0, columns - 1, "Column");
 	}
 
-	private void validateSquare() {
-		Validate.validatef(isSquare(), "Matrix is not square: %dx%d", rows, columns);
+	private void validSquare() {
+		Validate.condition(isSquare(), "Matrix is not square: %dx%d", rows, columns);
 	}
 
-	private static Matrix validateRowVector(Matrix m) {
+	private static Matrix validRowVector(Matrix m) {
 		if (m.isRow()) return m;
 		if (m.isColumn()) return m.transpose();
-		throw Exceptions.illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw Validate.failed("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
-	private static Matrix validateColumnVector(Matrix m) {
+	private static Matrix validColumnVector(Matrix m) {
 		if (m.isColumn()) return m;
 		if (m.isRow()) return m.transpose();
-		throw Exceptions.illegalArg("Matrix is not a vector: %dx%d", m.rows, m.columns);
+		throw Validate.failed("Matrix is not a vector: %dx%d", m.rows, m.columns);
 	}
 
 	private static double dot(Matrix rv, Matrix cv) {
-		rv = validateRowVector(rv);
-		cv = validateColumnVector(cv);
+		rv = validRowVector(rv);
+		cv = validColumnVector(cv);
 		Validate.equal(cv.rows, rv.columns, "Rows");
 		double sum = 0;
 		for (int i = 0; i < rv.columns; i++)
@@ -524,19 +523,19 @@ public class Matrix {
 	}
 
 	private static double cross2d(Matrix u, Matrix v) {
-		u = validateColumnVector(u);
-		v = validateColumnVector(v);
+		u = validColumnVector(u);
+		v = validColumnVector(v);
 		Validate.equal(u.rows, 2, "Size");
 		Validate.equal(v.rows, 2, "Size");
 		return u.get(0, 0) * v.get(1, 0) - u.get(1, 0) * v.get(0, 0);
 	}
 
 	private static Matrix cross(Matrix u, Matrix v) {
-		u = validateColumnVector(u);
-		v = validateColumnVector(v);
+		u = validColumnVector(u);
+		v = validColumnVector(v);
 		Validate.equal(v.rows, u.rows, "Size");
-		Validate.validate(u.rows != 7, "Cross product exists for size 7, but is unsupported");
-		Validate.validatef(u.rows == 3, "Cross product only supported for size 3: %d", u.columns);
+		Validate.condition(u.rows != 7, "Cross product exists for size 7, but is unsupported");
+		Validate.condition(u.rows == 3, "Cross product only supported for size 3: %d", u.columns);
 		return Matrix.vector( //
 			u.get(1, 0) * v.get(2, 0) - u.get(2, 0) * v.get(1, 0),
 			u.get(2, 0) * v.get(0, 0) - u.get(0, 0) * v.get(2, 0),

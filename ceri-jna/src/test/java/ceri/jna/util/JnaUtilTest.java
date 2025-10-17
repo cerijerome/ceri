@@ -52,7 +52,6 @@ public class JnaUtilTest {
 		}
 	}
 
-	@SuppressWarnings("serial")
 	@Test
 	public void testMessage() {
 		assertEquals(JnaUtil.message(null), "");

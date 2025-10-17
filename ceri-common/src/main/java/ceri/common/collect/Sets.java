@@ -66,7 +66,7 @@ public class Sets {
 	 * Creates a mutable linked hash set from the collection.
 	 */
 	public static <T> LinkedHashSet<T> link(Collection<? extends T> collection) {
-		return new LinkedHashSet<>(collection);
+		return collection == null ? link() : new LinkedHashSet<>(collection);
 	}
 
 	/**

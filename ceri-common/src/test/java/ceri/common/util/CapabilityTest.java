@@ -6,6 +6,8 @@ import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import org.junit.Test;
 
 public class CapabilityTest {
+	private static final Capability.IsEmpty IS_EMPTY_TRUE = () -> true;
+	private static final Capability.IsEmpty IS_EMPTY_FALSE = () -> false;
 	private static final Capability.Enabled ENABLED_TRUE = () -> true;
 	private static final Capability.Enabled ENABLED_FALSE = () -> false;
 
@@ -95,6 +97,13 @@ public class CapabilityTest {
 		int[] i = { 0 };
 		Capability.Init.init(() -> i[0]++, null, () -> i[0] += 5);
 		assertEquals(i[0], 6);
+	}
+
+	@Test
+	public void testIsEmptyPredicate() {
+		assertEquals(Capability.IsEmpty.NOT_BY.test(null), false);
+		assertEquals(Capability.IsEmpty.NOT_BY.test(IS_EMPTY_FALSE), false);
+		assertEquals(Capability.IsEmpty.NOT_BY.test(IS_EMPTY_TRUE), true);
 	}
 
 	@Test

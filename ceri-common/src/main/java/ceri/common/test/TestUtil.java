@@ -20,6 +20,8 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.io.IoUtil;
 import ceri.common.io.SystemIo;
@@ -56,6 +59,8 @@ public class TestUtil {
 	public static final int IMAX = Integer.MAX_VALUE;
 	public static final long LMIN = Long.MIN_VALUE;
 	public static final long LMAX = Long.MAX_VALUE;
+	public static final double DNINF = Double.NEGATIVE_INFINITY;
+	public static final double DPINF = Double.POSITIVE_INFINITY;
 
 	private TestUtil() {}
 
@@ -109,10 +114,16 @@ public class TestUtil {
 	 * Closes the type if non-null and returns null (for assignment).
 	 */
 	public static <T extends AutoCloseable> T close(T t) {
-		if (t != null) ExceptionAdapter.shouldNotThrow.run(t::close);
+		switch (t) {
+			case ExecutorService exec -> Closeables.close(exec);
+			case Future<?> future -> Closeables.close(future);
+			case Process process -> Closeables.close(process);
+			case null -> {}
+			default -> ExceptionAdapter.shouldNotThrow.run(t::close);
+		}
 		return null;
 	}
-	
+
 	/**
 	 * Repeat action with a microsecond delay until executor is closed. Useful to avoid intermittent
 	 * thread timing issues when waiting on an event, by repeatedly triggering that event.

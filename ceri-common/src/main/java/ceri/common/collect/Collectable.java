@@ -22,11 +22,12 @@ public class Collectable {
 	 * Collection filters.
 	 */
 	public static class Filter {
+		private Filter() {}
+
 		/**
-		 * Predicate that returns true if a collection contains all the values.
+		 * Predicate that returns true if a collection contains the value.
 		 */
-		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> 
-			has(T value) {
+		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> has(T value) {
 			return ts -> ts != null && ts.contains(value);
 		}
 
@@ -34,8 +35,9 @@ public class Collectable {
 		 * Predicate that returns true if a collection contains all the values.
 		 */
 		@SafeVarargs
-		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>> hasAll(T... values) {
-			if (values == null) return Filters.isNull();
+		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>>
+			hasAll(T... values) {
+			if (values == null) return Filters.yes();
 			return hasAll(Sets.ofAll(values));
 		}
 
@@ -44,11 +46,11 @@ public class Collectable {
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Collection<T>>
 			hasAll(Collection<? extends T> values) {
-			if (values == null) return Filters.isNull();
+			if (values == null) return Filters.yes();
 			return ts -> ts != null && ts.containsAll(values);
-		}		
+		}
 	}
-	
+
 	/**
 	 * Utility for building collections.
 	 */
@@ -254,15 +256,15 @@ public class Collectable {
 			dest.add(unmapper.apply(e.getKey(), e.getValue()));
 		return dest;
 	}
-	
+
 	// remove
-	
+
 	/**
-	 * Removes all the given elements, and returns true if changed.
+	 * Removes all the given elements.
 	 */
 	@SafeVarargs
-	public static <T> boolean removeAll(Collection<? super T> collection, T... ts) {
-		if (isEmpty(collection) || ArrayUtil.isEmpty(ts)) return false;
-		return collection.removeAll(Arrays.asList(ts));
+	public static <T, C extends Collection<? super T>> C removeAll(C collection, T... ts) {
+		if (!isEmpty(collection) && !ArrayUtil.isEmpty(ts)) collection.removeAll(Arrays.asList(ts));
+		return collection;
 	}
 }

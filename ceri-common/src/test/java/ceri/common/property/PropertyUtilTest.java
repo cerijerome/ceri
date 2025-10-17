@@ -2,6 +2,7 @@ package ceri.common.property;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.IOException;
@@ -51,6 +52,12 @@ public class PropertyUtilTest {
 		var file = helper.path("test.properties");
 		assertThrown(() -> PropertyUtil.store(properties, file));
 		PropertyUtil.store(new Properties(), file);
+	}
+
+	@Test
+	public void testLoadClass() throws IOException {
+		var properties = PropertyUtil.load(TypedProperties.class);
+		assertString(properties.get("abc"), "123");
 	}
 
 	@Test

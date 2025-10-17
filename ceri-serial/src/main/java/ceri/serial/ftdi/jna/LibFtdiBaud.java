@@ -1,11 +1,11 @@
 package ceri.serial.ftdi.jna;
 
 import static ceri.common.math.Maths.ushort;
-import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM;
 import ceri.common.data.ByteArray.Immutable;
 import ceri.common.data.ByteProvider;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_context;
+import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsbException;
 
 /**
@@ -175,17 +175,17 @@ public class LibFtdiBaud {
 		return amAdjustDn.getByte(index & MASK);
 	}
 
-	private static void validate(int rate, int actual) throws LibUsbException {
-		if (actual <= 0)
-			throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM, "Baudrate <= 0: " + actual);
-		if (isUnsupported(rate, actual)) throw LibUsbException.of(LIBUSB_ERROR_INVALID_PARAM,
+	private static int validate(int rate, int actual) throws LibUsbException {
+		if (actual <= 0) throw LibUsbException.of(LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM,
+			"Baudrate <= 0: " + actual);
+		if (isSupported(rate, actual)) return rate;
+		throw LibUsbException.of(LibUsb.libusb_error.LIBUSB_ERROR_INVALID_PARAM,
 			"Unsupported baudrate: %d (%d)", rate, actual);
 	}
 
-	private static boolean isUnsupported(int rate, int actual) {
-		if (actual * 2 < rate) return true;
-		if (actual < rate) return (actual * 21 < rate * 20);
-		return (rate * 21 < actual * 20);
+	private static boolean isSupported(int rate, int actual) {
+		if (actual * 2 < rate) return false;
+		if (actual < rate) return (actual * 21 >= rate * 20);
+		return (rate * 21 >= actual * 20);
 	}
-
 }

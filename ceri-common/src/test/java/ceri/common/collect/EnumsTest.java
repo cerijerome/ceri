@@ -1,6 +1,7 @@
 package ceri.common.collect;
 
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertUnordered;
@@ -23,10 +24,18 @@ public class EnumsTest {
 
 	private static enum None {}
 
-	private static enum E {
+	public static enum E {
 		a,
 		B,
 		c;
+
+		public final int value;
+		public final char ch;
+
+		private E() {
+			value = ordinal() + 1;
+			ch = (char) ('A' + value);
+		}
 	}
 
 	private static enum Prefix {
@@ -108,6 +117,17 @@ public class EnumsTest {
 		assertEquals(Enums.shortName(Prefix2.abc), "abc");
 		assertEquals(Enums.shortName(Prefix2.abcd), "abcd");
 		assertEquals(Enums.shortName(Prefix2.abcde), "abcde");
+	}
+
+	@Test
+	public void testValueAccessor() {
+		assertIllegalArg(() -> Enums.valueAccessor(null));
+		assertIllegalArg(() -> Enums.valueAccessor(Prefix.class));
+		assertIllegalArg(() -> Enums.valueAccessor(E.class, "values"));
+		assertIllegalArg(() -> Enums.valueAccessor(E.class, "ch"));
+		assertEquals(Enums.valueAccessor(E.class).apply(null), null);
+		assertEquals(Enums.valueAccessor(E.class).apply(E.a), 1L);
+		assertEquals(Enums.valueAccessor(E.class, "value").apply(E.B), 2L);
 	}
 
 	@Test

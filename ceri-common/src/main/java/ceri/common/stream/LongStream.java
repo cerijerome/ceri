@@ -386,8 +386,8 @@ public class LongStream<E extends Exception> {
 	/**
 	 * Returns the summation value, allowing overflows, or default.
 	 */
-	public long sum(long def) throws E {
-		return reduce(Reduce.Longs.sum(), def);
+	public long sum() throws E {
+		return reduce(Reduce.Longs.sum(), 0L);
 	}
 
 	/**

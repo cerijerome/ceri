@@ -1,5 +1,7 @@
 package ceri.common.geom;
 
+import ceri.common.util.Validate;
+
 /**
  * Represents dimensions in 2d.
  */
@@ -17,24 +19,30 @@ public record Size2d(double w, double h) {
 	 * Creates a validated instance.
 	 */
 	public static Size2d of(double w, double h) {
-		w = Math.max(w, 0.0);
-		h = Math.max(h, 0.0);
 		if (w == 0.0 && h == 0.0) return ZERO;
 		return new Size2d(w + 0.0, h + 0.0);
+	}
+
+	/**
+	 * Constructor validation.
+	 */
+	public Size2d {
+		Validate.finiteMin(w, 0);
+		Validate.finiteMin(h, 0);
 	}
 
 	/**
 	 * Returns true if the dimensions are not positive.
 	 */
 	public boolean isZero() {
-		return w() <= 0.0 && h() <= 0.0;
+		return equals(ZERO);
 	}
 
 	/**
 	 * Calculates the area.
 	 */
 	public double area() {
-		return w() * h();
+		return area(w(), h());
 	}
 
 	/**

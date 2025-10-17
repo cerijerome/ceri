@@ -51,7 +51,7 @@ public class FtdiProperties extends TypedProperties.Ref {
 		var b = FtdiConfig.builder();
 		bitMode().accept(b::bitMode);
 		parse(BAUD_KEY).asInt().accept(b::baud);
-		Functional.safeAccept(params(), b::params);
+		Functional.accept(b::params, params());
 		parse(FLOW_CONTROL_KEY).asEnum(FtdiFlowControl.class).accept(b::flowControl);
 		parse(LATENCY_TIMER_MS_KEY).asInt().accept(b::latencyTimer);
 		parse(READ_CHUNK_SIZE_KEY).asInt().accept(b::readChunkSize);

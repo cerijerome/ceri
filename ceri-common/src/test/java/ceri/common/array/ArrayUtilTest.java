@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNotSame;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertSame;
 import java.util.Objects;
 import org.junit.Test;
@@ -15,6 +16,33 @@ import ceri.common.text.Joiner;
 public class ArrayUtilTest {
 	private static final Object[] NULL = null;
 	private final Integer[] ints = { -1, null, 1 };
+
+	private static Integer[] ints(int... ints) {
+		return ArrayUtil.ints.boxed(ints);
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ArrayUtil.class, ArrayUtil.Empty.class, ArrayUtil.Filter.class);
+	}
+
+	@Test
+	public void testFilterAny() throws Exception {
+		assertEquals(ArrayUtil.Filter.any(null).test(ints), false);
+		var filter = ArrayUtil.Filter.any((_, i) -> i > 0);
+		assertEquals(filter.test(NULL), false);
+		assertEquals(filter.test(ints(1)), false);
+		assertEquals(filter.test(ints), true);
+	}
+
+	@Test
+	public void testFilterAll() throws Exception {
+		assertEquals(ArrayUtil.Filter.all(null).test(ints), false);
+		var filter = ArrayUtil.Filter.all((_, i) -> i < 1);
+		assertEquals(filter.test(NULL), true);
+		assertEquals(filter.test(ints(1)), true);
+		assertEquals(filter.test(ints), false);
+	}
 
 	@Test
 	public void testOf() {
@@ -238,6 +266,16 @@ public class ArrayUtilTest {
 		ArrayUtil.acceptIndexes(3, 1, 3, null);
 		Captor.of().apply(c -> ArrayUtil.acceptIndexes(0, 0, 1, c::accept)).verify();
 		Captor.of().apply(c -> ArrayUtil.acceptIndexes(3, -1, 2, c::accept)).verify(0, 1);
+	}
+
+	@Test
+	public void testApplyBiSlice() throws Exception {
+		assertEquals(ArrayUtil.applyBiSlice(1, 0, 1, 1, 0, 1, null), null);
+	}
+
+	@Test
+	public void testAcceptBiSlice() {
+		ArrayUtil.acceptBiSlice(1, 0, 1, 1, 0, 1, null);
 	}
 
 	@Test

@@ -42,7 +42,7 @@ public class TestOutputStream extends OutputStream {
 
 	public void resetState() {
 		CallSync.resetAll(write, flush, close);
-		Functional.runSilently(piped::clear);
+		Functional.muteRun(piped::clear);
 	}
 
 	public void assertAvailable(int n) throws IOException {
@@ -80,7 +80,7 @@ public class TestOutputStream extends OutputStream {
 	@SuppressWarnings("resource")
 	@Override
 	public String toString() {
-		return ToString.ofClass(this, Functional.getSilently(piped.in()::available))
+		return ToString.ofClass(this, Functional.muteGet(piped.in()::available))
 			.children("write=" + write, "flush=" + flush, "close=" + close).toString();
 	}
 

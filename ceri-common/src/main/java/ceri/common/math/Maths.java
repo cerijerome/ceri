@@ -438,20 +438,22 @@ public class Maths {
 	}
 
 	/**
-	 * Rounds a value to the given number of decimal places. Infinity and NaN values are returned
-	 * without change.
+	 * Rounds a value to the given number of decimal places, towards positive infinity. Infinity and
+	 * NaN values are returned without change.
 	 */
 	public static double round(int places, double value) {
 		if (Double.isInfinite(value) || Double.isNaN(value)) return value;
 		Validate.min(places, 0, "places");
-		// BigDecimal double constructor is unpredictable (see javadoc)
-		return new BigDecimal(String.valueOf(value)).setScale(places, RoundingMode.HALF_UP)
-			.doubleValue();
+		if (value >= 0.0) return new BigDecimal(String.valueOf(value))
+			.setScale(places, RoundingMode.HALF_UP).doubleValue();
+		return -new BigDecimal(String.valueOf(-value)).setScale(places, RoundingMode.HALF_DOWN)
+			.doubleValue() + 0.0;
 	}
 
 	/**
-	 * Rounds a value to the given number of decimal places. Supports up to 10 places, and does not
-	 * round very large or small values. However, this method is more efficient than round().
+	 * Rounds a value to the given number of decimal places, towards positive infinity. Supports up
+	 * to 10 places, does not round very large or small values, and has some misses based on double
+	 * value accuracy. However, this method is more efficient than round().
 	 */
 	public static double simpleRound(int places, double value) {
 		if (Double.isNaN(value)) return Double.NaN;

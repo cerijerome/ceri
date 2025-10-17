@@ -35,7 +35,7 @@ public record SpiPulseConfig(PulseCycle cycle, int size, int delayMicros, int re
 		public SpiPulseConfig config() {
 			int size = parse(SIZE_KEY).asInt().getValid();
 			var b = SpiPulseConfig.builder(size);
-			Functional.safeAccept(cycle(), b::cycle);
+			Functional.accept(b::cycle, cycle());
 			parse(DELAY_MICROS_KEY).asInt().accept(b::delayMicros);
 			parse(RESET_DELAY_MS_KEY).asInt().accept(b::resetDelayMs);
 			return b.build();

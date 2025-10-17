@@ -15,6 +15,7 @@ import java.util.Map;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
+import ceri.common.text.ToString;
 
 /**
  * Utility to send and receive datagrams.
@@ -55,7 +56,7 @@ public class UdpChannel implements AutoCloseable {
 	}
 
 	public void unicast(int port, ByteProvider bytes) throws IOException {
-		send(new InetSocketAddress(port), bytes);
+		send(localHost, port, bytes); // 0.0.0.0 fails on mac
 	}
 
 	public void send(String host, int port, ByteProvider bytes) throws IOException {
@@ -131,6 +132,11 @@ public class UdpChannel implements AutoCloseable {
 		Closeables.close(channel);
 	}
 
+	@Override
+	public String toString() {
+		return ToString.forClass(this, localHost, port, broadcastHost, networkIface);
+	}
+	
 	private void send(InetSocketAddress address, ByteProvider bytes) throws IOException {
 		channel.send(bytes.toBuffer(0), address);
 	}

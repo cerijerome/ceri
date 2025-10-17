@@ -43,6 +43,19 @@ public class MathsTest {
 	}
 
 	@Test
+	public void testDecimalDigits() {
+		assertEquals(Maths.decimalDigits(Long.MIN_VALUE), 19);
+		assertEquals(Maths.decimalDigits(Integer.MIN_VALUE), 10);
+		assertEquals(Maths.decimalDigits(Byte.MIN_VALUE), 3);
+		assertEquals(Maths.decimalDigits(-1), 1);
+		assertEquals(Maths.decimalDigits(0), 0);
+		assertEquals(Maths.decimalDigits(1), 1);
+		assertEquals(Maths.decimalDigits(Byte.MAX_VALUE), 3);
+		assertEquals(Maths.decimalDigits(Integer.MAX_VALUE), 10);
+		assertEquals(Maths.decimalDigits(Long.MAX_VALUE), 19);
+	}
+
+	@Test
 	public void testIntSin() {
 		for (int i = -720; i <= 720; i += 1) {
 			var x0 = (int) Math.round(Math.sin(Math.toRadians(i)) * 1000);
@@ -506,8 +519,12 @@ public class MathsTest {
 
 	@Test
 	public void testRound() {
+		assertEquals(Maths.round(1, 1000000.15), 1000000.2);
+		assertEquals(Maths.round(1, -1000000.15), -1000000.1);
 		assertEquals(Maths.round(1, 1000000000.15), 1000000000.2);
-		assertEquals(Maths.round(1, -1000000000.15), -1000000000.2);
+		assertEquals(Maths.round(1, -1000000000.15), -1000000000.1);
+		assertEquals(Maths.round(1, 1000000000000.15), 1000000000000.2);
+		assertEquals(Maths.round(1, -1000000000000.15), -1000000000000.1);
 		assertEquals(Maths.round(1, DPINF), DPINF);
 		assertEquals(Maths.round(1, DNINF), DNINF);
 		assertEquals(Maths.round(1, Double.NaN), Double.NaN);

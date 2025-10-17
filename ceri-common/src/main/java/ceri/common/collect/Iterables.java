@@ -21,7 +21,7 @@ public class Iterables {
 		 * Predicate that returns true if a collection contains all the values.
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>> has(T value) {
-			return any(Filters.eq(value));
+			return any(Filters.equal(value));
 		}
 
 		/**
@@ -30,7 +30,7 @@ public class Iterables {
 		@SafeVarargs
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
 			hasAny(T... values) {
-			if (values == null) return Filters.isNull();
+			if (values == null) return any(null);
 			return hasAny(Sets.ofAll(values));
 		}
 
@@ -39,7 +39,7 @@ public class Iterables {
 		 */
 		public static <E extends Exception, T> Excepts.Predicate<E, Iterable<T>>
 			hasAny(Collection<? extends T> values) {
-			if (values == null) return Filters.isNull();
+			if (values == null) return any(null);
 			return any(values::contains);
 		}
 

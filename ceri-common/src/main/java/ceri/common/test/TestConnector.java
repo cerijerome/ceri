@@ -142,7 +142,7 @@ public class TestConnector extends TestFixable implements Connector.Fixable {
 	 */
 	private void write(OutputStream out, byte[] b, int offset, int length) throws IOException {
 		verifyConnected();
-		if (!Functional.safeAccept(writeOverride, w -> w.write(b, offset, length)))
+		if (!Functional.accept(w -> w.write(b, offset, length), writeOverride))
 			out.write(b, offset, length);
 	}
 

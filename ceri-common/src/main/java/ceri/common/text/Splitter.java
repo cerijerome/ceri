@@ -24,7 +24,7 @@ public class Splitter {
 		public static final Extraction NULL = of("", 0);
 
 		public static Extraction of(String text, int size) {
-			Validate.validateNotNull(text);
+			Validate.nonNull(text);
 			Validate.min(size, 0);
 			return new Extraction(text, size);
 		}

@@ -317,8 +317,7 @@ public class ManualTester implements Functions.Closeable {
 			command(":", (t, _, s) -> t.out(Reflect.nameHash(s)), ": = subject type");
 			command("(?:(<+)|<(\\d+))", (t, m, _) -> t.history(Parse.len(m), Parse.i(m, 2)),
 				"<N = execute Nth previous command");
-			command("~(\\d+)", (_, m, _) -> Concurrent.delay(Parse.i(m)),
-				"~N = sleep for N ms");
+			command("~(\\d+)", (_, m, _) -> Concurrent.delay(Parse.i(m)), "~N = sleep for N ms");
 			command(Object.class, "\\^(\\d+)", (c, m) -> c.tester().repeat(c, Parse.i(m)),
 				"^N;... = repeat subsequent commands N times");
 			addIndexCommands(subjects.size());
@@ -485,7 +484,7 @@ public class ManualTester implements Functions.Closeable {
 	public static <T> Builder builderList(List<T> subjects,
 		Functions.Function<T, String> stringFn) {
 		return builderList(subjects).stringFn(s -> {
-			return stringFn.apply(Basics.<T>unchecked(s));
+			return stringFn.apply(Reflect.unchecked(s));
 		});
 	}
 
@@ -790,7 +789,7 @@ public class ManualTester implements Functions.Closeable {
 
 	private static <T> SubjectConsumer<Object> typed(Class<T> cls, SubjectConsumer<T> consumer) {
 		return (t, s) -> {
-			if (cls.isInstance(s)) consumer.accept(t, Basics.<T>unchecked(s));
+			if (cls.isInstance(s)) consumer.accept(t, Reflect.unchecked(s));
 		};
 	}
 

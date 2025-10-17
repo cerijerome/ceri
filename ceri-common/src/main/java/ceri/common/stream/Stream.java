@@ -77,13 +77,6 @@ public class Stream<E extends Exception, T> {
 	}
 
 	/**
-	 * Adapt stream to allow exceptions.
-	 */
-	public static <E extends Exception, T> Stream<E, T> ex(Stream<RuntimeException, T> stream) {
-		return Reflect.unchecked(stream);
-	}
-	
-	/**
 	 * Returns an empty stream.
 	 */
 	public static <E extends Exception, T> Stream<E, T> empty() {
@@ -308,7 +301,15 @@ public class Stream<E extends Exception, T> {
 	public Stream<E, T> sorted(Comparator<? super T> comparator) {
 		if (emptyInstance()) return this;
 		return update(
-			adaptedSupplier(supplier, s -> iteratorSupplier(sortedList(s, comparator).iterator())));
+			adaptedSupplier(
+				supplier,
+				s -> 
+				iteratorSupplier(
+					sortedList(s, comparator)
+					.iterator()
+					)
+				)
+			);
 	}
 
 	/**
@@ -341,13 +342,6 @@ public class Stream<E extends Exception, T> {
 	 */
 	public boolean isEmpty() throws E {
 		return !supplier.next(nullConsumer());
-	}
-
-	/**
-	 * Consumes the next value and returns true if available.
-	 */
-	public boolean nonEmpty() throws E {
-		return supplier.next(nullConsumer());
 	}
 
 	/**

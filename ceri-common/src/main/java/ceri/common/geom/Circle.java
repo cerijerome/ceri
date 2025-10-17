@@ -6,8 +6,8 @@ import ceri.common.util.Validate;
 /**
  * Represents a circle 2d shape with radius.
  */
-public record Circle(double radius) {
-	public static final Circle NULL = new Circle(0.0);
+public record Circle(double r) {
+	public static final Circle ZERO = new Circle(0.0);
 
 	/**
 	 * Calculates the radius for a circle of given area.
@@ -35,24 +35,30 @@ public record Circle(double radius) {
 	 * Returns a validated instance.
 	 */
 	public static Circle of(double r) {
-		Validate.finiteMin(r, 0.0);
 		return new Circle(r + 0.0);
 	}
 
 	/**
+	 * Constructor validation.
+	 */
+	public Circle {
+		Validate.finiteMin(r, 0.0);
+	}
+	
+	/**
 	 * Returns true if the circle has no radius.
 	 */
-	public boolean isNull() {
-		return radius() <= 0.0;
+	public boolean isZero() {
+		return r() <= 0.0;
 	}
 
 	/**
 	 * Calculates the gradient at x for y >= 0.
 	 */
 	public double gradientAtX(double x) {
-		if (isNull() || x < -radius() || x > radius()) return Double.NaN;
-		if (x == -radius()) return Double.POSITIVE_INFINITY;
-		if (x == radius()) return Double.NEGATIVE_INFINITY;
+		if (isZero() || x < -r() || x > r()) return Double.NaN;
+		if (x == -r()) return Double.POSITIVE_INFINITY;
+		if (x == r()) return Double.NEGATIVE_INFINITY;
 		if (x == 0.0) return 0.0;
 		return -x / yFromX(x);
 	}
@@ -61,8 +67,8 @@ public record Circle(double radius) {
 	 * Calculates the gradient at y for x >= 0.
 	 */
 	public double gradientAtY(double y) {
-		if (isNull() || y < -radius() || y > radius()) return Double.NaN;
-		if (y == -radius() || y == radius()) return 0.0;
+		if (isZero() || y < -r() || y > r()) return Double.NaN;
+		if (y == -r() || y == r()) return 0.0;
 		if (y == 0.0) return Double.NEGATIVE_INFINITY;
 		return -xFromY(y) / y;
 	}
@@ -71,12 +77,12 @@ public record Circle(double radius) {
 	 * Returns the coordinates (x, y), y >= 0, corresponding to the given gradient.
 	 */
 	public Point2d pointFromGradient(double m) {
-		if (isNull()) return Point2d.ZERO;
-		if (m == 0.0) return Point2d.of(0.0, radius);
-		if (m == Double.POSITIVE_INFINITY) return Point2d.of(-radius(), 0.0);
-		if (m == Double.NEGATIVE_INFINITY) return Point2d.of(radius(), 0.0);
+		if (isZero()) return Point2d.ZERO;
+		if (m == 0.0) return Point2d.of(0.0, r);
+		if (m == Double.POSITIVE_INFINITY) return Point2d.of(-r(), 0.0);
+		if (m == Double.NEGATIVE_INFINITY) return Point2d.of(r(), 0.0);
 		double d = Math.sqrt(1 + (m * m));
-		double y = radius() / d;
+		double y = r() / d;
 		double x = -m * y;
 		return Point2d.of(x, y);
 	}
@@ -85,10 +91,10 @@ public record Circle(double radius) {
 	 * Calculates x >= 0 from given y.
 	 */
 	public double xFromY(double y) {
-		if (y < -radius() || y > radius()) return Double.NaN;
-		if (y == -radius() || y == radius()) return 0.0;
-		if (y == 0.0) return radius();
-		return Math.sqrt((radius() * radius()) - (y * y));
+		if (y < -r() || y > r()) return Double.NaN;
+		if (y == -r() || y == r()) return 0.0;
+		if (y == 0.0) return r();
+		return Math.sqrt((r() * r()) - (y * y));
 	}
 
 	/**
@@ -102,16 +108,16 @@ public record Circle(double radius) {
 	 * Area of the circle.
 	 */
 	public double area() {
-		return area(radius());
+		return area(r());
 	}
 
 	/**
 	 * Area from x = -r to given x.
 	 */
 	public double areaToX(double x) {
-		if (x <= -radius()) return 0.0;
-		if (x >= radius()) return area();
-		return integral(x, radius()) - integral(-radius(), radius());
+		if (x <= -r()) return 0.0;
+		if (x >= r()) return area();
+		return integral(x, r()) - integral(-r(), r());
 	}
 
 	/**
@@ -125,7 +131,7 @@ public record Circle(double radius) {
 	 * Circumference of the circle.
 	 */
 	public double circumference() {
-		return circumference(radius());
+		return circumference(r());
 	}
 
 	private static double integral(double x, double r) {

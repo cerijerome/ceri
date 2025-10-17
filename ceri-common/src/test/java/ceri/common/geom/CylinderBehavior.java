@@ -3,7 +3,6 @@ package ceri.common.geom;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 
@@ -20,57 +19,56 @@ public class CylinderBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Cylinder.of(0, 0), Cylinder.NULL);
-		assertEquals(Cylinder.NULL.height(), 0.0);
-		assertEquals(Cylinder.NULL.radius(), 0.0);
+		assertEquals(Cylinder.of(0, 0), Cylinder.ZERO);
+		GeomAssert.approx(Cylinder.ZERO, 0, 0);
 	}
 
 	@Test
 	public void shouldCalculateHeightFromVolume() {
-		assertApprox(c0.heightFromVolume(-1), Double.NaN);
+		assertApprox(c0.hFromVolume(-1), Double.NaN);
 		for (double h = 0; h <= 8; h += 0.5) {
-			double v = c0.volumeFromHeight(h);
-			assertApprox(c0.heightFromVolume(v), h);
+			double v = c0.volumeFromH(h);
+			assertApprox(c0.hFromVolume(v), h);
 		}
-		assertApprox(c0.heightFromVolume(101), Double.NaN);
-		assertApprox(Cylinder.NULL.heightFromVolume(0), 0);
-		assertApprox(Cylinder.NULL.heightFromVolume(1), Double.NaN);
-		assertApprox(Cylinder.of(0, 1).heightFromVolume(1), Double.NaN);
-		assertApprox(Cylinder.of(1, 0).heightFromVolume(1), Double.NaN);
+		assertApprox(c0.hFromVolume(101), Double.NaN);
+		assertApprox(Cylinder.ZERO.hFromVolume(0), 0);
+		assertApprox(Cylinder.ZERO.hFromVolume(1), Double.NaN);
+		assertApprox(Cylinder.of(0, 1).hFromVolume(1), Double.NaN);
+		assertApprox(Cylinder.of(1, 0).hFromVolume(1), Double.NaN);
 	}
 
 	@Test
 	public void shouldReturnRadiusFromHeight() {
-		assertApprox(c0.radiusFromHeight(-1), Double.NaN);
-		assertApprox(c0.radiusFromHeight(0), 2);
-		assertApprox(c0.radiusFromHeight(4), 2);
-		assertApprox(c0.radiusFromHeight(8), 2);
-		assertApprox(c0.radiusFromHeight(9), Double.NaN);
+		assertApprox(c0.radiusFromH(-1), Double.NaN);
+		assertApprox(c0.radiusFromH(0), 2);
+		assertApprox(c0.radiusFromH(4), 2);
+		assertApprox(c0.radiusFromH(8), 2);
+		assertApprox(c0.radiusFromH(9), Double.NaN);
 	}
 
 	@Test
 	public void shouldCalculateGradientAtHeight() {
-		assertApprox(c0.gradientAtHeight(0), Double.NEGATIVE_INFINITY);
-		assertApprox(c0.gradientAtHeight(8), Double.NEGATIVE_INFINITY);
-		assertApprox(c0.gradientAtHeight(-1), Double.NaN);
-		assertApprox(c0.gradientAtHeight(9), Double.NaN);
+		assertApprox(c0.gradientAtH(0), Double.NEGATIVE_INFINITY);
+		assertApprox(c0.gradientAtH(8), Double.NEGATIVE_INFINITY);
+		assertApprox(c0.gradientAtH(-1), Double.NaN);
+		assertApprox(c0.gradientAtH(9), Double.NaN);
 	}
 
 	@Test
 	public void shouldCalculatePartialVolume() {
-		assertApprox(c0.volumeFromHeight(-1), 0);
-		assertApprox(c0.volumeFromHeight(0), 0);
-		assertApprox(c0.volumeFromHeight(4), 50.265);
-		assertApprox(c0.volumeFromHeight(8), 100.531);
-		assertApprox(c0.volumeFromHeight(9), 100.531);
-		assertApprox(Cylinder.NULL.volumeFromHeight(0), 0);
-		assertApprox(Cylinder.NULL.volumeFromHeight(1), 0);
+		assertApprox(c0.volumeFromH(-1), 0);
+		assertApprox(c0.volumeFromH(0), 0);
+		assertApprox(c0.volumeFromH(4), 50.265);
+		assertApprox(c0.volumeFromH(8), 100.531);
+		assertApprox(c0.volumeFromH(9), 100.531);
+		assertApprox(Cylinder.ZERO.volumeFromH(0), 0);
+		assertApprox(Cylinder.ZERO.volumeFromH(1), 0);
 	}
 
 	@Test
 	public void shouldCalculateVolume() {
 		assertApprox(c0.volume(), 100.531);
 		assertApprox(c1.volume(), 50.265);
-		assertApprox(Cylinder.NULL.volume(), 0);
+		assertApprox(Cylinder.ZERO.volume(), 0);
 	}
 }

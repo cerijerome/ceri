@@ -152,10 +152,10 @@ public record Hsb(double a, double h, double s, double b) {
 	 * Validates all components are 0-1. Throws an exception if not.
 	 */
 	public void verify() {
-		Colors.validateRatio(a, "alpha");
-		Colors.validateRatio(h, "hue");
-		Colors.validateRatio(s, "saturation");
-		Colors.validateRatio(b, "brightness");
+		Colors.validRatio(a, "alpha");
+		Colors.validRatio(h, "hue");
+		Colors.validRatio(s, "saturation");
+		Colors.validRatio(b, "brightness");
 	}
 
 	@Override

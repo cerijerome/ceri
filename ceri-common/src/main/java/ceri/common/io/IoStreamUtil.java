@@ -314,7 +314,7 @@ public class IoStreamUtil {
 
 	private static int read(Read readFn, byte b[], int off, int len) throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		return Functional.safeApply(readFn, r -> r.read(b, off, len), len);
+		return Functional.apply(r -> r.read(b, off, len), readFn, len);
 	}
 
 	/* FilterInputStream methods */
@@ -333,13 +333,13 @@ public class IoStreamUtil {
 
 	private static int available(InputStream in,
 		Excepts.Function<IOException, InputStream, Integer> availableFn) throws IOException {
-		Integer n = Functional.safeApply(availableFn, a -> a.apply(in));
+		var n = Functional.apply(a -> a.apply(in), availableFn);
 		return n != null ? n : in.available();
 	}
 
 	private static int read(InputStream in,
 		Excepts.Function<IOException, InputStream, Integer> readFn) throws IOException {
-		Integer n = Functional.safeApply(readFn, r -> r.apply(in));
+		var n = Functional.apply(r -> r.apply(in), readFn);
 		return n != null ? n : in.read();
 	}
 
@@ -373,7 +373,7 @@ public class IoStreamUtil {
 	private static int read(InputStream in, FilterRead readFn, byte b[], int off, int len)
 		throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		Integer n = Functional.safeApply(readFn, r -> r.read(in, b, off, len));
+		var n = Functional.apply(r -> r.read(in, b, off, len), readFn);
 		return n != null ? n : in.read(b, off, len);
 	}
 
@@ -381,7 +381,7 @@ public class IoStreamUtil {
 
 	private static void write(OutputStream out,
 		Excepts.ObjIntPredicate<IOException, OutputStream> writeFn, int b) throws IOException {
-		if (!Functional.safeApply(writeFn, w -> w.test(out, b), false)) out.write(b);
+		if (!Functional.apply(w -> w.test(out, b), writeFn, false)) out.write(b);
 	}
 
 	private static void write(OutputStream out,
@@ -403,8 +403,7 @@ public class IoStreamUtil {
 	private static void write(OutputStream out, FilterWrite writeFn, byte[] b, int off, int len)
 		throws IOException {
 		Objects.checkFromIndexSize(off, len, b.length);
-		if (!Functional.safeApply(writeFn, w -> w.write(out, b, off, len), false))
+		if (!Functional.apply(w -> w.write(out, b, off, len), writeFn, false))
 			out.write(b, off, len);
 	}
-
 }

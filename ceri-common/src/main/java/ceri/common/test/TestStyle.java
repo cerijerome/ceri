@@ -39,7 +39,6 @@ public enum TestStyle {
 	 */
 	public static TestStyle guessFrom(String name) {
 		var m = Regex.match(REGEX, name);
-		if (!m.hasMatch()) return none;
 		var style = fromSuffix(m.group(STYLE_INDEX));
 		if (!style.isNone()) return style;
 		var target = m.group(TARGET_INDEX);

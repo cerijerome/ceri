@@ -16,7 +16,10 @@ public class Spheroid3d implements Radial3d {
 	public final double r;
 	private final double v;
 
-	public static Spheroid3d create(double r, double c) {
+	/**
+	 * Returns an instance with common max x/y radius, and vertical c radius.
+	 */
+	public static Spheroid3d of(double r, double c) {
 		if (r == 0.0 && c == 0.0) return NULL;
 		Validate.finiteMin(r, 0.0);
 		Validate.finiteMin(c, 0.0);
@@ -24,7 +27,7 @@ public class Spheroid3d implements Radial3d {
 	}
 
 	private Spheroid3d(double r, double c) {
-		ellipsoid = Ellipsoid3d.create(r, r, c);
+		ellipsoid = Ellipsoid3d.of(r, r, c);
 		ellipse = Ellipse.of(r, c);
 		v = ellipsoid.volume();
 		this.r = r;
@@ -32,27 +35,27 @@ public class Spheroid3d implements Radial3d {
 	}
 
 	@Override
-	public double gradientAtHeight(double h) {
+	public double gradientAtH(double h) {
 		return ellipse.gradientAtY(h - c);
 	}
 
 	@Override
-	public double heightFromVolume(double v) {
+	public double hFromVolume(double v) {
 		return ellipsoid.zFromVolume(v) + c;
 	}
 
 	@Override
-	public double radiusFromHeight(double h) {
+	public double radiusFromH(double h) {
 		return ellipse.xFromY(h - c);
 	}
 
 	@Override
-	public double volumeFromHeight(double h) {
+	public double volumeFromH(double h) {
 		return ellipsoid.volumeToZ(h - c);
 	}
 
 	@Override
-	public double height() {
+	public double h() {
 		return c * 2;
 	}
 
@@ -79,5 +82,4 @@ public class Spheroid3d implements Radial3d {
 	public String toString() {
 		return ToString.forClass(this, r, c);
 	}
-
 }

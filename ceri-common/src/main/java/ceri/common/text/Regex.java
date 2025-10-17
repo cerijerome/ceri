@@ -2,23 +2,24 @@ package ceri.common.text;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collect.Immutable;
-import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
+import ceri.common.math.Maths;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
+import ceri.common.util.Validate;
 
 /**
  * Support for regex patterns.
  */
 public class Regex {
-	private static final String FORMAT = "format";
+	private static final String PATTERN = "Pattern";
+	private static final String MATCHER = "Matcher";
 	public static final Joiner OR_CAPTURE = Joiner.of("(", "|", ")");
 	public static final Joiner OR = Joiner.of("(?:", "|", ")");
 	/** A pattern that matches nothing. */
@@ -159,8 +160,7 @@ public class Regex {
 		/**
 		 * Provides the indexed group from the matcher, or empty string if invalid.
 		 */
-		public static <E extends Exception> Excepts.Function<E, ? extends Matcher, String>
-			group(int index) {
+		public static <E extends Exception> Excepts.Function<E, Matcher, String> group(int index) {
 			return m -> Regex.group(m, index);
 		}
 	}
@@ -325,40 +325,6 @@ public class Regex {
 	}
 
 	/**
-	 * Wrapper for matcher.
-	 */
-	public static class Match {
-		public final Matcher matcher;
-
-		private Match(Matcher matcher) {
-			this.matcher = matcher;
-		}
-
-		/**
-		 * Returns the matcher groups as a stream, or empty stream if no matches.
-		 */
-		public static Stream<RuntimeException, String> groups(Matcher m) {
-			if (!hasMatch(m)) return Stream.empty();
-			int count = m.groupCount();
-			if (count <= 0) return Stream.empty();
-			return Streams.slice(1, count).mapToObj(m::group);
-		}
-
-		public <E extends Exception> boolean accept(Excepts.Consumer<E, ? super Matcher> consumer)
-			throws E {
-			if (!matcher.hasMatch() || consumer == null) return false;
-			consumer.accept(matcher);
-			return true;
-		}
-
-		public <E extends Exception, T> T accept(Excepts.Function<E, ? super Matcher, T> function,
-			T def) throws E {
-			if (!matcher.hasMatch() || function == null) return def;
-			return function.apply(matcher);
-		}
-	}
-
-	/**
 	 * Generates a hash code; Pattern does not override hashCode().
 	 */
 	public static int hash(Pattern pattern) {
@@ -383,6 +349,21 @@ public class Regex {
 	}
 
 	/**
+	 * Fails if the matcher has no current match.
+	 */
+	public static Matcher validMatcher(Matcher m) {
+		return validMatcher(m, "");
+	}
+
+	/**
+	 * Fails if the matcher has no current match.
+	 */
+	public static Matcher validMatcher(Matcher m, String format, Object... args) {
+		if (hasMatch(m)) return m;
+		throw Validate.failed("%s has no match", f(MATCHER, format, args));
+	}
+
+	/**
 	 * Compiles a pattern from string format.
 	 */
 	public static Pattern compile(String format, Object... objs) {
@@ -393,7 +374,7 @@ public class Regex {
 	 * Compiles a pattern from joined strings.
 	 */
 	public static Pattern compile(Joiner joiner, Object... objs) {
-		if (joiner == null || objs == null) return NONE;
+		if (joiner == null || ArrayUtil.isEmpty(objs)) return EMPTY;
 		return Pattern.compile(joiner.joinAll(objs));
 	}
 
@@ -434,26 +415,34 @@ public class Regex {
 	}
 
 	/**
-	 * Returns the matcher after an attempted matches, or throw an exception.
+	 * Fails if the pattern has no match, or returns the matcher.
 	 */
-	public static Matcher matchValid(Pattern pattern, CharSequence s) {
-		return matchValid(pattern, s, FORMAT);
+	public static Matcher validMatch(Pattern pattern, CharSequence s) {
+		return validMatch(pattern, s, "");
 	}
 
 	/**
-	 * Returns the matcher after an attempted matches, or throw an exception.
+	 * Fails if the pattern has no match, or returns the matcher.
 	 */
-	public static Matcher matchValid(Pattern pattern, CharSequence s, String name) {
+	public static Matcher validMatch(Pattern pattern, CharSequence s, String format,
+		Object... args) {
 		var m = match(pattern, s);
 		if (hasMatch(m)) return m;
-		throw Exceptions.illegalArg("Invalid %s: %s", name, s);
+		throw Validate.failed("%s did not match: %s", f(PATTERN, format, args), s);
 	}
 
 	/**
 	 * Returns the matches group, or empty string if not found.
 	 */
 	public static String matchGroup(Pattern pattern, CharSequence s, int group) {
-		return group(match(matcher(pattern, s)), group);
+		return matchGroup(matcher(pattern, s), group);
+	}
+
+	/**
+	 * Returns the matches group, or empty string if not found.
+	 */
+	public static String matchGroup(Matcher m, int group) {
+		return group(match(m), group);
 	}
 
 	/**
@@ -472,26 +461,34 @@ public class Regex {
 	}
 
 	/**
-	 * Returns the matcher after an attempted find, or throw an exception.
+	 * Fails if the pattern is not found, or returns the matcher.
 	 */
-	public static Matcher findValid(Pattern pattern, CharSequence s) {
-		return findValid(pattern, s, FORMAT);
+	public static Matcher validFind(Pattern pattern, CharSequence s) {
+		return validFind(pattern, s, "");
 	}
 
 	/**
-	 * Returns the matcher after an attempted find, or throw an exception.
+	 * Fails if the pattern is not found, or returns the matcher.
 	 */
-	public static Matcher findValid(Pattern pattern, CharSequence s, String name) {
+	public static Matcher validFind(Pattern pattern, CharSequence s, String format,
+		Object... args) {
 		var m = find(pattern, s);
 		if (hasMatch(m)) return m;
-		throw Exceptions.illegalArg("Invalid %s: %s", name, s);
+		throw Validate.failed("%s not found: %s", f(PATTERN, format, args), s);
 	}
 
 	/**
 	 * Returns the find group, or empty string if not found.
 	 */
 	public static String findGroup(Pattern pattern, CharSequence s, int group) {
-		return group(find(matcher(pattern, s)), group);
+		return findGroup(matcher(pattern, s), group);
+	}
+
+	/**
+	 * Returns the find group, or empty string if not found.
+	 */
+	public static String findGroup(Matcher m, int group) {
+		return group(find(m), group);
 	}
 
 	/**
@@ -499,8 +496,8 @@ public class Regex {
 	 */
 	public static <E extends Exception> boolean accept(Matcher m,
 		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
-		if (!hasMatch(m)) return false;
-		if (consumer != null) consumer.accept(m);
+		if (consumer == null || !hasMatch(m)) return false;
+		consumer.accept(m);
 		return true;
 	}
 
@@ -546,27 +543,35 @@ public class Regex {
 	}
 
 	/**
-	 * Calls the consumer for each successful find, or returns false.
+	 * Calls the consumer for each successful find with matcher and index, or returns false.
 	 */
 	public static <E extends Exception> boolean findAcceptAll(Pattern pattern, CharSequence text,
-		Excepts.Consumer<E, ? super Matcher> consumer) throws E {
+		Excepts.ObjIntConsumer<E, ? super Matcher> consumer) throws E {
 		var m = matcher(pattern, text);
 		if (m == null || consumer == null) return false;
 		boolean found = false;
+		int i = 0;
 		while (m.find()) {
-			consumer.accept(m);
+			consumer.accept(m, i++);
 			found = true;
 		}
 		return found;
 	}
 
 	/**
+	 * Returns a stream that provides the matcher on each successful find, with the intention of
+	 * extracting information from the matcher with stream mapping.
+	 */
+	public static Stream<RuntimeException, Matcher> finds(Pattern pattern, CharSequence s) {
+		return finds(matcher(pattern, s));
+	}
+
+	/**
 	 * Returns a stream that provides the matcher on each successful find. More efficient than
 	 * providing results, but not suitable for generating a collection for future processing.
 	 */
-	public static Stream<RuntimeException, Matcher> finds(Pattern pattern, CharSequence s) {
-		if (pattern == null || s == null) return Stream.empty();
-		var m = pattern.matcher(s);
+	public static Stream<RuntimeException, Matcher> finds(Matcher m) {
+		if (m == null) return Stream.empty();
 		return Stream.ofSupplier(c -> {
 			if (!m.find()) return false;
 			c.accept(m);
@@ -575,31 +580,44 @@ public class Regex {
 	}
 
 	/**
-	 * Returns a stream of the indexed group for each successful find.
+	 * Returns a stream that provides the group on each successful find. Groups may be null.
 	 */
 	public static Stream<RuntimeException, String> finds(Pattern pattern, CharSequence s,
 		int group) {
-		return finds(pattern, s).map(m -> m.group(group));
+		return finds(matcher(pattern, s), group);
 	}
 
 	/**
-	 * Returns a stream that provides a match result for each successful find.
+	 * Returns a stream that provides the group on each successful find. Groups may be null.
 	 */
-	public static Stream<RuntimeException, MatchResult> results(Pattern pattern, CharSequence s) {
-		return Stream.from(matcher(pattern, s).results());
+	public static Stream<RuntimeException, String> finds(Matcher matcher, int group) {
+		return finds(matcher).map(m -> group(m, group));
 	}
 
 	/**
 	 * Returns the matched group, or null if no match, or the index is out of range.
 	 */
 	public static String group(Matcher m, int index) {
-		if (!hasMatch(m) || m.groupCount() < index) return null;
+		if (!hasMatch(m) || !Maths.within(index, 0, m.groupCount())) return null;
 		return m.group(index);
 	}
 
 	/**
-	 * Returns groups from 1 of the given matcher as a stream, or empty stream if no match. Null
-	 * groups are replace by empty string.
+	 * Returns groups from 1 of the first find, or empty stream if no match.
+	 */
+	public static Stream<RuntimeException, String> matchGroups(Pattern pattern, CharSequence s) {
+		return groups(match(pattern , s));
+	}
+
+	/**
+	 * Returns groups from 1 of the first find, or empty stream if no match.
+	 */
+	public static Stream<RuntimeException, String> findGroups(Pattern pattern, CharSequence s) {
+		return groups(find(pattern , s));
+	}
+
+	/**
+	 * Returns groups from 1 of the given matcher as a stream, or empty stream if no match.
 	 */
 	public static Stream<RuntimeException, String> groups(Matcher m) {
 		if (!hasMatch(m)) return Stream.empty();
@@ -613,8 +631,8 @@ public class Regex {
 	 */
 	public static <E extends Exception> boolean acceptGroup(Matcher m, int group,
 		Excepts.Consumer<E, String> consumer) throws E {
-		var s = Regex.group(m, group);
-		if (Strings.isEmpty(s)) return false;
+		var s = group(m, group);
+		if (consumer == null || s == null) return false;
 		consumer.accept(s);
 		return true;
 	}
@@ -624,8 +642,8 @@ public class Regex {
 	 */
 	public static <E extends Exception, T> T applyGroup(Matcher m, int group,
 		Excepts.Function<E, String, T> function, T def) throws E {
-		var s = Regex.group(m, group);
-		if (Strings.isEmpty(s)) return def;
+		var s = group(m, group);
+		if (function == null || s == null) return def;
 		return function.apply(s);
 	}
 
@@ -691,5 +709,12 @@ public class Regex {
 		}
 		b.append(last, b.length());
 		return b;
+	}
+
+	// support
+
+	private static String f(String def, String format, Object... args) {
+		if (Strings.isEmpty(format)) return def;
+		return Strings.format(format, args);
 	}
 }

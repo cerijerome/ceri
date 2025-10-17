@@ -284,8 +284,8 @@ public class SelfHealingFtdiBehavior {
 	public void shouldFailIfNotConnected() {
 		init();
 		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
-		Functional.runSilently(() -> con.in().read()); // may have been fixed
-		Functional.runSilently(() -> con.readPins()); // may have been fixed
+		Functional.muteRun(() -> con.in().read()); // may have been fixed
+		Functional.muteRun(() -> con.readPins()); // may have been fixed
 	}
 
 	@SuppressWarnings("resource")

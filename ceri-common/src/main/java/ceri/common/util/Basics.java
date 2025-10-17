@@ -1,10 +1,7 @@
 package ceri.common.util;
 
-import java.util.Arrays;
 import java.util.Objects;
-import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
-import ceri.common.reflect.Reflect;
 
 /**
  * Basic utility methods and types.
@@ -22,57 +19,11 @@ public class Basics {
 			this.ref = ref;
 		}
 	}
-	
+
 	/**
 	 * Stops the warning for an unused parameter. Use only when absolutely necessary.
 	 */
 	public static void unused(@SuppressWarnings("unused") Object... o) {}
-
-	/**
-	 * Are you really sure you need to call this? If you're not sure why you need to call this
-	 * method you may be hiding a coding error. Performs an unchecked cast from an object to the
-	 * given type, preventing a warning. Sometimes necessary for collections, etc. Will not prevent
-	 * a runtime cast exception.
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T unchecked(Object o) {
-		return (T) o;
-	}
-
-	/**
-	 * Verifies all arguments and the argument array are non-null.
-	 */
-	@SafeVarargs
-	public static <T> void requireNonNull(T... args) {
-		Objects.requireNonNull(args);
-		for (var arg : args)
-			Objects.requireNonNull(arg);
-	}
-
-	/**
-	 * Throws an exception if the value is equal to one of the disallowed values.
-	 */
-	@SafeVarargs
-	public static <T> T requireNot(T t, T... disallowed) {
-		for (var disallow : disallowed) {
-			if (t == null && disallow == null) throw Exceptions.nullPtr("Cannot be null");
-			else if (Objects.equals(t, disallow))
-				throw Exceptions.illegalArg("%s cannot be one of %s: %s", Reflect.className(t),
-					Arrays.toString(disallowed), t);
-		}
-		return t;
-	}
-
-	/**
-	 * Throws an exception if the value is not equal to one of the allowed values.
-	 */
-	@SafeVarargs
-	public static <T> T requireAny(T t, T... allowed) {
-		for (var allow : allowed)
-			if (Objects.equals(t, allow)) return t;
-		throw Exceptions.illegalArg("%s must be one of %s: %s", Reflect.className(t),
-			Arrays.toString(allowed), t);
-	}
 
 	/**
 	 * Returns true if all values are null, or the varargs array is null.

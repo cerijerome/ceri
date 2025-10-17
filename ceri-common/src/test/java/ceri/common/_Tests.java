@@ -18,6 +18,7 @@ import ceri.common.test.TestUtil;
 	// collect
 	ceri.common.collect.CollectableTest.class, //
 	ceri.common.collect.EnumsTest.class, //
+	ceri.common.collect.IdentityCacheTest.class, //
 	ceri.common.collect.ImmutableTest.class, //
 	ceri.common.collect.IndexRangesBehavior.class, //
 	ceri.common.collect.IterablesTest.class, //
@@ -120,7 +121,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.geom.CylinderBehavior.class, //
 	ceri.common.geom.EllipseBehavior.class, //
 	ceri.common.geom.Ellipsoid3dBehavior.class, //
-	ceri.common.geom.GeometryTest.class, //
 	ceri.common.geom.InvertedRadial3dBehavior.class, //
 	ceri.common.geom.Line2dBehavior.class, //
 	ceri.common.geom.Point2dBehavior.class, //
@@ -128,7 +128,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.geom.Radial3dBehavior.class, //
 	ceri.common.geom.Ratio2dBehavior.class, //
 	ceri.common.geom.RectangleBehavior.class, //
-	ceri.common.geom.Shape3dUtilTest.class, //
+	ceri.common.geom.Shape3dTest.class, //
 	ceri.common.geom.Size2dBehavior.class, //
 	ceri.common.geom.Spheroid3dBehavior.class, //
 	ceri.common.geom.TruncatedRadial3dBehavior.class, //
@@ -170,6 +170,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.math.MathsTest.class, //
 	ceri.common.math.MatrixBehavior.class, //
 	ceri.common.math.MixedFractionBehavior.class, //
+	ceri.common.math.RadixTest.class, //
 	ceri.common.math.ReverseFunctionBehavior.class, //
 	ceri.common.math.TrigTest.class, //
 	// net
@@ -215,6 +216,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.stream.LongStreamBehavior.class, //
 	ceri.common.stream.ReduceTest.class, //
 	ceri.common.stream.StreamBehavior.class, //
+	ceri.common.stream.StreamsTest.class, //
 	// svg
 	ceri.common.svg.EllipseBehavior.class, //
 	ceri.common.svg.EllipticalArcBehavior.class, //
@@ -281,7 +283,6 @@ import ceri.common.test.TestUtil;
 	// unit
 	ceri.common.unit.TemperatureBehavior.class, //
 	// util
-	ceri.common.util.AlignBehavior.class, //
 	ceri.common.util.BasicsTest.class, //
 	ceri.common.util.CapabilityTest.class, //
 	ceri.common.util.CounterBehavior.class, //

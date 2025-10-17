@@ -51,6 +51,8 @@ public class Maps {
 		private static Comparator<Map.Entry<?, ?>> VALUE =
 			Reflect.unchecked(value(Comparator.naturalOrder()));
 
+		private Compare() {}
+
 		/**
 		 * Provide a map entry comparator by key.
 		 */
@@ -175,23 +177,6 @@ public class Maps {
 		 */
 		public Builder<K, V, M> put(K key, V value) {
 			Put.put(put, map, key, value);
-			return this;
-		}
-
-		/**
-		 * Puts the key and values in the map.
-		 */
-		@SafeVarargs
-		public final Builder<K, V, M> putValues(K key, V... values) {
-			return putValues(key, Arrays.asList(values));
-		}
-
-		/**
-		 * Puts the key and values in the map.
-		 */
-		public final Builder<K, V, M> putValues(K key, Iterable<? extends V> values) {
-			for (var value : values)
-				put(key, value);
 			return this;
 		}
 
@@ -324,7 +309,6 @@ public class Maps {
 	/**
 	 * Returns a map that removes older entries to ensure a maximum size.
 	 */
-	@SuppressWarnings("serial")
 	public static <K, V> LinkedHashMap<K, V> cache(int size) {
 		return new LinkedHashMap<>() {
 			@Override
@@ -502,7 +486,7 @@ public class Maps {
 	 */
 	public static <K, V> Map<K, V> sort(Comparator<? super Map.Entry<K, V>> comparator,
 		Map<K, V> src) {
-		if (isEmpty(src)) return of();
+		if (isEmpty(src)) return link();
 		var list = Lists.sort(Collectable.add(Lists.of(), src.entrySet()), comparator);
 		return convert(Maps::link, Map.Entry::getKey, Map.Entry::getValue, list);
 	}
@@ -626,10 +610,11 @@ public class Maps {
 	/**
 	 * Removes map entries that match the predicate. Returns the removed entry count.
 	 */
-	public static <E extends Exception, K, V> int removeIf(Map<K, V> map,
+	public static <E extends Exception, K, V, M extends Map<K, V>> M removeIf(M map,
 		BiPredicate<? extends E, ? super K, ? super V> predicate) throws E {
-		if (isEmpty(map) || predicate == null) return 0;
-		return Iterables.removeIf(map.entrySet(), Filter.entry(predicate));
+		if (!isEmpty(map) && predicate != null)
+			Iterables.removeIf(map.entrySet(), Filter.entry(predicate));
+		return map;
 	}
 
 	/**

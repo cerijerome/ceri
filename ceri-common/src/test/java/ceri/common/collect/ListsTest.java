@@ -110,6 +110,12 @@ public class ListsTest {
 	}
 
 	@Test
+	public void testSub() {
+		assertOrdered(Lists.sub(null, 0, 0));
+		assertOrdered(Lists.sub(list, 1, 4), null, 1);
+	}
+
+	@Test
 	public void testSort() {
 		assertEquals(Lists.sort(nullList), null);
 		assertOrdered(Lists.sort(emptyList));
@@ -117,6 +123,13 @@ public class ListsTest {
 		assertEquals(Lists.sort(null, comp), null);
 		assertOrdered(Lists.sort(list(-1, null, 1), null), -1, null, 1);
 		assertOrdered(Lists.sort(list(-1, null, 1), comp), -1, 1, null);
+	}
+
+	@Test
+	public void testFill() {
+		assertEquals(Lists.fill(null, 1), null);
+		assertOrdered(Lists.fill(Lists.ofAll(0, 0, 0), null), null, null, null);
+		assertOrdered(Lists.fill(Lists.ofAll(0, 0, 0), 2, null), 0, 0, null);
 	}
 
 	@Test

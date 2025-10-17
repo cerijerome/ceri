@@ -15,12 +15,12 @@ public class CharsTest {
 		b = new StringBuilder(s);
 		return b;
 	}
-	
+
 	@After
 	public void after() {
 		b = null;
 	}
-	
+
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Chars.class);
@@ -45,6 +45,20 @@ public class CharsTest {
 		assertEquals(Chars.at("test", -1, 'x'), 'x');
 		assertEquals(Chars.at("test", 4, 'x'), 'x');
 		assertEquals(Chars.at("test", 2, 'x'), 's');
+	}
+
+	@Test
+	public void testLower() {
+		assertString(Chars.lower(null), "");
+		assertString(Chars.lower(""), "");
+		assertString(Chars.lower("_Aa\u03a9\u03c9"), "_aa\u03c9\u03c9");
+	}
+
+	@Test
+	public void testUpper() {
+		assertString(Chars.upper(null), "");
+		assertString(Chars.upper(""), "");
+		assertString(Chars.upper("_Aa\u03a9\u03c9"), "_AA\u03a9\u03a9");
 	}
 
 	@Test

@@ -155,10 +155,10 @@ public record Xyb(double a, double x, double y, double b) {
 	 * Verifies values are 0-1. Throws an exception if not.
 	 */
 	public void verify() {
-		Colors.validateRatio(a(), "alpha");
-		Colors.validateRatio(x(), "x");
-		Colors.validateRatio(y(), "y");
-		Colors.validateRatio(b(), "brightness");
+		Colors.validRatio(a(), "alpha");
+		Colors.validRatio(x(), "x");
+		Colors.validRatio(y(), "y");
+		Colors.validRatio(b(), "brightness");
 	}
 
 	@Override

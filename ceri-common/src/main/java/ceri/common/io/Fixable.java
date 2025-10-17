@@ -26,7 +26,7 @@ public interface Fixable extends Closeable, Capability.Name, Listenable.Indirect
 	 * Open without throwing an exception. Returns false if open failed.
 	 */
 	default boolean openSilently() {
-		return Functional.runSilently(this::open);
+		return Functional.muteRun(this::open);
 	}
 
 	/**

@@ -13,14 +13,23 @@ import ceri.common.geom.Ratio2d;
 import ceri.common.stream.Streams;
 import ceri.common.text.ToString;
 
+/**
+ * A path combining multiple sub-paths.
+ */
 public class PathGroup implements Path<PathGroup> {
 	public final List<Path<?>> paths;
 	private final Position end;
 
+	/**
+	 * Returns an instance with given paths.
+	 */
 	public static PathGroup of(Path<?>... paths) {
 		return of(Arrays.asList(paths));
 	}
 
+	/**
+	 * Returns an instance with given paths.
+	 */
 	public static PathGroup of(Collection<? extends Path<?>> paths) {
 		return new PathGroup(paths);
 	}

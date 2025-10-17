@@ -165,7 +165,7 @@ public class SyncPipe implements Functions.Closeable {
 	 * Clear any tokens written to the pipe.
 	 */
 	public void clear() {
-		if (!closed.get()) Functional.runSilently(() -> IoUtil.clear(pipe.in()));
+		if (!closed.get()) Functional.muteRun(() -> IoUtil.clear(pipe.in()));
 		sync.set(false);
 	}
 

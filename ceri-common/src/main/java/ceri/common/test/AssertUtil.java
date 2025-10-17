@@ -65,7 +65,15 @@ public class AssertUtil {
 	 * Fails if the value does not equal the expected value within precision decimal places.
 	 */
 	public static double approx(double actual, double expected) {
-		return approx(actual, expected, PRECISION_DEF);
+		return approx(actual, expected, "");
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value within precision decimal places.
+	 */
+	public static double approx(double actual, double expected, String format,
+		Object... args) {
+		return approx(actual, expected, PRECISION_DEF, format, args);
 	}
 
 	/**
@@ -786,14 +794,6 @@ public class AssertUtil {
 	}
 
 	/**
-	 * Checks iterable iterator has equal elements in order.
-	 */
-	@SafeVarargs
-	public static <T> void assertIterable(Iterable<T> lhs, T... ts) {
-		assertIterator(lhs.iterator(), ts);
-	}
-
-	/**
 	 * Checks iterator type has equal elements in order.
 	 */
 	@SafeVarargs
@@ -1084,7 +1084,7 @@ public class AssertUtil {
 	/**
 	 * Assert an IllegalArgumentException is thrown.
 	 */
-	public static void assertIllegalArg(Excepts.Runnable<Exception> runnable) {
+	public static void assertIllegalArg(Excepts.Runnable<? extends Exception> runnable) {
 		assertThrown(IllegalArgumentException.class, runnable);
 	}
 
@@ -1505,10 +1505,10 @@ public class AssertUtil {
 	}
 
 	private static String str(Object obj) {
-		if (obj instanceof Byte) return String.format("%1$d (0x%1$02x)", obj);
-		if (obj instanceof Short) return String.format("%1$d (0x%1$04x)", obj);
-		if (obj instanceof Integer) return String.format("%1$d (0x%1$08x)", obj);
-		if (obj instanceof Long) return String.format("%1$dL (0x%1$016x)", obj);
+		if (obj instanceof Byte) return String.format("%d (0x%1$02x)", obj);
+		if (obj instanceof Short) return String.format("%d (0x%1$04x)", obj);
+		if (obj instanceof Integer) return String.format("%d (0x%1$08x)", obj);
+		if (obj instanceof Long) return String.format("%dL (0x%1$016x)", obj);
 		if (obj instanceof Float) return String.format("%sf", obj);
 		return String.valueOf(obj);
 	}

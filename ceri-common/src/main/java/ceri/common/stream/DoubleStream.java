@@ -119,7 +119,7 @@ public class DoubleStream<E extends Exception> {
 	 * Stream values from 0 to 1 in even steps.
 	 */
 	public static <E extends Exception> DoubleStream<E> segment(int steps) {
-		return IntStream.<E>slice(0, steps).mapToDouble(i -> (double) i / (steps - 1));
+		return IntStream.<E>slice(0, steps).mapToDouble(i -> i / Math.max(1.0, steps - 1));
 	}
 
 	/**

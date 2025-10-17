@@ -29,15 +29,6 @@ public class BasicsTest {
 	}
 
 	@Test
-	public void testRequireNonNull() {
-		assertNpe(() -> Basics.requireNonNull((Object[]) null));
-		assertNpe(() -> Basics.requireNonNull(new Object[] { null }));
-		Basics.requireNonNull();
-		assertNpe(() -> Basics.requireNonNull("a", null));
-		Basics.requireNonNull("a", "b");
-	}
-
-	@Test
 	public void testAllNull() {
 		assertEquals(Basics.allNull((Object[]) null), true);
 		assertEquals(Basics.allNull(), true);

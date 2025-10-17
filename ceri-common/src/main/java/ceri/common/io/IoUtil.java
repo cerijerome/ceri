@@ -20,13 +20,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import ceri.common.collect.Lists;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.data.ByteArray;
 import ceri.common.data.ByteProvider;
@@ -38,6 +37,7 @@ import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 import ceri.common.util.SystemVars;
+import ceri.common.util.Validate;
 
 /**
  * I/O utility functions.
@@ -101,8 +101,8 @@ public class IoUtil {
 	 * Returns the system tmp directory.
 	 */
 	public static Path systemTempDir() {
-		String property = SystemVars.sys(TMP_DIR_PROPERTY);
-		return Functional.safeApply(property, Path::of);
+		var property = SystemVars.sys(TMP_DIR_PROPERTY);
+		return Functional.apply(Path::of, property);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class IoUtil {
 	 * property does not exist.
 	 */
 	public static Path systemPropertyPath(String name, String... paths) {
-		String property = SystemVars.sys(name);
+		var property = SystemVars.sys(name);
 		return property == null ? null : Path.of(property, paths);
 	}
 
@@ -135,7 +135,7 @@ public class IoUtil {
 	 * does not exist.
 	 */
 	public static Path environmentPath(String name, String... paths) {
-		String property = SystemVars.env(name);
+		var property = SystemVars.env(name);
 		return property == null ? null : Path.of(property, paths);
 	}
 
@@ -255,7 +255,7 @@ public class IoUtil {
 	 */
 	public static String filename(Path path) {
 		if (path == null) return null;
-		Path fileName = path.getFileName();
+		var fileName = path.getFileName();
 		return fileName == null ? "" : fileName.toString();
 	}
 
@@ -333,7 +333,7 @@ public class IoUtil {
 	 * Deletes all empty directories under this directory.
 	 */
 	public static void deleteEmptyDirs(Path dir) throws IOException {
-		FileVisitor<Path> visitor = FileVisitUtil.visitor(null, (path, _) -> {
+		var visitor = FileVisitUtil.<Path>visitor(null, (path, _) -> {
 			if (isEmptyDir(path)) Files.delete(path);
 			return FileVisitUtil.result(true);
 		}, null);
@@ -345,7 +345,7 @@ public class IoUtil {
 	 */
 	public static boolean isEmptyDir(Path dir) throws IOException {
 		if (dir == null || !Files.isDirectory(dir)) return false;
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			return !stream.iterator().hasNext();
 		}
 	}
@@ -616,7 +616,7 @@ public class IoUtil {
 	 */
 	public static List<Path> paths(Path dir, Excepts.Predicate<IOException, Path> filter)
 		throws IOException {
-		Excepts.Predicate<IOException, Path> test = Basics.def(filter, NULL_FILTER);
+		var test = Basics.def(filter, NULL_FILTER);
 		return pathsCollect(dir, path -> test.test(path) ? path : null);
 	}
 
@@ -636,11 +636,11 @@ public class IoUtil {
 	 */
 	public static <T> List<T> pathsCollect(Path dir, Excepts.Function<IOException, Path, T> mapper)
 		throws IOException {
-		Objects.requireNonNull(dir);
-		Objects.requireNonNull(mapper);
-		List<T> list = new ArrayList<>();
+		Validate.nonNull(dir);
+		Validate.nonNull(mapper);
+		var list = Lists.<T>of();
 		var visitFn = FileVisitUtil.<Path, BasicFileAttributes>adaptConsumer(
-			path -> Functional.safeAccept(mapper.apply(path), list::add));
+			path -> Functional.accept(list::add, mapper.apply(path)));
 		Files.walkFileTree(dir, FileVisitUtil.visitor(visitFn, null, visitFn));
 		return list;
 	}
@@ -657,7 +657,7 @@ public class IoUtil {
 	 */
 	public static List<String> listNames(Path dir,
 		Excepts.Predicate<? extends IOException, ? super Path> filter) throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			return stream(stream).filter(filter).map(IoUtil::filename).toList();
 		}
 	}
@@ -684,7 +684,7 @@ public class IoUtil {
 	 */
 	public static List<Path> list(Path dir, Excepts.Predicate<IOException, ? super Path> filter)
 		throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			return stream(stream).filter(filter).toList();
 		}
 	}
@@ -695,7 +695,7 @@ public class IoUtil {
 	public static <T> T applyPaths(Path dir,
 		Excepts.Function<? extends IOException, Stream<IOException, Path>, T> function)
 		throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			return function.apply(stream(stream));
 		}
 	}
@@ -706,7 +706,7 @@ public class IoUtil {
 	public static void acceptPaths(Path dir,
 		Excepts.Consumer<? extends IOException, Stream<IOException, Path>> consumer)
 		throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			consumer.accept(stream(stream));
 		}
 	}
@@ -727,7 +727,7 @@ public class IoUtil {
 	 */
 	public static <T> List<T> listCollect(Path dir,
 		Excepts.Function<? extends IOException, ? super Path, T> mapper) throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+		try (var stream = Files.newDirectoryStream(dir)) {
 			return stream(stream).map(mapper).toList();
 		}
 	}
@@ -773,7 +773,7 @@ public class IoUtil {
 	 * necessary. Returns the destination path. Removes created directories on failure.
 	 */
 	public static Path copyFile(Path src, Path dest) throws IOException {
-		FileTracker tracker = new FileTracker();
+		var tracker = new FileTracker();
 		try {
 			tracker.file(dest); // creates parent dirs
 			return Files.copy(src, dest);
@@ -788,7 +788,7 @@ public class IoUtil {
 	 * Returns the number of bytes written. Removes created directories on failure.
 	 */
 	public static long copy(InputStream in, Path file) throws IOException {
-		FileTracker tracker = new FileTracker();
+		var tracker = new FileTracker();
 		try {
 			tracker.file(file); // creates parent dirs
 			return Files.copy(in, file, StandardCopyOption.REPLACE_EXISTING);
@@ -803,10 +803,10 @@ public class IoUtil {
 	 * Returns the number of bytes written. Removes created directories on failure.
 	 */
 	public static int write(Path file, ByteProvider data) throws IOException {
-		FileTracker tracker = new FileTracker();
+		var tracker = new FileTracker();
 		try {
 			tracker.file(file); // creates parent dirs
-			try (OutputStream out = Files.newOutputStream(file)) {
+			try (var out = Files.newOutputStream(file)) {
 				data.writeTo(0, out);
 				out.flush();
 			}
@@ -829,7 +829,7 @@ public class IoUtil {
 	 * Reads content from a resource with paths applied relative to class directory.
 	 */
 	public static byte[] resource(Class<?> cls, String... paths) throws IOException {
-		try (ResourcePath rp = ResourcePath.of(cls, paths)) {
+		try (var rp = ResourcePath.of(cls, paths)) {
 			return rp.readBytes();
 		}
 	}
@@ -846,7 +846,7 @@ public class IoUtil {
 	 */
 	public static String resourceString(Class<?> cls, Charset charset, String... paths)
 		throws IOException {
-		try (ResourcePath rp = ResourcePath.of(cls, paths)) {
+		try (var rp = ResourcePath.of(cls, paths)) {
 			return rp.readString(charset);
 		}
 	}

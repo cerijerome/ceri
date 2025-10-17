@@ -1,6 +1,8 @@
 package ceri.common.stream;
 
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterator;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.fail;
 import java.util.List;
@@ -17,6 +19,14 @@ public class DoubleStreamBehavior {
 		assertEquals(DoubleStream.of((double[]) null).isEmpty(), true);
 		assertEquals(DoubleStream.of().isEmpty(), true);
 		assertStream(DoubleStream.of(1, 2, 3), 1, 2, 3);
+	}
+
+	@Test
+	public void testSegment() throws Exception {
+		assertStream(Streams.segment(0));
+		assertStream(Streams.segment(1), 0.0);
+		assertStream(Streams.segment(2), 0.0, 1.0);
+		assertStream(Streams.segment(3), 0.0, 0.5, 1.0);
 	}
 
 	@Test
@@ -76,6 +86,18 @@ public class DoubleStreamBehavior {
 	}
 
 	@Test
+	public void shouldMapElementsToInt() throws Exception {
+		assertStream(DoubleStream.empty().mapToInt(null));
+		assertStream(testStream().mapToInt(d -> (int) d), -1, 0, 1, 0);
+	}
+
+	@Test
+	public void shouldMapElementsToLong() throws Exception {
+		assertStream(DoubleStream.empty().mapToLong(null));
+		assertStream(testStream().mapToLong(d -> (long) d), -1, 0, 1, 0);
+	}
+
+	@Test
 	public void shouldFlatMapElements() throws Exception {
 		assertStream(DoubleStream.empty().flatMap(null));
 		assertStream(DoubleStream.empty().flatMap(_ -> fail()));
@@ -115,7 +137,12 @@ public class DoubleStreamBehavior {
 		assertEquals(stream.next(3), 0.0);
 		assertEquals(stream.next(), null);
 		assertEquals(stream.next(3), 3.0);
+	}
 
+	@Test
+	public void shouldSkipElements() {
+		assertStream(testStream().skip(2), 1, 0);
+		assertStream(testStream().skip(5));
 	}
 
 	@Test
@@ -134,6 +161,12 @@ public class DoubleStreamBehavior {
 	}
 
 	@Test
+	public void shouldProvideIterator() throws Exception {
+		assertIterator(DoubleStream.empty().iterator());
+		assertIterator(testStream().iterator(), -1.0, 0.0, 1.0, 0.0);
+	}
+
+	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
 		DoubleStream.empty().forEach(captor::accept);
@@ -145,9 +178,35 @@ public class DoubleStreamBehavior {
 	@Test
 	public void shouldCollectElements() throws Exception {
 		DoubleStream.empty().collect(Captor::of, Captor::accept).verify();
+		assertEquals(testStream().collect(null), null);
 		assertEquals(testStream().collect(null, (_, _) -> {}), null);
 		assertEquals(testStream().collect(() -> null, (_, _) -> {}), null);
 		testStream().collect(Captor::of, Captor::accept).verify(-1.0, 0.0, 1.0, 0.0);
+		assertArray(testStream().collect(Collect.Doubles.sortedArray), -1, 0, 0, 1);
+	}
+
+	@Test
+	public void shouldDetermineMin() throws Exception {
+		assertEquals(DoubleStream.empty().min(0), 0.0);
+		assertEquals(testStream().min(0), -1.0);
+	}
+
+	@Test
+	public void shouldDetermineMax() throws Exception {
+		assertEquals(DoubleStream.empty().max(0), 0.0);
+		assertEquals(testStream().max(0), 1.0);
+	}
+
+	@Test
+	public void shouldDetermineSum() {
+		assertEquals(testStream().sum(), 0.0);
+		assertEquals(testStream().skip(2).sum(), 1.0);
+	}
+
+	@Test
+	public void shouldDetermineAverage() {
+		assertEquals(testStream().average(), 0.0);
+		assertEquals(testStream().skip(2).average(), 0.5);
 	}
 
 	@Test

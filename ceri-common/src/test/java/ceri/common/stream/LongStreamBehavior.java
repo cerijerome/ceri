@@ -1,6 +1,8 @@
 package ceri.common.stream;
 
+import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIterator;
 import static ceri.common.test.AssertUtil.assertStream;
 import static ceri.common.test.AssertUtil.fail;
 import java.util.List;
@@ -75,11 +77,29 @@ public class LongStreamBehavior {
 	}
 
 	@Test
+	public void shouldCastElementsToInt() throws Exception {
+		assertStream(LongStream.empty().ints());
+		assertStream(testStream().ints(), -1, 0, 1, 0);
+	}
+
+	@Test
 	public void shouldMapElements() throws Exception {
 		assertStream(LongStream.empty().map(null));
 		assertStream(LongStream.empty().map(_ -> fail()));
 		assertStream(testStream().map(null));
 		assertStream(testStream().map(i -> i + 1), 0, 1, 2, 1);
+	}
+
+	@Test
+	public void shouldMapElementsToInt() throws Exception {
+		assertStream(LongStream.empty().mapToInt(null));
+		assertStream(testStream().mapToInt(i -> (int) i), -1, 0, 1, 0);
+	}
+
+	@Test
+	public void shouldMapElementsToDouble() throws Exception {
+		assertStream(LongStream.empty().mapToDouble(null));
+		assertStream(testStream().mapToDouble(i -> i), -1.0, 0.0, 1.0, 0.0);
 	}
 
 	@Test
@@ -122,9 +142,14 @@ public class LongStreamBehavior {
 		assertEquals(stream.next(3), 0L);
 		assertEquals(stream.next(), null);
 		assertEquals(stream.next(3), 3L);
-
 	}
 
+	@Test
+	public void shouldSkipElements() {
+		assertStream(testStream().skip(2), 1, 0);
+		assertStream(testStream().skip(5));
+	}
+	
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
 		assertEquals(LongStream.empty().isEmpty(), true);
@@ -141,6 +166,12 @@ public class LongStreamBehavior {
 	}
 
 	@Test
+	public void shouldProvideIterator() throws Exception {
+		assertIterator(LongStream.empty().iterator());
+		assertIterator(testStream().iterator(), -1L, 0L, 1L, 0L);
+	}
+
+	@Test
 	public void shouldIterateForEach() throws Exception {
 		var captor = Captor.of();
 		LongStream.empty().forEach(captor::accept);
@@ -152,9 +183,35 @@ public class LongStreamBehavior {
 	@Test
 	public void shouldCollectElements() throws Exception {
 		LongStream.empty().collect(Captor::of, Captor::accept).verify();
+		assertEquals(testStream().collect(null), null);
 		assertEquals(testStream().collect(null, (_, _) -> {}), null);
 		assertEquals(testStream().collect(() -> null, (_, _) -> {}), null);
 		testStream().collect(Captor::of, Captor::accept).verify(-1L, 0L, 1L, 0L);
+		assertArray(testStream().collect(Collect.Longs.sortedArray), -1, 0, 0, 1);
+	}
+
+	@Test
+	public void shouldDetermineMin() throws Exception {
+		assertEquals(LongStream.empty().min(0L), 0L);
+		assertEquals(testStream().min(0L), -1L);
+	}
+
+	@Test
+	public void shouldDetermineMax() throws Exception {
+		assertEquals(LongStream.empty().max(0L), 0L);
+		assertEquals(testStream().max(0L), 1L);
+	}
+
+	@Test
+	public void shouldDetermineSum() {
+		assertEquals(testStream().sum(), 0L);
+		assertEquals(testStream().skip(2).sum(), 1L);
+	}
+
+	@Test
+	public void shouldDetermineAverage() {
+		assertEquals(testStream().average(), 0.0);
+		assertEquals(testStream().skip(2).average(), 0.5);
 	}
 
 	@Test

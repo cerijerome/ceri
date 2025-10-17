@@ -10,7 +10,7 @@ import ceri.common.util.Validate;
  */
 public class ConcaveSpheroid implements Radial3d {
 	private static final int REVERSE_STEPS_DEF = 200;
-	public static final ConcaveSpheroid NULL = new ConcaveSpheroid(0.0, 0.0, 0.0, 0);
+	public static final ConcaveSpheroid ZERO = new ConcaveSpheroid(0.0, 0.0, 0.0, 0);
 	private final ReverseFunction hFromVolume;
 	private final Ellipse ellipse;
 	public final double r;
@@ -20,8 +20,8 @@ public class ConcaveSpheroid implements Radial3d {
 	private final double v0;
 	private final double v;
 
-	public static ConcaveSpheroid create(double r, double a, double c) {
-		if (r == 0.0 && a == 0.0 && c == 0.0) return NULL;
+	public static ConcaveSpheroid of(double r, double a, double c) {
+		if (r == 0.0 && a == 0.0 && c == 0.0) return ZERO;
 		Validate.finiteMin(r, 0.0);
 		Validate.range(a, 0.0, r);
 		Validate.finiteMin(c, 0.0);
@@ -36,21 +36,21 @@ public class ConcaveSpheroid implements Radial3d {
 		v0 = volumeToZ(c, r, a, c);
 		v = v0 * 2;
 		h = c * 2;
-		hFromVolume = ReverseFunction.create(0, c, steps, z -> volumeToZ(z, r, a, c));
+		hFromVolume = ReverseFunction.from(0, c, steps, z -> volumeToZ(z, r, a, c));
 	}
 
 	@Override
-	public double gradientAtHeight(double h) {
+	public double gradientAtH(double h) {
 		return -ellipse.gradientAtY(h - c);
 	}
 
 	@Override
-	public double height() {
+	public double h() {
 		return h;
 	}
 
 	@Override
-	public double radiusFromHeight(double h) {
+	public double radiusFromH(double h) {
 		return r - ellipse.xFromY(h - c);
 	}
 
@@ -63,17 +63,17 @@ public class ConcaveSpheroid implements Radial3d {
 	 * Approximate height from volume using reverse lookup function.
 	 */
 	@Override
-	public double heightFromVolume(double v) {
+	public double hFromVolume(double v) {
 		if (v < 0 || v > this.v) return Double.NaN;
 		if (v == 0) return 0;
-		if (v == this.v) return height();
+		if (v == this.v) return h();
 		if (v == v0) return c;
 		if (v > v0) return c + hFromVolume.x(v - v0);
 		return c - hFromVolume.x(v0 - v);
 	}
 
 	@Override
-	public double volumeFromHeight(double h) {
+	public double volumeFromH(double h) {
 		if (h <= 0) return 0;
 		if (h >= this.h) return this.v;
 		if (h == c) return v0;
@@ -120,5 +120,4 @@ public class ConcaveSpheroid implements Radial3d {
 		double t3 = -a * c * r * Math.asin(z / c);
 		return Math.PI * (t0 + t1 + t2 + t3);
 	}
-
 }

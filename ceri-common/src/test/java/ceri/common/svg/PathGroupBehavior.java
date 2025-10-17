@@ -1,6 +1,5 @@
 package ceri.common.svg;
 
-import static ceri.common.svg.SvgTest.assertD;
 import static ceri.common.test.AssertUtil.assertAllNotEqual;
 import static ceri.common.test.AssertUtil.assertEquals;
 import org.junit.Test;
@@ -35,28 +34,28 @@ public class PathGroupBehavior {
 	public void shouldReflect() {
 		var g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), LineTo.absolute(0, 0));
 		var line = Line2d.of(-1, 0, 1, 0);
-		assertD(g, "l1,1 m4,1 L0,0");
-		assertD(g.reflect(line), "l1,-1 m4,-1 L0,0");
+		SvgAssert.d(g, "l1,1 m4,1 L0,0");
+		SvgAssert.d(g.reflect(line), "l1,-1 m4,-1 L0,0");
 	}
 
 	@Test
 	public void shouldScale() {
 		var g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), LineTo.absolute(0, 0));
-		assertD(g, "l1,1 m4,1 L0,0");
-		assertD(g.scale(Ratio2d.uniform(0.5)), "l0.5,0.5 m2,0.5 L0,0");
+		SvgAssert.d(g, "l1,1 m4,1 L0,0");
+		SvgAssert.d(g.scale(Ratio2d.uniform(0.5)), "l0.5,0.5 m2,0.5 L0,0");
 	}
 
 	@Test
 	public void shouldTranslate() {
 		var g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), LineTo.absolute(0, 0));
-		assertD(g, "l1,1 m4,1 L0,0");
-		assertD(g.translate(Point2d.of(-1, -1)), "l1,1 m4,1 L-1,-1");
+		SvgAssert.d(g, "l1,1 m4,1 L0,0");
+		SvgAssert.d(g.translate(Point2d.of(-1, -1)), "l1,1 m4,1 L-1,-1");
 	}
 
 	@Test
 	public void shouldReverse() {
 		var g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), LineTo.absolute(0, 0));
-		assertD(g, "l1,1 m4,1 L0,0");
-		assertD(g.reverse(), "L0,0 m-4,-1 l-1,-1");
+		SvgAssert.d(g, "l1,1 m4,1 L0,0");
+		SvgAssert.d(g.reverse(), "L0,0 m-4,-1 l-1,-1");
 	}
 }

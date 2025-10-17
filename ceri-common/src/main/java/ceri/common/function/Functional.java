@@ -8,7 +8,6 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.RuntimeInterruptedException;
-import ceri.common.reflect.Reflect;
 import ceri.common.util.Holder;
 
 /**
@@ -16,32 +15,144 @@ import ceri.common.util.Holder;
  */
 public class Functional {
 	private static final int MAX_RECURSIONS_DEF = 20;
-	private static final Functions.Predicate<Object> TRUE_PREDICATE = _ -> true;
-	public static final Functions.Runnable NULL_RUNNABLE = () -> {};
-	private static final Functions.Consumer<Object> NULL_CONSUMER = _ -> {};
 
 	private Functional() {}
 
 	/**
-	 * Provides a no-op consumer.
+	 * Gets result from function and operand; returns null if function or operand is null.
 	 */
-	public static <T> Functions.Consumer<T> nullConsumer() {
-		return Reflect.unchecked(NULL_CONSUMER);
+	public static <E extends Exception, T, R> R
+		apply(Excepts.Function<E, ? super T, ? extends R> function, T t) throws E {
+		return apply(function, t, null);
 	}
 
 	/**
-	 * Provides a predicate that is always true.
+	 * Gets result from function and operand; returns default if function or operand is null.
 	 */
-	public static <T> Functions.Predicate<T> truePredicate() {
-		return Reflect.unchecked(TRUE_PREDICATE);
+	public static <E extends Exception, T, R> R
+		apply(Excepts.Function<E, ? super T, ? extends R> function, T t, R def) throws E {
+		return function == null || t == null ? def : function.apply(t);
 	}
 
 	/**
-	 * Safely applies function. Returns null if function or operand is null.
+	 * Gets result from function and operand; returns supplier result if function or operand is
+	 * null.
 	 */
-	public static <E extends Exception, T, U> U
-		apply(Excepts.Function<E, ? super T, ? extends U> function, T t) throws E {
-		return function == null || t == null ? null : function.apply(t);
+	public static <E extends Exception, T, R> R applyGet(
+		Excepts.Function<E, ? super T, ? extends R> function, T t, Excepts.Supplier<E, R> supplier)
+		throws E {
+		return function == null || t == null ? get(supplier) : function.apply(t);
+	}
+
+	/**
+	 * Gets result from function and operand; returns default if function or operand is null.
+	 */
+	public static <E extends Exception, T> int
+		applyAsInt(Excepts.ToIntFunction<E, ? super T> function, T t, int def) throws E {
+		return function == null || t == null ? def : function.applyAsInt(t);
+	}
+
+	/**
+	 * Gets result from function and operand; returns default if function or operand is null.
+	 */
+	public static <E extends Exception, T> long
+		applyAsLong(Excepts.ToLongFunction<E, ? super T> function, T t, long def) throws E {
+		return function == null || t == null ? def : function.applyAsLong(t);
+	}
+
+	/**
+	 * Gets result from function and operand; returns default if function or operand is null.
+	 */
+	public static <E extends Exception, T> double
+		applyAsDouble(Excepts.ToDoubleFunction<E, ? super T> function, T t, double def) throws E {
+		return function == null || t == null ? def : function.applyAsDouble(t);
+	}
+
+	/**
+	 * Calls consumer with operand and returns true; returns false if consumer or operand is null.
+	 */
+	public static <E extends Exception, T> boolean accept(Excepts.Consumer<E, ? super T> consumer,
+		T t) throws E {
+		if (consumer == null || t == null) return false;
+		consumer.accept(t);
+		return true;
+	}
+
+	/**
+	 * Calls consumer with operand and returns true; returns false if consumer is null.
+	 */
+	public static <E extends Exception> boolean acceptInt(Excepts.IntConsumer<E> consumer, int i)
+		throws E {
+		if (consumer == null) return false;
+		consumer.accept(i);
+		return true;
+	}
+
+	/**
+	 * Calls consumer with operand and returns true; returns false if consumer is null.
+	 */
+	public static <E extends Exception> boolean acceptLong(Excepts.LongConsumer<E> consumer, long l)
+		throws E {
+		if (consumer == null) return false;
+		consumer.accept(l);
+		return true;
+	}
+
+	/**
+	 * Calls consumer with operand and returns true; returns false if consumer is null.
+	 */
+	public static <E extends Exception> boolean acceptDouble(Excepts.DoubleConsumer<E> consumer,
+		double d) throws E {
+		if (consumer == null) return false;
+		consumer.accept(d);
+		return true;
+	}
+
+	/**
+	 * Gets result from supplier; returns null if supplier is null.
+	 */
+	public static <E extends Exception, T> T get(Excepts.Supplier<E, T> supplier) throws E {
+		return get(supplier, null);
+	}
+
+	/**
+	 * Gets result from supplier; returns default if supplier is null.
+	 */
+	public static <E extends Exception, T> T get(Excepts.Supplier<E, T> supplier, T def) throws E {
+		return supplier == null ? def : supplier.get();
+	}
+
+	/**
+	 * Gets result from supplier; returns default if supplier is null.
+	 */
+	public static <E extends Exception> int getAsInt(Excepts.IntSupplier<E> supplier, int def)
+		throws E {
+		return supplier == null ? def : supplier.getAsInt();
+	}
+
+	/**
+	 * Gets result from supplier; returns default if supplier is null.
+	 */
+	public static <E extends Exception> long getAsLong(Excepts.LongSupplier<E> supplier, long def)
+		throws E {
+		return supplier == null ? def : supplier.getAsLong();
+	}
+
+	/**
+	 * Gets result from supplier; returns default if supplier is null.
+	 */
+	public static <E extends Exception> double getAsDouble(Excepts.DoubleSupplier<E> supplier,
+		double def) throws E {
+		return supplier == null ? def : supplier.getAsDouble();
+	}
+
+	/**
+	 * Executes the runnable and returns true; returns false if the runnable is null.
+	 */
+	public static <E extends Exception> boolean run(Excepts.Runnable<E> runnable) throws E {
+		if (runnable == null) return false;
+		runnable.run();
+		return true;
 	}
 
 	/**
@@ -49,24 +160,52 @@ public class Functional {
 	 * exceptions will be suppressed, and null returned. Interrupted exceptions will re-interrupt
 	 * the thread.
 	 */
-	public static <T> T getSilently(Excepts.Supplier<?, T> supplier) {
-		return getSilently(supplier, null);
+	public static <T> T muteGet(Throws.Supplier<T> supplier) {
+		return muteGet(supplier, null);
 	}
 
 	/**
 	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
-	 * suppressed, and an error value returned. Interrupted exceptions will re-interrupt the thread.
+	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
+	 * thread.
 	 */
-	public static <T> T getSilently(Throws.Supplier<? extends T> supplier, T errorVal) {
-		return getIt(supplier, errorVal);
+	public static <T> T muteGet(Throws.Supplier<? extends T> supplier, T errVal) {
+		return muteGetIt(supplier, errVal);
+	}
+
+	/**
+	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
+	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
+	 * thread.
+	 */
+	public static int muteGetInt(Throws.IntSupplier supplier, int errVal) {
+		return muteGetIt(supplier == null ? null : supplier::getAsInt, errVal);
+	}
+
+	/**
+	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
+	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
+	 * thread.
+	 */
+	public static long muteGetLong(Throws.LongSupplier supplier, long errVal) {
+		return muteGetIt(supplier == null ? null : supplier::getAsLong, errVal);
+	}
+
+	/**
+	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
+	 * suppressed, and the error value returned. Interrupted exceptions will re-interrupt the
+	 * thread.
+	 */
+	public static double muteGetDouble(Throws.DoubleSupplier supplier, double errVal) {
+		return muteGetIt(supplier == null ? null : supplier::getAsDouble, errVal);
 	}
 
 	/**
 	 * Invokes the runnable and returns true. Errors will be thrown, but exceptions will be
 	 * suppressed, and false returned. Interrupted exceptions will re-interrupt the thread.
 	 */
-	public static boolean runSilently(Throws.Runnable runnable) {
-		return getSilently(() -> {
+	public static boolean muteRun(Throws.Runnable runnable) {
+		return muteGetIt(runnable == null ? null : () -> {
 			runnable.run();
 			return true;
 		}, false);
@@ -95,12 +234,24 @@ public class Functional {
 	}
 
 	/**
-	 * Consumer called for each supplied value until null.
+	 * Executes the function until no change, or the maximum number of recursions is met.
 	 */
-	public static <E extends Exception, T> void forEach(Excepts.Supplier<E, T> supplier,
-		Excepts.Consumer<E, T> consumer) throws E {
-		for (var t = supplier.get(); t != null; t = supplier.get())
-			consumer.accept(t);
+	public static <E extends Exception, T> T recurse(Excepts.Function<E, ? super T, ? extends T> fn,
+		T t) throws E {
+		return recurse(fn, t, MAX_RECURSIONS_DEF);
+	}
+
+	/**
+	 * Executes the function recursively until no change, or the max number of recursions is met.
+	 */
+	public static <E extends Exception, T> T recurse(Excepts.Function<E, ? super T, ? extends T> fn,
+		T t, int max) throws E {
+		while (max-- > 0) {
+			T last = t;
+			t = fn.apply(t);
+			if (Objects.equals(t, last)) break;
+		}
+		return t;
 	}
 
 	/**
@@ -152,132 +303,11 @@ public class Functional {
 		return optional.isEmpty() ? null : optional.getAsDouble();
 	}
 
-	/**
-	 * Passes only non-null values to function.
-	 */
-	public static <E extends Exception, T, R> R safeApply(T t,
-		Excepts.Function<E, ? super T, R> function) throws E {
-		return safeApply(t, function, null);
-	}
+	// support
 
-	/**
-	 * Passes only non-null values to function.
-	 */
-	public static <E extends Exception, T, R> R safeApply(T t,
-		Excepts.Function<E, ? super T, ? extends R> function, R def) throws E {
-		return t == null ? def : function.apply(t);
-	}
-
-	/**
-	 * Passes only non-null values to function.
-	 */
-	public static <E extends Exception, T> int safeApplyAsInt(T t,
-		Excepts.ToIntFunction<E, ? super T> function, int def) throws E {
-		return t == null ? def : function.applyAsInt(t);
-	}
-
-	/**
-	 * Passes only non-null values to function.
-	 */
-	public static <E extends Exception, T, R> R safeApplyGet(T t,
-		Excepts.Function<E, ? super T, ? extends R> function, Excepts.Supplier<E, R> supplier)
-		throws E {
-		return t == null ? supplier.get() : function.apply(t);
-	}
-
-	/**
-	 * Passes only non-null values to function.
-	 */
-	public static <E extends Exception, T> int safeApplyGetAsInt(T t,
-		Excepts.ToIntFunction<E, ? super T> function, Excepts.IntSupplier<E> supplier) throws E {
-		return t == null ? supplier.getAsInt() : function.applyAsInt(t);
-	}
-
-	/**
-	 * Passes only non-null values to consumer. Returns true if consumed.
-	 */
-	public static <E extends Exception, T> boolean safeAccept(T t,
-		Excepts.Consumer<E, ? super T> consumer) throws E {
-		if (t == null) return false;
-		consumer.accept(t);
-		return true;
-	}
-
-	/**
-	 * Passes only non-null values to consumer. Returns true if consumed.
-	 */
-	public static <E extends Exception, T> boolean safeAccept(T t,
-		Excepts.Predicate<E, ? super T> predicate, Excepts.Consumer<E, ? super T> consumer)
-		throws E {
-		if (t == null || !predicate.test(t)) return false;
-		consumer.accept(t);
-		return true;
-	}
-
-	/**
-	 * Execute the function until no change, or the maximum number of recursions is met.
-	 */
-	public static <T> T recurse(T t, Functions.Function<? super T, ? extends T> fn) {
-		return recurse(t, fn, MAX_RECURSIONS_DEF);
-	}
-
-	/**
-	 * Execute the function recursively until no change, or the max number of recursions is met.
-	 */
-	public static <T> T recurse(T t, Functions.Function<? super T, ? extends T> fn, int max) {
-		while (max-- > 0) {
-			T last = t;
-			t = fn.apply(t);
-			if (Objects.equals(t, last)) break;
-		}
-		return t;
-	}
-
-	/**
-	 * Returns true if the predicate matches any of the given values.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T> boolean any(Excepts.Predicate<E, ? super T> predicate,
-		T... ts) throws E {
-		return any(predicate, Arrays.asList(ts));
-	}
-
-	/**
-	 * Returns true if the predicate matches any of the given values.
-	 */
-	public static <E extends Exception, T> boolean any(Excepts.Predicate<E, ? super T> predicate,
-		Iterable<T> ts) throws E {
-		for (var t : ts)
-			if (predicate.test(t)) return true;
-		return false;
-	}
-
-	/**
-	 * Returns true if the predicate matches all of the given values.
-	 */
-	@SafeVarargs
-	public static <E extends Exception, T> boolean all(Excepts.Predicate<E, ? super T> predicate,
-		T... ts) throws E {
-		return all(predicate, Arrays.asList(ts));
-	}
-
-	/**
-	 * Returns true if the predicate matches all of the given values.
-	 */
-	public static <E extends Exception, T> boolean all(Excepts.Predicate<E, ? super T> predicate,
-		Iterable<T> ts) throws E {
-		for (var t : ts)
-			if (!predicate.test(t)) return false;
-		return true;
-	}
-
-	/**
-	 * Invokes the supplier and returns the result. Errors will be thrown, but exceptions will be
-	 * suppressed, and an error value returned. Interrupted exceptions will re-interrupt the thread.
-	 */
-	private static <T> T getIt(Throws.Supplier<? extends T> supplier, T errorVal) {
+	private static <T> T muteGetIt(Throws.Supplier<? extends T> supplier, T errVal) {
 		try {
-			return supplier.get();
+			if (supplier != null) return supplier.get();
 		} catch (Error e) {
 			throw e;
 		} catch (RuntimeInterruptedException | InterruptedException e) {
@@ -285,6 +315,6 @@ public class Functional {
 		} catch (Throwable _) {
 			// ignored
 		}
-		return errorVal;
+		return errVal;
 	}
 }

@@ -16,7 +16,6 @@ import ceri.common.reflect.Reflect;
 import ceri.common.stream.Stream;
 import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
-import ceri.common.util.Basics;
 
 /**
  * Enum type support.
@@ -73,7 +72,7 @@ public class Enums {
 		 * Predicate to match enum name.
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Enum<?>> name(String name) {
-			return name(Filters.eq(name));
+			return name(Filters.equal(name));
 		}
 
 		/**
@@ -136,38 +135,6 @@ public class Enums {
 	/**
 	 * Returns a function that provides an enum value from its field name.
 	 */
-	public static <T extends Enum<T>> Functions.ToIntFunction<T> intValueAccessor(Class<T> cls) {
-		return intValueAccessor(cls, "");
-	}
-
-	/**
-	 * Returns a function that provides an enum value from its field name.
-	 */
-	public static <T extends Enum<T>> Functions.ToIntFunction<T> intValueAccessor(Class<T> cls,
-		String valueFieldName) {
-		var field = valueField(cls, valueFieldName);
-		return t -> Reflect.publicFieldInt(t, field, 0);
-	}
-
-	/**
-	 * Returns a function that provides an enum value from its field name.
-	 */
-	public static <T extends Enum<T>> Functions.ToLongFunction<T> longValueAccessor(Class<T> cls) {
-		return longValueAccessor(cls, "");
-	}
-
-	/**
-	 * Returns a function that provides an enum value from its field name.
-	 */
-	public static <T extends Enum<T>> Functions.ToLongFunction<T> longValueAccessor(Class<T> cls,
-		String valueFieldName) {
-		var field = valueField(cls, valueFieldName);
-		return t -> Reflect.publicFieldLong(t, field, 0L);
-	}
-
-	/**
-	 * Returns a function that provides an enum value from its field name.
-	 */
 	public static <T extends Enum<T>> Functions.Function<T, Long> valueAccessor(Class<T> cls) {
 		return valueAccessor(cls, "");
 	}
@@ -186,7 +153,7 @@ public class Enums {
 	 */
 	public static <T extends Enum<T>> Class<T> type(T en) {
 		if (en == null) return null;
-		return Basics.<Class<T>>unchecked(en.getClass());
+		return Reflect.unchecked(en.getClass());
 	}
 
 	/**
@@ -275,6 +242,8 @@ public class Enums {
 	// support methods
 
 	private static <T extends Enum<T>> Field valueField(Class<T> cls, String fieldName) {
+		if (!Reflect.isPublic(cls))
+			throw Exceptions.illegalArg("Class is not public: ", Reflect.name(cls));
 		if (Strings.isEmpty(fieldName)) fieldName = VALUE_FIELD_NAME_DEF;
 		var field = Reflect.publicField(cls, fieldName);
 		if (field != null && Reflect.isNumber(field.getType())) return field;

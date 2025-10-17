@@ -60,16 +60,17 @@ public class RawArrayTest {
 		assertArray((int[]) RawArray.arrayCopy(null, 0, new int[1], 0, 1), 0);
 		assertEquals((int[]) RawArray.arrayCopy(ints, 0, null, 0, 1), null);
 		assertArray((Integer[]) RawArray.arrayCopy(ints, 1, new Integer[3], 0, 2), 1, 0, null);
-		assertArray((int[]) RawArray.arrayCopy(new Integer[] { -1, 1, 2 }, 0, new int[3], 0, 2),
-			-1, 1, 0);
+		assertArray((int[]) RawArray.arrayCopy(new Integer[] { -1, 1, 2 }, 0, new int[3], 0, 2), -1,
+			1, 0);
 	}
 
 	@Test
 	public void testApplySlice() throws Exception {
 		assertEquals(RawArray.applySlice(null, 0, 1, (_, _) -> fail()), null);
 		assertEquals(RawArray.applySlice(ints, 0, 1, null), null);
-		Captor.ofBi().apply(
-			c -> assertEquals(RawArray.applySlice(ints, -1, 4, (o, l) -> c.accept(o, l, 1)), 1))
+		Captor.ofBi()
+			.apply(
+				c -> assertEquals(RawArray.applySlice(ints, -1, 4, (o, l) -> c.accept(o, l, 1)), 1))
 			.verify(0, 3);
 	}
 
@@ -81,12 +82,23 @@ public class RawArrayTest {
 	}
 
 	@Test
+	public void testApplyBiSlice() throws Exception {
+		assertEquals(RawArray.applyBiSlice(ints, 0, 1, ints, 1, 1, null), null);
+	}
+
+	@Test
+	public void testAcceptBiSlice() throws Exception {
+		RawArray.acceptBiSlice(ints, 0, 1, ints, 1, 1, null);
+	}
+
+	@Test
 	public void testInsert() {
 		assertSame(RawArray.insert(null, ints, 1, 1), ints);
 		assertEquals(RawArray.insert(int[]::new, null, 1, 1), null);
 		assertSame(RawArray.insert(int[]::new, ints, 1, 0), ints);
 		assertArray(RawArray.insert(int[]::new, ints, 0, 2), 0, 0, -1, 1, 0);
 		assertArray(RawArray.insert(int[]::new, ints, 1, 2), -1, 0, 0, 1, 0);
+		assertSame(RawArray.insert(int[]::new, ints, 1, ints, 1, 0), ints);
 	}
 
 	@Test
@@ -135,8 +147,7 @@ public class RawArrayTest {
 	public void testToString() {
 		assertEquals(RawArray.toString(null, Joiner.OR, ints, 0, 2), "null");
 		assertEquals(RawArray.toString((a, i) -> "" + a[i], null, ints, 0, 2), "null");
-		assertEquals(RawArray.toString((a, i) -> "" + a[i], Joiner.OR, (int[]) null, 0, 2),
-			"null");
+		assertEquals(RawArray.toString((a, i) -> "" + a[i], Joiner.OR, (int[]) null, 0, 2), "null");
 		assertEquals(RawArray.toString((a, i) -> "" + a[i], Joiner.OR, ints, 0, 2), "-1|1");
 	}
 

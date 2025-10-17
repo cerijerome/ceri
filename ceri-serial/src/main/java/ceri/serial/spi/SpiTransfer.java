@@ -10,7 +10,6 @@ import com.sun.jna.Memory;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.Direction;
-import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 import ceri.jna.util.GcMemory;
 import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
@@ -28,7 +27,7 @@ public class SpiTransfer {
 
 	public static SpiTransfer of(Consumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
-		Basics.requireNot(direction, null, Direction.none);
+		Validate.equalNoneOf(direction, null, Direction.none);
 		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
 		var inMem = direction == Direction.out ? GcMemory.NULL : GcMemory.malloc(size).clear();
 		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);

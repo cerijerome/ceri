@@ -14,11 +14,21 @@ public record Line2d(Point2d from, Point2d to) {
 	public static final Line2d Y_UNIT = new Line2d(Point2d.ZERO, Point2d.Y_UNIT);
 
 	/**
+	 * Calculates the angle of a given gradient from -pi/2 to +pi/2
+	 */
+	public static double angleFromGradient(double m) {
+		if (Double.isNaN(m)) return Double.NaN;
+		if (m == 0) return 0;
+		if (m == Double.POSITIVE_INFINITY) return Maths.PI_BY_2;
+		if (m == Double.NEGATIVE_INFINITY) return -Maths.PI_BY_2;
+		return Math.atan(m);
+	}
+	
+	/**
 	 * Represents a line formula ax + by + c = 0.
 	 */
 	public record Equation(double a, double b, double c) {
-
-		public static final Equation NULL = new Equation(0, 0, 0);
+		public static final Equation ZERO = new Equation(0, 0, 0);
 		public static final Equation X_AXIS = Line2d.X_UNIT.equation();
 		public static final Equation Y_AXIS = Line2d.Y_UNIT.equation();
 
@@ -35,7 +45,7 @@ public record Line2d(Point2d from, Point2d to) {
 		public static Equation between(double fromX, double fromY, double toX, double toY) {
 			double dx = toX - fromX + 0.0;
 			double dy = toY - fromY + 0.0;
-			if (dx == 0.0 && dy == 0.0) return NULL;
+			if (dx == 0.0 && dy == 0.0) return ZERO;
 			if (dx == 0.0) return of(1.0, 0.0, -fromX);
 			if (dy == 0.0) return of(0.0, 1.0, -fromY);
 			double b = -dx / dy;
@@ -47,17 +57,23 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Returns a validated instance.
 		 */
 		public static Equation of(double a, double b, double c) {
+			if (a == 0.0 && b == 0.0 && c == 0.0) return ZERO;
+			return new Equation(a + 0.0, b + 0.0, c + 0.0);
+		}
+
+		/**
+		 * Constructor validation.
+		 */
+		public Equation {
 			Validate.finite(a);
 			Validate.finite(b);
 			Validate.finite(c);
-			if (a == 0.0 && b == 0.0) return NULL;
-			return new Equation(a + 0.0, b + 0.0, c + 0.0);
 		}
 
 		/**
 		 * Returns true if all coefficients are 0.
 		 */
-		public boolean isNull() {
+		public boolean isZero() {
 			return isConst() && c() == 0.0;
 		}
 
@@ -72,7 +88,7 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Reflects the given point in the line.
 		 */
 		public Point2d reflect(Point2d point) {
-			if (isNull()) return point;
+			if (isZero()) return point;
 			return reflect(point.x(), point.y());
 		}
 
@@ -80,7 +96,7 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Reflects the given point in the line.
 		 */
 		public Point2d reflect(double x, double y) {
-			if (isNull()) return Point2d.of(x, y);
+			if (isZero()) return Point2d.of(x, y);
 			double aa = a() * a();
 			double bb = b() * b();
 			double newX = ((x * (bb - aa)) - (y * a() * b() * 2) - (a() * c() * 2)) / (aa + bb);
@@ -92,7 +108,7 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Returns the angle of the gradient.
 		 */
 		public double angle() {
-			if (isNull()) return Double.NaN;
+			if (isZero()) return Double.NaN;
 			if (b() <= 0.0) return Math.atan2(a(), -b());
 			return Math.atan2(-a(), b());
 		}
@@ -101,7 +117,7 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Returns the gradient of the line.
 		 */
 		public double gradient() {
-			if (isNull()) return Double.NaN;
+			if (isZero()) return Double.NaN;
 			if (a() == 0.0) return 0.0;
 			if (b() == 0.0) return Double.POSITIVE_INFINITY;
 			return -a() / b();
@@ -111,7 +127,7 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Normalizes the equation to a = 1, or b = 1 if a = 0.
 		 */
 		public Equation normalize() {
-			if (isNull()) return this;
+			if (isZero()) return this;
 			if (a() != 0.0) return new Equation(1, 0.0 + b() / a(), 0.0 + c() / a()); // avoid -0.0
 			return new Equation(0.0, 1.0, 0.0 + c() / b()); // avoid -0.0
 		}
@@ -127,13 +143,13 @@ public record Line2d(Point2d from, Point2d to) {
 		 * Calculates the distance from this line to the point.
 		 */
 		public double distanceTo(double x, double y) {
-			if (isNull()) return Double.NaN;
+			if (isZero()) return Double.NaN;
 			return Math.abs((a() * x) + (b() * y) + c()) / Math.sqrt((a() * a()) + (b() * b()));
 		}
 
 		@Override
 		public String toString() {
-			if (isNull()) return "0 = 0";
+			if (isZero()) return "0 = 0";
 			var s = new StringBuilder();
 			addTerm(s, a(), "x");
 			addTerm(s, b(), "y");
@@ -182,6 +198,14 @@ public record Line2d(Point2d from, Point2d to) {
 	}
 
 	/**
+	 * Constructor validation.
+	 */
+	public Line2d {
+		Validate.nonNull(from);
+		Validate.nonNull(to);
+	}
+	
+	/**
 	 * Returns true if the line starts and ends at the origin.
 	 */
 	public boolean isZero() {
@@ -189,9 +213,9 @@ public record Line2d(Point2d from, Point2d to) {
 	}
 
 	/**
-	 * Returns the vector between points.
+	 * Returns the offset vector between points.
 	 */
-	public Point2d vector() {
+	public Point2d offset() {
 		return Point2d.of(vectorX(), vectorY());
 	}
 
@@ -241,28 +265,28 @@ public record Line2d(Point2d from, Point2d to) {
 	 * Calculates the angle of the gradient relative to the x-axis.
 	 */
 	public double angle() {
-		return vectorCalc((x, y) -> Math.atan2(y, x));
+		return vectorCalc((x, y) -> Math.atan2(y, x), Double.NaN);
 	}
 
 	/**
 	 * Calculates the gradient of the line.
 	 */
 	public double gradient() {
-		return vectorCalc((x, y) -> y / x);
+		return vectorCalc((x, y) -> y / x, Double.NaN);
 	}
 
 	/**
 	 * Calculates the length of the line.
 	 */
 	public double length() {
-		return vectorCalc(Math::hypot);
+		return vectorCalc(Math::hypot, 0.0);
 	}
 
 	/**
 	 * Calculates the squared length of the line.
 	 */
 	public double quadrance() {
-		return vectorCalc((x, y) -> (x * x) + (y * y));
+		return vectorCalc((x, y) -> (x * x) + (y * y), 0.0);
 	}
 
 	/**
@@ -280,13 +304,13 @@ public record Line2d(Point2d from, Point2d to) {
 		// a--c---b
 		// |
 		// p
-		var vector = vector();
-		if (vector.isZero()) return from().to(x, y).distance();
-		var ab = Geometry.vector(vector());
-		var ap = Geometry.vector(from().to(x, y));
+		var point = offset();
+		if (point.isZero()) return from().to(x, y).distance();
+		var ab = offset().vector();
+		var ap = from().to(x, y).vector();
 		double t = Maths.limit(ab.dot(ap) / ab.dot(ab), 0, 1);
-		var c = Geometry.vector(from()).add(ab.multiply(t));
-		return Geometry.point(c).to(x, y).distance();
+		var c = from().vector().add(ab.multiply(t));
+		return Point2d.from(c).to(x, y).distance();
 	}
 
 	/**
@@ -315,15 +339,17 @@ public record Line2d(Point2d from, Point2d to) {
 		return from() + "-" + to();
 	}
 
+	// support
+	
 	private Line2d create(Point2d from, Point2d to) {
 		if (equals(from, to)) return this;
 		return of(from, to);
 	}
 
-	private double vectorCalc(Functions.DoubleBiOperator calc) {
+	private double vectorCalc(Functions.DoubleBiOperator calc, double zero) {
 		double vectorX = vectorX();
 		double vectorY = vectorY();
-		if (Point2d.ZERO.equals(vectorX, vectorY)) return Double.NaN;
+		if (Point2d.ZERO.equals(vectorX, vectorY)) return zero;
 		return calc.applyAsDouble(vectorX, vectorY);
 	}
 

@@ -88,7 +88,7 @@ public interface I2c {
 	 * Read the device id for the address. (Not working with MLX90640)
 	 */
 	default DeviceId deviceId(I2cAddress address) throws IOException {
-		// I2cUtil.validate7Bit(address);
+		// I2cUtil.valid7Bit(address);
 		byte[] read = readData(I2cAddress.DEVICE_ID, address.frames(false), DeviceId.BYTES);
 		return DeviceId.decode((int) ByteUtil.fromMsb(read));
 	}

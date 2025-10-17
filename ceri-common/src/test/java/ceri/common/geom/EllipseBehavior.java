@@ -1,6 +1,6 @@
 package ceri.common.geom;
 
-import static ceri.common.geom.GeometryAssert.approx;
+import static ceri.common.geom.GeomAssert.approx;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotEquals;
@@ -21,7 +21,7 @@ public class EllipseBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Ellipse.of(0, 0), Ellipse.NULL);
+		GeomAssert.approx(Ellipse.ZERO, 0, 0);
 	}
 
 	@Test
@@ -40,10 +40,10 @@ public class EllipseBehavior {
 		assertApprox(e0.gradientAtY(1), -0.866);
 		assertApprox(e0.gradientAtY(2), 0);
 		assertTrue(Double.isNaN(e0.gradientAtY(3)));
-		assertEquals(Ellipse.NULL.gradientAtX(0), Double.NaN);
-		assertEquals(Ellipse.NULL.gradientAtX(1), Double.NaN);
-		assertEquals(Ellipse.NULL.gradientAtY(0), Double.NaN);
-		assertEquals(Ellipse.NULL.gradientAtY(1), Double.NaN);
+		assertEquals(Ellipse.ZERO.gradientAtX(0), Double.NaN);
+		assertEquals(Ellipse.ZERO.gradientAtX(1), Double.NaN);
+		assertEquals(Ellipse.ZERO.gradientAtY(0), Double.NaN);
+		assertEquals(Ellipse.ZERO.gradientAtY(1), Double.NaN);
 		assertEquals(Ellipse.of(0, 1).gradientAtX(0), Double.NEGATIVE_INFINITY);
 		assertEquals(Ellipse.of(0, 1).gradientAtY(0), Double.NEGATIVE_INFINITY);
 		assertEquals(Ellipse.of(0, 1).gradientAtY(0.5), Double.NEGATIVE_INFINITY);
@@ -65,8 +65,8 @@ public class EllipseBehavior {
 		approx(e0.pointFromGradient(0.1), -0.784, 1.961);
 		approx(e0.pointFromGradient(1), -3.578, 0.894);
 		approx(e0.pointFromGradient(100), -4, 0.01);
-		approx(Ellipse.NULL.pointFromGradient(0), 0, 0);
-		approx(Ellipse.NULL.pointFromGradient(1), 0, 0);
+		approx(Ellipse.ZERO.pointFromGradient(0), 0, 0);
+		approx(Ellipse.ZERO.pointFromGradient(1), 0, 0);
 		approx(Ellipse.of(1, 0).pointFromGradient(1), -1, 0);
 		approx(Ellipse.of(1, 0).pointFromGradient(-1), 1, 0);
 		approx(Ellipse.of(0, 1).pointFromGradient(1), 0, 1);
@@ -79,7 +79,7 @@ public class EllipseBehavior {
 		assertApprox(Ellipse.of(1000000, 1000000).perimeter(), 2 * Math.PI * 1000000);
 		assertApprox(e0.perimeter(), 19.377);
 		assertApprox(e1.perimeter(), 17.157);
-		assertApprox(Ellipse.NULL.perimeter(), 0);
+		assertApprox(Ellipse.ZERO.perimeter(), 0);
 		assertApprox(Ellipse.of(0, 1).perimeter(), 4);
 		assertApprox(Ellipse.of(1, 0).perimeter(), 4);
 	}
@@ -100,8 +100,8 @@ public class EllipseBehavior {
 		assertApprox(e0.xFromY(2), 0);
 		assertApprox(e0.xFromY(1.732), 2);
 		assertApprox(e0.xFromY(-2), 0);
-		assertEquals(Ellipse.NULL.yFromX(1), Double.NaN);
-		assertEquals(Ellipse.NULL.xFromY(1), Double.NaN);
+		assertEquals(Ellipse.ZERO.yFromX(1), Double.NaN);
+		assertEquals(Ellipse.ZERO.xFromY(1), Double.NaN);
 	}
 
 	@Test
@@ -120,10 +120,10 @@ public class EllipseBehavior {
 		assertApprox(e0.areaToY(1), 20.219);
 		assertApprox(e0.areaToY(2), 25.133);
 		assertApprox(e0.areaToY(3), 25.133);
-		assertApprox(Ellipse.NULL.areaToX(-1), 0);
-		assertApprox(Ellipse.NULL.areaToX(0), 0);
-		assertApprox(Ellipse.NULL.areaToY(1), 0);
-		assertApprox(Ellipse.NULL.areaToY(0), 0);
+		assertApprox(Ellipse.ZERO.areaToX(-1), 0);
+		assertApprox(Ellipse.ZERO.areaToX(0), 0);
+		assertApprox(Ellipse.ZERO.areaToY(1), 0);
+		assertApprox(Ellipse.ZERO.areaToY(0), 0);
 		assertApprox(Ellipse.of(0, 1).areaToX(0), 0);
 		assertApprox(Ellipse.of(0, 1).areaToY(0), 0);
 		assertApprox(Ellipse.of(1, 0).areaToX(0), 0);

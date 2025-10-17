@@ -4,6 +4,9 @@ import java.util.Objects;
 import ceri.common.text.ToString;
 import ceri.common.util.Validate;
 
+/**
+ * A 3d radial shape that truncates a wrapped 3d radial shape.   
+ */
 public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final T radial;
 	private final double h0; // height offset
@@ -11,9 +14,12 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	private final double v0; // volume offset
 	private final double v; // volume
 
-	public static <T extends Radial3d> TruncatedRadial3d<T> create(T radial, double h0, double h) {
+	/**
+	 * Returns an instance that truncates the given shape between the height range.
+	 */
+	public static <T extends Radial3d> TruncatedRadial3d<T> of(T radial, double h0, double h) {
 		Validate.finiteMin(h0, 0);
-		Validate.range(h, 0, radial.height() - h0);
+		Validate.range(h, 0, radial.h() - h0);
 		return new TruncatedRadial3d<>(radial, h0 + .0, h + .0);
 	}
 
@@ -21,22 +27,25 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 		this.radial = radial;
 		this.h0 = h0;
 		this.h = h;
-		v0 = radial.volumeFromHeight(h0);
-		v = radial.volumeFromHeight(h0 + h) - v0;
+		v0 = radial.volumeFromH(h0);
+		v = radial.volumeFromH(h0 + h) - v0;
 	}
 
+	/**
+	 * Returns the wrapped shape.
+	 */
 	public T wrapped() {
 		return radial;
 	}
 
 	@Override
-	public double gradientAtHeight(double h) {
+	public double gradientAtH(double h) {
 		if (h < 0 || h > this.h) return Double.NaN;
-		return radial.gradientAtHeight(h0 + h);
+		return radial.gradientAtH(h0 + h);
 	}
 
 	@Override
-	public double height() {
+	public double h() {
 		return h;
 	}
 
@@ -46,24 +55,24 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	}
 
 	@Override
-	public double volumeFromHeight(double h) {
+	public double volumeFromH(double h) {
 		if (h <= 0) return 0;
 		if (h >= this.h) return v;
-		return radial.volumeFromHeight(h0 + h) - v0;
+		return radial.volumeFromH(h0 + h) - v0;
 	}
 
 	@Override
-	public double heightFromVolume(double v) {
+	public double hFromVolume(double v) {
 		if (v < 0 || v > this.v) return Double.NaN;
 		if (v == 0) return 0;
 		if (v == this.v) return h;
-		return radial.heightFromVolume(v + v0) - h0;
+		return radial.hFromVolume(v + v0) - h0;
 	}
 
 	@Override
-	public double radiusFromHeight(double h) {
+	public double radiusFromH(double h) {
 		if (h < 0 || h > this.h) return Double.NaN;
-		return radial.radiusFromHeight(h0 + h);
+		return radial.radiusFromH(h0 + h);
 	}
 
 	@Override
@@ -85,5 +94,4 @@ public class TruncatedRadial3d<T extends Radial3d> implements Radial3d {
 	public String toString() {
 		return ToString.forClass(this, h0, h, radial);
 	}
-
 }

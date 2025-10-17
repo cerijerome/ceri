@@ -5,6 +5,7 @@ import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.test.AssertUtil.assertApprox;
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertStream;
@@ -298,12 +299,12 @@ public class ColorsTest {
 
 	@Test
 	public void testScaleHsbColors() {
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.0), 0.5,
-			0.8, 0.4);
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.5), 0.7,
-			0.6, 0.5);
-		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 1.0), 0.9,
-			0.4, 0.6);
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.0), 0.5, 0.8,
+			0.4);
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 0.5), 0.7, 0.6,
+			0.5);
+		assertHsb(Colors.scaleHsb(Hsb.of(0.5, 0.8, 0.4), Hsb.of(0.9, 0.4, 0.6), 1.0), 0.9, 0.4,
+			0.6);
 	}
 
 	@Test
@@ -312,6 +313,22 @@ public class ColorsTest {
 		assertEquals(Colors.r(Colors.color(0x98765432)), 0x76);
 		assertEquals(Colors.g(Colors.color(0x98765432)), 0x54);
 		assertEquals(Colors.b(Colors.color(0x98765432)), 0x32);
+	}
+
+	@Test
+	public void testValidValue() {
+		assertEquals(Colors.validValue(0), 0);
+		assertEquals(Colors.validValue(255), 255);
+		assertIllegalArg(() -> Colors.validValue(-1));
+		assertIllegalArg(() -> Colors.validValue(256));
+	}
+
+	@Test
+	public void testValidRatio() {
+		assertEquals(Colors.validRatio(0.0), 0.0);
+		assertEquals(Colors.validRatio(1.0), 1.0);
+		assertIllegalArg(() -> Colors.validRatio(-0.1));
+		assertIllegalArg(() -> Colors.validRatio(1.1));
 	}
 
 	@Test

@@ -170,7 +170,7 @@ public class FractionFormats {
 			if (!PATTERN.matcher(s).matches()) return null;
 			var expanded = expand(s);
 			var m = EXPANDED_REGEX.matcher(expanded);
-			Validate.validatef(m.matches(), "Expansion failed: %s", expanded);
+			Validate.condition(m.matches(), "Expansion failed: %s", expanded);
 			return Fraction.of(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
 		}
 
