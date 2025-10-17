@@ -7,8 +7,7 @@
 	<artifactId>ceri-jna</artifactId>
 	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
-	<url>
-		https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
+	<url>https://github.com/cerijerome/${project.groupId}/tree/master/${project.artifactId}</url>
 
 	<parent>
 		<groupId>ceri</groupId>
