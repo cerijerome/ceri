@@ -46,32 +46,24 @@ public class Colors {
 	 */
 	public static class Compare {
 		/** Compare by argb int value. */
-		public static final Comparator<Color> ARGB =
-			Compares.comparing(Color::getRGB, Compares.UINT);
+		public static final Comparator<Color> ARGB = Compares.as(Color::getRGB, Compares.UINT);
 		/** Compare by alpha component. */
-		public static final Comparator<Color> A =
-			Compares.comparing(Color::getAlpha, Compares.INT);
+		public static final Comparator<Color> A = Compares.comparableAs(Color::getAlpha);
 		/** Compare by red component. */
-		public static final Comparator<Color> R =
-			Compares.comparing(Color::getRed, Compares.INT);
+		public static final Comparator<Color> R = Compares.comparableAs(Color::getRed);
 		/** Compare by green component. */
-		public static final Comparator<Color> G =
-			Compares.comparing(Color::getGreen, Compares.INT);
+		public static final Comparator<Color> G = Compares.comparableAs(Color::getGreen);
 		/** Compare by blue component. */
-		public static final Comparator<Color> B =
-			Compares.comparing(Color::getBlue, Compares.INT);
+		public static final Comparator<Color> B = Compares.comparableAs(Color::getBlue);
 		/** Compare by HSB hue. */
-		public static final Comparator<Color> HUE =
-			Compares.comparing(c -> toHsb(c)[0], Compares.FLOAT);
+		public static final Comparator<Color> HUE = Compares.comparableAs(c -> toHsb(c)[0]);
 		/** Compare by HSB saturation. */
-		public static final Comparator<Color> SATURATION =
-			Compares.comparing(c -> toHsb(c)[1], Compares.FLOAT);
+		public static final Comparator<Color> SATURATION = Compares.comparableAs(c -> toHsb(c)[1]);
 		/** Compare by HSB brightness. */
-		public static final Comparator<Color> BRIGHTNESS =
-			Compares.comparing(c -> toHsb(c)[2], Compares.FLOAT);
+		public static final Comparator<Color> BRIGHTNESS = Compares.comparableAs(c -> toHsb(c)[2]);
 		/** Compare by hue, saturation, then brightness. */
 		public static final Comparator<Color> HSB =
-			Compares.comparing(Compare::toHsb, Compare::compareHsb);
+			Compares.as(Compare::toHsb, Compare::compareHsb);
 
 		private Compare() {}
 

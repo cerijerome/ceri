@@ -21,7 +21,6 @@ import ceri.common.util.Validate;
  * </pre>
  *
  * @see ceri.common.data.ByteArray.Mutable
- * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteReceiver {
 

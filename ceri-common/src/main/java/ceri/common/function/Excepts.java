@@ -1,7 +1,5 @@
 package ceri.common.function;
 
-import ceri.common.reflect.Reflect;
-
 /**
  * Interfaces that throw specific exceptions.
  */
@@ -604,13 +602,6 @@ public class Excepts {
 
 	// Predicates
 
-	public static void main(String[] args) {
-		Excepts.Predicate<RuntimeException, Object> ep = x -> x == null;
-		Functions.Predicate<Object> fp = Reflect.unchecked(ep);
-		System.out.println(ep.test(null));
-		System.out.println(fp.test(null));
-	}
-	
 	/**
 	 * Functional interface that throws specific exceptions.
 	 */
@@ -618,18 +609,6 @@ public class Excepts {
 	public interface Predicate<E extends Exception, T> extends Throws.Predicate<T> {
 		@Override
 		boolean test(T t) throws E;
-		
-		default Predicate<E, T> not() {
-			return t -> !test(t);
-		}
-		
-		default Predicate<E, T> and(Predicate<? extends E, ? super T> predicate) {
-			return predicate == null ? this : t -> test(t) && predicate.test(t);
-		}
-		
-		default Predicate<E, T> or(Predicate<? extends E, ? super T> predicate) {
-			return predicate == null ? this : t -> test(t) || predicate.test(t);
-		}
 	}
 
 	/**

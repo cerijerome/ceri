@@ -59,9 +59,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.concurrent.SimpleExecutorBehavior.class, //
 	ceri.common.concurrent.TaskQueueBehavior.class, //
 	ceri.common.concurrent.ValueConditionBehavior.class, //
-	ceri.common.concurrent.VolatileByteArrayBehavior.class, //
-	ceri.common.concurrent.VolatileIntArrayBehavior.class, //
-	ceri.common.concurrent.VolatileLongArrayBehavior.class, //
+	ceri.common.concurrent.VolatileArrayBehavior.class, //
 	// data
 	ceri.common.data.BinaryStateBehavior.class, //
 	ceri.common.data.ByteAccessorBehavior.class, //

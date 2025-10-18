@@ -73,7 +73,7 @@ public class Sets {
 	 * Creates an empty mutable tree set.
 	 */
 	public static <T extends Comparable<? super T>> TreeSet<T> tree() {
-		return new TreeSet<>(Compares.nullsFirst());
+		return new TreeSet<>(Compares.comparable());
 	}
 
 	/**

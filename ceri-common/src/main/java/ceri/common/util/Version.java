@@ -11,9 +11,9 @@ public record Version(int version, Integer major, Integer minor, String rev)
 	implements Comparable<Version> {
 
 	public static final Comparator<Version> COMPARATOR = Comparator.comparingInt(Version::version)
-		.thenComparing(Comparator.comparing(Version::major, Compares.INT))
-		.thenComparing(Comparator.comparing(Version::minor, Compares.INT))
-		.thenComparing(Comparator.comparing(Version::rev, Compares.STRING));
+		.thenComparing(Compares.comparableAs(Version::major))
+		.thenComparing(Compares.comparableAs(Version::minor))
+		.thenComparing(Compares.comparableAs(Version::rev));
 
 	/**
 	 * Creates an instance without revision string.

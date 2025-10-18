@@ -19,6 +19,24 @@ public class Functional {
 	private Functional() {}
 
 	/**
+	 * Function adapters.
+	 */
+	public static class Adapt {
+		private Adapt() {}
+
+		/**
+		 * Adapts a runnable type to a supplier with fixed value.
+		 */
+		public static <E extends Exception, T> Excepts.Supplier<E, T>
+			supplier(Excepts.Runnable<? extends E> runnable, T t) {
+			return () -> {
+				if (runnable != null) runnable.run();
+				return t;
+			};
+		}
+	}
+
+	/**
 	 * Gets result from function and operand; returns null if function or operand is null.
 	 */
 	public static <E extends Exception, T, R> R

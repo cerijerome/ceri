@@ -32,26 +32,20 @@ public class Colorxs {
 	 */
 	public static class Compare {
 		/** Compare by xargb long. */
-		public static final Comparator<Colorx> XARGB =
-			Compares.comparing(Colorx::xargb, Compares.ULONG);
+		public static final Comparator<Colorx> XARGB = Compares.as(Colorx::xargb, Compares.ULONG);
 		/** Compare by xrgb long value without alpha. */
 		public static final Comparator<Colorx> XRGB =
-			Compares.comparing(cx -> Colorxs.xrgb(cx.xargb()), Compares.ULONG);
+			Compares.as(cx -> Colorxs.xrgb(cx.xargb()), Compares.ULONG);
 		/** Compare by argb int value. */
-		public static final Comparator<Colorx> ARGB =
-			Compares.comparing(Colorx::argb, Compares.UINT);
+		public static final Comparator<Colorx> ARGB = Compares.as(Colorx::argb, Compares.UINT);
 		/** Compare by alpha component. */
-		public static final Comparator<Colorx> A =
-			Compares.comparingInt(cx -> Colorxs.a(cx.xargb()));
+		public static final Comparator<Colorx> A = Compares.asInt(cx -> Colorxs.a(cx.xargb()));
 		/** Compare by red component. */
-		public static final Comparator<Colorx> R =
-			Compares.comparingInt(cx -> Colorxs.r(cx.xargb()));
+		public static final Comparator<Colorx> R = Compares.asInt(cx -> Colorxs.r(cx.xargb()));
 		/** Compare by green component. */
-		public static final Comparator<Colorx> G =
-			Compares.comparingInt(cx -> Colorxs.g(cx.xargb()));
+		public static final Comparator<Colorx> G = Compares.asInt(cx -> Colorxs.g(cx.xargb()));
 		/** Compare by blue component. */
-		public static final Comparator<Colorx> B =
-			Compares.comparingInt(cx -> Colorxs.b(cx.xargb()));
+		public static final Comparator<Colorx> B = Compares.asInt(cx -> Colorxs.b(cx.xargb()));
 
 		private Compare() {}
 
@@ -59,14 +53,14 @@ public class Colorxs {
 		 * Compare by x[i].
 		 */
 		public static Comparator<Colorx> x(int i) {
-			return Compares.comparingInt(cx -> Colorxs.x(cx.xargb(), i));
+			return Compares.asInt(cx -> Colorxs.x(cx.xargb(), i));
 		}
 
 		/**
 		 * Compare using color comparator, ignoring x.
 		 */
 		public static Comparator<Colorx> color(Comparator<Color> comparator) {
-			return Compares.comparing(t -> t.color(), comparator);
+			return Compares.as(Colorx::color, comparator);
 		}
 	}
 

@@ -14,7 +14,8 @@ import ceri.common.util.Hasher;
  * Provides typed primitive array support.
  */
 public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
-
+	private final Class<T> cls;
+	
 	/**
 	 * Typed primitive array support.
 	 */
@@ -23,7 +24,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		public final TypedArray.Type<Boolean> box = TypedArray.type(Boolean[]::new);
 
 		OfBool() {
-			super(boolean[]::new);
+			super(boolean[].class, boolean[]::new);
 		}
 
 		/**
@@ -202,7 +203,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			TypedArray.integral(Character[]::new, Format.HEX::apply);
 
 		OfChar() {
-			super(char[]::new);
+			super(char[].class, char[]::new);
 		}
 
 		/**
@@ -392,7 +393,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			TypedArray.integral(Byte[]::new, Format.HEX::ubyte);
 
 		OfByte() {
-			super(byte[]::new);
+			super(byte[].class, byte[]::new);
 		}
 
 		/**
@@ -589,7 +590,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			TypedArray.integral(Short[]::new, Format.HEX::ushort);
 
 		OfShort() {
-			super(short[]::new);
+			super(short[].class, short[]::new);
 		}
 
 		/**
@@ -786,7 +787,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			TypedArray.integral(Integer[]::new, Format.HEX::uint);
 
 		OfInt() {
-			super(int[]::new);
+			super(int[].class, int[]::new);
 		}
 
 		/**
@@ -973,7 +974,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 			TypedArray.integral(Long[]::new, Format.HEX::apply);
 
 		OfLong() {
-			super(long[]::new);
+			super(long[].class, long[]::new);
 		}
 
 		/**
@@ -1158,7 +1159,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		public final TypedArray.Type<Float> box = TypedArray.type(Float[]::new);
 
 		OfFloat() {
-			super(float[]::new);
+			super(float[].class, float[]::new);
 		}
 
 		/**
@@ -1348,7 +1349,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		public final TypedArray.Type<Double> box = TypedArray.type(Double[]::new);
 
 		OfDouble() {
-			super(double[]::new);
+			super(double[].class, double[]::new);
 		}
 
 		/**
@@ -1509,10 +1510,18 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 	}
 
-	private PrimitiveArray(Functions.IntFunction<T> constructor) {
+	private PrimitiveArray(Class<T> cls, Functions.IntFunction<T> constructor) {
 		super(constructor);
+		this.cls = cls;
 	}
 
+	/**
+	 * Returns the primitive array class type.
+	 */
+	public Class<T> type() {
+		return cls;
+	}
+	
 	/**
 	 * Converts an unboxed array to a boxed array.
 	 */

@@ -1,7 +1,5 @@
 package ceri.common.function;
 
-import ceri.common.reflect.Reflect;
-
 /**
  * Interfaces that do not throw checked exceptions.
  */
@@ -564,12 +562,7 @@ public class Functions {
 	 */
 	@FunctionalInterface
 	public interface Consumer<T>
-		extends Excepts.Consumer<RuntimeException, T>, java.util.function.Consumer<T> {
-		/** Casts to given exception type. */
-		static <E extends Exception, T> Excepts.Consumer<E, T> except(Consumer<T> consumer) {
-			return Reflect.unchecked(consumer);
-		}
-	}
+		extends Excepts.Consumer<RuntimeException, T>, java.util.function.Consumer<T> {}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
@@ -588,36 +581,21 @@ public class Functions {
 	 */
 	@FunctionalInterface
 	public interface IntConsumer
-		extends Excepts.IntConsumer<RuntimeException>, java.util.function.IntConsumer {
-		/** Casts to given exception type. */
-		static <E extends Exception> Excepts.IntConsumer<E> except(IntConsumer consumer) {
-			return Reflect.unchecked(consumer);
-		}
-	}
+		extends Excepts.IntConsumer<RuntimeException>, java.util.function.IntConsumer {}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
 	public interface LongConsumer
-		extends Excepts.LongConsumer<RuntimeException>, java.util.function.LongConsumer {
-		/** Casts to given exception type. */
-		static <E extends Exception> Excepts.LongConsumer<E> except(LongConsumer consumer) {
-			return Reflect.unchecked(consumer);
-		}
-	}
+		extends Excepts.LongConsumer<RuntimeException>, java.util.function.LongConsumer {}
 
 	/**
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
 	public interface DoubleConsumer
-		extends Excepts.DoubleConsumer<RuntimeException>, java.util.function.DoubleConsumer {
-		/** Casts to given exception type. */
-		static <E extends Exception> Excepts.DoubleConsumer<E> except(DoubleConsumer consumer) {
-			return Reflect.unchecked(consumer);
-		}
-	}
+		extends Excepts.DoubleConsumer<RuntimeException>, java.util.function.DoubleConsumer {}
 
 	// Bi-consumers
 
@@ -770,7 +748,5 @@ public class Functions {
 	 * Functional interface that only allows runtime exceptions.
 	 */
 	@FunctionalInterface
-	public interface Closeable extends Excepts.Closeable<RuntimeException> {
-		static Closeable NULL = () -> {};
-	}
+	public interface Closeable extends Excepts.Closeable<RuntimeException> {}
 }

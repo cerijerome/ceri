@@ -228,7 +228,7 @@ public class StreamBehavior {
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
 		assertStream(Stream.empty().sorted((_, _) -> 0));
-		assertStream(testStream().sorted(Compares.nullsFirst()), null, -1, 0, 1);
+		assertStream(testStream().sorted(Compares.comparable()), null, -1, 0, 1);
 	}
 
 	@Test

@@ -16,7 +16,6 @@ import ceri.common.util.Validate;
  * </pre>
  *
  * @see ceri.common.data.MutableIntArray
- * @see ceri.common.concurrent.VolatileIntArray
  */
 public interface IntReceiver {
 

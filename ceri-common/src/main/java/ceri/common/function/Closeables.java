@@ -18,6 +18,7 @@ import ceri.common.concurrent.RuntimeInterruptedException;
  * Utilities for AutoCloseable resources.
  */
 public class Closeables {
+	public static Functions.Closeable NULL = () -> {};
 	private static final int TIMEOUT_MS_DEF = 1000;
 
 	private Closeables() {}

@@ -34,7 +34,6 @@ import ceri.common.util.Validate;
  * </pre>
  *
  * @see ceri.common.data.ByteArray.Immutable
- * @see ceri.common.concurrent.VolatileByteArray
  */
 public interface ByteProvider extends Iterable<Integer> {
 	/** String formatting configuration. */

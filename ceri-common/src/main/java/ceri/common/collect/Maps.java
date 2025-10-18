@@ -265,7 +265,7 @@ public class Maps {
 	 * Creates an empty mutable tree map with null-first natural comparator.
 	 */
 	public static <K extends Comparable<? super K>, V> TreeMap<K, V> tree() {
-		return new TreeMap<>(Compares.nullsFirst());
+		return new TreeMap<>(Compares.comparable());
 	}
 
 	/**

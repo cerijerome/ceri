@@ -16,6 +16,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import ceri.common.collect.Lists;
+import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
@@ -284,7 +285,7 @@ public class Concurrent {
 	 * Provides a locked try-with-resources that unlocks on close.
 	 */
 	public static Functions.Closeable locker(Lock lock) {
-		if (lock == null) return Functions.Closeable.NULL;
+		if (lock == null) return Closeables.NULL;
 		lock.lock();
 		return () -> lock.unlock();
 	}
@@ -581,7 +582,6 @@ public class Concurrent {
 
 			@Override
 			public void awaitUninterruptibly() {}
-
 		};
 	}
 }

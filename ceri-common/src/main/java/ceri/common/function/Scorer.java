@@ -38,7 +38,7 @@ public interface Scorer<T> {
 	record Result<T>(T ref, double score) implements Comparable<Result<T>> {
 		private static final Result<Object> NULL = new Result<>(null, 0.0);
 		private static final Comparator<Result<?>> COMPARATOR =
-			Compares.not(Compares.comparingDouble(Result::score));
+			Compares.not(Compares.asDouble(Result::score));
 
 		public static <T> Result<T> ofNull() {
 			return Reflect.unchecked(NULL);

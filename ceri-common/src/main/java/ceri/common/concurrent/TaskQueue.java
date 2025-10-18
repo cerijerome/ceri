@@ -6,9 +6,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.function.Adapters;
 import ceri.common.function.Excepts.Runnable;
 import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Functional;
 import ceri.common.reflect.Reflect;
 
 /**
@@ -98,14 +98,14 @@ public class TaskQueue<E extends Exception> {
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(Runnable<E> action) throws E {
-		executeGet(Adapters.supplier(action, null));
+		executeGet(Functional.Adapt.supplier(action, null));
 	}
 
 	/**
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(Runnable<E> action, int timeout, TimeUnit unit) throws E {
-		executeGet(Adapters.supplier(action, null), timeout, unit);
+		executeGet(Functional.Adapt.supplier(action, null), timeout, unit);
 	}
 
 	/**

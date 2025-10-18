@@ -202,7 +202,7 @@ public class Lists {
 	 * Sorts the list with natural ordering and nulls first.
 	 */
 	public static <T extends Comparable<? super T>, L extends List<T>> L sort(L list) {
-		return sort(list, Compares.nullsFirst());
+		return sort(list, Compares.comparable());
 	}
 
 	/**
