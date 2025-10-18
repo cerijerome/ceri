@@ -32,12 +32,12 @@ public class Colorxs {
 	 */
 	public static class Compare {
 		/** Compare by xargb long. */
-		public static final Comparator<Colorx> XARGB = Compares.as(Colorx::xargb, Compares.ULONG);
+		public static final Comparator<Colorx> XARGB = Compares.asUlong(Colorx::xargb);
 		/** Compare by xrgb long value without alpha. */
 		public static final Comparator<Colorx> XRGB =
-			Compares.as(cx -> Colorxs.xrgb(cx.xargb()), Compares.ULONG);
+			Compares.asUlong(cx -> Colorxs.xrgb(cx.xargb()));
 		/** Compare by argb int value. */
-		public static final Comparator<Colorx> ARGB = Compares.as(Colorx::argb, Compares.UINT);
+		public static final Comparator<Colorx> ARGB = Compares.asUint(Colorx::argb);
 		/** Compare by alpha component. */
 		public static final Comparator<Colorx> A = Compares.asInt(cx -> Colorxs.a(cx.xargb()));
 		/** Compare by red component. */

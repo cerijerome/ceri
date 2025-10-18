@@ -12,22 +12,18 @@ import ceri.common.util.Validate;
  */
 public class Compares {
 	public static final Comparator<Object> NULL = (_, _) -> 0;
-	public static final Comparator<Double> DOUBLE = comparable();
-	public static final Comparator<Float> FLOAT = comparable();
-	public static final Comparator<Byte> BYTE = comparable();
-	public static final Comparator<Short> SHORT = comparable();
-	public static final Comparator<Integer> INT = comparable();
-	public static final Comparator<Long> LONG = comparable();
 	public static final Comparator<Boolean> BOOL = comparable();
 	public static final Comparator<Character> CHAR = comparable();
+	public static final Comparator<Integer> INT = comparable();
+	public static final Comparator<Integer> UINT = of(Integer::compareUnsigned);
+	public static final Comparator<Long> LONG = comparable();
+	public static final Comparator<Long> ULONG = of(Long::compareUnsigned);
+	public static final Comparator<Float> FLOAT = comparable();
+	public static final Comparator<Double> DOUBLE = comparable();
 	public static final Comparator<String> STRING = comparable();
 	public static final Comparator<Date> DATE = comparable();
-	public static final Comparator<Byte> UBYTE = of(Byte::compareUnsigned);
-	public static final Comparator<Short> USHORT = of(Short::compareUnsigned);
-	public static final Comparator<Integer> UINT = of(Integer::compareUnsigned);
-	public static final Comparator<Long> ULONG = of(Long::compareUnsigned);
 	public static final Comparator<Locale> LOCALE = string();
-	public static final Comparator<Object> TO_STRING = Comparator.comparing(Strings::safe);
+	public static final Comparator<Object> TO_STRING = asComparable(Strings::safe);
 
 	private Compares() {}
 
@@ -41,7 +37,7 @@ public class Compares {
 		first,
 		/** Nulls are ordered last. */
 		last,
-		/** Null comparison fails with an exception. */
+		/** Null comparisons throw an exception. */
 		fail;
 
 		/** The default behavior. */
@@ -72,13 +68,6 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> ofNull() {
 		return Reflect.unchecked(NULL);
-	}
-
-	/**
-	 * A comparator that only has null behavior.
-	 */
-	public static <T> Comparator<T> of(Nulls nulls) {
-		return (l, r) -> compare(nulls, null, l, r);
 	}
 
 	/**
@@ -152,14 +141,14 @@ public class Compares {
 	 * Adapts a comparable comparator using an accessor, with default null behavior.
 	 */
 	public static <T, U extends Comparable<? super U>> Comparator<T>
-		comparableAs(Functions.Function<? super T, ? extends U> accessor) {
-		return comparableAs(Nulls.def, accessor);
+		asComparable(Functions.Function<? super T, ? extends U> accessor) {
+		return asComparable(Nulls.def, accessor);
 	}
 
 	/**
 	 * Adapts a comparable comparator using an accessor, with given null behavior.
 	 */
-	public static <T, U extends Comparable<? super U>> Comparator<T> comparableAs(Nulls nulls,
+	public static <T, U extends Comparable<? super U>> Comparator<T> asComparable(Nulls nulls,
 		Functions.Function<? super T, ? extends U> accessor) {
 		return as(nulls, accessor, comparable(nulls));
 	}
@@ -176,8 +165,24 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asInt(Nulls nulls,
 		Functions.ToIntFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? ofNull() : Comparator.comparingInt(accessor));
+		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+			(l, r) -> Integer.compare(accessor.applyAsInt(l), accessor.applyAsInt(r)));
+	}
+
+	/**
+	 * Adapts a comparator using an accessor, with default null behavior.
+	 */
+	public static <T> Comparator<T> asUint(Functions.ToIntFunction<? super T> accessor) {
+		return asUint(Nulls.def, accessor);
+	}
+
+	/**
+	 * Adapts a comparator using an accessor, with given null behavior.
+	 */
+	public static <T> Comparator<T> asUint(Nulls nulls,
+		Functions.ToIntFunction<? super T> accessor) {
+		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+			(l, r) -> Integer.compareUnsigned(accessor.applyAsInt(l), accessor.applyAsInt(r)));
 	}
 
 	/**
@@ -192,8 +197,24 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asLong(Nulls nulls,
 		Functions.ToLongFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? ofNull() : Comparator.comparingLong(accessor));
+		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+			(l, r) -> Long.compare(accessor.applyAsLong(l), accessor.applyAsLong(r)));
+	}
+
+	/**
+	 * Adapts a comparator using an accessor, with default null behavior.
+	 */
+	public static <T> Comparator<T> asUlong(Functions.ToLongFunction<? super T> accessor) {
+		return asUlong(Nulls.def, accessor);
+	}
+
+	/**
+	 * Adapts a comparator using an accessor, with given null behavior.
+	 */
+	public static <T> Comparator<T> asUlong(Nulls nulls,
+		Functions.ToLongFunction<? super T> accessor) {
+		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+			(l, r) -> Long.compareUnsigned(accessor.applyAsLong(l), accessor.applyAsLong(r)));
 	}
 
 	/**

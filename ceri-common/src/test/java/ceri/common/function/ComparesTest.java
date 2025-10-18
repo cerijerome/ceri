@@ -1,67 +1,117 @@
 package ceri.common.function;
 
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.AssertUtil.assertIllegalArg;
+import static ceri.common.test.AssertUtil.assertNpe;
 import java.util.Comparator;
+import java.util.List;
 import org.junit.Test;
+import ceri.common.collect.Lists;
 
 public class ComparesTest {
 
 	@Test
-	public void testUnsignedComparators() {
-		assertEquals(Compares.UINT.compare(0xffffffff, -1), 0);
-		assertEquals(Compares.UINT.compare(0xffffffff, 0), 1);
-		assertEquals(Compares.UINT.compare(0, 0xffffffff), -1);
-		assertEquals(Compares.UINT.compare(0xffffffff, -2), 1);
-		assertEquals(Compares.UINT.compare(-2, 0xffffffff), -1);
-		assertEquals(Compares.UINT.compare(0x7fffffff, 0x80000000), -1);
-		assertEquals(Compares.UINT.compare(0x80000000, 0x7fffffff), 1);
-		assertEquals(Compares.ULONG.compare(0xffffffffffffffffL, -1L), 0);
-		assertEquals(Compares.ULONG.compare(0xffffffffffffffffL, 0L), 1);
-		assertEquals(Compares.ULONG.compare(0L, 0xffffffffffffffffL), -1);
-		assertEquals(Compares.ULONG.compare(0xffffffffffffffffL, -2L), 1);
-		assertEquals(Compares.ULONG.compare(-2L, 0xffffffffffffffffL), -1);
-		assertEquals(Compares.ULONG.compare(0x7fffffffffffffffL, 0x8000000000000000L), -1);
-		assertEquals(Compares.ULONG.compare(0x8000000000000000L, 0x7fffffffffffffffL), 1);
+	public void testNullsSafe() {
+		assertEquals(Compares.Nulls.safe(null), Compares.Nulls.fail);
+		assertEquals(Compares.Nulls.safe(Compares.Nulls.none), Compares.Nulls.fail);
+		assertEquals(Compares.Nulls.safe(Compares.Nulls.first), Compares.Nulls.first);
+		assertEquals(Compares.Nulls.safe(Compares.Nulls.last), Compares.Nulls.last);
+		assertEquals(Compares.Nulls.safe(Compares.Nulls.fail), Compares.Nulls.fail);
 	}
 
 	@Test
-	public void testOfNull() {
-		assertEquals(Compares.ofNull().compare("A", "B"), 0);
-		assertEquals(Compares.ofNull().compare("A", null), 0);
-		assertEquals(Compares.ofNull().compare(null, null), 0);
+	public void testNullsNot() {
+		assertEquals(Compares.Nulls.not(null), Compares.Nulls.none);
+		assertEquals(Compares.Nulls.not(Compares.Nulls.none), Compares.Nulls.none);
+		assertEquals(Compares.Nulls.not(Compares.Nulls.first), Compares.Nulls.last);
+		assertEquals(Compares.Nulls.not(Compares.Nulls.last), Compares.Nulls.first);
+		assertEquals(Compares.Nulls.not(Compares.Nulls.fail), Compares.Nulls.fail);
 	}
 
 	@Test
-	public void testPrimitiveComparator() {
-		assertEquals(Compares.BOOL.compare(null, null), 0);
-		assertTrue(Compares.BOOL.compare(null, true) < 0);
-		assertTrue(Compares.BOOL.compare(null, false) < 0);
-		assertTrue(Compares.BOOL.compare(true, null) > 0);
-		assertTrue(Compares.BOOL.compare(false, null) > 0);
-		assertTrue(Compares.BOOL.compare(false, true) < 0);
-		assertTrue(Compares.BOOL.compare(true, false) > 0);
+	public void testNullNone() {
+		Comparator<Integer> c = Compares.comparable(Compares.Nulls.none);
+		assertNpe(() -> c.compare(null, null));
+		assertNpe(() -> c.compare(null, 1));
+		assertNpe(() -> c.compare(1, null));
+		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 
 	@Test
-	public void testByComparable() {
-		Comparator<String> comparator = Compares.comparable();
-		assertEquals(comparator.compare(null, null), 0);
-		assertTrue(comparator.compare("A", null) > 0);
-		assertTrue(comparator.compare(null, "A") < 0);
-		assertTrue(comparator.compare("A", "B") < 0);
-		assertEquals(comparator.compare("A", "A"), 0);
-		assertTrue(comparator.compare("B", "A") > 0);
+	public void testNullFails() {
+		Comparator<Integer> c = Compares.comparable(Compares.Nulls.fail);
+		assertIllegalArg(() -> c.compare(null, null));
+		assertIllegalArg(() -> c.compare(null, 1));
+		assertIllegalArg(() -> c.compare(1, null));
+		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 
 	@Test
-	public void testByString() {
-		Comparator<String> comparator = Compares.string();
-		assertEquals(comparator.compare(null, null), 0);
-		assertTrue(comparator.compare("A", null) > 0);
-		assertTrue(comparator.compare(null, "A") < 0);
-		assertTrue(comparator.compare("A", "B") < 0);
-		assertEquals(comparator.compare("A", "A"), 0);
-		assertTrue(comparator.compare("B", "A") > 0);
+	public void testSafe() {
+		assertEquals(Compares.safe(null).compare(null, ""), 0);
+		assertEquals(Compares.safe(Compares.INT).compare(null, 1), -1);
+	}
+
+	@Test
+	public void testNot() {
+		assertSort(Compares.not(null), l(0, "a", null, "", "ab"), null, 0, "a", "", "ab");
+		assertSort(Compares.not(Compares.string()), l(1, "1", "A", null, "0"), null, "A", 1, "1",
+			"0");
+	}
+
+	@Test
+	public void testAsInt() {
+		assertSort(Compares.asInt(null), l(0, null, 1, -1), null, 0, 1, -1);
+		assertSort(Compares.asInt(String::length), l("a", " ", null, "", "ab"), null, "", "a", " ",
+			"ab");
+		assertSort(Compares.asInt(Compares.Nulls.last, String::length), l("a", " ", null, "", "ab"),
+			"", "a", " ", "ab", null);
+	}
+
+	@Test
+	public void testAsUint() {
+		assertSort(Compares.asUint(null), l(0, 1, null, -1), null, 0, 1, -1);
+		assertSort(Compares.asUint(Integer::parseInt), l("1", null, "0", "-1"), null, "0", "1",
+			"-1");
+		assertSort(Compares.asUint(Compares.Nulls.last, Integer::parseInt), l("1", null, "0", "-1"),
+			"0", "1", "-1", null);
+	}
+
+	@Test
+	public void testAsLong() {
+		assertSort(Compares.asLong(null), l(0, null, 1, -1), null, 0, 1, -1);
+		assertSort(Compares.asLong(String::length), l("a", " ", null, "", "ab"), null, "", "a", " ",
+			"ab");
+		assertSort(Compares.asLong(Compares.Nulls.last, String::length),
+			l("a", " ", null, "", "ab"), "", "a", " ", "ab", null);
+	}
+
+	@Test
+	public void testAsUlong() {
+		assertSort(Compares.asUlong(null), l(0, 1, null, -1), null, 0, 1, -1);
+		assertSort(Compares.asUlong(Integer::parseInt), l("1", null, "0", "-1"), null, "0", "1",
+			"-1");
+		assertSort(Compares.asUlong(Compares.Nulls.last, Integer::parseInt),
+			l("1", null, "0", "-1"), "0", "1", "-1", null);
+	}
+
+	@Test
+	public void testAsDouble() {
+		assertSort(Compares.asDouble(null), l(0, null, 1, -1), null, 0, 1, -1);
+		assertSort(Compares.asDouble(String::length), l("a", " ", null, "", "ab"), null, "", "a",
+			" ", "ab");
+		assertSort(Compares.asDouble(Compares.Nulls.last, String::length),
+			l("a", " ", null, "", "ab"), "", "a", " ", "ab", null);
+	}
+
+	@SafeVarargs
+	private static <T> void assertSort(Comparator<? super T> comparator, List<T> values,
+		T... sorted) {
+		assertEquals(Lists.sort(values, comparator), l(sorted));
+	}
+
+	@SafeVarargs
+	private static <T> List<T> l(T... values) {
+		return Lists.wrap(values);
 	}
 }
