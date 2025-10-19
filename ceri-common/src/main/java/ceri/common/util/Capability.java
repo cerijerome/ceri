@@ -2,6 +2,7 @@ package ceri.common.util;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
@@ -13,12 +14,12 @@ import ceri.common.text.Strings;
  */
 public class Capability {
 	private Capability() {}
-	
+
 	/**
 	 * For objects with an integer id.
 	 */
 	public interface IntId extends Comparable<IntId> {
-		Comparator<IntId> COMPARATOR = Comparator.comparingInt(IntId::id);
+		Comparator<IntId> COMPARATOR = Compares.asInt(IntId::id);
 
 		/**
 		 * Provides an id. By default this is the identity hash.
@@ -44,8 +45,8 @@ public class Capability {
 		 * A predicate by id.
 		 */
 		static <E extends Exception> Excepts.Predicate<E, IntId>
-			by(Excepts.IntPredicate<E> predicate) {
-			return Filters.testingInt(IntId::id, predicate);
+			filter(Excepts.IntPredicate<E> predicate) {
+			return Filters.asInt(IntId::id, predicate);
 		}
 	}
 
@@ -53,7 +54,7 @@ public class Capability {
 	 * For objects with a long id.
 	 */
 	public interface LongId extends Comparable<LongId> {
-		Comparator<LongId> COMPARATOR = Comparator.comparingLong(LongId::id);
+		Comparator<LongId> COMPARATOR = Compares.asLong(LongId::id);
 
 		/**
 		 * Provides an id. By default this is the identity hash.
@@ -79,8 +80,8 @@ public class Capability {
 		 * A predicate by id.
 		 */
 		static <E extends Exception> Excepts.Predicate<E, LongId>
-			by(Excepts.LongPredicate<E> predicate) {
-			return Filters.testingLong(LongId::id, predicate);
+			filter(Excepts.LongPredicate<E> predicate) {
+			return Filters.asLong(LongId::id, predicate);
 		}
 	}
 
@@ -88,7 +89,7 @@ public class Capability {
 	 * For objects that have a name.
 	 */
 	public interface Name {
-		static Comparator<Name> COMPARATOR = Comparator.comparing(Name::name);
+		static Comparator<Name> COMPARATOR = Compares.as(Name::name);
 
 		/**
 		 * Provides the instance name. By default this is the simple class name and system hash.
@@ -116,8 +117,8 @@ public class Capability {
 		 * Predicate by name.
 		 */
 		static <E extends Exception, T extends Name> Excepts.Predicate<E, T>
-			by(Excepts.Predicate<E, String> name) {
-			return Filters.testing(Name::name, name);
+			filter(Excepts.Predicate<E, String> name) {
+			return Filters.as(Name::name, name);
 		}
 	}
 
@@ -168,13 +169,13 @@ public class Capability {
 			return isEmpty == null || !isEmpty.isEmpty();
 		}
 	}
-	
+
 	/**
 	 * For objects that have enabled state.
 	 */
 	@FunctionalInterface
 	public interface Enabled {
-		static Comparator<Enabled> COMPARATOR = Comparator.comparing(Enabled::enabledInt);
+		static Comparator<Enabled> COMPARATOR = Compares.as(Enabled::enabledInt);
 		static Functions.Predicate<Enabled> BY = t -> Enabled.enabled(t);
 
 		/**
@@ -189,10 +190,16 @@ public class Capability {
 			return enablable != null && enablable.enabled();
 		}
 
+		/**
+		 * Returns enabled state as 1 or 0.
+		 */
 		static int enabledInt(Enabled enablable) {
 			return enabled(enablable) ? 1 : 0;
 		}
 
+		/**
+		 * Returns a conditional value based on enabled state.
+		 */
 		static <T> T conditional(Enabled enablable, T enabled, T disabled) {
 			return enabled(enablable) ? enabled : disabled;
 		}

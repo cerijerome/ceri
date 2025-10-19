@@ -98,14 +98,14 @@ public class TaskQueue<E extends Exception> {
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(Runnable<E> action) throws E {
-		executeGet(Functional.Adapt.supplier(action, null));
+		executeGet(Functional.Adapt.runSupplier(action, null));
 	}
 
 	/**
 	 * Executes the action, and waits for it to complete.
 	 */
 	public void execute(Runnable<E> action, int timeout, TimeUnit unit) throws E {
-		executeGet(Functional.Adapt.supplier(action, null), timeout, unit);
+		executeGet(Functional.Adapt.runSupplier(action, null), timeout, unit);
 	}
 
 	/**

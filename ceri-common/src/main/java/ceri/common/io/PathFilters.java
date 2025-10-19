@@ -39,7 +39,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byUnixPath(Excepts.Predicate<? extends E, ? super String> filter) {
-		return Filters.testing(IoUtil::pathToUnix, filter);
+		return Filters.as(IoUtil::pathToUnix, filter);
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byFileNamePath(Excepts.Predicate<? extends E, Path> filter) {
-		return Filters.testing(Path::getFileName, filter::test);
+		return Filters.as(Path::getFileName, filter::test);
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byFileName(Excepts.Predicate<? extends E, String> filter) {
-		return Filters.testing(IoUtil::filename, filter::test);
+		return Filters.as(IoUtil::filename, filter::test);
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class PathFilters {
 	 */
 	public static <E extends Exception> Excepts.Predicate<E, Path>
 		byExtension(Excepts.Predicate<? extends E, String> filter) {
-		return Filters.andOf(file(), Filters.testing(IoUtil::extension, filter));
+		return Filters.andOf(file(), Filters.as(IoUtil::extension, filter));
 	}
 
 	/**
@@ -91,7 +91,7 @@ public class PathFilters {
 	 */
 	public static Excepts.Predicate<IOException, Path>
 		byLastModified(Excepts.Predicate<? extends IOException, ? super Instant> filter) {
-		return Filters.testing(IoUtil::lastModified, filter::test);
+		return Filters.as(IoUtil::lastModified, filter::test);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class PathFilters {
 	 */
 	public static Excepts.Predicate<IOException, Path>
 		bySize(Excepts.Predicate<? extends IOException, ? super Long> filter) {
-		return Filters.testing(Files::size, filter);
+		return Filters.as(Files::size, filter);
 	}
 
 	/**

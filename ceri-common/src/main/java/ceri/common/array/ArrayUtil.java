@@ -563,7 +563,7 @@ public class ArrayUtil {
 	 * Sort the array range in place and return the array.
 	 */
 	public static <T extends Comparable<? super T>> T[] sort(T[] array, int offset, int length) {
-		return sort(array, offset, length, Compares.comparable());
+		return sort(array, offset, length, Compares.of());
 	}
 
 	/**

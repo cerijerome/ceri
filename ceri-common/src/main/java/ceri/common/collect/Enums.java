@@ -80,7 +80,7 @@ public class Enums {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Enum<?>>
 			name(Excepts.Predicate<? extends E, ? super String> predicate) {
-			return Filters.testing(Enum::name, predicate);
+			return Filters.as(Enum::name, predicate);
 		}
 	}
 

@@ -37,7 +37,7 @@ public abstract class SelfHealing<T extends Capability.Name & Closeable> extends
 	protected final Replaceable.Field<T> device = Replaceable.field("device");
 
 	public static class Config {
-		public static final Functions.Predicate<? super Exception> NULL_PREDICATE = Filters.no;
+		public static final Functions.Predicate<? super Exception> NULL_PREDICATE = Filters.NO;
 		public static final Config DEFAULT = new Builder().build();
 		public static final Config NULL = of(0, 0, NULL_PREDICATE);
 		public final int fixRetryDelayMs;

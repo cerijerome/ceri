@@ -68,7 +68,7 @@ public class Bound<T> {
 	}
 
 	public static <T extends Comparable<T>> Bound<T> inclusive(T value) {
-		return inclusive(value, Compares.comparable());
+		return inclusive(value, Compares.of());
 	}
 
 	public static <T> Bound<T> inclusive(T value, Comparator<T> comparator) {
@@ -76,7 +76,7 @@ public class Bound<T> {
 	}
 
 	public static <T extends Comparable<T>> Bound<T> exclusive(T value) {
-		return exclusive(value, Compares.comparable());
+		return exclusive(value, Compares.of());
 	}
 
 	public static <T> Bound<T> exclusive(T value, Comparator<T> comparator) {
@@ -84,7 +84,7 @@ public class Bound<T> {
 	}
 
 	public static <T extends Comparable<T>> Bound<T> of(T value, Type type) {
-		return of(value, type, Compares.comparable());
+		return of(value, type, Compares.of());
 	}
 
 	public static <T> Bound<T> of(T value, Type type, Comparator<T> comparator) {

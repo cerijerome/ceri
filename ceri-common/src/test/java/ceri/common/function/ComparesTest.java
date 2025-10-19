@@ -3,12 +3,18 @@ package ceri.common.function;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNpe;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Lists;
 
 public class ComparesTest {
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(Compares.class);
+	}
 
 	@Test
 	public void testNullsSafe() {
@@ -30,7 +36,7 @@ public class ComparesTest {
 
 	@Test
 	public void testNullNone() {
-		Comparator<Integer> c = Compares.comparable(Compares.Nulls.none);
+		Comparator<Integer> c = Compares.of(Compares.Nulls.none);
 		assertNpe(() -> c.compare(null, null));
 		assertNpe(() -> c.compare(null, 1));
 		assertNpe(() -> c.compare(1, null));
@@ -39,7 +45,7 @@ public class ComparesTest {
 
 	@Test
 	public void testNullFails() {
-		Comparator<Integer> c = Compares.comparable(Compares.Nulls.fail);
+		Comparator<Integer> c = Compares.of(Compares.Nulls.fail);
 		assertIllegalArg(() -> c.compare(null, null));
 		assertIllegalArg(() -> c.compare(null, 1));
 		assertIllegalArg(() -> c.compare(1, null));

@@ -42,7 +42,7 @@ public class ImmutableTest {
 	private static final Integer[] emptyArray = new Integer[0];
 	private static final Functions.Function<Object, Object> fn = String::valueOf;
 	private static final Functions.BiOperator<Object> biFn = (l, r) -> l != null ? l : r;
-	private static final Comparator<Integer> comp = Compares.comparable(Compares.Nulls.last);
+	private static final Comparator<Integer> comp = Compares.of(Compares.Nulls.last);
 
 	private static Integer[] array() {
 		return list.toArray(Integer[]::new);

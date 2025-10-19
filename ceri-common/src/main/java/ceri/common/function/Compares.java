@@ -12,18 +12,18 @@ import ceri.common.util.Validate;
  */
 public class Compares {
 	public static final Comparator<Object> NULL = (_, _) -> 0;
-	public static final Comparator<Boolean> BOOL = comparable();
-	public static final Comparator<Character> CHAR = comparable();
-	public static final Comparator<Integer> INT = comparable();
+	public static final Comparator<Boolean> BOOL = of();
+	public static final Comparator<Character> CHAR = of();
+	public static final Comparator<Integer> INT = of();
 	public static final Comparator<Integer> UINT = of(Integer::compareUnsigned);
-	public static final Comparator<Long> LONG = comparable();
+	public static final Comparator<Long> LONG = of();
 	public static final Comparator<Long> ULONG = of(Long::compareUnsigned);
-	public static final Comparator<Float> FLOAT = comparable();
-	public static final Comparator<Double> DOUBLE = comparable();
-	public static final Comparator<String> STRING = comparable();
-	public static final Comparator<Date> DATE = comparable();
+	public static final Comparator<Float> FLOAT = of();
+	public static final Comparator<Double> DOUBLE = of();
+	public static final Comparator<String> STRING = of();
+	public static final Comparator<Date> DATE = of();
 	public static final Comparator<Locale> LOCALE = string();
-	public static final Comparator<Object> TO_STRING = asComparable(Strings::safe);
+	public static final Comparator<Object> TO_STRING = as(Strings::safe);
 
 	private Compares() {}
 
@@ -71,6 +71,20 @@ public class Compares {
 	}
 
 	/**
+	 * A comparable comparator with default null behavior.
+	 */
+	public static <T extends Comparable<? super T>> Comparator<T> of() {
+		return of(Nulls.def);
+	}
+
+	/**
+	 * A comparable comparator with given null behavior.
+	 */
+	public static <T extends Comparable<? super T>> Comparator<T> of(Nulls nulls) {
+		return (l, r) -> compare(nulls, Comparator.naturalOrder(), l, r);
+	}
+
+	/**
 	 * Wraps a comparator with default null behavior.
 	 */
 	public static <T> Comparator<T> of(Comparator<? super T> comparator) {
@@ -107,6 +121,22 @@ public class Compares {
 	}
 
 	/**
+	 * Adapts a comparable comparator using an accessor, with default null behavior.
+	 */
+	public static <T, U extends Comparable<? super U>> Comparator<T>
+		as(Functions.Function<? super T, ? extends U> accessor) {
+		return as(Nulls.def, accessor);
+	}
+
+	/**
+	 * Adapts a comparable comparator using an accessor, with given null behavior.
+	 */
+	public static <T, U extends Comparable<? super U>> Comparator<T> as(Nulls nulls,
+		Functions.Function<? super T, ? extends U> accessor) {
+		return as(nulls, accessor, of(nulls));
+	}
+
+	/**
 	 * Adapts a comparator using an accessor, with default null behavior.
 	 */
 	public static <T, U> Comparator<T> as(Functions.Function<? super T, ? extends U> accessor,
@@ -121,36 +151,6 @@ public class Compares {
 		Functions.Function<? super T, ? extends U> accessor, Comparator<? super U> comparator) {
 		return (l, r) -> compare(nulls, comparator, Functional.apply(accessor, l),
 			Functional.apply(accessor, r));
-	}
-
-	/**
-	 * A comparable comparator with default null behavior.
-	 */
-	public static <T extends Comparable<? super T>> Comparator<T> comparable() {
-		return comparable(Nulls.def);
-	}
-
-	/**
-	 * A comparable comparator with given null behavior.
-	 */
-	public static <T extends Comparable<? super T>> Comparator<T> comparable(Nulls nulls) {
-		return (l, r) -> compare(nulls, Comparator.naturalOrder(), l, r);
-	}
-
-	/**
-	 * Adapts a comparable comparator using an accessor, with default null behavior.
-	 */
-	public static <T, U extends Comparable<? super U>> Comparator<T>
-		asComparable(Functions.Function<? super T, ? extends U> accessor) {
-		return asComparable(Nulls.def, accessor);
-	}
-
-	/**
-	 * Adapts a comparable comparator using an accessor, with given null behavior.
-	 */
-	public static <T, U extends Comparable<? super U>> Comparator<T> asComparable(Nulls nulls,
-		Functions.Function<? super T, ? extends U> accessor) {
-		return as(nulls, accessor, comparable(nulls));
 	}
 
 	/**
@@ -229,8 +229,8 @@ public class Compares {
 	 */
 	public static <T> Comparator<T> asDouble(Nulls nulls,
 		Functions.ToDoubleFunction<? super T> accessor) {
-		return of(Nulls.safe(nulls),
-			accessor == null ? ofNull() : Comparator.comparingDouble(accessor));
+		return of(Nulls.safe(nulls), accessor == null ? ofNull() :
+			(l, r) -> Double.compare(accessor.applyAsDouble(l), accessor.applyAsDouble(r)));
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class Compares {
 	// support
 
 	private static <T> Comparator<T> reverse(Comparator<T> comparator) {
-		return comparator == null ? null : comparator.reversed();
+		return comparator == null ? null : (l, r) -> comparator.compare(r, l);
 	}
 
 	private static <T> int compare(Comparator<? super T> comparator, T l, T r) {

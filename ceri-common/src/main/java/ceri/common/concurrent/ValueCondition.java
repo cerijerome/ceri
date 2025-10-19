@@ -168,7 +168,7 @@ public class ValueCondition<T> {
 	 * Waits for current value to be non-null, or timer to expire.
 	 */
 	public T awaitPeek(long timeoutMs) throws InterruptedException {
-		return awaitPeek(timeoutMs, Filters.yes);
+		return awaitPeek(timeoutMs, Filters.YES);
 	}
 
 	/**

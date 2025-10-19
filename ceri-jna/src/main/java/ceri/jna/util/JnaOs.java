@@ -2,16 +2,16 @@ package ceri.jna.util;
 
 import java.util.List;
 import ceri.common.collect.Iterables;
-import ceri.common.function.Accessible;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.util.OsUtil;
 
 /**
  * Supported OS types for JNA code.
  */
-public enum JnaOs implements Accessible<JnaOs> {
+public enum JnaOs implements Functional.Access<JnaOs> {
 	unknown(null, null),
 	mac("Mac", "__APPLE__"),
 	linux("Linux", "__linux__");

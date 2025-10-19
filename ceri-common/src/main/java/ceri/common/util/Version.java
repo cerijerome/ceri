@@ -10,10 +10,9 @@ import ceri.common.math.Maths;
 public record Version(int version, Integer major, Integer minor, String rev)
 	implements Comparable<Version> {
 
-	public static final Comparator<Version> COMPARATOR = Comparator.comparingInt(Version::version)
-		.thenComparing(Compares.asComparable(Version::major))
-		.thenComparing(Compares.asComparable(Version::minor))
-		.thenComparing(Compares.asComparable(Version::rev));
+	public static final Comparator<Version> COMPARATOR =
+		Compares.asInt(Version::version).thenComparing(Compares.as(Version::major))
+			.thenComparing(Compares.as(Version::minor)).thenComparing(Compares.as(Version::rev));
 
 	/**
 	 * Creates an instance without revision string.

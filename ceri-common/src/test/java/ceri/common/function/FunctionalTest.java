@@ -10,7 +10,9 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.junit.Test;
+import ceri.common.function.Excepts.Function;
 import ceri.common.test.AssertUtil;
+import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
 public class FunctionalTest {
@@ -20,11 +22,41 @@ public class FunctionalTest {
 	private static final Throws.Supplier<Integer> isp = () -> AssertUtil.throwInterrupted();
 	private static final Throws.Supplier<Integer> fsp = () -> AssertUtil.fail();
 
+	public static class A implements Functional.Access<Integer> {
+		private final CallSync.Supplier<Integer> supplier = CallSync.supplier(0, 1, 2, 3, 4);
+
+		@Override
+		public <E extends Exception, R> R apply(Function<E, ? super Integer, R> function) throws E {
+			return function.apply(supplier.get());
+		}
+	}
+	
 	@Test
 	public void testConstructorIsPrivate() {
 		assertPrivateConstructor(Functional.class);
 	}
 
+	@Test
+	public void testAdaptRunSupplier() throws Exception {
+		assertEquals(Functional.Adapt.runSupplier(null, 1).get(), 1);
+	}
+	
+	@Test
+	public void testAccess() throws Exception {
+		var a = new A();
+		assertEquals(a.apply(i -> i - 1), -1);
+		a.accept(null);
+		a.accept(i -> assertEquals(i, 2));
+	}
+	
+	@Test
+	public void testAccessOf() throws Exception {
+		var a = Functional.Access.of(1);
+		assertEquals(a.apply(i -> i - 1), 0);
+		a.accept(null);
+		a.accept(i -> assertEquals(i, 1));
+	}
+	
 	@Test
 	public void testApply() throws Exception {
 		assertEquals(Functional.apply(null, ""), null);

@@ -34,7 +34,7 @@ public class CapabilityTest {
 
 	@Test
 	public void testIntIdPredicate() {
-		var predicate = Capability.IntId.by(i -> i > 0);
+		var predicate = Capability.IntId.filter(i -> i > 0);
 		assertEquals(predicate.test(null), false);
 		assertEquals(predicate.test(id(0)), false);
 		assertEquals(predicate.test(id(1)), true);
@@ -58,7 +58,7 @@ public class CapabilityTest {
 
 	@Test
 	public void testLongIdPredicate() {
-		var predicate = Capability.LongId.by(l -> l > 0L);
+		var predicate = Capability.LongId.filter(l -> l > 0L);
 		assertEquals(predicate.test(null), false);
 		assertEquals(predicate.test(id(0L)), false);
 		assertEquals(predicate.test(id(1L)), true);
@@ -85,7 +85,7 @@ public class CapabilityTest {
 
 	@Test
 	public void testNamePredicate() {
-		var predicate = Capability.Name.by(s -> s.length() > 1);
+		var predicate = Capability.Name.filter(s -> s.length() > 1);
 		assertEquals(predicate.test(name("")), false);
 		assertEquals(predicate.test(name("a")), false);
 		assertEquals(predicate.test(name("test")), true);
@@ -116,9 +116,9 @@ public class CapabilityTest {
 	@Test
 	public void testEnabledComparator() {
 		assertEquals(Capability.Enabled.COMPARATOR.compare(null, null), 0);
-		assertEquals(Capability.Enabled.COMPARATOR.compare(null, ENABLED_FALSE), 0);
+		assertEquals(Capability.Enabled.COMPARATOR.compare(null, ENABLED_FALSE), -1);
 		assertEquals(Capability.Enabled.COMPARATOR.compare(null, ENABLED_TRUE), -1);
-		assertEquals(Capability.Enabled.COMPARATOR.compare(ENABLED_FALSE, null), 0);
+		assertEquals(Capability.Enabled.COMPARATOR.compare(ENABLED_FALSE, null), 1);
 		assertEquals(Capability.Enabled.COMPARATOR.compare(ENABLED_FALSE, ENABLED_FALSE), 0);
 		assertEquals(Capability.Enabled.COMPARATOR.compare(ENABLED_FALSE, ENABLED_TRUE), -1);
 		assertEquals(Capability.Enabled.COMPARATOR.compare(ENABLED_TRUE, null), 1);

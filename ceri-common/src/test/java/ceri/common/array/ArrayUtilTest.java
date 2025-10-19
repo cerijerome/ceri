@@ -282,7 +282,7 @@ public class ArrayUtilTest {
 	public void testSort() {
 		assertEquals(ArrayUtil.sort(null), null);
 		assertArray(ArrayUtil.sort(ints.clone()), null, -1, 1);
-		assertArray(ArrayUtil.sort(ints.clone(), Compares.comparable(Compares.Nulls.last)), -1, 1,
+		assertArray(ArrayUtil.sort(ints.clone(), Compares.of(Compares.Nulls.last)), -1, 1,
 			null);
 	}
 

@@ -103,7 +103,6 @@ import ceri.common.test.TestUtil;
 	ceri.common.except.ExceptionTrackerBehavior.class, //
 	ceri.common.except.ExceptionsTest.class, //
 	// function
-	ceri.common.function.AccessibleBehavior.class, //
 	ceri.common.function.CloseablesTest.class, //
 	ceri.common.function.ComparesTest.class, //
 	ceri.common.function.EnclosureBehavior.class, //

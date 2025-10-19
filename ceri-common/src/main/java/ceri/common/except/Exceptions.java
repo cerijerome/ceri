@@ -30,7 +30,7 @@ public class Exceptions {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Throwable>
 			message(Excepts.Predicate<E, String> predicate) {
-			return Filters.nullNo(Filters.testing(Throwable::getMessage, predicate));
+			return Filters.as(Throwable::getMessage, predicate);
 		}
 	}
 

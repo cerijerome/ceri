@@ -38,7 +38,7 @@ public class Maps {
 		public static <E extends Exception, K, V> Excepts.Predicate<E, Map.Entry<K, V>>
 			entry(Excepts.BiPredicate<E, ? super K, ? super V> predicate) {
 			if (predicate == null) return _ -> false;
-			return Filters.biTesting(Map.Entry::getKey, Map.Entry::getValue, predicate);
+			return Filters.biAs(Map.Entry::getKey, Map.Entry::getValue, predicate);
 		}
 	}
 
@@ -265,7 +265,7 @@ public class Maps {
 	 * Creates an empty mutable tree map with null-first natural comparator.
 	 */
 	public static <K extends Comparable<? super K>, V> TreeMap<K, V> tree() {
-		return new TreeMap<>(Compares.comparable());
+		return new TreeMap<>(Compares.of());
 	}
 
 	/**

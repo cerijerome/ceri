@@ -25,17 +25,60 @@ public class Functional {
 		private Adapt() {}
 
 		/**
-		 * Adapts a runnable type to a supplier with fixed value.
+		 * Adapts a consumer as a function with fixed response.
 		 */
-		public static <E extends Exception, T> Excepts.Supplier<E, T>
-			supplier(Excepts.Runnable<? extends E> runnable, T t) {
+		public static <E extends Exception, T, R> Excepts.Function<E, T, R>
+			acceptFunction(Excepts.Consumer<? extends E, T> consumer, R response) {
+			return t -> {
+				if (consumer != null) consumer.accept(t);
+				return response;
+			};
+		}
+		
+		/**
+		 * Adapts a runnable as a supplier with fixed response.
+		 */
+		public static <E extends Exception, R> Excepts.Supplier<E, R>
+			runSupplier(Excepts.Runnable<? extends E> runnable, R response) {
 			return () -> {
 				if (runnable != null) runnable.run();
-				return t;
+				return response;
+			};
+		}		
+	}
+
+	/**
+	 * Interface that accepts various functions, passing an instance to the function.
+	 */
+	public interface Access<T> {
+
+		/**
+		 * Applies the function.
+		 */
+		<E extends Exception, R> R apply(Excepts.Function<E, ? super T, R> function) throws E;
+
+		/**
+		 * Accepts the consumer.
+		 */
+		default <E extends Exception> void accept(Excepts.Consumer<E, ? super T> consumer) throws E {
+			apply(Adapt.acceptFunction(consumer, null));
+		}
+
+		/**
+		 * Create an implementation with a fixed instance.
+		 */
+		static <T> Access<T> of(T t) {
+			// return f -> f.apply(t); // not allowed
+			return new Access<>() {
+				@Override
+				public <E extends Exception, R> R apply(Excepts.Function<E, ? super T, R> function)
+					throws E {
+					return function.apply(t);
+				}
 			};
 		}
 	}
-
+	
 	/**
 	 * Gets result from function and operand; returns null if function or operand is null.
 	 */

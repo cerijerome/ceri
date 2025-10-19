@@ -1,6 +1,5 @@
 package ceri.common.function;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -71,7 +70,7 @@ public interface Scorer<T> {
 			 */
 			@SafeVarargs
 			public final Builder<T> put(double score, T... ts) {
-				return put(score, Arrays.asList(ts));
+				return put(score, Lists.wrap(ts));
 			}
 
 			/**
@@ -195,7 +194,7 @@ public interface Scorer<T> {
 	 */
 	static <E extends Exception, T> Excepts.Predicate<E, T> filter(Scorer<? super T> scorer,
 		Excepts.Predicate<? extends E, ? super Double> filter) {
-		return Filters.testing(t -> score(scorer, t), filter);
+		return Filters.as(t -> score(scorer, t), filter);
 	}
 
 	/**
@@ -211,7 +210,7 @@ public interface Scorer<T> {
 	 */
 	@SafeVarargs
 	static <T> Scorer<T> multiplied(Scorer<? super T>... scorers) {
-		return multiplied(Arrays.asList(scorers));
+		return multiplied(Lists.wrap(scorers));
 	}
 
 	/**
