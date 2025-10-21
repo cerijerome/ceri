@@ -1,12 +1,12 @@
 package ceri.common.net;
 
 import java.io.IOException;
-import ceri.common.io.ReplaceableConnector;
+import ceri.common.io.ReplaceableStream;
 
 /**
  * A socket pass-through that allows the underlying socket to be replaced.
  */
-public class ReplaceableTcpSocket extends ReplaceableConnector<TcpSocket> implements TcpSocket {
+public class ReplaceableTcpSocket extends ReplaceableStream.Con<TcpSocket> implements TcpSocket {
 
 	public static ReplaceableTcpSocket of() {
 		return new ReplaceableTcpSocket();
@@ -35,5 +35,4 @@ public class ReplaceableTcpSocket extends ReplaceableConnector<TcpSocket> implem
 	public <T> T option(TcpSocketOption<T> option) throws IOException {
 		return applyValid(socket -> socket.option(option));
 	}
-
 }

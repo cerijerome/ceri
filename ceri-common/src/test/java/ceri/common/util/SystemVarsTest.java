@@ -2,6 +2,9 @@ package ceri.common.util;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.AssertUtil.assertPath;
+import static ceri.common.test.AssertUtil.assertUnordered;
+import java.io.File;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
@@ -11,6 +14,53 @@ public class SystemVarsTest {
 	@After
 	public void after() {
 		SystemVars.clear();
+	}
+
+	@Test
+	public void testTempDir() {
+		assertPath(SystemVars.tempDir(), SystemVars.sys("java.io.tmpdir"));
+	}
+
+	@Test
+	public void testUserHome() {
+		assertPath(SystemVars.userHome(), SystemVars.sys("user.home"));
+		assertPath(SystemVars.userHome("test"), SystemVars.sys("user.home") + "/test");
+	}
+
+	@Test
+	public void testUserDir() {
+		assertPath(SystemVars.userDir(), SystemVars.sys("user.dir"));
+		assertPath(SystemVars.userDir("test"), SystemVars.sys("user.dir") + "/test");
+	}
+
+	@Test
+	public void testSysPath() {
+		assertNull(SystemVars.sysPath("?"));
+	}
+
+	@Test
+	public void testEnvPath() {
+		assertNull(SystemVars.envPath("?"));
+		var name = TestUtil.firstEnvironmentVariableName();
+		assertPath(SystemVars.envPath(name), SystemVars.env(name));
+	}
+
+	@Test
+	public void testPathVar() {
+		assertEquals(SystemVars.pathVar(), "");
+		assertEquals(SystemVars.pathVar("a/b"), "a/b");
+		assertEquals(SystemVars.pathVar("a/b", "c/d"), "a/b" + File.pathSeparator + "c/d");
+	}
+
+	@Test
+	public void testVarPaths() {
+		assertUnordered(SystemVars.varPaths(null));
+		assertUnordered(SystemVars.varPaths(""));
+		assertUnordered(SystemVars.varPaths(File.pathSeparator));
+		assertUnordered(SystemVars.varPaths(" " + File.pathSeparator + " a"), "a");
+		assertUnordered(SystemVars.varPaths("a/b" + File.pathSeparator + "a/b"), "a/b");
+		assertUnordered(SystemVars.varPaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
+			"a/b /c");
 	}
 
 	@Test
@@ -125,5 +175,4 @@ public class SystemVarsTest {
 		assertEquals(SystemVars.env("!@#$%"), null);
 		assertEquals(SystemVars.sys("!@#$%"), null);
 	}
-
 }

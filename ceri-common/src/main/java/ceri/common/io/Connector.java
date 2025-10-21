@@ -31,12 +31,12 @@ public interface Connector extends Closeable, Capability.Name {
 	interface Null extends ceri.common.io.Fixable.Null, Connector.Fixable {
 		@Override
 		default InputStream in() {
-			return IoStreamUtil.nullIn;
+			return IoStream.nullIn;
 		}
 
 		@Override
 		default OutputStream out() {
-			return IoStreamUtil.nullOut;
+			return IoStream.nullOut;
 		}
 	}
 

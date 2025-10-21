@@ -1,9 +1,5 @@
 package ceri.jna.clib.util;
 
-import static ceri.jna.clib.jna.CTermios.ECHO;
-import static ceri.jna.clib.jna.CTermios.ECHONL;
-import static ceri.jna.clib.jna.CTermios.ICANON;
-import static ceri.jna.clib.jna.CUnistd.STDIN_FILENO;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -15,6 +11,7 @@ import ceri.common.io.LineReader;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.Termios;
+import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CUnistd;
 import ceri.jna.util.JnaUtil;
 import ceri.log.util.LogUtil;
@@ -34,7 +31,7 @@ public class TtyInput implements LineReader, Functions.Closeable {
 	 */
 	@SuppressWarnings("resource")
 	public static Enclosure<? extends LineReader> in() throws IOException {
-		return CUnistd.isatty(STDIN_FILENO) ? Enclosure.of(of()) :
+		return CUnistd.isatty(CUnistd.STDIN_FILENO) ? Enclosure.of(of()) :
 			Enclosure.noOp(LineReader.of(System.in));
 	}
 
@@ -71,7 +68,7 @@ public class TtyInput implements LineReader, Functions.Closeable {
 
 	private void configureTty(FileDescriptor fd) throws IOException {
 		var termios = Termios.get(fd);
-		JnaUtil.and(termios.localFlags(), ~(ICANON | ECHO | ECHONL));
+		JnaUtil.and(termios.localFlags(), ~(CTermios.ICANON | CTermios.ECHO | CTermios.ECHONL));
 		termios.set();
 	}
 }

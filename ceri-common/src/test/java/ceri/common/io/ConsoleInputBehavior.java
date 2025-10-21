@@ -52,7 +52,7 @@ public class ConsoleInputBehavior {
 		var tin = TestInputStream.of();
 		tin.available.autoResponses(0, 0, 1);
 		tin.to.writeString("abc\n");
-		var out = IoUtil.nullPrintStream();
+		var out = IoStream.nullPrint();
 		in = new InputStreamReader(tin);
 		con = ConsoleInput.of(in, out, new ConsoleInput.Config(0, false, null, 0));
 		assertEquals(con.readLine(), "abc");

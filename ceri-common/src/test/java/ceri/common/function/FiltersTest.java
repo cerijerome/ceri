@@ -4,6 +4,7 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
 import static ceri.common.test.AssertUtil.assertThrown;
+import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.text.Strings;
@@ -31,6 +32,14 @@ public class FiltersTest {
 	public void testCast() {
 		Excepts.Predicate<IllegalArgumentException, Object> p0 = o -> !String.valueOf(o).isEmpty();
 		Excepts.Predicate<RuntimeException, String> p = Filters.cast(p0);
+		assertTest(p, true, nullStr);
+		assertTest(p, false, "");
+	}
+
+	@Test
+	public void testEx() throws IOException {
+		Excepts.Predicate<RuntimeException, Object> p0 = o -> !String.valueOf(o).isEmpty();
+		Excepts.Predicate<IOException, String> p = Filters.ex(p0);
 		assertTest(p, true, nullStr);
 		assertTest(p, false, "");
 	}

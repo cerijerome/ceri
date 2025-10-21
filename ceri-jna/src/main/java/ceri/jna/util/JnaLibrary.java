@@ -9,7 +9,6 @@ import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.OsUtil;
 import ceri.common.util.SystemVars;
@@ -144,7 +143,7 @@ public class JnaLibrary<T extends Library> {
 	}
 
 	private static void addPropertyPaths(String property, String... paths) {
-		String path = IoUtil.pathVariable(SystemVars.sys(property, ""), IoUtil.pathVariable(paths));
+		var path = SystemVars.pathVar(SystemVars.sys(property, ""), SystemVars.pathVar(paths));
 		SystemVars.setProperty(property, path.isEmpty() ? null : path);
 	}
 

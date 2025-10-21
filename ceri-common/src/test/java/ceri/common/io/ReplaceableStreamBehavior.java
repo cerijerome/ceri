@@ -1,0 +1,269 @@
+package ceri.common.io;
+
+import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.AssertUtil.assertFalse;
+import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertThrowable;
+import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.ErrorGen.RTX;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import org.junit.After;
+import org.junit.Test;
+import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.Captor;
+import ceri.common.test.ErrorGen;
+import ceri.common.test.TestConnector;
+import ceri.common.test.TestInputStream;
+import ceri.common.test.TestOutputStream;
+import ceri.common.test.TestUtil;
+
+public class ReplaceableStreamBehavior {
+	private ValueCondition<Exception> sync;
+	private ReplaceableStream.In rin;
+	private TestInputStream tin;
+	private InputStream in;
+	private InputStream in2;
+	private ReplaceableStream.Out rout;
+	private TestOutputStream tout;
+	private ByteArrayOutputStream bout;
+	private ByteArrayOutputStream bout2;
+	private ReplaceableStream.Con.Fixable<Connector.Fixable> fcon;
+	private TestConnector tcon;
+
+	@After
+	public void after() {
+		in2 = TestUtil.close(in2);
+		in = TestUtil.close(in);
+		tin = TestUtil.close(tin);
+		rin = TestUtil.close(rin);
+		bout2 = TestUtil.close(bout2);
+		bout = TestUtil.close(bout);
+		tout = TestUtil.close(tout);
+		rout = TestUtil.close(rout);
+		tcon = TestUtil.close(tcon);
+		fcon = TestUtil.close(fcon);
+		sync = null;
+	}
+
+	@Test
+	public void testConstructorIsPrivate() {
+		assertPrivateConstructor(ReplaceableStream.class);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldReplaceIn() throws IOException {
+		initIn();
+		rin = ReplaceableStream.in();
+		rin.replace(tin);
+		rin.replace(tin); // does nothing
+		rin.replace(TestInputStream.of());
+		tin.close.assertCalls(1);
+	}
+
+	@Test
+	public void shouldNotifyInListenerOfMarkException() throws InterruptedException {
+		initIn();
+		tin.mark.error.setFrom(RTX);
+		rin = ReplaceableStream.in();
+		rin.errors().listen(sync::signal);
+		rin.set(tin);
+		assertThrown(() -> rin.mark(0));
+		assertThrowable(sync.await(), RuntimeException.class);
+	}
+
+	@Test
+	public void shouldNotifyInListenerOfMarkSupportedException() throws InterruptedException {
+		initIn();
+		tin.markSupported.error.setFrom(RTX);
+		rin = ReplaceableStream.in();
+		rin.errors().listen(sync::signal);
+		assertFalse(rin.markSupported());
+		rin.set(tin);
+		assertThrown(rin::markSupported);
+		assertThrowable(sync.await(), RuntimeException.class);
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldNotifyInListenersOfErrors() throws InterruptedException {
+		initIn();
+		tin.read.error.setFrom(ErrorGen.IOX);
+		tin.to.writeBytes(0, 0);
+		rin = ReplaceableStream.in();
+		rin.set(tin);
+		rin.errors().listen(sync::signal);
+		assertThrown(rin::read);
+		assertThrowable(sync.await(), IOException.class);
+		assertThrown(rin::read);
+		assertThrowable(sync.await(), IOException.class);
+	}
+
+	@Test
+	public void shouldFailWithAnInvalidIn() {
+		rin = ReplaceableStream.in();
+		assertThrown(rin::read);
+		assertThrown(rin::available);
+		assertThrown(() -> rin.skip(0));
+		rin.mark(4);
+		assertThrown(rin::reset);
+		byte[] buffer = new byte[100];
+		assertThrown(() -> rin.read(buffer));
+		assertThrown(() -> rin.read(buffer, 1, 99));
+	}
+
+	@Test
+	public void shouldPassThroughInMarkAndReset() throws IOException {
+		rin = ReplaceableStream.in();
+		in = bis("test");
+		assertFalse(rin.markSupported());
+		rin.set(in);
+		assertTrue(rin.markSupported());
+		assertEquals(rin.available(), 4);
+		byte[] buffer = new byte[6];
+		rin.read(buffer, 0, 2);
+		rin.mark(2);
+		rin.read(buffer, 2, 2);
+		rin.reset();
+		rin.skip(1);
+		rin.read(buffer, 4, 2);
+		assertArray(buffer, "testt\0".getBytes());
+	}
+
+	@Test
+	public void shouldAllowInToBeReplaced() throws IOException {
+		rin = ReplaceableStream.in();
+		in = bis("test");
+		in2 = bis("again");
+		rin.set(in);
+		byte[] buffer = new byte[9];
+		rin.read(buffer);
+		rin.set(in2);
+		rin.read(buffer, 4, 5);
+		assertArray(buffer, "testagain".getBytes());
+	}
+
+	@Test
+	public void shouldReadFromIn() throws IOException {
+		rin = ReplaceableStream.in();
+		in = bis("test");
+		rin.set(in);
+		byte[] buffer = new byte[2];
+		assertEquals(rin.read(), (int) 't');
+		rin.read(buffer);
+		assertArray(buffer, 'e', 's');
+		rin.read(buffer, 1, 1);
+		assertArray(buffer, 'e', 't');
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldReplaceOut() throws IOException {
+		initOut();
+		rout = ReplaceableStream.out();
+		rout.replace(tout);
+		rout.replace(tout); // does nothing
+		rout.replace(TestOutputStream.of());
+		tout.close.assertCalls(1);
+	}
+
+	@Test
+	public void shouldNotifyOutListenersOfErrors() throws InterruptedException {
+		initOut();
+		tout.write.error.setFrom(ErrorGen.IOX);
+		rout = ReplaceableStream.out();
+		rout.set(tout);
+		rout.errors().listen(sync::signal);
+		assertThrown(() -> rout.write(0));
+		assertThrowable(sync.await(), IOException.class);
+		assertThrown(() -> rout.write(0xff));
+		assertThrowable(sync.await(), IOException.class);
+	}
+
+	@Test
+	public void shouldFailWithAnInvalidOut() {
+		rout = ReplaceableStream.out();
+		assertThrown(() -> rout.write(0));
+		byte[] buffer = new byte[100];
+		assertThrown(() -> rout.write(buffer));
+		assertThrown(() -> rout.write(buffer, 1, 98));
+		assertThrown(rout::flush);
+	}
+
+	@Test
+	public void shouldAllowOutToBeReplaced() throws IOException {
+		rout = ReplaceableStream.out();
+		bout = new ByteArrayOutputStream();
+		bout2 = new ByteArrayOutputStream();
+		rout.set(bout);
+		byte[] buffer = "test".getBytes();
+		rout.write(buffer);
+		rout.set(bout2);
+		rout.write(buffer, 1, 3);
+		assertBout(bout, "test");
+		assertBout(bout2, "est");
+	}
+
+	@Test
+	public void shouldWriteToOut() throws IOException {
+		rout = ReplaceableStream.out();
+		bout = new ByteArrayOutputStream();
+		rout.set(bout);
+		byte[] buffer = "test".getBytes();
+		rout.write(buffer);
+		rout.write('t');
+		rout.write(buffer, 1, 3);
+		rout.flush();
+		assertBout(bout, "testtest");
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void shouldReplaceConnector() throws IOException {
+		initCon(null);
+		assertThrown(fcon::open);
+		fcon.replace(tcon);
+		fcon.open();
+		assertEquals(fcon.in().available(), 0);
+		fcon.out().write(0);
+	}
+
+	@Test
+	public void shouldListenForErrors() throws IOException {
+		initCon("test");
+		var captor = Captor.of();
+		try (var _ = fcon.listeners().enclose(captor::accept)) {
+			fcon.replace(tcon);
+			fcon.broken();
+			captor.verify(StateChange.broken);
+		}
+	}
+
+	private void initIn() {
+		sync = ValueCondition.of();
+		tin = TestInputStream.of();
+	}
+
+	private void initOut() {
+		sync = ValueCondition.of();
+		tout = TestOutputStream.of();
+	}
+
+	private void initCon(String name) {
+		fcon = ReplaceableStream.con(name);
+		tcon = TestConnector.of();
+	}
+
+	private static void assertBout(ByteArrayOutputStream bout, String s) {
+		assertArray(bout.toByteArray(), s.getBytes());
+	}
+
+	private static ByteArrayInputStream bis(String s) {
+		return new ByteArrayInputStream(s.getBytes());
+	}
+}

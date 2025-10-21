@@ -7,9 +7,9 @@ import java.util.Set;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Excepts.Consumer;
 
-public class NioUtil {
+public class Nio {
 
-	private NioUtil() {}
+	private Nio() {}
 
 	public static void selectKeys(Selector selector, Consumer<IOException, SelectionKey> consumer)
 		throws IOException, InterruptedException {
@@ -22,5 +22,4 @@ public class NioUtil {
 		for (var i = selectedKeys.iterator(); i.hasNext(); i.remove())
 			i.next();
 	}
-
 }

@@ -13,7 +13,7 @@ import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.test.CallSync;
 
-public class NioUtilTest {
+public class NioTest {
 	private TestSelector selector;
 	private TestKey key0;
 	private TestKey key1;
@@ -32,7 +32,7 @@ public class NioUtilTest {
 		var keys = new TestKeySet(key0, key1, key2);
 		selector.selectedKeys.autoResponses(keys);
 		var consumer = CallSync.<SelectionKey>consumer(null, true);
-		NioUtil.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
+		Nio.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
 		consumer.assertValues(key0, key1, key2);
 		assertEquals(keys.isEmpty(), true);
 	}
@@ -40,7 +40,7 @@ public class NioUtilTest {
 	@Test
 	public void testClearKeys() {
 		var keys = new TestKeySet(key0, key1, key2);
-		NioUtil.clearKeys(keys);
+		Nio.clearKeys(keys);
 	}
 
 	@SuppressWarnings("serial")

@@ -5,8 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.function.Functional;
 import ceri.common.io.Connector;
-import ceri.common.io.IoStreamUtil;
-import ceri.common.io.IoStreamUtil.Write;
+import ceri.common.io.IoStream;
+import ceri.common.io.IoStream.Write;
 import ceri.common.text.ToString;
 
 /**
@@ -52,8 +52,8 @@ public class TestConnector extends TestFixable implements Connector.Fixable {
 		super(name);
 		in = TestInputStream.of();
 		out = TestOutputStream.of();
-		wrappedIn = IoStreamUtil.filterIn(in, this::read, this::available);
-		wrappedOut = IoStreamUtil.filterOut(out, this::writeWithReturn);
+		wrappedIn = IoStream.filterIn(in, this::read, this::available);
+		wrappedOut = IoStream.filterOut(out, this::writeWithReturn);
 	}
 
 	/**

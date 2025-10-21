@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,7 +15,8 @@ import ceri.common.collect.Lists;
 import ceri.common.collect.Maps;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Paths;
+import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 
 /**
@@ -118,7 +120,7 @@ public class FileTestHelper implements Functions.Closeable {
 			if (path.isAbsolute())
 				throw new IllegalArgumentException("Path must be relative: " + path);
 			path = path.normalize();
-			if ("..".equals(IoUtil.name(path, 0)))
+			if ("..".equals(Paths.name(path, 0)))
 				throw new IllegalArgumentException("Path cannot go above parent: " + path);
 			return path;
 		}
@@ -157,7 +159,7 @@ public class FileTestHelper implements Functions.Closeable {
 	}
 
 	private Path createRoot(Path parent, Path root) throws IOException {
-		if (root == null) return IoUtil.createTempDir(parent);
+		if (root == null) return Paths.createTempDir(parent);
 		root = parent.resolve(root);
 		if (Files.exists(root)) throw new FileAlreadyExistsException(root.toString());
 		return Files.createDirectory(root);
@@ -205,9 +207,17 @@ public class FileTestHelper implements Functions.Closeable {
 		return Files.readString(path(format, objs), cs);
 	}
 
+	/**
+	 * Assert paths relative to file helper.
+	 */
+	public void assertPaths(Collection<Path> actual, String... paths) {
+		var expected = Streams.of(paths).map(this::path).collect(Collectors.toList());
+		AssertUtil.assertUnordered(actual, expected);
+	}
+
 	@Override
 	public void close() {
-		ExceptionAdapter.runtime.run(() -> IoUtil.deleteAll(root));
+		ExceptionAdapter.runtime.run(() -> Paths.deleteAll(root));
 	}
 
 	private void createDirs(List<Path> dirs) throws IOException {

@@ -33,7 +33,7 @@ import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Paths;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
 import ceri.common.stream.DoubleStream;
@@ -71,8 +71,7 @@ public class AssertUtil {
 	/**
 	 * Fails if the value does not equal the expected value within precision decimal places.
 	 */
-	public static double approx(double actual, double expected, String format,
-		Object... args) {
+	public static double approx(double actual, double expected, String format, Object... args) {
 		return approx(actual, expected, PRECISION_DEF, format, args);
 	}
 
@@ -1320,12 +1319,12 @@ public class AssertUtil {
 	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
 	public static void assertDir(Path lhsDir, Path rhsDir) throws IOException {
-		List<Path> lhsPathsRelative = IoUtil.pathsRelative(lhsDir);
-		List<Path> rhsPathsRelative = IoUtil.pathsRelative(rhsDir);
+		var lhsPathsRelative = Paths.pathsRelative(lhsDir);
+		var rhsPathsRelative = Paths.pathsRelative(rhsDir);
 		assertUnordered(lhsPathsRelative, rhsPathsRelative);
-		for (Path path : lhsPathsRelative) {
-			Path lhsFile = lhsDir.resolve(path);
-			Path rhsFile = rhsDir.resolve(path);
+		for (var path : lhsPathsRelative) {
+			var lhsFile = lhsDir.resolve(path);
+			var rhsFile = rhsDir.resolve(path);
 			boolean rhsIsDir = Files.isDirectory(rhsFile);
 			assertDir(lhsFile, rhsIsDir);
 			if (!rhsIsDir) assertFile(lhsFile, rhsFile);
@@ -1371,11 +1370,11 @@ public class AssertUtil {
 	 */
 	public static void assertPath(Path actual, String expected, String... more) {
 		if (expected == null) assertEquals(actual, null);
-		else assertEquals(actual, IoUtil.newPath(actual, expected, more));
+		else assertEquals(actual, Paths.newPath(actual, expected, more));
 	}
 
 	/**
-	 * Assert a collection of paths in unspecific order, using the first path's file system.
+	 * Assert a collection of paths in non-specific order, using the first path's file system.
 	 */
 	public static void assertPaths(Collection<Path> actual, String... paths) {
 		if (actual.isEmpty()) {
@@ -1385,15 +1384,6 @@ public class AssertUtil {
 		@SuppressWarnings("resource")
 		FileSystem fs = actual.iterator().next().getFileSystem();
 		List<Path> expected = Streams.of(paths).map(fs::getPath).collect(Collectors.toList());
-		assertUnordered(actual, expected);
-	}
-
-	/**
-	 * Assert paths relative to file helper.
-	 */
-	public static void assertHelperPaths(Collection<Path> actual, FileTestHelper helper,
-		String... paths) {
-		List<Path> expected = Streams.of(paths).map(helper::path).collect(Collectors.toList());
 		assertUnordered(actual, expected);
 	}
 

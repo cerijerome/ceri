@@ -2,7 +2,6 @@ package ceri.common.test;
 
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
 import static ceri.common.test.AssertUtil.assertOrdered;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -683,7 +682,7 @@ public abstract class CallSync<T, R> {
 	 * Asserts that no call was made.
 	 */
 	public void assertNoCall() {
-		assertNull(callSync.value());
+		assertEquals(callSync.value(), null);
 	}
 
 	/**

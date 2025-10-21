@@ -3,14 +3,14 @@ package ceri.common.test;
 import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertUnordered;
 import org.junit.Test;
-import ceri.common.io.IoUtil;
+import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;
 
 public class BranchCaptorBehavior {
 
 	@Test
 	public void shouldFindNoMissingBranches() {
-		BranchCaptor bc = new BranchCaptor();
+		var bc = new BranchCaptor();
 		assertEquals(bc.missing().size(), 0);
 		bc.add(true);
 		assertEquals(bc.missing().size(), 1);
@@ -20,7 +20,7 @@ public class BranchCaptorBehavior {
 
 	@Test
 	public void shouldIdentifyMissingBranches() {
-		BranchCaptor bc = new BranchCaptor();
+		var bc = new BranchCaptor();
 		bc.add(false, false, false);
 		bc.add(false, false, true);
 		bc.add(false, true, false);
@@ -36,8 +36,8 @@ public class BranchCaptorBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldReport() {
-		try (SystemIo stdio = SystemIo.of()) {
-			stdio.out(IoUtil.nullPrintStream());
+		try (var stdio = SystemIo.of()) {
+			stdio.out(IoStream.nullPrint());
 			BranchCaptor bc = new BranchCaptor();
 			bc.add(true, true);
 			bc.add(true, false);
@@ -47,5 +47,4 @@ public class BranchCaptorBehavior {
 			bc.report();
 		}
 	}
-
 }

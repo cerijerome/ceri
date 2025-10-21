@@ -140,20 +140,18 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.FileVisitUtilTest.class, //
 	ceri.common.io.FixableBehavior.class, //
 	ceri.common.io.IoExceptionsBehavior.class, //
-	ceri.common.io.IoStreamUtilTest.class, //
+	ceri.common.io.IoStreamTest.class, //
 	ceri.common.io.IoUtilTest.class, //
 	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
-	ceri.common.io.NioUtilTest.class, //
-	ceri.common.io.PathFiltersTest.class, //
+	ceri.common.io.NioTest.class, //
 	ceri.common.io.PathPatternBehavior.class, //
+	ceri.common.io.PathsTest.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //
 	ceri.common.io.ReplaceableBehavior.class, //
-	ceri.common.io.ReplaceableConnectorBehavior.class, //
-	ceri.common.io.ReplaceableInputStreamBehavior.class, //
-	ceri.common.io.ReplaceableOutputStreamBehavior.class, //
-	ceri.common.io.ResourcePathBehavior.class, //
+	ceri.common.io.ReplaceableStreamBehavior.class, //
+	ceri.common.io.ResourceBehavior.class, //
 	ceri.common.io.StateChangeBehavior.class, //
 	ceri.common.io.StringPrintStreamBehavior.class, //
 	// log

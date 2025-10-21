@@ -3,7 +3,7 @@ package ceri.serial.comm.util;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Paths;
 import ceri.common.util.Basics;
 import ceri.common.util.Validate;
 
@@ -72,7 +72,7 @@ public interface PortSupplier {
 		}
 
 		public List<String> ports(String pattern) throws IOException {
-			return IoUtil.list(dir, pattern).stream().map(Path::toString).sorted().toList();
+			return Paths.list(dir, pattern).stream().map(Path::toString).sorted().toList();
 		}
 
 		private static String index(List<String> ports, int index, String pattern) {

@@ -5,6 +5,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Objects;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts;
@@ -14,49 +15,14 @@ import ceri.common.math.Maths;
 /**
  * Utilities for creating input and output streams.
  */
-public class IoStreamUtil {
+public class IoStream {
 	private static final int MAX_SKIP_BUFFER_SIZE = 2048; // from InputStream
 	/** No-op, stateless, input stream. */
-	public static final NullIn nullIn = new NullIn();
+	public static final InputStream nullIn = nullIn();
 	/** No-op, stateless, output stream. */
-	public static final NullOut nullOut = new NullOut();
+	public static final OutputStream nullOut = nullOut();
 
-	private IoStreamUtil() {}
-
-	/**
-	 * An no-op, stateless input stream. Unlike InputStream.nullInputStream, this returns 0 for
-	 * read(), and the requested length for other read(...) calls. It does not keep track of closed
-	 * state.
-	 */
-	public static class NullIn extends InputStream {
-		private NullIn() {}
-
-		@Override
-		public int read() {
-			return 0;
-		}
-
-		@Override
-		public byte[] readAllBytes() {
-			return ArrayUtil.bytes.empty; // 1-byte instead?
-		}
-
-		@Override
-		public long transferTo(OutputStream out) throws IOException {
-			return 0;
-		}
-	}
-
-	/**
-	 * An no-op, stateless output stream. Unlike OutputStream.nullOutputStream, this does not keep
-	 * track of closed state.
-	 */
-	public static class NullOut extends OutputStream {
-		private NullOut() {}
-
-		@Override
-		public void write(int b) {}
-	}
+	private IoStream() {}
 
 	/**
 	 * Interface for stream read operations.
@@ -115,12 +81,12 @@ public class IoStreamUtil {
 		return new InputStream() {
 			@Override
 			public int available() throws IOException {
-				return IoStreamUtil.available(availableFn);
+				return IoStream.available(availableFn);
 			}
 
 			@Override
 			public int read() throws IOException {
-				return IoStreamUtil.read(readFn);
+				return IoStream.read(readFn);
 			}
 		};
 	}
@@ -139,17 +105,17 @@ public class IoStreamUtil {
 		return new InputStream() {
 			@Override
 			public int available() throws IOException {
-				return IoStreamUtil.available(availableFn);
+				return IoStream.available(availableFn);
 			}
 
 			@Override
 			public int read() throws IOException {
-				return IoStreamUtil.read(readFn);
+				return IoStream.read(readFn);
 			}
 
 			@Override
 			public int read(byte[] b, int off, int len) throws IOException {
-				return IoStreamUtil.read(readFn, b, off, len);
+				return IoStream.read(readFn, b, off, len);
 			}
 		};
 	}
@@ -172,22 +138,22 @@ public class IoStreamUtil {
 		return new FilterInputStream(in) {
 			@Override
 			public int available() throws IOException {
-				return IoStreamUtil.available(in, availableFn);
+				return IoStream.available(in, availableFn);
 			}
 
 			@Override
 			public int read() throws IOException {
-				return IoStreamUtil.read(in, readFn);
+				return IoStream.read(in, readFn);
 			}
 
 			@Override
 			public int read(byte[] b, int off, int len) throws IOException {
-				return IoStreamUtil.read(in, readFn, b, off, len);
+				return IoStream.read(in, readFn, b, off, len);
 			}
 
 			@Override
 			public long skip(long n) throws IOException {
-				return IoStreamUtil.skip(this, n);
+				return IoStream.skip(this, n);
 			}
 		};
 	}
@@ -208,22 +174,22 @@ public class IoStreamUtil {
 		return new FilterInputStream(in) {
 			@Override
 			public int available() throws IOException {
-				return IoStreamUtil.available(in, availableFn);
+				return IoStream.available(in, availableFn);
 			}
 
 			@Override
 			public int read() throws IOException {
-				return IoStreamUtil.read(in, readFn);
+				return IoStream.read(in, readFn);
 			}
 
 			@Override
 			public int read(byte[] b, int off, int len) throws IOException {
-				return IoStreamUtil.read(in, readFn, b, off, len);
+				return IoStream.read(in, readFn, b, off, len);
 			}
 
 			@Override
 			public long skip(long n) throws IOException {
-				return IoStreamUtil.skip(this, n);
+				return IoStream.skip(this, n);
 			}
 		};
 	}
@@ -266,12 +232,12 @@ public class IoStreamUtil {
 		return new FilterOutputStream(out) {
 			@Override
 			public void write(int b) throws IOException {
-				IoStreamUtil.write(out, writeFn, b);
+				IoStream.write(out, writeFn, b);
 			}
 
 			@Override
 			public void write(byte[] b, int off, int len) throws IOException {
-				IoStreamUtil.write(out, writeFn, b, off, len);
+				IoStream.write(out, writeFn, b, off, len);
 			}
 		};
 	}
@@ -283,17 +249,24 @@ public class IoStreamUtil {
 		return new FilterOutputStream(out) {
 			@Override
 			public void write(int b) throws IOException {
-				IoStreamUtil.write(out, writeFn, b);
+				IoStream.write(out, writeFn, b);
 			}
 
 			@Override
 			public void write(byte[] b, int off, int len) throws IOException {
-				IoStreamUtil.write(out, writeFn, b, off, len);
+				IoStream.write(out, writeFn, b, off, len);
 			}
 		};
 	}
 
-	/* InputStream methods */
+	/**
+	 * Returns a print stream that swallows all output.
+	 */
+	public static PrintStream nullPrint() {
+		return new PrintStream(nullOut);
+	}
+
+	// InputStream methods
 
 	private static int available(Excepts.IntSupplier<IOException> availableFn) throws IOException {
 		if (availableFn == null) return 0;
@@ -317,7 +290,7 @@ public class IoStreamUtil {
 		return Functional.apply(r -> r.read(b, off, len), readFn, len);
 	}
 
-	/* FilterInputStream methods */
+	// FilterInputStream methods
 
 	private static long skip(InputStream in, long n) throws IOException {
 		if (n <= 0) return 0;
@@ -377,7 +350,7 @@ public class IoStreamUtil {
 		return n != null ? n : in.read(b, off, len);
 	}
 
-	/* FilterOutputStream methods */
+	// FilterOutputStream methods
 
 	private static void write(OutputStream out,
 		Excepts.ObjIntPredicate<IOException, OutputStream> writeFn, int b) throws IOException {
@@ -405,5 +378,36 @@ public class IoStreamUtil {
 		Objects.checkFromIndexSize(off, len, b.length);
 		if (!Functional.apply(w -> w.write(out, b, off, len), writeFn, false))
 			out.write(b, off, len);
+	}
+
+	// support
+
+	private static InputStream nullIn() {
+		// Unlike InputStream.nullInputStream, this returns 0 for read() and the requested length
+		// for other read(...) calls. It does not keep track of closed state.
+		return new InputStream() {
+			@Override
+			public int read() {
+				return 0;
+			}
+
+			@Override
+			public byte[] readAllBytes() {
+				return ArrayUtil.bytes.empty; // 1-byte instead?
+			}
+
+			@Override
+			public long transferTo(OutputStream out) throws IOException {
+				return 0;
+			}
+		};
+	}
+
+	private static OutputStream nullOut() {
+		// Unlike OutputStream.nullOutputStream, this does not keep track of closed state.
+		return new OutputStream() {
+			@Override
+			public void write(int b) {}
+		};
 	}
 }

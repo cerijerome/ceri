@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
  */
 public interface LineReader {
 	/** A no-op, stateless instance. */
-	Null NULL = new Null() {};
+	LineReader NULL = () -> "";
 
 	/**
 	 * Reads the next line of input.
@@ -20,7 +20,10 @@ public interface LineReader {
 	/**
 	 * Returns true if any input is available.
 	 */
-	boolean ready() throws IOException;
+	@SuppressWarnings("unused")
+	default boolean ready() throws IOException {
+		return false;
+	}
 
 	/**
 	 * Adapt a buffered reader.
@@ -44,20 +47,5 @@ public interface LineReader {
 	 */
 	static LineReader of(InputStream in) {
 		return of(new BufferedReader(new InputStreamReader(in)));
-	}
-
-	/**
-	 * A no-op, stateless implementation.
-	 */
-	interface Null extends LineReader {
-		@Override
-		default String readLine() throws IOException {
-			return "";
-		}
-
-		@Override
-		default boolean ready() throws IOException {
-			return false;
-		}
 	}
 }

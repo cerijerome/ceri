@@ -29,7 +29,7 @@ import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.IoStream;
 import ceri.common.io.PipedStream;
 import ceri.common.io.SystemIo;
 import ceri.common.test.ManualTester.Action;
@@ -125,7 +125,7 @@ public class ManualTesterBehavior {
 	public void shouldExecuteCommandsFromStdIn() {
 		try (var stdIo = SystemIo.of()) {
 			stdIo.in(inputStream("?;*;-;+;@0;:;~0;!\n"));
-			stdIo.out(IoUtil.nullPrintStream());
+			stdIo.out(IoStream.nullPrint());
 			ManualTester.builderArray("test", 1).promptSgr(null).build().run();
 		}
 	}
@@ -136,7 +136,7 @@ public class ManualTesterBehavior {
 		fastMode.close();
 		try (var sys = SystemIo.of()) {
 			sys.in(inputStream("!\n"));
-			sys.out(IoUtil.nullPrintStream());
+			sys.out(IoStream.nullPrint());
 			ManualTester.builder("test", String::valueOf).in(System.in).out(System.out)
 				.err(System.err).indent("  ")
 				.promptSgr(AnsiEscape.csi.sgr().fgColor(BasicColor.cyan, false))

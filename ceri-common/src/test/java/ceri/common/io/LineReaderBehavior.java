@@ -11,5 +11,4 @@ public class LineReaderBehavior {
 		assertEquals(LineReader.NULL.readLine(), "");
 		assertEquals(LineReader.NULL.ready(), false);
 	}
-
 }

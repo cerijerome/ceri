@@ -1,9 +1,5 @@
 package ceri.jna.reflect;
 
-import static ceri.common.except.ExceptionAdapter.shouldNotThrow;
-import static java.lang.reflect.AccessFlag.FINAL;
-import static java.lang.reflect.AccessFlag.PUBLIC;
-import static java.lang.reflect.AccessFlag.STATIC;
 import java.io.PrintStream;
 import java.lang.reflect.AccessFlag;
 import java.lang.reflect.Field;
@@ -23,7 +19,9 @@ import ceri.common.collect.Sets;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.io.IoUtil;
+import ceri.common.io.IoStream;
+import ceri.common.io.Paths;
+import ceri.common.io.Resource;
 import ceri.common.reflect.ClassReloader;
 import ceri.common.reflect.Reflect;
 import ceri.common.text.Chars;
@@ -49,8 +47,10 @@ public class CSymbolGen {
 	private static final String C_EXT = ".c";
 	private static final List<Class<?>> TYPE_IGNORE_FIELDS =
 		List.of(Structure.class, NativeMapped.class, Enum.class, Record.class);
-	private static final List<AccessFlag> TYPE_ACCESS_FLAGS = List.of(PUBLIC, STATIC);
-	private static final List<AccessFlag> FIELD_ACCESS_FLAGS = List.of(PUBLIC, STATIC, FINAL);
+	private static final List<AccessFlag> TYPE_ACCESS_FLAGS =
+		List.of(AccessFlag.PUBLIC, AccessFlag.STATIC);
+	private static final List<AccessFlag> FIELD_ACCESS_FLAGS =
+		List.of(AccessFlag.PUBLIC, AccessFlag.STATIC, AccessFlag.FINAL);
 	private static final List<Class<?>> FIELD_TYPES =
 		List.of(Number.class, long.class, int.class, short.class, byte.class);
 	private final String template;
@@ -96,7 +96,7 @@ public class CSymbolGen {
 
 		private static <E extends Exception> void genOs(JnaOs os, CAnnotations.CGen.Value cgen,
 			Path location, Excepts.BiConsumer<E, JnaOs, CSymbolGen> configurator) throws E {
-			var file = IoUtil.changeName(location, os::file);
+			var file = Paths.changeName(location, os::file);
 			var reloader = ClassReloader.ofNested(cgen.classes());
 			var targets = Stream.of(cgen.target()).map(c -> reloader.forName(c, false)).toList();
 			var gen = CSymbolGen.of();
@@ -290,16 +290,16 @@ public class CSymbolGen {
 		/**
 		 * Add a preprocessor #if defined construct.
 		 */
-		public <E extends Exception> CSymbolGen addIfDef(String defined,
-			Excepts.Runnable<E> runIf) throws E {
+		public <E extends Exception> CSymbolGen addIfDef(String defined, Excepts.Runnable<E> runIf)
+			throws E {
 			return addIfDef(defined, runIf, null);
 		}
 
 		/**
 		 * Add a preprocessor #if defined/#else construct.
 		 */
-		public <E extends Exception> CSymbolGen addIfDef(String defined,
-			Excepts.Runnable<E> runIf, Excepts.Runnable<E> runElse) throws E {
+		public <E extends Exception> CSymbolGen addIfDef(String defined, Excepts.Runnable<E> runIf,
+			Excepts.Runnable<E> runElse) throws E {
 			var condition = (defined == null ? null : "defined(" + defined + ")");
 			return addIf(condition, runIf, runElse);
 		}
@@ -365,7 +365,8 @@ public class CSymbolGen {
 	}
 
 	private CSymbolGen(JnaOs os) {
-		this.template = shouldNotThrow.get(() -> IoUtil.resourceString(getClass(), TEMPLATE));
+		this.template =
+			ExceptionAdapter.shouldNotThrow.get(() -> Resource.string(getClass(), TEMPLATE));
 		this.os = os;
 	}
 
@@ -373,7 +374,7 @@ public class CSymbolGen {
 	 * Change the generation output stream
 	 */
 	public CSymbolGen out(PrintStream out) {
-		if (out == null) out = IoUtil.nullPrintStream();
+		if (out == null) out = IoStream.nullPrint();
 		this.out = out;
 		return this;
 	}
@@ -403,7 +404,7 @@ public class CSymbolGen {
 	 */
 	public String generateFile(Path file) {
 		return ExceptionAdapter.runtimeIo.get(() -> {
-			var filename = IoUtil.filenameWithoutExt(file);
+			var filename = Paths.nameWithoutExt(file);
 			var gen = generate(filename);
 			Files.writeString(file, gen);
 			out.println(gen);
@@ -556,7 +557,7 @@ public class CSymbolGen {
 			 * Build:  gcc %s.c -o %s; chmod a+x ./%s
 			 *  Run:  ./%s
 			 */
-			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), Dates.nowSec(),
-			filename, filename, filename, filename);
+			""", os, Reflect.name(CSymbolGen.class), OsUtil.value(), Dates.nowSec(), filename,
+			filename, filename, filename);
 	}
 }

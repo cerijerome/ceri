@@ -34,7 +34,9 @@ import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts;
-import ceri.common.io.IoUtil;
+import ceri.common.io.IoStream;
+import ceri.common.io.Paths;
+import ceri.common.io.Resource;
 import ceri.common.io.SystemIo;
 import ceri.common.math.Maths;
 import ceri.common.property.PropertyUtil;
@@ -188,7 +190,7 @@ public class TestUtil {
 	 */
 	public static String resource(String name) {
 		Class<?> cls = Reflect.previousCaller(1).cls();
-		return init(() -> IoUtil.resourceString(cls, name));
+		return init(() -> Resource.string(cls, name));
 	}
 
 	/**
@@ -218,7 +220,7 @@ public class TestUtil {
 	 * Creates Properties from name.properties under class package.
 	 */
 	public static Properties properties(Class<?> cls, String name) {
-		String text = init(() -> IoUtil.resourceString(cls, name + ".properties"));
+		String text = init(() -> Resource.string(cls, name + ".properties"));
 		return PropertyUtil.parse(text);
 	}
 
@@ -239,8 +241,8 @@ public class TestUtil {
 	@SuppressWarnings("resource")
 	public static SystemIo nullOutErr() {
 		SystemIo sys = SystemIo.of();
-		sys.out(IoUtil.nullPrintStream());
-		sys.err(IoUtil.nullPrintStream());
+		sys.out(IoStream.nullPrint());
+		sys.err(IoStream.nullPrint());
 		return sys;
 	}
 
@@ -369,14 +371,14 @@ public class TestUtil {
 	 * Convert collection of files to list of unix-format paths
 	 */
 	public static List<String> pathsToUnix(Collection<Path> paths) {
-		return paths.stream().map(IoUtil::pathToUnix).collect(Collectors.toList());
+		return paths.stream().map(Paths::toUnix).collect(Collectors.toList());
 	}
 
 	/**
 	 * Convert collection of files to list of unix-format paths
 	 */
 	public static List<String> pathNamesToUnix(Collection<String> pathNames) {
-		return pathNames.stream().map(IoUtil::pathToUnix).collect(Collectors.toList());
+		return pathNames.stream().map(Paths::toUnix).collect(Collectors.toList());
 	}
 
 	/**

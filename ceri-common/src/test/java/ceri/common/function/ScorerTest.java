@@ -95,11 +95,11 @@ public class ScorerTest {
 
 	@Test
 	public void testScoring() {
-		assertEquals(Scorer.scoring(null, LEN).score(1), 0.0);
-		assertEquals(Scorer.scoring(String::valueOf, null).score(1), 0.0);
-		assertEquals(Scorer.scoring(String::valueOf, LEN).score(null), 0.0);
-		assertEquals(Scorer.scoring(String::valueOf, LEN).score(1), 1.0);
-		assertEquals(Scorer.scoring(String::valueOf, LEN).score(1.01), 4.0);
+		assertEquals(Scorer.as(null, LEN).score(1), 0.0);
+		assertEquals(Scorer.as(String::valueOf, null).score(1), 0.0);
+		assertEquals(Scorer.as(String::valueOf, LEN).score(null), 0.0);
+		assertEquals(Scorer.as(String::valueOf, LEN).score(1), 1.0);
+		assertEquals(Scorer.as(String::valueOf, LEN).score(1.01), 4.0);
 	}
 
 	@Test

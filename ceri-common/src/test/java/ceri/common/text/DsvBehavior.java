@@ -14,10 +14,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Test;
-import ceri.common.io.ResourcePath;
+import ceri.common.io.Resource;
 
 public class DsvBehavior {
 	private Dsv parser;
@@ -28,7 +27,7 @@ public class DsvBehavior {
 		parser = null;
 		lines = null;
 	}
-	
+
 	@Test
 	public void shouldCreateCodecFromDelimiter() {
 		assertEquals(Dsv.codec('\t'), Dsv.Codec.TSV);
@@ -124,7 +123,7 @@ public class DsvBehavior {
 		assertEquals(Dsv.Codec.decodeValue(" , "), " , ");
 		assertEquals(Dsv.Codec.decodeValue("\t"), "\t");
 	}
-	
+
 	@Test
 	public void testSplit() {
 		assertOrdered(Dsv.split(null, '|'));
@@ -195,7 +194,7 @@ public class DsvBehavior {
 		assertTrue(parser.hasHeader());
 		next();
 	}
-	
+
 	private void next() {
 		parser.parseLine(lines.next());
 	}
@@ -206,8 +205,7 @@ public class DsvBehavior {
 	}
 
 	private Iterator<String> lines(String resource) throws IOException {
-		try (ResourcePath rp = ResourcePath.of(getClass(), resource);
-			Stream<String> stream = Files.lines(rp.path())) {
+		try (var r = Resource.of(getClass(), resource); var stream = Files.lines(r.path())) {
 			return stream.collect(Collectors.toList()).iterator();
 		}
 	}

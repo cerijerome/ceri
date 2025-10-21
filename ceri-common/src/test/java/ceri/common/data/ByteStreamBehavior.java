@@ -21,7 +21,7 @@ import ceri.common.data.ByteStream.Reader;
 import ceri.common.data.ByteStream.Writer;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.IoExceptions;
-import ceri.common.io.IoStreamUtil;
+import ceri.common.io.IoStream;
 import ceri.common.io.PipedStream;
 import ceri.common.test.ErrorGen;
 
@@ -42,7 +42,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldReadByteWithErrors() {
 		ErrorGen error = ErrorGen.of();
-		InputStream in = IoStreamUtil.in(() -> {
+		InputStream in = IoStream.in(() -> {
 			error.call(ExceptionAdapter.io);
 			return 0;
 		});
@@ -112,7 +112,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldWriteByteWithErrors() {
 		ErrorGen error = ErrorGen.of();
-		OutputStream out = IoStreamUtil.out(_ -> error.call(ExceptionAdapter.io));
+		OutputStream out = IoStream.out(_ -> error.call(ExceptionAdapter.io));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);
 		assertRte(() -> w.writeByte(1));

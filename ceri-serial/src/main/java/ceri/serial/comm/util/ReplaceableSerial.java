@@ -3,7 +3,7 @@ package ceri.serial.comm.util;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
-import ceri.common.io.ReplaceableConnector;
+import ceri.common.io.ReplaceableStream;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
@@ -11,7 +11,7 @@ import ceri.serial.comm.SerialParams;
 /**
  * A serial port pass-through that allows the underlying serial port to be replaced.
  */
-public class ReplaceableSerial extends ReplaceableConnector<Serial> implements Serial {
+public class ReplaceableSerial extends ReplaceableStream.Con<Serial> implements Serial {
 
 	public static ReplaceableSerial of() {
 		return new ReplaceableSerial();

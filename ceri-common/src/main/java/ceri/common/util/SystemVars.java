@@ -1,19 +1,72 @@
 package ceri.common.util;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import ceri.common.collect.Maps;
+import ceri.common.function.Functional;
 import ceri.common.function.Functions;
+import ceri.common.property.Parser;
+import ceri.common.stream.Streams;
 import ceri.common.text.Strings;
 
 /**
- * A wrapper for environment variables and system properties, that allows overriding of values.
+ * Provides access to environment variables and system properties, with support for overrides.
  */
 public class SystemVars {
+	private static final Pattern PATH_SEPARATOR_REGEX =
+		Pattern.compile("\\s*\\Q" + File.pathSeparator + "\\E\\s*");
+	private static final String TMP_DIR_PROPERTY = "java.io.tmpdir";
+	private static final String USER_HOME_PROPERTY = "user.home";
+	private static final String USER_DIR_PROPERTY = "user.dir";
 	private static final Map<String, Optional<String>> vars = new ConcurrentHashMap<>();
 
 	private SystemVars() {}
+
+	/**
+	 * Returns the system temp directory.
+	 */
+	public static Path tempDir() {
+		return sysPath(TMP_DIR_PROPERTY);
+	}
+
+	/**
+	 * Returns the user home path extended with given paths, based on system property 'user.home'.
+	 * Returns null if property does not exist.
+	 */
+	public static Path userHome(String... paths) {
+		return sysPath(USER_HOME_PROPERTY, paths);
+	}
+
+	/**
+	 * Returns the current path extended with given paths, based on system property 'user.dir'.
+	 * Returns null if property does not exist.
+	 */
+	public static Path userDir(String... paths) {
+		return sysPath(USER_DIR_PROPERTY, paths);
+	}
+
+	/**
+	 * Join paths using the system path separator.
+	 */
+	public static String pathVar(String... paths) {
+		return Streams.of(paths).map(String::trim).filter(Strings.Filter.NON_EMPTY)
+			.collect(Collectors.joining(File.pathSeparator));
+	}
+
+	/**
+	 * Extract unique paths in order, using the system path separator.
+	 */
+	public static Set<String> varPaths(String variable) {
+		if (variable == null) return Set.of();
+		return Parser.string(variable).split(PATH_SEPARATOR_REGEX).filter(Strings::nonEmpty)
+			.toSet();
+	}
 
 	/**
 	 * Gets an override value or environment variable if not set.
@@ -37,6 +90,14 @@ public class SystemVars {
 	 */
 	public static Map<String, String> env() {
 		return addVars(Maps.copy(System.getenv()));
+	}
+
+	/**
+	 * Returns the path extending from a given environment variable. Returns null if the variable
+	 * does not exist.
+	 */
+	public static Path envPath(String name, String... paths) {
+		return Functional.apply(p -> Path.of(p, paths), SystemVars.env(name));
 	}
 
 	/**
@@ -66,6 +127,14 @@ public class SystemVars {
 	}
 
 	/**
+	 * Returns the path extending from a given system property path. Returns null if the system
+	 * property does not exist.
+	 */
+	public static Path sysPath(String name, String... paths) {
+		return Functional.apply(p -> Path.of(p, paths), SystemVars.sys(name));
+	}
+
+	/**
 	 * Sets a system property and returns the previous value, or null if not set. A null value
 	 * passed in will clear the property.
 	 */
@@ -78,7 +147,7 @@ public class SystemVars {
 	 * Returns a closeable instance that sets a system property, then reverts it on close.
 	 */
 	public static Functions.Closeable removableProperty(String name, String value) {
-		String orig = setProperty(name, value); // null if property not set
+		var orig = setProperty(name, value); // null if property not set
 		return () -> setProperty(name, orig);
 	}
 
@@ -87,7 +156,7 @@ public class SystemVars {
 	 */
 	public static String set(String name, String value) {
 		if (name == null) return null;
-		Optional<String> old = vars.put(name, Optional.ofNullable(value));
+		var old = vars.put(name, Optional.ofNullable(value));
 		return old == null ? null : old.orElse(null);
 	}
 
@@ -96,7 +165,7 @@ public class SystemVars {
 	 */
 	public static String remove(String name) {
 		if (name == null) return null;
-		Optional<String> old = vars.remove(name);
+		var old = vars.remove(name);
 		return old == null ? null : old.orElse(null);
 	}
 
@@ -115,6 +184,8 @@ public class SystemVars {
 		return () -> remove(name);
 	}
 
+	// support
+
 	private static Map<String, String> addVars(Map<String, String> map) {
 		vars.forEach((k, v) -> {
 			if (v.isEmpty()) map.remove(k);
@@ -122,5 +193,4 @@ public class SystemVars {
 		});
 		return map;
 	}
-
 }

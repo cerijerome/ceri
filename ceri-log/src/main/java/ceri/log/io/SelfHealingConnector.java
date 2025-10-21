@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.io.Connector;
-import ceri.common.io.ReplaceableInputStream;
-import ceri.common.io.ReplaceableOutputStream;
+import ceri.common.io.ReplaceableStream;
 
 /**
  * The base logic for self-healing connectors. It will automatically reconnect if the connector is
@@ -13,8 +12,8 @@ import ceri.common.io.ReplaceableOutputStream;
  */
 public abstract class SelfHealingConnector<T extends Connector> extends SelfHealing<T>
 	implements Connector.Fixable {
-	private final ReplaceableInputStream in = new ReplaceableInputStream();
-	private final ReplaceableOutputStream out = new ReplaceableOutputStream();
+	private final ReplaceableStream.In in = ReplaceableStream.in();
+	private final ReplaceableStream.Out out = ReplaceableStream.out();
 
 	protected SelfHealingConnector(SelfHealing.Config config) {
 		super(config);

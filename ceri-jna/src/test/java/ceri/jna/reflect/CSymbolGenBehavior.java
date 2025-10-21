@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Structure;
 import ceri.common.function.Closeables;
-import ceri.common.io.IoUtil;
+import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
@@ -22,7 +22,7 @@ import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaOs;
 
 public class CSymbolGenBehavior {
-	private PrintStream nullOut = IoUtil.nullPrintStream();
+	private PrintStream nullOut = IoStream.nullPrint();
 	private FileTestHelper files;
 	private SystemIo sys;
 

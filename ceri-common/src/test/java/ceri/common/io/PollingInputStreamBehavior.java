@@ -11,7 +11,7 @@ public class PollingInputStreamBehavior {
 
 	@Test
 	public void shouldTimeoutIfNoData() throws IOException {
-		try (InputStream in0 = IoStreamUtil.in((_, _, _) -> 0)) {
+		try (InputStream in0 = IoStream.in((_, _, _) -> 0)) {
 			try (PollingInputStream in = new PollingInputStream(in0, 1, 1)) {
 				assertThrown(IoExceptions.Timeout.class, in::read);
 			}

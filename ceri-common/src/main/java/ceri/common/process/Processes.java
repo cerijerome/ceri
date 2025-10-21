@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.regex.Pattern;
-import ceri.common.io.IoStreamUtil;
+import ceri.common.io.IoStream;
 import ceri.common.io.IoUtil;
 import ceri.common.text.Joiner;
 import ceri.common.text.Regex;
@@ -36,17 +36,17 @@ public class Processes {
 
 		@Override
 		public InputStream getErrorStream() {
-			return IoStreamUtil.nullIn;
+			return IoStream.nullIn;
 		}
 
 		@Override
 		public InputStream getInputStream() {
-			return IoStreamUtil.nullIn;
+			return IoStream.nullIn;
 		}
 
 		@Override
 		public OutputStream getOutputStream() {
-			return IoStreamUtil.nullOut;
+			return IoStream.nullOut;
 		}
 
 		@Override

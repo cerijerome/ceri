@@ -2,13 +2,11 @@ package ceri.jna.clib.test;
 
 import static ceri.common.test.AssertUtil.assertArray;
 import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertTrue;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import org.apache.logging.log4j.Level;
-import ceri.common.io.IoUtil;
+import ceri.common.io.Paths;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
@@ -47,8 +45,7 @@ public class CLibVerifier {
 		verifySignal();
 		verifySigset();
 		verifyPoll();
-		if (!verifyTermios(serial))
-			out.println("WARNING: serial not found, skipping CTermios");
+		if (!verifyTermios(serial)) out.println("WARNING: serial not found, skipping CTermios");
 		verifyEnv();
 		out.println("Success");
 	}
@@ -57,7 +54,7 @@ public class CLibVerifier {
 		int fd = -1;
 		try (var files = FileTestHelper.builder().build()) {
 			fd = CFcntl.open(files.path("test").toString(), CFcntl.O_RDWR | CFcntl.O_CREAT, 0777);
-			assertFalse(CUnistd.isatty(fd));
+			assertEquals(CUnistd.isatty(fd), false);
 			assertEquals(CUnistd.write(fd, 1, 2, 3), 3);
 			assertEquals(CUnistd.lseek(fd, 0, CUnistd.SEEK_SET), 0);
 			assertEquals(CIoctl.fionread(fd), 3);
@@ -72,10 +69,10 @@ public class CLibVerifier {
 
 	public static void verifySignal() throws IOException {
 		var sync = CallSync.consumer(0, true);
-		assertTrue(CSignal.signal(CSignal.SIGUSR1, sync::accept));
+		assertEquals(CSignal.signal(CSignal.SIGUSR1, sync::accept), true);
 		CSignal.raise(CSignal.SIGUSR1);
 		sync.assertAuto(CSignal.SIGUSR1);
-		assertTrue(CSignal.signal(CSignal.SIGUSR1, CSignal.SIG_DFL));
+		assertEquals(CSignal.signal(CSignal.SIGUSR1, CSignal.SIG_DFL), true);
 		verifySigset();
 	}
 
@@ -137,9 +134,9 @@ public class CLibVerifier {
 		for (var signal : Signal.values()) {
 			int signum = signal.signal;
 			CSignal.sigaddset(sigset, signum);
-			assertTrue(CSignal.sigismember(sigset, signum));
+			assertEquals(CSignal.sigismember(sigset, signum), true);
 			CSignal.sigdelset(sigset, signum);
-			assertFalse(CSignal.sigismember(sigset, signum));
+			assertEquals(CSignal.sigismember(sigset, signum), false);
 		}
 	}
 
@@ -189,7 +186,7 @@ public class CLibVerifier {
 
 	private static Path serialPath(String path) throws IOException {
 		if (!Strings.isBlank(path)) return Path.of(path);
-		return IoUtil.list(Path.of("/dev/"), "regex:tty.*(usb|USB).*").stream().findFirst()
+		return Paths.list(Path.of("/dev/"), "regex:tty.*(usb|USB).*").stream().findFirst()
 			.orElse(null);
 	}
 }

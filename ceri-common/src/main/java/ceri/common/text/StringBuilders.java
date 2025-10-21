@@ -7,7 +7,7 @@ import java.util.Formatter;
 import java.util.PrimitiveIterator;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
-import ceri.common.io.IoStreamUtil;
+import ceri.common.io.IoStream;
 import ceri.common.math.Maths;
 import ceri.common.stream.IntStream;
 import ceri.common.util.Basics;
@@ -306,7 +306,7 @@ public class StringBuilders {
 	 * Wrap an OutputStream around a string builder.
 	 */
 	public static OutputStream outputStream(StringBuilder s, Charset charset) {
-		if (s == null) return IoStreamUtil.nullOut;
+		if (s == null) return IoStream.nullOut;
 		var cs = Basics.def(charset, Charset.defaultCharset());
 		return new OutputStream() {
 			@Override

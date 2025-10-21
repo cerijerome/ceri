@@ -155,7 +155,7 @@ public interface Scorer<T> {
 	/**
 	 * Creates a scorer that applies the scorer to the extracted type.
 	 */
-	static <T, U> Scorer<T> scoring(Functions.Function<? super T, ? extends U> extractor,
+	static <T, U> Scorer<T> as(Functions.Function<? super T, ? extends U> extractor,
 		Scorer<? super U> scorer) {
 		return t -> score(scorer, Functional.apply(extractor, t, null));
 	}
