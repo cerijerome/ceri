@@ -13,9 +13,9 @@ import ceri.common.function.Excepts.Consumer;
 import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.Predicate;
 
-public class FileVisitUtil {
+public class FileVisitors {
 
-	private FileVisitUtil() {}
+	private FileVisitors() {}
 
 	/**
 	 * Deletion function for path visitor. Can be used for post and file callbacks.
@@ -104,31 +104,31 @@ public class FileVisitUtil {
 	/**
 	 * Visitor to be used with Files.walkFileTree, checking path and attributes.
 	 */
-	public static <T> FileVisitor<T> dirVisitor(Consumer<IOException, T> dirFn) {
-		return visitor(adaptConsumer(dirFn), null, null);
+	public static <T> FileVisitor<T> ofDir(Consumer<IOException, T> dirFn) {
+		return of(adaptConsumer(dirFn), null, null);
 	}
 
 	/**
 	 * Visitor to be used with Files.walkFileTree, checking path and attributes.
 	 */
-	public static <T> FileVisitor<T> fileVisitor(Consumer<IOException, T> fileFn) {
-		return visitor(null, null, adaptConsumer(fileFn));
+	public static <T> FileVisitor<T> ofFile(Consumer<IOException, T> fileFn) {
+		return of(null, null, adaptConsumer(fileFn));
 	}
 
 	/**
 	 * Visitor to be used with Files.walkFileTree, checking path and attributes.
 	 */
-	public static <T> FileVisitor<T> visitor(
+	public static <T> FileVisitor<T> of(
 		BiFunction<IOException, T, BasicFileAttributes, FileVisitResult> preDirFn,
 		BiFunction<IOException, T, IOException, FileVisitResult> postDirFn,
 		BiFunction<IOException, T, BasicFileAttributes, FileVisitResult> fileFn) {
-		return visitor(preDirFn, postDirFn, fileFn, null);
+		return of(preDirFn, postDirFn, fileFn, null);
 	}
 
 	/**
 	 * Visitor to be used with Files.walkFileTree, checking path and attributes.
 	 */
-	public static <T> FileVisitor<T> visitor(
+	public static <T> FileVisitor<T> of(
 		BiFunction<IOException, T, BasicFileAttributes, FileVisitResult> preDirFn,
 		BiFunction<IOException, T, IOException, FileVisitResult> postDirFn,
 		BiFunction<IOException, T, BasicFileAttributes, FileVisitResult> fileFn,

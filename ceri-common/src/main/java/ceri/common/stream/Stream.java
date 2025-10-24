@@ -24,6 +24,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
+import ceri.common.text.Strings;
 import ceri.common.util.Counter;
 
 /**
@@ -214,6 +215,13 @@ public class Stream<E extends Exception, T> {
 	// mapping
 
 	/**
+	 * Maps to string, with null as empty string.
+	 */
+	public Stream<E, String> string() {
+		return map(Strings::safe);
+	}
+	
+	/**
 	 * Maps stream elements to a new type.
 	 */
 	public <R> Stream<E, R> map(Excepts.Function<? extends E, ? super T, ? extends R> mapper) {
@@ -301,15 +309,7 @@ public class Stream<E extends Exception, T> {
 	public Stream<E, T> sorted(Comparator<? super T> comparator) {
 		if (emptyInstance()) return this;
 		return update(
-			adaptedSupplier(
-				supplier,
-				s -> 
-				iteratorSupplier(
-					sortedList(s, comparator)
-					.iterator()
-					)
-				)
-			);
+			adaptedSupplier(supplier, s -> iteratorSupplier(sortedList(s, comparator).iterator())));
 	}
 
 	/**

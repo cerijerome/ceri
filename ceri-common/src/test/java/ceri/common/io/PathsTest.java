@@ -4,12 +4,11 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertFalse;
 import static ceri.common.test.AssertUtil.assertFile;
 import static ceri.common.test.AssertUtil.assertPath;
-import static ceri.common.test.AssertUtil.assertPaths;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertSame;
 import static ceri.common.test.AssertUtil.assertString;
 import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,19 +19,20 @@ import java.time.Instant;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
+import ceri.common.function.Excepts;
 import ceri.common.test.AssertUtil;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 import ceri.common.util.SystemVars;
 
 public class PathsTest {
-	private FileTestHelper files;
+	private FileTestHelper helper;
 	private FileTestHelper deleter;
 
 	@After
 	public void after() {
 		deleter = TestUtil.close(deleter);
-		files = TestUtil.close(files);
+		helper = TestUtil.close(helper);
 	}
 
 	@Test
@@ -44,25 +44,28 @@ public class PathsTest {
 	@Test
 	public void testFilters() throws IOException {
 		initFiles();
-		files.assertPaths(Paths.list(files.root, Paths.Filter.file()), "c.h");
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.file()), "a/a/a.txt", "b/b.txt",
-			"c.h");
-		files.assertPaths(Paths.list(files.root, Paths.Filter.dir()), "a", "b", "d");
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.dir()), "", "a", "a/a", "b", "d");
-		files.assertPaths(
-			Paths.paths(files.root,
-				Paths.Filter.namePath(path -> path.toString().endsWith(".txt"))),
+		assertPathListOf(p -> p.filter(Paths.Filter.file()), "c.h");
+		assertPathListAll(p -> p.filter(Paths.Filter.file()), "a/a/a.txt", "b/b.txt", "c.h");
+		assertPathListOf(p -> p.filter(Paths.Filter.dir()), "a", "b", "d");
+		assertPathListAll(p -> p.filter(Paths.Filter.dir()), "a", "a/a", "b", "d");
+		assertPathListAll(
+			p -> p.filter(Paths.Filter.namePath(path -> path.toString().endsWith(".txt"))),
 			"a/a/a.txt", "b/b.txt");
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.name(s -> s.endsWith(".txt"))),
-			"a/a/a.txt", "b/b.txt");
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.ext(s -> "txt".equals(s))),
-			"a/a/a.txt", "b/b.txt");
+		assertPathListAll(p -> p.filter(Paths.Filter.name(s -> s.endsWith(".txt"))), "a/a/a.txt",
+			"b/b.txt");
+		assertPathListAll(p -> p.filter(Paths.Filter.ext("txt"::equals)), "a/a/a.txt", "b/b.txt");
 		var now = Instant.now();
-		files.assertPaths(Paths.list(files.root, Paths.Filter.lastModified(d -> d.isBefore(now))),
-			"a", "b", "c.h", "d");
-		files.assertPaths(Paths.list(files.root, Paths.Filter.lastModified(d -> d.isAfter(now))));
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.size(s -> s == 0)));
-		files.assertPaths(Paths.paths(files.root, Paths.Filter.size(s -> s < 2)), "c.h");
+		assertPathListOf(p -> p.filter(Paths.Filter.lastModified(d -> d.isBefore(now))), "a", "b",
+			"c.h", "d");
+		assertPathListOf(p -> p.filter(Paths.Filter.lastModified(d -> d.isAfter(now))));
+		assertPathListOf(p -> p.filter(Paths.Filter.size(s -> s == 0)));
+		assertPathListOf(p -> p.filter(Paths.Filter.size(s -> s < 2)), "c.h");
+	}
+
+	@SuppressWarnings("resource")
+	@Test
+	public void testFs() {
+		assertSame(Paths.fs(null), FileSystems.getDefault());
 	}
 
 	@SuppressWarnings("resource")
@@ -80,6 +83,21 @@ public class PathsTest {
 		assertEquals(Paths.isRoot(Path.of("test")), false);
 		assertEquals(Paths.isRoot(Path.of("/test")), false);
 		assertEquals(Paths.isRoot(Path.of("/")), true);
+	}
+
+	@Test
+	public void testIsEmpty() {
+		assertEquals(Paths.isEmpty(null), true);
+		assertEquals(Paths.isEmpty(Path.of("")), false);
+		assertEquals(Paths.isEmpty(Path.of("").getRoot()), true);
+	}
+
+	@Test
+	public void testPatterns() {
+		assertString(Paths.glob(null), "glob:");
+		assertString(Paths.glob("**/*.*"), "glob:**/*.*");
+		assertString(Paths.regex(null), "regex:");
+		assertString(Paths.regex(".*/[^/]+*\\.[^/]+"), "regex:.*/[^/]+*\\.[^/]+");
 	}
 
 	@Test
@@ -199,8 +217,8 @@ public class PathsTest {
 
 	@Test
 	public void testCreateTempDir() throws IOException {
-		files = FileTestHelper.builder(SystemVars.tempDir()).build();
-		var tempDir = Paths.createTempDir(files.root);
+		helper = FileTestHelper.builder(SystemVars.tempDir()).build();
+		var tempDir = Paths.createTempDir(helper.root);
 		assertEquals(Files.exists(tempDir), true);
 		assertEquals(Files.isDirectory(tempDir), true);
 		Files.delete(tempDir);
@@ -215,7 +233,7 @@ public class PathsTest {
 	@Test
 	public void testDeleteAll() throws IOException {
 		initFiles();
-		deleter = FileTestHelper.builder(files.root).file("x/x/x.txt", "").dir("y/y")
+		deleter = FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y")
 			.file("z.txt", "").build();
 		assertEquals(Paths.deleteAll(null), false);
 		assertEquals(Paths.deleteAll(Path.of("XXX/XXX/XXX/XXX")), false);
@@ -233,7 +251,7 @@ public class PathsTest {
 		initFiles();
 		Paths.deleteEmptyDirs(null);
 		deleter =
-			FileTestHelper.builder(files.root).dir("x/x/x").file("y/y.txt", "").dir("z").build();
+			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z").build();
 		assertEquals(Files.exists(deleter.path("x/x/x")), true);
 		assertEquals(Files.exists(deleter.path("y/y.txt")), true);
 		assertEquals(Files.exists(deleter.path("z")), true);
@@ -247,9 +265,9 @@ public class PathsTest {
 	public void testIsEmptyDir() throws IOException {
 		initFiles();
 		assertFalse(Paths.isEmptyDir(null));
-		assertFalse(Paths.isEmptyDir(files.path("a")));
-		assertFalse(Paths.isEmptyDir(files.path("a/a/a.txt")));
-		assertTrue(Paths.isEmptyDir(files.path("d")));
+		assertFalse(Paths.isEmptyDir(helper.path("a")));
+		assertFalse(Paths.isEmptyDir(helper.path("a/a/a.txt")));
+		assertTrue(Paths.isEmptyDir(helper.path("d")));
 	}
 
 	@Test
@@ -272,87 +290,17 @@ public class PathsTest {
 	}
 
 	@Test
-	public void testPathsRelative() throws IOException {
-		initFiles();
-		assertPaths(Paths.pathsRelative(null));
-		assertPaths(Paths.pathsRelative(files.root), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.h", "d");
-		assertPaths(Paths.pathsRelative(files.root, "glob:**/{a,b}"), "a", "a/a", "b");
-		assertPaths(Paths.pathsRelative(files.root, (String) null), //
-			"", "a", "a/a", "a/a/a.txt", "b", "b/b.txt", "c.h", "d");
-	}
-
-	@Test
-	public void testPaths() throws IOException {
-		initFiles();
-		files.assertPaths(Paths.paths(files.root), "", "a", "a/a", "a/a/a.txt", "b", "b/b.txt",
-			"c.h", "d");
-		files.assertPaths(Paths.paths(files.root, "glob:**/{a,b}"), "a", "a/a", "b");
-		files.assertPaths(Paths.paths(files.root, (String) null), "", "a", "a/a", "a/a/a.txt", "b",
-			"b/b.txt", "c.h", "d");
-	}
-
-	@Test
-	public void testPathsCollect() throws IOException {
-		initFiles();
-		assertUnordered(Paths.pathsCollect(null, _ -> null));
-		assertUnordered(Paths.pathsCollect(files.root, null));
-		assertUnordered(Paths.pathsCollect(files.root, //
-			path -> files.root.equals(path) ? null : path.getFileName().toString().charAt(0)), //
-			'a', 'a', 'a', 'b', 'b', 'c', 'd');
-	}
-
-	@Test
-	public void testListNames() throws IOException {
-		initFiles();
-		assertUnordered(Paths.listNames(null));
-		assertUnordered(Paths.listNames(files.root), "a", "b", "c.h", "d");
-		assertUnordered(Paths.listNames(files.path("a")), "a");
-		assertUnordered(Paths.listNames(files.path("a/a")), "a.txt");
-		assertUnordered(Paths.listNames(files.path("d")));
-		assertUnordered(
-			Paths.listNames(files.root, path -> path.getFileName().toString().length() == 1), "a",
-			"b", "d");
-		assertUnordered(Paths.listNames(files.root, "regex:a|.*\\.h"), "a", "c.h");
-		assertUnordered(Paths.listNames(files.root, (String) null), "a", "b", "c.h", "d");
-	}
-
-	@Test
-	public void testList() throws IOException {
-		initFiles();
-		files.assertPaths(Paths.list(null));
-		files.assertPaths(Paths.list(files.root), "a", "b", "c.h", "d");
-		files.assertPaths(Paths.list(files.path("a")), "a/a");
-		files.assertPaths(Paths.list(files.path("a/a")), "a/a/a.txt");
-		files.assertPaths(Paths.list(files.path("d")));
-		files.assertPaths(
-			Paths.list(files.root, path -> path.getFileName().toString().length() == 1), "a", "b",
-			"d");
-		files.assertPaths(Paths.list(files.root, "glob:?"), "a", "b", "d");
-		files.assertPaths(Paths.list(files.root, (String) null), "a", "b", "c.h", "d");
-	}
-
-	@Test
-	public void testListCollect() throws IOException {
-		initFiles();
-		assertUnordered(Paths.listCollect(null, _ -> null));
-		assertUnordered(Paths.listCollect(files.root, null));
-		assertUnordered(Paths.listCollect(files.root, //
-			path -> path.getFileName().toString().charAt(0)), 'a', 'b', 'c', 'd');
-	}
-
-	@Test
 	public void testCopyFile() throws IOException {
 		initFiles();
 		try {
-			var fromFile = files.path("a/a/a.txt");
-			var toFile = files.path("x/x/x.txt");
+			var fromFile = helper.path("a/a/a.txt");
+			var toFile = helper.path("x/x/x.txt");
 			Paths.copyFile(null, toFile); // ignored
 			Paths.copyFile(fromFile, null); // ignored
 			Paths.copyFile(fromFile, toFile);
 			assertFile(fromFile, toFile);
 		} finally {
-			Paths.deleteAll(files.path("x"));
+			Paths.deleteAll(helper.path("x"));
 		}
 	}
 
@@ -361,11 +309,11 @@ public class PathsTest {
 		initFiles();
 		try {
 			var badFile = TestPath.of();
-			var toFile2 = files.path("x/y/z.txt");
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> Paths.copyFile(badFile, toFile2));
-			assertFalse(Files.exists(files.path("x/y")));
+			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
-			Paths.deleteAll(files.path("x"));
+			Paths.deleteAll(helper.path("x"));
 		}
 	}
 
@@ -373,8 +321,8 @@ public class PathsTest {
 	public void testCopy() throws IOException {
 		initFiles();
 		try {
-			var fromFile = files.path("a/a/a.txt");
-			var toFile = files.path("x/x/x.txt");
+			var fromFile = helper.path("a/a/a.txt");
+			var toFile = helper.path("x/x/x.txt");
 			try (var in = Files.newInputStream(fromFile)) {
 				assertEquals(Paths.copy(null, toFile), 0L);
 				assertEquals(Paths.copy(in, null), 0L);
@@ -382,7 +330,7 @@ public class PathsTest {
 				assertFile(fromFile, toFile);
 			}
 		} finally {
-			Paths.deleteAll(files.path("x"));
+			Paths.deleteAll(helper.path("x"));
 		}
 	}
 
@@ -392,11 +340,11 @@ public class PathsTest {
 		try {
 			@SuppressWarnings("resource")
 			var badIn = IoStream.in(AssertUtil::throwIo);
-			var toFile2 = files.path("x/y/z.txt");
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> Paths.copy(badIn, toFile2));
-			assertFalse(Files.exists(files.path("x/y")));
+			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
-			Paths.deleteAll(files.path("x"));
+			Paths.deleteAll(helper.path("x"));
 		}
 	}
 
@@ -405,17 +353,17 @@ public class PathsTest {
 		initFiles();
 		try {
 			var ba = ByteProvider.of('a', 'b', 'c');
-			var toFile = files.path("x/x/x.txt");
+			var toFile = helper.path("x/x/x.txt");
 			assertEquals(Paths.write(null, ba), 0);
 			assertEquals(Paths.write(toFile, null), 0);
 			assertEquals(Paths.write(toFile, ba), 3);
 			assertFile(toFile, 'a', 'b', 'c');
 			var badArray = badProvider(3);
-			var toFile2 = files.path("x/y/z.txt");
+			var toFile2 = helper.path("x/y/z.txt");
 			assertThrown(() -> Paths.write(toFile2, badArray));
-			assertFalse(Files.exists(files.path("x/y")));
+			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
-			Paths.deleteAll(files.path("x"));
+			Paths.deleteAll(helper.path("x"));
 		}
 	}
 
@@ -439,7 +387,21 @@ public class PathsTest {
 	}
 
 	private void initFiles() throws IOException {
-		files = FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bb")
+		helper = FileTestHelper.builder().file("a/a/a.txt", "aaa").file("b/b.txt", "bb")
 			.file("c.h", "c").dir("d").build();
+	}
+
+	private void assertPathListOf(Excepts.Consumer<IOException, PathList> action, String... paths)
+		throws IOException {
+		var pathFinder = PathList.of(helper.root);
+		action.accept(pathFinder);
+		helper.assertPaths(pathFinder.list(), paths);
+	}
+
+	private void assertPathListAll(Excepts.Consumer<IOException, PathList> action, String... paths)
+		throws IOException {
+		var pathFinder = PathList.all(helper.root);
+		action.accept(pathFinder);
+		helper.assertPaths(pathFinder.list(), paths);
 	}
 }

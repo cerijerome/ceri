@@ -3,26 +3,20 @@ package ceri.common.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.util.Iterator;
-import java.util.List;
 import ceri.common.array.ArrayUtil;
-import ceri.common.collect.Immutable;
-import ceri.common.collect.Lists;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Filters;
-import ceri.common.function.Functional;
 import ceri.common.function.Functions;
-import ceri.common.stream.Stream;
 import ceri.common.text.Strings;
 import ceri.common.util.Basics;
 
@@ -30,11 +24,12 @@ import ceri.common.util.Basics;
  * Support for file system paths.
  */
 public class Paths {
+	private static final String GLOB_SYNTAX = "glob:";
+	private static final String REGEX_SYNTAX = "regex:";
 	private static final LinkOption[] NO_LINK_OPTIONS = new LinkOption[0];
 	private static final int MIN_ABSOLUTE_DIRS = 3;
 	private static final FileVisitor<Path> DELETING_VISITOR =
-		FileVisitUtil.visitor(null, FileVisitUtil.deletion(), FileVisitUtil.deletion());
-	private static final Excepts.Predicate<IOException, Path> NULL_FILTER = _ -> true;
+		FileVisitors.of(null, FileVisitors.deletion(), FileVisitors.deletion());
 	public static final ByteProvider EOL_BYTES = ByteProvider.of(Strings.EOL.getBytes());
 
 	private Paths() {}
@@ -60,6 +55,16 @@ public class Paths {
 		 */
 		public static <E extends Exception> Excepts.Predicate<E, Path> dir() {
 			return Filters.ex(DIR);
+		}
+
+		/**
+		 * A filter based on file system pattern syntax, such as glob or regex.
+		 */
+		@SuppressWarnings("resource")
+		public static <E extends Exception> Excepts.Predicate<E, Path> pattern(FileSystem fs,
+			String format, Object... args) {
+			fs = Basics.def(fs, FileSystems.getDefault());
+			return fs.getPathMatcher(Strings.format(format, args))::matches;
 		}
 
 		/**
@@ -104,6 +109,13 @@ public class Paths {
 	}
 
 	/**
+	 * Return the file system associated with the path, or default if null.
+	 */
+	public static FileSystem fs(Path path) {
+		return path == null ? FileSystems.getDefault() : path.getFileSystem();
+	}
+
+	/**
 	 * Return the first root path of the given file system.
 	 */
 	public static Path root(FileSystem fs) {
@@ -120,6 +132,27 @@ public class Paths {
 	}
 
 	/**
+	 * Checks if the path is null or empty.
+	 */
+	public static boolean isEmpty(Path path) {
+		return nameCount(path) == 0;
+	}
+
+	/**
+	 * Returns the pattern with file system glob syntax.
+	 */
+	public static String glob(String format, Object... args) {
+		return GLOB_SYNTAX + Strings.format(format, args);
+	}
+
+	/**
+	 * Returns the pattern with file system regex syntax.
+	 */
+	public static String regex(String format, Object... args) {
+		return REGEX_SYNTAX + Strings.format(format, args);
+	}
+
+	/**
 	 * Returns the last segment of the path as a string, or blank if empty. Returns null for a null
 	 * path.
 	 */
@@ -133,11 +166,17 @@ public class Paths {
 	 * index starts with 0 at root. A negative index start at the furthest filename with index -1.
 	 */
 	public static String name(Path path, int index) {
-		if (path == null) return null;
-		int n = path.getNameCount();
+		int n = nameCount(path);
 		if (index < -n || index >= n) return null;
 		if (index < 0) index += n;
 		return Strings.safe(path.getName(index));
+	}
+
+	/**
+	 * Returns the number of name elements in the path, or 0 if null.
+	 */
+	public static int nameCount(Path path) {
+		return path == null ? 0 : path.getNameCount();
 	}
 
 	/**
@@ -285,9 +324,9 @@ public class Paths {
 	 */
 	public static void deleteEmptyDirs(Path dir) throws IOException {
 		if (dir == null) return;
-		var visitor = FileVisitUtil.<Path>visitor(null, (path, _) -> {
+		var visitor = FileVisitors.<Path>of(null, (path, _) -> {
 			if (isEmptyDir(path)) Files.delete(path);
-			return FileVisitUtil.result(true);
+			return FileVisitors.result(true);
 		}, null);
 		Files.walkFileTree(dir, visitor);
 	}
@@ -329,141 +368,6 @@ public class Paths {
 	public static String convert(String path, char currentSeparator, char newSeparator) {
 		if (path == null) return null;
 		return path.replace(currentSeparator, newSeparator); // does nothing for same separators
-	}
-
-	/**
-	 * Lists relative paths recursively under a given directory.
-	 */
-	public static List<Path> pathsRelative(Path dir) throws IOException {
-		return pathsRelative(dir, NULL_FILTER);
-	}
-
-	/**
-	 * Lists relative filtered paths recursively under a given directory. A null filter matches all
-	 * paths.
-	 */
-	public static List<Path> pathsRelative(Path dir, Excepts.Predicate<IOException, Path> filter)
-		throws IOException {
-		if (dir == null) return Immutable.list();
-		var test = Basics.def(filter, NULL_FILTER);
-		int levels = dir.getNameCount();
-		return pathsCollect(dir, path -> test.test(path) ? sub(path, levels) : null);
-	}
-
-	/**
-	 * Lists relative filtered paths recursively under a given directory. A null pattern matches all
-	 * paths. The pattern is applied against the full path.
-	 */
-	public static List<Path> pathsRelative(Path dir, String syntaxPattern) throws IOException {
-		return pathsRelative(dir,
-			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test);
-	}
-
-	/**
-	 * Lists paths recursively under a given directory.
-	 */
-	public static List<Path> paths(Path dir) throws IOException {
-		return paths(dir, NULL_FILTER);
-	}
-
-	/**
-	 * Lists filtered paths recursively under a given directory. A null filter matches all paths.
-	 */
-	public static List<Path> paths(Path dir, Excepts.Predicate<IOException, Path> filter)
-		throws IOException {
-		var test = Basics.def(filter, NULL_FILTER);
-		return pathsCollect(dir, path -> test.test(path) ? path : null);
-	}
-
-	/**
-	 * Lists filtered paths recursively under a given directory. A null pattern matches all paths.
-	 * The pattern is applied against the full path.
-	 */
-	public static List<Path> paths(Path dir, String syntaxPattern) throws IOException {
-		Excepts.Predicate<IOException, Path> filter =
-			syntaxPattern == null ? null : PathPattern.of(syntaxPattern).matcher(dir)::test;
-		return paths(dir, filter);
-	}
-
-	/**
-	 * Recursively collects mapped paths under a given directory. The mapping function excludes
-	 * entries by returning null.
-	 */
-	public static <T> List<T> pathsCollect(Path dir, Excepts.Function<IOException, Path, T> mapper)
-		throws IOException {
-		if (dir == null || mapper == null) return Immutable.list();
-		var list = Lists.<T>of();
-		var visitFn = FileVisitUtil.<Path, BasicFileAttributes>adaptConsumer(
-			path -> Functional.accept(list::add, mapper.apply(path)));
-		Files.walkFileTree(dir, FileVisitUtil.visitor(visitFn, null, visitFn));
-		return list;
-	}
-
-	/**
-	 * Lists path names under a directory (no recursion).
-	 */
-	public static List<String> listNames(Path dir) throws IOException {
-		return listNames(dir, NULL_FILTER);
-	}
-
-	/**
-	 * Lists filtered path names under a directory (no recursion).
-	 */
-	public static List<String> listNames(Path dir,
-		Excepts.Predicate<? extends IOException, ? super Path> filter) throws IOException {
-		if (dir == null) return Immutable.list();
-		try (var stream = Files.newDirectoryStream(dir)) {
-			return stream(stream).filter(filter).map(Paths::name).toList();
-		}
-	}
-
-	/**
-	 * Lists filtered path names under a directory (no recursion). A null pattern matches all paths.
-	 * The pattern is applied against the file name path, not the full path.
-	 */
-	public static List<String> listNames(Path dir, String syntaxPattern) throws IOException {
-		Excepts.Predicate<IOException, Path> filter = syntaxPattern == null ? null :
-			Filter.namePath(PathPattern.of(syntaxPattern).matcher(dir)::test);
-		return listNames(dir, filter);
-	}
-
-	/**
-	 * Lists paths under a directory (no recursion).
-	 */
-	public static List<Path> list(Path dir) throws IOException {
-		return list(dir, NULL_FILTER);
-	}
-
-	/**
-	 * Lists filtered paths under a directory (no recursion). A null filter matches all paths.
-	 */
-	public static List<Path> list(Path dir, Excepts.Predicate<IOException, ? super Path> filter)
-		throws IOException {
-		if (dir == null) return Immutable.list();
-		try (var stream = Files.newDirectoryStream(dir)) {
-			return stream(stream).filter(filter).toList();
-		}
-	}
-
-	/**
-	 * Lists filtered paths under a directory (no recursion). A null pattern matches all paths. The
-	 * pattern is applied against the file name path, not the full path.
-	 */
-	public static List<Path> list(Path dir, String syntaxPattern) throws IOException {
-		return list(dir, syntaxPattern == null ? null :
-			Filter.namePath(PathPattern.of(syntaxPattern).matcher(dir)::test));
-	}
-
-	/**
-	 * Collects mapped paths from a directory. The mapping function excludes entries by returning
-	 * null.
-	 */
-	public static <T> List<T> listCollect(Path dir,
-		Excepts.Function<? extends IOException, ? super Path, T> mapper) throws IOException {
-		if (dir == null || mapper == null) return Immutable.list();
-		try (var stream = Files.newDirectoryStream(dir)) {
-			return stream(stream).map(mapper).toList();
-		}
 	}
 
 	/**
@@ -516,11 +420,5 @@ public class Paths {
 			tracker.delete();
 			throw e;
 		}
-	}
-
-	// support
-
-	private static Stream<IOException, Path> stream(DirectoryStream<Path> stream) {
-		return Stream.from(stream);
 	}
 }

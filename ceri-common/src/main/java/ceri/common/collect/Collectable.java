@@ -159,6 +159,13 @@ public class Collectable {
 	// add
 
 	/**
+	 * Adds a value and returns the collection if the value is non-null.
+	 */
+	public static <T, C extends Collection<T>> C safeAdd(C dest, T value) {
+		return value == null ? dest : addTo(dest, value);
+	}
+
+	/**
 	 * Adds a value and returns the collection.
 	 */
 	public static <T, C extends Collection<T>> C addTo(C dest, T value) {

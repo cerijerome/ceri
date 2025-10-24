@@ -100,6 +100,22 @@ public class RegexTest {
 	}
 
 	@Test
+	public void testMapperMatchGroup() throws Exception {
+		assertString(Regex.Mapper.matchGroup(INT_PATTERN, 1).apply(null), null);
+		assertString(Regex.Mapper.matchGroup(INT_PATTERN, 1).apply("abc"), null);
+		assertString(Regex.Mapper.matchGroup(INT_PATTERN, 1).apply("123abc"), null);
+		assertString(Regex.Mapper.matchGroup(INT_PATTERN, 1).apply("123"), "123");
+	}
+
+	@Test
+	public void testMapperFindGroup() throws Exception {
+		assertString(Regex.Mapper.findGroup(INT_PATTERN, 1).apply(null), null);
+		assertString(Regex.Mapper.findGroup(INT_PATTERN, 1).apply("abc"), null);
+		assertString(Regex.Mapper.findGroup(INT_PATTERN, 1).apply("123abc"), "123");
+		assertString(Regex.Mapper.findGroup(INT_PATTERN, 1).apply("123"), "123");
+	}
+
+	@Test
 	public void testMapperGroup() throws Exception {
 		assertString(Regex.Mapper.group(1).apply(null), null);
 		assertString(Regex.Mapper.group(1).apply(find("(.)c", "abcb")), "b");

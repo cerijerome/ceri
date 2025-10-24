@@ -114,7 +114,7 @@ public class Regex {
 		/**
 		 * Returns true if the pattern is found.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> find(String format,
+		public static <E extends Exception, T> Excepts.Predicate<E, T> find(String format,
 			Object... objs) {
 			return find(compile(format, objs));
 		}
@@ -122,14 +122,14 @@ public class Regex {
 		/**
 		 * Returns true if the pattern is found.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> find(Pattern pattern) {
+		public static <E extends Exception, T> Excepts.Predicate<E, T> find(Pattern pattern) {
 			return matching(pattern, Matcher::find);
 		}
 
 		/**
 		 * Returns true if the pattern matches.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> match(String format,
+		public static <E extends Exception, T> Excepts.Predicate<E, T> match(String format,
 			Object... objs) {
 			return match(compile(format, objs));
 		}
@@ -137,17 +137,17 @@ public class Regex {
 		/**
 		 * Returns true if the pattern matches.
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> match(Pattern pattern) {
+		public static <E extends Exception, T> Excepts.Predicate<E, T> match(Pattern pattern) {
 			return matching(pattern, Matcher::matches);
 		}
 
 		/**
 		 * Applies the predicate to the matcher (before find or match is called).
 		 */
-		public static <E extends Exception> Excepts.Predicate<E, String> matching(Pattern pattern,
+		public static <E extends Exception, T> Excepts.Predicate<E, T> matching(Pattern pattern,
 			Excepts.Predicate<? extends E, ? super Matcher> predicate) {
-			if (pattern == null || predicate == null) return Filters.no();
-			return t -> t != null && predicate.test(pattern.matcher(t));
+			if (pattern == null) return Filters.no();
+			return Filters.as(t -> pattern.matcher(Strings.safe(t)), predicate);
 		}
 	}
 
@@ -158,7 +158,23 @@ public class Regex {
 		private Mapper() {}
 
 		/**
-		 * Provides the indexed group from the matcher, or empty string if invalid.
+		 * Provides the indexed group from match, or null if invalid.
+		 */
+		public static <E extends Exception, T> Excepts.Function<E, T, String> matchGroup(
+			Pattern pattern, int index) {
+			return t -> Regex.matchGroup(pattern, Strings.safe(t), index);
+		}
+		
+		/**
+		 * Provides the indexed group from find, or null if invalid.
+		 */
+		public static <E extends Exception, T> Excepts.Function<E, T, String> findGroup(
+			Pattern pattern, int index) {
+			return t -> Regex.findGroup(pattern, Strings.safe(t), index);
+		}
+		
+		/**
+		 * Provides the indexed group from the matcher, or null if invalid.
 		 */
 		public static <E extends Exception> Excepts.Function<E, Matcher, String> group(int index) {
 			return m -> Regex.group(m, index);
@@ -478,14 +494,14 @@ public class Regex {
 	}
 
 	/**
-	 * Returns the find group, or empty string if not found.
+	 * Returns the find group, or null if not found.
 	 */
 	public static String findGroup(Pattern pattern, CharSequence s, int group) {
 		return findGroup(matcher(pattern, s), group);
 	}
 
 	/**
-	 * Returns the find group, or empty string if not found.
+	 * Returns the find group, or null if not found.
 	 */
 	public static String findGroup(Matcher m, int group) {
 		return group(find(m), group);

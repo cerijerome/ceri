@@ -157,6 +157,12 @@ public class StreamBehavior {
 	}
 
 	@Test
+	public void shouldMapToString() throws Exception {
+		assertStream(empty.string());
+		assertStream(testStream().string(), "-1", "", "1", "0");
+	}
+
+	@Test
 	public void shouldMapElements() throws Exception {
 		assertStream(empty.map(null));
 		assertStream(empty.map(fn));

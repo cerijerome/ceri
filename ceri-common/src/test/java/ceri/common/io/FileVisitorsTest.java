@@ -12,7 +12,7 @@ import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 
-public class FileVisitUtilTest {
+public class FileVisitorsTest {
 	private FileTestHelper helper = null;
 
 	@After
@@ -22,21 +22,21 @@ public class FileVisitUtilTest {
 
 	@Test
 	public void testIgnoreOnFail() throws IOException {
-		var visitor = FileVisitUtil.visitor(null, null, null, FileVisitUtil.ignoreOnFail());
+		var visitor = FileVisitors.of(null, null, null, FileVisitors.ignoreOnFail());
 		assertEquals(visitor.visitFileFailed(Path.of(""), new IOException()),
 			FileVisitResult.CONTINUE);
 	}
 
 	@Test
 	public void testThrowOnFail() {
-		var visitor = FileVisitUtil.visitor(null, null, null, FileVisitUtil.throwOnFail());
+		var visitor = FileVisitors.of(null, null, null, FileVisitors.throwOnFail());
 		assertIoe(() -> visitor.visitFileFailed(Path.of(""), new IOException()));
 	}
 
 	@Test
 	public void testAdapters() throws IOException {
-		var visitor = FileVisitUtil.visitor(FileVisitUtil.adaptBiPredicate((dir, _) -> dir != null),
-			FileVisitUtil.adaptPredicate(dir -> dir != null), FileVisitUtil.adapt(
+		var visitor = FileVisitors.of(FileVisitors.adaptBiPredicate((dir, _) -> dir != null),
+			FileVisitors.adaptPredicate(dir -> dir != null), FileVisitors.adapt(
 				file -> file != null ? FileVisitResult.CONTINUE : FileVisitResult.TERMINATE));
 		assertEquals(visitor.preVisitDirectory(null, null), FileVisitResult.SKIP_SUBTREE);
 		assertEquals(visitor.preVisitDirectory(Path.of(""), null), FileVisitResult.CONTINUE);
@@ -50,7 +50,7 @@ public class FileVisitUtilTest {
 	public void testDirVisitor() throws IOException {
 		initFiles();
 		var dirCap = Captor.<Path>of();
-		var visitor = FileVisitUtil.<Path>dirVisitor(dirCap::accept);
+		var visitor = FileVisitors.<Path>ofDir(dirCap::accept);
 		Files.walkFileTree(helper.root, visitor);
 		helper.assertPaths(dirCap.values, "", "a", "a/a", "b");
 	}
@@ -59,7 +59,7 @@ public class FileVisitUtilTest {
 	public void testFileVisitor() throws IOException {
 		initFiles();
 		var fileCap = Captor.<Path>of();
-		var visitor = FileVisitUtil.<Path>fileVisitor(fileCap::accept);
+		var visitor = FileVisitors.<Path>ofFile(fileCap::accept);
 		Files.walkFileTree(helper.root, visitor);
 		helper.assertPaths(fileCap.values, "a/a/a.txt", "b/b.txt", "c.txt");
 	}
@@ -70,9 +70,9 @@ public class FileVisitUtilTest {
 		var preDirCap = Captor.<Path>of();
 		var postDirCap = Captor.<Path>of();
 		var fileCap = Captor.<Path>of();
-		var visitor = FileVisitUtil.<Path>visitor(FileVisitUtil.adaptConsumer(preDirCap::accept),
-			FileVisitUtil.adaptConsumer(postDirCap::accept),
-			FileVisitUtil.adaptConsumer(fileCap::accept));
+		var visitor = FileVisitors.<Path>of(FileVisitors.adaptConsumer(preDirCap::accept),
+			FileVisitors.adaptConsumer(postDirCap::accept),
+			FileVisitors.adaptConsumer(fileCap::accept));
 		Files.walkFileTree(helper.root, visitor);
 		helper.assertPaths(preDirCap.values, "", "a", "a/a", "b");
 		helper.assertPaths(postDirCap.values, "", "a", "a/a", "b");
@@ -83,7 +83,7 @@ public class FileVisitUtilTest {
 	public void testVisitorWithException() throws IOException {
 		initFiles();
 		var ex = new IOException("Test");
-		var visitor = FileVisitUtil.<Path>visitor(null, null, FileVisitUtil.adaptConsumer(file -> {
+		var visitor = FileVisitors.<Path>of(null, null, FileVisitors.adaptConsumer(file -> {
 			if ("b.txt".equals(Paths.name(file))) throw ex;
 		}));
 		assertIoe(() -> Files.walkFileTree(helper.root, visitor));
@@ -94,7 +94,7 @@ public class FileVisitUtilTest {
 		initFiles();
 		var failCap = Captor.ofBi();
 		var visitor =
-			FileVisitUtil.visitor(null, null, null, FileVisitUtil.adaptBiConsumer(failCap::accept));
+			FileVisitors.of(null, null, null, FileVisitors.adaptBiConsumer(failCap::accept));
 		var file = helper.path("c.txt");
 		var ex = new IOException("Test");
 		visitor.visitFileFailed(file, ex);
@@ -107,8 +107,8 @@ public class FileVisitUtilTest {
 		initFiles();
 		var preDirCap = Captor.<Path>of();
 		var fileCap = Captor.<Path>of();
-		var visitor = FileVisitUtil.<Path>visitor(FileVisitUtil.adaptConsumer(preDirCap::accept),
-			(_, _) -> FileVisitResult.TERMINATE, FileVisitUtil.adaptConsumer(fileCap::accept));
+		var visitor = FileVisitors.<Path>of(FileVisitors.adaptConsumer(preDirCap::accept),
+			(_, _) -> FileVisitResult.TERMINATE, FileVisitors.adaptConsumer(fileCap::accept));
 		Files.walkFileTree(helper.root, visitor);
 		helper.assertPaths(preDirCap.values, "", "a", "a/a");
 		helper.assertPaths(fileCap.values, "a/a/a.txt");
@@ -117,7 +117,7 @@ public class FileVisitUtilTest {
 	@Test
 	public void testNoOpVisitor() throws IOException {
 		initFiles();
-		var visitor = FileVisitUtil.visitor(null, null, null, null);
+		var visitor = FileVisitors.of(null, null, null, null);
 		visitor.preVisitDirectory(null, null);
 		visitor.postVisitDirectory(null, null);
 		visitor.visitFile(null, null);

@@ -42,6 +42,28 @@ public class Filters {
 		}
 	}
 
+	// Execution
+	
+	public static <E extends Exception, T> boolean test(Nulls nulls,
+		Excepts.Predicate<E, ? super T> predicate, T t) throws E {
+		return switch (nulls) {
+			case no -> t == null ? false : test(predicate, t);
+			case yes -> t == null ? true : test(predicate, t);
+			case fail -> test(predicate, Validate.nonNull(t));
+			default -> test(predicate, t);
+		};
+	}
+
+	public static <E extends Exception, T, U> boolean test(Nulls nulls,
+		Excepts.BiPredicate<E, ? super T, ? super U> predicate, T t, U u) throws E {
+		return switch (nulls) {
+			case no -> t == null || u == null ? false : test(predicate, t, u);
+			case yes -> t == null || u == null  ? true : test(predicate, t, u);
+			case fail -> test(predicate, Validate.nonNull(t), Validate.nonNull(u));
+			default -> test(predicate, t, u);
+		};
+	}
+	
 	// Casting
 
 	/**
@@ -397,25 +419,5 @@ public class Filters {
 	private static <E extends Exception, T, U> boolean
 		test(Excepts.BiPredicate<E, ? super T, ? super U> predicate, T t, U u) throws E {
 		return predicate == null ? false : predicate.test(t, u);
-	}
-
-	private static <E extends Exception, T> boolean test(Nulls nulls,
-		Excepts.Predicate<E, ? super T> predicate, T t) throws E {
-		return switch (nulls) {
-			case no -> t == null ? false : test(predicate, t);
-			case yes -> t == null ? true : test(predicate, t);
-			case fail -> test(predicate, Validate.nonNull(t));
-			default -> test(predicate, t);
-		};
-	}
-
-	private static <E extends Exception, T, U> boolean test(Nulls nulls,
-		Excepts.BiPredicate<E, ? super T, ? super U> predicate, T t, U u) throws E {
-		return switch (nulls) {
-			case no -> t == null || u == null ? false : test(predicate, t, u);
-			case yes -> t == null || u == null  ? true : test(predicate, t, u);
-			case fail -> test(predicate, Validate.nonNull(t), Validate.nonNull(u));
-			default -> test(predicate, t, u);
-		};
 	}
 }

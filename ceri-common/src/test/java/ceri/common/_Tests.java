@@ -137,7 +137,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.DirectionBehavior.class, //
 	ceri.common.io.EdgeBehavior.class, //
 	ceri.common.io.FileTrackerBehavior.class, //
-	ceri.common.io.FileVisitUtilTest.class, //
+	ceri.common.io.FileVisitorsTest.class, //
 	ceri.common.io.FixableBehavior.class, //
 	ceri.common.io.IoExceptionsBehavior.class, //
 	ceri.common.io.IoStreamTest.class, //
@@ -145,7 +145,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.io.LevelBehavior.class, //
 	ceri.common.io.LineReaderBehavior.class, //
 	ceri.common.io.NioTest.class, //
-	ceri.common.io.PathPatternBehavior.class, //
+	ceri.common.io.PathListBehavior.class, //
 	ceri.common.io.PathsTest.class, //
 	ceri.common.io.PipedStreamBehavior.class, //
 	ceri.common.io.PollingInputStreamBehavior.class, //

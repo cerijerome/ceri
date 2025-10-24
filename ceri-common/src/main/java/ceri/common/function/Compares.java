@@ -64,6 +64,14 @@ public class Compares {
 	}
 
 	/**
+	 * Applies a natural comparator to a function that accepts a comparator.
+	 */
+	public static <E extends Exception, T extends Comparable<? super T>, R> R
+		apply(Excepts.Function<E, Comparator<T>, R> function) throws E {
+		return Functional.apply(function, of());
+	}
+
+	/**
 	 * A comparator that always returns 0.
 	 */
 	public static <T> Comparator<T> ofNull() {

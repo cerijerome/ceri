@@ -4,10 +4,12 @@ import static ceri.common.test.AssertUtil.assertEquals;
 import static ceri.common.test.AssertUtil.assertIllegalArg;
 import static ceri.common.test.AssertUtil.assertNpe;
 import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.AssertUtil.assertStream;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Lists;
+import ceri.common.stream.Streams;
 
 public class ComparesTest {
 
@@ -50,6 +52,12 @@ public class ComparesTest {
 		assertIllegalArg(() -> c.compare(null, 1));
 		assertIllegalArg(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
+	}
+
+	@Test
+	public void testApply() throws Exception {
+		assertEquals(Compares.apply(null), null);
+		assertStream(Compares.apply(Streams.of(-1, null, 1, 0)::sorted), null, -1, 0, 1);
 	}
 
 	@Test

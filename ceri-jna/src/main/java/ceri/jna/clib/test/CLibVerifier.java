@@ -6,7 +6,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import org.apache.logging.log4j.Level;
-import ceri.common.io.Paths;
+import ceri.common.collect.Lists;
+import ceri.common.io.PathList;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
@@ -30,6 +31,8 @@ import ceri.log.test.LogModifier;
  * CLib verification logic to run on a target system.
  */
 public class CLibVerifier {
+	private static final Path DEV_DIR = Path.of("/dev");
+	private static final String USB_PATTERN = "regex:tty.*(usb|USB).*";
 
 	private CLibVerifier() {}
 
@@ -186,7 +189,6 @@ public class CLibVerifier {
 
 	private static Path serialPath(String path) throws IOException {
 		if (!Strings.isBlank(path)) return Path.of(path);
-		return Paths.list(Path.of("/dev/"), "regex:tty.*(usb|USB).*").stream().findFirst()
-			.orElse(null);
+		return Lists.at(PathList.of(DEV_DIR).nameFilter(USB_PATTERN).sort().list(), 0);
 	}
 }

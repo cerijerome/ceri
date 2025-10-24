@@ -33,6 +33,7 @@ import ceri.common.data.IntProvider;
 import ceri.common.data.LongProvider;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
+import ceri.common.io.PathList;
 import ceri.common.io.Paths;
 import ceri.common.math.Maths;
 import ceri.common.reflect.Reflect;
@@ -1319,9 +1320,9 @@ public class AssertUtil {
 	 * Checks contents of two directories are equal, with specific failure information if not.
 	 */
 	public static void assertDir(Path lhsDir, Path rhsDir) throws IOException {
-		var lhsPathsRelative = Paths.pathsRelative(lhsDir);
-		var rhsPathsRelative = Paths.pathsRelative(rhsDir);
-		assertUnordered(lhsPathsRelative, rhsPathsRelative);
+		var lhsPathsRelative = PathList.of(lhsDir).relative().sort().list();
+		var rhsPathsRelative = PathList.of(rhsDir).relative().sort().list();
+		assertOrdered(lhsPathsRelative, rhsPathsRelative);
 		for (var path : lhsPathsRelative) {
 			var lhsFile = lhsDir.resolve(path);
 			var rhsFile = rhsDir.resolve(path);
