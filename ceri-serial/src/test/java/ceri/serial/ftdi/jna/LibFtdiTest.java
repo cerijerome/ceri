@@ -1,7 +1,6 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.ftdi.jna.LibFtdi.FTDI_VENDOR_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
@@ -13,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.util.OsUtil;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
@@ -51,14 +51,14 @@ public class LibFtdiTest {
 	@Test
 	public void testInitFailure() {
 		lib.generalSync.autoResponses(LIBUSB_ERROR_NO_MEM.value);
-		assertThrown(() -> LibFtdi.ftdi_new());
+		Assert.thrown(() -> LibFtdi.ftdi_new());
 	}
 
 	@Test
 	public void testSetInterface() throws LibUsbException {
 		var ftdi = openFtdi();
 		LibFtdi.ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_A);
-		assertThrown(() -> LibFtdi.ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_B));
+		Assert.thrown(() -> LibFtdi.ftdi_set_interface(ftdi, ftdi_interface.INTERFACE_B));
 	}
 
 	@Test
@@ -68,13 +68,13 @@ public class LibFtdiTest {
 		ftdi.module_detach_mode = ftdi_module_detach_mode.DONT_DETACH_SIO_MODULE;
 		LibFtdi.ftdi_set_usb_dev(ftdi, null);
 		LibFtdi.ftdi_usb_close(ftdi);
-		assertThrown(() -> LibFtdi.ftdi_usb_open(ftdi, FTDI_VENDOR_ID, 1));
+		Assert.thrown(() -> LibFtdi.ftdi_usb_open(ftdi, FTDI_VENDOR_ID, 1));
 		LibFtdi.ftdi_usb_open(ftdi, FTDI_VENDOR_ID, 0);
 		LibFtdi.ftdi_usb_open_bus_addr(ftdi, 0x14, 0x05);
 		LibFtdi.ftdi_usb_open_string(ftdi, "d:20/5");
 		LibFtdi.ftdi_usb_open_string(ftdi, "i:0x403:0x6001");
 		LibFtdi.ftdi_usb_open_string(ftdi, "s:0x403:0x6001:A7047D8V");
-		assertThrown(() -> LibFtdi.ftdi_usb_open_string(ftdi, ""));
+		Assert.thrown(() -> LibFtdi.ftdi_usb_open_string(ftdi, ""));
 		LibFtdi.ftdi_usb_close(ftdi);
 	}
 
@@ -111,14 +111,14 @@ public class LibFtdiTest {
 		ftdi = openFtdi();
 		var m = GcMemory.malloc(5);
 		lib.submitTransfer.error.set(lastError(LIBUSB_ERROR_NO_MEM));
-		assertThrown(() -> LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5));
-		assertThrown(() -> LibFtdi.ftdi_read_data_submit(ftdi, m.m, 5));
+		Assert.thrown(() -> LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5));
+		Assert.thrown(() -> LibFtdi.ftdi_read_data_submit(ftdi, m.m, 5));
 		lib.submitTransfer.error.clear();
 		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5);
 		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_IO));
 		assertEquals(LibFtdi.ftdi_transfer_data_done(null), 0);
-		assertThrown(() -> LibFtdi.ftdi_transfer_data_done(tc));
+		Assert.thrown(() -> LibFtdi.ftdi_transfer_data_done(tc));
 	}
 
 	@Test

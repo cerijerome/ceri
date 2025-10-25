@@ -1,6 +1,6 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
+import static ceri.common.test.Assert.assertAllNotEqual;
 import org.junit.Test;
 import ceri.common.io.Direction;
 import ceri.common.test.TestUtil;

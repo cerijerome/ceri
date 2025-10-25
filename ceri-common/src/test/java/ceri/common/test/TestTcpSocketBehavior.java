@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;

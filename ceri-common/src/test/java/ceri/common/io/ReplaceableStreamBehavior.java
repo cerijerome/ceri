@@ -1,12 +1,11 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwable;
 import static ceri.common.test.ErrorGen.RTX;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,6 +14,7 @@ import java.io.InputStream;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
@@ -73,8 +73,8 @@ public class ReplaceableStreamBehavior {
 		rin = ReplaceableStream.in();
 		rin.errors().listen(sync::signal);
 		rin.set(tin);
-		assertThrown(() -> rin.mark(0));
-		assertThrowable(sync.await(), RuntimeException.class);
+		Assert.thrown(() -> rin.mark(0));
+		throwable(sync.await(), RuntimeException.class);
 	}
 
 	@Test
@@ -85,8 +85,8 @@ public class ReplaceableStreamBehavior {
 		rin.errors().listen(sync::signal);
 		assertFalse(rin.markSupported());
 		rin.set(tin);
-		assertThrown(rin::markSupported);
-		assertThrowable(sync.await(), RuntimeException.class);
+		Assert.thrown(rin::markSupported);
+		throwable(sync.await(), RuntimeException.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -98,23 +98,23 @@ public class ReplaceableStreamBehavior {
 		rin = ReplaceableStream.in();
 		rin.set(tin);
 		rin.errors().listen(sync::signal);
-		assertThrown(rin::read);
-		assertThrowable(sync.await(), IOException.class);
-		assertThrown(rin::read);
-		assertThrowable(sync.await(), IOException.class);
+		Assert.thrown(rin::read);
+		throwable(sync.await(), IOException.class);
+		Assert.thrown(rin::read);
+		throwable(sync.await(), IOException.class);
 	}
 
 	@Test
 	public void shouldFailWithAnInvalidIn() {
 		rin = ReplaceableStream.in();
-		assertThrown(rin::read);
-		assertThrown(rin::available);
-		assertThrown(() -> rin.skip(0));
+		Assert.thrown(rin::read);
+		Assert.thrown(rin::available);
+		Assert.thrown(() -> rin.skip(0));
 		rin.mark(4);
-		assertThrown(rin::reset);
+		Assert.thrown(rin::reset);
 		byte[] buffer = new byte[100];
-		assertThrown(() -> rin.read(buffer));
-		assertThrown(() -> rin.read(buffer, 1, 99));
+		Assert.thrown(() -> rin.read(buffer));
+		Assert.thrown(() -> rin.read(buffer, 1, 99));
 	}
 
 	@Test
@@ -179,20 +179,20 @@ public class ReplaceableStreamBehavior {
 		rout = ReplaceableStream.out();
 		rout.set(tout);
 		rout.errors().listen(sync::signal);
-		assertThrown(() -> rout.write(0));
-		assertThrowable(sync.await(), IOException.class);
-		assertThrown(() -> rout.write(0xff));
-		assertThrowable(sync.await(), IOException.class);
+		Assert.thrown(() -> rout.write(0));
+		throwable(sync.await(), IOException.class);
+		Assert.thrown(() -> rout.write(0xff));
+		throwable(sync.await(), IOException.class);
 	}
 
 	@Test
 	public void shouldFailWithAnInvalidOut() {
 		rout = ReplaceableStream.out();
-		assertThrown(() -> rout.write(0));
+		Assert.thrown(() -> rout.write(0));
 		byte[] buffer = new byte[100];
-		assertThrown(() -> rout.write(buffer));
-		assertThrown(() -> rout.write(buffer, 1, 98));
-		assertThrown(rout::flush);
+		Assert.thrown(() -> rout.write(buffer));
+		Assert.thrown(() -> rout.write(buffer, 1, 98));
+		Assert.thrown(rout::flush);
 	}
 
 	@Test
@@ -226,7 +226,7 @@ public class ReplaceableStreamBehavior {
 	@Test
 	public void shouldReplaceConnector() throws IOException {
 		initCon(null);
-		assertThrown(fcon::open);
+		Assert.thrown(fcon::open);
 		fcon.replace(tcon);
 		fcon.open();
 		assertEquals(fcon.in().available(), 0);

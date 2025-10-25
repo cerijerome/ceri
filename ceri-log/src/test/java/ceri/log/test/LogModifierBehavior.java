@@ -1,6 +1,6 @@
 package ceri.log.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

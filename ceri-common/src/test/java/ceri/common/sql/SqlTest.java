@@ -1,8 +1,8 @@
 package ceri.common.sql;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;

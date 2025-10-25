@@ -6,11 +6,11 @@ import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
 import static ceri.common.color.Xyb.CENTER;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApproxArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertApproxArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class XybBehavior {
@@ -103,8 +103,8 @@ public class XybBehavior {
 	@Test
 	public void shouldVerifyValuesAreInRange() {
 		Xyb.of(0.9, 0, 1, 0.5).verify();
-		assertThrown(() -> Xyb.of(1.1, 0, 1, 0.5).verify());
-		assertThrown(() -> Xyb.of(0.9, 0, 1, 1.5).verify());
-		assertThrown(() -> Xyb.of(0.9, -0.1, 1, 0.5).verify());
+		Assert.thrown(() -> Xyb.of(1.1, 0, 1, 0.5).verify());
+		Assert.thrown(() -> Xyb.of(0.9, 0, 1, 1.5).verify());
+		Assert.thrown(() -> Xyb.of(0.9, -0.1, 1, 0.5).verify());
 	}
 }

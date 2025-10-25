@@ -1,11 +1,10 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIt;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.throwIt;
+import static ceri.common.test.Assert.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
@@ -21,6 +20,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.function.Lambdas;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.ErrNo;
@@ -89,7 +89,7 @@ public class SelfHealingFdBehavior {
 		init();
 		open.error.setFrom(IOX);
 		LogModifier.run(() -> {
-			assertThrown(() -> shf.open());
+			Assert.thrown(() -> shf.open());
 			shf.close();
 		}, Level.OFF, SelfHealing.class);
 	}
@@ -134,10 +134,10 @@ public class SelfHealingFdBehavior {
 	@Test
 	public void shouldFailIfNotOpen() {
 		init();
-		assertThrown(() -> shf.in().read());
-		assertThrown(() -> shf.out().write(0xff));
-		assertThrown(() -> shf.accept(_ -> {}));
-		assertThrown(() -> shf.apply(_ -> 0));
+		Assert.thrown(() -> shf.in().read());
+		Assert.thrown(() -> shf.out().write(0xff));
+		Assert.thrown(() -> shf.accept(_ -> {}));
+		Assert.thrown(() -> shf.apply(_ -> 0));
 	}
 
 	@Test
@@ -182,10 +182,10 @@ public class SelfHealingFdBehavior {
 		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
-		assertThrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
-		assertThrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
+		Assert.thrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
+		Assert.thrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
 		open.await(fd); // re-open
-		assertThrown(() -> shf.accept(_ -> throwRuntime())); // not broken
+		Assert.thrown(() -> shf.accept(_ -> throwRuntime())); // not broken
 	}
 
 	@Test

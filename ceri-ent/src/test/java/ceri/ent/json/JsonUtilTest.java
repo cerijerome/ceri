@@ -1,6 +1,6 @@
 package ceri.ent.json;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.resource;
 import org.junit.Test;
 import com.google.gson.Gson;

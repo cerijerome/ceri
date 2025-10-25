@@ -1,10 +1,10 @@
 package ceri.common.array;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import java.util.Objects;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 
@@ -52,23 +52,23 @@ public class TypedArrayBehavior {
 
 	@Test
 	public void shouldCopyElements() {
-		assertSame(typed.copy(NULL, NULL), NULL);
+		Assert.same(typed.copy(NULL, NULL), NULL);
 		assertArray(typed.copy(NULL, new Integer[3]), null, null, null);
-		assertSame(typed.copy(ints, NULL), NULL);
+		Assert.same(typed.copy(ints, NULL), NULL);
 		assertArray(typed.copy(ints, new Integer[3]), -1, null, 1);
 	}
 
 	@Test
 	public void shouldAppendElements() {
 		assertEquals(typed.append(NULL, 0, 3), null);
-		assertSame(typed.append(ints, NULL), ints);
+		Assert.same(typed.append(ints, NULL), ints);
 		assertArray(typed.append(ints, 0, 3), -1, null, 1, null, 1, 0, 3);
 	}
 
 	@Test
 	public void shouldInsertElements() {
 		assertEquals(typed.insert(NULL, 1, 0), null);
-		assertSame(typed.insert(ints, 1, NULL), ints);
+		Assert.same(typed.insert(ints, 1, NULL), ints);
 		assertArray(typed.insert(ints, 1, 0, 3), -1, 0, 3, null, 1, null, 1);
 	}
 

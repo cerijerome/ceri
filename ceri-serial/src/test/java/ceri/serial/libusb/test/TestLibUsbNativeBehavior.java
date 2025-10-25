@@ -1,10 +1,7 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
@@ -18,6 +15,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CTime.timeval;
 import ceri.jna.type.Struct;
 import ceri.log.util.LogUtil;
@@ -44,11 +42,11 @@ public class TestLibUsbNativeBehavior {
 	@Test
 	public void shouldNotClearSampleDataOnReset() throws LibUsbException {
 		initLib();
-		assertThrown(() -> LibUsbFinder.FIRST.findAndOpen(null));
+		Assert.thrown(() -> LibUsbFinder.FIRST.findAndOpen(null));
 		lib.data.addConfig(LibUsbSampleData.audioConfig());
 		LibUsbFinder.FIRST.findAndOpen(null); // no exception
 		lib.reset();
-		assertThrown(() -> LibUsbFinder.FIRST.findAndOpen(null));
+		Assert.thrown(() -> LibUsbFinder.FIRST.findAndOpen(null));
 	}
 
 	@Test
@@ -73,7 +71,7 @@ public class TestLibUsbNativeBehavior {
 		assertError(lib.libusb_get_config_descriptor_by_value(dev, (byte) 5, null),
 			LIBUSB_ERROR_NOT_FOUND);
 		assertError(lib.libusb_get_port_numbers(dev, null, 0), LIBUSB_ERROR_OVERFLOW);
-		assertNull(lib.libusb_get_parent(dev));
+		Assert.isNull(lib.libusb_get_parent(dev));
 		assertError(lib.libusb_get_max_packet_size(dev, (byte) 0), LIBUSB_ERROR_NOT_FOUND);
 		assertError(lib.libusb_get_max_iso_packet_size(dev, (byte) 0), LIBUSB_ERROR_NOT_FOUND);
 		LibUsb.libusb_free_device_list(devs, 0);
@@ -82,18 +80,18 @@ public class TestLibUsbNativeBehavior {
 	@Test
 	public void shouldFailForUnsupportedRequests() {
 		lib = TestLibUsbNative.of();
-		assertThrown(() -> lib.libusb_wrap_sys_device(null, 0, null));
-		assertThrown(() -> lib.libusb_dev_mem_alloc(null, 0));
-		assertThrown(() -> lib.libusb_dev_mem_free(null, null, 0));
+		Assert.thrown(() -> lib.libusb_wrap_sys_device(null, 0, null));
+		Assert.thrown(() -> lib.libusb_dev_mem_alloc(null, 0));
+		Assert.thrown(() -> lib.libusb_dev_mem_free(null, null, 0));
 	}
 
 	@Test
 	public void shouldFailToOpenInvalidVidPid() throws LibUsbException {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.audioConfig());
-		assertNotNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8c, (short) 0x14));
-		assertNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8d, (short) 0x14));
-		assertNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8c, (short) 0x15));
+		Assert.notNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8c, (short) 0x14));
+		Assert.isNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8d, (short) 0x14));
+		Assert.isNull(lib.libusb_open_device_with_vid_pid(null, (short) 0xd8c, (short) 0x15));
 	}
 
 	@Test
@@ -111,7 +109,7 @@ public class TestLibUsbNativeBehavior {
 	public void shouldFailToAllocateTransfer() throws LibUsbException {
 		initLib();
 		lib.generalSync.autoResponses(1);
-		assertNull(lib.libusb_alloc_transfer(1));
+		Assert.isNull(lib.libusb_alloc_transfer(1));
 	}
 
 	@Test
@@ -174,11 +172,11 @@ public class TestLibUsbNativeBehavior {
 			LIBUSB_ERROR_NOT_FOUND);
 		var bdc = LibUsb.libusb_get_bos_descriptor(h).dev_capability[0];
 		LibUsb.libusb_get_usb_2_0_extension_descriptor(null, bdc);
-		assertThrown(() -> LibUsb.libusb_get_container_id_descriptor(null, bdc));
+		Assert.thrown(() -> LibUsb.libusb_get_container_id_descriptor(null, bdc));
 		// make data corrupt
 		bdc.bDescriptorType = (byte) libusb_descriptor_type.LIBUSB_DT_ENDPOINT.value;
 		Struct.write(bdc);
-		assertThrown(() -> LibUsb.libusb_get_usb_2_0_extension_descriptor(null, bdc));
+		Assert.thrown(() -> LibUsb.libusb_get_usb_2_0_extension_descriptor(null, bdc));
 	}
 
 	@Test

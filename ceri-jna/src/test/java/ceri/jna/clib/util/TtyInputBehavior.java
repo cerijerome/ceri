@@ -1,6 +1,6 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.clib.jna.CTermios.ECHO;
 import static ceri.jna.clib.jna.CTermios.ECHONL;
 import static ceri.jna.clib.jna.CTermios.ICANON;

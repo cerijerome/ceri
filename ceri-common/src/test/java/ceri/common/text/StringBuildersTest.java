@@ -1,9 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -14,6 +13,7 @@ import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.stream.IntStream;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 
 public class StringBuildersTest {
 	private static final String nullString = null;
@@ -44,13 +44,13 @@ public class StringBuildersTest {
 	@Test
 	public void testStateUnchanged() {
 		var s = "abc";
-		assertSame(state(s, null).toString(), "");
-		assertSame(state(s, null).append(2, 'c').toString(), s);
-		assertSame(state(s, null).append(3, "").toString(), s);
-		assertSame(state(s, null).append(0, "abc").toString(), s);
-		assertSame(state(s, null).append(1, "bc").toString(), s);
-		assertSame(state(s, null).append(2, 2).toString(), s);
-		assertSame(state(s, null).append(2, 2).append(2, 'c').toString(), s);
+		Assert.same(state(s, null).toString(), "");
+		Assert.same(state(s, null).append(2, 'c').toString(), s);
+		Assert.same(state(s, null).append(3, "").toString(), s);
+		Assert.same(state(s, null).append(0, "abc").toString(), s);
+		Assert.same(state(s, null).append(1, "bc").toString(), s);
+		Assert.same(state(s, null).append(2, 2).toString(), s);
+		Assert.same(state(s, null).append(2, 2).append(2, 'c').toString(), s);
 	}
 
 	@Test

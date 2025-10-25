@@ -1,9 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertLines;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertLines;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Immutable;

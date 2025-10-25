@@ -1,9 +1,9 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.serial.comm.FlowControl;
 import ceri.serial.comm.SerialParams;
 import ceri.serial.comm.test.TestSerial;
@@ -18,19 +18,19 @@ public class ReplaceableSerialBehavior {
 			assertEquals(r.inBufferSize(), 0);
 			r.outBufferSize(222); // not applied
 			assertEquals(r.outBufferSize(), 0);
-			assertThrown(() -> r.params(SerialParams.DEFAULT));
+			Assert.thrown(() -> r.params(SerialParams.DEFAULT));
 			assertEquals(r.params(), SerialParams.NULL);
-			assertThrown(() -> r.flowControl(FlowControl.NONE));
+			Assert.thrown(() -> r.flowControl(FlowControl.NONE));
 			assertEquals(r.flowControl(), FlowControl.NONE);
-			assertThrown(() -> r.brk(true));
-			assertThrown(() -> r.rts(true));
-			assertThrown(r::rts);
-			assertThrown(() -> r.dtr(true));
-			assertThrown(r::dtr);
-			assertThrown(r::cd);
-			assertThrown(r::cts);
-			assertThrown(r::dsr);
-			assertThrown(r::ri);
+			Assert.thrown(() -> r.brk(true));
+			Assert.thrown(() -> r.rts(true));
+			Assert.thrown(r::rts);
+			Assert.thrown(() -> r.dtr(true));
+			Assert.thrown(r::dtr);
+			Assert.thrown(r::cd);
+			Assert.thrown(r::cts);
+			Assert.thrown(r::dsr);
+			Assert.thrown(r::ri);
 		}
 	}
 
@@ -59,5 +59,4 @@ public class ReplaceableSerialBehavior {
 			assertEquals(r.ri(), false);
 		}
 	}
-
 }

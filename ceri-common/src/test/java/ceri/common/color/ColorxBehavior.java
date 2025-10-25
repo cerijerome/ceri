@@ -3,10 +3,10 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class ColorxBehavior {
@@ -54,12 +54,12 @@ public class ColorxBehavior {
 	@Test
 	public void shouldNotSetUnchangedComponent() {
 		var cx = Colorx.of(0x33221177886644L);
-		assertSame(cx.a(0x77), cx);
-		assertSame(cx.r(0x88), cx);
-		assertSame(cx.g(0x66), cx);
-		assertSame(cx.b(0x44), cx);
-		assertSame(cx.x(1, 0x22), cx);
-		assertSame(cx.x(3, 0), cx);
+		Assert.same(cx.a(0x77), cx);
+		Assert.same(cx.r(0x88), cx);
+		Assert.same(cx.g(0x66), cx);
+		Assert.same(cx.b(0x44), cx);
+		Assert.same(cx.x(1, 0x22), cx);
+		Assert.same(cx.x(3, 0), cx);
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class ColorxBehavior {
 	@Test
 	public void shouldNotFlattenAlphaIfOpaque() {
 		var cx = Colorx.of(0x332211ff886644L);
-		assertSame(cx.flatten(), cx);
+		Assert.same(cx.flatten(), cx);
 	}
 
 	@Test

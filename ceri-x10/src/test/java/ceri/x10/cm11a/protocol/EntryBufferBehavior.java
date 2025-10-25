@@ -1,8 +1,8 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertOrdered;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 import ceri.x10.command.Command;

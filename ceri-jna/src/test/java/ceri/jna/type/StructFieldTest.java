@@ -1,11 +1,10 @@
 package ceri.jna.type;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaTestData;
 import ceri.jna.util.JnaTestData.TestStruct;
@@ -56,7 +55,7 @@ public class StructFieldTest {
 		data.assertStructRead(array[1], 1);
 		data.assertStructRead(field.get(struct, 0), 0);
 		data.assertStructRead(field.get(struct, 1), 1);
-		assertThrown(() -> field.get(struct, 2));
+		Assert.thrown(() -> field.get(struct, 2));
 	}
 
 	@Test
@@ -71,7 +70,7 @@ public class StructFieldTest {
 		data.assertStructRead(array[1], 2);
 		data.assertStructRead(field.get(struct, 0), 1);
 		data.assertStructRead(field.get(struct, 1), 2);
-		assertThrown(() -> field.get(struct, 2));
+		Assert.thrown(() -> field.get(struct, 2));
 	}
 
 	@Test
@@ -85,7 +84,6 @@ public class StructFieldTest {
 		data.assertStructRead(array[1], 2);
 		data.assertStructRead(field.get(struct, 0), 1);
 		data.assertStructRead(field.get(struct, 1), 2);
-		assertNull(field.get(struct, 2));
+		Assert.isNull(field.get(struct, 2));
 	}
-
 }

@@ -1,11 +1,10 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.io;
+import static ceri.common.test.Assert.runtime;
+import static ceri.common.test.Assert.throwable;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
@@ -28,7 +27,7 @@ public class ErrorGenBehavior {
 	public void shouldClearErrors() {
 		var err = ErrorGen.of();
 		err.set(new IOException());
-		assertThrown(err::call);
+		Assert.thrown(err::call);
 		err.set();
 		err.call();
 	}
@@ -37,7 +36,7 @@ public class ErrorGenBehavior {
 	public void shouldClearFromErrors() {
 		var err = ErrorGen.of();
 		err.setFrom(IOX);
-		assertThrown(err::call);
+		Assert.thrown(err::call);
 		err.setFrom();
 		err.call();
 	}
@@ -49,9 +48,9 @@ public class ErrorGenBehavior {
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(err::call), rtx);
 		assertEquals(thrown(err::call), rix);
-		assertThrown(RuntimeInterruptedException.class, err::call);
-		assertRte(err::call);
-		assertRte(err::call);
+		Assert.thrown(RuntimeInterruptedException.class, err::call);
+		runtime(err::call);
+		runtime(err::call);
 	}
 
 	@Test
@@ -61,9 +60,9 @@ public class ErrorGenBehavior {
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rtx);
 		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rix);
-		assertThrown(RuntimeInterruptedException.class, () -> err.call(ExceptionAdapter.io));
+		Assert.thrown(RuntimeInterruptedException.class, () -> err.call(ExceptionAdapter.io));
 		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), iox);
-		assertIoe(() -> err.call(ExceptionAdapter.io));
+		io(() -> err.call(ExceptionAdapter.io));
 	}
 
 	@Test
@@ -73,9 +72,9 @@ public class ErrorGenBehavior {
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(err::callWithInterrupt), rtx);
 		assertEquals(thrown(err::callWithInterrupt), rix);
-		assertThrown(InterruptedException.class, err::callWithInterrupt);
-		assertRte(err::callWithInterrupt);
-		assertRte(err::callWithInterrupt);
+		Assert.thrown(InterruptedException.class, err::callWithInterrupt);
+		runtime(err::callWithInterrupt);
+		runtime(err::callWithInterrupt);
 	}
 
 	@Test
@@ -86,18 +85,18 @@ public class ErrorGenBehavior {
 		err.set(rtx, rix, inx, iox, sqx);
 		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
 		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
-		assertThrown(InterruptedException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
+		Assert.thrown(InterruptedException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
 		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
-		assertIoe(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		io(() -> err.callWithInterrupt(ExceptionAdapter.io));
 	}
 
 	@Test
 	public void shouldSetExceptionFunctionFromMessage() {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
-		assertIoe(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		io(() -> err.callWithInterrupt(ExceptionAdapter.io));
 		Throwable t = thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		assertThrowable(t.getCause(), SQLException.class);
+		throwable(t.getCause(), SQLException.class);
 	}
 
 	@Test

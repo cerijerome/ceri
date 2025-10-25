@@ -1,9 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestStyle.behavior;
 import static ceri.common.test.TestStyle.none;
 import static ceri.common.test.TestStyle.test;

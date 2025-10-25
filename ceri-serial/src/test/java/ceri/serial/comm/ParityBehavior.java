@@ -1,14 +1,14 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ParityBehavior {
 
 	@Test
 	public void shouldLookupByChar() {
-		assertNull(Parity.from(' '));
+		Assert.isNull(Parity.from(' '));
 		assertEquals(Parity.from('n'), Parity.none);
 		assertEquals(Parity.from('N'), Parity.none);
 		assertEquals(Parity.from('o'), Parity.odd);
@@ -23,7 +23,7 @@ public class ParityBehavior {
 
 	@Test
 	public void shouldLookupByValue() {
-		assertNull(Parity.from(5));
+		Assert.isNull(Parity.from(5));
 		assertEquals(Parity.from(0), Parity.none);
 		assertEquals(Parity.from(1), Parity.odd);
 		assertEquals(Parity.from(2), Parity.even);

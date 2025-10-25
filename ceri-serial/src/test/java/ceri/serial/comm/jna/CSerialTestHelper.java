@@ -1,6 +1,6 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.speed_t;

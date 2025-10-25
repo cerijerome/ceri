@@ -1,8 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;

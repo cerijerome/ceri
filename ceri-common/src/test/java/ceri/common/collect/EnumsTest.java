@@ -1,15 +1,15 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.illegalArg;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import org.junit.Test;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.text.Strings;
 
 public class EnumsTest {
@@ -121,10 +121,10 @@ public class EnumsTest {
 
 	@Test
 	public void testValueAccessor() {
-		assertIllegalArg(() -> Enums.valueAccessor(null));
-		assertIllegalArg(() -> Enums.valueAccessor(Prefix.class));
-		assertIllegalArg(() -> Enums.valueAccessor(E.class, "values"));
-		assertIllegalArg(() -> Enums.valueAccessor(E.class, "ch"));
+		illegalArg(() -> Enums.valueAccessor(null));
+		illegalArg(() -> Enums.valueAccessor(Prefix.class));
+		illegalArg(() -> Enums.valueAccessor(E.class, "values"));
+		illegalArg(() -> Enums.valueAccessor(E.class, "ch"));
 		assertEquals(Enums.valueAccessor(E.class).apply(null), null);
 		assertEquals(Enums.valueAccessor(E.class).apply(E.a), 1L);
 		assertEquals(Enums.valueAccessor(E.class, "value").apply(E.B), 2L);
@@ -134,12 +134,12 @@ public class EnumsTest {
 	public void testValueOf() {
 		assertEquals(Enums.valueOf(nullClass, "a", E.a), E.a);
 		assertEquals(Enums.valueOf(E.class, "a"), E.a);
-		assertNull(Enums.valueOf(E.class, "ab"));
-		assertNull(Enums.valueOf(E.class, null, null));
+		Assert.isNull(Enums.valueOf(E.class, "ab"));
+		Assert.isNull(Enums.valueOf(E.class, null, null));
 		assertEquals(Enums.valueOf(E.class, "B", null), E.B);
 		assertEquals(Enums.valueOf(E.class, null, E.a), E.a);
 		assertEquals(Enums.valueOf(E.class, "ab", E.c), E.c);
-		assertNull(Enums.valueOf(E.class, "ab", null));
+		Assert.isNull(Enums.valueOf(E.class, "ab", null));
 		assertEquals(Enums.valueOf("a", E.c), E.a);
 		assertEquals(Enums.valueOf("ab", E.c), E.c);
 		assertEquals(Enums.valueOf("a", (E) null), null);

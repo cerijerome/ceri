@@ -1,10 +1,10 @@
 package ceri.common.geom;
 
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class InvertedRadial3dBehavior {
@@ -28,51 +28,51 @@ public class InvertedRadial3dBehavior {
 
 	@Test
 	public void shouldInvertRadiusFromHeight() {
-		assertApprox(i0.radiusFromH(-1), NaN);
-		assertApprox(i0.radiusFromH(0), 1);
-		assertApprox(i0.radiusFromH(2), 0.5);
-		assertApprox(i0.radiusFromH(4), 0);
-		assertApprox(i0.radiusFromH(5), NaN);
+		Assert.approx(i0.radiusFromH(-1), NaN);
+		Assert.approx(i0.radiusFromH(0), 1);
+		Assert.approx(i0.radiusFromH(2), 0.5);
+		Assert.approx(i0.radiusFromH(4), 0);
+		Assert.approx(i0.radiusFromH(5), NaN);
 		for (double h = -0.5; h <= 4.5; h += 0.5)
-			assertApprox(i1.radiusFromH(h), s0.radiusFromH(h));
+			Assert.approx(i1.radiusFromH(h), s0.radiusFromH(h));
 	}
 
 	@Test
 	public void shouldInvertHeightFromVolume() {
-		assertApprox(i0.hFromVolume(-1), NaN);
-		assertApprox(i0.hFromVolume(0), 0);
-		assertApprox(i0.hFromVolume(2), 0.778);
-		assertApprox(i0.hFromVolume(4), 2.577);
-		assertApprox(i0.hFromVolume(5), NaN);
+		Assert.approx(i0.hFromVolume(-1), NaN);
+		Assert.approx(i0.hFromVolume(0), 0);
+		Assert.approx(i0.hFromVolume(2), 0.778);
+		Assert.approx(i0.hFromVolume(4), 2.577);
+		Assert.approx(i0.hFromVolume(5), NaN);
 		for (double h = -0.5; h <= 4.5; h += 0.5)
-			assertApprox(i1.hFromVolume(h), s0.hFromVolume(h));
+			Assert.approx(i1.hFromVolume(h), s0.hFromVolume(h));
 	}
 
 	@Test
 	public void shouldInvertVolumeFromHeight() {
-		assertApprox(i0.volumeFromH(-1), 0);
-		assertApprox(i0.volumeFromH(0), 0);
-		assertApprox(i0.volumeFromH(2), 3.665);
-		assertApprox(i0.volumeFromH(4), 4.189);
-		assertApprox(i0.volumeFromH(5), 4.189);
+		Assert.approx(i0.volumeFromH(-1), 0);
+		Assert.approx(i0.volumeFromH(0), 0);
+		Assert.approx(i0.volumeFromH(2), 3.665);
+		Assert.approx(i0.volumeFromH(4), 4.189);
+		Assert.approx(i0.volumeFromH(5), 4.189);
 		for (double h = -0.5; h <= 4.5; h += 0.5)
-			assertApprox(i1.volumeFromH(h), s0.volumeFromH(h));
+			Assert.approx(i1.volumeFromH(h), s0.volumeFromH(h));
 	}
 
 	@Test
 	public void shouldInvertGradient() {
-		assertApprox(i0.gradientAtH(-1), c0.gradientAtH(-1));
-		assertApprox(i0.gradientAtH(0), -c0.gradientAtH(4));
-		assertApprox(i0.gradientAtH(2), -c0.gradientAtH(2));
-		assertApprox(i0.gradientAtH(4), -c0.gradientAtH(0));
-		assertApprox(i0.gradientAtH(5), c0.gradientAtH(5));
+		Assert.approx(i0.gradientAtH(-1), c0.gradientAtH(-1));
+		Assert.approx(i0.gradientAtH(0), -c0.gradientAtH(4));
+		Assert.approx(i0.gradientAtH(2), -c0.gradientAtH(2));
+		Assert.approx(i0.gradientAtH(4), -c0.gradientAtH(0));
+		Assert.approx(i0.gradientAtH(5), c0.gradientAtH(5));
 		for (double h = -0.5; h <= 4.5; h += 0.5)
-			assertApprox(i1.gradientAtH(h), s0.gradientAtH(h));
+			Assert.approx(i1.gradientAtH(h), s0.gradientAtH(h));
 	}
 
 	@Test
 	public void shouldMatchHeightAndVolumeOfWrappedShape() {
-		assertApprox(i0.h(), 4);
-		assertApprox(i0.volume(), 4.189);
+		Assert.approx(i0.h(), 4);
+		Assert.approx(i0.volume(), 4.189);
 	}
 }

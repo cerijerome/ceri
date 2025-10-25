@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;

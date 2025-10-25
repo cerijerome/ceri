@@ -1,11 +1,10 @@
 package ceri.common.process;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestProcess;
 
@@ -19,8 +18,8 @@ public class ProcessorBehavior {
 
 	@Test
 	public void shouldIgnoreEmptyCommand() throws IOException {
-		assertNull(Processor.DEFAULT.exec());
-		assertThrown(() -> Processor.DEFAULT.exec(""));
+		Assert.isNull(Processor.DEFAULT.exec());
+		Assert.thrown(() -> Processor.DEFAULT.exec(""));
 	}
 
 	@Test
@@ -39,7 +38,7 @@ public class ProcessorBehavior {
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).verifyErr(true).build();
-			assertIoe(() -> p.exec("test"));
+			io(() -> p.exec("test"));
 		}
 	}
 
@@ -51,7 +50,7 @@ public class ProcessorBehavior {
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).verifyExitValue(true).build();
-			assertIoe(() -> p.exec("test"));
+			io(() -> p.exec("test"));
 		}
 	}
 
@@ -64,7 +63,7 @@ public class ProcessorBehavior {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
 			process.alive.autoResponses(true);
 			Processor p = processor(process).build();
-			assertIoe(() -> p.exec("test"));
+			io(() -> p.exec("test"));
 		}
 	}
 
@@ -89,7 +88,7 @@ public class ProcessorBehavior {
 		try (TestProcess process = TestProcess.of("stdout", "stderr", -1)) {
 			Processor p = processor(process).noTimeout().build();
 			process.alive.error.setFrom(ErrorGen.RIX);
-			assertThrown(() -> p.exec("test"));
+			Assert.thrown(() -> p.exec("test"));
 			process.out.assertAvailable(0);
 		}
 	}

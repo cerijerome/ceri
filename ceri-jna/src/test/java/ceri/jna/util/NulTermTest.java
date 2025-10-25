@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import org.junit.Test;
 import com.sun.jna.Pointer;

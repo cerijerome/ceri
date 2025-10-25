@@ -1,9 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertAssertion;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
+import static ceri.common.test.Assert.assertion;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.After;
@@ -38,7 +37,7 @@ public class TestOutputStreamBehavior {
 		out.assertAvailable(0);
 		out.write(ArrayUtil.bytes.of(1, 2, 3));
 		out.flush();
-		assertAssertion(() -> out.assertAvailable(2));
+		assertion(() -> out.assertAvailable(2));
 		out.assertAvailable(3);
 	}
 
@@ -46,7 +45,7 @@ public class TestOutputStreamBehavior {
 	public void shouldGenerateWriteError() throws IOException {
 		out.write(1);
 		out.write.error.setFrom(IOX);
-		assertThrown(() -> out.write(2));
+		Assert.thrown(() -> out.write(2));
 		assertRead(out.from, 1, 2);
 	}
 

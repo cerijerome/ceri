@@ -1,15 +1,14 @@
 package ceri.log.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwInterrupted;
-import static ceri.common.test.AssertUtil.throwIo;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwInterrupted;
+import static ceri.common.test.Assert.throwIo;
 import static ceri.common.test.ErrorGen.INX;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ceri.common.concurrent.BoolCondition;
+import ceri.common.test.Assert;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
@@ -88,7 +88,7 @@ public class LogUtilTest {
 
 	@Test
 	public void testGetSilently() {
-		assertThrown(() -> LogUtil.getSilently(null));
+		Assert.thrown(() -> LogUtil.getSilently(null));
 		assertEquals(LogUtil.getSilently(() -> null), null);
 		assertEquals(LogUtil.getSilently(() -> null, 123), null);
 		assertEquals(LogUtil.getSilently(() -> 123), 123);
@@ -102,7 +102,7 @@ public class LogUtilTest {
 
 	@Test
 	public void testRunSilently() {
-		assertThrown(() -> LogUtil.runSilently(null));
+		Assert.thrown(() -> LogUtil.runSilently(null));
 		LogUtil.runSilently(() -> throwIo());
 		assertFalse(Thread.interrupted());
 		LogUtil.runSilently(() -> throwInterrupted());
@@ -116,7 +116,7 @@ public class LogUtilTest {
 		var closer = TestCloseable.of("1");
 		assertEquals(LogUtil.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.acceptOrClose(closer, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.acceptOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -129,7 +129,7 @@ public class LogUtilTest {
 		assertEquals(LogUtil.applyOrClose(closer, _ -> null, 1), 1);
 		assertEquals(LogUtil.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.applyOrClose(closer, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.applyOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -140,7 +140,7 @@ public class LogUtilTest {
 		var closer = TestCloseable.of("1");
 		assertEquals(LogUtil.runOrClose(closer, () -> {}), closer);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.runOrClose(closer, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.runOrClose(closer, () -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -153,7 +153,7 @@ public class LogUtilTest {
 		assertEquals(LogUtil.getOrClose(closer, () -> null, 1), 1);
 		assertEquals(LogUtil.getOrClose(closer, () -> 0), 0);
 		closer.assertClosed(false);
-		assertThrown(() -> LogUtil.getOrClose(closer, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.getOrClose(closer, () -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -162,7 +162,7 @@ public class LogUtilTest {
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
 		assertEquals(LogUtil.acceptOrCloseAll(closers, _ -> {}), closers);
-		assertThrown(() -> LogUtil.acceptOrCloseAll(closers, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.acceptOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -173,7 +173,7 @@ public class LogUtilTest {
 		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null), null);
 		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null, 3), 3);
 		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> 1, 3), 1);
-		assertThrown(() -> LogUtil.applyOrCloseAll(closers, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.applyOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -182,7 +182,7 @@ public class LogUtilTest {
 	public void testRunOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
 		assertEquals(LogUtil.runOrCloseAll(closers, () -> {}), closers);
-		assertThrown(() -> LogUtil.runOrCloseAll(closers, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.runOrCloseAll(closers, () -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -193,7 +193,7 @@ public class LogUtilTest {
 		assertEquals(LogUtil.getOrCloseAll(closers, () -> null), null);
 		assertEquals(LogUtil.getOrCloseAll(closers, () -> null, 3), 3);
 		assertEquals(LogUtil.getOrCloseAll(closers, () -> 1, 3), 1);
-		assertThrown(() -> LogUtil.getOrCloseAll(closers, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.getOrCloseAll(closers, () -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -211,7 +211,7 @@ public class LogUtilTest {
 	public void testCreate() {
 		assertOrdered(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
 			new TestCloseable(-1));
-		assertThrown(() -> LogUtil.create(TestCloseable::of, "1", "-1", "x"));
+		Assert.thrown(() -> LogUtil.create(TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
 
@@ -220,7 +220,7 @@ public class LogUtilTest {
 	public void testCreateWithCount() {
 		assertOrdered(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
 			new TestCloseable(0), new TestCloseable(0));
-		assertThrown(() -> LogUtil.create(() -> TestCloseable.of("x"), 3));
+		Assert.thrown(() -> LogUtil.create(() -> TestCloseable.of("x"), 3));
 	}
 
 	@SuppressWarnings("resource")
@@ -228,7 +228,7 @@ public class LogUtilTest {
 	public void testCreateArray() {
 		assertArray(LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1"),
 			new TestCloseable(1), new TestCloseable(-1));
-		assertThrown(
+		Assert.thrown(
 			() -> LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
 	}
@@ -238,7 +238,7 @@ public class LogUtilTest {
 	public void testCreateArrayWithCount() {
 		assertArray(LogUtil.createArray(TestCloseable[]::new, () -> new TestCloseable(0), 3),
 			new TestCloseable(0), new TestCloseable(0), new TestCloseable(0));
-		assertThrown(
+		Assert.thrown(
 			() -> LogUtil.createArray(TestCloseable[]::new, () -> TestCloseable.of("x"), 3));
 	}
 

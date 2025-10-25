@@ -1,20 +1,16 @@
 package ceri.common.math;
 
-import static ceri.common.math.Maths.PI_BY_2;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNaN;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static java.lang.Math.PI;
-import static java.lang.Math.TAU;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class TrigTest {
 	private static final double ROOT2 = Math.sqrt(2.0);
-	private static final double PI_BY_6 = PI / 6.0;
-	private static final double PI_BY_3 = PI / 3.0;
+	private static final double PI_BY_6 = Math.PI / 6.0;
+	private static final double PI_BY_3 = Math.PI / 3.0;
 
 	@Test
 	public void testConstructorIsPrivate() {
@@ -23,9 +19,9 @@ public class TrigTest {
 
 	@Test
 	public void testNormalize() {
-		assertApprox(Trig.normalize(PI_BY_6 * 37), PI_BY_6);
-		assertApprox(Trig.normalize(PI_BY_3 * -9), PI);
-		assertApprox(Trig.normalize(PI_BY_3 * -18), 0);
+		Assert.approx(Trig.normalize(PI_BY_6 * 37), PI_BY_6);
+		Assert.approx(Trig.normalize(PI_BY_3 * -9), Math.PI);
+		Assert.approx(Trig.normalize(PI_BY_3 * -18), 0);
 	}
 
 	@Test
@@ -38,33 +34,32 @@ public class TrigTest {
 
 	@Test
 	public void testTangentAngle() {
-		assertThrown(() -> Trig.tangentAngle(1, 0.5));
-		assertNaN(Trig.tangentAngle(0, 0));
-		assertApprox(Trig.tangentAngle(0, 1), 0);
-		assertApprox(Trig.tangentAngle(1, 1), PI_BY_2);
-		assertApprox(Trig.tangentAngle(1, 2), PI_BY_6);
+		Assert.thrown(() -> Trig.tangentAngle(1, 0.5));
+		assertEquals(Trig.tangentAngle(0, 0), Double.NaN);
+		Assert.approx(Trig.tangentAngle(0, 1), 0);
+		Assert.approx(Trig.tangentAngle(1, 1), Maths.PI_BY_2);
+		Assert.approx(Trig.tangentAngle(1, 2), PI_BY_6);
 	}
 
 	@Test
 	public void testSegmentArea() {
-		assertApprox(Trig.segmentArea(1, -Math.PI), Math.PI / 2);
-		assertApprox(Trig.segmentArea(1, Math.TAU + 0.00001), 0.0);
-		assertApprox(Trig.segmentArea(2, Math.TAU), 2 * 2 * PI);
-		assertApprox(Trig.segmentArea(2, PI), 2 * PI);
-		assertApprox(Trig.segmentArea(2, PI_BY_2), PI - 2);
+		Assert.approx(Trig.segmentArea(1, -Math.PI), Math.PI / 2);
+		Assert.approx(Trig.segmentArea(1, Math.TAU + 0.00001), 0.0);
+		Assert.approx(Trig.segmentArea(2, Math.TAU), 2 * 2 * Math.PI);
+		Assert.approx(Trig.segmentArea(2, Math.PI), 2 * Math.PI);
+		Assert.approx(Trig.segmentArea(2, Maths.PI_BY_2), Math.PI - 2);
 	}
 
 	@Test
 	public void testIntersectionSegmentAngle() {
-		assertThrown(() -> Trig.intersectionSegmentAngle(1, 0.5, 0));
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, -PI_BY_6 - 0.1), 0);
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, -PI_BY_6), 0);
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, 0), PI);
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, PI_BY_6), TAU);
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, PI_BY_6 + 0.1), TAU);
+		Assert.thrown(() -> Trig.intersectionSegmentAngle(1, 0.5, 0));
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, -PI_BY_6 - 0.1), 0);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, -PI_BY_6), 0);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, 0), Math.PI);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, PI_BY_6), Math.TAU);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, PI_BY_6 + 0.1), Math.TAU);
 		double angle = Math.asin(1 / (2 * ROOT2));
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, -angle), PI_BY_2);
-		assertApprox(Trig.intersectionSegmentAngle(1, 2, angle), 3 * PI_BY_2);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, -angle), Maths.PI_BY_2);
+		Assert.approx(Trig.intersectionSegmentAngle(1, 2, angle), 3 * Maths.PI_BY_2);
 	}
-
 }

@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import org.junit.Test;
 

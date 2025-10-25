@@ -1,12 +1,11 @@
 package ceri.serial.i2c;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.jna.test.JnaTestUtil.LEX;
@@ -21,6 +20,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Closeables;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
 import ceri.jna.test.JnaTestUtil;
@@ -50,7 +50,7 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldOpenDevice() throws IOException {
 		var lib = initI2c();
-		assertThrown(() -> I2cDevice.open(-1));
+		Assert.thrown(() -> I2cDevice.open(-1));
 		lib.open.assertAuto(new OpenArgs("/dev/i2c-1", 2, 0)); // open fd
 		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encodeInt(I2C_FUNC_SMBUS_EMUL));
 		assertUnordered(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
@@ -61,7 +61,7 @@ public class I2cDeviceBehavior {
 	public void shouldDetermineIfAddressExists() throws IOException {
 		var lib = initI2c();
 		assertTrue(i2c.exists(I2cAddress.of(0x3b)));
-		assertThrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
+		Assert.thrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
 		lib.ioctlSmBusInt.error.setFrom(LEX);
 		assertFalse(i2c.exists(I2cAddress.of(0x3b)));
 	}
@@ -131,5 +131,5 @@ public class I2cDeviceBehavior {
 		fd = I2cDevice.open(1);
 		i2c = I2cDevice.of(fd);
 		return ref.get();
-	}	
+	}
 }

@@ -1,10 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.text.Dsv.Codec.CSV;
 import static ceri.common.text.Dsv.Codec.TSV;
 import static java.util.Arrays.asList;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.io.Resource;
+import ceri.common.test.Assert;
 
 public class DsvBehavior {
 	private Dsv parser;
@@ -38,15 +38,15 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldEncodeTsv() {
-		assertNull(TSV.encodeValue(null));
+		Assert.isNull(TSV.encodeValue(null));
 		assertEquals(TSV.encodeValue(""), "");
 		assertEquals(TSV.encodeValue("\t"), "\"\t\"");
 	}
 
 	@Test
 	public void shouldEncodeDocument() {
-		assertNull(CSV.encode((String[][]) null));
-		assertNull(CSV.encode((List<List<String>>) null));
+		Assert.isNull(CSV.encode((String[][]) null));
+		Assert.isNull(CSV.encode((List<List<String>>) null));
 		assertEquals(CSV.encode(new String[][] {}), "");
 		assertEquals(CSV.encode(new String[][] { {} }), "");
 		assertEquals(CSV.encode(new String[][] { {}, {} }), "\r\n");
@@ -56,8 +56,8 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldEncodeLines() {
-		assertNull(CSV.encodeLine((List<String>) null));
-		assertNull(CSV.encodeLine((String[]) null));
+		Assert.isNull(CSV.encodeLine((List<String>) null));
+		Assert.isNull(CSV.encodeLine((String[]) null));
 		assertEquals(CSV.encodeLine((String) null), "");
 		assertEquals(CSV.encodeLine(""), "");
 		assertEquals(CSV.encodeLine("", ""), ",");
@@ -71,7 +71,7 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldEncodeValues() {
-		assertNull(CSV.encodeValue(null));
+		Assert.isNull(CSV.encodeValue(null));
 		assertEquals(CSV.encodeValue(""), "");
 		assertEquals(CSV.encodeValue(" "), " ");
 		assertEquals(CSV.encodeValue("\""), "\"\"");
@@ -83,7 +83,7 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldDecodeDocument() {
-		assertNull(CSV.decode(null));
+		Assert.isNull(CSV.decode(null));
 		assertOrdered(CSV.decode(""));
 		assertOrdered(CSV.decode(" "), asList(""));
 		assertOrdered(CSV.decode(","), asList("", ""));
@@ -94,7 +94,7 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldDecodeLines() {
-		assertNull(CSV.decodeLine(null));
+		Assert.isNull(CSV.decodeLine(null));
 		assertOrdered(CSV.decodeLine(""));
 		assertOrdered(CSV.decodeLine(" "), "");
 		assertOrdered(CSV.decodeLine(","), "", "");
@@ -105,7 +105,7 @@ public class DsvBehavior {
 
 	@Test
 	public void shouldDecodeValues() {
-		assertNull(Dsv.Codec.decodeValue(null));
+		Assert.isNull(Dsv.Codec.decodeValue(null));
 		assertEquals(Dsv.Codec.decodeValue(""), "");
 		assertEquals(Dsv.Codec.decodeValue(" "), " ");
 		assertEquals(Dsv.Codec.decodeValue("\""), "");
@@ -143,8 +143,8 @@ public class DsvBehavior {
 		assertEquals(parser.field("field4", "test"), "test");
 		next();
 		assertEquals(parser.field("field1"), "test");
-		assertNull(parser.field("field2"));
-		assertNull(parser.field("field3"));
+		Assert.isNull(parser.field("field2"));
+		Assert.isNull(parser.field("field3"));
 		next();
 		assertFalse(parser.hasFields());
 	}
@@ -153,15 +153,15 @@ public class DsvBehavior {
 	public void shouldReadFieldsByIndex() throws IOException {
 		init();
 		skip(2);
-		assertNull(parser.field(-1));
-		assertNull(parser.field(0));
-		assertNull(parser.field(1));
+		Assert.isNull(parser.field(-1));
+		Assert.isNull(parser.field(0));
+		Assert.isNull(parser.field(1));
 		next();
-		assertNull(parser.field(-1));
+		Assert.isNull(parser.field(-1));
 		assertEquals(parser.field(0), "1");
 		assertEquals(parser.field(1), "2");
 		assertEquals(parser.field(2), "3");
-		assertNull(parser.field(3));
+		Assert.isNull(parser.field(3));
 	}
 
 	@Test

@@ -1,10 +1,9 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.Level;
@@ -12,6 +11,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.CFileDescriptor.Opener;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -85,7 +85,7 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void shouldFailToWrapInvalidDescriptor() {
-		assertThrown(() -> CFileDescriptor.of(-1));
+		Assert.thrown(() -> CFileDescriptor.of(-1));
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class CFileDescriptorBehavior {
 		init();
 		fd.fd();
 		fd.close();
-		assertThrown(() -> fd.fd());
+		Assert.thrown(() -> fd.fd());
 	}
 
 	@SuppressWarnings("resource")

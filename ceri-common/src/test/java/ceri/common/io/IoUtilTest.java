@@ -1,11 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,6 +17,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.Exceptions;
 import ceri.common.function.Excepts;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
@@ -105,7 +104,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testAvailableString() throws IOException {
-		assertNull(IoUtil.availableString(null));
+		Assert.isNull(IoUtil.availableString(null));
 		try (var in = new ByteArrayInputStream("test".getBytes())) {
 			assertEquals(IoUtil.availableString(in), "test");
 			assertEquals(IoUtil.availableString(in), "");
@@ -114,7 +113,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testAvailableLine() throws IOException {
-		assertNull(IoUtil.availableLine(null));
+		Assert.isNull(IoUtil.availableLine(null));
 		var s = "te" + Strings.EOL + Strings.EOL + "s" + Strings.EOL + "t";
 		try (var in = new ByteArrayInputStream(s.getBytes())) {
 			assertEquals(IoUtil.availableLine(in), "te" + Strings.EOL);
@@ -126,7 +125,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testAvailableBytes() throws IOException {
-		assertNull(IoUtil.availableBytes(null));
+		Assert.isNull(IoUtil.availableBytes(null));
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, 2, 3, 4))) {
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
 			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
@@ -138,7 +137,7 @@ public class IoUtilTest {
 
 	@Test
 	public void testAvailableBytesWithPredicate() throws IOException {
-		assertNull(IoUtil.availableBytes(null, null));
+		Assert.isNull(IoUtil.availableBytes(null, null));
 		Excepts.ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, -1, -1, 2, 3))) {
 			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
@@ -168,7 +167,7 @@ public class IoUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testReadNext() throws IOException {
-		assertNull(IoUtil.readNext(null));
+		Assert.isNull(IoUtil.readNext(null));
 		try (var in = TestInputStream.of()) {
 			in.to.writeBytes(1, 2, 3);
 			assertArray(IoUtil.readNext(in), 1, 2, 3);
@@ -183,7 +182,7 @@ public class IoUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testReadNextString() throws IOException {
-		assertNull(IoUtil.readNext(null));
+		Assert.isNull(IoUtil.readNext(null));
 		try (var in = TestInputStream.of()) {
 			in.to.writeBytes('a', 'b', 'c');
 			assertEquals(IoUtil.readNextString(in), "abc");
@@ -199,7 +198,7 @@ public class IoUtilTest {
 	public void testPollForData() throws IOException {
 		int[] available = { 0 };
 		try (var in = IoStream.in((IoStream.Read) null, () -> available[0])) {
-			assertThrown(IoExceptions.Timeout.class, () -> IoUtil.pollForData(in, 1, 1, 1));
+			Assert.thrown(IoExceptions.Timeout.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
 			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
 		}

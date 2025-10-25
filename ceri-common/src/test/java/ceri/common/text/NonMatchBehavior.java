@@ -1,14 +1,14 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class NonMatchBehavior {
 
@@ -144,8 +144,8 @@ public class NonMatchBehavior {
 	@Test
 	public void shouldFailWhenFindingFromPositionOutOfRange() {
 		var m = nonMatcher("[a-c]", "abcDEF");
-		assertThrown(() -> m.find(-1));
-		assertThrown(() -> m.find(7));
+		Assert.thrown(() -> m.find(-1));
+		Assert.thrown(() -> m.find(7));
 	}
 
 	@Test
@@ -177,15 +177,15 @@ public class NonMatchBehavior {
 	@Test
 	public void shouldFailToReadMatchIfNoMatch() {
 		var m = nonMatcher("[a-c]+", "ABC");
-		assertThrown(() -> m.group());
-		assertThrown(() -> m.start());
-		assertThrown(() -> m.end());
+		Assert.thrown(() -> m.group());
+		Assert.thrown(() -> m.start());
+		Assert.thrown(() -> m.end());
 		assertTrue(m.find());
 		assertNonMatcher(m, "ABC", 0, 3);
 		assertFalse(m.find());
-		assertThrown(() -> m.group());
-		assertThrown(() -> m.start());
-		assertThrown(() -> m.end());
+		Assert.thrown(() -> m.group());
+		Assert.thrown(() -> m.start());
+		Assert.thrown(() -> m.end());
 	}
 
 	@Test
@@ -212,7 +212,7 @@ public class NonMatchBehavior {
 	public void shouldConvertToResult() {
 		var m = nonMatcher("[a-c]+", "abBCcDd");
 		var r0 = m.toResult();
-		assertThrown(() -> r0.group());
+		Assert.thrown(() -> r0.group());
 		m.find();
 		assertEquals(m.toResult().group(), "BC");
 	}
@@ -222,7 +222,7 @@ public class NonMatchBehavior {
 		var i = nonMatcher("[a-c]+", "abBCcDd").results().iterator();
 		assertNonMatchResult(i.next(), "BC", 2, 4);
 		assertNonMatchResult(i.next(), "Dd", 5, 7);
-		assertThrown(NoSuchElementException.class, () -> i.next());
+		Assert.thrown(NoSuchElementException.class, () -> i.next());
 		assertFalse(i.hasNext());
 	}
 

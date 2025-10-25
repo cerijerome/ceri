@@ -1,13 +1,13 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertShort;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertShort;
+import static ceri.common.test.Assert.illegalArg;
 import org.junit.Test;
 import ceri.common.function.Excepts;
+import ceri.common.test.Assert;
 
 public class ParseTest {
 
@@ -496,8 +496,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseByte("-+1"));
 		assertNfe(() -> Parse.parseByte(16, "100"));
 		assertNfe(() -> Parse.parseByte(16, "-100"));
-		assertIllegalArg(() -> Parse.parseByte(1, "1"));
-		assertIllegalArg(() -> Parse.parseByte(37, "1"));
+		illegalArg(() -> Parse.parseByte(1, "1"));
+		illegalArg(() -> Parse.parseByte(37, "1"));
 	}
 
 	@Test
@@ -525,8 +525,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseUbyte("-1"));
 		assertNfe(() -> Parse.parseUbyte("++1"));
 		assertNfe(() -> Parse.parseUbyte(16, "100"));
-		assertIllegalArg(() -> Parse.parseUbyte(1, "1"));
-		assertIllegalArg(() -> Parse.parseUbyte(37, "1"));
+		illegalArg(() -> Parse.parseUbyte(1, "1"));
+		illegalArg(() -> Parse.parseUbyte(37, "1"));
 	}
 
 	@Test
@@ -561,8 +561,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseShort("-+1"));
 		assertNfe(() -> Parse.parseShort(16, "10000"));
 		assertNfe(() -> Parse.parseShort(16, "-10000"));
-		assertIllegalArg(() -> Parse.parseShort(1, "1"));
-		assertIllegalArg(() -> Parse.parseShort(37, "1"));
+		illegalArg(() -> Parse.parseShort(1, "1"));
+		illegalArg(() -> Parse.parseShort(37, "1"));
 	}
 
 	@Test
@@ -590,8 +590,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseUshort("-1"));
 		assertNfe(() -> Parse.parseUshort("++1"));
 		assertNfe(() -> Parse.parseUshort(16, "10000"));
-		assertIllegalArg(() -> Parse.parseUshort(1, "1"));
-		assertIllegalArg(() -> Parse.parseUshort(37, "1"));
+		illegalArg(() -> Parse.parseUshort(1, "1"));
+		illegalArg(() -> Parse.parseUshort(37, "1"));
 	}
 
 	@Test
@@ -626,8 +626,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseInt("-+1"));
 		assertNfe(() -> Parse.parseInt(16, "100000000"));
 		assertNfe(() -> Parse.parseInt(16, "-100000000"));
-		assertIllegalArg(() -> Parse.parseInt(1, "1"));
-		assertIllegalArg(() -> Parse.parseInt(37, "1"));
+		illegalArg(() -> Parse.parseInt(1, "1"));
+		illegalArg(() -> Parse.parseInt(37, "1"));
 	}
 
 	@Test
@@ -655,8 +655,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseUint("-1"));
 		assertNfe(() -> Parse.parseUint("++1"));
 		assertNfe(() -> Parse.parseUint(16, "100000000"));
-		assertIllegalArg(() -> Parse.parseUint(1, "1"));
-		assertIllegalArg(() -> Parse.parseUint(37, "1"));
+		illegalArg(() -> Parse.parseUint(1, "1"));
+		illegalArg(() -> Parse.parseUint(37, "1"));
 	}
 
 	@Test
@@ -697,8 +697,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseLong("-+1"));
 		assertNfe(() -> Parse.parseLong(16, "10000000000000000"));
 		assertNfe(() -> Parse.parseLong(16, "-10000000000000000"));
-		assertIllegalArg(() -> Parse.parseLong(1, "1"));
-		assertIllegalArg(() -> Parse.parseLong(37, "1"));
+		illegalArg(() -> Parse.parseLong(1, "1"));
+		illegalArg(() -> Parse.parseLong(37, "1"));
 	}
 
 	@Test
@@ -730,8 +730,8 @@ public class ParseTest {
 		assertNfe(() -> Parse.parseUlong("-1"));
 		assertNfe(() -> Parse.parseUlong("++1"));
 		assertNfe(() -> Parse.parseUlong(16, "10000000000000000"));
-		assertIllegalArg(() -> Parse.parseUlong(1, "1"));
-		assertIllegalArg(() -> Parse.parseUlong(37, "1"));
+		illegalArg(() -> Parse.parseUlong(1, "1"));
+		illegalArg(() -> Parse.parseUlong(37, "1"));
 	}
 
 	@Test
@@ -773,6 +773,6 @@ public class ParseTest {
 	}
 
 	private static void assertNfe(Excepts.Runnable<?> runnable) {
-		assertThrown(NumberFormatException.class, runnable);
+		Assert.thrown(NumberFormatException.class, runnable);
 	}
 }

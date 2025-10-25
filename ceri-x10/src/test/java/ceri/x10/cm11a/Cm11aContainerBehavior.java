@@ -1,12 +1,12 @@
 package ceri.x10.cm11a;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
+import ceri.common.test.Assert;
 import ceri.common.test.TestInputStream;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.test.TestSerial;
@@ -109,7 +109,7 @@ public class Cm11aContainerBehavior {
 	@Test
 	public void shouldFailOnConnectorError() {
 		var config = Cm11aContainer.Config.builder().serial(TestSerial.errorConfig()).build();
-		assertThrown(() -> Cm11aContainer.of(config));
+		Assert.thrown(() -> Cm11aContainer.of(config));
 	}
 
 	@SuppressWarnings("resource")

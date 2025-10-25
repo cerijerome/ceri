@@ -1,10 +1,10 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestTcpSocket;

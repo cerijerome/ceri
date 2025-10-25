@@ -222,7 +222,7 @@ import ceri.common.test.TestUtil;
 	ceri.common.svg.PositionBehavior.class, //
 	ceri.common.svg.SvgTest.class, //
 	// test
-	ceri.common.test.AssertUtilTest.class, //
+	ceri.common.test.AssertTest.class, //
 	ceri.common.test.BinaryPrinterBehavior.class, //
 	ceri.common.test.BranchCaptorBehavior.class, //
 	ceri.common.test.CallSyncBehavior.class, //

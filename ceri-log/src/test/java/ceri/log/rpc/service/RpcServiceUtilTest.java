@@ -1,10 +1,10 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwIt;
+import static ceri.common.test.Assert.throwable;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Level;
@@ -64,7 +64,7 @@ public class RpcServiceUtilTest {
 			TestStreamObserver<String> observer = TestStreamObserver.of();
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, () -> throwIt(e));
-			assertThrowable(observer.error.awaitAuto(), StatusRuntimeException.class);
+			throwable(observer.error.awaitAuto(), StatusRuntimeException.class);
 		}, Level.OFF, RpcServiceUtil.class);
 	}
 
@@ -82,7 +82,7 @@ public class RpcServiceUtilTest {
 			TestStreamObserver<String> observer = TestStreamObserver.of();
 			IOException e = new IOException("test");
 			RpcServiceUtil.respond(observer, "test", () -> throwIt(e));
-			assertThrowable(observer.error.awaitAuto(), StatusRuntimeException.class);
+			throwable(observer.error.awaitAuto(), StatusRuntimeException.class);
 		}, Level.OFF, RpcServiceUtil.class);
 	}
 

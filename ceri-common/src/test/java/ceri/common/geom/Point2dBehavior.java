@@ -1,9 +1,9 @@
 package ceri.common.geom;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class Point2dBehavior {
@@ -56,8 +56,8 @@ public class Point2dBehavior {
 	public void shouldCalculateAngle() {
 		assertEquals(Point2d.ZERO.angle(), Double.NaN);
 		assertEquals(Point2d.X_UNIT.angle(), 0.0);
-		assertApprox(Point2d.Y_UNIT.angle(), Math.PI / 2);
-		assertApprox(Point2d.of(1, 1).angle(), Math.PI / 4);
+		Assert.approx(Point2d.Y_UNIT.angle(), Math.PI / 2);
+		Assert.approx(Point2d.of(1, 1).angle(), Math.PI / 4);
 	}
 
 	@Test

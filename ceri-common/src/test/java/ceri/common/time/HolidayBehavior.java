@@ -1,12 +1,12 @@
 package ceri.common.time;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class HolidayBehavior {
 
@@ -23,7 +23,7 @@ public class HolidayBehavior {
 	@Test
 	public void shouldEncapsulateFixedDay() {
 		assertEquals(Holiday.of(Month.FEBRUARY, 28).date(2018), LocalDate.of(2018, 2, 28));
-		assertThrown(() -> Holiday.of(Month.FEBRUARY, 29).date(2018));
+		Assert.thrown(() -> Holiday.of(Month.FEBRUARY, 29).date(2018));
 	}
 
 	@Test
@@ -37,5 +37,4 @@ public class HolidayBehavior {
 		assertEquals(Holiday.lastDayInMonth(DayOfWeek.FRIDAY, Month.APRIL).date(2018),
 			LocalDate.of(2018, 4, 27));
 	}
-
 }

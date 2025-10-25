@@ -1,9 +1,8 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertMask;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertMask;
+import static ceri.common.test.Assert.fail;
 import static ceri.jna.clib.jna.CTermios.CMSPAR;
 import static ceri.jna.clib.jna.CTermios.PARENB;
 import static ceri.jna.clib.jna.CTermios.PARODD;
@@ -23,6 +22,7 @@ import static ceri.serial.comm.jna.CSerial.STOPBITS_2;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CIoctl;
@@ -46,7 +46,7 @@ public class CSerialTest {
 	public void testCloseAfterOpenFailure() {
 		var lib = ref.init();
 		lib.fcntl.error.set(CException.general("test"));
-		assertThrown(() -> CSerial.open("test"));
+		Assert.thrown(() -> CSerial.open("test"));
 		lib.open.assertCalls(1);
 		lib.close.assertCalls(1);
 	}
@@ -65,9 +65,9 @@ public class CSerialTest {
 	public void shouldFailToSetInvalidParameters() throws CException {
 		ref.init();
 		int fd = CSerial.open("test");
-		assertThrown(() -> CSerial.setParams(fd, 9600, 4, STOPBITS_1, PARITY_NONE));
-		assertThrown(() -> CSerial.setParams(fd, 9600, DATABITS_8, 4, PARITY_NONE));
-		assertThrown(() -> CSerial.setParams(fd, 9600, DATABITS_8, STOPBITS_1, 5));
+		Assert.thrown(() -> CSerial.setParams(fd, 9600, 4, STOPBITS_1, PARITY_NONE));
+		Assert.thrown(() -> CSerial.setParams(fd, 9600, DATABITS_8, 4, PARITY_NONE));
+		Assert.thrown(() -> CSerial.setParams(fd, 9600, DATABITS_8, STOPBITS_1, 5));
 	}
 
 	@Test
@@ -124,7 +124,8 @@ public class CSerialTest {
 			var helper = CSerialTestHelper.linux(ref.init());
 			helper.initSerial(0x111, 0, 16000000, 0);
 			int fd = CSerial.open("test");
-			assertThrown(() -> CSerial.setParams(fd, 3750000, DATABITS_6, STOPBITS_2, PARITY_EVEN));
+			Assert
+				.thrown(() -> CSerial.setParams(fd, 3750000, DATABITS_6, STOPBITS_2, PARITY_EVEN));
 		});
 	}
 

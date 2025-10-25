@@ -1,6 +1,6 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 

@@ -1,8 +1,8 @@
 package ceri.log.io.test;
 
-import static ceri.common.test.AssertUtil.assertAscii;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.Assert.assertAscii;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.io;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class TestTcpSocketBehavior {
 			assertEquals(s.hostPort(), HostPort.NULL);
 			s.in.read.error.setFrom(IOX);
 			s.in.to.writeBytes(0);
-			assertIoe(s.in()::read);
+			io(s.in()::read);
 		}
 	}
 

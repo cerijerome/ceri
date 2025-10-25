@@ -1,8 +1,8 @@
 package ceri.common.sql;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertString;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;

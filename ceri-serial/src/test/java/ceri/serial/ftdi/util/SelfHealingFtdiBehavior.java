@@ -1,15 +1,11 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -25,6 +21,7 @@ import ceri.common.function.Enclosure;
 import ceri.common.function.Functional;
 import ceri.common.function.Functions;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil;
 import ceri.jna.test.JnaTestUtil;
@@ -255,10 +252,10 @@ public class SelfHealingFtdiBehavior {
 			captor.accept(i, b);
 			return false;
 		}, 1, 1);
-		assertNull(captor.first.values.get(0));
-		assertNotNull(captor.second.values.get(0));
-		assertNotNull(captor.first.values.get(1));
-		assertNull(captor.second.values.get(1));
+		Assert.isNull(captor.first.values.get(0));
+		Assert.notNull(captor.second.values.get(0));
+		Assert.notNull(captor.first.values.get(1));
+		Assert.isNull(captor.second.values.get(1));
 	}
 
 	@Test
@@ -268,7 +265,7 @@ public class SelfHealingFtdiBehavior {
 			ValueCondition<StateChange> sync = ValueCondition.of();
 			try (var _ = con.listeners().enclose(sync::signal)) {
 				lib.transferOut.error.setFrom(JnaTestUtil.LEX);
-				assertThrown(con::open);
+				Assert.thrown(con::open);
 				sync.await(StateChange.broken);
 				lib.transferOut.awaitAuto();
 				lib.transferOut.awaitAuto();
@@ -283,7 +280,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldFailIfNotConnected() {
 		init();
-		assertThrown(() -> con.in().read()); // not connected, set broken, then fix
+		Assert.thrown(() -> con.in().read()); // not connected, set broken, then fix
 		Functional.muteRun(() -> con.in().read()); // may have been fixed
 		Functional.muteRun(() -> con.readPins()); // may have been fixed
 	}
@@ -292,7 +289,7 @@ public class SelfHealingFtdiBehavior {
 	@Test
 	public void shouldOverrideConstruction() {
 		var testFtdi = TestFtdi.of();
-		assertSame(testFtdi.config().ftdi(), testFtdi);
+		Assert.same(testFtdi.config().ftdi(), testFtdi);
 	}
 
 	/**

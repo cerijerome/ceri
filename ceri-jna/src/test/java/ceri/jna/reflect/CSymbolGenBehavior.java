@@ -1,8 +1,8 @@
 package ceri.jna.reflect;
 
-import static ceri.common.test.AssertUtil.assertContains;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
+import static ceri.common.test.Assert.assertContains;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.illegalArg;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.junit.After;
@@ -145,9 +145,9 @@ public class CSymbolGenBehavior {
 	@Test
 	public void shouldFailForBadTypes() {
 		var gen = CSymbolGen.of().out(nullOut);
-		assertIllegalArg(() -> gen.add(BadE.class)); // invalid value field
-		assertIllegalArg(() -> gen.add(BadS.class)); // unsupported constructor
-		assertIllegalArg(() -> gen.add(BadI.class)); // unsupported constructor
+		illegalArg(() -> gen.add(BadE.class)); // invalid value field
+		illegalArg(() -> gen.add(BadS.class)); // unsupported constructor
+		illegalArg(() -> gen.add(BadI.class)); // unsupported constructor
 		gen.add(Undefined.class); // ignored
 	}
 

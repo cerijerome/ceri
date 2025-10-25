@@ -1,6 +1,6 @@
 package ceri.log.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Objects;
 import ceri.common.text.ToString;

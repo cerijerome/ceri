@@ -1,9 +1,8 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.throwRuntime;
 import static ceri.common.test.ErrorGen.RTX;
 import static ceri.common.test.TestUtil.threadRun;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
@@ -22,6 +21,7 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteArray;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
@@ -89,30 +89,30 @@ public class LibFtdiStreamTest {
 	@Test
 	public void shouldFailOnSubmissionError() {
 		lib.submitTransfer.autoResponses(LIBUSB_SUCCESS, LIBUSB_ERROR_IO, LIBUSB_SUCCESS);
-		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
+		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 	}
 
 	@Test
 	public void shouldFailOnEventHandlingError() {
 		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_NO_DEVICE));
-		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
+		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 		lib.handleTransferEvent.error.setFrom(RTX);
-		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
+		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 	}
 
 	@Test
 	public void shouldFailOnBadTransferStatus() {
 		LogModifier.run(() -> {
 			lib.handleTransferEvent.autoResponses(LIBUSB_TRANSFER_OVERFLOW);
-			assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
+			Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, trueCallback, null, 2, 3));
 		}, Level.OFF, LibFtdiStream.class);
 	}
 
 	@Test
 	public void shouldFailOnCallbackError() {
 		FTDIStreamCallback<?> callback = (_, _, prog, _) -> prog == null ? true : throwRuntime();
-		assertThrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
+		Assert.thrown(() -> LibFtdiStream.ftdi_readstream(ftdi, callback, null, 2, 3, 0.0));
 	}
 
 	private static boolean assertTotalBytes(FTDIProgressInfo prog, long curr, long prev, long first,

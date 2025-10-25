@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;

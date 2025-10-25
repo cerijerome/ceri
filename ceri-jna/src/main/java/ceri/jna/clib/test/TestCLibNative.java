@@ -1,6 +1,6 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertTrue;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;

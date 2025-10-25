@@ -1,6 +1,6 @@
 package ceri.x10.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 
 public class X10UtilTest {

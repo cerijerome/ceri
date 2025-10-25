@@ -1,14 +1,14 @@
 package ceri.x10.command;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class CommandBehavior {
@@ -50,7 +50,7 @@ public class CommandBehavior {
 	@Test
 	public void shouldFailToDispatchUnsupportedCommand() {
 		Command unsupported = UnsupportedCommand.hailReq(House.I, Unit._11);
-		assertThrown(() -> Command.Listener.dispatcher(unsupported));
+		Assert.thrown(() -> Command.Listener.dispatcher(unsupported));
 	}
 
 	@Test
@@ -132,16 +132,16 @@ public class CommandBehavior {
 
 	@Test
 	public void shouldFailToCreateFromBadString() {
-		assertThrown(() -> Command.from(null));
-		assertThrown(() -> Command.from(""));
-		assertThrown(() -> Command.from("A[1,2]:"));
-		assertThrown(() -> Command.from(":on"));
-		assertThrown(() -> Command.from("A:xx"));
+		Assert.thrown(() -> Command.from(null));
+		Assert.thrown(() -> Command.from(""));
+		Assert.thrown(() -> Command.from("A[1,2]:"));
+		Assert.thrown(() -> Command.from(":on"));
+		Assert.thrown(() -> Command.from("A:xx"));
 	}
 
 	@Test
 	public void shouldFailToCreateFromUnsupportedString() {
-		assertThrown(() -> Command.from("A[1,2]:hailReq"));
+		Assert.thrown(() -> Command.from("A[1,2]:hailReq"));
 	}
 
 	@Test

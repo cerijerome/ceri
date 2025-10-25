@@ -1,6 +1,6 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.clib.FileDescriptor.FLAGS;
 import java.io.IOException;
 import org.junit.Test;

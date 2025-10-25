@@ -1,8 +1,8 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertString;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;

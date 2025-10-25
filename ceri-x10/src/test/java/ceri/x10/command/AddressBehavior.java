@@ -1,9 +1,9 @@
 package ceri.x10.command;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class AddressBehavior {
@@ -25,13 +25,13 @@ public class AddressBehavior {
 	public void shouldCreateFromString() {
 		assertEquals(Address.from("P16"), Address.of(House.P, Unit._16));
 		assertEquals(Address.from("O8"), Address.of(House.O, Unit._8));
-		assertThrown(() -> Address.from(null));
-		assertThrown(() -> Address.from(""));
-		assertThrown(() -> Address.from("A"));
-		assertThrown(() -> Address.from("A0"));
-		assertThrown(() -> Address.from("A17"));
-		assertThrown(() -> Address.from("17"));
-		assertThrown(() -> Address.from("Q1"));
+		Assert.thrown(() -> Address.from(null));
+		Assert.thrown(() -> Address.from(""));
+		Assert.thrown(() -> Address.from("A"));
+		Assert.thrown(() -> Address.from("A0"));
+		Assert.thrown(() -> Address.from("A17"));
+		Assert.thrown(() -> Address.from("17"));
+		Assert.thrown(() -> Address.from("Q1"));
 	}
 
 	@Test

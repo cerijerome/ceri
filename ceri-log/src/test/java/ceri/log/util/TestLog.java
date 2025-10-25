@@ -17,7 +17,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Closeables;
-import ceri.common.test.AssertUtil;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Regex;
 import ceri.common.text.Text;
@@ -83,15 +83,15 @@ public class TestLog implements AutoCloseable {
 	}
 
 	public void assertEmpty() {
-		AssertUtil.assertEquals(extract(), "");
+		Assert.assertEquals(extract(), "");
 	}
 
 	public void assertFind(String pattern, Object... args) {
-		AssertUtil.assertFind(extract(), pattern, args);
+		Assert.assertFind(extract(), pattern, args);
 	}
 
 	public void assertMatch(String pattern, Object... args) {
-		AssertUtil.assertMatch(extract(), pattern, args);
+		Assert.assertMatch(extract(), pattern, args);
 	}
 
 	public String extract() {

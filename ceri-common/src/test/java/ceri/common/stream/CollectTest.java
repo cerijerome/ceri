@@ -1,10 +1,10 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertUnsupported;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.unsupportedOp;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -27,7 +27,7 @@ public class CollectTest {
 	@Test
 	public void testNoCombiner() {
 		assertArray(Lists.ofAll(1, -1, 0).stream().collect(Collect.array()), 1, -1, 0);
-		assertUnsupported(() -> Lists.ofAll(1, -1, 0).stream().parallel().collect(Collect.array()));
+		unsupportedOp(() -> Lists.ofAll(1, -1, 0).stream().parallel().collect(Collect.array()));
 	}
 
 	@Test

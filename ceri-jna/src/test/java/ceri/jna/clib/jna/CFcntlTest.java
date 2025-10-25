@@ -1,12 +1,12 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.LEX;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
 import ceri.jna.test.JnaTestUtil;
@@ -31,8 +31,8 @@ public class CFcntlTest {
 	public void testFailToOpenWithParameters() {
 		var lib = ref.init();
 		lib.open.error.setFrom(LEX);
-		assertThrown(() -> CFcntl.open("test1", 3));
-		assertThrown(() -> CFcntl.open("test2", 3, 0666));
+		Assert.thrown(() -> CFcntl.open("test1", 3));
+		Assert.thrown(() -> CFcntl.open("test2", 3, 0666));
 		lib.open.error.clear();
 	}
 
@@ -41,7 +41,7 @@ public class CFcntlTest {
 		assertEquals(CFcntl.validFd(-1), false);
 		assertEquals(CFcntl.validFd(0), true);
 		assertEquals(CFcntl.validFd(1), true);
-		assertThrown(() -> CFcntl.validateFd(-1));
+		Assert.thrown(() -> CFcntl.validateFd(-1));
 		assertEquals(CFcntl.validateFd(0), 0);
 		assertEquals(CFcntl.validateFd(1), 1);
 	}

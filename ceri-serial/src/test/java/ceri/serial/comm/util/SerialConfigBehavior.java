@@ -1,14 +1,14 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.property.TypedProperties;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 import ceri.serial.comm.DataBits;
@@ -66,7 +66,7 @@ public class SerialConfigBehavior {
 		var p = new Properties();
 		p.setProperty("device.port.locator.pattern", "regex:.*\\d+");
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertNotNull(port);
+		Assert.notNull(port);
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class SerialConfigBehavior {
 		var p = new Properties();
 		p.setProperty("device.port.locator.id", "0x1234");
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertNotNull(port);
+		Assert.notNull(port);
 	}
 
 	/**

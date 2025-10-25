@@ -1,7 +1,7 @@
 package ceri.common.color;
 
-import static ceri.common.test.AssertUtil.assertApproxArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertApproxArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 
 public class ColorSpacesTest {

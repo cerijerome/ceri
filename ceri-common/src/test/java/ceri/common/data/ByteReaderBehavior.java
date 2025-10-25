@@ -1,12 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
+import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class ByteReaderBehavior {
@@ -26,7 +26,7 @@ public class ByteReaderBehavior {
 	public void shouldSkipBytes() {
 		assertRemaining(reader(1, 2, 3).skip(0), 1, 2, 3);
 		assertRemaining(reader(1, 2, 3, 4, 5).skip(3), 4, 5);
-		assertThrown(() -> reader(1, 2, 3).skip(4));
+		Assert.thrown(() -> reader(1, 2, 3).skip(4));
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class ByteReaderBehavior {
 	public void shouldReadBytes() {
 		assertArray(reader(1, 2, 3).readBytes(0));
 		assertArray(reader(1, 2, 3).readBytes(3), 1, 2, 3);
-		assertThrown(() -> reader(1, 2, 3).readBytes(4));
+		Assert.thrown(() -> reader(1, 2, 3).readBytes(4));
 	}
 
 	@Test
@@ -97,8 +97,8 @@ public class ByteReaderBehavior {
 		byte[] bytes = new byte[3];
 		assertEquals(reader(0, -1, 2, -3, 4).readInto(bytes), 3);
 		assertArray(bytes, 0, -1, 2);
-		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(bytes, 1, 3));
-		assertThrown(() -> reader(0, -1).readInto(bytes));
+		Assert.thrown(() -> reader(0, -1, 2, -3, 4).readInto(bytes, 1, 3));
+		Assert.thrown(() -> reader(0, -1).readInto(bytes));
 	}
 
 	@Test
@@ -106,8 +106,8 @@ public class ByteReaderBehavior {
 		byte[] bytes = new byte[3];
 		assertEquals(reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes)), 3);
 		assertArray(bytes, 0, -1, 2);
-		assertThrown(() -> reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes), 1, 3));
-		assertThrown(() -> reader(0, -1).readInto(Mutable.wrap(bytes)));
+		Assert.thrown(() -> reader(0, -1, 2, -3, 4).readInto(Mutable.wrap(bytes), 1, 3));
+		Assert.thrown(() -> reader(0, -1).readInto(Mutable.wrap(bytes)));
 	}
 
 	@Test
@@ -123,13 +123,13 @@ public class ByteReaderBehavior {
 	@Test
 	public void shouldStreamUnsignedBytes() {
 		assertStream(reader(0, -1, 2, -3, 4).ustream(5), 0, 0xff, 2, 0xfd, 4);
-		assertThrown(() -> reader(0, -1, 2).ustream(5).toArray());
+		Assert.thrown(() -> reader(0, -1, 2).ustream(5).toArray());
 	}
 
 	private static void assertRemaining(ByteReader reader, int... bytes) {
 		for (int b : bytes)
 			assertByte(reader.readByte(), b);
-		assertThrown(() -> reader.readByte());
+		Assert.thrown(() -> reader.readByte());
 	}
 
 	private static ByteReader reader(int... bytes) {

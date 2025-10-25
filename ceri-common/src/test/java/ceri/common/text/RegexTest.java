@@ -1,12 +1,12 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.illegalArg;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
@@ -238,8 +238,8 @@ public class RegexTest {
 
 	@Test
 	public void testValidMatcher() {
-		assertIllegalArg(() -> Regex.validMatcher(null));
-		assertIllegalArg(() -> Regex.validMatcher(find(".+", "")));
+		illegalArg(() -> Regex.validMatcher(null));
+		illegalArg(() -> Regex.validMatcher(find(".+", "")));
 		assertMatcher(Regex.validMatcher(find(".*", "")), "");
 		assertMatcher(Regex.validMatcher(find(".", "abc")), "a");
 	}
@@ -278,8 +278,8 @@ public class RegexTest {
 
 	@Test
 	public void testValidMatch() {
-		assertIllegalArg(() -> Regex.validMatch(null, ""));
-		assertIllegalArg(() -> Regex.validMatch(p(".+"), "", "test"));
+		illegalArg(() -> Regex.validMatch(null, ""));
+		illegalArg(() -> Regex.validMatch(p(".+"), "", "test"));
 		assertMatcher(Regex.validMatch(p(".*"), null), "");
 		assertMatcher(Regex.validMatch(p(".*"), ""), "");
 		assertMatcher(Regex.validMatch(p(".*"), "abc"), "abc");
@@ -294,8 +294,8 @@ public class RegexTest {
 
 	@Test
 	public void testValidFind() {
-		assertIllegalArg(() -> Regex.validFind(null, ""));
-		assertIllegalArg(() -> Regex.validFind(p(".+"), "", "test"));
+		illegalArg(() -> Regex.validFind(null, ""));
+		illegalArg(() -> Regex.validFind(p(".+"), "", "test"));
 		assertMatcher(Regex.validFind(p(".*"), null), "");
 		assertMatcher(Regex.validFind(p(".*"), ""), "");
 		assertMatcher(Regex.validFind(p("\\w+"), " abc "), "abc");

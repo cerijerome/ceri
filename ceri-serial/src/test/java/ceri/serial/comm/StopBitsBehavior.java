@@ -1,14 +1,14 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class StopBitsBehavior {
 
 	@Test
 	public void shouldLookupByValue() {
-		assertNull(StopBits.from(0));
+		Assert.isNull(StopBits.from(0));
 		assertEquals(StopBits.from(1), StopBits._1);
 		assertEquals(StopBits.from(2), StopBits._2);
 		assertEquals(StopBits.from(3), StopBits._1_5);

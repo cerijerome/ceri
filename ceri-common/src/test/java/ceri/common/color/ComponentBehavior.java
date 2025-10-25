@@ -1,9 +1,9 @@
 package ceri.common.color;
 
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ComponentBehavior {
 
@@ -69,8 +69,8 @@ public class ComponentBehavior {
 
 	@Test
 	public void shouldProvideRatioFromValue() {
-		assertApprox(Component.a.ratio(0xfedcba9876543210L), 0.463);
-		assertApprox(Component.x2.ratio(0xfedcba9876543210L), 0.863);
+		Assert.approx(Component.a.ratio(0xfedcba9876543210L), 0.463);
+		Assert.approx(Component.x2.ratio(0xfedcba9876543210L), 0.863);
 	}
 
 }

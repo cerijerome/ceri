@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNoMatch;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertNoMatch;
 import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.io.SystemIo;

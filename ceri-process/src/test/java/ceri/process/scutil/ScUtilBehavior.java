@@ -1,16 +1,15 @@
 package ceri.process.scutil;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertOrdered;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.collect.Node;
 import ceri.common.process.Parameters;
+import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
 import ceri.common.test.TestUtil;
 
@@ -19,7 +18,7 @@ public class ScUtilBehavior {
 
 	@Test
 	public void shouldHaveDefaultProcessor() {
-		assertNotNull(ScUtil.of().nc);
+		Assert.notNull(ScUtil.of().nc);
 	}
 
 	@Test
@@ -66,11 +65,11 @@ public class ScUtilBehavior {
 	@Test
 	public void shouldCalculateNcStatsErrorRate() {
 		var ns = ScUtil.Nc.Stats.NULL;
-		assertApprox(ns.packetErrorRateIn(), 0.0);
-		assertApprox(ns.packetErrorRateOut(), 0.0);
+		Assert.approx(ns.packetErrorRateIn(), 0.0);
+		Assert.approx(ns.packetErrorRateOut(), 0.0);
 		ns = ScUtil.Nc.Stats.from(ncStatsOutput);
-		assertApprox(ns.packetErrorRateIn(), 0.13);
-		assertApprox(ns.packetErrorRateOut(), 0.0);
+		Assert.approx(ns.packetErrorRateIn(), 0.13);
+		Assert.approx(ns.packetErrorRateOut(), 0.0);
 	}
 
 	@Test

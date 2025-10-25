@@ -1,7 +1,7 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.common.test.ErrorGen.RIX;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;

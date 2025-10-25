@@ -1,7 +1,7 @@
 package ceri.common.process;
 
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.test.TestUtil;

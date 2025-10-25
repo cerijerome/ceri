@@ -1,15 +1,14 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwRuntime;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.Excepts.Closeable;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
@@ -82,7 +81,7 @@ public class EnclosureBehavior {
 	public void shouldCloseOnAdaptFailure() {
 		var sync = CallSync.runnable(true);
 		Functions.Closeable rc = sync::run;
-		assertThrown(() -> Enclosure.adapt(rc, _ -> throwRuntime()));
+		Assert.thrown(() -> Enclosure.adapt(rc, _ -> throwRuntime()));
 		sync.assertCalls(1);
 	}
 
@@ -90,7 +89,7 @@ public class EnclosureBehavior {
 	public void shouldExecuteOnClose() {
 		String[] ss = { "a" };
 		try (var _ = Enclosure.of(ss, s -> s[0] = null)) {}
-		assertNull(ss[0]);
+		Assert.isNull(ss[0]);
 	}
 
 	@Test

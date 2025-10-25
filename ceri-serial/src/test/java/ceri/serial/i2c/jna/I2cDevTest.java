@@ -1,8 +1,8 @@
 package ceri.serial.i2c.jna;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
 import org.junit.After;

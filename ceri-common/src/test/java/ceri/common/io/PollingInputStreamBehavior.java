@@ -1,11 +1,11 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class PollingInputStreamBehavior {
 
@@ -13,7 +13,7 @@ public class PollingInputStreamBehavior {
 	public void shouldTimeoutIfNoData() throws IOException {
 		try (InputStream in0 = IoStream.in((_, _, _) -> 0)) {
 			try (PollingInputStream in = new PollingInputStream(in0, 1, 1)) {
-				assertThrown(IoExceptions.Timeout.class, in::read);
+				Assert.thrown(IoExceptions.Timeout.class, in::read);
 			}
 		}
 	}
@@ -36,5 +36,4 @@ public class PollingInputStreamBehavior {
 			in.read(read, 0, 0);
 		}
 	}
-
 }

@@ -1,8 +1,8 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOverflow;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.overflow;
 import org.junit.Test;
 
 public class ReduceTest {
@@ -25,7 +25,7 @@ public class ReduceTest {
 	public void testIntSumExact() {
 		assertEquals(Streams.ints().reduce(Reduce.Ints.sumExact()), null);
 		assertEquals(Streams.ints(IMAX - 1, 1).reduce(Reduce.Ints.sumExact()), IMAX);
-		assertOverflow(() -> Streams.ints(IMAX, 1).reduce(Reduce.Ints.sumExact()));
+		overflow(() -> Streams.ints(IMAX, 1).reduce(Reduce.Ints.sumExact()));
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class ReduceTest {
 	public void testLongSumExact() {
 		assertEquals(Streams.longs().reduce(Reduce.Longs.sumExact()), null);
 		assertEquals(Streams.longs(LMAX - 1, 1).reduce(Reduce.Longs.sumExact()), LMAX);
-		assertOverflow(() -> Streams.longs(LMAX, 1).reduce(Reduce.Longs.sumExact()));
+		overflow(() -> Streams.longs(LMAX, 1).reduce(Reduce.Longs.sumExact()));
 	}
 
 	@Test

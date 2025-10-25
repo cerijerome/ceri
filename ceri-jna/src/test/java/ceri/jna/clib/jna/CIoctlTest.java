@@ -1,7 +1,7 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertCUlong;
 import static ceri.jna.test.JnaTestUtil.assertRef;
 import org.junit.After;

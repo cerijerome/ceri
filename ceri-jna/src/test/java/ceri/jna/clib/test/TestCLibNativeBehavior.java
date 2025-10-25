@@ -1,10 +1,9 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertAssertion;
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertion;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -17,6 +16,7 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CTermios;
@@ -51,7 +51,7 @@ public class TestCLibNativeBehavior {
 		exerciseRecord(new WriteArgs(111, ByteProvider.of(1, 2, 3)));
 		exerciseRecord(new LseekArgs(111, 222, 333));
 		exerciseRecord(new SignalArgs(111, new Pointer(1)));
-		assertAssertion(() -> new SignalArgs(111, null));
+		assertion(() -> new SignalArgs(111, null));
 		exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
 		exerciseRecord(new TcArgs("test", 0, List.of()));
 		exerciseRecord(new CfArgs("test", null, List.of()));
@@ -62,7 +62,7 @@ public class TestCLibNativeBehavior {
 		var lib = initFd();
 		TestCLibNative.autoError(lib.fcntl, 333, args -> args.request() < 0, "Test");
 		assertEquals(CFcntl.fcntl(fd, -1), 333);
-		assertThrown(() -> CFcntl.fcntl(fd, 1));
+		Assert.thrown(() -> CFcntl.fcntl(fd, 1));
 		lib.fcntl.error.clear();
 	}
 
@@ -116,7 +116,7 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldFailForInvalidFd() {
-		assertThrown(() -> CUnistd.write(-1, 1, 2, 3));
+		Assert.thrown(() -> CUnistd.write(-1, 1, 2, 3));
 	}
 
 	@Test

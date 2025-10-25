@@ -1,13 +1,11 @@
 package ceri.common.property;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.illegalArg;
+import static ceri.common.test.Assert.throwRuntime;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.junit.Test;
@@ -16,6 +14,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.function.Excepts;
 import ceri.common.log.Level;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class ParserBehavior {
@@ -56,9 +55,9 @@ public class ParserBehavior {
 	@Test
 	public void shouldValidateAgainstNull() {
 		assertOrdered(strings("").getValid());
-		assertIllegalArg(() -> Parser.type(null).getValid());
-		assertIllegalArg(() -> Parser.type(null).getValid("test"));
-		assertIllegalArg(() -> Parser.types((List<?>) null).getValid());
+		illegalArg(() -> Parser.type(null).getValid());
+		illegalArg(() -> Parser.type(null).getValid("test"));
+		illegalArg(() -> Parser.types((List<?>) null).getValid());
 	}
 
 	@Test
@@ -138,8 +137,8 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldFailToConvertToArrayIfItemIsNull() {
-		assertNull(Parser.types((List<Integer>) null).array(Integer[]::new));
-		assertNull(Parser.Strings.from(() -> null).array());
+		Assert.isNull(Parser.types((List<Integer>) null).array(Integer[]::new));
+		Assert.isNull(Parser.Strings.from(() -> null).array());
 		assertArray(Parser.strings("1", null, "2").toIntArray(3, 4), 1, 2);
 	}
 
@@ -201,7 +200,7 @@ public class ParserBehavior {
 	public void shouldSortItems() {
 		assertEquals(Parser.Types.from(() -> null).sort().get(), null);
 		assertOrdered(Parser.types(1, -1, 2, 0, -2).sort().get(), -2, -1, 0, 1, 2);
-		assertThrown(ClassCastException.class, () -> Parser.types(1, "2", -1.0).sort());
+		Assert.thrown(ClassCastException.class, () -> Parser.types(1, "2", -1.0).sort());
 		assertOrdered(strings("2,0,1").sort().asInts().get(), 0, 1, 2);
 	}
 
@@ -253,7 +252,7 @@ public class ParserBehavior {
 		assertEquals(Parser.string(null).asEnum(Level.class).get(), null);
 		assertEquals(Parser.string(null).asEnum(Level.class).get(Level.WARN), Level.WARN);
 		assertEquals(Parser.string("WARN").toEnum(Level.ALL), Level.WARN);
-		assertIllegalArg(() -> Parser.string("warn").toEnum(Level.class));
+		illegalArg(() -> Parser.string("warn").toEnum(Level.class));
 		assertEquals(Parser.string("WARN").toEnum(Level.class), Level.WARN);
 		assertEquals(Parser.string("WARN").asEnum(Level.class).get(), Level.WARN);
 	}
@@ -293,13 +292,13 @@ public class ParserBehavior {
 
 	@Test
 	public void shouldFailForBadConversion() {
-		assertIllegalArg(() -> Parser.string("x").toInt(1));
-		assertIllegalArg(() -> strings("x").toIntArray(1));
+		illegalArg(() -> Parser.string("x").toInt(1));
+		illegalArg(() -> strings("x").toIntArray(1));
 	}
 
 	@Test
 	public void shouldFailForBadSplit() {
-		assertIllegalArg(() -> Parser.type(1).split(_ -> throwRuntime()));
+		illegalArg(() -> Parser.type(1).split(_ -> throwRuntime()));
 	}
 
 	private static Parser.Strings strings(String s) {

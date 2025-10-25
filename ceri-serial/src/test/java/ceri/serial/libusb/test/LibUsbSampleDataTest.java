@@ -1,6 +1,6 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
 
 public class LibUsbSampleDataTest {

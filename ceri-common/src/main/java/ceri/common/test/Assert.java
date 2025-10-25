@@ -25,7 +25,6 @@ import ceri.common.array.RawArray;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Iterables;
 import ceri.common.collect.Lists;
-import ceri.common.concurrent.RuntimeInterruptedException;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
@@ -47,12 +46,332 @@ import ceri.common.text.Regex;
 import ceri.common.text.Strings;
 import ceri.common.text.Text;
 
-public class AssertUtil {
+public class Assert {
 	private static final int LINE_COUNT = 10;
 	public static final int APPROX_PRECISION_DEF = 3;
 	private static final int PRECISION_DEF = 3;
 
-	private AssertUtil() {}
+	private Assert() {}
+
+	// failures
+
+	/**
+	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwRuntime() {
+		throw new RuntimeException("throwRuntime");
+	}
+
+	/**
+	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwIo() throws IOException {
+		throw new IOException("throwIo");
+	}
+
+	/**
+	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <T> T throwInterrupted() throws InterruptedException {
+		throw new InterruptedException("throwInterrupted");
+	}
+
+	/**
+	 * Throws the given exception. Useful for creating a lambda without the need for a code block.
+	 */
+	public static <E extends Exception, T> T throwIt(E exception) throws E {
+		throw exception;
+	}
+
+	/**
+	 * Fail by throwing an assertion error.
+	 */
+	public static <T> T fail() {
+		throw failure("Failed");
+	}
+
+	/**
+	 * Fail by throwing an assertion error.
+	 */
+	public static <T> T fail(Throwable t) {
+		throw failure(t, "Failed");
+	}
+
+	/**
+	 * Fail by throwing an assertion error.
+	 */
+	public static <T> T fail(String format, Object... args) {
+		throw failure((Throwable) null, format, args);
+	}
+
+	/**
+	 * Fail by throwing an assertion error.
+	 */
+	public static <T> T fail(Throwable t, String format, Object... args) {
+		throw failure(t, format, args);
+	}
+
+	/**
+	 * Returns a failure assertion error to throw.
+	 */
+	public static AssertionError failure(String format, Object... args) {
+		return failure((Throwable) null, format, args);
+	}
+
+	/**
+	 * Returns a failure assertion error to throw.
+	 */
+	public static AssertionError failure(Throwable t, String format, Object... args) {
+		return new AssertionError(Strings.format(format, args), t);
+	}
+
+	// exceptions
+
+	/**
+	 * Fails unless an assertion error is thrown; primarily used to check assertion methods.
+	 */
+	public static void assertion(Excepts.Runnable<Exception> runnable) {
+		try {
+			runnable.run();
+		} catch (Exception e) {
+			throw failure(e, "Expected to assert"); // Exception not allowed
+		} catch (AssertionError e) {
+			return; // Success
+		}
+		throw failure("Expected to assert");
+	}
+
+	/**
+	 * Fails unless a RuntimeException is thrown.
+	 */
+	public static void runtime(Excepts.Runnable<Exception> runnable) {
+		thrown(RuntimeException.class, runnable);
+	}
+
+	/**
+	 * Fails unless a NullPointerException is thrown.
+	 */
+	public static void nullPointer(Excepts.Runnable<Exception> runnable) {
+		thrown(NullPointerException.class, runnable);
+	}
+
+	/**
+	 * Fails unless an IllegalArgumentException is thrown.
+	 */
+	public static void illegalArg(Excepts.Runnable<? extends Exception> runnable) {
+		thrown(IllegalArgumentException.class, runnable);
+	}
+
+	/**
+	 * Fails unless an IllegalArgumentException is thrown.
+	 */
+	public static void illegalState(Excepts.Runnable<Exception> runnable) {
+		thrown(IllegalStateException.class, runnable);
+	}
+
+	/**
+	 * Fails unless an ArithmeticException is thrown with an overflow message.
+	 */
+	public static void overflow(Excepts.Runnable<Exception> runnable) {
+		thrown(ArithmeticException.class, "(?i).*\\boverflow\\b.*", runnable);
+	}
+
+	/**
+	 * Fails unless a NoSuchElementException is thrown.
+	 */
+	public static void noSuchElement(Excepts.Runnable<Exception> runnable) {
+		thrown(NoSuchElementException.class, runnable);
+	}
+
+	/**
+	 * Fails unless an UnsupportedOperationException is thrown.
+	 */
+	public static void unsupportedOp(Excepts.Runnable<Exception> runnable) {
+		thrown(UnsupportedOperationException.class, runnable);
+	}
+
+	/**
+	 * Fails unless an IOException is thrown.
+	 */
+	public static void io(Excepts.Runnable<Exception> runnable) {
+		thrown(IOException.class, runnable);
+	}
+
+	/**
+	 * Tests that an exception was thrown while executing the runnable.
+	 */
+	public static void thrown(Excepts.Runnable<Exception> runnable) {
+		thrown(Exception.class, runnable);
+	}
+
+	/**
+	 * Tests that a specific exception type was thrown while executing the runnable.
+	 */
+	public static void thrown(Class<? extends Throwable> exceptionCls,
+		Excepts.Runnable<?> runnable) {
+		thrown(exceptionCls, (Functions.Consumer<Throwable>) null, runnable);
+	}
+
+	/**
+	 * Tests that an exception was thrown while executing the runnable, with message matching the
+	 * regex.
+	 */
+	public static void thrown(String regex, Excepts.Runnable<Exception> runnable) {
+		thrown(Throwable.class, regex, runnable);
+	}
+
+	/**
+	 * Tests that a specific exception type was thrown while executing the runnable, with message
+	 * matching the regex.
+	 */
+	public static void thrown(Class<? extends Throwable> superCls, String regex,
+		Excepts.Runnable<?> runnable) {
+		thrown(superCls, t -> assertMatch(t.getMessage(), regex), runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given message.
+	 */
+	public static void thrown(Functions.Consumer<? super Throwable> test,
+		Excepts.Runnable<?> runnable) {
+		thrown(Throwable.class, test, runnable);
+	}
+
+	/**
+	 * Tests if an exception is thrown with given message.
+	 */
+	public static <E extends Throwable> void thrown(Class<E> superCls,
+		Functions.Consumer<? super E> test, Excepts.Runnable<?> runnable) {
+		try {
+			runnable.run();
+		} catch (Throwable t) {
+			throwable(t, superCls, test);
+			return;
+		}
+		throw failure("Nothing thrown, expected: %s", superCls.getName());
+	}
+
+	/**
+	 * Verifies throwable super class.
+	 */
+	public static void throwable(Throwable t, Class<? extends Throwable> superCls) {
+		throwable(t, superCls, (Functions.Consumer<Throwable>) null);
+	}
+
+	/**
+	 * Verifies throwable message.
+	 */
+	public static void throwable(Throwable t, String regex, Object... args) {
+		throwable(t, Throwable.class, regex, args);
+	}
+
+	/**
+	 * Verifies throwable message.
+	 */
+	public static void throwable(Throwable t, Functions.Consumer<Throwable> messageTest) {
+		throwable(t, null, messageTest);
+	}
+
+	/**
+	 * Verifies throwable super class and message.
+	 */
+	public static void throwable(Throwable t, Class<? extends Throwable> superCls, String regex,
+		Object... args) {
+		throwable(t, superCls, e -> assertMatch(e.getMessage(), regex, args));
+	}
+
+	/**
+	 * Verifies throwable type.
+	 */
+	@SuppressWarnings("null")
+	public static <T extends Throwable> void throwable(Throwable t, Class<T> superCls,
+		Functions.Consumer<? super T> test) {
+		if (t == null && superCls == null && test == null) return;
+		Assert.notNull(t, "Throwable");
+		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
+			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
+		if (test != null) test.accept(Reflect.unchecked(t));
+	}
+
+	// equality
+
+	/**
+	 * Fail if the object is not an instance of the class.
+	 */
+	public static <T> T instance(Object actual, Class<T> expected) {
+		if (expected.isInstance(actual)) return Reflect.unchecked(actual);
+		throw failure("Expected instance: %s\n           actual: %s", Reflect.name(expected),
+			Reflect.className(actual));
+	}
+
+	/**
+	 * Fail if the objects are not the same reference.
+	 */
+	public static <T> void same(T actual, T expected) {
+		same(actual, expected, "");
+	}
+
+	/**
+	 * Fail if the objects are not the same reference.
+	 */
+	public static <T> void same(T actual, T expected, String format, Object... args) {
+		if (expected == actual) return;
+		throw failure("%sExpected same: %s (%s)\n       actual: %s (%s)", nl(format, args),
+			expected, Reflect.hashId(expected), actual, Reflect.hashId(actual));
+	}
+
+	/**
+	 * Fail if the objects are the same reference.
+	 */
+	public static <T> void notSame(T actual, T unexpected) {
+		notSame(actual, unexpected, "");
+	}
+
+	/**
+	 * Fail if the objects are not the same reference.
+	 */
+	public static <T> void notSame(T actual, T unexpected, String format, Object... args) {
+		if (unexpected != actual) return;
+		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual,
+			Reflect.hashId(actual));
+	}
+
+	/**
+	 * Fail if the object is not null.
+	 */
+	public static <T> void isNull(T actual) {
+		isNull(actual, "");
+	}
+
+	/**
+	 * Fail if the object is not null.
+	 */
+	public static <T> void isNull(T actual, String format, Object... args) {
+		if (actual != null) throw failure("%sExpected null: %s", nl(format, args), actual);
+	}
+
+	/**
+	 * Fail if the object is null.
+	 */
+	public static <T> void notNull(T actual) {
+		notNull(actual, "");
+	}
+
+	/**
+	 * Fail if the object is null.
+	 */
+	public static <T> void notNull(T actual, String format, Object... args) {
+		if (actual != null) return;
+		String message = Strings.format(format, args);
+		throw failure(message.isEmpty() ? "Value is null" : message);
+	}
+
+	/**
+	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
+	 */
+	public static double equal(double actual, double expected) {
+		return equal(actual, expected, "");
+	}
 
 	/**
 	 * Fails if the value does not equal the expected value. Equality includes infinity and NaN.
@@ -89,13 +408,20 @@ public class AssertUtil {
 	public static double approx(double actual, double expected, int precision, String format,
 		Object... args) {
 		if (!Double.isFinite(expected)) return equal(actual, expected, format, args);
-		double approxValue = Maths.round(precision, actual);
-		double approxOther = Maths.round(precision, expected);
-		return equal(approxValue, approxOther, format, args);
+		equal(Maths.round(precision, actual), Maths.round(precision, expected), format, args);
+		return actual;
+	}
+
+	// support
+
+	private static AssertionError unexpected(Object actual, Object expected, String format,
+		Object... args) {
+		return failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected),
+			str(actual));
 	}
 
 	private static boolean doubleEqual(double value, double other) {
-		return Double.doubleToRawLongBits(value) == Double.doubleToRawLongBits(other);
+		return Double.doubleToLongBits(value) == Double.doubleToLongBits(other);
 	}
 
 	// ------------------------------------------------------------------------
@@ -103,7 +429,7 @@ public class AssertUtil {
 	// ------------------------------------------------------------------------
 
 	private static interface ItemAssert {
-		static ItemAssert DEEP_EQUALS = AssertUtil::assertDeepEquals;
+		static ItemAssert DEEP_EQUALS = Assert::assertDeepEquals;
 
 		static ItemAssert doubleEquals(double diff) {
 			return (lhs, rhs, format, args) -> assertEquals((Double) lhs, (Double) rhs, diff,
@@ -111,69 +437,11 @@ public class AssertUtil {
 		}
 
 		static ItemAssert doubleApprox(int precision) {
-			return (lhs, rhs, format, args) -> assertApprox((Double) lhs, (Double) rhs, precision,
-				format, args);
+			return (lhs, rhs, format, args) -> approx((Double) lhs, (Double) rhs, precision, format,
+				args);
 		}
 
-		void assertItem(Object lhs, Object rhs, String format, Object... args);
-	}
-
-	/**
-	 * Throws a runtime exception. Useful for creating a lambda without the need for a code block.
-	 */
-	public static <T> T throwRuntime() {
-		throw new RuntimeException("throwRuntime");
-	}
-
-	/**
-	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
-	 */
-	public static <T> T throwIo() throws IOException {
-		throw new IOException("throwIo");
-	}
-
-	/**
-	 * Throws an i/o exception. Useful for creating a lambda without the need for a code block.
-	 */
-	public static <T> T throwInterrupted() throws InterruptedException {
-		throw new InterruptedException("throwInterrupted");
-	}
-
-	/**
-	 * Throws the given exception. Useful for creating a lambda without the need for a code block.
-	 */
-	public static <E extends Exception, T> T throwIt(E exception) throws E {
-		throw exception;
-	}
-
-	public static <T> T fail() {
-		throw new AssertionError("Failed");
-	}
-
-	public static <T> T fail(Throwable t) {
-		throw new AssertionError("Failed", t);
-	}
-
-	public static <T> T fail(String format, Object... args) {
-		throw failure(format, args);
-	}
-
-	public static <T> T fail(Throwable t, String format, Object... args) {
-		throw failure(t, format, args);
-	}
-
-	public static AssertionError failure(String format, Object... args) {
-		return failure(null, format, args);
-	}
-
-	public static AssertionError failure(Throwable t, String format, Object... args) {
-		return new AssertionError(Strings.format(format, args), t);
-	}
-
-	public static AssertionError unexpected(Object actual, Object expected, String format,
-		Object... args) {
-		return failure("%sExpected: %s\n  actual: %s", nl(format, args), str(expected),
-			str(actual));
+		void item(Object lhs, Object rhs, String format, Object... args);
 	}
 
 	public static void assertFalse(boolean condition) {
@@ -182,7 +450,7 @@ public class AssertUtil {
 
 	public static void assertFalse(boolean condition, String format, Object... args) {
 		if (!condition) return;
-		String message = Strings.format(format, args);
+		var message = Strings.format(format, args);
 		throw failure(message.isEmpty() ? "Expected false" : message);
 	}
 
@@ -194,50 +462,6 @@ public class AssertUtil {
 		if (condition) return;
 		String message = Strings.format(format, args);
 		throw failure(message.isEmpty() ? "Expected true" : message);
-	}
-
-	public static <T> T assertInstance(Object actual, Class<T> expected) {
-		if (expected.isInstance(actual)) return Reflect.unchecked(actual);
-		throw failure("Expected instance: %s\n           actual: %s", Reflect.name(expected),
-			Reflect.className(actual));
-	}
-
-	public static <T> void assertSame(T actual, T expected) {
-		assertSame(actual, expected, null);
-	}
-
-	public static <T> void assertSame(T actual, T expected, String format, Object... args) {
-		if (expected == actual) return;
-		throw failure("%sExpected same: %s (%s)\n       actual: %s (%s)", nl(format, args),
-			expected, Reflect.hashId(expected), actual, Reflect.hashId(actual));
-	}
-
-	public static <T> void assertNotSame(T actual, T unexpected) {
-		assertNotSame(actual, unexpected, null);
-	}
-
-	public static <T> void assertNotSame(T actual, T unexpected, String format, Object... args) {
-		if (unexpected != actual) return;
-		throw failure("%sValues are the same: %s (%s)", nl(format, args), actual,
-			Reflect.hashId(actual));
-	}
-
-	public static <T> void assertNull(T actual) {
-		assertNull(actual, null);
-	}
-
-	public static <T> void assertNull(T actual, String format, Object... args) {
-		if (actual != null) throw failure("%sExpected null: %s", nl(format, args), actual);
-	}
-
-	public static <T> void assertNotNull(T actual) {
-		assertNotNull(actual, null);
-	}
-
-	public static <T> void assertNotNull(T actual, String format, Object... args) {
-		if (actual != null) return;
-		String message = Strings.format(format, args);
-		throw failure(message.isEmpty() ? "Value is null" : message);
 	}
 
 	public static <T> void assertEquals(T actual, T expected) {
@@ -279,22 +503,6 @@ public class AssertUtil {
 	}
 
 	/**
-	 * Check an assertion error is thrown. Useful for checking assertXxx methods.
-	 */
-	public static void assertAssertion(Excepts.Runnable<Exception> runnable) {
-		try {
-			runnable.run();
-		} catch (Exception e) {
-			// Failure
-			throw new AssertionError("Expected to assert", e);
-		} catch (AssertionError e) {
-			// Success
-			return;
-		}
-		throw new AssertionError("Expected to assert");
-	}
-
-	/**
 	 * Checks all objects are not equal to the first given object.
 	 */
 	@SafeVarargs
@@ -324,48 +532,6 @@ public class AssertUtil {
 	public static <T> void assertOptional(Optional<T> actual, T expected, String format,
 		Object... args) {
 		assertEquals(actual, Optional.ofNullable(expected), format, args);
-	}
-
-	/**
-	 * Checks a double value is NaN.
-	 */
-	public static void assertNaN(double value) {
-		assertTrue(Double.isNaN(value), "Expected NaN: %s", value);
-	}
-
-	/**
-	 * Checks a double value is correct to 3 decimal places.
-	 */
-	public static void assertApprox(double actual, double expected) {
-		assertApprox(actual, expected, null);
-	}
-
-	/**
-	 * Checks a double value is correct to 3 decimal places.
-	 */
-	public static void assertApprox(double actual, double expected, String format, Object... args) {
-		assertApprox(actual, expected, APPROX_PRECISION_DEF, format, args);
-	}
-
-	/**
-	 * Checks a double value is correct to given number of digits after the decimal separator.
-	 */
-	public static void assertApprox(double actual, double expected, int precision) {
-		assertApprox(actual, expected, precision, null);
-	}
-
-	/**
-	 * Checks a double value is correct to given number of digits after the decimal separator.
-	 */
-	public static void assertApprox(double actual, double expected, int precision, String format,
-		Object... args) {
-		if (!Double.isFinite(expected) || !Double.isFinite(actual)) {
-			assertEquals(actual, expected, format, args);
-		} else {
-			double approxValue = Maths.round(precision, actual);
-			double approxExpected = Maths.round(precision, expected);
-			assertEquals(approxValue, approxExpected, format, args);
-		}
 	}
 
 	/**
@@ -809,7 +975,7 @@ public class AssertUtil {
 		var rhsList = Immutable.list(rhs);
 		assertList(lhsList, rhsList);
 		assertFalse(lhs.hasNext(), "Has more elements");
-		assertNoSuchElement(lhs::next);
+		noSuchElement(lhs::next);
 	}
 
 	/**
@@ -863,26 +1029,26 @@ public class AssertUtil {
 		assertImmutable(map.entrySet());
 		assertImmutable(map.keySet());
 		assertImmutable(map.values());
-		assertUnsupported(() -> map.put(null, null));
-		assertUnsupported(() -> map.putAll(Immutable.mapOf(null, null)));
+		unsupportedOp(() -> map.put(null, null));
+		unsupportedOp(() -> map.putAll(Immutable.mapOf(null, null)));
 		if (map.isEmpty()) return map;
 		var k = map.keySet().iterator().next();
-		assertUnsupported(() -> map.remove(k));
-		assertUnsupported(map::clear);
+		unsupportedOp(() -> map.remove(k));
+		unsupportedOp(map::clear);
 		return map;
 	}
 
 	public static <T, C extends Collection<T>> C assertImmutable(C collection) {
 		assertImmutable(collection.iterator());
-		assertUnsupported(() -> collection.add(null));
-		assertUnsupported(() -> collection.addAll(Immutable.setOf((T) null)));
+		unsupportedOp(() -> collection.add(null));
+		unsupportedOp(() -> collection.addAll(Immutable.setOf((T) null)));
 		if (collection instanceof List<?> list) assertImmutableList(list);
 		if (collection.isEmpty()) return collection;
 		var t = collection.iterator().next();
-		assertUnsupported(() -> collection.remove(t));
-		assertUnsupported(() -> collection.removeAll(Immutable.setOf(t)));
-		assertUnsupported(() -> collection.retainAll(Set.of()));
-		assertUnsupported(collection::clear);
+		unsupportedOp(() -> collection.remove(t));
+		unsupportedOp(() -> collection.removeAll(Immutable.setOf(t)));
+		unsupportedOp(() -> collection.retainAll(Set.of()));
+		unsupportedOp(collection::clear);
 		return collection;
 
 	}
@@ -890,16 +1056,16 @@ public class AssertUtil {
 	private static <T> void assertImmutableList(List<T> list) {
 		assertImmutable(list.listIterator());
 		assertImmutable(list.listIterator(0));
-		assertUnsupported(() -> list.add(0, null));
-		assertUnsupported(() -> list.addAll(0, Immutable.setOf((T) null)));
-		assertUnsupported(() -> list.set(0, null));
-		assertUnsupported(() -> list.remove(0));
+		unsupportedOp(() -> list.add(0, null));
+		unsupportedOp(() -> list.addAll(0, Immutable.setOf((T) null)));
+		unsupportedOp(() -> list.set(0, null));
+		unsupportedOp(() -> list.remove(0));
 	}
 
 	public static <T> void assertImmutable(Iterator<T> iterator) {
 		if (!iterator.hasNext()) return;
 		iterator.next();
-		assertUnsupported(() -> iterator.remove());
+		unsupportedOp(() -> iterator.remove());
 	}
 
 	@SafeVarargs
@@ -941,179 +1107,6 @@ public class AssertUtil {
 
 	public static void assertBuffer(ByteBuffer buffer, int... bytes) {
 		assertArray(ByteUtil.bytes(buffer), bytes);
-	}
-
-	/**
-	 * Verifies throwable super class.
-	 */
-	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls) {
-		assertThrowable(t, superCls, (Functions.Consumer<Throwable>) null);
-	}
-
-	/**
-	 * Verifies throwable message.
-	 */
-	public static void assertThrowable(Throwable t, String regex, Object... args) {
-		assertThrowable(t, Throwable.class, regex, args);
-	}
-
-	/**
-	 * Verifies throwable message.
-	 */
-	public static void assertThrowable(Throwable t, Functions.Consumer<Throwable> messageTest) {
-		assertThrowable(t, null, messageTest);
-	}
-
-	/**
-	 * Verifies throwable super class and message.
-	 */
-	public static void assertThrowable(Throwable t, Class<? extends Throwable> superCls,
-		String regex, Object... args) {
-		assertThrowable(t, superCls, e -> assertMatch(e.getMessage(), regex, args));
-	}
-
-	/**
-	 * Verifies throwable type.
-	 */
-	@SuppressWarnings("null")
-	public static <E extends Throwable> void assertThrowable(Throwable t, Class<E> superCls,
-		Functions.Consumer<? super E> test) {
-		if (t == null && superCls == null && test == null) return;
-		assertNotNull(t);
-		if (superCls != null && !superCls.isAssignableFrom(t.getClass()))
-			throw failure("Expected %s: %s", superCls.getName(), t.getClass().getName());
-		if (test != null) test.accept(Reflect.unchecked(t));
-	}
-
-	/**
-	 * Tests that an exception was thrown while executing the runnable.
-	 */
-	public static void assertThrown(Excepts.Runnable<Exception> runnable) {
-		assertThrown(Exception.class, runnable);
-	}
-
-	/**
-	 * Tests that a specific exception type was thrown while executing the runnable.
-	 */
-	public static void assertThrown(Class<? extends Throwable> exceptionCls,
-		Excepts.Runnable<?> runnable) {
-		assertThrown(exceptionCls, (Functions.Consumer<Throwable>) null, runnable);
-	}
-
-	/**
-	 * Tests that an exception was thrown while executing the runnable, with message matching the
-	 * regex.
-	 */
-	public static void assertThrown(String regex, Excepts.Runnable<Exception> runnable) {
-		assertThrown(Throwable.class, regex, runnable);
-	}
-
-	/**
-	 * Tests that a specific exception type was thrown while executing the runnable, with message
-	 * matching the regex.
-	 */
-	public static void assertThrown(Class<? extends Throwable> superCls, String regex,
-		Excepts.Runnable<?> runnable) {
-		assertThrown(superCls, t -> assertMatch(t.getMessage(), regex), runnable);
-	}
-
-	/**
-	 * Tests if an exception is thrown with given message.
-	 */
-	public static void assertThrown(Functions.Consumer<? super Throwable> test,
-		Excepts.Runnable<?> runnable) {
-		assertThrown(Throwable.class, test, runnable);
-	}
-
-	/**
-	 * Tests if an exception is thrown with given message.
-	 */
-	public static <E extends Throwable> void assertThrown(Class<E> superCls,
-		Functions.Consumer<? super E> test, Excepts.Runnable<?> runnable) {
-		try {
-			runnable.run();
-		} catch (Throwable t) {
-			assertThrowable(t, superCls, test);
-			return;
-		}
-		throw failure("Nothing thrown, expected: %s", superCls.getName());
-	}
-
-	/**
-	 * Assert an InterruptedException is thrown.
-	 */
-	public static void assertInterrupted(Excepts.Runnable<Exception> runnable) {
-		assertThrown(InterruptedException.class, runnable);
-	}
-
-	/**
-	 * Assert a RuntimeInterruptedException is thrown.
-	 */
-	public static void assertRtInterrupted(Excepts.Runnable<Exception> runnable) {
-		assertThrown(RuntimeInterruptedException.class, runnable);
-	}
-
-	/**
-	 * Assert an UnsupportedOperationException is thrown.
-	 */
-	public static void assertUnsupported(Excepts.Runnable<Exception> runnable) {
-		assertThrown(UnsupportedOperationException.class, runnable);
-	}
-
-	/**
-	 * Assert a NullPointerException is thrown.
-	 */
-	public static void assertNpe(Excepts.Runnable<Exception> runnable) {
-		assertThrown(NullPointerException.class, runnable);
-	}
-
-	/**
-	 * Assert a NullPointerException is thrown.
-	 */
-	public static void assertRte(Excepts.Runnable<Exception> runnable) {
-		assertThrown(RuntimeException.class, runnable);
-	}
-
-	/**
-	 * Assert an IOException is thrown.
-	 */
-	public static void assertIoe(Excepts.Runnable<Exception> runnable) {
-		assertThrown(IOException.class, runnable);
-	}
-
-	/**
-	 * Assert an IllegalArgumentException is thrown.
-	 */
-	public static void assertIllegalArg(Excepts.Runnable<? extends Exception> runnable) {
-		assertThrown(IllegalArgumentException.class, runnable);
-	}
-
-	/**
-	 * Assert an IllegalArgumentException is thrown.
-	 */
-	public static void assertIllegalState(Excepts.Runnable<Exception> runnable) {
-		assertThrown(IllegalStateException.class, runnable);
-	}
-
-	/**
-	 * Assert an IndexOutOfBounds exception is thrown with an overflow message.
-	 */
-	public static void assertIndexOob(Excepts.Runnable<Exception> runnable) {
-		assertThrown(IndexOutOfBoundsException.class, runnable);
-	}
-
-	/**
-	 * Assert an ArithmeticException is thrown with an overflow message.
-	 */
-	public static void assertOverflow(Excepts.Runnable<Exception> runnable) {
-		assertThrown(ArithmeticException.class, "(?i).*\\boverflow\\b.*", runnable);
-	}
-
-	/**
-	 * Assert a NoSuchElementException is thrown.
-	 */
-	public static void assertNoSuchElement(Excepts.Runnable<Exception> runnable) {
-		assertThrown(NoSuchElementException.class, runnable);
 	}
 
 	/**
@@ -1426,7 +1419,7 @@ public class AssertUtil {
 		if (!hasLhs && !hasRhs) throw failure("No value at index %d", i);
 		if (!hasLhs) throw failure("No value at index %d, expected: %s", i, str(rhs));
 		if (!hasRhs) throw failure("Unexpected value at index %d: %s", i, str(lhs));
-		itemAssert.assertItem(lhs, rhs, "Index %d", i);
+		itemAssert.item(lhs, rhs, "Index %d", i);
 	}
 
 	private static <K, V> void assertOrdered(Map<K, V> subject, List<K> keys, List<V> values) {
@@ -1449,9 +1442,9 @@ public class AssertUtil {
 	}
 
 	private static void assertRawArray(Object lhs, Object rhs) {
-		if (rhs == null) assertNull(lhs);
+		if (rhs == null) isNull(lhs);
 		else {
-			assertNotNull(lhs);
+			Assert.notNull(lhs);
 			assertRawArray(lhs, rhs, ItemAssert.DEEP_EQUALS);
 		}
 	}

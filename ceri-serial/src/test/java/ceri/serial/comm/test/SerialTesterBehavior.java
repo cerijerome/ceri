@@ -1,9 +1,9 @@
 package ceri.serial.comm.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;

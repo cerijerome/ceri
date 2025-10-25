@@ -1,17 +1,17 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIo;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.throwIo;
+import static ceri.common.test.Assert.throwRuntime;
+import static ceri.common.test.Assert.thrown;
 import static ceri.common.test.TestUtil.runRepeat;
 import static java.util.concurrent.TimeUnit.MICROSECONDS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.Excepts.Runnable;
+import ceri.common.test.Assert;
 
 public class TaskQueueBehavior {
 
@@ -36,7 +36,7 @@ public class TaskQueueBehavior {
 	@Test
 	public void shouldReturnNullOnTimeout() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(1);
-		assertNull(queue.executeGet(() -> {
+		Assert.isNull(queue.executeGet(() -> {
 			Concurrent.delay(100000);
 			return 0;
 		}, 1, MICROSECONDS));
@@ -46,8 +46,8 @@ public class TaskQueueBehavior {
 	public void shouldThrowTypedExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
-			assertThrown(() -> queue.execute(() -> throwIo()));
+		try (var _ = SimpleExecutor.run(() -> thrown(() -> queue.processNext()))) {
+			Assert.thrown(() -> queue.execute(() -> throwIo()));
 		}
 	}
 
@@ -55,8 +55,8 @@ public class TaskQueueBehavior {
 	public void shouldThrowRuntimeExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = SimpleExecutor.run(() -> assertThrown(() -> queue.processNext()))) {
-			assertThrown(() -> queue.executeGet(() -> throwRuntime()));
+		try (var _ = SimpleExecutor.run(() -> thrown(() -> queue.processNext()))) {
+			Assert.thrown(() -> queue.executeGet(() -> throwRuntime()));
 		}
 	}
 

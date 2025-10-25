@@ -1,12 +1,12 @@
 package ceri.common.xml;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class XmlTest {
@@ -22,7 +22,7 @@ public class XmlTest {
 	public void testDocument() throws SAXException {
 		var doc = Xml.document(xml);
 		assertEquals(doc.getChildNodes().getLength(), 1);
-		assertThrown(() -> Xml.document(null));
+		Assert.thrown(() -> Xml.document(null));
 	}
 
 	@Test
@@ -33,11 +33,7 @@ public class XmlTest {
 
 	@Test
 	public void testExecute() {
-		assertThrown(() -> Xml.execute(() -> {
-			throw new ParserConfigurationException();
-		}));
-		assertThrown(() -> Xml.execute(() -> {
-			throw new IOException();
-		}));
+		Assert.thrown(() -> Xml.execute(() -> Assert.throwIt(new ParserConfigurationException())));
+		Assert.thrown(() -> Xml.execute(() -> Assert.throwIt(new IOException())));
 	}
 }

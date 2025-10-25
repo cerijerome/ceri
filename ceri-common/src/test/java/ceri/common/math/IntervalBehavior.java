@@ -1,13 +1,12 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Comparator;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class IntervalBehavior {
@@ -18,35 +17,35 @@ public class IntervalBehavior {
 	@Test
 	public void testLongMidPoint() {
 		assertEquals(Interval.longMidPoint(Interval.unbound()), 0L);
-		assertNull(Interval.longMidPoint(Interval.lower(Bound.exclusive(1L))));
+		Assert.isNull(Interval.longMidPoint(Interval.lower(Bound.exclusive(1L))));
 		assertEquals(Interval.longMidPoint(Interval.inclusive(1L, 4L)), 3L);
 		assertEquals(Interval.longMidPoint(maxLong), 0L);
 	}
 
 	@Test
 	public void testLongWidth() {
-		assertNull(Interval.longWidth(Interval.unbound()));
-		assertNull(Interval.longWidth(Interval.lower(Bound.exclusive(1L))));
+		Assert.isNull(Interval.longWidth(Interval.unbound()));
+		Assert.isNull(Interval.longWidth(Interval.lower(Bound.exclusive(1L))));
 		assertEquals(Interval.longWidth(Interval.inclusive(1L, 4L)), 3L);
-		assertThrown(() -> Interval.longWidth(maxLong));
+		Assert.thrown(() -> Interval.longWidth(maxLong));
 	}
 
 	@Test
 	public void testIntMidPoint() {
 		assertEquals(Interval.intMidPoint(Interval.unbound()), 0);
-		assertNull(Interval.intMidPoint(Interval.lower(Bound.exclusive(1))));
+		Assert.isNull(Interval.intMidPoint(Interval.lower(Bound.exclusive(1))));
 		assertEquals(Interval.intMidPoint(Interval.inclusive(1, 4)), 3);
 		assertEquals(Interval.intMidPoint(maxInt), 0);
 	}
 
 	@Test
 	public void testIntWidth() {
-		assertNull(Interval.intWidth(Interval.unbound()));
-		assertNull(Interval.intWidth(Interval.lower(Bound.exclusive(1))));
+		Assert.isNull(Interval.intWidth(Interval.unbound()));
+		Assert.isNull(Interval.intWidth(Interval.lower(Bound.exclusive(1))));
 		assertEquals(Interval.intWidth(Interval.inclusive(1, 4)), 3);
-		assertThrown(() -> Interval.intWidth(maxInt));
+		Assert.thrown(() -> Interval.intWidth(maxInt));
 	}
-	
+
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		Interval<Double> i = Interval.of(Bound.exclusive(-10.0), Bound.inclusive(-1.5));

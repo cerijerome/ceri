@@ -1,6 +1,6 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.firstEnvironmentVariableName;
 import static ceri.common.test.TestUtil.firstSystemPropertyName;
 import org.junit.Test;

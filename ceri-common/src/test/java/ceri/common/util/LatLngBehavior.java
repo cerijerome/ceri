@@ -1,37 +1,37 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class LatLngBehavior {
 
 	@Test
 	public void testDistance() {
-		assertNull(LatLng.distance(null, LatLng.of(0, 0)));
-		assertNull(LatLng.distance(LatLng.of(0, 0), null));
+		Assert.isNull(LatLng.distance(null, LatLng.of(0, 0)));
+		Assert.isNull(LatLng.distance(LatLng.of(0, 0), null));
 		assertEquals(LatLng.distance(LatLng.of(0, 0), LatLng.of(0, 0)), 0.0);
 		assertEquals(LatLng.distance(LatLng.of(-30, -40), LatLng.of(60, 80)), 150.0);
 	}
 
 	@Test
 	public void testDistanceSquared() {
-		assertNull(LatLng.distanceSquared(null, LatLng.of(0, 0)));
-		assertNull(LatLng.distanceSquared(LatLng.of(0, 0), null));
+		Assert.isNull(LatLng.distanceSquared(null, LatLng.of(0, 0)));
+		Assert.isNull(LatLng.distanceSquared(LatLng.of(0, 0), null));
 		assertEquals(LatLng.distanceSquared(LatLng.of(0, 0), LatLng.of(0, 0)), 0.0);
 		assertEquals(LatLng.distanceSquared(LatLng.of(-30, -40), LatLng.of(60, 80)), 22500.0);
 	}
 
 	@Test
 	public void testParse() {
-		assertNull(LatLng.parse(null));
-		assertNull(LatLng.parse(""));
-		assertNull(LatLng.parse("10.0"));
+		Assert.isNull(LatLng.parse(null));
+		Assert.isNull(LatLng.parse(""));
+		Assert.isNull(LatLng.parse("10.0"));
 		assertLatLng(LatLng.parse("9.999,-7.777"), 9.999, -7.777);
 		assertLatLng(LatLng.parse("0.9  ,  0.7"), 0.9, 0.7);
-		assertNull(LatLng.parse(".9 , .7"));
+		Assert.isNull(LatLng.parse(".9 , .7"));
 	}
 
 	@Test

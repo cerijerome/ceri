@@ -1,10 +1,10 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertThrown;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.Concurrent;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 
 public class TcpServerSocketBehavior {
@@ -16,7 +16,7 @@ public class TcpServerSocketBehavior {
 		try (var ss = TcpServerSocket.of()) {
 			var future = ss.listen(c::accept);
 			try (var _ = TcpSocket.connect(HostPort.localhost(ss.port()))) {
-				assertThrown(future::get);
+				Assert.thrown(future::get);
 			}
 		}
 	}
@@ -36,5 +36,4 @@ public class TcpServerSocketBehavior {
 			ss.listenAndClose(_ -> {});
 		}
 	}
-
 }

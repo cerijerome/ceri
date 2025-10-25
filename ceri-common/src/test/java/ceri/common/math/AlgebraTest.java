@@ -1,10 +1,10 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertUnordered;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class AlgebraTest {
 
@@ -22,8 +22,8 @@ public class AlgebraTest {
 		assertUnordered(Algebra.cubicRealRoots(-3, 3, -1), 1, 1, 1);
 		assertUnordered(Algebra.cubicRealRoots(1, -1, -1), 1, -1, -1);
 		assertUnordered(round(10, Algebra.cubicRealRoots(-14, 56, -64)), 2, 4, 8);
-		assertUnordered(round(10, Algebra.cubicRealRoots(-0.875, 0.21875, -0.015625)), 0.5,
-			0.25, 0.125);
+		assertUnordered(round(10, Algebra.cubicRealRoots(-0.875, 0.21875, -0.015625)), 0.5, 0.25,
+			0.125);
 	}
 
 	private static double[] round(int precision, double[] roots) {
@@ -47,8 +47,8 @@ public class AlgebraTest {
 	public void testFactorial() {
 		assertEquals(Algebra.factorial(0), 1.0);
 		assertEquals(9.33262e157, Algebra.factorial(100), 0.00001e157);
-		assertThrown(() -> Algebra.factorial(-1));
-		assertThrown(() -> Algebra.longFactorial(21));
+		Assert.thrown(() -> Algebra.factorial(-1));
+		Assert.thrown(() -> Algebra.longFactorial(21));
 		assertEquals(Algebra.longFactorial(20), 2432902008176640000L);
 	}
 

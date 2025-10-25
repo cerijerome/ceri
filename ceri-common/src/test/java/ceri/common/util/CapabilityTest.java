@@ -1,8 +1,8 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
 
 public class CapabilityTest {

@@ -1,14 +1,14 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.util.JnaLibrary;
@@ -72,11 +72,11 @@ public class CInputStreamBehavior {
 		var lib = initIn();
 		lib.read.autoResponses(ByteProvider.of(0));
 		in.close();
-		assertThrown(() -> in.read());
-		assertThrown(() -> in.read(new byte[3]));
-		assertThrown(() -> in.available());
+		Assert.thrown(() -> in.read());
+		Assert.thrown(() -> in.read(new byte[3]));
+		Assert.thrown(() -> in.available());
 	}
-	
+
 	private TestCLibNative initIn() {
 		var lib = ref.init();
 		fd = lib.open("test", 0);

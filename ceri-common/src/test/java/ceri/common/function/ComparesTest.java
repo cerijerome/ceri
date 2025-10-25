@@ -1,10 +1,10 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertNpe;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.illegalArg;
+import static ceri.common.test.Assert.nullPointer;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
@@ -39,18 +39,18 @@ public class ComparesTest {
 	@Test
 	public void testNullNone() {
 		Comparator<Integer> c = Compares.of(Compares.Nulls.none);
-		assertNpe(() -> c.compare(null, null));
-		assertNpe(() -> c.compare(null, 1));
-		assertNpe(() -> c.compare(1, null));
+		nullPointer(() -> c.compare(null, null));
+		nullPointer(() -> c.compare(null, 1));
+		nullPointer(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 
 	@Test
 	public void testNullFails() {
 		Comparator<Integer> c = Compares.of(Compares.Nulls.fail);
-		assertIllegalArg(() -> c.compare(null, null));
-		assertIllegalArg(() -> c.compare(null, 1));
-		assertIllegalArg(() -> c.compare(1, null));
+		illegalArg(() -> c.compare(null, null));
+		illegalArg(() -> c.compare(null, 1));
+		illegalArg(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 

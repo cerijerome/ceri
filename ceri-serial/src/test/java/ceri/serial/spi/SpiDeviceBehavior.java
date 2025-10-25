@@ -1,15 +1,15 @@
 package ceri.serial.spi;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.clib.test.TestCLibNative.OpenArgs;
@@ -50,7 +50,7 @@ public class SpiDeviceBehavior {
 	@Test
 	public void shouldOpenDevice() throws IOException {
 		var lib = ref.init();
-		assertThrown(() -> SpiDevice.Config.of(0, 0, null));
+		Assert.thrown(() -> SpiDevice.Config.of(0, 0, null));
 		try (var _ = SpiDevice.Config.of(0, 1, Direction.in).open()) {}
 		try (var _ = SpiDevice.Config.of(1, 1, Direction.out).open()) {}
 		try (var _ = SpiDevice.Config.of(1, 0).open()) {}

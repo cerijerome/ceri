@@ -1,14 +1,14 @@
 package ceri.process.nmcli;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
 import ceri.common.test.TestUtil;
 
@@ -16,7 +16,7 @@ public class NmcliBehavior {
 
 	@Test
 	public void shouldHaveDefaultProcessor() {
-		assertNotNull(Nmcli.of().con);
+		Assert.notNull(Nmcli.of().con);
 	}
 
 	@Test

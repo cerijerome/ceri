@@ -1,6 +1,6 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertUnordered;
 import org.junit.Test;
 import ceri.jna.test.JnaTestUtil;
 

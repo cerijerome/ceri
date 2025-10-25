@@ -1,7 +1,7 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import java.time.Duration;
 import org.junit.Test;

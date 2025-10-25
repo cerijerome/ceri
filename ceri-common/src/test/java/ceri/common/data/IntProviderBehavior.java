@@ -1,18 +1,18 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwRuntime;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntProvider.Reader;
 import ceri.common.data.IntReceiverBehavior.Holder;
 import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class IntProviderBehavior {
@@ -55,7 +55,7 @@ public class IntProviderBehavior {
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(IntProvider.empty().length(), 0);
 		assertTrue(IntProvider.empty().isEmpty());
-		assertThrown(() -> IntProvider.empty().getInt(0));
+		Assert.thrown(() -> IntProvider.empty().getInt(0));
 	}
 
 	@Test
@@ -111,8 +111,8 @@ public class IntProviderBehavior {
 		assertArray(ip.slice(5, 0).copy(0));
 		assertEquals(ip.slice(0), ip);
 		assertEquals(ip.slice(0, 10), ip);
-		assertThrown(() -> ip.slice(1, 10));
-		assertThrown(() -> ip.slice(0, 9));
+		Assert.thrown(() -> ip.slice(1, 10));
+		Assert.thrown(() -> ip.slice(0, 9));
 	}
 
 	@Test
@@ -126,9 +126,9 @@ public class IntProviderBehavior {
 		int[] ints = new int[5];
 		assertEquals(ip.copyTo(1, ints), 6);
 		assertArray(ints, -1, 2, -3, 4, -5);
-		assertThrown(() -> ip.copyTo(6, ints));
-		assertThrown(() -> ip.copyTo(-1, ints));
-		assertThrown(() -> ip.copyTo(1, ints, 0, 6));
+		Assert.thrown(() -> ip.copyTo(6, ints));
+		Assert.thrown(() -> ip.copyTo(-1, ints));
+		Assert.thrown(() -> ip.copyTo(1, ints, 0, 6));
 	}
 
 	@Test
@@ -136,9 +136,9 @@ public class IntProviderBehavior {
 		Holder h = Holder.of(5);
 		assertEquals(ip.copyTo(1, h.receiver), 6);
 		assertArray(h.ints, -1, 2, -3, 4, -5);
-		assertThrown(() -> ip.copyTo(6, h.receiver));
-		assertThrown(() -> ip.copyTo(-1, h.receiver));
-		assertThrown(() -> ip.copyTo(1, h.receiver, 0, 6));
+		Assert.thrown(() -> ip.copyTo(6, h.receiver));
+		Assert.thrown(() -> ip.copyTo(-1, h.receiver));
+		Assert.thrown(() -> ip.copyTo(1, h.receiver, 0, 6));
 	}
 
 	@Test
@@ -152,14 +152,14 @@ public class IntProviderBehavior {
 	@Test
 	public void shouldStreamInts() {
 		assertStream(ip.stream(0), 0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
-		assertThrown(() -> ip.stream(0, 11));
+		Assert.thrown(() -> ip.stream(0, 11));
 	}
 
 	@Test
 	public void shouldStreamUnsignedInts() {
 		assertStream(ip.ustream(0), 0L, 0xffffffffL, 2L, 0xfffffffdL, 4L, 0xfffffffbL, 6L,
 			0xfffffff9L, 8L, 0xfffffff7L);
-		assertThrown(() -> ip.ustream(0, 11));
+		Assert.thrown(() -> ip.ustream(0, 11));
 	}
 
 	@Test
@@ -228,8 +228,8 @@ public class IntProviderBehavior {
 		assertArray(ip.reader(5).readInts(), -5, 6, -7, 8, -9);
 		assertArray(ip.reader(5, 0).readInts());
 		assertArray(ip.reader(10, 0).readInts());
-		assertThrown(() -> ip.reader(10, 1));
-		assertThrown(() -> ip.reader(11, 0));
+		Assert.thrown(() -> ip.reader(10, 1));
+		Assert.thrown(() -> ip.reader(11, 0));
 	}
 
 	/* IntProvider.Reader tests */
@@ -237,7 +237,7 @@ public class IntProviderBehavior {
 	@Test
 	public void shouldReadInt() {
 		assertEquals(ip.reader(1).readInt(), -1);
-		assertThrown(() -> ip.reader(1, 0).readInt());
+		Assert.thrown(() -> ip.reader(1, 0).readInt());
 	}
 
 	@Test
@@ -269,20 +269,20 @@ public class IntProviderBehavior {
 	@Test
 	public void shouldStreamReaderInts() {
 		assertStream(ip.reader(6).stream(), 6, -7, 8, -9);
-		assertThrown(() -> ip.reader(0).ustream(11));
+		Assert.thrown(() -> ip.reader(0).ustream(11));
 	}
 
 	@Test
 	public void shouldStreamReaderUnsignedInts() {
 		assertStream(ip.reader(6).ustream(), 6L, 0xfffffff9L, 8L, 0xfffffff7L);
-		assertThrown(() -> ip.reader(0).ustream(11));
+		Assert.thrown(() -> ip.reader(0).ustream(11));
 	}
 
 	@Test
 	public void shouldReturnReaderIntProvider() {
 		assertEquals(ip.reader(0).provider(), ip);
 		assertTrue(ip.reader(5, 0).provider().isEmpty());
-		assertThrown(() -> ip.reader(5).provider()); // slice() fails
+		Assert.thrown(() -> ip.reader(5).provider()); // slice() fails
 	}
 
 	@Test
@@ -290,8 +290,8 @@ public class IntProviderBehavior {
 		Reader r0 = ip.reader(6);
 		Reader r1 = r0.slice();
 		Reader r2 = r0.slice(3);
-		assertThrown(() -> r0.slice(5));
-		assertThrown(() -> r0.slice(-2));
+		Assert.thrown(() -> r0.slice(5));
+		Assert.thrown(() -> r0.slice(-2));
 		assertArray(r0.readInts(), 6, -7, 8, -9);
 		assertArray(r1.readInts(), 6, -7, 8, -9);
 		assertArray(r2.readInts(), 6, -7, 8);

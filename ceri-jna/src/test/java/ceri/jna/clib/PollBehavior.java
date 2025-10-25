@@ -1,11 +1,10 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.assertUnsupported;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.unsupportedOp;
 import static ceri.jna.clib.Poll.Error.POLLNVAL;
 import static ceri.jna.clib.Poll.Event.POLLIN;
 import static ceri.jna.clib.Poll.Event.POLLOUT;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaOs;
@@ -81,13 +81,13 @@ public class PollBehavior {
 		pipe.close();
 		pipe = null;
 		assertEquals(poll.poll(), 2);
-		assertThrown(IOException.class, ".*POLLNVAL.*", () -> poll.validate());
+		Assert.thrown(IOException.class, ".*POLLNVAL.*", () -> poll.validate());
 	}
 
 	@Test
 	public void shouldNotPollWithSigsetOnMac() throws IOException {
 		initPipe();
-		JnaOs.mac.accept(_ -> assertUnsupported(() -> poll.poll(SigSet.of(Signal.SIGINT))));
+		JnaOs.mac.accept(_ -> unsupportedOp(() -> poll.poll(SigSet.of(Signal.SIGINT))));
 	}
 
 	@Test

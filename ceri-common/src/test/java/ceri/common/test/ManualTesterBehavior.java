@@ -1,17 +1,14 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNotFound;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertRtInterrupted;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.fail;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertNotFound;
+import static ceri.common.test.Assert.assertRead;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.fail;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
@@ -71,7 +68,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldParseMatcherInt() {
 		assertEquals(ManualTester.Parse.i(matcher("x(.*)", "x")), null);
-		assertThrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x123x")));
+		Assert.thrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x123x")));
 		assertEquals(ManualTester.Parse.i(matcher("x(.*)", "x123")), 123);
 		assertEquals(ManualTester.Parse.i(matcher("x(.)(.*)", "x123"), 2), 23);
 	}
@@ -79,7 +76,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldParseMatcherLong() {
 		assertEquals(ManualTester.Parse.l(matcher("x(.*)", "x")), null);
-		assertThrown(() -> ManualTester.Parse.l(matcher("x(.*)", "x123x")));
+		Assert.thrown(() -> ManualTester.Parse.l(matcher("x(.*)", "x123x")));
 		assertEquals(ManualTester.Parse.l(matcher("x(.*)", "x123")), 123L);
 		assertEquals(ManualTester.Parse.l(matcher("x(.)(.*)", "x123"), 2), 23L);
 	}
@@ -87,7 +84,7 @@ public class ManualTesterBehavior {
 	@Test
 	public void shouldParseMatcherDouble() {
 		assertEquals(ManualTester.Parse.d(matcher("x(.*)", "x")), null);
-		assertThrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x1.23x")));
+		Assert.thrown(() -> ManualTester.Parse.i(matcher("x(.*)", "x1.23x")));
 		assertEquals(ManualTester.Parse.d(matcher("x(.*)", "x1.23")), 1.23);
 		assertEquals(ManualTester.Parse.d(matcher("x(.)(.*)", "x1.23"), 2), .23);
 	}
@@ -105,7 +102,7 @@ public class ManualTesterBehavior {
 			assertEquals(x, "b");
 			assertEquals(i, 2);
 		});
-		assertNull(
+		Assert.isNull(
 			ManualTester.Parse.consumeFirst(matcher("(?:(a)|(b)|(c))", "a"), 2, (_, _) -> fail()));
 	}
 
@@ -117,7 +114,7 @@ public class ManualTesterBehavior {
 
 	@Test
 	public void shouldFailIfNoSubject() {
-		assertThrown(() -> ManualTester.builderList(List.of()));
+		Assert.thrown(() -> ManualTester.builderList(List.of()));
 	}
 
 	@SuppressWarnings("resource")
@@ -258,7 +255,7 @@ public class ManualTesterBehavior {
 		try (var sys = SystemIoCaptor.of(); var m = ManualTester.builderArray("test", 1, 1.0)
 			.command(Object.class, "x(\\d+)", rt(checkInt()), null).build()) {
 			sys.in.print("x9\nx0\nx1\n");
-			assertRtInterrupted(m::run);
+			Assert.thrown(RuntimeInterruptedException.class, m::run);
 			assertMatch(sys.err, "\\s*0\\s*");
 		}
 	}
@@ -332,9 +329,9 @@ public class ManualTesterBehavior {
 				.command(Integer.class, "x", (_, _, _) -> error.callWithInterrupt(), "x").build()) {
 				error.setFrom(IOX, INX, RIX); // IO, Interrupted, then RuntimeInterrupted exceptions
 				sys.in.print("x\nx\nx\n");
-				assertThrown(m::run); // exits on InterruptedException
+				Assert.thrown(m::run); // exits on InterruptedException
 				assertFind(sys.err, "IOException");
-				assertThrown(m::run); // exits on RuntimeInterruptedException
+				Assert.thrown(m::run); // exits on RuntimeInterruptedException
 			}
 		}
 	}

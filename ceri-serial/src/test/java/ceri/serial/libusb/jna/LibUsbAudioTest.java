@@ -1,8 +1,8 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import java.util.function.Function;
 import org.junit.Test;

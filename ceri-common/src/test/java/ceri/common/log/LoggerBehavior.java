@@ -1,7 +1,7 @@
 package ceri.common.log;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertValue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertValue;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;

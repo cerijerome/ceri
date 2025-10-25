@@ -1,6 +1,6 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.i2c.util.I2cUtil.address;
 import org.junit.Test;
 

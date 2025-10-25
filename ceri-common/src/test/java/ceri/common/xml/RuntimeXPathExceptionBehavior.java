@@ -1,7 +1,7 @@
 package ceri.common.xml;
 
-import static ceri.common.test.AssertUtil.assertNotNull;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class RuntimeXPathExceptionBehavior {
 
@@ -9,6 +9,6 @@ public class RuntimeXPathExceptionBehavior {
 	public void codeCoverage() {
 		var e = new RuntimeXPathException("test");
 		e = new RuntimeXPathException("test", e);
-		assertNotNull(e);
+		Assert.notNull(e);
 	}
 }

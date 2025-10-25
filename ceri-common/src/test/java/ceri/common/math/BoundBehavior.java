@@ -1,15 +1,15 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.function.Compares;
 import ceri.common.math.Bound.Type;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class BoundBehavior {
@@ -127,8 +127,8 @@ public class BoundBehavior {
 
 	@Test
 	public void shouldCompareValues() {
-		assertNull(Bound.unbound().valueCompare(0));
-		assertNull(Bound.exclusive(0).valueCompare(null));
+		Assert.isNull(Bound.unbound().valueCompare(0));
+		Assert.isNull(Bound.exclusive(0).valueCompare(null));
 		assertEquals(Bound.exclusive(0).valueCompare(0), 0);
 		assertEquals(Bound.exclusive(-1).valueCompare(0), -1);
 		assertEquals(Bound.exclusive(1).valueCompare(0), 1);

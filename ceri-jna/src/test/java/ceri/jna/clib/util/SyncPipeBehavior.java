@@ -1,9 +1,9 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class SyncPipeBehavior {
 		var lib = initLib(1);
 		lib.write.error.setFrom(ErrNo.EBADFD::lastError, null);
 		pipe = SyncPipe.of(poll.fd(0));
-		assertIoe(pipe::signal);
+		io(pipe::signal);
 		assertTrue(pipe.signal());
 	}
 

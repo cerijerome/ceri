@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertArray;
+import static ceri.common.test.Assert.assertArray;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Before;

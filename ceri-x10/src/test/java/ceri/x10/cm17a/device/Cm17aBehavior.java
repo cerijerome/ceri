@@ -1,6 +1,6 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.x10.command.Command;

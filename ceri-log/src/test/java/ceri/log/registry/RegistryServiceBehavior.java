@@ -1,7 +1,7 @@
 package ceri.log.registry;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.nio.file.Path;

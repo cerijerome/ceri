@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertNull;
 import org.junit.Test;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.concurrent.SimpleExecutor;
@@ -12,7 +11,7 @@ public class TestListenersBehavior {
 		TestListeners<String> l = TestListeners.of();
 		l.sync.set(1);
 		l.clear();
-		assertNull(l.sync.value());
+		Assert.isNull(l.sync.value());
 	}
 
 	@Test

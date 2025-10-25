@@ -1,9 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.assertUnsupported;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.unsupportedOp;
 import static ceri.common.text.Joiner.COLON;
 import static ceri.common.text.Joiner.LIST;
 import static ceri.common.text.Joiner.OR;
@@ -82,7 +82,7 @@ public class JoinerBehavior {
 
 	@Test
 	public void shouldFailToCollectParallelStreams() {
-		assertUnsupported(() -> List.of("a", "b").stream().parallel().collect(Joiner.ARRAY));
+		unsupportedOp(() -> List.of("a", "b").stream().parallel().collect(Joiner.ARRAY));
 	}
 
 	@Test

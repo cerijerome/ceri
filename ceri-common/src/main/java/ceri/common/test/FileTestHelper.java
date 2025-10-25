@@ -212,7 +212,7 @@ public class FileTestHelper implements Functions.Closeable {
 	 */
 	public void assertPaths(Collection<Path> actual, String... paths) {
 		var expected = Streams.of(paths).map(this::path).collect(Collectors.toList());
-		AssertUtil.assertUnordered(actual, expected);
+		Assert.assertUnordered(actual, expected);
 	}
 
 	@Override

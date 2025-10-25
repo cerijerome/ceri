@@ -1,8 +1,8 @@
 package ceri.common.except;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.FileNotFoundException;
 import java.io.IOException;

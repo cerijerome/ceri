@@ -1,12 +1,11 @@
 package ceri.common.geom;
 
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNaN;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
 import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class Line2dBehavior {
@@ -18,21 +17,21 @@ public class Line2dBehavior {
 
 	@Test
 	public void testAngleFromGradient() {
-		assertApprox(Line2d.angleFromGradient(Double.NaN), Double.NaN);
-		assertApprox(Line2d.angleFromGradient(0), 0);
-		assertApprox(Line2d.angleFromGradient(Double.POSITIVE_INFINITY), Maths.PI_BY_2);
-		assertApprox(Line2d.angleFromGradient(Double.NEGATIVE_INFINITY), -Maths.PI_BY_2);
-		assertApprox(Line2d.angleFromGradient(1), Math.PI / 4);
-		assertApprox(Line2d.angleFromGradient(-1), -Math.PI / 4);
+		Assert.approx(Line2d.angleFromGradient(Double.NaN), Double.NaN);
+		Assert.approx(Line2d.angleFromGradient(0), 0);
+		Assert.approx(Line2d.angleFromGradient(Double.POSITIVE_INFINITY), Maths.PI_BY_2);
+		Assert.approx(Line2d.angleFromGradient(Double.NEGATIVE_INFINITY), -Maths.PI_BY_2);
+		Assert.approx(Line2d.angleFromGradient(1), Math.PI / 4);
+		Assert.approx(Line2d.angleFromGradient(-1), -Math.PI / 4);
 	}
 
 	@Test
 	public void shouldCalculateLineEquationDistanceToPoint() {
-		assertApprox(Line2d.Equation.X_AXIS.distanceTo(Point2d.X_UNIT), 0);
-		assertApprox(Line2d.Equation.X_AXIS.distanceTo(0, 1), 1);
-		assertApprox(Line2d.Equation.of(1, -1, 0).distanceTo(0, 0), 0);
-		assertApprox(Line2d.Equation.of(1, -1, 0).distanceTo(1, 2), 0.707);
-		assertNaN(Line2d.Equation.ZERO.distanceTo(Point2d.ZERO));
+		Assert.approx(Line2d.Equation.X_AXIS.distanceTo(Point2d.X_UNIT), 0);
+		Assert.approx(Line2d.Equation.X_AXIS.distanceTo(0, 1), 1);
+		Assert.approx(Line2d.Equation.of(1, -1, 0).distanceTo(0, 0), 0);
+		Assert.approx(Line2d.Equation.of(1, -1, 0).distanceTo(1, 2), 0.707);
+		assertEquals(Line2d.Equation.ZERO.distanceTo(Point2d.ZERO), Double.NaN);
 	}
 
 	@Test
@@ -45,11 +44,11 @@ public class Line2dBehavior {
 
 	@Test
 	public void shouldCalculateLineEquationAngle() {
-		assertApprox(le0.angle(), 1.326);
-		assertApprox(Line2d.Equation.of(4, 1, 3).angle(), -1.326);
-		assertApprox(Line2d.Equation.of(1, 4, 3).angle(), -0.245);
-		assertApprox(le1.angle(), 1.571);
-		assertApprox(le2.angle(), 0);
+		Assert.approx(le0.angle(), 1.326);
+		Assert.approx(Line2d.Equation.of(4, 1, 3).angle(), -1.326);
+		Assert.approx(Line2d.Equation.of(1, 4, 3).angle(), -0.245);
+		Assert.approx(le1.angle(), 1.571);
+		Assert.approx(le2.angle(), 0);
 		assertEquals(Line2d.Equation.ZERO.angle(), Double.NaN);
 	}
 
@@ -130,7 +129,7 @@ public class Line2dBehavior {
 	public void shouldCalculateAngle() {
 		assertEquals(Line2d.ZERO.angle(), Double.NaN);
 		assertEquals(Line2d.of(-1, 1, -1, 1).angle(), Double.NaN);
-		assertApprox(Line2d.of(-1, 1, 1, 3).angle(), 0.785);
+		Assert.approx(Line2d.of(-1, 1, 1, 3).angle(), 0.785);
 	}
 
 	@Test
@@ -139,8 +138,8 @@ public class Line2dBehavior {
 		assertEquals(Line2d.of(-1, 1, -1, 1).gradient(), Double.NaN);
 		assertEquals(Line2d.of(-1, 1, -1, 3).gradient(), Double.POSITIVE_INFINITY);
 		assertEquals(Line2d.of(-1, 1, -1, -1).gradient(), Double.NEGATIVE_INFINITY);
-		assertApprox(Line2d.of(-1, 1, 1, 3).gradient(), 1);
-		assertApprox(Line2d.of(1, 3, -1, 1).gradient(), 1);
+		Assert.approx(Line2d.of(-1, 1, 1, 3).gradient(), 1);
+		Assert.approx(Line2d.of(1, 3, -1, 1).gradient(), 1);
 	}
 
 	@Test
@@ -209,6 +208,6 @@ public class Line2dBehavior {
 		line = Line2d.of(Point2d.X_UNIT, Point2d.X_UNIT);
 		assertEquals(line.distanceTo(0, 0), 1.0);
 		assertEquals(line.distanceTo(1, 0), 0.0);
-		assertApprox(line.distanceTo(0, -1), 1.4142);
+		Assert.approx(line.distanceTo(0, -1), 1.4142);
 	}
 }

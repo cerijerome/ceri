@@ -1,11 +1,10 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertImmutable;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertImmutable;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertUnordered;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ import org.junit.Test;
 import ceri.common.collect.Immutable.Wrap;
 import ceri.common.function.Compares;
 import ceri.common.function.Functions;
-import ceri.common.test.AssertUtil;
+import ceri.common.test.Assert;
 
 public class ImmutableTest {
 	private static final String s0 = new String("s");
@@ -77,7 +76,7 @@ public class ImmutableTest {
 
 	@Test
 	public void testWrapTypeTo() {
-		assertSame(Wrap.list().to(null), Wrap.list());
+		Assert.same(Wrap.list().to(null), Wrap.list());
 	}
 
 	@Test
@@ -120,7 +119,7 @@ public class ImmutableTest {
 		assertMap(Immutable.wrapMapOfLists(null));
 		var wm = assertImmutable(Immutable.wrapMapOfLists(m));
 		assertMap(assertImmutable(wm), -1, lA, null, lB, 1, List.of());
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		lB.clear();
 		assertMap(wm, -1, lA, null, List.of(), 1, List.of());
 	}
@@ -133,7 +132,7 @@ public class ImmutableTest {
 		assertMap(Immutable.wrapMapOfSets(null));
 		var wm = assertImmutable(Immutable.wrapMapOfSets(m));
 		assertMap(assertImmutable(wm), -1, sA, null, sB, 1, Set.of());
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		sB.clear();
 		assertMap(wm, -1, sA, null, Set.of(), 1, Set.of());
 	}
@@ -146,7 +145,7 @@ public class ImmutableTest {
 		assertMap(Immutable.wrapMapOfMaps(null));
 		var wm = assertImmutable(Immutable.wrapMapOfMaps(m));
 		assertMap(assertImmutable(wm), -1, mA, null, mB, 1, emptyMap);
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		mB.clear();
 		assertMap(wm, -1, mA, null, emptyMap, 1, emptyMap);
 	}
@@ -309,7 +308,7 @@ public class ImmutableTest {
 		assertMap(Immutable.mapOfLists(null));
 		var wm = assertImmutable(Immutable.mapOfLists(m));
 		assertMap(assertImmutable(wm), -1, lA, null, lB, 1, List.of());
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		lB.clear();
 		assertMap(wm, -1, lA, null, Immutable.listOf(null, "B"), 1, List.of());
 	}
@@ -322,7 +321,7 @@ public class ImmutableTest {
 		assertMap(Immutable.mapOfSets(null));
 		var wm = assertImmutable(Immutable.mapOfSets(m));
 		assertMap(assertImmutable(wm), -1, sA, null, sB, 1, Set.of());
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		sB.clear();
 		assertMap(wm, -1, sA, null, Immutable.setOf(null, "B"), 1, Set.of());
 	}
@@ -335,7 +334,7 @@ public class ImmutableTest {
 		assertMap(Immutable.mapOfMaps(null));
 		var wm = assertImmutable(Immutable.mapOfMaps(m));
 		assertMap(assertImmutable(wm), -1, mA, null, mB, 1, emptyMap);
-		wm.values().forEach(AssertUtil::assertImmutable);
+		wm.values().forEach(Assert::assertImmutable);
 		mB.clear();
 		assertMap(wm, -1, mA, null, Immutable.mapOf(null, "B"), 1, emptyMap);
 	}

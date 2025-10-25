@@ -1,12 +1,12 @@
 package ceri.x10.cm17a;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
+import ceri.common.test.Assert;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.test.TestSerial;
 import ceri.serial.comm.util.SelfHealingSerial;
@@ -104,7 +104,7 @@ public class Cm17aContainerBehavior {
 		try (var serial = TestSerial.of()) {
 			var config = Cm17aContainer.Config.builder().device(null)
 				.serial(serial.selfHealingConfig()).build();
-			assertThrown(() -> Cm17aContainer.of(config));
+			Assert.thrown(() -> Cm17aContainer.of(config));
 		}
 	}
 }

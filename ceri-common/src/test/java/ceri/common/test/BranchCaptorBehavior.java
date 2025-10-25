@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertUnordered;
 import org.junit.Test;
 import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;

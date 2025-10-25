@@ -1,13 +1,13 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.log.rpc.client.RpcChannel;
 
 public class RpcServerBehavior {
@@ -36,17 +36,16 @@ public class RpcServerBehavior {
 	@Test
 	public void shouldFailIfNoLoopRequired() {
 		RpcServer.Config.of(12345).requireNoLoop(RpcChannel.Config.localhost(12346));
-		assertThrown(
+		Assert.thrown(
 			() -> RpcServer.Config.of(12345).requireNoLoop(RpcChannel.Config.localhost(12345)));
 	}
 
 	@Test
 	public void shouldStartServer() throws IOException {
-		try (var service = TestRpcService.of()) {
-			try (RpcServer server = RpcServer.start(service, RpcServer.Config.DEFAULT)) {
-				assertTrue(server.port() > 0);
-				assertTrue(server.toString().contains("(" + server.port() + ")"));
-			}
+		try (var service = TestRpcService.of();
+			var server = RpcServer.start(service, RpcServer.Config.DEFAULT)) {
+			assertTrue(server.port() > 0);
+			assertTrue(server.toString().contains("(" + server.port() + ")"));
 		}
 	}
 
@@ -56,5 +55,4 @@ public class RpcServerBehavior {
 		server.awaitTermination.error.setFrom(INX);
 		try (RpcServer _ = new RpcServer(server, RpcServer.Config.DEFAULT)) {}
 	}
-
 }

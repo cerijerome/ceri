@@ -1,7 +1,7 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;

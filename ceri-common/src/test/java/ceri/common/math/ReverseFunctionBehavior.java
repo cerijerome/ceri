@@ -1,10 +1,10 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class ReverseFunctionBehavior {
@@ -26,39 +26,39 @@ public class ReverseFunctionBehavior {
 	@Test
 	public void shouldHandleZeroLookupEntries() {
 		ReverseFunction f = ReverseFunction.builder().build();
-		assertApprox(f.x(-1), NaN);
-		assertApprox(f.x(0), NaN);
-		assertApprox(f.x(1), NaN);
+		Assert.approx(f.x(-1), NaN);
+		Assert.approx(f.x(0), NaN);
+		Assert.approx(f.x(1), NaN);
 	}
 
 	@Test
 	public void shouldHandleSingleLookupEntry() {
 		ReverseFunction f = ReverseFunction.builder().add(1, 1).build();
-		assertApprox(f.x(0), 1);
-		assertApprox(f.x(1), 1);
-		assertApprox(f.x(2), 1);
+		Assert.approx(f.x(0), 1);
+		Assert.approx(f.x(1), 1);
+		Assert.approx(f.x(2), 1);
 	}
 
 	@Test
 	public void shouldExtrapolateValuesOutsideTheRange() {
-		assertApprox(f0.x(-0.001), -0.001);
-		assertApprox(f0.x(1.001), 1.698);
-		assertApprox(f1.x(-1), -1);
-		assertApprox(f1.x(0), 0);
-		assertApprox(f1.x(1), 1);
+		Assert.approx(f0.x(-0.001), -0.001);
+		Assert.approx(f0.x(1.001), 1.698);
+		Assert.approx(f1.x(-1), -1);
+		Assert.approx(f1.x(0), 0);
+		Assert.approx(f1.x(1), 1);
 	}
 
 	@Test
 	public void shouldLookUpXFromY() {
-		assertApprox(f0.x(0), 0);
-		assertApprox(f0.x(0.5), Math.PI / 6);
-		assertApprox(f0.x(Math.sqrt(3) / 2), Math.PI / 3);
-		assertApprox(f0.x(1), Math.PI / 2);
-		assertApprox(f1.x(-0.729), -0.9);
-		assertApprox(f1.x(-0.125), -0.5);
-		assertApprox(f1.x(0), 0);
-		assertApprox(f1.x(0.125), 0.5);
-		assertApprox(f1.x(0.729), 0.9);
+		Assert.approx(f0.x(0), 0);
+		Assert.approx(f0.x(0.5), Math.PI / 6);
+		Assert.approx(f0.x(Math.sqrt(3) / 2), Math.PI / 3);
+		Assert.approx(f0.x(1), Math.PI / 2);
+		Assert.approx(f1.x(-0.729), -0.9);
+		Assert.approx(f1.x(-0.125), -0.5);
+		Assert.approx(f1.x(0), 0);
+		Assert.approx(f1.x(0.125), 0.5);
+		Assert.approx(f1.x(0.729), 0.9);
 	}
 
 }

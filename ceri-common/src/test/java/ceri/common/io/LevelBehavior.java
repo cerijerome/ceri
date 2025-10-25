@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.data.BinaryState;
 

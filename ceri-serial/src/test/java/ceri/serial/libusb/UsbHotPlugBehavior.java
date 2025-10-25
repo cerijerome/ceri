@@ -1,7 +1,7 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.fail;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.serial.libusb.jna.LibUsb.libusb_class_code.LIBUSB_CLASS_HID;
 import org.apache.logging.log4j.Level;

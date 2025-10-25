@@ -2,17 +2,15 @@ package ceri.common.math;
 
 import static ceri.common.math.Bound.Type.exc;
 import static ceri.common.math.Bound.Type.inc;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNaN;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRange;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertRange;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class MathsTest {
 	private static final byte BMAX = Byte.MAX_VALUE;
@@ -253,10 +251,10 @@ public class MathsTest {
 		double d1 = IMAX;
 		assertEquals(Maths.safeToInt(d0), IMIN);
 		assertEquals(Maths.safeToInt(d1), IMAX);
-		assertThrown(() -> Maths.safeToInt(Double.NaN));
-		assertThrown(() -> Maths.safeToInt(DPINF));
-		assertThrown(() -> Maths.safeToInt(DNINF));
-		assertThrown(() -> Maths.safeToInt(DMAX));
+		Assert.thrown(() -> Maths.safeToInt(Double.NaN));
+		Assert.thrown(() -> Maths.safeToInt(DPINF));
+		Assert.thrown(() -> Maths.safeToInt(DNINF));
+		Assert.thrown(() -> Maths.safeToInt(DMAX));
 	}
 
 	@Test
@@ -265,10 +263,10 @@ public class MathsTest {
 		double d1 = LMAX;
 		assertEquals(Maths.safeToLong(d0), LMIN);
 		assertEquals(Maths.safeToLong(d1), LMAX);
-		assertThrown(() -> Maths.safeToLong(Double.NaN));
-		assertThrown(() -> Maths.safeToLong(DPINF));
-		assertThrown(() -> Maths.safeToLong(DNINF));
-		assertThrown(() -> Maths.safeToLong(DMAX));
+		Assert.thrown(() -> Maths.safeToLong(Double.NaN));
+		Assert.thrown(() -> Maths.safeToLong(DPINF));
+		Assert.thrown(() -> Maths.safeToLong(DNINF));
+		Assert.thrown(() -> Maths.safeToLong(DMAX));
 	}
 
 	@Test
@@ -277,8 +275,8 @@ public class MathsTest {
 		long l1 = BMAX;
 		assertEquals(Maths.byteExact(l0), BMIN);
 		assertEquals(Maths.byteExact(l1), BMAX);
-		assertThrown(() -> Maths.byteExact(BMIN - 1));
-		assertThrown(() -> Maths.byteExact(BMAX + 1));
+		Assert.thrown(() -> Maths.byteExact(BMIN - 1));
+		Assert.thrown(() -> Maths.byteExact(BMAX + 1));
 	}
 
 	@Test
@@ -287,29 +285,29 @@ public class MathsTest {
 		long l1 = SMAX;
 		assertEquals(Maths.shortExact(l0), SMIN);
 		assertEquals(Maths.shortExact(l1), SMAX);
-		assertThrown(() -> Maths.shortExact(SMIN - 1));
-		assertThrown(() -> Maths.shortExact(SMAX + 1));
+		Assert.thrown(() -> Maths.shortExact(SMIN - 1));
+		Assert.thrown(() -> Maths.shortExact(SMAX + 1));
 	}
 
 	@Test
 	public void testUbyteExact() {
 		assertEquals(Maths.ubyteExact(0xff), (byte) 0xff);
-		assertThrown(() -> Maths.ubyteExact(-1));
-		assertThrown(() -> Maths.ubyteExact(0x100));
+		Assert.thrown(() -> Maths.ubyteExact(-1));
+		Assert.thrown(() -> Maths.ubyteExact(0x100));
 	}
 
 	@Test
 	public void testUshortExact() {
 		assertEquals(Maths.ushortExact(0xffff), (short) 0xffff);
-		assertThrown(() -> Maths.ushortExact(-1));
-		assertThrown(() -> Maths.ushortExact(0x10000));
+		Assert.thrown(() -> Maths.ushortExact(-1));
+		Assert.thrown(() -> Maths.ushortExact(0x10000));
 	}
 
 	@Test
 	public void testUintExact() {
 		assertEquals(Maths.uintExact(0xffffffffL), 0xffffffff);
-		assertThrown(() -> Maths.uintExact(-1));
-		assertThrown(() -> Maths.uintExact(0x100000000L));
+		Assert.thrown(() -> Maths.uintExact(-1));
+		Assert.thrown(() -> Maths.uintExact(0x100000000L));
 	}
 
 	@Test
@@ -333,8 +331,8 @@ public class MathsTest {
 		double d1 = IMAX;
 		assertEquals(Maths.intRoundExact(d0), IMIN);
 		assertEquals(Maths.intRoundExact(d1), IMAX);
-		assertThrown(() -> Maths.intRoundExact(d0 - 1));
-		assertThrown(() -> Maths.intRoundExact(d1 + 1));
+		Assert.thrown(() -> Maths.intRoundExact(d0 - 1));
+		Assert.thrown(() -> Maths.intRoundExact(d1 + 1));
 	}
 
 	@Test
@@ -343,8 +341,8 @@ public class MathsTest {
 		assertEquals(Maths.safeRound(LMIN), LMIN);
 		assertEquals(Maths.safeRound(LMAX + 1024.0), LMAX);
 		assertEquals(Maths.safeRound(LMIN - 1024.0), LMIN);
-		assertThrown(ArithmeticException.class, () -> Maths.safeRound(LMAX + 1025.0));
-		assertThrown(ArithmeticException.class, () -> Maths.safeRound(LMIN - 1025.0));
+		Assert.thrown(ArithmeticException.class, () -> Maths.safeRound(LMAX + 1025.0));
+		Assert.thrown(ArithmeticException.class, () -> Maths.safeRound(LMIN - 1025.0));
 	}
 
 	@Test
@@ -353,8 +351,8 @@ public class MathsTest {
 		assertEquals(Maths.safeRoundInt(IMIN), IMIN);
 		assertEquals(Maths.safeRoundInt(IMAX + 0.499999), IMAX);
 		assertEquals(Maths.safeRoundInt(IMIN - 0.5), IMIN);
-		assertThrown(ArithmeticException.class, () -> Maths.safeRoundInt(IMAX + 0.5));
-		assertThrown(ArithmeticException.class, () -> Maths.safeRoundInt(IMIN - 0.51));
+		Assert.thrown(ArithmeticException.class, () -> Maths.safeRoundInt(IMAX + 0.5));
+		Assert.thrown(ArithmeticException.class, () -> Maths.safeRoundInt(IMIN - 0.51));
 	}
 
 	@Test
@@ -434,7 +432,7 @@ public class MathsTest {
 		assertEquals(Maths.roundDiv(IMAX, IMIN), -1);
 		assertEquals(Maths.roundDiv(IMIN, IMAX), -1);
 		assertEquals(Maths.roundDiv(IMIN, IMIN), 1);
-		assertThrown(() -> Maths.roundDiv(1, 0));
+		Assert.thrown(() -> Maths.roundDiv(1, 0));
 	}
 
 	@Test
@@ -514,7 +512,7 @@ public class MathsTest {
 		assertEquals(Maths.roundDiv(LMAX, LMIN), -1L);
 		assertEquals(Maths.roundDiv(LMIN, LMAX), -1L);
 		assertEquals(Maths.roundDiv(LMIN, LMIN), 1L);
-		assertThrown(() -> Maths.roundDiv(1L, 0L));
+		Assert.thrown(() -> Maths.roundDiv(1L, 0L));
 	}
 
 	@Test
@@ -528,7 +526,7 @@ public class MathsTest {
 		assertEquals(Maths.round(1, DPINF), DPINF);
 		assertEquals(Maths.round(1, DNINF), DNINF);
 		assertEquals(Maths.round(1, Double.NaN), Double.NaN);
-		assertThrown(() -> Maths.round(-1, 777.7777));
+		Assert.thrown(() -> Maths.round(-1, 777.7777));
 	}
 
 	@Test
@@ -539,8 +537,8 @@ public class MathsTest {
 		assertEquals(Maths.simpleRound(3, 777.7777), 777.778);
 		assertEquals(Maths.simpleRound(3, -777.7777), -777.778);
 		assertTrue(Double.isNaN(Maths.simpleRound(0, Double.NaN)));
-		assertThrown(() -> Maths.simpleRound(-1, 777.7777));
-		assertThrown(() -> Maths.simpleRound(11, 777.7777));
+		Assert.thrown(() -> Maths.simpleRound(-1, 777.7777));
+		Assert.thrown(() -> Maths.simpleRound(11, 777.7777));
 	}
 
 	@Test
@@ -659,7 +657,7 @@ public class MathsTest {
 		String s = Maths.random("1", "2", "3");
 		assertTrue(Set.of("1", "2", "3").contains(s));
 		assertEquals(Maths.random("1"), "1");
-		assertNull(Maths.random(List.of()));
+		Assert.isNull(Maths.random(List.of()));
 	}
 
 	@Test
@@ -668,7 +666,7 @@ public class MathsTest {
 		String s = Maths.random(set);
 		assertTrue(set.contains(s));
 		assertEquals(Maths.random(Set.of("1")), "1");
-		assertNull(Maths.random(Set.of()));
+		Assert.isNull(Maths.random(Set.of()));
 	}
 
 	@Test
@@ -707,22 +705,22 @@ public class MathsTest {
 		assertEquals(Maths.gcd(-99999, 22222), 11111);
 		assertEquals(Maths.gcd(99999, -22222), 11111);
 		assertEquals(Maths.gcd(-99999, -22222), 11111);
-		assertThrown(() -> Maths.gcd(IMIN, 0));
+		Assert.thrown(() -> Maths.gcd(IMIN, 0));
 		assertEquals(Maths.gcd(IMIN, 1), 1);
 		assertEquals(Maths.gcd(IMAX, 0), IMAX);
 		assertEquals(Maths.gcd(IMAX, 1), 1);
-		assertThrown(() -> Maths.gcd(IMIN, IMIN));
+		Assert.thrown(() -> Maths.gcd(IMIN, IMIN));
 		assertEquals(Maths.gcd(IMAX, IMAX), IMAX);
 		assertEquals(Maths.gcd(IMIN, IMAX), 1);
 	}
 
 	@Test
 	public void testGcdForLongs() {
-		assertThrown(() -> Maths.gcd(LMIN, 0));
+		Assert.thrown(() -> Maths.gcd(LMIN, 0));
 		assertEquals(Maths.gcd(LMIN, 1), 1L);
 		assertEquals(Maths.gcd(LMAX, 0), LMAX);
 		assertEquals(Maths.gcd(LMAX, 1), 1L);
-		assertThrown(() -> Maths.gcd(LMIN, LMIN));
+		Assert.thrown(() -> Maths.gcd(LMIN, LMIN));
 		assertEquals(Maths.gcd(LMAX, LMAX), LMAX);
 		assertEquals(Maths.gcd(LMIN, LMAX), 1L);
 	}
@@ -747,23 +745,23 @@ public class MathsTest {
 		assertEquals(Maths.lcm(99999, -22222), 199998);
 		assertEquals(Maths.lcm(-99999, -22222), 199998);
 		assertEquals(Maths.lcm(IMIN, 0), 0);
-		assertThrown(() -> Maths.lcm(IMIN, 1));
+		Assert.thrown(() -> Maths.lcm(IMIN, 1));
 		assertEquals(Maths.lcm(IMAX, 0), 0);
 		assertEquals(Maths.lcm(IMAX, 1), IMAX);
-		assertThrown(() -> Maths.lcm(IMIN, IMIN));
+		Assert.thrown(() -> Maths.lcm(IMIN, IMIN));
 		assertEquals(Maths.lcm(IMAX, IMAX), IMAX);
-		assertThrown(() -> Maths.lcm(IMIN, IMAX));
+		Assert.thrown(() -> Maths.lcm(IMIN, IMAX));
 	}
 
 	@Test
 	public void testLcmForLongs() {
 		assertEquals(Maths.lcm(LMIN, 0), 0L);
-		assertThrown(() -> Maths.lcm(LMIN, 1L));
+		Assert.thrown(() -> Maths.lcm(LMIN, 1L));
 		assertEquals(Maths.lcm(LMAX, 0), 0L);
 		assertEquals(Maths.lcm(LMAX, 1), LMAX);
-		assertThrown(() -> Maths.lcm(LMIN, LMIN));
+		Assert.thrown(() -> Maths.lcm(LMIN, LMIN));
 		assertEquals(Maths.lcm(LMAX, LMAX), LMAX);
-		assertThrown(() -> Maths.lcm(LMIN, LMAX));
+		Assert.thrown(() -> Maths.lcm(LMIN, LMAX));
 	}
 
 	@Test
@@ -774,9 +772,9 @@ public class MathsTest {
 		assertEquals(Maths.mean(IMAX, IMAX, IMAX), (double) IMAX);
 		assertEquals(Maths.mean(IMIN, IMIN, IMIN), (double) IMIN);
 		assertEquals(Maths.mean(IMAX, IMIN), -0.5);
-		assertThrown(() -> Maths.mean(new int[0]));
-		assertThrown(() -> Maths.mean(new int[] { 1, -1, 0 }, 2, 2));
-		assertThrown(() -> Maths.mean((int[]) null, 0, 1));
+		Assert.thrown(() -> Maths.mean(new int[0]));
+		Assert.thrown(() -> Maths.mean(new int[] { 1, -1, 0 }, 2, 2));
+		Assert.thrown(() -> Maths.mean((int[]) null, 0, 1));
 	}
 
 	@Test
@@ -787,9 +785,9 @@ public class MathsTest {
 		assertEquals(Maths.mean(LMAX, LMAX, LMAX), (double) LMAX);
 		assertEquals(Maths.mean(LMIN, LMIN, LMIN), (double) LMIN);
 		assertEquals(Maths.mean(LMAX, LMIN), -0.5);
-		assertThrown(() -> Maths.mean(new long[0]));
-		assertThrown(() -> Maths.mean(new long[] { 1, -1, 0 }, 2, 2));
-		assertThrown(() -> Maths.mean((long[]) null, 0, 1));
+		Assert.thrown(() -> Maths.mean(new long[0]));
+		Assert.thrown(() -> Maths.mean(new long[] { 1, -1, 0 }, 2, 2));
+		Assert.thrown(() -> Maths.mean((long[]) null, 0, 1));
 	}
 
 	@Test
@@ -800,9 +798,9 @@ public class MathsTest {
 		assertEquals(Maths.mean(FMAX, -FMAX), 0.0f);
 		assertEquals(Maths.mean(FPINF, FPINF), FPINF);
 		assertEquals(Maths.mean(FNINF, FPINF), Float.NaN);
-		assertThrown(() -> Maths.mean(new float[0]));
-		assertThrown(() -> Maths.mean(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
-		assertThrown(() -> Maths.mean((float[]) null, 0, 1));
+		Assert.thrown(() -> Maths.mean(new float[0]));
+		Assert.thrown(() -> Maths.mean(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
+		Assert.thrown(() -> Maths.mean((float[]) null, 0, 1));
 	}
 
 	@Test
@@ -813,9 +811,9 @@ public class MathsTest {
 		assertEquals(Maths.mean(DMAX, -DMAX), 0.0);
 		assertEquals(Maths.mean(DPINF, DPINF), DPINF);
 		assertEquals(Maths.mean(DNINF, DPINF), Double.NaN);
-		assertThrown(() -> Maths.mean(new double[0]));
-		assertThrown(() -> Maths.mean(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
-		assertThrown(() -> Maths.mean((double[]) null, 0, 1));
+		Assert.thrown(() -> Maths.mean(new double[0]));
+		Assert.thrown(() -> Maths.mean(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
+		Assert.thrown(() -> Maths.mean((double[]) null, 0, 1));
 	}
 
 	@Test
@@ -828,9 +826,9 @@ public class MathsTest {
 		assertEquals(Maths.median(IMIN, IMIN), (double) IMIN);
 		assertEquals(Maths.median(IMAX - 1, IMAX), IMAX - 0.5);
 		assertEquals(Maths.median(IMIN + 1, IMIN), IMIN + 0.5);
-		assertThrown(() -> Maths.median(new int[0]));
-		assertThrown(() -> Maths.median(new int[] { 1, -1, 0 }, 2, 2));
-		assertThrown(() -> Maths.median((int[]) null, 0, 1));
+		Assert.thrown(() -> Maths.median(new int[0]));
+		Assert.thrown(() -> Maths.median(new int[] { 1, -1, 0 }, 2, 2));
+		Assert.thrown(() -> Maths.median((int[]) null, 0, 1));
 	}
 
 	@Test
@@ -843,9 +841,9 @@ public class MathsTest {
 		assertEquals(Maths.median(LMIN, LMIN), (double) LMIN);
 		assertEquals(Maths.median(LMAX - 1, LMAX), LMAX - 0.5);
 		assertEquals(Maths.median(LMIN + 1, LMIN), LMIN + 0.5);
-		assertThrown(() -> Maths.median(new long[0]));
-		assertThrown(() -> Maths.median(new long[] { 1, -1, 0 }, 2, 2));
-		assertThrown(() -> Maths.median((long[]) null, 0, 1));
+		Assert.thrown(() -> Maths.median(new long[0]));
+		Assert.thrown(() -> Maths.median(new long[] { 1, -1, 0 }, 2, 2));
+		Assert.thrown(() -> Maths.median((long[]) null, 0, 1));
 	}
 
 	@Test
@@ -856,9 +854,9 @@ public class MathsTest {
 		assertEquals(Maths.median(FMAX, -FMAX), 0.0f);
 		assertEquals(Maths.median(FPINF, FPINF), FPINF);
 		assertEquals(Maths.median(FNINF, FPINF), Float.NaN);
-		assertThrown(() -> Maths.median(new float[0]));
-		assertThrown(() -> Maths.median(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
-		assertThrown(() -> Maths.median((float[]) null, 0, 1));
+		Assert.thrown(() -> Maths.median(new float[0]));
+		Assert.thrown(() -> Maths.median(new float[] { 1.0f, -1.0f, 0.0f }, 2, 2));
+		Assert.thrown(() -> Maths.median((float[]) null, 0, 1));
 	}
 
 	@Test
@@ -869,9 +867,9 @@ public class MathsTest {
 		assertEquals(Maths.median(DMAX, -DMAX), 0.0);
 		assertEquals(Maths.median(DPINF, DPINF), DPINF);
 		assertEquals(Maths.median(DNINF, DPINF), Double.NaN);
-		assertThrown(() -> Maths.median(new double[0]));
-		assertThrown(() -> Maths.median(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
-		assertThrown(() -> Maths.median((double[]) null, 0, 1));
+		Assert.thrown(() -> Maths.median(new double[0]));
+		Assert.thrown(() -> Maths.median(new double[] { 1.0, -1.0, 0.0 }, 2, 2));
+		Assert.thrown(() -> Maths.median((double[]) null, 0, 1));
 	}
 
 	@Test
@@ -913,7 +911,7 @@ public class MathsTest {
 		assertEquals(Maths.limit(0, -1, 1), 0);
 		assertEquals(Maths.limit(IMAX, 0, IMAX), IMAX);
 		assertEquals(Maths.limit(IMIN, 0, IMAX), 0);
-		assertThrown(() -> Maths.limit(0, 1, 0));
+		Assert.thrown(() -> Maths.limit(0, 1, 0));
 	}
 
 	@Test
@@ -923,7 +921,7 @@ public class MathsTest {
 		assertEquals(Maths.limit(0L, -1L, 1L), 0L);
 		assertEquals(Maths.limit(LMAX, 0L, LMAX), LMAX);
 		assertEquals(Maths.limit(LMIN, 0L, LMAX), 0L);
-		assertThrown(() -> Maths.limit(0L, 1L, 0L));
+		Assert.thrown(() -> Maths.limit(0L, 1L, 0L));
 	}
 
 	@Test
@@ -936,7 +934,7 @@ public class MathsTest {
 		assertEquals(Maths.limit(-FMAX, 0.0f, FMAX), 0.0f);
 		assertEquals(Maths.limit(FPINF, 0.0f, FMAX), FMAX);
 		assertEquals(Maths.limit(FNINF, 0.0f, FMAX), 0.0f);
-		assertThrown(() -> Maths.limit(0.0f, 1.0f, 0.0f));
+		Assert.thrown(() -> Maths.limit(0.0f, 1.0f, 0.0f));
 	}
 
 	@Test
@@ -949,7 +947,7 @@ public class MathsTest {
 		assertEquals(Maths.limit(-DMAX, 0.0, DMAX), 0.0);
 		assertEquals(Maths.limit(DPINF, 0.0, DMAX), DMAX);
 		assertEquals(Maths.limit(DNINF, 0.0, DMAX), 0.0);
-		assertThrown(() -> Maths.limit(0.0, 1.0, 0.0));
+		Assert.thrown(() -> Maths.limit(0.0, 1.0, 0.0));
 	}
 
 	@Test
@@ -966,9 +964,9 @@ public class MathsTest {
 		assertEquals(Maths.periodicLimit(IMAX, IMAX, exc), 0);
 		assertEquals(Maths.periodicLimit(IMIN, IMAX, inc), IMAX - 1);
 		assertEquals(Maths.periodicLimit(IMIN, IMAX, exc), IMAX - 1);
-		assertThrown(() -> Maths.periodicLimit(100, 10, null));
-		assertThrown(() -> Maths.periodicLimit(100, 0, inc));
-		assertThrown(() -> Maths.periodicLimit(100, -10, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100, 10, null));
+		Assert.thrown(() -> Maths.periodicLimit(100, 0, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100, -10, inc));
 	}
 
 	@Test
@@ -985,9 +983,9 @@ public class MathsTest {
 		assertEquals(Maths.periodicLimit(LMAX, LMAX, exc), 0L);
 		assertEquals(Maths.periodicLimit(LMIN, LMAX, inc), LMAX - 1);
 		assertEquals(Maths.periodicLimit(LMIN, LMAX, exc), LMAX - 1);
-		assertThrown(() -> Maths.periodicLimit(100L, 10L, null));
-		assertThrown(() -> Maths.periodicLimit(100L, 0L, inc));
-		assertThrown(() -> Maths.periodicLimit(100L, -10L, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100L, 10L, null));
+		Assert.thrown(() -> Maths.periodicLimit(100L, 0L, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100L, -10L, inc));
 	}
 
 	@Test
@@ -1004,9 +1002,9 @@ public class MathsTest {
 		assertEquals(Maths.periodicLimit(FPINF, FPINF, exc), Float.NaN);
 		assertEquals(Maths.periodicLimit(FNINF, FPINF, inc), Float.NaN);
 		assertEquals(Maths.periodicLimit(FNINF, FPINF, exc), Float.NaN);
-		assertThrown(() -> Maths.periodicLimit(100.0f, 10.0f, null));
-		assertThrown(() -> Maths.periodicLimit(100.0f, 0.0f, inc));
-		assertThrown(() -> Maths.periodicLimit(100.0f, -10.0f, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100.0f, 10.0f, null));
+		Assert.thrown(() -> Maths.periodicLimit(100.0f, 0.0f, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100.0f, -10.0f, inc));
 	}
 
 	@Test
@@ -1020,12 +1018,12 @@ public class MathsTest {
 		assertEquals(Maths.periodicLimit(0.0, DPINF, inc), 0.0);
 		assertEquals(Maths.periodicLimit(0.0, DPINF, exc), 0.0);
 		assertEquals(Maths.periodicLimit(DPINF, DPINF, inc), DPINF);
-		assertNaN(Maths.periodicLimit(DPINF, DPINF, exc));
-		assertNaN(Maths.periodicLimit(DNINF, DPINF, inc));
-		assertNaN(Maths.periodicLimit(DNINF, DPINF, exc));
-		assertThrown(() -> Maths.periodicLimit(100.0, 10.0, null));
-		assertThrown(() -> Maths.periodicLimit(100.0, 0.0, inc));
-		assertThrown(() -> Maths.periodicLimit(100.0, -10.0, inc));
+		assertEquals(Maths.periodicLimit(DPINF, DPINF, exc), Double.NaN);
+		assertEquals(Maths.periodicLimit(DNINF, DPINF, inc), Double.NaN);
+		assertEquals(Maths.periodicLimit(DNINF, DPINF, exc), Double.NaN);
+		Assert.thrown(() -> Maths.periodicLimit(100.0, 10.0, null));
+		Assert.thrown(() -> Maths.periodicLimit(100.0, 0.0, inc));
+		Assert.thrown(() -> Maths.periodicLimit(100.0, -10.0, inc));
 	}
 
 	@Test
@@ -1034,10 +1032,10 @@ public class MathsTest {
 		assertEquals(Maths.min(array), BMIN);
 		assertEquals(Maths.min(array, 1, 5), (byte) -BMAX);
 		assertEquals(Maths.min(array, 2, 3), (byte) -1);
-		assertThrown(() -> Maths.min(new byte[0]));
-		assertThrown(() -> Maths.min(new byte[2], 1, 0));
-		assertThrown(() -> Maths.min((byte[]) null));
-		assertThrown(() -> Maths.min(new byte[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new byte[0]));
+		Assert.thrown(() -> Maths.min(new byte[2], 1, 0));
+		Assert.thrown(() -> Maths.min((byte[]) null));
+		Assert.thrown(() -> Maths.min(new byte[3], 1, 3));
 	}
 
 	@Test
@@ -1046,10 +1044,10 @@ public class MathsTest {
 		assertEquals(Maths.min(array), SMIN);
 		assertEquals(Maths.min(array, 1, 5), (short) -SMAX);
 		assertEquals(Maths.min(array, 2, 3), (short) -1);
-		assertThrown(() -> Maths.min(new short[0]));
-		assertThrown(() -> Maths.min(new short[2], 1, 0));
-		assertThrown(() -> Maths.min((short[]) null));
-		assertThrown(() -> Maths.min(new short[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new short[0]));
+		Assert.thrown(() -> Maths.min(new short[2], 1, 0));
+		Assert.thrown(() -> Maths.min((short[]) null));
+		Assert.thrown(() -> Maths.min(new short[3], 1, 3));
 	}
 
 	@Test
@@ -1058,10 +1056,10 @@ public class MathsTest {
 		assertEquals(Maths.min(array), IMIN);
 		assertEquals(Maths.min(array, 1, 5), -IMAX);
 		assertEquals(Maths.min(array, 2, 3), -1);
-		assertThrown(() -> Maths.min(new int[0]));
-		assertThrown(() -> Maths.min(new int[2], 1, 0));
-		assertThrown(() -> Maths.min((int[]) null));
-		assertThrown(() -> Maths.min(new int[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new int[0]));
+		Assert.thrown(() -> Maths.min(new int[2], 1, 0));
+		Assert.thrown(() -> Maths.min((int[]) null));
+		Assert.thrown(() -> Maths.min(new int[3], 1, 3));
 	}
 
 	@Test
@@ -1070,10 +1068,10 @@ public class MathsTest {
 		assertEquals(Maths.min(array), LMIN);
 		assertEquals(Maths.min(array, 1, 5), -LMAX);
 		assertEquals(Maths.min(array, 2, 3), -1L);
-		assertThrown(() -> Maths.min(new long[0]));
-		assertThrown(() -> Maths.min(new long[2], 1, 0));
-		assertThrown(() -> Maths.min((long[]) null));
-		assertThrown(() -> Maths.min(new long[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new long[0]));
+		Assert.thrown(() -> Maths.min(new long[2], 1, 0));
+		Assert.thrown(() -> Maths.min((long[]) null));
+		Assert.thrown(() -> Maths.min(new long[3], 1, 3));
 	}
 
 	@Test
@@ -1083,10 +1081,10 @@ public class MathsTest {
 		assertEquals(Maths.min(d, 0, 8), FNINF);
 		assertEquals(Maths.min(d, 1, 7), -FMAX);
 		assertEquals(Maths.min(d, 3, 3), -1.0f);
-		assertThrown(() -> Maths.min(new float[0]));
-		assertThrown(() -> Maths.min(new float[2], 1, 0));
-		assertThrown(() -> Maths.min((float[]) null));
-		assertThrown(() -> Maths.min(new float[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new float[0]));
+		Assert.thrown(() -> Maths.min(new float[2], 1, 0));
+		Assert.thrown(() -> Maths.min((float[]) null));
+		Assert.thrown(() -> Maths.min(new float[3], 1, 3));
 	}
 
 	@Test
@@ -1096,10 +1094,10 @@ public class MathsTest {
 		assertEquals(Maths.min(d, 0, 8), DNINF);
 		assertEquals(Maths.min(d, 1, 7), -DMAX);
 		assertEquals(Maths.min(d, 3, 3), -1.0);
-		assertThrown(() -> Maths.min(new double[0]));
-		assertThrown(() -> Maths.min(new double[2], 1, 0));
-		assertThrown(() -> Maths.min((double[]) null));
-		assertThrown(() -> Maths.min(new double[3], 1, 3));
+		Assert.thrown(() -> Maths.min(new double[0]));
+		Assert.thrown(() -> Maths.min(new double[2], 1, 0));
+		Assert.thrown(() -> Maths.min((double[]) null));
+		Assert.thrown(() -> Maths.min(new double[3], 1, 3));
 	}
 
 	@Test
@@ -1108,10 +1106,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array), BMAX);
 		assertEquals(Maths.max(array, 0, 2), (byte) -BMAX);
 		assertEquals(Maths.max(array, 0, 5), (byte) 1);
-		assertThrown(() -> Maths.max(new byte[0]));
-		assertThrown(() -> Maths.max(new byte[2], 1, 0));
-		assertThrown(() -> Maths.max((byte[]) null));
-		assertThrown(() -> Maths.max(new byte[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new byte[0]));
+		Assert.thrown(() -> Maths.max(new byte[2], 1, 0));
+		Assert.thrown(() -> Maths.max((byte[]) null));
+		Assert.thrown(() -> Maths.max(new byte[3], 1, 3));
 	}
 
 	@Test
@@ -1120,10 +1118,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array), SMAX);
 		assertEquals(Maths.max(array, 0, 2), (short) -SMAX);
 		assertEquals(Maths.max(array, 0, 5), (short) 1);
-		assertThrown(() -> Maths.max(new short[0]));
-		assertThrown(() -> Maths.max(new short[2], 1, 0));
-		assertThrown(() -> Maths.max((short[]) null));
-		assertThrown(() -> Maths.max(new short[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new short[0]));
+		Assert.thrown(() -> Maths.max(new short[2], 1, 0));
+		Assert.thrown(() -> Maths.max((short[]) null));
+		Assert.thrown(() -> Maths.max(new short[3], 1, 3));
 	}
 
 	@Test
@@ -1132,10 +1130,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array), IMAX);
 		assertEquals(Maths.max(array, 0, 2), -IMAX);
 		assertEquals(Maths.max(array, 0, 5), 1);
-		assertThrown(() -> Maths.max(new int[0]));
-		assertThrown(() -> Maths.max(new int[2], 1, 0));
-		assertThrown(() -> Maths.max((int[]) null));
-		assertThrown(() -> Maths.max(new int[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new int[0]));
+		Assert.thrown(() -> Maths.max(new int[2], 1, 0));
+		Assert.thrown(() -> Maths.max((int[]) null));
+		Assert.thrown(() -> Maths.max(new int[3], 1, 3));
 	}
 
 	@Test
@@ -1144,10 +1142,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array), LMAX);
 		assertEquals(Maths.max(array, 0, 2), -LMAX);
 		assertEquals(Maths.max(array, 0, 5), 1L);
-		assertThrown(() -> Maths.max(new long[0]));
-		assertThrown(() -> Maths.max(new long[2], 1, 0));
-		assertThrown(() -> Maths.max((long[]) null));
-		assertThrown(() -> Maths.max(new long[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new long[0]));
+		Assert.thrown(() -> Maths.max(new long[2], 1, 0));
+		Assert.thrown(() -> Maths.max((long[]) null));
+		Assert.thrown(() -> Maths.max(new long[3], 1, 3));
 	}
 
 	@Test
@@ -1157,10 +1155,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array, 0, 8), FPINF);
 		assertEquals(Maths.max(array, 0, 7), FMAX);
 		assertEquals(Maths.max(array, 3, 3), 1.0f);
-		assertThrown(() -> Maths.max(new float[0]));
-		assertThrown(() -> Maths.max(new float[2], 1, 0));
-		assertThrown(() -> Maths.max((float[]) null));
-		assertThrown(() -> Maths.max(new float[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new float[0]));
+		Assert.thrown(() -> Maths.max(new float[2], 1, 0));
+		Assert.thrown(() -> Maths.max((float[]) null));
+		Assert.thrown(() -> Maths.max(new float[3], 1, 3));
 	}
 
 	@Test
@@ -1170,10 +1168,10 @@ public class MathsTest {
 		assertEquals(Maths.max(array, 0, 8), DPINF);
 		assertEquals(Maths.max(array, 0, 7), DMAX);
 		assertEquals(Maths.max(array, 3, 3), 1.0);
-		assertThrown(() -> Maths.max(new double[0]));
-		assertThrown(() -> Maths.max(new double[2], 1, 0));
-		assertThrown(() -> Maths.max((double[]) null));
-		assertThrown(() -> Maths.max(new double[3], 1, 3));
+		Assert.thrown(() -> Maths.max(new double[0]));
+		Assert.thrown(() -> Maths.max(new double[2], 1, 0));
+		Assert.thrown(() -> Maths.max((double[]) null));
+		Assert.thrown(() -> Maths.max(new double[3], 1, 3));
 	}
 
 	/**

@@ -1,12 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Immutable;
+import ceri.common.test.Assert;
 
 public class CrcBehavior {
 	public static final CrcAlgorithm CRC16_XMODEM = CrcAlgorithm.of(16, 0x1021);
@@ -18,8 +18,8 @@ public class CrcBehavior {
 		CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify((short) 0x31c3);
 		CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify(0xf4);
 		CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify((byte) 0xf4);
-		assertThrown(() -> CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify(0x31c2));
-		assertThrown(() -> CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify(0xf5));
+		Assert.thrown(() -> CRC16_XMODEM.start().add(CrcAlgorithm.checkBytes).verify(0x31c2));
+		Assert.thrown(() -> CRC8_SMBUS.start().add(CrcAlgorithm.checkBytes).verify(0xf5));
 	}
 
 	@Test

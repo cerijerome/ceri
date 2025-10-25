@@ -1,10 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.throwIo;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.throwIo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,6 +21,7 @@ import ceri.common.io.IoStream.FilterRead;
 import ceri.common.io.IoStream.FilterWrite;
 import ceri.common.io.IoStream.Read;
 import ceri.common.io.IoStream.Write;
+import ceri.common.test.Assert;
 
 public class IoStreamTest {
 	private final ByteArrayInputStream bin0 = new ByteArrayInputStream(ArrayUtil.bytes.of(1, 2, 3));
@@ -62,7 +62,7 @@ public class IoStreamTest {
 		assertEquals(IoStream.nullIn.read(), 0);
 		assertArray(IoStream.nullIn.readAllBytes());
 		assertArray(IoStream.nullIn.readNBytes(3), 0, 0, 0);
-		assertThrown(() -> IoStream.nullIn.read(new byte[3], 2, 2));
+		Assert.thrown(() -> IoStream.nullIn.read(new byte[3], 2, 2));
 		assertReadNBytes(IoStream.nullIn, 0, 0, 0);
 		IoStream.nullIn.close();
 	}
@@ -156,7 +156,7 @@ public class IoStreamTest {
 		try (var in = IoStream.filterIn(IoStream.nullIn, _ -> readOrError(bin0))) {
 			assertEquals(in.read(), 1);
 			assertReadBytes(in, new byte[3], 2, 3);
-			assertThrown(in::read);
+			Assert.thrown(in::read);
 		}
 	}
 

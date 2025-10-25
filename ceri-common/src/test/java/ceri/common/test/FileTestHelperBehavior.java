@@ -1,10 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertExists;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertExists;
+import static ceri.common.test.Assert.assertOrdered;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
@@ -25,15 +24,15 @@ public class FileTestHelperBehavior {
 
 	@Test
 	public void shouldFailForNonChildPaths() {
-		assertThrown(() -> FileTestHelper.builder().dir("/abc"));
-		assertThrown(() -> FileTestHelper.builder().dir("a/b/../../../c"));
+		Assert.thrown(() -> FileTestHelper.builder().dir("/abc"));
+		Assert.thrown(() -> FileTestHelper.builder().dir("a/b/../../../c"));
 	}
 
 	@Test
 	public void shouldTidyUpOnBuildFailure() {
 		var badPath = TestPath.of();
 		var b = FileTestHelper.builder().root("a").dir("b").file(badPath, "aaa");
-		assertThrown(() -> b.build());
+		Assert.thrown(() -> b.build());
 		assertExists(Path.of("a"), false);
 	}
 
@@ -49,7 +48,7 @@ public class FileTestHelperBehavior {
 	@Test
 	public void shouldFailIfRootExists() throws IOException {
 		files = FileTestHelper.builder().dir("r").build();
-		assertThrown(FileAlreadyExistsException.class,
+		Assert.thrown(FileAlreadyExistsException.class,
 			() -> FileTestHelper.builder(files.root).root("r").build());
 	}
 

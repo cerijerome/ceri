@@ -1,10 +1,9 @@
 package ceri.log.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwIo;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwIo;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.threadRun;
 import static ceri.common.test.TestUtil.typedProperties;
@@ -13,6 +12,7 @@ import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.TestFixable;
 import ceri.log.test.LogModifier;
 
@@ -69,7 +69,7 @@ public class SelfHealingBehavior {
 			fixable.open.autoResponse(false);
 			fixable.open.error.setFrom(IOX);
 			try (var exec = threadRun(fixable.open::await)) {
-				assertThrown(device::open);
+				Assert.thrown(device::open);
 				device.open();
 				exec.get();
 			}
@@ -89,7 +89,7 @@ public class SelfHealingBehavior {
 				fixable.open.await(); // IOX
 				fixable.open.await(); // success
 			})) {
-				assertThrown(device::open);
+				Assert.thrown(device::open);
 				exec.get();
 			}
 		}, Level.OFF, SelfHealing.class);
@@ -112,9 +112,9 @@ public class SelfHealingBehavior {
 		// 1) exception -> not broken
 		// 2) exception -> broken, set signal
 		// 3) exception -> broken, signal already set
-		assertThrown(() -> device.device.acceptValid(_ -> throwIo()));
-		assertThrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
-		assertThrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
+		Assert.thrown(() -> device.device.acceptValid(_ -> throwIo()));
+		Assert.thrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
+		Assert.thrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
 		fixable.open.await();
 	}
 

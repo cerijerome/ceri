@@ -1,7 +1,7 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.test.TestUtil.provider;

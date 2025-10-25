@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;

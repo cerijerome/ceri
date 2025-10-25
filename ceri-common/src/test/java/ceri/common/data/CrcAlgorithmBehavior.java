@@ -2,10 +2,10 @@ package ceri.common.data;
 
 import static ceri.common.data.CrcBehavior.CRC16_XMODEM;
 import static ceri.common.data.CrcBehavior.CRC8_SMBUS;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class CrcAlgorithmBehavior {
@@ -73,7 +73,7 @@ public class CrcAlgorithmBehavior {
 
 	@Test
 	public void shouldFindByName() {
-		assertNull(CrcAlgorithm.Std.from("CRC8"));
+		Assert.isNull(CrcAlgorithm.Std.from("CRC8"));
 		assertEquals(CrcAlgorithm.Std.from("CRC-8"), CrcAlgorithm.Std.crc8Smbus);
 		assertEquals(CrcAlgorithm.Std.from("xmodem"), CrcAlgorithm.Std.crc16Xmodem);
 	}

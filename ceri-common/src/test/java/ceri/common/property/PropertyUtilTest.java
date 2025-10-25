@@ -1,16 +1,16 @@
 package ceri.common.property;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
@@ -50,7 +50,7 @@ public class PropertyUtilTest {
 		properties.store.error.setFrom(ErrorGen.IOX);
 		helper = FileTestHelper.builder().build();
 		var file = helper.path("test.properties");
-		assertThrown(() -> PropertyUtil.store(properties, file));
+		Assert.thrown(() -> PropertyUtil.store(properties, file));
 		PropertyUtil.store(new Properties(), file);
 	}
 
@@ -66,8 +66,8 @@ public class PropertyUtilTest {
 		properties.load.error.setFrom(ErrorGen.IOX);
 		helper = FileTestHelper.builder().build();
 		var file = helper.path("test.properties");
-		assertThrown(() -> PropertyUtil.load(file));
-		assertThrown(() -> PropertyUtil.load(getClass(), "test.properties"));
+		Assert.thrown(() -> PropertyUtil.load(file));
+		Assert.thrown(() -> PropertyUtil.load(getClass(), "test.properties"));
 	}
 
 	@Test

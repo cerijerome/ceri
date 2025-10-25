@@ -1,10 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertRead;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.After;
@@ -54,33 +52,33 @@ public class TestConnectorBehavior {
 	public void shouldFailToReadIfBroken() {
 		con.broken();
 		con.in.to.writeBytes(0, 0);
-		assertThrown(con.in()::read);
-		assertThrown(() -> con.in().read(new byte[1]));
-		assertThrown(con.in()::available);
+		Assert.thrown(con.in()::read);
+		Assert.thrown(() -> con.in().read(new byte[1]));
+		Assert.thrown(con.in()::available);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailToReadIfNotConnected() {
 		con.in.to.writeBytes(0, 0);
-		assertThrown(con.in()::read);
-		assertThrown(() -> con.in().read(new byte[1]));
-		assertThrown(con.in()::available);
+		Assert.thrown(con.in()::read);
+		Assert.thrown(() -> con.in().read(new byte[1]));
+		Assert.thrown(con.in()::available);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailToWriteIfBroken() {
 		con.broken();
-		assertThrown(() -> con.out().write(0));
-		assertThrown(() -> con.out().write(new byte[3]));
+		Assert.thrown(() -> con.out().write(0));
+		Assert.thrown(() -> con.out().write(new byte[3]));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldFailToWriteIfNotConnected() {
-		assertThrown(() -> con.out().write(0));
-		assertThrown(() -> con.out().write(new byte[3]));
+		Assert.thrown(() -> con.out().write(0));
+		Assert.thrown(() -> con.out().write(new byte[3]));
 	}
 
 	@SuppressWarnings("resource")
@@ -91,10 +89,10 @@ public class TestConnectorBehavior {
 		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.broken();
 			assertEquals(sync.await(), StateChange.broken);
-			assertThrown(() -> con.in().read());
+			Assert.thrown(() -> con.in().read());
 			con.broken();
-			assertNull(sync.value());
-			assertThrown(() -> con.in().read());
+			Assert.isNull(sync.value());
+			Assert.thrown(() -> con.in().read());
 		}
 	}
 
@@ -108,7 +106,7 @@ public class TestConnectorBehavior {
 			con.fixed();
 			assertEquals(sync.await(), StateChange.fixed);
 			con.fixed();
-			assertNull(sync.value());
+			Assert.isNull(sync.value());
 			assertRead(con.in(), 1, 2, 3);
 		}
 	}

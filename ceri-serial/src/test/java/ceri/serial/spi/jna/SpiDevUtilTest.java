@@ -1,10 +1,10 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.jna.util.GcMemory;
 
 public class SpiDevUtilTest {
@@ -15,7 +15,7 @@ public class SpiDevUtilTest {
 		var xfer = new SpiDev.spi_ioc_transfer();
 		assertEquals(SpiDevUtil.direction(xfer), Direction.out);
 		xfer.len = 1;
-		assertThrown(() -> SpiDevUtil.direction(xfer));
+		Assert.thrown(() -> SpiDevUtil.direction(xfer));
 		xfer.rx_buf = Pointer.nativeValue(m.m);
 		assertEquals(SpiDevUtil.direction(xfer), Direction.in);
 		xfer.tx_buf = Pointer.nativeValue(m.m);
@@ -32,5 +32,4 @@ public class SpiDevUtilTest {
 		xfer.speed_hz = 2000;
 		assertEquals(SpiDevUtil.transferTimeMicros(xfer, 1000), 40033L);
 	}
-
 }

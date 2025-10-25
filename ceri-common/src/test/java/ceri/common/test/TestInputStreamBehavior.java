@@ -1,12 +1,11 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.threadCall;
-import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.text.Utf8;
@@ -64,7 +63,7 @@ public class TestInputStreamBehavior {
 		try (var in = TestInputStream.from(0)) {
 			in.read.error.setFrom(IOX);
 			assertEquals(in.available(), 1);
-			assertThrown(() -> in.read());
+			Assert.thrown(() -> in.read());
 			assertEquals(in.available(), 0);
 		}
 	}
@@ -74,7 +73,7 @@ public class TestInputStreamBehavior {
 		try (var in = TestInputStream.of()) {
 			assertEquals(in.available(), 0);
 			in.available.error.setFrom(IOX);
-			assertThrown(() -> in.available());
+			Assert.thrown(() -> in.available());
 		}
 	}
 

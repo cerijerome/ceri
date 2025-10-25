@@ -1,10 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.common.text.Format;
 
@@ -56,7 +55,7 @@ public class TypeValueBehavior {
 		assertEquals(TypeValue.of(1, E.one, null, Format.HEX).name(), "one");
 		assertEquals(TypeValue.of(1, E.one, "ONE", Format.HEX).name(), "one");
 		assertEquals(TypeValue.of(1, null, "ONE", Format.HEX).name(), "ONE");
-		assertNull(TypeValue.of(1, null, null, Format.HEX).name());
+		Assert.isNull(TypeValue.of(1, null, null, Format.HEX).name());
 	}
 
 	@Test
@@ -80,8 +79,9 @@ public class TypeValueBehavior {
 	@Test
 	public void shouldValidateValue() {
 		TypeValue.validate(TypeValue.of(1, E.one, "one", Format.DEC));
-		assertThrown(() -> TypeValue.validate(TypeValue.of(1, null, "one", Format.DEC)));
+		Assert.thrown(() -> TypeValue.validate(TypeValue.of(1, null, "one", Format.DEC)));
 		TypeValue.validExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.two);
-		assertThrown(() -> TypeValue.validExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.one));
+		Assert
+			.thrown(() -> TypeValue.validExcept(TypeValue.of(1, E.one, "one", Format.DEC), E.one));
 	}
 }

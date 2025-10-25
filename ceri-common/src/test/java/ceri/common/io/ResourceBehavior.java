@@ -1,12 +1,12 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ResourceBehavior {
 	private static final String PROPERTIES = ResourceBehavior.class.getSimpleName() + ".properties";
@@ -61,7 +61,7 @@ public class ResourceBehavior {
 
 	@Test
 	public void shouldAccessJar() throws IOException {
-		assertThrown(() -> Resource.of(Test.class, "\0"));
+		Assert.thrown(() -> Resource.of(Test.class, "\0"));
 		try (var r = Resource.of(Test.class, "runner")) {
 			var names = PathList.of(r.path()).names();
 			assertEquals(names.contains("Runner.class"), true);

@@ -3,11 +3,11 @@ package ceri.common.geom;
 import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
 import static ceri.common.math.Maths.PI_BY_2;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Math.PI;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class Polar2dBehavior {
@@ -55,8 +55,8 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldConvertPoints() {
-		assertApprox(p0.point().x(), 1);
-		assertApprox(p0.point().y(), 1.732);
+		Assert.approx(p0.point().x(), 1);
+		Assert.approx(p0.point().y(), 1.732);
 		assertEquals(p1.r(), 5.0);
 		assertEquals(p1.point(), Point2d.of(4, 3));
 	}

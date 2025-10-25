@@ -1,8 +1,7 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.deref;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -12,6 +11,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import ceri.common.test.Assert;
 import ceri.jna.type.JnaSize;
 
 public class PointerUtilTest {
@@ -20,7 +20,7 @@ public class PointerUtilTest {
 
 	@Test
 	public void testPointer() {
-		assertNull(PointerUtil.pointer(0));
+		Assert.isNull(PointerUtil.pointer(0));
 	}
 
 	@Test
@@ -33,14 +33,14 @@ public class PointerUtilTest {
 
 	@Test
 	public void testPointerTypePointer() {
-		assertNull(PointerUtil.pointer((PointerType) null));
+		Assert.isNull(PointerUtil.pointer((PointerType) null));
 		IntByReference ref = new IntByReference();
 		assertEquals(PointerUtil.pointer(ref), ref.getPointer());
 	}
 
 	@Test
 	public void testPointerOffset() {
-		assertNull(PointerUtil.offset(null, 0));
+		Assert.isNull(PointerUtil.offset(null, 0));
 		Pointer p = deref(mem(1, 2, 3).m);
 		assertPointer(PointerUtil.offset(p, 0), 0, 1, 2, 3);
 		assertPointer(PointerUtil.offset(p, 1), 0, 2, 3);
@@ -109,9 +109,9 @@ public class PointerUtilTest {
 		assertEquals(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
 		assertEquals(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
 		assertEquals(array.length, 3);
-		assertNull(array[0].getPointer().getPointer(0));
-		assertNull(array[1].getPointer().getPointer(0));
-		assertNull(array[2].getPointer().getPointer(0));
+		Assert.isNull(array[0].getPointer().getPointer(0));
+		Assert.isNull(array[1].getPointer().getPointer(0));
+		Assert.isNull(array[2].getPointer().getPointer(0));
 	}
 
 	@Test

@@ -1,14 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwRuntime;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
@@ -18,6 +16,7 @@ import ceri.common.data.LongArray.Encoder;
 import ceri.common.data.LongArray.Immutable;
 import ceri.common.data.LongArray.Mutable;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class LongArrayBehavior {
@@ -93,7 +92,7 @@ public class LongArrayBehavior {
 	public void shouldProvideAnImmutableView() {
 		Mutable m = Mutable.wrap(1, 2, 3);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
-		assertNull(Reflect.castOrNull(LongReceiver.class, m.asImmutable()));
+		Assert.isNull(Reflect.castOrNull(LongReceiver.class, m.asImmutable()));
 		m.setLong(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}
@@ -120,7 +119,7 @@ public class LongArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.fill(1, 2, 0xff), 3);
 		assertTrue(m.isEqualTo(0, 1, 0xff, 0xff, 4, 5));
-		assertThrown(() -> m.fill(3, 3, 0));
+		Assert.thrown(() -> m.fill(3, 3, 0));
 	}
 
 	@Test
@@ -128,8 +127,8 @@ public class LongArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.setLongs(3, -4, -5), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, ArrayUtil.longs.of(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, ArrayUtil.longs.of(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, ArrayUtil.longs.of(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, ArrayUtil.longs.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -137,8 +136,8 @@ public class LongArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.copyFrom(3, Immutable.wrap(-4, -5)), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, Immutable.wrap(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, Immutable.wrap(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, Immutable.wrap(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, Immutable.wrap(1, 2, 3), 2, 2));
 	}
 
 	/* LongArray base tests */
@@ -154,7 +153,7 @@ public class LongArrayBehavior {
 		Mutable m = Mutable.of(3);
 		assertEquals(Immutable.wrap(1, 2, 3).copyTo(1, m, 1), 3);
 		assertTrue(m.isEqualTo(0, 0, 2, 3));
-		assertThrown(() -> Immutable.wrap(0, 1, 2).copyTo(0, m, 4));
+		Assert.thrown(() -> Immutable.wrap(0, 1, 2).copyTo(0, m, 4));
 	}
 
 	@Test
@@ -190,14 +189,14 @@ public class LongArrayBehavior {
 	public void shouldEncodeFixedSize() {
 		Encoder en = Encoder.fixed(3);
 		en.fill(3, 1);
-		assertThrown(() -> en.writeLong(1));
+		Assert.thrown(() -> en.writeLong(1));
 		assertArray(en.longs(), 1, 1, 1);
 	}
 
 	@Test
 	public void shouldEncodeToArray() {
 		long[] array = new long[5];
-		assertThrown(() -> LongArray.Encoder.of(array, 6));
+		Assert.thrown(() -> LongArray.Encoder.of(array, 6));
 		LongArray.Encoder.of(array).writeLongs(1, 2, 3);
 		assertArray(array, 1L, 2L, 3L, 0L, 0L);
 	}
@@ -241,24 +240,24 @@ public class LongArrayBehavior {
 	public void shouldNotGrowEncoderIfReading() {
 		Encoder en = Encoder.of();
 		en.writeLongs(1, 2, 3).skip(-2);
-		assertThrown(() -> en.readLongs(3));
-		assertThrown(() -> en.readLongs(Integer.MAX_VALUE));
+		Assert.thrown(() -> en.readLongs(3));
+		Assert.thrown(() -> en.readLongs(Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void shouldFailToGrowEncoderAtomically() {
 		Encoder en = Encoder.of(0, 3).writeLongs(1);
-		assertThrown(() -> en.writeLongs(1, 2, 3));
-		assertThrown(() -> en.fill(3, 0xff));
-		assertThrown(() -> en.skip(3));
+		Assert.thrown(() -> en.writeLongs(1, 2, 3));
+		Assert.thrown(() -> en.fill(3, 0xff));
+		Assert.thrown(() -> en.skip(3));
 		en.writeLongs(1, 2);
 	}
 
 	@Test
 	public void shouldNotGrowEncoderPastMax() {
 		Encoder en0 = Encoder.of(0, 3).writeLongs(1);
-		assertThrown(() -> en0.writeLongs(1, 2, 3));
-		assertThrown(() -> en0.fill(Integer.MAX_VALUE, 0xff));
+		Assert.thrown(() -> en0.writeLongs(1, 2, 3));
+		Assert.thrown(() -> en0.fill(Integer.MAX_VALUE, 0xff));
 		Encoder en1 = Encoder.of(3, 5);
 		en1.writeLongs(1, 2, 3, 4);
 	}
@@ -290,8 +289,8 @@ public class LongArrayBehavior {
 
 	@Test
 	public void shouldFailEncodingIfSizeDoesNotMatchBytesAsEncodable() {
-		assertThrown(() -> encodable(() -> 2, enc -> enc.writeLongs(1, 2, 3)).encode());
-		assertThrown(() -> encodable(() -> 4, enc -> enc.writeLongs(1, 2, 3)).encode());
+		Assert.thrown(() -> encodable(() -> 2, enc -> enc.writeLongs(1, 2, 3)).encode());
+		Assert.thrown(() -> encodable(() -> 4, enc -> enc.writeLongs(1, 2, 3)).encode());
 	}
 
 	private static Encodable encodable(IntSupplier sizeFn, Consumer<Encoder> encodeFn) {

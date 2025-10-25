@@ -1,12 +1,11 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
 import java.util.Set;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.x10.command.Command;
 import ceri.x10.command.FunctionType;
@@ -44,18 +43,18 @@ public class EntryBehavior {
 
 	@Test
 	public void shouldFailToConvertUnsupportedCommandToEntries() {
-		assertThrown(() -> Entry.allFrom(UnsupportedCommand.hailReq(House.D, Unit._8)));
+		Assert.thrown(() -> Entry.allFrom(UnsupportedCommand.hailReq(House.D, Unit._8)));
 	}
 
 	@Test
 	public void shouldFailToCreateCommandFromIncompleteFunctionEntry() {
-		assertNull(Entry.address(House.F, Unit._1).command(House.F, Set.of(Unit._1)));
-		assertNull(Entry.function(House.H, FunctionType.on).command(House.F, Set.of(Unit._1)));
-		assertNull(Entry.function(House.H, FunctionType.hailReq).command(House.H, Set.of(Unit._1)));
-		assertNull(Entry.function(House.H, FunctionType.on).command(null, Set.of(Unit._1)));
-		assertNull(Entry.function(House.H, FunctionType.on).command(House.H, Set.of()));
-		assertNull(Entry.dim(House.H, FunctionType.dim, 44).command(House.H, Set.of()));
-		assertNull(Entry.ext(House.H, 66, 88).command(House.I, Set.of(Unit._1)));
+		Assert.isNull(Entry.address(House.F, Unit._1).command(House.F, Set.of(Unit._1)));
+		Assert.isNull(Entry.function(House.H, FunctionType.on).command(House.F, Set.of(Unit._1)));
+		Assert.isNull(Entry.function(House.H, FunctionType.hailReq).command(House.H, Set.of(Unit._1)));
+		Assert.isNull(Entry.function(House.H, FunctionType.on).command(null, Set.of(Unit._1)));
+		Assert.isNull(Entry.function(House.H, FunctionType.on).command(House.H, Set.of()));
+		Assert.isNull(Entry.dim(House.H, FunctionType.dim, 44).command(House.H, Set.of()));
+		Assert.isNull(Entry.ext(House.H, 66, 88).command(House.I, Set.of(Unit._1)));
 	}
 
 	@Test

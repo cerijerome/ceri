@@ -1,17 +1,14 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOptional;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertOptional;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -26,6 +23,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.function.Fluent;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect.ThreadElement;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.util.Basics;
 import ceri.common.util.Counter;
@@ -105,19 +103,19 @@ public class ReflectTest {
 	public void testSuperclass() {
 		SuperC[][] obj = new SuperC[0][];
 		Class<?> cls = obj.getClass();
-		assertSame(cls, SuperC[][].class);
+		Assert.same(cls, SuperC[][].class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, SuperB[][].class);
+		Assert.same(cls, SuperB[][].class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, SuperA[][].class);
+		Assert.same(cls, SuperA[][].class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, Object[][].class);
+		Assert.same(cls, Object[][].class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, Object[].class);
+		Assert.same(cls, Object[].class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, Object.class);
+		Assert.same(cls, Object.class);
 		cls = Reflect.superClass(cls);
-		assertSame(cls, null);
+		Assert.same(cls, null);
 	}
 
 	@Test
@@ -202,20 +200,20 @@ public class ReflectTest {
 
 	@Test
 	public void testPublicField() {
-		assertNull(Reflect.publicField(Fields.class, "l"));
-		assertNull(Reflect.publicField(Fields.class, "d"));
-		assertNull(Reflect.publicField(Fields.class, "x"));
-		assertNull(Reflect.publicField(Fields.class, null));
-		assertNull(Reflect.publicField(null, "s"));
+		Assert.isNull(Reflect.publicField(Fields.class, "l"));
+		Assert.isNull(Reflect.publicField(Fields.class, "d"));
+		Assert.isNull(Reflect.publicField(Fields.class, "x"));
+		Assert.isNull(Reflect.publicField(Fields.class, null));
+		Assert.isNull(Reflect.publicField(null, "s"));
 	}
 
 	@Test
 	public void testPublicFieldValue() {
-		assertNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
-		assertNull(Reflect.publicFieldValue(new Fields().apply(f -> f.l = 100),
+		Assert.isNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
+		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.l = 100),
 			Reflect.publicField(Fields.class, "l")));
-		assertNull(Reflect.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
-		assertNull(Reflect.publicFieldValue(null, Reflect.publicField(Fields.class, "i")));
+		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
+		Assert.isNull(Reflect.publicFieldValue(null, Reflect.publicField(Fields.class, "i")));
 	}
 
 	@Test
@@ -224,11 +222,11 @@ public class ReflectTest {
 		assertEquals(Reflect.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
 		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
 		assertEquals(Reflect.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
-		assertNull(Reflect.publicValue(new Fields().apply(f -> f.l = 100), "l"));
-		assertNull(Reflect.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
-		assertNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
-		assertNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), null));
-		assertNull(Reflect.publicValue(null, "s"));
+		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.l = 100), "l"));
+		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
+		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
+		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), null));
+		Assert.isNull(Reflect.publicValue(null, "s"));
 	}
 
 	@Test
@@ -251,7 +249,7 @@ public class ReflectTest {
 
 	@Test
 	public void testAbbreviatePackages() {
-		assertNull(Reflect.abbreviatePackages(null));
+		Assert.isNull(Reflect.abbreviatePackages(null));
 		assertEquals(Reflect.abbreviatePackages(""), "");
 		assertEquals(Reflect.abbreviatePackages("ceri.common.reflect.ReflectUtil"),
 			"c.c.r.ReflectUtil");
@@ -279,10 +277,10 @@ public class ReflectTest {
 	@Test
 	public void testForName() {
 		var cl = getClass().getClassLoader();
-		assertSame(Reflect.forName("java.lang.String"), String.class);
-		assertThrown(() -> Reflect.forName("___"));
-		assertSame(Reflect.forName("java.lang.String", true, cl), String.class);
-		assertThrown(() -> Reflect.forName("___", true, cl));
+		Assert.same(Reflect.forName("java.lang.String"), String.class);
+		Assert.thrown(() -> Reflect.forName("___"));
+		Assert.same(Reflect.forName("java.lang.String", true, cl), String.class);
+		Assert.thrown(() -> Reflect.forName("___", true, cl));
 	}
 
 	@Test
@@ -308,7 +306,7 @@ public class ReflectTest {
 
 	@Test
 	public void testHashId() {
-		assertNull(Reflect.hashId(null));
+		Assert.isNull(Reflect.hashId(null));
 		assertMatch(Reflect.hashId(new Object()), "@[0-9a-fA-F]+");
 	}
 
@@ -348,8 +346,8 @@ public class ReflectTest {
 
 	@Test
 	public void testCreateWithError() {
-		assertThrown(() -> Reflect.create(Abstract.class));
-		assertThrown(() -> Reflect.create(Error.class));
+		Assert.thrown(() -> Reflect.create(Abstract.class));
+		Assert.thrown(() -> Reflect.create(Error.class));
 	}
 
 	@Test
@@ -367,9 +365,9 @@ public class ReflectTest {
 	public void testInvokeMethodError() throws NoSuchMethodException {
 		Method m = Error.class.getMethod("error", int.class);
 		var err = new Error(null);
-		assertThrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err));
-		assertThrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err, 0));
-		assertThrown(NullPointerException.class, () -> Reflect.invoke(m, null, 0));
+		Assert.thrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err));
+		Assert.thrown(RuntimeInvocationException.class, () -> Reflect.invoke(m, err, 0));
+		Assert.thrown(NullPointerException.class, () -> Reflect.invoke(m, null, 0));
 	}
 
 	@Test
@@ -472,7 +470,7 @@ public class ReflectTest {
 		assertEquals(caller.cls, cls.getSimpleName());
 		assertEquals(caller.fullCls, cls.getName());
 		assertEquals(caller.file, cls.getSimpleName() + ".java");
-		assertSame(caller.cls(), cls);
+		Assert.same(caller.cls(), cls);
 		Caller caller2 = Reflect.currentCaller();
 		assertNotEquals(caller, caller2);
 		assertEquals(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
@@ -544,6 +542,6 @@ public class ReflectTest {
 		java.sql.Date sqlDate = new java.sql.Date(0);
 		assertEquals(Reflect.castOrNull(Date.class, sqlDate), sqlDate);
 		Date date = new Date(0);
-		assertNull(Reflect.castOrNull(java.sql.Date.class, date));
+		Assert.isNull(Reflect.castOrNull(java.sql.Date.class, date));
 	}
 }

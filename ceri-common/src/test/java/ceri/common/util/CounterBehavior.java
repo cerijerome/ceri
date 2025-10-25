@@ -1,9 +1,9 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class CounterBehavior {
 
@@ -28,17 +28,17 @@ public class CounterBehavior {
 	@Test
 	public void shouldNotOverflowIntCount() {
 		var c = Counter.of(Integer.MAX_VALUE);
-		assertThrown(() -> c.inc(1));
+		Assert.thrown(() -> c.inc(1));
 		c.set(Integer.MIN_VALUE);
-		assertThrown(() -> c.inc(-1));
+		Assert.thrown(() -> c.inc(-1));
 	}
 
 	@Test
 	public void shouldNotOverflowLongCount() {
 		var c = Counter.of(Long.MAX_VALUE);
-		assertThrown(() -> c.inc(1));
+		Assert.thrown(() -> c.inc(1));
 		c.set(Long.MIN_VALUE);
-		assertThrown(() -> c.inc(-1));
+		Assert.thrown(() -> c.inc(-1));
 	}
 
 	@Test

@@ -1,14 +1,14 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class SimpleExecutorBehavior {
 
 	@Test
 	public void shouldFailForNullCallable() {
-		assertThrown(() -> SimpleExecutor.call(null));
+		Assert.thrown(() -> SimpleExecutor.call(null));
 	}
 
 	@Test
@@ -33,5 +33,4 @@ public class SimpleExecutorBehavior {
 			exec.cancel();
 		}
 	}
-
 }

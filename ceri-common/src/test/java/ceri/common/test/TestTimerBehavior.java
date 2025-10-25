@@ -1,7 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.fail;
 import org.junit.Test;
 
 public class TestTimerBehavior {

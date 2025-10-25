@@ -1,10 +1,10 @@
 package ceri.jna.test;
 
-import static ceri.common.test.AssertUtil.assertAssertion;
-import static ceri.common.test.AssertUtil.assertByte;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertByte;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertion;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCLong;
 import static ceri.jna.test.JnaTestUtil.assertCUlong;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
@@ -73,7 +73,7 @@ public class JnaTestUtilTest {
 		m = new Memory(8);
 		new size_t(123).write(m, 0);
 		assertRef(m, new size_t(123));
-		assertAssertion(() -> assertRef(m, new size_t(122)));
+		assertion(() -> assertRef(m, new size_t(122)));
 	}
 
 	@Test
@@ -81,9 +81,9 @@ public class JnaTestUtilTest {
 		m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertMemory(m, 0, 1, 2, 3, 4, 5);
 		assertMemory(m, 1, 2, 3, 4, 5);
-		assertAssertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
-		assertAssertion(() -> assertMemory(m, 0, 1, 2, 3, 4));
-		assertAssertion(() -> assertMemory(m, 0, 1, 2, 3, 4, 5, 6));
+		assertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
+		assertion(() -> assertMemory(m, 0, 1, 2, 3, 4));
+		assertion(() -> assertMemory(m, 0, 1, 2, 3, 4, 5, 6));
 	}
 
 	@Test
@@ -92,8 +92,8 @@ public class JnaTestUtilTest {
 		assertPointer(m, 0, 1, 2, 3, 4, 5);
 		assertPointer(m, 1, 2, 3, 4, 5);
 		assertPointer(m, 0, 1, 2, 3, 4);
-		assertAssertion(() -> assertPointer(m, 1, 2, 3, 4, 6));
-		assertAssertion(() -> assertPointer(m, 0, 1, 2, 3, 4, 5, 6));
+		assertion(() -> assertPointer(m, 1, 2, 3, 4, 6));
+		assertion(() -> assertPointer(m, 0, 1, 2, 3, 4, 5, 6));
 	}
 
 	@Test
@@ -101,15 +101,15 @@ public class JnaTestUtilTest {
 		var t = new TestStruct(0x1111, null, 1, 2, 3);
 		assertPointer(t, t.getPointer());
 		assertPointer((Structure) null, null);
-		assertAssertion(() -> assertPointer(t, null));
-		assertAssertion(() -> assertPointer(t, new Memory(1)));
+		assertion(() -> assertPointer(t, null));
+		assertion(() -> assertPointer(t, new Memory(1)));
 	}
 
 	@Test
 	public void testAssertLastError() {
 		assertLastError(() -> throwIt(lastError(1)));
 		assertLastError(1, () -> throwIt(lastError(1)));
-		assertAssertion(() -> assertLastError(2, () -> throwIt(lastError(1))));
+		assertion(() -> assertLastError(2, () -> throwIt(lastError(1))));
 	}
 
 	@Test

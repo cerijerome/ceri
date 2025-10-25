@@ -1,10 +1,10 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertRange;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRange;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timespec;
 import ceri.jna.clib.jna.CTime.timeval;
@@ -37,7 +37,7 @@ public class CTimeTest {
 
 	@Test
 	public void shouldCreateTimevalFromSpec() {
-		assertNull(timeval.of(null));
+		Assert.isNull(timeval.of(null));
 		var t = timeval.of(TimeSpec.ofMillis(1, 234));
 		assertTimeval(t, 1, 234000);
 	}

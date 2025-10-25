@@ -1,9 +1,7 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import java.util.Locale;
 import org.apache.logging.log4j.Level;
@@ -11,6 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.serial.libusb.jna.LibUsbFinder;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
@@ -34,8 +33,8 @@ public class UsbBehavior {
 	public void shouldProvideVersion() throws IOException {
 		var version = Usb.version();
 		assertMatch(version, "\\d+\\.\\d+\\.\\d+\\.\\d+");
-		assertNotNull(version.describe());
-		assertNotNull(version.rcSuffix());
+		Assert.notNull(version.describe());
+		Assert.notNull(version.rcSuffix());
 	}
 
 	@Test
@@ -53,7 +52,7 @@ public class UsbBehavior {
 			usb.weakAuthority(true);
 			usb.weakAuthority(false);
 			usb.close();
-			assertThrown(() -> usb.useUsbDk(true)); // already closed
+			Assert.thrown(() -> usb.useUsbDk(true)); // already closed
 		}
 	}
 
@@ -69,7 +68,7 @@ public class UsbBehavior {
 					if (device.descriptor().productId() == 0x8406) deviceHandle = device.open();
 				}
 			}
-			assertNotNull(deviceHandle);
+			Assert.notNull(deviceHandle);
 			if (deviceHandle != null) deviceHandle.close();
 		}
 	}
@@ -80,7 +79,7 @@ public class UsbBehavior {
 		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		try (var usb = Usb.of()) {
 			try (var deviceHandle = usb.open(LibUsbFinder.of(0, 0x8406))) {
-				assertNotNull(deviceHandle);
+				Assert.notNull(deviceHandle);
 			}
 		}
 	}

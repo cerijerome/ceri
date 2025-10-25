@@ -1,10 +1,10 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
 import ceri.common.math.Radix;
+import ceri.common.test.Assert;
 
 public class FormatTest {
 	private static final byte BMIN = Byte.MIN_VALUE;
@@ -86,9 +86,9 @@ public class FormatTest {
 
 	@Test
 	public void testSeparator() {
-		assertSame(Format.Separator.of(0, ":"), Format.Separator.NONE);
-		assertSame(Format.Separator.of(null, ":"), Format.Separator.NONE);
-		assertSame(Format.Separator.of(2, null), Format.Separator.NONE);
+		Assert.same(Format.Separator.of(0, ":"), Format.Separator.NONE);
+		Assert.same(Format.Separator.of(null, ":"), Format.Separator.NONE);
+		Assert.same(Format.Separator.of(2, null), Format.Separator.NONE);
 		var s1 = Format.Separator.of(1, ":");
 		var s2 = Format.Separator.of(2, ":");
 		assertString(s1.accept(0, 0), null);

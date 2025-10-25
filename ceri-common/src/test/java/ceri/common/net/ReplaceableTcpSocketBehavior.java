@@ -1,6 +1,6 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestTcpSocket;

@@ -1,8 +1,8 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class IntAccessorBehavior {
 
@@ -11,10 +11,10 @@ public class IntAccessorBehavior {
 		var accessor = IntAccessor.ofNull(0);
 		assertEquals(accessor.isEmpty(), true);
 		assertEquals(accessor.length(), 0);
-		assertThrown(() -> accessor.setInt(0, 0xff));
-		assertThrown(() -> accessor.getInt(0));
+		Assert.thrown(() -> accessor.setInt(0, 0xff));
+		Assert.thrown(() -> accessor.getInt(0));
 		assertEquals(accessor.fill(0, 0xff), 0);
-		assertThrown(() -> accessor.fill(0, 1, 0xff));
+		Assert.thrown(() -> accessor.fill(0, 1, 0xff));
 	}
 
 	@Test
@@ -25,7 +25,7 @@ public class IntAccessorBehavior {
 		accessor.setInt(0, 0xff);
 		assertEquals(accessor.getInt(0), 0);
 		assertEquals(accessor.fill(0, 0xff), 5);
-		assertThrown(() -> accessor.fill(1, 5, 0xff));
+		Assert.thrown(() -> accessor.fill(1, 5, 0xff));
 	}
 
 	@Test
@@ -33,8 +33,8 @@ public class IntAccessorBehavior {
 		var accessor = accessor(3);
 		assertEquals(accessor.slice(1, 0).length(), 0);
 		assertEquals(accessor.slice(0).length(), 3);
-		assertThrown(() -> accessor.slice(0, 2)); // Unsupported
-		assertThrown(() -> accessor.slice(1, 2)); // Unsupported
+		Assert.thrown(() -> accessor.slice(0, 2)); // Unsupported
+		Assert.thrown(() -> accessor.slice(1, 2)); // Unsupported
 	}
 
 	@Test

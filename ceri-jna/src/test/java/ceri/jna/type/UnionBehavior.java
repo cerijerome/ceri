@@ -1,8 +1,8 @@
 package ceri.jna.type;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.Test;
 import com.sun.jna.Pointer;

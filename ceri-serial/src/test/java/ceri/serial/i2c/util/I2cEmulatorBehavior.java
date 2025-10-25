@@ -1,8 +1,7 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
@@ -11,6 +10,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
+import ceri.common.test.Assert;
 import ceri.serial.i2c.DeviceId;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cSlaveDeviceEmulator.Read;
@@ -67,7 +67,7 @@ public class I2cEmulatorBehavior {
 	@Test
 	public void shouldReadDeviceId() throws IOException {
 		init(address);
-		assertThrown(() -> i2c.deviceId(badAddress));
+		Assert.thrown(() -> i2c.deviceId(badAddress));
 		DeviceId id = DeviceId.of(8, 7, 2);
 		dev.deviceId.autoResponses(id);
 		assertEquals(i2c.deviceId(address), id);
@@ -76,22 +76,22 @@ public class I2cEmulatorBehavior {
 	@Test
 	public void shouldFailWriteForBadDevice() {
 		init(address);
-		assertThrown(() -> i2c.writeData(badAddress, 1, 2, 3));
+		Assert.thrown(() -> i2c.writeData(badAddress, 1, 2, 3));
 		dev.write.error.setFrom(IOX);
-		assertThrown(() -> i2c.writeData(address, 1, 2, 3));
+		Assert.thrown(() -> i2c.writeData(address, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldFailReadForBadDevice() {
 		init(address);
-		assertThrown(() -> i2c.readData(badAddress, ArrayUtil.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(badAddress, ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.autoResponses((ByteProvider) null);
-		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.autoResponses(provider(1, 2, 3));
-		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 2));
-		assertThrown(() -> i2c.readData(I2cAddress.of(0x05), ArrayUtil.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 2));
+		Assert.thrown(() -> i2c.readData(I2cAddress.of(0x05), ArrayUtil.bytes.of(1, 2, 3), 3));
 		dev.read.error.setFrom(IOX);
-		assertThrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
+		Assert.thrown(() -> i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3));
 	}
 
 	@Test

@@ -2,20 +2,20 @@ package ceri.common.property;
 
 import static ceri.common.property.Separator.DASH;
 import static ceri.common.property.Separator.SLASH;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNpe;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.nullPointer;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class KeyBehavior {
 
 	@Test
 	public void shouldFailToCreateInvalidKey() {
-		assertNpe(() -> new Key(DASH, null));
-		assertNpe(() -> Key.of(null, ""));
-		assertNpe(() -> Key.of(SLASH, (String[]) null).value());
-		assertNpe(() -> Key.chomped(SLASH, (String[]) null).value());
-		assertNpe(() -> Key.normalized(SLASH, (String[]) null).value());
+		nullPointer(() -> new Key(DASH, null));
+		nullPointer(() -> Key.of(null, ""));
+		nullPointer(() -> Key.of(SLASH, (String[]) null).value());
+		nullPointer(() -> Key.chomped(SLASH, (String[]) null).value());
+		nullPointer(() -> Key.normalized(SLASH, (String[]) null).value());
 	}
 
 	@Test
@@ -68,10 +68,10 @@ public class KeyBehavior {
 	@Test
 	public void shouldReturnSameKeyIfUnchanged() {
 		var key = Key.of(DASH, "a/b");
-		assertSame(key.append(null, ""), key);
-		assertSame(key.chomp(null, "", "--"), key);
-		assertSame(key.normalize("", null, "", "-", "--"), key);
-		assertSame(key.normalize(DASH, null, "", "-", "--"), key);
+		Assert.same(key.append(null, ""), key);
+		Assert.same(key.chomp(null, "", "--"), key);
+		Assert.same(key.normalize("", null, "", "-", "--"), key);
+		Assert.same(key.normalize(DASH, null, "", "-", "--"), key);
 	}
 
 	private static void assertKey(Key key, String value) {

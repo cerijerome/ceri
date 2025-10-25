@@ -2,15 +2,15 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertStream;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class ColorxsTest {
@@ -97,7 +97,7 @@ public class ColorxsTest {
 
 	@Test
 	public void testValidXargbFromText() {
-		assertThrown(() -> Colorxs.validXargb("test"));
+		Assert.thrown(() -> Colorxs.validXargb("test"));
 		assertEquals(Colorxs.validXargb("full"), Colorx.full.xargb());
 	}
 
@@ -185,7 +185,7 @@ public class ColorxsTest {
 
 	@Test
 	public void testValidColorxFromText() {
-		assertThrown(() -> Colorxs.validColorx("test"));
+		Assert.thrown(() -> Colorxs.validColorx("test"));
 		assertColorx(Colorxs.validColorx("full"), Colorx.full);
 	}
 
@@ -253,14 +253,14 @@ public class ColorxsTest {
 	@Test
 	public void testXargbsFromText() {
 		assertArray(Colorxs.xargbs("fullX0", "#123456789a"), 0xffffffffffL, 0x123456789aL);
-		assertThrown(() -> Colorxs.xargbs("fullX0", "#"));
+		Assert.thrown(() -> Colorxs.xargbs("fullX0", "#"));
 	}
 
 	@Test
 	public void testColorxsFromText() {
 		assertArray(Colorxs.colorxs("fullX0", "#123456789a"), Colorx.of(0xffffffffffL),
 			Colorx.of(0x123456789aL));
-		assertThrown(() -> Colorxs.colorxs("fullX0", "#"));
+		Assert.thrown(() -> Colorxs.colorxs("fullX0", "#"));
 	}
 
 	@Test

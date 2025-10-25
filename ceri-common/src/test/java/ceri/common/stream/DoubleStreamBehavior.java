@@ -1,10 +1,10 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterator;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertIterator;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.fail;
 import java.util.List;
 import java.util.PrimitiveIterator;
 import org.junit.Test;

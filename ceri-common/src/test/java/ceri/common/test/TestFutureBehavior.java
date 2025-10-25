@@ -1,8 +1,8 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwable;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
@@ -41,8 +41,8 @@ public class TestFutureBehavior {
 		var future = TestFuture.of("test");
 		future.get.error.setFrom(IOX);
 		Throwable t = thrown(() -> future.get());
-		assertThrowable(t, ExecutionException.class);
-		assertThrowable(t.getCause(), IOException.class);
+		throwable(t, ExecutionException.class);
+		throwable(t.getCause(), IOException.class);
 	}
 
 	@Test
@@ -50,8 +50,8 @@ public class TestFutureBehavior {
 		var future = TestFuture.of("test");
 		future.get.error.setFrom(IOX);
 		Throwable t = thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
-		assertThrowable(t, ExecutionException.class);
-		assertThrowable(t.getCause(), IOException.class);
+		throwable(t, ExecutionException.class);
+		throwable(t.getCause(), IOException.class);
 	}
 
 }

@@ -1,7 +1,7 @@
 package ceri.common.event;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.collect.Sets;

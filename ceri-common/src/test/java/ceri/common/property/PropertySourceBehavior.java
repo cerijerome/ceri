@@ -1,11 +1,10 @@
 package ceri.common.property;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.assertUnsupported;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.illegalArg;
+import static ceri.common.test.Assert.unsupportedOp;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
@@ -15,6 +14,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.IoExceptions;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 
 public class PropertySourceBehavior {
@@ -94,7 +94,7 @@ public class PropertySourceBehavior {
 		source.property("bbb", null); // no change
 		source.property("aaa", "AAA"); // no change
 		assertEquals(source.modified(), false);
-		assertUnsupported(() -> source.property("aaa", "AAAA"));
+		unsupportedOp(() -> source.property("aaa", "AAAA"));
 	}
 
 	@Test
@@ -124,7 +124,7 @@ public class PropertySourceBehavior {
 		initFiles(Map.of("a/b/c", "ABC"));
 		source.property("a/b/c/d", null);
 		assertEquals(source.property("a/b/c/d"), null);
-		assertUnsupported(() -> source.property("a/b/c", null)); // unable to delete
+		unsupportedOp(() -> source.property("a/b/c", null)); // unable to delete
 		assertEquals(source.modified(), false);
 		source.property("a/b/c", "abc");
 		assertEquals(source.property("a/b/c"), "abc");
@@ -136,7 +136,7 @@ public class PropertySourceBehavior {
 		initFiles(Map.of("a/b/c/d", "ABC", "a/c/d", "ACD", "aaa", "AAA"));
 		assertEquals(source.property("a/b/c/../../c/d"), "ACD");
 		assertEquals(source.property("a/../aaa"), "AAA");
-		assertIllegalArg(() -> source.property("a/../../aaa")); // cannot go beyond root
+		illegalArg(() -> source.property("a/../../aaa")); // cannot go beyond root
 	}
 
 	@Test
@@ -161,7 +161,7 @@ public class PropertySourceBehavior {
 	public void shouldProvideContextForFileReadFailure() throws IOException {
 		initFiles(Map.of("a/b/c", "ABC"));
 		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "ABC");
-		assertThrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
+		Assert.thrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
 	}
 
 	@Test
@@ -169,9 +169,9 @@ public class PropertySourceBehavior {
 		initFiles(Map.of("a/b/c", "ABC"));
 		PropertySource.fileWrite(files.path("a/b/c"), "AAA");
 		assertEquals(PropertySource.fileRead(files.path("a/b/c")), "AAA");
-		assertThrown(IoExceptions.Runtime.class,
+		Assert.thrown(IoExceptions.Runtime.class,
 			() -> PropertySource.fileWrite(files.path("a/b"), "AA"));
-		assertThrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
+		Assert.thrown(IoExceptions.Runtime.class, () -> PropertySource.fileRead(files.path("a/b")));
 	}
 
 	private void initProperties(Map<String, String> properties) {

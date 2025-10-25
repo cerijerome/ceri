@@ -1,11 +1,11 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalState;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.illegalState;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class MapsTest {
 		assertMap(apply(Maps.of(-1, "A"), //
 			m -> assertEquals(Put.unique.put(m, 1, null), null)), -1, "A", 1, null);
 		assertMap(apply(Maps.of(-1, "A"), //
-			m -> assertIllegalState(() -> Put.unique.put(m, -1, null))), -1, "A");
+			m -> illegalState(() -> Put.unique.put(m, -1, null))), -1, "A");
 	}
 
 	@Test

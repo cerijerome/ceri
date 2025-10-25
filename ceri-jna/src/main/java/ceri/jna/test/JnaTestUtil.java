@@ -1,10 +1,9 @@
 package ceri.jna.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.thrown;
 import java.nio.ByteBuffer;
 import java.util.Set;
 import com.sun.jna.LastErrorException;
@@ -19,6 +18,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 import ceri.common.reflect.ClassReInitializer;
+import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.text.Strings;
 import ceri.jna.clib.jna.CException;
@@ -141,7 +141,7 @@ public class JnaTestUtil {
 	 * Make sure pointer is not null or zero.
 	 */
 	public static void assertValid(Pointer p) {
-		assertNotNull(p);
+		Assert.notNull(p);
 		assertNotEquals(Pointer.nativeValue(p), 0L);
 	}
 
@@ -186,28 +186,28 @@ public class JnaTestUtil {
 	 * Assert a LastErrorException was thrown.
 	 */
 	public static void assertLastError(Excepts.Runnable<Exception> runnable) {
-		assertThrown(LastErrorException.class, runnable);
+		thrown(LastErrorException.class, runnable);
 	}
 
 	/**
 	 * Assert a LastErrorException with specific code was thrown.
 	 */
 	public static void assertLastError(int code, Excepts.Runnable<Exception> runnable) {
-		assertThrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
+		thrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
 	}
 
 	/**
 	 * Assert a CException was thrown.
 	 */
 	public static void assertCException(Excepts.Runnable<Exception> runnable) {
-		assertThrown(CException.class, runnable);
+		thrown(CException.class, runnable);
 	}
 
 	/**
 	 * Assert a CException with specific code was thrown.
 	 */
 	public static void assertCException(int code, Excepts.Runnable<Exception> runnable) {
-		assertThrown(CException.class, e -> assertEquals(e.code, code), runnable);
+		thrown(CException.class, e -> assertEquals(e.code, code), runnable);
 	}
 
 	/**

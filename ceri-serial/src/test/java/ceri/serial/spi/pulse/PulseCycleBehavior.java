@@ -1,13 +1,12 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class PulseCycleBehavior {
@@ -16,10 +15,10 @@ public class PulseCycleBehavior {
 	public void shouldCreatePulseStatsFromCycle() {
 		var stats = PulseCycle.Std._3_9.cycle.pulseStats(100000);
 		assertEquals(stats.freqHz, 300000);
-		assertApprox(stats.bitNs, 3333.333);
-		assertApprox(stats.pulseNs, 10000.0);
-		assertApprox(stats.t0Ns, 3333.333);
-		assertApprox(stats.t1Ns, 6666.667);
+		Assert.approx(stats.bitNs, 3333.333);
+		Assert.approx(stats.pulseNs, 10000.0);
+		Assert.approx(stats.t0Ns, 3333.333);
+		Assert.approx(stats.t1Ns, 6666.667);
 	}
 
 	@Test
@@ -49,9 +48,9 @@ public class PulseCycleBehavior {
 
 	@Test
 	public void shouldFailToCreateFromInvalidParameters() {
-		assertThrown(() -> PulseCycle.of(PulseCycle.Type.nbit, 4, 0, 2, 2));
-		assertThrown(() -> PulseCycle.of(PulseCycle.Type.nbit, 3, 0, 1, 3));
-		assertThrown(() -> PulseCycle.of(null, 4, 0, 1, 2));
+		Assert.thrown(() -> PulseCycle.of(PulseCycle.Type.nbit, 4, 0, 2, 2));
+		Assert.thrown(() -> PulseCycle.of(PulseCycle.Type.nbit, 3, 0, 1, 3));
+		Assert.thrown(() -> PulseCycle.of(null, 4, 0, 1, 2));
 	}
 
 	@Test

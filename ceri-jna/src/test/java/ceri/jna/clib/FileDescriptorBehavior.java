@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertUnordered;
 import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDONLY;

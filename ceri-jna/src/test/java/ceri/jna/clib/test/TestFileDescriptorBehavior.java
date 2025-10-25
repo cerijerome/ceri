@@ -1,11 +1,11 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class TestFileDescriptorBehavior {
 	private TestFileDescriptor fd;
@@ -36,9 +36,8 @@ public class TestFileDescriptorBehavior {
 	@Test
 	public void shouldFailAllForBadFd() {
 		fd.fd.error.setFrom(IOException::new);
-		assertThrown(() -> fd.fd());
-		assertThrown(() -> fd.accept(_ -> {}));
-		assertThrown(() -> fd.apply(_ -> 0));
+		Assert.thrown(() -> fd.fd());
+		Assert.thrown(() -> fd.accept(_ -> {}));
+		Assert.thrown(() -> fd.apply(_ -> 0));
 	}
-
 }

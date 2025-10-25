@@ -1,9 +1,9 @@
 package ceri.common.collect;
 
 import static ceri.common.collect.Iterables.ofNull;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;

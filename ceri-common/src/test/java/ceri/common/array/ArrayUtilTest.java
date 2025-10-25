@@ -1,14 +1,13 @@
 package ceri.common.array;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertNotSame;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.illegalArg;
 import java.util.Objects;
 import org.junit.Test;
 import ceri.common.function.Compares;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
@@ -53,7 +52,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testOfType() {
 		assertEquals(ArrayUtil.ofType(null, 1), null);
-		assertIllegalArg(() -> ArrayUtil.ofType(boolean.class, 1));
+		illegalArg(() -> ArrayUtil.ofType(boolean.class, 1));
 		assertArray(ArrayUtil.ofType(String.class, 0));
 		var array = ArrayUtil.ofType(String.class, 3);
 		array[1] = "test";
@@ -93,7 +92,7 @@ public class ArrayUtilTest {
 	@Test
 	public void testArrayType() {
 		assertEquals(ArrayUtil.arrayType(null), null);
-		assertIllegalArg(() -> ArrayUtil.arrayType(boolean.class));
+		illegalArg(() -> ArrayUtil.arrayType(boolean.class));
 		assertEquals(ArrayUtil.arrayType(String.class), String[].class);
 	}
 
@@ -132,18 +131,18 @@ public class ArrayUtilTest {
 	@Test
 	public void testResize() {
 		assertEquals(ArrayUtil.resize(null, ints, 2), null);
-		assertSame(ArrayUtil.resize(null, ints, 3), ints);
+		Assert.same(ArrayUtil.resize(null, ints, 3), ints);
 		assertArray(ArrayUtil.resize(Integer[]::new, null, 2), null, null);
 		assertArray(ArrayUtil.resize(Integer[]::new, ints, -1));
 		assertArray(ArrayUtil.resize(Integer[]::new, ints, 0));
-		assertSame(ArrayUtil.resize(Integer[]::new, ints, 3), ints);
+		Assert.same(ArrayUtil.resize(Integer[]::new, ints, 3), ints);
 		assertArray(ArrayUtil.resize(Integer[]::new, ints, 2), -1, null);
 		assertArray(ArrayUtil.resize(Integer[]::new, ints, 4), -1, null, 1, null);
 	}
 
 	@Test
 	public void testCopyOf() {
-		assertNotSame(ArrayUtil.copyOf(Integer[]::new, ints), ints);
+		Assert.notSame(ArrayUtil.copyOf(Integer[]::new, ints), ints);
 		assertArray(ArrayUtil.copyOf(Integer[]::new, ints), ints);
 		assertArray(ArrayUtil.copyOf(Integer[]::new, ints, -1));
 		assertArray(ArrayUtil.copyOf(Integer[]::new, ints, 0));
@@ -160,18 +159,18 @@ public class ArrayUtilTest {
 
 	@Test
 	public void testAppend() {
-		assertSame(ArrayUtil.append(null, ints), ints);
-		assertSame(ArrayUtil.append(null, ints, 1), ints);
-		assertSame(ArrayUtil.append(Integer[]::new, ints), ints);
+		Assert.same(ArrayUtil.append(null, ints), ints);
+		Assert.same(ArrayUtil.append(null, ints, 1), ints);
+		Assert.same(ArrayUtil.append(Integer[]::new, ints), ints);
 		assertEquals(ArrayUtil.append(Integer[]::new, null), null);
 		assertArray(ArrayUtil.append(Integer[]::new, ints, 0), -1, null, 1, 0);
 	}
 
 	@Test
 	public void testInsert() {
-		assertSame(ArrayUtil.insert(null, ints, 0), ints);
-		assertSame(ArrayUtil.insert(null, ints, 1, 1), ints);
-		assertSame(ArrayUtil.insert(Integer[]::new, ints, 1), ints);
+		Assert.same(ArrayUtil.insert(null, ints, 0), ints);
+		Assert.same(ArrayUtil.insert(null, ints, 1, 1), ints);
+		Assert.same(ArrayUtil.insert(Integer[]::new, ints, 1), ints);
 		assertEquals(ArrayUtil.insert(Integer[]::new, null, 1), null);
 		assertArray(ArrayUtil.insert(Integer[]::new, ints, 1, 0), -1, 0, null, 1);
 	}
@@ -229,14 +228,14 @@ public class ArrayUtilTest {
 	@Test
 	public void testForEach() throws Exception {
 		assertEquals(ArrayUtil.forEach(null, _ -> {}), null);
-		assertSame(ArrayUtil.forEach(ints, null), ints);
+		Assert.same(ArrayUtil.forEach(ints, null), ints);
 		Captor.of().apply(c -> ArrayUtil.forEach(ints, c::accept)).verify(-1, null, 1);
 	}
 
 	@Test
 	public void testForEachIndexed() throws Exception {
 		assertEquals(ArrayUtil.forEachIndexed(null, (_, _) -> {}), null);
-		assertSame(ArrayUtil.forEachIndexed(ints, null), ints);
+		Assert.same(ArrayUtil.forEachIndexed(ints, null), ints);
 		Captor.ofBi().apply(c -> ArrayUtil.forEachIndexed(ints, c::accept)).verify(-1, 0, null, 1,
 			1, 2);
 	}

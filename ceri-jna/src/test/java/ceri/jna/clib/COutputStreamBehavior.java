@@ -1,13 +1,13 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
 import ceri.jna.util.JnaLibrary;
@@ -50,9 +50,9 @@ public class COutputStreamBehavior {
 	public void shouldFailForIncompleteWrite() {
 		var lib = initOut();
 		lib.write.autoResponses(0);
-		assertThrown(() -> out.write(0xff));
+		Assert.thrown(() -> out.write(0xff));
 		lib.write.autoResponses(2, 0);
-		assertThrown(() -> out.write(new byte[3]));
+		Assert.thrown(() -> out.write(new byte[3]));
 	}
 
 	@Test
@@ -73,9 +73,9 @@ public class COutputStreamBehavior {
 		var lib = initOut();
 		lib.write.autoResponses(1);
 		out.close();
-		assertThrown(() -> out.write(0));
-		assertThrown(() -> out.write(new byte[3]));
-		assertThrown(() -> out.flush());
+		Assert.thrown(() -> out.write(0));
+		Assert.thrown(() -> out.write(new byte[3]));
+		Assert.thrown(() -> out.flush());
 	}
 
 	private TestCLibNative initOut() {

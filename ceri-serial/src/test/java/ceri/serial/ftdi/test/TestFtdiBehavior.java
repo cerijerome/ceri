@@ -1,8 +1,7 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.IOException;
 import org.junit.Test;
@@ -10,6 +9,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 
@@ -53,7 +53,7 @@ public class TestFtdiBehavior {
 			ftdi.modem.autoResponses(0xaa);
 			assertEquals(ftdi.pollModemStatus(), 0xaa);
 			ftdi.reset();
-			assertThrown(ftdi::pollModemStatus); // not connected
+			Assert.thrown(ftdi::pollModemStatus); // not connected
 		}
 	}
 
@@ -129,7 +129,7 @@ public class TestFtdiBehavior {
 
 	@Test
 	public void shouldProvideErrorConfig() {
-		assertThrown("generated", TestFtdi.errorConfig()::ftdi);
+		Assert.thrown("generated", TestFtdi.errorConfig()::ftdi);
 	}
 
 	@Test
@@ -139,5 +139,4 @@ public class TestFtdiBehavior {
 			ftdi.open.awaitAuto();
 		}
 	}
-
 }

@@ -1,8 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertMatch;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertMatch;
 import static ceri.common.text.AnsiEscape.Sgr.reset;
 import org.junit.Test;
 import ceri.common.text.Table.Orientation;

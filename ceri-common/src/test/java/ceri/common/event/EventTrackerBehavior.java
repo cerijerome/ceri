@@ -1,6 +1,6 @@
 package ceri.common.event;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.util.function.Supplier;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;

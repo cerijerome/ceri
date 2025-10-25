@@ -1,7 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class TestProcessBehavior {
 		try (var p = TestProcess.of("in", "err", 1)) {
 			assertEquals(p.waitFor(), 1);
 			p.exitValue.error.setFrom(INX);
-			assertThrown(() -> p.waitFor());
+			Assert.thrown(() -> p.waitFor());
 		}
 	}
 

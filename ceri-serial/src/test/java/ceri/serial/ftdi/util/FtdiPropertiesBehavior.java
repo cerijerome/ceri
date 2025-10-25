@@ -1,10 +1,10 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import java.util.Properties;
 import org.junit.Test;
 import ceri.common.property.TypedProperties;
+import ceri.common.test.Assert;
 import ceri.serial.ftdi.jna.LibFtdi;
 
 public class FtdiPropertiesBehavior {
@@ -20,7 +20,7 @@ public class FtdiPropertiesBehavior {
 		p.put("stop.bits", "2");
 		assertEquals(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_2);
 		p.put("stop.bits", "1.1");
-		assertThrown(() -> props.config());
+		Assert.thrown(() -> props.config());
 	}
 
 	@Test
@@ -32,6 +32,6 @@ public class FtdiPropertiesBehavior {
 		p.put("parity", "none");
 		assertEquals(props.config().params.parity(), LibFtdi.ftdi_parity_type.NONE);
 		p.put("parity", "null");
-		assertThrown(() -> props.config());
+		Assert.thrown(() -> props.config());
 	}
 }

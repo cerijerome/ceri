@@ -1,7 +1,7 @@
 package ceri.serial.spi;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.Direction;

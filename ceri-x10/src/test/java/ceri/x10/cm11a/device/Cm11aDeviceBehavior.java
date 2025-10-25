@@ -1,11 +1,10 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,6 +16,7 @@ import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestConnector;
 import ceri.common.test.TestUtil;
@@ -127,7 +127,7 @@ public class Cm11aDeviceBehavior {
 	@Test
 	public void shouldFailForUnsupportedcommand() throws IOException {
 		init();
-		assertThrown(() -> cm11a.command(UnsupportedCommand.hailReq(House.I, Unit._1)));
+		Assert.thrown(() -> cm11a.command(UnsupportedCommand.hailReq(House.I, Unit._1)));
 	}
 
 	@SuppressWarnings("resource")
@@ -203,7 +203,7 @@ public class Cm11aDeviceBehavior {
 					.writeBytes(Protocol.READY.value, Protocol.READY.value, Protocol.READY.value)
 					.flush();
 				con.in.awaitFeed();
-				assertThrown(() -> exec.get());
+				Assert.thrown(() -> exec.get());
 			}
 			try (var exec = SimpleExecutor.run(() -> cm11a.command(cmd))) {
 				assertArray(con.out.from.readBytes(2), 0x4, 0xdf);
@@ -211,7 +211,7 @@ public class Cm11aDeviceBehavior {
 					.writeBytes(Protocol.READY.value, Protocol.READY.value, Protocol.READY.value)
 					.flush();
 				con.in.awaitFeed();
-				assertThrown(() -> exec.get());
+				Assert.thrown(() -> exec.get());
 			}
 		}, Level.OFF, Processor.class);
 	}
@@ -231,7 +231,7 @@ public class Cm11aDeviceBehavior {
 
 	@Test
 	public void shouldFailConstructionGracefully() {
-		assertThrown(() -> Cm11aDevice.of(config, null));
+		Assert.thrown(() -> Cm11aDevice.of(config, null));
 	}
 
 	private void init() throws IOException {

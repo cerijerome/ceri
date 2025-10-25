@@ -1,13 +1,11 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
@@ -20,6 +18,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collect.Iterables;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class ByteUtilTest {
@@ -84,8 +83,8 @@ public class ByteUtilTest {
 	@Test
 	public void testToHex() {
 		byte[] b = ArrayUtil.bytes.of(-1, 0, 127, 128);
-		assertNull(ByteUtil.toHex((byte[]) null, ""));
-		assertNull(ByteUtil.toHex((byte[]) null, 0, 0, ""));
+		Assert.isNull(ByteUtil.toHex((byte[]) null, ""));
+		Assert.isNull(ByteUtil.toHex((byte[]) null, 0, 0, ""));
 		assertEquals(ByteUtil.toHex(b, ""), "ff007f80");
 		assertEquals(ByteUtil.toHex(b, ":"), "ff:00:7f:80");
 		assertEquals(ByteUtil.toHex(b, "-"), "ff-00-7f-80");
@@ -95,7 +94,7 @@ public class ByteUtilTest {
 	public void testFromHex() {
 		assertArray(ByteUtil.fromHex("abcde").copy(0), 0x0a, 0xbc, 0xde);
 		assertArray(ByteUtil.fromHex("abcdef").copy(0), 0xab, 0xcd, 0xef);
-		assertNull(ByteUtil.fromHex(null));
+		Assert.isNull(ByteUtil.fromHex(null));
 		assertArray(ByteUtil.fromHex("").copy(0));
 	}
 
@@ -164,9 +163,9 @@ public class ByteUtilTest {
 	public void testWriteToWithExceptions() {
 		ByteProvider badProvider = badProvider(3);
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
-		assertThrown(() -> ByteUtil.writeTo(b, badProvider));
-		assertThrown(() -> ByteUtil.writeTo(b, badProvider, 1));
-		assertThrown(() -> ByteUtil.writeTo(b, badProvider, 0, 2));
+		Assert.thrown(() -> ByteUtil.writeTo(b, badProvider));
+		Assert.thrown(() -> ByteUtil.writeTo(b, badProvider, 1));
+		Assert.thrown(() -> ByteUtil.writeTo(b, badProvider, 0, 2));
 	}
 
 	private static ByteProvider badProvider(int length) {

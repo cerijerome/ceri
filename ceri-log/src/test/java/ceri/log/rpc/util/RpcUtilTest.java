@@ -1,19 +1,19 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import com.google.protobuf.BytesValue;
 import ceri.common.array.ArrayUtil;
+import ceri.common.collect.Lists;
+import ceri.common.test.Assert;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -89,10 +89,10 @@ public class RpcUtilTest {
 
 	@Test
 	public void testTransformObserver() {
-		List<Integer> next = new ArrayList<>();
-		List<Throwable> stop = new ArrayList<>();
-		IOException e = new IOException("test");
-		StreamObserver<Integer> iob = RpcUtil.observer(next::add, stop::add);
+		var next = Lists.<Integer>of();
+		var stop = Lists.<Throwable>of();
+		var e = new IOException("test");
+		var iob = RpcUtil.<Integer>observer(next::add, stop::add);
 		StreamObserver<String> sob = RpcUtil.transformObserver(Integer::parseInt, iob);
 		sob.onNext("123");
 		sob.onNext(null);
@@ -101,8 +101,8 @@ public class RpcUtilTest {
 		sob.onCompleted();
 		sob.onError(e);
 		assertOrdered(next, 123, null, 456);
-		assertThrowable(stop.get(0), NumberFormatException.class);
-		assertNull(stop.get(1));
+		Assert.throwable(stop.get(0), NumberFormatException.class);
+		Assert.isNull(stop.get(1));
 		assertEquals(stop.get(2), e);
 	}
 
@@ -116,19 +116,19 @@ public class RpcUtilTest {
 
 	@Test
 	public void testCause() {
-		assertNull(RpcUtil.cause(null));
-		assertThrowable(RpcUtil.cause(new IOException()), IOException.class);
-		assertThrowable(RpcUtil.cause(statusException("test", null)), StatusRuntimeException.class);
-		assertThrowable(RpcUtil.cause( //
-			statusException("test1", statusException("test2", null))), //
+		Assert.isNull(RpcUtil.cause(null));
+		Assert.throwable(RpcUtil.cause(new IOException()), IOException.class);
+		Assert.throwable(RpcUtil.cause(statusException("test", null)),
+			StatusRuntimeException.class);
+		Assert.throwable(RpcUtil.cause(statusException("test1", statusException("test2", null))),
 			StatusRuntimeException.class, s -> assertFind(s, "test1"));
-		assertThrowable(RpcUtil.cause( //
-			statusException("test1", statusException("test2", new IOException("test3")))),
+		Assert.throwable(
+			RpcUtil.cause(
+				statusException("test1", statusException("test2", new IOException("test3")))),
 			IOException.class, s -> assertFind(s, "test3"));
 	}
 
 	private static StatusRuntimeException statusException(String message, Throwable cause) {
 		return Status.CANCELLED.withDescription(message).withCause(cause).asRuntimeException();
 	}
-
 }

@@ -1,15 +1,14 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
+import ceri.serial.libusb.jna.LibUsb.libusb_speed;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
 import ceri.serial.libusb.test.TestLibUsbNative;
@@ -47,8 +46,8 @@ public class UsbDeviceBehavior {
 			assertEquals(dev.speed(), libusb_speed.LIBUSB_SPEED_LOW);
 			assertEquals(dev.maxPacketSize(0x81), 4);
 			assertEquals(dev.maxIsoPacketSize(0x81), 4);
-			assertNotNull(dev.config());
-			assertNotNull(dev.configByValue(1));
+			Assert.notNull(dev.config());
+			Assert.notNull(dev.configByValue(1));
 			assertMatch(dev.toString(), "%s\\(native@.*\\)", dev.getClass().getSimpleName());
 			dev.unref();
 		}
@@ -61,9 +60,8 @@ public class UsbDeviceBehavior {
 			assertMatch(dev.toString(), "%s\\(native@.*\\,0\\)", dev.getClass().getSimpleName());
 			dev.unref();
 			dev.close();
-			assertThrown(() -> dev.config());
+			Assert.thrown(() -> dev.config());
 			assertMatch(dev.toString(), "%s\\(null,0\\)", dev.getClass().getSimpleName());
 		}
 	}
-
 }

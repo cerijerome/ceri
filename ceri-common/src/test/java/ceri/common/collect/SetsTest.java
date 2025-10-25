@@ -1,7 +1,7 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertUnordered;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

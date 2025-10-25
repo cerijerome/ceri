@@ -1,7 +1,7 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -30,7 +30,7 @@ public class FileVisitorsTest {
 	@Test
 	public void testThrowOnFail() {
 		var visitor = FileVisitors.of(null, null, null, FileVisitors.throwOnFail());
-		assertIoe(() -> visitor.visitFileFailed(Path.of(""), new IOException()));
+		io(() -> visitor.visitFileFailed(Path.of(""), new IOException()));
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class FileVisitorsTest {
 		var visitor = FileVisitors.<Path>of(null, null, FileVisitors.adaptConsumer(file -> {
 			if ("b.txt".equals(Paths.name(file))) throw ex;
 		}));
-		assertIoe(() -> Files.walkFileTree(helper.root, visitor));
+		io(() -> Files.walkFileTree(helper.root, visitor));
 	}
 
 	@Test

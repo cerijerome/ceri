@@ -1,7 +1,6 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
@@ -9,6 +8,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
+import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class IntWriterBehavior {
@@ -53,19 +53,19 @@ public class IntWriterBehavior {
 	public void shouldFillInts() {
 		assertInts(3, w -> w.fill(0, 0xff), 0, 0, 0);
 		assertInts(3, w -> w.fill(2, 0xff), 0xff, 0xff, 0);
-		assertThrown(() -> writer(3).fill(4, 0xff));
+		Assert.thrown(() -> writer(3).fill(4, 0xff));
 	}
 
 	@Test
 	public void shouldWriteFromIntArray() {
 		assertInts(3, w -> w.writeInts(1, 2, 3), 1, 2, 3);
-		assertThrown(() -> writer(3).writeInts(1, 2, 3, 4));
+		Assert.thrown(() -> writer(3).writeInts(1, 2, 3, 4));
 	}
 
 	@Test
 	public void shouldWriteFromIntProvider() {
 		assertInts(3, w -> w.writeFrom(Mutable.wrap(1, 2, 3)), 1, 2, 3);
-		assertThrown(() -> writer(3).writeFrom(Mutable.wrap(1, 2, 3, 4)));
+		Assert.thrown(() -> writer(3).writeFrom(Mutable.wrap(1, 2, 3, 4)));
 	}
 
 	/**

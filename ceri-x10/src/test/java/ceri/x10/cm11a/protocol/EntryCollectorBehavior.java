@@ -1,6 +1,6 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertOrdered;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.Level;

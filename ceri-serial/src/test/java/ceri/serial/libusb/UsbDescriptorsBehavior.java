@@ -1,14 +1,14 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertUnordered;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
 import ceri.serial.libusb.jna.LibUsb.libusb_config_attributes;
 import ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction;
@@ -70,7 +70,7 @@ public class UsbDescriptorsBehavior {
 			assertEquals(config.maxPower(), 0x70);
 			assertEquals(config.extra(), ByteProvider.empty());
 			config.close();
-			assertThrown(() -> config.value());
+			Assert.thrown(() -> config.value());
 		}
 	}
 
@@ -135,7 +135,7 @@ public class UsbDescriptorsBehavior {
 			assertEquals(ss.isoMult(), 0);
 			assertEquals(ss.bytesPerInterval(), 2);
 			ss.close();
-			assertThrown(() -> ss.bytesPerInterval());
+			Assert.thrown(() -> ss.bytesPerInterval());
 		}
 	}
 
@@ -152,7 +152,7 @@ public class UsbDescriptorsBehavior {
 			assertEquals(bos.capabilities().get(2).ssUsbDeviceCapability(), null);
 			assertEquals(bos.capabilities().get(0).containerId(), null);
 			bos.close();
-			assertThrown(() -> bos.capabilityCount());
+			Assert.thrown(() -> bos.capabilityCount());
 		}
 	}
 
@@ -165,9 +165,9 @@ public class UsbDescriptorsBehavior {
 			assertUnordered(usb2Ext.attributes(),
 				libusb_usb_2_0_extension_attributes.LIBUSB_BM_LPM_SUPPORT);
 			usb2Ext.close();
-			assertThrown(() -> usb2Ext.attributes());
+			Assert.thrown(() -> usb2Ext.attributes());
 			bos.close();
-			assertThrown(() -> bos.capabilityCount());
+			Assert.thrown(() -> bos.capabilityCount());
 		}
 	}
 
@@ -186,7 +186,7 @@ public class UsbDescriptorsBehavior {
 			assertEquals(ssUsb.u1DeviceExitLatency(), 0x08);
 			assertEquals(ssUsb.u2DeviceExitLatency(), 0xbe);
 			ssUsb.close();
-			assertThrown(() -> ssUsb.attributes());
+			Assert.thrown(() -> ssUsb.attributes());
 		}
 	}
 
@@ -199,7 +199,7 @@ public class UsbDescriptorsBehavior {
 			assertArray(containerId.uuid(), 0x96, 0xd6, 0x67, 0xd6, 0x5, 0x44, 0x42, 0xa5, 0x9f,
 				0x29, 0xf4, 0x85, 0xe5, 0x26, 0xbb, 0x58);
 			containerId.close();
-			assertThrown(() -> containerId.uuid());
+			Assert.thrown(() -> containerId.uuid());
 		}
 	}
 

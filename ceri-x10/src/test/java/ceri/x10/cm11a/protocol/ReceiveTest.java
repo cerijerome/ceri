@@ -1,7 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 import ceri.x10.command.FunctionType;

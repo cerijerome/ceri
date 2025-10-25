@@ -1,17 +1,17 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
+import ceri.common.test.Assert;
 
 public class Utf8Test {
 	private static final int _1B = 'A';
@@ -38,7 +38,7 @@ public class Utf8Test {
 	@Test
 	public void testCeilingStart() {
 		byte[] b = Utf8.encode(COMBO);
-		assertThrown(() -> Utf8.ceilingStart(b, -1));
+		Assert.thrown(() -> Utf8.ceilingStart(b, -1));
 		assertEquals(Utf8.ceilingStart(b, 0), 0);
 		assertEquals(Utf8.ceilingStart(b, 1), 1);
 		assertEquals(Utf8.ceilingStart(b, 2), 2);
@@ -50,15 +50,15 @@ public class Utf8Test {
 		assertEquals(Utf8.ceilingStart(b, 8), -1);
 		assertEquals(Utf8.ceilingStart(b, 9), -1);
 		assertEquals(Utf8.ceilingStart(b, 10), -1);
-		assertThrown(() -> Utf8.ceilingStart(b, 11));
-		assertThrown(() -> Utf8.ceilingStart(b, Integer.MIN_VALUE));
-		assertThrown(() -> Utf8.ceilingStart(b, Integer.MAX_VALUE));
+		Assert.thrown(() -> Utf8.ceilingStart(b, 11));
+		Assert.thrown(() -> Utf8.ceilingStart(b, Integer.MIN_VALUE));
+		Assert.thrown(() -> Utf8.ceilingStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testHigherStart() {
 		byte[] b = Utf8.encode(COMBO);
-		assertThrown(() -> Utf8.higherStart(b, -1));
+		Assert.thrown(() -> Utf8.higherStart(b, -1));
 		assertEquals(Utf8.higherStart(b, 0), 1);
 		assertEquals(Utf8.higherStart(b, 1), 2);
 		assertEquals(Utf8.higherStart(b, 2), 4);
@@ -70,15 +70,15 @@ public class Utf8Test {
 		assertEquals(Utf8.higherStart(b, 8), -1);
 		assertEquals(Utf8.higherStart(b, 9), -1);
 		assertEquals(Utf8.higherStart(b, 10), -1);
-		assertThrown(() -> Utf8.higherStart(b, 11));
-		assertThrown(() -> Utf8.higherStart(b, Integer.MIN_VALUE));
-		assertThrown(() -> Utf8.higherStart(b, Integer.MAX_VALUE));
+		Assert.thrown(() -> Utf8.higherStart(b, 11));
+		Assert.thrown(() -> Utf8.higherStart(b, Integer.MIN_VALUE));
+		Assert.thrown(() -> Utf8.higherStart(b, Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void testFloorStart() {
 		byte[] b = Utf8.encode(COMBO);
-		assertThrown(() -> Utf8.floorStart(b, -1));
+		Assert.thrown(() -> Utf8.floorStart(b, -1));
 		assertEquals(Utf8.floorStart(b, 0), 0);
 		assertEquals(Utf8.floorStart(b, 1), 1);
 		assertEquals(Utf8.floorStart(b, 2), 2);
@@ -90,9 +90,9 @@ public class Utf8Test {
 		assertEquals(Utf8.floorStart(b, 8), 7);
 		assertEquals(Utf8.floorStart(b, 9), 7);
 		assertEquals(Utf8.floorStart(b, 10), 7);
-		assertThrown(() -> Utf8.floorStart(b, 11));
-		assertThrown(() -> Utf8.floorStart(b, Integer.MIN_VALUE));
-		assertThrown(() -> Utf8.floorStart(b, Integer.MAX_VALUE));
+		Assert.thrown(() -> Utf8.floorStart(b, 11));
+		Assert.thrown(() -> Utf8.floorStart(b, Integer.MIN_VALUE));
+		Assert.thrown(() -> Utf8.floorStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
 		assertEquals(Utf8.floorStart(b2, 0), -1);
 		assertEquals(Utf8.floorStart(b2, 1), -1);
@@ -104,7 +104,7 @@ public class Utf8Test {
 	@Test
 	public void testLowerStart() {
 		byte[] b = Utf8.encode(COMBO);
-		assertThrown(() -> Utf8.lowerStart(b, -1));
+		Assert.thrown(() -> Utf8.lowerStart(b, -1));
 		assertEquals(Utf8.lowerStart(b, 0), -1);
 		assertEquals(Utf8.lowerStart(b, 1), 0);
 		assertEquals(Utf8.lowerStart(b, 2), 1);
@@ -116,9 +116,9 @@ public class Utf8Test {
 		assertEquals(Utf8.lowerStart(b, 8), 7);
 		assertEquals(Utf8.lowerStart(b, 9), 7);
 		assertEquals(Utf8.lowerStart(b, 10), 7);
-		assertThrown(() -> Utf8.lowerStart(b, 11));
-		assertThrown(() -> Utf8.lowerStart(b, Integer.MIN_VALUE));
-		assertThrown(() -> Utf8.lowerStart(b, Integer.MAX_VALUE));
+		Assert.thrown(() -> Utf8.lowerStart(b, 11));
+		Assert.thrown(() -> Utf8.lowerStart(b, Integer.MIN_VALUE));
+		Assert.thrown(() -> Utf8.lowerStart(b, Integer.MAX_VALUE));
 		byte[] b2 = new byte[] { (byte) 0x90, (byte) 0x80, 'A', (byte) 0xc2, (byte) 0xa9 };
 		assertEquals(Utf8.lowerStart(b2, 0), -1);
 		assertEquals(Utf8.lowerStart(b2, 1), -1);

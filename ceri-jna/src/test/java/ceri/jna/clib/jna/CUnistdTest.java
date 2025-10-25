@@ -1,12 +1,11 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFile;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFile;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
 import static ceri.jna.test.JnaTestUtil.assertCException;
@@ -16,6 +15,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor.Open;
@@ -146,13 +146,13 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file1", 0);
 		m = new Memory(3);
-		assertThrown(() -> CUnistd.read(fd, m, new byte[4])); // buffer too small
+		Assert.thrown(() -> CUnistd.read(fd, m, new byte[4])); // buffer too small
 	}
 
 	@Test
 	public void testFailToReadWithBadFileDescriptor() {
 		m = new Memory(4);
-		assertThrown(() -> CUnistd.read(-1, m, 4));
+		Assert.thrown(() -> CUnistd.read(-1, m, 4));
 	}
 
 	@Test
@@ -168,7 +168,7 @@ public class CUnistdTest {
 	@Test
 	public void testFailToWriteWithBadFileDescriptor() {
 		m = JnaUtil.mallocBytes("test".getBytes());
-		assertThrown(() -> CUnistd.write(-1, m, 4));
+		Assert.thrown(() -> CUnistd.write(-1, m, 4));
 	}
 
 	@Test
@@ -239,7 +239,7 @@ public class CUnistdTest {
 		assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 0);
 		assertEquals(CUnistd.lseek(fd, 0, Seek.END.value), 4);
 		assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 4);
-		assertThrown(() -> CUnistd.lseek(fd, -1, Seek.SET.value));
+		Assert.thrown(() -> CUnistd.lseek(fd, -1, Seek.SET.value));
 	}
 
 	@Test
@@ -255,7 +255,7 @@ public class CUnistdTest {
 		var lib = ref.init();
 		int fd = CFcntl.open("test", 0);
 		lib.lseek.autoResponses(3);
-		assertThrown(() -> CUnistd.position(fd, 2));
+		Assert.thrown(() -> CUnistd.position(fd, 2));
 	}
 
 	@Test

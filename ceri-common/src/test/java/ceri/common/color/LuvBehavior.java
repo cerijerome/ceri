@@ -6,11 +6,11 @@ import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertApproxArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertApproxArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class LuvBehavior {
@@ -42,12 +42,12 @@ public class LuvBehavior {
 
 	@Test
 	public void shouldProvideLightnessFromRef() {
-		assertApprox(Luv.Ref.CIE_D65.l(0), 0);
-		assertApprox(Luv.Ref.CIE_D65.l(0x123456), 0.21);
-		assertApprox(Luv.Ref.CIE_D65.l(0xffffff), 1.0);
-		assertApprox(Luv.Ref.CIE_D65.l(0.0), 0.0);
-		assertApprox(Luv.Ref.CIE_D65.l(0.5), 0.761);
-		assertApprox(Luv.Ref.CIE_D65.l(1.0), 1.0);
+		Assert.approx(Luv.Ref.CIE_D65.l(0), 0);
+		Assert.approx(Luv.Ref.CIE_D65.l(0x123456), 0.21);
+		Assert.approx(Luv.Ref.CIE_D65.l(0xffffff), 1.0);
+		Assert.approx(Luv.Ref.CIE_D65.l(0.0), 0.0);
+		Assert.approx(Luv.Ref.CIE_D65.l(0.5), 0.761);
+		Assert.approx(Luv.Ref.CIE_D65.l(1.0), 1.0);
 	}
 
 	@Test

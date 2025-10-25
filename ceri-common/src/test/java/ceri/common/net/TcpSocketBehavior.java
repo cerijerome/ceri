@@ -1,13 +1,13 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestTcpSocket;
 
 public class TcpSocketBehavior {
@@ -24,9 +24,9 @@ public class TcpSocketBehavior {
 	@Test
 	public void shouldFailToWrapBadSocket() throws IOException {
 		try (Socket s = new Socket()) {
-			assertThrown(() -> TcpSocket.wrap(s)); // not connected
+			Assert.thrown(() -> TcpSocket.wrap(s)); // not connected
 		}
-		assertThrown(() -> TcpSocket.connect(HostPort.LOCALHOST)); // port out of range -1
+		Assert.thrown(() -> TcpSocket.connect(HostPort.LOCALHOST)); // port out of range -1
 	}
 
 	@Test

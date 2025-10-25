@@ -1,11 +1,10 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotSame;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class ThreadBuffersBehavior {
@@ -40,16 +39,16 @@ public class ThreadBuffersBehavior {
 	@Test
 	public void shouldReallocateFreedBuffer() {
 		var m = buffers.get();
-		assertSame(buffers.get(), m);
+		Assert.same(buffers.get(), m);
 		m.close();
-		assertNotSame(buffers.get(), m);
+		Assert.notSame(buffers.get(), m);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideBufferPerThread() {
 		var m = TestUtil.threadCall(buffers::get);
-		assertNotSame(buffers.get(), m);
+		Assert.notSame(buffers.get(), m);
 	}
 
 	@SuppressWarnings("resource")
@@ -57,7 +56,7 @@ public class ThreadBuffersBehavior {
 	public void shouldRemoveBuffer() {
 		var m = buffers.get();
 		buffers.remove();
-		assertNotSame(buffers.get(), m);
+		Assert.notSame(buffers.get(), m);
 	}
 
 }

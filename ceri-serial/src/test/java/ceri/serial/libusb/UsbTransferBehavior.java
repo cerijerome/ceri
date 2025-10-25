@@ -1,10 +1,9 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertUnordered;
 import static ceri.jna.test.JnaTestUtil.buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
@@ -24,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.jna.util.JnaUtil;
 import ceri.log.test.LogModifier;
@@ -110,8 +110,8 @@ public class UsbTransferBehavior {
 		CallSync.Consumer<BulkStream> callback = CallSync.consumer(null, true);
 		try (var streams = handle.bulkStreams(2, 0x81, 0x02);
 			var transfer = streams.bulkTransfer(0x81, 2, callback)) {
-			assertThrown(() -> streams.bulkTransfer(0x01, 1, _ -> {}));
-			assertThrown(() -> streams.bulkTransfer(0x81, 3, _ -> {}));
+			Assert.thrown(() -> streams.bulkTransfer(0x01, 1, _ -> {}));
+			Assert.thrown(() -> streams.bulkTransfer(0x81, 3, _ -> {}));
 			assertEquals(transfer.streamId(), 2);
 			transfer.buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
@@ -128,7 +128,7 @@ public class UsbTransferBehavior {
 		LogModifier.run(() -> {
 			try (var streams = handle.bulkStreams(2, 0x81, 0x02)) {
 				handle.close();
-				assertThrown(() -> streams.bulkTransfer(0x81, 1, _ -> {}));
+				Assert.thrown(() -> streams.bulkTransfer(0x81, 1, _ -> {}));
 			}
 		}, Level.OFF, LogUtil.class);
 	}
@@ -188,7 +188,7 @@ public class UsbTransferBehavior {
 				transfer.submit();
 				transfer.cancel();
 				transfer.close();
-				assertThrown(() -> transfer.submit());
+				Assert.thrown(() -> transfer.submit());
 			}
 		}, Level.OFF, LogUtil.class);
 	}

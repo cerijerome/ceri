@@ -1,7 +1,6 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertEquals;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -10,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.Concurrent;
+import ceri.common.test.Assert;
 
 public class CloseableExecutorBehavior {
 
@@ -27,7 +27,7 @@ public class CloseableExecutorBehavior {
 		try (CloseableExecutor exec = CloseableExecutor.single()) {
 			assertEquals(exec.submit(() -> "test1").get(), "test1");
 			assertEquals(exec.submit(() -> {}, "test2").get(), "test2");
-			assertNull(exec.submit(() -> {}).get());
+			Assert.isNull(exec.submit(() -> {}).get());
 		}
 	}
 

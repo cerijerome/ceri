@@ -1,11 +1,9 @@
 package ceri.jna.type;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertOrdered;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static ceri.jna.util.JnaTestData.assertStruct;
 import java.util.List;
@@ -13,6 +11,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Align;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.type.Struct.Packed;
@@ -82,7 +81,7 @@ public class StructBehavior {
 	@Test
 	public void testSize() {
 		assertEquals(Struct.size((TestStruct) null), 0);
-		assertThrown(() -> Struct.size((Functions.Function<Pointer, TestStruct>) null));
+		Assert.thrown(() -> Struct.size((Functions.Function<Pointer, TestStruct>) null));
 	}
 
 	@Test
@@ -120,8 +119,8 @@ public class StructBehavior {
 
 	@Test
 	public void testWriteAuto() {
-		assertNull(Struct.writeAuto((TestStruct) null));
-		assertNull(Struct.writeAuto((TestStruct[]) null));
+		Assert.isNull(Struct.writeAuto((TestStruct) null));
+		Assert.isNull(Struct.writeAuto((TestStruct[]) null));
 		TestStruct[] array0 = { new TestStruct(100, null, 1), new TestStruct(200, null, 2) };
 		array0[1].setAutoWrite(false);
 		Struct.writeAuto(array0);
@@ -133,8 +132,8 @@ public class StructBehavior {
 
 	@Test
 	public void testReadAuto() {
-		assertNull(Struct.readAuto((TestStruct) null));
-		assertNull(Struct.readAuto((TestStruct[]) null));
+		Assert.isNull(Struct.readAuto((TestStruct) null));
+		Assert.isNull(Struct.readAuto((TestStruct[]) null));
 		TestStruct t0 = Struct.writeAuto(new TestStruct(100, null, 1));
 		TestStruct[] array = { new TestStruct(t0.getPointer()), new TestStruct(t0.getPointer()) };
 		array[1].setAutoRead(false);
@@ -145,8 +144,8 @@ public class StructBehavior {
 
 	@Test
 	public void testAdapt() {
-		assertNull(Struct.adapt(null, _ -> null));
-		assertNull(Struct.adapt(new TestStruct(), _ -> null));
+		Assert.isNull(Struct.adapt(null, _ -> null));
+		Assert.isNull(Struct.adapt(new TestStruct(), _ -> null));
 	}
 
 	@Test
@@ -243,7 +242,7 @@ public class StructBehavior {
 	@Test
 	public void testArrayByValForNullConstruction() {
 		var t = new TestStruct(100, null, 1, 2, 3);
-		assertThrown(() -> Struct.arrayByVal(t.getPointer(), _ -> null, null, 3));
+		Assert.thrown(() -> Struct.arrayByVal(t.getPointer(), _ -> null, null, 3));
 		assertArray(Struct.arrayByVal(() -> null, TestStruct[]::new, 3), null, null, null);
 	}
 
@@ -360,7 +359,7 @@ public class StructBehavior {
 
 	@Test
 	public void shouldFailIfNoFieldAnnotation() {
-		assertThrown(() -> new NoAnno());
+		Assert.thrown(() -> new NoAnno());
 	}
 
 	@Test
@@ -380,5 +379,4 @@ public class StructBehavior {
 		assertOrdered(new TestStruct.ByRef(null).getFieldOrder(), "i", "b", "p");
 		assertOrdered(new TestStruct.ByVal().getFieldOrder(), "i", "b", "p");
 	}
-
 }

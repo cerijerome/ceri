@@ -1,14 +1,13 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertTrue;
 import java.net.UnknownHostException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class HostPortBehavior {
@@ -19,21 +18,21 @@ public class HostPortBehavior {
 		assertHostPort(HostPort.parse("localhost:8080"), "localhost", 8080);
 		assertHostPort(HostPort.parse("127.0.0.1"), "127.0.0.1");
 		assertHostPort(HostPort.parse("127.0.0.1:8080"), "127.0.0.1", 8080);
-		assertNull(HostPort.parse(""));
-		assertNull(HostPort.parse(":"));
-		assertNull(HostPort.parse("localhost:"));
-		assertNull(HostPort.parse(":80"));
+		Assert.isNull(HostPort.parse(""));
+		Assert.isNull(HostPort.parse(":"));
+		Assert.isNull(HostPort.parse("localhost:"));
+		Assert.isNull(HostPort.parse(":80"));
 	}
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		HostPort obj = HostPort.of("test", 777);
-		HostPort eq0 = HostPort.of("test", 777);
-		HostPort eq1 = HostPort.parse("test:777");
-		HostPort ne0 = HostPort.of("tests", 777);
-		HostPort ne1 = HostPort.of("test", 776);
-		HostPort ne2 = HostPort.of("test");
-		HostPort ne3 = HostPort.localhost(777);
+		var obj = HostPort.of("test", 777);
+		var eq0 = HostPort.of("test", 777);
+		var eq1 = HostPort.parse("test:777");
+		var ne0 = HostPort.of("tests", 777);
+		var ne1 = HostPort.of("test", 776);
+		var ne2 = HostPort.of("test");
+		var ne3 = HostPort.localhost(777);
 		TestUtil.exerciseEquals(obj, eq0, eq1);
 		assertAllNotEqual(obj, ne0, ne1, ne2, ne3);
 		assertNotEquals(obj.toString(), ne2.toString());
@@ -79,10 +78,10 @@ public class HostPortBehavior {
 
 	static void assertHostPort(HostPort hostPort, String host, int port) {
 		if (host == null) {
-			assertNull(hostPort);
+			Assert.isNull(hostPort);
 			return;
 		}
-		assertNotNull(hostPort);
+		Assert.notNull(hostPort);
 		assertEquals(hostPort.host, host);
 		assertEquals(hostPort.port, port);
 	}

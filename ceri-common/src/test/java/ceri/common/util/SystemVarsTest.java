@@ -1,12 +1,12 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPath;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPath;
+import static ceri.common.test.Assert.assertUnordered;
 import java.io.File;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SystemVarsTest {
@@ -35,12 +35,12 @@ public class SystemVarsTest {
 
 	@Test
 	public void testSysPath() {
-		assertNull(SystemVars.sysPath("?"));
+		Assert.isNull(SystemVars.sysPath("?"));
 	}
 
 	@Test
 	public void testEnvPath() {
-		assertNull(SystemVars.envPath("?"));
+		Assert.isNull(SystemVars.envPath("?"));
 		var name = TestUtil.firstEnvironmentVariableName();
 		assertPath(SystemVars.envPath(name), SystemVars.env(name));
 	}
@@ -83,8 +83,8 @@ public class SystemVarsTest {
 
 	@Test
 	public void testSetNullProperty() {
-		assertNull(SystemVars.setProperty(null, "test"));
-		assertNull(SystemVars.setProperty(" ", "test"));
+		Assert.isNull(SystemVars.setProperty(null, "test"));
+		Assert.isNull(SystemVars.setProperty(" ", "test"));
 	}
 
 	@Test
@@ -98,43 +98,43 @@ public class SystemVarsTest {
 
 	@Test
 	public void testRemove() {
-		assertNull(SystemVars.remove(null));
-		assertNull(SystemVars.remove("!@#$%"));
-		assertNull(SystemVars.set("!@#$%", "test"));
+		Assert.isNull(SystemVars.remove(null));
+		Assert.isNull(SystemVars.remove("!@#$%"));
+		Assert.isNull(SystemVars.set("!@#$%", "test"));
 		assertEquals(SystemVars.remove("!@#$%"), "test");
-		assertNull(SystemVars.remove("!@#$%"));
-		assertNull(SystemVars.env("!@#$%"));
-		assertNull(SystemVars.sys("!@#$%"));
+		Assert.isNull(SystemVars.remove("!@#$%"));
+		Assert.isNull(SystemVars.env("!@#$%"));
+		Assert.isNull(SystemVars.sys("!@#$%"));
 	}
 
 	@Test
 	public void testSetNull() {
-		assertNull(SystemVars.set("!@#$%", "test"));
+		Assert.isNull(SystemVars.set("!@#$%", "test"));
 		assertEquals(SystemVars.env("!@#$%"), "test");
 		assertEquals(SystemVars.sys("!@#$%"), "test");
 		assertEquals(SystemVars.set("!@#$%", null), "test");
-		assertNull(SystemVars.env("!@#$%"));
-		assertNull(SystemVars.sys("!@#$%"));
+		Assert.isNull(SystemVars.env("!@#$%"));
+		Assert.isNull(SystemVars.sys("!@#$%"));
 	}
 
 	@Test
 	public void testSetNullToHideVariables() {
 		String name = TestUtil.firstSystemPropertyName();
-		assertNull(SystemVars.set(name, null));
-		assertNull(SystemVars.sys(name));
+		Assert.isNull(SystemVars.set(name, null));
+		Assert.isNull(SystemVars.sys(name));
 		assertEquals(SystemVars.sys(name, "test"), "test");
 		var map = SystemVars.sys();
-		assertNull(map.get(name));
+		Assert.isNull(map.get(name));
 	}
 
 	@Test
 	public void testSet() {
-		assertNull(SystemVars.env("!@#$%"));
-		assertNull(SystemVars.sys("!@#$%"));
-		assertNull(SystemVars.set(null, null));
-		assertNull(SystemVars.set(null, "test"));
-		assertNull(SystemVars.set("!@#$%", null));
-		assertNull(SystemVars.set("!@#$%", "test"));
+		Assert.isNull(SystemVars.env("!@#$%"));
+		Assert.isNull(SystemVars.sys("!@#$%"));
+		Assert.isNull(SystemVars.set(null, null));
+		Assert.isNull(SystemVars.set(null, "test"));
+		Assert.isNull(SystemVars.set("!@#$%", null));
+		Assert.isNull(SystemVars.set("!@#$%", "test"));
 		assertEquals(SystemVars.set("!@#$%", "test2"), "test");
 		assertEquals(SystemVars.env("!@#$%"), "test2");
 		assertEquals(SystemVars.sys("!@#$%"), "test2");
@@ -142,13 +142,13 @@ public class SystemVarsTest {
 
 	@Test
 	public void testEnvWithDefault() {
-		assertNull(SystemVars.env("!@#$%"));
+		Assert.isNull(SystemVars.env("!@#$%"));
 		assertEquals(SystemVars.env("!@#$%", "test"), "test");
 	}
 
 	@Test
 	public void testSysWithDefault() {
-		assertNull(SystemVars.sys("!@#$%"));
+		Assert.isNull(SystemVars.sys("!@#$%"));
 		assertEquals(SystemVars.sys("!@#$%", "test"), "test");
 	}
 

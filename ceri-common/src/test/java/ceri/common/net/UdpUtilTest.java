@@ -1,9 +1,7 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -13,6 +11,7 @@ import java.net.UnknownHostException;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
+import ceri.common.test.Assert;
 
 public class UdpUtilTest {
 
@@ -25,9 +24,9 @@ public class UdpUtilTest {
 	public void testHostPort() throws IOException {
 		InetAddress address = InetAddress.getLocalHost();
 		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
-			assertNull(UdpUtil.hostPort(null));
+			Assert.isNull(UdpUtil.hostPort(null));
 			socket.getInetAddress.autoResponse(() -> null);
-			assertThrown(() -> UdpUtil.hostPort(socket));
+			Assert.thrown(() -> UdpUtil.hostPort(socket));
 			socket.getInetAddress.autoResponses(address);
 			socket.getPort.autoResponses(777);
 			HostPortBehavior.assertHostPort(UdpUtil.hostPort(socket), address.getHostAddress(),
@@ -47,7 +46,7 @@ public class UdpUtilTest {
 		byte[] buffer = new byte[100];
 		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
 			socket.receive.error.setFrom(SocketTimeoutException::new);
-			assertNull(UdpUtil.receive(socket, buffer));
+			Assert.isNull(UdpUtil.receive(socket, buffer));
 		}
 	}
 

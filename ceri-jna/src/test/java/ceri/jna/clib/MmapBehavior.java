@@ -1,7 +1,7 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFind;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;

@@ -1,7 +1,7 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertExists;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertExists;
 import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.After;

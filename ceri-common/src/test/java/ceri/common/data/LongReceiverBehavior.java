@@ -1,14 +1,14 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
+import ceri.common.test.Assert;
 
 public class LongReceiverBehavior {
 
@@ -17,7 +17,7 @@ public class LongReceiverBehavior {
 	@Test
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(LongReceiver.empty().length(), 0);
-		assertThrown(() -> LongReceiver.empty().setLong(0, 0));
+		Assert.thrown(() -> LongReceiver.empty().setLong(0, 0));
 	}
 
 	@Test
@@ -34,8 +34,8 @@ public class LongReceiverBehavior {
 		assertTrue(lr.slice(5).isEmpty());
 		assertTrue(lr.slice(4, 0).isEmpty());
 		assertEquals(lr.slice(0), lr);
-		assertThrown(() -> lr.slice(1, 4));
-		assertThrown(() -> lr.slice(0, 4));
+		Assert.thrown(() -> lr.slice(1, 4));
+		Assert.thrown(() -> lr.slice(0, 4));
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class LongReceiverBehavior {
 	@Test
 	public void shouldFillLongs() {
 		assertLongs(5, lr -> assertEquals(lr.fill(2, 0xff), 5), 0, 0, 0xff, 0xff, 0xff);
-		assertThrown(() -> receiver(5).fill(3, 3, 0));
+		Assert.thrown(() -> receiver(5).fill(3, 3, 0));
 	}
 
 	@Test
@@ -62,14 +62,14 @@ public class LongReceiverBehavior {
 	@Test
 	public void shouldCopyFromLongArray() {
 		assertLongs(5, lr -> assertEquals(lr.setLongs(1, 1, 2, 3), 4), 0, 1, 2, 3, 0);
-		assertThrown(() -> receiver(5).setLongs(4, 1, 2, 3));
+		Assert.thrown(() -> receiver(5).setLongs(4, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldCopyFromLongProvider() {
 		LongProvider bp = LongProviderBehavior.provider(1, 2, 3);
 		assertLongs(5, lr -> assertEquals(lr.copyFrom(1, bp), 4), 0, 1, 2, 3, 0);
-		assertThrown(() -> receiver(5).copyFrom(4, bp));
+		Assert.thrown(() -> receiver(5).copyFrom(4, bp));
 	}
 
 	@Test
@@ -77,9 +77,9 @@ public class LongReceiverBehavior {
 		assertLongs(5, lr -> lr.writer(3).fill(0xff), 0, 0, 0, 0xff, 0xff);
 		assertLongs(5, lr -> lr.writer(3, 0).fill(0xff), 0, 0, 0, 0, 0);
 		assertLongs(5, lr -> lr.writer(5).fill(0xff), 0, 0, 0, 0, 0);
-		assertThrown(() -> receiver(5).writer(6));
-		assertThrown(() -> receiver(5).writer(1, 5));
-		assertThrown(() -> receiver(5).writer(-1));
+		Assert.thrown(() -> receiver(5).writer(6));
+		Assert.thrown(() -> receiver(5).writer(1, 5));
+		Assert.thrown(() -> receiver(5).writer(-1));
 	}
 
 	/* LongReceiver.Writer tests */
@@ -87,7 +87,7 @@ public class LongReceiverBehavior {
 	@Test
 	public void shouldWriteLong() {
 		assertLongs(3, lr -> lr.writer(0).writeLong(1).writeLong(2), 1, 2, 0);
-		assertThrown(() -> receiver(3).writer(1, 0).writeLong(2));
+		Assert.thrown(() -> receiver(3).writer(1, 0).writeLong(2));
 	}
 
 	@Test
@@ -112,15 +112,15 @@ public class LongReceiverBehavior {
 		LongReceiver lr = receiver(ArrayUtil.longs.of(1, 2, 3, 4, 5));
 		assertEquals(lr.writer(0).receiver(), lr);
 		assertTrue(lr.writer(5, 0).receiver().isEmpty());
-		assertThrown(() -> lr.writer(2).receiver());
+		Assert.thrown(() -> lr.writer(2).receiver());
 	}
 
 	@Test
 	public void shouldSliceWriter() {
 		assertLongs(5, lr -> lr.writer(2).slice().fill(1), 0, 0, 1, 1, 1);
 		assertLongs(5, lr -> lr.writer(2).slice(2).fill(1), 0, 0, 1, 1, 0);
-		assertThrown(() -> receiver(5).writer(2).slice(4));
-		assertThrown(() -> receiver(5).writer(2).slice(-1));
+		Assert.thrown(() -> receiver(5).writer(2).slice(4));
+		Assert.thrown(() -> receiver(5).writer(2).slice(-1));
 	}
 
 	/* Support methods */

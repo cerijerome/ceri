@@ -1,8 +1,7 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -841,7 +840,7 @@ public abstract class CallSync<T, R> {
 	 */
 	private T awaitCallWithAutoResponse() {
 		return Concurrent.lockedGet(lock, () -> {
-			assertNotNull(autoResponseFn);
+			Assert.notNull(autoResponseFn);
 			return awaitCall();
 		});
 	}

@@ -1,6 +1,6 @@
 package ceri.common.event;
 
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.throwIt;
 import org.junit.Test;
 import ceri.common.test.CallSync;
 

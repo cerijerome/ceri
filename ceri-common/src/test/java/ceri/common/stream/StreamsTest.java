@@ -1,7 +1,7 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertStream;
 import org.junit.Test;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Maps;

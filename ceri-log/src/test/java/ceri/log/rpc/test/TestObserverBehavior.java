@@ -1,6 +1,6 @@
 package ceri.log.rpc.test;
 
-import static ceri.common.test.AssertUtil.assertThrowable;
+import static ceri.common.test.Assert.throwable;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class TestObserverBehavior {
 	public void shouldSetError() {
 		TestStreamObserver<String> observer = TestStreamObserver.of();
 		observer.onError(new IOException("test"));
-		assertThrowable(observer.error.awaitAuto(), IOException.class);
+		throwable(observer.error.awaitAuto(), IOException.class);
 	}
 
 	@Test

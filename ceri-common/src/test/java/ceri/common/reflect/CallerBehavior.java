@@ -1,17 +1,17 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class CallerBehavior {
 
 	@Test
 	public void shouldSupportNull() {
-		assertThrown(Caller.NULL::cls);
+		Assert.thrown(Caller.NULL::cls);
 	}
 
 	@Test

@@ -1,11 +1,11 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNpe;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.nullPointer;
 import org.junit.Test;
 import ceri.common.function.Excepts;
+import ceri.common.test.Assert;
 
 public class BasicsTest {
 
@@ -57,7 +57,7 @@ public class BasicsTest {
 
 	@Test
 	public void testDef() throws Exception {
-		assertNull(Basics.def(null, null));
+		Assert.isNull(Basics.def(null, null));
 		assertEquals(Basics.def(null, 1), 1);
 		assertEquals(Basics.def(1, null), 1);
 		assertEquals(Basics.def(1, (Excepts.Supplier<Exception, Integer>) null), 1);
@@ -66,7 +66,7 @@ public class BasicsTest {
 
 	@Test
 	public void testDefInt() {
-		assertNpe(() -> Basics.defInt(null, null));
+		nullPointer(() -> Basics.defInt(null, null));
 		assertEquals(Basics.defInt(null, -1), -1);
 		assertEquals(Basics.defInt(1, -1), 1);
 		assertEquals(Basics.defInt(null, () -> -1), -1);
@@ -75,7 +75,7 @@ public class BasicsTest {
 
 	@Test
 	public void testDefLong() {
-		assertNpe(() -> Basics.defLong(null, null));
+		nullPointer(() -> Basics.defLong(null, null));
 		assertEquals(Basics.defLong(null, -1), -1L);
 		assertEquals(Basics.defLong(1L, -1), 1L);
 		assertEquals(Basics.defLong(null, () -> -1), -1L);
@@ -84,7 +84,7 @@ public class BasicsTest {
 
 	@Test
 	public void testDefDouble() {
-		assertNpe(() -> Basics.defDouble(null, null));
+		nullPointer(() -> Basics.defDouble(null, null));
 		assertEquals(Basics.defDouble(null, -1), -1.0);
 		assertEquals(Basics.defDouble(1.0, -1), 1.0);
 		assertEquals(Basics.defDouble(null, () -> -1), -1.0);
@@ -106,9 +106,9 @@ public class BasicsTest {
 
 	@Test
 	public void testDefGetInt() {
-		assertNpe(() -> Basics.defGetInt(null, null));
+		nullPointer(() -> Basics.defGetInt(null, null));
 		assertEquals(Basics.defGetInt(null, () -> 1), 1);
-		assertNpe(() -> Basics.defGetInt(() -> null, null));
+		nullPointer(() -> Basics.defGetInt(() -> null, null));
 		assertEquals(Basics.defGetInt(() -> null, () -> 1), 1);
 		assertEquals(Basics.defGetInt(() -> -1, null), -1);
 		assertEquals(Basics.defGetInt(() -> -1, () -> 1), -1);
@@ -116,9 +116,9 @@ public class BasicsTest {
 
 	@Test
 	public void testDefGetLong() {
-		assertNpe(() -> Basics.defGetLong(null, null));
+		nullPointer(() -> Basics.defGetLong(null, null));
 		assertEquals(Basics.defGetLong(null, () -> 1), 1L);
-		assertNpe(() -> Basics.defGetLong(() -> null, null));
+		nullPointer(() -> Basics.defGetLong(() -> null, null));
 		assertEquals(Basics.defGetLong(() -> null, () -> 1), 1L);
 		assertEquals(Basics.defGetLong(() -> -1L, null), -1L);
 		assertEquals(Basics.defGetLong(() -> -1L, () -> 1), -1L);
@@ -126,9 +126,9 @@ public class BasicsTest {
 
 	@Test
 	public void testDefGetDouble() {
-		assertNpe(() -> Basics.defGetDouble(null, null));
+		nullPointer(() -> Basics.defGetDouble(null, null));
 		assertEquals(Basics.defGetDouble(null, () -> 1), 1.0);
-		assertNpe(() -> Basics.defGetDouble(() -> null, null));
+		nullPointer(() -> Basics.defGetDouble(() -> null, null));
 		assertEquals(Basics.defGetDouble(() -> null, () -> 1), 1.0);
 		assertEquals(Basics.defGetDouble(() -> -1.0, null), -1.0);
 		assertEquals(Basics.defGetDouble(() -> -1.0, () -> 1), -1.0);

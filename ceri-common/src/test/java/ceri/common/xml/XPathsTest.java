@@ -1,11 +1,11 @@
 package ceri.common.xml;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.runtime;
 import javax.xml.xpath.XPathException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class XPathsTest {
 	private static final String XML = "<a0 n='0'>" + //
@@ -28,7 +28,7 @@ public class XPathsTest {
 
 	@Test
 	public void testCompilingABadExpressionThrowsRuntimeException() {
-		assertRte(() -> XPaths.compile("-"));
+		runtime(() -> XPaths.compile("-"));
 	}
 
 	@Test
@@ -38,8 +38,8 @@ public class XPathsTest {
 		var node = XPaths.node("//c1/text()", root);
 		assertEquals(node.getTextContent(), "C11");
 		in = Xml.input(XML);
-		assertNull(XPaths.node("//d0", in));
-		assertNull(XPaths.node("//d0", root));
+		Assert.isNull(XPaths.node("//d0", in));
+		Assert.isNull(XPaths.node("//d0", root));
 	}
 
 	@Test

@@ -1,12 +1,12 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 import ceri.jna.test.JnaTestUtil;
 import ceri.jna.test.JnaTestUtil.MemCache;
 import ceri.jna.type.JnaSize;
@@ -94,7 +94,7 @@ public class JnaTestData {
 	 * Assert struct fields.
 	 */
 	public static void assertStruct(TestStruct t, int i, Pointer p, byte[] bytes) {
-		assertNotNull(t);
+		Assert.notNull(t);
 		assertEquals(t.i, i);
 		assertEquals(t.p, p);
 		assertArray(t.b, bytes);

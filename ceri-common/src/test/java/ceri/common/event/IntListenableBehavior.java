@@ -1,6 +1,6 @@
 package ceri.common.event;
 
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;

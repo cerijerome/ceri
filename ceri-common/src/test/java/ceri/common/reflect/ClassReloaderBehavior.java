@@ -1,9 +1,7 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.AssertUtil.assertNotSame;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertThrown;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ClassReloaderBehavior {
 
@@ -16,20 +14,20 @@ public class ClassReloaderBehavior {
 	@Test
 	public void shouldFailToFindDelegatedClass() {
 		var cl = ClassReloader.of();
-		assertThrown(() -> cl.findClass(String.class.getName()));
+		Assert.thrown(() -> cl.findClass(String.class.getName()));
 	}
 
 	@Test
 	public void shouldFailToReloadInvalidClass() {
 		var cl = ClassReloader.of(Nested.class);
-		assertThrown(() -> cl.findClass("$"));
+		Assert.thrown(() -> cl.findClass("$"));
 	}
 
 	@Test
 	public void shouldReloadClass() {
 		var c1 = ClassReloader.reload(Nested.class);
 		var c2 = ClassReloader.reload(Nested.class);
-		assertNotSame(c1, c2);
+		Assert.notSame(c1, c2);
 	}
 
 	@Test
@@ -38,8 +36,8 @@ public class ClassReloaderBehavior {
 		var c0 = Nested.class;
 		var c1 = cl.loadClass(Nested.class.getName());
 		var c2 = cl.loadClass(Nested.class.getName());
-		assertNotSame(c0, c1);
-		assertSame(c1, c2);
+		Assert.notSame(c0, c1);
+		Assert.same(c1, c2);
 	}
 
 	@Test
@@ -48,8 +46,8 @@ public class ClassReloaderBehavior {
 		var c0 = Nested.Nested2.class;
 		var c1 = cl.forName(Nested.Nested2.class, false);
 		var c2 = cl.forName(Nested.Nested2.class, true);
-		assertSame(c0, c1);
-		assertSame(c1, c2);
+		Assert.same(c0, c1);
+		Assert.same(c1, c2);
 	}
 
 	@Test
@@ -58,8 +56,8 @@ public class ClassReloaderBehavior {
 		var c0 = Nested.Nested2.class;
 		var c1 = cl.forName(Nested.Nested2.class, false);
 		var c2 = cl.forName(Nested.Nested2.class, true);
-		assertNotSame(c0, c1);
-		assertSame(c1, c2);
+		Assert.notSame(c0, c1);
+		Assert.same(c1, c2);
 	}
 
 	private static class Nested {

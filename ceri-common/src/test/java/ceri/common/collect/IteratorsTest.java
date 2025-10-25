@@ -1,9 +1,9 @@
 package ceri.common.collect;
 
 import static ceri.common.collect.Iterators.ofNull;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIterator;
-import static ceri.common.test.AssertUtil.assertNoSuchElement;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertIterator;
+import static ceri.common.test.Assert.noSuchElement;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
@@ -22,10 +22,10 @@ public class IteratorsTest {
 
 	@Test
 	public void testNull() {
-		assertNoSuchElement(Iterators.ofNull()::next);
-		assertNoSuchElement(Iterators.nullInt::next);
-		assertNoSuchElement(Iterators.nullLong::next);
-		assertNoSuchElement(Iterators.nullDouble::next);
+		noSuchElement(Iterators.ofNull()::next);
+		noSuchElement(Iterators.nullInt::next);
+		noSuchElement(Iterators.nullLong::next);
+		noSuchElement(Iterators.nullDouble::next);
 	}
 
 	@Test

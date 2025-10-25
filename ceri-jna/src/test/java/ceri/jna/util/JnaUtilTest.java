@@ -1,10 +1,8 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertBuffer;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertBuffer;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.util.JnaTestData.assertEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -21,6 +19,7 @@ import com.sun.jna.ptr.ShortByReference;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteUtil;
 import ceri.common.reflect.ClassReloader;
+import ceri.common.test.Assert;
 import ceri.common.util.SystemVars;
 import ceri.jna.type.IntType;
 import ceri.jna.type.Struct;
@@ -64,22 +63,22 @@ public class JnaUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testMalloc() {
-		assertNull(JnaUtil.malloc(0));
+		Assert.isNull(JnaUtil.malloc(0));
 		assertEquals(JnaUtil.malloc(3).size(), 3L);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCalloc() {
-		assertNull(JnaUtil.calloc(0));
+		Assert.isNull(JnaUtil.calloc(0));
 		assertMemory(JnaUtil.calloc(5), 0, 0, 0, 0, 0, 0);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testMallocBytes() {
-		assertNull(JnaUtil.mallocBytes(new byte[0]));
-		assertNull(JnaUtil.mallocBytes(ArrayUtil.bytes.of(1, 2, 3), 1, 0));
+		Assert.isNull(JnaUtil.mallocBytes(new byte[0]));
+		Assert.isNull(JnaUtil.mallocBytes(ArrayUtil.bytes.of(1, 2, 3), 1, 0));
 		assertMemory(JnaUtil.mallocBytes(ArrayUtil.bytes.of(-1, -2, -3)), 0, -1, -2, -3);
 	}
 
@@ -149,10 +148,10 @@ public class JnaUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testShare() {
-		assertNull(JnaUtil.share(null, 0));
-		assertNull(JnaUtil.share(null, 0, 0));
-		assertThrown(() -> JnaUtil.share(null, 1));
-		assertThrown(() -> JnaUtil.share(null, 0, 1));
+		Assert.isNull(JnaUtil.share(null, 0));
+		Assert.isNull(JnaUtil.share(null, 0, 0));
+		Assert.thrown(() -> JnaUtil.share(null, 1));
+		Assert.thrown(() -> JnaUtil.share(null, 0, 1));
 		Memory m = JnaUtil.mallocBytes(1, 2, 3);
 		assertMemory(JnaUtil.share(m, 0), 0, 1, 2, 3);
 		assertMemory(JnaUtil.share(m, 0, 2), 0, 1, 2);
@@ -186,7 +185,7 @@ public class JnaUtilTest {
 		data.assertStructRead(JnaUtil.byRef(p, 0, TestStruct::new), 0);
 		data.assertStructRead(JnaUtil.byRef(p, 1, TestStruct::new), 1);
 		data.assertStructRead(JnaUtil.byRef(p, 2, TestStruct::new), 2);
-		assertNull(JnaUtil.byRef(p, 3, TestStruct::new));
+		Assert.isNull(JnaUtil.byRef(p, 3, TestStruct::new));
 	}
 
 	@Test
@@ -272,7 +271,7 @@ public class JnaUtilTest {
 	@Test
 	public void testBytesFromPointer() {
 		assertArray(JnaUtil.bytes(Pointer.NULL, 0, 0));
-		assertThrown(() -> JnaUtil.bytes(Pointer.NULL, 0, 1));
+		Assert.thrown(() -> JnaUtil.bytes(Pointer.NULL, 0, 1));
 	}
 
 	@Test
@@ -300,14 +299,14 @@ public class JnaUtilTest {
 
 	@Test
 	public void testBytesFromNullBuffer() {
-		assertThrown(() -> JnaUtil.bytes((ByteBuffer) null, 0, 0));
-		assertThrown(() -> JnaUtil.bytes((ByteBuffer) null, 0, 1));
+		Assert.thrown(() -> JnaUtil.bytes((ByteBuffer) null, 0, 0));
+		Assert.thrown(() -> JnaUtil.bytes((ByteBuffer) null, 0, 1));
 	}
 
 	@Test
 	public void testBufferPointer() {
 		assertEquals(JnaUtil.pointer(null), null);
-		assertThrown(() -> JnaUtil.pointer(ByteBuffer.allocate(3)));
+		Assert.thrown(() -> JnaUtil.pointer(ByteBuffer.allocate(3)));
 		var buffer = ByteBuffer.allocateDirect(3);
 		buffer.put(ArrayUtil.bytes.of(1, 2, 3));
 		assertArray(JnaUtil.bytes(JnaUtil.pointer(buffer), 0, 3), 1, 2, 3);
@@ -317,7 +316,7 @@ public class JnaUtilTest {
 	public void testBuffer() {
 		assertBuffer(JnaUtil.buffer(null, 0));
 		assertBuffer(JnaUtil.buffer(null, 0, 0));
-		assertThrown(() -> JnaUtil.buffer(null, 0, 1));
+		Assert.thrown(() -> JnaUtil.buffer(null, 0, 1));
 		try (Memory m = JnaUtil.mallocBytes(0x80, 0, 0xff)) {
 			assertBuffer(JnaUtil.buffer(m), 0x80, 0, 0xff);
 		}
@@ -363,8 +362,8 @@ public class JnaUtilTest {
 	@Test
 	public void testReadFromNull() {
 		JnaUtil.read(null, new byte[0]);
-		assertThrown(() -> JnaUtil.write(null, new byte[0], 1, 0));
-		assertThrown(() -> JnaUtil.write(null, new byte[1]));
+		Assert.thrown(() -> JnaUtil.write(null, new byte[0], 1, 0));
+		Assert.thrown(() -> JnaUtil.write(null, new byte[1]));
 	}
 
 	@Test
@@ -378,14 +377,14 @@ public class JnaUtilTest {
 	@Test
 	public void testWriteToNull() {
 		JnaUtil.write(null, 0);
-		assertThrown(() -> JnaUtil.write(null, 1));
-		assertThrown(() -> JnaUtil.write(null, 0, 1, 2, 3));
+		Assert.thrown(() -> JnaUtil.write(null, 1));
+		Assert.thrown(() -> JnaUtil.write(null, 0, 1, 2, 3));
 	}
 
 	@Test
 	public void testFill() {
 		JnaUtil.fill(null, 0x33);
-		assertThrown(() -> JnaUtil.fill(null, 1, 0x33));
+		Assert.thrown(() -> JnaUtil.fill(null, 1, 0x33));
 		@SuppressWarnings("resource")
 		var m = JnaUtil.mallocBytes(-1, 0, 0x80, 1);
 		JnaUtil.fill(m, 0x9f);
@@ -417,5 +416,4 @@ public class JnaUtilTest {
 			assertEquals(JnaUtil.DEFAULT_CHARSET, Charset.defaultCharset());
 		}
 	}
-
 }

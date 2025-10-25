@@ -1,12 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
 import static java.lang.Long.MAX_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.data.LongArray.Mutable;
 import ceri.common.function.Excepts.Consumer;
+import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
 public class LongWriterBehavior {
@@ -27,19 +27,19 @@ public class LongWriterBehavior {
 	public void shouldFillLongs() {
 		assertLongs(3, w -> w.fill(0, 0xff), 0, 0, 0);
 		assertLongs(3, w -> w.fill(2, 0xff), 0xff, 0xff, 0);
-		assertThrown(() -> writer(3).fill(4, 0xff));
+		Assert.thrown(() -> writer(3).fill(4, 0xff));
 	}
 
 	@Test
 	public void shouldWriteFromIntArray() {
 		assertLongs(3, w -> w.writeLongs(1, 2, 3), 1, 2, 3);
-		assertThrown(() -> writer(3).writeLongs(1, 2, 3, 4));
+		Assert.thrown(() -> writer(3).writeLongs(1, 2, 3, 4));
 	}
 
 	@Test
 	public void shouldWriteFromIntProvider() {
 		assertLongs(3, w -> w.writeFrom(Mutable.wrap(1, 2, 3)), 1, 2, 3);
-		assertThrown(() -> writer(3).writeFrom(Mutable.wrap(1, 2, 3, 4)));
+		Assert.thrown(() -> writer(3).writeFrom(Mutable.wrap(1, 2, 3, 4)));
 	}
 
 	/**

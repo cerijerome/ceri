@@ -1,7 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
 
 public class RadixTest {

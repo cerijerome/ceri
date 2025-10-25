@@ -1,11 +1,9 @@
 package ceri.common.time;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,6 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class DatesTest {
 
@@ -57,17 +56,17 @@ public class DatesTest {
 	public void testMicrosExactFromInstant() {
 		assertEquals(Dates.microsExact(Instant.ofEpochMilli(1000)), 1000000L);
 		assertEquals(Dates.microsExact(Instant.ofEpochSecond(12345, 123456789)), 12345123456L);
-		assertThrown(() -> Dates.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
-		assertThrown(() -> Dates
-			.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE / 1000000L, 999999000)));
+		Assert.thrown(() -> Dates.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
+		Assert.thrown(
+			() -> Dates.microsExact(Instant.ofEpochSecond(Long.MAX_VALUE / 1000000L, 999999000)));
 	}
 
 	@Test
 	public void testMicrosExactFromDuration() {
 		assertEquals(Dates.microsExact(Duration.ofMillis(1000)), 1000000L);
 		assertEquals(Dates.microsExact(Duration.ofSeconds(12345, 123456789)), 12345123456L);
-		assertThrown(() -> Dates.microsExact(Duration.ofSeconds(Long.MAX_VALUE)));
-		assertThrown(
+		Assert.thrown(() -> Dates.microsExact(Duration.ofSeconds(Long.MAX_VALUE)));
+		Assert.thrown(
 			() -> Dates.microsExact(Duration.ofSeconds(Long.MAX_VALUE / 1000000L, 999999000)));
 	}
 
@@ -75,8 +74,8 @@ public class DatesTest {
 	public void testMillisExactFromInstant() {
 		assertEquals(Dates.millisExact(Instant.ofEpochSecond(1000)), 1000000L);
 		assertEquals(Dates.millisExact(Instant.ofEpochSecond(12345, 123456789)), 12345123L);
-		assertThrown(() -> Dates.millisExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
-		assertThrown(
+		Assert.thrown(() -> Dates.millisExact(Instant.ofEpochSecond(Long.MAX_VALUE)));
+		Assert.thrown(
 			() -> Dates.millisExact(Instant.ofEpochSecond(Long.MAX_VALUE / 1000L, 999000000)));
 	}
 
@@ -84,9 +83,9 @@ public class DatesTest {
 	public void testMillisExactFromDuration() {
 		assertEquals(Dates.millisExact(Duration.ofSeconds(1000)), 1000000L);
 		assertEquals(Dates.millisExact(Duration.ofSeconds(12345, 123456789)), 12345123L);
-		assertThrown(() -> Dates.millisExact(Duration.ofSeconds(Long.MAX_VALUE)));
-		assertThrown(
-			() -> Dates.millisExact(Duration.ofSeconds(Long.MAX_VALUE / 1000L, 999000000)));
+		Assert.thrown(() -> Dates.millisExact(Duration.ofSeconds(Long.MAX_VALUE)));
+		Assert
+			.thrown(() -> Dates.millisExact(Duration.ofSeconds(Long.MAX_VALUE / 1000L, 999000000)));
 	}
 
 	@Test
@@ -161,12 +160,12 @@ public class DatesTest {
 	@Test
 	public void testTimeToDuration() {
 		assertEquals(Dates.toDuration(LocalTime.of(2, 15)), Duration.ofMinutes(135));
-		assertNull(Dates.toDuration(null));
+		Assert.isNull(Dates.toDuration(null));
 	}
 
 	@Test
 	public void testDurationToTime() {
 		assertEquals(Dates.toTime(Duration.ofMinutes(135)), LocalTime.of(2, 15));
-		assertNull(Dates.toTime(null));
+		Assert.isNull(Dates.toTime(null));
 	}
 }

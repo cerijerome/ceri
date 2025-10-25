@@ -1,19 +1,16 @@
 package ceri.common.except;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertInstance;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.Excepts;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.common.text.Regex;
 import ceri.common.text.Strings;
@@ -39,45 +36,45 @@ public class ExceptionsTest {
 
 	@Test
 	public void testFrom() {
-		assertThrowable(Exceptions.from(IOException::new, "%d", 123), IOException.class, "123");
+		Assert.throwable(Exceptions.from(IOException::new, "%d", 123), IOException.class, "123");
 	}
 
 	@Test
 	public void testNullPtr() {
-		assertThrowable(Exceptions.nullPtr("%d", 123), NullPointerException.class, "123");
+		Assert.throwable(Exceptions.nullPtr("%d", 123), NullPointerException.class, "123");
 	}
 
 	@Test
 	public void testIllegalArg() {
-		assertThrowable(Exceptions.illegalArg("%d", 123), IllegalArgumentException.class, "123");
+		Assert.throwable(Exceptions.illegalArg("%d", 123), IllegalArgumentException.class, "123");
 	}
 
 	@Test
 	public void testIllegalState() {
-		assertThrowable(Exceptions.illegalState("%d", 123), IllegalStateException.class, "123");
+		Assert.throwable(Exceptions.illegalState("%d", 123), IllegalStateException.class, "123");
 	}
 
 	@Test
 	public void testUnsupportedOp() {
-		assertThrowable(Exceptions.unsupportedOp("%d", 123), UnsupportedOperationException.class,
+		Assert.throwable(Exceptions.unsupportedOp("%d", 123), UnsupportedOperationException.class,
 			"123");
 	}
 
 	@Test
 	public void testIo() {
-		assertThrowable(Exceptions.io("%d", 123), IOException.class, "123");
+		Assert.throwable(Exceptions.io("%d", 123), IOException.class, "123");
 	}
 
 	@Test
 	public void testRteStub() {
-		assertInstance(new TestUtil.Rte("test"), RuntimeException.class);
+		Assert.instance(new TestUtil.Rte("test"), RuntimeException.class);
 		Excepts.Supplier<TestUtil.Rte, String> supplier = () -> "test";
 		assertEquals(supplier.get(), "test");
 	}
 
 	@Test
 	public void testRootCause() {
-		assertNull(Exceptions.rootCause(null));
+		Assert.isNull(Exceptions.rootCause(null));
 		var io = new IOException();
 		assertEquals(Exceptions.rootCause(io), io);
 		var r = new RuntimeException(io);
@@ -127,13 +124,13 @@ public class ExceptionsTest {
 
 	@Test
 	public void testFirstStackElement() {
-		assertNull(Exceptions.firstStackElement(null));
+		Assert.isNull(Exceptions.firstStackElement(null));
 		var el = Exceptions.firstStackElement(new IOException());
 		assertEquals(el.getMethodName(), Reflect.currentMethodName());
 		var e = new TestException();
-		assertNull(Exceptions.firstStackElement(e));
+		Assert.isNull(Exceptions.firstStackElement(e));
 		e.stackTrace = new StackTraceElement[0];
-		assertNull(Exceptions.firstStackElement(e));
+		Assert.isNull(Exceptions.firstStackElement(e));
 	}
 
 	@Test
@@ -150,7 +147,7 @@ public class ExceptionsTest {
 	@Test
 	public void testThrowIfType() throws IOException {
 		Exceptions.throwIfType(IOException.class, new InterruptedException());
-		assertIoe(() -> Exceptions.throwIfType(IOException.class, new EOFException()));
+		Assert.io(() -> Exceptions.throwIfType(IOException.class, new EOFException()));
 	}
 
 	@SuppressWarnings("serial")

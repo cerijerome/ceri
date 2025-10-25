@@ -1,11 +1,11 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.util.OsUtil;
 
 public class JnaOsBehavior {
@@ -54,7 +54,7 @@ public class JnaOsBehavior {
 		override = JnaOs.linux.override();
 		assertEquals(JnaOs.validCurrent(), JnaOs.linux);
 		override = OsUtil.os("test", null, null);
-		assertThrown(() -> JnaOs.validCurrent());
+		Assert.thrown(() -> JnaOs.validCurrent());
 	}
 
 	@Test
@@ -69,5 +69,4 @@ public class JnaOsBehavior {
 		assertEquals(JnaOs.linux.file("file"), "file-linux");
 		assertEquals(JnaOs.linux.file("file.c"), "file-linux.c");
 	}
-
 }

@@ -1,10 +1,10 @@
 package ceri.jna.reflect;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.illegalArg;
 import org.junit.Test;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CInclude;
@@ -85,8 +85,8 @@ public class CAnnotationsTest {
 		assertCType(CAnnotations.ctype(Type.class, JnaOs.linux), CType.Value.DEFAULT);
 		assertCType(CAnnotations.ctype(Type.A, JnaOs.mac), CType.Value.UNDEFINED);
 		assertCType(CAnnotations.ctype(Type.A, JnaOs.linux), CType.Value.UNDEFINED);
-		assertIllegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.mac));
-		assertIllegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.linux));
+		illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.mac));
+		illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.linux));
 		assertCType(CAnnotations.ctype(Type.C, JnaOs.mac), CType.Value.UNDEFINED);
 		assertCType(CAnnotations.ctype(Type.C, JnaOs.linux), CType.Value.of(JnaOs.linux, "C+"));
 		assertCType(CAnnotations.ctype(Type.D, JnaOs.mac), CType.Value.of(Attr.cenum));

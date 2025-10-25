@@ -1,12 +1,12 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.log.util.LogUtil;
 import ceri.serial.libusb.jna.LibUsb;
 import ceri.serial.libusb.jna.LibUsb.libusb_version;
@@ -55,8 +55,8 @@ public class LibUsbTestDataBehavior {
 	public void shouldCreateDefaultContext() throws LibUsbException {
 		registerLib();
 		LibUsb.libusb_init();
-		assertNull(LibUsb.libusb_init_default());
-		assertNull(LibUsb.libusb_init_default());
+		Assert.isNull(LibUsb.libusb_init_default());
+		Assert.isNull(LibUsb.libusb_init_default());
 	}
 
 	@Test

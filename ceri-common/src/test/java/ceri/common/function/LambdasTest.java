@@ -1,9 +1,9 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import org.junit.Test;

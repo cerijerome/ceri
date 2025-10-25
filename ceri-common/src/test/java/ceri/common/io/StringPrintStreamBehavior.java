@@ -1,6 +1,6 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import org.junit.Test;
 

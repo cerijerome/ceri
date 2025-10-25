@@ -1,8 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertLines;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertLines;
+import static ceri.common.test.Assert.assertString;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;

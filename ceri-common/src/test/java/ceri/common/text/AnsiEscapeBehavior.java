@@ -1,14 +1,14 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.blue;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.magenta;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.yellow;
 import java.awt.Color;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class AnsiEscapeBehavior {
 
@@ -85,15 +85,15 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideCsiCursorColumnEscapes() {
-		assertThrown(() -> AnsiEscape.csi.cursorColumn(0));
+		Assert.thrown(() -> AnsiEscape.csi.cursorColumn(0));
 		assertEquals(AnsiEscape.csi.cursorColumn(1), "\u001b[G");
 		assertEquals(AnsiEscape.csi.cursorColumn(20), "\u001b[20G");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorPositionEscapes() {
-		assertThrown(() -> AnsiEscape.csi.cursorPosition(0, 1));
-		assertThrown(() -> AnsiEscape.csi.cursorPosition(1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.cursorPosition(0, 1));
+		Assert.thrown(() -> AnsiEscape.csi.cursorPosition(1, 0));
 		assertEquals(AnsiEscape.csi.cursorPosition(1, 1), "\u001b[H");
 		assertEquals(AnsiEscape.csi.cursorPosition(20, 1), "\u001b[20H");
 		assertEquals(AnsiEscape.csi.cursorPosition(1, 20), "\u001b[;20H");
@@ -102,14 +102,14 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideCsiEraseInDisplayEscapes() {
-		assertThrown(() -> AnsiEscape.csi.eraseInDisplay(-1));
+		Assert.thrown(() -> AnsiEscape.csi.eraseInDisplay(-1));
 		assertEquals(AnsiEscape.csi.eraseInDisplay(0), "\u001b[J");
 		assertEquals(AnsiEscape.csi.eraseInDisplay(10), "\u001b[10J");
 	}
 
 	@Test
 	public void shouldProvideCsiEraseInLineEscapes() {
-		assertThrown(() -> AnsiEscape.csi.eraseInLine(-1));
+		Assert.thrown(() -> AnsiEscape.csi.eraseInLine(-1));
 		assertEquals(AnsiEscape.csi.eraseInLine(0), "\u001b[K");
 		assertEquals(AnsiEscape.csi.eraseInLine(10), "\u001b[10K");
 	}
@@ -132,8 +132,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideCsiHvPositionEscapes() {
-		assertThrown(() -> AnsiEscape.csi.hvPosition(0, 1));
-		assertThrown(() -> AnsiEscape.csi.hvPosition(1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.hvPosition(0, 1));
+		Assert.thrown(() -> AnsiEscape.csi.hvPosition(1, 0));
 		assertEquals(AnsiEscape.csi.hvPosition(1, 1), "\u001b[f");
 		assertEquals(AnsiEscape.csi.hvPosition(20, 1), "\u001b[20f");
 		assertEquals(AnsiEscape.csi.hvPosition(1, 20), "\u001b[;20f");
@@ -164,8 +164,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrIntensityEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().intensity(-2));
-		assertThrown(() -> AnsiEscape.csi.sgr().intensity(2));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().intensity(-2));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().intensity(2));
 		assertString(AnsiEscape.csi.sgr().intensity(0), "\u001b[22m");
 		assertString(AnsiEscape.csi.sgr().intensity(1), "\u001b[1m");
 		assertString(AnsiEscape.csi.sgr().intensity(-1), "\u001b[2m");
@@ -173,8 +173,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrItalicEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().italic(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().italic(3));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().italic(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().italic(3));
 		assertString(AnsiEscape.csi.sgr().italic(0), "\u001b[23m");
 		assertString(AnsiEscape.csi.sgr().italic(1), "\u001b[3m");
 		assertString(AnsiEscape.csi.sgr().italic(2), "\u001b[20m");
@@ -182,8 +182,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrUnderlineEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().underline(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().underline(3));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().underline(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().underline(3));
 		assertString(AnsiEscape.csi.sgr().underline(0), "\u001b[24m");
 		assertString(AnsiEscape.csi.sgr().underline(1), "\u001b[4m");
 		assertString(AnsiEscape.csi.sgr().underline(2), "\u001b[21m");
@@ -191,8 +191,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrBlinkEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().blink(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().blink(3));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().blink(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().blink(3));
 		assertString(AnsiEscape.csi.sgr().blink(0), "\u001b[25m");
 		assertString(AnsiEscape.csi.sgr().blink(1), "\u001b[5m");
 		assertString(AnsiEscape.csi.sgr().blink(2), "\u001b[6m");
@@ -218,8 +218,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrFontEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().font(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().font(10));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().font(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().font(10));
 		assertString(AnsiEscape.csi.sgr().font(0), "\u001b[10m");
 		assertString(AnsiEscape.csi.sgr().font(1), "\u001b[11m");
 		assertString(AnsiEscape.csi.sgr().font(9), "\u001b[19m");
@@ -235,31 +235,31 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideFgGreyEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().fgGray(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgGray(24));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgGray(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgGray(24));
 		assertString(AnsiEscape.csi.sgr().fgGray(10), "\u001b[38;5;242m");
 	}
 
 	@Test
 	public void shouldProvideFgColor8BitEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(-1, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, -1, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 0, -1));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(6, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 6, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 0, 6));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(-1, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(0, -1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 0, -1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(6, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 6, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor8(0, 0, 6));
 		assertString(AnsiEscape.csi.sgr().fgColor8(2, 3, 4), "\u001b[38;5;110m");
 		assertString(AnsiEscape.csi.sgr().fgColor8(Color.cyan), "\u001b[38;5;51m");
 	}
 
 	@Test
 	public void shouldProvideFgColor24BitEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(-1, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(0, -1, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, -1));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(256, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 256, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, 256));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(-1, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, -1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, -1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(256, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 256, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, 256));
 		assertEquals(AnsiEscape.csi.sgr().fgColor24(55, 66, 77).toString(),
 			"\u001b[38;2;55;66;77m");
 		assertEquals(AnsiEscape.csi.sgr().fgColor24(Color.cyan).toString(),
@@ -276,31 +276,31 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideBgGreyEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().bgGray(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgGray(24));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgGray(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgGray(24));
 		assertString(AnsiEscape.csi.sgr().bgGray(20), "\u001b[48;5;252m");
 	}
 
 	@Test
 	public void shouldProvideBgColor8BitEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(-1, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, -1, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 0, -1));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(6, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 6, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 0, 6));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(-1, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(0, -1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 0, -1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(6, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 6, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor8(0, 0, 6));
 		assertString(AnsiEscape.csi.sgr().bgColor8(2, 3, 4), "\u001b[48;5;110m");
 		assertString(AnsiEscape.csi.sgr().bgColor8(Color.cyan), "\u001b[48;5;51m");
 	}
 
 	@Test
 	public void shouldProvideBgColor24BitEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(-1, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(0, -1, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, -1));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(256, 0, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 256, 0));
-		assertThrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, 256));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(-1, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, -1, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, -1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(256, 0, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 256, 0));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, 256));
 		assertEquals(AnsiEscape.csi.sgr().bgColor24(55, 66, 77).toString(),
 			"\u001b[48;2;55;66;77m");
 		assertEquals(AnsiEscape.csi.sgr().bgColor24(Color.cyan).toString(),
@@ -309,8 +309,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrFrameEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().frame(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().frame(3));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().frame(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().frame(3));
 		assertString(AnsiEscape.csi.sgr().frame(0), "\u001b[54m");
 		assertString(AnsiEscape.csi.sgr().frame(1), "\u001b[51m");
 		assertString(AnsiEscape.csi.sgr().frame(2), "\u001b[52m");
@@ -324,8 +324,8 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideSgrIdeogramEscapes() {
-		assertThrown(() -> AnsiEscape.csi.sgr().ideogram(-1));
-		assertThrown(() -> AnsiEscape.csi.sgr().ideogram(6));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().ideogram(-1));
+		Assert.thrown(() -> AnsiEscape.csi.sgr().ideogram(6));
 		assertString(AnsiEscape.csi.sgr().ideogram(0), "\u001b[65m");
 		assertString(AnsiEscape.csi.sgr().ideogram(5), "\u001b[64m");
 	}

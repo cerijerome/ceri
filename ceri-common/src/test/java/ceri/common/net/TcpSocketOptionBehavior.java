@@ -1,7 +1,7 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotEquals;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertNotEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.TestSocket;

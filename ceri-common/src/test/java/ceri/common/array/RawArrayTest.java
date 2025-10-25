@@ -1,14 +1,14 @@
 package ceri.common.array;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertNoSuchElement;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.fail;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.fail;
+import static ceri.common.test.Assert.illegalArg;
+import static ceri.common.test.Assert.noSuchElement;
 import java.util.List;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.text.Joiner;
 
@@ -21,7 +21,7 @@ public class RawArrayTest {
 	public void testSubTo() {
 		var sub = new RawArray.Sub<>(ints, 1, 2);
 		assertEquals(sub.to(), 3);
-		assertSame(sub.array(), ints);
+		Assert.same(sub.array(), ints);
 	}
 
 	@Test
@@ -41,11 +41,11 @@ public class RawArrayTest {
 
 	@Test
 	public void testIterable() {
-		assertIllegalArg(() -> RawArray.iterable(obj, 0, 0)); // not an array
+		illegalArg(() -> RawArray.iterable(obj, 0, 0)); // not an array
 		assertOrdered(RawArray.iterable(ints, 0, 2), -1, 1);
 		var i = RawArray.iterable(ints, 1, 1).iterator();
 		assertEquals(i.next(), 1);
-		assertNoSuchElement(() -> i.next());
+		noSuchElement(() -> i.next());
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class RawArrayTest {
 	@Test
 	public void testAcceptIndexes() throws Exception {
 		assertEquals(RawArray.acceptIndexes(null, 0, 1, _ -> fail()), null);
-		assertSame(RawArray.acceptIndexes(ints, 0, 1, null), ints);
+		Assert.same(RawArray.acceptIndexes(ints, 0, 1, null), ints);
 		Captor.of().apply(c -> RawArray.acceptIndexes(ints, -1, 2, c::accept)).verify(0, 1);
 	}
 
@@ -93,12 +93,12 @@ public class RawArrayTest {
 
 	@Test
 	public void testInsert() {
-		assertSame(RawArray.insert(null, ints, 1, 1), ints);
+		Assert.same(RawArray.insert(null, ints, 1, 1), ints);
 		assertEquals(RawArray.insert(int[]::new, null, 1, 1), null);
-		assertSame(RawArray.insert(int[]::new, ints, 1, 0), ints);
+		Assert.same(RawArray.insert(int[]::new, ints, 1, 0), ints);
 		assertArray(RawArray.insert(int[]::new, ints, 0, 2), 0, 0, -1, 1, 0);
 		assertArray(RawArray.insert(int[]::new, ints, 1, 2), -1, 0, 0, 1, 0);
-		assertSame(RawArray.insert(int[]::new, ints, 1, ints, 1, 0), ints);
+		Assert.same(RawArray.insert(int[]::new, ints, 1, ints, 1, 0), ints);
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class RawArrayTest {
 
 	@Test
 	public void testReverse() {
-		assertSame(RawArray.reverse(null, ints, 1, 2), ints);
+		Assert.same(RawArray.reverse(null, ints, 1, 2), ints);
 	}
 
 	@Test

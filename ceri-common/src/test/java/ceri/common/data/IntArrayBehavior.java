@@ -1,14 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.throwRuntime;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import org.junit.Test;
@@ -18,6 +16,7 @@ import ceri.common.data.IntArray.Encoder;
 import ceri.common.data.IntArray.Immutable;
 import ceri.common.data.IntArray.Mutable;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class IntArrayBehavior {
@@ -93,7 +92,7 @@ public class IntArrayBehavior {
 	public void shouldProvideAnImmutableView() {
 		Mutable m = Mutable.wrap(1, 2, 3);
 		assertArray(m.asImmutable().copy(0), 1, 2, 3);
-		assertNull(Reflect.castOrNull(IntReceiver.class, m.asImmutable()));
+		Assert.isNull(Reflect.castOrNull(IntReceiver.class, m.asImmutable()));
 		m.setInt(0, -1);
 		assertArray(m.asImmutable().copy(0), -1, 2, 3);
 	}
@@ -129,7 +128,7 @@ public class IntArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.fill(1, 2, 0xff), 3);
 		assertTrue(m.isEqualTo(0, 1, 0xff, 0xff, 4, 5));
-		assertThrown(() -> m.fill(3, 3, 0));
+		Assert.thrown(() -> m.fill(3, 3, 0));
 	}
 
 	@Test
@@ -137,8 +136,8 @@ public class IntArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.setInts(3, -4, -5), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, ArrayUtil.ints.of(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, ArrayUtil.ints.of(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, ArrayUtil.ints.of(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, ArrayUtil.ints.of(1, 2, 3), 2, 2));
 	}
 
 	@Test
@@ -146,8 +145,8 @@ public class IntArrayBehavior {
 		Mutable m = Mutable.wrap(1, 2, 3, 4, 5);
 		assertEquals(m.copyFrom(3, Immutable.wrap(-4, -5)), 5);
 		assertTrue(m.isEqualTo(0, 1, 2, 3, -4, -5));
-		assertThrown(() -> m.copyFrom(3, Immutable.wrap(1, 2, 3), 0));
-		assertThrown(() -> m.copyFrom(0, Immutable.wrap(1, 2, 3), 2, 2));
+		Assert.thrown(() -> m.copyFrom(3, Immutable.wrap(1, 2, 3), 0));
+		Assert.thrown(() -> m.copyFrom(0, Immutable.wrap(1, 2, 3), 2, 2));
 	}
 
 	/* IntArray base tests */
@@ -158,15 +157,15 @@ public class IntArrayBehavior {
 			0x7fffffff80000000L);
 		assertEquals(Immutable.wrap(0, 0x7fffffff, 0x80000000, 0).getLong(1, false),
 			0x800000007fffffffL);
-		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, true));
-		assertThrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, false));
+		Assert.thrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, true));
+		Assert.thrown(() -> Immutable.wrap(0, 0x7fffffff).getLong(1, false));
 	}
 
 	@Test
 	public void shouldGetString() {
 		assertEquals(Immutable.wrap("abc\ud83c\udc39de".codePoints().toArray()).getString(0),
 			"abc\ud83c\udc39de");
-		assertThrown(() -> Immutable.wrap("abcde".codePoints().toArray()).getString(3, 3));
+		Assert.thrown(() -> Immutable.wrap("abcde".codePoints().toArray()).getString(3, 3));
 	}
 
 	@Test
@@ -180,7 +179,7 @@ public class IntArrayBehavior {
 		Mutable m = Mutable.of(3);
 		assertEquals(Immutable.wrap(1, 2, 3).copyTo(1, m, 1), 3);
 		assertTrue(m.isEqualTo(0, 0, 2, 3));
-		assertThrown(() -> Immutable.wrap(0, 1, 2).copyTo(0, m, 4));
+		Assert.thrown(() -> Immutable.wrap(0, 1, 2).copyTo(0, m, 4));
 	}
 
 	@Test
@@ -209,14 +208,14 @@ public class IntArrayBehavior {
 	public void shouldEncodeFixedSize() {
 		Encoder en = Encoder.fixed(3);
 		en.fill(3, 1);
-		assertThrown(() -> en.writeInt(1));
+		Assert.thrown(() -> en.writeInt(1));
 		assertArray(en.ints(), 1, 1, 1);
 	}
 
 	@Test
 	public void shouldEncodeToArray() {
 		int[] array = new int[5];
-		assertThrown(() -> IntArray.Encoder.of(array, 6));
+		Assert.thrown(() -> IntArray.Encoder.of(array, 6));
 		IntArray.Encoder.of(array).writeInts(1, 2, 3);
 		assertArray(array, 1, 2, 3, 0, 0);
 	}
@@ -290,24 +289,24 @@ public class IntArrayBehavior {
 	public void shouldNotGrowEncoderIfReading() {
 		Encoder en = Encoder.of();
 		en.writeInts(1, 2, 3).skip(-2);
-		assertThrown(() -> en.readInts(3));
-		assertThrown(() -> en.readInts(Integer.MAX_VALUE));
+		Assert.thrown(() -> en.readInts(3));
+		Assert.thrown(() -> en.readInts(Integer.MAX_VALUE));
 	}
 
 	@Test
 	public void shouldFailToGrowEncoderAtomically() {
 		Encoder en = Encoder.of(0, 3).writeInts(1);
-		assertThrown(() -> en.writeInts(1, 2, 3));
-		assertThrown(() -> en.fill(3, 0xff));
-		assertThrown(() -> en.skip(3));
+		Assert.thrown(() -> en.writeInts(1, 2, 3));
+		Assert.thrown(() -> en.fill(3, 0xff));
+		Assert.thrown(() -> en.skip(3));
 		en.writeInts(1, 2);
 	}
 
 	@Test
 	public void shouldNotGrowEncoderPastMax() {
 		Encoder en0 = Encoder.of(0, 3).writeInts(1);
-		assertThrown(() -> en0.writeInts(1, 2, 3));
-		assertThrown(() -> en0.fill(Integer.MAX_VALUE, 0xff));
+		Assert.thrown(() -> en0.writeInts(1, 2, 3));
+		Assert.thrown(() -> en0.fill(Integer.MAX_VALUE, 0xff));
 		Encoder en1 = Encoder.of(3, 5);
 		en1.writeInts(1, 2, 3, 4);
 	}
@@ -339,8 +338,8 @@ public class IntArrayBehavior {
 
 	@Test
 	public void shouldFailEncodingIfSizeDoesNotMatchBytesAsEncodable() {
-		assertThrown(() -> encodable(() -> 2, enc -> enc.writeInts(1, 2, 3)).encode());
-		assertThrown(() -> encodable(() -> 4, enc -> enc.writeInts(1, 2, 3)).encode());
+		Assert.thrown(() -> encodable(() -> 2, enc -> enc.writeInts(1, 2, 3)).encode());
+		Assert.thrown(() -> encodable(() -> 4, enc -> enc.writeInts(1, 2, 3)).encode());
 	}
 
 	private static Encodable encodable(IntSupplier sizeFn, Consumer<Encoder> encodeFn) {

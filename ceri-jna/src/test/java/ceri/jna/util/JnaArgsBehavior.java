@@ -1,8 +1,8 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertString;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;

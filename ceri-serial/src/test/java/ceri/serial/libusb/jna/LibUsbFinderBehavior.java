@@ -1,15 +1,14 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.type.JnaSize;
 import ceri.jna.util.GcMemory;
@@ -114,17 +113,17 @@ public class LibUsbFinderBehavior {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		var finder = LibUsbFinder.builder().vendor(0xffff).build();
-		assertThrown(() -> finder.findAndRef(null));
+		Assert.thrown(() -> finder.findAndRef(null));
 	}
 
 	@Test
 	public void shouldFailIfNotFound() throws LibUsbException {
 		initLib();
-		assertThrown(() -> LibUsbFinder.FIRST.findAndOpen(null)); // device not found
-		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(null)); // device not found
+		Assert.thrown(() -> LibUsbFinder.FIRST.findAndOpen(null)); // device not found
+		Assert.thrown(() -> LibUsbFinder.FIRST.findAndRef(null)); // device not found
 		libusb_context ctx =
 			PointerUtil.set(new libusb_context(), GcMemory.malloc(JnaSize.POINTER.get()).m);
-		assertThrown(() -> LibUsbFinder.FIRST.findAndRef(ctx, 1)); // device not found
+		Assert.thrown(() -> LibUsbFinder.FIRST.findAndRef(ctx, 1)); // device not found
 	}
 
 	@Test
@@ -134,7 +133,7 @@ public class LibUsbFinderBehavior {
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
 		assertEquals(finder.findAndRef(null, 2).size(), 2);
-		assertNotNull(finder.findAndRef(null));
+		Assert.notNull(finder.findAndRef(null));
 	}
 
 	@Test

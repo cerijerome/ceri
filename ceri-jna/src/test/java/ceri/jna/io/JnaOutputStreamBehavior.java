@@ -1,9 +1,9 @@
 package ceri.jna.io;
 
-import static ceri.common.test.AssertUtil.assertThrown;
 import java.io.IOException;
 import org.junit.Test;
 import com.sun.jna.Memory;
+import ceri.common.test.Assert;
 
 public class JnaOutputStreamBehavior {
 
@@ -19,8 +19,7 @@ public class JnaOutputStreamBehavior {
 		try (var out = new TestOutputStream()) {
 			out.flush();
 			out.close();
-			assertThrown(out::flush);
+			Assert.thrown(out::flush);
 		}
 	}
-
 }

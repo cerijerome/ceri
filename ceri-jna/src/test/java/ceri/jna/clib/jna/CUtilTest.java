@@ -1,9 +1,9 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOptional;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOptional;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.io.IOException;
 import org.junit.After;

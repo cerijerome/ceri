@@ -1,6 +1,6 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;

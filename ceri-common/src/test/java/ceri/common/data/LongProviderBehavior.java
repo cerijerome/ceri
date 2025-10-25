@@ -1,17 +1,17 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.LongProvider.Reader;
 import ceri.common.data.LongReceiverBehavior.Holder;
 import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class LongProviderBehavior {
@@ -51,7 +51,7 @@ public class LongProviderBehavior {
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(LongProvider.empty().length(), 0);
 		assertTrue(LongProvider.empty().isEmpty());
-		assertThrown(() -> LongProvider.empty().getLong(0));
+		Assert.thrown(() -> LongProvider.empty().getLong(0));
 	}
 
 	@Test
@@ -84,8 +84,8 @@ public class LongProviderBehavior {
 		assertArray(lp.slice(5, 0).copy(0));
 		assertEquals(lp.slice(0), lp);
 		assertEquals(lp.slice(0, 10), lp);
-		assertThrown(() -> lp.slice(1, 10));
-		assertThrown(() -> lp.slice(0, 9));
+		Assert.thrown(() -> lp.slice(1, 10));
+		Assert.thrown(() -> lp.slice(0, 9));
 	}
 
 	@Test
@@ -99,9 +99,9 @@ public class LongProviderBehavior {
 		long[] longs = new long[5];
 		assertEquals(lp.copyTo(1, longs), 6);
 		assertArray(longs, -1, 2, -3, 4, -5);
-		assertThrown(() -> lp.copyTo(6, longs));
-		assertThrown(() -> lp.copyTo(-1, longs));
-		assertThrown(() -> lp.copyTo(1, longs, 0, 6));
+		Assert.thrown(() -> lp.copyTo(6, longs));
+		Assert.thrown(() -> lp.copyTo(-1, longs));
+		Assert.thrown(() -> lp.copyTo(1, longs, 0, 6));
 	}
 
 	@Test
@@ -109,15 +109,15 @@ public class LongProviderBehavior {
 		Holder h = Holder.of(5);
 		assertEquals(lp.copyTo(1, h.receiver), 6);
 		assertArray(h.longs, -1, 2, -3, 4, -5);
-		assertThrown(() -> lp.copyTo(6, h.receiver));
-		assertThrown(() -> lp.copyTo(-1, h.receiver));
-		assertThrown(() -> lp.copyTo(1, h.receiver, 0, 6));
+		Assert.thrown(() -> lp.copyTo(6, h.receiver));
+		Assert.thrown(() -> lp.copyTo(-1, h.receiver));
+		Assert.thrown(() -> lp.copyTo(1, h.receiver, 0, 6));
 	}
 
 	@Test
 	public void shouldStreamLongs() {
 		assertStream(lp.stream(0), 0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
-		assertThrown(() -> lp.stream(0, 11));
+		Assert.thrown(() -> lp.stream(0, 11));
 	}
 
 	@Test
@@ -186,8 +186,8 @@ public class LongProviderBehavior {
 		assertArray(lp.reader(5).readLongs(), -5, 6, -7, 8, -9);
 		assertArray(lp.reader(5, 0).readLongs());
 		assertArray(lp.reader(10, 0).readLongs());
-		assertThrown(() -> lp.reader(10, 1));
-		assertThrown(() -> lp.reader(11, 0));
+		Assert.thrown(() -> lp.reader(10, 1));
+		Assert.thrown(() -> lp.reader(11, 0));
 	}
 
 	/* LongProvider.Reader tests */
@@ -195,7 +195,7 @@ public class LongProviderBehavior {
 	@Test
 	public void shouldReadLong() {
 		assertEquals(lp.reader(1).readLong(), -1L);
-		assertThrown(() -> lp.reader(1, 0).readLong());
+		Assert.thrown(() -> lp.reader(1, 0).readLong());
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class LongProviderBehavior {
 	public void shouldReturnReaderLongProvider() {
 		assertEquals(lp.reader(0).provider(), lp);
 		assertTrue(lp.reader(5, 0).provider().isEmpty());
-		assertThrown(() -> lp.reader(5).provider()); // slice() fails
+		Assert.thrown(() -> lp.reader(5).provider()); // slice() fails
 	}
 
 	@Test
@@ -230,8 +230,8 @@ public class LongProviderBehavior {
 		Reader r0 = lp.reader(6);
 		Reader r1 = r0.slice();
 		Reader r2 = r0.slice(3);
-		assertThrown(() -> r0.slice(5));
-		assertThrown(() -> r0.slice(-2));
+		Assert.thrown(() -> r0.slice(5));
+		Assert.thrown(() -> r0.slice(-2));
 		assertArray(r0.readLongs(), 6, -7, 8, -9);
 		assertArray(r1.readLongs(), 6, -7, 8, -9);
 		assertArray(r2.readLongs(), 6, -7, 8);

@@ -1,17 +1,17 @@
 package ceri.common.except;
 
-import static ceri.common.test.AssertUtil.assertAssertion;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIllegalState;
-import static ceri.common.test.AssertUtil.assertNotEquals;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertNotEquals;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertion;
+import static ceri.common.test.Assert.illegalState;
+import static ceri.common.test.Assert.runtime;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.concurrent.RuntimeInterruptedException;
+import ceri.common.test.Assert;
 
 public class ExceptionAdapterBehavior {
 
@@ -31,14 +31,14 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldNotThrow() {
-		assertIllegalState(() -> ExceptionAdapter.shouldNotThrow.get(() -> {
+		illegalState(() -> ExceptionAdapter.shouldNotThrow.get(() -> {
 			throw new IOException();
 		}));
 	}
 
 	@Test
 	public void shouldThrowErrors() {
-		assertAssertion(() -> ExceptionAdapter.runtime.apply(new AssertionError()));
+		assertion(() -> ExceptionAdapter.runtime.apply(new AssertionError()));
 	}
 
 	@Test
@@ -52,13 +52,13 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldRun() {
-		assertRte(() -> ExceptionAdapter.runtime.run(() -> {
+		runtime(() -> ExceptionAdapter.runtime.run(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class, () -> ExceptionAdapter.runtime.run(() -> {
+		Assert.thrown(RuntimeInterruptedException.class, () -> ExceptionAdapter.runtime.run(() -> {
 			throw new InterruptedException();
 		}));
-		assertRte(() -> ExceptionAdapter.io.run(() -> {
+		runtime(() -> ExceptionAdapter.io.run(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -67,13 +67,13 @@ public class ExceptionAdapterBehavior {
 	public void shouldGet() {
 		assertEquals(ExceptionAdapter.runtime.get(() -> null), null);
 		assertEquals(ExceptionAdapter.runtime.get(() -> "test"), "test");
-		assertRte(() -> ExceptionAdapter.runtime.get(() -> {
+		runtime(() -> ExceptionAdapter.runtime.get(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class, () -> ExceptionAdapter.runtime.get(() -> {
+		Assert.thrown(RuntimeInterruptedException.class, () -> ExceptionAdapter.runtime.get(() -> {
 			throw new InterruptedException();
 		}));
-		assertRte(() -> ExceptionAdapter.io.get(() -> {
+		runtime(() -> ExceptionAdapter.io.get(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -82,14 +82,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldGetBool() {
 		assertFalse(ExceptionAdapter.runtime.getBool(() -> false));
 		assertTrue(ExceptionAdapter.runtime.getBool(() -> true));
-		assertRte(() -> ExceptionAdapter.runtime.getBool(() -> {
+		runtime(() -> ExceptionAdapter.runtime.getBool(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> ExceptionAdapter.runtime.getBool(() -> {
 				throw new InterruptedException();
 			}));
-		assertRte(() -> ExceptionAdapter.io.getBool(() -> {
+		runtime(() -> ExceptionAdapter.io.getBool(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -98,14 +98,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldGetByte() {
 		assertEquals(ExceptionAdapter.runtime.getByte(() -> Byte.MIN_VALUE), Byte.MIN_VALUE);
 		assertEquals(ExceptionAdapter.runtime.getByte(() -> Byte.MAX_VALUE), Byte.MAX_VALUE);
-		assertRte(() -> ExceptionAdapter.runtime.getByte(() -> {
+		runtime(() -> ExceptionAdapter.runtime.getByte(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> ExceptionAdapter.runtime.getByte(() -> {
 				throw new InterruptedException();
 			}));
-		assertRte(() -> ExceptionAdapter.io.getByte(() -> {
+		runtime(() -> ExceptionAdapter.io.getByte(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -114,14 +114,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldGetInt() {
 		assertEquals(ExceptionAdapter.runtime.getInt(() -> Integer.MIN_VALUE), Integer.MIN_VALUE);
 		assertEquals(ExceptionAdapter.runtime.getInt(() -> Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertRte(() -> ExceptionAdapter.runtime.getInt(() -> {
+		runtime(() -> ExceptionAdapter.runtime.getInt(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> ExceptionAdapter.runtime.getInt(() -> {
 				throw new InterruptedException();
 			}));
-		assertRte(() -> ExceptionAdapter.io.getInt(() -> {
+		runtime(() -> ExceptionAdapter.io.getInt(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -130,14 +130,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldGetLong() {
 		assertEquals(ExceptionAdapter.runtime.getLong(() -> Long.MIN_VALUE), Long.MIN_VALUE);
 		assertEquals(ExceptionAdapter.runtime.getLong(() -> Long.MAX_VALUE), Long.MAX_VALUE);
-		assertRte(() -> ExceptionAdapter.runtime.getLong(() -> {
+		runtime(() -> ExceptionAdapter.runtime.getLong(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> ExceptionAdapter.runtime.getLong(() -> {
 				throw new InterruptedException();
 			}));
-		assertRte(() -> ExceptionAdapter.io.getLong(() -> {
+		runtime(() -> ExceptionAdapter.io.getLong(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -146,14 +146,14 @@ public class ExceptionAdapterBehavior {
 	public void shouldGetDouble() {
 		assertEquals(ExceptionAdapter.runtime.getDouble(() -> Double.MIN_VALUE), Double.MIN_VALUE);
 		assertEquals(ExceptionAdapter.runtime.getDouble(() -> Double.MAX_VALUE), Double.MAX_VALUE);
-		assertRte(() -> ExceptionAdapter.runtime.getDouble(() -> {
+		runtime(() -> ExceptionAdapter.runtime.getDouble(() -> {
 			throw new IOException();
 		}));
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> ExceptionAdapter.runtime.getDouble(() -> {
 				throw new InterruptedException();
 			}));
-		assertRte(() -> ExceptionAdapter.io.getDouble(() -> {
+		runtime(() -> ExceptionAdapter.io.getDouble(() -> {
 			throw new RuntimeException();
 		}));
 	}
@@ -171,7 +171,7 @@ public class ExceptionAdapterBehavior {
 
 	@Test
 	public void shouldCreateAdapterFunctionFromClass() {
-		assertThrown(() -> ExceptionAdapter.of(FileNotFoundException.class));
+		Assert.thrown(() -> ExceptionAdapter.of(FileNotFoundException.class));
 		ExceptionAdapter<IOException> ad = ExceptionAdapter.of(IOException.class);
 		Exception t = new FileNotFoundException("test");
 		assertEquals(ad.apply(t), t);

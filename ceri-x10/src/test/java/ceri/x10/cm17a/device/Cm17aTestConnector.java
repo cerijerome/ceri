@@ -1,6 +1,6 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertRead;
+import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray;

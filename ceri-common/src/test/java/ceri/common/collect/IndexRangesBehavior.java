@@ -1,15 +1,15 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIllegalState;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.illegalState;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class IndexRangesBehavior {
@@ -28,10 +28,10 @@ public class IndexRangesBehavior {
 		assertRanges(IndexRanges.from("[6 , 7]"), 6, 7);
 		assertRanges(IndexRanges.from("[2-3, 5-6]"), 2, 3, 5, 6);
 		assertRanges(IndexRanges.from("[1, 3-4, 5]"), 1, 3, 4, 5);
-		assertThrown(() -> IndexRanges.from("1"));
-		assertThrown(() -> IndexRanges.from("[1,]"));
-		assertThrown(() -> IndexRanges.from("[1 - 2]"));
-		assertThrown(() -> IndexRanges.from("[2-1]"));
+		Assert.thrown(() -> IndexRanges.from("1"));
+		Assert.thrown(() -> IndexRanges.from("[1,]"));
+		Assert.thrown(() -> IndexRanges.from("[1 - 2]"));
+		Assert.thrown(() -> IndexRanges.from("[2-1]"));
 	}
 
 	@Test
@@ -116,13 +116,13 @@ public class IndexRangesBehavior {
 		var i = r.iterator();
 		iterate(i, 3);
 		r.remove(7, 7);
-		assertIllegalState(i::nextInt);
+		illegalState(i::nextInt);
 		r.remove(8, 9);
-		assertIllegalState(i::nextInt);
+		illegalState(i::nextInt);
 		r.add(6, 6);
-		assertIllegalState(i::nextInt);
+		illegalState(i::nextInt);
 		r.add(7, 7);
-		assertThrown(NoSuchElementException.class, i::nextInt);
+		Assert.thrown(NoSuchElementException.class, i::nextInt);
 	}
 
 	@Test

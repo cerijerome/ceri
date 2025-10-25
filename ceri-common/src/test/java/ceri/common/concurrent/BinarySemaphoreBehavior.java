@@ -1,11 +1,11 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class BinarySemaphoreBehavior {
@@ -34,14 +34,14 @@ public class BinarySemaphoreBehavior {
 		bs.acquire();
 		bs.close();
 		assertFalse(bs.available());
-		assertThrown(bs::acquire);
+		Assert.thrown(bs::acquire);
 	}
 
 	@Test
 	public void shouldFailIfClosedDuringAcquisition() {
 		bs.acquire();
 		try (var x = TestUtil.threadRun(() -> {
-			assertThrown(bs::acquire);
+			Assert.thrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)
 				Concurrent.delay(1);
@@ -54,7 +54,7 @@ public class BinarySemaphoreBehavior {
 	public void shouldFailToAcquireIfInterrupted() {
 		bs.acquire();
 		try (var _ = TestUtil.threadRun(() -> {
-			assertThrown(bs::acquire);
+			Assert.thrown(bs::acquire);
 		})) {
 			while (bs.waitingThreads() == 0)
 				Concurrent.delay(1);

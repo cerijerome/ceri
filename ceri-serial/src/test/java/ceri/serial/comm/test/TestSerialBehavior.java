@@ -1,10 +1,10 @@
 package ceri.serial.comm.test;
 
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 
 public class TestSerialBehavior {
 
@@ -42,13 +42,13 @@ public class TestSerialBehavior {
 			serial.open();
 			serial.brk(true);
 			serial.reset();
-			assertThrown(() -> serial.brk(true)); // not open
+			Assert.thrown(() -> serial.brk(true)); // not open
 		}
 	}
 
 	@Test
 	public void shouldProvideErrorConfig() {
-		assertThrown("generated", TestSerial.errorConfig()::serial);
+		Assert.thrown("generated", TestSerial.errorConfig()::serial);
 	}
 
 }

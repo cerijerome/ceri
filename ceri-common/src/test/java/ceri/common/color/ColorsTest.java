@@ -2,18 +2,16 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.illegalArg;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class ColorsTest {
@@ -132,7 +130,7 @@ public class ColorsTest {
 
 	@Test
 	public void testValidArgbFromText() {
-		assertThrown(() -> Colors.validArgb("test"));
+		Assert.thrown(() -> Colors.validArgb("test"));
 		assertEquals(Colors.validArgb("aquamarine"), Coloring.aquamarine.argb);
 	}
 
@@ -233,15 +231,15 @@ public class ColorsTest {
 		assertColor(Colors.r(c, 0xaa), 0x88aa6655);
 		assertColor(Colors.g(c, 0xaa), 0x8877aa55);
 		assertColor(Colors.b(c, 0xaa), 0x887766aa);
-		assertSame(Colors.a(c, 0x88), c);
-		assertSame(Colors.r(c, 0x77), c);
-		assertSame(Colors.g(c, 0x66), c);
-		assertSame(Colors.b(c, 0x55), c);
+		Assert.same(Colors.a(c, 0x88), c);
+		Assert.same(Colors.r(c, 0x77), c);
+		Assert.same(Colors.g(c, 0x66), c);
+		Assert.same(Colors.b(c, 0x55), c);
 	}
 
 	@Test
 	public void testValidColorFromText() {
-		assertThrown(() -> Colors.validColor("test"));
+		Assert.thrown(() -> Colors.validColor("test"));
 		assertColor(Colors.validColor("aquamarine"), Coloring.aquamarine.argb);
 	}
 
@@ -319,23 +317,23 @@ public class ColorsTest {
 	public void testValidValue() {
 		assertEquals(Colors.validValue(0), 0);
 		assertEquals(Colors.validValue(255), 255);
-		assertIllegalArg(() -> Colors.validValue(-1));
-		assertIllegalArg(() -> Colors.validValue(256));
+		illegalArg(() -> Colors.validValue(-1));
+		illegalArg(() -> Colors.validValue(256));
 	}
 
 	@Test
 	public void testValidRatio() {
 		assertEquals(Colors.validRatio(0.0), 0.0);
 		assertEquals(Colors.validRatio(1.0), 1.0);
-		assertIllegalArg(() -> Colors.validRatio(-0.1));
-		assertIllegalArg(() -> Colors.validRatio(1.1));
+		illegalArg(() -> Colors.validRatio(-0.1));
+		illegalArg(() -> Colors.validRatio(1.1));
 	}
 
 	@Test
 	public void testScaleHue() {
-		assertApprox(Colors.scaleHue(0.9, 0.3, 0.0), 0.9);
-		assertApprox(Colors.scaleHue(0.9, 0.3, 0.5), 0.1);
-		assertApprox(Colors.scaleHue(0.9, 0.3, 1.0), 0.3);
+		Assert.approx(Colors.scaleHue(0.9, 0.3, 0.0), 0.9);
+		Assert.approx(Colors.scaleHue(0.9, 0.3, 0.5), 0.1);
+		Assert.approx(Colors.scaleHue(0.9, 0.3, 1.0), 0.3);
 	}
 
 	@Test
@@ -347,9 +345,9 @@ public class ColorsTest {
 
 	@Test
 	public void testScaleRatio() {
-		assertApprox(Colors.scaleRatio(0.9, 0.3, 0.0), 0.9);
-		assertApprox(Colors.scaleRatio(0.9, 0.3, 0.5), 0.6);
-		assertApprox(Colors.scaleRatio(0.9, 0.3, 1.0), 0.3);
+		Assert.approx(Colors.scaleRatio(0.9, 0.3, 0.0), 0.9);
+		Assert.approx(Colors.scaleRatio(0.9, 0.3, 0.5), 0.6);
+		Assert.approx(Colors.scaleRatio(0.9, 0.3, 1.0), 0.3);
 	}
 
 	@Test
@@ -388,14 +386,14 @@ public class ColorsTest {
 	@Test
 	public void testArgbsFromText() {
 		assertArray(Colors.argbs("clear", "#def", "0x12345678"), 0, 0xffddeeff, 0x12345678);
-		assertThrown(() -> Colors.argbs("test"));
+		Assert.thrown(() -> Colors.argbs("test"));
 	}
 
 	@Test
 	public void testColorsFromText() {
 		assertArray(Colors.colors("clear", "#def", "0x12345678"), Colors.clear,
 			Colors.color(0xffddeeff), Colors.color(0x12345678));
-		assertThrown(() -> Colors.colors("test"));
+		Assert.thrown(() -> Colors.colors("test"));
 	}
 
 	@Test

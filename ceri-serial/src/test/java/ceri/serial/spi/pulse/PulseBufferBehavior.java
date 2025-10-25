@@ -1,7 +1,7 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import ceri.jna.util.JnaUtil;

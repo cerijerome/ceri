@@ -1,9 +1,9 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.fail;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.fail;
+import static ceri.common.test.Assert.throwIt;
+import static ceri.common.test.Assert.throwable;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Captor;
@@ -36,8 +36,8 @@ public class CExceptionBehavior {
 
 	@Test
 	public void shouldCreateFromError() {
-		assertThrowable(CException.full(-1, "test"), "\\Q[-1] test\\E");
-		assertThrowable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] E2BIG test\\E",
+		throwable(CException.full(-1, "test"), "\\Q[-1] test\\E");
+		throwable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] E2BIG test\\E",
 			CErrNo.E2BIG);
 	}
 
@@ -46,7 +46,7 @@ public class CExceptionBehavior {
 		try {
 			throw CException.full(CErrNo.EACCES, "test").runtime();
 		} catch (RuntimeException e) {
-			assertThrowable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
+			throwable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
 		}
 	}
 

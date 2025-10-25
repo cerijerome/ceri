@@ -1,15 +1,12 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertRange;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertThrowable;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRange;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.runtime;
+import static ceri.common.test.Assert.throwable;
 import static ceri.common.test.TestUtil.init;
 import static ceri.common.test.TestUtil.resource;
 import static ceri.common.test.TestUtil.testMap;
@@ -81,7 +78,7 @@ public class TestUtilTest {
 	@Test
 	public void testExerciseEnum() {
 		TestUtil.exerciseEnum(Level.class);
-		assertThrown(() -> TestUtil.exerciseEnum(BadEnum.class));
+		Assert.thrown(() -> TestUtil.exerciseEnum(BadEnum.class));
 	}
 
 	@Test
@@ -120,7 +117,7 @@ public class TestUtilTest {
 				}
 			}) {
 				sys.in(badIn);
-				assertThrown(TestUtil::readString);
+				Assert.thrown(TestUtil::readString);
 			}
 		}
 	}
@@ -165,12 +162,12 @@ public class TestUtilTest {
 
 	@Test
 	public void testFirstSystemProperty() {
-		assertNotNull(TestUtil.firstSystemProperty());
+		Assert.notNull(TestUtil.firstSystemProperty());
 	}
 
 	@Test
 	public void testFirstEnvironmentVariable() {
-		assertNotNull(TestUtil.firstEnvironmentVariable());
+		Assert.notNull(TestUtil.firstEnvironmentVariable());
 	}
 
 	@Test
@@ -178,8 +175,8 @@ public class TestUtilTest {
 		Throwable t = thrown(() -> {
 			throw new IOException("test");
 		});
-		assertThrowable(t, IOException.class, "test");
-		assertNull(thrown(() -> {}));
+		throwable(t, IOException.class, "test");
+		Assert.isNull(thrown(() -> {}));
 	}
 
 	@Test
@@ -189,7 +186,7 @@ public class TestUtilTest {
 			if (throwIt) throw new IOException();
 			return "test";
 		}), "test");
-		assertRte(() -> init(() -> {
+		runtime(() -> init(() -> {
 			throw new IOException();
 		}));
 	}
@@ -207,13 +204,13 @@ public class TestUtilTest {
 		assertEquals(map.size(), 3);
 		assertEquals(map.get(1), "1");
 		assertEquals(map.get(2), "2");
-		assertNull(map.get(3));
+		Assert.isNull(map.get(3));
 	}
 
 	@Test
 	public void testResource() {
 		assertEquals(resource("resource.txt"), "test");
-		assertRte(() -> resource("not-found.txt"));
+		runtime(() -> resource("not-found.txt"));
 	}
 
 	@Test
@@ -232,7 +229,7 @@ public class TestUtilTest {
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
 		assertEquals(TestUtil.readableString(bytes), "?a.??~!?");
-		assertThrown(IllegalArgumentException.class,
+		Assert.thrown(IllegalArgumentException.class,
 			() -> TestUtil.readableString(bytes, 3, 2, "test", '?'));
 		assertEquals(TestUtil.readableString(new byte[0], 0, 0, null, '.'), "");
 		assertEquals(TestUtil.readableString(new byte[0], 0, 0, "", '.'), "");

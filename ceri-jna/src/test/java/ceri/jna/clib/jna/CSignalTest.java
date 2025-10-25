@@ -1,16 +1,16 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertMatch;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertMatch;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CSignal.sighandler_t;
 import ceri.jna.clib.jna.CSignal.sigset_t;
@@ -38,8 +38,8 @@ public class CSignalTest {
 		sighandler_t cb = _ -> {};
 		assertTrue(CSignal.signal(15, cb));
 		assertTrue(CSignal.signal(15, 1));
-		assertThrown(() -> CSignal.signal(15, -1));
-		assertThrown(() -> CSignal.signal(15, 2));
+		Assert.thrown(() -> CSignal.signal(15, -1));
+		Assert.thrown(() -> CSignal.signal(15, 2));
 		lib.signal.autoResponses(new Pointer(-1));
 		assertFalse(CSignal.signal(14, cb));
 		assertFalse(CSignal.signal(14, 0));

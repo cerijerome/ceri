@@ -1,14 +1,14 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.log.rpc.test.TestStreamObserver;
 import ceri.log.test.LogModifier;
 import io.grpc.stub.StreamObserver;
@@ -33,7 +33,7 @@ public class RpcStreamerBehavior {
 		RpcStreamer<String> streamer = RpcStreamer.of(observer);
 		streamer.close();
 		assertTrue(streamer.closed());
-		assertThrown(() -> streamer.next("test"));
+		Assert.thrown(() -> streamer.next("test"));
 	}
 
 	@Test
@@ -41,7 +41,7 @@ public class RpcStreamerBehavior {
 		StreamObserver<String> observer = RpcUtil.observer(_ -> {}, _ -> {});
 		try (RpcStreamer<String> streamer = RpcStreamer.of(observer)) {
 			streamer.error(new IOException());
-			assertThrown(() -> streamer.next("test"));
+			Assert.thrown(() -> streamer.next("test"));
 		}
 	}
 

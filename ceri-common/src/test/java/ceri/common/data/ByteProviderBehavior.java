@@ -1,11 +1,10 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertTrue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,6 +16,7 @@ import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider.Reader;
 import ceri.common.data.ByteReceiverBehavior.Holder;
 import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class ByteProviderBehavior {
@@ -59,7 +59,7 @@ public class ByteProviderBehavior {
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(ByteProvider.empty().length(), 0);
 		assertTrue(ByteProvider.empty().isEmpty());
-		assertThrown(() -> ByteProvider.empty().getByte(0));
+		Assert.thrown(() -> ByteProvider.empty().getByte(0));
 	}
 
 	@Test
@@ -139,8 +139,8 @@ public class ByteProviderBehavior {
 		assertArray(bp.slice(5, 0).copy(0));
 		assertEquals(bp.slice(0), bp);
 		assertEquals(bp.slice(0, 10), bp);
-		assertThrown(() -> bp.slice(1, 10));
-		assertThrown(() -> bp.slice(0, 9));
+		Assert.thrown(() -> bp.slice(1, 10));
+		Assert.thrown(() -> bp.slice(0, 9));
 	}
 
 	@Test
@@ -154,9 +154,9 @@ public class ByteProviderBehavior {
 		byte[] bytes = new byte[5];
 		assertEquals(bp.copyTo(1, bytes), 6);
 		assertArray(bytes, -1, 2, -3, 4, -5);
-		assertThrown(() -> bp.copyTo(6, bytes));
-		assertThrown(() -> bp.copyTo(-1, bytes));
-		assertThrown(() -> bp.copyTo(1, bytes, 0, 6));
+		Assert.thrown(() -> bp.copyTo(6, bytes));
+		Assert.thrown(() -> bp.copyTo(-1, bytes));
+		Assert.thrown(() -> bp.copyTo(1, bytes, 0, 6));
 	}
 
 	@Test
@@ -164,9 +164,9 @@ public class ByteProviderBehavior {
 		Holder h = Holder.of(5);
 		assertEquals(bp.copyTo(1, h.receiver), 6);
 		assertArray(h.bytes, -1, 2, -3, 4, -5);
-		assertThrown(() -> bp.copyTo(6, h.receiver));
-		assertThrown(() -> bp.copyTo(-1, h.receiver));
-		assertThrown(() -> bp.copyTo(1, h.receiver, 0, 6));
+		Assert.thrown(() -> bp.copyTo(6, h.receiver));
+		Assert.thrown(() -> bp.copyTo(-1, h.receiver));
+		Assert.thrown(() -> bp.copyTo(1, h.receiver, 0, 6));
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldStreamUnsignedBytes() {
 		assertStream(bp.ustream(0), 0, 0xff, 2, 0xfd, 4, 0xfb, 6, 0xf9, 8, 0xf7);
-		assertThrown(() -> bp.ustream(0, 11));
+		Assert.thrown(() -> bp.ustream(0, 11));
 	}
 
 	@Test
@@ -253,8 +253,8 @@ public class ByteProviderBehavior {
 		assertArray(bp.reader(5).readBytes(), -5, 6, -7, 8, -9);
 		assertArray(bp.reader(5, 0).readBytes());
 		assertArray(bp.reader(10, 0).readBytes());
-		assertThrown(() -> bp.reader(10, 1));
-		assertThrown(() -> bp.reader(11, 0));
+		Assert.thrown(() -> bp.reader(10, 1));
+		Assert.thrown(() -> bp.reader(11, 0));
 	}
 
 	@Test
@@ -269,7 +269,7 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldReadByte() {
 		assertEquals(bp.reader(1).readByte(), (byte) -1);
-		assertThrown(() -> bp.reader(1, 0).readByte());
+		Assert.thrown(() -> bp.reader(1, 0).readByte());
 	}
 
 	@Test
@@ -311,14 +311,14 @@ public class ByteProviderBehavior {
 	@Test
 	public void shouldStreamReaderUnsignedBytes() {
 		assertStream(bp.reader(6).ustream(), 6, 0xf9, 8, 0xf7);
-		assertThrown(() -> bp.reader(0).ustream(11));
+		Assert.thrown(() -> bp.reader(0).ustream(11));
 	}
 
 	@Test
 	public void shouldReturnReaderByteProvider() {
 		assertEquals(bp.reader(0).provider(), bp);
 		assertTrue(bp.reader(5, 0).provider().isEmpty());
-		assertThrown(() -> bp.reader(5).provider()); // slice() fails
+		Assert.thrown(() -> bp.reader(5).provider()); // slice() fails
 	}
 
 	@Test
@@ -326,8 +326,8 @@ public class ByteProviderBehavior {
 		Reader<?> r0 = bp.reader(6);
 		Reader<?> r1 = r0.slice();
 		Reader<?> r2 = r0.slice(3);
-		assertThrown(() -> r0.slice(5));
-		assertThrown(() -> r0.slice(-2));
+		Assert.thrown(() -> r0.slice(5));
+		Assert.thrown(() -> r0.slice(-2));
 		assertArray(r0.readBytes(), 6, -7, 8, -9);
 		assertArray(r1.readBytes(), 6, -7, 8, -9);
 		assertArray(r2.readBytes(), 6, -7, 8);

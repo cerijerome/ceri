@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertList;
+import static ceri.common.test.Assert.assertList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

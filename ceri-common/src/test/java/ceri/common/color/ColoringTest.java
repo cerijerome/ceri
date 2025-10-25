@@ -1,11 +1,10 @@
 package ceri.common.color;
 
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.AssertUtil.assertApprox;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.Assert.assertEquals;
 import java.awt.Color;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ColoringTest {
 
@@ -40,7 +39,7 @@ public class ColoringTest {
 
 	@Test
 	public void testRandom() {
-		assertNotNull(Coloring.random());
+		Assert.notNull(Coloring.random());
 	}
 
 	@Test
@@ -51,9 +50,9 @@ public class ColoringTest {
 	@Test
 	public void shouldProvideLightnessValue() {
 		assertEquals(Coloring.black.lightness(), 0.0);
-		assertApprox(Coloring.blue.lightness(), 0.323);
-		assertApprox(Coloring.chocolate.lightness(), 0.560);
-		assertApprox(Coloring.cyan.lightness(), 0.911);
-		assertApprox(Coloring.white.lightness(), 1.0);
+		Assert.approx(Coloring.blue.lightness(), 0.323);
+		Assert.approx(Coloring.chocolate.lightness(), 0.560);
+		Assert.approx(Coloring.cyan.lightness(), 0.911);
+		Assert.approx(Coloring.white.lightness(), 1.0);
 	}
 }

@@ -1,14 +1,14 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.clib.jna.CPoll.POLLIN;
 import static ceri.jna.clib.jna.CPoll.POLLOUT;
 import static ceri.jna.clib.jna.CPoll.POLLPRI;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CPoll.pollfd;
 import ceri.jna.clib.test.TestCLibNative;
@@ -39,7 +39,7 @@ public class CPollTest {
 		fds[2].fd = 3;
 		fds[2].events = (short) POLLIN;
 		assertEquals(CPoll.poll(pollfd.array(0), 0), 0);
-		assertThrown(() -> CPoll.poll(new pollfd[] { fds[0], fds[2] }, 100));
+		Assert.thrown(() -> CPoll.poll(new pollfd[] { fds[0], fds[2] }, 100));
 		assertEquals(CPoll.poll(fds, 100), 0);
 		lib.pollAuto(args -> args.pollfd(0).revents = POLLIN);
 		assertEquals(CPoll.poll(fds, 100), 1);

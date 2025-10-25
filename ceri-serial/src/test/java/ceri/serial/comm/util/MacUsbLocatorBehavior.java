@@ -1,11 +1,11 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertString;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
 import ceri.common.test.TestUtil;
 import ceri.jna.util.JnaOs;
@@ -18,7 +18,7 @@ public class MacUsbLocatorBehavior {
 	public void shouldProvidePortSupplierForMacOnly() {
 		JnaOs.linux.accept(_ -> {
 			var locator = MacUsbLocator.of(); // no error on creation
-			assertThrown(() -> locator.portSupplier(0x123));
+			Assert.thrown(() -> locator.portSupplier(0x123));
 		});
 		JnaOs.mac.accept(_ -> {
 			assertString(MacUsbLocator.of().portSupplier(0x123), "locationId:0x123");
@@ -47,8 +47,8 @@ public class MacUsbLocatorBehavior {
 		var locator = MacUsbLocator.of(Ioreg.of(TestProcess.processor(IOREG_XML)));
 		assertEquals(locator.port(17891328), "/dev/tty.usbserial-1110");
 		assertEquals(locator.port(18087936), "/dev/tty.usbserial-1140");
-		assertThrown(() -> locator.port(0)); // 0 is ignored
-		assertThrown(() -> locator.port(12345678)); // empty IODialinDevice value
+		Assert.thrown(() -> locator.port(0)); // 0 is ignored
+		Assert.thrown(() -> locator.port(12345678)); // empty IODialinDevice value
 	}
 
 	// @Test

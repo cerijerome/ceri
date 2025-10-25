@@ -1,11 +1,11 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class HolderBehavior {
@@ -83,7 +83,6 @@ public class HolderBehavior {
 	public void shouldVerifyNotEmpty() {
 		assertEquals(Holder.of("test").verify(), "test");
 		assertEquals(Holder.of(null).verify(), null);
-		assertThrown(Holder.of()::verify);
+		Assert.thrown(Holder.of()::verify);
 	}
-
 }

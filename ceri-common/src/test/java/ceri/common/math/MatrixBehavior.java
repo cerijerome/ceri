@@ -2,15 +2,14 @@ package ceri.common.math;
 
 import static ceri.common.math.Matrix.c;
 import static ceri.common.math.Matrix.r;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 /**
@@ -82,15 +81,15 @@ public class MatrixBehavior {
 	public void shouldProvideVector() {
 		assertMatrix(Matrix.ofRow(1, 2, 3).vector(), c(1, 2, 3));
 		assertMatrix(Matrix.vector(1, 2, 3).vector(), c(1, 2, 3));
-		assertThrown(() -> Matrix.of(r(1, 2), r(3, 4)).vector());
+		Assert.thrown(() -> Matrix.of(r(1, 2), r(3, 4)).vector());
 	}
 
 	@Test
 	public void shouldProvideVectorOfGivenSize() {
 		assertMatrix(Matrix.ofRow(1, 2, 3).vector(3), c(1, 2, 3));
 		assertMatrix(Matrix.vector(1, 2).vector(2), c(1, 2));
-		assertThrown(() -> Matrix.ofRow(1, 2, 3).vector(2));
-		assertThrown(() -> Matrix.ofRow(1, 2).vector(3));
+		Assert.thrown(() -> Matrix.ofRow(1, 2, 3).vector(2));
+		Assert.thrown(() -> Matrix.ofRow(1, 2).vector(3));
 	}
 
 	@Test
@@ -165,9 +164,9 @@ public class MatrixBehavior {
 		assertMatrix(m.sub(2, 0, 1, 1), r(1));
 		assertMatrix(m.sub(-1, -2, 1, 1), r(3));
 		assertMatrix(Matrix.EMPTY.sub(1, 1, 0, 0));
-		assertThrown(() -> m.sub(0, 0, 3, 1));
-		assertThrown(() -> m.sub(1, 1, 2, 4));
-		assertThrown(() -> Matrix.EMPTY.sub(0, 0, 1, 0));
+		Assert.thrown(() -> m.sub(0, 0, 3, 1));
+		Assert.thrown(() -> m.sub(1, 1, 2, 4));
+		Assert.thrown(() -> Matrix.EMPTY.sub(0, 0, 1, 0));
 	}
 
 	@Test
@@ -176,10 +175,10 @@ public class MatrixBehavior {
 		assertEquals(m.at(0, 0), 1.0);
 		assertEquals(m.at(0, 1), -2.0);
 		assertEquals(m.at(1, 2), 0.0);
-		assertThrown(() -> m.at(-1, 0));
-		assertThrown(() -> m.at(2, 0));
-		assertThrown(() -> m.at(0, -1));
-		assertThrown(() -> m.at(0, 3));
+		Assert.thrown(() -> m.at(-1, 0));
+		Assert.thrown(() -> m.at(2, 0));
+		Assert.thrown(() -> m.at(0, -1));
+		Assert.thrown(() -> m.at(0, 3));
 	}
 
 	@Test
@@ -214,9 +213,9 @@ public class MatrixBehavior {
 		Matrix m = Matrix.identity(2);
 		assertMatrix(m.add(m), r(2, 0), r(0, 2));
 		assertMatrix(Matrix.EMPTY.add(Matrix.EMPTY));
-		assertThrown(() -> m.add(Matrix.EMPTY));
-		assertThrown(() -> m.add(Matrix.ofRow(1, 2)));
-		assertThrown(() -> m.add(Matrix.vector(1, 2)));
+		Assert.thrown(() -> m.add(Matrix.EMPTY));
+		Assert.thrown(() -> m.add(Matrix.ofRow(1, 2)));
+		Assert.thrown(() -> m.add(Matrix.vector(1, 2)));
 	}
 
 	@Test
@@ -244,9 +243,9 @@ public class MatrixBehavior {
 		assertMatrix(Matrix.EMPTY.multiply(Matrix.EMPTY));
 		assertMatrix(m.multiply(Matrix.vector(1, -1, 0)), r(-1), r(-2));
 		assertMatrix(m.multiply(Matrix.of(r(1, 0), r(0, 1), r(-1, -1))), r(-2, -1), r(-1, 1));
-		assertThrown(() -> m.multiply(Matrix.EMPTY));
-		assertThrown(() -> m.multiply(Matrix.ofRow(1, 2, 3)));
-		assertThrown(() -> m.multiply(Matrix.vector(1, 2)));
+		Assert.thrown(() -> m.multiply(Matrix.EMPTY));
+		Assert.thrown(() -> m.multiply(Matrix.ofRow(1, 2, 3)));
+		Assert.thrown(() -> m.multiply(Matrix.vector(1, 2)));
 	}
 
 	@Test
@@ -256,27 +255,27 @@ public class MatrixBehavior {
 		assertEquals(Matrix.ofRow(1, -1, 0).dot(Matrix.vector(3, 2, 1)), 1.0);
 		assertEquals(Matrix.vector(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
 		assertEquals(Matrix.ofRow(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
-		assertThrown(() -> Matrix.EMPTY.dot(Matrix.ofRow(1)));
-		assertThrown(() -> Matrix.ofRow(1).dot(Matrix.EMPTY));
-		assertThrown(() -> Matrix.I2.dot(Matrix.I1));
+		Assert.thrown(() -> Matrix.EMPTY.dot(Matrix.ofRow(1)));
+		Assert.thrown(() -> Matrix.ofRow(1).dot(Matrix.EMPTY));
+		Assert.thrown(() -> Matrix.I2.dot(Matrix.I1));
 	}
 
 	@Test
 	public void shouldApply2dCrossProduct() {
 		assertEquals(Matrix.vector(1, 2).cross2d(Matrix.vector(-1, 3)), 5.0);
 		assertEquals(Matrix.ofRow(1, 2).cross2d(Matrix.ofRow(-1, 3)), 5.0);
-		assertThrown(() -> Matrix.ofRow(1, 2, 0).cross2d(Matrix.ofRow(-1, 3, 0)));
-		assertThrown(() -> Matrix.EMPTY.cross2d(Matrix.EMPTY));
-		assertThrown(() -> Matrix.I1.cross2d(Matrix.I1));
-		assertThrown(() -> Matrix.I2.cross2d(Matrix.I2));
+		Assert.thrown(() -> Matrix.ofRow(1, 2, 0).cross2d(Matrix.ofRow(-1, 3, 0)));
+		Assert.thrown(() -> Matrix.EMPTY.cross2d(Matrix.EMPTY));
+		Assert.thrown(() -> Matrix.I1.cross2d(Matrix.I1));
+		Assert.thrown(() -> Matrix.I2.cross2d(Matrix.I2));
 	}
 
 	@Test
 	public void shouldApplyCrossProduct() {
 		assertMatrix(Matrix.vector(1, 2, -1).cross(Matrix.vector(-1, -1, 2)), c(3, -1, 1));
 		assertMatrix(Matrix.ofRow(1, 2, -1).cross(Matrix.ofRow(-1, -1, 2)), c(3, -1, 1));
-		assertThrown(() -> Matrix.vector(1, 2, 3, 4).cross(Matrix.vector(1, 2, 3, 4)));
-		assertThrown(() -> Matrix.vector(1, 2, 3, 4, 5, 6, 7).cross(Matrix.constant(7, 1, 0)));
+		Assert.thrown(() -> Matrix.vector(1, 2, 3, 4).cross(Matrix.vector(1, 2, 3, 4)));
+		Assert.thrown(() -> Matrix.vector(1, 2, 3, 4, 5, 6, 7).cross(Matrix.constant(7, 1, 0)));
 	}
 
 	@Test
@@ -285,7 +284,7 @@ public class MatrixBehavior {
 		assertEquals(Matrix.ofRow(0, 3, 4).magnitude(), 5.0);
 		assertEquals(Matrix.I1.magnitude(), 1.0);
 		assertEquals(Matrix.EMPTY.magnitude(), 0.0);
-		assertThrown(() -> Matrix.I2.magnitude());
+		Assert.thrown(() -> Matrix.I2.magnitude());
 	}
 
 	@Test
@@ -331,11 +330,11 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldFailIfNotInvertible() {
-		assertNull(Matrix.from(2, 1, 1, 1, 1).invert());
-		assertNull(Matrix.constant(8, 8, 2).invert());
-		assertNull(Matrix.from(2, 3, 4, 6, 8).invert());
-		assertThrown(() -> Matrix.of(r(1, 2, 3), r(1, 0, 1)).invert());
-		assertThrown(() -> Matrix.of(c(1, 2)).invert());
+		Assert.isNull(Matrix.from(2, 1, 1, 1, 1).invert());
+		Assert.isNull(Matrix.constant(8, 8, 2).invert());
+		Assert.isNull(Matrix.from(2, 3, 4, 6, 8).invert());
+		Assert.thrown(() -> Matrix.of(r(1, 2, 3), r(1, 0, 1)).invert());
+		Assert.thrown(() -> Matrix.of(c(1, 2)).invert());
 	}
 
 	@Test

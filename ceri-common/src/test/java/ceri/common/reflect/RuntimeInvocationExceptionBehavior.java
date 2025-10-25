@@ -1,8 +1,8 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class RuntimeInvocationExceptionBehavior {
 
@@ -10,9 +10,9 @@ public class RuntimeInvocationExceptionBehavior {
 	public void shouldAllowNullMessageAndCause() {
 		var e = new RuntimeInvocationException("test");
 		assertEquals(e.getMessage(), "test");
-		assertNull(e.getCause());
+		Assert.isNull(e.getCause());
 		var e2 = new RuntimeInvocationException(e);
 		assertEquals(e2.getCause(), e);
-		assertNull(e2.getMessage());
+		Assert.isNull(e2.getMessage());
 	}
 }

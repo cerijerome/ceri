@@ -1,11 +1,9 @@
 package ceri.common.time;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertSame;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -17,6 +15,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
 import ceri.common.concurrent.Concurrent;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class TimeoutBehavior {
@@ -36,7 +35,7 @@ public class TimeoutBehavior {
 	@Test
 	public void shouldConvertUnits() {
 		Timeout t = Timeout.of(111, SECONDS);
-		assertSame(t.convert(SECONDS), t);
+		Assert.same(t.convert(SECONDS), t);
 		assertEquals(t.convert(MILLISECONDS), Timeout.millis(111000));
 		assertEquals(t.convert(MINUTES), Timeout.of(1, MINUTES));
 		assertEquals(Timeout.NULL.convert(MINUTES), Timeout.NULL);
@@ -49,7 +48,7 @@ public class TimeoutBehavior {
 		Concurrent.lockedRun(lock, () -> {
 			Condition c = lock.newCondition();
 			assertFalse(t.applyTo(c::await));
-			assertNull(Timeout.NULL.applyTo(c::await));
+			Assert.isNull(Timeout.NULL.applyTo(c::await));
 		});
 	}
 

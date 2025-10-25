@@ -1,11 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class CharsTest {
 	private static final char ch0 = 0;
@@ -30,7 +30,7 @@ public class CharsTest {
 	@Test
 	public void testSafe() {
 		assertString(Chars.safe(null), "");
-		assertSame(Chars.safe(b("")), b);
+		Assert.same(Chars.safe(b("")), b);
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class CharsTest {
 		assertString(Chars.escape("\\ \b \u001b \f \r \n \t \0 \1 \177 \377 a"),
 			"\\\\ \\b \\e \\f \\r \\n \\t \\0 \\u0001 \\u007f \377 a");
 		var s = "abc ";
-		assertSame(Chars.escape(s), s);
+		Assert.same(Chars.escape(s), s);
 	}
 
 	@Test
@@ -141,6 +141,6 @@ public class CharsTest {
 		assertString(Chars.unescape("\\8\\18\\378\\477"), "\\8\u00018\u001f8\u00277");
 		assertString(Chars.unescape("\\u\\u0\\u00\\u000"), "\\u\\u0\\u00\\u000");
 		var s = "abc ";
-		assertSame(Chars.unescape(s), s);
+		Assert.same(Chars.unescape(s), s);
 	}
 }

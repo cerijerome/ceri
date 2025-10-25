@@ -1,7 +1,7 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
 import ceri.x10.command.FunctionType;
 import ceri.x10.command.House;

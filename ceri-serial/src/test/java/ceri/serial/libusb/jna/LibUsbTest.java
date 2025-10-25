@@ -1,11 +1,8 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -13,6 +10,7 @@ import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -83,8 +81,8 @@ public class LibUsbTest {
 		transfer.buffer = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 		LibUsb.libusb_set_iso_packet_lengths(transfer, 3);
 		assertPointer(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 2), 0, 7, 8, 9);
-		assertNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, Short.MAX_VALUE + 1));
-		assertNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 4));
+		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, Short.MAX_VALUE + 1));
+		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer_simple(transfer, 4));
 	}
 
 	@Test
@@ -93,8 +91,8 @@ public class LibUsbTest {
 		transfer.buffer = JnaUtil.mallocBytes(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 		LibUsb.libusb_set_iso_packet_lengths(transfer, 3);
 		assertPointer(LibUsb.libusb_get_iso_packet_buffer(transfer, 2), 0, 7, 8, 9);
-		assertNull(LibUsb.libusb_get_iso_packet_buffer(transfer, Short.MAX_VALUE + 1));
-		assertNull(LibUsb.libusb_get_iso_packet_buffer(transfer, 4));
+		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer(transfer, Short.MAX_VALUE + 1));
+		Assert.isNull(LibUsb.libusb_get_iso_packet_buffer(transfer, 4));
 	}
 
 	@Test
@@ -117,7 +115,7 @@ public class LibUsbTest {
 		initLib();
 		LibUsb.libusb_set_log_cb(null, (_, _, _) -> 0,
 			LibUsb.libusb_log_cb_mode.LIBUSB_LOG_CB_GLOBAL);
-		assertNotNull(LibUsb.libusb_error_name(libusb_error.LIBUSB_ERROR_BUSY));
+		Assert.notNull(LibUsb.libusb_error_name(libusb_error.LIBUSB_ERROR_BUSY));
 		LibUsb.libusb_strerror(libusb_error.LIBUSB_ERROR_BUSY); // may be null?
 	}
 
@@ -136,10 +134,10 @@ public class LibUsbTest {
 		assertEquals(LibUsb.libusb_get_bos_descriptor(handle), null);
 		lib.generalSync.autoResponses(libusb_error.LIBUSB_ERROR_ACCESS.value,
 			libusb_error.LIBUSB_ERROR_NOT_FOUND.value, libusb_error.LIBUSB_ERROR_BUSY.value);
-		assertThrown(() -> LibUsb.libusb_get_ss_endpoint_companion_descriptor(null,
+		Assert.thrown(() -> LibUsb.libusb_get_ss_endpoint_companion_descriptor(null,
 			new libusb_endpoint_descriptor()));
 		assertEquals(LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()), null);
-		assertThrown(() -> LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()));
+		Assert.thrown(() -> LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()));
 	}
 
 	@Test
@@ -172,7 +170,7 @@ public class LibUsbTest {
 		var transfer = LibUsb.libusb_alloc_transfer(0);
 		LibUsb.libusb_cancel_transfer(transfer);
 		lib.generalSync.autoResponses(libusb_error.LIBUSB_ERROR_BUSY.value);
-		assertThrown(() -> LibUsb.libusb_cancel_transfer(transfer));
+		Assert.thrown(() -> LibUsb.libusb_cancel_transfer(transfer));
 	}
 
 	@Test

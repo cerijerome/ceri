@@ -1,15 +1,15 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertTrue;
-import static ceri.common.test.AssertUtil.throwInterrupted;
-import static ceri.common.test.AssertUtil.throwIo;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertTrue;
+import static ceri.common.test.Assert.io;
+import static ceri.common.test.Assert.runtime;
+import static ceri.common.test.Assert.throwInterrupted;
+import static ceri.common.test.Assert.throwIo;
+import static ceri.common.test.Assert.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.Closeable;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class CloseablesTest {
 		var closer = SyncCloser.io(true);
 		assertEquals(Closeables.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		assertIoe(() -> Closeables.acceptOrClose(closer, _ -> throwIo()));
+		io(() -> Closeables.acceptOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -87,7 +87,7 @@ public class CloseablesTest {
 		assertEquals(Closeables.applyOrClose(closer, _ -> null, 1), 1);
 		assertEquals(Closeables.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		assertIoe(() -> Closeables.applyOrClose(closer, _ -> throwIo()));
+		io(() -> Closeables.applyOrClose(closer, _ -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -98,7 +98,7 @@ public class CloseablesTest {
 		var closer = SyncCloser.io(true);
 		assertEquals(Closeables.runOrClose(closer, () -> {}), closer);
 		closer.assertClosed(false);
-		assertIoe(() -> Closeables.runOrClose(closer, () -> throwIo()));
+		io(() -> Closeables.runOrClose(closer, () -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -111,7 +111,7 @@ public class CloseablesTest {
 		assertEquals(Closeables.getOrClose(closer, () -> null, 1), 1);
 		assertEquals(Closeables.getOrClose(closer, () -> 0), 0);
 		closer.assertClosed(false);
-		assertIoe(() -> Closeables.getOrClose(closer, () -> throwIo()));
+		io(() -> Closeables.getOrClose(closer, () -> throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -120,7 +120,7 @@ public class CloseablesTest {
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
 		assertEquals(Closeables.acceptOrCloseAll(closers, _ -> {}), closers);
-		assertIoe(() -> Closeables.acceptOrCloseAll(closers, _ -> throwIo()));
+		io(() -> Closeables.acceptOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -131,7 +131,7 @@ public class CloseablesTest {
 		assertEquals(Closeables.applyOrCloseAll(closers, _ -> null), null);
 		assertEquals(Closeables.applyOrCloseAll(closers, _ -> null, 3), 3);
 		assertEquals(Closeables.applyOrCloseAll(closers, _ -> 1, 3), 1);
-		assertIoe(() -> Closeables.applyOrCloseAll(closers, _ -> throwIo()));
+		io(() -> Closeables.applyOrCloseAll(closers, _ -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -140,7 +140,7 @@ public class CloseablesTest {
 	public void testRunOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
 		assertEquals(Closeables.runOrCloseAll(closers, () -> {}), closers);
-		assertIoe(() -> Closeables.runOrCloseAll(closers, () -> throwIo()));
+		io(() -> Closeables.runOrCloseAll(closers, () -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -151,7 +151,7 @@ public class CloseablesTest {
 		assertEquals(Closeables.getOrCloseAll(closers, () -> null), null);
 		assertEquals(Closeables.getOrCloseAll(closers, () -> null, 3), 3);
 		assertEquals(Closeables.getOrCloseAll(closers, () -> 1, 3), 1);
-		assertIoe(() -> Closeables.getOrCloseAll(closers, () -> throwIo()));
+		io(() -> Closeables.getOrCloseAll(closers, () -> throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -162,7 +162,7 @@ public class CloseablesTest {
 		assertTrue(Closeables.close((Iterable<Closeable>) null));
 		assertTrue(Closeables.close(new AutoCloseable[] { null }));
 		assertTrue(Closeables.close(in));
-		assertIoe(in::read);
+		io(in::read);
 	}
 
 	@Test
@@ -243,7 +243,7 @@ public class CloseablesTest {
 	@Test
 	public void testCreateListWithError() {
 		var captor = Captor.of();
-		assertRte(() -> Closeables.create(function(captor), 1, 2, -1));
+		runtime(() -> Closeables.create(function(captor), 1, 2, -1));
 		captor.verify(Closer.of(1, true), Closer.of(2, true));
 	}
 
@@ -259,7 +259,7 @@ public class CloseablesTest {
 	@Test
 	public void testCreateFromCountWithError() {
 		var captor = Captor.of();
-		assertRte(() -> Closeables.create(supplier(captor), 4));
+		runtime(() -> Closeables.create(supplier(captor), 4));
 		captor.verify(Closer.of(1, true), Closer.of(2, true), Closer.of(3, true));
 	}
 
@@ -275,7 +275,7 @@ public class CloseablesTest {
 	@Test
 	public void testCreateArrayWithError() {
 		var captor = Captor.of();
-		assertRte(() -> Closeables.createArray(Closer[]::new, function(captor), 1, 2, -1));
+		runtime(() -> Closeables.createArray(Closer[]::new, function(captor), 1, 2, -1));
 		captor.verify(Closer.of(1, true), Closer.of(2, true));
 	}
 
@@ -291,7 +291,7 @@ public class CloseablesTest {
 	@Test
 	public void testCreateArrayFromCountWithError() {
 		var captor = Captor.of();
-		assertRte(() -> Closeables.createArray(Closer[]::new, supplier(captor), 4));
+		runtime(() -> Closeables.createArray(Closer[]::new, supplier(captor), 4));
 		captor.verify(Closer.of(1, true), Closer.of(2, true), Closer.of(3, true));
 	}
 

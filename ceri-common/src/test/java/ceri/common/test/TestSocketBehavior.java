@@ -1,8 +1,8 @@
 package ceri.common.test;
 
 import static ceri.common.data.ByteUtil.toAscii;
-import static ceri.common.test.AssertUtil.assertRead;
-import static org.junit.Assert.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.net.HostPort;
@@ -44,5 +44,4 @@ public class TestSocketBehavior {
 			assertRead(socket.out.from, toAscii("test"));
 		}
 	}
-
 }

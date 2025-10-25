@@ -1,8 +1,8 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertPaths;
-import static ceri.common.test.AssertUtil.assertStream;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertPaths;
+import static ceri.common.test.Assert.assertStream;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;

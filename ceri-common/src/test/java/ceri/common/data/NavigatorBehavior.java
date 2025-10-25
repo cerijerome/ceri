@@ -1,21 +1,21 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class NavigatorBehavior {
 
 	@Test
 	public void shouldOnlyAllowNonNegativeLengths() {
-		assertThrown(() -> navigator(-1));
+		Assert.thrown(() -> navigator(-1));
 		Navigator<?> n = navigator(10);
 		assertEquals(n.length(), 10);
 		n.length(5).length(20);
 		assertEquals(n.length(), 20);
-		assertThrown(() -> n.length(-1));
+		Assert.thrown(() -> n.length(-1));
 		assertEquals(n.length(), 20);
 	}
 
@@ -24,8 +24,8 @@ public class NavigatorBehavior {
 		Navigator<?> n = navigator(10);
 		n.offset(10);
 		n.offset(0);
-		assertThrown(() -> n.offset(-1));
-		assertThrown(() -> n.offset(11));
+		Assert.thrown(() -> n.offset(-1));
+		Assert.thrown(() -> n.offset(11));
 	}
 
 	@Test
@@ -41,8 +41,8 @@ public class NavigatorBehavior {
 	public void shouldFailToSkipPastLimits() {
 		Navigator<?> n = navigator(10);
 		n.skip(5).skip(-5).skip(10).skip(-6);
-		assertThrown(() -> n.skip(-5));
-		assertThrown(() -> n.skip(7));
+		Assert.thrown(() -> n.skip(-5));
+		Assert.thrown(() -> n.skip(7));
 	}
 
 	@Test

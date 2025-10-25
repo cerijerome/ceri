@@ -1,7 +1,7 @@
 package ceri.common.property;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNpe;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.nullPointer;
 import org.junit.Test;
 
 public class SeparatorBehavior {
@@ -11,7 +11,7 @@ public class SeparatorBehavior {
 		assertEquals(Separator.NULL.isNull(), true);
 		assertEquals(new Separator("").isNull(), true);
 		assertEquals(new Separator(" ").isNull(), false);
-		assertNpe(() -> new Separator(null));
+		nullPointer(() -> new Separator(null));
 	}
 
 	@Test

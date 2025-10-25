@@ -1,13 +1,12 @@
 package ceri.common.stream;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertMap;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertStream;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertMap;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertStream;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.runtime;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +19,7 @@ import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.function.Compares;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.text.Joiner;
 
 public class StreamBehavior {
@@ -62,7 +62,7 @@ public class StreamBehavior {
 	@Test
 	public void testEmpty() throws Exception {
 		assertStream(empty);
-		assertSame(empty, Stream.empty());
+		Assert.same(empty, Stream.empty());
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class StreamBehavior {
 	public void shouldWrapExceptions() {
 		assertStream(empty.runtime());
 		assertStream(testStream().runtime(), -1, null, 1, 0);
-		assertRte(() -> ioStream().runtime().toArray());
+		runtime(() -> ioStream().runtime().toArray());
 	}
 
 	@Test

@@ -1,8 +1,8 @@
 package ceri.x10.command;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class FunctionTypeBehavior {
 
@@ -12,7 +12,7 @@ public class FunctionTypeBehavior {
 		assertEquals(FunctionType.from(3), FunctionType.on);
 		assertEquals(FunctionType.from(8), FunctionType.ext);
 		assertEquals(FunctionType.from(16), FunctionType.statusReq);
-		assertThrown(() -> FunctionType.from(0));
-		assertThrown(() -> FunctionType.from(17));
+		Assert.thrown(() -> FunctionType.from(0));
+		Assert.thrown(() -> FunctionType.from(17));
 	}
 }

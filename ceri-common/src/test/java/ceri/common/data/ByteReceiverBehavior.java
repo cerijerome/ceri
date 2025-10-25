@@ -1,10 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayInputStream;
@@ -14,6 +13,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Excepts.Consumer;
+import ceri.common.test.Assert;
 
 public class ByteReceiverBehavior {
 	private static final boolean msb = ByteUtil.IS_BIG_ENDIAN;
@@ -26,7 +26,7 @@ public class ByteReceiverBehavior {
 	@Test
 	public void shouldProvideAnEmptyInstance() {
 		assertEquals(ByteReceiver.empty().length(), 0);
-		assertThrown(() -> ByteReceiver.empty().setByte(0, 0));
+		Assert.thrown(() -> ByteReceiver.empty().setByte(0, 0));
 	}
 
 	@Test
@@ -95,27 +95,27 @@ public class ByteReceiverBehavior {
 		assertTrue(br.slice(5).isEmpty());
 		assertTrue(br.slice(4, 0).isEmpty());
 		assertEquals(br.slice(0), br);
-		assertThrown(() -> br.slice(1, 4));
-		assertThrown(() -> br.slice(0, 4));
+		Assert.thrown(() -> br.slice(1, 4));
+		Assert.thrown(() -> br.slice(0, 4));
 	}
 
 	@Test
 	public void shouldFillBytes() {
 		assertBytes(5, br -> assertEquals(br.fill(2, 0xff), 5), 0, 0, 0xff, 0xff, 0xff);
-		assertThrown(() -> receiver(5).fill(3, 3, 0));
+		Assert.thrown(() -> receiver(5).fill(3, 3, 0));
 	}
 
 	@Test
 	public void shouldCopyFromByteArray() {
 		assertBytes(5, br -> assertEquals(br.setBytes(1, 1, 2, 3), 4), 0, 1, 2, 3, 0);
-		assertThrown(() -> receiver(5).setBytes(4, 1, 2, 3));
+		Assert.thrown(() -> receiver(5).setBytes(4, 1, 2, 3));
 	}
 
 	@Test
 	public void shouldCopyFromByteProvider() {
 		ByteProvider bp = ByteProviderBehavior.provider(1, 2, 3);
 		assertBytes(5, br -> assertEquals(br.copyFrom(1, bp), 4), 0, 1, 2, 3, 0);
-		assertThrown(() -> receiver(5).copyFrom(4, bp));
+		Assert.thrown(() -> receiver(5).copyFrom(4, bp));
 	}
 
 	@Test
@@ -133,9 +133,9 @@ public class ByteReceiverBehavior {
 		assertBytes(5, br -> br.writer(3).fill(0xff), 0, 0, 0, 0xff, 0xff);
 		assertBytes(5, br -> br.writer(3, 0).fill(0xff), 0, 0, 0, 0, 0);
 		assertBytes(5, br -> br.writer(5).fill(0xff), 0, 0, 0, 0, 0);
-		assertThrown(() -> receiver(5).writer(6));
-		assertThrown(() -> receiver(5).writer(1, 5));
-		assertThrown(() -> receiver(5).writer(-1));
+		Assert.thrown(() -> receiver(5).writer(6));
+		Assert.thrown(() -> receiver(5).writer(1, 5));
+		Assert.thrown(() -> receiver(5).writer(-1));
 	}
 
 	/* ByteReceiver.Writer tests */
@@ -143,7 +143,7 @@ public class ByteReceiverBehavior {
 	@Test
 	public void shouldWriteByte() {
 		assertBytes(3, br -> br.writer(0).writeByte(1).writeByte(2), 1, 2, 0);
-		assertThrown(() -> receiver(3).writer(1, 0).writeByte(2));
+		Assert.thrown(() -> receiver(3).writer(1, 0).writeByte(2));
 	}
 
 	@Test
@@ -185,15 +185,15 @@ public class ByteReceiverBehavior {
 		ByteReceiver br = receiver(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		assertEquals(br.writer(0).receiver(), br);
 		assertTrue(br.writer(5, 0).receiver().isEmpty());
-		assertThrown(() -> br.writer(2).receiver());
+		Assert.thrown(() -> br.writer(2).receiver());
 	}
 
 	@Test
 	public void shouldSliceWriter() {
 		assertBytes(5, br -> br.writer(2).slice().fill(1), 0, 0, 1, 1, 1);
 		assertBytes(5, br -> br.writer(2).slice(2).fill(1), 0, 0, 1, 1, 0);
-		assertThrown(() -> receiver(5).writer(2).slice(4));
-		assertThrown(() -> receiver(5).writer(2).slice(-1));
+		Assert.thrown(() -> receiver(5).writer(2).slice(4));
+		Assert.thrown(() -> receiver(5).writer(2).slice(-1));
 	}
 
 	/* Support methods */

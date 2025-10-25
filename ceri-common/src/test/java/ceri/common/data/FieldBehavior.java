@@ -1,12 +1,12 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.assertUnsupported;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.illegalArg;
+import static ceri.common.test.Assert.unsupportedOp;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil.Rte;
 
 public class FieldBehavior {
@@ -82,12 +82,12 @@ public class FieldBehavior {
 		assertEquals(Type.L.get(type), 0xffffffffffffffffL);
 		assertEquals(Type.L.getInt(type), 0xffffffff);
 		assertEquals(Type.L.getUint(type), 0xffffffffL);
-		assertThrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
+		Assert.thrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
 		Type.L.set(type, 0xffffffff0000L);
 		assertEquals(Type.L.get(type), 0xffffffff0000L);
 		assertEquals(Type.L.getInt(type), 0xffff0000);
 		assertEquals(Type.L.getUint(type), 0xffff0000L);
-		assertThrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
+		Assert.thrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
 		Type.L.setUint(type, 0xffffffff0000L);
 		assertEquals(Type.L.get(type), 0xffff0000L);
 		assertEquals(Type.L.getInt(type), 0xffff0000);
@@ -103,7 +103,7 @@ public class FieldBehavior {
 		Type.I.apply(type, l -> l);
 		assertEquals(type.i, 0xfffffffe);
 	}
-	
+
 	@Test
 	public void shouldSetMaskedUintValues() {
 		var type = new Type(null, -1, 0);
@@ -181,7 +181,7 @@ public class FieldBehavior {
 		assertEquals(Type.IT.getValid(type), Bit._7);
 		assertOrdered(Type.LT.getAllValid(type), Bit._0, Bit._7);
 		type.i = 0x81;
-		assertIllegalArg(() -> Type.IT.getValid(type));
+		illegalArg(() -> Type.IT.getValid(type));
 	}
 
 	@Test
@@ -197,8 +197,8 @@ public class FieldBehavior {
 		var set = Field.<Rte, Type>ofUint(null, (t, v) -> t.i = v);
 		var type = new Type(null, 0x123, 0L);
 		assertEquals(get.get(type), 0x123L);
-		assertUnsupported(() -> get.set(type, 0));
+		unsupportedOp(() -> get.set(type, 0));
 		set.set(type, 0);
-		assertUnsupported(() -> set.get(type));
+		unsupportedOp(() -> set.get(type));
 	}
 }

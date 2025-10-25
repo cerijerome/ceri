@@ -1,13 +1,12 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIoe;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
-import static ceri.common.test.AssertUtil.fail;
-import static ceri.common.test.AssertUtil.throwIo;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.fail;
+import static ceri.common.test.Assert.io;
+import static ceri.common.test.Assert.runtime;
+import static ceri.common.test.Assert.throwIo;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -20,6 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestExecutorService;
@@ -143,7 +143,8 @@ public class ConcurrentTest {
 	public void testClosedExecutorSubmit() {
 		try (var exec = TestExecutorService.of()) {
 			exec.execute.error.set(new RejectedExecutionException("test"));
-			assertThrown(RejectedExecutionException.class, () -> Concurrent.submit(exec, () -> {}));
+			Assert.thrown(RejectedExecutionException.class,
+				() -> Concurrent.submit(exec, () -> {}));
 			exec.close();
 			Concurrent.submit(exec, () -> {}); // no exception if closed
 		}
@@ -171,10 +172,10 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
 		initExec(null);
-		assertIoe(() -> Concurrent.submitAndWait(exec, () -> {
+		io(() -> Concurrent.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new));
-		assertIoe(() -> Concurrent.submitAndWait(exec, () -> {
+		io(() -> Concurrent.submitAndWait(exec, () -> {
 			throw new ParseException("hello", 0);
 		}, IOException::new, 10000));
 	}
@@ -182,18 +183,17 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteAndWaitTimeoutException() {
 		initExec(null);
-		assertIoe(
-			() -> Concurrent.submitAndWait(exec, () -> Thread.sleep(10000), IOException::new, 1));
+		io(() -> Concurrent.submitAndWait(exec, () -> Thread.sleep(10000), IOException::new, 1));
 	}
 
 	@Test
 	public void testGetFutureInterruption() {
 		var future = TestFuture.of("test");
 		future.get.error.setFrom(ErrorGen.INX);
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> Concurrent.get(future, RuntimeException::new));
 		future.get.error.setFrom(ErrorGen.INX);
-		assertThrown(RuntimeInterruptedException.class,
+		Assert.thrown(RuntimeInterruptedException.class,
 			() -> Concurrent.get(future, RuntimeException::new, 1000));
 	}
 
@@ -209,7 +209,7 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		var lock = new ReentrantLock();
-		assertRte(() -> Concurrent.lockedRun(lock, () -> {
+		runtime(() -> Concurrent.lockedRun(lock, () -> {
 			throw new RuntimeInterruptedException("test");
 		}));
 		assertEquals(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
@@ -256,7 +256,7 @@ public class ConcurrentTest {
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		var lock = new ReentrantLock();
 		boolean throwEx = true;
-		assertRte(() -> Concurrent.lockedGet(lock, () -> {
+		runtime(() -> Concurrent.lockedGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));
@@ -286,20 +286,20 @@ public class ConcurrentTest {
 	public void testCheckInterrupted() throws InterruptedException {
 		Concurrent.checkInterrupted();
 		Concurrent.interrupt();
-		assertThrown(InterruptedException.class, Concurrent::checkInterrupted);
+		Assert.thrown(InterruptedException.class, Concurrent::checkInterrupted);
 	}
 
 	@Test
 	public void testCheckRuntimeInterrupted() {
 		Concurrent.checkRuntimeInterrupted();
 		Concurrent.interrupt();
-		assertThrown(RuntimeInterruptedException.class, Concurrent::checkRuntimeInterrupted);
+		Assert.thrown(RuntimeInterruptedException.class, Concurrent::checkRuntimeInterrupted);
 	}
 
 	@Test
 	public void testExecuteInterruptible() {
 		Concurrent.runInterruptible(() -> {});
-		assertThrown(RuntimeInterruptedException.class, () -> Concurrent.runInterruptible(() -> {
+		Assert.thrown(RuntimeInterruptedException.class, () -> Concurrent.runInterruptible(() -> {
 			throw new InterruptedException();
 		}));
 	}
@@ -307,7 +307,7 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteGetInterruptible() {
 		assertEquals(Concurrent.getInterruptible(() -> "x"), "x");
-		assertThrown(RuntimeInterruptedException.class, () -> Concurrent.getInterruptible(() -> {
+		Assert.thrown(RuntimeInterruptedException.class, () -> Concurrent.getInterruptible(() -> {
 			throw new InterruptedException();
 		}));
 	}
@@ -325,7 +325,7 @@ public class ConcurrentTest {
 	@Test
 	public void testInvokeWithException() {
 		initExec(true);
-		assertIoe(() -> Concurrent.invoke(exec, IOException::new, () -> captor.accept("1"), () -> {
+		io(() -> Concurrent.invoke(exec, IOException::new, () -> captor.accept("1"), () -> {
 			throw new Exception("test");
 		}));
 		assertCaptor("1");
@@ -334,7 +334,7 @@ public class ConcurrentTest {
 	@Test
 	public void testInvokeWithTimeout() {
 		initExec(true);
-		assertThrown(CancellationException.class,
+		Assert.thrown(CancellationException.class,
 			() -> Concurrent.invoke(exec, IOException::new, 1, () -> {
 				Thread.sleep(10000);
 				captor.accept("1");
@@ -349,7 +349,7 @@ public class ConcurrentTest {
 	public void testInvokeClosedWithTimeout() throws Exception {
 		try (var exec = TestExecutorService.of()) {
 			exec.execute.error.set(new RejectedExecutionException("test"));
-			assertThrown(RejectedExecutionException.class,
+			Assert.thrown(RejectedExecutionException.class,
 				() -> Concurrent.invoke(exec, IOException::new, () -> {}));
 			exec.close();
 			Concurrent.invoke(exec, IOException::new, () -> {}); // no exception if closed

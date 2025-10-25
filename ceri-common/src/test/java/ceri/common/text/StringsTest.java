@@ -1,11 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
 import ceri.common.stream.IntStream;
+import ceri.common.test.Assert;
 
 public class StringsTest {
 	private static final int _1B = 'A';
@@ -60,7 +60,7 @@ public class StringsTest {
 	public void testSafe() {
 		assertString(Strings.safe(null), "");
 		assertString(Strings.safe(""), "");
-		assertSame(Strings.safe(S), S);
+		Assert.same(Strings.safe(S), S);
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class StringsTest {
 	public void testSub() {
 		assertString(Strings.sub(null, 0), "");
 		assertString(Strings.sub("", 1), "");
-		assertSame(Strings.sub(S, 0), S);
+		Assert.same(Strings.sub(S, 0), S);
 		assertString(Strings.sub(S, 0, 0), "");
 		assertString(Strings.sub(S, 2, 3), "\u00a9\u2103\ud835");
 	}
@@ -155,11 +155,11 @@ public class StringsTest {
 		assertString(Strings.pad(null, -1, ""), "");
 		assertString(Strings.pad(null, 1, " "), " ");
 		assertString(Strings.pad(null, -1, " "), " ");
-		assertSame(Strings.pad(s, 0, " "), s);
-		assertSame(Strings.pad(s, 10, ""), s);
-		assertSame(Strings.pad(s, -10, ""), s);
-		assertSame(Strings.pad(s, 1, " "), s);
-		assertSame(Strings.pad(s, -1, " "), s);
+		Assert.same(Strings.pad(s, 0, " "), s);
+		Assert.same(Strings.pad(s, 10, ""), s);
+		Assert.same(Strings.pad(s, -10, ""), s);
+		Assert.same(Strings.pad(s, 1, " "), s);
+		Assert.same(Strings.pad(s, -1, " "), s);
 		assertString(Strings.pad(s, 8, " "), "  " + s);
 		assertString(Strings.pad(s, -8, " "), s + "  ");
 		assertString(Strings.pad(s, 8, "<>"), "<>" + s);
@@ -353,8 +353,8 @@ public class StringsTest {
 		assertString(Strings.replaceChars(null, _ -> '.'), "");
 		assertString(Strings.replaceChars("", _ -> '.'), "");
 		assertString(Strings.replaceChars("abc", _ -> '.'), "...");
-		assertSame(Strings.replaceChars(S, null), S);
-		assertSame(Strings.replaceChars(S, c -> c), S);
+		Assert.same(Strings.replaceChars(S, null), S);
+		Assert.same(Strings.replaceChars(S, c -> c), S);
 	}
 
 	@Test

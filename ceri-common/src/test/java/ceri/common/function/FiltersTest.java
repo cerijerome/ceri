@@ -1,12 +1,12 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.illegalArg;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.text.Strings;
 
 public class FiltersTest {
@@ -81,7 +81,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.yes, null), false, "", 1);
 		assertTest(Filters.of(Filters.Nulls.no, null), false, null, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, null), false, null, "", 1);
-		assertIllegalArg(() -> Filters.of(Filters.Nulls.fail, null).test(null));
+		illegalArg(() -> Filters.of(Filters.Nulls.fail, null).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, null), false, "", 1);
 	}
 
@@ -93,7 +93,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), false, nullStr);
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), true, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, Filters.YES), true, null, "", 1);
-		assertIllegalArg(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
+		illegalArg(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, Filters.YES), true, "", 1);
 	}
 
@@ -158,10 +158,10 @@ public class FiltersTest {
 		assertTest(Filters.biAs(Filters.Nulls.yes, a1, a2, bp), true, null, "", "a b");
 		assertTest(Filters.biAs(Filters.Nulls.none, a1, a2, bp), false, " ", "a ");
 		assertTest(Filters.biAs(Filters.Nulls.none, a1, a2, bp), true, "", "a b");
-		assertThrown(() -> Filters.biAs(Filters.Nulls.none, a1, a2, bp).test(null));
+		Assert.thrown(() -> Filters.biAs(Filters.Nulls.none, a1, a2, bp).test(null));
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), false, " ", "a ");
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), true, "", "a b");
-		assertIllegalArg(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
+		illegalArg(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
 	}
 
 	@Test

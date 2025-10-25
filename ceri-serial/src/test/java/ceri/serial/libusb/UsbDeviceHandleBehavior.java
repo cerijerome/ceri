@@ -1,9 +1,8 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertBuffer;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNotNull;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertBuffer;
+import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import java.util.List;
 import org.junit.After;
@@ -12,6 +11,7 @@ import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.jna.test.JnaTestUtil;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
 import ceri.serial.libusb.jna.LibUsbException;
@@ -44,8 +44,8 @@ public class UsbDeviceHandleBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideDevice() throws LibUsbException {
-		assertNotNull(handle.device());
-		assertNotNull(handle.device());
+		Assert.notNull(handle.device());
+		Assert.notNull(handle.device());
 	}
 
 	@Test

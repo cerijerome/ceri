@@ -1,6 +1,6 @@
 package ceri.log.util;
 
-import static ceri.common.test.AssertUtil.assertOrdered;
+import static ceri.common.test.Assert.assertOrdered;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.test.Captor;

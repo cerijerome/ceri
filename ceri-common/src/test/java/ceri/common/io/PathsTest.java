@@ -1,14 +1,12 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFile;
-import static ceri.common.test.AssertUtil.assertPath;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertString;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFile;
+import static ceri.common.test.Assert.assertPath;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,7 +18,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Excepts;
-import ceri.common.test.AssertUtil;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 import ceri.common.util.SystemVars;
@@ -65,7 +63,7 @@ public class PathsTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testFs() {
-		assertSame(Paths.fs(null), FileSystems.getDefault());
+		Assert.same(Paths.fs(null), FileSystems.getDefault());
 	}
 
 	@SuppressWarnings("resource")
@@ -156,11 +154,11 @@ public class PathsTest {
 		assertPath(Paths.sub(null, 0), null);
 		assertPath(Paths.sub(Path.of("/"), 0), "");
 		assertPath(Paths.sub(Path.of(""), 0), "");
-		assertThrown(() -> Paths.sub(Path.of(""), 1));
+		Assert.thrown(() -> Paths.sub(Path.of(""), 1));
 		assertPath(Paths.sub(Path.of("/a/b/c"), 0), "a/b/c");
 		assertPath(Paths.sub(Path.of("/a/b/c"), 2), "c");
 		assertPath(Paths.sub(Path.of("/a/b/c"), 3), "");
-		assertThrown(() -> Paths.sub(Path.of("/a/b/c"), 4));
+		Assert.thrown(() -> Paths.sub(Path.of("/a/b/c"), 4));
 		assertPath(Paths.sub(null, 0, 0), null);
 		assertPath(Paths.sub(Path.of("a"), 0, 1), "a");
 		assertPath(Paths.sub(Path.of("/a/b/c/d"), 1, 3), "b/c");
@@ -206,7 +204,7 @@ public class PathsTest {
 		assertPath(Paths.shorten(null, 0), null);
 		assertPath(Paths.shorten(Path.of("a"), 0), "a");
 		assertPath(Paths.shorten(Path.of("/"), 0), "/");
-		assertThrown(() -> Paths.shorten(Path.of("/"), 1));
+		Assert.thrown(() -> Paths.shorten(Path.of("/"), 1));
 		assertPath(Paths.shorten(Path.of("/a/b/c"), 0), "/a/b/c");
 		assertPath(Paths.shorten(Path.of("/a/b/c"), 2), "/a");
 		assertPath(Paths.shorten(Path.of("/a/b/c"), 3), "/");
@@ -237,7 +235,7 @@ public class PathsTest {
 			.file("z.txt", "").build();
 		assertEquals(Paths.deleteAll(null), false);
 		assertEquals(Paths.deleteAll(Path.of("XXX/XXX/XXX/XXX")), false);
-		assertThrown(() -> Paths.deleteAll(Path.of("/XXX/XXX/XXX")));
+		Assert.thrown(() -> Paths.deleteAll(Path.of("/XXX/XXX/XXX")));
 		assertEquals(Paths.deleteAll(deleter.path("z.txt")), false);
 		assertEquals(Files.exists(deleter.path("x/x/x.txt")), true);
 		assertEquals(Files.exists(deleter.path("y/y")), true);
@@ -310,7 +308,7 @@ public class PathsTest {
 		try {
 			var badFile = TestPath.of();
 			var toFile2 = helper.path("x/y/z.txt");
-			assertThrown(() -> Paths.copyFile(badFile, toFile2));
+			Assert.thrown(() -> Paths.copyFile(badFile, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));
@@ -339,9 +337,9 @@ public class PathsTest {
 		initFiles();
 		try {
 			@SuppressWarnings("resource")
-			var badIn = IoStream.in(AssertUtil::throwIo);
+			var badIn = IoStream.in(Assert::throwIo);
 			var toFile2 = helper.path("x/y/z.txt");
-			assertThrown(() -> Paths.copy(badIn, toFile2));
+			Assert.thrown(() -> Paths.copy(badIn, toFile2));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));
@@ -360,7 +358,7 @@ public class PathsTest {
 			assertFile(toFile, 'a', 'b', 'c');
 			var badArray = badProvider(3);
 			var toFile2 = helper.path("x/y/z.txt");
-			assertThrown(() -> Paths.write(toFile2, badArray));
+			Assert.thrown(() -> Paths.write(toFile2, badArray));
 			assertFalse(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));

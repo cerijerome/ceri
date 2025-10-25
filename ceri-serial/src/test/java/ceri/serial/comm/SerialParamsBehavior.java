@@ -1,9 +1,9 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SerialParamsBehavior {
@@ -23,12 +23,12 @@ public class SerialParamsBehavior {
 
 	@Test
 	public void shouldFailToCreateFromBadString() {
-		assertThrown(() -> SerialParams.from(""));
-		assertThrown(() -> SerialParams.from("1200x,7,1,n"));
-		assertThrown(() -> SerialParams.from("1200,4,1,n"));
-		assertThrown(() -> SerialParams.from("1200,9,1,n"));
-		assertThrown(() -> SerialParams.from("1200,7,0,n"));
-		assertThrown(() -> SerialParams.from("1200,7,1,x"));
+		Assert.thrown(() -> SerialParams.from(""));
+		Assert.thrown(() -> SerialParams.from("1200x,7,1,n"));
+		Assert.thrown(() -> SerialParams.from("1200,4,1,n"));
+		Assert.thrown(() -> SerialParams.from("1200,9,1,n"));
+		Assert.thrown(() -> SerialParams.from("1200,7,0,n"));
+		Assert.thrown(() -> SerialParams.from("1200,7,1,x"));
 	}
 
 	@Test

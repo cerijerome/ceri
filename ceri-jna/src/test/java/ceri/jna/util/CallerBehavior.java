@@ -1,7 +1,7 @@
 package ceri.jna.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.throwIt;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;

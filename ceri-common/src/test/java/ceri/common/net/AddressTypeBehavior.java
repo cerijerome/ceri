@@ -1,7 +1,7 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.net.InetAddress;
 import org.junit.Test;

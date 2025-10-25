@@ -1,10 +1,9 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
@@ -36,6 +35,7 @@ import ceri.common.data.ByteReader;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.ByteWriter;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.jna.util.GcMemory;
 import ceri.log.test.LogModifier;
@@ -86,8 +86,8 @@ public class FtdiDeviceBehavior {
 	public void shouldFailIfClosed() throws LibUsbException {
 		ftdi = FtdiDevice.open();
 		ftdi.close();
-		assertThrown(() -> ftdi.usbReset());
-		assertThrown(() -> ftdi.in().read());
+		Assert.thrown(() -> ftdi.usbReset());
+		Assert.thrown(() -> ftdi.in().read());
 		lib.transferOut.assertValues( // open() leftovers:
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // ftdi_usb_reset
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // ftdi_set_baudrate 9600
@@ -160,7 +160,7 @@ public class FtdiDeviceBehavior {
 			List.of(0x02, provider(1, 2, 3)), //
 			List.of(0x02, provider(4, 5)));
 		lib.transferOut.autoResponses((Integer) null); // set transferred to 0
-		assertThrown(() -> ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3))); // incomplete i/o
+		Assert.thrown(() -> ftdi.out().write(ArrayUtil.bytes.of(1, 2, 3))); // incomplete i/o
 	}
 
 	@SuppressWarnings("resource")
@@ -255,7 +255,7 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldFailToReadStreamForInvalidFtdiChip() throws IOException {
 		ftdi = open();
-		assertThrown(() -> ftdi.readStream((_, _) -> true, 1, 1));
+		Assert.thrown(() -> ftdi.readStream((_, _) -> true, 1, 1));
 	}
 
 	@Test

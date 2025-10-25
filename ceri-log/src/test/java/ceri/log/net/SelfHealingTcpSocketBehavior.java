@@ -1,12 +1,10 @@
 package ceri.log.net;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertRead;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
@@ -23,6 +21,7 @@ import ceri.common.io.StateChange;
 import ceri.common.net.HostPort;
 import ceri.common.net.TcpSocketOption;
 import ceri.common.net.TcpSocketOptions;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestTcpSocket;
 import ceri.log.io.SelfHealing;
@@ -152,7 +151,7 @@ public class SelfHealingTcpSocketBehavior {
 		CallSync.Consumer<StateChange> sync = CallSync.consumer(null, true);
 		sync.error.setFrom(RIX);
 		try (var _ = shs.listeners().enclose(sync::accept)) {
-			assertThrown(RuntimeInterruptedException.class, shs::broken);
+			Assert.thrown(RuntimeInterruptedException.class, shs::broken);
 			sync.awaitAuto();
 		}
 	}
@@ -162,16 +161,16 @@ public class SelfHealingTcpSocketBehavior {
 		init();
 		shs.options(TcpSocketOptions.of().set(TcpSocketOption.soKeepAlive, true));
 		socket.optionSync.error.setFrom(IOX, null);
-		assertThrown(shs::open);
+		Assert.thrown(shs::open);
 		socket.open.await();
 	}
 
 	@Test
 	public void shouldProvideOptionIfOpen() throws IOException {
 		init();
-		assertNull(shs.option(TcpSocketOption.soLinger));
+		Assert.isNull(shs.option(TcpSocketOption.soLinger));
 		shs.option(TcpSocketOption.soLinger, 123);
-		assertNull(shs.option(TcpSocketOption.soLinger));
+		Assert.isNull(shs.option(TcpSocketOption.soLinger));
 		shs.open();
 		assertEquals(shs.option(TcpSocketOption.soLinger), 123);
 		shs.option(TcpSocketOption.soLinger, 456);

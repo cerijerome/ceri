@@ -5,9 +5,9 @@ import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertApproxArray;
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertApproxArray;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.TestUtil;
 

@@ -1,26 +1,24 @@
 package ceri.common.function;
 
-import static ceri.common.test.AssertUtil.assertAssertion;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertOptional;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOptional;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertion;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.junit.Test;
 import ceri.common.function.Excepts.Function;
-import ceri.common.test.AssertUtil;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 
 public class FunctionalTest {
 	private static final Functions.Function<String, Integer> fn = String::length;
 	private static final Functions.Supplier<Integer> sp = () -> 1;
-	private static final Throws.Supplier<Integer> esp = () -> AssertUtil.throwIo();
-	private static final Throws.Supplier<Integer> isp = () -> AssertUtil.throwInterrupted();
-	private static final Throws.Supplier<Integer> fsp = () -> AssertUtil.fail();
+	private static final Throws.Supplier<Integer> esp = () -> Assert.throwIo();
+	private static final Throws.Supplier<Integer> isp = () -> Assert.throwInterrupted();
+	private static final Throws.Supplier<Integer> fsp = () -> Assert.fail();
 
 	public static class A implements Functional.Access<Integer> {
 		private final CallSync.Supplier<Integer> supplier = CallSync.supplier(0, 1, 2, 3, 4);
@@ -161,12 +159,12 @@ public class FunctionalTest {
 		assertEquals(Functional.muteGet(esp), null);
 		assertInterrupted(Functional.muteGet(isp), null);
 		assertEquals(Functional.muteGet(sp), 1);
-		assertAssertion(() -> Functional.muteGet(fsp));
+		assertion(() -> Functional.muteGet(fsp));
 		assertEquals(Functional.muteGet(null, 0), 0);
 		assertEquals(Functional.muteGet(esp, 0), 0);
 		assertInterrupted(Functional.muteGet(isp, 0), 0);
 		assertEquals(Functional.muteGet(sp, 0), 1);
-		assertAssertion(() -> Functional.muteGet(fsp, 0));
+		assertion(() -> Functional.muteGet(fsp, 0));
 	}
 
 	@Test
@@ -175,7 +173,7 @@ public class FunctionalTest {
 		assertEquals(Functional.muteGetInt(esp::get, 0), 0);
 		assertInterrupted(Functional.muteGetInt(isp::get, 0), 0);
 		assertEquals(Functional.muteGetInt(sp::get, 0), 1);
-		assertAssertion(() -> Functional.muteGetInt(fsp::get, 0));
+		assertion(() -> Functional.muteGetInt(fsp::get, 0));
 	}
 
 	@Test
@@ -184,7 +182,7 @@ public class FunctionalTest {
 		assertEquals(Functional.muteGetLong(esp::get, 0), 0L);
 		assertInterrupted(Functional.muteGetLong(isp::get, 0), 0L);
 		assertEquals(Functional.muteGetLong(sp::get, 0), 1L);
-		assertAssertion(() -> Functional.muteGetLong(fsp::get, 0));
+		assertion(() -> Functional.muteGetLong(fsp::get, 0));
 	}
 
 	@Test
@@ -193,7 +191,7 @@ public class FunctionalTest {
 		assertEquals(Functional.muteGetDouble(esp::get, 0), 0.0);
 		assertInterrupted(Functional.muteGetDouble(isp::get, 0), 0.0);
 		assertEquals(Functional.muteGetDouble(sp::get, 0), 1.0);
-		assertAssertion(() -> Functional.muteGetDouble(fsp::get, 0));
+		assertion(() -> Functional.muteGetDouble(fsp::get, 0));
 	}
 
 	@Test
@@ -202,12 +200,12 @@ public class FunctionalTest {
 		assertEquals(Functional.muteRun(esp::get), false);
 		assertInterrupted(Functional.muteRun(isp::get), false);
 		assertCaptor(c -> Functional.muteRun(() -> c.accept(1)), true, 1);
-		assertAssertion(() -> Functional.muteRun(fsp::get));
+		assertion(() -> Functional.muteRun(fsp::get));
 	}
 
 	@Test
 	public void testSequentialSupplier() {
-		assertNull(Functional.sequentialSupplier().get());
+		Assert.isNull(Functional.sequentialSupplier().get());
 		var supplier0 = Functional.sequentialSupplier(1);
 		assertEquals(supplier0.get(), 1);
 		assertEquals(supplier0.get(), 1);
@@ -222,7 +220,7 @@ public class FunctionalTest {
 	public void testRecurse() {
 		assertEquals(Functional.recurse(s -> s.replaceFirst("[a-z]", "X"), "test"), "XXXX");
 		assertEquals(Functional.recurse(s -> s.substring(1), "hello", 3), "lo");
-		assertThrown(() -> Functional.recurse(s -> s.substring(1), "hello"));
+		Assert.thrown(() -> Functional.recurse(s -> s.substring(1), "hello"));
 	}
 
 	@Test

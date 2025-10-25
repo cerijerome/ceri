@@ -1,13 +1,13 @@
 package ceri.common.collect;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.fail;
-import static ceri.common.test.AssertUtil.throwRuntime;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.fail;
+import static ceri.common.test.Assert.throwRuntime;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SplitRangeBehavior {
@@ -99,7 +99,7 @@ public class SplitRangeBehavior {
 
 	@Test
 	public void shouldFailToCreateFromDecreasingIndex() {
-		assertThrown(() -> SplitRange.of(1, 3, 2));
+		Assert.thrown(() -> SplitRange.of(1, 3, 2));
 	}
 
 	@Test

@@ -1,10 +1,9 @@
 package ceri.common.net;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertTrue;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -14,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class NetUtilTest {
 
@@ -26,12 +26,12 @@ public class NetUtilTest {
 	public void testUrl() {
 		NetUtil.url("http://example.com");
 		NetUtil.url("https://example");
-		assertThrown(IllegalArgumentException.class, () -> NetUtil.url("https://"));
+		Assert.thrown(IllegalArgumentException.class, () -> NetUtil.url("https://"));
 	}
 
 	@Test
 	public void testRequireResolved() throws UnknownHostException {
-		assertThrown(
+		Assert.thrown(
 			() -> NetUtil.requireResolved(InetSocketAddress.createUnresolved("localhost", 0)));
 		NetUtil.requireResolved(new InetSocketAddress("localhost", 0));
 	}

@@ -1,6 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.AssertUtil.assertEquals;
+import static ceri.common.test.Assert.assertEquals;
 
 /**
  * Utility to check elapsed time during tests.

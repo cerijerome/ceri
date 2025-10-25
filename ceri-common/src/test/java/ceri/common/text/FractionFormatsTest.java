@@ -1,11 +1,11 @@
 package ceri.common.text;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import org.junit.Test;
 import ceri.common.math.Fraction;
+import ceri.common.test.Assert;
 import ceri.common.text.FractionFormats.Formatter;
 import ceri.common.text.FractionFormats.Glyph;
 import ceri.common.text.FractionFormats.Parser;
@@ -31,7 +31,7 @@ public class FractionFormatsTest {
 		assertEquals(FractionFormats.parse("-777/-1"), Fraction.of(777, 1));
 		assertEquals(FractionFormats.parse("\u2154"), Fraction.of(2, 3));
 		assertEquals(FractionFormats.parse("-\u00b3\u215f\u208b\u2083"), Fraction.of(31, 3));
-		assertNull(FractionFormats.parse("-\u00b31/10"));
+		Assert.isNull(FractionFormats.parse("-\u00b31/10"));
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class FractionFormatsTest {
 
 	@Test
 	public void shouldParseGlyphs() {
-		assertNull(Glyph.of(null));
+		Assert.isNull(Glyph.of(null));
 		assertEquals(Glyph.of(3, 4), Glyph.threeQuarters);
 		assertEquals(Glyph.from('\u2155'), Glyph.oneFifth);
 	}

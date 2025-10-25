@@ -1,9 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertString;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertString;
+import static ceri.common.test.Assert.illegalArg;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
@@ -157,11 +157,11 @@ public class XcoderTest {
 
 	@Test
 	public void testDecodeValid() {
-		assertIllegalArg(() -> N.xc.decodeValid(0));
+		illegalArg(() -> N.xc.decodeValid(0));
 		assertEquals(I.xc.decodeValid(3), I.c);
 		assertEquals(I.xc.decodeValid(3, "I"), I.c);
-		assertIllegalArg(() -> I.xc.decodeValid(2));
-		assertIllegalArg(() -> I.xc.decodeValid(5, "I"));
+		illegalArg(() -> I.xc.decodeValid(2));
+		illegalArg(() -> I.xc.decodeValid(5, "I"));
 	}
 
 	@Test
@@ -283,13 +283,13 @@ public class XcoderTest {
 	@Test
 	public void testsDecodeAllValid() {
 		assertOrdered(N.xcs.decodeAllValid(0));
-		assertIllegalArg(() -> N.xcs.decodeAllValid(1));
+		illegalArg(() -> N.xcs.decodeAllValid(1));
 		assertOrdered(I.xcs.decodeAllValid(0x80000001L), I.b, I.f);
 		assertOrdered(I.xcs.decodeAllValid(0x80000001, "I"), I.b, I.f);
 		assertOrdered(I.xcs.decodeAllValid(0x80000001L, "I"), I.b, I.f);
-		assertIllegalArg(() -> I.xcs.decodeAllValid(0x80000003));
-		assertIllegalArg(() -> I.xcs.decodeAllValid(0x80000003L));
-		assertIllegalArg(() -> I.xcs.decodeAllValid(0x80000003L, "I"));
+		illegalArg(() -> I.xcs.decodeAllValid(0x80000003));
+		illegalArg(() -> I.xcs.decodeAllValid(0x80000003L));
+		illegalArg(() -> I.xcs.decodeAllValid(0x80000003L, "I"));
 	}
 
 	@Test

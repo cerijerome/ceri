@@ -1,7 +1,7 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 
 public class BoolConditionBehavior {

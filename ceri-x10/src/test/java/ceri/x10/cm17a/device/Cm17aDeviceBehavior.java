@@ -1,14 +1,14 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.ErrorGen;
 import ceri.common.test.TestUtil;
@@ -55,15 +55,16 @@ public class Cm17aDeviceBehavior {
 
 	@Test
 	public void shouldResetOnError() throws IOException {
+		// TODO: intermittent block
 		init();
 		LogModifier.run(() -> {
 			Command cmd = Command.off(House.K, Unit._13, Unit._14);
 			con.dtr.error.setFrom(ErrorGen.IOX);
-			assertThrown(() -> cm17a.command(cmd));
+			Assert.thrown(() -> cm17a.command(cmd));
 			con.dtr.error.clear();
 			cm17a.command(cmd);
 			con.rts.error.setFrom(ErrorGen.RTX);
-			assertThrown(() -> cm17a.command(cmd));
+			Assert.thrown(() -> cm17a.command(cmd));
 			con.rts.error.clear();
 			cm17a.command(cmd);
 		}, Level.ERROR, Processor.class);
@@ -72,8 +73,8 @@ public class Cm17aDeviceBehavior {
 	@Test
 	public void shouldFailForUnsupportedCommands() {
 		init();
-		assertThrown(() -> cm17a.command(Command.allLightsOff(House.C)));
-		assertThrown(() -> cm17a.command(Command.ext(House.D, 1, 2, Unit._7)));
+		Assert.thrown(() -> cm17a.command(Command.allLightsOff(House.C)));
+		Assert.thrown(() -> cm17a.command(Command.ext(House.D, 1, 2, Unit._7)));
 	}
 
 	@Test

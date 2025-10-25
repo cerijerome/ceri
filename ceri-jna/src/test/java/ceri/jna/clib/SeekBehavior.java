@@ -1,8 +1,8 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertNull;
+import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class SeekBehavior {
 
@@ -11,7 +11,7 @@ public class SeekBehavior {
 		assertEquals(Seek.from(0), Seek.SET);
 		assertEquals(Seek.from(1), Seek.CUR);
 		assertEquals(Seek.from(2), Seek.END);
-		assertNull(Seek.from(-1));
+		Assert.isNull(Seek.from(-1));
 	}
 
 }

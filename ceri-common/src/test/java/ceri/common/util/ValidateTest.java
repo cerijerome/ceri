@@ -1,9 +1,9 @@
 package ceri.common.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertIllegalArg;
-import static ceri.common.test.AssertUtil.assertPrivateConstructor;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertPrivateConstructor;
+import static ceri.common.test.Assert.assertUnordered;
+import static ceri.common.test.Assert.illegalArg;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.collect.Sets;
@@ -257,6 +257,6 @@ public class ValidateTest {
 	}
 
 	private static void assertInvalid(Excepts.Runnable<?> runnable) {
-		assertIllegalArg(runnable);
+		illegalArg(runnable);
 	}
 }

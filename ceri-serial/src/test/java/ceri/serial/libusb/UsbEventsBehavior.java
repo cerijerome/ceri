@@ -1,9 +1,8 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertOrdered;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertUnordered;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertOrdered;
+import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.threadCall;
 import java.time.Duration;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.serial.libusb.UsbEvents.Completed;
 import ceri.serial.libusb.UsbEvents.PollFd;
@@ -74,7 +74,7 @@ public class UsbEventsBehavior {
 		events.handleTimeout(Duration.ZERO);
 		events.handleTimeoutCompleted(Duration.ZERO, null);
 		events.handleTimeoutCompleted(Duration.ZERO, Completed.of());
-		assertThrown(() -> events.handleLocked(Duration.ZERO));
+		Assert.thrown(() -> events.handleLocked(Duration.ZERO));
 		try (var _ = events.lock()) {
 			events.handleLocked(Duration.ZERO);
 		}

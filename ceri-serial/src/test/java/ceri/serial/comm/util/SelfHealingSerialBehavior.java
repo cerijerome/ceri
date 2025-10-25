@@ -1,17 +1,16 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertFalse;
-import static ceri.common.test.AssertUtil.assertFind;
-import static ceri.common.test.AssertUtil.assertSame;
-import static ceri.common.test.AssertUtil.assertThrown;
-import static ceri.common.test.AssertUtil.assertTrue;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertFalse;
+import static ceri.common.test.Assert.assertFind;
+import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.util.JnaLibrary;
@@ -146,13 +145,13 @@ public class SelfHealingSerialBehavior {
 		testSerial = TestSerial.of();
 		testSerial.open.error.setFrom(IOX, null);
 		serial = SelfHealingSerial.of(testSerial.selfHealingConfig());
-		assertThrown(serial::open);
+		Assert.thrown(serial::open);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldOverrideConstruction() {
 		testSerial = TestSerial.of();
-		assertSame(testSerial.config().serial(), testSerial);
+		Assert.same(testSerial.config().serial(), testSerial);
 	}
 }

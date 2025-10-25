@@ -1,11 +1,11 @@
 package ceri.common.io;
 
-import static ceri.common.test.AssertUtil.assertAllNotEqual;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertAllNotEqual;
+import static ceri.common.test.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class IoExceptionsBehavior {
 
@@ -47,7 +47,7 @@ public class IoExceptionsBehavior {
 	public void testIncompleteVerifyMinimumBytesTransferred() throws IOException {
 		IoExceptions.Incomplete.verify(100, 100);
 		IoExceptions.Incomplete.verify(100, 99);
-		assertThrown(() -> IoExceptions.Incomplete.verify(99, 100));
+		Assert.thrown(() -> IoExceptions.Incomplete.verify(99, 100));
 	}
 
 	@Test
@@ -56,5 +56,4 @@ public class IoExceptionsBehavior {
 		assertEquals(e.actual, 99);
 		assertEquals(e.expected, 100);
 	}
-
 }

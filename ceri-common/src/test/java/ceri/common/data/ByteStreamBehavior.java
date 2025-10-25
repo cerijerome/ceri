@@ -1,10 +1,9 @@
 package ceri.common.data;
 
-import static ceri.common.test.AssertUtil.assertArray;
-import static ceri.common.test.AssertUtil.assertEquals;
-import static ceri.common.test.AssertUtil.assertRead;
-import static ceri.common.test.AssertUtil.assertRte;
-import static ceri.common.test.AssertUtil.assertThrown;
+import static ceri.common.test.Assert.assertArray;
+import static ceri.common.test.Assert.assertEquals;
+import static ceri.common.test.Assert.assertRead;
+import static ceri.common.test.Assert.runtime;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
@@ -23,6 +22,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.IoExceptions;
 import ceri.common.io.IoStream;
 import ceri.common.io.PipedStream;
+import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
 
 @SuppressWarnings("resource")
@@ -36,7 +36,7 @@ public class ByteStreamBehavior {
 		assertEquals(r.readByte(), (byte) 1);
 		assertEquals(r.readByte(), (byte) 2);
 		assertEquals(r.readByte(), (byte) 3);
-		assertThrown(() -> r.readByte());
+		Assert.thrown(() -> r.readByte());
 	}
 
 	@Test
@@ -48,26 +48,26 @@ public class ByteStreamBehavior {
 		});
 		Reader r = ByteStream.reader(in);
 		error.setFrom(RTX);
-		assertRte(() -> r.readByte());
+		runtime(() -> r.readByte());
 		error.setFrom(RIX);
-		assertThrown(RuntimeInterruptedException.class, () -> r.readByte());
+		Assert.thrown(RuntimeInterruptedException.class, () -> r.readByte());
 		error.setFrom(IOX);
-		assertThrown(IoExceptions.Runtime.class, () -> r.readByte());
+		Assert.thrown(IoExceptions.Runtime.class, () -> r.readByte());
 	}
 
 	@Test
 	public void shouldSkipReaderBytes() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		assertEquals(r.skip(3).readByte(), (byte) 4);
-		assertThrown(() -> r.skip(2));
-		assertThrown(() -> r.skip(1));
+		Assert.thrown(() -> r.skip(2));
+		Assert.thrown(() -> r.skip(1));
 	}
 
 	@Test
 	public void shouldReadBytes() {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		assertArray(r.readBytes(3), 1, 2, 3);
-		assertThrown(() -> r.readBytes(3));
+		Assert.thrown(() -> r.readBytes(3));
 	}
 
 	@Test
@@ -76,7 +76,7 @@ public class ByteStreamBehavior {
 		byte[] bytes = new byte[5];
 		assertEquals(r.readInto(bytes, 1, 3), 4);
 		assertArray(bytes, 0, 1, 2, 3, 0);
-		assertThrown(() -> r.readInto(bytes, 0, 3));
+		Assert.thrown(() -> r.readInto(bytes, 0, 3));
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class ByteStreamBehavior {
 		Mutable m = Mutable.of(5);
 		assertEquals(r.readInto(m, 1, 3), 4);
 		assertArray(m.copy(0), 0, 1, 2, 3, 0);
-		assertThrown(() -> r.readInto(m, 0, 3));
+		Assert.thrown(() -> r.readInto(m, 0, 3));
 	}
 
 	@Test
@@ -93,7 +93,7 @@ public class ByteStreamBehavior {
 		Reader r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
 		var pipe = PipedStream.of();
 		assertEquals(r.transferTo(pipe.out(), 3), 3);
-		assertThrown(() -> r.transferTo(pipe.out(), 3));
+		Assert.thrown(() -> r.transferTo(pipe.out(), 3));
 		assertRead(pipe.in(), 1, 2, 3);
 	}
 
@@ -115,11 +115,11 @@ public class ByteStreamBehavior {
 		OutputStream out = IoStream.out(_ -> error.call(ExceptionAdapter.io));
 		Writer w = ByteStream.writer(out);
 		error.setFrom(RTX);
-		assertRte(() -> w.writeByte(1));
+		runtime(() -> w.writeByte(1));
 		error.setFrom(RIX);
-		assertThrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
+		Assert.thrown(RuntimeInterruptedException.class, () -> w.writeByte(2));
 		error.setFrom(IOX);
-		assertThrown(IoExceptions.Runtime.class, () -> w.writeByte(3));
+		Assert.thrown(IoExceptions.Runtime.class, () -> w.writeByte(3));
 	}
 
 	@Test
