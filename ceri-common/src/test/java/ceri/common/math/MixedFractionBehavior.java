@@ -1,10 +1,6 @@
 package ceri.common.math;
 
 import static ceri.common.math.FractionBehavior.assertFraction;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.illegalArg;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -12,26 +8,26 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldFailToCreateWithMixedSigns() {
-		illegalArg(() -> new MixedFraction(-1, Fraction.of(1, 3)));
-		illegalArg(() -> new MixedFraction(1, Fraction.of(-1, 3)));
-		illegalArg(() -> new MixedFraction(1, Fraction.of(1, -3)));
-		illegalArg(() -> new MixedFraction(-1, Fraction.of(-1, -3)));
+		Assert.illegalArg(() -> new MixedFraction(-1, Fraction.of(1, 3)));
+		Assert.illegalArg(() -> new MixedFraction(1, Fraction.of(-1, 3)));
+		Assert.illegalArg(() -> new MixedFraction(1, Fraction.of(1, -3)));
+		Assert.illegalArg(() -> new MixedFraction(-1, Fraction.of(-1, -3)));
 	}
 
 	@Test
 	public void shouldCalculateValue() {
-		assertEquals(MixedFraction.of(3, 4, 5).value(), 3.8);
-		assertEquals(MixedFraction.of(-3, 4, 5).value(), -2.2);
-		assertEquals(MixedFraction.of(3, 4, -5).value(), 2.2);
+		Assert.equal(MixedFraction.of(3, 4, 5).value(), 3.8);
+		Assert.equal(MixedFraction.of(-3, 4, 5).value(), -2.2);
+		Assert.equal(MixedFraction.of(3, 4, -5).value(), 2.2);
 	}
 
 	@Test
 	public void shouldHaveStringRepresentation() {
-		assertEquals(MixedFraction.of(0, 0, 1).toString(), "0");
-		assertEquals(MixedFraction.of(1).toString(), "1");
-		assertEquals(MixedFraction.of(0, 1, 2).toString(), "1/2");
-		assertEquals(MixedFraction.of(1, 1, 2).toString(), "1_1/2");
-		assertEquals(MixedFraction.of(-1, -1, 2).toString(), "-1_1/2");
+		Assert.equal(MixedFraction.of(0, 0, 1).toString(), "0");
+		Assert.equal(MixedFraction.of(1).toString(), "1");
+		Assert.equal(MixedFraction.of(0, 1, 2).toString(), "1/2");
+		Assert.equal(MixedFraction.of(1, 1, 2).toString(), "1_1/2");
+		Assert.equal(MixedFraction.of(-1, -1, 2).toString(), "-1_1/2");
 	}
 
 	@Test
@@ -80,33 +76,33 @@ public class MixedFractionBehavior {
 
 	@Test
 	public void shouldDetermineIfZero() {
-		assertTrue(MixedFraction.of(0).isZero());
-		assertTrue(MixedFraction.of(0, 0, 1).isZero());
-		assertFalse(MixedFraction.of(0, 1, 100).isZero());
-		assertFalse(MixedFraction.of(1, 0, 1).isZero());
+		Assert.yes(MixedFraction.of(0).isZero());
+		Assert.yes(MixedFraction.of(0, 0, 1).isZero());
+		Assert.no(MixedFraction.of(0, 1, 100).isZero());
+		Assert.no(MixedFraction.of(1, 0, 1).isZero());
 	}
 
 	@Test
 	public void shouldDetermineIfNegative() {
-		assertFalse(MixedFraction.of(0).isNegative());
-		assertTrue(MixedFraction.of(0, -1, 2).isNegative());
-		assertTrue(MixedFraction.of(-1, 1, 2).isNegative());
-		assertTrue(MixedFraction.of(-1, -1, 2).isNegative());
+		Assert.no(MixedFraction.of(0).isNegative());
+		Assert.yes(MixedFraction.of(0, -1, 2).isNegative());
+		Assert.yes(MixedFraction.of(-1, 1, 2).isNegative());
+		Assert.yes(MixedFraction.of(-1, -1, 2).isNegative());
 	}
 
 	@Test
 	public void shouldDetermineIfWholeNumber() {
-		assertTrue(MixedFraction.of(0).isWhole());
-		assertTrue(MixedFraction.of(-1, 0, 1).isWhole());
-		assertFalse(MixedFraction.of(1, -1, 2).isNegative());
+		Assert.yes(MixedFraction.of(0).isWhole());
+		Assert.yes(MixedFraction.of(-1, 0, 1).isWhole());
+		Assert.no(MixedFraction.of(1, -1, 2).isNegative());
 	}
 
 	@Test
 	public void shouldDetermineIfProperFraction() {
-		assertTrue(MixedFraction.of(0).isProper());
-		assertTrue(MixedFraction.of(0, 1, 2).isProper());
-		assertFalse(MixedFraction.of(0, 3, 2).isProper());
-		assertFalse(MixedFraction.of(1, 0, 1).isProper());
+		Assert.yes(MixedFraction.of(0).isProper());
+		Assert.yes(MixedFraction.of(0, 1, 2).isProper());
+		Assert.no(MixedFraction.of(0, 3, 2).isProper());
+		Assert.no(MixedFraction.of(1, 0, 1).isProper());
 	}
 
 	@Test
@@ -129,7 +125,7 @@ public class MixedFractionBehavior {
 
 	public static void assertMixedFraction(MixedFraction fraction, long whole, long numerator,
 		long denominator) {
-		assertEquals(fraction.whole(), whole);
-		assertEquals(fraction.fraction().equals(numerator, denominator), true);
+		Assert.equal(fraction.whole(), whole);
+		Assert.equal(fraction.fraction().equals(numerator, denominator), true);
 	}
 }

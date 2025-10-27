@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
 import static java.lang.Long.MAX_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class LongWriterBehavior {
 		Consumer<E, LongWriter<?>> action, long... longs) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
-		assertArray(holder.longs, longs);
+		Assert.array(holder.longs, longs);
 	}
 
 	/**

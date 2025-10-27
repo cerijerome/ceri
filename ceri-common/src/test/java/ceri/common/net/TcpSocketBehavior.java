@@ -1,8 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -14,11 +11,11 @@ public class TcpSocketBehavior {
 
 	@Test
 	public void shouldProvideNoOpImplementation() throws IOException {
-		assertEquals(TcpSocket.NULL.hostPort(), HostPort.NULL);
-		assertEquals(TcpSocket.NULL.localPort(), 0);
+		Assert.equal(TcpSocket.NULL.hostPort(), HostPort.NULL);
+		Assert.equal(TcpSocket.NULL.localPort(), 0);
 		TcpSocket.NULL.option(TcpSocketOption.soLinger, 100);
-		assertEquals(TcpSocket.NULL.option(TcpSocketOption.soLinger), -1);
-		assertEquals(TcpSocket.NULL.option(TcpSocketOption.soSndBuf), 0);
+		Assert.equal(TcpSocket.NULL.option(TcpSocketOption.soLinger), -1);
+		Assert.equal(TcpSocket.NULL.option(TcpSocketOption.soSndBuf), 0);
 	}
 
 	@Test
@@ -31,16 +28,16 @@ public class TcpSocketBehavior {
 
 	@Test
 	public void shouldDetermineIfSocketIsBroken() {
-		assertFalse(TcpSocket.isBroken(null));
-		assertFalse(TcpSocket.isBroken(new IOException()));
-		assertTrue(TcpSocket.isBroken(new SocketException()));
+		Assert.no(TcpSocket.isBroken(null));
+		Assert.no(TcpSocket.isBroken(new IOException()));
+		Assert.yes(TcpSocket.isBroken(new SocketException()));
 	}
 
 	@Test
 	public void shouldApplyOptions() throws IOException {
 		try (var s = TestTcpSocket.of()) {
 			s.options(TcpSocketOptions.of().set(TcpSocketOption.tcpNoDelay, true));
-			assertEquals(s.option(TcpSocketOption.tcpNoDelay), true);
+			Assert.equal(s.option(TcpSocketOption.tcpNoDelay), true);
 		}
 	}
 

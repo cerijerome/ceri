@@ -1,7 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -91,16 +89,16 @@ public class ByteWriterBehavior {
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
 		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
-			assertBytes(3, w -> assertEquals(w.transferFrom(in, 2), 2), 1, 2, 0);
-			assertBytes(3, w -> assertEquals(w.transferFrom(in, 2), 1), 3, 0, 0);
+			assertBytes(3, w -> Assert.equal(w.transferFrom(in, 2), 2), 1, 2, 0);
+			assertBytes(3, w -> Assert.equal(w.transferFrom(in, 2), 1), 3, 0, 0);
 		}
 	}
 
 	@Test
 	public void shouldTransferBufferFromInputStream() throws IOException {
 		try (InputStream in = TestUtil.inputStream(1, 2, 3)) {
-			assertBytes(3, w -> assertEquals(ByteWriter.transferBufferFrom(w, in, 2), 2), 1, 2, 0);
-			assertBytes(3, w -> assertEquals(ByteWriter.transferBufferFrom(w, in, 2), 1), 3, 0, 0);
+			assertBytes(3, w -> Assert.equal(ByteWriter.transferBufferFrom(w, in, 2), 2), 1, 2, 0);
+			assertBytes(3, w -> Assert.equal(ByteWriter.transferBufferFrom(w, in, 2), 1), 3, 0, 0);
 		}
 	}
 
@@ -121,7 +119,7 @@ public class ByteWriterBehavior {
 		Consumer<E, ByteWriter<?>> action, byte[] bytes) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
-		assertArray(holder.bytes, bytes);
+		Assert.array(holder.bytes, bytes);
 	}
 
 	/**

@@ -1,10 +1,5 @@
 package ceri.common.except;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.EOFException;
 import java.io.IOException;
 import org.junit.Test;
@@ -22,16 +17,16 @@ public class ExceptionsTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Exceptions.class);
-		assertPrivateConstructor(Exceptions.Filter.class);
+		Assert.privateConstructor(Exceptions.class);
+		Assert.privateConstructor(Exceptions.Filter.class);
 	}
 
 	@Test
 	public void testFilterMessage() {
-		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(null), false);
-		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(noMsgEx), false);
-		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(emptyEx), false);
-		assertEquals(Exceptions.Filter.message(Strings::nonEmpty).test(testEx), true);
+		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(null), false);
+		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(noMsgEx), false);
+		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(emptyEx), false);
+		Assert.equal(Exceptions.Filter.message(Strings::nonEmpty).test(testEx), true);
 	}
 
 	@Test
@@ -69,27 +64,27 @@ public class ExceptionsTest {
 	public void testRteStub() {
 		Assert.instance(new TestUtil.Rte("test"), RuntimeException.class);
 		Excepts.Supplier<TestUtil.Rte, String> supplier = () -> "test";
-		assertEquals(supplier.get(), "test");
+		Assert.equal(supplier.get(), "test");
 	}
 
 	@Test
 	public void testRootCause() {
 		Assert.isNull(Exceptions.rootCause(null));
 		var io = new IOException();
-		assertEquals(Exceptions.rootCause(io), io);
+		Assert.equal(Exceptions.rootCause(io), io);
 		var r = new RuntimeException(io);
-		assertEquals(Exceptions.rootCause(r), io);
+		Assert.equal(Exceptions.rootCause(r), io);
 	}
 
 	@Test
 	public void testMatchesThrowable() {
-		assertFalse(Exceptions.matches(null, Exception.class));
-		assertTrue(Exceptions.matches(new IOException(), Exception.class));
-		assertFalse(Exceptions.matches(new IOException(), RuntimeException.class));
-		assertFalse(Exceptions.matches(new IOException(), String::isEmpty));
-		assertFalse(Exceptions.matches(new Exception("test"), RuntimeException.class));
-		assertTrue(Exceptions.matches(new Exception("test"), s -> s.startsWith("t")));
-		assertFalse(Exceptions.matches(new Exception("Test"), s -> s.startsWith("t")));
+		Assert.no(Exceptions.matches(null, Exception.class));
+		Assert.yes(Exceptions.matches(new IOException(), Exception.class));
+		Assert.no(Exceptions.matches(new IOException(), RuntimeException.class));
+		Assert.no(Exceptions.matches(new IOException(), String::isEmpty));
+		Assert.no(Exceptions.matches(new Exception("test"), RuntimeException.class));
+		Assert.yes(Exceptions.matches(new Exception("test"), s -> s.startsWith("t")));
+		Assert.no(Exceptions.matches(new Exception("Test"), s -> s.startsWith("t")));
 	}
 
 	@Test
@@ -97,36 +92,36 @@ public class ExceptionsTest {
 		var e1 = new IllegalStateException();
 		var e2 = new IllegalArgumentException();
 		var e = Exceptions.initCause(e1, e2);
-		assertEquals(e.getCause(), e2);
+		Assert.equal(e.getCause(), e2);
 		Exceptions.initCause(e1, null);
-		assertEquals(e1.getCause(), e2);
+		Assert.equal(e1.getCause(), e2);
 	}
 
 	@Test
 	public void testMessage() {
-		assertString(Exceptions.message(null), "");
-		assertString(Exceptions.message(new IOException()), "IOException");
-		assertString(Exceptions.message(new Exception("test")), "test");
+		Assert.string(Exceptions.message(null), "");
+		Assert.string(Exceptions.message(new IOException()), "IOException");
+		Assert.string(Exceptions.message(new Exception("test")), "test");
 	}
 
 	@Test
 	public void testStackTrace() {
-		assertString(Exceptions.stackTrace(null), "");
+		Assert.string(Exceptions.stackTrace(null), "");
 		var stackTrace = Exceptions.stackTrace(new Exception());
 		var lines = Regex.Split.LINE.array(stackTrace);
-		assertEquals(lines[0], "java.lang.Exception");
+		Assert.equal(lines[0], "java.lang.Exception");
 		var fullClassName = getClass().getName();
 		var className = getClass().getSimpleName();
 		var methodName = Reflect.currentMethodName();
 		var s = String.format("at %s.%s(%s.java:", fullClassName, methodName, className);
-		assertTrue(lines[1].trim().startsWith(s));
+		Assert.yes(lines[1].trim().startsWith(s));
 	}
 
 	@Test
 	public void testFirstStackElement() {
 		Assert.isNull(Exceptions.firstStackElement(null));
 		var el = Exceptions.firstStackElement(new IOException());
-		assertEquals(el.getMethodName(), Reflect.currentMethodName());
+		Assert.equal(el.getMethodName(), Reflect.currentMethodName());
 		var e = new TestException();
 		Assert.isNull(Exceptions.firstStackElement(e));
 		e.stackTrace = new StackTraceElement[0];
@@ -135,13 +130,13 @@ public class ExceptionsTest {
 
 	@Test
 	public void testLimitStackTrace() {
-		assertFalse(Exceptions.limitStackTrace(null, 0));
+		Assert.no(Exceptions.limitStackTrace(null, 0));
 		Exception e = new Exception();
 		int count = e.getStackTrace().length;
-		assertFalse(Exceptions.limitStackTrace(e, count + 1));
-		assertFalse(Exceptions.limitStackTrace(e, count));
-		assertTrue(Exceptions.limitStackTrace(e, count - 1));
-		assertEquals(e.getStackTrace().length, count - 1);
+		Assert.no(Exceptions.limitStackTrace(e, count + 1));
+		Assert.no(Exceptions.limitStackTrace(e, count));
+		Assert.yes(Exceptions.limitStackTrace(e, count - 1));
+		Assert.equal(e.getStackTrace().length, count - 1);
 	}
 
 	@Test

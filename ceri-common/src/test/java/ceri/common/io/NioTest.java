@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
@@ -11,6 +10,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 
 public class NioTest {
@@ -34,7 +34,7 @@ public class NioTest {
 		var consumer = CallSync.<SelectionKey>consumer(null, true);
 		Nio.selectKeys(selector, k -> consumer.accept(k, ExceptionAdapter.io));
 		consumer.assertValues(key0, key1, key2);
-		assertEquals(keys.isEmpty(), true);
+		Assert.equal(keys.isEmpty(), true);
 	}
 
 	@Test

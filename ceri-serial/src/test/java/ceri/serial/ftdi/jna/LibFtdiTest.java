@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.ftdi.jna.LibFtdi.FTDI_VENDOR_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_INTERRUPTED;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_IO;
@@ -92,18 +91,18 @@ public class LibFtdiTest {
 		Struct.write(config.configDescriptors[0].interfaces()[0].altsettings()[0], "bNumEndpoints");
 		config.configuration = 0;
 		ftdi = openFtdi();
-		assertEquals(ftdi.max_packet_size, 64);
+		Assert.equal(ftdi.max_packet_size, 64);
 		config.configDescriptors[0].interfaces()[0].num_altsetting = 0;
 		Struct.write(config.configDescriptors[0].interfaces()[0], "num_altsetting");
 		ftdi = openFtdi();
-		assertEquals(ftdi.max_packet_size, 64);
+		Assert.equal(ftdi.max_packet_size, 64);
 		config.configDescriptors[0].bNumInterfaces = 0;
 		Struct.write(config.configDescriptors[0], "bNumInterfaces");
 		ftdi = openFtdi();
-		assertEquals(ftdi.max_packet_size, 64);
+		Assert.equal(ftdi.max_packet_size, 64);
 		config.desc.bNumConfigurations = 0;
 		ftdi = openFtdi();
-		assertEquals(ftdi.max_packet_size, 64);
+		Assert.equal(ftdi.max_packet_size, 64);
 	}
 
 	@Test
@@ -117,7 +116,7 @@ public class LibFtdiTest {
 		var tc = LibFtdi.ftdi_write_data_submit(ftdi, m.m, 5);
 		lib.handleTransferEvent.error.set(lastError(LIBUSB_ERROR_INTERRUPTED),
 			lastError(LIBUSB_ERROR_IO));
-		assertEquals(LibFtdi.ftdi_transfer_data_done(null), 0);
+		Assert.equal(LibFtdi.ftdi_transfer_data_done(null), 0);
 		Assert.thrown(() -> LibFtdi.ftdi_transfer_data_done(tc));
 	}
 
@@ -173,7 +172,7 @@ public class LibFtdiTest {
 		JnaOs.forEach(_ -> {
 			ftdi = openFtdi();
 			int expected = OsUtil.os().linux(1, 0);
-			assertEquals(lib.data.deviceHandle(ftdi.usb_dev).kernelDriverInterfaceBits, expected);
+			Assert.equal(lib.data.deviceHandle(ftdi.usb_dev).kernelDriverInterfaceBits, expected);
 			LibFtdi.ftdi_free(ftdi);
 		});
 

@@ -1,11 +1,10 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.provider;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.util.I2cEmulator;
 import ceri.serial.i2c.util.I2cSlaveDeviceEmulator;
@@ -53,10 +52,10 @@ public class SmBusEmulatorBehavior {
 		init(address);
 		dev.read.autoResponses(provider(), provider(0xab), provider(0xab), provider(0xab, 0xcd));
 		smBus.writeQuick(true); // actually a read
-		assertEquals(smBus.readByte(), 0xab);
-		assertEquals(smBus.readByteData(0x12), 0xab);
-		assertEquals(smBus.readWordData(0x12), 0xcdab);
-		assertEquals(smBus.processCall(0x12, 0xa5b6), 0xcdab);
+		Assert.equal(smBus.readByte(), 0xab);
+		Assert.equal(smBus.readByteData(0x12), 0xab);
+		Assert.equal(smBus.readWordData(0x12), 0xcdab);
+		Assert.equal(smBus.processCall(0x12, 0xa5b6), 0xcdab);
 		dev.read.assertValues( //
 			new Read(provider(), 0), //
 			new Read(provider(), 1), //
@@ -69,9 +68,9 @@ public class SmBusEmulatorBehavior {
 	public void shouldReadBytes() throws IOException {
 		init(address);
 		dev.read.autoResponses(provider(1, 2, 3));
-		assertArray(smBus.readBlockData(0x12), 1, 2, 3);
-		assertArray(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
-		assertArray(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
+		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
+		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
+		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
 		dev.read.assertValues( //
 			new Read(provider(0x12), -1), //
 			new Read(provider(0x12, 4, 5, 6), -1), //

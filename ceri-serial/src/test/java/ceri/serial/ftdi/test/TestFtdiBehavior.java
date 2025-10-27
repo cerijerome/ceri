@@ -1,7 +1,5 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertRead;
 import static ceri.common.test.TestUtil.exerciseRecord;
 import java.io.IOException;
 import org.junit.Test;
@@ -28,9 +26,9 @@ public class TestFtdiBehavior {
 		ftdis[0].open();
 		ftdis[1].open();
 		ftdis[0].out().write(ArrayUtil.bytes.of(1, 2, 3));
-		assertRead(ftdis[1].in(), 1, 2, 3);
+		Assert.read(ftdis[1].in(), 1, 2, 3);
 		ftdis[1].out().write(ArrayUtil.bytes.of(4, 5, 6));
-		assertRead(ftdis[0].in(), 4, 5, 6);
+		Assert.read(ftdis[0].in(), 4, 5, 6);
 	}
 
 	@SuppressWarnings("resource")
@@ -39,11 +37,11 @@ public class TestFtdiBehavior {
 		var ftdi = TestFtdi.ofPinEcho();
 		ftdi.open();
 		ftdi.out().write(0xa5);
-		assertEquals(ftdi.readPins(), 0xa5);
+		Assert.equal(ftdi.readPins(), 0xa5);
 		ftdi.out().write(ArrayUtil.bytes.of());
-		assertEquals(ftdi.readPins(), 0xa5);
+		Assert.equal(ftdi.readPins(), 0xa5);
 		ftdi.out().write(0xfde);
-		assertEquals(ftdi.readPins(), 0xde);
+		Assert.equal(ftdi.readPins(), 0xde);
 	}
 
 	@Test
@@ -51,7 +49,7 @@ public class TestFtdiBehavior {
 		try (var ftdi = TestFtdi.of()) {
 			ftdi.open();
 			ftdi.modem.autoResponses(0xaa);
-			assertEquals(ftdi.pollModemStatus(), 0xaa);
+			Assert.equal(ftdi.pollModemStatus(), 0xaa);
 			ftdi.reset();
 			Assert.thrown(ftdi::pollModemStatus); // not connected
 		}
@@ -60,7 +58,7 @@ public class TestFtdiBehavior {
 	@Test
 	public void shouldProvideDescriptor() throws IOException {
 		try (var ftdi = TestFtdi.of()) {
-			assertEquals(ftdi.descriptor(), new ftdi_usb_strings("test", "test", "test"));
+			Assert.equal(ftdi.descriptor(), new ftdi_usb_strings("test", "test", "test"));
 			ftdi.descriptor.assertCalls(1);
 		}
 	}
@@ -88,11 +86,11 @@ public class TestFtdiBehavior {
 	public void shouldConfigureFtdi() throws IOException {
 		try (var ftdi = TestFtdi.of()) {
 			ftdi.latencyTimer(111);
-			assertEquals(ftdi.latencyTimer(), 111);
+			Assert.equal(ftdi.latencyTimer(), 111);
 			ftdi.readChunkSize(222);
-			assertEquals(ftdi.readChunkSize(), 222);
+			Assert.equal(ftdi.readChunkSize(), 222);
 			ftdi.writeChunkSize(333);
-			assertEquals(ftdi.writeChunkSize(), 333);
+			Assert.equal(ftdi.writeChunkSize(), 333);
 		}
 	}
 

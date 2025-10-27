@@ -1,8 +1,5 @@
 package ceri.jna.reflect;
 
-import static ceri.common.test.Assert.assertContains;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.illegalArg;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.junit.After;
@@ -11,6 +8,7 @@ import com.sun.jna.Structure;
 import ceri.common.function.Closeables;
 import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
 import ceri.jna.reflect.CAnnotations.CGen;
@@ -138,16 +136,16 @@ public class CSymbolGenBehavior {
 		gen.lines.addIf("test4", () -> gen.lines.add("if4"), () -> gen.lines.add("else4"));
 		var c = gen.generate();
 		assertLines(c, "#include <inc.h>");
-		assertContains(c, "test", "#if defined(def1)", "if1", "#endif", "if2", "else2", "#if test3",
+		Assert.contains(c, "test", "#if defined(def1)", "if1", "#endif", "if2", "else2", "#if test3",
 			"if3", "#endif", "#if test4", "if4", "#else", "else4", "#endif");
 	}
 
 	@Test
 	public void shouldFailForBadTypes() {
 		var gen = CSymbolGen.of().out(nullOut);
-		illegalArg(() -> gen.add(BadE.class)); // invalid value field
-		illegalArg(() -> gen.add(BadS.class)); // unsupported constructor
-		illegalArg(() -> gen.add(BadI.class)); // unsupported constructor
+		Assert.illegalArg(() -> gen.add(BadE.class)); // invalid value field
+		Assert.illegalArg(() -> gen.add(BadS.class)); // unsupported constructor
+		Assert.illegalArg(() -> gen.add(BadI.class)); // unsupported constructor
 		gen.add(Undefined.class); // ignored
 	}
 
@@ -160,12 +158,12 @@ public class CSymbolGenBehavior {
 	private static void assertSizes(String gen, String... formats) {
 		for (var format : formats) { // don't check size values
 			var line = Strings.format("\\Q" + format + "\\E", "\\E\\d+\\Q");
-			assertFind(gen, line);
+			Assert.find(gen, line);
 		}
 	}
 
 	private static void assertLines(String gen, String... lines) {
 		for (var line : lines)
-			assertContains(gen, line);
+			Assert.contains(gen, line);
 	}
 }

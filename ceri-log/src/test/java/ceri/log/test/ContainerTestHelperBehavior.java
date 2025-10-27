@@ -1,10 +1,10 @@
 package ceri.log.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.property.TypedProperties;
+import ceri.common.test.Assert;
 
 public class ContainerTestHelperBehavior {
 
@@ -12,11 +12,11 @@ public class ContainerTestHelperBehavior {
 	@Test
 	public void shouldCreateContainerOnce() throws IOException {
 		try (var helper = new TestContainerHelper()) {
-			assertEquals(helper.container(1).value, "def");
-			assertEquals(helper.container(0).value, "abc");
-			assertEquals(helper.container(1).value, "def");
-			assertEquals(helper.container(0).value, "abc");
-			assertEquals(TestContainer.instances, 2);
+			Assert.equal(helper.container(1).value, "def");
+			Assert.equal(helper.container(0).value, "abc");
+			Assert.equal(helper.container(1).value, "def");
+			Assert.equal(helper.container(0).value, "abc");
+			Assert.equal(TestContainer.instances, 2);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 import org.junit.Test;
@@ -14,9 +12,9 @@ public class ConcaveSpheroidBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(s0, ConcaveSpheroid.of(3, 1, 2));
-		assertNotEquals(s0, ConcaveSpheroid.of(3.1, 1, 2));
-		assertNotEquals(s0, ConcaveSpheroid.of(3, 0.9, 2));
-		assertNotEquals(s0, ConcaveSpheroid.of(3, 1, 1.9));
+		Assert.notEqual(s0, ConcaveSpheroid.of(3.1, 1, 2));
+		Assert.notEqual(s0, ConcaveSpheroid.of(3, 0.9, 2));
+		Assert.notEqual(s0, ConcaveSpheroid.of(3, 1, 1.9));
 	}
 
 	@Test
@@ -30,15 +28,15 @@ public class ConcaveSpheroidBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(ConcaveSpheroid.of(0, 0, 0), ConcaveSpheroid.ZERO);
+		Assert.equal(ConcaveSpheroid.of(0, 0, 0), ConcaveSpheroid.ZERO);
 		Assert.approx(ConcaveSpheroid.ZERO.h(), 0);
 		Assert.approx(ConcaveSpheroid.ZERO.r, 0);
 		Assert.approx(ConcaveSpheroid.ZERO.c, 0);
 		Assert.approx(ConcaveSpheroid.ZERO.volume(), 0);
-		assertNotEquals(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(0, 0, 1));
-		assertNotEquals(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 0, 0));
-		assertNotEquals(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 1, 0));
-		assertNotEquals(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 0, 1));
+		Assert.notEqual(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(0, 0, 1));
+		Assert.notEqual(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 0, 0));
+		Assert.notEqual(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 1, 0));
+		Assert.notEqual(ConcaveSpheroid.ZERO, ConcaveSpheroid.of(1, 0, 1));
 	}
 
 	@Test

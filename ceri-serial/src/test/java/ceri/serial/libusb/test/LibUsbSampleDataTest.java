@@ -1,13 +1,13 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class LibUsbSampleDataTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(LibUsbSampleData.class);
+		Assert.privateConstructor(LibUsbSampleData.class);
 	}
 
 }

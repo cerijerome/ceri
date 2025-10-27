@@ -1,8 +1,5 @@
 package ceri.common.sql;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertString;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -15,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SqlStatementBehavior {
@@ -34,9 +32,9 @@ public class SqlStatementBehavior {
 	public void shouldCreateWithoutParameters() throws SQLException {
 		init();
 		stmt = SqlStatement.of(con, "select * from %s", "table1");
-		assertEquals(stmt.fields(), 0);
-		assertString(stmt, "select * from table1");
-		assertEquals(stmt.jdbc(), ps);
+		Assert.equal(stmt.fields(), 0);
+		Assert.string(stmt, "select * from table1");
+		Assert.equal(stmt.jdbc(), ps);
 		stmt.close();
 		ps.close.awaitAuto();
 	}
@@ -45,9 +43,9 @@ public class SqlStatementBehavior {
 	public void shouldCreateWithParameters() throws SQLException {
 		init();
 		stmt = SqlStatement.of(con, "select ?, ?, ?, ?, ?, ?, ? from %s", "table1"); // 7
-		assertString(stmt.sql, "select ?, ?, ?, ?, ?, ?, ? from table1");
-		assertString(stmt, "select ?, ?, ?, ?, ?, ?, ? from table1");
-		assertEquals(stmt.fields(), 7);
+		Assert.string(stmt.sql, "select ?, ?, ?, ?, ?, ?, ? from table1");
+		Assert.string(stmt, "select ?, ?, ?, ?, ?, ?, ? from table1");
+		Assert.equal(stmt.fields(), 7);
 		stmt.close();
 		ps.close.awaitAuto();
 	}
@@ -67,7 +65,7 @@ public class SqlStatementBehavior {
 		stmt = SqlStatement.of(con, "select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1"); // 10
 		stmt.setDate(date).skip().setBlob(blob).setClob(clob).skip().setTimestamp(timestamp)
 			.setBigDecimal(bigD).setTime(time).setString(s).setText(txt);
-		assertOrdered(ps.setObject.values(), //
+		Assert.ordered(ps.setObject.values(), //
 			List.of(1, date, Types.DATE), //
 			List.of(3, blob, Types.BLOB), //
 			List.of(4, clob, Types.CLOB), //
@@ -93,7 +91,7 @@ public class SqlStatementBehavior {
 		stmt = SqlStatement.of(con, "select ?, ?, ?, ?, ?, ?, ?, ?, ?, ? from %s", "table1"); // 10
 		stmt.setBytes(bytes).setBoolean(bo).setByte(bt).skip(2).setShort(sh).setInt(it).setLong(lg)
 			.setFloat(fl).setDouble(db);
-		assertOrdered(ps.setObject.values(), //
+		Assert.ordered(ps.setObject.values(), //
 			List.of(1, bytes, Types.VARBINARY), //
 			List.of(2, bo, Types.BIT), //
 			List.of(3, bt, Types.TINYINT), //
@@ -110,7 +108,7 @@ public class SqlStatementBehavior {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ?, ?, ? from table1"); // 5
 		stmt.set(1, Sql.Null.Clob, "x", Sql.Null.Date, Sql.Null.Int);
-		assertOrdered(ps.setObject.values(), //
+		Assert.ordered(ps.setObject.values(), //
 			Arrays.asList(1, 1), //
 			Arrays.asList(2, null, Types.CLOB), //
 			Arrays.asList(3, "x"), //
@@ -124,7 +122,7 @@ public class SqlStatementBehavior {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ? from table1");
 		stmt.set(1, "x", Sql.Null.Clob);
-		assertString(stmt, "select 1, x, null from table1");
+		Assert.string(stmt, "select 1, x, null from table1");
 	}
 
 	@SuppressWarnings("resource")
@@ -133,7 +131,7 @@ public class SqlStatementBehavior {
 		init();
 		stmt = SqlStatement.of(con, "select ?, ?, ? from table1").with(Sql.Formatter.DEFAULT);
 		stmt.set(1, "x", Sql.Null.Clob);
-		assertString(stmt, "select 1, x, null from table1");
+		Assert.string(stmt, "select 1, x, null from table1");
 	}
 
 	@SuppressWarnings("resource")
@@ -142,12 +140,12 @@ public class SqlStatementBehavior {
 		init();
 		stmt = SqlStatement.track(con, "select ?, ?, ? from table1");
 		stmt.set(1, Sql.Null.Date, "x").batch();
-		assertString(stmt, "select 1, null, x from table1");
+		Assert.string(stmt, "select 1, null, x from table1");
 		stmt.set(2).batch();
-		assertString(stmt, "select 2, null, x from table1");
+		Assert.string(stmt, "select 2, null, x from table1");
 		stmt.skip(2).set("z").batch();
-		assertString(stmt, "select 2, null, z from table1");
-		assertOrdered(ps.setObject.values(), //
+		Assert.string(stmt, "select 2, null, z from table1");
+		Assert.ordered(ps.setObject.values(), //
 			Arrays.asList(1, 1), //
 			Arrays.asList(2, null, Types.DATE), //
 			Arrays.asList(3, "x"), //

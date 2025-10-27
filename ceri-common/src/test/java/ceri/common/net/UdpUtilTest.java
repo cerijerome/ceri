@@ -1,7 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -17,7 +15,7 @@ public class UdpUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(UdpUtil.class);
+		Assert.privateConstructor(UdpUtil.class);
 	}
 
 	@Test
@@ -38,7 +36,7 @@ public class UdpUtilTest {
 	public void testToPacket() throws UnknownHostException {
 		InetAddress address = InetAddress.getLocalHost();
 		DatagramPacket packet = UdpUtil.toPacket(ByteUtil.toAscii("test"), address, 0);
-		assertArray(packet.getData(), 't', 'e', 's', 't');
+		Assert.array(packet.getData(), 't', 'e', 's', 't');
 	}
 
 	@Test
@@ -56,7 +54,7 @@ public class UdpUtilTest {
 		try (TestDatagramSocket socket = TestDatagramSocket.of()) {
 			ByteProvider data = UdpUtil.receive(socket, buffer);
 			requireNonNull(data);
-			assertArray(data.copy(0), buffer);
+			Assert.array(data.copy(0), buffer);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package ceri.common.process;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -12,8 +10,8 @@ public class ProcessorBehavior {
 
 	@Test
 	public void shouldBuildFromProcessor() {
-		Processor p0 = Processor.builder().timeoutMs(777).build();
-		assertEquals(Processor.builder(p0).timeoutMs, 777);
+		var p0 = Processor.builder().timeoutMs(777).build();
+		Assert.equal(Processor.builder(p0).timeoutMs, 777);
 	}
 
 	@Test
@@ -25,68 +23,68 @@ public class ProcessorBehavior {
 	@Test
 	public void shouldCaptureStdOut() throws IOException {
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
-			Processor p = processor(process).captureStdOut(true).build();
-			assertEquals(p.exec("test"), "stdout");
+			var p = processor(process).captureStdOut(true).build();
+			Assert.equal(p.exec("test"), "stdout");
 		}
 	}
 
 	@Test
 	public void shouldVerifyEmptyStdErr() throws IOException {
 		try (var process = TestProcess.of("stdout", "", -1)) {
-			Processor p = processor(process).verifyErr(true).build();
-			assertEquals(p.exec("test"), "");
+			var p = processor(process).verifyErr(true).build();
+			Assert.equal(p.exec("test"), "");
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
-			Processor p = processor(process).verifyErr(true).build();
-			io(() -> p.exec("test"));
+			var p = processor(process).verifyErr(true).build();
+			Assert.io(() -> p.exec("test"));
 		}
 	}
 
 	@Test
 	public void shouldVerifyEmptyExitCode() throws IOException {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
-			Processor p = processor(process).verifyExitValue(true).build();
-			assertEquals(p.exec("test"), "");
+			var p = processor(process).verifyExitValue(true).build();
+			Assert.equal(p.exec("test"), "");
 		}
 		try (var process = TestProcess.of("stdout", "stderr", -1)) {
-			Processor p = processor(process).verifyExitValue(true).build();
-			io(() -> p.exec("test"));
+			var p = processor(process).verifyExitValue(true).build();
+			Assert.io(() -> p.exec("test"));
 		}
 	}
 
 	@Test
 	public void shouldVerifyTimeout() throws IOException {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
-			Processor p = processor(process).build();
-			assertEquals(p.exec("test"), "");
+			var p = processor(process).build();
+			Assert.equal(p.exec("test"), "");
 		}
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
 			process.alive.autoResponses(true);
-			Processor p = processor(process).build();
-			io(() -> p.exec("test"));
+			var p = processor(process).build();
+			Assert.io(() -> p.exec("test"));
 		}
 	}
 
 	@Test
 	public void shouldNotVerifyZeroTimeout() throws IOException {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
-			Processor p = processor(process).timeoutMs(0).build();
-			assertEquals(p.exec("test"), "");
+			var p = processor(process).timeoutMs(0).build();
+			Assert.equal(p.exec("test"), "");
 		}
 	}
 
 	@Test
 	public void shouldAllowNoTimeout() throws IOException {
 		try (var process = TestProcess.of("stdout", "stderr", 0)) {
-			Processor p = processor(process).noTimeout().build();
-			assertEquals(p.exec("test"), "");
+			var p = processor(process).noTimeout().build();
+			Assert.equal(p.exec("test"), "");
 		}
 	}
 
 	@Test
 	public void shouldStopOnInterruption() throws IOException {
-		try (TestProcess process = TestProcess.of("stdout", "stderr", -1)) {
-			Processor p = processor(process).noTimeout().build();
+		try (var process = TestProcess.of("stdout", "stderr", -1)) {
+			var p = processor(process).noTimeout().build();
 			process.alive.error.setFrom(ErrorGen.RIX);
 			Assert.thrown(() -> p.exec("test"));
 			process.out.assertAvailable(0);

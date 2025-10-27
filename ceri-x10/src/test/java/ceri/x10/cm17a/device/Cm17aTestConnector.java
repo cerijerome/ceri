@@ -1,12 +1,12 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import ceri.common.data.ByteUtil;
 import ceri.common.data.IntArray;
 import ceri.common.event.Listenable;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestFixable;
 import ceri.common.test.TestOutputStream;
@@ -45,7 +45,7 @@ public class Cm17aTestConnector extends TestFixable implements Cm17aConnector {
 		var enc = IntArray.Encoder.of();
 		for (int code : codes)
 			enc.writeInts(0xd5, 0xaa, code >>> 8, code & 0xff, 0xad);
-		assertRead(out.from, enc.ints());
+		Assert.read(out.from, enc.ints());
 	}
 
 	@Override

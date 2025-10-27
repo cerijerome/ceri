@@ -1,11 +1,11 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.jna.clib.FileDescriptor.Open;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
@@ -38,11 +38,11 @@ public class TermiosBehavior {
 		tm.controlFlags().and(0x333);
 		tm.localFlags().andOr(-1, 0x444);
 		tm.controlChar(3, 0x55);
-		assertEquals(tm.inFlags().intValue(), 0x111);
-		assertEquals(tm.outFlags().intValue(), 0x222);
-		assertEquals(tm.controlFlags().intValue(), 0x333);
-		assertEquals(tm.localFlags().intValue(), 0x444);
-		assertEquals(tm.controlChar(3), 0x55);
+		Assert.equal(tm.inFlags().intValue(), 0x111);
+		Assert.equal(tm.outFlags().intValue(), 0x222);
+		Assert.equal(tm.controlFlags().intValue(), 0x333);
+		Assert.equal(tm.localFlags().intValue(), 0x444);
+		Assert.equal(tm.controlChar(3), 0x55);
 	}
 
 	@Test
@@ -51,8 +51,8 @@ public class TermiosBehavior {
 		tm = Termios.get(fd);
 		tm.inSpeed(11111);
 		tm.outSpeed(22222);
-		assertEquals(tm.inSpeed(), 11111);
-		assertEquals(tm.outSpeed(), 22222);
+		Assert.equal(tm.inSpeed(), 11111);
+		Assert.equal(tm.outSpeed(), 22222);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class TermiosBehavior {
 		var lib = initTermios();
 		tm = Termios.get(fd);
 		tm.makeRaw();
-		assertEquals(lib.cf.awaitAuto().name(), "cfmakeraw");
+		Assert.equal(lib.cf.awaitAuto().name(), "cfmakeraw");
 	}
 
 	@Test

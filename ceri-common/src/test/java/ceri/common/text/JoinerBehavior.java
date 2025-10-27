@@ -1,12 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.unsupportedOp;
-import static ceri.common.text.Joiner.COLON;
-import static ceri.common.text.Joiner.LIST;
-import static ceri.common.text.Joiner.OR;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
@@ -15,6 +8,7 @@ import ceri.common.function.Excepts.Function;
 import ceri.common.function.Excepts.IntFunction;
 import ceri.common.function.Excepts.ObjIntConsumer;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 import ceri.common.util.Truth;
 
 public class JoinerBehavior {
@@ -29,29 +23,29 @@ public class JoinerBehavior {
 	@Test
 	public void shouldShowCount() {
 		var b = Joiner.builder().separator("/").remainder(".").countFormat("=%d");
-		assertString(b.max(null).showCount(Truth.yes).build().joinAll(1, 2, 3), "1/2/3=3");
-		assertString(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2), "1/2");
-		assertString(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2, 3), "1/.=3");
-		assertString(b.max(2).showCount(Truth.no).build().joinAll(1, 2, 3), "1/.");
+		Assert.string(b.max(null).showCount(Truth.yes).build().joinAll(1, 2, 3), "1/2/3=3");
+		Assert.string(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2), "1/2");
+		Assert.string(b.max(2).showCount(Truth.maybe).build().joinAll(1, 2, 3), "1/.=3");
+		Assert.string(b.max(2).showCount(Truth.no).build().joinAll(1, 2, 3), "1/.");
 	}
 
 	@Test
 	public void shouldShowRemainder() {
 		var b = Joiner.builder().separator("/").max(2).showCount(Truth.no);
-		assertString(b.remainder(".").build().joinAll(1, 2, 3), "1/.");
-		assertString(b.remainder(null).build().joinAll(1, 2, 3), "1/");
+		Assert.string(b.remainder(".").build().joinAll(1, 2, 3), "1/.");
+		Assert.string(b.remainder(null).build().joinAll(1, 2, 3), "1/");
 	}
 
 	@Test
 	public void shouldActAsStreamCollector() {
 		var joiner = Joiner.ARRAY_COMPACT;
-		assertUnordered(joiner.characteristics());
+		Assert.unordered(joiner.characteristics());
 		var c = joiner.supplier().get();
 		joiner.accumulator().accept(c, "a");
 		joiner.accumulator().accept(c, "b");
-		assertString(joiner.finisher().apply(c), "[a,b]");
+		Assert.string(joiner.finisher().apply(c), "[a,b]");
 		joiner.accumulator().accept(c, "c"); // ignored
-		assertString(joiner.finisher().apply(c), "[a,b]");
+		Assert.string(joiner.finisher().apply(c), "[a,b]");
 	}
 
 	@Test
@@ -60,100 +54,101 @@ public class JoinerBehavior {
 		var j0 = b.max(0).build();
 		var j1 = b.max(1).build();
 		var j2 = b.max(2).build();
-		assertString(Streams.of().collect(j0), "[]");
-		assertString(Streams.of().collect(j1), "[]");
-		assertString(Streams.of().collect(j2), "[]");
-		assertString(Streams.of("a").collect(j0), "[](1)");
-		assertString(Streams.of("a").collect(j1), "[a]");
-		assertString(Streams.of("a").collect(j2), "[a]");
-		assertString(Streams.of("a", "b").collect(j0), "[](2)");
-		assertString(Streams.of("a", "b").collect(j1), "[...](2)");
-		assertString(Streams.of("a", "b").collect(j2), "[a:b]");
-		assertString(Streams.of("a", "b", "c").collect(j0), "[](3)");
-		assertString(Streams.of("a", "b", "c").collect(j1), "[...](3)");
-		assertString(Streams.of("a", "b", "c").collect(j2), "[a:...](3)");
+		Assert.string(Streams.of().collect(j0), "[]");
+		Assert.string(Streams.of().collect(j1), "[]");
+		Assert.string(Streams.of().collect(j2), "[]");
+		Assert.string(Streams.of("a").collect(j0), "[](1)");
+		Assert.string(Streams.of("a").collect(j1), "[a]");
+		Assert.string(Streams.of("a").collect(j2), "[a]");
+		Assert.string(Streams.of("a", "b").collect(j0), "[](2)");
+		Assert.string(Streams.of("a", "b").collect(j1), "[...](2)");
+		Assert.string(Streams.of("a", "b").collect(j2), "[a:b]");
+		Assert.string(Streams.of("a", "b", "c").collect(j0), "[](3)");
+		Assert.string(Streams.of("a", "b", "c").collect(j1), "[...](3)");
+		Assert.string(Streams.of("a", "b", "c").collect(j2), "[a:...](3)");
 	}
 
 	@Test
 	public void shouldHandleZeroMax() {
 		var joiner = Joiner.ARRAY.edit().separator(":").max(0).build();
-		assertString(Streams.of("a", "b").collect(joiner), "[](2)");
+		Assert.string(Streams.of("a", "b").collect(joiner), "[](2)");
 	}
 
 	@Test
 	public void shouldFailToCollectParallelStreams() {
-		unsupportedOp(() -> List.of("a", "b").stream().parallel().collect(Joiner.ARRAY));
+		Assert.unsupportedOp(() -> List.of("a", "b").stream().parallel().collect(Joiner.ARRAY));
 	}
 
 	@Test
 	public void shouldIgnoreBadJoinInput() {
-		assertString(COLON.joinIndex(NULL_IDX_FN, 1, 3), "");
-		assertString(COLON.joinIndex(NULL_IDX_APP, 1, 3), "");
-		assertString(COLON.joinAll(NULL_STR_FN, 1, 2, 3), "");
-		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1)), "");
-		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator()), "");
-		assertString(COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator(), 1), "");
-		assertString(COLON.join(NULL_APP, List.of(-1, 0, 1)), "");
-		assertString(COLON.joinAll(NULL_ARRAY), "");
-		assertString(COLON.join(NULL_LIST), "");
-		assertString(COLON.join(NULL_ITERATOR), "");
-		assertString(COLON.join(NULL_ITERATOR, 1), "");
+		Assert.string(Joiner.COLON.joinIndex(NULL_IDX_FN, 1, 3), "");
+		Assert.string(Joiner.COLON.joinIndex(NULL_IDX_APP, 1, 3), "");
+		Assert.string(Joiner.COLON.joinAll(NULL_STR_FN, 1, 2, 3), "");
+		Assert.string(Joiner.COLON.join(NULL_STR_FN, List.of(-1, 0, 1)), "");
+		Assert.string(Joiner.COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator()), "");
+		Assert.string(Joiner.COLON.join(NULL_STR_FN, List.of(-1, 0, 1).iterator(), 1), "");
+		Assert.string(Joiner.COLON.join(NULL_APP, List.of(-1, 0, 1)), "");
+		Assert.string(Joiner.COLON.joinAll(NULL_ARRAY), "");
+		Assert.string(Joiner.COLON.join(NULL_LIST), "");
+		Assert.string(Joiner.COLON.join(NULL_ITERATOR), "");
+		Assert.string(Joiner.COLON.join(NULL_ITERATOR, 1), "");
 	}
 
 	@Test
 	public void shouldIgnoreBadAppendInput() {
-		assertEquals(COLON.appendWithIndex(null, StringBuilder::append, 3), null);
-		assertString(COLON.appendByIndex(sb(), NULL_IDX_FN, 3), "");
-		assertString(COLON.appendWithIndex(sb(), NULL_IDX_APP, 3), "");
-		assertEquals(COLON.appendAll(null, StringBuilder::append, 1, 2, 3), null);
-		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3)), null);
-		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator()), null);
-		assertEquals(COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator(), 1),
+		Assert.equal(Joiner.COLON.appendWithIndex(null, StringBuilder::append, 3), null);
+		Assert.string(Joiner.COLON.appendByIndex(sb(), NULL_IDX_FN, 3), "");
+		Assert.string(Joiner.COLON.appendWithIndex(sb(), NULL_IDX_APP, 3), "");
+		Assert.equal(Joiner.COLON.appendAll(null, StringBuilder::append, 1, 2, 3), null);
+		Assert.equal(Joiner.COLON.append(null, StringBuilder::append, List.of(1, 2, 3)), null);
+		Assert.equal(Joiner.COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator()),
 			null);
-		assertString(COLON.appendAll(sb(), NULL_STR_FN, 1, 2, 3), "");
-		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3)), "");
-		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator()), "");
-		assertString(COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator(), 1), "");
-		assertString(COLON.appendAll(sb(), NULL_ARRAY), "");
-		assertString(COLON.append(sb(), NULL_LIST), "");
-		assertString(COLON.append(sb(), NULL_ITERATOR), "");
-		assertString(COLON.append(sb(), NULL_ITERATOR, 1), "");
+		Assert.equal(
+			Joiner.COLON.append(null, StringBuilder::append, List.of(1, 2, 3).iterator(), 1), null);
+		Assert.string(Joiner.COLON.appendAll(sb(), NULL_STR_FN, 1, 2, 3), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3)), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator()), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_STR_FN, List.of(1, 2, 3).iterator(), 1), "");
+		Assert.string(Joiner.COLON.appendAll(sb(), NULL_ARRAY), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_LIST), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_ITERATOR), "");
+		Assert.string(Joiner.COLON.append(sb(), NULL_ITERATOR, 1), "");
 	}
 
 	@Test
 	public void shouldJoinByIndex() {
-		assertString(LIST.joinIndex((b, i) -> b.append('x').append(i), 3), "{x0, x1, x2}");
-		assertString(LIST.appendWithIndex(sb(), (b, i) -> b.append('x').append(i), 3),
+		Assert.string(Joiner.LIST.joinIndex((b, i) -> b.append('x').append(i), 3), "{x0, x1, x2}");
+		Assert.string(Joiner.LIST.appendWithIndex(sb(), (b, i) -> b.append('x').append(i), 3),
 			"{x0, x1, x2}");
-		assertString(LIST.appendByIndex(sb(), i -> -i, 3), "{0, -1, -2}");
+		Assert.string(Joiner.LIST.appendByIndex(sb(), i -> -i, 3), "{0, -1, -2}");
 	}
 
 	@Test
 	public void shouldJoinArrays() {
-		assertString(OR.joinAll(-1, 0, 1), "-1|0|1");
-		assertString(OR.joinAll(i -> -i, -1, 0, 1), "1|0|-1");
-		assertString(OR.appendAll(sb(), -1, 0, 1), "-1|0|1");
-		assertString(OR.appendAll(sb(), i -> -i, -1, 0, 1), "1|0|-1");
+		Assert.string(Joiner.OR.joinAll(-1, 0, 1), "-1|0|1");
+		Assert.string(Joiner.OR.joinAll(i -> -i, -1, 0, 1), "1|0|-1");
+		Assert.string(Joiner.OR.appendAll(sb(), -1, 0, 1), "-1|0|1");
+		Assert.string(Joiner.OR.appendAll(sb(), i -> -i, -1, 0, 1), "1|0|-1");
 	}
 
 	@Test
 	public void shouldJoinCollections() {
-		assertString(OR.join(List.of(-1, 0, 1)), "-1|0|1");
-		assertString(OR.join(i -> -i, List.of(-1, 0, 1)), "1|0|-1");
-		assertString(OR.append(sb(), List.of(-1, 0, 1)), "-1|0|1");
-		assertString(OR.append(sb(), i -> -i, List.of(-1, 0, 1)), "1|0|-1");
+		Assert.string(Joiner.OR.join(List.of(-1, 0, 1)), "-1|0|1");
+		Assert.string(Joiner.OR.join(i -> -i, List.of(-1, 0, 1)), "1|0|-1");
+		Assert.string(Joiner.OR.append(sb(), List.of(-1, 0, 1)), "-1|0|1");
+		Assert.string(Joiner.OR.append(sb(), i -> -i, List.of(-1, 0, 1)), "1|0|-1");
 	}
 
 	@Test
 	public void shouldJoinIterators() {
-		assertString(OR.join(List.of(-1, 0, 1).iterator()), "-1|0|1");
-		assertString(OR.join(i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
-		assertString(OR.join(List.of(-1, 0, 1).iterator(), 2), "-1|0");
-		assertString(OR.join(i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
-		assertString(OR.append(sb(), List.of(-1, 0, 1).iterator()), "-1|0|1");
-		assertString(OR.append(sb(), List.of(-1, 0, 1).iterator(), 2), "-1|0");
-		assertString(OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
-		assertString(OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
+		Assert.string(Joiner.OR.join(List.of(-1, 0, 1).iterator()), "-1|0|1");
+		Assert.string(Joiner.OR.join(i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
+		Assert.string(Joiner.OR.join(List.of(-1, 0, 1).iterator(), 2), "-1|0");
+		Assert.string(Joiner.OR.join(i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
+		Assert.string(Joiner.OR.append(sb(), List.of(-1, 0, 1).iterator()), "-1|0|1");
+		Assert.string(Joiner.OR.append(sb(), List.of(-1, 0, 1).iterator(), 2), "-1|0");
+		Assert.string(Joiner.OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator()), "1|0|-1");
+		Assert.string(Joiner.OR.append(sb(), i -> -i, List.of(-1, 0, 1).iterator(), 2), "1|0");
 	}
 
 	private static StringBuilder sb() {

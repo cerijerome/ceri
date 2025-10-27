@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.util.function.LongFunction;
+import ceri.common.test.Assert;
 
 /**
  * Class to test int type behavior.
@@ -97,9 +97,9 @@ public class IntTypeTester {
 		try {
 			var t = constructor.apply(n);
 			System.out.printf("%s ", t);
-			assertEquals(t.toNative(), number, "toNative()");
+			Assert.equal(t.toNative(), number, "toNative()");
 			System.out.printf("number=0x%x ", number);
-			assertEquals(t.longValue(), value, "longValue()");
+			Assert.equal(t.longValue(), value, "longValue()");
 			System.out.printf("long=0x%x", value);
 		} catch (RuntimeException e) {
 			System.out.print("ERROR: " + e.getMessage());

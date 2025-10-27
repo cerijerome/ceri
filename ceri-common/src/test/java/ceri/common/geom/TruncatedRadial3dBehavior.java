@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import org.junit.Test;
@@ -17,16 +15,16 @@ public class TruncatedRadial3dBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(t0, TruncatedRadial3d.of(Cone.of(1, 4), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.of(Cone.of(1.1, 4), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.of(Cone.of(1, 3.9), 1, 2));
-		assertNotEquals(t0, TruncatedRadial3d.of(Cone.of(1, 4), 0.9, 2));
-		assertNotEquals(t0, TruncatedRadial3d.of(Cone.of(1, 4), 1, 2.1));
+		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1.1, 4), 1, 2));
+		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1, 3.9), 1, 2));
+		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1, 4), 0.9, 2));
+		Assert.notEqual(t0, TruncatedRadial3d.of(Cone.of(1, 4), 1, 2.1));
 	}
 
 	@Test
 	public void shouldExposeWrappedRadial3d() {
-		assertEquals(t0.wrapped(), c0);
-		assertEquals(t1.wrapped(), s0);
+		Assert.equal(t0.wrapped(), c0);
+		Assert.equal(t1.wrapped(), s0);
 	}
 
 	@Test

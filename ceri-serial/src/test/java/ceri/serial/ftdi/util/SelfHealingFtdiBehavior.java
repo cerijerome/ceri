@@ -1,11 +1,5 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -63,18 +57,18 @@ public class SelfHealingFtdiBehavior {
 		Functions.Predicate<Exception> predicate = e -> "test".equals(e.getMessage());
 		var selfHealing = SelfHealing.Config.builder().brokenPredicate(predicate).build();
 		var config = SelfHealingFtdi.Config.builder().ftdi(ftdi).selfHealing(selfHealing).build();
-		assertEquals(config.ftdi.params, params);
-		assertEquals(config.ftdi.bitMode, FtdiBitMode.of(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284));
-		assertEquals(config.selfHealing.brokenPredicate, predicate);
-		assertTrue(config.selfHealing.brokenPredicate.test(new IOException("test")));
-		assertFalse(config.selfHealing.brokenPredicate.test(new IOException()));
-		assertFind(config.toString(), "\\bMARK\\b");
+		Assert.equal(config.ftdi.params, params);
+		Assert.equal(config.ftdi.bitMode, FtdiBitMode.of(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284));
+		Assert.equal(config.selfHealing.brokenPredicate, predicate);
+		Assert.yes(config.selfHealing.brokenPredicate.test(new IOException("test")));
+		Assert.no(config.selfHealing.brokenPredicate.test(new IOException()));
+		Assert.find(config.toString(), "\\bMARK\\b");
 	}
 
 	@Test
 	public void shouldCreateFromDescriptor() {
-		assertEquals(SelfHealingFtdi.Config.of("").finder, LibUsbFinder.of(0, 0));
-		assertEquals(SelfHealingFtdi.Config.of("0x401:0x66").finder, LibUsbFinder.of(0x401, 0x66));
+		Assert.equal(SelfHealingFtdi.Config.of("").finder, LibUsbFinder.of(0, 0));
+		Assert.equal(SelfHealingFtdi.Config.of("0x401:0x66").finder, LibUsbFinder.of(0x401, 0x66));
 	}
 
 	@Test
@@ -82,7 +76,7 @@ public class SelfHealingFtdiBehavior {
 		var c0 = SelfHealingFtdi.Config.of("0x401:0x66");
 		var config =
 			SelfHealingFtdi.Config.builder(SelfHealingFtdi.Config.of("0x401:0x66")).build();
-		assertEquals(config.finder, c0.finder);
+		Assert.equal(config.finder, c0.finder);
 	}
 
 	@Test
@@ -90,28 +84,28 @@ public class SelfHealingFtdiBehavior {
 		var properties = TestUtil.typedProperties("ftdi");
 		var config1 = new SelfHealingFtdi.Properties(properties, "ftdi.1").config();
 		var config2 = new SelfHealingFtdi.Properties(properties, "ftdi.2").config();
-		assertEquals(config1.finder, LibUsbFinder.builder().vendor(0x401).build());
-		assertEquals(config1.iface, LibFtdi.ftdi_interface.INTERFACE_D);
-		assertEquals(config1.ftdi.baud, 19200);
-		assertEquals(config1.ftdi.bitMode,
+		Assert.equal(config1.finder, LibUsbFinder.builder().vendor(0x401).build());
+		Assert.equal(config1.iface, LibFtdi.ftdi_interface.INTERFACE_D);
+		Assert.equal(config1.ftdi.baud, 19200);
+		Assert.equal(config1.ftdi.bitMode,
 			FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).mask(0x3f).build());
-		assertEquals(config1.ftdi.params.dataBits(), LibFtdi.ftdi_data_bits_type.BITS_7);
-		assertEquals(config1.ftdi.params.breakType(), LibFtdi.ftdi_break_type.BREAK_ON);
-		assertEquals(config1.selfHealing.fixRetryDelayMs, 33);
-		assertEquals(config1.selfHealing.recoveryDelayMs, 777);
-		assertEquals(config2.finder, LibFtdiUtil.FINDER);
-		assertEquals(config2.iface, LibFtdi.ftdi_interface.INTERFACE_ANY);
-		assertEquals(config2.ftdi.baud, 38400);
-		assertEquals(config2.ftdi.bitMode, null);
-		assertEquals(config2.selfHealing.fixRetryDelayMs, 444);
-		assertEquals(config2.selfHealing.recoveryDelayMs, 88);
+		Assert.equal(config1.ftdi.params.dataBits(), LibFtdi.ftdi_data_bits_type.BITS_7);
+		Assert.equal(config1.ftdi.params.breakType(), LibFtdi.ftdi_break_type.BREAK_ON);
+		Assert.equal(config1.selfHealing.fixRetryDelayMs, 33);
+		Assert.equal(config1.selfHealing.recoveryDelayMs, 777);
+		Assert.equal(config2.finder, LibFtdiUtil.FINDER);
+		Assert.equal(config2.iface, LibFtdi.ftdi_interface.INTERFACE_ANY);
+		Assert.equal(config2.ftdi.baud, 38400);
+		Assert.equal(config2.ftdi.bitMode, null);
+		Assert.equal(config2.selfHealing.fixRetryDelayMs, 444);
+		Assert.equal(config2.selfHealing.recoveryDelayMs, 88);
 	}
 
 	@Test
 	public void shouldOpenFtdiDevice() throws IOException {
 		init();
 		con.open();
-		assertOrdered(lib.transferOut.values(),
+		Assert.ordered(lib.transferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()), // open:ftdi_usb_reset()
 			List.of(0x40, 0x03, 0x4138, 0, ByteProvider.empty())); // open:ftdi_set_baudrate()
 		lib.transferIn.assertCalls(0);
@@ -121,16 +115,16 @@ public class SelfHealingFtdiBehavior {
 	public void shouldProvideDescriptors() throws IOException {
 		connect();
 		var desc = con.descriptor();
-		assertEquals(desc.manufacturer(), "FTDI");
-		assertEquals(desc.description(), "FT245R USB FIFO");
-		assertEquals(desc.serial(), "A7047D8V");
+		Assert.equal(desc.manufacturer(), "FTDI");
+		Assert.equal(desc.description(), "FT245R USB FIFO");
+		Assert.equal(desc.serial(), "A7047D8V");
 	}
 
 	@Test
 	public void shouldResetUsb() throws IOException {
 		connect();
 		con.usbReset();
-		assertOrdered(lib.transferOut.values(),
+		Assert.ordered(lib.transferOut.values(),
 			List.of(0x40, 0x00, 0x0000, 1, ByteProvider.empty()));
 	}
 
@@ -165,7 +159,7 @@ public class SelfHealingFtdiBehavior {
 	public void shouldReadPins() throws IOException {
 		connect();
 		lib.transferIn.autoResponses(TestUtil.provider(0xa5));
-		assertEquals(con.readPins(), 0xa5);
+		Assert.equal(con.readPins(), 0xa5);
 		lib.transferIn.assertAuto(List.of(0xc0, 0x0c, 0x0000, 1, 1));
 	}
 
@@ -173,7 +167,7 @@ public class SelfHealingFtdiBehavior {
 	public void shouldPollModemStatus() throws IOException {
 		connect();
 		lib.transferIn.autoResponses(TestUtil.provider(0xe0, 0x8f));
-		assertEquals(con.pollModemStatus(), 0x8fe0);
+		Assert.equal(con.pollModemStatus(), 0x8fe0);
 	}
 
 	@Test
@@ -182,16 +176,16 @@ public class SelfHealingFtdiBehavior {
 		con.latencyTimer(123);
 		lib.transferOut.assertAuto(List.of(0x40, 0x09, 123, 1, ByteProvider.empty()));
 		lib.transferIn.autoResponses(TestUtil.provider(123));
-		assertEquals(con.latencyTimer(), 123);
+		Assert.equal(con.latencyTimer(), 123);
 	}
 
 	@Test
 	public void shouldProvideChunkSizes() throws IOException {
 		connect();
 		con.readChunkSize(123);
-		assertEquals(con.readChunkSize(), 123);
+		Assert.equal(con.readChunkSize(), 123);
 		con.writeChunkSize(456);
-		assertEquals(con.writeChunkSize(), 456);
+		Assert.equal(con.writeChunkSize(), 456);
 	}
 
 	@Test
@@ -208,10 +202,10 @@ public class SelfHealingFtdiBehavior {
 	public void shouldReadBytes() throws IOException {
 		connect();
 		lib.transferIn.autoResponses(TestUtil.provider(1, 2, 3, 4, 5));
-		assertArray(con.in().readNBytes(3), 3, 4, 5); // 2B status + 3B data
+		Assert.array(con.in().readNBytes(3), 3, 4, 5); // 2B status + 3B data
 		lib.transferIn.assertAuto(List.of(0x81, 5));
 		lib.transferIn.autoResponses(TestUtil.provider(6, 7, 8));
-		assertEquals(con.in().read(), 8); // 2B status + 1B data
+		Assert.equal(con.in().read(), 8); // 2B status + 1B data
 		lib.transferIn.assertAuto(List.of(0x81, 3));
 	}
 
@@ -228,7 +222,7 @@ public class SelfHealingFtdiBehavior {
 		connect();
 		try (var m = new Memory(3)) {
 			var xfer = con.readSubmit(m, 3); // full async test under Ftdi tests
-			assertEquals(xfer.dataDone(), 3);
+			Assert.equal(xfer.dataDone(), 3);
 		}
 	}
 
@@ -237,7 +231,7 @@ public class SelfHealingFtdiBehavior {
 		connect();
 		try (var m = new Memory(3)) {
 			var xfer = con.writeSubmit(m, 3); // full async test under Ftdi tests
-			assertEquals(xfer.dataDone(), 3);
+			Assert.equal(xfer.dataDone(), 3);
 		}
 	}
 

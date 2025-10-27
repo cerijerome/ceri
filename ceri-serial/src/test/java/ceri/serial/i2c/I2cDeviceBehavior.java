@@ -1,11 +1,5 @@
 package ceri.serial.i2c;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.jna.test.JnaTestUtil.LEX;
@@ -44,7 +38,7 @@ public class I2cDeviceBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() throws IOException {
 		initI2c();
-		assertFind(i2c, "%s.*fd=", I2cDevice.class.getSimpleName());
+		Assert.find(i2c, "%s.*fd=", I2cDevice.class.getSimpleName());
 	}
 
 	@Test
@@ -53,17 +47,17 @@ public class I2cDeviceBehavior {
 		Assert.thrown(() -> I2cDevice.open(-1));
 		lib.open.assertAuto(new OpenArgs("/dev/i2c-1", 2, 0)); // open fd
 		lib.ioctlI2cInt.autoResponses(i2c_func.xcoder.encodeInt(I2C_FUNC_SMBUS_EMUL));
-		assertUnordered(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
+		Assert.unordered(i2c.functions(), I2C_FUNC_SMBUS_EMUL);
 		lib.ioctlI2cInt.assertAuto(new Int(0x0705, 0)); // I2C_FUNCS, dummy 0
 	}
 
 	@Test
 	public void shouldDetermineIfAddressExists() throws IOException {
 		var lib = initI2c();
-		assertTrue(i2c.exists(I2cAddress.of(0x3b)));
+		Assert.yes(i2c.exists(I2cAddress.of(0x3b)));
 		Assert.thrown(() -> i2c.exists(I2cAddress.of(0x1ab))); // 10-bit not supported
 		lib.ioctlSmBusInt.error.setFrom(LEX);
-		assertFalse(i2c.exists(I2cAddress.of(0x3b)));
+		Assert.no(i2c.exists(I2cAddress.of(0x3b)));
 	}
 
 	@Test
@@ -73,14 +67,14 @@ public class I2cDeviceBehavior {
 		var existAddrs = Streams.from(exists).map(I2cAddress::of).toSet();
 		autoError(lib.ioctlI2cInt, 0, i -> i.request() == 0x704 || exists.contains(i.value()),
 			"Address does not exist");
-		assertUnordered(i2c.scan7Bit(), existAddrs);
+		Assert.unordered(i2c.scan7Bit(), existAddrs);
 	}
 
 	@Test
 	public void shouldRetrieveDeviceId() throws IOException {
 		var lib = initI2c();
 		lib.ioctlI2cBytes.autoResponses(provider(0, 0xa2, 0x6d));
-		assertEquals(i2c.deviceId(I2cAddress.of10Bit(0x123)), DeviceId.decode(0xa26d));
+		Assert.equal(i2c.deviceId(I2cAddress.of10Bit(0x123)), DeviceId.decode(0xa26d));
 		lib.ioctlI2cBytes.assertAuto(
 			List.of(new Bytes(0x7c, 0, provider(0xf2, 0x23), 2), new Bytes(0x7c, 1, null, 3)));
 	}
@@ -109,7 +103,7 @@ public class I2cDeviceBehavior {
 		byte[] receive = new byte[3];
 		lib.ioctlI2cBytes.autoResponses(provider(4, 5, 6));
 		i2c.readData(I2cAddress.of(0x1ab), ArrayUtil.bytes.of(1, 2, 3), receive);
-		assertArray(receive, 4, 5, 6);
+		Assert.array(receive, 4, 5, 6);
 		lib.ioctlI2cBytes.assertAuto(
 			List.of(new Bytes(0x1ab, 0x10, provider(1, 2, 3), 3), new Bytes(0x1ab, 0x11, null, 3)));
 	}

@@ -1,12 +1,8 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.Map;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class NodeBehavior {
@@ -47,53 +43,53 @@ public class NodeBehavior {
 		Node<?> ne3 = Node.builder(9).name("name").add(Node.builder(null)).build();
 		Node<?> ne4 = Node.of(9);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
 	@Test
 	public void shouldDetermineIfHasValue() {
-		assertFalse(NULL.hasValue());
-		assertFalse(Node.of(null).hasValue());
-		assertTrue(Node.of("").hasValue());
+		Assert.no(NULL.hasValue());
+		Assert.no(Node.of(null).hasValue());
+		Assert.yes(Node.of("").hasValue());
 	}
 
 	@Test
 	public void shouldDetermineIfNull() {
-		assertTrue(NULL.isNull());
-		assertTrue(Node.of(null).isNull());
-		assertFalse(Node.of(1).isNull());
-		assertFalse(Node.of("", null).isNull());
+		Assert.yes(NULL.isNull());
+		Assert.yes(Node.of(null).isNull());
+		Assert.no(Node.of(1).isNull());
+		Assert.no(Node.of("", null).isNull());
 		Node<?> node = Node.builder(null).add(Node.builder(null)).build();
-		assertFalse(node.isNull());
+		Assert.no(node.isNull());
 	}
 
 	@Test
 	public void shouldDetermineIfHasName() {
-		assertFalse(NULL.isNamed());
-		assertFalse(Node.of(null).isNamed());
-		assertFalse(Node.of(1).isNamed());
-		assertTrue(Node.of("", 1).isNamed());
+		Assert.no(NULL.isNamed());
+		Assert.no(Node.of(null).isNamed());
+		Assert.no(Node.of(1).isNamed());
+		Assert.yes(Node.of("", 1).isNamed());
 	}
 
 	@Test
 	public void shouldParseValue() {
-		assertEquals(NULL.parse().toBool(), null);
-		assertEquals(Node.of(false).parse().toBool(), Boolean.FALSE);
-		assertEquals(Node.of("true").parse().toBool(), Boolean.TRUE);
-		assertEquals(Node.of(2).parse().toInt(), 2);
-		assertEquals(Node.of("2").parse().toInt(), 2);
+		Assert.equal(NULL.parse().toBool(), null);
+		Assert.equal(Node.of(false).parse().toBool(), Boolean.FALSE);
+		Assert.equal(Node.of("true").parse().toBool(), Boolean.TRUE);
+		Assert.equal(Node.of(2).parse().toInt(), 2);
+		Assert.equal(Node.of("2").parse().toInt(), 2);
 	}
 
 	@Test
 	public void shouldGetTypedValue() {
-		assertEquals(Node.of(1).asType(Number.class).doubleValue(), 1.0);
-		assertEquals(Node.of(1).asType(Long.class), null);
+		Assert.equal(Node.of(1).asType(Number.class).doubleValue(), 1.0);
+		Assert.equal(Node.of(1).asType(Long.class), null);
 	}
 
 	@Test
 	public void shouldDetermineChildNamePaths() {
-		assertOrdered(NODE.namedPaths(), "b0", "b1", "b1.c0", "b2", "b4");
-		assertOrdered(NODE.child(3).namedPaths(), "c3");
+		Assert.ordered(NODE.namedPaths(), "b0", "b1", "b1.c0", "b2", "b4");
+		Assert.ordered(NODE.child(3).namedPaths(), "c3");
 	}
 
 	@Test
@@ -105,12 +101,12 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldDetermineChildren() {
-		assertOrdered(NODE.childNames(), "b0", "b1", "b2", "b4");
-		assertTrue(NODE.hasChild("b2"));
-		assertFalse(NODE.hasChild("3"));
-		assertFalse(NODE.hasChild("b3"));
+		Assert.ordered(NODE.childNames(), "b0", "b1", "b2", "b4");
+		Assert.yes(NODE.hasChild("b2"));
+		Assert.no(NODE.hasChild("3"));
+		Assert.no(NODE.hasChild("b3"));
 		Map<String, Node<?>> map = NODE.namedChildren();
-		assertEquals(map.size(), 4);
+		Assert.equal(map.size(), 4);
 		assertNodeNameValue(map.get("b0"), "b0", "B00");
 		assertNodeNameValue(map.get("b1"), "b1", "B01");
 		assertNodeNameValue(map.get("b2"), "b2", null);
@@ -151,17 +147,17 @@ public class NodeBehavior {
 
 	@Test
 	public void shouldReturnNullForChildOutOfBounds() {
-		assertEquals(NODE.child(-1), NULL);
-		assertEquals(NODE.child(5), NULL);
-		assertEquals(NODE.child(3, 3), NULL);
-		assertEquals(NODE.child("5"), NULL);
-		assertEquals(NODE.child("3", "3"), NULL);
-		assertEquals(NODE.child("x"), NULL);
+		Assert.equal(NODE.child(-1), NULL);
+		Assert.equal(NODE.child(5), NULL);
+		Assert.equal(NODE.child(3, 3), NULL);
+		Assert.equal(NODE.child("5"), NULL);
+		Assert.equal(NODE.child("3", "3"), NULL);
+		Assert.equal(NODE.child("x"), NULL);
 	}
 
 	private static void assertNodeNameValue(Node<?> node, String name, Object value) {
-		assertEquals(node.name, name);
-		assertEquals(node.value, value);
+		Assert.equal(node.name, name);
+		Assert.equal(node.value, value);
 	}
 
 }

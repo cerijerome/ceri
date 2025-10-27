@@ -1,69 +1,65 @@
 package ceri.common.function;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.illegalArg;
-import static ceri.common.test.Assert.nullPointer;
 import java.util.Comparator;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Lists;
 import ceri.common.stream.Streams;
+import ceri.common.test.Assert;
 
 public class ComparesTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Compares.class);
+		Assert.privateConstructor(Compares.class);
 	}
 
 	@Test
 	public void testNullsSafe() {
-		assertEquals(Compares.Nulls.safe(null), Compares.Nulls.fail);
-		assertEquals(Compares.Nulls.safe(Compares.Nulls.none), Compares.Nulls.fail);
-		assertEquals(Compares.Nulls.safe(Compares.Nulls.first), Compares.Nulls.first);
-		assertEquals(Compares.Nulls.safe(Compares.Nulls.last), Compares.Nulls.last);
-		assertEquals(Compares.Nulls.safe(Compares.Nulls.fail), Compares.Nulls.fail);
+		Assert.equal(Compares.Nulls.safe(null), Compares.Nulls.fail);
+		Assert.equal(Compares.Nulls.safe(Compares.Nulls.none), Compares.Nulls.fail);
+		Assert.equal(Compares.Nulls.safe(Compares.Nulls.first), Compares.Nulls.first);
+		Assert.equal(Compares.Nulls.safe(Compares.Nulls.last), Compares.Nulls.last);
+		Assert.equal(Compares.Nulls.safe(Compares.Nulls.fail), Compares.Nulls.fail);
 	}
 
 	@Test
 	public void testNullsNot() {
-		assertEquals(Compares.Nulls.not(null), Compares.Nulls.none);
-		assertEquals(Compares.Nulls.not(Compares.Nulls.none), Compares.Nulls.none);
-		assertEquals(Compares.Nulls.not(Compares.Nulls.first), Compares.Nulls.last);
-		assertEquals(Compares.Nulls.not(Compares.Nulls.last), Compares.Nulls.first);
-		assertEquals(Compares.Nulls.not(Compares.Nulls.fail), Compares.Nulls.fail);
+		Assert.equal(Compares.Nulls.not(null), Compares.Nulls.none);
+		Assert.equal(Compares.Nulls.not(Compares.Nulls.none), Compares.Nulls.none);
+		Assert.equal(Compares.Nulls.not(Compares.Nulls.first), Compares.Nulls.last);
+		Assert.equal(Compares.Nulls.not(Compares.Nulls.last), Compares.Nulls.first);
+		Assert.equal(Compares.Nulls.not(Compares.Nulls.fail), Compares.Nulls.fail);
 	}
 
 	@Test
 	public void testNullNone() {
-		Comparator<Integer> c = Compares.of(Compares.Nulls.none);
-		nullPointer(() -> c.compare(null, null));
-		nullPointer(() -> c.compare(null, 1));
-		nullPointer(() -> c.compare(1, null));
+		var c = Compares.<Integer>of(Compares.Nulls.none);
+		Assert.nullPointer(() -> c.compare(null, null));
+		Assert.nullPointer(() -> c.compare(null, 1));
+		Assert.nullPointer(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 
 	@Test
 	public void testNullFails() {
-		Comparator<Integer> c = Compares.of(Compares.Nulls.fail);
-		illegalArg(() -> c.compare(null, null));
-		illegalArg(() -> c.compare(null, 1));
-		illegalArg(() -> c.compare(1, null));
+		var c = Compares.<Integer>of(Compares.Nulls.fail);
+		Assert.illegalArg(() -> c.compare(null, null));
+		Assert.illegalArg(() -> c.compare(null, 1));
+		Assert.illegalArg(() -> c.compare(1, null));
 		assertSort(c, l(0, 1, -1), -1, 0, 1);
 	}
 
 	@Test
 	public void testApply() throws Exception {
-		assertEquals(Compares.apply(null), null);
-		assertStream(Compares.apply(Streams.of(-1, null, 1, 0)::sorted), null, -1, 0, 1);
+		Assert.equal(Compares.apply(null), null);
+		Assert.stream(Compares.apply(Streams.of(-1, null, 1, 0)::sorted), null, -1, 0, 1);
 	}
 
 	@Test
 	public void testSafe() {
-		assertEquals(Compares.safe(null).compare(null, ""), 0);
-		assertEquals(Compares.safe(Compares.INT).compare(null, 1), -1);
+		Assert.equal(Compares.safe(null).compare(null, ""), 0);
+		Assert.equal(Compares.safe(Compares.INT).compare(null, 1), -1);
 	}
 
 	@Test
@@ -121,7 +117,7 @@ public class ComparesTest {
 	@SafeVarargs
 	private static <T> void assertSort(Comparator<? super T> comparator, List<T> values,
 		T... sorted) {
-		assertEquals(Lists.sort(values, comparator), l(sorted));
+		Assert.equal(Lists.sort(values, comparator), l(sorted));
 	}
 
 	@SafeVarargs

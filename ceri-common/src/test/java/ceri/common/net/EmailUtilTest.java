@@ -1,34 +1,32 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class EmailUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(EmailUtil.class);
+		Assert.privateConstructor(EmailUtil.class);
 	}
 
 	@Test
 	public void testValidEmails() {
-		assertTrue(EmailUtil.isValid("a@y.zz"));
-		assertTrue(EmailUtil.isValid("a.b@y.zz"));
-		assertTrue(EmailUtil.isValid("a@x.y.zz"));
+		Assert.yes(EmailUtil.isValid("a@y.zz"));
+		Assert.yes(EmailUtil.isValid("a.b@y.zz"));
+		Assert.yes(EmailUtil.isValid("a@x.y.zz"));
 	}
 
 	@Test
 	public void testInvalidEmails() {
-		assertFalse(EmailUtil.isValid("@zzz"));
-		assertFalse(EmailUtil.isValid("yyy"));
-		assertFalse(EmailUtil.isValid("yyy@"));
-		assertFalse(EmailUtil.isValid("a@z"));
-		assertFalse(EmailUtil.isValid("a@z."));
-		assertFalse(EmailUtil.isValid("a@yy.z"));
-		assertFalse(EmailUtil.isValid("a@y.z."));
-		assertFalse(EmailUtil.isValid("a@x.y.z"));
+		Assert.no(EmailUtil.isValid("@zzz"));
+		Assert.no(EmailUtil.isValid("yyy"));
+		Assert.no(EmailUtil.isValid("yyy@"));
+		Assert.no(EmailUtil.isValid("a@z"));
+		Assert.no(EmailUtil.isValid("a@z."));
+		Assert.no(EmailUtil.isValid("a@yy.z"));
+		Assert.no(EmailUtil.isValid("a@y.z."));
+		Assert.no(EmailUtil.isValid("a@x.y.z"));
 	}
 
 }

@@ -1,7 +1,5 @@
 package ceri.common.unit;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import static ceri.common.unit.Temperature.ZERO_C;
 import static ceri.common.unit.Temperature.ZERO_F;
 import static ceri.common.unit.Temperature.ZERO_K;
@@ -17,10 +15,10 @@ public class TemperatureBehavior {
 
 	@Test
 	public void shouldProvideZeroconstants() {
-		assertEquals(ZERO_C.to(kelvin).value(), 273.15);
-		assertEquals(ZERO_K.to(celsius).value(), -273.15);
-		assertEquals(ZERO_F.to(rankine).value(), 459.67);
-		assertEquals(ZERO_R.to(fahrenheit).value(), -459.67);
+		Assert.equal(ZERO_C.to(kelvin).value(), 273.15);
+		Assert.equal(ZERO_K.to(celsius).value(), -273.15);
+		Assert.equal(ZERO_F.to(rankine).value(), 459.67);
+		Assert.equal(ZERO_R.to(fahrenheit).value(), -459.67);
 	}
 
 	@Test
@@ -46,6 +44,6 @@ public class TemperatureBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(celsius.temperature(50), "50.0\u00b0C");
+		Assert.string(celsius.temperature(50), "50.0\u00b0C");
 	}
 }

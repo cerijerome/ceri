@@ -1,12 +1,12 @@
 package ceri.common.event;
 
-import static ceri.common.test.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.IntConsumer;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class IntListenableBehavior {
@@ -30,7 +30,7 @@ public class IntListenableBehavior {
 			listeners.accept(0);
 			try (Enclosure<?> enclosed = listeners.enclose(captor)) {
 				listeners.accept(1);
-				assertTrue(enclosed.isNoOp());
+				Assert.yes(enclosed.isNoOp());
 			}
 			listeners.accept(2);
 		}

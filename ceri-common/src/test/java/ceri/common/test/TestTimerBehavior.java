@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.fail;
 import org.junit.Test;
 
 public class TestTimerBehavior {
@@ -12,7 +10,7 @@ public class TestTimerBehavior {
 		timer.assertLessThan(1000);
 		Thread.sleep(2);
 		timer.assertMoreThan(1);
-		assertTrue(timer.ms() > 0);
+		Assert.yes(timer.ms() > 0);
 	}
 
 	@Test
@@ -21,7 +19,7 @@ public class TestTimerBehavior {
 		Thread.sleep(1);
 		try {
 			timer.assertLessThan(1);
-			fail();
+			Assert.fail();
 		} catch (AssertionError e) {
 			// Success
 		}
@@ -32,10 +30,9 @@ public class TestTimerBehavior {
 		TestTimer timer = new TestTimer();
 		try {
 			timer.assertMoreThan(1000000);
-			fail();
+			Assert.fail();
 		} catch (AssertionError e) {
 			// Success
 		}
 	}
-
 }

@@ -1,11 +1,11 @@
 package ceri.log.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.log.util.LogUtil;
 
 public class LogModifierBehavior {
@@ -30,7 +30,7 @@ public class LogModifierBehavior {
 	public void shouldTemporarilyChangeNamedLogLevel() {
 		log(logger);
 		LogModifier.run(() -> {
-			assertEquals(logger.getLevel(), Level.ERROR);
+			Assert.equal(logger.getLevel(), Level.ERROR);
 			log(logger);
 		}, Level.ERROR, LogUtil.loggerName(getClass()));
 		log(logger);
@@ -40,7 +40,7 @@ public class LogModifierBehavior {
 	public void shouldTemporarilyChangeClassLogLevel() {
 		log(logger);
 		LogModifier.run(() -> {
-			assertEquals(logger.getLevel(), Level.ERROR);
+			Assert.equal(logger.getLevel(), Level.ERROR);
 			log(logger);
 		}, Level.ERROR, getClass());
 		log(logger);

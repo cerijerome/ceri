@@ -1,9 +1,5 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.test.JnaTestUtil.assertMemory;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
@@ -73,12 +69,12 @@ public class FtdiDeviceBehavior {
 
 	@Test
 	public void shouldDetermineIfFatalError() {
-		assertFalse(FtdiDevice.isFatal(null));
-		assertFalse(FtdiDevice.isFatal(new IOException("test")));
-		assertFalse(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
-		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
-		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
-		assertTrue(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
+		Assert.no(FtdiDevice.isFatal(null));
+		Assert.no(FtdiDevice.isFatal(new IOException("test")));
+		Assert.no(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_PIPE, "test")));
+		Assert.yes(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_DEVICE, "test")));
+		Assert.yes(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NOT_FOUND, "test")));
+		Assert.yes(FtdiDevice.isFatal(LibUsbException.of(LIBUSB_ERROR_NO_MEM, "test")));
 	}
 
 	@SuppressWarnings("resource")
@@ -120,9 +116,9 @@ public class FtdiDeviceBehavior {
 	public void shouldGetFtdiConfiguration() throws LibUsbException {
 		ftdi = FtdiDevice.open(LibFtdiUtil.FINDER, ftdi_interface.INTERFACE_A);
 		lib.transferIn.autoResponses(ByteProvider.of(99));
-		assertEquals(ftdi.latencyTimer(), 99);
+		Assert.equal(ftdi.latencyTimer(), 99);
 		lib.transferIn.autoResponses(ByteProvider.of(0x12, 0x34));
-		assertEquals(ftdi.pollModemStatus(), 0x3412);
+		Assert.equal(ftdi.pollModemStatus(), 0x3412);
 		lib.transferIn.assertValues( //
 			List.of(0xc0, 0x0a, 0, 1, 1), // latencyTimer
 			List.of(0xc0, 0x05, 0, 1, 2)); // pollModemStatus
@@ -131,9 +127,9 @@ public class FtdiDeviceBehavior {
 	@Test
 	public void shouldAccessDescriptors() throws IOException {
 		ftdi = open();
-		assertEquals(ftdi.descriptor().manufacturer(), "FTDI");
-		assertEquals(ftdi.descriptor().description(), "FT245R USB FIFO");
-		assertEquals(ftdi.descriptor().serial(), "A7047D8V");
+		Assert.equal(ftdi.descriptor().manufacturer(), "FTDI");
+		Assert.equal(ftdi.descriptor().description(), "FT245R USB FIFO");
+		Assert.equal(ftdi.descriptor().serial(), "A7047D8V");
 	}
 
 	@Test
@@ -172,10 +168,10 @@ public class FtdiDeviceBehavior {
 			provider(0, 0), // read() => 2B status + 0B data
 			provider(0, 0, 1, 2, 3), // read(3) => 2B status + 3B data
 			provider(0, 0, 4, 5), provider()); // read(3) => 2B status + 2B data
-		assertEquals(ftdi.in().read(), 0xab); // R1
-		assertEquals(ftdi.in().read(), -1); // R2
-		assertArray(ftdi.in().readNBytes(3), 1, 2, 3); // R3
-		assertArray(ftdi.in().readNBytes(3), 4, 5); // R4
+		Assert.equal(ftdi.in().read(), 0xab); // R1
+		Assert.equal(ftdi.in().read(), -1); // R2
+		Assert.array(ftdi.in().readNBytes(3), 1, 2, 3); // R3
+		Assert.array(ftdi.in().readNBytes(3), 4, 5); // R4
 		lib.transferIn.assertValues( //
 			List.of(0x81, 3), // R1
 			List.of(0x81, 3), // R2
@@ -192,8 +188,8 @@ public class FtdiDeviceBehavior {
 		var enc = ByteArray.Encoder.of();
 		lib.handleTransferEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
 		var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
-		assertEquals(control.dataDone(), 5);
-		assertArray(enc.bytes(), 1, 2, 3, 4, 5);
+		Assert.equal(control.dataDone(), 5);
+		Assert.array(enc.bytes(), 1, 2, 3, 4, 5);
 	}
 
 	@Test
@@ -205,8 +201,8 @@ public class FtdiDeviceBehavior {
 		lib.handleTransferEvent.autoResponse(te -> assertBulkWrite(te, 0x02, enc));
 		LogModifier.run(() -> {
 			var control = ftdi.writeSubmit(1, 2, 3, 4, 5);
-			assertEquals(control.dataDone(), 4);
-			assertArray(enc.bytes(), 1, 2, 3, 4); // 2 chunks successful
+			Assert.equal(control.dataDone(), 4);
+			Assert.array(enc.bytes(), 1, 2, 3, 4); // 2 chunks successful
 		}, Level.OFF, LibFtdi.class);
 	}
 
@@ -219,7 +215,7 @@ public class FtdiDeviceBehavior {
 		lib.handleTransferEvent.autoResponse(te -> assertBulkRead(te, 0x81, reader));
 		var m = GcMemory.malloc(5).clear();
 		var control = ftdi.readSubmit(m.m, 5);
-		assertEquals(control.dataDone(), 5);
+		Assert.equal(control.dataDone(), 5);
 		assertMemory(m.m, 0, 3, 4, 7, 8, 11); // 2-byte gaps for chunk headers
 	}
 
@@ -233,7 +229,7 @@ public class FtdiDeviceBehavior {
 		LogModifier.run(() -> {
 			var m = GcMemory.malloc(5).clear();
 			var control = ftdi.readSubmit(m.m, 5);
-			assertEquals(control.dataDone(), 4);
+			Assert.equal(control.dataDone(), 4);
 			assertPointer(m.m, 0, 3, 4, 7, 8); // 2 chunks successful
 		}, Level.OFF, LibFtdi.class);
 	}
@@ -249,7 +245,7 @@ public class FtdiDeviceBehavior {
 		});
 		var control = ftdi.readSubmit(m.m, 5);
 		control.dataCancel(Duration.ofMillis(1000));
-		assertEquals(control.dataDone(), 0);
+		Assert.equal(control.dataDone(), 0);
 	}
 
 	@Test
@@ -266,7 +262,7 @@ public class FtdiDeviceBehavior {
 		ByteArray.Encoder encoder = ByteArray.Encoder.of();
 		FtdiDevice.StreamCallback callback = (_, buffer) -> collect(encoder, buffer, 24);
 		ftdi.readStream(callback, 2, 3);
-		assertArray(encoder.bytes(), 3, 4, 5, 8, 9, 10, 13, 14, 15, 18, 19, 20, 23, 24, 25, 28, 29,
+		Assert.array(encoder.bytes(), 3, 4, 5, 8, 9, 10, 13, 14, 15, 18, 19, 20, 23, 24, 25, 28, 29,
 			30, 33, 34, 35, 38, 39, 40, 43, 44, 45, 53, 54, 55); // 48, 49, 50 dropped
 	}
 
@@ -280,9 +276,9 @@ public class FtdiDeviceBehavior {
 		FtdiDevice.StreamCallback callback = (prog, _) -> prog == null ? true : sync.apply(prog);
 		ftdi.readStream(callback, 2, 3, 0.0);
 		var prog = sync.value();
-		assertEquals(prog.currentTotalBytes(), 54L);
-		assertEquals(prog.previousTotalBytes(), 54L);
-		assertEquals(prog.firstTotalBytes(), 0L);
+		Assert.equal(prog.currentTotalBytes(), 54L);
+		Assert.equal(prog.previousTotalBytes(), 54L);
+		Assert.equal(prog.firstTotalBytes(), 0L);
 	}
 
 	private FtdiDevice openFtdiForStreaming(int device, int packetSize) throws LibUsbException {
@@ -300,16 +296,16 @@ public class FtdiDeviceBehavior {
 
 	private libusb_transfer_status assertBulkWrite(TransferEvent te, int endpoint,
 		ByteWriter<?> writer) {
-		assertEquals(te.endPoint(), endpoint);
-		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
+		Assert.equal(te.endPoint(), endpoint);
+		Assert.equal(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
 		writer.writeFrom(ByteUtil.bytes(te.buffer()));
 		return LIBUSB_TRANSFER_COMPLETED;
 	}
 
 	private libusb_transfer_status assertBulkRead(TransferEvent te, int endpoint,
 		ByteReader reader) {
-		assertEquals(te.endPoint(), endpoint);
-		assertEquals(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
+		Assert.equal(te.endPoint(), endpoint);
+		Assert.equal(te.type(), LIBUSB_TRANSFER_TYPE_BULK);
 		te.buffer().put(reader.readBytes(te.buffer().remaining()));
 		return LIBUSB_TRANSFER_COMPLETED;
 	}

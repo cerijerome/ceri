@@ -1,8 +1,8 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.TestFixable;
 
@@ -22,7 +22,7 @@ public class FixableBehavior {
 		var w = new Fixable.Wrapper<>(f);
 		var c = Captor.<StateChange>of();
 		w.listeners().listen(c);
-		assertEquals(w.name(), f.name());
+		Assert.equal(w.name(), f.name());
 		w.open();
 		f.open.assertCall(true);
 		w.broken();

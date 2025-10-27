@@ -1,16 +1,12 @@
 package ceri.common.property;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 
 public class TypedPropertiesBehavior {
@@ -53,13 +49,13 @@ public class TypedPropertiesBehavior {
 	@Test
 	public void shouldProvideRef() {
 		var ref = new TypedProperties.Ref(TypedProperties.from(properties)) {};
-		assertEquals(ref.parse("3.1").toInt(), 31);
+		Assert.equal(ref.parse("3.1").toInt(), 31);
 	}
 
 	@Test
 	public void shouldLoadFromClass() throws IOException {
 		// loads typed-properties.properties
-		assertEquals(TypedProperties.load(TypedProperties.class).parse("abc").toInt(), 123);
+		Assert.equal(TypedProperties.load(TypedProperties.class).parse("abc").toInt(), 123);
 	}
 
 	@Test
@@ -67,32 +63,32 @@ public class TypedPropertiesBehavior {
 		var tp = TypedProperties.merge(
 			TypedProperties.load(getClass(), "property-test-a-b-c.properties"),
 			TypedProperties.load(getClass(), "property-test-d-e-f.properties"));
-		assertEquals(tp.get("name"), "property-test-d-e-f");
-		assertEquals(tp.get("a.b.c"), "true");
-		assertEquals(tp.get("d.e.f"), "true");
+		Assert.equal(tp.get("name"), "property-test-d-e-f");
+		Assert.equal(tp.get("a.b.c"), "true");
+		Assert.equal(tp.get("d.e.f"), "true");
 	}
 
 	@Test
 	public void shouldCreateFromResourceBundle() {
 		var r = ResourceBundle.getBundle(PropertySource.class.getName(), Locale.ENGLISH);
 		TypedProperties tp = TypedProperties.from(r);
-		assertEquals(tp.get("name"), "PropertySource");
+		Assert.equal(tp.get("name"), "PropertySource");
 	}
 
 	@Test
 	public void shouldCreateFromFile() throws IOException {
 		try (var files = FileTestHelper.builder().file("a/b/c", "ABC").build()) {
 			TypedProperties tp = TypedProperties.from(files.root, "a");
-			assertEquals(tp.get("b/c"), "ABC");
+			Assert.equal(tp.get("b/c"), "ABC");
 		}
 	}
 
 	@Test
 	public void shouldNotReturnBlankValues() {
 		var p = TypedProperties.from(properties);
-		assertEquals(p.children().contains("n"), true);
-		assertEquals(p.get("n"), null);
-		assertEquals(p.get("n.n"), null);
+		Assert.equal(p.children().contains("n"), true);
+		Assert.equal(p.get("n"), null);
+		Assert.equal(p.get("n.n"), null);
 	}
 
 	@Test
@@ -101,7 +97,7 @@ public class TypedPropertiesBehavior {
 		p.setProperty("a.b.c", "123");
 		var tp = TypedProperties.from(p, "a");
 		tp.set(456, "b", "c");
-		assertEquals(p.getProperty("a.b.c"), "456");
+		Assert.equal(p.getProperty("a.b.c"), "456");
 	}
 
 	@Test
@@ -110,78 +106,78 @@ public class TypedPropertiesBehavior {
 		p.setProperty("a.b.c", "123");
 		var tp = TypedProperties.from(p, "a");
 		tp.set(null, "b", "c");
-		assertFalse(p.containsKey("a.b.d"));
+		Assert.no(p.containsKey("a.b.d"));
 	}
 
 	@Test
 	public void shouldReturnDescendants() {
 		var tp = TypedProperties.from(properties, "m.n.0");
-		assertUnordered(tp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
-		assertUnordered(tp.descendants("b"), "c", "c.d", "d");
+		Assert.unordered(tp.descendants(), "a", "b", "b.c", "b.c.d", "b.d");
+		Assert.unordered(tp.descendants("b"), "c", "c.d", "d");
 	}
 
 	@Test
 	public void shouldReturnChildren() {
 		var tp = TypedProperties.from(properties);
-		assertUnordered(tp.children(), "xyz", "x", "y", "z", "a", "m", "n", "3", "7");
-		assertUnordered(tp.children("m.n.0"), "a", "b");
+		Assert.unordered(tp.children(), "xyz", "x", "y", "z", "a", "m", "n", "3", "7");
+		Assert.unordered(tp.children("m.n.0"), "a", "b");
 		tp = TypedProperties.from(properties, "m.n.0");
-		assertUnordered(tp.children(), "a", "b");
-		assertUnordered(tp.children("b"), "c", "d");
+		Assert.unordered(tp.children(), "a", "b");
+		Assert.unordered(tp.children("b"), "c", "d");
 	}
 
 	@Test
 	public void shouldReturnChildIds() {
 		var tp = TypedProperties.from(properties);
-		assertOrdered(tp.childIds("m.n"), 0, 1, 2);
-		assertOrdered(tp.childIds("m"));
-		assertOrdered(tp.childIds(""), 3, 7);
-		assertOrdered(tp.childIds(), 3, 7);
+		Assert.ordered(tp.childIds("m.n"), 0, 1, 2);
+		Assert.ordered(tp.childIds("m"));
+		Assert.ordered(tp.childIds(""), 3, 7);
+		Assert.ordered(tp.childIds(), 3, 7);
 		tp = TypedProperties.from(properties, "m");
-		assertOrdered(tp.childIds("n"), 0, 1, 2);
+		Assert.ordered(tp.childIds("n"), 0, 1, 2);
 		tp = TypedProperties.from(properties, "m.n");
-		assertOrdered(tp.childIds(""), 0, 1, 2);
+		Assert.ordered(tp.childIds(""), 0, 1, 2);
 	}
 
 	@Test
 	public void shouldDetermineIfKeyExists() {
 		var tp = TypedProperties.from(properties, "a");
-		assertEquals(tp.hasKey(), true);
-		assertEquals(tp.hasKey(""), true);
-		assertEquals(tp.hasKey("b"), true);
-		assertEquals(tp.hasKey("b.c"), true);
-		assertEquals(tp.hasKey("c"), false);
-		assertEquals(tp.hasKey("b.d"), false);
+		Assert.equal(tp.hasKey(), true);
+		Assert.equal(tp.hasKey(""), true);
+		Assert.equal(tp.hasKey("b"), true);
+		Assert.equal(tp.hasKey("b.c"), true);
+		Assert.equal(tp.hasKey("c"), false);
+		Assert.equal(tp.hasKey("b.d"), false);
 	}
 
 	@Test
 	public void shouldExtendPrefixWhenCreatingSubs() {
 		var tp0 = TypedProperties.from(properties);
 		var tp1 = tp0.sub();
-		assertEquals(tp1.get("a"), "A");
+		Assert.equal(tp1.get("a"), "A");
 		TypedProperties tp2 = tp1.sub("a");
-		assertEquals(tp2.get("b"), "AB");
+		Assert.equal(tp2.get("b"), "AB");
 		TypedProperties tp3 = tp2.sub("b", "c");
-		assertEquals(tp3.get("d"), "4");
+		Assert.equal(tp3.get("d"), "4");
 	}
 
 	@Test
 	public void shouldAllowNullPrefix() {
 		var tp = TypedProperties.from(properties, new String[] { null });
-		assertEquals(tp.get("a"), "A");
+		Assert.equal(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, null, null);
-		assertEquals(tp.get("a"), "A");
+		Assert.equal(tp.get("a"), "A");
 		tp = TypedProperties.from(properties, "a", null);
-		assertEquals(tp.get("b"), "AB");
+		Assert.equal(tp.get("b"), "AB");
 		tp = TypedProperties.from(properties, null, "a");
-		assertEquals(tp.get("b"), "AB");
+		Assert.equal(tp.get("b"), "AB");
 		tp = TypedProperties.from(properties, (String[]) null);
-		assertEquals(tp.get("a"), "A");
+		Assert.equal(tp.get("a"), "A");
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var tp = TypedProperties.from(properties, "a", "b", "c");
-		assertString(tp, "Properties[a.b.c]");
+		Assert.string(tp, "Properties[a.b.c]");
 	}
 }

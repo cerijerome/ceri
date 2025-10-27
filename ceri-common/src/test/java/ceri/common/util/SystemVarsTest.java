@@ -1,8 +1,5 @@
 package ceri.common.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPath;
-import static ceri.common.test.Assert.assertUnordered;
 import java.io.File;
 import org.junit.After;
 import org.junit.Test;
@@ -18,19 +15,19 @@ public class SystemVarsTest {
 
 	@Test
 	public void testTempDir() {
-		assertPath(SystemVars.tempDir(), SystemVars.sys("java.io.tmpdir"));
+		Assert.path(SystemVars.tempDir(), SystemVars.sys("java.io.tmpdir"));
 	}
 
 	@Test
 	public void testUserHome() {
-		assertPath(SystemVars.userHome(), SystemVars.sys("user.home"));
-		assertPath(SystemVars.userHome("test"), SystemVars.sys("user.home") + "/test");
+		Assert.path(SystemVars.userHome(), SystemVars.sys("user.home"));
+		Assert.path(SystemVars.userHome("test"), SystemVars.sys("user.home") + "/test");
 	}
 
 	@Test
 	public void testUserDir() {
-		assertPath(SystemVars.userDir(), SystemVars.sys("user.dir"));
-		assertPath(SystemVars.userDir("test"), SystemVars.sys("user.dir") + "/test");
+		Assert.path(SystemVars.userDir(), SystemVars.sys("user.dir"));
+		Assert.path(SystemVars.userDir("test"), SystemVars.sys("user.dir") + "/test");
 	}
 
 	@Test
@@ -42,24 +39,24 @@ public class SystemVarsTest {
 	public void testEnvPath() {
 		Assert.isNull(SystemVars.envPath("?"));
 		var name = TestUtil.firstEnvironmentVariableName();
-		assertPath(SystemVars.envPath(name), SystemVars.env(name));
+		Assert.path(SystemVars.envPath(name), SystemVars.env(name));
 	}
 
 	@Test
 	public void testPathVar() {
-		assertEquals(SystemVars.pathVar(), "");
-		assertEquals(SystemVars.pathVar("a/b"), "a/b");
-		assertEquals(SystemVars.pathVar("a/b", "c/d"), "a/b" + File.pathSeparator + "c/d");
+		Assert.equal(SystemVars.pathVar(), "");
+		Assert.equal(SystemVars.pathVar("a/b"), "a/b");
+		Assert.equal(SystemVars.pathVar("a/b", "c/d"), "a/b" + File.pathSeparator + "c/d");
 	}
 
 	@Test
 	public void testVarPaths() {
-		assertUnordered(SystemVars.varPaths(null));
-		assertUnordered(SystemVars.varPaths(""));
-		assertUnordered(SystemVars.varPaths(File.pathSeparator));
-		assertUnordered(SystemVars.varPaths(" " + File.pathSeparator + " a"), "a");
-		assertUnordered(SystemVars.varPaths("a/b" + File.pathSeparator + "a/b"), "a/b");
-		assertUnordered(SystemVars.varPaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
+		Assert.unordered(SystemVars.varPaths(null));
+		Assert.unordered(SystemVars.varPaths(""));
+		Assert.unordered(SystemVars.varPaths(File.pathSeparator));
+		Assert.unordered(SystemVars.varPaths(" " + File.pathSeparator + " a"), "a");
+		Assert.unordered(SystemVars.varPaths("a/b" + File.pathSeparator + "a/b"), "a/b");
+		Assert.unordered(SystemVars.varPaths(" a/b" + File.pathSeparator + "a/b /c"), "a/b",
 			"a/b /c");
 	}
 
@@ -68,8 +65,8 @@ public class SystemVarsTest {
 		String name = TestUtil.firstEnvironmentVariableName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.env();
-		assertEquals(map.get(name), System.getenv(name));
-		assertEquals(map.get("!@#$%"), "test");
+		Assert.equal(map.get(name), System.getenv(name));
+		Assert.equal(map.get("!@#$%"), "test");
 	}
 
 	@Test
@@ -77,8 +74,8 @@ public class SystemVarsTest {
 		String name = TestUtil.firstSystemPropertyName();
 		SystemVars.set("!@#$%", "test");
 		var map = SystemVars.sys();
-		assertEquals(map.get(name), System.getProperty(name));
-		assertEquals(map.get("!@#$%"), "test");
+		Assert.equal(map.get(name), System.getProperty(name));
+		Assert.equal(map.get("!@#$%"), "test");
 	}
 
 	@Test
@@ -91,9 +88,9 @@ public class SystemVarsTest {
 	public void testRemovableProperty() {
 		String key = getClass().getName();
 		try (var _ = SystemVars.removableProperty(key, "test")) {
-			assertEquals(System.getProperty(key), "test");
+			Assert.equal(System.getProperty(key), "test");
 		}
-		assertEquals(System.getProperty(key), null);
+		Assert.equal(System.getProperty(key), null);
 	}
 
 	@Test
@@ -101,7 +98,7 @@ public class SystemVarsTest {
 		Assert.isNull(SystemVars.remove(null));
 		Assert.isNull(SystemVars.remove("!@#$%"));
 		Assert.isNull(SystemVars.set("!@#$%", "test"));
-		assertEquals(SystemVars.remove("!@#$%"), "test");
+		Assert.equal(SystemVars.remove("!@#$%"), "test");
 		Assert.isNull(SystemVars.remove("!@#$%"));
 		Assert.isNull(SystemVars.env("!@#$%"));
 		Assert.isNull(SystemVars.sys("!@#$%"));
@@ -110,9 +107,9 @@ public class SystemVarsTest {
 	@Test
 	public void testSetNull() {
 		Assert.isNull(SystemVars.set("!@#$%", "test"));
-		assertEquals(SystemVars.env("!@#$%"), "test");
-		assertEquals(SystemVars.sys("!@#$%"), "test");
-		assertEquals(SystemVars.set("!@#$%", null), "test");
+		Assert.equal(SystemVars.env("!@#$%"), "test");
+		Assert.equal(SystemVars.sys("!@#$%"), "test");
+		Assert.equal(SystemVars.set("!@#$%", null), "test");
 		Assert.isNull(SystemVars.env("!@#$%"));
 		Assert.isNull(SystemVars.sys("!@#$%"));
 	}
@@ -122,7 +119,7 @@ public class SystemVarsTest {
 		String name = TestUtil.firstSystemPropertyName();
 		Assert.isNull(SystemVars.set(name, null));
 		Assert.isNull(SystemVars.sys(name));
-		assertEquals(SystemVars.sys(name, "test"), "test");
+		Assert.equal(SystemVars.sys(name, "test"), "test");
 		var map = SystemVars.sys();
 		Assert.isNull(map.get(name));
 	}
@@ -135,44 +132,44 @@ public class SystemVarsTest {
 		Assert.isNull(SystemVars.set(null, "test"));
 		Assert.isNull(SystemVars.set("!@#$%", null));
 		Assert.isNull(SystemVars.set("!@#$%", "test"));
-		assertEquals(SystemVars.set("!@#$%", "test2"), "test");
-		assertEquals(SystemVars.env("!@#$%"), "test2");
-		assertEquals(SystemVars.sys("!@#$%"), "test2");
+		Assert.equal(SystemVars.set("!@#$%", "test2"), "test");
+		Assert.equal(SystemVars.env("!@#$%"), "test2");
+		Assert.equal(SystemVars.sys("!@#$%"), "test2");
 	}
 
 	@Test
 	public void testEnvWithDefault() {
 		Assert.isNull(SystemVars.env("!@#$%"));
-		assertEquals(SystemVars.env("!@#$%", "test"), "test");
+		Assert.equal(SystemVars.env("!@#$%", "test"), "test");
 	}
 
 	@Test
 	public void testSysWithDefault() {
 		Assert.isNull(SystemVars.sys("!@#$%"));
-		assertEquals(SystemVars.sys("!@#$%", "test"), "test");
+		Assert.equal(SystemVars.sys("!@#$%", "test"), "test");
 	}
 
 	@Test
 	public void testEnvWithoutOverride() {
 		String name = TestUtil.firstEnvironmentVariableName();
-		assertEquals(SystemVars.env(name), System.getenv(name));
+		Assert.equal(SystemVars.env(name), System.getenv(name));
 	}
 
 	@Test
 	public void testSysWithoutOverride() {
 		String name = TestUtil.firstSystemPropertyName();
-		assertEquals(SystemVars.sys(name), System.getProperty(name));
+		Assert.equal(SystemVars.sys(name), System.getProperty(name));
 	}
 
 	@Test
 	public void testRemovable() {
-		assertEquals(SystemVars.env("!@#$%"), null);
-		assertEquals(SystemVars.sys("!@#$%"), null);
+		Assert.equal(SystemVars.env("!@#$%"), null);
+		Assert.equal(SystemVars.sys("!@#$%"), null);
 		try (var _ = SystemVars.removable("!@#$%", "test")) {
-			assertEquals(SystemVars.env("!@#$%"), "test");
-			assertEquals(SystemVars.sys("!@#$%"), "test");
+			Assert.equal(SystemVars.env("!@#$%"), "test");
+			Assert.equal(SystemVars.sys("!@#$%"), "test");
 		}
-		assertEquals(SystemVars.env("!@#$%"), null);
-		assertEquals(SystemVars.sys("!@#$%"), null);
+		Assert.equal(SystemVars.env("!@#$%"), null);
+		Assert.equal(SystemVars.sys("!@#$%"), null);
 	}
 }

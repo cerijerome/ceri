@@ -1,7 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.LEX;
 import org.junit.After;
 import org.junit.Test;
@@ -24,7 +22,7 @@ public class CFcntlTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CFcntl.class);
+		Assert.privateConstructor(CFcntl.class);
 	}
 
 	@Test
@@ -38,21 +36,21 @@ public class CFcntlTest {
 
 	@Test
 	public void testValidFd() throws CException {
-		assertEquals(CFcntl.validFd(-1), false);
-		assertEquals(CFcntl.validFd(0), true);
-		assertEquals(CFcntl.validFd(1), true);
+		Assert.equal(CFcntl.validFd(-1), false);
+		Assert.equal(CFcntl.validFd(0), true);
+		Assert.equal(CFcntl.validFd(1), true);
 		Assert.thrown(() -> CFcntl.validateFd(-1));
-		assertEquals(CFcntl.validateFd(0), 0);
-		assertEquals(CFcntl.validateFd(1), 1);
+		Assert.equal(CFcntl.validateFd(0), 0);
+		Assert.equal(CFcntl.validateFd(1), 1);
 	}
 
 	@Test
 	public void testFcntl() throws CException {
 		var lib = initFd();
 		lib.fcntl.autoResponses(3);
-		assertEquals(CFcntl.fcntl(fd, 0x111, -1, -2, -3), 3);
+		Assert.equal(CFcntl.fcntl(fd, 0x111, -1, -2, -3), 3);
 		assertFcntlAuto(fd, 0x111, -1, -2, -3);
-		assertEquals(CFcntl.fcntl(() -> "test", fd, 0x111, "x"), 3);
+		Assert.equal(CFcntl.fcntl(() -> "test", fd, 0x111, "x"), 3);
 		assertFcntlAuto(fd, 0x111, "x");
 	}
 
@@ -60,7 +58,7 @@ public class CFcntlTest {
 	public void testDupFd() throws CException {
 		var lib = initFd();
 		lib.fcntl.autoResponse(args -> args.<Integer>arg(0) + 1);
-		assertEquals(CFcntl.dupFd(fd, 777), 778);
+		Assert.equal(CFcntl.dupFd(fd, 777), 778);
 		assertFcntlAuto(fd, CFcntl.F_DUPFD, 777);
 	}
 
@@ -68,7 +66,7 @@ public class CFcntlTest {
 	public void testGetFd() throws CException {
 		var lib = initFd();
 		lib.fcntl.autoResponses(CFcntl.O_CLOEXEC);
-		assertEquals(CFcntl.getFd(fd), CFcntl.O_CLOEXEC);
+		Assert.equal(CFcntl.getFd(fd), CFcntl.O_CLOEXEC);
 		assertFcntlAuto(fd, CFcntl.F_GETFD);
 	}
 
@@ -83,7 +81,7 @@ public class CFcntlTest {
 	public void testGetFl() throws CException {
 		var lib = initFd();
 		lib.fcntl.autoResponses(CFcntl.O_RDWR | CFcntl.O_NONBLOCK);
-		assertEquals(CFcntl.getFl(fd), CFcntl.O_RDWR | CFcntl.O_NONBLOCK);
+		Assert.equal(CFcntl.getFl(fd), CFcntl.O_RDWR | CFcntl.O_NONBLOCK);
 		assertFcntlAuto(fd, CFcntl.F_GETFL);
 	}
 
@@ -98,7 +96,7 @@ public class CFcntlTest {
 	public void testSetFlWithOperator() throws CException {
 		var lib = initFd();
 		lib.fcntl.autoResponses(CFcntl.O_NONBLOCK, 0);
-		assertEquals(CFcntl.setFl(fd, flags -> flags | CFcntl.O_RDWR | CFcntl.O_EXCL),
+		Assert.equal(CFcntl.setFl(fd, flags -> flags | CFcntl.O_RDWR | CFcntl.O_EXCL),
 			CFcntl.O_NONBLOCK | CFcntl.O_RDWR | CFcntl.O_EXCL);
 	}
 
@@ -109,7 +107,7 @@ public class CFcntlTest {
 
 	private void assertFcntlAuto(int fd, int request, Object... args) {
 		var lib = ref.lib();
-		assertEquals(lib.fcntl.awaitAuto(), CtlArgs.of(lib.fd(fd), request, args));
+		Assert.equal(lib.fcntl.awaitAuto(), CtlArgs.of(lib.fd(fd), request, args));
 	}
 
 	private TestCLibNative initFd() {

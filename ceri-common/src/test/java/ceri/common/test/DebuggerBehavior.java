@@ -1,8 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertMatch;
-import static ceri.common.test.Assert.assertNoMatch;
-import java.io.PrintStream;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.reflect.Caller;
@@ -13,105 +10,105 @@ public class DebuggerBehavior {
 
 	@Test
 	public void shouldAllowLoggingOfNullObjects() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object[]) null);
 			dbg.method((Object[]) null);
 		}
-		assertMatch(b, "(?ms).*\\) \n.*");
-		assertMatch(b, "(?ms).*\\(\\)[^\n]+\n");
+		Assert.match(b, "(?ms).*\\) \n.*");
+		Assert.match(b, "(?ms).*\\(\\)[^\n]+\n");
 	}
 
 	@Test
 	public void shouldLogMultipleObjects() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test1", "test2");
 			dbg.method("test3", "test4");
 		}
-		assertMatch(b, "(?ms).* test1, test2\n.*");
-		assertMatch(b, "(?ms).*\\(test3, test4\\).*");
+		Assert.match(b, "(?ms).* test1, test2\n.*");
+		Assert.match(b, "(?ms).*\\(test3, test4\\).*");
 	}
 
 	@Test
 	public void shouldLogFullPackageName() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, true);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, true);
 			dbg.log("test");
 		}
-		assertMatch(b, "(?ms).* %s\\.\\.\\(%s\\.java:\\d+\\) test\n.*", getClass().getPackageName(),
-			getClass().getSimpleName());
+		Assert.match(b, "(?ms).* %s\\.\\.\\(%s\\.java:\\d+\\) test\n.*",
+			getClass().getPackageName(), getClass().getSimpleName());
 	}
 
 	@Test
 	public void shouldStopLoggingAfterGivenLimit() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 1, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 1, false);
 			dbg.log("test1");
 			dbg.log("test2");
 			dbg.method("test2");
 		}
-		assertMatch(b, "(?ms).* test1\n");
-		assertNoMatch(b, "(?ms).* test2\n");
+		Assert.match(b, "(?ms).* test1\n");
+		Assert.noMatch(b, "(?ms).* test2\n");
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldWriteToSysErrByDefault() {
-		StringBuilder b = new StringBuilder();
-		try (SystemIo sys = SystemIo.of()) {
+		var b = new StringBuilder();
+		try (var sys = SystemIo.of()) {
 			sys.err(StringBuilders.printStream(b));
 			Debugger dbg = Debugger.of();
 			dbg.log("test");
 		}
-		assertMatch(b, "(?ms).* test\n");
+		Assert.match(b, "(?ms).* test\n");
 	}
 
 	@Test
 	public void shouldLogMethodFileAndMessage() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log("test");
 		}
-		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) test\n", method(), file());
+		Assert.match(b, "(?ms)\\Q%s (%s:\\E\\d+\\) test\n", method(), file());
 	}
 
 	@Test
 	public void shouldLogMethodFileAndNull() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log((Object) null);
 		}
-		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) null\n", method(), file());
+		Assert.match(b, "(?ms)\\Q%s (%s:\\E\\d+\\) null\n", method(), file());
 	}
 
 	@Test
 	public void shouldLogMethodAndFileOnlyIfEmpty() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
 			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			dbg.log();
 		}
-		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) \n", method(), file());
+		Assert.match(b, "(?ms)\\Q%s (%s:\\E\\d+\\) \n", method(), file());
 	}
 
 	@Test
 	public void shouldCountAndPrintMethodInvocations() {
-		StringBuilder b = new StringBuilder();
-		try (PrintStream out = StringBuilders.printStream(b)) {
-			Debugger dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
+		var b = new StringBuilder();
+		try (var out = StringBuilders.printStream(b)) {
+			var dbg = Debugger.of(out, Integer.MAX_VALUE, 0, false);
 			debugMethod(dbg, "test1");
 			debugMethod(dbg, "test2");
 		}
-		String method1 = debugMethod(null, "test1");
-		String method2 = debugMethod(null, "test2");
-		assertMatch(b, "(?ms)\\Q%s (%s:\\E\\d+\\) 0\n\\Q%s (%s:\\E\\d+\\) 1\n", method1, file(),
+		var method1 = debugMethod(null, "test1");
+		var method2 = debugMethod(null, "test2");
+		Assert.match(b, "(?ms)\\Q%s (%s:\\E\\d+\\) 0\n\\Q%s (%s:\\E\\d+\\) 1\n", method1, file(),
 			method2, file());
 	}
 

@@ -1,9 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,26 +38,26 @@ public class IoUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(IoUtil.class);
+		Assert.privateConstructor(IoUtil.class);
 	}
 
 	@Test
 	public void testEolBytes() {
-		assertEquals(IoUtil.eolBytes(null), IoUtil.EOL_BYTES);
-		assertEquals(IoUtil.eolBytes(Charset.defaultCharset()), IoUtil.EOL_BYTES);
-		assertArray(IoUtil.eolBytes(StandardCharsets.US_ASCII),
+		Assert.equal(IoUtil.eolBytes(null), IoUtil.EOL_BYTES);
+		Assert.equal(IoUtil.eolBytes(Charset.defaultCharset()), IoUtil.EOL_BYTES);
+		Assert.array(IoUtil.eolBytes(StandardCharsets.US_ASCII),
 			Strings.EOL.getBytes(StandardCharsets.US_ASCII));
 	}
 
 	@Test
 	public void testIoExceptionf() {
-		assertEquals(Exceptions.io("%s", "test").getMessage(), "test");
-		assertEquals(Exceptions.io(new Throwable(), "%s", "test").getMessage(), "test");
+		Assert.equal(Exceptions.io("%s", "test").getMessage(), "test");
+		Assert.equal(Exceptions.io(new Throwable(), "%s", "test").getMessage(), "test");
 	}
 
 	@Test
 	public void testClearReader() throws IOException {
-		assertEquals(IoUtil.clear(new StringReader(Strings.repeat('x', 0x41))), 0x41L);
+		Assert.equal(IoUtil.clear(new StringReader(Strings.repeat('x', 0x41))), 0x41L);
 	}
 
 	@Test
@@ -73,15 +69,15 @@ public class IoUtilTest {
 
 	private void assertClearBuffer(byte[] buffer) throws IOException {
 		var in = new ByteArrayInputStream(buffer);
-		assertEquals(IoUtil.clear(in), (long) buffer.length);
-		assertEquals(in.available(), 0);
+		Assert.equal(IoUtil.clear(in), (long) buffer.length);
+		Assert.equal(in.available(), 0);
 	}
 
 	@Test
 	public void testPollString() throws IOException {
 		try (var in = TestUtil.inputStream("test")) {
 			var s = IoUtil.pollString(in);
-			assertEquals(s, "test");
+			Assert.equal(s, "test");
 		}
 	}
 
@@ -89,16 +85,16 @@ public class IoUtilTest {
 	public void testAvailableChar() throws IOException {
 		try (var sys = SystemIo.of()) {
 			sys.in(TestUtil.inputStream("test"));
-			assertEquals(IoUtil.availableChar(), 't');
-			assertEquals(IoUtil.availableChar(), 'e');
-			assertEquals(IoUtil.availableChar(), 's');
-			assertEquals(IoUtil.availableChar(), 't');
+			Assert.equal(IoUtil.availableChar(), 't');
+			Assert.equal(IoUtil.availableChar(), 'e');
+			Assert.equal(IoUtil.availableChar(), 's');
+			Assert.equal(IoUtil.availableChar(), 't');
 			sys.in().close();
-			assertEquals(IoUtil.availableChar(), '\0');
+			Assert.equal(IoUtil.availableChar(), '\0');
 		}
 		try (var in = TestInputStream.of()) {
 			in.available.error.setFrom(ErrorGen.IOX);
-			assertEquals(IoUtil.availableChar(in), '\0');
+			Assert.equal(IoUtil.availableChar(in), '\0');
 		}
 	}
 
@@ -106,8 +102,8 @@ public class IoUtilTest {
 	public void testAvailableString() throws IOException {
 		Assert.isNull(IoUtil.availableString(null));
 		try (var in = new ByteArrayInputStream("test".getBytes())) {
-			assertEquals(IoUtil.availableString(in), "test");
-			assertEquals(IoUtil.availableString(in), "");
+			Assert.equal(IoUtil.availableString(in), "test");
+			Assert.equal(IoUtil.availableString(in), "");
 		}
 	}
 
@@ -116,10 +112,10 @@ public class IoUtilTest {
 		Assert.isNull(IoUtil.availableLine(null));
 		var s = "te" + Strings.EOL + Strings.EOL + "s" + Strings.EOL + "t";
 		try (var in = new ByteArrayInputStream(s.getBytes())) {
-			assertEquals(IoUtil.availableLine(in), "te" + Strings.EOL);
-			assertEquals(IoUtil.availableLine(in), Strings.EOL);
-			assertEquals(IoUtil.availableLine(in), "s" + Strings.EOL);
-			assertEquals(IoUtil.availableLine(in), "t");
+			Assert.equal(IoUtil.availableLine(in), "te" + Strings.EOL);
+			Assert.equal(IoUtil.availableLine(in), Strings.EOL);
+			Assert.equal(IoUtil.availableLine(in), "s" + Strings.EOL);
+			Assert.equal(IoUtil.availableLine(in), "t");
 		}
 	}
 
@@ -127,11 +123,11 @@ public class IoUtilTest {
 	public void testAvailableBytes() throws IOException {
 		Assert.isNull(IoUtil.availableBytes(null));
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, 2, 3, 4))) {
-			assertEquals(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
-			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
+			Assert.equal(IoUtil.availableBytes(in), ByteProvider.of(0, 1, 2, 3, 4));
+			Assert.equal(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 		try (var in = IoStream.in((_, _, _) -> 0, () -> 3)) {
-			assertEquals(IoUtil.availableBytes(in), ByteProvider.empty());
+			Assert.equal(IoUtil.availableBytes(in), ByteProvider.empty());
 		}
 	}
 
@@ -140,27 +136,27 @@ public class IoUtilTest {
 		Assert.isNull(IoUtil.availableBytes(null, null));
 		Excepts.ObjIntPredicate<RuntimeException, byte[]> p = (b, n) -> b[n - 1] == -1;
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, -1, -1, 2, 3))) {
-			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
-			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(-1));
-			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.of(2, 3));
-			assertEquals(IoUtil.availableBytes(in, p), ByteProvider.empty());
+			Assert.equal(IoUtil.availableBytes(in, p), ByteProvider.of(0, 1, -1));
+			Assert.equal(IoUtil.availableBytes(in, p), ByteProvider.of(-1));
+			Assert.equal(IoUtil.availableBytes(in, p), ByteProvider.of(2, 3));
+			Assert.equal(IoUtil.availableBytes(in, p), ByteProvider.empty());
 		}
 		try (var in = IoStream.in((_, _, _) -> 0, () -> 3)) {
-			assertEquals(IoUtil.availableBytes(in, null), ByteProvider.of(0, 0, 0));
+			Assert.equal(IoUtil.availableBytes(in, null), ByteProvider.of(0, 0, 0));
 		}
 		try (var in = IoStream.in((_, _, _) -> -1, () -> 3)) {
-			assertEquals(IoUtil.availableBytes(in, null), ByteProvider.empty());
+			Assert.equal(IoUtil.availableBytes(in, null), ByteProvider.empty());
 		}
 	}
 
 	@Test
 	public void testReadBytes() throws IOException {
-		assertEquals(IoUtil.readBytes(null, null), 0);
+		Assert.equal(IoUtil.readBytes(null, null), 0);
 		try (var in = new ByteArrayInputStream(ArrayUtil.bytes.of(0, 1, 2, 3, 4))) {
-			assertEquals(IoUtil.readBytes(in, null), 0);
+			Assert.equal(IoUtil.readBytes(in, null), 0);
 			byte[] buffer = new byte[4];
 			IoUtil.readBytes(in, buffer);
-			assertArray(buffer, 0, 1, 2, 3);
+			Assert.array(buffer, 0, 1, 2, 3);
 		}
 	}
 
@@ -170,12 +166,12 @@ public class IoUtilTest {
 		Assert.isNull(IoUtil.readNext(null));
 		try (var in = TestInputStream.of()) {
 			in.to.writeBytes(1, 2, 3);
-			assertArray(IoUtil.readNext(in), 1, 2, 3);
+			Assert.array(IoUtil.readNext(in), 1, 2, 3);
 			in.to.writeBytes(4);
-			assertArray(IoUtil.readNext(in), 4);
+			Assert.array(IoUtil.readNext(in), 4);
 			in.to.writeBytes(5);
 			in.read.autoResponses(-1);
-			assertArray(IoUtil.readNext(in));
+			Assert.array(IoUtil.readNext(in));
 		}
 	}
 
@@ -185,12 +181,12 @@ public class IoUtilTest {
 		Assert.isNull(IoUtil.readNext(null));
 		try (var in = TestInputStream.of()) {
 			in.to.writeBytes('a', 'b', 'c');
-			assertEquals(IoUtil.readNextString(in), "abc");
+			Assert.equal(IoUtil.readNextString(in), "abc");
 			in.to.writeBytes('d');
-			assertEquals(IoUtil.readNextString(in), "d");
+			Assert.equal(IoUtil.readNextString(in), "d");
 			in.to.writeBytes(5);
 			in.read.autoResponses(-1);
-			assertEquals(IoUtil.readNextString(in), "");
+			Assert.equal(IoUtil.readNextString(in), "");
 		}
 	}
 
@@ -200,7 +196,7 @@ public class IoUtilTest {
 		try (var in = IoStream.in((IoStream.Read) null, () -> available[0])) {
 			Assert.thrown(IoExceptions.Timeout.class, () -> IoUtil.pollForData(in, 1, 1, 1));
 			available[0] = 3;
-			assertEquals(IoUtil.pollForData(in, 1, 0, 1), 3);
+			Assert.equal(IoUtil.pollForData(in, 1, 0, 1), 3);
 		}
 	}
 
@@ -209,7 +205,7 @@ public class IoUtilTest {
 		var in = TestUtil.inputStream(1, 2, 3, 4, 5);
 		var out = new ByteArrayOutputStream();
 		IoUtil.pipe(in, out);
-		assertArray(out.toByteArray(), 1, 2, 3, 4, 5);
+		Assert.array(out.toByteArray(), 1, 2, 3, 4, 5);
 	}
 
 	@Test
@@ -218,19 +214,19 @@ public class IoUtilTest {
 		try (var in = IoStream.in((_, _, _) -> read.get())) {
 			var out = new ByteArrayOutputStream();
 			IoUtil.pipe(in, out, new byte[3], 0);
-			assertArray(out.toByteArray(), 0, 0, 0, 0);
+			Assert.array(out.toByteArray(), 0, 0, 0, 0);
 		}
 	}
 
 	@Test
 	public void testReadString() throws IOException {
 		var in = TestUtil.inputStream("abc\0");
-		assertEquals(IoUtil.readString(in), "abc\0");
+		Assert.equal(IoUtil.readString(in), "abc\0");
 	}
 
 	@Test
 	public void testLines() throws IOException {
 		var in = TestUtil.inputStream("line0\n\nline2\nend");
-		assertStream(IoUtil.lines(in), "line0", "", "line2", "end");
+		Assert.stream(IoUtil.lines(in), "line0", "", "line2", "end");
 	}
 }

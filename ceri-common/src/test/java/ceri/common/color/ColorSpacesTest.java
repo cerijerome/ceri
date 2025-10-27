@@ -1,73 +1,71 @@
 package ceri.common.color;
 
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ColorSpacesTest {
 
 	@Test
 	public void testScale() {
-		assertApproxArray(ColorSpaces.scale(0, 0, 0), 0, 0, 0);
-		assertApproxArray(ColorSpaces.scale(1.2, 0.6, 0.3), 1.0, 0.5, 0.25);
-		assertApproxArray(ColorSpaces.scale(1.2, 0.6, -0.8), 1.0, 0.7, 0.0);
+		Assert.approxArray(ColorSpaces.scale(0, 0, 0), 0, 0, 0);
+		Assert.approxArray(ColorSpaces.scale(1.2, 0.6, 0.3), 1.0, 0.5, 0.25);
+		Assert.approxArray(ColorSpaces.scale(1.2, 0.6, -0.8), 1.0, 0.7, 0.0);
 	}
 
 	@Test
 	public void testLimit() {
-		assertApproxArray(ColorSpaces.limit(0, 0, 0), 0, 0, 0);
-		assertApproxArray(ColorSpaces.limit(1.2, 0.6, 0.3), 1.0, 0.6, 0.3);
-		assertApproxArray(ColorSpaces.limit(1.2, 0.6, -0.8), 1.0, 0.6, 0.0);
+		Assert.approxArray(ColorSpaces.limit(0, 0, 0), 0, 0, 0);
+		Assert.approxArray(ColorSpaces.limit(1.2, 0.6, 0.3), 1.0, 0.6, 0.3);
+		Assert.approxArray(ColorSpaces.limit(1.2, 0.6, -0.8), 1.0, 0.6, 0.0);
 	}
 
 	@Test
 	public void testDToRgb() {
-		assertEquals(ColorSpaces.dToRgb(35), 0xfffff4a5);
-		assertEquals(ColorSpaces.dToRgb(50), 0xfffffcdd);
-		assertEquals(ColorSpaces.dToRgb(65), 0xffffffff);
-		assertEquals(ColorSpaces.dToRgb(93), 0xffedffff);
+		Assert.equal(ColorSpaces.dToRgb(35), 0xfffff4a5);
+		Assert.equal(ColorSpaces.dToRgb(50), 0xfffffcdd);
+		Assert.equal(ColorSpaces.dToRgb(65), 0xffffffff);
+		Assert.equal(ColorSpaces.dToRgb(93), 0xffedffff);
 	}
 
 	@Test
 	public void testDToSrgb() {
-		assertApproxArray(ColorSpaces.dToSrgb(35), 1.210, 0.955, 0.648);
-		assertApproxArray(ColorSpaces.dToSrgb(50), 1.074, 0.989, 0.865);
-		assertApproxArray(ColorSpaces.dToSrgb(65), 1.000, 1.000, 0.999);
-		assertApproxArray(ColorSpaces.dToSrgb(93), 0.929, 1.005, 1.138);
+		Assert.approxArray(ColorSpaces.dToSrgb(35), 1.210, 0.955, 0.648);
+		Assert.approxArray(ColorSpaces.dToSrgb(50), 1.074, 0.989, 0.865);
+		Assert.approxArray(ColorSpaces.dToSrgb(65), 1.000, 1.000, 0.999);
+		Assert.approxArray(ColorSpaces.dToSrgb(93), 0.929, 1.005, 1.138);
 	}
 
 	@Test
 	public void testDToXyz() {
-		assertApproxArray(ColorSpaces.dToXyz(35), 1.028, 1.0, 0.496);
-		assertApproxArray(ColorSpaces.dToXyz(50), 0.964, 1.0, 0.824);
-		assertApproxArray(ColorSpaces.dToXyz(65), 0.950, 1.0, 1.088);
-		assertApproxArray(ColorSpaces.dToXyz(93), 0.953, 1.0, 1.413);
+		Assert.approxArray(ColorSpaces.dToXyz(35), 1.028, 1.0, 0.496);
+		Assert.approxArray(ColorSpaces.dToXyz(50), 0.964, 1.0, 0.824);
+		Assert.approxArray(ColorSpaces.dToXyz(65), 0.950, 1.0, 1.088);
+		Assert.approxArray(ColorSpaces.dToXyz(93), 0.953, 1.0, 1.413);
 	}
 
 	@Test
 	public void testCctToSrgb() {
-		assertApproxArray(ColorSpaces.cctToSrgb(1500), 1.660, 0.702, -0.784);
-		assertApproxArray(ColorSpaces.cctToSrgb(5000), 1.088, 0.983, 0.887);
-		assertApproxArray(ColorSpaces.cctToSrgb(6500), 1.019, 0.993, 1.015);
-		assertApproxArray(ColorSpaces.cctToSrgb(7500), 0.989, 0.996, 1.074);
+		Assert.approxArray(ColorSpaces.cctToSrgb(1500), 1.660, 0.702, -0.784);
+		Assert.approxArray(ColorSpaces.cctToSrgb(5000), 1.088, 0.983, 0.887);
+		Assert.approxArray(ColorSpaces.cctToSrgb(6500), 1.019, 0.993, 1.015);
+		Assert.approxArray(ColorSpaces.cctToSrgb(7500), 0.989, 0.996, 1.074);
 	}
 
 	@Test
 	public void testCctToXyz() {
-		assertApproxArray(ColorSpaces.cctToXyz(1500), 1.473, 1.0, 0.058);
-		assertApproxArray(ColorSpaces.cctToXyz(5000), 0.981, 1.0, 0.863);
-		assertApproxArray(ColorSpaces.cctToXyz(6500), 0.969, 1.0, 1.121);
-		assertApproxArray(ColorSpaces.cctToXyz(7500), 0.968, 1.0, 1.255);
+		Assert.approxArray(ColorSpaces.cctToXyz(1500), 1.473, 1.0, 0.058);
+		Assert.approxArray(ColorSpaces.cctToXyz(5000), 0.981, 1.0, 0.863);
+		Assert.approxArray(ColorSpaces.cctToXyz(6500), 0.969, 1.0, 1.121);
+		Assert.approxArray(ColorSpaces.cctToXyz(7500), 0.968, 1.0, 1.255);
 	}
 
 	@Test
 	public void testSrgbToHsb() {
-		assertApproxArray(ColorSpaces.srgbToHsb(0.01, 0, 0.01), 0.833, 1.0, 0.01);
+		Assert.approxArray(ColorSpaces.srgbToHsb(0.01, 0, 0.01), 0.833, 1.0, 0.01);
 	}
 
 	@Test
 	public void testHsbToSrgb() {
-		assertApproxArray(ColorSpaces.hsbToSrgb(0.5, 0.0, 0.3), 0.3, 0.3, 0.3);
+		Assert.approxArray(ColorSpaces.hsbToSrgb(0.5, 0.0, 0.3), 0.3, 0.3, 0.3);
 	}
-
 }

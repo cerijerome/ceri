@@ -1,7 +1,5 @@
 package ceri.log.rpc.util;
 
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.RTX;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +21,7 @@ public class RpcStreamerBehavior {
 			streamer.next("test1");
 			streamer.next("test2");
 		}
-		assertOrdered(next, "test1", "test2");
+		Assert.ordered(next, "test1", "test2");
 	}
 
 	@Test
@@ -32,7 +30,7 @@ public class RpcStreamerBehavior {
 		@SuppressWarnings("resource")
 		RpcStreamer<String> streamer = RpcStreamer.of(observer);
 		streamer.close();
-		assertTrue(streamer.closed());
+		Assert.yes(streamer.closed());
 		Assert.thrown(() -> streamer.next("test"));
 	}
 

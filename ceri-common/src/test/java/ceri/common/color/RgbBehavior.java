@@ -6,9 +6,6 @@ import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -25,7 +22,7 @@ public class RgbBehavior {
 		var ne2 = Rgb.of(1.0, 0.5, 0.2, 0.2);
 		var ne3 = Rgb.of(1.0, 0.5, 0.1, 0.1);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -36,13 +33,13 @@ public class RgbBehavior {
 
 	@Test
 	public void shouldProvideRgbValues() {
-		assertApproxArray(Rgb.from(0).rgbValues(), 0, 0, 0);
-		assertApproxArray(Rgb.from(0x804020).rgbValues(), 0.502, 0.251, 0.125);
+		Assert.approxArray(Rgb.from(0).rgbValues(), 0, 0, 0);
+		Assert.approxArray(Rgb.from(0x804020).rgbValues(), 0.502, 0.251, 0.125);
 	}
 
 	@Test
 	public void shouldConvertToArgb() {
-		assertEquals(Rgb.from(0x12345678).argb(), 0x12345678);
+		Assert.equal(Rgb.from(0x12345678).argb(), 0x12345678);
 	}
 
 	@Test
@@ -67,14 +64,14 @@ public class RgbBehavior {
 
 	@Test
 	public void shouldApplyAlpha() {
-		assertEquals(Rgb.from(0xff654321).applyAlpha().argb(), 0xff654321);
+		Assert.equal(Rgb.from(0xff654321).applyAlpha().argb(), 0xff654321);
 		assertRgb(Rgb.from(0x87654321).applyAlpha(), 1.0, 0.210, 0.139, 0.069);
 	}
 
 	@Test
 	public void shouldDeterminePresenceOfAlpha() {
-		assertEquals(Rgb.from(0xff123456).hasAlpha(), false);
-		assertEquals(Rgb.from(0xef123456).hasAlpha(), true);
+		Assert.equal(Rgb.from(0xff123456).hasAlpha(), false);
+		Assert.equal(Rgb.from(0xef123456).hasAlpha(), true);
 	}
 
 	@Test
@@ -82,7 +79,7 @@ public class RgbBehavior {
 		assertRgb(Rgb.from(0x87654321).dim(0.0), 0.529, 0, 0, 0);
 		assertRgb(Rgb.from(0x87654321).dim(0.5), 0.529, 0.198, 0.131, 0.065);
 		assertRgb(Rgb.from(0x87654321).dim(1.5), 0.529, 0.594, 0.394, 0.194);
-		assertEquals(Rgb.from(0x87654321).dim(1.0).argb(), 0x87654321);
+		Assert.equal(Rgb.from(0x87654321).dim(1.0).argb(), 0x87654321);
 		// not normalized or limited
 		assertRgb(Rgb.from(0x87654321).dim(5.0), 0.529, 1.980, 1.314, 0.647);
 	}

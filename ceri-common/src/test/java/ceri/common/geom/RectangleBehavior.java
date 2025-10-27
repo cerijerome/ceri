@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class RectangleBehavior {
@@ -22,24 +21,24 @@ public class RectangleBehavior {
 		var ne4 = Rectangle.of(0, 0, 0, 0);
 		var ne5 = Rectangle.square(Point2d.ZERO, 20);
 		TestUtil.exerciseEquals(r, eq0);
-		assertAllNotEqual(r, ne0, ne1, ne2, ne3, ne4, ne5);
-		assertEquals(r.equals(Point2d.ZERO, Size2d.of(20, 40)), true);
-		assertEquals(r.equals(Point2d.ZERO, Size2d.of(21, 40)), false);
-		assertEquals(r.equals(Point2d.ZERO, Size2d.of(20, 41)), false);
+		Assert.notEqualAll(r, ne0, ne1, ne2, ne3, ne4, ne5);
+		Assert.equal(r.equals(Point2d.ZERO, Size2d.of(20, 40)), true);
+		Assert.equal(r.equals(Point2d.ZERO, Size2d.of(21, 40)), false);
+		Assert.equal(r.equals(Point2d.ZERO, Size2d.of(20, 41)), false);
 	}
 
 	@Test
 	public void shouldCalculateArea() {
-		assertEquals(Rectangle.of(100, -200, 0, 0).area(), 0.0);
-		assertEquals(Rectangle.of(10, -20, 50, 20).area(), 1000.0);
+		Assert.equal(Rectangle.of(100, -200, 0, 0).area(), 0.0);
+		Assert.equal(Rectangle.of(10, -20, 50, 20).area(), 1000.0);
 	}
 
 	@Test
 	public void shouldExposeDimensions() {
 		Rectangle r = Rectangle.of(100, -20, 50, 10);
-		assertEquals(r.position(), Point2d.of(100, -20));
-		assertEquals(r.size(), Size2d.of(50, 10));
-		assertEquals(r.corner(), Point2d.of(150, -10));
+		Assert.equal(r.position(), Point2d.of(100, -20));
+		Assert.equal(r.size(), Size2d.of(50, 10));
+		Assert.equal(r.corner(), Point2d.of(150, -10));
 	}
 
 	@Test

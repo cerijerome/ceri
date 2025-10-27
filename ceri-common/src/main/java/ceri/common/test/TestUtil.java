@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -268,15 +266,15 @@ public class TestUtil {
 		exerciseEqual(t0, t0);
 		for (T t : ts)
 			exerciseEqual(t0, t);
-		assertNotEquals(null, t0);
-		assertNotEquals(new Object(), t0);
+		Assert.notEqual(null, t0);
+		Assert.notEqual(new Object(), t0);
 	}
 
 	private static <T> void exerciseEqual(T t0, T t1) {
-		assertEquals(t0, t1);
+		Assert.equal(t0, t1);
 		if (t0 == t1) t0.equals(t1);
-		assertEquals(t0.hashCode(), t1.hashCode());
-		assertEquals(t0.toString(), t1.toString());
+		Assert.equal(t0.hashCode(), t1.hashCode());
+		Assert.equal(t0.toString(), t1.toString());
 	}
 
 	/**
@@ -315,12 +313,12 @@ public class TestUtil {
 	 */
 	public static <T> void exerciseCompare(Comparator<? super T> comparator, T subject, T lessThan,
 		T equal, T greaterThan) {
-		assertEquals(comparator.compare(null, null), 0, "Compare");
-		assertEquals(comparator.compare(subject, null), 1, "Compare");
-		assertEquals(comparator.compare(null, subject), -1, "Compare");
-		assertEquals(comparator.compare(subject, lessThan), 1, "Compare");
-		assertEquals(comparator.compare(subject, equal), 0, "Compare");
-		assertEquals(comparator.compare(subject, greaterThan), -1, "Compare");
+		Assert.equal(comparator.compare(null, null), 0, "Compare");
+		Assert.equal(comparator.compare(subject, null), 1, "Compare");
+		Assert.equal(comparator.compare(null, subject), -1, "Compare");
+		Assert.equal(comparator.compare(subject, lessThan), 1, "Compare");
+		Assert.equal(comparator.compare(subject, equal), 0, "Compare");
+		Assert.equal(comparator.compare(subject, greaterThan), -1, "Compare");
 	}
 
 	/**

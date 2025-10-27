@@ -1,11 +1,5 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertMap;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.illegalState;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +9,7 @@ import org.junit.Test;
 import ceri.common.collect.Immutable.Wrap;
 import ceri.common.collect.Maps.Put;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.util.Basics;
 
@@ -45,202 +40,202 @@ public class MapsTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Maps.class, Maps.Filter.class, Maps.Compare.class);
+		Assert.privateConstructor(Maps.class, Maps.Filter.class, Maps.Compare.class);
 	}
 
 	@Test
 	public void testCompare() {
 		var map = Maps.of(1, "B", -1, "C", 0, "A");
-		assertOrdered(Maps.sort(Maps.Compare.key(), map), -1, "C", 0, "A", 1, "B");
-		assertOrdered(Maps.sort(Maps.Compare.value(), map), 0, "A", 1, "B", -1, "C");
+		Assert.ordered(Maps.sort(Maps.Compare.key(), map), -1, "C", 0, "A", 1, "B");
+		Assert.ordered(Maps.sort(Maps.Compare.value(), map), 0, "A", 1, "B", -1, "C");
 	}
 
 	@Test
 	public void testPutType() {
-		assertEquals(Put.put(Put.def, null, -1, "A"), null);
-		assertMap(apply(Maps.of(-1, "A"), //
-			m -> assertEquals(Put.put(null, m, -1, null), null)), -1, "A");
-		assertMap(apply(Maps.of(-1, "A"), //
-			m -> assertEquals(Put.first.put(m, -1, null), "A")), -1, "A");
-		assertMap(apply(Maps.of(-1, "A"), //
-			m -> assertEquals(Put.last.put(m, -1, null), "A")), -1, null);
-		assertMap(apply(Maps.of(-1, "A"), //
-			m -> assertEquals(Put.unique.put(m, 1, null), null)), -1, "A", 1, null);
-		assertMap(apply(Maps.of(-1, "A"), //
-			m -> illegalState(() -> Put.unique.put(m, -1, null))), -1, "A");
+		Assert.equal(Put.put(Put.def, null, -1, "A"), null);
+		Assert.map(apply(Maps.of(-1, "A"), //
+			m -> Assert.equal(Put.put(null, m, -1, null), null)), -1, "A");
+		Assert.map(apply(Maps.of(-1, "A"), //
+			m -> Assert.equal(Put.first.put(m, -1, null), "A")), -1, "A");
+		Assert.map(apply(Maps.of(-1, "A"), //
+			m -> Assert.equal(Put.last.put(m, -1, null), "A")), -1, null);
+		Assert.map(apply(Maps.of(-1, "A"), //
+			m -> Assert.equal(Put.unique.put(m, 1, null), null)), -1, "A", 1, null);
+		Assert.map(apply(Maps.of(-1, "A"), //
+			m -> Assert.illegalState(() -> Put.unique.put(m, -1, null))), -1, "A");
 	}
 
 	@Test
 	public void testBiMap() {
-		assertMap(Maps.Bi.of(null).keys);
-		assertMap(Maps.Bi.of(null).values);
-		assertEquals(Maps.Bi.of(null).key(null), null);
-		assertEquals(Maps.Bi.of(null).value(null), null);
-		assertMap(Maps.Bi.of(emptyMap).keys);
-		assertMap(Maps.Bi.of(emptyMap).values);
-		assertEquals(Maps.Bi.of(emptyMap).key(null), null);
-		assertEquals(Maps.Bi.of(emptyMap).value(null), null);
-		assertMap(Maps.Bi.of(map).keys, -1, "A", null, "B", 1, null);
-		assertMap(Maps.Bi.of(map).values, "A", -1, "B", null, null, 1);
-		assertEquals(Maps.Bi.of(map).key(null), 1);
-		assertEquals(Maps.Bi.of(map).value(null), "B");
+		Assert.map(Maps.Bi.of(null).keys);
+		Assert.map(Maps.Bi.of(null).values);
+		Assert.equal(Maps.Bi.of(null).key(null), null);
+		Assert.equal(Maps.Bi.of(null).value(null), null);
+		Assert.map(Maps.Bi.of(emptyMap).keys);
+		Assert.map(Maps.Bi.of(emptyMap).values);
+		Assert.equal(Maps.Bi.of(emptyMap).key(null), null);
+		Assert.equal(Maps.Bi.of(emptyMap).value(null), null);
+		Assert.map(Maps.Bi.of(map).keys, -1, "A", null, "B", 1, null);
+		Assert.map(Maps.Bi.of(map).values, "A", -1, "B", null, null, 1);
+		Assert.equal(Maps.Bi.of(map).key(null), 1);
+		Assert.equal(Maps.Bi.of(map).value(null), "B");
 	}
 
 	@Test
 	public void testBuilder() {
-		assertMap(Maps.build(-1, "").put(nullMap).get(), -1, "");
-		assertMap(Maps.build(-1, "").put(map).get(), -1, "A", null, "B", 1, null);
-		assertMap(Maps.build(-1, "").put(null, "B").get(), -1, "", null, "B");
-		assertMap(Maps.build(-1, "").put(-1, "A").get(), -1, "A");
-		assertMap(Maps.build(-1, "").put((Put) null).put(-1, "A").get(), -1, "A");
-		assertMap(Maps.build(-1, "").put(Put.first).put(-1, "A").get(), -1, "");
-		assertMap(Maps.build(-1, "").apply(null).wrap(), -1, "");
-		assertMap(Maps.build(-1, "").apply(m -> Maps.put(m, map)).wrap(), -1, "A", null, "B", 1,
+		Assert.map(Maps.build(-1, "").put(nullMap).get(), -1, "");
+		Assert.map(Maps.build(-1, "").put(map).get(), -1, "A", null, "B", 1, null);
+		Assert.map(Maps.build(-1, "").put(null, "B").get(), -1, "", null, "B");
+		Assert.map(Maps.build(-1, "").put(-1, "A").get(), -1, "A");
+		Assert.map(Maps.build(-1, "").put((Put) null).put(-1, "A").get(), -1, "A");
+		Assert.map(Maps.build(-1, "").put(Put.first).put(-1, "A").get(), -1, "");
+		Assert.map(Maps.build(-1, "").apply(null).wrap(), -1, "");
+		Assert.map(Maps.build(-1, "").apply(m -> Maps.put(m, map)).wrap(), -1, "A", null, "B", 1,
 			null);
-		assertOrdered(Maps.build(Maps::tree, -1, "").put(null, "B").wrap(), null, "B", -1, "");
-		assertMap(Maps.build(Maps::syncWeak, 1, "A").putKeys("B", 2, 3).get(), 1, "A", 2, "B", 3,
+		Assert.ordered(Maps.build(Maps::tree, -1, "").put(null, "B").wrap(), null, "B", -1, "");
+		Assert.map(Maps.build(Maps::syncWeak, 1, "A").putKeys("B", 2, 3).get(), 1, "A", 2, "B", 3,
 			"B");
 	}
 
 	@Test
 	public void testCache() {
-		assertMap(apply(Maps.cache(0), m -> m.put(-1, "A")));
-		assertMap(apply(Maps.cache(1), m -> m.put(-1, "A")), -1, "A");
-		assertMap(apply(Maps.cache(1), m -> Maps.put(m, map)), 1, null);
-		assertMap(apply(Maps.cache(2), m -> Maps.put(m, map)), -1, "A", 1, null); // nav map order
-		assertMap(apply(Maps.cache(3), m -> Maps.put(m, map)), -1, "A", null, "B", 1, null);
+		Assert.map(apply(Maps.cache(0), m -> m.put(-1, "A")));
+		Assert.map(apply(Maps.cache(1), m -> m.put(-1, "A")), -1, "A");
+		Assert.map(apply(Maps.cache(1), m -> Maps.put(m, map)), 1, null);
+		Assert.map(apply(Maps.cache(2), m -> Maps.put(m, map)), -1, "A", 1, null); // nav map order
+		Assert.map(apply(Maps.cache(3), m -> Maps.put(m, map)), -1, "A", null, "B", 1, null);
 	}
 
 	@Test
 	public void testOf() {
-		assertMap(Maps.of(-1, "A"), -1, "A");
-		assertMap(Maps.of(-1, "A", null, "B"), -1, "A", null, "B");
-		assertMap(Maps.of(-1, "A", null, "B", 1, null), -1, "A", null, "B", 1, null);
-		assertMap(Maps.of(-1, "A", null, "B", 1, null, null, null), -1, "A", null, null, 1, null);
-		assertMap(Maps.of(-1, "A", null, "B", 1, null, null, null, -1, ""), -1, "", null, null, 1,
+		Assert.map(Maps.of(-1, "A"), -1, "A");
+		Assert.map(Maps.of(-1, "A", null, "B"), -1, "A", null, "B");
+		Assert.map(Maps.of(-1, "A", null, "B", 1, null), -1, "A", null, "B", 1, null);
+		Assert.map(Maps.of(-1, "A", null, "B", 1, null, null, null), -1, "A", null, null, 1, null);
+		Assert.map(Maps.of(-1, "A", null, "B", 1, null, null, null, -1, ""), -1, "", null, null, 1,
 			null);
 	}
 
 	@Test
 	public void testCopy() {
-		assertMap(Maps.copy(nullMap));
-		assertMap(Maps.copy(emptyMap));
-		assertMap(Maps.copy(map), -1, "A", null, "B", 1, null);
-		assertEquals(Maps.copy(null, map), null);
-		assertEquals(Maps.copy(() -> null, map), null);
-		assertMap(Maps.copy(Maps::of, nullMap));
-		assertMap(Maps.copy(Maps::of, emptyMap));
-		assertOrdered(Maps.copy(() -> Maps.tree(), map), null, "B", -1, "A", 1, null);
+		Assert.map(Maps.copy(nullMap));
+		Assert.map(Maps.copy(emptyMap));
+		Assert.map(Maps.copy(map), -1, "A", null, "B", 1, null);
+		Assert.equal(Maps.copy(null, map), null);
+		Assert.equal(Maps.copy(() -> null, map), null);
+		Assert.map(Maps.copy(Maps::of, nullMap));
+		Assert.map(Maps.copy(Maps::of, emptyMap));
+		Assert.ordered(Maps.copy(() -> Maps.tree(), map), null, "B", -1, "A", 1, null);
 	}
 
 	@Test
 	public void testConvert() {
-		assertMap(Maps.convert(nullFn, list));
-		assertMap(Maps.convert(fn, nullList));
-		assertMap(Maps.convert(fn, emptyList));
-		assertMap(Maps.convert(fn, list), "-1", -1, "null", null, "1", 1);
-		assertMap(Maps.convert(nullFn, fn, list));
-		assertMap(Maps.convert(fn, nullFn, list));
-		assertMap(Maps.convert(fn, fn, nullList));
-		assertMap(Maps.convert(fn, fn, emptyList));
-		assertMap(Maps.convert(fn, fn, list), "-1", "-1", "null", "null", "1", "1");
+		Assert.map(Maps.convert(nullFn, list));
+		Assert.map(Maps.convert(fn, nullList));
+		Assert.map(Maps.convert(fn, emptyList));
+		Assert.map(Maps.convert(fn, list), "-1", -1, "null", null, "1", 1);
+		Assert.map(Maps.convert(nullFn, fn, list));
+		Assert.map(Maps.convert(fn, nullFn, list));
+		Assert.map(Maps.convert(fn, fn, nullList));
+		Assert.map(Maps.convert(fn, fn, emptyList));
+		Assert.map(Maps.convert(fn, fn, list), "-1", "-1", "null", "null", "1", "1");
 	}
 
 	@Test
 	public void testAdapt() {
-		assertMap(Maps.adapt(nullFn, map));
-		assertMap(Maps.adapt(fn, nullMap));
-		assertMap(Maps.adapt(fn, emptyMap));
-		assertMap(Maps.adapt(fn, map), "-1", "A", "null", "B", "1", null);
-		assertMap(Maps.adapt(nullFn, fn, map));
-		assertMap(Maps.adapt(fn, nullFn, map));
-		assertMap(Maps.adapt(fn, fn, nullMap));
-		assertMap(Maps.adapt(fn, fn, emptyMap));
-		assertMap(Maps.adapt(fn, fn, map), "-1", "A", "null", "B", "1", "null");
-		assertEquals(Maps.adapt(Maps.Put.first, null, fn, fn, emptyMap), null);
+		Assert.map(Maps.adapt(nullFn, map));
+		Assert.map(Maps.adapt(fn, nullMap));
+		Assert.map(Maps.adapt(fn, emptyMap));
+		Assert.map(Maps.adapt(fn, map), "-1", "A", "null", "B", "1", null);
+		Assert.map(Maps.adapt(nullFn, fn, map));
+		Assert.map(Maps.adapt(fn, nullFn, map));
+		Assert.map(Maps.adapt(fn, fn, nullMap));
+		Assert.map(Maps.adapt(fn, fn, emptyMap));
+		Assert.map(Maps.adapt(fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		Assert.equal(Maps.adapt(Maps.Put.first, null, fn, fn, emptyMap), null);
 	}
 
 	@Test
 	public void testBiAdapt() {
-		assertMap(Maps.biAdapt(nullBiFn, map));
-		assertMap(Maps.biAdapt(biFn, nullMap));
-		assertMap(Maps.biAdapt(biFn, emptyMap));
-		assertMap(Maps.biAdapt(biFn, map), -1, "A", "B", "B", 1, null);
-		assertMap(Maps.biAdapt(nullBiFn, biFn, map));
-		assertMap(Maps.biAdapt(biFn, nullBiFn, map));
-		assertMap(Maps.biAdapt(biFn, biFn, nullMap));
-		assertMap(Maps.biAdapt(biFn, biFn, emptyMap));
-		assertMap(Maps.biAdapt(biFn, biFn, map), -1, -1, "B", "B", 1, 1);
-		assertEquals(Maps.biAdapt(Maps.Put.first, null, biFn, biFn, emptyMap), null);
+		Assert.map(Maps.biAdapt(nullBiFn, map));
+		Assert.map(Maps.biAdapt(biFn, nullMap));
+		Assert.map(Maps.biAdapt(biFn, emptyMap));
+		Assert.map(Maps.biAdapt(biFn, map), -1, "A", "B", "B", 1, null);
+		Assert.map(Maps.biAdapt(nullBiFn, biFn, map));
+		Assert.map(Maps.biAdapt(biFn, nullBiFn, map));
+		Assert.map(Maps.biAdapt(biFn, biFn, nullMap));
+		Assert.map(Maps.biAdapt(biFn, biFn, emptyMap));
+		Assert.map(Maps.biAdapt(biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		Assert.equal(Maps.biAdapt(Maps.Put.first, null, biFn, biFn, emptyMap), null);
 	}
 
 	@Test
 	public void testInvert() {
-		assertMap(Maps.invert(nullMap));
-		assertMap(Maps.invert(emptyMap));
-		assertMap(Maps.invert(map), "A", -1, "B", null, null, 1);
-		assertEquals(Maps.invert(null, emptyMap), null);
+		Assert.map(Maps.invert(nullMap));
+		Assert.map(Maps.invert(emptyMap));
+		Assert.map(Maps.invert(map), "A", -1, "B", null, null, 1);
+		Assert.equal(Maps.invert(null, emptyMap), null);
 	}
 
 	@Test
 	public void testSort() {
-		assertMap(Maps.sort(null, null));
-		assertOrdered(
+		Assert.map(Maps.sort(null, null));
+		Assert.ordered(
 			Maps.sort(Comparator.comparing(Map.Entry::getValue), Maps.of(1, "C", 2, "A", 3, "B")),
 			2, "A", 3, "B", 1, "C");
 	}
 
 	@Test
 	public void testIsEmpty() {
-		assertEquals(Maps.isEmpty(nullMap), true);
-		assertEquals(Maps.isEmpty(emptyMap), true);
-		assertEquals(Maps.isEmpty(map), false);
+		Assert.equal(Maps.isEmpty(nullMap), true);
+		Assert.equal(Maps.isEmpty(emptyMap), true);
+		Assert.equal(Maps.isEmpty(map), false);
 	}
 
 	@Test
 	public void testNonEmpty() {
-		assertEquals(Maps.nonEmpty(nullMap), false);
-		assertEquals(Maps.nonEmpty(emptyMap), false);
-		assertEquals(Maps.nonEmpty(map), true);
+		Assert.equal(Maps.nonEmpty(nullMap), false);
+		Assert.equal(Maps.nonEmpty(emptyMap), false);
+		Assert.equal(Maps.nonEmpty(map), true);
 	}
 
 	@Test
 	public void testSize() {
-		assertEquals(Maps.size(nullMap), 0);
-		assertEquals(Maps.size(emptyMap), 0);
-		assertEquals(Maps.size(map), 3);
+		Assert.equal(Maps.size(nullMap), 0);
+		Assert.equal(Maps.size(emptyMap), 0);
+		Assert.equal(Maps.size(map), 3);
 	}
 
 	@Test
 	public void testGet() {
-		assertEquals(Maps.get(nullMap, -1), null);
-		assertEquals(Maps.get(emptyMap, -1), null);
-		assertEquals(Maps.get(map, 0), null);
-		assertEquals(Maps.get(map, null), "B");
-		assertEquals(Maps.get(nullMap, -1, ""), "");
-		assertEquals(Maps.get(emptyMap, -1, ""), "");
-		assertEquals(Maps.get(map, 0, ""), "");
-		assertEquals(Maps.get(map, null, ""), "B");
+		Assert.equal(Maps.get(nullMap, -1), null);
+		Assert.equal(Maps.get(emptyMap, -1), null);
+		Assert.equal(Maps.get(map, 0), null);
+		Assert.equal(Maps.get(map, null), "B");
+		Assert.equal(Maps.get(nullMap, -1, ""), "");
+		Assert.equal(Maps.get(emptyMap, -1, ""), "");
+		Assert.equal(Maps.get(map, 0, ""), "");
+		Assert.equal(Maps.get(map, null, ""), "B");
 	}
 
 	@Test
 	public void testFirstKey() {
-		assertEquals(Maps.firstKey(nullMap), null);
-		assertEquals(Maps.firstKey(emptyMap), null);
-		assertEquals(Maps.firstKey(map), null);
-		assertEquals(Maps.firstKey(nullMap, 0), 0);
-		assertEquals(Maps.firstKey(emptyMap, 0), 0);
-		assertEquals(Maps.firstKey(map, 0), null);
+		Assert.equal(Maps.firstKey(nullMap), null);
+		Assert.equal(Maps.firstKey(emptyMap), null);
+		Assert.equal(Maps.firstKey(map), null);
+		Assert.equal(Maps.firstKey(nullMap, 0), 0);
+		Assert.equal(Maps.firstKey(emptyMap, 0), 0);
+		Assert.equal(Maps.firstKey(map, 0), null);
 	}
 
 	@Test
 	public void testLastKey() {
-		assertEquals(Maps.lastKey(nullMap), null);
-		assertEquals(Maps.lastKey(emptyMap), null);
-		assertEquals(Maps.lastKey(map), 1);
-		assertEquals(Maps.lastKey(nullMap, 0), 0);
-		assertEquals(Maps.lastKey(emptyMap, 0), 0);
-		assertEquals(Maps.lastKey(map, 0), 1);
+		Assert.equal(Maps.lastKey(nullMap), null);
+		Assert.equal(Maps.lastKey(emptyMap), null);
+		Assert.equal(Maps.lastKey(map), 1);
+		Assert.equal(Maps.lastKey(nullMap, 0), 0);
+		Assert.equal(Maps.lastKey(emptyMap, 0), 0);
+		Assert.equal(Maps.lastKey(map, 0), 1);
 	}
 
 	@Test
@@ -256,141 +251,142 @@ public class MapsTest {
 
 	@Test
 	public void testRemoveIf() throws Exception {
-		assertEquals(Maps.removeIf(null, (_, _) -> false), null);
-		assertMap(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), null), 1, "C", -1, "B", 0, "A");
-		assertMap(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), (k, _) -> k >= 0), -1, "B");
+		Assert.equal(Maps.removeIf(null, (_, _) -> false), null);
+		Assert.map(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), null), 1, "C", -1, "B", 0, "A");
+		Assert.map(Maps.removeIf(Maps.of(1, "C", -1, "B", 0, "A"), (k, _) -> k >= 0), -1, "B");
 	}
 
 	@Test
 	public void testKeys() {
-		assertStream(Maps.keys(nullBiPr, map));
-		assertStream(Maps.keys(biPr, nullMap));
-		assertStream(Maps.keys(biPr, emptyMap));
-		assertStream(Maps.keys(biPr, map), -1);
+		Assert.stream(Maps.keys(nullBiPr, map));
+		Assert.stream(Maps.keys(biPr, nullMap));
+		Assert.stream(Maps.keys(biPr, emptyMap));
+		Assert.stream(Maps.keys(biPr, map), -1);
 	}
 
 	@Test
 	public void testValues() {
-		assertStream(Maps.values(nullBiPr, map));
-		assertStream(Maps.values(biPr, nullMap));
-		assertStream(Maps.values(biPr, emptyMap));
-		assertStream(Maps.values(biPr, map), "A");
+		Assert.stream(Maps.values(nullBiPr, map));
+		Assert.stream(Maps.values(biPr, nullMap));
+		Assert.stream(Maps.values(biPr, emptyMap));
+		Assert.stream(Maps.values(biPr, map), "A");
 	}
 
 	@Test
 	public void testPut() {
-		assertEquals(Maps.put(nullMap, 1, "A"), null);
-		assertMap(Maps.put(map(1, ""), null, null), 1, "", null, null);
-		assertMap(Maps.put(map(1, ""), 1, "A"), 1, "A");
-		assertEquals(Maps.put(nullMap, map), null);
-		assertMap(Maps.put(map(1, ""), nullMap), 1, "");
-		assertMap(Maps.put(map(1, ""), emptyMap), 1, "");
-		assertMap(Maps.put(map(1, ""), map), -1, "A", null, "B", 1, null);
+		Assert.equal(Maps.put(nullMap, 1, "A"), null);
+		Assert.map(Maps.put(map(1, ""), null, null), 1, "", null, null);
+		Assert.map(Maps.put(map(1, ""), 1, "A"), 1, "A");
+		Assert.equal(Maps.put(nullMap, map), null);
+		Assert.map(Maps.put(map(1, ""), nullMap), 1, "");
+		Assert.map(Maps.put(map(1, ""), emptyMap), 1, "");
+		Assert.map(Maps.put(map(1, ""), map), -1, "A", null, "B", 1, null);
 	}
 
 	@Test
 	public void testPutMethod() {
-		assertEquals(Maps.put(Put.first, nullMap, 1, "A"), null);
-		assertMap(Maps.put(Put.first, map(1, ""), null, null), 1, "", null, null);
-		assertMap(Maps.put(Put.first, map(1, ""), 1, "A"), 1, "");
-		assertEquals(Maps.put(Put.first, nullMap, map), null);
-		assertMap(Maps.put(Put.first, map(1, ""), nullMap), 1, "");
-		assertMap(Maps.put(Put.first, map(1, ""), emptyMap), 1, "");
-		assertMap(Maps.put(Put.first, map(1, ""), map), -1, "A", null, "B", 1, "");
+		Assert.equal(Maps.put(Put.first, nullMap, 1, "A"), null);
+		Assert.map(Maps.put(Put.first, map(1, ""), null, null), 1, "", null, null);
+		Assert.map(Maps.put(Put.first, map(1, ""), 1, "A"), 1, "");
+		Assert.equal(Maps.put(Put.first, nullMap, map), null);
+		Assert.map(Maps.put(Put.first, map(1, ""), nullMap), 1, "");
+		Assert.map(Maps.put(Put.first, map(1, ""), emptyMap), 1, "");
+		Assert.map(Maps.put(Put.first, map(1, ""), map), -1, "A", null, "B", 1, "");
 	}
 
 	@Test
 	public void testMapPut() {
-		assertEquals(Maps.convertPut(null, fn, fn, list), null);
-		assertMap(Maps.convertPut(map(1, ""), nullFn, fn, list), 1, "");
-		assertMap(Maps.convertPut(map(1, ""), fn, nullFn, list), 1, "");
-		assertMap(Maps.convertPut(map(1, ""), fn, fn, nullList), 1, "");
-		assertMap(Maps.convertPut(map(1, ""), fn, fn, emptyList), 1, "");
-		assertMap(Maps.convertPut(map("1", ""), fn, fn, list), "-1", "-1", "null", "null", "1",
+		Assert.equal(Maps.convertPut(null, fn, fn, list), null);
+		Assert.map(Maps.convertPut(map(1, ""), nullFn, fn, list), 1, "");
+		Assert.map(Maps.convertPut(map(1, ""), fn, nullFn, list), 1, "");
+		Assert.map(Maps.convertPut(map(1, ""), fn, fn, nullList), 1, "");
+		Assert.map(Maps.convertPut(map(1, ""), fn, fn, emptyList), 1, "");
+		Assert.map(Maps.convertPut(map("1", ""), fn, fn, list), "-1", "-1", "null", "null", "1",
 			"1");
-		assertMap(Maps.convertPut(map(1, ""), fn, fn, list), "-1", "-1", "null", "null", "1", "1",
+		Assert.map(Maps.convertPut(map(1, ""), fn, fn, list), "-1", "-1", "null", "null", "1", "1",
 			1, "");
 	}
 
 	@Test
 	public void testMapPutMethod() {
-		assertEquals(Maps.convertPut(Put.first, null, fn, fn, list), null);
-		assertMap(Maps.convertPut(Put.first, map(1, ""), nullFn, fn, list), 1, "");
-		assertMap(Maps.convertPut(Put.first, map(1, ""), fn, nullFn, list), 1, "");
-		assertMap(Maps.convertPut(Put.first, map(1, ""), fn, fn, nullList), 1, "");
-		assertMap(Maps.convertPut(Put.first, map(1, ""), fn, fn, emptyList), 1, "");
-		assertMap(Maps.convertPut(Put.first, map("1", ""), fn, fn, list), "-1", "-1", "null",
+		Assert.equal(Maps.convertPut(Put.first, null, fn, fn, list), null);
+		Assert.map(Maps.convertPut(Put.first, map(1, ""), nullFn, fn, list), 1, "");
+		Assert.map(Maps.convertPut(Put.first, map(1, ""), fn, nullFn, list), 1, "");
+		Assert.map(Maps.convertPut(Put.first, map(1, ""), fn, fn, nullList), 1, "");
+		Assert.map(Maps.convertPut(Put.first, map(1, ""), fn, fn, emptyList), 1, "");
+		Assert.map(Maps.convertPut(Put.first, map("1", ""), fn, fn, list), "-1", "-1", "null",
 			"null", "1", "");
-		assertMap(Maps.convertPut(Put.first, map(1, ""), fn, fn, list), "-1", "-1", "null", "null",
+		Assert.map(Maps.convertPut(Put.first, map(1, ""), fn, fn, list), "-1", "-1", "null", "null",
 			"1", "1", 1, "");
 	}
 
 	@Test
 	public void testAdaptPut() {
-		assertEquals(Maps.adaptPut(null, fn, fn, map), null);
-		assertMap(Maps.adaptPut(map(1, ""), nullFn, fn, map), 1, "");
-		assertMap(Maps.adaptPut(map(1, ""), fn, nullFn, map), 1, "");
-		assertMap(Maps.adaptPut(map(1, ""), fn, fn, nullMap), 1, "");
-		assertMap(Maps.adaptPut(map(1, ""), fn, fn, emptyMap), 1, "");
-		assertMap(Maps.adaptPut(map("1", ""), fn, fn, map), "-1", "A", "null", "B", "1", "null");
-		assertMap(Maps.adaptPut(map(1, ""), fn, fn, map), "-1", "A", "null", "B", "1", "null", 1,
+		Assert.equal(Maps.adaptPut(null, fn, fn, map), null);
+		Assert.map(Maps.adaptPut(map(1, ""), nullFn, fn, map), 1, "");
+		Assert.map(Maps.adaptPut(map(1, ""), fn, nullFn, map), 1, "");
+		Assert.map(Maps.adaptPut(map(1, ""), fn, fn, nullMap), 1, "");
+		Assert.map(Maps.adaptPut(map(1, ""), fn, fn, emptyMap), 1, "");
+		Assert.map(Maps.adaptPut(map("1", ""), fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		Assert.map(Maps.adaptPut(map(1, ""), fn, fn, map), "-1", "A", "null", "B", "1", "null", 1,
 			"");
 	}
 
 	@Test
 	public void testAdaptPutMethod() {
-		assertEquals(Maps.adaptPut(Put.first, null, fn, fn, map), null);
-		assertMap(Maps.adaptPut(Put.first, map(1, ""), nullFn, fn, map), 1, "");
-		assertMap(Maps.adaptPut(Put.first, map(1, ""), fn, nullFn, map), 1, "");
-		assertMap(Maps.adaptPut(Put.first, map(1, ""), fn, fn, nullMap), 1, "");
-		assertMap(Maps.adaptPut(Put.first, map(1, ""), fn, fn, emptyMap), 1, "");
-		assertMap(Maps.adaptPut(Put.first, map("1", ""), fn, fn, map), "-1", "A", "null", "B", "1",
+		Assert.equal(Maps.adaptPut(Put.first, null, fn, fn, map), null);
+		Assert.map(Maps.adaptPut(Put.first, map(1, ""), nullFn, fn, map), 1, "");
+		Assert.map(Maps.adaptPut(Put.first, map(1, ""), fn, nullFn, map), 1, "");
+		Assert.map(Maps.adaptPut(Put.first, map(1, ""), fn, fn, nullMap), 1, "");
+		Assert.map(Maps.adaptPut(Put.first, map(1, ""), fn, fn, emptyMap), 1, "");
+		Assert.map(Maps.adaptPut(Put.first, map("1", ""), fn, fn, map), "-1", "A", "null", "B", "1",
 			"");
-		assertMap(Maps.adaptPut(Put.first, map(1, ""), fn, fn, map), "-1", "A", "null", "B", "1",
+		Assert.map(Maps.adaptPut(Put.first, map(1, ""), fn, fn, map), "-1", "A", "null", "B", "1",
 			"null", 1, "");
 	}
 
 	@Test
 	public void testBiAdaptPut() {
-		assertEquals(Maps.biAdaptPut(null, biFn, biFn, map), null);
-		assertMap(Maps.biAdaptPut(map(1, ""), nullBiFn, biFn, map), 1, "");
-		assertMap(Maps.biAdaptPut(map(1, ""), biFn, nullBiFn, map), 1, "");
-		assertMap(Maps.biAdaptPut(map(1, ""), biFn, biFn, nullMap), 1, "");
-		assertMap(Maps.biAdaptPut(map(1, ""), biFn, biFn, emptyMap), 1, "");
-		assertMap(Maps.biAdaptPut(map(1, ""), biFn, biFn, map), -1, -1, "B", "B", 1, 1);
-		assertMap(Maps.biAdaptPut(map("1", ""), biFn, biFn, map), -1, -1, "B", "B", 1, 1, "1", "");
+		Assert.equal(Maps.biAdaptPut(null, biFn, biFn, map), null);
+		Assert.map(Maps.biAdaptPut(map(1, ""), nullBiFn, biFn, map), 1, "");
+		Assert.map(Maps.biAdaptPut(map(1, ""), biFn, nullBiFn, map), 1, "");
+		Assert.map(Maps.biAdaptPut(map(1, ""), biFn, biFn, nullMap), 1, "");
+		Assert.map(Maps.biAdaptPut(map(1, ""), biFn, biFn, emptyMap), 1, "");
+		Assert.map(Maps.biAdaptPut(map(1, ""), biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		Assert.map(Maps.biAdaptPut(map("1", ""), biFn, biFn, map), -1, -1, "B", "B", 1, 1, "1", "");
 	}
 
 	@Test
 	public void testBiAdaptPutMethod() {
-		assertEquals(Maps.biAdaptPut(Put.first, null, biFn, biFn, map), null);
-		assertMap(Maps.biAdaptPut(Put.first, map(1, ""), nullBiFn, biFn, map), 1, "");
-		assertMap(Maps.biAdaptPut(Put.first, map(1, ""), biFn, nullBiFn, map), 1, "");
-		assertMap(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, nullMap), 1, "");
-		assertMap(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, emptyMap), 1, "");
-		assertMap(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, map), -1, -1, "B", "B", 1, "");
-		assertMap(Maps.biAdaptPut(Put.first, map("1", ""), biFn, biFn, map), -1, -1, "B", "B", 1, 1,
-			"1", "");
+		Assert.equal(Maps.biAdaptPut(Put.first, null, biFn, biFn, map), null);
+		Assert.map(Maps.biAdaptPut(Put.first, map(1, ""), nullBiFn, biFn, map), 1, "");
+		Assert.map(Maps.biAdaptPut(Put.first, map(1, ""), biFn, nullBiFn, map), 1, "");
+		Assert.map(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, nullMap), 1, "");
+		Assert.map(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, emptyMap), 1, "");
+		Assert.map(Maps.biAdaptPut(Put.first, map(1, ""), biFn, biFn, map), -1, -1, "B", "B", 1,
+			"");
+		Assert.map(Maps.biAdaptPut(Put.first, map("1", ""), biFn, biFn, map), -1, -1, "B", "B", 1,
+			1, "1", "");
 	}
 
 	@Test
 	public void testConvertPut() {
-		assertEquals(Maps.convertPutAll(null, fn, fn, array()), null);
-		assertMap(Maps.convertPutAll(map("-1", ""), nullFn, fn, array()), "-1", "");
-		assertMap(Maps.convertPutAll(map("-1", ""), fn, nullFn, array()), "-1", "");
-		assertMap(Maps.convertPutAll(map("-1", ""), fn, fn, nullArray), "-1", "");
-		assertMap(Maps.convertPutAll(map("-1", ""), fn, fn, array()), "-1", "-1", "null", "null",
+		Assert.equal(Maps.convertPutAll(null, fn, fn, array()), null);
+		Assert.map(Maps.convertPutAll(map("-1", ""), nullFn, fn, array()), "-1", "");
+		Assert.map(Maps.convertPutAll(map("-1", ""), fn, nullFn, array()), "-1", "");
+		Assert.map(Maps.convertPutAll(map("-1", ""), fn, fn, nullArray), "-1", "");
+		Assert.map(Maps.convertPutAll(map("-1", ""), fn, fn, array()), "-1", "-1", "null", "null",
 			"1", "1");
 	}
 
 	@Test
 	public void testConvertPutMethod() {
-		assertEquals(Maps.convertPutAll(Put.first, null, fn, fn, array()), null);
-		assertMap(Maps.convertPutAll(null, map("-1", ""), nullFn, fn, array()), "-1", "");
-		assertMap(Maps.convertPutAll(Put.first, map("-1", ""), nullFn, fn, array()), "-1", "");
-		assertMap(Maps.convertPutAll(Put.first, map("-1", ""), fn, nullFn, array()), "-1", "");
-		assertMap(Maps.convertPutAll(Put.first, map("-1", ""), fn, fn, nullArray), "-1", "");
-		assertMap(Maps.convertPutAll(Put.first, map("-1", ""), fn, fn, array()), "-1", "", "null",
+		Assert.equal(Maps.convertPutAll(Put.first, null, fn, fn, array()), null);
+		Assert.map(Maps.convertPutAll(null, map("-1", ""), nullFn, fn, array()), "-1", "");
+		Assert.map(Maps.convertPutAll(Put.first, map("-1", ""), nullFn, fn, array()), "-1", "");
+		Assert.map(Maps.convertPutAll(Put.first, map("-1", ""), fn, nullFn, array()), "-1", "");
+		Assert.map(Maps.convertPutAll(Put.first, map("-1", ""), fn, fn, nullArray), "-1", "");
+		Assert.map(Maps.convertPutAll(Put.first, map("-1", ""), fn, fn, array()), "-1", "", "null",
 			"null", "1", "1");
 	}
 

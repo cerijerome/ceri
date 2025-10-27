@@ -1,31 +1,31 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class DeviceModeBehavior {
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertEquals(DeviceMode.enabled(null), false);
-		assertEquals(DeviceMode.enabled(DeviceMode.disabled), false);
-		assertEquals(DeviceMode.enabled(DeviceMode.test), false);
-		assertEquals(DeviceMode.enabled(DeviceMode.enabled), true);
+		Assert.equal(DeviceMode.enabled(null), false);
+		Assert.equal(DeviceMode.enabled(DeviceMode.disabled), false);
+		Assert.equal(DeviceMode.enabled(DeviceMode.test), false);
+		Assert.equal(DeviceMode.enabled(DeviceMode.enabled), true);
 	}
 
 	@Test
 	public void shouldDetermineIfDisabled() {
-		assertEquals(DeviceMode.disabled(null), true);
-		assertEquals(DeviceMode.disabled(DeviceMode.disabled), true);
-		assertEquals(DeviceMode.disabled(DeviceMode.test), false);
-		assertEquals(DeviceMode.disabled(DeviceMode.enabled), false);
+		Assert.equal(DeviceMode.disabled(null), true);
+		Assert.equal(DeviceMode.disabled(DeviceMode.disabled), true);
+		Assert.equal(DeviceMode.disabled(DeviceMode.test), false);
+		Assert.equal(DeviceMode.disabled(DeviceMode.enabled), false);
 	}
 
 	@Test
 	public void shouldGetFromBoolean() {
-		assertEquals(DeviceMode.from(null), DeviceMode.test);
-		assertEquals(DeviceMode.from(true), DeviceMode.enabled);
-		assertEquals(DeviceMode.from(false), DeviceMode.disabled);
+		Assert.equal(DeviceMode.from(null), DeviceMode.test);
+		Assert.equal(DeviceMode.from(true), DeviceMode.enabled);
+		Assert.equal(DeviceMode.from(false), DeviceMode.disabled);
 	}
 
 }

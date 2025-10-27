@@ -1,8 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertBuffer;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.libusb.jna.LibUsb.libusb_descriptor_type.LIBUSB_DT_STRING;
 import java.util.List;
 import org.junit.After;
@@ -50,13 +47,13 @@ public class UsbDeviceHandleBehavior {
 
 	@Test
 	public void shouldConfigureKernelDriver() throws LibUsbException {
-		assertEquals(UsbDeviceHandle.canDetachKernelDriver(), false);
+		Assert.equal(UsbDeviceHandle.canDetachKernelDriver(), false);
 		lib.data.capabilities(libusb_capability.LIBUSB_CAP_SUPPORTS_DETACH_KERNEL_DRIVER.value);
-		assertEquals(UsbDeviceHandle.canDetachKernelDriver(), true);
+		Assert.equal(UsbDeviceHandle.canDetachKernelDriver(), true);
 		handle.attachKernelDriver(1);
-		assertEquals(handle.kernelDriverActive(1), true);
+		Assert.equal(handle.kernelDriverActive(1), true);
 		handle.detachKernelDriver(1);
-		assertEquals(handle.kernelDriverActive(1), false);
+		Assert.equal(handle.kernelDriverActive(1), false);
 		handle.autoDetachKernelDriver(true);
 		handle.autoDetachKernelDriver(false);
 	}
@@ -64,10 +61,10 @@ public class UsbDeviceHandleBehavior {
 	@Test
 	public void shouldConfigureDevice() throws LibUsbException {
 		handle.configuration(2);
-		assertEquals(handle.configuration(), 2);
+		Assert.equal(handle.configuration(), 2);
 		lib.transferIn.autoResponses(ByteProvider.of(0, 'a', 0, 'b', 0, 'c'));
-		assertArray(handle.descriptor(LIBUSB_DT_STRING, 1), 0, 'a', 0, 'b', 0, 'c');
-		assertEquals(handle.stringDescriptor(1, 1), "abc");
+		Assert.array(handle.descriptor(LIBUSB_DT_STRING, 1), 0, 'a', 0, 'b', 0, 'c');
+		Assert.equal(handle.stringDescriptor(1, 1), "abc");
 		handle.claimInterface(2);
 		handle.altSetting(2, 1);
 		handle.releaseInterface(2);
@@ -84,10 +81,10 @@ public class UsbDeviceHandleBehavior {
 			List.of(0x01, 0x11, 0x22, 3, ByteProvider.of(1, 2, 3)));
 		handle.controlTransfer(0x81, 0x11, 0x22, 3, 100);
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
-		assertArray(handle.controlTransfer(0x81, 0x11, 0x22, 3, 3, 100), 5, 6);
+		Assert.array(handle.controlTransfer(0x81, 0x11, 0x22, 3, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
-		assertEquals(handle.controlTransfer(0x81, 0x11, 0x22, 3, buffer, 100), 2);
-		assertBuffer(buffer.flip(), 5, 6, 0);
+		Assert.equal(handle.controlTransfer(0x81, 0x11, 0x22, 3, buffer, 100), 2);
+		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //
 			List.of(0x81, 0x11, 0x22, 3, 0), //
 			List.of(0x81, 0x11, 0x22, 3, 3), //
@@ -102,10 +99,10 @@ public class UsbDeviceHandleBehavior {
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
-		assertArray(handle.bulkTransfer(0x81, 3, 100), 5, 6);
+		Assert.array(handle.bulkTransfer(0x81, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
-		assertEquals(handle.bulkTransfer(0x81, buffer, 100), 2);
-		assertBuffer(buffer.flip(), 5, 6, 0);
+		Assert.equal(handle.bulkTransfer(0x81, buffer, 100), 2);
+		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //
 			List.of(0x81, 3), //
 			List.of(0x81, 3));
@@ -119,13 +116,12 @@ public class UsbDeviceHandleBehavior {
 			List.of(0x01, ByteProvider.of(1, 2, 3)), //
 			List.of(0x01, ByteProvider.of(1, 2, 3)));
 		lib.transferIn.autoResponses(ByteProvider.of(5, 6));
-		assertArray(handle.interruptTransfer(0x81, 3, 100), 5, 6);
+		Assert.array(handle.interruptTransfer(0x81, 3, 100), 5, 6);
 		var buffer = JnaTestUtil.buffer(0, 0, 0);
-		assertEquals(handle.interruptTransfer(0x81, buffer, 100), 2);
-		assertBuffer(buffer.flip(), 5, 6, 0);
+		Assert.equal(handle.interruptTransfer(0x81, buffer, 100), 2);
+		Assert.buffer(buffer.flip(), 5, 6, 0);
 		lib.transferIn.assertValues( //
 			List.of(0x81, 3), //
 			List.of(0x81, 3));
 	}
-
 }

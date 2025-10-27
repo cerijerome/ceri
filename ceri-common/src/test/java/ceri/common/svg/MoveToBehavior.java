@@ -1,9 +1,8 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.geom.Point2d;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class MoveToBehavior {
@@ -16,16 +15,16 @@ public class MoveToBehavior {
 		var ne1 = MoveTo.relative(0, 0);
 		var ne2 = MoveTo.relative(1, 1);
 		TestUtil.exerciseEquals(m, eq0);
-		assertAllNotEqual(m, ne0, ne1, ne2);
+		Assert.notEqualAll(m, ne0, ne1, ne2);
 	}
 
 	@Test
 	public void shouldTranslate() {
 		var m = MoveTo.absolute(1, 1);
-		assertEquals(m.translate(Point2d.ZERO), m);
-		assertEquals(m.translate(Point2d.Y_UNIT), MoveTo.absolute(1, 2));
+		Assert.equal(m.translate(Point2d.ZERO), m);
+		Assert.equal(m.translate(Point2d.Y_UNIT), MoveTo.absolute(1, 2));
 		m = MoveTo.relative(1, 1);
-		assertEquals(m.translate(Point2d.ZERO), m);
-		assertEquals(m.translate(Point2d.Y_UNIT), m);
+		Assert.equal(m.translate(Point2d.ZERO), m);
+		Assert.equal(m.translate(Point2d.Y_UNIT), m);
 	}
 }

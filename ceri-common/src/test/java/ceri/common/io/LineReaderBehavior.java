@@ -1,14 +1,14 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class LineReaderBehavior {
 
 	@Test
 	public void shouldProvideNoOpImplementation() throws IOException {
-		assertEquals(LineReader.NULL.readLine(), "");
-		assertEquals(LineReader.NULL.ready(), false);
+		Assert.equal(LineReader.NULL.readLine(), "");
+		Assert.equal(LineReader.NULL.ready(), false);
 	}
 }

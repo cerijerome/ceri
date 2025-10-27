@@ -5,10 +5,8 @@ import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class XyzBehavior {
@@ -23,7 +21,7 @@ public class XyzBehavior {
 		var ne2 = Xyz.of(1.0, 0.5, 0.9, 0.6);
 		var ne3 = Xyz.of(1.0, 0.5, 0.8, 0.7);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -34,13 +32,13 @@ public class XyzBehavior {
 
 	@Test
 	public void shouldProvideXyzValues() {
-		assertApproxArray(Xyz.from(0).xyzValues(), 0, 0, 0);
-		assertApproxArray(Xyz.from(0x804020).xyzValues(), 0.110, 0.084, 0.024);
+		Assert.approxArray(Xyz.from(0).xyzValues(), 0, 0, 0);
+		Assert.approxArray(Xyz.from(0x804020).xyzValues(), 0.110, 0.084, 0.024);
 	}
 
 	@Test
 	public void shouldConvertToArgb() {
-		assertEquals(Xyz.from(0x12345678).argb(), 0x12345678);
+		Assert.equal(Xyz.from(0x12345678).argb(), 0x12345678);
 	}
 
 	@Test
@@ -60,8 +58,8 @@ public class XyzBehavior {
 
 	@Test
 	public void shouldDeterminePresenceOfAlpha() {
-		assertEquals(Xyz.from(0xff123456).hasAlpha(), false);
-		assertEquals(Xyz.from(0xef123456).hasAlpha(), true);
+		Assert.equal(Xyz.from(0xff123456).hasAlpha(), false);
+		Assert.equal(Xyz.from(0xef123456).hasAlpha(), true);
 	}
 
 	@Test

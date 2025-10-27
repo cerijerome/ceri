@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -674,14 +672,14 @@ public abstract class CallSync<T, R> {
 	 * Asserts the number of calls made since construction/reset.
 	 */
 	public void assertCalls(int calls) {
-		assertEquals(calls(), calls);
+		Assert.equal(calls(), calls);
 	}
 
 	/**
 	 * Asserts that no call was made.
 	 */
 	public void assertNoCall() {
-		assertEquals(callSync.value(), null);
+		Assert.equal(callSync.value(), null);
 	}
 
 	/**
@@ -788,7 +786,7 @@ public abstract class CallSync<T, R> {
 			this.values.clear();
 			return list;
 		});
-		assertOrdered(values, expecteds);
+		Assert.ordered(values, expecteds);
 	}
 
 	/**
@@ -865,12 +863,12 @@ public abstract class CallSync<T, R> {
 	}
 
 	private void assertCallWithAutoResponse(T value) {
-		assertEquals(awaitCallWithAutoResponse(), value);
+		Assert.equal(awaitCallWithAutoResponse(), value);
 	}
 
 	private <E extends Exception> void assertCallWithResponse(T value,
 		Excepts.Function<E, T, R> responseFn) throws E {
-		assertEquals(awaitCallWithResponse(responseFn), value);
+		Assert.equal(awaitCallWithResponse(responseFn), value);
 	}
 
 	private T awaitCall() {

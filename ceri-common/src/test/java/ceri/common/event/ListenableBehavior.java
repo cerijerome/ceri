@@ -1,12 +1,11 @@
 package ceri.common.event;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.Set;
 import org.junit.Test;
 import ceri.common.collect.Sets;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.TestListeners;
 
@@ -31,7 +30,7 @@ public class ListenableBehavior {
 			listeners.accept("test0");
 			try (Enclosure<?> enclosed1 = listeners.enclose(captor)) {
 				listeners.accept("test1");
-				assertTrue(enclosed1.isNoOp());
+				Assert.yes(enclosed1.isNoOp());
 			}
 			listeners.accept("test2");
 		}
@@ -95,7 +94,7 @@ public class ListenableBehavior {
 		listen.listen(consumer);
 		Listenable.safe((Listenable<String>) null).unlisten(consumer);
 		Listenable.safe((Listenable.Indirect<String>) null).listeners().unlisten(consumer);
-		assertEquals(Listenable.safe((Listenable<String>) listen).unlisten(consumer), true);
+		Assert.equal(Listenable.safe((Listenable<String>) listen).unlisten(consumer), true);
 	}
 
 	private static class TestListenable implements Functions.Consumer<String>, Listenable<String> {

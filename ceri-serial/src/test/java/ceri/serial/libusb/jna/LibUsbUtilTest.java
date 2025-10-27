@@ -1,6 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.jna.test.JnaTestUtil;
@@ -12,27 +11,27 @@ public class LibUsbUtilTest {
 	@Test
 	public void testErrorMessage() {
 		Assert.isNull(LibUsbUtil.errorMessage(null));
-		assertEquals(LibUsbUtil.errorMessage(libusb_error.LIBUSB_SUCCESS), "success");
-		assertEquals(LibUsbUtil.errorMessage(libusb_error.LIBUSB_ERROR_INVALID_PARAM),
+		Assert.equal(LibUsbUtil.errorMessage(libusb_error.LIBUSB_SUCCESS), "success");
+		Assert.equal(LibUsbUtil.errorMessage(libusb_error.LIBUSB_ERROR_INVALID_PARAM),
 			"invalid param");
 	}
 
 	@Test
 	public void testStatusError() {
-		assertEquals(LibUsbUtil.statusError(null), libusb_error.LIBUSB_ERROR_IO);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED),
+		Assert.equal(LibUsbUtil.statusError(null), libusb_error.LIBUSB_ERROR_IO);
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_COMPLETED),
 			libusb_error.LIBUSB_SUCCESS);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_ERROR),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_ERROR),
 			libusb_error.LIBUSB_ERROR_IO);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_TIMED_OUT),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_TIMED_OUT),
 			libusb_error.LIBUSB_ERROR_TIMEOUT);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_CANCELLED),
 			libusb_error.LIBUSB_ERROR_INTERRUPTED);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_STALL),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_STALL),
 			libusb_error.LIBUSB_ERROR_BUSY);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_NO_DEVICE),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_NO_DEVICE),
 			libusb_error.LIBUSB_ERROR_NO_DEVICE);
-		assertEquals(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_OVERFLOW),
+		Assert.equal(LibUsbUtil.statusError(libusb_transfer_status.LIBUSB_TRANSFER_OVERFLOW),
 			libusb_error.LIBUSB_ERROR_OVERFLOW);
 	}
 

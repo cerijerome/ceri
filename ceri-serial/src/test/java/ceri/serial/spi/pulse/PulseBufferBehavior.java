@@ -1,9 +1,8 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.nio.ByteBuffer;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.jna.util.JnaUtil;
 
 public class PulseBufferBehavior {
@@ -11,7 +10,7 @@ public class PulseBufferBehavior {
 	@Test
 	public void shouldProvidePulseBitCount() {
 		var buffer = PulseCycle.Std._7_27.cycle.buffer(8);
-		assertEquals(buffer.pulseBits(), 7);
+		Assert.equal(buffer.pulseBits(), 7);
 		buffer.writePulseTo(null);
 	}
 
@@ -23,10 +22,10 @@ public class PulseBufferBehavior {
 		ByteBuffer bb = ByteBuffer.allocate(buffer.storageSize());
 		buffer.writePulseTo(null);
 		buffer.writePulseTo(bb);
-		assertArray(JnaUtil.bytes(bb), //
+		Assert.array(JnaUtil.bytes(bb), //
 			0x83, 0x06, 0x0c, 0x83, 0x06, 0x0f, 0x83, 0x06, 0x0c, 0x83, 0x07, 0x8c, 0x83, 0x06,
 			0x0c, 0x83, 0x07, 0x8f);
-		assertArray(buffer.buffer(), //
+		Assert.array(buffer.buffer(), //
 			0x83, 0x06, 0x0c, 0x83, 0x06, 0x0f, 0x83, 0x06, 0x0c, 0x83, 0x07, 0x8c, 0x83, 0x06,
 			0x0c, 0x83, 0x07, 0x8f);
 	}

@@ -1,12 +1,11 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Memory;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.Mmap.Option;
 import ceri.jna.clib.Mmap.Protection;
 import ceri.jna.clib.Mmap.Visibility;
@@ -34,15 +33,15 @@ public class MmapBehavior {
 		ref.init();
 		mem = new Memory(32);
 		mmap = Mmap.anonymous(Visibility.SHARED, 32).address(mem).options(Option.FIXED).map();
-		assertFind(mmap, "@\\w+\\+20");
+		Assert.find(mmap, "@\\w+\\+20");
 	}
 	
 	@Test
 	public void shouldCalculateLength() throws IOException {
 		var lib = ref.init();
 		lib.pagesize.autoResponses(0x1000);
-		assertEquals(Mmap.length(0x100), 0x1000L);
-		assertEquals(Mmap.length(0x1234), 0x2000L);
+		Assert.equal(Mmap.length(0x100), 0x1000L);
+		Assert.equal(Mmap.length(0x1234), 0x2000L);
 	}
 
 	@Test
@@ -52,7 +51,7 @@ public class MmapBehavior {
 		mmap = Mmap.anonymous(Visibility.SHARED, 32).address(mem).options(Option.FIXED).map();
 		lib.mmap.assertAuto(new MmapArgs(mem, 32L, 0,
 			Visibility.SHARED.value + Option.ANONYMOUS.value + Option.FIXED.value, -1, 0));
-		assertEquals(mmap.address(0), mem);
+		Assert.equal(mmap.address(0), mem);
 	}
 
 	@Test
@@ -71,6 +70,6 @@ public class MmapBehavior {
 		mem = new Memory(16);
 		lib.mmap.autoResponses(new Presult(mem, 0));
 		mmap = Mmap.anonymous(Visibility.SHARED, 16).map();
-		assertEquals(mmap.address(0), mem);
+		Assert.equal(mmap.address(0), mem);
 	}
 }

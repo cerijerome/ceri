@@ -1,9 +1,7 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class MaskBehavior {
@@ -20,73 +18,73 @@ public class MaskBehavior {
 		Mask m7 = Mask.ofInt(13, 0x1ffff000);
 		Mask m8 = Mask.ofInt(12, 0x1fffe000);
 		TestUtil.exerciseEquals(m0, m1, m2, m3);
-		assertAllNotEqual(m0, m4, m5, m6, m7, m8);
+		Assert.notEqualAll(m0, m4, m5, m6, m7, m8);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(Mask.NULL, "0xffffffffffffffff");
-		assertString(Mask.ofInt(0, 0xabcd), "0xabcd");
-		assertString(Mask.ofInt(4, 0xabcd), "0xabcd>>4");
+		Assert.string(Mask.NULL, "0xffffffffffffffff");
+		Assert.string(Mask.ofInt(0, 0xabcd), "0xabcd");
+		Assert.string(Mask.ofInt(4, 0xabcd), "0xabcd>>4");
 	}
 
 	@Test
 	public void shouldProvideNullMask() {
-		assertEquals(Mask.NULL.encode(Long.MAX_VALUE), Long.MAX_VALUE);
-		assertEquals(Mask.NULL.encode(Long.MIN_VALUE), Long.MIN_VALUE);
-		assertEquals(Mask.NULL.encode(-1), -1L);
-		assertEquals(Mask.NULL.encodeInt(Integer.MAX_VALUE), Integer.MAX_VALUE);
-		assertEquals(Mask.NULL.encodeInt(Integer.MIN_VALUE), Integer.MIN_VALUE);
-		assertEquals(Mask.NULL.encodeInt(-1), -1);
-		assertEquals(Mask.NULL.encodeInt(0xffffffffL), -1);
+		Assert.equal(Mask.NULL.encode(Long.MAX_VALUE), Long.MAX_VALUE);
+		Assert.equal(Mask.NULL.encode(Long.MIN_VALUE), Long.MIN_VALUE);
+		Assert.equal(Mask.NULL.encode(-1), -1L);
+		Assert.equal(Mask.NULL.encodeInt(Integer.MAX_VALUE), Integer.MAX_VALUE);
+		Assert.equal(Mask.NULL.encodeInt(Integer.MIN_VALUE), Integer.MIN_VALUE);
+		Assert.equal(Mask.NULL.encodeInt(-1), -1);
+		Assert.equal(Mask.NULL.encodeInt(0xffffffffL), -1);
 	}
 
 	@Test
 	public void shouldEncodeValues() {
-		assertEquals(Mask.ofBits(4, 8).encode(0xabcd), 0xcd0L);
-		assertEquals(Mask.ofBits(4, 8).encodeInt(0xabcd), 0xcd0);
+		Assert.equal(Mask.ofBits(4, 8).encode(0xabcd), 0xcd0L);
+		Assert.equal(Mask.ofBits(4, 8).encodeInt(0xabcd), 0xcd0);
 	}
 
 	@Test
 	public void shouldEncodeWithCurrentValues() {
-		assertEquals(Mask.ofBits(4, 8).encode(0x1234, 0xabcd), 0x1cd4L);
-		assertEquals(Mask.ofBits(4, 8).encodeInt(0x1234, 0xabcd), 0x1cd4);
+		Assert.equal(Mask.ofBits(4, 8).encode(0x1234, 0xabcd), 0x1cd4L);
+		Assert.equal(Mask.ofBits(4, 8).encodeInt(0x1234, 0xabcd), 0x1cd4);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValues() {
-		assertEquals(Mask.ofBits(16, 32).decode(0xff_ffffff00L), 0xffffffL);
-		assertEquals(Mask.ofBits(16, 32).decode(0xff_ff000000L), 0xffff00L);
-		assertEquals(Mask.ofBits(47, 17).decode(-1L), 0x1ffffL);
-		assertEquals(Mask.ofBits(15, 17).decode(-1L), 0x1ffffL);
+		Assert.equal(Mask.ofBits(16, 32).decode(0xff_ffffff00L), 0xffffffL);
+		Assert.equal(Mask.ofBits(16, 32).decode(0xff_ff000000L), 0xffff00L);
+		Assert.equal(Mask.ofBits(47, 17).decode(-1L), 0x1ffffL);
+		Assert.equal(Mask.ofBits(15, 17).decode(-1L), 0x1ffffL);
 	}
 
 	@Test
 	public void shouldDecodeBitShiftMaskValuesAsInt() {
-		assertEquals(Mask.ofBits(16, 32).decodeInt(0xff_ffffff00L), 0xffffff);
-		assertEquals(Mask.ofBits(16, 32).decodeInt(0xff_ff000000L), 0xffff00);
-		assertEquals(Mask.ofBits(47, 17).decodeInt(-1L), 0x1ffff);
-		assertEquals(Mask.ofBits(15, 17).decodeInt(-1L), 0x1ffff);
+		Assert.equal(Mask.ofBits(16, 32).decodeInt(0xff_ffffff00L), 0xffffff);
+		Assert.equal(Mask.ofBits(16, 32).decodeInt(0xff_ff000000L), 0xffff00);
+		Assert.equal(Mask.ofBits(47, 17).decodeInt(-1L), 0x1ffff);
+		Assert.equal(Mask.ofBits(15, 17).decodeInt(-1L), 0x1ffff);
 	}
 
 	@Test
 	public void shouldDecodeMaskedValues() {
-		assertEquals(Mask.of(0, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xff_ffff0000L);
-		assertEquals(Mask.of(16, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xffffffL);
-		assertEquals(Mask.of(47, 0xffff8000_00000000L).decode(-1L), 0x1ffffL);
-		assertEquals(Mask.of(15, 0xffff8000L).decode(-1L), 0x1ffffL);
-		assertEquals(Mask.ofInt(15, 0xffff8000).decode(-1L), 0x1ffffL);
-		assertEquals(Mask.ofInt(4, 0xf0f0).decode(0xeeee), 0xe0eL);
+		Assert.equal(Mask.of(0, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xff_ffff0000L);
+		Assert.equal(Mask.of(16, 0xffff_ffff0000L).decode(0xff_ffffff00L), 0xffffffL);
+		Assert.equal(Mask.of(47, 0xffff8000_00000000L).decode(-1L), 0x1ffffL);
+		Assert.equal(Mask.of(15, 0xffff8000L).decode(-1L), 0x1ffffL);
+		Assert.equal(Mask.ofInt(15, 0xffff8000).decode(-1L), 0x1ffffL);
+		Assert.equal(Mask.ofInt(4, 0xf0f0).decode(0xeeee), 0xe0eL);
 	}
 
 	@Test
 	public void shouldDecodeMaskedValuesAsInt() {
-		assertEquals(Mask.of(0, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffff0000);
-		assertEquals(Mask.of(16, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffffff);
-		assertEquals(Mask.of(47, 0xffff8000_00000000L).decodeInt(-1L), 0x1ffff);
-		assertEquals(Mask.of(15, 0xffff8000L).decodeInt(-1L), 0x1ffff);
-		assertEquals(Mask.ofInt(15, 0xffff8000).decodeInt(-1L), 0x1ffff);
-		assertEquals(Mask.ofInt(4, 0xf0f0).decodeInt(0xeeee), 0xe0e);
+		Assert.equal(Mask.of(0, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffff0000);
+		Assert.equal(Mask.of(16, 0xffff_ffff0000L).decodeInt(0xff_ffffff00L), 0xffffff);
+		Assert.equal(Mask.of(47, 0xffff8000_00000000L).decodeInt(-1L), 0x1ffff);
+		Assert.equal(Mask.of(15, 0xffff8000L).decodeInt(-1L), 0x1ffff);
+		Assert.equal(Mask.ofInt(15, 0xffff8000).decodeInt(-1L), 0x1ffff);
+		Assert.equal(Mask.ofInt(4, 0xf0f0).decodeInt(0xeeee), 0xe0e);
 	}
 
 }

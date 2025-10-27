@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Integer.MIN_VALUE;
 import java.util.Arrays;
@@ -76,7 +75,7 @@ public class IntWriterBehavior {
 		int... ints) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
-		assertArray(holder.ints, ints);
+		Assert.array(holder.ints, ints);
 	}
 
 	/**

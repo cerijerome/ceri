@@ -1,7 +1,5 @@
 package ceri.common.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -10,19 +8,19 @@ public class CounterBehavior {
 	@Test
 	public void shouldIncrementIntCount() {
 		var c = Counter.of(0);
-		assertEquals(c.get(), 0);
-		assertEquals(c.inc(111), 111);
-		assertEquals(c.preInc(-333), 111);
-		assertEquals(c.get(), -222);
+		Assert.equal(c.get(), 0);
+		Assert.equal(c.inc(111), 111);
+		Assert.equal(c.preInc(-333), 111);
+		Assert.equal(c.get(), -222);
 	}
 
 	@Test
 	public void shouldIncrementLongCount() {
 		var c = Counter.of(0L);
-		assertEquals(c.get(), 0L);
-		assertEquals(c.inc(111L), 111L);
-		assertEquals(c.preInc(-333L), 111L);
-		assertEquals(c.get(), -222L);
+		Assert.equal(c.get(), 0L);
+		Assert.equal(c.inc(111L), 111L);
+		Assert.equal(c.preInc(-333L), 111L);
+		Assert.equal(c.get(), -222L);
 	}
 
 	@Test
@@ -43,7 +41,7 @@ public class CounterBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(Counter.of(777), "777");
-		assertString(Counter.of(777L), "777");
+		Assert.string(Counter.of(777), "777");
+		Assert.string(Counter.of(777L), "777");
 	}
 }

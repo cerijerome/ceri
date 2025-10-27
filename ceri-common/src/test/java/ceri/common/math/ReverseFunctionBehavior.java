@@ -1,7 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -16,11 +14,11 @@ public class ReverseFunctionBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sin));
-		assertEquals(f0, ReverseFunction.builder().add(f0.values).build());
-		assertNotEquals(f0, ReverseFunction.from(0.1, Math.PI / 2, 100, Math::sin));
-		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 1.9, 100, Math::sin));
-		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 2, 101, Math::sin));
-		assertNotEquals(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sinh));
+		Assert.equal(f0, ReverseFunction.builder().add(f0.values).build());
+		Assert.notEqual(f0, ReverseFunction.from(0.1, Math.PI / 2, 100, Math::sin));
+		Assert.notEqual(f0, ReverseFunction.from(0, Math.PI / 1.9, 100, Math::sin));
+		Assert.notEqual(f0, ReverseFunction.from(0, Math.PI / 2, 101, Math::sin));
+		Assert.notEqual(f0, ReverseFunction.from(0, Math.PI / 2, 100, Math::sinh));
 	}
 
 	@Test

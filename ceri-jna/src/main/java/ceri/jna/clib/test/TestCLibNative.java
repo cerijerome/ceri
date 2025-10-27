@@ -1,6 +1,5 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.Assert.assertTrue;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import ceri.common.data.ByteUtil;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.common.text.Strings;
@@ -120,7 +120,7 @@ public class TestCLibNative implements CLib.Native {
 	 */
 	public record SignalArgs(int signal, Object handler) {
 		public SignalArgs {
-			assertTrue(handler instanceof CSignal.sighandler_t || handler instanceof Pointer);
+			Assert.yes(handler instanceof CSignal.sighandler_t || handler instanceof Pointer);
 		}
 	}
 

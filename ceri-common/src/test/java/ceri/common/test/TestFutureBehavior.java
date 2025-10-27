@@ -1,10 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.throwable;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -18,13 +13,13 @@ public class TestFutureBehavior {
 	public void shouldRunFuture() {
 		var future = TestFuture.of();
 		future.run();
-		assertTrue(future.isDone());
+		Assert.yes(future.isDone());
 	}
 
 	@Test
 	public void shouldGetResult() throws InterruptedException, ExecutionException {
 		var future = TestFuture.of("test");
-		assertEquals(future.get(), "test");
+		Assert.equal(future.get(), "test");
 		future.get.assertAuto(Timeout.NULL);
 	}
 
@@ -32,26 +27,25 @@ public class TestFutureBehavior {
 	public void shouldGetTimeoutResult()
 		throws InterruptedException, ExecutionException, TimeoutException {
 		var future = TestFuture.of("test");
-		assertEquals(future.get(1, TimeUnit.MILLISECONDS), "test");
+		Assert.equal(future.get(1, TimeUnit.MILLISECONDS), "test");
 		future.get.assertAuto(Timeout.millis(1));
 	}
 
 	@Test
 	public void shouldGetWithException() {
 		var future = TestFuture.of("test");
-		future.get.error.setFrom(IOX);
-		Throwable t = thrown(() -> future.get());
-		throwable(t, ExecutionException.class);
-		throwable(t.getCause(), IOException.class);
+		future.get.error.setFrom(ErrorGen.IOX);
+		var t = TestUtil.thrown(() -> future.get());
+		Assert.throwable(t, ExecutionException.class);
+		Assert.throwable(t.getCause(), IOException.class);
 	}
 
 	@Test
 	public void shouldGetTimeoutWithException() {
 		var future = TestFuture.of("test");
-		future.get.error.setFrom(IOX);
-		Throwable t = thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
-		throwable(t, ExecutionException.class);
-		throwable(t.getCause(), IOException.class);
+		future.get.error.setFrom(ErrorGen.IOX);
+		var t = TestUtil.thrown(() -> future.get(1, TimeUnit.MILLISECONDS));
+		Assert.throwable(t, ExecutionException.class);
+		Assert.throwable(t.getCause(), IOException.class);
 	}
-
 }

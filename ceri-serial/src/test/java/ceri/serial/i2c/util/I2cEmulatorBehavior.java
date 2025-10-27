@@ -1,7 +1,5 @@
 package ceri.serial.i2c.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.serial.i2c.util.I2cUtil.SOFTWARE_RESET;
@@ -70,7 +68,7 @@ public class I2cEmulatorBehavior {
 		Assert.thrown(() -> i2c.deviceId(badAddress));
 		DeviceId id = DeviceId.of(8, 7, 2);
 		dev.deviceId.autoResponses(id);
-		assertEquals(i2c.deviceId(address), id);
+		Assert.equal(i2c.deviceId(address), id);
 	}
 
 	@Test
@@ -98,8 +96,8 @@ public class I2cEmulatorBehavior {
 	public void shouldProvideDefaultDevice() throws IOException {
 		init(address);
 		i2c.writeData(address, 1, 2, 3);
-		assertArray(i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3), 0, 0, 0);
-		assertEquals(i2c.deviceId(address), DeviceId.NONE);
+		Assert.array(i2c.readData(address, ArrayUtil.bytes.of(1, 2, 3), 3), 0, 0, 0);
+		Assert.equal(i2c.deviceId(address), DeviceId.NONE);
 		i2c.softwareReset();
 		i2c.remove(dev.address);
 	}

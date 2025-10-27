@@ -1,15 +1,12 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.jna.test.JnaTestUtil.assertRef;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CIoctl;
@@ -30,14 +27,14 @@ public class SerialPortBehavior {
 
 	@Test
 	public void testIsFatal() {
-		assertFalse(SerialPort.isFatal(null));
-		assertFalse(SerialPort.isFatal(new IOException()));
-		assertFalse(SerialPort.isFatal(CException.general("test")));
-		assertTrue(SerialPort.isFatal(ErrNo.ENOENT.error("test")));
-		assertTrue(SerialPort.isFatal(ErrNo.ENXIO.error("test")));
-		assertTrue(SerialPort.isFatal(ErrNo.EBADF.error("test")));
-		assertTrue(SerialPort.isFatal(ErrNo.EACCES.error("test")));
-		assertTrue(SerialPort.isFatal(ErrNo.ENODEV.error("test")));
+		Assert.no(SerialPort.isFatal(null));
+		Assert.no(SerialPort.isFatal(new IOException()));
+		Assert.no(SerialPort.isFatal(CException.general("test")));
+		Assert.yes(SerialPort.isFatal(ErrNo.ENOENT.error("test")));
+		Assert.yes(SerialPort.isFatal(ErrNo.ENXIO.error("test")));
+		Assert.yes(SerialPort.isFatal(ErrNo.EBADF.error("test")));
+		Assert.yes(SerialPort.isFatal(ErrNo.EACCES.error("test")));
+		Assert.yes(SerialPort.isFatal(ErrNo.ENODEV.error("test")));
 	}
 
 	@Test
@@ -48,17 +45,17 @@ public class SerialPortBehavior {
 		serial.flowControls(FlowControl.xonXoffIn);
 		serial.inBufferSize(111);
 		serial.outBufferSize(222);
-		assertEquals(serial.params(), params);
-		assertUnordered(serial.flowControl(), FlowControl.xonXoffIn);
-		assertEquals(serial.inBufferSize(), 111);
-		assertEquals(serial.outBufferSize(), 222);
+		Assert.equal(serial.params(), params);
+		Assert.unordered(serial.flowControl(), FlowControl.xonXoffIn);
+		Assert.equal(serial.inBufferSize(), 111);
+		Assert.equal(serial.outBufferSize(), 222);
 	}
 
 	@Test
 	public void shouldSetSerialState() throws IOException {
 		var lib = initSerial();
 		serial.brk(true);
-		assertEquals(lib.ioctl.awaitAuto(), CtlArgs.of(lib.lastFd(), CIoctl.TIOCSBRK));
+		Assert.equal(lib.ioctl.awaitAuto(), CtlArgs.of(lib.lastFd(), CIoctl.TIOCSBRK));
 		serial.rts(false);
 		assertIoctlIntRef(lib.lastFd(), CIoctl.TIOCMBIC, CIoctl.TIOCM_RTS);
 		serial.dtr(true);
@@ -69,19 +66,19 @@ public class SerialPortBehavior {
 	public void shouldGetSerialState() throws IOException {
 		initSerial();
 		ioctlAutoIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD | CIoctl.TIOCM_DSR);
-		assertEquals(serial.rts(), true);
-		assertEquals(serial.dtr(), false);
-		assertEquals(serial.cd(), true);
-		assertEquals(serial.cts(), false);
-		assertEquals(serial.dsr(), true);
-		assertEquals(serial.ri(), false);
+		Assert.equal(serial.rts(), true);
+		Assert.equal(serial.dtr(), false);
+		Assert.equal(serial.cd(), true);
+		Assert.equal(serial.cts(), false);
+		Assert.equal(serial.dsr(), true);
+		Assert.equal(serial.ri(), false);
 		ioctlAutoIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_CTS | CIoctl.TIOCM_RI);
-		assertEquals(serial.rts(), false);
-		assertEquals(serial.dtr(), true);
-		assertEquals(serial.cd(), false);
-		assertEquals(serial.cts(), true);
-		assertEquals(serial.dsr(), false);
-		assertEquals(serial.ri(), true);
+		Assert.equal(serial.rts(), false);
+		Assert.equal(serial.dtr(), true);
+		Assert.equal(serial.cd(), false);
+		Assert.equal(serial.cts(), true);
+		Assert.equal(serial.dsr(), false);
+		Assert.equal(serial.ri(), true);
 	}
 
 	@SuppressWarnings("resource")
@@ -106,8 +103,8 @@ public class SerialPortBehavior {
 
 	private void assertIoctlIntRef(int fd, int request, int value) {
 		var args = ref.lib().ioctl.awaitAuto();
-		assertEquals(args.fd(), fd);
-		assertEquals(args.request(), request);
+		Assert.equal(args.fd(), fd);
+		Assert.equal(args.request(), request);
 		assertRef(args.arg(0), value);
 	}
 }

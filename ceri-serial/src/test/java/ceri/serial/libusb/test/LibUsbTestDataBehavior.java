@@ -1,7 +1,5 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import org.junit.After;
 import org.junit.Test;
@@ -27,7 +25,7 @@ public class LibUsbTestDataBehavior {
 
 	@Test
 	public void testUtil() {
-		assertPrivateConstructor(Util.class);
+		Assert.privateConstructor(Util.class);
 		Util.device(dc -> {
 			Util.configDescriptors(dc);
 			Util.configDescriptors(dc, cd -> {
@@ -48,7 +46,7 @@ public class LibUsbTestDataBehavior {
 		initLib();
 		LibUsbSampleData.populate(lib.data);
 		var list = LibUsb.libusb_get_device_list(null);
-		assertEquals(list.count(), 8);
+		Assert.equal(list.count(), 8);
 	}
 
 	@Test
@@ -89,8 +87,8 @@ public class LibUsbTestDataBehavior {
 		lib.data.addConfig(kb, hub);
 		var list0 = LibUsb.libusb_get_device_list(null);
 		var list1 = LibUsb.libusb_get_device_list(null);
-		assertEquals(LibUsb.libusb_get_parent(list0.get(0)), list0.get(1));
-		assertEquals(LibUsb.libusb_get_parent(list1.get(0)), list1.get(1));
+		Assert.equal(LibUsb.libusb_get_parent(list0.get(0)), list0.get(1));
+		Assert.equal(LibUsb.libusb_get_parent(list1.get(0)), list1.get(1));
 	}
 
 	@Test
@@ -119,12 +117,12 @@ public class LibUsbTestDataBehavior {
 	}
 
 	private static void assertVersion(libusb_version version, String desc, String rc, int... ns) {
-		assertEquals(version.describe, desc);
-		assertEquals(version.rc, rc);
-		assertEquals(version.major, (short) ns[0]);
-		assertEquals(version.minor, (short) ns[1]);
-		assertEquals(version.micro, (short) ns[2]);
-		assertEquals(version.nano, (short) ns[3]);
+		Assert.equal(version.describe, desc);
+		Assert.equal(version.rc, rc);
+		Assert.equal(version.major, (short) ns[0]);
+		Assert.equal(version.minor, (short) ns[1]);
+		Assert.equal(version.micro, (short) ns[2]);
+		Assert.equal(version.nano, (short) ns[3]);
 	}
 
 	private void registerLib() {

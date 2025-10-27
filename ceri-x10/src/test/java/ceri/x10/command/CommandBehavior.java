@@ -1,9 +1,5 @@
 package ceri.x10.command;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +40,7 @@ public class CommandBehavior {
 	@Test
 	public void shouldProvideCommandConsumer() throws InterruptedException {
 		listener.asConsumer().accept(off);
-		assertEquals(sync.await(), off);
+		Assert.equal(sync.await(), off);
 	}
 
 	@Test
@@ -56,49 +52,49 @@ public class CommandBehavior {
 	@Test
 	public void shouldDispatchAllUnitsOff() throws InterruptedException {
 		Command.Listener.dispatcher(allUnitsOff).accept(listener);
-		assertEquals(sync.await(), allUnitsOff);
+		Assert.equal(sync.await(), allUnitsOff);
 	}
 
 	@Test
 	public void shouldDispatchAllLightsOff() throws InterruptedException {
 		Command.Listener.dispatcher(allLightsOff).accept(listener);
-		assertEquals(sync.await(), allLightsOff);
+		Assert.equal(sync.await(), allLightsOff);
 	}
 
 	@Test
 	public void shouldDispatchAllLightsOn() throws InterruptedException {
 		Command.Listener.dispatcher(allLightsOn).accept(listener);
-		assertEquals(sync.await(), allLightsOn);
+		Assert.equal(sync.await(), allLightsOn);
 	}
 
 	@Test
 	public void shouldDispatchOff() throws InterruptedException {
 		Command.Listener.dispatcher(off).accept(listener);
-		assertEquals(sync.await(), off);
+		Assert.equal(sync.await(), off);
 	}
 
 	@Test
 	public void shouldDispatchOn() throws InterruptedException {
 		Command.Listener.dispatcher(on).accept(listener);
-		assertEquals(sync.await(), on);
+		Assert.equal(sync.await(), on);
 	}
 
 	@Test
 	public void shouldDispatchDim() throws InterruptedException {
 		Command.Listener.dispatcher(dim).accept(listener);
-		assertEquals(sync.await(), dim);
+		Assert.equal(sync.await(), dim);
 	}
 
 	@Test
 	public void shouldDispatchBright() throws InterruptedException {
 		Command.Listener.dispatcher(bright).accept(listener);
-		assertEquals(sync.await(), bright);
+		Assert.equal(sync.await(), bright);
 	}
 
 	@Test
 	public void shouldDispatchExt() throws InterruptedException {
 		Command.Listener.dispatcher(ext).accept(listener);
-		assertEquals(sync.await(), ext);
+		Assert.equal(sync.await(), ext);
 	}
 
 	@Test
@@ -113,20 +109,20 @@ public class CommandBehavior {
 		Command ne5 = Command.ext(House.O, 10, 20, (Collection<Unit>) null);
 		Command ne6 = Command.bright(House.O, 10, Unit._11, Unit._12);
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 
 	@Test
 	public void shouldCreateFromString() {
-		assertEquals(Command.from("A[1,2]:on"), Command.on(House.A, Unit._1, Unit._2));
-		assertEquals(Command.from("B[]:on"), Command.on(House.B));
-		assertEquals(Command.from("C[ ]:off"), Command.off(House.C));
-		assertEquals(Command.from("D:on"), Command.on(House.D));
-		assertEquals(Command.from("E[8]:bright:50"), Command.bright(House.E, 50, Unit._8));
-		assertEquals(Command.from("F:allLightsOn"), Command.allLightsOn(House.F));
-		assertEquals(Command.from("G:allLightsOff"), Command.allLightsOff(House.G));
-		assertEquals(Command.from("H:allUnitsOff"), Command.allUnitsOff(House.H));
-		assertEquals(Command.from("I[3,4]:ext:100:200"),
+		Assert.equal(Command.from("A[1,2]:on"), Command.on(House.A, Unit._1, Unit._2));
+		Assert.equal(Command.from("B[]:on"), Command.on(House.B));
+		Assert.equal(Command.from("C[ ]:off"), Command.off(House.C));
+		Assert.equal(Command.from("D:on"), Command.on(House.D));
+		Assert.equal(Command.from("E[8]:bright:50"), Command.bright(House.E, 50, Unit._8));
+		Assert.equal(Command.from("F:allLightsOn"), Command.allLightsOn(House.F));
+		Assert.equal(Command.from("G:allLightsOff"), Command.allLightsOff(House.G));
+		Assert.equal(Command.from("H:allUnitsOff"), Command.allUnitsOff(House.H));
+		Assert.equal(Command.from("I[3,4]:ext:100:200"),
 			Command.ext(House.I, 100, 200, Unit._3, Unit._4));
 	}
 
@@ -146,15 +142,15 @@ public class CommandBehavior {
 
 	@Test
 	public void shouldDetermineIfNoOpCommand() {
-		assertFalse(Command.allLightsOn(House.H).isNoOp());
-		assertTrue(Command.on(House.H).isNoOp());
-		assertTrue(Command.dim(House.H, 0, Unit._1).isNoOp());
+		Assert.no(Command.allLightsOn(House.H).isNoOp());
+		Assert.yes(Command.on(House.H).isNoOp());
+		Assert.yes(Command.dim(House.H, 0, Unit._1).isNoOp());
 	}
 
 	@Test
 	public void shouldCheckFunctionGroup() {
-		assertTrue(Command.on(House.H, Unit._1).isGroup(FunctionGroup.unit));
-		assertFalse(Command.on(House.H, Unit._1).isGroup(FunctionGroup.house));
+		Assert.yes(Command.on(House.H, Unit._1).isGroup(FunctionGroup.unit));
+		Assert.no(Command.on(House.H, Unit._1).isGroup(FunctionGroup.house));
 	}
 
 	private static Command.Listener listener(ValueCondition<Command> sync) {

@@ -1,12 +1,9 @@
 package ceri.common.event;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.collect.Lists;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 
 public class ListenersBehavior {
 
@@ -16,22 +13,22 @@ public class ListenersBehavior {
 		Functions.Consumer<String> l0 = s -> b.append(s.charAt(0));
 		Functions.Consumer<String> l1 = s -> b.append(s.charAt(1));
 		Listeners<String> ls = Listeners.of();
-		assertTrue(ls.isEmpty());
+		Assert.yes(ls.isEmpty());
 		ls.listen(l0);
 		ls.listen(l0);
 		ls.listen(l1);
-		assertEquals(ls.size(), 3); // listeners stored in list, not set
+		Assert.equal(ls.size(), 3); // listeners stored in list, not set
 		ls.accept("ab");
-		assertEquals(b.toString(), "aab");
+		Assert.equal(b.toString(), "aab");
 		ls.unlisten(l0);
 		ls.accept("cd");
-		assertEquals(b.toString(), "aabcd");
+		Assert.equal(b.toString(), "aabcd");
 		ls.unlisten(l1);
 		ls.accept("ef");
-		assertEquals(b.toString(), "aabcde");
+		Assert.equal(b.toString(), "aabcde");
 		ls.unlisten(l0);
 		ls.accept("gh");
-		assertEquals(b.toString(), "aabcde");
+		Assert.equal(b.toString(), "aabcde");
 	}
 
 	@Test
@@ -43,10 +40,10 @@ public class ListenersBehavior {
 		ls.listen(l0);
 		ls.listen(l1);
 		ls.accept("ab");
-		assertEquals(b.toString(), "ab");
+		Assert.equal(b.toString(), "ab");
 		ls.clear();
 		ls.accept("cd");
-		assertEquals(b.toString(), "ab");
+		Assert.equal(b.toString(), "ab");
 	}
 
 	@Test
@@ -54,18 +51,18 @@ public class ListenersBehavior {
 		var ls = Listeners.<String>of();
 		Functions.Consumer<String> l0 = _ -> {};
 		Functions.Consumer<String> l1 = _ -> {};
-		assertTrue(ls.listen(l0));
-		assertTrue(ls.listen(l0));
-		assertTrue(ls.listen(l1));
-		assertTrue(ls.listen(l1));
-		assertTrue(ls.listen(l0));
-		assertTrue(ls.unlisten(l0));
-		assertTrue(ls.unlisten(l0));
-		assertTrue(ls.unlisten(l0));
-		assertFalse(ls.unlisten(l0));
-		assertTrue(ls.unlisten(l1));
-		assertTrue(ls.unlisten(l1));
-		assertFalse(ls.unlisten(l1));
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.listen(l1));
+		Assert.yes(ls.listen(l1));
+		Assert.yes(ls.listen(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l0));
+		Assert.no(ls.unlisten(l0));
+		Assert.yes(ls.unlisten(l1));
+		Assert.yes(ls.unlisten(l1));
+		Assert.no(ls.unlisten(l1));
 	}
 
 	@Test
@@ -74,6 +71,6 @@ public class ListenersBehavior {
 		var listeners = Listeners.<String>of();
 		listeners.listen(events::add);
 		listeners.acceptAll("abc", "de", "f");
-		assertOrdered(events, "abc", "de", "f");
+		Assert.ordered(events, "abc", "de", "f");
 	}
 }

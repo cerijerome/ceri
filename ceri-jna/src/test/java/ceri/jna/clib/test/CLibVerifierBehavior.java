@@ -1,11 +1,10 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.SystemIoCaptor;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.jna.CTermios;
@@ -24,7 +23,7 @@ public class CLibVerifierBehavior {
 	public void shouldVerifyAll() throws IOException {
 		try (var sys = SystemIoCaptor.of()) {
 			CLibVerifier.main(new String[] {});
-			assertFind(sys.out, "skipping CTermios");
+			Assert.find(sys.out, "skipping CTermios");
 		}
 	}
 
@@ -69,7 +68,7 @@ public class CLibVerifierBehavior {
 	public void shouldFailToVerifyBadSerial() throws IOException {
 		var lib = ref.init();
 		lib.open.error.setFrom(ErrNo.ENOENT::lastError);
-		assertFalse(CLibVerifier.verifyTermios("serial"));
+		Assert.no(CLibVerifier.verifyTermios("serial"));
 	}
 
 	@Test

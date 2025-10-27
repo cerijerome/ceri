@@ -1,8 +1,6 @@
 package ceri.common.test;
 
 import static ceri.common.data.ByteUtil.toAscii;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.net.HostPort;
@@ -15,7 +13,7 @@ public class TestSocketBehavior {
 		try (var socket = TestSocket.of()) {
 			socket.connect("test", 123);
 			socket.remote.assertAuto(HostPort.of("test", 123));
-			assertEquals(socket.getPort(), 123);
+			Assert.equal(socket.getPort(), 123);
 		}
 	}
 
@@ -23,7 +21,7 @@ public class TestSocketBehavior {
 	public void shouldProvideLocalPort() throws IOException {
 		try (var socket = TestSocket.of()) {
 			socket.localPort.autoResponses(456);
-			assertEquals(socket.getLocalPort(), 456);
+			Assert.equal(socket.getLocalPort(), 456);
 		}
 	}
 
@@ -32,7 +30,7 @@ public class TestSocketBehavior {
 	public void shouldProvideInputStream() throws IOException {
 		try (var socket = TestSocket.of()) {
 			socket.in.to.writeAscii("test");
-			assertRead(socket.getInputStream(), toAscii("test"));
+			Assert.read(socket.getInputStream(), toAscii("test"));
 		}
 	}
 
@@ -41,7 +39,7 @@ public class TestSocketBehavior {
 	public void shouldProvideOutputStream() throws IOException {
 		try (var socket = TestSocket.of()) {
 			socket.getOutputStream().write(toAscii("test").copy(0));
-			assertRead(socket.out.from, toAscii("test"));
+			Assert.read(socket.out.from, toAscii("test"));
 		}
 	}
 }

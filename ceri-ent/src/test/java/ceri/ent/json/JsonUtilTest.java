@@ -1,10 +1,10 @@
 package ceri.ent.json;
 
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.resource;
 import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import ceri.common.test.Assert;
 
 public class JsonUtilTest {
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -13,11 +13,11 @@ public class JsonUtilTest {
 
 	@Test
 	public void testExtract() {
-		assertEquals(JsonUtil.extract(OBJ1, "glossary.title"), "example glossary");
-		assertEquals(JsonUtil.extract(OBJ1,
+		Assert.equal(JsonUtil.extract(OBJ1, "glossary.title"), "example glossary");
+		Assert.equal(JsonUtil.extract(OBJ1,
 			"glossary.GlossDiv.GlossList.GlossEntry.GlossDef.GlossSeeAlso.1"), "XML");
-		assertEquals(JsonUtil.extract(OBJ2, "cars.2.models.0"), "500");
-		assertEquals(JsonUtil.extractInt(OBJ2, "cars.2.models.0"), 500);
+		Assert.equal(JsonUtil.extract(OBJ2, "cars.2.models.0"), "500");
+		Assert.equal(JsonUtil.extractInt(OBJ2, "cars.2.models.0"), 500);
 	}
 
 }

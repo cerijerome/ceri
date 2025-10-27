@@ -1,17 +1,11 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.throwIo;
-import static ceri.common.test.Assert.throwRuntime;
-import static ceri.common.test.Assert.thrown;
-import static ceri.common.test.TestUtil.runRepeat;
-import static java.util.concurrent.TimeUnit.MICROSECONDS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
+import ceri.common.test.TestUtil;
 
 public class TaskQueueBehavior {
 
@@ -19,18 +13,18 @@ public class TaskQueueBehavior {
 	public void shouldProcessTasks() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(10);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = runRepeat(queue::processNext)) {
+		try (var _ = TestUtil.runRepeat(queue::processNext)) {
 			queue.execute(() -> {});
-			queue.execute(() -> {}, 1000, MILLISECONDS);
-			assertEquals(queue.executeGet(() -> "test"), "test");
-			assertEquals(queue.executeGet(() -> "test", 1000, MILLISECONDS), "test");
+			queue.execute(() -> {}, 1000, TimeUnit.MILLISECONDS);
+			Assert.equal(queue.executeGet(() -> "test"), "test");
+			Assert.equal(queue.executeGet(() -> "test", 1000, TimeUnit.MILLISECONDS), "test");
 		}
 	}
 
 	@Test
 	public void shouldReturnFalseOnQueueTimeout() throws Exception {
 		TaskQueue<?> queue = TaskQueue.of(10);
-		assertFalse(queue.processNext(1, MICROSECONDS));
+		Assert.no(queue.processNext(1, TimeUnit.MICROSECONDS));
 	}
 
 	@Test
@@ -39,15 +33,15 @@ public class TaskQueueBehavior {
 		Assert.isNull(queue.executeGet(() -> {
 			Concurrent.delay(100000);
 			return 0;
-		}, 1, MICROSECONDS));
+		}, 1, TimeUnit.MICROSECONDS));
 	}
 
 	@Test
 	public void shouldThrowTypedExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = SimpleExecutor.run(() -> thrown(() -> queue.processNext()))) {
-			Assert.thrown(() -> queue.execute(() -> throwIo()));
+		try (var _ = SimpleExecutor.run(() -> Assert.thrown(() -> queue.processNext()))) {
+			Assert.thrown(() -> queue.execute(() -> Assert.throwIo()));
 		}
 	}
 
@@ -55,8 +49,8 @@ public class TaskQueueBehavior {
 	public void shouldThrowRuntimeExceptionInBothThreads() {
 		TaskQueue<IOException> queue = TaskQueue.of(1);
 		// Start 2 threads and wait for one to generate an error
-		try (var _ = SimpleExecutor.run(() -> thrown(() -> queue.processNext()))) {
-			Assert.thrown(() -> queue.executeGet(() -> throwRuntime()));
+		try (var _ = SimpleExecutor.run(() -> Assert.thrown(() -> queue.processNext()))) {
+			Assert.thrown(() -> queue.executeGet(() -> Assert.throwRuntime()));
 		}
 	}
 
@@ -72,7 +66,7 @@ public class TaskQueueBehavior {
 		}
 	}
 
-	private Runnable<?> task(TaskQueue<?> queue, BoolCondition error) {
+	private Excepts.Runnable<?> task(TaskQueue<?> queue, BoolCondition error) {
 		return () -> {
 			try {
 				queue.execute(() -> Concurrent.delay(100000));
@@ -81,5 +75,4 @@ public class TaskQueueBehavior {
 			}
 		};
 	}
-
 }

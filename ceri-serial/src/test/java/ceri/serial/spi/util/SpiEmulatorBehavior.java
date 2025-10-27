@@ -1,12 +1,11 @@
 package ceri.serial.spi.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
 import ceri.common.io.StringPrintStream;
+import ceri.common.test.Assert;
 import ceri.serial.spi.Spi;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.pulse.PulseBuffer;
@@ -21,10 +20,10 @@ public class SpiEmulatorBehavior {
 		spi.lsbFirst(true);
 		spi.bitsPerWord(9);
 		spi.maxSpeedHz(10000);
-		assertEquals(spi.mode(), SpiMode.MODE_1);
-		assertEquals(spi.lsbFirst(), true);
-		assertEquals(spi.bitsPerWord(), 9);
-		assertEquals(spi.maxSpeedHz(), 10000);
+		Assert.equal(spi.mode(), SpiMode.MODE_1);
+		Assert.equal(spi.lsbFirst(), true);
+		Assert.equal(spi.bitsPerWord(), 9);
+		Assert.equal(spi.maxSpeedHz(), 10000);
 	}
 
 	@Test
@@ -33,7 +32,7 @@ public class SpiEmulatorBehavior {
 		var xfer = spi.transfer(Direction.out, 5);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
-		assertArray(xfer.read());
+		Assert.array(xfer.read());
 	}
 
 	@Test
@@ -42,7 +41,7 @@ public class SpiEmulatorBehavior {
 		var xfer = spi.transfer(Direction.in, 5);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5)); // ignored
 		xfer.execute();
-		assertArray(xfer.read(), 0, 0, 0, 0, 0);
+		Assert.array(xfer.read(), 0, 0, 0, 0, 0);
 	}
 
 	@Test
@@ -51,7 +50,7 @@ public class SpiEmulatorBehavior {
 		var xfer = spi.transfer(Direction.duplex, 5);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		xfer.execute();
-		assertArray(xfer.read(), 1, 2, 3, 4, 5);
+		Assert.array(xfer.read(), 1, 2, 3, 4, 5);
 	}
 
 	@Test
@@ -60,7 +59,7 @@ public class SpiEmulatorBehavior {
 		var xfer = spi.transfer(Direction.duplex, 3).speedHz(25000000);
 		xfer.write(ArrayUtil.bytes.of(1, 2, 3));
 		xfer.execute(); // < 1us
-		assertArray(xfer.read(), 1, 2, 3);
+		Assert.array(xfer.read(), 1, 2, 3);
 	}
 
 	@Test
@@ -70,7 +69,7 @@ public class SpiEmulatorBehavior {
 			var buffer = config.buffer();
 			var spi = SpiEmulator.pulsePrinter(out, config.cycle()).delay(false);
 			sendPulses(spi, buffer, 0x85, 0xf3);
-			assertEquals(compactPulse(out.toString()), "10000101 11110011");
+			Assert.equal(compactPulse(out.toString()), "10000101 11110011");
 		}
 	}
 
@@ -80,7 +79,7 @@ public class SpiEmulatorBehavior {
 			var buffer = SpiPulseConfig.of(2).buffer();
 			var spi = SpiEmulator.pulsePrinter(out).delay(false);
 			sendPulses(spi, buffer, 0x85, 0xf3);
-			assertEquals(compactPulse(out.toString()), "1000010111110011");
+			Assert.equal(compactPulse(out.toString()), "1000010111110011");
 		}
 	}
 

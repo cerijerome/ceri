@@ -1,8 +1,5 @@
 package ceri.common.function;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.illegalArg;
 import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
@@ -16,16 +13,16 @@ public class FiltersTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Filters.class);
+		Assert.privateConstructor(Filters.class);
 	}
 
 	@Test
 	public void testNullsSafe() {
-		assertEquals(Filters.Nulls.safe(null), Filters.Nulls.fail);
-		assertEquals(Filters.Nulls.safe(Filters.Nulls.none), Filters.Nulls.fail);
-		assertEquals(Filters.Nulls.safe(Filters.Nulls.no), Filters.Nulls.no);
-		assertEquals(Filters.Nulls.safe(Filters.Nulls.yes), Filters.Nulls.yes);
-		assertEquals(Filters.Nulls.safe(Filters.Nulls.fail), Filters.Nulls.fail);
+		Assert.equal(Filters.Nulls.safe(null), Filters.Nulls.fail);
+		Assert.equal(Filters.Nulls.safe(Filters.Nulls.none), Filters.Nulls.fail);
+		Assert.equal(Filters.Nulls.safe(Filters.Nulls.no), Filters.Nulls.no);
+		Assert.equal(Filters.Nulls.safe(Filters.Nulls.yes), Filters.Nulls.yes);
+		Assert.equal(Filters.Nulls.safe(Filters.Nulls.fail), Filters.Nulls.fail);
 	}
 
 	@Test
@@ -81,7 +78,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.yes, null), false, "", 1);
 		assertTest(Filters.of(Filters.Nulls.no, null), false, null, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, null), false, null, "", 1);
-		illegalArg(() -> Filters.of(Filters.Nulls.fail, null).test(null));
+		Assert.illegalArg(() -> Filters.of(Filters.Nulls.fail, null).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, null), false, "", 1);
 	}
 
@@ -93,7 +90,7 @@ public class FiltersTest {
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), false, nullStr);
 		assertTest(Filters.of(Filters.Nulls.no, Filters.YES), true, "", 1);
 		assertTest(Filters.of(Filters.Nulls.none, Filters.YES), true, null, "", 1);
-		illegalArg(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
+		Assert.illegalArg(() -> Filters.of(Filters.Nulls.fail, Filters.YES).test(null));
 		assertTest(Filters.of(Filters.Nulls.fail, Filters.YES), true, "", 1);
 	}
 
@@ -105,11 +102,11 @@ public class FiltersTest {
 
 	@Test
 	public void testNot() throws Exception {
-		assertEquals(Filters.not(Filters.yes()).test(null), false);
+		Assert.equal(Filters.not(Filters.yes()).test(null), false);
 		var filter = Filters.not(Filters.equal((Integer) 0));
 		assertTest(filter, true, 1, -1);
 		assertTest(filter, false, 0);
-		assertEquals(Filters.not(null).test(true), false);
+		Assert.equal(Filters.not(null).test(true), false);
 	}
 
 	@Test
@@ -161,7 +158,7 @@ public class FiltersTest {
 		Assert.thrown(() -> Filters.biAs(Filters.Nulls.none, a1, a2, bp).test(null));
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), false, " ", "a ");
 		assertTest(Filters.biAs(Filters.Nulls.fail, a1, a2, bp), true, "", "a b");
-		illegalArg(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
+		Assert.illegalArg(() -> Filters.biAs(Filters.Nulls.fail, a1, a2, bp).test(null));
 	}
 
 	@Test
@@ -213,24 +210,24 @@ public class FiltersTest {
 	private static <E extends Exception, T> void assertTest(
 		Excepts.Predicate<E, ? super T> predicate, boolean result, T... values) throws E {
 		for (var value : values)
-			assertEquals(predicate.test(value), result, "%s", value);
+			Assert.equal(predicate.test(value), result, "%s", value);
 	}
 
 	private static <E extends Exception> void assertTest(Excepts.IntPredicate<E> predicate,
 		boolean result, int... values) throws E {
 		for (var value : values)
-			assertEquals(predicate.test(value), result, "%s", value);
+			Assert.equal(predicate.test(value), result, "%s", value);
 	}
 
 	private static <E extends Exception> void assertTest(Excepts.LongPredicate<E> predicate,
 		boolean result, long... values) throws E {
 		for (var value : values)
-			assertEquals(predicate.test(value), result, "%s", value);
+			Assert.equal(predicate.test(value), result, "%s", value);
 	}
 
 	private static <E extends Exception> void assertTest(Excepts.DoublePredicate<E> predicate,
 		boolean result, double... values) throws E {
 		for (var value : values)
-			assertEquals(predicate.test(value), result, "%s", value);
+			Assert.equal(predicate.test(value), result, "%s", value);
 	}
 }

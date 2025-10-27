@@ -1,10 +1,9 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CTermios.tcflag_t;
 import ceri.jna.clib.jna.CTermios.termios;
 import ceri.jna.clib.test.TestCLibNative;
@@ -26,16 +25,16 @@ public class CTermiosTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CTermios.class);
-		assertPrivateConstructor(CTermios.Mac.class);
-		assertPrivateConstructor(CTermios.Linux.class);
+		Assert.privateConstructor(CTermios.class);
+		Assert.privateConstructor(CTermios.Mac.class);
+		Assert.privateConstructor(CTermios.Linux.class);
 	}
 
 	@Test
 	public void testSpeedRef() {
 		var ref = new CTermios.speed_t.ByRef();
 		ref.setValue(new CTermios.speed_t(-1));
-		assertEquals(ref.longValue(), 0xffffffffL);
+		Assert.equal(ref.longValue(), 0xffffffffL);
 	}
 
 	@Test
@@ -52,7 +51,7 @@ public class CTermiosTest {
 		lib.tc.autoResponse(args -> new tcflag_t(0x3456).write(args.arg(0), 0), 0);
 		JnaOs.forEach(_ -> {
 			var t = CTermios.tcgetattr(fd);
-			assertEquals(t.c_iflag, new tcflag_t(0x3456));
+			Assert.equal(t.c_iflag, new tcflag_t(0x3456));
 		});
 	}
 
@@ -97,7 +96,7 @@ public class CTermiosTest {
 		var lib = ref.init();
 		termios termios = new CTermios.Mac.termios();
 		lib.cf.autoResponses(12345);
-		assertEquals(CTermios.cfgetispeed(termios), 12345);
+		Assert.equal(CTermios.cfgetispeed(termios), 12345);
 		lib.cf.assertAuto(CfArgs.of("cfgetispeed", termios.getPointer()));
 	}
 
@@ -114,7 +113,7 @@ public class CTermiosTest {
 		var lib = ref.init();
 		termios termios = new CTermios.Linux.termios();
 		lib.cf.autoResponses(12345);
-		assertEquals(CTermios.cfgetospeed(termios), 12345);
+		Assert.equal(CTermios.cfgetospeed(termios), 12345);
 		lib.cf.assertAuto(CfArgs.of("cfgetospeed", termios.getPointer()));
 	}
 

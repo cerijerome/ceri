@@ -1,10 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
@@ -21,7 +16,7 @@ public class LongProviderBehavior {
 
 	@Test
 	public void testOf() {
-		assertArray(LongProvider.of(Long.MAX_VALUE, Long.MIN_VALUE), Long.MAX_VALUE,
+		Assert.array(LongProvider.of(Long.MAX_VALUE, Long.MIN_VALUE), Long.MAX_VALUE,
 			Long.MIN_VALUE);
 	}
 
@@ -31,26 +26,26 @@ public class LongProviderBehavior {
 		var of = LongProvider.of(longs);
 		var copyOf = LongProvider.copyOf(longs);
 		Arrays.fill(longs, (byte) 0);
-		assertArray(of.copy(0), 0, 0);
-		assertArray(copyOf.copy(0), 0x7fffffffffffffffL, 0x8000000000000000L);
+		Assert.array(of.copy(0), 0, 0);
+		Assert.array(copyOf.copy(0), 0x7fffffffffffffffL, 0x8000000000000000L);
 	}
 
 	@Test
 	public void testToHex() {
-		assertEquals(LongProvider.toHex(lp),
+		Assert.equal(LongProvider.toHex(lp),
 			"[0x0,0xffffffffffffffff,0x2,0xfffffffffffffffd,0x4,0xfffffffffffffffb,0x6,...](10)");
 	}
 
 	@Test
 	public void testToString() {
-		assertEquals(LongProvider.toString(lp), "[0,-1,2,-3,4,-5,6,...](10)");
-		assertEquals(LongProvider.toString(Maths::ubyte, lp), "[0,255,2,253,4,251,6,...](10)");
+		Assert.equal(LongProvider.toString(lp), "[0,-1,2,-3,4,-5,6,...](10)");
+		Assert.equal(LongProvider.toString(Maths::ubyte, lp), "[0,255,2,253,4,251,6,...](10)");
 	}
 
 	@Test
 	public void shouldProvideAnEmptyInstance() {
-		assertEquals(LongProvider.empty().length(), 0);
-		assertTrue(LongProvider.empty().isEmpty());
+		Assert.equal(LongProvider.empty().length(), 0);
+		Assert.yes(LongProvider.empty().isEmpty());
 		Assert.thrown(() -> LongProvider.empty().getLong(0));
 	}
 
@@ -67,38 +62,38 @@ public class LongProviderBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertFalse(lp.isEmpty());
-		assertTrue(LongProvider.empty().isEmpty());
+		Assert.no(lp.isEmpty());
+		Assert.yes(LongProvider.empty().isEmpty());
 	}
 
 	@Test
 	public void shouldProvidePrimitiveValues() {
-		assertEquals(lp.getLong(1), -1L);
-		assertEquals(lp.getLong(2), 2L);
-		assertEquals(lp.getDouble(3), Double.longBitsToDouble(-3L));
+		Assert.equal(lp.getLong(1), -1L);
+		Assert.equal(lp.getLong(2), 2L);
+		Assert.equal(lp.getDouble(3), Double.longBitsToDouble(-3L));
 	}
 
 	@Test
 	public void shouldSliceProvidedLongRange() {
-		assertTrue(lp.slice(10).isEmpty());
-		assertArray(lp.slice(5, 0).copy(0));
-		assertEquals(lp.slice(0), lp);
-		assertEquals(lp.slice(0, 10), lp);
+		Assert.yes(lp.slice(10).isEmpty());
+		Assert.array(lp.slice(5, 0).copy(0));
+		Assert.equal(lp.slice(0), lp);
+		Assert.equal(lp.slice(0, 10), lp);
 		Assert.thrown(() -> lp.slice(1, 10));
 		Assert.thrown(() -> lp.slice(0, 9));
 	}
 
 	@Test
 	public void shouldProvideACopyOfLongs() {
-		assertArray(lp.copy(5, 0));
-		assertArray(lp.copy(5, 3), -5, 6, -7);
+		Assert.array(lp.copy(5, 0));
+		Assert.array(lp.copy(5, 3), -5, 6, -7);
 	}
 
 	@Test
 	public void shouldCopyToLongArray() {
 		long[] longs = new long[5];
-		assertEquals(lp.copyTo(1, longs), 6);
-		assertArray(longs, -1, 2, -3, 4, -5);
+		Assert.equal(lp.copyTo(1, longs), 6);
+		Assert.array(longs, -1, 2, -3, 4, -5);
 		Assert.thrown(() -> lp.copyTo(6, longs));
 		Assert.thrown(() -> lp.copyTo(-1, longs));
 		Assert.thrown(() -> lp.copyTo(1, longs, 0, 6));
@@ -107,8 +102,8 @@ public class LongProviderBehavior {
 	@Test
 	public void shouldCopyToReceiver() {
 		Holder h = Holder.of(5);
-		assertEquals(lp.copyTo(1, h.receiver), 6);
-		assertArray(h.longs, -1, 2, -3, 4, -5);
+		Assert.equal(lp.copyTo(1, h.receiver), 6);
+		Assert.array(h.longs, -1, 2, -3, 4, -5);
 		Assert.thrown(() -> lp.copyTo(6, h.receiver));
 		Assert.thrown(() -> lp.copyTo(-1, h.receiver));
 		Assert.thrown(() -> lp.copyTo(1, h.receiver, 0, 6));
@@ -116,76 +111,76 @@ public class LongProviderBehavior {
 
 	@Test
 	public void shouldStreamLongs() {
-		assertStream(lp.stream(0), 0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
+		Assert.stream(lp.stream(0), 0, -1, 2, -3, 4, -5, 6, -7, 8, -9);
 		Assert.thrown(() -> lp.stream(0, 11));
 	}
 
 	@Test
 	public void shouldDetermineIfIntsAreEqual() {
-		assertTrue(lp.isEqualTo(5, -5, 6, -7, 8, -9));
-		assertFalse(lp.isEqualTo(5, -5, 6, -7, 8, 9));
+		Assert.yes(lp.isEqualTo(5, -5, 6, -7, 8, -9));
+		Assert.no(lp.isEqualTo(5, -5, 6, -7, 8, 9));
 		long[] longs = ArrayUtil.longs.of(0, -1, 2, -3, 4);
-		assertTrue(lp.isEqualTo(0, longs));
-		assertFalse(lp.isEqualTo(0, longs, 0, 6));
-		assertFalse(lp.isEqualTo(9, -9, 0));
+		Assert.yes(lp.isEqualTo(0, longs));
+		Assert.no(lp.isEqualTo(0, longs, 0, 6));
+		Assert.no(lp.isEqualTo(9, -9, 0));
 	}
 
 	@Test
 	public void shouldDetermineIfProvidedIntsAreEqual() {
-		assertTrue(lp.isEqualTo(0, lp));
-		assertTrue(lp.isEqualTo(5, lp, 5));
-		assertTrue(lp.isEqualTo(5, lp, 5, 3));
-		assertTrue(lp.isEqualTo(1, provider(-1, 2, -3)));
-		assertFalse(lp.isEqualTo(1, provider(1, 2, -3)));
-		assertFalse(lp.isEqualTo(0, provider(1, 2, 3), 0, 4));
-		assertFalse(lp.isEqualTo(9, provider(1, 2, 3)));
+		Assert.yes(lp.isEqualTo(0, lp));
+		Assert.yes(lp.isEqualTo(5, lp, 5));
+		Assert.yes(lp.isEqualTo(5, lp, 5, 3));
+		Assert.yes(lp.isEqualTo(1, provider(-1, 2, -3)));
+		Assert.no(lp.isEqualTo(1, provider(1, 2, -3)));
+		Assert.no(lp.isEqualTo(0, provider(1, 2, 3), 0, 4));
+		Assert.no(lp.isEqualTo(9, provider(1, 2, 3)));
 	}
 
 	@Test
 	public void shouldDetermineIfContains() {
-		assertEquals(lp.contains(-1, 2, -3), true);
-		assertEquals(lp.contains(-1, 2, 3), false);
+		Assert.equal(lp.contains(-1, 2, -3), true);
+		Assert.equal(lp.contains(-1, 2, 3), false);
 	}
 
 	@Test
 	public void shouldDetermineIndexOfLongs() {
-		assertEquals(lp.indexOf(0, -1, 2, -3), 1);
-		assertEquals(lp.indexOf(0, -1, 2, 3), -1);
-		assertEquals(lp.indexOf(8, -1, 2, -3), -1);
-		assertEquals(lp.indexOf(0, ArrayUtil.longs.of(-1, 2, -3), 0, 4), -1);
+		Assert.equal(lp.indexOf(0, -1, 2, -3), 1);
+		Assert.equal(lp.indexOf(0, -1, 2, 3), -1);
+		Assert.equal(lp.indexOf(8, -1, 2, -3), -1);
+		Assert.equal(lp.indexOf(0, ArrayUtil.longs.of(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineIndexOfProvidedLongs() {
-		assertEquals(lp.indexOf(0, provider(-1, 2, -3)), 1);
-		assertEquals(lp.indexOf(0, provider(-1, 2, 3)), -1);
-		assertEquals(lp.indexOf(8, provider(-1, 2, -3)), -1);
-		assertEquals(lp.indexOf(0, provider(-1, 2, -3), 0, 4), -1);
+		Assert.equal(lp.indexOf(0, provider(-1, 2, -3)), 1);
+		Assert.equal(lp.indexOf(0, provider(-1, 2, 3)), -1);
+		Assert.equal(lp.indexOf(8, provider(-1, 2, -3)), -1);
+		Assert.equal(lp.indexOf(0, provider(-1, 2, -3), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfBytes() {
 		LongProvider lp = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertEquals(lp.lastIndexOf(0, 2, -1), 5);
-		assertEquals(lp.lastIndexOf(0, 2, 1), -1);
-		assertEquals(lp.lastIndexOf(7, 0, -1), -1);
-		assertEquals(lp.lastIndexOf(0, ArrayUtil.longs.of(2, -1, 0), 0, 4), -1);
+		Assert.equal(lp.lastIndexOf(0, 2, -1), 5);
+		Assert.equal(lp.lastIndexOf(0, 2, 1), -1);
+		Assert.equal(lp.lastIndexOf(7, 0, -1), -1);
+		Assert.equal(lp.lastIndexOf(0, ArrayUtil.longs.of(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldDetermineLastIndexOfProviderBytes() {
 		LongProvider lp = provider(0, -1, 2, -1, 0, 2, -1, 0);
-		assertEquals(lp.lastIndexOf(0, provider(2, -1)), 5);
-		assertEquals(lp.lastIndexOf(0, provider(2, 1)), -1);
-		assertEquals(lp.lastIndexOf(7, provider(0, -1)), -1);
-		assertEquals(lp.lastIndexOf(0, provider(2, -1, 0), 0, 4), -1);
+		Assert.equal(lp.lastIndexOf(0, provider(2, -1)), 5);
+		Assert.equal(lp.lastIndexOf(0, provider(2, 1)), -1);
+		Assert.equal(lp.lastIndexOf(7, provider(0, -1)), -1);
+		Assert.equal(lp.lastIndexOf(0, provider(2, -1, 0), 0, 4), -1);
 	}
 
 	@Test
 	public void shouldProvideReaderAccessToLongs() {
-		assertArray(lp.reader(5).readLongs(), -5, 6, -7, 8, -9);
-		assertArray(lp.reader(5, 0).readLongs());
-		assertArray(lp.reader(10, 0).readLongs());
+		Assert.array(lp.reader(5).readLongs(), -5, 6, -7, 8, -9);
+		Assert.array(lp.reader(5, 0).readLongs());
+		Assert.array(lp.reader(10, 0).readLongs());
 		Assert.thrown(() -> lp.reader(10, 1));
 		Assert.thrown(() -> lp.reader(11, 0));
 	}
@@ -194,7 +189,7 @@ public class LongProviderBehavior {
 
 	@Test
 	public void shouldReadLong() {
-		assertEquals(lp.reader(1).readLong(), -1L);
+		Assert.equal(lp.reader(1).readLong(), -1L);
 		Assert.thrown(() -> lp.reader(1, 0).readLong());
 	}
 
@@ -202,7 +197,7 @@ public class LongProviderBehavior {
 	public void shouldReadIntoLongArray() {
 		long[] longs = new long[4];
 		lp.reader(5).readInto(longs);
-		assertArray(longs, -5, 6, -7, 8);
+		Assert.array(longs, -5, 6, -7, 8);
 	}
 
 	@Test
@@ -210,18 +205,18 @@ public class LongProviderBehavior {
 		long[] longs = new long[4];
 		LongReceiver lr = LongArray.Mutable.wrap(longs);
 		lp.reader(5).readInto(lr);
-		assertArray(longs, -5, 6, -7, 8);
+		Assert.array(longs, -5, 6, -7, 8);
 	}
 
 	@Test
 	public void shouldStreamReaderLongs() {
-		assertStream(lp.reader(6).stream(), 6, -7, 8, -9);
+		Assert.stream(lp.reader(6).stream(), 6, -7, 8, -9);
 	}
 
 	@Test
 	public void shouldReturnReaderLongProvider() {
-		assertEquals(lp.reader(0).provider(), lp);
-		assertTrue(lp.reader(5, 0).provider().isEmpty());
+		Assert.equal(lp.reader(0).provider(), lp);
+		Assert.yes(lp.reader(5, 0).provider().isEmpty());
 		Assert.thrown(() -> lp.reader(5).provider()); // slice() fails
 	}
 
@@ -232,9 +227,9 @@ public class LongProviderBehavior {
 		Reader r2 = r0.slice(3);
 		Assert.thrown(() -> r0.slice(5));
 		Assert.thrown(() -> r0.slice(-2));
-		assertArray(r0.readLongs(), 6, -7, 8, -9);
-		assertArray(r1.readLongs(), 6, -7, 8, -9);
-		assertArray(r2.readLongs(), 6, -7, 8);
+		Assert.array(r0.readLongs(), 6, -7, 8, -9);
+		Assert.array(r1.readLongs(), 6, -7, 8, -9);
+		Assert.array(r2.readLongs(), 6, -7, 8);
 	}
 
 	/* Support methods */

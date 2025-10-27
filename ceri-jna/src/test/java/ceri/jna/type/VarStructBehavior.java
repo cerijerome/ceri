@@ -1,13 +1,12 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Fields;
 
 public class VarStructBehavior {
@@ -64,9 +63,9 @@ public class VarStructBehavior {
 	}
 
 	public static void assertByteVar(ByteVar bv, int dummy, int... bytes) {
-		assertEquals(bv.dummy, dummy);
-		assertEquals(bv.count, (byte) bytes.length);
-		assertArray(bv.array, bytes);
+		Assert.equal(bv.dummy, dummy);
+		Assert.equal(bv.count, (byte) bytes.length);
+		Assert.array(bv.array, bytes);
 	}
 
 	private static <T extends Structure> T deref(T t, Functions.Function<Pointer, T> constructor) {

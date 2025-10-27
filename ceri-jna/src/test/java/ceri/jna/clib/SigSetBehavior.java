@@ -1,7 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -13,15 +11,15 @@ public class SigSetBehavior {
 	public void shouldRemoveSignal() throws IOException {
 		var ss = SigSet.of(Signal.SIGABRT, Signal.SIGALRM, Signal.SIGBUS);
 		ss.remove(Signal.SIGBUS, Signal.SIGALRM);
-		assertTrue(ss.has(Signal.SIGABRT));
-		assertFalse(ss.has(Signal.SIGALRM));
+		Assert.yes(ss.has(Signal.SIGABRT));
+		Assert.no(ss.has(Signal.SIGALRM));
 	}
 
 	@Test
 	public void shouldProvideStruct() throws IOException {
 		Assert.isNull(SigSet.struct(null));
 		var ss = SigSet.struct(SigSet.of(Signal.SIGABRT));
-		assertTrue(CSignal.sigismember(ss, Signal.SIGABRT.signal));
+		Assert.yes(CSignal.sigismember(ss, Signal.SIGABRT.signal));
 	}
 
 }

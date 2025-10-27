@@ -3,8 +3,6 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -22,7 +20,7 @@ public class ColorxBehavior {
 		Colorx ne2 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33);
 		Colorx ne3 = Colorx.of(color(0xff886644), 0x11, 0x22, 0x33, 0x55);
 		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -34,21 +32,21 @@ public class ColorxBehavior {
 
 	@Test
 	public void shouldDetermineIfAnyXIsSet() {
-		assertEquals(Colorx.of(0L).hasX(), false);
-		assertEquals(Colorx.of(0xffffffffL).hasX(), false);
-		assertEquals(Colorx.of(-1L).hasX(), true);
-		assertEquals(Colorx.of(0x0100000000L).hasX(), true);
-		assertEquals(Colorx.of(0x010000000000L).hasX(), true);
-		assertEquals(Colorx.of(0x01000000000000L).hasX(), true);
-		assertEquals(Colorx.of(0x0100000000000000L).hasX(), true);
+		Assert.equal(Colorx.of(0L).hasX(), false);
+		Assert.equal(Colorx.of(0xffffffffL).hasX(), false);
+		Assert.equal(Colorx.of(-1L).hasX(), true);
+		Assert.equal(Colorx.of(0x0100000000L).hasX(), true);
+		Assert.equal(Colorx.of(0x010000000000L).hasX(), true);
+		Assert.equal(Colorx.of(0x01000000000000L).hasX(), true);
+		Assert.equal(Colorx.of(0x0100000000000000L).hasX(), true);
 	}
 
 	@Test
 	public void shouldAccessXComponent() {
-		assertEquals(Colorx.of(0x33221100886644L).x(0), 0x11);
-		assertEquals(Colorx.of(0x33221100886644L).x(1), 0x22);
-		assertEquals(Colorx.of(0x33221100886644L).x(2), 0x33);
-		assertEquals(Colorx.of(0x33221100886644L).x(3), 0x0);
+		Assert.equal(Colorx.of(0x33221100886644L).x(0), 0x11);
+		Assert.equal(Colorx.of(0x33221100886644L).x(1), 0x22);
+		Assert.equal(Colorx.of(0x33221100886644L).x(2), 0x33);
+		Assert.equal(Colorx.of(0x33221100886644L).x(3), 0x0);
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class ColorxBehavior {
 
 	@Test
 	public void shouldExtractRgb() {
-		assertEquals(Colorx.of(0x33221100886644L).rgb(), 0x886644);
+		Assert.equal(Colorx.of(0x33221100886644L).rgb(), 0x886644);
 	}
 
 	@Test
@@ -101,10 +99,10 @@ public class ColorxBehavior {
 
 	@Test
 	public void shouldNormalizeToArgb() {
-		assertEquals(Colorx.of(0x4080ffff000038L).normalizeArgb(), 0xff000038);
-		assertEquals(Colorx.of(0x4080ffff000038L).normalizeArgb(0x404000, 0x802000, 0x4040),
+		Assert.equal(Colorx.of(0x4080ffff000038L).normalizeArgb(), 0xff000038);
+		Assert.equal(Colorx.of(0x4080ffff000038L).normalizeArgb(0x404000, 0x802000, 0x4040),
 			0xff806048);
-		assertEquals(Colorx.of(0x4080ffff000038L).normalizeArgb(0x404000, 0x802000, 0x4040, 0xffff),
+		Assert.equal(Colorx.of(0x4080ffff000038L).normalizeArgb(0x404000, 0x802000, 0x4040, 0xffff),
 			0xff806048);
 	}
 

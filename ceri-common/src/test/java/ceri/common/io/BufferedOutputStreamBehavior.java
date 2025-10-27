@@ -1,11 +1,11 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertArray;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 
 public class BufferedOutputStreamBehavior {
 	private final ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -56,6 +56,6 @@ public class BufferedOutputStreamBehavior {
 	}
 
 	private void assertBytes(int... bytes) {
-		assertArray(bout.toByteArray(), bytes);
+		Assert.array(bout.toByteArray(), bytes);
 	}
 }

@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.util.Properties;
 import org.junit.Test;
 import ceri.common.property.TypedProperties;
@@ -14,11 +13,11 @@ public class FtdiPropertiesBehavior {
 		var p = new Properties();
 		var props = new FtdiProperties(TypedProperties.from(p));
 		p.put("stop.bits", "1");
-		assertEquals(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_1);
+		Assert.equal(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_1);
 		p.put("stop.bits", "1.5");
-		assertEquals(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_15);
+		Assert.equal(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_15);
 		p.put("stop.bits", "2");
-		assertEquals(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_2);
+		Assert.equal(props.config().params.stopBits(), LibFtdi.ftdi_stop_bits_type.STOP_BIT_2);
 		p.put("stop.bits", "1.1");
 		Assert.thrown(() -> props.config());
 	}
@@ -28,9 +27,9 @@ public class FtdiPropertiesBehavior {
 		var p = new Properties();
 		var props = new FtdiProperties(TypedProperties.from(p));
 		p.put("parity", "odd");
-		assertEquals(props.config().params.parity(), LibFtdi.ftdi_parity_type.ODD);
+		Assert.equal(props.config().params.parity(), LibFtdi.ftdi_parity_type.ODD);
 		p.put("parity", "none");
-		assertEquals(props.config().params.parity(), LibFtdi.ftdi_parity_type.NONE);
+		Assert.equal(props.config().params.parity(), LibFtdi.ftdi_parity_type.NONE);
 		p.put("parity", "null");
 		Assert.thrown(() -> props.config());
 	}

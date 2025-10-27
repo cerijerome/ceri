@@ -1,8 +1,5 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.test.Assert.assertByte;
-import static ceri.common.test.Assert.assertMask;
-import static ceri.common.test.Assert.fail;
 import static ceri.jna.clib.jna.CTermios.CMSPAR;
 import static ceri.jna.clib.jna.CTermios.PARENB;
 import static ceri.jna.clib.jna.CTermios.PARODD;
@@ -82,11 +79,11 @@ public class CSerialTest {
 				var helper = CSerialTestHelper.linux(enc.ref);
 				int fd = CSerial.open("test");
 				CSerial.setParams(fd, 9600, DATABITS_8, STOPBITS_1, PARITY_MARK);
-				assertMask(helper.termios.c_cflag.intValue(), PARENB | CMSPAR | PARODD);
+				Assert.mask(helper.termios.c_cflag.intValue(), PARENB | CMSPAR | PARODD);
 				CSerial.setParams(fd, 9600, DATABITS_8, STOPBITS_1, PARITY_SPACE);
-				assertMask(helper.termios.c_cflag.intValue(), PARENB | CMSPAR);
+				Assert.mask(helper.termios.c_cflag.intValue(), PARENB | CMSPAR);
 			} catch (Exception e) {
-				fail(e);
+				Assert.fail(e);
 			}
 		}
 	}
@@ -135,8 +132,8 @@ public class CSerialTest {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
-			assertByte(helper.termios.c_cc[CTermios.VMIN], 11);
-			assertByte(helper.termios.c_cc[CTermios.VTIME], 22);
+			Assert.equals(helper.termios.c_cc[CTermios.VMIN], 11);
+			Assert.equals(helper.termios.c_cc[CTermios.VTIME], 22);
 		});
 	}
 
@@ -146,7 +143,7 @@ public class CSerialTest {
 			var helper = CSerialTestHelper.linux(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_IN);
-			assertMask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
+			Assert.mask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
 		});
 	}
 
@@ -180,8 +177,8 @@ public class CSerialTest {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setReadParams(fd, 11, 22);
-			assertByte(helper.termios.c_cc[CTermios.VMIN], 11);
-			assertByte(helper.termios.c_cc[CTermios.VTIME], 22);
+			Assert.equals(helper.termios.c_cc[CTermios.VMIN], 11);
+			Assert.equals(helper.termios.c_cc[CTermios.VTIME], 22);
 		});
 	}
 
@@ -192,8 +189,8 @@ public class CSerialTest {
 			int fd = CSerial.open("test");
 			CSerial.setParams(fd, 250000, DATABITS_8, STOPBITS_1, PARITY_NONE);
 			CSerial.setReadParams(fd, 11, 22);
-			assertByte(helper.termios.c_cc[CTermios.VMIN], 11);
-			assertByte(helper.termios.c_cc[CTermios.VTIME], 22);
+			Assert.equals(helper.termios.c_cc[CTermios.VMIN], 11);
+			Assert.equals(helper.termios.c_cc[CTermios.VTIME], 22);
 			helper.assertSpeed(CTermios.B9600);
 			helper.assertIossiospeed(fd, 250000);
 		});
@@ -205,7 +202,7 @@ public class CSerialTest {
 			var helper = CSerialTestHelper.mac(ref.init());
 			int fd = CSerial.open("test");
 			CSerial.setFlowControl(fd, FLOWCONTROL_RTSCTS_OUT);
-			assertMask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
+			Assert.mask(helper.termios.c_cflag.intValue(), CTermios.CRTSCTS);
 		});
 	}
 }

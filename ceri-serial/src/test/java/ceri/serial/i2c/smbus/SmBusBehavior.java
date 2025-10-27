@@ -1,10 +1,9 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 
 public class SmBusBehavior {
 
@@ -20,13 +19,13 @@ public class SmBusBehavior {
 
 	@Test
 	public void shouldProvideNoOpReads() throws IOException {
-		assertEquals(SmBus.NULL.readByte(), 0);
-		assertEquals(SmBus.NULL.readByteData(0x12), 0);
-		assertEquals(SmBus.NULL.readWordData(0x12), 0);
-		assertEquals(SmBus.NULL.processCall(0x12, 0xabcd), 0);
-		assertArray(SmBus.NULL.readBlockData(0x12));
-		assertArray(SmBus.NULL.blockProcessCall(0x12, 0xab, 0xcd));
-		assertArray(SmBus.NULL.readI2cBlockData(0x12, 3), 0, 0, 0);
+		Assert.equal(SmBus.NULL.readByte(), 0);
+		Assert.equal(SmBus.NULL.readByteData(0x12), 0);
+		Assert.equal(SmBus.NULL.readWordData(0x12), 0);
+		Assert.equal(SmBus.NULL.processCall(0x12, 0xabcd), 0);
+		Assert.array(SmBus.NULL.readBlockData(0x12));
+		Assert.array(SmBus.NULL.blockProcessCall(0x12, 0xab, 0xcd));
+		Assert.array(SmBus.NULL.readI2cBlockData(0x12, 3), 0, 0, 0);
 	}
 
 }

@@ -1,7 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -95,9 +93,9 @@ public class JnaTestData {
 	 */
 	public static void assertStruct(TestStruct t, int i, Pointer p, byte[] bytes) {
 		Assert.notNull(t);
-		assertEquals(t.i, i);
-		assertEquals(t.p, p);
-		assertArray(t.b, bytes);
+		Assert.equal(t.i, i);
+		Assert.equal(t.p, p);
+		Assert.array(t.b, bytes);
 	}
 
 	public static void assertEmpty(TestStruct t) {

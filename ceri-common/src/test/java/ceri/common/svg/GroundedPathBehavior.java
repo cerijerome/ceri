@@ -1,11 +1,10 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class GroundedPathBehavior {
@@ -22,7 +21,7 @@ public class GroundedPathBehavior {
 		var ne3 = GroundedPath.of(pos, LineTo.relative(-1, -2));
 		var ne4 = GroundedPath.of(pos, LineTo.absolute(-1, -1));
 		TestUtil.exerciseEquals(p, eq0);
-		assertAllNotEqual(p, ne0, ne1, ne2, ne3, ne4);
+		Assert.notEqualAll(p, ne0, ne1, ne2, ne3, ne4);
 	}
 
 	@Test
@@ -35,7 +34,7 @@ public class GroundedPathBehavior {
 	@Test
 	public void shouldDetermineEnd() {
 		var p = GroundedPath.of(Position.absolute(1, 1), MoveTo.relative(2, -2));
-		assertEquals(p.end(), Position.absolute(3, -1));
+		Assert.equal(p.end(), Position.absolute(3, -1));
 	}
 
 	@Test

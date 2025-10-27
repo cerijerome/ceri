@@ -1,10 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.illegalArg;
-import static ceri.common.test.Assert.unsupportedOp;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil.Rte;
@@ -50,145 +45,145 @@ public class FieldBehavior {
 
 	@Test
 	public void shouldProvideNullInstance() {
-		assertEquals(Field.ofNull().set("test", 123).get("test"), null);
-		assertEquals(Field.Long.ofNull().set("test", 123).get("test"), 0L);
+		Assert.equal(Field.ofNull().set("test", 123).get("test"), null);
+		Assert.equal(Field.Long.ofNull().set("test", 123).get("test"), 0L);
 	}
 
 	@Test
 	public void shouldSetFieldValues() {
 		var type = new Type("test", 0, 0L);
-		assertEquals(Type.S.get(type), "test");
+		Assert.equal(Type.S.get(type), "test");
 		Type.S.set(type, "abc");
-		assertEquals(Type.S.get(type), "abc");
+		Assert.equal(Type.S.get(type), "abc");
 	}
 
 	@Test
 	public void shouldSetUintValues() {
 		var type = new Type(null, -1, 0L);
-		assertEquals(Type.I.get(type), 0xffffffffL);
-		assertEquals(Type.I.getInt(type), 0xffffffff);
-		assertEquals(Type.I.getUint(type), 0xffffffffL);
-		assertEquals(Type.I.getUintExact(type), 0xffffffff);
+		Assert.equal(Type.I.get(type), 0xffffffffL);
+		Assert.equal(Type.I.getInt(type), 0xffffffff);
+		Assert.equal(Type.I.getUint(type), 0xffffffffL);
+		Assert.equal(Type.I.getUintExact(type), 0xffffffff);
 		Type.I.set(type, 0xffffffff0000L);
-		assertEquals(Type.I.get(type), 0xffff0000L);
-		assertEquals(Type.I.getInt(type), 0xffff0000);
-		assertEquals(Type.I.getUint(type), 0xffff0000L);
-		assertEquals(Type.I.getUintExact(type), 0xffff0000);
+		Assert.equal(Type.I.get(type), 0xffff0000L);
+		Assert.equal(Type.I.getInt(type), 0xffff0000);
+		Assert.equal(Type.I.getUint(type), 0xffff0000L);
+		Assert.equal(Type.I.getUintExact(type), 0xffff0000);
 	}
 
 	@Test
 	public void shouldSetLongValues() {
 		var type = new Type(null, 0, -1L);
-		assertEquals(Type.L.get(type), 0xffffffffffffffffL);
-		assertEquals(Type.L.getInt(type), 0xffffffff);
-		assertEquals(Type.L.getUint(type), 0xffffffffL);
+		Assert.equal(Type.L.get(type), 0xffffffffffffffffL);
+		Assert.equal(Type.L.getInt(type), 0xffffffff);
+		Assert.equal(Type.L.getUint(type), 0xffffffffL);
 		Assert.thrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
 		Type.L.set(type, 0xffffffff0000L);
-		assertEquals(Type.L.get(type), 0xffffffff0000L);
-		assertEquals(Type.L.getInt(type), 0xffff0000);
-		assertEquals(Type.L.getUint(type), 0xffff0000L);
+		Assert.equal(Type.L.get(type), 0xffffffff0000L);
+		Assert.equal(Type.L.getInt(type), 0xffff0000);
+		Assert.equal(Type.L.getUint(type), 0xffff0000L);
 		Assert.thrown(ArithmeticException.class, () -> Type.L.getUintExact(type));
 		Type.L.setUint(type, 0xffffffff0000L);
-		assertEquals(Type.L.get(type), 0xffff0000L);
-		assertEquals(Type.L.getInt(type), 0xffff0000);
-		assertEquals(Type.L.getUint(type), 0xffff0000L);
-		assertEquals(Type.L.getUintExact(type), 0xffff0000);
+		Assert.equal(Type.L.get(type), 0xffff0000L);
+		Assert.equal(Type.L.getInt(type), 0xffff0000);
+		Assert.equal(Type.L.getUint(type), 0xffff0000L);
+		Assert.equal(Type.L.getUintExact(type), 0xffff0000);
 	}
 
 	@Test
 	public void shouldApplyOperator() {
 		var type = new Type(null, -1, -1L);
 		Type.I.apply(type, l -> l - 1);
-		assertEquals(type.i, 0xfffffffe);
+		Assert.equal(type.i, 0xfffffffe);
 		Type.I.apply(type, l -> l);
-		assertEquals(type.i, 0xfffffffe);
+		Assert.equal(type.i, 0xfffffffe);
 	}
 
 	@Test
 	public void shouldSetMaskedUintValues() {
 		var type = new Type(null, -1, 0);
-		assertEquals(Type.IM.get(type), 0xffffL);
+		Assert.equal(Type.IM.get(type), 0xffffL);
 		Type.IM.set(type, 0x12345678);
-		assertEquals(type.i, 0xff5678ff);
-		assertEquals(Type.IM.get(type), 0x5678L);
+		Assert.equal(type.i, 0xff5678ff);
+		Assert.equal(Type.IM.get(type), 0x5678L);
 	}
 
 	@Test
 	public void shouldSetMaskedLongValues() {
 		var type = new Type(null, 0, -1L);
-		assertEquals(Type.LM.get(type), 0xffffffffL);
+		Assert.equal(Type.LM.get(type), 0xffffffffL);
 		Type.LM.set(type, 0x123456789abcdef0L);
-		assertEquals(type.l, 0xffff9abcdef0ffffL);
-		assertEquals(Type.LM.get(type), 0x9abcdef0L);
+		Assert.equal(type.l, 0xffff9abcdef0ffffL);
+		Assert.equal(Type.LM.get(type), 0x9abcdef0L);
 	}
 
 	@Test
 	public void shouldSetWithBoolean() {
 		var type = new Type(null, 0, 0L);
 		Type.LM.set(type, true);
-		assertEquals(type.l, 0xffffffff0000L);
-		assertEquals(Type.LM.getBool(type), true);
+		Assert.equal(type.l, 0xffffffff0000L);
+		Assert.equal(Type.LM.getBool(type), true);
 		type.l = -1L;
 		Type.LM.set(type, false);
-		assertEquals(type.l, 0xffff00000000ffffL);
-		assertEquals(Type.LM.getBool(type), false);
+		Assert.equal(type.l, 0xffff00000000ffffL);
+		Assert.equal(Type.LM.getBool(type), false);
 		type.l = 0x10000;
-		assertEquals(Type.LM.getBool(type), true);
+		Assert.equal(Type.LM.getBool(type), true);
 	}
 
 	@Test
 	public void shouldSetTypedFieldValues() {
 		var type = new Type(null, 0, 0L);
 		Type.LT.set(type, Bit._63, Bit._15, Bit._1);
-		assertEquals(type.l, 0x8000000000008002L);
+		Assert.equal(type.l, 0x8000000000008002L);
 		Type.LT.add(type, Bit._31, Bit._15, Bit._0);
-		assertEquals(type.l, 0x8000000080008003L);
+		Assert.equal(type.l, 0x8000000080008003L);
 		Type.LT.remove(type, Bit._63, Bit._3, Bit._1);
-		assertEquals(type.l, 0x80008001L);
+		Assert.equal(type.l, 0x80008001L);
 		Type.LT.remove(type);
-		assertEquals(type.l, 0x80008001L);
+		Assert.equal(type.l, 0x80008001L);
 	}
 
 	@Test
 	public void shouldSetTypedFieldValue() {
 		var type = new Type(null, 0, 0L);
 		Type.IT.set(type, Bit._15);
-		assertEquals(type.i, 0x8000);
+		Assert.equal(type.i, 0x8000);
 		type.i = 0x80000000;
-		assertEquals(Type.IT.get(type), Bit._31);
+		Assert.equal(Type.IT.get(type), Bit._31);
 		type.i = 0xf0000000;
-		assertEquals(Type.IT.get(type), null); // no exact match
+		Assert.equal(Type.IT.get(type), null); // no exact match
 	}
 
 	@Test
 	public void shouldSetMaskedTypedFieldValues() {
 		var type = new Type(null, 0, 0L);
 		Type.IMT.set(type, Bit._63, Bit._15, Bit._7, Bit._3);
-		assertEquals(type.i, 0x808800);
+		Assert.equal(type.i, 0x808800);
 	}
 
 	@Test
 	public void shouldGetMaskedTypedFieldValues() {
 		var type = new Type(null, 0xfff0f1f0, 0L);
-		assertUnordered(Type.IMT.getAll(type), Bit._15, Bit._7, Bit._0);
-		assertEquals(Type.IMT.hasAll(type, Bit._7, Bit._0), true);
-		assertEquals(Type.IMT.hasAll(type, Bit._7, Bit._1), false);
+		Assert.unordered(Type.IMT.getAll(type), Bit._15, Bit._7, Bit._0);
+		Assert.equal(Type.IMT.hasAll(type, Bit._7, Bit._0), true);
+		Assert.equal(Type.IMT.hasAll(type, Bit._7, Bit._1), false);
 	}
 
 	@Test
 	public void shouldGetValidTypes() {
 		var type = new Type(null, 0x80, 0x81L);
-		assertEquals(Type.IT.getValid(type), Bit._7);
-		assertOrdered(Type.LT.getAllValid(type), Bit._0, Bit._7);
+		Assert.equal(Type.IT.getValid(type), Bit._7);
+		Assert.ordered(Type.LT.getAllValid(type), Bit._0, Bit._7);
 		type.i = 0x81;
-		illegalArg(() -> Type.IT.getValid(type));
+		Assert.illegalArg(() -> Type.IT.getValid(type));
 	}
 
 	@Test
 	public void shouldDetermineIfFieldHasTypes() {
 		var type = new Type(null, 0x80, 0x81L);
-		assertEquals(Type.IT.has(type, Bit._3), false);
-		assertEquals(Type.IT.has(type, Bit._7), true);
+		Assert.equal(Type.IT.has(type, Bit._3), false);
+		Assert.equal(Type.IT.has(type, Bit._7), true);
 	}
 
 	@Test
@@ -196,9 +191,9 @@ public class FieldBehavior {
 		var get = Field.<Rte, Type>ofUint(t -> t.i, null);
 		var set = Field.<Rte, Type>ofUint(null, (t, v) -> t.i = v);
 		var type = new Type(null, 0x123, 0L);
-		assertEquals(get.get(type), 0x123L);
-		unsupportedOp(() -> get.set(type, 0));
+		Assert.equal(get.get(type), 0x123L);
+		Assert.unsupportedOp(() -> get.set(type, 0));
 		set.set(type, 0);
-		unsupportedOp(() -> set.get(type));
+		Assert.unsupportedOp(() -> set.get(type));
 	}
 }

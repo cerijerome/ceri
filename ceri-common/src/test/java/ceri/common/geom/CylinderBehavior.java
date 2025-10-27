@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -13,13 +11,13 @@ public class CylinderBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(c0, Cylinder.of(2, 8));
-		assertNotEquals(c0, Cylinder.of(1.9, 8));
-		assertNotEquals(c0, Cylinder.of(2, 8.1));
+		Assert.notEqual(c0, Cylinder.of(1.9, 8));
+		Assert.notEqual(c0, Cylinder.of(2, 8.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Cylinder.of(0, 0), Cylinder.ZERO);
+		Assert.equal(Cylinder.of(0, 0), Cylinder.ZERO);
 		GeomAssert.approx(Cylinder.ZERO, 0, 0);
 	}
 

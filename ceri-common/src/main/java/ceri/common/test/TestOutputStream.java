@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -46,7 +45,7 @@ public class TestOutputStream extends OutputStream {
 	}
 
 	public void assertAvailable(int n) throws IOException {
-		assertEquals(from.available(), n);
+		Assert.equal(from.available(), n);
 	}
 
 	@Override

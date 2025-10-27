@@ -1,10 +1,5 @@
 package ceri.common.stream;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertMap;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.unsupportedOp;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -12,6 +7,7 @@ import org.junit.Test;
 import ceri.common.collect.Immutable;
 import ceri.common.collect.Lists;
 import ceri.common.collect.Sets;
+import ceri.common.test.Assert;
 
 public class CollectTest {
 	private static final Immutable.Wrap<NavigableSet<Integer>> wset = Immutable.Wrap.navSet();
@@ -20,42 +16,43 @@ public class CollectTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Collect.class, Collect.Ints.class, Collect.Longs.class,
+		Assert.privateConstructor(Collect.class, Collect.Ints.class, Collect.Longs.class,
 			Collect.Doubles.class);
 	}
 
 	@Test
 	public void testNoCombiner() {
-		assertArray(Lists.ofAll(1, -1, 0).stream().collect(Collect.array()), 1, -1, 0);
-		unsupportedOp(() -> Lists.ofAll(1, -1, 0).stream().parallel().collect(Collect.array()));
+		Assert.array(Lists.ofAll(1, -1, 0).stream().collect(Collect.array()), 1, -1, 0);
+		Assert.unsupportedOp(
+			() -> Lists.ofAll(1, -1, 0).stream().parallel().collect(Collect.array()));
 	}
 
 	@Test
 	public void testOf() {
-		assertOrdered(testStream().collect(Collect.of(Lists::of, List::add)), -1, null, 1);
+		Assert.ordered(testStream().collect(Collect.of(Lists::of, List::add)), -1, null, 1);
 	}
 
 	@Test
 	public void testSortedArray() {
-		assertArray(stream(1, -1, 0).collect(Collect.sortedArray(Integer[]::new)), -1, 0, 1);
+		Assert.array(stream(1, -1, 0).collect(Collect.sortedArray(Integer[]::new)), -1, 0, 1);
 	}
 
 	@Test
 	public void testCollection() {
-		assertOrdered(testStream().collect(Collect.collection(wset)), null, -1, 1);
+		Assert.ordered(testStream().collect(Collect.collection(wset)), null, -1, 1);
 	}
 
 	@Test
 	public void testMap() {
-		assertMap(testStream().collect(Collect.map(String::valueOf)), "-1", -1, "null", null, "1",
+		Assert.map(testStream().collect(Collect.map(String::valueOf)), "-1", -1, "null", null, "1",
 			1);
-		assertMap(testStream().collect(Collect.map(wmap, String::valueOf)), "-1", -1, "null", null,
+		Assert.map(testStream().collect(Collect.map(wmap, String::valueOf)), "-1", -1, "null", null,
 			"1", 1);
 	}
 
 	@Test
 	public void testMapSet() {
-		assertMap(testStream().collect(Collect.mapSet(String::valueOf)), "-1", Sets.ofAll(-1),
+		Assert.map(testStream().collect(Collect.mapSet(String::valueOf)), "-1", Sets.ofAll(-1),
 			"null", Sets.ofAll((Integer) null), "1", Sets.ofAll(1));
 	}
 

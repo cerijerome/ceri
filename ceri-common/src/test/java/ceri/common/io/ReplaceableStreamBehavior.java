@@ -1,12 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.throwable;
-import static ceri.common.test.ErrorGen.RTX;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -52,7 +45,7 @@ public class ReplaceableStreamBehavior {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(ReplaceableStream.class);
+		Assert.privateConstructor(ReplaceableStream.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -69,24 +62,24 @@ public class ReplaceableStreamBehavior {
 	@Test
 	public void shouldNotifyInListenerOfMarkException() throws InterruptedException {
 		initIn();
-		tin.mark.error.setFrom(RTX);
+		tin.mark.error.setFrom(ErrorGen.RTX);
 		rin = ReplaceableStream.in();
 		rin.errors().listen(sync::signal);
 		rin.set(tin);
 		Assert.thrown(() -> rin.mark(0));
-		throwable(sync.await(), RuntimeException.class);
+		Assert.throwable(sync.await(), RuntimeException.class);
 	}
 
 	@Test
 	public void shouldNotifyInListenerOfMarkSupportedException() throws InterruptedException {
 		initIn();
-		tin.markSupported.error.setFrom(RTX);
+		tin.markSupported.error.setFrom(ErrorGen.RTX);
 		rin = ReplaceableStream.in();
 		rin.errors().listen(sync::signal);
-		assertFalse(rin.markSupported());
+		Assert.no(rin.markSupported());
 		rin.set(tin);
 		Assert.thrown(rin::markSupported);
-		throwable(sync.await(), RuntimeException.class);
+		Assert.throwable(sync.await(), RuntimeException.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -99,9 +92,9 @@ public class ReplaceableStreamBehavior {
 		rin.set(tin);
 		rin.errors().listen(sync::signal);
 		Assert.thrown(rin::read);
-		throwable(sync.await(), IOException.class);
+		Assert.throwable(sync.await(), IOException.class);
 		Assert.thrown(rin::read);
-		throwable(sync.await(), IOException.class);
+		Assert.throwable(sync.await(), IOException.class);
 	}
 
 	@Test
@@ -121,10 +114,10 @@ public class ReplaceableStreamBehavior {
 	public void shouldPassThroughInMarkAndReset() throws IOException {
 		rin = ReplaceableStream.in();
 		in = bis("test");
-		assertFalse(rin.markSupported());
+		Assert.no(rin.markSupported());
 		rin.set(in);
-		assertTrue(rin.markSupported());
-		assertEquals(rin.available(), 4);
+		Assert.yes(rin.markSupported());
+		Assert.equal(rin.available(), 4);
 		byte[] buffer = new byte[6];
 		rin.read(buffer, 0, 2);
 		rin.mark(2);
@@ -132,7 +125,7 @@ public class ReplaceableStreamBehavior {
 		rin.reset();
 		rin.skip(1);
 		rin.read(buffer, 4, 2);
-		assertArray(buffer, "testt\0".getBytes());
+		Assert.array(buffer, "testt\0".getBytes());
 	}
 
 	@Test
@@ -145,7 +138,7 @@ public class ReplaceableStreamBehavior {
 		rin.read(buffer);
 		rin.set(in2);
 		rin.read(buffer, 4, 5);
-		assertArray(buffer, "testagain".getBytes());
+		Assert.array(buffer, "testagain".getBytes());
 	}
 
 	@Test
@@ -154,11 +147,11 @@ public class ReplaceableStreamBehavior {
 		in = bis("test");
 		rin.set(in);
 		byte[] buffer = new byte[2];
-		assertEquals(rin.read(), (int) 't');
+		Assert.equal(rin.read(), (int) 't');
 		rin.read(buffer);
-		assertArray(buffer, 'e', 's');
+		Assert.array(buffer, 'e', 's');
 		rin.read(buffer, 1, 1);
-		assertArray(buffer, 'e', 't');
+		Assert.array(buffer, 'e', 't');
 	}
 
 	@SuppressWarnings("resource")
@@ -180,9 +173,9 @@ public class ReplaceableStreamBehavior {
 		rout.set(tout);
 		rout.errors().listen(sync::signal);
 		Assert.thrown(() -> rout.write(0));
-		throwable(sync.await(), IOException.class);
+		Assert.throwable(sync.await(), IOException.class);
 		Assert.thrown(() -> rout.write(0xff));
-		throwable(sync.await(), IOException.class);
+		Assert.throwable(sync.await(), IOException.class);
 	}
 
 	@Test
@@ -229,7 +222,7 @@ public class ReplaceableStreamBehavior {
 		Assert.thrown(fcon::open);
 		fcon.replace(tcon);
 		fcon.open();
-		assertEquals(fcon.in().available(), 0);
+		Assert.equal(fcon.in().available(), 0);
 		fcon.out().write(0);
 	}
 
@@ -260,7 +253,7 @@ public class ReplaceableStreamBehavior {
 	}
 
 	private static void assertBout(ByteArrayOutputStream bout, String s) {
-		assertArray(bout.toByteArray(), s.getBytes());
+		Assert.array(bout.toByteArray(), s.getBytes());
 	}
 
 	private static ByteArrayInputStream bis(String s) {

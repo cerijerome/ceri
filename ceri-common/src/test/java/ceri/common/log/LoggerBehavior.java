@@ -1,7 +1,5 @@
 package ceri.common.log;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertValue;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
@@ -9,6 +7,7 @@ import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.io.SystemIo;
 import ceri.common.log.Logger.FormatFlag;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.text.Regex;
 import ceri.common.text.StringBuilders;
@@ -45,10 +44,10 @@ public class LoggerBehavior {
 		logger = builder().out(out).err(err).build();
 		logger.info("test: %s", "info");
 		logger.error("test: %s", "error");
-		assertEquals(out.values.size(), 1);
-		assertValue(out.values.get(0), s -> s.endsWith("test: info"));
-		assertEquals(err.values.size(), 1);
-		assertValue(err.values.get(0), s -> s.endsWith("test: error"));
+		Assert.equal(out.values.size(), 1);
+		Assert.match(out.values.get(0), ".*test: info");
+		Assert.equal(err.values.size(), 1);
+		Assert.match(err.values.get(0), ".*test: error");
 	}
 
 	@Test
@@ -138,9 +137,9 @@ public class LoggerBehavior {
 	@Test
 	public void shouldFindLoggerByKey() {
 		logger = init().build();
-		assertEquals(Logger.logger(KEY), logger);
+		Assert.equal(Logger.logger(KEY), logger);
 		logger = builder().build();
-		assertEquals(Logger.logger(KEY), logger);
+		Assert.equal(Logger.logger(KEY), logger);
 	}
 
 	private Logger.Builder builder() {
@@ -158,6 +157,7 @@ public class LoggerBehavior {
 	}
 
 	private void assertAndReset(StringBuilder b, Excepts.Predicate<RuntimeException, String> test) {
-		assertValue(StringBuilders.flush(b), test::test);
+		var s = StringBuilders.flush(b);
+		if (!test.test(s)) throw Assert.failure("Failed: %s", String.valueOf(s).trim());
 	}
 }

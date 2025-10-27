@@ -1,14 +1,5 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertMatch;
-import static ceri.common.test.Assert.assertNotEquals;
-import static ceri.common.test.Assert.assertOptional;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -90,7 +81,7 @@ public class ReflectTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Reflect.class);
+		Assert.privateConstructor(Reflect.class);
 	}
 
 	static class SuperA {}
@@ -122,80 +113,80 @@ public class ReflectTest {
 	public void testThreadElement() {
 		var te = new ThreadElement(Thread.currentThread(),
 			new StackTraceElement("my.pkg.MyClass", "method", "File.java", 123));
-		assertString(te, "MyClass.method:123");
-		assertMatch(te.full(), "\\[.*\\] \\Qmy.pkg.MyClass.method(File.java:123)\\E");
-		assertString(ThreadElement.NULL, "null");
-		assertString(ThreadElement.NULL.full(), "[null] null");
+		Assert.string(te, "MyClass.method:123");
+		Assert.match(te.full(), "\\[.*\\] \\Qmy.pkg.MyClass.method(File.java:123)\\E");
+		Assert.string(ThreadElement.NULL, "null");
+		Assert.string(ThreadElement.NULL.full(), "[null] null");
 	}
 
 	@Test
 	public void testFindElement() {
-		assertEquals(Reflect.findElement(_ -> false), ThreadElement.NULL);
+		Assert.equal(Reflect.findElement(_ -> false), ThreadElement.NULL);
 		var thread = Thread.currentThread();
 		var name = getClass().getName();
 		var te = Reflect.findElement((t, e) -> (thread == t) && e.getClassName().equals(name));
-		assertEquals(te.thread(), thread);
-		assertEquals(te.element().getClassName(), name);
+		Assert.equal(te.thread(), thread);
+		Assert.equal(te.element().getClassName(), name);
 	}
 
 	@Test
 	public void testGetClass() {
-		assertEquals(Reflect.getClass(null), null);
-		assertEquals(Reflect.getClass(String.class), Class.class);
-		assertEquals(Reflect.getClass("abc"), String.class);
+		Assert.equal(Reflect.getClass(null), null);
+		Assert.equal(Reflect.getClass(String.class), Class.class);
+		Assert.equal(Reflect.getClass("abc"), String.class);
 	}
 
 	@Test
 	public void testNested() {
-		assertOrdered(Reflect.nested());
-		assertOrdered(Reflect.nested(Nested.class), Nested.class, Nested.A.class, Nested.A.AA.class,
+		Assert.ordered(Reflect.nested());
+		Assert.ordered(Reflect.nested(Nested.class), Nested.class, Nested.A.class, Nested.A.AA.class,
 			Nested.A.AB.class, Nested.B.class);
-		assertOrdered(Reflect.nested(Nested.A.class, Nested.B.class), Nested.A.class,
+		Assert.ordered(Reflect.nested(Nested.A.class, Nested.B.class), Nested.A.class,
 			Nested.A.AA.class, Nested.A.AB.class, Nested.B.class);
 	}
 
 	@Test
 	public void testEnumToField() {
-		assertEquals(Reflect.enumToField(null), null);
+		Assert.equal(Reflect.enumToField(null), null);
 		Field f = Reflect.enumToField(E.a);
-		assertEquals(f.isEnumConstant(), true);
-		assertEquals(f.getName(), "a");
+		Assert.equal(f.isEnumConstant(), true);
+		Assert.equal(f.getName(), "a");
 	}
 
 	@Test
 	public void testFieldToEnum() throws ReflectiveOperationException {
-		assertEquals(Reflect.fieldToEnum(null), null);
-		assertEquals(Reflect.fieldToEnum(Fields.class.getField("s")), null);
+		Assert.equal(Reflect.fieldToEnum(null), null);
+		Assert.equal(Reflect.fieldToEnum(Fields.class.getField("s")), null);
 		var f = E.class.getField("a");
 		var en = Reflect.fieldToEnum(f);
-		assertEquals(en, E.a);
+		Assert.equal(en, E.a);
 	}
 
 	@Test
 	public void testOptionalCast() {
-		assertOptional(Reflect.castOptional(String.class, 1.1), null);
-		assertOptional(Reflect.castOptional(Number.class, 1.1), 1.1);
+		Assert.optional(Reflect.castOptional(String.class, 1.1), null);
+		Assert.optional(Reflect.castOptional(Number.class, 1.1), 1.1);
 	}
 
 	@Test
 	public void testIsStaticMember() {
-		assertEquals(Reflect.isStatic((Member) null), false);
-		assertEquals(Reflect.isStatic(Reflect.publicField(Fields.class, "s")), false);
-		assertEquals(Reflect.isStatic(Reflect.publicField(E.class, "a")), true);
+		Assert.equal(Reflect.isStatic((Member) null), false);
+		Assert.equal(Reflect.isStatic(Reflect.publicField(Fields.class, "s")), false);
+		Assert.equal(Reflect.isStatic(Reflect.publicField(E.class, "a")), true);
 	}
 
 	@Test
 	public void testIsStaticClass() {
-		assertEquals(Reflect.isStatic((Class<?>) null), false);
-		assertEquals(Reflect.isStatic(String.class), false);
-		assertEquals(Reflect.isStatic(E_CLASS), true);
+		Assert.equal(Reflect.isStatic((Class<?>) null), false);
+		Assert.equal(Reflect.isStatic(String.class), false);
+		Assert.equal(Reflect.isStatic(E_CLASS), true);
 	}
 
 	@Test
 	public void testIsPublicClass() {
-		assertEquals(Reflect.isPublic((Class<?>) null), false);
-		assertEquals(Reflect.isPublic(String.class), true);
-		assertEquals(Reflect.isPublic(Fields.class), false);
+		Assert.equal(Reflect.isPublic((Class<?>) null), false);
+		Assert.equal(Reflect.isPublic(String.class), true);
+		Assert.equal(Reflect.isPublic(Fields.class), false);
 	}
 
 	@Test
@@ -209,7 +200,8 @@ public class ReflectTest {
 
 	@Test
 	public void testPublicFieldValue() {
-		Assert.isNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
+		Assert
+			.isNull(Reflect.publicFieldValue(new Object(), Reflect.publicField(Fields.class, "s")));
 		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.l = 100),
 			Reflect.publicField(Fields.class, "l")));
 		Assert.isNull(Reflect.publicFieldValue(new Fields().apply(f -> f.s = "test"), null));
@@ -218,10 +210,10 @@ public class ReflectTest {
 
 	@Test
 	public void testPublicValue() {
-		assertEquals(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
-		assertEquals(Reflect.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
+		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "s"), "test");
+		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.i = 333), "i"), 333);
 		byte[] bytes = ArrayUtil.bytes.of(1, 2, 3);
-		assertEquals(Reflect.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
+		Assert.equal(Reflect.publicValue(new Fields().apply(f -> f.b = bytes), "b"), bytes);
 		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.l = 100), "l"));
 		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.d = 0.3), "d"));
 		Assert.isNull(Reflect.publicValue(new Fields().apply(f -> f.s = "test"), "x"));
@@ -232,46 +224,46 @@ public class ReflectTest {
 	@Test
 	public void testStaticFields() {
 		Fields.ss = null;
-		assertOrdered(Reflect.staticFields(Fields.class, String.class).toList(), "sfs");
+		Assert.ordered(Reflect.staticFields(Fields.class, String.class).toList(), "sfs");
 		Fields.ss = "ss";
-		assertOrdered(Reflect.staticFields(Fields.class, String.class).toList(), "sfs", "ss");
+		Assert.ordered(Reflect.staticFields(Fields.class, String.class).toList(), "sfs", "ss");
 	}
 
 	@Test
 	public void testPackageLevels() {
-		assertEquals(Reflect.packageLevels((Class<?>) null), 0);
-		assertEquals(Reflect.packageLevels(getClass()), 3);
-		assertEquals(Reflect.packageLevels((String) null), 0);
-		assertEquals(Reflect.packageLevels(""), 0);
-		assertEquals(Reflect.packageLevels("a"), 1);
-		assertEquals(Reflect.packageLevels("a.b.c.d"), 4);
+		Assert.equal(Reflect.packageLevels((Class<?>) null), 0);
+		Assert.equal(Reflect.packageLevels(getClass()), 3);
+		Assert.equal(Reflect.packageLevels((String) null), 0);
+		Assert.equal(Reflect.packageLevels(""), 0);
+		Assert.equal(Reflect.packageLevels("a"), 1);
+		Assert.equal(Reflect.packageLevels("a.b.c.d"), 4);
 	}
 
 	@Test
 	public void testAbbreviatePackages() {
 		Assert.isNull(Reflect.abbreviatePackages(null));
-		assertEquals(Reflect.abbreviatePackages(""), "");
-		assertEquals(Reflect.abbreviatePackages("ceri.common.reflect.ReflectUtil"),
+		Assert.equal(Reflect.abbreviatePackages(""), "");
+		Assert.equal(Reflect.abbreviatePackages("ceri.common.reflect.ReflectUtil"),
 			"c.c.r.ReflectUtil");
-		assertEquals(Reflect.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
+		Assert.equal(Reflect.abbreviatePackages("Name.abc.def.Xyz"), "Name.a.d.Xyz");
 	}
 
 	@Test
 	public void testStackHasPackage() {
-		assertFalse(Reflect.stackHasPackage((Class<?>) null));
-		assertFalse(Reflect.stackHasPackage((String) null));
-		assertTrue(Reflect.stackHasPackage(getClass()));
+		Assert.no(Reflect.stackHasPackage((Class<?>) null));
+		Assert.no(Reflect.stackHasPackage((String) null));
+		Assert.yes(Reflect.stackHasPackage(getClass()));
 	}
 
 	@Test
 	public void testInit() {
 		var cls = Init.class;
-		assertEquals(counter.get(), 0);
-		assertEquals(Reflect.init(null), null);
-		assertEquals(Reflect.init(cls), cls);
-		assertEquals(counter.get(), 1);
-		assertEquals(Reflect.init(cls), cls);
-		assertEquals(counter.get(), 1);
+		Assert.equal(counter.get(), 0);
+		Assert.equal(Reflect.init(null), null);
+		Assert.equal(Reflect.init(cls), cls);
+		Assert.equal(counter.get(), 1);
+		Assert.equal(Reflect.init(cls), cls);
+		Assert.equal(counter.get(), 1);
 	}
 
 	@Test
@@ -285,41 +277,41 @@ public class ReflectTest {
 
 	@Test
 	public void testName() {
-		assertEquals(Reflect.name((Class<?>) null), "null");
-		assertEquals(Reflect.name((String) null), "null");
-		assertEquals(Reflect.name(int.class), "int");
-		assertEquals(Reflect.name(byte[].class), "byte[]");
-		assertEquals(Reflect.name(Abstract.class),
+		Assert.equal(Reflect.name((Class<?>) null), "null");
+		Assert.equal(Reflect.name((String) null), "null");
+		Assert.equal(Reflect.name(int.class), "int");
+		Assert.equal(Reflect.name(byte[].class), "byte[]");
+		Assert.equal(Reflect.name(Abstract.class),
 			getClass().getSimpleName() + "." + Abstract.class.getSimpleName());
-		assertEquals(Reflect.name(Abstract[].class),
+		Assert.equal(Reflect.name(Abstract[].class),
 			getClass().getSimpleName() + "." + Abstract.class.getSimpleName() + "[]");
 	}
 
 	@Test
 	public void testNestedName() {
-		assertEquals(Reflect.nestedName(null), "null");
-		assertEquals(Reflect.nestedName(int.class), "int");
-		assertEquals(Reflect.nestedName(byte[].class), "byte[]");
-		assertEquals(Reflect.nestedName(Abstract.class), Abstract.class.getSimpleName());
-		assertEquals(Reflect.nestedName(Abstract[].class), Abstract.class.getSimpleName() + "[]");
+		Assert.equal(Reflect.nestedName(null), "null");
+		Assert.equal(Reflect.nestedName(int.class), "int");
+		Assert.equal(Reflect.nestedName(byte[].class), "byte[]");
+		Assert.equal(Reflect.nestedName(Abstract.class), Abstract.class.getSimpleName());
+		Assert.equal(Reflect.nestedName(Abstract[].class), Abstract.class.getSimpleName() + "[]");
 	}
 
 	@Test
 	public void testHashId() {
 		Assert.isNull(Reflect.hashId(null));
-		assertMatch(Reflect.hashId(new Object()), "@[0-9a-fA-F]+");
+		Assert.match(Reflect.hashId(new Object()), "@[0-9a-fA-F]+");
 	}
 
 	@Test
 	public void testSameClass() {
-		assertEquals(Reflect.same((Class<?>) null, null), true);
-		assertEquals(Reflect.same(null, E.class), false);
-		assertEquals(Reflect.same(E.class, null), false);
-		assertEquals(Reflect.same(E.class, E.class), true);
+		Assert.equal(Reflect.same((Class<?>) null, null), true);
+		Assert.equal(Reflect.same(null, E.class), false);
+		Assert.equal(Reflect.same(E.class, null), false);
+		Assert.equal(Reflect.same(E.class, E.class), true);
 		class TestSame {
 			static {
-				assertEquals(E_CLASS.equals(E.class), false);
-				assertEquals(Reflect.same(E_CLASS, E.class), true);
+				Assert.equal(E_CLASS.equals(E.class), false);
+				Assert.equal(Reflect.same(E_CLASS, E.class), true);
 			}
 		}
 		ClassReInitializer.of(TestSame.class, E.class).reinit();
@@ -334,14 +326,14 @@ public class ReflectTest {
 		var wr1 = new WeakReference<>(o1);
 		var srn = new SoftReference<>(null);
 		var sr0 = new SoftReference<>(o0);
-		assertEquals(Reflect.same((Reference<?>) null, null), true);
-		assertEquals(Reflect.same(null, wrn), false);
-		assertEquals(Reflect.same(wrn, null), false);
-		assertEquals(Reflect.same(wrn, srn), true);
-		assertEquals(Reflect.same(wr0, wrn), false);
-		assertEquals(Reflect.same(wr0, wr1), false);
-		assertEquals(Reflect.same(wr0, wr0), true);
-		assertEquals(Reflect.same(wr0, sr0), true);
+		Assert.equal(Reflect.same((Reference<?>) null, null), true);
+		Assert.equal(Reflect.same(null, wrn), false);
+		Assert.equal(Reflect.same(wrn, null), false);
+		Assert.equal(Reflect.same(wrn, srn), true);
+		Assert.equal(Reflect.same(wr0, wrn), false);
+		Assert.equal(Reflect.same(wr0, wr1), false);
+		Assert.equal(Reflect.same(wr0, wr0), true);
+		Assert.equal(Reflect.same(wr0, sr0), true);
 	}
 
 	@Test
@@ -354,11 +346,11 @@ public class ReflectTest {
 	public void testCreateObject() throws RuntimeInvocationException {
 		Class<?>[] argTypes = {};
 		Object[] args = {};
-		assertEquals(Reflect.create(String.class, argTypes, args), "");
+		Assert.equal(Reflect.create(String.class, argTypes, args), "");
 		argTypes = new Class<?>[] { long.class };
 		args = new Object[] { 0 };
-		assertEquals(Reflect.create(Date.class, argTypes, args), new Date(0));
-		assertEquals(Reflect.create(String.class, byte[].class, ArrayUtil.bytes.of(0, 0)), "\0\0");
+		Assert.equal(Reflect.create(Date.class, argTypes, args), new Date(0));
+		Assert.equal(Reflect.create(String.class, byte[].class, ArrayUtil.bytes.of(0, 0)), "\0\0");
 	}
 
 	@Test
@@ -372,91 +364,91 @@ public class ReflectTest {
 
 	@Test
 	public void testInstanceOfAny() {
-		assertFalse(Reflect.instanceOfAny(null));
-		assertFalse(Reflect.instanceOfAny(Object.class));
+		Assert.no(Reflect.instanceOfAny(null));
+		Assert.no(Reflect.instanceOfAny(Object.class));
 		Object obj = Long.MAX_VALUE;
-		assertTrue(Reflect.instanceOfAny(obj, Long.class));
-		assertTrue(Reflect.instanceOfAny(obj, Number.class));
-		assertTrue(Reflect.instanceOfAny(obj, Object.class));
-		assertFalse(Reflect.instanceOfAny(obj, Float.class));
-		assertFalse(Reflect.instanceOfAny(obj, Float.class, Integer.class));
-		assertTrue(Reflect.instanceOfAny(obj, Float.class, Integer.class, Number.class));
+		Assert.yes(Reflect.instanceOfAny(obj, Long.class));
+		Assert.yes(Reflect.instanceOfAny(obj, Number.class));
+		Assert.yes(Reflect.instanceOfAny(obj, Object.class));
+		Assert.no(Reflect.instanceOfAny(obj, Float.class));
+		Assert.no(Reflect.instanceOfAny(obj, Float.class, Integer.class));
+		Assert.yes(Reflect.instanceOfAny(obj, Float.class, Integer.class, Number.class));
 	}
 
 	@Test
 	public void testAssignableFromAny() {
-		assertFalse(Reflect.assignableFromAny(null));
-		assertFalse(Reflect.assignableFromAny(Object.class));
-		assertTrue(Reflect.assignableFromAny(Long.class, Long.class));
-		assertFalse(Reflect.assignableFromAny(Long.class, Integer.class));
-		assertTrue(Reflect.assignableFromAny(Long.class, Number.class));
-		assertFalse(Reflect.assignableFromAny(Number.class, Long.class));
-		assertTrue(Reflect.assignableFromAny(Number.class, Long.class, Serializable.class));
-		assertFalse(Reflect.assignableFromAny(Serializable.class, Number.class, Long.class));
+		Assert.no(Reflect.assignableFromAny(null));
+		Assert.no(Reflect.assignableFromAny(Object.class));
+		Assert.yes(Reflect.assignableFromAny(Long.class, Long.class));
+		Assert.no(Reflect.assignableFromAny(Long.class, Integer.class));
+		Assert.yes(Reflect.assignableFromAny(Long.class, Number.class));
+		Assert.no(Reflect.assignableFromAny(Number.class, Long.class));
+		Assert.yes(Reflect.assignableFromAny(Number.class, Long.class, Serializable.class));
+		Assert.no(Reflect.assignableFromAny(Serializable.class, Number.class, Long.class));
 	}
 
 	@Test
 	public void testIsPrimitive() {
-		assertEquals(Reflect.isPrimitive(null), false);
-		assertEquals(Reflect.isPrimitive(boolean.class), true);
-		assertEquals(Reflect.isPrimitive(char.class), true);
-		assertEquals(Reflect.isPrimitive(Integer.class), false);
+		Assert.equal(Reflect.isPrimitive(null), false);
+		Assert.equal(Reflect.isPrimitive(boolean.class), true);
+		Assert.equal(Reflect.isPrimitive(char.class), true);
+		Assert.equal(Reflect.isPrimitive(Integer.class), false);
 	}
 
 	@Test
 	public void testIsPrimitiveInt() {
-		assertEquals(Reflect.isPrimitiveInt(null), false);
-		assertEquals(Reflect.isPrimitiveInt(char.class), false);
-		assertEquals(Reflect.isPrimitiveInt(long.class), true);
-		assertEquals(Reflect.isPrimitiveInt(Integer.class), false);
+		Assert.equal(Reflect.isPrimitiveInt(null), false);
+		Assert.equal(Reflect.isPrimitiveInt(char.class), false);
+		Assert.equal(Reflect.isPrimitiveInt(long.class), true);
+		Assert.equal(Reflect.isPrimitiveInt(Integer.class), false);
 	}
 
 	@Test
 	public void testIsPrimitiveNumber() {
-		assertEquals(Reflect.isPrimitiveNumber(null), false);
-		assertEquals(Reflect.isPrimitiveNumber(char.class), false);
-		assertEquals(Reflect.isPrimitiveNumber(double.class), true);
-		assertEquals(Reflect.isPrimitiveNumber(Integer.class), false);
+		Assert.equal(Reflect.isPrimitiveNumber(null), false);
+		Assert.equal(Reflect.isPrimitiveNumber(char.class), false);
+		Assert.equal(Reflect.isPrimitiveNumber(double.class), true);
+		Assert.equal(Reflect.isPrimitiveNumber(Integer.class), false);
 	}
 
 	@Test
 	public void testIsNumber() {
-		assertEquals(Reflect.isNumber(null), false);
-		assertEquals(Reflect.isNumber(char.class), false);
-		assertEquals(Reflect.isNumber(double.class), true);
-		assertEquals(Reflect.isNumber(Integer.class), true);
-		assertEquals(Reflect.isNumber(Float.class), true);
-		assertEquals(Reflect.isNumber(String.class), false);
+		Assert.equal(Reflect.isNumber(null), false);
+		Assert.equal(Reflect.isNumber(char.class), false);
+		Assert.equal(Reflect.isNumber(double.class), true);
+		Assert.equal(Reflect.isNumber(Integer.class), true);
+		Assert.equal(Reflect.isNumber(Float.class), true);
+		Assert.equal(Reflect.isNumber(String.class), false);
 	}
 
 	@Test
 	public void testCreateObjectDefault() {
-		assertEquals(Reflect.create(String.class), "");
-		assertEquals(Reflect.create(Boolean.class), null);
+		Assert.equal(Reflect.create(String.class), "");
+		Assert.equal(Reflect.create(Boolean.class), null);
 	}
 
 	@Test
 	public void testJvmArgs() {
 		Pattern p = Pattern.compile("-.+");
 		for (var arg : Reflect.jvmArgs())
-			assertMatch(arg, p);
+			Assert.match(arg, p);
 	}
 
 	@Test
 	public void testCurrentStackTraceElement() {
 		StackTraceElement element = Reflect.currentElement();
-		assertEquals(element.getMethodName(), "testCurrentStackTraceElement");
-		assertEquals(element.getClassName(), ReflectTest.class.getName());
+		Assert.equal(element.getMethodName(), "testCurrentStackTraceElement");
+		Assert.equal(element.getClassName(), ReflectTest.class.getName());
 	}
 
 	@Test
 	public void testPreviousStackTraceElement() {
 		StackTraceElement element = getPreviousStackTraceElement(0);
-		assertEquals(element.getMethodName(), "getPreviousStackTraceElement");
-		assertEquals(element.getClassName(), ReflectTest.class.getName());
+		Assert.equal(element.getMethodName(), "getPreviousStackTraceElement");
+		Assert.equal(element.getClassName(), ReflectTest.class.getName());
 		element = getPreviousStackTraceElement(1);
-		assertEquals(element.getMethodName(), "testPreviousStackTraceElement");
-		assertEquals(element.getClassName(), ReflectTest.class.getName());
+		Assert.equal(element.getMethodName(), "testPreviousStackTraceElement");
+		Assert.equal(element.getClassName(), ReflectTest.class.getName());
 	}
 
 	private StackTraceElement getPreviousStackTraceElement(int countBack) {
@@ -467,25 +459,25 @@ public class ReflectTest {
 	public void testCurrentCaller() {
 		Caller caller = Reflect.currentCaller();
 		Class<?> cls = getClass();
-		assertEquals(caller.cls, cls.getSimpleName());
-		assertEquals(caller.fullCls, cls.getName());
-		assertEquals(caller.file, cls.getSimpleName() + ".java");
+		Assert.equal(caller.cls, cls.getSimpleName());
+		Assert.equal(caller.fullCls, cls.getName());
+		Assert.equal(caller.file, cls.getSimpleName() + ".java");
 		Assert.same(caller.cls(), cls);
 		Caller caller2 = Reflect.currentCaller();
-		assertNotEquals(caller, caller2);
-		assertEquals(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
+		Assert.notEqual(caller, caller2);
+		Assert.equal(new Caller(caller2.fullCls, caller.line, caller2.method, caller2.file),
 			caller);
 	}
 
 	@Test
 	public void testCurrentClassLine() {
-		assertMatch(Reflect.currentClassLine(), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
+		Assert.match(Reflect.currentClassLine(), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
 	}
 
 	@Test
 	public void testPreviousClassLine() {
-		assertMatch(getPreviousClassLine(0), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
-		assertMatch(getPreviousClassLine(1), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
+		Assert.match(getPreviousClassLine(0), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
+		Assert.match(getPreviousClassLine(1), "\\Q" + ReflectTest.class.getName() + "\\E:\\d+");
 	}
 
 	private String getPreviousClassLine(int countBack) {
@@ -495,13 +487,13 @@ public class ReflectTest {
 	@Test
 	public void testPreviousCaller() {
 		StackTraceElement[] e = Thread.currentThread().getStackTrace();
-		assertNotEquals(Reflect.previousCaller(e.length - 2), Caller.NULL);
-		assertEquals(Reflect.previousCaller(e.length - 1), Caller.NULL);
+		Assert.notEqual(Reflect.previousCaller(e.length - 2), Caller.NULL);
+		Assert.equal(Reflect.previousCaller(e.length - 1), Caller.NULL);
 	}
 
 	@Test
 	public void testCurrentMethodName() {
-		assertEquals(Reflect.currentMethodName(), "testCurrentMethodName");
+		Assert.equal(Reflect.currentMethodName(), "testCurrentMethodName");
 	}
 
 	@Test
@@ -510,12 +502,12 @@ public class ReflectTest {
 	}
 
 	private void callPreviousMethodName1() {
-		assertEquals(Reflect.previousMethodName(1), "testPreviousMethodName");
+		Assert.equal(Reflect.previousMethodName(1), "testPreviousMethodName");
 		callPreviousMethodName2();
 	}
 
 	private void callPreviousMethodName2() {
-		assertEquals(Reflect.previousMethodName(2), "testPreviousMethodName");
+		Assert.equal(Reflect.previousMethodName(2), "testPreviousMethodName");
 	}
 
 	@Test
@@ -540,7 +532,7 @@ public class ReflectTest {
 	@Test
 	public void testCastOrNull() {
 		java.sql.Date sqlDate = new java.sql.Date(0);
-		assertEquals(Reflect.castOrNull(Date.class, sqlDate), sqlDate);
+		Assert.equal(Reflect.castOrNull(Date.class, sqlDate), sqlDate);
 		Date date = new Date(0);
 		Assert.isNull(Reflect.castOrNull(java.sql.Date.class, date));
 	}

@@ -1,6 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -9,66 +8,66 @@ public class BiasTest {
 
 	@Test
 	public void testIntUpDown() {
-		assertEquals(Bias.Int.Std.up.bias(0), 0);
-		assertEquals(Bias.Int.Std.up.bias(127), 255);
-		assertEquals(Bias.Int.Std.up.bias(255), 255);
-		assertEquals(Bias.Int.Std.down.bias(0), 0);
-		assertEquals(Bias.Int.Std.down.bias(127), 0);
-		assertEquals(Bias.Int.Std.down.bias(255), 255);
+		Assert.equal(Bias.Int.Std.up.bias(0), 0);
+		Assert.equal(Bias.Int.Std.up.bias(127), 255);
+		Assert.equal(Bias.Int.Std.up.bias(255), 255);
+		Assert.equal(Bias.Int.Std.down.bias(0), 0);
+		Assert.equal(Bias.Int.Std.down.bias(127), 0);
+		Assert.equal(Bias.Int.Std.down.bias(255), 255);
 	}
 
 	@Test
 	public void testIntInvert() {
 		Bias.Int third = v -> v < 255 / 3 ? 0 : 255;
-		assertEquals(third.bias(0), 0);
-		assertEquals(third.bias(84), 0);
-		assertEquals(third.bias(85), 255);
+		Assert.equal(third.bias(0), 0);
+		Assert.equal(third.bias(84), 0);
+		Assert.equal(third.bias(85), 255);
 		Assert.approx(third.bias(255), 255);
 		var inverted = third.invert();
-		assertEquals(inverted.bias(0), 0);
-		assertEquals(inverted.bias(170), 0);
-		assertEquals(inverted.bias(171), 255);
+		Assert.equal(inverted.bias(0), 0);
+		Assert.equal(inverted.bias(170), 0);
+		Assert.equal(inverted.bias(171), 255);
 		Assert.approx(inverted.bias(255), 255);
 	}
 
 	@Test
 	public void testIntFromDouble() {
 		var bias = Bias.Int.from(r -> r * 2);
-		assertEquals(bias.bias(0), 0);
-		assertEquals(bias.bias(127), 254);
-		assertEquals(bias.bias(128), 255);
-		assertEquals(bias.bias(255), 255);
+		Assert.equal(bias.bias(0), 0);
+		Assert.equal(bias.bias(127), 254);
+		Assert.equal(bias.bias(128), 255);
+		Assert.equal(bias.bias(255), 255);
 
 	}
 
 	@Test
 	public void testIntLimit() {
 		Bias.Int bias = v -> v << 1;
-		assertEquals(bias.bias(128), 256);
-		assertEquals(bias.bias(256), 512);
-		assertEquals(bias.limit().bias(128), 255);
-		assertEquals(bias.limit().bias(256), 255);
+		Assert.equal(bias.bias(128), 256);
+		Assert.equal(bias.bias(256), 512);
+		Assert.equal(bias.limit().bias(128), 255);
+		Assert.equal(bias.limit().bias(256), 255);
 	}
 
 	@Test
 	public void testIntOffsetSimpleGraph() {
 		Bias.Int off = Bias.Int.NONE.offset(127);
 		// var bias = Bias.Int.Std.halfSine.offset(127);
-		assertEquals(off.bias(0), 0);
-		assertEquals(off.bias(1), 1);
-		assertEquals(off.bias(127), 127);
-		assertEquals(off.bias(254), 254);
-		assertEquals(off.bias(255), 255);
+		Assert.equal(off.bias(0), 0);
+		Assert.equal(off.bias(1), 1);
+		Assert.equal(off.bias(127), 127);
+		Assert.equal(off.bias(254), 254);
+		Assert.equal(off.bias(255), 255);
 	}
 
 	@Test
 	public void testIntOffsetComplexGraph() {
 		Bias.Int bias = Bias.Int.Std.q4q1Sine.offset(127);
-		assertEquals(bias.bias(0), 0);
-		assertEquals(bias.bias(64), 90);
-		assertEquals(bias.bias(127), 128);
-		assertEquals(bias.bias(191), 164);
-		assertEquals(bias.bias(255), 254);
+		Assert.equal(bias.bias(0), 0);
+		Assert.equal(bias.bias(64), 90);
+		Assert.equal(bias.bias(127), 128);
+		Assert.equal(bias.bias(191), 164);
+		Assert.equal(bias.bias(255), 254);
 	}
 	
 	@Test

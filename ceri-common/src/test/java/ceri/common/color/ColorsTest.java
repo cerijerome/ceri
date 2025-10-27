@@ -2,11 +2,6 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.illegalArg;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
@@ -43,113 +38,113 @@ public class ColorsTest {
 
 	@Test
 	public void testCompareHue() {
-		assertEquals(Colors.Compare.HUE.compare(null, null), 0);
-		assertEquals(Colors.Compare.HUE.compare(Color.white, null), 1);
-		assertEquals(Colors.Compare.HUE.compare(null, Color.black), -1);
-		assertEquals(Colors.Compare.HUE.compare(Color.black, Color.black), 0);
-		assertEquals(Colors.Compare.HUE.compare(Color.black, Color.white), 0);
-		assertEquals(Colors.Compare.HUE.compare(Color.red, Color.green), -1);
-		assertEquals(Colors.Compare.HUE.compare(Color.green, Color.blue), -1);
-		assertEquals(Colors.Compare.HUE.compare(Color.blue, Color.red), 1);
-		assertEquals(Colors.Compare.HUE.compare(Color.red, Color.pink), 0);
-		assertEquals(Colors.Compare.HUE.compare(Color.red, Color.magenta), -1);
+		Assert.equal(Colors.Compare.HUE.compare(null, null), 0);
+		Assert.equal(Colors.Compare.HUE.compare(Color.white, null), 1);
+		Assert.equal(Colors.Compare.HUE.compare(null, Color.black), -1);
+		Assert.equal(Colors.Compare.HUE.compare(Color.black, Color.black), 0);
+		Assert.equal(Colors.Compare.HUE.compare(Color.black, Color.white), 0);
+		Assert.equal(Colors.Compare.HUE.compare(Color.red, Color.green), -1);
+		Assert.equal(Colors.Compare.HUE.compare(Color.green, Color.blue), -1);
+		Assert.equal(Colors.Compare.HUE.compare(Color.blue, Color.red), 1);
+		Assert.equal(Colors.Compare.HUE.compare(Color.red, Color.pink), 0);
+		Assert.equal(Colors.Compare.HUE.compare(Color.red, Color.magenta), -1);
 	}
 
 	@Test
 	public void testCompareSaturation() {
-		assertEquals(Colors.Compare.SATURATION.compare(null, null), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.white, null), 1);
-		assertEquals(Colors.Compare.SATURATION.compare(null, Color.black), -1);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.black, Color.black), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.black, Color.white), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.red, Color.green), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.green, Color.blue), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.blue, Color.red), 0);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.red, Color.pink), 1);
-		assertEquals(Colors.Compare.SATURATION.compare(Color.red, Color.magenta), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(null, null), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.white, null), 1);
+		Assert.equal(Colors.Compare.SATURATION.compare(null, Color.black), -1);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.black, Color.black), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.black, Color.white), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.red, Color.green), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.green, Color.blue), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.blue, Color.red), 0);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.red, Color.pink), 1);
+		Assert.equal(Colors.Compare.SATURATION.compare(Color.red, Color.magenta), 0);
 	}
 
 	@Test
 	public void testCompareBrightness() {
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(null, null), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.white, null), 1);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(null, Color.black), -1);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.black, Color.black), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.black, Color.white), -1);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.green), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.green, Color.blue), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.blue, Color.red), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.pink), 0);
-		assertEquals(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.magenta), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(null, null), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.white, null), 1);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(null, Color.black), -1);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.black, Color.black), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.black, Color.white), -1);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.green), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.green, Color.blue), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.blue, Color.red), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.pink), 0);
+		Assert.equal(Colors.Compare.BRIGHTNESS.compare(Color.red, Color.magenta), 0);
 	}
 
 	@Test
 	public void testCompareHsb() {
-		assertEquals(Colors.Compare.HSB.compare(null, null), 0);
-		assertEquals(Colors.Compare.HSB.compare(Color.white, null), 1);
-		assertEquals(Colors.Compare.HSB.compare(null, Color.black), -1);
-		assertEquals(Colors.Compare.HSB.compare(Color.black, Color.black), 0);
-		assertEquals(Colors.Compare.HSB.compare(Color.black, Color.white), -1);
-		assertEquals(Colors.Compare.HSB.compare(Color.red, Color.green), -1);
-		assertEquals(Colors.Compare.HSB.compare(Color.green, Color.blue), -1);
-		assertEquals(Colors.Compare.HSB.compare(Color.blue, Color.red), 1);
-		assertEquals(Colors.Compare.HSB.compare(Color.red, Color.pink), 1);
-		assertEquals(Colors.Compare.HSB.compare(Color.red, Color.magenta), -1);
+		Assert.equal(Colors.Compare.HSB.compare(null, null), 0);
+		Assert.equal(Colors.Compare.HSB.compare(Color.white, null), 1);
+		Assert.equal(Colors.Compare.HSB.compare(null, Color.black), -1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.black, Color.black), 0);
+		Assert.equal(Colors.Compare.HSB.compare(Color.black, Color.white), -1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.red, Color.green), -1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.green, Color.blue), -1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.blue, Color.red), 1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.red, Color.pink), 1);
+		Assert.equal(Colors.Compare.HSB.compare(Color.red, Color.magenta), -1);
 	}
 
 	@Test
 	public void testFlattenArgb() {
-		assertEquals(Colors.flattenArgb(0x00802040), 0xff000000);
-		assertEquals(Colors.flattenArgb(0x80802040), 0xff401020);
-		assertEquals(Colors.flattenArgb(0xff802040), 0xff802040);
+		Assert.equal(Colors.flattenArgb(0x00802040), 0xff000000);
+		Assert.equal(Colors.flattenArgb(0x80802040), 0xff401020);
+		Assert.equal(Colors.flattenArgb(0xff802040), 0xff802040);
 	}
 
 	@Test
 	public void testRgb() {
-		assertEquals(Colors.rgb(0x98765432), 0x765432);
-		assertEquals(Colors.rgb(Colors.color(0x98765432)), 0x765432);
+		Assert.equal(Colors.rgb(0x98765432), 0x765432);
+		Assert.equal(Colors.rgb(Colors.color(0x98765432)), 0x765432);
 	}
 
 	@Test
 	public void testArgb() {
-		assertEquals(Colors.argb(0x11, 0x22, 0x33), 0xff112233);
+		Assert.equal(Colors.argb(0x11, 0x22, 0x33), 0xff112233);
 	}
 
 	@Test
 	public void testArgbFromText() {
-		assertEquals(Colors.argb("test"), null);
-		assertEquals(Colors.argb("clear"), 0);
-		assertEquals(Colors.argb("aquamarine"), Coloring.aquamarine.argb);
-		assertEquals(Colors.argb("#fed"), 0xffffeedd);
-		assertEquals(Colors.argb("0xfed"), 0xff000fed);
-		assertEquals(Colors.argb("#fedcba"), 0xfffedcba);
-		assertEquals(Colors.argb("0xfedcba"), 0xfffedcba);
-		assertEquals(Colors.argb("#fedcba98"), 0xfedcba98);
-		assertEquals(Colors.argb("0xfedcba98"), 0xfedcba98);
+		Assert.equal(Colors.argb("test"), null);
+		Assert.equal(Colors.argb("clear"), 0);
+		Assert.equal(Colors.argb("aquamarine"), Coloring.aquamarine.argb);
+		Assert.equal(Colors.argb("#fed"), 0xffffeedd);
+		Assert.equal(Colors.argb("0xfed"), 0xff000fed);
+		Assert.equal(Colors.argb("#fedcba"), 0xfffedcba);
+		Assert.equal(Colors.argb("0xfedcba"), 0xfffedcba);
+		Assert.equal(Colors.argb("#fedcba98"), 0xfedcba98);
+		Assert.equal(Colors.argb("0xfedcba98"), 0xfedcba98);
 	}
 
 	@Test
 	public void testValidArgbFromText() {
 		Assert.thrown(() -> Colors.validArgb("test"));
-		assertEquals(Colors.validArgb("aquamarine"), Coloring.aquamarine.argb);
+		Assert.equal(Colors.validArgb("aquamarine"), Coloring.aquamarine.argb);
 	}
 
 	@Test
 	public void testGrayArgb() {
-		assertEquals(Colors.grayArgb(0), 0xff000000);
-		assertEquals(Colors.grayArgb(0xab), 0xffababab);
+		Assert.equal(Colors.grayArgb(0), 0xff000000);
+		Assert.equal(Colors.grayArgb(0xab), 0xffababab);
 	}
 
 	@Test
 	public void testMaxArgb() {
-		assertEquals(Colors.maxArgb(0x80408020), 0x8080ff40);
-		assertEquals(Colors.maxArgb(0x8040ff20), 0x8040ff20);
-		assertEquals(Colors.maxArgb(0x80000000), 0x80000000);
+		Assert.equal(Colors.maxArgb(0x80408020), 0x8080ff40);
+		Assert.equal(Colors.maxArgb(0x8040ff20), 0x8040ff20);
+		Assert.equal(Colors.maxArgb(0x80000000), 0x80000000);
 	}
 
 	@Test
 	public void testRandomRgb() {
-		assertEquals(Colors.randomRgb() & 0xff000000, 0xff000000);
+		Assert.equal(Colors.randomRgb() & 0xff000000, 0xff000000);
 	}
 
 	@Test
@@ -159,39 +154,39 @@ public class ColorsTest {
 
 	@Test
 	public void testBlendArgbs() {
-		assertEquals(Colors.blendArgbs(), 0);
-		assertEquals(Colors.blendArgbs(0x80aabbcc), 0x80aabbcc);
-		assertEquals(Colors.blendArgbs(0xffaabbcc, 0x40112233), 0xffaabbcc);
-		assertEquals(Colors.blendArgbs(0x80aabbcc, 0x112233), 0x80aabbcc);
-		assertEquals(Colors.blendArgbs(0xaabbcc, 0x40112233), 0x40112233);
-		assertEquals(Colors.blendArgbs(0x80aabbcc, 0x40112233), 0xa08b9cad);
-		assertEquals(Colors.blendArgbs(0x40112233, 0x80aabbcc), 0xa06d7e8f);
+		Assert.equal(Colors.blendArgbs(), 0);
+		Assert.equal(Colors.blendArgbs(0x80aabbcc), 0x80aabbcc);
+		Assert.equal(Colors.blendArgbs(0xffaabbcc, 0x40112233), 0xffaabbcc);
+		Assert.equal(Colors.blendArgbs(0x80aabbcc, 0x112233), 0x80aabbcc);
+		Assert.equal(Colors.blendArgbs(0xaabbcc, 0x40112233), 0x40112233);
+		Assert.equal(Colors.blendArgbs(0x80aabbcc, 0x40112233), 0xa08b9cad);
+		Assert.equal(Colors.blendArgbs(0x40112233, 0x80aabbcc), 0xa06d7e8f);
 	}
 
 	@Test
 	public void testDimArgb() {
-		assertEquals(Colors.dimArgb(0xff664422, 0.0), 0xff000000);
-		assertEquals(Colors.dimArgb(0xff664422, 1.0), 0xff664422);
-		assertEquals(Colors.dimArgb(0xff664422, 0.5), 0xff332211);
-		assertEquals(Colors.dimArgb(0xff664422, 0.125), 0xff0d0904);
-		assertEquals(Colors.dimArgb(0x88664422, 0.5), 0x88332211);
-		assertEquals(Colors.dimArgb(0x88000000, 0.5), 0x88000000);
+		Assert.equal(Colors.dimArgb(0xff664422, 0.0), 0xff000000);
+		Assert.equal(Colors.dimArgb(0xff664422, 1.0), 0xff664422);
+		Assert.equal(Colors.dimArgb(0xff664422, 0.5), 0xff332211);
+		Assert.equal(Colors.dimArgb(0xff664422, 0.125), 0xff0d0904);
+		Assert.equal(Colors.dimArgb(0x88664422, 0.5), 0x88332211);
+		Assert.equal(Colors.dimArgb(0x88000000, 0.5), 0x88000000);
 	}
 
 	@Test
 	public void testScaleArgb() {
-		assertEquals(Colors.scaleArgb(0xff224466, 0xff446622, 0), 0xff224466);
-		assertEquals(Colors.scaleArgb(0xff224466, 0xff446622, 1), 0xff446622);
-		assertEquals(Colors.scaleArgb(0xff224466, 0xff446622, 0.5), 0xff335544);
+		Assert.equal(Colors.scaleArgb(0xff224466, 0xff446622, 0), 0xff224466);
+		Assert.equal(Colors.scaleArgb(0xff224466, 0xff446622, 1), 0xff446622);
+		Assert.equal(Colors.scaleArgb(0xff224466, 0xff446622, 0.5), 0xff335544);
 	}
 
 	@Test
 	public void testScaleHsbArgb() {
-		assertEquals(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0), 0xff804020);
-		assertEquals(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.25), 0xff807020);
-		assertEquals(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.5), 0xff608020);
-		assertEquals(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.75), 0xff308020);
-		assertEquals(Colors.scaleHsbArgb(0xff804020, 0xff208040, 1), 0xff208040);
+		Assert.equal(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0), 0xff804020);
+		Assert.equal(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.25), 0xff807020);
+		Assert.equal(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.5), 0xff608020);
+		Assert.equal(Colors.scaleHsbArgb(0xff804020, 0xff208040, 0.75), 0xff308020);
+		Assert.equal(Colors.scaleHsbArgb(0xff804020, 0xff208040, 1), 0xff208040);
 	}
 
 	@Test
@@ -218,10 +213,10 @@ public class ColorsTest {
 
 	@Test
 	public void testSetArgbComponent() {
-		assertEquals(Colors.a(0x88776655, 0xaa), 0xaa776655);
-		assertEquals(Colors.r(0x88776655, 0xaa), 0x88aa6655);
-		assertEquals(Colors.g(0x88776655, 0xaa), 0x8877aa55);
-		assertEquals(Colors.b(0x88776655, 0xaa), 0x887766aa);
+		Assert.equal(Colors.a(0x88776655, 0xaa), 0xaa776655);
+		Assert.equal(Colors.r(0x88776655, 0xaa), 0x88aa6655);
+		Assert.equal(Colors.g(0x88776655, 0xaa), 0x8877aa55);
+		Assert.equal(Colors.b(0x88776655, 0xaa), 0x887766aa);
 	}
 
 	@Test
@@ -258,7 +253,7 @@ public class ColorsTest {
 
 	@Test
 	public void testRandom() {
-		assertEquals(Colors.random().getRGB() & 0xff000000, 0xff000000);
+		Assert.equal(Colors.random().getRGB() & 0xff000000, 0xff000000);
 	}
 
 	@Test
@@ -307,26 +302,26 @@ public class ColorsTest {
 
 	@Test
 	public void testComponentAccess() {
-		assertEquals(Colors.a(Colors.color(0x98765432)), 0x98);
-		assertEquals(Colors.r(Colors.color(0x98765432)), 0x76);
-		assertEquals(Colors.g(Colors.color(0x98765432)), 0x54);
-		assertEquals(Colors.b(Colors.color(0x98765432)), 0x32);
+		Assert.equal(Colors.a(Colors.color(0x98765432)), 0x98);
+		Assert.equal(Colors.r(Colors.color(0x98765432)), 0x76);
+		Assert.equal(Colors.g(Colors.color(0x98765432)), 0x54);
+		Assert.equal(Colors.b(Colors.color(0x98765432)), 0x32);
 	}
 
 	@Test
 	public void testValidValue() {
-		assertEquals(Colors.validValue(0), 0);
-		assertEquals(Colors.validValue(255), 255);
-		illegalArg(() -> Colors.validValue(-1));
-		illegalArg(() -> Colors.validValue(256));
+		Assert.equal(Colors.validValue(0), 0);
+		Assert.equal(Colors.validValue(255), 255);
+		Assert.illegalArg(() -> Colors.validValue(-1));
+		Assert.illegalArg(() -> Colors.validValue(256));
 	}
 
 	@Test
 	public void testValidRatio() {
-		assertEquals(Colors.validRatio(0.0), 0.0);
-		assertEquals(Colors.validRatio(1.0), 1.0);
-		illegalArg(() -> Colors.validRatio(-0.1));
-		illegalArg(() -> Colors.validRatio(1.1));
+		Assert.equal(Colors.validRatio(0.0), 0.0);
+		Assert.equal(Colors.validRatio(1.0), 1.0);
+		Assert.illegalArg(() -> Colors.validRatio(-0.1));
+		Assert.illegalArg(() -> Colors.validRatio(1.1));
 	}
 
 	@Test
@@ -338,9 +333,9 @@ public class ColorsTest {
 
 	@Test
 	public void testScaleValue() {
-		assertEquals(Colors.scaleValue(0xde, 0x51, 0.0), 0xde);
-		assertEquals(Colors.scaleValue(0xde, 0x51, 0.5), 0x98);
-		assertEquals(Colors.scaleValue(0xde, 0x51, 1.0), 0x51);
+		Assert.equal(Colors.scaleValue(0xde, 0x51, 0.0), 0xde);
+		Assert.equal(Colors.scaleValue(0xde, 0x51, 0.5), 0x98);
+		Assert.equal(Colors.scaleValue(0xde, 0x51, 1.0), 0x51);
 	}
 
 	@Test
@@ -364,71 +359,71 @@ public class ColorsTest {
 
 	@Test
 	public void testToString() {
-		assertEquals(Colors.toString(Colors.clear), "#00000000(clear)");
-		assertEquals(Colors.toString(Coloring.aquamarine.color()), "#7fffd4(aquamarine)");
-		assertEquals(Colors.toString(Coloring.aquamarine.argb), "#7fffd4(aquamarine)");
-		assertEquals(Colors.toString(0xffffeedd), "#ffeedd");
+		Assert.equal(Colors.toString(Colors.clear), "#00000000(clear)");
+		Assert.equal(Colors.toString(Coloring.aquamarine.color()), "#7fffd4(aquamarine)");
+		Assert.equal(Colors.toString(Coloring.aquamarine.argb), "#7fffd4(aquamarine)");
+		Assert.equal(Colors.toString(0xffffeedd), "#ffeedd");
 	}
 
 	@Test
 	public void testName() {
-		assertEquals(Colors.name(Colors.clear), "clear");
-		assertEquals(Colors.name(Coloring.aquamarine.color()), "aquamarine");
-		assertEquals(Colors.name(Colors.color(0x123456)), null);
+		Assert.equal(Colors.name(Colors.clear), "clear");
+		Assert.equal(Colors.name(Coloring.aquamarine.color()), "aquamarine");
+		Assert.equal(Colors.name(Colors.color(0x123456)), null);
 	}
 
 	@Test
 	public void testHex() {
-		assertEquals(Colors.hex(Colors.color(0x123456)), "#00123456");
-		assertEquals(Colors.hex(Colors.color(0xff123456)), "#123456");
+		Assert.equal(Colors.hex(Colors.color(0x123456)), "#00123456");
+		Assert.equal(Colors.hex(Colors.color(0xff123456)), "#123456");
 	}
 
 	@Test
 	public void testArgbsFromText() {
-		assertArray(Colors.argbs("clear", "#def", "0x12345678"), 0, 0xffddeeff, 0x12345678);
+		Assert.array(Colors.argbs("clear", "#def", "0x12345678"), 0, 0xffddeeff, 0x12345678);
 		Assert.thrown(() -> Colors.argbs("test"));
 	}
 
 	@Test
 	public void testColorsFromText() {
-		assertArray(Colors.colors("clear", "#def", "0x12345678"), Colors.clear,
+		Assert.array(Colors.colors("clear", "#def", "0x12345678"), Colors.clear,
 			Colors.color(0xffddeeff), Colors.color(0x12345678));
 		Assert.thrown(() -> Colors.colors("test"));
 	}
 
 	@Test
 	public void testArgbList() {
-		assertOrdered(Colors.argbList(Streams.ints(0, 0x12345678)), 0, 0x12345678);
+		Assert.ordered(Colors.argbList(Streams.ints(0, 0x12345678)), 0, 0x12345678);
 	}
 
 	@Test
 	public void testColorList() {
-		assertOrdered(Colors.colorList(Streams.ints(0, 0x12345678)), Colors.clear,
+		Assert.ordered(Colors.colorList(Streams.ints(0, 0x12345678)), Colors.clear,
 			Colors.color(0x12345678));
 	}
 
 	@Test
 	public void testArgbStream() {
-		assertStream(Colors.rgbStream(0, 0x12345678), 0xff000000, 0xff345678);
+		Assert.stream(Colors.rgbStream(0, 0x12345678), 0xff000000, 0xff345678);
 	}
 
 	@Test
 	public void testFadeStream() {
-		assertStream(
+		Assert.stream(
 			Colors.fadeStream(Colors.color(0x204060), Colors.color(0x406020), 4, Bias.NONE),
 			0x284850, 0x305040, 0x385830, 0x406020);
 	}
 
 	@Test
 	public void testFadeHsbStream() {
-		assertStream(
+		Assert.stream(
 			Colors.fadeHsbStream(Colors.color(0x204060), Colors.color(0x406020), 4, Bias.NONE),
 			0xff206060, 0xff206040, 0xff206020, 0xff406020);
 	}
 
 	@Test
 	public void testRotateHueStream() {
-		assertStream(Colors.rotateHueStream(Coloring.aquamarine.color(), 4, Bias.NONE), 0xff947fff,
+		Assert.stream(Colors.rotateHueStream(Coloring.aquamarine.color(), 4, Bias.NONE), 0xff947fff,
 			0xffff7faa, 0xffeaff7f, 0xff7fffd4);
 	}
 

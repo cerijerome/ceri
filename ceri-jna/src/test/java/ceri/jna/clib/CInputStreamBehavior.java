@@ -1,7 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -29,14 +27,14 @@ public class CInputStreamBehavior {
 	public void shouldProvideAvailableBytes() throws IOException {
 		var lib = initIn();
 		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(33), 0);
-		assertEquals(in.available(), 33);
+		Assert.equal(in.available(), 33);
 	}
 
 	@Test
 	public void shouldReadSingleByte() throws IOException {
 		var lib = initIn();
 		lib.read.autoResponses(ByteProvider.of(33));
-		assertEquals(in.read(), 33);
+		Assert.equal(in.read(), 33);
 		lib.read.assertAuto(new ReadArgs(fd, 1));
 	}
 
@@ -44,18 +42,18 @@ public class CInputStreamBehavior {
 	public void shouldNotReadWithZeroLength() throws IOException {
 		var lib = initIn();
 		lib.read.autoResponses(ByteProvider.of(1, 2, 3));
-		assertEquals(in.read(new byte[0]), 0);
+		Assert.equal(in.read(new byte[0]), 0);
 		lib.read.assertCalls(0);
 	}
 
 	@Test
 	public void shouldReadWithBuffer() throws IOException {
 		var lib = initIn();
-		assertEquals(in.bufferSize(), 3);
+		Assert.equal(in.bufferSize(), 3);
 		lib.read.autoResponses(ByteProvider.of(1, 2, 3, 4));
 		var b = new byte[5];
-		assertEquals(in.read(b), 3);
-		assertArray(b, 1, 2, 3, 0, 0);
+		Assert.equal(in.read(b), 3);
+		Assert.array(b, 1, 2, 3, 0, 0);
 		lib.read.assertAuto(new ReadArgs(fd, 3));
 	}
 
@@ -63,8 +61,8 @@ public class CInputStreamBehavior {
 	public void shouldReturnEofWithEmptyRead() throws IOException {
 		var lib = initIn();
 		lib.read.autoResponses(ByteProvider.empty());
-		assertEquals(in.read(), -1);
-		assertEquals(in.read(new byte[3]), -1);
+		Assert.equal(in.read(), -1);
+		Assert.equal(in.read(new byte[3]), -1);
 	}
 
 	@Test

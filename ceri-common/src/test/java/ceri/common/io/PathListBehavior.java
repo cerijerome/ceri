@@ -1,12 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPaths;
-import static ceri.common.test.Assert.assertStream;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Excepts;
+import ceri.common.test.Assert;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
 
@@ -21,7 +19,7 @@ public class PathListBehavior {
 
 	@Test
 	public void shouldAllowNullDir() throws IOException {
-		assertOrdered(PathList.of(null).list());
+		Assert.ordered(PathList.of(null).list());
 	}
 
 	@Test
@@ -61,31 +59,31 @@ public class PathListBehavior {
 	@Test
 	public void shouldConvertToRelativePaths() throws IOException {
 		initFiles();
-		assertPaths(PathList.all(helper.root).relative().list(), "a", "a/a", "a/a/a.txt", "b",
+		Assert.paths(PathList.all(helper.root).relative().list(), "a", "a/a", "a/a/a.txt", "b",
 			"b/b.txt", "c.h", "d");
-		assertPaths(PathList.all(helper.root).relative().relative().list(), "a", "a/a", "a/a/a.txt",
+		Assert.paths(PathList.all(helper.root).relative().relative().list(), "a", "a/a", "a/a/a.txt",
 			"b", "b/b.txt", "c.h", "d");
-		assertPaths(PathList.all(helper.root).files().relative().list(), "a/a/a.txt", "b/b.txt",
+		Assert.paths(PathList.all(helper.root).files().relative().list(), "a/a/a.txt", "b/b.txt",
 			"c.h");
-		assertPaths(PathList.all(helper.root).relative().filter("glob:*.*").list(), "c.h");
-		assertPaths(PathList.all(helper.root).relative().files().list()); // no file match
-		assertPaths(PathList.of(helper.root).relative().list(), "a", "b", "c.h", "d");
-		assertPaths(PathList.of(helper.root).relative().relative().list(), "a", "b", "c.h", "d");
+		Assert.paths(PathList.all(helper.root).relative().filter("glob:*.*").list(), "c.h");
+		Assert.paths(PathList.all(helper.root).relative().files().list()); // no file match
+		Assert.paths(PathList.of(helper.root).relative().list(), "a", "b", "c.h", "d");
+		Assert.paths(PathList.of(helper.root).relative().relative().list(), "a", "b", "c.h", "d");
 	}
 
 	@Test
 	public void shouldSortPaths() throws IOException {
 		initFiles();
-		assertOrdered(PathList.all(helper.root).files().relative().sort().strings(), "a/a/a.txt",
+		Assert.ordered(PathList.all(helper.root).files().relative().sort().strings(), "a/a/a.txt",
 			"b/b.txt", "c.h");
-		assertOrdered(PathList.all(helper.root).files().sort().names(), "a.txt", "b.txt", "c.h");
-		assertOrdered(PathList.of(helper.root).sort().names(), "a", "b", "c.h", "d");
+		Assert.ordered(PathList.all(helper.root).files().sort().names(), "a.txt", "b.txt", "c.h");
+		Assert.ordered(PathList.of(helper.root).sort().names(), "a", "b", "c.h", "d");
 	}
 
 	@Test
 	public void shouldStreamPaths() throws IOException {
 		initFiles();
-		assertStream(PathList.all(helper.root).files().sort().stream().map(Paths::name), "a.txt",
+		Assert.stream(PathList.all(helper.root).files().sort().stream().map(Paths::name), "a.txt",
 			"b.txt", "c.h");
 	}
 

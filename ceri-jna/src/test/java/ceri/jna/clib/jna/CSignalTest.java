@@ -1,9 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertMatch;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.After;
 import org.junit.Test;
@@ -29,20 +25,20 @@ public class CSignalTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CSignal.class);
+		Assert.privateConstructor(CSignal.class);
 	}
 
 	@Test
 	public void testSignal() throws CException {
 		var lib = ref.init();
 		sighandler_t cb = _ -> {};
-		assertTrue(CSignal.signal(15, cb));
-		assertTrue(CSignal.signal(15, 1));
+		Assert.yes(CSignal.signal(15, cb));
+		Assert.yes(CSignal.signal(15, 1));
 		Assert.thrown(() -> CSignal.signal(15, -1));
 		Assert.thrown(() -> CSignal.signal(15, 2));
 		lib.signal.autoResponses(new Pointer(-1));
-		assertFalse(CSignal.signal(14, cb));
-		assertFalse(CSignal.signal(14, 0));
+		Assert.no(CSignal.signal(14, cb));
+		Assert.no(CSignal.signal(14, 0));
 		lib.signal.assertValues(new SignalArgs(15, cb), new SignalArgs(15, new Pointer(1)),
 			new SignalArgs(14, cb), new SignalArgs(14, new Pointer(0)));
 		CSignal.raise(15);
@@ -58,14 +54,14 @@ public class CSignalTest {
 		// set SIGINT
 		CSignal.sigaddset(sigset, CSignal.SIGINT);
 		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGINT));
-		assertTrue(CSignal.sigismember(sigset, CSignal.SIGINT));
+		Assert.yes(CSignal.sigismember(sigset, CSignal.SIGINT));
 		// set SIGABRT
 		CSignal.sigaddset(sigset, CSignal.SIGABRT);
 		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGINT, CSignal.SIGABRT));
 		// unset SIGINT
 		CSignal.sigdelset(sigset, CSignal.SIGINT);
 		lib.sigset.assertAuto(ByteUtil.maskOfBitsInt(CSignal.SIGABRT));
-		assertFalse(CSignal.sigismember(sigset, CSignal.SIGINT));
+		Assert.no(CSignal.sigismember(sigset, CSignal.SIGINT));
 	}
 
 	@Test
@@ -80,7 +76,7 @@ public class CSignalTest {
 
 	@Test
 	public void testSigsetStringRepresentation() {
-		assertMatch(new sigset_t(), "(?s)sigset_t\\(@.*\\+\\d+\\).*");
+		Assert.match(new sigset_t(), "(?s)sigset_t\\(@.*\\+\\d+\\).*");
 	}
 
 	@Test

@@ -1,11 +1,8 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.time.Month;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.common.time.Dates;
 import ceri.x10.command.House;
@@ -23,27 +20,27 @@ public class ClockBehavior {
 		var ne4 = Clock.builder().date(Dates.UTC_EPOCH).clearMonitoredStatus(true).build();
 		var ne5 = Clock.builder().date(Dates.UTC_EPOCH).purgeTimer(true).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
 	@Test
 	public void shouldDecode() {
 		Clock clock = Clock.decode(TestUtil.reader(0x9b, 0, 0, 0, 1, 0x04, 0x57));
-		assertEquals(clock.house, House.G);
-		assertEquals(clock.date.getMonth(), Month.JANUARY);
-		assertEquals(clock.date.getDayOfMonth(), 1);
-		assertEquals(clock.date.getHour(), 0);
-		assertEquals(clock.date.getMinute(), 0);
-		assertEquals(clock.date.getSecond(), 0);
-		assertTrue(clock.clearBatteryTimer);
-		assertTrue(clock.clearMonitoredStatus);
-		assertTrue(clock.purgeTimer);
+		Assert.equal(clock.house, House.G);
+		Assert.equal(clock.date.getMonth(), Month.JANUARY);
+		Assert.equal(clock.date.getDayOfMonth(), 1);
+		Assert.equal(clock.date.getHour(), 0);
+		Assert.equal(clock.date.getMinute(), 0);
+		Assert.equal(clock.date.getSecond(), 0);
+		Assert.yes(clock.clearBatteryTimer);
+		Assert.yes(clock.clearMonitoredStatus);
+		Assert.yes(clock.purgeTimer);
 	}
 
 	@Test
 	public void shouldEncode() {
 		Clock clock = Clock.builder().date(Dates.UTC_EPOCH).house(House.E)
 			.clearBatteryTimer(true).clearMonitoredStatus(true).purgeTimer(true).build();
-		assertArray(clock.encode(), 0x9b, 0, 0, 0, 1, 0x4, 0x17);
+		Assert.array(clock.encode(), 0x9b, 0, 0, 0, 1, 0x4, 0x17);
 	}
 }

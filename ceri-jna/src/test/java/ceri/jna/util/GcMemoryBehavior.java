@@ -1,25 +1,23 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.jna.test.JnaTestUtil.assertNotValid;
 import static ceri.jna.test.JnaTestUtil.assertValid;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.jna.test.JnaTestUtil;
 
 public class GcMemoryBehavior {
 
 	@Test
 	public void shouldDetermineIfMemoryIsValid() {
-		assertFalse(GcMemory.NULL.valid());
-		assertFalse(GcMemory.of(null).valid());
+		Assert.no(GcMemory.NULL.valid());
+		Assert.no(GcMemory.of(null).valid());
 		var gm = GcMemory.malloc(3);
-		assertTrue(gm.valid());
+		Assert.yes(gm.valid());
 		gm.close();
-		assertFalse(gm.valid());
+		Assert.no(gm.valid());
 		gm.close();
-		assertFalse(gm.valid());
+		Assert.no(gm.valid());
 	}
 
 	@Test
@@ -40,14 +38,14 @@ public class GcMemoryBehavior {
 
 	@Test
 	public void shouldDetermineSize() {
-		assertEquals(GcMemory.NULL.size(), 0L);
-		assertEquals(GcMemory.malloc(2).size(), 2L);
+		Assert.equal(GcMemory.NULL.size(), 0L);
+		Assert.equal(GcMemory.malloc(2).size(), 2L);
 	}
 
 	@Test
 	public void shouldDetermineIntSize() {
-		assertEquals(GcMemory.NULL.intSize(), 0);
-		assertEquals(GcMemory.malloc(2).intSize(), 2);
+		Assert.equal(GcMemory.NULL.intSize(), 0);
+		Assert.equal(GcMemory.malloc(2).intSize(), 2);
 	}
 
 	@Test

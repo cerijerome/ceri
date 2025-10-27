@@ -1,12 +1,5 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.fail;
-import static ceri.common.test.Assert.io;
-import static ceri.common.test.Assert.runtime;
-import static ceri.common.test.Assert.throwIo;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
@@ -39,7 +32,7 @@ public class ConcurrentTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Concurrent.class);
+		Assert.privateConstructor(Concurrent.class);
 	}
 
 	@Test
@@ -61,13 +54,13 @@ public class ConcurrentTest {
 
 	@Test
 	public void testLockInfo() {
-		assertEquals(Concurrent.lockInfo(new ReentrantReadWriteLock().readLock()),
+		Assert.equal(Concurrent.lockInfo(new ReentrantReadWriteLock().readLock()),
 			Concurrent.LockInfo.NULL);
 		var lock = new ReentrantLock();
 		Concurrent.lockedRun(lock, () -> {
 			var info = Concurrent.lockInfo(lock);
-			assertEquals(info.holdCount, 1);
-			assertEquals(info.queueLength, 0);
+			Assert.equal(info.holdCount, 1);
+			Assert.equal(info.queueLength, 0);
 		});
 	}
 
@@ -75,18 +68,18 @@ public class ConcurrentTest {
 	public void testLocker() {
 		var lock = new ReentrantLock();
 		try (var _ = Concurrent.locker(lock)) {
-			assertEquals(lock.isLocked(), true);
+			Assert.equal(lock.isLocked(), true);
 		}
-		assertEquals(lock.isLocked(), false);
+		Assert.equal(lock.isLocked(), false);
 	}
 
 	@Test
 	public void testLockerWithException() {
 		var lock = new ReentrantLock();
-		try (var _ = Concurrent.locker(lock, () -> throwIo(), () -> {})) {
-			fail();
+		try (var _ = Concurrent.locker(lock, () -> Assert.throwIo(), () -> {})) {
+			Assert.fail();
 		} catch (IOException e) {
-			assertEquals(lock.isLocked(), false);
+			Assert.equal(lock.isLocked(), false);
 		}
 	}
 
@@ -133,10 +126,10 @@ public class ConcurrentTest {
 	public void testGetWhileInterrupted() {
 		var sync = CallSync.function(0L, true);
 		sync.error.setFrom(ErrorGen.INX, null);
-		assertEquals(
+		Assert.equal(
 			Concurrent.getWhileInterrupted((t, _) -> sync.apply(t), 100L, TimeUnit.MILLISECONDS),
 			true);
-		assertEquals(Thread.interrupted(), true);
+		Assert.equal(Thread.interrupted(), true);
 	}
 
 	@Test
@@ -154,9 +147,9 @@ public class ConcurrentTest {
 	public void testExecuteAndGet() throws IOException {
 		initExec(true);
 		captor.accept("test");
-		assertEquals(Concurrent.submitAndGet(exec, captor::await, IOException::new), "test");
+		Assert.equal(Concurrent.submitAndGet(exec, captor::await, IOException::new), "test");
 		captor.accept("test2");
-		assertEquals(Concurrent.submitAndGet(exec, captor::await, IOException::new, 10000),
+		Assert.equal(Concurrent.submitAndGet(exec, captor::await, IOException::new, 10000),
 			"test2");
 	}
 
@@ -172,18 +165,17 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteAndWaitThrowExceptionsOfGivenType() {
 		initExec(null);
-		io(() -> Concurrent.submitAndWait(exec, () -> {
-			throw new ParseException("hello", 0);
-		}, IOException::new));
-		io(() -> Concurrent.submitAndWait(exec, () -> {
-			throw new ParseException("hello", 0);
-		}, IOException::new, 10000));
+		Assert.io(() -> Concurrent.submitAndWait(exec,
+			() -> Assert.throwIt(new ParseException("hello", 0)), IOException::new));
+		Assert.io(() -> Concurrent.submitAndWait(exec,
+			() -> Assert.throwIt(new ParseException("hello", 0)), IOException::new, 10000));
 	}
 
 	@Test
 	public void testExecuteAndWaitTimeoutException() {
 		initExec(null);
-		io(() -> Concurrent.submitAndWait(exec, () -> Thread.sleep(10000), IOException::new, 1));
+		Assert.io(
+			() -> Concurrent.submitAndWait(exec, () -> Thread.sleep(10000), IOException::new, 1));
 	}
 
 	@Test
@@ -202,32 +194,31 @@ public class ConcurrentTest {
 		var lock = new ReentrantLock();
 		final boolean[] exec = { false };
 		Concurrent.lockedRun(lock, () -> exec[0] = true);
-		assertEquals(exec[0], true);
-		assertEquals(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
+		Assert.equal(exec[0], true);
+		Assert.equal(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
 	}
 
 	@Test
 	public void testExecuteRunnableUnlocksOnException() throws InterruptedException {
 		var lock = new ReentrantLock();
-		runtime(() -> Concurrent.lockedRun(lock, () -> {
-			throw new RuntimeInterruptedException("test");
-		}));
-		assertEquals(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
+		Assert.runtime(() -> Concurrent.lockedRun(lock,
+			() -> Assert.throwIt(new RuntimeInterruptedException("test"))));
+		Assert.equal(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
 	}
 
 	@Test
 	public void testTryExecuteRunnable() {
 		var lock = new ReentrantLock();
 		var holder = Holder.mutable();
-		assertEquals(Concurrent.tryLockedRun(lock, () -> {
+		Assert.equal(Concurrent.tryLockedRun(lock, () -> {
 			holder.set("test0");
 			// Cannot get lock in new thread => return false
 			try (var exec = TestUtil
 				.threadCall(() -> Concurrent.tryLockedRun(lock, () -> holder.set("test1")))) {
-				assertEquals(exec.get(), false);
+				Assert.equal(exec.get(), false);
 			}
 		}), true);
-		assertEquals(holder.value(), "test0");
+		Assert.equal(holder.value(), "test0");
 	}
 
 	@Test
@@ -237,49 +228,49 @@ public class ConcurrentTest {
 			try (var exec =
 				TestUtil.threadCall(() -> Concurrent.tryLockedGet(lock, () -> "test1"))) {
 				var holder1 = exec.get();
-				assertEquals(holder1.isEmpty(), true);
+				Assert.equal(holder1.isEmpty(), true);
 			}
 			return "test0";
 		});
-		assertEquals(holder0.holds("test0"), true);
+		Assert.equal(holder0.holds("test0"), true);
 	}
 
 	@Test
 	public void testExecuteSupplier() throws InterruptedException {
 		var lock = new ReentrantLock();
 		var result = Concurrent.lockedGet(lock, () -> "test");
-		assertEquals(result, "test");
-		assertEquals(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
+		Assert.equal(result, "test");
+		Assert.equal(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
 	}
 
 	@Test
 	public void testExecuteSupplierUnlocksOnException() throws InterruptedException {
 		var lock = new ReentrantLock();
 		boolean throwEx = true;
-		runtime(() -> Concurrent.lockedGet(lock, () -> {
+		Assert.runtime(() -> Concurrent.lockedGet(lock, () -> {
 			if (throwEx) throw new RuntimeInterruptedException("test");
 			return "test";
 		}));
-		assertEquals(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
+		Assert.equal(lock.tryLock(1, TimeUnit.MILLISECONDS), true);
 	}
 
 	@Test
 	public void testInterruptFromException() {
-		assertEquals(Thread.interrupted(), false);
-		assertEquals(Concurrent.interrupt(new RuntimeException()), false);
-		assertEquals(Thread.interrupted(), false);
-		assertEquals(Concurrent.interrupt(new RuntimeInterruptedException("test")), true);
-		assertEquals(Thread.interrupted(), true);
-		assertEquals(Concurrent.interrupt(new InterruptedException("test")), true);
-		assertEquals(Thread.interrupted(), true);
+		Assert.equal(Thread.interrupted(), false);
+		Assert.equal(Concurrent.interrupt(new RuntimeException()), false);
+		Assert.equal(Thread.interrupted(), false);
+		Assert.equal(Concurrent.interrupt(new RuntimeInterruptedException("test")), true);
+		Assert.equal(Thread.interrupted(), true);
+		Assert.equal(Concurrent.interrupt(new InterruptedException("test")), true);
+		Assert.equal(Thread.interrupted(), true);
 	}
 
 	@Test
 	public void testInterrupted() {
 		Concurrent.interrupt();
-		assertEquals(Concurrent.interrupted(), true); // not cleared
-		assertEquals(Concurrent.interrupted(), true);
-		assertEquals(Thread.interrupted(), true);
+		Assert.equal(Concurrent.interrupted(), true); // not cleared
+		Assert.equal(Concurrent.interrupted(), true);
+		Assert.equal(Thread.interrupted(), true);
 	}
 
 	@Test
@@ -299,17 +290,15 @@ public class ConcurrentTest {
 	@Test
 	public void testExecuteInterruptible() {
 		Concurrent.runInterruptible(() -> {});
-		Assert.thrown(RuntimeInterruptedException.class, () -> Concurrent.runInterruptible(() -> {
-			throw new InterruptedException();
-		}));
+		Assert.thrown(RuntimeInterruptedException.class,
+			() -> Concurrent.runInterruptible(() -> Assert.throwInterrupted()));
 	}
 
 	@Test
 	public void testExecuteGetInterruptible() {
-		assertEquals(Concurrent.getInterruptible(() -> "x"), "x");
-		Assert.thrown(RuntimeInterruptedException.class, () -> Concurrent.getInterruptible(() -> {
-			throw new InterruptedException();
-		}));
+		Assert.equal(Concurrent.getInterruptible(() -> "x"), "x");
+		Assert.thrown(RuntimeInterruptedException.class,
+			() -> Concurrent.getInterruptible(() -> Assert.throwInterrupted()));
 	}
 
 	@Test
@@ -325,9 +314,8 @@ public class ConcurrentTest {
 	@Test
 	public void testInvokeWithException() {
 		initExec(true);
-		io(() -> Concurrent.invoke(exec, IOException::new, () -> captor.accept("1"), () -> {
-			throw new Exception("test");
-		}));
+		Assert.io(() -> Concurrent.invoke(exec, IOException::new, () -> captor.accept("1"),
+			() -> Assert.throwIt(new Exception("test"))));
 		assertCaptor("1");
 	}
 
@@ -366,6 +354,6 @@ public class ConcurrentTest {
 	}
 
 	private void assertCaptor(Object... values) {
-		assertUnordered(captor.values(), values);
+		Assert.unordered(captor.values(), values);
 	}
 }

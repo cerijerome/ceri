@@ -1,12 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFile;
-import static ceri.common.test.Assert.assertPath;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,8 +28,8 @@ public class PathsTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Paths.class);
-		assertPrivateConstructor(Paths.Filter.class);
+		Assert.privateConstructor(Paths.class);
+		Assert.privateConstructor(Paths.Filter.class);
 	}
 
 	@Test
@@ -69,160 +62,160 @@ public class PathsTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testRoot() {
-		assertPath(Paths.root(null), null);
-		assertPath(Paths.root(FileSystems.getDefault()), "/");
-		assertPath(Paths.root(TestFileSystem.of()), null);
+		Assert.path(Paths.root(null), null);
+		Assert.path(Paths.root(FileSystems.getDefault()), "/");
+		Assert.path(Paths.root(TestFileSystem.of()), null);
 	}
 
 	@Test
 	public void testIsRoot() {
-		assertEquals(Paths.isRoot(null), false);
-		assertEquals(Paths.isRoot(Path.of("")), false);
-		assertEquals(Paths.isRoot(Path.of("test")), false);
-		assertEquals(Paths.isRoot(Path.of("/test")), false);
-		assertEquals(Paths.isRoot(Path.of("/")), true);
+		Assert.equal(Paths.isRoot(null), false);
+		Assert.equal(Paths.isRoot(Path.of("")), false);
+		Assert.equal(Paths.isRoot(Path.of("test")), false);
+		Assert.equal(Paths.isRoot(Path.of("/test")), false);
+		Assert.equal(Paths.isRoot(Path.of("/")), true);
 	}
 
 	@Test
 	public void testIsEmpty() {
-		assertEquals(Paths.isEmpty(null), true);
-		assertEquals(Paths.isEmpty(Path.of("")), false);
-		assertEquals(Paths.isEmpty(Path.of("").getRoot()), true);
+		Assert.equal(Paths.isEmpty(null), true);
+		Assert.equal(Paths.isEmpty(Path.of("")), false);
+		Assert.equal(Paths.isEmpty(Path.of("").getRoot()), true);
 	}
 
 	@Test
 	public void testPatterns() {
-		assertString(Paths.glob(null), "glob:");
-		assertString(Paths.glob("**/*.*"), "glob:**/*.*");
-		assertString(Paths.regex(null), "regex:");
-		assertString(Paths.regex(".*/[^/]+*\\.[^/]+"), "regex:.*/[^/]+*\\.[^/]+");
+		Assert.string(Paths.glob(null), "glob:");
+		Assert.string(Paths.glob("**/*.*"), "glob:**/*.*");
+		Assert.string(Paths.regex(null), "regex:");
+		Assert.string(Paths.regex(".*/[^/]+*\\.[^/]+"), "regex:.*/[^/]+*\\.[^/]+");
 	}
 
 	@Test
 	public void testName() {
-		assertString(Paths.name(null), null);
-		assertString(Paths.name(Path.of("/")), "");
-		assertString(Paths.name(Path.of("")), "");
-		assertString(Paths.name(Path.of("/a")), "a");
-		assertString(Paths.name(Path.of("/a/b")), "b");
-		assertString(Paths.name(Path.of("a")), "a");
-		assertString(Paths.name(Path.of("a/b")), "b");
+		Assert.string(Paths.name(null), null);
+		Assert.string(Paths.name(Path.of("/")), "");
+		Assert.string(Paths.name(Path.of("")), "");
+		Assert.string(Paths.name(Path.of("/a")), "a");
+		Assert.string(Paths.name(Path.of("/a/b")), "b");
+		Assert.string(Paths.name(Path.of("a")), "a");
+		Assert.string(Paths.name(Path.of("a/b")), "b");
 	}
 
 	@Test
 	public void testNameWithIndex() {
-		assertString(Paths.name(null, 0), null);
-		assertString(Paths.name(Path.of("/a/b/c/d"), -5), null);
-		assertString(Paths.name(Path.of("/a/b/c/d"), -4), "a");
-		assertString(Paths.name(Path.of("/a/b/c/d"), -1), "d");
-		assertString(Paths.name(Path.of("/a/b/c/d"), 4), null);
-		assertString(Paths.name(Path.of("/a/b/c/d"), 0), "a");
-		assertString(Paths.name(Path.of("/a/b/c/d"), 3), "d");
-		assertString(Paths.name(Path.of("/"), 0), null);
-		assertString(Paths.name(Path.of(""), 0), "");
+		Assert.string(Paths.name(null, 0), null);
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), -5), null);
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), -4), "a");
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), -1), "d");
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), 4), null);
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), 0), "a");
+		Assert.string(Paths.name(Path.of("/a/b/c/d"), 3), "d");
+		Assert.string(Paths.name(Path.of("/"), 0), null);
+		Assert.string(Paths.name(Path.of(""), 0), "");
 	}
 
 	@Test
 	public void testNameWithoutExt() {
-		assertString(Paths.nameWithoutExt((Path) null), null);
-		assertString(Paths.nameWithoutExt(Path.of("/")), "");
-		assertString(Paths.nameWithoutExt(Path.of("")), "");
-		assertString(Paths.nameWithoutExt(Path.of(".file")), ".file");
-		assertString(Paths.nameWithoutExt(Path.of("/a")), "a");
-		assertString(Paths.nameWithoutExt(Path.of("/a.txt")), "a");
-		assertString(Paths.nameWithoutExt(Path.of("a.b.c")), "a.b");
+		Assert.string(Paths.nameWithoutExt((Path) null), null);
+		Assert.string(Paths.nameWithoutExt(Path.of("/")), "");
+		Assert.string(Paths.nameWithoutExt(Path.of("")), "");
+		Assert.string(Paths.nameWithoutExt(Path.of(".file")), ".file");
+		Assert.string(Paths.nameWithoutExt(Path.of("/a")), "a");
+		Assert.string(Paths.nameWithoutExt(Path.of("/a.txt")), "a");
+		Assert.string(Paths.nameWithoutExt(Path.of("a.b.c")), "a.b");
 	}
 
 	@Test
 	public void testExt() {
-		assertString(Paths.ext((Path) null), null);
-		assertString(Paths.ext(Path.of("/")), "");
-		assertString(Paths.ext(Path.of("")), "");
-		assertString(Paths.ext(Path.of(".file")), "");
-		assertString(Paths.ext(Path.of("/a")), "");
-		assertString(Paths.ext(Path.of("/a.txt")), "txt");
-		assertString(Paths.ext(Path.of("a.b.c")), "c");
+		Assert.string(Paths.ext((Path) null), null);
+		Assert.string(Paths.ext(Path.of("/")), "");
+		Assert.string(Paths.ext(Path.of("")), "");
+		Assert.string(Paths.ext(Path.of(".file")), "");
+		Assert.string(Paths.ext(Path.of("/a")), "");
+		Assert.string(Paths.ext(Path.of("/a.txt")), "txt");
+		Assert.string(Paths.ext(Path.of("a.b.c")), "c");
 	}
 
 	@Test
 	public void testLastModified() throws IOException {
-		assertEquals(Paths.lastModified(null), null);
+		Assert.equal(Paths.lastModified(null), null);
 	}
 
 	@Test
 	public void testSub() {
-		assertPath(Paths.sub(null, 0), null);
-		assertPath(Paths.sub(Path.of("/"), 0), "");
-		assertPath(Paths.sub(Path.of(""), 0), "");
+		Assert.path(Paths.sub(null, 0), null);
+		Assert.path(Paths.sub(Path.of("/"), 0), "");
+		Assert.path(Paths.sub(Path.of(""), 0), "");
 		Assert.thrown(() -> Paths.sub(Path.of(""), 1));
-		assertPath(Paths.sub(Path.of("/a/b/c"), 0), "a/b/c");
-		assertPath(Paths.sub(Path.of("/a/b/c"), 2), "c");
-		assertPath(Paths.sub(Path.of("/a/b/c"), 3), "");
+		Assert.path(Paths.sub(Path.of("/a/b/c"), 0), "a/b/c");
+		Assert.path(Paths.sub(Path.of("/a/b/c"), 2), "c");
+		Assert.path(Paths.sub(Path.of("/a/b/c"), 3), "");
 		Assert.thrown(() -> Paths.sub(Path.of("/a/b/c"), 4));
-		assertPath(Paths.sub(null, 0, 0), null);
-		assertPath(Paths.sub(Path.of("a"), 0, 1), "a");
-		assertPath(Paths.sub(Path.of("/a/b/c/d"), 1, 3), "b/c");
-		assertPath(Paths.sub(Path.of("/a/b/c"), 0, 0), "");
-		assertPath(Paths.sub(Path.of("a/b/c"), 0, 0), "");
+		Assert.path(Paths.sub(null, 0, 0), null);
+		Assert.path(Paths.sub(Path.of("a"), 0, 1), "a");
+		Assert.path(Paths.sub(Path.of("/a/b/c/d"), 1, 3), "b/c");
+		Assert.path(Paths.sub(Path.of("/a/b/c"), 0, 0), "");
+		Assert.path(Paths.sub(Path.of("a/b/c"), 0, 0), "");
 	}
 
 	@Test
 	public void testExtend() throws IOException {
 		try (var r = Resource.of(String.class)) {
-			assertPath(Paths.extend(null, "test"), null);
-			assertPath(Paths.extend(r.path()), r.path().toString());
-			assertPath(Paths.extend(r.path(), "ref", "Finalizer.class"),
+			Assert.path(Paths.extend(null, "test"), null);
+			Assert.path(Paths.extend(r.path()), r.path().toString());
+			Assert.path(Paths.extend(r.path(), "ref", "Finalizer.class"),
 				r.path() + "/ref/Finalizer.class");
 		}
 	}
 
 	@Test
 	public void testNewPath() {
-		assertEquals(Paths.newPath(null, null), null);
+		Assert.equal(Paths.newPath(null, null), null);
 	}
 
 	@Test
 	public void testChangeName() {
-		assertPath(Paths.changeName(null, "test"), null);
-		assertPath(Paths.changeName(Path.of(""), ""), "");
-		assertPath(Paths.changeName(Path.of(""), "hello"), "hello");
-		assertPath(Paths.changeName(Path.of("test"), "hello"), "hello");
-		assertPath(Paths.changeName(Path.of("test/"), "hello"), "hello"); // path = "test"
-		assertPath(Paths.changeName(Path.of("/"), "hello"), "/hello");
-		assertPath(Paths.changeName(Path.of("/test"), "hello"), "/hello");
-		assertPath(Paths.changeName(Path.of("/test/test"), "hello"), "/test/hello");
+		Assert.path(Paths.changeName(null, "test"), null);
+		Assert.path(Paths.changeName(Path.of(""), ""), "");
+		Assert.path(Paths.changeName(Path.of(""), "hello"), "hello");
+		Assert.path(Paths.changeName(Path.of("test"), "hello"), "hello");
+		Assert.path(Paths.changeName(Path.of("test/"), "hello"), "hello"); // path = "test"
+		Assert.path(Paths.changeName(Path.of("/"), "hello"), "/hello");
+		Assert.path(Paths.changeName(Path.of("/test"), "hello"), "/hello");
+		Assert.path(Paths.changeName(Path.of("/test/test"), "hello"), "/test/hello");
 	}
 
 	@Test
 	public void testChangeNameFunction() {
-		assertPath(Paths.changeName(Path.of("/test"), f -> f + "0"), "/test0");
-		assertPath(Paths.changeName(Path.of("/test"), _ -> null), "/test");
+		Assert.path(Paths.changeName(Path.of("/test"), f -> f + "0"), "/test0");
+		Assert.path(Paths.changeName(Path.of("/test"), _ -> null), "/test");
 	}
 
 	@Test
 	public void testShorten() {
-		assertPath(Paths.shorten(null, 0), null);
-		assertPath(Paths.shorten(Path.of("a"), 0), "a");
-		assertPath(Paths.shorten(Path.of("/"), 0), "/");
+		Assert.path(Paths.shorten(null, 0), null);
+		Assert.path(Paths.shorten(Path.of("a"), 0), "a");
+		Assert.path(Paths.shorten(Path.of("/"), 0), "/");
 		Assert.thrown(() -> Paths.shorten(Path.of("/"), 1));
-		assertPath(Paths.shorten(Path.of("/a/b/c"), 0), "/a/b/c");
-		assertPath(Paths.shorten(Path.of("/a/b/c"), 2), "/a");
-		assertPath(Paths.shorten(Path.of("/a/b/c"), 3), "/");
-		assertPath(Paths.shorten(Path.of("a/b/c"), 0), "a/b/c");
-		assertPath(Paths.shorten(Path.of("a/b/c"), 2), "a");
-		assertPath(Paths.shorten(Path.of("a/b/c"), 3), "");
+		Assert.path(Paths.shorten(Path.of("/a/b/c"), 0), "/a/b/c");
+		Assert.path(Paths.shorten(Path.of("/a/b/c"), 2), "/a");
+		Assert.path(Paths.shorten(Path.of("/a/b/c"), 3), "/");
+		Assert.path(Paths.shorten(Path.of("a/b/c"), 0), "a/b/c");
+		Assert.path(Paths.shorten(Path.of("a/b/c"), 2), "a");
+		Assert.path(Paths.shorten(Path.of("a/b/c"), 3), "");
 	}
 
 	@Test
 	public void testCreateTempDir() throws IOException {
 		helper = FileTestHelper.builder(SystemVars.tempDir()).build();
 		var tempDir = Paths.createTempDir(helper.root);
-		assertEquals(Files.exists(tempDir), true);
-		assertEquals(Files.isDirectory(tempDir), true);
+		Assert.equal(Files.exists(tempDir), true);
+		Assert.equal(Files.isDirectory(tempDir), true);
 		Files.delete(tempDir);
 		try {
 			tempDir = Paths.createTempDir(null);
-			assertPath(tempDir.getParent(), null);
+			Assert.path(tempDir.getParent(), null);
 		} finally {
 			Files.delete(tempDir);
 		}
@@ -233,15 +226,15 @@ public class PathsTest {
 		initFiles();
 		deleter = FileTestHelper.builder(helper.root).file("x/x/x.txt", "").dir("y/y")
 			.file("z.txt", "").build();
-		assertEquals(Paths.deleteAll(null), false);
-		assertEquals(Paths.deleteAll(Path.of("XXX/XXX/XXX/XXX")), false);
+		Assert.equal(Paths.deleteAll(null), false);
+		Assert.equal(Paths.deleteAll(Path.of("XXX/XXX/XXX/XXX")), false);
 		Assert.thrown(() -> Paths.deleteAll(Path.of("/XXX/XXX/XXX")));
-		assertEquals(Paths.deleteAll(deleter.path("z.txt")), false);
-		assertEquals(Files.exists(deleter.path("x/x/x.txt")), true);
-		assertEquals(Files.exists(deleter.path("y/y")), true);
-		assertEquals(Files.exists(deleter.path("z.txt")), true);
+		Assert.equal(Paths.deleteAll(deleter.path("z.txt")), false);
+		Assert.equal(Files.exists(deleter.path("x/x/x.txt")), true);
+		Assert.equal(Files.exists(deleter.path("y/y")), true);
+		Assert.equal(Files.exists(deleter.path("z.txt")), true);
 		Paths.deleteAll(deleter.root);
-		assertEquals(Files.exists(deleter.root), false);
+		Assert.equal(Files.exists(deleter.root), false);
 	}
 
 	@Test
@@ -250,41 +243,41 @@ public class PathsTest {
 		Paths.deleteEmptyDirs(null);
 		deleter =
 			FileTestHelper.builder(helper.root).dir("x/x/x").file("y/y.txt", "").dir("z").build();
-		assertEquals(Files.exists(deleter.path("x/x/x")), true);
-		assertEquals(Files.exists(deleter.path("y/y.txt")), true);
-		assertEquals(Files.exists(deleter.path("z")), true);
+		Assert.equal(Files.exists(deleter.path("x/x/x")), true);
+		Assert.equal(Files.exists(deleter.path("y/y.txt")), true);
+		Assert.equal(Files.exists(deleter.path("z")), true);
 		Paths.deleteEmptyDirs(deleter.root);
-		assertEquals(Files.exists(deleter.path("x/x/x")), false);
-		assertEquals(Files.exists(deleter.path("y/y.txt")), true);
-		assertEquals(Files.exists(deleter.path("z")), false);
+		Assert.equal(Files.exists(deleter.path("x/x/x")), false);
+		Assert.equal(Files.exists(deleter.path("y/y.txt")), true);
+		Assert.equal(Files.exists(deleter.path("z")), false);
 	}
 
 	@Test
 	public void testIsEmptyDir() throws IOException {
 		initFiles();
-		assertFalse(Paths.isEmptyDir(null));
-		assertFalse(Paths.isEmptyDir(helper.path("a")));
-		assertFalse(Paths.isEmptyDir(helper.path("a/a/a.txt")));
-		assertTrue(Paths.isEmptyDir(helper.path("d")));
+		Assert.no(Paths.isEmptyDir(null));
+		Assert.no(Paths.isEmptyDir(helper.path("a")));
+		Assert.no(Paths.isEmptyDir(helper.path("a/a/a.txt")));
+		Assert.yes(Paths.isEmptyDir(helper.path("d")));
 	}
 
 	@Test
 	public void testToUnix() {
-		assertEquals(Paths.toUnix((String) null), null);
-		assertEquals(Paths.toUnix((Path) null), null);
-		assertEquals(Paths.toUnix(Path.of("a", "b", "c")), "a/b/c");
-		assertEquals(Paths.toUnix(Path.of("")), "");
+		Assert.equal(Paths.toUnix((String) null), null);
+		Assert.equal(Paths.toUnix((Path) null), null);
+		Assert.equal(Paths.toUnix(Path.of("a", "b", "c")), "a/b/c");
+		Assert.equal(Paths.toUnix(Path.of("")), "");
 	}
 
 	@Test
 	public void testFromUnix() {
-		assertEquals(Paths.fromUnix(null), null);
-		assertEquals(Paths.fromUnix("a/b/c"), String.format("a%sb%1$sc", File.separatorChar));
+		Assert.equal(Paths.fromUnix(null), null);
+		Assert.equal(Paths.fromUnix("a/b/c"), String.format("a%sb%1$sc", File.separatorChar));
 	}
 
 	@Test
 	public void testConvertPath() {
-		assertEquals(Paths.convert("a\\b\\c", '\\', '/'), "a/b/c");
+		Assert.equal(Paths.convert("a\\b\\c", '\\', '/'), "a/b/c");
 	}
 
 	@Test
@@ -296,7 +289,7 @@ public class PathsTest {
 			Paths.copyFile(null, toFile); // ignored
 			Paths.copyFile(fromFile, null); // ignored
 			Paths.copyFile(fromFile, toFile);
-			assertFile(fromFile, toFile);
+			Assert.file(fromFile, toFile);
 		} finally {
 			Paths.deleteAll(helper.path("x"));
 		}
@@ -309,7 +302,7 @@ public class PathsTest {
 			var badFile = TestPath.of();
 			var toFile2 = helper.path("x/y/z.txt");
 			Assert.thrown(() -> Paths.copyFile(badFile, toFile2));
-			assertFalse(Files.exists(helper.path("x/y")));
+			Assert.no(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));
 		}
@@ -322,10 +315,10 @@ public class PathsTest {
 			var fromFile = helper.path("a/a/a.txt");
 			var toFile = helper.path("x/x/x.txt");
 			try (var in = Files.newInputStream(fromFile)) {
-				assertEquals(Paths.copy(null, toFile), 0L);
-				assertEquals(Paths.copy(in, null), 0L);
-				assertEquals(Paths.copy(in, toFile), 3L);
-				assertFile(fromFile, toFile);
+				Assert.equal(Paths.copy(null, toFile), 0L);
+				Assert.equal(Paths.copy(in, null), 0L);
+				Assert.equal(Paths.copy(in, toFile), 3L);
+				Assert.file(fromFile, toFile);
 			}
 		} finally {
 			Paths.deleteAll(helper.path("x"));
@@ -340,7 +333,7 @@ public class PathsTest {
 			var badIn = IoStream.in(Assert::throwIo);
 			var toFile2 = helper.path("x/y/z.txt");
 			Assert.thrown(() -> Paths.copy(badIn, toFile2));
-			assertFalse(Files.exists(helper.path("x/y")));
+			Assert.no(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));
 		}
@@ -352,14 +345,14 @@ public class PathsTest {
 		try {
 			var ba = ByteProvider.of('a', 'b', 'c');
 			var toFile = helper.path("x/x/x.txt");
-			assertEquals(Paths.write(null, ba), 0);
-			assertEquals(Paths.write(toFile, null), 0);
-			assertEquals(Paths.write(toFile, ba), 3);
-			assertFile(toFile, 'a', 'b', 'c');
+			Assert.equal(Paths.write(null, ba), 0);
+			Assert.equal(Paths.write(toFile, null), 0);
+			Assert.equal(Paths.write(toFile, ba), 3);
+			Assert.file(toFile, 'a', 'b', 'c');
 			var badArray = badProvider(3);
 			var toFile2 = helper.path("x/y/z.txt");
 			Assert.thrown(() -> Paths.write(toFile2, badArray));
-			assertFalse(Files.exists(helper.path("x/y")));
+			Assert.no(Files.exists(helper.path("x/y")));
 		} finally {
 			Paths.deleteAll(helper.path("x"));
 		}

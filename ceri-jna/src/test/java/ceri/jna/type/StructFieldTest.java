@@ -1,6 +1,5 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import com.sun.jna.Pointer;
@@ -50,7 +49,7 @@ public class StructFieldTest {
 		StructField.Array<FieldStruct, TestStruct> field =
 			StructField.arrayByVal(t -> t.byVal, t -> t.n, TestStruct::new, TestStruct[]::new);
 		var array = field.get(struct);
-		assertEquals(array.length, 2);
+		Assert.equal(array.length, 2);
 		data.assertStructRead(array[0], 0);
 		data.assertStructRead(array[1], 1);
 		data.assertStructRead(field.get(struct, 0), 0);
@@ -65,7 +64,7 @@ public class StructFieldTest {
 		StructField.Array<FieldStruct, TestStruct> field =
 			StructField.arrayByRef(t -> t.byRef, t -> t.n, TestStruct::new, TestStruct[]::new);
 		var array = field.get(struct);
-		assertEquals(array.length, 2);
+		Assert.equal(array.length, 2);
 		data.assertStructRead(array[0], 1);
 		data.assertStructRead(array[1], 2);
 		data.assertStructRead(field.get(struct, 0), 1);
@@ -79,7 +78,7 @@ public class StructFieldTest {
 		StructField.Array<FieldStruct, TestStruct> field =
 			StructField.arrayByRef(t -> t.byRef, TestStruct::new, TestStruct[]::new);
 		var array = field.get(struct);
-		assertEquals(array.length, 2);
+		Assert.equal(array.length, 2);
 		data.assertStructRead(array[0], 1);
 		data.assertStructRead(array[1], 2);
 		data.assertStructRead(field.get(struct, 0), 1);

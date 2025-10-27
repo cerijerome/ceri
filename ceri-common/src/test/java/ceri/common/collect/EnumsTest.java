@@ -1,9 +1,5 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.illegalArg;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -56,21 +52,21 @@ public class EnumsTest {
 
 	@Test
 	public void testComparators() {
-		assertOrdered(sort(Enums.Compare.ordinal(), array()), null, E.a, E.B);
-		assertOrdered(sort(Enums.Compare.name(), array()), null, E.B, E.a);
-		assertOrdered(sort(Enums.Compare.name(scomp), array()), null, E.a, E.B);
+		Assert.ordered(sort(Enums.Compare.ordinal(), array()), null, E.a, E.B);
+		Assert.ordered(sort(Enums.Compare.name(), array()), null, E.B, E.a);
+		Assert.ordered(sort(Enums.Compare.name(scomp), array()), null, E.a, E.B);
 	}
 
 	@Test
 	public void testPredicates() throws Exception {
-		assertEquals(Enums.Filter.name(nullString).test(null), false);
-		assertEquals(Enums.Filter.name(nullString).test(E.a), false);
-		assertEquals(Enums.Filter.name("a").test(null), false);
-		assertEquals(Enums.Filter.name("a").test(E.B), false);
-		assertEquals(Enums.Filter.name("a").test(E.a), true);
-		assertEquals(Enums.Filter.name(spred).test(null), false);
-		assertEquals(Enums.Filter.name(spred).test(E.B), false);
-		assertEquals(Enums.Filter.name(spred).test(E.a), true);
+		Assert.equal(Enums.Filter.name(nullString).test(null), false);
+		Assert.equal(Enums.Filter.name(nullString).test(E.a), false);
+		Assert.equal(Enums.Filter.name("a").test(null), false);
+		Assert.equal(Enums.Filter.name("a").test(E.B), false);
+		Assert.equal(Enums.Filter.name("a").test(E.a), true);
+		Assert.equal(Enums.Filter.name(spred).test(null), false);
+		Assert.equal(Enums.Filter.name(spred).test(E.B), false);
+		Assert.equal(Enums.Filter.name(spred).test(E.a), true);
 	}
 
 	@SafeVarargs
@@ -80,76 +76,76 @@ public class EnumsTest {
 
 	@Test
 	public void testOf() {
-		assertOrdered(Enums.of(nullClass));
-		assertOrdered(Enums.of(String.class)); // no enums
-		assertOrdered(Enums.of(None.class));
-		assertOrdered(Enums.of(E.class), E.a, E.B, E.c);
+		Assert.ordered(Enums.of(nullClass));
+		Assert.ordered(Enums.of(String.class)); // no enums
+		Assert.ordered(Enums.of(None.class));
+		Assert.ordered(Enums.of(E.class), E.a, E.B, E.c);
 	}
 
 	@Test
 	public void testSet() {
-		assertUnordered(Enums.set(nullClass));
-		assertUnordered(Enums.set(None.class));
-		assertUnordered(Enums.set(E.class), E.a, E.B, E.c);
-		assertUnordered(Enums.<E>set());
-		assertUnordered(Enums.set(nullArray));
-		assertUnordered(Enums.set(emptyArray));
-		assertUnordered(Enums.set(E.a, null, E.B), E.a, null, E.B);
-		assertUnordered(Enums.set(E.a, E.B), E.a, E.B);
+		Assert.unordered(Enums.set(nullClass));
+		Assert.unordered(Enums.set(None.class));
+		Assert.unordered(Enums.set(E.class), E.a, E.B, E.c);
+		Assert.unordered(Enums.<E>set());
+		Assert.unordered(Enums.set(nullArray));
+		Assert.unordered(Enums.set(emptyArray));
+		Assert.unordered(Enums.set(E.a, null, E.B), E.a, null, E.B);
+		Assert.unordered(Enums.set(E.a, E.B), E.a, E.B);
 	}
 
 	@Test
 	public void testName() {
-		assertEquals(Enums.name(null), null);
-		assertEquals(Enums.name(E.a), "a");
+		Assert.equal(Enums.name(null), null);
+		Assert.equal(Enums.name(E.a), "a");
 	}
 
 	@Test
 	public void testShortName() {
-		assertEquals(Enums.shortName(null), "null");
-		assertEquals(Enums.shortName((None) null), "null");
-		assertEquals(Enums.shortName(E.a), "a");
-		assertEquals(Enums.shortName(E.B), "B");
-		assertEquals(Enums.shortName(E.c), "c");
-		assertEquals(Enums.shortName(Prefix.a_b_c_123), "123");
-		assertEquals(Enums.shortName(Prefix.a_b_c_12345), "12345");
-		assertEquals(Enums.shortName(Prefix.a_b_c_123456), "123456");
-		assertEquals(Enums.shortName(Prefix2.abc), "abc");
-		assertEquals(Enums.shortName(Prefix2.abcd), "abcd");
-		assertEquals(Enums.shortName(Prefix2.abcde), "abcde");
+		Assert.equal(Enums.shortName(null), "null");
+		Assert.equal(Enums.shortName((None) null), "null");
+		Assert.equal(Enums.shortName(E.a), "a");
+		Assert.equal(Enums.shortName(E.B), "B");
+		Assert.equal(Enums.shortName(E.c), "c");
+		Assert.equal(Enums.shortName(Prefix.a_b_c_123), "123");
+		Assert.equal(Enums.shortName(Prefix.a_b_c_12345), "12345");
+		Assert.equal(Enums.shortName(Prefix.a_b_c_123456), "123456");
+		Assert.equal(Enums.shortName(Prefix2.abc), "abc");
+		Assert.equal(Enums.shortName(Prefix2.abcd), "abcd");
+		Assert.equal(Enums.shortName(Prefix2.abcde), "abcde");
 	}
 
 	@Test
 	public void testValueAccessor() {
-		illegalArg(() -> Enums.valueAccessor(null));
-		illegalArg(() -> Enums.valueAccessor(Prefix.class));
-		illegalArg(() -> Enums.valueAccessor(E.class, "values"));
-		illegalArg(() -> Enums.valueAccessor(E.class, "ch"));
-		assertEquals(Enums.valueAccessor(E.class).apply(null), null);
-		assertEquals(Enums.valueAccessor(E.class).apply(E.a), 1L);
-		assertEquals(Enums.valueAccessor(E.class, "value").apply(E.B), 2L);
+		Assert.illegalArg(() -> Enums.valueAccessor(null));
+		Assert.illegalArg(() -> Enums.valueAccessor(Prefix.class));
+		Assert.illegalArg(() -> Enums.valueAccessor(E.class, "values"));
+		Assert.illegalArg(() -> Enums.valueAccessor(E.class, "ch"));
+		Assert.equal(Enums.valueAccessor(E.class).apply(null), null);
+		Assert.equal(Enums.valueAccessor(E.class).apply(E.a), 1L);
+		Assert.equal(Enums.valueAccessor(E.class, "value").apply(E.B), 2L);
 	}
 
 	@Test
 	public void testValueOf() {
-		assertEquals(Enums.valueOf(nullClass, "a", E.a), E.a);
-		assertEquals(Enums.valueOf(E.class, "a"), E.a);
+		Assert.equal(Enums.valueOf(nullClass, "a", E.a), E.a);
+		Assert.equal(Enums.valueOf(E.class, "a"), E.a);
 		Assert.isNull(Enums.valueOf(E.class, "ab"));
 		Assert.isNull(Enums.valueOf(E.class, null, null));
-		assertEquals(Enums.valueOf(E.class, "B", null), E.B);
-		assertEquals(Enums.valueOf(E.class, null, E.a), E.a);
-		assertEquals(Enums.valueOf(E.class, "ab", E.c), E.c);
+		Assert.equal(Enums.valueOf(E.class, "B", null), E.B);
+		Assert.equal(Enums.valueOf(E.class, null, E.a), E.a);
+		Assert.equal(Enums.valueOf(E.class, "ab", E.c), E.c);
 		Assert.isNull(Enums.valueOf(E.class, "ab", null));
-		assertEquals(Enums.valueOf("a", E.c), E.a);
-		assertEquals(Enums.valueOf("ab", E.c), E.c);
-		assertEquals(Enums.valueOf("a", (E) null), null);
+		Assert.equal(Enums.valueOf("a", E.c), E.a);
+		Assert.equal(Enums.valueOf("ab", E.c), E.c);
+		Assert.equal(Enums.valueOf("a", (E) null), null);
 	}
 
 	@Test
 	public void testFind() {
-		assertEquals(Enums.find(E.class, t -> t != E.a), E.B);
-		assertEquals(Enums.find(E.class, t -> t.name().equals("c")), E.c);
-		assertEquals(Enums.find(E.class, t -> t.name().equals("x")), null);
-		assertEquals(Enums.find(E.class, t -> t.name().equals("x"), E.B), E.B);
+		Assert.equal(Enums.find(E.class, t -> t != E.a), E.B);
+		Assert.equal(Enums.find(E.class, t -> t.name().equals("c")), E.c);
+		Assert.equal(Enums.find(E.class, t -> t.name().equals("x")), null);
+		Assert.equal(Enums.find(E.class, t -> t.name().equals("x"), E.B), E.B);
 	}
 }

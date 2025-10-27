@@ -1,11 +1,10 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import org.junit.Test;
 import com.sun.jna.LastErrorException;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CException;
 
 public class CallerBehavior {
@@ -13,8 +12,8 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldCaptureErrorCode() {
-		assertEquals(Caller.capture(() -> {}), 0);
-		assertEquals(Caller.capture(() -> throwIt(new LastErrorException(33))), 33);
+		Assert.equal(Caller.capture(() -> {}), 0);
+		Assert.equal(Caller.capture(() -> Assert.throwIt(new LastErrorException(33))), 33);
 	}
 
 	@Test
@@ -24,16 +23,16 @@ public class CallerBehavior {
 
 	@Test
 	public void shouldCallInt() throws CException {
-		assertEquals(caller.callInt(() -> 0, "test"), 0);
-		assertEquals(caller.callInt(() -> 1, "test"), 1);
-		assertEquals(caller.callInt(() -> -1, "test"), -1);
+		Assert.equal(caller.callInt(() -> 0, "test"), 0);
+		Assert.equal(caller.callInt(() -> 1, "test"), 1);
+		Assert.equal(caller.callInt(() -> -1, "test"), -1);
 		assertCException(() -> caller.callInt(this::intError, "test"));
 	}
 
 	@Test
 	public void shouldCallType() throws CException {
-		assertEquals(caller.callType(() -> "x", "test"), "x");
-		assertEquals(caller.callType(() -> null, "test"), null);
+		Assert.equal(caller.callType(() -> "x", "test"), "x");
+		Assert.equal(caller.callType(() -> null, "test"), null);
 		assertCException(() -> caller.callType(this::typeError, "test"));
 	}
 
@@ -76,14 +75,14 @@ public class CallerBehavior {
 	@Test
 	public void shouldVerifyTypeResult() throws CException {
 		caller.verifyType(() -> "x", -1, "test");
-		assertEquals(CException.capture(() -> caller.verifyType(() -> null, -2, "test")), -2);
+		Assert.equal(CException.capture(() -> caller.verifyType(() -> null, -2, "test")), -2);
 	}
 
 	@Test
 	public void shouldVerifyTypeResultWithPredicate() throws CException {
 		Functions.ToIntFunction<String> verifyFn = String::length;
 		caller.verifyType(() -> "", verifyFn, "test");
-		assertEquals(CException.capture(() -> caller.verifyType(() -> "abc", verifyFn, "test")), 3);
+		Assert.equal(CException.capture(() -> caller.verifyType(() -> "abc", verifyFn, "test")), 3);
 	}
 
 	private void voidError() {

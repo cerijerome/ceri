@@ -1,8 +1,7 @@
 package ceri.common.util;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class HasherBehavior {
@@ -11,7 +10,7 @@ public class HasherBehavior {
 	public void shouldProvideDeepHash() {
 		boolean[] bb = { true, false };
 		int[][] ii = { { 3 }, { 1, -1 } };
-		assertEquals(Hasher.deep(bb, ii), 0x1326b8);
+		Assert.equal(Hasher.deep(bb, ii), 0x1326b8);
 	}
 
 	@Test
@@ -24,7 +23,7 @@ public class HasherBehavior {
 		Hasher ne3 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash(null);
 		Hasher ne4 = Hasher.of().hash(1.1).hash(true).hash(-1L).hash("");
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
 }

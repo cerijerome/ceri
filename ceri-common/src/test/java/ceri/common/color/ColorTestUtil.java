@@ -1,7 +1,5 @@
 package ceri.common.color;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertRange;
 import java.awt.Color;
 import ceri.common.test.Assert;
 import ceri.common.text.AnsiEscape;
@@ -21,7 +19,7 @@ public class ColorTestUtil {
 		int expectedValue = component.get(expected);
 		int expectedMin = Math.max(0, expectedValue - diff);
 		int expectedMax = Math.min(Colors.MAX_VALUE, expectedValue + diff);
-		assertRange(value, expectedMin, expectedMax,
+		Assert.range(value, expectedMin, expectedMax,
 			"Component %s is out of range: #%08x / #%08x \u00b1%d", component, argb, expected,
 			diff);
 	}
@@ -37,25 +35,25 @@ public class ColorTestUtil {
 		int expectedValue = component.get(expected);
 		int expectedMin = Math.max(0, expectedValue - diff);
 		int expectedMax = Math.min(Colors.MAX_VALUE, expectedValue + diff);
-		assertRange(value, expectedMin, expectedMax,
+		Assert.range(value, expectedMin, expectedMax,
 			"Component %s is out of range: #%016x / #%016x \u00b1%d", component, xargb, expected,
 			diff);
 	}
 
 	public static void assertColor(Color color, Color c) {
-		assertEquals(argb(color), argb(c));
+		Assert.equal(argb(color), argb(c));
 	}
 
 	public static void assertColor(Color color, int argb) {
-		assertEquals(argb(color), argb);
+		Assert.equal(argb(color), argb);
 	}
 
 	public static void assertColorx(Colorx colorx, Colorx cx) {
-		assertEquals(xargb(colorx), xargb(cx));
+		Assert.equal(xargb(colorx), xargb(cx));
 	}
 
 	public static void assertColorx(Colorx colorx, long xargb) {
-		assertEquals(xargb(colorx), xargb);
+		Assert.equal(xargb(colorx), xargb);
 	}
 
 	public static void assertRgb(Rgb color, double r, double g, double b) {

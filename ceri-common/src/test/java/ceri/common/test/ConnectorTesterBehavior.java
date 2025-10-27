@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -12,7 +11,7 @@ public class ConnectorTesterBehavior {
 			var c = TestConnector.of()) {
 			sys.in.print("O\nC\nOs\nz\nZ\n!\n");
 			ConnectorTester.test(c);
-			assertFind(sys.out, "(?s)=> broken.*=> fixed");
+			Assert.find(sys.out, "(?s)=> broken.*=> fixed");
 		}
 	}
 

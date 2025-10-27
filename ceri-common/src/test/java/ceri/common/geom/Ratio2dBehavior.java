@@ -1,8 +1,7 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class Ratio2dBehavior {
@@ -21,22 +20,22 @@ public class Ratio2dBehavior {
 		var ne7 = Ratio2d.of(0, 0);
 		var ne8 = Ratio2d.of(1, 1);
 		TestUtil.exerciseEquals(r, eq0);
-		assertAllNotEqual(r, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8);
-		assertEquals(r.equals(5, 10), true);
-		assertEquals(r.equals(6, 10), false);
-		assertEquals(r.equals(5, 11), false);
+		Assert.notEqualAll(r, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8);
+		Assert.equal(r.equals(5, 10), true);
+		Assert.equal(r.equals(6, 10), false);
+		Assert.equal(r.equals(5, 11), false);
 	}
 
 	@Test
 	public void shouldDetermineIfZero() {
-		assertEquals(Ratio2d.ZERO.isZero(), true);
-		assertEquals(Ratio2d.UNIT.isZero(), false);
+		Assert.equal(Ratio2d.ZERO.isZero(), true);
+		Assert.equal(Ratio2d.UNIT.isZero(), false);
 	}
 
 	@Test
 	public void shouldDetermineIfUnit() {
-		assertEquals(Ratio2d.ZERO.isUnit(), false);
-		assertEquals(Ratio2d.UNIT.isUnit(), true);
+		Assert.equal(Ratio2d.ZERO.isUnit(), false);
+		Assert.equal(Ratio2d.UNIT.isUnit(), true);
 	}
 
 	@Test

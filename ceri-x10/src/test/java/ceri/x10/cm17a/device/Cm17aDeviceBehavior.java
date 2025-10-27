@@ -1,7 +1,5 @@
 package ceri.x10.cm17a.device;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
@@ -41,7 +39,7 @@ public class Cm17aDeviceBehavior {
 		var ne4 = Cm17aDevice.Config.builder().queueSize(5).resetIntervalMicros(44).build();
 		var ne5 = Cm17aDevice.Config.builder().queueSize(5).waitIntervalMicros(55).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
 	@Test
@@ -83,7 +81,7 @@ public class Cm17aDeviceBehavior {
 		TestCommandListener listener = TestCommandListener.of();
 		try (var _ = cm17a.listen(listener)) {
 			cm17a.command(Command.dim(House.L, 50, Unit._5, Unit._9));
-			assertEquals(listener.sync.await(), Command.dim(House.L, 50, Unit._5, Unit._9));
+			Assert.equal(listener.sync.await(), Command.dim(House.L, 50, Unit._5, Unit._9));
 		}
 	}
 

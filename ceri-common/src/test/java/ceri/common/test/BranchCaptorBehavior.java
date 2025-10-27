@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertUnordered;
 import org.junit.Test;
 import ceri.common.io.IoStream;
 import ceri.common.io.SystemIo;
@@ -11,11 +9,11 @@ public class BranchCaptorBehavior {
 	@Test
 	public void shouldFindNoMissingBranches() {
 		var bc = new BranchCaptor();
-		assertEquals(bc.missing().size(), 0);
+		Assert.equal(bc.missing().size(), 0);
 		bc.add(true);
-		assertEquals(bc.missing().size(), 1);
+		Assert.equal(bc.missing().size(), 1);
 		bc.add(false);
-		assertEquals(bc.missing().size(), 0);
+		Assert.equal(bc.missing().size(), 0);
 	}
 
 	@Test
@@ -26,8 +24,8 @@ public class BranchCaptorBehavior {
 		bc.add(false, true, false);
 		bc.add(true, false, true);
 		bc.add(true, true, true);
-		assertEquals(bc.branches(), 5);
-		assertUnordered(bc.missing(), //
+		Assert.equal(bc.branches(), 5);
+		Assert.unordered(bc.missing(), //
 			BranchCaptor.string(false, true, true), //
 			BranchCaptor.string(true, false, false), //
 			BranchCaptor.string(true, true, false));

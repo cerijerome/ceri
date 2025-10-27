@@ -1,12 +1,5 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertByte;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertion;
-import static ceri.common.test.TestUtil.exerciseRecord;
-import static ceri.jna.clib.jna.CFcntl.O_RDWR;
-import static ceri.jna.test.JnaTestUtil.mem;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -17,6 +10,7 @@ import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
+import ceri.common.test.TestUtil;
 import ceri.jna.clib.jna.CException;
 import ceri.jna.clib.jna.CFcntl;
 import ceri.jna.clib.jna.CTermios;
@@ -30,6 +24,7 @@ import ceri.jna.clib.test.TestCLibNative.ReadArgs;
 import ceri.jna.clib.test.TestCLibNative.SignalArgs;
 import ceri.jna.clib.test.TestCLibNative.TcArgs;
 import ceri.jna.clib.test.TestCLibNative.WriteArgs;
+import ceri.jna.test.JnaTestUtil;
 import ceri.jna.type.Struct;
 import ceri.jna.util.JnaLibrary;
 
@@ -46,22 +41,22 @@ public class TestCLibNativeBehavior {
 
 	@Test
 	public void shouldProvideArgumentTypes() {
-		exerciseRecord(new OpenArgs("test", 111, 222));
-		exerciseRecord(new ReadArgs(111, 222));
-		exerciseRecord(new WriteArgs(111, ByteProvider.of(1, 2, 3)));
-		exerciseRecord(new LseekArgs(111, 222, 333));
-		exerciseRecord(new SignalArgs(111, new Pointer(1)));
-		assertion(() -> new SignalArgs(111, null));
-		exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
-		exerciseRecord(new TcArgs("test", 0, List.of()));
-		exerciseRecord(new CfArgs("test", null, List.of()));
+		TestUtil.exerciseRecord(new OpenArgs("test", 111, 222));
+		TestUtil.exerciseRecord(new ReadArgs(111, 222));
+		TestUtil.exerciseRecord(new WriteArgs(111, ByteProvider.of(1, 2, 3)));
+		TestUtil.exerciseRecord(new LseekArgs(111, 222, 333));
+		TestUtil.exerciseRecord(new SignalArgs(111, new Pointer(1)));
+		Assert.assertion(() -> new SignalArgs(111, null));
+		TestUtil.exerciseRecord(new PollArgs(List.of(), Duration.ofMillis(0), Set.of()));
+		TestUtil.exerciseRecord(new TcArgs("test", 0, List.of()));
+		TestUtil.exerciseRecord(new CfArgs("test", null, List.of()));
 	}
 
 	@Test
 	public void shouldProvideAutoErrorLogic() throws CException {
 		var lib = initFd();
 		TestCLibNative.autoError(lib.fcntl, 333, args -> args.request() < 0, "Test");
-		assertEquals(CFcntl.fcntl(fd, -1), 333);
+		Assert.equal(CFcntl.fcntl(fd, -1), 333);
 		Assert.thrown(() -> CFcntl.fcntl(fd, 1));
 		lib.fcntl.error.clear();
 	}
@@ -69,7 +64,7 @@ public class TestCLibNativeBehavior {
 	@Test
 	public void shouldCaptureOpenParams() {
 		var lib = initFd();
-		assertEquals(lib.fdContext.get(fd).args(), new OpenArgs("test", O_RDWR, 0666));
+		Assert.equal(lib.fdContext.get(fd).args(), new OpenArgs("test", CFcntl.O_RDWR, 0666));
 	}
 
 	@Test
@@ -96,11 +91,11 @@ public class TestCLibNativeBehavior {
 	public void shouldReadIntoMemory() throws IOException {
 		var lib = initFd();
 		lib.read.autoResponses(ByteProvider.of(1, 2, 3), null, ByteProvider.empty());
-		assertArray(CUnistd.readBytes(fd, 5), 1, 2, 3);
+		Assert.array(CUnistd.readBytes(fd, 5), 1, 2, 3);
 		lib.read.assertAuto(new ReadArgs(fd, 5));
-		assertArray(CUnistd.readBytes(fd, 3));
+		Assert.array(CUnistd.readBytes(fd, 3));
 		lib.read.assertAuto(new ReadArgs(fd, 3));
-		assertArray(CUnistd.readBytes(fd, 2));
+		Assert.array(CUnistd.readBytes(fd, 2));
 		lib.read.assertAuto(new ReadArgs(fd, 2));
 	}
 
@@ -108,9 +103,9 @@ public class TestCLibNativeBehavior {
 	public void shouldWriteFromMemory() throws IOException {
 		var lib = initFd();
 		lib.write.autoResponses(2, 1);
-		assertEquals(CUnistd.write(fd, mem(1, 2, 3).m, 3), 2);
+		Assert.equal(CUnistd.write(fd, JnaTestUtil.mem(1, 2, 3).m, 3), 2);
 		lib.write.assertAuto(WriteArgs.of(fd, 1, 2, 3));
-		assertEquals(CUnistd.write(fd, (Pointer) null, 2), 1);
+		Assert.equal(CUnistd.write(fd, (Pointer) null, 2), 1);
 		lib.write.assertAuto(WriteArgs.of(fd, 0, 0));
 	}
 
@@ -123,7 +118,7 @@ public class TestCLibNativeBehavior {
 	public void shouldProvideLastFd() {
 		var lib = ref.init();
 		int fd = lib.open("test", 0, 0);
-		assertEquals(lib.lastFd(), fd);
+		Assert.equal(lib.lastFd(), fd);
 	}
 
 	@Test
@@ -133,7 +128,7 @@ public class TestCLibNativeBehavior {
 		termios.c_cc[0] = (byte) 0xff;
 		Struct.write(termios);
 		lib.cfmakeraw(termios.getPointer());
-		assertByte(lib.cf.awaitAuto().termiosLinux().c_cc[0], 0xff);
+		Assert.equals(lib.cf.awaitAuto().termiosLinux().c_cc[0], 0xff);
 	}
 
 	@Test
@@ -143,19 +138,19 @@ public class TestCLibNativeBehavior {
 		termios.c_cc[0] = (byte) 0xff;
 		Struct.write(termios);
 		lib.cfmakeraw(termios.getPointer());
-		assertByte(lib.cf.awaitAuto().termiosMac().c_cc[0], 0xff);
+		Assert.equals(lib.cf.awaitAuto().termiosMac().c_cc[0], 0xff);
 	}
 
 	@Test
 	public void shouldAccessCfArgs() {
 		var lib = ref.init();
 		lib.cfsetispeed(null, new speed_t(250000));
-		assertEquals(lib.cf.awaitAuto().arg(0), 250000);
+		Assert.equal(lib.cf.awaitAuto().arg(0), 250000);
 	}
 
 	private TestCLibNative initFd() {
 		var lib = ref.init();
-		fd = lib.open("test", O_RDWR, 0666);
+		fd = lib.open("test", CFcntl.O_RDWR, 0666);
 		return lib;
 	}
 }

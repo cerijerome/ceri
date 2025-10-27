@@ -1,8 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertMatch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,16 +36,16 @@ public class UsbDeviceBehavior {
 		mouseConfig.parent = hubConfig;
 		lib.data.addConfig(hubConfig, mouseConfig);
 		try (var list = usb.deviceList(); var dev = list.devices().get(1)) {
-			assertEquals(dev.parent().device(), list.devices().get(0).device());
-			assertEquals(dev.parent().parent(), null);
-			assertEquals(dev.portNumber(), 1);
-			assertArray(dev.portNumbers(), 1);
-			assertEquals(dev.speed(), libusb_speed.LIBUSB_SPEED_LOW);
-			assertEquals(dev.maxPacketSize(0x81), 4);
-			assertEquals(dev.maxIsoPacketSize(0x81), 4);
+			Assert.equal(dev.parent().device(), list.devices().get(0).device());
+			Assert.equal(dev.parent().parent(), null);
+			Assert.equal(dev.portNumber(), 1);
+			Assert.array(dev.portNumbers(), 1);
+			Assert.equal(dev.speed(), libusb_speed.LIBUSB_SPEED_LOW);
+			Assert.equal(dev.maxPacketSize(0x81), 4);
+			Assert.equal(dev.maxIsoPacketSize(0x81), 4);
 			Assert.notNull(dev.config());
 			Assert.notNull(dev.configByValue(1));
-			assertMatch(dev.toString(), "%s\\(native@.*\\)", dev.getClass().getSimpleName());
+			Assert.match(dev.toString(), "%s\\(native@.*\\)", dev.getClass().getSimpleName());
 			dev.unref();
 		}
 	}
@@ -57,11 +54,11 @@ public class UsbDeviceBehavior {
 	public void shouldProvideStringRepresentation() throws LibUsbException {
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		try (var list = usb.deviceList(); var dev = list.devices().get(0)) {
-			assertMatch(dev.toString(), "%s\\(native@.*\\,0\\)", dev.getClass().getSimpleName());
+			Assert.match(dev.toString(), "%s\\(native@.*\\,0\\)", dev.getClass().getSimpleName());
 			dev.unref();
 			dev.close();
 			Assert.thrown(() -> dev.config());
-			assertMatch(dev.toString(), "%s\\(null,0\\)", dev.getClass().getSimpleName());
+			Assert.match(dev.toString(), "%s\\(null,0\\)", dev.getClass().getSimpleName());
 		}
 	}
 }

@@ -1,8 +1,5 @@
 package ceri.log.rpc.service;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
@@ -15,22 +12,22 @@ public class RpcServerBehavior {
 	@Test
 	public void shouldBuildFromProperties() {
 		var config = new RpcServer.Properties(typedProperties("rpc-server"), "rpc-server").config();
-		assertEquals(config.port(), 12345);
-		assertEquals(config.shutdownTimeoutMs(), 1000);
+		Assert.equal(config.port(), 12345);
+		Assert.equal(config.shutdownTimeoutMs(), 1000);
 	}
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertFalse(RpcServer.Config.NULL.enabled());
-		assertTrue(RpcServer.Config.DEFAULT.enabled());
+		Assert.no(RpcServer.Config.NULL.enabled());
+		Assert.yes(RpcServer.Config.DEFAULT.enabled());
 	}
 
 	@Test
 	public void shouldDetermineIfLoop() {
-		assertFalse(RpcServer.Config.NULL.isLoop(RpcChannel.Config.localhost(12345)));
-		assertFalse(RpcServer.Config.of(12345).isLoop(null));
-		assertFalse(RpcServer.Config.of(12345).isLoop(new RpcChannel.Config("xxx", 12345)));
-		assertTrue(RpcServer.Config.of(12345).isLoop(RpcChannel.Config.localhost(12345)));
+		Assert.no(RpcServer.Config.NULL.isLoop(RpcChannel.Config.localhost(12345)));
+		Assert.no(RpcServer.Config.of(12345).isLoop(null));
+		Assert.no(RpcServer.Config.of(12345).isLoop(new RpcChannel.Config("xxx", 12345)));
+		Assert.yes(RpcServer.Config.of(12345).isLoop(RpcChannel.Config.localhost(12345)));
 	}
 
 	@Test
@@ -44,8 +41,8 @@ public class RpcServerBehavior {
 	public void shouldStartServer() throws IOException {
 		try (var service = TestRpcService.of();
 			var server = RpcServer.start(service, RpcServer.Config.DEFAULT)) {
-			assertTrue(server.port() > 0);
-			assertTrue(server.toString().contains("(" + server.port() + ")"));
+			Assert.yes(server.port() > 0);
+			Assert.yes(server.toString().contains("(" + server.port() + ")"));
 		}
 	}
 

@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -9,7 +7,7 @@ public class Shape3dTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Shape3d.class);
+		Assert.privateConstructor(Shape3d.class);
 	}
 
 	@Test
@@ -63,14 +61,14 @@ public class Shape3dTest {
 	@Test
 	public void testConicalFrustum() {
 		Radial3d r = Shape3d.conicalFrustum(1, 1, 1);
-		assertEquals(r, Cylinder.of(1, 1));
+		Assert.equal(r, Cylinder.of(1, 1));
 		r = Shape3d.conicalFrustum(0, 1, 1);
-		assertEquals(r, Cone.of(1, 1));
+		Assert.equal(r, Cone.of(1, 1));
 		r = Shape3d.conicalFrustum(1, 0, 1);
-		assertEquals(r, InvertedRadial3d.of(Cone.of(1, 1)));
+		Assert.equal(r, InvertedRadial3d.of(Cone.of(1, 1)));
 		r = Shape3d.conicalFrustum(1, 2, 1);
-		assertEquals(r, TruncatedRadial3d.of(Cone.of(2, 2), 1, 1));
+		Assert.equal(r, TruncatedRadial3d.of(Cone.of(2, 2), 1, 1));
 		r = Shape3d.conicalFrustum(2, 1, 1);
-		assertEquals(r, InvertedRadial3d.of(TruncatedRadial3d.of(Cone.of(2, 2), 1, 1)));
+		Assert.equal(r, InvertedRadial3d.of(TruncatedRadial3d.of(Cone.of(2, 2), 1, 1)));
 	}
 }

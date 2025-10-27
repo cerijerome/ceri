@@ -1,6 +1,6 @@
 package ceri.serial.comm.jna;
 
-import static ceri.common.test.Assert.assertEquals;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CIoctl;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.jna.CTermios.speed_t;
@@ -43,8 +43,8 @@ public abstract class CSerialTestHelper {
 
 		public void assertIossiospeed(int fd, int speed) {
 			var args = super.lib.ioctl.awaitAuto();
-			assertEquals(args.fd(), fd);
-			assertEquals(args.request(), CIoctl.Mac.IOSSIOSPEED);
+			Assert.equal(args.fd(), fd);
+			Assert.equal(args.request(), CIoctl.Mac.IOSSIOSPEED);
 			JnaTestUtil.assertRef(args.arg(0), new speed_t(speed));
 		}
 
@@ -81,8 +81,8 @@ public abstract class CSerialTestHelper {
 		}
 
 		public void assertSerial(int flags, int customDivisor) {
-			assertEquals(serial.flags, flags);
-			assertEquals(serial.custom_divisor, customDivisor);
+			Assert.equal(serial.flags, flags);
+			Assert.equal(serial.custom_divisor, customDivisor);
 		}
 
 		public void assertSpeed(int speed) {
@@ -100,8 +100,8 @@ public abstract class CSerialTestHelper {
 	}
 
 	private static void assertSpeed(CTermios.termios termios, int speed) {
-		assertEquals(termios.c_ispeed, new speed_t(speed));
-		assertEquals(termios.c_ospeed, new speed_t(speed));
+		Assert.equal(termios.c_ispeed, new speed_t(speed));
+		Assert.equal(termios.c_ospeed, new speed_t(speed));
 	}
 
 	private static <T extends CTermios.termios> void handleTc(TcArgs args, T termios) {

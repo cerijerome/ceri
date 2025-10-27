@@ -1,8 +1,7 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class SafeReadWriteBehavior {
 
@@ -15,10 +14,10 @@ public class SafeReadWriteBehavior {
 	@Test
 	public void shouldUseReadLockToRead() {
 		SafeReadWrite safe = SafeReadWrite.of();
-		assertTrue(safe.read(() -> {
-			assertTrue(safe.lock.readLock().tryLock());
+		Assert.yes(safe.read(() -> {
+			Assert.yes(safe.lock.readLock().tryLock());
 			safe.lock.readLock().unlock();
-			assertFalse(safe.lock.writeLock().tryLock());
+			Assert.no(safe.lock.writeLock().tryLock());
 			return true;
 		}));
 	}
@@ -27,9 +26,9 @@ public class SafeReadWriteBehavior {
 	public void shouldUseReadLockToReadWithNoReturn() {
 		SafeReadWrite safe = SafeReadWrite.of();
 		safe.readNoReturn(() -> {
-			assertTrue(safe.lock.readLock().tryLock());
+			Assert.yes(safe.lock.readLock().tryLock());
 			safe.lock.readLock().unlock();
-			assertFalse(safe.lock.writeLock().tryLock());
+			Assert.no(safe.lock.writeLock().tryLock());
 		});
 	}
 
@@ -37,7 +36,7 @@ public class SafeReadWriteBehavior {
 	public void shouldUseWriteLockToWrite() {
 		SafeReadWrite safe = SafeReadWrite.of();
 		safe.write(() -> {
-			assertTrue(safe.lock.writeLock().tryLock());
+			Assert.yes(safe.lock.writeLock().tryLock());
 			safe.lock.writeLock().unlock();
 		});
 	}
@@ -45,8 +44,8 @@ public class SafeReadWriteBehavior {
 	@Test
 	public void shouldUseWriteLockToWriteWithReturn() {
 		SafeReadWrite safe = SafeReadWrite.of();
-		assertTrue(safe.writeWithReturn(() -> {
-			assertTrue(safe.lock.writeLock().tryLock());
+		Assert.yes(safe.writeWithReturn(() -> {
+			Assert.yes(safe.lock.writeLock().tryLock());
 			safe.lock.writeLock().unlock();
 			return true;
 		}));

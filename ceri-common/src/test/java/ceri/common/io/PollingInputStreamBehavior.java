@@ -1,6 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,8 +21,8 @@ public class PollingInputStreamBehavior {
 	public void shouldReadData() throws IOException {
 		byte[] data = { Byte.MIN_VALUE, Byte.MAX_VALUE };
 		try (PollingInputStream in = new PollingInputStream(new ByteArrayInputStream(data), 1)) {
-			assertEquals((byte) in.read(), Byte.MIN_VALUE);
-			assertEquals((byte) in.read(), Byte.MAX_VALUE);
+			Assert.equal((byte) in.read(), Byte.MIN_VALUE);
+			Assert.equal((byte) in.read(), Byte.MAX_VALUE);
 		}
 	}
 

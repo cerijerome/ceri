@@ -1,8 +1,5 @@
 package ceri.common.xml;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.runtime;
 import javax.xml.xpath.XPathException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -23,12 +20,12 @@ public class XPathsTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(XPaths.class);
+		Assert.privateConstructor(XPaths.class);
 	}
 
 	@Test
 	public void testCompilingABadExpressionThrowsRuntimeException() {
-		runtime(() -> XPaths.compile("-"));
+		Assert.runtime(() -> XPaths.compile("-"));
 	}
 
 	@Test
@@ -36,7 +33,7 @@ public class XPathsTest {
 		var in = Xml.input(XML);
 		var root = XPaths.node("*", in);
 		var node = XPaths.node("//c1/text()", root);
-		assertEquals(node.getTextContent(), "C11");
+		Assert.equal(node.getTextContent(), "C11");
 		in = Xml.input(XML);
 		Assert.isNull(XPaths.node("//d0", in));
 		Assert.isNull(XPaths.node("//d0", root));
@@ -46,21 +43,21 @@ public class XPathsTest {
 	public void testNodeListFromInputSource() throws XPathException {
 		var in = Xml.input(XML);
 		var nodes = XPaths.nodeList("//*[@n='0']", in);
-		assertEquals(nodes.size(), 3);
-		assertEquals(nodes.get(0).getNodeName(), "a0");
-		assertEquals(nodes.get(1).getNodeName(), "b0");
-		assertEquals(nodes.get(2).getNodeName(), "b0");
+		Assert.equal(nodes.size(), 3);
+		Assert.equal(nodes.get(0).getNodeName(), "a0");
+		Assert.equal(nodes.get(1).getNodeName(), "b0");
+		Assert.equal(nodes.get(2).getNodeName(), "b0");
 	}
 
 	@Test
 	public void testNodeListFromNode() throws XPathException {
 		var in = Xml.input(XML);
 		var root = XPaths.node("*", in);
-		assertEquals(root.getNodeName(), "a0");
+		Assert.equal(root.getNodeName(), "a0");
 		var nodes = XPaths.nodeList("//*[text()='B0']/following-sibling::*", root);
-		assertEquals(nodes.size(), 3);
-		assertEquals(nodes.get(0).getNodeName(), "b1");
-		assertEquals(nodes.get(1).getNodeName(), "b0");
-		assertEquals(nodes.get(2).getNodeName(), "b1");
+		Assert.equal(nodes.size(), 3);
+		Assert.equal(nodes.get(0).getNodeName(), "b1");
+		Assert.equal(nodes.get(1).getNodeName(), "b0");
+		Assert.equal(nodes.get(2).getNodeName(), "b1");
 	}
 }

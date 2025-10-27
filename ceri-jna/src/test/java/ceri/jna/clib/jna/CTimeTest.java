@@ -1,7 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertRange;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.test.Assert;
@@ -16,7 +14,7 @@ public class CTimeTest {
 	public void testGetTimeOfDay() {
 		var t0 = TimeSpec.now().totalMillis();
 		var t = CTime.gettimeofday().time().totalMillis();
-		assertRange(t, t0, t0 + 1000);
+		Assert.range(t, t0, t0 + 1000);
 	}
 
 	@Test
@@ -24,7 +22,7 @@ public class CTimeTest {
 		CTime.gettimeofday(null);
 		var t0 = TimeSpec.now().totalMillis();
 		var t = CTime.gettimeofday(new timeval()).time().totalMillis();
-		assertRange(t, t0, t0 + 1000);
+		Assert.range(t, t0, t0 + 1000);
 	}
 
 	@Test
@@ -32,7 +30,7 @@ public class CTimeTest {
 		Pointer p = Struct.write(new timeval().time(TimeSpec.ofMicros(1234, 56789))).getPointer();
 		var t = Struct.read(new timeval(p));
 		assertTimeval(t, 1234, 56789);
-		assertEquals(t.time(), TimeSpec.ofMicros(1234, 56789));
+		Assert.equal(t.time(), TimeSpec.ofMicros(1234, 56789));
 	}
 
 	@Test
@@ -47,16 +45,16 @@ public class CTimeTest {
 		Pointer p = Struct.write(new timespec().time(new TimeSpec(1234, 56789))).getPointer();
 		var t = Struct.read(new timespec(p));
 		assertTimespec(t, 1234, 56789);
-		assertEquals(t.time(), new TimeSpec(1234, 56789));
+		Assert.equal(t.time(), new TimeSpec(1234, 56789));
 	}
 
 	private void assertTimeval(timeval t, long sec, long usec) {
-		assertEquals(t.tv_sec.longValue(), sec);
-		assertEquals(t.tv_usec.longValue(), usec);
+		Assert.equal(t.tv_sec.longValue(), sec);
+		Assert.equal(t.tv_usec.longValue(), usec);
 	}
 
 	private void assertTimespec(timespec t, long sec, long usec) {
-		assertEquals(t.tv_sec.longValue(), sec);
-		assertEquals(t.tv_nsec.longValue(), usec);
+		Assert.equal(t.tv_sec.longValue(), sec);
+		Assert.equal(t.tv_nsec.longValue(), usec);
 	}
 }

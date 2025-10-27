@@ -1,8 +1,5 @@
 package ceri.common.reflect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -43,7 +40,7 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Annotations.class);
+		Assert.privateConstructor(Annotations.class);
 	}
 
 	@Test
@@ -63,14 +60,14 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testEnumAnnotations() {
-		assertOrdered(Annotations.annotations((Enum<?>) null, A.class));
-		assertOrdered(Annotations.annotations(Level.ALL, A.class));
-		assertOrdered(Annotations.annotations(E.a, A.class));
+		Assert.ordered(Annotations.annotations((Enum<?>) null, A.class));
+		Assert.ordered(Annotations.annotations(Level.ALL, A.class));
+		Assert.ordered(Annotations.annotations(E.a, A.class));
 		var annos = Annotations.annotations(E.b, A.class);
-		assertEquals(annos.size(), 1);
+		Assert.equal(annos.size(), 1);
 		assertA(annos.get(0), "b", -1);
 		annos = Annotations.annotations(E.c, A.class);
-		assertEquals(annos.size(), 2);
+		Assert.equal(annos.size(), 2);
 		assertA(annos.get(0), "s", 3);
 		assertA(annos.get(1), "c", -1);
 	}
@@ -109,34 +106,34 @@ public class AnnotationUtilTest {
 
 	@Test
 	public void testClassValue() {
-		assertEquals(Annotations.value((Class<?>) null, A.class, A::s), null);
-		assertEquals(Annotations.value((Class<?>) null, A.class, A::s, "x"), "x");
-		assertEquals(Annotations.value((Class<?>) null, A.class, A::i, 1), 1);
-		assertEquals(Annotations.value((Class<?>) null, A.class, A::b, false), false);
-		assertEquals(Annotations.value(E.class, A.class, A::s), "s");
-		assertEquals(Annotations.value(E.class, A.class, A::s, "x"), "s");
-		assertEquals(Annotations.value(E.class, A.class, A::i, 1), 123);
-		assertEquals(Annotations.value(E.class, A.class, A::b, false), true);
+		Assert.equal(Annotations.value((Class<?>) null, A.class, A::s), null);
+		Assert.equal(Annotations.value((Class<?>) null, A.class, A::s, "x"), "x");
+		Assert.equal(Annotations.value((Class<?>) null, A.class, A::i, 1), 1);
+		Assert.equal(Annotations.value((Class<?>) null, A.class, A::b, false), false);
+		Assert.equal(Annotations.value(E.class, A.class, A::s), "s");
+		Assert.equal(Annotations.value(E.class, A.class, A::s, "x"), "s");
+		Assert.equal(Annotations.value(E.class, A.class, A::i, 1), 123);
+		Assert.equal(Annotations.value(E.class, A.class, A::b, false), true);
 	}
 
 	@Test
 	public void testEnumValue() {
-		assertEquals(Annotations.value((Enum<?>) null, A.class, A::s), null);
-		assertEquals(Annotations.value((Enum<?>) null, A.class, A::s, "x"), "x");
-		assertEquals(Annotations.value((Enum<?>) null, A.class, A::i, 1), 1);
-		assertEquals(Annotations.value((Enum<?>) null, A.class, A::b, false), false);
-		assertEquals(Annotations.value(E.a, A.class, A::s), null);
-		assertEquals(Annotations.value(E.a, A.class, A::s, "x"), "x");
-		assertEquals(Annotations.value(E.a, A.class, A::i, 1), 1);
-		assertEquals(Annotations.value(E.a, A.class, A::b, false), false);
-		assertEquals(Annotations.value(E.b, A.class, A::s), "b");
-		assertEquals(Annotations.value(E.b, A.class, A::s, "x"), "b");
-		assertEquals(Annotations.value(E.b, A.class, A::i, 1), -1);
-		assertEquals(Annotations.value(E.b, A.class, A::b, false), true);
+		Assert.equal(Annotations.value((Enum<?>) null, A.class, A::s), null);
+		Assert.equal(Annotations.value((Enum<?>) null, A.class, A::s, "x"), "x");
+		Assert.equal(Annotations.value((Enum<?>) null, A.class, A::i, 1), 1);
+		Assert.equal(Annotations.value((Enum<?>) null, A.class, A::b, false), false);
+		Assert.equal(Annotations.value(E.a, A.class, A::s), null);
+		Assert.equal(Annotations.value(E.a, A.class, A::s, "x"), "x");
+		Assert.equal(Annotations.value(E.a, A.class, A::i, 1), 1);
+		Assert.equal(Annotations.value(E.a, A.class, A::b, false), false);
+		Assert.equal(Annotations.value(E.b, A.class, A::s), "b");
+		Assert.equal(Annotations.value(E.b, A.class, A::s, "x"), "b");
+		Assert.equal(Annotations.value(E.b, A.class, A::i, 1), -1);
+		Assert.equal(Annotations.value(E.b, A.class, A::b, false), true);
 	}
 
 	private static void assertA(A anno, String s, int i) {
-		assertEquals(anno.s(), s);
-		assertEquals(anno.i(), i);
+		Assert.equal(anno.s(), s);
+		Assert.equal(anno.i(), i);
 	}
 }

@@ -1,8 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -38,7 +35,7 @@ public class StringBuildersTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(StringBuilders.class);
+		Assert.privateConstructor(StringBuilders.class);
 	}
 
 	@Test
@@ -56,52 +53,52 @@ public class StringBuildersTest {
 	@Test
 	public void testStateAppend() {
 		var s = "abc";
-		assertString(state(s, null).append(1, 'B'), "aB");
-		assertString(state(s, null).append(3, "d"), "abcd");
-		assertString(state(s, null).append(1, "Bc"), "aBc");
+		Assert.string(state(s, null).append(1, 'B'), "aB");
+		Assert.string(state(s, null).append(3, "d"), "abcd");
+		Assert.string(state(s, null).append(1, "Bc"), "aBc");
 	}
 
 	@Test
 	public void testStateWrapped() {
 		var s = "abc";
-		assertString(state(s, ""), "");
-		assertString(state(s, "").append(0, "abc"), "abc");
+		Assert.string(state(s, ""), "");
+		Assert.string(state(s, "").append(0, "abc"), "abc");
 	}
 
 	@Test
 	public void testSafe() {
-		assertString(StringBuilders.safe(null), "");
-		assertString(StringBuilders.safe(new StringBuilder("abc")), "abc");
+		Assert.string(StringBuilders.safe(null), "");
+		Assert.string(StringBuilders.safe(new StringBuilder("abc")), "abc");
 	}
 
 	@Test
 	public void testClear() {
-		assertEquals(StringBuilders.clear(null), null);
-		assertString(StringBuilders.clear(b(S)), "");
+		Assert.equal(StringBuilders.clear(null), null);
+		Assert.string(StringBuilders.clear(b(S)), "");
 	}
 
 	@Test
 	public void testAppendCodePointStream() {
-		assertEquals(StringBuilders.append(null, Streams.ints(0)), null);
-		assertString(StringBuilders.append(b(), nullIntStream), "");
-		assertString(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B)),
+		Assert.equal(StringBuilders.append(null, Streams.ints(0)), null);
+		Assert.string(StringBuilders.append(b(), nullIntStream), "");
+		Assert.string(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B)),
 			"\0A\u00a9\u2103\ud835\udc00");
 	}
 
 	@Test
 	public void testAppendCodePointIterator() {
-		assertEquals(StringBuilders.append(null, Streams.ints(0).iterator()), null);
-		assertString(StringBuilders.append(b(), nullIntIterator), "");
-		assertString(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B).iterator()),
+		Assert.equal(StringBuilders.append(null, Streams.ints(0).iterator()), null);
+		Assert.string(StringBuilders.append(b(), nullIntIterator), "");
+		Assert.string(StringBuilders.append(b(), Streams.ints(0, _1B, _2B, _3B, _4B).iterator()),
 			"\0A\u00a9\u2103\ud835\udc00");
 	}
 
 	@Test
 	public void testAppendCharSequence() {
-		assertEquals(StringBuilders.append(null, ""), null);
-		assertString(StringBuilders.append(b(), nullString), "");
-		assertString(StringBuilders.append(b(), "abc"), "abc");
-		assertString(StringBuilders.append(b(), "abc", 2), "c");
+		Assert.equal(StringBuilders.append(null, ""), null);
+		Assert.string(StringBuilders.append(b(), nullString), "");
+		Assert.string(StringBuilders.append(b(), "abc"), "abc");
+		Assert.string(StringBuilders.append(b(), "abc", 2), "c");
 	}
 
 	@Test
@@ -110,38 +107,38 @@ public class StringBuildersTest {
 		b = StringBuilders.format("", (Object[]) null);
 		b = StringBuilders.format("%.2f", 3.3333);
 		b = StringBuilders.format(b, " %.2f"); // no args, string not processed
-		assertString(b, "3.33 %.2f");
+		Assert.string(b, "3.33 %.2f");
 	}
 
 	@Test
 	public void testRepeat() {
-		assertEquals(StringBuilders.repeat(null, '\0', 1), null);
-		assertString(StringBuilders.repeat(b(), '\0', -1), "");
-		assertString(StringBuilders.repeat(b(), '\0', 1), "\0");
-		assertEquals(StringBuilders.repeat(null, "abc", 1), null);
-		assertString(StringBuilders.repeat(b(), null, 1), "");
-		assertString(StringBuilders.repeat(b(), "abc", -1), "");
-		assertString(StringBuilders.repeat(b(), "abc", 1), "abc");
-		assertString(StringBuilders.repeat(b(), "abc", 3), "abcabcabc");
+		Assert.equal(StringBuilders.repeat(null, '\0', 1), null);
+		Assert.string(StringBuilders.repeat(b(), '\0', -1), "");
+		Assert.string(StringBuilders.repeat(b(), '\0', 1), "\0");
+		Assert.equal(StringBuilders.repeat(null, "abc", 1), null);
+		Assert.string(StringBuilders.repeat(b(), null, 1), "");
+		Assert.string(StringBuilders.repeat(b(), "abc", -1), "");
+		Assert.string(StringBuilders.repeat(b(), "abc", 1), "abc");
+		Assert.string(StringBuilders.repeat(b(), "abc", 3), "abcabcabc");
 	}
 
 	@Test
 	public void testTrim() {
-		assertEquals(StringBuilders.trim(null), null);
-		assertString(StringBuilders.trim(b()), "");
-		assertString(StringBuilders.trim(b("\0\n\r \t")), "");
-		assertString(StringBuilders.trim(b("\0\na b\nc")), "a b\nc");
-		assertString(StringBuilders.trim(b("a b\nc\r \t")), "a b\nc");
-		assertString(StringBuilders.trim(b("\0\na b\nc\r \t")), "a b\nc");
+		Assert.equal(StringBuilders.trim(null), null);
+		Assert.string(StringBuilders.trim(b()), "");
+		Assert.string(StringBuilders.trim(b("\0\n\r \t")), "");
+		Assert.string(StringBuilders.trim(b("\0\na b\nc")), "a b\nc");
+		Assert.string(StringBuilders.trim(b("a b\nc\r \t")), "a b\nc");
+		Assert.string(StringBuilders.trim(b("\0\na b\nc\r \t")), "a b\nc");
 	}
 
 	@Test
 	public void testSub() {
-		assertString(StringBuilders.sub(null, 1), "");
-		assertString(StringBuilders.sub(null, 1, 1), "");
-		assertString(StringBuilders.sub(b(), 1), "");
-		assertString(StringBuilders.sub(b(S), 2, 2), "\u00a9\u2103");
-		assertString(StringBuilders.sub(b(S), 5), "\udc00");
+		Assert.string(StringBuilders.sub(null, 1), "");
+		Assert.string(StringBuilders.sub(null, 1, 1), "");
+		Assert.string(StringBuilders.sub(b(), 1), "");
+		Assert.string(StringBuilders.sub(b(S), 2, 2), "\u00a9\u2103");
+		Assert.string(StringBuilders.sub(b(S), 5), "\udc00");
 	}
 
 	@Test
@@ -153,7 +150,7 @@ public class StringBuildersTest {
 		p.print(S);
 		p.println("\b\t\f\'\"");
 		p.close();
-		assertString(b, "\0" + S + "\b\t\f\'\"" + Strings.EOL);
+		Assert.string(b, "\0" + S + "\b\t\f\'\"" + Strings.EOL);
 	}
 
 	@Test
@@ -164,7 +161,7 @@ public class StringBuildersTest {
 		o.write(0);
 		o.write(S.getBytes(StandardCharsets.UTF_8));
 		o.close();
-		assertString(b, "\0" + S);
+		Assert.string(b, "\0" + S);
 	}
 
 	private StringBuilder b(String s) {

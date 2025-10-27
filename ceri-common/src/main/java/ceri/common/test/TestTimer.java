@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-
 /**
  * Utility to check elapsed time during tests.
  */
@@ -27,7 +25,7 @@ public class TestTimer {
 	 */
 	public void assertMoreThan(long ms) {
 		long t = ms();
-		assertEquals(t > ms, true, "Time passed is less than " + ms + "ms: " + t);
+		Assert.equal(t > ms, true, "Time passed is less than " + ms + "ms: " + t);
 	}
 
 	/**
@@ -35,7 +33,7 @@ public class TestTimer {
 	 */
 	public void assertLessThan(long ms) {
 		long t = ms();
-		assertEquals(t < ms, true, "Time passed is more than " + ms + "ms: " + t);
+		Assert.equal(t < ms, true, "Time passed is more than " + ms + "ms: " + t);
 	}
 
 	/**

@@ -1,13 +1,11 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertUnordered;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 
 public class ListsTest {
 	private static final List<Integer> nullList = null;
@@ -35,120 +33,120 @@ public class ListsTest {
 
 	@Test
 	public void testBuilder() {
-		assertOrdered(Lists.build(-1, 0).add(nullList).get(), -1, 0);
-		assertOrdered(Lists.build(-1, 0).add(list).get(), -1, 0, -1, null, 1);
-		assertOrdered(Lists.build(-1, 0).add(nullArray).get(), -1, 0);
-		assertOrdered(Lists.build(-1, 0).add(null, nullArray).get(), -1, 0, null);
-		assertOrdered(Lists.build(-1, 0).add(null, 1).get(), -1, 0, null, 1);
-		assertOrdered(Lists.build(-1, 0).apply(null).wrap(), -1, 0);
-		assertOrdered(Lists.build(-1, 0).apply(l -> Collectable.addAll(l, 1)).wrap(), -1, 0, 1);
-		assertOrdered(Lists.build(Lists::link, -1, null, 1).wrap(), -1, null, 1);
+		Assert.ordered(Lists.build(-1, 0).add(nullList).get(), -1, 0);
+		Assert.ordered(Lists.build(-1, 0).add(list).get(), -1, 0, -1, null, 1);
+		Assert.ordered(Lists.build(-1, 0).add(nullArray).get(), -1, 0);
+		Assert.ordered(Lists.build(-1, 0).add(null, nullArray).get(), -1, 0, null);
+		Assert.ordered(Lists.build(-1, 0).add(null, 1).get(), -1, 0, null, 1);
+		Assert.ordered(Lists.build(-1, 0).apply(null).wrap(), -1, 0);
+		Assert.ordered(Lists.build(-1, 0).apply(l -> Collectable.addAll(l, 1)).wrap(), -1, 0, 1);
+		Assert.ordered(Lists.build(Lists::link, -1, null, 1).wrap(), -1, null, 1);
 	}
 
 	@Test
 	public void testOfArray() {
-		assertOrdered(Lists.ofAll(nullArray));
-		assertOrdered(Lists.ofAll(emptyArray));
-		assertOrdered(Lists.ofAll(array()), -1, null, 1);
-		assertOrdered(Lists.of(nullArray, 1));
-		assertOrdered(Lists.of(emptyArray, 1));
-		assertOrdered(Lists.of(array(), 1), null, 1);
+		Assert.ordered(Lists.ofAll(nullArray));
+		Assert.ordered(Lists.ofAll(emptyArray));
+		Assert.ordered(Lists.ofAll(array()), -1, null, 1);
+		Assert.ordered(Lists.of(nullArray, 1));
+		Assert.ordered(Lists.of(emptyArray, 1));
+		Assert.ordered(Lists.of(array(), 1), null, 1);
 	}
 
 	@Test
 	public void testOfIterable() {
-		assertOrdered(Lists.of(nullList));
-		assertOrdered(Lists.of(emptyList));
-		assertOrdered(Lists.of(list), -1, null, 1);
-		assertOrdered(Lists.of(list.subList(1, 3)), null, 1);
+		Assert.ordered(Lists.of(nullList));
+		Assert.ordered(Lists.of(emptyList));
+		Assert.ordered(Lists.of(list), -1, null, 1);
+		Assert.ordered(Lists.of(list.subList(1, 3)), null, 1);
 	}
 
 	@Test
 	public void testAdaptArray() throws Exception {
-		assertOrdered(Lists.adaptAll(nullFn, array()));
-		assertOrdered(Lists.adaptAll(fn, nullArray));
-		assertOrdered(Lists.adaptAll(fn, emptyArray));
-		assertOrdered(Lists.adaptAll(fn, array()), "-1", "null", "1");
-		assertOrdered(Lists.adapt(nullFn, array(), 1));
-		assertOrdered(Lists.adapt(fn, nullArray, 1));
-		assertOrdered(Lists.adapt(fn, emptyArray, 1));
-		assertOrdered(Lists.adapt(fn, array(), 1), "null", "1");
+		Assert.ordered(Lists.adaptAll(nullFn, array()));
+		Assert.ordered(Lists.adaptAll(fn, nullArray));
+		Assert.ordered(Lists.adaptAll(fn, emptyArray));
+		Assert.ordered(Lists.adaptAll(fn, array()), "-1", "null", "1");
+		Assert.ordered(Lists.adapt(nullFn, array(), 1));
+		Assert.ordered(Lists.adapt(fn, nullArray, 1));
+		Assert.ordered(Lists.adapt(fn, emptyArray, 1));
+		Assert.ordered(Lists.adapt(fn, array(), 1), "null", "1");
 	}
 
 	@Test
 	public void testAdaptIterable() throws Exception {
-		assertOrdered(Lists.adapt(nullFn, list));
-		assertOrdered(Lists.adapt(fn, nullArray, 1));
-		assertOrdered(Lists.adapt(fn, emptyArray, 1));
-		assertOrdered(Lists.adapt(fn, array(), 1), "null", "1");
+		Assert.ordered(Lists.adapt(nullFn, list));
+		Assert.ordered(Lists.adapt(fn, nullArray, 1));
+		Assert.ordered(Lists.adapt(fn, emptyArray, 1));
+		Assert.ordered(Lists.adapt(fn, array(), 1), "null", "1");
 	}
 
 	@Test
 	public void testConvert() throws Exception {
-		assertOrdered(Lists.convert(nullBiFn, map));
-		assertOrdered(Lists.convert(biFn, nullMap));
-		assertOrdered(Lists.convert(biFn, emptyMap));
-		assertUnordered(Lists.convert(biFn, map), -1, "B", 1);
+		Assert.ordered(Lists.convert(nullBiFn, map));
+		Assert.ordered(Lists.convert(biFn, nullMap));
+		Assert.ordered(Lists.convert(biFn, emptyMap));
+		Assert.unordered(Lists.convert(biFn, map), -1, "B", 1);
 	}
 
 	@Test
 	public void testAt() {
-		assertEquals(Lists.at(nullList, 0), null);
-		assertEquals(Lists.at(emptyList, 0), null);
-		assertEquals(Lists.at(list, -1), null);
-		assertEquals(Lists.at(list, 0), -1);
-		assertEquals(Lists.at(list, 1), null);
-		assertEquals(Lists.at(list, 2), 1);
-		assertEquals(Lists.at(list, 3), null);
+		Assert.equal(Lists.at(nullList, 0), null);
+		Assert.equal(Lists.at(emptyList, 0), null);
+		Assert.equal(Lists.at(list, -1), null);
+		Assert.equal(Lists.at(list, 0), -1);
+		Assert.equal(Lists.at(list, 1), null);
+		Assert.equal(Lists.at(list, 2), 1);
+		Assert.equal(Lists.at(list, 3), null);
 	}
 
 	@Test
 	public void testLast() {
-		assertEquals(Lists.last(nullList), null);
-		assertEquals(Lists.last(emptyList), null);
-		assertEquals(Lists.last(list), 1);
+		Assert.equal(Lists.last(nullList), null);
+		Assert.equal(Lists.last(emptyList), null);
+		Assert.equal(Lists.last(list), 1);
 	}
 
 	@Test
 	public void testSub() {
-		assertOrdered(Lists.sub(null, 0, 0));
-		assertOrdered(Lists.sub(list, 1, 4), null, 1);
+		Assert.ordered(Lists.sub(null, 0, 0));
+		Assert.ordered(Lists.sub(list, 1, 4), null, 1);
 	}
 
 	@Test
 	public void testSort() {
-		assertEquals(Lists.sort(nullList), null);
-		assertOrdered(Lists.sort(emptyList));
-		assertOrdered(Lists.sort(list(-1, null, 1)), null, -1, 1);
-		assertEquals(Lists.sort(null, comp), null);
-		assertOrdered(Lists.sort(list(-1, null, 1), null), -1, null, 1);
-		assertOrdered(Lists.sort(list(-1, null, 1), comp), -1, 1, null);
+		Assert.equal(Lists.sort(nullList), null);
+		Assert.ordered(Lists.sort(emptyList));
+		Assert.ordered(Lists.sort(list(-1, null, 1)), null, -1, 1);
+		Assert.equal(Lists.sort(null, comp), null);
+		Assert.ordered(Lists.sort(list(-1, null, 1), null), -1, null, 1);
+		Assert.ordered(Lists.sort(list(-1, null, 1), comp), -1, 1, null);
 	}
 
 	@Test
 	public void testFill() {
-		assertEquals(Lists.fill(null, 1), null);
-		assertOrdered(Lists.fill(Lists.ofAll(0, 0, 0), null), null, null, null);
-		assertOrdered(Lists.fill(Lists.ofAll(0, 0, 0), 2, null), 0, 0, null);
+		Assert.equal(Lists.fill(null, 1), null);
+		Assert.ordered(Lists.fill(Lists.ofAll(0, 0, 0), null), null, null, null);
+		Assert.ordered(Lists.fill(Lists.ofAll(0, 0, 0), 2, null), 0, 0, null);
 	}
 
 	@Test
 	public void testInsertArray() {
-		assertEquals(Lists.insertAll(nullList, 0, array()), null);
-		assertOrdered(Lists.insertAll(list(-1, null, 1), 1, nullArray), -1, null, 1);
-		assertOrdered(Lists.insertAll(list(-1, null, 1), 1, emptyArray), -1, null, 1);
-		assertOrdered(Lists.insertAll(list(-1, null, 1), 1, array()), -1, -1, null, 1, null, 1);
-		assertEquals(Lists.insert(nullList, 0, array(), 1), null);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, nullArray, 1), -1, null, 1);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, emptyArray, 1), -1, null, 1);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, array(), 1), -1, null, 1, null, 1);
+		Assert.equal(Lists.insertAll(nullList, 0, array()), null);
+		Assert.ordered(Lists.insertAll(list(-1, null, 1), 1, nullArray), -1, null, 1);
+		Assert.ordered(Lists.insertAll(list(-1, null, 1), 1, emptyArray), -1, null, 1);
+		Assert.ordered(Lists.insertAll(list(-1, null, 1), 1, array()), -1, -1, null, 1, null, 1);
+		Assert.equal(Lists.insert(nullList, 0, array(), 1), null);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, nullArray, 1), -1, null, 1);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, emptyArray, 1), -1, null, 1);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, array(), 1), -1, null, 1, null, 1);
 	}
 
 	@Test
 	public void testInsertIterable() {
-		assertEquals(Lists.insert(nullList, 0, list), null);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, nullList), -1, null, 1);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, emptyList), -1, null, 1);
-		assertOrdered(Lists.insert(list(-1, null, 1), 1, list), -1, -1, null, 1, null, 1);
+		Assert.equal(Lists.insert(nullList, 0, list), null);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, nullList), -1, null, 1);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, emptyList), -1, null, 1);
+		Assert.ordered(Lists.insert(list(-1, null, 1), 1, list), -1, -1, null, 1, null, 1);
 	}
 }

@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -14,9 +12,9 @@ public class Ellipsoid3dBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(e0, Ellipsoid3d.of(4, 2, 1));
-		assertNotEquals(e0, Ellipsoid3d.of(4.1, 2, 1));
-		assertNotEquals(e0, Ellipsoid3d.of(4, 1.9, 1));
-		assertNotEquals(e0, Ellipsoid3d.of(4, 2, 1.1));
+		Assert.notEqual(e0, Ellipsoid3d.of(4.1, 2, 1));
+		Assert.notEqual(e0, Ellipsoid3d.of(4, 1.9, 1));
+		Assert.notEqual(e0, Ellipsoid3d.of(4, 2, 1.1));
 	}
 
 	@Test
@@ -28,10 +26,10 @@ public class Ellipsoid3dBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Ellipsoid3d.of(0, 0, 0), Ellipsoid3d.ZERO);
-		assertNotEquals(Ellipsoid3d.of(1, 0, 0), is(Ellipsoid3d.ZERO));
-		assertNotEquals(Ellipsoid3d.of(0, 1, 0), is(Ellipsoid3d.ZERO));
-		assertNotEquals(Ellipsoid3d.of(0, 0, 1), is(Ellipsoid3d.ZERO));
+		Assert.equal(Ellipsoid3d.of(0, 0, 0), Ellipsoid3d.ZERO);
+		Assert.notEqual(Ellipsoid3d.of(1, 0, 0), is(Ellipsoid3d.ZERO));
+		Assert.notEqual(Ellipsoid3d.of(0, 1, 0), is(Ellipsoid3d.ZERO));
+		Assert.notEqual(Ellipsoid3d.of(0, 0, 1), is(Ellipsoid3d.ZERO));
 	}
 
 	@Test

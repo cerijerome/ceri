@@ -1,6 +1,5 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
@@ -22,13 +21,13 @@ public class TestFileDescriptorBehavior {
 
 	@Test
 	public void shouldAcceptFdConsumer() throws IOException {
-		fd.accept(f -> assertEquals(f, 33));
+		fd.accept(f -> Assert.equal(f, 33));
 	}
 
 	@Test
 	public void shouldApplyFdFunction() throws IOException {
-		assertEquals(fd.apply(f -> {
-			assertEquals(f, 33);
+		Assert.equal(fd.apply(f -> {
+			Assert.equal(f, 33);
 			return 77;
 		}), 77);
 	}

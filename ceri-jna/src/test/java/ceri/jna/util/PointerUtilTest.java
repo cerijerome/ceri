@@ -1,7 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.deref;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -25,9 +23,9 @@ public class PointerUtilTest {
 
 	@Test
 	public void testPeer() {
-		assertEquals(PointerUtil.peer(null), 0L);
+		Assert.equal(PointerUtil.peer(null), 0L);
 		try (Memory m = new Memory(1)) {
-			assertEquals(PointerUtil.peer(m), Pointer.nativeValue(m));
+			Assert.equal(PointerUtil.peer(m), Pointer.nativeValue(m));
 		}
 	}
 
@@ -35,7 +33,7 @@ public class PointerUtilTest {
 	public void testPointerTypePointer() {
 		Assert.isNull(PointerUtil.pointer((PointerType) null));
 		IntByReference ref = new IntByReference();
-		assertEquals(PointerUtil.pointer(ref), ref.getPointer());
+		Assert.equal(PointerUtil.pointer(ref), ref.getPointer());
 	}
 
 	@Test
@@ -51,53 +49,53 @@ public class PointerUtilTest {
 		try (Memory m = new Memory(16)) {
 			Pointer p0 = deref(m);
 			Pointer p1 = ceri.jna.test.JnaTestUtil.deref(m, 11);
-			assertEquals(PointerUtil.diff(null, null), null);
-			assertEquals(PointerUtil.diff(null, p0), null);
-			assertEquals(PointerUtil.diff(p1, null), null);
-			assertEquals(PointerUtil.diff(p1, p0), 11L);
+			Assert.equal(PointerUtil.diff(null, null), null);
+			Assert.equal(PointerUtil.diff(null, p0), null);
+			Assert.equal(PointerUtil.diff(p1, null), null);
+			Assert.equal(PointerUtil.diff(p1, p0), 11L);
 		}
 	}
 
 	@Test
 	public void testCount() {
 		Pointer[] array = PointerUtil.callocArray(3);
-		assertEquals(PointerUtil.count(null), 0);
-		assertEquals(PointerUtil.count(array[0]), 0);
+		Assert.equal(PointerUtil.count(null), 0);
+		Assert.equal(PointerUtil.count(array[0]), 0);
 		array[0].setPointer(0, GcMemory.malloc(1).m);
-		assertEquals(PointerUtil.count(array[0]), 1);
+		Assert.equal(PointerUtil.count(array[0]), 1);
 		array[1].setPointer(0, GcMemory.malloc(1).m);
-		assertEquals(PointerUtil.count(array[0]), 2);
+		Assert.equal(PointerUtil.count(array[0]), 2);
 	}
 
 	@Test
 	public void testOverlap() {
-		assertEquals(PointerUtil.overlap(null, null, 0), false);
-		assertEquals(PointerUtil.overlap(null, 1, null, 0, 1), false);
-		assertEquals(PointerUtil.overlap(null, 0, null, 1, 1), false);
-		assertEquals(PointerUtil.overlap(null, 1, null, 0, 2), true);
-		assertEquals(PointerUtil.overlap(null, 0, null, 1, 2), true);
+		Assert.equal(PointerUtil.overlap(null, null, 0), false);
+		Assert.equal(PointerUtil.overlap(null, 1, null, 0, 1), false);
+		Assert.equal(PointerUtil.overlap(null, 0, null, 1, 1), false);
+		Assert.equal(PointerUtil.overlap(null, 1, null, 0, 2), true);
+		Assert.equal(PointerUtil.overlap(null, 0, null, 1, 2), true);
 	}
 
 	@Test
 	public void testMallocArray() {
-		assertArray(PointerUtil.mallocArray(0));
+		Assert.array(PointerUtil.mallocArray(0));
 		Pointer[] array = PointerUtil.callocArray(3, 6);
-		assertArray(array, array[0], array[0].share(6), array[0].share(12));
+		Assert.array(array, array[0], array[0].share(6), array[0].share(12));
 	}
 
 	@Test
 	public void testMallocPointerTypeArray() {
 		TestPointer[] array = PointerUtil.mallocArray(TestPointer::new, TestPointer[]::new, 3);
-		assertEquals(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
-		assertEquals(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
-		assertEquals(array.length, 3);
+		Assert.equal(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
+		Assert.equal(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
+		Assert.equal(array.length, 3);
 	}
 
 	@Test
 	public void testCallocArray() {
-		assertArray(PointerUtil.callocArray(0));
+		Assert.array(PointerUtil.callocArray(0));
 		Pointer[] array = PointerUtil.callocArray(3, 6);
-		assertArray(array, array[0], array[0].share(6), array[0].share(12));
+		Assert.array(array, array[0], array[0].share(6), array[0].share(12));
 		assertPointer(array[0], 0, 0, 0, 0, 0, 0, 0);
 		assertPointer(array[1], 0, 0, 0, 0, 0, 0, 0);
 		assertPointer(array[2], 0, 0, 0, 0, 0, 0, 0);
@@ -106,9 +104,9 @@ public class PointerUtilTest {
 	@Test
 	public void testCallocPointerTypeArray() {
 		TestPointer[] array = PointerUtil.callocArray(TestPointer::new, TestPointer[]::new, 3);
-		assertEquals(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
-		assertEquals(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
-		assertEquals(array.length, 3);
+		Assert.equal(array[1].getPointer(), array[0].getPointer().share(JnaSize.POINTER.get()));
+		Assert.equal(array[2].getPointer(), array[1].getPointer().share(JnaSize.POINTER.get()));
+		Assert.equal(array.length, 3);
 		Assert.isNull(array[0].getPointer().getPointer(0));
 		Assert.isNull(array[1].getPointer().getPointer(0));
 		Assert.isNull(array[2].getPointer().getPointer(0));
@@ -116,7 +114,7 @@ public class PointerUtilTest {
 
 	@Test
 	public void testNullTermArrayByRefForPointerTypes() {
-		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
+		Assert.array(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new));
 		Pointer[] pointers =
 			{ GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m, null };
 		Pointer[] array0 = indirect(pointers);
@@ -124,40 +122,40 @@ public class PointerUtilTest {
 		assertPointer(array[0], pointers[0]);
 		assertPointer(array[1], pointers[1]);
 		assertPointer(array[2], pointers[2]);
-		assertEquals(array.length, 3);
+		Assert.equal(array.length, 3);
 	}
 
 	@Test
 	public void testArrayByRefForPointerTypes() {
-		assertArray(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new, 1),
+		Assert.array(PointerUtil.arrayByRef(null, TestPointer::new, TestPointer[]::new, 1),
 			new TestPointer[1]);
 		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m };
 		Pointer[] array0 = indirect(pointers);
 		var array = PointerUtil.arrayByRef(array0[0], TestPointer::new, TestPointer[]::new, 2);
 		assertPointer(array[0], pointers[0]);
 		assertPointer(array[1], pointers[1]);
-		assertEquals(array.length, 2);
+		Assert.equal(array.length, 2);
 	}
 
 	@Test
 	public void testArrayByValForPointers() {
-		assertArray(PointerUtil.arrayByVal(null, 2), new Pointer[2]);
+		Assert.array(PointerUtil.arrayByVal(null, 2), new Pointer[2]);
 		Pointer[] array0 = PointerUtil.callocArray(3);
 		var array = PointerUtil.arrayByVal(array0[0], 2);
-		assertEquals(array[0], array0[0]);
-		assertEquals(array[1], array0[1]);
-		assertEquals(array.length, 2);
+		Assert.equal(array[0], array0[0]);
+		Assert.equal(array[1], array0[1]);
+		Assert.equal(array.length, 2);
 	}
 
 	@Test
 	public void testArrayByValForPointerTypes() {
-		assertArray(PointerUtil.arrayByVal(null, TestPointer::new, TestPointer[]::new, 1),
+		Assert.array(PointerUtil.arrayByVal(null, TestPointer::new, TestPointer[]::new, 1),
 			new TestPointer[1]);
 		Pointer[] array0 = PointerUtil.callocArray(3);
 		var array = PointerUtil.arrayByVal(array0[0], TestPointer::new, TestPointer[]::new, 2);
 		assertPointer(array[0], array0[0]);
 		assertPointer(array[1], array0[1]);
-		assertEquals(array.length, 2);
+		Assert.equal(array.length, 2);
 	}
 
 	@Test
@@ -165,27 +163,27 @@ public class PointerUtilTest {
 		Pointer[] pointers = { GcMemory.malloc(1).m, GcMemory.malloc(2).m, GcMemory.malloc(3).m };
 		Pointer[] array0 = indirect(pointers);
 		Pointer p = array0[0];
-		assertEquals(PointerUtil.byRef(null), null);
-		assertEquals(PointerUtil.byRef(p), pointers[0]);
-		assertEquals(PointerUtil.byRef(p, 1), pointers[1]);
-		assertEquals(PointerUtil.byRef(p, 2), pointers[2]);
+		Assert.equal(PointerUtil.byRef(null), null);
+		Assert.equal(PointerUtil.byRef(p), pointers[0]);
+		Assert.equal(PointerUtil.byRef(p, 1), pointers[1]);
+		Assert.equal(PointerUtil.byRef(p, 2), pointers[2]);
 	}
 
 	@Test
 	public void testByVal() {
-		assertEquals(PointerUtil.byVal(null, 1), null);
+		Assert.equal(PointerUtil.byVal(null, 1), null);
 		try (Memory m = new Memory(JnaSize.POINTER.get() * 3)) {
-			assertEquals(PointerUtil.byVal(m, 0), deref(m));
-			assertEquals(PointerUtil.byVal(m, 1),
+			Assert.equal(PointerUtil.byVal(m, 0), deref(m));
+			Assert.equal(PointerUtil.byVal(m, 1),
 				ceri.jna.test.JnaTestUtil.deref(m, JnaSize.POINTER.get()));
-			assertEquals(PointerUtil.byVal(m, 2),
+			Assert.equal(PointerUtil.byVal(m, 2),
 				ceri.jna.test.JnaTestUtil.deref(m, JnaSize.POINTER.get() * 2));
 		}
 	}
 
 	@Test
 	public void testByValForPointerType() {
-		assertEquals(PointerUtil.byVal(null, 1, TestPointer::new), null);
+		Assert.equal(PointerUtil.byVal(null, 1, TestPointer::new), null);
 		try (Memory m = new Memory(JnaSize.POINTER.get() * 3)) {
 			assertPointer(PointerUtil.byVal(m, 0, TestPointer::new), deref(m));
 			assertPointer(PointerUtil.byVal(m, 1, TestPointer::new),
@@ -198,7 +196,7 @@ public class PointerUtilTest {
 	@Test
 	public void testSetPointerType() {
 		try (Memory m = new Memory(3)) {
-			assertEquals(PointerUtil.set(null, m), null);
+			Assert.equal(PointerUtil.set(null, m), null);
 			assertPointer(PointerUtil.set(new TestPointer(), m), m);
 		}
 	}
@@ -207,7 +205,7 @@ public class PointerUtilTest {
 	public void testSetPointerTypeFromRef() {
 		try (Memory m = new Memory(3)) {
 			PointerByReference ref = new PointerByReference(m);
-			assertEquals(PointerUtil.set(null, ref), null);
+			Assert.equal(PointerUtil.set(null, ref), null);
 			assertPointer(PointerUtil.set(new TestPointer(), ref), m);
 		}
 		assertPointer(PointerUtil.set(new TestPointer(), (PointerByReference) null), null);

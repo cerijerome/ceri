@@ -1,8 +1,8 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Fields;
 import ceri.jna.util.JnaTestData.TestStruct;
 
@@ -23,34 +23,34 @@ public class UnionFieldBehavior {
 	public void shouldSetValues() {
 		var tu = tu(0, null);
 		TestUnion.I.write(tu, 3);
-		assertEquals(TestUnion.I.get(tu), 3);
+		Assert.equal(TestUnion.I.get(tu), 3);
 		TestUnion.I.set(tu, 2);
-		assertEquals(TestUnion.I.get(tu), 2);
-		assertEquals(TestUnion.I.read(tu), 3);
+		Assert.equal(TestUnion.I.get(tu), 2);
+		Assert.equal(TestUnion.I.read(tu), 3);
 	}
 
 	@Test
 	public void shouldWriteValues() {
 		var tu = tu(3, null);
-		assertEquals(TestUnion.I.read(tu), 0);
+		Assert.equal(TestUnion.I.read(tu), 0);
 		TestUnion.I.set(tu, 2);
 		TestUnion.I.write(tu);
-		assertEquals(TestUnion.I.read(tu), 2);
+		Assert.equal(TestUnion.I.read(tu), 2);
 	}
 
 	@Test
 	public void shouldSetType() {
 		var tu = tu(3, null);
 		TestUnion.TS.write(tu, t -> t.i = 2);
-		assertEquals(TestUnion.TS.read(tu).i, 2);
+		Assert.equal(TestUnion.TS.read(tu).i, 2);
 	}
 
 	@Test
 	public void shouldHandleNullUnions() {
-		assertEquals(TestUnion.I.get(null), null);
+		Assert.equal(TestUnion.I.get(null), null);
 		TestUnion.I.set(null, 1);
 		TestUnion.I.set(null);
-		assertEquals(TestUnion.I.read(null), null);
+		Assert.equal(TestUnion.I.read(null), null);
 		TestUnion.I.write(null, 1);
 		TestUnion.I.write(null, _ -> {});
 		TestUnion.I.write(null);

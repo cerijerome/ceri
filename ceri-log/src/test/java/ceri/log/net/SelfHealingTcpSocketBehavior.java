@@ -1,10 +1,5 @@
 package ceri.log.net;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertRead;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.ErrorGen.RIX;
 import static ceri.common.test.ErrorGen.RTX;
@@ -44,8 +39,8 @@ public class SelfHealingTcpSocketBehavior {
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertFalse(SelfHealingTcpSocket.Config.NULL.enabled());
-		assertTrue(SelfHealingTcpSocket.Config.of(hostPort).enabled());
+		Assert.no(SelfHealingTcpSocket.Config.NULL.enabled());
+		Assert.yes(SelfHealingTcpSocket.Config.of(hostPort).enabled());
 	}
 
 	@Test
@@ -53,21 +48,21 @@ public class SelfHealingTcpSocketBehavior {
 		var config0 = SelfHealingTcpSocket.Config.builder(hostPort)
 			.option(TcpSocketOption.soTimeout, 123).build();
 		var config = SelfHealingTcpSocket.Config.builder(config0).build();
-		assertEquals(config.hostPort, hostPort);
-		assertEquals(config.options.get(TcpSocketOption.soTimeout), 123);
+		Assert.equal(config.hostPort, hostPort);
+		Assert.equal(config.options.get(TcpSocketOption.soTimeout), 123);
 	}
 
 	@Test
 	public void shouldDetermineIfBroken() {
 		var config = SelfHealingTcpSocket.Config.builder(hostPort).build();
-		assertFalse(config.selfHealing.broken(null));
-		assertFalse(config.selfHealing.broken(new RuntimeException()));
-		assertFalse(config.selfHealing.broken(new IOException()));
+		Assert.no(config.selfHealing.broken(null));
+		Assert.no(config.selfHealing.broken(new RuntimeException()));
+		Assert.no(config.selfHealing.broken(new IOException()));
 		config = SelfHealingTcpSocket.Config.builder(hostPort)
 			.selfHealing(b -> b.brokenPredicate(IOException.class::isInstance)).build();
-		assertFalse(config.selfHealing.broken(null));
-		assertFalse(config.selfHealing.broken(new RuntimeException()));
-		assertTrue(config.selfHealing.broken(new IOException()));
+		Assert.no(config.selfHealing.broken(null));
+		Assert.no(config.selfHealing.broken(new RuntimeException()));
+		Assert.yes(config.selfHealing.broken(new IOException()));
 	}
 
 	@Test
@@ -75,33 +70,33 @@ public class SelfHealingTcpSocketBehavior {
 		SelfHealingTcpSocket.Config config =
 			new SelfHealingTcpSocket.Properties(typedProperties("self-healing-tcp-socket"),
 				"socket").config();
-		assertEquals(config.hostPort, HostPort.of("test", 123));
-		assertEquals(config.options.get(TcpSocketOption.soTimeout), 111);
-		assertEquals(config.options.get(TcpSocketOption.soLinger), 222);
-		assertEquals(config.options.get(TcpSocketOption.soKeepAlive), true);
-		assertEquals(config.options.get(TcpSocketOption.soReuseAddr), false);
-		assertEquals(config.options.get(TcpSocketOption.soOobInline), true);
-		assertEquals(config.options.get(TcpSocketOption.tcpNoDelay), false);
-		assertEquals(config.options.get(TcpSocketOption.ipTos), 333);
-		assertEquals(config.options.get(TcpSocketOption.soSndBuf), 444);
-		assertEquals(config.options.get(TcpSocketOption.soRcvBuf), 555);
-		assertEquals(config.selfHealing.fixRetryDelayMs, 666);
-		assertEquals(config.selfHealing.recoveryDelayMs, 777);
+		Assert.equal(config.hostPort, HostPort.of("test", 123));
+		Assert.equal(config.options.get(TcpSocketOption.soTimeout), 111);
+		Assert.equal(config.options.get(TcpSocketOption.soLinger), 222);
+		Assert.equal(config.options.get(TcpSocketOption.soKeepAlive), true);
+		Assert.equal(config.options.get(TcpSocketOption.soReuseAddr), false);
+		Assert.equal(config.options.get(TcpSocketOption.soOobInline), true);
+		Assert.equal(config.options.get(TcpSocketOption.tcpNoDelay), false);
+		Assert.equal(config.options.get(TcpSocketOption.ipTos), 333);
+		Assert.equal(config.options.get(TcpSocketOption.soSndBuf), 444);
+		Assert.equal(config.options.get(TcpSocketOption.soRcvBuf), 555);
+		Assert.equal(config.selfHealing.fixRetryDelayMs, 666);
+		Assert.equal(config.selfHealing.recoveryDelayMs, 777);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		config = SelfHealingTcpSocket.Config.builder(hostPort)
 			.option(TcpSocketOption.soTimeout, 123).build();
-		assertFind(config, "test:123.*SO_TIMEOUT=123");
+		Assert.find(config, "test:123.*SO_TIMEOUT=123");
 		init();
-		assertFind(shs.toString(), "\\btest:123\\b");
+		Assert.find(shs.toString(), "\\btest:123\\b");
 	}
 
 	@Test
 	public void shouldProvideHostAndPort() {
 		init();
-		assertEquals(shs.hostPort(), HostPort.of("test", 123));
+		Assert.equal(shs.hostPort(), HostPort.of("test", 123));
 	}
 
 	@SuppressWarnings("resource")
@@ -110,7 +105,7 @@ public class SelfHealingTcpSocketBehavior {
 		init();
 		shs.open();
 		shs.out().write(ArrayUtil.bytes.of(1, 2, 3));
-		assertRead(socket.out.from, 1, 2, 3);
+		Assert.read(socket.out.from, 1, 2, 3);
 	}
 
 	@SuppressWarnings("resource")
@@ -119,7 +114,7 @@ public class SelfHealingTcpSocketBehavior {
 		init();
 		shs.open();
 		socket.in.to.writeBytes(1, 2, 3);
-		assertRead(shs.in(), 1, 2, 3);
+		Assert.read(shs.in(), 1, 2, 3);
 	}
 
 	@Test
@@ -172,9 +167,9 @@ public class SelfHealingTcpSocketBehavior {
 		shs.option(TcpSocketOption.soLinger, 123);
 		Assert.isNull(shs.option(TcpSocketOption.soLinger));
 		shs.open();
-		assertEquals(shs.option(TcpSocketOption.soLinger), 123);
+		Assert.equal(shs.option(TcpSocketOption.soLinger), 123);
 		shs.option(TcpSocketOption.soLinger, 456);
-		assertEquals(shs.option(TcpSocketOption.soLinger), 456);
+		Assert.equal(shs.option(TcpSocketOption.soLinger), 456);
 	}
 
 	private void init() {

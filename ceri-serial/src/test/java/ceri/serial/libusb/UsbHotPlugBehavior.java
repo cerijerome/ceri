@@ -1,17 +1,16 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.fail;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.serial.libusb.jna.LibUsb.libusb_class_code.LIBUSB_CLASS_HID;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.log.test.LogModifier;
 import ceri.serial.libusb.jna.LibUsb.libusb_capability;
+import ceri.serial.libusb.jna.LibUsb.libusb_class_code;
 import ceri.serial.libusb.jna.LibUsb.libusb_hotplug_event;
 import ceri.serial.libusb.jna.LibUsbException;
 import ceri.serial.libusb.test.LibUsbSampleData;
@@ -44,16 +43,18 @@ public class UsbHotPlugBehavior {
 
 	@Test
 	public void shouldDetermineHotPlugCapability() throws LibUsbException {
-		assertEquals(UsbHotPlug.hasCapability(), false);
+		Assert.equal(UsbHotPlug.hasCapability(), false);
 		lib.data.capabilities(libusb_capability.LIBUSB_CAP_HAS_HOTPLUG.value);
-		assertEquals(UsbHotPlug.hasCapability(), true);
+		Assert.equal(UsbHotPlug.hasCapability(), true);
 	}
 
 	@Test
 	public void shouldReceiveEventCallback() throws LibUsbException {
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
-		try (var hotPlug = builder.arrived().left().vendor(123).product(0).enumerate()
-			.deviceClass(LIBUSB_CLASS_HID).register(); var mouse = device(hotPlug, 0)) {
+		try (
+			var hotPlug = builder.arrived().left().vendor(123).product(0).enumerate()
+				.deviceClass(libusb_class_code.LIBUSB_CLASS_HID).register();
+			var mouse = device(hotPlug, 0)) {
 			lib.handleHotPlugEvent.autoResponses(
 				new HotPlugEvent(mouse.device(),
 					libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED),
@@ -79,7 +80,7 @@ public class UsbHotPlugBehavior {
 			try (var hotPlug = builder.arrived().register(); var device = device(hotPlug, 0)) {
 				lib.handleHotPlugEvent.autoResponses(new HotPlugEvent(device.device(),
 					libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED));
-				callback.error.setFrom(IOX, null);
+				callback.error.setFrom(ErrorGen.IOX, null);
 				usb.events().handle(); // arrived + error
 				assertCallback(callback.awaitAuto(), 0x14, 0x0b,
 					libusb_hotplug_event.LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED);
@@ -102,13 +103,12 @@ public class UsbHotPlugBehavior {
 	private static boolean assertCallback(CallbackArgs args, int busNumber, int address,
 		libusb_hotplug_event event) {
 		try {
-			assertEquals(args.device.busNumber(), busNumber);
-			assertEquals(args.device.address(), address);
-			assertEquals(args.event, event);
+			Assert.equal(args.device.busNumber(), busNumber);
+			Assert.equal(args.device.address(), address);
+			Assert.equal(args.event, event);
 		} catch (LibUsbException e) {
-			fail(e);
+			Assert.fail(e);
 		}
 		return false;
 	}
-
 }

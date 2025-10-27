@@ -2,11 +2,6 @@ package ceri.common.math;
 
 import static ceri.common.math.Matrix.c;
 import static ceri.common.math.Matrix.r;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.test.Assert;
@@ -19,7 +14,7 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertEquals(Matrix.constant(6, 6, 1).toString(), """
+		Assert.equal(Matrix.constant(6, 6, 1).toString(), """
 			Matrix(6x6) {
 			  1.0, 1.0, 1.0, 1.0, ...
 			  1.0, 1.0, 1.0, 1.0, ...
@@ -27,7 +22,7 @@ public class MatrixBehavior {
 			  1.0, 1.0, 1.0, 1.0, ...
 			  ...
 			}""");
-		assertEquals(Matrix.from(3, 1, 2, 3, 4, 5, 6, 7, 8, 9).toString(), """
+		Assert.equal(Matrix.from(3, 1, 2, 3, 4, 5, 6, 7, 8, 9).toString(), """
 			Matrix(3x3) {
 			  1.0, 2.0, 3.0
 			  4.0, 5.0, 6.0
@@ -53,7 +48,7 @@ public class MatrixBehavior {
 		Matrix ne9 = Matrix.EMPTY;
 		Matrix ne10 = Matrix.I3;
 		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10);
 	}
 
 	@Test
@@ -65,8 +60,8 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldCreateRowVectors() {
-		assertTrue(Matrix.of(new double[0]).isRow());
-		assertTrue(Matrix.ofRow(1, 2, 3).isRow());
+		Assert.yes(Matrix.of(new double[0]).isRow());
+		Assert.yes(Matrix.ofRow(1, 2, 3).isRow());
 		assertMatrix(Matrix.ofRow(1, 2, 3), r(1, 2, 3));
 	}
 
@@ -94,36 +89,36 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldDetermineIfEmpty() {
-		assertTrue(Matrix.EMPTY.isEmpty());
-		assertTrue(Matrix.identity(0).isEmpty());
-		assertTrue(Matrix.of(new double[][] {}).isEmpty());
-		assertTrue(Matrix.of(new double[][] { {} }).isEmpty());
-		assertFalse(Matrix.of(new double[][] { {}, { 0 } }).isEmpty());
+		Assert.yes(Matrix.EMPTY.isEmpty());
+		Assert.yes(Matrix.identity(0).isEmpty());
+		Assert.yes(Matrix.of(new double[][] {}).isEmpty());
+		Assert.yes(Matrix.of(new double[][] { {} }).isEmpty());
+		Assert.no(Matrix.of(new double[][] { {}, { 0 } }).isEmpty());
 	}
 
 	@Test
 	public void shouldDetermineIfSquare() {
-		assertTrue(Matrix.EMPTY.isSquare());
-		assertTrue(Matrix.identity(1).isSquare());
-		assertFalse(Matrix.ofRow(1, 2).isSquare());
+		Assert.yes(Matrix.EMPTY.isSquare());
+		Assert.yes(Matrix.identity(1).isSquare());
+		Assert.no(Matrix.ofRow(1, 2).isSquare());
 	}
 
 	@Test
 	public void shouldDetermineIfRowVector() {
-		assertTrue(Matrix.EMPTY.isRow());
-		assertTrue(Matrix.ofRow(1, 2).isRow());
-		assertFalse(Matrix.vector(1, 2).isRow());
-		assertTrue(Matrix.identity(1).isRow());
-		assertFalse(Matrix.identity(2).isRow());
+		Assert.yes(Matrix.EMPTY.isRow());
+		Assert.yes(Matrix.ofRow(1, 2).isRow());
+		Assert.no(Matrix.vector(1, 2).isRow());
+		Assert.yes(Matrix.identity(1).isRow());
+		Assert.no(Matrix.identity(2).isRow());
 	}
 
 	@Test
 	public void shouldDetermineIfColumnVector() {
-		assertTrue(Matrix.EMPTY.isColumn());
-		assertFalse(Matrix.ofRow(1, 2).isColumn());
-		assertTrue(Matrix.vector(1, 2).isColumn());
-		assertTrue(Matrix.identity(1).isColumn());
-		assertFalse(Matrix.identity(2).isColumn());
+		Assert.yes(Matrix.EMPTY.isColumn());
+		Assert.no(Matrix.ofRow(1, 2).isColumn());
+		Assert.yes(Matrix.vector(1, 2).isColumn());
+		Assert.yes(Matrix.identity(1).isColumn());
+		Assert.no(Matrix.identity(2).isColumn());
 	}
 
 	@Test
@@ -135,7 +130,7 @@ public class MatrixBehavior {
 	@Test
 	public void shouldExtractRowValues() {
 		Matrix m = Matrix.of(r(1, 2), r(3, -1));
-		assertArray(m.rowValues(1), 3, -1);
+		Assert.array(m.rowValues(1), 3, -1);
 	}
 
 	@Test
@@ -147,7 +142,7 @@ public class MatrixBehavior {
 	@Test
 	public void shouldExtractColumnValues() {
 		Matrix m = Matrix.of(r(1, 2), r(3, -1));
-		assertArray(m.columnValues(1), 2, -1);
+		Assert.array(m.columnValues(1), 2, -1);
 	}
 
 	@Test
@@ -172,9 +167,9 @@ public class MatrixBehavior {
 	@Test
 	public void shouldAccessValue() {
 		Matrix m = Matrix.of(r(1, -2, -1), r(-1, 3, 0));
-		assertEquals(m.at(0, 0), 1.0);
-		assertEquals(m.at(0, 1), -2.0);
-		assertEquals(m.at(1, 2), 0.0);
+		Assert.equal(m.at(0, 0), 1.0);
+		Assert.equal(m.at(0, 1), -2.0);
+		Assert.equal(m.at(1, 2), 0.0);
 		Assert.thrown(() -> m.at(-1, 0));
 		Assert.thrown(() -> m.at(2, 0));
 		Assert.thrown(() -> m.at(0, -1));
@@ -184,15 +179,15 @@ public class MatrixBehavior {
 	@Test
 	public void shouldAccessMissingValues() {
 		Matrix m = Matrix.of(3, 3, r(1, 2), r(3, 2, 1));
-		assertEquals(m.at(0, 0), 1.0);
-		assertEquals(m.at(0, 2), 0.0);
-		assertEquals(m.at(2, 2), 0.0);
+		Assert.equal(m.at(0, 0), 1.0);
+		Assert.equal(m.at(0, 2), 0.0);
+		Assert.equal(m.at(2, 2), 0.0);
 	}
 
 	@Test
 	public void shouldCopyValues() {
-		assertArray(Matrix.of(r(1, -2, -1), r(-1, 3, 0)).values(), r(1, -2, -1), r(-1, 3, 0));
-		assertArray(Matrix.EMPTY.values());
+		Assert.array(Matrix.of(r(1, -2, -1), r(-1, 3, 0)).values(), r(1, -2, -1), r(-1, 3, 0));
+		Assert.array(Matrix.EMPTY.values());
 	}
 
 	@Test
@@ -250,11 +245,11 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldApplyDotProduct() {
-		assertEquals(Matrix.EMPTY.dot(Matrix.EMPTY), 0.0);
-		assertEquals(Matrix.ofRow(1).dot(Matrix.ofRow(-1)), -1.0);
-		assertEquals(Matrix.ofRow(1, -1, 0).dot(Matrix.vector(3, 2, 1)), 1.0);
-		assertEquals(Matrix.vector(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
-		assertEquals(Matrix.ofRow(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
+		Assert.equal(Matrix.EMPTY.dot(Matrix.EMPTY), 0.0);
+		Assert.equal(Matrix.ofRow(1).dot(Matrix.ofRow(-1)), -1.0);
+		Assert.equal(Matrix.ofRow(1, -1, 0).dot(Matrix.vector(3, 2, 1)), 1.0);
+		Assert.equal(Matrix.vector(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
+		Assert.equal(Matrix.ofRow(1, -1, 0).dot(Matrix.ofRow(3, 2, 1)), 1.0);
 		Assert.thrown(() -> Matrix.EMPTY.dot(Matrix.ofRow(1)));
 		Assert.thrown(() -> Matrix.ofRow(1).dot(Matrix.EMPTY));
 		Assert.thrown(() -> Matrix.I2.dot(Matrix.I1));
@@ -262,8 +257,8 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldApply2dCrossProduct() {
-		assertEquals(Matrix.vector(1, 2).cross2d(Matrix.vector(-1, 3)), 5.0);
-		assertEquals(Matrix.ofRow(1, 2).cross2d(Matrix.ofRow(-1, 3)), 5.0);
+		Assert.equal(Matrix.vector(1, 2).cross2d(Matrix.vector(-1, 3)), 5.0);
+		Assert.equal(Matrix.ofRow(1, 2).cross2d(Matrix.ofRow(-1, 3)), 5.0);
 		Assert.thrown(() -> Matrix.ofRow(1, 2, 0).cross2d(Matrix.ofRow(-1, 3, 0)));
 		Assert.thrown(() -> Matrix.EMPTY.cross2d(Matrix.EMPTY));
 		Assert.thrown(() -> Matrix.I1.cross2d(Matrix.I1));
@@ -280,44 +275,44 @@ public class MatrixBehavior {
 
 	@Test
 	public void shouldCalculateVectorMagnitude() {
-		assertEquals(Matrix.vector(2, 1, 2).magnitude(), 3.0);
-		assertEquals(Matrix.ofRow(0, 3, 4).magnitude(), 5.0);
-		assertEquals(Matrix.I1.magnitude(), 1.0);
-		assertEquals(Matrix.EMPTY.magnitude(), 0.0);
+		Assert.equal(Matrix.vector(2, 1, 2).magnitude(), 3.0);
+		Assert.equal(Matrix.ofRow(0, 3, 4).magnitude(), 5.0);
+		Assert.equal(Matrix.I1.magnitude(), 1.0);
+		Assert.equal(Matrix.EMPTY.magnitude(), 0.0);
 		Assert.thrown(() -> Matrix.I2.magnitude());
 	}
 
 	@Test
 	public void shouldCalculateVectorQuarance() {
-		assertEquals(Matrix.vector(1, 2, 3).quadrance(), 14.0);
+		Assert.equal(Matrix.vector(1, 2, 3).quadrance(), 14.0);
 	}
 
 	@Test
 	public void shouldCalculateDeterminant() {
-		assertEquals(Matrix.of(r(3)).determinant(), 3.0);
-		assertEquals(Matrix.EMPTY.determinant(), 0.0);
-		assertEquals(Matrix.I3.determinant(), 1.0);
-		assertEquals(Matrix.from(2, 1, 2, 0, -1).determinant(), -1.0);
-		assertEquals(Matrix.from(3, 1, 0, 2, -1, 1, -1, 1, 2, -1).determinant(), -5.0);
-		assertEquals(Matrix.from(4, //
+		Assert.equal(Matrix.of(r(3)).determinant(), 3.0);
+		Assert.equal(Matrix.EMPTY.determinant(), 0.0);
+		Assert.equal(Matrix.I3.determinant(), 1.0);
+		Assert.equal(Matrix.from(2, 1, 2, 0, -1).determinant(), -1.0);
+		Assert.equal(Matrix.from(3, 1, 0, 2, -1, 1, -1, 1, 2, -1).determinant(), -5.0);
+		Assert.equal(Matrix.from(4, //
 			1, 2, -1, -1, //
 			1, 1, 1, -1, //
 			-1, 2, 1, 0, //
 			0, 1, 1, -1).determinant(), 5.0);
-		assertEquals(Matrix.from(5, //
+		Assert.equal(Matrix.from(5, //
 			2, -1, 1, -1, 1, //
 			-1, 1, 1, -1, -2, //
 			1, 1, 1, -1, -1, //
 			1, -1, 2, -2, 1, //
 			1, 1, 1, 1, 1).determinant(), 10.0);
-		assertEquals(Matrix.from(6, //
+		Assert.equal(Matrix.from(6, //
 			1, -1, -1, 1, -1, 1, //
 			1, -1, 1, 1, 0, -1, //
 			1, -2, 2, 1, 1, -1, //
 			1, -1, 1, -1, 1, 1, //
 			1, -1, 0, -1, 1, 1, //
 			-1, 1, 1, -1, -1, 1).determinant(), 4.0);
-		assertEquals(Matrix.from(7, //
+		Assert.equal(Matrix.from(7, //
 			1, -1, -1, 1, -1, 1, 1, //
 			1, -1, 1, 1, 0, -1, 1, //
 			1, -2, 2, 1, 1, -1, 1, //
@@ -325,7 +320,7 @@ public class MatrixBehavior {
 			1, -1, 0, -1, 1, 1, 1, //
 			-1, 1, 1, -1, -1, 1, 0, //
 			1, 0, -1, 1, 1, 1, -1).determinant(), 4.0);
-		assertEquals(Matrix.constant(8, 8, 2).determinant(), 0.0);
+		Assert.equal(Matrix.constant(8, 8, 2).determinant(), 0.0);
 	}
 
 	@Test
@@ -397,14 +392,14 @@ public class MatrixBehavior {
 	}
 
 	private static void assertMatrix(Matrix m, int columns, double... seq) {
-		assertEquals(m, Matrix.from(columns, seq));
+		Assert.equal(m, Matrix.from(columns, seq));
 	}
 
 	private static void assertMatrix(Matrix m, double[]... rows) {
-		assertEquals(m, Matrix.of(rows));
+		Assert.equal(m, Matrix.of(rows));
 	}
 
 	private static void assertMatrix(Matrix m, Matrix expected) {
-		assertEquals(m, expected);
+		Assert.equal(m, expected);
 	}
 }

@@ -1,8 +1,8 @@
 package ceri.log.util;
 
-import static ceri.common.test.Assert.assertOrdered;
 import org.junit.Test;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class CloseableTrackerBehavior {
@@ -30,7 +30,6 @@ public class CloseableTrackerBehavior {
 		tracker.add(c0);
 		tracker.add(c1);
 		tracker.add(c2);
-		assertOrdered(tracker.list(), c0, c1, c2);
+		Assert.ordered(tracker.list(), c0, c1, c2);
 	}
-
 }

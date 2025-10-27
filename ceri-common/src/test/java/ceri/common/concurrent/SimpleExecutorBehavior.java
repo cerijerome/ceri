@@ -1,6 +1,5 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -14,16 +13,16 @@ public class SimpleExecutorBehavior {
 	@Test
 	public void shouldReturnConstant() {
 		try (var exec = SimpleExecutor.run(() -> {}, "test")) {
-			assertEquals(exec.get(1000), "test");
-			assertEquals(exec.get(), "test");
+			Assert.equal(exec.get(1000), "test");
+			Assert.equal(exec.get(), "test");
 		}
 	}
 
 	@Test
 	public void shouldExecuteCallable() {
 		try (var exec = SimpleExecutor.call(() -> "test")) {
-			assertEquals(exec.get(1000), "test");
-			assertEquals(exec.get(), "test");
+			Assert.equal(exec.get(1000), "test");
+			Assert.equal(exec.get(), "test");
 		}
 	}
 

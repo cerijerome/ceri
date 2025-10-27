@@ -1,9 +1,5 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.util.Set;
@@ -38,25 +34,25 @@ public class SelfHealingSerialBehavior {
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertTrue(SelfHealingSerial.Config.of("test").enabled());
-		assertFalse(SelfHealingSerial.Config.builder((PortSupplier) null).build().enabled());
+		Assert.yes(SelfHealingSerial.Config.of("test").enabled());
+		Assert.no(SelfHealingSerial.Config.builder((PortSupplier) null).build().enabled());
 	}
 
 	@Test
 	public void shouldReplaceSerialParams() {
-		assertEquals(SelfHealingSerial.Config.NULL.replace(null).serial.params,
+		Assert.equal(SelfHealingSerial.Config.NULL.replace(null).serial.params,
 			SerialParams.DEFAULT);
-		assertEquals(SelfHealingSerial.Config.NULL.replace(SerialParams.DEFAULT).serial.params,
+		Assert.equal(SelfHealingSerial.Config.NULL.replace(SerialParams.DEFAULT).serial.params,
 			SerialParams.DEFAULT);
-		assertEquals(SelfHealingSerial.Config.NULL.replace(SerialParams.NULL).serial.params,
+		Assert.equal(SelfHealingSerial.Config.NULL.replace(SerialParams.NULL).serial.params,
 			SerialParams.NULL);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertFind(SelfHealingSerial.Config.of("port"), "port.*lambda");
+		Assert.find(SelfHealingSerial.Config.of("port"), "port.*lambda");
 		try (var serial = SelfHealingSerial.of(config)) {
-			assertFind(serial, "test");
+			Assert.find(serial, "test");
 		}
 	}
 
@@ -64,25 +60,25 @@ public class SelfHealingSerialBehavior {
 	public void shouldCreateFromProperties() throws IOException {
 		var p = TestUtil.typedProperties("serial");
 		var conf = new SelfHealingSerial.Properties(p, "serial").config();
-		assertEquals(conf.portSupplier.get(), "port0");
-		assertEquals(conf.serial.params.baud, 250000);
-		assertEquals(conf.serial.params.dataBits, DataBits._6);
-		assertEquals(conf.serial.params.stopBits, StopBits._2);
-		assertEquals(conf.serial.params.parity, Parity.mark);
-		assertEquals(conf.serial.flowControl, Set.of(FlowControl.rtsCtsIn, FlowControl.xonXoffOut));
-		assertEquals(conf.serial.inBufferSize, 111);
-		assertEquals(conf.serial.outBufferSize, 222);
-		assertEquals(conf.selfHealing.fixRetryDelayMs, 333);
-		assertEquals(conf.selfHealing.recoveryDelayMs, 444);
+		Assert.equal(conf.portSupplier.get(), "port0");
+		Assert.equal(conf.serial.params.baud, 250000);
+		Assert.equal(conf.serial.params.dataBits, DataBits._6);
+		Assert.equal(conf.serial.params.stopBits, StopBits._2);
+		Assert.equal(conf.serial.params.parity, Parity.mark);
+		Assert.equal(conf.serial.flowControl, Set.of(FlowControl.rtsCtsIn, FlowControl.xonXoffOut));
+		Assert.equal(conf.serial.inBufferSize, 111);
+		Assert.equal(conf.serial.outBufferSize, 222);
+		Assert.equal(conf.selfHealing.fixRetryDelayMs, 333);
+		Assert.equal(conf.selfHealing.recoveryDelayMs, 444);
 	}
 
 	@Test
 	public void shouldProvidePort() throws IOException {
 		ref.init();
 		serial = SelfHealingSerial.of(config);
-		assertEquals(serial.port(), "test"); // from config
+		Assert.equal(serial.port(), "test"); // from config
 		serial.open();
-		assertEquals(serial.port(), "test"); // from serial
+		Assert.equal(serial.port(), "test"); // from serial
 	}
 
 	@Test
@@ -94,18 +90,18 @@ public class SelfHealingSerialBehavior {
 		serial.params(SerialParams.of(19200));
 		serial.flowControls(FlowControl.xonXoffOut);
 		serial.open();
-		assertEquals(serial.inBufferSize(), 111);
-		assertEquals(serial.outBufferSize(), 222);
-		assertEquals(serial.params(), SerialParams.of(19200));
-		assertEquals(serial.flowControl(), Set.of(FlowControl.xonXoffOut));
+		Assert.equal(serial.inBufferSize(), 111);
+		Assert.equal(serial.outBufferSize(), 222);
+		Assert.equal(serial.params(), SerialParams.of(19200));
+		Assert.equal(serial.flowControl(), Set.of(FlowControl.xonXoffOut));
 		serial.inBufferSize(333);
 		serial.outBufferSize(444);
 		serial.params(SerialParams.of(38400));
 		serial.flowControl(FlowControl.NONE);
-		assertEquals(serial.inBufferSize(), 333);
-		assertEquals(serial.outBufferSize(), 444);
-		assertEquals(serial.params(), SerialParams.of(38400));
-		assertEquals(serial.flowControl(), FlowControl.NONE);
+		Assert.equal(serial.inBufferSize(), 333);
+		Assert.equal(serial.outBufferSize(), 444);
+		Assert.equal(serial.params(), SerialParams.of(38400));
+		Assert.equal(serial.flowControl(), FlowControl.NONE);
 	}
 
 	@Test
@@ -132,12 +128,12 @@ public class SelfHealingSerialBehavior {
 		testSerial.cts.autoResponses(true);
 		testSerial.dsr.autoResponses(false);
 		testSerial.ri.autoResponses(true);
-		assertEquals(serial.rts(), false);
-		assertEquals(serial.dtr(), true);
-		assertEquals(serial.cd(), false);
-		assertEquals(serial.cts(), true);
-		assertEquals(serial.dsr(), false);
-		assertEquals(serial.ri(), true);
+		Assert.equal(serial.rts(), false);
+		Assert.equal(serial.dtr(), true);
+		Assert.equal(serial.cd(), false);
+		Assert.equal(serial.cts(), true);
+		Assert.equal(serial.dsr(), false);
+		Assert.equal(serial.ri(), true);
 	}
 
 	@Test

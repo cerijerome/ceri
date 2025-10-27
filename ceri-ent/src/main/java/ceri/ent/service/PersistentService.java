@@ -8,8 +8,8 @@ import ceri.common.collect.Maps;
 import ceri.common.collect.Sets;
 import ceri.common.concurrent.SafeReadWrite;
 import ceri.common.function.Excepts;
-import ceri.common.function.Functions;
 import ceri.common.function.Filters;
+import ceri.common.function.Functions;
 
 /**
  * An in-memory data service with persistence.

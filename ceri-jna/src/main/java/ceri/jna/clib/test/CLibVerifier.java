@@ -1,13 +1,12 @@
 package ceri.jna.clib.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import org.apache.logging.log4j.Level;
 import ceri.common.collect.Lists;
 import ceri.common.io.PathList;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.text.Strings;
@@ -57,13 +56,13 @@ public class CLibVerifier {
 		int fd = -1;
 		try (var files = FileTestHelper.builder().build()) {
 			fd = CFcntl.open(files.path("test").toString(), CFcntl.O_RDWR | CFcntl.O_CREAT, 0777);
-			assertEquals(CUnistd.isatty(fd), false);
-			assertEquals(CUnistd.write(fd, 1, 2, 3), 3);
-			assertEquals(CUnistd.lseek(fd, 0, CUnistd.SEEK_SET), 0);
-			assertEquals(CIoctl.fionread(fd), 3);
+			Assert.equal(CUnistd.isatty(fd), false);
+			Assert.equal(CUnistd.write(fd, 1, 2, 3), 3);
+			Assert.equal(CUnistd.lseek(fd, 0, CUnistd.SEEK_SET), 0);
+			Assert.equal(CIoctl.fionread(fd), 3);
 			var bytes = new byte[3];
-			assertEquals(CUnistd.read(fd, bytes), 3);
-			assertArray(bytes, 1, 2, 3);
+			Assert.equal(CUnistd.read(fd, bytes), 3);
+			Assert.array(bytes, 1, 2, 3);
 			verifyFileFlags(fd);
 		} finally {
 			CUnistd.close(fd);
@@ -72,10 +71,10 @@ public class CLibVerifier {
 
 	public static void verifySignal() throws IOException {
 		var sync = CallSync.consumer(0, true);
-		assertEquals(CSignal.signal(CSignal.SIGUSR1, sync::accept), true);
+		Assert.equal(CSignal.signal(CSignal.SIGUSR1, sync::accept), true);
 		CSignal.raise(CSignal.SIGUSR1);
 		sync.assertAuto(CSignal.SIGUSR1);
-		assertEquals(CSignal.signal(CSignal.SIGUSR1, CSignal.SIG_DFL), true);
+		Assert.equal(CSignal.signal(CSignal.SIGUSR1, CSignal.SIG_DFL), true);
 		verifySigset();
 	}
 
@@ -88,8 +87,8 @@ public class CLibVerifier {
 			pollfds[1].fd = fds[1];
 			pollfds[1].events = CPoll.POLLOUT;
 			CUnistd.write(fds[1], 0);
-			assertEquals(CPoll.poll(pollfds, 1000), 2);
-			assertEquals(CPoll.poll(pollfds, -1), 2);
+			Assert.equal(CPoll.poll(pollfds, 1000), 2);
+			Assert.equal(CPoll.poll(pollfds, -1), 2);
 			if (OsUtil.os().linux) verifyPpoll(pollfds);
 			CUnistd.read(fds[0], new byte[1]);
 		} finally {
@@ -111,25 +110,25 @@ public class CLibVerifier {
 
 	public static void verifyEnv() throws IOException {
 		CStdlib.setenv("CLIBVERIFIER", "VALUE", true);
-		assertEquals(CStdlib.getenv("CLIBVERIFIER"), "VALUE");
+		Assert.equal(CStdlib.getenv("CLIBVERIFIER"), "VALUE");
 	}
 
 	private static void verifyFileFlags(int fd) throws IOException {
-		assertEquals(CFcntl.getFd(fd), 0);
+		Assert.equal(CFcntl.getFd(fd), 0);
 		CFcntl.setFl(fd, CFcntl.O_NONBLOCK);
 		int fl = CFcntl.getFl(fd);
-		assertEquals(fl & CFcntl.O_RDWR, CFcntl.O_RDWR);
-		assertEquals(fl & CFcntl.O_NONBLOCK, CFcntl.O_NONBLOCK);
+		Assert.equal(fl & CFcntl.O_RDWR, CFcntl.O_RDWR);
+		Assert.equal(fl & CFcntl.O_NONBLOCK, CFcntl.O_NONBLOCK);
 	}
 
 	private static void verifyPpoll(CPoll.pollfd[] pollfds) throws IOException {
 		var tmo = new CTime.timespec().time(TimeSpec.ofMillis(1, 0));
 		var sigset = CSignal.sigemptyset(new CSignal.sigset_t());
 		CSignal.sigaddset(sigset, CSignal.SIGINT);
-		assertEquals(CPoll.Linux.ppoll(pollfds, null, null), 2);
-		assertEquals(CPoll.Linux.ppoll(pollfds, tmo, null), 2);
-		assertEquals(CPoll.Linux.ppoll(pollfds, null, sigset), 2);
-		assertEquals(CPoll.Linux.ppoll(pollfds, tmo, sigset), 2);
+		Assert.equal(CPoll.Linux.ppoll(pollfds, null, null), 2);
+		Assert.equal(CPoll.Linux.ppoll(pollfds, tmo, null), 2);
+		Assert.equal(CPoll.Linux.ppoll(pollfds, null, sigset), 2);
+		Assert.equal(CPoll.Linux.ppoll(pollfds, tmo, sigset), 2);
 	}
 
 	private static void verifySigset() throws IOException {
@@ -137,9 +136,9 @@ public class CLibVerifier {
 		for (var signal : Signal.values()) {
 			int signum = signal.signal;
 			CSignal.sigaddset(sigset, signum);
-			assertEquals(CSignal.sigismember(sigset, signum), true);
+			Assert.equal(CSignal.sigismember(sigset, signum), true);
 			CSignal.sigdelset(sigset, signum);
-			assertEquals(CSignal.sigismember(sigset, signum), false);
+			Assert.equal(CSignal.sigismember(sigset, signum), false);
 		}
 	}
 
@@ -172,8 +171,8 @@ public class CLibVerifier {
 		CTermios.cfsetispeed(tty, CTermios.B9600);
 		CTermios.cfsetospeed(tty, CTermios.B9600);
 		CTermios.tcsetattr(fd, CTermios.TCSANOW, tty);
-		assertEquals(CTermios.cfgetispeed(tty), CTermios.B9600);
-		assertEquals(CTermios.cfgetospeed(tty), CTermios.B9600);
+		Assert.equal(CTermios.cfgetispeed(tty), CTermios.B9600);
+		Assert.equal(CTermios.cfgetospeed(tty), CTermios.B9600);
 	}
 
 	private static Integer openSerial(String serial) throws IOException {

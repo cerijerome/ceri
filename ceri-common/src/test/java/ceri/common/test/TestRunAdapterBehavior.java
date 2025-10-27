@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.text.StringBuilders;
 
@@ -30,7 +29,7 @@ public class TestRunAdapterBehavior {
 		p.testStarted("6");
 		String output = b.toString();
 		String[] lines = output.split("\r?\n");
-		assertEquals(lines.length, 6);
+		Assert.equal(lines.length, 6);
 	}
 
 }

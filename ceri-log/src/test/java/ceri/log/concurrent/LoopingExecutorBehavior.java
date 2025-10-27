@@ -1,13 +1,12 @@
 package ceri.log.concurrent;
 
 import static ceri.common.concurrent.Concurrent.delayMicros;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.test.Assert;
 import ceri.log.test.LogModifier;
 
 public class LoopingExecutorBehavior {
@@ -16,11 +15,11 @@ public class LoopingExecutorBehavior {
 	public void shouldDetermineIfClosed() {
 		ValueCondition<Integer> sync = ValueCondition.of();
 		try (var loop = new TestLoop(sync::signal)) {
-			assertEquals(loop.closed(), false);
+			Assert.equal(loop.closed(), false);
 			loop.close();
-			assertEquals(loop.closed(), true);
+			Assert.equal(loop.closed(), true);
 			loop.close();
-			assertEquals(loop.closed(), true);
+			Assert.equal(loop.closed(), true);
 		}
 	}
 
@@ -28,7 +27,7 @@ public class LoopingExecutorBehavior {
 	public void shouldLoop() throws InterruptedException {
 		ValueCondition<Integer> sync = ValueCondition.of();
 		try (var _ = new TestLoop(sync::signal)) {
-			assertTrue(sync.await(i -> i > 3) > 3);
+			Assert.yes(sync.await(i -> i > 3) > 3);
 		}
 	}
 
@@ -38,7 +37,7 @@ public class LoopingExecutorBehavior {
 			try (var loop = new TestLoop(_ -> throwIoException())) {
 				loop.waitUntilStopped();
 				loop.waitUntilStopped(1);
-				assertTrue(loop.stopped());
+				Assert.yes(loop.stopped());
 			}
 		}, Level.OFF, LoopingExecutor.class);
 	}

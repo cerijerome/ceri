@@ -1,7 +1,5 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Properties;
 import org.junit.After;
@@ -43,22 +41,22 @@ public class SerialConfigBehavior {
 		var ne5 = SerialConfig.builder().params(params).flowControl(FlowControl.rtsCtsIn)
 			.inBufferSize(111).outBufferSize(223).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
 	@Test
 	public void shouldReplaceSerialParams() {
-		assertEquals(SerialConfig.DEFAULT.replace(null).params, SerialParams.DEFAULT);
-		assertEquals(SerialConfig.DEFAULT.replace(SerialParams.DEFAULT).params,
+		Assert.equal(SerialConfig.DEFAULT.replace(null).params, SerialParams.DEFAULT);
+		Assert.equal(SerialConfig.DEFAULT.replace(SerialParams.DEFAULT).params,
 			SerialParams.DEFAULT);
-		assertEquals(SerialConfig.DEFAULT.replace(SerialParams.NULL).params, SerialParams.NULL);
+		Assert.equal(SerialConfig.DEFAULT.replace(SerialParams.NULL).params, SerialParams.NULL);
 	}
 
 	@Test
 	public void shouldReturnNullWithNoPortLocator() throws IOException {
 		var p = new Properties();
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertEquals(port.get(), null);
+		Assert.equal(port.get(), null);
 	}
 
 	@Test
@@ -76,7 +74,7 @@ public class SerialConfigBehavior {
 		p.setProperty("device.port.locator.path", path);
 		p.setProperty("device.port.locator.pattern", "regex:port\\d+");
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertEquals(port.get(), path + "/port0");
+		Assert.equal(port.get(), path + "/port0");
 	}
 
 	@Test
@@ -87,7 +85,7 @@ public class SerialConfigBehavior {
 		p.setProperty("device.port.locator.pattern", "regex:port\\d+");
 		p.setProperty("device.port.locator.index", "1");
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertEquals(port.get(), path + "/port1");
+		Assert.equal(port.get(), path + "/port1");
 	}
 
 	@Test
@@ -97,7 +95,7 @@ public class SerialConfigBehavior {
 		p.setProperty("device.port.locator.path", path);
 		p.setProperty("device.port.locator.index", "1");
 		var port = new SerialConfig.Properties(TypedProperties.from(p), "device").portSupplier();
-		assertEquals(port.get(), path + "/tty.usb1");
+		Assert.equal(port.get(), path + "/tty.usb1");
 	}
 
 	@Test

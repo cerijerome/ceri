@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
@@ -12,7 +10,7 @@ public class TestExecutorServiceBehavior {
 	@Test
 	public void shouldAwaitTermination() throws InterruptedException {
 		try (var exec = TestExecutorService.of()) {
-			assertTrue(exec.awaitTermination(1, TimeUnit.MILLISECONDS));
+			Assert.yes(exec.awaitTermination(1, TimeUnit.MILLISECONDS));
 			exec.awaitTermination.assertAuto(Timeout.millis(1));
 		}
 	}
@@ -20,7 +18,7 @@ public class TestExecutorServiceBehavior {
 	@Test
 	public void shouldExecute() throws InterruptedException, ExecutionException {
 		try (var exec = TestExecutorService.of()) {
-			assertEquals(exec.submit(() -> "test").get(), "test");
+			Assert.equal(exec.submit(() -> "test").get(), "test");
 			exec.execute.awaitAuto();
 		}
 	}
@@ -30,8 +28,8 @@ public class TestExecutorServiceBehavior {
 		try (var exec = TestExecutorService.of()) {
 			exec.shutdown();
 			exec.shutdown.assertAuto(true);
-			assertTrue(exec.isShutdown());
-			assertTrue(exec.isTerminated());
+			Assert.yes(exec.isShutdown());
+			Assert.yes(exec.isTerminated());
 		}
 	}
 

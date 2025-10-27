@@ -1,9 +1,8 @@
 package ceri.common.process;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.text.Parse;
 import ceri.common.text.Regex;
 
@@ -14,14 +13,14 @@ public class OutputBehavior {
 		Functions.Function<String, int[]> parser =
 			s -> Regex.Split.COMMA.stream(s).mapToInt(Parse::parseInt).toArray();
 		Output<int[]> output = Output.of("1, 2, 3", parser);
-		assertEquals(output.out, "1, 2, 3");
-		assertEquals(output.toString(), "1, 2, 3");
-		assertArray(output.parse(), 1, 2, 3);
+		Assert.equal(output.out, "1, 2, 3");
+		Assert.equal(output.toString(), "1, 2, 3");
+		Assert.array(output.parse(), 1, 2, 3);
 	}
 
 	@Test
 	public void shouldHandleNulls() {
-		assertEquals(Output.of(null, _ -> "test").parse(), null);
-		assertEquals(Output.of("test", null).parse(), null);
+		Assert.equal(Output.of(null, _ -> "test").parse(), null);
+		Assert.equal(Output.of("test", null).parse(), null);
 	}
 }

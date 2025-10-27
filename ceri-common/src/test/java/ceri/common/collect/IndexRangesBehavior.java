@@ -1,11 +1,5 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.illegalState;
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import org.junit.Test;
@@ -17,7 +11,7 @@ public class IndexRangesBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(r(1, 3).add(5, 5).add(7, 8), "[1-3,5,7,8]");
+		Assert.string(r(1, 3).add(5, 5).add(7, 8), "[1-3,5,7,8]");
 	}
 
 	@Test
@@ -42,7 +36,7 @@ public class IndexRangesBehavior {
 		r.add(r(8, 9).add(4));
 		r.add(3, 4);
 		assertRanges(r, 1, 2, 3, 4, 6, 8, 9);
-		assertEquals(r.ranges(), 3);
+		Assert.equal(r.ranges(), 3);
 	}
 
 	@Test
@@ -57,7 +51,7 @@ public class IndexRangesBehavior {
 		r.remove(12);
 		r.remove(13);
 		assertRanges(r, 4, 7, 8, 11);
-		assertEquals(r.ranges(), 3);
+		Assert.equal(r.ranges(), 3);
 	}
 
 	@Test
@@ -84,23 +78,23 @@ public class IndexRangesBehavior {
 
 	@Test
 	public void shouldCountIndexes() {
-		assertTrue(IndexRanges.of().isEmpty());
-		assertFalse(IndexRanges.of().add(1, 1).isEmpty());
-		assertEquals(IndexRanges.of().count(), 0);
-		assertEquals(r(1, 10).add(20, 20).add(30, 33).count(), 15);
-		assertEquals(r(0, MAX).count(), Integer.MIN_VALUE);
+		Assert.yes(IndexRanges.of().isEmpty());
+		Assert.no(IndexRanges.of().add(1, 1).isEmpty());
+		Assert.equal(IndexRanges.of().count(), 0);
+		Assert.equal(r(1, 10).add(20, 20).add(30, 33).count(), 15);
+		Assert.equal(r(0, MAX).count(), Integer.MIN_VALUE);
 	}
 
 	@Test
 	public void shouldReturnLimits() {
-		assertEquals(IndexRanges.of().first(), -1);
-		assertEquals(IndexRanges.of().last(), -1);
-		assertEquals(r(0, 0).first(), 0);
-		assertEquals(r(0, 0).last(), 0);
-		assertEquals(r(0, MAX).first(), 0);
-		assertEquals(r(0, MAX).last(), MAX);
-		assertEquals(r(MAX, MAX).last(), MAX);
-		assertEquals(r(MAX, MAX).last(), MAX);
+		Assert.equal(IndexRanges.of().first(), -1);
+		Assert.equal(IndexRanges.of().last(), -1);
+		Assert.equal(r(0, 0).first(), 0);
+		Assert.equal(r(0, 0).last(), 0);
+		Assert.equal(r(0, MAX).first(), 0);
+		Assert.equal(r(0, MAX).last(), MAX);
+		Assert.equal(r(MAX, MAX).last(), MAX);
+		Assert.equal(r(MAX, MAX).last(), MAX);
 	}
 
 	@Test
@@ -116,11 +110,11 @@ public class IndexRangesBehavior {
 		var i = r.iterator();
 		iterate(i, 3);
 		r.remove(7, 7);
-		illegalState(i::nextInt);
+		Assert.illegalState(i::nextInt);
 		r.remove(8, 9);
-		illegalState(i::nextInt);
+		Assert.illegalState(i::nextInt);
 		r.add(6, 6);
-		illegalState(i::nextInt);
+		Assert.illegalState(i::nextInt);
 		r.add(7, 7);
 		Assert.thrown(NoSuchElementException.class, i::nextInt);
 	}
@@ -130,7 +124,7 @@ public class IndexRangesBehavior {
 		var r =
 			IndexRanges.of(1, 10).add(5, 6).add(1, 1).add(8, 9).add(1, 2).add(7, 9).remove(4, 7);
 		assertRanges(r, 1, 2, 8, 9);
-		assertEquals(r.ranges(), 2);
+		Assert.equal(r.ranges(), 2);
 	}
 
 	@Test
@@ -139,7 +133,7 @@ public class IndexRangesBehavior {
 		assertRanges(r, 1, 2);
 		r.add(3, 3).add(5, 5).add(7, 7);
 		assertRanges(r, 1, 2, 3, 5, 7);
-		assertEquals(r.ranges(), 3);
+		Assert.equal(r.ranges(), 3);
 	}
 
 	@Test
@@ -161,6 +155,6 @@ public class IndexRangesBehavior {
 	}
 
 	private static void assertRanges(IndexRanges r, int... indexes) {
-		assertArray(r.stream().toArray(), indexes);
+		Assert.array(r.stream().toArray(), indexes);
 	}
 }

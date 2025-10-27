@@ -1,7 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import java.util.Locale;
 import org.apache.logging.log4j.Level;
@@ -32,7 +30,7 @@ public class UsbBehavior {
 	@Test
 	public void shouldProvideVersion() throws IOException {
 		var version = Usb.version();
-		assertMatch(version, "\\d+\\.\\d+\\.\\d+\\.\\d+");
+		Assert.match(version, "\\d+\\.\\d+\\.\\d+\\.\\d+");
 		Assert.notNull(version.describe());
 		Assert.notNull(version.rcSuffix());
 	}
@@ -40,7 +38,7 @@ public class UsbBehavior {
 	@Test
 	public void shouldSetLocale() throws IOException {
 		Usb.setLocale(Locale.US);
-		assertEquals(lib.data.locale(), "en_US");
+		Assert.equal(lib.data.locale(), "en_US");
 	}
 
 	@Test

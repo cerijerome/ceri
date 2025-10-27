@@ -1,9 +1,7 @@
 package ceri.serial.spi;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SpiModeBehavior {
@@ -26,29 +24,29 @@ public class SpiModeBehavior {
 		var ne10 = SpiMode.builder().chipSelectHigh().txDual().build();
 		var ne11 = SpiMode.builder().chipSelectHigh().txQuad().build();
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10, ne11);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7, ne8, ne9, ne10, ne11);
 	}
 
 	@Test
 	public void shouldAccessFields() {
 		var mode = new SpiMode(0xa5f);
-		assertEquals(mode.clockPhaseHigh(), true);
-		assertEquals(mode.clockPolarityHigh(), true);
-		assertEquals(mode.chipSelectHigh(), true);
-		assertEquals(mode.lsbFirst(), true);
-		assertEquals(mode.spi3Wire(), true);
-		assertEquals(mode.loop(), false);
-		assertEquals(mode.noChipSelect(), true);
-		assertEquals(mode.ready(), false);
-		assertEquals(mode.txDual(), false);
-		assertEquals(mode.txQuad(), true);
-		assertEquals(mode.rxDual(), false);
-		assertEquals(mode.rxQuad(), true);
+		Assert.equal(mode.clockPhaseHigh(), true);
+		Assert.equal(mode.clockPolarityHigh(), true);
+		Assert.equal(mode.chipSelectHigh(), true);
+		Assert.equal(mode.lsbFirst(), true);
+		Assert.equal(mode.spi3Wire(), true);
+		Assert.equal(mode.loop(), false);
+		Assert.equal(mode.noChipSelect(), true);
+		Assert.equal(mode.ready(), false);
+		Assert.equal(mode.txDual(), false);
+		Assert.equal(mode.txQuad(), true);
+		Assert.equal(mode.rxDual(), false);
+		Assert.equal(mode.rxQuad(), true);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(new SpiMode(0xa5f), "0x00000a5f");
-		assertString(new SpiMode(0x5f), "0x5f");
+		Assert.string(new SpiMode(0xa5f), "0x00000a5f");
+		Assert.string(new SpiMode(0x5f), "0x5f");
 	}
 }

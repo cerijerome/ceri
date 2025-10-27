@@ -1,7 +1,7 @@
 package ceri.common.time;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class TimeSupplierBehavior {
 
@@ -14,8 +14,8 @@ public class TimeSupplierBehavior {
 
 	@Test
 	public void shouldProvideTimeUnitSymbol() {
-		assertEquals(TimeSupplier.millis.symbol(), "ms");
-		assertEquals(TimeSupplier.nanos.symbol(), "ns");
+		Assert.equal(TimeSupplier.millis.symbol(), "ms");
+		Assert.equal(TimeSupplier.nanos.symbol(), "ns");
 	}
 
 }

@@ -1,6 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.util.OsUtil;
@@ -10,7 +9,7 @@ public class CLibTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CLib.class);
+		Assert.privateConstructor(CLib.class);
 	}
 
 	@Test

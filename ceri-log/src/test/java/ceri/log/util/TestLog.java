@@ -83,19 +83,19 @@ public class TestLog implements AutoCloseable {
 	}
 
 	public void assertEmpty() {
-		Assert.assertEquals(extract(), "");
+		Assert.equal(extract(), "");
 	}
 
 	public void assertFind(String pattern, Object... args) {
-		Assert.assertFind(extract(), pattern, args);
+		Assert.find(extract(), pattern, args);
 	}
 
 	public void assertMatch(String pattern, Object... args) {
-		Assert.assertMatch(extract(), pattern, args);
+		Assert.match(extract(), pattern, args);
 	}
 
 	public String extract() {
-		String read = read();
+		var read = read();
 		clear();
 		return read;
 	}
@@ -148,18 +148,18 @@ public class TestLog implements AutoCloseable {
 	}
 
 	private LoggerConfig createLoggerConfig(Configuration config, String name, Appender appender) {
-		AppenderRef ref = AppenderRef.createAppenderRef(appender.getName(), null, null);
-		LoggerConfig loggerConfig = LoggerConfig.newBuilder().withAdditivity(false)
-			.withLevel(Level.ALL).withLoggerName(name).withIncludeLocation(Boolean.TRUE.toString())
+		var ref = AppenderRef.createAppenderRef(appender.getName(), null, null);
+		var loggerConfig = LoggerConfig.newBuilder().withAdditivity(false).withLevel(Level.ALL)
+			.withLoggerName(name).withIncludeLocation(Boolean.TRUE.toString())
 			.withRefs(new AppenderRef[] { ref }).withConfig(config).build();
 		loggerConfig.addAppender(appender, null, null);
 		return loggerConfig;
 	}
 
 	private Appender createFileAppender(Configuration config, Path file) {
-		String name = file.getFileName().toString();
-		PatternLayout layout = PatternLayout.newBuilder().withPattern(PATTERN).build();
-		FileAppender appender =
+		var name = file.getFileName().toString();
+		var layout = PatternLayout.newBuilder().withPattern(PATTERN).build();
+		var appender =
 			FileAppender.newBuilder().withFileName(file.toString()).setIgnoreExceptions(false)
 				.setName(name).setLayout(layout).setConfiguration(config).build();
 		appender.start();

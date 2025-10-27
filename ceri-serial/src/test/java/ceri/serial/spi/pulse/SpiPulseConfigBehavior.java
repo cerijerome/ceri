@@ -1,8 +1,7 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class SpiPulseConfigBehavior {
@@ -17,7 +16,7 @@ public class SpiPulseConfigBehavior {
 		var ne3 = SpiPulseConfig.builder(3).cycle(PulseCycle.Std._5.cycle).delayMicros(300).build();
 		var ne4 = SpiPulseConfig.builder(3).cycle(PulseCycle.Std._5.cycle).resetDelayMs(50).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4);
 	}
 
 	@Test
@@ -26,16 +25,16 @@ public class SpiPulseConfigBehavior {
 		var conf0 = new SpiPulseConfig.Properties(props, "spi.0").config();
 		var conf1 = new SpiPulseConfig.Properties(props, "spi.1").config();
 		var conf2 = new SpiPulseConfig.Properties(props, "spi.2").config();
-		assertEquals(conf0, SpiPulseConfig.builder(5).cycle(PulseCycle.Std._7_27.cycle)
+		Assert.equal(conf0, SpiPulseConfig.builder(5).cycle(PulseCycle.Std._7_27.cycle)
 			.delayMicros(50).resetDelayMs(100).build());
-		assertEquals(conf1, SpiPulseConfig.builder(4)
+		Assert.equal(conf1, SpiPulseConfig.builder(4)
 			.cycle(PulseCycle.of(PulseCycle.Type.nbit27, 5, 2, 1, 3)).build());
-		assertEquals(conf2, SpiPulseConfig.of(3));
+		Assert.equal(conf2, SpiPulseConfig.of(3));
 	}
 
 	@Test
 	public void shouldDetermineIfNull() {
-		assertEquals(SpiPulseConfig.of(0).isNull(), true);
-		assertEquals(SpiPulseConfig.of(1).isNull(), false);
+		Assert.equal(SpiPulseConfig.of(0).isNull(), true);
+		Assert.equal(SpiPulseConfig.of(1).isNull(), false);
 	}
 }

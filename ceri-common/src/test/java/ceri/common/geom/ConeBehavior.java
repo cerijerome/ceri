@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -13,15 +11,15 @@ public class ConeBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(c0, Cone.of(2, 8));
-		assertNotEquals(c0, Cone.of(1.9, 8));
-		assertNotEquals(c0, Cone.of(2, 8.1));
-		assertNotEquals(c0, Cone.of(2, 0));
-		assertNotEquals(c0, Cone.of(0, 8));
+		Assert.notEqual(c0, Cone.of(1.9, 8));
+		Assert.notEqual(c0, Cone.of(2, 8.1));
+		Assert.notEqual(c0, Cone.of(2, 0));
+		Assert.notEqual(c0, Cone.of(0, 8));
 	}
 
 	@Test
 	public void shouldDefineNullCone() {
-		assertEquals(Cone.of(0, 0), Cone.ZERO);
+		Assert.equal(Cone.of(0, 0), Cone.ZERO);
 		Assert.approx(Cone.ZERO.gradient(), Double.NaN);
 		GeomAssert.approx(Cone.ZERO, 0, 0);
 	}

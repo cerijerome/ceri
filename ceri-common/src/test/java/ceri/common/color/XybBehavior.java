@@ -6,9 +6,6 @@ import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
 import static ceri.common.color.Xyb.CENTER;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -25,7 +22,7 @@ public class XybBehavior {
 		var ne2 = Xyb.of(1.0, 0.7, 0.6, 0.8);
 		var ne3 = Xyb.of(1.0, 0.7, 0.5, 0.7);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -41,13 +38,13 @@ public class XybBehavior {
 
 	@Test
 	public void shouldProvideXybValues() {
-		assertApproxArray(Xyb.from(0).xybValues(), 0, 0, 0);
-		assertApproxArray(Xyb.from(0x804020).xybValues(), 0.505, 0.384, 0.084);
+		Assert.approxArray(Xyb.from(0).xybValues(), 0, 0, 0);
+		Assert.approxArray(Xyb.from(0x804020).xybValues(), 0.505, 0.384, 0.084);
 	}
 
 	@Test
 	public void shouldConvertToArgb() {
-		assertEquals(Xyb.from(0x12345678).argb(), 0x12345678);
+		Assert.equal(Xyb.from(0x12345678).argb(), 0x12345678);
 	}
 
 	@Test
@@ -67,8 +64,8 @@ public class XybBehavior {
 
 	@Test
 	public void shouldDeterminePresenceOfAlpha() {
-		assertEquals(Xyb.from(0xff123456).hasAlpha(), false);
-		assertEquals(Xyb.from(0xef123456).hasAlpha(), true);
+		Assert.equal(Xyb.from(0xff123456).hasAlpha(), false);
+		Assert.equal(Xyb.from(0xef123456).hasAlpha(), true);
 	}
 
 	@Test
@@ -76,7 +73,7 @@ public class XybBehavior {
 		assertXyb(Xyb.from(0x87654321).dim(0.0), 0.529, 0.452, 0.408, 0);
 		assertXyb(Xyb.from(0x87654321).dim(0.5), 0.529, 0.452, 0.408, 0.034);
 		assertXyb(Xyb.from(0x87654321).dim(1.5), 0.529, 0.452, 0.408, 0.103);
-		assertEquals(Xyb.from(0x87654321).dim(1.0).argb(), 0x87654321);
+		Assert.equal(Xyb.from(0x87654321).dim(1.0).argb(), 0x87654321);
 		assertXyb(Xyb.from(0x87654321).dim(20.0), 0.529, 0.452, 0.408, 1.378);
 	}
 

@@ -1,15 +1,5 @@
 package ceri.common.function;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.io;
-import static ceri.common.test.Assert.runtime;
-import static ceri.common.test.Assert.throwInterrupted;
-import static ceri.common.test.Assert.throwIo;
-import static ceri.common.test.Assert.throwRuntime;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
 import ceri.common.test.TestExecutorService;
@@ -34,7 +25,7 @@ public class CloseablesTest {
 		private int i = 0;
 
 		private static Closer of(int i, boolean closed) {
-			if (i < 1 || i > 3) throwRuntime(); // only allow i = 1..3
+			if (i < 1 || i > 3) Assert.throwRuntime(); // only allow i = 1..3
 			var c = new Closer();
 			c.i = i;
 			c.closed = closed;
@@ -63,55 +54,55 @@ public class CloseablesTest {
 	@Test
 	public void testRef() throws IOException {
 		try (Closeable c = () -> {}) {
-			assertEquals(Closeables.ref(c).ref, c);
+			Assert.equal(Closeables.ref(c).ref, c);
 		}
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testAcceptOrClose() {
-		assertEquals(Closeables.acceptOrClose(null, _ -> {}), null);
+		Assert.equal(Closeables.acceptOrClose(null, _ -> {}), null);
 		var closer = SyncCloser.io(true);
-		assertEquals(Closeables.acceptOrClose(closer, _ -> {}), closer);
+		Assert.equal(Closeables.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		io(() -> Closeables.acceptOrClose(closer, _ -> throwIo()));
+		Assert.io(() -> Closeables.acceptOrClose(closer, _ -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testApplyOrClose() throws Exception {
-		assertEquals(Closeables.applyOrClose(null, null), null);
-		assertEquals(Closeables.applyOrClose(null, null, "x"), "x");
+		Assert.equal(Closeables.applyOrClose(null, null), null);
+		Assert.equal(Closeables.applyOrClose(null, null, "x"), "x");
 		var closer = SyncCloser.io(true);
-		assertEquals(Closeables.applyOrClose(closer, _ -> null, 1), 1);
-		assertEquals(Closeables.applyOrClose(closer, _ -> 0), 0);
+		Assert.equal(Closeables.applyOrClose(closer, _ -> null, 1), 1);
+		Assert.equal(Closeables.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		io(() -> Closeables.applyOrClose(closer, _ -> throwIo()));
+		Assert.io(() -> Closeables.applyOrClose(closer, _ -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testRunOrClose() {
-		assertEquals(Closeables.runOrClose(null, () -> {}), null);
+		Assert.equal(Closeables.runOrClose(null, () -> {}), null);
 		var closer = SyncCloser.io(true);
-		assertEquals(Closeables.runOrClose(closer, () -> {}), closer);
+		Assert.equal(Closeables.runOrClose(closer, () -> {}), closer);
 		closer.assertClosed(false);
-		io(() -> Closeables.runOrClose(closer, () -> throwIo()));
+		Assert.io(() -> Closeables.runOrClose(closer, () -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testGetOrClose() throws Exception {
-		assertEquals(Closeables.getOrClose(null, () -> null), null);
-		assertEquals(Closeables.getOrClose(null, () -> null, "x"), "x");
+		Assert.equal(Closeables.getOrClose(null, () -> null), null);
+		Assert.equal(Closeables.getOrClose(null, () -> null, "x"), "x");
 		var closer = SyncCloser.io(true);
-		assertEquals(Closeables.getOrClose(closer, () -> null, 1), 1);
-		assertEquals(Closeables.getOrClose(closer, () -> 0), 0);
+		Assert.equal(Closeables.getOrClose(closer, () -> null, 1), 1);
+		Assert.equal(Closeables.getOrClose(closer, () -> 0), 0);
 		closer.assertClosed(false);
-		io(() -> Closeables.getOrClose(closer, () -> throwIo()));
+		Assert.io(() -> Closeables.getOrClose(closer, () -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -119,8 +110,8 @@ public class CloseablesTest {
 	@Test
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(Closeables.acceptOrCloseAll(closers, _ -> {}), closers);
-		io(() -> Closeables.acceptOrCloseAll(closers, _ -> throwIo()));
+		Assert.equal(Closeables.acceptOrCloseAll(closers, _ -> {}), closers);
+		Assert.io(() -> Closeables.acceptOrCloseAll(closers, _ -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -128,10 +119,10 @@ public class CloseablesTest {
 	@Test
 	public void testApplyOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(Closeables.applyOrCloseAll(closers, _ -> null), null);
-		assertEquals(Closeables.applyOrCloseAll(closers, _ -> null, 3), 3);
-		assertEquals(Closeables.applyOrCloseAll(closers, _ -> 1, 3), 1);
-		io(() -> Closeables.applyOrCloseAll(closers, _ -> throwIo()));
+		Assert.equal(Closeables.applyOrCloseAll(closers, _ -> null), null);
+		Assert.equal(Closeables.applyOrCloseAll(closers, _ -> null, 3), 3);
+		Assert.equal(Closeables.applyOrCloseAll(closers, _ -> 1, 3), 1);
+		Assert.io(() -> Closeables.applyOrCloseAll(closers, _ -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -139,8 +130,8 @@ public class CloseablesTest {
 	@Test
 	public void testRunOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(Closeables.runOrCloseAll(closers, () -> {}), closers);
-		io(() -> Closeables.runOrCloseAll(closers, () -> throwIo()));
+		Assert.equal(Closeables.runOrCloseAll(closers, () -> {}), closers);
+		Assert.io(() -> Closeables.runOrCloseAll(closers, () -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -148,70 +139,70 @@ public class CloseablesTest {
 	@Test
 	public void testGetOrCloseAll() {
 		var closers = List.of(SyncCloser.io(true), SyncCloser.io(true));
-		assertEquals(Closeables.getOrCloseAll(closers, () -> null), null);
-		assertEquals(Closeables.getOrCloseAll(closers, () -> null, 3), 3);
-		assertEquals(Closeables.getOrCloseAll(closers, () -> 1, 3), 1);
-		io(() -> Closeables.getOrCloseAll(closers, () -> throwIo()));
+		Assert.equal(Closeables.getOrCloseAll(closers, () -> null), null);
+		Assert.equal(Closeables.getOrCloseAll(closers, () -> null, 3), 3);
+		Assert.equal(Closeables.getOrCloseAll(closers, () -> 1, 3), 1);
+		Assert.io(() -> Closeables.getOrCloseAll(closers, () -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
 	@Test
 	public void testClose() {
 		final StringReader in = new StringReader("0123456789");
-		assertTrue(Closeables.close());
-		assertTrue(Closeables.close((Iterable<Closeable>) null));
-		assertTrue(Closeables.close(new AutoCloseable[] { null }));
-		assertTrue(Closeables.close(in));
-		io(in::read);
+		Assert.yes(Closeables.close());
+		Assert.yes(Closeables.close((Iterable<Closeable>) null));
+		Assert.yes(Closeables.close(new AutoCloseable[] { null }));
+		Assert.yes(Closeables.close(in));
+		Assert.io(in::read);
 	}
 
 	@Test
 	public void testCloseException() {
 		@SuppressWarnings("resource")
-		Closeable closeable = () -> throwIo();
-		assertFalse(Closeables.close(closeable));
+		Closeable closeable = () -> Assert.throwIo();
+		Assert.no(Closeables.close(closeable));
 	}
 
 	@Test
 	public void testCloseWithInterrupt() {
 		@SuppressWarnings("resource")
-		AutoCloseable closeable = () -> throwInterrupted();
-		assertFalse(Closeables.close(closeable));
-		assertTrue(Thread.interrupted());
+		AutoCloseable closeable = () -> Assert.throwInterrupted();
+		Assert.no(Closeables.close(closeable));
+		Assert.yes(Thread.interrupted());
 	}
 
 	@Test
 	public void testCloseProcess() throws IOException {
-		assertTrue(Closeables.close((Process) null));
-		try (TestProcess p = TestProcess.of()) {
-			assertTrue(Closeables.close(p));
+		Assert.yes(Closeables.close((Process) null));
+		try (var p = TestProcess.of()) {
+			Assert.yes(Closeables.close(p));
 			p.waitFor.assertCalls(1);
 			p.waitFor.error.setFrom(IOX);
-			assertFalse(Closeables.close(p));
+			Assert.no(Closeables.close(p));
 		}
 	}
 
 	@Test
 	public void testCloseExecutor() {
-		assertTrue(Closeables.close((ExecutorService) null));
+		Assert.yes(Closeables.close((ExecutorService) null));
 		try (var exec = TestExecutorService.of()) {
-			assertTrue(Closeables.close(exec));
+			Assert.yes(Closeables.close(exec));
 			exec.shutdown.assertAuto(true);
 			exec.shutdown.error.setFrom(IOX);
-			assertFalse(Closeables.close(exec));
+			Assert.no(Closeables.close(exec));
 		}
 	}
 
 	@Test
 	public void testCloseFuture() {
-		assertTrue(Closeables.close((Future<?>) null));
+		Assert.yes(Closeables.close((Future<?>) null));
 		var f = TestFuture.of("test");
-		assertTrue(Closeables.close(f));
+		Assert.yes(Closeables.close(f));
 		f.get.assertCalls(1);
 		f.get.error.set(new CancellationException());
-		assertTrue(Closeables.close(f));
+		Assert.yes(Closeables.close(f));
 		f.get.error.setFrom(IOX);
-		assertFalse(Closeables.close(f));
+		Assert.no(Closeables.close(f));
 	}
 
 	@SuppressWarnings("resource")
@@ -221,14 +212,14 @@ public class CloseablesTest {
 		Functions.Closeable c0 = () -> captor.accept(0);
 		Functions.Closeable c1 = () -> captor.accept(1);
 		Functions.Closeable c2 = () -> captor.accept(2);
-		assertTrue(Closeables.closeReversed(c0, c1, c2));
+		Assert.yes(Closeables.closeReversed(c0, c1, c2));
 		captor.verify(2, 1, 0);
 	}
 
 	@Test
 	public void testReverseCloseWithFailure() {
-		assertTrue(Closeables.closeReversed(() -> {}, () -> {}, () -> {}));
-		assertFalse(Closeables.closeReversed(() -> {}, () -> {}, () -> throwIo()));
+		Assert.yes(Closeables.closeReversed(() -> {}, () -> {}, () -> {}));
+		Assert.no(Closeables.closeReversed(() -> {}, () -> {}, () -> Assert.throwIo()));
 	}
 
 	@SuppressWarnings("resource")
@@ -236,14 +227,14 @@ public class CloseablesTest {
 	public void testCreateList() {
 		var captor = Captor.of();
 		var list = Closeables.create(function(captor), 1, 2, 3);
-		assertOrdered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		Assert.ordered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateListWithError() {
 		var captor = Captor.of();
-		runtime(() -> Closeables.create(function(captor), 1, 2, -1));
+		Assert.runtime(() -> Closeables.create(function(captor), 1, 2, -1));
 		captor.verify(Closer.of(1, true), Closer.of(2, true));
 	}
 
@@ -252,14 +243,14 @@ public class CloseablesTest {
 	public void testCreateFromCount() {
 		var captor = Captor.of();
 		var list = Closeables.create(supplier(captor), 3);
-		assertOrdered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		Assert.ordered(list, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateFromCountWithError() {
 		var captor = Captor.of();
-		runtime(() -> Closeables.create(supplier(captor), 4));
+		Assert.runtime(() -> Closeables.create(supplier(captor), 4));
 		captor.verify(Closer.of(1, true), Closer.of(2, true), Closer.of(3, true));
 	}
 
@@ -268,14 +259,14 @@ public class CloseablesTest {
 	public void testCreateArray() {
 		var captor = Captor.of();
 		var array = Closeables.createArray(Closer[]::new, function(captor), 1, 2, 3);
-		assertArray(array, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		Assert.array(array, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateArrayWithError() {
 		var captor = Captor.of();
-		runtime(() -> Closeables.createArray(Closer[]::new, function(captor), 1, 2, -1));
+		Assert.runtime(() -> Closeables.createArray(Closer[]::new, function(captor), 1, 2, -1));
 		captor.verify(Closer.of(1, true), Closer.of(2, true));
 	}
 
@@ -284,14 +275,14 @@ public class CloseablesTest {
 	public void testCreateArrayFromCount() {
 		var captor = Captor.of();
 		var array = Closeables.createArray(Closer[]::new, supplier(captor), 3);
-		assertArray(array, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
+		Assert.array(array, Closer.of(1, false), Closer.of(2, false), Closer.of(3, false));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateArrayFromCountWithError() {
 		var captor = Captor.of();
-		runtime(() -> Closeables.createArray(Closer[]::new, supplier(captor), 4));
+		Assert.runtime(() -> Closeables.createArray(Closer[]::new, supplier(captor), 4));
 		captor.verify(Closer.of(1, true), Closer.of(2, true), Closer.of(3, true));
 	}
 
@@ -329,7 +320,7 @@ public class CloseablesTest {
 	private static Excepts.Function<RuntimeException, Integer, Closer>
 		function(Captor<Object> captor) {
 		return i -> {
-			Closer c = Closer.of(i, false);
+			var c = Closer.of(i, false);
 			captor.accept(c);
 			return c;
 		};
@@ -337,7 +328,7 @@ public class CloseablesTest {
 
 	private static Excepts.Supplier<RuntimeException, Closer> supplier(Captor<Object> captor) {
 		return () -> {
-			Closer c = Closer.of(captor.values.size() + 1, false);
+			var c = Closer.of(captor.values.size() + 1, false);
 			captor.accept(c);
 			return c;
 		};

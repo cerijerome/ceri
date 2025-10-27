@@ -1,8 +1,5 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.Test;
@@ -13,49 +10,49 @@ public class ResourceBehavior {
 
 	@Test
 	public void shouldProvideClassUrl() {
-		assertEquals(Resource.url(null), null);
+		Assert.equal(Resource.url(null), null);
 		var url = Resource.url(String.class);
-		assertEquals(url.getPath().endsWith("/java/lang/String.class"), true);
+		Assert.equal(url.getPath().endsWith("/java/lang/String.class"), true);
 		url = Resource.url(Test.class);
-		assertEquals(url.getPath().endsWith("/org/junit/Test.class"), true);
+		Assert.equal(url.getPath().endsWith("/org/junit/Test.class"), true);
 		url = Resource.url(Resource.class);
-		assertEquals(url.getPath().endsWith("/ceri/common/io/Resource.class"), true);
+		Assert.equal(url.getPath().endsWith("/ceri/common/io/Resource.class"), true);
 	}
 
 	@Test
 	public void shouldReadBytes() throws IOException {
 		byte[] content = Resource.bytes(getClass(), PROPERTIES);
-		assertArray(content, 'a', '=', 'b');
+		Assert.array(content, 'a', '=', 'b');
 		content = Resource.bytes(String.class, "String.class"); // module
-		assertEquals(content.length > 0, true);
+		Assert.equal(content.length > 0, true);
 		content = Resource.bytes(Test.class, "Test.class"); // jar
-		assertEquals(content.length > 0, true);
+		Assert.equal(content.length > 0, true);
 	}
 
 	@Test
 	public void shouldReadString() throws IOException {
 		var s = Resource.string(getClass(), PROPERTIES);
-		assertEquals(s, "a=b");
+		Assert.equal(s, "a=b");
 	}
 
 	@Test
 	public void shouldProvideResourceRelativeToRoot() throws IOException {
 		try (var r = Resource.root(String.class)) {
 			var names = PathList.of(r.path()).names();
-			assertEquals(names.contains("java"), true);
+			Assert.equal(names.contains("java"), true);
 		}
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldAccessFile() throws IOException {
-		assertEquals(Resource.of(null), null);
+		Assert.equal(Resource.of(null), null);
 		try (var r = Resource.of(getClass(), "res", "test")) {
-			assertUnordered(PathList.of(r.path()).names(), "A.txt", "BB.txt", "CCC.txt");
-			assertEquals(Files.readString(r.resolve("A.txt")), "aaa");
+			Assert.unordered(PathList.of(r.path()).names(), "A.txt", "BB.txt", "CCC.txt");
+			Assert.equal(Files.readString(r.resolve("A.txt")), "aaa");
 		}
 		try (var r = Resource.of(getClass(), "res", "test", "BB.txt")) {
-			assertEquals(r.string(), "bb");
+			Assert.equal(r.string(), "bb");
 		}
 	}
 
@@ -64,7 +61,7 @@ public class ResourceBehavior {
 		Assert.thrown(() -> Resource.of(Test.class, "\0"));
 		try (var r = Resource.of(Test.class, "runner")) {
 			var names = PathList.of(r.path()).names();
-			assertEquals(names.contains("Runner.class"), true);
+			Assert.equal(names.contains("Runner.class"), true);
 		}
 	}
 
@@ -72,14 +69,14 @@ public class ResourceBehavior {
 	public void shouldAccessModule() throws IOException {
 		try (var r = Resource.of(String.class, "ref")) {
 			var names = PathList.of(r.path()).names();
-			assertEquals(names.contains("Finalizer.class"), true);
+			Assert.equal(names.contains("Finalizer.class"), true);
 		}
 	}
 
 	@Test
 	public void shouldProvideString() throws IOException {
 		try (var r = Resource.of(getClass(), "res", "test")) {
-			assertEquals(r.toString(), r.path().toString());
+			Assert.equal(r.toString(), r.path().toString());
 		}
 	}
 }

@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -13,8 +11,8 @@ public class EllipseBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(e0, Ellipse.of(4, 2));
-		assertNotEquals(e0, Ellipse.of(4.1, 2));
-		assertNotEquals(e0, Ellipse.of(4, 1.9));
+		Assert.notEqual(e0, Ellipse.of(4.1, 2));
+		Assert.notEqual(e0, Ellipse.of(4, 1.9));
 	}
 
 	@Test
@@ -24,32 +22,32 @@ public class EllipseBehavior {
 
 	@Test
 	public void shouldCalculateGradient() {
-		assertEquals(Double.isNaN(e0.gradientAtX(-5)), true);
-		assertEquals(e0.gradientAtX(-4), Double.POSITIVE_INFINITY);
+		Assert.equal(Double.isNaN(e0.gradientAtX(-5)), true);
+		Assert.equal(e0.gradientAtX(-4), Double.POSITIVE_INFINITY);
 		Assert.approx(e0.gradientAtX(-2), 0.289);
 		Assert.approx(e0.gradientAtX(0), 0);
 		Assert.approx(e0.gradientAtX(2), -0.289);
-		assertEquals(e0.gradientAtX(4), Double.NEGATIVE_INFINITY);
-		assertEquals(Double.isNaN(e0.gradientAtX(5)), true);
-		assertEquals(Double.isNaN(e0.gradientAtY(-3)), true);
+		Assert.equal(e0.gradientAtX(4), Double.NEGATIVE_INFINITY);
+		Assert.equal(Double.isNaN(e0.gradientAtX(5)), true);
+		Assert.equal(Double.isNaN(e0.gradientAtY(-3)), true);
 		Assert.approx(e0.gradientAtY(-2), 0);
 		Assert.approx(e0.gradientAtY(-1), 0.866);
-		assertEquals(e0.gradientAtY(0), Double.NEGATIVE_INFINITY);
+		Assert.equal(e0.gradientAtY(0), Double.NEGATIVE_INFINITY);
 		Assert.approx(e0.gradientAtY(1), -0.866);
 		Assert.approx(e0.gradientAtY(2), 0);
-		assertEquals(Double.isNaN(e0.gradientAtY(3)), true);
-		assertEquals(Ellipse.ZERO.gradientAtX(0), Double.NaN);
-		assertEquals(Ellipse.ZERO.gradientAtX(1), Double.NaN);
-		assertEquals(Ellipse.ZERO.gradientAtY(0), Double.NaN);
-		assertEquals(Ellipse.ZERO.gradientAtY(1), Double.NaN);
-		assertEquals(Ellipse.of(0, 1).gradientAtX(0), Double.NEGATIVE_INFINITY);
-		assertEquals(Ellipse.of(0, 1).gradientAtY(0), Double.NEGATIVE_INFINITY);
-		assertEquals(Ellipse.of(0, 1).gradientAtY(0.5), Double.NEGATIVE_INFINITY);
-		assertEquals(Ellipse.of(0, 1).gradientAtY(1), 0.0);
-		assertEquals(Ellipse.of(1, 0).gradientAtX(0), 0.0);
-		assertEquals(Ellipse.of(1, 0).gradientAtY(0), 0.0);
-		assertEquals(Ellipse.of(1, 0).gradientAtX(-0.5), 0.0);
-		assertEquals(Ellipse.of(1, 0).gradientAtX(-1), Double.POSITIVE_INFINITY);
+		Assert.equal(Double.isNaN(e0.gradientAtY(3)), true);
+		Assert.equal(Ellipse.ZERO.gradientAtX(0), Double.NaN);
+		Assert.equal(Ellipse.ZERO.gradientAtX(1), Double.NaN);
+		Assert.equal(Ellipse.ZERO.gradientAtY(0), Double.NaN);
+		Assert.equal(Ellipse.ZERO.gradientAtY(1), Double.NaN);
+		Assert.equal(Ellipse.of(0, 1).gradientAtX(0), Double.NEGATIVE_INFINITY);
+		Assert.equal(Ellipse.of(0, 1).gradientAtY(0), Double.NEGATIVE_INFINITY);
+		Assert.equal(Ellipse.of(0, 1).gradientAtY(0.5), Double.NEGATIVE_INFINITY);
+		Assert.equal(Ellipse.of(0, 1).gradientAtY(1), 0.0);
+		Assert.equal(Ellipse.of(1, 0).gradientAtX(0), 0.0);
+		Assert.equal(Ellipse.of(1, 0).gradientAtY(0), 0.0);
+		Assert.equal(Ellipse.of(1, 0).gradientAtX(-0.5), 0.0);
+		Assert.equal(Ellipse.of(1, 0).gradientAtX(-1), Double.POSITIVE_INFINITY);
 	}
 
 	@Test
@@ -84,10 +82,10 @@ public class EllipseBehavior {
 
 	@Test
 	public void shouldCalculateXAndYCoordinates() {
-		assertEquals(Double.isNaN(e0.yFromX(4.00001)), true);
-		assertEquals(Double.isNaN(e0.yFromX(-4.00001)), true);
-		assertEquals(Double.isNaN(e0.xFromY(2.00001)), true);
-		assertEquals(Double.isNaN(e0.xFromY(-2.00001)), true);
+		Assert.equal(Double.isNaN(e0.yFromX(4.00001)), true);
+		Assert.equal(Double.isNaN(e0.yFromX(-4.00001)), true);
+		Assert.equal(Double.isNaN(e0.xFromY(2.00001)), true);
+		Assert.equal(Double.isNaN(e0.xFromY(-2.00001)), true);
 		Assert.approx(e0.yFromX(-4), 0);
 		Assert.approx(e0.yFromX(0), 2);
 		Assert.approx(e0.yFromX(4), 0);
@@ -98,8 +96,8 @@ public class EllipseBehavior {
 		Assert.approx(e0.xFromY(2), 0);
 		Assert.approx(e0.xFromY(1.732), 2);
 		Assert.approx(e0.xFromY(-2), 0);
-		assertEquals(Ellipse.ZERO.yFromX(1), Double.NaN);
-		assertEquals(Ellipse.ZERO.xFromY(1), Double.NaN);
+		Assert.equal(Ellipse.ZERO.yFromX(1), Double.NaN);
+		Assert.equal(Ellipse.ZERO.xFromY(1), Double.NaN);
 	}
 
 	@Test

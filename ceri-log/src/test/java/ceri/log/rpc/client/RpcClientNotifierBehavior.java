@@ -1,14 +1,12 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import com.google.protobuf.Empty;
 import ceri.common.function.Functions;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestUtil;
 import ceri.log.rpc.test.TestStreamObserver;
@@ -35,7 +33,7 @@ public class RpcClientNotifierBehavior {
 	public void shouldBuildFromProperties() {
 		var config = new RpcClientNotifier.Properties(TestUtil.typedProperties("rpc-client"),
 			"rpc-client.notifier").config();
-		assertEquals(config.resetDelayMs(), 1000);
+		Assert.equal(config.resetDelayMs(), 1000);
 	}
 
 	@Test
@@ -90,12 +88,12 @@ public class RpcClientNotifierBehavior {
 		CallSync.Consumer<Integer> sync1 = CallSync.consumer(null, true);
 		Functions.Consumer<Integer> listener0 = sync0::accept;
 		Functions.Consumer<Integer> listener1 = sync1::accept;
-		assertTrue(notifier.listen(listener0));
-		assertFalse(notifier.listen(listener0));
-		assertFalse(notifier.unlisten(listener1));
-		assertTrue(notifier.listen(listener1));
-		assertTrue(notifier.unlisten(listener0));
-		assertTrue(notifier.unlisten(listener1));
+		Assert.yes(notifier.listen(listener0));
+		Assert.no(notifier.listen(listener0));
+		Assert.no(notifier.unlisten(listener1));
+		Assert.yes(notifier.listen(listener1));
+		Assert.yes(notifier.unlisten(listener0));
+		Assert.yes(notifier.unlisten(listener1));
 	}
 
 	private void init() {

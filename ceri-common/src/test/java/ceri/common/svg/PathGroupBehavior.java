@@ -1,11 +1,10 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class PathGroupBehavior {
@@ -21,13 +20,13 @@ public class PathGroupBehavior {
 		var ne2 = PathGroup.of(MoveTo.absolute(1, 1), l);
 		var ne3 = PathGroup.of(m, LineTo.relative(2, 0));
 		TestUtil.exerciseEquals(g, eq0);
-		assertAllNotEqual(g, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(g, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
 	public void shouldDetermineEnd() {
 		var g = PathGroup.of(LineTo.relative(1, 1), MoveTo.relative(4, 1), LineTo.absolute(0, 0));
-		assertEquals(g.end(), Position.absolute(0, 0));
+		Assert.equal(g.end(), Position.absolute(0, 0));
 	}
 
 	@Test

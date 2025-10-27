@@ -1,8 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.Iterator;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -27,7 +24,7 @@ public class TestPrinterBehavior {
 		TestPrinter.Test test3 = new TestPrinter.Test("testClassName", "className0", "description");
 		TestPrinter.Test test4 = new TestPrinter.Test("testClassName", "className", "description0");
 		TestUtil.exerciseEquals(test, test1);
-		assertAllNotEqual(test, test2, test3, test4);
+		Assert.notEqualAll(test, test2, test3, test4);
 	}
 
 	@Test
@@ -36,10 +33,10 @@ public class TestPrinterBehavior {
 		Description d = Description.createTestDescription(MyClass.class, "myMethod");
 		d.addChild(Description.createTestDescription(MySubClass.class, "mySubMethod"));
 		p.testStarted(d);
-		assertEquals(p.tests().size(), 2);
+		Assert.equal(p.tests().size(), 2);
 		Iterator<TestPrinter.Test> i = p.tests().iterator();
-		assertEquals(i.next().description, "mySubMethod");
-		assertEquals(i.next().description, "myMethod");
+		Assert.equal(i.next().description, "mySubMethod");
+		Assert.equal(i.next().description, "myMethod");
 	}
 
 	@Test
@@ -47,9 +44,9 @@ public class TestPrinterBehavior {
 		TestPrinter p = new TestPrinter();
 		Description d = Description.createTestDescription(getClass(), "shouldConvertToPhrase");
 		p.testStarted(d);
-		assertTrue(p.tests().isEmpty());
-		assertEquals(p.behaviors().size(), 1);
-		assertEquals(p.behaviors().iterator().next().description, "should convert to phrase");
+		Assert.yes(p.tests().isEmpty());
+		Assert.equal(p.behaviors().size(), 1);
+		Assert.equal(p.behaviors().iterator().next().description, "should convert to phrase");
 	}
 
 	@Test
@@ -57,8 +54,8 @@ public class TestPrinterBehavior {
 		TestPrinter p = new TestPrinter();
 		Description d = Description.createTestDescription(getClass(), "testThisMethod");
 		p.testStarted(d);
-		assertTrue(p.behaviors().isEmpty());
-		assertEquals(p.tests().iterator().next().description, "test thisMethod");
+		Assert.yes(p.behaviors().isEmpty());
+		Assert.equal(p.tests().iterator().next().description, "test thisMethod");
 	}
 
 	@SuppressWarnings("resource")
@@ -72,8 +69,8 @@ public class TestPrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		p.print(StringBuilders.printStream(b));
 		String output = b.toString();
-		assertTrue(output.contains("should be\n"));
-		assertTrue(output.contains("test this\n"));
+		Assert.yes(output.contains("should be\n"));
+		Assert.yes(output.contains("test this\n"));
 	}
 
 }

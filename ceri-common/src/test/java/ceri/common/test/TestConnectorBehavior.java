@@ -1,8 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertRead;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import org.junit.After;
@@ -32,8 +29,8 @@ public class TestConnectorBehavior {
 		con.open();
 		con.echoOn();
 		con.out().write(ArrayUtil.bytes.of(1, 2, 3, 4, 5), 1, 3);
-		assertEquals(con.in().available(), 3);
-		assertRead(con.in(), 2, 3, 4);
+		Assert.equal(con.in().available(), 3);
+		Assert.read(con.in(), 2, 3, 4);
 	}
 
 	@SuppressWarnings("resource")
@@ -44,7 +41,7 @@ public class TestConnectorBehavior {
 		con.open();
 		con2.open();
 		con.out().write(ArrayUtil.bytes.of(1, 2, 3));
-		assertRead(con2.out.from, 1, 2, 3);
+		Assert.read(con2.out.from, 1, 2, 3);
 	}
 
 	@SuppressWarnings("resource")
@@ -88,7 +85,7 @@ public class TestConnectorBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.broken();
-			assertEquals(sync.await(), StateChange.broken);
+			Assert.equal(sync.await(), StateChange.broken);
 			Assert.thrown(() -> con.in().read());
 			con.broken();
 			Assert.isNull(sync.value());
@@ -104,10 +101,10 @@ public class TestConnectorBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var _ = con.listeners().enclose(sync::signal)) {
 			con.fixed();
-			assertEquals(sync.await(), StateChange.fixed);
+			Assert.equal(sync.await(), StateChange.fixed);
 			con.fixed();
 			Assert.isNull(sync.value());
-			assertRead(con.in(), 1, 2, 3);
+			Assert.read(con.in(), 1, 2, 3);
 		}
 	}
 
@@ -127,7 +124,7 @@ public class TestConnectorBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertFind(con.toString(), ".+");
+		Assert.find(con.toString(), ".+");
 	}
 
 }

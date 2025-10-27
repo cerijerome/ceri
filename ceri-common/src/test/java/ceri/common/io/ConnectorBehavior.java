@@ -1,9 +1,9 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertRead;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
+import ceri.common.test.Assert;
 import ceri.common.test.TestConnector;
 
 public class ConnectorBehavior {
@@ -28,10 +28,9 @@ public class ConnectorBehavior {
 			con.in.to.writeBytes(1, 2, 3);
 			var w = new Connector.Wrapper<>(con);
 			w.open();
-			assertRead(w.in(), 1, 2, 3);
+			Assert.read(w.in(), 1, 2, 3);
 			w.out().write(ArrayUtil.bytes.of(4, 5, 6));
-			assertRead(con.out.from, 4, 5, 6);
+			Assert.read(con.out.from, 4, 5, 6);
 		}
 	}
-
 }

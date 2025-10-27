@@ -1,9 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 import org.apache.logging.log4j.Level;
@@ -33,13 +29,13 @@ public class CFileDescriptorBehavior {
 
 	@Test
 	public void testIsBroken() {
-		assertFalse(CFileDescriptor.isBroken(null));
-		assertFalse(CFileDescriptor.isBroken(new IOException("remote i/o")));
-		assertFalse(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("test")));
-		assertFalse(CFileDescriptor.isBroken(ErrNo.EPERM.error("test")));
-		assertTrue(CFileDescriptor.isBroken(ErrNo.ENOENT.error("test")));
-		assertTrue(CFileDescriptor.isBroken(ErrNo.EPERM.error("remote i/o")));
-		assertTrue(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("remote i/o")));
+		Assert.no(CFileDescriptor.isBroken(null));
+		Assert.no(CFileDescriptor.isBroken(new IOException("remote i/o")));
+		Assert.no(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("test")));
+		Assert.no(CFileDescriptor.isBroken(ErrNo.EPERM.error("test")));
+		Assert.yes(CFileDescriptor.isBroken(ErrNo.ENOENT.error("test")));
+		Assert.yes(CFileDescriptor.isBroken(ErrNo.EPERM.error("remote i/o")));
+		Assert.yes(CFileDescriptor.isBroken(ErrNo.UNDEFINED.error("remote i/o")));
 	}
 
 	@Test
@@ -69,7 +65,7 @@ public class CFileDescriptorBehavior {
 		var ne1 = new Opener("test", Mode.of(0777), Open.RDWR);
 		var ne2 = new Opener("test", Mode.of(0767), Open.RDONLY);
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2);
+		Assert.notEqualAll(t, ne0, ne1, ne2);
 		TestUtil.exerciseRecord(t);
 	}
 
@@ -80,7 +76,7 @@ public class CFileDescriptorBehavior {
 		var eq0 = CFileDescriptor.of(fd.fd());
 		var ne0 = CFileDescriptor.of(fd.fd() + 1);
 		TestUtil.exerciseEquals(fd, eq0);
-		assertAllNotEqual(fd, ne0);
+		Assert.notEqualAll(fd, ne0);
 	}
 
 	@Test
@@ -102,7 +98,7 @@ public class CFileDescriptorBehavior {
 		var lib = init();
 		lib.read.autoResponses(ByteProvider.of(33));
 		fd.in().bufferSize(3);
-		assertEquals(fd.in().read(), 33);
+		Assert.equal(fd.in().read(), 33);
 	}
 
 	@SuppressWarnings("resource")
@@ -117,14 +113,14 @@ public class CFileDescriptorBehavior {
 	@Test
 	public void shouldAcceptConsumer() throws IOException {
 		init();
-		fd.accept(f -> assertEquals(f, fd.fd()));
+		fd.accept(f -> Assert.equal(f, fd.fd()));
 	}
 
 	@Test
 	public void shouldApply() throws IOException {
 		init();
-		assertEquals(fd.apply(f -> {
-			assertEquals(f, fd.fd());
+		Assert.equal(fd.apply(f -> {
+			Assert.equal(f, fd.fd());
 			return 33;
 		}), 33);
 	}
@@ -141,10 +137,10 @@ public class CFileDescriptorBehavior {
 	public void shouldCloseSilently() throws IOException {
 		var lib = init();
 		lib.close.error.setFrom(ErrNo.EIO::lastError, null, null, ErrNo.EIO::error);
-		assertEquals(fd.closeSilently(), false);
-		assertEquals(fd.closeSilently(), true);
-		assertEquals(fd.closeSilently(), true);
-		assertEquals(fd.closeSilently(), true); // already closed
+		Assert.equal(fd.closeSilently(), false);
+		Assert.equal(fd.closeSilently(), true);
+		Assert.equal(fd.closeSilently(), true);
+		Assert.equal(fd.closeSilently(), true); // already closed
 	}
 
 	private TestCLibNative init() throws IOException {

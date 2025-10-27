@@ -1,12 +1,12 @@
 package ceri.x10.cm11a.device;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.StateChange;
+import ceri.common.test.Assert;
 import ceri.x10.command.Command;
 import ceri.x10.command.House;
 import ceri.x10.command.TestCommandListener;
@@ -30,7 +30,7 @@ public class Cm11aEmulatorBehavior {
 		ValueCondition<StateChange> sync = ValueCondition.of();
 		try (var _ = cm11a.listeners().enclose(sync::signal)) {
 			cm11a.listeners.accept(StateChange.broken);
-			assertEquals(sync.await(), StateChange.broken);
+			Assert.equal(sync.await(), StateChange.broken);
 		}
 	}
 

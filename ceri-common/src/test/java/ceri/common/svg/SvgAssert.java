@@ -1,7 +1,5 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import java.util.regex.Pattern;
 import ceri.common.svg.Position.Type;
 import ceri.common.test.Assert;
@@ -21,7 +19,7 @@ public class SvgAssert {
 	}
 
 	public static void approx(Position p, Position.Type type, double x, double y) {
-		assertEquals(p.type(), type, "type");
+		Assert.equal(p.type(), type, "type");
 		Assert.approx(p.x(), x, "x");
 		Assert.approx(p.y(), y, "y");
 	}
@@ -31,7 +29,7 @@ public class SvgAssert {
 	}
 
 	public static void d(String d, String expected) {
-		assertString(narrow(d), expected);
+		Assert.string(narrow(d), expected);
 	}
 
 	private static String narrow(String d) {

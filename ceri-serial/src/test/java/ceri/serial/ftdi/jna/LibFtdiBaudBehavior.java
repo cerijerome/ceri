@@ -1,7 +1,5 @@
 package ceri.serial.ftdi.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232C;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_2232H;
 import static ceri.serial.ftdi.jna.LibFtdi.ftdi_chip_type.TYPE_230X;
@@ -16,7 +14,7 @@ public class LibFtdiBaudBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentation() throws LibUsbException {
-		assertFind(LibFtdiBaud.of(TYPE_2232H, 1, 720), "TYPE_2232H.*0x15046.*720");
+		Assert.find(LibFtdiBaud.of(TYPE_2232H, 1, 720), "TYPE_2232H.*0x15046.*720");
 	}
 
 	@Test
@@ -39,8 +37,8 @@ public class LibFtdiBaudBehavior {
 	}
 
 	private static void assertBaud(LibFtdiBaud baud, int actual, int value, int index) {
-		assertEquals(baud.actualRate(), actual, "actualRate");
-		assertEquals(baud.value(), value, "value");
-		assertEquals(baud.index(), index, "index");
+		Assert.equal(baud.actualRate(), actual, "actualRate");
+		Assert.equal(baud.value(), value, "value");
+		Assert.equal(baud.index(), index, "index");
 	}
 }

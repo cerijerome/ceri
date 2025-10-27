@@ -1,10 +1,8 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class SvgTest {
 
@@ -12,37 +10,37 @@ public class SvgTest {
 	public void testConstructorIsPrivate() {
 		exerciseEnum(Svg.SweepFlag.class);
 		exerciseEnum(Svg.LargeArcFlag.class);
-		assertPrivateConstructor(Svg.class);
+		Assert.privateConstructor(Svg.class);
 	}
 
 	@Test
 	public void testSweepReverse() {
-		assertEquals(Svg.SweepFlag.negative.reverse(), Svg.SweepFlag.positive);
-		assertEquals(Svg.SweepFlag.positive.reverse(), Svg.SweepFlag.negative);
+		Assert.equal(Svg.SweepFlag.negative.reverse(), Svg.SweepFlag.positive);
+		Assert.equal(Svg.SweepFlag.positive.reverse(), Svg.SweepFlag.negative);
 	}
 
 	@Test
 	public void shouldLargeArcReverse() {
-		assertEquals(Svg.LargeArcFlag.large.reverse(), Svg.LargeArcFlag.small);
-		assertEquals(Svg.LargeArcFlag.small.reverse(), Svg.LargeArcFlag.large);
+		Assert.equal(Svg.LargeArcFlag.large.reverse(), Svg.LargeArcFlag.small);
+		Assert.equal(Svg.LargeArcFlag.small.reverse(), Svg.LargeArcFlag.large);
 	}
 
 	@Test
 	public void testDoubleString() {
-		assertString(Svg.string(10.0), "10");
-		assertString(Svg.string(0.1234567891), "0.12345679");
+		Assert.string(Svg.string(10.0), "10");
+		Assert.string(Svg.string(0.1234567891), "0.12345679");
 	}
 
 	@Test
 	public void testString() {
-		assertString(Svg.string(null), "");
-		assertString(Svg.string("test"), "test");
+		Assert.string(Svg.string(null), "");
+		Assert.string(Svg.string("test"), "test");
 	}
 
 	@Test
 	public void testStringPc() {
-		assertString(Svg.stringPc(null), "");
-		assertString(Svg.stringPc(1), "1%");
-		assertString(Svg.stringPc(0.00001), "0.00001%");
+		Assert.string(Svg.stringPc(null), "");
+		Assert.string(Svg.stringPc(1), "1%");
+		Assert.string(Svg.stringPc(0.00001), "0.00001%");
 	}
 }

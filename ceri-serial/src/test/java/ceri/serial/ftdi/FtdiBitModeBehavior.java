@@ -1,8 +1,8 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
 import org.junit.Test;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.serial.ftdi.jna.LibFtdi;
 
@@ -19,6 +19,6 @@ public class FtdiBitModeBehavior {
 		var ne0 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_CBUS).mask(0xa5).build();
 		var ne1 = FtdiBitMode.builder(LibFtdi.ftdi_mpsse_mode.BITMODE_FT1284).mask(0xa4).build();
 		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
-		assertAllNotEqual(t, ne0, ne1);
+		Assert.notEqualAll(t, ne0, ne1);
 	}
 }

@@ -1,8 +1,5 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.function.Functions;
 import ceri.common.stream.Streams;
@@ -14,7 +11,7 @@ public class PulseCycleBehavior {
 	@Test
 	public void shouldCreatePulseStatsFromCycle() {
 		var stats = PulseCycle.Std._3_9.cycle.pulseStats(100000);
-		assertEquals(stats.freqHz, 300000);
+		Assert.equal(stats.freqHz, 300000);
 		Assert.approx(stats.bitNs, 3333.333);
 		Assert.approx(stats.pulseNs, 10000.0);
 		Assert.approx(stats.t0Ns, 3333.333);
@@ -29,7 +26,7 @@ public class PulseCycleBehavior {
 		var ne1 = PulseCycle.Std._5_27.cycle.stats(900000);
 		var ne2 = PulseCycle.Std._5_27.cycle.pulseStats(1000000);
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2);
+		Assert.notEqualAll(t, ne0, ne1, ne2);
 	}
 
 	@Test
@@ -43,7 +40,7 @@ public class PulseCycleBehavior {
 		var ne4 = PulseCycle.of(PulseCycle.Type.nbit, 6, 1, 1, 4);
 		var ne5 = PulseCycle.of(PulseCycle.Type.nbit, 6, 1, 2, 3);
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5);
 	}
 
 	@Test
@@ -55,18 +52,18 @@ public class PulseCycleBehavior {
 
 	@Test
 	public void shouldCalculateCycleSignalBits() {
-		assertEquals(PulseCycle.Std._3.cycle.cycleSignalBits(), 24);
-		assertEquals(PulseCycle.Std._3_9.cycle.cycleSignalBits(), 9);
-		assertEquals(PulseCycle.Std._4.cycle.cycleSignalBits(), 8);
-		assertEquals(PulseCycle.Std._4_27.cycle.cycleSignalBits(), 27);
-		assertEquals(PulseCycle.Std._7_27.cycle.cycleSignalBits(), 27);
+		Assert.equal(PulseCycle.Std._3.cycle.cycleSignalBits(), 24);
+		Assert.equal(PulseCycle.Std._3_9.cycle.cycleSignalBits(), 9);
+		Assert.equal(PulseCycle.Std._4.cycle.cycleSignalBits(), 8);
+		Assert.equal(PulseCycle.Std._4_27.cycle.cycleSignalBits(), 27);
+		Assert.equal(PulseCycle.Std._7_27.cycle.cycleSignalBits(), 27);
 	}
 
 	@Test
 	public void shouldProvideType() {
-		assertEquals(PulseCycle.Std._3_9.cycle.type, PulseCycle.Type.nbit9);
-		assertEquals(PulseCycle.Std._4.cycle.type, PulseCycle.Type.nbit);
-		assertEquals(PulseCycle.Std._4_27.cycle.type, PulseCycle.Type.nbit27);
+		Assert.equal(PulseCycle.Std._3_9.cycle.type, PulseCycle.Type.nbit9);
+		Assert.equal(PulseCycle.Std._4.cycle.type, PulseCycle.Type.nbit);
+		Assert.equal(PulseCycle.Std._4_27.cycle.type, PulseCycle.Type.nbit27);
 	}
 
 	@Test
@@ -91,6 +88,6 @@ public class PulseCycleBehavior {
 
 	private static void assertSequence(Functions.IntOperator op, int... values) {
 		int[] actuals = Streams.slice(0, values.length).map(op).toArray();
-		assertArray(actuals, values);
+		Assert.array(actuals, values);
 	}
 }

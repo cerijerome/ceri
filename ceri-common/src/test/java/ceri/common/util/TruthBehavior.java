@@ -1,67 +1,67 @@
 package ceri.common.util;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class TruthBehavior {
 
 	@Test
 	public void testInvert() {
-		assertEquals(Truth.invert(null), null);
-		assertEquals(Truth.invert(Truth.maybe), Truth.maybe);
-		assertEquals(Truth.invert(Truth.yes), Truth.no);
-		assertEquals(Truth.invert(Truth.no), Truth.yes);
+		Assert.equal(Truth.invert(null), null);
+		Assert.equal(Truth.invert(Truth.maybe), Truth.maybe);
+		Assert.equal(Truth.invert(Truth.yes), Truth.no);
+		Assert.equal(Truth.invert(Truth.no), Truth.yes);
 	}
 
 	@Test
 	public void testKnown() {
-		assertEquals(Truth.known(null), false);
-		assertEquals(Truth.known(Truth.maybe), false);
-		assertEquals(Truth.known(Truth.yes), true);
-		assertEquals(Truth.known(Truth.no), true);
+		Assert.equal(Truth.known(null), false);
+		Assert.equal(Truth.known(Truth.maybe), false);
+		Assert.equal(Truth.known(Truth.yes), true);
+		Assert.equal(Truth.known(Truth.no), true);
 	}
 
 	@Test
 	public void testBool() {
-		assertEquals(Truth.bool(null), null);
-		assertEquals(Truth.bool(Truth.maybe), null);
-		assertEquals(Truth.bool(Truth.yes), true);
-		assertEquals(Truth.bool(Truth.no), false);
+		Assert.equal(Truth.bool(null), null);
+		Assert.equal(Truth.bool(Truth.maybe), null);
+		Assert.equal(Truth.bool(Truth.yes), true);
+		Assert.equal(Truth.bool(Truth.no), false);
 	}
 
 	@Test
 	public void testOn() {
-		assertEquals(Truth.maybe.yes(), false);
-		assertEquals(Truth.no.yes(), false);
-		assertEquals(Truth.yes.yes(), true);
+		Assert.equal(Truth.maybe.yes(), false);
+		Assert.equal(Truth.no.yes(), false);
+		Assert.equal(Truth.yes.yes(), true);
 	}
 
 	@Test
 	public void testno() {
-		assertEquals(Truth.maybe.no(), false);
-		assertEquals(Truth.no.no(), true);
-		assertEquals(Truth.yes.no(), false);
+		Assert.equal(Truth.maybe.no(), false);
+		Assert.equal(Truth.no.no(), true);
+		Assert.equal(Truth.yes.no(), false);
 	}
 
 	@Test
 	public void shouldGetFromBoolean() {
-		assertEquals(Truth.from(null), Truth.maybe);
-		assertEquals(Truth.from(true), Truth.yes);
-		assertEquals(Truth.from(false), Truth.no);
+		Assert.equal(Truth.from(null), Truth.maybe);
+		Assert.equal(Truth.from(true), Truth.yes);
+		Assert.equal(Truth.from(false), Truth.no);
 	}
 
 	@Test
 	public void shouldGetBoolean() {
-		assertEquals(Truth.maybe.bool(), null);
-		assertEquals(Truth.yes.bool(), true);
-		assertEquals(Truth.no.bool(), false);
+		Assert.equal(Truth.maybe.bool(), null);
+		Assert.equal(Truth.yes.bool(), true);
+		Assert.equal(Truth.no.bool(), false);
 	}
 
 	@Test
 	public void shouldDetermineIfKnown() {
-		assertEquals(Truth.maybe.known(), false);
-		assertEquals(Truth.yes.known(), true);
-		assertEquals(Truth.no.known(), true);
+		Assert.equal(Truth.maybe.known(), false);
+		Assert.equal(Truth.yes.known(), true);
+		Assert.equal(Truth.no.known(), true);
 	}
 
 }

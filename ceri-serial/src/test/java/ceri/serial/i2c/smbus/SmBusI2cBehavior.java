@@ -1,13 +1,12 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.provider;
 import java.io.IOException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.I2cAddress;
@@ -95,10 +94,10 @@ public class SmBusI2cBehavior {
 	public void shouldProcessNumberReads() throws IOException {
 		var lib = initI2c();
 		lib.ioctlI2cBytes.autoResponses(provider(0xab), provider(0xab, 0xcd));
-		assertEquals(smBus.readByte(), 0xab);
-		assertEquals(smBus.readByteData(0x12), 0xab);
-		assertEquals(smBus.readWordData(0x12), 0xcdab);
-		assertEquals(smBus.processCall(0x12, 0xa5b6), 0xcdab);
+		Assert.equal(smBus.readByte(), 0xab);
+		Assert.equal(smBus.readByteData(0x12), 0xab);
+		Assert.equal(smBus.readWordData(0x12), 0xcdab);
+		Assert.equal(smBus.processCall(0x12, 0xa5b6), 0xcdab);
 		lib.ioctlI2cBytes.assertValues( //
 			List.of(new Bytes(0x3b, 1, null, 1)),
 			List.of(new Bytes(0x3b, 0, provider(0x12), 1), new Bytes(0x3b, 1, null, 1)),
@@ -116,10 +115,10 @@ public class SmBusI2cBehavior {
 			provider(0xab, 0xa3), //
 			provider(0xab, 0xcd, 0x0d), //
 			provider(0xab, 0xcd, 0x9f)); //
-		assertEquals(smBus.readByte(), 0xab);
-		assertEquals(smBus.readByteData(0x12), 0xab);
-		assertEquals(smBus.readWordData(0x12), 0xcdab);
-		assertEquals(smBus.processCall(0x12, 0xa5b6), 0xcdab);
+		Assert.equal(smBus.readByte(), 0xab);
+		Assert.equal(smBus.readByteData(0x12), 0xab);
+		Assert.equal(smBus.readWordData(0x12), 0xcdab);
+		Assert.equal(smBus.processCall(0x12, 0xa5b6), 0xcdab);
 		lib.ioctlI2cBytes.assertValues( // no generated PECs
 			List.of(new Bytes(0x3b, 1, null, 2)),
 			List.of(new Bytes(0x3b, 0, provider(0x12), 1), new Bytes(0x3b, 1, null, 2)),
@@ -135,9 +134,9 @@ public class SmBusI2cBehavior {
 			provider(3, 1, 2, 3), //
 			provider(3, 1, 2, 3), //
 			provider(1, 2, 3));
-		assertArray(smBus.readBlockData(0x12), 1, 2, 3);
-		assertArray(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
-		assertArray(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
+		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
+		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
+		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
 		lib.ioctlI2cBytes.assertValues(
 			List.of(new Bytes(0x3b, 0, provider(0x12), 1), new Bytes(0x3b, 0x401, null, 1)),
 			List.of(new Bytes(0x3b, 0, provider(0x12, 3, 4, 5, 6), 5),
@@ -153,9 +152,9 @@ public class SmBusI2cBehavior {
 			provider(3, 1, 2, 3, 0xf2), //
 			provider(3, 1, 2, 3, 0x95), //
 			provider(1, 2, 3, 0xcb));
-		assertArray(smBus.readBlockData(0x12), 1, 2, 3);
-		assertArray(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
-		assertArray(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
+		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
+		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
+		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
 		lib.ioctlI2cBytes.assertValues( // no generated PECs
 			List.of(new Bytes(0x3b, 0, provider(0x12), 1), new Bytes(0x3b, 0x401, null, 1)),
 			List.of(new Bytes(0x3b, 0, provider(0x12, 3, 4, 5, 6), 5),

@@ -1,7 +1,5 @@
 package ceri.common.text;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.blue;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.cyan;
 import static ceri.common.text.AnsiEscape.Sgr.BasicColor.magenta;
@@ -14,16 +12,16 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(AnsiEscape.class);
+		Assert.privateConstructor(AnsiEscape.class);
 	}
 
 	@Test
 	public void shouldProvideC1Codes() {
-		assertEquals(AnsiEscape.singleShift2.c1, (byte) 0x8e);
-		assertEquals(AnsiEscape.singleShift3.c1, (byte) 0x8f);
-		assertEquals(AnsiEscape.csi.c1, (byte) 0x9b);
-		assertEquals(AnsiEscape.privacyMessage.c1, (byte) 0x9e);
-		assertEquals(AnsiEscape.appCommand.c1, (byte) 0x9f);
+		Assert.equal(AnsiEscape.singleShift2.c1, (byte) 0x8e);
+		Assert.equal(AnsiEscape.singleShift3.c1, (byte) 0x8f);
+		Assert.equal(AnsiEscape.csi.c1, (byte) 0x9b);
+		Assert.equal(AnsiEscape.privacyMessage.c1, (byte) 0x9e);
+		Assert.equal(AnsiEscape.appCommand.c1, (byte) 0x9f);
 	}
 
 	@Test
@@ -37,113 +35,113 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldProvideCsiCursorUpEscapes() {
-		assertEquals(AnsiEscape.csi.cursorUp(0), "");
-		assertEquals(AnsiEscape.csi.cursorUp(1), "\u001b[A");
-		assertEquals(AnsiEscape.csi.cursorUp(20), "\u001b[20A");
-		assertEquals(AnsiEscape.csi.cursorUp(-2), "\u001b[2B");
+		Assert.equal(AnsiEscape.csi.cursorUp(0), "");
+		Assert.equal(AnsiEscape.csi.cursorUp(1), "\u001b[A");
+		Assert.equal(AnsiEscape.csi.cursorUp(20), "\u001b[20A");
+		Assert.equal(AnsiEscape.csi.cursorUp(-2), "\u001b[2B");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorDownEscapes() {
-		assertEquals(AnsiEscape.csi.cursorDown(0), "");
-		assertEquals(AnsiEscape.csi.cursorDown(1), "\u001b[B");
-		assertEquals(AnsiEscape.csi.cursorDown(20), "\u001b[20B");
-		assertEquals(AnsiEscape.csi.cursorDown(-2), "\u001b[2A");
+		Assert.equal(AnsiEscape.csi.cursorDown(0), "");
+		Assert.equal(AnsiEscape.csi.cursorDown(1), "\u001b[B");
+		Assert.equal(AnsiEscape.csi.cursorDown(20), "\u001b[20B");
+		Assert.equal(AnsiEscape.csi.cursorDown(-2), "\u001b[2A");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorForwardEscapes() {
-		assertEquals(AnsiEscape.csi.cursorForward(0), "");
-		assertEquals(AnsiEscape.csi.cursorForward(1), "\u001b[C");
-		assertEquals(AnsiEscape.csi.cursorForward(20), "\u001b[20C");
-		assertEquals(AnsiEscape.csi.cursorForward(-2), "\u001b[2D");
+		Assert.equal(AnsiEscape.csi.cursorForward(0), "");
+		Assert.equal(AnsiEscape.csi.cursorForward(1), "\u001b[C");
+		Assert.equal(AnsiEscape.csi.cursorForward(20), "\u001b[20C");
+		Assert.equal(AnsiEscape.csi.cursorForward(-2), "\u001b[2D");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorBackEscapes() {
-		assertEquals(AnsiEscape.csi.cursorBack(0), "");
-		assertEquals(AnsiEscape.csi.cursorBack(1), "\u001b[D");
-		assertEquals(AnsiEscape.csi.cursorBack(20), "\u001b[20D");
-		assertEquals(AnsiEscape.csi.cursorBack(-2), "\u001b[2C");
+		Assert.equal(AnsiEscape.csi.cursorBack(0), "");
+		Assert.equal(AnsiEscape.csi.cursorBack(1), "\u001b[D");
+		Assert.equal(AnsiEscape.csi.cursorBack(20), "\u001b[20D");
+		Assert.equal(AnsiEscape.csi.cursorBack(-2), "\u001b[2C");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorNextLineEscapes() {
-		assertEquals(AnsiEscape.csi.cursorNextLine(0), "");
-		assertEquals(AnsiEscape.csi.cursorNextLine(1), "\u001b[E");
-		assertEquals(AnsiEscape.csi.cursorNextLine(20), "\u001b[20E");
-		assertEquals(AnsiEscape.csi.cursorNextLine(-2), "\u001b[2F");
+		Assert.equal(AnsiEscape.csi.cursorNextLine(0), "");
+		Assert.equal(AnsiEscape.csi.cursorNextLine(1), "\u001b[E");
+		Assert.equal(AnsiEscape.csi.cursorNextLine(20), "\u001b[20E");
+		Assert.equal(AnsiEscape.csi.cursorNextLine(-2), "\u001b[2F");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorPreviousLineEscapes() {
-		assertEquals(AnsiEscape.csi.cursorPrevLine(0), "");
-		assertEquals(AnsiEscape.csi.cursorPrevLine(1), "\u001b[F");
-		assertEquals(AnsiEscape.csi.cursorPrevLine(20), "\u001b[20F");
-		assertEquals(AnsiEscape.csi.cursorPrevLine(-2), "\u001b[2E");
+		Assert.equal(AnsiEscape.csi.cursorPrevLine(0), "");
+		Assert.equal(AnsiEscape.csi.cursorPrevLine(1), "\u001b[F");
+		Assert.equal(AnsiEscape.csi.cursorPrevLine(20), "\u001b[20F");
+		Assert.equal(AnsiEscape.csi.cursorPrevLine(-2), "\u001b[2E");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorColumnEscapes() {
 		Assert.thrown(() -> AnsiEscape.csi.cursorColumn(0));
-		assertEquals(AnsiEscape.csi.cursorColumn(1), "\u001b[G");
-		assertEquals(AnsiEscape.csi.cursorColumn(20), "\u001b[20G");
+		Assert.equal(AnsiEscape.csi.cursorColumn(1), "\u001b[G");
+		Assert.equal(AnsiEscape.csi.cursorColumn(20), "\u001b[20G");
 	}
 
 	@Test
 	public void shouldProvideCsiCursorPositionEscapes() {
 		Assert.thrown(() -> AnsiEscape.csi.cursorPosition(0, 1));
 		Assert.thrown(() -> AnsiEscape.csi.cursorPosition(1, 0));
-		assertEquals(AnsiEscape.csi.cursorPosition(1, 1), "\u001b[H");
-		assertEquals(AnsiEscape.csi.cursorPosition(20, 1), "\u001b[20H");
-		assertEquals(AnsiEscape.csi.cursorPosition(1, 20), "\u001b[;20H");
-		assertEquals(AnsiEscape.csi.cursorPosition(5, 6), "\u001b[5;6H");
+		Assert.equal(AnsiEscape.csi.cursorPosition(1, 1), "\u001b[H");
+		Assert.equal(AnsiEscape.csi.cursorPosition(20, 1), "\u001b[20H");
+		Assert.equal(AnsiEscape.csi.cursorPosition(1, 20), "\u001b[;20H");
+		Assert.equal(AnsiEscape.csi.cursorPosition(5, 6), "\u001b[5;6H");
 	}
 
 	@Test
 	public void shouldProvideCsiEraseInDisplayEscapes() {
 		Assert.thrown(() -> AnsiEscape.csi.eraseInDisplay(-1));
-		assertEquals(AnsiEscape.csi.eraseInDisplay(0), "\u001b[J");
-		assertEquals(AnsiEscape.csi.eraseInDisplay(10), "\u001b[10J");
+		Assert.equal(AnsiEscape.csi.eraseInDisplay(0), "\u001b[J");
+		Assert.equal(AnsiEscape.csi.eraseInDisplay(10), "\u001b[10J");
 	}
 
 	@Test
 	public void shouldProvideCsiEraseInLineEscapes() {
 		Assert.thrown(() -> AnsiEscape.csi.eraseInLine(-1));
-		assertEquals(AnsiEscape.csi.eraseInLine(0), "\u001b[K");
-		assertEquals(AnsiEscape.csi.eraseInLine(10), "\u001b[10K");
+		Assert.equal(AnsiEscape.csi.eraseInLine(0), "\u001b[K");
+		Assert.equal(AnsiEscape.csi.eraseInLine(10), "\u001b[10K");
 	}
 
 	@Test
 	public void shouldProvideCsiScrollUpEscapes() {
-		assertEquals(AnsiEscape.csi.scrollUp(0), "");
-		assertEquals(AnsiEscape.csi.scrollUp(1), "\u001b[S");
-		assertEquals(AnsiEscape.csi.scrollUp(20), "\u001b[20S");
-		assertEquals(AnsiEscape.csi.scrollUp(-2), "\u001b[2T");
+		Assert.equal(AnsiEscape.csi.scrollUp(0), "");
+		Assert.equal(AnsiEscape.csi.scrollUp(1), "\u001b[S");
+		Assert.equal(AnsiEscape.csi.scrollUp(20), "\u001b[20S");
+		Assert.equal(AnsiEscape.csi.scrollUp(-2), "\u001b[2T");
 	}
 
 	@Test
 	public void shouldProvideCsiScrollDownEscapes() {
-		assertEquals(AnsiEscape.csi.scrollDown(0), "");
-		assertEquals(AnsiEscape.csi.scrollDown(1), "\u001b[T");
-		assertEquals(AnsiEscape.csi.scrollDown(20), "\u001b[20T");
-		assertEquals(AnsiEscape.csi.scrollDown(-2), "\u001b[2S");
+		Assert.equal(AnsiEscape.csi.scrollDown(0), "");
+		Assert.equal(AnsiEscape.csi.scrollDown(1), "\u001b[T");
+		Assert.equal(AnsiEscape.csi.scrollDown(20), "\u001b[20T");
+		Assert.equal(AnsiEscape.csi.scrollDown(-2), "\u001b[2S");
 	}
 
 	@Test
 	public void shouldProvideCsiHvPositionEscapes() {
 		Assert.thrown(() -> AnsiEscape.csi.hvPosition(0, 1));
 		Assert.thrown(() -> AnsiEscape.csi.hvPosition(1, 0));
-		assertEquals(AnsiEscape.csi.hvPosition(1, 1), "\u001b[f");
-		assertEquals(AnsiEscape.csi.hvPosition(20, 1), "\u001b[20f");
-		assertEquals(AnsiEscape.csi.hvPosition(1, 20), "\u001b[;20f");
-		assertEquals(AnsiEscape.csi.hvPosition(5, 6), "\u001b[5;6f");
+		Assert.equal(AnsiEscape.csi.hvPosition(1, 1), "\u001b[f");
+		Assert.equal(AnsiEscape.csi.hvPosition(20, 1), "\u001b[20f");
+		Assert.equal(AnsiEscape.csi.hvPosition(1, 20), "\u001b[;20f");
+		Assert.equal(AnsiEscape.csi.hvPosition(5, 6), "\u001b[5;6f");
 	}
 
 	@Test
 	public void shouldProvideCsiAuxPortEscapes() {
-		assertEquals(AnsiEscape.csi.auxPort(true), "\u001b[5i");
-		assertEquals(AnsiEscape.csi.auxPort(false), "\u001b[4i");
+		Assert.equal(AnsiEscape.csi.auxPort(true), "\u001b[5i");
+		Assert.equal(AnsiEscape.csi.auxPort(false), "\u001b[4i");
 	}
 
 	@Test
@@ -260,9 +258,9 @@ public class AnsiEscapeBehavior {
 		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(256, 0, 0));
 		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 256, 0));
 		Assert.thrown(() -> AnsiEscape.csi.sgr().fgColor24(0, 0, 256));
-		assertEquals(AnsiEscape.csi.sgr().fgColor24(55, 66, 77).toString(),
+		Assert.equal(AnsiEscape.csi.sgr().fgColor24(55, 66, 77).toString(),
 			"\u001b[38;2;55;66;77m");
-		assertEquals(AnsiEscape.csi.sgr().fgColor24(Color.cyan).toString(),
+		Assert.equal(AnsiEscape.csi.sgr().fgColor24(Color.cyan).toString(),
 			"\u001b[38;2;;255;255m");
 	}
 
@@ -301,9 +299,9 @@ public class AnsiEscapeBehavior {
 		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(256, 0, 0));
 		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 256, 0));
 		Assert.thrown(() -> AnsiEscape.csi.sgr().bgColor24(0, 0, 256));
-		assertEquals(AnsiEscape.csi.sgr().bgColor24(55, 66, 77).toString(),
+		Assert.equal(AnsiEscape.csi.sgr().bgColor24(55, 66, 77).toString(),
 			"\u001b[48;2;55;66;77m");
-		assertEquals(AnsiEscape.csi.sgr().bgColor24(Color.cyan).toString(),
+		Assert.equal(AnsiEscape.csi.sgr().bgColor24(Color.cyan).toString(),
 			"\u001b[48;2;;255;255m");
 	}
 
@@ -332,11 +330,11 @@ public class AnsiEscapeBehavior {
 
 	@Test
 	public void shouldCombineSgrCodes() {
-		assertEquals(AnsiEscape.csi.sgr().reset().blink(1).underline(1).fgColor8(1, 2, 3)
+		Assert.equal(AnsiEscape.csi.sgr().reset().blink(1).underline(1).fgColor8(1, 2, 3)
 			.reverse(true).toString(), "\u001b[;5;4;38;5;67;7m");
 	}
 
 	private static void assertString(Object actual, String expected) {
-		assertEquals(actual.toString(), expected);
+		Assert.equal(actual.toString(), expected);
 	}
 }

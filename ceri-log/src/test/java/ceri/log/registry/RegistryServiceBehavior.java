@@ -1,7 +1,5 @@
 package ceri.log.registry;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,6 +11,7 @@ import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.property.TypedProperties;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
@@ -35,7 +34,7 @@ public class RegistryServiceBehavior {
 	public void shouldCreateConfigFromProperties() {
 		var config = new RegistryService.Properties(TestUtil.typedProperties("registry", "service"))
 			.config();
-		assertEquals(config,
+		Assert.equal(config,
 			new RegistryService.Config("test", Path.of("test/registry.properties"), 100, 200));
 	}
 
@@ -47,7 +46,7 @@ public class RegistryServiceBehavior {
 	@Test
 	public void shouldLoadProperties() throws IOException {
 		init("a.b.c=123", "a.b.d=456");
-		assertEquals(service.registry.apply(p -> p.parse("a.b.c").toInt()), 123);
+		Assert.equal(service.registry.apply(p -> p.parse("a.b.c").toInt()), 123);
 	}
 
 	@Test
@@ -57,7 +56,7 @@ public class RegistryServiceBehavior {
 		service.registry.queue("x", p -> inc(p, "a.b.c", 33));
 		service.registry.queue("x", p -> inc(p, "a.b.c", 7));
 		service.close();
-		assertFind(files.readString(REG_FILENAME), "a\\.b\\.c=117");
+		Assert.find(files.readString(REG_FILENAME), "a\\.b\\.c=117");
 	}
 
 	private static void inc(TypedProperties p, String key, int diff) {
@@ -72,8 +71,8 @@ public class RegistryServiceBehavior {
 		service.registry.accept(p -> p.set(456, "a.b.d"));
 		service.close();
 		var content = files.readString(REG_FILENAME);
-		assertFind(content, "a\\.b\\.c=123");
-		assertFind(content, "a\\.b\\.d=456");
+		Assert.find(content, "a\\.b\\.c=123");
+		Assert.find(content, "a\\.b\\.d=456");
 	}
 
 	@Test
@@ -82,9 +81,9 @@ public class RegistryServiceBehavior {
 		var a = service.registry.sub("a");
 		var aa = a.sub("a");
 		var ab = service.registry.sub("a.b");
-		assertEquals(a.apply(p -> p.parse("a", "a").toInt()), 123);
-		assertEquals(aa.apply(p -> p.parse("a").toInt()), 123);
-		assertEquals(ab.apply(p -> p.parse("a").toInt()), 456);
+		Assert.equal(a.apply(p -> p.parse("a", "a").toInt()), 123);
+		Assert.equal(aa.apply(p -> p.parse("a").toInt()), 123);
+		Assert.equal(ab.apply(p -> p.parse("a").toInt()), 456);
 	}
 
 	@Test
@@ -120,7 +119,7 @@ public class RegistryServiceBehavior {
 		service.registry.accept(p -> p.set(123, "a.b.c"));
 		service.close();
 		var p = save.awaitAuto();
-		assertEquals(p.getProperty("a.b.c"), "123");
+		Assert.equal(p.getProperty("a.b.c"), "123");
 	}
 
 	@Test
@@ -142,7 +141,7 @@ public class RegistryServiceBehavior {
 		service.registry.accept(p -> p.set(456, "a.b.c"));
 		service.registry.accept(p -> p.set(null, "a.b.c")); // removes property
 		service.close();
-		assertEquals(files.readString(REG_FILENAME), "a.b.c=123");
+		Assert.equal(files.readString(REG_FILENAME), "a.b.c=123");
 	}
 
 	private static RegistryService service(String name, Path path) throws IOException {

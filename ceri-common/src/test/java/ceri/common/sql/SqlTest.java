@@ -1,12 +1,10 @@
 package ceri.common.sql;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.text.Strings;
 
 public class SqlTest {
@@ -26,31 +24,31 @@ public class SqlTest {
 	@Test
 	public void testFormatIgnoreTypeByDefault() {
 		Sql.Formatter f = obj -> Strings.reverse(String.valueOf(obj));
-		assertEquals(f.format(null), "llun");
-		assertEquals(f.format(123), "321");
-		assertEquals(f.format(123, Types.DATE), "321");
+		Assert.equal(f.format(null), "llun");
+		Assert.equal(f.format(123), "321");
+		Assert.equal(f.format(123, Types.DATE), "321");
 	}
 
 	@Test
 	public void testFormatByClass() {
-		assertEquals(formatter.format(null), "null");
-		assertEquals(formatter.format("test"), "String:test");
-		assertEquals(formatter.format(9), "Number:9");
+		Assert.equal(formatter.format(null), "null");
+		Assert.equal(formatter.format("test"), "String:test");
+		Assert.equal(formatter.format(9), "Number:9");
 	}
 
 	@Test
 	public void testFormatBySqlType() {
-		assertEquals(formatter.format(null, Sql.Type.VarChar), "VarChar:null");
-		assertEquals(formatter.format(null, Sql.Type.Clob), "null");
-		assertEquals(formatter.format("test", Sql.Type.VarChar), "VarChar:test");
-		assertEquals(formatter.format("test", Sql.Type.Clob), "test");
-		assertEquals(formatter.format(9, Sql.Type.Numeric), "Numeric:9");
+		Assert.equal(formatter.format(null, Sql.Type.VarChar), "VarChar:null");
+		Assert.equal(formatter.format(null, Sql.Type.Clob), "null");
+		Assert.equal(formatter.format("test", Sql.Type.VarChar), "VarChar:test");
+		Assert.equal(formatter.format("test", Sql.Type.Clob), "test");
+		Assert.equal(formatter.format(9, Sql.Type.Numeric), "Numeric:9");
 	}
 
 	@Test
 	public void testNow() {
 		var t0 = new Timestamp(System.currentTimeMillis() - 1000);
-		assertTrue(Sql.now().after(t0));
+		Assert.yes(Sql.now().after(t0));
 	}
 
 	@Test
@@ -59,7 +57,7 @@ public class SqlTest {
 			var rsmd = TestResultSetMetaData.of();
 			rs.getMetaData.autoResponses(rsmd);
 			rsmd.getColumnType.autoResponses(Types.VARCHAR);
-			assertEquals(Sql.type(rs, 1), Sql.Type.VarChar);
+			Assert.equal(Sql.type(rs, 1), Sql.Type.VarChar);
 		}
 	}
 
@@ -73,7 +71,7 @@ public class SqlTest {
 		dbmd.getTables.autoResponses(rs);
 		rs.next.autoResponses(true, true, true, false);
 		rs.getString.autoResponses("T1", "T2", "T3");
-		assertOrdered(Sql.tableNames(con), "T1", "T2", "T3");
+		Assert.ordered(Sql.tableNames(con), "T1", "T2", "T3");
 	}
 	
 	private String formatByClass(Object obj) {

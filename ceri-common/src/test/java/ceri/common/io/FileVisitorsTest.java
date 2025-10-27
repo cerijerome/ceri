@@ -1,13 +1,12 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
@@ -23,14 +22,14 @@ public class FileVisitorsTest {
 	@Test
 	public void testIgnoreOnFail() throws IOException {
 		var visitor = FileVisitors.of(null, null, null, FileVisitors.ignoreOnFail());
-		assertEquals(visitor.visitFileFailed(Path.of(""), new IOException()),
+		Assert.equal(visitor.visitFileFailed(Path.of(""), new IOException()),
 			FileVisitResult.CONTINUE);
 	}
 
 	@Test
 	public void testThrowOnFail() {
 		var visitor = FileVisitors.of(null, null, null, FileVisitors.throwOnFail());
-		io(() -> visitor.visitFileFailed(Path.of(""), new IOException()));
+		Assert.io(() -> visitor.visitFileFailed(Path.of(""), new IOException()));
 	}
 
 	@Test
@@ -38,12 +37,12 @@ public class FileVisitorsTest {
 		var visitor = FileVisitors.of(FileVisitors.adaptBiPredicate((dir, _) -> dir != null),
 			FileVisitors.adaptPredicate(dir -> dir != null), FileVisitors.adapt(
 				file -> file != null ? FileVisitResult.CONTINUE : FileVisitResult.TERMINATE));
-		assertEquals(visitor.preVisitDirectory(null, null), FileVisitResult.SKIP_SUBTREE);
-		assertEquals(visitor.preVisitDirectory(Path.of(""), null), FileVisitResult.CONTINUE);
-		assertEquals(visitor.postVisitDirectory(null, null), FileVisitResult.SKIP_SUBTREE);
-		assertEquals(visitor.postVisitDirectory(Path.of(""), null), FileVisitResult.CONTINUE);
-		assertEquals(visitor.visitFile(null, null), FileVisitResult.TERMINATE);
-		assertEquals(visitor.visitFile(Path.of(""), null), FileVisitResult.CONTINUE);
+		Assert.equal(visitor.preVisitDirectory(null, null), FileVisitResult.SKIP_SUBTREE);
+		Assert.equal(visitor.preVisitDirectory(Path.of(""), null), FileVisitResult.CONTINUE);
+		Assert.equal(visitor.postVisitDirectory(null, null), FileVisitResult.SKIP_SUBTREE);
+		Assert.equal(visitor.postVisitDirectory(Path.of(""), null), FileVisitResult.CONTINUE);
+		Assert.equal(visitor.visitFile(null, null), FileVisitResult.TERMINATE);
+		Assert.equal(visitor.visitFile(Path.of(""), null), FileVisitResult.CONTINUE);
 	}
 
 	@Test
@@ -86,7 +85,7 @@ public class FileVisitorsTest {
 		var visitor = FileVisitors.<Path>of(null, null, FileVisitors.adaptConsumer(file -> {
 			if ("b.txt".equals(Paths.name(file))) throw ex;
 		}));
-		io(() -> Files.walkFileTree(helper.root, visitor));
+		Assert.io(() -> Files.walkFileTree(helper.root, visitor));
 	}
 
 	@Test

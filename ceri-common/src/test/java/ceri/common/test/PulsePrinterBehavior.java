@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.text.StringBuilders;
@@ -9,7 +8,7 @@ public class PulsePrinterBehavior {
 
 	@Test
 	public void shouldPrintToStdOut() {
-		assertEquals(stdOut(() -> {
+		Assert.equal(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.of();
 			p.print(true).print(false);
 		}), "\u2587\u2581");
@@ -21,12 +20,12 @@ public class PulsePrinterBehavior {
 		StringBuilder b = new StringBuilder();
 		PulsePrinter p = PulsePrinter.builder().out(StringBuilders.printStream(b)).build();
 		p.print(true).print(false);
-		assertEquals(b.toString(), "\u2587\u2581");
+		Assert.equal(b.toString(), "\u2587\u2581");
 	}
 
 	@Test
 	public void shouldPrintUpToGivenBytesPerLine() {
-		assertEquals(stdOut(() -> {
+		Assert.equal(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.ofBytes(1);
 			p.print(0, 0xff);
 		}), "\u2581\u2581\u2581\u2581\u2581\u2581\u2581\u2581\n"
@@ -35,7 +34,7 @@ public class PulsePrinterBehavior {
 
 	@Test
 	public void shouldPrintUpToGivenBitsPerLine() {
-		assertEquals(stdOut(() -> {
+		Assert.equal(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.ofBits(3);
 			p.print(0x77);
 		}), "\u2581\u2587\u2587\n\u2587\u2581\u2587\n\u2587\u2587");
@@ -43,7 +42,7 @@ public class PulsePrinterBehavior {
 
 	@Test
 	public void shouldPrintBitsMsbFirst() {
-		assertEquals(stdOut(() -> {
+		Assert.equal(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.builder().high('1').low('0').build();
 			p.print(true).print(false).print(0xf0, 0x33).printBit(0x3, 1).printBit(0x3, 6);
 		}), "10111100000011001101");
@@ -51,7 +50,7 @@ public class PulsePrinterBehavior {
 
 	@Test
 	public void shouldPrintBitsLsbFirst() {
-		assertEquals(stdOut(() -> {
+		Assert.equal(stdOut(() -> {
 			PulsePrinter p = PulsePrinter.builder().high('1').low('0').lsbFirst().build();
 			p.print(true).print(false).print(0xf0, 0x33).printBit(0x3, 1).printBit(0x3, 6);
 		}), "10000011111100110010");

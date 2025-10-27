@@ -1,10 +1,8 @@
 package ceri.common.text;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertMatch;
 import static ceri.common.text.AnsiEscape.Sgr.reset;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.text.Table.Orientation;
 
 public class TableBehavior {
@@ -14,7 +12,7 @@ public class TableBehavior {
 		var table = Table.ASCII.print((r, c, lines) -> {
 			if (r < 2 && c < 3 && r + c < 3) lines.lines(r + "," + c);
 		});
-		assertEquals(table, """
+		Assert.equal(table, """
 			+---+---+---+
 			|0,0|0,1|0,2|
 			+---+---+---+
@@ -32,7 +30,7 @@ public class TableBehavior {
 				ss[i] = "" + i;
 			lines.lines(ss);
 		});
-		assertEquals(table, """
+		Assert.equal(table, """
 			+-+-+
 			|0|0|
 			| |1|
@@ -49,7 +47,7 @@ public class TableBehavior {
 		var table = Strings.printed(out -> Table.BLANK.print(out, (r, c, lines) -> {
 			if (r < 2 && c < 2) lines.lines("" + (r + c));
 		}));
-		assertMatch(table, "(?s)\\s+0\\s+1\\s+1\\s+2\\s+");
+		Assert.match(table, "(?s)\\s+0\\s+1\\s+1\\s+2\\s+");
 	}
 
 	@Test
@@ -58,7 +56,7 @@ public class TableBehavior {
 		var table = Table.BLANK.print((r, c, lines) -> {
 			if (r < 2 && c < 2) lines.lines(" " + (r + c) + " ");
 		}, (_, _, _, or, s) -> or == Orientation.c ? s : format + s + reset);
-		assertFind(table, "(?s) 0 .*? 1 .*? 1 .*? 2 ");
+		Assert.find(table, "(?s) 0 .*? 1 .*? 1 .*? 2 ");
 	}
 
 }

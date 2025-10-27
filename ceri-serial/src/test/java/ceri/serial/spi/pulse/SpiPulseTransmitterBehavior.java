@@ -1,7 +1,5 @@
 package ceri.serial.spi.pulse;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import static ceri.common.test.ErrorGen.IOX;
 import static ceri.common.test.TestUtil.inputStream;
 import static ceri.common.test.TestUtil.provider;
@@ -12,6 +10,7 @@ import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.log.test.LogModifier;
 import ceri.serial.spi.util.SpiEmulator;
@@ -33,15 +32,15 @@ public class SpiPulseTransmitterBehavior {
 	@Test
 	public void shouldExposeParameters() {
 		init();
-		assertEquals(spix.id(), 1);
-		assertEquals(spix.cycle(), PulseCycle.Std._4_9.cycle);
-		assertEquals(spix.length(), 5); // 4 pulse bits per data bit = 20 spi bytes
+		Assert.equal(spix.id(), 1);
+		Assert.equal(spix.cycle(), PulseCycle.Std._4_9.cycle);
+		Assert.equal(spix.length(), 5); // 4 pulse bits per data bit = 20 spi bytes
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		init();
-		assertFind(spix, "4nbit9");
+		Assert.find(spix, "4nbit9");
 	}
 
 	@Test

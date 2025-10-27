@@ -1,10 +1,9 @@
 package ceri.serial.spi;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 
 public class SpiBehavior {
 
@@ -14,11 +13,11 @@ public class SpiBehavior {
 		Spi.NULL.lsbFirst(true);
 		Spi.NULL.bitsPerWord(8);
 		Spi.NULL.maxSpeedHz(555);
-		assertEquals(Spi.NULL.mode(), SpiMode.MODE_0);
-		assertEquals(Spi.NULL.lsbFirst(), false);
-		assertEquals(Spi.NULL.bitsPerWord(), 0);
-		assertEquals(Spi.NULL.maxSpeedHz(), 0);
-		assertFind(Spi.NULL, ".*NULL$");
+		Assert.equal(Spi.NULL.mode(), SpiMode.MODE_0);
+		Assert.equal(Spi.NULL.lsbFirst(), false);
+		Assert.equal(Spi.NULL.bitsPerWord(), 0);
+		Assert.equal(Spi.NULL.maxSpeedHz(), 0);
+		Assert.find(Spi.NULL, ".*NULL$");
 	}
 
 	@Test

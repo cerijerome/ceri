@@ -1,6 +1,5 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -28,7 +27,7 @@ public class RpcClientUtilTest {
 
 	@Test
 	public void testWrapReturn() throws IOException {
-		assertEquals(RpcClientUtil.wrapReturn(() -> "test"), "test");
+		Assert.equal(RpcClientUtil.wrapReturn(() -> "test"), "test");
 		Assert.io(() -> RpcClientUtil.wrapReturn(() -> Assert.throwIt(new IOException("test"))));
 		Assert.io(() -> RpcClientUtil.wrapReturn(() -> Assert.throwIt(cancelException("test"))));
 	}

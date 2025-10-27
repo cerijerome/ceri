@@ -1,13 +1,13 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class SerialEventBehavior {
 
 	@Test
 	public void shouldLookUpById() {
-		assertEquals(SerialEvent.from(5), SerialEvent.ringIndicator);
+		Assert.equal(SerialEvent.from(5), SerialEvent.ringIndicator);
 	}
 
 }

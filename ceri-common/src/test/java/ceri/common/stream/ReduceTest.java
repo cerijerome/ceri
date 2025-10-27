@@ -1,9 +1,7 @@
 package ceri.common.stream;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.overflow;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class ReduceTest {
 	private static final int IMAX = Integer.MAX_VALUE;
@@ -11,58 +9,58 @@ public class ReduceTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Reduce.class, Reduce.Ints.class, Reduce.Longs.class,
+		Assert.privateConstructor(Reduce.class, Reduce.Ints.class, Reduce.Longs.class,
 			Reduce.Doubles.class);
 	}
 
 	@Test
 	public void testIntMin() {
-		assertEquals(Streams.ints().reduce(Reduce.Ints.min()), null);
-		assertEquals(Streams.ints(1, -1, 0).reduce(Reduce.Ints.min()), -1);
+		Assert.equal(Streams.ints().reduce(Reduce.Ints.min()), null);
+		Assert.equal(Streams.ints(1, -1, 0).reduce(Reduce.Ints.min()), -1);
 	}
 
 	@Test
 	public void testIntSumExact() {
-		assertEquals(Streams.ints().reduce(Reduce.Ints.sumExact()), null);
-		assertEquals(Streams.ints(IMAX - 1, 1).reduce(Reduce.Ints.sumExact()), IMAX);
-		overflow(() -> Streams.ints(IMAX, 1).reduce(Reduce.Ints.sumExact()));
+		Assert.equal(Streams.ints().reduce(Reduce.Ints.sumExact()), null);
+		Assert.equal(Streams.ints(IMAX - 1, 1).reduce(Reduce.Ints.sumExact()), IMAX);
+		Assert.overflow(() -> Streams.ints(IMAX, 1).reduce(Reduce.Ints.sumExact()));
 	}
 
 	@Test
 	public void testLongMin() {
-		assertEquals(Streams.longs().reduce(Reduce.Longs.min()), null);
-		assertEquals(Streams.longs(1, -1, 0).reduce(Reduce.Longs.min()), -1L);
+		Assert.equal(Streams.longs().reduce(Reduce.Longs.min()), null);
+		Assert.equal(Streams.longs(1, -1, 0).reduce(Reduce.Longs.min()), -1L);
 	}
 
 	@Test
 	public void testLongSumExact() {
-		assertEquals(Streams.longs().reduce(Reduce.Longs.sumExact()), null);
-		assertEquals(Streams.longs(LMAX - 1, 1).reduce(Reduce.Longs.sumExact()), LMAX);
-		overflow(() -> Streams.longs(LMAX, 1).reduce(Reduce.Longs.sumExact()));
+		Assert.equal(Streams.longs().reduce(Reduce.Longs.sumExact()), null);
+		Assert.equal(Streams.longs(LMAX - 1, 1).reduce(Reduce.Longs.sumExact()), LMAX);
+		Assert.overflow(() -> Streams.longs(LMAX, 1).reduce(Reduce.Longs.sumExact()));
 	}
 
 	@Test
 	public void testLongBitReduction() {
-		assertEquals(Streams.longs(3, 9, 0).reduce(Reduce.Longs.or()), 11L);
-		assertEquals(Streams.longs(3, 9, -1).reduce(Reduce.Longs.and()), 1L);
-		assertEquals(Streams.longs(3, 9, 0).reduce(Reduce.Longs.xor()), 10L);
+		Assert.equal(Streams.longs(3, 9, 0).reduce(Reduce.Longs.or()), 11L);
+		Assert.equal(Streams.longs(3, 9, -1).reduce(Reduce.Longs.and()), 1L);
+		Assert.equal(Streams.longs(3, 9, 0).reduce(Reduce.Longs.xor()), 10L);
 	}
 
 	@Test
 	public void testDoubleMin() {
-		assertEquals(Streams.doubles().reduce(Reduce.Doubles.min()), null);
-		assertEquals(Streams.doubles(1, -1, 0).reduce(Reduce.Doubles.min()), -1.0);
+		Assert.equal(Streams.doubles().reduce(Reduce.Doubles.min()), null);
+		Assert.equal(Streams.doubles(1, -1, 0).reduce(Reduce.Doubles.min()), -1.0);
 	}
 
 	@Test
 	public void testMin() {
-		assertEquals(Streams.<Integer>of().reduce(Reduce.min()), null);
-		assertEquals(Streams.of(1, -1, 0).reduce(Reduce.min()), -1);
+		Assert.equal(Streams.<Integer>of().reduce(Reduce.min()), null);
+		Assert.equal(Streams.of(1, -1, 0).reduce(Reduce.min()), -1);
 	}
 
 	@Test
 	public void testMax() {
-		assertEquals(Streams.<Integer>of().reduce(Reduce.max()), null);
-		assertEquals(Streams.of(-1, 1, 0).reduce(Reduce.max()), 1);
+		Assert.equal(Streams.<Integer>of().reduce(Reduce.max()), null);
+		Assert.equal(Streams.of(-1, 1, 0).reduce(Reduce.max()), 1);
 	}
 }

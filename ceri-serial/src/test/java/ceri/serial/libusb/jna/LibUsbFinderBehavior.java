@@ -1,10 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Enclosure;
@@ -41,12 +36,12 @@ public class LibUsbFinderBehavior {
 		var ne5 = LibUsbFinder.builder().vendor(7).product(9).serial("x").build();
 		var ne6 = LibUsbFinder.builder().vendor(7).product(9).index(1).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertString(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, "
+		Assert.string(LibUsbFinder.builder().serial("xyz").build(), "{vendor=any, product=any, "
 			+ "bus=any, address=any, description=any, serial=\"xyz\", index=0}");
 	}
 
@@ -55,57 +50,57 @@ public class LibUsbFinderBehavior {
 		var b0 = LibUsbFinder.builder().vendor(0x123).product(7).bus(2).address(3)
 			.description("desc").serial("serial").build();
 		var b = LibUsbFinder.builder(b0).index(1).build();
-		assertEquals(b.vendor, 0x123);
-		assertEquals(b.product, 7);
-		assertEquals(b.bus, 2);
-		assertEquals(b.address, 3);
-		assertEquals(b.description, "desc");
-		assertEquals(b.serial, "serial");
-		assertEquals(b.index, 1);
+		Assert.equal(b.vendor, 0x123);
+		Assert.equal(b.product, 7);
+		Assert.equal(b.bus, 2);
+		Assert.equal(b.address, 3);
+		Assert.equal(b.description, "desc");
+		Assert.equal(b.serial, "serial");
+		Assert.equal(b.index, 1);
 	}
 
 	@Test
 	public void shouldCreateFromDescriptor() {
 		var b = LibUsbFinder.builder();
-		assertEquals(LibUsbFinder.from("0"), b.build());
-		assertEquals(LibUsbFinder.from("0x123"), b.vendor(0x123).build());
-		assertEquals(LibUsbFinder.from("0x123:0x456"), b.product(0x456).build());
-		assertEquals(LibUsbFinder.from("0x123:0x456:0xbc"), b.bus(0xbc).build());
-		assertEquals(LibUsbFinder.from("0x123:0x456:0xbc:0xde"), b.address(0xde).build());
-		assertEquals(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test"),
+		Assert.equal(LibUsbFinder.from("0"), b.build());
+		Assert.equal(LibUsbFinder.from("0x123"), b.vendor(0x123).build());
+		Assert.equal(LibUsbFinder.from("0x123:0x456"), b.product(0x456).build());
+		Assert.equal(LibUsbFinder.from("0x123:0x456:0xbc"), b.bus(0xbc).build());
+		Assert.equal(LibUsbFinder.from("0x123:0x456:0xbc:0xde"), b.address(0xde).build());
+		Assert.equal(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test"),
 			b.description("test").build());
-		assertEquals(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test:serial#"),
+		Assert.equal(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test:serial#"),
 			b.serial("serial#").build());
-		assertEquals(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test:serial#:1"), b.index(1).build());
+		Assert.equal(LibUsbFinder.from("0x123:0x456:0xbc:0xde:test:serial#:1"), b.index(1).build());
 
 	}
 
 	@Test
 	public void shouldCreateDescriptor() {
 		var b = LibUsbFinder.builder();
-		assertEquals(b.build().asDescriptor(), "0");
-		assertEquals(b.vendor(0x123).build().asDescriptor(), "0x0123");
-		assertEquals(b.product(0x456).build().asDescriptor(), "0x0123:0x0456");
-		assertEquals(b.bus(0xbc).build().asDescriptor(), "0x0123:0x0456:0xbc");
-		assertEquals(b.address(0xde).build().asDescriptor(), "0x0123:0x0456:0xbc:0xde");
-		assertEquals(b.description("test").build().asDescriptor(), "0x0123:0x0456:0xbc:0xde:test");
-		assertEquals(b.serial("serial#").build().asDescriptor(),
+		Assert.equal(b.build().asDescriptor(), "0");
+		Assert.equal(b.vendor(0x123).build().asDescriptor(), "0x0123");
+		Assert.equal(b.product(0x456).build().asDescriptor(), "0x0123:0x0456");
+		Assert.equal(b.bus(0xbc).build().asDescriptor(), "0x0123:0x0456:0xbc");
+		Assert.equal(b.address(0xde).build().asDescriptor(), "0x0123:0x0456:0xbc:0xde");
+		Assert.equal(b.description("test").build().asDescriptor(), "0x0123:0x0456:0xbc:0xde:test");
+		Assert.equal(b.serial("serial#").build().asDescriptor(),
 			"0x0123:0x0456:0xbc:0xde:test:serial#");
-		assertEquals(b.index(1).build().asDescriptor(), "0x0123:0x0456:0xbc:0xde:test:serial#:1");
+		Assert.equal(b.index(1).build().asDescriptor(), "0x0123:0x0456:0xbc:0xde:test:serial#:1");
 	}
 
 	@Test
 	public void shouldDetermineMatchingDevice() throws LibUsbException {
 		initLib();
 		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
-		assertFalse(finder.matches());
-		assertEquals(finder.matchCount(), 0);
+		Assert.no(finder.matches());
+		Assert.equal(finder.matchCount(), 0);
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
-		assertTrue(finder.matches());
-		assertEquals(finder.matchCount(), 1);
+		Assert.yes(finder.matches());
+		Assert.equal(finder.matchCount(), 1);
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
-		assertTrue(finder.matches());
-		assertEquals(finder.matchCount(), 2);
+		Assert.yes(finder.matches());
+		Assert.equal(finder.matchCount(), 2);
 	}
 
 	@Test
@@ -132,7 +127,7 @@ public class LibUsbFinderBehavior {
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
 		var finder = LibUsbFinder.builder().vendor(0x04f2).build();
-		assertEquals(finder.findAndRef(null, 2).size(), 2);
+		Assert.equal(finder.findAndRef(null, 2).size(), 2);
 		Assert.notNull(finder.findAndRef(null));
 	}
 
@@ -140,12 +135,12 @@ public class LibUsbFinderBehavior {
 	public void shouldFindWithCallback() throws LibUsbException {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.mouseConfig());
-		assertFalse(LibUsbFinder.builder().bus(1).build().findWithCallback(nullCtx, _ -> true));
-		assertFalse(LibUsbFinder.builder().address(1).build().findWithCallback(nullCtx, _ -> true));
-		assertFalse(LibUsbFinder.builder().index(1).build().findWithCallback(nullCtx, _ -> true));
-		assertFalse(
+		Assert.no(LibUsbFinder.builder().bus(1).build().findWithCallback(nullCtx, _ -> true));
+		Assert.no(LibUsbFinder.builder().address(1).build().findWithCallback(nullCtx, _ -> true));
+		Assert.no(LibUsbFinder.builder().index(1).build().findWithCallback(nullCtx, _ -> true));
+		Assert.no(
 			LibUsbFinder.builder().description("x").build().findWithCallback(nullCtx, _ -> true));
-		assertFalse(
+		Assert.no(
 			LibUsbFinder.builder().serial("x").build().findWithCallback(nullCtx, _ -> true));
 	}
 

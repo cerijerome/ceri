@@ -1,10 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertNotEquals;
-import static ceri.common.test.Assert.assertTrue;
 import java.net.UnknownHostException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -34,42 +29,42 @@ public class HostPortBehavior {
 		var ne2 = HostPort.of("test");
 		var ne3 = HostPort.localhost(777);
 		TestUtil.exerciseEquals(obj, eq0, eq1);
-		assertAllNotEqual(obj, ne0, ne1, ne2, ne3);
-		assertNotEquals(obj.toString(), ne2.toString());
+		Assert.notEqualAll(obj, ne0, ne1, ne2, ne3);
+		Assert.notEqual(obj.toString(), ne2.toString());
 	}
 
 	@Test
 	public void shouldProvidePortOrDefault() {
-		assertEquals(HostPort.of("test", 777).port(888), 777);
-		assertEquals(HostPort.of("test").port(888), 888);
+		Assert.equal(HostPort.of("test", 777).port(888), 777);
+		Assert.equal(HostPort.of("test").port(888), 888);
 	}
 
 	@Test
 	public void shouldDetermineIfPortIsSpecified() {
-		assertFalse(HostPort.NULL.hasPort());
-		assertFalse(HostPort.LOCALHOST.hasPort());
-		assertFalse(HostPort.of("test").hasPort());
-		assertTrue(HostPort.localhost(123).hasPort());
-		assertTrue(HostPort.of("test", 123).hasPort());
+		Assert.no(HostPort.NULL.hasPort());
+		Assert.no(HostPort.LOCALHOST.hasPort());
+		Assert.no(HostPort.of("test").hasPort());
+		Assert.yes(HostPort.localhost(123).hasPort());
+		Assert.yes(HostPort.of("test", 123).hasPort());
 	}
 
 	@Test
 	public void shouldDetermineIfNull() {
-		assertTrue(HostPort.NULL.isNull());
-		assertFalse(HostPort.LOCALHOST.isNull());
-		assertFalse(HostPort.of("").isNull());
+		Assert.yes(HostPort.NULL.isNull());
+		Assert.no(HostPort.LOCALHOST.isNull());
+		Assert.no(HostPort.of("").isNull());
 	}
 
 	@Test
 	public void shouldCreateInetAddress() throws UnknownHostException {
 		var addr = HostPort.of("0.0.0.0").asAddress();
-		assertEquals(addr.getHostAddress(), "0.0.0.0");
+		Assert.equal(addr.getHostAddress(), "0.0.0.0");
 	}
 
 	@Test
 	public void shouldCreateInetSocketAddress() throws UnknownHostException {
 		var addr = HostPort.of("0.0.0.0").asSocketAddress();
-		assertEquals(addr.getHostString(), "0.0.0.0");
+		Assert.equal(addr.getHostString(), "0.0.0.0");
 	}
 
 	static void assertHostPort(HostPort hostPort, String host) {
@@ -82,7 +77,7 @@ public class HostPortBehavior {
 			return;
 		}
 		Assert.notNull(hostPort);
-		assertEquals(hostPort.host, host);
-		assertEquals(hostPort.port, port);
+		Assert.equal(hostPort.host, host);
+		Assert.equal(hostPort.port, port);
 	}
 }

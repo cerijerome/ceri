@@ -1,6 +1,5 @@
 package ceri.common.function;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.Captor;
@@ -18,14 +17,14 @@ public class FluentBehavior {
 	@Test
 	public void shouldMapToObject() {
 		FluentTest test = new FluentTest(3);
-		assertEquals(test.map(t -> String.valueOf(t.id)), "3");
+		Assert.equal(test.map(t -> String.valueOf(t.id)), "3");
 		Assert.thrown(() -> test.map(null));
 	}
 
 	@Test
 	public void shouldMapToInt() {
 		FluentTest test = new FluentTest(3);
-		assertEquals(test.mapToInt(t -> t.id), 3);
+		Assert.equal(test.mapToInt(t -> t.id), 3);
 		Assert.thrown(() -> test.mapToInt(null));
 	}
 

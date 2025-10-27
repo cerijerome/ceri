@@ -1,35 +1,31 @@
 package ceri.common.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertMatch;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class OsUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(OsUtil.class);
+		Assert.privateConstructor(OsUtil.class);
 	}
 
 	@Test
 	public void testDescriptor() {
-		assertMatch(OsUtil.os().toString(), ".+;.+;.+");
-		assertMatch(OsUtil.os().full(), ".+;.+;.+; mac.*linux.*x86.*arm.*bit64.*");
+		Assert.match(OsUtil.os().toString(), ".+;.+;.+");
+		Assert.match(OsUtil.os().full(), ".+;.+;.+; mac.*linux.*x86.*arm.*bit64.*");
 	}
 
 	@Test
 	public void testAws() {
 		try (var _ = SystemVars.removable("AWS_PATH", "x")) {
-			assertTrue(OsUtil.aws());
+			Assert.yes(OsUtil.aws());
 		}
 		try (var _ = SystemVars.removable("AWS_PATH", "")) {
-			assertFalse(OsUtil.aws());
+			Assert.no(OsUtil.aws());
 		}
 		try (var _ = SystemVars.removable("AWS_PATH", null)) {
-			assertFalse(OsUtil.aws());
+			Assert.no(OsUtil.aws());
 		}
 	}
 
@@ -38,23 +34,23 @@ public class OsUtilTest {
 		var orig = OsUtil.os();
 		try (var _ = OsUtil.os("Mac", null, null)) {
 			assertOs(OsUtil.os(), "Mac", orig.arch, orig.version);
-			assertTrue(OsUtil.os().mac);
-			assertFalse(OsUtil.os().linux);
+			Assert.yes(OsUtil.os().mac);
+			Assert.no(OsUtil.os().linux);
 		}
 		try (var _ = OsUtil.os("Darwin", null, null)) {
 			assertOs(OsUtil.os(), "Darwin", orig.arch, orig.version);
-			assertTrue(OsUtil.os().mac);
-			assertFalse(OsUtil.os().linux);
+			Assert.yes(OsUtil.os().mac);
+			Assert.no(OsUtil.os().linux);
 		}
 		try (var _ = OsUtil.os("Linux", null, null)) {
 			assertOs(OsUtil.os(), "Linux", orig.arch, orig.version);
-			assertFalse(OsUtil.os().mac);
-			assertTrue(OsUtil.os().linux);
+			Assert.no(OsUtil.os().mac);
+			Assert.yes(OsUtil.os().linux);
 		}
 		try (var _ = OsUtil.os("Other", null, null)) {
 			assertOs(OsUtil.os(), "Other", orig.arch, orig.version);
-			assertFalse(OsUtil.os().mac);
-			assertFalse(OsUtil.os().linux);
+			Assert.no(OsUtil.os().mac);
+			Assert.no(OsUtil.os().linux);
 		}
 	}
 
@@ -63,45 +59,45 @@ public class OsUtilTest {
 		var orig = OsUtil.os();
 		try (var _ = OsUtil.os(null, "x86", null)) {
 			assertOs(OsUtil.os(), orig.name, "x86", orig.version);
-			assertTrue(OsUtil.os().x86);
-			assertFalse(OsUtil.os().arm);
-			assertFalse(OsUtil.os().bit64);
+			Assert.yes(OsUtil.os().x86);
+			Assert.no(OsUtil.os().arm);
+			Assert.no(OsUtil.os().bit64);
 		}
 		try (var _ = OsUtil.os(null, "aarch", null)) {
 			assertOs(OsUtil.os(), orig.name, "aarch", orig.version);
-			assertFalse(OsUtil.os().x86);
-			assertTrue(OsUtil.os().arm);
-			assertFalse(OsUtil.os().bit64);
+			Assert.no(OsUtil.os().x86);
+			Assert.yes(OsUtil.os().arm);
+			Assert.no(OsUtil.os().bit64);
 		}
 		try (var _ = OsUtil.os(null, "aarch64", null)) {
 			assertOs(OsUtil.os(), orig.name, "aarch64", orig.version);
-			assertFalse(OsUtil.os().x86);
-			assertTrue(OsUtil.os().arm);
-			assertTrue(OsUtil.os().bit64);
+			Assert.no(OsUtil.os().x86);
+			Assert.yes(OsUtil.os().arm);
+			Assert.yes(OsUtil.os().bit64);
 		}
 		try (var _ = OsUtil.os(null, "xxx", null)) {
 			assertOs(OsUtil.os(), orig.name, "xxx", orig.version);
-			assertFalse(OsUtil.os().x86);
-			assertFalse(OsUtil.os().arm);
-			assertFalse(OsUtil.os().bit64);
+			Assert.no(OsUtil.os().x86);
+			Assert.no(OsUtil.os().arm);
+			Assert.no(OsUtil.os().bit64);
 		}
 	}
 
 	@Test
 	public void testConditionals() {
 		try (var _ = OsUtil.os("Mac", "aarch64", null)) {
-			assertEquals(OsUtil.os().mac("y", "n"), "y");
-			assertEquals(OsUtil.os().linux("y", "n"), "n");
-			assertEquals(OsUtil.os().x86("y", "n"), "n");
-			assertEquals(OsUtil.os().arm("y", "n"), "y");
-			assertEquals(OsUtil.os().bit64("y", "n"), "y");
+			Assert.equal(OsUtil.os().mac("y", "n"), "y");
+			Assert.equal(OsUtil.os().linux("y", "n"), "n");
+			Assert.equal(OsUtil.os().x86("y", "n"), "n");
+			Assert.equal(OsUtil.os().arm("y", "n"), "y");
+			Assert.equal(OsUtil.os().bit64("y", "n"), "y");
 		}
 		try (var _ = OsUtil.os("Linux", "x86", null)) {
-			assertEquals(OsUtil.os().mac("y", "n"), "n");
-			assertEquals(OsUtil.os().linux("y", "n"), "y");
-			assertEquals(OsUtil.os().x86("y", "n"), "y");
-			assertEquals(OsUtil.os().arm("y", "n"), "n");
-			assertEquals(OsUtil.os().bit64("y", "n"), "n");
+			Assert.equal(OsUtil.os().mac("y", "n"), "n");
+			Assert.equal(OsUtil.os().linux("y", "n"), "y");
+			Assert.equal(OsUtil.os().x86("y", "n"), "y");
+			Assert.equal(OsUtil.os().arm("y", "n"), "n");
+			Assert.equal(OsUtil.os().bit64("y", "n"), "n");
 		}
 	}
 
@@ -115,8 +111,8 @@ public class OsUtilTest {
 	}
 
 	private static void assertOs(OsUtil.Os os, String name, String arch, String version) {
-		assertEquals(os.name, name, "name");
-		assertEquals(os.arch, arch, "name");
-		assertEquals(os.version, version, "name");
+		Assert.equal(os.name, name, "name");
+		Assert.equal(os.arch, arch, "name");
+		Assert.equal(os.version, version, "name");
 	}
 }

@@ -1,11 +1,10 @@
 package ceri.serial.spi.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.FileDescriptor;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.spi.SpiDevice;
@@ -22,14 +21,14 @@ public class SpiDevTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(SpiDev.class);
+		Assert.privateConstructor(SpiDev.class);
 	}
 
 	@Test
 	public void testGetMode() throws IOException {
 		var lib = initSpi();
 		lib.ioctlSpiInt.autoResponses(0xde);
-		fd.accept(f -> assertEquals(SpiDev.getMode(f), 0xde));
+		fd.accept(f -> Assert.equal(SpiDev.getMode(f), 0xde));
 	}
 
 	@Test

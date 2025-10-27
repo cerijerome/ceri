@@ -1,14 +1,11 @@
 package ceri.serial.i2c.jna;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertByte;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.jna.I2cDev.i2c_msg;
 import ceri.serial.i2c.jna.I2cDev.i2c_rdwr_ioctl_data;
@@ -26,30 +23,30 @@ public class I2cDevTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(I2cDev.class);
+		Assert.privateConstructor(I2cDev.class);
 	}
 
 	@Test
 	public void testI2cMsg() {
-		assertArray(i2c_msg.array(0));
+		Assert.array(i2c_msg.array(0));
 		var msg = new i2c_msg(null);
 		msg.populate(0x3a, 0, 0, null);
-		assertByte(msg.addrByte(), 0x74);
+		Assert.equals(msg.addrByte(), 0x74);
 		msg.populate(0x3a, 1, 0, null);
-		assertByte(msg.addrByte(), 0x75);
+		Assert.equals(msg.addrByte(), 0x75);
 	}
 
 	@Test
 	public void testRdwrIoctlData() {
 		var data = new i2c_rdwr_ioctl_data();
-		assertArray(data.msgs()); // 0 count
+		Assert.array(data.msgs()); // 0 count
 	}
 
 	@Test
 	public void testI2cSmBusData() {
 		var smBus = new i2c_smbus_data();
 		smBus.setBlock(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
-		assertArray(smBus.block, smBusBlock(5, 1, 2, 3, 4, 5).copy(0));
+		Assert.array(smBus.block, TestI2cCLibNative.smBusBlock(5, 1, 2, 3, 4, 5).copy(0));
 	}
 
 	@Test
@@ -67,7 +64,8 @@ public class I2cDevTest {
 		int fd = I2cDev.i2c_open(1, 0);
 		I2cDev.i2c_smbus_write_block_data(fd, 0x12, ArrayUtil.bytes.of(1, 2, 3));
 		I2cDev.i2c_smbus_write_i2c_block_data(fd, 0x12, ArrayUtil.bytes.of(1, 2, 3));
-		lib.ioctlSmBusBytes.assertValues(new Rw(0, 0x12, 5, 0, 0, smBusBlock(3, 1, 2, 3)),
-			new Rw(0, 0x12, 8, 0, 0, smBusBlock(3, 1, 2, 3)));
+		lib.ioctlSmBusBytes.assertValues(
+			new Rw(0, 0x12, 5, 0, 0, TestI2cCLibNative.smBusBlock(3, 1, 2, 3)),
+			new Rw(0, 0x12, 8, 0, 0, TestI2cCLibNative.smBusBlock(3, 1, 2, 3)));
 	}
 }

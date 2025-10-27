@@ -2,10 +2,6 @@ package ceri.common.color;
 
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertColorx;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertStream;
 import java.awt.Color;
 import java.util.Comparator;
 import org.junit.Test;
@@ -65,75 +61,75 @@ public class ColorxsTest {
 
 	@Test
 	public void testArgb() {
-		assertEquals(Colorxs.argb(0x0L), 0);
-		assertEquals(Colorxs.argb(-1L), -1);
-		assertEquals(Colorxs.argb(0xfedcba9876543210L), 0x76543210);
+		Assert.equal(Colorxs.argb(0x0L), 0);
+		Assert.equal(Colorxs.argb(-1L), -1);
+		Assert.equal(Colorxs.argb(0xfedcba9876543210L), 0x76543210);
 	}
 
 	@Test
 	public void testXrgb() {
-		assertEquals(Colorxs.xrgb(0), 0L);
-		assertEquals(Colorxs.xrgb(0xfedcba9876543210L), 0xfedcba9800543210L);
-		assertEquals(Colorxs.xrgb(-1L), 0xffffffff00ffffffL);
+		Assert.equal(Colorxs.xrgb(0), 0L);
+		Assert.equal(Colorxs.xrgb(0xfedcba9876543210L), 0xfedcba9800543210L);
+		Assert.equal(Colorxs.xrgb(-1L), 0xffffffff00ffffffL);
 	}
 
 	@Test
 	public void testXargb() {
-		assertEquals(Colorxs.xargb(0), 0L);
-		assertEquals(Colorxs.xargb(0xfedcba98), 0xfedcba98L);
-		assertEquals(Colorxs.xargb(0, 0x89, 0xab, 0xcd, 0xef), 0xefcdab8900000000L);
-		assertEquals(Colorxs.xargb(Color.magenta, 0x89, 0xab, 0xcd, 0xef), 0xefcdab89ffff00ffL);
+		Assert.equal(Colorxs.xargb(0), 0L);
+		Assert.equal(Colorxs.xargb(0xfedcba98), 0xfedcba98L);
+		Assert.equal(Colorxs.xargb(0, 0x89, 0xab, 0xcd, 0xef), 0xefcdab8900000000L);
+		Assert.equal(Colorxs.xargb(Color.magenta, 0x89, 0xab, 0xcd, 0xef), 0xefcdab89ffff00ffL);
 	}
 
 	@Test
 	public void testXargbFromText() {
-		assertEquals(Colorxs.xargb("test"), null);
-		assertEquals(Colorxs.xargb("clear"), Colorx.clear.xargb());
-		assertEquals(Colorxs.xargb("full"), Colorx.full.xargb());
-		assertEquals(Colorxs.xargb("#fed"), 0xffffeeddL);
-		assertEquals(Colorxs.xargb("0xfed"), 0xff000fedL);
-		assertEquals(Colorxs.xargb("#abcdfedcba987654"), 0xabcdfedcba987654L);
+		Assert.equal(Colorxs.xargb("test"), null);
+		Assert.equal(Colorxs.xargb("clear"), Colorx.clear.xargb());
+		Assert.equal(Colorxs.xargb("full"), Colorx.full.xargb());
+		Assert.equal(Colorxs.xargb("#fed"), 0xffffeeddL);
+		Assert.equal(Colorxs.xargb("0xfed"), 0xff000fedL);
+		Assert.equal(Colorxs.xargb("#abcdfedcba987654"), 0xabcdfedcba987654L);
 	}
 
 	@Test
 	public void testValidXargbFromText() {
 		Assert.thrown(() -> Colorxs.validXargb("test"));
-		assertEquals(Colorxs.validXargb("full"), Colorx.full.xargb());
+		Assert.equal(Colorxs.validXargb("full"), Colorx.full.xargb());
 	}
 
 	@Test
 	public void testMaxXargb() {
-		assertEquals(Colorxs.maxXargb(0), 0L);
-		assertEquals(Colorxs.maxXargb(0x102030407f504030L), 0x336699cc7fffcc99L);
-		assertEquals(Colorxs.maxXargb(0x100030407f004030L), 0x4000bfff7f00ffbfL);
-		assertEquals(Colorxs.maxXargb(0x7f004030L), 0x7f00ffbfL);
-		assertEquals(Colorxs.maxXargb(0xff7f004030L), 0xff7f004030L);
+		Assert.equal(Colorxs.maxXargb(0), 0L);
+		Assert.equal(Colorxs.maxXargb(0x102030407f504030L), 0x336699cc7fffcc99L);
+		Assert.equal(Colorxs.maxXargb(0x100030407f004030L), 0x4000bfff7f00ffbfL);
+		Assert.equal(Colorxs.maxXargb(0x7f004030L), 0x7f00ffbfL);
+		Assert.equal(Colorxs.maxXargb(0xff7f004030L), 0xff7f004030L);
 	}
 
 	@Test
 	public void testRandomXargb() {
-		assertEquals(Colorxs.randomXargb() & 0xff000000L, 0xff000000L);
-		assertEquals(Colorxs.randomXargb(0) & 0xffffffffff000000L, 0xff000000L);
-		assertEquals(Colorxs.randomXargb(2) & 0xffff0000ff000000L, 0xff000000L);
+		Assert.equal(Colorxs.randomXargb() & 0xff000000L, 0xff000000L);
+		Assert.equal(Colorxs.randomXargb(0) & 0xffffffffff000000L, 0xff000000L);
+		Assert.equal(Colorxs.randomXargb(2) & 0xffff0000ff000000L, 0xff000000L);
 	}
 
 	@Test
 	public void testDimXargb() {
-		assertEquals(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.0), 0xff000000L);
-		assertEquals(Colorxs.dimXargb(0xeeccaa88ff664422L, 1.0), 0xeeccaa88ff664422L);
-		assertEquals(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.5), 0x77665544ff332211L);
-		assertEquals(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.125), 0x1e1a1511ff0d0904L);
-		assertEquals(Colorxs.dimXargb(0x88664422L, 0.5), 0x88332211L);
-		assertEquals(Colorxs.dimXargb(0x88000000L, 0.5), 0x88000000L);
+		Assert.equal(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.0), 0xff000000L);
+		Assert.equal(Colorxs.dimXargb(0xeeccaa88ff664422L, 1.0), 0xeeccaa88ff664422L);
+		Assert.equal(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.5), 0x77665544ff332211L);
+		Assert.equal(Colorxs.dimXargb(0xeeccaa88ff664422L, 0.125), 0x1e1a1511ff0d0904L);
+		Assert.equal(Colorxs.dimXargb(0x88664422L, 0.5), 0x88332211L);
+		Assert.equal(Colorxs.dimXargb(0x88000000L, 0.5), 0x88000000L);
 	}
 
 	@Test
 	public void testScaleXargb() {
-		assertEquals(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 0),
+		Assert.equal(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 0),
 			0xffddbb99ff224466L);
-		assertEquals(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 1),
+		Assert.equal(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 1),
 			0x99bbddffff446622L);
-		assertEquals(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 0.5),
+		Assert.equal(Colorxs.scaleXargb(0xffddbb99ff224466L, 0x99bbddffff446622L, 0.5),
 			0xccccccccff335544L);
 	}
 
@@ -163,17 +159,17 @@ public class ColorxsTest {
 
 	@Test
 	public void testBlendXargbs() {
-		assertEquals(Colorxs.blendXargbs(), 0L);
-		assertEquals(Colorxs.blendXargbs(0xaa22220020ff7f50L), 0xaa22220020ff7f50L);
-		assertEquals(Colorxs.blendXargbs(0x332211ff7fffd4L, 0xaa22220020ff7f50L),
+		Assert.equal(Colorxs.blendXargbs(), 0L);
+		Assert.equal(Colorxs.blendXargbs(0xaa22220020ff7f50L), 0xaa22220020ff7f50L);
+		Assert.equal(Colorxs.blendXargbs(0x332211ff7fffd4L, 0xaa22220020ff7f50L),
 			0x332211ff7fffd4L);
-		assertEquals(Colorxs.blendXargbs(0x332211007fffd4L, 0xaa22220020ff7f50L),
+		Assert.equal(Colorxs.blendXargbs(0x332211007fffd4L, 0xaa22220020ff7f50L),
 			0xaa22220020ff7f50L);
-		assertEquals(Colorxs.blendXargbs(0x332211807fffd4L, 0xaa22220000ff7f50L),
+		Assert.equal(Colorxs.blendXargbs(0x332211807fffd4L, 0xaa22220000ff7f50L),
 			0x332211807fffd4L);
-		assertEquals(Colorxs.blendXargbs(0x332211807fffd4L, 0xaa22220020ff7f50L),
+		Assert.equal(Colorxs.blendXargbs(0x332211807fffd4L, 0xaa22220020ff7f50L),
 			0x1331220f908df1c5L);
-		assertEquals(Colorxs.blendXargbs(0xaa22220020ff7f50L, 0x332211807fffd4L),
+		Assert.equal(Colorxs.blendXargbs(0xaa22220020ff7f50L, 0x332211807fffd4L),
 			0x262f220d909be2b7L);
 	}
 
@@ -198,9 +194,9 @@ public class ColorxsTest {
 
 	@Test
 	public void testRandom() {
-		assertEquals(Colorxs.random().xargb() & 0xff000000L, 0xff000000L);
-		assertEquals(Colorxs.random(0).xargb() & 0xffffffffff000000L, 0xff000000L);
-		assertEquals(Colorxs.random(2).xargb() & 0xffff0000ff000000L, 0xff000000L);
+		Assert.equal(Colorxs.random().xargb() & 0xff000000L, 0xff000000L);
+		Assert.equal(Colorxs.random(0).xargb() & 0xffffffffff000000L, 0xff000000L);
+		Assert.equal(Colorxs.random(2).xargb() & 0xffff0000ff000000L, 0xff000000L);
 	}
 
 	@Test
@@ -222,91 +218,91 @@ public class ColorxsTest {
 
 	@Test
 	public void testToString() {
-		assertEquals(Colorxs.toString(0xff000000L), "#000000(black)");
-		assertEquals(Colorxs.toString(0xff123456L), "#123456");
-		assertEquals(Colorxs.toString(Colorx.clear), "#00000000(clear)");
-		assertEquals(Colorxs.toString(0x12345678L), "#12345678");
-		assertEquals(Colorxs.toString(0x123456789aL), "#123456789a");
-		assertEquals(Colorxs.toString(0xff77ffffffL), "#ff77ffffff(fullX0)");
-		assertEquals(Colorxs.toString(0xffff77ffffffL), "#ffff77ffffff(fullX01)");
-		assertEquals(Colorxs.toString(Colorx.fullX012), "#ffffffffffffff(fullX012)");
+		Assert.equal(Colorxs.toString(0xff000000L), "#000000(black)");
+		Assert.equal(Colorxs.toString(0xff123456L), "#123456");
+		Assert.equal(Colorxs.toString(Colorx.clear), "#00000000(clear)");
+		Assert.equal(Colorxs.toString(0x12345678L), "#12345678");
+		Assert.equal(Colorxs.toString(0x123456789aL), "#123456789a");
+		Assert.equal(Colorxs.toString(0xff77ffffffL), "#ff77ffffff(fullX0)");
+		Assert.equal(Colorxs.toString(0xffff77ffffffL), "#ffff77ffffff(fullX01)");
+		Assert.equal(Colorxs.toString(Colorx.fullX012), "#ffffffffffffff(fullX012)");
 	}
 
 	@Test
 	public void testName() {
-		assertEquals(Colorxs.name(Colorx.fullX012), "fullX012");
-		assertEquals(Colorxs.name(Colorx.of(0x123456L)), null);
+		Assert.equal(Colorxs.name(Colorx.fullX012), "fullX012");
+		Assert.equal(Colorxs.name(Colorx.of(0x123456L)), null);
 	}
 
 	@Test
 	public void testHex() {
-		assertEquals(Colorxs.hex(Colorx.black), "#000000");
-		assertEquals(Colorxs.hex(Colorx.of(0x123456789aL)), "#123456789a");
+		Assert.equal(Colorxs.hex(Colorx.black), "#000000");
+		Assert.equal(Colorxs.hex(Colorx.of(0x123456789aL)), "#123456789a");
 	}
 
 	@Test
 	public void testXargbsFromColorxs() {
-		assertArray(Colorxs.xargbs(Colorx.fullX0, Colorx.of(0x123456789aL)), 0xffffffffffL,
+		Assert.array(Colorxs.xargbs(Colorx.fullX0, Colorx.of(0x123456789aL)), 0xffffffffffL,
 			0x123456789aL);
 	}
 
 	@Test
 	public void testXargbsFromText() {
-		assertArray(Colorxs.xargbs("fullX0", "#123456789a"), 0xffffffffffL, 0x123456789aL);
+		Assert.array(Colorxs.xargbs("fullX0", "#123456789a"), 0xffffffffffL, 0x123456789aL);
 		Assert.thrown(() -> Colorxs.xargbs("fullX0", "#"));
 	}
 
 	@Test
 	public void testColorxsFromText() {
-		assertArray(Colorxs.colorxs("fullX0", "#123456789a"), Colorx.of(0xffffffffffL),
+		Assert.array(Colorxs.colorxs("fullX0", "#123456789a"), Colorx.of(0xffffffffffL),
 			Colorx.of(0x123456789aL));
 		Assert.thrown(() -> Colorxs.colorxs("fullX0", "#"));
 	}
 
 	@Test
 	public void testXargbList() {
-		assertOrdered(Colorxs.xargbList(Streams.longs(0xffffffffffL, 0x123456789aL)), 0xffffffffffL,
+		Assert.ordered(Colorxs.xargbList(Streams.longs(0xffffffffffL, 0x123456789aL)), 0xffffffffffL,
 			0x123456789aL);
 	}
 
 	@Test
 	public void testColorxList() {
-		assertOrdered(Colorxs.colorxList(Streams.longs(0xffffffffffL, 0x123456789aL)),
+		Assert.ordered(Colorxs.colorxList(Streams.longs(0xffffffffffL, 0x123456789aL)),
 			Colorx.of(0xffffffffffL), Colorx.of(0x123456789aL));
 	}
 
 	@Test
 	public void testArgbStream() {
-		assertStream(Colorxs.argbStream(Color.cyan.getRGB(), Color.yellow.getRGB()), 0xff00ffffL,
+		Assert.stream(Colorxs.argbStream(Color.cyan.getRGB(), Color.yellow.getRGB()), 0xff00ffffL,
 			0xffffff00L);
 	}
 
 	@Test
 	public void testStreamArgbsAsXargbs() {
-		assertStream(Colorxs.stream(Streams.ints(0x12345678, 0x87654321), 0x9a, 0xbc, 0xde),
+		Assert.stream(Colorxs.stream(Streams.ints(0x12345678, 0x87654321), 0x9a, 0xbc, 0xde),
 			0xdebc9a12345678L, 0xdebc9a87654321L);
 	}
 
 	@Test
 	public void testDenormalizeXargb() {
-		assertEquals(Colorxs.denormalizeXargb(0xfedcba98), 0xfedcba98L);
-		assertEquals(Colorxs.denormalizeXargb(0xfedcba98, 0), 0xfedcba98L);
-		assertEquals(Colorxs.denormalizeXargb(0xfedcba98, 0, 0, 0, 0), 0xfedcba98L);
-		assertEquals(Colorxs.denormalizeXargb(0x0000ff, 0xff), 0xff00000000L);
-		assertEquals(Colorxs.denormalizeXargb(0x0000ff, 0x7f), 0xff00000080L);
-		assertEquals(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0x3f), 0xffff00000041L);
-		assertEquals(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0x7f), 0xffff00000001L);
-		assertEquals(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0xff), 0x80ff00000000L);
-		assertEquals(Colorxs.denormalizeXargb(0x00007f, 0x3f, 0xff), 0x40ff00000000L);
-		assertEquals(Colorxs.denormalizeXargb(0x804000, 0xff0000, 0x00ff00), 0x408000000000L);
-		assertEquals(Colorxs.denormalizeXargb(0x804000, 0x400000, 0x004000), 0xffff00400000L);
-		assertEquals(Colorxs.denormalizeXargb(0x804000, 0x408000, 0x404000), 0x008000600000L);
-		assertEquals(Colorxs.denormalizeXargb(0x804000, 0x603000, 0x404000), 0x40ff00100000L);
-		assertEquals(Colorxs.denormalizeXargb(0xffffff, 0x800000, 0x8000, 0x80, 0x808080),
+		Assert.equal(Colorxs.denormalizeXargb(0xfedcba98), 0xfedcba98L);
+		Assert.equal(Colorxs.denormalizeXargb(0xfedcba98, 0), 0xfedcba98L);
+		Assert.equal(Colorxs.denormalizeXargb(0xfedcba98, 0, 0, 0, 0), 0xfedcba98L);
+		Assert.equal(Colorxs.denormalizeXargb(0x0000ff, 0xff), 0xff00000000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x0000ff, 0x7f), 0xff00000080L);
+		Assert.equal(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0x3f), 0xffff00000041L);
+		Assert.equal(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0x7f), 0xffff00000001L);
+		Assert.equal(Colorxs.denormalizeXargb(0x0000ff, 0x7f, 0xff), 0x80ff00000000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x00007f, 0x3f, 0xff), 0x40ff00000000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x804000, 0xff0000, 0x00ff00), 0x408000000000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x804000, 0x400000, 0x004000), 0xffff00400000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x804000, 0x408000, 0x404000), 0x008000600000L);
+		Assert.equal(Colorxs.denormalizeXargb(0x804000, 0x603000, 0x404000), 0x40ff00100000L);
+		Assert.equal(Colorxs.denormalizeXargb(0xffffff, 0x800000, 0x8000, 0x80, 0x808080),
 			0xfdffffff00000000L);
-		assertEquals(Colorxs.denormalizeXargb(0xffffff, 0x800000, 0x8000, 0x80, 0x404040),
+		Assert.equal(Colorxs.denormalizeXargb(0xffffff, 0x800000, 0x8000, 0x80, 0x404040),
 			0xffffffff003f3f3fL);
-		assertEquals(Colorxs.denormalizeXargb(0xffbfdf, 0xff0000, 0xff00, 0xff, 0xffffff),
+		Assert.equal(Colorxs.denormalizeXargb(0xffbfdf, 0xff0000, 0xff00, 0xff, 0xffffff),
 			0xdfbfff00000000L);
 	}
 
@@ -319,24 +315,24 @@ public class ColorxsTest {
 
 	@Test
 	public void testNormalizeArgb() {
-		assertEquals(Colorxs.normalizeArgb(0x12345678fedcba98L), 0xfedcba98);
-		assertEquals(Colorxs.normalizeArgb(0x12345678fedcba98L, 0), 0xfedcba98);
-		assertEquals(Colorxs.normalizeArgb(0x12345678fedcba98L, 0, 0, 0, 0), 0xfedcba98);
-		assertEquals(Colorxs.normalizeArgb(0x000000ff00000000L, 0xff), 0xff);
-		assertEquals(Colorxs.normalizeArgb(0x000000ff00000080L, 0x7f), 0xff);
-		assertEquals(Colorxs.normalizeArgb(0x0000ffff00000041L, 0x7f, 0x3f), 0xff);
-		assertEquals(Colorxs.normalizeArgb(0x0000ffff00000001L, 0x7f, 0x7f), 0xff);
-		assertEquals(Colorxs.normalizeArgb(0x000080ff00000000L, 0x7f, 0xff), 0xff);
-		assertEquals(Colorxs.normalizeArgb(0x000040ff00000000L, 0x3f, 0xff), 0x7f);
-		assertEquals(Colorxs.normalizeArgb(0x0000408000000000L, 0xff0000, 0x00ff00), 0x804000);
-		assertEquals(Colorxs.normalizeArgb(0x0000ffff00400000L, 0x400000, 0x004000), 0x804000);
-		assertEquals(Colorxs.normalizeArgb(0x0000008000600000L, 0x408000, 0x404000), 0x804000);
-		assertEquals(Colorxs.normalizeArgb(0x000040ff00100000L, 0x603000, 0x404000), 0x804000);
-		assertEquals(Colorxs.normalizeArgb(0xfdffffff00000000L, 0x800000, 0x8000, 0x80, 0x808080),
+		Assert.equal(Colorxs.normalizeArgb(0x12345678fedcba98L), 0xfedcba98);
+		Assert.equal(Colorxs.normalizeArgb(0x12345678fedcba98L, 0), 0xfedcba98);
+		Assert.equal(Colorxs.normalizeArgb(0x12345678fedcba98L, 0, 0, 0, 0), 0xfedcba98);
+		Assert.equal(Colorxs.normalizeArgb(0x000000ff00000000L, 0xff), 0xff);
+		Assert.equal(Colorxs.normalizeArgb(0x000000ff00000080L, 0x7f), 0xff);
+		Assert.equal(Colorxs.normalizeArgb(0x0000ffff00000041L, 0x7f, 0x3f), 0xff);
+		Assert.equal(Colorxs.normalizeArgb(0x0000ffff00000001L, 0x7f, 0x7f), 0xff);
+		Assert.equal(Colorxs.normalizeArgb(0x000080ff00000000L, 0x7f, 0xff), 0xff);
+		Assert.equal(Colorxs.normalizeArgb(0x000040ff00000000L, 0x3f, 0xff), 0x7f);
+		Assert.equal(Colorxs.normalizeArgb(0x0000408000000000L, 0xff0000, 0x00ff00), 0x804000);
+		Assert.equal(Colorxs.normalizeArgb(0x0000ffff00400000L, 0x400000, 0x004000), 0x804000);
+		Assert.equal(Colorxs.normalizeArgb(0x0000008000600000L, 0x408000, 0x404000), 0x804000);
+		Assert.equal(Colorxs.normalizeArgb(0x000040ff00100000L, 0x603000, 0x404000), 0x804000);
+		Assert.equal(Colorxs.normalizeArgb(0xfdffffff00000000L, 0x800000, 0x8000, 0x80, 0x808080),
 			0xffffff);
-		assertEquals(Colorxs.normalizeArgb(0xffffffff003f3f3fL, 0x800000, 0x8000, 0x80, 0x404040),
+		Assert.equal(Colorxs.normalizeArgb(0xffffffff003f3f3fL, 0x800000, 0x8000, 0x80, 0x404040),
 			0xffffff);
-		assertEquals(Colorxs.normalizeArgb(0x8060408000000000L, 0xff0000, 0xff00, 0xff, 0xffffff),
+		Assert.equal(Colorxs.normalizeArgb(0x8060408000000000L, 0xff0000, 0xff00, 0xff, 0xffffff),
 			0xffbfdf);
 	}
 
@@ -348,26 +344,26 @@ public class ColorxsTest {
 
 	@Test
 	public void testDenormalizeStream() {
-		assertStream(Colorxs.denormalize(Streams.ints(0xffffffff, 0xff806040), new Color(0x808080)),
+		Assert.stream(Colorxs.denormalize(Streams.ints(0xffffffff, 0xff806040), new Color(0x808080)),
 			0xffff7f7f7fL, 0x80ff402000L);
 	}
 
 	@Test
 	public void testNormalizeStream() {
-		assertStream(
+		Assert.stream(
 			Colorxs.normalize(Streams.longs(0xffff7f7f7fL, 0x80ff402000L), new Color(0x808080)),
 			0xffffffff, 0xff806040);
 	}
 
 	@Test
 	public void testApplyArgbFunctionToStream() {
-		assertStream(Colorxs.applyArgb(Streams.longs(0x12345678abcdefL, 0L, -1L), c -> ~c),
+		Assert.stream(Colorxs.applyArgb(Streams.longs(0x12345678abcdefL, 0L, -1L), c -> ~c),
 			0x12345687543210L, 0xffffffffL, 0xffffffff00000000L);
 	}
 
 	@Test
 	public void testFadeStream() {
-		assertStream(
+		Assert.stream(
 			Colorxs.fadeStream(Colorx.of(0xff000000L), Colorx.of(0x804020ff204080L), 4, Bias.NONE),
 			0x201008ff081020L, 0x402010ff102040L, 0x603018ff183060L, 0x804020ff204080L);
 	}

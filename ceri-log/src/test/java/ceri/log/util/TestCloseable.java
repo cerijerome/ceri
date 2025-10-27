@@ -1,8 +1,8 @@
 package ceri.log.util;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Objects;
+import ceri.common.test.Assert;
 import ceri.common.text.ToString;
 
 public class TestCloseable implements AutoCloseable {
@@ -22,7 +22,7 @@ public class TestCloseable implements AutoCloseable {
 	}
 
 	public void assertClosed(boolean closed) {
-		assertEquals(closed(), closed);
+		Assert.equal(closed(), closed);
 	}
 
 	@Override

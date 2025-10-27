@@ -1,8 +1,7 @@
 package ceri.common.math;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class RadixTest {
 
@@ -17,24 +16,24 @@ public class RadixTest {
 
 	@Test
 	public void testPrefixIsValid() {
-		assertEquals(Radix.Prefix.NULL.isValid(), false);
-		assertEquals(new Radix.Prefix(null, "x").isValid(), false);
-		assertEquals(new Radix.Prefix(Radix.NULL, "x").isValid(), false);
-		assertEquals(new Radix.Prefix(Radix.BIN, "").isValid(), true);
+		Assert.equal(Radix.Prefix.NULL.isValid(), false);
+		Assert.equal(new Radix.Prefix(null, "x").isValid(), false);
+		Assert.equal(new Radix.Prefix(Radix.NULL, "x").isValid(), false);
+		Assert.equal(new Radix.Prefix(Radix.BIN, "").isValid(), true);
 	}
 
 	@Test
 	public void testFrom() {
-		assertEquals(Radix.from(null), Radix.NULL);
-		assertEquals(Radix.from(""), Radix.DEC);
-		assertEquals(Radix.from("0b"), Radix.BIN);
-		assertEquals(Radix.from("0"), Radix.OCT);
-		assertEquals(Radix.from("0x"), Radix.HEX);
-		assertEquals(Radix.from("#"), Radix.HEX);
+		Assert.equal(Radix.from(null), Radix.NULL);
+		Assert.equal(Radix.from(""), Radix.DEC);
+		Assert.equal(Radix.from("0b"), Radix.BIN);
+		Assert.equal(Radix.from("0"), Radix.OCT);
+		Assert.equal(Radix.from("0x"), Radix.HEX);
+		Assert.equal(Radix.from("#"), Radix.HEX);
 	}
 
 	private static void assertPrefix(Radix.Prefix prefix, int radix, String pre) {
-		assertEquals(prefix.radix().n, radix);
-		assertString(prefix.prefix(), pre);
+		Assert.equal(prefix.radix().n, radix);
+		Assert.string(prefix.prefix(), pre);
 	}
 }

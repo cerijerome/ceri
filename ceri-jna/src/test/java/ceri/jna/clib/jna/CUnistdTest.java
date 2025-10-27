@@ -1,11 +1,5 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFile;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDWR;
 import static ceri.jna.test.JnaTestUtil.assertCException;
@@ -42,30 +36,30 @@ public class CUnistdTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CUnistd.class);
+		Assert.privateConstructor(CUnistd.class);
 	}
 
 	@Test
 	public void testIsatty() throws IOException {
 		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
-		assertFalse(CUnistd.isatty(fd));
+		Assert.no(CUnistd.isatty(fd));
 		lib.isatty.autoResponses(1);
-		assertTrue(CUnistd.isatty(fd));
+		Assert.yes(CUnistd.isatty(fd));
 	}
 
 	@Test
 	public void testPageSize() throws IOException {
 		var lib = ref.init();
 		lib.pagesize.autoResponses(0x100);
-		assertEquals(CUnistd.getpagesize(), 0x100);
+		Assert.equal(CUnistd.getpagesize(), 0x100);
 	}
 
 	@Test
 	public void testPipe() throws IOException {
 		int[] pipefd = CUnistd.pipe();
 		CUnistd.writeAll(pipefd[1], new byte[] { 1, 2, 3 }, 0, 3);
-		assertArray(CUnistd.readBytes(pipefd[0], 8), 1, 2, 3); // only reads 3
+		Assert.array(CUnistd.readBytes(pipefd[0], 8), 1, 2, 3); // only reads 3
 		CUnistd.close(pipefd[0]);
 		CUnistd.close(pipefd[1]);
 	}
@@ -75,12 +69,12 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file1", 0);
 		m = new Memory(4);
-		assertEquals(CUnistd.read(fd, Pointer.NULL, 0), 0);
-		assertEquals(CUnistd.read(fd, m, 1), 1);
+		Assert.equal(CUnistd.read(fd, Pointer.NULL, 0), 0);
+		Assert.equal(CUnistd.read(fd, m, 1), 1);
 		JnaTestUtil.assertPointer(m, 0, 't');
-		assertEquals(CUnistd.read(fd, m, 4), 3);
+		Assert.equal(CUnistd.read(fd, m, 4), 3);
 		JnaTestUtil.assertPointer(m, 0, 'e', 's', 't');
-		assertEquals(CUnistd.read(fd, m, 1), 0);
+		Assert.equal(CUnistd.read(fd, m, 1), 0);
 	}
 
 	@Test
@@ -88,11 +82,11 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file1", 0);
 		byte[] b = new byte[3];
-		assertEquals(CUnistd.readAll(fd, b), 3);
-		assertArray(b, 't', 'e', 's');
-		assertEquals(CUnistd.readAll(fd, b), 1);
-		assertArray(b, 't', 'e', 's');
-		assertEquals(CUnistd.readAll(fd, b), 0);
+		Assert.equal(CUnistd.readAll(fd, b), 3);
+		Assert.array(b, 't', 'e', 's');
+		Assert.equal(CUnistd.readAll(fd, b), 1);
+		Assert.array(b, 't', 'e', 's');
+		Assert.equal(CUnistd.readAll(fd, b), 0);
 	}
 
 	@Test
@@ -101,8 +95,8 @@ public class CUnistdTest {
 		fd = open("file1", 0);
 		m = new Memory(3);
 		byte[] b = new byte[5];
-		assertEquals(CUnistd.readAll(fd, m, b), 4);
-		assertArray(b, 't', 'e', 's', 't', 0);
+		Assert.equal(CUnistd.readAll(fd, m, b), 4);
+		Assert.array(b, 't', 'e', 's', 't', 0);
 	}
 
 	@Test
@@ -111,17 +105,17 @@ public class CUnistdTest {
 		fd = open("file1", 0);
 		m = new Memory(4);
 		byte[] b = new byte[5];
-		assertEquals(CUnistd.readAll(fd, m, 3, b), 4);
-		assertArray(b, 't', 'e', 's', 't', 0);
+		Assert.equal(CUnistd.readAll(fd, m, 3, b), 4);
+		Assert.array(b, 't', 'e', 's', 't', 0);
 	}
 
 	@Test
 	public void testReadAllBytesFromFileDescriptor() throws IOException {
 		initFile();
 		fd = open("file1", 0);
-		assertArray(CUnistd.readAllBytes(fd, 0));
-		assertArray(CUnistd.readAllBytes(fd, 2), 't', 'e');
-		assertArray(CUnistd.readAllBytes(fd, 3), 's', 't');
+		Assert.array(CUnistd.readAllBytes(fd, 0));
+		Assert.array(CUnistd.readAllBytes(fd, 2), 't', 'e');
+		Assert.array(CUnistd.readAllBytes(fd, 3), 's', 't');
 	}
 
 	@Test
@@ -129,7 +123,7 @@ public class CUnistdTest {
 		var lib = ref.init();
 		int fd = CFcntl.open("test", 0);
 		lib.read.error.setFrom(ErrNo.EAGAIN::lastError);
-		assertEquals(CUnistd.read(fd, new byte[3]), 0);
+		Assert.equal(CUnistd.read(fd, new byte[3]), 0);
 	}
 
 	@Test
@@ -138,7 +132,7 @@ public class CUnistdTest {
 		fd = open("file1", 0);
 		m = new Memory(4);
 		byte[] b = new byte[3];
-		assertEquals(CUnistd.read(fd, m, b), 3);
+		Assert.equal(CUnistd.read(fd, m, b), 3);
 	}
 
 	@Test
@@ -160,9 +154,9 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
 		m = JnaUtil.mallocBytes("test".getBytes());
-		assertEquals(CUnistd.write(fd, Pointer.NULL, 0), 0);
-		assertEquals(CUnistd.write(fd, m, 4), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.write(fd, Pointer.NULL, 0), 0);
+		Assert.equal(CUnistd.write(fd, m, 4), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -175,8 +169,8 @@ public class CUnistdTest {
 	public void testWriteBytesToFileDescriptor() throws IOException {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		assertEquals(CUnistd.write(fd, 't', 'e', 's', 't'), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.write(fd, 't', 'e', 's', 't'), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -184,8 +178,8 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
 		m = new Memory(5);
-		assertEquals(CUnistd.write(fd, m, "test".getBytes()), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.write(fd, m, "test".getBytes()), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -193,15 +187,15 @@ public class CUnistdTest {
 		var lib = ref.init();
 		fd = CFcntl.open("test", 0);
 		lib.write.error.setFrom(ErrNo.EAGAIN::lastError);
-		assertEquals(CUnistd.write(fd, new byte[3]), 0);
+		Assert.equal(CUnistd.write(fd, new byte[3]), 0);
 	}
 
 	@Test
 	public void testWriteAllBytesToFileDescriptor() throws IOException {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
-		assertEquals(CUnistd.writeAll(fd, 't', 'e', 's', 't'), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.writeAll(fd, 't', 'e', 's', 't'), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -209,8 +203,8 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
 		m = new Memory(3);
-		assertEquals(CUnistd.writeAll(fd, m, "test".getBytes()), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.writeAll(fd, m, "test".getBytes()), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -218,8 +212,8 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file2", Open.encode(CREAT, RDWR), 0666);
 		m = new Memory(3);
-		assertEquals(CUnistd.writeAll(fd, m, 2, "test".getBytes()), 4);
-		assertFile(helper.path("file2"), "test".getBytes());
+		Assert.equal(CUnistd.writeAll(fd, m, 2, "test".getBytes()), 4);
+		Assert.file(helper.path("file2"), "test".getBytes());
 	}
 
 	@Test
@@ -228,17 +222,17 @@ public class CUnistdTest {
 		fd = CFcntl.open("test", 0);
 		m = new Memory(3);
 		lib.write.autoResponses(0);
-		assertEquals(CUnistd.writeAll(fd, m, 2), 0);
-		assertEquals(CUnistd.writeAll(fd, m, new byte[4]), 0);
+		Assert.equal(CUnistd.writeAll(fd, m, 2), 0);
+		Assert.equal(CUnistd.writeAll(fd, m, new byte[4]), 0);
 	}
 
 	@Test
 	public void testSeekFile() throws IOException {
 		initFile();
 		fd = open("file1", 0);
-		assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 0);
-		assertEquals(CUnistd.lseek(fd, 0, Seek.END.value), 4);
-		assertEquals(CUnistd.lseek(fd, 0, Seek.CUR.value), 4);
+		Assert.equal(CUnistd.lseek(fd, 0, Seek.CUR.value), 0);
+		Assert.equal(CUnistd.lseek(fd, 0, Seek.END.value), 4);
+		Assert.equal(CUnistd.lseek(fd, 0, Seek.CUR.value), 4);
 		Assert.thrown(() -> CUnistd.lseek(fd, -1, Seek.SET.value));
 	}
 
@@ -247,7 +241,7 @@ public class CUnistdTest {
 		initFile();
 		fd = open("file1", 0);
 		CUnistd.position(fd, 1);
-		assertArray(CUnistd.readAllBytes(fd, CUnistd.size(fd)), 'e', 's', 't');
+		Assert.array(CUnistd.readAllBytes(fd, CUnistd.size(fd)), 'e', 's', 't');
 	}
 
 	@Test

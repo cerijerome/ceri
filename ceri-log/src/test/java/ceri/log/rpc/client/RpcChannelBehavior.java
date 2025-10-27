@@ -1,33 +1,31 @@
 package ceri.log.rpc.client;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.ErrorGen.INX;
 import static ceri.common.test.TestUtil.typedProperties;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class RpcChannelBehavior {
 
 	@Test
 	public void shouldDetermineIfEnabled() {
-		assertFalse(RpcChannel.Config.NULL.enabled());
-		assertFalse(new RpcChannel.Config("localhost", null).enabled());
-		assertTrue(new RpcChannel.Config("host", 12345).enabled());
+		Assert.no(RpcChannel.Config.NULL.enabled());
+		Assert.no(new RpcChannel.Config("localhost", null).enabled());
+		Assert.yes(new RpcChannel.Config("host", 12345).enabled());
 	}
 
 	@Test
 	public void shouldBuildFromProperties() {
 		var config =
 			new RpcChannel.Properties(typedProperties("rpc-client"), "rpc-client").config();
-		assertEquals(config.host(), "127.0.0.1");
-		assertEquals(config.port(), 12345);
+		Assert.equal(config.host(), "127.0.0.1");
+		Assert.equal(config.port(), 12345);
 	}
 
 	@Test
 	public void shouldCreateFromConfig() {
 		try (var channel = RpcChannel.of(RpcChannel.Config.localhost(12345))) {
-			assertTrue(channel.toString().contains("localhost:12345"));
+			Assert.yes(channel.toString().contains("localhost:12345"));
 		}
 	}
 

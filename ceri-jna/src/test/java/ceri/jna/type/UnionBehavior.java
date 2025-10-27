@@ -1,11 +1,9 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.Test;
 import com.sun.jna.Pointer;
+import ceri.common.test.Assert;
 import ceri.jna.type.Struct.Fields;
 
 public class UnionBehavior {
@@ -33,7 +31,7 @@ public class UnionBehavior {
 
 	@Test
 	public void testTypeForNullUnion() {
-		assertEquals(Union.type(null, "x"), null);
+		Assert.equal(Union.type(null, "x"), null);
 	}
 
 	@Test
@@ -41,23 +39,23 @@ public class UnionBehavior {
 		var t0 = new TestUnion(123, mem(5, 6, 7).m, -1, -2, -3, -4);
 		var p = Struct.write(Union.type(t0, "i")).getPointer();
 		var t = Struct.read(new TestUnion(p));
-		assertEquals(t.i, 123);
+		Assert.equal(t.i, 123);
 	}
 
 	@Test
 	public void testReadTypedField() {
 		var t = new TestUnion(123, mem(5, 6, 7).m, -1, -2, -3, -4);
 		t.writeField("i");
-		assertEquals(Struct.readField(null, "i"), null);
-		assertEquals(Struct.readField(t, "i"), 123);
+		Assert.equal(Struct.readField(null, "i"), null);
+		Assert.equal(Struct.readField(t, "i"), 123);
 		t.writeField("bb");
-		assertArray(Struct.<byte[]>readField(t, "bb"), -1, -2, -3, -4, 0, 0, 0, 0, 0);
+		Assert.array(Struct.<byte[]>readField(t, "bb"), -1, -2, -3, -4, 0, 0, 0, 0, 0);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		String s = new TestUnion(123, mem(5, 6, 7).m, -1, -2, -3).toString();
-		assertFind(s, "(?s)TestUnion.*" //
+		Assert.find(s, "(?s)TestUnion.*" //
 			+ "\\Q+00: int i = 123\\E.*" //
 			+ "\\Q+00: Pointer p = \\E.*" //
 			+ "\\Q+00: byte[] bb = [\\E.*" //

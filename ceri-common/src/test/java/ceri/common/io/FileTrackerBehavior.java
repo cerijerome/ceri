@@ -1,11 +1,10 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertExists;
 import java.io.IOException;
 import java.nio.file.Files;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.FileTestHelper;
 import ceri.common.test.TestUtil;
@@ -22,11 +21,11 @@ public class FileTrackerBehavior {
 	public void shouldCreateDirectories() throws IOException {
 		initFiles();
 		var tracker = new FileTracker();
-		assertExists(helper.path("x"), false);
+		Assert.exists(helper.path("x"), false);
 		tracker.dir(helper.path("x/x/x"));
-		assertExists(helper.path("x/x/x"), true);
+		Assert.exists(helper.path("x/x/x"), true);
 		tracker.dir(helper.path("x/y/z"));
-		assertExists(helper.path("x/y/z"), true);
+		Assert.exists(helper.path("x/y/z"), true);
 		Paths.deleteAll(helper.path("x"));
 	}
 
@@ -34,13 +33,13 @@ public class FileTrackerBehavior {
 	public void shouldCreateFilePathButNotFile() throws IOException {
 		initFiles();
 		var tracker = new FileTracker();
-		assertExists(helper.path("x"), false);
+		Assert.exists(helper.path("x"), false);
 		tracker.file(helper.path("x/x/x.txt"));
-		assertExists(helper.path("x/x"), true);
-		assertExists(helper.path("x/x/x.txt"), false);
+		Assert.exists(helper.path("x/x"), true);
+		Assert.exists(helper.path("x/x/x.txt"), false);
 		tracker.file(helper.path("x/y/z.txt"));
-		assertExists(helper.path("x/y"), true);
-		assertExists(helper.path("x/y/z.txt"), false);
+		Assert.exists(helper.path("x/y"), true);
+		Assert.exists(helper.path("x/y/z.txt"), false);
 		Paths.deleteAll(helper.path("x"));
 	}
 
@@ -49,18 +48,18 @@ public class FileTrackerBehavior {
 		initFiles();
 		var tracker = new FileTracker();
 		tracker.dir(helper.path("a/x/y/z"));
-		assertExists(helper.path("a/x/y/z"), true);
+		Assert.exists(helper.path("a/x/y/z"), true);
 		tracker.dir(helper.path("x/y/z"));
-		assertExists(helper.path("x/y/z"), true);
-		assertExists(helper.path("a/a/a.txt"), true);
+		Assert.exists(helper.path("x/y/z"), true);
+		Assert.exists(helper.path("a/a/a.txt"), true);
 		tracker.dir(helper.path("a/a"));
-		assertExists(helper.path("b/b.txt"), true);
+		Assert.exists(helper.path("b/b.txt"), true);
 		tracker.file(helper.path("b/b.txt"));
 		tracker.delete();
-		assertExists(helper.path("a/x"), false);
-		assertExists(helper.path("x"), false);
-		assertExists(helper.path("a/a/a.txt"), true);
-		assertExists(helper.path("b/b.txt"), true);
+		Assert.exists(helper.path("a/x"), false);
+		Assert.exists(helper.path("x"), false);
+		Assert.exists(helper.path("a/a/a.txt"), true);
+		Assert.exists(helper.path("b/b.txt"), true);
 	}
 
 	@Test
@@ -71,8 +70,8 @@ public class FileTrackerBehavior {
 		Files.delete(helper.path("z/z"));
 		var captor = Captor.ofBi();
 		tracker.delete(captor::accept);
-		assertEquals(captor.first.values.size(), 1);
-		assertEquals(captor.second.values.size(), 1);
+		Assert.equal(captor.first.values.size(), 1);
+		Assert.equal(captor.second.values.size(), 1);
 	}
 
 	private void initFiles() throws IOException {

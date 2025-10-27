@@ -1,6 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
@@ -30,13 +29,13 @@ public class COutputStreamBehavior {
 		lib.write.autoResponses(1);
 		out.write(0xabcd);
 		lib.write.assertAuto(WriteArgs.of(fd, 0xcd));
-		assertEquals(lib.write.calls(), 1);
+		Assert.equal(lib.write.calls(), 1);
 	}
 
 	@Test
 	public void shouldContinueWithIncompleteWrites() throws IOException {
 		var lib = initOut();
-		assertEquals(out.bufferSize(), 3);
+		Assert.equal(out.bufferSize(), 3);
 		lib.write.autoResponses(1, 2, 1);
 		out.write(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		lib.write.assertValues( //
@@ -59,7 +58,7 @@ public class COutputStreamBehavior {
 	public void shouldProvideQueueSize() throws IOException {
 		var lib = initOut();
 		lib.ioctl.autoResponse(args -> args.<IntByReference>arg(0).setValue(33), 0);
-		assertEquals(out.queued(), 33);
+		Assert.equal(out.queued(), 33);
 	}
 
 	@Test

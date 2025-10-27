@@ -1,9 +1,9 @@
 package ceri.serial.ftdi.util;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.serial.ftdi.FtdiBitMode;
 import ceri.serial.ftdi.FtdiFlowControl;
@@ -36,7 +36,7 @@ public class FtdiConfigBehavior {
 			.params(FtdiLineParams.builder().parity(LibFtdi.ftdi_parity_type.SPACE).build())
 			.build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 
 	@Test

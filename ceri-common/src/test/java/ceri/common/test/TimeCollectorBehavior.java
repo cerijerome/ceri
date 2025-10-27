@@ -1,6 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertFind;
 import org.junit.Test;
 
 public class TimeCollectorBehavior {
@@ -14,9 +13,9 @@ public class TimeCollectorBehavior {
 			tc.start();
 			tc.end();
 			tc.report(false);
-			assertFind(sys.out, "(?s)total.*mean.*median.*range");
+			Assert.find(sys.out, "(?s)total.*mean.*median.*range");
 			tc.report(true);
-			assertFind(sys.out, "(?s)total.*mean.*median.*range.*\\[.*\\]");
+			Assert.find(sys.out, "(?s)total.*mean.*median.*range.*\\[.*\\]");
 		}
 	}
 

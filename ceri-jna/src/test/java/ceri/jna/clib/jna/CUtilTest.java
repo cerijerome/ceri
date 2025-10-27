@@ -1,14 +1,11 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOptional;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCException;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
@@ -48,7 +45,7 @@ public class CUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CUtil.class);
+		Assert.privateConstructor(CUtil.class);
 	}
 
 	@Test
@@ -57,27 +54,28 @@ public class CUtilTest {
 		int fd = CFcntl.open("test", 0);
 		var s = new S();
 		ref.lib().ioctl.autoResponse(a -> handleIoc(a, 100, 0));
-		assertEquals(CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN).a, 100);
+		Assert.equal(CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN).a, 100);
 		ref.lib().ioctl.autoResponse(a -> handleIoc(a, 100, CErrNo.EAGAIN));
-		assertEquals(CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN), null);
+		Assert.equal(CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN), null);
 		ref.lib().ioctl.autoResponse(a -> handleIoc(a, 100, CErrNo.EPERM));
 		assertCException(CErrNo.EPERM, () -> CUtil.ioctlRead(fd, Ioc.A, s, CErrNo.EAGAIN));
 	}
 
 	@Test
 	public void testOptionalGet() throws CException {
-		assertOptional(CUtil.optionalGet(() -> "test", CErrNo.EAGAIN), "test");
-		assertOptional(CUtil.optionalGet(() -> throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), null);
+		Assert.optional(CUtil.optionalGet(() -> "test", CErrNo.EAGAIN), "test");
+		Assert.optional(
+			CUtil.optionalGet(() -> Assert.throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), null);
 		assertCException(CErrNo.EPERM,
-			() -> CUtil.optionalGet(() -> throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
+			() -> CUtil.optionalGet(() -> Assert.throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
 	}
 
 	@Test
 	public void testRun() throws CException {
-		assertEquals(CUtil.run(() -> {}, CErrNo.EAGAIN), true);
-		assertEquals(CUtil.run(() -> throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), false);
+		Assert.equal(CUtil.run(() -> {}, CErrNo.EAGAIN), true);
+		Assert.equal(CUtil.run(() -> Assert.throwIt(ErrNo.EAGAIN.error()), CErrNo.EAGAIN), false);
 		assertCException(CErrNo.EPERM,
-			() -> CUtil.run(() -> throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
+			() -> CUtil.run(() -> Assert.throwIt(ErrNo.EPERM.error()), CErrNo.EAGAIN));
 	}
 
 	@Test
@@ -93,10 +91,10 @@ public class CUtilTest {
 	public void testTty() {
 		var lib = ref.init();
 		lib.isatty.autoResponses(0, 1);
-		assertEquals(CUtil.tty(), false);
-		assertEquals(CUtil.tty(), true);
+		Assert.equal(CUtil.tty(), false);
+		Assert.equal(CUtil.tty(), true);
 		lib.isatty.error.setFrom(ErrNo.EBADFD::lastError);
-		assertEquals(CUtil.tty(), false);
+		Assert.equal(CUtil.tty(), false);
 	}
 
 	private static int handleIoc(CtlArgs args, int a, int errNo) {

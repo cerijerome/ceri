@@ -1,8 +1,5 @@
 package ceri.x10.cm17a;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.io.DeviceMode;
@@ -21,21 +18,21 @@ public class Cm17aContainerBehavior {
 
 	@Test
 	public void shouldDetermineContainerType() {
-		assertEquals(Cm17aContainer.Config.of("com").type(null, null), Cm17aContainer.Type.serial);
-		assertEquals(Cm17aContainer.Config.of("com").type(null, Serial.NULL),
+		Assert.equal(Cm17aContainer.Config.of("com").type(null, null), Cm17aContainer.Type.serial);
+		Assert.equal(Cm17aContainer.Config.of("com").type(null, Serial.NULL),
 			Cm17aContainer.Type.serialRef);
-		assertEquals(Cm17aContainer.Config.of("com").type(Cm17a.NULL, null),
+		Assert.equal(Cm17aContainer.Config.of("com").type(Cm17a.NULL, null),
 			Cm17aContainer.Type.cm17aRef);
-		assertEquals(Cm17aContainer.Config.builder().mode(DeviceMode.test).build().type(null, null),
+		Assert.equal(Cm17aContainer.Config.builder().mode(DeviceMode.test).build().type(null, null),
 			Cm17aContainer.Type.test);
-		assertEquals(
+		Assert.equal(
 			Cm17aContainer.Config.builder().mode(DeviceMode.disabled).build().type(null, null),
 			Cm17aContainer.Type.noOp);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertMatch(Cm17aContainer.Config.builder().id(777)
+		Assert.match(Cm17aContainer.Config.builder().id(777)
 			.serial(SelfHealingSerial.Config.of("com")).build().toString(),
 			".*\\b777\\b.*\\bcom\\b.*");
 	}
@@ -44,7 +41,7 @@ public class Cm17aContainerBehavior {
 	public void shouldSetDeviceConfig() {
 		var config = Cm17aContainer.Config.builder()
 			.device(Cm17aDevice.Config.builder().errorDelayMs(111).build()).build();
-		assertEquals(config.device.errorDelayMs, 111);
+		Assert.equal(config.device.errorDelayMs, 111);
 	}
 
 	@Test
@@ -69,14 +66,14 @@ public class Cm17aContainerBehavior {
 		try (var con =
 			Cm17aContainer.of(Cm17aContainer.Config.builder().mode(DeviceMode.disabled).build())) {
 			con.cm17a.command(Command.dim(House.A, 50, Unit._1));
-			assertFind(con, "noOp");
+			Assert.find(con, "noOp");
 		}
 	}
 
 	@Test
 	public void shouldCreateFromCm17a() throws IOException {
 		try (var cm17a = Cm17aEmulator.of(0); var con = Cm17aContainer.of(3, cm17a)) {
-			assertEquals(con.id, 3);
+			Assert.equal(con.id, 3);
 			con.cm17a.command(Command.dim(House.A, 50, Unit._1));
 		}
 	}

@@ -1,8 +1,8 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestTcpSocket;
 
 public class ReplaceableTcpSocketBehavior {
@@ -14,7 +14,7 @@ public class ReplaceableTcpSocketBehavior {
 		var r = ReplaceableTcpSocket.of();
 		r.set(s);
 		r.option(TcpSocketOption.soReuseAddr, true);
-		assertEquals(r.option(TcpSocketOption.soReuseAddr), true);
+		Assert.equal(r.option(TcpSocketOption.soReuseAddr), true);
 	}
 
 }

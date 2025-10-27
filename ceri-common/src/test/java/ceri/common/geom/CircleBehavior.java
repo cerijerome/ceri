@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -13,12 +11,12 @@ public class CircleBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(c0, Circle.of(4));
-		assertNotEquals(c0, Circle.of(4.1));
+		Assert.notEqual(c0, Circle.of(4.1));
 	}
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Circle.of(0), Circle.ZERO);
+		Assert.equal(Circle.of(0), Circle.ZERO);
 	}
 
 	@Test
@@ -28,7 +26,7 @@ public class CircleBehavior {
 		GeomAssert.approx(c0.pointFromGradient(Double.NEGATIVE_INFINITY), 4, 0);
 		GeomAssert.approx(c0.pointFromGradient(1), -2.828, 2.828);
 		GeomAssert.approx(c0.pointFromGradient(-2), 3.578, 1.789);
-		assertEquals(Circle.ZERO.pointFromGradient(0), Point2d.ZERO);
+		Assert.equal(Circle.ZERO.pointFromGradient(0), Point2d.ZERO);
 	}
 
 	@Test
@@ -36,25 +34,25 @@ public class CircleBehavior {
 		Assert.approx(c0.gradientAtX(0), 0);
 		Assert.approx(c0.gradientAtX(2), -0.577);
 		Assert.approx(c0.gradientAtX(-2), 0.577);
-		assertEquals(c0.gradientAtX(-4), Double.POSITIVE_INFINITY);
-		assertEquals(c0.gradientAtX(4), Double.NEGATIVE_INFINITY);
-		assertEquals(c0.gradientAtX(5), Double.NaN);
-		assertEquals(c0.gradientAtX(-5), Double.NaN);
-		assertEquals(Circle.ZERO.gradientAtX(0), Double.NaN);
-		assertEquals(Circle.ZERO.gradientAtX(1), Double.NaN);
+		Assert.equal(c0.gradientAtX(-4), Double.POSITIVE_INFINITY);
+		Assert.equal(c0.gradientAtX(4), Double.NEGATIVE_INFINITY);
+		Assert.equal(c0.gradientAtX(5), Double.NaN);
+		Assert.equal(c0.gradientAtX(-5), Double.NaN);
+		Assert.equal(Circle.ZERO.gradientAtX(0), Double.NaN);
+		Assert.equal(Circle.ZERO.gradientAtX(1), Double.NaN);
 	}
 
 	@Test
 	public void shouldCalculateGradientAtY() {
-		assertEquals(c0.gradientAtY(0), Double.NEGATIVE_INFINITY);
+		Assert.equal(c0.gradientAtY(0), Double.NEGATIVE_INFINITY);
 		Assert.approx(c0.gradientAtY(2), -1.732);
 		Assert.approx(c0.gradientAtY(-2), 1.732);
 		Assert.approx(c0.gradientAtY(-4), 0);
 		Assert.approx(c0.gradientAtY(4), 0);
-		assertEquals(c0.gradientAtY(5), Double.NaN);
-		assertEquals(c0.gradientAtY(-5), Double.NaN);
-		assertEquals(Circle.ZERO.gradientAtY(0), Double.NaN);
-		assertEquals(Circle.ZERO.gradientAtY(1), Double.NaN);
+		Assert.equal(c0.gradientAtY(5), Double.NaN);
+		Assert.equal(c0.gradientAtY(-5), Double.NaN);
+		Assert.equal(Circle.ZERO.gradientAtY(0), Double.NaN);
+		Assert.equal(Circle.ZERO.gradientAtY(1), Double.NaN);
 	}
 
 	@Test
@@ -65,10 +63,10 @@ public class CircleBehavior {
 		Assert.approx(c0.xFromY(-0.0), 4);
 		Assert.approx(c0.xFromY(2), 3.464);
 		Assert.approx(c0.xFromY(3.464), 2);
-		assertEquals(c0.xFromY(5), Double.NaN);
-		assertEquals(c0.xFromY(-5), Double.NaN);
-		assertEquals(Circle.ZERO.xFromY(0), 0.0);
-		assertEquals(Circle.ZERO.xFromY(1), Double.NaN);
+		Assert.equal(c0.xFromY(5), Double.NaN);
+		Assert.equal(c0.xFromY(-5), Double.NaN);
+		Assert.equal(Circle.ZERO.xFromY(0), 0.0);
+		Assert.equal(Circle.ZERO.xFromY(1), Double.NaN);
 	}
 
 	@Test
@@ -79,18 +77,18 @@ public class CircleBehavior {
 		Assert.approx(c0.yFromX(-0.0), 4);
 		Assert.approx(c0.yFromX(2), 3.464);
 		Assert.approx(c0.yFromX(3.464), 2);
-		assertEquals(c0.yFromX(5), Double.NaN);
-		assertEquals(c0.yFromX(-5), Double.NaN);
-		assertEquals(Circle.ZERO.yFromX(0), 0.0);
-		assertEquals(Circle.ZERO.yFromX(1), Double.NaN);
+		Assert.equal(c0.yFromX(5), Double.NaN);
+		Assert.equal(c0.yFromX(-5), Double.NaN);
+		Assert.equal(Circle.ZERO.yFromX(0), 0.0);
+		Assert.equal(Circle.ZERO.yFromX(1), Double.NaN);
 	}
 
 	@Test
 	public void shouldCalculateRadiusFromArea() {
 		Assert.approx(Circle.radiusFromArea(50.265), 4);
 		Assert.approx(Circle.radiusFromArea(3.142), 1);
-		assertEquals(Circle.radiusFromArea(0), 0.0);
-		assertEquals(Circle.radiusFromArea(-1), Double.NaN);
+		Assert.equal(Circle.radiusFromArea(0), 0.0);
+		Assert.equal(Circle.radiusFromArea(-1), Double.NaN);
 	}
 
 	@Test

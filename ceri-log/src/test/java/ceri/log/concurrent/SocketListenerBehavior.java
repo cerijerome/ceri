@@ -1,6 +1,5 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -10,6 +9,7 @@ import org.junit.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.data.ByteProvider;
+import ceri.common.test.Assert;
 
 public class SocketListenerBehavior {
 
@@ -19,7 +19,7 @@ public class SocketListenerBehavior {
 		try (SocketListener sl = SocketListener.of(12345)) {
 			sl.listeners().listen(sync::signal);
 			send("test", sl.port());
-			assertEquals(sync.await().getAscii(0), "test");
+			Assert.equal(sync.await().getAscii(0), "test");
 		}
 	}
 
@@ -40,7 +40,7 @@ public class SocketListenerBehavior {
 			s -> s.startsWith("test"))) {
 			send("Test1", sl.port());
 			send("test2", sl.port());
-			assertEquals(sync.await(), 1);
+			Assert.equal(sync.await(), 1);
 		}
 	}
 

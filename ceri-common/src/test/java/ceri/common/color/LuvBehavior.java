@@ -6,9 +6,6 @@ import static ceri.common.color.ColorTestUtil.assertRgb;
 import static ceri.common.color.ColorTestUtil.assertXyb;
 import static ceri.common.color.ColorTestUtil.assertXyz;
 import static ceri.common.color.Colors.color;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -25,19 +22,19 @@ public class LuvBehavior {
 		var ne2 = Luv.of(1.0, 0.5, 0.5, 0.3);
 		var ne3 = Luv.of(1.0, 0.5, 0.4, 0.4);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
 	public void shouldProvideLuvValues() {
-		assertApproxArray(Luv.of(0.8, 0.6, 0.4).luvValues(), 0.8, 0.6, 0.4);
-		assertApproxArray(Luv.of(0.6, 0.8, 0.6, 0.4).luvValues(), 0.8, 0.6, 0.4);
+		Assert.approxArray(Luv.of(0.8, 0.6, 0.4).luvValues(), 0.8, 0.6, 0.4);
+		Assert.approxArray(Luv.of(0.6, 0.8, 0.6, 0.4).luvValues(), 0.8, 0.6, 0.4);
 	}
 
 	@Test
 	public void shouldDeterminePresenceOfAlpha() {
-		assertEquals(Luv.of(0.5, 0.4, 0.2).hasAlpha(), false);
-		assertEquals(Luv.of(0.5, 1, 0.5, 0).hasAlpha(), true);
+		Assert.equal(Luv.of(0.5, 0.4, 0.2).hasAlpha(), false);
+		Assert.equal(Luv.of(0.5, 1, 0.5, 0).hasAlpha(), true);
 	}
 
 	@Test
@@ -76,8 +73,8 @@ public class LuvBehavior {
 
 	@Test
 	public void shouldConvertToArgbWithRef() {
-		assertEquals(Luv.Ref.CIE_D65.argb(Luv.of(0, 0, 0)), 0xff000000);
-		assertEquals(Luv.Ref.CIE_D65.argb(Luv.of(0.21, -0.108, -0.277)), 0xff123456);
+		Assert.equal(Luv.Ref.CIE_D65.argb(Luv.of(0, 0, 0)), 0xff000000);
+		Assert.equal(Luv.Ref.CIE_D65.argb(Luv.of(0.21, -0.108, -0.277)), 0xff123456);
 	}
 
 	@Test

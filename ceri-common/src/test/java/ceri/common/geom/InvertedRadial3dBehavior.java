@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NaN;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -16,14 +14,14 @@ public class InvertedRadial3dBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(i0, InvertedRadial3d.of(Cone.of(1, 4)));
-		assertNotEquals(i0, InvertedRadial3d.of(Cone.of(1.1, 4)));
-		assertNotEquals(i0, InvertedRadial3d.of(Cone.of(1, 3.9)));
+		Assert.notEqual(i0, InvertedRadial3d.of(Cone.of(1.1, 4)));
+		Assert.notEqual(i0, InvertedRadial3d.of(Cone.of(1, 3.9)));
 	}
 
 	@Test
 	public void shouldExposeWrappedRadial3d() {
-		assertEquals(i0.wrapped(), c0);
-		assertEquals(i1.wrapped(), s0);
+		Assert.equal(i0.wrapped(), c0);
+		Assert.equal(i1.wrapped(), s0);
 	}
 
 	@Test

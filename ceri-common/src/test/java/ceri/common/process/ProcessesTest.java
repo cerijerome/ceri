@@ -1,19 +1,16 @@
 package ceri.common.process;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestProcess;
 
 public class ProcessesTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Processes.class);
+		Assert.privateConstructor(Processes.class);
 	}
 
 	@SuppressWarnings("resource")
@@ -21,31 +18,31 @@ public class ProcessesTest {
 	public void testNullProcess() throws InterruptedException, IOException {
 		var p = Processes.NULL;
 		p.destroy();
-		assertEquals(p.exitValue(), 0);
-		assertEquals(p.waitFor(), 0);
-		assertTrue(p.waitFor(1, TimeUnit.MILLISECONDS));
-		assertArray(p.getInputStream().readAllBytes());
-		assertArray(p.getErrorStream().readAllBytes());
+		Assert.equal(p.exitValue(), 0);
+		Assert.equal(p.waitFor(), 0);
+		Assert.yes(p.waitFor(1, TimeUnit.MILLISECONDS));
+		Assert.array(p.getInputStream().readAllBytes());
+		Assert.array(p.getErrorStream().readAllBytes());
 		p.getOutputStream().write(new byte[16]);
 	}
 	
 	@Test
 	public void testStdOut() throws IOException {
 		try (var process = TestProcess.of("test", null, 0)) {
-			assertEquals(Processes.stdOut(process), "test");
+			Assert.equal(Processes.stdOut(process), "test");
 		}
 	}
 
 	@Test
 	public void testStdErr() throws IOException {
 		try (var process = TestProcess.of(null, "test", 0)) {
-			assertEquals(Processes.stdErr(process), "test");
+			Assert.equal(Processes.stdErr(process), "test");
 		}
 	}
 
 	@Test
 	public void testToString() {
 		var b = new ProcessBuilder("cmd1", "cmd 2", "cmd # 3");
-		assertEquals(Processes.toString(b), "cmd1 \"cmd 2\" \"cmd # 3\"");
+		Assert.equal(Processes.toString(b), "cmd1 \"cmd 2\" \"cmd # 3\"");
 	}
 }

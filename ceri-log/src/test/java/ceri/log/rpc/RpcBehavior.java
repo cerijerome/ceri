@@ -1,11 +1,11 @@
 package ceri.log.rpc;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import ceri.common.concurrent.ValueCondition;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class RpcBehavior {
@@ -30,11 +30,11 @@ public class RpcBehavior {
 		try (var _ = rpc.client0.listen(i -> sync.signal(i))) {
 			rpc.service.waitForClients(1);
 			rpc.service.notify(1);
-			assertEquals(sync.await(), 1);
+			Assert.equal(sync.await(), 1);
 			rpc.service.notify(2);
-			assertEquals(sync.await(), 2);
+			Assert.equal(sync.await(), 2);
 			rpc.service.notify(3);
-			assertEquals(sync.await(), 3);
+			Assert.equal(sync.await(), 3);
 		}
 		rpc.service.waitForClients(0);
 	}

@@ -1,169 +1,165 @@
 package ceri.common.stream;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertIterator;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.fail;
 import java.util.List;
 import java.util.PrimitiveIterator;
 import org.junit.Test;
 import ceri.common.collect.Iterables;
 import ceri.common.collect.Iterators;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class DoubleStreamBehavior {
 
 	@Test
 	public void testOf() throws Exception {
-		assertEquals(DoubleStream.of((double[]) null).isEmpty(), true);
-		assertEquals(DoubleStream.of().isEmpty(), true);
-		assertStream(DoubleStream.of(1, 2, 3), 1, 2, 3);
+		Assert.equal(DoubleStream.of((double[]) null).isEmpty(), true);
+		Assert.equal(DoubleStream.of().isEmpty(), true);
+		Assert.stream(DoubleStream.of(1, 2, 3), 1, 2, 3);
 	}
 
 	@Test
 	public void testSegment() throws Exception {
-		assertStream(Streams.segment(0));
-		assertStream(Streams.segment(1), 0.0);
-		assertStream(Streams.segment(2), 0.0, 1.0);
-		assertStream(Streams.segment(3), 0.0, 0.5, 1.0);
+		Assert.stream(Streams.segment(0));
+		Assert.stream(Streams.segment(1), 0.0);
+		Assert.stream(Streams.segment(2), 0.0, 1.0);
+		Assert.stream(Streams.segment(3), 0.0, 0.5, 1.0);
 	}
 
 	@Test
 	public void testFromIterable() {
-		assertStream(DoubleStream.from((List<Number>) null));
-		assertStream(DoubleStream.from(Iterables.ofNull()));
-		assertStream(DoubleStream.from(List.of(-1, 0, 1)), -1.0, 0.0, 1.0);
+		Assert.stream(DoubleStream.from((List<Number>) null));
+		Assert.stream(DoubleStream.from(Iterables.ofNull()));
+		Assert.stream(DoubleStream.from(List.of(-1, 0, 1)), -1.0, 0.0, 1.0);
 	}
 
 	@Test
 	public void testFromIterator() {
-		assertStream(DoubleStream.from((PrimitiveIterator.OfDouble) null));
-		assertStream(DoubleStream.from(Iterators.nullDouble));
-		assertStream(DoubleStream.from(java.util.stream.DoubleStream.of(-1, 0, 1).iterator()), -1.0,
+		Assert.stream(DoubleStream.from((PrimitiveIterator.OfDouble) null));
+		Assert.stream(DoubleStream.from(Iterators.nullDouble));
+		Assert.stream(DoubleStream.from(java.util.stream.DoubleStream.of(-1, 0, 1).iterator()), -1.0,
 			0.0, 1.0);
 	}
 
 	@Test
 	public void shouldFilterElements() {
-		assertStream(testStream().filter(null), -1, 0, 1, 0);
-		assertStream(testStream().filter(i -> i != 0), -1, 1);
+		Assert.stream(testStream().filter(null), -1, 0, 1, 0);
+		Assert.stream(testStream().filter(i -> i != 0), -1, 1);
 	}
 
 	@Test
 	public void shouldMatchAny() {
-		assertEquals(testStream().anyMatch(null), true);
-		assertEquals(testStream().anyMatch(i -> i > 1), false);
-		assertEquals(testStream().anyMatch(i -> i > 0), true);
+		Assert.equal(testStream().anyMatch(null), true);
+		Assert.equal(testStream().anyMatch(i -> i > 1), false);
+		Assert.equal(testStream().anyMatch(i -> i > 0), true);
 	}
 
 	@Test
 	public void shouldMatchAll() {
-		assertEquals(testStream().allMatch(null), true);
-		assertEquals(testStream().allMatch(i -> i > -1), false);
-		assertEquals(testStream().allMatch(i -> i >= -1), true);
+		Assert.equal(testStream().allMatch(null), true);
+		Assert.equal(testStream().allMatch(i -> i > -1), false);
+		Assert.equal(testStream().allMatch(i -> i >= -1), true);
 	}
 
 	@Test
 	public void shouldMatchNone() {
-		assertEquals(testStream().noneMatch(null), false);
-		assertEquals(testStream().noneMatch(i -> i > 0), false);
-		assertEquals(testStream().noneMatch(i -> i > 1), true);
+		Assert.equal(testStream().noneMatch(null), false);
+		Assert.equal(testStream().noneMatch(i -> i > 0), false);
+		Assert.equal(testStream().noneMatch(i -> i > 1), true);
 	}
 
 	@Test
 	public void shouldBoxElements() throws Exception {
-		assertStream(DoubleStream.empty().boxed());
-		assertStream(testStream().boxed().map(String::valueOf), "-1.0", "0.0", "1.0", "0.0");
+		Assert.stream(DoubleStream.empty().boxed());
+		Assert.stream(testStream().boxed().map(String::valueOf), "-1.0", "0.0", "1.0", "0.0");
 	}
 
 	@Test
 	public void shouldMapElements() throws Exception {
-		assertStream(DoubleStream.empty().map(null));
-		assertStream(DoubleStream.empty().map(_ -> fail()));
-		assertStream(testStream().map(null));
-		assertStream(testStream().map(i -> i + 1), 0, 1, 2, 1);
+		Assert.stream(DoubleStream.empty().map(null));
+		Assert.stream(DoubleStream.empty().map(_ -> Assert.fail()));
+		Assert.stream(testStream().map(null));
+		Assert.stream(testStream().map(i -> i + 1), 0, 1, 2, 1);
 	}
 
 	@Test
 	public void shouldMapElementsToInt() throws Exception {
-		assertStream(DoubleStream.empty().mapToInt(null));
-		assertStream(testStream().mapToInt(d -> (int) d), -1, 0, 1, 0);
+		Assert.stream(DoubleStream.empty().mapToInt(null));
+		Assert.stream(testStream().mapToInt(d -> (int) d), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldMapElementsToLong() throws Exception {
-		assertStream(DoubleStream.empty().mapToLong(null));
-		assertStream(testStream().mapToLong(d -> (long) d), -1, 0, 1, 0);
+		Assert.stream(DoubleStream.empty().mapToLong(null));
+		Assert.stream(testStream().mapToLong(d -> (long) d), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldFlatMapElements() throws Exception {
-		assertStream(DoubleStream.empty().flatMap(null));
-		assertStream(DoubleStream.empty().flatMap(_ -> fail()));
-		assertStream(testStream().flatMap(null));
-		assertStream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2,
+		Assert.stream(DoubleStream.empty().flatMap(null));
+		Assert.stream(DoubleStream.empty().flatMap(_ -> Assert.fail()));
+		Assert.stream(testStream().flatMap(null));
+		Assert.stream(testStream().flatMap(i -> DoubleStream.of(i - 1, i + 1)), -2, 0, -1, 1, 0, 2,
 			-1, 1);
 	}
 
 	@Test
 	public void shouldLimitElements() throws Exception {
-		assertStream(DoubleStream.empty().limit(3));
-		assertStream(testStream().limit(0));
-		assertStream(testStream().limit(2), -1, 0);
-		assertStream(testStream().limit(5), -1, 0, 1, 0);
+		Assert.stream(DoubleStream.empty().limit(3));
+		Assert.stream(testStream().limit(0));
+		Assert.stream(testStream().limit(2), -1, 0);
+		Assert.stream(testStream().limit(5), -1, 0, 1, 0);
 	}
 
 	@Test
 	public void shouldProvideDistinctElements() throws Exception {
-		assertStream(DoubleStream.empty().distinct());
-		assertStream(testStream().distinct(), -1, 0, 1);
+		Assert.stream(DoubleStream.empty().distinct());
+		Assert.stream(testStream().distinct(), -1, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideSortedElements() throws Exception {
-		assertStream(DoubleStream.empty().sorted());
-		assertStream(testStream().sorted(), -1, 0, 0, 1);
+		Assert.stream(DoubleStream.empty().sorted());
+		Assert.stream(testStream().sorted(), -1, 0, 0, 1);
 	}
 
 	@Test
 	public void shouldProvideNextElement() throws Exception {
-		assertEquals(DoubleStream.empty().next(), null);
-		assertEquals(DoubleStream.empty().next(3), 3.0);
+		Assert.equal(DoubleStream.empty().next(), null);
+		Assert.equal(DoubleStream.empty().next(3), 3.0);
 		var stream = testStream();
-		assertEquals(stream.next(3), -1.0);
-		assertEquals(stream.next(), 0.0);
-		assertEquals(stream.next(), 1.0);
-		assertEquals(stream.next(3), 0.0);
-		assertEquals(stream.next(), null);
-		assertEquals(stream.next(3), 3.0);
+		Assert.equal(stream.next(3), -1.0);
+		Assert.equal(stream.next(), 0.0);
+		Assert.equal(stream.next(), 1.0);
+		Assert.equal(stream.next(3), 0.0);
+		Assert.equal(stream.next(), null);
+		Assert.equal(stream.next(3), 3.0);
 	}
 
 	@Test
 	public void shouldSkipElements() {
-		assertStream(testStream().skip(2), 1, 0);
-		assertStream(testStream().skip(5));
+		Assert.stream(testStream().skip(2), 1, 0);
+		Assert.stream(testStream().skip(5));
 	}
 
 	@Test
 	public void shouldDetermineIfEmpty() throws Exception {
-		assertEquals(DoubleStream.empty().isEmpty(), true);
+		Assert.equal(DoubleStream.empty().isEmpty(), true);
 		var stream = DoubleStream.of(1);
-		assertEquals(stream.isEmpty(), false);
-		assertEquals(stream.isEmpty(), true);
-		assertEquals(stream.isEmpty(), true);
+		Assert.equal(stream.isEmpty(), false);
+		Assert.equal(stream.isEmpty(), true);
+		Assert.equal(stream.isEmpty(), true);
 	}
 
 	@Test
 	public void shouldDetermineCount() throws Exception {
-		assertEquals(DoubleStream.empty().count(), 0L);
-		assertEquals(testStream().count(), 4L);
+		Assert.equal(DoubleStream.empty().count(), 0L);
+		Assert.equal(testStream().count(), 4L);
 	}
 
 	@Test
 	public void shouldProvideIterator() throws Exception {
-		assertIterator(DoubleStream.empty().iterator());
-		assertIterator(testStream().iterator(), -1.0, 0.0, 1.0, 0.0);
+		Assert.iterator(DoubleStream.empty().iterator());
+		Assert.iterator(testStream().iterator(), -1.0, 0.0, 1.0, 0.0);
 	}
 
 	@Test
@@ -178,45 +174,45 @@ public class DoubleStreamBehavior {
 	@Test
 	public void shouldCollectElements() throws Exception {
 		DoubleStream.empty().collect(Captor::of, Captor::accept).verify();
-		assertEquals(testStream().collect(null), null);
-		assertEquals(testStream().collect(null, (_, _) -> {}), null);
-		assertEquals(testStream().collect(() -> null, (_, _) -> {}), null);
+		Assert.equal(testStream().collect(null), null);
+		Assert.equal(testStream().collect(null, (_, _) -> {}), null);
+		Assert.equal(testStream().collect(() -> null, (_, _) -> {}), null);
 		testStream().collect(Captor::of, Captor::accept).verify(-1.0, 0.0, 1.0, 0.0);
-		assertArray(testStream().collect(Collect.Doubles.sortedArray), -1, 0, 0, 1);
+		Assert.array(testStream().collect(Collect.Doubles.sortedArray), -1, 0, 0, 1);
 	}
 
 	@Test
 	public void shouldDetermineMin() throws Exception {
-		assertEquals(DoubleStream.empty().min(0), 0.0);
-		assertEquals(testStream().min(0), -1.0);
+		Assert.equal(DoubleStream.empty().min(0), 0.0);
+		Assert.equal(testStream().min(0), -1.0);
 	}
 
 	@Test
 	public void shouldDetermineMax() throws Exception {
-		assertEquals(DoubleStream.empty().max(0), 0.0);
-		assertEquals(testStream().max(0), 1.0);
+		Assert.equal(DoubleStream.empty().max(0), 0.0);
+		Assert.equal(testStream().max(0), 1.0);
 	}
 
 	@Test
 	public void shouldDetermineSum() {
-		assertEquals(testStream().sum(), 0.0);
-		assertEquals(testStream().skip(2).sum(), 1.0);
+		Assert.equal(testStream().sum(), 0.0);
+		Assert.equal(testStream().skip(2).sum(), 1.0);
 	}
 
 	@Test
 	public void shouldDetermineAverage() {
-		assertEquals(testStream().average(), 0.0);
-		assertEquals(testStream().skip(2).average(), 0.5);
+		Assert.equal(testStream().average(), 0.0);
+		Assert.equal(testStream().skip(2).average(), 0.5);
 	}
 
 	@Test
 	public void shouldReduceElements() throws Exception {
-		assertEquals(DoubleStream.empty().reduce((_, _) -> 0), null);
-		assertEquals(DoubleStream.empty().reduce((_, _) -> 0, 3), 3.0);
-		assertEquals(testStream().reduce(null), null);
-		assertEquals(testStream().reduce(null, 3), 3.0);
-		assertEquals(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
-		assertEquals(testStream().filter(i -> i > 1).reduce((_, _) -> 0, 3), 3.0);
+		Assert.equal(DoubleStream.empty().reduce((_, _) -> 0), null);
+		Assert.equal(DoubleStream.empty().reduce((_, _) -> 0, 3), 3.0);
+		Assert.equal(testStream().reduce(null), null);
+		Assert.equal(testStream().reduce(null, 3), 3.0);
+		Assert.equal(testStream().filter(i -> i > 1).reduce((_, _) -> 0), null);
+		Assert.equal(testStream().filter(i -> i > 1).reduce((_, _) -> 0, 3), 3.0);
 	}
 
 	private static DoubleStream<RuntimeException> testStream() {

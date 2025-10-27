@@ -1,7 +1,5 @@
 package ceri.x10.command;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -18,13 +16,13 @@ public class AddressBehavior {
 		var ne2 = Address.from("F13");
 		var ne3 = Address.from("E12");
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
 	public void shouldCreateFromString() {
-		assertEquals(Address.from("P16"), Address.of(House.P, Unit._16));
-		assertEquals(Address.from("O8"), Address.of(House.O, Unit._8));
+		Assert.equal(Address.from("P16"), Address.of(House.P, Unit._16));
+		Assert.equal(Address.from("O8"), Address.of(House.O, Unit._8));
 		Assert.thrown(() -> Address.from(null));
 		Assert.thrown(() -> Address.from(""));
 		Assert.thrown(() -> Address.from("A"));
@@ -36,10 +34,10 @@ public class AddressBehavior {
 
 	@Test
 	public void shouldCompareAddresses() {
-		assertEquals(Address.from("I10").compareTo(Address.from("I10")), 0);
-		assertEquals(Address.from("I10").compareTo(Address.from("I11")), -1);
-		assertEquals(Address.from("I10").compareTo(Address.from("J11")), -1);
-		assertEquals(Address.from("I10").compareTo(Address.from("I9")), 1);
-		assertEquals(Address.from("I10").compareTo(Address.from("H10")), 1);
+		Assert.equal(Address.from("I10").compareTo(Address.from("I10")), 0);
+		Assert.equal(Address.from("I10").compareTo(Address.from("I11")), -1);
+		Assert.equal(Address.from("I10").compareTo(Address.from("J11")), -1);
+		Assert.equal(Address.from("I10").compareTo(Address.from("I9")), 1);
+		Assert.equal(Address.from("I10").compareTo(Address.from("H10")), 1);
 	}
 }

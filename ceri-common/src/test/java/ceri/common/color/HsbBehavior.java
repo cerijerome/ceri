@@ -3,9 +3,6 @@ package ceri.common.color;
 import static ceri.common.color.ColorTestUtil.assertColor;
 import static ceri.common.color.ColorTestUtil.assertHsb;
 import static ceri.common.color.ColorTestUtil.assertRgb;
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertApproxArray;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -22,7 +19,7 @@ public class HsbBehavior {
 		var ne2 = Hsb.of(1.0, 0.5, 0.9, 0.6);
 		var ne3 = Hsb.of(1.0, 0.5, 0.8, 0.8);
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -38,13 +35,13 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldProvideHsbValues() {
-		assertApproxArray(Hsb.from(0).hsbValues(), 0, 0, 0);
-		assertApproxArray(Hsb.from(0x804020).hsbValues(), 0.056, 0.750, 0.502);
+		Assert.approxArray(Hsb.from(0).hsbValues(), 0, 0, 0);
+		Assert.approxArray(Hsb.from(0x804020).hsbValues(), 0.056, 0.750, 0.502);
 	}
 
 	@Test
 	public void shouldConvertToArgb() {
-		assertEquals(Hsb.from(0x804020).argb(), 0xff804020);
+		Assert.equal(Hsb.from(0x804020).argb(), 0xff804020);
 	}
 
 	@Test
@@ -59,19 +56,19 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldDetermineIfBlack() {
-		assertEquals(Hsb.of(0.0, 0.0, 0.0).isBlack(), true);
-		assertEquals(Hsb.of(0.5, 0.5, 0.0).isBlack(), true);
-		assertEquals(Hsb.of(0.5, 0.0, 0.5).isBlack(), false);
-		assertEquals(Hsb.of(1.0, 1.0, 1.0).isBlack(), false);
+		Assert.equal(Hsb.of(0.0, 0.0, 0.0).isBlack(), true);
+		Assert.equal(Hsb.of(0.5, 0.5, 0.0).isBlack(), true);
+		Assert.equal(Hsb.of(0.5, 0.0, 0.5).isBlack(), false);
+		Assert.equal(Hsb.of(1.0, 1.0, 1.0).isBlack(), false);
 	}
 
 	@Test
 	public void shouldDetermineIfWhiteBlack() {
-		assertEquals(Hsb.of(0.0, 0.0, 0.0).isWhite(), false);
-		assertEquals(Hsb.of(0.5, 0.5, 1.0).isWhite(), false);
-		assertEquals(Hsb.of(0.5, 0.0, 0.5).isWhite(), false);
-		assertEquals(Hsb.of(0.5, 0.0, 1.0).isWhite(), true);
-		assertEquals(Hsb.of(0.0, 0.0, 1.0).isWhite(), true);
+		Assert.equal(Hsb.of(0.0, 0.0, 0.0).isWhite(), false);
+		Assert.equal(Hsb.of(0.5, 0.5, 1.0).isWhite(), false);
+		Assert.equal(Hsb.of(0.5, 0.0, 0.5).isWhite(), false);
+		Assert.equal(Hsb.of(0.5, 0.0, 1.0).isWhite(), true);
+		Assert.equal(Hsb.of(0.0, 0.0, 1.0).isWhite(), true);
 	}
 
 	@Test
@@ -82,8 +79,8 @@ public class HsbBehavior {
 
 	@Test
 	public void shouldDeterminePresenceOfAlpha() {
-		assertEquals(Hsb.from(0xff123456).hasAlpha(), false);
-		assertEquals(Hsb.from(0xef123456).hasAlpha(), true);
+		Assert.equal(Hsb.from(0xff123456).hasAlpha(), false);
+		Assert.equal(Hsb.from(0xef123456).hasAlpha(), true);
 	}
 
 	@Test

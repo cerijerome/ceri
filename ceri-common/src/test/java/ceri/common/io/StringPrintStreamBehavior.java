@@ -1,8 +1,8 @@
 package ceri.common.io;
 
-import static ceri.common.test.Assert.assertEquals;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class StringPrintStreamBehavior {
 
@@ -18,7 +18,7 @@ public class StringPrintStreamBehavior {
 			out.print(-1);
 			out.print(1L);
 			out.print((Object) null);
-			assertEquals(out.toString(), "falseabcd0.1-0.1-11null");
+			Assert.equal(out.toString(), "falseabcd0.1-0.1-11null");
 		}
 	}
 
@@ -27,7 +27,7 @@ public class StringPrintStreamBehavior {
 		try (StringPrintStream out = StringPrintStream.of(UTF_8)) {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
-			assertEquals(out.toString(), s);
+			Assert.equal(out.toString(), s);
 		}
 	}
 
@@ -37,7 +37,7 @@ public class StringPrintStreamBehavior {
 			String s = "\0\u0100\u0102\u0104";
 			out.print(s);
 			out.clear();
-			assertEquals(out.toString(), "");
+			Assert.equal(out.toString(), "");
 		}
 	}
 

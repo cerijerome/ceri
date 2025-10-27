@@ -1,10 +1,5 @@
 package ceri.jna.test;
 
-import static ceri.common.test.Assert.assertByte;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertion;
-import static ceri.common.test.Assert.throwIt;
 import static ceri.jna.test.JnaTestUtil.assertCLong;
 import static ceri.jna.test.JnaTestUtil.assertCUlong;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
@@ -18,6 +13,7 @@ import org.junit.Test;
 import com.sun.jna.Memory;
 import com.sun.jna.Structure;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CUnistd.size_t;
 import ceri.jna.test.JnaTestUtil.MemCache;
 import ceri.jna.type.CLong;
@@ -40,7 +36,7 @@ public class JnaTestUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(JnaTestUtil.class);
+		Assert.privateConstructor(JnaTestUtil.class);
 	}
 
 	@Test
@@ -73,7 +69,7 @@ public class JnaTestUtilTest {
 		m = new Memory(8);
 		new size_t(123).write(m, 0);
 		assertRef(m, new size_t(123));
-		assertion(() -> assertRef(m, new size_t(122)));
+		Assert.assertion(() -> assertRef(m, new size_t(122)));
 	}
 
 	@Test
@@ -81,9 +77,9 @@ public class JnaTestUtilTest {
 		m = JnaUtil.mallocBytes(1, 2, 3, 4, 5);
 		assertMemory(m, 0, 1, 2, 3, 4, 5);
 		assertMemory(m, 1, 2, 3, 4, 5);
-		assertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
-		assertion(() -> assertMemory(m, 0, 1, 2, 3, 4));
-		assertion(() -> assertMemory(m, 0, 1, 2, 3, 4, 5, 6));
+		Assert.assertion(() -> assertMemory(m, 1, 2, 3, 4, 6));
+		Assert.assertion(() -> assertMemory(m, 0, 1, 2, 3, 4));
+		Assert.assertion(() -> assertMemory(m, 0, 1, 2, 3, 4, 5, 6));
 	}
 
 	@Test
@@ -92,8 +88,8 @@ public class JnaTestUtilTest {
 		assertPointer(m, 0, 1, 2, 3, 4, 5);
 		assertPointer(m, 1, 2, 3, 4, 5);
 		assertPointer(m, 0, 1, 2, 3, 4);
-		assertion(() -> assertPointer(m, 1, 2, 3, 4, 6));
-		assertion(() -> assertPointer(m, 0, 1, 2, 3, 4, 5, 6));
+		Assert.assertion(() -> assertPointer(m, 1, 2, 3, 4, 6));
+		Assert.assertion(() -> assertPointer(m, 0, 1, 2, 3, 4, 5, 6));
 	}
 
 	@Test
@@ -101,24 +97,24 @@ public class JnaTestUtilTest {
 		var t = new TestStruct(0x1111, null, 1, 2, 3);
 		assertPointer(t, t.getPointer());
 		assertPointer((Structure) null, null);
-		assertion(() -> assertPointer(t, null));
-		assertion(() -> assertPointer(t, new Memory(1)));
+		Assert.assertion(() -> assertPointer(t, null));
+		Assert.assertion(() -> assertPointer(t, new Memory(1)));
 	}
 
 	@Test
 	public void testAssertLastError() {
-		assertLastError(() -> throwIt(lastError(1)));
-		assertLastError(1, () -> throwIt(lastError(1)));
-		assertion(() -> assertLastError(2, () -> throwIt(lastError(1))));
+		assertLastError(() -> Assert.throwIt(lastError(1)));
+		assertLastError(1, () -> Assert.throwIt(lastError(1)));
+		Assert.assertion(() -> assertLastError(2, () -> Assert.throwIt(lastError(1))));
 	}
 
 	@Test
 	public void testBuffer() {
 		var b = JnaTestUtil.buffer(-1, 0x7f, 0, 0x80);
-		assertByte(b.get(), -1);
-		assertByte(b.get(), 0x7f);
-		assertByte(b.get(), 0);
-		assertByte(b.get(), 0x80);
+		Assert.equals(b.get(), -1);
+		Assert.equals(b.get(), 0x7f);
+		Assert.equals(b.get(), 0);
+		Assert.equals(b.get(), 0x80);
 	}
 
 	@Test
@@ -133,7 +129,6 @@ public class JnaTestUtilTest {
 			JnaTestData.assertStruct(t, 0x1111, null, 1, 2, 3);
 			t.i = 0x2222;
 		});
-		assertEquals(Struct.read(t0).i, 0x2222);
+		Assert.equal(Struct.read(t0).i, 0x2222);
 	}
-
 }

@@ -1,7 +1,5 @@
 package ceri.serial.i2c.smbus;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.provider;
 import static ceri.jna.clib.test.TestCLibNative.autoError;
 import static ceri.serial.i2c.jna.TestI2cCLibNative.smBusBlock;
@@ -10,6 +8,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.data.ByteProvider;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.util.JnaLibrary;
 import ceri.serial.i2c.I2cAddress;
@@ -88,10 +87,10 @@ public class SmBusDeviceBehavior {
 	public void shouldProcessNumberReads() throws IOException {
 		var lib = initI2c();
 		lib.ioctlSmBusInt.autoResponses(0xabcd);
-		assertEquals(smBus.readByte(), 0xcd);
-		assertEquals(smBus.readByteData(0x12), 0xcd);
-		assertEquals(smBus.readWordData(0x12), 0xabcd);
-		assertEquals(smBus.processCall(0x12, 0xa5b6), 0xabcd);
+		Assert.equal(smBus.readByte(), 0xcd);
+		Assert.equal(smBus.readByteData(0x12), 0xcd);
+		Assert.equal(smBus.readWordData(0x12), 0xabcd);
+		Assert.equal(smBus.processCall(0x12, 0xa5b6), 0xabcd);
 		lib.ioctlSmBusInt.assertValues( //
 			new Rw(1, 0, 1, 0, 0, emptyBlock), //
 			new Rw(1, 0x12, 2, 0, 0, emptyBlock), //
@@ -103,9 +102,9 @@ public class SmBusDeviceBehavior {
 	public void shouldProcessByteArrayReads() throws IOException {
 		var lib = initI2c();
 		lib.ioctlSmBusBytes.autoResponses(provider(3, 1, 2, 3)); // len, (1, 2, 3)
-		assertArray(smBus.readBlockData(0x12), 1, 2, 3);
-		assertArray(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
-		assertArray(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
+		Assert.array(smBus.readBlockData(0x12), 1, 2, 3);
+		Assert.array(smBus.blockProcessCall(0x12, 4, 5, 6), 1, 2, 3);
+		Assert.array(smBus.readI2cBlockData(0x12, 3), 1, 2, 3);
 		lib.ioctlSmBusBytes.assertValues( //
 			new Rw(1, 0x12, 5, 0, 0, emptyBlock), //
 			new Rw(0, 0x12, 7, 0, 0, smBusBlock(3, 4, 5, 6)), //

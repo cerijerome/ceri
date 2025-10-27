@@ -1,7 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.test.TestUtil.reader;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
@@ -23,7 +21,7 @@ public class DataUtilTest {
 		DataUtil.expectAscii(reader("abcd"), 'a', 'b', 'c');
 		var r = reader("abcde");
 		Assert.thrown(() -> DataUtil.expectAscii(r, 'a', 'a', 'c'));
-		assertEquals(r.readAscii(), "cde");
+		Assert.equal(r.readAscii(), "cde");
 	}
 
 	@Test
@@ -33,7 +31,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expectAscii(reader("abc"), "abd"));
 		var r = reader("abcde");
 		Assert.thrown(() -> DataUtil.expectAscii(r, "aac"));
-		assertEquals(r.readAscii(), "cde");
+		Assert.equal(r.readAscii(), "cde");
 	}
 
 	@Test
@@ -43,7 +41,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expectAsciiAll(reader("abc"), 'a', 'b', 'd'));
 		var r = reader("abcde");
 		Assert.thrown(() -> DataUtil.expectAsciiAll(r, 'a', 'a', 'c'));
-		assertEquals(r.readAscii(), "de");
+		Assert.equal(r.readAscii(), "de");
 	}
 
 	@Test
@@ -53,7 +51,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expectAsciiAll(reader("abc"), "abd"));
 		var r = reader("abcde");
 		Assert.thrown(() -> DataUtil.expectAsciiAll(r, "aac"));
-		assertEquals(r.readAscii(), "de");
+		Assert.equal(r.readAscii(), "de");
 	}
 
 	@Test
@@ -64,7 +62,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expect(reader(1, 2, 3), 1, 2, 4));
 		var r = reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> DataUtil.expect(r, 1, 1, 3));
-		assertArray(r.readBytes(), 3, 4, 5);
+		Assert.array(r.readBytes(), 3, 4, 5);
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expect(reader(1, 2, 3), Immutable.wrap(1, 2, 4)));
 		var r = reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> DataUtil.expect(r, Immutable.wrap(1, 1, 3)));
-		assertArray(r.readBytes(), 3, 4, 5);
+		Assert.array(r.readBytes(), 3, 4, 5);
 	}
 
 	@Test
@@ -86,7 +84,7 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expectAll(reader(1, 2, 3), 1, 2, 4));
 		var r = reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> DataUtil.expectAll(r, 1, 1, 3));
-		assertArray(r.readBytes(), 4, 5);
+		Assert.array(r.readBytes(), 4, 5);
 	}
 
 	@Test
@@ -97,13 +95,13 @@ public class DataUtilTest {
 		Assert.thrown(() -> DataUtil.expectAll(reader(1, 2, 3), Immutable.wrap(1, 2, 4)));
 		var r = reader(1, 2, 3, 4, 5);
 		Assert.thrown(() -> DataUtil.expectAll(r, Immutable.wrap(1, 1, 3)));
-		assertArray(r.readBytes(), 4, 5);
+		Assert.array(r.readBytes(), 4, 5);
 	}
 
 	@Test
 	public void testDigits() {
-		assertEquals(DataUtil.digits(reader("09870"), 5), 9870);
-		assertEquals(DataUtil.digits(reader("09870"), 3), 98);
+		Assert.equal(DataUtil.digits(reader("09870"), 5), 9870);
+		Assert.equal(DataUtil.digits(reader("09870"), 3), 98);
 		Assert.thrown(() -> DataUtil.digits(reader("12"), 3));
 		Assert.thrown(() -> DataUtil.digits(reader("12A"), 3));
 		Assert.thrown(() -> DataUtil.digits(reader("1 3"), 3));

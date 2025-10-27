@@ -1,9 +1,5 @@
 package ceri.jna.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
-import static ceri.common.test.Assert.thrown;
 import java.nio.ByteBuffer;
 import java.util.Set;
 import com.sun.jna.LastErrorException;
@@ -99,7 +95,7 @@ public class JnaTestUtil {
 	 * Checks remaining memory from offset matches bytes.
 	 */
 	public static void assertMemory(Memory m, int offset, byte[] bytes) {
-		assertEquals(m.size() - offset, (long) bytes.length);
+		Assert.equal(m.size() - offset, (long) bytes.length);
 		assertPointer(m, offset, bytes);
 	}
 
@@ -117,7 +113,7 @@ public class JnaTestUtil {
 		assertValid(p);
 		try {
 			byte[] actual = JnaUtil.bytes(p, offset, bytes.length);
-			assertArray(actual, bytes);
+			Assert.array(actual, bytes);
 		} catch (RuntimeException e) {
 			throw new AssertionError(e.getMessage(), e);
 		}
@@ -127,14 +123,14 @@ public class JnaTestUtil {
 	 * Checks pointer type pointer.
 	 */
 	public static void assertPointer(PointerType pt, Pointer p) {
-		assertEquals(PointerUtil.pointer(pt), p);
+		Assert.equal(PointerUtil.pointer(pt), p);
 	}
 
 	/**
 	 * Checks struct pointer.
 	 */
 	public static void assertPointer(Structure t, Pointer p) {
-		assertEquals(Struct.pointer(t), p);
+		Assert.equal(Struct.pointer(t), p);
 	}
 
 	/**
@@ -142,21 +138,21 @@ public class JnaTestUtil {
 	 */
 	public static void assertValid(Pointer p) {
 		Assert.notNull(p);
-		assertNotEquals(Pointer.nativeValue(p), 0L);
+		Assert.notEqual(Pointer.nativeValue(p), 0L);
 	}
 
 	/**
 	 * Make sure pointer is not null or zero.
 	 */
 	public static void assertNotValid(Pointer p) {
-		assertEquals(Pointer.nativeValue(p), 0L, "Peer");
+		Assert.equal(Pointer.nativeValue(p), 0L, "Peer");
 	}
 
 	/**
 	 * Make sure int reference stores the given value.
 	 */
 	public static void assertRef(IntByReference ref, int value) {
-		assertEquals(ref.getValue(), value);
+		Assert.equal(ref.getValue(), value);
 	}
 
 	/**
@@ -165,49 +161,49 @@ public class JnaTestUtil {
 	public static void assertRef(Pointer p, IntType<? extends IntType<?>> intType) {
 		var expected = intType.longValue();
 		var actual = intType.read(p, 0).longValue();
-		assertEquals(actual, expected);
+		Assert.equal(actual, expected);
 	}
 
 	/**
 	 * Make sure unsigned native long reference pointer stores the given value.
 	 */
 	public static void assertCLong(Pointer p, long value) {
-		assertEquals(JnaUtil.clong(p, 0), value);
+		Assert.equal(JnaUtil.clong(p, 0), value);
 	}
 
 	/**
 	 * Make sure unsigned native long reference pointer stores the given value.
 	 */
 	public static void assertCUlong(Pointer p, long value) {
-		assertEquals(JnaUtil.culong(p, 0), value);
+		Assert.equal(JnaUtil.culong(p, 0), value);
 	}
 
 	/**
 	 * Assert a LastErrorException was thrown.
 	 */
 	public static void assertLastError(Excepts.Runnable<Exception> runnable) {
-		thrown(LastErrorException.class, runnable);
+		Assert.thrown(LastErrorException.class, runnable);
 	}
 
 	/**
 	 * Assert a LastErrorException with specific code was thrown.
 	 */
 	public static void assertLastError(int code, Excepts.Runnable<Exception> runnable) {
-		thrown(LastErrorException.class, e -> assertEquals(e.getErrorCode(), code), runnable);
+		Assert.thrown(LastErrorException.class, e -> Assert.equal(e.getErrorCode(), code), runnable);
 	}
 
 	/**
 	 * Assert a CException was thrown.
 	 */
 	public static void assertCException(Excepts.Runnable<Exception> runnable) {
-		thrown(CException.class, runnable);
+		Assert.thrown(CException.class, runnable);
 	}
 
 	/**
 	 * Assert a CException with specific code was thrown.
 	 */
 	public static void assertCException(int code, Excepts.Runnable<Exception> runnable) {
-		thrown(CException.class, e -> assertEquals(e.code, code), runnable);
+		Assert.thrown(CException.class, e -> Assert.equal(e.code, code), runnable);
 	}
 
 	/**

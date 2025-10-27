@@ -1,7 +1,5 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,16 +22,16 @@ public class BinarySemaphoreBehavior {
 	@Test
 	public void shouldAcquireWithResource() {
 		try (var _ = bs.acquirer()) {
-			assertFalse(bs.available());
+			Assert.no(bs.available());
 		}
-		assertTrue(bs.available());
+		Assert.yes(bs.available());
 	}
 
 	@Test
 	public void shouldFailToAcquireIfClosed() {
 		bs.acquire();
 		bs.close();
-		assertFalse(bs.available());
+		Assert.no(bs.available());
 		Assert.thrown(bs::acquire);
 	}
 

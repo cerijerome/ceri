@@ -1,7 +1,5 @@
 package ceri.common.xml;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Test;
@@ -15,20 +13,20 @@ public class XmlTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Xml.class);
+		Assert.privateConstructor(Xml.class);
 	}
 
 	@Test
 	public void testDocument() throws SAXException {
 		var doc = Xml.document(xml);
-		assertEquals(doc.getChildNodes().getLength(), 1);
+		Assert.equal(doc.getChildNodes().getLength(), 1);
 		Assert.thrown(() -> Xml.document(null));
 	}
 
 	@Test
 	public void testUnvalidatedDocument() throws SAXException {
 		var doc = Xml.unvalidatedDocument(xmlWithDtd);
-		assertEquals(doc.getChildNodes().getLength(), 2);
+		Assert.equal(doc.getChildNodes().getLength(), 2);
 	}
 
 	@Test

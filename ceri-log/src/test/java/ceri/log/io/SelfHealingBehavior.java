@@ -1,19 +1,14 @@
 package ceri.log.io;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.throwIo;
-import static ceri.common.test.Assert.throwIt;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.TestUtil.threadRun;
-import static ceri.common.test.TestUtil.typedProperties;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.test.Assert;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestFixable;
+import ceri.common.test.TestUtil;
 import ceri.log.test.LogModifier;
 
 public class SelfHealingBehavior {
@@ -49,17 +44,18 @@ public class SelfHealingBehavior {
 	public void shouldCopyConfigExceptForDefaultBrokenPredicate() {
 		var conf = SelfHealing.Config.builder().fixRetryDelayMs(1).recoveryDelayMs(3)
 			.brokenPredicate(_ -> true).apply(SelfHealing.Config.DEFAULT).build();
-		assertEquals(conf.fixRetryDelayMs, SelfHealing.Config.DEFAULT.fixRetryDelayMs);
-		assertEquals(conf.recoveryDelayMs, SelfHealing.Config.DEFAULT.recoveryDelayMs);
-		assertTrue(conf.hasBrokenPredicate());
-		assertTrue(conf.broken(null));
+		Assert.equal(conf.fixRetryDelayMs, SelfHealing.Config.DEFAULT.fixRetryDelayMs);
+		Assert.equal(conf.recoveryDelayMs, SelfHealing.Config.DEFAULT.recoveryDelayMs);
+		Assert.yes(conf.hasBrokenPredicate());
+		Assert.yes(conf.broken(null));
 	}
 
 	@Test
 	public void shouldCreateFromProperties() {
-		var config = new SelfHealing.Properties(typedProperties("self-healing"), "device").config();
-		assertEquals(config.fixRetryDelayMs, 123);
-		assertEquals(config.recoveryDelayMs, 456);
+		var config =
+			new SelfHealing.Properties(TestUtil.typedProperties("self-healing"), "device").config();
+		Assert.equal(config.fixRetryDelayMs, 123);
+		Assert.equal(config.recoveryDelayMs, 456);
 	}
 
 	@Test
@@ -67,8 +63,8 @@ public class SelfHealingBehavior {
 		init();
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
-			fixable.open.error.setFrom(IOX);
-			try (var exec = threadRun(fixable.open::await)) {
+			fixable.open.error.setFrom(ErrorGen.IOX);
+			try (var exec = TestUtil.threadRun(fixable.open::await)) {
 				Assert.thrown(device::open);
 				device.open();
 				exec.get();
@@ -82,8 +78,8 @@ public class SelfHealingBehavior {
 		init();
 		LogModifier.run(() -> {
 			fixable.open.autoResponse(false);
-			fixable.open.error.setFrom(IOX, IOX, IOX, null);
-			try (var exec = threadRun(() -> {
+			fixable.open.error.setFrom(ErrorGen.IOX, ErrorGen.IOX, ErrorGen.IOX, null);
+			try (var exec = TestUtil.threadRun(() -> {
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX
 				fixable.open.await(); // IOX
@@ -112,9 +108,9 @@ public class SelfHealingBehavior {
 		// 1) exception -> not broken
 		// 2) exception -> broken, set signal
 		// 3) exception -> broken, signal already set
-		Assert.thrown(() -> device.device.acceptValid(_ -> throwIo()));
-		Assert.thrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
-		Assert.thrown(() -> device.device.acceptValid(_ -> throwIt(BROKEN_EXCEPTION)));
+		Assert.thrown(() -> device.device.acceptValid(_ -> Assert.throwIo()));
+		Assert.thrown(() -> device.device.acceptValid(_ -> Assert.throwIt(BROKEN_EXCEPTION)));
+		Assert.thrown(() -> device.device.acceptValid(_ -> Assert.throwIt(BROKEN_EXCEPTION)));
 		fixable.open.await();
 	}
 

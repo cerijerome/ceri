@@ -1,15 +1,5 @@
 package ceri.log.util;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertMatch;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.throwInterrupted;
-import static ceri.common.test.Assert.throwIo;
-import static ceri.common.test.ErrorGen.INX;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import java.io.IOException;
 import java.util.List;
@@ -28,11 +18,11 @@ import ceri.common.concurrent.BoolCondition;
 import ceri.common.test.Assert;
 import ceri.common.test.BinaryPrinter;
 import ceri.common.test.Captor;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestExecutorService;
 import ceri.common.test.TestFuture;
 import ceri.common.test.TestProcess;
 import ceri.common.text.Strings;
-import ceri.common.util.StartupValues;
 import ceri.log.io.LogPrintStream;
 
 public class LogUtilTest {
@@ -58,26 +48,26 @@ public class LogUtilTest {
 
 	@Test
 	public void testLoggerName() {
-		assertEquals(LogUtil.loggerName(getClass()), getClass().getName());
-		assertEquals(LogUtil.loggerName(OBJ.getClass()), getClass().getName() + "$1");
+		Assert.equal(LogUtil.loggerName(getClass()), getClass().getName());
+		Assert.equal(LogUtil.loggerName(OBJ.getClass()), getClass().getName() + "$1");
 	}
 
 	@Test
 	public void testStartupValues() {
-		StartupValues values = LogUtil.startupValues("abc", "123");
-		assertEquals(values.next(p -> p.get()), "abc");
-		assertEquals(values.next(p -> p.toInt()), 123);
-		assertEquals(values.envVar("test"), "CERI_LOG_UTIL_TEST");
+		var values = LogUtil.startupValues("abc", "123");
+		Assert.equal(values.next(p -> p.get()), "abc");
+		Assert.equal(values.next(p -> p.toInt()), 123);
+		Assert.equal(values.envVar("test"), "CERI_LOG_UTIL_TEST");
 		values = LogUtil.startupValues(Level.WARN, "abc", "123");
-		assertEquals(values.next(p -> p.get()), "abc");
-		assertEquals(values.next(p -> p.toInt()), 123);
-		assertEquals(values.envVar("test"), "CERI_LOG_UTIL_TEST");
+		Assert.equal(values.next(p -> p.get()), "abc");
+		Assert.equal(values.next(p -> p.toInt()), 123);
+		Assert.equal(values.envVar("test"), "CERI_LOG_UTIL_TEST");
 		testLog.assertFind("WARN.*value = abc");
 	}
 
 	@Test
 	public void testBinaryLogger() {
-		BinaryPrinter bp = LogUtil.binaryLogger();
+		var bp = LogUtil.binaryLogger();
 		bp.print(1, 2, 3);
 		try (var stream = LogPrintStream.of(logger)) {
 			bp = LogUtil.binaryLogger(BinaryPrinter.ASCII, stream);
@@ -89,71 +79,71 @@ public class LogUtilTest {
 	@Test
 	public void testGetSilently() {
 		Assert.thrown(() -> LogUtil.getSilently(null));
-		assertEquals(LogUtil.getSilently(() -> null), null);
-		assertEquals(LogUtil.getSilently(() -> null, 123), null);
-		assertEquals(LogUtil.getSilently(() -> 123), 123);
-		assertEquals(LogUtil.getSilently(() -> 123, 456), 123);
-		assertEquals(LogUtil.getSilently(() -> throwIo()), null);
-		assertEquals(LogUtil.getSilently(() -> throwIo(), 123), 123);
-		assertFalse(Thread.interrupted());
-		LogUtil.getSilently(() -> throwInterrupted());
-		assertTrue(Thread.interrupted());
+		Assert.equal(LogUtil.getSilently(() -> null), null);
+		Assert.equal(LogUtil.getSilently(() -> null, 123), null);
+		Assert.equal(LogUtil.getSilently(() -> 123), 123);
+		Assert.equal(LogUtil.getSilently(() -> 123, 456), 123);
+		Assert.equal(LogUtil.getSilently(() -> Assert.throwIo()), null);
+		Assert.equal(LogUtil.getSilently(() -> Assert.throwIo(), 123), 123);
+		Assert.no(Thread.interrupted());
+		LogUtil.getSilently(() -> Assert.throwInterrupted());
+		Assert.yes(Thread.interrupted());
 	}
 
 	@Test
 	public void testRunSilently() {
 		Assert.thrown(() -> LogUtil.runSilently(null));
-		LogUtil.runSilently(() -> throwIo());
-		assertFalse(Thread.interrupted());
-		LogUtil.runSilently(() -> throwInterrupted());
-		assertTrue(Thread.interrupted());
+		LogUtil.runSilently(() -> Assert.throwIo());
+		Assert.no(Thread.interrupted());
+		LogUtil.runSilently(() -> Assert.throwInterrupted());
+		Assert.yes(Thread.interrupted());
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testAcceptOrClose() {
-		assertEquals(LogUtil.acceptOrClose(null, _ -> {}), null);
+		Assert.equal(LogUtil.acceptOrClose(null, _ -> {}), null);
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.acceptOrClose(closer, _ -> {}), closer);
+		Assert.equal(LogUtil.acceptOrClose(closer, _ -> {}), closer);
 		closer.assertClosed(false);
-		Assert.thrown(() -> LogUtil.acceptOrClose(closer, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.acceptOrClose(closer, _ -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testApplyOrClose() throws Exception {
-		assertEquals(LogUtil.applyOrClose(null, null), null);
-		assertEquals(LogUtil.applyOrClose(null, null, "x"), "x");
+		Assert.equal(LogUtil.applyOrClose(null, null), null);
+		Assert.equal(LogUtil.applyOrClose(null, null, "x"), "x");
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.applyOrClose(closer, _ -> null, 1), 1);
-		assertEquals(LogUtil.applyOrClose(closer, _ -> 0), 0);
+		Assert.equal(LogUtil.applyOrClose(closer, _ -> null, 1), 1);
+		Assert.equal(LogUtil.applyOrClose(closer, _ -> 0), 0);
 		closer.assertClosed(false);
-		Assert.thrown(() -> LogUtil.applyOrClose(closer, _ -> throwIo()));
+		Assert.thrown(() -> LogUtil.applyOrClose(closer, _ -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testRunOrClose() {
-		assertEquals(LogUtil.runOrClose(null, () -> {}), null);
+		Assert.equal(LogUtil.runOrClose(null, () -> {}), null);
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.runOrClose(closer, () -> {}), closer);
+		Assert.equal(LogUtil.runOrClose(closer, () -> {}), closer);
 		closer.assertClosed(false);
-		Assert.thrown(() -> LogUtil.runOrClose(closer, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.runOrClose(closer, () -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testGetOrClose() throws Exception {
-		assertEquals(LogUtil.getOrClose(null, () -> null), null);
-		assertEquals(LogUtil.getOrClose(null, () -> null, "x"), "x");
+		Assert.equal(LogUtil.getOrClose(null, () -> null), null);
+		Assert.equal(LogUtil.getOrClose(null, () -> null, "x"), "x");
 		var closer = TestCloseable.of("1");
-		assertEquals(LogUtil.getOrClose(closer, () -> null, 1), 1);
-		assertEquals(LogUtil.getOrClose(closer, () -> 0), 0);
+		Assert.equal(LogUtil.getOrClose(closer, () -> null, 1), 1);
+		Assert.equal(LogUtil.getOrClose(closer, () -> 0), 0);
 		closer.assertClosed(false);
-		Assert.thrown(() -> LogUtil.getOrClose(closer, () -> throwIo()));
+		Assert.thrown(() -> LogUtil.getOrClose(closer, () -> Assert.throwIo()));
 		closer.assertClosed(true);
 	}
 
@@ -161,8 +151,8 @@ public class LogUtilTest {
 	@Test
 	public void testAcceptOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.acceptOrCloseAll(closers, _ -> {}), closers);
-		Assert.thrown(() -> LogUtil.acceptOrCloseAll(closers, _ -> throwIo()));
+		Assert.equal(LogUtil.acceptOrCloseAll(closers, _ -> {}), closers);
+		Assert.thrown(() -> LogUtil.acceptOrCloseAll(closers, _ -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -170,10 +160,10 @@ public class LogUtilTest {
 	@Test
 	public void testApplyOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null), null);
-		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> null, 3), 3);
-		assertEquals(LogUtil.applyOrCloseAll(closers, _ -> 1, 3), 1);
-		Assert.thrown(() -> LogUtil.applyOrCloseAll(closers, _ -> throwIo()));
+		Assert.equal(LogUtil.applyOrCloseAll(closers, _ -> null), null);
+		Assert.equal(LogUtil.applyOrCloseAll(closers, _ -> null, 3), 3);
+		Assert.equal(LogUtil.applyOrCloseAll(closers, _ -> 1, 3), 1);
+		Assert.thrown(() -> LogUtil.applyOrCloseAll(closers, _ -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -181,8 +171,8 @@ public class LogUtilTest {
 	@Test
 	public void testRunOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.runOrCloseAll(closers, () -> {}), closers);
-		Assert.thrown(() -> LogUtil.runOrCloseAll(closers, () -> throwIo()));
+		Assert.equal(LogUtil.runOrCloseAll(closers, () -> {}), closers);
+		Assert.thrown(() -> LogUtil.runOrCloseAll(closers, () -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
@@ -190,26 +180,26 @@ public class LogUtilTest {
 	@Test
 	public void testGetOrCloseAll() {
 		var closers = List.of(TestCloseable.of("1"), TestCloseable.of("2"));
-		assertEquals(LogUtil.getOrCloseAll(closers, () -> null), null);
-		assertEquals(LogUtil.getOrCloseAll(closers, () -> null, 3), 3);
-		assertEquals(LogUtil.getOrCloseAll(closers, () -> 1, 3), 1);
-		Assert.thrown(() -> LogUtil.getOrCloseAll(closers, () -> throwIo()));
+		Assert.equal(LogUtil.getOrCloseAll(closers, () -> null), null);
+		Assert.equal(LogUtil.getOrCloseAll(closers, () -> null, 3), 3);
+		Assert.equal(LogUtil.getOrCloseAll(closers, () -> 1, 3), 1);
+		Assert.thrown(() -> LogUtil.getOrCloseAll(closers, () -> Assert.throwIo()));
 		closers.forEach(c -> c.assertClosed(true));
 	}
 
 	@Test
 	public void testCloseReversed() {
 		var captor = Captor.ofInt();
-		assertTrue(LogUtil.closeReversed(() -> captor.accept(0), () -> captor.accept(1),
+		Assert.yes(LogUtil.closeReversed(() -> captor.accept(0), () -> captor.accept(1),
 			() -> captor.accept(2)));
 		captor.verifyInt(2, 1, 0);
-		assertFalse(LogUtil.closeReversed(() -> captor.accept(0), () -> throwIo()));
+		Assert.no(LogUtil.closeReversed(() -> captor.accept(0), () -> Assert.throwIo()));
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreate() {
-		assertOrdered(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
+		Assert.ordered(LogUtil.create(TestCloseable::of, "1", "-1"), new TestCloseable(1),
 			new TestCloseable(-1));
 		Assert.thrown(() -> LogUtil.create(TestCloseable::of, "1", "-1", "x"));
 		testLog.assertFind("(?is)WARN .* catching.*IOException.*-1");
@@ -218,7 +208,7 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateWithCount() {
-		assertOrdered(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
+		Assert.ordered(LogUtil.create(() -> new TestCloseable(0), 3), new TestCloseable(0),
 			new TestCloseable(0), new TestCloseable(0));
 		Assert.thrown(() -> LogUtil.create(() -> TestCloseable.of("x"), 3));
 	}
@@ -226,7 +216,7 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateArray() {
-		assertArray(LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1"),
+		Assert.array(LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1"),
 			new TestCloseable(1), new TestCloseable(-1));
 		Assert.thrown(
 			() -> LogUtil.createArray(TestCloseable[]::new, TestCloseable::of, "1", "-1", "x"));
@@ -236,7 +226,7 @@ public class LogUtilTest {
 	@SuppressWarnings("resource")
 	@Test
 	public void testCreateArrayWithCount() {
-		assertArray(LogUtil.createArray(TestCloseable[]::new, () -> new TestCloseable(0), 3),
+		Assert.array(LogUtil.createArray(TestCloseable[]::new, () -> new TestCloseable(0), 3),
 			new TestCloseable(0), new TestCloseable(0), new TestCloseable(0));
 		Assert.thrown(
 			() -> LogUtil.createArray(TestCloseable[]::new, () -> TestCloseable.of("x"), 3));
@@ -244,125 +234,125 @@ public class LogUtilTest {
 
 	@Test
 	public void testCloseProcess() throws IOException {
-		assertTrue(LogUtil.close((Process) null));
-		try (TestProcess process = TestProcess.of()) {
+		Assert.yes(LogUtil.close((Process) null));
+		try (var process = TestProcess.of()) {
 			process.waitFor.autoResponses(true);
-			assertTrue(LogUtil.close(process));
+			Assert.yes(LogUtil.close(process));
 			process.waitFor.autoResponses(false);
-			assertFalse(LogUtil.close(process));
+			Assert.no(LogUtil.close(process));
 		}
 	}
 
 	@Test
 	public void testCloseProcessWithInterrupt() throws IOException {
-		try (TestProcess process = TestProcess.of()) {
-			process.waitFor.error.setFrom(INX);
-			assertFalse(LogUtil.close(process));
+		try (var process = TestProcess.of()) {
+			process.waitFor.error.setFrom(ErrorGen.INX);
+			Assert.no(LogUtil.close(process));
 			testLog.assertFind("(?is)DEBUG .*InterruptedException");
 		}
 	}
 
 	@Test
 	public void testCloseExecutorService() throws InterruptedException {
-		assertTrue(LogUtil.close((ExecutorService) null));
-		BoolCondition sync = BoolCondition.of();
-		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+		Assert.yes(LogUtil.close((ExecutorService) null));
+		var sync = BoolCondition.of();
+		try (var exec = Executors.newSingleThreadExecutor()) {
 			exec.execute(() -> signalAndSleep(sync, 60000));
 			sync.await();
-			assertTrue(LogUtil.close(exec));
+			Assert.yes(LogUtil.close(exec));
 		}
 	}
 
 	@Test
 	public void testCloseExecutorServiceWithInterrupt() {
-		try (TestExecutorService exec = TestExecutorService.of()) {
-			exec.awaitTermination.error.setFrom(INX, INX, null);
-			assertTrue(LogUtil.close(exec));
+		try (var exec = TestExecutorService.of()) {
+			exec.awaitTermination.error.setFrom(ErrorGen.INX, ErrorGen.INX, null);
+			Assert.yes(LogUtil.close(exec));
 		}
 	}
 
 	@Test
 	public void testCloseFuture() throws InterruptedException, ExecutionException {
-		assertTrue(LogUtil.close((Future<?>) null));
-		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+		Assert.yes(LogUtil.close((Future<?>) null));
+		try (var exec = Executors.newSingleThreadExecutor()) {
 			Future<?> future = exec.submit(() -> {});
 			future.get();
-			assertTrue(LogUtil.close(future));
+			Assert.yes(LogUtil.close(future));
 		}
 	}
 
 	@Test
 	public void testCloseFutureWithCancellation() throws InterruptedException {
-		assertTrue(LogUtil.close((Future<?>) null));
-		BoolCondition sync = BoolCondition.of();
-		try (ExecutorService exec = Executors.newSingleThreadExecutor()) {
+		Assert.yes(LogUtil.close((Future<?>) null));
+		var sync = BoolCondition.of();
+		try (var exec = Executors.newSingleThreadExecutor()) {
 			Future<?> future = exec.submit(() -> signalAndSleep(sync, 60000));
 			sync.await();
-			assertTrue(LogUtil.close(future));
+			Assert.yes(LogUtil.close(future));
 		}
 	}
 
 	@Test
 	public void testCloseFutureWithInterrupt() {
-		TestFuture<?> future = TestFuture.of("test");
-		future.get.error.setFrom(INX);
-		assertFalse(LogUtil.close(future));
+		var future = TestFuture.of("test");
+		future.get.error.setFrom(ErrorGen.INX);
+		Assert.no(LogUtil.close(future));
 		testLog.assertFind("(?is)DEBUG .*InterruptedException");
 	}
 
 	@Test
 	public void testCloseFutureWithException() {
-		TestFuture<?> future = TestFuture.of("test");
+		var future = TestFuture.of("test");
 		future.get.error.setFrom(TimeoutException::new);
-		assertFalse(LogUtil.close(future));
+		Assert.no(LogUtil.close(future));
 		testLog.assertFind("(?is)WARN .*TimeoutException");
 	}
 
 	@Test
 	public void testCloseCloseables() {
-		assertTrue(LogUtil.close((List<TestCloseable>) null));
+		Assert.yes(LogUtil.close((List<TestCloseable>) null));
 	}
 
 	@Test
 	public void testToStringFunction() {
-		assertEquals(LogUtil.toString("test", String::toUpperCase).toString(), "TEST");
+		Assert.equal(LogUtil.toString("test", String::toUpperCase).toString(), "TEST");
 	}
 
 	@Test
 	public void testHashId() {
-		assertMatch(LogUtil.hashId(new Object()).toString(), "@[a-f\\d]+");
+		Assert.match(LogUtil.hashId(new Object()).toString(), "@[a-f\\d]+");
 	}
 
 	@Test
 	public void testToHex() {
-		assertEquals(LogUtil.toHex(1023).toString(), "3ff");
+		Assert.equal(LogUtil.toHex(1023).toString(), "3ff");
 	}
 
 	@Test
 	public void testToFormat() {
-		assertEquals(LogUtil.toFormat("test%d", 123).toString(), "test123");
+		Assert.equal(LogUtil.toFormat("test%d", 123).toString(), "test123");
 	}
 
 	@Test
 	public void testCompact() {
-		assertEquals(LogUtil.compact("a  b\n  c   ").toString(), "a b c");
+		Assert.equal(LogUtil.compact("a  b\n  c   ").toString(), "a b c");
 	}
 
 	@Test
 	public void testEscaped() {
-		assertEquals(LogUtil.escaped("a\n\0\t").toString(), "a\\n\\0\\t");
+		Assert.equal(LogUtil.escaped("a\n\0\t").toString(), "a\\n\\0\\t");
 	}
 
 	@Test
 	public void testEscapedAscii() {
-		assertEquals(LogUtil.escapedAscii("a\n\0\t".getBytes(ISO_8859_1), 1, 3).toString(),
+		Assert.equal(LogUtil.escapedAscii("a\n\0\t".getBytes(ISO_8859_1), 1, 3).toString(),
 			"\\n\\0\\t");
 	}
 
 	@Test
 	public void testIntroMessage() {
-		assertFind(LogUtil.introMessage("Test"), " Test ");
-		assertFind(LogUtil.introMessage(Strings.repeat("Test", 20)),
+		Assert.find(LogUtil.introMessage("Test"), " Test ");
+		Assert.find(LogUtil.introMessage(Strings.repeat("Test", 20)),
 			" " + Strings.repeat("Test", 19) + " ");
 	}
 

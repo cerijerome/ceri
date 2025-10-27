@@ -1,10 +1,5 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertImmutable;
-import static ceri.common.test.Assert.assertMap;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertUnordered;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -55,23 +50,23 @@ public class ImmutableTest {
 
 	@Test
 	public void testWrapTypeWrap() {
-		assertUnordered(Wrap.collect().wrap(null));
-		assertUnordered(Wrap.collect().wrap(c -> Collectable.add(c, list)), -1, null, 1);
-		assertOrdered(Wrap.seqCollect().wrap(c -> Collectable.add(c, list)), -1, null, 1);
-		assertOrdered(Wrap.linkList().wrap(c -> Collectable.add(c, list)), -1, null, 1);
-		assertOrdered(Wrap.seqSet().wrap(c -> Collectable.add(c, list)), -1, null, 1);
-		assertOrdered(Wrap.<Integer>sortSet().wrap(c -> Collectable.add(c, list)), null, -1, 1);
-		assertOrdered(Wrap.sortSet(comp).wrap(c -> Collectable.add(c, list)), -1, 1, null);
-		assertOrdered(Wrap.<Integer>navSet().wrap(c -> Collectable.add(c, list)), null, -1, 1);
-		assertOrdered(Wrap.navSet(comp).wrap(c -> Collectable.add(c, list)), -1, 1, null);
-		assertUnordered(Wrap.idSet().wrap(c -> Collectable.add(c, idSet)), s0, null, s1);
-		assertMap(Wrap.map().wrap(c -> Maps.put(c, map)), -1, "A", null, "B", 1, null);
-		assertOrdered(Wrap.seqMap().wrap(c -> Maps.put(c, map)), -1, "A", null, "B", 1, null);
-		assertOrdered(Wrap.<Integer, Object>sortMap().wrap(c -> Maps.put(c, map)), null, "B", -1,
+		Assert.unordered(Wrap.collect().wrap(null));
+		Assert.unordered(Wrap.collect().wrap(c -> Collectable.add(c, list)), -1, null, 1);
+		Assert.ordered(Wrap.seqCollect().wrap(c -> Collectable.add(c, list)), -1, null, 1);
+		Assert.ordered(Wrap.linkList().wrap(c -> Collectable.add(c, list)), -1, null, 1);
+		Assert.ordered(Wrap.seqSet().wrap(c -> Collectable.add(c, list)), -1, null, 1);
+		Assert.ordered(Wrap.<Integer>sortSet().wrap(c -> Collectable.add(c, list)), null, -1, 1);
+		Assert.ordered(Wrap.sortSet(comp).wrap(c -> Collectable.add(c, list)), -1, 1, null);
+		Assert.ordered(Wrap.<Integer>navSet().wrap(c -> Collectable.add(c, list)), null, -1, 1);
+		Assert.ordered(Wrap.navSet(comp).wrap(c -> Collectable.add(c, list)), -1, 1, null);
+		Assert.unordered(Wrap.idSet().wrap(c -> Collectable.add(c, idSet)), s0, null, s1);
+		Assert.map(Wrap.map().wrap(c -> Maps.put(c, map)), -1, "A", null, "B", 1, null);
+		Assert.ordered(Wrap.seqMap().wrap(c -> Maps.put(c, map)), -1, "A", null, "B", 1, null);
+		Assert.ordered(Wrap.<Integer, Object>sortMap().wrap(c -> Maps.put(c, map)), null, "B", -1,
 			"A", 1, null);
-		assertOrdered(Wrap.sortMap(comp).wrap(c -> Maps.put(c, map)), -1, "A", 1, null, null, "B");
-		assertOrdered(Wrap.navMap(comp).wrap(c -> Maps.put(c, map)), -1, "A", 1, null, null, "B");
-		assertMap(Wrap.idMap().wrap(c -> Maps.put(c, idMap)), s0, -1, null, 1, s1, null);
+		Assert.ordered(Wrap.sortMap(comp).wrap(c -> Maps.put(c, map)), -1, "A", 1, null, null, "B");
+		Assert.ordered(Wrap.navMap(comp).wrap(c -> Maps.put(c, map)), -1, "A", 1, null, null, "B");
+		Assert.map(Wrap.idMap().wrap(c -> Maps.put(c, idMap)), s0, -1, null, 1, s1, null);
 	}
 
 	@Test
@@ -81,34 +76,34 @@ public class ImmutableTest {
 
 	@Test
 	public void testWrap() {
-		assertEquals(Immutable.wrap(null, map), null);
-		assertOrdered(assertImmutable(Immutable.wrap(nullList)));
-		assertOrdered(assertImmutable(Immutable.wrap(nullSet)));
-		assertOrdered(assertImmutable(Immutable.wrapSort(nullSortSet)));
-		assertOrdered(assertImmutable(Immutable.wrapNav(nullNavSet)));
-		assertMap(assertImmutable(Immutable.wrap(nullMap)));
-		assertMap(assertImmutable(Immutable.wrapSort(nullSortMap)));
-		assertMap(assertImmutable(Immutable.wrapNav(nullNavMap)));
+		Assert.equal(Immutable.wrap(null, map), null);
+		Assert.ordered(Assert.immutable(Immutable.wrap(nullList)));
+		Assert.ordered(Assert.immutable(Immutable.wrap(nullSet)));
+		Assert.ordered(Assert.immutable(Immutable.wrapSort(nullSortSet)));
+		Assert.ordered(Assert.immutable(Immutable.wrapNav(nullNavSet)));
+		Assert.map(Assert.immutable(Immutable.wrap(nullMap)));
+		Assert.map(Assert.immutable(Immutable.wrapSort(nullSortMap)));
+		Assert.map(Assert.immutable(Immutable.wrapNav(nullNavMap)));
 	}
 
 	@Test
 	public void testWrapList() {
-		assertOrdered(assertImmutable(Immutable.wrapListOf(nullArray)));
-		assertOrdered(assertImmutable(Immutable.wrapListOf(emptyArray)));
-		assertOrdered(assertImmutable(Immutable.wrapList(nullArray, 0)));
-		assertOrdered(assertImmutable(Immutable.wrapList(emptyArray, 0)));
+		Assert.ordered(Assert.immutable(Immutable.wrapListOf(nullArray)));
+		Assert.ordered(Assert.immutable(Immutable.wrapListOf(emptyArray)));
+		Assert.ordered(Assert.immutable(Immutable.wrapList(nullArray, 0)));
+		Assert.ordered(Assert.immutable(Immutable.wrapList(emptyArray, 0)));
 	}
 
 	@Test
 	public void testListIsWrapped() {
 		var array = array();
-		var listOf = assertImmutable(Immutable.wrapListOf(array));
-		var list = assertImmutable(Immutable.wrapList(array, 1));
-		assertOrdered(listOf, -1, null, 1);
-		assertOrdered(list, null, 1);
+		var listOf = Assert.immutable(Immutable.wrapListOf(array));
+		var list = Assert.immutable(Immutable.wrapList(array, 1));
+		Assert.ordered(listOf, -1, null, 1);
+		Assert.ordered(list, null, 1);
 		array[2] = 0;
-		assertOrdered(listOf, -1, null, 0);
-		assertOrdered(list, null, 0);
+		Assert.ordered(listOf, -1, null, 0);
+		Assert.ordered(list, null, 0);
 	}
 
 	@Test
@@ -116,12 +111,12 @@ public class ImmutableTest {
 		var lA = Lists.ofAll("A", null);
 		var lB = Lists.ofAll(null, "B");
 		var m = Maps.of(-1, lA, null, lB, 1, null);
-		assertMap(Immutable.wrapMapOfLists(null));
-		var wm = assertImmutable(Immutable.wrapMapOfLists(m));
-		assertMap(assertImmutable(wm), -1, lA, null, lB, 1, List.of());
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.wrapMapOfLists(null));
+		var wm = Assert.immutable(Immutable.wrapMapOfLists(m));
+		Assert.map(Assert.immutable(wm), -1, lA, null, lB, 1, List.of());
+		wm.values().forEach(Assert::immutable);
 		lB.clear();
-		assertMap(wm, -1, lA, null, List.of(), 1, List.of());
+		Assert.map(wm, -1, lA, null, List.of(), 1, List.of());
 	}
 
 	@Test
@@ -129,12 +124,12 @@ public class ImmutableTest {
 		var sA = Sets.ofAll("A", null);
 		var sB = Sets.ofAll(null, "B");
 		var m = Maps.of(-1, sA, null, sB, 1, null);
-		assertMap(Immutable.wrapMapOfSets(null));
-		var wm = assertImmutable(Immutable.wrapMapOfSets(m));
-		assertMap(assertImmutable(wm), -1, sA, null, sB, 1, Set.of());
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.wrapMapOfSets(null));
+		var wm = Assert.immutable(Immutable.wrapMapOfSets(m));
+		Assert.map(Assert.immutable(wm), -1, sA, null, sB, 1, Set.of());
+		wm.values().forEach(Assert::immutable);
 		sB.clear();
-		assertMap(wm, -1, sA, null, Set.of(), 1, Set.of());
+		Assert.map(wm, -1, sA, null, Set.of(), 1, Set.of());
 	}
 
 	@Test
@@ -142,162 +137,162 @@ public class ImmutableTest {
 		var mA = Maps.<Integer, String>of(1, null);
 		var mB = Maps.<Integer, String>of(null, "B");
 		var m = Maps.of(-1, mA, null, mB, 1, null);
-		assertMap(Immutable.wrapMapOfMaps(null));
-		var wm = assertImmutable(Immutable.wrapMapOfMaps(m));
-		assertMap(assertImmutable(wm), -1, mA, null, mB, 1, emptyMap);
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.wrapMapOfMaps(null));
+		var wm = Assert.immutable(Immutable.wrapMapOfMaps(m));
+		Assert.map(Assert.immutable(wm), -1, mA, null, mB, 1, emptyMap);
+		wm.values().forEach(Assert::immutable);
 		mB.clear();
-		assertMap(wm, -1, mA, null, emptyMap, 1, emptyMap);
+		Assert.map(wm, -1, mA, null, emptyMap, 1, emptyMap);
 	}
 
 	@Test
 	public void testOf() {
-		assertEquals(Immutable.ofAll(null), null);
-		assertUnordered(Immutable.ofAll(Wrap.collect()));
-		assertOrdered(Immutable.ofAll(Wrap.seqCollect(), array()), -1, null, 1);
-		assertEquals(Immutable.of(null, list), null);
-		assertUnordered(Immutable.of(Wrap.idSet(), list), -1, null, 1);
-		assertEquals(Immutable.of(null, map), null);
-		assertEquals(Immutable.of(null, -1, "A"), null);
-		assertEquals(Immutable.of(null, -1, "A", null, "B"), null);
-		assertEquals(Immutable.of(null, -1, "A", null, "B", 1, null), null);
-		assertEquals(Immutable.of(null, -1, "A", null, "B", 1, null, 0, "D"), null);
-		assertEquals(Immutable.of(null, -1, "A", null, "B", 1, null, 0, "D", null, null), null);
-		assertOrdered(Immutable.of(Wrap.seqMap(), -1, "A"), -1, "A");
-		assertOrdered(Immutable.of(Wrap.sortMap(), -1, "A", null, "B"), null, "B", -1, "A");
-		assertOrdered(Immutable.of(Wrap.navMap(), -1, "A", null, "B", 1, null), //
+		Assert.equal(Immutable.ofAll(null), null);
+		Assert.unordered(Immutable.ofAll(Wrap.collect()));
+		Assert.ordered(Immutable.ofAll(Wrap.seqCollect(), array()), -1, null, 1);
+		Assert.equal(Immutable.of(null, list), null);
+		Assert.unordered(Immutable.of(Wrap.idSet(), list), -1, null, 1);
+		Assert.equal(Immutable.of(null, map), null);
+		Assert.equal(Immutable.of(null, -1, "A"), null);
+		Assert.equal(Immutable.of(null, -1, "A", null, "B"), null);
+		Assert.equal(Immutable.of(null, -1, "A", null, "B", 1, null), null);
+		Assert.equal(Immutable.of(null, -1, "A", null, "B", 1, null, 0, "D"), null);
+		Assert.equal(Immutable.of(null, -1, "A", null, "B", 1, null, 0, "D", null, null), null);
+		Assert.ordered(Immutable.of(Wrap.seqMap(), -1, "A"), -1, "A");
+		Assert.ordered(Immutable.of(Wrap.sortMap(), -1, "A", null, "B"), null, "B", -1, "A");
+		Assert.ordered(Immutable.of(Wrap.navMap(), -1, "A", null, "B", 1, null), //
 			null, "B", -1, "A", 1, null);
-		assertMap(Immutable.of(Wrap.idMap(), -1, "A", null, "B", 1, null, 0, "D"), //
+		Assert.map(Immutable.of(Wrap.idMap(), -1, "A", null, "B", 1, null, 0, "D"), //
 			-1, "A", null, "B", 1, null, 0, "D");
-		assertMap(Immutable.of(Wrap.map(), -1, "A", null, "B", 1, null, 0, "D", null, null), //
+		Assert.map(Immutable.of(Wrap.map(), -1, "A", null, "B", 1, null, 0, "D", null, null), //
 			-1, "A", 1, null, 0, "D", null, null);
 	}
 
 	@Test
 	public void testAdapt() {
-		assertEquals(Immutable.adaptAll(null, fn, array()), null);
-		assertEquals(Immutable.adapt(null, fn, fn, map), null);
+		Assert.equal(Immutable.adaptAll(null, fn, array()), null);
+		Assert.equal(Immutable.adapt(null, fn, fn, map), null);
 	}
 
 	@Test
 	public void testBiAdapt() {
-		assertEquals(Immutable.biAdapt(null, biFn, biFn, map), null);
+		Assert.equal(Immutable.biAdapt(null, biFn, biFn, map), null);
 	}
 
 	@Test
 	public void testConvert() {
-		assertEquals(Immutable.convert(null, biFn, map), null);
-		assertEquals(Immutable.convertAll(null, fn, fn, array()), null);
-		assertEquals(Immutable.convert(null, fn, fn, list), null);
+		Assert.equal(Immutable.convert(null, biFn, map), null);
+		Assert.equal(Immutable.convertAll(null, fn, fn, array()), null);
+		Assert.equal(Immutable.convert(null, fn, fn, list), null);
 	}
 
 	@Test
 	public void testInvert() {
-		assertEquals(Immutable.invert(null, map), null);
+		Assert.equal(Immutable.invert(null, map), null);
 	}
 
 	// lists
 
 	@Test
 	public void testList() {
-		assertOrdered(Immutable.list());
-		assertOrdered(Immutable.listOf(array()), -1, null, 1);
-		assertOrdered(Immutable.list(array(), 2), 1);
-		assertOrdered(Immutable.list(list), -1, null, 1);
-		assertOrdered(Immutable.listOfAll(null, array()), -1, null, 1);
-		assertOrdered(Immutable.list(null, array(), 2), 1);
-		assertOrdered(Immutable.list(null, list), -1, null, 1);
-		assertOrdered(Immutable.listOfAll(Lists::of, array()), -1, null, 1);
-		assertOrdered(Immutable.list(Lists::of, array(), 2), 1);
-		assertOrdered(Immutable.list(Lists::of, list), -1, null, 1);
+		Assert.ordered(Immutable.list());
+		Assert.ordered(Immutable.listOf(array()), -1, null, 1);
+		Assert.ordered(Immutable.list(array(), 2), 1);
+		Assert.ordered(Immutable.list(list), -1, null, 1);
+		Assert.ordered(Immutable.listOfAll(null, array()), -1, null, 1);
+		Assert.ordered(Immutable.list(null, array(), 2), 1);
+		Assert.ordered(Immutable.list(null, list), -1, null, 1);
+		Assert.ordered(Immutable.listOfAll(Lists::of, array()), -1, null, 1);
+		Assert.ordered(Immutable.list(Lists::of, array(), 2), 1);
+		Assert.ordered(Immutable.list(Lists::of, list), -1, null, 1);
 	}
 
 	@Test
 	public void testAdaptList() {
-		assertOrdered(Immutable.adaptListOf(fn, array()), "-1", "null", "1");
-		assertOrdered(Immutable.adaptList(fn, array(), 1), "null", "1");
-		assertOrdered(Immutable.adaptList(fn, list), "-1", "null", "1");
-		assertOrdered(Immutable.adaptListOfAll(null, fn, array()), "-1", "null", "1");
-		assertOrdered(Immutable.adaptList(null, fn, list), "-1", "null", "1");
-		assertOrdered(Immutable.adaptListOfAll(Lists::of, fn, array()), "-1", "null", "1");
-		assertOrdered(Immutable.adaptList(Lists::of, fn, list), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptListOf(fn, array()), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptList(fn, array(), 1), "null", "1");
+		Assert.ordered(Immutable.adaptList(fn, list), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptListOfAll(null, fn, array()), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptList(null, fn, list), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptListOfAll(Lists::of, fn, array()), "-1", "null", "1");
+		Assert.ordered(Immutable.adaptList(Lists::of, fn, list), "-1", "null", "1");
 	}
 
 	@Test
 	public void testConvertList() {
-		assertUnordered(Immutable.convertList(biFn, map), -1, "B", 1);
-		assertUnordered(Immutable.convertList(null, biFn, map), -1, "B", 1);
-		assertUnordered(Immutable.convertList(Lists::of, biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertList(biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertList(null, biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertList(Lists::of, biFn, map), -1, "B", 1);
 	}
 
 	// sets
 
 	@Test
 	public void testSet() {
-		assertUnordered(Immutable.set());
-		assertUnordered(Immutable.setOf(array()), -1, null, 1);
-		assertUnordered(Immutable.set(array(), 2), 1);
-		assertUnordered(Immutable.set(set), -1, null, 1);
-		assertUnordered(Immutable.setOfAll(null, array()), -1, null, 1);
-		assertUnordered(Immutable.set(null, array(), 2), 1);
-		assertUnordered(Immutable.set(null, set), -1, null, 1);
-		assertUnordered(Immutable.setOfAll(Sets::of, array()), -1, null, 1);
-		assertUnordered(Immutable.set(Sets::of, array(), 2), 1);
-		assertUnordered(Immutable.set(Sets::of, set), -1, null, 1);
+		Assert.unordered(Immutable.set());
+		Assert.unordered(Immutable.setOf(array()), -1, null, 1);
+		Assert.unordered(Immutable.set(array(), 2), 1);
+		Assert.unordered(Immutable.set(set), -1, null, 1);
+		Assert.unordered(Immutable.setOfAll(null, array()), -1, null, 1);
+		Assert.unordered(Immutable.set(null, array(), 2), 1);
+		Assert.unordered(Immutable.set(null, set), -1, null, 1);
+		Assert.unordered(Immutable.setOfAll(Sets::of, array()), -1, null, 1);
+		Assert.unordered(Immutable.set(Sets::of, array(), 2), 1);
+		Assert.unordered(Immutable.set(Sets::of, set), -1, null, 1);
 	}
 
 	@Test
 	public void testAdaptSet() {
-		assertUnordered(Immutable.adaptSetOf(fn, array()), "-1", "null", "1");
-		assertUnordered(Immutable.adaptSet(fn, array(), 1), "null", "1");
-		assertUnordered(Immutable.adaptSet(fn, list), "-1", "null", "1");
-		assertUnordered(Immutable.adaptSetOfAll(null, fn, array()), "-1", "null", "1");
-		assertUnordered(Immutable.adaptSet(null, fn, list), "-1", "null", "1");
-		assertUnordered(Immutable.adaptSetOfAll(Sets::of, fn, array()), "-1", "null", "1");
-		assertUnordered(Immutable.adaptSet(Sets::of, fn, list), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSetOf(fn, array()), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSet(fn, array(), 1), "null", "1");
+		Assert.unordered(Immutable.adaptSet(fn, list), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSetOfAll(null, fn, array()), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSet(null, fn, list), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSetOfAll(Sets::of, fn, array()), "-1", "null", "1");
+		Assert.unordered(Immutable.adaptSet(Sets::of, fn, list), "-1", "null", "1");
 	}
 
 	@Test
 	public void testConvertSet() {
-		assertUnordered(Immutable.convertSet(biFn, map), -1, "B", 1);
-		assertUnordered(Immutable.convertSet(null, biFn, map), -1, "B", 1);
-		assertUnordered(Immutable.convertSet(Sets::of, biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertSet(biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertSet(null, biFn, map), -1, "B", 1);
+		Assert.unordered(Immutable.convertSet(Sets::of, biFn, map), -1, "B", 1);
 	}
 
 	// maps
 
 	@Test
 	public void testMapOf() {
-		assertMap(Immutable.mapOf(1, "A"), 1, "A");
-		assertMap(Immutable.mapOf(1, "A", null, "B"), 1, "A", null, "B");
-		assertMap(Immutable.mapOf(1, "A", null, "B", 3, null), 1, "A", null, "B", 3, null);
-		assertMap(Immutable.mapOf(1, "A", null, "B", 3, null, null, null), 1, "A", null, null, 3,
+		Assert.map(Immutable.mapOf(1, "A"), 1, "A");
+		Assert.map(Immutable.mapOf(1, "A", null, "B"), 1, "A", null, "B");
+		Assert.map(Immutable.mapOf(1, "A", null, "B", 3, null), 1, "A", null, "B", 3, null);
+		Assert.map(Immutable.mapOf(1, "A", null, "B", 3, null, null, null), 1, "A", null, null, 3,
 			null);
-		assertMap(Immutable.mapOf(1, "A", null, "B", 3, null, null, null, 5, "E"), 1, "A", null,
+		Assert.map(Immutable.mapOf(1, "A", null, "B", 3, null, null, null, 5, "E"), 1, "A", null,
 			null, 3, null, 5, "E");
-		assertMap(Immutable.mapOf(nullFn(), 1, "A"), 1, "A");
-		assertMap(Immutable.mapOf(nullFn(), 1, "A", null, "B"), 1, "A", null, "B");
-		assertMap(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null), 1, "A", null, "B", 3,
+		Assert.map(Immutable.mapOf(nullFn(), 1, "A"), 1, "A");
+		Assert.map(Immutable.mapOf(nullFn(), 1, "A", null, "B"), 1, "A", null, "B");
+		Assert.map(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null), 1, "A", null, "B", 3,
 			null);
-		assertMap(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null, null, null), 1, "A", null,
+		Assert.map(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null, null, null), 1, "A", null,
 			null, 3, null);
-		assertMap(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null, null, null, 5, "E"), 1, "A",
-			null, null, 3, null, 5, "E");
-		assertMap(Immutable.mapOf(Maps::of, 1, "A"), 1, "A");
-		assertMap(Immutable.mapOf(Maps::of, 1, "A", null, "B"), 1, "A", null, "B");
-		assertMap(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null), 1, "A", null, "B", 3,
+		Assert.map(Immutable.mapOf(nullFn(), 1, "A", null, "B", 3, null, null, null, 5, "E"), 1,
+			"A", null, null, 3, null, 5, "E");
+		Assert.map(Immutable.mapOf(Maps::of, 1, "A"), 1, "A");
+		Assert.map(Immutable.mapOf(Maps::of, 1, "A", null, "B"), 1, "A", null, "B");
+		Assert.map(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null), 1, "A", null, "B", 3,
 			null);
-		assertMap(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null, null, null), 1, "A", null,
+		Assert.map(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null, null, null), 1, "A", null,
 			null, 3, null);
-		assertMap(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null, null, null, 5, "E"), 1, "A",
-			null, null, 3, null, 5, "E");
+		Assert.map(Immutable.mapOf(Maps::of, 1, "A", null, "B", 3, null, null, null, 5, "E"), 1,
+			"A", null, null, 3, null, 5, "E");
 	}
 
 	@Test
 	public void testMap() {
-		assertMap(Immutable.map(map), -1, "A", null, "B", 1, null);
-		assertMap(Immutable.map(nullFn(), map), -1, "A", null, "B", 1, null);
-		assertMap(Immutable.map(Maps::of, map), -1, "A", null, "B", 1, null);
+		Assert.map(Immutable.map(map), -1, "A", null, "B", 1, null);
+		Assert.map(Immutable.map(nullFn(), map), -1, "A", null, "B", 1, null);
+		Assert.map(Immutable.map(Maps::of, map), -1, "A", null, "B", 1, null);
 	}
 
 	@Test
@@ -305,12 +300,12 @@ public class ImmutableTest {
 		var lA = Lists.ofAll("A", null);
 		var lB = Lists.ofAll(null, "B");
 		var m = Maps.of(-1, lA, null, lB, 1, null);
-		assertMap(Immutable.mapOfLists(null));
-		var wm = assertImmutable(Immutable.mapOfLists(m));
-		assertMap(assertImmutable(wm), -1, lA, null, lB, 1, List.of());
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.mapOfLists(null));
+		var wm = Assert.immutable(Immutable.mapOfLists(m));
+		Assert.map(Assert.immutable(wm), -1, lA, null, lB, 1, List.of());
+		wm.values().forEach(Assert::immutable);
 		lB.clear();
-		assertMap(wm, -1, lA, null, Immutable.listOf(null, "B"), 1, List.of());
+		Assert.map(wm, -1, lA, null, Immutable.listOf(null, "B"), 1, List.of());
 	}
 
 	@Test
@@ -318,12 +313,12 @@ public class ImmutableTest {
 		var sA = Sets.ofAll("A", null);
 		var sB = Sets.ofAll(null, "B");
 		var m = Maps.of(-1, sA, null, sB, 1, null);
-		assertMap(Immutable.mapOfSets(null));
-		var wm = assertImmutable(Immutable.mapOfSets(m));
-		assertMap(assertImmutable(wm), -1, sA, null, sB, 1, Set.of());
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.mapOfSets(null));
+		var wm = Assert.immutable(Immutable.mapOfSets(m));
+		Assert.map(Assert.immutable(wm), -1, sA, null, sB, 1, Set.of());
+		wm.values().forEach(Assert::immutable);
 		sB.clear();
-		assertMap(wm, -1, sA, null, Immutable.setOf(null, "B"), 1, Set.of());
+		Assert.map(wm, -1, sA, null, Immutable.setOf(null, "B"), 1, Set.of());
 	}
 
 	@Test
@@ -331,47 +326,47 @@ public class ImmutableTest {
 		var mA = Maps.<Integer, String>of(1, null);
 		var mB = Maps.<Integer, String>of(null, "B");
 		var m = Maps.of(-1, mA, null, mB, 1, null);
-		assertMap(Immutable.mapOfMaps(null));
-		var wm = assertImmutable(Immutable.mapOfMaps(m));
-		assertMap(assertImmutable(wm), -1, mA, null, mB, 1, emptyMap);
-		wm.values().forEach(Assert::assertImmutable);
+		Assert.map(Immutable.mapOfMaps(null));
+		var wm = Assert.immutable(Immutable.mapOfMaps(m));
+		Assert.map(Assert.immutable(wm), -1, mA, null, mB, 1, emptyMap);
+		wm.values().forEach(Assert::immutable);
 		mB.clear();
-		assertMap(wm, -1, mA, null, Immutable.mapOf(null, "B"), 1, emptyMap);
+		Assert.map(wm, -1, mA, null, Immutable.mapOf(null, "B"), 1, emptyMap);
 	}
 
 	@Test
 	public void testAdaptMap() {
-		assertMap(Immutable.adaptMap(fn, map), "-1", "A", "null", "B", "1", null);
-		assertMap(Immutable.adaptMap(fn, fn, map), "-1", "A", "null", "B", "1", "null");
-		assertMap(Immutable.adaptMap(null, fn, fn, map), "-1", "A", "null", "B", "1", "null");
-		assertMap(Immutable.adaptMap(Maps::of, fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		Assert.map(Immutable.adaptMap(fn, map), "-1", "A", "null", "B", "1", null);
+		Assert.map(Immutable.adaptMap(fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		Assert.map(Immutable.adaptMap(null, fn, fn, map), "-1", "A", "null", "B", "1", "null");
+		Assert.map(Immutable.adaptMap(Maps::of, fn, fn, map), "-1", "A", "null", "B", "1", "null");
 	}
 
 	@Test
 	public void testBiAdaptMap() {
-		assertMap(Immutable.biAdaptMap(biFn, map), -1, "A", "B", "B", 1, null);
-		assertMap(Immutable.biAdaptMap(biFn, biFn, map), -1, -1, "B", "B", 1, 1);
-		assertMap(Immutable.biAdaptMap(nullFn(), biFn, biFn, map), -1, -1, "B", "B", 1, 1);
-		assertMap(Immutable.biAdaptMap(Maps::of, biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		Assert.map(Immutable.biAdaptMap(biFn, map), -1, "A", "B", "B", 1, null);
+		Assert.map(Immutable.biAdaptMap(biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		Assert.map(Immutable.biAdaptMap(nullFn(), biFn, biFn, map), -1, -1, "B", "B", 1, 1);
+		Assert.map(Immutable.biAdaptMap(Maps::of, biFn, biFn, map), -1, -1, "B", "B", 1, 1);
 	}
 
 	@Test
 	public void testInvertMap() {
-		assertMap(Immutable.invertMap(map), "A", -1, "B", null, null, 1);
-		assertMap(Immutable.invertMap(nullFn(), map), "A", -1, "B", null, null, 1);
-		assertMap(Immutable.invertMap(Maps::of, map), "A", -1, "B", null, null, 1);
+		Assert.map(Immutable.invertMap(map), "A", -1, "B", null, null, 1);
+		Assert.map(Immutable.invertMap(nullFn(), map), "A", -1, "B", null, null, 1);
+		Assert.map(Immutable.invertMap(Maps::of, map), "A", -1, "B", null, null, 1);
 	}
 
 	@Test
 	public void testConvertMap() {
-		assertMap(Immutable.convertMapOf(fn, fn, array()), "-1", "-1", "null", "null", "1", "1");
-		assertMap(Immutable.convertMap(nullFn(), fn, fn, array(), 1, 2), "null", "null", "1", "1");
-		assertMap(Immutable.convertMap(Maps::of, fn, fn, array(), 1, 2), "null", "null", "1", "1");
-		assertMap(Immutable.convertMap(fn, list), "-1", -1, "null", null, "1", 1);
-		assertMap(Immutable.convertMap(fn, fn, list), "-1", "-1", "null", "null", "1", "1");
-		assertMap(Immutable.convertMap(nullFn(), fn, fn, list), "-1", "-1", "null", "null", "1",
+		Assert.map(Immutable.convertMapOf(fn, fn, array()), "-1", "-1", "null", "null", "1", "1");
+		Assert.map(Immutable.convertMap(nullFn(), fn, fn, array(), 1, 2), "null", "null", "1", "1");
+		Assert.map(Immutable.convertMap(Maps::of, fn, fn, array(), 1, 2), "null", "null", "1", "1");
+		Assert.map(Immutable.convertMap(fn, list), "-1", -1, "null", null, "1", 1);
+		Assert.map(Immutable.convertMap(fn, fn, list), "-1", "-1", "null", "null", "1", "1");
+		Assert.map(Immutable.convertMap(nullFn(), fn, fn, list), "-1", "-1", "null", "null", "1",
 			"1");
-		assertMap(Immutable.convertMap(Maps::of, fn, fn, list), "-1", "-1", "null", "null", "1",
+		Assert.map(Immutable.convertMap(Maps::of, fn, fn, list), "-1", "-1", "null", "null", "1",
 			"1");
 	}
 }

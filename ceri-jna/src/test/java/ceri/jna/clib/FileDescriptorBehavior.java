@@ -1,8 +1,5 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.jna.clib.FileDescriptor.FLAGS;
 import static ceri.jna.clib.FileDescriptor.Open.CREAT;
 import static ceri.jna.clib.FileDescriptor.Open.RDONLY;
@@ -11,6 +8,7 @@ import static ceri.jna.clib.FileDescriptor.Open.TRUNC;
 import static ceri.jna.clib.FileDescriptor.Open.WRONLY;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.jna.clib.FileDescriptor.Open;
 
@@ -21,34 +19,34 @@ public class FileDescriptorBehavior {
 	public void shouldProvideNoOpFd() throws IOException {
 		var captor = Captor.ofInt();
 		FileDescriptor.NULL.accept(captor::accept);
-		assertEquals(FileDescriptor.NULL.apply(fd -> {
+		Assert.equal(FileDescriptor.NULL.apply(fd -> {
 			captor.accept(fd);
 			return 0;
 		}), null);
-		assertEquals(FileDescriptor.NULL.in().read(), 0);
+		Assert.equal(FileDescriptor.NULL.in().read(), 0);
 		FileDescriptor.NULL.out().write(0);
 		FileDescriptor.NULL.blocking(false);
-		assertUnordered(FLAGS.getAll(FileDescriptor.NULL), RDONLY);
+		Assert.unordered(FLAGS.getAll(FileDescriptor.NULL), RDONLY);
 		FileDescriptor.NULL.close();
-		assertFind(FileDescriptor.NULL, ".*NULL$");
+		Assert.find(FileDescriptor.NULL, ".*NULL$");
 		captor.verifyInt(); // no calls
 	}
 
 	@Test
 	public void shouldEncodeOpens() {
-		assertEquals(Open.encode(CREAT, TRUNC), CREAT.value | TRUNC.value);
-		assertEquals(Open.encode(RDONLY), 0);
+		Assert.equal(Open.encode(CREAT, TRUNC), CREAT.value | TRUNC.value);
+		Assert.equal(Open.encode(RDONLY), 0);
 	}
 
 	@Test
 	public void shouldDecodeOpens() {
-		assertUnordered(Open.decode(3), WRONLY, RDWR);
-		assertUnordered(Open.decode(0), RDONLY);
+		Assert.unordered(Open.decode(3), WRONLY, RDWR);
+		Assert.unordered(Open.decode(0), RDONLY);
 	}
 
 	@Test
 	public void shouldProvideOpenStringRepresentation() {
-		assertEquals(Open.string(3), "WRONLY|RDWR");
-		assertEquals(Open.string(0), "RDONLY");
+		Assert.equal(Open.string(3), "WRONLY|RDWR");
+		Assert.equal(Open.string(0), "RDONLY");
 	}
 }

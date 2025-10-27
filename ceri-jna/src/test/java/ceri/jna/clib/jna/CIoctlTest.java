@@ -1,13 +1,12 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import static ceri.jna.test.JnaTestUtil.assertCUlong;
 import static ceri.jna.test.JnaTestUtil.assertRef;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.jna.clib.jna.CIoctl.Linux.serial_struct;
 import ceri.jna.clib.test.TestCLibNative;
 import ceri.jna.clib.test.TestCLibNative.CtlArgs;
@@ -27,16 +26,16 @@ public class CIoctlTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CIoctl.class);
-		assertPrivateConstructor(CIoctl.Mac.class);
-		assertPrivateConstructor(CIoctl.Linux.class);
+		Assert.privateConstructor(CIoctl.class);
+		Assert.privateConstructor(CIoctl.Mac.class);
+		Assert.privateConstructor(CIoctl.Linux.class);
 	}
 
 	@Test
 	public void testIoctl() throws CException {
 		var lib = initFd();
 		lib.ioctl.autoResponses(3);
-		assertEquals(CIoctl.ioctl(() -> "test", fd, 0x111, -1, -2, -3), 3);
+		Assert.equal(CIoctl.ioctl(() -> "test", fd, 0x111, -1, -2, -3), 3);
 		assertIoctlAuto(fd, 0x111, -1, -2, -3);
 	}
 
@@ -53,7 +52,7 @@ public class CIoctlTest {
 	public void testFionread() throws CException {
 		initFd();
 		ioctlAutoIntRef(31);
-		assertEquals(CIoctl.fionread(fd), 31);
+		Assert.equal(CIoctl.fionread(fd), 31);
 		assertIoctlIntRef(fd, CIoctl.FIONREAD, 31);
 	}
 
@@ -61,7 +60,7 @@ public class CIoctlTest {
 	public void testTiocoutq() throws CException {
 		initFd();
 		ioctlAutoIntRef(37);
-		assertEquals(CIoctl.tiocoutq(fd), 37);
+		Assert.equal(CIoctl.tiocoutq(fd), 37);
 		assertIoctlIntRef(fd, CIoctl.TIOCOUTQ, 37);
 	}
 
@@ -76,7 +75,7 @@ public class CIoctlTest {
 	public void testTiocmget() throws CException {
 		initFd();
 		ioctlAutoIntRef(CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
-		assertEquals(CIoctl.tiocmget(fd), CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
+		Assert.equal(CIoctl.tiocmget(fd), CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_DTR | CIoctl.TIOCM_RI);
 	}
 
@@ -114,11 +113,11 @@ public class CIoctlTest {
 	public void testTiocmbitGet() throws CException {
 		initFd();
 		ioctlAutoIntRef(CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
-		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS), true);
+		Assert.equal(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RTS), true);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
-		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD), true);
+		Assert.equal(CIoctl.tiocmbit(fd, CIoctl.TIOCM_CD), true);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
-		assertEquals(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI), false);
+		Assert.equal(CIoctl.tiocmbit(fd, CIoctl.TIOCM_RI), false);
 		assertIoctlIntRef(fd, CIoctl.TIOCMGET, CIoctl.TIOCM_RTS | CIoctl.TIOCM_CD);
 	}
 
@@ -127,8 +126,8 @@ public class CIoctlTest {
 		var lib = initFd();
 		CIoctl.Mac.iossiospeed(fd, 250000);
 		var args = lib.ioctl.awaitAuto();
-		assertEquals(args.fd(), fd);
-		assertEquals(args.request(), CIoctl.Mac.IOSSIOSPEED);
+		Assert.equal(args.fd(), fd);
+		Assert.equal(args.request(), CIoctl.Mac.IOSSIOSPEED);
 		assertCUlong(args.arg(0), 250000L);
 	}
 
@@ -141,8 +140,8 @@ public class CIoctlTest {
 			ss.baud_base = 0x123;
 		}, 0);
 		var ss = CIoctl.Linux.tiocgserial(fd);
-		assertEquals(ss.type, 0x33);
-		assertEquals(ss.baud_base, 0x123);
+		Assert.equal(ss.type, 0x33);
+		Assert.equal(ss.baud_base, 0x123);
 		assertIoctlAuto(fd, CIoctl.Linux.TIOCGSERIAL, ss);
 	}
 
@@ -164,36 +163,36 @@ public class CIoctlTest {
 
 	public static class Mac {
 		static {
-			assertEquals(CIoctl._IO('t', 111), 0x2000746f, "_IO('t', 111)");
-			assertEquals(CIoctl._IOR('t', 106, Integer.BYTES), 0x4004746a, "_IOR('t', 106, int)");
-			assertEquals(CIoctl._IOW('t', 109, Integer.BYTES), 0x8004746d, "_IOW('t', 109, int)");
-			assertEquals(CIoctl._IOWR('B', 102, Integer.BYTES), 0xc0044266, "_IOWR('B', 102, int)");
-			assertEquals(CIoctl.TIOCSBRK, 0x2000747b, "TIOCSBRK");
-			assertEquals(CIoctl.TIOCCBRK, 0x2000747a, "TIOCCBRK");
-			assertEquals(CIoctl.FIONREAD, 0x4004667f, "FIONREAD");
-			assertEquals(CIoctl.TIOCEXCL, 0x2000740d, "TIOCEXCL");
-			assertEquals(CIoctl.TIOCOUTQ, 0x40047473, "TIOCOUTQ");
-			assertEquals(CIoctl.TIOCMGET, 0x4004746a, "TIOCMGET");
-			assertEquals(CIoctl.TIOCMBIS, 0x8004746c, "TIOCMBIS");
-			assertEquals(CIoctl.TIOCMBIC, 0x8004746b, "TIOCMBIC");
-			assertEquals(CIoctl.TIOCMSET, 0x8004746d, "TIOCMSET");
-			assertEquals(CIoctl.Mac.IOSSIOSPEED, 0x80085402, "IOSSIOSPEED");
+			Assert.equal(CIoctl._IO('t', 111), 0x2000746f, "_IO('t', 111)");
+			Assert.equal(CIoctl._IOR('t', 106, Integer.BYTES), 0x4004746a, "_IOR('t', 106, int)");
+			Assert.equal(CIoctl._IOW('t', 109, Integer.BYTES), 0x8004746d, "_IOW('t', 109, int)");
+			Assert.equal(CIoctl._IOWR('B', 102, Integer.BYTES), 0xc0044266, "_IOWR('B', 102, int)");
+			Assert.equal(CIoctl.TIOCSBRK, 0x2000747b, "TIOCSBRK");
+			Assert.equal(CIoctl.TIOCCBRK, 0x2000747a, "TIOCCBRK");
+			Assert.equal(CIoctl.FIONREAD, 0x4004667f, "FIONREAD");
+			Assert.equal(CIoctl.TIOCEXCL, 0x2000740d, "TIOCEXCL");
+			Assert.equal(CIoctl.TIOCOUTQ, 0x40047473, "TIOCOUTQ");
+			Assert.equal(CIoctl.TIOCMGET, 0x4004746a, "TIOCMGET");
+			Assert.equal(CIoctl.TIOCMBIS, 0x8004746c, "TIOCMBIS");
+			Assert.equal(CIoctl.TIOCMBIC, 0x8004746b, "TIOCMBIC");
+			Assert.equal(CIoctl.TIOCMSET, 0x8004746d, "TIOCMSET");
+			Assert.equal(CIoctl.Mac.IOSSIOSPEED, 0x80085402, "IOSSIOSPEED");
 		}
 	}
 
 	public static class Linux {
 		static {
-			assertEquals(CIoctl._IO('t', 111), 0x746f, "_IO('t', 111)");
-			assertEquals(CIoctl._IOR('t', 106, Integer.BYTES), 0x8004746a, "_IOR('t', 106, int)");
-			assertEquals(CIoctl._IOW('t', 109, Integer.BYTES), 0x4004746d, "_IOW('t', 109, int)");
-			assertEquals(CIoctl._IOWR('B', 102, Integer.BYTES), 0xc0044266, "_IOWR('B', 102, int)");
-			assertEquals(CIoctl.Linux.ASYNC_SPD_HI, 0x10, "ASYNC_SPD_HI");
-			assertEquals(CIoctl.Linux.ASYNC_SPD_VHI, 0x20, "ASYNC_SPD_VHI");
-			assertEquals(CIoctl.Linux.ASYNC_SPD_SHI, 0x1000, "ASYNC_SPD_SHI");
-			assertEquals(CIoctl.Linux.ASYNC_SPD_CUST, 0x30, "ASYNC_SPD_CUST");
-			assertEquals(CIoctl.Linux.ASYNC_SPD_MASK, 0x1030, "ASYNC_SPD_MASK");
-			assertEquals(CIoctl.Linux.TIOCGSERIAL, 0x541e, "TIOCGSERIAL");
-			assertEquals(CIoctl.Linux.TIOCSSERIAL, 0x541f, "TIOCSSERIAL");
+			Assert.equal(CIoctl._IO('t', 111), 0x746f, "_IO('t', 111)");
+			Assert.equal(CIoctl._IOR('t', 106, Integer.BYTES), 0x8004746a, "_IOR('t', 106, int)");
+			Assert.equal(CIoctl._IOW('t', 109, Integer.BYTES), 0x4004746d, "_IOW('t', 109, int)");
+			Assert.equal(CIoctl._IOWR('B', 102, Integer.BYTES), 0xc0044266, "_IOWR('B', 102, int)");
+			Assert.equal(CIoctl.Linux.ASYNC_SPD_HI, 0x10, "ASYNC_SPD_HI");
+			Assert.equal(CIoctl.Linux.ASYNC_SPD_VHI, 0x20, "ASYNC_SPD_VHI");
+			Assert.equal(CIoctl.Linux.ASYNC_SPD_SHI, 0x1000, "ASYNC_SPD_SHI");
+			Assert.equal(CIoctl.Linux.ASYNC_SPD_CUST, 0x30, "ASYNC_SPD_CUST");
+			Assert.equal(CIoctl.Linux.ASYNC_SPD_MASK, 0x1030, "ASYNC_SPD_MASK");
+			Assert.equal(CIoctl.Linux.TIOCGSERIAL, 0x541e, "TIOCGSERIAL");
+			Assert.equal(CIoctl.Linux.TIOCSSERIAL, 0x541f, "TIOCSSERIAL");
 		}
 	}
 
@@ -205,8 +204,8 @@ public class CIoctlTest {
 	private void assertIoctlIntRef(int fd, int request, int value) {
 		var lib = ref.lib();
 		var args = lib.ioctl.awaitAuto();
-		assertEquals(args.fd(), fd);
-		assertEquals(args.request(), request);
+		Assert.equal(args.fd(), fd);
+		Assert.equal(args.request(), request);
 		assertRef(args.arg(0), value);
 	}
 

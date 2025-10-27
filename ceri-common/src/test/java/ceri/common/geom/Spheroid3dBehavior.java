@@ -1,7 +1,5 @@
 package ceri.common.geom;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
 import org.junit.Test;
@@ -14,8 +12,8 @@ public class Spheroid3dBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(s0, Spheroid3d.of(2, 3));
-		assertNotEquals(s0, Spheroid3d.of(2.1, 3));
-		assertNotEquals(s0, Spheroid3d.of(2, 2.9));
+		Assert.notEqual(s0, Spheroid3d.of(2.1, 3));
+		Assert.notEqual(s0, Spheroid3d.of(2, 2.9));
 	}
 
 	@Test
@@ -26,7 +24,7 @@ public class Spheroid3dBehavior {
 
 	@Test
 	public void shouldDefineNull() {
-		assertEquals(Spheroid3d.of(0, 0), Spheroid3d.NULL);
+		Assert.equal(Spheroid3d.of(0, 0), Spheroid3d.NULL);
 		Assert.approx(Spheroid3d.NULL.h(), 0);
 		Assert.approx(Spheroid3d.NULL.r, 0);
 		Assert.approx(Spheroid3d.NULL.c, 0);

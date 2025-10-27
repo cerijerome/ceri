@@ -1,15 +1,12 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.concurrent.SimpleExecutor;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.CFileDescriptor;
 import ceri.jna.clib.ErrNo;
@@ -41,8 +38,8 @@ public class SyncPipeBehavior {
 	public void shouldSignalOnce() throws IOException {
 		initLib(1);
 		pipe = SyncPipe.of(poll.fd(0));
-		assertTrue(pipe.signal());
-		assertFalse(pipe.signal());
+		Assert.yes(pipe.signal());
+		Assert.no(pipe.signal());
 	}
 
 	@Test
@@ -52,8 +49,8 @@ public class SyncPipeBehavior {
 		lib.ioctl.autoResponse(args -> { // available() always returns 1
 			if (args.request() == CIoctl.FIONREAD) args.<IntByReference>arg(0).setValue(1);
 		}, 0);
-		assertFalse(pipe.signal());
-		assertFalse(pipe.signal());
+		Assert.no(pipe.signal());
+		Assert.no(pipe.signal());
 	}
 
 	@Test
@@ -61,8 +58,8 @@ public class SyncPipeBehavior {
 		var lib = initLib(1);
 		lib.write.error.setFrom(ErrNo.EBADFD::lastError, null);
 		pipe = SyncPipe.of(poll.fd(0));
-		io(pipe::signal);
-		assertTrue(pipe.signal());
+		Assert.io(pipe::signal);
+		Assert.yes(pipe.signal());
 	}
 
 	@Test
@@ -70,8 +67,8 @@ public class SyncPipeBehavior {
 		var poll = Poll.of(1);
 		pipe = SyncPipe.of(poll.fd(0));
 		thread = TestUtil.threadRun(pipe::signal);
-		assertEquals(poll.poll(), 1);
-		assertTrue(pipe.verifyPoll());
+		Assert.equal(poll.poll(), 1);
+		Assert.yes(pipe.verifyPoll());
 		pipe.clear();
 		thread.get();
 	}
@@ -82,7 +79,7 @@ public class SyncPipeBehavior {
 		pipe = SyncPipe.of(poll.fd(0));
 		pipe.close();
 		lib.write.assertCalls(1);
-		assertFalse(pipe.signal());
+		Assert.no(pipe.signal());
 		pipe.clear();
 		pipe.close();
 		lib.write.assertCalls(1); // no change
@@ -94,9 +91,9 @@ public class SyncPipeBehavior {
 		var lib = initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
-		assertFalse(sync.poll());
+		Assert.no(sync.poll());
 		lib.pollAuto(args -> args.pollfd(0).revents = (short) Event.POLLIN.value);
-		assertTrue(sync.poll());
+		Assert.yes(sync.poll());
 	}
 
 	@Test
@@ -104,8 +101,8 @@ public class SyncPipeBehavior {
 		var lib = initLib(0);
 		fd = CFileDescriptor.open("test");
 		sync = SyncPipe.fd(fd, Event.POLLIN);
-		assertTrue(sync.signal());
-		assertFalse(sync.signal());
+		Assert.yes(sync.signal());
+		Assert.no(sync.signal());
 		lib.write.assertCalls(1);
 		lib.read.assertCalls(0);
 	}
@@ -120,8 +117,8 @@ public class SyncPipeBehavior {
 			sync.close();
 			return 0;
 		});
-		assertEquals(sync.poll(), false);
-		assertEquals(sync.poll(), false);
+		Assert.equal(sync.poll(), false);
+		Assert.equal(sync.poll(), false);
 		lib.poll.assertCalls(1);
 	}
 

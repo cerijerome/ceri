@@ -1,8 +1,7 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.jna.clib.test.TestCLibNative;
 
 public class CStdlibTest {
@@ -10,38 +9,38 @@ public class CStdlibTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(CStdlib.class);
+		Assert.privateConstructor(CStdlib.class);
 	}
 
 	@Test
 	public void testNativeGetEnv() throws CException {
-		assertEquals(CStdlib.getenv(KEY + "x"), null);
+		Assert.equal(CStdlib.getenv(KEY + "x"), null);
 	}
 	
 	@Test
 	public void testNativeSetEnvWithOverwrite() throws CException {
 		CStdlib.setenv(KEY, "123", true);
 		CStdlib.setenv(KEY, "456", true);
-		assertEquals(CStdlib.getenv(KEY), "456");
+		Assert.equal(CStdlib.getenv(KEY), "456");
 	}
 
 	@Test
 	public void testNativeSetEnvWithoutOverwrite() throws CException {
 		CStdlib.setenv(KEY, "123", true);
 		CStdlib.setenv(KEY, "456", false);
-		assertEquals(CStdlib.getenv(KEY), "123");
+		Assert.equal(CStdlib.getenv(KEY), "123");
 	}
 
 	@Test
 	public void testSetEnv() throws CException {
 		try (var _ = TestCLibNative.register()) {
-			assertEquals(CStdlib.getenv(KEY), null);
+			Assert.equal(CStdlib.getenv(KEY), null);
 			CStdlib.setenv(KEY, "123", false);
-			assertEquals(CStdlib.getenv(KEY), "123");
+			Assert.equal(CStdlib.getenv(KEY), "123");
 			CStdlib.setenv(KEY, "456", false);
-			assertEquals(CStdlib.getenv(KEY), "123");
+			Assert.equal(CStdlib.getenv(KEY), "123");
 			CStdlib.setenv(KEY, "456", true);
-			assertEquals(CStdlib.getenv(KEY), "456");
+			Assert.equal(CStdlib.getenv(KEY), "456");
 		}
 	}
 

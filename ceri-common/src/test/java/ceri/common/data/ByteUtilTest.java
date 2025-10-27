@@ -1,11 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertStream;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.provider;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.ByteArrayOutputStream;
@@ -25,7 +19,7 @@ public class ByteUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(ByteUtil.class);
+		Assert.privateConstructor(ByteUtil.class);
 	}
 
 	@Test
@@ -70,14 +64,14 @@ public class ByteUtilTest {
 
 	@Test
 	public void testReduceMaskLong() {
-		assertEquals(ByteUtil.reduceMask(true, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
-		assertEquals(ByteUtil.reduceMask(false, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
+		Assert.equal(ByteUtil.reduceMask(true, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
+		Assert.equal(ByteUtil.reduceMask(false, 0x8040201010204080L, 0L, (_, n) -> n + 1), 8L);
 	}
 
 	@Test
 	public void testReduceMaskInt() {
-		assertEquals(ByteUtil.reduceMaskInt(true, 0x80402010, 0, (_, n) -> n + 1), 4);
-		assertEquals(ByteUtil.reduceMaskInt(false, 0x80402010, 0, (_, n) -> n + 1), 4);
+		Assert.equal(ByteUtil.reduceMaskInt(true, 0x80402010, 0, (_, n) -> n + 1), 4);
+		Assert.equal(ByteUtil.reduceMaskInt(false, 0x80402010, 0, (_, n) -> n + 1), 4);
 	}
 
 	@Test
@@ -85,66 +79,66 @@ public class ByteUtilTest {
 		byte[] b = ArrayUtil.bytes.of(-1, 0, 127, 128);
 		Assert.isNull(ByteUtil.toHex((byte[]) null, ""));
 		Assert.isNull(ByteUtil.toHex((byte[]) null, 0, 0, ""));
-		assertEquals(ByteUtil.toHex(b, ""), "ff007f80");
-		assertEquals(ByteUtil.toHex(b, ":"), "ff:00:7f:80");
-		assertEquals(ByteUtil.toHex(b, "-"), "ff-00-7f-80");
+		Assert.equal(ByteUtil.toHex(b, ""), "ff007f80");
+		Assert.equal(ByteUtil.toHex(b, ":"), "ff:00:7f:80");
+		Assert.equal(ByteUtil.toHex(b, "-"), "ff-00-7f-80");
 	}
 
 	@Test
 	public void testFromHex() {
-		assertArray(ByteUtil.fromHex("abcde").copy(0), 0x0a, 0xbc, 0xde);
-		assertArray(ByteUtil.fromHex("abcdef").copy(0), 0xab, 0xcd, 0xef);
+		Assert.array(ByteUtil.fromHex("abcde").copy(0), 0x0a, 0xbc, 0xde);
+		Assert.array(ByteUtil.fromHex("abcdef").copy(0), 0xab, 0xcd, 0xef);
 		Assert.isNull(ByteUtil.fromHex(null));
-		assertArray(ByteUtil.fromHex("").copy(0));
+		Assert.array(ByteUtil.fromHex("").copy(0));
 	}
 
 	@Test
 	public void testStreamOf() {
 		byte[] b = ArrayUtil.bytes.of(-1, 0, 1, 127, 128);
-		assertStream(ByteUtil.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
-		assertStream(ByteUtil.ustream(-1, 0, 1, 127, 128), 0xff, 0, 1, 0x7f, 0x80);
+		Assert.stream(ByteUtil.ustream(b), 0xff, 0, 1, 0x7f, 0x80);
+		Assert.stream(ByteUtil.ustream(-1, 0, 1, 127, 128), 0xff, 0, 1, 0x7f, 0x80);
 	}
 
 	@Test
 	public void testToByteArray() {
-		assertArray(ByteUtil.bytes(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
-		assertArray(ByteUtil.bytes(Streams.ints(-1, 0, 127, 128)), -1, 0, 127, 128);
+		Assert.array(ByteUtil.bytes(List.of(-1, 0, 127, 128)), -1, 0, 127, 128);
+		Assert.array(ByteUtil.bytes(Streams.ints(-1, 0, 127, 128)), -1, 0, 127, 128);
 	}
 
 	@Test
 	public void testBytesFromBuffer() {
 		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		buffer.position(2).limit(4);
-		assertArray(ByteUtil.bytes(buffer), 3, 4);
+		Assert.array(ByteUtil.bytes(buffer), 3, 4);
 	}
 
 	@Test
 	public void testFill() {
-		assertArray(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
-		assertArray(ByteUtil.fill(0, 0xff));
+		Assert.array(ByteUtil.fill(3, 0xff), 0xff, 0xff, 0xff);
+		Assert.array(ByteUtil.fill(0, 0xff));
 	}
 
 	@Test
 	public void testReadByteArrayFromByteBuffer() {
-		assertArray(ByteUtil.readFrom(null, 1, 0));
+		Assert.array(ByteUtil.readFrom(null, 1, 0));
 		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
-		assertArray(ByteUtil.readFrom(buffer, 1, 3), 2, 3, 4);
+		Assert.array(ByteUtil.readFrom(buffer, 1, 3), 2, 3, 4);
 	}
 
 	@Test
 	public void testReadFromByteBuffer() {
 		ByteBuffer buffer = ByteBuffer.wrap(ArrayUtil.bytes.of(1, 2, 3, 4, 5));
 		byte[] bytes = new byte[3];
-		assertEquals(ByteUtil.readFrom(buffer, 1, bytes), 3);
-		assertArray(bytes, 2, 3, 4);
+		Assert.equal(ByteUtil.readFrom(buffer, 1, bytes), 3);
+		Assert.array(bytes, 2, 3, 4);
 	}
 
 	@Test
 	public void testWriteToByteBuffer() {
 		byte[] bytes = new byte[5];
 		ByteBuffer buffer = ByteBuffer.wrap(bytes);
-		assertEquals(ByteUtil.writeTo(buffer, 1, 1, 2, 3), 3);
-		assertArray(bytes, 0, 1, 2, 3, 0);
+		Assert.equal(ByteUtil.writeTo(buffer, 1, 1, 2, 3), 3);
+		Assert.array(bytes, 0, 1, 2, 3, 0);
 	}
 
 	@Test
@@ -156,7 +150,7 @@ public class ByteUtilTest {
 		ByteUtil.writeTo(b, im);
 		ByteUtil.writeTo(b, im, 2);
 		ByteUtil.writeTo(b, im, 0, 1);
-		assertArray(b.toByteArray(), -1, 2, 4, 5, -1, 0, 128, 128, -1);
+		Assert.array(b.toByteArray(), -1, 2, 4, 5, -1, 0, 128, 128, -1);
 	}
 
 	@Test
@@ -189,322 +183,322 @@ public class ByteUtilTest {
 
 	@Test
 	public void testToAscii() {
-		assertArray(ByteUtil.toAscii("\0\t\r\ntest").copy(0), //
+		Assert.array(ByteUtil.toAscii("\0\t\r\ntest").copy(0), //
 			0, '\t', '\r', '\n', 't', 'e', 's', 't');
 	}
 
 	@Test
 	public void testFromAscii() {
-		assertEquals(ByteUtil.fromAscii(0, '\t', '\r', '\n', 't', 'e', 's', 't'), "\0\t\r\ntest");
+		Assert.equal(ByteUtil.fromAscii(0, '\t', '\r', '\n', 't', 'e', 's', 't'), "\0\t\r\ntest");
 	}
 
 	@Test
 	public void testFromNullTerm() {
-		assertEquals(ByteUtil.fromNullTerm(ArrayUtil.bytes.of(0, 't', 'e', 's', 't'), UTF_8), "");
-		assertEquals(ByteUtil.fromNullTerm(ArrayUtil.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
-		assertEquals(ByteUtil.fromNullTerm(
+		Assert.equal(ByteUtil.fromNullTerm(ArrayUtil.bytes.of(0, 't', 'e', 's', 't'), UTF_8), "");
+		Assert.equal(ByteUtil.fromNullTerm(ArrayUtil.bytes.of('t', 'e', 's', 't'), UTF_8), "test");
+		Assert.equal(ByteUtil.fromNullTerm(
 			ArrayUtil.bytes.of('\t', '\r', '\n', 0, 't', 'e', 's', 't'), UTF_8), "\t\r\n");
-		assertEquals(ByteUtil.fromNullTerm(provider('t', 'e', 's', 't', 0, 0), UTF_8), "test");
+		Assert.equal(ByteUtil.fromNullTerm(provider('t', 'e', 's', 't', 0, 0), UTF_8), "test");
 	}
 
 	@Test
 	public void testGetValue() {
-		assertEquals(ByteUtil.getValue(0L, 4, 0), 0L);
-		assertEquals(ByteUtil.getValue(-1L, 4, 32), 0xfL);
-		assertEquals(ByteUtil.getValue(-1L, 64, 0), -1L);
-		assertEquals(ByteUtil.getValue(0xfedcba9876543210L, 16, 40), 0xdcbaL);
-		assertEquals(ByteUtil.getValue(0xfedcba9876543210L, 32, 48), 0xfedcL);
+		Assert.equal(ByteUtil.getValue(0L, 4, 0), 0L);
+		Assert.equal(ByteUtil.getValue(-1L, 4, 32), 0xfL);
+		Assert.equal(ByteUtil.getValue(-1L, 64, 0), -1L);
+		Assert.equal(ByteUtil.getValue(0xfedcba9876543210L, 16, 40), 0xdcbaL);
+		Assert.equal(ByteUtil.getValue(0xfedcba9876543210L, 32, 48), 0xfedcL);
 	}
 
 	@Test
 	public void testGetValueInt() {
-		assertEquals(ByteUtil.getValueInt(0, 4, 0), 0);
-		assertEquals(ByteUtil.getValueInt(-1, 4, 16), 0xf);
-		assertEquals(ByteUtil.getValueInt(-1, 32, 0), -1);
-		assertEquals(ByteUtil.getValueInt(0xfedcba98, 16, 8), 0xdcba);
-		assertEquals(ByteUtil.getValueInt(0xfedcba98, 32, 16), 0xfedc);
+		Assert.equal(ByteUtil.getValueInt(0, 4, 0), 0);
+		Assert.equal(ByteUtil.getValueInt(-1, 4, 16), 0xf);
+		Assert.equal(ByteUtil.getValueInt(-1, 32, 0), -1);
+		Assert.equal(ByteUtil.getValueInt(0xfedcba98, 16, 8), 0xdcba);
+		Assert.equal(ByteUtil.getValueInt(0xfedcba98, 32, 16), 0xfedc);
 	}
 
 	@Test
 	public void testSetValue() {
-		assertEquals(ByteUtil.setValue(0L, 4, 0, 0b10101L), 0x5L);
-		assertEquals(ByteUtil.setValue(-1L, 4, 32, 0b10101L), 0xfffffff5ffffffffL);
-		assertEquals(ByteUtil.setValue(-1L, 0, 32, 0b10101L), -1L);
-		assertEquals(ByteUtil.setValue(-1L, 64, 0, 0b10101L), 0x15L);
-		assertEquals(ByteUtil.setValue(-1L, 0, 0, 0b10101L), -1L);
+		Assert.equal(ByteUtil.setValue(0L, 4, 0, 0b10101L), 0x5L);
+		Assert.equal(ByteUtil.setValue(-1L, 4, 32, 0b10101L), 0xfffffff5ffffffffL);
+		Assert.equal(ByteUtil.setValue(-1L, 0, 32, 0b10101L), -1L);
+		Assert.equal(ByteUtil.setValue(-1L, 64, 0, 0b10101L), 0x15L);
+		Assert.equal(ByteUtil.setValue(-1L, 0, 0, 0b10101L), -1L);
 	}
 
 	@Test
 	public void testSetValueInt() {
-		assertEquals(ByteUtil.setValueInt(0, 4, 0, 0b10101), 0x5);
-		assertEquals(ByteUtil.setValueInt(-1, 4, 16, 0b10101), 0xfff5ffff);
-		assertEquals(ByteUtil.setValueInt(-1, 0, 16, 0b10101), -1);
-		assertEquals(ByteUtil.setValueInt(-1, 32, 0, 0b10101), 0x15);
-		assertEquals(ByteUtil.setValueInt(-1, 0, 0, 0b10101), -1);
+		Assert.equal(ByteUtil.setValueInt(0, 4, 0, 0b10101), 0x5);
+		Assert.equal(ByteUtil.setValueInt(-1, 4, 16, 0b10101), 0xfff5ffff);
+		Assert.equal(ByteUtil.setValueInt(-1, 0, 16, 0b10101), -1);
+		Assert.equal(ByteUtil.setValueInt(-1, 32, 0, 0b10101), 0x15);
+		Assert.equal(ByteUtil.setValueInt(-1, 0, 0, 0b10101), -1);
 	}
 
 	@Test
 	public void testApplyBit() {
-		assertEquals(ByteUtil.applyBits(0, false, 0), 0L);
-		assertEquals(ByteUtil.applyBits(0, true, 0), 1L);
-		assertEquals(ByteUtil.applyBits(0, false, 63), 0L);
-		assertEquals(ByteUtil.applyBits(0, true, 63), 0x8000000000000000L);
-		assertEquals(ByteUtil.applyBits(0, false, 64), 0L);
-		assertEquals(ByteUtil.applyBits(0, true, 65), 0L);
-		assertEquals(ByteUtil.applyBits(-1L, false, 0), 0xfffffffffffffffeL);
-		assertEquals(ByteUtil.applyBits(-1L, true, 0), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBits(-1L, false, 63), 0x7fffffffffffffffL);
-		assertEquals(ByteUtil.applyBits(-1L, true, 63), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBits(-1L, false, 64), 0xffffffffffffffffL);
-		assertEquals(ByteUtil.applyBits(-1L, true, 65), 0xffffffffffffffffL);
+		Assert.equal(ByteUtil.applyBits(0, false, 0), 0L);
+		Assert.equal(ByteUtil.applyBits(0, true, 0), 1L);
+		Assert.equal(ByteUtil.applyBits(0, false, 63), 0L);
+		Assert.equal(ByteUtil.applyBits(0, true, 63), 0x8000000000000000L);
+		Assert.equal(ByteUtil.applyBits(0, false, 64), 0L);
+		Assert.equal(ByteUtil.applyBits(0, true, 65), 0L);
+		Assert.equal(ByteUtil.applyBits(-1L, false, 0), 0xfffffffffffffffeL);
+		Assert.equal(ByteUtil.applyBits(-1L, true, 0), 0xffffffffffffffffL);
+		Assert.equal(ByteUtil.applyBits(-1L, false, 63), 0x7fffffffffffffffL);
+		Assert.equal(ByteUtil.applyBits(-1L, true, 63), 0xffffffffffffffffL);
+		Assert.equal(ByteUtil.applyBits(-1L, false, 64), 0xffffffffffffffffL);
+		Assert.equal(ByteUtil.applyBits(-1L, true, 65), 0xffffffffffffffffL);
 	}
 
 	@Test
 	public void testApplyBitInt() {
-		assertEquals(ByteUtil.applyBitsInt(0, false, 0), 0);
-		assertEquals(ByteUtil.applyBitsInt(0, true, 0), 1);
-		assertEquals(ByteUtil.applyBitsInt(0, false, 31), 0);
-		assertEquals(ByteUtil.applyBitsInt(0, true, 31), 0x80000000);
-		assertEquals(ByteUtil.applyBitsInt(0, false, 32), 0);
-		assertEquals(ByteUtil.applyBitsInt(0, true, 33), 0);
-		assertEquals(ByteUtil.applyBitsInt(-1, false, 0), 0xfffffffe);
-		assertEquals(ByteUtil.applyBitsInt(-1, true, 0), 0xffffffff);
-		assertEquals(ByteUtil.applyBitsInt(-1, false, 31), 0x7fffffff);
-		assertEquals(ByteUtil.applyBitsInt(-1, true, 31), 0xffffffff);
-		assertEquals(ByteUtil.applyBitsInt(-1, false, 32), 0xffffffff);
-		assertEquals(ByteUtil.applyBitsInt(-1, true, 33), 0xffffffff);
+		Assert.equal(ByteUtil.applyBitsInt(0, false, 0), 0);
+		Assert.equal(ByteUtil.applyBitsInt(0, true, 0), 1);
+		Assert.equal(ByteUtil.applyBitsInt(0, false, 31), 0);
+		Assert.equal(ByteUtil.applyBitsInt(0, true, 31), 0x80000000);
+		Assert.equal(ByteUtil.applyBitsInt(0, false, 32), 0);
+		Assert.equal(ByteUtil.applyBitsInt(0, true, 33), 0);
+		Assert.equal(ByteUtil.applyBitsInt(-1, false, 0), 0xfffffffe);
+		Assert.equal(ByteUtil.applyBitsInt(-1, true, 0), 0xffffffff);
+		Assert.equal(ByteUtil.applyBitsInt(-1, false, 31), 0x7fffffff);
+		Assert.equal(ByteUtil.applyBitsInt(-1, true, 31), 0xffffffff);
+		Assert.equal(ByteUtil.applyBitsInt(-1, false, 32), 0xffffffff);
+		Assert.equal(ByteUtil.applyBitsInt(-1, true, 33), 0xffffffff);
 	}
 
 	@Test
 	public void testApplyMask() {
-		assertEquals(ByteUtil.applyMask(0xffff0000_ffff0000L, 0x00ffff00_00ffff00L, false),
+		Assert.equal(ByteUtil.applyMask(0xffff0000_ffff0000L, 0x00ffff00_00ffff00L, false),
 			0xff000000_ff000000L);
-		assertEquals(ByteUtil.applyMask(0xffff0000_ffff0000L, 0x00ffff00_00ffff00L, true),
+		Assert.equal(ByteUtil.applyMask(0xffff0000_ffff0000L, 0x00ffff00_00ffff00L, true),
 			0xffffff00_ffffff00L);
-		assertEquals(
+		Assert.equal(
 			ByteUtil.applyMask(0xffff0000_ffff0000L, 0x00ffff00_00ffff00L, 0x12345678_12345678L),
 			0xff345600_ff345600L);
 	}
 
 	@Test
 	public void testApplyMaskInt() {
-		assertEquals(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, false), 0xff000000);
-		assertEquals(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, true), 0xffffff00);
-		assertEquals(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, 0x12345678), 0xff345600);
+		Assert.equal(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, false), 0xff000000);
+		Assert.equal(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, true), 0xffffff00);
+		Assert.equal(ByteUtil.applyMaskInt(0xffff0000, 0x00ffff00, 0x12345678), 0xff345600);
 	}
 
 	@Test
 	public void testMaskInt() {
-		assertEquals(ByteUtil.maskInt(0), 0);
-		assertEquals(ByteUtil.maskInt(32), 0xffffffff);
-		assertEquals(ByteUtil.maskInt(11), 0x7ff);
-		assertEquals(ByteUtil.maskInt(5, 11), 0xffe0);
-		assertEquals(ByteUtil.maskInt(5, 32), 0xffffffe0);
-		assertEquals(ByteUtil.maskInt(32, 5), 0);
+		Assert.equal(ByteUtil.maskInt(0), 0);
+		Assert.equal(ByteUtil.maskInt(32), 0xffffffff);
+		Assert.equal(ByteUtil.maskInt(11), 0x7ff);
+		Assert.equal(ByteUtil.maskInt(5, 11), 0xffe0);
+		Assert.equal(ByteUtil.maskInt(5, 32), 0xffffffe0);
+		Assert.equal(ByteUtil.maskInt(32, 5), 0);
 	}
 
 	@Test
 	public void testMask() {
-		assertEquals(ByteUtil.mask(0), 0L);
-		assertEquals(ByteUtil.mask(7), 0x7fL);
-		assertEquals(ByteUtil.mask(64), 0xffffffff_ffffffffL);
-		assertEquals(ByteUtil.mask(100), 0xffffffff_ffffffffL);
-		assertEquals(ByteUtil.mask(10, 0), 0L);
-		assertEquals(ByteUtil.mask(10, 7), 0x1fc00L);
-		assertEquals(ByteUtil.mask(10, 64), 0xffffffff_fffffc00L);
-		assertEquals(ByteUtil.mask(64, 10), 0L);
+		Assert.equal(ByteUtil.mask(0), 0L);
+		Assert.equal(ByteUtil.mask(7), 0x7fL);
+		Assert.equal(ByteUtil.mask(64), 0xffffffff_ffffffffL);
+		Assert.equal(ByteUtil.mask(100), 0xffffffff_ffffffffL);
+		Assert.equal(ByteUtil.mask(10, 0), 0L);
+		Assert.equal(ByteUtil.mask(10, 7), 0x1fc00L);
+		Assert.equal(ByteUtil.mask(10, 64), 0xffffffff_fffffc00L);
+		Assert.equal(ByteUtil.mask(64, 10), 0L);
 	}
 
 	@Test
 	public void testMaskOfBits() {
-		assertEquals(ByteUtil.maskOfBits((int[]) null), 0L);
-		assertEquals(ByteUtil.maskOfBits((List<Integer>) null), 0L);
-		assertEquals(ByteUtil.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1),
+		Assert.equal(ByteUtil.maskOfBits((int[]) null), 0L);
+		Assert.equal(ByteUtil.maskOfBits((List<Integer>) null), 0L);
+		Assert.equal(ByteUtil.maskOfBits(64, 63, 32, 31, 16, 15, 8, 7, 0, -1),
 			0x8000_0001_8001_8181L);
-		assertEquals(ByteUtil.maskOfBits(List.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
+		Assert.equal(ByteUtil.maskOfBits(List.of(64, 63, 32, 31, 16, 15, 8, 7, 0, -1)),
 			0x8000_0001_8001_8181L);
 	}
 
 	@Test
 	public void testMaskOfBitsInt() {
-		assertEquals(ByteUtil.maskOfBitsInt((int[]) null), 0);
-		assertEquals(ByteUtil.maskOfBitsInt((List<Integer>) null), 0);
-		assertEquals(ByteUtil.maskOfBitsInt(32, 31, 16, 15, 8, 7, 0, -1), 0x80018181);
-		assertEquals(ByteUtil.maskOfBitsInt(List.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
+		Assert.equal(ByteUtil.maskOfBitsInt((int[]) null), 0);
+		Assert.equal(ByteUtil.maskOfBitsInt((List<Integer>) null), 0);
+		Assert.equal(ByteUtil.maskOfBitsInt(32, 31, 16, 15, 8, 7, 0, -1), 0x80018181);
+		Assert.equal(ByteUtil.maskOfBitsInt(List.of(32, 31, 16, 15, 8, 7, 0, -1)), 0x80018181);
 	}
 
 	@Test
 	public void testMaskOfBit() {
-		assertEquals(ByteUtil.maskOfBit(true, 63), 0x8000_0000_0000_0000L);
-		assertEquals(ByteUtil.maskOfBit(false, 63), 0L);
-		assertEquals(ByteUtil.maskOfBit(true, 64), 0L);
-		assertEquals(ByteUtil.maskOfBit(true, -1), 0L);
+		Assert.equal(ByteUtil.maskOfBit(true, 63), 0x8000_0000_0000_0000L);
+		Assert.equal(ByteUtil.maskOfBit(false, 63), 0L);
+		Assert.equal(ByteUtil.maskOfBit(true, 64), 0L);
+		Assert.equal(ByteUtil.maskOfBit(true, -1), 0L);
 	}
 
 	@Test
 	public void testMaskOfBitInt() {
-		assertEquals(ByteUtil.maskOfBitInt(true, 31), 0x80000000);
-		assertEquals(ByteUtil.maskOfBitInt(false, 31), 0);
-		assertEquals(ByteUtil.maskOfBitInt(true, 32), 0);
-		assertEquals(ByteUtil.maskOfBitInt(true, -1), 0);
+		Assert.equal(ByteUtil.maskOfBitInt(true, 31), 0x80000000);
+		Assert.equal(ByteUtil.maskOfBitInt(false, 31), 0);
+		Assert.equal(ByteUtil.maskOfBitInt(true, 32), 0);
+		Assert.equal(ByteUtil.maskOfBitInt(true, -1), 0);
 	}
 
 	@Test
 	public void testMasked() {
-		assertEquals(ByteUtil.masked(0), true);
-		assertEquals(ByteUtil.masked(1), true);
-		assertEquals(ByteUtil.masked(0, 1), false);
-		assertEquals(ByteUtil.masked(1, 0), true);
-		assertEquals(ByteUtil.masked(1, 1), false);
-		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3), true);
-		assertEquals(ByteUtil.masked(0xf, 0, 1, 2, 3, 4), false);
+		Assert.equal(ByteUtil.masked(0), true);
+		Assert.equal(ByteUtil.masked(1), true);
+		Assert.equal(ByteUtil.masked(0, 1), false);
+		Assert.equal(ByteUtil.masked(1, 0), true);
+		Assert.equal(ByteUtil.masked(1, 1), false);
+		Assert.equal(ByteUtil.masked(0xf, 0, 1, 2, 3), true);
+		Assert.equal(ByteUtil.masked(0xf, 0, 1, 2, 3, 4), false);
 	}
 
 	@Test
 	public void testBits() {
-		assertArray(ByteUtil.bits(0));
-		assertArray(ByteUtil.bits(0x80402010), 4, 13, 22, 31);
-		assertArray(ByteUtil.bits(-1), IntStream.range(0, 32).toArray());
-		assertArray(ByteUtil.bits(0L));
-		assertArray(ByteUtil.bits(0x8000400020001000L), 12, 29, 46, 63);
-		assertArray(ByteUtil.bits(-1L), IntStream.range(0, 64).toArray());
+		Assert.array(ByteUtil.bits(0));
+		Assert.array(ByteUtil.bits(0x80402010), 4, 13, 22, 31);
+		Assert.array(ByteUtil.bits(-1), IntStream.range(0, 32).toArray());
+		Assert.array(ByteUtil.bits(0L));
+		Assert.array(ByteUtil.bits(0x8000400020001000L), 12, 29, 46, 63);
+		Assert.array(ByteUtil.bits(-1L), IntStream.range(0, 64).toArray());
 	}
 
 	@Test
 	public void testBit() {
-		assertFalse(ByteUtil.bit(0, 0));
-		assertFalse(ByteUtil.bit(0, 63));
-		assertTrue(ByteUtil.bit(Long.MIN_VALUE, 63));
-		assertFalse(ByteUtil.bit(Long.MAX_VALUE, 63));
+		Assert.no(ByteUtil.bit(0, 0));
+		Assert.no(ByteUtil.bit(0, 63));
+		Assert.yes(ByteUtil.bit(Long.MIN_VALUE, 63));
+		Assert.no(ByteUtil.bit(Long.MAX_VALUE, 63));
 		for (int i = 0; i < 63; i++)
-			assertTrue(ByteUtil.bit(Long.MAX_VALUE, i));
-		assertFalse(ByteUtil.bit(0x5a, 0));
-		assertTrue(ByteUtil.bit(0x5a, 1));
-		assertFalse(ByteUtil.bit(0x5a, 2));
-		assertTrue(ByteUtil.bit(0x5a, 3));
-		assertTrue(ByteUtil.bit(0x5a, 4));
-		assertFalse(ByteUtil.bit(0x5a, 5));
-		assertTrue(ByteUtil.bit(0x5a, 6));
-		assertFalse(ByteUtil.bit(0x5a, 7));
+			Assert.yes(ByteUtil.bit(Long.MAX_VALUE, i));
+		Assert.no(ByteUtil.bit(0x5a, 0));
+		Assert.yes(ByteUtil.bit(0x5a, 1));
+		Assert.no(ByteUtil.bit(0x5a, 2));
+		Assert.yes(ByteUtil.bit(0x5a, 3));
+		Assert.yes(ByteUtil.bit(0x5a, 4));
+		Assert.no(ByteUtil.bit(0x5a, 5));
+		Assert.yes(ByteUtil.bit(0x5a, 6));
+		Assert.no(ByteUtil.bit(0x5a, 7));
 	}
 
 	@Test
 	public void testToMsb() {
-		assertArray(ByteUtil.toMsb(Short.MIN_VALUE), 0x80, 0);
-		assertArray(ByteUtil.toMsb(Integer.MIN_VALUE), 0x80, 0, 0, 0);
-		assertArray(ByteUtil.toMsb(Long.MIN_VALUE), 0x80, 0, 0, 0, 0, 0, 0, 0);
+		Assert.array(ByteUtil.toMsb(Short.MIN_VALUE), 0x80, 0);
+		Assert.array(ByteUtil.toMsb(Integer.MIN_VALUE), 0x80, 0, 0, 0);
+		Assert.array(ByteUtil.toMsb(Long.MIN_VALUE), 0x80, 0, 0, 0, 0, 0, 0, 0);
 	}
 
 	@Test
 	public void testToLsb() {
-		assertArray(ByteUtil.toLsb(Short.MIN_VALUE), 0, 0x80);
-		assertArray(ByteUtil.toLsb(Integer.MIN_VALUE), 0, 0, 0, 0x80);
-		assertArray(ByteUtil.toLsb(Long.MIN_VALUE), 0, 0, 0, 0, 0, 0, 0, 0x80);
+		Assert.array(ByteUtil.toLsb(Short.MIN_VALUE), 0, 0x80);
+		Assert.array(ByteUtil.toLsb(Integer.MIN_VALUE), 0, 0, 0, 0x80);
+		Assert.array(ByteUtil.toLsb(Long.MIN_VALUE), 0, 0, 0, 0, 0, 0, 0, 0x80);
 	}
 
 	@Test
 	public void testWriteMsb() {
 		byte[] b = new byte[8];
-		assertEquals(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b), 8);
-		assertArray(b, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89);
+		Assert.equal(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b), 8);
+		Assert.array(b, 0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89);
 		b = new byte[8];
-		assertEquals(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b, 1, 3), 4);
-		assertArray(b, 0, 0x45, 0x67, 0x89, 0, 0, 0, 0);
+		Assert.equal(ByteUtil.writeMsb(0xabcd_ef01_2345_6789L, b, 1, 3), 4);
+		Assert.array(b, 0, 0x45, 0x67, 0x89, 0, 0, 0, 0);
 	}
 
 	@Test
 	public void testWriteLsb() {
 		byte[] b = new byte[8];
-		assertEquals(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b), 8);
-		assertArray(b, 0x89, 0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab);
+		Assert.equal(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b), 8);
+		Assert.array(b, 0x89, 0x67, 0x45, 0x23, 0x01, 0xef, 0xcd, 0xab);
 		b = new byte[8];
-		assertEquals(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b, 1, 3), 4);
-		assertArray(b, 0, 0x89, 0x67, 0x45, 0, 0, 0, 0);
+		Assert.equal(ByteUtil.writeLsb(0xabcd_ef01_2345_6789L, b, 1, 3), 4);
+		Assert.array(b, 0, 0x89, 0x67, 0x45, 0, 0, 0, 0);
 	}
 
 	@Test
 	public void testFromMsb() {
-		assertEquals(ByteUtil.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
+		Assert.equal(ByteUtil.fromMsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0xabcd_ef01_2345_6789L);
-		assertEquals(ByteUtil.fromMsb(
+		Assert.equal(ByteUtil.fromMsb(
 			ArrayUtil.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0xcdef01L);
 	}
 
 	@Test
 	public void testFromLsb() {
-		assertEquals(ByteUtil.fromLsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
+		Assert.equal(ByteUtil.fromLsb(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89),
 			0x8967_4523_01ef_cdabL);
-		assertEquals(ByteUtil.fromLsb( //
+		Assert.equal(ByteUtil.fromLsb( //
 			ArrayUtil.bytes.of(0xab, 0xcd, 0xef, 0x01, 0x23, 0x45, 0x67, 0x89), 1, 3), 0x01efcdL);
 	}
 
 	@Test
 	public void testByteAt() {
-		assertEquals(ByteUtil.byteAt(0xfedcba9876543210L, 0), (byte) 0x10);
-		assertEquals(ByteUtil.byteAt(0xfedcba9876543210L, 7), (byte) 0xfe);
-		assertEquals(ByteUtil.ubyteAt(0xfedcba9876543210L, 0), (short) 0x10);
-		assertEquals(ByteUtil.ubyteAt(0xfedcba9876543210L, 7), (short) 0xfe);
+		Assert.equal(ByteUtil.byteAt(0xfedcba9876543210L, 0), (byte) 0x10);
+		Assert.equal(ByteUtil.byteAt(0xfedcba9876543210L, 7), (byte) 0xfe);
+		Assert.equal(ByteUtil.ubyteAt(0xfedcba9876543210L, 0), (short) 0x10);
+		Assert.equal(ByteUtil.ubyteAt(0xfedcba9876543210L, 7), (short) 0xfe);
 	}
 
 	@Test
 	public void testShiftBits() {
-		assertEquals(ByteUtil.shiftBits((byte) 0, 1), (byte) 0);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, 0), (byte) 0x96);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, 1), (byte) 0x4b);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, -1), (byte) 0x2c);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, 7), (byte) 0x01);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, -7), (byte) 0);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, 8), (byte) 0);
-		assertEquals(ByteUtil.shiftBits((byte) 0x96, -8), (byte) 0);
-		assertEquals(ByteUtil.shiftBits((byte) 0, 1), (byte) 0);
-		assertEquals(ByteUtil.shiftBits((short) 0, 15), (short) 0);
-		assertEquals(ByteUtil.shiftBits(0, 31), 0);
-		assertEquals(ByteUtil.shiftBits(0L, 63), 0L);
+		Assert.equal(ByteUtil.shiftBits((byte) 0, 1), (byte) 0);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, 0), (byte) 0x96);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, 1), (byte) 0x4b);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, -1), (byte) 0x2c);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, 7), (byte) 0x01);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, -7), (byte) 0);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, 8), (byte) 0);
+		Assert.equal(ByteUtil.shiftBits((byte) 0x96, -8), (byte) 0);
+		Assert.equal(ByteUtil.shiftBits((byte) 0, 1), (byte) 0);
+		Assert.equal(ByteUtil.shiftBits((short) 0, 15), (short) 0);
+		Assert.equal(ByteUtil.shiftBits(0, 31), 0);
+		Assert.equal(ByteUtil.shiftBits(0L, 63), 0L);
 	}
 
 	@Test
 	public void testShift() {
-		assertEquals(ByteUtil.shift((short) 0xabcd, 0), (short) 0xabcd);
-		assertEquals(ByteUtil.shift((short) 0xabcd, 1), (short) 0xab);
-		assertEquals(ByteUtil.shift((short) 0xabcd, -1), (short) 0xcd00);
-		assertEquals(ByteUtil.shift((short) 0xabcd, 2), (short) 0);
-		assertEquals(ByteUtil.shift((short) 0xabcd, -2), (short) 0);
-		assertEquals(ByteUtil.shift(0xabcd_0123, 0), 0xabcd_0123);
-		assertEquals(ByteUtil.shift(0xabcd_0123, 1), 0xab_cd01);
-		assertEquals(ByteUtil.shift(0xabcd_0123, -1), 0xcd01_2300);
-		assertEquals(ByteUtil.shift(0xabcd_0123, 3), 0xab);
-		assertEquals(ByteUtil.shift(0xabcd_0123, -3), 0x2300_0000);
-		assertEquals(ByteUtil.shift(0xabcd_0123, 4), 0);
-		assertEquals(ByteUtil.shift(0xabcd_0123, -4), 0);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, 0), 0xabcd_0123_ef45_6789L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, 1), 0xab_cd01_23ef_4567L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, -1), 0xcd01_23ef_4567_8900L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, 7), 0xabL);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, -7), 0x8900_0000_0000_0000L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, 8), 0L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, -8), 0L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, 9), 0L);
-		assertEquals(ByteUtil.shift(0xabcd_0123_ef45_6789L, -9), 0L);
+		Assert.equal(ByteUtil.shift((short) 0xabcd, 0), (short) 0xabcd);
+		Assert.equal(ByteUtil.shift((short) 0xabcd, 1), (short) 0xab);
+		Assert.equal(ByteUtil.shift((short) 0xabcd, -1), (short) 0xcd00);
+		Assert.equal(ByteUtil.shift((short) 0xabcd, 2), (short) 0);
+		Assert.equal(ByteUtil.shift((short) 0xabcd, -2), (short) 0);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, 0), 0xabcd_0123);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, 1), 0xab_cd01);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, -1), 0xcd01_2300);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, 3), 0xab);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, -3), 0x2300_0000);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, 4), 0);
+		Assert.equal(ByteUtil.shift(0xabcd_0123, -4), 0);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, 0), 0xabcd_0123_ef45_6789L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, 1), 0xab_cd01_23ef_4567L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, -1), 0xcd01_23ef_4567_8900L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, 7), 0xabL);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, -7), 0x8900_0000_0000_0000L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, 8), 0L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, -8), 0L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, 9), 0L);
+		Assert.equal(ByteUtil.shift(0xabcd_0123_ef45_6789L, -9), 0L);
 	}
 
 	@Test
 	public void testInvert() {
-		assertEquals(ByteUtil.invertByte(0x96), (byte) 0x69);
-		assertEquals(ByteUtil.invertByte(0x69), (byte) 0x96);
-		assertEquals(ByteUtil.invertShort(0x9669), (short) 0x6996);
-		assertEquals(ByteUtil.invertShort(0x6996), (short) 0x9669);
+		Assert.equal(ByteUtil.invertByte(0x96), (byte) 0x69);
+		Assert.equal(ByteUtil.invertByte(0x69), (byte) 0x96);
+		Assert.equal(ByteUtil.invertShort(0x9669), (short) 0x6996);
+		Assert.equal(ByteUtil.invertShort(0x6996), (short) 0x9669);
 	}
 
 	@Test
 	public void testReverse() {
-		assertEquals(ByteUtil.reverseByte(0x96), (byte) 0x69);
-		assertEquals(ByteUtil.reverseByte(0x6), (byte) 0x60);
-		assertEquals(ByteUtil.reverseByte(0x169), (byte) 0x96);
-		assertEquals(ByteUtil.reverseShort(0x9696), (short) 0x6969);
-		assertEquals(ByteUtil.reverseShort(0x6969), (short) 0x9696);
-		assertEquals(ByteUtil.reverseShort(0x16969), (short) 0x9696);
-		assertEquals(ByteUtil.reverseAsInt(0x96, 7), 0x34); // 10010110 -> 00110100
-		assertEquals(ByteUtil.reverse(0x96, 33), 0xd2000000L);
+		Assert.equal(ByteUtil.reverseByte(0x96), (byte) 0x69);
+		Assert.equal(ByteUtil.reverseByte(0x6), (byte) 0x60);
+		Assert.equal(ByteUtil.reverseByte(0x169), (byte) 0x96);
+		Assert.equal(ByteUtil.reverseShort(0x9696), (short) 0x6969);
+		Assert.equal(ByteUtil.reverseShort(0x6969), (short) 0x9696);
+		Assert.equal(ByteUtil.reverseShort(0x16969), (short) 0x9696);
+		Assert.equal(ByteUtil.reverseAsInt(0x96, 7), 0x34); // 10010110 -> 00110100
+		Assert.equal(ByteUtil.reverse(0x96, 33), 0xd2000000L);
 	}
 
 }

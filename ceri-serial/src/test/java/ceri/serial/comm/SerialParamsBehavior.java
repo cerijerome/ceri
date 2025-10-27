@@ -1,7 +1,5 @@
 package ceri.serial.comm;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -18,7 +16,7 @@ public class SerialParamsBehavior {
 		var ne2 = SerialParams.from("1200,5,1,e");
 		var ne3 = SerialParams.from("1200,5,1.5,n");
 		TestUtil.exerciseEquals(t, eq0, eq1);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3);
 	}
 
 	@Test
@@ -34,9 +32,9 @@ public class SerialParamsBehavior {
 	@Test
 	public void shouldProvideTimingData() {
 		var p = SerialParams.from("250000,7,2,n");
-		assertEquals(p.bitsPerFrame(), 10);
-		assertEquals(p.microsPerBit(), 4.0);
-		assertEquals(p.microsPerFrame(), 40.0);
-		assertEquals(p.sendTimeMicros(10), 400.0);
+		Assert.equal(p.bitsPerFrame(), 10);
+		Assert.equal(p.microsPerBit(), 4.0);
+		Assert.equal(p.microsPerFrame(), 40.0);
+		Assert.equal(p.sendTimeMicros(10), 400.0);
 	}
 }

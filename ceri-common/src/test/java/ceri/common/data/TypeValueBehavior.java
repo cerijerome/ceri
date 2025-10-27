@@ -1,7 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -29,51 +27,51 @@ public class TypeValueBehavior {
 		var ne5 = TypeValue.of(1, E.one, null, Format.HEX_SHORT);
 		var ne6 = TypeValue.of(1, E.one, null);
 		TestUtil.exerciseEquals(v, eq0, eq1);
-		assertEquals(v, eq2);
-		assertAllNotEqual(v, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
+		Assert.equal(v, eq2);
+		Assert.notEqualAll(v, ne0, ne1, ne2, ne3, ne4, ne5, ne6);
 		v = TypeValue.of(1, null, "one", 1, Format.HEX_SHORT);
 		eq0 = TypeValue.of(1, null, "one", 1, Format.HEX_SHORT);
 		ne0 = TypeValue.of(1, null, "One", 1, Format.HEX_SHORT);
 		TestUtil.exerciseEquals(v, eq0);
-		assertAllNotEqual(v, ne0, ne1);
+		Assert.notEqualAll(v, ne0, ne1);
 	}
 
 	@Test
 	public void shouldProvideSubValue() {
-		assertEquals(TypeValue.of(1, null, "one", Format.HEX).intSub(), 0);
-		assertEquals(TypeValue.of(1, null, "one", 1, Format.HEX).intSub(), 1);
+		Assert.equal(TypeValue.of(1, null, "one", Format.HEX).intSub(), 0);
+		Assert.equal(TypeValue.of(1, null, "one", 1, Format.HEX).intSub(), 1);
 	}
 
 	@Test
 	public void shouldProvideCastValues() {
-		assertEquals(TypeValue.of(-1, E.one, null, Format.HEX).value(), -1L);
-		assertEquals(TypeValue.of(-1, E.one, null, Format.HEX).intValue(), -1);
+		Assert.equal(TypeValue.of(-1, E.one, null, Format.HEX).value(), -1L);
+		Assert.equal(TypeValue.of(-1, E.one, null, Format.HEX).intValue(), -1);
 	}
 
 	@Test
 	public void shouldReturnName() {
-		assertEquals(TypeValue.of(1, E.one, null, Format.HEX).name(), "one");
-		assertEquals(TypeValue.of(1, E.one, "ONE", Format.HEX).name(), "one");
-		assertEquals(TypeValue.of(1, null, "ONE", Format.HEX).name(), "ONE");
+		Assert.equal(TypeValue.of(1, E.one, null, Format.HEX).name(), "one");
+		Assert.equal(TypeValue.of(1, E.one, "ONE", Format.HEX).name(), "one");
+		Assert.equal(TypeValue.of(1, null, "ONE", Format.HEX).name(), "ONE");
 		Assert.isNull(TypeValue.of(1, null, null, Format.HEX).name());
 	}
 
 	@Test
 	public void shouldProvideCompactFormat() {
-		assertEquals(TypeValue.of(255, E.ten, null, Format.HEX).compact(), "ten");
-		assertEquals(TypeValue.of(255, E.ten, null, 1, Format.HEX).compact(), "ten(0x1)");
-		assertEquals(TypeValue.of(255, null, "test", Format.HEX).compact(), "test(0xff)");
+		Assert.equal(TypeValue.of(255, E.ten, null, Format.HEX).compact(), "ten");
+		Assert.equal(TypeValue.of(255, E.ten, null, 1, Format.HEX).compact(), "ten(0x1)");
+		Assert.equal(TypeValue.of(255, null, "test", Format.HEX).compact(), "test(0xff)");
 	}
 
 	@Test
 	public void shouldFormatValue() {
-		assertEquals(TypeValue.of(255, E.ten, null, Format.HEX_BYTE).toString(), "ten(0xff)");
-		assertEquals(TypeValue.of(256, E.ten, null, 255, Format.HEX_BYTE).toString(),
+		Assert.equal(TypeValue.of(255, E.ten, null, Format.HEX_BYTE).toString(), "ten(0xff)");
+		Assert.equal(TypeValue.of(256, E.ten, null, 255, Format.HEX_BYTE).toString(),
 			"ten(0x00:0xff)");
-		assertEquals(TypeValue.of(256, E.ten, null, Format.HEX_SHORT).toString(), "ten(0x0100)");
-		assertEquals(TypeValue.of(256, E.ten, null, 1, Format.HEX_SHORT).toString(),
+		Assert.equal(TypeValue.of(256, E.ten, null, Format.HEX_SHORT).toString(), "ten(0x0100)");
+		Assert.equal(TypeValue.of(256, E.ten, null, 1, Format.HEX_SHORT).toString(),
 			"ten(0x0100:0x0001)");
-		assertEquals(TypeValue.of(256, E.ten, null, Format.HEX).toString(), "ten(0x100)");
+		Assert.equal(TypeValue.of(256, E.ten, null, Format.HEX).toString(), "ten(0x100)");
 	}
 
 	@Test

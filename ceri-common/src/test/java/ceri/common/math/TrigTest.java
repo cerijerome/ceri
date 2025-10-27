@@ -1,9 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.test.Assert;
 
@@ -14,7 +10,7 @@ public class TrigTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Trig.class);
+		Assert.privateConstructor(Trig.class);
 	}
 
 	@Test
@@ -26,16 +22,16 @@ public class TrigTest {
 
 	@Test
 	public void testWithinNormalizedBounds() {
-		assertFalse(Trig.withinNormalizedBounds(PI_BY_6 * -8, PI_BY_6 * 37, PI_BY_3));
-		assertTrue(Trig.withinNormalizedBounds(PI_BY_6 * -10, PI_BY_6 * 37, PI_BY_3));
-		assertTrue(Trig.withinNormalizedBounds(PI_BY_6 * -11, PI_BY_6 * 37, PI_BY_3));
-		assertFalse(Trig.withinNormalizedBounds(PI_BY_6 * -12, PI_BY_6 * 37, PI_BY_3));
+		Assert.no(Trig.withinNormalizedBounds(PI_BY_6 * -8, PI_BY_6 * 37, PI_BY_3));
+		Assert.yes(Trig.withinNormalizedBounds(PI_BY_6 * -10, PI_BY_6 * 37, PI_BY_3));
+		Assert.yes(Trig.withinNormalizedBounds(PI_BY_6 * -11, PI_BY_6 * 37, PI_BY_3));
+		Assert.no(Trig.withinNormalizedBounds(PI_BY_6 * -12, PI_BY_6 * 37, PI_BY_3));
 	}
 
 	@Test
 	public void testTangentAngle() {
 		Assert.thrown(() -> Trig.tangentAngle(1, 0.5));
-		assertEquals(Trig.tangentAngle(0, 0), Double.NaN);
+		Assert.equal(Trig.tangentAngle(0, 0), Double.NaN);
 		Assert.approx(Trig.tangentAngle(0, 1), 0);
 		Assert.approx(Trig.tangentAngle(1, 1), Maths.PI_BY_2);
 		Assert.approx(Trig.tangentAngle(1, 2), PI_BY_6);

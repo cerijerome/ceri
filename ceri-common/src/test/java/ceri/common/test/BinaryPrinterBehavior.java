@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +25,13 @@ public class BinaryPrinterBehavior {
 		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
 		bin = BinaryPrinter.builder(bin).printableSpace(false).build();
 		bin.print("a b c".getBytes(StandardCharsets.US_ASCII));
-		assertString(b, "a b c   \na.b.c   \n");
+		Assert.string(b, "a b c   \na.b.c   \n");
 	}
 
 	@Test
 	public void shouldPrintToString() {
-		assertEquals(new BinaryPrinter().toString(), new BinaryPrinter().toString());
-		assertEquals(BinaryPrinter.builder().out(() -> null).build().toString(),
+		Assert.equal(new BinaryPrinter().toString(), new BinaryPrinter().toString());
+		Assert.equal(BinaryPrinter.builder().out(() -> null).build().toString(),
 			BinaryPrinter.builder().out(() -> null).build().toString());
 	}
 
@@ -43,7 +41,7 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0 };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in, 1);
-			assertEquals(b.toString(), "00000000  00  .\n");
+			Assert.equal(b.toString(), "00000000  00  .\n");
 		}
 	}
 
@@ -51,21 +49,21 @@ public class BinaryPrinterBehavior {
 	public void shouldPrintUpperCase() {
 		bin = init().showBinary(false).showChar(false).upper(true).build();
 		bin.print(0xff, 0xaa, 0);
-		assertEquals(b.toString(), "FF AA 00                 \n");
+		Assert.equal(b.toString(), "FF AA 00                 \n");
 	}
 
 	@Test
 	public void shouldPrintSpaces() {
 		bin = init().bytesPerColumn(4).showBinary(false).printableSpace(true).build();
 		bin.print(0xff, 0x20, 0x00);
-		assertEquals(b.toString(), "ff 20 00     . . \n");
+		Assert.equal(b.toString(), "ff 20 00     . . \n");
 	}
 
 	@Test
 	public void shouldPrintWithoutColumnSpaces() {
 		bin = init().bytesPerColumn(4).columnSpace(false).build();
 		bin.print(0xff, 0, 0x55);
-		assertEquals(b.toString(), "111111110000000001010101         ff0055   ..U \n");
+		Assert.equal(b.toString(), "111111110000000001010101         ff0055   ..U \n");
 	}
 
 	@Test
@@ -73,42 +71,42 @@ public class BinaryPrinterBehavior {
 		bin = init().showBinary(false).build();
 		ByteBuffer buffer = ByteBuffer.wrap(ByteUtil.toAscii("abc").copy(0));
 		bin.print(buffer);
-		assertEquals(b.toString(), "61 62 63                 abc     \n");
+		Assert.equal(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
 	public void shouldPrintByteArray() {
 		bin = init().showBinary(false).build();
 		bin.print(ByteUtil.toAscii("abc"));
-		assertEquals(b.toString(), "61 62 63                 abc     \n");
+		Assert.equal(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
 	public void shouldPrintBytes() {
 		bin = init().showBinary(false).build();
 		bin.print('a', 'b', 'c');
-		assertEquals(b.toString(), "61 62 63                 abc     \n");
+		Assert.equal(b.toString(), "61 62 63                 abc     \n");
 	}
 
 	@Test
 	public void shouldPrintCodePoints() {
 		bin = init().showBinary(false).build();
 		bin.printCodePoints("abc\u2154");
-		assertEquals(b.toString(), "00 61 00 62 00 63 21 54  .a.b.c!T\n");
+		Assert.equal(b.toString(), "00 61 00 62 00 63 21 54  .a.b.c!T\n");
 	}
 
 	@Test
 	public void shouldPrintAscii() {
 		bin = init().showBinary(false).build();
 		bin.printAscii("abc\u2154");
-		assertEquals(b.toString(), "61 62 63 3f              abc?    \n");
+		Assert.equal(b.toString(), "61 62 63 3f              abc?    \n");
 	}
 
 	@Test
 	public void shouldPrintUtf8() {
 		bin = init().showBinary(false).build();
 		bin.print("abc\u2154");
-		assertEquals(b.toString(), "61 62 63 e2 85 94        abc...  \n");
+		Assert.equal(b.toString(), "61 62 63 e2 85 94        abc...  \n");
 	}
 
 	@Test
@@ -116,7 +114,7 @@ public class BinaryPrinterBehavior {
 		bin = init().showChar(false).build();
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		bin.print(bytes);
-		assertEquals(b.toString(),
+		Assert.equal(b.toString(),
 			"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
 				+ "00 7f 80 ff 01 00 00 81  \n");
 	}
@@ -127,7 +125,7 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 0, 0x7f, -0x80, -1, 1, 0, 0, -0x7f };
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
 			bin.print(in);
-			assertEquals(b.toString(),
+			Assert.equal(b.toString(),
 				"00000000 01111111 10000000 11111111 00000001 00000000 00000000 10000001  "
 					+ "........\n");
 		}
@@ -139,7 +137,7 @@ public class BinaryPrinterBehavior {
 		byte[] bytes = { 'A', 'a', '~', '!' };
 		var in = new ByteArrayInputStream(bytes);
 		bin.print(in).flush();
-		assertEquals(b.toString(), "41 61 7e  21        Aa~ !  \n");
+		Assert.equal(b.toString(), "41 61 7e  21        Aa~ !  \n");
 	}
 
 	private BinaryPrinter.Builder init() {

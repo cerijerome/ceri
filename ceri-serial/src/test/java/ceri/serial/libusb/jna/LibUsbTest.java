@@ -1,8 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
@@ -47,16 +44,16 @@ public class LibUsbTest {
 
 	@Test
 	public void testEmptyConfig() {
-		assertArray(new libusb_config_descriptor(null).interfaces());
-		assertArray(new libusb_interface().altsettings());
-		assertArray(new libusb_interface_descriptor().endpoints());
+		Assert.array(new libusb_config_descriptor(null).interfaces());
+		Assert.array(new libusb_interface().altsettings());
+		Assert.array(new libusb_interface_descriptor().endpoints());
 	}
 
 	@Test
 	public void testIsoPacketStatus() {
 		var t = new LibUsb.libusb_iso_packet_descriptor(null);
 		t.status = libusb_transfer_status.LIBUSB_TRANSFER_TIMED_OUT.value;
-		assertEquals(t.status(), libusb_transfer_status.LIBUSB_TRANSFER_TIMED_OUT);
+		Assert.equal(t.status(), libusb_transfer_status.LIBUSB_TRANSFER_TIMED_OUT);
 	}
 
 	@Test
@@ -66,11 +63,11 @@ public class LibUsbTest {
 		var setup = LibUsb.libusb_fill_control_setup(m.m, 0x80, 3, 4, 5, 3);
 		LibUsb.libusb_fill_control_transfer(transfer, null, setup, null, null, 0);
 		setup = LibUsb.libusb_control_transfer_get_setup(transfer);
-		assertEquals(setup.bmRequestType, (byte) 0x80);
-		assertEquals(setup.bRequest, (byte) 3);
-		assertEquals(setup.wValue, (short) 4);
-		assertEquals(setup.wIndex, (short) 5);
-		assertEquals(setup.wLength, (short) 3);
+		Assert.equal(setup.bmRequestType, (byte) 0x80);
+		Assert.equal(setup.bRequest, (byte) 3);
+		Assert.equal(setup.wValue, (short) 4);
+		Assert.equal(setup.wIndex, (short) 5);
+		Assert.equal(setup.wLength, (short) 3);
 		Pointer p = LibUsb.libusb_control_transfer_get_data(transfer);
 		assertPointer(p, 0, 7, 8, 9);
 	}
@@ -99,15 +96,15 @@ public class LibUsbTest {
 	public void testPollfdEvents() {
 		var pollfd = new LibUsb.libusb_pollfd(null);
 		pollfd.events = 0x05;
-		assertUnordered(pollfd.events(), libusb_poll_event.POLLIN, libusb_poll_event.POLLOUT);
+		Assert.unordered(pollfd.events(), libusb_poll_event.POLLIN, libusb_poll_event.POLLOUT);
 	}
 
 	@Test
 	public void testPollfdsTimeouts() throws LibUsbException {
 		initLib();
-		assertEquals(LibUsb.libusb_pollfds_handle_timeouts(null), false);
+		Assert.equal(LibUsb.libusb_pollfds_handle_timeouts(null), false);
 		lib.generalSync.autoResponses(1);
-		assertEquals(LibUsb.libusb_pollfds_handle_timeouts(null), true);
+		Assert.equal(LibUsb.libusb_pollfds_handle_timeouts(null), true);
 	}
 
 	@Test
@@ -131,18 +128,18 @@ public class LibUsbTest {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.internalHubConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0xa5c, 0x4500);
-		assertEquals(LibUsb.libusb_get_bos_descriptor(handle), null);
+		Assert.equal(LibUsb.libusb_get_bos_descriptor(handle), null);
 		lib.generalSync.autoResponses(libusb_error.LIBUSB_ERROR_ACCESS.value,
 			libusb_error.LIBUSB_ERROR_NOT_FOUND.value, libusb_error.LIBUSB_ERROR_BUSY.value);
 		Assert.thrown(() -> LibUsb.libusb_get_ss_endpoint_companion_descriptor(null,
 			new libusb_endpoint_descriptor()));
-		assertEquals(LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()), null);
+		Assert.equal(LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()), null);
 		Assert.thrown(() -> LibUsb.libusb_get_bos_descriptor(new libusb_device_handle()));
 	}
 
 	@Test
 	public void testGetDevice() throws LibUsbException {
-		assertEquals(LibUsb.libusb_get_device(null), null);
+		Assert.equal(LibUsb.libusb_get_device(null), null);
 	}
 
 	@Test
@@ -155,10 +152,10 @@ public class LibUsbTest {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.internalHubConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0xa5c, 0x4500);
-		assertEquals(LibUsb.libusb_alloc_streams(handle, 3, 0x81), 3);
+		Assert.equal(LibUsb.libusb_alloc_streams(handle, 3, 0x81), 3);
 		var transfer = LibUsb.libusb_alloc_transfer(0);
 		LibUsb.libusb_transfer_set_stream_id(transfer, 2);
-		assertEquals(LibUsb.libusb_transfer_get_stream_id(transfer), 2);
+		Assert.equal(LibUsb.libusb_transfer_get_stream_id(transfer), 2);
 		LibUsb.libusb_free_streams(handle, 0x81);
 		LibUsb.libusb_free_streams(handle);
 		LibUsb.libusb_free_streams(null);
@@ -178,7 +175,7 @@ public class LibUsbTest {
 		initLib();
 		lib.data.addConfig(LibUsbSampleData.sdReaderConfig());
 		var handle = LibUsb.libusb_open_device_with_vid_pid(null, 0x5ac, 0x8406);
-		assertEquals(LibUsb.libusb_bulk_transfer(handle, 0x02, null, 0, 0), 0);
+		Assert.equal(LibUsb.libusb_bulk_transfer(handle, 0x02, null, 0, 0), 0);
 	}
 
 	@Test

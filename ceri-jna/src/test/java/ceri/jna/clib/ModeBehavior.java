@@ -1,11 +1,7 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.assertUnordered;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.Mode.Mask;
 
@@ -20,40 +16,40 @@ public class ModeBehavior {
 		var ne0 = Mode.of(0126);
 		var ne1 = Mode.of(Mask.rwxu, Mask.wgrp, Mask.rwxo);
 		TestUtil.exerciseEquals(t, eq0, eq1, eq2);
-		assertAllNotEqual(t, ne0, ne1);
+		Assert.notEqualAll(t, ne0, ne1);
 	}
 
 	@Test
 	public void shouldEncodeMask() {
-		assertEquals(Mask.xcoder.encodeInt(Mask.rwxu, Mask.rwxg, Mask.rwxo), 0777);
-		assertEquals(Mask.xcoder.encodeInt(Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp, Mask.roth, Mask.woth),
+		Assert.equal(Mask.xcoder.encodeInt(Mask.rwxu, Mask.rwxg, Mask.rwxo), 0777);
+		Assert.equal(Mask.xcoder.encodeInt(Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp, Mask.roth, Mask.woth),
 			0666);
-		assertEquals(Mask.xcoder.encodeInt(Mask.fmt), 0170000);
-		assertEquals(Mask.xcoder.encodeInt(Mask.fmt, Mask.fsock, Mask.flnk), 0170000);
+		Assert.equal(Mask.xcoder.encodeInt(Mask.fmt), 0170000);
+		Assert.equal(Mask.xcoder.encodeInt(Mask.fmt, Mask.fsock, Mask.flnk), 0170000);
 	}
 
 	@Test
 	public void shouldDecodeMask() {
-		assertUnordered(Mode.of(0777).masks(), Mask.rwxu, Mask.rwxg, Mask.rwxo);
-		assertUnordered(Mode.of(0666).masks(), Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp,
+		Assert.unordered(Mode.of(0777).masks(), Mask.rwxu, Mask.rwxg, Mask.rwxo);
+		Assert.unordered(Mode.of(0666).masks(), Mask.rusr, Mask.wusr, Mask.rgrp, Mask.wgrp,
 			Mask.roth, Mask.woth);
-		assertUnordered(Mask.xcoder.decodeAll(0170000), Mask.fmt);
-		assertUnordered(Mask.xcoder.decodeAll(0140000), Mask.fsock);
-		assertUnordered(Mask.xcoder.decodeAll(0120000), Mask.flnk);
+		Assert.unordered(Mask.xcoder.decodeAll(0170000), Mask.fmt);
+		Assert.unordered(Mask.xcoder.decodeAll(0140000), Mask.fsock);
+		Assert.unordered(Mask.xcoder.decodeAll(0120000), Mask.flnk);
 	}
 
 	@Test
 	public void shouldDetermineIfModeContainsMasks() {
-		assertTrue(Mode.of(07).has());
-		assertTrue(Mode.of(07).has(Mask.rwxo));
-		assertTrue(Mode.of(07).has(Mask.roth, Mask.woth));
-		assertFalse(Mode.of(07).has(Mask.roth, Mask.woth, Mask.rusr));
-		assertFalse(Mode.of(07).has(Mask.rusr));
+		Assert.yes(Mode.of(07).has());
+		Assert.yes(Mode.of(07).has(Mask.rwxo));
+		Assert.yes(Mode.of(07).has(Mask.roth, Mask.woth));
+		Assert.no(Mode.of(07).has(Mask.roth, Mask.woth, Mask.rusr));
+		Assert.no(Mode.of(07).has(Mask.rusr));
 	}
 
 	@Test
 	public void shouldProvideMaskStringRepresentation() {
-		assertEquals(Mode.of(0777).maskString(), "rwxu|rwxg|rwxo");
-		assertEquals(Mode.of(0666).maskString(), "rusr|wusr|rgrp|wgrp|roth|woth");
+		Assert.equal(Mode.of(0777).maskString(), "rwxu|rwxg|rwxo");
+		Assert.equal(Mode.of(0666).maskString(), "rusr|wusr|rgrp|wgrp|roth|woth");
 	}
 }

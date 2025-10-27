@@ -1,12 +1,11 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
 import ceri.common.geom.Line2d;
 import ceri.common.geom.Point2d;
 import ceri.common.geom.Ratio2d;
 import ceri.common.geom.Size2d;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 
 public class EllipticalArcBehavior {
@@ -26,7 +25,7 @@ public class EllipticalArcBehavior {
 		var ne4 = new EllipticalArc(Position.ABSOLUTE_ZERO, Size2d.of(2, 2), 0.0,
 			Svg.LargeArcFlag.small, Svg.SweepFlag.negative);
 		TestUtil.exerciseEquals(e, eq0, eq1);
-		assertAllNotEqual(e, ne0, ne1, ne2, ne3, ne4);
+		Assert.notEqualAll(e, ne0, ne1, ne2, ne3, ne4);
 	}
 
 	@Test
@@ -38,7 +37,7 @@ public class EllipticalArcBehavior {
 	@Test
 	public void shouldDetermineEnd() {
 		var e = EllipticalArc.of(Position.absolute(1, 1), Size2d.of(4, 1));
-		assertEquals(e.end(), Position.absolute(1, 1));
+		Assert.equal(e.end(), Position.absolute(1, 1));
 	}
 
 	@Test

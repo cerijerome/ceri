@@ -1,6 +1,5 @@
 package ceri.log.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -25,8 +24,8 @@ public class CloseableExecutorBehavior {
 	@Test
 	public void shouldSubmitTask() throws InterruptedException, ExecutionException {
 		try (CloseableExecutor exec = CloseableExecutor.single()) {
-			assertEquals(exec.submit(() -> "test1").get(), "test1");
-			assertEquals(exec.submit(() -> {}, "test2").get(), "test2");
+			Assert.equal(exec.submit(() -> "test1").get(), "test1");
+			Assert.equal(exec.submit(() -> {}, "test2").get(), "test2");
 			Assert.isNull(exec.submit(() -> {}).get());
 		}
 	}
@@ -36,8 +35,8 @@ public class CloseableExecutorBehavior {
 		try (@SuppressWarnings("resource")
 		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAll(List.of(() -> "test1", () -> "test2"));
-			assertEquals(result.get(0).get(), "test1");
-			assertEquals(result.get(1).get(), "test2");
+			Assert.equal(result.get(0).get(), "test1");
+			Assert.equal(result.get(1).get(), "test2");
 		}
 	}
 
@@ -46,8 +45,8 @@ public class CloseableExecutorBehavior {
 		try (@SuppressWarnings("resource")
 		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAll(List.of(() -> "test1", () -> "test2"), 1, TimeUnit.SECONDS);
-			assertEquals(result.get(0).get(), "test1");
-			assertEquals(result.get(1).get(), "test2");
+			Assert.equal(result.get(0).get(), "test1");
+			Assert.equal(result.get(1).get(), "test2");
 		}
 	}
 
@@ -57,7 +56,7 @@ public class CloseableExecutorBehavior {
 		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result =
 				exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")));
-			assertEquals(result, "test2");
+			Assert.equal(result, "test2");
 		}
 	}
 
@@ -68,7 +67,7 @@ public class CloseableExecutorBehavior {
 		CloseableExecutor exec = CloseableExecutor.of(Executors.newCachedThreadPool())) {
 			var result = exec.invokeAny(List.of(() -> call(10000, "test1"), () -> call(0, "test2")),
 				1, TimeUnit.SECONDS);
-			assertEquals(result, "test2");
+			Assert.equal(result, "test2");
 		}
 	}
 

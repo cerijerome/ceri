@@ -1,8 +1,7 @@
 package ceri.x10.cm11a.protocol;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertArray;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
 import ceri.common.time.Dates;
 import ceri.x10.command.House;
@@ -22,12 +21,12 @@ public class StatusBehavior {
 		var ne6 = Status.builder().date(Dates.UTC_EPOCH).onOff(0x7f).build();
 		var ne7 = Status.builder().date(Dates.UTC_EPOCH).dim(0x3f).build();
 		TestUtil.exerciseEquals(t, eq0);
-		assertAllNotEqual(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
+		Assert.notEqualAll(t, ne0, ne1, ne2, ne3, ne4, ne5, ne6, ne7);
 	}
 
 	@Test
 	public void shouldEncode() {
 		var status = Status.builder().date(Dates.UTC_EPOCH).build();
-		assertArray(status.encode(), 0, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 0, 0);
+		Assert.array(status.encode(), 0, 0, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 0, 0);
 	}
 }

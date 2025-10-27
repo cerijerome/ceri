@@ -1,7 +1,7 @@
 package ceri.jna.type;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.jna.type.JnaEnum.Value;
 import ceri.jna.type.JnaEnum.Valued;
 
@@ -55,58 +55,58 @@ public class JnaEnumTest {
 
 	@Test
 	public void testValue() {
-		assertEquals(E0.A.value(), 0);
-		assertEquals(E0.B.value(), 1);
-		assertEquals(E0.C.value(), 2);
-		assertEquals(E1.A.value(), 1);
-		assertEquals(E1.B.value(), 2);
-		assertEquals(E1.C.value(), 3);
-		assertEquals(E2.A.value(), 0);
-		assertEquals(E2.B.value(), 3);
-		assertEquals(E2.C.value(), 4);
-		assertEquals(E3.A.value(), 0);
-		assertEquals(E3.B.value(), 1);
-		assertEquals(E3.C.value(), 4);
-		assertEquals(E6.A.value(), 0);
+		Assert.equal(E0.A.value(), 0);
+		Assert.equal(E0.B.value(), 1);
+		Assert.equal(E0.C.value(), 2);
+		Assert.equal(E1.A.value(), 1);
+		Assert.equal(E1.B.value(), 2);
+		Assert.equal(E1.C.value(), 3);
+		Assert.equal(E2.A.value(), 0);
+		Assert.equal(E2.B.value(), 3);
+		Assert.equal(E2.C.value(), 4);
+		Assert.equal(E3.A.value(), 0);
+		Assert.equal(E3.B.value(), 1);
+		Assert.equal(E3.C.value(), 4);
+		Assert.equal(E6.A.value(), 0);
 	}
 
 	@Test
 	public void testFromValue() {
-		assertEquals(JnaEnum.from(E0.class, 0), E0.A);
-		assertEquals(JnaEnum.from(E0.class, 1), E0.B);
-		assertEquals(JnaEnum.from(E0.class, 2), E0.C);
-		assertEquals(JnaEnum.from(E1.class, 1), E1.A);
-		assertEquals(JnaEnum.from(E1.class, 2), E1.B);
-		assertEquals(JnaEnum.from(E1.class, 3), E1.C);
-		assertEquals(JnaEnum.from(E2.class, 0), E2.A);
-		assertEquals(JnaEnum.from(E2.class, 3), E2.B);
-		assertEquals(JnaEnum.from(E2.class, 4), E2.C);
-		assertEquals(JnaEnum.from(E3.class, 0), E3.A);
-		assertEquals(JnaEnum.from(E3.class, 1), E3.B);
-		assertEquals(JnaEnum.from(E3.class, 4), E3.C);
+		Assert.equal(JnaEnum.from(E0.class, 0), E0.A);
+		Assert.equal(JnaEnum.from(E0.class, 1), E0.B);
+		Assert.equal(JnaEnum.from(E0.class, 2), E0.C);
+		Assert.equal(JnaEnum.from(E1.class, 1), E1.A);
+		Assert.equal(JnaEnum.from(E1.class, 2), E1.B);
+		Assert.equal(JnaEnum.from(E1.class, 3), E1.C);
+		Assert.equal(JnaEnum.from(E2.class, 0), E2.A);
+		Assert.equal(JnaEnum.from(E2.class, 3), E2.B);
+		Assert.equal(JnaEnum.from(E2.class, 4), E2.C);
+		Assert.equal(JnaEnum.from(E3.class, 0), E3.A);
+		Assert.equal(JnaEnum.from(E3.class, 1), E3.B);
+		Assert.equal(JnaEnum.from(E3.class, 4), E3.C);
 	}
 
 	@Test
 	public void testFromBadValue() {
-		assertEquals(JnaEnum.from(E0.class, 3), null);
-		assertEquals(JnaEnum.from(E1.class, 4), null);
-		assertEquals(JnaEnum.from(E2.class, 1), null);
-		assertEquals(JnaEnum.from(E3.class, 2), null);
-		assertEquals(JnaEnum.from(E4.class, 0), null);
-		assertEquals(JnaEnum.from(E5.class, 1), null);
+		Assert.equal(JnaEnum.from(E0.class, 3), null);
+		Assert.equal(JnaEnum.from(E1.class, 4), null);
+		Assert.equal(JnaEnum.from(E2.class, 1), null);
+		Assert.equal(JnaEnum.from(E3.class, 2), null);
+		Assert.equal(JnaEnum.from(E4.class, 0), null);
+		Assert.equal(JnaEnum.from(E5.class, 1), null);
 	}
 
 	@Test
 	public void testFromOrdinal() {
-		assertEquals(JnaEnum.fromOrdinal(E0.class, 2), E0.C);
-		assertEquals(JnaEnum.fromOrdinal(E1.class, 2), E1.C);
-		assertEquals(JnaEnum.fromOrdinal(E2.class, 2), E2.C);
+		Assert.equal(JnaEnum.fromOrdinal(E0.class, 2), E0.C);
+		Assert.equal(JnaEnum.fromOrdinal(E1.class, 2), E1.C);
+		Assert.equal(JnaEnum.fromOrdinal(E2.class, 2), E2.C);
 	}
 
 	@Test
 	public void testFromBadOrdinal() {
-		assertEquals(JnaEnum.fromOrdinal(E1.class, 3), null);
-		assertEquals(JnaEnum.fromOrdinal(E1.class, -1), null);
+		Assert.equal(JnaEnum.fromOrdinal(E1.class, 3), null);
+		Assert.equal(JnaEnum.fromOrdinal(E1.class, -1), null);
 	}
 
 }

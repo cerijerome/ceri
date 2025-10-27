@@ -1,11 +1,11 @@
 package ceri.jna.clib;
 
-import static ceri.common.test.Assert.io;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Closeables;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.jna.clib.jna.CSignal;
 import ceri.jna.clib.test.TestCLibNative;
@@ -43,6 +43,6 @@ public class SignalBehavior {
 	public void shouldFailToSetHandler() {
 		var lib = ref.init();
 		lib.signal.autoResponses(new Pointer(CSignal.SIG_ERR));
-		io(() -> Signal.SIGUSR1.signal(_ -> {}));
+		Assert.io(() -> Signal.SIGUSR1.signal(_ -> {}));
 	}
 }

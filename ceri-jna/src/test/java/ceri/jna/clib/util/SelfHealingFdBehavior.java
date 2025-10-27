@@ -1,27 +1,16 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.throwIt;
-import static ceri.common.test.Assert.throwRuntime;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.ErrorGen.RIX;
-import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.typedProperties;
-import static ceri.jna.clib.jna.CFcntl.O_APPEND;
-import static ceri.jna.clib.jna.CFcntl.O_RDWR;
 import java.io.IOException;
 import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.junit.After;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.function.Closeables;
 import ceri.common.function.Lambdas;
 import ceri.common.io.StateChange;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
+import ceri.common.test.ErrorGen;
 import ceri.common.test.TestUtil;
 import ceri.jna.clib.ErrNo;
 import ceri.jna.clib.FileDescriptor;
@@ -41,9 +30,8 @@ public class SelfHealingFdBehavior {
 
 	@After
 	public void after() {
-		Closeables.close(shf, fd);
-		shf = null;
-		fd = null;
+		shf = TestUtil.close(shf);
+		fd = TestUtil.close(fd);
 		open = null;
 	}
 
@@ -51,11 +39,13 @@ public class SelfHealingFdBehavior {
 	public void shouldCreateFromProperties() throws IOException {
 		try (var enc = TestCLibNative.register()) {
 			var config =
-				new SelfHealingFd.Properties(typedProperties("self-healing-fd"), "fd").config();
+				new SelfHealingFd.Properties(TestUtil.typedProperties("self-healing-fd"), "fd")
+					.config();
 			try (var _ = config.open()) {
-				enc.ref.open.assertAuto(new OpenArgs("test", O_RDWR + O_APPEND, 0666));
-				assertEquals(config.selfHealing.fixRetryDelayMs, 123);
-				assertEquals(config.selfHealing.recoveryDelayMs, 456);
+				enc.ref.open
+					.assertAuto(new OpenArgs("test", CFcntl.O_RDWR + CFcntl.O_APPEND, 0666));
+				Assert.equal(config.selfHealing.fixRetryDelayMs, 123);
+				Assert.equal(config.selfHealing.recoveryDelayMs, 456);
 			}
 		}
 	}
@@ -63,10 +53,10 @@ public class SelfHealingFdBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldCreateFromOpenFunction() throws IOException {
-		TestFileDescriptor fd = TestFileDescriptor.of(33);
-		CallSync.Supplier<FileDescriptor> sync = CallSync.supplier(fd);
+		var fd = TestFileDescriptor.of(33);
+		var sync = CallSync.supplier(fd);
 		var config = SelfHealingFd.Config.of(() -> sync.get(ExceptionAdapter.io));
-		assertEquals(config.open(), fd);
+		Assert.equal(config.open(), fd);
 		sync.awaitAuto();
 	}
 
@@ -74,20 +64,20 @@ public class SelfHealingFdBehavior {
 	public void shouldSpecifyBrokenPredicate() {
 		var config = SelfHealingFd.Config.builder("test", Mode.NONE)
 			.selfHealing(b -> b.brokenPredicate(Objects::nonNull)).build();
-		assertEquals(config.selfHealing.brokenPredicate.test(null), false);
-		assertEquals(config.selfHealing.brokenPredicate.test(new IOException()), true);
+		Assert.equal(config.selfHealing.brokenPredicate.test(null), false);
+		Assert.equal(config.selfHealing.brokenPredicate.test(new IOException()), true);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var config = SelfHealingFd.Config.of(() -> TestFileDescriptor.of(33));
-		assertFind(config, "\\(2000,1000,%s\\)", Lambdas.name(config.selfHealing.brokenPredicate));
+		Assert.find(config, "\\(2000,1000,%s\\)", Lambdas.name(config.selfHealing.brokenPredicate));
 	}
 
 	@Test
 	public void shouldFailToOpenWithError() {
 		init();
-		open.error.setFrom(IOX);
+		open.error.setFrom(ErrorGen.IOX);
 		LogModifier.run(() -> {
 			Assert.thrown(() -> shf.open());
 			shf.close();
@@ -97,9 +87,9 @@ public class SelfHealingFdBehavior {
 	@Test
 	public void shouldOpenSilently() {
 		init();
-		open.error.setFrom(IOX);
+		open.error.setFrom(ErrorGen.IOX);
 		LogModifier.run(() -> {
-			assertFalse(shf.openSilently());
+			Assert.no(shf.openSilently());
 			shf.close();
 		}, Level.OFF, SelfHealing.class);
 	}
@@ -119,7 +109,7 @@ public class SelfHealingFdBehavior {
 	public void shouldHandleBadListeners() {
 		init();
 		CallSync.Consumer<StateChange> listener = CallSync.consumer(null, false);
-		listener.error.setFrom(RTX, RIX);
+		listener.error.setFrom(ErrorGen.RTX, ErrorGen.RIX);
 		shf.listeners().listen(listener::accept);
 		LogModifier.run(() -> {
 			try (var _ = TestUtil.threadRun(shf::broken)) {
@@ -144,9 +134,9 @@ public class SelfHealingFdBehavior {
 	public void shouldDelegateToFileDescriptor() throws IOException {
 		init();
 		shf.open();
-		shf.accept(fd -> assertEquals(fd, this.fd.fd()));
-		assertEquals(shf.apply(fd -> {
-			assertEquals(fd, this.fd.fd());
+		shf.accept(fd -> Assert.equal(fd, this.fd.fd()));
+		Assert.equal(shf.apply(fd -> {
+			Assert.equal(fd, this.fd.fd());
 			return 77;
 		}), 77);
 	}
@@ -162,10 +152,10 @@ public class SelfHealingFdBehavior {
 			shf = SelfHealingFd.of(config);
 			shf.open();
 			open.awaitAuto(); // fd0
-			assertEquals(shf.flags(), 0x11);
+			Assert.equal(shf.flags(), 0x11);
 			shf.broken();
 			open.awaitAuto(); // fd1
-			assertEquals(shf.flags(), 0x22);
+			Assert.equal(shf.flags(), 0x22);
 		}
 	}
 
@@ -174,7 +164,7 @@ public class SelfHealingFdBehavior {
 		init();
 		shf.open();
 		FileDescriptor.FLAGS.set(shf, Open.RDWR, Open.APPEND);
-		assertEquals(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
+		Assert.equal(fd.flags.lastValue(), CFcntl.O_RDWR | CFcntl.O_APPEND);
 	}
 
 	@Test
@@ -182,10 +172,12 @@ public class SelfHealingFdBehavior {
 		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
-		Assert.thrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // now broken
-		Assert.thrown(() -> shf.accept(_ -> throwIt(ErrNo.ENOENT.error("test")))); // still broken
+		// now broken:
+		Assert.thrown(() -> shf.accept(_ -> Assert.throwIt(ErrNo.ENOENT.error("test"))));
+		// still broken:
+		Assert.thrown(() -> shf.accept(_ -> Assert.throwIt(ErrNo.ENOENT.error("test"))));
 		open.await(fd); // re-open
-		Assert.thrown(() -> shf.accept(_ -> throwRuntime())); // not broken
+		Assert.thrown(() -> shf.accept(_ -> Assert.throwRuntime())); // not broken
 	}
 
 	@Test
@@ -193,7 +185,7 @@ public class SelfHealingFdBehavior {
 		init();
 		shf.open();
 		open.autoResponse(null); // disable auto response
-		open.error.setFrom(IOX, IOX, null);
+		open.error.setFrom(ErrorGen.IOX, ErrorGen.IOX, null);
 		LogModifier.run(() -> {
 			shf.broken();
 			open.await(fd); // throws IOException

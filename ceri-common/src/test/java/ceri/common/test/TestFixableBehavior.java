@@ -1,7 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertMatch;
 import java.io.IOException;
 import org.junit.Test;
 
@@ -10,18 +8,18 @@ public class TestFixableBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldProvideName() {
-		assertMatch(TestFixable.of().name(), TestFixable.class.getSimpleName() + "@.*");
-		assertMatch(new TestFixable("test").name(), "test");
+		Assert.match(TestFixable.of().name(), TestFixable.class.getSimpleName() + "@.*");
+		Assert.match(new TestFixable("test").name(), "test");
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() throws IOException {
 		try (var fixable = TestFixable.of()) {
-			assertFind(fixable, "fixed,closed");
+			Assert.find(fixable, "fixed,closed");
 			fixable.open();
-			assertFind(fixable, "fixed,open");
+			Assert.find(fixable, "fixed,open");
 			fixable.broken();
-			assertFind(fixable, "broken,closed");
+			Assert.find(fixable, "broken,closed");
 		}
 	}
 

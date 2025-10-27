@@ -1,10 +1,10 @@
 package ceri.common.collect;
 
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.common.time.TimeSupplier.micros;
 import static ceri.common.time.TimeSupplier.millis;
 import static ceri.common.time.TimeSupplier.nanos;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class TimeQueueBehavior {
@@ -12,21 +12,21 @@ public class TimeQueueBehavior {
 	@Test
 	public void shouldOnlyAddItemsOnce() {
 		TimeQueue<String> tq = TimeQueue.of(millis);
-		assertEquals(tq.add("a"), true);
-		assertEquals(tq.add("a"), false);
-		assertEquals(tq.add("a", 1000), false);
-		assertEquals(tq.remove(), "a");
-		assertEquals(tq.add("a", 1000), true);
+		Assert.equal(tq.add("a"), true);
+		Assert.equal(tq.add("a"), false);
+		Assert.equal(tq.add("a", 1000), false);
+		Assert.equal(tq.remove(), "a");
+		Assert.equal(tq.add("a", 1000), true);
 	}
 
 	@Test
 	public void shouldSetItems() {
 		TimeQueue<String> tq = TimeQueue.of(millis);
-		assertEquals(tq.setOffset("a", 10000), true);
-		assertEquals(tq.next(), null);
-		assertEquals(tq.set("a"), false);
-		assertEquals(tq.next(), "a");
-		assertEquals(tq.isEmpty(), true);
+		Assert.equal(tq.setOffset("a", 10000), true);
+		Assert.equal(tq.next(), null);
+		Assert.equal(tq.set("a"), false);
+		Assert.equal(tq.next(), "a");
+		Assert.equal(tq.isEmpty(), true);
 	}
 
 	@Test
@@ -35,10 +35,10 @@ public class TimeQueueBehavior {
 		tq.add("a");
 		tq.add("b");
 		tq.add("c");
-		assertEquals(tq.remove(), "a");
+		Assert.equal(tq.remove(), "a");
 		tq.clear();
-		assertEquals(tq.remove(), null);
-		assertEquals(tq.isEmpty(), true);
+		Assert.equal(tq.remove(), null);
+		Assert.equal(tq.isEmpty(), true);
 	}
 
 	@Test
@@ -48,36 +48,36 @@ public class TimeQueueBehavior {
 		tq.add("a", ms);
 		tq.add("b");
 		tq.addOffset("c", 10000);
-		assertEquals(tq.next(ms - 5000), null);
-		assertEquals(tq.next(), "a");
-		assertEquals(tq.next(), "b");
-		assertEquals(tq.next(), null);
-		assertEquals(tq.next(ms + 20000), "c");
-		assertEquals(tq.next(ms + 20000), null);
+		Assert.equal(tq.next(ms - 5000), null);
+		Assert.equal(tq.next(), "a");
+		Assert.equal(tq.next(), "b");
+		Assert.equal(tq.next(), null);
+		Assert.equal(tq.next(ms + 20000), "c");
+		Assert.equal(tq.next(ms + 20000), null);
 	}
 
 	@Test
 	public void shouldGetNextTime() {
 		TimeQueue<String> tq = TimeQueue.of(nanos);
 		long ns = tq.time(0);
-		assertEquals(tq.nextTime(), 0L);
+		Assert.equal(tq.nextTime(), 0L);
 		tq.add("a", ns - 1000);
 		tq.add("b", ns + 1000);
-		assertEquals(tq.nextTime(), ns - 1000L);
+		Assert.equal(tq.nextTime(), ns - 1000L);
 		tq.remove();
-		assertEquals(tq.nextTime(), ns + 1000L);
+		Assert.equal(tq.nextTime(), ns + 1000L);
 	}
 
 	@Test
 	public void shouldGetNextDelay() {
 		TimeQueue<String> tq = TimeQueue.of(micros);
 		long us = tq.time();
-		assertEquals(tq.nextDelay(), 0L);
+		Assert.equal(tq.nextDelay(), 0L);
 		tq.add("a", us - 1000);
 		tq.add("b", us + 1000);
-		assertEquals(tq.nextDelay(us), 0L);
+		Assert.equal(tq.nextDelay(us), 0L);
 		tq.remove();
-		assertEquals(tq.nextDelay(us), 1000L);
+		Assert.equal(tq.nextDelay(us), 1000L);
 	}
 
 	@Test
@@ -108,9 +108,9 @@ public class TimeQueueBehavior {
 		tq.add("c", 3000);
 		tq.add("b", 2000);
 		tq.add("a", 1000);
-		assertEquals(tq.next(), "a");
-		assertEquals(tq.next(), "b");
-		assertEquals(tq.next(), "c");
+		Assert.equal(tq.next(), "a");
+		Assert.equal(tq.next(), "b");
+		Assert.equal(tq.next(), "c");
 	}
 
 	@Test
@@ -119,10 +119,10 @@ public class TimeQueueBehavior {
 		tq.add("c", 3000);
 		tq.add("b", 2000);
 		tq.add("a", 1000);
-		assertEquals(tq.remove("b"), true);
-		assertEquals(tq.remove("d"), false);
-		assertEquals(tq.next(), "a");
-		assertEquals(tq.next(), "c");
+		Assert.equal(tq.remove("b"), true);
+		Assert.equal(tq.remove("d"), false);
+		Assert.equal(tq.next(), "a");
+		Assert.equal(tq.next(), "c");
 	}
 
 }

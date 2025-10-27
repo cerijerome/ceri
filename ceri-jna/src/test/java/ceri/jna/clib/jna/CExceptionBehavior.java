@@ -1,11 +1,8 @@
 package ceri.jna.clib.jna;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.fail;
-import static ceri.common.test.Assert.throwIt;
-import static ceri.common.test.Assert.throwable;
 import java.io.IOException;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 
 public class CExceptionBehavior {
@@ -21,8 +18,9 @@ public class CExceptionBehavior {
 	public void testInterceptWithError() {
 		var captor = Captor.ofInt();
 		try {
-			CException.intercept(() -> throwIt(CException.of(CErrNo.EACCES, "test")), captor);
-			fail();
+			CException.intercept(() -> Assert.throwIt(CException.of(CErrNo.EACCES, "test")),
+				captor);
+			Assert.fail();
 		} catch (CException e) {
 			captor.verifyInt(CErrNo.EACCES);
 		}
@@ -30,14 +28,14 @@ public class CExceptionBehavior {
 
 	@Test
 	public void testCapture() {
-		assertEquals(CException.capture(() -> {}), 0);
-		assertEquals(CException.capture(() -> throwIt(CException.of(333, "test"))), 333);
+		Assert.equal(CException.capture(() -> {}), 0);
+		Assert.equal(CException.capture(() -> Assert.throwIt(CException.of(333, "test"))), 333);
 	}
 
 	@Test
 	public void shouldCreateFromError() {
-		throwable(CException.full(-1, "test"), "\\Q[-1] test\\E");
-		throwable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] E2BIG test\\E",
+		Assert.throwable(CException.full(-1, "test"), "\\Q[-1] test\\E");
+		Assert.throwable(CException.full(CErrNo.E2BIG, "test"), "\\Q[%d] E2BIG test\\E",
 			CErrNo.E2BIG);
 	}
 
@@ -46,7 +44,7 @@ public class CExceptionBehavior {
 		try {
 			throw CException.full(CErrNo.EACCES, "test").runtime();
 		} catch (RuntimeException e) {
-			throwable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
+			Assert.throwable(e, "\\Q[%d] EACCES test\\E", CErrNo.EACCES);
 		}
 	}
 
@@ -54,15 +52,14 @@ public class CExceptionBehavior {
 	public void shouldAdaptError() {
 		var ioe = new IOException("io");
 		var ce = CException.ADAPTER.apply(ioe);
-		assertEquals(ce.getMessage(), "io");
-		assertEquals(ce.getCause(), ioe);
-		assertEquals(ce.code, CException.GENERAL_ERROR_CODE);
+		Assert.equal(ce.getMessage(), "io");
+		Assert.equal(ce.getCause(), ioe);
+		Assert.equal(ce.code, CException.GENERAL_ERROR_CODE);
 	}
 
 	@Test
 	public void shouldAdaptErrorWithoutMessage() {
 		var ioe = new IOException();
-		assertEquals(CException.ADAPTER.apply(ioe).getMessage(), "Error");
+		Assert.equal(CException.ADAPTER.apply(ioe).getMessage(), "Error");
 	}
-
 }

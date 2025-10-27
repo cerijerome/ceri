@@ -1,12 +1,10 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.common.test.Captor;
 import ceri.common.test.TestUtil;
 
@@ -16,12 +14,12 @@ public class LockerBehavior {
 	public void shouldLockAndUnlock() {
 		Locker locker = Locker.of();
 		try (var _ = locker.lock()) {
-			assertEquals(isLocked(locker.lock), true);
+			Assert.equal(isLocked(locker.lock), true);
 			throw new RuntimeException();
 		} catch (RuntimeException e) {
-			assertEquals(isLocked(locker.lock), false);
+			Assert.equal(isLocked(locker.lock), false);
 		}
-		assertEquals(isLocked(locker.lock), false);
+		Assert.equal(isLocked(locker.lock), false);
 	}
 
 	@Test
@@ -37,29 +35,29 @@ public class LockerBehavior {
 	@Test
 	public void shouldExecuteFunctions() {
 		Locker locker = Locker.of();
-		assertEquals(locker.get(() -> assertLocked(locker, "test")), "test");
-		assertEquals(locker.getAsInt(() -> assertLocked(locker, 3)), 3);
-		assertEquals(locker.getAsLong(() -> assertLocked(locker, 5L)), 5L);
+		Assert.equal(locker.get(() -> assertLocked(locker, "test")), "test");
+		Assert.equal(locker.getAsInt(() -> assertLocked(locker, 3)), 3);
+		Assert.equal(locker.getAsLong(() -> assertLocked(locker, 5L)), 5L);
 		locker.run(() -> assertLocked(locker, ""));
 	}
 
 	@Test
 	public void shouldTryToExecuteUnlockedFunctions() {
 		Locker locker = Locker.of();
-		assertEquals(locker.tryGet(() -> assertLocked(locker, "test")).value(), "test");
-		assertEquals(locker.tryGetAsInt(() -> assertLocked(locker, 3)).getAsInt(), 3);
-		assertEquals(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).getAsLong(), 5L);
-		assertTrue(locker.tryRun(() -> assertLocked(locker, "")));
+		Assert.equal(locker.tryGet(() -> assertLocked(locker, "test")).value(), "test");
+		Assert.equal(locker.tryGetAsInt(() -> assertLocked(locker, 3)).getAsInt(), 3);
+		Assert.equal(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).getAsLong(), 5L);
+		Assert.yes(locker.tryRun(() -> assertLocked(locker, "")));
 	}
 
 	@Test
 	public void shouldTryToExecuteLockedFunctions() {
 		Locker locker = Locker.of();
 		try (var _ = locker.lock(); var exec = TestUtil.threadRun(() -> {
-			assertTrue(locker.tryGet(() -> assertLocked(locker, "test")).isEmpty());
-			assertTrue(locker.tryGetAsInt(() -> assertLocked(locker, 3)).isEmpty());
-			assertTrue(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).isEmpty());
-			assertFalse(locker.tryRun(() -> assertLocked(locker, "")));
+			Assert.yes(locker.tryGet(() -> assertLocked(locker, "test")).isEmpty());
+			Assert.yes(locker.tryGetAsInt(() -> assertLocked(locker, 3)).isEmpty());
+			Assert.yes(locker.tryGetAsLong(() -> assertLocked(locker, 5L)).isEmpty());
+			Assert.no(locker.tryRun(() -> assertLocked(locker, "")));
 		})) {
 			exec.get();
 		}
@@ -86,7 +84,7 @@ public class LockerBehavior {
 	}
 
 	private static <T> T assertLocked(Locker locker, T response) {
-		assertEquals(isLocked(locker.lock), true);
+		Assert.equal(isLocked(locker.lock), true);
 		return response;
 	}
 

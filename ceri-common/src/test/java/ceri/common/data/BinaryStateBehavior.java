@@ -1,67 +1,67 @@
 package ceri.common.data;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.Test;
+import ceri.common.test.Assert;
 
 public class BinaryStateBehavior {
 
 	@Test
 	public void testInvert() {
-		assertEquals(BinaryState.invert(null), null);
-		assertEquals(BinaryState.invert(BinaryState.unknown), BinaryState.unknown);
-		assertEquals(BinaryState.invert(BinaryState.on), BinaryState.off);
-		assertEquals(BinaryState.invert(BinaryState.off), BinaryState.on);
+		Assert.equal(BinaryState.invert(null), null);
+		Assert.equal(BinaryState.invert(BinaryState.unknown), BinaryState.unknown);
+		Assert.equal(BinaryState.invert(BinaryState.on), BinaryState.off);
+		Assert.equal(BinaryState.invert(BinaryState.off), BinaryState.on);
 	}
 
 	@Test
 	public void testKnown() {
-		assertEquals(BinaryState.known(null), false);
-		assertEquals(BinaryState.known(BinaryState.unknown), false);
-		assertEquals(BinaryState.known(BinaryState.on), true);
-		assertEquals(BinaryState.known(BinaryState.off), true);
+		Assert.equal(BinaryState.known(null), false);
+		Assert.equal(BinaryState.known(BinaryState.unknown), false);
+		Assert.equal(BinaryState.known(BinaryState.on), true);
+		Assert.equal(BinaryState.known(BinaryState.off), true);
 	}
 
 	@Test
 	public void testBool() {
-		assertEquals(BinaryState.bool(null), null);
-		assertEquals(BinaryState.bool(BinaryState.unknown), null);
-		assertEquals(BinaryState.bool(BinaryState.on), true);
-		assertEquals(BinaryState.bool(BinaryState.off), false);
+		Assert.equal(BinaryState.bool(null), null);
+		Assert.equal(BinaryState.bool(BinaryState.unknown), null);
+		Assert.equal(BinaryState.bool(BinaryState.on), true);
+		Assert.equal(BinaryState.bool(BinaryState.off), false);
 	}
 
 	@Test
 	public void testOn() {
-		assertEquals(BinaryState.unknown.on(), false);
-		assertEquals(BinaryState.off.on(), false);
-		assertEquals(BinaryState.on.on(), true);
+		Assert.equal(BinaryState.unknown.on(), false);
+		Assert.equal(BinaryState.off.on(), false);
+		Assert.equal(BinaryState.on.on(), true);
 	}
 
 	@Test
 	public void testOff() {
-		assertEquals(BinaryState.unknown.off(), false);
-		assertEquals(BinaryState.off.off(), true);
-		assertEquals(BinaryState.on.off(), false);
+		Assert.equal(BinaryState.unknown.off(), false);
+		Assert.equal(BinaryState.off.off(), true);
+		Assert.equal(BinaryState.on.off(), false);
 	}
 
 	@Test
 	public void shouldGetFromBoolean() {
-		assertEquals(BinaryState.from(null), BinaryState.unknown);
-		assertEquals(BinaryState.from(true), BinaryState.on);
-		assertEquals(BinaryState.from(false), BinaryState.off);
+		Assert.equal(BinaryState.from(null), BinaryState.unknown);
+		Assert.equal(BinaryState.from(true), BinaryState.on);
+		Assert.equal(BinaryState.from(false), BinaryState.off);
 	}
 
 	@Test
 	public void shouldGetBoolean() {
-		assertEquals(BinaryState.unknown.bool(), null);
-		assertEquals(BinaryState.on.bool(), true);
-		assertEquals(BinaryState.off.bool(), false);
+		Assert.equal(BinaryState.unknown.bool(), null);
+		Assert.equal(BinaryState.on.bool(), true);
+		Assert.equal(BinaryState.off.bool(), false);
 	}
 
 	@Test
 	public void shouldDetermineIfKnown() {
-		assertEquals(BinaryState.unknown.known(), false);
-		assertEquals(BinaryState.on.known(), true);
-		assertEquals(BinaryState.off.known(), true);
+		Assert.equal(BinaryState.unknown.known(), false);
+		Assert.equal(BinaryState.on.known(), true);
+		Assert.equal(BinaryState.off.known(), true);
 	}
 
 }

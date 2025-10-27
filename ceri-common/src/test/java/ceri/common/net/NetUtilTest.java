@@ -1,9 +1,5 @@
 package ceri.common.net;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertTrue;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -19,7 +15,7 @@ public class NetUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(NetUtil.class);
+		Assert.privateConstructor(NetUtil.class);
 	}
 
 	@Test
@@ -40,15 +36,15 @@ public class NetUtilTest {
 	public void testIsLocalhost() {
 		for (String address : Arrays.asList("localhost", "Localhost", "127.0.0.1", "127.1",
 			"127.255.255.255", "::1", "0:0:0:0:0:0:0:1", "0000::0001", "00:01"))
-			assertEquals(NetUtil.isLocalhost(address), true, address);
+			Assert.equal(NetUtil.isLocalhost(address), true, address);
 		for (String address : Arrays.asList(null, "", "local_host", "128.0.0.1", "127", "0.0.0.0",
 			"::0", "0:0:0:0:0:0:1:1", "0000::0000"))
-			assertEquals(NetUtil.isLocalhost(address), false, address);
+			Assert.equal(NetUtil.isLocalhost(address), false, address);
 	}
 
 	@Test
 	public void testLocalAddressFor() {
-		assertEquals(NetUtil.localAddressFor(null), null);
+		Assert.equal(NetUtil.localAddressFor(null), null);
 	}
 
 	@Test
@@ -74,30 +70,30 @@ public class NetUtilTest {
 	public void testRegularIp4Address() throws SocketException {
 		Inet4Address addr = NetUtil.localIp4Address();
 		if (addr == null) return; // not connected
-		assertTrue(addr.isSiteLocalAddress());
-		assertFalse(AddressType.isSpecial(addr));
+		Assert.yes(addr.isSiteLocalAddress());
+		Assert.no(AddressType.isSpecial(addr));
 		NetworkInterface n = NetUtil.localInterface();
 		addr = NetUtil.localIp4AddressFor(n);
-		assertTrue(addr.isSiteLocalAddress());
-		assertFalse(AddressType.isSpecial(addr));
+		Assert.yes(addr.isSiteLocalAddress());
+		Assert.no(AddressType.isSpecial(addr));
 	}
 
 	@Test
 	public void testRegularAddress() throws SocketException {
 		InetAddress addr = NetUtil.localAddress();
 		if (addr == null) return; // not connected
-		assertTrue(addr.isSiteLocalAddress());
-		assertFalse(AddressType.isSpecial(addr));
+		Assert.yes(addr.isSiteLocalAddress());
+		Assert.no(AddressType.isSpecial(addr));
 		NetworkInterface n = NetUtil.localInterface();
 		addr = NetUtil.localAddressFor(n);
-		assertTrue(addr.isSiteLocalAddress());
-		assertFalse(AddressType.isSpecial(addr));
+		Assert.yes(addr.isSiteLocalAddress());
+		Assert.no(AddressType.isSpecial(addr));
 	}
 
 	@Test
 	public void testBroadcast() throws SocketException {
 		NetUtil.localBroadcast();
-		assertEquals(NetUtil.broadcast(null), null);
+		Assert.equal(NetUtil.broadcast(null), null);
 		NetUtil.broadcast(NetworkInterface.networkInterfaces().findFirst().orElse(null));
 	}
 

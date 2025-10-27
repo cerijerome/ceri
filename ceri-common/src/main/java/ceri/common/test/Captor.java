@@ -1,11 +1,9 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertList;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import ceri.common.array.ArrayUtil;
 import ceri.common.collect.Immutable;
+import ceri.common.collect.Lists;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 
@@ -13,7 +11,7 @@ import ceri.common.function.Functions;
  * Simple consumer to collect values during testing, then verify.
  */
 public class Captor<T> implements Functions.Consumer<T> {
-	public final List<T> values = new ArrayList<>();
+	public final List<T> values = Lists.of();
 
 	public static <T> Captor<T> of() {
 		return new Captor<>();
@@ -57,11 +55,11 @@ public class Captor<T> implements Functions.Consumer<T> {
 
 	@SafeVarargs
 	public final void verify(T... values) {
-		verify(Arrays.asList(values));
+		verify(Lists.wrap(values));
 	}
 
 	public void verify(List<T> values) {
-		assertList(this.values, values);
+		Assert.list(this.values, values);
 	}
 
 	public static class OfInt extends Captor<Integer>

@@ -1,364 +1,359 @@
 package ceri.common.text;
 
-import static ceri.common.test.Assert.assertLines;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
 import java.util.List;
 import org.junit.Test;
 import ceri.common.collect.Immutable;
+import ceri.common.test.Assert;
 
 public class TextTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(Text.class);
+		Assert.privateConstructor(Text.class);
 	}
 
 	@Test
 	public void testPrefixLines() {
-		assertString(Text.prefixLines("xxx", "abc"), "xxxabc");
-		assertString(Text.prefixLines("xxx", ""), "");
-		assertString(Text.prefixLines("", ""), "");
-		assertString(Text.prefixLines("", "abc"), "abc");
-		assertString(Text.prefixLines("xxx", "a\r\nb"), "xxxa\r\nxxxb");
-		assertString(Text.prefixLines("xxx", "a\r\n"), "xxxa\r\nxxx");
-		assertString(Text.prefixLines("xxx", "\r\n"), "xxx\r\nxxx");
-		assertString(Text.prefixLines("\t", "\n\r"), "\t\n\t\r\t");
-		assertString(Text.prefixLines("\t", "\n\r\n\t"), "\t\n\t\r\n\t\t");
-		assertString(Text.prefixLines("x", "a\nb\r\nc\rd"), "xa\nxb\r\nxc\rxd");
+		Assert.string(Text.prefixLines("xxx", "abc"), "xxxabc");
+		Assert.string(Text.prefixLines("xxx", ""), "");
+		Assert.string(Text.prefixLines("", ""), "");
+		Assert.string(Text.prefixLines("", "abc"), "abc");
+		Assert.string(Text.prefixLines("xxx", "a\r\nb"), "xxxa\r\nxxxb");
+		Assert.string(Text.prefixLines("xxx", "a\r\n"), "xxxa\r\nxxx");
+		Assert.string(Text.prefixLines("xxx", "\r\n"), "xxx\r\nxxx");
+		Assert.string(Text.prefixLines("\t", "\n\r"), "\t\n\t\r\t");
+		Assert.string(Text.prefixLines("\t", "\n\r\n\t"), "\t\n\t\r\n\t\t");
+		Assert.string(Text.prefixLines("x", "a\nb\r\nc\rd"), "xa\nxb\r\nxc\rxd");
 	}
 
 	@Test
 	public void testSpacesToTabs() {
-		assertString(Text.lineSpacesToTabs(1, null), "");
-		assertString(Text.spacesToTabs(0, "    "), "    ");
-		assertString(Text.spacesToTabs(4, ""), "");
-		assertString(Text.spacesToTabs(4, "a"), "a");
-		assertString(Text.spacesToTabs(4, "ab"), "ab");
-		assertString(Text.spacesToTabs(4, "abc"), "abc");
-		assertString(Text.spacesToTabs(4, "abcd"), "abcd");
-		assertString(Text.spacesToTabs(4, "a "), "a ");
-		assertString(Text.spacesToTabs(4, "ab "), "ab ");
-		assertString(Text.spacesToTabs(4, "abc "), "abc ");
-		assertString(Text.spacesToTabs(4, "abcd "), "abcd ");
-		assertString(Text.spacesToTabs(4, "a  "), "a  ");
-		assertString(Text.spacesToTabs(4, "ab  "), "ab\t");
-		assertString(Text.spacesToTabs(4, "abc  "), "abc  ");
-		assertString(Text.spacesToTabs(4, "abcd  "), "abcd  ");
-		assertString(Text.spacesToTabs(2, "a   "), "a \t");
-		assertString(Text.spacesToTabs(2, "ab   "), "ab\t ");
-		assertString(Text.spacesToTabs(2, "abc   "), "abc \t");
-		assertString(Text.spacesToTabs(2, "abcd   "), "abcd\t ");
-		assertString(Text.spacesToTabs(4, "       ab c   e "), "\t   ab c   e ");
-		assertString(Text.spacesToTabs(4, "abcde   fgh      i"), "abcde\tfgh \t i");
-		assertString(Text.spacesToTabs(4, "a\t b \t c"), "a\t b\t c");
+		Assert.string(Text.lineSpacesToTabs(1, null), "");
+		Assert.string(Text.spacesToTabs(0, "    "), "    ");
+		Assert.string(Text.spacesToTabs(4, ""), "");
+		Assert.string(Text.spacesToTabs(4, "a"), "a");
+		Assert.string(Text.spacesToTabs(4, "ab"), "ab");
+		Assert.string(Text.spacesToTabs(4, "abc"), "abc");
+		Assert.string(Text.spacesToTabs(4, "abcd"), "abcd");
+		Assert.string(Text.spacesToTabs(4, "a "), "a ");
+		Assert.string(Text.spacesToTabs(4, "ab "), "ab ");
+		Assert.string(Text.spacesToTabs(4, "abc "), "abc ");
+		Assert.string(Text.spacesToTabs(4, "abcd "), "abcd ");
+		Assert.string(Text.spacesToTabs(4, "a  "), "a  ");
+		Assert.string(Text.spacesToTabs(4, "ab  "), "ab\t");
+		Assert.string(Text.spacesToTabs(4, "abc  "), "abc  ");
+		Assert.string(Text.spacesToTabs(4, "abcd  "), "abcd  ");
+		Assert.string(Text.spacesToTabs(2, "a   "), "a \t");
+		Assert.string(Text.spacesToTabs(2, "ab   "), "ab\t ");
+		Assert.string(Text.spacesToTabs(2, "abc   "), "abc \t");
+		Assert.string(Text.spacesToTabs(2, "abcd   "), "abcd\t ");
+		Assert.string(Text.spacesToTabs(4, "       ab c   e "), "\t   ab c   e ");
+		Assert.string(Text.spacesToTabs(4, "abcde   fgh      i"), "abcde\tfgh \t i");
+		Assert.string(Text.spacesToTabs(4, "a\t b \t c"), "a\t b\t c");
 	}
 
 	@Test
 	public void testTabsToSpaces() {
-		assertString(Text.lineTabsToSpaces(1, null), "");
-		assertString(Text.tabsToSpaces(0, "    "), "    ");
-		assertString(Text.tabsToSpaces(4, ""), "");
-		assertString(Text.tabsToSpaces(4, "a"), "a");
-		assertString(Text.tabsToSpaces(4, "ab"), "ab");
-		assertString(Text.tabsToSpaces(4, "abc"), "abc");
-		assertString(Text.tabsToSpaces(4, "abcd"), "abcd");
-		assertString(Text.tabsToSpaces(4, "\t"), "    ");
-		assertString(Text.tabsToSpaces(4, "a\t"), "a   ");
-		assertString(Text.tabsToSpaces(4, "ab\t"), "ab  ");
-		assertString(Text.tabsToSpaces(4, "abc\t"), "abc ");
-		assertString(Text.tabsToSpaces(4, "abcd\t"), "abcd    ");
-		assertString(Text.tabsToSpaces(2, "\t\t"), "    ");
-		assertString(Text.tabsToSpaces(2, "\t \t"), "    ");
-		assertString(Text.tabsToSpaces(2, " \t \t"), "    ");
-		assertString(Text.tabsToSpaces(2, "\t\t "), "     ");
-		assertString(Text.tabsToSpaces(4, "abc\t\tdef  \tg"), "abc     def     g");
-		assertString(Text.tabsToSpaces(4, "abcde\tfgh\t\ti"), "abcde   fgh     i");
+		Assert.string(Text.lineTabsToSpaces(1, null), "");
+		Assert.string(Text.tabsToSpaces(0, "    "), "    ");
+		Assert.string(Text.tabsToSpaces(4, ""), "");
+		Assert.string(Text.tabsToSpaces(4, "a"), "a");
+		Assert.string(Text.tabsToSpaces(4, "ab"), "ab");
+		Assert.string(Text.tabsToSpaces(4, "abc"), "abc");
+		Assert.string(Text.tabsToSpaces(4, "abcd"), "abcd");
+		Assert.string(Text.tabsToSpaces(4, "\t"), "    ");
+		Assert.string(Text.tabsToSpaces(4, "a\t"), "a   ");
+		Assert.string(Text.tabsToSpaces(4, "ab\t"), "ab  ");
+		Assert.string(Text.tabsToSpaces(4, "abc\t"), "abc ");
+		Assert.string(Text.tabsToSpaces(4, "abcd\t"), "abcd    ");
+		Assert.string(Text.tabsToSpaces(2, "\t\t"), "    ");
+		Assert.string(Text.tabsToSpaces(2, "\t \t"), "    ");
+		Assert.string(Text.tabsToSpaces(2, " \t \t"), "    ");
+		Assert.string(Text.tabsToSpaces(2, "\t\t "), "     ");
+		Assert.string(Text.tabsToSpaces(4, "abc\t\tdef  \tg"), "abc     def     g");
+		Assert.string(Text.tabsToSpaces(4, "abcde\tfgh\t\ti"), "abcde   fgh     i");
 	}
 
 	@Test
 	public void testAddLineNumbers() {
-		assertLines(Text.addLineNumbers((String) null));
-		assertLines(Text.addLineNumbers((String[]) null));
-		assertLines(Text.addLineNumbers((List<String>) null));
-		assertLines(Text.addLineNumbers((List<String>) null, 1));
-		assertLines(Text.addLineNumbers("\n\nabc\n\n\n"), "1: ", "2: ", "3: abc");
-		assertLines(Text.addLineNumbers(new String[] { null, "", "abc", "" }), "1: ", "2: ",
+		Assert.lines(Text.addLineNumbers((String) null));
+		Assert.lines(Text.addLineNumbers((String[]) null));
+		Assert.lines(Text.addLineNumbers((List<String>) null));
+		Assert.lines(Text.addLineNumbers((List<String>) null, 1));
+		Assert.lines(Text.addLineNumbers("\n\nabc\n\n\n"), "1: ", "2: ", "3: abc");
+		Assert.lines(Text.addLineNumbers(new String[] { null, "", "abc", "" }), "1: ", "2: ",
 			"3: abc", "4: ");
-		assertLines(Text.addLineNumbers(Immutable.listOf(null, "", "abc", ""), 3), "3: ", "4: ",
+		Assert.lines(Text.addLineNumbers(Immutable.listOf(null, "", "abc", ""), 3), "3: ", "4: ",
 			"5: abc", "6: ");
 	}
 
 	@Test
 	public void testMultilineJavadoc() {
-		assertString(Text.multilineJavadoc(null), "");
-		assertString(Text.multilineJavadoc(""), "");
-		assertLines(Text.multilineJavadoc("a"), "/**", " * a", " */");
-		assertLines(Text.multilineJavadoc("a" + Strings.EOL + "b"), "/**", " * a", " * b",
-			" */");
+		Assert.string(Text.multilineJavadoc(null), "");
+		Assert.string(Text.multilineJavadoc(""), "");
+		Assert.lines(Text.multilineJavadoc("a"), "/**", " * a", " */");
+		Assert.lines(Text.multilineJavadoc("a" + Strings.EOL + "b"), "/**", " * a", " * b", " */");
 	}
 
 	@Test
 	public void testMultilineComment() {
-		assertString(Text.multilineComment(null), "");
-		assertString(Text.multilineComment(""), "");
-		assertLines(Text.multilineComment("a"), "/*", " * a", " */");
-		assertLines(Text.multilineComment("a" + Strings.EOL + "b"), "/*", " * a", " * b",
-			" */");
+		Assert.string(Text.multilineComment(null), "");
+		Assert.string(Text.multilineComment(""), "");
+		Assert.lines(Text.multilineComment("a"), "/*", " * a", " */");
+		Assert.lines(Text.multilineComment("a" + Strings.EOL + "b"), "/*", " * a", " * b", " */");
 	}
 
 	@Test
 	public void testToWordsWithSpaces() {
-		assertOrdered(Text.toWords(null));
-		assertOrdered(Text.toWords(""));
-		assertOrdered(Text.toWords("  "));
-		assertOrdered(Text.toWords("a "), "a");
-		assertOrdered(Text.toWords(" a"), "a");
-		assertOrdered(Text.toWords("A "), "A");
-		assertOrdered(Text.toWords(" A"), "A");
-		assertOrdered(Text.toWords("a b"), "a", "b");
-		assertOrdered(Text.toWords(" ab"), "ab");
-		assertOrdered(Text.toWords("A b"), "A", "b");
-		assertOrdered(Text.toWords(" Ab"), "Ab");
-		assertOrdered(Text.toWords("a B"), "a", "B");
-		assertOrdered(Text.toWords(" aB"), "a", "B");
-		assertOrdered(Text.toWords("A B"), "A", "B");
-		assertOrdered(Text.toWords(" AB"), "AB");
+		Assert.ordered(Text.toWords(null));
+		Assert.ordered(Text.toWords(""));
+		Assert.ordered(Text.toWords("  "));
+		Assert.ordered(Text.toWords("a "), "a");
+		Assert.ordered(Text.toWords(" a"), "a");
+		Assert.ordered(Text.toWords("A "), "A");
+		Assert.ordered(Text.toWords(" A"), "A");
+		Assert.ordered(Text.toWords("a b"), "a", "b");
+		Assert.ordered(Text.toWords(" ab"), "ab");
+		Assert.ordered(Text.toWords("A b"), "A", "b");
+		Assert.ordered(Text.toWords(" Ab"), "Ab");
+		Assert.ordered(Text.toWords("a B"), "a", "B");
+		Assert.ordered(Text.toWords(" aB"), "a", "B");
+		Assert.ordered(Text.toWords("A B"), "A", "B");
+		Assert.ordered(Text.toWords(" AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithUnderscores() {
-		assertOrdered(Text.toWords("_"));
-		assertOrdered(Text.toWords("__"));
-		assertOrdered(Text.toWords("__ _ "));
-		assertOrdered(Text.toWords("a_"), "a");
-		assertOrdered(Text.toWords("_a"), "a");
-		assertOrdered(Text.toWords("A_"), "A");
-		assertOrdered(Text.toWords("_A"), "A");
-		assertOrdered(Text.toWords("a_b"), "a", "b");
-		assertOrdered(Text.toWords("_ab"), "ab");
-		assertOrdered(Text.toWords("A_b"), "A", "b");
-		assertOrdered(Text.toWords("_Ab"), "Ab");
-		assertOrdered(Text.toWords("a_B"), "a", "B");
-		assertOrdered(Text.toWords("_aB"), "a", "B");
-		assertOrdered(Text.toWords("A_B"), "A", "B");
-		assertOrdered(Text.toWords("_AB"), "AB");
+		Assert.ordered(Text.toWords("_"));
+		Assert.ordered(Text.toWords("__"));
+		Assert.ordered(Text.toWords("__ _ "));
+		Assert.ordered(Text.toWords("a_"), "a");
+		Assert.ordered(Text.toWords("_a"), "a");
+		Assert.ordered(Text.toWords("A_"), "A");
+		Assert.ordered(Text.toWords("_A"), "A");
+		Assert.ordered(Text.toWords("a_b"), "a", "b");
+		Assert.ordered(Text.toWords("_ab"), "ab");
+		Assert.ordered(Text.toWords("A_b"), "A", "b");
+		Assert.ordered(Text.toWords("_Ab"), "Ab");
+		Assert.ordered(Text.toWords("a_B"), "a", "B");
+		Assert.ordered(Text.toWords("_aB"), "a", "B");
+		Assert.ordered(Text.toWords("A_B"), "A", "B");
+		Assert.ordered(Text.toWords("_AB"), "AB");
 	}
 
 	@Test
 	public void testToWordsWithLettersAndNumbers() {
-		assertOrdered(Text.toWords("a1"), "a", "1");
-		assertOrdered(Text.toWords("1a"), "1a");
-		assertOrdered(Text.toWords("A1"), "A1");
-		assertOrdered(Text.toWords("1A"), "1", "A");
-		assertOrdered(Text.toWords("a1b"), "a", "1b");
-		assertOrdered(Text.toWords("1ab"), "1ab");
-		assertOrdered(Text.toWords("A1b"), "A1b");
-		assertOrdered(Text.toWords("1Ab"), "1", "Ab");
-		assertOrdered(Text.toWords("a1B"), "a", "1", "B");
-		assertOrdered(Text.toWords("1aB"), "1a", "B");
-		assertOrdered(Text.toWords("A1B"), "A1", "B");
-		assertOrdered(Text.toWords("1AB"), "1", "AB");
+		Assert.ordered(Text.toWords("a1"), "a", "1");
+		Assert.ordered(Text.toWords("1a"), "1a");
+		Assert.ordered(Text.toWords("A1"), "A1");
+		Assert.ordered(Text.toWords("1A"), "1", "A");
+		Assert.ordered(Text.toWords("a1b"), "a", "1b");
+		Assert.ordered(Text.toWords("1ab"), "1ab");
+		Assert.ordered(Text.toWords("A1b"), "A1b");
+		Assert.ordered(Text.toWords("1Ab"), "1", "Ab");
+		Assert.ordered(Text.toWords("a1B"), "a", "1", "B");
+		Assert.ordered(Text.toWords("1aB"), "1a", "B");
+		Assert.ordered(Text.toWords("A1B"), "A1", "B");
+		Assert.ordered(Text.toWords("1AB"), "1", "AB");
 	}
 
 	@Test
 	public void testToWordsWithLetters() {
-		assertOrdered(Text.toWords("a"), "a");
-		assertOrdered(Text.toWords("A"), "A");
-		assertOrdered(Text.toWords("ab"), "ab");
-		assertOrdered(Text.toWords("Ab"), "Ab");
-		assertOrdered(Text.toWords("aB"), "a", "B");
-		assertOrdered(Text.toWords("AB"), "AB");
-		assertOrdered(Text.toWords("abc"), "abc");
-		assertOrdered(Text.toWords("Abc"), "Abc");
-		assertOrdered(Text.toWords("aBc"), "a", "Bc");
-		assertOrdered(Text.toWords("ABc"), "A", "Bc");
-		assertOrdered(Text.toWords("abC"), "ab", "C");
-		assertOrdered(Text.toWords("AbC"), "Ab", "C");
-		assertOrdered(Text.toWords("aBC"), "a", "BC");
-		assertOrdered(Text.toWords("ABC"), "ABC");
-		assertOrdered(Text.toWords("abcd"), "abcd");
-		assertOrdered(Text.toWords("Abcd"), "Abcd");
-		assertOrdered(Text.toWords("aBcd"), "a", "Bcd");
-		assertOrdered(Text.toWords("ABcd"), "A", "Bcd");
-		assertOrdered(Text.toWords("abCd"), "ab", "Cd");
-		assertOrdered(Text.toWords("AbCd"), "Ab", "Cd");
-		assertOrdered(Text.toWords("aBCd"), "a", "B", "Cd");
-		assertOrdered(Text.toWords("ABCd"), "AB", "Cd");
-		assertOrdered(Text.toWords("abcD"), "abc", "D");
-		assertOrdered(Text.toWords("AbcD"), "Abc", "D");
-		assertOrdered(Text.toWords("aBcD"), "a", "Bc", "D");
-		assertOrdered(Text.toWords("ABcD"), "A", "Bc", "D");
-		assertOrdered(Text.toWords("abCD"), "ab", "CD");
-		assertOrdered(Text.toWords("AbCD"), "Ab", "CD");
-		assertOrdered(Text.toWords("aBCD"), "a", "BCD");
-		assertOrdered(Text.toWords("ABCD"), "ABCD");
+		Assert.ordered(Text.toWords("a"), "a");
+		Assert.ordered(Text.toWords("A"), "A");
+		Assert.ordered(Text.toWords("ab"), "ab");
+		Assert.ordered(Text.toWords("Ab"), "Ab");
+		Assert.ordered(Text.toWords("aB"), "a", "B");
+		Assert.ordered(Text.toWords("AB"), "AB");
+		Assert.ordered(Text.toWords("abc"), "abc");
+		Assert.ordered(Text.toWords("Abc"), "Abc");
+		Assert.ordered(Text.toWords("aBc"), "a", "Bc");
+		Assert.ordered(Text.toWords("ABc"), "A", "Bc");
+		Assert.ordered(Text.toWords("abC"), "ab", "C");
+		Assert.ordered(Text.toWords("AbC"), "Ab", "C");
+		Assert.ordered(Text.toWords("aBC"), "a", "BC");
+		Assert.ordered(Text.toWords("ABC"), "ABC");
+		Assert.ordered(Text.toWords("abcd"), "abcd");
+		Assert.ordered(Text.toWords("Abcd"), "Abcd");
+		Assert.ordered(Text.toWords("aBcd"), "a", "Bcd");
+		Assert.ordered(Text.toWords("ABcd"), "A", "Bcd");
+		Assert.ordered(Text.toWords("abCd"), "ab", "Cd");
+		Assert.ordered(Text.toWords("AbCd"), "Ab", "Cd");
+		Assert.ordered(Text.toWords("aBCd"), "a", "B", "Cd");
+		Assert.ordered(Text.toWords("ABCd"), "AB", "Cd");
+		Assert.ordered(Text.toWords("abcD"), "abc", "D");
+		Assert.ordered(Text.toWords("AbcD"), "Abc", "D");
+		Assert.ordered(Text.toWords("aBcD"), "a", "Bc", "D");
+		Assert.ordered(Text.toWords("ABcD"), "A", "Bc", "D");
+		Assert.ordered(Text.toWords("abCD"), "ab", "CD");
+		Assert.ordered(Text.toWords("AbCD"), "Ab", "CD");
+		Assert.ordered(Text.toWords("aBCD"), "a", "BCD");
+		Assert.ordered(Text.toWords("ABCD"), "ABCD");
 	}
 
 	@Test
 	public void testToPhrase() {
-		assertString(Text.toPhrase(null), "");
-		assertString(Text.toPhrase(""), "");
-		assertString(Text.toPhrase("_"), "");
+		Assert.string(Text.toPhrase(null), "");
+		Assert.string(Text.toPhrase(""), "");
+		Assert.string(Text.toPhrase("_"), "");
 
-		assertString(Text.toPhrase("abcd"), "abcd");
-		assertString(Text.toPhrase("Abcd"), "abcd");
-		assertString(Text.toPhrase("aBcd"), "a bcd");
-		assertString(Text.toPhrase("ABcd"), "a bcd");
-		assertString(Text.toPhrase("abCd"), "ab cd");
-		assertString(Text.toPhrase("AbCd"), "ab cd");
-		assertString(Text.toPhrase("aBCd"), "a b cd");
-		assertString(Text.toPhrase("ABCd"), "AB cd");
+		Assert.string(Text.toPhrase("abcd"), "abcd");
+		Assert.string(Text.toPhrase("Abcd"), "abcd");
+		Assert.string(Text.toPhrase("aBcd"), "a bcd");
+		Assert.string(Text.toPhrase("ABcd"), "a bcd");
+		Assert.string(Text.toPhrase("abCd"), "ab cd");
+		Assert.string(Text.toPhrase("AbCd"), "ab cd");
+		Assert.string(Text.toPhrase("aBCd"), "a b cd");
+		Assert.string(Text.toPhrase("ABCd"), "AB cd");
 
-		assertString(Text.toPhrase("abcD"), "abc d");
-		assertString(Text.toPhrase("AbcD"), "abc d");
-		assertString(Text.toPhrase("aBcD"), "a bc d");
-		assertString(Text.toPhrase("ABcD"), "a bc d");
-		assertString(Text.toPhrase("abCD"), "ab CD");
-		assertString(Text.toPhrase("AbCD"), "ab CD");
-		assertString(Text.toPhrase("aBCD"), "a BCD");
-		assertString(Text.toPhrase("ABCD"), "ABCD");
+		Assert.string(Text.toPhrase("abcD"), "abc d");
+		Assert.string(Text.toPhrase("AbcD"), "abc d");
+		Assert.string(Text.toPhrase("aBcD"), "a bc d");
+		Assert.string(Text.toPhrase("ABcD"), "a bc d");
+		Assert.string(Text.toPhrase("abCD"), "ab CD");
+		Assert.string(Text.toPhrase("AbCD"), "ab CD");
+		Assert.string(Text.toPhrase("aBCD"), "a BCD");
+		Assert.string(Text.toPhrase("ABCD"), "ABCD");
 
-		assertString(Text.toPhrase("AbCDEf"), "ab CD ef");
-		assertString(Text.toPhrase("_helloThere2ABC3_"), "hello there 2 ABC3");
-		assertString(Text.toPhrase("testPart1a"), "test part 1a");
+		Assert.string(Text.toPhrase("AbCDEf"), "ab CD ef");
+		Assert.string(Text.toPhrase("_helloThere2ABC3_"), "hello there 2 ABC3");
+		Assert.string(Text.toPhrase("testPart1a"), "test part 1a");
 	}
 
 	@Test
 	public void testToCapitalizedPhrase() {
-		assertString(Text.toCapitalizedPhrase(null), "");
-		assertString(Text.toCapitalizedPhrase(""), "");
-		assertString(Text.toCapitalizedPhrase("_"), "");
+		Assert.string(Text.toCapitalizedPhrase(null), "");
+		Assert.string(Text.toCapitalizedPhrase(""), "");
+		Assert.string(Text.toCapitalizedPhrase("_"), "");
 
-		assertString(Text.toCapitalizedPhrase("abcd"), "Abcd");
-		assertString(Text.toCapitalizedPhrase("Abcd"), "Abcd");
-		assertString(Text.toCapitalizedPhrase("aBcd"), "A Bcd");
-		assertString(Text.toCapitalizedPhrase("ABcd"), "A Bcd");
-		assertString(Text.toCapitalizedPhrase("abCd"), "Ab Cd");
-		assertString(Text.toCapitalizedPhrase("AbCd"), "Ab Cd");
-		assertString(Text.toCapitalizedPhrase("aBCd"), "A B Cd");
-		assertString(Text.toCapitalizedPhrase("ABCd"), "AB Cd");
+		Assert.string(Text.toCapitalizedPhrase("abcd"), "Abcd");
+		Assert.string(Text.toCapitalizedPhrase("Abcd"), "Abcd");
+		Assert.string(Text.toCapitalizedPhrase("aBcd"), "A Bcd");
+		Assert.string(Text.toCapitalizedPhrase("ABcd"), "A Bcd");
+		Assert.string(Text.toCapitalizedPhrase("abCd"), "Ab Cd");
+		Assert.string(Text.toCapitalizedPhrase("AbCd"), "Ab Cd");
+		Assert.string(Text.toCapitalizedPhrase("aBCd"), "A B Cd");
+		Assert.string(Text.toCapitalizedPhrase("ABCd"), "AB Cd");
 
-		assertString(Text.toCapitalizedPhrase("abcD"), "Abc D");
-		assertString(Text.toCapitalizedPhrase("AbcD"), "Abc D");
-		assertString(Text.toCapitalizedPhrase("aBcD"), "A Bc D");
-		assertString(Text.toCapitalizedPhrase("ABcD"), "A Bc D");
-		assertString(Text.toCapitalizedPhrase("abCD"), "Ab CD");
-		assertString(Text.toCapitalizedPhrase("AbCD"), "Ab CD");
-		assertString(Text.toCapitalizedPhrase("aBCD"), "A BCD");
-		assertString(Text.toCapitalizedPhrase("ABCD"), "ABCD");
+		Assert.string(Text.toCapitalizedPhrase("abcD"), "Abc D");
+		Assert.string(Text.toCapitalizedPhrase("AbcD"), "Abc D");
+		Assert.string(Text.toCapitalizedPhrase("aBcD"), "A Bc D");
+		Assert.string(Text.toCapitalizedPhrase("ABcD"), "A Bc D");
+		Assert.string(Text.toCapitalizedPhrase("abCD"), "Ab CD");
+		Assert.string(Text.toCapitalizedPhrase("AbCD"), "Ab CD");
+		Assert.string(Text.toCapitalizedPhrase("aBCD"), "A BCD");
+		Assert.string(Text.toCapitalizedPhrase("ABCD"), "ABCD");
 
-		assertString(Text.toCapitalizedPhrase("AbCDEf"), "Ab CD Ef");
-		assertString(Text.toCapitalizedPhrase("_helloThere2ABC3_"), "Hello There 2 ABC3");
-		assertString(Text.toCapitalizedPhrase("testPart1a"), "Test Part 1a");
+		Assert.string(Text.toCapitalizedPhrase("AbCDEf"), "Ab CD Ef");
+		Assert.string(Text.toCapitalizedPhrase("_helloThere2ABC3_"), "Hello There 2 ABC3");
+		Assert.string(Text.toCapitalizedPhrase("testPart1a"), "Test Part 1a");
 	}
 
 	@Test
 	public void testCamelToHyphenated() {
-		assertString(Text.camelToHyphenated(null), "");
-		assertString(Text.camelToHyphenated(""), "");
-		assertString(Text.camelToHyphenated("_helloThereABC_"), "_hello-there-abc_");
-		assertString(Text.camelToHyphenated("hello1there2ABC3_"), "hello1there2-abc3_");
+		Assert.string(Text.camelToHyphenated(null), "");
+		Assert.string(Text.camelToHyphenated(""), "");
+		Assert.string(Text.camelToHyphenated("_helloThereABC_"), "_hello-there-abc_");
+		Assert.string(Text.camelToHyphenated("hello1there2ABC3_"), "hello1there2-abc3_");
 	}
 
 	@Test
 	public void testCamelToPascal() {
-		assertString(Text.camelToPascal(null), "");
-		assertString(Text.camelToPascal(""), "");
-		assertString(Text.camelToPascal("_helloThereABC_"), "_HelloThereABC_");
-		assertString(Text.camelToPascal("hello1there2ABC3_"), "Hello1There2ABC3_");
+		Assert.string(Text.camelToPascal(null), "");
+		Assert.string(Text.camelToPascal(""), "");
+		Assert.string(Text.camelToPascal("_helloThereABC_"), "_HelloThereABC_");
+		Assert.string(Text.camelToPascal("hello1there2ABC3_"), "Hello1There2ABC3_");
 	}
 
 	@Test
 	public void testPascalToProperty() {
-		assertString(Text.pascalToProperty(null), "");
-		assertString(Text.pascalToProperty(""), "");
-		assertString(Text.pascalToProperty("_HelloThereABC_"), "_hello.there.abc_");
-		assertString(Text.pascalToProperty("hello1there2ABC3_"), "hello1there2.abc3_");
+		Assert.string(Text.pascalToProperty(null), "");
+		Assert.string(Text.pascalToProperty(""), "");
+		Assert.string(Text.pascalToProperty("_HelloThereABC_"), "_hello.there.abc_");
+		Assert.string(Text.pascalToProperty("hello1there2ABC3_"), "hello1there2.abc3_");
 	}
 
 	@Test
 	public void testFirstToUpper() {
-		assertString(Text.firstToUpper(null), "");
-		assertString(Text.firstToUpper(""), "");
-		assertString(Text.firstToUpper("hello"), "Hello");
-		assertString(Text.firstToUpper("Hello"), "Hello");
-		assertString(Text.firstToUpper("_"), "_");
+		Assert.string(Text.firstToUpper(null), "");
+		Assert.string(Text.firstToUpper(""), "");
+		Assert.string(Text.firstToUpper("hello"), "Hello");
+		Assert.string(Text.firstToUpper("Hello"), "Hello");
+		Assert.string(Text.firstToUpper("_"), "_");
 	}
 
 	@Test
 	public void testFirstToLower() {
-		assertString(Text.firstToLower(null), "");
-		assertString(Text.firstToLower(""), "");
-		assertString(Text.firstToLower("hello"), "hello");
-		assertString(Text.firstToLower("Hello"), "hello");
-		assertString(Text.firstToLower("_"), "_");
+		Assert.string(Text.firstToLower(null), "");
+		Assert.string(Text.firstToLower(""), "");
+		Assert.string(Text.firstToLower("hello"), "hello");
+		Assert.string(Text.firstToLower("Hello"), "hello");
+		Assert.string(Text.firstToLower("_"), "_");
 	}
 
 	@Test
 	public void testFirstLetterToUpper() {
-		assertString(Text.firstLetterToUpper(null), "");
-		assertString(Text.firstLetterToUpper(""), "");
-		assertString(Text.firstLetterToUpper("abc"), "Abc");
-		assertString(Text.firstLetterToUpper("  abc"), "  Abc");
-		assertString(Text.firstLetterToUpper("_ABc"), "_ABc");
+		Assert.string(Text.firstLetterToUpper(null), "");
+		Assert.string(Text.firstLetterToUpper(""), "");
+		Assert.string(Text.firstLetterToUpper("abc"), "Abc");
+		Assert.string(Text.firstLetterToUpper("  abc"), "  Abc");
+		Assert.string(Text.firstLetterToUpper("_ABc"), "_ABc");
 	}
 
 	@Test
 	public void testFirstLetterToLower() {
-		assertString(Text.firstLetterToLower(null), "");
-		assertString(Text.firstLetterToLower(""), "");
-		assertString(Text.firstLetterToLower("ABC"), "aBC");
-		assertString(Text.firstLetterToLower("  ABC"), "  aBC");
-		assertString(Text.firstLetterToLower("_abC"), "_abC");
+		Assert.string(Text.firstLetterToLower(null), "");
+		Assert.string(Text.firstLetterToLower(""), "");
+		Assert.string(Text.firstLetterToLower("ABC"), "aBC");
+		Assert.string(Text.firstLetterToLower("  ABC"), "  aBC");
+		Assert.string(Text.firstLetterToLower("_abC"), "_abC");
 	}
 
 	@Test
 	public void testPascalToUnderscore() {
-		assertString(Text.pascalToUnderscore(null), "");
-		assertString(Text.pascalToUnderscore(""), "");
-		assertString(Text.pascalToUnderscore("_HelloThereABC_"), "_HELLO_THERE_ABC_");
-		assertString(Text.pascalToUnderscore("_Hello1There2ABC3_"), "_HELLO1_THERE2_ABC3_");
+		Assert.string(Text.pascalToUnderscore(null), "");
+		Assert.string(Text.pascalToUnderscore(""), "");
+		Assert.string(Text.pascalToUnderscore("_HelloThereABC_"), "_HELLO_THERE_ABC_");
+		Assert.string(Text.pascalToUnderscore("_Hello1There2ABC3_"), "_HELLO1_THERE2_ABC3_");
 	}
 
 	@Test
 	public void testUpperToCapitalized() {
-		assertString(Text.upperToCapitalized(null), "");
-		assertString(Text.upperToCapitalized(""), "");
-		assertString(Text.upperToCapitalized("_HELLO_THERE_ABC_"), "_Hello_There_Abc_");
-		assertString(Text.upperToCapitalized("_HELLO1_THERE2_ABC3_"), "_Hello1_There2_Abc3_");
+		Assert.string(Text.upperToCapitalized(null), "");
+		Assert.string(Text.upperToCapitalized(""), "");
+		Assert.string(Text.upperToCapitalized("_HELLO_THERE_ABC_"), "_Hello_There_Abc_");
+		Assert.string(Text.upperToCapitalized("_HELLO1_THERE2_ABC3_"), "_Hello1_There2_Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToPascal() {
-		assertString(Text.underscoreToPascal(null), "");
-		assertString(Text.underscoreToPascal(""), "");
-		assertString(Text.underscoreToPascal("_HELLO_THERE_ABC_"), "_HelloThereAbc_");
-		assertString(Text.underscoreToPascal("_HELLO1_THERE2_ABC3_"), "_Hello1There2Abc3_");
+		Assert.string(Text.underscoreToPascal(null), "");
+		Assert.string(Text.underscoreToPascal(""), "");
+		Assert.string(Text.underscoreToPascal("_HELLO_THERE_ABC_"), "_HelloThereAbc_");
+		Assert.string(Text.underscoreToPascal("_HELLO1_THERE2_ABC3_"), "_Hello1There2Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToCamel() {
-		assertString(Text.underscoreToCamel(null), "");
-		assertString(Text.underscoreToCamel(""), "");
-		assertString(Text.underscoreToCamel("_HELLO_THERE_ABC_"), "_helloThereAbc_");
-		assertString(Text.underscoreToCamel("_HELLO1_THERE2_ABC3_"), "_hello1There2Abc3_");
+		Assert.string(Text.underscoreToCamel(null), "");
+		Assert.string(Text.underscoreToCamel(""), "");
+		Assert.string(Text.underscoreToCamel("_HELLO_THERE_ABC_"), "_helloThereAbc_");
+		Assert.string(Text.underscoreToCamel("_HELLO1_THERE2_ABC3_"), "_hello1There2Abc3_");
 	}
 
 	@Test
 	public void testUnderscoreToProperty() {
-		assertString(Text.underscoreToProperty(null), "");
-		assertString(Text.underscoreToProperty(""), "");
-		assertString(Text.underscoreToProperty("HELLO_THERE_ABC"), "hello.there.abc");
-		assertString(Text.underscoreToProperty("HELLO1_THERE2_ABC3"), "hello1.there2.abc3");
+		Assert.string(Text.underscoreToProperty(null), "");
+		Assert.string(Text.underscoreToProperty(""), "");
+		Assert.string(Text.underscoreToProperty("HELLO_THERE_ABC"), "hello.there.abc");
+		Assert.string(Text.underscoreToProperty("HELLO1_THERE2_ABC3"), "hello1.there2.abc3");
 	}
 
 	@Test
 	public void testPropertyToUnderscore() {
-		assertString(Text.propertyToUnderscore(null), "");
-		assertString(Text.propertyToUnderscore(""), "");
-		assertString(Text.propertyToUnderscore("hello.there.abc"), "HELLO_THERE_ABC");
-		assertString(Text.propertyToUnderscore("hello1.there2.abc3"), "HELLO1_THERE2_ABC3");
+		Assert.string(Text.propertyToUnderscore(null), "");
+		Assert.string(Text.propertyToUnderscore(""), "");
+		Assert.string(Text.propertyToUnderscore("hello.there.abc"), "HELLO_THERE_ABC");
+		Assert.string(Text.propertyToUnderscore("hello1.there2.abc3"), "HELLO1_THERE2_ABC3");
 	}
 }

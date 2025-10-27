@@ -1,6 +1,5 @@
 package ceri.x10.util;
 
-import static ceri.common.test.Assert.assertFalse;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -19,7 +18,7 @@ public class X10ControllerBehavior {
 	
 	@Test
 	public void shouldSupportNoCommandByDefault() {
-		assertFalse(X10Controller.NULL.supports(Command.on(House.J, Unit._8)));
+		Assert.no(X10Controller.NULL.supports(Command.on(House.J, Unit._8)));
 		Assert.thrown(() -> X10Controller.verifySupported(null, Command.on(House.J, Unit._8)));
 	}
 

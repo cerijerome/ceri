@@ -1,12 +1,11 @@
 package ceri.serial.spi.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import java.io.IOException;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteProvider;
 import ceri.common.io.Direction;
+import ceri.common.test.Assert;
 import ceri.serial.spi.SpiMode;
 import ceri.serial.spi.test.TestSpi.Request;
 
@@ -19,10 +18,10 @@ public class TestSpiBehavior {
 		spi.lsbFirst(true);
 		spi.bitsPerWord(9);
 		spi.maxSpeedHz(10000);
-		assertEquals(spi.mode(), SpiMode.MODE_1);
-		assertEquals(spi.lsbFirst(), true);
-		assertEquals(spi.bitsPerWord(), 9);
-		assertEquals(spi.maxSpeedHz(), 10000);
+		Assert.equal(spi.mode(), SpiMode.MODE_1);
+		Assert.equal(spi.lsbFirst(), true);
+		Assert.equal(spi.bitsPerWord(), 9);
+		Assert.equal(spi.maxSpeedHz(), 10000);
 	}
 
 	@Test
@@ -40,7 +39,7 @@ public class TestSpiBehavior {
 		var xfer = spi.transfer(Direction.in, 10);
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
 		xfer.execute();
-		assertArray(xfer.read(), 1, 2, 3, 4, 5, 0, 0, 0, 0, 0);
+		Assert.array(xfer.read(), 1, 2, 3, 4, 5, 0, 0, 0, 0, 0);
 	}
 
 	@Test
@@ -50,7 +49,7 @@ public class TestSpiBehavior {
 		spi.xfer.autoResponses(ByteProvider.of(1, 2, 3, 4, 5));
 		xfer.write(ArrayUtil.bytes.of(6, 7, 8, 9));
 		xfer.execute();
-		assertArray(xfer.read(), 1, 2, 3, 4); // only 4 bytes
+		Assert.array(xfer.read(), 1, 2, 3, 4); // only 4 bytes
 		spi.xfer.assertAuto(Request.duplex(6, 7, 8, 9));
 	}
 }

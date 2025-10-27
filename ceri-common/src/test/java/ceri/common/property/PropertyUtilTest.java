@@ -1,9 +1,5 @@
 package ceri.common.property;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertPrivateConstructor;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Properties;
@@ -25,7 +21,7 @@ public class PropertyUtilTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		assertPrivateConstructor(PropertyUtil.class);
+		Assert.privateConstructor(PropertyUtil.class);
 	}
 
 	@Test
@@ -38,10 +34,10 @@ public class PropertyUtilTest {
 		prop2.put("a.b", "AB");
 		prop2.put("a.b.c.d", "ABCD");
 		var properties = PropertyUtil.merge(prop1, prop2);
-		assertEquals(properties.getProperty("a"), "a");
-		assertEquals(properties.getProperty("a.b"), "AB");
-		assertEquals(properties.getProperty("a.b.c"), "abc");
-		assertEquals(properties.getProperty("a.b.c.d"), "ABCD");
+		Assert.equal(properties.getProperty("a"), "a");
+		Assert.equal(properties.getProperty("a.b"), "AB");
+		Assert.equal(properties.getProperty("a.b.c"), "abc");
+		Assert.equal(properties.getProperty("a.b.c.d"), "ABCD");
 	}
 
 	@Test
@@ -57,7 +53,7 @@ public class PropertyUtilTest {
 	@Test
 	public void testLoadClass() throws IOException {
 		var properties = PropertyUtil.load(TypedProperties.class);
-		assertString(properties.get("abc"), "123");
+		Assert.string(properties.get("abc"), "123");
 	}
 
 	@Test
@@ -80,28 +76,28 @@ public class PropertyUtilTest {
 		PropertyUtil.store(properties, file);
 		try (var stream = Files.lines(file)) {
 			var lines = Streams.from(stream).filter(line -> !line.startsWith("#")).toList();
-			assertUnordered(lines, "a.b.c=abc", "a.b=ab");
+			Assert.unordered(lines, "a.b.c=abc", "a.b=ab");
 		}
 	}
 
 	@Test
 	public void testLoadResource() throws IOException {
 		var properties = PropertyUtil.load(getClass(), getClass().getSimpleName() + ".properties");
-		assertEquals(properties.getProperty("a.b.c"), "abc");
-		assertEquals(properties.getProperty("d.e.f"), "def");
+		Assert.equal(properties.getProperty("a.b.c"), "abc");
+		Assert.equal(properties.getProperty("d.e.f"), "def");
 	}
 
 	@Test
 	public void testLoadFile() throws IOException {
 		helper = FileTestHelper.builder().file("a", "b=c").build();
 		Properties properties = PropertyUtil.load(helper.path("a"));
-		assertEquals(properties.getProperty("b"), "c");
+		Assert.equal(properties.getProperty("b"), "c");
 	}
 
 	@Test
 	public void testLoadFileFromName() throws IOException {
 		helper = FileTestHelper.builder().file("a", "b=c").build();
 		Properties properties = PropertyUtil.load(helper.path("a").toString());
-		assertEquals(properties.getProperty("b"), "c");
+		Assert.equal(properties.getProperty("b"), "c");
 	}
 }

@@ -1,11 +1,7 @@
 package ceri.jna.reflect;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertMap;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.illegalArg;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.jna.reflect.CAnnotations.CGen;
 import ceri.jna.reflect.CAnnotations.CInclude;
 import ceri.jna.reflect.CAnnotations.CType;
@@ -49,32 +45,32 @@ public class CAnnotationsTest {
 	@Test
 	public void shouldBuildCGen() {
 		var cgen = CGen.Value.builder(Integer.class).value();
-		assertArray(cgen.os(), JnaOs.KNOWN.toArray());
+		Assert.array(cgen.os(), JnaOs.KNOWN.toArray());
 	}
 
 	@Test
 	public void shouldProvideCGenClasses() {
-		assertUnordered(CAnnotations.cgen(Gen.class).classes(), Integer.class, Long.class);
+		Assert.unordered(CAnnotations.cgen(Gen.class).classes(), Integer.class, Long.class);
 	}
 
 	@Test
 	public void shouldProvideCGenLocation() {
-		assertEquals(CGen.Value.NONE.location("def"), "def");
-		assertEquals(CAnnotations.cgen(Gen.class).location("def"), "test");
+		Assert.equal(CGen.Value.NONE.location("def"), "def");
+		Assert.equal(CAnnotations.cgen(Gen.class).location("def"), "test");
 	}
 
 	@Test
 	public void testCIncludesFromAnnotation() {
-		assertMap(CAnnotations.cincludes(Object.class).map());
+		Assert.map(CAnnotations.cincludes(Object.class).map());
 		var inc = CAnnotations.cincludes(Inc.class);
-		assertUnordered(inc.includes(JnaOs.linux), "inc.h", "aaa.h", "bbb.h", "linux.h");
-		assertUnordered(inc.includes(JnaOs.mac), "inc.h", "aaa.h", "bbb.h", "mac.h");
+		Assert.unordered(inc.includes(JnaOs.linux), "inc.h", "aaa.h", "bbb.h", "linux.h");
+		Assert.unordered(inc.includes(JnaOs.mac), "inc.h", "aaa.h", "bbb.h", "mac.h");
 	}
 
 	@Test
 	public void shouldProvideEmptyIncludes() {
-		assertEquals(CAnnotations.cincludes(String.class), CInclude.Value.NONE);
-		assertEquals(CInclude.Value.of(), CInclude.Value.NONE);
+		Assert.equal(CAnnotations.cincludes(String.class), CInclude.Value.NONE);
+		Assert.equal(CInclude.Value.of(), CInclude.Value.NONE);
 	}
 
 	@Test
@@ -85,8 +81,8 @@ public class CAnnotationsTest {
 		assertCType(CAnnotations.ctype(Type.class, JnaOs.linux), CType.Value.DEFAULT);
 		assertCType(CAnnotations.ctype(Type.A, JnaOs.mac), CType.Value.UNDEFINED);
 		assertCType(CAnnotations.ctype(Type.A, JnaOs.linux), CType.Value.UNDEFINED);
-		illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.mac));
-		illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.linux));
+		Assert.illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.mac));
+		Assert.illegalArg(() -> CAnnotations.ctype(Type.B, JnaOs.linux));
 		assertCType(CAnnotations.ctype(Type.C, JnaOs.mac), CType.Value.UNDEFINED);
 		assertCType(CAnnotations.ctype(Type.C, JnaOs.linux), CType.Value.of(JnaOs.linux, "C+"));
 		assertCType(CAnnotations.ctype(Type.D, JnaOs.mac), CType.Value.of(Attr.cenum));
@@ -105,21 +101,21 @@ public class CAnnotationsTest {
 
 	@Test
 	public void shouldProvideAccessToCTypeSettings() {
-		assertEquals(CType.Value.UNDEFINED.undefined(), true);
-		assertEquals(CType.Value.DEFAULT.undefined(), false);
-		assertEquals(CType.Value.DEFAULT.name("def"), "def");
-		assertEquals(CType.Value.of("test").name("def"), "test");
-		assertEquals(CType.Value.DEFAULT.typedef(), false);
-		assertEquals(CType.Value.of(Attr.typedef).typedef(), true);
-		assertEquals(CType.Value.DEFAULT.cenum(), false);
-		assertEquals(CType.Value.of(Attr.cenum).cenum(), true);
+		Assert.equal(CType.Value.UNDEFINED.undefined(), true);
+		Assert.equal(CType.Value.DEFAULT.undefined(), false);
+		Assert.equal(CType.Value.DEFAULT.name("def"), "def");
+		Assert.equal(CType.Value.of("test").name("def"), "test");
+		Assert.equal(CType.Value.DEFAULT.typedef(), false);
+		Assert.equal(CType.Value.of(Attr.typedef).typedef(), true);
+		Assert.equal(CType.Value.DEFAULT.cenum(), false);
+		Assert.equal(CType.Value.of(Attr.cenum).cenum(), true);
 	}
 
 	private static void assertCGen(CGen.Value expected, CGen.Value actual) {
-		assertArray(expected.os(), actual.os());
-		assertArray(expected.target(), actual.target());
-		assertArray(expected.reload(), actual.reload());
-		assertEquals(expected.location(), actual.location());
+		Assert.array(expected.os(), actual.os());
+		Assert.array(expected.target(), actual.target());
+		Assert.array(expected.reload(), actual.reload());
+		Assert.equal(expected.location(), actual.location());
 	}
 
 	private static void assertCType(CType.Value expected, CType.Value actual) {
@@ -138,9 +134,9 @@ public class CAnnotationsTest {
 
 	private static void assertCType(CType.Value expected, JnaOs[] os, String name,
 		String valueField, Attr... attrs) {
-		assertArray(expected.os(), os);
-		assertEquals(expected.name(), name);
-		assertEquals(expected.valueField(), valueField);
-		assertArray(expected.attrs(), attrs);
+		Assert.array(expected.os(), os);
+		Assert.equal(expected.name(), name);
+		Assert.equal(expected.valueField(), valueField);
+		Assert.array(expected.attrs(), attrs);
 	}
 }

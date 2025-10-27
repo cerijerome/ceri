@@ -1,29 +1,15 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertRange;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.assertUnordered;
-import static ceri.common.test.Assert.runtime;
-import static ceri.common.test.Assert.throwable;
-import static ceri.common.test.TestUtil.init;
-import static ceri.common.test.TestUtil.resource;
-import static ceri.common.test.TestUtil.testMap;
-import static ceri.common.test.TestUtil.thrown;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import org.junit.Test;
 import ceri.common.concurrent.BoolCondition;
 import ceri.common.concurrent.ValueCondition;
 import ceri.common.io.SystemIo;
 import ceri.common.log.Level;
-import ceri.common.property.TypedProperties;
 import ceri.common.text.StringBuilders;
 
 public class TestUtilTest {
@@ -48,7 +34,7 @@ public class TestUtilTest {
 
 	@Test
 	public void testIsTest() {
-		assertTrue(TestUtil.isTest);
+		Assert.yes(TestUtil.isTest);
 	}
 
 	@Test
@@ -61,9 +47,9 @@ public class TestUtilTest {
 		var thread = Thread.currentThread();
 		try (var t = TestUtil.threadRun(() -> {
 			var te = TestUtil.findTest();
-			assertEquals(te.thread(), thread);
-			assertEquals(te.element().getClassName(), getClass().getName());
-			assertEquals(te.element().getMethodName(), "testFindTest");
+			Assert.equal(te.thread(), thread);
+			Assert.equal(te.element().getClassName(), getClass().getName());
+			Assert.equal(te.element().getMethodName(), "testFindTest");
 		})) {
 			t.get();
 		}
@@ -102,15 +88,15 @@ public class TestUtilTest {
 	public void testReadString() {
 		try (var sys = SystemIo.of()) {
 			sys.in(new ByteArrayInputStream("test".getBytes()));
-			assertEquals(TestUtil.readString(), "test");
-			assertEquals(TestUtil.readString(), "");
+			Assert.equal(TestUtil.readString(), "test");
+			Assert.equal(TestUtil.readString(), "");
 		}
 	}
 
 	@Test
 	public void testReadStringWithBadInputStream() throws IOException {
 		try (var sys = SystemIo.of()) {
-			try (InputStream badIn = new InputStream() {
+			try (var badIn = new InputStream() {
 				@Override
 				public int read() throws IOException {
 					throw new IOException();
@@ -124,10 +110,10 @@ public class TestUtilTest {
 
 	@Test
 	public void testThreadCall() {
-		ValueCondition<String> sync = ValueCondition.of();
+		var sync = ValueCondition.<String>of();
 		try (var exec = TestUtil.threadCall(sync::await)) {
 			sync.signal("test");
-			assertEquals(exec.get(), "test");
+			Assert.equal(exec.get(), "test");
 		}
 	}
 
@@ -152,11 +138,11 @@ public class TestUtilTest {
 	@Test
 	public void testExec() {
 		try (var sys = SystemIo.of()) {
-			StringBuilder b = new StringBuilder();
+			var b = new StringBuilder();
 			sys.out(StringBuilders.printStream(b));
 			TestUtil.exec(ExecTest.class);
-			assertTrue(b.toString().contains("Exec should do this"));
-			assertTrue(b.toString().contains("Exec test that"));
+			Assert.yes(b.toString().contains("Exec should do this"));
+			Assert.yes(b.toString().contains("Exec test that"));
 		}
 	}
 
@@ -172,23 +158,19 @@ public class TestUtilTest {
 
 	@Test
 	public void testException() {
-		Throwable t = thrown(() -> {
-			throw new IOException("test");
-		});
-		throwable(t, IOException.class, "test");
-		Assert.isNull(thrown(() -> {}));
+		var t = TestUtil.thrown(() -> Assert.throwIo());
+		Assert.throwable(t, IOException.class, "throwIo");
+		Assert.isNull(TestUtil.thrown(() -> {}));
 	}
 
 	@Test
 	public void testInit() {
 		boolean throwIt = false;
-		assertEquals(init(() -> {
+		Assert.equal(TestUtil.init(() -> {
 			if (throwIt) throw new IOException();
 			return "test";
 		}), "test");
-		runtime(() -> init(() -> {
-			throw new IOException();
-		}));
+		Assert.runtime(() -> TestUtil.init(() -> Assert.throwIo()));
 	}
 
 	@Test
@@ -200,67 +182,67 @@ public class TestUtilTest {
 
 	@Test
 	public void testTestMap() {
-		Map<Integer, String> map = testMap(1, "1", 2, "2", 3);
-		assertEquals(map.size(), 3);
-		assertEquals(map.get(1), "1");
-		assertEquals(map.get(2), "2");
+		var map = TestUtil.testMap(1, "1", 2, "2", 3);
+		Assert.equal(map.size(), 3);
+		Assert.equal(map.get(1), "1");
+		Assert.equal(map.get(2), "2");
 		Assert.isNull(map.get(3));
 	}
 
 	@Test
 	public void testResource() {
-		assertEquals(resource("resource.txt"), "test");
-		runtime(() -> resource("not-found.txt"));
+		Assert.equal(TestUtil.resource("resource.txt"), "test");
+		Assert.runtime(() -> TestUtil.resource("not-found.txt"));
 	}
 
 	@Test
 	public void testTypedProperties() {
-		TypedProperties properties = TestUtil.typedProperties("test", "a");
-		assertEquals(properties.parse("b").get(), "123");
+		var properties = TestUtil.typedProperties("test", "a");
+		Assert.equal(properties.parse("b").get(), "123");
 	}
 
 	@Test
 	public void testProperties() {
-		Properties properties = TestUtil.properties("test");
-		assertEquals(properties.getProperty("a.b"), "123");
+		var properties = TestUtil.properties("test");
+		Assert.equal(properties.getProperty("a.b"), "123");
 	}
 
 	@Test
 	public void testToReadableString() {
 		byte[] bytes = { 0, 'a', '.', Byte.MAX_VALUE, Byte.MIN_VALUE, '~', '!', -1 };
-		assertEquals(TestUtil.readableString(bytes), "?a.??~!?");
+		Assert.equal(TestUtil.readableString(bytes), "?a.??~!?");
 		Assert.thrown(IllegalArgumentException.class,
 			() -> TestUtil.readableString(bytes, 3, 2, "test", '?'));
-		assertEquals(TestUtil.readableString(new byte[0], 0, 0, null, '.'), "");
-		assertEquals(TestUtil.readableString(new byte[0], 0, 0, "", '.'), "");
+		Assert.equal(TestUtil.readableString(new byte[0], 0, 0, null, '.'), "");
+		Assert.equal(TestUtil.readableString(new byte[0], 0, 0, "", '.'), "");
 	}
 
 	@Test
 	public void testRandomString() {
-		String r = TestUtil.randomString(100);
-		assertEquals(r.length(), 100);
+		var r = TestUtil.randomString(100);
+		Assert.equal(r.length(), 100);
 		for (int i = 0; i < r.length(); i++)
-			assertRange(r.charAt(i), ' ', '~');
+			Assert.range(r.charAt(i), ' ', '~');
 	}
 
 	@Test
 	public void testPathsToUnix() {
-		List<Path> paths = List.of(Path.of("a", "b", "c.txt"), Path.of("a", "a.txt"));
-		assertUnordered(TestUtil.pathsToUnix(paths), "a/b/c.txt", "a/a.txt");
+		var paths = List.of(Path.of("a", "b", "c.txt"), Path.of("a", "a.txt"));
+		Assert.unordered(TestUtil.pathsToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test
 	public void testToUnixFromPath() {
-		List<String> paths =
+		var paths =
 			List.of(Path.of("a", "b", "c.txt").toString(), Path.of("a", "a.txt").toString());
-		assertUnordered(TestUtil.pathNamesToUnix(paths), "a/b/c.txt", "a/a.txt");
+		Assert.unordered(TestUtil.pathNamesToUnix(paths), "a/b/c.txt", "a/a.txt");
 	}
 
 	@Test
 	public void testByteRange() {
-		assertArray(TestUtil.byteRange(2, 2), 2);
-		assertArray(TestUtil.byteRange(0, 3), 0, 1, 2, 3);
-		assertArray(TestUtil.byteRange(-3, -6), -3, -4, -5, -6);
+		Assert.array(TestUtil.byteRange(2, 2), 2);
+		Assert.array(TestUtil.byteRange(0, 3), 0, 1, 2, 3);
+		Assert.array(TestUtil.byteRange(-3, -6), -3, -4, -5, -6);
 	}
 
 	@Test
@@ -270,14 +252,13 @@ public class TestUtilTest {
 
 	@Test
 	public void testRandomBytes() {
-		assertEquals(TestUtil.randomBytes(0).length, 0);
-		assertEquals(TestUtil.randomBytes(100).length, 100);
+		Assert.equal(TestUtil.randomBytes(0).length, 0);
+		Assert.equal(TestUtil.randomBytes(100).length, 100);
 	}
 
 	@Test
 	public void testReader() {
-		assertArray(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);
-		assertArray(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
+		Assert.array(TestUtil.reader(1, 2, 3).readBytes(), 1, 2, 3);
+		Assert.array(TestUtil.reader("abc").readBytes(), 'a', 'b', 'c');
 	}
-
 }

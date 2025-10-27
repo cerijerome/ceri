@@ -1,6 +1,5 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,15 +23,15 @@ public class ThreadBuffersBehavior {
 	@Test
 	public void shouldSetSize() {
 		buffers.size(2);
-		assertEquals(buffers.size(), 2L);
+		Assert.equal(buffers.size(), 2L);
 	}
 
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldChangeSize() {
-		assertEquals(buffers.get().size(), 3L);
+		Assert.equal(buffers.get().size(), 3L);
 		buffers.size(2);
-		assertEquals(buffers.get().size(), 2L);
+		Assert.equal(buffers.get().size(), 2L);
 	}
 
 	@SuppressWarnings("resource")

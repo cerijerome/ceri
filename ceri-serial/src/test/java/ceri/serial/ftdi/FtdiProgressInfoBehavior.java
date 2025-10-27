@@ -1,8 +1,8 @@
 package ceri.serial.ftdi;
 
-import static ceri.common.test.Assert.assertEquals;
 import java.time.Instant;
 import org.junit.Test;
+import ceri.common.test.Assert;
 import ceri.serial.ftdi.jna.LibFtdiStream.FTDIProgressInfo;
 
 public class FtdiProgressInfoBehavior {
@@ -11,7 +11,7 @@ public class FtdiProgressInfoBehavior {
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var prog = FtdiProgressInfo.of(ftdiProg);
-		assertEquals(prog.toString(), "progress=(total[6.666s@6kB/s], " +
+		Assert.equal(prog.toString(), "progress=(total[6.666s@6kB/s], " +
 			"current[3333B/222us@4kB/s], previous[2222B/111us], first[1111B])");
 	}
 

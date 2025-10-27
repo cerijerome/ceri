@@ -1,7 +1,5 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertUnordered;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.After;
@@ -23,22 +21,22 @@ public class PortSupplierBehavior {
 
 	@Test
 	public void testFixed() throws IOException {
-		assertEquals(PortSupplier.fixed("test").get(), "test");
-		assertEquals(PortSupplier.fixed(null), null);
+		Assert.equal(PortSupplier.fixed("test").get(), "test");
+		Assert.equal(PortSupplier.fixed(null), null);
 	}
 
 	@Test
 	public void shouldLocateUsbPorts() throws IOException {
 		var path = initLocator("tty.xxx", "tty.usb0", "tty.USB1");
-		assertUnordered(locator.usbPorts(), path + "/tty.usb0", path + "/tty.USB1");
-		assertEquals(locator.usbPort(1), path + "/tty.usb0"); // USB before usb
+		Assert.unordered(locator.usbPorts(), path + "/tty.usb0", path + "/tty.USB1");
+		Assert.equal(locator.usbPort(1), path + "/tty.usb0"); // USB before usb
 		Assert.thrown(() -> locator.usbPort(2));
 	}
 
 	@Test
 	public void shouldFailWithNoPorts() throws IOException {
 		initLocator();
-		assertUnordered(locator.ports("glob:*"));
+		Assert.unordered(locator.ports("glob:*"));
 		Assert.thrown(() -> locator.port("glob:*", 0));
 	}
 

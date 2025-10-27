@@ -1,9 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.test.Assert.assertAllNotEqual;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertTrue;
 import org.junit.Test;
 import ceri.common.test.Assert;
 import ceri.common.test.TestUtil;
@@ -20,10 +16,10 @@ public class FractionBehavior {
 		Fraction ne0 = Fraction.of(12, 41);
 		Fraction ne1 = Fraction.of(13, 42);
 		TestUtil.exerciseEquals(f, eq0, eq1, eq2, eq3);
-		assertTrue(f.equals(13, 41));
-		assertFalse(f.equals(12, 41));
-		assertFalse(f.equals(13, 42));
-		assertAllNotEqual(f, ne0, ne1);
+		Assert.yes(f.equals(13, 41));
+		Assert.no(f.equals(12, 41));
+		Assert.no(f.equals(13, 42));
+		Assert.notEqualAll(f, ne0, ne1);
 	}
 
 	@Test
@@ -55,24 +51,24 @@ public class FractionBehavior {
 
 	@Test
 	public void shouldDetermineIfNegative() {
-		assertTrue(Fraction.of(1, -2).isNegative());
-		assertTrue(Fraction.of(-1, 2).isNegative());
-		assertFalse(Fraction.of(0, -2).isNegative());
-		assertFalse(Fraction.of(-1, -2).isNegative());
+		Assert.yes(Fraction.of(1, -2).isNegative());
+		Assert.yes(Fraction.of(-1, 2).isNegative());
+		Assert.no(Fraction.of(0, -2).isNegative());
+		Assert.no(Fraction.of(-1, -2).isNegative());
 	}
 
 	@Test
 	public void shouldDetermineIfWhole() {
-		assertTrue(Fraction.of(63, 21).isWhole());
-		assertFalse(Fraction.of(Long.MAX_VALUE - 1, Long.MAX_VALUE).isWhole());
+		Assert.yes(Fraction.of(63, 21).isWhole());
+		Assert.no(Fraction.of(Long.MAX_VALUE - 1, Long.MAX_VALUE).isWhole());
 	}
 
 	@Test
 	public void shouldDetermineIfProper() {
-		assertTrue(Fraction.of(0, 1).isProper());
-		assertTrue(Fraction.of(Long.MAX_VALUE - 1, Long.MAX_VALUE).isProper());
-		assertFalse(Fraction.of(Long.MAX_VALUE, Long.MAX_VALUE).isProper());
-		assertFalse(Fraction.of(Long.MIN_VALUE, Long.MAX_VALUE).isProper());
+		Assert.yes(Fraction.of(0, 1).isProper());
+		Assert.yes(Fraction.of(Long.MAX_VALUE - 1, Long.MAX_VALUE).isProper());
+		Assert.no(Fraction.of(Long.MAX_VALUE, Long.MAX_VALUE).isProper());
+		Assert.no(Fraction.of(Long.MIN_VALUE, Long.MAX_VALUE).isProper());
 	}
 
 	@Test
@@ -116,8 +112,8 @@ public class FractionBehavior {
 	}
 
 	public static void assertFraction(Fraction fraction, long numerator, long denominator) {
-		assertEquals(fraction.numerator(), numerator);
-		assertEquals(fraction.denominator(), denominator);
+		Assert.equal(fraction.numerator(), numerator);
+		Assert.equal(fraction.denominator(), denominator);
 	}
 
 }

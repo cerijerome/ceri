@@ -1,6 +1,5 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.clib.jna.CTermios.ECHO;
 import static ceri.jna.clib.jna.CTermios.ECHONL;
 import static ceri.jna.clib.jna.CTermios.ICANON;
@@ -11,6 +10,7 @@ import ceri.common.function.Closeables;
 import ceri.common.function.Enclosure;
 import ceri.common.function.Excepts.Consumer;
 import ceri.common.io.LineReader;
+import ceri.common.test.Assert;
 import ceri.common.test.SystemIoCaptor;
 import ceri.jna.clib.jna.CTermios;
 import ceri.jna.clib.test.TestCLibNative;
@@ -41,18 +41,18 @@ public class TtyInputBehavior {
 		sys = SystemIoCaptor.of();
 		ttyRef = TtyInput.in();
 		sys.in.print("abc\n");
-		assertEquals(ttyRef.ref.readLine(), "abc");
+		Assert.equal(ttyRef.ref.readLine(), "abc");
 	}
 
 	@Test
 	public void shouldModifyTermios() throws IOException {
 		var lib = initTty();
-		termios(lib.tc.value(), t -> assertEquals(t.c_lflag.intValue() & ~LFLAGS, 0));
+		termios(lib.tc.value(), t -> Assert.equal(t.c_lflag.intValue() & ~LFLAGS, 0));
 		sys.in.print("abc\n");
-		assertEquals(tty.ready(), true);
-		assertEquals(tty.readLine(), "abc");
+		Assert.equal(tty.ready(), true);
+		Assert.equal(tty.readLine(), "abc");
 		ttyRef.close();
-		termios(lib.tc.value(), t -> assertEquals(t.c_lflag.intValue() & LFLAGS, LFLAGS));
+		termios(lib.tc.value(), t -> Assert.equal(t.c_lflag.intValue() & LFLAGS, LFLAGS));
 	}
 
 	private void termios(TcArgs tc, Consumer<IOException, CTermios.termios> consumer)

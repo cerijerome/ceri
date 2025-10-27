@@ -1,8 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.common.test.TestUtil.threadCall;
 import java.time.Duration;
 import java.util.List;
@@ -40,15 +37,15 @@ public class UsbEventsBehavior {
 
 	@Test
 	public void shouldManageLocks() throws LibUsbException {
-		assertEquals(events.handlingOk(), true);
+		Assert.equal(events.handlingOk(), true);
 		lib.data.context(usb.context()).eventHandling = false;
-		assertEquals(events.handlingOk(), false);
-		assertEquals(events.handlerActive(), false);
+		Assert.equal(events.handlingOk(), false);
+		Assert.equal(events.handlerActive(), false);
 		try (var _ = events.lockWaiters(); var _ = events.lock()) {
-			assertEquals(events.handlerActive(), true);
-			assertEquals(tryLock(), true);
+			Assert.equal(events.handlerActive(), true);
+			Assert.equal(tryLock(), true);
 			try (var thread = threadCall(() -> tryLock())) {
-				assertEquals(thread.get(), false);
+				Assert.equal(thread.get(), false);
 			}
 		}
 	}
@@ -56,18 +53,18 @@ public class UsbEventsBehavior {
 	@Test
 	public void shouldEncapsulateCompletion() {
 		var completed = Completed.of();
-		assertEquals(completed.completed(), false);
-		assertEquals(completed.value(), 0);
+		Assert.equal(completed.completed(), false);
+		Assert.equal(completed.value(), 0);
 		completed.complete(1);
-		assertEquals(completed.completed(), true);
-		assertEquals(completed.value(), 1);
+		Assert.equal(completed.completed(), true);
+		Assert.equal(completed.value(), 1);
 	}
 
 	@Test
 	public void shouldHandleEvents() throws LibUsbException {
 		events.interruptHandler();
 		lib.generalSync.autoResponses(12345);
-		assertEquals(events.nextTimeout(), Duration.ofMillis(12345));
+		Assert.equal(events.nextTimeout(), Duration.ofMillis(12345));
 		events.await(Duration.ZERO);
 		events.handleCompleted(null);
 		events.handleCompleted(Completed.of());
@@ -82,10 +79,10 @@ public class UsbEventsBehavior {
 
 	@Test
 	public void shouldPollFds() throws LibUsbException {
-		assertOrdered(events.pollFds());
+		Assert.ordered(events.pollFds());
 		lib.pollFds.autoResponses(List.of(new PollFd(7, 0x5), new PollFd(8, 0x4)));
-		assertOrdered(events.pollFds(), new PollFd(7, 0x5), new PollFd(8, 0x4));
-		assertEquals(events.pollHandleTimeouts(), false);
+		Assert.ordered(events.pollFds(), new PollFd(7, 0x5), new PollFd(8, 0x4));
+		Assert.equal(events.pollHandleTimeouts(), false);
 	}
 
 	@Test
@@ -101,7 +98,7 @@ public class UsbEventsBehavior {
 		events.pollNotifiers(addedCaptor::accept, removedCaptor::accept);
 		events.handle();
 		addedCaptor.verify(new PollFd(5, 0x5));
-		assertUnordered(addedCaptor.values.get(0).pollEvents(), libusb_poll_event.POLLIN,
+		Assert.unordered(addedCaptor.values.get(0).pollEvents(), libusb_poll_event.POLLIN,
 			libusb_poll_event.POLLOUT);
 		events.handle();
 		removedCaptor.verify(6);

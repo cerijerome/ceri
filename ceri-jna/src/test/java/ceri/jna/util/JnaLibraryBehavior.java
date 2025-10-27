@@ -1,11 +1,9 @@
 package ceri.jna.util;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFind;
-import static ceri.common.test.Assert.assertNotFound;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import com.sun.jna.Library;
+import ceri.common.test.Assert;
 import ceri.common.util.OsUtil;
 import ceri.common.util.SystemVars;
 import ceri.jna.test.JnaTestUtil;
@@ -22,13 +20,13 @@ public class JnaLibraryBehavior {
 	@Test
 	public void testPlatformPath() {
 		SystemVars.set("jna.platform.library.path", "platform-path-test");
-		assertEquals(JnaLibrary.platformPath(), "platform-path-test");
+		Assert.equal(JnaLibrary.platformPath(), "platform-path-test");
 	}
 
 	@Test
 	public void testPath() {
 		SystemVars.set("jna.library.path", "path-test");
-		assertEquals(JnaLibrary.path(), "path-test");
+		Assert.equal(JnaLibrary.path(), "path-test");
 	}
 
 	@Test
@@ -42,7 +40,7 @@ public class JnaLibraryBehavior {
 		try (var _ = SystemVars.removableProperty("jna.library.path", null)) {
 			SystemVars.set("jna.library.path", null);
 			JnaLibrary.addPaths();
-			assertEquals(JnaLibrary.path(), "");
+			Assert.equal(JnaLibrary.path(), "");
 		}
 	}
 
@@ -56,8 +54,8 @@ public class JnaLibraryBehavior {
 	public static class LibPath {
 		static {
 			System.clearProperty("jna.library.path");
-			if (OsUtil.os().mac) assertFind(JnaLibrary.path(), "/homebrew/");
-			if (OsUtil.os().linux) assertNotFound(JnaLibrary.path(), "/homebrew/");
+			if (OsUtil.os().mac) Assert.find(JnaLibrary.path(), "/homebrew/");
+			if (OsUtil.os().linux) Assert.notFound(JnaLibrary.path(), "/homebrew/");
 		}
 	}
 }

@@ -3,8 +3,6 @@ package ceri.common.geom;
 import static ceri.common.geom.Point2d.X_UNIT;
 import static ceri.common.geom.Point2d.Y_UNIT;
 import static ceri.common.math.Maths.PI_BY_2;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertNotEquals;
 import static java.lang.Math.PI;
 import org.junit.Test;
 import ceri.common.test.Assert;
@@ -17,11 +15,11 @@ public class Polar2dBehavior {
 	@Test
 	public void shouldNotBreachEqualsContract() {
 		TestUtil.exerciseEquals(p0, Polar2d.of(2, PI / 3));
-		assertNotEquals(p0, Polar2d.of(2.1, PI / 3));
-		assertNotEquals(p0, Polar2d.of(2, PI / 3.1));
-		assertNotEquals(p0, Polar2d.of(0, PI / 3));
-		assertNotEquals(p0, Polar2d.of(2, 0));
-		assertNotEquals(p0, Polar2d.of(0, 0));
+		Assert.notEqual(p0, Polar2d.of(2.1, PI / 3));
+		Assert.notEqual(p0, Polar2d.of(2, PI / 3.1));
+		Assert.notEqual(p0, Polar2d.of(0, PI / 3));
+		Assert.notEqual(p0, Polar2d.of(2, 0));
+		Assert.notEqual(p0, Polar2d.of(0, 0));
 	}
 
 	@Test
@@ -35,29 +33,29 @@ public class Polar2dBehavior {
 
 	@Test
 	public void shouldRotate() {
-		assertEquals(Polar2d.ZERO.rotate(0), Polar2d.ZERO);
-		assertEquals(Polar2d.ZERO.rotate(10), Polar2d.of(0, 10));
-		assertEquals(Polar2d.from(Point2d.X_UNIT).rotate(0), Polar2d.from(X_UNIT));
-		assertEquals(Polar2d.of(1, 0).rotate(PI_BY_2), Polar2d.of(1, PI_BY_2));
+		Assert.equal(Polar2d.ZERO.rotate(0), Polar2d.ZERO);
+		Assert.equal(Polar2d.ZERO.rotate(10), Polar2d.of(0, 10));
+		Assert.equal(Polar2d.from(Point2d.X_UNIT).rotate(0), Polar2d.from(X_UNIT));
+		Assert.equal(Polar2d.of(1, 0).rotate(PI_BY_2), Polar2d.of(1, PI_BY_2));
 	}
 
 	@Test
 	public void shouldReverse() {
-		assertEquals(Polar2d.ZERO.reverse(), Polar2d.ZERO);
-		assertEquals(Polar2d.from(X_UNIT).reverse(), Polar2d.of(1, 0));
-		assertEquals(Polar2d.from(Y_UNIT).reverse(), Polar2d.of(1, -PI_BY_2));
+		Assert.equal(Polar2d.ZERO.reverse(), Polar2d.ZERO);
+		Assert.equal(Polar2d.from(X_UNIT).reverse(), Polar2d.of(1, 0));
+		Assert.equal(Polar2d.from(Y_UNIT).reverse(), Polar2d.of(1, -PI_BY_2));
 	}
 
 	@Test
 	public void shouldOnlyAllowPositiveRadius() {
-		assertEquals(Polar2d.from(Point2d.ZERO), Polar2d.ZERO);
+		Assert.equal(Polar2d.from(Point2d.ZERO), Polar2d.ZERO);
 	}
 
 	@Test
 	public void shouldConvertPoints() {
 		Assert.approx(p0.point().x(), 1);
 		Assert.approx(p0.point().y(), 1.732);
-		assertEquals(p1.r(), 5.0);
-		assertEquals(p1.point(), Point2d.of(4, 3));
+		Assert.equal(p1.r(), 5.0);
+		Assert.equal(p1.point(), Point2d.of(4, 3));
 	}
 }

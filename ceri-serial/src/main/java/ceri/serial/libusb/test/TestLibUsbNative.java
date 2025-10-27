@@ -1,9 +1,5 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.math.Maths.ubyte;
-import static ceri.common.math.Maths.ushort;
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_CONTAINER_ID;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_SS_USB_DEVICE_CAPABILITY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_bos_type.LIBUSB_BT_USB_2_0_EXTENSION;
@@ -32,6 +28,8 @@ import com.sun.jna.ptr.PointerByReference;
 import ceri.common.data.ByteProvider;
 import ceri.common.data.ByteUtil;
 import ceri.common.function.Enclosure;
+import ceri.common.math.Maths;
+import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
@@ -101,9 +99,9 @@ public class TestLibUsbNative implements LibUsbNative {
 
 	public static void assertTransferEvent(TransferEvent t, int endPoint, libusb_transfer_type type,
 		int... bytes) {
-		assertEquals(t.endPoint, endPoint, "endPoint");
-		assertEquals(t.type, type, "type");
-		assertArray(JnaUtil.bytes(t.buffer), bytes);
+		Assert.equal(t.endPoint, endPoint, "endPoint");
+		Assert.equal(t.type, type, "type");
+		Assert.array(JnaUtil.bytes(t.buffer), bytes);
 	}
 
 	public static LastErrorException lastError(LibUsb.libusb_error error) {
@@ -232,7 +230,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_config_descriptor(libusb_device dev, byte config_index,
 		PointerByReference config) {
-		var desc = device(dev).config.configDescriptor(ubyte(config_index));
+		var desc = device(dev).config.configDescriptor(Maths.ubyte(config_index));
 		if (desc == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		config.setValue(desc.getPointer()); // don't copy descriptor
 		return 0;
@@ -355,13 +353,13 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_max_packet_size(libusb_device dev, byte endpoint) {
 		var ep = endPointDesc(device(dev), endpoint);
-		return ep == null ? LIBUSB_ERROR_NOT_FOUND.value : ushort(ep.wMaxPacketSize);
+		return ep == null ? LIBUSB_ERROR_NOT_FOUND.value : Maths.ushort(ep.wMaxPacketSize);
 	}
 
 	@Override
 	public int libusb_get_max_iso_packet_size(libusb_device dev, byte endpoint) {
 		var ep = endPointDesc(device(dev), endpoint);
-		return ep == null ? LIBUSB_ERROR_NOT_FOUND.value : ushort(ep.wMaxPacketSize);
+		return ep == null ? LIBUSB_ERROR_NOT_FOUND.value : Maths.ushort(ep.wMaxPacketSize);
 	}
 
 	@Override
@@ -554,10 +552,10 @@ public class TestLibUsbNative implements LibUsbNative {
 		byte bRequest, short wValue, short wIndex, ByteBuffer data, short wLength, int timeout) {
 		handle(dev_handle);
 		if ((request_type & libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value) != 0)
-			return controlTransferIn(ubyte(request_type), ubyte(bRequest), ushort(wValue),
-				ushort(wIndex), data, ushort(wLength));
-		return controlTransferOut(ubyte(request_type), ubyte(bRequest), ushort(wValue),
-			ushort(wIndex), data, ushort(wLength));
+			return controlTransferIn(Maths.ubyte(request_type), Maths.ubyte(bRequest),
+				Maths.ushort(wValue), Maths.ushort(wIndex), data, Maths.ushort(wLength));
+		return controlTransferOut(Maths.ubyte(request_type), Maths.ubyte(bRequest),
+			Maths.ushort(wValue), Maths.ushort(wIndex), data, Maths.ushort(wLength));
 	}
 
 	@Override
@@ -565,8 +563,8 @@ public class TestLibUsbNative implements LibUsbNative {
 		int length, IntByReference actual_length, int timeout) {
 		handle(dev_handle);
 		if ((endpoint & libusb_endpoint_direction.LIBUSB_ENDPOINT_IN.value) != 0)
-			return syncTransferIn(ubyte(endpoint), data, length, actual_length);
-		return syncTransferOut(ubyte(endpoint), data, length, actual_length);
+			return syncTransferIn(Maths.ubyte(endpoint), data, length, actual_length);
+		return syncTransferOut(Maths.ubyte(endpoint), data, length, actual_length);
 	}
 
 	@Override
@@ -578,7 +576,7 @@ public class TestLibUsbNative implements LibUsbNative {
 	@Override
 	public int libusb_get_string_descriptor_ascii(libusb_device_handle dev, byte desc_index,
 		ByteBuffer data, int length) {
-		String s = handle(dev).device.config.descriptorString(ubyte(desc_index));
+		String s = handle(dev).device.config.descriptorString(Maths.ubyte(desc_index));
 		byte[] bytes = s.getBytes(ISO_8859_1);
 		data.put(bytes);
 		return bytes.length;
@@ -767,8 +765,9 @@ public class TestLibUsbNative implements LibUsbNative {
 	private int bosDevCap(Pointer dev_cap, libusb_bos_type type, PointerByReference ref) {
 		if (dev_cap == null) return LIBUSB_ERROR_NOT_FOUND.value;
 		var desc = Struct.read(new libusb_bos_dev_capability_descriptor(dev_cap));
-		if (ubyte(desc.bDescriptorType) != LIBUSB_DT_DEVICE_CAPABILITY.value
-			|| ubyte(desc.bDevCapabilityType) != type.value) return LIBUSB_ERROR_NOT_FOUND.value;
+		if (Maths.ubyte(desc.bDescriptorType) != LIBUSB_DT_DEVICE_CAPABILITY.value
+			|| Maths.ubyte(desc.bDevCapabilityType) != type.value)
+			return LIBUSB_ERROR_NOT_FOUND.value;
 		ref.setValue(dev_cap);
 		return 0;
 	}
@@ -836,7 +835,7 @@ public class TestLibUsbNative implements LibUsbNative {
 			if (t.status == 0) {
 				ByteBuffer buffer = JnaUtil.buffer(t.buffer, 0, t.length);
 				var status = handleTransferEvent
-					.apply(new TransferEvent(ubyte(t.endpoint), t.type(), buffer));
+					.apply(new TransferEvent(Maths.ubyte(t.endpoint), t.type(), buffer));
 				if (status == null) continue; // no event
 				t.status = status.value;
 				t.actual_length = buffer.position();

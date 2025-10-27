@@ -1,15 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertString;
-import static ceri.common.test.Assert.io;
-import static ceri.common.test.Assert.runtime;
-import static ceri.common.test.Assert.throwable;
-import static ceri.common.test.ErrorGen.INX;
-import static ceri.common.test.ErrorGen.IOX;
-import static ceri.common.test.ErrorGen.RIX;
-import static ceri.common.test.ErrorGen.RTX;
-import static ceri.common.test.TestUtil.thrown;
 import java.io.IOException;
 import java.sql.SQLException;
 import org.junit.Test;
@@ -35,7 +25,7 @@ public class ErrorGenBehavior {
 	@Test
 	public void shouldClearFromErrors() {
 		var err = ErrorGen.of();
-		err.setFrom(IOX);
+		err.setFrom(ErrorGen.IOX);
 		Assert.thrown(err::call);
 		err.setFrom();
 		err.call();
@@ -46,11 +36,11 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.call();
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(err::call), rtx);
-		assertEquals(thrown(err::call), rix);
+		Assert.equal(TestUtil.thrown(err::call), rtx);
+		Assert.equal(TestUtil.thrown(err::call), rix);
 		Assert.thrown(RuntimeInterruptedException.class, err::call);
-		runtime(err::call);
-		runtime(err::call);
+		Assert.runtime(err::call);
+		Assert.runtime(err::call);
 	}
 
 	@Test
@@ -58,11 +48,11 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.call(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rtx);
-		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), rix);
+		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), rtx);
+		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), rix);
 		Assert.thrown(RuntimeInterruptedException.class, () -> err.call(ExceptionAdapter.io));
-		assertEquals(thrown(() -> err.call(ExceptionAdapter.io)), iox);
-		io(() -> err.call(ExceptionAdapter.io));
+		Assert.equal(TestUtil.thrown(() -> err.call(ExceptionAdapter.io)), iox);
+		Assert.io(() -> err.call(ExceptionAdapter.io));
 	}
 
 	@Test
@@ -70,11 +60,11 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.callWithInterrupt();
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(err::callWithInterrupt), rtx);
-		assertEquals(thrown(err::callWithInterrupt), rix);
+		Assert.equal(TestUtil.thrown(err::callWithInterrupt), rtx);
+		Assert.equal(TestUtil.thrown(err::callWithInterrupt), rix);
 		Assert.thrown(InterruptedException.class, err::callWithInterrupt);
-		runtime(err::callWithInterrupt);
-		runtime(err::callWithInterrupt);
+		Assert.runtime(err::callWithInterrupt);
+		Assert.runtime(err::callWithInterrupt);
 	}
 
 	@Test
@@ -83,32 +73,32 @@ public class ErrorGenBehavior {
 		var err = ErrorGen.of();
 		err.callWithInterrupt(ExceptionAdapter.io);
 		err.set(rtx, rix, inx, iox, sqx);
-		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
-		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
+		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rtx);
+		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), rix);
 		Assert.thrown(InterruptedException.class, () -> err.callWithInterrupt(ExceptionAdapter.io));
-		assertEquals(thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
-		io(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		Assert.equal(TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io)), iox);
+		Assert.io(() -> err.callWithInterrupt(ExceptionAdapter.io));
 	}
 
 	@Test
 	public void shouldSetExceptionFunctionFromMessage() {
 		var err = ErrorGen.of();
 		err.setFrom(IOException::new, SQLException::new);
-		io(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		Throwable t = thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
-		throwable(t.getCause(), SQLException.class);
+		Assert.io(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		var t = TestUtil.thrown(() -> err.callWithInterrupt(ExceptionAdapter.io));
+		Assert.throwable(t.getCause(), SQLException.class);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
 		var err = ErrorGen.of();
-		assertString(err, "none");
+		Assert.string(err, "none");
 		err.set(iox);
-		assertString(err, "[IO]");
+		Assert.string(err, "[IO]");
 		err.set(iox, sqx, iox, null, rix);
-		assertString(err, "[IO,SQL,IO,null,RuntimeInterrupted]");
-		err.setFrom(IOX, RIX, RTX, INX, null, SQLException::new);
-		assertString(err, "[IOX,RIX,RTX,INX,null,\u03bb]");
+		Assert.string(err, "[IO,SQL,IO,null,RuntimeInterrupted]");
+		err.setFrom(ErrorGen.IOX, ErrorGen.RIX, ErrorGen.RTX, ErrorGen.INX, null,
+			SQLException::new);
+		Assert.string(err, "[IOX,RIX,RTX,INX,null,\u03bb]");
 	}
-
 }

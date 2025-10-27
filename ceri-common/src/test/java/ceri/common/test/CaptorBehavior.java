@@ -1,8 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertOrdered;
 import java.util.List;
 import org.junit.Test;
 
@@ -12,21 +9,21 @@ public class CaptorBehavior {
 	public void shouldCaptureInts() {
 		var captor = Captor.ofInt();
 		captor.accept(1);
-		assertEquals(captor.accept(2, "x"), "x");
+		Assert.equal(captor.accept(2, "x"), "x");
 		captor.accept(3L);
 		captor.apply(null);
 		captor.apply(c -> c.verify(1, 2, 3));
-		assertArray(captor.ints(), 1, 2, 3);
+		Assert.array(captor.ints(), 1, 2, 3);
 	}
 
 	@Test
 	public void shouldCaptureLongs() {
 		var captor = Captor.ofLong();
 		captor.accept(1);
-		assertEquals(captor.accept(2L, "x"), "x");
+		Assert.equal(captor.accept(2L, "x"), "x");
 		captor.accept(3L);
 		captor.apply(c -> c.verify(1L, 2L, 3L));
-		assertArray(captor.longs(), 1, 2, 3);
+		Assert.array(captor.longs(), 1, 2, 3);
 	}
 
 	@Test
@@ -38,7 +35,7 @@ public class CaptorBehavior {
 		captor.apply(c -> c.verify(1, "a"));
 		captor.accept(2, "b");
 		captor.verify(1, "a", 2, "b");
-		assertEquals(captor.accept(3, "c", 0.1), 0.1);
+		Assert.equal(captor.accept(3, "c", 0.1), 0.1);
 		captor.verify(1, "a", 2, "b", 3, "c");
 		captor.accept(4, "d");
 		captor.verify(1, "a", 2, "b", 3, "c", 4, "d");
@@ -51,7 +48,7 @@ public class CaptorBehavior {
 	public void shouldCaptureLists() {
 		var captor = Captor.<Integer>ofN();
 		captor.acceptAll(1, 2, 3);
-		assertOrdered(captor.values, List.of(1, 2, 3));
+		Assert.ordered(captor.values, List.of(1, 2, 3));
 	}
 
 	@Test
@@ -61,7 +58,7 @@ public class CaptorBehavior {
 		captor.accept(2);
 		captor.reset();
 		captor.accept(3);
-		assertArray(captor.longs(), 3);
+		Assert.array(captor.longs(), 3);
 	}
 
 	@Test

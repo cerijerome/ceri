@@ -1,9 +1,5 @@
 package ceri.serial.libusb;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertTrue;
-import static ceri.common.test.Assert.assertUnordered;
 import static ceri.jna.test.JnaTestUtil.buffer;
 import static ceri.serial.libusb.jna.LibUsb.libusb_endpoint_direction.LIBUSB_ENDPOINT_OUT;
 import static ceri.serial.libusb.jna.LibUsb.libusb_request_recipient.LIBUSB_RECIPIENT_DEVICE;
@@ -74,17 +70,17 @@ public class UsbTransferBehavior {
 			usb.events().handle();
 			lib.assertTransferEvent(0, LIBUSB_TRANSFER_TYPE_CONTROL, 0, 0, 0xff, 0, 3, 0, 4, 0, 1,
 				2, 3, 4);
-			assertTrue(transfer == callback.value());
-			assertEquals(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
-			assertEquals(transfer.actualLength(), 12);
+			Assert.yes(transfer == callback.value());
+			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
+			Assert.equal(transfer.actualLength(), 12);
 			var setup = transfer.setup();
-			assertEquals(setup.recipient(), LIBUSB_RECIPIENT_DEVICE);
-			assertEquals(setup.type(), LIBUSB_REQUEST_TYPE_STANDARD);
-			assertEquals(setup.standard(), LIBUSB_REQUEST_GET_STATUS);
-			assertEquals(setup.direction(), LIBUSB_ENDPOINT_OUT);
-			assertEquals(setup.value(), 0xff);
-			assertEquals(setup.index(), 3);
-			assertEquals(setup.length(), 4);
+			Assert.equal(setup.recipient(), LIBUSB_RECIPIENT_DEVICE);
+			Assert.equal(setup.type(), LIBUSB_REQUEST_TYPE_STANDARD);
+			Assert.equal(setup.standard(), LIBUSB_REQUEST_GET_STATUS);
+			Assert.equal(setup.direction(), LIBUSB_ENDPOINT_OUT);
+			Assert.equal(setup.value(), 0xff);
+			Assert.equal(setup.index(), 3);
+			Assert.equal(setup.length(), 4);
 		}
 	}
 
@@ -92,15 +88,15 @@ public class UsbTransferBehavior {
 	@Test
 	public void shouldAccessControlTransferFields() throws LibUsbException {
 		try (var transfer = handle.controlTransfer(null)) {
-			assertEquals(transfer.data(), null);
+			Assert.equal(transfer.data(), null);
 			transfer.setup().length(3);
 			transfer.buffer(ByteBuffer.allocateDirect(11)).flags(LIBUSB_TRANSFER_SHORT_NOT_OK)
 				.timeoutMs(33);
-			assertEquals(transfer.endPoint(), 0);
-			assertEquals(transfer.type(), LIBUSB_TRANSFER_TYPE_CONTROL);
-			assertUnordered(transfer.flags(), LIBUSB_TRANSFER_SHORT_NOT_OK);
-			assertEquals(transfer.timeoutMs(), 33);
-			assertEquals(transfer.length(), 11);
+			Assert.equal(transfer.endPoint(), 0);
+			Assert.equal(transfer.type(), LIBUSB_TRANSFER_TYPE_CONTROL);
+			Assert.unordered(transfer.flags(), LIBUSB_TRANSFER_SHORT_NOT_OK);
+			Assert.equal(transfer.timeoutMs(), 33);
+			Assert.equal(transfer.length(), 11);
 		}
 	}
 
@@ -112,14 +108,14 @@ public class UsbTransferBehavior {
 			var transfer = streams.bulkTransfer(0x81, 2, callback)) {
 			Assert.thrown(() -> streams.bulkTransfer(0x01, 1, _ -> {}));
 			Assert.thrown(() -> streams.bulkTransfer(0x81, 3, _ -> {}));
-			assertEquals(transfer.streamId(), 2);
+			Assert.equal(transfer.streamId(), 2);
 			transfer.buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
 			lib.assertTransferEvent(0x81, LIBUSB_TRANSFER_TYPE_BULK_STREAM, 1, 2, 3, 4);
-			assertTrue(transfer == callback.value());
-			assertEquals(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
-			assertEquals(transfer.actualLength(), 4);
-			assertEquals(transfer.length(), 4);
+			Assert.yes(transfer == callback.value());
+			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
+			Assert.equal(transfer.actualLength(), 4);
+			Assert.equal(transfer.length(), 4);
 		}
 	}
 
@@ -141,9 +137,9 @@ public class UsbTransferBehavior {
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
 			lib.assertTransferEvent(0x81, LIBUSB_TRANSFER_TYPE_BULK, 1, 2, 3, 4);
-			assertTrue(transfer == callback.value());
-			assertEquals(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
-			assertEquals(transfer.actualLength(), 4);
+			Assert.yes(transfer == callback.value());
+			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
+			Assert.equal(transfer.actualLength(), 4);
 		}
 	}
 
@@ -155,9 +151,9 @@ public class UsbTransferBehavior {
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5)).length(4).submit();
 			usb.events().handle();
 			lib.assertTransferEvent(0x81, LIBUSB_TRANSFER_TYPE_INTERRUPT, 1, 2, 3, 4);
-			assertTrue(transfer == callback.value());
-			assertEquals(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
-			assertEquals(transfer.actualLength(), 4);
+			Assert.yes(transfer == callback.value());
+			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
+			Assert.equal(transfer.actualLength(), 4);
 		}
 	}
 
@@ -166,16 +162,16 @@ public class UsbTransferBehavior {
 	public void shouldExecuteAsyncIsoTransfer() throws LibUsbException {
 		CallSync.Consumer<Iso> callback = CallSync.consumer(null, true);
 		try (var transfer = handle.isoTransfer(4, callback)) {
-			assertEquals(transfer.packetBuffer(0), null);
+			Assert.equal(transfer.packetBuffer(0), null);
 			transfer.endPoint(0x81).buffer(buffer(1, 2, 3, 4, 5, 6, 7, 8, 9)).packets(3)
 				.packetLengths(3).packetLength(2, 1).submit();
 			usb.events().handle();
 			lib.assertTransferEvent(0x81, LIBUSB_TRANSFER_TYPE_ISOCHRONOUS, 1, 2, 3, 4, 5, 6, 7);
-			assertTrue(transfer == callback.value());
-			assertEquals(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
-			assertEquals(transfer.actualLength(), 7);
-			assertArray(JnaUtil.bytes(transfer.packetBufferSimple(1)), 4, 5, 6);
-			assertArray(JnaUtil.bytes(transfer.packetBuffer(2)), 7);
+			Assert.yes(transfer == callback.value());
+			Assert.equal(transfer.status(), LIBUSB_TRANSFER_COMPLETED);
+			Assert.equal(transfer.actualLength(), 7);
+			Assert.array(JnaUtil.bytes(transfer.packetBufferSimple(1)), 4, 5, 6);
+			Assert.array(JnaUtil.bytes(transfer.packetBuffer(2)), 7);
 		}
 	}
 
@@ -184,7 +180,7 @@ public class UsbTransferBehavior {
 	public void shouldCancelTransfer() throws LibUsbException {
 		LogModifier.run(() -> {
 			try (var transfer = handle.bulkTransfer(null)) {
-				assertTrue(transfer.handle().usb() == usb);
+				Assert.yes(transfer.handle().usb() == usb);
 				transfer.submit();
 				transfer.cancel();
 				transfer.close();

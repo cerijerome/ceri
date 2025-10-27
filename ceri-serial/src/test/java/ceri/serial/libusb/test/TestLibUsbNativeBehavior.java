@@ -1,7 +1,5 @@
 package ceri.serial.libusb.test;
 
-import static ceri.common.test.Assert.assertArray;
-import static ceri.common.test.Assert.assertEquals;
 import static ceri.jna.test.JnaTestUtil.assertLastError;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_BUSY;
 import static ceri.serial.libusb.jna.LibUsb.libusb_error.LIBUSB_ERROR_NOT_FOUND;
@@ -58,7 +56,7 @@ public class TestLibUsbNativeBehavior {
 	@Test
 	public void shouldProvideDefaultErrorName() {
 		lib = TestLibUsbNative.of();
-		assertEquals(lib.libusb_error_name(0xfedcba98), "UNKNOWN");
+		Assert.equal(lib.libusb_error_name(0xfedcba98), "UNKNOWN");
 	}
 
 	@Test
@@ -120,7 +118,7 @@ public class TestLibUsbNativeBehavior {
 		var xfer = LibUsb.libusb_alloc_transfer(1);
 		xfer.dev_handle = h;
 		Struct.write(xfer);
-		assertEquals(lib.libusb_submit_transfer(xfer.getPointer()), 0);
+		Assert.equal(lib.libusb_submit_transfer(xfer.getPointer()), 0);
 		assertError(lib.libusb_submit_transfer(xfer.getPointer()), LIBUSB_ERROR_BUSY);
 	}
 
@@ -132,8 +130,8 @@ public class TestLibUsbNativeBehavior {
 		var xfer = LibUsb.libusb_alloc_transfer(1);
 		xfer.dev_handle = h;
 		Struct.write(xfer);
-		assertEquals(lib.libusb_submit_transfer(xfer.getPointer()), 0);
-		assertEquals(lib.libusb_cancel_transfer(xfer.getPointer()), 0);
+		Assert.equal(lib.libusb_submit_transfer(xfer.getPointer()), 0);
+		Assert.equal(lib.libusb_cancel_transfer(xfer.getPointer()), 0);
 		assertError(lib.libusb_cancel_transfer(xfer.getPointer()), LIBUSB_ERROR_NOT_FOUND);
 	}
 
@@ -150,7 +148,7 @@ public class TestLibUsbNativeBehavior {
 	public void shouldReturnFromEventHandlerIfComplete() throws LibUsbException {
 		initLib();
 		var completed = new IntByReference(1);
-		assertEquals(lib.libusb_handle_events_timeout_completed(null, null, completed), 0);
+		Assert.equal(lib.libusb_handle_events_timeout_completed(null, null, completed), 0);
 	}
 
 	@Test
@@ -158,7 +156,7 @@ public class TestLibUsbNativeBehavior {
 		try (var m = new Memory(3)) {
 			initLib();
 			int h = LibUsb.libusb_hotplug_register_callback(null, 3, 0, 0, 0, 0, null, m).value;
-			assertEquals(lib.libusb_hotplug_get_user_data(null, h), m);
+			Assert.equal(lib.libusb_hotplug_get_user_data(null, h), m);
 			assertLastError(() -> lib.libusb_hotplug_get_user_data(LibUsb.libusb_init(), h));
 		}
 	}
@@ -186,8 +184,8 @@ public class TestLibUsbNativeBehavior {
 		var h = LibUsbFinder.FIRST.findAndOpen(null);
 		lib.transferIn.autoResponses((ByteProvider) null);
 		var buf = (ByteBuffer) null;
-		assertArray(LibUsb.libusb_control_transfer(h, 0x80, 0, 0, 0, 0, 0)); // in
-		assertEquals(LibUsb.libusb_control_transfer(h, 0, 0, 0, 0, buf, 0, 0), 0); // out
+		Assert.array(LibUsb.libusb_control_transfer(h, 0x80, 0, 0, 0, 0, 0)); // in
+		Assert.equal(LibUsb.libusb_control_transfer(h, 0, 0, 0, 0, buf, 0, 0), 0); // out
 	}
 
 	@Test
@@ -196,17 +194,17 @@ public class TestLibUsbNativeBehavior {
 		lib.data.addConfig(LibUsbSampleData.externalUsb3HubConfig());
 		var h = LibUsbFinder.FIRST.findAndOpen(null);
 		lib.transferIn.autoResponses((ByteProvider) null, ByteProvider.empty());
-		assertArray(LibUsb.libusb_bulk_transfer(h, 0x80, 0, 0)); // in
+		Assert.array(LibUsb.libusb_bulk_transfer(h, 0x80, 0, 0)); // in
 		var buf = ByteBuffer.allocate(0);
-		assertEquals(lib.libusb_bulk_transfer(h, (byte) 0x80, buf, 0, null, 0), 0); // in
-		assertEquals(lib.libusb_bulk_transfer(h, (byte) 0, buf, 0, null, 0), 0); // out
+		Assert.equal(lib.libusb_bulk_transfer(h, (byte) 0x80, buf, 0, null, 0), 0); // in
+		Assert.equal(lib.libusb_bulk_transfer(h, (byte) 0, buf, 0, null, 0), 0); // out
 	}
 
 	@Test
 	public void shouldHandleEmptyPollFdEvents() throws LibUsbException {
 		initLib();
 		lib.handlePollFdEvent.autoResponses(new PollFdEvent(0, 0, false));
-		assertEquals(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
+		Assert.equal(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
 	}
 
 	@Test
@@ -215,7 +213,7 @@ public class TestLibUsbNativeBehavior {
 		var ctx = LibUsb.libusb_init();
 		LibUsb.libusb_hotplug_register_callback(null, 0, 0, 0, 0, 0, null, null);
 		LibUsb.libusb_hotplug_register_callback(ctx, 0, 0, 0, 0, 0, null, null);
-		assertEquals(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
+		Assert.equal(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
 	}
 
 	@Test
@@ -228,9 +226,9 @@ public class TestLibUsbNativeBehavior {
 		var x1 = LibUsb.libusb_alloc_transfer(1);
 		LibUsb.libusb_fill_bulk_transfer(x1, h, 0, null, 0, null, null, 0);
 		LibUsb.libusb_submit_transfer(Struct.write(x1));
-		assertEquals(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
+		Assert.equal(LibUsb.libusb_handle_events_timeout_completed(null, t0, null), 0);
 		lib.handleTransferEvent.autoResponses((libusb_transfer_status) null);
-		assertEquals(LibUsb.libusb_handle_events_timeout_completed(ctx, t0, null), 0);
+		Assert.equal(LibUsb.libusb_handle_events_timeout_completed(ctx, t0, null), 0);
 	}
 
 	private void initLib() throws LibUsbException {
@@ -240,7 +238,7 @@ public class TestLibUsbNativeBehavior {
 	}
 
 	private static void assertError(int result, libusb_error error) {
-		assertEquals(result, error.value);
+		Assert.equal(result, error.value);
 	}
 
 }

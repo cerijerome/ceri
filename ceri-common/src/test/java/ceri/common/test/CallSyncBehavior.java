@@ -1,9 +1,5 @@
 package ceri.common.test;
 
-import static ceri.common.test.Assert.assertEquals;
-import static ceri.common.test.Assert.assertFalse;
-import static ceri.common.test.Assert.assertOrdered;
-import static ceri.common.test.Assert.assertTrue;
 import static ceri.common.test.TestUtil.threadCall;
 import static ceri.common.test.TestUtil.threadRun;
 import org.junit.Test;
@@ -21,87 +17,87 @@ public class CallSyncBehavior {
 		CallSync.saveValuesAll(true, call0, call1);
 		call0.apply("1");
 		call0.apply("2");
-		assertOrdered(call0.values(), "1", "2");
+		Assert.ordered(call0.values(), "1", "2");
 		CallSync.saveValuesAll(false, call0, call1);
-		assertOrdered(call0.values(), "2");
+		Assert.ordered(call0.values(), "2");
 	}
 
 	@Test
 	public void shouldProvideFunctionLastValue() throws InterruptedException {
 		var call = CallSync.function("test", 1, 2, 3);
-		assertEquals(call.lastValue(), "test");
-		assertEquals(call.lastValueWithInterrupt(), "test");
+		Assert.equal(call.lastValue(), "test");
+		Assert.equal(call.lastValueWithInterrupt(), "test");
 		call.apply("abc");
-		assertEquals(call.lastValue(), "abc");
-		assertEquals(call.lastValueWithInterrupt(), "abc");
+		Assert.equal(call.lastValue(), "abc");
+		Assert.equal(call.lastValueWithInterrupt(), "abc");
 	}
 
 	@Test
 	public void shouldProvideConsumerLastValue() throws InterruptedException {
 		var call = CallSync.consumer("test", true);
-		assertEquals(call.lastValue(), "test");
-		assertEquals(call.lastValueWithInterrupt(), "test");
+		Assert.equal(call.lastValue(), "test");
+		Assert.equal(call.lastValueWithInterrupt(), "test");
 		call.accept("abc");
-		assertEquals(call.lastValue(), "abc");
-		assertEquals(call.lastValueWithInterrupt(), "abc");
+		Assert.equal(call.lastValue(), "abc");
+		Assert.equal(call.lastValueWithInterrupt(), "abc");
 	}
 
 	@Test
 	public void shouldResetFunctionToOriginalState() {
 		var call = CallSync.function("", 1, 2, 3);
-		assertEquals(call.value(), "");
-		assertEquals(call.apply("1"), 1);
-		assertEquals(call.apply("2"), 2);
-		assertEquals(call.value(), "2");
+		Assert.equal(call.value(), "");
+		Assert.equal(call.apply("1"), 1);
+		Assert.equal(call.apply("2"), 2);
+		Assert.equal(call.value(), "2");
 		call.reset();
-		assertEquals(call.value(), "");
-		assertEquals(call.apply("1"), 1);
+		Assert.equal(call.value(), "");
+		Assert.equal(call.apply("1"), 1);
 	}
 
 	@Test
 	public void shouldResetConsumerToOriginalState() {
 		var call = CallSync.consumer("", true);
-		assertEquals(call.value(), "");
-		assertTrue(call.autoResponseEnabled());
+		Assert.equal(call.value(), "");
+		Assert.yes(call.autoResponseEnabled());
 		call.accept("1");
 		call.autoResponse(false);
-		assertEquals(call.value(), "1");
-		assertFalse(call.autoResponseEnabled());
+		Assert.equal(call.value(), "1");
+		Assert.no(call.autoResponseEnabled());
 		call.reset();
-		assertEquals(call.value(), "");
-		assertTrue(call.autoResponseEnabled());
+		Assert.equal(call.value(), "");
+		Assert.yes(call.autoResponseEnabled());
 	}
 
 	@Test
 	public void shouldResetSupplierToOriginalState() {
 		var call = CallSync.supplier(1, 2, 3);
-		assertTrue(call.autoResponseEnabled());
-		assertEquals(call.get(), 1);
-		assertEquals(call.get(), 2);
+		Assert.yes(call.autoResponseEnabled());
+		Assert.equal(call.get(), 1);
+		Assert.equal(call.get(), 2);
 		call.autoResponse(null);
-		assertFalse(call.autoResponseEnabled());
+		Assert.no(call.autoResponseEnabled());
 		call.reset();
-		assertEquals(call.get(), 1);
-		assertTrue(call.autoResponseEnabled());
+		Assert.equal(call.get(), 1);
+		Assert.yes(call.autoResponseEnabled());
 	}
 
 	@Test
 	public void shouldResetRunnableToOriginalState() {
 		var call = CallSync.runnable(true);
-		assertTrue(call.autoResponseEnabled());
+		Assert.yes(call.autoResponseEnabled());
 		call.run();
 		call.autoResponse(false);
-		assertFalse(call.autoResponseEnabled());
+		Assert.no(call.autoResponseEnabled());
 		call.reset();
-		assertTrue(call.autoResponseEnabled());
+		Assert.yes(call.autoResponseEnabled());
 	}
 
 	@Test
 	public void shouldApplyAndRespond() {
 		Function<String, Integer> call = CallSync.function(null);
 		try (var exec = threadCall(() -> call.apply("test"))) {
-			assertEquals(call.await(3), "test");
-			assertEquals(exec.get(), 3);
+			Assert.equal(call.await(3), "test");
+			Assert.equal(exec.get(), 3);
 		}
 	}
 
@@ -110,7 +106,7 @@ public class CallSyncBehavior {
 		Function<String, Integer> call = CallSync.function(null);
 		try (var exec = threadCall(() -> call.applyWithInterrupt("test"))) {
 			call.assertCall("test", 3);
-			assertEquals(exec.get(), 3);
+			Assert.equal(exec.get(), 3);
 		}
 	}
 
@@ -118,28 +114,28 @@ public class CallSyncBehavior {
 	public void shouldApplyWithAutoResponse() {
 		Function<String, Integer> call = CallSync.function(null, 3);
 		call.assertNoCall();
-		assertEquals(call.apply("test0"), 3);
+		Assert.equal(call.apply("test0"), 3);
 		call.assertAuto("test0");
-		assertEquals(call.apply("test1"), 3);
-		assertEquals(call.awaitAuto(), "test1");
+		Assert.equal(call.apply("test1"), 3);
+		Assert.equal(call.awaitAuto(), "test1");
 	}
 
 	@Test
 	public void shouldApplyWithAutoResponseFunction() {
 		Function<String, Integer> call = CallSync.function(null);
 		call.autoResponse(_ -> {}, 3);
-		assertEquals(call.apply("test0"), 3);
+		Assert.equal(call.apply("test0"), 3);
 		call.assertAuto("test0");
 	}
 
 	@Test
 	public void shouldApplyWithDefaultValue() {
 		Function<String, Integer> call = CallSync.function("test", 3);
-		assertEquals(call.value(), "test");
+		Assert.equal(call.value(), "test");
 		call.valueDef("test0");
-		assertEquals(call.value(), "test0");
+		Assert.equal(call.value(), "test0");
 		call.apply("test1");
-		assertEquals(call.value(), "test1");
+		Assert.equal(call.value(), "test1");
 	}
 
 	@Test
@@ -147,52 +143,52 @@ public class CallSyncBehavior {
 		Function<String, Integer> call = CallSync.function(null, 3);
 		call.value("test");
 		call.assertCalls(0);
-		assertEquals(call.value(), "test");
+		Assert.equal(call.value(), "test");
 	}
 
 	@Test
 	public void shouldApplyAndGetValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
-		assertOrdered(call.values());
+		Assert.ordered(call.values());
 		call.value("test0");
 		call.value(null);
 		call.apply("test2");
 		call.apply(null);
-		assertOrdered(call.values(), "test0", null, "test2", null);
+		Assert.ordered(call.values(), "test0", null, "test2", null);
 	}
 
 	@Test
 	public void shouldApplyAndAssertValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
-		assertOrdered(call.values());
+		Assert.ordered(call.values());
 		call.apply("test0");
 		call.apply(null);
 		call.apply("test1");
 		call.assertValues("test0", null, "test1");
-		assertOrdered(call.values()); // cleared
+		Assert.ordered(call.values()); // cleared
 	}
 
 	@Test
 	public void shouldApplyWithoutSavingValues() {
 		Function<String, Integer> call = CallSync.function(null, 3);
 		call.saveValues(false);
-		assertOrdered(call.values());
+		Assert.ordered(call.values());
 		call.saveValues(true);
 		call.apply("1");
 		call.apply("2");
 		call.saveValues(false);
-		assertOrdered(call.values(), "2");
+		Assert.ordered(call.values(), "2");
 		call.apply("3");
-		assertOrdered(call.values(), "3");
+		Assert.ordered(call.values(), "3");
 		call.saveValues(false);
-		assertOrdered(call.values(), "3");
+		Assert.ordered(call.values(), "3");
 	}
 
 	@Test
 	public void shouldAcceptAndRespond() {
 		Consumer<String> call = CallSync.consumer(null, false);
 		try (var exec = threadRun(() -> call.accept("test"))) {
-			assertEquals(call.await(), "test");
+			Assert.equal(call.await(), "test");
 			exec.get();
 		}
 	}
@@ -213,7 +209,7 @@ public class CallSyncBehavior {
 		call.accept("test0");
 		call.assertAuto("test0");
 		call.accept("test1");
-		assertEquals(call.awaitAuto(), "test1");
+		Assert.equal(call.awaitAuto(), "test1");
 	}
 
 	@Test
@@ -227,11 +223,11 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldAcceptWithDefaultValue() {
 		Consumer<String> call = CallSync.consumer("test", true);
-		assertEquals(call.value(), "test");
+		Assert.equal(call.value(), "test");
 		call.valueDef("test0");
-		assertEquals(call.value(), "test0");
+		Assert.equal(call.value(), "test0");
 		call.accept("test1");
-		assertEquals(call.value(), "test1");
+		Assert.equal(call.value(), "test1");
 	}
 
 	@Test
@@ -239,29 +235,29 @@ public class CallSyncBehavior {
 		Consumer<String> call = CallSync.consumer(null, true);
 		call.value("test");
 		call.assertCalls(0);
-		assertEquals(call.value(), "test");
+		Assert.equal(call.value(), "test");
 	}
 
 	@Test
 	public void shouldAcceptAndGetValues() {
 		Consumer<String> call = CallSync.consumer(null, true);
-		assertOrdered(call.values());
+		Assert.ordered(call.values());
 		call.value("test0");
 		call.value(null);
 		call.accept("test2");
 		call.accept(null);
-		assertOrdered(call.values(), "test0", null, "test2", null);
+		Assert.ordered(call.values(), "test0", null, "test2", null);
 	}
 
 	@Test
 	public void shouldAcceptAndAssertValues() {
 		Consumer<String> call = CallSync.consumer(null, true);
-		assertOrdered(call.values());
+		Assert.ordered(call.values());
 		call.accept("test0");
 		call.accept(null);
 		call.accept("test1");
 		call.assertValues("test0", null, "test1");
-		assertOrdered(call.values()); // cleared
+		Assert.ordered(call.values()); // cleared
 	}
 
 	@Test
@@ -269,7 +265,7 @@ public class CallSyncBehavior {
 		Supplier<String> call = CallSync.supplier();
 		try (var exec = threadCall(() -> call.get())) {
 			call.await("test");
-			assertEquals(exec.get(), "test");
+			Assert.equal(exec.get(), "test");
 		}
 	}
 
@@ -278,7 +274,7 @@ public class CallSyncBehavior {
 		Supplier<String> call = CallSync.supplier();
 		try (var exec = threadCall(() -> call.getWithInterrupt())) {
 			call.await("test");
-			assertEquals(exec.get(), "test");
+			Assert.equal(exec.get(), "test");
 		}
 	}
 
@@ -286,7 +282,7 @@ public class CallSyncBehavior {
 	public void shouldGetWithAutoResponse() {
 		Supplier<String> call = CallSync.supplier("test");
 		call.assertCalls(0);
-		assertEquals(call.get(), "test");
+		Assert.equal(call.get(), "test");
 		call.awaitAuto();
 	}
 
@@ -294,18 +290,18 @@ public class CallSyncBehavior {
 	public void shouldGetWithAutoResponseFunction() {
 		Supplier<String> call = CallSync.supplier("");
 		call.autoResponse(() -> {}, "test");
-		assertEquals(call.get(), "test");
+		Assert.equal(call.get(), "test");
 		call.awaitAuto();
 	}
 
 	@Test
 	public void shouldGetWithCallCount() {
 		Supplier<String> call = CallSync.supplier("test");
-		assertEquals(call.calls(), 0);
+		Assert.equal(call.calls(), 0);
 		call.get();
 		call.get();
 		call.get();
-		assertEquals(call.calls(), 3);
+		Assert.equal(call.calls(), 3);
 	}
 
 	@Test
@@ -345,17 +341,17 @@ public class CallSyncBehavior {
 	@Test
 	public void shouldRunWithCallCount() {
 		Runnable call = CallSync.runnable(true);
-		assertEquals(call.calls(), 0);
+		Assert.equal(call.calls(), 0);
 		call.run();
 		call.run();
 		call.run();
-		assertEquals(call.calls(), 3);
+		Assert.equal(call.calls(), 3);
 	}
 
 	@Test
 	public void shouldProvideStringRepresentation() {
-		assertTrue(CallSync.consumer("test", true).toString().length() > 0);
-		assertTrue(CallSync.runnable(true).toString().length() > 0);
+		Assert.yes(CallSync.consumer("test", true).toString().length() > 0);
+		Assert.yes(CallSync.runnable(true).toString().length() > 0);
 	}
 
 	@Test
@@ -366,15 +362,15 @@ public class CallSyncBehavior {
 				return exec1.get();
 			}
 		}))) {
-			assertTrue(tos.get().contains("locked"));
+			Assert.yes(tos.get().contains("locked"));
 			exec0.get();
 		}
 	}
 
 	@Test
 	public void shouldProvideCompactStringRepresentation() {
-		assertTrue(CallSync.consumer("test", false).compactString().length() > 0);
-		assertTrue(CallSync.runnable(true).compactString().length() > 0);
+		Assert.yes(CallSync.consumer("test", false).compactString().length() > 0);
+		Assert.yes(CallSync.runnable(true).compactString().length() > 0);
 	}
 
 	@Test
@@ -385,7 +381,7 @@ public class CallSyncBehavior {
 				return exec1.get();
 			}
 		}))) {
-			assertTrue(tos.get().contains("locked"));
+			Assert.yes(tos.get().contains("locked"));
 			exec0.get();
 		}
 	}
