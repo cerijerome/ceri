@@ -5,9 +5,7 @@ import static ceri.log.rpc.util.RpcUtil.EMPTY;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UInt32Value;
 import ceri.common.event.Listeners;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntSupplier;
-import ceri.common.function.Excepts.Runnable;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.log.rpc.TestGrpc;
 import io.grpc.stub.StreamObserver;
@@ -15,9 +13,9 @@ import io.grpc.stub.StreamObserver;
 public class TestRpcService extends TestGrpc.TestImplBase implements Functions.Closeable {
 	private final Listeners<Integer> listeners = Listeners.of();
 	private final RpcServiceNotifier<Integer, UInt32Value> notifier;
-	public Runnable<?> run = null;
-	public IntConsumer<?> set = null;
-	public IntSupplier<?> get = null;
+	public Excepts.Runnable<?> run = null;
+	public Excepts.IntConsumer<?> set = null;
+	public Excepts.IntSupplier<?> get = null;
 
 	public static TestRpcService of() {
 		return new TestRpcService();

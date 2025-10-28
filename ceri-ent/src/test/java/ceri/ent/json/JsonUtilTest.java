@@ -1,15 +1,15 @@
 package ceri.ent.json;
 
-import static ceri.common.test.Testing.resource;
 import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class JsonUtilTest {
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	private static final Object OBJ1 = gson.fromJson(resource("ex1.json"), Object.class);
-	private static final Object OBJ2 = gson.fromJson(resource("ex2.json"), Object.class);
+	private static final Object OBJ1 = gson.fromJson(Testing.resource("ex1.json"), Object.class);
+	private static final Object OBJ2 = gson.fromJson(Testing.resource("ex2.json"), Object.class);
 
 	@Test
 	public void testExtract() {
@@ -19,5 +19,4 @@ public class JsonUtilTest {
 		Assert.equal(JsonUtil.extract(OBJ2, "cars.2.models.0"), "500");
 		Assert.equal(JsonUtil.extractInt(OBJ2, "cars.2.models.0"), 500);
 	}
-
 }

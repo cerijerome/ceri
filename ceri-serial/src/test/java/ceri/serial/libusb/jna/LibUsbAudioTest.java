@@ -1,11 +1,11 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import java.util.function.Function;
 import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.jna.type.Struct;
 import ceri.serial.libusb.jna.LibUsbAudio.audio_assoc_interface_descriptor;
 import ceri.serial.libusb.jna.LibUsbAudio.audio_chorus_proc_unit_control_selector;
@@ -49,25 +49,25 @@ public class LibUsbAudioTest {
 
 	@Test
 	public void testEnumTypes() {
-		exerciseEnum(audio_interface_subclass_code.class);
-		exerciseEnum(audio_descriptor_type.class);
-		exerciseEnum(audio_control_interface_desc_subtype.class);
-		exerciseEnum(audio_streaming_interface_desc_subtype.class);
-		exerciseEnum(audio_proc_unit_process_type.class);
-		exerciseEnum(audio_endpoint_desc_subtype.class);
-		exerciseEnum(audio_request_code.class);
-		exerciseEnum(audio_term_control_selector.class);
-		exerciseEnum(audio_feat_unit_control_selector.class);
-		exerciseEnum(audio_updownmix_proc_unit_control_selector.class);
-		exerciseEnum(audio_dolbypl_proc_unit_control_selector.class);
-		exerciseEnum(audio_stereo3d_proc_unit_control_selector.class);
-		exerciseEnum(audio_reverb_proc_unit_control_selector.class);
-		exerciseEnum(audio_chorus_proc_unit_control_selector.class);
-		exerciseEnum(audio_drcomp_proc_unit_control_selector.class);
-		exerciseEnum(audio_ext_unit_control_selector.class);
-		exerciseEnum(audio_endpoint_control_selector.class);
+		Testing.exerciseEnum(audio_interface_subclass_code.class);
+		Testing.exerciseEnum(audio_descriptor_type.class);
+		Testing.exerciseEnum(audio_control_interface_desc_subtype.class);
+		Testing.exerciseEnum(audio_streaming_interface_desc_subtype.class);
+		Testing.exerciseEnum(audio_proc_unit_process_type.class);
+		Testing.exerciseEnum(audio_endpoint_desc_subtype.class);
+		Testing.exerciseEnum(audio_request_code.class);
+		Testing.exerciseEnum(audio_term_control_selector.class);
+		Testing.exerciseEnum(audio_feat_unit_control_selector.class);
+		Testing.exerciseEnum(audio_updownmix_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_dolbypl_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_stereo3d_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_reverb_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_chorus_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_drcomp_proc_unit_control_selector.class);
+		Testing.exerciseEnum(audio_ext_unit_control_selector.class);
+		Testing.exerciseEnum(audio_endpoint_control_selector.class);
 		// exerciseEnum(audio_originator.class);
-		exerciseEnum(audio_spatial_location.class);
+		Testing.exerciseEnum(audio_spatial_location.class);
 	}
 
 	@Test

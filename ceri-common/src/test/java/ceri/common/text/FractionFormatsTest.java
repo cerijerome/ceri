@@ -1,9 +1,9 @@
 package ceri.common.text;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import org.junit.Test;
 import ceri.common.math.Fraction;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.common.text.FractionFormats.Formatter;
 import ceri.common.text.FractionFormats.Glyph;
 import ceri.common.text.FractionFormats.Parser;
@@ -20,8 +20,8 @@ public class FractionFormatsTest {
 		Assert.privateConstructor(Subscript.class);
 		Assert.privateConstructor(Parser.class);
 		Assert.privateConstructor(Formatter.class);
-		exerciseEnum(Glyph.class);
-		exerciseEnum(Slash.class);
+		Testing.exerciseEnum(Glyph.class);
+		Testing.exerciseEnum(Slash.class);
 	}
 
 	@Test

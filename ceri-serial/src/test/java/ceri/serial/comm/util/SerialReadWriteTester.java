@@ -1,6 +1,5 @@
 package ceri.serial.comm.util;
 
-import static ceri.common.test.Testing.randomString;
 import java.io.IOException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -8,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.io.IoUtil;
 import ceri.common.math.Maths;
+import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 import ceri.serial.comm.Serial;
 import ceri.serial.comm.SerialParams;
@@ -58,7 +58,7 @@ public class SerialReadWriteTester {
 
 	@SuppressWarnings("resource")
 	private static void writeString(Serial serial) throws IOException {
-		String s = randomString(Maths.random(1, STRING_MAX), CHAR_MIN, CHAR_MAX);
+		String s = Testing.randomString(Maths.random(1, STRING_MAX), CHAR_MIN, CHAR_MAX);
 		serial.out().write(s.getBytes());
 		serial.out().flush();
 	}

@@ -2,7 +2,7 @@ package ceri.log.registry;
 
 import java.util.Properties;
 import java.util.function.Consumer;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 import ceri.common.property.TypedProperties;
 
 /**
@@ -27,7 +27,8 @@ public class SimpleRegistry implements Registry {
 	}
 
 	@Override
-	public <E extends Exception, T> T apply(Function<E, TypedProperties, T> function) throws E {
+	public <E extends Exception, T> T apply(Excepts.Function<E, TypedProperties, T> function)
+		throws E {
 		return function.apply(typed);
 	}
 

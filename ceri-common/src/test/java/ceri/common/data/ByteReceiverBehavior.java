@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 
 public class ByteReceiverBehavior {
@@ -195,7 +195,7 @@ public class ByteReceiverBehavior {
 	/* Support methods */
 
 	private static <E extends Exception> void assertBytes(int size,
-		Consumer<E, ByteReceiver> action, int... bytes) throws E {
+		Excepts.Consumer<E, ByteReceiver> action, int... bytes) throws E {
 		assertBytes(size, action, ArrayUtil.bytes.of(bytes));
 	}
 
@@ -204,7 +204,7 @@ public class ByteReceiverBehavior {
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		Consumer<E, ByteReceiver> action, byte[] bytes) throws E {
+		Excepts.Consumer<E, ByteReceiver> action, byte[] bytes) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		Assert.array(holder.bytes, bytes);

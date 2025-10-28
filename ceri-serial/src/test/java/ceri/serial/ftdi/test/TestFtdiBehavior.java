@@ -1,6 +1,5 @@
 package ceri.serial.ftdi.test;
 
-import static ceri.common.test.Testing.exerciseRecord;
 import java.io.IOException;
 import org.junit.Test;
 import com.sun.jna.Memory;
@@ -8,6 +7,7 @@ import com.sun.jna.Pointer;
 import ceri.common.array.ArrayUtil;
 import ceri.common.io.Direction;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.serial.ftdi.Ftdi;
 import ceri.serial.ftdi.jna.LibFtdi.ftdi_usb_strings;
 
@@ -15,8 +15,8 @@ public class TestFtdiBehavior {
 
 	@Test
 	public void shouldEncapsulateParameters() {
-		exerciseRecord(new TestFtdi.Submit(Direction.duplex, Pointer.NULL, 0));
-		exerciseRecord(new TestFtdi.Stream((_, _) -> true, 0, 0, 0));
+		Testing.exerciseRecord(new TestFtdi.Submit(Direction.duplex, Pointer.NULL, 0));
+		Testing.exerciseRecord(new TestFtdi.Stream((_, _) -> true, 0, 0, 0));
 	}
 
 	@SuppressWarnings("resource")

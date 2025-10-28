@@ -1,6 +1,6 @@
 package ceri.common.game;
 
-import ceri.common.function.Functions.ObjIntPredicate;
+import ceri.common.function.Functions;
 
 /**
  * Utilities to help solve sudoku variant puzzles.
@@ -41,7 +41,7 @@ public class SudokuUtil {
 		return false;
 	}
 
-	private static void gen(ObjIntPredicate<int[]> predicate) {
+	private static void gen(Functions.ObjIntPredicate<int[]> predicate) {
 		int[] seq = new int[9];
 		for (int i = 1; i <= 9; i++) {
 			seq[0] = i;
@@ -49,7 +49,7 @@ public class SudokuUtil {
 		}
 	}
 
-	private static void gen(int[] seq, int len, ObjIntPredicate<int[]> predicate) {
+	private static void gen(int[] seq, int len, Functions.ObjIntPredicate<int[]> predicate) {
 		int n = seq[len - 1];
 		int[] factors = FACTORS[n - 1];
 		int count = 0;
@@ -70,12 +70,11 @@ public class SudokuUtil {
 		return false;
 	}
 
-	private static void print(int[] seq, int len, ObjIntPredicate<int[]> predicate) {
+	private static void print(int[] seq, int len, Functions.ObjIntPredicate<int[]> predicate) {
 		if (!predicate.test(seq, len)) return;
 		for (int i = 0; i < len; i++)
 			System.out.print(seq[i]);
 		System.out.print(" .. ");
 		System.out.println(len);
 	}
-
 }

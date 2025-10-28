@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntFunction;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.property.TypedProperties;
@@ -25,19 +23,19 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	public static class Config {
 		private static final Functions.Predicate<Exception> DEFAULT_PREDICATE =
 			Lambdas.register(CFileDescriptor::isBroken, "CFileDescriptor::isBroken");
-		public final Supplier<IOException, ? extends FileDescriptor> openFn;
+		public final Excepts.Supplier<IOException, ? extends FileDescriptor> openFn;
 		public final SelfHealing.Config selfHealing;
 
-		public static Config of(Supplier<IOException, FileDescriptor> openFn) {
+		public static Config of(Excepts.Supplier<IOException, FileDescriptor> openFn) {
 			return builder(openFn).build();
 		}
 
 		public static class Builder {
-			final Supplier<IOException, ? extends FileDescriptor> openFn;
+			final Excepts.Supplier<IOException, ? extends FileDescriptor> openFn;
 			final SelfHealing.Config.Builder selfHealing =
 				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
 
-			Builder(Supplier<IOException, ? extends FileDescriptor> openFn) {
+			Builder(Excepts.Supplier<IOException, ? extends FileDescriptor> openFn) {
 				this.openFn = openFn;
 			}
 
@@ -67,7 +65,8 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 			return builder(new CFileDescriptor.Opener(path, mode, flags));
 		}
 
-		public static Builder builder(Supplier<IOException, ? extends FileDescriptor> openFn) {
+		public static Builder
+			builder(Excepts.Supplier<IOException, ? extends FileDescriptor> openFn) {
 			return new Builder(openFn);
 		}
 
@@ -111,12 +110,12 @@ public class SelfHealingFd extends SelfHealingConnector<FileDescriptor>
 	}
 
 	@Override
-	public void accept(IntConsumer<IOException> consumer) throws IOException {
+	public void accept(Excepts.IntConsumer<IOException> consumer) throws IOException {
 		device.acceptValid(fd -> fd.accept(consumer));
 	}
 
 	@Override
-	public <T> T apply(IntFunction<IOException, T> function) throws IOException {
+	public <T> T apply(Excepts.IntFunction<IOException, T> function) throws IOException {
 		return device.applyValid(fd -> fd.apply(function));
 	}
 

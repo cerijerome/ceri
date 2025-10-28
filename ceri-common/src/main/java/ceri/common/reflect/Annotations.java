@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import ceri.common.collect.Immutable;
-import ceri.common.function.Functions.ToBoolFunction;
+import ceri.common.function.Functions;
 
 /**
  * Utility methods to support annotations.
@@ -126,7 +126,7 @@ public class Annotations {
 	 * Apply accessor to annotation, return default if not found.
 	 */
 	public static <T extends Annotation> boolean value(AnnotatedElement element,
-		Class<T> annotationCls, ToBoolFunction<T> valueAccessor, boolean def) {
+		Class<T> annotationCls, Functions.ToBoolFunction<T> valueAccessor, boolean def) {
 		T annotation = annotation(element, annotationCls);
 		return annotation == null ? def : valueAccessor.applyAsBool(annotation);
 	}
@@ -161,7 +161,7 @@ public class Annotations {
 	 * Apply accessor to field annotation, return default if not found.
 	 */
 	public static <T extends Annotation> boolean value(Enum<?> en, Class<T> annotationCls,
-		ToBoolFunction<T> valueAccessor, boolean def) {
+		Functions.ToBoolFunction<T> valueAccessor, boolean def) {
 		T annotation = annotation(en, annotationCls);
 		return annotation == null ? def : valueAccessor.applyAsBool(annotation);
 	}

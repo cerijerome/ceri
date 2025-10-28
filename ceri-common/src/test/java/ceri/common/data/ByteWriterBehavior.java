@@ -8,7 +8,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.ByteArray.Mutable;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.test.Testing;
 import ceri.common.util.Validate;
@@ -107,7 +107,7 @@ public class ByteWriterBehavior {
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		Consumer<E, ByteWriter<?>> action, int... bytes) throws E {
+		Excepts.Consumer<E, ByteWriter<?>> action, int... bytes) throws E {
 		assertBytes(size, action, ArrayUtil.bytes.of(bytes));
 	}
 
@@ -116,7 +116,7 @@ public class ByteWriterBehavior {
 	 * ByteReceiver, and asserts the bytes in the array.
 	 */
 	private static <E extends Exception> void assertBytes(int size,
-		Consumer<E, ByteWriter<?>> action, byte[] bytes) throws E {
+		Excepts.Consumer<E, ByteWriter<?>> action, byte[] bytes) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		Assert.array(holder.bytes, bytes);

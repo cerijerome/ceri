@@ -1,15 +1,15 @@
 package ceri.common.svg;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class SvgTest {
 
 	@Test
 	public void testConstructorIsPrivate() {
-		exerciseEnum(Svg.SweepFlag.class);
-		exerciseEnum(Svg.LargeArcFlag.class);
+		Testing.exerciseEnum(Svg.SweepFlag.class);
+		Testing.exerciseEnum(Svg.LargeArcFlag.class);
 		Assert.privateConstructor(Svg.class);
 	}
 

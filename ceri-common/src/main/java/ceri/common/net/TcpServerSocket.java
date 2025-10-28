@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.function.Closeables;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 
 /**
  * A server socket that passes newly connected sockets to a listener.
@@ -39,7 +39,7 @@ public class TcpServerSocket implements Closeable {
 	 * Listens for connections and passes the new socket to the listener. The socket is closed on
 	 * returning from the listener callback. The returned future can be used to interrupt listening.
 	 */
-	public Future<?> listenAndClose(Consumer<IOException, TcpSocket> listener) {
+	public Future<?> listenAndClose(Excepts.Consumer<IOException, TcpSocket> listener) {
 		return listen(socket -> Closeables.acceptOrClose(socket, listener));
 	}
 
@@ -48,7 +48,7 @@ public class TcpServerSocket implements Closeable {
 	 * to close the socket if no exception is thrown. The returned future can be used to interrupt
 	 * listening.
 	 */
-	public Future<?> listen(Consumer<IOException, TcpSocket> listener) {
+	public Future<?> listen(Excepts.Consumer<IOException, TcpSocket> listener) {
 		return Concurrent.submit(exec, () -> listenAndNotify(listener));
 	}
 
@@ -67,7 +67,8 @@ public class TcpServerSocket implements Closeable {
 	}
 
 	@SuppressWarnings("resource")
-	private void listenAndNotify(Consumer<IOException, TcpSocket> listener) throws IOException {
+	private void listenAndNotify(Excepts.Consumer<IOException, TcpSocket> listener)
+		throws IOException {
 		Socket socket = null;
 		try {
 			while (!closed.get()) {

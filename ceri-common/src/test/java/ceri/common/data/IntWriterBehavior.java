@@ -6,7 +6,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
 import ceri.common.data.IntArray.Mutable;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
@@ -71,8 +71,8 @@ public class IntWriterBehavior {
 	 * Creates a IntWriter wrapping a fixed-size int array, executes the action on the IntReceiver,
 	 * and asserts the ints in the array.
 	 */
-	private static <E extends Exception> void assertInts(int size, Consumer<E, IntWriter<?>> action,
-		int... ints) throws E {
+	private static <E extends Exception> void assertInts(int size,
+		Excepts.Consumer<E, IntWriter<?>> action, int... ints) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		Assert.array(holder.ints, ints);

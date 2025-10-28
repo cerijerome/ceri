@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import ceri.common.array.RawArray;
 import ceri.common.function.Compares;
 import ceri.common.function.Excepts;
-import ceri.common.function.Excepts.BiPredicate;
 import ceri.common.function.Filters;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
@@ -611,7 +610,7 @@ public class Maps {
 	 * Removes map entries that match the predicate. Returns the removed entry count.
 	 */
 	public static <E extends Exception, K, V, M extends Map<K, V>> M removeIf(M map,
-		BiPredicate<? extends E, ? super K, ? super V> predicate) throws E {
+		Excepts.BiPredicate<? extends E, ? super K, ? super V> predicate) throws E {
 		if (!isEmpty(map) && predicate != null)
 			Iterables.removeIf(map.entrySet(), Filter.entry(predicate));
 		return map;

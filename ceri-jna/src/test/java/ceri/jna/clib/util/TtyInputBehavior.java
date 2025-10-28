@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.function.Closeables;
 import ceri.common.function.Enclosure;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.io.LineReader;
 import ceri.common.test.Assert;
 import ceri.common.test.SystemIoCaptor;
@@ -55,7 +55,7 @@ public class TtyInputBehavior {
 		termios(lib.tc.value(), t -> Assert.equal(t.c_lflag.intValue() & LFLAGS, LFLAGS));
 	}
 
-	private void termios(TcArgs tc, Consumer<IOException, CTermios.termios> consumer)
+	private void termios(TcArgs tc, Excepts.Consumer<IOException, CTermios.termios> consumer)
 		throws IOException {
 		CTermios.termios termios = CTermios.tcgetattr(0);
 		Struct.copyTo(termios, tc.arg(1));

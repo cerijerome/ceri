@@ -15,7 +15,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.math.Maths;
 
@@ -27,7 +27,7 @@ public class WebDriverContainer implements Functions.Closeable {
 	private static final Logger logger = LogManager.getLogger();
 	private static final int TIMEOUT_MS_DEF = 5000;
 	private static final String BLANK_URL = "about:blank";
-	private final Supplier<IOException, WebDriver> constructor;
+	private final Excepts.Supplier<IOException, WebDriver> constructor;
 	private final int timeoutSec;
 	private final boolean canReset;
 	private volatile WebDriver driver;
@@ -40,16 +40,17 @@ public class WebDriverContainer implements Functions.Closeable {
 		return new WebDriverContainer(() -> driver, timeoutMs, false);
 	}
 
-	public WebDriverContainer(Supplier<IOException, WebDriver> constructor) throws IOException {
+	public WebDriverContainer(Excepts.Supplier<IOException, WebDriver> constructor)
+		throws IOException {
 		this(constructor, TIMEOUT_MS_DEF);
 	}
 
-	public WebDriverContainer(Supplier<IOException, WebDriver> constructor, long timeoutMs)
+	public WebDriverContainer(Excepts.Supplier<IOException, WebDriver> constructor, long timeoutMs)
 		throws IOException {
 		this(constructor, timeoutMs, true);
 	}
 
-	private WebDriverContainer(Supplier<IOException, WebDriver> constructor, long timeoutMs,
+	private WebDriverContainer(Excepts.Supplier<IOException, WebDriver> constructor, long timeoutMs,
 		boolean canReset) throws IOException {
 		logger.info("{} started", getClass().getSimpleName());
 		this.constructor = constructor;
@@ -161,8 +162,8 @@ public class WebDriverContainer implements Functions.Closeable {
 		return driver().getPageSource();
 	}
 
-	private WebDriver create(Supplier<IOException, WebDriver> constructor) throws IOException {
+	private WebDriver create(Excepts.Supplier<IOException, WebDriver> constructor)
+		throws IOException {
 		return constructor.get();
 	}
-
 }

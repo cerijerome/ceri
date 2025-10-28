@@ -3,19 +3,18 @@ package ceri.common.text;
 import java.util.Iterator;
 import java.util.List;
 import org.junit.Test;
-import ceri.common.function.Excepts.BiConsumer;
-import ceri.common.function.Excepts.Function;
-import ceri.common.function.Excepts.IntFunction;
-import ceri.common.function.Excepts.ObjIntConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.stream.Streams;
 import ceri.common.test.Assert;
 import ceri.common.util.Truth;
 
 public class JoinerBehavior {
-	private static final IntFunction<RuntimeException, ?> NULL_IDX_FN = null;
-	private static final Function<RuntimeException, Integer, ?> NULL_STR_FN = null;
-	private static final ObjIntConsumer<RuntimeException, StringBuilder> NULL_IDX_APP = null;
-	private static final BiConsumer<RuntimeException, StringBuilder, Integer> NULL_APP = null;
+	private static final Excepts.IntFunction<RuntimeException, ?> NULL_IDX_FN = null;
+	private static final Excepts.Function<RuntimeException, Integer, ?> NULL_STR_FN = null;
+	private static final Excepts.ObjIntConsumer<RuntimeException, StringBuilder> NULL_IDX_APP =
+		null;
+	private static final Excepts.BiConsumer<RuntimeException, StringBuilder, Integer> NULL_APP =
+		null;
 	private static final Integer[] NULL_ARRAY = null;
 	private static final List<Integer> NULL_LIST = null;
 	private static final Iterator<Integer> NULL_ITERATOR = null;

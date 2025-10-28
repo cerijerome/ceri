@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import com.sun.jna.Pointer;
 import ceri.common.data.ByteProvider;
 import ceri.common.except.Exceptions;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.reflect.Reflect;
 import ceri.common.util.Validate;
@@ -486,7 +486,7 @@ public class UsbTransfer<T extends UsbTransfer<T>> implements Functions.Closeabl
 	}
 
 	private static <T> T allocTransfer(int isoPackets,
-		Function<LibUsbException, libusb_transfer, T> function) throws LibUsbException {
+		Excepts.Function<LibUsbException, libusb_transfer, T> function) throws LibUsbException {
 		var transfer = LibUsb.libusb_alloc_transfer(isoPackets);
 		try {
 			return function.apply(transfer);

@@ -1,6 +1,5 @@
 package ceri.common.math;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import java.util.Comparator;
 import org.junit.Test;
 import ceri.common.function.Compares;
@@ -23,7 +22,7 @@ public class BoundBehavior {
 		Bound<Double> ne5 = Bound.of(-33.3, Type.exc);
 		Testing.exerciseEquals(b, eq0, eq1);
 		Assert.notEqualAll(b, ne0, ne1, ne2, ne3, ne4, ne5);
-		exerciseEnum(Bound.Type.class);
+		Testing.exerciseEnum(Bound.Type.class);
 	}
 
 	@Test
@@ -148,5 +147,4 @@ public class BoundBehavior {
 		Assert.yes(Bound.exclusive(0).valueEquals(0));
 		Assert.no(Bound.exclusive(0).valueEquals(1));
 	}
-
 }

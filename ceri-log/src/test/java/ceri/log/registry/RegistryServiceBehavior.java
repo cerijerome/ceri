@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Test;
 import ceri.common.except.ExceptionAdapter;
 import ceri.common.function.Closeables;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.property.TypedProperties;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
@@ -18,7 +18,7 @@ import ceri.common.test.Testing;
 import ceri.log.test.LogModifier;
 
 public class RegistryServiceBehavior {
-	private static final Consumer<IOException, Properties> NULL_CONSUMER = null;
+	private static final Excepts.Consumer<IOException, Properties> NULL_CONSUMER = null;
 	private static final String REG_FILENAME = "reg.properties";
 	private FileTestHelper files = null;
 	private RegistryService service = null;

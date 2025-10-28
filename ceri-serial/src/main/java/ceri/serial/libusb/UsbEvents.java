@@ -8,8 +8,7 @@ import java.util.Set;
 import com.sun.jna.ptr.IntByReference;
 import ceri.common.collect.Immutable;
 import ceri.common.function.Enclosure;
-import ceri.common.function.Excepts.Consumer;
-import ceri.common.function.Excepts.IntConsumer;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.time.TimeSpec;
 import ceri.jna.clib.jna.CTime.timeval;
@@ -143,21 +142,21 @@ public class UsbEvents {
 		return LibUsb.libusb_pollfds_handle_timeouts(context());
 	}
 
-	public void pollNotifiers(Consumer<IOException, PollFd> addedCallback,
-		IntConsumer<IOException> removedCallback) throws LibUsbException {
+	public void pollNotifiers(Excepts.Consumer<IOException, PollFd> addedCallback,
+		Excepts.IntConsumer<IOException> removedCallback) throws LibUsbException {
 		this.addedCallback = addedCallback(addedCallback);
 		this.removedCallback = removedCallback(removedCallback);
 		LibUsb.libusb_set_pollfd_notifiers(context(), this.addedCallback, this.removedCallback,
 			null);
 	}
 
-	private libusb_pollfd_added_cb addedCallback(Consumer<IOException, PollFd> callback) {
+	private libusb_pollfd_added_cb addedCallback(Excepts.Consumer<IOException, PollFd> callback) {
 		if (callback == null) return null;
 		return (fd, events, _) -> LogUtil
 			.runSilently(() -> callback.accept(new PollFd(fd, ushort(events))));
 	}
 
-	private libusb_pollfd_removed_cb removedCallback(IntConsumer<IOException> callback) {
+	private libusb_pollfd_removed_cb removedCallback(Excepts.IntConsumer<IOException> callback) {
 		if (callback == null) return null;
 		return (fd, _) -> LogUtil.runSilently(() -> callback.accept(fd));
 	}

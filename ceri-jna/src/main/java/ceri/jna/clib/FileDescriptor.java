@@ -7,8 +7,7 @@ import ceri.common.collect.Enums;
 import ceri.common.collect.Maps;
 import ceri.common.data.Field;
 import ceri.common.data.Xcoder;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntFunction;
+import ceri.common.function.Excepts;
 import ceri.common.io.Connector;
 import ceri.common.text.Joiner;
 import ceri.jna.clib.jna.CFcntl;
@@ -87,12 +86,12 @@ public interface FileDescriptor extends Connector {
 	/**
 	 * Use the file descriptor value.
 	 */
-	void accept(IntConsumer<IOException> consumer) throws IOException;
+	void accept(Excepts.IntConsumer<IOException> consumer) throws IOException;
 
 	/**
 	 * Use the file descriptor value.
 	 */
-	<T> T apply(IntFunction<IOException, T> function) throws IOException;
+	<T> T apply(Excepts.IntFunction<IOException, T> function) throws IOException;
 
 	/**
 	 * Reads the status flags.
@@ -122,10 +121,10 @@ public interface FileDescriptor extends Connector {
 	 */
 	interface Null extends Connector.Null, FileDescriptor.Fixable {
 		@Override
-		default void accept(IntConsumer<IOException> consumer) throws IOException {}
+		default void accept(Excepts.IntConsumer<IOException> consumer) throws IOException {}
 
 		@Override
-		default <T> T apply(IntFunction<IOException, T> function) throws IOException {
+		default <T> T apply(Excepts.IntFunction<IOException, T> function) throws IOException {
 			return null;
 		}
 

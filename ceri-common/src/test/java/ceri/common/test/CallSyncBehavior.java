@@ -1,12 +1,6 @@
 package ceri.common.test;
 
-import static ceri.common.test.Testing.threadCall;
-import static ceri.common.test.Testing.threadRun;
 import org.junit.Test;
-import ceri.common.test.CallSync.Consumer;
-import ceri.common.test.CallSync.Function;
-import ceri.common.test.CallSync.Runnable;
-import ceri.common.test.CallSync.Supplier;
 
 public class CallSyncBehavior {
 
@@ -94,8 +88,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndRespond() {
-		Function<String, Integer> call = CallSync.function(null);
-		try (var exec = threadCall(() -> call.apply("test"))) {
+		var call = CallSync.<String, Integer>function(null);
+		try (var exec = Testing.threadCall(() -> call.apply("test"))) {
 			Assert.equal(call.await(3), "test");
 			Assert.equal(exec.get(), 3);
 		}
@@ -103,8 +97,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndRespondWithInterrupt() {
-		Function<String, Integer> call = CallSync.function(null);
-		try (var exec = threadCall(() -> call.applyWithInterrupt("test"))) {
+		var call = CallSync.<String, Integer>function(null);
+		try (var exec = Testing.threadCall(() -> call.applyWithInterrupt("test"))) {
 			call.assertCall("test", 3);
 			Assert.equal(exec.get(), 3);
 		}
@@ -112,7 +106,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithAutoResponse() {
-		Function<String, Integer> call = CallSync.function(null, 3);
+		var call = CallSync.<String, Integer>function(null, 3);
 		call.assertNoCall();
 		Assert.equal(call.apply("test0"), 3);
 		call.assertAuto("test0");
@@ -122,7 +116,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithAutoResponseFunction() {
-		Function<String, Integer> call = CallSync.function(null);
+		var call = CallSync.<String, Integer>function(null);
 		call.autoResponse(_ -> {}, 3);
 		Assert.equal(call.apply("test0"), 3);
 		call.assertAuto("test0");
@@ -130,7 +124,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithDefaultValue() {
-		Function<String, Integer> call = CallSync.function("test", 3);
+		var call = CallSync.function("test", 3);
 		Assert.equal(call.value(), "test");
 		call.valueDef("test0");
 		Assert.equal(call.value(), "test0");
@@ -140,7 +134,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyValueWithoutSignal() {
-		Function<String, Integer> call = CallSync.function(null, 3);
+		var call = CallSync.<String, Integer>function(null, 3);
 		call.value("test");
 		call.assertCalls(0);
 		Assert.equal(call.value(), "test");
@@ -148,7 +142,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndGetValues() {
-		Function<String, Integer> call = CallSync.function(null, 3);
+		var call = CallSync.<String, Integer>function(null, 3);
 		Assert.ordered(call.values());
 		call.value("test0");
 		call.value(null);
@@ -159,7 +153,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyAndAssertValues() {
-		Function<String, Integer> call = CallSync.function(null, 3);
+		var call = CallSync.<String, Integer>function(null, 3);
 		Assert.ordered(call.values());
 		call.apply("test0");
 		call.apply(null);
@@ -170,7 +164,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldApplyWithoutSavingValues() {
-		Function<String, Integer> call = CallSync.function(null, 3);
+		var call = CallSync.<String, Integer>function(null, 3);
 		call.saveValues(false);
 		Assert.ordered(call.values());
 		call.saveValues(true);
@@ -186,8 +180,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndRespond() {
-		Consumer<String> call = CallSync.consumer(null, false);
-		try (var exec = threadRun(() -> call.accept("test"))) {
+		var call = CallSync.<String>consumer(null, false);
+		try (var exec = Testing.threadRun(() -> call.accept("test"))) {
 			Assert.equal(call.await(), "test");
 			exec.get();
 		}
@@ -195,8 +189,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndRespondWithInterrupt() {
-		Consumer<String> call = CallSync.consumer(null, false);
-		try (var exec = threadRun(() -> call.acceptWithInterrupt("test"))) {
+		var call = CallSync.<String>consumer(null, false);
+		try (var exec = Testing.threadRun(() -> call.acceptWithInterrupt("test"))) {
 			call.assertCall("test");
 			exec.get();
 		}
@@ -204,7 +198,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptWithAutoResponse() {
-		Consumer<String> call = CallSync.consumer(null, true);
+		var call = CallSync.<String>consumer(null, true);
 		call.assertNoCall();
 		call.accept("test0");
 		call.assertAuto("test0");
@@ -214,7 +208,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptWithAutoResponseFunction() {
-		Consumer<String> call = CallSync.consumer(null, false);
+		var call = CallSync.<String>consumer(null, false);
 		call.autoResponse(_ -> {});
 		call.accept("test");
 		call.assertAuto("test");
@@ -222,7 +216,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptWithDefaultValue() {
-		Consumer<String> call = CallSync.consumer("test", true);
+		var call = CallSync.consumer("test", true);
 		Assert.equal(call.value(), "test");
 		call.valueDef("test0");
 		Assert.equal(call.value(), "test0");
@@ -232,7 +226,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptValueWithoutSignal() {
-		Consumer<String> call = CallSync.consumer(null, true);
+		var call = CallSync.<String>consumer(null, true);
 		call.value("test");
 		call.assertCalls(0);
 		Assert.equal(call.value(), "test");
@@ -240,7 +234,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndGetValues() {
-		Consumer<String> call = CallSync.consumer(null, true);
+		var call = CallSync.<String>consumer(null, true);
 		Assert.ordered(call.values());
 		call.value("test0");
 		call.value(null);
@@ -251,7 +245,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldAcceptAndAssertValues() {
-		Consumer<String> call = CallSync.consumer(null, true);
+		var call = CallSync.<String>consumer(null, true);
 		Assert.ordered(call.values());
 		call.accept("test0");
 		call.accept(null);
@@ -262,8 +256,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetAndRespond() {
-		Supplier<String> call = CallSync.supplier();
-		try (var exec = threadCall(() -> call.get())) {
+		var call = CallSync.<String>supplier();
+		try (var exec = Testing.threadCall(() -> call.get())) {
 			call.await("test");
 			Assert.equal(exec.get(), "test");
 		}
@@ -271,8 +265,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetAndRespondWithInterrupt() {
-		Supplier<String> call = CallSync.supplier();
-		try (var exec = threadCall(() -> call.getWithInterrupt())) {
+		var call = CallSync.<String>supplier();
+		try (var exec = Testing.threadCall(() -> call.getWithInterrupt())) {
 			call.await("test");
 			Assert.equal(exec.get(), "test");
 		}
@@ -280,7 +274,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetWithAutoResponse() {
-		Supplier<String> call = CallSync.supplier("test");
+		var call = CallSync.supplier("test");
 		call.assertCalls(0);
 		Assert.equal(call.get(), "test");
 		call.awaitAuto();
@@ -288,7 +282,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetWithAutoResponseFunction() {
-		Supplier<String> call = CallSync.supplier("");
+		var call = CallSync.supplier("");
 		call.autoResponse(() -> {}, "test");
 		Assert.equal(call.get(), "test");
 		call.awaitAuto();
@@ -296,7 +290,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldGetWithCallCount() {
-		Supplier<String> call = CallSync.supplier("test");
+		var call = CallSync.supplier("test");
 		Assert.equal(call.calls(), 0);
 		call.get();
 		call.get();
@@ -306,8 +300,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunAndRespond() {
-		Runnable call = CallSync.runnable(false);
-		try (var exec = threadRun(() -> call.run())) {
+		var call = CallSync.runnable(false);
+		try (var exec = Testing.threadRun(() -> call.run())) {
 			call.await();
 			exec.get();
 		}
@@ -315,8 +309,8 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunAndRespondWithInterrupt() {
-		Runnable call = CallSync.runnable(false);
-		try (var exec = threadRun(() -> call.runWithInterrupt())) {
+		var call = CallSync.runnable(false);
+		try (var exec = Testing.threadRun(() -> call.runWithInterrupt())) {
 			call.await();
 			exec.get();
 		}
@@ -324,7 +318,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunWithAutoResponse() {
-		Runnable call = CallSync.runnable(true);
+		var call = CallSync.runnable(true);
 		call.assertCalls(0);
 		call.run();
 		call.awaitAuto();
@@ -332,7 +326,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunWithAutoResponseFunction() {
-		Runnable call = CallSync.runnable(false);
+		var call = CallSync.runnable(false);
 		call.autoResponse(() -> {});
 		call.run();
 		call.awaitAuto();
@@ -340,7 +334,7 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldRunWithCallCount() {
-		Runnable call = CallSync.runnable(true);
+		var call = CallSync.runnable(true);
 		Assert.equal(call.calls(), 0);
 		call.run();
 		call.run();
@@ -356,9 +350,9 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldProvideStringRepresentationEvenIfLocked() {
-		CallSync.Supplier<String> tos = CallSync.supplier();
-		try (var exec0 = threadRun(() -> tos.await(() -> {
-			try (var exec1 = threadCall(() -> tos.toString())) { // locked
+		var tos = CallSync.<String>supplier();
+		try (var exec0 = Testing.threadRun(() -> tos.await(() -> {
+			try (var exec1 = Testing.threadCall(() -> tos.toString())) { // locked
 				return exec1.get();
 			}
 		}))) {
@@ -375,9 +369,9 @@ public class CallSyncBehavior {
 
 	@Test
 	public void shouldProvideCompactStringRepresentationEvenIfLocked() {
-		CallSync.Supplier<String> tos = CallSync.supplier();
-		try (var exec0 = threadRun(() -> tos.await(() -> {
-			try (var exec1 = threadCall(() -> tos.compactString())) { // locked
+		var tos = CallSync.<String>supplier();
+		try (var exec0 = Testing.threadRun(() -> tos.await(() -> {
+			try (var exec1 = Testing.threadCall(() -> tos.compactString())) { // locked
 				return exec1.get();
 			}
 		}))) {
@@ -385,5 +379,4 @@ public class CallSyncBehavior {
 			exec0.get();
 		}
 	}
-
 }

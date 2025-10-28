@@ -6,8 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import ceri.common.function.Excepts.Runnable;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functional;
 import ceri.common.reflect.Reflect;
 
@@ -28,11 +27,11 @@ public class TaskQueue<E extends Exception> {
 	private static class Task<E extends Exception, T> {
 		private final TaskQueue<E> queue;
 		private final Condition sync;
-		private final Supplier<E, T> action;
+		private final Excepts.Supplier<E, T> action;
 		private T result;
 		private Exception ex;
 
-		private Task(TaskQueue<E> queue, Supplier<E, T> action) {
+		private Task(TaskQueue<E> queue, Excepts.Supplier<E, T> action) {
 			this.queue = queue;
 			sync = queue.lock.newCondition();
 			this.action = action;
@@ -97,28 +96,28 @@ public class TaskQueue<E extends Exception> {
 	/**
 	 * Executes the action, and waits for it to complete.
 	 */
-	public void execute(Runnable<E> action) throws E {
+	public void execute(Excepts.Runnable<E> action) throws E {
 		executeGet(Functional.Adapt.runSupplier(action, null));
 	}
 
 	/**
 	 * Executes the action, and waits for it to complete.
 	 */
-	public void execute(Runnable<E> action, int timeout, TimeUnit unit) throws E {
+	public void execute(Excepts.Runnable<E> action, int timeout, TimeUnit unit) throws E {
 		executeGet(Functional.Adapt.runSupplier(action, null), timeout, unit);
 	}
 
 	/**
 	 * Executes the action, waits for it to complete, and returns the result.
 	 */
-	public <T> T executeGet(Supplier<E, T> action) throws E {
+	public <T> T executeGet(Excepts.Supplier<E, T> action) throws E {
 		return Concurrent.lockedGet(lock, () -> add(action).get(null, null));
 	}
 
 	/**
 	 * Executes the action, waits for it to complete, and returns the result.
 	 */
-	public <T> T executeGet(Supplier<E, T> action, int timeout, TimeUnit unit) throws E {
+	public <T> T executeGet(Excepts.Supplier<E, T> action, int timeout, TimeUnit unit) throws E {
 		return Concurrent.lockedGet(lock, () -> add(action).get(timeout, unit));
 	}
 
@@ -146,7 +145,7 @@ public class TaskQueue<E extends Exception> {
 		return true;
 	}
 
-	private <T> Task<E, T> add(Supplier<E, T> action) {
+	private <T> Task<E, T> add(Excepts.Supplier<E, T> action) {
 		if (queue.size() >= maxSize)
 			throw new IllegalStateException("Queue is full: " + queue.size());
 		Task<E, T> task = new Task<>(this, action);

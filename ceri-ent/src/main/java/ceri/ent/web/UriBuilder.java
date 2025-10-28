@@ -3,7 +3,7 @@ package ceri.ent.web;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.client.utils.URIBuilder;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 
 public class UriBuilder {
 	private final URIBuilder builder;
@@ -25,12 +25,11 @@ public class UriBuilder {
 		return wrap(builder::build);
 	}
 
-	private static <T> T wrap(Supplier<URISyntaxException, T> supplier) {
+	private static <T> T wrap(Excepts.Supplier<URISyntaxException, T> supplier) {
 		try {
 			return supplier.get();
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
-
 }

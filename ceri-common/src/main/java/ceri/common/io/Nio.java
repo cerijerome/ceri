@@ -5,13 +5,14 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
 import ceri.common.concurrent.Concurrent;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 
 public class Nio {
 
 	private Nio() {}
 
-	public static void selectKeys(Selector selector, Consumer<IOException, SelectionKey> consumer)
+	public static void selectKeys(Selector selector,
+		Excepts.Consumer<IOException, SelectionKey> consumer)
 		throws IOException, InterruptedException {
 		Concurrent.checkInterrupted();
 		for (var i = selector.selectedKeys().iterator(); i.hasNext(); i.remove())

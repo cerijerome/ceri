@@ -1,6 +1,5 @@
 package ceri.serial.libusb.jna;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import static ceri.jna.test.JnaTestUtil.assertPointer;
 import static ceri.jna.test.JnaTestUtil.mem;
 import org.junit.After;
@@ -8,6 +7,7 @@ import org.junit.Test;
 import com.sun.jna.Pointer;
 import ceri.common.function.Enclosure;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.jna.type.ArrayPointer;
 import ceri.jna.util.JnaUtil;
 import ceri.jna.util.PointerUtil;
@@ -38,8 +38,8 @@ public class LibUsbTest {
 
 	@Test
 	public void testEnumStringRepresentation() {
-		exerciseEnum(libusb_endpoint_transfer_type.class);
-		exerciseEnum(libusb_log_cb_mode.class);
+		Testing.exerciseEnum(libusb_endpoint_transfer_type.class);
+		Testing.exerciseEnum(libusb_log_cb_mode.class);
 	}
 
 	@Test

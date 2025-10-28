@@ -3,7 +3,7 @@ package ceri.common.data;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.array.ArrayUtil;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 
 public class LongReceiverBehavior {
@@ -126,7 +126,7 @@ public class LongReceiverBehavior {
 	 * LongReceiver, and asserts the longs in the array.
 	 */
 	private static <E extends Exception> void assertLongs(int size,
-		Consumer<E, LongReceiver> action, long... longs) throws E {
+		Excepts.Consumer<E, LongReceiver> action, long... longs) throws E {
 		Holder holder = Holder.of(size);
 		action.accept(holder.receiver);
 		Assert.array(holder.longs, longs);

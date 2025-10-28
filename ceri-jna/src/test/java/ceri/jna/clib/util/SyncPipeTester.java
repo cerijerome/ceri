@@ -1,6 +1,5 @@
 package ceri.jna.clib.util;
 
-import static ceri.common.test.Testing.threadRun;
 import static ceri.log.util.LogUtil.create;
 import java.io.IOException;
 import java.util.stream.IntStream;
@@ -30,7 +29,8 @@ public class SyncPipeTester {
 		var n = IntStream.range(0, THREADS).boxed().toList();
 		Poll poll = Poll.of(1);
 		try (var pipe = SyncPipe.of(poll.fd(0));
-			var pollers = Enclosure.ofAll(create(i -> threadRun(() -> runPoll(poll, i)), n));
+			var pollers =
+				Enclosure.ofAll(create(i -> Testing.threadRun(() -> runPoll(poll, i)), n));
 			var closer = Testing.threadRun(() -> runClose(pipe))) {
 			closer.get();
 			pollers.ref.forEach(SimpleExecutor::get);

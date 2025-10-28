@@ -1,6 +1,5 @@
 package ceri.common.except;
 
-import static ceri.common.test.Testing.exerciseRecord;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -8,12 +7,13 @@ import org.junit.Test;
 import ceri.common.except.ExceptionTracker.Key;
 import ceri.common.io.IoExceptions;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class ExceptionTrackerBehavior {
 
 	@Test
 	public void shouldNotBreachEqualsContract() {
-		exerciseRecord(new Key(IOException.class, "test"), Method::invoke);
+		Testing.exerciseRecord(new Key(IOException.class, "test"), Method::invoke);
 	}
 
 	@Test
@@ -64,5 +64,4 @@ public class ExceptionTrackerBehavior {
 		Assert.equal(tracker.add(new Exception("3")), false);
 		Assert.equal(tracker.add(new Exception("2")), false);
 	}
-
 }

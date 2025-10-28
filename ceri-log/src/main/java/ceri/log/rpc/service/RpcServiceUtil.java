@@ -8,8 +8,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.protobuf.Empty;
 import ceri.common.concurrent.Concurrent;
 import ceri.common.except.Exceptions;
-import ceri.common.function.Excepts.Runnable;
-import ceri.common.function.Excepts.Supplier;
+import ceri.common.function.Excepts;
 import ceri.common.text.Regex;
 import ceri.log.rpc.util.RpcUtil;
 import io.grpc.Server;
@@ -60,7 +59,7 @@ public class RpcServiceUtil {
 	 * Executes runnable then responds with Empty to the client.
 	 */
 	public static <E extends Exception> void accept(StreamObserver<Empty> observer,
-		Runnable<E> runnable) {
+		Excepts.Runnable<E> runnable) {
 		respond(observer, RpcUtil.EMPTY, runnable);
 	}
 
@@ -68,7 +67,7 @@ public class RpcServiceUtil {
 	 * Responds to client with result of supplier call.
 	 */
 	public static <E extends Exception, T> void respond(StreamObserver<T> observer,
-		Supplier<E, T> supplier) {
+		Excepts.Supplier<E, T> supplier) {
 		try {
 			T t = supplier.get();
 			observer.onNext(t);
@@ -84,7 +83,7 @@ public class RpcServiceUtil {
 	 * Executes runnable then responds to client with given value.
 	 */
 	public static <E extends Exception, T> void respond(StreamObserver<T> observer, T t,
-		Runnable<E> runnable) {
+		Excepts.Runnable<E> runnable) {
 		try {
 			runnable.run();
 			observer.onNext(t);

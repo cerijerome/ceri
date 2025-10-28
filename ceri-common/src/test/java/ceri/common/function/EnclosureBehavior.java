@@ -2,7 +2,6 @@ package ceri.common.function;
 
 import java.io.IOException;
 import org.junit.Test;
-import ceri.common.function.Excepts.Closeable;
 import ceri.common.test.Assert;
 import ceri.common.test.CallSync;
 import ceri.common.test.Captor;
@@ -38,7 +37,7 @@ public class EnclosureBehavior {
 	@Test
 	public void shouldWrapCloseable() throws IOException {
 		var sync = CallSync.runnable(true);
-		try (Closeable<IOException> ec = () -> sync.run()) {
+		try (Excepts.Closeable<IOException> ec = () -> sync.run()) {
 			try (var _ = Enclosure.of(ec)) {}
 			sync.assertCalls(1);
 		}

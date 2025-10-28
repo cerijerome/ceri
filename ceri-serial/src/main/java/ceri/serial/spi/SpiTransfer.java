@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import com.sun.jna.Memory;
 import ceri.common.array.ArrayUtil;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.io.Direction;
 import ceri.common.util.Validate;
 import ceri.jna.util.GcMemory;
@@ -18,14 +18,14 @@ import ceri.serial.spi.jna.SpiDev.spi_ioc_transfer;
  * Wrapper for the spi_ioc_transfer data structure.
  */
 public class SpiTransfer {
-	private final Consumer<IOException, spi_ioc_transfer> executor;
+	private final Excepts.Consumer<IOException, spi_ioc_transfer> executor;
 	private final int sizeMax;
 	private final ByteBuffer out;
 	private final ByteBuffer in;
 	private final Direction direction;
 	private final spi_ioc_transfer transfer;
 
-	public static SpiTransfer of(Consumer<IOException, spi_ioc_transfer> executor,
+	public static SpiTransfer of(Excepts.Consumer<IOException, spi_ioc_transfer> executor,
 		Direction direction, int size) {
 		Validate.equalNoneOf(direction, null, Direction.none);
 		var outMem = direction == Direction.in ? GcMemory.NULL : GcMemory.malloc(size);
@@ -33,7 +33,7 @@ public class SpiTransfer {
 		return new SpiTransfer(executor, outMem.m, inMem.m, direction, size);
 	}
 
-	private SpiTransfer(Consumer<IOException, spi_ioc_transfer> executor, Memory outMem,
+	private SpiTransfer(Excepts.Consumer<IOException, spi_ioc_transfer> executor, Memory outMem,
 		Memory inMem, Direction direction, int size) {
 		this.executor = executor;
 		transfer = new spi_ioc_transfer();

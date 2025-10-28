@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import ceri.common.except.ExceptionAdapter;
-import ceri.common.function.Excepts.IntConsumer;
-import ceri.common.function.Excepts.IntFunction;
+import ceri.common.function.Excepts;
 import ceri.common.test.CallSync;
 import ceri.common.test.TestInputStream;
 import ceri.common.test.TestOutputStream;
@@ -37,12 +36,12 @@ public class TestFileDescriptor implements FileDescriptor {
 	}
 
 	@Override
-	public void accept(IntConsumer<IOException> consumer) throws IOException {
+	public void accept(Excepts.IntConsumer<IOException> consumer) throws IOException {
 		consumer.accept(fd());
 	}
 
 	@Override
-	public <T> T apply(IntFunction<IOException, T> function) throws IOException {
+	public <T> T apply(Excepts.IntFunction<IOException, T> function) throws IOException {
 		return function.apply(fd());
 	}
 

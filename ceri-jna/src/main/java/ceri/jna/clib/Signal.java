@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.function.Consumer;
 import ceri.common.data.Xcoder;
-import ceri.common.function.Excepts.Closeable;
+import ceri.common.function.Excepts;
 import ceri.jna.clib.jna.CSignal;
 
 public enum Signal {
@@ -58,7 +58,7 @@ public enum Signal {
 		verifyHandler(CSignal.signal(signal, CSignal.SIG_IGN));
 	}
 
-	public Closeable<IOException> signal(Consumer<Signal> handler) throws IOException {
+	public Excepts.Closeable<IOException> signal(Consumer<Signal> handler) throws IOException {
 		CSignal.sighandler_t callback = signum -> handler.accept(from(signum));
 		verifyHandler(CSignal.signal(signal, callback));
 		return () -> {

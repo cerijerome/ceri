@@ -2,7 +2,7 @@ package ceri.serial.spi;
 
 import java.io.IOException;
 import java.util.Objects;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 import ceri.common.io.Direction;
 import ceri.common.property.TypedProperties;
 import ceri.common.text.ToString;
@@ -24,7 +24,7 @@ public class SpiDevice implements Spi {
 	 */
 	public static class Config {
 		public static final Config DEFAULT = of(0, 0);
-		private final Function<IOException, Config, FileDescriptor> openFn;
+		private final Excepts.Function<IOException, Config, FileDescriptor> openFn;
 		public final int bus;
 		public final int chip;
 		public final Direction direction;
@@ -38,14 +38,14 @@ public class SpiDevice implements Spi {
 		}
 
 		public static class Builder {
-			Function<IOException, Config, FileDescriptor> openFn = SpiDevice::open;
+			Excepts.Function<IOException, Config, FileDescriptor> openFn = SpiDevice::open;
 			int bus = 0;
 			int chip = 0;
 			Direction direction = Direction.duplex;
 
 			Builder() {}
 
-			public Builder openFn(Function<IOException, Config, FileDescriptor> openFn) {
+			public Builder openFn(Excepts.Function<IOException, Config, FileDescriptor> openFn) {
 				this.openFn = openFn;
 				return this;
 			}

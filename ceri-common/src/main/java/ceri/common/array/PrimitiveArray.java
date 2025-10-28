@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
-import ceri.common.function.Functions.ObjBiIntConsumer;
 import ceri.common.text.Format;
 import ceri.common.text.Joiner;
 import ceri.common.util.Hasher;
@@ -15,7 +14,7 @@ import ceri.common.util.Hasher;
  */
 public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	private final Class<T> cls;
-	
+
 	/**
 	 * Typed primitive array support.
 	 */
@@ -170,7 +169,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<boolean[]> sorter() {
+		protected Functions.ObjBiIntConsumer<boolean[]> sorter() {
 			return OfBool::sortArray;
 		}
 
@@ -368,7 +367,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<char[]> sorter() {
+		protected Functions.ObjBiIntConsumer<char[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -565,7 +564,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<byte[]> sorter() {
+		protected Functions.ObjBiIntConsumer<byte[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -762,7 +761,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<short[]> sorter() {
+		protected Functions.ObjBiIntConsumer<short[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -949,7 +948,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<int[]> sorter() {
+		protected Functions.ObjBiIntConsumer<int[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -1136,7 +1135,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<long[]> sorter() {
+		protected Functions.ObjBiIntConsumer<long[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -1326,7 +1325,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<float[]> sorter() {
+		protected Functions.ObjBiIntConsumer<float[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -1495,7 +1494,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 		}
 
 		@Override
-		protected ObjBiIntConsumer<double[]> sorter() {
+		protected Functions.ObjBiIntConsumer<double[]> sorter() {
 			return Arrays::sort;
 		}
 
@@ -1521,7 +1520,7 @@ public abstract class PrimitiveArray<T, C> extends TypedArray<T> {
 	public Class<T> type() {
 		return cls;
 	}
-	
+
 	/**
 	 * Converts an unboxed array to a boxed array.
 	 */

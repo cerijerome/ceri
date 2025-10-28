@@ -4,7 +4,7 @@ import static java.lang.Long.MAX_VALUE;
 import java.util.Arrays;
 import org.junit.Test;
 import ceri.common.data.LongArray.Mutable;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.common.test.Assert;
 import ceri.common.util.Validate;
 
@@ -46,7 +46,7 @@ public class LongWriterBehavior {
 	 * LongReceiver, and asserts the longs in the array.
 	 */
 	private static <E extends Exception> void assertLongs(int size,
-		Consumer<E, LongWriter<?>> action, long... longs) throws E {
+		Excepts.Consumer<E, LongWriter<?>> action, long... longs) throws E {
 		var holder = Holder.of(size);
 		action.accept(holder.writer);
 		Assert.array(holder.longs, longs);

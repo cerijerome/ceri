@@ -3,8 +3,7 @@ package ceri.common.net;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
-import ceri.common.function.Excepts.BiConsumer;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 
 /**
  * Option constants for Socket. Created due to missing types in StandardSocketOptions.
@@ -31,16 +30,16 @@ public class TcpSocketOption<T> {
 	public static final List<TcpSocketOption<?>> all = List.of(soTimeout, soLinger, soKeepAlive,
 		soReuseAddr, soOobInline, tcpNoDelay, ipTos, soSndBuf, soRcvBuf);
 	public final String name;
-	private final BiConsumer<IOException, Socket, T> setFn;
-	private final Function<IOException, Socket, T> getFn;
+	private final Excepts.BiConsumer<IOException, Socket, T> setFn;
+	private final Excepts.Function<IOException, Socket, T> getFn;
 	public final T disableValue;
 
 	private static void setSoLinger(Socket socket, int sec) throws IOException {
 		socket.setSoLinger(sec >= 0, sec);
 	}
 
-	private TcpSocketOption(String name, BiConsumer<IOException, Socket, T> setFn,
-		Function<IOException, Socket, T> getFn, T disableValue) {
+	private TcpSocketOption(String name, Excepts.BiConsumer<IOException, Socket, T> setFn,
+		Excepts.Function<IOException, Socket, T> getFn, T disableValue) {
 		this.name = name;
 		this.setFn = setFn;
 		this.getFn = getFn;

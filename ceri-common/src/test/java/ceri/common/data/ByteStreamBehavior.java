@@ -1,6 +1,5 @@
 package ceri.common.data;
 
-import static ceri.common.test.Testing.inputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.Test;
@@ -13,6 +12,7 @@ import ceri.common.io.IoStream;
 import ceri.common.io.PipedStream;
 import ceri.common.test.Assert;
 import ceri.common.test.ErrorGen;
+import ceri.common.test.Testing;
 
 @SuppressWarnings("resource")
 public class ByteStreamBehavior {
@@ -21,7 +21,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadByte() {
-		var r = ByteStream.reader(inputStream(1, 2, 3));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3));
 		Assert.equal(r.readByte(), (byte) 1);
 		Assert.equal(r.readByte(), (byte) 2);
 		Assert.equal(r.readByte(), (byte) 3);
@@ -46,7 +46,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldSkipReaderBytes() {
-		var r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3, 4, 5));
 		Assert.equal(r.skip(3).readByte(), (byte) 4);
 		Assert.thrown(() -> r.skip(2));
 		Assert.thrown(() -> r.skip(1));
@@ -54,14 +54,14 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadBytes() {
-		var r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3, 4, 5));
 		Assert.array(r.readBytes(3), 1, 2, 3);
 		Assert.thrown(() -> r.readBytes(3));
 	}
 
 	@Test
 	public void shouldReadIntoByteArray() {
-		var r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3, 4, 5));
 		byte[] bytes = new byte[5];
 		Assert.equal(r.readInto(bytes, 1, 3), 4);
 		Assert.array(bytes, 0, 1, 2, 3, 0);
@@ -70,7 +70,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldReadIntoByteReceiver() {
-		var r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3, 4, 5));
 		var m = Mutable.of(5);
 		Assert.equal(r.readInto(m, 1, 3), 4);
 		Assert.array(m.copy(0), 0, 1, 2, 3, 0);
@@ -79,7 +79,7 @@ public class ByteStreamBehavior {
 
 	@Test
 	public void shouldTransferToOutputStream() throws IOException {
-		var r = ByteStream.reader(inputStream(1, 2, 3, 4, 5));
+		var r = ByteStream.reader(Testing.inputStream(1, 2, 3, 4, 5));
 		var pipe = PipedStream.of();
 		Assert.equal(r.transferTo(pipe.out(), 3), 3);
 		Assert.thrown(() -> r.transferTo(pipe.out(), 3));
@@ -143,7 +143,7 @@ public class ByteStreamBehavior {
 	@Test
 	public void shouldTransferFromInputStream() throws IOException {
 		var pipe = PipedStream.of();
-		var in = inputStream(1, 2, 3, 4, 5);
+		var in = Testing.inputStream(1, 2, 3, 4, 5);
 		var w = ByteStream.writer(pipe.out());
 		Assert.equal(w.transferFrom(in, 3), 3);
 		Assert.equal(w.transferFrom(in, 3), 2);

@@ -1,24 +1,23 @@
 package ceri.common.util;
 
-import static ceri.common.test.Testing.firstEnvVarName;
-import static ceri.common.test.Testing.firstSysPropName;
 import org.junit.Test;
 import ceri.common.io.SystemIo;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 import ceri.common.text.StringBuilders;
 
 public class StartupValuesBehavior {
 
 	@Test
 	public void shouldAllowNullNotifier() {
-		StartupValues v = StartupValues.of("a").notifier(null);
+		var v = StartupValues.of("a").notifier(null);
 		Assert.equal(v.next("param", p -> p.get()), "a"); // no output
 	}
 
 	@Test
 	public void shouldLookupValue() {
-		String sysProp = firstSysPropName();
-		String envVar = firstEnvVarName();
+		var sysProp = Testing.firstSysPropName();
+		var envVar = Testing.firstEnvVarName();
 		Assert.equal(StartupValues.lookup(sysProp).get(), SystemVars.sys(sysProp));
 		Assert.equal(StartupValues.lookup(null, envVar).get(), SystemVars.env(envVar));
 		Assert.equal(StartupValues.lookup(sysProp, p -> p.get()), SystemVars.sys(sysProp));
@@ -28,10 +27,10 @@ public class StartupValuesBehavior {
 	@SuppressWarnings("resource")
 	@Test
 	public void shouldRenderParsedValue() {
-		StringBuilder b = new StringBuilder();
-		try (SystemIo sys = SystemIo.of()) {
+		var b = new StringBuilder();
+		try (var sys = SystemIo.of()) {
 			sys.out(StringBuilders.printStream(b));
-			StartupValues v = StartupValues.sysOut("a").renderer(obj -> "<" + obj + ">");
+			var v = StartupValues.sysOut("a").renderer(obj -> "<" + obj + ">");
 			v.next("param", p -> p.get());
 			Assert.equal(b.toString(), "0) param = <a> ('a' from args[0])\n");
 		}
@@ -39,7 +38,7 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldGetValuesFromArgumentArray() {
-		StartupValues v = StartupValues.of("a", null, "c");
+		var v = StartupValues.of("a", null, "c");
 		Assert.equal(v.next(p -> p.get()), "a");
 		Assert.equal(v.next(p -> p.get("b")), "b");
 		Assert.equal(v.next(p -> p.get("d")), "c");
@@ -52,7 +51,7 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldGetParserFromArgumentArray() {
-		StartupValues v = StartupValues.of("a", null, "c");
+		var v = StartupValues.of("a", null, "c");
 		Assert.equal(v.next().get(), "a");
 		Assert.equal(v.next().get("b"), "b");
 		Assert.equal(v.next().get("d"), "c");
@@ -65,23 +64,23 @@ public class StartupValuesBehavior {
 
 	@Test
 	public void shouldGetSystemProperties() {
-		StartupValues v = StartupValues.of();
-		String sysProp = firstSysPropName();
+		var v = StartupValues.of();
+		String sysProp = Testing.firstSysPropName();
 		Assert.equal(v.value(sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
 		Assert.equal(v.value(1, sysProp, null, p -> p.get()), SystemVars.sys(sysProp));
 	}
 
 	@Test
 	public void shouldGetParserSystemProperties() {
-		StartupValues v = StartupValues.of();
-		String sysProp = firstSysPropName();
+		var v = StartupValues.of();
+		String sysProp = Testing.firstSysPropName();
 		Assert.equal(v.value(sysProp, (String) null).get(), SystemVars.sys(sysProp));
 		Assert.equal(v.value(1, sysProp, null).get(), SystemVars.sys(sysProp));
 	}
 
 	@Test
 	public void shouldConvertNameFormat() {
-		StartupValues v = StartupValues.of();
+		var v = StartupValues.of();
 		Assert.equal(v.sysProp(""), null);
 		Assert.equal(v.envVar(""), null);
 		Assert.equal(v.sysProp("testName"), "testName");

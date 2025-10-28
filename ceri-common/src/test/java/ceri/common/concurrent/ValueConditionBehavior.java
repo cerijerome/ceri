@@ -1,8 +1,8 @@
 package ceri.common.concurrent;
 
-import static ceri.common.test.Testing.threadCall;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class ValueConditionBehavior {
 
@@ -61,10 +61,9 @@ public class ValueConditionBehavior {
 		Assert.equal(flag.toString(), "[null];hold=0;queue=0");
 		Concurrent.lockedRun(flag.lock, () -> {
 			Assert.equal(flag.toString(), "[null];hold=1;queue=0");
-			try (var exec = threadCall(() -> flag.toString())) {
+			try (var exec = Testing.threadCall(() -> flag.toString())) {
 				Assert.equal(exec.get(), "empty;hold=0;queue=0");
 			}
 		});
 	}
-
 }

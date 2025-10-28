@@ -1,7 +1,7 @@
 package ceri.serial.i2c.smbus;
 
 import java.io.IOException;
-import ceri.common.function.Excepts.Consumer;
+import ceri.common.function.Excepts;
 import ceri.jna.clib.FileDescriptor;
 import ceri.serial.i2c.I2cAddress;
 import ceri.serial.i2c.jna.I2cDev;
@@ -11,15 +11,15 @@ import ceri.serial.i2c.jna.I2cDev;
  */
 public class SmBusDevice implements SmBus {
 	private final FileDescriptor fd;
-	private final Consumer<IOException, I2cAddress> selectDeviceFn;
+	private final Excepts.Consumer<IOException, I2cAddress> selectDeviceFn;
 	private final I2cAddress address;
 
 	public static SmBusDevice of(FileDescriptor fd,
-		Consumer<IOException, I2cAddress> selectDeviceFn, I2cAddress address) {
+		Excepts.Consumer<IOException, I2cAddress> selectDeviceFn, I2cAddress address) {
 		return new SmBusDevice(fd, selectDeviceFn, address);
 	}
 
-	private SmBusDevice(FileDescriptor fd, Consumer<IOException, I2cAddress> selectDeviceFn,
+	private SmBusDevice(FileDescriptor fd, Excepts.Consumer<IOException, I2cAddress> selectDeviceFn,
 		I2cAddress address) {
 		this.fd = fd;
 		this.selectDeviceFn = selectDeviceFn;

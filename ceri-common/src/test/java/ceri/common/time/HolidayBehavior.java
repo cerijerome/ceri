@@ -1,11 +1,11 @@
 package ceri.common.time;
 
-import static ceri.common.test.Testing.exerciseEnum;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import org.junit.Test;
 import ceri.common.test.Assert;
+import ceri.common.test.Testing;
 
 public class HolidayBehavior {
 
@@ -16,7 +16,7 @@ public class HolidayBehavior {
 		Assert.equal(Holiday.Us.veteransDay.observed.date(2017), LocalDate.of(2017, 11, 10));
 		Assert.equal(Holiday.Us.veteransDay.observed.date(2016), LocalDate.of(2016, 11, 11));
 		Assert.equal(Holiday.Us.independenceDay.day.date(2018), LocalDate.of(2018, 7, 4));
-		exerciseEnum(Holiday.Us.class);
+		Testing.exerciseEnum(Holiday.Us.class);
 	}
 
 	@Test

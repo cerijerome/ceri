@@ -3,7 +3,7 @@ package ceri.log.net;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import ceri.common.function.Excepts.Function;
+import ceri.common.function.Excepts;
 import ceri.common.function.Functions;
 import ceri.common.function.Lambdas;
 import ceri.common.net.HostPort;
@@ -29,7 +29,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 		private static final Functions.Predicate<Exception> DEFAULT_PREDICATE =
 			Lambdas.register(TcpSocket::isBroken, "TcpSocket::isBroken");
 		public final HostPort hostPort;
-		public final Function<IOException, HostPort, TcpSocket> factory;
+		public final Excepts.Function<IOException, HostPort, TcpSocket> factory;
 		public final TcpSocketOptions options;
 		public final SelfHealing.Config selfHealing;
 
@@ -39,7 +39,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 
 		public static class Builder {
 			final HostPort hostPort;
-			Function<IOException, HostPort, TcpSocket> factory = TcpSocket::connect;
+			Excepts.Function<IOException, HostPort, TcpSocket> factory = TcpSocket::connect;
 			TcpSocketOptions.Mutable options = TcpSocketOptions.of();
 			final SelfHealing.Config.Builder selfHealing =
 				SelfHealing.Config.builder().brokenPredicate(DEFAULT_PREDICATE);
@@ -48,7 +48,7 @@ public class SelfHealingTcpSocket extends SelfHealingConnector<TcpSocket>
 				this.hostPort = hostPort;
 			}
 
-			public Builder factory(Function<IOException, HostPort, TcpSocket> factory) {
+			public Builder factory(Excepts.Function<IOException, HostPort, TcpSocket> factory) {
 				this.factory = factory;
 				return this;
 			}
